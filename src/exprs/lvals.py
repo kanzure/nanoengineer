@@ -219,27 +219,30 @@ class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
             raise
             # note 061205: delegation code should probably catch this specifically and not delegate, unlike for attrerror.
             # Coded it in DelegatingMixin, UNTESTED! #####TEST
-        except AttributeError:
+        except AttributeError, e:
             # we don't want the caller to think this attr is entirely missing, and should be delegated!
             # So change this to another kind of exception.
             # [new feature 061205, works; see comment in Highlightable about a bug it helps catch]
-            msg = "AttributeError in %r._compute_method turned into a RuntimeError" % self
-            print_compact_traceback(msg + ": ")
+
+            # Revised 070131 to try to preserve the inner traceback w/o printing it more than once. Doesn't yet work. ###fix
+            # Until it does, print the inner traceback here.
+            if 0:
+                msg = "AttributeError in %r._compute_method turned into a RuntimeError: %s" % (self, exc_info_summary())
+                print msg, "(reraising)" #070131 no traceback, to reduce verbosity
+            else:
+                msg = "AttributeError in %r._compute_method turned into a RuntimeError" % self
+                print_compact_traceback(msg + ": ")            
             self.end_tracking_usage( match_checking_code, self.inval )
-            raise RuntimeError, msg ##e change to our own kind of exception, subclass of RuntimeError, NOT of AttributeError
+            ## raise RuntimeError, msg ##e change to our own kind of exception, subclass of RuntimeError, NOT of AttributeError
+            ## raise RuntimeError(e) # this fails to include the part of the traceback from e... that info is now lost. fix sometime.
+            raise RuntimeError, e # try this version -- seems equivalent, also doesn't work
         except:
-            print_compact_traceback("exception in %r._compute_method NO LONGER ignored: " % self)
+            ## print_compact_traceback("exception in %r._compute_method NO LONGER ignored: " % self)
+            print("(exception in %r._compute_method being reraised)" % self) # revised to not print traceback 070131, since reraised
                 ###e 061118 we still need to print more info from this; what to do to explain errors deep in evaling some expr?
                 # catch them and turn them into std custom exceptions, then wrap with posn/val info on each step of going up? (maybe)
-            val = None # [note: has no effect as long as we have that 'if 1' below -- 061205 comment]
-##            if 0: [for more of this commented-out code, see cvs rev 1.32]
-##                print_compact_stack("exiting right after lval exception, ... ",
-##                                    frame_repr = _std_frame_repr,
-##                                    linesep = '\n')...
-##                os._exit(1) # from python doc for built-in exceptions, SystemExit
-            if 1:
-                self.end_tracking_usage( match_checking_code, self.inval ) # legitness is a guess, but seems to be ok when it occurs
-                raise
+            self.end_tracking_usage( match_checking_code, self.inval ) # legitness is a guess, but seems to be ok when it occurs
+            raise
         self.end_tracking_usage( match_checking_code, self.inval )
             # that subscribes self.inval to lvals we used, and unsubs them before calling self.inval [###k verify that]
             #e optim (finalize) if set of used lvals is empty
@@ -258,6 +261,12 @@ class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return self.valid # even tho it's a public attr
     pass # end of class Lval
 
+def exc_info_summary(): #070131 #e refile
+    "return a 1-line summary of the current exception"
+    type, value, traceback = sys.exc_info()
+    del traceback # not needed now, but important to del it asap if we make this fancier
+    return "%s: %s" % (type, value) ###k
+    
 # ==
 
 class Lval_which_recomputes_every_time(Lval): #070108; SEVERELY DEPRECATED (see docstring)

@@ -799,9 +799,10 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
             required = True
         else:
             required = False
-            assert not isinstance(dflt_expr, _E_REQUIRED_ARG_.__class__)
-                # kluge sanity check -- not a Symbol #e remove when works, probably not even justified in general (eg _self??)
-                #e or replace with "not a Symbol whose name starts _E_" ??
+            if isinstance(dflt_expr, _E_REQUIRED_ARG_.__class__) and dflt_expr._e_name.startswith("_E_"):
+                print "possible bug: dflt_expr for arg %r in %r is a Symbol %r named _E_* (suspicious internal symbol??)" % \
+                      ( (attr, argpos), self, dflt_expr )
+                # kluge sanity check for _E_ATTR or other internal symbols [revised 070131]
         if attr is not None and argpos is not None:
             printnim("should assert that no expr gets same arg twice (positionally and as named option)")###e
         if attr is not None:

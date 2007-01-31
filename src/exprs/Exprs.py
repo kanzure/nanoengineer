@@ -14,7 +14,7 @@ $Id$
 # as of 061102 this module is probably reloadable:
 
 from basic import printnim, printfyi, stub # this may be a recursive import (with most things in basic not yet defined)
-from basic import print_compact_stack, print_compact_traceback, same_vals, EVAL_REFORM, intern_ipath
+from basic import print_compact_stack, print_compact_traceback, same_vals, EVAL_REFORM, intern_ipath, safe_repr
 
 # == utilities #e refile
 
@@ -191,7 +191,7 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
         self._e_serno = _next_e_serno
         _next_e_serno += 1
         if self._e_serno == _debug_e_serno: #k hope not too early for %r to work
-            print_compact_stack("just made expr %d, %r, at: " % (_debug_e_serno,self))
+            print_compact_stack("just made expr %d, %r, at: " % (_debug_e_serno, self))
         return
     def _e_dir_added(self): # 061205
         "For a symbolic expr only, return the names in dir(self) which were stored by external assignments."
@@ -415,15 +415,14 @@ class SymbolicExpr(Expr): # Symbol or OpExpr
                 # 070122 this failed with _app._i_instance(testexpr_19b) (and I added text to the assertion),
                 # but that just means _app needs a public instancemaker rather than just that internal one -- now it has .Instance
             # note: self._e_is_instance is defined in all pyinstance exprs, not only InstanceOrExpr.
-        if attr.startswith('_e_') or attr.startswith('_i_'):
+        if attr.startswith('_e_') or attr.startswith('_i_') or (attr.startswith('_') and '__' in attr):
             # We won't pretend to find Expr methods/attrs starting _e_ (also used in Instances),
-            # or Instance ones starting _i_ -- but do reveal which class we didn't find them in.
-            raise AttributeError, "no attr %r in %r" % (attr, self.__class__) #e safe_repr for class
-        if attr.startswith('_') and '__' in attr:
-            # 061203: exclude attr since it might be name-mangled. Needed to exclude _ExprsMeta__set_attr.
+            # or Instance ones starting _i_ -- but do reveal which class or object we didn't find them in.
+            ##e ideally we'd reveal something longer than class and shorter than object...
+            # 061203: also exclude _attr__xxx since it might be name-mangled. Needed to exclude _ExprsMeta__set_attr.
             # [Not confident this exclusion is always good -- maybe what we really need is a variant of hasattr
             # which turns off or detects and ignores the effect of this __getattr__. ###k]
-            raise AttributeError, "no attr %r in %r" % (attr, self.__class__) #e safe_repr for class
+            raise AttributeError, "no attr %r in %s" % (attr, safe_repr(self))
         if self._e_is_instance:
             # this case added 061113 for sake of SymbolicInstanceOrExpr Instances (e.g. _this(class)) which lack attr
             ## raise AttributeError, attr
@@ -1051,6 +1050,7 @@ class eval_Expr(OpExpr):
 ##from VQT import V ###e replace with a type constant -- probably there's one already in state_utils
 ##V_expr = tuple_Expr ### kluge; even once this is defined, in formulas you may have to use V_expr instead of V,
     # unless we redefine V to not try to use float() on exprs inside it -- right now it's def V(*v): return array(v, Float)
+    # (note: that Float is from Numeric and equals 'd')
     ##e (maybe we could make a new V def try to use old def, make __float__ asfail so that would fail, then use V_expr if any expr arg)
 
 def canon_expr(subexpr):###CALL ME FROM MORE PLACES -- a comment in Column.py says that env.understand_expr should call this...
@@ -1100,13 +1100,22 @@ def canon_expr(subexpr):###CALL ME FROM MORE PLACES -- a comment in Column.py sa
 
 # ==
 
+from state_utils import _UNSET_ #e refile in basic? we'd still need to import it here explicitly, from basic (not in import *)
+
 class Symbol(SymbolicExpr):
     "A kind of Expr that is just a symbol with a given name. Often used via the __Symbols__ module."
-    def __init__(self, name = None):
+    # Default values of instance variables.
+    # These are normally set (optionally) after __init__, by the code that creates the symbols,
+    # and never changed after that.
+    _e_sym_constant = False # caller can set this to True if it's normal for this symbol to eval to itself (not deserving of warning)
+    _e_eval_forward_to = _UNSET_ # caller can set this to something if it wants this symbol to evaluate to the same thing as that does.
+    def __init__(self, name = None, doc = None):
         self._e_init_e_serno()
         if name is None:
             name = "?%s" % compact_stack(skip_innermost_n = 3).split()[-1] # kluge - show line where it's defined
         self._e_name = name
+        self.__doc__ = doc # default is None, for a Symbol with no individual docstring.
+            # (self.__doc__ can optionally be set by caller after we return)
         return
     def __str__(self):
         return self._e_name
@@ -1151,18 +1160,26 @@ class Symbol(SymbolicExpr):
         ## -- in the object (env i guess) or lexenv(?? or is that replacement??) which is which?
         # maybe: replacement is for making things to instantiate (uses widget expr lexenv), eval is for using them (uses env & state)
         # env ("drawing env") will let us grab attrs/opts in object, or things from dynenv as passed to any lexcontaining expr, i think...
+        if self._e_eval_forward_to is not _UNSET_:
+            printfyi("forwarding %r to value of %r" % (self, self._e_eval_forward_to))###
+            return env._e_eval( self._e_eval_forward_to, ipath) #070131; note this forwarding is not overridable by env (experimental)
         val = env.lexval_of_symbol(self) # note: cares mainly or only about self._e_name; renamed _e_eval_symbol -> lexval_of_symbol
             # but I'm not sure it's really more lexenv than dynenv, at least as seen w/in env... [061028] ####@@@@
         # val is an intermediate value, needs further eval [this old comment might be wrong; see docstring -- 061105]
         if self == val:
+            # return self (perhaps wrapped), after perhaps printing a warning
             if self is not val:
                 print "warning: %r and %r are two different Symbols with same name, thus equal" % (self,val)
             if EVAL_REFORM:#070117
-                print "warning: Symbol(%r) evals to itself [perhaps wrapped by _e_eval_to_expr]" % self._e_name
+                if not self._e_sym_constant: #070131 added this cond (and attr)
+                    print "warning: Symbol(%r) evals to itself [perhaps wrapped by _e_eval_to_expr]" % self._e_name
                 return self._e_eval_to_expr(env, ipath, self)
             else:
-                print "warning: Symbol(%r) evals to itself" % self._e_name
+                if not self._e_sym_constant: #070131 added this cond (and attr)
+                    print "warning: Symbol(%r) evals to itself" % self._e_name
                 return self
+        # reached only when self != val
+        assert self != val # remove when works
         if self._e_name not in ('_self', '_my', '_app'): #k Q: does this also happen for a thisname, _this_<classname> ?
             print "warning: _e_eval of a symbol other than _self or _my is not well-reviewed or yet well-understood:",self._e_name
                 # e.g. what should be in env? what if it's an expr with free vars incl _self -- are they in proper context?

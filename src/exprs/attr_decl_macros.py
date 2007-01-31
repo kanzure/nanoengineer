@@ -16,7 +16,11 @@ from __Symbols__ import _E_ATTR, _E_REQUIRED_ARG_, _E_DFLT_FROM_TYPE_
 
 # ==
 
-def Instance(expr, _index_expr = _E_ATTR, _lvalue_flag = False, _noinstance = False):
+# stubs for StateArg etc are defined lower down
+
+# ==
+
+def Instance(expr, _index_expr = _E_ATTR, _lvalue_flag = False, _noinstance = False, doc = None):
     """This macro is assigned to a class attr to declare that its value should be a lazily-instantiated Instance of expr. 
     Assuming the arg is an expr (not yet checked?), turn into the expr _self._i_instance(hold_Expr(expr), _E_ATTR),
     which is free in the symbols _self and _E_ATTR. [#e _E_ATTR might be changed to _E_INDEX, or otherwise revised.]
@@ -29,6 +33,8 @@ def Instance(expr, _index_expr = _E_ATTR, _lvalue_flag = False, _noinstance = Fa
     [#doc - reword this]
        Other private options: _lvalue_flag, _noinstance (_noinstance is only supported when EVAL_REFORM is true)
     """
+    if doc:
+        printnim("Instance doc is not saved anywhere; should turn into a note to formulascanner to save it as metainfo, maybe")#e
     printnim("review: same index is used for a public Option and a private Instance on an attr; maybe ok if no overlap possible???")##e
     global _self # not needed, just fyi
     if EVAL_REFORM:
@@ -250,9 +256,21 @@ def ArgOrOptionExpr(*args):
 # ==
 
 # stubs:
+
 def ArgStub(*args): return Arg(Anything)
 ArgList = ArgStub
 InstanceList = InstanceDict = ArgStub
+
+StateArg = Arg ###STUB - state which can be initially set by an arg...
+    # there may be some confusion about whether we set it to an arg formula & later replace with a set formula,
+    # or set it to a snapshot in both cases. Review all uses -- maybe split into two variants. [070131]
+    #e if it's snapshot version (as I usually thought),
+    # StateArg etc can perhaps be implemented as State with a special dflt expr which is Arg (if scanner sees that deep);
+    # index ought to be correct!
+StateOption = Option ###STUB
+StateArgOrOption = ArgOrOption ###STUB
+# StateInstance = Instance? Probably not... see class State (not always an Instance).
+
 
 #e ProducerOf? ExprFor?
 

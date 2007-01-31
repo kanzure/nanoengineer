@@ -103,7 +103,7 @@ class Vertex(ModelObject): # renamed Node -> Vertex, to avoid confusion (tho it 
     
     pos0 = Arg(Position)
     pos = State(Position, pos0) ###BUG -- does this work -- is pos0 set in time for this? not sure it's working... 061205 1009p
-    #e we probably want to combine pos0/pos into one ArgState or StateArg so it's obvious how they relate,
+    #e we probably want to combine pos0/pos into one StateArg so it's obvious how they relate,
     # and only one gets saved in file, and only one self.attr name is used up and accessible
 
     # the rest of this class is for drawing it and interacting with it.

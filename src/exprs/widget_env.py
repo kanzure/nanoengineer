@@ -145,8 +145,9 @@ class widget_env(Delegator):
         return self.lexval_of_symbolname(name, sym)
     def lexval_of_symbolname(self, name, dflt):
         #e default for dflt? used to be the sym, even now could be an imported (so identical) sym
-        if name not in ('_self','_app') and not name.startswith('_this_'):
-            printfyi("lexval_of_symbolname other than _self, _app, or _this_xxx: %s" % (name,) )
+# removed printfyi warning, 070131:
+##        if name not in ('_self','_app') and not name.startswith('_this_'):
+##            printfyi("lexval_of_symbolname other than _self, _app, or _this_xxx: %s" % (name,) )
         # kluge:
         return getattr(self, name, dflt)
     ## newenv = dynenv.dynenv_with_lexenv(lexenv) #e might be renamed; might be turned into a helper function rather than a method
@@ -160,6 +161,9 @@ class widget_env(Delegator):
         if not hasattr(self, '_app'):
             return lexenv
         return lexenv.with_literal_lexmods(_app = self._app) # really this is a "dynamic mod" as hardcoded in the name _app (w/in current kluge)
+    def _e_eval(self, expr, ipath):#070131
+        "evaluate an expr (or constant) in this env, with given ipath"
+        return canon_expr(expr)._e_eval( self, ipath)
     pass
 
 def thisname_of_class(clas):

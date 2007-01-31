@@ -44,14 +44,11 @@ reload_once(Overlay)
 from Overlay import Overlay
 
 
-Automatic = Stub
-
 ## Set - not yet needed
 # [see controls.py [moved to Set.py] for a prototype, 061130, which takes a stateref rather than an lval as arg1 -- might be wrong --
 #  update 061204 -- yes, was wrong, revising, see Set.py ]
 
-State # defined in Exprs.py but nim -- that's where i am 061117 445p, plus here where i use it
-    ##e should try using State here once it's tested
+##e should try using State here once it's tested
 
 # ==
 

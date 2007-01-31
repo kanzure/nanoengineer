@@ -151,7 +151,7 @@ from debug_exprs import DebugPrintAttrs
 
 import dna_ribbon_view
 reload_once(dna_ribbon_view)
-##from dna_ribbon_view import something
+from dna_ribbon_view import DNA_Cylinder
 
 # ==
 
@@ -1186,11 +1186,14 @@ testexpr_29aox3  = If_OpExpr(False, TextRect("True"), TextRect("False")) # -- wo
     # Q: should I switch over from If_expr to If_OpExpr (in implems, the name would be If_expr)?? #####e DECIDE -- note it's not done
     # in terms of a real implem, re default else clause, or refraining from even evalling (not just from instantiating) unused clauses
 
+# test dna_ribbon_view.py
+testexpr_30 =  DNA_Cylinder()
+
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
 
 enable_testbed = True
 
-testexpr = testexpr_19g ## testexpr_29aox3 ## testexpr_18 ## testexpr_9fx4 ## testexpr_19g ## testexpr_19g _26g _28
+testexpr = testexpr_30 ## testexpr_29aox3 ## testexpr_18 ## testexpr_9fx4 ## testexpr_19g ## testexpr_19g _26g _28
 
     # as of 070121 at least these work ok in EVAL_REFORM with now-semipermanent kluge070119:
     # _2, _3a, _4a, _5, _5a, _10a, _10c, _9c, _9d, _9cx,

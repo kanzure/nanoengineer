@@ -120,9 +120,6 @@ class ModelNode(InstanceOrExpr): #e rename since not a Node anymore (unless I ac
         self.find_or_make_kid('_value', glpane).draw() ###IMPLEM find_or_make_kid -- think through the issues
     pass
 
-StateArg = Arg ###STUB
-StateArgOrOption = ArgOrOption ###STUB
-
 class Sphere_ExampleModelNode(ModelNode):
     "A sphere."
     pos = StateArg(Position, ORIGIN) ###IMPLEM StateArg , StateArgOrOption

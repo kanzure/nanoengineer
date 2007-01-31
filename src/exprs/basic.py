@@ -49,9 +49,13 @@ import platform # so all our code can refer to platform.atom_debug #e someday th
 
 from constants import noop # def noop(*args,**kws): pass
 
-# generally useful constants (moved here from draw_utils.py, 070130)
+from debug import reload_once_per_event, print_compact_traceback, print_compact_stack, safe_repr
+
+# == other generally useful constants
 
 # (but color constants are imported lower down)
+
+# geometric (moved here from draw_utils.py, 070130)
 
 ORIGIN = V(0,0,0)
 DX = V(1,0,0)
@@ -61,6 +65,11 @@ DZ = V(0,0,1)
 ORIGIN2 = V(0.0, 0.0)
 D2X = V(1.0, 0.0) ##e rename to DX2?
 D2Y = V(0.0, 1.0)
+
+# type aliases (tentative; see canon_type [070131])
+Int = int # warning: not the same as Numeric.Int, which equals 'l'
+Float = float # warning: not the same as Numeric.Float, which equals 'd'
+String = str # warning: not the same as parse_utils.String
 
 # == OpenGL imports -- for now, individual modules import things from submodules of OpenGL as needed; this might be revised
 
@@ -79,8 +88,6 @@ if old_EVAL_REFORM != EVAL_REFORM and old_EVAL_REFORM is not None:
           (old_EVAL_REFORM, EVAL_REFORM)
 else:
     print "EVAL_REFORM is %r" % EVAL_REFORM
-
-from debug import reload_once_per_event, print_compact_traceback, print_compact_stack
 
 ENABLE_RELOAD = True and platform.atom_debug
 
@@ -136,6 +143,27 @@ from __Symbols__ import _self, _my # (__Symbols__ module doesn't support reload)
     # _this is imported below from somewhere else -- since it's not a Symbol! Maybe __Symbols__ should warn if we ask for it. #e
 
 from __Symbols__ import Anything #070115
+from __Symbols__ import Automatic, Something #070131
+
+# Symbol docstrings -- for now, just tack them on (not yet used AFAIK):
+
+Anything.__doc__ = """Anything is a legitimate type to coerce to which means "don't change the value at all". """
+Anything._e_sym_constant = True
+
+Something.__doc__ = """Something is a stub for when we don't yet know a type or value or formula,
+but plan to replace it with something specific (by editing the source code later). """
+Something._e_eval_forward_to = Anything
+
+Automatic.__doc__ = """Automatic [###NIM] can be coerced to most types to produce a default value.
+By convention, when constructing certain classes of exprs, it can be passed as an arg or option value
+to specify that a reasonable value should be chosen which might depend on the values provided for other
+args or options. """
+    ###e implem of that:
+    #  probably the type should say "or Automatic" if it wants to let a later stage use other args to interpret it,
+    #  or maybe the typedecl could give the specific rule for replacing Automatic, using a syntax not specific to Automatic.
+Automatic._e_sym_constant = True
+
+
 from __Symbols__ import _app # not included in import * [070108 in test.py, moved here 070122]
 
 

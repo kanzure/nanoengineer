@@ -3,15 +3,10 @@ $Id$
 old code for ToggleShow [nim], taken from testdraw2_cannib.py
 
 # types
-##Widget = Stub
-##StateRef = StubType
 ##ImageWidget = Widget # not sure if we want this to be a definite subtype
 # could it be renamed to Image? possible name conflict (probably ok): import Image # from the PIL library
 # I'll rename it.
-from __Symbols__ import Widget, StateRef, Image
 
-# constants
-from __Symbols__ import Automatic
 
 # == ToggleAction
 
