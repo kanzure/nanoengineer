@@ -24,7 +24,7 @@ void cppCreateSurface()
 {
 	s->CreateSurface();
 }
-void cppCollisionDetection()
+void cppCollisionDetection(double delta)  
 {
 	s0 = new Surface();
 	s1 = new Surface();
@@ -36,8 +36,8 @@ void cppCollisionDetection()
 	s1->Add(0,0,0,1,0);
 	s1->CreateSurface();
 
-	Triple t0(-0.5,0,0);
-	Triple t1(0.5,0,0);
+	Triple t0(-delta,0,0);
+	Triple t1(delta,0,0);
 	RotationMatrix m0,m1;
 	h0->Initialize(s0);
 	h0->Behavior(&m0,&t0);
@@ -48,7 +48,7 @@ void cppCollisionDetection()
 	cd.CheckCollision(h0,h1);
 	cd.Select(1);
 
-	s->CreateSurface(s0,s1); 
+	s->CreateSurface(s0,s1,delta); 
 
 	delete h0;
 	delete h1;

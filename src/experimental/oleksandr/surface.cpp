@@ -528,19 +528,19 @@ void Surface::CleanQuads()
 //
 // create surface
 //
-void Surface::CreateSurface(Surface * s0, Surface * s1)
+void Surface::CreateSurface(Surface * s0, Surface * s1, double delta) 
 {
 	int i;
 	for (i = 0; i < s0->Np(); i++)
 	{
-		mPoints.Add(Triple(s0->Px(i)-0.5,s0->Py(i),s0->Pz(i)));
+		mPoints.Add(Triple(s0->Px(i)-delta,s0->Py(i),s0->Pz(i)));
 		mNormals.Add(Triple(s0->Nx(i),s0->Ny(i),s0->Nz(i)));
 		mColors.Add(s0->C(i));
 	}
 	
 	for (i = 0; i < s1->Np(); i++)
 	{
-		mPoints.Add(Triple(s1->Px(i)+0.5,s1->Py(i),s1->Pz(i)));
+		mPoints.Add(Triple(s1->Px(i)+delta,s1->Py(i),s1->Pz(i))); 
 		mNormals.Add(Triple(s1->Nx(i),s1->Ny(i),s1->Nz(i)));
 		mColors.Add(s1->C(i));
 	}

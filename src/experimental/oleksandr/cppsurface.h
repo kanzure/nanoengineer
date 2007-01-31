@@ -14,7 +14,7 @@ extern "C" {
 
 void cppAdd(double x, double y, double z, double r, int p);
 void cppCreateSurface();
-void cppCollisionDetection();  
+void cppCollisionDetection(double delta);    
 void cppAllocate();
 void cppFree();
 int cppNp();

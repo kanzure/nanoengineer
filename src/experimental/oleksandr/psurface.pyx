@@ -1,7 +1,7 @@
 cdef extern from "csurface.h":
     void cAdd(double x, double y, double z, double r, int p)
     void cCreateSurface()
-    void cCollisionDetection()
+    void cCollisionDetection(double delta)
     void cAllocate()
     void cFree()
     int cNp()
@@ -40,13 +40,13 @@ def CreateSurface(spheres,level,method):
             entities.append((cI(4*i),cI(4*i+1),cI(4*i+2),cI(4*i+3)))
     cFree()
     return ((entities, points, colors), normals)
-def CollisionDetection(spheres,level,method):  
+def CollisionDetection(spheres,level,method,delta):    
     cAllocate()
     for s in spheres:
         cAdd(s[0],s[1],s[2],s[3],s[4])
     cLevel(level)
     cMethod(method)
-    cCollisionDetection()
+    cCollisionDetection(delta)
     points = []
     normals = []
     colors = []

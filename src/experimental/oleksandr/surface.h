@@ -35,7 +35,7 @@ class Surface
 	//
 	// create surface
 	//
-	void CreateSurface(Surface * s0, Surface * s1);
+	void CreateSurface(Surface * s0, Surface * s1, double delta);  
 
 	//------------------------------------------------------------------------
 	// Level()

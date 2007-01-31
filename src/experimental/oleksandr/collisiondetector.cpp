@@ -159,24 +159,51 @@ int CollisionDetector::Collision(
 //
 void CollisionDetector::Select(int c) const
 {
-	int ni = 3;
-	if (mH0->S()->Type()) ni = 4;
-	int nj = 3;
-	if (mH1->S()->Type()) nj = 4;
-	for (int i = 0; i < mCollision; i++)
+	if (mH0->S() && mH1->S())
 	{
-		int ie = mEntities[2 * i];
-		int ii;
-		for (ii = 0; ii < ni; ii++)
+		int ni = 3;
+		if (mH0->S()->Type()) ni = 4;
+		int nj = 3;
+		if (mH1->S()->Type()) nj = 4;
+		for (int i = 0; i < mCollision; i++)
 		{
-			int i0 = mH0->S()->I(3 * ie + ii);
-			mH0->S()->C(i0, c); 
+			int ie = mEntities[2 * i];
+			int ii;
+			for (ii = 0; ii < ni; ii++)
+			{
+				int i0 = mH0->S()->I(3 * ie + ii);
+				mH0->S()->C(i0, c); 
+			}
+			int je = mEntities[2 * i + 1];
+			for (ii = 0; ii < nj; ii++)
+			{
+				int j0 = mH1->S()->I(3 * je + ii);
+				mH1->S()->C(j0, c);
+			}
 		}
-		int je = mEntities[2 * i + 1];
-		for (ii = 0; ii < nj; ii++)
+	}
+	else
+	{
+		//  if no surfaces 
+		int ni = 3;
+		if (mH0->Type()) ni = 4;
+		int nj = 3;
+		if (mH1->Type()) nj = 4;
+		for (int i = 0; i < mCollision; i++)
 		{
-			int j0 = mH1->S()->I(3 * je + ii);
-			mH1->S()->C(j0, c);
+			int ie = mEntities[2 * i];
+			int ii;
+			for (ii = 0; ii < ni; ii++)
+			{
+				int i0 = mH0->I(3 * ie + ii);
+				mH0->C(i0, c); 
+			}
+			int je = mEntities[2 * i + 1];
+			for (ii = 0; ii < nj; ii++)
+			{
+				int j0 = mH1->I(3 * je + ii);
+				mH1->C(j0, c);
+			}
 		}
 	}
 }

@@ -18,9 +18,9 @@ void cCreateSurface()
 {
 	cppCreateSurface();
 }
-void cCollisionDetection()
+void cCollisionDetection(double delta)  
 {
-	cppCollisionDetection();  
+	cppCollisionDetection(delta);  
 }
 void cAllocate()
 {

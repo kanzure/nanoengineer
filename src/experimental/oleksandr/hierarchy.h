@@ -59,8 +59,14 @@ class Hierarchy
 	//
 	// create box tree 
 	//
-	void Initialize(
-		Surface * s);
+	void Initialize(Surface * s);
+
+	//------------------------------------------------------------------------
+	// Initialize()
+	//
+	// create box tree 
+	//
+	void Initialize(int type, Container<int> I, Container<Triple> P, Container<int> C);
 
 	//------------------------------------------------------------------------
 	// Matrix()
@@ -107,16 +113,32 @@ class Hierarchy
 	//------------------------------------------------------------------------
 	// S()
 	//
-	// get surface pointer
+	// pointer to surface 
 	//
-	inline Surface * S() const; 
-
-  private:
+	inline Surface * S() const;
 
 	//------------------------------------------------------------------------
-	// mSurface
+	// Type()
+	//
+	// get type
+	//
+	inline int Type();
 
-	Surface * mS;						// pointer to surface
+	//------------------------------------------------------------------------
+	// I()
+	//
+	// get trias index
+	//
+	inline int I(int i);
+
+	//------------------------------------------------------------------------
+	// C()
+	//
+	// set color property
+	//
+	inline void C(int i, int c);
+
+  private:
 
 	//------------------------------------------------------------------------
 	// mBoxes
@@ -137,6 +159,41 @@ class Hierarchy
 	// mTv
 
 	Triple * mTv;						// translation vector
+
+	//------------------------------------------------------------------------
+	// mS
+
+	Surface * mS;						// pointer to surface
+
+	//------------------------------------------------------------------------
+	// mType
+
+	int mType;							// type of surface
+
+	//------------------------------------------------------------------------
+	// mNP
+
+	int mNP;							// size of points array
+
+	//------------------------------------------------------------------------
+	// mNE
+
+	int mNE;							// size of entities array
+
+	//------------------------------------------------------------------------
+	// mPoints
+
+    Triple * mPoints;					// array for points on surface                                           
+
+	//------------------------------------------------------------------------
+	// mColors
+
+    int * mColors;						// array for colors on surface                                          
+             
+	//------------------------------------------------------------------------
+	// mEntities
+
+    int * mEntities;					// array for indices                                          
 };
 
 //----------------------------------------------------------------------------
@@ -208,12 +265,36 @@ inline Triple * Hierarchy::Vector() const
 	return (mTv);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------
 // S()
 
 inline Surface * Hierarchy::S() const
 {
 	return (mS);
+}
+
+//------------------------------------------------------------------------
+// Type()
+//
+inline int Hierarchy::Type()
+{
+	return mType;
+}
+
+//------------------------------------------------------------------------
+// I()
+//
+inline int Hierarchy::I(int i)
+{
+	return mEntities[i];
+}
+
+//------------------------------------------------------------------------
+// C()
+//
+inline void Hierarchy::C(int i, int c)
+{
+	mColors[i] = c; 
 }
 
 #endif  								// HIERARCHY_INCLUDED
