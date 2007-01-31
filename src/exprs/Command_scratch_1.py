@@ -99,8 +99,8 @@ class DragANode(DragCommand):
         # as you usage-track so you'll know what caveats apply to some value you compute. (Or actually use them, in case they change.
         # I guess only use them for a parallel computation of your own caveats.)
 
-    ## print_node_mod_demo = False # 061212
-    print_node_mod_demo = True # 070130
+    print_node_mod_demo = False # 061212
+    # print_node_mod_demo = True # 070130 - works, disabling again for now 
     
     if print_node_mod_demo:
         print "our node symexpr has:",node._e_dir_added()
