@@ -69,6 +69,7 @@ Macro = DelegatingInstanceOrExpr
 # stubs:
 Radians = Width
 Rotations = Degrees = Width
+Angstroms = Width
 PathOnSurface = Geom3D = ModelObject3D = IorE
 
 
@@ -87,7 +88,9 @@ class Cylinder_HelicalPath(Geom3D): #e super?
     as a series of points (at given resolution -- nim except as part of path spec),
     relative to the cylinder's "left endpoint" [####WRONG DESIGN].
     """
-    # args (#e need docstrings, defaults, ArgOrOption)
+    # args
+    #e need docstrings, defaults, some should be Option or ArgOrOption
+    #e terms need correction, even tho not meant to be dna-specific here, necessarily (tho they could be): turn, rise, n, theta_offset
     cyl = Arg(Cylinder)
     n = Arg(int, 100) # number of segments in path (one less than number of points)
     turn = Arg( Rotations, 1.0 / 10.5) # number of rotations of vector around axis, in every path segment
@@ -146,14 +149,15 @@ class Ribbon_oldcode_for_edges(Corkscrew): # generates a sequence of rects (quad
 
 class Cylinder_Ribbon(Widget): #070129 #e rename?? #e super?
     """Given a cylinder and a path on its surface, draw a ribbon made from that path using an OpenGL quad strip
-    (whose edges are path, and path + cyl.axis * axiswidth). Current implem uses one quad per path segment.
-       Note: the way this is specific to Cylinder (rather than for path on any surface) is in how axiswidth is used,
+    (whose edges are path +- cyl.axis * axialwidth/2). Current implem uses one quad per path segment.
+       Note: the way this is specific to Cylinder (rather than for path on any surface) is in how axialwidth is used,
     and quad alignment and normals use cyl.axis.
     """
+    #args
     cyl = Arg(Cylinder)
     path = Arg(PathOnSurface) ###e on that cyl (or a coaxial one)
-    axiswidth = Arg(Width, 2.0) # distance across ribbon along cylinder axis (actual width is presumably shorter since it's diagonal)
-    color = Arg(Color, cyl.color) # default color is not visible if cyl is also drawn -- can there be a cyl.color_for_marks to use here?
+    color = ArgOrOption(Color, cyl.dflt_color_for_sketch_faces)
+    axialwidth = ArgOrOption(Width, 2.0) #e rename; distance across ribbon along cylinder axis (actual width is presumably shorter since it's diagonal)
     def draw(self):
         cyl = self.cyl
         path = self.path
@@ -161,15 +165,17 @@ class Cylinder_Ribbon(Widget): #070129 #e rename?? #e super?
         normals = map( cyl.normal_to_my_point, points) ####IMPLEM normal_to_my_point for any Surface, e.g. Cylinder (inflen, ignore caps)
             ####e points on it really need to keep their intrinsic coords around, to make this kind of thing efficient & well defined,
             # esp for a cyl with caps
-        offset = axiswidth * norm(cyl.axis) # use norm, since not sure axis is normalized; assumes Width units are 1.0 in model coords
-
+        offset2 = axialwidth * norm(cyl.axis) * 0.5 # use norm, since not sure axis is normalized; assumes Width units are 1.0 in model coords
+        offset1 = - offset2
+        offsets = (offset1, offset2)
         color = self.color
-        interior_color = ave_colors(0.8, color, white) ### rempve sometime?
+        interior_color = ave_colors(0.8, color, white) ### remove sometime?
 
-        self.draw_quad_strip( interior_color, offset, points, normals)
+        self.draw_quad_strip( interior_color, offsets, points, normals)
         # draw edges? see Ribbon_oldcode_for_edges
         return
-    def draw_quad_strip(self, interior_color, offset, points, normals):
+    def draw_quad_strip(self, interior_color, offsets, points, normals):
+        offset1, offset2 = offsets
         ## glColor3fv(interior_color)
         # actually I want a different color on the back, can I get that? ###k
         glDisable(GL_CULL_FACE)
@@ -185,8 +191,8 @@ class Cylinder_Ribbon(Widget): #070129 #e rename?? #e super?
 ##        glColor3fv(interior_color)
         for p, n in zip( points, normals):
             glNormal3fv( n)
-            glVertex3fv( p + offset)
-            glVertex3fv( p)
+            glVertex3fv( p + offset2)
+            glVertex3fv( p + offset1)
         glEnd()
         glEnable(GL_CULL_FACE)
         glLightModelfv(GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE)
@@ -198,8 +204,6 @@ class Cylinder_Ribbon(Widget): #070129 #e rename?? #e super?
 ##class Ribbon2(Ribbon): # draws, using the same params needed for a corkscrew, a pair of ribbons that look like a DNA double helix
 ##    # radius, axis, turn, n
 ##    pass
-
-Something = Anything # when we don't yet know but plan to replace it with something specific
 
 class Rotate(IorE):#e refile with Translate
     # needs to transform other things too, like lbox -- same issue as Translate
@@ -216,7 +220,6 @@ class Rotate(IorE):#e refile with Translate
 call_lambda_Expr = Stub
 lambda_Expr = Stub
 ShareInstances = Stub
-StateArg = Arg # stub
 
 class Ribbon2_try1(Macro):
     """Ribbon2(thing1, thing2) draws a thing1 instance in red and a thing2 instance in blue.
@@ -317,33 +320,45 @@ class Ribbon2_try3(Macro): #070129
 # In this, it is sort of like an atom or set of co-selected atoms... some relation to chunk or jig too.
 # I'd get best results by letting it be its own thing... but fastest, by borrowing one of those...
 
+# ==
 
-class DNA_Cylinder_try1(Macro):##k super
-    cyl = Arg(Cylinder)
-    path = StateArg(Cylinder_HelicalPath)
-        ### design Q: how do we say that this is state, but constrained to lie on (and move with) given cylinder? (relative to it)
-        # Is that so basic that State/StateArg, or the type in it, needs options for that kind of info?
+###e need to look up the proper parameter names -- meanwhile use fake ones that don't overlap the real ones --
+# easy, just use the geometric ones in Cylinder_HelicalPath. Later we'll have our own terminology & defaults for those here.
+## pitch # rise per turn
+## rise
 
-    ###e need to look up the proper parameter names -- meanwhile use fake ones that don't overlap the real ones --
-    # easy, just use the geometric ones in Cylinder_HelicalPath. Later we'll have our own terminology & defaults for those here.
-    ## pitch # rise per turn
-    ## rise
-
-    ###e need to provide our own state-aliases into the params in _self.path -- maybe with changes of units/docs/names/coords
-    somearg = Arg(Something)
-    path.someattr = somearg # can we say this? if so, does it take effect continuously or only upon init?
-        # is that a meaningful Q given that init provides a time-varying formula?
-        #k where are my notes on this -- with DragCommand
+class DNA_Cylinder(Macro):##k super
+    color = Option(Color, gray) #e transparent/hidden
+    color1 = Option(Color, red)
+    color2 = Option(Color, blue)
+    cyl = StateArg( Cylinder(color = color, radius = 1.0), ###IMPLEM this way of giving dflts for attrs added by type coercion
+                        #k radius and its units
+                    Automatic, #e can this be given as a default to type coercion, to make it "just create one"?
+                    doc = "cylindrical surface of double helix") ###e add dflt args in case we typecoerce it from a line
+        ###e or maybe even bring in a line and make the cyl ourselves with dflt radius? somewhere we should say dflt radius & length.
+        # ah, the right place is probably in the type expr: Cylinder(radius = xxx, length = xxx)
+        #e do we want to let a directly passed cyl determine color, as the above code implies it would?
+        # if not, how do we express that: StateArg(...)(color = color)??
+        # what if color was not passed to self, *then* do we want it fom cyl? same Q for radius.
+    ###e correct the figures and terminology: rise, turn, pitch
+    rise = StateOption(Angstroms, 3.4, doc = "distance along helix axis from one basepair to the next") #k can you say units that way?
+    bpt = StateOption(Float, 10.5, doc = "bases per turn")
+    pitch = rise * bpt ##k #e and make it settable?
+    path1 = Cylinder_HelicalPath( rise = rise, turn = 1/bpt, n = cyl.length / rise ) #e need theta_offset?
+    path2 = Rotate(path1, 150.0, cyl.axis)
+        #e note, this seems to be "rotate around a line" (not just a vector), which implies translating so line goes thru origin;
+        # or it might be able to be a vector, if we store a relative path... get this straight! ###e
+    # appearance (stub -- add handles/actions, remove cyl)
+    delegate = Overlay( cyl, Cylinder_Ribbon(cyl, path1, color1), Cylinder_Ribbon(cyl, path2, color2) )
     pass
 
-class DNA_Cylinder_try2(Macro):##k super
-    cyl = StateArg(Cylinder)
-    path = StateArg(Cylinder_HelicalPath) ##e or just State? or StateOption?
+class obs:
+    path = StateArg(Cylinder_HelicalPath)
     path.someattr = Option(Something, 'dflt') # set path.someattr to Option(...) -- ExprsMeta scanner would need to see this --
         # but what attrname would it use in the Option?? maybe the _try1 version is better since it says the name,
         # or maybe you can give it in Option as string arg1.
     
-class xxx:
+class todo:
     # might need other state, like some colors
 
     # and links to things made from this guide shape -- or a superclass or whatever that says we are a guide shape
