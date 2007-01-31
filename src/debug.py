@@ -422,6 +422,26 @@ def exec_allowed():
         return False
     return True
 
+# safe_repr [moved from undo_archive.py to debug.py by bruce 070131; will be called from more places]
+    # fyi: this import doesn't work: from asyncore import safe_repr
+
+def safe_repr(obj, maxlen = 1000):
+    try:
+        maxlen = int(maxlen)
+        assert maxlen >= 5
+    except:
+        #e should print once-per-session error message & compact_stack (using helper function just for that purpose)
+        maxlen = 5
+    try:
+        rr = "%r" % (obj,)
+    except:
+        rr = "<repr failed for id(obj) = %#x, improve safe_repr to print its class at least>" % id(obj)
+    if len(rr) > maxlen:
+        return rr[(maxlen - 4):] + "...>" #e this should also be in a try/except; even len should be
+    else:
+        return rr
+    pass
+
 # traceback
 
 def print_compact_traceback(msg = "exception ignored: "):

@@ -15,7 +15,7 @@ __author__ = 'bruce'
 
 import time, os
 import platform
-from debug import print_compact_traceback, print_compact_stack
+from debug import print_compact_traceback, print_compact_stack, safe_repr
 from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True
 import env
 import state_utils
@@ -43,24 +43,7 @@ def _undo_debug_message( msg):
     ## env.history.message_no_html( _graymsg( msg )) -- WRONG, would mess up _graymsg
     env.history.message( _graymsg( quote_html( msg )))
 
-# doesn't work: from asyncore import safe_repr
-
-def safe_repr(obj, maxlen = 1000):
-    try:
-        maxlen = int(maxlen)
-        assert maxlen >= 5
-    except:
-        #e should print once-per-session error message & compact_stack (using helper function just for that purpose)
-        maxlen = 5
-    try:
-        rr = "%r" % (obj,)
-    except:
-        rr = "<repr failed for id(obj) = %#x, improve safe_repr to print its class at least>" % id(obj)
-    if len(rr) > maxlen:
-        return rr[(maxlen - 4):] + "...>" # this should also be in a try/except, even len should be
-    else:
-        return rr
-    pass
+# note: safe_repr was moved from undo_archive.py to debug.py by bruce 070131
 
 # ==
 

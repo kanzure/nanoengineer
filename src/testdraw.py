@@ -88,7 +88,7 @@ shrinks when it gets nonparallel, but that's a bug, not a form of billboarding.
 __author__ = "bruce"
 
 from testmode import *
-from debug import print_compact_stack, print_compact_traceback
+from debug import print_compact_stack, print_compact_traceback, safe_repr
 import env
 from idlelib.Delegator import Delegator
 
@@ -969,7 +969,7 @@ class WidgetExpr(InvalMixin):
         try:
             self.init()
         except:
-            print "info about exception in %r.init method: args = %r, kws = %r" % ( self, args, kws) #e use safe_repr for self
+            print "info about exception in %s.init method: args = %r, kws = %r" % (safe_repr(self), args, kws)
             raise
         return
     def init(self):

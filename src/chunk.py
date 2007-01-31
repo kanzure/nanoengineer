@@ -49,7 +49,8 @@ __author__ = "Josh"
 from chem import *
 from chem import _changed_parent_Atoms # needed whenever we change an atom's .molecule
 
-from debug import print_compact_stack, print_compact_traceback
+from debug import print_compact_stack, print_compact_traceback, safe_repr # safe_repr uses revised by bruce 070131
+
 from inval import InvalMixin
 from changes import SelfUsageTrackingMixin, SubUsageTrackingMixin
     #bruce 050804, so glpanes can know when they need to redraw a chunk's display list,
@@ -269,7 +270,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         if not store_if_invalid: # (when that's true, it's important not to recompute self.hotspot, even in an assertion)
             # now recompute self.hotspot from the new self._hotspot (to check whether it's valid)
             self.hotspot # this has side effects we depend on!
-            assert self.hotspot is hotspot or silently_fix_if_invalid, "getattr bug, or specified hotspot %r is invalid" % (hotspot,) ###e safe_repr
+            assert self.hotspot is hotspot or silently_fix_if_invalid, "getattr bug, or specified hotspot %s is invalid" % safe_repr(hotspot)
         assert not 'hotspot' in self.__dict__.keys(), "bug in getattr for hotspot or in set_hotspot"
         return
     
@@ -2583,7 +2584,6 @@ def debug_make_BorrowerChunk_no_addmol(target):
 
 def debug_make_BorrowerChunk_raw(do_addmol = True):
     from HistoryWidget import orangemsg, redmsg, quote_html
-    from undo_archive import safe_repr #e needs a better home!
     win = env.mainwindow()
     atomset = win.assy.selatoms
     if not atomset:
