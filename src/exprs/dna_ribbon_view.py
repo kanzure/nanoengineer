@@ -104,7 +104,7 @@ Macro = DelegatingInstanceOrExpr
 # stubs:
 Radians = Width
 Rotations = Degrees = Width
-Angstroms = Width
+Angstroms = Nanometers = Width
 
 ModelObject3D = Geom3D = Widget # how would ModelObject3D & Geom3D differ?
 PathOnSurface = Geom3D
@@ -135,7 +135,7 @@ class Cylinder(Geom3D): #e super? ####IMPLEM - and answer the design Qs herein a
 
     # args
     axis = Arg( LineSegment, (ORIGIN, ORIGIN + DX) ) #e let a pair of points coerce into a LineSegment, and let seq assign work from it
-    radius = ArgOrOption( Width, 1.0)
+    radius = ArgOrOption( Nanometers, 1.0)
     color = ArgOrOption( Color, gray)
     capped = Option( bool, True) #e best default??
         #e should capped affect whether interior is made visible? (yes but as dflt for separate option)
@@ -191,12 +191,12 @@ class Cylinder_HelicalPath(Geom3D): #e super?
     #e terms need correction, even tho not meant to be dna-specific here, necessarily (tho they could be): turn, rise, n, theta_offset
     cyl = Arg(Cylinder)
     n = Option(int, 100) # number of segments in path (one less than number of points)
-    turn = Option( Rotations, 1.0 / 10.5) # number of rotations of vector around axis, in every path segment
-    rise = Option( Width, 0.34) ###k default
+    turn = Option( Rotations, 1.0 / 10.5) # number of rotations of vector around axis, in every path segment ###e MISNAMED??
+    rise = Option( Nanometers, 0.34) ###k default
     theta_offset = Option( Radians, 0.0) # rotates entire path around cyl.axis
     color = Option(Color, black) # only needed for drawing it -- not part of Geom3D -- add a super to indicate another interface??##e
         ##e dflt should be cyl.attr for some attr related to lines on this cyl -- same with other line-drawing attrs for it
-    ## start_offset = Arg( Width)
+    ## start_offset = Arg( Nanometers)
     radius_ratio = Option(float, 1.1) ###e
     def _C_points(self):
         cyl = self.cyl
