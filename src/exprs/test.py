@@ -1188,12 +1188,13 @@ testexpr_29aox3  = If_OpExpr(False, TextRect("True"), TextRect("False")) # -- wo
 
 # test dna_ribbon_view.py
 testexpr_30 =  DNA_Cylinder()
+testexpr_30a =  DisplistChunk(DNA_Cylinder())
 
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
 
 enable_testbed = True
 
-testexpr = testexpr_30 ## testexpr_29aox3 ## testexpr_18 ## testexpr_9fx4 ## testexpr_19g ## testexpr_19g _26g _28
+testexpr = testexpr_30a ## testexpr_29aox3 ## testexpr_18 ## testexpr_9fx4 ## testexpr_19g ## testexpr_19g _26g _28
 
     # as of 070121 at least these work ok in EVAL_REFORM with now-semipermanent kluge070119:
     # _2, _3a, _4a, _5, _5a, _10a, _10c, _9c, _9d, _9cx,
