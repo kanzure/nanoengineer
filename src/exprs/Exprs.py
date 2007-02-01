@@ -396,18 +396,23 @@ def safer_attrpath(obj, *attrs): #e refile, doc, rename
 
 class SymbolicExpr(Expr): # Symbol or OpExpr
     _e_is_symbolic = True #061113
+    _e_sym_constant = False #070131, can be overridden in subclasses or instances; see class Symbol for doc
     def __call__(self, *args, **kws):
-        assert not self._e_is_instance # added 061113 for [now obs] SymbolicInstanceOrExpr Instances (should never happen I think)
+        assert not self._e_is_instance # (should never happen I think)
         return call_Expr(self, *args, **kws)
     def __getattr__(self, attr):
         if attr.startswith('__'):
             # be very fast at not finding special python attrs like __repr__
             raise AttributeError, attr
-        if 1 and attr.startswith('_i_'): ###e slow, remove when devel is done
-            ### WAIT A MINUTE, this was masked by the prior condition [now below] -- was it ever active?
-            # guess: yes, before was-prior cond extended.
-            # so, move it up, see what happens. [061113]
-            printnim("slow, remove when devel is done: _i_ noninstance check")
+        # the code after this happens when constructing exprs, not when using them,
+        # so a bit of slowness should be ok.
+        assert not self._e_is_instance # (should never happen I think; if it can be legal, change to raise attrerror)
+        if self._e_sym_constant:
+            # [this special case might be evidence that _e_sym_constant should imply something like _e_is_instance --
+            #  both of them mean "eval to self", "instantiate to self". Maybe they should even be merged...
+            #  idea not reviewed. Should check whether other special cases for _e_is_instance apply to _e_sym_constant. ###e 070131]
+            raise AttributeError, "no attr %r in %s" % (attr, safe_repr(self))
+        if attr.startswith('_i_'):
             assert self._e_is_instance, \
                    "safety rule: automatic formation of getattr_Expr not allowed for attrs starting _i_, as in %r.%s" % \
                    (self, attr)
@@ -415,7 +420,8 @@ class SymbolicExpr(Expr): # Symbol or OpExpr
                 # 070122 this failed with _app._i_instance(testexpr_19b) (and I added text to the assertion),
                 # but that just means _app needs a public instancemaker rather than just that internal one -- now it has .Instance
             # note: self._e_is_instance is defined in all pyinstance exprs, not only InstanceOrExpr.
-        if attr.startswith('_e_') or attr.startswith('_i_') or (attr.startswith('_') and '__' in attr):
+            assert 0 # not reached
+        if attr.startswith('_e_') or (attr.startswith('_') and '__' in attr): # _i_ is handled separately above
             # We won't pretend to find Expr methods/attrs starting _e_ (also used in Instances),
             # or Instance ones starting _i_ -- but do reveal which class or object we didn't find them in.
             ##e ideally we'd reveal something longer than class and shorter than object...
@@ -423,18 +429,6 @@ class SymbolicExpr(Expr): # Symbol or OpExpr
             # [Not confident this exclusion is always good -- maybe what we really need is a variant of hasattr
             # which turns off or detects and ignores the effect of this __getattr__. ###k]
             raise AttributeError, "no attr %r in %s" % (attr, safe_repr(self))
-        if self._e_is_instance:
-            # this case added 061113 for sake of SymbolicInstanceOrExpr Instances (e.g. _this(class)) which lack attr
-            ## raise AttributeError, attr
-            print("will look for super(SymbolicExpr,self).__getattr__(attr): self.__class__ %r, attr %r" % \
-                     (self.__class__, attr) ) # use printfyi if this case doesn't asfail
-            if 1:
-                # as of 061114 I don't think this case will still occur, so printfyi -> print above, and do this assert:
-                assert 0, "I think this case is obs, we'll see -- see prior print about super(SymbolicExpr,self) for details"
-            return super(SymbolicExpr,self).__getattr__(attr) # e.g. let DelegatingMixin.__getattr__ handle it
-                ####k will this work even if we *don't* inherit from DelegatingMixin or someone else with a __getattr__??
-                # if not, and __getattr__ method not found, raise attrerror.
-                # (don't bother trying a soln using getattr as opposed to __getattr__, i doubt there is one)
         return getattr_Expr(self, attr)
     pass
 
@@ -1187,7 +1181,11 @@ class Symbol(SymbolicExpr):
         ## pre-061105 code did: return val._e_eval(env, ipath)
         # and that might be needed for other syms -- not sure yet [061105]
         return val
-    def _e_free_in(self, sym):
+    def _e_make_in(self, env, ipath):#070131
+        assert self._e_sym_constant, "only constant Symbols can be instantiated, not %r" % self
+        # and (at least for now) they instantiate to themselves, like other constants do
+        return self
+    def _e_free_in(self, sym): ###k might be obs [070131 comment]
         """General case: Return True if Expr self contains sym (Symbol or its name) as a free variable, in some arg or option value.
         For this class Symbol, that means: Return True if sym is self or self's name.
         [overrides super version]

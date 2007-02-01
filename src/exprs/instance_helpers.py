@@ -36,6 +36,20 @@ debug070120 = False # some debug prints, useful if bugs come up again in stuff r
 
 # ==
 
+def is_constant_for_instantiation(expr): #070131
+    """Is expr (which might be an arbitrary python object) a constant for instantiation?
+    (If true, it's also a constant for eval, but not necessarily vice versa.)
+    """
+    #e refile? should be compatible with _e_make_in methods in kinds of exprs it's true for
+    # anything except a pure expr is a constant, and so is an Expr subclass
+    if not (is_pure_expr(expr) and is_Expr_pyinstance(expr)):
+        return True
+    # cover a constant Symbol too, e.g. Automatic
+    #e (merge _e_sym_constant with _e_instance? see comment in Symbol._e_make_in for discussion)
+    if getattr(expr, '_e_sym_constant', False):
+        return True
+    return False
+
 # maybe merge this into InstanceOrExpr docstring:
 """Instances of subclasses of this can be unplaced or placed (aka "instantiated");
 if placed, they might be formulas (dependent on aspects of drawing-env state)
@@ -529,7 +543,7 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
             # of instantiation (this find presently being nim, as mentioned somewhere else in this file in the last day or two),
             # meaning that it takes into account everything needed to create the ipath to find or make at (local mods,
             # state-sharing transforms, maybe more).)
-            if not (is_pure_expr(expr) and is_Expr_pyinstance(expr)):
+            if is_constant_for_instantiation(expr): #revised 070131
                 return expr
 
         # [#k review whether this comment is still needed/correct; 061204 semiobs due to newdata change below; even more obs other ways]
