@@ -39,7 +39,7 @@ sys.setrecursionlimit(650) # 5000 is set in startup_funcs.py; this will ease deb
 
 # == imports from cad/src
 
-from VQT import V, A, Q, norm, vlen
+from VQT import V, A, Q, norm, vlen, dot
 from math import pi, sin, cos #070130
 
 from state_utils import transclose, same_vals
@@ -70,6 +70,7 @@ D2Y = V(0.0, 1.0)
 Int = int # warning: not the same as Numeric.Int, which equals 'l'
 Float = float # warning: not the same as Numeric.Float, which equals 'd'
 String = str # warning: not the same as parse_utils.String
+Boolean = bool
 
 # == OpenGL imports -- for now, individual modules import things from submodules of OpenGL as needed; this might be revised
 

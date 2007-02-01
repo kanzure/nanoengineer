@@ -117,6 +117,11 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
     tracking usage of env attrs so an external system can know when the return value becomes invalid;
     - 
     """
+    ##e for debug it would be useful to record line/file of expr construction, and then for any instance or expr
+    # printed in an error msg or traceback, print the chain of these (as it gets customized, gets args, gets instantiated) --
+    # sort of like a stacktrace of where it was made. Not hard (see compact_stack for how). Enable using global flag. [070131]
+
+    # default/initial values of instance variables
     _e_is_symbolic = False #061113
     _e_args = () # this is a tuple of the expr's args (processed by canon_expr), whenever those args are always all exprs.
     _e_kws = {} # this is a dict of the expr's kw args (processed by canon_expr), whenever all kwargs are exprs.
@@ -159,19 +164,9 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
             return False
         if self._e_kws != other._e_kws:
             return False
-##        # now compare other data, whatever it might be... no, inefficient compared to letting subclasses extend this method.
-##        if self._e_other_data() != other._e_other_data():
-##            return False
         return True
     def __ne__(self, other):
         return not self.__eq__(other)
-##    def _e_other_data(self): ###IMPLEM in all Expr classes with other data we need to compare
-##        """Subclasses must return a hashable inequality-comparable representation of their other data.
-##        Note that Numeric arrays would be ok, but not tuples containing them!
-##        If that proves to be a problem, we might split out and override _e_compare_other_data instead of this.
-##        (E.g. constant_Expr will have to deal with that issue somehow.)
-##        """
-##        return ()
     def _e_init_e_serno(self): # renamed from _init_e_serno_, 061205
         """[private -- all subclasses must call this; the error of not doing so is not directly detected --
          but if they call canon_expr on their args, they should call this AFTER that, so self._e_serno
@@ -646,7 +641,9 @@ class tuple_Expr(OpExpr): #k not well reviewed, re how it should be used, esp. i
     _e_eval_function = staticmethod( lambda *args:args )
     pass
 
-from VQT import V as _V # don't use the name V itself, in case we redefine V for public use
+# same as in basic.py:
+from VQT import V, A, Q, norm, vlen, dot
+from math import pi, sin, cos
 
 class V_expr(OpExpr):
     """Make an expr for a Numeric array of floats. Called like VQT.py's V macro.
@@ -659,12 +656,23 @@ class V_expr(OpExpr):
         pass
     def __str__(self):
         return "V_expr%s" % (tuple(self._e_args),) #e need parens?
-    _e_eval_function = staticmethod( lambda *args: _V(*args) ) #e could inline as optim
+    _e_eval_function = staticmethod( lambda *args: V(*args) ) #e could inline as optim
     pass
 
 # ==
 
 # these function -> OpExpr macros are quick hacks, fine except for their printform and maybe their efficiency.
+
+##e maybe rewrite them like this: norm_Expr = func_Expr(norm)
+
+def norm_Expr(*args):
+    return call_Expr( norm, *args)
+
+def vlen_Expr(*args):
+    return call_Expr( vlen, *args)
+
+def dot_Expr(*args):
+    return call_Expr( dot, *args)
 
 def max_Expr(*args):
     return call_Expr( max, *args)

@@ -61,8 +61,14 @@ import Overlay
 reload_once(Overlay)
 from Overlay import Overlay
 
+import TextRect
+reload_once(TextRect)
+from TextRect import TextRect
 
-#e fix
+from OpenGL.GL import * #e move what needs this into draw_utils
+import drawer
+
+#e clean up these local abbreviations
 IorE = InstanceOrExpr
 Macro = DelegatingInstanceOrExpr
 
@@ -70,59 +76,127 @@ Macro = DelegatingInstanceOrExpr
 Radians = Width
 Rotations = Degrees = Width
 Angstroms = Width
-PathOnSurface = Geom3D = ModelObject3D = IorE
 
+ModelObject3D = Geom3D = Widget # how would ModelObject3D & Geom3D differ?
+PathOnSurface = Geom3D
+LineSegment = Geom3D
 
-class Cylinder(Geom3D): #e super? ####IMPLEM
+## StateFormulaArg = StateArg
+
+# utilities to refile (or redo)
+
+def remove_unit_component(vec1, unitvec2): #e rename, or maybe just replace by remove_component or perp_component (no unit assumption)
+    """Return the component of vec1 perp to unitvec2, by removing the component parallel to it.
+    Requires, but does not verify, that vlen(unitvec2) == 1.0.
+    """
+    return vec1 - dot(vec1, unitvec2) * unitvec2
+
+class Cylinder(Geom3D): #e super? ####IMPLEM - and answer the design Qs herein about state decls and model objs...
     """Be a cylinder, including as a surface... given the needed params... ###doc
     """
-    #e draw
-    # color, endpoints, axis, radius
-    # color for marks/sketch elements: point, line & fill & text
-    #e normal_to_my_point #e rename?
-    ## bbox or the like (maybe this shape is basic enough to be an available primitive bounding shape?)
+    ###e someday accept a variety of arg-sequences -- maybe this has to be done by naming them:
+    # - line segment plus radius
+    # - center plus orientation plus length plus radius
+    # - circle (in space) plus length
+    # But for now accept a linesegment or pair of endpoints, radius, color; let them all be mutable? or argformulae? or both??####
+    # StateFormulaArg? ##e
+    # OR, let creator say if they want to make it from state? hmm... ##### pro of that: in here we say Arg not StateFormulaArg.
+    # If we do that, is there any easy way for creator to say "make all the args turn into state"? Or to let dflt_exprs be state??
+    # Or let the model state be effectively an expr? but then how could someone assign to cyl attrs as if mutable? ####
+
+    # args
+    axis = Arg( LineSegment, (ORIGIN, ORIGIN + DX) ) #e let a pair of points coerce into a LineSegment, and let seq assign work from it
+    radius = ArgOrOption( Width, 1.0)
+    color = ArgOrOption( Color, gray)
+    capped = Option( bool, True) #e best default??
+        #e should capped affect whether interior is made visible? (yes but as dflt for separate option)
+        #e also provide exprs/opts for use in the caps, incl some way to be capped on one end, different colors, etc
+    #e color for marks/sketch elements: point, line & fill & text -- maybe inherit defaults & option-decls for this
+    #e surface texture/coordsys options
+
+    # formulae
+    ## dx = norm_Expr(axis) # ValueError: matrices are not aligned -- probably means we passed an array of V's to norm
+    end2 = axis[1] #e or we might have to say axis.ends[1] etc
+    end1 = axis[0]
+    axisvector = end2 - end1 #e should also be axis.vector or so
+    dx = norm_Expr(axisvector) #e axis.direction
+    def _C__dy_dz(self):
+        #e if axis has a dy, use that (some lines might come with one)
+        # otherwise get an arb perp to our dx
+        from pi_bond_sp_chain import arb_ortho_pair
+            # "Given a nonzero vector, return an arbitrary pair of unit vectors perpendicular to it and to each other."
+            #e refile that into geometry.py in cad/src, or use smth else in there, and grab these from a more central source in exprs
+        return arb_ortho_pair(self.dx)
+    dy = _self._dy_dz[0]
+    dz = _self._dy_dz[1]
+    length = vlen_Expr(axisvector)
+    def draw(self):
+        color = self.fix_color(self.color)
+        end1, end2 = self.axis #####
+        radius = self.radius
+        capped = self.capped
+        import drawer
+        drawer.drawcylinder(color, end1, end2, radius, capped = capped) ###coordsys?
+        return
+    def perpvec_at_surfacepoint(self, point): #e rename?
+        """Given a point on or near my surface (actually, on the surface of any coaxial cylinder),
+        return a normal vector to the surface at that point (pointing outward).
+        Ignores end-caps or cylinder length -- treats length as infinite.
+        Works in same coords as all points of self, such as self.end1, end2.
+        """
+        return norm( remove_unit_component( point - self.end1, self.dx))
+    #e bbox or the like (maybe this shape is basic enough to be an available primitive bounding shape?)
     pass
 
 class Cylinder_HelicalPath(Geom3D): #e super?
-    """Given a cylinder, produce a helical path on its surface (of given params)
-    as a series of points (at given resolution -- nim except as part of path spec),
-    relative to the cylinder's "left endpoint" [####WRONG DESIGN].
+    """Given a cylinder (cyl), produce a helical path on its surface (of given params)
+    as a series of points (at given resolution -- but specifying resolution is #NIM except as part of path spec)
+    starting at the left end (on an end-circle centered at cyl.end1),
+    expressing the path in the same coords as the cylinder points (like end1) are in.
+       Usage note: callers desiring path points invariant to rotations or translations of cyl
+    should express cyl itself in a local coordsys which is rotated or translated, so that cyl.end1 and end2
+    are also invariant.
     """
     # args
     #e need docstrings, defaults, some should be Option or ArgOrOption
     #e terms need correction, even tho not meant to be dna-specific here, necessarily (tho they could be): turn, rise, n, theta_offset
     cyl = Arg(Cylinder)
-    n = Arg(int, 100) # number of segments in path (one less than number of points)
-    turn = Arg( Rotations, 1.0 / 10.5) # number of rotations of vector around axis, in every path segment
-    rise = Arg( Width) ###e needs default
-    theta_offset = Arg( Radians, 0.0) # rotates entire path around cyl.axis
+    n = Option(int, 100) # number of segments in path (one less than number of points)
+    turn = Option( Rotations, 1.0 / 10.5) # number of rotations of vector around axis, in every path segment
+    rise = Option( Width, 0.34) ###k default
+    theta_offset = Option( Radians, 0.0) # rotates entire path around cyl.axis
     color = Option(Color, black) # only needed for drawing it -- not part of Geom3D -- add a super to indicate another interface??##e
         ##e dflt should be cyl.attr for some attr related to lines on this cyl -- same with other line-drawing attrs for it
     ## start_offset = Arg( Width)
+    radius_ratio = Option(float, 1.1) ###e
     def _C_points(self):
         cyl = self.cyl
         theta_offset = self.theta_offset
-        n = self.n    
-        radius = cyl.radius
-        axial_offset = cyl.DX * rise # note: cyl.DX == norm(cyl.axis)
-        cY = cyl.DY # perp coords to cyl axis (which is always along cyl.DX)
-        cZ = cyl.DZ
+        n = int(self.n) #k type coercion won't be needed once Arg & Option does it
+        radius = cyl.radius * self.radius_ratio
+        rise = self.rise
+        turn = self.turn
+        end1 = self.cyl.end1
         
+        axial_offset = cyl.dx * rise # note: cyl.dx == norm(cyl.axisvector)
+        cY = cyl.dy # perp coords to cyl axisvector (which is always along cyl.dx) [#e is it misleading to use x,y,z for these??]
+        cZ = cyl.dz
         points = []
         turn_angle = 2 * pi * turn
+        p0 = end1 #e plus an optional offset along cyl.axisvector?
         for i in range(n+1): 
             theta = turn_angle * i + theta_offset # in radians
             y = cos(theta) * radius # y and z are Widths (numbers)
             z = sin(theta) * radius
             vx = i * axial_offset # a Vector
-            p = vx + y * cY * z * cZ
-            points.append(p) ###e should make them non-relative by adding startpoint = cyl left endpoint + offset along axis
+            p = p0 + vx + y * cY + z * cZ
+            points.append(p)
         return points
     def draw(self):
-        color = self.color
+        color = self.fix_color(self.color)
         points = self.points
         glDisable(GL_LIGHTING) ### not doing this makes it take the color from the prior object 
-        glColor3fv(color)
+        glColor3fv(color) ##k may not be enough, not sure
         glBegin(GL_LINE_STRIP)
         for p in points:
             ##glNormal3fv(-DX) #####WRONG? with lighting: doesn't help, anyway. probably we have to draw ribbon edges as tiny rects.
@@ -149,23 +223,27 @@ class Ribbon_oldcode_for_edges(Corkscrew): # generates a sequence of rects (quad
 
 class Cylinder_Ribbon(Widget): #070129 #e rename?? #e super?
     """Given a cylinder and a path on its surface, draw a ribbon made from that path using an OpenGL quad strip
-    (whose edges are path +- cyl.axis * axialwidth/2). Current implem uses one quad per path segment.
+    (whose edges are path +- cyl.axisvector * axialwidth/2). Current implem uses one quad per path segment.
        Note: the way this is specific to Cylinder (rather than for path on any surface) is in how axialwidth is used,
-    and quad alignment and normals use cyl.axis.
+    and that quad alignment and normals use cyl.axisvector.
+       Note: present implem uses geom datatypes with bare coordinate vectors (ie containing no indication of their coordsys);
+    it assumes all coords are in the current drawing coordsys (and has no way to check this assumption).
     """
     #args
     cyl = Arg(Cylinder)
     path = Arg(PathOnSurface) ###e on that cyl (or a coaxial one)
     color = ArgOrOption(Color, cyl.dflt_color_for_sketch_faces)
-    axialwidth = ArgOrOption(Width, 2.0) #e rename; distance across ribbon along cylinder axis (actual width is presumably shorter since it's diagonal)
+    axialwidth = ArgOrOption(Width, 1.0) #e rename; distance across ribbon along cylinder axis (actual width is presumably shorter since it's diagonal)
     def draw(self):
         cyl = self.cyl
         path = self.path
+        axialwidth = self.axialwidth
         points = path.points #e supply the desired resolution?
-        normals = map( cyl.normal_to_my_point, points) ####IMPLEM normal_to_my_point for any Surface, e.g. Cylinder (inflen, ignore caps)
-            ####e points on it really need to keep their intrinsic coords around, to make this kind of thing efficient & well defined,
-            # esp for a cyl with caps
-        offset2 = axialwidth * norm(cyl.axis) * 0.5 # use norm, since not sure axis is normalized; assumes Width units are 1.0 in model coords
+        normals = map( cyl.perpvec_at_surfacepoint, points)
+            ####IMPLEM perpvec_at_surfacepoint for any Surface, e.g. Cylinder (treat as infinite length; ignore end-caps)
+            ####e points on it might want to keep their intrinsic coords around, to make this kind of thing efficient & well defined,
+            # esp for a cyl with caps, whose caps also counted as part of the surface! (unlike in present defn of cyl.perpvec_at_surfacepoint)
+        offset2 = axialwidth * cyl.dx * 0.5 # assumes Width units are 1.0 in model coords
         offset1 = - offset2
         offsets = (offset1, offset2)
         color = self.color
@@ -189,6 +267,8 @@ class Cylinder_Ribbon(Widget): #070129 #e rename?? #e super?
             # the answer - see draw_vane() -- I have to do a lot of stuff to get this right:
             # - set some gl state, use apply_material, get CCW ordering right, and calculate normals.
 ##        glColor3fv(interior_color)
+##        print "draw_quad_strip",interior_color, offsets, points, normals
+            ###BUG: points are 0 in y and z, normals are entirely 0 (as if radius was 0?)
         for p, n in zip( points, normals):
             glNormal3fv( n)
             glVertex3fv( p + offset2)
@@ -205,11 +285,12 @@ class Cylinder_Ribbon(Widget): #070129 #e rename?? #e super?
 ##    # radius, axis, turn, n
 ##    pass
 
-class Rotate(IorE):#e refile with Translate
+class Rotate(IorE):#e refile with Translate -- in fact, reexpress it as interposing on draw and lbox methods, ignoring the rest...
+        # (as discussed extensively elsewhere, not sure if in code or notesfile or paper, 1-3 days before 070131)
     # needs to transform other things too, like lbox -- same issue as Translate
     thing = Arg(Widget)
     angle = Arg(float)
-    axis = ArgOrOption(Vector, DZ)
+    axis = ArgOrOption(Vector, DZ) ###e or LineSegment, then do translate too
     ###e should normalize axis and check for 0,0,0
     def draw(self):
         glRotatef(angle, axis[0], axis[1], axis[2]) # angle is in degrees, I guess
@@ -221,7 +302,7 @@ call_lambda_Expr = Stub
 lambda_Expr = Stub
 ShareInstances = Stub
 
-class Ribbon2_try1(Macro):
+class Ribbon2_try1(Macro): ###e perhaps needs some axis -> axisvector
     """Ribbon2(thing1, thing2) draws a thing1 instance in red and a thing2 instance in blue.
     If thing2 is not supplied, a rotated thing1 instance is used for it, and also drawn in blue.
     """
@@ -277,7 +358,7 @@ class Ribbon2_try1(Macro):
         # So maybe the only soln is to do the color cust first, as the docstring had to say to describe the intent, anyway.
     pass
 
-class Ribbon2_try2(Macro):
+class Ribbon2_try2(Macro):###e perhaps needs some axis -> axisvector
     ###IMPLEM ShareInstances  - or not, if that lambda_Expr in _try1 makes it unneeded... it might be wrong anyway
     # if it provides no way to limit the sharing within the class that says to do it, or if doing that is too cumbersome or unclear.
     """Ribbon2(thing1, thing2) draws a thing1 instance in red and a thing2 instance in blue.
@@ -292,7 +373,7 @@ class Ribbon2_try2(Macro):
     _drawn_arg2 = Instance(arg2(color=blue)) ####KLUGE: add color here in case arg2 was supplied, but in dflt expr in case we used that
     delegate = Overlay(_drawn_arg1, _drawn_arg2)
 
-class Ribbon2_try3(Macro): #070129
+class Ribbon2_try3(Macro): #070129 ###e perhaps needs some axis -> axisvector
     """Ribbon2(thing1, thing2) draws a thing1 instance in red and a thing2 instance in blue, assuming they are color-customizable.
     If thing2 is not supplied, a rotated thing1 instance (different drawable instance, same model object instance)
     is used for it (also drawn in blue).
@@ -333,8 +414,12 @@ class DNA_Cylinder(Macro):##k super
     color2 = Option(Color, blue)
     cyl = StateArg( Cylinder(color = color, radius = 1.0), ###IMPLEM this way of giving dflts for attrs added by type coercion
                         #k radius and its units
-                    Automatic, #e can this be given as a default to type coercion, to make it "just create one"?
-                    doc = "cylindrical surface of double helix") ###e add dflt args in case we typecoerce it from a line
+                    ##e make this work: Automatic, #e can this be given as a default to type coercion, to make it "just create one"?
+                    Cylinder(color = color, radius = 1.0)((ORIGIN, ORIGIN+15*DX)),
+                        ###k why did that () not fix this warning: "warning: this expr will get 0 arguments supplied implicitly" ??
+                        ###e can we make it ok to pass length and let end1 be default ORIGIN and dx be default DX?
+                    doc = "cylindrical surface of double helix"
+                   ) ###e add dflt args in case we typecoerce it from a line
         ###e or maybe even bring in a line and make the cyl ourselves with dflt radius? somewhere we should say dflt radius & length.
         # ah, the right place is probably in the type expr: Cylinder(radius = xxx, length = xxx)
         #e do we want to let a directly passed cyl determine color, as the above code implies it would?
@@ -344,12 +429,17 @@ class DNA_Cylinder(Macro):##k super
     rise = StateOption(Angstroms, 3.4, doc = "distance along helix axis from one basepair to the next") #k can you say units that way?
     bpt = StateOption(Float, 10.5, doc = "bases per turn")
     pitch = rise * bpt ##k #e and make it settable?
-    path1 = Cylinder_HelicalPath( rise = rise, turn = 1/bpt, n = cyl.length / rise ) #e need theta_offset?
-    path2 = Rotate(path1, 150.0, cyl.axis)
+    path1 = Cylinder_HelicalPath( cyl, rise = rise / 10.0, turn = 1/bpt, ###KLUGE /10.0 due to length units being messed up
+                                  n = cyl.length / rise * 10.0 ###KLUGE * 10.0
+                                  ) #e need theta_offset?
+    ## should be: path2 = Rotate(path1, 150.0, cyl.axis)
         #e note, this seems to be "rotate around a line" (not just a vector), which implies translating so line goes thru origin;
-        # or it might be able to be a vector, if we store a relative path... get this straight! ###e
+        # or it might be able to be a vector, if we store a relative path... get this straight! ###e (for now assume axis could be either)
     # appearance (stub -- add handles/actions, remove cyl)
-    delegate = Overlay( cyl, Cylinder_Ribbon(cyl, path1, color1), Cylinder_Ribbon(cyl, path2, color2) )
+    delegate = Overlay( cyl, # works
+                        Cylinder_Ribbon(cyl, path1, color1), ###BUG: not showing -- is n too small?
+                        ## Cylinder_Ribbon(cyl, path2, color2)
+                       )
     pass
 
 class obs:
