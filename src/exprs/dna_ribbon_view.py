@@ -415,7 +415,7 @@ class DNA_Cylinder(Macro):##k super
     cyl = StateArg( Cylinder(color = color, radius = 1.0), ###IMPLEM this way of giving dflts for attrs added by type coercion
                         #k radius and its units
                     ##e make this work: Automatic, #e can this be given as a default to type coercion, to make it "just create one"?
-                    Cylinder(color = color, radius = 1.0)((ORIGIN, ORIGIN+15*DX)),
+                    Cylinder(color = color, radius = 1.0)((ORIGIN-6*DX, ORIGIN+10*DX)), ###e silly defaults, change back to ORIGIN end1 soon
                         ###k why did that () not fix this warning: "warning: this expr will get 0 arguments supplied implicitly" ??
                         ###e can we make it ok to pass length and let end1 be default ORIGIN and dx be default DX?
                     doc = "cylindrical surface of double helix"
@@ -435,10 +435,12 @@ class DNA_Cylinder(Macro):##k super
     ## should be: path2 = Rotate(path1, 150.0, cyl.axis)
         #e note, this seems to be "rotate around a line" (not just a vector), which implies translating so line goes thru origin;
         # or it might be able to be a vector, if we store a relative path... get this straight! ###e (for now assume axis could be either)
+    ## here's an easier way, and better anyway (since the path's state (when it has any) should be separate):
+    path2 = path1(theta_offset = 150*2*pi/360) 
     # appearance (stub -- add handles/actions, remove cyl)
     delegate = Overlay( cyl, # works
-                        Cylinder_Ribbon(cyl, path1, color1), ###BUG: not showing -- is n too small?
-                        ## Cylinder_Ribbon(cyl, path2, color2)
+                        Cylinder_Ribbon(cyl, path1, color1),
+                        Cylinder_Ribbon(cyl, path2, color2)
                        )
     pass
 
