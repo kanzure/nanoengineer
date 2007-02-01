@@ -78,18 +78,59 @@ for help making the OpenGL do what it used to do, if that's ever needed.)
 """
 
 from basic import *
-from basic import _self
+from basic import _self, _this, _my
 
 import Overlay
 reload_once(Overlay)
 from Overlay import Overlay
 
+from OpenGL.GL import * #e move what needs this into draw_utils
+import drawer
+
+import demo_drag
+reload_once(demo_drag)
+from demo_drag import World
+
+# needed for code modified from demo_drag:
+
+import Rect
+reload_once(Rect)
+from Rect import Rect, RectFrame, IsocelesTriangle, Spacer, Sphere
+
+import Column
+reload_once(Column)
+from Column import SimpleColumn, SimpleRow
+
+import DisplistChunk # works 070103, with important caveats re Highlightable
+reload_once(DisplistChunk)
+from DisplistChunk import DisplistChunk
+
+import Highlightable
+reload_once(Highlightable)
+from Highlightable import Highlightable
+
+#might also be needed:
+
+import transforms
+reload_once(transforms)
+from transforms import Translate
+
+import Center
+reload_once(Center)
+from Center import Center, CenterY
+
 import TextRect
 reload_once(TextRect)
 from TextRect import TextRect
 
-from OpenGL.GL import * #e move what needs this into draw_utils
-import drawer
+import controls
+reload_once(controls)
+from controls import checkbox_pref, ActionButton
+
+import lvals
+reload_once(lvals)
+from lvals import Lval, LvalDict2, call_but_discard_tracked_usage
+
 
 # temporary kluge: excerpt from cad/src/DnaGenerator.py; this copy used locally for constants [values not reviewed]:
 class B_Dna:
@@ -302,6 +343,16 @@ class Cylinder_Ribbon(Widget): #070129 #e rename?? #e super?
 ## pitch # rise per turn
 ## rise
 
+kluge_dna_ribbon_view_prefs_key_prefix = "A9 devel/kluge_dna_ribbon_view_prefs_key_prefix"
+
+from preferences import _NOT_PASSED ###k
+def get_pref(key, dflt = _NOT_PASSED): #e see also... some stateref-maker I forget ####DUP CODE with test.py, should refile
+    """Return a prefs value. Fully usage-tracked.
+    [Kluge until we have better direct access from an expr to env.prefs. Suggest: use in call_Expr.]
+    """
+    import env
+    return env.prefs.get(key, dflt)
+
 class DNA_Cylinder(Macro):##k super
     color = Option(Color, gray) #e default should be transparent/hidden
     color1 = Option(Color, red)
@@ -334,10 +385,71 @@ class DNA_Cylinder(Macro):##k super
     ## here's an easier way, and better anyway (since the path's state (when it has any) should be separate):
     path2 = path1(theta_offset = 150*2*pi/360) 
     # appearance (stub -- add handles/actions, remove cyl)
-    delegate = Overlay( cyl, # works
+    delegate = Overlay( If_kluge(
+                            call_Expr( get_pref, kluge_dna_ribbon_view_prefs_key_prefix, dflt = False),
+                            cyl, # works when alone
+                            Spacer()),
                         Cylinder_Ribbon(cyl, path1, color1),
                         Cylinder_Ribbon(cyl, path2, color2)
                        )
+    pass
+
+# ==
+
+
+World_dna = World # try to use the same world as in demo_drag... generalize World to the DataSet variant that owns the data,
+ # maybe ModelData (not sure which file discusses all that about DataSet), refile it... it supports ops, helps make tool ui ###e
+
+def dna_ribbon_view_toolcorner_expr_maker(world_holder): #070201 modified from demo_drag_toolcorner_expr_maker -- not yet modified enough ###e
+    """given an instance of World_dna_holder (??), return an expr for the "toolcorner" for use along with
+    whatever is analogous to GraphDrawDemo_FixedToolOnArg1 (on the world of the same World_dna_holder)
+    """
+    world = world_holder.world
+    if "kluge" and not world._cmd_Clear_nontrivial: # WARNING: this makes the clear command act more like "reset";
+        # since we have no add or mod command, the reset cmd is prob not needed yet at all.
+        # Remove it from this UI (for now) when this is verified. ###e
+        ## world.append_node( DNA_Cylinder())
+        world_holder.make_and_add(DNA_Cylinder())
+    expr = SimpleColumn(
+        checkbox_pref(kluge_dna_ribbon_view_prefs_key_prefix,         "show central cyl?", dflt = False),
+        checkbox_pref(kluge_dna_ribbon_view_prefs_key_prefix + "bla", "pref 2", dflt = True),
+        If_kluge( getattr_Expr( world, '_cmd_Clear_nontrivial'),
+                  ActionButton( world._cmd_Clear, "button: clear"),
+                  ActionButton( world._cmd_Clear, "button (disabled): clear", enabled = False)
+         )
+     )
+    return expr
+
+
+class World_dna_holder(InstanceMacro): #070201 modified from GraphDrawDemo_FixedToolOnArg1; need to unify it as a ui-provider framework
+    # args
+    background = Arg(Widget2D, Rect(15) ) # not yet displayed
+    # options
+    highlight_color = red ###kluge stub
+    # internals
+    world = Instance( World_dna() ) # has .nodelist I'm allowed to extend
+    _value = Overlay(
+##      DisplistChunk( # new feature as of 070103; works, and seems to be faster (hard to be sure)
+##        Highlightable( background, 
+##                       background,
+##                       sbar_text = "gray bg dna"
+##                       )), # end of Highlightable and DisplistChunk
+      DisplistChunk( world)
+    )
+    def make_and_add(self, node_expr):
+        node = self.make(node_expr)
+        self.world.append_node(node)
+        return node
+    _index_counter = State(int, 2000) # we have to use this for indexes of created thing, or they overlap state!
+    def make(self, expr):###WARNING: dup code
+        index = None
+        if index is None:
+            index = self._index_counter
+            index = index + 1
+            self._index_counter = index
+        env = self.env # maybe wrong, esp re _self
+        ipath = (index, self.ipath)
+        return env.make(expr, ipath) # note: does eval before actual make
     pass
 
 # end

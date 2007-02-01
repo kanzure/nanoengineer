@@ -222,9 +222,14 @@ WithViewerFunc = Stub # see rules.py, to which I moved the more expansive stub o
 
 # so we need a world object whose state contains a list of Vertex objects. And a non-stub Vertex object (see above I hope).
 
-class World(ModelObject):
+class World(ModelObject):  ###WARNING: this is now also used (and commented on) in dna_ribbon_view.py; see there for refiling advice###e
+    "#doc -- has a list of Instances it draws, and a clear command for them"
     nodelist = State(list_Expr, []) # self.nodelist is public for set (self.nodelist = newval), but not for append or other mods
         # since not changetracked -- can it be?###@@@
+        ###e 070201 does it still need to be public for set? i expect not, see following, but need to review; our clear cmd still sets...
+    def append_node(self, node):#070201 new feature
+        self.nodelist = self.nodelist + [node] # kluge: make sure it gets change-tracked. Inefficient when long!
+        return
     def draw(self):
         # draw all the nodes
         # [optim idea 070103 late: have caller put this in a DisplistChunk; will it actually work?
@@ -459,7 +464,8 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
             # for now, that picks a unique index (using a counter in transient_state)
         
         ## self.world.nodelist.append(node)
-        self.world.nodelist = self.world.nodelist + [node] # kluge: make sure it gets change-tracked. Inefficient when long!
+        ## self.world.nodelist = self.world.nodelist + [node] # kluge: make sure it gets change-tracked. Inefficient when long!
+        self.world.append_node(node) #070201 new feature ###UNTESTED
         
         ##e let new node be dragged, and use Command classes above for newmaking and dragging
         return node

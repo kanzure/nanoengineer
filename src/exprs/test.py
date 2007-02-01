@@ -151,7 +151,7 @@ from debug_exprs import DebugPrintAttrs
 
 import dna_ribbon_view
 reload_once(dna_ribbon_view)
-from dna_ribbon_view import DNA_Cylinder
+from dna_ribbon_view import DNA_Cylinder, dna_ribbon_view_toolcorner_expr_maker, World_dna_holder
 
 # ==
 
@@ -823,7 +823,7 @@ testexpr_19g_try1_fails = eval_Expr( call_Expr( lambda thing:
 # Is there a sensible default binding for _self? In this lexical place it might be "the _app, found dynamically"...
 # but to be less klugy we want to make Instance work differently here... or use a different thing to make one...
 # or make Instance an expr. Or at least give it a helper func to have a backup for _self._i_instance failing or _self having no value.
-# But as a test I can just manually insert whatever would work for that... hmm, how about:
+# But as a test I can just manually insert whatever would work for that... hmm, how about this: [later: see also testexpr_30g]
 testexpr_19g = eval_Expr( call_Expr( lambda thing:
                                      Overlay( thing,
                                               DrawInCorner( Boxed(
@@ -1186,15 +1186,26 @@ testexpr_29aox3  = If_OpExpr(False, TextRect("True"), TextRect("False")) # -- wo
     # Q: should I switch over from If_expr to If_OpExpr (in implems, the name would be If_expr)?? #####e DECIDE -- note it's not done
     # in terms of a real implem, re default else clause, or refraining from even evalling (not just from instantiating) unused clauses
 
-# test dna_ribbon_view.py
-testexpr_30 =  DNA_Cylinder()
-testexpr_30a =  DisplistChunk(DNA_Cylinder())
+# == test dna_ribbon_view.py
+testexpr_30 =  DNA_Cylinder() # works 070131 (has no DisplistChunk inside it)
+testexpr_30a =  DisplistChunk(DNA_Cylinder()) # works 070131
+    # (but it'd be more sensible to include DisplistChunk inside it instead, so it can have one per display style pref setting)
+
+# try modifying testexpr_19g to put in some controls
+testexpr_30b = World_dna_holder()
+testexpr_30g = eval_Expr( call_Expr( lambda thing:
+                                     Overlay( thing,
+                                              DrawInCorner( Boxed(
+                                                  eval_Expr( call_Expr( dna_ribbon_view_toolcorner_expr_maker, thing )) )) ),
+                                     ## _app._i_instance(testexpr_30b)
+                                     call_Expr( _app.Instance, testexpr_30b, "#30b")
+                                     ))
 
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
 
 enable_testbed = True
 
-testexpr = testexpr_30a ## testexpr_29aox3 ## testexpr_18 ## testexpr_9fx4 ## testexpr_19g ## testexpr_19g _26g _28
+testexpr = testexpr_30g ## testexpr_29aox3 ## testexpr_18 ## testexpr_9fx4 ## testexpr_19g ## testexpr_19g _26g _28
 
     # as of 070121 at least these work ok in EVAL_REFORM with now-semipermanent kluge070119:
     # _2, _3a, _4a, _5, _5a, _10a, _10c, _9c, _9d, _9cx,
