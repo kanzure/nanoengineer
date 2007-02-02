@@ -46,6 +46,48 @@ class World(ModelObject):  ###WARNING: this is now also used (and commented on) 
                 print "drew last node in list, %r, ipath[0] %r, pos %r" % (node, node.ipath[0], node.pos)
         ###e see comment above: "maybe World needs to wrap all it draws with glue to add looks and behavior to it"
         return
+
+    # ==
+    ###### CALL THESE and don't cal the ones in demo_drag ###### [where i am 070201 447p]
+    def make_and_add(self, node_expr):
+        node = self.make(node_expr)
+            ### NOTE: index should really be determined by where we add it in world, or changed when we do that;
+            # for now, that picks a unique index (using a counter in transient_state)
+        
+        ## self.nodelist.append(node)
+        ## self.nodelist = self.nodelist + [node] # kluge: make sure it gets change-tracked. Inefficient when long!
+        self.append_node(node) #070201 new feature
+        
+        ##e let new node be dragged, and use Command classes above for newmaking and dragging
+        return node
+    
+    def make(self, expr):
+        index = None
+        #e rename? #e move to some superclass 
+        #e worry about lexenv, eg _self in the expr, _this or _my in it... is expr hardcoded or from an arg?
+        #e revise implem in other ways eg eval vs instantiate
+        #e default unique index?? (unique in the saved stateplace, not just here)
+        # (in fact, is reuse of index going to occur from a Command and be a problem? note *we* are acting as command...
+        #e use in other recent commits that inlined it
+        if index is None:
+            # usual case I hope (due to issues mentioned above): allocate one
+            if 0:
+                index = getattr(self, '_index_counter', 100)
+                index = index + 1
+                setattr(self, '_index_counter', index)
+            else:
+                # try to fix bug
+                index = self._index_counter
+                index = index + 1
+                self._index_counter = index
+                ###e LOGIC ISSUE: should assert the resulting ipath has never been used,
+                # or have a more fundamental mechanism to guarantee that
+        env = self.env # maybe wrong, esp re _self
+        ipath = (index, self.ipath)
+        return env.make(expr, ipath) # note: does eval before actual make
+
+    # ==
+    
     def _cmd_Clear(self): #070106 experimental naming convention for a "cmd method" -- a command on this object (requiring no args/opts, by default)
         if self.nodelist:
             # avoid gratuitous change-track by only doing it if it does something (see also _cmd_Clear_nontrivial)
@@ -57,7 +99,10 @@ class World(ModelObject):  ###WARNING: this is now also used (and commented on) 
     _cmd_Clear_nontrivial = not_Expr( not_Expr( nodelist)) #KLUGE: need a more direct boolean coercion (not that it's really needed at all)
         # can be used to enable (vs disable) a button or menu item for this command on this object
     _cmd_Clear_legal = True # whether giving the command to this object from a script would be an error
-    _cmd_Clear_tooltip = "clear the dots" # a command button or menu item could use this as its tooltip
+    _cmd_Clear_tooltip = "clear the dots" # a command button or menu item could use this as its tooltip ###e is this client-specific??
+    def _cmd_Make(self):
+        print "world make is nim" ###
+    _cmd_Make_tooltip = "make something [nim]" ###e when we know the source of what to make, it can also tell us this tooltip
     pass
 
 # == comments from class World's original context

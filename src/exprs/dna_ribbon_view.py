@@ -423,7 +423,8 @@ def dna_ribbon_view_toolcorner_expr_maker(world_holder): #070201 modified from d
         world_holder.make_and_add(DNA_Cylinder())
     expr = SimpleColumn(
         checkbox_pref(kluge_dna_ribbon_view_prefs_key_prefix,         "show central cyl?", dflt = False), # works now, didn't at first
-        checkbox_pref(kluge_dna_ribbon_view_prefs_key_prefix + "bla", "pref 2", dflt = True),
+        checkbox_pref(kluge_dna_ribbon_view_prefs_key_prefix + "bla", "pref 2", dflt = True),        
+        ActionButton( world._cmd_Make, "button: make"),
         If_kluge( getattr_Expr( world, '_cmd_Clear_nontrivial'),
                   ActionButton( world._cmd_Clear, "button: clear"),
                   ActionButton( world._cmd_Clear, "button (disabled): clear", enabled = False)

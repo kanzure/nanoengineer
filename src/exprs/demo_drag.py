@@ -473,7 +473,7 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
             pass
         return
 
-    # == the make methods might be moved from here to class World... [070201 guess] ###e
+    # == the make methods might be moved from here to class World... [070201 guess] ###e THEY HAVE BEEN -- revise this code to call #####
     
     def make_and_add(self, node_expr):
         node = self.make(node_expr)
