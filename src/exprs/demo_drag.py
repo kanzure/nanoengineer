@@ -472,7 +472,7 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
             pass
         return
 
-    # == methods make, make_and_add have been moved from here into class World [070202] ###UNTESTED
+    # == methods make, make_and_add have been moved from here into class World [070202]
 
     pass # end of class GraphDrawDemo_FixedToolOnArg1
 
