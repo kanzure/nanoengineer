@@ -146,13 +146,13 @@ Radians = Width
 Rotations = Degrees = Width
 Angstroms = Nanometers = Width
 
-## ModelObject3D = ModelObject ### might be wrong -- might not have fix_color -- unless it can delegate it -- usually it can, not always --
+ModelObject3D = ModelObject ### might be wrong -- might not have fix_color -- unless it can delegate it -- usually it can, not always --
    # can default delegate have that, until we clean up delegation system? or just move that into glpane? yes for now.
    # we'll do that soon, but not in present commit which moves some code around. this vers does have a bug re that,
    # expressed as AssertionError: DelegatingMixin refuses to delegate self.delegate (which would infrecur) in <Cylinder#16801(i)>
    ###e
 
-ModelObject3D = Widget ###e remove soon -- see fix_color comment above; and probably buggy by its defaults hiding the delegate's
+## ModelObject3D = Widget ###e remove soon -- see fix_color comment above; and probably buggy by its defaults hiding the delegate's
 
 Geom3D = ModelObject3D # how would ModelObject3D & Geom3D differ? something about physicality?
 PathOnSurface = Geom3D

@@ -864,6 +864,39 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
             delegate = self._i_instance( delegate, 'delegate')
                 # is that the same index Instance would use? I think so (it gets passed _E_ATTR which should get replaced with this).
         return delegate
+
+    # == methods moved from class Widget (which is being merged into this one for now -- merge is not complete, it exists as an
+    #  empty shell ###fix) [070201]
+
+    # note: this is a method in case color is in local coords, BUT that won't work properly if subclass ought to delegate
+    # this -- this def means it won't. Still, for now keep it here since implem never changes. Later clean up delegation for this
+    # as discussed elsewhere. ###fix [070201]
+    def fix_color(self, color): #e move to glpane??
+        """Return the given color, suitably formatted for passing to low-level drawing code for the current drawing medium.
+        The color is assumed to be evaluated (i.e. no longer a formula), but perhaps in some general data format
+        and perhaps needing to be subjected to global color transformations stored transiently in the drawing medium object
+        (e.g. a color warp or constant alpha, stored in the glpane).
+        [#e If it proves unworkable for this method to know the current drawing medium,
+         it will probably be replaced with more specific methods, eg fix_color_GL and fix_color_POVRay.]
+        [#e Will we have to have variants of _GL for returning 3 tuples or 4 tuples as the color?]
+        [#e Will we have to worry about material properties?]
+        """
+        return color ### stub
+            ###e guess: it comes from the glpane as a method on it. the glpane is in our env.
+            # self.env.glpane.fix_color
+        ### fix_color is a method on self, I guess, or maybe on env (and env may either be self.env or an arg to this method -- guess, arg)
+        # or maybe it has contribs from env, class, and glpane -- glpane to know what kind of color it needs,
+        # env or glpane to know about warps or alphas to apply, class maybe, and something to know about resolving formulas (env?)
+        ### we'll have fix_ for the dims too, handling their units, perhaps in a way specific to this class
+        ### we'll have memoization code for all these attrs
+        ### and we'll need better control of gl state like GL_CULL_FACE, if we can run this while it's already disabled
+
+    # note: draw can't be defined here since it masks the one provided by the delegate, if the subclass delegates! [070201]    
+##    def draw(self):
+##        "#doc"
+##        print "warning: no draw method in %r" % self # probably verbose enough to not be missed...
+##        return
+
     pass # end of class InstanceOrExpr
 
 # ===
