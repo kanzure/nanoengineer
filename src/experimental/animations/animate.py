@@ -261,6 +261,75 @@ class MpegSequence:
         q.wait()
 
 
+    def textBottom(self, jpgfmt, start, incr, frames, avg, divider, rgb, titleImage):
+        """You've got some text near the bottom of the screen and you
+        want to set a dividing height, and take the lower portion of
+        the screen, where the text is, and fade it toward light blue
+        so you have good contrast for the text. Above the division you
+        have normal chrominance for the sequence.
+        """
+        # avg is how many subframes are averaged to produce each frame
+        # ratio is the ratio of subframes to frames
+        if framelimit is not None: frames = min(frames, framelimit)
+        tmpimage = '/tmp/foo.jpg'
+        tmpimage2 = '/tmp/foo2.jpg'
+        averages = [ ]
+        averages2 = [ ]
+        # Stick the averages in a bunch of GIF files
+        assert jpgfmt[-4:] == '.jpg'
+        srcdir, fil = os.path.split(jpgfmt)
+        jpgfmt = fil
+        dstdir = srcdir
+        avgfmt = jpgfmt[:-4] + '.gif'
+        if avg > 1:
+            # parallelize the averaging because it's the slowest operation
+            # each job will be five frames
+            q = jobqueue.JobQueue()
+            i = 0
+            while i < frames:
+                frames_this_job = min(5, frames - i)
+                ifiles = [ ]
+                ofiles = [ ]
+                for j in range(frames_this_job):
+                    P = start + (i + j) * incr
+                    for k in range(avg):
+                        ifiles.append(jpgfmt % (P + k))
+                    ofile = avgfmt % P
+                    averages.append(ofile)
+                    ofiles.append(ofile)
+                job = MotionBlurJob(srcdir, dstdir, ifiles, ofiles)
+                q.append(job)
+                i += frames_this_job
+            q.start()
+            q.wait()
+        else:
+            averages = map(lambda i: jpgfmt % (start + i * incr),
+                           range(frames))
+            if fadeTo is not None:
+                averages2 = map(lambda i: fadeTo % (start + i * incr),
+                                range(frames))
+
+        for i in range(frames):
+            fnum = start + incr * i
+            yuv = (self.yuv_format() % self.frame) + '.yuv'
+            jobqueue.do('convert %s %s %s' %
+                        (os.path.join(dstdir, averages[i]),
+                         clipped.exactGeometry(), tmpimage))
+            # tmpimage is now in clipped dimensions
+            if titleImage is not None:
+                w, h = clipped.width, clipped.height
+                jobqueue.do(('mogrify -region %dx%d+0+%d -fill \"rgb(%d,%d,%d)\" -colorize 75 %s %s') %
+                            (w, h - divider, divider,
+                             rgb[0], rgb[1], rgb[2],
+                             clipped.exactGeometry(), tmpimage))
+                jobqueue.do('composite %s %s %s %s' % (titleImage,
+                                                       clipped.exactGeometry(),
+                                                       tmpimage, tmpimage))
+            jobqueue.do('convert %s %s %s %s' % (tmpimage, border.border(),
+                                                 video.exactGeometry(), yuv))
+            self.frame += 1
+        return start + incr * frames
+
     def motionBlur(self, jpgfmt, start, incr, frames, avg,
                    textlist=None, fadeTo=None, titleImage=None):
         # avg is how many subframes are averaged to produce each frame
