@@ -322,7 +322,6 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
           ## world # zap DisplistChunk to see if it fixes new 070115 bug about dragging old nodes -- nope
       )
     )
-    _index_counter = State(int, 1000) # we have to use this for indexes of created thing, or they overlap state!
 
     newnode = None # note: name conflict(?) with one of those not yet used Command classes
     
@@ -411,9 +410,9 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
             
         if 0:
             ## MAKE THIS WORK:
-            newnode = self.make_and_add( draggable_node_expr)
+            newnode = self.world.make_and_add( draggable_node_expr)
         else:
-            newnode = self.make_and_add( node_expr)
+            newnode = self.world.make_and_add( node_expr)
             
         self.newnode = newnode ###KLUGE that we store it directly in self; might work tho; we store it only for use by on_drag_bg
         return # from on_press_bg
@@ -439,7 +438,7 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
         if what == 'draw':
             # make a blue dot showing the drag path, without moving the main new node (from the click)
             node_expr = Vertex(newpos, Center(Rect(0.1,0.1,blue)))
-            self.make_and_add(node_expr)
+            self.world.make_and_add(node_expr)
         elif what == 'drag':
             # drag the new node made by the click
             if not lastnode:
@@ -473,44 +472,8 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
             pass
         return
 
-    # == the make methods might be moved from here to class World... [070201 guess] ###e THEY HAVE BEEN -- revise this code to call #####
-    
-    def make_and_add(self, node_expr):
-        node = self.make(node_expr)
-            ### NOTE: index should really be determined by where we add it in world, or changed when we do that;
-            # for now, that picks a unique index (using a counter in transient_state)
-        
-        ## self.world.nodelist.append(node)
-        ## self.world.nodelist = self.world.nodelist + [node] # kluge: make sure it gets change-tracked. Inefficient when long!
-        self.world.append_node(node) #070201 new feature ###UNTESTED
-        
-        ##e let new node be dragged, and use Command classes above for newmaking and dragging
-        return node
-    
-    def make(self, expr):
-        index = None
-        #e rename? #e move to some superclass 
-        #e worry about lexenv, eg _self in the expr, _this or _my in it... is expr hardcoded or from an arg?
-        #e revise implem in other ways eg eval vs instantiate
-        #e default unique index?? (unique in the saved stateplace, not just here)
-        # (in fact, is reuse of index going to occur from a Command and be a problem? note *we* are acting as command...
-        #e use in other recent commits that inlined it
-        if index is None:
-            # usual case I hope (due to issues mentioned above): allocate one
-            if 0:
-                index = getattr(self, '_index_counter', 100)
-                index = index + 1
-                setattr(self, '_index_counter', index)
-            else:
-                # try to fix bug
-                index = self._index_counter
-                index = index + 1
-                self._index_counter = index
-                ###e LOGIC ISSUE: should assert the resulting ipath has never been used,
-                # or have a more fundamental mechanism to guarantee that
-        env = self.env # maybe wrong, esp re _self
-        ipath = (index, self.ipath)
-        return env.make(expr, ipath) # note: does eval before actual make
+    # == methods make, make_and_add have been moved from here into class World [070202] ###UNTESTED
+
     pass # end of class GraphDrawDemo_FixedToolOnArg1
 
 kluge_dragtool_state_prefs_key = "A9 devel/kluge_dragtool_state_bool"

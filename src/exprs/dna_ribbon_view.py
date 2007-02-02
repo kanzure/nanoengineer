@@ -412,56 +412,39 @@ def dna_ribbon_view_toolcorner_expr_maker(world_holder): #070201 modified from d
     whatever is analogous to GraphDrawDemo_FixedToolOnArg1 (on the world of the same World_dna_holder)
     """
     world = world_holder.world
-    if "kluge" and not world._cmd_Clear_nontrivial:
-        # ###BUG: this modifies world in the same draw event that shows it, evidently (guess from console warning),
-        # so we need to clean it up somehow -- make it as if it was an auto-open command when we set up this demo.
-        #
-        # ###BAD UI: this makes the clear command act more like "reset";
-        # since we have no add or mod command, the reset cmd is prob not needed yet at all.
-        # Remove it from this UI (for now) when this is verified. ###e
-        ## world.append_node( DNA_Cylinder())
-        world_holder.make_and_add(DNA_Cylinder())
+##    if "kluge" and not world._cmd_Clear_nontrivial:
+##        # ###BUG: this modifies world in the same draw event that shows it, evidently (guess from console warning),
+##        # so we need to clean it up somehow -- make it as if it was an auto-open command when we set up this demo.
+##        #
+##        # ###BAD UI: this makes the clear command act more like "reset";
+##        # since we have no add or mod command, the reset cmd is prob not needed yet at all.
+##        # Remove it from this UI (for now) when this is verified. ###e
+##        ## world.append_node( DNA_Cylinder())
+##        world_holder.make_and_add(DNA_Cylinder())
     expr = SimpleColumn(
         checkbox_pref(kluge_dna_ribbon_view_prefs_key_prefix,         "show central cyl?", dflt = False), # works now, didn't at first
         checkbox_pref(kluge_dna_ribbon_view_prefs_key_prefix + "bla", "pref 2", dflt = True),        
-        ActionButton( world._cmd_Make, "button: make"),
+        ActionButton( world_holder._cmd_Make_DNA_Cylinder, "button: make dna cyl"),
         If_kluge( getattr_Expr( world, '_cmd_Clear_nontrivial'),
                   ActionButton( world._cmd_Clear, "button: clear"),
                   ActionButton( world._cmd_Clear, "button (disabled): clear", enabled = False)
-         )
+         ),
+        DisplistChunk(TextRect( format_Expr( "(%d items)" , len(world.nodelist) )))
      )
     return expr
 
 
 class World_dna_holder(InstanceMacro): #070201 modified from GraphDrawDemo_FixedToolOnArg1; need to unify it as a ui-provider framework
     # args
-    background = Arg(Widget2D, Rect(15) ) # not yet displayed
     # options
-    highlight_color = red ###kluge stub
     # internals
     world = Instance( World_dna() ) # has .nodelist I'm allowed to extend
-    _value = Overlay(
-##      DisplistChunk( # new feature as of 070103; works, and seems to be faster (hard to be sure)
-##        Highlightable( background, 
-##                       background,
-##                       sbar_text = "gray bg dna"
-##                       )), # end of Highlightable and DisplistChunk
-      DisplistChunk( world)
-    )
-    def make_and_add(self, node_expr):
-        node = self.make(node_expr)
-        self.world.append_node(node)
-        return node
-    _index_counter = State(int, 2000) # we have to use this for indexes of created thing, or they overlap state!
-    def make(self, expr):###WARNING: dup code
-        index = None
-        if index is None:
-            index = self._index_counter
-            index = index + 1
-            self._index_counter = index
-        env = self.env # maybe wrong, esp re _self
-        ipath = (index, self.ipath)
-        return env.make(expr, ipath) # note: does eval before actual make
-    pass
+    _value = DisplistChunk( world)
+    
+    _cmd_Make_DNA_Cylinder_tooltip = "make a DNA_Cylinder" ###e or parse it out of method docstring, marked by special syntax??
+    def _cmd_Make_DNA_Cylinder(self):
+        self.world.make_and_add( DNA_Cylinder())
+    
+    pass # end of class World_dna_holder [a command-making object, I guess ###k]
 
 # end

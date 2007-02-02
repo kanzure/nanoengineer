@@ -10,10 +10,7 @@ it's a subset of refs to data already in the model.
 
 Some relevant discussion remains in demo_drag.py.
 
-Note: in demo_drag it says:
-    # == the make methods might be moved from here to class World... [070201 guess] ###e
-
-and for our use in dna_ribbon_view.py we said:
+Note: for our use in dna_ribbon_view.py we said:
   #e generalize World to the DataSet variant that owns the data,
   # maybe ModelData (not sure which file discusses all that about DataSet), refile it... it supports ops, helps make tool ui ###e
 """
@@ -47,10 +44,13 @@ class World(ModelObject):  ###WARNING: this is now also used (and commented on) 
         ###e see comment above: "maybe World needs to wrap all it draws with glue to add looks and behavior to it"
         return
 
-    # ==
-    ###### CALL THESE and don't cal the ones in demo_drag ###### [where i am 070201 447p]
-    def make_and_add(self, node_expr):
-        node = self.make(node_expr)
+##    _index_counter = State(int, 1000) # moved here from demo_drag 070202
+##        ####k i think this should not be usage-tracked!!! think abt that... then see if true (probably not)
+
+    _index_counter = 1000 # (an easier way to make it not tracked [070202])
+    
+    def make_and_add(self, expr): # moved here from demo_drag 070202 ###@@@ CALL ME from dna_ribbon
+        node = self.make(expr)
             ### NOTE: index should really be determined by where we add it in world, or changed when we do that;
             # for now, that picks a unique index (using a counter in transient_state)
         
@@ -61,7 +61,7 @@ class World(ModelObject):  ###WARNING: this is now also used (and commented on) 
         ##e let new node be dragged, and use Command classes above for newmaking and dragging
         return node
     
-    def make(self, expr):
+    def make(self, expr): # moved here from demo_drag 070202
         index = None
         #e rename? #e move to some superclass 
         #e worry about lexenv, eg _self in the expr, _this or _my in it... is expr hardcoded or from an arg?
@@ -70,18 +70,12 @@ class World(ModelObject):  ###WARNING: this is now also used (and commented on) 
         # (in fact, is reuse of index going to occur from a Command and be a problem? note *we* are acting as command...
         #e use in other recent commits that inlined it
         if index is None:
-            # usual case I hope (due to issues mentioned above): allocate one
-            if 0:
-                index = getattr(self, '_index_counter', 100)
-                index = index + 1
-                setattr(self, '_index_counter', index)
-            else:
-                # try to fix bug
-                index = self._index_counter
-                index = index + 1
-                self._index_counter = index
-                ###e LOGIC ISSUE: should assert the resulting ipath has never been used,
-                # or have a more fundamental mechanism to guarantee that
+            # usual case I hope (due to issues mentioned above [maybe here or maybe in demo_drag.py]): allocate one
+            index = self._index_counter
+            index = index + 1
+            self._index_counter = index
+            ###e LOGIC ISSUE: should assert the resulting ipath has never been used,
+            # or have a more fundamental mechanism to guarantee that
         env = self.env # maybe wrong, esp re _self
         ipath = (index, self.ipath)
         return env.make(expr, ipath) # note: does eval before actual make
@@ -100,10 +94,12 @@ class World(ModelObject):  ###WARNING: this is now also used (and commented on) 
         # can be used to enable (vs disable) a button or menu item for this command on this object
     _cmd_Clear_legal = True # whether giving the command to this object from a script would be an error
     _cmd_Clear_tooltip = "clear the dots" # a command button or menu item could use this as its tooltip ###e is this client-specific??
+
     def _cmd_Make(self):
         print "world make is nim" ###
     _cmd_Make_tooltip = "make something [nim]" ###e when we know the source of what to make, it can also tell us this tooltip
-    pass
+
+    pass # end of class World
 
 # == comments from class World's original context
 
