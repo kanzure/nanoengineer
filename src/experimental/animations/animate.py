@@ -305,10 +305,6 @@ class MpegSequence:
         else:
             averages = map(lambda i: jpgfmt % (start + i * incr),
                            range(frames))
-            if fadeTo is not None:
-                averages2 = map(lambda i: fadeTo % (start + i * incr),
-                                range(frames))
-
         for i in range(frames):
             fnum = start + incr * i
             yuv = (self.yuv_format() % self.frame) + '.yuv'
@@ -318,10 +314,8 @@ class MpegSequence:
             # tmpimage is now in clipped dimensions
             if titleImage is not None:
                 w, h = clipped.width, clipped.height
-                jobqueue.do(('mogrify -region %dx%d+0+%d -fill \"rgb(%d,%d,%d)\" -colorize 75 %s %s') %
-                            (w, h - divider, divider,
-                             rgb[0], rgb[1], rgb[2],
-                             clipped.exactGeometry(), tmpimage))
+                jobqueue.do(('mogrify -region +0+%d -fill \"rgb(%d,%d,%d)\" -colorize 75 %s') %
+                            (divider, rgb[0], rgb[1], rgb[2], tmpimage))
                 jobqueue.do('composite %s %s %s %s' % (titleImage,
                                                        clipped.exactGeometry(),
                                                        tmpimage, tmpimage))
