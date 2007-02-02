@@ -1022,6 +1022,18 @@ class DelegatingInstanceOrExpr(InstanceOrExpr, DelegatingMixin): # moved here & 
 
 # ==
 
+class ModelObject(DelegatingInstanceOrExpr): #070201 moved here from demo_drag.py; see also ModelObject3D, Geom3D...
+    """#doc -- class for datalike objects within the model
+    [this may diverge from DelegatingInstanceOrExpr somehow -- or i might be mistaken that it needs to differ,
+    but if so, it might have a better name! ###e]
+    """
+    # One way it might diverge -- in having delegation to env.viewer_for_model_object [nim];
+    # something like this:
+    ###e delegate = something from env.viewer_for_model_object(self) or so
+    pass
+
+# ==
+
 class _this(SymbolicExpr): # it needs to be symbolic to support automatic getattr_Expr
     """_this(class) refers to the instance of the innermost lexically enclosing expr with the same name(?) as class.
     """

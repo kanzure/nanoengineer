@@ -15,6 +15,15 @@ see it for ideas about Command, DragCommand, _PERMIT_SETS_INSIDE_, DragANode, Cl
 Notable bug (really in check_target_depth in GLPane, not this file): highlighted-object-finder
 can be fooled by nearby depths due to _check_target_depth_fudge_factor of 0.0001. This caused
 a bug here, which is so far only worked around (by increasing DZFUZZ), not really fixed. [070115 comment]
+
+==
+
+See also:
+* demo_drag_2_scratch.py
+* dna_ribbon_view.py
+* world.py
+* rules.py
+
 """
 
 from basic import *
@@ -61,16 +70,13 @@ import lvals
 reload_once(lvals)
 from lvals import Lval, LvalDict2, call_but_discard_tracked_usage
 
+import world
+reload_once(world)
+from world import World # split out of this file, 070201
+
 # ==
 
-# _viewer_for_object, etc, moved to rules.py on 070123
-
-# ==
-
-class ModelObject(InstanceOrExpr,DelegatingMixin): # stub ##e will we need Widget2D for some reason?
-    """#doc
-    """
-    pass
+## _viewer_for_object, etc, moved to rules.py on 070123
 
 DZFUZZ = PIXELS * 3.0 # replacing 1, 2, 2.5 in different places, to work around bug reported in BUGS as:
     # 070115 "highlightable-finder can be fooled due to _check_target_depth_fudge_factor of 0.0001"
@@ -98,6 +104,7 @@ class Vertex(ModelObject): # renamed Node -> Vertex, to avoid confusion (tho it 
     # but we might add it in a wrapper which makes it into a view of it that lets commands be bound to it,
     # except that World.draw assumes we draw the actual model objs, not wraps of them - also an issue if env says they
     # look different -- so maybe World needs to wrap all it draws with glue to add looks and behavior to it, in fact.
+    # [update much later 070201: or maybe ModelObject knows about this and asks env whether to override default drawing code.]
 
     # but for now, can we do this here?
     
@@ -183,12 +190,8 @@ class Vertex(ModelObject): # renamed Node -> Vertex, to avoid confusion (tho it 
 # My general sense in hindsight is that it's too low-level -- I need to figure out how all this could/should look as toplevel exprs.
 #
 # See a new file rules.py for more on that.
-
-class ModelObject_new(DelegatingInstanceOrExpr):
-    ###e delegate = something from env.viewer_for_model_object(self) or so
-    pass
     
-class Vertex_new(ModelObject_new): #070105 ###e maybe it also needs an official type or typename for use in rules and files?
+class Vertex_new(ModelObject): #070105 ###e maybe it also needs an official type or typename for use in rules and files?
     pos0 = Arg(Position)
     pos = State(Position, pos0)
     color = Option(Color, black)
@@ -196,7 +199,7 @@ class Vertex_new(ModelObject_new): #070105 ###e maybe it also needs an official 
 
 class Viewer(InstanceOrExpr):
     "superclass for viewers of model objs given as arg1"
-    modelobj = Arg(ModelObject_new) #k can subclass refer to this??
+    modelobj = Arg(ModelObject) #k can subclass refer to this??
     pass
 
 class VertexViewer(DelegatingInstanceOrExpr, Viewer): ###k ok supers?
@@ -214,50 +217,7 @@ WithViewerFunc = Stub # see rules.py, to which I moved the more expansive stub o
 
 # ===
 
-# for a quick implem, how does making a new node actually work? Let's assume the instance gets made normally,
-# and then a side effect adds it to a list (leaving it the same instance). Ignore issues of "whether it knows its MT-parent" for now.
-# We know it won't get modified after made, since the thing that modifies it (the command) is not active and not reused.
-# (It might still exist enough to be revivable if we Undoed to the point where it was active, if it was a wizard... that's good!
-#  I think that should work fine even if one command makes it, some later ones modify it, etc...)
-
-# so we need a world object whose state contains a list of Vertex objects. And a non-stub Vertex object (see above I hope).
-
-class World(ModelObject):  ###WARNING: this is now also used (and commented on) in dna_ribbon_view.py; see there for refiling advice###e
-    "#doc -- has a list of Instances it draws, and a clear command for them"
-    nodelist = State(list_Expr, []) # self.nodelist is public for set (self.nodelist = newval), but not for append or other mods
-        # since not changetracked -- can it be?###@@@
-        ###e 070201 does it still need to be public for set? i expect not, see following, but need to review; our clear cmd still sets...
-    def append_node(self, node):#070201 new feature
-        self.nodelist = self.nodelist + [node] # kluge: make sure it gets change-tracked. Inefficient when long!
-        return
-    def draw(self):
-        # draw all the nodes
-        # [optim idea 070103 late: have caller put this in a DisplistChunk; will it actually work?
-        #  the hope is, yes for animating rotation, with proper inval when nodelist changes. It ought to work! Try it. It works!]
-        for node in self.nodelist:
-            # print "%r is drawing %r at %r" % (self, node, node.pos) # suspicious: all have same pos ... didn't stay true, nevermind
-            node.draw() # this assumes the items in the list track their own posns, which might not make perfect sense;
-                # otoh if they didn't we'd probably replace them with container objs for our view of them, which did track their pos;
-                # so it doesn't make much difference in our code. we can always have a type "Vertex for us" to coerce them to
-                # which if necessary adds the pos which only we see -- we'd want this if one Vertex could be in two Worlds at diff posns.
-                # (Which is likely, due to Configuration Management.)
-            if 0 and node is self.nodelist[-1]:
-                print "drew last node in list, %r, ipath[0] %r, pos %r" % (node, node.ipath[0], node.pos)
-        ###e see comment above: "maybe World needs to wrap all it draws with glue to add looks and behavior to it"
-        return
-    def _cmd_Clear(self): #070106 experimental naming convention for a "cmd method" -- a command on this object (requiring no args/opts, by default)
-        if self.nodelist:
-            # avoid gratuitous change-track by only doing it if it does something (see also _cmd_Clear_nontrivial)
-            # NOTE: this cond is probably not needed, since (IIRC) LvalForState only invalidates if a same_vals comparison fails. ###k
-            self.nodelist = []
-        return
-    # related formulae for that command
-    # (names are related by convention, only used in this file, so far; prototype for wider convention, but not yet well thought through)
-    _cmd_Clear_nontrivial = not_Expr( not_Expr( nodelist)) #KLUGE: need a more direct boolean coercion (not that it's really needed at all)
-        # can be used to enable (vs disable) a button or menu item for this command on this object
-    _cmd_Clear_legal = True # whether giving the command to this object from a script would be an error
-    _cmd_Clear_tooltip = "clear the dots" # a command button or menu item could use this as its tooltip
-    pass
+## class World(ModelObject) -- moved to world.py, 070201
 
 # ok, now how do we bind a click on empty space to class MakeANode ?
 
@@ -458,18 +418,6 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
         self.newnode = newnode ###KLUGE that we store it directly in self; might work tho; we store it only for use by on_drag_bg
         return # from on_press_bg
     
-    def make_and_add(self, node_expr):
-        node = self.make(node_expr)
-            ### NOTE: index should really be determined by where we add it in world, or changed when we do that;
-            # for now, that picks a unique index (using a counter in transient_state)
-        
-        ## self.world.nodelist.append(node)
-        ## self.world.nodelist = self.world.nodelist + [node] # kluge: make sure it gets change-tracked. Inefficient when long!
-        self.world.append_node(node) #070201 new feature ###UNTESTED
-        
-        ##e let new node be dragged, and use Command classes above for newmaking and dragging
-        return node
-    
 ##    def on_drag_node(self):
 ##        print "on_drag_node called -- how can we know *which* node it was called on??"
 ##        # 070103 status guess: this is not called; old cmts above seem to say that the only problem with it working is nested glnames. 
@@ -524,6 +472,20 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
                     # Checked for other such bugs in that file, BUT NOT IN OTHER FILES. ###DOIT [061207 10p] 
             pass
         return
+
+    # == the make methods might be moved from here to class World... [070201 guess] ###e
+    
+    def make_and_add(self, node_expr):
+        node = self.make(node_expr)
+            ### NOTE: index should really be determined by where we add it in world, or changed when we do that;
+            # for now, that picks a unique index (using a counter in transient_state)
+        
+        ## self.world.nodelist.append(node)
+        ## self.world.nodelist = self.world.nodelist + [node] # kluge: make sure it gets change-tracked. Inefficient when long!
+        self.world.append_node(node) #070201 new feature ###UNTESTED
+        
+        ##e let new node be dragged, and use Command classes above for newmaking and dragging
+        return node
     
     def make(self, expr):
         index = None

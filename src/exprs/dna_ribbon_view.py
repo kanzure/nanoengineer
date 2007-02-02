@@ -87,11 +87,11 @@ from Overlay import Overlay
 from OpenGL.GL import * #e move what needs this into draw_utils
 import drawer
 
-import demo_drag
-reload_once(demo_drag)
-from demo_drag import World
+# needed for code modified from demo_drag: not sure it's all still needed #k
 
-# needed for code modified from demo_drag:
+import world
+reload_once(world)
+from world import World
 
 import Rect
 reload_once(Rect)
@@ -109,7 +109,7 @@ import Highlightable
 reload_once(Highlightable)
 from Highlightable import Highlightable
 
-#might also be needed:
+#k some of this might also be needed, prob not all:
 
 import transforms
 reload_once(transforms)
@@ -139,7 +139,6 @@ class B_Dna:
     BASE_SPACING = 3.391              # angstroms
 
 #e clean up these local abbreviations
-IorE = InstanceOrExpr
 Macro = DelegatingInstanceOrExpr
 
 # stubs:
@@ -147,7 +146,15 @@ Radians = Width
 Rotations = Degrees = Width
 Angstroms = Nanometers = Width
 
-ModelObject3D = Geom3D = Widget # how would ModelObject3D & Geom3D differ?
+## ModelObject3D = ModelObject ### might be wrong -- might not have fix_color -- unless it can delegate it -- usually it can, not always --
+   # can default delegate have that, until we clean up delegation system? or just move that into glpane? yes for now.
+   # we'll do that soon, but not in present commit which moves some code around. this vers does have a bug re that,
+   # expressed as AssertionError: DelegatingMixin refuses to delegate self.delegate (which would infrecur) in <Cylinder#16801(i)>
+   ###e
+
+ModelObject3D = Widget ###e remove soon -- see fix_color comment above; and probably buggy by its defaults hiding the delegate's
+
+Geom3D = ModelObject3D # how would ModelObject3D & Geom3D differ? something about physicality?
 PathOnSurface = Geom3D
 LineSegment = Geom3D
 
@@ -290,7 +297,9 @@ class Cylinder_Ribbon(Widget): #070129 #e rename?? #e super?
     cyl = Arg(Cylinder)
     path = Arg(PathOnSurface) ###e on that cyl (or a coaxial one)
     color = ArgOrOption(Color, cyl.dflt_color_for_sketch_faces)
-    axialwidth = ArgOrOption(Width, 1.0) #e rename; distance across ribbon along cylinder axis (actual width is presumably shorter since it's diagonal)
+    axialwidth = ArgOrOption(Width, 1.0,
+                             doc = "distance across ribbon along cylinder axis (actual width is presumably shorter since it's diagonal)"
+                             ) #e rename
     def draw(self):
         cyl = self.cyl
         path = self.path
@@ -353,7 +362,7 @@ def get_pref(key, dflt = _NOT_PASSED): #e see also... some stateref-maker I forg
     import env
     return env.prefs.get(key, dflt)
 
-class DNA_Cylinder(Macro):##k super
+class DNA_Cylinder(Macro):
     color = Option(Color, gray) #e default should be transparent/hidden
     color1 = Option(Color, red)
     color2 = Option(Color, blue)
@@ -396,22 +405,24 @@ class DNA_Cylinder(Macro):##k super
 
 # ==
 
-
-World_dna = World # try to use the same world as in demo_drag... generalize World to the DataSet variant that owns the data,
- # maybe ModelData (not sure which file discusses all that about DataSet), refile it... it supports ops, helps make tool ui ###e
+World_dna = World # try to use the same world as in demo_drag... generalize it as needed for that, keeping both examples working. ##e
 
 def dna_ribbon_view_toolcorner_expr_maker(world_holder): #070201 modified from demo_drag_toolcorner_expr_maker -- not yet modified enough ###e
     """given an instance of World_dna_holder (??), return an expr for the "toolcorner" for use along with
     whatever is analogous to GraphDrawDemo_FixedToolOnArg1 (on the world of the same World_dna_holder)
     """
     world = world_holder.world
-    if "kluge" and not world._cmd_Clear_nontrivial: # WARNING: this makes the clear command act more like "reset";
+    if "kluge" and not world._cmd_Clear_nontrivial:
+        # ###BUG: this modifies world in the same draw event that shows it, evidently (guess from console warning),
+        # so we need to clean it up somehow -- make it as if it was an auto-open command when we set up this demo.
+        #
+        # ###BAD UI: this makes the clear command act more like "reset";
         # since we have no add or mod command, the reset cmd is prob not needed yet at all.
         # Remove it from this UI (for now) when this is verified. ###e
         ## world.append_node( DNA_Cylinder())
         world_holder.make_and_add(DNA_Cylinder())
     expr = SimpleColumn(
-        checkbox_pref(kluge_dna_ribbon_view_prefs_key_prefix,         "show central cyl?", dflt = False),
+        checkbox_pref(kluge_dna_ribbon_view_prefs_key_prefix,         "show central cyl?", dflt = False), # works now, didn't at first
         checkbox_pref(kluge_dna_ribbon_view_prefs_key_prefix + "bla", "pref 2", dflt = True),
         If_kluge( getattr_Expr( world, '_cmd_Clear_nontrivial'),
                   ActionButton( world._cmd_Clear, "button: clear"),

@@ -234,7 +234,7 @@ from attr_decl_macros import * # Instance, Arg, Option, ArgOrOption, State, etc
 
 import instance_helpers
 reload_once(instance_helpers)
-from instance_helpers import InstanceOrExpr, DelegatingMixin, DelegatingInstanceOrExpr, InstanceMacro, _this
+from instance_helpers import InstanceOrExpr, DelegatingMixin, DelegatingInstanceOrExpr, InstanceMacro, _this, ModelObject
 
 import If_expr # 061128
 reload_once(If_expr)
