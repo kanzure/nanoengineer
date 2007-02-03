@@ -44,10 +44,23 @@ class World(ModelObject):  ###WARNING: this is now also used (and commented on) 
         ###e see comment above: "maybe World needs to wrap all it draws with glue to add looks and behavior to it"
         return
 
-##    _index_counter = State(int, 1000) # moved here from demo_drag 070202
-##        ####k i think this should not be usage-tracked!!! think abt that... then see if true (probably not)
+    _index_counter = State(int, 1000) # moved here from demo_drag 070202
+        ####k i think this should not be usage-tracked!!! think abt that... then see if true (probably not)
 
-    _index_counter = 1000 # (an easier way to make it not tracked [070202])
+    ## _index_counter = 1000 # (an easier way to make it not tracked [070202]) ####WRONG, when self is remade!!! [070203 re-realization]
+
+    ## _index_counter = property( lambda self: len(self.nodelist) + 3000 ) # 070203 experiment -- known to be wrong, see below;
+        # WARNING also includes a commenting out of this date [#####e needs code cleanup]
+        ###k MIGHT BE WRONG since it usage-tracks nodelist -- REVIEW ###
+        ### AND SURELY WRONG once we can delete individual nodes. BUT WE ALREADY CAN with clear button,
+        # and this makes new nodes show up in the places of old ones which were cleared!!! So it's unacceptable.
+        # I think it also made it a lot slower -- maybe the danger seen in following para happened with this and not with State. #k
+
+        # The tracking danger is that whenever you make any new object, the old objects see that the index they used is different
+        # and think they too need remaking or something like that! This needs thinking through
+        # since it probably covers all make-data, not just the index. All make-data is being snapshotted.
+        # For that matter, things used by "commands" are in general different than things used to recompute.
+        # Maybe entire commands need to have traced usage discarded or kept in a new kind of place. #####
     
     def make_and_add(self, expr): # moved here from demo_drag 070202 ###@@@ CALL ME from dna_ribbon
         node = self.make(expr)
@@ -72,8 +85,10 @@ class World(ModelObject):  ###WARNING: this is now also used (and commented on) 
         if index is None:
             # usual case I hope (due to issues mentioned above [maybe here or maybe in demo_drag.py]): allocate one
             index = self._index_counter
-            index = index + 1
-            self._index_counter = index
+            if 'index should be modified [070203]':
+                # see comments above dated 070203
+                index = index + 1
+                self._index_counter = index
             ###e LOGIC ISSUE: should assert the resulting ipath has never been used,
             # or have a more fundamental mechanism to guarantee that
         env = self.env # maybe wrong, esp re _self
