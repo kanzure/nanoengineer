@@ -53,6 +53,10 @@ import transforms
 reload_once(transforms)
 from transforms import Translate
 
+import Highlightable
+reload_once(Highlightable)
+from Highlightable import Highlightable, Button, print_Expr, _setup_UNKNOWN_SELOBJ
+
 
 class DraggableObject(DelegatingInstanceOrExpr):
     """DraggableObject(obj) is a wrapper which makes any model object draggable (###doc the details).
@@ -66,13 +70,18 @@ class DraggableObject(DelegatingInstanceOrExpr):
     # options
     motion = State(Vector, V(0,0,0)) # publicly visible, probably not publicly changeable, but not sure -- why not let it be?
         # in case it is or in case of bugs, never modify it in place (using +=) -- assume it might be a shared Numeric array.
+        # Note: this needs to be change/usage tracked so that our drawing effects are invalidated when it changes.
+        #k is it? It must be, since State has to be by default.
 
     # appearance
-    delegate = Highlightable( obj, sbar_text = "drag me", on_press = self.on_press, on_drag = self.on_drag ) ###k guesses
-    
+    delegate = Highlightable(
+        Translate( obj, motion),
+        sbar_text = "Draggable",
+        on_press = _self.on_press, on_drag = _self.on_drag
+    )
         ### DESIGN Q: do we also include the actual event binding (on_press and on_drag) -- for now, we do --
         # or just supply the Draggable interface for moving self.obj
-        # and let the caller supply the binding to our internal "cmd" drag_from_to?? ########
+        # and let the caller supply the binding to our internal "cmd" drag_from_to?? ###e
 
     # has Draggable interface (see demo_polygon.py for explan) for changing self.motion
     
@@ -106,17 +115,18 @@ class DraggableObject(DelegatingInstanceOrExpr):
         self.flush(motion)
         return
 
-    # copied from demo_polygon.py typical_DragCommand: to be mdified here
-    def on_press(self):####UNFINISHED
-        point = whatever # see example in demo_drag.py; point should be the touched point on the visible object (hitpoint)
-        self.oldpoint = point
+    # modified from demo_polygon.py class typical_DragCommand
+    def on_press(self):
+        point = self.current_event_mousepoint() # the touched point on the visible object (hitpoint)
+            # (this method is defined in the Highlightable which is self.delegate)
+        self.oldpoint = self.startpoint = point
         return
     def on_drag(self):###UNFINISHED re plane issue
-        point = self.current_event_mousepoint() # from demo_Drag Vertex -- ##k compare others -- NOTE, THIS IS HITPOINT, NOT IN PLANE
         oldpoint = self.oldpoint # was saved by prior on_drag and by on_press
+        point = self.current_event_mousepoint(plane = self.startpoint)
         self._cmd_drag_from_to( oldpoint, point) # use Draggable interface cmd
         self.oldpoint = point
-        self.env.glpane.gl_update() ###k needed? i hope not
+        self.env.glpane.gl_update() ###k needed? i hope not, but i'm not sure; guess: no, provided self.motion is change/usage tracked
         return
     def on_release(self):
         pass
@@ -125,4 +135,6 @@ class DraggableObject(DelegatingInstanceOrExpr):
 
 # examples
 
-testexpr_31 = DraggableObject(Rect())
+## testexpr_31 = DraggableObject(Rect())
+
+# end

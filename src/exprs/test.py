@@ -153,6 +153,10 @@ import dna_ribbon_view
 reload_once(dna_ribbon_view)
 from dna_ribbon_view import DNA_Cylinder, dna_ribbon_view_toolcorner_expr_maker, World_dna_holder
 
+import draggable
+reload_once(draggable)
+from draggable import DraggableObject
+
 # ==
 
 from OpenGL.GL import glPopMatrix, glPushMatrix # needed in drawtest1_innards
@@ -1201,11 +1205,18 @@ testexpr_30g = eval_Expr( call_Expr( lambda thing:
                                      call_Expr( _app.Instance, testexpr_30b, "#30b")
                                      ))
 
+# == DraggableObject
+
+testexpr_31 = DraggableObject(Rect(1,0.5,yellow)) # --
+    # [may work even though Rect has no .move (and no state of its own, so far), since we never try to flush it;
+    #  eventually what's needed is for Rect(), when coerced to ModelObject, to acquire enough position state to be moved ###e]
+
+
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
 
 enable_testbed = True
 
-testexpr = testexpr_30g ## testexpr_29aox3 ## testexpr_18 ## testexpr_9fx4 ## testexpr_19g ## testexpr_19g _26g _28
+testexpr =  testexpr_31 ## testexpr_29aox3 ## testexpr_18 ## testexpr_9fx4 ## testexpr_19g ## testexpr_19g _26g _28
 
     # as of 070121 at least these work ok in EVAL_REFORM with now-semipermanent kluge070119:
     # _2, _3a, _4a, _5, _5a, _10a, _10c, _9c, _9d, _9cx,

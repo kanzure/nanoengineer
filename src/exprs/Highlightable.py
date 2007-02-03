@@ -387,25 +387,36 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         glMatrixMode(GL_MODELVIEW)
         glPopMatrix()
         
-    def current_event_mousepoint(self, center = None, radius = None): #061206
-        #e rename? #e add variant to get the drag-startpoint too #e cache the result #e is this the right class for it?
+    def current_event_mousepoint(self, center = None, radius = None, plane = None): #061206; 070203 added 'plane' and revised docstring
+        #e rename? #e add variant to get the drag-startpoint too #e cache the result
+        #e is this the right class for it? self is only used for glpane and local coords,
+        # but "run_OpenGL_in_local_coords" is only implementable in this class for the moment.
         """Return the 3d point (in self's local coordinates) corresponding to the mouse position
-        of the current mouse event (error if no current mouse event which stores the necessary info for this);
-        this is defined (for now) based on the depth buffer pixel clicked on,
-        or is (by default) in the plane of the center-of-view if the depth is too large (meaning the mouse was over empty space).
-           If center and radius are passed, they change the way a click over empty space is handled,
-        to approximate what would happen if self was drawn as a screen-parallel circle (not a sphere)
-        with the given center and radius (both in local coordinates). If only center is passed, it's the same as if
-        center and a very large (infinite) radius is passed. The default behavior (when center is not passed)
-        is equivalent to passing the "center of view" (in local coordinates) as center. [all this about center and radius is nim ##e]
-           WARNING: this is so far implemented for click (press) but not drag or release; it remains to be seen
+        of the current mouse event (error if no current mouse event which stores the necessary info for this),
+        interpreting its depth based on the arguments/options.
+           If no options are passed, then the event's depth is defined (for now) by the depth buffer pixel clicked on,
+        unless the click was in empty space, in which case the plane of the center of view [partly nim] is used.
+        (This is partly nim as of 070203 since the actual cov is not used; local V(0,0,0) is used to approximate it.)
+           If center is passed, it is used in place of the center of view to determine depth of empty-space clicks.
+        (The behavior when center is not passed is equivalent to passing the "center of view" (in local coordinates) as center.)
+           If radius [nim] and center are passed, then clicks in empty space only use center if they are close enough to it
+        (within distance radius in center's plane) -- this imitates mouse hits on a screen-parallel circular disk
+        defined by center and radius. If the disk is missed, the center of view is used as before.
+           If plane is passed, all the above data is ignored (depth buffer, c nter of view, center, radius).
+        If plane is a plane [nim], the hit is assumed to lie within it; if a point, the hit lies within the screen-parallel
+        plane containing that point.
+           WARNING [partly obs]: this is so far implemented for click (press) but not drag or release; it remains to be seen
         exactly what it will do for drag when the depth under the mouse is varying during the drag. ##k
+        [later: it is used for drag successfully in demo_drag.py, but in a way which can be confused by seeing
+         depth of dragobj vs depth of background objs.]
            WARNING: this only works on widgets which store, or can reconstruct, their local coordinate system
         used to draw them in the just-drawn frame. Only some kinds can (for now only Highlightable), and only if
         they were actually drawn in the just-drawn frame (if they weren't, we might give wrong results rather than
         detecting the error). See more caveat comments in the current implementing submethod (run_OpenGL_in_local_coords).
            Terminology note: point implies 3d; pos might mean 2d, especially in the context of a 2d mouse.
         So it's named mousepoint rather than mousepos.
+           Delegation usage note: this can be called on self, if self delegates to a Highlightable (perhaps indirectly)
+        and uses the same local coordinate system as that Highlightable.
         """
         glpane = self.env.glpane
         try:
@@ -428,10 +439,17 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
             gl_event_info = mode.dragstart_using_GL_DEPTH( event, more_info = True) # same as what mode did itself, for a leftClick
             #print "during drag got this info:",gl_event_info
             info = gl_event_info
-        def func(center = center, radius = radius):
+        def func(center = center, radius = radius, plane = plane):
             # will the arg dflts fix this bug when I drag off the edge of the object?
             #   UnboundLocalError: local variable 'center' referenced before assignment
             farQ, abs_hitpoint, wX, wY, depth, farZ = info
+            if plane is not None:
+                center = plane # assume it's a point -- actual plane is nim
+                radius = None
+                farQ = True
+                # now we can use the remaining code
+                #e [code cleanup needed: call a routine split from the following instead,
+                # in case more options we'd have to turn off here are added later into the following code.]
             if not farQ:
                 point = A(gluUnProject(wX, wY, depth))
             else:
