@@ -264,3 +264,30 @@ failure details: no highlight sbar_text, no action on press, debug_pref print li
 happens with the "drag new nodes?" checkbox_pref in testexpr_19f in bottom_right_corner]
 seems repeatable -- in one session tried so far
 
+==
+
+070203
+
+This is not a known bug, just an implem issue to think through to avoid likely bugs:
+what happens to usage tracking while a command decides what to do, eg what expr to make?
+Here are some code comments (world.py) to remind me of a place this came up 
+(but not the only place it matters) 
+(i didn't try to make these comments understandable to anyone else, so far):
+
+##    _index_counter = State(int, 1000) # moved here from demo_drag 070202
+##        ####k i think this should not be usage-tracked!!! think abt that... then see if true (probably not)
+
+    ## _index_counter = 1000 # (an easier way to make it not tracked [070202]) ####WRONG, when self is remade!!! [070203 re-realization]
+
+    _index_counter = property( lambda self: len(self.nodelist) + 3000 ) # 070203 experiment -- known to be wrong, see below;
+        # WARNING also includes a commenting out of this date [#####e needs code cleanup]
+        ###k MIGHT BE WRONG since it usage-tracks nodelist -- REVIEW ###
+        ### AND SURELY WRONG once we can delete individual nodes.
+
+        # The tracking danger is that whenever you make any new object, the old objects see that the index they used is different
+        # and think they too need remaking or something like that! This needs thinking through
+        # since it probably covers all make-data, not just the index. All make-data is being snapshotted.
+        # For that matter, things used by "commands" are in general different than things used to recompute.
+        # Maybe entire commands need to have traced usage discarded or kept in a new kind of place. #####
+
+==
