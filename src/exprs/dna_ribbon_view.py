@@ -416,9 +416,11 @@ class DNA_Cylinder(Macro):
                             call_Expr( get_dna_pref, 'show central cyl', dflt = False),
                             cyl, # works when alone
                             Spacer()),
-                        Cylinder_Ribbon(cyl, path1, color1, showballs = call_Expr( get_dna_pref, 'show phosphates', dflt = False) ),
+                        # the following two ways of passing in the prefs value are equivalent; in real life they'd both be the shorter one
+                        Cylinder_Ribbon(cyl, path1, color1, showballs = _self.show_phosphates ),
                         Cylinder_Ribbon(cyl, path2, color2, showballs = call_Expr( get_dna_pref, 'show phosphates', dflt = False) )
                        )
+    show_phosphates = call_Expr( get_dna_pref, 'show phosphates', dflt = False)
     pass
 
 # ==
