@@ -269,11 +269,12 @@ class Cylinder_HelicalPath(Geom3D): #e super?
             p = p0 + vx + y * cY + z * cZ
             points.append(p)
         return points
-    def _C_segments(self): ###UNTESTED
+    def _C_segments(self):
         "compute self.segments, a list of pairs of successive path points [###e maybe they ought to be made into LineSegments]"
         p = self.points
         return zip(p[:-1], p[1:])
-    def _C_segment_centers(self): ###UNTESTED -- plan is to use it to draw base attach points
+    def _C_segment_centers(self):
+        "compute self.segment_centers [example use: draw base attach points (phosphates) in DNA]"
         return [(p0 + p1)/2.0 for p0,p1 in self.segments]
     def draw(self):
         color = self.fix_color(self.color)
