@@ -308,6 +308,8 @@ class Cylinder_Ribbon(Widget): #070129 #e rename?? #e super?
                              doc = "distance across ribbon along cylinder axis (actual width is presumably shorter since it's diagonal)"
                              ) #e rename
     showballs = Option(bool, False) # show balls at centers of segments ###KLUGE: hardcoded size
+    showlines = Option(bool, False) # show lines from centers of segments to helix axis (almost)
+        # (note: the lines from paired bases don't quite meet, and form an angle)
     def draw(self):
         cyl = self.cyl
         path = self.path
@@ -320,7 +322,7 @@ class Cylinder_Ribbon(Widget): #070129 #e rename?? #e super?
         offset2 = axialwidth * cyl.dx * 0.5 # assumes Width units are 1.0 in model coords
         offset1 = - offset2
         offsets = (offset1, offset2)
-        color = self.color
+        color = self.fix_color(self.color)
         interior_color = ave_colors(0.8, color, white) ### remove sometime?
 
         self.draw_quad_strip( interior_color, offsets, points, normals)
@@ -328,7 +330,18 @@ class Cylinder_Ribbon(Widget): #070129 #e rename?? #e super?
             kluge_hardcoded_size = 0.2
             from drawer import drawsphere # drawsphere(color, pos, radius, detailLevel)
             for c in path.segment_centers:
-                drawsphere(self.fix_color(self.color), c, kluge_hardcoded_size, 2)
+                ##e It might be interesting to set a clipping plane to cut off the sphere inside the ribbon-quad;
+                # but that kind of fanciness belongs in the caller, passing us something to draw for each base
+                # (in a base-relative coordsys), presumably a DisplistChunk instance. (Or a set of things to draw,
+                #  for different kinds of bases, in the form of a "base view" base->expr function.)
+                drawsphere(color, c, kluge_hardcoded_size, 2)
+        if self.showlines:
+            from drawer import drawline
+            perpvec_at_surfacepoint = cyl.perpvec_at_surfacepoint
+            for c in path.segment_centers:
+                n = perpvec_at_surfacepoint(c)
+                nout, nin = n * 0.2, n * 1.0 # hardcoded numbers -- not too bad since there are canonical choices 
+                drawline(color, c + nout, c - nin) ##k lighting??
         # draw edges? see Ribbon_oldcode_for_edges
         return
     def draw_quad_strip(self, interior_color, offsets, points, normals):
@@ -411,17 +424,18 @@ class DNA_Cylinder(Macro):
         #e note, this seems to be "rotate around a line" (not just a vector), which implies translating so line goes thru origin;
         # or it might be able to be a vector, if we store a relative path... get this straight! ###e (for now assume axis could be either)
     ## here's an easier way, and better anyway (since the path's state (when it has any) should be separate):
-    path2 = path1(theta_offset = 150*2*pi/360) 
+    path2 = path1(theta_offset = 150*2*pi/360)
+    # prefs values used in appearance [##e in future, we'll also use these to index a set of display lists, or so]
+    show_phosphates = call_Expr( get_dna_pref, 'show phosphates', dflt = False)
+    show_lines = call_Expr( get_dna_pref, 'show lines', dflt = False)
     # appearance (stub -- add handles/actions, remove cyl)
     delegate = Overlay( If_kluge(
                             call_Expr( get_dna_pref, 'show central cyl', dflt = False),
                             cyl, # works when alone
                             Spacer()),
-                        # the following two ways of passing in the prefs value are equivalent; in real life they'd both be the shorter one
-                        Cylinder_Ribbon(cyl, path1, color1, showballs = _self.show_phosphates ),
-                        Cylinder_Ribbon(cyl, path2, color2, showballs = call_Expr( get_dna_pref, 'show phosphates', dflt = False) )
+                        Cylinder_Ribbon(cyl, path1, color1, showballs = show_phosphates, showlines = show_lines ),
+                        Cylinder_Ribbon(cyl, path2, color2, showballs = show_phosphates, showlines = show_lines )
                        )
-    show_phosphates = call_Expr( get_dna_pref, 'show phosphates', dflt = False)
     pass
 
 # ==
@@ -445,6 +459,7 @@ def dna_ribbon_view_toolcorner_expr_maker(world_holder): #070201 modified from d
     expr = SimpleColumn(
         checkbox_pref( dna_pref('show central cyl'), "show central cyl?", dflt = False), # works now, didn't at first
         checkbox_pref( dna_pref('show phosphates'),   "show phosphates?",   dflt = False),
+        checkbox_pref( dna_pref('show lines'),   "show lines?",   dflt = False), # temporary
         ActionButton( world_holder._cmd_Make_DNA_Cylinder, "button: make dna cyl"),
         If_kluge( getattr_Expr( world, '_cmd_Clear_nontrivial'),
                   ActionButton( world._cmd_Clear, "button: clear"),
