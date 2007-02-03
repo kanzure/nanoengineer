@@ -81,8 +81,17 @@ def drawOneFrame(t, filename):
            (preamble_xpos, preamble_ypos, preamble, filename))
     jobqueue.do(cmd)
 
-# Start with the Nanorex logo sequence
-m.simpleSequence(drawOneFrame, 0.5*m.SECOND, step=1, repeat_final_frame=1.5*m.SECOND)
+####################################################################
+
+if False:
+    # EXPERIMENT
+    m.textBottom(os.path.join(animate.mpeg_dir,
+                              'slow_cpk_jpeg/' + struct_name + '.%06d.jpg'),
+                 start=0, incr=10, frames=8*m.SECOND, avg=10,
+                 divider=250, rgb=(153,206,240),
+                 titleImage='Titles_22_Sep_2006/5SmallBearingPages-17.gif')
+    m.encode()
+    sys.exit(0)
 
 ####################################################################
 
@@ -159,6 +168,15 @@ def slow_tubes_with_title(titleImage, real_seconds, start=0, avg=10):
                         start=start, incr=10, frames=real_seconds*m.SECOND, avg=avg,
                         titleImage=titleImage)
 
+def slow_tubes_with_low_title(titleImage, real_seconds, start=0, avg=10, divider=300):
+    # Like slow_tubes_with_title, but we only apply light-blue averaging to a
+    # rectangular portion of the image lying along the bottom edge, with the upper
+    # edge of the averaged image defined by "divider".
+    return m.textBottom(SLOW_TUBES,
+                        start=start, incr=10, frames=real_seconds*m.SECOND, avg=avg,
+                        divider=divider, rgb=(153,206,240),
+                        titleImage=titleImage)
+
 def slow_tubes(real_seconds, start=0, avg=10):
     # Background animation with title, 6 ps/s blurred, tubes
     # Use "avg=1" to make it jumpy
@@ -220,6 +238,21 @@ def cross_fade(real_seconds, from_filespec, to_filespec, start=0, avg=10, textli
                         start=start, incr=avg, frames=real_seconds*m.SECOND,
                         avg=avg, textlist=textlist, fadeTo=to_filespec)
 
+if False:
+    # EXPERIMENT
+    z = 0
+    # divider=365 looks perfect
+    z = slow_tubes_with_low_title('Titles_22_Sep_2006/7SmallBearingPages-17.gif',
+                                  5, start=z, avg=1, divider=365)
+    z = slow_tubes_with_low_title('Titles_22_Sep_2006/8SmallBearingPages-17.gif',
+                                  5, start=z, avg=1, divider=365)
+    m.encode()
+    sys.exit(0)
+
+####################################################################
+# Start with the Nanorex logo sequence
+m.simpleSequence(drawOneFrame, 0.5*m.SECOND, step=1, repeat_final_frame=1.5*m.SECOND)
+
 ####################################################################
 # Medium simulation: 23 real seconds, 13.8 simulated psecs, 690 frames, 2760 subframes at 5 fs each
 # I don't have enough frames! Restart the animation on the second title page (start=0, not z)
@@ -257,10 +290,11 @@ z = slow_tubes(10, start=z)
 ####################################################################
 # Slow animation: 25 real seconds, 7500 subframes, 150 psecs
 # Jumpy with explanation of jumpiness
+# PARTIAL contrast-graying (textBottom) apply to 7Small... and 8Small...
 
 z = slow_tubes_with_title('Titles_22_Sep_2006/6SmallBearingPages-17.gif', 15, start=0, avg=1)
-z = slow_tubes_with_title('Titles_22_Sep_2006/7SmallBearingPages-17.gif', 5, start=z, avg=1)
-z = slow_tubes_with_title('Titles_22_Sep_2006/8SmallBearingPages-17.gif', 5, start=z, avg=1)
+z = slow_tubes_with_low_title('Titles_22_Sep_2006/7SmallBearingPages-17.gif', 5, start=z, avg=1, divider=365)
+z = slow_tubes_with_low_title('Titles_22_Sep_2006/8SmallBearingPages-17.gif', 5, start=z, avg=1, divider=365)
 
 ####################################################################
 # Slow simulation: 10.5 real seconds, 3150 subframes, 63 psecs
