@@ -306,6 +306,7 @@ class Cylinder_Ribbon(Widget): #070129 #e rename?? #e super?
     axialwidth = ArgOrOption(Width, 1.0,
                              doc = "distance across ribbon along cylinder axis (actual width is presumably shorter since it's diagonal)"
                              ) #e rename
+    showballs = Option(bool, False) # show balls at centers of segments ###KLUGE: hardcoded size
     def draw(self):
         cyl = self.cyl
         path = self.path
@@ -322,9 +323,11 @@ class Cylinder_Ribbon(Widget): #070129 #e rename?? #e super?
         interior_color = ave_colors(0.8, color, white) ### remove sometime?
 
         self.draw_quad_strip( interior_color, offsets, points, normals)
-        if 0:#070202
-            for c in self.path.centers:
-                drawsphere(c)
+        if self.showballs: #070202
+            kluge_hardcoded_size = 0.2
+            from drawer import drawsphere # drawsphere(color, pos, radius, detailLevel)
+            for c in path.segment_centers:
+                drawsphere(self.fix_color(self.color), c, kluge_hardcoded_size, 2)
         # draw edges? see Ribbon_oldcode_for_edges
         return
     def draw_quad_strip(self, interior_color, offsets, points, normals):
@@ -363,6 +366,9 @@ class Cylinder_Ribbon(Widget): #070129 #e rename?? #e super?
 
 kluge_dna_ribbon_view_prefs_key_prefix = "A9 devel/kluge_dna_ribbon_view_prefs_key_prefix"
 
+def dna_pref(subkey):
+    return kluge_dna_ribbon_view_prefs_key_prefix + '/' + subkey
+
 from preferences import _NOT_PASSED ###k
 def get_pref(key, dflt = _NOT_PASSED): #e see also... some stateref-maker I forget ####DUP CODE with test.py, should refile
     """Return a prefs value. Fully usage-tracked.
@@ -370,6 +376,9 @@ def get_pref(key, dflt = _NOT_PASSED): #e see also... some stateref-maker I forg
     """
     import env
     return env.prefs.get(key, dflt)
+
+def get_dna_pref(subkey, **kws): ###DESIGN FLAW: lack of central decl means no warning for misspelling one ref out of several
+    return get_pref( dna_pref(subkey), **kws)
 
 class DNA_Cylinder(Macro):
     color = Option(Color, gray) #e default should be transparent/hidden
@@ -404,11 +413,11 @@ class DNA_Cylinder(Macro):
     path2 = path1(theta_offset = 150*2*pi/360) 
     # appearance (stub -- add handles/actions, remove cyl)
     delegate = Overlay( If_kluge(
-                            call_Expr( get_pref, kluge_dna_ribbon_view_prefs_key_prefix, dflt = False),
+                            call_Expr( get_dna_pref, 'show central cyl', dflt = False),
                             cyl, # works when alone
                             Spacer()),
-                        Cylinder_Ribbon(cyl, path1, color1),
-                        Cylinder_Ribbon(cyl, path2, color2)
+                        Cylinder_Ribbon(cyl, path1, color1, showballs = call_Expr( get_dna_pref, 'show phosphates', dflt = False) ),
+                        Cylinder_Ribbon(cyl, path2, color2, showballs = call_Expr( get_dna_pref, 'show phosphates', dflt = False) )
                        )
     pass
 
@@ -431,8 +440,8 @@ def dna_ribbon_view_toolcorner_expr_maker(world_holder): #070201 modified from d
 ##        ## world.append_node( DNA_Cylinder())
 ##        world_holder.make_and_add(DNA_Cylinder())
     expr = SimpleColumn(
-        checkbox_pref(kluge_dna_ribbon_view_prefs_key_prefix,         "show central cyl?", dflt = False), # works now, didn't at first
-        checkbox_pref(kluge_dna_ribbon_view_prefs_key_prefix + "bla", "pref 2", dflt = True),        
+        checkbox_pref( dna_pref('show central cyl'), "show central cyl?", dflt = False), # works now, didn't at first
+        checkbox_pref( dna_pref('show phosphates'),   "show phosphates?",   dflt = False),
         ActionButton( world_holder._cmd_Make_DNA_Cylinder, "button: make dna cyl"),
         If_kluge( getattr_Expr( world, '_cmd_Clear_nontrivial'),
                   ActionButton( world._cmd_Clear, "button: clear"),
