@@ -7,6 +7,8 @@ $Id$
 - move/flush untested, and if it works, will require objs already with posn state
 - moved/rotated coordsys untested
 
+See also the future usage comments in DraggableObject's docstring.
+
 070203 Design discussion (scratch):
 
 Draggable( thing):
@@ -67,6 +69,13 @@ class DraggableObject(DelegatingInstanceOrExpr):
        WARNING: Experimental -- API/organization will surely change,
     integrating not only rotation, but click to select, etc.
     The resulting wrapper will typically be applied by model->view macros.
+       In fact, it's more complicated than that: the selection-click controller will wrap single objects,
+    but the draggability wrapper is more likely to be organized something like this,
+    where the named localvars refer to sets whose membership depends on selection:
+      visibles = DisplistChunk(fixed_stuff) + distortedly_moving_stuff +
+        DraggableObject(DisplistChunk(dragging_as_a_unit_stuff)).
+    The distortedly_moving_stuff includes things like external bonds between fixed and being-dragged atoms,
+    which have to stretch in individual ways during the drag.
     """
     # args
     obj = Arg(ModelObject)
