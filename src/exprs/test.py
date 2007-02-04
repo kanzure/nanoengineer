@@ -1207,8 +1207,8 @@ testexpr_30g = eval_Expr( call_Expr( lambda thing:
 
 # == DraggableObject
 
-testexpr_31 = DraggableObject(Rect(1,0.5,yellow)) # --
-    # [may work even though Rect has no .move (and no state of its own, so far), since we never try to flush it;
+testexpr_31 = DraggableObject(Rect(1,0.5,yellow)) # works [but see caveats in draggable.py]
+    # [note: this can work even though Rect() has no .move (and no state of its own, so far), since we never try to flush motion;
     #  eventually what's needed is for Rect(), when coerced to ModelObject, to acquire enough position state to be moved ###e]
 
 
@@ -1216,7 +1216,7 @@ testexpr_31 = DraggableObject(Rect(1,0.5,yellow)) # --
 
 enable_testbed = True
 
-testexpr =  testexpr_31 ## testexpr_29aox3 ## testexpr_18 ## testexpr_9fx4 ## testexpr_19g ## testexpr_19g _26g _28
+testexpr =  testexpr_30g ## testexpr_29aox3 ## testexpr_18 ## testexpr_9fx4 ## testexpr_19g ## testexpr_19g _26g _28
 
     # as of 070121 at least these work ok in EVAL_REFORM with now-semipermanent kluge070119:
     # _2, _3a, _4a, _5, _5a, _10a, _10c, _9c, _9d, _9cx,

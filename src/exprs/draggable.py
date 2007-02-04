@@ -3,7 +3,11 @@ draggable.py
 
 $Id$
 
-Design discussion (scratch):
+070203 status: DraggableObject works, except:
+- move/flush untested, and if it works, will require objs already with posn state
+- moved/rotated coordsys untested
+
+070203 Design discussion (scratch):
 
 Draggable( thing):
 - have own state which is drag pos

@@ -131,6 +131,9 @@ import lvals
 reload_once(lvals)
 from lvals import Lval, LvalDict2, call_but_discard_tracked_usage
 
+import draggable
+reload_once(draggable)
+from draggable import DraggableObject
 
 # temporary kluge: excerpt from cad/src/DnaGenerator.py; this copy used locally for constants [values not reviewed]:
 class B_Dna:
@@ -479,7 +482,8 @@ class World_dna_holder(InstanceMacro): #070201 modified from GraphDrawDemo_Fixed
     
     _cmd_Make_DNA_Cylinder_tooltip = "make a DNA_Cylinder" ###e or parse it out of method docstring, marked by special syntax??
     def _cmd_Make_DNA_Cylinder(self):
-        self.world.make_and_add( DNA_Cylinder())
+        ## self.world.make_and_add( DNA_Cylinder()) # works
+        self.world.make_and_add( DraggableObject(DNA_Cylinder()) ) # 070203 ###UNTESTED
     
     pass # end of class World_dna_holder [a command-making object, I guess ###k]
 
