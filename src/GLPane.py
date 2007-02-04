@@ -1,6 +1,6 @@
 # Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 """
-GLPane.py -- Atom's main model view, based on Qt's OpenGL widget.
+GLPane.py -- NE1's main model view, based on Qt's OpenGL widget.
 
 Mostly written by Josh; partly revised by Bruce for mode code revision, 040922-24.
 Revised by many other developers since then (and perhaps before).
@@ -2574,6 +2574,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
                         msg = method()
                 except:
                     msg = "<exception in selobj statusbar message code>"
+                    if platform.atom_debug:
+                        #bruce 070203 added this print; not if 1 in case it's too verbose due as mouse moves
+                        print_compact_traceback(msg + ': ')
             else:
                 msg = " "
             env.history.statusbar_msg(msg)
