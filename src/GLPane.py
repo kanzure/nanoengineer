@@ -158,7 +158,15 @@ class GLPane_mixin_for_DisplistChunk(object): #bruce 070110 moved this here from
     def glCallList(self, listname):
         "Compile a call to the given display list. Note: most error checking and any extra tracking is responsibility of caller."
         ##e in future, could merge successive calls into one call of multiple lists
-        assert not self.compiling_displist # redundant with OpenGL only if we have no bugs in maintaining it, so worth checking
+        ## assert not self.compiling_displist # redundant with OpenGL only if we have no bugs in maintaining it, so worth checking
+            # above was WRONG -- what was I thinking? This is permitted, and we'll need it whenever one displist can call another.
+            # (And I'm surprised I didn't encounter it before -- did I still never try an MT with displists?)
+            # (Did I mean to put this into some other method? or into only certain uses of this method??
+            # For now, do an info print, in case sometimes this does indicate an error, and since it's useful
+            # for analyzing whether nested displists are behaving as expected. [bruce 070203]
+        from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
+        if self.compiling_displist and debug_pref("GLPane: print nested displist compiles?", Choice_boolean_False, prefs_key = True):
+            print "debug: fyi: displist %r is compiling a call to displist %r" % (self.compiling_displist, listname)
         assert listname # redundant with following?
         glCallList(listname)
         return
