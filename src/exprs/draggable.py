@@ -89,8 +89,16 @@ class DraggableObject(DelegatingInstanceOrExpr):
     # appearance
     delegate = Highlightable(
         Translate( obj, motion),
-        sbar_text = "Draggable",
-        on_press = _self.on_press, on_drag = _self.on_drag
+        ## sbar_text = format_Expr( "Draggable %r", obj ),
+            ##e should use %s on obj.name or obj.name_for_sbar, and add those attrs to ModelObject interface
+            # (they would delegate through viewing wrappers on obj, if any, and get to the MT-visible name of the model object itself)
+            ##e [Can we implem something like try_Expr( try1, try2, try3) which evals to the first one evalling without an exception??
+            # But that doesn't seem safe unless you have to list the permissible exceptions (like in Python try/except).
+            # The use of this here (temporary) would be to look for obj.name, then try a different format_Expr if that fails.
+            # getattr(obj, 'name', dflt) would get us by, but would not as easily permit alternate format_Exprs in the two cases.]
+        sbar_text = format_Expr( "Draggable %s", getattr_Expr( obj, 'name', format_Expr("%r", obj))),
+        on_press = _self.on_press,
+        on_drag = _self.on_drag
     )
         ### DESIGN Q: do we also include the actual event binding (on_press and on_drag) -- for now, we do --
         # or just supply the Draggable interface for moving self.obj

@@ -946,7 +946,8 @@ class DelegatingMixin(object): # 061109 # see also DelegatingInstanceOrExpr #070
                 ##k reviewing this 061109, I'm not sure this is viable; maybe we'll need to exclude only __ or _i_ or _e_,
                 # or maybe even some of those need delegation sometimes -- we'll see.
                 #e Maybe the subclass will need to declare what attrs we exclude, or what _attrs we include!
-            assert attr != 'delegate', "DelegatingMixin refuses to delegate self.delegate (which would infrecur) in %r" % self
+            assert attr != 'delegate', "DelegatingMixin refuses to delegate self.delegate (which would infrecur) in %r -- " \
+                   "does its class lack a definition of delegate?" % self
                 # that assert makes sense even though our low-level delegate is now self._delegate. [070121]
             if expr_is_Instance(self):
                 recursing = self.__dict__.setdefault('__delegating_now', False) # note: would be name-mangled if set normally
@@ -1063,6 +1064,9 @@ class ModelObject(DelegatingInstanceOrExpr): #070201 moved here from demo_drag.p
     # One way it might diverge -- in having delegation to env.viewer_for_model_object [nim];
     # something like this:
     ###e delegate = something from env.viewer_for_model_object(self) or so
+    #070203 for now, superclass provides a default delegate of None, since some subclasses have one (which will override that)
+    # and some don't, and without this, the ones that don't have an assertfail when they ought to have an AttributeError.
+    delegate = None
     pass
 
 # ==

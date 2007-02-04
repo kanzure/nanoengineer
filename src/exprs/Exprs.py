@@ -547,17 +547,20 @@ class getattr_Expr(OpExpr):
         print 'bug: __call__ of %r with:' % self,args,kws
         assert 0, "getattr exprs are not callable [ok??]"
     def _e_init(self):
-        assert len(self._e_args) == 2 #e kind of useless and slow #e should also check types?
+        assert len(self._e_args) in (2,3) #e kind of useless and slow #e should also check types? #070203 permit 3-arg form
         attr = self._e_args[1]
         assert attr #e and assert that it's a python identifier string? Note, it's actually a constant_Expr containing a string!
             # And in theory it's allowed to be some other expr which evals to a string,
             # though I don't know if we ever call it that way
             # (and we might want to represent or print it more compactly when we don't).
     def __str__(self):
-         return "%s.%s" % self._e_args #e need parens? need quoting of 2nd arg? Need to not say '.' if 2nd arg not a py-ident string?
+        if len(self._e_args) == 2:
+            return "%s.%s" % self._e_args #e need parens? need quoting of 2nd arg? Need to not say '.' if 2nd arg not a py-ident string?
+        else:
+            return "getattr_Expr(%s, %s, %s)" % self._e_args
     _e_eval_function = getattr # this doesn't need staticmethod, maybe since <built-in function getattr> has different type than lambda
     ## _e_eval_lval_setto_function = setattr
-    _e_eval_lval_function = staticmethod(LvalueFromObjAndAttr) #061204 #k not sure if staticmethod is required; at least it works
+    _e_eval_lval_function = staticmethod(LvalueFromObjAndAttr) #061204 #k not sure if staticmethod is required; at least it works ###UNREVIEWED for 3 args
     pass
 
 class getitem_Expr(OpExpr): #061110

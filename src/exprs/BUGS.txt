@@ -291,3 +291,36 @@ Here are some code comments (world.py) to remind me of a place this came up
         # Maybe entire commands need to have traced usage discarded or kept in a new kind of place. #####
 
 ==
+
+070203 DisplistChunk update bug: series of prefs checkbox changes (eg show central cyl,
+testexpr_30g) fails to remake the displist after the first change, until certain other things
+happen, not yet characterized but including highlighting the affected object.
+
+Not yet understood; no evidence it's due to displists except that it doesn't happen if
+DisplistChunk is disabled (ie if it draws directly without using its displist). It was not
+noticed except in the first- tried case of a nested displist, so maybe it relates to that. The
+code it affects seems to be the DisplistChunk in the following (in dna_ribbon_view.py.py); see
+also the comments in this code excerpt.
+
+Things to try: see if removing one or the other of the nested displists (the one shown below
+or the one around the World) fixes the bug -- if it's due to nested ones, either one's removal
+should fix it; if not, probably only the following one's, or only both's, removal will fix it.
+
+    def _cmd_Make_DNA_Cylinder(self):
+        expr = DNA_Cylinder()
+        # Note: ideally, only that much (expr, at this point) would be stored as world's state, with the following wrappers
+        # added on more dynamically as part of finding the viewer for the model objects in world. ###e
+        # (Nice side effect: then code-reloading of the viewer would not require clearing and remaking the model objs.)
+        expr = DisplistChunk( expr) # displist around cylinder itself -- speeds(unverified) redraw of cyl while it's dragged, or anywhen [070203]
+            ###BUG (though this being the cause is only suspected): prefs changes remake the displist only the first time in a series of them,
+            # until the next time the object is highlighted or certain other things happen (exact conditions not yet clear); not yet diagnosed;
+            # might relate to nested displists, since this is apparently the first time we've used them.
+        expr = DraggableObject( expr)
+        ## expr = DisplistChunk( expr) # displist around drag-repositioned cyl -- prevents drag of this cyl from recompiling world's dlist
+            ###BUG: seems to be messed up by highlighting/displist known bug, enough that I can't tell if it's working in other ways --
+            # the printed recompile graph makes sense, but the number of recomps (re changetrack prediction as I drag more)
+            # seems wrong (it only recompiles when the drag first starts, but I think every motion ought to do it),
+            # but maybe the highlight/displist bug is preventing the drag events from working properly before they get that far.
+            # So try it again after fixing that old issue (not simple). [070203 9pm]
+        self.world.make_and_add( expr)
+        return
