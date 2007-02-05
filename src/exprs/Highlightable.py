@@ -145,6 +145,7 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
     on_drag = Option(Action)
     on_release_in = Option(Action)
     on_release_out = Option(Action)
+    cmenu_maker = Option(ModelObject) # object which should make a context menu, by our calling obj.make_selobj_cmenu_items if it exists
     projection = Option(bool, False) # whether to save projection matrix too... would be default True except that breaks us. ###BUG
         # guess: it might mess up the glselect use of the projection matrix. (since ours maybe ought to be multiplied with it or so)
 
@@ -672,7 +673,7 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
                         delattr(glpane, k)
         return
 
-    def inval(self, mode):
+    def inval(self, mode): ###k needed??
         """we might look different now;
         make sure display lists that might contain us are remade [stub],
         and glpanes are updated
@@ -685,7 +686,24 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         ## vv.havelist = 0
         mode.o.gl_update()
         return
-    
+
+    def make_selobj_cmenu_items(self, menu_spec): # 070204 new feature, experimental
+        """Add self-specific context menu items to [mutable] <menu_spec> list when self is the selobj.
+        [For more examples, see this method as implemented in chem.py, jigs*.py in cad/src.]
+        """
+        obj = self.cmenu_maker # might be None or a ModelObject
+        method = getattr(obj, 'make_selobj_cmenu_items', None)
+        if method is not None:
+            try:
+                method(menu_spec)
+            except:
+                print "bah" ###e traceback
+        else:
+            # remove soon, or improve -- classname??        
+            item = ('no cmenu provided by this selobj', noop, 'disabled')
+            menu_spec.append(item)
+        return
+
     pass # end of class Highlightable
 
 Button = Highlightable

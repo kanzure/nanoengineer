@@ -186,7 +186,6 @@ class testmode(super):
         super.middleDrag(self, event)
         return
 
-    
     def keyPressEvent(self, event):
         try:
             ascii = event.ascii()
@@ -210,11 +209,17 @@ class testmode(super):
         super.keyReleaseEvent(self, event) #bruce 070122 new feature (probably fixes some bugs), and basicMode->super
 
     def makeMenus(self):
-        super.makeMenus(self)
-        self.Menu_spec = [
+        super.makeMenus(self) # this makes standard items for selobj if it's atom or bond or Highlightable, and a few more:
+        ## print "menu_spec is", self.Menu_spec # note, it may differ depending on selobj
+            ## menu_spec is:
+            ##[('Enable Jig Selection', <bound method testmode.toggleJigSelection...>, 'checked'),
+            ## None,
+            ## ('Change Background Color...', <bound method MWsemantics.dispBGColor...>)]
+##        self.Menu_spec.extend( [
 ##            ('loop', self.myloop),
-         ]
-
+##         ] )
+        return
+    
     _please_exit_loop = False
     _in_loop = False
     _loop_start_time = 0

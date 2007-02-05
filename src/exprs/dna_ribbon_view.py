@@ -449,7 +449,20 @@ class DNA_Cylinder(Macro):
                         Cylinder_Ribbon(cyl, path1, color1, showballs = show_phosphates, showlines = show_lines ),
                         Cylinder_Ribbon(cyl, path2, color2, showballs = show_phosphates, showlines = show_lines )
                        )
-    pass
+    def make_selobj_cmenu_items(self, menu_spec): # 070204 new feature, experimental
+        """Add self-specific context menu items to <menu_spec> list when self is the selobj (or its delegate(?)... ###doc better).
+        Only works if this obj (self) gets passed to Highlightable's cmenu_maker option (which DraggableObject(self) will do).
+        [For more examples, see this method as implemented in chem.py, jigs*.py in cad/src.]
+        """
+        item = ("fake item: i'm a dna cyl", noop, 'disabled')###
+        menu_spec.append(item)
+        item = ("fake item 2: checked", noop, 'checked')###
+        menu_spec.append(item)
+        item = ("fake item 3", noop)###
+        menu_spec.append(item)
+        return
+
+    pass # end of class DNA_Cylinder
 
 # ==
 

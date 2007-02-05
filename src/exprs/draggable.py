@@ -98,7 +98,8 @@ class DraggableObject(DelegatingInstanceOrExpr):
             # getattr(obj, 'name', dflt) would get us by, but would not as easily permit alternate format_Exprs in the two cases.]
         sbar_text = format_Expr( "Draggable %s", getattr_Expr( obj, 'name', format_Expr("%r", obj))),
         on_press = _self.on_press,
-        on_drag = _self.on_drag
+        on_drag = _self.on_drag,
+        cmenu_maker = obj ###e 070204 experimental, API very likely to be revised; makes Highlightable look for obj.make_selobj_cmenu_items
     )
         ### DESIGN Q: do we also include the actual event binding (on_press and on_drag) -- for now, we do --
         # or just supply the Draggable interface for moving self.obj
