@@ -272,13 +272,15 @@ class Cylinder_HelicalPath(Geom3D): #e super?
             p = p0 + vx + y * cY + z * cZ
             points.append(p)
         return points
-    def _C_segments(self):
-        "compute self.segments, a list of pairs of successive path points [###e maybe they ought to be made into LineSegments]"
-        p = self.points
-        return zip(p[:-1], p[1:])
-    def _C_segment_centers(self):
-        "compute self.segment_centers [example use: draw base attach points (phosphates) in DNA]"
-        return [(p0 + p1)/2.0 for p0,p1 in self.segments]
+# temporarily remove these just to make sure i don't use them anymore for phosphates --
+# they work fine and can be brought back anytime after the next commit. [070204 late]
+##    def _C_segments(self):
+##        "compute self.segments, a list of pairs of successive path points [###e maybe they ought to be made into LineSegments]"
+##        p = self.points
+##        return zip(p[:-1], p[1:])
+##    def _C_segment_centers(self):
+##        "compute self.segment_centers [obs example use: draw base attach points (phosphates) in DNA; not presently used 070204]"
+##        return [(p0 + p1)/2.0 for p0,p1 in self.segments]
     def draw(self):
         color = self.fix_color(self.color)
         points = self.points
@@ -310,9 +312,9 @@ class Cylinder_Ribbon(Widget): #070129 #e rename?? #e super?
     axialwidth = ArgOrOption(Width, 1.0,
                              doc = "distance across ribbon along cylinder axis (actual width is presumably shorter since it's diagonal)"
                              ) #e rename
-    showballs = Option(bool, False) # show balls at centers of segments ###KLUGE: hardcoded size
-    showlines = Option(bool, False) # show lines from centers of segments to helix axis (almost)
-        # (note: the lines from paired bases don't quite meet, and form an angle)
+    showballs = Option(bool, False) # show balls at points [before 070204 late, at segment centers instead] ###KLUGE: hardcoded size
+    showlines = Option(bool, False) # show lines from points to helix axis (almost) [before 070204 late, at segment centers]
+        # (note: the lines from paired bases don't quite meet, and form an angle) ###UNTESTED since revised
     def draw(self):
         cyl = self.cyl
         path = self.path
@@ -332,7 +334,7 @@ class Cylinder_Ribbon(Widget): #070129 #e rename?? #e super?
         if self.showballs: #070202
             kluge_hardcoded_size = 0.2
             from drawer import drawsphere # drawsphere(color, pos, radius, detailLevel)
-            for c in path.segment_centers:
+            for c in points:
                 ##e It might be interesting to set a clipping plane to cut off the sphere inside the ribbon-quad;
                 # but that kind of fanciness belongs in the caller, passing us something to draw for each base
                 # (in a base-relative coordsys), presumably a DisplistChunk instance. (Or a set of things to draw,
@@ -340,9 +342,7 @@ class Cylinder_Ribbon(Widget): #070129 #e rename?? #e super?
                 drawsphere(color, c, kluge_hardcoded_size, 2)
         if self.showlines:
             from drawer import drawline
-            perpvec_at_surfacepoint = cyl.perpvec_at_surfacepoint
-            for c in path.segment_centers:
-                n = perpvec_at_surfacepoint(c)
+            for c, n in zip(points, normals):
                 nout, nin = n * 0.2, n * 1.0 # hardcoded numbers -- not too bad since there are canonical choices 
                 drawline(color, c + nout, c - nin) ##k lighting??
         # draw edges? see Ribbon_oldcode_for_edges
