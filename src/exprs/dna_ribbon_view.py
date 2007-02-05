@@ -449,19 +449,25 @@ class DNA_Cylinder(Macro):
                         Cylinder_Ribbon(cyl, path1, color1, showballs = show_phosphates, showlines = show_lines ),
                         Cylinder_Ribbon(cyl, path2, color2, showballs = show_phosphates, showlines = show_lines )
                        )
+    
     def make_selobj_cmenu_items(self, menu_spec): # 070204 new feature, experimental
         """Add self-specific context menu items to <menu_spec> list when self is the selobj (or its delegate(?)... ###doc better).
         Only works if this obj (self) gets passed to Highlightable's cmenu_maker option (which DraggableObject(self) will do).
         [For more examples, see this method as implemented in chem.py, jigs*.py in cad/src.]
         """
-        item = ("fake item: i'm a dna cyl", noop, 'disabled')###
-        menu_spec.append(item)
-        item = ("fake item 2: checked", noop, 'checked')###
-        menu_spec.append(item)
-        item = ("fake item 3", noop)###
-        menu_spec.append(item)
+        menu_spec.extend([
+            ("DNA Cylinder", noop, 'disabled'), # or 'checked' or 'unchecked'; item = None for separator; submenu possible
+            ("left extend by 1", lambda self = self, left = 1, right = 0: self.extend(left, right)),
+            ("left shrink by 1", lambda self = self, left = -1, right = 0: self.extend(left, right)),
+            ("right extend by 1", lambda self = self, left = 0, right = 1: self.extend(left, right)),
+            ("right shrink by 1", lambda self = self, left = 0, right = -1: self.extend(left, right)),
+            ("both extend by 1", lambda self = self, left = 1, right = 1: self.extend(left, right)),
+            ("both shrink by 1", lambda self = self, left = -1, right = -1: self.extend(left, right)),
+        ])
         return
 
+    def extend(self, left, right):####IMPLEM (and then improve the UI for it)
+        print "extend (left = %r, right = %r) is NIM" % (left, right) 
     pass # end of class DNA_Cylinder
 
 # ==
