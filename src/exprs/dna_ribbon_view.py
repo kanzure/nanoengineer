@@ -511,6 +511,7 @@ class World_dna_holder(InstanceMacro): #070201 modified from GraphDrawDemo_Fixed
     
     _cmd_Make_DNA_Cylinder_tooltip = "make a DNA_Cylinder" ###e or parse it out of method docstring, marked by special syntax??
     def _cmd_Make_DNA_Cylinder(self):
+        world = self.world
         expr = DNA_Cylinder()
         # Note: ideally, only that much (expr, at this point) would be stored as world's state, with the following wrappers
         # added on more dynamically as part of finding the viewer for the model objects in world. ###e
@@ -528,7 +529,17 @@ class World_dna_holder(InstanceMacro): #070201 modified from GraphDrawDemo_Fixed
             # seems wrong (it only recompiles when the drag first starts, but I think every motion ought to do it),
             # but maybe the highlight/displist bug is preventing the drag events from working properly before they get that far.
             # So try it again after fixing that old issue (not simple). [070203 9pm]
-        self.world.make_and_add( expr)
+        instance = world.make_and_add( expr)
+        if 'kluge070205' and len(world.nodelist) > 1:
+            ### KLUGE: move it, in an incorrect klugy way -- works fine in current code,
+            # but won't work if we wrap expr more above, and won't be needed once .move works.
+            ### DESIGN FLAW: moving this cyl is not our business to do in the first place,
+            # until we become part of a "raster guide shape's" make-new-cyl-inside-yourself command.
+            if instance is world.nodelist[-1]:
+                instance.motion = world.nodelist[-2].motion - DY * 2.7 ###KLUGE: assumes current alignment
+                    # Note: chosen distance 2.7 nm includes "exploded view" effect (I think).
+            else:
+                print "added in unexpected order" ###should never happen until world stores model objects differently
         return
     
     pass # end of class World_dna_holder [a command-making object, I guess ###k]
