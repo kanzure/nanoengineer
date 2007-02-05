@@ -43,7 +43,7 @@ just pointers to the draw-method-owning parents in each one, to be stored in the
 
 from basic import *
 
-from debug_prefs import debug_pref, Choice_boolean_False #k in basic??
+from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True #k in basic??
 
 from OpenGL.GL import GL_COMPILE
 
@@ -328,9 +328,14 @@ exception in testdraw.py's drawfunc call ignored: exceptions.AssertionError:
                     # the only thing it doesn't cover is subscribing it to inval of our own displist's contents,
                     # so we manually call it in invalidate_contents.
         if self.drawing_effects_valid:
-            return {} # optim; only possible when self.contents_valid,
-                # tho if we had a separate flag for sublist contents alone,
-                # we could correctly use that here as a better optim #e
+            if debug_pref("DisplistChunk: permit optim 070204?", Choice_boolean_False):
+                ###BUG: this old optim seems to cause the bug 070203 -- I don't know why, but disabling it seems to fix the bug ###k
+                print "doing optim 070204"#e and listnames [#e only print if the optim makes a difference?]
+                return {} # optim; only possible when self.contents_valid,
+                    # tho if we had a separate flag for sublist contents alone,
+                    # we could correctly use that here as a better optim #e
+            else:
+                pass ## print "not doing optim 070204"#e and listnames
         return self._direct_sublists_dict
 
     def invalidate_contents(self):

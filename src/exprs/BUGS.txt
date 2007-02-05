@@ -324,3 +324,10 @@ should fix it; if not, probably only the following one's, or only both's, remova
             # So try it again after fixing that old issue (not simple). [070203 9pm]
         self.world.make_and_add( expr)
         return
+
+update 070204: turning off an old optim in DisplistChunk (comment contains "070204") fixes this bug --
+but I won't resolve it fixed until I understand why the optim caused it, whether it's entirely fixed,
+etc. Meanwhile the optim is off, but can be turned back on by a debug pref,
+"DisplistChunk: permit optim 070204?"; when on it prints something whenever it's used
+(even if the use makes no difference); it's printed a lot of times on each redraw.
+
