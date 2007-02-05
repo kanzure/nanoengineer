@@ -316,10 +316,16 @@ class Cylinder_Ribbon(Widget): #070129 #e rename?? #e super?
     showlines = Option(bool, False) # show lines from points to helix axis (almost) [before 070204 late, at segment centers]
         # (note: the lines from paired bases don't quite meet, and form an angle) ###UNTESTED since revised
     def draw(self):
+        self.draw_some(None) # None means draw all segments
+    def draw_some(self, some = None):
+        "#doc; some can be (i,j) to draw only points[i:j], or (i,None) to draw only points[i:]" # tested with (2,-2) and (2,None)
         cyl = self.cyl
         path = self.path
         axialwidth = self.axialwidth
         points = path.points #e supply the desired resolution?
+        if some:
+            i,j = some
+            points = points[i:j]
         normals = map( cyl.perpvec_at_surfacepoint, points)
             ####IMPLEM perpvec_at_surfacepoint for any Surface, e.g. Cylinder (treat as infinite length; ignore end-caps)
             ####e points on it might want to keep their intrinsic coords around, to make this kind of thing efficient & well defined,
@@ -347,12 +353,16 @@ class Cylinder_Ribbon(Widget): #070129 #e rename?? #e super?
                 drawline(color, c + nout, c - nin) ##k lighting??
         # draw edges? see Ribbon_oldcode_for_edges
         return
-    def draw_quad_strip(self, interior_color, offsets, points, normals):
+    def draw_quad_strip(self, color, offsets, points, normals): #e refile into draw_utils -- doesn't use self
+        """draw a constant-color quad strip whose "ladder-rung" (inter-quad) edges (all parallel, by the following construction)
+        are centered at the given points, lit using the given normals, and have width defined by offsets (each ladder-rung
+        going from point + offsets[1] to point + offsets[0]).
+        """
         offset1, offset2 = offsets
-        ## glColor3fv(interior_color)
+        ## glColor3fv(color)
         # actually I want a different color on the back, can I get that? ###k
         glDisable(GL_CULL_FACE)
-        drawer.apply_material(interior_color)
+        drawer.apply_material(color)
         ## glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, color) # gl args partly guessed #e should add specularity, shininess...
         glLightModelfv(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE)
 
@@ -361,8 +371,8 @@ class Cylinder_Ribbon(Widget): #070129 #e rename?? #e super?
             # this uses CULL_FACE so it only colors the back ones... but why gray not pink?
             # the answer - see draw_vane() -- I have to do a lot of stuff to get this right:
             # - set some gl state, use apply_material, get CCW ordering right, and calculate normals.
-##        glColor3fv(interior_color)
-##        print "draw_quad_strip",interior_color, offsets, points, normals
+##        glColor3fv(color)
+##        print "draw_quad_strip",color, offsets, points, normals
             ###BUG: points are 0 in y and z, normals are entirely 0 (as if radius was 0?)
         for p, n in zip( points, normals):
             glNormal3fv( n)
