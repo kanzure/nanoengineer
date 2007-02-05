@@ -510,6 +510,13 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         ## [Highlightable.py:260] [ExprsMeta.py:250] [ExprsMeta.py:318] [ExprsMeta.py:366] [Exprs.py:184] [Highlightable.py:260] ...
     
     def mouseover_statusbar_message(self): # called in GLPane.set_selobj
+        """#doc
+        [an optional method in NE1's "selobj interface"]
+        """
+        ###e NEEDED: we need to pick up info from the mode about the hitpoint used to pick this selobj,
+        # since we may also use it to determine sbar_text, or to determine what to offer in a cmenu
+        # if one is requested at this point. (In the cmenu case, the point used to choose the selobj
+        # is better to use than the current mousepoint, though ideally they would not differ.) [070205]
         return str(self.sbar_text) or "%r" % (self,) #e note: that str() won't be needed once the type-coercion in Option works
 
     def highlight_color_for_modkeys(self, modkeys):
@@ -695,9 +702,13 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         method = getattr(obj, 'make_selobj_cmenu_items', None)
         if method is not None:
             try:
-                method(menu_spec)
+                method(menu_spec, self)
+                    # 070205 revised API: pass self, so method can ask it about the event, e.g. current_event_mousepoint
+                    # (###e CLEANUP NEEDED: this should be cleaned up so most cmenu methods don't need to accept and ignore that arg --
+                    # maybe it should be stored in dynenv, eg glpane, or maybe make current_event_mousepoint itself dynenv-accessible.)
             except:
                 print "bah" ###e traceback
+                print_compact_traceback("exception seen by selobj %r in %r.make_selobj_cmenu_items(): " % (self, obj) )
         else:
             # remove soon, or improve -- classname??        
             item = ('no cmenu provided by this selobj', noop, 'disabled')

@@ -450,24 +450,55 @@ class DNA_Cylinder(Macro):
                         Cylinder_Ribbon(cyl, path2, color2, showballs = show_phosphates, showlines = show_lines )
                        )
     
-    def make_selobj_cmenu_items(self, menu_spec): # 070204 new feature, experimental
+    def make_selobj_cmenu_items(self, menu_spec, highlightable): #070204 new feature, experimental #070205 revised api
         """Add self-specific context menu items to <menu_spec> list when self is the selobj (or its delegate(?)... ###doc better).
         Only works if this obj (self) gets passed to Highlightable's cmenu_maker option (which DraggableObject(self) will do).
         [For more examples, see this method as implemented in chem.py, jigs*.py in cad/src.]
         """
         menu_spec.extend([
             ("DNA Cylinder", noop, 'disabled'), # or 'checked' or 'unchecked'; item = None for separator; submenu possible
-            ("left extend by 1", lambda self = self, left = 1, right = 0: self.extend(left, right)),
-            ("left shrink by 1", lambda self = self, left = -1, right = 0: self.extend(left, right)),
-            ("right extend by 1", lambda self = self, left = 0, right = 1: self.extend(left, right)),
-            ("right shrink by 1", lambda self = self, left = 0, right = -1: self.extend(left, right)),
-            ("both extend by 1", lambda self = self, left = 1, right = 1: self.extend(left, right)),
-            ("both shrink by 1", lambda self = self, left = -1, right = -1: self.extend(left, right)),
+
+            ("show potential crossovers", self._cmd_show_potential_crossovers), #e disable if none (or all are already shown or real)
+
+            ("change length", [
+                ("left extend by 1 base", lambda self = self, left = 1, right = 0: self.extend(left, right)),
+                ("left shrink by 1 base", lambda self = self, left = -1, right = 0: self.extend(left, right)),
+                ("right extend by 1 base", lambda self = self, left = 0, right = 1: self.extend(left, right)),
+                ("right shrink by 1 base", lambda self = self, left = 0, right = -1: self.extend(left, right)),
+                ("both extend by 1 base", lambda self = self, left = 1, right = 1: self.extend(left, right)),
+                ("both shrink by 1 base", lambda self = self, left = -1, right = -1: self.extend(left, right)),
+             ] ),
         ])
+        # print "make_selobj_cmenu_items sees mousepoint:", highlightable.current_event_mousepoint() ###BUG: exception for this event
+        #
+        # That happens because glpane._leftClick_gl_event_info is not defined for this kind of event, nor are some other attrs
+        # defined (in exprs module) for a drag event that comes right after a leftclick.
+        #
+        # That could be fixed... in a few different ways:
+        # - Support general posn-specific selobj behavior (highlight image, sbar text, cmenu):
+        #   That would require the baremotion-on-one-selobj optim
+        #   to notice a per-selobj flag "I want baremotion calls" (a new method in selobj interface),
+        #   and call it for all baremotion, with either side effects or retval saying whether new highlight image,
+        #   sbar text, or cmenu point is needed. (Totally doable, but not completely trivial.)
+        # - Or, have intra-selobj different 2nd glnames, and when they change, act like it is (or might be) a new selobj.
+        #   This is not a lot different from just splitting things into separate selobjs (tho it might be more efficient
+        #   in some cases, esp. if you wanted to use weird gl modes for highlighting, like xormode drawing; alternatively
+        #   it might be simpler in some cases).
+        # - Or, just support posn-specific selobj cmenu (but not sbar or highlight image changes):
+        #   that could be simpler: just save the point (etc) somewhere
+        #   (as computed in baremotion to choose the selobj), and have it seen by current_event_mousepoint in place of
+        #   glpane._leftClick_gl_event_info (or rename that and use the same attr).
+        # But customizing only the cmenu is not really enough. So: maybe we'll need this someday, and we'll use
+        # one of the fancier ways when we do, but for now, do other things, so this improvement to selobj API is being put off.
+        # (Except for this unused arg in the API, which can remain for now; for some of these methods maybe it could be removed.)
         return
 
     def extend(self, left, right):####IMPLEM (and then improve the UI for it)
-        print "extend (left = %r, right = %r) is NIM" % (left, right) 
+        print "extend (left = %r, right = %r) is NIM" % (left, right)
+
+    def _cmd_show_potential_crossovers(self):
+        print "_cmd_show_potential_crossovers is NIM"
+        
     pass # end of class DNA_Cylinder
 
 # ==
