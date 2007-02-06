@@ -72,7 +72,7 @@ from lvals import Lval, LvalDict2, call_but_discard_tracked_usage
 
 import world
 reload_once(world)
-from world import World # split out of this file, 070201
+from world import World
 
 # ==
 
@@ -278,7 +278,7 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
     highlight_color = Option(Color, None) # suggest: ave_colors(0.9,gray,white)) # use this only if background takes a color option
     use_VertexView = Option(bool, False) # 070105 so I can try out new code w/o breaking old code #### TRYIT
     # internals
-    world = Instance( World() ) # has .nodelist I'm allowed to extend
+    world = Instance( World() ) # maintains the set of objects in the model
     _value = Overlay(
       DisplistChunk( # new feature as of 070103; works, and seems to be faster (hard to be sure)
         Highlightable( background, #######   WAIT A MINUTE,   how can we do that -- background is already an instance?!? ######@@@@@@

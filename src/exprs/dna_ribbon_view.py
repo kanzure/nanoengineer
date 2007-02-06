@@ -503,8 +503,6 @@ class DNA_Cylinder(Macro):
 
 # ==
 
-World_dna = World # try to use the same world as in demo_drag... generalize it as needed for that, keeping both examples working. ##e
-
 def dna_ribbon_view_toolcorner_expr_maker(world_holder): #070201 modified from demo_drag_toolcorner_expr_maker -- not yet modified enough ###e
     """given an instance of World_dna_holder (??), return an expr for the "toolcorner" for use along with
     whatever is analogous to GraphDrawDemo_FixedToolOnArg1 (on the world of the same World_dna_holder)
@@ -528,7 +526,7 @@ def dna_ribbon_view_toolcorner_expr_maker(world_holder): #070201 modified from d
                   ActionButton( world._cmd_Clear, "button: clear"),
                   ActionButton( world._cmd_Clear, "button (disabled): clear", enabled = False)
          ),
-        DisplistChunk(TextRect( format_Expr( "(%d items)" , len(world.nodelist) )))
+        DisplistChunk(TextRect( format_Expr( "(%d objects in world)" , world.number_of_objects )))
      )
     return expr
 
@@ -537,7 +535,7 @@ class World_dna_holder(InstanceMacro): #070201 modified from GraphDrawDemo_Fixed
     # args
     # options
     # internals
-    world = Instance( World_dna() ) # has .nodelist I'm allowed to extend
+    world = Instance( World() ) # maintains the set of objects in the model
     _value = DisplistChunk( world)
     
     _cmd_Make_DNA_Cylinder_tooltip = "make a DNA_Cylinder" ###e or parse it out of method docstring, marked by special syntax??
@@ -560,17 +558,29 @@ class World_dna_holder(InstanceMacro): #070201 modified from GraphDrawDemo_Fixed
             # seems wrong (it only recompiles when the drag first starts, but I think every motion ought to do it),
             # but maybe the highlight/displist bug is preventing the drag events from working properly before they get that far.
             # So try it again after fixing that old issue (not simple). [070203 9pm]
-        instance = world.make_and_add( expr)
-        if 'kluge070205' and len(world.nodelist) > 1:
-            ### KLUGE: move it, in an incorrect klugy way -- works fine in current code,
+        newcyl = world.make_and_add( expr)
+        if 'kluge070205-v2' and world.number_of_objects > 1: # note: does not imply number of Cylinders > 1!
+            ### KLUGE: move newcyl, in an incorrect klugy way -- works fine in current code,
             # but won't work if we wrap expr more above, and won't be needed once .move works.
             ### DESIGN FLAW: moving this cyl is not our business to do in the first place,
             # until we become part of a "raster guide shape's" make-new-cyl-inside-yourself command.
-            if instance is world.nodelist[-1]:
-                instance.motion = world.nodelist[-2].motion - DY * 2.7 ###KLUGE: assumes current alignment
-                    # Note: chosen distance 2.7 nm includes "exploded view" effect (I think).
-            else:
-                print "added in unexpected order" ###should never happen until world stores model objects differently
+            cyls = world.list_all_objects_of_type(DNA_Cylinder)
+                # a nominally read-only list of all cylinders in the world, in a deterministic order not yet decided on
+                # (might be creation order, world-index order, MT order)
+                ###KLUGE, should be taken only from a single raster
+                ###e optim: be able to specify ordering -- otherwise it has to be sorted twice (in the method and here)
+            items = [(obj._e_serno, obj) for obj in cyls]
+                ###KLUGE: use _e_serno in place of .creation_order, not yet defined --
+                # works now, but wrong in general due to potential cyls or moved-from-elsewhere cyls.
+                # (Q: Would index-in-world be ordered the same way? A: Yes for now, but not good to require this in the future.)
+            items.sort()
+            cylinder_list = [cyl for (order, cyl) in items]
+            if len(cylinder_list) > 1:
+                if newcyl is cylinder_list[-1]:
+                    newcyl.motion = cylinder_list[-2].motion - DY * 2.7 ###KLUGE: assumes current alignment
+                        # Note: chosen distance 2.7 nm includes "exploded view" effect (I think).
+                else:
+                    print "added in unexpected order" ###should never happen as long as _e_serno is ordered like cyl creation order
         return
     
     pass # end of class World_dna_holder [a command-making object, I guess ###k]

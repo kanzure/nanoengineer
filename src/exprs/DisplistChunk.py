@@ -248,7 +248,7 @@ class DisplistChunk( DelegatingInstanceOrExpr, SelfUsageTrackingMixin, SubUsageT
         "[private]"
         assert self.contents_valid
             # this failed 070104 with the exception shown in long string below, when I used clear "button" (070103 kluge) on one node...
-            # theory: the nodelist change (by clear button run inside draw method, which is illegal -- that's the kluge)
+            # theory: the world.nodelist change (by clear button run inside draw method, which is illegal -- that's the kluge)
             # invalidated it right when it was being recompiled (or just after, but before the overall recomp alg sent this call).
             # So that kluge has to go [later: it's gone],
             # and the underlying error of changing an input to an ongoing recompute has to be better detected. ####e
