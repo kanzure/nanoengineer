@@ -522,6 +522,7 @@ def dna_ribbon_view_toolcorner_expr_maker(world_holder): #070201 modified from d
         checkbox_pref( dna_pref('show phosphates'),   "show phosphates?",   dflt = False),
         checkbox_pref( dna_pref('show lines'),   "show lines?",   dflt = False), # temporary
         ActionButton( world_holder._cmd_Make_DNA_Cylinder, "button: make dna cyl"),
+        ActionButton( world_holder._cmd_Make_some_rects, "button: make rects over cyls"),
         If_kluge( getattr_Expr( world, '_cmd_Clear_nontrivial'),
                   ActionButton( world._cmd_Clear, "button: clear"),
                   ActionButton( world._cmd_Clear, "button (disabled): clear", enabled = False)
@@ -577,7 +578,17 @@ class World_dna_holder(InstanceMacro): #070201 modified from GraphDrawDemo_Fixed
                 else:
                     print "added in unexpected order" ###should never happen as long as _e_serno is ordered like cyl creation order
         return
-    
+    def _cmd_Make_some_rects(self): #070206 just to show we can make something else and not mess up adding/moving the next cyl
+        world = self.world
+        expr = Rect(0.5, 1, yellow)
+        expr = DraggableObject(expr) # note: formally these rects are not connected to their cyls (e.g. won't move with them)
+        cyls = world.list_all_objects_of_type(DNA_Cylinder)
+        #e could remove the ones that already have rects, but that requires storing the association -- doesn't matter for this tests
+        for cyl in cyls:
+            posn = cyl.motion ###KLUGE -- also ###BUG, doesn't include cyl's native posn -- all rects in same place by default!
+            where = posn + DZ * 1.5 ###KLUGE
+            newrect = world.make_and_add(expr, type = "rect")
+        return
     pass # end of class World_dna_holder [a command-making object, I guess ###k]
 
 # end
