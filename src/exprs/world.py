@@ -245,6 +245,27 @@ class World(ModelObject): #070205 revised, public nodelist -> private _nodeset
         return index, env.make(expr, ipath) # note: does eval before actual make
 
     # ==
+
+    def mt_kids(self): # 070206 experiment related to ModelTreeNodeInterface (sp?)
+        ###e how do we depend on the mt display prefs? note we need to be drawn twice, once in graphics area using .draw
+        # and once in MT using the mt_* methods, but with independent envs provided! Self.env might have room in attr namespace,
+        # but it has a single origin. Besides there might be two indep MT views or graphics views -- each of those also needs
+        # separate envs (of the same kind). But that makes us two instances! I guess we need separate World data obj vs World viewer,
+        # to handle that! I'm not even sure it makes sense to put the viewing methods in the same object... but maybe it does
+        # with this concept of partial instantiation [nim], in which we could instantiate the viewing layer(?) (interface??) twice,
+        # and the data layer just once, letting it (an instance) serve as the expr for instantiating the viewing layer in two places.
+        #
+        # So for now let's pretend self.env can tell us... tho as initial kluge, the global env.prefs (get_pref?) could tell us.
+        # But even sooner, just pretend we don't care and always show all the kids.
+        return self._sorted_objects
+    def mt_name(self):
+##        name = "Model Tree" # ?? not really...
+        name = "Untitled"
+        return name
+    def mt_openable(self):
+        return True
+    
+    # ==
     
     def _cmd_Clear(self): #070106 experimental naming convention for a "cmd method" -- a command on this object (requiring no args/opts, by default)
         if self._nodeset:

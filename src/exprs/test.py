@@ -1197,12 +1197,26 @@ testexpr_30a =  DisplistChunk(DNA_Cylinder()) # works 070131
 
 # try modifying testexpr_19g to put in some controls
 testexpr_30b = World_dna_holder()
-testexpr_30g = eval_Expr( call_Expr( lambda thing:
-                                     Overlay( thing,
+testexpr_30g = eval_Expr( call_Expr( lambda world_ui:
+                                     Overlay( world_ui,
                                               DrawInCorner( Boxed(
-                                                  eval_Expr( call_Expr( dna_ribbon_view_toolcorner_expr_maker, thing )) )) ),
+                                                  eval_Expr( call_Expr( dna_ribbon_view_toolcorner_expr_maker, world_ui )) )) ),
                                      ## _app._i_instance(testexpr_30b)
                                      call_Expr( _app.Instance, testexpr_30b, "#30b")
+                                     ))
+testexpr_30h = eval_Expr( call_Expr( lambda world_ui: #070206
+                                     Overlay( world_ui,
+                                              DrawInCorner( Boxed(
+                                                  eval_Expr( call_Expr( dna_ribbon_view_toolcorner_expr_maker, world_ui )) )),
+                                              ## DrawInCorner( testexpr_18, (1,1) ), # works
+                                              ## DrawInCorner( MT(world_ui.world), (1,1) ), # semi-works -- autoupdate fails,
+                                                  # and it prints "bug: expr or lvalflag for instance changed",
+                                                  # and I know why -- see ###BUG comments 070206 in demo_MT.py.
+                                                  # How to fix it is also described in there, but not yet attempted.
+                                              DrawInCorner( MT(getattr_Expr(world_ui, 'world')), (1,1) ), # predict same bug - yes.
+                                             ),
+                                     ## _app._i_instance(testexpr_30b)
+                                     call_Expr( _app.Instance, testexpr_30b, "#30bh")
                                      ))
 
 # == DraggableObject
@@ -1216,7 +1230,7 @@ testexpr_31 = DraggableObject(Rect(1,0.5,yellow)) # works [but see caveats in dr
 
 enable_testbed = True
 
-testexpr =  testexpr_30g ## testexpr_29aox3 ## testexpr_18 ## testexpr_9fx4 ## testexpr_19g ## testexpr_19g _26g _28
+testexpr =  testexpr_30h ## testexpr_29aox3 ## testexpr_18 ## testexpr_9fx4 ## testexpr_19g ## testexpr_19g _26g _28
 
     # as of 070121 at least these work ok in EVAL_REFORM with now-semipermanent kluge070119:
     # _2, _3a, _4a, _5, _5a, _10a, _10c, _9c, _9d, _9cx,
@@ -1325,7 +1339,8 @@ bottom_left_corner = Boxed(SimpleColumn(
     # and Boxed not resizable, and labels wouldn't grow if it was (and they're not long enough, tho that'd be ok if they'd grow),
     # and reload is pretty slow since we're not caching all this testbed stuff (at least I guess that's why)
 
-top_left_corner = testexpr_10c # nested ToggleShow.
+top_left_corner = testexpr_18 # update 070206: mostly works, but has a funny alignment issue. ###BUG (but can ignore for now)
+    # testexpr_10c # nested ToggleShow. -- works, usual 
     # Note: testexpr_18 (MT) also works, and has indep node.open state, i think (limited autoupdate makes it hard to be sure).
 
 class AppOuterLayer(DelegatingInstanceOrExpr): #e refile when works [070108 experiment]

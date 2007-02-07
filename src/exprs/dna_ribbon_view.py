@@ -498,7 +498,17 @@ class DNA_Cylinder(Macro):
 
     def _cmd_show_potential_crossovers(self):
         print "_cmd_show_potential_crossovers is NIM"
-        
+
+    def mt_name(self):
+        return self._mt_name
+    _mt_name = State(str, "DNA Cylinder") ###e make it unique somehow #e make it editable
+
+    def mt_kids(self):
+        return [] #e our crossovers, our yellow rect demos
+
+    def mt_openable(self):
+        return False
+    
     pass # end of class DNA_Cylinder
 
 # ==

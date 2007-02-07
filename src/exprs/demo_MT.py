@@ -115,7 +115,14 @@ def _make_new_MT_viewer_for_object(key):
     print "viewing node %r, reload_counter = %r" % (obj, reload_counter) ###
     # obj is a Node or equivalent
     mt_instance = MT(obj) # but will this work, with arg1 being already instantiated -- will it make an instance? not yet! ###IMPLEM that
-    return mt_instance
+    ###BUG (presumed, 070206, old): this is actually an expr, not an instance.
+    # The correct fix is to instantiate it now -- *not* automatically when MT(obj) is formed, as a comment above says should be done --
+    # and to index it by both the "whole MT" we're populating (perhaps a "self" this function should be a method in),
+    # and the "node_id" of obj (something unique, and never recycled, unlike id(obj)).
+    # This may require passing that "whole MT" in dynenv part of Instance.env with Instance part of essential data,
+    # or revising how we call this so it can just get "whole MT" as one of the args.
+    # The code that needs revising is mainly MT_kids -- see more comments therein.
+    return mt_instance 
 
 _MT_viewer_for_object = MemoDict( _make_new_MT_viewer_for_object)
     # args are (object, essential-data) where data diffs should prevent sharing of an existing viewer
@@ -135,10 +142,78 @@ def MT_viewer_for_object(obj, essential_data = None):
 
 # ==
 
-def node_kids(node):
-    return node.kids(_DISPLAY_PREFS)
+# define some helper functions which can apply either the new ModelTreeNodeInterface or the legacy Utility.Node interface
+# to node, or supply defaults permitting any object to show up in the MT.
+#
+###BUG: they decide which interface to use for each attr independently, but the correct way is to decide for all attrs at once.
+# shouldn't matter for now, though it means defining mt_kids is not enough, you need mt_openable too.
+#
+###DESIGN FLAW: the ModelTreeNodeInterface should probably consist of (recomputable, tracked) attrs, not methods,
+# so it's easier to give formulae for them when defining how some IorE subclass should satisfy it.
+#
+# (##e nothing here yet for type icons)
 
 _DISPLAY_PREFS = dict(open = True) # private to def node_kids
+
+def node_kids(node): # revised 070206
+    "return the kid list of the node, regardless of which model tree node interface it's trying to use [slight kluge]"
+    try:
+        node.mt_kids # look for ModelTreeNodeInterface method [070206]
+    except AttributeError:
+        pass
+    else:
+        return node.mt_kids()
+
+    try:
+        node.kids # look for legacy Node method
+    except AttributeError:
+            pass
+    else:
+        return node.kids(_DISPLAY_PREFS)
+
+    return [] # give up and assume it has no kids
+
+def node_openable(node): # 070206
+    "return the openable property of the node, regardless of which model tree node interface it's trying to use [slight kluge]"
+    try:
+        node.mt_openable # look for ModelTreeNodeInterface method [070206]
+    except AttributeError:
+        pass
+    else:
+        return node.mt_openable()
+
+    try:
+        node.openable # look for legacy Node method
+    except AttributeError:
+            pass
+    else:
+        return node.openable() ###k
+
+    return False # give up and assume it's not openable (##e should vary this if it defines mt_kids or kids, even if they are empty)
+
+def node_name(node): # 070206
+    "return the name property of the node, regardless of which model tree node interface it's trying to use [slight kluge]"
+    try:
+        node.mt_name # look for ModelTreeNodeInterface method [070206]
+    except AttributeError:
+        pass
+    else:
+        return node.mt_name()
+
+    try:
+        node.name # look for legacy Node variable
+    except AttributeError:
+            pass
+    else:
+        return node.name
+
+    try:
+        return "%s" % node
+    except:
+        last_resort = safe_repr(node, maxlen = 20)
+        print_compact_traceback("node_name fails when trying %%s on node %s: " % last_resort )
+        return last_resort
+    pass
 
 
 ##class Column(InstanceMacro): #kluge just for MT_kids
@@ -174,7 +249,14 @@ class MT_kids(InstanceMacro):
     def _C__value(self): # we need this since we don't yet have a way of including " * map(func,expr)" in a toplevel expr.
         kids = self.kids
         assert type(kids) == type([])
-        elts = map(MT_viewer_for_object, kids)
+        elts = map(MT_viewer_for_object, kids) ###BUG (presumed, 070206): elts is a list of exprs; intention was a list of instances.
+            # The effect is that, if this is recomputed (which does not happen in testexpr_18, but does in testexpr_30h, 070206 10pm),
+            # it evals to itself and returns a different expr to be instantiated (by code in InstanceMacro) using the same index,
+            # which prints
+            ## bug: expr or lvalflag for instance changed: self = <MT_kids#64648(i)>, index = (-1021, '!_value'),
+            ## new data = (<SimpleColumn#65275(a)>, False), old data = (<SimpleColumn#64653(a)>, False)
+            # and (evidently, from the failure of the visible MT to update) fails to make a new instance from the new expr.
+            # The fix is discussed in comments in MT_viewer_for_object but requires a rewrite of MT and MT_kids classes. ####TRYIT
         res = SimpleColumn(*elts) # [note: ok even when not elts, as of bugfix 061205 in SimpleColumn]
         ## return res # bug: AssertionError: compute method asked for on non-Instance <SimpleColumn#10982(a)>
         # I guess that means we have to instantiate it here to get the delegate. kluge this for now:
@@ -207,14 +289,14 @@ class MT(InstanceMacro):
         If( open, open_icon, closed_icon ),
         on_press = Set(open, not_Expr(open)) )
     
-    openclose_slot = If( call_Expr(node.openable), openclose_visible, openclose_spacer )
+    openclose_slot = If( call_Expr(node_openable, node), openclose_visible, openclose_spacer )
 
     icon = Rect(0.4, 0.4, green)##stub; btw, would be easy to make color show hiddenness or type, bfr real icons work
         ###k is this a shared instance (multiply drawn)?? any issue re highlighting? need to "instantiate again"?
             ##e Better, this ref should not instantiate, only eval, once we comprehensively fix instantiation semantics.
             # wait, why did I think "multiply drawn"? it's not. nevermind.
         ##e selection behavior too
-    label = TextRect( node.name ) ###e will need revision to Node or proxy for it, so node.name is usage/mod-tracked
+    label = TextRect( call_Expr(node_name, node) ) ###e will need revision to Node or proxy for it, so node.name is usage/mod-tracked
         ##e selection behavior too --
         #e probably not in these items but in the surrounding Row (incl invis bg? maybe not, in case model appears behind it!)
         ##e italic for disabled nodes
@@ -232,6 +314,22 @@ class MT(InstanceMacro):
         )
     )
     pass # end of class MT
+
+# ==
+
+class ModelTreeNode_trivial_glue(DelegatingInstanceOrExpr): #070206 experiment related to ModelTreeNodeInterface (sp?)
+    # args
+    delegate = Arg(ModelObject)
+    # state
+    name = State(str, "no name yet")
+    #e type - grab it from object, or related to role in parent...
+    # default formulae
+    kids = list_Expr()
+    openable = False
+    pass
+
+###e but the interface attrs should probably start with _mt_ or mt_ as a convention -- mt_name, mt_kids, mt_openable
+# then we can define them in whatever objs we want and not mind doing so...
 
 # ==
 
