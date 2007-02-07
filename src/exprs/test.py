@@ -112,7 +112,7 @@ from Set import Set ##e move to basic
 
 import demo_MT
 reload_once(demo_MT)
-from demo_MT import MT, test_drag_pixmap
+from demo_MT import MT_try1, test_drag_pixmap
 
 import demo_drag
 reload_once(demo_drag)
@@ -772,7 +772,7 @@ testexpr_17 = Highlightable(Rect(), on_drag = print_Expr("on_drag happened")) # 
 
 # == demo_MT
 
-testexpr_18 = MT( _my.env.glpane.assy.part.topnode )
+testexpr_18 = MT_try1( _my.env.glpane.assy.part.topnode )
     # works! except for ugliness, slowness, and need for manual update by reloading.
     #e Still need to test: changing the current Part. Should work, tho manual update will make that painful.
     ###e need better error message when I accidently pass _self rather than _my]
@@ -1209,11 +1209,11 @@ testexpr_30h = eval_Expr( call_Expr( lambda world_ui: #070206
                                               DrawInCorner( Boxed(
                                                   eval_Expr( call_Expr( dna_ribbon_view_toolcorner_expr_maker, world_ui )) )),
                                               ## DrawInCorner( testexpr_18, (1,1) ), # works
-                                              ## DrawInCorner( MT(world_ui.world), (1,1) ), # semi-works -- autoupdate fails,
+                                              ## DrawInCorner( MT_try1(world_ui.world), (1,1) ), # semi-works -- autoupdate fails,
                                                   # and it prints "bug: expr or lvalflag for instance changed",
                                                   # and I know why -- see ###BUG comments 070206 in demo_MT.py.
                                                   # How to fix it is also described in there, but not yet attempted.
-                                              DrawInCorner( MT(getattr_Expr(world_ui, 'world')), (1,1) ), # predict same bug - yes.
+                                              DrawInCorner( MT_try1(getattr_Expr(world_ui, 'world')), (1,1) ), # predict same bug - yes.
                                              ),
                                      ## _app._i_instance(testexpr_30b)
                                      call_Expr( _app.Instance, testexpr_30b, "#30bh")
@@ -1263,7 +1263,7 @@ testexpr =  testexpr_30h ## testexpr_29aox3 ## testexpr_18 ## testexpr_9fx4 ## t
     ## testexpr_14 array of hidden-state icons for MT (from cad/images) (change if 0 to if 1 to see non-hidden icons) [retested 070122]
     ## testexpr_15d ChoiceColumn [briefly retested 070122]
     ## testexpr_16 state test  (testexpr_16c for controlling origin axes)
-    ## testexpr_18 model tree demo [only use of MT exprhead in this file -- that exprhead and its module need renaming btw]
+    ## testexpr_18 model tree demo using MT_try1
     ## testexpr_19g GraphDrawDemo_FixedToolOnArg1 -- works [070122]; for non-ER the last tested was _19f; older _19d lacks clear button
     ## testexpr_20 four DrawInCorners (works but highlighting is slow)
     ## testexpr_21e table of alignment testers; _21g same in class form -- update 070122: works in EVAL_REFORM too --
@@ -1341,7 +1341,7 @@ bottom_left_corner = Boxed(SimpleColumn(
 
 top_left_corner = testexpr_18 # update 070206: mostly works, but has a funny alignment issue. ###BUG (but can ignore for now)
     # testexpr_10c # nested ToggleShow. -- works, usual 
-    # Note: testexpr_18 (MT) also works, and has indep node.open state, i think (limited autoupdate makes it hard to be sure).
+    # Note: testexpr_18 (MT_try1) also works, and has indep node.open state, i think (limited autoupdate makes it hard to be sure).
 
 class AppOuterLayer(DelegatingInstanceOrExpr): #e refile when works [070108 experiment]
     "helper class for use in testbed, to provide glue code between testexpr and the rest of NE1"
@@ -1388,7 +1388,7 @@ def testbed(expr):
                  
 ##                 ## or maybe: WithEnv(expr, _env = access to app state, env module, etc ...) or, intercept .draw and run special code...
 ##                 ## _WrapDrawMethod(expr, ...)... with code to copy app state into instance State -- of what instance? smth in env...
-                 DrawInCorner( top_left_corner, (-1,1)), # MT on top left
+                 DrawInCorner( top_left_corner, (-1,1)), # some sort of MT on top left
                  ## testexpr_20a,
                  DrawInCorner( bottom_left_corner, (-1,-1)), # checkboxes on bot left [note: contains _app as ref to dynenv]
                  ####BUG: the _app ref in this works now, except it triggers continuous redraw, not sure why.

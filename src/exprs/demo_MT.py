@@ -5,9 +5,8 @@ $Id$
 
 works in testexpr_18
 
-warning: *not* being used in test.py's top_left_corner [as of 070105 anyway], that's something else that looks the same
-
-#e should rename this module to demo_MT, and rename the main class it defines from MT to something longer
+warning: *not* being used in test.py's top_left_corner [as of 070105 anyway], that's something else that looks the same --
+but on 070206 it is now being used there...
 
 bugs to fix:
 - overlay highlight bug (gray hides plus sign -- for best way to fix, see notesfile 070105)
@@ -24,7 +23,7 @@ nfrs:
 #e stub, but works in test.py:
 ## # demo_MT
 ## ###e need better error message when I accidently pass _self rather than _my]
-## testexpr_18 = MT( _my.env.glpane.assy.part.topnode ) # works! except for ugliness, slowness, and need for manual update by reloading.
+## testexpr_18 = MT_try1( _my.env.glpane.assy.part.topnode ) # works! except for ugliness, slowness, and need for manual update by reloading.
 
 
 # biggest nim issues [some marked with ####]: [solved just barely enough for testexpr_18]
@@ -38,6 +37,7 @@ nfrs:
 #       - guess: it can be identical if we specify what ought to be included in the map-key, i.e. when to share.
 #         If that includes "my ipath" or "my serno" (my = the instance), it can act like a local dict (except for weakref issues).
 # - where & how to register class MT as the "default ModelTree viewer for Node",
+        # [note 070206: that class MT is not MT_try1 -- that's a helper expr for a whole-MT exprhead, which is nim]
 #   where 'ModelTree' is basically a general style or place of viewing, and Node is a type of data the user might need to view that way?
 #   And in viewing a kid (inside this class), do we go through that central system to create the viewer for it, passing it enough env
 #   that it's likely to choose the same MT class to view a kid of a node and that node, but not making this unavoidable? [guess: yes. ##k]
@@ -70,7 +70,7 @@ nfrs:
 
 # small nims:
 # - map_Expr
-# - mt_instance = MT(obj) # with arg1 being already instantiated, this should make an instance ###IMPLEM that #k first be sure it's right
+# - mt_instance = MT_try1(obj) # with arg1 being already instantiated, this should make an instance ###IMPLEM that #k first be sure it's right
 
 # #e more??
 
@@ -114,9 +114,9 @@ def _make_new_MT_viewer_for_object(key):
     obj, essential_data, reload_counter = key
     print "viewing node %r, reload_counter = %r" % (obj, reload_counter) ###
     # obj is a Node or equivalent
-    mt_instance = MT(obj) # but will this work, with arg1 being already instantiated -- will it make an instance? not yet! ###IMPLEM that
+    mt_instance = MT_try1(obj) # but will this work, with arg1 being already instantiated -- will it make an instance? not yet! ###IMPLEM that
     ###BUG (presumed, 070206, old): this is actually an expr, not an instance.
-    # The correct fix is to instantiate it now -- *not* automatically when MT(obj) is formed, as a comment above says should be done --
+    # The correct fix is to instantiate it now -- *not* automatically when MT_try1(obj) is formed, as a comment above says should be done --
     # and to index it by both the "whole MT" we're populating (perhaps a "self" this function should be a method in),
     # and the "node_id" of obj (something unique, and never recycled, unlike id(obj)).
     # This may require passing that "whole MT" in dynenv part of Instance.env with Instance part of essential data,
@@ -152,13 +152,26 @@ class Interface:
     (recomputable, tracked), not methods, to make it easier and more concise to give formulae for them when defining
     how some IorE subclass should satisfy the interface. If you want to define them with methods in a particular case,
     use the standard compute method prefix _C_, e.g.
+    
         def _C_mt_kids(self):
             return a sequence of the kids (which the caller promises it will not try to modify).
+            
         or
+        
         mt_kids = formulae for sequence of kids
+        
     This means that to tell if a node follows this interface, until we introduce a new formalism for that [#e as we should],
     or a way to ask whether a given attr is available (perhaps for recomputation) without getting its value [#e as we should],
     you may not be able to avoid getting the current value of at least one attr unique to the interface. ### DESIGN FLAW
+    It also means that a text search for all implems of the interface attr should search for _C_attr as well as attr
+    (if it's a whole-word search).
+
+    Attr names: the interface attrnames in ModelTreeNodeInterface all start with mt_ as a convention, for several reasons:
+    - less chance of interference with attrs in other interfaces supported by the same objects,
+      or with attrs already present locally in some class;
+    - less chance of accidental reuse in a subclass of a class that inherits the interface;
+    - more specific name for text search;
+    - to make it more obvious that their defs might be part of a definite interface (and give a hint about finding it).
     """
     pass ###e STUB
 
@@ -168,7 +181,8 @@ StateAttr = State ###e STUB -- implies that the interface client can set the att
 
 class ModelTreeNodeInterface(Interface):
     """Interface for a model tree node (something which can show up in a model tree view).
-    Includes default compute method implems for use by type-coercion [which is nim].
+    Includes default compute method implems for use by type-coercion [which is nim]
+    [see also ModelTreeNode_trivial_glue, and the node_xxx helper functions far below, for related code].
        WARNING: this class, itself, is not yet used except as a place to put this docstring.
     But the interface it describes is already in use, as a protocol involving the attrs described here.
     """
@@ -178,9 +192,21 @@ class ModelTreeNodeInterface(Interface):
     mt_openable =  Attr( bool,      False, doc = "whether this node should be shown as openable; if False, mt_kids is not asked for")
                 ##e (consider varying mt_openable default if node defines mt_kids, even if the sequence is empty)
     # (##e nothing here yet for type icons)
+    pass
 
-    #e note: the mode_<attr> helper methods below may contain fancier default value code we may want to use here,
-    # when this class is actually used to help objects meet the interface.
+# ==
+
+# the following ModelTreeNode_trivial_glue example is not yet used, but it points out that default formula for interface attrs
+# would often like to refer to the object they're trying to type-coerce (in this case, to use its classname to init new state).
+
+class ModelTreeNode_trivial_glue(DelegatingInstanceOrExpr): #070206, 070207
+    # args
+    delegate = Arg(ModelObject)
+    # default formulae for ModelTreeNodeInterface -- including one which supplies new state
+    mt_name = State(str, getattr_Expr(getattr_Expr(delegate, '__class__'), '__name__')) ###k
+    #e type - grab it from object, or related to role in parent...
+    mt_kids = ()
+    mt_openable = False
     pass
 
 # ==
@@ -274,7 +300,7 @@ class MT_kids(InstanceMacro):
         ##### note: the kid-list itself is time-varying (not just its members); need to think thru instantiation behavior;
         # what we want in the end is to cache (somewhere, not sure if in _self)
         # the mapping from the kid instance (after If eval - that eval to fixed type thing like in Column, still nim)
-        # to the MT instance made from that kid. We would cache these with keys being all the args... like for texture_holder.
+        # to the MT_try1 instance made from that kid. We would cache these with keys being all the args... like for texture_holder.
         # so that's coarser grained caching than if we did it in _self, but finer than if we ignored poss of varying other args
         # (btw do i mean args, or arg-formulae??).
 
@@ -297,7 +323,7 @@ class MT_kids(InstanceMacro):
             ## bug: expr or lvalflag for instance changed: self = <MT_kids#64648(i)>, index = (-1021, '!_value'),
             ## new data = (<SimpleColumn#65275(a)>, False), old data = (<SimpleColumn#64653(a)>, False)
             # and (evidently, from the failure of the visible MT to update) fails to make a new instance from the new expr.
-            # The fix is discussed in comments in MT_viewer_for_object but requires a rewrite of MT and MT_kids classes. ####TRYIT
+            # The fix is discussed in comments in MT_viewer_for_object but requires a rewrite of MT_try1 and MT_kids classes. ####TRYIT
         res = SimpleColumn(*elts) # [note: ok even when not elts, as of bugfix 061205 in SimpleColumn]
         ## return res # bug: AssertionError: compute method asked for on non-Instance <SimpleColumn#10982(a)>
         # I guess that means we have to instantiate it here to get the delegate. kluge this for now:
@@ -308,7 +334,7 @@ class MT_kids(InstanceMacro):
 ##del Column
 
 
-class MT(InstanceMacro):
+class MT_try1(InstanceMacro):
     # compare to ToggleShow - lots of copied code
 
     # args
@@ -354,23 +380,7 @@ class MT(InstanceMacro):
                       )
         )
     )
-    pass # end of class MT
-
-# ==
-
-class ModelTreeNode_trivial_glue(DelegatingInstanceOrExpr): #070206 experiment related to ModelTreeNodeInterface (sp?)
-    # args
-    delegate = Arg(ModelObject)
-    # state
-    name = State(str, "no name yet")
-    #e type - grab it from object, or related to role in parent...
-    # default formulae
-    kids = list_Expr()
-    openable = False
-    pass
-
-###e but the interface attrs should probably start with _mt_ or mt_ as a convention -- mt_name, mt_kids, mt_openable
-# then we can define them in whatever objs we want and not mind doing so...
+    pass # end of class MT_try1
 
 # ==
 
