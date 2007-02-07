@@ -254,7 +254,7 @@ WithViewerFunc = Stub # see rules.py, to which I moved the more expansive stub o
 # other side, screen coords would work better -- or maybe object-surface-coords (as some comment suggests) would be better still,
 # but for non-enclosed objs like planes, note that that depends on screen coords to know which face is facing the user.
 
-class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
+class GraphDrawDemo_FixedToolOnArg1(InstanceMacro): # see also class World_dna_holder -- need to unify them as a ui-provider framework
     # args
     background = Arg(Widget2D, Rect(10) )
         # testexpr_19a, 061207 morn -- see if arb objects work here, and try drawing on a curved surface --
@@ -410,9 +410,9 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
             
         if 0:
             ## MAKE THIS WORK:
-            newnode = self.world.make_and_add( draggable_node_expr)
+            newnode = self.world.make_and_add( draggable_node_expr, type = "Vertex")
         else:
-            newnode = self.world.make_and_add( node_expr)
+            newnode = self.world.make_and_add( node_expr, type = "Vertex") #070206 added type = "Vertex"
             
         self.newnode = newnode ###KLUGE that we store it directly in self; might work tho; we store it only for use by on_drag_bg
         return # from on_press_bg
@@ -438,7 +438,7 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
         if what == 'draw':
             # make a blue dot showing the drag path, without moving the main new node (from the click)
             node_expr = Vertex(newpos, Center(Rect(0.1,0.1,blue)))
-            self.world.make_and_add(node_expr)
+            self.world.make_and_add(node_expr, type = "dot") #070206 added type = "dot" -- note, not deducible from the expr!!
         elif what == 'drag':
             # drag the new node made by the click
             if not lastnode:

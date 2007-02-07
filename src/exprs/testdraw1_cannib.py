@@ -826,7 +826,7 @@ Ribbon2 and Ribbon
 ##class Symbol:
 ##    def __init__(self, data = ('prim')):
 ##        self.data = data
-##    def __getattr__(self, attr):
+##    def __getattr__(self, attr): # in class Symbol
 ##        if attr.startswith('_'):
 ##            raise AttributeError, attr
 ##        return Symbol(('attr', attr, self)) # or could use AttrSymbol; could call this Expr or PyLikeExpr or PyExpr
@@ -886,7 +886,7 @@ class If_:
         # higher level exprs containing us will know to resolve us with env.
     #e also need __repr__, maybe more
     #e __setattr__? arithmetic??
-    def __getattr__(self, attr):
+    def __getattr__(self, attr): # in class If_
         if attr.startswith('_'):
             raise AttributeError, attr
         # delegate to then or else_, according to cond (whether value is a bound method or a constant)

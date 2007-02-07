@@ -1132,7 +1132,7 @@ class ConstantComputeMethodMixin:
     # use this when defining things used inside ExprsMeta [is this necessary?? maybe it's lazy enough to not need it? I doubt it. #k]
     # only ok when they don't need any recomputes after the first compute.
     # (maybe just use python properties instead? #e)
-    def __getattr__(self, attr):
+    def __getattr__(self, attr): # in class ConstantComputeMethodMixin
         # return quickly for attrs that can't have compute rules
         if attr.startswith('__') or attr.startswith('_C'):
             raise AttributeError, attr # must be fast for __repr__, __eq__, __add__, etc

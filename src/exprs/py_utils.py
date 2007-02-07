@@ -34,9 +34,16 @@ def interleave_by_func(elts, gapfunc):
     return interleave(elts, gaps)
 
 def dict_ordered_values(d1):
+    "return the values of the given dict, sorted by their key in the dict"
     items = d1.items()
     items.sort()
     return [v for (k,v) in items]
+
+def sorted_by(seq, func): #070206 ##e do I have this under some other name, somewhere?
+    "return the elements of the given sequence, sorted by func(element)"
+    items = [(func(elt), elt) for elt in seq]
+    items.sort()
+    return [elt for (f, elt) in items]
 
 from env import seen_before # public in this module
 

@@ -35,7 +35,7 @@ class InvalidatableAttrsMixin(object): # object superclass is needed, to make th
     [Details to be explained. Features to be added: let client determine lval classes.]
     WARNING: entirely NIM or buggy as of 061020.
     """
-    def __getattr__(self, attr):
+    def __getattr__(self, attr): # in class InvalidatableAttrsMixin
         # return quickly for attrs that can't have compute rules
         if attr.startswith('__') or attr.startswith('_C'):
             raise AttributeError, attr # must be fast for __repr__, __eq__, __add__, etc

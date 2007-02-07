@@ -395,7 +395,7 @@ class SymbolicExpr(Expr): # Symbol or OpExpr
     def __call__(self, *args, **kws):
         assert not self._e_is_instance # (should never happen I think)
         return call_Expr(self, *args, **kws)
-    def __getattr__(self, attr):
+    def __getattr__(self, attr): # in class SymbolicExpr
         if attr.startswith('__'):
             # be very fast at not finding special python attrs like __repr__
             raise AttributeError, attr

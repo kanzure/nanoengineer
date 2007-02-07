@@ -19,7 +19,7 @@ class FakeModule:
         self.__path__ = "fakepath/" + name #k ok? maybe not, it might be some sort of dotted import path -- better look it up ####@@@@
         #e __file__?
         self.__getattr_func = getattr_func
-    def __getattr__(self, attr):
+    def __getattr__(self, attr): # in class FakeModule
         if attr.startswith('_'):
             ## too common, e.g. _self: print "fyi: fakemodule getattr warns about initial underscores:",attr # e.g. __path__
             if attr.startswith('__'):

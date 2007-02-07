@@ -153,7 +153,7 @@ class _attr_accessor:
         lval = table[dictkey] # lval might be created at this time (only in one of our two calls)
             ##k let's hope this doesn't internally ask for its value -- error if it does
         return lval
-    def __getattr__(self, attr):
+    def __getattr__(self, attr): # in class _attr_accessor
         return self.__get_lval(attr).get_value()
             # error if the value was not yet set; maybe we need an initval_expr like the State macro is about to be given ###e
     def __setattr__(self, attr, val):

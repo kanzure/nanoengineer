@@ -531,7 +531,7 @@ def dna_ribbon_view_toolcorner_expr_maker(world_holder): #070201 modified from d
     return expr
 
 
-class World_dna_holder(InstanceMacro): #070201 modified from GraphDrawDemo_FixedToolOnArg1; need to unify it as a ui-provider framework
+class World_dna_holder(InstanceMacro): #070201 modified from GraphDrawDemo_FixedToolOnArg1; need to unify them as a ui-provider framework
     # args
     # options
     # internals
@@ -540,6 +540,8 @@ class World_dna_holder(InstanceMacro): #070201 modified from GraphDrawDemo_Fixed
     
     _cmd_Make_DNA_Cylinder_tooltip = "make a DNA_Cylinder" ###e or parse it out of method docstring, marked by special syntax??
     def _cmd_Make_DNA_Cylinder(self):
+        ###e ideally this would be a command defined on a "dna origami raster", and would show up as a command in a workspace UI
+        # only if there was a current raster or a tendency to automake one or to ask which one during or after a make cyl cmd...
         world = self.world
         expr = DNA_Cylinder()
         # Note: ideally, only that much (expr, at this point) would be stored as world's state, with the following wrappers
@@ -558,26 +560,19 @@ class World_dna_holder(InstanceMacro): #070201 modified from GraphDrawDemo_Fixed
             # seems wrong (it only recompiles when the drag first starts, but I think every motion ought to do it),
             # but maybe the highlight/displist bug is preventing the drag events from working properly before they get that far.
             # So try it again after fixing that old issue (not simple). [070203 9pm]
-        newcyl = world.make_and_add( expr)
+        newcyl = world.make_and_add( expr, type = "DNA_Cylinder") #070206 added type = "DNA_Cylinder"
         if 'kluge070205-v2' and world.number_of_objects > 1: # note: does not imply number of Cylinders > 1!
             ### KLUGE: move newcyl, in an incorrect klugy way -- works fine in current code,
             # but won't work if we wrap expr more above, and won't be needed once .move works.
             ### DESIGN FLAW: moving this cyl is not our business to do in the first place,
             # until we become part of a "raster guide shape's" make-new-cyl-inside-yourself command.
             cyls = world.list_all_objects_of_type(DNA_Cylinder)
-                # a nominally read-only list of all cylinders in the world, in a deterministic order not yet decided on
-                # (might be creation order, world-index order, MT order)
-                ###KLUGE, should be taken only from a single raster
-                ###e optim: be able to specify ordering -- otherwise it has to be sorted twice (in the method and here)
-            items = [(obj._e_serno, obj) for obj in cyls]
-                ###KLUGE: use _e_serno in place of .creation_order, not yet defined --
-                # works now, but wrong in general due to potential cyls or moved-from-elsewhere cyls.
-                # (Q: Would index-in-world be ordered the same way? A: Yes for now, but not good to require this in the future.)
-            items.sort()
-            cylinder_list = [cyl for (order, cyl) in items]
-            if len(cylinder_list) > 1:
-                if newcyl is cylinder_list[-1]:
-                    newcyl.motion = cylinder_list[-2].motion - DY * 2.7 ###KLUGE: assumes current alignment
+                # a nominally read-only list of all cylinders in the world, in order of _e_serno (i.e. creation order as Instances)
+                # (WARNING: this order might be changed in the API of list_all_objects_of_type).
+                ###KLUGE -- this list should be taken only from a single raster
+            if len(cyls) > 1:
+                if newcyl is cyls[-1]:
+                    newcyl.motion = cyls[-2].motion - DY * 2.7 ###KLUGE: assumes current alignment
                         # Note: chosen distance 2.7 nm includes "exploded view" effect (I think).
                 else:
                     print "added in unexpected order" ###should never happen as long as _e_serno is ordered like cyl creation order

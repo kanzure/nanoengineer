@@ -729,7 +729,7 @@ class _UNKNOWN_SELOBJ_class: #061218
     highlight_color_for_modkeys = noop #e will it need to be a method which returns a color? I doubt it.
     leftClick = noop
     # this is in case we didn't find one that's needed:
-    def __getattr__(self, attr):
+    def __getattr__(self, attr): # in class _UNKNOWN_SELOBJ_class
         if attr.startswith("__"):
             raise AttributeError, attr
         if platform.atom_debug:###

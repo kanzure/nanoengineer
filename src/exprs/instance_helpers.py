@@ -115,6 +115,9 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
     # abbrevs for read-only state [#e should we make them a property or so, so we can set them too?]
     glname = glpane_state.glname # (note, most things don't have this)
 
+    # instance variable defaults (names must start with _e_ or _i_, or they'll cause trouble for non-Instance getattr_Expr formation)
+    _i_model_type = None # experimental, perhaps a kluge, 070206; WARNING: set externally on some specific Instances
+    
     def __init__(self, *args, **kws):
         # note: just before any return herein, we must call self._e_init_e_serno(), so it's called after any canon_expr we do;
         # also, the caller (if a private method in us) can then do one inside us; see comment where this is handled in __call__
@@ -139,6 +142,7 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
         self._destructive_init(args, kws)
         self._e_init_e_serno()
         return
+    
     def __call__(self, *args, **kws):
         new = self._copy()
         new._destructive_init(args, kws)
@@ -147,6 +151,28 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
             # this is necessary to make serno newer than any exprs produced by canon_expr during _destructive_init
         return new
 
+# I'm not sure whether this unfinished _i_type and _e_delegate_type code will be used -- for now, leave it but comment it out [070206]
+##    _e_delegate_type = False # subclass-specific constant -- whether Instance type determination should be delegated to self._delegate
+##    
+##    def _i_type(self): #070206
+##        """Return something that represents the type of Instance or Expr we are.
+##        (This is not the same as Python type. For more info on what we return, see ###doc.)
+##           WARNING: preliminary implem, several implicit kluges.
+##           NOTE: _e_delegate_type should be True in any delegating subclass, *if* the delegate's type
+##        should be treated as self's type. This has to be determined by each specific subclass --
+##        it's true for wrapper-like delegators (e.g. Translate)
+##        but not true for Macro-like ones, and there is not yet a formal distinction between those
+##        (though this makes it clear that there should be ###e).
+##        """
+##        if self._e_is_instance:
+##            if self._e_delegate_type:
+##                return self._delegate._i_type()
+##            name = self.__class__.__name__
+##        else:
+##            name = "Expr" ###e include something about the predicted instance type? what if it's condition- or time-varying?
+##                # maybe only include it if an outer level includes a type-coercer??
+##        return name
+    
     # deprecated public access to self._e_kws -- used by _DEFAULT_ decls
     def custom_compute_method(self, attr):###NAMECONFLICT?
         "return a compute method using our custom formula for attr, or None if we don't have one"
@@ -904,7 +930,8 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
 _DELEGATION_DEBUG_ATTR = '' # you can set this to an attrname of interest, at runtime, for debugging
 
 class DelegatingMixin(object): # 061109 # see also DelegatingInstanceOrExpr #070121 renamed delegate -> _delegate, let IorE relate them
-    """#doc: like Delegator, but:
+    """#doc: like Delegator, but only legal in subclasses which also inherit from InstanceOrExpr;
+    other differences from Delegator:
     - we delegate to self._delegate rather than self.delegate
     - we don't delegate any attrs that start with '_'
     - no caching, in case the delegate varies over time
@@ -920,8 +947,16 @@ class DelegatingMixin(object): # 061109 # see also DelegatingInstanceOrExpr #070
        (But probably not just by testing self._delegate is None, since the point is to avoid running a compute method
         for self._delegate too early -- in IorE subclasses this would cause an error when they're a pure expr.)]
     """
+    # Note: DelegatingMixin has always appeared after IorE (not before it) in the list of base classes.
+    # I think this order can't matter, since it only defines __getattr__, which is not otherwise defined in any IorE
+    # subclass or superclass, and DelegatingMixin is only legal in IorE (and I just now verified it's only used there, 070206).
+    # The only "close calls" are that __getattr__ is defined in SymbolicExpr, and some obsolete code said
+    #   "class _this(SymbolicInstanceOrExpr, DelegatingMixin)".
+    # So if we wanted to require DelegatingMixin to come first (so it could override things defined in IorE
+    # or its subclasses (like the experimental _i_type, if it survives)), we could probably make that change.
+
     ##e optim: do this instead of the assert about attr: _delegate = None # safer default -- prevent infrecur
-    def __getattr__(self, attr):
+    def __getattr__(self, attr): # in class DelegatingMixin
         try:
             return super(DelegatingMixin,self).__getattr__(attr)###k need to verify super args in python docs, and lack of self in __getattr__
                 # note, _C__attr for _attr starting with _ is permitted, so we can't check whether attr starts '_' before doing this.
@@ -1054,6 +1089,33 @@ class DelegatingInstanceOrExpr(InstanceOrExpr, DelegatingMixin): # moved here & 
     #e this might replace most uses of DelegatingMixin and InstanceMacro, if I like it
     pass
 
+# new unfinished code, not sure useful, commented out, goes with other such code from today related to _i_type [070206]
+##class InstanceWrapper(DelegatingInstanceOrExpr): #070206 ###e rename??? not yet used. see below for analysis of who should use this.
+##    """[proposed] The standard superclass for an InstanceOrExpr which delegates to another one
+##    (an instance of an expr defined by each subclass as self.delegate, which can be time-varying)
+##    in such a way as to "wrap" or "decorate" it without changing its type.
+##       (Note: It's possible that the implem of delegation in all such cases will be changed someday
+##    so that self and its delegate are the same object, only differing in unbound method functions. ###e)
+##    """
+##    _e_delegate_type = True
+##    pass
+
+# Should the following delegating IorE subclasses delegate their type? [070206 survey]
+# Note, this only matters if they are fed into a model-object-container and wrapped around a model object --
+# if that can ever happen legitimately, say yes -- or if they are used as model object even if they're a graphics primitive
+# like Cylinder (really a geometric object, not just a graphics prim). So for Overlay we'll say yes, in case it wraps
+# a model obj, even though that should probably not occur directly in a model obj container. Same with Highlighting, etc.
+# We'll only say no for things that might look like model objects themselves (whose type a user might want to see as the
+# type of object they put in the model). So far most of the code here is not a model obj, so maybe I should make the default yes...
+#
+# SpacerFor - no (it takes the size of a model object, but it surely does not take other aspects of its nature)
+#   [###e this suggests that what's really going on is that we need to be saying what interfaces we do and don't delegate,
+#    and SpacerFor is delegating layout but not other graphics and not model nature, which this "type" is part of --
+#    really it's not just plain type, but "model object type".]
+# Highlightable(image) - no
+# Highlightable(ModelObject) - maybe yes, but looks deprecated -- Highlightable should be used in a viewing macro. So no.
+# ImageChunk [not yet used] - like Highlightable? no... unclear. Maybe this model/graphics-object distinction needs formalization...
+# Overlay - 
 # ==
 
 class ModelObject(DelegatingInstanceOrExpr): #070201 moved here from demo_drag.py; see also ModelObject3D, Geom3D...

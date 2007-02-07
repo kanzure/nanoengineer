@@ -26,7 +26,7 @@ class DelegatingInstanceOrExpr_obs(InstanceOrExpr): #061020; as of 061109 this l
     """
     def _C_delegate(self):
         assert 0, "must be overridden by subclass to return object to delegate to at the moment"
-    def __getattr__(self, attr):
+    def __getattr__(self, attr): # in class DelegatingInstanceOrExpr_obs
         try:
             return InstanceOrExpr.__getattr__(self, attr) # handles _C_ methods via InvalidatableAttrsMixin
                 # note, _C__attr for _attr starting with _ is permitted.
