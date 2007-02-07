@@ -121,7 +121,7 @@ def _make_new_MT_viewer_for_object(key):
     # and the "node_id" of obj (something unique, and never recycled, unlike id(obj)).
     # This may require passing that "whole MT" in dynenv part of Instance.env with Instance part of essential data,
     # or revising how we call this so it can just get "whole MT" as one of the args.
-    # The code that needs revising is mainly MT_kids -- see more comments therein.
+    # The code that needs revising is mainly MT_try1_kids -- see more comments therein.
     return mt_instance 
 
 _MT_viewer_for_object = MemoDict( _make_new_MT_viewer_for_object)
@@ -283,7 +283,7 @@ def node_name(node): # revised 070207
     pass
 
 
-##class Column(InstanceMacro): #kluge just for MT_kids
+##class Column(InstanceMacro): #kluge just for MT_try1_kids
 ##    eltlist = Arg(list_Expr)
 ##    _value = SimpleColumn( *eltlist) ### this is wrong, but it seemed to cause an infinite loop -- did it? ###k
         ##    exceptions.KeyboardInterrupt: 
@@ -294,7 +294,7 @@ def node_name(node): # revised 070207
         # Can this bug be detected? Is there an __xxx__ which gets called first, to grab the whole sequence,
         # which I can make fail with an error? I can find out: *debug_expr where that expr prints all getattr failures. Later.
     
-class MT_kids(InstanceMacro):
+class MT_try1_kids(InstanceMacro):
     # args
     kids = Arg(list_Expr)####k more like List or list or Anything...
         ##### note: the kid-list itself is time-varying (not just its members); need to think thru instantiation behavior;
@@ -320,10 +320,10 @@ class MT_kids(InstanceMacro):
             # The effect is that, if this is recomputed (which does not happen in testexpr_18, but does in testexpr_30h, 070206 10pm),
             # it evals to itself and returns a different expr to be instantiated (by code in InstanceMacro) using the same index,
             # which prints
-            ## bug: expr or lvalflag for instance changed: self = <MT_kids#64648(i)>, index = (-1021, '!_value'),
+            ## bug: expr or lvalflag for instance changed: self = <MT_try1_kids#64648(i)>, index = (-1021, '!_value'),
             ## new data = (<SimpleColumn#65275(a)>, False), old data = (<SimpleColumn#64653(a)>, False)
             # and (evidently, from the failure of the visible MT to update) fails to make a new instance from the new expr.
-            # The fix is discussed in comments in MT_viewer_for_object but requires a rewrite of MT_try1 and MT_kids classes. ####TRYIT
+            # The fix is discussed in comments in MT_viewer_for_object but requires a rewrite of MT_try1 and MT_try1_kids classes. ####TRYIT
         res = SimpleColumn(*elts) # [note: ok even when not elts, as of bugfix 061205 in SimpleColumn]
         ## return res # bug: AssertionError: compute method asked for on non-Instance <SimpleColumn#10982(a)>
         # I guess that means we have to instantiate it here to get the delegate. kluge this for now:
@@ -335,7 +335,7 @@ class MT_kids(InstanceMacro):
 
 
 class MT_try1(InstanceMacro):
-    # compare to ToggleShow - lots of copied code
+    # WARNING: compare to ToggleShow - lots of copied code -- also compare to the later _try2 version, which copies from this
 
     # args
     node = Arg(Node) #### type? the actual arg will be a node instance...
@@ -375,13 +375,128 @@ class MT_try1(InstanceMacro):
             SimpleRow(CenterY(icon), CenterY(label)),
                 #070124 added CenterY, hoping to improve text pixel alignment (after drawfont2 improvements in testdraw) -- doesn't work
             If( open,
-                      MT_kids( call_Expr(node_kids, node) ), ###e implem or find kids... needs usage/mod tracking
+                      MT_try1_kids( call_Expr(node_kids, node) ), ###e implem or find kids... needs usage/mod tracking
                       Spacer(0) ###BUG that None doesn't work here: see comment in ToggleShow.py
                       )
         )
     )
     pass # end of class MT_try1
 
+# ==
+
+ModelNode = ModelObject ###stub -- should mean "something that satisfies (aka supports) ModelNodeInterface"
+
+class MT_try2(DelegatingInstanceOrExpr):
+    """
+    """
+    arg = Arg(ModelNode, doc = "the toplevel node of this MT view (fixed; no provision yet for a toplevel *list* of nodes #e)")
+    #e could let creator supply a nonstandard way to get mt-items (mt node views) for nodes shown in this MT
+    def _C__delegate(self):
+        # apply our node viewer to our arg
+        return self.MT_item_for_object(self.arg)
+    def MT_item_for_object(self, object):
+        "find or make a viewer for object in the form of an MT item for this MT"
+        ###e optim: avoid redoing some of the following when we already have a viewer for this object --
+        # but to find out if we have one, we probably can't avoid getting far enough in the following to get node_id(object)
+        # to use as index (since even id(object) being the same as one we know, does not guarantee node_id(object) is the same --
+        # unless we keep a reference to object, which I suppose we could do -- hmm... #k #e),
+        # which means coercing object enough into ModelNodeInterface to tell us its node_id.
+        # Maybe try to make that fast by making most of it lazily done?
+        #
+        #e coerce object into supporting ModelNodeInterface 
+        object = identity(object) ###e STUB: just assume it already does support it
+        index = ('MT_item_for_object', node_id(object)) ###IMPLEM node_id
+            # note: the constant string in the index is to avoid confusion with Arg & Instance indices;
+            # it would be supplied automatically if we made this using InstanceDict [nim] #e
+            ###e if nodes could have >1 parent, we'd need to include parent node in index -- only sufficient if some
+            # nodes have to be closed under some conds not spelled out here (I think: at most one MT item for a given node
+            # is open at a time ###k) -- otherwise the entire root-parents-node path might be needed in the index,
+            # at least to permit nonshared openness bit of each separately drawn mt item, which is strongly desired
+            # (since we might like them to interact, but not by being shared -- rather, by opening one view of a node closing
+            #  its other views)
+        expr = _MT_try2_node_helper(object, self)
+            ###BUG: if object differs but its node_id is the same, the Instance expr sameness check might complain!!!
+            # Can this happen?? (or does it only happen when self is also not the same, so it's not a problem?) #k
+            ##e optim: have variant of Instance in which we pass a constant expr-maker, only used if index is new
+            # WARNING: if we do that, it would remove the errorcheck of whether this expr is the same as any prior one at same index
+        return self.Instance( expr, index) ###k arg order -- def Instance
+
+from __Symbols__ import _FORWARD_REF_ ###e refile; ###IMPLEM its special behavior (if it still seems ok & good); #e rename
+    ###e and permit an exception to bug: __call__ of <getattr_Expr#24476: ... when using it
+
+class _MT_try2_node_helper(DelegatingInstanceOrExpr):
+    """[private helper expr class for MT_try2]
+    One MT item view -- specific to one node, one whole MT, and one (possibly time-varying) position with it.
+    """
+    # args
+    node = Arg(ModelNode, doc = "any node that needs to be displayed in this MT")
+        ###e NOTE: type coercion to this is nim; while that's true, we use helper functions like node_name(node) below;
+        # once type coercion is implemented
+        # (or simulated by hand by wrapping this arg with a helper expr like ModelTreeNode_trivial_glue),
+        #  we could instead use node.mt_name, etc.)
+    mt = Arg(MT_try2, doc = "the whole MT view, in which we store MT items for nodes, and keep other central state or prefs if needed")
+
+    # WARNING: compare to MT_try1 -- lots of copied code after this point
+    # WARNING: the comments are also copied, and not yet reviewed much for their new context! (so they could be wrong or obs) ###k
+    
+    # state refs
+    open = State(bool, False)
+    
+    # other formulae
+    ###e optim: some of these could have shared instances over this class, since they don't depend on _self; should autodetect this
+    # Note, + means openable (ie closed), - means closable (ie open) -- this is the Windows convention (I guess; not sure about Linux)
+    # and until now I had them reversed. This is defined in two files and in more than one place in one of them. [bruce 070123]
+    open_icon   = Overlay(Rect(0.4), TextRect('-',1,1))
+    closed_icon = Overlay(Rect(0.4), TextRect('+',1,1))
+    openclose_spacer = Spacer(0.4)
+        #e or Invisible(open_icon); otoh that's no simpler, since open_icon & closed_icon have to be same size anyway
+
+    # the openclose icon, when open or close is visible (i.e. for openable nodes)
+    openclose_visible = Highlightable(
+        If( open, open_icon, closed_icon ),
+        on_press = Set(open, not_Expr(open)) )
+    
+    openclose_slot = If( call_Expr(node_openable, node), openclose_visible, openclose_spacer )
+
+    ###STUB for the type_icon:
+    icon = Rect(0.4, 0.4, green)##stub; btw, would be easy to make color show hiddenness or type, bfr real icons work
+        ###k is this a shared instance (multiply drawn)?? any issue re highlighting? need to "instantiate again"?
+            ##e Better, this ref should not instantiate, only eval, once we comprehensively fix instantiation semantics.
+            # wait, why did I think "multiply drawn"? it's not. nevermind.
+        ##e selection behavior too
+    label = TextRect( call_Expr(node_name, node) ) ###e will need revision to Node or proxy for it, so node.name is usage/mod-tracked
+        ##e selection behavior too --
+        #e probably not in these items but in the surrounding Row (incl invis bg? maybe not, in case model appears behind it!)
+        ##e italic for disabled nodes
+        ##e support cmenu
+    
+    delegate = SimpleRow(
+        openclose_slot,
+        SimpleColumn(
+            SimpleRow(CenterY(icon), CenterY(label)),
+                #070124 added CenterY, hoping to improve text pixel alignment (after drawfont2 improvements in testdraw) -- doesn't work
+            If( open,
+                      _FORWARD_REF_._MT_try2_kids_helper( call_Expr(node_kids, node) ),
+                      Spacer(0) ###BUG that None doesn't work here: see comment in ToggleShow.py
+                      )
+        )
+    )
+    pass
+
+class _MT_try2_kids_helper:###(...):
+    """[private helper expr class for MT_try2]
+    One MT item kidlist view -- specific to one instance of _MT_try2_node_helper.
+    [#e if we generalize MT_try2 to support a time-varying list of toplevel nodes,
+     then we might use one of these at the top, instead of using a single node at the top --
+     but more likely a variant of this (at least passing it an option), to turn off
+     anything it might display in the left which only makes sense when it's elts are under a common parent node.]
+    """
+    # args
+    kids = Arg( list_Expr, doc = "the sequence of 0 or more kid nodes to show (after filtering, reordering, etc, by _self.mt)")
+    mt = Arg( MT_try2,     doc = "the whole MT view (for central storage and prefs)") ###e let this be first arg, like self is for methods??
+    parent_item = Arg( _MT_try2_node_helper, None, doc = "the parent node item for these kid nodes") #k needed??
+    # WARNING: compare to MT_try1_kids -- lots of copied code after this point
+    # WARNING: the comments are also copied, and not yet reviewed much for their new context! (so they could be wrong or obs) ###k
 # ==
 
 class test_drag_pixmap(InstanceMacro):
