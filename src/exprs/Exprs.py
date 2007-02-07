@@ -429,9 +429,13 @@ class SymbolicExpr(Expr): # Symbol or OpExpr
 
 class OpExpr(SymbolicExpr):
     "Any expression formed by an operation (treated symbolically) between exprs, or exprs and constants"
-    def __init__(self, *args):
+    def __init__(self, *args, **kws): # arglist would just be "self, *args, doc = None" except that it's invalid syntax
         self._e_args = tuple(map(canon_expr, args)) # tuple is required, so _e_args works directly for a format string of same length
         self._e_init_e_serno() # call this AFTER canon_expr (for sake of _e_serno order)
+        doc = kws.pop('doc', None)
+        self.__doc__ = doc #070207 added this keyword arg -- supplied (to a StateAttr stub) but not yet used;
+            # not sure it belongs in this class rather than the subclass that needed it (State) ##k
+        assert not kws, "unexpected keyword args for %s: %r" % (self.__class__.__name__, kws.keys())
         self._e_init()
     def _e_init(self):
         assert 0, "subclass of OpExpr must implement _e_init"

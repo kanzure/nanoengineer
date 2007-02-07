@@ -142,27 +142,67 @@ def MT_viewer_for_object(obj, essential_data = None):
 
 # ==
 
+##e prototype, experimental definition of an Interface
+# (all use of which nim, and it's a stub anyway -- but intended to become real). [070207]
+
+class Interface:
+    """
+    ###doc
+       Note: most InstanceOrExpr interfaces (e.g. ModelTreeNodeInterface) consists of attrs
+    (recomputable, tracked), not methods, to make it easier and more concise to give formulae for them when defining
+    how some IorE subclass should satisfy the interface. If you want to define them with methods in a particular case,
+    use the standard compute method prefix _C_, e.g.
+        def _C_mt_kids(self):
+            return a sequence of the kids (which the caller promises it will not try to modify).
+        or
+        mt_kids = formulae for sequence of kids
+    This means that to tell if a node follows this interface, until we introduce a new formalism for that [#e as we should],
+    or a way to ask whether a given attr is available (perhaps for recomputation) without getting its value [#e as we should],
+    you may not be able to avoid getting the current value of at least one attr unique to the interface. ### DESIGN FLAW
+    """
+    pass ###e STUB
+
+Attr = Option ###e STUB -- an attr the interface client can ask for (with its type, default value or formula, docstring)
+StateAttr = State ###e STUB -- implies that the interface client can set the attr as well as getting it,
+    # and type coercion to the interface might create state as needed to support that (if it's clear how to do that correctly)
+
+class ModelTreeNodeInterface(Interface):
+    """Interface for a model tree node (something which can show up in a model tree view).
+    Includes default compute method implems for use by type-coercion [which is nim].
+       WARNING: this class, itself, is not yet used except as a place to put this docstring.
+    But the interface it describes is already in use, as a protocol involving the attrs described here.
+    """
+    # the recompute attrs in the interface, declared using Attr [nim] so they can include types and docstrings
+    mt_name = StateAttr( str,       "",    doc = "the name of a node in the MT; settable by the MT view (since editable in that UI)")
+    mt_kids =      Attr( list_Expr, (),    doc = "the list of kids, of all types, in order (client MT view will filter them)")
+    mt_openable =  Attr( bool,      False, doc = "whether this node should be shown as openable; if False, mt_kids is not asked for")
+                ##e (consider varying mt_openable default if node defines mt_kids, even if the sequence is empty)
+    # (##e nothing here yet for type icons)
+
+    #e note: the mode_<attr> helper methods below may contain fancier default value code we may want to use here,
+    # when this class is actually used to help objects meet the interface.
+    pass
+
+# ==
+
 # define some helper functions which can apply either the new ModelTreeNodeInterface or the legacy Utility.Node interface
 # to node, or supply defaults permitting any object to show up in the MT.
 #
 ###BUG: they decide which interface to use for each attr independently, but the correct way is to decide for all attrs at once.
-# shouldn't matter for now, though it means defining mt_kids is not enough, you need mt_openable too.
-#
-###DESIGN FLAW: the ModelTreeNodeInterface should probably consist of (recomputable, tracked) attrs, not methods,
-# so it's easier to give formulae for them when defining how some IorE subclass should satisfy it.
-#
-# (##e nothing here yet for type icons)
+# shouldn't matter for now, though it means defining mt_kids is not enough, you need mt_openable too
+# (note that no automatic type coercion is yet implemented, so nothing ever yet uses
+#  the default formulae in class ModelTreeNodeInterface).
 
 _DISPLAY_PREFS = dict(open = True) # private to def node_kids
 
-def node_kids(node): # revised 070206
+def node_kids(node): # revised 070207
     "return the kid list of the node, regardless of which model tree node interface it's trying to use [slight kluge]"
     try:
-        node.mt_kids # look for ModelTreeNodeInterface method [070206]
+        node.mt_kids # look for (value computed by) ModelTreeNodeInterface method
     except AttributeError:
         pass
     else:
-        return node.mt_kids()
+        return node.mt_kids
 
     try:
         node.kids # look for legacy Node method
@@ -171,16 +211,16 @@ def node_kids(node): # revised 070206
     else:
         return node.kids(_DISPLAY_PREFS)
 
-    return [] # give up and assume it has no kids
+    return () # give up and assume it has no kids
 
-def node_openable(node): # 070206
+def node_openable(node): # revised 070207
     "return the openable property of the node, regardless of which model tree node interface it's trying to use [slight kluge]"
     try:
-        node.mt_openable # look for ModelTreeNodeInterface method [070206]
+        node.mt_openable # look for (value computed by) ModelTreeNodeInterface method
     except AttributeError:
         pass
     else:
-        return node.mt_openable()
+        return node.mt_openable
 
     try:
         node.openable # look for legacy Node method
@@ -189,16 +229,17 @@ def node_openable(node): # 070206
     else:
         return node.openable() ###k
 
-    return False # give up and assume it's not openable (##e should vary this if it defines mt_kids or kids, even if they are empty)
+    return False # give up and assume it's not openable (as the default formula for mt_openable would have us do)
+        ##e (consider varying this if node defines mt_kids or kids, even if they are empty)
 
-def node_name(node): # 070206
+def node_name(node): # revised 070207
     "return the name property of the node, regardless of which model tree node interface it's trying to use [slight kluge]"
     try:
-        node.mt_name # look for ModelTreeNodeInterface method [070206]
+        node.mt_name # look for (value computed by) ModelTreeNodeInterface method
     except AttributeError:
         pass
     else:
-        return node.mt_name()
+        return node.mt_name
 
     try:
         node.name # look for legacy Node variable

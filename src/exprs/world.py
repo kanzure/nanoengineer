@@ -246,7 +246,7 @@ class World(ModelObject): #070205 revised, public nodelist -> private _nodeset
 
     # ==
 
-    def mt_kids(self): # 070206 experiment related to ModelTreeNodeInterface (sp?)
+    def _C_mt_kids(self): # 070206 experiment related to ModelTreeNodeInterface (sp?)
         ###e how do we depend on the mt display prefs? note we need to be drawn twice, once in graphics area using .draw
         # and once in MT using the mt_* methods, but with independent envs provided! Self.env might have room in attr namespace,
         # but it has a single origin. Besides there might be two indep MT views or graphics views -- each of those also needs
@@ -254,16 +254,16 @@ class World(ModelObject): #070205 revised, public nodelist -> private _nodeset
         # to handle that! I'm not even sure it makes sense to put the viewing methods in the same object... but maybe it does
         # with this concept of partial instantiation [nim], in which we could instantiate the viewing layer(?) (interface??) twice,
         # and the data layer just once, letting it (an instance) serve as the expr for instantiating the viewing layer in two places.
+        # (But this makes it clear that the env would need to be split into separate parts, one for each partially instantiable
+        #  layer -- hopefully these parts would correspond to interfaces (or sets of them), i.e. an interface's attrs would
+        #  have to all be instantiated at the same time, and decls would control which ones were instantiated together in which
+        #  partial-instantiation layers.)
         #
         # So for now let's pretend self.env can tell us... tho as initial kluge, the global env.prefs (get_pref?) could tell us.
         # But even sooner, just pretend we don't care and always show all the kids.
         return self._sorted_objects
-    def mt_name(self):
-##        name = "Model Tree" # ?? not really...
-        name = "Untitled"
-        return name
-    def mt_openable(self):
-        return True
+    mt_name = "Untitled" #e or maybe something like State(str, "Untitled"), or a stateref
+    mt_openable = True
     
     # ==
     
