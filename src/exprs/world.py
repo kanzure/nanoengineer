@@ -264,6 +264,8 @@ class World(ModelObject): #070205 revised, public nodelist -> private _nodeset
         return self._sorted_objects
     mt_name = "Untitled" #e or maybe something like State(str, "Untitled"), or a stateref
     mt_openable = True
+    mt_node_id = getattr_Expr( _self, '_e_serno')
+
     
     # ==
     

@@ -1193,13 +1193,23 @@ class RecomputableDict(Delegator):
        If validate_keys is True, every __getitem__ verifies the supplied key is in the specified key sequence.
        #e Someday, self.lvaldict might be a public attr -- not sure if this is needed;
     main use is "iterate over values defined so far".
+       [This class is used by ExprsMeta to help implement _CV_ dict-item compute methods.]
     """
     def __init__(self, compute_methodV, compute_methodK = None, validate_keys = False):
         self.lvaldict = LvalDict2(compute_methodV)
         Delegator.__init__( self, DictFromKeysAndFunction( self.compute_value_at_key, compute_methodK, validate_keys = validate_keys))
         return
-    def compute_value_at_key(self, key):
+    def compute_value_at_key(self, key): #e should rename to be private?
         return self.lvaldict[key].get_value()
+    def inval_at_key(self, key):#070207
+        """[public method, on a dictlike object whose other client code might treat it much like an ordinary dict]
+        Invalidate our lval at the given key. This has two effects:
+        - force it to be recomputed when next asked for;
+        - propogate this inval to anything which tracked a use of the value.
+        Note that __delitem__, if we implemented it, would only do the first of these effects.
+        That would probably be a bug, so for now, we're not implementing it (exception if you try to del an item).
+        """
+        self.lvaldict[key].inval()
     pass
 
 ###e tests needed:

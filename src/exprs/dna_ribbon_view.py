@@ -503,6 +503,7 @@ class DNA_Cylinder(Macro):
     mt_name = State(str, "DNA Cylinder #n") ###e make it unique somehow #e make it editable
     mt_kids = () #e add our crossovers, our yellow rect demos
     mt_openable = False #e
+    mt_node_id = getattr_Expr( _self, '_e_serno')
     
     pass # end of class DNA_Cylinder
 

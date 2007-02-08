@@ -296,7 +296,7 @@ def mt_node_id(node): # 070207; the name 'node_id' itself conflicts with a funct
     else:
         return node.mt_node_id
 
-    assert not is_expr_Instance(node) # most to the point
+    assert not is_expr_Instance(node), "what node is this? %r" % (node,) # most to the point
     assert not is_Expr(node) # stronger, and also should be true
     
      # look for legacy Node property

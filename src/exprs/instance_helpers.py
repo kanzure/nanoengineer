@@ -607,7 +607,24 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
                 if permit_expr_to_vary:
                     # new feature 070207
                     ### how do we remove the old instance so it gets remade?
-                    del self._i_instance_CVdict[index] ##k guess at how -- but del might be nim in this object
+                    ## del self._i_instance_CVdict[index] ##k guess at how -- but del might be nim in this object --
+                        # good thing it was, since inval_at_key [new feature] is what we need -- del would fail to propogate invals
+                        # to prior usage trackers of this now-obsolete instance!
+                    ###BUG: changes to the info used to compute expr, by whatever decides to call this method (_i_instance),
+                    # are usage tracked into that caller, not into our lval in our lvaldict. We depend on the caller
+                    # someday getting recomputed before it will realize it wants to pass us a new expr and cause this inval.
+                    # (Example of this use: a kid-column delegate in MT_try2.)
+                    # THIS LATE PROPOGATION OF INVAL MIGHT LEAD TO BUGS -- not reviewed in detail.
+                    # Much better would be for the callers "usage tracked so far" to somehow get subscribed to (for invals)
+                    # by the thing we manually inval here. The potential bugs in the current scheme include:
+                    # - inval during recompute can make more pieces of it need recompute than did when it started
+                    # - if the caller's recompute never happens, the invals that need to propogate never occur at all,
+                    #   though they need to.
+                    # I am not sure if this can cause bugs in MT_try2 -- maybe not -- but surely it can in general!
+                    ###FIX SOMEHOW (maybe as suggested above, by stealing or copying usage tracking info from caller --
+                    # but it's not enough, we'd need our lval's recompute to get the caller to re-decide to call us
+                    # so we'd know the new expr to recompute with! So, details of any fix are unclear.)
+                    self._i_instance_CVdict.inval_at_key(index)
                     print "fyi: made use of permit_expr_to_vary for index = %r, expr = %r" % (index, expr) ##e remove when works
                 else:
                     print "bug: expr or lvalflag for instance changed: self = %r, index = %r, new data = %r, old data = %r" % \
