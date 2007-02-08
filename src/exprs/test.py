@@ -1350,9 +1350,10 @@ bottom_left_corner = Boxed(SimpleColumn(
     # and Boxed not resizable, and labels wouldn't grow if it was (and they're not long enough, tho that'd be ok if they'd grow),
     # and reload is pretty slow since we're not caching all this testbed stuff (at least I guess that's why)
 
-top_left_corner = testexpr_18 # update 070206: mostly works, but has a funny alignment issue. ###BUG (but can ignore for now)
+top_left_corner = testexpr_18i
     # testexpr_10c # nested ToggleShow. -- works, usual 
-    # Note: testexpr_18 (MT_try1) also works, and has indep node.open state, i think (limited autoupdate makes it hard to be sure).
+    # testexpr_18 # (MT_try1) also works, and has indep node.open state, i think (limited autoupdate makes it hard to be sure).
+    # update 070206: testexpr_18 mostly works, but has a funny alignment issue. ###BUG (but can ignore for now)
 
 class AppOuterLayer(DelegatingInstanceOrExpr): #e refile when works [070108 experiment]
     "helper class for use in testbed, to provide glue code between testexpr and the rest of NE1"

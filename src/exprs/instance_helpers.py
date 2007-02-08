@@ -625,7 +625,7 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
                     # but it's not enough, we'd need our lval's recompute to get the caller to re-decide to call us
                     # so we'd know the new expr to recompute with! So, details of any fix are unclear.)
                     self._i_instance_CVdict.inval_at_key(index)
-                    print "fyi: made use of permit_expr_to_vary for index = %r, expr = %r" % (index, expr) ##e remove when works
+                    # print "fyi: made use of permit_expr_to_vary for index = %r, expr = %r" % (index, expr) # remove when works
                 else:
                     print "bug: expr or lvalflag for instance changed: self = %r, index = %r, new data = %r, old data = %r" % \
                           (self,index,newdata,olddata) #e more info? i think this is an error and should not happen normally

@@ -20,6 +20,30 @@ nfrs:
 [renamed from MT_demo.py, 070106]
 """
 
+#todo 070208:
+# cleanup:
+# - move the new one to top left (try2 on new model) (depends on particular testexpr to find model)
+# - move deprecated MT_try1 into an outtakes file to avoid confusion (maybe a loadable one so testexpr_18 & _30h still works)
+# - start out being open at the top
+# +? turn off debug prints
+# - reorder args to _try2 helper classes
+# - make helper classes attrs of main MT_try2 (rather than globals)
+# demo:
+# - cross-highlighting
+# polish:
+# - alignment bug (openclose vs other parts of row in item)
+# - type icons
+# - openclose needs a triangle too, so mac ppl can understand it
+# someday:
+# - implem type coercion and use it to let anything work as a node
+#   - move Interface to its own file
+#   - make ModelTreeNodeInterface real and use it for that
+# - autoupdate for legacy nodes
+# - permit_expr_to_vary inval during recompute logic bug: (in instance_helpers, but made use of here)
+#   - verify it by test (maybe no bug in MT_try2, so the test is a new class designed to hit the bug)
+#   - fix it -- see comments where it's defined
+
+
 #e stub, but works in test.py:
 ## # demo_MT
 ## ###e need better error message when I accidently pass _self rather than _my]
@@ -112,7 +136,7 @@ Node = Stub # [later note 061215: this is probably the same as Utility.Node; it'
 
 def _make_new_MT_viewer_for_object(key):
     obj, essential_data, reload_counter = key
-    print "viewing node %r, reload_counter = %r" % (obj, reload_counter) ###
+    print "viewing node %r, reload_counter = %r" % (obj, reload_counter) # leave this in, since it's only used by deprecated MT_try1
     # obj is a Node or equivalent
     mt_instance = MT_try1(obj) # but will this work, with arg1 being already instantiated -- will it make an instance? not yet! ###IMPLEM that
     ###BUG (presumed, 070206, old): this is actually an expr, not an instance.
@@ -356,7 +380,7 @@ class MT_kids_try1(InstanceMacro):
 ##del Column
 
 
-class MT_try1(InstanceMacro):
+class MT_try1(InstanceMacro): # deprecated MT_try1 as of 070208, since MT_try2 works better
     # WARNING: compare to ToggleShow - lots of copied code -- also compare to the later _try2 version, which copies from this
 
     # args
@@ -408,16 +432,22 @@ class MT_try1(InstanceMacro):
 
 ModelNode = ModelObject ###stub -- should mean "something that satisfies (aka supports) ModelNodeInterface"
 
-class MT_try2(DelegatingInstanceOrExpr): # works on assy.topnode (~~) in testexpr_18i; ###UNTESTED on World in testexpr_30i
-    """
+class MT_try2(DelegatingInstanceOrExpr): # works on assy.part.topnode in testexpr_18i, and on World in testexpr_30i
+    """Model Tree view, using the argument as the top node.
+    Has its own openclose state independent of other instances of MT_try2, MT_try1, or the nodes themselves.
+    Works on IorE subclasses which support ModelTreeNodeInterface, or on legacy nodes (assy.part.topnode),
+    but as of 070208 has no way to be notified of changes to legacy nodes (e.g. openclose state or kids or name).
+       Has minor issues listed in "todo" comment [070208] at top of source file.
+    [This is the official version of a "model tree view" in the exprs package as of 070208; replaces deprecated MT_try1.]
     """
     arg = Arg(ModelNode, doc = "the toplevel node of this MT view (fixed; no provision yet for a toplevel *list* of nodes #e)")
     #e could let creator supply a nonstandard way to get mt-items (mt node views) for nodes shown in this MT
     def _C__delegate(self):
         # apply our node viewer to our arg
-        return self.MT_item_for_object(self.arg, name_suffix = " (MT_try2)" )
-    def MT_item_for_object(self, object, name_suffix = ""):
-        "find or make a viewer for object in the form of an MT item for this MT"
+        return self.MT_item_for_object(self.arg, initial_open = True)
+            # note: this option to self.MT_item_for_object also works here, if desired: name_suffix = " (MT_try2)"
+    def MT_item_for_object(self, object, name_suffix = "", initial_open = False):
+        "find or make a viewer for object in the form of an MT item for use in self"
         ###e optim: avoid redoing some of the following when we already have a viewer for this object --
         # but to find out if we have one, we probably can't avoid getting far enough in the following to get mt_node_id(object)
         # to use as index (since even id(object) being the same as one we know, does not guarantee mt_node_id(object) is the same --
@@ -436,7 +466,7 @@ class MT_try2(DelegatingInstanceOrExpr): # works on assy.topnode (~~) in testexp
             # at least to permit nonshared openness bit of each separately drawn mt item, which is strongly desired
             # (since we might like them to interact, but not by being shared -- rather, by opening one view of a node closing
             #  its other views)
-        expr = _MT_try2_node_helper(object, self, name_suffix = name_suffix)
+        expr = _MT_try2_node_helper(object, self, name_suffix = name_suffix, initial_open = initial_open)
             ###BUG: if object differs but its mt_node_id is the same, the Instance expr sameness check might complain!!!
             # Can this happen?? (or does it only happen when self is also not the same, so it's not a problem?) #k
             ##e optim: have variant of Instance in which we pass a constant expr-maker, only used if index is new
@@ -477,7 +507,8 @@ class _MT_try2_kids_helper(DelegatingInstanceOrExpr):
     # (Or use fresh index each time? No, inefficient & unnatural.)
     # I don't have control of the 'delegate' attr's instantiation code, so I'll use _delegate.
     def _C__delegate(self):
-        print "recomputing %r._delegate" % self # make sure this doesn't happen more often than the kidset changes -- not sure it'll work #####
+        # print "recomputing %r._delegate" % self
+            # make sure this doesn't happen more often than the kidset changes -- not sure it'll work [seems to work]
         index = '_C__delegate'
         # compute the SimpleColumn expr we need (see comment above for why we need a mew one each time)
         kids = self.kids # usage tracked (that's important)
@@ -510,12 +541,15 @@ class _MT_try2_node_helper(DelegatingInstanceOrExpr):
         #  we could instead use node.mt_name, etc.)
     mt = Arg(MT_try2, doc = "the whole MT view, in which we store MT items for nodes, and keep other central state or prefs if needed")
     name_suffix = Option(str, "")
-    
+    initial_open = Option(bool, False, doc = "initial value of boolean state 'open'; only used when this item is first created")
+        ##e should ask the node itself for the initial value of open (e.g. so new groups, trying to start open, can do so),
+        # and also advise it when we open/close it, in case it wants to make that state persistent in some manner
+        
     # WARNING: compare to MT_try1 -- lots of copied code after this point
     # WARNING: the comments are also copied, and not yet reviewed much for their new context! (so they could be wrong or obs) ###k
     
     # state refs
-    open = State(bool, False)
+    open = State(bool, initial_open)
     
     # other formulae
     ###e optim: some of these could have shared instances over this class, since they don't depend on _self; should autodetect this
