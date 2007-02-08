@@ -1230,6 +1230,21 @@ testexpr_30i = eval_Expr( call_Expr( lambda world_ui: #070207 -- just like 30h e
                                      call_Expr( _app.Instance, testexpr_30b, "#30bi")
                                      ))
 
+#070208 -- _30ix is like _30i except includes vv.reload_counter in world_ui make-index.
+# No effect except when instance remade after modifying test.py (thus reloading it).
+# Then, it remakes the world_ui (desired effect) but also the world itself (undesired effect, makes it lose its objects).
+# Could be fixed by making the world separately; ultimately we want buttons for remaking various obj layers (incl model and ui);
+# for now just live with it, meaning this _30ix is only useful rarely, for debugging.
+from testdraw import vv
+testexpr_30ix = eval_Expr( call_Expr( lambda world_ui: 
+                                     Overlay( world_ui,
+                                              DrawInCorner( Boxed(
+                                                  eval_Expr( call_Expr( dna_ribbon_view_toolcorner_expr_maker, world_ui )) )),
+                                              DrawInCorner( MT_try2(getattr_Expr(world_ui, 'world')), (1,1) ),
+                                             ),
+                                     call_Expr( _app.Instance, testexpr_30b, "#30bi(%d)" % vv.reload_counter)
+                                     ))
+
 # == DraggableObject
 
 testexpr_31 = DraggableObject(Rect(1,0.5,yellow)) # works [but see caveats in draggable.py]

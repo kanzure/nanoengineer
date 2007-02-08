@@ -1027,17 +1027,21 @@ class DelegatingMixin(object): # 061109 # see also DelegatingInstanceOrExpr #070
                 if is_pure_expr(delegate):
                     print_compact_stack( "likely-invalid _delegate %r for %r in self = %r: " % (delegate, attr, self)) #061114
                 if attr == _DELEGATION_DEBUG_ATTR: # you can set that to any attr of current interest, for debugging
-                    print "fyi: delegating %r from %r to %r" % (attr, self, delegate)
+                    print "debug_attr: delegating %r from %r to %r" % (attr, self, delegate)
                 try:
-                    return getattr(delegate, attr) # here is where we delegate. It's normal for this to raise AttributeError (I think).
+                    res = getattr(delegate, attr) # here is where we delegate. It's normal for this to raise AttributeError (I think).
                 except AttributeError:
                     #### catching this is too expensive for routine use (since I think it's often legitimate and maybe common -- not sure),
                     # but it's useful for debugging -- so leave it in for now. 061114
                     printnim("too expensive for routine use")
                     msg = "no attr %r in delegate %r of self = %r" % (attr, delegate, self)
                     if attr == _DELEGATION_DEBUG_ATTR: 
-                        print msg
+                        print "debug_attr:", msg
                     raise AttributeError, msg
+                else:
+                    if attr == _DELEGATION_DEBUG_ATTR:
+                        print "debug_attr: delegation of %r from %r is returning %r" % (attr, self, res) #070208
+                    return res
             print "DelegatingMixin: too early to delegate %r from %r, which is still a pure Expr" % (attr, self)
                 # it might be an error to try computing self._delegate this early, so don't print it even if you can compute it
                 # (don't even try, in case it runs a compute method too early)

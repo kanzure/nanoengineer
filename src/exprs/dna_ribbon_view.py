@@ -210,6 +210,7 @@ class Cylinder(Geom3D): #e super? ####IMPLEM - and answer the design Qs herein a
     dy = _self._dy_dz[0]
     dz = _self._dy_dz[1]
     length = vlen_Expr(axisvector)
+    center = (end1 + end2) / 2.0
     def draw(self):
         color = self.fix_color(self.color)
         end1, end2 = self.axis #####
@@ -438,9 +439,11 @@ class DNA_Cylinder(Macro):
         # or it might be able to be a vector, if we store a relative path... get this straight! ###e (for now assume axis could be either)
     ## here's an easier way, and better anyway (since the path's state (when it has any) should be separate):
     path2 = path1(theta_offset = 150*2*pi/360)
+    
     # prefs values used in appearance [##e in future, we'll also use these to index a set of display lists, or so]
     show_phosphates = call_Expr( get_dna_pref, 'show phosphates', dflt = False)
     show_lines = call_Expr( get_dna_pref, 'show lines', dflt = False)
+    
     # appearance (stub -- add handles/actions, remove cyl)
     delegate = Overlay( If_kluge(
                             call_Expr( get_dna_pref, 'show central cyl', dflt = False),
@@ -449,6 +452,10 @@ class DNA_Cylinder(Macro):
                         Cylinder_Ribbon(cyl, path1, color1, showballs = show_phosphates, showlines = show_lines ),
                         Cylinder_Ribbon(cyl, path2, color2, showballs = show_phosphates, showlines = show_lines )
                        )
+
+    # geometric attrs should delegate to the cylinder -- until we can say that directly, do the ones we need individually [070208]
+    # (for more comments about a fancier case of this, see attr center comments in draggable.py)
+    center = cyl.center ###e actually the origami center might be the seam, not the geometric center -- worry about that later
     
     def make_selobj_cmenu_items(self, menu_spec, highlightable): #070204 new feature, experimental #070205 revised api
         """Add self-specific context menu items to <menu_spec> list when self is the selobj (or its delegate(?)... ###doc better).
@@ -586,14 +593,18 @@ class World_dna_holder(InstanceMacro): #070201 modified from GraphDrawDemo_Fixed
         return
     def _cmd_Make_some_rects(self): #070206 just to show we can make something else and not mess up adding/moving the next cyl
         world = self.world
-        expr = Rect(0.5, 1, yellow)
+        expr = Center(Rect(0.5, 1, yellow))
         expr = DraggableObject(expr) # note: formally these rects are not connected to their cyls (e.g. won't move with them)
         cyls = world.list_all_objects_of_type(DNA_Cylinder)
         #e could remove the ones that already have rects, but that requires storing the association -- doesn't matter for this tests
         for cyl in cyls:
-            posn = cyl.motion ###KLUGE -- also ###BUG, doesn't include cyl's native posn -- all rects in same place by default!
-            where = posn + DZ * 1.5 ###KLUGE
+            posn = cyl.center # includes effect of its DraggableObject motion
+                ### is this being usage tracked? guess yes... what are the effects of that?? guess: too much inval!! ####k
+                ###e need debug code to wra this with "show me the inval-and-recompute-causing-fate of whatever usage is tracked here"
+##            print "cyl.center was %r" % (posn,)
+            where = posn + DZ * 1.5 ###KLUGE: assumes current alignment
             newrect = world.make_and_add(expr, type = "rect")
+            newrect.motion = where ###KLUGE, I think, but works for now
         return
     pass # end of class World_dna_holder [a command-making object, I guess ###k]
 

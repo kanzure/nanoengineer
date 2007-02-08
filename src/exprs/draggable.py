@@ -86,6 +86,30 @@ class DraggableObject(DelegatingInstanceOrExpr):
         # Note: this needs to be change/usage tracked so that our drawing effects are invalidated when it changes.
         #k is it? It must be, since State has to be by default.
 
+    # geometric attrs should delegate to obj, but be translated by motion as appropriate.
+    ##e Someday we need to say that in two ways:
+    # - the attrs in the "geometric object interface" delegate as a group (rather than listing each one of them here)
+    # - but when they do, they get passed through a change-of-coords boundary, and they know their own coordsystems,
+    #   so the right thing happens.
+    # But for now we have no way to say either thing, so we'll add specific formulas for specific attrs as needed. [070208]
+    ##e Note that before the obj types know how to translate due to type, the interface (which knows the attrs indivly)
+    # could know it. So, delegation of all attrs in an interface can be done by special glue code which also knows
+    # how to transform them in useful ways, by knowing about those attrs and what transforms are useful.
+    # This is useful enough to keep, even once its default transforms can come from declared attr types &
+    # values knowing their coordsys. It adds value to that since interfaces can always know special cases about specific attrs.
+    center = obj.center + motion
+        # Problem: won't work for objs with no center! Solution for now: don't try to eval the self attr then.
+        # Not perfect, since what ought to be AttributeError will turn into some other exception.
+        ##e One better solution would involve declared interfaces for obj, and delegation of all attrs in interfaces
+        # of a certain kind (geometric), so if obj met more interfaces and had more attrs, those would be included,
+        # but if not, we would not have them either.
+        ##e Or alternatively, we could provide an easy way to modify the above formula
+        # to specify a condition under which center should seem to exist here, with that cond being whether it exists on obj.
+        ### A potential problem with both solutions: misleasing AttributeError messages, referring to self rather than obj,
+        # would hurt debugging. So we probably want to reraise the original AttributeError in cases like that, whatever
+        # the way in which we ask for that behavior. That means one construct for "passing along attr missingness",
+        # but *not* a composition of one construct for saying when this attr is there, and one for asking whether another is.
+    
     # appearance
     delegate = Highlightable(
         Translate( obj, motion),
