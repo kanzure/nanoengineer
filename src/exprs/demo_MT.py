@@ -121,7 +121,7 @@ def _make_new_MT_viewer_for_object(key):
     # and the "node_id" of obj (something unique, and never recycled, unlike id(obj)).
     # This may require passing that "whole MT" in dynenv part of Instance.env with Instance part of essential data,
     # or revising how we call this so it can just get "whole MT" as one of the args.
-    # The code that needs revising is mainly MT_try1_kids -- see more comments therein.
+    # The code that needs revising is mainly MT_kids_try1 -- see more comments therein.
     return mt_instance 
 
 _MT_viewer_for_object = MemoDict( _make_new_MT_viewer_for_object)
@@ -178,6 +178,7 @@ class Interface:
 Attr = Option ###e STUB -- an attr the interface client can ask for (with its type, default value or formula, docstring)
 StateAttr = State ###e STUB -- implies that the interface client can set the attr as well as getting it,
     # and type coercion to the interface might create state as needed to support that (if it's clear how to do that correctly)
+Id = StubType
 
 class ModelTreeNodeInterface(Interface):
     """Interface for a model tree node (something which can show up in a model tree view).
@@ -186,7 +187,9 @@ class ModelTreeNodeInterface(Interface):
        WARNING: this class, itself, is not yet used except as a place to put this docstring.
     But the interface it describes is already in use, as a protocol involving the attrs described here.
     """
+    _object = Arg(Anything, doc = "an object we want to coerce into supporting this interface") ###k?? #e does it have to sound so nasty?
     # the recompute attrs in the interface, declared using Attr [nim] so they can include types and docstrings
+    mt_node_id =   Attr( Id,        call_Expr( id, _object), doc = "a unique nonrecyclable id for the node that object represents")
     mt_name = StateAttr( str,       "",    doc = "the name of a node in the MT; settable by the MT view (since editable in that UI)")
     mt_kids =      Attr( list_Expr, (),    doc = "the list of kids, of all types, in order (client MT view will filter them)")
     mt_openable =  Attr( bool,      False, doc = "whether this node should be shown as openable; if False, mt_kids is not asked for")
@@ -207,6 +210,7 @@ class ModelTreeNode_trivial_glue(DelegatingInstanceOrExpr): #070206, 070207
     #e type - grab it from object, or related to role in parent...
     mt_kids = ()
     mt_openable = False
+    ###e something for mt_node_id
     pass
 
 # ==
@@ -282,8 +286,26 @@ def node_name(node): # revised 070207
         return last_resort
     pass
 
+def mt_node_id(node): # 070207; the name 'node_id' itself conflicts with a function in Utility.py (which we import and use here, btw)
+    "return the mt_node_id property of the node, regardless of which model tree node interface it's trying to use [slight kluge]"
+    # look for value of ModelTreeNodeInterface attr
+    try:
+        node.mt_node_id
+    except AttributeError:
+        pass
+    else:
+        return node.mt_node_id
 
-##class Column(InstanceMacro): #kluge just for MT_try1_kids
+    assert not is_expr_Instance(node) # most to the point
+    assert not is_Expr(node) # stronger, and also should be true
+    
+     # look for legacy Node property
+    from Utility import node_id
+    res = node_id(node) # not sure what to do if this fails -- let it be an error for now -- consider using id(node) if we need to
+    return res
+
+
+##class Column(InstanceMacro): #kluge just for MT_kids_try1
 ##    eltlist = Arg(list_Expr)
 ##    _value = SimpleColumn( *eltlist) ### this is wrong, but it seemed to cause an infinite loop -- did it? ###k
         ##    exceptions.KeyboardInterrupt: 
@@ -294,7 +316,7 @@ def node_name(node): # revised 070207
         # Can this bug be detected? Is there an __xxx__ which gets called first, to grab the whole sequence,
         # which I can make fail with an error? I can find out: *debug_expr where that expr prints all getattr failures. Later.
     
-class MT_try1_kids(InstanceMacro):
+class MT_kids_try1(InstanceMacro):
     # args
     kids = Arg(list_Expr)####k more like List or list or Anything...
         ##### note: the kid-list itself is time-varying (not just its members); need to think thru instantiation behavior;
@@ -320,10 +342,10 @@ class MT_try1_kids(InstanceMacro):
             # The effect is that, if this is recomputed (which does not happen in testexpr_18, but does in testexpr_30h, 070206 10pm),
             # it evals to itself and returns a different expr to be instantiated (by code in InstanceMacro) using the same index,
             # which prints
-            ## bug: expr or lvalflag for instance changed: self = <MT_try1_kids#64648(i)>, index = (-1021, '!_value'),
+            ## bug: expr or lvalflag for instance changed: self = <MT_kids_try1#64648(i)>, index = (-1021, '!_value'),
             ## new data = (<SimpleColumn#65275(a)>, False), old data = (<SimpleColumn#64653(a)>, False)
             # and (evidently, from the failure of the visible MT to update) fails to make a new instance from the new expr.
-            # The fix is discussed in comments in MT_viewer_for_object but requires a rewrite of MT_try1 and MT_try1_kids classes. ####TRYIT
+            # The fix is discussed in comments in MT_viewer_for_object but requires a rewrite of MT_try1 and MT_kids_try1 classes. ####TRYIT
         res = SimpleColumn(*elts) # [note: ok even when not elts, as of bugfix 061205 in SimpleColumn]
         ## return res # bug: AssertionError: compute method asked for on non-Instance <SimpleColumn#10982(a)>
         # I guess that means we have to instantiate it here to get the delegate. kluge this for now:
@@ -375,37 +397,37 @@ class MT_try1(InstanceMacro):
             SimpleRow(CenterY(icon), CenterY(label)),
                 #070124 added CenterY, hoping to improve text pixel alignment (after drawfont2 improvements in testdraw) -- doesn't work
             If( open,
-                      MT_try1_kids( call_Expr(node_kids, node) ), ###e implem or find kids... needs usage/mod tracking
+                      MT_kids_try1( call_Expr(node_kids, node) ), ###e implem or find kids... needs usage/mod tracking
                       Spacer(0) ###BUG that None doesn't work here: see comment in ToggleShow.py
                       )
         )
     )
     pass # end of class MT_try1
 
-# ==
+# ===
 
 ModelNode = ModelObject ###stub -- should mean "something that satisfies (aka supports) ModelNodeInterface"
 
-class MT_try2(DelegatingInstanceOrExpr):
+class MT_try2(DelegatingInstanceOrExpr): # works on assy.topnode (~~) in testexpr_18i; ###UNTESTED on World in testexpr_30i
     """
     """
     arg = Arg(ModelNode, doc = "the toplevel node of this MT view (fixed; no provision yet for a toplevel *list* of nodes #e)")
     #e could let creator supply a nonstandard way to get mt-items (mt node views) for nodes shown in this MT
     def _C__delegate(self):
         # apply our node viewer to our arg
-        return self.MT_item_for_object(self.arg)
-    def MT_item_for_object(self, object):
+        return self.MT_item_for_object(self.arg, name_suffix = " (MT_try2)" )
+    def MT_item_for_object(self, object, name_suffix = ""):
         "find or make a viewer for object in the form of an MT item for this MT"
         ###e optim: avoid redoing some of the following when we already have a viewer for this object --
-        # but to find out if we have one, we probably can't avoid getting far enough in the following to get node_id(object)
-        # to use as index (since even id(object) being the same as one we know, does not guarantee node_id(object) is the same --
+        # but to find out if we have one, we probably can't avoid getting far enough in the following to get mt_node_id(object)
+        # to use as index (since even id(object) being the same as one we know, does not guarantee mt_node_id(object) is the same --
         # unless we keep a reference to object, which I suppose we could do -- hmm... #k #e),
-        # which means coercing object enough into ModelNodeInterface to tell us its node_id.
+        # which means coercing object enough into ModelNodeInterface to tell us its mt_node_id.
         # Maybe try to make that fast by making most of it lazily done?
         #
         #e coerce object into supporting ModelNodeInterface 
         object = identity(object) ###e STUB: just assume it already does support it
-        index = ('MT_item_for_object', node_id(object)) ###IMPLEM node_id
+        index = ('MT_item_for_object', mt_node_id(object))
             # note: the constant string in the index is to avoid confusion with Arg & Instance indices;
             # it would be supplied automatically if we made this using InstanceDict [nim] #e
             ###e if nodes could have >1 parent, we'd need to include parent node in index -- only sufficient if some
@@ -414,28 +436,81 @@ class MT_try2(DelegatingInstanceOrExpr):
             # at least to permit nonshared openness bit of each separately drawn mt item, which is strongly desired
             # (since we might like them to interact, but not by being shared -- rather, by opening one view of a node closing
             #  its other views)
-        expr = _MT_try2_node_helper(object, self)
-            ###BUG: if object differs but its node_id is the same, the Instance expr sameness check might complain!!!
+        expr = _MT_try2_node_helper(object, self, name_suffix = name_suffix)
+            ###BUG: if object differs but its mt_node_id is the same, the Instance expr sameness check might complain!!!
             # Can this happen?? (or does it only happen when self is also not the same, so it's not a problem?) #k
             ##e optim: have variant of Instance in which we pass a constant expr-maker, only used if index is new
             # WARNING: if we do that, it would remove the errorcheck of whether this expr is the same as any prior one at same index
         return self.Instance( expr, index) ###k arg order -- def Instance
+    pass # end of class MT_try2
 
-from __Symbols__ import _FORWARD_REF_ ###e refile; ###IMPLEM its special behavior (if it still seems ok & good); #e rename
-    ###e and permit an exception to bug: __call__ of <getattr_Expr#24476: ... when using it
+# don't use this, most likely: [070207]
+##from __Symbols__ import _FORWARD_REF_ ###e refile; ###IMPLEM its special behavior (if it still seems ok & good); #e rename
+##    ###e and permit an exception to bug: __call__ of <getattr_Expr#24476: ... when using it
+##    ### make them attrs of the mt -- but would call_Expr(globals) work to find them?
+## # so you can say in expr E, _FORWARD_REF_.F to refer to expr F lower down in the module
+
+
+class _MT_try2_kids_helper(DelegatingInstanceOrExpr):
+    """[private helper expr class for MT_try2]
+    One MT item kidlist view -- specific to one instance of _MT_try2_node_helper.
+    [#e if we generalize MT_try2 to support a time-varying list of toplevel nodes,
+     then we might use one of these at the top, instead of using a single node at the top --
+     but more likely a variant of this (at least passing it an option), to turn off
+     anything it might display in the left which only makes sense when it's elts are under a common parent node.]
+    """
+    # args
+    kids = Arg( list_Expr, doc = "the sequence of 0 or more kid nodes to show (after filtering, reordering, etc, by _self.mt)")
+    mt = Arg( MT_try2,     doc = "the whole MT view (for central storage and prefs)") ###e let this be first arg, like self is for methods??
+    parent_item = Arg( mt._MT_try2_node_helper, None, doc = "the parent node item for these kid nodes") #k needed??
+        ###KLUGE: with bare _MT_try2_node_helper we have a forward ref which doesn't work.
+        # Best soln seems to be to let the main MT_try2 have these exprheads in it -- good in other ways too.
+        # But I didn't bother to implem that yet, since by reordering the classes, only this forward ref is left,
+        # and it won't matter until type coercion by Arg is implemented... or will it? actually it will. No, it won't
+        # this will become a getattr_Expr and never get evalled I think. If it does, I'll fix it, or stubbify it in MT_try2. ####k
+
+    # WARNING: compare to MT_kids_try1 -- lots of copied code after this point -- well, not really, it needs rewrite... ###e
+    # WARNING: the comments are also copied, and not yet reviewed much for their new context! (so they could be wrong or obs) ###k
+
+    # In current implem of SimpleColumn, we have to produce a column expr with a different arglist, listing the kids themselves
+    # (rather than some expr that evals to a list of them). We'd better say that if the expr changes at that index, it's ok.
+    # (Or use fresh index each time? No, inefficient & unnatural.)
+    # I don't have control of the 'delegate' attr's instantiation code, so I'll use _delegate.
+    def _C__delegate(self):
+        print "recomputing %r._delegate" % self # make sure this doesn't happen more often than the kidset changes -- not sure it'll work #####
+        index = '_C__delegate'
+        # compute the SimpleColumn expr we need (see comment above for why we need a mew one each time)
+        kids = self.kids # usage tracked (that's important)
+        assert not kids or type(list(kids)) == type([])
+        for kid in kids:
+            # might be a legacy node or a new node (instance)
+            assert not is_Expr(kid) or is_expr_Instance(kid)
+        elts = map( _MT_try2_node_helper, kids)
+        for elt in elts:
+            # should be an expr (not instance) of _MT_try2_node_helper ##e remove when works, might not always be valid in future
+            assert is_pure_expr(elt)
+        expr = SimpleColumn(*elts) # [note: ok even when elts is empty, as of bugfix 061205 in SimpleColumn]
+        if 1:
+            # do we need to eval expr first? in theory i forget, but in practice this one evals to itself so it doesn't matter. ###k
+            ##e do we need to discard usage tracking during the following??
+            res = self.Instance( expr, index, permit_expr_to_vary = True) ###IMPLEM permit_expr_to_vary
+        return res
+    pass # end of class _MT_try2_kids_helper
+
 
 class _MT_try2_node_helper(DelegatingInstanceOrExpr):
     """[private helper expr class for MT_try2]
     One MT item view -- specific to one node, one whole MT, and one (possibly time-varying) position with it.
     """
-    # args
+    # args ####e REORDER THEM
     node = Arg(ModelNode, doc = "any node that needs to be displayed in this MT")
         ###e NOTE: type coercion to this is nim; while that's true, we use helper functions like node_name(node) below;
         # once type coercion is implemented
         # (or simulated by hand by wrapping this arg with a helper expr like ModelTreeNode_trivial_glue),
         #  we could instead use node.mt_name, etc.)
     mt = Arg(MT_try2, doc = "the whole MT view, in which we store MT items for nodes, and keep other central state or prefs if needed")
-
+    name_suffix = Option(str, "")
+    
     # WARNING: compare to MT_try1 -- lots of copied code after this point
     # WARNING: the comments are also copied, and not yet reviewed much for their new context! (so they could be wrong or obs) ###k
     
@@ -464,7 +539,7 @@ class _MT_try2_node_helper(DelegatingInstanceOrExpr):
             ##e Better, this ref should not instantiate, only eval, once we comprehensively fix instantiation semantics.
             # wait, why did I think "multiply drawn"? it's not. nevermind.
         ##e selection behavior too
-    label = TextRect( call_Expr(node_name, node) ) ###e will need revision to Node or proxy for it, so node.name is usage/mod-tracked
+    label = TextRect( call_Expr(node_name, node) + name_suffix ) ###e will need revision to Node or proxy for it, so node.name is usage/mod-tracked
         ##e selection behavior too --
         #e probably not in these items but in the surrounding Row (incl invis bg? maybe not, in case model appears behind it!)
         ##e italic for disabled nodes
@@ -476,27 +551,13 @@ class _MT_try2_node_helper(DelegatingInstanceOrExpr):
             SimpleRow(CenterY(icon), CenterY(label)),
                 #070124 added CenterY, hoping to improve text pixel alignment (after drawfont2 improvements in testdraw) -- doesn't work
             If( open,
-                      _FORWARD_REF_._MT_try2_kids_helper( call_Expr(node_kids, node) ),
+                      _MT_try2_kids_helper( call_Expr(node_kids, node) ),
                       Spacer(0) ###BUG that None doesn't work here: see comment in ToggleShow.py
                       )
         )
     )
     pass
 
-class _MT_try2_kids_helper:###(...):
-    """[private helper expr class for MT_try2]
-    One MT item kidlist view -- specific to one instance of _MT_try2_node_helper.
-    [#e if we generalize MT_try2 to support a time-varying list of toplevel nodes,
-     then we might use one of these at the top, instead of using a single node at the top --
-     but more likely a variant of this (at least passing it an option), to turn off
-     anything it might display in the left which only makes sense when it's elts are under a common parent node.]
-    """
-    # args
-    kids = Arg( list_Expr, doc = "the sequence of 0 or more kid nodes to show (after filtering, reordering, etc, by _self.mt)")
-    mt = Arg( MT_try2,     doc = "the whole MT view (for central storage and prefs)") ###e let this be first arg, like self is for methods??
-    parent_item = Arg( _MT_try2_node_helper, None, doc = "the parent node item for these kid nodes") #k needed??
-    # WARNING: compare to MT_try1_kids -- lots of copied code after this point
-    # WARNING: the comments are also copied, and not yet reviewed much for their new context! (so they could be wrong or obs) ###k
 # ==
 
 class test_drag_pixmap(InstanceMacro):

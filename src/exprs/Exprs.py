@@ -60,7 +60,11 @@ def is_Expr(expr):
     "is expr an Expr -- meaning, a subclass or instance of class Expr? (Can be true even if it's also considered an Instance.)"
     return hasattr(expr, '_e_serno')
 
-def is_pure_expr(expr):
+def is_expr_Instance(expr): ##e or just is_Instance?? or is_Expr_Instance?
+    "#doc"
+    return is_Expr(expr) and expr_is_Instance(expr)
+
+def is_pure_expr(expr): ##e why not is_pure_Expr? is lowercase expr a generic term of some sort? [070207 terminology Q]
     "is expr an Expr (py class or py instance), but not an Instance?" 
     return is_Expr(expr) and not expr_is_Instance(expr)
 

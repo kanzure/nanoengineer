@@ -112,7 +112,7 @@ from Set import Set ##e move to basic
 
 import demo_MT
 reload_once(demo_MT)
-from demo_MT import MT_try1, test_drag_pixmap
+from demo_MT import MT_try1, test_drag_pixmap, MT_try2
 
 import demo_drag
 reload_once(demo_drag)
@@ -779,6 +779,8 @@ testexpr_18 = MT_try1( _my.env.glpane.assy.part.topnode )
 
 testexpr_18a = test_drag_pixmap( _my.env.glpane.assy.w.mt, _my.env.glpane.assy.part.topnode ) # nim, otherwise works -- debug prints
 
+testexpr_18i = MT_try2( _my.env.glpane.assy.part.topnode ) #070207
+
 
 # == more dragging
 
@@ -1219,6 +1221,15 @@ testexpr_30h = eval_Expr( call_Expr( lambda world_ui: #070206
                                      call_Expr( _app.Instance, testexpr_30b, "#30bh")
                                      ))
 
+testexpr_30i = eval_Expr( call_Expr( lambda world_ui: #070207 -- just like 30h except MT_try1 -> MT_try2 
+                                     Overlay( world_ui,
+                                              DrawInCorner( Boxed(
+                                                  eval_Expr( call_Expr( dna_ribbon_view_toolcorner_expr_maker, world_ui )) )),
+                                              DrawInCorner( MT_try2(getattr_Expr(world_ui, 'world')), (1,1) ),
+                                             ),
+                                     call_Expr( _app.Instance, testexpr_30b, "#30bi")
+                                     ))
+
 # == DraggableObject
 
 testexpr_31 = DraggableObject(Rect(1,0.5,yellow)) # works [but see caveats in draggable.py]
@@ -1230,7 +1241,7 @@ testexpr_31 = DraggableObject(Rect(1,0.5,yellow)) # works [but see caveats in dr
 
 enable_testbed = True
 
-testexpr =  testexpr_30h ## testexpr_29aox3 ## testexpr_18 ## testexpr_9fx4 ## testexpr_19g ## testexpr_19g _26g _28
+testexpr = testexpr_18i ## testexpr_30h ## testexpr_29aox3 ## testexpr_18 ## testexpr_9fx4 ## testexpr_19g ## testexpr_19g _26g _28
 
     # as of 070121 at least these work ok in EVAL_REFORM with now-semipermanent kluge070119:
     # _2, _3a, _4a, _5, _5a, _10a, _10c, _9c, _9d, _9cx,

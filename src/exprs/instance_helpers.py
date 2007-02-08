@@ -513,12 +513,14 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
         ipath = (index, ipath0)
         return env, ipath
 
-    def Instance(self, expr, index = None): #070122; works, official for now; note relationship to Instance macro (also "def Instance")
+    def Instance(self, expr, index = None, permit_expr_to_vary = False): #070207 added permit_expr_to_vary
         """toplevel interface (public for use in exprs) to self._i_instance; needs ##doc;
         similar to Instance macro for use in class assignments;
         except where that uses ipaths relative to _self, this uses them relative to self.
         WARNING: Index arg is required for now, and matters a lot (unintended nonuniqueness is allowed but causes bugs).
         """
+        #070122; works, official for now; note relationship to Instance macro (also "def Instance")
+        
         # allocating an index might be nice, but I don't see how we can do it yet
         # (the issue is when it changes due to history of prior allocs)
         # (wait, can we use the id of the child? not with this API since we have to pass it before making the child.
@@ -527,9 +529,10 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
         if index is None:
 ##            index = self._i_allocate_unique_kid_index(...)
             assert index is not None, "error: %r.Instance(%r) requires explicit index (automatic unique index is nim)" % (self, expr)
-        return self._i_instance( expr, index)
+        return self._i_instance( expr, index, permit_expr_to_vary = permit_expr_to_vary)
     
-    def _i_instance( self, expr, index, _lvalue_flag = False ): # see also def Instance (the method, just above, not the macro)
+    def _i_instance( self, expr, index, _lvalue_flag = False,  permit_expr_to_vary = False ): #070207 added permit_expr_to_vary
+        # see also def Instance (the method, just above, not the macro)
         """[semi-private; used by macros like Instance, Arg, Option]
         Find or create (or perhaps recompute if invalid, but only the latest version is memoized) (and return)
         an Instance of expr, contained in self, at the given relative index, and in the same env [#e generalize env later?].
@@ -601,17 +604,23 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
         olddata = self._i_instance_decl_data.get(index, None) # see above comment
         if olddata != newdata:
             if olddata is not None:
-                print "bug: expr or lvalflag for instance changed: self = %r, index = %r, new data = %r, old data = %r" % \
-                      (self,index,newdata,olddata) #e more info? i think this is an error and should not happen normally
-                    # update 070122: it usually indicates an error, but it's a false alarm in the latest bugfixed testexpr_21g,
-                    # since pure-expr equality should be based on formal structure, not pyobj identity. ###e
-                
-                #e if it does happen, should we inval that instance? yes, if this ever happens without error.
-                # [addendum 061212: see also the comments in the new overriding method If_expr._e_eval.]
-                # [one way to do that: have _i_instance_decl_data contain changetracked state vars, changed above,
-                #  usage-tracked by _CV__i_instance_CVdict. But the env matters too, so we might want to compare it too,
-                #  or compare the expr before burrowing into it, and do the
-                #  burrowing later then?? But we can't, due to the index... ###e 070122]
+                if permit_expr_to_vary:
+                    # new feature 070207
+                    ### how do we remove the old instance so it gets remade?
+                    del self._i_instance_CVdict[index] ##k guess at how -- but del might be nim in this object
+                    print "fyi: made use of permit_expr_to_vary for index = %r, expr = %r" % (index, expr) ##e remove when works
+                else:
+                    print "bug: expr or lvalflag for instance changed: self = %r, index = %r, new data = %r, old data = %r" % \
+                          (self,index,newdata,olddata) #e more info? i think this is an error and should not happen normally
+                        # update 070122: it usually indicates an error, but it's a false alarm in the latest bugfixed testexpr_21g,
+                        # since pure-expr equality should be based on formal structure, not pyobj identity. ###e
+                    
+                    #e if it does happen, should we inval that instance? yes, if this ever happens without error.
+                    # [addendum 061212: see also the comments in the new overriding method If_expr._e_eval.]
+                    # [one way to do that: have _i_instance_decl_data contain changetracked state vars, changed above,
+                    #  usage-tracked by _CV__i_instance_CVdict. But the env matters too, so we might want to compare it too,
+                    #  or compare the expr before burrowing into it, and do the
+                    #  burrowing later then?? But we can't, due to the index... ###e 070122]
 
             self._i_instance_decl_data[index] = newdata
         else:
