@@ -94,7 +94,7 @@ corner_abbrevs = {   #070208
 
 class DrawInCorner(DelegatingInstanceOrExpr):
     delegate = Arg(Widget2D)
-    corner = Arg(int, LOWER_RIGHT) ###KLUGE: type spec is wrong -- we also allow it to be a pair of +-1, +-1 for x,y posn respectively
+    corner = ArgOrOption(int, LOWER_RIGHT) ###KLUGE: type spec is wrong -- we also allow it to be a pair of +-1, +-1 for x,y posn respectively
         ##e or 0 for central in that dim?
     want_depth = Option(float, 0.01) # this choice is nearer than cov_depth (I think!) but doesn't preclude 3D effects.
     def draw(self):
@@ -170,7 +170,9 @@ class DrawInCorner(DelegatingInstanceOrExpr):
             if x == -1: # left
                 x_offset = - glpane.width / 2.0 * PIXELS + delegate.bleft
             elif x == +1: # right
-                x_offset = + glpane.width / 2.0 * PIXELS - delegate.bright 
+                x_offset = + glpane.width / 2.0 * PIXELS - delegate.bright
+            elif x == 0: # center(x)
+                x_offset = (+ delegate.bleft - delegate.bright) / 2.0
             else:
                 print "invalid corner",corner###
                 raise ValueError, "invalid corner %r" % (corner,)
@@ -179,6 +181,8 @@ class DrawInCorner(DelegatingInstanceOrExpr):
                 y_offset = - glpane.height / 2.0 * PIXELS + delegate.bbottom
             elif y == +1: # top
                 y_offset = + glpane.height / 2.0 * PIXELS - delegate.btop
+            elif y == 0: # center(y)
+                y_offset = (+ delegate.bbottom - delegate.btop) / 2.0
             else:
                 print "invalid corner",corner###
                 raise ValueError, "invalid corner %r" % (corner,)
