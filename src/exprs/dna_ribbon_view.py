@@ -524,14 +524,29 @@ def dna_ribbon_view_toolcorner_expr_maker(world_holder): #070201 modified from d
     """given an instance of World_dna_holder (??), return an expr for the "toolcorner" for use along with
     whatever is analogous to GraphDrawDemo_FixedToolOnArg1 (on the world of the same World_dna_holder)
     """
-    # print "dna_ribbon_view_toolcorner_expr_maker ran again" ###k how often? if too much, need to change it into a real expr class...
+    print "dna_ribbon_view_toolcorner_expr_maker running again" ###k how often? if too much, need to change it into a real expr class...
         # in fact it does run often: see this comment in controls.py:
             ##print "ActionButton: doing %r for %r" % (self.text, self) ### remove self?
             ##    ##e optim note: this shows self is a different obj each time (at least for make dna cyl button)...
             ##    # I guess this is due to dna_ribbon_view_toolcorner_expr_maker being a function that makes an expr
             ##    # which runs again at least on every use of the button (maybe more -- not sure exactly how often).
             ##    # Should fix that (and it's not this file's fault -- just that the print stmt above reveals the problem).
+        # guess 070209 (after more tests): it runs whenever the value of world.number_of_objects changes.
+        # AHA, of course -- world, in there, is not a Symbol but an Instance, so world.number_of_objects runs normally
+        # and turns into a number, used as a literal in the expr we return [unconfirmed],
+        # but is also usage tracked [guess] with invals caught by some surrounding eval_Expr we're inside [guess, prob wrong],
+        # or some other kind of Instance we're an attr of
+        # [guess, prob right since what else could it be --
+        #  i need a way to find out, like the "show fate of inval" proposal elsewhere].
+        # To test this, change the world.number_of_objects to a getattr_Expr (in both occurrences),
+        # and print the expr to make sure it's what I think... it is, and after changing it, this is no longer running too often!
+        # I'll leave all these comments in for the next commit, then clean them up. [070209 838a]
     world = world_holder.world
+    # number_of_objs = world.number_of_objects ### WARNING: this gets usage tracked, even though we don't use the result in our retval!
+        ###BUG: Are there other cases throughout our code of debug prints asking for usage-tracked things, causing spurious invals??
+    # print "number_of_objs = world.number_of_objects [a number i suspect] = %r" % (number_of_objs,)
+    number_of_objs = getattr_Expr(world, 'number_of_objects')
+    print "number_of_objs = getattr_Expr(world, 'number_of_objects') [an expr i suspect] = %r" % (number_of_objs,)
 ##    if "kluge" and not world._cmd_Clear_nontrivial:
 ##        # ###BUG: this modifies world in the same draw event that shows it, evidently (guess from console warning),
 ##        # so we need to clean it up somehow -- make it as if it was an auto-open command when we set up this demo.
@@ -552,12 +567,13 @@ def dna_ribbon_view_toolcorner_expr_maker(world_holder): #070201 modified from d
                   ActionButton( world._cmd_Clear, "button (disabled): clear", enabled = False)
          ),
         Overlay(
-            DisplistChunk(TextRect( format_Expr( "(%d objects in world)" , world.number_of_objects ))),
-            If_kluge( eq_Expr( world.number_of_objects, 0),
+            DisplistChunk(TextRect( format_Expr( "(%d objects in world)" , number_of_objs ))),
+            If_kluge( eq_Expr( number_of_objs, 0),
                       DrawInCorner(corner = (0,0))( TextRect("(empty model)") ),
                       Spacer() ),
          ),
      )
+    print "dna_ribbon_view_toolcorner_expr_maker returning", expr
     return expr
 
 
