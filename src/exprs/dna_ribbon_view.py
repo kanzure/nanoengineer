@@ -135,6 +135,10 @@ import draggable
 reload_once(draggable)
 from draggable import DraggableObject
 
+import projection
+reload_once(projection)
+from projection import DrawInCorner
+
 # temporary kluge: excerpt from cad/src/DnaGenerator.py; this copy used locally for constants [values not reviewed]:
 class B_Dna:
     geometry = "B-DNA"
@@ -547,7 +551,12 @@ def dna_ribbon_view_toolcorner_expr_maker(world_holder): #070201 modified from d
                   ActionButton( world._cmd_Clear, "button: clear"),
                   ActionButton( world._cmd_Clear, "button (disabled): clear", enabled = False)
          ),
-        DisplistChunk(TextRect( format_Expr( "(%d objects in world)" , world.number_of_objects )))
+        Overlay(
+            DisplistChunk(TextRect( format_Expr( "(%d objects in world)" , world.number_of_objects ))),
+            If_kluge( eq_Expr( world.number_of_objects, 0),
+                      DrawInCorner(corner = (0,0))( TextRect("(empty model)") ),
+                      Spacer() ),
+         ),
      )
     return expr
 
