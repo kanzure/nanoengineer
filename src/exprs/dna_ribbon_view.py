@@ -520,6 +520,13 @@ def dna_ribbon_view_toolcorner_expr_maker(world_holder): #070201 modified from d
     """given an instance of World_dna_holder (??), return an expr for the "toolcorner" for use along with
     whatever is analogous to GraphDrawDemo_FixedToolOnArg1 (on the world of the same World_dna_holder)
     """
+    # print "dna_ribbon_view_toolcorner_expr_maker ran again" ###k how often? if too much, need to change it into a real expr class...
+        # in fact it does run often: see this comment in controls.py:
+            ##print "ActionButton: doing %r for %r" % (self.text, self) ### remove self?
+            ##    ##e optim note: this shows self is a different obj each time (at least for make dna cyl button)...
+            ##    # I guess this is due to dna_ribbon_view_toolcorner_expr_maker being a function that makes an expr
+            ##    # which runs again at least on every use of the button (maybe more -- not sure exactly how often).
+            ##    # Should fix that (and it's not this file's fault -- just that the print stmt above reveals the problem).
     world = world_holder.world
 ##    if "kluge" and not world._cmd_Clear_nontrivial:
 ##        # ###BUG: this modifies world in the same draw event that shows it, evidently (guess from console warning),
@@ -605,6 +612,34 @@ class World_dna_holder(InstanceMacro): #070201 modified from GraphDrawDemo_Fixed
             where = posn + DZ * 1.5 ###KLUGE: assumes current alignment
             newrect = world.make_and_add(expr, type = "rect")
             newrect.motion = where ###KLUGE, I think, but works for now
+        return
+    def _cmd_Show_potential_crossovers(self): #070208 experimental stub prototype
+        """for all pairs of cyls adjacent in a raster (more or less),
+        perhaps assuming aligned as desired for now (tho for future general use this would be bad to assume),
+        come up with suggested crossovers, and create them as potential model objs,
+         which shows them (not if the "same ones" are already shown, not any overlapping ones --
+         but shown ones can also be moved slightly as well as being made real)
+        [later they can be selected and made real, or mad real using indiv cmenu ops; being real affects them and their cyls
+         but is not an irreversible op! it affects the strand paths...]
+        """
+        world = self.world
+        cyls = world.list_all_objects_of_type(DNA_Cylinder)
+        cylpairs = []
+        for cyl1 in cyls:
+            for cyl2 in cyls:
+                if id(cyl1) < id(cyl2): #e no, use the order in the list, use indices in this loop, loop over i and j in range...
+                    cylpairs.append((cyl1,cyl2)) ##e make this a py_utils subroutine: unordered_pairs(cyls) ??
+        for cyl1, cyl2 in cylpairs:
+            # ok, who has this op: one of the cyls, or some helper func, or *this command*?
+            # find backbone segs on cyl1 that are facing cyl2 and close enough to it, and see if cyl2 backbone is ok
+            # *or*, just find all pairs of close enough backbone segs -- seems too slow and forces us to judge lots of near ones - nah
+            # (what if the cyls actually intersect? just ignore this issue, or warn about it and refuse to find any??)
+            # (in real life, any cyl that overlaps another in some region should probably refuse to suggest any mods in that region --
+            #  but we can ignore that issue for now! but it's not too different than refusing to re-suggest the same crossover --
+            #  certain features on a cyl region (crossovers, overlaps) mean don't find new potential crossovers in that region.)
+            for seg in cyl1.backbone_segments: ###IMPLEM; note, requires coord translation into abs coords -- kluge: flush motion first??
+                pass##stub
+        ######e more
         return
     pass # end of class World_dna_holder [a command-making object, I guess ###k]
 
