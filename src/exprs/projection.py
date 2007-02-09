@@ -11,7 +11,7 @@ from prefs_constants import UPPER_RIGHT, UPPER_LEFT, LOWER_LEFT, LOWER_RIGHT
 from OpenGL.GL import *
 from OpenGL.GLU import gluPickMatrix, gluUnProject
 
-class DrawInCorner1(DelegatingInstanceOrExpr):
+class DrawInCorner1(DelegatingInstanceOrExpr): ### WARNING: this version doesn't work, for unknown reasons. See below for a newer one.
     delegate = Arg(Widget2D)
     corner = Arg(int, LOWER_RIGHT) # WARNING: only the default corner works properly yet
     def draw(self):
@@ -85,9 +85,17 @@ class DrawInCorner1(DelegatingInstanceOrExpr):
 # Since the above does not yet work with highlighting, try it in a completely different way for now, not using projection matrix,
 # since we need the feature. Works!
 
+corner_abbrevs = {   #070208
+    LOWER_RIGHT: (+1, -1), # (x,y) where for x, -1 is left, and for y, -1 is lower
+    UPPER_RIGHT: (+1, +1),
+    LOWER_LEFT:  (-1, -1),
+    UPPER_LEFT:  (-1, +1),
+}
+
 class DrawInCorner(DelegatingInstanceOrExpr):
     delegate = Arg(Widget2D)
-    corner = Arg(int, LOWER_RIGHT) # also allow it to be a pair of +-1, +-1
+    corner = Arg(int, LOWER_RIGHT) ###KLUGE: type spec is wrong -- we also allow it to be a pair of +-1, +-1 for x,y posn respectively
+        ##e or 0 for central in that dim?
     want_depth = Option(float, 0.01) # this choice is nearer than cov_depth (I think!) but doesn't preclude 3D effects.
     def draw(self):
         glMatrixMode(GL_MODELVIEW) # not needed
@@ -152,22 +160,31 @@ class DrawInCorner(DelegatingInstanceOrExpr):
             
             # move to desired corner, and align it with same corner of lbox
             # (#e could use an alignment prim for the corner if we had one)
-            if corner == LOWER_RIGHT or corner == (+1, -1):
-                glTranslatef( + glpane.width / 2.0 * PIXELS, - glpane.height / 2.0 * PIXELS, 0.0)
-                offset = (- delegate.bright, + delegate.bbottom)
-            elif corner == UPPER_RIGHT or corner == (+1, +1):
-                glTranslatef( + glpane.width / 2.0 * PIXELS, + glpane.height / 2.0 * PIXELS, 0.0)
-                offset = (- delegate.bright, - delegate.btop)
-            elif corner == LOWER_LEFT or corner == (-1, -1):
-                glTranslatef( - glpane.width / 2.0 * PIXELS, - glpane.height / 2.0 * PIXELS, 0.0)
-                offset = (+ delegate.bleft,  + delegate.bbottom)
-            elif corner == UPPER_LEFT or corner == (-1, +1):
-                glTranslatef( - glpane.width / 2.0 * PIXELS, + glpane.height / 2.0 * PIXELS, 0.0)
-                offset = (+ delegate.bleft,  - delegate.btop)
+
+            if corner in corner_abbrevs:
+                # normalize how corner is expressed, into a 2-tuple of +-1's
+                corner = corner_abbrevs[corner]
+
+            x, y = corner
+
+            if x == -1: # left
+                x_offset = - glpane.width / 2.0 * PIXELS + delegate.bleft
+            elif x == +1: # right
+                x_offset = + glpane.width / 2.0 * PIXELS - delegate.bright 
             else:
+                print "invalid corner",corner###
                 raise ValueError, "invalid corner %r" % (corner,)
-            
-            glTranslatef(offset[0], offset[1], 0)
+                
+            if y == -1: # bottom
+                y_offset = - glpane.height / 2.0 * PIXELS + delegate.bbottom
+            elif y == +1: # top
+                y_offset = + glpane.height / 2.0 * PIXELS - delegate.btop
+            else:
+                print "invalid corner",corner###
+                raise ValueError, "invalid corner %r" % (corner,)
+
+            offset = (x_offset, y_offset)
+            glTranslatef(offset[0], offset[1], 0.0)
             
             delegate.draw()
             
