@@ -351,7 +351,7 @@ class ActionButton(DelegatingInstanceOrExpr): # 070104 quick prototype
     # formulae
     use_label = TextRect(text,1,20)###e revise
     plain_button = CenterY(button)
-    highlighted_button = Boxed( plain_button,
+    highlighted_button = Boxed( plain_button, # note: despite the name, this is only shown as the highlighted form when enabled is true
                         bordercolor = blue, # should color adapt to bg? is it a bad idea to put this over bg rather than over button?
                         borderthickness = 1.5 * PIXELS,
                         gap = 1 * PIXELS, ) ###k ????   -- note, this doesn't include the label -- ok?
@@ -362,12 +362,30 @@ class ActionButton(DelegatingInstanceOrExpr): # 070104 quick prototype
         ### BUG: CenterY is not perfectly working. Guess -- lbox for TextRect is slightly wrong.
         ### IDEA: make the borderthickness for Boxed negative so the border is over the edge of the plain button. Might look better.
     #
-    #e on_release_in  rather than  on_press?
+    def doit(self):
+        if self.enabled:
+            print "ActionButton: doing %r for %r" % (self.text, self) ### remove self?
+                ##e optim note: this shows self is a different obj each time (at least for make dna cyl button)...
+                # I guess this is due to dna_ribbon_view_toolcorner_expr_maker being a function that makes an expr
+                # which runs again at least on every use of the button (maybe more -- not sure exactly how often).
+                # Should fix that (and it's not this file's fault -- just that the print stmt above reveals the problem).
+            res = self.command()
+            if res is not None:
+                print "unexpected: %r cmd %r retval was not None: %r" % (self, self.text, res,) #e remove if happens legitimately
+        else:
+            # print "ActionButton: not enabled, so not doing %r for %r" % (self.text, self) # remove when works
+            pass
+        return
+    #e should we change to doing the action on_release_in, rather than on_press?
     delegate = Highlightable(
         plain, ##e should this depend on enabled? probably yes, but probably the caller has to pass in the disabled form.
-        If( enabled, highlighted, plain), # revised 070109 to depend on enabled (UNTESTED)
-        on_press = command,###BUG: should depend on enabled -- not sure if If(enabled,command,None) will work properly ###k TRY IT
-        sbar_text = text #e should this depend on enabled??
+            ###e at least for the Mac, maybe it also ought to depend on whether the application is active (frontmost) and will respond to clicks.
+        If( enabled, highlighted, plain), # revised 070109 to depend on enabled [#k does this cause the delegate expr itself to be remade??]
+        on_press = _self.doit,
+            # note: there was a bug in the prior form of this, "on_press = command" -- command to do should depend on enabled --
+            ##e but i'm not sure if If(enabled,command,None) will work properly ###k TRY IT -- nevermind, using _self.doit now [070208]
+        sbar_text = text
+            #e should sbar_text depend on enabled?? yes, but need to revise callers then too -- some of which make the text depend on it
      )
     pass
 
