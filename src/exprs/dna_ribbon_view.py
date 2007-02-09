@@ -655,15 +655,36 @@ class World_dna_holder(InstanceMacro): #070201 modified from GraphDrawDemo_Fixed
                 if id(cyl1) < id(cyl2): #e no, use the order in the list, use indices in this loop, loop over i and j in range...
                     cylpairs.append((cyl1,cyl2)) ##e make this a py_utils subroutine: unordered_pairs(cyls) ??
         for cyl1, cyl2 in cylpairs:
-            # ok, who has this op: one of the cyls, or some helper func, or *this command*?
-            # find backbone segs on cyl1 that are facing cyl2 and close enough to it, and see if cyl2 backbone is ok
-            # *or*, just find all pairs of close enough backbone segs -- seems too slow and forces us to judge lots of near ones - nah
-            # (what if the cyls actually intersect? just ignore this issue, or warn about it and refuse to find any??)
-            # (in real life, any cyl that overlaps another in some region should probably refuse to suggest any mods in that region --
-            #  but we can ignore that issue for now! but it's not too different than refusing to re-suggest the same crossover --
-            #  certain features on a cyl region (crossovers, overlaps) mean don't find new potential crossovers in that region.)
-            for seg in cyl1.backbone_segments: ###IMPLEM; note, requires coord translation into abs coords -- kluge: flush motion first??
-                pass##stub
+            # create an object (if there is not one already -- else make it visible again?)
+            # which continuously shows potential crossovers between these cyls.
+            # STUB: create one anew.
+            # STUB: let it be a single connecting line.
+            ###BUG: cyl1.center evals to current value -- but what we want here is an expr to eval later.
+            # What do we do? Someday we'll rewrite this loop as an iterator expr in which cyl1 will be a Symbol or so,
+            # so simulate that now by making it one. #####e DECIDE HOW, DO IT, IMPLEM
+            ### [BUT, note, it's an academic Q once we use a new macro instead, since we pass it the cyls, not their attrs.]
+            expr = Line(cyl1.center, cyl2.center, blue, thickness = 2) #e thickness or width?? ###IMPLEM Line and refile this design note:
+                ###e design note: it's a line segment, but LineSegment is too long & nonstd a name,
+                # and you need endpoints anyway to conveniently specify even a ray or line,
+                # so have options to make it ray or line. if you want to use end1 and direction/length or vector, do so,
+                # but you could want that too for any of segment, ray, or line (except you'd like option to leave out length for some).
+            index = ( object_id(cyl1), object_id(cyl2) ) ### IMPLEM object_id #e rename it? make it an attr of object?
+                #### design note: this is the index for the new instance (find or make; if find, maybe make visible or update prefs).
+                # (or maybe just discard/replace the old one? NO, see below for why)
+                # We also need an InstanceDict index, and to implem InstanceDict and use it
+                # for this. These objects would be children of the common parent of the cyls (found dynamically so they go inside
+                # groups etc when possible, i think, at least by default -- but if user moves them in MT, that should stick,
+                # WHICH IS A BIG REASON TO FIND AND REUSE rather than replacing -- user might have done all kinds of per-obj edits).
+##            # older cmt:
+##            # ok, who has this op: one of the cyls, or some helper func, or *this command*?
+##            # find backbone segs on cyl1 that are facing cyl2 and close enough to it, and see if cyl2 backbone is ok
+##            # *or*, just find all pairs of close enough backbone segs -- seems too slow and forces us to judge lots of near ones - nah
+##            # (what if the cyls actually intersect? just ignore this issue, or warn about it and refuse to find any??)
+##            # (in real life, any cyl that overlaps another in some region should probably refuse to suggest any mods in that region --
+##            #  but we can ignore that issue for now! but it's not too different than refusing to re-suggest the same crossover --
+##            #  certain features on a cyl region (crossovers, overlaps) mean don't find new potential crossovers in that region.)
+##            for seg in cyl1.backbone_segments: ###IMPLEM; note, requires coord translation into abs coords -- kluge: flush motion first??
+##                pass##stub
         ######e more
         return
     pass # end of class World_dna_holder [a command-making object, I guess ###k]
