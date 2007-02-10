@@ -109,7 +109,12 @@ class DraggableObject(DelegatingInstanceOrExpr):
     # how to transform them in useful ways, by knowing about those attrs and what transforms are useful.
     # This is useful enough to keep, even once its default transforms can come from declared attr types &
     # values knowing their coordsys. It adds value to that since interfaces can always know special cases about specific attrs.
-    center = obj.center + motion
+
+    if 0:
+      # update 070209 late: try doing this in Translate below, with the other involved exprs delegating as usual... ####k
+      center = obj.center + motion
+      # following comments are from when the above was 'if 1' a day or two ago -- still relevant since general [##e refile??]:
+        
         # Problem: won't work for objs with no center! Solution for now: don't try to eval the self attr then.
         # Not perfect, since what ought to be AttributeError will turn into some other exception.
         ##e One better solution would involve declared interfaces for obj, and delegation of all attrs in interfaces

@@ -76,6 +76,13 @@ class Translate(InstanceOrExpr, DelegatingMixin):
     bright = thing.bright + dx
     bbottom = thing.bbottom - dy # might become negative; see comment above
     btop = thing.btop + dy
+
+    motion = call_Expr( tuple3_from_vec, vec) #070209 late -- works
+    center = delegate.center + motion  #070209 late -- moved from draggable to here -- works
+
+    ###e the following move method will probably need to go (not hard since not in any non-obs api),
+    # to make room for a move method which alters the posn of a model object. [070209 comment about old code]
+    
     # methods needed by all layout primitives: move & draw (see Column) & maybe kid (needed for highlighting, maybe not yet called)
     def move(self, i, j): # note: this separate move/draw API is obsolete, but still used, tho only locally (see paper notes circa 091113)
         "move from i to j, where both indices are encoded as None = self and 0 = self.thing"
