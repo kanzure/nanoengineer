@@ -114,13 +114,15 @@ import demo_MT
 reload_once(demo_MT)
 from demo_MT import test_drag_pixmap, MT_try2
 
-# MT_try1 was moved to this outtakes file 070210; it's still importable from there and works in testexpr_18,
-# but since it's obs, we'll remove this import in the next commit.
-import demo_MT_try1_obs
-reload_once(demo_MT_try1_obs)
-from demo_MT_try1_obs import MT_try1
-
-##MT_try1 = Stub
+# MT_try1 was moved to this outtakes file 070210; it's still importable from there and works in testexpr_18
+# (verified in test.py cvs rev 1.224), but since it's obs, we'll no longer import it (thus breaking all tests
+# using MT_try1 unless you reenable this import).
+if 0:
+    import demo_MT_try1_obs
+    reload_once(demo_MT_try1_obs)
+    from demo_MT_try1_obs import MT_try1
+else:
+  MT_try1 = Stub
 
 import demo_drag
 reload_once(demo_drag)
@@ -1266,7 +1268,7 @@ testexpr_31 = DraggableObject(Rect(1,0.5,yellow)) # works [but see caveats in dr
 
 enable_testbed = True
 
-testexpr = testexpr_18 # testexpr_30i # testexpr_18i ## testexpr_30h ## testexpr_29aox3 ## testexpr_18 ## testexpr_9fx4 ## testexpr_19g ## testexpr_19g _26g _28
+testexpr = testexpr_30i # testexpr_18i ## testexpr_30h ## testexpr_29aox3 ## testexpr_18 ## testexpr_9fx4 ## testexpr_19g ## testexpr_19g _26g _28
 
     # as of 070121 at least these work ok in EVAL_REFORM with now-semipermanent kluge070119:
     # _2, _3a, _4a, _5, _5a, _10a, _10c, _9c, _9d, _9cx,
