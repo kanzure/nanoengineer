@@ -133,7 +133,16 @@ from images import IconImage, Image #e and more
 
 import Center
 reload_once(Center)
-from Center import CenterY
+from Center import CenterY, Center
+
+import transforms
+reload_once(transforms)
+from transforms import Translate
+
+import projection
+reload_once(projection)
+from projection import DrawInCorner
+    #e we're using this for essentially DrawInCenter or DrawInAbsCoords -- should make a renamed variant for that
 
 # == stubs
 
@@ -442,11 +451,26 @@ class _MT_try2_node_helper(DelegatingInstanceOrExpr):
     
     openclose_slot = If( call_Expr(node_openable, node), openclose_visible, openclose_spacer )
 
-    ###STUB for the type_icon:
-    icon = Rect(0.4, 0.4, green)##stub; btw, would be easy to make color show hiddenness or type, bfr real icons work
-        ###k is this a shared instance (multiply drawn)?? any issue re highlighting? need to "instantiate again"?
-            ##e Better, this ref should not instantiate, only eval, once we comprehensively fix instantiation semantics.
-            # wait, why did I think "multiply drawn"? it's not. nevermind.
+    ###STUB for the type_icon, with stub for cross-highlighting added 070210:
+
+    indicator_over_obj_center = Center(Rect(0.4, 0.4, yellow))
+    position_over_obj_center = node.center + DZ * 3
+        ###STUB:
+        # - should be drawn in a fixed close-to-screen plane, or cov plane (if obscuring is not an issue),
+        #   - so indicator size is constant in pixels, even in perspective view (I guess),
+        #   - also so it's not obscured (especially by node itself) -- or, draw it in a way visible behind obscuring things (might be a better feature)
+        # - what we draw here should depend on what node is
+        # - we also want to draw a line from type icon to node indicator (requires transforming coords differently)
+        # - needs to work if node.center is not defined (use getattr_Expr - but what dflt? or use some Ifs about it)
+    pointer_to_obj = DrawInCorner( Translate( indicator_over_obj_center, position_over_obj_center), (0,0))
+        ###BUG: Translate gets neutralized by DrawInCorner
+    
+    icon = Highlightable(
+        Rect(0.4, 0.4, green), ##stub; btw, would be easy to make color show hiddenness or type, bfr real icons work
+        Overlay( Rect(0.4, 0.4, yellow),
+                 pointer_to_obj )
+     )
+        
         ##e selection behavior too
     label = TextRect( call_Expr(node_name, node) + name_suffix ) ###e will need revision to Node or proxy for it, so node.name is usage/mod-tracked
         ##e selection behavior too --
