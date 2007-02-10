@@ -528,7 +528,7 @@ def dna_ribbon_view_toolcorner_expr_maker(world_holder): #070201 modified from d
     number_of_objs = getattr_Expr(world, 'number_of_objects')
         ## WARNING: when that said world.number_of_objects instead, it turned into a number not an expr, and got usage-tracked,
         # and that meant this expr-maker had to get called again (and the result presumably remade again)
-        # every time world.number_of_objects changed.
+        # every time world.number_of_objects changed. [For more details, see comments here in cvs rev 1.40. 070209]
         # (This would not have happened if this was an expr rather than a def, since then,
         #  world would be _self.attr (symbolic) rather than an Instance.)
         ###BUG: Are there other cases throughout our code of debug prints asking for usage-tracked things, causing spurious invals??
