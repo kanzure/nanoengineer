@@ -55,6 +55,14 @@ import Overlay
 reload_once(Overlay)
 from Overlay import Overlay
 
+import Rect
+reload_once(Rect)
+from Rect import Rect
+
+import Boxed
+reload_once(Boxed)
+from Boxed import Boxed
+
 import transforms
 reload_once(transforms)
 from transforms import Translate
@@ -63,9 +71,12 @@ import Highlightable
 reload_once(Highlightable)
 from Highlightable import Highlightable, Button, print_Expr, _setup_UNKNOWN_SELOBJ
 
+debug070209 = False
 
 class DraggableObject(DelegatingInstanceOrExpr):
-    """DraggableObject(obj) is a wrapper which makes any model object draggable (###doc the details).
+    """DraggableObject(obj) is a wrapper which makes any model object draggable (###doc the details),
+    and also helps provides a context menu specific to obj.
+    [##e It may be extended to make obj click-selectable or even region-selectable, at the proper times, too.]
        WARNING: Experimental -- API/organization will surely change,
     integrating not only rotation, but click to select, etc.
     The resulting wrapper will typically be applied by model->view macros.
@@ -80,7 +91,8 @@ class DraggableObject(DelegatingInstanceOrExpr):
     # args
     obj = Arg(ModelObject)
     
-    # options
+    # state
+    selected = State(bool, False) ###KLUGE test stub, only set when debug070209
     motion = State(Vector, V(0,0,0)) # publicly visible, probably not publicly changeable, but not sure -- why not let it be?
         # in case it is or in case of bugs, never modify it in place (using +=) -- assume it might be a shared Numeric array.
         # Note: this needs to be change/usage tracked so that our drawing effects are invalidated when it changes.
@@ -109,10 +121,20 @@ class DraggableObject(DelegatingInstanceOrExpr):
         # would hurt debugging. So we probably want to reraise the original AttributeError in cases like that, whatever
         # the way in which we ask for that behavior. That means one construct for "passing along attr missingness",
         # but *not* a composition of one construct for saying when this attr is there, and one for asking whether another is.
+
+        # Note: can't we delegate center (& other geometry) through the display delegate below, if Highlightable passes it through
+        # and Translate does the coordinate transformation? ###e
     
     # appearance
     delegate = Highlightable(
-        Translate( obj, motion),
+        Translate(
+            If( selected,
+                Overlay( obj, Rect(1,1,blue)), ##### WRONG LOOK for selected, but should work [070209]
+                          #BUG: Rect(1,lightblue) is gray, not light blue -- oh, it's that failure to use type to guess which arg it is!
+                obj
+             ),
+            motion
+         ),
         ## sbar_text = format_Expr( "Draggable %r", obj ),
             ##e should use %s on obj.name or obj.name_for_sbar, and add those attrs to ModelObject interface
             # (they would delegate through viewing wrappers on obj, if any, and get to the MT-visible name of the model object itself)
@@ -120,9 +142,20 @@ class DraggableObject(DelegatingInstanceOrExpr):
             # But that doesn't seem safe unless you have to list the permissible exceptions (like in Python try/except).
             # The use of this here (temporary) would be to look for obj.name, then try a different format_Expr if that fails.
             # getattr(obj, 'name', dflt) would get us by, but would not as easily permit alternate format_Exprs in the two cases.]
+        If( debug070209, ###e need option or variant of If to turn off warning that cond is a constant: warn_if_constant = False??
+                # also make the printed warning give a clue who we are -- even if we have to pass an option with the text of the clue??
+            Translate( Boxed(obj), motion),
+                #######070209 TEST THIS KLUGE -- note it does not include selected appearance
+                    # (but HL might incl it anyway? sometimes yes sometimes no, not sure why that would be -- ah, it depends on whether
+                    # mouse is over the moved object (which is silly but i recall it as happening in regular ne1 too -- ###BUG)
+                #e not good highlight form
+                ####BUG: the layout attrs (lbox attrs, eg bleft) are apparently not delegated, so the box is small and mostly obscured
+            Translate( obj, motion)
+         ),
         sbar_text = format_Expr( "Draggable %s", getattr_Expr( obj, 'name', format_Expr("%r", obj))),
         on_press = _self.on_press,
         on_drag = _self.on_drag,
+        on_release = _self.on_release,
         cmenu_maker = obj ###e 070204 experimental, API very likely to be revised; makes Highlightable look for obj.make_selobj_cmenu_items
     )
         ### DESIGN Q: do we also include the actual event binding (on_press and on_drag) -- for now, we do --
@@ -166,18 +199,34 @@ class DraggableObject(DelegatingInstanceOrExpr):
         point = self.current_event_mousepoint() # the touched point on the visible object (hitpoint)
             # (this method is defined in the Highlightable which is self.delegate)
         self.oldpoint = self.startpoint = point
+        if debug070209:
+            self.ndrags = 0
         return
-    def on_drag(self):###UNFINISHED re plane issue
+    def on_drag(self):
+        # Note: we can assume this is a "real drag", since the caller (ultimately a selectMode method in testmode, as of 070209)
+        # is tracking mouse motion and not calling this until it becomes large enough, as the debug070209 prints show.
         oldpoint = self.oldpoint # was saved by prior on_drag and by on_press
         point = self.current_event_mousepoint(plane = self.startpoint)
+        if debug070209:
+            self.ndrags += 1
+            if (self.ndrags == 1) or 1:
+                print "drag event %d, model distance = %r, pixel dist not computed" % (self.ndrags, vlen(oldpoint - point),)
         self._cmd_drag_from_to( oldpoint, point) # use Draggable interface cmd
         self.oldpoint = point
-        self.env.glpane.gl_update() ###k needed? i hope not, but i'm not sure; guess: no, provided self.motion is change/usage tracked
+        self.env.glpane.gl_update() ###k needed? i hope not, but i'm not sure; guess: NO (provided self.motion is change/usage tracked)
         return
     def on_release(self):
+        #e here is where we'd decide if this was really just a "click", and if so, do something like select the object,
+        # if we are generalized to become the wrapper which handles that too.
+        if debug070209:
+            if not self.ndrags:
+                print "release (no drags)" # ie a click
+                self.selected = True ###KLUGE test stub
+            else:
+                print "release after %d drags" % self.ndrags
+            self.ndrags = 0
         pass
-    
-    pass
+    pass # end of class DraggableObject
 
 # examples
 

@@ -143,8 +143,9 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
     sbar_text = Option(str, "") # mouseover text for statusbar
     on_press = Option(Action)
     on_drag = Option(Action)
-    on_release_in = Option(Action)
-    on_release_out = Option(Action)
+    on_release = Option(Action) # 070209 add this way of saying it, for when in or out doesn't matter
+    on_release_in = Option(Action, on_release)
+    on_release_out = Option(Action, on_release)
     cmenu_maker = Option(ModelObject) # object which should make a context menu, by our calling obj.make_selobj_cmenu_items if it exists
     projection = Option(bool, False) # whether to save projection matrix too... would be default True except that breaks us. ###BUG
         # guess: it might mess up the glselect use of the projection matrix. (since ours maybe ought to be multiplied with it or so)
