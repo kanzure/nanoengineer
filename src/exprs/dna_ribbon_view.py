@@ -449,7 +449,7 @@ class DNA_Cylinder(Macro):
     show_lines = call_Expr( get_dna_pref, 'show lines', dflt = False)
     
     # appearance (stub -- add handles/actions, remove cyl)
-    delegate = Overlay( If_kluge(
+    delegate = Overlay( If(
                             call_Expr( get_dna_pref, 'show central cyl', dflt = False),
                             cyl, # works when alone
                             Spacer()),
@@ -538,15 +538,15 @@ def dna_ribbon_view_toolcorner_expr_maker(world_holder): #070201 modified from d
         checkbox_pref( dna_pref('show lines'),   "show lines?",   dflt = False), # temporary
         ActionButton( world_holder._cmd_Make_DNA_Cylinder, "button: make dna cyl"),
         ActionButton( world_holder._cmd_Make_some_rects, "button: make rects over cyls"),
-        If_kluge( getattr_Expr( world, '_cmd_Clear_nontrivial'),
-                  ActionButton( world._cmd_Clear, "button: clear"),
-                  ActionButton( world._cmd_Clear, "button (disabled): clear", enabled = False)
+        If( getattr_Expr( world, '_cmd_Clear_nontrivial'),
+            ActionButton( world._cmd_Clear, "button: clear"),
+            ActionButton( world._cmd_Clear, "button (disabled): clear", enabled = False)
          ),
         Overlay(
             DisplistChunk(TextRect( format_Expr( "(%d objects in world)" , number_of_objs ))),
-            If_kluge( eq_Expr( number_of_objs, 0),
-                      DrawInCorner(corner = (0,0))( TextRect("(empty model)") ),
-                      Spacer() ),
+            If( eq_Expr( number_of_objs, 0),
+                DrawInCorner(corner = (0,0))( TextRect("(empty model)") ),
+                Spacer() ),
          ),
      )
     return expr
