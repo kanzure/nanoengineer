@@ -98,6 +98,11 @@ class DrawInCorner(DelegatingInstanceOrExpr):
         ##e or 0 for central in that dim?
     want_depth = Option(float, 0.01) # this choice is nearer than cov_depth (I think!) but doesn't preclude 3D effects.
     def draw(self):
+        if self.delegate is None:
+            # 070210 -- but I'm not sure if this is a complete ###KLUGE, or good but ought to be done more generally,
+            # or if it would be better to do it totally differently by instantiating None into something like Spacer(). ##k
+            return
+        
         glMatrixMode(GL_MODELVIEW) # not needed
         glPushMatrix()
         glLoadIdentity()
