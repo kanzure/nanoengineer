@@ -1221,11 +1221,13 @@ testexpr_30h = eval_Expr( call_Expr( lambda world_ui: #070206
                                      call_Expr( _app.Instance, testexpr_30b, "#30bh")
                                      ))
 
+WORLD_MT_CORNER = (-1,1) # top right corner [changed from top left, 070210]
+
 testexpr_30i = eval_Expr( call_Expr( lambda world_ui: #070207 -- just like 30h except MT_try1 -> MT_try2 
                                      Overlay( world_ui,
                                               DrawInCorner( Boxed(
                                                   eval_Expr( call_Expr( dna_ribbon_view_toolcorner_expr_maker, world_ui )) )),
-                                              DrawInCorner( MT_try2(getattr_Expr(world_ui, 'world')), (1,1) ),
+                                              DrawInCorner( MT_try2(getattr_Expr(world_ui, 'world')), WORLD_MT_CORNER ),
                                              ),
                                      call_Expr( _app.Instance, testexpr_30b, "#30bi")
                                      ))
@@ -1240,7 +1242,7 @@ testexpr_30ix = eval_Expr( call_Expr( lambda world_ui:
                                      Overlay( world_ui,
                                               DrawInCorner( Boxed(
                                                   eval_Expr( call_Expr( dna_ribbon_view_toolcorner_expr_maker, world_ui )) )),
-                                              DrawInCorner( MT_try2(getattr_Expr(world_ui, 'world')), (1,1) ),
+                                              DrawInCorner( MT_try2(getattr_Expr(world_ui, 'world')), WORLD_MT_CORNER ),
                                              ),
                                      call_Expr( _app.Instance, testexpr_30b, "#30bi(%d)" % vv.reload_counter)
                                      ))
@@ -1365,7 +1367,7 @@ bottom_left_corner = Boxed(SimpleColumn(
     # and Boxed not resizable, and labels wouldn't grow if it was (and they're not long enough, tho that'd be ok if they'd grow),
     # and reload is pretty slow since we're not caching all this testbed stuff (at least I guess that's why)
 
-top_left_corner = testexpr_18i
+top_left_corner = None # testexpr_18i
     # testexpr_10c # nested ToggleShow. -- works, usual 
     # testexpr_18 # (MT_try1) also works, and has indep node.open state, i think (limited autoupdate makes it hard to be sure).
     # update 070206: testexpr_18 mostly works, but has a funny alignment issue. ###BUG (but can ignore for now)
