@@ -71,7 +71,7 @@ import Highlightable
 reload_once(Highlightable)
 from Highlightable import Highlightable, Button, print_Expr, _setup_UNKNOWN_SELOBJ
 
-debug070209 = False
+debug070209 = False # turn on debug prints related to drags and clicks, and "click to permanently set selected" test-kluge
 
 class DraggableObject(DelegatingInstanceOrExpr):
     """DraggableObject(obj) is a wrapper which makes any model object draggable (###doc the details),
