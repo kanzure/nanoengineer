@@ -147,7 +147,7 @@ class DraggableObject(DelegatingInstanceOrExpr):
             # But that doesn't seem safe unless you have to list the permissible exceptions (like in Python try/except).
             # The use of this here (temporary) would be to look for obj.name, then try a different format_Expr if that fails.
             # getattr(obj, 'name', dflt) would get us by, but would not as easily permit alternate format_Exprs in the two cases.]
-        If( debug070209, ###e need option or variant of If to turn off warning that cond is a constant: warn_if_constant = False??
+        If( eval_Expr(constant_Expr(constant_Expr(debug070209))), ###e need option or variant of If to turn off warning that cond is a constant: warn_if_constant = False??
                 # also make the printed warning give a clue who we are -- even if we have to pass an option with the text of the clue??
             Translate( Boxed(obj), motion),
                 #######070209 TEST THIS KLUGE -- note it does not include selected appearance
