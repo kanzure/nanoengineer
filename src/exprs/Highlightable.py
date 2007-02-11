@@ -141,6 +141,7 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
 
     # options
     sbar_text = Option(str, "") # mouseover text for statusbar
+    #e on_enter, on_leave -- see comment below
     on_press = Option(Action)
     on_drag = Option(Action)
     on_release = Option(Action,
@@ -159,7 +160,15 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
 
         # == transient_state
         
-        set_default_attrs( self.transient_state, in_drag = False) # sets only the attrs which are not yet defined
+        set_default_attrs( self.transient_state, in_drag = False) # doc = "whether mouse is currently down (after a mousedown on self)"
+            # Q 070210: would in_drag = State(...) be equivalent?
+            # Guess: yes (but with more general access syntax) -- this is just an old form; not sure! ##k
+
+            # note 070210: sometimes I've mistakenly thought that meant in_bareMotion [not a serious name-suggestion],
+            # i.e. whether mouse is over self or not. We might need that, and/or action options to run when it changes,
+            # perhaps called on_enter and on_leave. Right now I don't think we get notified about those events! ###e
+            
+            # note: set_default_attrs sets only the attrs which are not yet defined
             ###e should make an abbrev for that attr as HL.in_drag -- maybe use State macro for it? read only is ok, maybe good.
             ###e should add an accessible tracked attr for detecting whether we're over self, too. What to call it?
             # [061212 comments, also paraphrased near testexpr_9fx4]

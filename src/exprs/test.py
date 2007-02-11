@@ -392,7 +392,7 @@ testexpr_9fx3 = Rect(1, 1, If_expr(_my.env.glpane.in_drag, blue, lightblue)) # t
 testexpr_9fx4 = Highlightable( Rect(1, 1, If_expr(_this(Highlightable).transient_state.in_drag, blue, lightblue))) # works, if I
     # remember to click rather than just to mouseover -- the code says in_drag, not in_bareMotion!
         ##e should make an abbrev for that attr as HL.in_drag -- maybe use State macro for it? read only is ok, maybe good.
-        ##e should add an accessible attr for detecting whether we're over it [aka in_bareMotion -- not a serious suggestion].
+        ##e should add an accessible attr for detecting whether we're over it [aka in_bareMotion -- not a serious name-suggestion].
         # What to call it?
     # Q, 070118: Does that mean all the comments in _9f thru _9f3 are mistaken, as if mouseover == drag???
     # Or did I click in those tests?
