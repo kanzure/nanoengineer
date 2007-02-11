@@ -30,6 +30,7 @@ class Rect(Widget2D): # finally working as of 061106
         # Note: Widget2D defines width & height, making this seem circular, but it's ok (see comment in RectFrame)
     height = Arg(Width, width)
     color = ArgOrOption(Color, gray)
+    center = ORIGIN###STUB, WRONG 070211
     # formulas
     if 0:
         # use this to test whatever scheme we use to detect this error, once we put one in [disabled 061105 until other things work]
@@ -143,6 +144,23 @@ class RectFrame(Widget2D):
         glDisable(GL_CULL_FACE)
         draw_filled_rect_frame(ORIGIN, DX * self.width, DY * self.height, self.thickness, self.fix_color(self.color))
         glEnable(GL_CULL_FACE)
+    pass
+
+# ==
+
+Point = StubType
+class Line(Widget2D): #070211
+    end1 = Arg(Point)
+    end2 = Arg(Point)
+    color = ArgOrOption( Color, black)
+    def draw(self):
+        color = self.fix_color(self.color)
+        end1, end2 = self.end1, self.end2
+        #e axis? center?
+        radius = 0.05
+        capped = 0
+        import drawer
+        drawer.drawcylinder(color, end1, end2, radius, capped = capped) ###STUB
     pass
 
 # end

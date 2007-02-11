@@ -95,7 +95,7 @@ from world import World
 
 import Rect
 reload_once(Rect)
-from Rect import Rect, RectFrame, IsocelesTriangle, Spacer, Sphere
+from Rect import Rect, RectFrame, IsocelesTriangle, Spacer, Sphere, Line
 
 import Column
 reload_once(Column)
@@ -175,7 +175,7 @@ def remove_unit_component(vec1, unitvec2): #e rename, or maybe just replace by r
     """
     return vec1 - dot(vec1, unitvec2) * unitvec2
 
-class Cylinder(Geom3D): #e super? ####IMPLEM - and answer the design Qs herein about state decls and model objs...
+class Cylinder(Geom3D): #e super? ####IMPLEM - and answer the design Qs herein about state decls and model objs... #e refile
     """Be a cylinder, including as a surface... given the needed params... ###doc
     """
     ###e someday accept a variety of arg-sequences -- maybe this has to be done by naming them:
@@ -604,6 +604,7 @@ class World_dna_holder(InstanceMacro): #070201 modified from GraphDrawDemo_Fixed
         expr = DraggableObject(expr) # note: formally these rects are not connected to their cyls (e.g. won't move with them)
         cyls = world.list_all_objects_of_type(DNA_Cylinder)
         #e could remove the ones that already have rects, but that requires storing the association -- doesn't matter for this tests
+        rects = []
         for cyl in cyls:
             posn = cyl.center # includes effect of its DraggableObject motion
                 ### is this being usage tracked? guess yes... what are the effects of that?? guess: too much inval!! ####k
@@ -612,6 +613,9 @@ class World_dna_holder(InstanceMacro): #070201 modified from GraphDrawDemo_Fixed
             where = posn + DZ * 1.5 ###KLUGE: assumes current alignment
             newrect = world.make_and_add(expr, type = "rect")
             newrect.motion = where ###KLUGE, I think, but works for now
+            rects.append(newrect) #070211 hack experiment
+        for r1,r2 in zip(rects[1:], rects[:-1]):
+            junk = world.make_and_add( Line( getattr_Expr(r1,'center'), getattr_Expr(r2,'center'), red), type = "line")
         return
     def _cmd_Show_potential_crossovers(self): #070208 experimental stub prototype
         """for all pairs of cyls adjacent in a raster (more or less),
@@ -634,7 +638,7 @@ class World_dna_holder(InstanceMacro): #070201 modified from GraphDrawDemo_Fixed
             # which continuously shows potential crossovers between these cyls.
             # STUB: create one anew.
             # STUB: let it be a single connecting line.
-            ###BUG: cyl1.center evals to current value -- but what we want here is an expr to eval later.
+            ###BUG: cyl1.center evals to current value -- but what we want here is an expr to eval later. ###FIX: use getattr_Expr
             # What do we do? Someday we'll rewrite this loop as an iterator expr in which cyl1 will be a Symbol or so,
             # so simulate that now by making it one. #####e DECIDE HOW, DO IT, IMPLEM
             ### [BUT, note, it's an academic Q once we use a new macro instead, since we pass it the cyls, not their attrs.]
