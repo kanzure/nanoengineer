@@ -93,6 +93,22 @@ corner_abbrevs = {   #070208
 }
 
 class DrawInCorner(DelegatingInstanceOrExpr):
+    """DrawInCorner( thing, (-1,-1)) draws thing in the lower left corner of the screen
+    (positioning thing so that its layout box's lower left corner nests directly into that corner of the screen).
+    The depth can be specified by the option want_depth (between 0.0 and 1.0), which by default is 0.01 (very near the front).
+    [###UNTESTED: it may be that perspective view and/or non-default depths have never been tested.]
+       The "corner" can be any corner, or any edge, or the center of the screen;
+    it can be specified as a 2nd argument (x,y), or by the option corner = (x,y),
+    where x can be -1, 0, or 1 (for left, center, or right respectively)
+    and y can be -1, 0, or 1 (for bottom, center, or top).
+       For the corners, the abbreviations defined in prefs_constants (small ints called UPPER_RIGHT, UPPER_LEFT,
+    LOWER_LEFT, LOWER_RIGHT) are also permitted (and for convenience can also be imported from this class's source file).
+       When thing does not need to touch a screen boundary (in one or both dimensions),
+    it is not shifted at all, meaning its local origin is aligned with the specified position in that dimension.
+    For drawing in an edge or the center, consider wrapping thing in Center or the like to modify this.
+    (Without this feature, DrawInCorner( thing, (0,0)) would be equivalent to DrawInCorner( Center(thing), (0,0)).)
+       ###BUG: The current implem (as of 070210) probably doesn't work properly after coordinate changes inside display lists.
+    """
     delegate = Arg(Widget2D)
     corner = ArgOrOption(int, LOWER_RIGHT) ###KLUGE: type spec is wrong -- we also allow it to be a pair of +-1, +-1 for x,y posn respectively
         ##e or 0 for central in that dim?
@@ -177,7 +193,9 @@ class DrawInCorner(DelegatingInstanceOrExpr):
             elif x == +1: # right
                 x_offset = + glpane.width / 2.0 * PIXELS - delegate.bright
             elif x == 0: # center(x)
-                x_offset = (+ delegate.bleft - delegate.bright) / 2.0
+                x_offset = 0
+                    # note: before 070210 this was (+ delegate.bleft - delegate.bright) / 2.0,
+                    # which has an unwanted (since unavoidable) centering effect; use explicit Center if desired.
             else:
                 print "invalid corner",corner###
                 raise ValueError, "invalid corner %r" % (corner,)
@@ -187,7 +205,8 @@ class DrawInCorner(DelegatingInstanceOrExpr):
             elif y == +1: # top
                 y_offset = + glpane.height / 2.0 * PIXELS - delegate.btop
             elif y == 0: # center(y)
-                y_offset = (+ delegate.bbottom - delegate.btop) / 2.0
+                y_offset = 0
+                    # note: # note: before 070210 this was (+ delegate.bbottom - delegate.btop) / 2.0
             else:
                 print "invalid corner",corner###
                 raise ValueError, "invalid corner %r" % (corner,)
@@ -203,3 +222,14 @@ class DrawInCorner(DelegatingInstanceOrExpr):
 
         return
     pass # end of class DrawInCorner
+
+DrawInCenter = DrawInCorner(corner = (0,0), doc = "#doc") # a convenient abbreviation
+
+###e we also want DrawInAbsCoords -- but its code doesn't seem very related; several implem strategies differ re displists/highlighting
+
+###e another thing we want is more like "draw in the local coords of a given object" (DrawInThingsCoords?) --
+# but that's harder -- and not even well-defined if that obj is drawn in more than one place (or nowhere) --
+# unless the meaning is to redraw the argument once for each such place! See also Highlightable's "run_OpenGL_in_local_coords" or so.
+# This was wanted for demo_MT.py cross-highlighting, which might have some comments about alternatives to that. [070210]
+
+# end
