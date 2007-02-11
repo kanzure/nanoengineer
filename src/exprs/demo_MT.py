@@ -141,8 +141,8 @@ from transforms import Translate
 
 import projection
 reload_once(projection)
-from projection import DrawInCorner
-    #e we're using this for essentially DrawInCenter or DrawInAbsCoords -- should make a renamed variant for that
+from projection import DrawInCorner, DrawInCenter #e but what we need is not those, but DrawInAbsCoords or DrawInThingsCoords
+    # or really, just get the place (or places) a thing will draw in, in local coords (see projection.py for more discussion)
 
 # == stubs
 
@@ -451,27 +451,41 @@ class _MT_try2_node_helper(DelegatingInstanceOrExpr):
     
     openclose_slot = If( call_Expr(node_openable, node), openclose_visible, openclose_spacer )
 
-    ###STUB for the type_icon, with stub for cross-highlighting added 070210:
 
-    indicator_over_obj_center = Center(Rect(0.4, 0.4, yellow))
-    position_over_obj_center = node.center + DZ * 3
-        ###STUB:
-        # - should be drawn in a fixed close-to-screen plane, or cov plane (if obscuring is not an issue),
-        #   - so indicator size is constant in pixels, even in perspective view (I guess),
-        #   - also so it's not obscured (especially by node itself) -- or, draw it in a way visible behind obscuring things (might be a better feature)
-        # - what we draw here should depend on what node is
-        # - we also want to draw a line from type icon to node indicator (requires transforming coords differently)
-        # - needs to work if node.center is not defined (use getattr_Expr - but what dflt? or use some Ifs about it)
-    pointer_to_obj = DrawInCorner( Translate( indicator_over_obj_center, position_over_obj_center), (0,0))
-        ###BUG: Translate gets neutralized by DrawInCorner
-    
+    if 0:
+        # cross-highlighting experiment, 070210, but disabled since approach seems wrong (as explained in comment)
+        indicator_over_obj_center = Center(Rect(0.4, 0.4, yellow))
+        position_over_obj_center = node.center + DZ * 3 ###BUG: DZ does not point towards screen if trackballing was done
+            ###STUB:
+            # - should be drawn in a fixed close-to-screen plane, or cov plane (if obscuring is not an issue),
+            #   - so indicator size is constant in pixels, even in perspective view (I guess),
+            #   - also so it's not obscured (especially by node itself) -- or, draw it in a way visible behind obscuring things (might be a better feature)
+            # - what we draw here should depend on what node is
+            # - we also want to draw a line from type icon to node indicator (requires transforming coords differently)
+            # - needs to work if node.center is not defined (use getattr_Expr - but what dflt? or use some Ifs about it)
+        pointer_to_obj = DrawInCenter( Translate( indicator_over_obj_center, position_over_obj_center))
+            #bug: Translate gets neutralized by DrawInCorner [fixed now]
+            ###BUG: fundamentally wrong -- wrong coord system. We wanted DrawInAbsCoords or really DrawInThingsCoords,
+            # but this is not well-defined (if thing drawn multiply) or easy (see comments about the idea in projection.py).
+    else:
+        # What we want instead is to set a variable which affects how the obj is drawn.
+        # If this was something all objs compared themselves to, then all objs would track its use (when they compared)
+        # and therefore want to redraw when we changed it! Instead we need only the involved objs (old & new value) to redraw,
+        # so we need a dict from obj to this flag (drawing prefs set by this MT). Maybe the app would pass this dict to MT_try2
+        # as an argument. It would be a dict of individually trackable state elements. (Key could be node_id, I guess.)
+        # ### TRY IT SOMETIME -- for now, cross-highlighting experiment is disabled.
+        pointer_to_obj = None
+
+    ###STUB for the type_icon
     icon = Highlightable(
         Rect(0.4, 0.4, green), ##stub; btw, would be easy to make color show hiddenness or type, bfr real icons work
         Overlay( Rect(0.4, 0.4, yellow),
-                 pointer_to_obj )
+                 pointer_to_obj ),
+        sbar_text = call_Expr(node_name, node)
      )
-        
-        ##e selection behavior too
+    
+    ##e selection behavior too
+
     label = TextRect( call_Expr(node_name, node) + name_suffix ) ###e will need revision to Node or proxy for it, so node.name is usage/mod-tracked
         ##e selection behavior too --
         #e probably not in these items but in the surrounding Row (incl invis bg? maybe not, in case model appears behind it!)
