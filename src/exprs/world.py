@@ -157,7 +157,8 @@ class World(ModelObject): #070205 revised, public nodelist -> private _nodeset
         #  the hope is, yes for animating rotation, with proper inval when nodelist changes. It ought to work! Try it. It works!]
         for node in self._sorted_objects:
             # print "%r is drawing %r at %r" % (self, node, node.pos) # suspicious: all have same pos ... didn't stay true, nevermind
-            node.draw() # this assumes the items in the list track their own posns, which might not make perfect sense;
+            self.drawkid( node) ## node.draw()
+                # this assumes the items in the list track their own posns, which might not make perfect sense;
                 # otoh if they didn't we'd probably replace them with container objs for our view of them, which did track their pos;
                 # so it doesn't make much difference in our code. we can always have a type "Vertex for us" to coerce them to
                 # which if necessary adds the pos which only we see -- we'd want this if one Vertex could be in two Worlds at diff posns.

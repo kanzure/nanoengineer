@@ -61,7 +61,7 @@ class DrawInCorner1(DelegatingInstanceOrExpr): ### WARNING: this version doesn't
                 # projection matrix (test _9cx) doesn't work!)
             offset = (-delegate.bright, delegate.bbottom) # only correct for LOWER_RIGHT
             glTranslatef(offset[0], offset[1], 0)
-            delegate.draw()
+            self.drawkid( delegate) ## delegate.draw()
             
         finally:
             glMatrixMode(GL_PROJECTION)
@@ -214,7 +214,7 @@ class DrawInCorner(DelegatingInstanceOrExpr):
             offset = (x_offset, y_offset)
             glTranslatef(offset[0], offset[1], 0.0)
             
-            delegate.draw()
+            self.drawkid( delegate) ## delegate.draw()
             
         finally:
             glMatrixMode(GL_MODELVIEW) # not needed

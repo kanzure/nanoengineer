@@ -363,7 +363,7 @@ class PixelGrabber(InstanceOrExpr, DelegatingMixin):#e draft, API needs revision
     delegate = Arg(Widget2D)
     filename = Arg(str, "/tmp/PixelGrabber-test.jpg") # default value is just for debugging convenience, but can stay, it's useful
     def draw(self):
-        self.delegate.draw()
+        self.drawkid( self.delegate) ## self.delegate.draw()
         self.save() #e shouldn't call so often -- see big comment above
     def save(self):
         glFlush() ##k needed? don't know; works with it. Or try glFinish? not sure it's legal here. Not needed, never tried.

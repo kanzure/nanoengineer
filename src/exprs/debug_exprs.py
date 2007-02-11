@@ -44,7 +44,7 @@ class DebugPrintAttrs(Widget, DelegatingMixin): # guess 061106; revised 061109, 
     delegate = Arg(Anything)
     ## attrs = ArgList(str) # as of 061109 this is a stub equal to Arg(Anything)
     attrs = Arg(Anything, [])
-    def draw(self, *args):
+    def draw(self):
         guy = self.delegate
         print "guy = %r" % (guy, )
         ## attrs = self.args[1:]
@@ -58,7 +58,7 @@ class DebugPrintAttrs(Widget, DelegatingMixin): # guess 061106; revised 061109, 
             attrs.append('ipath')#070118; not sure it's good
         for name in attrs:
             print "guy.%s is" % name, getattr(guy,name,"<unassigned>")
-        return guy.draw(*args)
+        return self.drawkid( guy) ## return guy.draw()
     pass
 
 # end

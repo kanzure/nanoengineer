@@ -60,9 +60,9 @@ class Overlay(InstanceOrExpr, DelegatingMixin):
             # This is definitely needed for overdrawing like that to work, but it's low priority for now.
             # Callers can kluge it using Closer, though that's imperfect in perspective mode (or when viewpoint is rotated).
             # But for now, let's just try drawing in the wrong order and see if that helps... yep!
-            if a is None:
-                continue # even for first arg
-            a.draw() #e try/except
+##            if a is None:
+##                continue # even for first arg # note: no longer needed, now that self.drawkid treats None as drawing nothing
+            self.drawkid( a) ## a.draw() #e try/except
     pass # Overlay
 
 # obs cmt from when we mistakenly inherited from Widget2D:

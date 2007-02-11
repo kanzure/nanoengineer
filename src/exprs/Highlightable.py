@@ -253,9 +253,9 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
             else:
                 ## print "plain.draw",self
                 draw_this = self.plain
-            draw_this.draw() # split out draw_this, 070104
-        except:
-            print_compact_traceback("exception during pressed_out or plain draw, ignored: ")#061120
+            self.drawkid( draw_this) ## draw_this.draw() # split out draw_this, 070104
+        except: ##k someday this try/except might be unneeded due to drawkid
+            print_compact_traceback("exception during pressed_out or plain draw, ignored: ")#061120 
             print "fyi: the object we wanted to draw when we got that exception was:",
             print "%r" % (draw_this,)
             pass # make sure we run the PopName
@@ -280,6 +280,8 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
 
         # print "calling draw_in_abs_coords in",self # this does get called even when projection=True makes it seem to not work.
         # but mousing around over it does cause repeated draws, unlike when it works. Both as if it drew in wrong place.
+
+        # Note: I'm guessing it's better to not call kid.draw() via self.drawkid( kid), in this method -- not sure. ###k [070210]
         
         self.begin_using_saved_coords()
         try:

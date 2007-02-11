@@ -104,7 +104,7 @@ class Translate(InstanceOrExpr, DelegatingMixin):
 ##        print "start drawing in %r, ipath %r" % (self, self.ipath,)
         assert self._e_is_instance
         self.move(None, 0)
-        self.thing.draw()
+        self.drawkid( self.thing) ## self.thing.draw()
             # draw kid number 0 -- ##k but how did we at some point tell that kid that it's number 0, so it knows its ipath??
             ##k is it worth adding index or ipath as a draw-arg? (I doubt it, seems inefficient for repeated drawing)
         self.move(0, None)

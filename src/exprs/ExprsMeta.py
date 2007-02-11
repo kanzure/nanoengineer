@@ -774,63 +774,10 @@ class ExprsMeta(type):
         # (since we will modify these in the namespace we'll actually use to create it)
         for attr, val in ns.iteritems():
 
-            # draw decorators:
-            # new feature 070104, experimental, should be generalized:
-            # if attr is draw and val is callable, assume it's a draw function
-            # which should be "decorated" using a specially named function in a superclass (or perhaps in this class).
-            # But how do we look up the decorating function? We have to produce a function object or a descriptor...
-            # if a descriptor it could look up the decorator dynamically... if we find it now, note that it might be
-            # either earlier or later in ns.iteritems()! Not a problem if we just index ns to find it in that case.
-            use_dec = None
-            if attr == 'draw': #e maybe: generalize to any xxx for which _e_decorate_xxx exists in ns or any superclass
-                decname = "_e_decorate_draw" #e might be revised
-                decs = [] # decorator candidates (built up in following loop) ###REVISE since there is at most one now
-                if ns.has_key(decname):
-                    decs.append(ns[decname])
-                    # that one wins, no need to look in bases
-                else:
-                    # Need to check all supers in mro. Easiest way to get mro is to make a new class just to find it.
-                    fakecls = super(ExprsMeta, cls).__new__(cls, "_ExprsMeta__fake_class", bases, {}) #k I hope a namespace of {} is ok
-                    for supcls in fakecls.__mro__:
-                        if supcls.__dict__.has_key(decname):
-                            decs.append(supcls.__dict__[decname])
-                            break
-                        continue
-                    pass
-                if len(decs) > 1:
-                    assert 0, "no longer reached!"
-                    #e should use method resolution order or some kluge with eval and super, but for now,
-                    # give up unless they are all the same:
-                    use_dec = decs[0] # tentative
-                    for dec in decs:
-                        if dec is not use_dec:
-                            print "\n*** error: ExprsMeta for %s: don't know which %s to use out of %r, so not using any" % (name, decname, decs)
-                            use_dec = None
-                            break
-                        continue
-                    pass
-                elif len(decs) < 1:
-                    print "warning: ExprsMeta for %s: found no %s to use on %r function %r" % (name, decname, attr, val) # why does this still happen?
-                else:
-                    use_dec = decs[0]
-                pass
-            # now use_dec is None or a decorator function to use around val (presumed to be a draw method)
-            # (note, it's not an unbound method, but a function meant to be treated as one.. we'll just manually pass self to it...
-            #  maybe someday we'll call a helper function and have it do what this lambda does, so it can change what it does dynamically)
-            if use_dec:
-                assert callable(use_dec)
-                oldfunc = val
-                # syntax error, need to change to an object bound method or a custom descriptor:
-##                def newfunc(self, *args, _oldfunc = oldfunc, _decorator = use_dec):
-##                    return _decorator(self, _oldfunc, *args)
-                printnim("stub for newfunc = oldfunc needs fixing to use _e_decorator_draw")#####
-                newfunc = oldfunc
-                ns[attr] = newfunc # this modification of ns is legal even within iteritems
-                continue # skip the rest of this loop on attr,val in ns
-                    ##e [this huge loop body badly needs cleanup/simplify/split out subfuncs!]
-            pass
-
-            # ==
+            # [070210 removed "draw decorators" (autowrap of draw function by _e_decorate_draw),
+            #  introduced 070104 but still nim, since it seems simpler and good enough
+            #  just to filter all kid-draw-calls thru a new method IorE.drawkid(kid).
+            #  (last here in cvs rev 1.66)]
             
             # The desired transform is something like 
             # If attr has a special prefix, or val has a special value, run attr-prefix-specific code

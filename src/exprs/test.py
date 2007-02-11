@@ -1403,7 +1403,7 @@ class AppOuterLayer(DelegatingInstanceOrExpr): #e refile when works [070108 expe
         self.testname = ', '.join(testnames)
         if get_pref(debug_prints_prefs_key):
             print "AppOuterLayer: before delegate draw", env.redraw_counter###
-        self.delegate.draw()
+        self.drawkid( self.delegate) ## self.delegate.draw()
         if get_pref(debug_prints_prefs_key):
             print "AppOuterLayer: after delegate draw", env.redraw_counter###
     ###e need an env for args which binds some varname to self (dynamically), so the args have some way to access our state
@@ -1523,7 +1523,7 @@ def drawtest1_innards(glpane):
         glPopMatrix()
         glPushMatrix()
 
-    inst.draw()
+    inst.draw() # can't use self.drawkid -- we're not an IorE instance (just a function)
     if not glpane.is_animating: # cond added 061121, but will probably need mod so we print the first & last ones or so... #e
         if not glpane.in_drag: # subcond added 061208; should be easily controllable;
                 # might be problematic if *all* drag-caused redraws are not printed, but I'm guessing the last one will be [##k].

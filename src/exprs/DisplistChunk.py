@@ -180,7 +180,7 @@ class DisplistChunk( DelegatingInstanceOrExpr, SelfUsageTrackingMixin, SubUsageT
         _debug_print_name = self._debug_print_name
         
         if self.disabled or debug_pref("disable DisplistChunk?", Choice_boolean_False, prefs_key = True):
-            self.delegate.draw()
+            self.drawkid( self.delegate) ## self.delegate.draw()
             # I hope it's ok that this has no explicit effect on usage tracking or inval propogation... I think so.
             # It's equivalent to wrapping the whole thing in an If on this cond, so it must be ok.
             return
@@ -306,7 +306,8 @@ exception in testdraw.py's drawfunc call ignored: exceptions.AssertionError:
                 #
                 # Note that track_use and track_inval do NOT have that property -- they store self.__subslist.
             try:
-                self.recompile_our_displist() # render our contents into our displist using glNewList, self.delegate.draw(), glEndList
+                self.recompile_our_displist()
+                    # render our contents into our displist using glNewList, self.drawkid( self.delegate), glEndList
                     # note: has try/except so always does endlist ##e make it tell us if error but no exception??
             finally:
                 self.contents_valid = True
@@ -368,7 +369,7 @@ exception in testdraw.py's drawfunc call ignored: exceptions.AssertionError:
             # the ones it wants to (e.g. in this case, so it can update glpane.compiling_displist)
             # note: we have no correct way to use GL_COMPILE_AND_EXECUTE, as explained in draw docstring
         try:
-            self.delegate.draw()
+            self.drawkid( self.delegate) ## self.delegate.draw()
         except:
             print_compact_traceback("exception while compiling display list for %r ignored, but terminates the list: " % self )
             ###e should restore both stack depths and as much gl state as we can

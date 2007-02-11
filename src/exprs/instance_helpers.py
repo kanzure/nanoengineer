@@ -899,14 +899,23 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
             return 0, dflt_expr
         pass # above should not _e_eval or canon_expr without review -- should return an arg or dflt expr, not its value
 
-    # note: _e_decorate_draw is not defined on Widget, but here on InstanceOrExpr,
-    # so that a delegating InstanceOrExpr can have a draw method and have it get decorated. [070104]
-    def _e_decorate_draw(self, oldfunc, *args):
-        "#doc"
-        assert not args
-        print "called _e_decorate_draw in %r" % self### remove when works [070104] (note: calling this is nim as of late 070104)
-        return oldfunc(*args)
+# zapped _e_decorate_draw from here & ExprsMeta, 070210
+##    # note: _e_decorate_draw is not defined on Widget, but here on InstanceOrExpr,
+##    # so that a delegating InstanceOrExpr can have a draw method and have it get decorated. [070104]
+##    def _e_decorate_draw(self, oldfunc, *args):
+##        "#doc"
+##        assert not args
+##        print "called _e_decorate_draw in %r" % self### remove when works [070104] (note: calling this is nim as of late 070104)
+##        return oldfunc(*args)
 
+    def drawkid(self, kid): # note: supersedes nim _e_decorate_draw [070210]
+        #e plans: protect from exceptions, debug_pref for no-coord-change enforcement (for testing),
+        # and most importantly, make possible a drawing pass which draws only a specified subset of drawables
+        # but in their coord- or glstate- transforming containers, e.g. for a highlight-drawing pass.
+        if kid is not None:
+            kid.draw()
+        return
+    
     def _C__delegate(self):#070121
         ## print "_C__delegate returns %r from %r" % (self.delegate, self)
         ## return self.delegate # stub - works

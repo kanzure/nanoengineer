@@ -80,7 +80,7 @@ class SimpleColumn(Widget2D): #061115
                 dy = prior.bbottom + self.gap + a.btop
                 glTranslatef(0,-dy,0) # positive is up, but Column progresses down
             prior = a
-            a.draw()
+            self.drawkid(a) ## a.draw()
         glPopMatrix()
         return
     pass # end of class SimpleColumn
@@ -122,7 +122,7 @@ class SimpleRow(Widget2D):
                 dx = prior.bright + self.gap + a.bleft
                 glTranslatef(dx,0,0) # positive is right, and Row progresses right
             prior = a
-            a.draw()
+            self.drawkid(a) ## a.draw()
         glPopMatrix()
         return
     pass # end of class SimpleRow

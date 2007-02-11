@@ -49,7 +49,7 @@ class TestIterator_old_nevertried(HelperClass):
         return
     def _draw_kid(self, index):
         # might be in HelperClass
-        self._kids[index].draw() # this might lazily create the kid, as self._kid_lvals[index].value or so
+        self.drawkid( self._kids[index] ) ## self._kids[index].draw() # this might lazily create the kid, as self._kid_lvals[index].value or so
         return
     pass
 

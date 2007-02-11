@@ -58,7 +58,7 @@ class Rotate(IorE):#e refile with Translate -- in fact, reexpress it as interpos
     ###e should normalize axis and check for 0,0,0
     def draw(self):
         glRotatef(angle, axis[0], axis[1], axis[2]) # angle is in degrees, I guess
-        thing.draw(self)
+        self.drawkid( self.thing) ## self.thing.draw(self)
         glRotatef(-angle, axis[0], axis[1], axis[2]) # might be optional, I forget the semantics of things like Overlay ###k
     pass
 

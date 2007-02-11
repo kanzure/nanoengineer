@@ -117,7 +117,8 @@ class ModelNode(InstanceOrExpr): #e rename since not a Node anymore (unless I ac
         # not really, given moving of nodes.
         # maybe a per-node serno is best. _e_serno could work unless it changes too often. And it does. hmm.
         # Maybe this has to be specified by whoever makes *us*! that means, self.ipath is best.
-        self.find_or_make_kid('_value', glpane).draw() ###IMPLEM find_or_make_kid -- think through the issues
+        kid = self.find_or_make_kid('_value', glpane) ###IMPLEM find_or_make_kid -- think through the issues
+        self.drawkid( kid) ## kid.draw()
     pass
 
 class Sphere_ExampleModelNode(ModelNode):
