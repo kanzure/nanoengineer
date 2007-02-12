@@ -30,7 +30,6 @@ class Rect(Widget2D): # finally working as of 061106
         # Note: Widget2D defines width & height, making this seem circular, but it's ok (see comment in RectFrame)
     height = Arg(Width, width)
     color = ArgOrOption(Color, gray)
-    center = ORIGIN###STUB, WRONG 070211
     # formulas
     if 0:
         # use this to test whatever scheme we use to detect this error, once we put one in [disabled 061105 until other things work]
@@ -44,10 +43,12 @@ class Rect(Widget2D): # finally working as of 061106
         printfyi("not yet trying to trigger the error warning for 'bright = width'") # (since it's nim, even as of 061114 i think)
         bright = _self.width
         btop = _self.height
-##    # fyi, these are not needed (same as the defaults in Widget2D):
-##    bbottom = 0
-##    bleft = 0
-    
+    # bbottom and bleft are not needed (same as the defaults in Widget2D), except that we use them in the formula for center;
+    # it would be more correct to say bleft = _self.bleft, but less efficient I think (not much), and hasn't been tested (should be #e).
+    bbottom = 0
+    bleft = 0
+    center = V_expr( (bright - bleft) / 2.0, (btop - bbottom) / 2.0, 0.0) #070211 #e someday this could be deduced from lbox, generally
+        ###e should move this def into Spacer, RectFrame, etc -- or arrange to deduce it from lbox on any Widget2D, somehow
     def draw(self):
         glDisable(GL_CULL_FACE)
         draw_filled_rect(ORIGIN, DX * self.bright, DY * self.btop, self.fix_color(self.color)) #e move fix_color into draw_filled_rect? 
