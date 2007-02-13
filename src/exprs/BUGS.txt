@@ -290,6 +290,11 @@ Here are some code comments (world.py) to remind me of a place this came up
         # For that matter, things used by "commands" are in general different than things used to recompute.
         # Maybe entire commands need to have traced usage discarded or kept in a new kind of place. #####
 
+update 070213: see revised and cleaned-up comments in world.py, and revised implem --
+which didn't fix the slowness in making new objects when lots of old ones are there.
+Note that much of that slowness goes away if MT is closed; see comments in demo_MT.py about
+a likely cause of that (an optim-bug in MT_try2).
+
 ==
 
 070203 DisplistChunk update bug: series of prefs checkbox changes (eg show central cyl,
@@ -338,6 +343,24 @@ right away, got one time subs already fulfilled debug prints [the bug]; also obs
 highlight-posn bug; turned displists off, debug prints gone; turned them back on, can't
 remember if still gone, and remade instance [not even sure in which order i did those 2 things],
 and the bug (debug prints) doesn't recur. Didn't yet try repeating it in a new session.
+
+==
+
+070213: _index_counter = _self.untracked_model_state._index_counter fails as a state alias --
+not only for set, but even for get (returns wrong non-updated value, no error message).
+See details in a comment in world.py (below). But the same thing used for get exists
+in Highlightable.py, for glname. I don't know why (or if) it works there. I've added debug code to
+print a warning if it ever fails there.
+
+Here is the comment (partly out of context):
+
+    ###BUG: even for get, the abbreviated form (self._index_counter) is not updated when the spelled out form is!!
+    # See this debug print from when we tried that here:
+    ## print "after set to %r, self._index_counter = %r, self.untracked_model_state._index_counter = %r" % \
+    ##   (index, self._index_counter, self.untracked_model_state._index_counter )
+    ## # it prints: after set to 4002, self._index_counter = 4001, self.untracked_model_state._index_counter = 4002
+    # This is weird, since Highlightable seems to succeed using a similar glname abbrev for get.
+    # (Unless it doesn't, and I never noticed?? To check, I just added debug code for that -- so far untriggered.)
 
 ==
 

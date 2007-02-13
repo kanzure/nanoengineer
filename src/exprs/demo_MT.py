@@ -314,6 +314,15 @@ def mt_node_id(node): # 070207; the name 'node_id' itself conflicts with a funct
 
 # ===
 
+# 070213 comment: making new objects and adding them to the world (in e.g. dna_ribbon_view.py) seems to take time
+# proportional to the number of existing objects (even now that world._index_counter is untracked). But only if the MT is open
+# at the time! But opening/closing it seems to be fast, except on the first open. It seems like adding an element must
+# somehow create a new item for it (speculation) -- in spite of the following cache presumably trying to avoid that...
+# is this related to SimpleColumn being replaced each time, or is the node_id changing each time?? Or could it be something
+# different, like displists in MT being remade for reasons not yet guessed?
+# ... This slowness is not understood in detail for now. It's important to ###FIX -- closing the MT makes the difference
+# in tolerability of "make new object" speed. It's mentioned in BUGS.txt.
+
 ModelNode = ModelObject ###stub -- should mean "something that satisfies (aka supports) ModelNodeInterface"
 
 class MT_try2(DelegatingInstanceOrExpr): # works on assy.part.topnode in testexpr_18i, and on World in testexpr_30i
@@ -328,7 +337,7 @@ class MT_try2(DelegatingInstanceOrExpr): # works on assy.part.topnode in testexp
     #e could let creator supply a nonstandard way to get mt-items (mt node views) for nodes shown in this MT
     def _C__delegate(self):
         # apply our node viewer to our arg
-        return self.MT_item_for_object(self.arg, initial_open = True)
+        return self.MT_item_for_object(self.arg, initial_open = True, name_suffix = " (slow when open!)")
             # note: this option to self.MT_item_for_object also works here, if desired: name_suffix = " (MT_try2)"
     def MT_item_for_object(self, object, name_suffix = "", initial_open = False):
         "find or make a viewer for object in the form of an MT item for use in self"

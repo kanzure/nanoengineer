@@ -173,36 +173,6 @@ class World(ModelObject): #070205 revised, public nodelist -> private _nodeset
         ###e see comment above: "maybe World needs to wrap all it draws with glue to add looks and behavior to it"
         return
 
-    ## _index_counter = _self.untracked_model_state._index_counter
-        # 070213 -- i hope this will fix the guessed-bug of changetracking this... (tho I never did verify that effect happens... #k)
-            ####BUG: this abbrev is not ok for set, and even for get, is not updated when the spelled out form is! See debug print below.
-            # Weird, since Highlightable seems to succeed using a similar glname abbrev for get.
-            # (Unless it doesn't, and I never noticed?? I just added debug code for that -- so far untriggered.)
-        # Outcome, when I use the spelled-out form (self.untracked_model_state._index_counter) --
-        # it works, but it doesn't seem to have fixed the bug of making new objects taking longer and longer
-        # as there are more objects present. Could the cause be something else, like MT display?
-        # YES -- closing the MT makes it fast! I guess the MT needs better (or any) displists!
-        # Or is it something else, like remaking all items each time we add elts to the SimpleColumn??
-        # ###FIX #e but first refile these comments into demo_MT.py (after they get committed here, as outcome of this bug-investigation)
-    
-##    _index_counter = State(int, 1000) # moved here from demo_drag 070202
-##        ####k i think this should not be usage-tracked!!! think abt that... then see if true (probably not)
-
-    ## _index_counter = 1000 # (an easier way to make it not tracked [070202]) ####WRONG, when self is remade!!! [070203 re-realization]
-
-    ## _index_counter = property( lambda self: len(self.nodelist) + 3000 ) # 070203 experiment -- known to be wrong, see below;
-        # WARNING also includes a commenting out of this date [#####e needs code cleanup]
-        ###k MIGHT BE WRONG since it usage-tracks nodelist -- REVIEW ###
-        ### AND SURELY WRONG once we can delete individual nodes. BUT WE ALREADY CAN with clear button,
-        # and this makes new nodes show up in the places of old ones which were cleared!!! So it's unacceptable.
-        # I think it also made it a lot slower -- maybe the danger seen in following para happened with this and not with State. #k
-
-        # The tracking danger is that whenever you make any new object, the old objects see that the index they used is different
-        # and think they too need remaking or something like that! This needs thinking through
-        # since it probably covers all make-data, not just the index. All make-data is being snapshotted.
-        # For that matter, things used by "commands" are in general different than things used to recompute.
-        # Maybe entire commands need to have traced usage discarded or kept in a new kind of place. #####
-    
     def make_and_add(self, expr, type = None): #070206 added type option -- required for now (temporary); semantics not fully defined
         """Make a new model object instance from expr, add it to the world at a local index we choose, and return it.
         This is the main public method for making new model objects.
@@ -212,7 +182,7 @@ class World(ModelObject): #070205 revised, public nodelist -> private _nodeset
         including a new attr for model object type. ###e Even once that's done, the caller may want to pass type-like info, perhaps
         "tags" -- e.g. one current caller passes type = "dot" which could not be inferred from expr it passes. ###e Callers may also
         want to pass desired relations, like a parent object, for convenience, or to influence details of how we make and index
-        the new instance.]
+        the new instance. ##e callers will also want to wrap objects with type-nicknames (see code comment for details).
            [WARNING: the API may be revised to also return the index. Or, we might store that in object, or store a back-dict here.]
         """
         index, node = self._make(expr)
@@ -220,6 +190,9 @@ class World(ModelObject): #070205 revised, public nodelist -> private _nodeset
             # (but its change/usage tracking needs review ####k)
         self._append_node(index, node) # revised 070205
         if 'model_type_on_object_kluge_070206': ###KLUGE -- store type on object (simulates later inferring it from object)
+            # update 070213: the right thing to do is probably not this, but to wrap the object itself with a type-nickname
+            # (before passing it to us), so not only this world (self), but everything that sees it (MT default label, commands/ops,
+            # selobj checks, etc), can react to its type-nickname.
             if type is not None:
                 # node._i_model_type is defined on all Instances, and node should be one
 ##                if not hasattr(node, '_i_model_type'):
@@ -255,18 +228,32 @@ class World(ModelObject): #070205 revised, public nodelist -> private _nodeset
             if 'index should be modified [070203]':
                 # see comments above dated 070203
                 index = index + 1
-                ## self._index_counter = index
-                    ## AssertionError: subclass <class 'exprs.ExprsMeta.C_rule_for_formula'> of
-                    ## <C_rule_for_formula at 0xed55f90 for '_index_counter' in 'World'> should implement set_for_our_cls
-                    ## ... [Highlightable.py:597] [Highlightable.py:694] [pallettes.py:66] [world.py:209] [world.py:249] [ExprsMeta.py:335] [ExprsMeta.py:338]
                 self.untracked_model_state._index_counter = index
-##                print "after set to %r, self._index_counter = %r, self.untracked_model_state._index_counter = %r" % \
-##                      (index, self._index_counter, self.untracked_model_state._index_counter )
-##                    ####BUG: after set to 4002, self._index_counter = 4001, self.untracked_model_state._index_counter = 4002
-
+                    # 070213 changed implem of _index_counter to make sure it's not change/usage-tracked.
+                    # (Fyi, I don't know whether or not it was before (using State()), in a way that mattered.
+                    #  The tracking danger would be that whenever you make any new object,
+                    #  the old objects see that the index they used is different
+                    #  and think they too need remaking, or something like that! This needs thinking through
+                    #  since it probably covers all make-data, not just the index. All make-data is being snapshotted.
+                    #  For that matter, things used by "commands" are in general different than things used to recompute.
+                    #  Maybe entire commands need to have tracked usage discarded or kept in a new kind of place. #####FIGURE OUT)
+                    #
                     # Note (language design flaw): to set this attr (using current code),
-                    # you have to refer to it directly in the stateplace, not using the abbrev that works for get.
+                    # you have to refer to it directly in the stateplace,
+                    # rather than using the kind of abbrev that (in Highlightable glname) seems to work for get:
+                    #   _index_counter = _self.untracked_model_state._index_counter
                     # This could possibly be fixed in C_rule_for_formula (not sure), or by making the abbrev in a fancier manner.
+                    # (If you try to set the abbrev, you get
+                    # "AssertionError: subclass [C_rule_for_formula] ... should implement set_for_our_cls".)
+                    #
+                    ###BUG: even for get, the abbreviated form (self._index_counter) is not updated when the spelled out form is!!
+                    # See this debug print from when we tried that here:
+                    ## print "after set to %r, self._index_counter = %r, self.untracked_model_state._index_counter = %r" % \
+                    ##   (index, self._index_counter, self.untracked_model_state._index_counter )
+                    ## # it prints: after set to 4002, self._index_counter = 4001, self.untracked_model_state._index_counter = 4002
+                    # This is weird, since Highlightable seems to succeed using a similar glname abbrev for get.
+                    # (Unless it doesn't, and I never noticed?? To check, I just added debug code for that -- so far untriggered.)
+                pass
             ###e LOGIC ISSUE: should assert the resulting ipath has never been used,
             # or have a more fundamental mechanism to guarantee that
         env = self.env # maybe wrong, esp re _self

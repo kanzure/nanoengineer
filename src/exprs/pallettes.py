@@ -69,10 +69,6 @@ class PalletteWell(DelegatingInstanceOrExpr):
             # better, make something now, but only a fake, cursor-like object (not placed in the model or its tree)
             # (maybe a thumbnail image made from expr? maybe use PixelGrabber on self, to get it?? #e)
             # and only make a real model object when the drag *ends* (in a suitable mouse position -- otherwise cancel the make).
-            ###BUG: this seems to be so slow, and takes time prop to number of objs in world or so (at least in other context of dna cyls),
-            # that I suspect that whenever we make one object we have to remake displists (or something else timeconsuming) for all the
-            # existing objects. probably a hypothetical bug mentioned in other comments, of inappropriate change tracking during commands,
-            # or usage tracking of make-index-counter that should not be tracked. ###FIX -- important
 
         # start a drag of the new object; first figure out where, in world coordinates, and in the depth plane
         # in which you want the new object to appear (and move the object there -- without that it'll be at the origin)
