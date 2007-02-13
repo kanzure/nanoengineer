@@ -234,7 +234,7 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
            Example index [#k guess 061110]: the attrname where self was found in instance (as an attrvalue),
         or if self was found inside some attrval (but not equal to the whole),
         a tuple containing the attrname and something encoding where self occurred in the attrval.
-        Update 070120: that "found inside some attrval" part is now handled by lexenv_ipath_expr,
+        Update 070120: that "found inside some attrval" part is now handled by lexenv_ipath_Expr,
         and index can be modified as suggested by kluge070119 (experimental, not yet debugged).
         """
         #####@@@@@ WRONG API in a few ways: name, scope of behavior, need for env in _e_eval, lack of replacement due to env w/in self.
@@ -976,6 +976,14 @@ class lexenv_Expr(internal_Expr): ##k guess, 061110 late
     pass # end of class lexenv_Expr
 
 class lexenv_ipath_Expr(lexenv_Expr): #070118
+    "#doc"
+    #k Q: will this need to be Symbolic, so getattr_Expr can be formed from it?
+    # A: I think not, since expr.attr should become a getattr_Expr only if expr "stands for an Instance",
+    # like a Symbol or Arg() or Instance() does... this needs to be better understood, formalized, documented
+    # (for example, those macros turn into some sort of OpExpr, not something which says specifically "I stand for an Instance").
+    # This came up since some code had an expr of this class (lexenv_ipath_Expr) which it thought was an Instance,
+    # and took bleft from it, getting an AttributeError -- but if this class formed getattr_Exprs there would have been
+    # no exception at all. [070212]
     def _internal_Expr_init(self):
         (self._e_env0, self._e_local_ipath, self._e_expr0) = self.args
     def __repr__(self):

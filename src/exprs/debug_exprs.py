@@ -15,6 +15,19 @@ import Exprs
 reload_once(Exprs)
 from Exprs import internal_Expr ###k probably not needed (imported by basic) but needs test
 
+# ==
+
+def getattr_debugprint(obj, attr): #070211; tested, though not usually in use
+    """a version of getattr which does better debug printing on exceptions
+    (use it as a drop-in replacement for 2-arg getattr to help with debugging)
+    """
+    try:
+        return getattr(obj, attr)
+    except AttributeError:
+        print "getattr_debugprint: %s has no %r (reraising)" % (safe_repr(obj), attr)
+        raise
+    pass
+
 class debug_evals_of_Expr(internal_Expr):#061105, not normally used except for debugging
     "wrap a subexpr with me in order to get its evals printed (by print_compact_stack), with (I hope) no other effect"
     def _internal_Expr_init(self):
@@ -33,8 +46,6 @@ class debug_evals_of_Expr(internal_Expr):#061105, not normally used except for d
         print_compact_stack("debug_evals_of_Expr(%r) eval-lvals it to %r at: " % (the_expr, res)) #k does this ever happen?
         return res
     pass
-
-# == debug code [moved from test.py to here, 070118]
 
 printnim("bug in DebugPrintAttrs, should inherit from IorE not Widget, to not mask what that adds to IorE from DelegatingMixin")###BUG
 class DebugPrintAttrs(Widget, DelegatingMixin): # guess 061106; revised 061109, works now (except for ArgList kluge)

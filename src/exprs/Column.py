@@ -27,15 +27,6 @@ from OpenGL.GL import glPushMatrix, glPopMatrix, glTranslatef ##e revise later i
 
 # ==
 
-def getattr_debugprint(obj, attr): #e refile
-    "a version of getattr which does better debug printing on exceptions"
-    try:
-        return getattr(obj, attr)
-    except AttributeError:
-        print "getattr_debugprint: %s has no %r (reraising)" % (safe_repr(obj), attr)
-        raise
-    pass
-
 # A simple Column to tide us over for testing other things
 # until the real one works. (See Column_old_nim.py for the "real one";
 # it includes CW, CL, CLE, which some comments herein may refer to.)
@@ -47,7 +38,7 @@ class SimpleColumn(Widget2D): #061115
         # and use it as a drawable, but have special case to use no gap under it -- or the equiv, as a simple change
         # to our btop formula so it's 0 if not a0 -- which is already done, so maybe there's no need to worry about a0 = None.
         # Maybe it should be an optional arg like the others. [061115]
-    a0 = Arg(Widget2D, None) # so it's not a bug to call it with no args, as when applying it to a list of no elts [061205]
+    a0 = Arg(Widget2D, None) # even the first arg can be missing, as when applying it to a list of no elts [061205]
     a1 = Arg(Widget2D, None)
     a2 = Arg(Widget2D, None)
     a3 = Arg(Widget2D, None)
@@ -58,9 +49,12 @@ class SimpleColumn(Widget2D): #061115
     a8 = Arg(Widget2D, None)
     a9 = Arg(Widget2D, None)
     a10 = Arg(Widget2D, None)
-    a11 = Arg(Widget2D, None)
+    a11 = Arg(Widget2D, None) # the 12th arg is 1 too many
+    toomany = Instance(TextRect("too many args to SimpleColumn"))
+        #070212 added Instance to fix mysterious bug manifesting as this debug output:
+        ## getattr_debugprint: <lexenv_ipath_Expr... <TextRect#2331(a)>> has no 'bleft'
     args = list_Expr(a0,a1,a2,a3,a4,a5, a6,a7,a8,a9,a10, # could say or_Expr(a0, Spacer(0)) but here is not where it matters
-                     and_Expr(a11, TextRect("too many columns"))
+                     and_Expr(a11, toomany)
                      )
     
     ## gap = Option(Width, 3 * PIXELS)
@@ -72,7 +66,7 @@ class SimpleColumn(Widget2D): #061115
     drawables = call_Expr(lambda args: filter(None, args) , args)
     ## empty = not drawables ###e BUG: needs more Expr support, I bet; as it is, likely to silently be a constant False; not used internally
     empty = not_Expr(drawables)
-    bleft = call_Expr(lambda drawables: max([getattr_debugprint(arg, 'bleft') for arg in drawables] + [0]) , drawables)
+    bleft = call_Expr(lambda drawables: max([arg.bleft for arg in drawables] + [0]) , drawables)
         # 070211 arg.bleft -> getattr_debugprint(arg, 'bleft')
     bright = call_Expr(lambda drawables: max([arg.bright for arg in drawables] + [0]) , drawables)
     height = call_Expr(lambda drawables, gap: sum([arg.height for arg in drawables]) + gap * max(len(drawables)-1,0) , drawables, gap)
@@ -109,8 +103,9 @@ class SimpleRow(Widget2D):
     a9 = Arg(Widget2D, None)
     a10 = Arg(Widget2D, None)
     a11 = Arg(Widget2D, None)
+    toomany = Instance(TextRect("too many args to SimpleRow"))
     args = list_Expr(a0,a1,a2,a3,a4,a5, a6,a7,a8,a9,a10,
-                     and_Expr(a11, TextRect("too many rows"))
+                     and_Expr(a11, toomany)
                      )
     
     pixelgap = Option(int, 3)

@@ -653,15 +653,15 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
 
     def _debug_i_instance_retval(self, res): #070212
         "[private] res is about to be returned from self._i_instance; perform debug checks [#e someday maybe do other things]"
-        if 'debug070212': ####DEBUG
-            NumericArrayType = type(ORIGIN)
-            if isinstance(res, NumericArrayType):
-                return res # has no __class__, but legitimate
-            try:
-                assert res.__class__.__name__ != 'lexenv_ipath_Expr', "should not be returned from _i_instance: %r" % (res,)
-            except:
-                print "this res has a serious problem (reraising): %s" % safe_repr(res)
-                raise
+##        NumericArrayType = type(ORIGIN)
+##        if isinstance(res, NumericArrayType):
+##            return res # has no __class__, but legitimate
+        try:
+##            assert res.__class__.__name__ != 'lexenv_ipath_Expr', "should not be returned from _i_instance: %r" % (res,)
+            assert not is_pure_expr(res), "pure exprs should not be returned from _i_instance: %r" % (res,)
+        except:
+            print "bug: exception in _debug_i_instance_retval for this res (reraising): %s" % safe_repr(res)
+            raise
         return
 
     def _CV__i_instance_CVdict(self, index):
