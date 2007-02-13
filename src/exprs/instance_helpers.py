@@ -573,6 +573,9 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
             # meaning that it takes into account everything needed to create the ipath to find or make at (local mods,
             # state-sharing transforms, maybe more).)
             if is_constant_for_instantiation(expr): #revised 070131
+                if 'debug070212': # similar code in two places ####DEBUG
+                    res = expr
+                    assert res.__class__.__name__ != 'lexenv_ipath_Expr', "should not be returned from _i_instance: %r" % (res,)
                 return expr
 
         # [#k review whether this comment is still needed/correct; 061204 semiobs due to newdata change below; even more obs other ways]
@@ -646,7 +649,10 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
                 # they're only equal because __eq__ is working on non-identical exprs [implemented in Expr late 070122]
                 print "fyi: non-identical exprs compared equal (did we get it right?): %r and %r" % (olddata[0], expr) ### remove sometime
             pass
-        return self._i_instance_CVdict[index] # takes care of invals in making process? or are they impossible? ##k [see above]
+        res = self._i_instance_CVdict[index] # takes care of invals in making process? or are they impossible? ##k [see above]
+        if 'debug070212': # similar code in two places ####DEBUG
+            assert res.__class__.__name__ != 'lexenv_ipath_Expr', "should not be returned from _i_instance: %r" % (res,)
+        return res
     def _CV__i_instance_CVdict(self, index):
         """[private] value-recomputing function for self._i_instance_CVdict.
         Before calling this, the caller must store an expr for this instance

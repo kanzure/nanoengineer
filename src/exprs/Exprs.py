@@ -89,12 +89,18 @@ def is_Expr_pyclass(expr):
     return is_Expr(expr) and not is_Expr(expr.__class__)
 
 def is_constant_expr(expr): # written for use in def If, not reviewed for more general use
+    """#doc;
+    WARNING: not reviewed for use after some code gets reloaded during debugging
+    [but, it seems like it should be ok, since constant_Expr is defined in this module, and this module is not auto-reloaded.]
+    """
     assert is_pure_expr(expr)
     return isinstance(expr, constant_Expr) ###k probably too limited; #e might need to delve in looking for sources of non-constancy;
         #e might prefer to return the simpified const value, or a non-constant indicator (eg an equiv constant_Expr or None)
 
 def expr_constant_value(expr): # written for use in def If, not reviewed for more general use
-    "[even the api is a kluge]"
+    """#doc;
+    WARNING: not fully reviewed for use after some code gets reloaded during debugging [see is_constant_expr doc for details].
+    """
     if is_constant_expr(expr):
         return True, expr._e_constant_value #k will be wrong once is_constant_expr is improved -- a single func will need to do both things
     else:

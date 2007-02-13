@@ -144,13 +144,13 @@ if 0:
         vv.havelist = 0
         print "set USE_DISPLAY_LIST_OPTIM = %r" % USE_DISPLAY_LIST_OPTIM
 
-    displist_expr_BUGGY = Button(Row(Rect(0.5,0.5,black),TextRect(18, 2, getit)), on_press = setit)
+    displist_expr_BUGGY = Button(Row(Rect(0.5,0.5,black),TextRect(getit, 2, 18)), on_press = setit) # updated TextRect arg order 070212, tho this is obs code
         # works, but has bug: not sensitive to baremotion or click on text if you drag onto it from empty space,
         # only if you drag onto it from the Rect.
         
     displist_expr = Row(
         Button( Rect(0.5,0.5,black), DebugPrintAttrs( Rect(0.5,0.5,gray), "grayguy"), on_press = setit),
-        TextRect(18, 2, getit))
+        TextRect(getit, 2, 18)) # updated TextRect arg order 070212, tho this is obs code
 
 # end
 

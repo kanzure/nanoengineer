@@ -27,6 +27,15 @@ from OpenGL.GL import glPushMatrix, glPopMatrix, glTranslatef ##e revise later i
 
 # ==
 
+def getattr_debugprint(obj, attr): #e refile
+    "a version of getattr which does better debug printing on exceptions"
+    try:
+        return getattr(obj, attr)
+    except AttributeError:
+        print "getattr_debugprint: %s has no %r (reraising)" % (safe_repr(obj), attr)
+        raise
+    pass
+
 # A simple Column to tide us over for testing other things
 # until the real one works. (See Column_old_nim.py for the "real one";
 # it includes CW, CL, CLE, which some comments herein may refer to.)
@@ -63,7 +72,8 @@ class SimpleColumn(Widget2D): #061115
     drawables = call_Expr(lambda args: filter(None, args) , args)
     ## empty = not drawables ###e BUG: needs more Expr support, I bet; as it is, likely to silently be a constant False; not used internally
     empty = not_Expr(drawables)
-    bleft = call_Expr(lambda drawables: max([arg.bleft for arg in drawables] + [0]) , drawables)
+    bleft = call_Expr(lambda drawables: max([getattr_debugprint(arg, 'bleft') for arg in drawables] + [0]) , drawables)
+        # 070211 arg.bleft -> getattr_debugprint(arg, 'bleft')
     bright = call_Expr(lambda drawables: max([arg.bright for arg in drawables] + [0]) , drawables)
     height = call_Expr(lambda drawables, gap: sum([arg.height for arg in drawables]) + gap * max(len(drawables)-1,0) , drawables, gap)
     ## btop = a0 and a0.btop or 0  # bugfix -- use _Expr forms instead; i think this form silently turned into a0.btop [061205]
