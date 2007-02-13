@@ -547,11 +547,15 @@ def dna_ribbon_view_toolcorner_expr_maker(world_holder): #070201 modified from d
             PalletteWell( Center(Rect(0.4, 0.4, green)),
                           # this variant fails due to no attr bleft on Cylinder (tho the exception is incomprehensible ###FIX):
                           ## Cylinder((ORIGIN, ORIGIN+DZ*0.01), capped = True, radius = 0.3, color = green), # a green dot
-                          world ),
+                          world = world,
+                          type = "green rect" ),
             PalletteWell( Overlay(Center(Spacer(0.6)), Cylinder((ORIGIN, ORIGIN+DZ*0.01), capped = True, radius = 0.3, color = yellow)),
                           # see if this works better -- it does!
-                          world ),
-            PalletteWell( Center(Rect(0.4, 0.4, blue)), world),
+                          world = world,
+                          type = "yellow circle" ),
+            PalletteWell( Center(Rect(0.4, 0.4, blue)),
+                          world = world,
+                          type = "blue rect" ),
          ),
         If( getattr_Expr( world, '_cmd_Clear_nontrivial'),
             ActionButton( world._cmd_Clear, "button: clear"),
