@@ -112,6 +112,9 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
     per_frame_state = StatePlace('per_frame', tracked = False)
         # state which is only needed while drawing one frame (someday, cleared often)
         # (this is probably also specific to our glpane; note that a given Instance has only one glpane)
+    model_state = StatePlace('model') # state that's part of the model (i.e. stored/copied with model objects) ### NOT YET USED [070213]
+    untracked_model_state = StatePlace('untracked_model', tracked = False)
+        # model state, not change/usage-tracked (e.g. counters for allocating unique index-components or name-components) [070213]
     # abbrevs for read-only state [#e should we make them a property or so, so we can set them too?]
     glname = glpane_state.glname # (note, most things don't have this)
 

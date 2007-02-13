@@ -115,6 +115,7 @@ printdraw = False # debug flag [same name as one in cad/src/testdraw.py]
 
 class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to Button? make variant called Draggable?
     """Highlightable(plain, highlighted = None, pressed_in = None, pressed_out = None)
+    [###WRONG, those are not named options -- fix docstring, or change them to options??]
     renders as plain (and delegates most things to it), but on mouseover, as plain plus highlight [#k or just highlight??]
     [and has more, so as to be Button #doc #e rename #e split out draggable of some sort]
     """
@@ -137,7 +138,8 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
     pressed_in = Arg(Widget2D, _self.highlighted)
         #e might be better to make it plain (or highlighted) but with an outline, or so...)
     pressed_out = Arg(Widget2D, _self.plain)
-        # ... good default, assuming we won't operate then
+        # ... good default for a Button, assuming we won't operate then -- but bad default for a draggable --
+        # but not only this, but everything about how to detect a "selobj" under mouse, should be changed for that [070213 comment]
 
     # options
     sbar_text = Option(str, "") # mouseover text for statusbar
@@ -238,6 +240,9 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
             #  Meanwhile, since all per_frame state is not intended to be usage-tracked, just recorded for ordinary untracked
             # set and get, I'll just change it to have that property. And review glpane_state too.
             ###@@@ [this, and 061120 cmts/stringlits]
+        if self.glname != self.glpane_state.glname:
+            print "bug: in %r, self.glname %r != self.glpane_state.glname %r" % \
+                  (self, self.glname, self.glpane_state.glname) #070213 -- since similar bug was seen for _index_counter in class World
         PushName(self.glname)
         try:
             draw_this = "<not yet set>" # for debug prints
@@ -733,7 +738,7 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
 
     pass # end of class Highlightable
 
-Button = Highlightable
+Button = Highlightable # [maybe this should be deprecated, but it's still in use, and maybe it should instead be a variant subclass]
 
 class _UNKNOWN_SELOBJ_class: #061218 
     "[private helper, for a kluge]"
@@ -798,7 +803,6 @@ def _setup_UNKNOWN_SELOBJ(mode): #061218
 
 # == old code
 
-
 if 0:
     
     Column(
@@ -818,22 +822,7 @@ if 0:
     ## DrawThePart(),
     )
 
-    Column(
-        Rotated( Overlay( RectFrame(1.5, 1, 0.1, white),
-                          Rect(0.5,0.5,orange),
-                          RectFrame(0.5, 0.5, 0.025, ave_colors(0.5,yellow,gray))
-                          ) ),
-        Pass,
-        Overlay( RectFrame(1.5, 1, 0.1, white),
-                 Button(
-                     FilledSquare(bcolor, bcolor),
-                     FilledSquare(bcolor, next_bcolor),
-                     FilledSquare(next_bcolor, black),
-                     FilledSquare(bcolor, gray),
-                     on_release_in = toggleit
-                )
-        ),
-    )
+    # ... FilledSquare(color, color) ...
 
     Closer(Column(
         Highlightable( Rect(2, 3, pink),

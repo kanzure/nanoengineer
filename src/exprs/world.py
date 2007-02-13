@@ -102,6 +102,11 @@ class World(ModelObject): #070205 revised, public nodelist -> private _nodeset
     
     _nodeset = State(Anything, {}) # self._nodeset is private; it's changetracked but only when entirely replaced (not just modified!)
         # (###e optim: can that be fixed? we need a way to access the LvalForState and inval it)
+        ###e we'll need to put that State on a different state-layer (i.e. kind of StatePlace) when we start saving/loading this
+
+    def _init_instance(self):
+        super(World, self)._init_instance()
+        set_default_attrs( self.untracked_model_state, _index_counter = 4000) #070213; could State() do this for us instead? #e
 
     def _C_number_of_objects(self):
         """Compute self.number_of_objects, defined as the total number of objects explicitly stored in self,
@@ -168,8 +173,20 @@ class World(ModelObject): #070205 revised, public nodelist -> private _nodeset
         ###e see comment above: "maybe World needs to wrap all it draws with glue to add looks and behavior to it"
         return
 
-    _index_counter = State(int, 1000) # moved here from demo_drag 070202
-        ####k i think this should not be usage-tracked!!! think abt that... then see if true (probably not)
+    ## _index_counter = _self.untracked_model_state._index_counter
+        # 070213 -- i hope this will fix the guessed-bug of changetracking this... (tho I never did verify that effect happens... #k)
+            ####BUG: this abbrev is not ok for set, and even for get, is not updated when the spelled out form is! See debug print below.
+            # Weird, since Highlightable seems to succeed using a similar glname abbrev for get.
+            # (Unless it doesn't, and I never noticed?? I just added debug code for that -- so far untriggered.)
+        # Outcome, when I use the spelled-out form (self.untracked_model_state._index_counter) --
+        # it works, but it doesn't seem to have fixed the bug of making new objects taking longer and longer
+        # as there are more objects present. Could the cause be something else, like MT display?
+        # YES -- closing the MT makes it fast! I guess the MT needs better (or any) displists!
+        # Or is it something else, like remaking all items each time we add elts to the SimpleColumn??
+        # ###FIX #e but first refile these comments into demo_MT.py (after they get committed here, as outcome of this bug-investigation)
+    
+##    _index_counter = State(int, 1000) # moved here from demo_drag 070202
+##        ####k i think this should not be usage-tracked!!! think abt that... then see if true (probably not)
 
     ## _index_counter = 1000 # (an easier way to make it not tracked [070202]) ####WRONG, when self is remade!!! [070203 re-realization]
 
@@ -234,11 +251,22 @@ class World(ModelObject): #070205 revised, public nodelist -> private _nodeset
         #e use in other recent commits that inlined it
         if index is None:
             # usual case I hope (due to issues mentioned above [maybe here or maybe in demo_drag.py]): allocate one
-            index = self._index_counter
+            index = self.untracked_model_state._index_counter
             if 'index should be modified [070203]':
                 # see comments above dated 070203
                 index = index + 1
-                self._index_counter = index
+                ## self._index_counter = index
+                    ## AssertionError: subclass <class 'exprs.ExprsMeta.C_rule_for_formula'> of
+                    ## <C_rule_for_formula at 0xed55f90 for '_index_counter' in 'World'> should implement set_for_our_cls
+                    ## ... [Highlightable.py:597] [Highlightable.py:694] [pallettes.py:66] [world.py:209] [world.py:249] [ExprsMeta.py:335] [ExprsMeta.py:338]
+                self.untracked_model_state._index_counter = index
+##                print "after set to %r, self._index_counter = %r, self.untracked_model_state._index_counter = %r" % \
+##                      (index, self._index_counter, self.untracked_model_state._index_counter )
+##                    ####BUG: after set to 4002, self._index_counter = 4001, self.untracked_model_state._index_counter = 4002
+
+                    # Note (language design flaw): to set this attr (using current code),
+                    # you have to refer to it directly in the stateplace, not using the abbrev that works for get.
+                    # This could possibly be fixed in C_rule_for_formula (not sure), or by making the abbrev in a fancier manner.
             ###e LOGIC ISSUE: should assert the resulting ipath has never been used,
             # or have a more fundamental mechanism to guarantee that
         env = self.env # maybe wrong, esp re _self

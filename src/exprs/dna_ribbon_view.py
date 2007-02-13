@@ -422,6 +422,7 @@ class DNA_Cylinder(Macro):
     color2 = Option(Color, blue)
     cyl = StateArg( Cylinder(color = color, radius = 1.0), ###IMPLEM this way of giving dflts for attrs added by type coercion
                         #k radius and its units
+                        #e put it into model_state
                     ##e make this work: Automatic, #e can this be given as a default to type coercion, to make it "just create one"?
                     Cylinder(color = color, radius = 1.0)((ORIGIN-6*DX, ORIGIN+10*DX)), ###e silly defaults, change back to ORIGIN end1 soon
                         ###k why did that () not fix this warning: "warning: this expr will get 0 arguments supplied implicitly" ??
@@ -515,7 +516,7 @@ class DNA_Cylinder(Macro):
         print "_cmd_show_potential_crossovers is NIM"
 
     # ModelTreeNodeInterface formulae
-    mt_name = State(str, "DNA Cylinder #n") ###e make it unique somehow #e make it editable
+    mt_name = State(str, "DNA Cylinder #n") ###e make it unique somehow #e make it editable #e put it into model_state
     mt_kids = () #e add our crossovers, our yellow rect demos
     mt_openable = False #e
     mt_node_id = getattr_Expr( _self, '_e_serno')

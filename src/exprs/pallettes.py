@@ -79,6 +79,7 @@ class PalletteWell(DelegatingInstanceOrExpr):
         point_in_newobj_coords = self._newobj.current_event_mousepoint(plane = ORIGIN)
             ### LOGIC BUG: this seems to work, but it presumbly has this bug: in current implem, self._newobj's local coordsys
             # can't be available yet, since it's never been drawn! So it presumably gives out a debug message I've been seeing
+            # ("saved modelview_matrix is None, not using it")
             # and uses global modelview coords, which happen to be the same in the current test (in dna_ribbon_view.py).
             ###KLUGE: use ORIGIN (which we know) in place of center of view (which we don't) -- only correct when no trackballing
         self._newobj.motion = point_in_newobj_coords
