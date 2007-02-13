@@ -538,6 +538,7 @@ def dna_ribbon_view_toolcorner_expr_maker(world_holder): #070201 modified from d
         checkbox_pref( dna_pref('show lines'),   "show lines?",   dflt = False), # temporary
         ActionButton( world_holder._cmd_Make_DNA_Cylinder, "button: make dna cyl"),
         ActionButton( world_holder._cmd_Make_some_rects, "button: make rects over cyls"),
+        ActionButton( world_holder._cmd_Make_red_dot, "button: make red dot"),
         If( getattr_Expr( world, '_cmd_Clear_nontrivial'),
             ActionButton( world._cmd_Clear, "button: clear"),
             ActionButton( world._cmd_Clear, "button (disabled): clear", enabled = False)
@@ -617,6 +618,10 @@ class World_dna_holder(InstanceMacro): #070201 modified from GraphDrawDemo_Fixed
         for r1,r2 in zip(rects[1:], rects[:-1]):
             junk = world.make_and_add( Line( getattr_Expr(r1,'center'), getattr_Expr(r2,'center'), red), type = "line")
         return
+    def _cmd_Make_red_dot(self):#070212, so we have a fast-running 'make' command for an empty model (#e should add a posn cursor)
+        expr = Cylinder((ORIGIN, ORIGIN+DZ*0.01), capped = True, radius = 0.3, color = red) # a red dot [#e implem Circle or Disk]
+        expr = DraggableObject(expr)
+        self.world.make_and_add(expr, type = "circle")
     def _cmd_Show_potential_crossovers(self): #070208 experimental stub prototype
         """for all pairs of cyls adjacent in a raster (more or less),
         perhaps assuming aligned as desired for now (tho for future general use this would be bad to assume),
