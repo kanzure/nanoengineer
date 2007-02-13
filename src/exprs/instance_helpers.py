@@ -573,9 +573,7 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
             # meaning that it takes into account everything needed to create the ipath to find or make at (local mods,
             # state-sharing transforms, maybe more).)
             if is_constant_for_instantiation(expr): #revised 070131
-                if 'debug070212': # similar code in two places ####DEBUG
-                    res = expr
-                    assert res.__class__.__name__ != 'lexenv_ipath_Expr', "should not be returned from _i_instance: %r" % (res,)
+                self._debug_i_instance_retval(expr) #070212
                 return expr
 
         # [#k review whether this comment is still needed/correct; 061204 semiobs due to newdata change below; even more obs other ways]
@@ -650,9 +648,22 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
                 print "fyi: non-identical exprs compared equal (did we get it right?): %r and %r" % (olddata[0], expr) ### remove sometime
             pass
         res = self._i_instance_CVdict[index] # takes care of invals in making process? or are they impossible? ##k [see above]
-        if 'debug070212': # similar code in two places ####DEBUG
-            assert res.__class__.__name__ != 'lexenv_ipath_Expr', "should not be returned from _i_instance: %r" % (res,)
+        self._debug_i_instance_retval( res) #070212
         return res
+
+    def _debug_i_instance_retval(self, res): #070212
+        "[private] res is about to be returned from self._i_instance; perform debug checks [#e someday maybe do other things]"
+        if 'debug070212': ####DEBUG
+            NumericArrayType = type(ORIGIN)
+            if isinstance(res, NumericArrayType):
+                return res # has no __class__, but legitimate
+            try:
+                assert res.__class__.__name__ != 'lexenv_ipath_Expr', "should not be returned from _i_instance: %r" % (res,)
+            except:
+                print "this res has a serious problem (reraising): %s" % safe_repr(res)
+                raise
+        return
+
     def _CV__i_instance_CVdict(self, index):
         """[private] value-recomputing function for self._i_instance_CVdict.
         Before calling this, the caller must store an expr for this instance
