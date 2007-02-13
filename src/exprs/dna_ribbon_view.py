@@ -539,7 +539,9 @@ def dna_ribbon_view_toolcorner_expr_maker(world_holder): #070201 modified from d
         ###BUG: Are there other cases throughout our code of debug prints asking for usage-tracked things, causing spurious invals??
     expr = SimpleColumn(
         checkbox_pref( dna_pref('show central cyl'), "show central cyl?", dflt = False), # works now, didn't at first
-        checkbox_pref( dna_pref('show phosphates'),   "show phosphates?",   dflt = False),
+        checkbox_pref( dna_pref('show phosphates'),   "show base sugars?",   dflt = False), #070213 phosphates -> sugars [###k]
+            ###e if indeed those balls show sugars, with phosphates lying between them (and btwn cyls, in a crossover),
+            # then I need to revise some other pref keys, varnames, optnames accordingly. [070213]
         checkbox_pref( dna_pref('show lines'),   "show lines?",   dflt = False), # temporary
         ActionButton( world_holder._cmd_Make_DNA_Cylinder, "button: make dna cyl"),
         ActionButton( world_holder._cmd_Make_some_rects, "button: make rects over cyls"),
