@@ -139,6 +139,10 @@ import projection
 reload_once(projection)
 from projection import DrawInCorner
 
+import pallettes
+reload_once(pallettes)
+from pallettes import PalletteWell
+
 # temporary kluge: excerpt from cad/src/DnaGenerator.py; this copy used locally for constants [values not reviewed]:
 class B_Dna:
     geometry = "B-DNA"
@@ -539,6 +543,16 @@ def dna_ribbon_view_toolcorner_expr_maker(world_holder): #070201 modified from d
         ActionButton( world_holder._cmd_Make_DNA_Cylinder, "button: make dna cyl"),
         ActionButton( world_holder._cmd_Make_some_rects, "button: make rects over cyls"),
         ActionButton( world_holder._cmd_Make_red_dot, "button: make red dot"),
+        SimpleRow(
+            PalletteWell( Center(Rect(0.4, 0.4, green)),
+                          # this variant fails due to no attr bleft on Cylinder (tho the exception is incomprehensible ###FIX):
+                          ## Cylinder((ORIGIN, ORIGIN+DZ*0.01), capped = True, radius = 0.3, color = green), # a green dot
+                          world ),
+            PalletteWell( Overlay(Center(Spacer(0.6)), Cylinder((ORIGIN, ORIGIN+DZ*0.01), capped = True, radius = 0.3, color = yellow)),
+                          # see if this works better -- it does!
+                          world ),
+            PalletteWell( Center(Rect(0.4, 0.4, blue)), world),
+         ),
         If( getattr_Expr( world, '_cmd_Clear_nontrivial'),
             ActionButton( world._cmd_Clear, "button: clear"),
             ActionButton( world._cmd_Clear, "button (disabled): clear", enabled = False)
