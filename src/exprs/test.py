@@ -350,6 +350,7 @@ testexpr_9b = Button(
                 # debug_pref: preDraw_glselect_dict failure ... whenever mouse goes off or on while it's pressed.
                 # That's probably not a bug, but it might be worth understanding re other bugs in highlighting system.
                 # Guess: the selobj is out of date but still used in some way.
+                # update 070212: still works after unstubbing IsocelesTriangle (before now it was equal to Rect).
 
 testexpr_9c = SimpleColumn(testexpr_9a, testexpr_9b) # works (only highlighting tested; using 'stubs 061115')
 
@@ -1263,12 +1264,16 @@ testexpr_31 = DraggableObject(Rect(1,0.5,yellow)) # works [but see caveats in dr
     # [note: this can work even though Rect() has no .move (and no state of its own, so far), since we never try to flush motion;
     #  eventually what's needed is for Rect(), when coerced to ModelObject, to acquire enough position state to be moved ###e]
 
+# == misc
+
+testexpr_32 = IsocelesTriangle(1.5, 1, green) # works [after unstubbing of IsocelesTriangle from being equal to Rect, 070212]
+    # fyi: so does _9b, which contains IsocelesTriangle
 
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
 
 enable_testbed = True
 
-testexpr = testexpr_30i # testexpr_18i ## testexpr_30h ## testexpr_29aox3 ## testexpr_18 ## testexpr_9fx4 ## testexpr_19g ## testexpr_19g _26g _28
+testexpr = testexpr_32 # testexpr_30i # testexpr_18i ## testexpr_30h ## testexpr_29aox3 ## testexpr_18 ## testexpr_9fx4 ## testexpr_19g ## testexpr_19g _26g _28
 
     # as of 070121 at least these work ok in EVAL_REFORM with now-semipermanent kluge070119:
     # _2, _3a, _4a, _5, _5a, _10a, _10c, _9c, _9d, _9cx,

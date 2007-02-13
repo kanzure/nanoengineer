@@ -120,7 +120,15 @@ class SpacerFor(InstanceOrExpr, DelegatingMixin):
 
 # ==
 
-IsocelesTriangle = Rect  #e stub (implem as simple variant of Rect; find it in a cannib file)
+class IsocelesTriangle(Rect):
+    """IsocelesTriangle(width, height, color) renders as a filled upright isoceles triangle
+    (symmetric around a vertical line, apex centered on top), with local origin on bottomleft vertex.
+    """
+    def draw(self):
+        glDisable(GL_CULL_FACE)
+        draw_filled_triangle(ORIGIN, DX * self.bright, DY * self.btop + DX * self.bright * 0.5, self.fix_color(self.color))
+        glEnable(GL_CULL_FACE)
+    pass
 
 # ==
 
