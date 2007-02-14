@@ -712,7 +712,8 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         # plan: try doing it after as last resort bugfix; otoh if bugs gone, try never doing it.
         
         ## vv.havelist = 0
-        mode.o.gl_update()
+        ## mode.o.gl_update()
+        self.KLUGE_gl_update()
         return
 
     def make_selobj_cmenu_items(self, menu_spec): # 070204 new feature, experimental

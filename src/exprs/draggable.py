@@ -218,7 +218,7 @@ class DraggableObject(DelegatingInstanceOrExpr):
                 print "drag event %d, model distance = %r, pixel dist not computed" % (self.ndrags, vlen(oldpoint - point),)
         self._cmd_drag_from_to( oldpoint, point) # use Draggable interface cmd
         self.oldpoint = point
-        self.env.glpane.gl_update() ###k needed? i hope not, but i'm not sure; guess: NO (provided self.motion is change/usage tracked)
+        self.KLUGE_gl_update() ###k needed? i hope not, but i'm not sure; guess: NO (provided self.motion is change/usage tracked)
         return
     def on_release(self):
         #e here is where we'd decide if this was really just a "click", and if so, do something like select the object,

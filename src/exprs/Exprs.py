@@ -697,6 +697,9 @@ def max_Expr(*args):
 def min_Expr(*args):
     return call_Expr( min, *args)
 
+def int_Expr(*args):
+    return call_Expr( int, *args)
+
 def not_Expr(arg): # maybe this is an operator so we can just make an OpExpr in usual way??
     ###e try it - try using not instead, in the call of this, to see if __not__ is the right name
     return call_Expr(lambda val: not val, arg)

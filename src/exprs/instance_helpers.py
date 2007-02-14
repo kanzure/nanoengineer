@@ -978,6 +978,17 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
 ##        print "warning: no draw method in %r" % self # probably verbose enough to not be missed...
 ##        return
 
+    def KLUGE_gl_update(self): #070213
+        """###KLUGE: call our glpane.gl_update explicitly. Should never be needed (unless there are bugs),
+        since any change that affects what we draw should be changed-tracked when made, and usage-tracked when some
+        draw method (used directly or to make displist contents) uses it. But evidently there are such bugs [as of 070213],
+        since some things apparently need to call this.
+           Note: all calls of gl_update should go through this method, if possible,
+        if they're needed due to changes in attrs of self.
+        """
+        self.env.glpane.gl_update()
+        return
+    
     pass # end of class InstanceOrExpr
 
 # ===

@@ -175,7 +175,7 @@ class Vertex(ModelObject): # renamed Node -> Vertex, to avoid confusion (tho it 
         newpos = point + DZ * DZFUZZ # used for different things, depending #### DZ needed but might cause trouble too
         self.pos = newpos
         ## print "in-node action set %r.pos = %r" % (self, newpos) # sometimes works
-        self.env.glpane.gl_update() #k needed?
+        self.KLUGE_gl_update() #k needed?
         return
 
     pass # end of class Vertex
@@ -452,7 +452,7 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro): # see also class World_dna_h
                     #  I doubt it... but should review. Or what if they enter at the same subs? Also doubt it, also should review. ##k
 
                 # print "set %r.pos = %r" % (lastnode,newpos)### this shows i set them, then draw them to a different pos! Why?[where i am]
-                self.env.glpane.gl_update() ###KLUGE [attempted bugfix, didn't work, see comment for guess at why]
+                self.KLUGE_gl_update() ###KLUGE [attempted bugfix, didn't work, see comment for guess at why]
                     # without this gl_update, during drag of a new node,
                     # if mouse gets too far ahead, we lose the updates until we mouse over some node,
                     # perhaps since only a change of what's highlighted triggers an update. Why doesn't change-tracking of the setattr
@@ -468,7 +468,9 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro): # see also class World_dna_h
                     #
                     # SOLVED: It was the Numeric array == bug, in lvals.py optim for setting to same value.
                     # If any coord was the same, it didn't inval or change the stored pos. Fixed using same_vals.
-                    # Checked for other such bugs in that file, BUT NOT IN OTHER FILES. ###DOIT [061207 10p] 
+                    # Checked for other such bugs in that file, BUT NOT IN OTHER FILES. ###DOIT [061207 10p]
+                    #
+                    # SO, this gl_update is probably not needed after all -- try without it sometime. ##e
             pass
         return
 

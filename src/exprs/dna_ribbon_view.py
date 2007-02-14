@@ -323,7 +323,7 @@ class Cylinder_Ribbon(Widget): #070129 #e rename?? #e super?
                              ) #e rename
     showballs = Option(bool, False) # show balls at points [before 070204 late, at segment centers instead] ###KLUGE: hardcoded size
     showlines = Option(bool, False) # show lines from points to helix axis (almost) [before 070204 late, at segment centers]
-        # (note: the lines from paired bases don't quite meet, and form an angle) ###UNTESTED since revised
+        # (note: the lines from paired bases don't quite meet, and form an angle)
     def draw(self):
         self.draw_some(None) # None means draw all segments
     def draw_some(self, some = None):
@@ -417,8 +417,9 @@ def get_dna_pref(subkey, **kws): ###DESIGN FLAW: lack of central decl means no w
     return get_pref( dna_pref(subkey), **kws)
 
 class DNA_Cylinder(Macro): #070213 started revising this to store state in self (not cyl) and know about seam... not done, WONT RUN NOW
-    """A guide object for creating a cylindrical double-helical domain of DNA (with fully stacked bases,
+    """A guide object for creating a cylindrical double-helical or "duplex" domain of DNA (with fully stacked bases,
     but not usually with fully connected backbone -- that is, strands can enter and leave its two helices).
+       [#e may be renamed to something mentioning duplex or double helix, especially once it no longer needs to remain straight]
        ### doc this better -- needs intro/context:
        We think of a symmetric cylinder as having a central inter-base segment, with the same number of bases on either side.
     But there is no requirement that a specific cylinder be symmetric. (It will be if n_turns_left == n_turns_right in its state.)
@@ -432,22 +433,29 @@ class DNA_Cylinder(Macro): #070213 started revising this to store state in self 
     might be useful in some places, but won't be included by default when iterating over inter-base helix segments.
     That is, by default (when accessing related attrs), there will be one fewer inter-base segment than base.
     """
-    color = Option(Color, gray, doc = "color of inner solid cylinder (when shown)") #e default should be transparent/hidden
+    color_cyl = Option(Color, gray, doc = "color of inner solid cylinder (when shown)") #e default should be transparent/hidden
     color1 = Option(Color, red, doc = "default color of helix 1 of this cylinder (overridable by strand colors #nim)")
     color2 = Option(Color, blue, doc = "default color of helix 2 of this cylinder (overridable by strand colors #nim)")
 
     n_turns_left =  State(float, 1.5, doc = "number of turns before seam or interbase-index-origin")
     n_turns_right = State(float, 2.5, doc = "number of turns after seam or interbase-index-origin")
     
-    bpt = StateOption(float, 10.5, doc = "bases per turn") ###e default will depend on origami raster style #e rename bases_per_turn?
+    bpt = StateOption(float, 10.5, doc = "bases per turn") ###e default will depend on origami raster style #e rename: bases_per_turn?
     
     n_bases_left = int_Expr( n_turns_left * bpt) ###IMPLEM int_Expr; make it round or truncate? If round, rename it?
     n_bases_right = int_Expr( n_turns_right * bpt)
         ### PROBLEM: base indices will change if bpt is revised -- what if crossovers were chosen first? do crossovers need to be
         # turn-indexed instead? Or something weirder, like "this turn, then this many bases away in this direction"??
-        # (Does this ever happen in Paul's UI stages? #k)
+        # (Does this ever happen in Paul's UI stages? #k) [mentioned in 2/19 meeting agenda]
 
-    center = State(Point, ORIGIN) #######e FIX conflicting implem of center, if any ###e make these StateArgs...
+    n_bases = n_bases_left + n_bases_right # this determines length
+    
+    center = State(Point, ORIGIN) ###e make these StateArgs... #e put them in the model_state layer
+
+    def move(self, motion): ###CALL ME
+        self.center = self.center + motion
+        return
+    
     direction = State(Vector, DX) # must be unit length!
         #e make center & direction get changed when we move or rotate [entirely nim, but someday soon to be called by DraggableObject]
         #e make the theta_offset (or whatever) also get changed then (the rotation around cyl axis)
@@ -463,19 +471,22 @@ class DNA_Cylinder(Macro): #070213 started revising this to store state in self 
 
     length_left = rise_nm * n_bases_left
     length_right = rise_nm * n_bases_right
+    length = length_left + length_right
     
     end1 = center - direction * length_left
     end2 = center + direction * length_right
 
-    cyl = Cylinder( (end1, end2), color = color, radius = 1.0,
+    cyl = Cylinder( (end1, end2), color = color_cyl, radius = 1.0, # cyl is a public attr for get
                     doc = "cylindrical surface of double helix"
-                    ) ###k ###e bring in more from the comments below??
+                    ) ###k
+        ###e bring in more from the comments in cyl_OBS below??
+        ##e also tell cyl how much it's rotated on its axis, in case it has a texture?? what if that's a helical texture, like dna?
     
-    cyl_OBS = StateArg( Cylinder(color = color, radius = 1.0), ###IMPLEM this way of giving dflts for attrs added by type coercion
+    cyl_OBS = StateArg( Cylinder(color = color_cyl, radius = 1.0), ###IMPLEM this way of giving dflts for attrs added by type coercion
                         #k radius and its units
                         #e put it into model_state
                     ##e make this work: Automatic, #e can this be given as a default to type coercion, to make it "just create one"?
-                    Cylinder(color = color, radius = 1.0)((ORIGIN-6*DX, ORIGIN+10*DX)), ###e silly defaults, change back to ORIGIN end1 soon
+                    Cylinder(color = color_cyl, radius = 1.0)((ORIGIN-6*DX, ORIGIN+10*DX)), ###e silly defaults, change back to ORIGIN end1 soon
                         ###k why did that () not fix this warning: "warning: this expr will get 0 arguments supplied implicitly" ??
                         ###e can we make it ok to pass length and let end1 be default ORIGIN and dx be default DX?
                     doc = "cylindrical surface of double helix"
@@ -483,34 +494,39 @@ class DNA_Cylinder(Macro): #070213 started revising this to store state in self 
         ###e or maybe even bring in a line and make the cyl ourselves with dflt radius? somewhere we should say dflt radius & length.
         # ah, the right place is probably in the type expr: Cylinder(radius = xxx, length = xxx)
         #e do we want to let a directly passed cyl determine color, as the above code implies it would?
-        # if not, how do we express that: StateArg(...)(color = color)??
+        # if not, how do we express that: StateArg(...)(color = color_cyl)??
         # what if color was not passed to self, *then* do we want it fom cyl? same Q for radius.
 
-    path1 = Cylinder_HelicalPath( cyl, rise = rise_nm, turn = 1/bpt,
-                                  n = cyl.length / rise_nm
-                                  ) #e need theta_offset?
+    path1 = Cylinder_HelicalPath( cyl,
+                                  rise = rise_nm,
+                                  turn = 1/bpt,
+                                  n = n_bases,
+                                  theta_offset = - n_bases_left / bpt * 2*pi
+                                  )
     ## should be: path2 = Rotate(path1, 150.0, cyl.axis)
         #e note, this seems to be "rotate around a line" (not just a vector), which implies translating so line goes thru origin;
         # or it might be able to be a vector, if we store a relative path... get this straight! ###e (for now assume axis could be either)
     ## here's an easier way, and better anyway (since the path's state (when it has any) should be separate):
-    path2 = path1(theta_offset = 150*2*pi/360)
+    path2 = path1(theta_offset = 150*2*pi/360 - n_bases_left / bpt * 2*pi)
     
     # prefs values used in appearance [##e in future, we'll also use these to index a set of display lists, or so]
-    show_phosphates = call_Expr( get_dna_pref, 'show phosphates', dflt = False)
-    show_lines = call_Expr( get_dna_pref, 'show lines', dflt = False)
+    show_phosphates = call_Expr( get_dna_pref, 'show phosphates', dflt = False) ###e phosphates -> sugars
+    show_lines = call_Expr( get_dna_pref, 'show lines', dflt = False) ##e lines -> bases, or base_lines (since other ways to show bases)
     
-    # appearance (stub -- add handles/actions, remove cyl)
+    # appearance (stub -- add handles/actions, more options)
     delegate = Overlay( If(
                             call_Expr( get_dna_pref, 'show central cyl', dflt = False),
-                            cyl, # works when alone
-                            Spacer()),
+                            cyl,
+                            Spacer() #e try None here sometime
+                           ),
                         Cylinder_Ribbon(cyl, path1, color1, showballs = show_phosphates, showlines = show_lines ),
                         Cylinder_Ribbon(cyl, path2, color2, showballs = show_phosphates, showlines = show_lines )
                        )
 
     # geometric attrs should delegate to the cylinder -- until we can say that directly, do the ones we need individually [070208]
     # (for more comments about a fancier case of this, see attr center comments in draggable.py)
-    center = cyl.center ###e actually the origami center might be the seam, not the geometric center -- worry about that later
+    ## center = cyl.center #e actually the origami center might be the seam, not the geometric center -- worry about that later
+        # revision 070213: center is now directly set State (type Point)
     
     def make_selobj_cmenu_items(self, menu_spec, highlightable): #070204 new feature, experimental #070205 revised api
         """Add self-specific context menu items to <menu_spec> list when self is the selobj (or its delegate(?)... ###doc better).
@@ -555,17 +571,24 @@ class DNA_Cylinder(Macro): #070213 started revising this to store state in self 
         # (Except for this unused arg in the API, which can remain for now; for some of these methods maybe it could be removed.)
         return
 
-    def extend(self, left, right):####IMPLEM (and then improve the UI for it)
-        print "extend (left = %r, right = %r) is NIM" % (left, right)
+    def extend(self, left, right):
+        "change the length of this duplex on either or both ends, by the specified numbers of new bases on each end respectively"
+        ###e need to improve the UI for this -- eg minibuttons to extend by 1.5 turn, or drag end to desired length
+        ## self.n_bases_left += left # ... oops, this is not even a state variable!!
+        ## self.n_bases_right += right
+        self.n_turns_left  += (left / self.bpt) ###BUG: rotates it too -- need to compensate theta_offset
+        self.n_turns_right += (right / self.bpt)
+        self.KLUGE_gl_update() ###BUG: without this, doesn't do gl_update until selobj changes, or at least until mouse moves, or so
 
     def _cmd_show_potential_crossovers(self):
         print "_cmd_show_potential_crossovers is NIM"
 
     # ModelTreeNodeInterface formulae
-    mt_name = State(str, "DNA Cylinder #n") ###e make it unique somehow #e make it editable #e put it into model_state
+    mt_node_id = getattr_Expr( _self, '_e_serno')
+    mt_name = State(str, format_Expr("DNA Cylinder #n (%r)", mt_node_id)) # mt_node_id is only for debugging (does it change?)
+        ###e make it unique somehow #e make it editable #e put it into model_state
     mt_kids = () #e add our crossovers, our yellow rect demos
     mt_openable = False #e
-    mt_node_id = getattr_Expr( _self, '_e_serno')
     
     pass # end of class DNA_Cylinder
 

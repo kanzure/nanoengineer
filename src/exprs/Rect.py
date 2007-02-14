@@ -157,7 +157,6 @@ class RectFrame(Widget2D):
 
 # ==
 
-Point = StubType
 class Line(Widget2D): #070211
     end1 = Arg(Point)
     end2 = Arg(Point)
