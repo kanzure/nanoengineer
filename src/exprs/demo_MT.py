@@ -322,6 +322,16 @@ def mt_node_id(node): # 070207; the name 'node_id' itself conflicts with a funct
 # different, like displists in MT being remade for reasons not yet guessed?
 # ... This slowness is not understood in detail for now. It's important to ###FIX -- closing the MT makes the difference
 # in tolerability of "make new object" speed. It's mentioned in BUGS.txt.
+#
+# suggestion about how to debug it: when adding an item (eg in world.make_and_add),
+# set a dynenv flag which prints all makings of new instances
+# and/or all recomputes
+# and/or all displist remakes
+#
+# then see what content in that printed stuff doesn't belong there --
+# make sure i can tell which obj is the highest parent (ie something in the world), so i can guess whether
+# each printed recompute belongs or not
+
 
 ModelNode = ModelObject ###stub -- should mean "something that satisfies (aka supports) ModelNodeInterface"
 
