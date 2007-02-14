@@ -416,11 +416,62 @@ def get_pref(key, dflt = _NOT_PASSED): #e see also... some stateref-maker I forg
 def get_dna_pref(subkey, **kws): ###DESIGN FLAW: lack of central decl means no warning for misspelling one ref out of several
     return get_pref( dna_pref(subkey), **kws)
 
-class DNA_Cylinder(Macro):
-    color = Option(Color, gray) #e default should be transparent/hidden
-    color1 = Option(Color, red)
-    color2 = Option(Color, blue)
-    cyl = StateArg( Cylinder(color = color, radius = 1.0), ###IMPLEM this way of giving dflts for attrs added by type coercion
+class DNA_Cylinder(Macro): #070213 started revising this to store state in self (not cyl) and know about seam... not done, WONT RUN NOW
+    """A guide object for creating a cylindrical double-helical domain of DNA (with fully stacked bases,
+    but not usually with fully connected backbone -- that is, strands can enter and leave its two helices).
+       ### doc this better -- needs intro/context:
+       We think of a symmetric cylinder as having a central inter-base segment, with the same number of bases on either side.
+    But there is no requirement that a specific cylinder be symmetric. (It will be if n_turns_left == n_turns_right in its state.)
+    The central segment (not really central if it's not symmetric) is thought of as the seam (for origami)
+    and is used as an origin for the indexing of inter-base segments and bases, as follows:
+    - base-position indices are 0,1,2 to the right of (after) this origin, and -1, -2, etc to the left.
+    - inter-base segments are numbered 0 at this origin (and in general, by the following base).
+    This means the order is ... base(-1) -- segment(0)(== origin) -- base(0) -- ...
+    (Note: this is subject to revision if it turns out some other scheme is standard or much better. ###e)
+       Note that ficticious segment numbers at the ends, which have only one endpoint that's a real base index,
+    might be useful in some places, but won't be included by default when iterating over inter-base helix segments.
+    That is, by default (when accessing related attrs), there will be one fewer inter-base segment than base.
+    """
+    color = Option(Color, gray, doc = "color of inner solid cylinder (when shown)") #e default should be transparent/hidden
+    color1 = Option(Color, red, doc = "default color of helix 1 of this cylinder (overridable by strand colors #nim)")
+    color2 = Option(Color, blue, doc = "default color of helix 2 of this cylinder (overridable by strand colors #nim)")
+
+    n_turns_left =  State(float, 1.5, doc = "number of turns before seam or interbase-index-origin")
+    n_turns_right = State(float, 2.5, doc = "number of turns after seam or interbase-index-origin")
+    
+    bpt = StateOption(float, 10.5, doc = "bases per turn") ###e default will depend on origami raster style #e rename bases_per_turn?
+    
+    n_bases_left = int_Expr( n_turns_left * bpt) ###IMPLEM int_Expr; make it round or truncate? If round, rename it?
+    n_bases_right = int_Expr( n_turns_right * bpt)
+        ### PROBLEM: base indices will change if bpt is revised -- what if crossovers were chosen first? do crossovers need to be
+        # turn-indexed instead? Or something weirder, like "this turn, then this many bases away in this direction"??
+        # (Does this ever happen in Paul's UI stages? #k)
+
+    center = State(Point, ORIGIN) #######e FIX conflicting implem of center, if any ###e make these StateArgs...
+    direction = State(Vector, DX) # must be unit length!
+        #e make center & direction get changed when we move or rotate [entirely nim, but someday soon to be called by DraggableObject]
+        #e make the theta_offset (or whatever) also get changed then (the rotation around cyl axis)
+    ###e should we revise direction/theta_offset to a local coordsys?? in fact, should we include center in that too?
+    ###e should we define ourselves so locally that we don't bother to even store this center/direction/axisrotation at all?
+    # (quite possibly, that would simplify the code greatly... otoh, we may need to get revised abs posns inside our bases somehow...)
+
+    ###e correct the figures and terminology: rise, turn, pitch
+    rise = StateOption(Angstroms, B_Dna.BASE_SPACING, doc = "distance along helix axis from one basepair to the next")
+        #k can you say units that way? not yet, so we have a kluge to turn them into nm below.
+    rise_nm = rise / 10.0 #e is the attr_nm suffix idea a generally useful one?? [070213]
+    pitch = rise_nm * bpt ##k #e and make it settable? [not yet used]
+
+    length_left = rise_nm * n_bases_left
+    length_right = rise_nm * n_bases_right
+    
+    end1 = center - direction * length_left
+    end2 = center + direction * length_right
+
+    cyl = Cylinder( (end1, end2), color = color, radius = 1.0,
+                    doc = "cylindrical surface of double helix"
+                    ) ###k ###e bring in more from the comments below??
+    
+    cyl_OBS = StateArg( Cylinder(color = color, radius = 1.0), ###IMPLEM this way of giving dflts for attrs added by type coercion
                         #k radius and its units
                         #e put it into model_state
                     ##e make this work: Automatic, #e can this be given as a default to type coercion, to make it "just create one"?
@@ -434,12 +485,7 @@ class DNA_Cylinder(Macro):
         #e do we want to let a directly passed cyl determine color, as the above code implies it would?
         # if not, how do we express that: StateArg(...)(color = color)??
         # what if color was not passed to self, *then* do we want it fom cyl? same Q for radius.
-    ###e correct the figures and terminology: rise, turn, pitch
-    rise = StateOption(Angstroms, B_Dna.BASE_SPACING, doc = "distance along helix axis from one basepair to the next")
-        #k can you say units that way? not yet, so we have a kluge to turn them into nm below.
-    rise_nm = rise / 10.0
-    bpt = StateOption(Float, 10.5, doc = "bases per turn") ###e default will depend on origami raster style
-    pitch = rise * bpt ##k #e and make it settable?
+
     path1 = Cylinder_HelicalPath( cyl, rise = rise_nm, turn = 1/bpt,
                                   n = cyl.length / rise_nm
                                   ) #e need theta_offset?
