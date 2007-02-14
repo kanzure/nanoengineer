@@ -144,9 +144,9 @@ reload_once(projection)
 from projection import DrawInCorner, DrawInCenter #e but what we need is not those, but DrawInAbsCoords or DrawInThingsCoords
     # or really, just get the place (or places) a thing will draw in, in local coords (see projection.py for more discussion)
 
-# == stubs
-
-## If = If_kluge ####e until it works, then remove and retest
+import DisplistChunk # works 070103, with important caveats re Highlightable (see module docstring)
+reload_once(DisplistChunk)
+from DisplistChunk import DisplistChunk
 
 # ==
 
@@ -495,7 +495,11 @@ class _MT_try2_node_helper(DelegatingInstanceOrExpr):
     
     ##e selection behavior too
 
-    label = TextRect( call_Expr(node_name, node) + name_suffix ) ###e will need revision to Node or proxy for it, so node.name is usage/mod-tracked
+    label = DisplistChunk(
+        # added DisplistChunk 070213 late -- does it speed it up? not much; big new-item slowness bug remains. retain, since doesn't hurt.
+        TextRect( call_Expr(node_name, node) + name_suffix )
+     )
+        ###e will need revision to Node or proxy for it, so node.name is usage/mod-tracked
         ##e selection behavior too --
         #e probably not in these items but in the surrounding Row (incl invis bg? maybe not, in case model appears behind it!)
         ##e italic for disabled nodes
