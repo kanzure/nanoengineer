@@ -340,7 +340,7 @@ class State(data_descriptor_Expr): # note: often referred to as "State macro" ev
             ##e do we need to de-expr these args?? (especially type)
             ##e dflt is reasonable to be an expr so we'll eval it each time,
             # but do we need code similar to what's in _i_grabarg to do that properly? guess: yes.
-            self._e_type = type
+            self._e_state_type = type # not _e_type, that has a more general use as of 070215
             self._e_default_val = dflt
         myargs(*self._e_args)
         return

@@ -119,7 +119,27 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
     glname = glpane_state.glname # (note, most things don't have this)
 
     # instance variable defaults (names must start with _e_ or _i_, or they'll cause trouble for non-Instance getattr_Expr formation)
-    _i_model_type = None # experimental, perhaps a kluge, 070206; WARNING: set externally on some specific Instances
+    _i_model_type = None # experimental, perhaps a kluge, 070206; WARNING: set externally on some specific Instances in world.py
+    ## _e_model_type = None # 070215 (not sure if it supercedes the above) -- type of model obj an expr intends to construct (if known)
+        # note: the value of _e_model_type can just be a string, or a fancier object (###NIM and probably not yet handled)
+        # do we compute a type on exprs which can be _e_model_type or classname but only for ModelObjects? (else delegate to one?)
+        # (or for pure graphicals can it be classname too? yes, they can be shapes in the model -- maybe their class needs to say so?)
+        # do instances ever have a different model_type than their expr predicted?
+        # (seems possible -- main use of expr one is for sbar_texts & cmenu item texts, ie UI predictions of what an expr can make)
+        # sceptic: do exprs need this, or do we need special expr-like Instances to reside in eg PalletteWell, which have a special
+        # interface "maker" and know the type of what they can make? But aren't exprs similar to makers anyway?
+        # (even if so, must they be wrapped to be one? evidence for that might be if there are any params about how to make with them.
+        #  but i think not, since they're useable to make things "out of the box"... what if each thing wants params, do you want
+        #  to customize that beyond what the expr knows about args/state, and think of that as maker params??)
+        # Is the real issue for determining the attrname/methodname not "model" or "expr" but "what you make vs what you are"?? ###k
+
+    def _e_model_type_you_make(self): ###k 070215 very experimental #e move below init
+        "#doc; overridden on some subclasses, notably DelegatingInstanceOrExpr"
+        # but lots of specific DIorE don't delegate it...
+        # model obj DIorE don't, but graphical ones do. For now assume we know by whether it's subclass of ModelObj.
+        # This implem is meant for graphical prims like Rect.
+        # ok for expr but wrong for instance! actually, not true - inst makes itself! so wrong for an explicit Maker I guess...
+        return self.__class__.__name__.split('.')[-1] ##e see where else we have that code, maybe world.py; have classattr to override?
     
     def __init__(self, *args, **kws):
         # note: just before any return herein, we must call self._e_init_e_serno(), so it's called after any canon_expr we do;
@@ -1164,7 +1184,17 @@ class InstanceMacro(InstanceOrExpr, DelegatingMixin): # ca. 061110; docstring re
         
     ##e could add sanity check that self.delegate and self._value are instances
     # (probably the same one, tho not intended by orig code, and won't remain true when Instance is fixed) [061114]
-    pass
+    def _e_model_type_you_make(self): ###k 070215 very experimental
+        "#doc; overrides super version; see variant in DelegatingInstanceOrExpr"
+        # assume we are a graphical DIorE (like a model obj decorator -- Overlay, Translate, DraggableObject...), so we do delegate it...
+        # but wait, is code for this different if we're expr or instance? instance could go to _delegate, expr to _value
+        if self._e_is_instance:
+            return self._delegate._e_model_type_you_make() ###e check self._delegate not None??
+        else:
+            assert is_pure_expr(self._value)
+            return self._value._e_model_type_you_make()
+        pass
+    pass # end of class InstanceMacro
 
 # ==
 
@@ -1172,6 +1202,17 @@ class DelegatingInstanceOrExpr(InstanceOrExpr, DelegatingMixin): # moved here & 
     """#doc
     """
     #e this might replace most uses of DelegatingMixin and InstanceMacro, if I like it
+
+    def _e_model_type_you_make(self): ###k 070215 very experimental
+        "#doc; overrides super version; see variant in InstanceMacro"
+        # assume we are a graphical DIorE (like a model obj decorator -- Overlay, Translate, DraggableObject...), so we do delegate it...
+        # but wait, is code for this different if we're expr or instance? instance could go to _delegate, expr to delegate
+        if self._e_is_instance:
+            return self._delegate._e_model_type_you_make() ###e check self._delegate not None??
+        else:
+            assert is_pure_expr(self.delegate) # can this fail for glue-code-objs or helper-objs like the ones MT_try2 makes? ##k
+            return self.delegate._e_model_type_you_make()
+        pass
     pass
 
 # new unfinished code, not sure useful, commented out, goes with other such code from today related to _i_type [070206]
@@ -1214,6 +1255,27 @@ class ModelObject(DelegatingInstanceOrExpr): #070201 moved here from demo_drag.p
     #070203 for now, superclass provides a default delegate of None, since some subclasses have one (which will override that)
     # and some don't, and without this, the ones that don't have an assertfail when they ought to have an AttributeError.
     delegate = None
+    def _e_model_type_you_make(self): ###k 070215 very experimental
+        "#doc; overrides super version"
+        # but lots of specific DIorE don't delegate it...
+        # model obj DIorE don't [that's us], but graphical ones do. For now assume we know by whether it's subclass of ModelObj.
+        return InstanceOrExpr._e_model_type_you_make(self) # that implem has the right idea for us -- use classname
+    pass
+
+class WithModelType(DelegatingInstanceOrExpr): # 070215 experimental
+    "#doc better -- be like arg1, but with arg2 specifying the model type -- note, arg2 has to be accessed even when we're an expr"
+    delegate = Arg(InstanceOrExpr) #e first use of that as type -- ok in general? correct here?
+    arg_for_model_type = Arg(str) #e wrong Arg type? #e have an option to say this Arg works even on exprs???? (very dubious idea)
+    def _e_model_type_you_make(self): ###k 070215 very experimental
+            # note: this would not be delegated even if overridden, I think, due to _e_ -- not sure! ####k
+        if self._e_is_instance:
+            return self.arg_for_model_type
+        else:
+            type_expr = self._e_args[1] # kluge? btw did this go thru canon_expr? yes...
+            res = type_expr._e_constant_value ##k name ###e check for errors ##e use a helper function we have that does this (in If?)
+            assert type(res) == type("") or res is None ##e remove when works, if we extend legal kinds of model_types
+            return res
+        pass
     pass
 
 # ==
