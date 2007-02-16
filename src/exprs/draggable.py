@@ -79,7 +79,7 @@ debug070209 = False # turn on debug prints related to drags and clicks, and "cli
 
 ColorFunction = StubType
 
-class WarpColors(DelegatingInstanceOrExpr):###IMPLEM - also fix fix_color
+class WarpColors(DelegatingInstanceOrExpr):
     """#doc"""
     delegate = Arg(Widget) #e really Drawable or so
     warpfunc = Arg(ColorFunction) #e also might need hashable data specifying what it does, as an attr of it or another arg
@@ -92,7 +92,7 @@ class WarpColors(DelegatingInstanceOrExpr):###IMPLEM - also fix fix_color
         #  if there are, it would be much better & more efficient to use them --
         #  but other things will end up needing this scheme)
         glpane = self.env.glpane
-        old_warpfuncs = getattr(glpane, '_exprs__warpfuncs', None)
+        old_warpfuncs = getattr(glpane, '_exprs__warpfuncs', None) # note: attr also used in DisplistChunk and fix_color method
         glpane._exprs__warpfuncs = (self.warpfunc, old_warpfuncs) # temporary
             #e also modify a similar sequence of hashable func-effect data -- unless presence of any funcs turns off all displists
             # (we'll do that to start with, since simplest)
@@ -173,16 +173,18 @@ class DraggableObject(DelegatingInstanceOrExpr):
              ),
             motion
          ),
-        # hover-highlighted appearance
+        # hover-highlighted appearance (also used when dragging, below)
         Translate(
-            ###e include DisplistChunk here??
-            ###BUG: if obj has its own DisplistChunk, does that notice the value of whatever dynenv var is altered by WarpColors??
-            # we'll have to make it do so somehow -- perhaps by altering the displist name by that, or turning off displists due to it.
-            WarpColors( obj, lambda color: ave_colors( 0.3, white, color ) ),
+            ###e include DisplistChunk here?? Note: that might help make up for current implem of disabling them inside WarpColors!
+            # Note: if obj has its own DisplistChunk, does that notice the value of whatever dynenv var is altered by WarpColors??
+            # We'll have to make it do so somehow -- perhaps by altering the displist name by that, or turning off displists due to it.
+            # For this initial implem [070215 4pm], we did the latter.
+            WarpColors( obj, lambda color: ave_colors( 0.3, white, color ) ), # could also try "ignore color, return yellow"
             motion
          ),
-        _my.highlighted, # pressed_in appearance ###k will _my work?
+        _my.highlighted, # pressed_in appearance (seems to work)
         _my.highlighted, # pressed_out appearance
+            ###BUG: this pressed_out appearance seems to work for DNA cyls but not for draggable PalletteWell items! [070215 4pm]
         ## sbar_text = format_Expr( "Draggable %r", obj ),
             ##e should use %s on obj.name or obj.name_for_sbar, and add those attrs to ModelObject interface
             # (they would delegate through viewing wrappers on obj, if any, and get to the MT-visible name of the model object itself)
