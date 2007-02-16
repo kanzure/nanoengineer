@@ -203,8 +203,14 @@ class DraggableObject(DelegatingInstanceOrExpr):
             Translate( obj, motion)
          ),
         sbar_text = or_Expr(
-            call_Expr( getattr_Expr( obj, '_e_model_type_you_make' ) ), # 070215 -- I think this is always some class's name or some provided string
-            format_Expr( "Draggable %s", getattr_Expr( obj, 'name', format_Expr("%r", obj))) # (which if true means this never runs)
+            call_Expr( getattr_Expr( obj, '_e_model_type_you_make' ) ), ###WRONG, see below... (works tho)
+                # 070215 -- I think this is always some class's name or some provided string.
+                # BTW it's WRONG because the right sbar text would identity the individual object, not just the type!
+                # We need to grab a name (same as in model tree, cmenu, etc) and if that fails make one from type (maybe adding #n).
+                # (Maybe we want to then add some info about what we can do with it (drag, select, etc)...
+                #  maybe the dynenv wants to control how info of all kinds turns into actual sbar_text...)
+                ###FIX
+            format_Expr( "Draggable %s", getattr_Expr( obj, 'name', format_Expr("%r", obj))) # (this probably never runs anymore)
          ),
         on_press = _self.on_press,
         on_drag = _self.on_drag,
