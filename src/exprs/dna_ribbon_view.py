@@ -149,9 +149,6 @@ class B_Dna:
     TWIST_PER_BASE = -36 * pi / 180   # radians [this value is not used here since it differs from Paul's Origami values]
     BASE_SPACING = 3.391              # angstroms
 
-#e clean up these local abbreviations
-Macro = DelegatingInstanceOrExpr
-
 # stubs:
 Radians = Width
 Rotations = Degrees = Width
@@ -416,7 +413,8 @@ def get_pref(key, dflt = _NOT_PASSED): #e see also... some stateref-maker I forg
 def get_dna_pref(subkey, **kws): ###DESIGN FLAW: lack of central decl means no warning for misspelling one ref out of several
     return get_pref( dna_pref(subkey), **kws)
 
-class DNA_Cylinder(Macro): #070213 started revising this to store state in self (not cyl) and know about seam... not done, WONT RUN NOW
+class DNA_Cylinder(ModelObject): #070215 DIorE -> ModelObject (affects _e_model_type_you_make)
+    #070213 started revising this to store state in self (not cyl) and know about seam... [done i guess]
     """A guide object for creating a cylindrical double-helical or "duplex" domain of DNA (with fully stacked bases,
     but not usually with fully connected backbone -- that is, strands can enter and leave its two helices).
        [#e may be renamed to something mentioning duplex or double helix, especially once it no longer needs to remain straight]

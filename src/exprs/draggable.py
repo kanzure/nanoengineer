@@ -202,7 +202,10 @@ class DraggableObject(DelegatingInstanceOrExpr):
                 ####BUG: the layout attrs (lbox attrs, eg bleft) are apparently not delegated, so the box is small and mostly obscured
             Translate( obj, motion)
          ),
-        sbar_text = format_Expr( "Draggable %s", getattr_Expr( obj, 'name', format_Expr("%r", obj))),
+        sbar_text = or_Expr(
+            call_Expr( getattr_Expr( obj, '_e_model_type_you_make' ) ), # 070215 -- I think this is always some class's name or some provided string
+            format_Expr( "Draggable %s", getattr_Expr( obj, 'name', format_Expr("%r", obj))) # (which if true means this never runs)
+         ),
         on_press = _self.on_press,
         on_drag = _self.on_drag,
         on_release = _self.on_release,
