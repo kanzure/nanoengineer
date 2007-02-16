@@ -962,7 +962,22 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
         [#e Will we have to have variants of _GL for returning 3 tuples or 4 tuples as the color?]
         [#e Will we have to worry about material properties?]
         """
-        return color ### stub
+        #e first decode it and normalize it as needed
+        color_orig = color # for error messages
+        color = normalize_color(color)
+        warpfuncs = getattr(self.env.glpane, '_exprs__warpfuncs', None) #070215 new feature
+        while warpfuncs:
+            func, warpfuncs = warpfuncs
+            try:
+                color0 = '?' # for error message in case of exception
+                color0 = func(color) # don't alter color itself until we're sure we had no exception in this try clause
+                color = normalize_color(color0)
+            except:
+                print_compact_traceback("exception in %r.fix_color(%r) warping color %r with func %r (color0 = %r): " % \
+                                        ( self, color_orig, color, func, color0 ) )
+                pass
+            continue
+        return color
             ###e guess: it comes from the glpane as a method on it. the glpane is in our env.
             # self.env.glpane.fix_color
         ### fix_color is a method on self, I guess, or maybe on env (and env may either be self.env or an arg to this method -- guess, arg)

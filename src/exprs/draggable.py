@@ -49,7 +49,7 @@ It assumes its arg has move method, etc.
 """
 
 from basic import *
-from basic import _self
+from basic import _self, _my, _this, _app
 
 import Overlay
 reload_once(Overlay)
@@ -72,6 +72,38 @@ reload_once(Highlightable)
 from Highlightable import Highlightable, Button, print_Expr, _setup_UNKNOWN_SELOBJ
 
 debug070209 = False # turn on debug prints related to drags and clicks, and "click to permanently set selected" test-kluge
+
+# ==
+
+###e refile WarpColors etc
+
+ColorFunction = StubType
+
+class WarpColors(DelegatingInstanceOrExpr):###IMPLEM - also fix fix_color
+    """#doc"""
+    delegate = Arg(Widget) #e really Drawable or so
+    warpfunc = Arg(ColorFunction) #e also might need hashable data specifying what it does, as an attr of it or another arg
+    def draw(self):
+        #e temporarily push warpfunc onto the front of a sequence of functions in a composition
+        # which forms the glpane's overall color-warping function
+        # (front means first run by fix_color, when it turns specified colors into drawn colors)
+        # 
+        # (this assumes there are no GL state variables that do good-enough color-warping --
+        #  if there are, it would be much better & more efficient to use them --
+        #  but other things will end up needing this scheme)
+        glpane = self.env.glpane
+        old_warpfuncs = getattr(glpane, '_exprs__warpfuncs', None)
+        glpane._exprs__warpfuncs = (self.warpfunc, old_warpfuncs) # temporary
+            #e also modify a similar sequence of hashable func-effect data -- unless presence of any funcs turns off all displists
+            # (we'll do that to start with, since simplest)
+        try:
+            self.drawkid( self.delegate)
+        finally:
+            glpane._exprs__warpfuncs = old_warpfuncs
+        return
+    pass
+
+# ==
 
 class DraggableObject(DelegatingInstanceOrExpr):
     """DraggableObject(obj) is a wrapper which makes any model object draggable (###doc the details),
@@ -132,6 +164,7 @@ class DraggableObject(DelegatingInstanceOrExpr):
     
     # appearance
     delegate = Highlightable(
+        # plain appearance
         Translate(
             If( selected,
                 Overlay( obj, Rect(1,1,blue)), ##### WRONG LOOK for selected, but should work [070209]
@@ -140,6 +173,16 @@ class DraggableObject(DelegatingInstanceOrExpr):
              ),
             motion
          ),
+        # hover-highlighted appearance
+        Translate(
+            ###e include DisplistChunk here??
+            ###BUG: if obj has its own DisplistChunk, does that notice the value of whatever dynenv var is altered by WarpColors??
+            # we'll have to make it do so somehow -- perhaps by altering the displist name by that, or turning off displists due to it.
+            WarpColors( obj, lambda color: ave_colors( 0.3, white, color ) ),
+            motion
+         ),
+        _my.highlighted, # pressed_in appearance ###k will _my work?
+        _my.highlighted, # pressed_out appearance
         ## sbar_text = format_Expr( "Draggable %r", obj ),
             ##e should use %s on obj.name or obj.name_for_sbar, and add those attrs to ModelObject interface
             # (they would delegate through viewing wrappers on obj, if any, and get to the MT-visible name of the model object itself)

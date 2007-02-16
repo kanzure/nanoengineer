@@ -177,6 +177,19 @@ from constants import black, red, green, blue, purple, magenta, violet, yellow, 
     # ave_colors( 0.5, red, blue), or (0.5, 0.0, 0.5), or (0.7,0.0,0.7), or (0.6, 0.1, 0.9) == violet in constants.py
 from constants import aqua, darkgreen, navy, darkred, lightblue
 from constants import ave_colors
+    ###e what does this do to alpha? A: uses zip, which means, weight it if present in both colors, discard it otherwise.
+    ###k What *should* it do? Not that, but that is at least not going to cause "crashes" in non-alpha-using code.
+
+def normalize_color(color): #070215; might be too slow; so far only used by fix_color method
+    """Make sure color is a 4-tuple of floats. (Not a numeric array -- too likely to hit the == bug for those.)"""
+    if len(color) == 3:
+        r,g,b = color
+        a = 1.0
+    elif len(color) == 4:
+        r,g,b,a = color
+    else:
+        assert len(color) in (3,4)
+    return ( float(r), float(g), float(b), float(a)) # alpha will get discarded by ave_colors for now, but shouldn't crash [070215]
 
 #e define brown somewhere, and new funcs to lighten or darken a color
 

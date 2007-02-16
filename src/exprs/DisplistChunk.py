@@ -103,8 +103,8 @@ class DisplistChunk( DelegatingInstanceOrExpr, SelfUsageTrackingMixin, SubUsageT
     def _init_instance(self):
         self._key = id(self) # set attribute to use as dict key (could probably use display list name, but it's not allocated yet)
         self.glpane = self.env.glpane #e refile into superclass??
-        self.disabled = not hasattr(self.glpane, 'glGenLists')
-        if self.disabled:
+        self._disabled = not hasattr(self.glpane, 'glGenLists')
+        if self._disabled:
             # this should never happen after the merge of GLPane_overrider into GLPane done today [070110]
             print "bug: %r is disabled since its GLPane is missing required methods" % self
         return
@@ -116,8 +116,8 @@ class DisplistChunk( DelegatingInstanceOrExpr, SelfUsageTrackingMixin, SubUsageT
         #
         ### NOTE: usage tracking should turn up nothing -- we use nothing
         "allocate a new display list name (a 32-bit int) in our GL context"
-        if self.disabled:
-            printfyi("bug: why does .dislplist get requested in a disabled DisplistChunk??") # (i never saw this)
+        if self.displist_disabled(): # revised this cond (true more often), 070215
+            printfyi("bug: why does .displist get requested in a disabled DisplistChunk??") # (i never saw this)
             return 0
         
         self.glpane.makeCurrent() # not sure when this compute method might get called, so make sure our GL context is current
@@ -142,6 +142,12 @@ class DisplistChunk( DelegatingInstanceOrExpr, SelfUsageTrackingMixin, SubUsageT
         else:
             return "<%s(%s) at %#x>" % (self.__class__.__name__, _debug_print_name or "<no name>", id(self))
         pass
+
+    def displist_disabled(self): #070215 split this out, modified it to notice _exprs__warpfuncs
+        "Is the use of our displist (or of all displists) disabled at the moment?"
+        return self._disabled or \
+               debug_pref("disable DisplistChunk?", Choice_boolean_False, prefs_key = True) or \
+               getattr(self.env.glpane, '_exprs__warpfuncs', None) ###BUG: this will be too inefficient a response for nice dragging.
     
     def draw(self):
         """Basically, we draw by emitting glCallList, whether our caller is currently
@@ -179,7 +185,7 @@ class DisplistChunk( DelegatingInstanceOrExpr, SelfUsageTrackingMixin, SubUsageT
         
         _debug_print_name = self._debug_print_name
         
-        if self.disabled or debug_pref("disable DisplistChunk?", Choice_boolean_False, prefs_key = True):
+        if self.displist_disabled():
             self.drawkid( self.delegate) ## self.delegate.draw()
             # I hope it's ok that this has no explicit effect on usage tracking or inval propogation... I think so.
             # It's equivalent to wrapping the whole thing in an If on this cond, so it must be ok.
@@ -189,6 +195,21 @@ class DisplistChunk( DelegatingInstanceOrExpr, SelfUsageTrackingMixin, SubUsageT
             # make sure we have a display list allocated
             # (this calls the compute method to allocate one if necessary)
             # [probably not needed explicitly, but might as well get it over with at the beginning]
+            
+            ###e NOTE: if someday we keep more than one displist, compiled under different drawing conditions in dynenv
+            # (e.g. different effective values of glpane._exprs__warpfuncs),
+            # then some or all of our attrs need splitting by the case of which displist to use,
+            # and we also have to avoid usage-tracking the attrs that eval that case in the same way
+            # as those we use when compiling displists. (As if we're If(cond, displistchunk1, displistchunk2),
+            #  but also making sure nothing in displistchunk1 tracks those same attrs in a way we see as our own usage,
+            #  or if it does, making sure we don't subscribe inval of a displist to that, by adding new code
+            #  to end_tracking_usage to handle those usages specially, having known what they were by tracking cond, perhaps --
+            #  or by explicit description, in case cond also tracks other stuff which doesn't show up in its value.
+            #  Or another way, if the cond-value-attrs are special (e.g. glpane._exprs__warpfuncs),
+            #  is for them to not be natively usage-tracked, but only when we eval cond (not sure this is ok re outsider tracking
+            #  of them -- maybe better to track them except when we set a specialcase dynenv flag next to them,
+            #  which they notice to decide whether to track uses, which we set when inside the specific case for the cond-value.)
+            #  [070215]
 
         # are we being compiled into another display list?
         parent_dlist = self.glpane.compiling_displist_owned_by # note: a dlist owner or None, not a dlist name

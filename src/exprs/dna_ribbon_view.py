@@ -449,8 +449,60 @@ class DNA_Cylinder(Macro): #070213 started revising this to store state in self 
         # (Does this ever happen in Paul's UI stages? #k) [mentioned in 2/19 meeting agenda]
 
     n_bases = n_bases_left + n_bases_right # this determines length
+
+    ###e need options strand1_theta, strand2_theta -- one defaults to modified other, i guess... NOT SO SIMPLE --
+    # each one has to do that, but not be circular -- it's our first unavoidably needed ability
+    # to specify constrained dofs in more than one way. hmm.
+    #####DECIDE HOW
+    # idea, not sure if kluge: a circular spec would eval to None, and you could then say spec1 or spec2,
+    # so if spec1 was circular when evalled, you'd get spec2.
+    # - would it work in this case?
+    # - is it a kluge in general, or well-defined and safe and reasonable?
+    # - what if a legitimate value could be boolean-false? is a modified or_Expr ok? rather than None, use Circular (which is false)??
+    #
+    #   strand1_theta = Option( Degrees, FIRST_NON_CIRCULAR( _self.strand2_theta + offset, 0 ) )
+    #       # catches CircularDefinitionError (only if this lval is mentioned in the cycle?), tries the next choice
+    #
+    #   or -- strand1_theta = Option( Degrees, first_non_circular_choice_among = ( _self.strand2_theta + offset, 0 ) )
+    #
+    #   strand2_theta = Option( Degrees, _self.strand1_theta - offset ) # raises CircularDefinitionError (saying the cycle it found?)
+    #
+    # PROBLEM: I suspect the behavior depends on the order of eval of the defs, at least if cycles break in more than one place.
+    # PROBLEM: you have to manually create the proper inverse formulas -- nothing catches mistake if they're not inverses.
+    # PROBLEM: the above might work for initial sets (from being unset) --
+    #          but if they are State, what about how they respond to modification-sets?
+    #          this requires "set all at once" and know what to keep fixed; discussed elsewhere (where? corner situations??);
+    #          one way is "fix up inconsistencies later" (or on request); all ways require knowing the set of related variables.
+    # (In general, you have to be able to do that -- but for simple affine cases, system ought to do it for you.
+    #  So for these simple affine constraints, shouldn't we use a specialized mechanism instead?
+    #  like state aliases with ops in lvals...)
+    #
+    ##e then use them below to make path1 and path2
+    #
+    # here is an ad-hoc method for now:
     
-    center = State(Point, ORIGIN) ###e make these StateArgs... #e put them in the model_state layer
+    strand1_theta = Option( Degrees, None)
+    strand2_theta = Option( Degrees, None)
+
+    def _C_use_strand12_theta(self):
+        s1 = self.strand1_theta
+        s2 = self.strand2_theta
+        offset = 150 ### guess
+        if s1 is None and s2 is None:
+            s1 = 0 # not both undefined
+        if s1 is None:
+            s1 = s2 + offset
+        if s2 is None:
+            s2 = s1 - offset
+        s1 %= 360.0
+        s2 %= 360.0
+        return s1, s2
+    
+    use_strand1_theta = _self.use_strand12_theta[0] ### USE ME -- note, in degrees, not necessary limited to [0,360]
+    use_strand2_theta = _self.use_strand12_theta[1]
+    
+    
+    center = State(Point, ORIGIN) ###e make these StateArgs... #e put them in the model_state layer   #e rename to position??
 
     def move(self, motion): ###CALL ME
         self.center = self.center + motion
@@ -607,7 +659,7 @@ def dna_ribbon_view_toolcorner_expr_maker(world_holder): #070201 modified from d
         #  world would be _self.attr (symbolic) rather than an Instance.)
         ###BUG: Are there other cases throughout our code of debug prints asking for usage-tracked things, causing spurious invals??
     expr = SimpleColumn(
-        checkbox_pref( dna_pref('show central cyl'), "show central cyl?", dflt = False), # works now, didn't at first
+        checkbox_pref( dna_pref('show central cyl'), "show central cyl?", dflt = False),
         checkbox_pref( dna_pref('show phosphates'),   "show base sugars?",   dflt = False), #070213 phosphates -> sugars [###k]
             ###e if indeed those balls show sugars, with phosphates lying between them (and btwn cyls, in a crossover),
             # then I need to revise some other pref keys, varnames, optnames accordingly. [070213]
@@ -762,5 +814,77 @@ class World_dna_holder(InstanceMacro): #070201 modified from GraphDrawDemo_Fixed
         ######e more
         return
     pass # end of class World_dna_holder [a command-making object, I guess ###k]
+
+# ==
+
+#070214 stub/experiment on higher-level Origami objects
+
+##e refile into an Origami file, once the World_dna_holder can also be refiled
+
+class OrigamiDomain(DelegatingInstanceOrExpr):
+    """An OrigamiDomain is a guide object which organizes a geometrically coherent bunch of DNA guide objects
+    (with the kind of geometric organization depending on the specific subclass of OrigamiDomain),
+    in a way that facilitates their scaffolding/stapling as part of a DNA Origami design.
+       The prototypical kind of OrigamiDomain is an OrigamiGrid. Other kinds will include things like
+    polyhedral edge networks, single DNA duplex domains, and perhaps unstructured single strands.
+    """
+    pass
+
+OrigamiScaffoldedRegion = Stub
+
+class OrigamiGrid(OrigamiDomain): 
+    """An OrigamiGrid holds several pairs of DNA_Cylinders in a rasterlike pattern (perhaps with ragged edges and holes)
+    and provides operations and displays useful for designing raster-style DNA Origami in them.
+       An OrigamiGrid is one kind of OrigamiDomain.
+       Note that an OrigamiScaffoldedRegion can in general cover all or part of one or more OrigamiDomains,
+    even though it often covers exactly one OrigamiGrid.
+    """
+    def add_cyl_pair(self, cyl_pair, above = None, below = None):
+        """Add the given cyl_pair (or perhaps list of cyl_pairs? #e) into self, at the end or at the specified relative position.
+        Set both cyls' position appropriately (perhaps unless some option or cyl propert prevents that #e).
+        #k Not sure whether we'd reset other properties of the cyls appropriately if they were not yet set...
+        or even if they *can be* not yet set.
+        #obs cmt after this?:
+        #k Not sure if this is the bulk of the op for adding a new cyl created by self, or not -- probably not --
+        let's say this does minimal common denominator for "add a cyl", and other ops decide what those cyls should be like.
+        But this does have to renumber the existing cyls...
+        Q: should we force adding them in pairs, so this op doesn't need to change which kind of cyl (a or b in pairing scheme)
+        an existing cyl is? yes.
+        """
+        nim
+    def make_and_add_cyl_pair(self, cyl_options = {}, cyl_class = DNA_Cylinder): #e rename cyl_class -> cyl_expr??
+        """Make and add to self a new cyl pair (based on the given class or expr, and customization options),
+        at the end of self (or at a specified position within self #e),
+        and return the pair.
+        """
+        #### Q: at what point to cyl exprs get instantiated? and various indices chosen? note we should return Instances not exprs
+        ## cyl_expr = cyl_class(**cyl_options)
+            ### DESIGN FLAW: cyl_class(**cyl_options) would add args if there were no options given!
+            ###e to fix, use an explicit "expr-customize method", e.g.
+            # cyl_expr = cyl_class._e_customize(**cyl_options) # works with cyl_class = actual python class, or pure expr --
+            # not sure how to implem that (might need a special descriptor to act like either a class or instance method)
+            # or as initial kluge, make it require an instance... but that means, only pass an expr into here
+        cyl_expr = cyl_options and cyl_class(**cyl_options) or cyl_class
+        cyl1_expr = cyl_expr(strand1_theta = 180)
+            # change the options for how to align it at the seam: strand 1 at bottom
+            ###e Q: should we say pi, or 180?
+            # A: guess: 180 -- discuss with others, see what's said in the origami figures/literature, namot2, etc
+        cyl2_expr = cyl_expr(strand2_theta = 0) #e ditto: strand 2 at top
+
+        cyl1 = self.make_and_add_to_world(cyl1_expr) ###k guess
+            ##e need any options for this call? eg does index or type relate to self?? need to also add a relation, self to it?
+            #e and/or is that added implicitly by this call? (only if we rename the call to say "make child obj" or whatever it is)
+            #
+            # note: cyl1 starts out as a child node of self in MT, a child object for delete, etc,
+            # but it *can* be moved out of self and still exist in the model. Thus it really lives in the world
+            # (or model -- #e rename method? worry about which config or part?) more fundamentally than in self.
+        cyl2 = ditto
+        
+        pair = (cyl1, cyl2) #e does it need its own cyl-pair object wrapper, being a conceptual unit of some sort? guess: yes, someday
+        self.add_cyl_pair(self, pair)
+            # that sets cyl posns (and corrects existing posns if needed)
+            # and (implicitly due to recomputes) modifies summary objects (grid drawing, potential crossover perceptors) as needed
+        return pair
+    pass # end of class OrigamiGrid
 
 # end
