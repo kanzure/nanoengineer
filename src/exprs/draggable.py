@@ -71,6 +71,14 @@ import Highlightable
 reload_once(Highlightable)
 from Highlightable import Highlightable, Button, print_Expr, _setup_UNKNOWN_SELOBJ
 
+import DisplistChunk # works 070103, with important caveats re Highlightable (see module docstring)
+reload_once(DisplistChunk)
+from DisplistChunk import DisplistChunk
+
+import demo_MT
+reload_once(demo_MT)
+from demo_MT import node_name #e really this belongs in a file which defines ModelTreeNodeInterface
+
 debug070209 = False # turn on debug prints related to drags and clicks, and "click to permanently set selected" test-kluge
 
 # ==
@@ -163,6 +171,18 @@ class DraggableObject(DelegatingInstanceOrExpr):
         # and Translate does the coordinate transformation? ###e
     
     # appearance
+
+    obj_name = call_Expr( node_name, obj) #070216
+        # Note: node_name is used in MT_try2; it's better than using _e_model_type_you_make (in sbar_text, below).
+        # BTW, node_name is a helper function associated with ModelTreeNodeInterface (informal so far).
+
+        # (Note [070216]: I had a bug when I had a comma after the above def. This made obj_name, included directly in another expr,
+        #  turn into a singleton tuple of the call_Expr value, but when included as _self.obj_name (normally equivalent to obj_name),
+        #  turn into something else (since eval of a tuple must not descend inside it -- guess, might have been a tuple_Expr).
+        #  I'm not sure how to detect this error except to stop permitting tuple(expr) to be allowed as abbrev for a tuple_Expr --
+        #  which seems too inconvenient -- or to figure out a way for the formula scanner to detect it (and make it illegal as the
+        #  rhs of an assignment into a class namespace -- probably ok to make illegal). ##DOIT sometime)
+    
     delegate = Highlightable(
         # plain appearance
         Translate(
@@ -175,11 +195,20 @@ class DraggableObject(DelegatingInstanceOrExpr):
          ),
         # hover-highlighted appearance (also used when dragging, below)
         Translate(
-            ###e include DisplistChunk here?? Note: that might help make up for current implem of disabling them inside WarpColors!
-            # Note: if obj has its own DisplistChunk, does that notice the value of whatever dynenv var is altered by WarpColors??
-            # We'll have to make it do so somehow -- perhaps by altering the displist name by that, or turning off displists due to it.
-            # For this initial implem [070215 4pm], we did the latter.
-            WarpColors( obj, lambda color: ave_colors( 0.3, white, color ) ), # could also try "ignore color, return yellow"
+            DisplistChunk(
+                # This inner DisplistChunk, in theory, might help make up for current implem of disabling them inside WarpColors...
+                # in my tests, it didn't make a noticeable difference (probably since obj is fast to draw). [070216 2pm]
+                #
+                # Note: if obj has its own DisplistChunk, does that notice the value of whatever dynenv var is altered by WarpColors??
+                # We'll have to make it do so somehow -- perhaps by altering the displist name by that, or turning off displists due to it.
+                # For this initial implem [070215 4pm], we did the latter.
+
+                ## WarpColors( obj, lambda color: ave_colors( 0.3, white, color ) ), # whiten the color -- ugly
+                ## WarpColors( obj, lambda color: yellow ), # "ignore color, use yellow" -- even uglier
+                ## WarpColors( obj, lambda color: ave_colors( 0.2, white, color ) ), # whiten, but not as much -- less ugly
+                WarpColors( obj, lambda color: ave_colors( 0.1, white, color ) ), # whiten, even less -- even less ugly [best so far]
+                ## WarpColors( obj, lambda color: ave_colors( 0.2, gray, color ) ), # gray-end instead of whiten -- not quite as good
+            ),
             motion
          ),
         _my.highlighted, # pressed_in appearance (seems to work)
@@ -202,16 +231,13 @@ class DraggableObject(DelegatingInstanceOrExpr):
                 ####BUG: the layout attrs (lbox attrs, eg bleft) are apparently not delegated, so the box is small and mostly obscured
             Translate( obj, motion)
          ),
-        sbar_text = or_Expr(
-            call_Expr( getattr_Expr( obj, '_e_model_type_you_make' ) ), ###WRONG, see below... (works tho)
-                # 070215 -- I think this is always some class's name or some provided string.
-                # BTW it's WRONG because the right sbar text would identity the individual object, not just the type!
-                # We need to grab a name (same as in model tree, cmenu, etc) and if that fails make one from type (maybe adding #n).
-                # (Maybe we want to then add some info about what we can do with it (drag, select, etc)...
-                #  maybe the dynenv wants to control how info of all kinds turns into actual sbar_text...)
-                ###FIX
-            format_Expr( "Draggable %s", getattr_Expr( obj, 'name', format_Expr("%r", obj))) # (this probably never runs anymore)
-         ),
+        ## _obj_name = call_Expr(node_name, obj), #070216
+            # that can't work yet -- it tries to define a new attr in an object (this Highlightable) from outside,
+            # accessible in other option formulae as _this(Highlightable)._obj_name...
+            # instead, I moved this def into _self (far above) for now.
+        sbar_text = format_Expr( "%s (can be dragged)", obj_name ), # revised 070216
+            # This adds some info to sbar_text about what we can do with obj (drag, select, etc)...
+            #e someday, maybe the dynenv wants to control how info of several kinds turns into actual sbar_text.
         on_press = _self.on_press,
         on_drag = _self.on_drag,
         on_release = _self.on_release,
