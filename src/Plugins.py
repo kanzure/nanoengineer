@@ -15,6 +15,7 @@ import os
 import sys
 import types
 import xml.dom.minidom
+import EpydocTest
 
 # This is just a convenience function to see what's in the
 # metadata file, and how to navigate it.
@@ -107,11 +108,12 @@ class Plugin:
 _plugindir = '../plugins/'
 _plugins = [ ]
 
-for d in os.listdir(_plugindir):
-    if d != 'CVS':
-        path = os.path.join(_plugindir, d)
-        if os.path.isdir(path):
-            p = Plugin(path)
-            _plugins.append(p)
-            p.makeClean()
-            p.make()
+if (not EpydocTest.documenting()):
+    for d in os.listdir(_plugindir):
+        if d != 'CVS':
+            path = os.path.join(_plugindir, d)
+            if os.path.isdir(path):
+                p = Plugin(path)
+                _plugins.append(p)
+                p.makeClean()
+                p.make()

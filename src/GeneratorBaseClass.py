@@ -15,6 +15,7 @@ from chem import gensym
 from Sponsors import SponsorableMixin
 from HistoryWidget import redmsg, orangemsg, greenmsg
 from debug import print_compact_traceback
+import EpydocTest
 
 _up_arrow_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d\x49\x48\x44\x52" \
@@ -70,10 +71,14 @@ class GroupButtonMixin:
     (Current implementation uses open/close icons which look good on Linux and
      Windows but don't look good on the Mac.)
     """
-    _up_arrow = QPixmap()
-    _up_arrow.loadFromData(_up_arrow_data)
-    _down_arrow = QPixmap()
-    _down_arrow.loadFromData(_down_arrow_data)
+    if (EpydocTest.documenting()):
+        _up_arrow = "QPixmap()"
+        _down_arrow = "QPixmap()"
+    else:
+        _up_arrow = QPixmap()
+        _up_arrow.loadFromData(_up_arrow_data)
+        _down_arrow = QPixmap()
+        _down_arrow.loadFromData(_down_arrow_data)
 
     def toggle_groupbox(self, button, *things):
         """This is intended to be part of the slot method for clicking on an open/close icon

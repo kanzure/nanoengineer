@@ -405,4 +405,4 @@ if __name__=='__main__':
   w.resize(400,350)
   w.show()
   w.setCaption('box')
-  app.exec_loop()        
+  app.exec_loop()

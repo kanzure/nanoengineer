@@ -155,6 +155,8 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
         # and widget_env is also given a correct __eq__ [###NIM, means lexenv_Exprs will rarely compare equal when they should].
         if self is other:
             return True
+        if (not hasattr(other, '__class__')):
+            return False # without this test, epydoc fails with: AttributeError: class SyntaxError has no attribute '__class__'
         if self.__class__.__name__ != other.__class__.__name__:
             return False #e this might change someday when comparing proxies -- see comment below
         if self.__class__ is not other.__class__:

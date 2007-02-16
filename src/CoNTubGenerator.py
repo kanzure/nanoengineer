@@ -32,6 +32,7 @@ from GeneratorBaseClass import UserError, PluginBug, CadBug
 from debug import print_compact_traceback, objectBrowse
 import os, sys, time
 from platform import find_or_make_any_directory, tempfiles_dir, find_plugin_dir
+import EpydocTest
 
 debug_install = False
 
@@ -630,6 +631,7 @@ class HeterojunctionGenerator(PluginlikeGenerator):
     
     pass # end of class HeterojunctionGenerator
 
-PluginlikeGenerator.register(HeterojunctionGenerator)
+if (not EpydocTest.documenting()):
+    PluginlikeGenerator.register(HeterojunctionGenerator)
 
 # end

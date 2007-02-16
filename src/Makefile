@@ -58,6 +58,8 @@ PYFILES0 = $(UIFILES:.ui=.py)
 
 ##PYFILES = $(filter-out $(MANUAL_EDITED_FILES), $(PYFILES0))
 
+DOC_MODULES = $(wildcard *.py) exprs/
+
 # bruce 051202 added this target
 all : 
 	echo "Nothing is remade by default -- use one of the explicit make targets."
@@ -71,6 +73,9 @@ pyx: extensions
 build : $(PYFILES0) 
 $(PYFILES0) : %.py : %.ui
 	pyuic $< -o $@ 
+
+doc:
+	epydoc $(DOC_MODULES)
 
 pyclean:
 	rm -f $(PYFILES0) *.pyc *~
