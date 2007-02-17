@@ -79,7 +79,7 @@ import demo_MT
 reload_once(demo_MT)
 from demo_MT import node_name #e really this belongs in a file which defines ModelTreeNodeInterface
 
-debug070209 = False # turn on debug prints related to drags and clicks, and "click to permanently set selected" test-kluge
+debug070209 = True # turn on debug prints related to drags and clicks, and "click to permanently set selected" test-kluge
 
 # ==
 
@@ -182,15 +182,19 @@ class DraggableObject(DelegatingInstanceOrExpr):
         #  I'm not sure how to detect this error except to stop permitting tuple(expr) to be allowed as abbrev for a tuple_Expr --
         #  which seems too inconvenient -- or to figure out a way for the formula scanner to detect it (and make it illegal as the
         #  rhs of an assignment into a class namespace -- probably ok to make illegal). ##DOIT sometime)
-    
+
+    obj_drawn = If( selected,
+                    Overlay( obj, Rect(1,1,blue)), ##### WRONG LOOK for selected, but should work [070209]
+                          #BUG: Rect(1,lightblue) is gray, not light blue -- oh, it's that failure to use type to guess which arg it is!
+                    obj
+                 )
+
+    sbar_text_for_maybe_selected = If( selected, " (selected)", "")
+
     delegate = Highlightable(
         # plain appearance
         Translate(
-            If( selected,
-                Overlay( obj, Rect(1,1,blue)), ##### WRONG LOOK for selected, but should work [070209]
-                          #BUG: Rect(1,lightblue) is gray, not light blue -- oh, it's that failure to use type to guess which arg it is!
-                obj
-             ),
+            obj_drawn,
             motion
          ),
         # hover-highlighted appearance (also used when dragging, below)
@@ -203,15 +207,16 @@ class DraggableObject(DelegatingInstanceOrExpr):
                 # We'll have to make it do so somehow -- perhaps by altering the displist name by that, or turning off displists due to it.
                 # For this initial implem [070215 4pm], we did the latter.
 
-                ## WarpColors( obj, lambda color: ave_colors( 0.3, white, color ) ), # whiten the color -- ugly
-                ## WarpColors( obj, lambda color: yellow ), # "ignore color, use yellow" -- even uglier
-                ## WarpColors( obj, lambda color: ave_colors( 0.2, white, color ) ), # whiten, but not as much -- less ugly
-                WarpColors( obj, lambda color: ave_colors( 0.1, white, color ) ), # whiten, even less -- even less ugly [best so far]
-                ## WarpColors( obj, lambda color: ave_colors( 0.2, gray, color ) ), # gray-end instead of whiten -- not quite as good
+                ## WarpColors( obj_drawn, lambda color: ave_colors( 0.3, white, color ) ), # whiten the color -- ugly
+                ## WarpColors( obj_drawn, lambda color: yellow ), # "ignore color, use yellow" -- even uglier
+                ## WarpColors( obj_drawn, lambda color: ave_colors( 0.2, white, color ) ), # whiten, but not as much -- less ugly
+                WarpColors( obj_drawn, lambda color: ave_colors( 0.1, white, color ) ), # whiten, even less -- even less ugly [best so far]
+                ## WarpColors( obj_drawn, lambda color: ave_colors( 0.2, gray, color ) ), # gray-end instead of whiten -- not quite as good
+                ## WarpColors( obj_drawn, lambda color: (color[1],color[2],color[0]) ), # permute the hues...
             ),
             motion
          ),
-        _my.highlighted, # pressed_in appearance (seems to work)
+        _my.highlighted, # pressed_in appearance
         _my.highlighted, # pressed_out appearance
             ###BUG: this pressed_out appearance seems to work for DNA cyls but not for draggable PalletteWell items! [070215 4pm]
         ## sbar_text = format_Expr( "Draggable %r", obj ),
@@ -221,21 +226,23 @@ class DraggableObject(DelegatingInstanceOrExpr):
             # But that doesn't seem safe unless you have to list the permissible exceptions (like in Python try/except).
             # The use of this here (temporary) would be to look for obj.name, then try a different format_Expr if that fails.
             # getattr(obj, 'name', dflt) would get us by, but would not as easily permit alternate format_Exprs in the two cases.]
-        If( eval_Expr(constant_Expr(constant_Expr(debug070209))), ###e need option or variant of If to turn off warning that cond is a constant: warn_if_constant = False??
-                # also make the printed warning give a clue who we are -- even if we have to pass an option with the text of the clue??
-            Translate( Boxed(obj), motion),
-                #######070209 TEST THIS KLUGE -- note it does not include selected appearance
-                    # (but HL might incl it anyway? sometimes yes sometimes no, not sure why that would be -- ah, it depends on whether
-                    # mouse is over the moved object (which is silly but i recall it as happening in regular ne1 too -- ###BUG)
-                #e not good highlight form
-                ####BUG: the layout attrs (lbox attrs, eg bleft) are apparently not delegated, so the box is small and mostly obscured
-            Translate( obj, motion)
-         ),
+##        # older highlighted or pressed_in appearance (not sure which it was before I inserted the args above this) -- zapping it 070216 late
+##        If( eval_Expr(constant_Expr(constant_Expr(debug070209))),
+##                ###e need option or variant of If to turn off warning that cond is a constant: warn_if_constant = False??
+##                # also make the printed warning give a clue who we are -- even if we have to pass an option with the text of the clue??
+##            Translate( Boxed(obj), motion),
+##                #######070209 TEST THIS KLUGE -- note it does not include selected appearance
+##                    # (but HL might incl it anyway? sometimes yes sometimes no, not sure why that would be -- ah, it depends on whether
+##                    # mouse is over the moved object (which is silly but i recall it as happening in regular ne1 too -- ###BUG)
+##                #e not good highlight form
+##                ####BUG: the layout attrs (lbox attrs, eg bleft) are apparently not delegated, so the box is small and mostly obscured
+##            Translate( obj, motion)
+##         ),
         ## _obj_name = call_Expr(node_name, obj), #070216
             # that can't work yet -- it tries to define a new attr in an object (this Highlightable) from outside,
             # accessible in other option formulae as _this(Highlightable)._obj_name...
             # instead, I moved this def into _self (far above) for now.
-        sbar_text = format_Expr( "%s (can be dragged)", obj_name ), # revised 070216
+        sbar_text = format_Expr( "%s%s (can be dragged)", obj_name, sbar_text_for_maybe_selected ), # revised 070216
             # This adds some info to sbar_text about what we can do with obj (drag, select, etc)...
             #e someday, maybe the dynenv wants to control how info of several kinds turns into actual sbar_text.
         on_press = _self.on_press,
@@ -248,22 +255,12 @@ class DraggableObject(DelegatingInstanceOrExpr):
         # and let the caller supply the binding to our internal "cmd" drag_from_to?? ###e
 
     # has Draggable interface (see demo_polygon.py for explan) for changing self.motion
-    
-##    def _init_instance(self):
-##        self.motion = V(0,0,0) # we own this and modify it in place
-##            ###BUG: this implem would lose the dragpos whenever main inst is remade. Need to use State.
-##        return
-    
+        
     def _cmd_drag_from_to( self, p1, p2):
-##        self.motion += (p2 - p1)
         self.motion = self.motion + (p2 - p1)
         return
     
     ##e something to start & end the drag? that could include flush if desired...
-
-    ##e something to highlight the obj, and say it can be moved in sbar or tooltip?
-    # Guess: no -- in future, it can also be selected... so probably best to leave
-    # highlighting/sbar entirely to caller, who combines Draggable with other features.
 
     # can push changes into the object
     
@@ -294,8 +291,8 @@ class DraggableObject(DelegatingInstanceOrExpr):
         point = self.current_event_mousepoint(plane = self.startpoint)
         if debug070209:
             self.ndrags += 1
-            if (self.ndrags == 1) or 1:
-                print "drag event %d, model distance = %r, pixel dist not computed" % (self.ndrags, vlen(oldpoint - point),)
+##            if (self.ndrags == 1) or 1:
+##                print "drag event %d, model distance = %r, pixel dist not computed" % (self.ndrags, vlen(oldpoint - point),)
         self._cmd_drag_from_to( oldpoint, point) # use Draggable interface cmd
         self.oldpoint = point
         self.KLUGE_gl_update() ###k needed? i hope not, but i'm not sure; guess: NO (provided self.motion is change/usage tracked)
@@ -305,10 +302,10 @@ class DraggableObject(DelegatingInstanceOrExpr):
         # if we are generalized to become the wrapper which handles that too.
         if debug070209:
             if not self.ndrags:
-                print "release (no drags)" # ie a click
-                self.selected = True ###KLUGE test stub
+                # print "release (no drags)" # ie a click
+                self.selected = not self.selected ###KLUGE test stub
             else:
-                print "release after %d drags" % self.ndrags
+                pass # print "release after %d drags" % self.ndrags
             self.ndrags = 0
         pass
     pass # end of class DraggableObject

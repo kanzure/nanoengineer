@@ -307,11 +307,31 @@ def mt_node_id(node): # 070207; the name 'node_id' itself conflicts with a funct
     assert not is_expr_Instance(node), "what node is this? %r" % (node,) # most to the point
     assert not is_Expr(node) # stronger, and also should be true
     
-     # look for legacy Node property
+    # look for legacy Node property
     from Utility import node_id
     res = node_id(node) # not sure what to do if this fails -- let it be an error for now -- consider using id(node) if we need to
     return res
 
+def mt_node_selected(node): #070216 experiment
+    "#doc"
+    # look for value of ModelTreeNodeInterface attr (note: lots of objs don't have this; it's also #WRONG(?), should ask the env)
+    try:
+        node.selected
+    except AttributeError:
+        pass
+    else:
+        return node.selected
+
+    # look for legacy Node property
+    try:
+        node.picked
+    except AttributeError:
+        pass
+    else:
+        return node.picked
+
+    return False
+    
 # ===
 
 # 070213 comment: making new objects and adding them to the world (in e.g. dna_ribbon_view.py) seems to take time
@@ -495,12 +515,18 @@ class _MT_try2_node_helper(DelegatingInstanceOrExpr):
         # ### TRY IT SOMETIME -- for now, cross-highlighting experiment is disabled.
         pointer_to_obj = None
 
-    ###STUB for the type_icon
+    # selection indications can use this
+    node_is_selected = call_Expr( mt_node_selected, node)
+    kluge_icon_color = If( node_is_selected, blue, green)
+    sbar_format_for_name = If( node_is_selected, "%s (selected)", "%s")
+    
+    ###STUB for the type_icon ##e the Highlightable would be useful on the label too
     icon = Highlightable(
-        Rect(0.4, 0.4, green), ##stub; btw, would be easy to make color show hiddenness or type, bfr real icons work
-        Overlay( Rect(0.4, 0.4, yellow),
+        Rect(0.4, 0.4, kluge_icon_color), ##stub; btw, would be easy to make color show hiddenness or type, bfr real icons work
+        Overlay( Rect(0.4, 0.4, ave_colors(0.1, white, kluge_icon_color)),
+                 #070216 mix white into the color like DraggableObject does
                  pointer_to_obj ),
-        sbar_text = call_Expr(node_name, node)
+        sbar_text = format_Expr( sbar_format_for_name, call_Expr(node_name, node) )
      )
     
     ##e selection behavior too
