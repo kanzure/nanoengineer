@@ -414,7 +414,9 @@ def get_dna_pref(subkey, **kws): ###DESIGN FLAW: lack of central decl means no w
     return get_pref( dna_pref(subkey), **kws)
 
 class DNA_Cylinder(ModelObject): #070215 DIorE -> ModelObject (affects _e_model_type_you_make)
-    #070213 started revising this to store state in self (not cyl) and know about seam... [done i guess]
+    #070213 started revising this to store state in self (not cyl) and know about seam...
+    # [done? I guess yes, but a newer thing is not -- the strand1_theta stuff (needed for origami grid support),
+    #  while partly done, is not yet used for real (tho maybe called) and not fully implem in this class either. #####e ]
     """A guide object for creating a cylindrical double-helical or "duplex" domain of DNA (with fully stacked bases,
     but not usually with fully connected backbone -- that is, strands can enter and leave its two helices).
        [#e may be renamed to something mentioning duplex or double helix, especially once it no longer needs to remain straight]
