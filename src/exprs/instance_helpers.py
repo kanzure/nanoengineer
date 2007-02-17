@@ -1262,7 +1262,7 @@ class ModelObject(DelegatingInstanceOrExpr): #070201 moved here from demo_drag.p
         return InstanceOrExpr._e_model_type_you_make(self) # that implem has the right idea for us -- use classname
     pass
 
-class WithModelType(DelegatingInstanceOrExpr): # 070215 experimental
+class WithModelType(DelegatingInstanceOrExpr): # 070215 experimental, ###UNTESTED (except for not damaging delegate when instantiated)
     "#doc better -- be like arg1, but with arg2 specifying the model type -- note, arg2 has to be accessed even when we're an expr"
     delegate = Arg(InstanceOrExpr) #e first use of that as type -- ok in general? correct here?
     arg_for_model_type = Arg(str) #e wrong Arg type? #e have an option to say this Arg works even on exprs???? (very dubious idea)
@@ -1276,6 +1276,21 @@ class WithModelType(DelegatingInstanceOrExpr): # 070215 experimental
             assert type(res) == type("") or res is None ##e remove when works, if we extend legal kinds of model_types
             return res
         pass
+    pass
+
+class WithAttributes(DelegatingInstanceOrExpr): # 070216 experimental, STUB
+    "#doc better -- be like arg1, but with options specifying attrs you have (like customizations, but with new Option decls too)"
+    delegate = Arg(InstanceOrExpr)
+    def _init_instance(self):
+        for k, v in self._e_kws.items():
+            # we hope v is a constant_Expr
+            ok, vv = expr_constant_value(v)
+            assert ok, "WithAttributes only supports constant attribute values for now, not exprs like in %s = %r" % (k,v,)
+            #e to support exprs, set up the same thing as if our class had k = Option(Anything) and v got passed in (as it did)
+            # (note, vv is the eval of v, so we could just eval v here -- but need to wrap it in proper env...
+            #  sometime see how much of needed work _i_grabarg already does for us -- maybe it's not hard to unstub this. ##e)
+            setattr(self, k, vv)
+        return
     pass
 
 # ==

@@ -668,16 +668,25 @@ def dna_ribbon_view_toolcorner_expr_maker(world_holder): #070201 modified from d
         ActionButton( world_holder._cmd_Make_some_rects, "button: make rects over cyls"),
         ActionButton( world_holder._cmd_Make_red_dot, "button: make red dot"),
         SimpleRow(
-            PalletteWell( Center(Rect(0.4, 0.4, green)),
-                          # this variant fails due to no attr bleft on Cylinder (tho the exception is incomprehensible ###FIX):
+            PalletteWell( ## Center(Rect(0.4, 0.4, green))(mt_name = "green rect"),
+                              # customization of mt_name has no effect (since no Option decl for mt_name inside) -- need WithAttributes
+                          WithAttributes( Center(Rect(0.4, 0.4, green)), mt_name = "green rect #n" ),
+                          world = world,
+                          type = "green rect"
+                              # design flaw: type is needed in spite of WithAttributes mt_name, since that only affects Instances --
+                              # and anyway, this is a type name, not an individual name. For replacing this we'd want WithModelType
+                              # and I guess we want a combined thing that does both, also filling in the #n with an instance number.
+                        ),
+            PalletteWell( WithAttributes(
+                              Overlay(Center(Spacer(0.6)),
+                                      Cylinder((ORIGIN, ORIGIN+DZ*0.01), capped = True, radius = 0.3, color = yellow)),
+                              mt_name = "yellow circle #n"
+                           ),
+                          # first try at that failed, due to no attr bleft on Cylinder (tho the exception is incomprehensible ###FIX):
                           ## Cylinder((ORIGIN, ORIGIN+DZ*0.01), capped = True, radius = 0.3, color = green), # a green dot
                           world = world,
-                          type = "green rect" ),
-            PalletteWell( Overlay(Center(Spacer(0.6)), Cylinder((ORIGIN, ORIGIN+DZ*0.01), capped = True, radius = 0.3, color = yellow)),
-                          # see if this works better -- it does!
-                          world = world,
                           type = "yellow circle" ),
-            PalletteWell( Center(Rect(0.4, 0.4, blue)),
+            PalletteWell( WithAttributes( Center(Rect(0.4, 0.4, blue)), mt_name = "blue rect #n"),
                           world = world,
                           type = "blue rect" ),
          ),
