@@ -686,9 +686,9 @@ def dna_ribbon_view_toolcorner_expr_maker(world_holder): #070201 modified from d
                           ## Cylinder((ORIGIN, ORIGIN+DZ*0.01), capped = True, radius = 0.3, color = green), # a green dot
                           world = world,
                           type = "yellow circle" ),
-            PalletteWell( WithAttributes( Center(Rect(0.4, 0.4, blue)), mt_name = "blue rect #n"),
+            PalletteWell( WithAttributes( Sphere(0.2, blue), mt_name = "blue sphere #n"),
                           world = world,
-                          type = "blue rect" ),
+                          type = "blue sphere" ),
          ),
         If( getattr_Expr( world, '_cmd_Clear_nontrivial'),
             ActionButton( world._cmd_Clear, "button: clear"),
