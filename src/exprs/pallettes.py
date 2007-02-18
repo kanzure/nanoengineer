@@ -80,8 +80,17 @@ class PalletteWell(DelegatingInstanceOrExpr):
             ###KLUGE: use ORIGIN (which we know) in place of center of view (which we don't) -- only correct when no trackballing
         self._newobj.motion = point_in_newobj_coords
             ###KLUGE since it centers new obj on mouse, even if mousedown was not centered on sample obj
-            ###BUG (untested): I bet the point would be wrong in perspective view, unless we first corrected the depth plane,
+            ###BUG (confirmed): I bet the point would be wrong in perspective view, unless we first corrected the depth plane,
             # then reasked for point.
+        # trying that 070217 -- But how to fix? To correct the plane, we need to flush the DraggableObject in self._newobj, at least,
+        # before current_event_mousepoint is likely to use correct coords (actually I'm not sure -- ###TEST)
+        # but we can't since not all objects define .move (need to ###FIX sometime).
+        ## self._newobj.flush()
+        # so try this even though it might not work:
+        point_in_newobj_coords_2 = self._newobj.current_event_mousepoint(plane = ORIGIN)
+        ### but now, what do we do with this point???
+        # print "debug note: compare these points:",point_in_newobj_coords, point_in_newobj_coords_2 # result: identical coords.
+        # so it doesn't work and doesn't even make sense yet... i probably can't proceed until the logic bug above is fixed.
             # There's also the issue of different object size on-screen if it's shown at a different depth.
             # (Unless that could help us somehow, in showing the depth? doubtful.)
             ### UI DESIGN FLAWS: the new obj is obscured, and there is no visual indication you "grabbed it", tho you did.
