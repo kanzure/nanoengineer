@@ -4,7 +4,7 @@ rendering.py -- rendering loop control, etc
 $Id$
 """
 
-    iore drawkid def should be:
+    IorE drawkid def should be sort of like:
         
     def drawkid(self, kid):
         warpfuncs = getattr(self.env.glpane, '_exprs__drawkid_funcs', None) #070218 or so new feature
@@ -21,16 +21,29 @@ $Id$
             continue
         return color
 
-class _drawkid_oldfunc: # use ths to replace g,pane drawkid func used by iore drawkid ###
+    and is now:
+
+    def drawkid(self, kid): # note: supersedes nim _e_decorate_draw [070210]
+        #e plans: protect from exceptions, debug_pref for no-coord-change enforcement (for testing),
+        # and most importantly, make possible a drawing pass which draws only a specified subset of drawables
+        # but in their coord- or glstate- transforming containers, e.g. for a highlight-drawing pass.
+        if kid is not None:
+            kid.draw()
+        return
+
+
+class _drawkid_oldfunc: # use this to replace glpane drawkid func called inside IorE drawkid ###implem
     "One of these becomes the temporary drawkid func ... " # other code is WRONG, oldfunc(parent, kid) is what we need to be able to call
     def __init__(self, drawkid_contrib_func, oldfunc):
-        self.drawkid_contrib_func = drawkid_contrib_func
-        self.oldfunc = oldfunc
-    def parent_drawkid(self, parent, kid):
-        "# when we're active, a bound method made from this is what gets called in place of usual drawkid (in oldfunc)"
+        self.drawkid_contrib_func = drawkid_contrib_func # public for set? if not, need a set method too
+        self.oldfunc = oldfunc or noop # oldfunc might be None
+    def parent_draw_kid(self, parent, kid):
+        "when self is active in dynenv, a bound method made from this method is what gets called in place of (or by?) usual drawkid (in oldfunc)"
         func = self.drawkid_contrib_func # what someone contributed... #doc better
         oldfunc = self.oldfunc
         func(oldfunc, parent, kid)
+    def set_drawkid_contrib_func(self, func): # (a rare case where I think a set method is better (clearer) than a public settable attr)
+        self.drawkid_contrib_func = func
     pass
 
 class SelectiveRedrawer(InstanceOrExpr): #070217 to make highlighting work in displists, someday [replaces "draw decorators"]
@@ -40,31 +53,46 @@ class SelectiveRedrawer(InstanceOrExpr): #070217 to make highlighting work in di
         self._parents_lists = {} # maps obj (drawn during us) to list of all its draw-parents (highest possible parent being self)
         self._later = {} # maps obj to list of funcs to call later in same GL state & coords as used to draw obj
         #e put self in dynenv if needed, to permit registration of selective redraw or point-finding (x,y,depth)
-            #### QUESTION: (when is that done? for make of delegate?)
-        #e begin having drawkid track parents in us (as well as in whatever objs it did before, in glpane linked list like for fix_color)
-            ### WAIT, what about displists it calls? they'll need to have tracked parents ahead of time, i think... ####e
-        self.drawkid(self.delegate)
-        #e end
-        # some of those kids/grandkids also entered things into our list of things needing redraw
-        # figure out transclose of parents of things we need to redraw (or run code in their coords anyway -- redraw in modified way)
-        objdict = dict([(obj,obj) for obj in self._later])
-        junk, self._proper_parents = self._transclose_parents(objdict)
-        #e begin modifying drawkid to filter... the method of mod is really to wrap it with our own code...
-        self.drawkid(self.delegate)
-        #e end
-        # and repeat, if we have more than one redraw-pass
+            #### QUESTION: (when is that done? for make of delegate?? or right now, in glpane? (if so, restore prior, or reg with all???)
+        # begin having drawkid track parents in us
+        # (as well as in whatever objs it did before, in glpane linked list like for fix_color)
+            ###### WAIT, what about displists it calls? they'll need to have tracked parents ahead of time, i think... ####e
+        glpane = self.env.glpane
+        oldfunc = getattr(glpane, '_exprs__whatever', None) #e rename attr
+        newfunc = _drawkid_oldfunc( self._drawkid_collect_parents, oldfunc) #e rename _drawkid_oldfunc and maybe the args passed
+        setattr(glpane, '_exprs__whatever', newfunc) # this means IorE.drawkid will call it ###IMPLEM
+        try:
+            self.drawkid(self.delegate) # has try/except, so we don't need our own around just this call
+                ###k make sure what it has is not try/finally
+            # end having drawkid track that (see below)
+            # some of those kids/grandkids also entered things into our list of things needing redraw
+            # figure out transclose of parents of things we need to redraw (or run code in their coords anyway -- redraw in modified way)
+            objdict = dict([(obj,obj) for obj in self._later])
+            junk, self._proper_parents = self._transclose_parents(objdict)
+            # begin modifying drawkid to filter... the method of mod is really to wrap it with our own code...
+            newfunc.set_drawkid_contrib_func( self._drawkid_selective )
+            #
+            self.drawkid(self.delegate)
+        except:
+            msg = "bug: exception somewhere in %r.draw(), delegate %r; len(parents_lists) = %d, len(_later) = %d" % \
+                      (self, self.delegate, len(self._parents_lists), len(self._later))
+            print_compact_traceback( msg + ": ")
+            pass
+        # end
+        setattr(glpane, '_exprs__whatever', oldfunc)
+        #e and repeat, if we have more than one redraw-pass
         return
-    def _drawkid_collect_parents(self, oldfunc, parent, kid): ### CALL ME
-        """This intercepts parent.drawkid(kid) when we're collecting parents,
-        with oldfunc being the parent.drawkid as if we were not active in dynenv.
+    def _drawkid_collect_parents(self, oldfunc, parent, kid):
+        """This intercepts (a func called by) parent.drawkid(kid) when we're collecting parents,
+        with oldfunc being (a func called inside) parent.drawkid as if we were not active in dynenv.
         """
         if 0:
             # this would be equiv to behavior we replace:
-            oldfunc(kid)
+            oldfunc(parent, kid)
             return
         # parent is a draw-parent of kid
         self._parents_lists.setdefault(kid, []).append(parent) #e could optim
-        oldfunc(kid)
+        oldfunc(parent, kid)
         return
     def redraw_later(self, obj, func): ### PUT SELF in env so i can be called
         """This should be called during self.draw (by something we're drawing). obj should be that something, or anything else
@@ -89,9 +117,8 @@ class SelectiveRedrawer(InstanceOrExpr): #070217 to make highlighting work in di
             return
         res1 = transclose(objdict, collect_parents)
         return res1, proper_parents #k no need to return res1?
-    def _drawkid_selective(self, oldfunc, parent, obj): ### CALL ME
-        """This intercepts parent.drawkid(obj) when we're only drawing selected parents and leaf objects,
-        with oldfunc being the parent.drawkid as if we were not active in dynenv.
+    def _drawkid_selective(self, oldfunc, parent, obj):
+        """Called using same interface as _drawkid_collect_parents.
         What we do:
         - for objs registered in _later, call their func (or funcs). GL state and coords will be same as when obj.draw was called.
         - for objs which are draw-parents of other objs, call their .draw (so as to get called for their kids, in GL state they set up).
@@ -107,6 +134,6 @@ class SelectiveRedrawer(InstanceOrExpr): #070217 to make highlighting work in di
                 print_compact_traceback( msg + ": ")
             continue
         if obj in self._proper_parents:
-            oldfunc(obj) ##k
+            oldfunc(parent, obj) ##k
         return
     pass
