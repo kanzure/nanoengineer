@@ -4,15 +4,45 @@ rendering.py -- rendering loop control, etc
 $Id$
 """
 
+    iore drawkid def should be:
+        
+    def drawkid(self, kid):
+        warpfuncs = getattr(self.env.glpane, '_exprs__drawkid_funcs', None) #070218 or so new feature
+        while warpfuncs:
+            func, warpfuncs = warpfuncs
+            try:
+                color0 = '?' # for error message in case of exception
+                color0 = func(color) # don't alter color itself until we're sure we had no exception in this try clause
+                color = normalize_color(color0)
+            except:
+                print_compact_traceback("exception in %r.fix_color(%r) warping color %r with func %r (color0 = %r): " % \
+                                        ( self, color_orig, color, func, color0 ) )
+                pass
+            continue
+        return color
+
+class _drawkid_oldfunc: # use ths to replace g,pane drawkid func used by iore drawkid ###
+    "One of these becomes the temporary drawkid func ... " # other code is WRONG, oldfunc(parent, kid) is what we need to be able to call
+    def __init__(self, drawkid_contrib_func, oldfunc):
+        self.drawkid_contrib_func = drawkid_contrib_func
+        self.oldfunc = oldfunc
+    def parent_drawkid(self, parent, kid):
+        "# when we're active, a bound method made from this is what gets called in place of usual drawkid (in oldfunc)"
+        func = self.drawkid_contrib_func # what someone contributed... #doc better
+        oldfunc = self.oldfunc
+        func(oldfunc, parent, kid)
+    pass
+
 class SelectiveRedrawer(InstanceOrExpr): #070217 to make highlighting work in displists, someday [replaces "draw decorators"]
     """
     """
     def draw(self):
         self._parents_lists = {} # maps obj (drawn during us) to list of all its draw-parents (highest possible parent being self)
+        self._later = {} # maps obj to list of funcs to call later in same GL state & coords as used to draw obj
+        #e put self in dynenv if needed, to permit registration of selective redraw or point-finding (x,y,depth)
+            #### QUESTION: (when is that done? for make of delegate?)
         #e begin having drawkid track parents in us (as well as in whatever objs it did before, in glpane linked list like for fix_color)
             ### WAIT, what about displists it calls? they'll need to have tracked parents ahead of time, i think... ####e
-        #e put self in dynenv if needed, to permit registration of selective redraw or point-finding (x,y,depth)
-        self._later = {} # maps obj to list of funcs to call later in same GL state & coords as used to draw obj
         self.drawkid(self.delegate)
         #e end
         # some of those kids/grandkids also entered things into our list of things needing redraw
