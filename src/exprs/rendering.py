@@ -27,6 +27,8 @@ $Id$
         #e plans: protect from exceptions, debug_pref for no-coord-change enforcement (for testing),
         # and most importantly, make possible a drawing pass which draws only a specified subset of drawables
         # but in their coord- or glstate- transforming containers, e.g. for a highlight-drawing pass.
+        # (that last is what we're doing now, with _exprs__whatever 070218)
+        oldfunc = getattr(glpane, '_exprs__whatever', None) #e rename attr
         if kid is not None:
             kid.draw()
         return
