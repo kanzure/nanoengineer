@@ -636,9 +636,11 @@ class DNA_Cylinder(ModelObject): #070215 DIorE -> ModelObject (affects _e_model_
         print "_cmd_show_potential_crossovers is NIM"
 
     # ModelTreeNodeInterface formulae
-    mt_node_id = getattr_Expr( _self, '_e_serno')
-    mt_name = State(str, format_Expr("DNA Cylinder #n (%r)", mt_node_id)) # mt_node_id is only for debugging (does it change?)
-        ###e make it unique somehow #e make it editable #e put it into model_state
+    mt_node_id = getattr_Expr( _self, '_e_serno') # ipath might be more correct, but this also doesn't change upon reload in practice,
+        # i guess since World objects are not remade [070218 late comment] ###REVIEW for possibly being ###WRONG or ###BUG
+        # in fact it is surely a bug (tho harmless now); see comments re bugfix070218 and in def mt_node_id
+    mt_name = State(str, format_Expr("DNA Cylinder #n (%r)", mt_node_id)) # mt_node_id is only included in name for debugging (does it change?)
+        ###e make it unique somehow #e make it editable #e put this state variable into model_state layer
     mt_kids = () #e add our crossovers, our yellow rect demos
     mt_openable = False #e
     

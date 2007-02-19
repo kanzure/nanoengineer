@@ -278,10 +278,13 @@ class World(ModelObject): #070205 revised, public nodelist -> private _nodeset
         # So for now let's pretend self.env can tell us... tho as initial kluge, the global env.prefs (get_pref?) could tell us.
         # But even sooner, just pretend we don't care and always show all the kids.
         return self._sorted_objects
+    
     mt_name = "testmode" #e or maybe something like State(str, "Untitled"), or a stateref # or "Untitled" as it was before 070208
     mt_openable = True
-    mt_node_id = getattr_Expr( _self, '_e_serno')
-
+    ## mt_node_id = getattr_Expr( _self, '_e_serno')
+    mt_node_id = getattr_Expr( _self, 'ipath') #e optim: should intern the ipath ###e move this to IorE? btw redundant w/ def mt_node_id
+        # 070218 -- by test, using ipath (a bugfix) makes world.open persistent (as hoped/predicted);
+        # probably doesn't affect open-MT newnode slowness (but now that's fixed in different way in demo_MT)
     
     # ==
     

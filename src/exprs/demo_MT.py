@@ -198,12 +198,26 @@ class ModelTreeNodeInterface(Interface):
     _object = Arg(Anything, doc = "an object we want to coerce into supporting this interface") ###k?? #e does it have to sound so nasty?
     # the recompute attrs in the interface, declared using Attr [nim] so they can include types and docstrings
     mt_node_id =   Attr( Id,        call_Expr( id, _object), doc = "a unique nonrecyclable id for the node that object represents")
+        ###BUG: id is wrong -- ipath would be closer (but is not really correct, see comments in def mt_node_id)
     mt_name = StateAttr( str,       "",    doc = "the name of a node in the MT; settable by the MT view (since editable in that UI)")
     mt_kids =      Attr( list_Expr, (),    doc = "the list of kids, of all types, in order (client MT view will filter them)")
     mt_openable =  Attr( bool,      False, doc = "whether this node should be shown as openable; if False, mt_kids is not asked for")
                 ##e (consider varying mt_openable default if node defines mt_kids, even if the sequence is empty)
     # (##e nothing here yet for type icons)
     pass
+
+# some existing interfaces we might like to clean up and formalize:
+# - "selobj interface" (from GLPane to a hover-highlighted object; provided by Highlightable)
+# - "DragHandler interface (from selectMode to an object that handles its own mouse clicks/drags; provided by Highlightable)
+#
+# some new interfaces we'd like:
+# - many of the types used in Arg(type, x) are really interfaces, e.g. ModelObject
+#   (which may have variants. eg movable or not, geometric or not, 3d or not -- some of these are like orthogonal interfaces
+#    since graphical decorating wrappers (eg Overlay, Column) might provide them too)
+# - Draggable (something that provides _cmd_drag_from_to)
+# - ModelTreeNodeInterface
+# - whatever is needed to be dragged by DraggableObject
+# - Drawable (whatever is needed to be drawn -- may have variants, may apply to POV-Ray too)
 
 # ==
 
@@ -294,6 +308,8 @@ def node_name(node): # revised 070207
         return last_resort
     pass
 
+print_mt_node_id = False # set True for debugging (or remove in a few days [070218])
+
 def mt_node_id(node): # 070207; the name 'node_id' itself conflicts with a function in Utility.py (which we import and use here, btw)
     "return the mt_node_id property of the node, regardless of which model tree node interface it's trying to use [slight kluge]"
     # look for value of ModelTreeNodeInterface attr
@@ -302,14 +318,30 @@ def mt_node_id(node): # 070207; the name 'node_id' itself conflicts with a funct
     except AttributeError:
         pass
     else:
+        if print_mt_node_id:        
+            print "this node %r has mt_node_id %r" % (node,node.mt_node_id)
+            # old Q: where do our Rects get it?
+            # A: they don't -- the bug fixed by bugfix070218 meant this was never called except for World!!
+            # btw, we want it to be for the
+            # underlying model object... sort of like how we ask for name or type... [bug noticed 070218 late; see below comment]
         return node.mt_node_id
 
-    assert not is_expr_Instance(node), "what node is this? %r" % (node,) # most to the point
-    assert not is_Expr(node) # stronger, and also should be true
+##    assert not is_expr_Instance(node), "what node is this? %r" % (node,) # most to the point
+    if is_expr_Instance(node):
+        # All Instances ought to have that, or delegate to something which does -- which ought to be their contained ModelObject.
+        ####FIX SOMETIME (implem that properly)
+        # Until that's implemented properly (hard now -- see _e_model_type_you_make for the hoops you have to jump thru now),
+        # use the ipath (non-ideal, since captures wrappers like Draggable etc, but tolerable,
+        # esp since this effectively means use the world-index, which will work ok for now [070218 late])
+        return node.ipath ###e should intern it as optim
+        
+    assert not is_Expr(node), "pure exprs like %r don't belong as nodes in the model tree" % (node,)
     
     # look for legacy Node property
     from Utility import node_id
     res = node_id(node) # not sure what to do if this fails -- let it be an error for now -- consider using id(node) if we need to
+    if print_mt_node_id:
+        print "legacy node %r has effective mt_node_id %r" % (node,res)
     return res
 
 def mt_node_selected(node): #070216 experiment
@@ -334,25 +366,6 @@ def mt_node_selected(node): #070216 experiment
     
 # ===
 
-# 070213 comment: making new objects and adding them to the world (in e.g. dna_ribbon_view.py) seems to take time
-# proportional to the number of existing objects (even now that world._index_counter is untracked). But only if the MT is open
-# at the time! But opening/closing it seems to be fast, except on the first open. It seems like adding an element must
-# somehow create a new item for it (speculation) -- in spite of the following cache presumably trying to avoid that...
-# is this related to SimpleColumn being replaced each time, or is the node_id changing each time?? Or could it be something
-# different, like displists in MT being remade for reasons not yet guessed?
-# ... This slowness is not understood in detail for now. It's important to ###FIX -- closing the MT makes the difference
-# in tolerability of "make new object" speed. It's mentioned in BUGS.txt.
-#
-# suggestion about how to debug it: when adding an item (eg in world.make_and_add),
-# set a dynenv flag which prints all makings of new instances
-# and/or all recomputes
-# and/or all displist remakes
-#
-# then see what content in that printed stuff doesn't belong there --
-# make sure i can tell which obj is the highest parent (ie something in the world), so i can guess whether
-# each printed recompute belongs or not
-
-
 ModelNode = ModelObject ###stub -- should mean "something that satisfies (aka supports) ModelNodeInterface"
 
 class MT_try2(DelegatingInstanceOrExpr): # works on assy.part.topnode in testexpr_18i, and on World in testexpr_30i
@@ -367,8 +380,9 @@ class MT_try2(DelegatingInstanceOrExpr): # works on assy.part.topnode in testexp
     #e could let creator supply a nonstandard way to get mt-items (mt node views) for nodes shown in this MT
     def _C__delegate(self):
         # apply our node viewer to our arg
-        return self.MT_item_for_object(self.arg, initial_open = True, name_suffix = " (slow when open!)")
+        return self.MT_item_for_object(self.arg, initial_open = True)
             # note: this option to self.MT_item_for_object also works here, if desired: name_suffix = " (MT_try2)"
+            ## no longer needed after bugfix070218: name_suffix = " (slow when open!)"
     def MT_item_for_object(self, object, name_suffix = "", initial_open = False):
         "find or make a viewer for object in the form of an MT item for use in self"
         ###e optim: avoid redoing some of the following when we already have a viewer for this object --
@@ -381,6 +395,7 @@ class MT_try2(DelegatingInstanceOrExpr): # works on assy.part.topnode in testexp
         #e coerce object into supporting ModelNodeInterface 
         object = identity(object) ###e STUB: just assume it already does support it
         index = ('MT_item_for_object', mt_node_id(object))
+##        print "object %r, index %r" % (object,index)
             # note: the constant string in the index is to avoid confusion with Arg & Instance indices;
             # it would be supplied automatically if we made this using InstanceDict [nim] #e
             ###e if nodes could have >1 parent, we'd need to include parent node in index -- only sufficient if some
@@ -395,6 +410,8 @@ class MT_try2(DelegatingInstanceOrExpr): # works on assy.part.topnode in testexp
             ##e optim: have variant of Instance in which we pass a constant expr-maker, only used if index is new
             # WARNING: if we do that, it would remove the errorcheck of whether this expr is the same as any prior one at same index
         return self.Instance( expr, index) ###k arg order -- def Instance
+##    def _init_instance(self):
+##        print "%r.ipath = %r" % (self,self.ipath)
     pass # end of class MT_try2
 
 # don't use this, most likely: [070207]
@@ -403,6 +420,8 @@ class MT_try2(DelegatingInstanceOrExpr): # works on assy.part.topnode in testexp
 ##    ### make them attrs of the mt -- but would call_Expr(globals) work to find them?
 ## # so you can say in expr E, _FORWARD_REF_.F to refer to expr F lower down in the module
 
+
+bugfix070218 = True # (soon, remove the alternative; this fixes a slowness bug reported 070213 in this file, now in BUGS-fixed.txt)
 
 class _MT_try2_kids_helper(DelegatingInstanceOrExpr):
     """[private helper expr class for MT_try2]
@@ -439,16 +458,28 @@ class _MT_try2_kids_helper(DelegatingInstanceOrExpr):
         for kid in kids:
             # might be a legacy node or a new node (instance)
             assert not is_Expr(kid) or is_expr_Instance(kid)
-        elts = map( _MT_try2_node_helper, kids)
-        for elt in elts:
-            # should be an expr (not instance) of _MT_try2_node_helper ##e remove when works, might not always be valid in future
-            assert is_pure_expr(elt)
+        if bugfix070218:
+            # the code that was always intended, and that i thought was in here -- left it out by some oversight i guess...
+            elts = map( self.mt.MT_item_for_object, kids)
+            for elt in elts:
+                assert is_expr_Instance(elt)
+            pass
+        else:
+            # old buggy code -- caused newnode open-mt slowness (confirmed by test)
+            ###BUG - this code won't even work anymore, since the map fails to pass just-now-required 2nd arg (self.mt) to node_helper
+            elts = map( _MT_try2_node_helper, kids) #BUG: this is supposed to go through self.mt.MT_item_for_object !!!!! [070218]
+            for elt in elts:
+                # should be an expr (not instance) of _MT_try2_node_helper ##e remove when works, might not always be valid in future
+                assert is_pure_expr(elt)
+            pass
         expr = SimpleColumn(*elts) # [note: ok even when elts is empty, as of bugfix 061205 in SimpleColumn]
         if 1:
             # do we need to eval expr first? in theory i forget, but in practice this one evals to itself so it doesn't matter. ###k
             ##e do we need to discard usage tracking during the following??
-            res = self.Instance( expr, index, permit_expr_to_vary = True) ###IMPLEM permit_expr_to_vary
+            res = self.Instance( expr, index, permit_expr_to_vary = True)
         return res
+##    def _init_instance(self):
+##        print "%r.ipath = %r" % (self,self.ipath)
     pass # end of class _MT_try2_kids_helper
 
 
@@ -547,11 +578,18 @@ class _MT_try2_node_helper(DelegatingInstanceOrExpr):
             SimpleRow(CenterY(icon), CenterY(label)),
                 #070124 added CenterY, hoping to improve text pixel alignment (after drawfont2 improvements in testdraw) -- doesn't work
             If( open,
-                      _MT_try2_kids_helper( call_Expr(node_kids, node) ),
+                      _MT_try2_kids_helper( call_Expr(node_kids, node) , _self.mt ), # 070218 added _self.mt -- always intended, first used now
                       Spacer(0) ###BUG that None doesn't work here: see comment in ToggleShow.py
                       )
         )
     )
+##    def _init_instance(self):
+##        print "%r.ipath = %r" % (self,self.ipath)
+            #bug (solved below): when we add dna cyl or green rect, every mt node gets remade -- why?
+            # (its ipath is the same, now that we fixed world.mt_node_id from serno to ipath.)
+            # [070218 late Q. btw not yet understood where rect gets its node_id #mystery (also solved below)]
+            # A: rect didn't -- only world was asked for it; fixed by bugfix070218; that also fixed the bug of every node
+            # being remade, in an obvious way. And it fixed the open-mt newnode slowness bug.
     pass
 
 # ==

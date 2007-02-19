@@ -139,3 +139,29 @@ But that is probably fixable using a fixed depth offset of 1 or perhaps 2 bits, 
 
 ==
 
+070213: MT is very slow to update when a new node is added to it and it's open.
+
+As I said in demo_MT.py (and never in BUGS.txt -- only moved out of code when bug was fixed):
+
+# 070213 comment: making new objects and adding them to the world (in e.g. dna_ribbon_view.py) seems to take time
+# proportional to the number of existing objects (even now that world._index_counter is untracked). But only if the MT is open
+# at the time! But opening/closing it seems to be fast, except on the first open. It seems like adding an element must
+# somehow create a new item for it (speculation) -- in spite of the following cache presumably trying to avoid that...
+# is this related to SimpleColumn being replaced each time, or is the node_id changing each time?? Or could it be something
+# different, like displists in MT being remade for reasons not yet guessed?
+# ... This slowness is not understood in detail for now. It's important to ###FIX -- closing the MT makes the difference
+# in tolerability of "make new object" speed. It's mentioned in BUGS.txt.
+#
+# suggestion about how to debug it: when adding an item (eg in world.make_and_add),
+# set a dynenv flag which prints all makings of new instances
+# and/or all recomputes
+# and/or all displist remakes
+#
+# then see what content in that printed stuff doesn't belong there --
+# make sure i can tell which obj is the highest parent (ie something in the world), so i can guess whether
+# each printed recompute belongs or not
+
+070218: fixed; see comments related to the flag bugfix070218 in demo_MT.py.
+
+==
+
