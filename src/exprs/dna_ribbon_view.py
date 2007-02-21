@@ -226,11 +226,11 @@ class Cylinder(Geom3D): #e super? ####IMPLEM - and answer the design Qs herein a
         return
     def perpvec_at_surfacepoint(self, point): #e rename?
         """Given a point on or near my surface (actually, on the surface of any coaxial cylinder),
-        return a normal vector to the surface at that point (pointing outward).
+        return a normal (unit length) vector to the surface at that point (pointing outward).
         Ignores end-caps or cylinder length -- treats length as infinite.
         Works in same coords as all points of self, such as self.end1, end2.
         """
-        return norm( remove_unit_component( point - self.end1, self.dx))
+        return norm( remove_unit_component( point - self.end1, self.dx)) ##e rename: norm -> normalize? unitvector? normal?
     #e bbox or the like (maybe this shape is basic enough to be an available primitive bounding shape?)
     pass
 
@@ -238,7 +238,7 @@ class Cylinder_HelicalPath(Geom3D): #e super?
     """Given a cylinder (cyl), produce a helical path on its surface (of given params)
     as a series of points (at given resolution -- but specifying resolution is #NIM except as part of path spec)
     starting at the left end (on an end-circle centered at cyl.end1),
-    expressing the path in the same coords as the cylinder points (like end1) are in.
+    expressing the path in the same coordsys as the cylinder points (like end1) are in.
        Usage note: callers desiring path points invariant to rotations or translations of cyl
     should express cyl itself in a local coordsys which is rotated or translated, so that cyl.end1 and end2
     are also invariant.
