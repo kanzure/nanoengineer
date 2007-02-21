@@ -1,0 +1,20 @@
+# $Id$
+
+Date: Wed, 21 Feb 2007 17:34:57 -0500
+From: "Will Ware" <wware@alum.mit.edu>
+To: "bruce@oresmus.com" <bruce@oresmus.com>
+Subject: Physical units in Python
+
+I was looking at some of the traffic on the nanorex-all list,
+particularly the thread about using physical dimensions or units in
+Python. I once wrote some code for this which you are welcome to use,
+see attached. I think there is also something like this (probably done
+better) in SciPy or NumPy or one of those things, I believe it's
+something Konrad Hinsen put together.
+
+I'm sure you've already thought of this, but for performance reasons,
+you'll want some way to switch off the physical units when you're done
+looking for bugs involving incorrect physical dimensions, and go back
+to plain numbers.
+
+Will
