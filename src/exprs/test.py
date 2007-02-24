@@ -460,7 +460,9 @@ testexpr_11k = testexpr_11h(tex_origin = (-1,-1)) # works; latest stable test in
 
 ## testexpr_11l_asfails = testexpr_11k(courierfile) # can I re-supply args? I doubt it. indeed, this asfails as expected.
     # note, it asfails when parsed (pyevalled), so I have to comment out the test -- that behavior should perhaps be changed.
+    
 imagetest = Image(tex_origin = (-1,-1), clamp = True, nreps = 3, use_mipmaps = True) # customize options
+
 testexpr_11m = imagetest(courierfile) # works
     # [but weirdly, on bruce's g5 061128 212p as first test, clamped part is blue! ###BUG??
     #  screenshot on g5 is in /Nanorex/bug notes/clamped is blue.jpg
@@ -525,6 +527,7 @@ testexpr_11pcy2 = imagetest("win_collapse_icon.png", convert = 'RGBA', _tmpmode 
 # try some images only available on bruce's g4
 
 testexpr_11q1 = imagetest("/Nanorex/bug notes/1059 files/IMG_1615.JPG") # works
+testexpr_11q1b = Image("/Nanorex/bug notes/1059 files/IMG_1615.JPG", ideal_width = 1704, ideal_height = 2272) # works [070223]
 testexpr_11q2 = imagetest("/Nanorex/bug notes/bounding poly bug.jpg") # works
 testexpr_11q3 = imagetest("/Nanorex/bug notes/1059 files/peter-easter-512.png") # works
 testexpr_11q4 = imagetest("/Nanorex/bug notes/1059 files/IMG_1631.JPG alias") # (mac alias) fails
@@ -551,7 +554,7 @@ testexpr_11q5cx2_g4 = imagetest_x2("/Nanorex/DNA/paul notebook pages/stages1-4.j
 testexpr_11q5cx2_g5 = imagetest_x2("/Nanorex/DNA/pwkr-user-story/notebook page images/stages1-4.jpg") # works, but poor resolution
 testexpr_11q5cx2_g5_bigbad = imagetest_x2("/Nanorex/DNA/pwkr-user-story/notebook page images/stages1-4.jpg",
                                           ideal_width = 1275,
-                                          ideal_height = 1647) # try huge texture, non2pow size -- actually works! [bruce's g5]
+                                          ideal_height = 1647) # try huge texture, non2pow size -- actually works! [bruce's g5] [g4 too]
 
     #e also try bigger ideal sizes for that one, or try loading a subregion of the image.
     # but for now, if we need it, just grab smaller images out of it using an external program.
@@ -852,6 +855,14 @@ testexpr_19g = eval_Expr( call_Expr( lambda thing:
                                          # safety rule: automatic formation of getattr_Expr not allowed for attrs starting _i_
                                      call_Expr( _app.Instance, testexpr_19b, "#19b")
                                      )) # works now, after some bugfixes [070122]
+
+testexpr_19haux = GraphDrawDemo_FixedToolOnArg1(Overlay(testexpr_11q1b(size = Rect(10)),SimpleRow(Sphere(2),Sphere(1),Sphere(0.5),Sphere(0.25))))
+testexpr_19h = eval_Expr( call_Expr( lambda thing:
+                                     Overlay( thing,
+                                              DrawInCorner( Boxed(
+                                                  eval_Expr( call_Expr( demo_drag_toolcorner_expr_maker, thing.world )) )) ),
+                                     call_Expr( _app.Instance, testexpr_19haux, "#19h")
+                                     )) # 070223 --
 
 # == DrawInCorner
 
@@ -1276,7 +1287,7 @@ testexpr_32 = IsocelesTriangle(1.5, 1, green) # works [after unstubbing of Isoce
 
 enable_testbed = True
 
-testexpr = testexpr_19g # testexpr_30i # testexpr_18i ## testexpr_29aox3 ## testexpr_18 ## testexpr_9fx4 ## testexpr_19g ##  _26g _28
+testexpr = testexpr_19h # testexpr_19g # testexpr_30i # testexpr_18i ## testexpr_29aox3 ## testexpr_18 ## testexpr_9fx4 ## testexpr_19g ##  _26g _28
 
     # as of 070121 at least these work ok in EVAL_REFORM with now-semipermanent kluge070119:
     # _2, _3a, _4a, _5, _5a, _10a, _10c, _9c, _9d, _9cx,
