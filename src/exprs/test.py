@@ -590,6 +590,9 @@ testexpr_11s = Translate(Image("blueflake.jpg",size=Rect(7,0.4)),(1,0)) # try th
 testexpr_11s1 = Highlightable(Image("blueflake.jpg",size=Rect(7,0.4))) # make sure this fixes mouseover stickiness and sbar text -- works [broken] [works again]
 testexpr_11s2 = Boxed(Image("blueflake.jpg",size=Rect(7,0.4))) # test its lbox -- won't work? coded a fix, but that broke the use of size entirely!! [fixed, works]
 
+testexpr_11t = imagetest("storyV3-p31.tiff") # 070222; local to bruce G5 (not in cvs); -- fails, IOError: cannot identify image file
+testexpr_11tx = imagetest("storyV3-p31x.tiff") # different error -- that means _11t finds the file and can't load it -- why?
+
 #e see also testexpr_13z2 etc
 
     ##e want to try: gif; pdf; afm image, paul notebook page (converted);
