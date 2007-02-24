@@ -96,8 +96,12 @@ class Vertex(ModelObject): # renamed Node -> Vertex, to avoid confusion (tho it 
     """It has a position, initializable from arg1 but also settable as state under name pos, and an arb appearance.
     Position is relative to whatever coords it's drawn in.
     When you drag it, it chooses depth just nearer than hitpoint -- which means if you wiggle it over itself,
-    it gets nearer and nearer (design flaw).
+    it gets nearer and nearer (design flaw). [see comment for possible fix]
     """
+    # 070223 possible fix to seeing depth of self: during a drag, tell glpane not to draw dragobj into depth or during glselect
+    # mode... so it finds some other selobj besides dragobj. means it should draw dragobj last i guess... maybe transparent
+    # so you can see selobj behind it, or diff color when there is a selobj...
+    
     ###e about what to rename it... Hmm, is it a general "Draggable"? .lookslike arg2 -> .islike or .thing arg1?
     
     # BTW, the highlightability is not yet specified here ###nim; it relates to the fact that we can bind commands to it
