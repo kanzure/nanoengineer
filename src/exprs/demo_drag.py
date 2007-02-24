@@ -95,6 +95,8 @@ class Vertex(ModelObject): # renamed Node -> Vertex, to avoid confusion (tho it 
     # see below about better ways to rename it...
     """It has a position, initializable from arg1 but also settable as state under name pos, and an arb appearance.
     Position is relative to whatever coords it's drawn in.
+    When you drag it, it chooses depth just nearer than hitpoint -- which means if you wiggle it over itself,
+    it gets nearer and nearer (design flaw).
     """
     ###e about what to rename it... Hmm, is it a general "Draggable"? .lookslike arg2 -> .islike or .thing arg1?
     
@@ -145,13 +147,14 @@ class Vertex(ModelObject): # renamed Node -> Vertex, to avoid confusion (tho it 
     lookslike = ArgOrOption(Anything) # OrOption is so it's customizable
         ###BAD for lookslike to be an attr of the Vertex, at least if this should be a good example of editing a sketch. [070105]
         # (a fancy sketch might have custom point types, but they'd have tags or typenames, with rules to control what they look like)
-        
+
+    cmenu_maker = State(Anything, None) # meant to be set from outside; let's hope None is a legal value [070223 HACK]
     ## delegate = _self.lookslike #k
     delegate = Highlightable( Translate( lookslike, pos ),
                               ## eval_Expr( call_Expr(lookslike.copy,)( color = yellow) ),  #####?? weird exc don't know why - reload?
                               ## AssertionError: _this failed to find referent for '_this_Vertex'
-                              on_drag = _self.on_drag # 070103 kluge experiment, works (eg in _19d)
-
+                              on_drag = _self.on_drag, # 070103 kluge experiment, works (eg in _19d)
+                              cmenu_maker = cmenu_maker #070223 HACK [#e rename cmenu_maker to cmenu_obj as I guessed it was named??]
                               )
                 #e actions? or do this in a per-tool wrapper which knows the actions?
                 # or, do this here and make the actions delegate to the current tool for the current parent? guess: the latter.
@@ -221,6 +224,9 @@ WithViewerFunc = Stub # see rules.py, to which I moved the more expansive stub o
 
 from OpenGL.GL import *
 
+##class polyline_handle(DelegatingInstanceOrExpr):
+##    delegate = Draggable(Rect(0.3,green))
+
 class polyline(InstanceOrExpr):
     """A graphical object with an extendable (or resettable from outside I guess) list of points,
     and a kid (supplied, but optional (leaving it out is ###UNTESTED)) that can serve as a drag handle by default.
@@ -231,10 +237,16 @@ class polyline(InstanceOrExpr):
     # end1 might be in MT directly and also be our kid (not necessarily wrong, caller needn't add it to MT).
     # when drawing on sphere, long line segs can go inside it and not be seen.
     points = State(list_Expr, []) ###k probably wrong way to say the value should be a list
+##    end1arg = Arg(StubType,None)
+##    end1 = Instance(eval_Expr( call_Expr(end1arg.copy,)( color = green) ))###HACK - works except color is ignored and orig obscures copy
     end1 = Arg(StubType,None)
     closed = Option(bool, False, doc = "whether to draw it as a closed loop")
     _closed_state = State(bool, closed) ####KLUGE, needs OptionState
     relative = Option(bool, True, doc = "whether to position it relative to the center of self.end1 (if it has one)")
+    def _init_instance(self):
+        end1 = self.end1
+        if end1:
+            end1.cmenu_maker = self
     def _C__use_relative(self):
         "compute self._use_relative (whether to use the relative option)"
         if self.relative:
@@ -252,7 +264,7 @@ class polyline(InstanceOrExpr):
     def add_point(self, pos):
         "add a point at the given 3d position"
         pos = pos - self.center
-        self.points = self.points + [pos] ### INEFFICIENT, but need to use + for now to make sure it's change-tracked
+        self.points = self.points + [pos] ### INEFFICIENT, but need to use '+' for now to make sure it's change-tracked
     def draw(self):
         # bug(?): doesn't treat end1 center as a point in the list!
         ###k is it wrong to draw both a kid and some opengl stuff?? not really, just suboptimal if opengl stuff takes long (re rendering.py)
@@ -271,7 +283,27 @@ class polyline(InstanceOrExpr):
             # optim - but not equivalent since don't include center!
             for pos in self.points:
                 glVertex3fv(pos)
-        glEnd() 
+        glEnd()
+    def make_selobj_cmenu_items(self, menu_spec, highlightable):
+        """Add self-specific context menu items to <menu_spec> list when self is the selobj (or its delegate(?)... ###doc better).
+        Only works if this obj (self) gets passed to Highlightable's cmenu_maker option (which DraggableObject(self) will do).
+        [For more examples, see this method as implemented in chem.py, jigs*.py in cad/src.]
+        """
+        menu_spec.extend([
+            ("polyline", noop, 'disabled'), # or 'checked' or 'unchecked'; item = None for separator; submenu possible
+
+##            ("show potential crossovers", self._cmd_show_potential_crossovers), #e disable if none (or all are already shown or real)
+##
+##            ("change length", [
+##                ("left extend by 1 base", lambda self = self, left = 1, right = 0: self.extend(left, right)),
+##                ("left shrink by 1 base", lambda self = self, left = -1, right = 0: self.extend(left, right)),
+##                ("right extend by 1 base", lambda self = self, left = 0, right = 1: self.extend(left, right)),
+##                ("right shrink by 1 base", lambda self = self, left = 0, right = -1: self.extend(left, right)),
+##                ("both extend by 1 base", lambda self = self, left = 1, right = 1: self.extend(left, right)),
+##                ("both shrink by 1 base", lambda self = self, left = -1, right = -1: self.extend(left, right)),
+##             ] ),
+        ])
+
     pass
         
 # ===
