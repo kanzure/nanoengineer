@@ -217,6 +217,65 @@ WithViewerFunc = Stub # see rules.py, to which I moved the more expansive stub o
 
 # ===
 
+# 070223 new hack
+
+from OpenGL.GL import *
+
+class polyline(InstanceOrExpr):
+    """A graphical object with an extendable (or resettable from outside I guess) list of points,
+    and a kid (supplied, but optional (leaving it out is ###UNTESTED)) that can serve as a drag handle by default.
+    Also some Options, see the code.
+    """
+    ###BUGS: doesn't set color, depends on luck. end1 is not fully part of it so putting cmenu on it will be hard.
+    # could use cmenu to set the options.
+    # end1 might be in MT directly and also be our kid (not necessarily wrong, caller needn't add it to MT).
+    # when drawing on sphere, long line segs can go inside it and not be seen.
+    points = State(list_Expr, []) ###k probably wrong way to say the value should be a list
+    end1 = Arg(StubType,None)
+    closed = Option(bool, False, doc = "whether to draw it as a closed loop")
+    _closed_state = State(bool, closed) ####KLUGE, needs OptionState
+    relative = Option(bool, True, doc = "whether to position it relative to the center of self.end1 (if it has one)")
+    def _C__use_relative(self):
+        "compute self._use_relative (whether to use the relative option)"
+        if self.relative:
+            try:
+                center = self.end1.center
+                return True
+            except:
+                #e print?
+                return False
+        return False
+    def _C_center(self):
+        if self._use_relative:
+            return self.end1.center # this can vary!
+        return ORIGIN
+    def add_point(self, pos):
+        "add a point at the given 3d position"
+        pos = pos - self.center
+        self.points = self.points + [pos] ### INEFFICIENT, but need to use + for now to make sure it's change-tracked
+    def draw(self):
+        # bug(?): doesn't treat end1 center as a point in the list!
+        ###k is it wrong to draw both a kid and some opengl stuff?? not really, just suboptimal if opengl stuff takes long (re rendering.py)
+        self.drawkid(self.end1) # end1 node
+        if self._closed_state:
+            glBegin(GL_LINE_LOOP) ### WHAT SETS COLOR? see drawline - in practice it's thin and dark gray - probably just luck!
+        else:
+            glBegin(GL_LINE_STRIP)#k
+        if self._use_relative:
+            # general case - but also include center as first point!
+            center = self.center
+            glVertex3fv(center)
+            for pos in self.points:
+                glVertex3fv(pos + center)
+        else:
+            # optim - but not equivalent since don't include center!
+            for pos in self.points:
+                glVertex3fv(pos)
+        glEnd() 
+    pass
+        
+# ===
+
 ## class World(ModelObject) -- moved to world.py, 070201
 
 # ok, now how do we bind a click on empty space to class MakeANode ?
@@ -313,6 +372,7 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro): # see also class World_dna_h
                        #   that has been discussed elsewhere... i forget if dynenv or _optional_options = dict() seemed best.
                        on_press = _self.on_press_bg,
                        on_drag = _self.on_drag_bg,
+                       on_release = _self.on_release_bg,
                        sbar_text = "gray bg"
                        )), # end of Highlightable and DisplistChunk
       If( _self.use_VertexView,
@@ -439,41 +499,27 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro): # see also class World_dna_h
             # make a blue dot showing the drag path, without moving the main new node (from the click)
             node_expr = Vertex(newpos, Center(Rect(0.1,0.1,blue)))
             self.world.make_and_add(node_expr, type = "dot") #070206 added type = "dot" -- note, not deducible from the expr!!
+        elif what == 'polyline':
+            if not lastnode:
+                print "bug: no self.newnode!!!"
+            else:
+                if not isinstance(lastnode, polyline):
+                    lastnode = self.newnode = self.world.make_and_add( polyline(lastnode), type = "polyline" )
+                lastnode.add_point(newpos)
         elif what == 'drag':
             # drag the new node made by the click
             if not lastnode:
                 print "bug: no self.newnode!!!"
             else:
-                lastnode.pos = newpos # this is always triggering the "standard inval twice" message; don't yet know why;
-                    # see g4 file '061207 debug std inval twice' for two stacktraces for once and twice (not confirmed from same
-                    # source), one with longer inval path. That file asks:
-                    #  could it be a normal consequence of two paths of usage/dependency from one thing (node.pos) to another (glpane),
-                    #  with the ends of the two paths entering glpane at different invalidation subs from it??
-                    #  I doubt it... but should review. Or what if they enter at the same subs? Also doubt it, also should review. ##k
-
-                # print "set %r.pos = %r" % (lastnode,newpos)### this shows i set them, then draw them to a different pos! Why?[where i am]
-                self.KLUGE_gl_update() ###KLUGE [attempted bugfix, didn't work, see comment for guess at why]
-                    # without this gl_update, during drag of a new node,
-                    # if mouse gets too far ahead, we lose the updates until we mouse over some node,
-                    # perhaps since only a change of what's highlighted triggers an update. Why doesn't change-tracking of the setattr
-                    # solve that???? HMM, ADDING THIS gl_update DOESN'T FIX THE BUG!   ###BUG
-                    #
-                    # Under what conds does gl_update not redraw?!?
-                    #   GUESS [wrong, see below] - mouse motion, detecting no change of selobj in selectMode, perhaps immediately does nothing
-                    # (not calling this routine via drag_handler at all)... but then how do we drag atoms? Review this. #k
-                    #   NO, that can't be it -- our debug print above is indeed printing that it gets called.
-                    #
-                    # Can it just be that Qt has no time to redraw since it's processing repeated drag events?
-                    # Wouldn't it merge them? (Maybe not.) But I observed that stopping and waiting didn't seem to solve the problem.
-                    #
-                    # SOLVED: It was the Numeric array == bug, in lvals.py optim for setting to same value.
-                    # If any coord was the same, it didn't inval or change the stored pos. Fixed using same_vals.
-                    # Checked for other such bugs in that file, BUT NOT IN OTHER FILES. ###DOIT [061207 10p]
-                    #
-                    # SO, this gl_update is probably not needed after all -- try without it sometime. ##e
+                lastnode.pos = newpos
             pass
         return
 
+    def on_release_bg(self):#070223 new hack
+        import env #FIX
+        if isinstance(self.newnode, polyline) and env.prefs.get(kluge_dragtool_state_prefs_key + "bla2", False):
+            self.newnode._closed_state = True ####KLUGE, I'd rather say .closed but that won't work until I have OptionState
+        return
     # == methods make, make_and_add have been moved from here into class World [070202]
 
     pass # end of class GraphDrawDemo_FixedToolOnArg1
@@ -494,8 +540,12 @@ def kluge_dragtool_state():
     # to find out what's in use in that sense, and usage-tracking might be enough unless prefs get bundled into single tracked objs
     # of which then only some parts get used. We can probably avoid that well enough by convention.
     import env
+    polyline = env.prefs.get(kluge_dragtool_state_prefs_key + "bla", False)#070223 new hack
+    if polyline:
+        return "polyline"
     # for this kluge, let the stored value be False or True for whether it's drag
-    return env.prefs.get(kluge_dragtool_state_prefs_key, kluge_dragtool_state_prefs_default) and 'drag' or 'draw'
+    drag = env.prefs.get(kluge_dragtool_state_prefs_key, kluge_dragtool_state_prefs_default)
+    return drag and 'drag' or 'draw'
 
 kluge_dragtool_state() # set the default val
     
@@ -508,7 +558,8 @@ def demo_drag_toolcorner_expr_maker(world): #070106 improving the above
     # given an instance of World, return an expr for the "toolcorner" for use along with GraphDrawDemo_FixedToolOnArg1 (on the same World)
     expr = SimpleColumn(
         checkbox_pref(kluge_dragtool_state_prefs_key,         "drag new nodes?", dflt = kluge_dragtool_state_prefs_default),
-        checkbox_pref(kluge_dragtool_state_prefs_key + "bla", "some other pref"),
+        checkbox_pref(kluge_dragtool_state_prefs_key + "bla", "make polyline?", dflt = False),
+        checkbox_pref(kluge_dragtool_state_prefs_key + "bla2", "(make it closed?)", dflt = False),
         ## ActionButton( world._cmd_Clear, "button: clear") # works
         # 070108: try this variant which uses _cmd_Clear_nontrivial: will the If work as an Expr?? If_kluge should tell us #####k
         ####k also will the type tests inside ActionButton work with an If? Probably not -- that's a ###BUG but I'll put it off.

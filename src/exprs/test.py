@@ -1276,7 +1276,7 @@ testexpr_32 = IsocelesTriangle(1.5, 1, green) # works [after unstubbing of Isoce
 
 enable_testbed = True
 
-testexpr = testexpr_30i # testexpr_18i ## testexpr_30h ## testexpr_29aox3 ## testexpr_18 ## testexpr_9fx4 ## testexpr_19g ## testexpr_19g _26g _28
+testexpr = testexpr_19g # testexpr_30i # testexpr_18i ## testexpr_29aox3 ## testexpr_18 ## testexpr_9fx4 ## testexpr_19g ##  _26g _28
 
     # as of 070121 at least these work ok in EVAL_REFORM with now-semipermanent kluge070119:
     # _2, _3a, _4a, _5, _5a, _10a, _10c, _9c, _9d, _9cx,
