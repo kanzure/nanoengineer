@@ -1,0 +1,94 @@
+I have done all the raw rendering and now I just need to use ImageMagick
+to do motion-blur, cross-fades, and add the nanosecond/rotation display.
+Given a clear plan, that is relatively quick work, so I hope to get the
+DVD in the mail to John some time in the next week.
+
+Here is the last version of the video I did before we brought in John:
+http://video.google.com/videoplay?docid=-199611355948259531
+
+Here are the various animation speeds. This is really a note to myself
+about how to do correct motion blur.0
+Fast: fastpng/fast_cpk_png, use raw frames directly
+	0.15 ps/sec (5 fs/frame)
+Medium: fastpng/fast_cpk_png, average 4 frames
+	0.6 ps/sec (20 fs/frame)
+Slow: slowpng/slow_cpk_png, average 10 frames
+	6 ps/sec (200 fs/frame)
+Slow jumpy: slowpng/slow_cpk_png, use every 10th frame
+	6 ps/sec (200 fs/frame)
+
+All animations are done at 30 FPS.
+CPK = van der Waals atom display, fat spherical atoms
+B+S = ball-and-stick atom display ("tubes" display)
+
+The sequence:
+(1) Titles 1 & 2: Medium speed, CPK, 23 seconds
+	I didn't render enough raw frames for this entire piece, so I
+	ran for 8 seconds with title 1, then started over and re-ran the
+	animation for 15 seconds for title 2. I have enough raw frames
+	for 18 seconds of medium-speed animation.
+(2) Cross fade: 5 secs medium CPK, half-second fade, 5 secs medium B+S, 
+(3) Title 3: 18 seconds fast B+S (8 secs with title, 10 secs without)
+(4) Title 4: 18 seconds medium B+S (8 secs with title, 10 secs without)
+(5) Title 5: 18 seconds fast B+S (8 secs with title, 10 secs without)
+(6) Titles 6 - 8: 25 seconds, fast jumpy B+S
+(7) Cross fade: 5 secs slow jumpy B+S, half-second fade, 5 secs slow jumpy CPK
+(8) Titles 9 & 10: 27 secs slow CPK (not jumpy)
+
+Whenever there is no title on the screen, the nanoseconds and rotations
+show in the upper left, in fixed-width font, with three digits after the
+decimal point. Since adding these is trivial, I will produce all sequences
+both with and without them, and you can decide when to cut them in or out.
+
+My plan is to make a DVD with two top-level directories (with nsecs/rots,
+and without) and in each of those, put eight subdirectories with the
+640x480 frames for the eight pieces shown above.
+
+==============================
+
+I won't be doing anything with titles, but just for reference, here is
+what was previously used for titles. I've used HTML tags to
+notate line breaks, peragraphs, boldface, a horizontal dividing line (hr),
+and indentation (blockqoute). Titles 7 and 8 appear along the bottom of
+the screen.
+
+1: Molecular dynamics of a small bearing at 300K, Computational modeling
+	by NanoEngineer-1, <Nanorex logo>, (c) 2006 Nanorex, Inc.
+2: The device shown is a low-friction bearing with a tight ring that holds a
+	rotating shaft. <p> All dynamics are at room temperature (300K) with
+	a shaft frequency of 5 GHz. Apparent motions will be compared at
+	several display rates and with different imaging methods. <hr>
+	Initial display rate: 0.6 ps per second <br>
+	Imaging: multiple position samples per frame
+3: Base rate: <b>0.15 ps per second</b> <p>
+	At this speed, the thermal motion of individual atoms is clearly
+	visible. Shaft rotation is almost imperceptible.
+4: 4 times base rate: <b>0.6 ps per second</b> <p>
+	At this speed, the thermal motion of larger structures becomes
+	obvious. Shaft rotation remains inconspicuous.
+5: 40 times base rate: <b>6.0 ps per second</b> <p>
+	The 5 GHz rotation is conspicuous. Atomic vibrations are now a
+	blur of motion.
+	<blockquote><b>Each animation frame shows merged images from
+	many position samples.</b></blockquote>
+6: <b>Same rate, 6.0 ps per second, but imaging only one sample per frame.
+	This omits realistic motion blur.</b><p>
+	Imaging a single position sample per frame creates the false
+	appearance that atoms oscillate at the frame rate. This illusion
+	is common in molecular animations.
+7: A stroboscopic illusion: motion speeds appear wrong
+8: Realism requires multiple samples per frame
+9: Covalent structures of the kind shown in this video can be realistically
+	simulated using current molecular dynamics techniques.<p>
+	Producing structures of this kind, however, will require molecular
+	nanofabrication techniques that have yet to be developed.
+10: Simulation and animation by Will Ware <p>
+	Molecular dynamics by NanoEngineer-1 <p>
+	Device design from <i>Nanosystems</i> <p>
+	(K. E. Drexler, Wiley Interscience, 1992) <p>
+	<Nanorex logo> <p>
+	(c) 2006 Nanorex, Inc. <p>
+	<i>Rendering powered by POVray</i>
+
+I think that last one should say "POV-Ray" rather than "POVray". That seems
+to be the spelling preferred by its developers.
