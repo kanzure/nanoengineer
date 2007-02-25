@@ -203,7 +203,7 @@ class DraggableObject(DelegatingInstanceOrExpr):
             motion
          ),
         # hover-highlighted appearance (also used when dragging, below)
-        Translate(
+        highlighted = Translate(
             DisplistChunk(
                 # This inner DisplistChunk, in theory, might help make up for current implem of disabling them inside WarpColors...
                 # in my tests, it didn't make a noticeable difference (probably since obj is fast to draw). [070216 2pm]
@@ -221,9 +221,9 @@ class DraggableObject(DelegatingInstanceOrExpr):
             ),
             motion
          ),
-        _my.highlighted, # pressed_in appearance
-        _my.highlighted, # pressed_out appearance
-            ###BUG: this pressed_out appearance seems to work for DNA cyls but not for draggable PalletteWell items! [070215 4pm]
+        pressed = _my.highlighted, # pressed_in and pressed_out appearance
+            ###BUG (when we gave pressed_in and pressed_out separately -- ###UNTESTED since then):
+            # this pressed_out appearance seems to work for DNA cyls but not for draggable PalletteWell items! [070215 4pm]
         ## sbar_text = format_Expr( "Draggable %r", obj ),
             ##e should use %s on obj.name or obj.name_for_sbar, and add those attrs to ModelObject interface
             # (they would delegate through viewing wrappers on obj, if any, and get to the MT-visible name of the model object itself)

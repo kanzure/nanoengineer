@@ -129,19 +129,20 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
     # args (which specify what it looks like in various states)
     plain = Arg(Widget2D)
     delegate = _self.plain # always use this one for lbox attrs, etc
-    highlighted = Arg(Widget2D, _self.plain)
+    highlighted = ArgOrOption(Widget2D, plain)
         # fyi: leaving this out is useful for things that just want a glname to avoid mouseover stickiness
         # implem note: this kind of _self-referential dflt formula is not tested, but ought to work;
         # btw it might not need _self, not sure, but likely it does --
         # that might depend on details of how Arg macro uses it ###k
     # these next args are really meant for Button -- maybe we split this into two variants, Button and Draggable
-    pressed_in = Arg(Widget2D, _self.highlighted)
+    pressed_in = ArgOrOption(Widget2D, or_Expr(_self.pressed, highlighted))
         #e might be better to make it plain (or highlighted) but with an outline, or so...)
-    pressed_out = Arg(Widget2D, _self.plain)
+    pressed_out = ArgOrOption(Widget2D, or_Expr(_self.pressed, plain))
         # ... good default for a Button, assuming we won't operate then -- but bad default for a draggable --
         # but not only this, but everything about how to detect a "selobj" under mouse, should be changed for that [070213 comment]
 
     # options
+    pressed = Option(Widget2D, None, doc = "if provided, pressed is the default for both pressed_in and pressed_out")#070224
     sbar_text = Option(str, "") # mouseover text for statusbar
     #e on_enter, on_leave -- see comment below
     on_press = Option(Action)
