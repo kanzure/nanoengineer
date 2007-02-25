@@ -61,7 +61,9 @@ class testmode(super):
     standard_glDepthFunc = GL_LEQUAL # overrides default value of GL_LESS from GLPane; tested only re not causing bugs; maybe adopt it generally ##e [070117]
         # note: the bug in drawing the overlay in testexpr_10c when the openclose is highlighted is now fixed both with and without
         # this setting [tested both ways 070117]. The internal code doing what it's supposed to, due to this setting, is not tested.
-        
+
+    _defeat_update_selobj_MMB_specialcase = True # 070224; overridden at runtime in some methods below
+    
     ## UNKNOWN_SELOBJ = something... this is actually not set here (necessary for now) but a bit later in exprs/test.py [061218 kluge]
 
     def render_scene(self, glpane):
@@ -109,17 +111,17 @@ class testmode(super):
         reload(testdraw)
         
     def leftDown(self, event):
-        ## not here, only in emptySpaceLeftDown: self.reload() -- note, that depends on calling super.leftDown!
         import testdraw
         try:
-            testdraw.leftDown(self, event, self.o, super) # if super.leftDown and/or gl_update should be called, this should do it
-            # this might reload testdraw, see other comments
+            testdraw.leftDown(self, event, self.o, super)
+                # note: if super.leftDown and/or gl_update should be called now, this must do it.
+                # note: this might reload testdraw (inside self.emptySpaceLeftDown).
         except:
             #e history message?
             print_compact_traceback("exception in testdraw.leftDown ignored: ")
 
     def emptySpaceLeftDown(self, event):
-        self.reload() # did this in leftDown, not here, until 060726 late
+        self.reload()
         super.emptySpaceLeftDown(self, event) #e does testdraw need to intercept this?
 
     # let super do these, until we get around to defining them here and letting testdraw intercept them:
@@ -137,16 +139,6 @@ class testmode(super):
         self.o.pov = V(0,0,0)
         self.o.quat = Q(1,0,0,0)
 
-        #k are these attrs still needed or used?? probably not...
-        self.right = V(1,0,0) ## self.o.right
-        self.up = V(0,1,0)
-        self.left = - self.right
-        self.down = - self.up
-        self.away = V(0,0,-1)
-        self.towards = - self.away
-        self.origin = - self.o.pov ###k replace with V(0,0,0)
-        
-        # set perspective view -- no need, just do it in user prefs
         res = super.Enter(self)
         if 1:
             # new 070103; needs reload??
@@ -181,10 +173,88 @@ class testmode(super):
         for tb in self.hidethese:
             tb.show()
 
-    def middleDrag(self, event):
-        glpane = self.o
-        super.middleDrag(self, event)
+
+    # middle* event methods, defined here to permit "New motion UI" to be prototyped in testmode [bruce 070224].
+    #
+    # Notes: there are 12 "middle" methods in all (4 key combos, and Down Drag Up),
+    # tho for left & right buttons there are only 9 (since there is no ShiftCntl combo).
+    #   That doesn't bother selectMode since it ignores the ShiftCntl part of the methodname,
+    # channelling them all together and later using glpane.modkeys to sort them out
+    # (which does define a separate state for 'Shift+Control').
+    #   But for capturing these middle
+    # methods (i.e. Alt/Option button) for the "New motion UI", it's tougher -- we want to use
+    # selectMode's ability to count a tiny drag as not a drag, to dispatch on selobj type
+    # (Atom, Bond, Jig, DragHandler), and maybe more, so we need to turn these into left methods here,
+    # but we need to add something like glpane.altkey to not forget they were really middle,
+    # and then we need to modify selectMode to not think they are really left if this would mess it up
+    # (which may only matter for Atom Bond Jig being visible in testmode) -- only for DragHandler would
+    # it pass the event inside (and then we'd detect glpane.altkey inside Highlightable).
+    #   Either that, or we could actually implement the "New motion UI" directly inside selectMode,
+    # for all objects.
+    #   Either way, we need extensive mods to selectMode, but that's just been split into new files
+    # in Qt4 branch but not Qt3 branch, so it might be better to not do that now, either splitting it
+    # in Qt3 the same way, or holding off until Qt4 is standard.
+    #   I guess there is one simpler way: ignore the issue of Atom Bond Jig being visible in testmode
+    # (the bug will be that middle clicks on them act like left clicks) -- just turn middle into left,
+    # don't tell selectMode, and worry only about the empty space or DragHandler cases. We can also
+    # forget the ShiftCntl part at the same time. Ok, I'll try it! (It required a minor change in
+    # selectMode, to notice a new attr _defeat_update_selobj_MMB_specialcase defined above.)
+    #   It was simpler before I added the debug_pref to turn it off! 3 distinct methods before, all 12 needed now.
+
+    def _update_MMB_policy(self):
+        "[private helper for middle* methods]"
+        capture_MMB = debug_pref("testmode capture MMB", Choice_boolean_False, prefs_key = "A9 devel/testmode/testmode capture MMB")
+        self._capture_MMB = self._defeat_update_selobj_MMB_specialcase = capture_MMB
         return
+
+    def _middle_anything(self, event, methodname):
+        "[private helper for middle* methods]"
+        # glpane = self.o
+        # print "%s: glpane.button = %r" % (methodname, glpane.button,)
+            # 'MMB' for Down and Drag, None for Up, in singlet middleClick; when it's None,
+            # Highlightable will just have to remember it from the middleDown or middleDrag [and now it does]
+        self._update_MMB_policy()
+        if self._capture_MMB:
+            if methodname.endswith('Down'):
+                super.leftDown(self, event) # don't go through self.leftDown for now -- it's only used for reload, gl_update, etc
+            elif methodname.endswith('Drag'):
+                super.leftDrag(self, event)
+            elif methodname.endswith('Up'):
+                super.leftUp(self, event)
+            else:
+                assert 0, "bad methodname %r" % (methodname,)
+        else:
+            method = getattr(super, methodname)
+            method(self, event)
+        return
+        
+    def middleDown(self, event):
+        self._middle_anything( event, 'middleDown')
+    def middleShiftDown(self, event):
+        self._middle_anything( event, 'middleShiftDown')
+    def middleCntlDown(self, event):
+        self._middle_anything( event, 'middleCntlDown')
+    def middleShiftCntlDown(self, event):
+        self._middle_anything( event, 'middleShiftCntlDown')
+        
+    def middleDrag(self, event):
+        self._middle_anything( event, 'middleDrag')
+    def middleShiftDrag(self, event):
+        self._middle_anything( event, 'middleShiftDrag')
+    def middleCntlDrag(self, event):
+        self._middle_anything( event, 'middleCntlDrag')
+    def middleShiftCntlDrag(self, event):
+        self._middle_anything( event, 'middleShiftCntlDrag')
+        
+    def middleUp(self, event):
+        self._middle_anything( event, 'middleUp')
+    def middleShiftUp(self, event):
+        self._middle_anything( event, 'middleShiftUp')
+    def middleCntlUp(self, event):
+        self._middle_anything( event, 'middleCntlUp')
+    def middleShiftCntlUp(self, event):
+        self._middle_anything( event, 'middleShiftCntlUp')
+
 
     def keyPressEvent(self, event):
         try:

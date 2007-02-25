@@ -2057,8 +2057,13 @@ class selectAtomsMode(selectMode):
         
         # If animating or ZPRing (zooming/panning/rotating) with the MMB, do not hover highlight anything. 
         # For more info about <is_animating>, see GLPane.animateToView(). mark 060404.
-        if self.o.is_animating or self.o.button == "MMB":
+        if self.o.is_animating or \
+           (self.o.button == "MMB" and not getattr(self, '_defeat_update_selobj_MMB_specialcase', False)):
             return
+                # note, returning None violates this method's API (acc'd to docstring), but this apparently never mattered until now,
+                # and it's not obvious how to fix it (probably to be correct requires imitating the conditional set_selobj below),
+                # so instead I'll just disable it in the new case that triggers it, using _defeat_update_selobj_MMB_specialcase.
+                # [bruce 070224]
         
         wX = event.pos().x()
         wY = glpane.height - event.pos().y()
@@ -2175,7 +2180,7 @@ class selectAtomsMode(selectMode):
             known = self.update_selobj(event) # this might do gl_update (but the paintGL triggered by that only happens later!),
                 # and (when it does) might not know the correct obj...
                 # so it returns True iff it did know the correct obj (or None) to store into glpane.selobj, False if not.
-        assert known in [False,True]
+        assert known in [False,True], "known should be False or True, not %r" % (known,) #bruce 070224 added message to assert
         # If not known, use None or use the prior one? This is up to the caller
         # since the best policy varies. Default is resort_to_prior = True since some callers need this
         # and I did not yet scan them all and fix them. ####@@@@ do that
