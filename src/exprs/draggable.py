@@ -262,7 +262,11 @@ class DraggableObject(DelegatingInstanceOrExpr):
     # has Draggable interface (see demo_polygon.py for explan) for changing self.motion
         
     def _cmd_drag_from_to( self, p1, p2):
-        self.motion = self.motion + (p2 - p1)
+        if self._delegate.altkey:
+            ###KLUGE, just a hack for testing Highlightable.altkey [070224]; later, do rotation instead (per "New motion UI")
+            self.motion = self.motion + (p2 - p1) * -1
+        else:
+            self.motion = self.motion + (p2 - p1)
         return
     
     ##e something to start & end the drag? that could include flush if desired...

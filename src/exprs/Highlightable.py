@@ -539,6 +539,10 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         # since we may also use it to determine sbar_text, or to determine what to offer in a cmenu
         # if one is requested at this point. (In the cmenu case, the point used to choose the selobj
         # is better to use than the current mousepoint, though ideally they would not differ.) [070205]
+        #
+        # Note: a test shows self.env.glpane.modkeys is set as expected here (to None, 'Shift', 'Control' or 'Shift+Control'),
+        # but changing a modkey doesn't call this method again, as it would need to if the message we return
+        # could depend on the modkeys. That is reasonably considered to be a ###BUG. [070224]
         return str(self.sbar_text) or "%r" % (self,) #e note: that str() won't be needed once the type-coercion in Option works
 
     def highlight_color_for_modkeys(self, modkeys):
@@ -584,8 +588,27 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         return res # I forgot this line, and it took me a couple hours to debug that problem! Ugh.
             # Caller now prints a warning if it's None.
     
-    ### grabbed from Button, maybe not yet fixed for here
+    ### [probably obs cmt:] grabbed from Button, maybe not yet fixed for here
+            
+    altkey = False # [070224] a new public Instance attr, boolean, meaningful only during press/drag/release --
+        # True iff alt/option/middlebutton was down when drag started. WARNING: NOT CHANGE TRACKED. 
+        # (Note: the code here does not enforce its not changing during a drag,
+        #  but I think glpane.fix_buttons does.)
+    
+    _glpane_button = None # private helper attr for altkey
+
+    def _update_altkey(self):
+        "[private helper method for public read-only Instance attr self.altkey]"
+        self._glpane_button = self.env.glpane.button or self._glpane_button # persistence needed to handle None in ReleasedOn
+        self.altkey = (self._glpane_button == 'MMB')
+        return
+    
     def leftClick(self, point, event, mode):
+        # print "HL leftClick: glpane.button = %r" % (self.env.glpane.button,) # 'MMB' or 'LMB'
+        self._update_altkey()
+        # Note: it's probably the case that glpane.modkeys is one of None, 'Shift', 'Control' or 'Shift+Control',
+        # in this and in other event methods,
+        # but that as of 070224 this is never called when Option/Alt key (or middle mouse button) is pressed.
 ##        if 1:
 ##            print_compact_stack("fyi: on_press called: ")#061218 debug hl sync bug
         # print "mode._drag_handler_gl_event_info = %r" % (mode._drag_handler_gl_event_info,)
@@ -604,7 +627,9 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         return self # in role of drag_handler
     
     def DraggedOn(self, event, mode):
-        # only ok for Button so far
+        # print "HL DraggedOn: glpane.button = %r" % (self.env.glpane.button,) # 'MMB' or 'LMB'
+        self._update_altkey()
+        # obs cmt: only ok for Button so far
         #e might need better args (the mouseray, as two points?) - or get by callback
         # print "draggedon called, need to update_selobj, current selobj %r" % mode.o.selobj
             # retested this 061204 in testexpr_10c; it gets called, but only during drag (motion when mouse is down);
@@ -624,6 +649,8 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         return
     
     def ReleasedOn(self, selobj, event, mode): ### may need better args
+        # print "HL ReleasedOn: glpane.button = %r" % (self.env.glpane.button,) # always None.
+        self._update_altkey()
         ### written as if for Button, might not make sense for draggables
         self.transient_state.in_drag = False
         self.inval(mode) #k needed? (done in two places per method, guess is neither is needed)
