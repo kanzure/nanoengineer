@@ -65,7 +65,7 @@ from Boxed import Boxed
 
 import transforms
 reload_once(transforms)
-from transforms import Translate
+from transforms import Translate, RotateTranslate
 
 import Highlightable
 reload_once(Highlightable)
@@ -135,13 +135,24 @@ class DraggableObject(DelegatingInstanceOrExpr):
     """
     # args
     obj = Arg(ModelObject)
+
+    # options
+    #e selectable = Option(bool, True, doc = "whether to let this object be click-selectable in the standard way") [see selected]
+    rotatable = Option(bool, True, doc = "whether to let this object rotate about its center using MMB/Alt/Option drags")
+        # This is intended to implement an initial subset of the "New motion UI" [070225 new feature]
+        # [###e default will change to False after testing]
+        # WARNING: as an optim, we might require that this be True initially, or even always (i.e. be a constant),
+        # if it will ever be True during the Instance's lifetime -- not sure. If so, this requirement must at least be documented,
+        # and preferably error-detected. ###FIX (if we do require that)
     
     # state
     selected = State(bool, False) ###KLUGE test stub, only set when debug070209
-    motion = State(Vector, V(0,0,0)) # publicly visible, probably not publicly changeable, but not sure -- why not let it be?
-        # in case it is or in case of bugs, never modify it in place (using +=) -- assume it might be a shared Numeric array.
-        # Note: this needs to be change/usage tracked so that our drawing effects are invalidated when it changes.
-        #k is it? It must be, since State has to be by default.
+    motion = State(Vector, V(0,0,0)) # publicly visible and settable (but only with =, not +=). ##e rename?
+        # WARNING: use of += has two distinct bugs, neither error directly detectable:
+        # - changes due to += (or the like) would not be change tracked.
+        #   (But all changes to this need to be tracked, so our drawing effects are invalidated when it changes.)
+        # - value might be a shared Numeric array -- right now use of = to set this doesn't copy the array to make us own it.
+    rotation = State(Quat, Q(1,0,0,0)) #070225 new feature -- applied around object center
 
     # geometric attrs should delegate to obj, but be translated by motion as appropriate.
     ##e Someday we need to say that in two ways:
@@ -198,12 +209,9 @@ class DraggableObject(DelegatingInstanceOrExpr):
 
     delegate = Highlightable(
         # plain appearance
-        Translate(
-            obj_drawn,
-            motion
-         ),
+        RotateTranslate( obj_drawn, rotation, motion),
         # hover-highlighted appearance (also used when dragging, below)
-        highlighted = Translate(
+        highlighted = RotateTranslate(
             DisplistChunk(
                 # This inner DisplistChunk, in theory, might help make up for current implem of disabling them inside WarpColors...
                 # in my tests, it didn't make a noticeable difference (probably since obj is fast to draw). [070216 2pm]
@@ -219,7 +227,7 @@ class DraggableObject(DelegatingInstanceOrExpr):
                 ## WarpColors( obj_drawn, lambda color: ave_colors( 0.2, gray, color ) ), # gray-end instead of whiten -- not quite as good
                 ## WarpColors( obj_drawn, lambda color: (color[1],color[2],color[0]) ), # permute the hues...
             ),
-            motion
+            rotation, motion
          ),
         pressed = _my.highlighted, # pressed_in and pressed_out appearance
             ###BUG (when we gave pressed_in and pressed_out separately -- ###UNTESTED since then):
@@ -264,7 +272,16 @@ class DraggableObject(DelegatingInstanceOrExpr):
     def _cmd_drag_from_to( self, p1, p2):
         if self._delegate.altkey:
             ###KLUGE, just a hack for testing Highlightable.altkey [070224]; later, do rotation instead (per "New motion UI")
-            self.motion = self.motion + (p2 - p1) * -1
+            # (Is it also a ###KLUGE to detect altkey within this method, rather than caller detecting it and passing a flag
+            #  or calling a different method? YES.)
+            ## self.motion = self.motion + (p2 - p1) * -1
+            # change self.rotation... by a quat which depends on p2 - p1 projected onto the screen... or the similar mouse x,y delta...
+            ###KLUGE: assume DZ is toward screen and scale is standard....
+            # wait, ###BUG, we don't even have enough info to do this right, or not simply, starting from p1, rather than startpoint...
+            dx,dy,dz = p2 - p1
+            rotby = Q(p1,p2) ###WRONG but ought to be legal and visible and might even pretend to be a trackball in some cases and ways 
+            self.rotation = self.rotation + rotby
+            # print "%r motion = %r rotation = %r" % (self, self.motion, self.rotation)
         else:
             self.motion = self.motion + (p2 - p1)
         return

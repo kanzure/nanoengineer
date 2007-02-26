@@ -18,7 +18,8 @@ see also Rotated and Closer in testdraw1, for sample opengl code, showing how si
 from basic import *
 from basic import _self
 
-from OpenGL.GL import glTranslatef ###e later do this thru glpane object
+from OpenGL.GL import glTranslatef, glPushMatrix, glRotatef, glPopMatrix
+
 
 ###e [semiobs cmt:]
 # these vec routines are not best.. what's best is to turn into (not away from) numeric arrays, for their convenience.
@@ -114,5 +115,50 @@ class Translate(InstanceOrExpr, DelegatingMixin):
 
 def Closer(expr, amount = 0.1): #061208 #e should be a class i guess, if anyone wants to use _this on it -- unlikely
     return Translate(expr, (0,0,amount))
+
+class RotateTranslate(DelegatingInstanceOrExpr):#070225
+    """
+    RotateTranslate(thing, quat, vector) draws as thing, rotated around its center by quat, then translated by vector.
+    ###e other options for other kinds of motion? e.g. a different center of rotation?
+    ###e lbox transforms?
+    """
+    # args
+    delegate = Arg(Widget)
+    quat = Arg(Quat) ###e also permit 2-arg form like glRotate itself does? or only when we're called Rotate?
+        #e also permit named options (rotation or quat? angle, amount? degrees or radians or turns?? various arg formats like Q takes?)
+    vector = Arg(Vector, ORIGIN)
+    # formulae
+    motion = call_Expr( tuple3_from_vec, vector)
+    center = delegate.center + motion
+    ###e lbox transforms? could just use the same ones as Translate, but do we need them at all?
+    # (bounding radius around center might be more useful -- it needs no transform beyond what we just did for center.)
+    def draw(self):
+        self.pushMatrix()
+        self.drawkid(self.delegate) # has exception protection (#e#k or will soon)
+        self.popMatrix()
+        return
+    def pushMatrix(self): # [modified from same method in class molecule, chunk.py]
+        """Do glPushMatrix(), and then transform from external to local coordsys.
+        """
+        # do most of the things that might cause exceptions before doing any OpenGL calls.
+        x,y,z = self.motion
+        cx,cy,cz = self.delegate.center
+        q = self.quat
+        try:
+            a,b,c,d = q.angle*180.0/pi, q.x, q.y, q.z
+        except:
+            ###UNTESTED
+            print "exception in a,b,c,d = q.angle*180.0/pi, q.x, q.y, q.z for q == %r" % (q,)
+                # does my quat bug print this? no, it happily permits a quat to become Q(nan, nan, nan, nan) with no exception...
+            a,b,c,d = 0,1,0,0
+        glPushMatrix()
+        glTranslatef(x+cx,y+cy,z+cz)
+        glRotatef(a,b,c,d)
+        glTranslatef(-cx,-cy,-cz)
+        return
+    def popMatrix(self): # [copied from same method in class molecule, chunk.py]
+        "Undo the effect of self.pushMatrix()."
+        glPopMatrix()
+    pass
 
 # end

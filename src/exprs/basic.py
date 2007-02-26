@@ -40,6 +40,7 @@ sys.setrecursionlimit(650) # 5000 is set in startup_funcs.py; this will ease deb
 # == imports from cad/src
 
 from VQT import V, A, Q, norm, vlen, dot
+from math import sqrt #070225
 from math import pi, sin, cos #070130
 
 from state_utils import transclose, same_vals
@@ -228,7 +229,7 @@ NullIpath = '.' ##k ok that it's not None? maybe not, we might test for None... 
 StubType = Anything # use this for stub Type symbols [new symbol and policy, 070115]
 
 # stub types
-Width = Color = Vector = Position = Point = StateRef = StubType   # for Action, see below
+Width = Color = Vector = Quat = Position = Point = StateRef = StubType   # for Action, see below
 Type = Anything
 
 # == fundamental defs
