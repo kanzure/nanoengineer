@@ -1278,16 +1278,37 @@ testexpr_31 = DraggableObject(Rect(1,0.5,yellow)) # works [but see caveats in dr
     # [note: this can work even though Rect() has no .move (and no state of its own, so far), since we never try to flush motion;
     #  eventually what's needed is for Rect(), when coerced to ModelObject, to acquire enough position state to be moved ###e]
 
-# == misc
+# == IsocelesTriangle
 
 testexpr_32 = IsocelesTriangle(1.5, 1, green) # works [after unstubbing of IsocelesTriangle from being equal to Rect, 070212]
     # fyi: so does _9b, which contains IsocelesTriangle
+
+# == Highlightable.screenrect()
+
+class _testexpr_33(DelegatingInstanceOrExpr):#070226
+    "test Highlightable.screenrect()"
+    delegate = Highlightable(Rect(1.5,1,orange), sbar_text = "press orange rect to draw two diagonals across screen")
+    def draw(self):
+        if self._delegate.transient_state.in_drag: # (requires mouse click!) # other tests here say glpane.in_drag
+            ll, lr, ur, ul = self.screenrect() # these points should be valid in the HL's coords == self's coords
+            from drawer import drawline
+            drawline(ll,ur,blue)
+            drawline(lr,ul,red)
+        self.drawkid(self._delegate) ##### Q or BUG: why does some other code get away with passing self.delegate to drawkid???
+            #e could it be instantiating kid every time it draws it? or drawing a non-Instance and not noticing??? ####@@@@
+    pass
+
+testexpr_33 = _testexpr_33() # half-works ...
+            ###BUG: they act sort of as if (0,0) was in screen center, not lower left! Maybe width & height units are wrong??
+testexpr_33x = Translate(_testexpr_33(), (2,-2)) # half-works in same way;
+            ###BUG: lines start in same place rel to obj, end at screen corners!
+
 
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
 
 enable_testbed = True
 
-testexpr = testexpr_30i # testexpr_19h # testexpr_18i ## testexpr_29aox3 ## testexpr_18 ## testexpr_9fx4 ##  _26g _28
+testexpr = testexpr_33 # testexpr_30i # testexpr_19h # testexpr_18i ## testexpr_29aox3 ## testexpr_18 ## testexpr_9fx4 ##  _26g _28
 
     # as of 070121 at least these work ok in EVAL_REFORM with now-semipermanent kluge070119:
     # _2, _3a, _4a, _5, _5a, _10a, _10c, _9c, _9d, _9cx,

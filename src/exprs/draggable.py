@@ -271,17 +271,18 @@ class DraggableObject(DelegatingInstanceOrExpr):
         
     def _cmd_drag_from_to( self, p1, p2):
         if self._delegate.altkey:
-            ###KLUGE, just a hack for testing Highlightable.altkey [070224]; later, do rotation instead (per "New motion UI")
-            # (Is it also a ###KLUGE to detect altkey within this method, rather than caller detecting it and passing a flag
-            #  or calling a different method? YES.)
-            ## self.motion = self.motion + (p2 - p1) * -1
-            # change self.rotation... by a quat which depends on p2 - p1 projected onto the screen... or the similar mouse x,y delta...
-            ###KLUGE: assume DZ is toward screen and scale is standard....
-            # wait, ###BUG, we don't even have enough info to do this right, or not simply, starting from p1, rather than startpoint...
-            dx,dy,dz = p2 - p1
-            rotby = Q(p1,p2) ###WRONG but ought to be legal and visible and might even pretend to be a trackball in some cases and ways 
-            self.rotation = self.rotation + rotby
-            # print "%r motion = %r rotation = %r" % (self, self.motion, self.rotation)
+            assert 0, "should no longer be called"
+##            ###KLUGE, just a hack for testing Highlightable.altkey [070224]; later, do rotation instead (per "New motion UI")
+##            # (Is it also a ###KLUGE to detect altkey within this method, rather than caller detecting it and passing a flag
+##            #  or calling a different method? YES.)
+##            ## self.motion = self.motion + (p2 - p1) * -1
+##            # change self.rotation... by a quat which depends on p2 - p1 projected onto the screen... or the similar mouse x,y delta...
+##            ###KLUGE: assume DZ is toward screen and scale is standard....
+##            # wait, ###BUG, we don't even have enough info to do this right, or not simply, starting from p1, rather than startpoint...
+##            dx,dy,dz = p2 - p1
+##            rotby = Q(p1,p2) ###WRONG but ought to be legal and visible and might even pretend to be a trackball in some cases and ways 
+##            self.rotation = self.rotation + rotby
+##            # print "%r motion = %r rotation = %r" % (self, self.motion, self.rotation)
         else:
             self.motion = self.motion + (p2 - p1)
         return
@@ -307,6 +308,13 @@ class DraggableObject(DelegatingInstanceOrExpr):
         point = self.current_event_mousepoint() # the touched point on the visible object (hitpoint)
             # (this method is defined in the Highlightable which is self.delegate)
         self.oldpoint = self.startpoint = point
+        # decide type of drag now, so it's clearly constant during drag, and so decision code is only in one place.
+        # (but note that some modkey meanings might require that changes to them during the same drag are detected [nim].)
+        if self._delegate.altkey:
+            self._this_drag = 'free x-y rotate'
+                #e more options later, and/or more flags like this (maybe some should be booleans)
+        else:
+            self._this_drag = 'free x-y translate'
         if debug070209:
             self.ndrags = 0
         return
@@ -319,9 +327,33 @@ class DraggableObject(DelegatingInstanceOrExpr):
             self.ndrags += 1
 ##            if (self.ndrags == 1) or 1:
 ##                print "drag event %d, model distance = %r, pixel dist not computed" % (self.ndrags, vlen(oldpoint - point),)
-        self._cmd_drag_from_to( oldpoint, point) # use Draggable interface cmd
+        if self._this_drag == 'free x-y rotate':
+            # rotate using New motion UI [mostly nim]
+            print "free x-y rotate nim"
+##            dx,dy,dz = p2 - p1
+##            rotby = Q(p1,p2) ###WRONG but ought to be legal and visible and might even pretend to be a trackball in some cases and ways 
+##            self.rotation = self.rotation + rotby
+##            # print "%r motion = %r rotation = %r" % (self, self.motion, self.rotation)
+            # two implem choices:
+            # 1. know the eye direction and the screen dims in plane of startpoint, in model coords; compute in model coords
+            # 2. get the mouse positions (startpoint and point) and screen dims in window x,y coords, compute rotation in eye coords,
+            #   but remember to reorient it to correspond with model if model coords are rotated already.
+            # Not sure which one is better.
+            #   In general, placing user into model coords (or more precisely, into object local coords) seems more general --
+            # for example, what if there were several interacting users, each visible to the others?
+            # We'd want each user's eye & screen to be visible! (Maybe even an image of their face & screen, properly scaled and aligned?)
+            # And we'd want their posns to be used in the computations here, all in model coords.
+            # (Even if zoom had occurred, which means, even the user's *size* is quite variable!)
+            #   I need "user in model coords" for other reasons too, so ok, I'll do it that way.
+            # Hey, I might as well fix the bug in current_event_mousepoint which fakes the center of view, at the same time.
+            # (I can't remember its details right now, but I think it assumed the local origin was the cov, which is obviously wrong.)
+        elif self._this_drag == 'free x-y translate':
+            self._cmd_drag_from_to( oldpoint, point) # use Draggable interface cmd on self
+        else:
+            assert 0
         self.oldpoint = point
         self.KLUGE_gl_update() ###k needed? i hope not, but i'm not sure; guess: NO (provided self.motion is change/usage tracked)
+            ###TRY removing that sometime
         return
     def on_release(self):
         #e here is where we'd decide if this was really just a "click", and if so, do something like select the object,

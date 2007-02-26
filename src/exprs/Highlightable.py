@@ -410,7 +410,8 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         glMatrixMode(GL_MODELVIEW)
         glPopMatrix()
         
-    def current_event_mousepoint(self, center = None, radius = None, plane = None): #061206; 070203 added 'plane' and revised docstring
+    def current_event_mousepoint(self, center = None, radius = None, plane = None, _wXY = None):
+        #061206; 070203 added 'plane' and revised docstring; 070226 added _wXY
         #e rename? #e add variant to get the drag-startpoint too #e cache the result
         #e is this the right class for it? self is only used for glpane and local coords,
         # but "run_OpenGL_in_local_coords" is only implementable in this class for the moment.
@@ -425,9 +426,12 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
            If radius [nim] and center are passed, then clicks in empty space only use center if they are close enough to it
         (within distance radius in center's plane) -- this imitates mouse hits on a screen-parallel circular disk
         defined by center and radius. If the disk is missed, the center of view is used as before.
-           If plane is passed, all the above data is ignored (depth buffer, c nter of view, center, radius).
+           If plane is passed, all the above data is ignored (depth buffer, center of view, center, radius).
         If plane is a plane [nim], the hit is assumed to lie within it; if a point, the hit lies within the screen-parallel
         plane containing that point.
+           Private option for use by other methods: _wXY overrides the window coords of the mouse event,
+        so you can get things like the corners/edges/center of a screen rectangle projected (ortho or perspective as approp)
+        to the same depth as a point (passed in plane), assuming you know about glpane.width and .height.
            WARNING [partly obs]: this is so far implemented for click (press) but not drag or release; it remains to be seen
         exactly what it will do for drag when the depth under the mouse is varying during the drag. ##k
         [later: it is used for drag successfully in demo_drag.py, but in a way which can be confused by seeing
@@ -462,10 +466,14 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
             gl_event_info = mode.dragstart_using_GL_DEPTH( event, more_info = True) # same as what mode did itself, for a leftClick
             #print "during drag got this info:",gl_event_info
             info = gl_event_info
-        def func(center = center, radius = radius, plane = plane):
+        def func(center = center, radius = radius, plane = plane, _wXY =_wXY):
+            "[local helper func, to be passed to self.run_OpenGL_in_local_coords]"
             # will the arg dflts fix this bug when I drag off the edge of the object?
             #   UnboundLocalError: local variable 'center' referenced before assignment
             farQ, abs_hitpoint, wX, wY, depth, farZ = info
+            if _wXY is not None:
+                ### this case is UNTESTED, NOT YET USED
+                wX, wY = _wXY
             if plane is not None:
                 center = plane # assume it's a point -- actual plane is nim
                 radius = None
@@ -520,6 +528,52 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         # delegation bothers us in specific cases, a workaround is to pass self as explicit last arg to methods
         # that might get delegated to, but that want to call submethods on the original object!! ###e]
 
+        return funcres # from current_event_mousepoint
+
+    def gluProject(self, point): #070226; probably to be moved to more kinds of objects but implemented differently, eventually
+        """Return the same (wX, wY, depth) that gluProject would or should return
+        if run in local model coords (and gl state for drawing) of this object,
+        on point (which should be an x,y,z-tuple or Numeric array in the same coords).
+           This may or may not actually run gluProject depending on the implementation
+        [as of 070226 it always does, and has ###BUGS inside display lists after trackballing].
+           WARNING: Proper behavior inside a display list is not yet defined; maybe it will have to assume
+        something about the list's initial coords... or the caller will have to pass those...
+        or self will have to know how to ask a parent DisplistChunk for those. ##e
+        """
+        ###UNTESTED, NOT YET USED
+        ran_already_flag, funcres = self.run_OpenGL_in_local_coords( lambda p = point: gluProject(p[0],p[1],p[2]) )
+        assert ran_already_flag # it ran immediately
+        wX, wY, depth = funcres
+        return wX, wY, depth
+
+    def gluUnProject(self, wX, wY, depth): #070226
+        """Act like gluUnProject... for more info (and bugs) see docstring for gluProject.
+        """
+        ###UNTESTED, NOT YET USED
+        ran_already_flag, funcres = self.run_OpenGL_in_local_coords( lambda: gluUnProject(wX, wY, depth) )
+        assert ran_already_flag
+        x,y,z = funcres
+        return V(x,y,z)
+    
+    def screenrect(self, point = ORIGIN):#070226 ##e rename? btw what interface are this and current_event_mousepoint part of?
+        """Return the 4 corners (in local model coords) of a screen rectangle, projected to the same depth as point
+        (which is also in local model coords; if left out it's their origin).
+        """
+        #e should add option to directly pass depth
+        # we don't call self.gluProject etc since we don't want to internally call self.run_OpenGL_in_local_coords 5 times!
+        def func():
+            p = point
+            xjunk, yjunk, depth = gluProject(p[0],p[1],p[2]) # get depth of point
+            glpane = self.env.glpane
+            w = glpane.width
+            h = glpane.height
+            #e should we add one (or half) to those?? ie is true x range more like 0,w or -0.5, w + 0.5 or 0, w+1??
+            # (x,y) might be (in ccw order around the screenrect, starting from botleft to botright):
+            res = map( lambda (wX, wY): gluUnProject(wX, wY, depth),
+                       ((0,0), (w,0), (w,h), (0,h)) )
+            return res # from func
+        ran_already_flag, funcres = self.run_OpenGL_in_local_coords( func )
+        assert ran_already_flag
         return funcres
 
     def __repr__THAT_CAUSES_INFRECUR(self):
