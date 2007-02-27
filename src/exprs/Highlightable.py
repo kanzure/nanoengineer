@@ -569,7 +569,7 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
             h = glpane.height
             #e should we add one (or half) to those?? ie is true x range more like 0,w or -0.5, w + 0.5 or 0, w+1??
             # (x,y) might be (in ccw order around the screenrect, starting from botleft to botright):
-            res = map( lambda (wX, wY): gluUnProject(wX, wY, depth),
+            res = map( lambda (wX, wY): A(gluUnProject(wX, wY, depth)),
                        ((0,0), (w,0), (w,h), (0,h)) )
             return res # from func
         ran_already_flag, funcres = self.run_OpenGL_in_local_coords( func )
