@@ -939,21 +939,25 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
             return 0, dflt_expr
         pass # above should not _e_eval or canon_expr without review -- should return an arg or dflt expr, not its value
 
-# zapped _e_decorate_draw from here & ExprsMeta, 070210
-##    # note: _e_decorate_draw is not defined on Widget, but here on InstanceOrExpr,
-##    # so that a delegating InstanceOrExpr can have a draw method and have it get decorated. [070104]
-##    def _e_decorate_draw(self, oldfunc, *args):
-##        "#doc"
-##        assert not args
-##        print "called _e_decorate_draw in %r" % self### remove when works [070104] (note: calling this is nim as of late 070104)
-##        return oldfunc(*args)
-
     def drawkid(self, kid): # note: supersedes nim _e_decorate_draw [070210]
-        #e plans: protect from exceptions, debug_pref for no-coord-change enforcement (for testing),
+        #e plans: protect from exceptions [done 070226], debug_pref for no-coord-change enforcement (for testing),
         # and most importantly, make possible a drawing pass which draws only a specified subset of drawables
         # but in their coord- or glstate- transforming containers, e.g. for a highlight-drawing pass.
         if kid is not None:
-            kid.draw()
+            try:
+                if is_expr_Instance(kid):
+                    kid.draw()
+                else:
+                    print "***BUG: drawkid sees non-Instance (skipping it): %r" % (kid,)
+                        #070226, worrying about self.delegate rather than self._delegate being passed --
+                        # common but why does it work??####BUG?? in testexpr_33x I tried it and it fails here...
+                        # I predict there are a bunch of bugs like this, that some used to work, and others were not tested
+                        # since drawkid came in, and in others self.delegate happens to be an Instance (maybe not true bugs then,
+                        # but unclear). Hmm, if delegate = Arg() then it is always an Instance -- a style decision is needed for that --
+                        # it should be "always use _delegate" even then I think, otherwise the code is a bad example.
+                        ###FIX all calls of drawkid
+            except:
+                print_compact_traceback("bug: exception in %r.drawkid(%r): " % (self, kid))
         return
     
     def _C__delegate(self):#070121
