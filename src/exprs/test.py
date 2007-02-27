@@ -1287,21 +1287,21 @@ testexpr_32 = IsocelesTriangle(1.5, 1, green) # works [after unstubbing of Isoce
 
 class _testexpr_33(DelegatingInstanceOrExpr):#070226
     "test Highlightable.screenrect()"
-    delegate = Highlightable(Rect(1.5,1,orange), sbar_text = "press orange rect to draw two diagonals across screen")
+    delegate = Highlightable( Rect(1.5, 1, orange), sbar_text = "press orange rect to draw two diagonals across screen")
     def draw(self):
         if self._delegate.transient_state.in_drag: # (requires mouse click!) # other tests here say glpane.in_drag
             ll, lr, ur, ul = self.screenrect() # these points should be valid in the HL's coords == self's coords
+##            print "the 4 points are",ll, lr, ur, ul
             from drawer import drawline
-            drawline(ll,ur,blue)
-            drawline(lr,ul,red)
+            drawline(blue,ll,ur) # at first I tried putting color last, and it seemed to work but with the wrong coords... ugh.
+            drawline(red,lr,ul)
         self.drawkid(self._delegate) ##### Q or BUG: why does some other code get away with passing self.delegate to drawkid???
             #e could it be instantiating kid every time it draws it? or drawing a non-Instance and not noticing??? ####@@@@
+            # Not anymore, since I just added code in drawkid to print it then but not draw it.
     pass
 
-testexpr_33 = _testexpr_33() # half-works ...
-            ###BUG: they act sort of as if (0,0) was in screen center, not lower left! Maybe width & height units are wrong??
-testexpr_33x = Translate(_testexpr_33(), (2,-2)) # half-works in same way;
-            ###BUG: lines start in same place rel to obj, end at screen corners!
+testexpr_33 = _testexpr_33() # works now
+testexpr_33x = Translate(_testexpr_33(), (2,-2)) # works now
 
 
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
