@@ -1305,7 +1305,7 @@ testexpr_33x = Translate(_testexpr_33(), (2,-2)) # works now
 
 enable_testbed = True
 
-testexpr = testexpr_30i # testexpr_19h # testexpr_18i ## testexpr_29aox3 ## testexpr_18 ## testexpr_9fx4 ##  _26g _28
+testexpr = testexpr_19h # testexpr_30i # testexpr_19h # testexpr_18i ## testexpr_29aox3 ## testexpr_18 ## testexpr_9fx4 ##  _26g _28
 
     # as of 070121 at least these work ok in EVAL_REFORM with now-semipermanent kluge070119:
     # _2, _3a, _4a, _5, _5a, _10a, _10c, _9c, _9d, _9cx,
@@ -1382,42 +1382,7 @@ def get_pref(key, dflt = _NOT_PASSED): #e see also... some stateref-maker I forg
 
 debug_prints_prefs_key = "A9 devel/debug prints for my bug?" # also defined in GLPane.py
 
-bottom_left_corner = Boxed(SimpleColumn(
-##    checkbox_pref("A9 devel/testdraw/use old vv.displist?", "use old vv.displist?"), # see USE_DISPLAY_LIST_OPTIM
-##    checkbox_pref("A9 devel/testdraw/drawtest in old way?", "drawtest in old way?", dflt = False),
-##    checkbox_pref("A9 devel/testdraw/use GLPane_Overrider?", "use GLPane_Overrider? (after reload)", dflt = True), # works (moves compass)
-    checkbox_pref("A9 devel/testdraw/super.Draw?", "draw model & region-sel rect?", dflt = True), # works
-    checkbox_pref("A9 devel/testdraw/show old timing data?", "show old timing data?", dflt = False), # works (side effect on text in next one)
-    checkbox_pref("A9 devel/testdraw/show old use displist?", "show old use displist?", dflt = False), # works
-    checkbox_pref("A9 devel/testdraw/draw test graphics?", "draw old test graphics?", dflt = False), # works, but turns off above two too (ignore)
-    checkbox_pref(debug_prints_prefs_key, "debug prints for redraw?", dflt = False), # note prefs_key text != checkbox label text
-    checkbox_pref("A9 devel/show redraw_counter?", "show redraw_counter?", dflt = False), # works, but has continuous redraw bug
-    Highlightable(DisplistChunk(
-        CenterY(TextRect( format_Expr("instance remade at redraw %r", call_Expr(get_redraw_counter)))) )),
-            # NOTE: not usage/change tracked, thus not updated every redraw, which we depend on here
-    ## CenterY(TextRect( format_Expr("current redraw %r [BUG: CAUSES CONTINUOUS REDRAWS]", call_Expr(get_redraw_counter_ALWAYSCHANGES)))),
-    If( call_Expr(get_pref, "A9 devel/show redraw_counter?", False),
-        # 070124 disabled both orders of Highlightable(DisplistChunk(, since fuzzy during highlighting after my testdraw.py fixes
-        ##Highlightable(DisplistChunk( CenterY(TextRect( format_Expr("current redraw %r", _app.redraw_counter))) )), 
-        ## DisplistChunk (Highlightable( CenterY(TextRect( format_Expr("current redraw %r", _app.redraw_counter))) )),
-        # 070124 just don't use a displist, since it'd be remade on every draw anyway (except for glselect and main in same-counted one)
-        Highlightable( CenterY(TextRect( format_Expr("current redraw %r", _app.redraw_counter))) ),
-            # should be properly usage/change tracked; has continuous redraw bug, not yet understood.
-            # note: after checking the checkbox above, the bug shows up only after the selobj changes away from that checkbox.
-            # update 070110 1040p: the bug is fixed in GLPane.py/changes.py; still not fully understood; more info to follow. ###e
-        Highlightable(DisplistChunk(TextRect("current redraw: use checkbox (bug is fixed)"))) ####
-    ),
-    Highlightable(DisplistChunk( CenterY(TextRect( format_Expr("testname: %r", _app.testname))) )),
- ))
-    # cosmetic bugs in this: mouse stickiness on text label (worse on g4?) [fixed], and label not active for click [fixed],
-    # but now that those are fixed, highlighting of text changes pixel alignment with screen,
-    # and Boxed not resizable, and labels wouldn't grow if it was (and they're not long enough, tho that'd be ok if they'd grow),
-    # and reload is pretty slow since we're not caching all this testbed stuff (at least I guess that's why)
-
-top_left_corner = None # testexpr_18i
-    # testexpr_10c # nested ToggleShow. -- works, usual 
-    # testexpr_18 # (MT_try1) also works, and has indep node.open state, i think (limited autoupdate makes it hard to be sure).
-    # update 070206: testexpr_18 mostly works, but has a funny alignment issue. ###BUG (but can ignore for now)
+# bottom_left_corner had to be moved lower down
 
 class AppOuterLayer(DelegatingInstanceOrExpr): #e refile when works [070108 experiment]
     "helper class for use in testbed, to provide glue code between testexpr and the rest of NE1"
@@ -1486,6 +1451,124 @@ for name in dir():
         print "(which is probably %s)" % name
         testnames.append(name)
 
+# (see below for our required call of _testexpr_and_testnames_were_changed() )
+
+# == recent tests feature [070227]
+
+try:
+    _recent_tests
+except:
+    _recent_tests = []
+    pass
+
+def _testexpr_and_testnames_were_changed():
+    """call this when you change those (which you must do in sync);
+    the two callers (reload and _set_test) need to set them in different ways
+    but must call this to make sure _app knows about the change and will update _app.testname
+    """
+    assert type(testnames) == type([])
+    assert is_Expr(testexpr)
+
+    global _recent_tests
+    
+    if testnames:
+        this_test = testnames[-1] # just a local var
+        _recent_tests = filter( lambda test: test != this_test , _recent_tests)
+        _recent_tests.append(this_test)
+        _recent_tests = _recent_tests[-10:] # length limit
+            # remember to show it in reverse in a cmenu
+    return
+
+_testexpr_and_testnames_were_changed()
+
+def _set_test(test):
+    global testexpr, testnames
+    print "\n_set_test(%r):" % (test,)
+    testexpr = eval(test)
+        # this is already enough to cause "remake main instance", since testexpr is compared on every draw
+    testnames = [test]
+    print "set testexpr to %r" % (testexpr,)
+    _testexpr_and_testnames_were_changed()
+    return
+
+class _test_show_and_choose(DelegatingInstanceOrExpr):
+    # print "type(_app) is",type(_app) # _app is just a symbol here
+    delegate = Highlightable(
+        DisplistChunk( ###UNTESTED DisplistChunk
+            CenterY(TextRect(max_cols = 100)( format_Expr("testname: %r (_app is %r)", _app.testname, _app))
+                    )
+            ),
+        sbar_text = "current test (use context menu to change it)",
+        cmenu_maker = _self
+     )
+    def make_selobj_cmenu_items(self, menu_spec, highlightable):
+        """Add self-specific context menu items to <menu_spec> list when self is the selobj (or its delegate(?)... ###doc better).
+        Only works if this obj (self) gets passed to Highlightable's cmenu_maker option...
+        """
+        ## menu_spec.clear() # is this a kluge, or ok? hmm, list doesn't have this method.
+##        del menu_spec[0:len(menu_spec)] # is this a kluge, or ok?
+            ###BUG: this del is not enough to prevent those unwanted general items!!! They must be added at the end. ###FIX
+        global _recent_tests # fyi
+        for test in _recent_tests[::-1]:
+            menu_spec.append( (test, lambda test = test: self.set_test(test)) )
+        if not menu_spec:
+            menu_spec.append( ('(bug: no recent tests)', noop, 'disabled') )
+        ##e add an "other" item, code it like "run py code" in debug menu
+        return
+    def set_test(self, test):
+        global _set_test # fyi
+        _set_test(test)
+        self.KLUGE_gl_update()
+            # Note: this KLUGE_gl_update is needed [verified by test], I guess because it takes a call of _app.draw
+            # to set any tracked state from the changed globals.
+            #BUG: at least when KLUGE_gl_update was not here,
+            # if redraw was triggered by mouseover of a Highlightable from before the
+            # cmenu was used to change testexpr, then the text would be fuzzy until the inst was remade (not sure of exact cond
+            # of how it can be fixed). Guess: the first redraw, in that case, is in the wrong coords...
+    pass
+
+# ==
+
+bottom_left_corner = Boxed(SimpleColumn(
+##    checkbox_pref("A9 devel/testdraw/use old vv.displist?", "use old vv.displist?"), # see USE_DISPLAY_LIST_OPTIM
+##    checkbox_pref("A9 devel/testdraw/drawtest in old way?", "drawtest in old way?", dflt = False),
+##    checkbox_pref("A9 devel/testdraw/use GLPane_Overrider?", "use GLPane_Overrider? (after reload)", dflt = True), # works (moves compass)
+    checkbox_pref("A9 devel/testdraw/super.Draw?", "draw model & region-sel rect?", dflt = True), # works
+    checkbox_pref("A9 devel/testdraw/show old timing data?", "show old timing data?", dflt = False), # works (side effect on text in next one)
+    checkbox_pref("A9 devel/testdraw/show old use displist?", "show old use displist?", dflt = False), # works
+    checkbox_pref("A9 devel/testdraw/draw test graphics?", "draw old test graphics?", dflt = False), # works, but turns off above two too (ignore)
+    checkbox_pref(debug_prints_prefs_key, "debug prints for redraw?", dflt = False), # note prefs_key text != checkbox label text
+    checkbox_pref("A9 devel/show redraw_counter?", "show redraw_counter?", dflt = False), # works, but has continuous redraw bug
+    Highlightable(DisplistChunk(
+        CenterY(TextRect( format_Expr("instance remade at redraw %r", call_Expr(get_redraw_counter)))) )),
+            # NOTE: not usage/change tracked, thus not updated every redraw, which we depend on here
+    ## CenterY(TextRect( format_Expr("current redraw %r [BUG: CAUSES CONTINUOUS REDRAWS]", call_Expr(get_redraw_counter_ALWAYSCHANGES)))),
+    If( call_Expr(get_pref, "A9 devel/show redraw_counter?", False),
+        # 070124 disabled both orders of Highlightable(DisplistChunk(, since fuzzy during highlighting after my testdraw.py fixes
+        ##Highlightable(DisplistChunk( CenterY(TextRect( format_Expr("current redraw %r", _app.redraw_counter))) )), 
+        ## DisplistChunk (Highlightable( CenterY(TextRect( format_Expr("current redraw %r", _app.redraw_counter))) )),
+        # 070124 just don't use a displist, since it'd be remade on every draw anyway (except for glselect and main in same-counted one)
+        Highlightable( CenterY(TextRect( format_Expr("current redraw %r", _app.redraw_counter))) ),
+            # should be properly usage/change tracked; has continuous redraw bug, not yet understood.
+            # note: after checking the checkbox above, the bug shows up only after the selobj changes away from that checkbox.
+            # update 070110 1040p: the bug is fixed in GLPane.py/changes.py; still not fully understood; more info to follow. ###e
+        Highlightable(DisplistChunk(TextRect("current redraw: use checkbox (bug is fixed)"))) ####
+    ),
+    # this old form is redundant but included for debugging the failure of the new one to update:
+    Highlightable(DisplistChunk( CenterY(TextRect(max_cols = 100)( format_Expr("testname: %r (_app %r)", _app.testname, _app))) ),
+                  sbar_text = "current test" #e give it a cmenu? we need an obj to make the menu from a list of recent tests...
+                  ),
+    _test_show_and_choose() #070227 - like "testname: %r", _app.testname, but has cmenu with list of recent tests
+ ))
+    # cosmetic bugs in this: mouse stickiness on text label (worse on g4?) [fixed], and label not active for click [fixed],
+    # but now that those are fixed, highlighting of text changes pixel alignment with screen,
+    # and Boxed not resizable, and labels wouldn't grow if it was (and they're not long enough, tho that'd be ok if they'd grow),
+    # and reload is pretty slow since we're not caching all this testbed stuff (at least I guess that's why)
+
+top_left_corner = None # testexpr_18i
+    # testexpr_10c # nested ToggleShow. -- works, usual 
+    # testexpr_18 # (MT_try1) also works, and has indep node.open state, i think (limited autoupdate makes it hard to be sure).
+    # update 070206: testexpr_18 mostly works, but has a funny alignment issue. ###BUG (but can ignore for now)
 
 # == @@@
 
