@@ -276,12 +276,17 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
     # (I don't think it needs a __nonzero__ method, and if it had one I don't know if Q(1,0,0,0) should be False or True.)
     #bruce 060222 note that it also now needs __eq__ and __ne__ to be compatible with its _s_deepcopy (they are).
     
-    def __eq__(self, other):
+    def __eq__(self, other): #bruce 070227 revised this
         try:
-            return self.__class__ is other.__class__ and self.vec == other.vec #bruce 060228 fixed bug in this line (__class typo)
-        except:
-            print_compact_traceback("bug in Q.__eq__, returning False: ") #bruce 060228
-            return False # should not happen except for bugs (missing vec in self or other)
+            if self.__class__ is not other.__class__:
+                return False
+        except AttributeError:
+            # some objects have no __class__ (e.g. Numeric arrays)
+            return False
+        return not (self.vec != other.vec) # assumes all quats have .vec; true except for bugs
+            #bruce 070227 fixed "Numeric array == bug" encountered by this line (when it said "self.vec == other.vec"),
+            # which made Q(1, 0, 0, 0) == Q(0.877583, 0.287655, 0.38354, 0) (since they're equal in at least one component)!!
+            # Apparently it was my own bug, since it says above that I wrote this method on 060209.
         pass
 
     def __ne__(self, other):
@@ -352,6 +357,8 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
         e.g. Q1 * 2 == Q1 + Q1, or Q1 = Q1*0.5 + Q1*0.5
         Python syntax makes it hard to do n * Q, unfortunately.
         """
+        #e note: couldn't __rmul__ be used to do n * Q? in theory yes,
+        # but was some other problem referred to, e.g. in precedence? I don't know. [bruce 070227 comment]
         if type(n) in numTypes:
             nq = +self
             nq.setangle(n*self.angle)
@@ -599,4 +606,17 @@ def check_quats_near(q1,q2,msg=""): #bruce, circa 040924
         res = res and check_floats_near(q1[i],q2[i],msg+"[%d]"%i)
     return res
 
+# == test code [bruce 070227]
+
+if __name__ == '__main__':
+    print "tests started"
+    q1 = Q(1,0,0,0)
+    print q1, `q1`
+    q2 = Q(V(.6,.8,0), 1)
+    print q2, `q2`
+    assert not (q1 == q2), "different quats equal!" # this bug was fixed on 070227
+    assert q1 != V(0,0,0) # this did print_compact_traceback after that was fixed; now that's fixed too
+    # can't work yet: assert q2 * 2 == 2 * q2
+    print "tests done"
+    
 # end
