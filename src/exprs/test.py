@@ -1291,13 +1291,10 @@ class _testexpr_33(DelegatingInstanceOrExpr):#070226
     def draw(self):
         if self._delegate.transient_state.in_drag: # (requires mouse click!) # other tests here say glpane.in_drag
             ll, lr, ur, ul = self.screenrect() # these points should be valid in the HL's coords == self's coords
-##            print "the 4 points are",ll, lr, ur, ul
             from drawer import drawline
             drawline(blue,ll,ur) # at first I tried putting color last, and it seemed to work but with the wrong coords... ugh.
             drawline(red,lr,ul)
-        self.drawkid(self._delegate) ##### Q or BUG: why does some other code get away with passing self.delegate to drawkid???
-            #e could it be instantiating kid every time it draws it? or drawing a non-Instance and not noticing??? ####@@@@
-            # Not anymore, since I just added code in drawkid to print it then but not draw it.
+        self.drawkid(self._delegate)
     pass
 
 testexpr_33 = _testexpr_33() # works now
@@ -1308,7 +1305,7 @@ testexpr_33x = Translate(_testexpr_33(), (2,-2)) # works now
 
 enable_testbed = True
 
-testexpr = testexpr_33 # testexpr_30i # testexpr_19h # testexpr_18i ## testexpr_29aox3 ## testexpr_18 ## testexpr_9fx4 ##  _26g _28
+testexpr = testexpr_30i # testexpr_19h # testexpr_18i ## testexpr_29aox3 ## testexpr_18 ## testexpr_9fx4 ##  _26g _28
 
     # as of 070121 at least these work ok in EVAL_REFORM with now-semipermanent kluge070119:
     # _2, _3a, _4a, _5, _5a, _10a, _10c, _9c, _9d, _9cx,
