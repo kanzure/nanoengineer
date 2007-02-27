@@ -1489,16 +1489,13 @@ def _set_test(test):
     testnames = [test]
     print "set testexpr to %r" % (testexpr,)
     _testexpr_and_testnames_were_changed()
+    ##e need to print "doing it" or so into sbar, too, since redraw can take so long
     return
 
 class _test_show_and_choose(DelegatingInstanceOrExpr):
-    # print "type(_app) is",type(_app) # _app is just a symbol here
     delegate = Highlightable(
-        DisplistChunk( ###UNTESTED DisplistChunk
-            CenterY(TextRect(max_cols = 100)( format_Expr("testname: %r (_app is %r)", _app.testname, _app))
-                    )
-            ),
-        sbar_text = "current test (use context menu to change it)",
+        DisplistChunk( CenterY( TextRect( format_Expr("testname: %r", _app.testname)))),
+        sbar_text = "current test (has recent tests context menu)",
         cmenu_maker = _self
      )
     def make_selobj_cmenu_items(self, menu_spec, highlightable):
@@ -1507,13 +1504,13 @@ class _test_show_and_choose(DelegatingInstanceOrExpr):
         """
         ## menu_spec.clear() # is this a kluge, or ok? hmm, list doesn't have this method.
 ##        del menu_spec[0:len(menu_spec)] # is this a kluge, or ok?
-            ###BUG: this del is not enough to prevent those unwanted general items!!! They must be added at the end. ###FIX
+            ###BUG: this del is not enough to prevent those unwanted general items!!! I guess they're added later. ###FIX (how?)
         global _recent_tests # fyi
         for test in _recent_tests[::-1]:
             menu_spec.append( (test, lambda test = test: self.set_test(test)) )
         if not menu_spec:
             menu_spec.append( ('(bug: no recent tests)', noop, 'disabled') )
-        ##e add an "other" item, code it like "run py code" in debug menu
+        ##e add an "other" item -- code it like "run py code" in debug menu
         return
     def set_test(self, test):
         global _set_test # fyi
@@ -1554,11 +1551,11 @@ bottom_left_corner = Boxed(SimpleColumn(
             # update 070110 1040p: the bug is fixed in GLPane.py/changes.py; still not fully understood; more info to follow. ###e
         Highlightable(DisplistChunk(TextRect("current redraw: use checkbox (bug is fixed)"))) ####
     ),
-    # this old form is redundant but included for debugging the failure of the new one to update:
-    Highlightable(DisplistChunk( CenterY(TextRect(max_cols = 100)( format_Expr("testname: %r (_app %r)", _app.testname, _app))) ),
-                  sbar_text = "current test" #e give it a cmenu? we need an obj to make the menu from a list of recent tests...
-                  ),
-    _test_show_and_choose() #070227 - like "testname: %r", _app.testname, but has cmenu with list of recent tests
+##    # this old form is redundant now, but was useful for debugging the failure of the new one to update:
+##    Highlightable(DisplistChunk( CenterY(TextRect(max_cols = 100)( format_Expr("testname: %r (_app %r)", _app.testname, _app))) ),
+##                  sbar_text = "current test" #e give it a cmenu? we need an obj to make the menu from a list of recent tests...
+##                  ),
+    _test_show_and_choose() #070227 - like "testname: %r" % _app.testname, but has cmenu with list of recent tests
  ))
     # cosmetic bugs in this: mouse stickiness on text label (worse on g4?) [fixed], and label not active for click [fixed],
     # but now that those are fixed, highlighting of text changes pixel alignment with screen,
