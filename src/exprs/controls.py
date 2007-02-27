@@ -361,7 +361,11 @@ class ActionButton(DelegatingInstanceOrExpr): # 070104 quick prototype
         # the label moves to the right when highlighted, due to the Boxed being used to position it in the row.
         ### BUG: CenterY is not perfectly working. Guess -- lbox for TextRect is slightly wrong.
         ### IDEA: make the borderthickness for Boxed negative so the border is over the edge of the plain button. Might look better.
-    #
+    ##e Note: we have no "pressed" appearance, since by the next time we get drawn, the command is already drawn and we ought to be
+    # back to normal. Someday we should do a transient incremental redraw of just this button, with a "pressed and acting" appearance,
+    # which can then go back to normal when the operation completes and does a regular full redraw.
+    # Alternatively, we could switch to using buttons with an on_release_in action only,
+    # and then have ordinarily-drawn pressed etc looks. [070227 comment]
     def doit(self):
         if self.enabled:
             print "ActionButton: doing %r for %r" % (self.text, self) ### remove self?
