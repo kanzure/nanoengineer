@@ -41,7 +41,6 @@ import string
 import re
 from OpenGL.GL import *
 from OpenGL.GLU import *
-from OpenGL.GLUT import *
 
 from drawer import *
 from shape import *

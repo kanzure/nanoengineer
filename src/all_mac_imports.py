@@ -47,7 +47,6 @@ import OpenGL.GL # this has the problem on 060407 via  GL__init___
 import OpenGL.GLU # this has the problem on 060407 via  GL__init___
 
 # These modules are seemed similar enough to the above to need to be test-imported every time:
-import OpenGL.GLUT
 import OpenGL.GLE
 
 # These modules are deemed suspicious enough to test-import every time, even though we have no 

@@ -24,7 +24,6 @@ from debug import print_compact_stack, print_compact_traceback
 
 from OpenGL.GL import *
 from OpenGL.GLU import *
-from OpenGL.GLUT import *
 
 from drawer import *
 

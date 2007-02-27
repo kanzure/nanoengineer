@@ -27,7 +27,6 @@ from VQT import *
 from shape import *
 from chem import *
 from chem import _changed_structure_Atoms # needed whenever we change an atom's .jigs list
-import OpenGL.GLUT as glut
 from Utility import *
 from StatProp import *
 from ThermoProp import *

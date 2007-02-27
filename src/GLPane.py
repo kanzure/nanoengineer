@@ -15,7 +15,6 @@ from qt import QFont, QWidget, QMessageBox, QTimer, QToolTip, QRect, QString
 from qtgl import QGLWidget
 from OpenGL.GL import *
 from OpenGL.GLU import *
-from OpenGL.GLUT import *
 from OpenGL.GLE import *
 import math
 from LinearAlgebra import *

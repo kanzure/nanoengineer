@@ -43,7 +43,6 @@ from VQT import *
 from string import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
-from OpenGL.GLUT import *
 from chem import *
 from movie import *
 from jigs import * # maybe only needs jigmakers_Mixin
