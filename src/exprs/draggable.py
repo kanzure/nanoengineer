@@ -313,6 +313,18 @@ class DraggableObject(DelegatingInstanceOrExpr):
         if self._delegate.altkey:
             self._this_drag = 'free x-y rotate'
                 #e more options later, and/or more flags like this (maybe some should be booleans)
+                ###e or better, set up a function or object which turns later points into their effects... hmm, a DragCommand instance!
+            self._screenrect = (ll, lr, ur, ul) = self.screenrect( self.startpoint)
+                # these points should be valid in our delegate's coords == self's coords
+            self._dx = _dx = norm(lr - ll)
+            self._dy = _dy = norm(ur - lr)
+            self._dz = cross(_dx, _dy) # towards the eye (if view is ortho) (but alg is correct whether or not it is, i think)
+                ###k check cross direction sign
+            self._scale = min(vlen(lr - ll), vlen(ur - lr)) * 0.4
+                # New motion UI suggests that 40% of that distance means 180 degrees of rotation.
+                # We'll draw an axis whose length is chosen so that dragging on a sphere of that size
+                # would have the same effect. (Maybe.)
+            self._objcenter = self._delegate.center
         else:
             self._this_drag = 'free x-y translate'
         if debug070209:
@@ -329,7 +341,7 @@ class DraggableObject(DelegatingInstanceOrExpr):
 ##                print "drag event %d, model distance = %r, pixel dist not computed" % (self.ndrags, vlen(oldpoint - point),)
         if self._this_drag == 'free x-y rotate':
             # rotate using New motion UI [mostly nim]
-            print "free x-y rotate nim"
+            ## print "free x-y rotate nim (but self._screenrect contains enough info to implem it)"
 ##            dx,dy,dz = p2 - p1
 ##            rotby = Q(p1,p2) ###WRONG but ought to be legal and visible and might even pretend to be a trackball in some cases and ways 
 ##            self.rotation = self.rotation + rotby
@@ -347,6 +359,27 @@ class DraggableObject(DelegatingInstanceOrExpr):
             #   I need "user in model coords" for other reasons too, so ok, I'll do it that way.
             # Hey, I might as well fix the bug in current_event_mousepoint which fakes the center of view, at the same time.
             # (I can't remember its details right now, but I think it assumed the local origin was the cov, which is obviously wrong.)
+            vec = point - self.startpoint
+            uvec = norm(vec) #k needed??
+            axisvec = cross(self._dz, uvec) # unit length (suitable for glRotate -- but we need to use it to make a quat!)
+            axisvec = norm(axisvec) # just to be sure (or to reduce numerical errors)
+            scale = self._scale
+            draw_axisvec = axisvec * scale #e times some other length constant too?
+            center = self._objcenter
+            self.axisends = (center - axisvec, center + axisvec) # draw a rotation axis here ###e
+            self.degrees = degrees = vlen(vec) / scale * 180.0 # draw a textual indicator with degrees (and axisvec angle too) ###e
+                ###e or print that info into sbar? or somewhere fixed in glpane? or in glpane near mouse?
+            # now set self.rotation to a quat made from axisvec and degrees
+            theta = degrees / 360.0 * 2 * pi
+            print "axisvec %r, degrees %r, theta %r" % (axisvec ,degrees,theta)
+            self.rotation = rot = Q(axisvec, theta) ###WRONG, this should be change to initial rot instead!
+            ### but first debug it:
+            print "self.rotation = %r, rot is %r, should be same" % (self.rotation,rot)
+                # works [070226 late] except for this ###BUG, above wrongness, and any other bugs not yet discovered:
+                ## self.rotation = Q(1, 0, 0, 0), rot is Q(0.933846, 0.356353, 0.0307201, -0), should be same
+                # which reminds me of the Numericv == bug which existed in LvalForState == optim for awhile.
+                # I wonder if smth similar is failing for Q compare... or is it same_vals? hard to believe, we use them in jig state...
+
         elif self._this_drag == 'free x-y translate':
             self._cmd_drag_from_to( oldpoint, point) # use Draggable interface cmd on self
         else:
