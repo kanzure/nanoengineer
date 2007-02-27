@@ -39,7 +39,7 @@ sys.setrecursionlimit(650) # 5000 is set in startup_funcs.py; this will ease deb
 
 # == imports from cad/src
 
-from VQT import V, A, Q, norm, vlen, dot
+from VQT import V, A, Q, norm, vlen, dot, cross
 from math import sqrt #070225
 from math import pi, sin, cos #070130
 
