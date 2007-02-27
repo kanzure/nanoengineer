@@ -184,3 +184,11 @@ class _CV_rule(object):
     # Note: similar comments about memory leaks apply, as for _C_rule.
     
     pass # end of class _CV_rule
+
+
+debug code from LvalForState set_constant_value (after same_vals test says T)
+            if isinstance(val, Q): #e could optim using flag set from default value?? (since test is not needed in all such cases)
+                print "curval is %r, setting to quat %r, and same_vals says they're equal btw" % (self._value, val)
+                assert self._value == val, "same_vals was wrong for %r == %r" % (self._value, val) #070227 (trying to catch a bug)
+
+
