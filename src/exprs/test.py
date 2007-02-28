@@ -1316,7 +1316,7 @@ testexpr_33x = Translate(_testexpr_33(), (2,-2)) # works now
 
 enable_testbed = True
 
-testexpr = testexpr_19i # testexpr_30i # testexpr_19h # testexpr_18i ## testexpr_29aox3 ## testexpr_18 ## testexpr_9fx4 ##  _26g _28
+testexpr = testexpr_19i # testexpr_30i # testexpr_29aox3 # testexpr_9fx4 #  _26g _28
 
     # as of 070121 at least these work ok in EVAL_REFORM with now-semipermanent kluge070119:
     # _2, _3a, _4a, _5, _5a, _10a, _10c, _9c, _9d, _9cx,
@@ -1443,9 +1443,6 @@ def testbed(expr):
                  DrawInCorner( top_left_corner, (-1,1)), # some sort of MT on top left
                  ## testexpr_20a,
                  DrawInCorner( bottom_left_corner, (-1,-1)), # checkboxes on bot left [note: contains _app as ref to dynenv]
-                 ####BUG: the _app ref in this works now, except it triggers continuous redraw, not sure why.
-                 # the bug when it didn't work was not lex/dyn confusion, it was just that the _app use was not in the scope of its
-                 # definition.
                 )
      )
 
@@ -1599,23 +1596,26 @@ bottom_left_corner = Boxed(SimpleColumn(
 ##    checkbox_pref("A9 devel/testdraw/drawtest in old way?", "drawtest in old way?", dflt = False),
 ##    checkbox_pref("A9 devel/testdraw/use GLPane_Overrider?", "use GLPane_Overrider? (after reload)", dflt = True), # works (moves compass)
     checkbox_pref("A9 devel/testdraw/super.Draw?", "draw model & region-sel rect?", dflt = True), # works
-    checkbox_pref("A9 devel/testdraw/show old timing data?", "show old timing data?", dflt = False), # works (side effect on text in next one)
-    checkbox_pref("A9 devel/testdraw/show old use displist?", "show old use displist?", dflt = False), # works
-    checkbox_pref("A9 devel/testdraw/draw test graphics?", "draw old test graphics?", dflt = False), # works, but turns off above two too (ignore)
-    checkbox_pref(debug_prints_prefs_key, "debug prints for redraw?", dflt = False), # note prefs_key text != checkbox label text
-    checkbox_pref("A9 devel/show redraw_counter?", "show redraw_counter?", dflt = False), # works, but has continuous redraw bug
+# these next 4 work fine, but are not worth the screen space for now ...
+# when this turns into a browsable control they can be added back but not shown by default. [070227]
+##    checkbox_pref("A9 devel/testdraw/show old timing data?", "show old timing data?", dflt = False), # works (side effect on text in next one)
+##    checkbox_pref("A9 devel/testdraw/show old use displist?", "show old use displist?", dflt = False), # works
+##    checkbox_pref("A9 devel/testdraw/draw test graphics?", "draw old test graphics?", dflt = False), # works, but turns off above two too (ignore)
+##    checkbox_pref(debug_prints_prefs_key, "debug prints for redraw?", dflt = False), # note prefs_key text != checkbox label text
+    ActionButton(_app.env.glpane.mode.reload, "btn: testmode.reload()"), #070227; seems faster than true empty space click! ##k
+    checkbox_pref("A9 devel/exprs/show redraw_counter?", "show redraw_counter?", dflt = True), # works [new dflt & prefs key 070227]
     Highlightable(DisplistChunk(
         CenterY(TextRect( format_Expr("instance remade at redraw %r", call_Expr(get_redraw_counter)))) )),
             # NOTE: not usage/change tracked, thus not updated every redraw, which we depend on here
-    ## CenterY(TextRect( format_Expr("current redraw %r [BUG: CAUSES CONTINUOUS REDRAWS]", call_Expr(get_redraw_counter_ALWAYSCHANGES)))),
-    If( call_Expr(get_pref, "A9 devel/show redraw_counter?", False),
+    If( call_Expr(get_pref, "A9 devel/exprs/show redraw_counter?", True),
         # 070124 disabled both orders of Highlightable(DisplistChunk(, since fuzzy during highlighting after my testdraw.py fixes
         ##Highlightable(DisplistChunk( CenterY(TextRect( format_Expr("current redraw %r", _app.redraw_counter))) )), 
         ## DisplistChunk (Highlightable( CenterY(TextRect( format_Expr("current redraw %r", _app.redraw_counter))) )),
         # 070124 just don't use a displist, since it'd be remade on every draw anyway (except for glselect and main in same-counted one)
         Highlightable( CenterY(TextRect( format_Expr("current redraw %r", _app.redraw_counter))) ),
-            # should be properly usage/change tracked; has continuous redraw bug, not yet understood.
-            # note: after checking the checkbox above, the bug shows up only after the selobj changes away from that checkbox.
+            # should be properly usage/change tracked
+            # note: used to have continuous redraw bug, never yet fully understood...
+            # after checking the checkbox above, the bug showed up only after the selobj changes away from that checkbox.
             # update 070110 1040p: the bug is fixed in GLPane.py/changes.py; still not fully understood; more info to follow. ###e
         Highlightable(DisplistChunk(TextRect("current redraw: use checkbox (bug is fixed)"))) ####
     ),
