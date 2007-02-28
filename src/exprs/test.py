@@ -862,7 +862,16 @@ testexpr_19h = eval_Expr( call_Expr( lambda thing:
                                               DrawInCorner( Boxed(
                                                   eval_Expr( call_Expr( demo_drag_toolcorner_expr_maker, thing.world )) )) ),
                                      call_Expr( _app.Instance, testexpr_19haux, "#19h")
-                                     )) # 070223 --
+                                     )) # 070223 -- works
+testexpr_19i = eval_Expr( call_Expr( lambda world_ui:
+                                     Overlay( world_ui,
+                                              DrawInCorner( Boxed(
+                                                  eval_Expr( call_Expr( demo_drag_toolcorner_expr_maker, world_ui.world )) )),
+                                              DrawInCorner( MT_try2(getattr_Expr(world_ui, 'world')), WORLD_MT_CORNER ),
+                                      ),
+                                     call_Expr( _app.Instance, testexpr_19haux, "#19h")
+                                     )) # 070227
+    # note, this is now the same as _30i except for demo_drag_toolcorner_expr_maker and the fact that it wants .world of its arg
 
 # == DrawInCorner
 
@@ -1455,10 +1464,12 @@ for name in dir():
 
 # == recent tests feature [070227]
 
+_favorite_tests = ['testexpr_19i', 'testexpr_30i', ] # most favorite last; never changes
 try:
     _recent_tests
 except:
-    _recent_tests = []
+    _recent_tests = [] # most recent last
+    _recent_tests.extend(_favorite_tests) 
     pass
 
 def _testexpr_and_testnames_were_changed():
@@ -1492,6 +1503,20 @@ def _set_test(test):
     ##e need to print "doing it" or so into sbar, too, since redraw can take so long
     return
 
+def _set_test_from_dialog( ): # modified from debug_runpycode_from_a_dialog
+    title = "title"
+    label = "testexpr_xxx, or any 1-line expr\n(or use @@@ to fake \\n for more lines)\n(or use execfile)"
+    from qt import QInputDialog # bruce 041216 bugfix
+    text, ok = QInputDialog.getText(title, label)
+    if ok:
+        # fyi: type(text) == <class '__main__.qt.QString'>
+        command = str(text)
+        command = command.replace("@@@",'\n')
+        _set_test(command) # this even works for general exprs -- e.g. you can just type in Rect(3,3,purple)!
+    else:
+        print "_set_test_from_dialog: cancelled"
+    return
+
 class _test_show_and_choose(DelegatingInstanceOrExpr):
     delegate = Highlightable(
         DisplistChunk( CenterY( TextRect( format_Expr("testname: %r", _app.testname)))),
@@ -1511,6 +1536,7 @@ class _test_show_and_choose(DelegatingInstanceOrExpr):
         if not menu_spec:
             menu_spec.append( ('(bug: no recent tests)', noop, 'disabled') )
         ##e add an "other" item -- code it like "run py code" in debug menu
+        menu_spec.append( ('other...', self.set_test_from_dialog) )
         return
     def set_test(self, test):
         global _set_test # fyi
@@ -1522,6 +1548,9 @@ class _test_show_and_choose(DelegatingInstanceOrExpr):
             # if redraw was triggered by mouseover of a Highlightable from before the
             # cmenu was used to change testexpr, then the text would be fuzzy until the inst was remade (not sure of exact cond
             # of how it can be fixed). Guess: the first redraw, in that case, is in the wrong coords...
+    def set_test_from_dialog(self):
+        _set_test_from_dialog()
+        self.KLUGE_gl_update()
     pass
 
 # ==
