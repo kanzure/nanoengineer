@@ -234,7 +234,7 @@ class ChoiceRow_class(InstanceMacro): # stub, nim
 
 # ==
 
-checkbox_image = IconImage(ideal_width = 25, ideal_height = 21, size = Rect(25 * PIXELS, 21 * PIXELS))
+checkbox_image = IconImage(ideal_width = 25, ideal_height = 21, size = Rect(25 * PIXELS, 21 * PIXELS)) # a pure expr
     # WARNING: dup code & comment with tests.py, WHICH PROBABLY IMPORTS * from here
     
     # note, IconImage ought to use orig size in pixels but uses 22x22,
@@ -242,7 +242,7 @@ checkbox_image = IconImage(ideal_width = 25, ideal_height = 21, size = Rect(25 *
 
 #e see also checkbox_v2 in tests.py for use in testexpr_16b
 
-class checkbox_v3(InstanceMacro): ##e rename
+class checkbox_v3(InstanceMacro): ##e rename # note: this can do something checkbox_pref can't yet do -- take an external stateref
     stateref = Arg(StateRef, None) ### default? might not work with a default val yet
         ### IMPLEM: specify what external state to use, eg a prefs variable, PrefsKey_StateRef(displayOriginAxis_prefs_key)
     default_value = Option(bool, False) ###BUG -- not used! [noticed 061215]
@@ -278,47 +278,23 @@ class checkbox_v3(InstanceMacro): ##e rename
         on_press = Set(stateref.value, not_Expr(var) )
             # kluge: see if this works (I predict it will) -- workaround of not yet having that alias form of "var = stateref.value"
     )
-    pass
+    pass # end of class checkbox_v3
 
 def checkbox_pref_OLDER(prefs_key, label, dflt = False): # renamed 061215 late, since newer one is better
     "#doc"
-    #e rename, make it a class, make it one of several prefs controls for other types of pref and control
-    #e generalize to all named state -- e.g. see also LocalVariable_StateRef -- permit passing in the stateref?
-    #e get dflt label from stateref??
-    # note: this was split out of kluge_dragtool_state_checkbox_expr 061214, extended here
     if type(label) == type(""):
         label = TextRect(label,1,20)
     return SimpleRow(CenterY(checkbox_v3(PrefsKey_StateRef(prefs_key, dflt))), CenterY(label)) # align = CenterY is nim
     # note: adding CenterY also (probably coincidentally) improved the pixel-alignment (on g5 at least), so the label is no longer fuzzy.
     # [see also testexpr_16c, similar to this]
 
-class checkbox_pref_NO_DISPLIST(InstanceMacro): #061215 improved version, replacing older one -- highlight and accept press on label too #e rename?
-    # WARNING: this code is duplicated below.
-    prefs_key = Arg(str)
-    label = Arg(Anything) # string or Widget2D
-    dflt = ArgOrOption(bool, False)
-    sbar_text = Option(str, '')
-    use_label = If( call_Expr(lambda label: type(label) == type(""), label), TextRect(label,1,20), label )
-    use_sbar_text = or_Expr( sbar_text, If( call_Expr(lambda label: type(label) == type(""), label), label, "" ))
-    stateref = Instance(PrefsKey_StateRef(prefs_key, dflt))
-        # NOTE: without Instance here, next line stateref.value says
-        ## AssertionError: compute method asked for on non-Instance <PrefsKey_StateRef#47221(a)>
-        # note: now that it imports, making or clicking on one of these says, every time:
-        ## REJECTED using _e_make_in case, on a pyinstance of class PrefsKey_StateRef
-        # (probably a simple reason, but I should find out exactly why and maybe remove the print or clean up the code)
-    var = stateref.value
-    checkbox = If( var,
-            checkbox_image('mac_checkbox_on.jpg'),
-            checkbox_image('mac_checkbox_off.jpg'),
-        )
-    _value = Highlightable( SimpleRow( CenterY(checkbox), CenterY(use_label)), # align = CenterY is nim
-                            on_press = Set(stateref.value, not_Expr(var) ),
-                            sbar_text = use_sbar_text)
-    pass
-
 class checkbox_pref(InstanceMacro):
-    # WARNING (code dup): same as checkbox_pref_NO_DISPLIST except for DisplistChunk in _value --
-    # works & faster, so using it as standard, 070103 248p.
+    #e rename -- Checkbox(...), with various kinds of args to say what state it uses in different ways?
+    #e make it one of several prefs controls for other types of pref and control
+    #e generalize to all named state -- e.g. see also LocalVariable_StateRef -- permit passing in the stateref?
+    #e get dflt label from stateref??
+    # note: this was split out of kluge_dragtool_state_checkbox_expr 061214,
+    # extended here into a def (later renamed checkbox_pref_OLDER), then a class
     prefs_key = Arg(str)
     label = Arg(Anything) # string or Widget2D
     dflt = ArgOrOption(bool, False)
@@ -326,6 +302,8 @@ class checkbox_pref(InstanceMacro):
     use_label = If( call_Expr(lambda label: type(label) == type(""), label), TextRect(label), label ) ## was TextRect(label,1,20)
     use_sbar_text = or_Expr( sbar_text, If( call_Expr(lambda label: type(label) == type(""), label), label, "" ))
     stateref = Instance(PrefsKey_StateRef(prefs_key, dflt))
+        # note: without Instance here, next line stateref.value says (correctly):
+        ## AssertionError: compute method asked for on non-Instance <PrefsKey_StateRef#47221(a)>
     var = stateref.value
     checkbox = If( var,
             checkbox_image('mac_checkbox_on.jpg'),
@@ -335,6 +313,7 @@ class checkbox_pref(InstanceMacro):
                             ## on_press = Set(debug_evals_of_Expr(stateref.value), not_Expr(var) ), #070119 debug_evals_of_Expr - worked
                             on_press = Set( stateref.value, not_Expr(var) ),
                             sbar_text = use_sbar_text) )
+        # note: using DisplistChunk in _value works & is faster [070103]
         #070124 comment: the order DisplistChunk( Highlightable( )) presumably means that the selobj
         # (which draws the highlightable's delegate) doesn't include the displist; doesn't matter much;
         # that CenterY(use_label) inside might be ok, or might be a bug which is made up for by the +0.5 I'm adding to drawfont2

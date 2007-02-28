@@ -50,7 +50,20 @@ class PrefsKey_StateRef(InstanceOrExpr): # guess, 061204
     prefs_key = Arg(str) # note: it's probably ok if this is a time-varying formula, tho I don't know why it would be useful.
     default_value = ArgOrOption(Anything, None) ##e default of this should depend on type, in same way it does for Arg or Option --
         # nonetheless it's so much more common to specify a default value than a type, that I decided to put default value first.
+        #
+        ##BUG (optimization issue only, and not yet important in practice):
+        # [re-noticed 070228 -- also the topic of the printnim and older comment just below!]
+        # this default_value should be evaluated with usage tracking discarded, unless prefs_key changes,
+        # in which case it should be reevalled once (doable if its eval pretends to use prefs_key) -- except ideally the value
+        # for older prefs_keys being reused again would be cached (eg using MemoDict) (not important in practice).
+        # This bug is not yet serious since the actual args so far are constants [as of 070228].
+        # It's purely an optimization issue; but the worst-case effects are that the default value changes a lot more
+        # often than the prefs value itself, causing needless inval propogation into the get_value caller,
+        # and thus needless recomputation of an arbitrary amount of memoized results which care about the prefs value.
+        # (But for all I know, the usual constant case would slow down due to the overhead of discarding usage tracking.
+        #  Actually that's not an issue since we'd also rarely recompute it, not nearly on every get_value.) 
     printnim("need a way to declare that this arg should not be usage-tracked, or have its use as default val do that for that use")
+        # [older version of the comment above; contains still-useful suggestions:]
         ###e we need a way to declare that this arg should not be usage-tracked re time-variation!!! or to assert it uses nothing.
         # right now, if it uses something that will silently cause bugs, probably just invisible performance bugs from extra invals.
         # CAN THERE BE A GENERAL SOLN based on what we use this for (default vals of things that don't care about updates)?
