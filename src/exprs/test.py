@@ -161,7 +161,7 @@ from debug_exprs import DebugPrintAttrs
 
 import dna_ribbon_view
 reload_once(dna_ribbon_view)
-from dna_ribbon_view import DNA_Cylinder, dna_ribbon_view_toolcorner_expr_maker, World_dna_holder
+from dna_ribbon_view import DNA_Cylinder, dna_ribbon_view_toolcorner_expr_maker, World_dna_holder, Cylinder
 
 import draggable
 reload_once(draggable)
@@ -1312,6 +1312,8 @@ testexpr_33x = Translate(_testexpr_33(), (2,-2)) # works now
 
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
 
+#e see also the _recent_tests system... should we use the most recent test instead? or have a setting for this var which means that?
+
 enable_testbed = True
 
 testexpr = testexpr_19h # testexpr_30i # testexpr_19h # testexpr_18i ## testexpr_29aox3 ## testexpr_18 ## testexpr_9fx4 ##  _26g _28
@@ -1464,12 +1466,39 @@ for name in dir():
 
 # == recent tests feature [070227]
 
-_favorite_tests = ['testexpr_19i', 'testexpr_30i', ] # most favorite last; never changes
+recent_tests_prefs_key = 'A9 devel/exprs/recent tests'
+
+def _save_recent_tests():
+    global _recent_tests #fyi
+    import env
+    env.prefs[recent_tests_prefs_key] = _recent_tests
+    return
+
+def _load_recent_tests():
+    import env
+    return env.prefs.get(recent_tests_prefs_key, [])
+
+def _add_recent_test( _recent_tests, this_test):
+    #e should be a method of a class RecentTestsList
+    # (note: class RecentFilesList exists in NE1 and/or IDLE -- I don't know if either is appropriate)
+    _recent_tests = filter( lambda test1: test1 != this_test , _recent_tests)
+    _recent_tests.append(this_test) # most recent last
+    _recent_tests = _recent_tests[-10:] # length limit
+    return _recent_tests
+
+_favorite_tests = ['DraggableObject(Cylinder((ORIGIN,ORIGIN+DX),1,pink))', # note: this one has state which persists during session
+                   'Rect(3,3,purple)',
+                   'testexpr_19i', # and so does this one (have state), of course... but that is less surprising for some reason
+                   'testexpr_30i'
+                   ] # most favorite last; come before the ones in prefs
 try:
     _recent_tests
 except:
     _recent_tests = [] # most recent last
-    _recent_tests.extend(_favorite_tests) 
+    _recent_tests.extend(_favorite_tests)
+    for test in _load_recent_tests()[len(_favorite_tests):]: # (zap the first few so they don't swamp the favorites)
+        _recent_tests = _add_recent_test( _recent_tests, test) #e would be simpler if it was a method
+    _save_recent_tests()
     pass
 
 def _testexpr_and_testnames_were_changed():
@@ -1484,10 +1513,8 @@ def _testexpr_and_testnames_were_changed():
     
     if testnames:
         this_test = testnames[-1] # just a local var
-        _recent_tests = filter( lambda test: test != this_test , _recent_tests)
-        _recent_tests.append(this_test)
-        _recent_tests = _recent_tests[-10:] # length limit
-            # remember to show it in reverse in a cmenu
+        _recent_tests = _add_recent_test( _recent_tests, this_test)
+        _save_recent_tests()
     return
 
 _testexpr_and_testnames_were_changed()
