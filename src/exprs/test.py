@@ -1316,7 +1316,7 @@ testexpr_33x = Translate(_testexpr_33(), (2,-2)) # works now
 
 enable_testbed = True
 
-testexpr = testexpr_19h # testexpr_30i # testexpr_19h # testexpr_18i ## testexpr_29aox3 ## testexpr_18 ## testexpr_9fx4 ##  _26g _28
+testexpr = testexpr_19i # testexpr_30i # testexpr_19h # testexpr_18i ## testexpr_29aox3 ## testexpr_18 ## testexpr_9fx4 ##  _26g _28
 
     # as of 070121 at least these work ok in EVAL_REFORM with now-semipermanent kluge070119:
     # _2, _3a, _4a, _5, _5a, _10a, _10c, _9c, _9d, _9cx,
@@ -1544,6 +1544,14 @@ def _set_test_from_dialog( ): # modified from debug_runpycode_from_a_dialog
         print "_set_test_from_dialog: cancelled"
     return
 
+def _delete_current_test():
+    global _recent_tests
+    current_test = testnames[-1]
+    _recent_tests = filter( lambda test: test != current_test, _recent_tests)
+    _save_recent_tests()
+    _set_test(_recent_tests[-1]) #k bug: could be empty
+    return
+
 class _test_show_and_choose(DelegatingInstanceOrExpr):
     delegate = Highlightable(
         DisplistChunk( CenterY( TextRect( format_Expr("testname: %r", _app.testname)))),
@@ -1562,8 +1570,9 @@ class _test_show_and_choose(DelegatingInstanceOrExpr):
             menu_spec.append( (test, lambda test = test: self.set_test(test)) )
         if not menu_spec:
             menu_spec.append( ('(bug: no recent tests)', noop, 'disabled') )
-        ##e add an "other" item -- code it like "run py code" in debug menu
+        # special items at the end
         menu_spec.append( ('other...', self.set_test_from_dialog) )
+        menu_spec.append( ('(delete current test)', self.delete_current_test) ) #e should include its name
         return
     def set_test(self, test):
         global _set_test # fyi
@@ -1577,6 +1586,9 @@ class _test_show_and_choose(DelegatingInstanceOrExpr):
             # of how it can be fixed). Guess: the first redraw, in that case, is in the wrong coords...
     def set_test_from_dialog(self):
         _set_test_from_dialog()
+        self.KLUGE_gl_update()
+    def delete_current_test(self):
+        _delete_current_test()
         self.KLUGE_gl_update()
     pass
 
