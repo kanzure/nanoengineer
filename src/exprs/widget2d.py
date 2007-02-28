@@ -34,10 +34,11 @@ class Widget2D(Widget):
     btop = 0
     bleft = 0
     bbottom = 0
+##    width =  bleft   + bright # this would be ok if bleft etc were exprs; since they're constants we have to say _self explicitly
+##    height = bbottom + btop
     width =  _self.bleft   + _self.bright
     height = _self.bbottom + _self.btop
-##    width =  bleft   + bright
-##    height = bbottom + btop
+    center = V_expr( (_self.bright - _self.bleft) / 2.0, (_self.btop - _self.bbottom) / 2.0, 0.0) # 070227 moved here from Rect
     pass # end of class Widget2D
 
 # ==

@@ -47,8 +47,9 @@ class Rect(Widget2D): # finally working as of 061106
     # it would be more correct to say bleft = _self.bleft, but less efficient I think (not much), and hasn't been tested (should be #e).
     bbottom = 0
     bleft = 0
-    center = V_expr( (bright - bleft) / 2.0, (btop - bbottom) / 2.0, 0.0) #070211 #e someday this could be deduced from lbox, generally
-        ###e should move this def into Spacer, RectFrame, etc -- or arrange to deduce it from lbox on any Widget2D, somehow
+##    center = V_expr( (bright - bleft) / 2.0, (btop - bbottom) / 2.0, 0.0) #070211 #e someday this could be deduced from lbox, generally
+        ###e should move this def into Spacer, RectFrame, etc -- or arrange to deduce it from lbox on any Widget2D, somehow...
+        #  [070227] hmm, can't it just be moved from here into Widget2D itself? Yes, that works!
     def draw(self):
         glDisable(GL_CULL_FACE)
         draw_filled_rect(ORIGIN, DX * self.bright, DY * self.btop, self.fix_color(self.color)) #e move fix_color into draw_filled_rect? 
