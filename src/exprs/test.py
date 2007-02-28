@@ -1602,6 +1602,7 @@ bottom_left_corner = Boxed(SimpleColumn(
 ##    checkbox_pref("A9 devel/testdraw/show old use displist?", "show old use displist?", dflt = False), # works
 ##    checkbox_pref("A9 devel/testdraw/draw test graphics?", "draw old test graphics?", dflt = False), # works, but turns off above two too (ignore)
 ##    checkbox_pref(debug_prints_prefs_key, "debug prints for redraw?", dflt = False), # note prefs_key text != checkbox label text
+    checkbox_pref("A9 devel/testmode/testmode capture MMB", "testmode capture MMB?", dflt = False), #070228 alias for a debug_pref
     ActionButton(_app.env.glpane.mode.reload, "btn: testmode.reload()"), #070227; seems faster than true empty space click! ##k
     checkbox_pref("A9 devel/exprs/show redraw_counter?", "show redraw_counter?", dflt = True), # works [new dflt & prefs key 070227]
     Highlightable(DisplistChunk(
