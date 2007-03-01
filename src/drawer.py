@@ -9,7 +9,7 @@ $Id$
 
 from OpenGL.GL import *
 from OpenGL.GLU import *
-import OpenGL.GLUT as glut
+from OpenGL.GLE import glePolyCone, gleGetNumSides, gleSetNumSides
 import math
 import os
 import sys
@@ -1786,10 +1786,14 @@ def drawOriginAsSmallAxis(n, point, dashEnabled = False):
     from constants import blue, red, darkgreen, black, lightblue
     
     #ninad060922 in future , the following could be user preferences. 
+    if (dashEnabled):
+        dashShrinkage = 0.9
+    else:
+        dashShrinkage=1
     x1, y1, z1 = n*0.01, n*0.01, n*0.01
     xEnd, yEnd, zEnd = n*0.04, n*0.09, n*0.025
-    arrowBase = n*0.0075
-    arrowHeight = n*0.035
+    arrowBase = n * 0.0075 * dashShrinkage
+    arrowHeight = n * 0.035 * dashShrinkage
     lineWidth = 1.0
 
     glPushMatrix()
@@ -1798,11 +1802,16 @@ def drawOriginAsSmallAxis(n, point, dashEnabled = False):
     glDisable(GL_LIGHTING)
     glLineWidth(lineWidth)
     
+    gleNumSides = gleGetNumSides()
     #Code to show hidden lines of the origin if some model obscures it  ninad060921
     if dashEnabled:
         glLineStipple(2, 0xAAAA)
         glEnable(GL_LINE_STIPPLE)
         glDisable(GL_DEPTH_TEST)
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
+        gleSetNumSides(5)
+    else:
+        gleSetNumSides(10)
         
     glBegin(GL_LINES)
 
@@ -1855,8 +1864,9 @@ def drawOriginAsSmallAxis(n, point, dashEnabled = False):
     glTranslatef(xEnd,0.0,0.0)
     glRotatef(90,0.0,1.0,0.0)
     
-    if dashEnabled: glut.glutWireCone(arrowBase*0.9,arrowHeight*0.9,10,10)
-    else: glut.glutSolidCone(arrowBase,arrowHeight,10,10)
+
+    glePolyCone([[0, 0, -1], [0, 0, 0], [0, 0, arrowHeight], [0, 0, arrowHeight+1]], None, [arrowBase, arrowBase, 0, 0])
+
     glPopMatrix()
         
     glPushMatrix()
@@ -1864,24 +1874,24 @@ def drawOriginAsSmallAxis(n, point, dashEnabled = False):
     glColor3fv(lightblue)
     glTranslatef(0.0,yEnd,0.0)
     glRotatef(-90,1.0,0.0,0.0)
-    
-    if dashEnabled: glut.glutWireCone(arrowBase*0.9,arrowHeight*0.9,10,10)
-    else: glut.glutSolidCone(arrowBase,arrowHeight,10,10)
-    
+
+    glePolyCone([[0, 0, -1], [0, 0, 0], [0, 0, arrowHeight], [0, 0, arrowHeight+1]], None, [arrowBase, arrowBase, 0, 0])
+
     glPopMatrix()
         
     glPushMatrix()
     glColor3fv(lightblue)
     glTranslatef(0.0,0.0,zEnd)
-    
-    if dashEnabled: glut.glutWireCone(arrowBase*0.9,arrowHeight*0.9,10,10)
-    else: glut.glutSolidCone(arrowBase,arrowHeight,10,10)
+
+    glePolyCone([[0, 0, -1], [0, 0, 0], [0, 0, arrowHeight], [0, 0, arrowHeight+1]], None, [arrowBase, arrowBase, 0, 0])
     
     #Disable line stipple and Enable Depth test
     if dashEnabled:
         glLineStipple(1, 0xAAAA)
         glDisable(GL_LINE_STIPPLE)
         glEnable(GL_DEPTH_TEST)
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+    gleSetNumSides(gleNumSides)
     glEnable(GL_CULL_FACE)
     glEnable(GL_LIGHTING)
     glPopMatrix() 
@@ -2052,15 +2062,7 @@ def drawbrick(color, center, axis, l, h, w):
         glRotate(angle, axis[1], -axis[0], 0.0)
   
     glScale(h, w, l)
-    
-    from debug_prefs import debug_pref, Choice_boolean_False
-    if debug_pref("use glutSolidCube", Choice_boolean_False):
-        glut.glutSolidCube(1.0) # using GLUT is deprecated, but this was in our code since jan 05 until now [bruce 060302]
-            # note: we plan to disable import of GLUT soon, since this was our only use of GLUT and now we have none;
-            # this crashed on some Linux systems (bug 1595), apparently because of lack of glutInit,
-            # but glutInit would not be good to call on all our OSes (trying it on Mac I got some console warnings).
-    else:
-        glCallList(solidCubeList) #bruce 060302 revised the contents of solidCubeList as part of fixing bug 1595
+    glCallList(solidCubeList) #bruce 060302 revised the contents of solidCubeList as part of fixing bug 1595
     glPopMatrix()
     return
 

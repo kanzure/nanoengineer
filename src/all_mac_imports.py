@@ -45,6 +45,7 @@ sys.stdout.flush() #k needed?
 import multiarray # this had the problem before, but doesn't have it on 060407
 import OpenGL.GL # this has the problem on 060407 via  GL__init___
 import OpenGL.GLU # this has the problem on 060407 via  GL__init___
+import OpenGL.GLUT # we shouldn't be using glut anymore, is this still needed here? 2007/03/01 -emm
 
 # These modules are seemed similar enough to the above to need to be test-imported every time:
 import OpenGL.GLE
