@@ -61,7 +61,7 @@ class Pref: #e might be merged with the DataType (aka PrefDataType) objects
         self.name = name
         assert name and type(name) == type("") #bruce 060124 added assert (don't know if this was already an implicit requirement)
         self.dtype = dtype # a DataType object
-        self.value = dtype.default_value() # might be changed below
+        self.value = self._dfltval = dtype.default_value() # might be changed below  #bruce 070228 added self._dfltval
         if prefs_key: #bruce 060124 new feature
             if prefs_key is True:
                 prefs_key = "_debug_pref_key:" + name #e should prefix depend on release-version??
@@ -74,6 +74,13 @@ class Pref: #e might be merged with the DataType (aka PrefDataType) objects
                 # Note: until I fixed preferences.py today, this failed to store a default value when self.value was None. [bruce 070110]
             # note: in this case, self.value might not matter after this, but in case it does we keep it in sync before using it,
             # or use it only via self.current_value() [bruce 060209 bugfix]
+            from state_utils import same_vals #bruce 070228 [recursive import if done at toplevel; seems to work ok here...]
+            if self.print_changes and not same_vals(self.value, self._dfltval): #bruce 070228 new feature for debug_pref
+                # note: we use same_vals to avoid bugs in case of tuples or lists of Numeric arrays
+                msg = "Warning: %s (default %r) starts out %r from prefs db" % \
+                      (self, self._dfltval, self.value)
+                print msg
+                env.history.message(msg, quote_html = True, color = 'orange') #k too early? (if so, do they silently disappear?)
         self.non_debug = non_debug # show up in debug_prefs submenu even when ATOM-DEBUG is not set?
         self.subscribers = []
         for sub in subs:
