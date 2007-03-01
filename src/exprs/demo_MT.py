@@ -517,7 +517,10 @@ class _MT_try2_node_helper(DelegatingInstanceOrExpr):
     # the openclose icon, when open or close is visible (i.e. for openable nodes)
     openclose_visible = Highlightable(
         If( open, open_icon, closed_icon ),
-        on_press = Set(open, not_Expr(open)) )
+        on_press = Set(open, not_Expr(open)),
+        sbar_text = getattr_Expr( _self, '_e_serno') #070301 this permits finding out how often MT gets remade/shared
+            # (results as of 070301: remade when main instance is, even if going back to a prior testexpr, out of _19i & _30i)
+     )
     
     openclose_slot = If( call_Expr(node_openable, node), openclose_visible, openclose_spacer )
 
@@ -573,7 +576,7 @@ class _MT_try2_node_helper(DelegatingInstanceOrExpr):
         ##e support cmenu
     
     delegate = SimpleRow(
-        openclose_slot,
+        CenterY(openclose_slot),
         SimpleColumn(
             SimpleRow(CenterY(icon), CenterY(label)),
                 #070124 added CenterY, hoping to improve text pixel alignment (after drawfont2 improvements in testdraw) -- doesn't work
