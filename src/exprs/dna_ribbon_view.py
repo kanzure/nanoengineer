@@ -709,8 +709,9 @@ def dna_ribbon_view_toolcorner_expr_maker(world_holder): #070201 modified from d
 class World_dna_holder(InstanceMacro): #070201 modified from GraphDrawDemo_FixedToolOnArg1; need to unify them as a ui-provider framework
     # args
     # options
+    world = Option(World, World(), doc = "the set of model objects") # revised 070228 for use in _30j
     # internals
-    world = Instance( World() ) # maintains the set of objects in the model
+##    world = Instance( World() ) # maintains the set of objects in the model
     _value = DisplistChunk( world)
     
     _cmd_Make_DNA_Cylinder_tooltip = "make a DNA_Cylinder" ###e or parse it out of method docstring, marked by special syntax??

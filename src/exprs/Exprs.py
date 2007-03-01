@@ -15,6 +15,7 @@ $Id$
 
 from basic import printnim, printfyi, stub # this may be a recursive import (with most things in basic not yet defined)
 from basic import print_compact_stack, print_compact_traceback, same_vals, EVAL_REFORM, intern_ipath, safe_repr
+from basic import debug_pref, Choice_boolean_False, Choice_boolean_True, Choice #070228
 
 # == utilities #e refile
 
@@ -447,6 +448,7 @@ class OpExpr(SymbolicExpr):
         doc = kws.pop('doc', None)
         self.__doc__ = doc #070207 added this keyword arg -- supplied (to a StateAttr stub) but not yet used;
             # not sure it belongs in this class rather than the subclass that needed it (State) ##k
+        # don't do this: junk = kws.pop('_KLUGE_fakeoption', None)
         assert not kws, "unexpected keyword args for %s: %r" % (self.__class__.__name__, kws.keys())
         self._e_init()
     def _e_init(self):
@@ -463,7 +465,12 @@ class OpExpr(SymbolicExpr):
             # note: this will always run before res is available
             return "_e_argval(i = %r, ipath = %r), self = %r" % (i,ipath,self)
          ##e consider swapping argorder to 0,ipath,env or (0,ipath),env
-        res = self._e_args[i]._e_eval(env, (i,ipath))
+        arg = self._e_args[i]
+        try:
+            res = arg._e_eval(env, (i,ipath))
+        except:
+            print "following exception concerns arg._e_eval(...) where arg = %r" % (arg,) #070228 (guess: arg is class World itself)
+            raise
         return res
     def _e_kwval(self, k, env,ipath):
         "Like _e_argval, but return the current value of our implicit-kid-instance of self._e_kws[k], rel index k."
@@ -1093,7 +1100,23 @@ def canon_expr(subexpr):###CALL ME FROM MORE PLACES -- a comment in Column.py sa
     or (as a future optim #e) will also be wrapped with constant_Expr if they don't contain exprs.
        (In future, we might also intern the resulting expr or the input expr. #e)
     """
-    if is_Expr(subexpr): # whether pure expr or Instance 
+    if is_Expr(subexpr): # whether pure expr or Instance
+        if is_Expr_pyclass(subexpr):
+            if debug_pref("wrap expr subclasses in constant_Expr?", Choice_boolean_False, prefs_key = True):
+                # new feature 070228; not sure if it ever came up before; if it did, this change might cause trouble;
+                # therefore print something whenever it's used, for now. In fact, it is likely to be misguided so I'll make it a debug_pref.
+                print "canon_expr treating this expr class as a constant: %r" % (subexpr,) ##e print_compact_stack?
+                assert same_vals(subexpr, subexpr)
+                return constant_Expr(subexpr)
+            elif debug_pref("pseudo-customize IorE subclasses?", Choice_boolean_False, prefs_key = True):
+                # turn it into an equivalent safer expr -- but only if it's in IorE
+                from instance_helpers import InstanceOrExpr #k safe??
+                if issubclass(subexpr, InstanceOrExpr):
+                    res = subexpr( _KLUGE_fakeoption = None )
+                    print "canon_expr turning expr class %r into %s" % (subexpr,res) #### remove when thought to be safe? printfyi?
+                    return res
+                else:
+                    print "canon_expr not changing expr class %r" % (subexpr,) ####
         if subexpr._e_serno == _debug_e_serno:
             print_compact_stack( "_debug_e_serno %d seen as arg %r to canon_expr, at: " % (_debug_e_serno, subexpr))
         return subexpr

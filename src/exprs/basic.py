@@ -52,6 +52,8 @@ from constants import noop # def noop(*args,**kws): pass
 
 from debug import reload_once_per_event, print_compact_traceback, print_compact_stack, safe_repr
 
+from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True, Choice #070228
+
 # == other generally useful constants
 
 # (but color constants are imported lower down)

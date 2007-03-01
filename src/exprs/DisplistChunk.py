@@ -43,8 +43,6 @@ just pointers to the draw-method-owning parents in each one, to be stored in the
 
 from basic import *
 
-from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True #k in basic??
-
 from OpenGL.GL import GL_COMPILE
 
 from changes import SelfUsageTrackingMixin # defines track_use, track_inval; maintains a private __subslist on self

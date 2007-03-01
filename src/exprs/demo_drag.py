@@ -372,8 +372,9 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro): # see also class World_dna_h
     # options
     highlight_color = Option(Color, None) # suggest: ave_colors(0.9,gray,white)) # use this only if background takes a color option
     use_VertexView = Option(bool, False) # 070105 so I can try out new code w/o breaking old code #### TRYIT
+    world = Option(World, World(), doc = "the set of model objects") # revised 070228 for use in _19j
     # internals
-    world = Instance( World() ) # maintains the set of objects in the model
+    ## world = Instance( World() ) # maintains the set of objects in the model
     _value = Overlay(
       DisplistChunk( # new feature as of 070103; works, and seems to be faster (hard to be sure)
         Highlightable( background, #######   WAIT A MINUTE,   how can we do that -- background is already an instance?!? ######@@@@@@
