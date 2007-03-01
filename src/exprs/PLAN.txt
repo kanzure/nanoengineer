@@ -61,3 +61,19 @@ list of the biggest language deficiencies or todos [as of 070105]:
 - layered data
 - draw decorators (_e_decorate_draw), so highlighting and display lists can work properly together
 - no compiling yet implemented
+
+ipath [070301]:
+- If I didn't care about transient state surviving code reloads, 
+  and if I took advantage of ideas about "delegating to a wrapped self"
+  and "delegating to a class sharing self's state and methods",
+  and if I handled explicit sharing explicitly 
+  (not sure of what all that entails, since explicit sharing is not much explored yet),
+  Then would I still need ipath at all?
+  Maybe not -- since maybe Instance identity would be sufficient in most cases.
+  That is, Instances could just *contain* their transient state, 
+  and all external state would have explicit paths assigned as part of the model
+  (like model object state already does, namely the index in the world),
+  and if transient state nonpersistence across reloads got too annoying,
+  it could be given explicit paths too.
+  Not thought through enough to be sure. If true, it would be a big simplification.
+
