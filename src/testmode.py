@@ -279,17 +279,68 @@ class testmode(super):
         super.keyReleaseEvent(self, event) #bruce 070122 new feature (probably fixes some bugs), and basicMode->super
 
     def makeMenus(self):
-        super.makeMenus(self) # this makes standard items for selobj if it's atom or bond or Highlightable, and a few more:
-        ## print "menu_spec is", self.Menu_spec # note, it may differ depending on selobj
-            ## menu_spec is:
-            ##[('Enable Jig Selection', <bound method testmode.toggleJigSelection...>, 'checked'),
-            ## None,
-            ## ('Change Background Color...', <bound method MWsemantics.dispBGColor...>)]
+        ### WARNING: this copies and slightly modifies superclass (selectMode) makeMenus;
+        # with slightly more work, we could instead just decide when to call the super one here
+        # vs. when not to, rather than duplicating the menu items it produces.
+        # But we can't do that for now, since we want to ditch its general items
+        # whenever there is a selobj which defines make_selobj_cmenu_items,
+        # even when we add atom-specific ones it also hardcodes,
+        # and later we may also decide to not ditch them if the selobj's make_selobj_cmenu_items returns nothing.
+        # DANGER: if this copied code got changed for Qt4, we're introducing a Qt4 porting problem into testmode.
+        # [bruce 070228]
+    
+        selatom, selobj = self.update_selatom_and_selobj( None)
+
+        # not doing: super.makeMenus(self) # this makes standard items for selobj if it's atom or bond or Highlightable, and a few more
+        
+        self.Menu_spec = []
+
+        ditch_generic = False #bruce 070228
+        
+        # Local minimize [now called Adjust Atoms in history/Undo, Adjust <what> here and in selectMode -- mark & bruce 060705]
+        # WARNING: This code is duplicated in depositMode.makeMenus(). mark 060314.
+        if selatom is not None and not selatom.is_singlet() and self.w.simSetupAction.isEnabled():
+            # see comments in depositMode version
+            self.Menu_spec.append(( 'Adjust atom %s' % selatom, lambda e1=None,a=selatom: self.localmin(a,0) ))
+            self.Menu_spec.append(( 'Adjust 1 layer', lambda e1=None,a=selatom: self.localmin(a,1) ))
+            self.Menu_spec.append(( 'Adjust 2 layers', lambda e1=None,a=selatom: self.localmin(a,2) ))
+            ditch_generic = True #bruce 070228
+            
+        # selobj-specific menu items. [revised by bruce 060405; for more info see the same code in depositMode]
+        if selobj is not None and hasattr(selobj, 'make_selobj_cmenu_items'):
+            try:
+                selobj.make_selobj_cmenu_items(self.Menu_spec)
+                ditch_generic = True #bruce 070228
+            except:
+                print_compact_traceback("bug: exception (ignored) in make_selobj_cmenu_items for %r: " % selobj)
+
+        if not ditch_generic: #bruce 070228 added this cond; ###BUG: we still have a "Web help: test mode" added by something!
+        
+            # separator and other mode menu items.
+            if self.Menu_spec:
+                self.Menu_spec.append(None)
+            
+            # Enable/Disable Jig Selection.
+            # This is duplicated in depositMode.makeMenus() and selectMolsMode.makeMenus().
+            if self.o.jigSelectionEnabled:
+                self.Menu_spec.extend( [('Enable Jig Selection',  self.toggleJigSelection, 'checked')])
+            else:
+                self.Menu_spec.extend( [('Enable Jig Selection',  self.toggleJigSelection, 'unchecked')])
+                
+            self.Menu_spec.extend( [
+                # mark 060303. added the following:
+                None,
+                ('Change Background Color...', self.w.dispBGColor),
+                ])
+            pass
+
 ##        self.Menu_spec.extend( [
 ##            ('loop', self.myloop),
 ##         ] )
-        return
-    
+        
+        return # from makeMenus
+
+    # probably unused, but mentioned in real code, and might be added back (related to self.myloop):
     _please_exit_loop = False
     _in_loop = False
     _loop_start_time = 0
