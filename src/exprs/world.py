@@ -143,6 +143,9 @@ class World(ModelObject): #070205 revised, public nodelist -> private _nodeset
         newset = dict(self._nodeset)
         newset[index] = node
         self._nodeset = newset # this ought to compare different and cause changetracking (assuming the index was in fact new)
+        ###e OPTIM IDEA: can we modify it, then set it to itself? No, because LvalForState will compare saved & new value --
+        # the same mutable object! We need to fix that, but a workaround is to set it to None and then set it to itself again.
+        # That ought to work fine. ####TRYIT but then fix LvalForState so we can tell it we modified its mutable contents. [070228]
         return
 
     def _C__sorted_objects(self):
@@ -157,7 +160,7 @@ class World(ModelObject): #070205 revised, public nodelist -> private _nodeset
         return res
         
     def draw(self):
-        # draw all the nodes
+        # draw all the nodes [#e 070228 ###e in future we're more likely to draw X(node) for X supplied from caller & subset of nodes]
         # [optim idea 070103 late: have caller put this in a DisplistChunk; will it actually work?
         #  the hope is, yes for animating rotation, with proper inval when nodelist changes. It ought to work! Try it. It works!]
         for node in self._sorted_objects:
