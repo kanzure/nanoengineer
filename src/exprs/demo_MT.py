@@ -581,11 +581,21 @@ class _MT_try2_node_helper(DelegatingInstanceOrExpr):
             SimpleRow(CenterY(icon), CenterY(label)),
                 #070124 added CenterY, hoping to improve text pixel alignment (after drawfont2 improvements in testdraw) -- doesn't work
             If( open,
-                      _MT_try2_kids_helper( call_Expr(node_kids, node) , _self.mt ), # 070218 added _self.mt -- always intended, first used now
-                      Spacer(0) ###BUG that None doesn't work here: see comment in ToggleShow.py
-                      )
-        )
-    )
+                _MT_try2_kids_helper( call_Expr(node_kids, node) , _self.mt ), # 070218 added _self.mt -- always intended, first used now
+                None
+                    # Note: this None used to be Spacer(0), due to a bug mentioned in a comment in ToggleShow.py
+                    # (but unfortunately not explained there -- it just says "I wanted None here, but it exposes a logic bug,
+                    # not trivial to fix, discuss in If or Column" -- my recollected bug-theory is described just below).
+                    # On 070302 I confirmed that None seems to work (even in testexpr_18i with a group of 2 chunks, plus two more below).
+                    # I don't fully know why it works, since I thought the bug was that SimpleColumn's None specialcase
+                    # didn't run, since the element was not None but the If, and then delegating lbox attrs to None didn't work.
+                    # (Fixable by using the newer If that evals, but for some reason that's not yet standard, I guess just because
+                    # I didn't have time to test it enough or think it through fully re ipath or instance caching or something.)
+                    # But as long as it works, use it -- ask Qs later. A recent perhaps-related change: None is allowed in drawkid.
+                    # (A memory scrap -- does instantiating None conceivably produce a spacer?? ###k)
+             )
+         )
+     )
 ##    def _init_instance(self):
 ##        print "%r.ipath = %r" % (self,self.ipath)
             #bug (solved below): when we add dna cyl or green rect, every mt node gets remade -- why?
