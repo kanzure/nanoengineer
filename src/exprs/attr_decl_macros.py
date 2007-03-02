@@ -137,8 +137,10 @@ def _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr, _lvalue_fla
         dflt_expr = canon_expr(dflt_expr) # hopefully this finally will fix dflt 10 bug, 061105 guesshope ###k [works for None, 061114]
         assert is_pure_expr(dflt_expr) # not sure this is redundant, since not sure if canon_expr checks for Instance ###k
         printnim("not sure if canon_expr checks for Instance")
-    # Note: we have to use explicit call_Expr & getattr_Expr below, to construct Exprs like _self._i_grabarg( attr_expr, ...),
-    # only to work around safety features which normally detect that kind of Expr-formation (getattr on _i_* or _e_*,
+    # Note on why we use explicit call_Expr & getattr_Expr below,
+    # rather than () and . notation like you can use in user-level formulae (which python turns into __call__ and getattr),
+    # to construct Exprs like _self._i_grabarg( attr_expr, ...):
+    # it's only to work around safety features which normally detect that kind of Expr-formation (getattr on _i_* or _e_*,
     # or getattr then call) as a likely error. These safety features are very important, catching errors that would often lead
     # to hard-to-diagnose bugs (when our code has an Expr but thinks it has an Instance), so it's worth the trouble.
     held_dflt_expr = hold_Expr(dflt_expr) 
@@ -174,6 +176,8 @@ def _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr, _lvalue_fla
 ##        ### I suspect the above, because grabarg expr needs to be evalled to get the expr whose type coercion we want to instantiate
     res = Instance( _type_coercion_expr( type_expr, eval_Expr(grabarg_expr) ),
                      _index_expr = index_expr, _lvalue_flag = _lvalue_flag, **moreopts )
+        # note: moreopts might contain _noinstance = True, and if so, Instance normally returns its first arg unchanged
+        # (depending on other options).
         # 070115 replaced eval_Expr( type_expr( grabarg_expr)) with _type_coercion_expr( type_expr, eval_Expr(grabarg_expr) )
     return res # from _ArgOption_helper
 

@@ -564,6 +564,7 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
         (When an instance is recomputed, if this error happens, are new args used? undefined.)
         (#e Should we change this to make the expr effectively part of the index, for caching? Probably not; not sure.)
         (#e Should we change this to make it legal to pass a new expr? Probably not... hard for subsequent callers to be consistent...)
+        WARNING: this docstring is probably out of date regarding whether expr can change and what happens if it does. [070301 comment]
         """
         # Note: Before EVAL_REFORM, this is used to do all evals, including instantiations (treated as how IorE evals).
         # It also does "eval to lval" when _lvalue_flag is true (passed only from LvalueArg, so far used only in Set).
@@ -727,7 +728,7 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
         else:
             # EVAL_REFORM case 070117
             if not (is_pure_expr(expr) and is_Expr_pyinstance(expr)):
-                print "this should never happen as of 070118 since we handle it above: pure expr %r in _CV__i_instance_CVdict" % (expr,)
+                print "this should never happen as of 070118 since we handle it above: non pure expr %r in _CV__i_instance_CVdict" % (expr,)
                 ## print "FYI: EVAL_REFORM: _CV__i_instance_CVdict is identity on %r" % (expr,)
                 # this is routine on e.g. None, small ints, colors, other tuples... and presumably Instances (not tested)
                 assert not lvalflag # see comments at start of _i_instance
@@ -807,7 +808,6 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
             res = call_but_discard_tracked_usage( computer) # see also docstring of eval_and_discard_tracked_usage
                 # res is the same as if we did res = computer(), but that would track usage into caller which it doesn't want invals from
         except:
-            # we expect caller to exit now, so we might as well print this first: [061114]
             print "following exception concerns self = %r, index = %r in *** _i_eval_dfltval_expr *** calling _e_compute_method" % \
                   (self, index)
             raise
@@ -888,7 +888,7 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
         
         return self.env.with_lexmods(lexmods)
 
-    def _C_env_for_formulae(self):#070120 for fixing bug in kluge070119 ####@@@@ USE ME
+    def _C_env_for_formulae(self):#070120 for fixing bug in kluge070119
         "compute method for self.env_for_formulae -- memoized environment for use by our internal formulae (class-assigned exprs)"
         res = self.env.with_literal_lexmods( _self = self)
             # This used to be done (each time needed) in _e_compute_method and _i_env_ipath_for_formula_at_index --

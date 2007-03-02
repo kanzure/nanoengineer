@@ -1368,7 +1368,7 @@ class _world_ui_user(DelegatingInstanceOrExpr): #e refile if accepted #e rename 
     delegate = Overlay( world_ui, # this is the 3d graphics area, as seen via the given world_ui
                         DrawInCorner( Boxed(
                             eval_Expr( call_Expr( tool_maker, world_ui )) )), # prop mgr (but lower right at the moment (default corner))
-                        DrawInCorner( MT_try2(
+                        DrawInCorner( MT_try2( ###e OPTIM: this object ought to be shared ###k Q: maybe it already is, if our ipath is?
                             world_ui.world ## getattr_Expr(world_ui, 'world')
                             ), WORLD_MT_CORNER ), # mt (upper left)  ##e probably should revise arg order to DrawInCorner(corner, thing)
                        )
@@ -1387,7 +1387,7 @@ testexpr_19j = eval_Expr( call_Expr( lambda world:
                                                      testexpr_19jaux, # needs to receive an option for the world [coded now]
                                                      _19j_tool_maker,
                                       ),
-                                     call_Expr( _app.Instance, World(), "#shared world") # the shared world
+                                     call_Expr( _app.Instance, World(), "#shared world") # the shared world (assuming _app is)
                                     ))
 testexpr_30j = eval_Expr( call_Expr( lambda world:
                                      _world_ui_user( world,
