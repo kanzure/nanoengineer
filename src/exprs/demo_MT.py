@@ -148,6 +148,10 @@ import DisplistChunk # works 070103, with important caveats re Highlightable (se
 reload_once(DisplistChunk)
 from DisplistChunk import DisplistChunk
 
+##import toolbars ##### refiled it to other module [070302]
+##reload_once(toolbars)
+##from toolbars import MapListToExpr
+
 # ==
 
 ##e prototype, experimental definition of an Interface
@@ -423,7 +427,7 @@ class MT_try2(DelegatingInstanceOrExpr): # works on assy.part.topnode in testexp
 
 bugfix070218 = True # (soon, remove the alternative; this fixes a slowness bug reported 070213 in this file, now in BUGS-fixed.txt)
 
-class _MT_try2_kids_helper(DelegatingInstanceOrExpr):
+class _MT_try2_kids_helper_OLDER(DelegatingInstanceOrExpr): #e see also MapListToExpr as used to reivse this below [070302]
     """[private helper expr class for MT_try2]
     One MT item kidlist view -- specific to one instance of _MT_try2_node_helper.
     [#e if we generalize MT_try2 to support a time-varying list of toplevel nodes,
@@ -452,7 +456,7 @@ class _MT_try2_kids_helper(DelegatingInstanceOrExpr):
         # print "recomputing %r._delegate" % self
             # make sure this doesn't happen more often than the kidset changes -- not sure it'll work [seems to work]
         index = '_C__delegate'
-        # compute the SimpleColumn expr we need (see comment above for why we need a mew one each time)
+        # compute the SimpleColumn expr we need (see comment above for why we need a new one each time)
         kids = self.kids # usage tracked (that's important)
         assert not kids or type(list(kids)) == type([])
         for kid in kids:
@@ -480,8 +484,18 @@ class _MT_try2_kids_helper(DelegatingInstanceOrExpr):
         return res
 ##    def _init_instance(self):
 ##        print "%r.ipath = %r" % (self,self.ipath)
-    pass # end of class _MT_try2_kids_helper
+    pass # end of class _MT_try2_kids_helper_OLDER
 
+class _MT_try2_kids_helper(DelegatingInstanceOrExpr): ### TRY THIS VERSION 070302 -- works!
+    # args
+    kids = Arg( list_Expr, doc = "the sequence of 0 or more kid nodes to show (after filtering, reordering, etc, by _self.mt)")
+    mt = Arg( MT_try2,     doc = "the whole MT view (for central storage and prefs)") ###e let this be first arg, like self is for methods??
+    parent_item = Arg( mt._MT_try2_node_helper, None, doc = "the parent node item for these kid nodes") #k needed??
+    # formulae
+    delegate = MapListToExpr( mt.MT_item_for_object,
+                              kids,
+                              KLUGE_for_passing_expr_classes_as_functions_to_ArgExpr(SimpleColumn) )
+    pass
 
 class _MT_try2_node_helper(DelegatingInstanceOrExpr):
     """[private helper expr class for MT_try2]

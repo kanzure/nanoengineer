@@ -137,7 +137,9 @@ def stub(*args, **kws): #e rename to stubfunc (too hard to search for 'stub', co
 
 import py_utils
 reload_once(py_utils)
-from py_utils import * # includes printnim
+from py_utils import * # includes printnim, identity
+
+nevermind = lambda func: identity
 
 from intern_ipath import intern_ipath # (it doesn't make sense to try to autoreload this module -- ###e it should say so in some attr)
 
@@ -263,6 +265,10 @@ from If_expr import *
 ##import staterefs
 ##reload_once(staterefs)
 ##from staterefs import * 
+
+import iterator_exprs # 070302
+reload_once(iterator_exprs)
+from iterator_exprs import *
 
 # === higher-level defs, common enough to import for everything
 

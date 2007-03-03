@@ -12,6 +12,10 @@ from test import reload_once
 reload_once(test) # not sure this is needed if we're only imported from test.py
 from test import * # shortcut, since we were moved out of test.py
 
+import toolbars
+reload_once(toolbars)
+from toolbars import MainToolbar
+
 # [this first part was written in test.py, thus the globalvar naming scheme.]
 
 # 070228:
@@ -115,21 +119,27 @@ testexpr_34 = Rect(0.7,0.3,pink) # just to make sure the imports from here are w
 
 # ToolRuns #e rename-- or maybe those classes will be derived from Tool ones somehow
 
-class Tool(DelegatingInstanceOrExpr): # what is the super? it has several distinct parts we draw, but when do we draw "the whole thing" -- when editing one???
+class ToolRun(DelegatingInstanceOrExpr): # what is the super? it has several distinct parts we draw, but when do we draw "the whole thing" -- when editing one???
+    property_manager = None
+    graphics_area_topright_buttons = None
     pass
 
-class DefaultTool(Tool):
+class DefaultToolRun(ToolRun):
+    """An internal pseudo-ToolRun that is always active, and controls the property manager display
+    and other things normally controlled by the active tool or subtool when they exist (eg Done/Cancel buttons in graphics area).
+    In general it just sets them to invisible stubs.
+    """
     pass
 
-class CommandToolbar(Stub): ##k does this contain its associated flyout toolbar?
-    pass
 
 # term/ui guesses until i learn otherwise:
 # - Tool is the classname of the thing whose tool button you hit to get into,
 #   and which has its own prop mgr or inherits one from a parent tool
-#   [i asked by mail: Command? Op? Feature? Tool?]
-# - there is a stack of currently active tools, each one the parent of the next
-#   (usual depth one or two, plus an outer constant one with no prop mgr) [i asked if there is really a stack, too]
+#   - A Tool Instance sits there whether or not the tool is active; it can supply things like a prefs pane, tool button, etc;
+#     typically there's one long-lived instance for each Command eg Sketch or sub-command eg Line
+# - each time a Tool is activated it produces a new ToolRun...
+# - there is a stack of currently active toolruns, each one the parent of the next
+#   (usual depth one or two, plus an outer constant one with no prop mgr, user-invisible)
 
 class main_ui_layout(DelegatingInstanceOrExpr):
     #e rename? is it not only the ui, but the entire app? (selection, files, etc)
@@ -139,7 +149,7 @@ class main_ui_layout(DelegatingInstanceOrExpr):
     
     # internal state - permanent
     world = Instance(World())
-    default_tool = Instance(DefaultTool())
+    default_tool = Instance(DefaultToolRun())
 
     # internal state - varying
     toolstack = State(list_Expr, [default_tool]) # always has at least one tool on it; a stack of Instances not exprs
@@ -152,7 +162,8 @@ class main_ui_layout(DelegatingInstanceOrExpr):
         # since we also have to deal with Tools in the sense of Tool Run Producers, eg toolbuttons. ###e
 
     # parts of the appearance
-    toolbar = Instance( CommandToolbar() ) ###e args/opts for what tools to show -- maybe their cmdnames & it loads them from elsewhere
+    toolbar = Instance( MainToolbar(["Features", "Build", "Sketch", "Dimension"]) )
+        ###e args/opts for what tools to show -- maybe their cmdnames & it loads them from elsewhere
         #e add row of tool buttons, and flyout toolbar; use ChoiceRow?? the things should probably look pressed...
         # they might need cmenus (find out what the deal is with the cmenus i see in the ui mockup - related to flyouts?
         #    yes, it's like this: main tools have cmenus with subtools, and if you pick one, main tool and its subtool both look pressed
@@ -163,7 +174,7 @@ class main_ui_layout(DelegatingInstanceOrExpr):
     graphics_area = _self.world
         ##e ditto for what we show here, except it might not be the exact same object, and it will really be shown in a way
         # that depends on both the current display style and the current tool (command & subcommand)
-    
+    graphics_area_topright_buttons = current_tool.graphics_area_topright_buttons
     # overall appearance
     delegate = Overlay(
         # stuff in the corners
@@ -171,11 +182,18 @@ class main_ui_layout(DelegatingInstanceOrExpr):
             SimpleColumn(
                 toolbar,
                 #e add tab control
-                SimpleRow(Top(propmgr), Top(mt)),
+                SimpleRow(Top(propmgr), Top(mt)), #e actually we'd then put a splitter & glpane-like-thing...
                 #e anything just below the propmgr?
          )),
+        DrawInCorner(corner = UPPER_RIGHT)( ##e of graphics area, not entire screen...
+            graphics_area_topright_buttons ### WRONG, these should go under the main toolbar area on the right
+                # (but we don't yet have any 2dwidgets which expand to fill the available space, except DrawInCorner of entire screen)
+                # (this won't matter once the toolbar is done entirely in Qt, so we don't need to correct it for now)
+         ),
         #e other corners? "... an area (view) on the right side
         # of the main window for accessing the part library, on-line documentation, etc"
+        # the main graphics area
+            #e [this too ought to go under the toolbar and to the right of the propmgr, but that can wait until they're fully in Qt]
         graphics_area
      )
     pass

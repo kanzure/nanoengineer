@@ -21,12 +21,13 @@ from __Symbols__ import _E_ATTR, _E_REQUIRED_ARG_, _E_DFLT_FROM_TYPE_
 # ==
 
 def Instance(expr, _index_expr = _E_ATTR, _lvalue_flag = False, _noinstance = False, doc = None):
-    """This macro is assigned to a class attr to declare that its value should be a lazily-instantiated Instance of expr. 
+    """This macro is assigned to a class attr to declare that its value should be a lazily-instantiated Instance of expr (by default).
     Assuming the arg is an expr (not yet checked?), turn into the expr _self._i_instance(hold_Expr(expr), _E_ATTR),
     which is free in the symbols _self and _E_ATTR. [#e _E_ATTR might be changed to _E_INDEX, or otherwise revised.]
        This function is also used internally to help implement the Arg and Option macros;
     for their use only, it has a private _index_expr option, giving an index expr other than _E_ATTR for the new Instance
     (which is used to suggest an ipath for the new instance, relative to that of self).
+       Similarly, it helps implement ArgExpr etc, for whose sake it has a private option _noinstance.
        Devel scratch comment:
     Note that the Arg and Option macros may have handy, not expr itself, but a "grabarg" expr which needs to be evaluated
     (with _self bound) to produce the expr to be instantiated. What should they pass?? eval_Expr of the expr they have.
@@ -247,15 +248,18 @@ def ArgOrOption(type_expr, dflt_expr = _E_DFLT_FROM_TYPE_, **moreopts):
     attr_expr = _E_ATTR
     return Arg( type_expr, dflt_expr, _attr_expr = attr_expr, **moreopts)
 
-def ArgExpr(*args):
+def ArgExpr(*args, **moreopts):
     ## return Arg(*args, _noinstance = True) -- syntax error, i don't know why
-    return Arg(*args, **dict(_noinstance = True))
+    moreopts['_noinstance'] = True #k let's hope we always own this dict
+    return Arg(*args, **moreopts)
 
-def OptionExpr(*args):
-    return Option(*args, **dict(_noinstance = True))
+def OptionExpr(*args, **moreopts):
+    moreopts['_noinstance'] = True
+    return Option(*args, **moreopts)
 
-def ArgOrOptionExpr(*args):
-    return ArgOrOption(*args, **dict(_noinstance = True))
+def ArgOrOptionExpr(*args, **moreopts):
+    moreopts['_noinstance'] = True
+    return ArgOrOption(*args, **moreopts)
 
 # ==
 

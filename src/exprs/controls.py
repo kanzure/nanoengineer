@@ -4,6 +4,8 @@ controls.py - some simple controls, like ChoiceButton, ChoiceColumn/Row, checkbo
 $Id$
 
 ###e also has some general things we need to refile
+
+#e see also: toolbars.py
 """
 
 #e stub, nim; implem requires StateRef, some better type conversion (& filling it out below), Set action, on_press accepting that

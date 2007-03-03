@@ -675,7 +675,7 @@ if 1:
 res = []
 ## moved into images.py:
 ## IconImage = Image(ideal_width = 22, ideal_height = 22, convert = True, _tmpmode = 'TIFF') # size 22 MIGHT FAIL on some OpenGL drivers
-nevermind = lambda func: identity
+# now in basic: nevermind = lambda func: identity
 for i in range(5): # 4 is enough unless you set 'if 1' above
     res.append([])
     for j in range(6):
