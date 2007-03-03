@@ -234,7 +234,7 @@ NullIpath = '.' ##k ok that it's not None? maybe not, we might test for None... 
 StubType = Anything # use this for stub Type symbols [new symbol and policy, 070115]
 
 # stub types
-Width = Color = Vector = Quat = Position = Point = StateRef = StubType   # for Action, see below
+Width = Color = Vector = Quat = Position = Point = StateRef = Function = StubType   # for Action, see below
 Type = Anything
 
 # == fundamental defs
