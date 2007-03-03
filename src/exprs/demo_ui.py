@@ -113,10 +113,15 @@ testexpr_30j = eval_Expr( call_Expr( lambda world:
 
 testexpr_34 = Rect(0.7,0.3,pink) # just to make sure the imports from here are working -- replace it with a real test when we have one
 
+# ToolRuns #e rename-- or maybe those classes will be derived from Tool ones somehow
+
 class Tool(DelegatingInstanceOrExpr): # what is the super? it has several distinct parts we draw, but when do we draw "the whole thing" -- when editing one???
     pass
 
 class DefaultTool(Tool):
+    pass
+
+class CommandToolbar(Stub): ##k does this contain its associated flyout toolbar?
     pass
 
 # term/ui guesses until i learn otherwise:
@@ -138,6 +143,7 @@ class main_ui_layout(DelegatingInstanceOrExpr):
 
     # internal state - varying
     toolstack = State(list_Expr, [default_tool]) # always has at least one tool on it; a stack of Instances not exprs
+        # maybe the better term for this is something like command & subcommand
     current_tool = toolstack[-1] # last tool on the stack is current; exiting it will pop the stack (Instance not expr)
         ##e (add a type-assertion (as opposed to type-coercion) primitive, so I can say "this is an Instance" in the code?)
         # NOTE: this is not strictly speaking a tool, but ONE RUN of a tool. That might be important enough to rename it for,
@@ -146,7 +152,7 @@ class main_ui_layout(DelegatingInstanceOrExpr):
         # since we also have to deal with Tools in the sense of Tool Run Producers, eg toolbuttons. ###e
 
     # parts of the appearance
-    toolbar = XXX
+    toolbar = Instance( CommandToolbar() ) ###e args/opts for what tools to show -- maybe their cmdnames & it loads them from elsewhere
         #e add row of tool buttons, and flyout toolbar; use ChoiceRow?? the things should probably look pressed...
         # they might need cmenus (find out what the deal is with the cmenus i see in the ui mockup - related to flyouts?
         #    yes, it's like this: main tools have cmenus with subtools, and if you pick one, main tool and its subtool both look pressed
@@ -154,7 +160,9 @@ class main_ui_layout(DelegatingInstanceOrExpr):
     propmgr = current_tool.property_manager # might be a spacer (#k or None?? prob ok now, see demo_MT comment 070302) [Instance]
     mt = MT_try2(world) #e rename to  "Feature Manager" ??
         ##e soon, MT should be not on whole world but on model or cur. part, a specific obj in the world
-    graphics_area = XXX
+    graphics_area = _self.world
+        ##e ditto for what we show here, except it might not be the exact same object, and it will really be shown in a way
+        # that depends on both the current display style and the current tool (command & subcommand)
     
     # overall appearance
     delegate = Overlay(
