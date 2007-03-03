@@ -148,10 +148,6 @@ import DisplistChunk # works 070103, with important caveats re Highlightable (se
 reload_once(DisplistChunk)
 from DisplistChunk import DisplistChunk
 
-##import toolbars ##### refiled it to other module [070302]
-##reload_once(toolbars)
-##from toolbars import MapListToExpr
-
 # ==
 
 ##e prototype, experimental definition of an Interface
@@ -326,6 +322,9 @@ def mt_node_id(node): # 070207; the name 'node_id' itself conflicts with a funct
             print "this node %r has mt_node_id %r" % (node,node.mt_node_id)
             # old Q: where do our Rects get it?
             # A: they don't -- the bug fixed by bugfix070218 meant this was never called except for World!!
+            # [note: on 070302 the comments about bugfix070218, and the code affected by it, was rewritten and removed
+            #  (becoming MapListToExpr).
+            #  it might still be in an outtakes file not in cvs on bruce's g5 -- or in cvs rev 1.21 or earlier of this file.]
             # btw, we want it to be for the
             # underlying model object... sort of like how we ask for name or type... [bug noticed 070218 late; see below comment]
         return node.mt_node_id
@@ -399,7 +398,6 @@ class MT_try2(DelegatingInstanceOrExpr): # works on assy.part.topnode in testexp
         #e coerce object into supporting ModelNodeInterface 
         object = identity(object) ###e STUB: just assume it already does support it
         index = ('MT_item_for_object', mt_node_id(object))
-##        print "object %r, index %r" % (object,index)
             # note: the constant string in the index is to avoid confusion with Arg & Instance indices;
             # it would be supplied automatically if we made this using InstanceDict [nim] #e
             ###e if nodes could have >1 parent, we'd need to include parent node in index -- only sufficient if some
@@ -414,20 +412,9 @@ class MT_try2(DelegatingInstanceOrExpr): # works on assy.part.topnode in testexp
             ##e optim: have variant of Instance in which we pass a constant expr-maker, only used if index is new
             # WARNING: if we do that, it would remove the errorcheck of whether this expr is the same as any prior one at same index
         return self.Instance( expr, index) ###k arg order -- def Instance
-##    def _init_instance(self):
-##        print "%r.ipath = %r" % (self,self.ipath)
     pass # end of class MT_try2
 
-# don't use this, most likely: [070207]
-##from __Symbols__ import _FORWARD_REF_ ###e refile; ###IMPLEM its special behavior (if it still seems ok & good); #e rename
-##    ###e and permit an exception to bug: __call__ of <getattr_Expr#24476: ... when using it
-##    ### make them attrs of the mt -- but would call_Expr(globals) work to find them?
-## # so you can say in expr E, _FORWARD_REF_.F to refer to expr F lower down in the module
-
-
-bugfix070218 = True # (soon, remove the alternative; this fixes a slowness bug reported 070213 in this file, now in BUGS-fixed.txt)
-
-class _MT_try2_kids_helper_OLDER(DelegatingInstanceOrExpr): #e see also MapListToExpr as used to reivse this below [070302]
+class _MT_try2_kids_helper(DelegatingInstanceOrExpr): # rewrote this 070302 (splitting out older one's alg as MapListToExpr) -- works!
     """[private helper expr class for MT_try2]
     One MT item kidlist view -- specific to one instance of _MT_try2_node_helper.
     [#e if we generalize MT_try2 to support a time-varying list of toplevel nodes,
@@ -435,58 +422,6 @@ class _MT_try2_kids_helper_OLDER(DelegatingInstanceOrExpr): #e see also MapListT
      but more likely a variant of this (at least passing it an option), to turn off
      anything it might display in the left which only makes sense when it's elts are under a common parent node.]
     """
-    # args
-    kids = Arg( list_Expr, doc = "the sequence of 0 or more kid nodes to show (after filtering, reordering, etc, by _self.mt)")
-    mt = Arg( MT_try2,     doc = "the whole MT view (for central storage and prefs)") ###e let this be first arg, like self is for methods??
-    parent_item = Arg( mt._MT_try2_node_helper, None, doc = "the parent node item for these kid nodes") #k needed??
-        ###KLUGE: with bare _MT_try2_node_helper we have a forward ref which doesn't work.
-        # Best soln seems to be to let the main MT_try2 have these exprheads in it -- good in other ways too.
-        # But I didn't bother to implem that yet, since by reordering the classes, only this forward ref is left,
-        # and it won't matter until type coercion by Arg is implemented... or will it? actually it will. No, it won't
-        # this will become a getattr_Expr and never get evalled I think. If it does, I'll fix it, or stubbify it in MT_try2. ####k
-
-    # WARNING: compare to MT_kids_try1 -- lots of copied code after this point -- well, not really, it needs rewrite... ###e
-    # WARNING: the comments are also copied, and not yet reviewed much for their new context! (so they could be wrong or obs) ###k
-
-    # In current implem of SimpleColumn, we have to produce a column expr with a different arglist, listing the kids themselves
-    # (rather than some expr that evals to a list of them). We'd better say that if the expr changes at that index, it's ok.
-    # (Or use fresh index each time? No, inefficient & unnatural.)
-    # I don't have control of the 'delegate' attr's instantiation code, so I'll use _delegate.
-    def _C__delegate(self):
-        # print "recomputing %r._delegate" % self
-            # make sure this doesn't happen more often than the kidset changes -- not sure it'll work [seems to work]
-        index = '_C__delegate'
-        # compute the SimpleColumn expr we need (see comment above for why we need a new one each time)
-        kids = self.kids # usage tracked (that's important)
-        assert not kids or type(list(kids)) == type([])
-        for kid in kids:
-            # might be a legacy node or a new node (instance)
-            assert not is_Expr(kid) or is_expr_Instance(kid)
-        if bugfix070218:
-            # the code that was always intended, and that i thought was in here -- left it out by some oversight i guess...
-            elts = map( self.mt.MT_item_for_object, kids)
-            for elt in elts:
-                assert is_expr_Instance(elt)
-            pass
-        else:
-            # old buggy code -- caused newnode open-mt slowness (confirmed by test)
-            ###BUG - this code won't even work anymore, since the map fails to pass just-now-required 2nd arg (self.mt) to node_helper
-            elts = map( _MT_try2_node_helper, kids) #BUG: this is supposed to go through self.mt.MT_item_for_object !!!!! [070218]
-            for elt in elts:
-                # should be an expr (not instance) of _MT_try2_node_helper ##e remove when works, might not always be valid in future
-                assert is_pure_expr(elt)
-            pass
-        expr = SimpleColumn(*elts) # [note: ok even when elts is empty, as of bugfix 061205 in SimpleColumn]
-        if 1:
-            # do we need to eval expr first? in theory i forget, but in practice this one evals to itself so it doesn't matter. ###k
-            ##e do we need to discard usage tracking during the following??
-            res = self.Instance( expr, index, permit_expr_to_vary = True)
-        return res
-##    def _init_instance(self):
-##        print "%r.ipath = %r" % (self,self.ipath)
-    pass # end of class _MT_try2_kids_helper_OLDER
-
-class _MT_try2_kids_helper(DelegatingInstanceOrExpr): ### TRY THIS VERSION 070302 -- works!
     # args
     kids = Arg( list_Expr, doc = "the sequence of 0 or more kid nodes to show (after filtering, reordering, etc, by _self.mt)")
     mt = Arg( MT_try2,     doc = "the whole MT view (for central storage and prefs)") ###e let this be first arg, like self is for methods??
@@ -610,14 +545,7 @@ class _MT_try2_node_helper(DelegatingInstanceOrExpr):
              )
          )
      )
-##    def _init_instance(self):
-##        print "%r.ipath = %r" % (self,self.ipath)
-            #bug (solved below): when we add dna cyl or green rect, every mt node gets remade -- why?
-            # (its ipath is the same, now that we fixed world.mt_node_id from serno to ipath.)
-            # [070218 late Q. btw not yet understood where rect gets its node_id #mystery (also solved below)]
-            # A: rect didn't -- only world was asked for it; fixed by bugfix070218; that also fixed the bug of every node
-            # being remade, in an obvious way. And it fixed the open-mt newnode slowness bug.
-    pass
+    pass # end of class _MT_try2_node_helper
 
 # ==
 
