@@ -222,7 +222,8 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         return # from _init_instance
     
     def draw(self):
-        if not self.env.glpane.current_glselect: # see if this cond fixes the projection=True bug (when not in DrawInCorner1 anyway)
+        if not self.env.glpane.current_glselect:
+            # see if this cond fixes the projection=True bug (when not in DrawInCorner_NOTWORKING_VERSION anyway)
             self.save_coords()
         else:
             if self.projection: # since this debug print is only needed when investigating the bug _9cx in using that option

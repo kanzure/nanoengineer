@@ -50,6 +50,9 @@ import platform # so all our code can refer to platform.atom_debug #e someday th
 
 from constants import noop # def noop(*args,**kws): pass
 
+from prefs_constants import UPPER_RIGHT, UPPER_LEFT, LOWER_LEFT, LOWER_RIGHT # compass positions, also usable for DrawInCorner
+    # note: their values are ints -- perhaps hard to change since they might correspond to Qt radiobutton indices (guess)
+
 from debug import reload_once_per_event, print_compact_traceback, print_compact_stack, safe_repr
 
 from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True, Choice #070228

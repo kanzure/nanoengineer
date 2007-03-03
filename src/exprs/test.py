@@ -130,7 +130,7 @@ from demo_drag import GraphDrawDemo_FixedToolOnArg1, kluge_dragtool_state_checkb
 
 import projection
 reload_once(projection)
-from projection import DrawInCorner1, DrawInCorner
+from projection import DrawInCorner_NOTWORKING_VERSION, DrawInCorner
 
 import ModelNode # as of 061215 450p this import fails (no consistent MRO) but causes no other problems
     # (it did on try1 but that was after lots of file edits in a running session, and didn't repeat in a new session)
@@ -1367,7 +1367,7 @@ testexpr = testexpr_30i
     ## testexpr_9c column of two highlightables
         # testexpr_9cx has a bug, in highlightable with projection = True... the current_glselect cond fix attempt didn't fix it.
         # status 061209 eve: has debug prints, debug ideas are on paper, but for now I'll use a different method (not projection matrix)
-        # for doing things like DrawInCorner1. [not using overrider doesn't fix it.]
+        # for doing things like DrawInCorner_NOTWORKING_VERSION. [not using overrider doesn't fix it.]
         # status 070122: seemed to work recently in ER, don't know why, details commented next to the test.
         #
         # BUG in testexpr_9c (later: and all other highlightables), noticed 061210 morn g4:
@@ -1465,7 +1465,7 @@ class AppOuterLayer(DelegatingInstanceOrExpr): #e refile when works [070108 expe
 def testbed(expr):
     "this turns the current testexpr into the actual expr to render"
     ## return Overlay(expr, Closer(Rect(1,1,black), 3.4)) #stub
-    ## return Overlay(expr, If(1,DrawInCorner1,Closer)(Highlightable(Rect(1,1,black),Rect(1,1,green),projection=True)))
+    ## return Overlay(expr, If(1,DrawInCorner_NOTWORKING_VERSION,Closer)(Highlightable(Rect(1,1,black),Rect(1,1,green),projection=True)))
     ## return Overlay(expr, DrawInCorner(Highlightable(Rect(1,1,black),Rect(1,1,green)) ))
     return AppOuterLayer( # [note: defines _app in dynenv]
         Overlay( expr,

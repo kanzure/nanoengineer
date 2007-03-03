@@ -111,4 +111,65 @@ testexpr_30j = eval_Expr( call_Expr( lambda world:
 
 # (TBC)
 
-testexpr_34 = Rect(0.7,0.3,pink) # just to make sure the imports from here are working
+testexpr_34 = Rect(0.7,0.3,pink) # just to make sure the imports from here are working -- replace it with a real test when we have one
+
+class Tool(DelegatingInstanceOrExpr): # what is the super? it has several distinct parts we draw, but when do we draw "the whole thing" -- when editing one???
+    pass
+
+class DefaultTool(Tool):
+    pass
+
+# term/ui guesses until i learn otherwise:
+# - Tool is the classname of the thing whose tool button you hit to get into,
+#   and which has its own prop mgr or inherits one from a parent tool
+#   [i asked by mail: Command? Op? Feature? Tool?]
+# - there is a stack of currently active tools, each one the parent of the next
+#   (usual depth one or two, plus an outer constant one with no prop mgr) [i asked if there is really a stack, too]
+
+class main_ui_layout(DelegatingInstanceOrExpr):
+    #e rename? is it not only the ui, but the entire app? (selection, files, etc)
+    #e merge in the App obj from test.py, and the _recent_tests system in some form?
+
+    # args (none yet)
+    
+    # internal state - permanent
+    world = Instance(World())
+    default_tool = Instance(DefaultTool())
+
+    # internal state - varying
+    toolstack = State(list_Expr, [default_tool]) # always has at least one tool on it; a stack of Instances not exprs
+    current_tool = toolstack[-1] # last tool on the stack is current; exiting it will pop the stack (Instance not expr)
+        ##e (add a type-assertion (as opposed to type-coercion) primitive, so I can say "this is an Instance" in the code?)
+        # NOTE: this is not strictly speaking a tool, but ONE RUN of a tool. That might be important enough to rename it for,
+        # to ToolRun or maybe ActiveTool or RunningTool or ToolInUse or ToolBeingUsed...
+        # [but note, obj might remain around on history or in Undo stack, even when no longer being used],
+        # since we also have to deal with Tools in the sense of Tool Run Producers, eg toolbuttons. ###e
+
+    # parts of the appearance
+    toolbar = XXX
+        #e add row of tool buttons, and flyout toolbar; use ChoiceRow?? the things should probably look pressed...
+        # they might need cmenus (find out what the deal is with the cmenus i see in the ui mockup - related to flyouts?
+        #    yes, it's like this: main tools have cmenus with subtools, and if you pick one, main tool and its subtool both look pressed
+        # I'll need new specialized controls.py classes for these; new super Control for all kinds of controls?? (not sure why...)
+    propmgr = current_tool.property_manager # might be a spacer (#k or None?? prob ok now, see demo_MT comment 070302) [Instance]
+    mt = MT_try2(world) #e rename to  "Feature Manager" ??
+        ##e soon, MT should be not on whole world but on model or cur. part, a specific obj in the world
+    graphics_area = XXX
+    
+    # overall appearance
+    delegate = Overlay(
+        # stuff in the corners
+        DrawInCorner(corner = UPPER_LEFT)(
+            SimpleColumn(
+                toolbar,
+                #e add tab control
+                SimpleRow(Top(propmgr), Top(mt)),
+                #e anything just below the propmgr?
+         )),
+        #e other corners? "... an area (view) on the right side
+        # of the main window for accessing the part library, on-line documentation, etc"
+        graphics_area
+     )
+    pass
+
+# end

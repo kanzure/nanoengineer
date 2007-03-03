@@ -6,14 +6,14 @@ $Id$
 
 from basic import *
 
-from prefs_constants import UPPER_RIGHT, UPPER_LEFT, LOWER_LEFT, LOWER_RIGHT
+from prefs_constants import UPPER_RIGHT, UPPER_LEFT, LOWER_LEFT, LOWER_RIGHT # note: also in basic.py as of 070302
 
 from OpenGL.GL import *
 from OpenGL.GLU import gluPickMatrix, gluUnProject
 
-class DrawInCorner1(DelegatingInstanceOrExpr): ### WARNING: this version doesn't work, for unknown reasons. See below for a newer one.
+class DrawInCorner_NOTWORKING_VERSION(DelegatingInstanceOrExpr): ### WARNING: this version doesn't work, for unknown reasons. See below for a newer one.
     delegate = Arg(Widget2D)
-    corner = Arg(int, LOWER_RIGHT) # WARNING: only the default corner works properly yet
+    corner = Arg(int, LOWER_RIGHT)
     def draw(self):
         # this code is modified from GLPane.drawcompass
 
@@ -70,7 +70,7 @@ class DrawInCorner1(DelegatingInstanceOrExpr): ### WARNING: this version doesn't
             glPopMatrix()
 
         return
-    pass # end of class DrawInCorner1
+    pass # end of class DrawInCorner_NOTWORKING_VERSION
 
 # Will this really work with highlighting? (I mean if delegate contains a Highlightable?)
 # NO, because that doesn't save both matrices!
@@ -109,10 +109,13 @@ class DrawInCorner(DelegatingInstanceOrExpr):
     (Without this feature, DrawInCorner( thing, (0,0)) would be equivalent to DrawInCorner( Center(thing), (0,0)).)
        ###BUG: The current implem (as of 070210) probably doesn't work properly after coordinate changes inside display lists.
     """
+    ##e should we reverse the arg order? [recent suggestion as of 070302]
     delegate = Arg(Widget2D)
-    corner = ArgOrOption(int, LOWER_RIGHT) ###KLUGE: type spec is wrong -- we also allow it to be a pair of +-1, +-1 for x,y posn respectively
-        ##e or 0 for central in that dim?
-    want_depth = Option(float, 0.01) # this choice is nearer than cov_depth (I think!) but doesn't preclude 3D effects.
+    corner = ArgOrOption(int, LOWER_RIGHT,
+                         doc = "the corner/edge/center to draw in, as named int or 2-tuple; see class docstring for details")
+        # note: semi-misnamed option, since it can also be an edge or the center
+        ###KLUGE: type spec of 'int' is wrong -- we also allow it to be a pair of ints for x,y "symbolic posn" respectively
+    want_depth = Option(float, 0.01) # this choice is nearer than cov_depth (I think!) but doesn't preclude 3D effects (I hope).
     def draw(self):
         if self.delegate is None:
             # 070210 -- but I'm not sure if this is a complete ###KLUGE, or good but ought to be done more generally,
