@@ -95,7 +95,7 @@ from ToggleShow import ToggleShow
 
 import images
 reload_once(images)
-from images import Image, IconImage, PixelGrabber
+from images import Image, IconImage, NativeImage, PixelGrabber
 
 import controls
 reload_once(controls)
@@ -467,7 +467,7 @@ testexpr_11k = testexpr_11h(tex_origin = (-1,-1)) # works; latest stable test in
 ## testexpr_11l_asfails = testexpr_11k(courierfile) # can I re-supply args? I doubt it. indeed, this asfails as expected.
     # note, it asfails when parsed (pyevalled), so I have to comment out the test -- that behavior should perhaps be changed.
     
-imagetest = Image(tex_origin = (-1,-1), clamp = True, nreps = 3, use_mipmaps = True) # customize options
+imagetest = Image(tex_origin = (-1,-1), clamp = True, nreps = 3, use_mipmaps = True) # customized [see also IconImage, imagetest_x2]
 
 testexpr_11m = imagetest(courierfile) # works
     # [but weirdly, on bruce's g5 061128 212p as first test, clamped part is blue! ###BUG??
@@ -545,8 +545,8 @@ testexpr_11q5 = imagetest("/Nanorex/DNA/paul notebook pages/stages1-4.jpg") # fa
     # so converting it is likely to work, but generalizing the retval of getTextureData would be more efficient,
     # but it's too large anyway so we need to support getting subrect textures from it. #e
 
-imagetest_x2 = imagetest(convert = True, _tmpmode = 'TIFF')
-imagetest_y2 = imagetest(convert = 'RGBA', _tmpmode = 'TIFF')
+imagetest_x2 = imagetest(convert = True, _tmpmode = 'TIFF') # [works on some files here; not verified recently[070304] whether needed]
+imagetest_y2 = imagetest(convert = 'RGBA', _tmpmode = 'TIFF') # [not used here as of 070304; i don't recall its status]
 
 testexpr_11q5cx2_g4 = imagetest_x2("/Nanorex/DNA/paul notebook pages/stages1-4.jpg") # shows the "last resort" file.
 ##    ## for the record, at first I didn't guess why it showed courier font file, so I thought the following:
@@ -609,6 +609,23 @@ testexpr_11t_png = imagetest("storyV3-p31.png") # 070228 -- tryit -- fails: ###B
     ##   [lvals.py:170] [lvals.py:210] [images.py:91] [testdraw.py:743] [ImageUtils.py:151] [Image.py:439] [Image.py:323]
 #e try jpg too?
 
+testexpr_11u = imagetest("storyV4b-p15.png") #070304 -- works, poor res -- see also imagetest_x2, IconImage
+testexpr_11u2 = Image("storyV4b-p15.png", rescale = False, use_mipmaps = True) # works, poor res
+    # are their opts to use the real sizes or must i always do it manually?
+testexpr_11u3 = Image("storyV4b-p15.png", use_mipmaps = True) # works, poor res
+testexpr_11u4 = Image("storyV4b-p15.png", use_mipmaps = True, ideal_width = -1, ideal_height = -1) # works, but aspect ratio wrong
+    # fyi: before the new feature letting -1 mean native size [kluge070304, ###UNTESTED] it failed like this:
+    ## bug: exception in <Overlay#31692(i)>.drawkid(<Image#31695(i)>): exceptions.MemoryError:  
+    ##  [instance_helpers.py:949] [images.py:283] [images.py:273] [images.py:109] [ExprsMeta.py:272] [ExprsMeta.py:382]
+    ##   [lvals.py:170] [lvals.py:210] [images.py:91] [testdraw.py:743] [ImageUtils.py:142] [ImageUtils.py:182] [Image.py:1051]
+    ##   .*** malloc_zone_calloc[2545]: arguments too large: 4294967295,4
+testexpr_11u5 = Image("storyV4b-p15.png", use_mipmaps = True, ideal_width = -1, ideal_height = -1, rescale = False) # same
+    # rescale would only affect how it got fit into the ideal tex size -- so with native size used, it makes no difference.
+    # what we need is to make the displayed size fit the native size.
+    # we can grab the native size once we have this image... let's define NativeImage in images.py to do this.
+testexpr_11u6 = NativeImage("storyV4b-p15.png") # works! except fuzzier than expected (maybe PIXELS is wrong?),
+    # and alignment is not as I expected
+    # (topright of image is at origin, as if I said TopRight instead of Center for the Image size option inside NativeImage).
 
 #e see also testexpr_13z2 etc
 
@@ -1346,7 +1363,8 @@ from demo_ui import * # this defines testexpr_19j, testexpr_30j, and testexpr_34
 
 enable_testbed = True
 
-testexpr = testexpr_30i
+testexpr = testexpr_11u6
+    # testexpr_30i
     # testexpr_30j ### NOT WORKING YET [070228 945p]
     # testexpr_19i # testexpr_29aox3 # testexpr_9fx4 #  _26g _28
 

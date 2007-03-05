@@ -39,6 +39,10 @@ import Rect
 reload_once(Rect)
 from Rect import Rect
 
+import Center
+reload_once(Center)
+from Center import Center
+
 import testdraw #e we'll call some funcs from this, and copy & modify others into this file;
     ##e at some point we'll need to clean up the proper source file of our helper functions from testdraw...
     # when the time comes, the only reliable way to sort out duplicated code is to search for all
@@ -190,6 +194,7 @@ class Image(Widget2D):
        Options that affect how the file gets loaded into a PIL Image include rescale, convert, _tmpmode [#doc these],
     as well as the texture size options mentioned.
     (The PIL Image object is available as self._image even if our OpenGL texture is not used. [#doc more details?])
+    [WRONG or REVIEW -- isn't it the ne1ImageOps which has that name??]
        Options that affect how the texture gets made from the loaded image include... none yet, I think. Someday
     we'll want make_mipmaps (with filtering options for its use) and probably others. [###k need to verify none are used for this]
        WARNING: variations in the above options (between instances, or over time [if that's implemented -- untested,
@@ -312,6 +317,8 @@ class Image(Widget2D):
     
     pass # end of class Image
 
+# ==
+
 IconImage = Image(ideal_width = 22, ideal_height = 22, convert = True, _tmpmode = 'TIFF',
                   doc = "be the best way to use Image for an NE1 icon"  # (informal docstring option 070124 -- not used, just there)
             )
@@ -322,6 +329,25 @@ IconImage = Image(ideal_width = 22, ideal_height = 22, convert = True, _tmpmode 
     # Intent of IconImage is just "be the best way to use Image for an NE1 icon",
     # so it might change in transparency behavior once we work that out inside Image,
     # and we'll hopefully not keep needing that _tmpmode kluge, etc.
+
+# ==
+
+class NativeImage(DelegatingInstanceOrExpr): #070304 [works in testexpr_11u6]
+    """Show a screenshot in its native size and aspect ratio.
+    """
+    # args
+    filename = Arg(str, "x") #e better type, eg Filename?
+    # formulae [non-public in spite of the names]
+    im1_expr = Image(filename, use_mipmaps = True, ideal_width = -1, ideal_height = -1) # customize Image to use native size (but wrong aspect ratio)
+        ###e consider also including what IconImage does, or opts passed by caller
+        # (but passing general opts like python ** is nim in exprs language)
+    im1 = Instance(im1_expr) # grab an actual image so we can find out its native size
+    th = im1._texture_holder
+    imops = th._image ###k guess: this is an ne1ImageOps object
+    # appearance
+    # [note: we customize further after args are supplied -- if bad, easy to fix -- but seems to be ok, works & no warning]
+    delegate = im1_expr(size = Center(Rect(imops.orig_width * PIXELS, imops.orig_height * PIXELS)))
+    pass
 
 # ===
 
