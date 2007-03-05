@@ -1179,7 +1179,8 @@ class Symbol(SymbolicExpr):
         ##e should only use following form when name looks like a Python identifier!
         return 'S.%s' % self._e_name
     def __eq__(self, other): #k probably not needed, since symbols are interned as they're made
-        return self.__class__ is other.__class__ and self._e_name == other._e_name
+        return self.__class__ is getattr(other, '__class__', None) and self._e_name == other._e_name
+            #070304 bugfix: survive not hasattr(other, '__class__') [maybe not tested since i'm not sure if this is ever used]
     def __ne__(self, other):
         return not (self == other)
     def _e_eval(self, env, ipath):
