@@ -222,11 +222,21 @@ trans_green = translucent_color(green)
 
 # == other constants
 
-PIXELS = 0.035 #k guess; 0.05->0.035 061114, re testexpr_7b (which shows true value is between 0.035 and 0.034)
-    #e Note: this implem will be obs someday, since true value depends on depth, but can be set to any desired constant in a given plane.
-    # WARNING: in present implem, correct value depends not only on depth but on glpane window size!
-    # 0.035 was best for my usual g4 setup. ###e A useful temporary kluge would be to compute the correct value
-    # for the cov plane, much like drawfont2 probably does internally, perhaps using mymousepoints.
+PIXELS = 0.035 ###WRONG: rough approximation; true value depends on depth (in perspective view), glpane size, and zoomfactor!
+    ###e A useful temporary kluge might be to compute the correct value for the cov plane, and change this constant to match
+    # whenever entering testmode (or perhaps when resizing glpane), much like drawfont2 or mymousepoints does internally.
+    # But if we do that, then rather than pretending it's a constant, we should rename it and make it an appropriate function
+    # or method, e.g. glpane.cov_PIXELS for the correct value at the cov, updated as needed.
+    #   We might also replace some uses of PIXELS
+    # with fancier functions that compute this for some model object point... but the main use of it is for 2d widget display,
+    # for which a single value ought to be correct anyway. (We could even artificially set the transformation matrices so that
+    # this value happened to be the correct one -- in fact, we already do that in DrawInCorner, used for most 2d widgets!
+    # To fully review that I'd need to include what's done in drawfont2 or mymousepoints via TextRect, too.)
+    #   For model objects (at least in perspective view), there are big issues about what this really means, or should mean --
+    # e.g. if you use it in making a displist and then the model object depth changes (in perspective view), or the glpane size
+    # changes, or the zoom factor changes. Similar issues arise for "billboarding" (screen-parallel alignment) and x/y-alignment
+    # to pixel boundaries. Ultimately we need a variety of new Drawable-interface features for this purpose.
+    # We also need to start using glDrawPixels instead of textures for 2d widgets, at some point. [comment revised 070304]
 
 # == lower-level stubs -- these will probably be refiled when they are no longer stubs ###@@@
 

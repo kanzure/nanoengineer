@@ -193,8 +193,8 @@ class Image(Widget2D):
     but are summarized here:
        Options that affect how the file gets loaded into a PIL Image include rescale, convert, _tmpmode [#doc these],
     as well as the texture size options mentioned.
-    (The PIL Image object is available as self._image even if our OpenGL texture is not used. [#doc more details?])
-    [WRONG or REVIEW -- isn't it the ne1ImageOps which has that name??]
+    (The PIL Image object is available as self._image even if our OpenGL texture is not used. [#doc more details?]
+    [###WRONG or REVIEW -- isn't it the nEImageOps object which has that name??])
        Options that affect how the texture gets made from the loaded image include... none yet, I think. Someday
     we'll want make_mipmaps (with filtering options for its use) and probably others. [###k need to verify none are used for this]
        WARNING: variations in the above options (between instances, or over time [if that's implemented -- untested,
@@ -301,8 +301,10 @@ class Image(Widget2D):
             # see also the code in testdraw.drawfont2 which tweaks the drawing position to improve the pixel alignment
             # (in a way which won't work right inside a display list if any translation occurred before now in that display list)
             # in case we want to offer that option here someday [070124 comment]
-        dx = DX * self.bright
-        dy = DY * self.btop
+##        dx = DX * self.bright
+##        dy = DY * self.btop
+        dx = DX * (self.bleft + self.bright) # bugfix 070304: include bleft, bbottom here
+        dy = DY * (self.bbottom + self.btop)
         draw_textured_rect(origin, dx, dy, tex_origin, tex_dx, tex_dy)
         return
 
@@ -333,20 +335,28 @@ IconImage = Image(ideal_width = 22, ideal_height = 22, convert = True, _tmpmode 
 # ==
 
 class NativeImage(DelegatingInstanceOrExpr): #070304 [works in testexpr_11u6]
-    """Show a screenshot in its native size and aspect ratio.
+    """Show an image in its native size and aspect ratio --
+    that is, one image pixel == one texture pixel == one screen pixel,
+    when the local coordsys is the standard viewing coordsys.
+       Note: callers are advised to enclose this inside Highlightable, at least until
+    we add local glnames to fix the bug of all bareMotion over non-Highlightable drawing
+    causing redraws.
     """
     # args
     filename = Arg(str, "x") #e better type, eg Filename?
     # formulae [non-public in spite of the names]
-    im1_expr = Image(filename, use_mipmaps = True, ideal_width = -1, ideal_height = -1) # customize Image to use native size (but wrong aspect ratio)
-        ###e consider also including what IconImage does, or opts passed by caller
-        # (but passing general opts like python ** is nim in exprs language)
+    im1_expr = Image(filename, use_mipmaps = True, ideal_width = -1, ideal_height = -1)
+        # customize Image to use native texture size (but without controlling the aspect ratio for display)
+        ###e consider also including the options that IconImage does, or options passed by caller
+        # (but passing general opts (like python **kws syntax can do) is nim in the exprs language)
     im1 = Instance(im1_expr) # grab an actual image so we can find out its native size
-    th = im1._texture_holder
-    imops = th._image ###k guess: this is an ne1ImageOps object
+    th = im1._texture_holder # gets its _texture_holder object
+    imops = th._image # get its nEImageOps object
     # appearance
-    # [note: we customize further after args are supplied -- if bad, easy to fix -- but seems to be ok, works & no warning]
     delegate = im1_expr(size = Center(Rect(imops.orig_width * PIXELS, imops.orig_height * PIXELS)))
+        # (implem note: this customizes im1_expr options even though its args (filename) are already supplied.
+        #  That used to give a warning but apparently doesn't now. If it does again someday,
+        #  it's easy to fix here -- just give filename in each instantation rather than in im1_expr.)
     pass
 
 # ===
