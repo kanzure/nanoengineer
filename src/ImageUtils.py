@@ -47,7 +47,8 @@ class nEImageOps:
         or by direct modification by client of self.ideal_width and self.ideal_height before this resizing is first done.
         (Callers which want no resizing to occur currently need to explicitly set self.ideal_width and self.ideal_height
         to the actual image size (before first calling getTextureData), which can be determined as explained below.
-        Note that this API is basically a kluge, and ought to be cleaned up sometime. ##e)
+        Or, as of 'kluge070304', they can pass -1 for ideal_width and/or ideal_height to make them equal that dim of the native size.
+        Note that this entire API is basically a kluge, and ought to be cleaned up sometime. ##e)
            For many OpenGL drivers, if the image will be used as texture data, these sizes need to be powers of two.
            The resizing will be done by rescaling, by default, or by padding on top and right if rescale = False.
            The original dimensions can be found in self.orig_width and self.orig_height [untested];
@@ -138,6 +139,16 @@ class nEImageOps:
         the rgb pixels include padding which is outside the original image. Otherwise (including if one dim
         needs to expand and one to shrink), the image is stretched/shrunk to fit in each dim independently.
         """
+        if 'kluge070304':
+            #bruce 070304 API kluge [works]:
+            # permit -1 in ideal_width to indicate "use native width", and same for ideal_height.
+            # (Note: it's difficult for an exprs.images.Image client to do the same without this kluge,
+            #  since orig_width is not available when ideal_width must be passed. It could do it by making one image,
+            #  examining it, then making another, though -- a bit inefficiently since two textures would be created.)
+            if self.ideal_width == -1:
+                self.ideal_width = self.orig_width
+            if self.ideal_height == -1:
+                self.ideal_height = self.orig_height
         ##e try using im.convert here... or as a new resize arg... or maybe in __init__
         self.resize(self.ideal_width, self.ideal_height) # behavior depends on self.rescale
             # Notes:
