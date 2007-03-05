@@ -33,7 +33,7 @@ class MapListToExpr(DelegatingInstanceOrExpr): #e when this works, rewrite _MT_t
 ##            # (i.e. it's redundant with error checking in the map call below)
         elts = map( function, elements)
         for elt in elts:
-            assert is_expr_Instance(elt)
+            assert is_expr_Instance(elt), "not an Instance: %r" % (elt,)
         expr = exprhead(*elts)
         # do we need to eval expr first? in theory i forget, but I think we do.
         # in practice it's very likely to eval to itself, so it doesn't matter for now. ###k

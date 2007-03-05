@@ -120,8 +120,9 @@ testexpr_34 = Rect(0.7,0.3,pink) # just to make sure the imports from here are w
 # ToolRuns #e rename-- or maybe those classes will be derived from Tool ones somehow
 
 class ToolRun(DelegatingInstanceOrExpr): # what is the super? it has several distinct parts we draw, but when do we draw "the whole thing" -- when editing one???
-    property_manager = None
-    graphics_area_topright_buttons = None
+    property_manager = Spacer(0) ## None -- one of these Spacers might be needed;
+        # guess1: Overlay/Row arg is not None but its delegate is! guess2: bug in DrawInCorner(None)
+    graphics_area_topright_buttons = Spacer(0) ## None
     pass
 
 class DefaultToolRun(ToolRun):
@@ -197,5 +198,7 @@ class main_ui_layout(DelegatingInstanceOrExpr):
         graphics_area
      )
     pass
+
+testexpr_34a = main_ui_layout()
 
 # end
