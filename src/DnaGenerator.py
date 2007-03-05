@@ -296,7 +296,9 @@ class DnaGenerator(GeneratorBaseClass, dna_dialog):
     def toggle_nt_parameters_grpbox(self):
         self.toggle_groupbox(self.grpbtn1, self.line2,
                              self.dna_type_label, self.dna_type_combox,
-                             self.endings_label, self.endings_combox)
+                             self.endings_label, self.endings_combox,
+                             self.representation_combox_lbl,
+                             self.representation_combox)
 
     def toggle_mwcnt_grpbox(self):
         self.toggle_groupbox(self.grpbtn2, self.line2_3,

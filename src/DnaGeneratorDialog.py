@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'DnaGeneratorDialog.ui'
+# Form implementation generated from reading ui file 'C:\Atom\cad\src\DnaGeneratorDialog.ui'
 #
-# Created: Wed Jul 26 23:37:16 2006
+# Created: Mon Mar 5 16:33:42 2007
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -14,7 +14,7 @@ image0_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x14\x00\x00\x00\x14" \
     "\x08\x06\x00\x00\x00\x8d\x89\x1d\x0d\x00\x00\x03" \
-    "\x2e\x49\x44\x41\x54\x38\x8d\xe5\x94\xdf\x6b\x96" \
+    "\x2e\x49\x44\x41\x54\x78\x9c\xe5\x94\xdf\x6b\x96" \
     "\x65\x1c\xc6\x3f\xdf\xfb\x79\x5f\x67\xba\x36\x1d" \
     "\xd9\xdc\xb4\x6c\xe4\x24\x83\xca\x68\x50\x11\xcb" \
     "\x9c\x2d\xa8\x28\x22\xe8\x60\x10\x85\x11\x74\x18" \
@@ -82,13 +82,13 @@ image0_data = \
     "\xa0\xe8\xc0\x96\xe6\xa7\x18\xc8\xa3\xe3\xdc\x78" \
     "\xce\x86\x8d\x8e\x82\x15\x71\x4a\xb0\x7f\x79\x22" \
     "\x62\xa0\x88\xfd\xff\xfe\xe1\x75\x07\xfe\x03\x57" \
-    "\xfb\xe8\xd8\x6d\x10\xe8\x0a\x00\x00\x00\x00\x49" \
+    "\xfb\xe8\xd8\x26\x02\x87\xad\x00\x00\x00\x00\x49" \
     "\x45\x4e\x44\xae\x42\x60\x82"
 image1_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x02" \
-    "\x10\x49\x44\x41\x54\x38\x8d\xed\x93\x5f\x48\x53" \
+    "\x10\x49\x44\x41\x54\x78\x9c\xed\x93\x5f\x48\x53" \
     "\x61\x18\xc6\x9f\x73\x74\x08\x51\x09\xc5\xa8\x16" \
     "\xc4\x8c\xc0\x8a\x24\x10\xe9\xc2\x88\x32\x32\x2c" \
     "\xfb\x03\x5d\xf4\x07\x24\x59\x37\x41\x10\x81\x14" \
@@ -132,7 +132,7 @@ image1_data = \
     "\x8a\x6f\xb7\x67\x48\x10\xb2\xf0\x7c\x95\xd1\xf7" \
     "\x60\x3f\x6e\xdc\x6c\xd6\xcc\xbc\xa6\x84\xfc\x5a" \
     "\xd5\x45\x8f\x44\x2b\xb5\x3f\xc1\x96\x36\xb7\xfe" \
-    "\x02\xa1\x70\xef\x7e\xad\x29\xd9\x2f\x00\x00\x00" \
+    "\x02\xa1\x70\xef\x7e\x0f\x32\xa0\x7d\x00\x00\x00" \
     "\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
 image2_data = [
 "135 40 764 2",
@@ -945,7 +945,7 @@ image3_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x03" \
-    "\x01\x49\x44\x41\x54\x38\x8d\x9d\xd3\x5d\x88\x94" \
+    "\x01\x49\x44\x41\x54\x78\x9c\x9d\xd3\x5d\x88\x94" \
     "\x65\x14\xc0\xf1\xff\xf3\xf5\xce\xb3\x33\xeb\x8c" \
     "\xc9\xe4\xae\x88\xad\x29\xa5\x2d\xbb\x21\x06\x6d" \
     "\x42\xb5\x64\x48\x10\x0b\x45\x97\xc2\x5e\x77\x15" \
@@ -1009,13 +1009,13 @@ image3_data = \
     "\x70\x74\x40\xd2\x3b\xd2\x02\x7c\x0c\x04\xcb\x81" \
     "\xd5\xad\x56\xa6\x94\x1a\x4e\x3f\x90\xde\x5e\xfb" \
     "\xb5\x56\x8e\xe7\xe2\x93\x22\x72\xa6\xe3\x35\x00" \
-    "\xff\x00\x03\x11\x91\x02\xf5\x72\xea\x39\x00\x00" \
+    "\xff\x00\x03\x11\x91\x02\x90\xac\x08\x8c\x00\x00" \
     "\x00\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
 image4_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x03" \
-    "\x15\x49\x44\x41\x54\x38\x8d\xb5\xd4\x5f\x68\x95" \
+    "\x15\x49\x44\x41\x54\x78\x9c\xb5\xd4\x5f\x68\x95" \
     "\x75\x1c\xc7\xf1\xf7\xf7\xf9\x3d\xe7\x39\xcf\x4e" \
     "\x4c\x0b\xc2\x46\x61\x8a\xb9\x10\xaf\xc2\x2e\x86" \
     "\xa8\xb0\x41\x37\x25\x48\x85\xd9\x45\x5e\xb4\x90" \
@@ -1081,13 +1081,13 @@ image4_data = \
     "\x0b\x2e\xee\x0d\x81\xb8\xec\x5b\x6a\x72\x23\xd0" \
     "\x0d\x5c\x05\x4e\x01\xdb\x16\x83\xd6\x8a\x6a\x97" \
     "\xd0\x4a\x60\xb2\xda\x8d\x75\x3f\xe3\x5f\xbf\xdc" \
-    "\x0a\xd6\x12\xa9\x67\xde\x00\x00\x00\x00\x49\x45" \
+    "\x0a\xd6\x89\xe2\x2b\xac\x00\x00\x00\x00\x49\x45" \
     "\x4e\x44\xae\x42\x60\x82"
 image5_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x02" \
-    "\xcf\x49\x44\x41\x54\x38\x8d\xed\x94\x4d\x68\x13" \
+    "\xcf\x49\x44\x41\x54\x78\x9c\xed\x94\x4d\x68\x13" \
     "\x51\x10\xc7\xe7\xbd\x7d\xd9\xec\x26\xeb\x26\x6d" \
     "\x92\x4d\x25\xa5\xb5\x55\x14\x2b\xf6\x54\xb4\x45" \
     "\xbc\x68\x05\xa9\x1f\x07\xc5\x83\x20\xa2\x20\xa5" \
@@ -1147,13 +1147,13 @@ image5_data = \
     "\x3b\xf7\xbc\xf7\xcf\x93\x09\x21\x94\x19\x4b\x56" \
     "\x81\xe0\x8d\x40\x5d\x09\x80\xa4\xb8\xdf\x7b\x09" \
     "\x07\x9e\x4c\x5a\x90\xfc\x0f\xfa\x7f\x17\xfc\x13" \
-    "\xc9\x2f\x4f\xb7\x05\xee\x2c\xf0\x00\x00\x00\x00" \
+    "\xc9\x2f\x4f\xb7\x6f\xfb\xe3\xe6\x00\x00\x00\x00" \
     "\x49\x45\x4e\x44\xae\x42\x60\x82"
 image6_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x02" \
-    "\x9d\x49\x44\x41\x54\x38\x8d\xb5\x94\xcf\x4b\x54" \
+    "\x9d\x49\x44\x41\x54\x78\x9c\xb5\x94\xcf\x4b\x54" \
     "\x51\x14\xc7\x3f\xf7\xcd\xd3\x37\xe9\xcc\xbc\x71" \
     "\x1c\x67\x74\x98\x07\x86\xab\xd2\x7d\x86\xa1\x08" \
     "\x11\x45\x85\x4a\xb4\x70\x27\x4a\x8b\x76\x2d\xfc" \
@@ -1209,19 +1209,19 @@ image6_data = \
     "\x05\xf8\xaf\xa2\x9a\x8e\x53\x1a\xda\xe6\x14\x53" \
     "\xee\xdf\x9d\x68\xfb\x40\xd9\xc1\x41\xf5\xc3\xab" \
     "\xe7\xec\xef\x8e\x44\x24\x53\x49\xf3\x0b\xdf\x5b" \
-    "\xae\x1e\x18\x8b\x7a\x54\x00\x00\x00\x00\x49\x45" \
+    "\xae\x1e\x85\x69\x65\x97\x00\x00\x00\x00\x49\x45" \
     "\x4e\x44\xae\x42\x60\x82"
 image7_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x10\x00\x00\x00\x08" \
     "\x08\x06\x00\x00\x00\xf0\x76\x7f\x97\x00\x00\x00" \
-    "\x42\x49\x44\x41\x54\x28\x91\x8d\xd0\xb1\x15\x00" \
+    "\x42\x49\x44\x41\x54\x78\x9c\x8d\xd0\xb1\x15\x00" \
     "\x20\x08\x03\xd1\xd3\xc9\x18\x9d\xcd\xb4\x55\x5f" \
     "\x08\xa6\xd5\xfb\x05\xd0\x6f\xb9\xc7\xd9\xc5\x99" \
     "\x69\x91\xf1\x11\x03\x10\x11\xf2\x7f\x05\x5c\xb1" \
     "\x43\x14\x20\xe3\x0a\x79\x01\x1b\x2b\xe4\x04\xec" \
-    "\xb5\x8b\xb9\x1b\xfe\x6d\x03\xe1\x83\x16\x45\xa6" \
-    "\xee\x58\x99\x00\x00\x00\x00\x49\x45\x4e\x44\xae" \
+    "\xb5\x8b\xb9\x1b\xfe\x6d\x03\xe1\x83\x16\x45\x1c" \
+    "\x74\x1a\x7d\x00\x00\x00\x00\x49\x45\x4e\x44\xae" \
     "\x42\x60\x82"
 
 class dna_dialog(QDialog):
@@ -1266,7 +1266,6 @@ class dna_dialog(QDialog):
         self.heading_label = QLabel(self.heading_frame,"heading_label")
         self.heading_label.setPaletteForegroundColor(QColor(255,255,255))
         heading_label_font = QFont(self.heading_label.font())
-        heading_label_font.setPointSize(12)
         heading_label_font.setBold(1)
         self.heading_label.setFont(heading_label_font)
         heading_frameLayout.addWidget(self.heading_label)
@@ -1290,7 +1289,7 @@ class dna_dialog(QDialog):
         self.body_frame = QFrame(self,"body_frame")
         self.body_frame.setFrameShape(QFrame.StyledPanel)
         self.body_frame.setFrameShadow(QFrame.Raised)
-        body_frameLayout = QVBoxLayout(self.body_frame,3,3,"body_frameLayout")
+        body_frameLayout = QGridLayout(self.body_frame,1,1,3,3,"body_frameLayout")
 
         layout59 = QHBoxLayout(None,0,6,"layout59")
         left_spacer = QSpacerItem(20,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
@@ -1313,65 +1312,8 @@ class dna_dialog(QDialog):
         layout59.addWidget(self.whatsthis_btn)
         right_spacer = QSpacerItem(20,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout59.addItem(right_spacer)
-        body_frameLayout.addLayout(layout59)
 
-        self.grpbox1 = QGroupBox(self.body_frame,"grpbox1")
-        self.grpbox1.setFrameShape(QGroupBox.StyledPanel)
-        self.grpbox1.setFrameShadow(QGroupBox.Sunken)
-        self.grpbox1.setMargin(0)
-        self.grpbox1.setColumnLayout(0,Qt.Vertical)
-        self.grpbox1.layout().setSpacing(1)
-        self.grpbox1.layout().setMargin(4)
-        grpbox1Layout = QVBoxLayout(self.grpbox1.layout())
-        grpbox1Layout.setAlignment(Qt.AlignTop)
-
-        layout42 = QHBoxLayout(None,0,6,"layout42")
-
-        self.grpbox1_label = QLabel(self.grpbox1,"grpbox1_label")
-        self.grpbox1_label.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Minimum,0,0,self.grpbox1_label.sizePolicy().hasHeightForWidth()))
-        self.grpbox1_label.setPaletteForegroundColor(QColor(0,0,255))
-        self.grpbox1_label.setAlignment(QLabel.AlignVCenter)
-        layout42.addWidget(self.grpbox1_label)
-        spacer21 = QSpacerItem(67,16,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout42.addItem(spacer21)
-
-        self.grpbtn1 = QPushButton(self.grpbox1,"grpbtn1")
-        self.grpbtn1.setSizePolicy(QSizePolicy(QSizePolicy.Fixed,QSizePolicy.Fixed,0,0,self.grpbtn1.sizePolicy().hasHeightForWidth()))
-        self.grpbtn1.setMaximumSize(QSize(16,16))
-        self.grpbtn1.setAutoDefault(0)
-        self.grpbtn1.setIconSet(QIconSet(self.image7))
-        self.grpbtn1.setFlat(1)
-        layout42.addWidget(self.grpbtn1)
-        grpbox1Layout.addLayout(layout42)
-
-        self.line2 = QFrame(self.grpbox1,"line2")
-        self.line2.setFrameShape(QFrame.HLine)
-        self.line2.setFrameShadow(QFrame.Sunken)
-        self.line2.setMidLineWidth(0)
-        self.line2.setFrameShape(QFrame.HLine)
-        grpbox1Layout.addWidget(self.line2)
-
-        nt_parameters_body_layout = QGridLayout(None,1,1,0,6,"nt_parameters_body_layout")
-
-        self.dna_type_combox = QComboBox(0,self.grpbox1,"dna_type_combox")
-
-        nt_parameters_body_layout.addWidget(self.dna_type_combox,0,1)
-
-        self.endings_label = QLabel(self.grpbox1,"endings_label")
-        self.endings_label.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-
-        nt_parameters_body_layout.addWidget(self.endings_label,5,0)
-
-        self.endings_combox = QComboBox(0,self.grpbox1,"endings_combox")
-
-        nt_parameters_body_layout.addWidget(self.endings_combox,5,1)
-
-        self.dna_type_label = QLabel(self.grpbox1,"dna_type_label")
-        self.dna_type_label.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-
-        nt_parameters_body_layout.addWidget(self.dna_type_label,0,0)
-        grpbox1Layout.addLayout(nt_parameters_body_layout)
-        body_frameLayout.addWidget(self.grpbox1)
+        body_frameLayout.addLayout(layout59,0,0)
 
         self.grpbox2 = QGroupBox(self.body_frame,"grpbox2")
         self.grpbox2.setFrameShape(QGroupBox.StyledPanel)
@@ -1423,7 +1365,80 @@ class dna_dialog(QDialog):
         self.reverse_btn.setAutoDefault(0)
         layout28.addWidget(self.reverse_btn)
         grpbox2Layout.addLayout(layout28)
-        body_frameLayout.addWidget(self.grpbox2)
+
+        body_frameLayout.addWidget(self.grpbox2,2,0)
+
+        self.grpbox1 = QGroupBox(self.body_frame,"grpbox1")
+        self.grpbox1.setFrameShape(QGroupBox.StyledPanel)
+        self.grpbox1.setFrameShadow(QGroupBox.Sunken)
+        self.grpbox1.setMargin(0)
+        self.grpbox1.setColumnLayout(0,Qt.Vertical)
+        self.grpbox1.layout().setSpacing(1)
+        self.grpbox1.layout().setMargin(4)
+        grpbox1Layout = QGridLayout(self.grpbox1.layout())
+        grpbox1Layout.setAlignment(Qt.AlignTop)
+
+        self.line2 = QFrame(self.grpbox1,"line2")
+        self.line2.setFrameShape(QFrame.HLine)
+        self.line2.setFrameShadow(QFrame.Sunken)
+        self.line2.setMidLineWidth(0)
+        self.line2.setFrameShape(QFrame.HLine)
+
+        grpbox1Layout.addWidget(self.line2,1,0)
+
+        layout10 = QHBoxLayout(None,0,6,"layout10")
+
+        self.dna_type_label = QLabel(self.grpbox1,"dna_type_label")
+        self.dna_type_label.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout10.addWidget(self.dna_type_label)
+
+        self.dna_type_combox = QComboBox(0,self.grpbox1,"dna_type_combox")
+        layout10.addWidget(self.dna_type_combox)
+
+        grpbox1Layout.addLayout(layout10,2,0)
+
+        layout11 = QHBoxLayout(None,0,6,"layout11")
+
+        self.endings_label = QLabel(self.grpbox1,"endings_label")
+        self.endings_label.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout11.addWidget(self.endings_label)
+
+        self.endings_combox = QComboBox(0,self.grpbox1,"endings_combox")
+        layout11.addWidget(self.endings_combox)
+
+        grpbox1Layout.addLayout(layout11,3,0)
+
+        layout12 = QHBoxLayout(None,0,6,"layout12")
+
+        self.representation_combox_lbl = QLabel(self.grpbox1,"representation_combox_lbl")
+        layout12.addWidget(self.representation_combox_lbl)
+
+        self.representation_combox = QComboBox(0,self.grpbox1,"representation_combox")
+        layout12.addWidget(self.representation_combox)
+
+        grpbox1Layout.addLayout(layout12,4,0)
+
+        layout42 = QHBoxLayout(None,0,6,"layout42")
+
+        self.grpbox1_label = QLabel(self.grpbox1,"grpbox1_label")
+        self.grpbox1_label.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Minimum,0,0,self.grpbox1_label.sizePolicy().hasHeightForWidth()))
+        self.grpbox1_label.setPaletteForegroundColor(QColor(0,0,255))
+        self.grpbox1_label.setAlignment(QLabel.AlignVCenter)
+        layout42.addWidget(self.grpbox1_label)
+        spacer21 = QSpacerItem(67,16,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout42.addItem(spacer21)
+
+        self.grpbtn1 = QPushButton(self.grpbox1,"grpbtn1")
+        self.grpbtn1.setSizePolicy(QSizePolicy(QSizePolicy.Fixed,QSizePolicy.Fixed,0,0,self.grpbtn1.sizePolicy().hasHeightForWidth()))
+        self.grpbtn1.setMaximumSize(QSize(16,16))
+        self.grpbtn1.setAutoDefault(0)
+        self.grpbtn1.setIconSet(QIconSet(self.image7))
+        self.grpbtn1.setFlat(1)
+        layout42.addWidget(self.grpbtn1)
+
+        grpbox1Layout.addLayout(layout42,0,0)
+
+        body_frameLayout.addWidget(self.grpbox1,1,0)
         dna_dialogLayout.addWidget(self.body_frame)
         spacer14 = QSpacerItem(20,40,QSizePolicy.Minimum,QSizePolicy.Expanding)
         dna_dialogLayout.addItem(spacer14)
@@ -1443,7 +1458,7 @@ class dna_dialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(206,464).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(286,508).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.sponsor_btn,SIGNAL("clicked()"),self.open_sponsor_homepage)
@@ -1458,6 +1473,8 @@ class dna_dialog(QDialog):
         self.connect(self.reverse_btn,SIGNAL("clicked()"),self.reverse_btn_clicked)
         self.connect(self.cancel_btn,SIGNAL("clicked()"),self.cancel_btn_clicked)
 
+        self.representation_combox_lbl.setBuddy(self.representation_combox)
+
 
     def languageChange(self):
         self.setCaption(self.__tr("DNA"))
@@ -1471,9 +1488,13 @@ class dna_dialog(QDialog):
         QToolTip.add(self.preview_btn,self.__tr("Preview"))
         self.whatsthis_btn.setText(QString.null)
         QToolTip.add(self.whatsthis_btn,self.__tr("What's This Help"))
+        self.grpbox2.setTitle(QString.null)
+        self.grpbox2_label.setText(self.__tr("Base Sequence"))
+        self.grpbtn2.setText(QString.null)
+        self.complement_btn.setText(self.__tr("Complement"))
+        self.reverse_btn.setText(self.__tr("Reverse"))
         self.grpbox1.setTitle(QString.null)
-        self.grpbox1_label.setText(self.__tr("DNA Parameters"))
-        self.grpbtn1.setText(QString.null)
+        self.dna_type_label.setText(self.__tr("DNA Type :"))
         self.dna_type_combox.clear()
         self.dna_type_combox.insertItem(self.__tr("B-DNA"))
         self.dna_type_combox.insertItem(self.__tr("Z-DNA"))
@@ -1481,12 +1502,12 @@ class dna_dialog(QDialog):
         self.endings_combox.clear()
         self.endings_combox.insertItem(self.__tr("Double"))
         self.endings_combox.insertItem(self.__tr("Single"))
-        self.dna_type_label.setText(self.__tr("DNA Type :"))
-        self.grpbox2.setTitle(QString.null)
-        self.grpbox2_label.setText(self.__tr("Base Sequence"))
-        self.grpbtn2.setText(QString.null)
-        self.complement_btn.setText(self.__tr("Complement"))
-        self.reverse_btn.setText(self.__tr("Reverse"))
+        self.representation_combox_lbl.setText(self.__tr("Representation:"))
+        self.representation_combox.clear()
+        self.representation_combox.insertItem(self.__tr("Atom"))
+        self.representation_combox.insertItem(self.__tr("Base(experimental)"))
+        self.grpbox1_label.setText(self.__tr("DNA Parameters"))
+        self.grpbtn1.setText(QString.null)
         self.cancel_btn.setText(self.__tr("Cancel"))
         self.ok_btn.setText(self.__tr("OK"))
 
