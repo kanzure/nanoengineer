@@ -112,12 +112,26 @@ nfrs:
 # may belong in that outtakes file rather than here, or maybe be entirely obs even there. [070210] ###
 
 
-# == imports
+# == imports [maybe not all needed #k]
 
 from basic import *
 from basic import _self
 
-from ToggleShow import * # e.g. If, various other imports we should do explicitly #e  ### FIX THIS, do them explicitly
+import Highlightable
+reload_once(Highlightable)
+from Highlightable import Highlightable
+
+import TextRect
+reload_once(TextRect)
+from TextRect import TextRect
+
+import Column
+reload_once(Column)
+from Column import SimpleRow, SimpleColumn
+
+import Overlay
+reload_once(Overlay)
+from Overlay import Overlay
 
 import Set
 reload_once(Set)
