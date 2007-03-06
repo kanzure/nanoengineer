@@ -37,6 +37,8 @@ DEBUG = False
 
 class Dna:
 
+    fuseChunksTolerance = 1.5
+    
     def make(self, assy, grp, sequence, doubleStrand, position,
              basenameA={'C': 'cytosine',
                         'G': 'guanine',
@@ -115,7 +117,7 @@ class Dna:
 
         # fuse the bases together into continuous strands
         fcb = fusechunksBase()
-        fcb.tol = 1.5
+        fcb.tol = self.fuseChunksTolerance
         for i in range(len(baseList) - 1):
             fcb.find_bondable_pairs([baseList[i]], [baseList[i+1]])
             fcb.make_bonds(assy)
@@ -133,27 +135,41 @@ class A_Dna(Dna):
     def strandBinfo(self, sequence, i):
         raise PluginBug("A-DNA is not yet implemented -- please try B- or Z-DNA");
 
+class A_Dna_BasePseudoAtoms(A_Dna):
+    pass
+
 class B_Dna(Dna):
     geometry = "B-DNA"
     TWIST_PER_BASE = -36 * pi / 180   # radians
     BASE_SPACING = 3.391              # angstroms
 
+    def baseFileName(self, basename):
+        return os.path.join(basepath, 'bdna-bases', '%s.mmp' % basename)
+
     def strandAinfo(self, basename, i):
         zoffset = 0.0
         thetaOffset = 0.0
-        basefile = os.path.join(basepath, 'bdna-bases', '%s.mmp' % basename)
+        basefile = self.baseFileName(basename)
         return (basefile, zoffset, thetaOffset)
 
     def strandBinfo(self, basename, i):
         zoffset = 0.0
         thetaOffset = 210 * (pi / 180)
-        basefile = os.path.join(basepath, 'bdna-bases', '%s.mmp' % basename)
+        basefile = self.baseFileName(basename)
         return (basefile, zoffset, thetaOffset)
+
+class B_Dna_BasePseudoAtoms(B_Dna):
+    fuseChunksTolerance = 1.0
+    def baseFileName(self, basename):
+        return os.path.join(basepath, 'bdna-pseudo-bases', '%s.mmp' % basename)
 
 class Z_Dna(Dna):
     geometry = "Z-DNA"
     TWIST_PER_BASE = pi / 6     # in radians
     BASE_SPACING = 3.715        # in angstroms
+
+    def baseFileName(self, basename, suffix):
+        return os.path.join(basepath, 'zdna-pseudo-bases', '%s-%s.mmp' % (basename, suffix))
 
     def strandAinfo(self, basename, i):
         if (i & 1) != 0:
@@ -163,7 +179,7 @@ class Z_Dna(Dna):
             suffix = 'inner'
             zoffset = 0.0
         thetaOffset = 0.0
-        basefile = os.path.join(basepath, 'zdna-bases', '%s-%s.mmp' % (basename, suffix))
+        basefile = self.baseFileName(basename, suffix)
         return (basefile, zoffset, thetaOffset)
 
     def strandBinfo(self, basename, i):
@@ -174,8 +190,12 @@ class Z_Dna(Dna):
             suffix = 'outer'
             zoffset = -2.1
         thetaOffset = 0.5 * pi
-        basefile = os.path.join(basepath, 'zdna-bases', '%s-%s.mmp' % (basename, suffix))
+        basefile = self.baseFileName(basename, suffix)
         return (basefile, zoffset, thetaOffset)
+
+class Z_Dna_BasePseudoAtoms(Z_Dna):
+    def baseFileName(self, basename, suffix):
+        return os.path.join(basepath, 'zdna-bases', '%s-%s.mmp' % (basename, suffix))
 
 ###############################################################################
 
@@ -218,19 +238,40 @@ class DnaGenerator(GeneratorBaseClass, dna_dialog):
             raise PluginBug("A-DNA is not yet implemented -- please try B- or Z-DNA");
         assert dnatype in ('B-DNA', 'Z-DNA')
         double = str(self.endings_combox.currentText())
-        return (seq, dnatype, double)
+
+        representation = str(self.representation_combox.currentText())
+        print "rep: <<%s>>" % representation
+        if (representation == 'Base(experimental)'):
+            representation = 'BasePseudoAtom'
+        assert representation in ('Atom', 'BasePseudoAtom')
+
+        if (representation == 'BasePseudoAtom' and dnatype == 'Z-DNA'):
+            raise PluginBug("Z-DNA not implemented for Base Pseudo Atoms representation.  Use B-DNA.")
+        return (seq, dnatype, double, representation)
 
     def build_struct(self, name, params, position):
         # No error checking in build_struct, do all your error
         # checking in gather_parameters
-        seq, dnatype, double = params
-        if dnatype == 'A-DNA':
-            dna = A_Dna()
-        elif dnatype == 'B-DNA':
-            dna = B_Dna()
-        elif dnatype == 'Z-DNA':
-            dna = Z_Dna()
-        doubleStrand = (double == 'Double')
+        seq, dnatype, double, representation = params
+
+        if (representation == 'Atom'):
+            doubleStrand = (double == 'Double')
+            if dnatype == 'A-DNA':
+                dna = A_Dna()
+            elif dnatype == 'B-DNA':
+                dna = B_Dna()
+            elif dnatype == 'Z-DNA':
+                dna = Z_Dna()
+
+        elif (representation == 'BasePseudoAtom'):
+            doubleStrand = False # a single pseudo strand creates two strands
+            if dnatype == 'A-DNA':
+                dna = A_Dna_BasePseudoAtoms()
+            elif dnatype == 'B-DNA':
+                dna = B_Dna_BasePseudoAtoms()
+            elif dnatype == 'Z-DNA':
+                dna = Z_Dna_BasePseudoAtoms()
+
         dna.double = doubleStrand
         self.dna = dna  # needed for done msg
         if len(seq) > 30:

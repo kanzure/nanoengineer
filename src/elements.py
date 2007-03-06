@@ -122,48 +122,88 @@ class ElementPeriodicTable(Singleton):
     onebond = A([[1,0,0]]) # for use with valence-1 elements
 
     # mark 060129. New default colors for Alpha 7.
-    _defaultRad_Color = {"X": (1.1,  [0.8, 0.0, 0.0]), "H" : (1.2,  [0.78, 0.78, 0.78]),
-     "He" : (1.4,  [0.42, 0.45, 0.55]), "Li" : (4.0,  [0.0, 0.5, 0.5]),
-     "Be" : (3.0,  [0.98, 0.67, 1.0]),  "B" : (2.0,  [0.2, 0.2, 0.59]),
-     "C" : (1.84, [0.39, 0.39, 0.39]),   "N" : (1.55, [0.12, 0.12, 0.39]),
-     "O" : (1.74, [0.5, 0.0, 0.0]),  "F" : (1.65, [0.0, 0.39, 0.2]),
-     "Ne" : (1.82, [0.42, 0.45, 0.55]), "Na" : (4.0,  [0.0, 0.4, 0.4]),
-     "Mg" : (3.0,  [0.88, 0.6, 0.9]),  "Al" : (2.5,  [0.5, 0.5, 1.0]),
-     "Si" : (2.25, [0.16, 0.16, 0.16]),   "P" : (2.11, [0.33, 0.08, 0.5]),
-     "S" : (2.11, [0.86, 0.59, 0.0]),  "Cl" : (2.03, [0.29, 0.39, 0.0]),
-     "Ar" : (1.88, [0.42, 0.45, 0.55]),  "K" : (5.0,  [0.0, 0.3, 0.3]),
-     "Ca" : (4.0,  [0.79, 0.55, 0.8]),  "Sc" : (3.7,  [0.417, 0.417, 0.511]),
-     "Ti" : (3.5,  [0.417, 0.417, 0.511]),  "V" : (3.3,  [0.417, 0.417, 0.511]),
-     "Cr" : (3.1,  [0.417, 0.417, 0.511]),  "Mn" : (3.0,  [0.417, 0.417, 0.511]),
-     "Fe" : (3.0, [0.417, 0.417, 0.511]),  "Co" : (3.0,  [0.417, 0.417, 0.511]),
-     "Ni" : (3.0,  [0.417, 0.417, 0.511]),  "Cu" : (3.0,  [0.417, 0.417, 0.511]),
-     "Zn" : (2.9,  [0.417, 0.417, 0.511]),  "Ga" : (2.7,  [0.6, 0.6, 0.8]),
-     "Ge" : (2.5,  [0.4, 0.45, 0.1]),   "As" : (2.2,  [0.6, 0.26, 0.7]),
-     "Se" : (2.1,  [0.78, 0.31, 0.0]),  "Br" : (2.0,  [0.0, 0.4, 0.3]),
-     "Kr" : (1.9,  [0.42, 0.45, 0.55]), "Sb" : (2.2,  [0.6, 0.26, 0.7]),
-     "Te" : (2.1,  [0.9, 0.35, 0.0]),  "I" : (2.0,  [0.0, 0.5, 0.0]),
-     "Xe" : (1.9,  [0.4, 0.45, 0.55])}
+    _defaultRad_Color = {
+        "X": (1.1,  [0.8, 0.0, 0.0]),
+        "H" : (1.2,  [0.78, 0.78, 0.78]),
+        "He" : (1.4,  [0.42, 0.45, 0.55]),
+        "Li" : (4.0,  [0.0, 0.5, 0.5]),
+        "Be" : (3.0,  [0.98, 0.67, 1.0]),
+        "B" : (2.0,  [0.2, 0.2, 0.59]),
+        "C" : (1.84, [0.39, 0.39, 0.39]),
+        "N" : (1.55, [0.12, 0.12, 0.39]),
+        "O" : (1.74, [0.5, 0.0, 0.0]),
+        "F" : (1.65, [0.0, 0.39, 0.2]),
+        "Ne" : (1.82, [0.42, 0.45, 0.55]),
+        "Na" : (4.0,  [0.0, 0.4, 0.4]),
+        "Mg" : (3.0,  [0.88, 0.6, 0.9]),
+        "Al" : (2.5,  [0.5, 0.5, 1.0]),
+        "Si" : (2.25, [0.16, 0.16, 0.16]),
+        "P" : (2.11, [0.33, 0.08, 0.5]),
+        "S" : (2.11, [0.86, 0.59, 0.0]),
+        "Cl" : (2.03, [0.29, 0.39, 0.0]),
+        "Ar" : (1.88, [0.42, 0.45, 0.55]),
+        "K" : (5.0,  [0.0, 0.3, 0.3]),
+        "Ca" : (4.0,  [0.79, 0.55, 0.8]),
+        "Sc" : (3.7,  [0.417, 0.417, 0.511]),
+        "Ti" : (3.5,  [0.417, 0.417, 0.511]),
+        "V" : (3.3,  [0.417, 0.417, 0.511]),
+        "Cr" : (3.1,  [0.417, 0.417, 0.511]),
+        "Mn" : (3.0,  [0.417, 0.417, 0.511]),
+        "Fe" : (3.0, [0.417, 0.417, 0.511]),
+        "Co" : (3.0,  [0.417, 0.417, 0.511]),
+        "Ni" : (3.0,  [0.417, 0.417, 0.511]),
+        "Cu" : (3.0,  [0.417, 0.417, 0.511]),
+        "Zn" : (2.9,  [0.417, 0.417, 0.511]),
+        "Ga" : (2.7,  [0.6, 0.6, 0.8]),
+        "Ge" : (2.5,  [0.4, 0.45, 0.1]),
+        "As" : (2.2,  [0.6, 0.26, 0.7]),
+        "Se" : (2.1,  [0.78, 0.31, 0.0]),
+        "Br" : (2.0,  [0.0, 0.4, 0.3]),
+        "Kr" : (1.9,  [0.42, 0.45, 0.55]),
+        "Sb" : (2.2,  [0.6, 0.26, 0.7]),
+        "Te" : (2.1,  [0.9, 0.35, 0.0]),
+        "I" : (2.0,  [0.0, 0.5, 0.0]),
+        "Xe" : (1.9,  [0.4, 0.45, 0.55]),
+        "DC" : (4.0, [0.4, 0.4, 0.8]),
+        "DB" : (5.0, [0.4, 0.8, 0.4])
+        }
       
-    _altRad_Color = {"Al" : (2.050,), "As" : (2.050,),
-                        "B" :  (1.461,), "Be" :  (1.930,),
-                        "Br" :  ( 1.832,), "C" : (1.431, [0.4588, 0.4588, 0.4588]),
-                        "Ca" :  ( 1.274, ), "Cl" :  ( 1.688,),
-                        "Co" :  ( 1.970, ), "Cr" :  ( 2.150,),
-                        "Cu" :  ( 1.870,), "F" :  ( 1.293,),
-                        "Fe" :  ( 2.020,),  "Ga" :  ( 2.300,),
-                        "Ge" : (1.980,),  "H" :  (1.135, [1.0, 1.0, 1.0]),
-                        "I" :   ( 1.967,), "K" :  ( 1.592,),
-                        "Li" :  (  0.971,), "Mg" :  ( 1.154,),
-                        "Mn" :  (1.274,), "N" :  ( 1.392,),
-                        "Na" :  (1.287,),  "Ni" :  ( 1.920,),
-                        "O" :  (1.322,), "P" :  ( 1.784,),
-                        "S" :  (1.741,), "Sb" :  ( 2.200,),
-                        "Se" :  (  1.881,), "Si" :  ( 1.825, [0.4353, 0.3647, 0.5216]),
-                        "Ti" :  ( 2.300,)
-                     }
+    _altRad_Color = {
+        "Al" : (2.050,),
+        "As" : (2.050,),
+        "B" :  (1.461,),
+        "Be" :  (1.930,),
+        "Br" :  ( 1.832,),
+        "C" : (1.431, [0.4588, 0.4588, 0.4588]),
+        "Ca" :  ( 1.274, ),
+        "Cl" :  ( 1.688,),
+        "Co" :  ( 1.970, ),
+        "Cr" :  ( 2.150,),
+        "Cu" :  ( 1.870,),
+        "F" :  ( 1.293,),
+        "Fe" :  ( 2.020,),
+        "Ga" :  ( 2.300,),
+        "Ge" : (1.980,),
+        "H" :  (1.135, [1.0, 1.0, 1.0]),
+        "I" :   ( 1.967,),
+        "K" :  ( 1.592,),
+        "Li" :  (  0.971,),
+        "Mg" :  ( 1.154,),
+        "Mn" :  (1.274,),
+        "N" :  ( 1.392,),
+        "Na" :  (1.287,),
+        "Ni" :  ( 1.920,),
+        "O" :  (1.322,),
+        "P" :  ( 1.784,),
+        "S" :  (1.741,),
+        "Sb" :  ( 2.200,),
+        "Se" :  (  1.881,),
+        "Si" :  ( 1.825, [0.4353, 0.3647, 0.5216]),
+        "Ti" :  ( 2.300,)
+        }
                      
 # Format of _mendeleev:
-# Symbol, Element Name, atomic mass in 10-27 kg,
+# Symbol, Element Name, NumberOfProtons, atomic mass in 10-27 kg,
 # then a list of atomtypes, each of which is described by
 # [ open bonds, covalent radius (pm), atomic geometry, hybridization ]
 # (bruce adds: not sure about cov rad units; table values are 100 times this comment's values)
@@ -226,66 +266,67 @@ values, but might as well instead just be the double bond value, since =C= is
 also a legal form for C(sp). The result is that there is no place in this table
 to put the C+ value.
 """
-
-    _mendeleev = [("X",  "Singlet",     0.001,  [[1, 0, None, 'sp']]), #bruce 050630 made X have atomtype name 'sp'; might revise again later
-                  ("H",  "Hydrogen",    1.6737, [[1, 31, onebond]]),
-                  ("He", "Helium",      6.646,  None),
-                  ("Li", "Lithium",    11.525,  [[1, 152, None]]),
-                  ("Be", "Beryllium",  14.964,  [[2, 114, None]]),
-                  ("B",  "Boron",      17.949,  [[3, 80, flat, 'sp2']]), #bruce 050706 added 'sp2' name, though all bonds are single
-                  ("C",  "Carbon",     19.925,  [[4, DIAMOND_BOND_LENGTH / 2 * 100, tetra4, 'sp3'],
-                                                     #bruce 051102 replaced 77 with constant expr, which evals to 77.2
-                                                 [3, 71, flat, 'sp2'],
-                                                 [2, 66, straight, 'sp'], # (this is correct for =C=, ie two double bonds)
-                                                 ## [1, 60, None] # what's this? I don't know how it could bond... removing it. [bruce 050510]
-                                                 ]),
-                  ("N",  "Nitrogen",   23.257,  [[3, 73, tetra3, 'sp3'],
-                                                 [2, 61, flat[:2], 'sp2'], # bruce 050630 replaced tetra2 with flat[:2]
+    _mendeleev = [("X",  "Singlet",      0,   0.001,  [[1, 0, None, 'sp']]), #bruce 050630 made X have atomtype name 'sp'; might revise again later
+                  ("H",  "Hydrogen",     1,   1.6737, [[1, 31, onebond]]),
+                  ("He", "Helium",       2,   6.646,  None),
+                  ("Li", "Lithium",      3,  11.525,  [[1, 152, None]]),
+                  ("Be", "Beryllium",    4,  14.964,  [[2, 114, None]]),
+                  ("B",  "Boron",        5,  17.949,  [[3, 80, flat, 'sp2']]), #bruce 050706 added 'sp2' name, though all bonds are single
+                  ("C",  "Carbon",       6,  19.925,  [[4, DIAMOND_BOND_LENGTH / 2 * 100, tetra4, 'sp3'],
+                                                    #bruce 051102 replaced 77 with constant expr, which evals to 77.2
+                                                       [3, 71, flat, 'sp2'],
+                                                       [2, 66, straight, 'sp'], # (this is correct for =C=, ie two double bonds)
+                                                    ## [1, 60, None] # what's this? I don't know how it could bond... removing it. [bruce 050510]
+                                                      ]),
+                  ("N",  "Nitrogen",     7,  23.257,  [[3, 73, tetra3, 'sp3'],
+                                                       [2, 61, flat[:2], 'sp2'], # bruce 050630 replaced tetra2 with flat[:2]
                                                      # josh 0512013 made this radius 61, but this is only correct for a double bond,
                                                      # whereas this will have one single and one double bond (or two aromatic bonds),
                                                      # so 61 is probably not the best value here... 67 would be the average of single and double.
                                                      # [bruce 051014]
-                                                 [1, 56, onebond, 'sp'],
-                                                 [3, 62, flat, 'sp2(graphitic)'],
+                                                       [1, 56, onebond, 'sp'],
+                                                       [3, 62, flat, 'sp2(graphitic)'],
                                                      # this is just a guess! (for graphitic N, sp2(??) with 3 single bonds) (and the 62 is made up)
-                                                 ]),
-                  ("O",  "Oxygen",     26.565,  [[2, 69, oxy2, 'sp3'],
-                                                 [1, 60, onebond, 'sp2']]), # sp2?
-                  ("F",  "Fluorine",   31.545,  [[1, 70, onebond]]),
-                  ("Ne", "Neon",       33.49,   None),
-                  ("Na", "Sodium",     38.1726, [[1, 186, None]]),
-                  ("Mg", "Magnesium",  40.356,  [[2, 160, None]]),
-                  ("Al", "Aluminum",   44.7997, [[3, 143, flat]]),
-                  ("Si", "Silicon",    46.6245, [[4, 111, tetra4]]),
-                  ("P",  "Phosphorus", 51.429,  [[3, 108, tetra3]]),
-                  ("S",  "Sulfur",     53.233,  [[2, 107, tetra2, 'sp3'],
-                                                 [1, 88, onebond, 'sp2']]), #bruce 050706 added this, and both names; length chgd by Josh
-                  ("Cl", "Chlorine",   58.867,  [[1, 102, onebond]]),
-                  ("Ar", "Argon",      66.33,   None),
-                  ("K",  "Potassium",  64.9256, [[1, 231, None]]),
-                  ("Ca", "Calcium",    66.5495, [[2, 197, tetra2]]),
-                  ("Sc", "Scandium",   74.646,  [[3, 160, tetra3]]),
-                  ("Ti", "Titanium",   79.534,  [[4, 147, tetra4]]),
-                  ("V",  "Vanadium",   84.584,  [[5, 132, None]]),
-                  ("Cr", "Chromium",   86.335,  [[6, 125, None]]),
-                  ("Mn", "Manganese",  91.22,   [[7, 112, None]]),
-                  ("Fe", "Iron",       92.729,  [[3, 124, None]]),
-                  ("Co", "Cobalt",     97.854,  [[3, 125, None]]),
-                  ("Ni", "Nickel",     97.483,  [[3, 125, None]]),
-                  ("Cu", "Copper",    105.513,  [[2, 128, None]]),
-                  ("Zn", "Zinc",      108.541,  [[2, 133, None]]),
-                  ("Ga", "Gallium",   115.764,  [[3, 135, None]]),
-                  ("Ge", "Germanium", 120.53,   [[4, 122, tetra4]]),
-                  ("As", "Arsenic",   124.401,  [[5, 119, tetra3]]),
-                  ("Se", "Selenium",  131.106,  [[6, 120, tetra2]]),
-                  ("Br", "Bromine",   132.674,  [[1, 119, onebond]]),
-                  ("Kr", "Krypton",   134.429,  None)
-                ]
-    # Antimony is element 51
-    _appendix = [ ("Sb", "Antimony",  124.401,  [[3, 119, tetra3]]),
-                  ("Te", "Tellurium", 131.106,  [[2, 120, tetra2]]),
-                  ("I",  "Iodine",    132.674,  [[1, 119, onebond]]),
-                  ("Xe", "Xenon",     134.429,  None)
+                                                      ]),
+                  ("O",  "Oxygen",       8,  26.565,  [[2, 69, oxy2, 'sp3'],
+                                                       [1, 60, onebond, 'sp2']]), # sp2?
+                  ("F",  "Fluorine",     9,  31.545,  [[1, 70, onebond]]),
+                  ("Ne", "Neon",        10,  33.49,   None),
+                  ("Na", "Sodium",      11,  38.1726, [[1, 186, None]]),
+                  ("Mg", "Magnesium",   12,  40.356,  [[2, 160, None]]),
+                  ("Al", "Aluminum",    13,  44.7997, [[3, 143, flat]]),
+                  ("Si", "Silicon",     14,  46.6245, [[4, 111, tetra4]]),
+                  ("P",  "Phosphorus",  15,  51.429,  [[3, 108, tetra3]]),
+                  ("S",  "Sulfur",      16,  53.233,  [[2, 107, tetra2, 'sp3'],
+                                                       [1, 88, onebond, 'sp2']]), #bruce 050706 added this, and both names; length chgd by Josh
+                  ("Cl", "Chlorine",    17,  58.867,  [[1, 102, onebond]]),
+                  ("Ar", "Argon",       18,  66.33,   None),
+                  ("K",  "Potassium",   19,  64.9256, [[1, 231, None]]),
+                  ("Ca", "Calcium",     20,  66.5495, [[2, 197, tetra2]]),
+                  ("Sc", "Scandium",    21,  74.646,  [[3, 160, tetra3]]),
+                  ("Ti", "Titanium",    22,  79.534,  [[4, 147, tetra4]]),
+                  ("V",  "Vanadium",    23,  84.584,  [[5, 132, None]]),
+                  ("Cr", "Chromium",    24,  86.335,  [[6, 125, None]]),
+                  ("Mn", "Manganese",   25,  91.22,   [[7, 112, None]]),
+                  ("Fe", "Iron",        26,  92.729,  [[3, 124, None]]),
+                  ("Co", "Cobalt",      27,  97.854,  [[3, 125, None]]),
+                  ("Ni", "Nickel",      28,  97.483,  [[3, 125, None]]),
+                  ("Cu", "Copper",      29, 105.513,  [[2, 128, None]]),
+                  ("Zn", "Zinc",        30, 108.541,  [[2, 133, None]]),
+                  ("Ga", "Gallium",     31, 115.764,  [[3, 135, None]]),
+                  ("Ge", "Germanium",   32, 120.53,   [[4, 122, tetra4]]),
+                  ("As", "Arsenic",     33, 124.401,  [[5, 119, tetra3]]),
+                  ("Se", "Selenium",    34, 131.106,  [[6, 120, tetra2]]),
+                  ("Br", "Bromine",     35, 132.674,  [[1, 119, onebond]]),
+                  ("Kr", "Krypton",     36, 134.429,  None),
+
+                  ("Sb", "Antimony",    51, 124.401,  [[3, 119, tetra3]]),
+                  ("Te", "Tellurium",   52, 131.106,  [[2, 120, tetra2]]),
+                  ("I",  "Iodine",      53, 132.674,  [[1, 119, onebond]]),
+                  ("Xe", "Xenon",       54, 134.429,  None),
+
+                  ("DC", "DNA-Pseudo-Center", 200, 1.0, [[4, 160, tetra4]]),
+                  ("DB", "DNA-Pseudo-Backbone", 201, 1.0, [[3, 160, flat]])
                 ]
     _periodicTable = {}
     _eltName2Num = {}
@@ -294,8 +335,7 @@ to put the C+ value.
     def __init__(self):
         #if win: self.w = win
         if  not self._periodicTable:
-           self._createElements(0, self._mendeleev)
-           self._createElements(51, self._appendix)
+           self._createElements(self._mendeleev)
            #bruce 050419 add public attributes to count changes
            # to any element's color or rvdw; the only requirement is that
            # each one changes at least once per user event which
@@ -303,17 +343,15 @@ to put the C+ value.
            self.color_change_counter = 1
            self.rvdw_change_counter = 1
            
-    def _createElements(self, startIndex, elmTable):
+    def _createElements(self, elmTable):
         """Create elements for all member of <elmTable>.
         Use preference value of each element if available, otherwise, use default value.  
-        <Param> startIndex: the starting element index
         <Param> elmTable: a list of elements needed to create
         """
         prefs = prefs_context()
         for elm in elmTable:
                 rad_color = prefs.get(elm[0], self._defaultRad_Color[elm[0]])
-                el = Elem(startIndex, elm[0], elm[1], elm[2], rad_color[0], rad_color[1], elm[3])
-                startIndex += 1
+                el = Elem(elm[2], elm[0], elm[1], elm[3], rad_color[0], rad_color[1], elm[4])
                 self. _periodicTable[el.eltnum] = el
                 self._eltName2Num[el.name] = el.eltnum
                 self._eltSym2Num[el.symbol] = el.eltnum               
