@@ -345,7 +345,7 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         # and being able to do a fake redraw that gets back to the same coords.
         run_immediately = True
         if run_immediately:
-            self.env.glpane.makeCurrent() # probably not needed
+            self.env.glpane.makeCurrent() # as of 070305 we might run this outside of paintGL, so this might be needed
             self.begin_using_saved_coords()
             try:
                 res = func()

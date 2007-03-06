@@ -313,14 +313,37 @@ class checkbox_pref(InstanceMacro):
         )
     _value = DisplistChunk( Highlightable( SimpleRow( CenterY(checkbox), CenterY(use_label)), # align = CenterY is nim
                             ## on_press = Set(debug_evals_of_Expr(stateref.value), not_Expr(var) ), #070119 debug_evals_of_Expr - worked
-                            on_press = Set( stateref.value, not_Expr(var) ),
+                            on_press = _self.on_press,
+                                           # the following works too, but I wanted to intercept it to add some py code [070305]:
+                                           ## Set( stateref.value, not_Expr(var) ),
                             sbar_text = use_sbar_text) )
         # note: using DisplistChunk in _value works & is faster [070103]
         #070124 comment: the order DisplistChunk( Highlightable( )) presumably means that the selobj
         # (which draws the highlightable's delegate) doesn't include the displist; doesn't matter much;
         # that CenterY(use_label) inside might be ok, or might be a bug which is made up for by the +0.5 I'm adding to drawfont2
         # in testdraw.py today -- not sure.
+    incremental_drawable = Instance( Boxed( CenterY(checkbox), pixelgap = 0, bordercolor = gray, borderwidth = 2 ))
+        # I tried orange as a warning color -- means the checkbox reflects an intention but not yet the reality.
+        # But it was annoyingly too visible. So I'll try gray.
+        # If all colorboxeds are unpopular, then try an image that has a little spray of lines coming from the center, instead.
+    def on_press(self):
+        self.stateref.value = not self.stateref.value # was, in the expr: Set( stateref.value, not_Expr(var) )
+        def func(self = self):
+            # don't use drawkid! (because we're not inside a draw method)
+            # (but will this cause trouble for draw methods inside this?? ### NEEDS REVIEW)
+            self.incremental_drawable.draw()
+            ## self.draw() # includes the label - probably a waste but who cares
+            self.env.glpane.swapBuffers() # update display [needed]
+        ran_already_flag, funcres = self.run_OpenGL_in_local_coords( func) # this method runs in the Highlightable made in _value
+        assert ran_already_flag
+        return
     pass
+###BUG: whatever I do, I can't get reloading of controls.py (this file) and test.py to cause code changes in on_press above
+# to take effect -- not even modifying the _value expr before the reload, changing the current test by cmenu,
+# or by editing testexpr assignment in test.py. sanity check -- try rerunning NE1 app - yep, that works. repeatable.
+# So far it's a complete ###MYSTERY. I was wondering if the Instance that makes value hangs onto it, but altering expr
+# ought to have either fixed that or warned me that it changed -- I hope. Nonetheless that's my best guess so far.
+# Note (prob not related): recent NE1 startup times have sometimes been very long -- is it checking for sponsors??? [070305]
 
 class ActionButton(DelegatingInstanceOrExpr): # 070104 quick prototype
     "ActionButton(command, text) is something the user can press to run command, which looks like a button."
@@ -337,8 +360,8 @@ class ActionButton(DelegatingInstanceOrExpr): # 070104 quick prototype
                         borderthickness = 1.5 * PIXELS,
                         gap = 1 * PIXELS, ) ###k ????   -- note, this doesn't include the label -- ok?
     plain =       DisplistChunk( SimpleRow( plain_button,       CenterY(use_label))) # align = CenterY is nim
-    highlighted = DisplistChunk( SimpleRow( highlighted_button, CenterY(use_label), pixelgap = 0.5)) ###k ok to wrap with DisplistChunk???
-        ### KLUGE: without the pixelgap adjustment,
+    highlighted = DisplistChunk( SimpleRow( highlighted_button, CenterY(use_label), pixelgap = 0.5)) #k ok to wrap with DisplistChunk? [seems so]
+        ### KLUGE: without the pixelgap adjustment (to this particular weird-looking value, i guess),
         # the label moves to the right when highlighted, due to the Boxed being used to position it in the row.
         ### BUG: CenterY is not perfectly working. Guess -- lbox for TextRect is slightly wrong.
         ### IDEA: make the borderthickness for Boxed negative so the border is over the edge of the plain button. Might look better.
@@ -347,8 +370,21 @@ class ActionButton(DelegatingInstanceOrExpr): # 070104 quick prototype
     # which can then go back to normal when the operation completes and does a regular full redraw.
     # Alternatively, we could switch to using buttons with an on_release_in action only,
     # and then have ordinarily-drawn pressed etc looks. [070227 comment]
+    # update 070305: let's try to fix that:
+    pressed_button_doing = highlighted_button( bordercolor = orange) # orange warns you that it's not yet done, is also bright & active for action
+    incremental_drawable_doing = Instance( SimpleRow( pressed_button_doing, CenterY(use_label), pixelgap = 0.5))
+    pressed_button_done = highlighted_button( bordercolor = yellow) # yellow means done -- not sure makes sense -- note green means "can do" in some controls
+    incremental_drawable_done = Instance( SimpleRow( pressed_button_done, CenterY(use_label), pixelgap = 0.5))
     def doit(self):
         if self.enabled:
+            def func_doing(self = self): # new feature 070305
+                # don't use drawkid! (see same comment in checkbox_pref)
+                self.incremental_drawable_doing.draw()
+                    ###BUG (in some client code of this class):
+                    # this won't be able to make clear button quickly show it's disabled until client code is revised and maybe selobj-bugfixed ###DOIT
+                self.env.glpane.swapBuffers() # update display [needed]
+            ran_already_flag, funcres = self.run_OpenGL_in_local_coords( func_doing) # this method runs in the Highlightable made in delegate
+            assert ran_already_flag
             print "ActionButton: doing %r for %r" % (self.text, self) ### remove self?
                 ##e optim note: this shows self is a different obj each time (at least for make dna cyl button)...
                 # I guess this is due to dna_ribbon_view_toolcorner_expr_maker being a function that makes an expr
@@ -357,6 +393,12 @@ class ActionButton(DelegatingInstanceOrExpr): # 070104 quick prototype
             res = self.command()
             if res is not None:
                 print "unexpected: %r cmd %r retval was not None: %r" % (self, self.text, res,) #e remove if happens legitimately
+            def func_done(self = self):
+                self.incremental_drawable_done.draw()
+                self.env.glpane.swapBuffers()
+            ran_already_flag, funcres = self.run_OpenGL_in_local_coords( func_done) 
+            assert ran_already_flag
+            pass
         else:
             # print "ActionButton: not enabled, so not doing %r for %r" % (self.text, self) # remove when works
             pass
