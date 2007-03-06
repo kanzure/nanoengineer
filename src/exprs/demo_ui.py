@@ -120,9 +120,11 @@ testexpr_34 = Rect(0.7,0.3,pink) # just to make sure the imports from here are w
 # ToolRuns #e rename-- or maybe those classes will be derived from Tool ones somehow
 
 class ToolRun(DelegatingInstanceOrExpr): # what is the super? it has several distinct parts we draw, but when do we draw "the whole thing" -- when editing one???
-    property_manager = Spacer(0) ## None -- one of these Spacers might be needed;
-        # guess1: Overlay/Row arg is not None but its delegate is! guess2: bug in DrawInCorner(None)
-    graphics_area_topright_buttons = Spacer(0) ## None
+    property_manager = None ### has to be None! not Spacer(0) ## None -- one of these Spacers might be needed;
+        # guess1: Overlay/Row arg is not None but its delegate is!
+        # guess2: bug in DrawInCorner(None)
+        # guess3: Top(propmgr)
+    graphics_area_topright_buttons = None ## Spacer(0) ## None
     pass
 
 class DefaultToolRun(ToolRun):
@@ -142,6 +144,8 @@ class DefaultToolRun(ToolRun):
 # - there is a stack of currently active toolruns, each one the parent of the next
 #   (usual depth one or two, plus an outer constant one with no prop mgr, user-invisible)
 
+from debug_exprs import DebugPrintAttrs ###e move up, or into basic; rename to more memorable name (maybe just Debug?) (add DebugDraw?)
+
 class main_ui_layout(DelegatingInstanceOrExpr):
     #e rename? is it not only the ui, but the entire app? (selection, files, etc)
     #e merge in the App obj from test.py, and the _recent_tests system in some form?
@@ -149,6 +153,13 @@ class main_ui_layout(DelegatingInstanceOrExpr):
     # args (none yet)
     
     # internal state - permanent
+    ###e note: when we reload and remake this instance, we'd prefer it if the world state stayed unchanged (as i presume it does)
+    # but if the default_tool instance and toolstack state got remade. The lack of the latter has been confusing me
+    # since changes to ui code aren't working. I think this is a difference between a ui and operations layer (should change)
+    # vs model data layer (should not change even tho the op methods on it can change). So when I can put these things into layers
+    # (not only State, but even Instance or attrs within them) and make those sensitive to reload, that will help.
+    # In the meantime -- if I could kluge Instance and State to take an option to control this (like index = vv.reload_counter)
+    # it might help.... #####TRYIT SOMETIME, and BE CAREFUL UNTIL I DO.
     world = Instance(World())
     default_tool = Instance(DefaultToolRun())
 
@@ -163,15 +174,22 @@ class main_ui_layout(DelegatingInstanceOrExpr):
         # since we also have to deal with Tools in the sense of Tool Run Producers, eg toolbuttons. ###e
 
     # parts of the appearance
-    toolbar = Instance( MainToolbar(["Features", "Build", "Sketch", "Dimension"]) )
+    toolbar = Instance( MainToolbar(["Features", "Build", "Sketch"]) )
         ###e args/opts for what tools to show -- maybe their cmdnames & it loads them from elsewhere
         #e add row of tool buttons, and flyout toolbar; use ChoiceRow?? the things should probably look pressed...
         # they might need cmenus (find out what the deal is with the cmenus i see in the ui mockup - related to flyouts?
         #    yes, it's like this: main tools have cmenus with subtools, and if you pick one, main tool and its subtool both look pressed
         # I'll need new specialized controls.py classes for these; new super Control for all kinds of controls?? (not sure why...)
-    propmgr = current_tool.property_manager # might be a spacer (#k or None?? prob ok now, see demo_MT comment 070302) [Instance]
-    mt = MT_try2(world) #e rename to  "Feature Manager" ??
+    propmgr = SimpleColumn(
+        TextRect("(property manager)"), #e possibly to become a tab control tab
+        DebugPrintAttrs(current_tool.property_manager) # must be None if we don't want one visible; otherwise an Instance
+        ###BUG: DebugPrintAttrs shows that it's a spacer -- I guess IorE turns None into one when it instantiates? Make it a false one??
+     )
+    mt = SimpleColumn(
+        TextRect("(model tree)"), #e possibly to become a tab control tab, but only when we're in the left channel
+        MT_try2(world) #e rename to  "Feature Manager" ??
         ##e soon, MT should be not on whole world but on model or cur. part, a specific obj in the world
+     )
     graphics_area = _self.world
         ##e ditto for what we show here, except it might not be the exact same object, and it will really be shown in a way
         # that depends on both the current display style and the current tool (command & subcommand)
@@ -183,7 +201,9 @@ class main_ui_layout(DelegatingInstanceOrExpr):
             SimpleColumn(
                 toolbar,
                 #e add tab control
-                SimpleRow(Top(propmgr), Top(mt)), #e actually we'd then put a splitter & glpane-like-thing...
+                SimpleRow(
+                    If( current_tool.property_manager, Top(propmgr), None), #k None?? prob ok now, see demo_MT comment 070302 ###k
+                    Top(mt)), #e actually we'd then put a splitter & glpane-like-thing...
                 #e anything just below the propmgr?
          )),
         DrawInCorner(corner = UPPER_RIGHT)( ##e of graphics area, not entire screen...

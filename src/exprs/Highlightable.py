@@ -127,7 +127,7 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
     # note: uses super InstanceOrExpr rather than Widget2D so as not to prevent delegation of lbox attrs (like in Overlay)
     
     # args (which specify what it looks like in various states)
-    plain = Arg(Widget2D)
+    plain = ArgOrOption(Widget2D) # Arg -> ArgOrOption 070304 -- but is it still required? it ought to be... but it's not.... ###e
     delegate = _self.plain # always use this one for lbox attrs, etc
     highlighted = ArgOrOption(Widget2D, plain)
         # fyi: leaving this out is useful for things that just want a glname to avoid mouseover stickiness
