@@ -1363,8 +1363,8 @@ from demo_ui import * # this defines testexpr_19j, testexpr_30j, and testexpr_34
 
 enable_testbed = True
 
-testexpr = testexpr_30i # testexpr_34a
-    # 
+testexpr = testexpr_34a
+    # testexpr_30i
     # testexpr_30j ### NOT WORKING YET [070228 945p]
     # testexpr_19i # testexpr_29aox3 # testexpr_9fx4 #  _26g _28
 
