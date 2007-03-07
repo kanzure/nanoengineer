@@ -322,22 +322,22 @@ class checkbox_pref(InstanceMacro):
         # (which draws the highlightable's delegate) doesn't include the displist; doesn't matter much;
         # that CenterY(use_label) inside might be ok, or might be a bug which is made up for by the +0.5 I'm adding to drawfont2
         # in testdraw.py today -- not sure.
-    incremental_drawable = Instance( Boxed( CenterY(checkbox), pixelgap = 0, bordercolor = gray, borderwidth = 2 ))
+    incr_drawable = Instance( Boxed( CenterY(checkbox), pixelgap = 0, bordercolor = gray, borderwidth = 2 ))
         # I tried orange as a warning color -- means the checkbox reflects an intention but not yet the reality.
         # But it was annoyingly too visible. So I'll try gray.
         # If all colorboxeds are unpopular, then try an image that has a little spray of lines coming from the center, instead.
     def on_press(self):
         self.stateref.value = not self.stateref.value # was, in the expr: Set( stateref.value, not_Expr(var) )
+        ###e revise this code to use self.draw_incrementally once that's refiled into Highlightable ###e
         def func(self = self):
-            # don't use drawkid! (because we're not inside a draw method)
-            # (but will this cause trouble for draw methods inside this?? ### NEEDS REVIEW)
-            self.incremental_drawable.draw()
+            self.incr_drawable.draw()
             ## self.draw() # includes the label - probably a waste but who cares
             self.env.glpane.swapBuffers() # update display [needed]
         ran_already_flag, funcres = self.run_OpenGL_in_local_coords( func) # this method runs in the Highlightable made in _value
         assert ran_already_flag
         return
-    pass
+    pass # end of class checkbox_pref
+
 ###BUG: whatever I do, I can't get reloading of controls.py (this file) and test.py to cause code changes in on_press above
 # to take effect -- not even modifying the _value expr before the reload, changing the current test by cmenu,
 # or by editing testexpr assignment in test.py. sanity check -- try rerunning NE1 app - yep, that works. repeatable.
@@ -371,38 +371,106 @@ class ActionButton(DelegatingInstanceOrExpr): # 070104 quick prototype
     # Alternatively, we could switch to using buttons with an on_release_in action only,
     # and then have ordinarily-drawn pressed etc looks. [070227 comment]
     # update 070305: let's try to fix that:
-    pressed_button_doing = highlighted_button( bordercolor = orange) # orange warns you that it's not yet done, is also bright & active for action
-    incremental_drawable_doing = Instance( SimpleRow( pressed_button_doing, CenterY(use_label), pixelgap = 0.5))
-    pressed_button_done = highlighted_button( bordercolor = yellow) # yellow means done -- not sure makes sense -- note green means "can do" in some controls
-    incremental_drawable_done = Instance( SimpleRow( pressed_button_done, CenterY(use_label), pixelgap = 0.5))
+
+    # appearances for optional willdoit-flicker (confirms unambiguously that the button was hit and will do something) [070307]
+        # [ideally the computation & side effects could overlap the willdoit flicker in time,
+        #  but they don't now, which is one reason the flicker is optional]
+    incr_drawable_willdo1 = Instance( SimpleRow( highlighted_button( bordercolor = yellow), pixelgap = 0.5)) # label not needed here
+    incr_drawable_willdo2 = Instance( SimpleRow( highlighted_button( bordercolor = blue ), pixelgap = 0.5))
+        # note: yellow/blue (matching the usual ending & starting colors which bracket the flicker) looks much better than black/white
+
+    # what it looks like while we're computing/doing its effects:
+    incr_drawable_doing = Instance( SimpleRow( highlighted_button( bordercolor = orange),
+                                               ## CenterY(use_label), [removed -- see comment for why -- might be added back]
+                                               pixelgap = 0.5))
+        # orange warns you that it's not yet done, is also bright & active for action;
+        ### UI FLAW: the orange/yellow distinction is annoying, so it's really only desirable for debugging,
+        # since it shows that the instantiation time is significant but only happens on the first use of a button.
+        # Probably the distinction (and its redraw happening at all) should be a debug_pref or so. ###FIX
+        # (But if there is no distinction, we may want to be sure to redraw the label now if there is any chance it can be different --
+        #  but in current code there's not, since we haven't changed state it might depend on by the time we draw it.
+        #  BTW I wonder if redrawing the label (i.e. instantiating this instance of it) ever takes significant time itself?? #k)
+
+    # what it looks like while we're redrawing (after finishing its internal effects):
+    incr_drawable_done = Instance( SimpleRow( highlighted_button( bordercolor = yellow), pixelgap = 0.5)) # label not needed here
+        # yellow means done -- not sure makes sense -- note green means "can do" in some controls
+    
     def doit(self):
+        """This runs when the user clicks on the button.
+        WARNING: it's NOT just self.do_action() (the public method self's clients, like scripts, can call to do the same action) --
+        it calls that, but it also has graphical effects.
+        [It may or may not be public (in the Action interface) in the end. If it is, it'll be renamed. #e]
+        """
         if self.enabled:
-            def func_doing(self = self): # new feature 070305
-                # don't use drawkid! (see same comment in checkbox_pref)
-                self.incremental_drawable_doing.draw()
-                    ###BUG (in some client code of this class):
-                    # this won't be able to make clear button quickly show it's disabled until client code is revised and maybe selobj-bugfixed ###DOIT
-                self.env.glpane.swapBuffers() # update display [needed]
-            ran_already_flag, funcres = self.run_OpenGL_in_local_coords( func_doing) # this method runs in the Highlightable made in delegate
-            assert ran_already_flag
+            # do some incremental drawing [new feature 070305, revised 070307]
+            ###BUG (in some client code of this class):
+            # this won't be able to make clear button quickly show it's disabled until client code is revised and maybe selobj-bugfixed ###DOIT
+            if debug_pref("testmode: ActionButton willdoit-flicker?",
+                              # When set, this flickers the button, like how the mac confirms a menu item choice.
+                              # Conclusion after testing: it works fine, and usually looks ok,
+                              # but is redundant with "yellow during redraw",
+                              # so as long as that's slow enough to see, this has no point and is also making it even slower,
+                              # so leave it turned off by default.
+                          Choice_boolean_False,
+                          prefs_key = 'A9 devel/exprs/action flicker' ):
+                # works [retest###], but I won't make it True by default [070307]
+                ##e someday do this in a way that does not tie up the thread during this, e.g. by letting paintGL do it;
+                # for now it's just experimental for its graphics effects and as a speed test,
+                # and will probably be turned off after testing
+                for i in range(4):
+                    if i % 2 == 0:
+                        self.draw_incrementally( self.incr_drawable_willdo1 )
+                    else:
+                        self.draw_incrementally( self.incr_drawable_willdo2 )
+                    # print i, # very fast
+                    #e delay, if needed to make this visible -- using time.clock to delay only if draw timing was not long enough
+                    # (with no delay it's almost too fast too see -- sometime I should write the code to measure the actual speed)
+                    time.sleep(1.0/3/4) # 1/3 sec, spread over 4 sleeps
+            self.draw_incrementally( self.incr_drawable_doing ) # this method runs in the Highlightable made in delegate
             print "ActionButton: doing %r for %r" % (self.text, self) ### remove self?
                 ##e optim note: this shows self is a different obj each time (at least for make dna cyl button)...
                 # I guess this is due to dna_ribbon_view_toolcorner_expr_maker being a function that makes an expr
                 # which runs again at least on every use of the button (maybe more -- not sure exactly how often).
                 # Should fix that (and it's not this file's fault -- just that the print stmt above reveals the problem).
-            res = self.command()
-            if res is not None:
-                print "unexpected: %r cmd %r retval was not None: %r" % (self, self.text, res,) #e remove if happens legitimately
-            def func_done(self = self):
-                self.incremental_drawable_done.draw()
-                self.env.glpane.swapBuffers()
-            ran_already_flag, funcres = self.run_OpenGL_in_local_coords( func_done) 
-            assert ran_already_flag
+            self.do_action()
+            self.draw_incrementally( self.incr_drawable_done )
             pass
         else:
-            # print "ActionButton: not enabled, so not doing %r for %r" % (self.text, self) # remove when works
+            print "ActionButton: not enabled, so not doing %r for %r" % (self.text, self) # remove when works [reenabled 070307 ####]
             pass
         return
+    def do_action(self):
+        "#doc -- public, also used internally; see doit comment for doc, for now"
+        res = self.command()
+        if res is not None:
+            print "unexpected: %r cmd %r retval was not None: %r" % (self, self.text, res,) #e remove if happens legitimately
+        return
+    ###e refile these:
+    def draw_incrementally( self, thing):#070307 #e refile (as for next method below)
+        "#doc"
+        self._incrementally_draw_OpenGL( thing.draw ) #e or call a variant method of thing, which defaults to thing.draw?? nah, use an env var?
+    def _incrementally_draw_OpenGL( self, func): #070307 #e rename ###e refile into IorE someday, and into Highlightable for now, i think
+        """helper method for incremental drawing by user event handling methods (not part of self.draw called by paintGL).
+        [#doc better]
+        func should contain OpenGL commands for incrementally drawing, in self's coords (but not the swapbuffers at the end).
+           Guess at a requirement within func: [which should be removed and is prob not real now, see below]
+        # don't use drawkid! (because we're not inside a draw method)
+        # (but will this cause trouble for draw methods inside this?? ### NEEDS REVIEW)
+        [but instead we might as well make sure that drawkid's parent-seeing alg will not be messed up, since it'll be used
+        inside whatever subthing draws we call, anyway]
+        """
+        ###e undefined in API so far: what if func says "draw later" (eg for transparency) -- do we do all that too, before we return??
+        # guess: yes, but we'll need special drawing-env settings to tell primitives inside func that we're doing incremental drawing,
+        # since it'll affect things like whether it's ok to write into the depth buffer for transparent objs obscuring visible ones
+        # (useful for glselect code but would mess up subsequent incr drawing).
+        def func1(self = self, func = func):
+            res = func()
+            self.env.glpane.swapBuffers() # update display [needed]
+            return res
+        ran_already_flag, funcres = self.run_OpenGL_in_local_coords( func1 )
+            # note: this runs in self or first delegate that's a Highlightable, for now; that determines its gl state & coordsys
+        assert ran_already_flag
+        return funcres
     #e should we change to doing the action on_release_in, rather than on_press?
     delegate = Highlightable(
         plain, ##e should this depend on enabled? probably yes, but probably the caller has to pass in the disabled form.
@@ -414,7 +482,7 @@ class ActionButton(DelegatingInstanceOrExpr): # 070104 quick prototype
         sbar_text = text
             #e should sbar_text depend on enabled?? yes, but need to revise callers then too -- some of which make the text depend on it
      )
-    pass
+    pass # end of class ActionButton
 
 PrintAction = print_Expr ###e refile (both names if kept) into an actions file
     
