@@ -633,6 +633,15 @@ double
 getBondEquilibriumDistance(int element1, int element2, char bondOrder)
 {
   struct bondStretch *stretch;
+  if (element1 < 0 || element1 > MAX_ELEMENT || element2 < 0 || element2 > MAX_ELEMENT) {
+    return 1.0; // cad code considers this an error condition.
+    // For some reason, running the following line with elements out
+    // of range causes the cad to later segfault.  This is strange,
+    // since the code below will reference undefined memory (past the
+    // end of periodicTable[], but it never stores anything at a bad
+    // location.  In any case, we need better input validation
+    // throughout the simulator.
+  }
   stretch = getBondStretchEntry(element1, element2, bondOrder);
   return stretch->r0;
 }
