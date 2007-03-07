@@ -22,6 +22,7 @@ import platform
 from VQT import Q
 from math import floor, ceil #guess
 
+MAX_ELEMENT = 109
 # Bond valence constants -- exact ints, 6 times the numeric valence they represent.
 # If these need an order, their standard order is the same as the order of their numeric valences
 # (as in the constant list BOND_VALENCES).
@@ -189,11 +190,15 @@ def _compute_bond_params(atomtype1, atomtype2, v6):
     rcovsum = rcov1 + rcov2
     try:
         # try to adjust rcov1 and rcov2 to make their sum the equilibrium bond length [bruce 060324 re bug 900]
-        elno1 = atomtype1.element.eltnum # note: both atoms and atomtypes have .element
-        elno2 = atomtype2.element.eltnum
+        elementNumber1 = atomtype1.element.eltnum # note: both atoms and atomtypes have .element
+        if (elementNumber1 > MAX_ELEMENT):
+            elementNumber1 = MAX_ELEMENT
+        elementNumber2 = atomtype2.element.eltnum
+        if (elementNumber2 > MAX_ELEMENT):
+            elementNumber2 = MAX_ELEMENT
         ltr = bond_letter_from_v6(v6)
         import sim
-        pm = sim.getEquilibriumDistanceForBond(elno1, elno2, ltr) # C-C is (6, 6, '1')
+        pm = sim.getEquilibriumDistanceForBond(elementNumber1, elementNumber2, ltr) # C-C is (6, 6, '1')
         assert pm > 2.0 # 1.0 means an error occurred; 2.0 is still ridiculously low; btw what will happen for He-He??
         nicelen = pm / 100.0
     except:
