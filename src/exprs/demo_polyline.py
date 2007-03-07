@@ -193,4 +193,19 @@ class cmd_MakePolyline(ClickClickCommand): ##e review naming convention (and int
 
 ##e register the types & commands
 
+# say above: intercerpt in testmode - bafemotion, update selobj i guess
+and some other sleobj controls
+prob no need to intrercept them in seletMOde itself
+but i am not sure..
+i could have said same about all my other mods to it...
+
+#e also move new incr methods to HL from controls
+
+#e also say above where we get in and out of xor mod and grab eg code from cookieor wgatever
+#btw is it used now for incr edrawing in selmode itself, for region sel , and if not why not?
+#is region el itself a cmd of this form -- even though the std editmode might get into it?
+#adv of xor mode in that case - ok if you didn't have a premade screen image aorund
+
+really do review class polyline soo, anf old demo_poygon too esp for its Command suers, and command scratc file too
+
 # end
