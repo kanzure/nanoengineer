@@ -221,4 +221,19 @@ class main_ui_layout(DelegatingInstanceOrExpr):
 
 testexpr_34a = main_ui_layout()
 
+'''somehow encode the contents:
+Features: ?
+
+Build:
+Molecule
+DNA
+DNA Origami
+Carbon Nanotube [hmm, what about B-N, and graphene sheet]
+Heterojunction [hmm, doesn't say of what]
+
+Sketch:
+(Dimension)
+(On surface)
+Line
+'''
 # end
