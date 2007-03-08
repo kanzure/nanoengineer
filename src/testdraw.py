@@ -745,6 +745,7 @@ def _loadTexture(image_obj, tex_name = 0): #e arg want_mipmaps
     # allocate texture object if necessary
     if not tex_name:
         tex_name = glGenTextures(1)
+        print "debug fyi: testdraw._loadTexture allocated tex_name %r" % (tex_name,) # it's deprecated to let this happen much [070308]
         # note: by experiment (iMac G5 Panther), this returns a single number (1L, 2L, ...), not a list or tuple,
         # but for an argument >1 it returns a list of longs. We depend on this behavior here. [bruce 060207]
         tex_name = int(tex_name) # make sure it worked as expected
