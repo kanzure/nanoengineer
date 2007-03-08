@@ -237,6 +237,9 @@ class polyline(InstanceOrExpr):
     (And which also picks up a cmenu from self. (kluge!))
     Also some Options, see the code.
     """
+    # Note [070307]: this class will be superceded by class Polyline in demo_polyline.py,
+    # and the code that uses it below (eg the add_point call) will be superseded by other code in that file.
+    #
     ###BUGS: doesn't set color, depends on luck. end1 is not fully part of it so putting cmenu on it will be hard.
     # could use cmenu to set the options.
     # end1 might be in MT directly and also be our kid (not necessarily wrong, caller needn't add it to MT).
@@ -262,16 +265,16 @@ class polyline(InstanceOrExpr):
                 #e print?
                 return False
         return False
-    def _C_center(self):
+    def _C_origin(self): #070307 renamed this to origin from center
         if self._use_relative:
             return self.end1.center # this can vary!
         return ORIGIN
+##    center = _self.origin #k might not be needed -- guessing it's not, 070307
     def add_point(self, pos):
         "add a point at the given 3d position"
-        pos = pos - self.center
+        pos = pos - self.origin
         self.points = self.points + [pos] ### INEFFICIENT, but need to use '+' for now to make sure it's change-tracked
     def draw(self):
-        # bug(?): doesn't treat end1 center as a point in the list!
         ###k is it wrong to draw both a kid and some opengl stuff?? not really, just suboptimal if opengl stuff takes long (re rendering.py)
         self.drawkid(self.end1) # end1 node
         if self._closed_state:
@@ -279,17 +282,18 @@ class polyline(InstanceOrExpr):
         else:
             glBegin(GL_LINE_STRIP)#k
         if self._use_relative:
-            # general case - but also include center as first point!
-            center = self.center
-            glVertex3fv(center)
+            # general case - but also include origin (end1.center) as first point!
+            origin = self.origin
+            glVertex3fv(origin)
             for pos in self.points:
-                glVertex3fv(pos + center)
+                glVertex3fv(pos + origin)
         else:
-            # optim - but not equivalent since don't include center!
+            # optim - but not equivalent since don't include origin!
             for pos in self.points:
                 glVertex3fv(pos)
-        #e option to also draw dots on the points [useful if we're made differently, one click per point; and they might be draggable #e]
         glEnd()
+        #e option to also draw dots on the points [useful if we're made differently, one click per point; and they might be draggable #e]
+        return
     def make_selobj_cmenu_items(self, menu_spec, highlightable):
         """Add self-specific context menu items to <menu_spec> list when self is the selobj (or its delegate(?)... ###doc better).
         Only works if this obj (self) gets passed to Highlightable's cmenu_maker option (which DraggableObject(self) will do).

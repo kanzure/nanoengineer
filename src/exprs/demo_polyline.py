@@ -140,9 +140,123 @@ SketchEntity = ModelObject #e stub
 #  to produce a simplified polyline that approximates the original within a specified tolerance.
 #  Most of these algorithms work in any dimension..."
 
-class Polyline(SketchEntity): #e rename Polyline and maybe SketchEntity (2D or not?)
-    #e see especially class polyline in demo_drag.py, for this
-    #e assume super handles whatever relativity is needed? more comments at end of file
+from OpenGL.GL import *
+
+class Polyline(SketchEntity): #e rename -- 2D or general?
+    #e assume SketchEntity super handles whatever relativity is needed? (even add_point coord transform??)
+    # more comments on relativity at end of file
+
+    # modified from: class polyline(InstanceOrExpr) in demo_drag.py, and some code therein that uses it (eg the add_point call)
+
+    """A graphical model object with an extendable (or resettable from outside I guess) list of points.
+    (Q: Does it also consider that some of them are draggable control points and some are not??
+    Guess: not this class -- some other one might. This one considers all points to be equivalent independent state.)
+       Also might have some Options, see the code -- or those might belong in wrapper objects for various display/edit modes.
+    """
+    ###BUGS: doesn't set color, depends on luck. 
+    # could use cmenu to set the options.
+    # end1 might be in MT directly and also be our kid (not necessarily wrong, caller needn't add it to MT).
+    # when drawing on sphere, long line segs can go inside it and not be seen.
+    points = State(list_Expr, []) ###k probably wrong way to say the value should be a list
+##    end1arg = Arg(StubType,None)
+##    end1 = Instance(eval_Expr( call_Expr(end1arg.copy,)( color = green) ))###HACK - works except color is ignored and orig obscures copy
+##    end1 = Arg(StubType, None, doc = "KLUGE arg: optional externally supplied drag-handle, also is given our cmenu by direct mod")
+    closed = Option(bool, False, doc = "whether to draw it as a closed loop")
+    _closed_state = State(bool, closed) ####KLUGE -- closed and _closed_state should be a single OptionState attr [nim]
+##    relative = Option(bool, True, doc = "whether to position it relative to the center of self.end1 (if it has one)")
+##    def _init_instance(self):
+##        end1 = self.end1
+##        if end1:
+##            end1.cmenu_maker = self
+##    def _C__use_relative(self):
+##        "compute self._use_relative (whether to use the relative option)"
+##        if self.relative:
+##            try:
+##                center = self.end1.center
+##                return True
+##            except:
+##                #e print?
+##                return False
+##        return False
+    def _C_center(self):
+        #e how do we define the center? center of bbox??
+        #e is the center of rotation necessarily the same? (guess: yes -- what *else* would center mean, or be needed for?)
+        # (if so, it ought to approximate the center of a minimal bounding circle -- ie its own bradius not be much larger than needed)
+##        if self._use_relative:
+##            return self.end1.center # this can vary!
+##        return ORIGIN
+        nim
+    def _C_origin(self): #070307 renamed this to origin from center (in demo_drag.py version); not sure if needed here at all
+##        if self._use_relative:
+##            return self.end1.center # this can vary!
+        return ORIGIN
+    def add_point(self, pos, replace = False):
+        "add a point at the given 3d position; if replace is True, it replaces the existing last point"
+        pos = pos - self.origin ##e be more general -- but should be done by superclass or glue code or by calling transform method...
+        if replace:
+            self.points = self.points[:-1]#UNTESTED
+        self.points = self.points + [pos] ### INEFFICIENT if lots of points, but need to use '+' for now to make sure it's change-tracked
+    def draw(self):
+        self.draw_lines()
+        #e option to also draw dots on the points
+        #  [btw they might be draggable -- but that's for an edit-wrapper's draw code
+        #   (and it might make draggable points on-demand for speed, and use a highlight method other than glnames... #e)]
+        if 0:
+            self.draw_points()
+        return
+    def draw_lines(self):
+        "draw our line segments, using our current style attrs [which are nim]"
+        ###e WHAT SETS COLOR? see drawline - in practice it's thin and dark gray - probably just luck!
+        ###e also want to set width, style... and these ought to be state attrs of self, changeable by cmenu and/or PM, in fact.
+        if self._closed_state:
+            glBegin(GL_LINE_LOOP)
+        else:
+            glBegin(GL_LINE_STRIP)#k
+##        if self._use_relative:
+##            # general case
+##            origin = self.origin
+####            # also include origin as first point!
+####            glVertex3fv(origin)
+##            for pos in self.points:
+##                glVertex3fv(pos + origin)
+##        else:
+##            # optim
+        for pos in self.points:
+            glVertex3fv(pos)
+        glEnd()
+    def draw_points(self):
+        "[nim] draw our points, using our current style attrs"
+        for pos in self.points:
+            pass ###e draw a dot - how ? same size even if 3d & perspective?? prob ok as approx, even if not the true intent...
+            # in that case we'll eventually be using a texture (or pixmap) with alpha so it looks nice!
+        return
+    def draw_alignment_lines(self):
+        "helper method for some interactive drawing wrappers: draw yellow and blue dotted alignment lines for the last segment"
+        nim
+    def draw_tooltip(self):
+        #e does this even belong here? prob not -- let edit wrapper ask for info and do it from the info
+        nim
+    def make_selobj_cmenu_items(self, menu_spec, highlightable):
+        """Add self-specific context menu items to <menu_spec> list when self is the selobj (or its delegate(?)... ###doc better).
+        Only works if this obj (self) gets passed to Highlightable's cmenu_maker option (which DraggableObject(self) will do).
+        [For more examples, see this method as implemented in chem.py, jigs*.py in cad/src.]
+        """
+        menu_spec.extend([
+            ("Polyline", noop, 'disabled'), # or 'checked' or 'unchecked'; item = None for separator; submenu possible
+
+##            ("show potential crossovers", self._cmd_show_potential_crossovers), #e disable if none (or all are already shown or real)
+##
+##            ("change length", [
+##                ("left extend by 1 base", lambda self = self, left = 1, right = 0: self.extend(left, right)),
+##                ("left shrink by 1 base", lambda self = self, left = -1, right = 0: self.extend(left, right)),
+##                ("right extend by 1 base", lambda self = self, left = 0, right = 1: self.extend(left, right)),
+##                ("right shrink by 1 base", lambda self = self, left = 0, right = -1: self.extend(left, right)),
+##                ("both extend by 1 base", lambda self = self, left = 1, right = 1: self.extend(left, right)),
+##                ("both shrink by 1 base", lambda self = self, left = -1, right = -1: self.extend(left, right)),
+##             ] ),
+        ])
+
+    pass
     
     pass
 
@@ -224,6 +338,15 @@ i could have said the same about all my other mods to it...
 an eg issue that came up in class polyline:
 we need to know what the sketch entity coords are rel to. If it's both draggable, and in/on a ref plane or surface,
 then it might be two-level-relative... tho the relativity for Draggable is probably best thought of as transient.
+
+ui discussion: the initial editmode lets you click to add segments, or Undo to un-add them i think (ie to undo the last click
+ but not get out of being in the rubberband line mode),
+but there is also some way to drag verts or edges or add new control points or remove old ones...
+but how is that controlled -- a toolset in the PM? yet another level of flyout toolbar? PM tools seem preferable...
+
+code structure discussion: class polyline is one thing, and an editable view of it another,
+and they are different! The editable view is made by mapping the polyline elements into drawables with bindings,
+which differ depending on editmode and tool... tho for just making it (not fancier editing) this might not be needed.
 '''
 
 # end
