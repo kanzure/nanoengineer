@@ -1070,8 +1070,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
     def helpGraphicsCard(self):
         '''Displays details about the system's graphics card.
         '''
-        # This is for Brad to complete.  Mark 051123.
-        ginfo = get_gl_info_string()
+        ginfo = get_gl_info_string( self.glpane) #bruce 070308 added glpane arg
         
         from widgets import TextMessageBox
         msgbox = TextMessageBox(self)

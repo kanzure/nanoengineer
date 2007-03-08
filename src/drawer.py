@@ -489,12 +489,13 @@ def apply_material(color): # grantham 20051121, renamed 20051201; revised by bru
     glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, _glprefs.specular_shininess)
     return
 
-def get_gl_info_string():
+def get_gl_info_string(glpane): # grantham 20051129
+    """Return a string containing some useful information about the OpenGL implementation.
+    Use the GL context from the given QGLWidget glpane (by calling glpane.makeCurrent()).
+    """
 
-    """Return a string containing some useful information about the
-    OpenGL implementation."""
-    # grantham 20051129
-
+    glpane.makeCurrent() #bruce 070308 added glpane arg and makeCurrent call
+    
     gl_info_string = ''
 
     gl_info_string += 'GL_VENDOR : "%s"\n' % glGetString(GL_VENDOR)
@@ -502,13 +503,14 @@ def get_gl_info_string():
     gl_info_string += 'GL_RENDERER : "%s"\n' % glGetString(GL_RENDERER)
     gl_info_string += 'GL_EXTENSIONS : "%s"\n' % glGetString(GL_EXTENSIONS)
 
-    if False:
+    from debug_prefs import debug_pref, Choice_boolean_False
+    if debug_pref("get_gl_info_string call glAreTexturesResident?", Choice_boolean_False):
         # Give a practical indication of how much video memory is available.
         # Should also do this with VBOs.
 
         # I'm pretty sure this code is right, but PyOpenGL seg faults in
         # glAreTexturesResident, so it's disabled until I can figure that
-        # out.
+        # out. [grantham] [bruce 070308 added the debug_pref]
 
 	all_tex_in = True
 	tex_bytes = '\0' * (512 * 512 * 4)
@@ -533,6 +535,8 @@ def get_gl_info_string():
 
 	    residences = glAreTexturesResident(tex_names[:tex_count])
             all_tex_in = reduce(lambda a,b: a and b, residences)
+                # bruce 070308 sees this exception from this line:
+                # TypeError: reduce() arg 2 must support iteration
 
 	glDisable(GL_TEXTURE_2D)
 	glDeleteTextures(tex_names)
