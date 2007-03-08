@@ -233,7 +233,8 @@ from OpenGL.GL import *
 
 class polyline(InstanceOrExpr):
     """A graphical object with an extendable (or resettable from outside I guess) list of points,
-    and a kid (supplied, but optional (leaving it out is ###UNTESTED)) that can serve as a drag handle by default.
+    and a kid (end1) (supplied, but optional (leaving it out is ###UNTESTED)) that can serve as a drag handle by default.
+    (And which also picks up a cmenu from self. (kluge!))
     Also some Options, see the code.
     """
     ###BUGS: doesn't set color, depends on luck. end1 is not fully part of it so putting cmenu on it will be hard.
@@ -243,7 +244,7 @@ class polyline(InstanceOrExpr):
     points = State(list_Expr, []) ###k probably wrong way to say the value should be a list
 ##    end1arg = Arg(StubType,None)
 ##    end1 = Instance(eval_Expr( call_Expr(end1arg.copy,)( color = green) ))###HACK - works except color is ignored and orig obscures copy
-    end1 = Arg(StubType,None)
+    end1 = Arg(StubType, None, doc = "KLUGE arg: optional externally supplied drag-handle, also is given our cmenu by direct mod")
     closed = Option(bool, False, doc = "whether to draw it as a closed loop")
     _closed_state = State(bool, closed) ####KLUGE, needs OptionState
     relative = Option(bool, True, doc = "whether to position it relative to the center of self.end1 (if it has one)")
@@ -287,6 +288,7 @@ class polyline(InstanceOrExpr):
             # optim - but not equivalent since don't include center!
             for pos in self.points:
                 glVertex3fv(pos)
+        #e option to also draw dots on the points [useful if we're made differently, one click per point; and they might be draggable #e]
         glEnd()
     def make_selobj_cmenu_items(self, menu_spec, highlightable):
         """Add self-specific context menu items to <menu_spec> list when self is the selobj (or its delegate(?)... ###doc better).

@@ -131,9 +131,19 @@ class ClickClickCommand( CommandWithItsOwnEditMode): #e rename!
 
 SketchEntity = ModelObject #e stub
 
-# caps: Polyline or PolyLine? see web search?? note, in UI it might just be a line... OTOH that's not good in geometric prim code terms!
+# caps: Polyline or PolyLine? see web search?? just initial cap seems most common.
+# note, in UI it might just be a line... OTOH that's not good in geometric prim code terms!
 
-class Polyline(SketchEntity): #e rename both (2D or not?) [(see especially class polyline in demo_drag)]
+# about removing points from a polyline:
+# fyi: http://softsurfer.com/Archive/algorithm_0205/algorithm_0205.htm
+# "We will consider several different algorithms for reducing the [set of] points in a polyline
+#  to produce a simplified polyline that approximates the original within a specified tolerance.
+#  Most of these algorithms work in any dimension..."
+
+class Polyline(SketchEntity): #e rename Polyline and maybe SketchEntity (2D or not?)
+    #e see especially class polyline in demo_drag.py, for this
+    #e assume super handles whatever relativity is needed? more comments at end of file
+    
     pass
 
 #e type-inspecting/browsing/searching defs?
@@ -193,19 +203,27 @@ class cmd_MakePolyline(ClickClickCommand): ##e review naming convention (and int
 
 ##e register the types & commands
 
-# say above: intercerpt in testmode - bafemotion, update selobj i guess
-and some other sleobj controls
-prob no need to intrercept them in seletMOde itself
-but i am not sure..
-i could have said same about all my other mods to it...
+'''say above: intercept in testmode - baremotion, update_selobj i guess
+and some other selobj controls
+prob no need to intercept them in selectMode itself
+but i am not sure...
+i could have said the same about all my other mods to it...
+'''
 
-#e also move new incr methods to HL from controls
+#e also move new incr methods in controls.py to class HL 
 
-#e also say above where we get in and out of xor mod and grab eg code from cookieor wgatever
-#btw is it used now for incr edrawing in selmode itself, for region sel , and if not why not?
-#is region el itself a cmd of this form -- even though the std editmode might get into it?
-#adv of xor mode in that case - ok if you didn't have a premade screen image aorund
+#e also say above where we get in and out of opengl xor mode, and grab eg code from cookiemode or zoom or whatever to do that
+# (as helper methods in the superclass, or a mixin just for xormode drawing, which could define a swapbuffers method too)
 
-really do review class polyline soo, anf old demo_poygon too esp for its Command suers, and command scratc file too
+# btw is xormode used now for incr drawing in selmode itself, for region sel -- and if not why not?
+# is region sel itself able to be a cmd of this form -- even though the std editmode might get into it as its emptySpaceLeftDown?
+# btw, an advantage of xor mode in that case - it's ok if you didn't have a premade screen image around.
+
+'''really do review class polyline soon, and old demo_polygon too, esp for its Command supers, and command_scratch file too.
+
+an eg issue that came up in class polyline:
+we need to know what the sketch entity coords are rel to. If it's both draggable, and in/on a ref plane or surface,
+then it might be two-level-relative... tho the relativity for Draggable is probably best thought of as transient.
+'''
 
 # end
