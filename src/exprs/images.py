@@ -43,15 +43,24 @@ import Center
 reload_once(Center)
 from Center import Center
 
-import testdraw #e we'll call some funcs from this, and copy & modify others into this file;
-    ##e at some point we'll need to clean up the proper source file of our helper functions from testdraw...
-    # when the time comes, the only reliable way to sort out duplicated code is to search for all
-    # uses of the GL calls being used here.
+# ImageUtils.py class nEImageOps -- see following comment
+
+import testdraw
+    # Note: from testdraw we use:
+    #   _create_PIL_image_obj_from_image_file, a trivial glue function into ImageUtils.py class nEImageOps,
+    #   func _loadTexture,
+    #   attr courierfile,
+    # and we copy & modify other funcs from it into this file, but they also remain in testdraw for now, in some cases still used.
+    # At some point we'll need to clean up the proper source file of our helper functions from testdraw...
+    # when the time comes, the only reliable way to sort out & merge duplicated code (some in other cad/src files too)
+    # is to search for all uses of the GL calls being used here.
 
 from OpenGL.GL import glGenTextures, glBindTexture, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_TEXTURE_WRAP_T, \
      GL_CLAMP, GL_REPEAT, GL_TEXTURE_MAG_FILTER, GL_TEXTURE_MIN_FILTER, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_NEAREST, \
      GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL, glTexParameterf, glTexEnvf
 from OpenGL.GLU import gluProject
+
+debug_glGenTextures = True #070308 #####
 
 class _texture_holder(object):
     """[private class for use in a public MemoDict]
@@ -75,11 +84,13 @@ class _texture_holder(object):
     def _C__image(self):
         "define self._image -- create a PIL Image object (enclosed in an neImageOps container) from the file, and return it"
         return testdraw._create_PIL_image_obj_from_image_file(self.filename, **self.pil_kws)
-            # (trivial glue function into ImageUtils.py class nEImageOps)
+            # (trivial glue function into ImageUtils.py class nEImageOps -- return nEImageOps(image_file, **kws))
     def _C_tex_name(self):
         "define self.tex_name -- allocate a texture name"
         # code copied from testdraw._loadTexture (even though we call it, below, for its other code):
         tex_name = glGenTextures(1)
+        if debug_glGenTextures:
+            print "debug fyi: glGenTextures -> %r in %r" % (tex_name, self)
         # note: by experiment (iMac G5 Panther), this returns a single number (1L, 2L, ...), not a list or tuple,
         # but for an argument >1 it returns a list of longs. We depend on this behavior here. [bruce 060207]
         tex_name = int(tex_name) # make sure it worked as expected
@@ -92,6 +103,7 @@ class _texture_holder(object):
         """
         image_obj = self._image
         tex_name = self.tex_name
+        assert tex_name, "tex_name should have been allocated and should not be 0 or false or None, but is %r" % (tex_name,)#070308
         have_mipmaps, tex_name = testdraw._loadTexture(image_obj, tex_name)
             ##testexpr_11n = imagetest("stopsign.png") # fails; guess, our code doesn't support enough in-file image formats;
             ##    # exception is SystemError: unknown raw mode, [images.py:73] [testdraw.py:663] [ImageUtils.py:69] [Image.py:439] [Image.py:323]
@@ -138,6 +150,8 @@ class _texture_holder(object):
             print "don't know what to set instead of GL_DECAL"###e
         
         return
+    def __repr__(self): #070308
+        return "<%s at %#x for %r, %r>" % (self.__class__.__name__, id(self), self.filename, self.pil_kws)
     pass # end of class _texture_holder
 
 # ==
