@@ -150,9 +150,9 @@ from debug_exprs import DebugPrintAttrs ###e move up, or into basic; rename to m
 #e set up a Sketch tool, which has a main button with a Sketch PM and for now has all the Sketch Entities we know about,
 # and later can be told to have a specific subset of them (if they are found) and an "other" item for access to more (incl custom ones).
 
-Tool = StubType
+Tool = Stub
 class SketchTool(Tool): #e move to demo_sketch?
-    ""
+    "#doc"
     # it has a main command or PM
     # - default PM for subcommands without their own PM
     # - PM you see if you select a sketch for editing
@@ -210,7 +210,9 @@ class main_ui_layout(DelegatingInstanceOrExpr):
         # since we also have to deal with Tools in the sense of Tool Run Producers, eg toolbuttons. ###e
 
     # parts of the appearance
-    toolbar = Instance( MainToolbar(["Features", "Build", "Sketch"]) )
+    registry = None ###STUB, will fail
+    toolstack_ref = None ###STUB
+    toolbar = Instance( MainToolbar( registry, ["Features", "Build", "Sketch"], toolstack_ref ) ) #e arg order?
         ###e args/opts for what tools to show -- maybe their cmdnames & it loads them from elsewhere
         #e add row of tool buttons, and flyout toolbar; use ChoiceRow?? the things should probably look pressed...
         # they might need cmenus (find out what the deal is with the cmenus i see in the ui mockup - related to flyouts?

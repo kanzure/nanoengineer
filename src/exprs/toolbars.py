@@ -32,6 +32,8 @@ from Boxed import Boxed
 class Toolbar(DelegatingInstanceOrExpr):
     pass
 
+Command = StubType # might be a class in other files
+
 class MainCommandToolButton(DelegatingInstanceOrExpr): #e rename?
     "Toolbutton for one of the main tools like Features, Build, Sketch -- class hierarchy subject to revision"
     # args
@@ -107,6 +109,7 @@ class MainToolbar(Toolbar): ###e how is the Main one different from any other on
      )
     def toolbutton_for_toolname(self, toolname):
         assert type(toolname) == type("")
+        registry = self.registry
         ## expr = Boxed(TextRect(toolname)) # stub
         #e look up commands from registry ### LOGIC BUG: don't we get the toolname/cmd pair from the reg? if so,
         # then at this stage, just look up cmd from a local cache we made of cmds that go with our names for them.
