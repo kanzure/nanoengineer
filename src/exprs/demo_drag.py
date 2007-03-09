@@ -278,9 +278,10 @@ class polyline(InstanceOrExpr):
         ###k is it wrong to draw both a kid and some opengl stuff?? not really, just suboptimal if opengl stuff takes long (re rendering.py)
         self.drawkid(self.end1) # end1 node
         if self._closed_state:
-            glBegin(GL_LINE_LOOP) ### WHAT SETS COLOR? see drawline - in practice it's thin and dark gray - probably just luck!
+            glBegin(GL_LINE_LOOP) # note: nothing sets color. see drawline for how.
+                # in practice it's thin and dark gray - just by luck.
         else:
-            glBegin(GL_LINE_STRIP)#k
+            glBegin(GL_LINE_STRIP)
         if self._use_relative:
             # general case - but also include origin (end1.center) as first point!
             origin = self.origin
