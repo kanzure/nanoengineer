@@ -409,21 +409,31 @@ class cmd_MakePolyline(ClickClickCommand): ##e review naming convention (and int
 
 # ==
 
-##e register the types & commands [UNTESTED]
+##e register the types & commands [stub]
 
 # do dir() and globals() correspond?? yes, both 1244.
 ## print "len dir() = %d, len(globals()) = %d" % (len(dir()), len(globals()))
 
-class registry:
+class registry: #e move to demo_ui I think -- no, avoid recursive import, that's a ui app not ui utils. move to new file.
     def __init__(self):
-        self.data = {}
+        self.class_for_name = {}
     def register(self, name, val, warn_if_not_registerable = True ):
         "#doc ... by default, warn if val is not registerable due to lacking some required decls"
         # figure out the kind of class val is, by its decls, and register as appropriate
         print "nim: register %s = %r" % (name, val)
-        self.data[name] = val # stub [btw should we be a UserDict? that depends -- are we dictlike in any sensible way?]
-        hmm = getattr(val, '_e_model_object_topic', None)
-        
+        # now record the interesting decls which let something know what to do with the class
+        motopic = getattr(val, '_e_model_object_topic', None)
+
+        ###WRONG: only do following if we decide val is registerable
+        self.class_for_name[name] = val # stub [btw should we be a UserDict? that depends -- are we dictlike in any sensible way?]
+        pass #stub
+    def command_for_toolname(self, toolname): #e rename to say "main"?
+        nim # not possible, for subtools... might work for main tools. not sure!
+    def subtools_for_command(self, command): #e rename command -> main_command? (in method, not arg)
+        nim
+        # for subtools, the alg needs to be, figure out the set you want, get their nicknames, disambiguate or discard dups...
+        # return a name list and name->cmd mapping, but the mapping is not determined just from self
+        # even given the set of cmds in it or set of names in it, so no method can do what this one says (except for fullnames).
     pass
 
 this_module_registry = registry() # and then register this registry with a more global one!

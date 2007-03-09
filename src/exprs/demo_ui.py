@@ -117,7 +117,7 @@ testexpr_30j = eval_Expr( call_Expr( lambda world:
 
 testexpr_34 = Rect(0.7,0.3,pink) # just to make sure the imports from here are working -- replace it with a real test when we have one
 
-# ToolRuns #e rename-- or maybe those classes will be derived from Tool ones somehow
+# ToolRuns #e rename-- or maybe those classes will be derived from Tool classes somehow
 
 class ToolRun(DelegatingInstanceOrExpr): # what is the super? it has several distinct parts we draw, but when do we draw "the whole thing" -- when editing one???
     property_manager = None ### has to be None! not Spacer(0) ## None -- one of these Spacers might be needed;
@@ -145,6 +145,42 @@ class DefaultToolRun(ToolRun):
 #   (usual depth one or two, plus an outer constant one with no prop mgr, user-invisible)
 
 from debug_exprs import DebugPrintAttrs ###e move up, or into basic; rename to more memorable name (maybe just Debug?) (add DebugDraw?)
+
+
+#e set up a Sketch tool, which has a main button with a Sketch PM and for now has all the Sketch Entities we know about,
+# and later can be told to have a specific subset of them (if they are found) and an "other" item for access to more (incl custom ones).
+
+Tool = StubType
+class SketchTool(Tool): #e move to demo_sketch?
+    ""
+    # it has a main command or PM
+    # - default PM for subcommands without their own PM
+    # - PM you see if you select a sketch for editing
+    # - it might have some parts of this PM available when adding a specific element to the sketch, too
+    # - in general, a PM has a bunch of possible groups, but each one has a condition for being shown.
+    #   and some of them exist on more than one PM. So a PM is an expr made of PMGroup exprs...
+    #   we could make one from a list of field names & types, but in general it's not made that way.
+    
+    # and an ability to host subcommands
+    # - it makes a new Sketch for them if necessary;
+    # - or like any command, since it needs a Sketch, maybe one is selected when it's entered;
+    #   but unlike some args, if none is selected user is not prompted for one - but is prompted for a ref plane or surface;
+    #   this is because Sketch has an Arg(RefPlaneOrSurface)... or special code to look for Args it doesn't have from the UI...
+    #   sort of like an Arg default expr, but not really the same thing. And maybe it's on a StateArg.
+    #   (If it's entered via Insert Line, this ref plane prompting happens too (V4d p15), even though PM title is Insert Line... hmm.
+    #    I can see some sense in that. All PMs have a message area; conditions determine whether it's active,
+    #    and if it is, it acts like a subcommand of its own, since the click effect depends on its being there, I think.)
+    #
+    #   And maybe this special code is not on a Sketch modelobj, but on the MakeSketch command. And maybe SketchTool == MakeSketch?
+    #   But don't you get into it if you select an existing sketch in the right way?
+    #   It's a "tool for making, editing, inspecting sketches" which contains a lot of commands and other things.
+    #   You might get into it in various ways, eg a cmenu item on a sketch's MT node or on a visible sketch element.
+    #   SketchTool seems right.
+    #
+    # and a way to filter available commands to find subcommands to put on its flyout toolbar as subtools
+    # which means it has a flyout toolbar, btw; and more fundamentally it has the list of items on it (since it has cmenu of those too)
+    
+    pass
 
 class main_ui_layout(DelegatingInstanceOrExpr):
     #e rename? is it not only the ui, but the entire app? (selection, files, etc)
