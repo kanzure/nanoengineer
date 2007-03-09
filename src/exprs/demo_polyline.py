@@ -129,7 +129,39 @@ class ClickClickCommand( CommandWithItsOwnEditMode): #e rename!
 
 ###e def the polyline model obj datatype
 
-SketchEntity = ModelObject #e stub
+
+
+class SketchEntity( ModelObject):#e stub
+    "abstract class for model objects which are Sketch Entities."
+    
+    #e what is special about a Sketch Entity, vs any old model object?
+    # [the answers are what we want to encode in this class...]
+    
+    # - it is classified topically as a Sketch Entity:
+    #   - by default, in a UI, commands for making one should appear in a "sketch entity toolbar".
+    
+    _e_model_object_topic = "Sketch Entity"
+        # tells default UI where to put a command for making/editing one of these, a display style for one, etc
+        ###e this attr name is a stub:
+        # - it needs a prefix to say it's a decl about the class (or about an expr customized from a subclass of the class, I think)
+        # - it needs to be more specific than just "topic" -- it's a topic about what?
+        #   about the kind of model object this makes. But don't rely on superclass to tell you that,
+        #   since topic is an attrname in an interface more general than just for model objects, i think.
+        #   Also, if something delegates to this, it should only override this attr if it really wants to,
+        #   not if it has some other kind of topic. So saying "model object topic" might be enough.
+        #   - But maybe say kind rather than topic, since topic is something you can have more than one of??
+        # Possible names:
+        # _e_model_object_class - no, that would sound like it was the specific subclass name e.g. Polyline,
+        #   even if the official name for that is different, e.g. using _type.
+        #   Also _e_ has disadvantages.
+        #   I wonder if this kind of decl (in some general sense) needs its own new prefix (not _i_ or _e_).
+    
+    # - maybe it needs to belong to a Sketch:
+    #   - when making one, find or make a Sketch to contain it in a standard way
+    #   - maybe a make-command for one can only run inside a sketch-making commandrun
+    #     (which supplies the sketch, making it as needed).
+    #   
+    pass
 
 # caps: Polyline or PolyLine? see web search?? just initial cap seems most common.
 # note, in UI it might just be a line... OTOH that's not good in geometric prim code terms!
@@ -161,8 +193,14 @@ class Polyline(SketchEntity): #e rename -- 2D or general?
 ##    end1arg = Arg(StubType,None)
 ##    end1 = Instance(eval_Expr( call_Expr(end1arg.copy,)( color = green) ))###HACK - works except color is ignored and orig obscures copy
 ##    end1 = Arg(StubType, None, doc = "KLUGE arg: optional externally supplied drag-handle, also is given our cmenu by direct mod")
+    # these style settings ought to be State attrs of self, changeable by cmenu and/or PM, as well as by construction (less important).
     closed = Option(bool, False, doc = "whether to draw it as a closed loop")
     _closed_state = State(bool, closed) ####KLUGE -- closed and _closed_state should be a single OptionState attr [nim]
+    linecolor = blue ###KLUGE -- we want it to be a StateOption
+        ###e name this linecolor or color?? even if linecolor, also accept color and use it for default??
+        # guess: I favor color for use as public option (but might like both to be there) and linecolor for use internally.
+    linewidth = 2 ###KLUGE -- we want it to be a StateOption
+    dashed = False ###KLUGE -- we want it to be a StateOption
 ##    relative = Option(bool, True, doc = "whether to position it relative to the center of self.end1 (if it has one)")
 ##    def _init_instance(self):
 ##        end1 = self.end1
@@ -191,51 +229,15 @@ class Polyline(SketchEntity): #e rename -- 2D or general?
 ##            return self.end1.center # this can vary!
         return ORIGIN
     def add_point(self, pos, replace = False):
-        "add a point at the given 3d position; if replace is True, it replaces the existing last point"
-        pos = pos - self.origin ##e be more general -- but should be done by superclass or glue code or by calling transform method...
+        """add a point at the given 3d position pos; if replace is True, it replaces the existing last point.
+        If pos is None, then no point is added, and the last one is removed if replace is true.
+        """
         if replace:
             self.points = self.points[:-1]#UNTESTED
-        self.points = self.points + [pos] ### INEFFICIENT if lots of points, but need to use '+' for now to make sure it's change-tracked
-    def draw(self):
-        self.draw_lines()
-        #e option to also draw dots on the points
-        #  [btw they might be draggable -- but that's for an edit-wrapper's draw code
-        #   (and it might make draggable points on-demand for speed, and use a highlight method other than glnames... #e)]
-        if 0:
-            self.draw_points()
+        if pos is not None:
+            pos = pos - self.origin ##e be more general -- but should be done by superclass or glue code or by calling transform method...
+            self.points = self.points + [pos] ### INEFFICIENT if lots of points, but need to use '+' for now to make sure it's change-tracked
         return
-    def draw_lines(self):
-        "draw our line segments, using our current style attrs [which are nim]"
-        ###e WHAT SETS COLOR? see drawline - in practice it's thin and dark gray - probably just luck!
-        ###e also want to set width, style... and these ought to be state attrs of self, changeable by cmenu and/or PM, in fact.
-        if self._closed_state:
-            glBegin(GL_LINE_LOOP)
-        else:
-            glBegin(GL_LINE_STRIP)#k
-##        if self._use_relative:
-##            # general case
-##            origin = self.origin
-####            # also include origin as first point!
-####            glVertex3fv(origin)
-##            for pos in self.points:
-##                glVertex3fv(pos + origin)
-##        else:
-##            # optim
-        for pos in self.points:
-            glVertex3fv(pos)
-        glEnd()
-    def draw_points(self):
-        "[nim] draw our points, using our current style attrs"
-        for pos in self.points:
-            pass ###e draw a dot - how ? same size even if 3d & perspective?? prob ok as approx, even if not the true intent...
-            # in that case we'll eventually be using a texture (or pixmap) with alpha so it looks nice!
-        return
-    def draw_alignment_lines(self):
-        "helper method for some interactive drawing wrappers: draw yellow and blue dotted alignment lines for the last segment"
-        nim
-    def draw_tooltip(self):
-        #e does this even belong here? prob not -- let edit wrapper ask for info and do it from the info
-        nim
     def make_selobj_cmenu_items(self, menu_spec, highlightable):
         """Add self-specific context menu items to <menu_spec> list when self is the selobj (or its delegate(?)... ###doc better).
         Only works if this obj (self) gets passed to Highlightable's cmenu_maker option (which DraggableObject(self) will do).
@@ -255,10 +257,102 @@ class Polyline(SketchEntity): #e rename -- 2D or general?
 ##                ("both shrink by 1 base", lambda self = self, left = -1, right = -1: self.extend(left, right)),
 ##             ] ),
         ])
+    pass # end of class Polyline
 
+Drawable = DelegatingInstanceOrExpr #stub; might replace Widget if it becomes real; but Widget is not delegating -- what's up there?
+#e also we might put in the delegate = Arg in here,
+# plus maybe another arg for the layer... otoh, if that's .env, it gets here specially
+# as an implicit make arg, not as an Arg!
+
+class Polyline_draw_helpers( Drawable):
+    # The idea is that we delegate to a Polyline, and it keeps all ModelObject state & methods & has superclass for that,
+    # but this class can wrap it for purpose of drawing it, and variants or subclasses of this class
+    # can wrap it for drawing it in other styles or edit modes (varying display or behavior),
+    # and a bundling class that can delegate diff attrs to diff delegs is possible but not yet known if needed.
+    #
+    # As for our own superclass, it would be based on the interface we're defining support for,
+    # but which our delegate doesn't support, or for which we want to ignore whatever support it provides
+    # (since that will happen -- anything our superclass defines will not be delegated).
+    #
+    # NOT YET KNOWN:
+    # - naming convention for classes like this
+    # - how they are registered as contributing to how to pull a Polyline into a view (and whether to let name do that automatically)
+    # - do we have to say we have delegate = Arg(), or is that known from our superclass?
+    # - if it's known, can we add more Options (or Args) of our own?
+    # - is there also a standard arg for the layer we're in? (BTW if so, is this somehow related to self.env, or taking its place?)
+    # - does the layer the new obj is instantiated into remove all need for specifying layers in State decls, and splitting ipath??
+    delegate = Arg(Polyline)
+    def draw(self):
+        self.draw_lines()
+        #e option to also draw dots on the points
+        #  [btw they might be draggable -- but that's for an edit-wrapper's draw code
+        #   (and it might make draggable points on-demand for speed, and use a highlight method other than glnames... #e)]
+        if 0:
+            self.draw_points()
+        return
+    def draw_lines(self):
+        "draw our line segments, using our current style attrs [which are partly nim]"
+        # find variables which determine our GL state
+        color = self.fix_color(self.linecolor)
+        dashEnabled = self.dashed
+        width = self.linewidth
+        
+        # set temporary GL state (code copied from drawer.drawline)
+        glDisable(GL_LIGHTING)
+        glColor3fv(color)
+        if dashEnabled: 
+            glLineStipple(1, 0xAAAA)
+            glEnable(GL_LINE_STIPPLE)
+        if width != 1:
+            glLineWidth(width)
+        # draw the lines
+        if self._closed_state:
+            glBegin(GL_LINE_LOOP)
+        else:
+            glBegin(GL_LINE_STRIP)
+        for pos in self.points:
+            glVertex3fv(pos) # [note from old code: could be pos + origin if that can matter]
+        glEnd()
+        # restore default GL state [some of this might be moved up to callers]
+        if width != 1:
+            glLineWidth(1.0) 
+        if dashEnabled: 
+            glDisable(GL_LINE_STIPPLE)
+        glEnable(GL_LIGHTING)
+        return
+    def draw_points(self):
+        "[nim] draw our points, using our current style attrs"
+        for pos in self.points:
+            pass ###e draw a dot - how ? same size even if 3d & perspective?? prob ok as approx, even if not the true intent...
+            # in that case we'll eventually be using a texture (or pixmap) with alpha so it looks nice!
+        return
+    def draw_alignment_lines(self):
+        "helper method for some interactive drawing wrappers: draw yellow and blue dotted alignment lines for the last segment"
+        nim
+    def draw_tooltip(self):
+        #e does this even belong here? prob not -- let edit wrapper ask for info and do it from the info
+        nim
+    pass # end of class xxx
+
+class _draggable_polyline_point(DelegatingInstanceOrExpr): # experimental 070308
     pass
-    
-    pass
+
+
+def draggable_polyline_point(polyline):
+    "return a func of a point" ##E oops! the point needs to know its index in the polyline! (and the polyline itself.)
+    # it seems we don't want a pos like polyline.points has now, but a Point object for the polyline to give us!
+    # e.g. polyline.point_objects, where each knows parent, has state, setting its state changes the parent state...
+    return lambda point: bla
+
+OverlayList = StubType ## Overlay #stub
+map_Expr = StubType
+
+class dragverts_Polyline(DelegatingInstanceOrExpr): # experimental 070308
+    polyline = Arg(Polyline)
+    func = call_Expr( draggable_polyline_point, polyline)
+    delegate = OverlayList( polyline,  ##e make Overlay itself able to take a list arg mixed with a nonlist arg? Like Column?
+                            map_Expr( func, polyline.points ) )
+    pass ###stub
 
 #e type-inspecting/browsing/searching defs?
 
@@ -309,13 +403,60 @@ class cmd_MakePolyline(ClickClickCommand): ##e review naming convention (and int
 
     #e actions for building it -- grab them from class polyline in demo_drag.py
 
-    pass
+    pass # end of class cmd_MakePolyline
 
 #e more commands for one? cmenu commands? etc
 
 # ==
 
-##e register the types & commands
+##e register the types & commands [UNTESTED]
+
+# do dir() and globals() correspond?? yes, both 1244.
+## print "len dir() = %d, len(globals()) = %d" % (len(dir()), len(globals()))
+
+class registry:
+    def __init__(self):
+        self.data = {}
+    def register(self, name, val, warn_if_not_registerable = True ):
+        "#doc ... by default, warn if val is not registerable due to lacking some required decls"
+        # figure out the kind of class val is, by its decls, and register as appropriate
+        print "nim: register %s = %r" % (name, val)
+        self.data[name] = val # stub [btw should we be a UserDict? that depends -- are we dictlike in any sensible way?]
+        hmm = getattr(val, '_e_model_object_topic', None)
+        
+    pass
+
+this_module_registry = registry() # and then register this registry with a more global one!
+
+def auto_register( registry, namespace, modulename ):
+    """Register with registry every public name/value pair in namespace (typically, globals() for the calling module)
+    whose value is a registerable class which says it was defined in a module with the given (dotted) modulename.
+    (The precise comparison is val.__module__ == modulename.)
+    (Public means the name doesn't start with '_'.)
+    (A registerable class is a certain kind of subclass of InstanceOrExpr.)
+    """
+    # note: modulename could be deduced from namespace if we assume it's globals() of a module, but don't bother.
+    for name in dir():
+        if not name.startswith('_'):
+            try:
+                # see if it's a registratable class defined in this module
+                val = globals()[name]
+                if issubclass(val, InstanceOrExpr) and val.__module__ == modulename:
+                    pass # register val in the else clause
+                else:
+                    assert 0
+            except:
+                ##raise
+                pass ### this will happen a lot (since issubclass raises an exception for a non-class val)
+            else:
+                this_module_registry.register(name, val, warn_if_not_registerable = False )
+                    # the flag says it's ok if 
+        continue
+    return
+
+class _x: pass # used only for _x.__module__ in following call [e.g. 'exprs.demo_polyline']
+
+auto_register( this_module_registry, globals(), _x.__module__ )
 
 '''say above: intercept in testmode - baremotion, update_selobj i guess
 and some other selobj controls

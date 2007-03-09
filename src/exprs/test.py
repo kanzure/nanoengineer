@@ -171,6 +171,9 @@ import world
 reload_once(world)
 from world import World
 
+import demo_polyline
+reload_once(demo_polyline)
+
 ## WARNING: far below we also do "from demo_ui import *"
 
 # ==
