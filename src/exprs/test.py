@@ -1429,11 +1429,11 @@ def get_redraw_counter(): #070108
     import env
     return env.redraw_counter
 
-_lval_for_redraw_counter = Lval_which_recomputes_every_time( get_redraw_counter) #070108
-
-def get_redraw_counter_ALWAYSCHANGES(): #070108 experiment -- useless, since it correctly causes an unwanted gl_update after every redraw!
-    "like get_redraw_counter() but act as if we use something which changes every time (usage/change tracked the max legal amount)"
-    return _lval_for_redraw_counter.get_value()
+##_lval_for_redraw_counter = Lval_which_recomputes_every_time( get_redraw_counter) #070108; SEVERELY DEPRECATED
+##
+##def get_redraw_counter_ALWAYSCHANGES(): #070108 experiment -- useless, since it correctly causes an unwanted gl_update after every redraw!
+##    "like get_redraw_counter() but act as if we use something which changes every time (usage/change tracked the max legal amount)"
+##    return _lval_for_redraw_counter.get_value()
 
 from preferences import _NOT_PASSED ###k
 

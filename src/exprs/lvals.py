@@ -502,7 +502,7 @@ def LvalDict2(valfunc, lvalclass = Lval, debug_name = None):
                                 debug_name = debug_name and ("%s|%s" % (debug_name,key)) ) )
 
 class RecomputingMemoDict: # 061215 scratch, not yet used, might relate to comments in ModelNode.py
-    """Like MemoDict, but permit usage-tracked recomputes by way
+    """Like MemoDict, but permit usage-tracked recomputes by <way>
     (invalidating/recomputing our elements individually),
     which means the values we return for a given key might not be constant.
        [WARNING: we don't implement most dict-access methods, only __getitem__.]
