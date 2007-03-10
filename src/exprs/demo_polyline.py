@@ -351,7 +351,7 @@ class dragverts_Polyline(DelegatingInstanceOrExpr): # experimental 070308
     polyline = Arg(Polyline)
     func = call_Expr( draggable_polyline_point, polyline)
     delegate = OverlayList( polyline,  ##e make Overlay itself able to take a list arg mixed with a nonlist arg? Like Column?
-                            map_Expr( func, polyline.points ) )
+                            map_Expr( func, polyline.points ) ) ### .points can be what we need, if .point_posns is what this used to be
     pass ###stub
 
 #e type-inspecting/browsing/searching defs?
