@@ -45,7 +45,8 @@ class SimplePropertyManager(DelegatingInstanceOrExpr):
         ##e or does MapListToExpr do the make if needed?? if not, should it?
         return parameter.type.standard_editfield ### ???
         ###e even if so, doesn't it need some args? it needs some state to modify...
-        # and something needs a way to make one of these things or get the user to find one...
+        # and something needs a way to make one of these forwhat-things or get the user to find one...
+        # to see this more clearly, draw a block diagram which includes the PM and see what it connects to.
         
     pass
 
@@ -89,4 +90,64 @@ class SimpleInsertCommand(InstanceOrExpr):
     # eg topical stuff found from forwhat
     # eg this is a way of making type forwhat and a way of using types x,y,z which are major args to forwhat
     pass
+
+Parameter interface: # see also the HJ .desc parsing code
+    name
+    type
+        # for int or real (or similar)
+        range, or range_expr
+        min / min_expr
+        max / max_expr
+        # for some kinds of raw types
+        coordsystem, or space, or units... maybe specifiable by a ref to another param, or by any other expr in _self/_env etc
+        # for coercion
+        other types we can accept, and what we convert them to (might be extensions of the main type)
+        strictness options (eg can we coerce float to int by truncation? yes, or only if exact like 3.0, or no)
+        # fancier types
+        really an array, or a structured set?
+        permit formula as value, or not (if so, in what vars, with what ops?)
+        can a value come with metainfo?
+            source (who says)
+            modtime
+            compute history
+            confidence (qualitative)
+                caveats
+                warnings
+        can it come with extra info? (like a color along with a number) (maybe this is just metainfo)
+        # not sure what category
+        can a value be uncertain?
+        
+    dflt, or dflt_expr
+      in _self (the thing it's a param of)
+      in _env ?
+      can be special symbols like Automatic, Required(?)
+    # fancy properties, not sure what category
+    arg, option, argoroption
+    what superclass was it defined in? (this class or one of its base classes) (ambiguity: what if def is overridden??)
+    state or not
+    expr or instance, if applicable
+    is it computed, or otherwise constrained? (related state?) # this might be about param as class, or about specific value
+    can value vary in time? (seems related to Q of whether it can be a formula, but really, independent/ortho, i think)
+    # UI hints (for editfields in a PM)
+    label (if different from name)
+    widget # what kind of widget to show it in for editing
+        option: whether to compact it 2 or 3 on a row?
+    option: whether to dim it under some conds (and force it to a computed or dflt value)
+    option: whether to leave it out entirely under some conds (and force the value)
+    group # which PM group to put it in
+    maybe, advice about when to show it by default (eg have its group open) -- not sure
+    #e metainfo of kinds a lot of things can have --
+    # note, this is info about the parameter attribute (a class), not about a specific value of the parameter
+    fullname
+    tooltip
+    topics
+    keywords (for searching out this parameter when browsing all params of all types/exprs)
+    #e author, etc
+    
+A lot but not all of the parameter interface
+would apply to any attribute in an IorE class.
+
+Is a parameter expr already an instance, since it's mathematical data???
+   (maybe I asked that above, in slightly diff words... or maybe on paper?)
+or, is an Instance of it a specific parameter-slot on a specific object??
 
