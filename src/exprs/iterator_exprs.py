@@ -7,7 +7,8 @@ $Id$
 from basic import *
 from basic import _app, _self, _my
 
-class MapListToExpr(DelegatingInstanceOrExpr): #e when this works, rewrite _MT_try2_kids_helper in terms of it! It uses the same algorithm. #e also refile
+class MapListToExpr(DelegatingInstanceOrExpr): #e rename? should this be what map_Expr does, or does that need to be incremental-update?
+    # note: this was modified from _MT_try2_kids_helper, which was then rewritten in terms of it.
     # args (#e should some be ArgOrOption? Note: that doesn't work right if it comes before Arg.)
     ###KLUGE: use ArgExpr to avoid problems when passing expr classes as functions -- not sure if generally ok (eg when ordinary callable is passed)#####
     function = ArgExpr(Function, doc = "a python function which maps whatever you pass as elements to Instances")
