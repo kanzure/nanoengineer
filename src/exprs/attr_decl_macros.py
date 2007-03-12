@@ -435,22 +435,6 @@ class State(data_descriptor_Expr): # note: often referred to as "State macro" ev
 
 # ==
 
-# 070310 possible: ###UNFINISHED
-
-StateArray_type = StubType # rename to just StateArray if we can...
-
-def StateArray(type, elt_dflt, **kws): #e change to class... why is that not easier than it is?
-    #e options: doc, debug_name
-    #e somehow the State finds out its argname -- i think (does it really?) -- we might want that in debug_name
-    return State( StateArray_type, call_Expr(_make_StateArray, type, elt_dflt, **kws)) #k this use of **kws
-
-def _make_StateArray(type, elt_dflt, debug_name = None):
-    if debug_name:
-        attr ###e maybe get this passed in (as a positional arg, always supplied)
-        debug_name = "%s.%s" % (debug_name, attr) # if we know the attr ###k not sure this copied code makes sense here
-    valfunc = f(elt_dflt) ###e maybe eval this expr (or even instantiate it???) in the env... get that passed in somehow
-        ###e digr: getting a dflt passsed in must relate to StateArg somehow
-    return LvalDict2(valfunc, LvalForState, debug_name = debug_name)
-
+# note: for StateArray see statearray.py
 
 # end

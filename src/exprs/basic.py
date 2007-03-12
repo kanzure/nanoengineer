@@ -263,6 +263,10 @@ import attr_decl_macros
 reload_once(attr_decl_macros)
 from attr_decl_macros import * # Instance, Arg, Option, ArgOrOption, State, etc
 
+import statearray
+reload_once(statearray)
+from statearray import StateArray
+
 import instance_helpers
 reload_once(instance_helpers)
 from instance_helpers import InstanceOrExpr, DelegatingMixin, DelegatingInstanceOrExpr, InstanceMacro, \
