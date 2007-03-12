@@ -121,7 +121,11 @@ class testmode(super):
             print_compact_traceback("exception in testdraw.leftDown ignored: ")
 
     def emptySpaceLeftDown(self, event):
-        self.reload()
+        emptySpace_reload = debug_pref("testmode: reload on empty space leftDown?",
+                                       Choice_boolean_True,
+                                       prefs_key = "A9 devel/testmode/reload on empty space leftDown" ) #070312, also in exprs/test.py
+        if emptySpace_reload:
+            self.reload()
         super.emptySpaceLeftDown(self, event) #e does testdraw need to intercept this?
 
     # let super do these, until we get around to defining them here and letting testdraw intercept them:

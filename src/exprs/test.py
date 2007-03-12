@@ -55,7 +55,7 @@ from basic import _self, _this, _my, _app
 
 import Rect
 reload_once(Rect)
-from Rect import Rect, RectFrame, IsocelesTriangle, Spacer, Sphere
+from Rect import Rect, RectFrame, IsocelesTriangle, Spacer, Sphere, SpacerFor
 
 import Column
 reload_once(Column)
@@ -1661,6 +1661,12 @@ bottom_left_corner = Boxed(SimpleColumn(
 ##    checkbox_pref(debug_prints_prefs_key, "debug prints for redraw?", dflt = False), # note prefs_key text != checkbox label text
     checkbox_pref("A9 devel/testmode/testmode capture MMB", "testmode capture MMB?", dflt = False), #070228 alias for a debug_pref
     ActionButton(_app.env.glpane.mode.reload, "btn: testmode.reload()"), #070227; seems faster than true empty space click! ##k
+    SimpleRow(
+        SpacerFor(Rect(15*PIXELS)), # same size as the rect button in ActionButton
+        checkbox_pref("A9 devel/testmode/reload on empty space leftDown",  #070312, also in testmode.py
+                      "reload on empty space leftDown?",
+                      dflt = True)
+     ),
     checkbox_pref("A9 devel/exprs/show redraw_counter?", "show redraw_counter?", dflt = True), # works [new dflt & prefs key 070227]
     Highlightable(DisplistChunk(
         CenterY(TextRect( format_Expr("instance remade at redraw %r", call_Expr(get_redraw_counter)))) )),
