@@ -3,13 +3,16 @@ statearray.py
 
 $Id$
 """
+###e UNTESTED and still UNFINISHED in some ways
 
 from basic import *
 from basic import _self
 
 from __Symbols__ import _E_ATTR
 
-# 070310 possible: ###UNFINISHED or 070312 UNTESTED
+import lvals
+reload_once(lvals)
+from lvals import LvalForState, LvalDict2, call_but_discard_tracked_usage
 
 StateArray_type = StubType # rename to just StateArray if we can...
 

@@ -174,6 +174,10 @@ from world import World
 import demo_polyline
 reload_once(demo_polyline)
 
+import test_statearray
+reload_once(test_statearray)
+from test_statearray import test_StateArray
+
 ## WARNING: far below we also do "from demo_ui import *"
 
 # ==
@@ -1359,6 +1363,10 @@ import demo_ui
 reload_once(demo_ui)
 from demo_ui import * # this defines testexpr_19j, testexpr_30j, and testexpr_34*
 
+# ==
+
+testexpr_35 = test_StateArray()
+
 
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
 
@@ -1366,10 +1374,11 @@ from demo_ui import * # this defines testexpr_19j, testexpr_30j, and testexpr_34
 
 enable_testbed = True
 
-testexpr = testexpr_34a
-    # testexpr_30i
-    # testexpr_30j ### NOT WORKING YET [070228 945p]
-    # testexpr_19i # testexpr_29aox3 # testexpr_9fx4 #  _26g _28
+testexpr = testexpr_35
+    # testexpr_34a - unfinished demo_ui
+    # testexpr_30i - make dna cyls
+    # testexpr_19i - demo_drag
+    # testexpr_29aox3 # testexpr_9fx4 #  _26g _28
 
     # as of 070121 at least these work ok in EVAL_REFORM with now-semipermanent kluge070119:
     # _2, _3a, _4a, _5, _5a, _10a, _10c, _9c, _9d, _9cx,
