@@ -112,10 +112,6 @@ class test_StateArrayRefs(DelegatingInstanceOrExpr): ### has some WRONGnesses
 #   ... done, works, and printit verifies that the statearray values actually change.
 # even so, it runs (testexpr_35a).
 
-def project_onto_unit_vector(vec, unit): #e refile, but also I was pretty sure I already wrote this under some other name...
-    "project vec onto a unit-length vector unit"
-    return dot(vec, unit) * unit
-
 class _height_dragger(DelegatingInstanceOrExpr):
     # args
     #e coordsystem? for now let x/y be the way it spreads, z be the height
@@ -125,7 +121,7 @@ class _height_dragger(DelegatingInstanceOrExpr):
     delegate = DraggableObject(
         Image("blueflake.jpg"), ###e needs an option to be visible from both sides (default True, probably)
         constrain_delta = _self.constrain_delta, ###IMPLEM constrain_delta in DraggableObject
-        delta_stateref = height_ref ###IMPLEM delta_stateref (and rename it); and change this to make height_ref a number not vector;
+        delta_stateref = height_ref ###IMPLEM delta_stateref [done] (and rename it); and change this to make height_ref a number not vector;
             ##e and maybe include the constraint in that transform, since it seems implicit in it anyway. ####HOW in semantics?
             # ... = PropertyRef(DZ * height_ref.value, Set( height_ref.value, project_onto_unit_vector( _something, DZ ))
             # ... = TransformStateRef( height_ref, ... ) # funcs? or formula in terms of 1 or 2 vars? with a chance at solving it?? ##e
@@ -153,37 +149,6 @@ class test_StateArrayRefs_2(DelegatingInstanceOrExpr):
         print [h.value for i,h in sorted_items(self.heights)] ###KLUGE, assumes they're StateRefs -- maybe just rename StateArray -> StateArrayRefs
     pass
 
-# ==
-
-#e refile:
-
-# line_closest_pt_to_line( p1, v1, p2, v2) -> point on line1
-# line_closest_pt_params_to_line -> params of that point using p1,v1 (a single number)
-
-class Ray:
-    """Represent an infinite line, and a map from real numbers to points on it,
-    by a point and vector (of any length), so that 0 and 1 map to p and p+v respectively.
-    WARNING: in this initial kluge implem, p and v themselves are passed as bare 3-tuples.
-    """
-    def __init__(self, p, v):
-        self.p = p
-            #### note: p and v themselves are stored as 3-tuples, and in this initial kluge implem, are also passed that way!!
-            # OTOH in future we might *permit* passing them as that, even if we also permit passing fancier objects for them.
-            #e But then we'll have to decide, for example, whether they can be time-varying (meaning this class is really an Instance).
-        self.v = v
-        self.params = (p, v) ##e change to a property so mutability works as expected
-    def closest_pt_params_to_ray(self, ray):
-        p2, v2 = ray.params # note: at first I wrote self.params() (using method not attr)
-        p1, v1 = self.params
-        #e do some math, solve for k in p1 + k * v1 = that point
-        ##k btw what if the lines are parallel, in what way should we fail?
-        # and for that matter what if they are *almost* parallel so that we're too sensitive -- do we use an env param
-        # to decide whether to fail in that case too? If we're an Instance we could do that from self.env... #e
-        return k
-    def closest_pt_to_ray(self, ray):
-        k = self.closest_pt_params_to_ray(ray)
-        #e return a point on self whose param is k -- as a Point or a 3-tuple? how does method name say, if both can be done?
-    pass
 
 class x:
     def drag_ray_from_to(self, oldray, newray): # sort of like _cmd_from_to (sp?) in other eg code
@@ -194,3 +159,5 @@ class x:
         #e store k
         #e compute new point from k
         
+
+# ==
