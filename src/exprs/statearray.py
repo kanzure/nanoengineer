@@ -4,7 +4,8 @@ statearray.py
 $Id$
 """
 ###e still UNFINISHED in some ways, the worst being that our elements are staterefs
-# (see getitem_stateref in test_statearray.py, 070312, and ###BUG comment lower down)
+# (see StateArrayRefs_getitem_as_stateref in test_statearray.py, 070312, and ###BUG comment lower down) --
+# this is now renamed a feature of StateArrayRefs rather than a bug of StateArray.
 
 from basic import *
 from basic import _self
@@ -15,12 +16,20 @@ import lvals
 reload_once(lvals)
 from lvals import LvalForState, LvalDict2, call_but_discard_tracked_usage
 
-StateArray_type = StubType # rename to just StateArray if we can...
+# ==
 
-def StateArray(type_expr, dfltval_expr, **kws): #e refile?
-    """An array (expandable, arbitrarily indexed -- really a dictionary) of individually tracked/resettable state variables.
+# try 1 - works fine, but returns an array of StateRefs to its internal state elements, not lvalue-like state elements.
+# This might be useful, and it works and is tested, so rather than altering it and its test code,
+# I'll rename it to StateArrayRefs, and keep it around.
+# Later I'll write the real StateArray and see if that's indeed easier to use, and/or more efficient, or whatever.
+
+StateArrayRefs_type = StubType # rename to just StateArrayRefs if we can...
+
+def StateArrayRefs(type_expr, dfltval_expr, **kws): #e refile?
+    """An array (expandable, arbitrarily indexed -- really a dictionary) of individually tracked/resettable state variables --
+    accessed as individual StateRefs to the variables.
     Usage: in a class definition that uses ExprsMeta,
-      attr = StateArray( type_expr, dfltval_expr )
+      attr = StateArrayRefs( type_expr, dfltval_expr )
     creates an attribute in each Instance which is effectively a dictionary of individually change/usage-tracked values,
     each coerced to type_expr [nim] (which can't yet depend on the dictionary index ###FIX),
     and each set to the value of dfltval_expr if it is accessed before it's first set.
@@ -47,20 +56,20 @@ def StateArray(type_expr, dfltval_expr, **kws): #e refile?
     #e implem of type_expr coercion: depending on type & options, wrap with glue code when set, or coerce in simple way when set
     #e options: doc, debug_name
     #e somehow the State finds out its argname -- i think (does it really?) -- we might want that in debug_name
-    return State( StateArray_type, call_Expr(_make_StateArray, type_expr, dfltval_expr, _E_ATTR, _self, **kws)) #k this use of **kws
+    return State( StateArrayRefs_type, call_Expr(_make_StateArrayRefs, type_expr, dfltval_expr, _E_ATTR, _self, **kws)) #k this use of **kws
         ###k i *think* that this will eval dfltval_expr once per Instance (w/o tracking, since it's part of State's default val expr)
-        # at the time the StateArray attr is first accessed (e.g. for set or get of an element).
+        # at the time the StateArrayRefs attr is first accessed (e.g. for set or get of an element).
 
-def _make_StateArray(type_expr, dfltval_expr, attr, self, debug_name = None):
-    "[private helper for StateArray]"
-    # print "debug fyi: _make_StateArray type_expr = %r, dfltval_expr = %r, attr = %r, self = %r, debug_name = %r" % \
+def _make_StateArrayRefs(type_expr, dfltval_expr, attr, self, debug_name = None):
+    "[private helper for StateArrayRefs]"
+    # print "debug fyi: _make_StateArrayRefs type_expr = %r, dfltval_expr = %r, attr = %r, self = %r, debug_name = %r" % \
     #       (type_expr, dfltval_expr, attr, self, debug_name)
         ## example of what this prints:
-        ## type_expr = <lexenv_ipath_Expr#20244: <widget_env at 0xf51d9e0 (_self = <test_StateArray_2#20226(i)>)>,
+        ## type_expr = <lexenv_ipath_Expr#20244: <widget_env at 0xf51d9e0 (_self = <test_StateArrayRefs_2#20226(i)>)>,
         ##       (1, ('heights', ((-108, 0), ((-104, 0), (-101, '.'))))), S.Anything>,
         ## dfltval_expr = array([ 0.,  0.,  0.]),
         ## attr = 'heights',
-        ## self = <test_StateArray_2#20226(i)>,
+        ## self = <test_StateArrayRefs_2#20226(i)>,
         ## debug_name = None
     ###NOTE: dfltval_expr is probably always a constant_Expr or maybe even just a constant -- not sure -- might need to Hold it
     # in the call and eval it here (which would be best anyway) ####e
@@ -78,6 +87,10 @@ def _make_StateArray(type_expr, dfltval_expr, attr, self, debug_name = None):
         ###BUG - elts of this are the lvals, not their values!!! But if not for that, how would we make setitem work in this?!?
         ### I think we need to return a new object which implements __setitem__ by passing it into the lvals properly.
         ###e But we also need access to per-element staterefs, e.g. we need that in the first use of this in test_statearray.py.
-        # [see also getitem_stateref in test_statearray.py]
+        # [see also StateArrayRefs_getitem_as_stateref in test_statearray.py]
+
+# ==
+
+StateArray = Stub
 
 # end

@@ -176,7 +176,7 @@ reload_once(demo_polyline)
 
 import test_statearray
 reload_once(test_statearray)
-from test_statearray import test_StateArray, test_StateArray_2
+from test_statearray import test_StateArrayRefs, test_StateArrayRefs_2
 
 ## WARNING: far below we also do "from demo_ui import *"
 
@@ -1365,8 +1365,8 @@ from demo_ui import * # this defines testexpr_19j, testexpr_30j, and testexpr_34
 
 # ==
 
-testexpr_35 = test_StateArray()
-testexpr_35a = test_StateArray_2()
+testexpr_35 = test_StateArrayRefs()
+testexpr_35a = test_StateArrayRefs_2()
 
 
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@

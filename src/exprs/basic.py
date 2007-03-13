@@ -263,10 +263,6 @@ import attr_decl_macros
 reload_once(attr_decl_macros)
 from attr_decl_macros import * # Instance, Arg, Option, ArgOrOption, State, etc
 
-import statearray
-reload_once(statearray)
-from statearray import StateArray
-
 import instance_helpers
 reload_once(instance_helpers)
 from instance_helpers import InstanceOrExpr, DelegatingMixin, DelegatingInstanceOrExpr, InstanceMacro, \
@@ -300,6 +296,12 @@ Stub = Widget2D # use this for stub InstanceOrExpr subclasses
 import Set
 reload_once(Set)
 from Set import Action # import added 070115
+
+    ###k hmm, is the Set module name a conflict with the proposal for class Set to be imported in this file, basic.py?
+
+import statearray
+reload_once(statearray)
+from statearray import StateArray, StateArrayRefs
 
 
 # layout prims and the like (but for the most part, layout prims probably won't be defined in basic.py at all)

@@ -27,7 +27,7 @@ from Boxed import Boxed
 
 import Set
 reload_once(Set)
-from Set import Set ##e move to basic
+from Set import Set ##e move to basic?
 
 
 import draggable
@@ -43,19 +43,20 @@ reload_once(controls)
 from controls import ActionButton, PrintAction
 
 
-def getitem_stateref(statearray, index):
+def StateArrayRefs_getitem_as_stateref(statearrayrefs, index): #070313 renamed getitem_stateref to StateArrayRefs_getitem_as_stateref
     "#doc; args are values not exprs in the present form, but maybe can also be exprs someday, returning an expr..."
-    if '###KLUGE':
-        return statearray[index] ###KLUGE:
-            # this only works due to a bug in the initial stub implem for StateArray, in which self.attr
+    if 'arg1 is a StateArrayRefs, not a StateArray':
+        return statearrayrefs[index] # WARNING:
+            # this only works due to a bug in the initial stub implem for StateArray --
+            # now declared a feature due to its being renamed to StateArrayRefs -- in which self.attr
             # is valued as a dict of LvalForState objects rather than of settable/gettable item values,
             # and *also* because I changed LvalForState to conform to the new StateRefInterface so it actually
             # has a settable/gettable .value attribute.
-            ##### When that bug in StateArray is fixed, this code will be WRONG.
+            ##### When that bug in StateArray is fixed, this code would be WRONG if applied to a real StateArray.
             # What we need is to ask for an lval or stateref for that StateArray at that index!
             # Can we do that using getitem_Expr (re semantics, reasonableness, and efficiency)? ##k
     else:
-        return StateRef_from_lvalue( getitem_Expr(statearray, index))
+        return StateRef_from_lvalue( getitem_Expr(statearrayrefs, index))
             ###IMPLEM this getitem_Expr behavior (proposed, not yet decided for sure; easy, see getattr_Expr for how)
             ###IMPLEM StateRef_from_lvalue if I can think of a decent name for it, and if I really want it around
     pass
@@ -86,14 +87,14 @@ class _color_toggler(DelegatingInstanceOrExpr):
             # to get more colors, if we didn't mind renormalizing them etc...
     pass
 
-class test_StateArray(DelegatingInstanceOrExpr): ### has some WRONGnesses
+class test_StateArrayRefs(DelegatingInstanceOrExpr): ### has some WRONGnesses
     indices = range(4)
-    colors = StateArray(Color, red)
+    colors = StateArrayRefs(Color, red)
         #e i want an arg for the index set... maybe even the initial set, or total set, so i can iter over it...
         # NOTE: at least one dictlike class has that feature - review the ones in py_utils, see what _CK_ uses
     def _color_toggler_for_index(self, index):#e should we use _CV_ for this?? if not, it must be too hard to use!!!
             #k or is it that it defines a dict rather than a func, but we need a func in MapListToExpr?
-        stateref = getitem_stateref( self.colors, index )
+        stateref = StateArrayRefs_getitem_as_stateref( self.colors, index )
         newindex = ('_color_toggler_for_index', index)
         return self.Instance( _color_toggler( stateref), newindex ) 
     delegate = MapListToExpr( _self._color_toggler_for_index, ###k _self needed??
@@ -134,11 +135,11 @@ class _height_dragger(DelegatingInstanceOrExpr):
         return project_onto_unit_vector( delta, DZ)
     pass
 
-class test_StateArray_2(DelegatingInstanceOrExpr):
+class test_StateArrayRefs_2(DelegatingInstanceOrExpr):
     indices = range(4)
-    heights = StateArray(Width, ORIGIN) ###KLUGE for now: this contains heights * DZ as Vectors, not just heights
+    heights = StateArrayRefs(Width, ORIGIN) ###KLUGE for now: this contains heights * DZ as Vectors, not just heights
     def _height_dragger_for_index(self, index):
-        stateref = getitem_stateref( self.heights, index )
+        stateref = StateArrayRefs_getitem_as_stateref( self.heights, index )
         newindex = ('_height_dragger_for_index', index) 
         return self.Instance( _height_dragger( stateref), newindex )
     delegate = SimpleRow(

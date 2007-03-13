@@ -435,6 +435,6 @@ class State(data_descriptor_Expr): # note: often referred to as "State macro" ev
 
 # ==
 
-# note: for StateArray see statearray.py
+# note: for StateArray or StateArrayRefs see statearray.py
 
 # end

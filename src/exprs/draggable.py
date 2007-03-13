@@ -154,7 +154,7 @@ class DraggableObject(DelegatingInstanceOrExpr):
         # - value might be a shared Numeric array -- right now use of = to set this doesn't copy the array to make us own it.
     rotation = State(Quat, Q(1,0,0,0)) #070225 new feature -- applied around object center
 
-    # experiment 070312: works (see test_StateArray_2) ###doc ##e clean up ##k is it making the usual case slow in a significant way??
+    # experiment 070312: works (see test_StateArrayRefs_2) ###doc ##e clean up ##k is it making the usual case slow in a significant way??
     delta_stateref = Option(StateRef, call_Expr( LvalueFromObjAndAttr, _self, 'motion'), doc = "#doc")
     use_motion = delta_stateref.value
 
