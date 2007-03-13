@@ -7,7 +7,37 @@ static char const rcsid[] = "$Id$";
 static struct bondStretch *
 getBondStretchEntry(int element1, int element2, char bondOrder);
 
-struct atomType periodicTable[MAX_ELEMENT+1];
+static struct hashtable *periodicHashtable = NULL;
+
+struct atomType *
+getAtomTypeByIndex(int atomTypeIndex)
+{
+  char buf[256];
+  struct atomType *entry;
+
+  if (periodicHashtable == NULL) {
+    ERROR("getAtomTypeByIndex called before periodic table initialization");
+    return NULL;
+  }
+  sprintf(buf, "%d", atomTypeIndex);
+  entry = (struct atomType *)hashtable_get(periodicHashtable, buf);
+  if (entry == NULL) {
+    entry = (struct atomType *)hashtable_get(periodicHashtable, "0");
+    WARNING1("using undefined atomType %d", atomTypeIndex);
+    hashtable_put(periodicHashtable, buf, entry); // this should suppress further warnings
+  }
+  return entry;
+}
+
+struct atomType *
+getAtomTypeByName(char *symbol)
+{
+  if (periodicHashtable == NULL) {
+    ERROR("getAtomTypeByName called before periodic table initialization");
+    return NULL;
+  }
+  return (struct atomType *)hashtable_get(periodicHashtable, symbol);
+}
 
 // ks in N/m
 // r0 in pm, or 1e-12 m
@@ -58,8 +88,8 @@ generateBondName(char *bondName, int element1, int element2, char bondOrder)
     element1 = element2;
     element2 = elt;
   }
-  sprintf(bondName, "%s-%c-%s", periodicTable[element1].symbol,
-          bondOrder, periodicTable[element2].symbol);
+  sprintf(bondName, "%s-%c-%s", getAtomTypeByIndex(element1)->symbol,
+          bondOrder, getAtomTypeByIndex(element2)->symbol);
 }
 
 static void
@@ -81,10 +111,10 @@ generateBendName(char *bendName,
     bondOrder1 = bondOrder2;
     bondOrder2 = bnd;
   }
-  sprintf(bendName, "%s-%c-%s.%s-%c-%s", periodicTable[element1].symbol,
-          bondOrder1, periodicTable[element_center].symbol,
+  sprintf(bendName, "%s-%c-%s.%s-%c-%s", getAtomTypeByIndex(element1)->symbol,
+          bondOrder1, getAtomTypeByIndex(element_center)->symbol,
           hybridizationString(centerHybridization),
-          bondOrder2, periodicTable[element2].symbol);
+          bondOrder2, getAtomTypeByIndex(element2)->symbol);
 }
 
 static struct hashtable *bondStretchHashtable = NULL;
@@ -199,22 +229,31 @@ setElement(int protons,
            int n_bonds,
            double covalentRadius)
 {
+  struct atomType *entry;
+  char buf[256];
+  
   if (e_vanDerWaals < 0.1) {
     e_vanDerWaals = 0.3 + protons * protons / 190.0;
   }
-  periodicTable[protons].protons = protons;
-  periodicTable[protons].group = group;
-  periodicTable[protons].period = period;
-  periodicTable[protons].name = name;
-  periodicTable[protons].symbol[0] = symbol[0];
-  periodicTable[protons].symbol[1] = symbol[1];
-  periodicTable[protons].symbol[2] = symbol[2];
-  periodicTable[protons].symbol[3] = symbol[3]; // we inadvertantly copy past end of string on many elements.
-  periodicTable[protons].mass = mass;
-  periodicTable[protons].vanDerWaalsRadius = vanDerWaalsRadius;
-  periodicTable[protons].e_vanDerWaals = e_vanDerWaals;
-  periodicTable[protons].n_bonds = n_bonds;
-  periodicTable[protons].covalentRadius = covalentRadius;
+  entry = (struct atomType *)allocate(sizeof(struct atomType));
+  
+  entry->protons = protons;
+  entry->group = group;
+  entry->period = period;
+  entry->name = name;
+  entry->symbol[0] = symbol[0];
+  entry->symbol[1] = symbol[1];
+  entry->symbol[2] = symbol[2];
+  entry->symbol[3] = symbol[3]; // we inadvertantly copy past end of string on many elements.
+  entry->mass = mass;
+  entry->vanDerWaalsRadius = vanDerWaalsRadius;
+  entry->e_vanDerWaals = e_vanDerWaals;
+  entry->n_bonds = n_bonds;
+  entry->covalentRadius = covalentRadius;
+
+  hashtable_put(periodicHashtable, symbol, entry);
+  sprintf(buf, "%d", protons);
+  hashtable_put(periodicHashtable, buf, entry);
 }
 
 
@@ -225,7 +264,7 @@ initializeBondTable(void)
     return;  // no need to repeat
   }
   
-  memset(periodicTable, 0, sizeof(periodicTable));
+  periodicHashtable = hashtable_new(50);
   
   // groups 9-22 are lanthanides
   // groups 8-31 are transition metals
@@ -490,7 +529,7 @@ generateGenericBondStretch(char *bondName, int element1, int element2, char bond
     ks = 0.0;
     de = getDe(bondName);
     beta = 0.0;
-    r0 = periodicTable[element1].covalentRadius + periodicTable[element2].covalentRadius ;
+    r0 = getAtomTypeByIndex(element1)->covalentRadius + getAtomTypeByIndex(element2)->covalentRadius ;
     if (r0 <= 0.0) {
       // XXX warn about this
       // maybe better to just fill out the periodic table...
@@ -511,7 +550,7 @@ generateGenericBondStretch(char *bondName, int element1, int element2, char bond
     ks = 0.0;
     de = getDe(bondName);
     beta = 0.0;
-    r0 = periodicTable[element1].covalentRadius + periodicTable[element2].covalentRadius ;
+    r0 = getAtomTypeByIndex(element1)->covalentRadius + getAtomTypeByIndex(element2)->covalentRadius ;
     if (r0 <= 0.0) {
       // XXX warn about this
       // maybe better to just fill out the periodic table...
@@ -529,7 +568,7 @@ generateGenericBondStretch(char *bondName, int element1, int element2, char bond
     ks = 0.0;
     de = getDe(bondName);
     beta = 0.0;
-    r0 = periodicTable[element1].covalentRadius + periodicTable[element2].covalentRadius ;
+    r0 = getAtomTypeByIndex(element1)->covalentRadius + getAtomTypeByIndex(element2)->covalentRadius ;
     if (r0 <= 0.0) {
       // XXX warn about this
       // maybe better to just fill out the periodic table...
@@ -562,9 +601,9 @@ generateGenericBendData(char *bendName,
 
   // XXX only correct for bond order 1 on both bonds  FIX!!!
 
-  len = periodicTable[element_center].covalentRadius +
-    periodicTable[element1].covalentRadius +
-    periodicTable[element2].covalentRadius;
+  len = getAtomTypeByIndex(element_center)->covalentRadius +
+    getAtomTypeByIndex(element1)->covalentRadius +
+    getAtomTypeByIndex(element2)->covalentRadius;
   
   kb = 45e6 / (len * len) + len * 1.3 - 475.0;
   if (kb > 2000.0) {
@@ -638,7 +677,7 @@ getBondEquilibriumDistance(int element1, int element2, char bondOrder)
     // For some reason, running the following line with elements out
     // of range causes the cad to later segfault.  This is strange,
     // since the code below will reference undefined memory (past the
-    // end of periodicTable[], but it never stores anything at a bad
+    // end of getAtomTypeByIndex[], but it never stores anything at a bad
     // location.  In any case, we need better input validation
     // throughout the simulator.
   }
@@ -716,19 +755,6 @@ getVanDerWaalsTable(int element1, int element2)
     vdw = generateVanDerWaals(bondName, element1, element2);
   }
   return vdw;
-}
-
-struct atomType *
-getAtomTypeByName(char *symbol)
-{
-  int i;
-  
-  for (i=0; i<MAX_ELEMENT+1; i++) {
-    if (!strcmp(symbol, periodicTable[i].symbol)) {
-      return &periodicTable[i];
-    }
-  }
-  return NULL;
 }
 
 

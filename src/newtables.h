@@ -116,8 +116,9 @@ struct atomType
   double covalentRadius;      // Angstroms, or 1e-10 m
 };
 
-extern struct atomType periodicTable[MAX_ELEMENT+1];
+extern struct atomType *getAtomTypeByIndex(int atomTypeIndex);
 
+extern struct atomType *getAtomTypeByName(char *symbol);
 
 extern void initializeBondTable(void);
 
@@ -137,7 +138,5 @@ extern struct bendData *getBendData(int element_center,
                                     char bondOrder2);
 
 extern struct vanDerWaalsParameters *getVanDerWaalsTable(int element1, int element2);
-
-extern struct atomType *getAtomTypeByName(char *symbol);
 
 #endif

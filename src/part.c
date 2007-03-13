@@ -1492,7 +1492,7 @@ makeAtom(struct part *p, int externalID, int elementType, struct xyz position)
 	ERROR1("Invalid element type: %d", elementType);
 	p->parseError(p->stream);
     }
-    a->type = &periodicTable[elementType];
+    a->type = getAtomTypeByIndex(elementType);
     if (a->type->name == NULL) {
 	ERROR1("Unsupported element type: %d", elementType);
 	p->parseError(p->stream);
