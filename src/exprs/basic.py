@@ -57,6 +57,9 @@ from debug import reload_once_per_event, print_compact_traceback, print_compact_
 
 from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True, Choice #070228
 
+# consider also doing: import env as global_env  [070313 suggestion]
+
+
 # == other generally useful constants
 
 # (but color constants are imported lower down)
@@ -137,7 +140,7 @@ def stub(*args, **kws): #e rename to stubfunc (too hard to search for 'stub', co
 
 import py_utils
 reload_once(py_utils)
-from py_utils import * # includes printnim, identity
+from py_utils import * # includes printnim, identity, seen_before
 
 nevermind = lambda func: identity
 

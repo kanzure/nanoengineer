@@ -89,8 +89,10 @@ class _texture_holder(object):
         "define self.tex_name -- allocate a texture name"
         # code copied from testdraw._loadTexture (even though we call it, below, for its other code):
         tex_name = glGenTextures(1)
-        if debug_glGenTextures:
-            print "debug fyi: glGenTextures -> %r for %r" % (tex_name, self)
+        if debug_glGenTextures and seen_before(('debug_glGenTextures', self.filename)):
+            #070313 using env.seen_before (rename env module (cad/src) -> global_env? for now, basic imports seen_before via py_utils.)
+            #k I'm not sure if, after certain reloads, I should expect to routinely see this message as textures get reloaded. 070313
+            print "debug fyi: same filename seen before, in glGenTextures -> %r for %r" % (tex_name, self)
         # note: by experiment (iMac G5 Panther), this returns a single number (1L, 2L, ...), not a list or tuple,
         # but for an argument >1 it returns a list of longs. We depend on this behavior here. [bruce 060207]
         tex_name = int(tex_name) # make sure it worked as expected
