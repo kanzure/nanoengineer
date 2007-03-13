@@ -90,7 +90,7 @@ class _texture_holder(object):
         # code copied from testdraw._loadTexture (even though we call it, below, for its other code):
         tex_name = glGenTextures(1)
         if debug_glGenTextures:
-            print "debug fyi: glGenTextures -> %r in %r" % (tex_name, self)
+            print "debug fyi: glGenTextures -> %r for %r" % (tex_name, self)
         # note: by experiment (iMac G5 Panther), this returns a single number (1L, 2L, ...), not a list or tuple,
         # but for an argument >1 it returns a list of longs. We depend on this behavior here. [bruce 060207]
         tex_name = int(tex_name) # make sure it worked as expected
@@ -151,7 +151,11 @@ class _texture_holder(object):
         
         return
     def __repr__(self): #070308
-        return "<%s at %#x for %r, %r>" % (self.__class__.__name__, id(self), self.filename, self.pil_kws)
+        try:
+            basename = os.path.basename(self.filename) #070312
+        except:
+            basename = self.filename
+        return "<%s at %#x for %r, %r>" % (self.__class__.__name__, id(self), basename, self.pil_kws)
     pass # end of class _texture_holder
 
 # ==
