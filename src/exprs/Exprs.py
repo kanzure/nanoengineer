@@ -562,6 +562,11 @@ class LvalueFromObjAndAttr(object): #e refile #061204 for _e_eval_lval and Lvalu
             print "following exception in setattr( self.obj, self.attr, val) concerns self = %r" % (self,)
             raise
         pass
+    # 070312 conform to StateRefInterface
+    set_value = set_to
+    def get_value(self):
+        return getattr(self.obj, self.attr)
+    value = property( get_value, set_value)
     def __repr__(self):
         return "<%s at %#x for %r.%r>" % (self.__class__.__name__, id(self), self.obj, self.attr)
     #e some sort of .get function, .value attr (can be set or get), subscribe func, etc

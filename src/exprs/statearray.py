@@ -3,7 +3,8 @@ statearray.py
 
 $Id$
 """
-###e UNTESTED and still UNFINISHED in some ways
+###e still UNFINISHED in some ways, the worst being that our elements are staterefs
+# (see getitem_stateref in test_statearray.py, 070312, and ###BUG comment lower down)
 
 from basic import *
 from basic import _self
@@ -52,8 +53,15 @@ def StateArray(type_expr, dfltval_expr, **kws): #e refile?
 
 def _make_StateArray(type_expr, dfltval_expr, attr, self, debug_name = None):
     "[private helper for StateArray]"
-    print "debug fyi: _make_StateArray type_expr = %r, dfltval_expr = %r, attr = %r, self = %r, debug_name = %r" % \
-          (type_expr, dfltval_expr, attr, self, debug_name)
+    # print "debug fyi: _make_StateArray type_expr = %r, dfltval_expr = %r, attr = %r, self = %r, debug_name = %r" % \
+    #       (type_expr, dfltval_expr, attr, self, debug_name)
+        ## example of what this prints:
+        ## type_expr = <lexenv_ipath_Expr#20244: <widget_env at 0xf51d9e0 (_self = <test_StateArray_2#20226(i)>)>,
+        ##       (1, ('heights', ((-108, 0), ((-104, 0), (-101, '.'))))), S.Anything>,
+        ## dfltval_expr = array([ 0.,  0.,  0.]),
+        ## attr = 'heights',
+        ## self = <test_StateArray_2#20226(i)>,
+        ## debug_name = None
     ###NOTE: dfltval_expr is probably always a constant_Expr or maybe even just a constant -- not sure -- might need to Hold it
     # in the call and eval it here (which would be best anyway) ####e
     if debug_name:
@@ -69,6 +77,7 @@ def _make_StateArray(type_expr, dfltval_expr, attr, self, debug_name = None):
     return LvalDict2(valfunc, LvalForState, debug_name = debug_name)
         ###BUG - elts of this are the lvals, not their values!!! But if not for that, how would we make setitem work in this?!?
         ### I think we need to return a new object which implements __setitem__ by passing it into the lvals properly.
-        ###e But we also need access to per-element staterefs, e.g. we need that in the first use of this in test_statearray.py. 
+        ###e But we also need access to per-element staterefs, e.g. we need that in the first use of this in test_statearray.py.
+        # [see also getitem_stateref in test_statearray.py]
 
 # end

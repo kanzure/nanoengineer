@@ -176,7 +176,7 @@ reload_once(demo_polyline)
 
 import test_statearray
 reload_once(test_statearray)
-from test_statearray import test_StateArray
+from test_statearray import test_StateArray, test_StateArray_2
 
 ## WARNING: far below we also do "from demo_ui import *"
 
@@ -1366,6 +1366,7 @@ from demo_ui import * # this defines testexpr_19j, testexpr_30j, and testexpr_34
 # ==
 
 testexpr_35 = test_StateArray()
+testexpr_35a = test_StateArray_2()
 
 
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
@@ -1374,7 +1375,7 @@ testexpr_35 = test_StateArray()
 
 enable_testbed = True
 
-testexpr = testexpr_35
+testexpr = testexpr_35a
     # testexpr_34a - unfinished demo_ui
     # testexpr_30i - make dna cyls
     # testexpr_19i - demo_drag

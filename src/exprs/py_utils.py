@@ -33,11 +33,17 @@ def interleave_by_func(elts, gapfunc):
     gaps = [gapfunc(e1,e2) for e1,e2 in zip(elts[:-1],elts[0:])]
     return interleave(elts, gaps)
 
-def dict_ordered_values(d1):
-    "return the values of the given dict, sorted by their key in the dict"
+def dict_ordered_values(d1): ##e rename (this name 'dict_ordered_values' is completely unrecallable) #e see also sorted_items
+    "Return the values of the given dict, sorted by their key in the dict. [see also sorted_items]"
     items = d1.items()
     items.sort()
     return [v for (k,v) in items]
+
+def sorted_items(d1): #070312
+    "Return a list of all (key, value) pairs in the given dict, sorted by dict key. [see also dict_ordered_values]"
+    items = d1.items()
+    items.sort()
+    return items
 
 def sorted_by(seq, func): #070206 ##e do I have this under some other name, somewhere?
     "return the elements of the given sequence, sorted by func(element)"

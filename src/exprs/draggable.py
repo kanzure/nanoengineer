@@ -154,6 +154,10 @@ class DraggableObject(DelegatingInstanceOrExpr):
         # - value might be a shared Numeric array -- right now use of = to set this doesn't copy the array to make us own it.
     rotation = State(Quat, Q(1,0,0,0)) #070225 new feature -- applied around object center
 
+    # experiment 070312: works (see test_StateArray_2) ###doc ##e clean up ##k is it making the usual case slow in a significant way??
+    delta_stateref = Option(StateRef, call_Expr( LvalueFromObjAndAttr, _self, 'motion'), doc = "#doc")
+    use_motion = delta_stateref.value
+
     # geometric attrs should delegate to obj, but be translated by motion as appropriate.
     ##e Someday we need to say that in two ways:
     # - the attrs in the "geometric object interface" delegate as a group (rather than listing each one of them here)
@@ -209,7 +213,7 @@ class DraggableObject(DelegatingInstanceOrExpr):
 
     delegate = Highlightable(
         # plain appearance
-        RotateTranslate( obj_drawn, rotation, motion),
+        RotateTranslate( obj_drawn, rotation, use_motion),
         # hover-highlighted appearance (also used when dragging, below)
         highlighted = RotateTranslate(
             DisplistChunk(
@@ -227,7 +231,7 @@ class DraggableObject(DelegatingInstanceOrExpr):
                 ## WarpColors( obj_drawn, lambda color: ave_colors( 0.2, gray, color ) ), # gray-end instead of whiten -- not quite as good
                 ## WarpColors( obj_drawn, lambda color: (color[1],color[2],color[0]) ), # permute the hues...
             ),
-            rotation, motion
+            rotation, use_motion
          ),
         pressed = _my.highlighted, # pressed_in and pressed_out appearance
             ###BUG (when we gave pressed_in and pressed_out separately -- ###UNTESTED since then):
@@ -284,7 +288,8 @@ class DraggableObject(DelegatingInstanceOrExpr):
 ##            self.rotation = self.rotation + rotby
 ##            # print "%r motion = %r rotation = %r" % (self, self.motion, self.rotation)
         else:
-            self.motion = self.motion + (p2 - p1)
+            ## self.motion = self.motion + (p2 - p1)
+            self.delta_stateref.value = self.delta_stateref.value + (p2 - p1)
         return
     
     ##e something to start & end the drag? that could include flush if desired...
@@ -292,10 +297,11 @@ class DraggableObject(DelegatingInstanceOrExpr):
     # can push changes into the object
     
     def flush(self, newmotion = V(0,0,0)):
-        self.delegate.move(self.motion + newmotion) ###k ASSUMES ModelObject always supports move (even if it's a noop) ###IMPLEM
+        self.delegate.move(self.use_motion + newmotion) ###k ASSUMES ModelObject always supports move (even if it's a noop) ###IMPLEM
             # note, nothing wrong with modelobjects usually having one coordsys state which this affects
             # and storing the rest of their data relative to that, if they want to -- but only some do.
-        self.motion = V(0,0,0)
+        ## self.motion = V(0,0,0)
+        self.delta_stateref.value = V(0,0,0)
 
     # if told to move, flush at the same time
     
