@@ -13,18 +13,22 @@ atom 2 (0) (0, 0, 1696) def
 bond1 1
 atom 3 (0) (0, 0, -1696) def
 bond1 1
-atom 4 (201) (-6062, 3500, 0) def
+atom 4 (201) (7655, 548, -2290) def
 bond1 1
-atom 5 (0) (-6847, 1455, 1696) def
+atom 5 (0) (8002, 1050, -500) def
 bond1 4
-atom 6 (0) (-4684, 5202, -1696) def
+atom 6 (202) (8489, -2483, -1941) def
 bond1 4
-atom 7 (201) (7000, 0, 0) def
+atom 7 (0) (7502, -3270, -3310) def
+bond1 6
+atom 8 (201) (-6349, 4153, 2333) def
 bond1 1
-atom 8 (0) (6657, -2163, -1696) def
-bond1 7
-atom 9 (0) (6657, 2163, 1696) def
-bond1 7
+atom 9 (0) (-6049, 5153, 700) def
+bond1 8
+atom 10 (202) (-8570, 1954, 2058) def
+bond1 8
+atom 11 (0) (-8070, 1055, 3500) def
+bond1 10
 egroup (thymine)
 end1
 group (Clipboard)

@@ -240,7 +240,6 @@ class DnaGenerator(GeneratorBaseClass, dna_dialog):
         double = str(self.endings_combox.currentText())
 
         representation = str(self.representation_combox.currentText())
-        print "rep: <<%s>>" % representation
         if (representation == 'Base(experimental)'):
             representation = 'BasePseudoAtom'
         assert representation in ('Atom', 'BasePseudoAtom')

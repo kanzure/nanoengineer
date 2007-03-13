@@ -164,8 +164,9 @@ class ElementPeriodicTable(Singleton):
         "Te" : (2.1,  [0.9, 0.35, 0.0]),
         "I" : (2.0,  [0.0, 0.5, 0.0]),
         "Xe" : (1.9,  [0.4, 0.45, 0.55]),
-        "DC" : (4.0, [0.4, 0.4, 0.8]),
-        "DB" : (5.0, [0.4, 0.8, 0.4])
+        "Ax" : (4.0, [0.4, 0.4, 0.8]),    # DNA pseudo atom
+        "Ss" : (4.5, [0.4, 0.8, 0.4]),    # DNA pseudo atom
+        "Sp" : (4.0, [0.4, 0.1, 0.5])     # DNA pseudo atom
         }
       
     _altRad_Color = {
@@ -325,8 +326,9 @@ to put the C+ value.
                   ("I",  "Iodine",      53, 132.674,  [[1, 119, onebond]]),
                   ("Xe", "Xenon",       54, 134.429,  None),
 
-                  ("DC", "DNA-Pseudo-Center", 200, 1.0, [[4, 160, tetra4]]),
-                  ("DB", "DNA-Pseudo-Backbone", 201, 1.0, [[3, 160, flat]])
+                  ("Ax", "DNA-Pseudo-Axis", 200, 1.0, [[4, 200, tetra4]]),
+                  ("Ss", "DNA-Pseudo-Sugar", 201, 1.0, [[3, 210, flat]]),
+                  ("Sp", "DNA-Pseudo-Phosphate", 202, 1.0, [[2, 210, tetra2]])
                 ]
     _periodicTable = {}
     _eltName2Num = {}
