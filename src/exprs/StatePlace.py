@@ -159,6 +159,7 @@ class _attr_accessor:
     def __setattr__(self, attr, val):
         "WARNING: this runs on ALL attribute sets -- do real ones using self.__dict__"
         self.__get_lval(attr).set_constant_value(val)
+            ###e probably set_constant_value should be renamed set_value, to fit with StateRefInterface [070312]
             # note: this optims by noticing if the value differs from last time; that ought to be a per-attr decl #e
         return
     def __setattr_default__(self, attr, default): # note: this method name is not special to Python

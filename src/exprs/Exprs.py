@@ -550,10 +550,12 @@ class call_Expr(OpExpr): # note: superclass is OpExpr, not SymbolicExpr, even th
     pass
 
 class LvalueFromObjAndAttr(object): #e refile #061204 for _e_eval_lval and LvalueArg, likely to be revised
+    ##e make a variant for getitem_Expr? 
     def __init__(self, obj, attr):
         self.obj = obj
         self.attr = attr
     def set_to(self, val):
+        ###e probably we should rename set_to -> set_value, and define get_value and value -- see StateRefInterface [070312]
         try:
             setattr( self.obj, self.attr, val)
         except:
@@ -593,6 +595,7 @@ class getitem_Expr(OpExpr): #061110
     def __str__(self):
          return "%s[%s]" % self._e_args #e need parens?
     _e_eval_function = staticmethod( lambda x,y:x[y] )
+    #e _e_eval_lval_function too, variant of LvalueFromObjAndAttr?
     pass
 
 class mul_Expr(OpExpr):

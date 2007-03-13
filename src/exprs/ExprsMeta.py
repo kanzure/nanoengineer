@@ -516,6 +516,7 @@ class C_rule_for_lval_formula(ClassAttrSpecific_DataDescriptor): #061117 - revie
         #  otoh we might discard older unused initval exprs
         #  [those points are related, but i am a bit too tired to explain (or see exactly) how])
         lval.set_constant_value(val)
+            ###e probably set_constant_value should be renamed set_value, to fit with StateRefInterface [070312]
         return        
 ##    def __repr__(self):
 ##        return "<%s at %#x for %r>" % (self.__class__.__name__, id(self), self.attr)#061117 changed self.lval_formula -> self.attr

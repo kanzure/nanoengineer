@@ -49,7 +49,7 @@ class _color_toggle(DelegatingInstanceOrExpr): ###UNTESTED
      )
     def toggle_color(self, color):
         r,g,b = color
-        return (g,b,r)
+        return (b,r,g) # this permits toggling through the cyclic color sequence red, green, blue in that order
     pass
 
 class test_StateArray(DelegatingInstanceOrExpr): ###UNTESTED, and has some WRONGnesses
@@ -61,15 +61,14 @@ class test_StateArray(DelegatingInstanceOrExpr): ###UNTESTED, and has some WRONG
     func = lambda index: colors.lvals[index]
     def _color_toggle_for_index(self, index):#e should we use _CV_ for this?? if not, it must be too hard to use!!!
             #k or is it that it defines a dict rather than a func, but we need a func in MapListToExpr?
-        color_stateref = self.colors[index] #####KLUGE: this only works due to a bug in the initial stub implem for StateArray!!!
-            # w/o that bug it'll be WRONG. What we need is to ask for an lval for that StateArray at that index!
-            # or (less efficient) make one for a general dict. Or have a way to try the first and fall back to the 2nd --
-            # which is maybe part of a "state array interface". ###e
-          ###k: not sure this works at all -- does an lval object have a settable/gettable .value attr??? Indeed, ###BUG, it fails:
-            ## AttributeError: LvalForState instance has no attribute 'value'
-            # need to think a bit on the best fix for this, since replacing the LvalDict2 with my own object is desirable,
-            # but then i still need to make that  obj's items conveniently into staterefs...
-            # hmm, can getattr_Expr help with that??? NO, in this case it would need to be getitem_Expr.... ###e
+        color_stateref = self.colors[index]
+            #####KLUGE: this only works due to a bug in the initial stub implem for StateArray, in which self.attr
+            # is valued as a dict of LvalForState objects rather than of settable/gettable item values,
+            # and *also* because I changed LvalForState to conform to the new StateRefInterface so it actually
+            # has a settable/gettable .value attribute.
+            ##### When that bug in StateArray is fixed, this code will be WRONG.
+            # What we need is to ask for an lval or stateref for that StateArray at that index!
+            # Can we do that using getitem_Expr (re semantics, reasonableness, and efficiency)? ##k
         return self.Instance( _color_toggle( color_stateref),
                               ('_color_toggle_for_index', index) ) 
     delegate = MapListToExpr( _self._color_toggle_for_index, ###k _self needed??

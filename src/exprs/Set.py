@@ -77,6 +77,7 @@ class Set(Action): # adding Set with arg1 an lval eg a getattr_Expr, 061204; unt
         # print "%r: calling on our lval-object, %r.set_to(%r)" % (self, var , val)
         try:
             var.set_to( val) # .set_to is in api for lval-objects of this kind -- not the same kind as "exprs plus _self" (for now)
+                ###e probably we should rename set_to -> set_value -- see StateRefInterface [070312]
         except:
             print "following exception in var.set_to( val) in %r concerns var = %r" % (self, var,)
             raise

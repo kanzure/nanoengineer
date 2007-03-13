@@ -338,7 +338,24 @@ def make_compute_method_discard_usage_if_ever_called(compute_method): #061117
 
 # ==
 
-class LvalForState(Lval): #061117 -- NOT REVIEWED AS WELL AS I'D LIKE (esp since split out from its superclass, and initvals enabled)
+class StateRefInterface( object): #070312; experimental; see also staterefs.py
+    """Anything with a .get_value and .set_value method, combined into a .value attribute (public for get and set),
+    which act as accessors of the obvious (I hope) semantics for a definite piece of state,
+    conforms to the "stateref interface".
+       Inheriting this abstract class (StateRefInterface), by convention,
+    indicates informally that something intends to conform to that interface.
+       It would be nice if this class could also provide default methods for that interface,
+    either get_value and set_value in terms of .value
+    or value in terms of those (i.e. value = property(get_value, set_value)).
+    But it doesn't, because providing both directions of default is not practical (for a superclass),
+    and providing get_value and set_value in terms of .value is not very useful,
+    and providing value = property(get_value, set_value) (with those methods coming from a subclass)
+    doesn't seem to be possible in a straightforward way in Python. So, as a superclass it provides no default methods.
+    [Maybe someday it can usefully provide them when used in some other way to "add glue code for an interface". #e]
+    """
+    pass
+    
+class LvalForState(Lval, StateRefInterface): #061117 -- NOT REVIEWED AS WELL AS I'D LIKE (esp since split out from its superclass, and initvals enabled)
     """A variant of Lval for containing mutable state.
     Can be given an initval compute method -- but that's required
     if and only if the first get comes before the first set;
@@ -360,6 +377,7 @@ class LvalForState(Lval): #061117 -- NOT REVIEWED AS WELL AS I'D LIKE (esp since
     def set_compute_method(self, compute_method):
         assert 0, "not supported in this class" #e i.e., Lval and this class should really inherit from a common abstract class
     def set_constant_value(self, val): #061117, for use in StatePlace.py
+        ###e probably set_constant_value should be renamed set_value, to fit with StateRefInterface [070312]
         """#doc [for now, using this is strictly an alternative to using compute_methods --
         correctness of mixing them in one lval is not reviewed, and seems unlikely,
         with one exception: an initial compute_method can be provided for computing an initial value
@@ -391,6 +409,11 @@ class LvalForState(Lval): #061117 -- NOT REVIEWED AS WELL AS I'D LIKE (esp since
                 self.valid = True
             pass
         return
+    #070312 conform to StateRefInterface
+    set_value = set_constant_value #e or just rename the latter?
+    ## value = property(get_value, set_value) # NameError: name 'get_value' is not defined
+    value = property(Lval.get_value, set_value) # --
+    ## value = property(Lval.__dict__['get_value'], set_value)
     #k I think the methods can_get_value and have_already_computed_value
     # are correct for us, as implemented in our superclass Lval.
     def _set_default_value(self, default):
