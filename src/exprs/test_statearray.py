@@ -149,9 +149,15 @@ class test_StateArrayRefs_2(DelegatingInstanceOrExpr):
         print [h.value for i,h in sorted_items(self.heights)] ###KLUGE, assumes they're StateRefs -- maybe just rename StateArray -> StateArrayRefs
     pass
 
+DragBehavior = InstanceOrExpr # stub
 
-class x:
-    def drag_ray_from_to(self, oldray, newray): # sort of like _cmd_from_to (sp?) in other eg code
+class some_drag_behavior(DragBehavior):
+    """a drag behavior which moves the original hitpoint along a line,
+    storing only its 1d-position-offset along the line's direction
+    [noting that the hitpoint is not necessarily equal to the moved object's origin]
+    [#doc better]
+    """
+    def drag_mouseray_from_to(self, oldray, newray): # sort of like _cmd_from_to (sp?) in other eg code
         """[part of an interface XXX related to drag behaviors]
         
         """
