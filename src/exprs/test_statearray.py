@@ -19,7 +19,7 @@ import Highlightable
 reload_once(Highlightable)
 from Highlightable import Highlightable
 
-StateRef = StubType #k
+##StateRef = StubType #k
 
 import Boxed
 reload_once(Boxed)
@@ -41,6 +41,10 @@ from images import Image, IconImage, NativeImage, PixelGrabber
 import controls
 reload_once(controls)
 from controls import ActionButton, PrintAction
+
+import geometry_exprs
+reload_once(geometry_exprs)
+from geometry_exprs import Ray
 
 
 def StateArrayRefs_getitem_as_stateref(statearrayrefs, index): #070313 renamed getitem_stateref to StateArrayRefs_getitem_as_stateref
@@ -149,9 +153,7 @@ class test_StateArrayRefs_2(DelegatingInstanceOrExpr):
         print [h.value for i,h in sorted_items(self.heights)] ###KLUGE, assumes they're StateRefs -- maybe just rename StateArray -> StateArrayRefs
     pass
 
-DragBehavior = StateRef = InstanceOrExpr # stub
-
-from geometry_exprs import Ray #e move up
+DragBehavior = InstanceOrExpr # stub
 
 class xxx_drag_behavior(DragBehavior):
     """a drag behavior which moves the original hitpoint along a line,
@@ -167,7 +169,17 @@ class xxx_drag_behavior(DragBehavior):
     ### drag event object can be passed to us...
         
     # on_press etc methods are modified from DraggableObject, which modified them from demo_polygon.py class typical_DragCommand
-
+    
+    # (if this delegates or supers to something that knows all about the drag in a lower level way,
+    #  then maybe it's not so bad to be getting dragevent info from self rather than a dragevent arg... hmm.
+    #  An argument in favor of that: self is storing state related to one drag anyway, so nothing is lost
+    #  by assuming some other level of self stores some other level of that state. So maybe we create a standard
+    #  DragHandling object, then create a behavior-specific delegate to it, to which *it* delegates on_press etc;
+    #  and we also get it to delegate state-modifying calls to some external object -- or maybe that's not needed
+    #  if things like this one's stateref are enough. ##k)
+    #
+    # related: Maybe DraggableObject gets split into the MovableObject and the DragBehavior...
+    
     def on_press(self):
         self.startpoint = self.current_event_mousepoint() # the touched point on the visible object (hitpoint)
             # (this method is defined in the Highlightable which is self.delegate)
