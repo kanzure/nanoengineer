@@ -149,21 +149,46 @@ class test_StateArrayRefs_2(DelegatingInstanceOrExpr):
         print [h.value for i,h in sorted_items(self.heights)] ###KLUGE, assumes they're StateRefs -- maybe just rename StateArray -> StateArrayRefs
     pass
 
-DragBehavior = InstanceOrExpr # stub
+DragBehavior = StateRef = InstanceOrExpr # stub
 
-class some_drag_behavior(DragBehavior):
+from geometry_exprs import Ray #e move up
+
+class xxx_drag_behavior(DragBehavior):
     """a drag behavior which moves the original hitpoint along a line,
     storing only its 1d-position-offset along the line's direction
     [noting that the hitpoint is not necessarily equal to the moved object's origin]
     [#doc better]
     """
-    def drag_mouseray_from_to(self, oldray, newray): # sort of like _cmd_from_to (sp?) in other eg code
-        """[part of an interface XXX related to drag behaviors]
+    # args
+    posn_parameter_ref = Arg(StateRef, doc = "where the variable height is stored")
+    constrain_to_line = Arg(Ray, Ray(ORIGIN, DY), doc = "the line/ray on which the height is interpreted as a position") # dflt_expr is just for testing #e remove it
+        # note: it's the position of the object's origin
+        ##e rename Ray -> MarkedLine? (a line, with real number markings on it) ParametricLine? (no, suggests they can be distorted/curved)
+    ### drag event object can be passed to us...
         
-        """
-        k = self.line.closest_pt_params_to_ray(newray)
-        #e store k
-        #e compute new point from k
-        
+    # on_press etc methods are modified from DraggableObject, which modified them from demo_polygon.py class typical_DragCommand
+
+    def on_press(self):
+        self.startpoint = self.current_event_mousepoint() # the touched point on the visible object (hitpoint)
+            # (this method is defined in the Highlightable which is self.delegate)
+        self.offset = self.startpoint - (ORIGIN + self.motion) #k maybe ok for now, but check whether sensible in long run
+        self.line = self.constrain_to_line + self.offset # the line the hitpoint is on (assuming self.motion already obeyed the constraint)
+    def on_drag(self):
+        # Note: we can assume this is a "real drag" (not one which is too short to count), due to how we are called.
+        mouseray = self.current_event_mouseray()
+        self._cmd_drag_from_to( oldpoint, point) # use Draggable interface cmd on self
+            # ie self.delta_stateref.value = self.delta_stateref.value + (p2 - p1)
+        ## def drag_mouseray_from_to(self, oldray, newray): # sort of like _cmd_from_to (sp?) in other eg code
+        ## "[part of an interface XXX related to drag behaviors]"
+        k = self.line.closest_pt_params_to_ray(mouseray)
+        # store k
+        self.posn_parameter_ref.value = k ####e by analogy with DraggableObject, should we perhaps save this side effect until the end?
+        #e compute new posn from k
+        self.motion = self.constrain_to_line.posn_from_params(k) ###IMPLEM - and review renaming, since we are asking it for a 3-tuple
+            ####### LOGIC BUG: what causes self.motion to initially come from this formula, not from our own state?
+            # maybe don't use DraggableObject at all?
+        return
+    def on_release(self):
+        pass
 
 # ==

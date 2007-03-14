@@ -3,18 +3,23 @@ geometry_exprs.py -- time-varying geometric primitives that can know their units
 
 $Id$
 
-Note about this module's filename:
+About this module's filename:
+
 I might have just called it geometry.py, but that name is taken in cad/src
 (though perhaps that file deserves to be relegated to a more specific name).
 
-Note about data representation: raw data is represented using Numeric Python arrays of convenient shape,
+==
+
+About data representation: raw data is represented using Numeric Python arrays of convenient shape,
 containing floats, or ints or longs treated the same as floats,
 the same as would be commonly used in cad/src files. But I might decide to represent some
 points/vectors/matrices as 4d, so that translation can be matrix multiplication too
 (as in OpenGL, for example). Perhaps routines for asking for coords (or, coord systems
 themselves) will come in 3d and 4d forms.
 
-Notes about style and conventions:
+==
+
+About style and conventions of this code:
 
 Simpler method and attr names should access and accept self-describing objects
 (e.g. Points which know their space & coordsystem, not just 3-tuples),
@@ -45,11 +50,26 @@ Watch out for the Numeric Array == bug, and for Numeric arrays being shared with
 (even if they are "extracted elements" from larger arrays). All methods which accept or return
 Numeric arrays should try to protect naive callers from these bugs.
 
-# ==
+==
 
-Notes about future relation to external geometric utilities (e.g. constructive solid geometry code,
-or Oleksander's code, or that trimesh-generating package that Huaicai once interfaced to)
-and/or about expressing some of this in C, or Pyrex, or even in Numeric Python or numarray:
+About optimization:
+
+One useful geometric primitive is a collection of little prims of a variety of types
+(points, vecs, unit vecs, dual vecs, matrices, quats, etc) (or of a single type?)
+all in the same coordinate system. E.g. a point & vec array object...
+then its coordinate-system-checking overhead can be handled once for the whole collection,
+so it can be reasonably efficient w/o compiling. (For more general compiling, see below.)
+
+Then any HL geometric object can be expressed as something that owns some of these geom-prim-arrays,
+and maybe knows about special subsets of indices of its elements. This is sort of like a GeometricArray
+or GeometricStateArray -- unless the element coords are formulas... ##e
+
+==
+
+About this code's future relation to externally written geometric utility libraries
+(e.g. constructive solid geometry code, or Oleksander's code, or that trimesh-generating package
+that Huaicai once interfaced to), and/or about expressing some of this in C, or Pyrex,
+or even in Numeric Python or numarray:
 
 - There is none of that now [070313], but someday there should be, as an important optimization.
 
@@ -62,7 +82,9 @@ translating an Expr framework (e.g. for inval/update)...
 - And most of them should be viewed as examples of what glue code to external library functions
 ought to look like, much like drawing exprs can be thought of as glue code to OpenGL.
 
-Note about compiling as the ultimate optimization:
+==
+
+About compiling as the ultimate optimization:
 
 [###e maybe refile some of this comment into a new file about compiling or optim, even if it's a stub file]
  
@@ -78,6 +100,7 @@ that needs to be fast.
 
 - That means we can think of these high-level geometric formula-bundles as if they will become compiling
 instructions for geometric calculations, rather than as ever-present overhead -- since someday they will.
+
 """
 
 from basic import *

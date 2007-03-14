@@ -79,7 +79,7 @@ import demo_MT
 reload_once(demo_MT)
 from demo_MT import node_name #e really this belongs in a file which defines ModelTreeNodeInterface
 
-debug070209 = True # turn on debug prints related to drags and clicks, and "click to permanently set selected" test-kluge
+debug070209 = True # turn on debug prints related to drags and clicks, and "click to toggle self.selected" test-kluge
 
 # ==
 
@@ -273,7 +273,15 @@ class DraggableObject(DelegatingInstanceOrExpr):
 
     # has Draggable interface (see demo_polygon.py for explan) for changing self.motion
         
-    def _cmd_drag_from_to( self, p1, p2):
+    def _cmd_drag_from_to( self, p1, p2): #e rename drag_hitpoint_from_to? (in the Draggable Interface)
+        """[part of the Draggable Interface; but this interface
+        is not general enough if it only has this method -- some objects need more info eg a moving mouseray, screenrect, etc.
+        Either this gets passed more info (eg a dragevent obj),
+        or we keep the kluge of separate self dynenv queries (like for mousepoint and screenrect),
+        or we provide glue code to look for this method but use more general ones if it's not there. ###e
+        BTW, that interface is a myth at present; all actual dragging so far is done using on_press/on_drag/on_release,
+        with this method at best used internally on some objs, like this one. [as of 070313]]
+        """
         if self._delegate.altkey:
             assert 0, "should no longer be called"
 ##            ###KLUGE, just a hack for testing Highlightable.altkey [070224]; later, do rotation instead (per "New motion UI")
@@ -309,7 +317,12 @@ class DraggableObject(DelegatingInstanceOrExpr):
         self.flush(motion)
         return
 
-    # modified from demo_polygon.py class typical_DragCommand
+    # on_press etc methods are modified from demo_polygon.py class typical_DragCommand
+
+    #e note: it may happen that we add an option to pass something other than self to supply these methods.
+    # then these methods would be just the default for when that was not passed
+    # (or we might move them into a helper class, one of which can be made to delegate to self and be the default obj). [070313]
+    
     def on_press(self):
         point = self.current_event_mousepoint() # the touched point on the visible object (hitpoint)
             # (this method is defined in the Highlightable which is self.delegate)
@@ -341,7 +354,7 @@ class DraggableObject(DelegatingInstanceOrExpr):
     def on_drag(self):
         # Note: we can assume this is a "real drag", since the caller (ultimately a selectMode method in testmode, as of 070209)
         # is tracking mouse motion and not calling this until it becomes large enough, as the debug070209 prints show.
-        oldpoint = self.oldpoint # was saved by prior on_drag and by on_press
+        oldpoint = self.oldpoint # was saved by prior on_drag or by on_press
         point = self.current_event_mousepoint(plane = self.startpoint)
         if debug070209:
             self.ndrags += 1
@@ -388,8 +401,8 @@ class DraggableObject(DelegatingInstanceOrExpr):
         else:
             assert 0
         self.oldpoint = point
-        self.KLUGE_gl_update() ###k needed? i hope not, but i'm not sure; guess: NO (provided self.motion is change/usage tracked)
-            ###TRY removing that sometime
+        ## self.KLUGE_gl_update() #k needed? i hope not, but i'm not sure; guess: NO (provided self.motion is change/usage tracked)
+        # [removed on 070313, works fine in testexpr_35a]
         return
     def on_release(self):
         #e here is where we'd decide if this was really just a "click", and if so, do something like select the object,
