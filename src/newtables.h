@@ -58,6 +58,7 @@ struct bondStretch
   double potentialExtensionD;
   
   int parameterQuality; // how sure are we of these parameters
+  int quadratic; // non-zero if this stretch should be pure quadratic, instead of Lippincott-Morse
   int warned; // set to non-zero if a warning about using this entry has been printed
   
   struct interpolationTable LippincottMorse;
@@ -117,6 +118,8 @@ struct atomType
 };
 
 extern struct atomType *getAtomTypeByIndex(int atomTypeIndex);
+
+extern int isAtomTypeValid(int atomTypeIndex);
 
 extern struct atomType *getAtomTypeByName(char *symbol);
 

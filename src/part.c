@@ -1488,15 +1488,11 @@ makeAtom(struct part *p, int externalID, int elementType, struct xyz position)
     vset(p->positions[a->index], position);
     vsetc(p->velocities[a->index], 0.0);
     
-    if (elementType < 0 || elementType > MAX_ELEMENT) {
+    if (!isAtomTypeValid(elementType)) {
 	ERROR1("Invalid element type: %d", elementType);
 	p->parseError(p->stream);
     }
     a->type = getAtomTypeByIndex(elementType);
-    if (a->type->name == NULL) {
-	ERROR1("Unsupported element type: %d", elementType);
-	p->parseError(p->stream);
-    }
     
     a->isGrounded = 0;
     a->num_bonds = 0;

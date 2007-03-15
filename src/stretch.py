@@ -53,7 +53,12 @@ elmnts=[("H",   1,   1.6737),
         ("As", 33, 124.401),
         ("Se", 34, 131.106),
         ("Br", 35, 132.674),
-        ("Kr", 36, 134.429)]
+        ("Kr", 36, 134.429),
+
+        ("Ax", 200, 0.000),
+        ("Ss", 201, 0.000),
+        ("Sp", 202, 0.000),
+        ]
 
 
 sym2num={}
@@ -68,6 +73,7 @@ def printBond(a1, bond, a2, parameters):
     r0 = float(parameters['R0'])
     de = float(parameters['De'])
     quality = int(parameters['Quality'])
+    quadratic = int(parameters['Quadratic'])
 
     bt=sqrt(ks/(2.0*de))/10.0
     r0=r0*100.0
@@ -85,7 +91,7 @@ def printBond(a1, bond, a2, parameters):
         e1 = a1
         e2 = a2
     print '  addInitialBondStretch(%7.2f,%7.2f,%7.4f,%7.4f,%7.2f,'%(ks,r0,de,bt,r),
-    print '%3d, "%s-%s-%s");'%(quality, e1, bontyp[bond], e2)
+    print '%5d, %3d, "%s-%s-%s");'%(quality, quadratic, e1, bontyp[bond], e2)
     
 
 if __name__ == "__main__":
@@ -114,6 +120,7 @@ if __name__ == "__main__":
             parameters['bond'] = bond
             # default values for particular parameters:
             parameters['Quality'] = 9
+            parameters['Quadratic'] = 0
             # extract parameters from rest of line into dictionary
             m = parameterPattern.match(rest)
             while m:
@@ -126,7 +133,7 @@ if __name__ == "__main__":
             if m:
                 if not headerPrinted:
                     headerPrinted = True
-                    print '//                        ks      r0       de    beta  inflectionR qual bondName'
+                    print '//                        ks      r0       de    beta  inflectionR qual quad bondName'
                 printBond(m.group(1), m.group(2), m.group(3), parameters)
             else:
                 print >> sys.stderr, 'malformed bond: ' + bond

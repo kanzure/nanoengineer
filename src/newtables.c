@@ -29,6 +29,24 @@ getAtomTypeByIndex(int atomTypeIndex)
   return entry;
 }
 
+int
+isAtomTypeValid(int atomTypeIndex)
+{
+  char buf[256];
+  struct atomType *entry;
+
+  if (periodicHashtable == NULL) {
+    ERROR("isAtomTypeValid called before periodic table initialization");
+    return 0;
+  }
+  sprintf(buf, "%d", atomTypeIndex);
+  entry = (struct atomType *)hashtable_get(periodicHashtable, buf);
+  if (entry == NULL) {
+    return 0;
+  }
+  return 1;
+}
+
 struct atomType *
 getAtomTypeByName(char *symbol)
 {
@@ -44,7 +62,7 @@ getAtomTypeByName(char *symbol)
 // de in aJ, or 1e-18 J
 // beta in 1e12 m^-1
 static struct bondStretch *
-newBondStretch(char *bondName, double ks, double r0, double de, double beta, double inflectionR, int quality)
+newBondStretch(char *bondName, double ks, double r0, double de, double beta, double inflectionR, int quality, int quadratic)
 {
   struct bondStretch *stretch;
 
@@ -56,6 +74,7 @@ newBondStretch(char *bondName, double ks, double r0, double de, double beta, dou
   stretch->beta = beta;
   stretch->inflectionR = inflectionR;
   stretch->parameterQuality = quality;
+  stretch->quadratic = quadratic;
   stretch->warned = 0;
   stretch->maxPhysicalTableIndex = -1; // flag to indicate interpolator not initialized
   return stretch;
@@ -127,12 +146,12 @@ static struct hashtable *vanDerWaalsHashtable = NULL;
 // de in aJ, or 1e-18 J
 // beta in 1e12 m^-1
 static struct bondStretch *
-addBondStretch(char *bondName, double ks, double r0, double de, double beta, double inflectionR, int quality)
+addBondStretch(char *bondName, double ks, double r0, double de, double beta, double inflectionR, int quality, int quadratic)
 {
   struct bondStretch *stretch;
   struct bondStretch *old;
 
-  stretch = newBondStretch(bondName, ks, r0, de, beta, inflectionR, quality);
+  stretch = newBondStretch(bondName, ks, r0, de, beta, inflectionR, quality, quadratic);
   old = hashtable_put(bondStretchHashtable, bondName, stretch);
   if (old != NULL) {
     fprintf(stderr, "duplicate bondStretch: %s\n", bondName);
@@ -170,12 +189,13 @@ addInitialBondStretch(double ks,
                       double beta,
                       double inflectionR,
                       int quality,
+                      int quadratic,
                       char *bondName)
 {
   struct bondStretch *stretch;
   struct bondStretch *old;
 
-  stretch = newBondStretch(bondName, ks, r0, de, beta*1e-2, inflectionR, quality);
+  stretch = newBondStretch(bondName, ks, r0, de, beta*1e-2, inflectionR, quality, quadratic);
   old = hashtable_put(bondStretchHashtable, bondName, stretch);
   if (old != NULL) {
     fprintf(stderr, "duplicate bondStretch: %s\n", bondName);
@@ -327,6 +347,13 @@ initializeBondTable(void)
   setElement(52,  6, 5, "Te", "Tellurium", 131.106,  2.1,  0.000, 2, 142);
   setElement(53,  7, 5, "I",  "Iodine",    132.674,  2.0,  0.000, 1, 141);
   setElement(54,  0, 5, "Xe", "Xenon",     134.429,  1.9,  0.000, 0, 0);
+
+  setElement(200, 0, 0, "Ax", "DNA-Pseudo-Axis",
+                                             1.000,  5.0,  0.000, 4, 0);
+  setElement(201, 0, 0, "Ss", "DNA-Pseudo-Sugar",
+                                             1.000,  5.0,  0.000, 3, 0);
+  setElement(202, 0, 0, "Sp", "DNA-Pseudo-Phosphate",
+                                             1.000,  5.0,  0.000, 2, 0);
 
   bondStretchHashtable = hashtable_new(40);
   
@@ -511,7 +538,7 @@ interpolateGenericBondStretch(char *bondName, int element1, int element2, float 
   de = (order - 1.0) * singleStretch->de + (2.0 - order) * doubleStretch->de ;
 
   beta = sqrt(ks / (2.0 * de));
-  return addBondStretch(bondName, ks, r0, de, beta*1e-2, findInflectionR(r0, ks, de), QUALITY_INTERPOLATED);
+  return addBondStretch(bondName, ks, r0, de, beta*1e-2, findInflectionR(r0, ks, de), QUALITY_INTERPOLATED, 0);
 }
 
 /* generate a (hopefully not too bogus) set of bond stretch parameters
@@ -582,7 +609,7 @@ generateGenericBondStretch(char *bondName, int element1, int element2, char bond
     }
   }
   
-  return addBondStretch(bondName, ks, r0, de, beta*1e-2, findInflectionR(r0, ks, de), quality);
+  return addBondStretch(bondName, ks, r0, de, beta*1e-2, findInflectionR(r0, ks, de), quality, 0);
 }
 
 /* generate a (hopefully not too bogus) set of bond stretch parameters
