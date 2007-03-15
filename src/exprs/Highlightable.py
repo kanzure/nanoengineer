@@ -388,9 +388,11 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         # as of initial commit, 061214 359, the crash bug never recurred but neither did I see any prints from this,
         # so it remains untested as a bugfix, tho it's tested as a matrix-loader.
         if matrix is None:
-            print "saved %s is None, not using it" % (name,) # thus perhaps avoiding a crash bug
+            print "in %r, saved %s is None, not using it" % (self, name,) # thus perhaps avoiding a crash bug
                 # I predict I'll see this where i would have otherwise crashed;
                 ### print until i'm sure the bug is fixed
+                # text searches for this print statement might find it more easily if we add this text to the comment:
+                # "saved modelview_matrix is None, not using it" [bait for a text search -- the real print statement has %s in it]
             return
         try:
             matrix.shape != (4,4)
@@ -411,8 +413,8 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         glMatrixMode(GL_MODELVIEW)
         glPopMatrix()
         
-    def current_event_mousepoint(self, center = None, radius = None, plane = None, _wXY = None):
-        #061206; 070203 added 'plane' and revised docstring; 070226 added _wXY
+    def current_event_mousepoint(self, center = None, radius = None, plane = None, depth = None, _wXY = None):
+        #061206; 070203 added 'plane' and revised docstring; 070226 added _wXY; 070314 added depth
         #e rename? #e add variant to get the drag-startpoint too #e cache the result
         #e is this the right class for it? self is only used for glpane and local coords,
         # but "run_OpenGL_in_local_coords" is only implementable in this class for the moment.
@@ -429,7 +431,7 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         defined by center and radius. If the disk is missed, the center of view is used as before.
            If plane is passed, all the above data is ignored (depth buffer, center of view, center, radius).
         If plane is a plane [nim], the hit is assumed to lie within it; if a point, the hit lies within the screen-parallel
-        plane containing that point.
+        plane containing that point. Alternatively, an OpenGL depth value can be passed, and the hit lies at that depth.
            Private option for use by other methods: _wXY overrides the window coords of the mouse event,
         so you can get things like the corners/edges/center of a screen rectangle projected (ortho or perspective as approp)
         to the same depth as a point (passed in plane), assuming you know about glpane.width and .height.
@@ -467,7 +469,7 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
             gl_event_info = mode.dragstart_using_GL_DEPTH( event, more_info = True) # same as what mode did itself, for a leftClick
             #print "during drag got this info:",gl_event_info
             info = gl_event_info
-        def func(center = center, radius = radius, plane = plane, _wXY =_wXY):
+        def func(center = center, radius = radius, plane = plane, depth0 = depth, _wXY =_wXY):
             "[local helper func, to be passed to self.run_OpenGL_in_local_coords]"
             # will the arg dflts fix this bug when I drag off the edge of the object?
             #   UnboundLocalError: local variable 'center' referenced before assignment
@@ -475,8 +477,12 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
             if _wXY is not None:
                 ### this case is UNTESTED, NOT YET USED
                 wX, wY = _wXY
-            if plane is not None:
-                center = plane # assume it's a point -- actual plane is nim
+            if depth0 is not None:
+                depth = depth0
+                farQ = False
+            elif plane is not None:
+                center = plane # assume it's a point --
+                    # passing an actual plane is nim (btw, we don't even have a standard way of passing one)
                 radius = None
                 farQ = True
                 # now we can use the remaining code
@@ -805,6 +811,13 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         """
         obj = self.cmenu_maker # might be None or a ModelObject
         method = getattr(obj, 'make_selobj_cmenu_items', None)
+        if 'debug070314':
+            item = ('debug: self is %r' % self, noop, 'disabled')
+            menu_spec.append(item)
+            if obj is not None and obj is not self:
+                item = ('debug: cmenu_maker is %r' % (obj,), noop, 'disabled')
+                menu_spec.append(item)
+            pass
         if method is not None:
             try:
                 method(menu_spec, self)

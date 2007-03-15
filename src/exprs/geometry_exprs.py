@@ -106,6 +106,8 @@ instructions for geometric calculations, rather than as ever-present overhead --
 from basic import *
 from basic import _self
 
+from VQT import planeXline
+
 # ==
 
 # See also:
@@ -128,7 +130,7 @@ def project_onto_unit_vector(vec, unit): ###UNTESTED
 # line_closest_pt_to_line( p1, v1, p2, v2) -> point on line1
 # line_closest_pt_params_to_line -> params of that point using p1,v1 (a single number)
 
-class Ray(InstanceOrExpr): #k revise super to something about 3d geom. #e add coordsys/units features ###UNTESTED
+class Ray: ##e (InstanceOrExpr): #k revise super to something about 3d geom. #e add coordsys/units features ###UNTESTED
     """Represent an infinite line, and a map from real numbers to points on it,
     by a point and vector (of any length), so that 0 and 1 map to p and p+v respectively.
     WARNING: in this initial kluge implem, p and v themselves are passed as bare 3-tuples.
@@ -145,16 +147,49 @@ class Ray(InstanceOrExpr): #k revise super to something about 3d geom. #e add co
         self.v = v
         self.params = (p, v) ##e change to a property so mutability works as expected
     def closest_pt_params_to_ray(self, ray):
+        ""
         p2, v2 = ray.params # note: at first I wrote self.params() (using method not attr)
         p1, v1 = self.params
-        #e do some math, solve for k in p1 + k * v1 = that point
-        ##k btw what if the lines are parallel, in what way should we fail?
-        # and for that matter what if they are *almost* parallel so that we're too sensitive -- do we use an env param
-        # to decide whether to fail in that case too? If we're an Instance we could do that from self.env... #e
-        return k
-    def closest_pt_to_ray(self, ray):
-        k = self.closest_pt_params_to_ray(ray)
-        #e return a point on self whose param is k -- as a Point or a 3-tuple? how does method name say, if both can be done?
-        # answer: just return a Point and let it be asked for raw data if needed. Its default coordsys can be ours.
+        # do some math, solve for k in p1 + k * v1 = that point (remember that the vecs can be of any length):
+        # way 1: express p2-p1 as a weighted sum of v1, v2, cross(v1,v2), then take the v1 term in that sum and add it to p1.
+        # way 2: There must be a NumPy function that would just do this in about one step...
+        # way 3: or maybe we can mess around with dot(v1,v2) sort of like in corner_analyzer in demo_polygon...
+        # way 4: or we could google for "closest points on two lines" or so...
+        # way 5: or we could call it the intersection of self with the plane containing p2, and directions v2 and the cross prod,
+        # and use a formula in VQT. Yes, that may not be self-contained but it's fastest to code!
+        v1n = norm(v1)
+        v2n = norm(v2)
+        perp0 = cross(v1n, v2n)
+        if vlen(perp0) < 0.01:
+            ##k btw what if the lines are parallel, in what way should we fail?
+            # and for that matter what if they are *almost* parallel so that we're too sensitive -- do we use an env param
+            # to decide whether to fail in that case too? If we're an Instance we could do that from self.env... #e
+            print "closest_pt_params_to_ray: too sensitive, returning None" ###### teach caller to handle this; let 0.01 be option
+            return None
+        perpn = norm(perp0)
+        perpperp = cross(perpn,v2n)
+        inter = planeXline(p2, perpperp, p1, v1n) # intersect plane (as plane point and normal) with line (as point and vector)
+        if inter is None:
+            print "inter is None (unexpected); data:",p1,v1,p2,v2,perp0
+            return None
+        # inter is the retval for a variant which just wants the closest point itself, i.e. closest_pt_to_ray
+        return dot(inter - p1, v1n) / vlen(v1)
+    def posn_from_params(self, k):
+        ""
+        # return a point on self whose param is k -- as a Point or a 3-tuple? how does method name say, if both can be done?
+        # best answer someday: just return a Point and let it be asked for raw data if needed. Its default coordsys can be ours.
         # or maybe can be specified by self.env.
+        ###k does the method name 'posn' imply we return a 3-tuple not a Point?
+        if k is None:
+            return None
+        p1, v1 = self.params
+        return p1 + k * v1
+    def closest_pt_to_ray(self, ray): ### NOT USED
+        ""
+        k = self.closest_pt_params_to_ray(ray)
+        return self.posn_from_params(k)
+    def __add__(self, other):
+        ##### assume other is a Numeric array vector 3-tuple -- should verify! and someday permit a Vector object too.
+        p1, v1 = self.params
+        return self.__class__(p1 + other, v1)
     pass

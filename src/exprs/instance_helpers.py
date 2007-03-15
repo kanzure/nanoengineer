@@ -367,6 +367,8 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
         # Alternatively, maybe the caller should ask about this first (perhaps using a larger containing expr)? No, I doubt it.
         printnim("optim (important): decide what ipath a new instance should have, and if a valid old one is there, return it")#070115
         return self.__class__(_make_in = (self,env,ipath)) # this calls _destructive_make_in on the new instance
+            # note: if you accidentally define __init__ in your IorE subclass, instead of having it get its args using Arg etc,
+            # you might get an exception here something like "TypeError: __init__ got an unexpected keyword argument _make_in". [070314]
     def _destructive_make_in(self, data):
         """[private]
         This is the main internal instantiation-helper method.

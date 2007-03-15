@@ -144,6 +144,8 @@ class DraggableObject(DelegatingInstanceOrExpr):
         # WARNING: as an optim, we might require that this be True initially, or even always (i.e. be a constant),
         # if it will ever be True during the Instance's lifetime -- not sure. If so, this requirement must at least be documented,
         # and preferably error-detected. ###FIX (if we do require that)
+    # experimental kluge 070314
+    _kluge_drag_handler = Option(Anything, _self, doc = "object to receive our on_press/on_drag/on_release events, in place of _self")
     
     # state
     selected = State(bool, False) ###KLUGE test stub, only set when debug070209
@@ -262,9 +264,12 @@ class DraggableObject(DelegatingInstanceOrExpr):
         sbar_text = format_Expr( "%s%s (can be dragged)", obj_name, sbar_text_for_maybe_selected ), # revised 070216
             # This adds some info to sbar_text about what we can do with obj (drag, select, etc)...
             #e someday, maybe the dynenv wants to control how info of several kinds turns into actual sbar_text.
-        on_press = _self.on_press,
-        on_drag = _self.on_drag,
-        on_release = _self.on_release,
+##        on_press = _self.on_press,
+##        on_drag = _self.on_drag,
+##        on_release = _self.on_release,
+        on_press = _kluge_drag_handler.on_press,
+        on_drag = _kluge_drag_handler.on_drag,
+        on_release = _kluge_drag_handler.on_release,
         cmenu_maker = obj ###e 070204 experimental, API very likely to be revised; makes Highlightable look for obj.make_selobj_cmenu_items
     )
         ### DESIGN Q: do we also include the actual event binding (on_press and on_drag) -- for now, we do --
