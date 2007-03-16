@@ -9,10 +9,15 @@ Is this the command to make one (maybe rename it demo_cmd_polyline.py)
 or the data type too, which happens to include the command (this name is good)?
 
 The "demo" is because it's not part of the exprs module per se, but shows how to use it for a specific app.
+
+NOTE: lots of stuff in here will end up being moved to new or other files. ###e
 """
 
 from basic import *
 
+import command_registry
+reload_once(command_registry)
+from command_registry import * # * for now, since set of names is volatile
 
 class CommandWithItsOwnEditMode( DelegatingInstanceOrExpr): #e rename! and inherit from Command or MouseCommand or so...
     "#doc"
@@ -411,62 +416,14 @@ class cmd_MakePolyline(ClickClickCommand): ##e review naming convention (and int
 
 ##e register the types & commands [stub]
 
-# do dir() and globals() correspond?? yes, both 1244.
-## print "len dir() = %d, len(globals()) = %d" % (len(dir()), len(globals()))
 
-class registry: #e move to demo_ui I think -- no, avoid recursive import, that's a ui app not ui utils. move to new file.
-    def __init__(self):
-        self.class_for_name = {}
-    def register(self, name, val, warn_if_not_registerable = True ):
-        "#doc ... by default, warn if val is not registerable due to lacking some required decls"
-        # figure out the kind of class val is, by its decls, and register as appropriate
-        print "nim: register %s = %r" % (name, val)
-        # now record the interesting decls which let something know what to do with the class
-        motopic = getattr(val, '_e_model_object_topic', None)
+this_module_registry = registry() #e that should also register this registry with a more global one!
 
-        ###WRONG: only do following if we decide val is registerable
-        self.class_for_name[name] = val # stub [btw should we be a UserDict? that depends -- are we dictlike in any sensible way?]
-        pass #stub
-    def command_for_toolname(self, toolname): #e rename to say "main"?
-        nim # not possible, for subtools... might work for main tools. not sure!
-    def subtools_for_command(self, command): #e rename command -> main_command? (in method, not arg)
-        nim
-        # for subtools, the alg needs to be, figure out the set you want, get their nicknames, disambiguate or discard dups...
-        # return a name list and name->cmd mapping, but the mapping is not determined just from self
-        # even given the set of cmds in it or set of names in it, so no method can do what this one says (except for fullnames).
-    pass
+##class _x: pass # used only for _x.__module__ in following call [e.g. 'exprs.demo_polyline']
 
-this_module_registry = registry() # and then register this registry with a more global one!
+auto_register( this_module_registry, globals()) ## , _x.__module__ )
 
-def auto_register( registry, namespace, modulename ):
-    """Register with registry every public name/value pair in namespace (typically, globals() for the calling module)
-    whose value is a registerable class which says it was defined in a module with the given (dotted) modulename.
-    (The precise comparison is val.__module__ == modulename.)
-    (Public means the name doesn't start with '_'.)
-    (A registerable class is a certain kind of subclass of InstanceOrExpr.)
-    """
-    # note: modulename could be deduced from namespace if we assume it's globals() of a module, but don't bother.
-    for name in dir():
-        if not name.startswith('_'):
-            try:
-                # see if it's a registratable class defined in this module
-                val = globals()[name]
-                if issubclass(val, InstanceOrExpr) and val.__module__ == modulename:
-                    pass # register val in the else clause
-                else:
-                    assert 0
-            except:
-                ##raise
-                pass ### this will happen a lot (since issubclass raises an exception for a non-class val)
-            else:
-                this_module_registry.register(name, val, warn_if_not_registerable = False )
-                    # the flag says it's ok if 
-        continue
-    return
-
-class _x: pass # used only for _x.__module__ in following call [e.g. 'exprs.demo_polyline']
-
-auto_register( this_module_registry, globals(), _x.__module__ )
+# ==
 
 '''say above: intercept in testmode - baremotion, update_selobj i guess
 and some other selobj controls

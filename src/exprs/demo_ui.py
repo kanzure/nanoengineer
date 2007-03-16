@@ -210,7 +210,8 @@ class main_ui_layout(DelegatingInstanceOrExpr):
         # since we also have to deal with Tools in the sense of Tool Run Producers, eg toolbuttons. ###e
 
     # parts of the appearance
-    registry = None ###STUB, will fail
+    registry = None ###STUB, will fail --
+        ## AttributeError: 'NoneType' object has no attribute 'command_for_toolname'
     toolstack_ref = None ###STUB
     toolbar = Instance( MainToolbar( registry, ["Features", "Build", "Sketch"], toolstack_ref ) ) #e arg order?
         ###e args/opts for what tools to show -- maybe their cmdnames & it loads them from elsewhere
