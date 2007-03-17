@@ -68,7 +68,7 @@ from Overlay import Overlay
 import Boxed
 reload_once(Boxed)
 ## from Boxed import Boxed_old, Boxed_old_070120, CenterBoxedKluge, CenterBoxedKluge_try1 # removed 070316
-from Boxed import Boxed
+from Boxed import Boxed, DraggablyBoxed
 
 import transforms
 reload_once(transforms)
@@ -1369,6 +1369,10 @@ from demo_ui import * # this defines testexpr_19j, testexpr_30j, and testexpr_34
 testexpr_35 = test_StateArrayRefs()
 testexpr_35a = test_StateArrayRefs_2()
 
+# ==
+
+testexpr_36 = DraggablyBoxed(Rect())
+
 
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
 
@@ -1376,7 +1380,7 @@ testexpr_35a = test_StateArrayRefs_2()
 
 enable_testbed = True
 
-testexpr = testexpr_35a
+testexpr = testexpr_36
     # testexpr_34a - unfinished demo_ui
     # testexpr_30i - make dna cyls
     # testexpr_19i - demo_drag

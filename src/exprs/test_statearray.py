@@ -29,10 +29,9 @@ import Set
 reload_once(Set)
 from Set import Set ##e move to basic?
 
-
 import draggable
 reload_once(draggable)
-from draggable import DraggableObject
+from draggable import DraggableObject, DragBehavior
 
 import images
 reload_once(images)
@@ -116,16 +115,17 @@ class test_StateArrayRefs(DelegatingInstanceOrExpr): ### has some WRONGnesses
 #   ... done, works, and printit verifies that the statearray values actually change.
 # even so, it runs (testexpr_35a).
 
-DragBehavior = DelegatingInstanceOrExpr # stub
+##DragBehavior = InstanceOrExpr # stub; removed Delegating, 070316; then cmt out since this is now duplicated in draggable.py
 
-class xxx_drag_behavior(DragBehavior):
+class xxx_drag_behavior(DragBehavior): # revised 070316, ###UNTESTED since then
     """a drag behavior which moves the original hitpoint along a line,
     storing only its 1d-position-offset along the line's direction
     [noting that the hitpoint is not necessarily equal to the moved object's origin]
     [#doc better]
     """
     # args
-    delegate = Arg(DraggableObject) # kluge
+    highlightable = Arg(DraggableObject) # kluge; revised 070316, delegate -> highlightable ###UNTESTED
+        # [but it's misnamed -- it has to be a DraggableObject since we modify its .motion] 
     posn_parameter_ref = Arg(StateRef, doc = "where the variable height is stored")
     constrain_to_line = Arg(Ray, Ray(ORIGIN, DY), doc = "the line/ray on which the height is interpreted as a position") # dflt_expr is just for testing #e remove it
         # note: it's the position of the object's origin
@@ -145,13 +145,12 @@ class xxx_drag_behavior(DragBehavior):
     # related: Maybe DraggableObject gets split into the MovableObject and the DragBehavior...
 
     def current_event_mouseray(self):
-        p0 = self.current_event_mousepoint(depth = 0.0) # nearest depth ###k
-        p1 = self.current_event_mousepoint(depth = 1.0) # farthest depth ###k
+        p0 = self.highlightable.current_event_mousepoint(depth = 0.0) # nearest depth ###k
+        p1 = self.highlightable.current_event_mousepoint(depth = 1.0) # farthest depth ###k
         return Ray(p0, p1 - p0) #e passing just p1 should be ok too, but both forms can't work unless p0,p1 are typed objects...
     def on_press(self):
-        self.startpoint = self.current_event_mousepoint() # the touched point on the visible object (hitpoint)
-            # (this method is defined in the Highlightable which is self.delegate)
-        self.offset = self.startpoint - (ORIGIN + self.motion) #k maybe ok for now, but check whether sensible in long run
+        self.startpoint = self.highlightable.current_event_mousepoint() # the touched point on the visible object (hitpoint)
+        self.offset = self.startpoint - (ORIGIN + self.highlightable.motion) #k maybe ok for now, but check whether sensible in long run
         self.line = self.constrain_to_line + self.offset # the line the hitpoint is on (assuming self.motion already obeyed the constraint)
     def on_drag(self):
         # Note: we can assume this is a "real drag" (not one which is too short to count), due to how we are called.
@@ -165,7 +164,7 @@ class xxx_drag_behavior(DragBehavior):
             # store k
             self.posn_parameter_ref.value = k ####e by analogy with DraggableObject, should we perhaps save this side effect until the end?
             # compute new posn from k
-            self.motion = self.constrain_to_line.posn_from_params(k) ###IMPLEM - and review renaming, since we are asking it for a 3-tuple
+            self.highlightable.motion = self.constrain_to_line.posn_from_params(k) ###IMPLEM - and review renaming, since we are asking it for a 3-tuple
                 ####### LOGIC BUG: what causes self.motion to initially come from this formula, not from our own state?
                 # maybe don't use DraggableObject at all? [or as initial kluge, just let initial motion and initial height both be 0]
         return

@@ -19,7 +19,15 @@ import transforms
 reload_once(transforms)
 from transforms import Translate
 
-class Boxed(InstanceMacro):
+import Highlightable
+reload_once(Highlightable)
+from Highlightable import Highlightable
+
+import draggable
+reload_once(draggable)
+from draggable import DraggableObject, SimpleDragBehavior
+
+class Boxed(InstanceMacro): # 070316 slightly revised
     """Boxed(widget) is a boxed version of widget -- it looks like widget, centered inside a rectangular frame.
     Default options are pixelgap = 4 (in pixels), borderwidth = 4 (in pixels), bordercolor = white.
     [#e These can be changed in the env in the usual way. [nim]]
@@ -53,10 +61,44 @@ class Boxed(InstanceMacro):
     extra1 = gap + borderthickness
     ww = thing.width  + 2 * extra1 #k I'm not sure that all Widget2Ds have width -- if not, make it so ##e [061114]
     hh = thing.height + 2 * extra1
+    rectframe = RectFrame( ww, hh, thickness = borderthickness, color = bordercolor)
     # appearance
-    _value = Overlay( Translate( RectFrame( ww, hh, thickness = borderthickness, color = bordercolor),
+    _value = Overlay( Translate( rectframe,
                                  - V_expr( thing.bleft + extra1, thing.bbottom + extra1) ), #e can't we clarify this somehow?
                       thing)
+    pass
+
+# ==
+
+#implem:
+# - kluge ExprsMeta [works]
+# - behavior = [nim]
+# - SimpleDragBehavior [unfinished]
+
+class DraggablyBoxed(Boxed): # 070316
+    # inherit args, options, formulae from Boxed ###k will it work?
+    thing = _self.thing ###k WONT WORK unless we kluge ExprsMeta to remove this assignment from the namespace -- which we can do.
+        ###e not sure this is best syntax though. attr = _super.attr implies it'd work inside larger formulae, but it can't;
+        # attr = Boxed.attr might be ok, whether it can work is not reviewed; it too might imply what _super does, falsely I think.
+    extra1 = _self.extra1 
+    rectframe = _self.rectframe
+    # state
+    translation = State(Vector, ORIGIN)
+    # appearance
+    rectframe_h = Highlightable( rectframe,
+                                 #e lighter version??
+                                 sbar_text = "drag box frame",
+                                 behavior = SimpleDragBehavior(
+                                     ## translation
+                                     _self # because we *have* .translation ### KLUGE
+                                     ) #k is that stateref all it needs?? is it a good enough stateref?
+                                )
+    drawme = Overlay( Translate( rectframe_h,
+                                 - V_expr( thing.bleft + extra1, thing.bbottom + extra1) ), 
+                      thing)
+    _value = Translate( drawme, ## DisplistChunk( drawme), ###k this DisplistChunk might break the Highlightable in rectframe_h #####
+                        translation
+                       )
     pass
 
 # end
