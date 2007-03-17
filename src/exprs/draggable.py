@@ -118,6 +118,8 @@ class WarpColors(DelegatingInstanceOrExpr):
 # ('m not sure things in that scheme are divided up quite right -- its model coords may need to update continuously regardless...
 # or at least that may be a different Q than whether a graphical delegate inside DraggableObj wants that.)
 
+#### NOTE: DraggableObject will be refactored soon. [070316]
+
 class DraggableObject(DelegatingInstanceOrExpr):
     """DraggableObject(obj) is a wrapper which makes any model object draggable (###doc the details),
     and also helps provides a context menu specific to obj.
