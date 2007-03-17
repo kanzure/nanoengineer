@@ -67,7 +67,8 @@ from Overlay import Overlay
 
 import Boxed
 reload_once(Boxed)
-from Boxed import Boxed_old, Boxed_old_070120, CenterBoxedKluge, CenterBoxedKluge_try1, Boxed
+## from Boxed import Boxed_old, Boxed_old_070120, CenterBoxedKluge, CenterBoxedKluge_try1 # removed 070316
+from Boxed import Boxed
 
 import transforms
 reload_once(transforms)
@@ -243,15 +244,15 @@ testexpr_4c = Rect(1.5, color = white) # works
 testexpr_4d = Overlay( Rect(2), Rect(1, color = white) ) # works!
 
 # Boxed
-testexpr_5 = Boxed_old( Rect(2,3.5,green)) # works as of 061110 late,
-    # except for non-centering (and known nims re inclusion in bigger things), I think on 061111
-    # failed in EVAL_REFORM but that got fixed 070117 1012p, see comments below
-
-testexpr_5x = Boxed_old_070120( Rect(2,3.5,pink)) # 070120 variant of testexpr_5 -- to try in EVAL_REFORM kluge070119 -- ###
-
-testexpr_5a = Boxed_old( Center( Rect(2,3.5,green))) # sort of works, but alignment is wrong as expected [still as of 061112]
-testexpr_5b = CenterBoxedKluge( Rect(2,3.5,yellow)) # works, 061112 827p
-testexpr_5c_exits = CenterBoxedKluge_try1( Rect(2,3.5,orange)) # 061113 morn - fails (infrecur in lval -> immediate exit), won't be fixed soon
+##testexpr_5 = Boxed_old( Rect(2,3.5,green)) # works as of 061110 late,
+##    # except for non-centering (and known nims re inclusion in bigger things), I think on 061111
+##    # failed in EVAL_REFORM but that got fixed 070117 1012p, see comments below
+##
+##testexpr_5x = Boxed_old_070120( Rect(2,3.5,pink)) # 070120 variant of testexpr_5 -- to try in EVAL_REFORM kluge070119 -- ###
+##
+##testexpr_5a = Boxed_old( Center( Rect(2,3.5,green))) # sort of works, but alignment is wrong as expected [still as of 061112]
+##testexpr_5b = CenterBoxedKluge( Rect(2,3.5,yellow)) # works, 061112 827p
+##testexpr_5c_exits = CenterBoxedKluge_try1( Rect(2,3.5,orange)) # 061113 morn - fails (infrecur in lval -> immediate exit), won't be fixed soon
 testexpr_5d = Boxed( Rect(2,3.5,purple)) # 061113 morn - works; this should become the official Boxed, tho its internal code is unclear
 
 # TextRect, and _this
