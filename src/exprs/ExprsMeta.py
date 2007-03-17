@@ -891,18 +891,22 @@ class ExprsMeta(type):
             del junk
             # prefix might be anything in prefix_map (including ''), and should control how val gets processed for assignment to attr0.
             processor = prefix_map[prefix]
-            if 1:
-                # new code [was not yet working sometime on 061103, but is working and always used as of long before 061212]
-                ## printfyi("formula_scanner is enabled")
-                val0 = processor(name, attr0, val, formula_scanner = scanner)
-                    # note, this creates a C_rule (or the like) for each formula
-            else:
-                # old code, working (usually), ok for Rect_old, but obsolete [061103]
-                printfyi("NOTE: formula_scanner is temporarily disabled")
-                val0 = processor(name, attr0, val)
-                    # note, this creates a C_rule (or the like) for each formula
-                pass
+            val0 = processor(name, attr0, val, formula_scanner = scanner)
+                # note, this creates a C_rule (or the like) for each formula
             ns[attr0] = val0
+            # new feature 070316: if this assignment looks exactly like attr = _self.attr (before processor runs),
+            # then don't store it in ns. This permits "inheritance of formulae from superclass"
+            # but with the use of attr (not _self.attr) in subsequent formulae. Seems to work (testexpr_36).
+            from __Symbols__ import _self #k can this be at toplevel in the module??
+            if isinstance(val, getattr_Expr) \
+               and val._e_args[0] is _self \
+               and isinstance( val._e_args[1], constant_Expr) \
+               and val._e_args[1]._e_constant_value == attr0:
+                assert len(val._e_args) == 2, \
+                       "in class %s: dflt arg is not allowed in attr = getattr_Expr(_self, attr, dflt) (attr = %r)" % (name, attr0)
+                # assert val0 == val # should be ok, but there is not yet an __eq__ method on OpExpr!!!
+                # print "skipping ns[attr0] = val for attr0 = %r, val = %r" % (attr0, val) # works
+                del ns[attr0]
             processed_vals.append(val0) # (for use with __set_cls below)
             del prefix, attr0, val
         del newitems
