@@ -72,30 +72,40 @@ class Boxed(InstanceMacro): # 070316 slightly revised
 
 #implem:
 # - kluge ExprsMeta [works]
-# - behavior = [nim]
-# - SimpleDragBehavior [unfinished]
+# - behavior = [nim] #####
+# - SimpleDragBehavior [untested]
 
-class DraggablyBoxed(Boxed): # 070316
+class DraggablyBoxed(Boxed): # 070316; works except for jumpiness, guess due to non-stable coordsys ###LOGIC BUG [testexpr_36]
+        # see SimpleDragBehavior for comments on how to fix that bug ########
     # inherit args, options, formulae from Boxed ###k will it work?
     thing = _self.thing ###k WONT WORK unless we kluge ExprsMeta to remove this assignment from the namespace -- which we can do.
         ###e not sure this is best syntax though. attr = _super.attr implies it'd work inside larger formulae, but it can't;
         # attr = Boxed.attr might be ok, whether it can work is not reviewed; it too might imply what _super does, falsely I think.
     extra1 = _self.extra1 
-    rectframe = _self.rectframe
+    rectframe = _self.rectframe # a pure expr
     # state
     translation = State(Vector, ORIGIN)
     # appearance
-    rectframe_h = Highlightable( rectframe,
-                                 #e lighter version??
-                                 sbar_text = "drag box frame",
-                                 behavior = SimpleDragBehavior(
-                                     ## translation
-                                     _self # because we *have* .translation ### KLUGE
-                                     ) #k is that stateref all it needs?? is it a good enough stateref?
-                                )
-    drawme = Overlay( Translate( rectframe_h,
-                                 - V_expr( thing.bleft + extra1, thing.bbottom + extra1) ), 
-                      thing)
+    rectframe_h = Instance( Highlightable(
+        ## rectframe(bordercolor=green),####### cust is just to see if it works -- it doesn't, i guess i sort of know why
+        ##bug: __call__ of <getattr_Expr#8243: (S._self, <constant_Expr#8242: 'rectframe'>)> with: () {'bordercolor': (0.0, 1.0, 0.0)}
+        ##AssertionError: getattr exprs are not callable 
+        rectframe,
+        #e different colored hover-highlighted version?? for now, just use sbar_text to know you're there.
+        sbar_text = "draggable box frame", # this disappears on press -- is that intended? ###k
+        behavior = SimpleDragBehavior(
+            # arg1: the highlightable
+            _self.rectframe_h,
+            # arg2: a write-capable reference to _self.translation
+            ## fails - evalled at compile time, not an expr: LvalueFromObjAndAttr( _self, 'translation'),
+                ###BUG: why didn't anything complain when that bug caused the state value to be an add_Expr, not a number-array?
+            call_Expr( LvalueFromObjAndAttr, _self, 'translation'),
+         )
+     ))
+    drawme = Instance( Overlay(
+        Translate( rectframe_h,
+                   - V_expr( thing.bleft + extra1, thing.bbottom + extra1) ),
+        thing ) )
     _value = Translate( drawme, ## DisplistChunk( drawme), ###k this DisplistChunk might break the Highlightable in rectframe_h #####
                         translation
                        )

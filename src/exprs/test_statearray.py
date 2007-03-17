@@ -117,14 +117,14 @@ class test_StateArrayRefs(DelegatingInstanceOrExpr): ### has some WRONGnesses
 
 ##DragBehavior = InstanceOrExpr # stub; removed Delegating, 070316; then cmt out since this is now duplicated in draggable.py
 
-class xxx_drag_behavior(DragBehavior): # revised 070316, ###UNTESTED since then
+class xxx_drag_behavior(DragBehavior): # revised 070316
     """a drag behavior which moves the original hitpoint along a line,
     storing only its 1d-position-offset along the line's direction
     [noting that the hitpoint is not necessarily equal to the moved object's origin]
     [#doc better]
     """
     # args
-    highlightable = Arg(DraggableObject) # kluge; revised 070316, delegate -> highlightable ###UNTESTED
+    highlightable = Arg(DraggableObject) # kluge; revised 070316, delegate -> highlightable [works no worse than before [same bug as before]]
         # [but it's misnamed -- it has to be a DraggableObject since we modify its .motion] 
     posn_parameter_ref = Arg(StateRef, doc = "where the variable height is stored")
     constrain_to_line = Arg(Ray, Ray(ORIGIN, DY), doc = "the line/ray on which the height is interpreted as a position") # dflt_expr is just for testing #e remove it

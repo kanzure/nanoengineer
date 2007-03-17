@@ -145,6 +145,8 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
     pressed = Option(Widget2D, None, doc = "if provided, pressed is the default for both pressed_in and pressed_out")#070224
     sbar_text = Option(str, "") # mouseover text for statusbar
     #e on_enter, on_leave -- see comment below
+    behavior = Option(Anything,
+                      doc = "an Instance whose on_press/on_drag/on_release* methods we use, unless overridden by specific options")#070316
     on_press = Option(Action)
     on_drag = Option(Action)
     on_release = Option(Action,
@@ -757,7 +759,7 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         return
     
     def _do_action(self, name, motion = False, glpane_bindings = {}):
-        "[private, should only be called with one of our action-option names]"
+        "[private, should only be called with one of our action-option names, like on_press or on_release_in (not on_release)]"
 ##        if not motion:
 ##            print "_do_action",name
         assert name.startswith('on_')
@@ -775,6 +777,14 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
             # to debug. Good. Not much need to try the other fix above.
 
             ###e should be None or a callable supplied to the expr, for now; later will be None or an Action
+        if action is None:
+            behavior = self.behavior # might be None -- that's ok
+            action = getattr(self.behavior, name, None) # note: behavior shouldn't be another Highlightable, but a DragBehavior
+            if behavior:
+                if not action:
+                    print "%r: behavior %r but no action for %r" % (self, behavior, name) #####
+                else:
+                    print "%r: behavior %r has action %r for %r" % (self, behavior, action, name) #####
         if action:
             if glpane_bindings: # new feature 061205 - dynamic bindings of specific attrnames in glpane
                 glpane = self.env.glpane

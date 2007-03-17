@@ -549,7 +549,11 @@ class call_Expr(OpExpr): # note: superclass is OpExpr, not SymbolicExpr, even th
         return argvals[0] ( *argvals[1:], **kwvals )
     pass
 
-class LvalueFromObjAndAttr(object): #e refile #061204 for _e_eval_lval and LvalueArg, likely to be revised
+class LvalueFromObjAndAttr(object): #061204 for _e_eval_lval and LvalueArg, likely to be revised #e refile?
+    #e later note 070316: we use this in toplevel expr macros to turn obj.attr into a stateref,
+    # since getattr_Expr can't do that (it only makes a syntactic lval).
+    # Should we rename this to e.g. getattr_StateRef, and put it into basic? (It's already in basic, since Exprs.* is.)
+    # Maybe, but ONLY IF WE MAKE IT AN EXPR -- as it is, you have to use call_Expr with it.
     ##e make a variant for getitem_Expr? 
     def __init__(self, obj, attr):
         self.obj = obj

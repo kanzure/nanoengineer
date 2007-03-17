@@ -121,30 +121,47 @@ class WarpColors(DelegatingInstanceOrExpr):
 #### NOTE: DraggableObject will be refactored soon. [070316]
 
 class DragBehavior(InstanceOrExpr):
-    "abstract class [#doc, defaults]"
+    "abstract class [#doc, maybe more defaults]"
+    # default implems
+    def on_press(self):
+        pass
+    def on_drag(self):
+        pass
+    def on_release(self):
+        pass
+    def on_release_in(self):
+        self.on_release()
+        return
+    def on_release_out(self):
+        self.on_release()
+        return
     pass
 
-class SimpleDragBehavior(DragBehavior): ### UNFINISHED -- use the args in place of self; zap rotation maybe; perhaps more ###k
-    "the simplest kind of DragBehavior [#doc]"
-    ## translation = ArgExpr(Anything) ###### really a stateref - passed as getattr_Expr -- might not work, probably won't in fact
-    translation_holder = Arg(Anything) ### KLUGE - for now just pass the obj that has .translation
+class SimpleDragBehavior(DragBehavior): ###e zap or fix rotation maybe; perhaps more ; supposedly coded, doesn't work yet ###BUG
+    "the simplest kind of DragBehavior -- translate the passed state just like the mouse moves (screen-parallel) [#doc]"
+
+    # note: for now, it probably doesn't matter if we are remade per drag event, or live through many of them --
+    # we store state during a drag (and left over afterwards) but reset it all when the next one starts -- ASSUMING
+    # we actually get an on_press event for it -- we don't detect the error of not getting that!
+    # OTOH, even if we're newly made per drag, we don't detect or tolerate a missing initial on_press. ###BUG I guess
+
+    # args: a stateref to the translation state we should modify,
+    # and something to ask about the drag event (for now, highlightable, but later, a DragEvent object)
+    # (best arg order unclear; it may turn out that the DragEvent to ask is our delegate in the future -- so let it come first)
+
     highlightable = Arg(Anything) # for current_event_mousepoint (coordsys) -- will this always be needed? at least a DragEvent will be! 
+    translation_ref = Arg(StateRef, doc = "ref to translation state, e.g. call_Expr( LvalueFromObjAndAttr, some_obj, 'translation')")
     
-    # on_press etc methods are modified from demo_polygon.py class typical_DragCommand
-
-    #e note: it may happen that we add an option to pass something other than self to supply these methods.
-    # then these methods would be just the default for when that was not passed
-    # (or we might move them into a helper class, one of which can be made to delegate to self and be the default obj). [070313]
-
-    ###### BEGIN DUPLICATED CODE [but we're modifying this copy a bit] [other copy is in same file]
-
+    ###### BEGIN DUPLICATED CODE [in SimpleDragBehavior; other copy is in same file; we're modifying this copy a bit]
+    # [not yet modified properly: self._delegate.altkey, self.rotation, self.selected]
+    
     def on_press(self):
-        point = self.current_event_mousepoint() # the touched point on the visible object (hitpoint)
-            # (this method is defined in the Highlightable which is self.delegate)
+        print "SimpleDragBehavior.on_press" ######
+        point = self.highlightable.current_event_mousepoint() # the touched point on the visible object (hitpoint)
         self.oldpoint = self.startpoint = point
         # decide type of drag now, so it's clearly constant during drag, and so decision code is only in one place.
         # (but note that some modkey meanings might require that changes to them during the same drag are detected [nim].)
-        if self._delegate.altkey:
+        if 0: ##### self._delegate.altkey:
             self._this_drag = 'free x-y rotate'
                 #e more options later, and/or more flags like this (maybe some should be booleans)
                 ###e or better, set up a function or object which turns later points into their effects... hmm, a DragCommand instance!
@@ -167,10 +184,19 @@ class SimpleDragBehavior(DragBehavior): ### UNFINISHED -- use the args in place 
             self.ndrags = 0
         return
     def on_drag(self):
+        print "SimpleDragBehavior.on_drag" ######
         # Note: we can assume this is a "real drag", since the caller (ultimately a selectMode method in testmode, as of 070209)
         # is tracking mouse motion and not calling this until it becomes large enough, as the debug070209 prints show.
         oldpoint = self.oldpoint # was saved by prior on_drag or by on_press
-        point = self.current_event_mousepoint(plane = self.startpoint)
+        point = self.highlightable.current_event_mousepoint(plane = self.startpoint)
+            ###BUG: if self.highlightable has moved, it evidently makes its coordsystem move (not surprising),
+            # but for a drag we'd prefer a stable coordsys in which to hear about events.
+            # We may have no choice but to *say* what coordsys we want to hear about them in!
+            # Maybe we'll ask highlightable for one in on_press and use a snapshot of it in other methods...
+            # that could be implemented for now by highlightable making an object with similar methods and a fixed saved matrix!
+            # For the future (draw decorators), not entirely clear, but I suppose something similar would work.
+            # In the long run you'll just ask for the use of some larger outer fixed coordsys, I imagine.
+            # [this bug is where i am 070316 1108p]
         if debug070209:
             self.ndrags += 1
 ##            if (self.ndrags == 1) or 1:
@@ -212,7 +238,12 @@ class SimpleDragBehavior(DragBehavior): ### UNFINISHED -- use the args in place 
                 # avoid += to make sure it gets changed-tracked -- and since it would be the wrong op!
 
         elif self._this_drag == 'free x-y translate':
-            self._cmd_drag_from_to( oldpoint, point) # use Draggable interface cmd on self
+            ## self._cmd_drag_from_to( oldpoint, point) # use Draggable interface cmd on self
+            # inlined:
+            p1, p2 = oldpoint, point
+            ## self.delta_stateref.value = self.delta_stateref.value + (p2 - p1)
+            self.translation_ref.value = self.translation_ref.value + (p2 - p1)
+            print "on_drag moved %r, got to %r" % (p2 - p1, self.translation_ref.value) #####
         else:
             assert 0
         self.oldpoint = point
@@ -220,6 +251,7 @@ class SimpleDragBehavior(DragBehavior): ### UNFINISHED -- use the args in place 
         # [removed on 070313, works fine in testexpr_35a]
         return
     def on_release(self):
+        print "SimpleDragBehavior.on_release" ######
         #e here is where we'd decide if this was really just a "click", and if so, do something like select the object,
         # if we are generalized to become the wrapper which handles that too.
         if debug070209:
@@ -437,7 +469,7 @@ class DraggableObject(DelegatingInstanceOrExpr):
         self.flush(motion)
         return
 
-    ###### BEGIN DUPLICATED CODE [other copy is in same file]
+    ###### BEGIN DUPLICATED CODE [in DraggableObject; other copy is in same file]
     
     # on_press etc methods are modified from demo_polygon.py class typical_DragCommand
 
