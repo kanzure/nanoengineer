@@ -59,10 +59,6 @@ import Rect
 reload_once(Rect)
 from Rect import Rect
 
-##import Boxed # removed 070316 -- no longer needed, and now a recursive import; could also fix by splitting this file into LL/HL
-##reload_once(Boxed)
-##from Boxed import Boxed
-
 import transforms
 reload_once(transforms)
 from transforms import Translate, RotateTranslate
@@ -161,8 +157,7 @@ class SimpleDragBehavior(DragBehavior): ###e zap or fix rotation maybe; perhaps 
         return self.saved_coordsys.current_event_mousepoint(*args, **kws)
     
     def on_press(self):
-        print "SimpleDragBehavior.on_press" ######
-        self.saved_coordsys.copy_from(self.highlightable)
+        self.saved_coordsys.copy_from(self.highlightable) # needed, since self.highlightable's coordsys changes during the drag!
         
         point = self.current_event_mousepoint() # the touched point on the visible object (hitpoint)
         self.oldpoint = self.startpoint = point
@@ -191,19 +186,10 @@ class SimpleDragBehavior(DragBehavior): ###e zap or fix rotation maybe; perhaps 
             self.ndrags = 0
         return
     def on_drag(self):
-        print "SimpleDragBehavior.on_drag" ######
         # Note: we can assume this is a "real drag", since the caller (ultimately a selectMode method in testmode, as of 070209)
         # is tracking mouse motion and not calling this until it becomes large enough, as the debug070209 prints show.
         oldpoint = self.oldpoint # was saved by prior on_drag or by on_press
         point = self.current_event_mousepoint(plane = self.startpoint)
-            # old bug, dating 070316 1108p [fixed now 070317, using saved_coordsys]:
-            # if self.highlightable has moved, it evidently makes its coordsystem move (not surprising),
-            # but for a drag we'd prefer a stable coordsys in which to hear about events.
-            # We may have no choice but to *say* what coordsys we want to hear about them in!
-            # Maybe we'll ask highlightable for one in on_press and use a snapshot of it in other methods...
-            # that could be implemented for now by highlightable making an object with similar methods and a fixed saved matrix!
-            # For the future (draw decorators), not entirely clear, but I suppose something similar would work.
-            # In the long run you'll just ask for the use of some larger outer fixed coordsys, I imagine.
         if debug070209:
             self.ndrags += 1
 ##            if (self.ndrags == 1) or 1:
@@ -250,15 +236,12 @@ class SimpleDragBehavior(DragBehavior): ###e zap or fix rotation maybe; perhaps 
             p1, p2 = oldpoint, point
             ## self.delta_stateref.value = self.delta_stateref.value + (p2 - p1)
             self.translation_ref.value = self.translation_ref.value + (p2 - p1)
-            print "on_drag moved %r, got to %r" % (p2 - p1, self.translation_ref.value) #####
+##            print "on_drag moved %r, got to %r" % (p2 - p1, self.translation_ref.value)
         else:
             assert 0
         self.oldpoint = point
-        ## self.KLUGE_gl_update() #k needed? i hope not, but i'm not sure; guess: NO (provided self.motion is change/usage tracked)
-        # [removed on 070313, works fine in testexpr_35a]
         return
     def on_release(self):
-        print "SimpleDragBehavior.on_release" ######
         #e here is where we'd decide if this was really just a "click", and if so, do something like select the object,
         # if we are generalized to become the wrapper which handles that too.
         if debug070209:
@@ -567,8 +550,6 @@ class DraggableObject(DelegatingInstanceOrExpr):
         else:
             assert 0
         self.oldpoint = point
-        ## self.KLUGE_gl_update() #k needed? i hope not, but i'm not sure; guess: NO (provided self.motion is change/usage tracked)
-        # [removed on 070313, works fine in testexpr_35a]
         return
     def on_release(self):
         #e here is where we'd decide if this was really just a "click", and if so, do something like select the object,

@@ -115,8 +115,6 @@ class test_StateArrayRefs(DelegatingInstanceOrExpr): ### has some WRONGnesses
 #   ... done, works, and printit verifies that the statearray values actually change.
 # even so, it runs (testexpr_35a).
 
-##DragBehavior = InstanceOrExpr # stub; removed Delegating, 070316; then cmt out since this is now duplicated in draggable.py
-
 class xxx_drag_behavior(DragBehavior): # revised 070316
     """a drag behavior which moves the original hitpoint along a line,
     storing only its 1d-position-offset along the line's direction

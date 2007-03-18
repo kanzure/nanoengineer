@@ -70,11 +70,6 @@ class Boxed(InstanceMacro): # 070316 slightly revised
 
 # ==
 
-#implem:
-# - kluge ExprsMeta [works]
-# - behavior = [nim] #####
-# - SimpleDragBehavior [untested]
-
 class DraggablyBoxed(Boxed): # 070316; works 070317 [testexpr_36]
     # inherit args, options, formulae from Boxed ###k will it work? [most args/options ###UNTESTED]
     thing = _self.thing ###k WONT WORK unless we kluge ExprsMeta to remove this assignment from the namespace -- which we did.

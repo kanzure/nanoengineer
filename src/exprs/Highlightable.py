@@ -111,10 +111,10 @@ def selobj_for_glname(glname):#e use above? nah, it also has to store into here
 
 # ==
 
-debug_saved_coords = True ########
+debug_saved_coords = False #070317
 
-class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 070317 ##e rename to make private?
-    """Abstract superclass for Instances which can capture the current OpenGL drawing coordinates,
+class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 070317
+    """Abstract superclass [private] for Instances which can capture the current OpenGL drawing coordinates,
     restore them later, and do OpenGL state queries within them.
        Superclass of Highlightable [though maybe it could just own one of us in an attr, instead?? ##e];
     and of SavedCoordsys, for holding a saved static coordsys.
@@ -414,7 +414,7 @@ class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 07031
 
     pass # end of class _CoordsysHolder
 
-class SavedCoordsys(_CoordsysHolder): #070317 unfinished
+class SavedCoordsys(_CoordsysHolder): #070317
     """One of these can be told to save a static copy of the coordsys from any instance of a _CoordsysHolder subclass,
     or to save one from the current GL state, and then to make use of it in some of the same ways Highlightable can do. #doc better
     """
@@ -829,11 +829,11 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler): #070317 spli
         if action is None:
             behavior = self.behavior # might be None -- that's ok
             action = getattr(self.behavior, name, None) # note: behavior shouldn't be another Highlightable, but a DragBehavior
-            if behavior:
-                if not action:
-                    print "%r: behavior %r but no action for %r" % (self, behavior, name) #####
-                else:
-                    print "%r: behavior %r has action %r for %r" % (self, behavior, action, name) #####
+##            if behavior:
+##                if not action:
+##                    print "%r: behavior %r but no action for %r" % (self, behavior, name)
+##                else:
+##                    print "%r: behavior %r has action %r for %r" % (self, behavior, action, name)
         if action:
             if glpane_bindings: # new feature 061205 - dynamic bindings of specific attrnames in glpane
                 glpane = self.env.glpane
