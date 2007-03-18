@@ -1371,7 +1371,7 @@ testexpr_35a = test_StateArrayRefs_2()
 
 # ==
 
-testexpr_36 = DraggablyBoxed(Rect()) # as of 070316, works except for jumpiness, guess due to non-stable coordsys ###LOGIC BUG
+testexpr_36 = DraggablyBoxed(Rect()) # works 070317 [but most args/options are ###UNTESTED]
 
 
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@

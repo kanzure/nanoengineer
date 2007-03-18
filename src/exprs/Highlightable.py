@@ -111,7 +111,9 @@ def selobj_for_glname(glname):#e use above? nah, it also has to store into here
 
 # ==
 
-class CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 070317 ##e rename to make private?
+debug_saved_coords = True ########
+
+class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 070317 ##e rename to make private?
     """Abstract superclass for Instances which can capture the current OpenGL drawing coordinates,
     restore them later, and do OpenGL state queries within them.
        Superclass of Highlightable [though maybe it could just own one of us in an attr, instead?? ##e];
@@ -122,7 +124,7 @@ class CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 070317
         # guess: it might mess up the glselect use of the projection matrix. (since ours maybe ought to be multiplied with it or so)
 
     def _init_instance(self):
-        super(CoordsysHolder, self)._init_instance()
+        super(_CoordsysHolder, self)._init_instance()
         # == per_frame_state
         set_default_attrs( self.per_frame_state,
                            saved_modelview_matrix = None,
@@ -184,7 +186,14 @@ class CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 070317
             glMatrixMode(GL_PROJECTION) ###k guess 061210 at possible _9cx bugfix -- needed?? anyway, these guesses didn't fix the bug.
             self.per_frame_state.saved_projection_matrix = glGetDoublev( GL_PROJECTION_MATRIX ) # needed by draw_in_abs_coords
             glMatrixMode(GL_MODELVIEW)
-        self.per_frame_state.saved_modelview_matrix = glGetDoublev( GL_MODELVIEW_MATRIX ) # needed by draw_in_abs_coords
+        if debug_saved_coords:
+            old = self.per_frame_state.saved_modelview_matrix
+            if old is not None:
+                old = + old
+        self.per_frame_state.saved_modelview_matrix = new = glGetDoublev( GL_MODELVIEW_MATRIX ) # needed by draw_in_abs_coords
+        if debug_saved_coords and old != new:
+            print "debug_saved_coords: %r changes saved coords" % self
+        return
         
     def begin_using_saved_coords(self):
         # fyi: examples of glLoadMatrix (and thus hopefully the glGet for that) can be found in these places on bruce's G4:
@@ -403,21 +412,28 @@ class CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 070317
         assert ran_already_flag
         return funcres
 
-    pass # end of class CoordsysHolder
+    pass # end of class _CoordsysHolder
 
-class SavedCoordsys(CoordsysHolder): #070317 unfinished
-    """One of these can be created from any instance of a CoordsysHolder subclass;
-    it saves a static copy of its coordsys, making it available for use by all the methods of CoordsysHolder.
-    (Including the one that saves a new version, save_coords.)
+class SavedCoordsys(_CoordsysHolder): #070317 unfinished
+    """One of these can be told to save a static copy of the coordsys from any instance of a _CoordsysHolder subclass,
+    or to save one from the current GL state, and then to make use of it in some of the same ways Highlightable can do. #doc better
     """
-    #e
+    def copy_from(self, other): #e perhaps move into superclass, if it'd help with the new objs in PalletteWell
+        projection_matrix = other.per_frame_state.saved_projection_matrix
+        modelview_matrix = other.per_frame_state.saved_modelview_matrix
+        if projection_matrix is not None:
+            projection_matrix = + projection_matrix
+        if modelview_matrix is not None:
+            modelview_matrix = + modelview_matrix #k let's hope this is a deep copy!
+        self.per_frame_state.saved_projection_matrix = projection_matrix
+        self.per_frame_state.saved_modelview_matrix = modelview_matrix
     pass
 
 # ==
 
 printdraw = False # debug flag [same name as one in cad/src/testdraw.py]
 
-class Highlightable(CoordsysHolder, DelegatingMixin, DragHandler): #070317 split out superclass CoordsysHolder
+class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler): #070317 split out superclass _CoordsysHolder
     #e rename to Button? make variant called Draggable?
     """Highlightable(plain, highlighted = None, pressed_in = None, pressed_out = None)
     [###WRONG, those are not named options -- fix docstring, or change them to options??]
@@ -462,7 +478,7 @@ class Highlightable(CoordsysHolder, DelegatingMixin, DragHandler): #070317 split
     on_release_out = Option(Action, on_release,
                            doc = "mouse-up action for use if mouse is NOT over highlighted object when it's released")
     cmenu_maker = Option(ModelObject) # object which should make a context menu, by our calling obj.make_selobj_cmenu_items if it exists
-    # note: inherits projection Option from superclass CoordsysHolder [###UNTESTED]
+    # note: inherits projection Option from superclass _CoordsysHolder [###UNTESTED]
 ##    projection = Option(bool, False) # whether to save projection matrix too... would be default True except that breaks us. ###BUG
 ##        # guess: it might mess up the glselect use of the projection matrix. (since ours maybe ought to be multiplied with it or so)
 

@@ -75,10 +75,9 @@ class Boxed(InstanceMacro): # 070316 slightly revised
 # - behavior = [nim] #####
 # - SimpleDragBehavior [untested]
 
-class DraggablyBoxed(Boxed): # 070316; works except for jumpiness, guess due to non-stable coordsys ###LOGIC BUG [testexpr_36]
-        # see SimpleDragBehavior for comments on how to fix that bug ########
-    # inherit args, options, formulae from Boxed ###k will it work?
-    thing = _self.thing ###k WONT WORK unless we kluge ExprsMeta to remove this assignment from the namespace -- which we can do.
+class DraggablyBoxed(Boxed): # 070316; works 070317 [testexpr_36]
+    # inherit args, options, formulae from Boxed ###k will it work? [most args/options ###UNTESTED]
+    thing = _self.thing ###k WONT WORK unless we kluge ExprsMeta to remove this assignment from the namespace -- which we did.
         ###e not sure this is best syntax though. attr = _super.attr implies it'd work inside larger formulae, but it can't;
         # attr = Boxed.attr might be ok, whether it can work is not reviewed; it too might imply what _super does, falsely I think.
     extra1 = _self.extra1 

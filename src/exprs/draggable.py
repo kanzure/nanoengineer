@@ -69,7 +69,7 @@ from transforms import Translate, RotateTranslate
 
 import Highlightable
 reload_once(Highlightable)
-from Highlightable import Highlightable, Button, print_Expr, _setup_UNKNOWN_SELOBJ
+from Highlightable import Highlightable, Button, print_Expr, _setup_UNKNOWN_SELOBJ, SavedCoordsys
 
 import DisplistChunk # works 070103, with important caveats re Highlightable (see module docstring)
 reload_once(DisplistChunk)
@@ -151,13 +151,20 @@ class SimpleDragBehavior(DragBehavior): ###e zap or fix rotation maybe; perhaps 
 
     highlightable = Arg(Anything) # for current_event_mousepoint (coordsys) -- will this always be needed? at least a DragEvent will be! 
     translation_ref = Arg(StateRef, doc = "ref to translation state, e.g. call_Expr( LvalueFromObjAndAttr, some_obj, 'translation')")
+
+    saved_coordsys = Instance( SavedCoordsys() ) # provides transient state for saving a fixed coordsys to use throughout a drag
     
     ###### BEGIN DUPLICATED CODE [in SimpleDragBehavior; other copy is in same file; we're modifying this copy a bit]
     # [not yet modified properly: self._delegate.altkey, self.rotation, self.selected]
+
+    def current_event_mousepoint(self, *args, **kws): ##e maybe zap this and inline it, for clarity?
+        return self.saved_coordsys.current_event_mousepoint(*args, **kws)
     
     def on_press(self):
         print "SimpleDragBehavior.on_press" ######
-        point = self.highlightable.current_event_mousepoint() # the touched point on the visible object (hitpoint)
+        self.saved_coordsys.copy_from(self.highlightable)
+        
+        point = self.current_event_mousepoint() # the touched point on the visible object (hitpoint)
         self.oldpoint = self.startpoint = point
         # decide type of drag now, so it's clearly constant during drag, and so decision code is only in one place.
         # (but note that some modkey meanings might require that changes to them during the same drag are detected [nim].)
@@ -188,15 +195,15 @@ class SimpleDragBehavior(DragBehavior): ###e zap or fix rotation maybe; perhaps 
         # Note: we can assume this is a "real drag", since the caller (ultimately a selectMode method in testmode, as of 070209)
         # is tracking mouse motion and not calling this until it becomes large enough, as the debug070209 prints show.
         oldpoint = self.oldpoint # was saved by prior on_drag or by on_press
-        point = self.highlightable.current_event_mousepoint(plane = self.startpoint)
-            ###BUG: if self.highlightable has moved, it evidently makes its coordsystem move (not surprising),
+        point = self.current_event_mousepoint(plane = self.startpoint)
+            # old bug, dating 070316 1108p [fixed now 070317, using saved_coordsys]:
+            # if self.highlightable has moved, it evidently makes its coordsystem move (not surprising),
             # but for a drag we'd prefer a stable coordsys in which to hear about events.
             # We may have no choice but to *say* what coordsys we want to hear about them in!
             # Maybe we'll ask highlightable for one in on_press and use a snapshot of it in other methods...
             # that could be implemented for now by highlightable making an object with similar methods and a fixed saved matrix!
             # For the future (draw decorators), not entirely clear, but I suppose something similar would work.
             # In the long run you'll just ask for the use of some larger outer fixed coordsys, I imagine.
-            # [this bug is where i am 070316 1108p]
         if debug070209:
             self.ndrags += 1
 ##            if (self.ndrags == 1) or 1:
@@ -361,6 +368,11 @@ class DraggableObject(DelegatingInstanceOrExpr):
     sbar_text_for_maybe_selected = If( selected, " (selected)", "")
 
     delegate = Highlightable(
+        # Note 070317: since Highlightable is outside of RotateTranslate, its coordsys doesn't change during a drag,
+        # thus avoiding, here in DraggableObject, the bug that came up in the first implem of DraggablyBoxed,
+        # whose highlightable rectframe was moving during the drag, but was also being used to supply the coordsys
+        # for the drag events. This bug is actually in SimpleDragBehavior above, and the fix will be confined to that class.
+        #
         # plain appearance
         RotateTranslate( obj_drawn, rotation, use_motion),
         # hover-highlighted appearance (also used when dragging, below)
