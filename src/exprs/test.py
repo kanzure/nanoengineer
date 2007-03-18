@@ -1673,7 +1673,7 @@ bottom_left_corner = Boxed(SimpleColumn(
                       "reload on empty space leftDown?",
                       dflt = True)
      ),
-    checkbox_pref("A9 devel/exprs/show redraw_counter?", "show redraw_counter?", dflt = True), # works [new dflt & prefs key 070227]
+    checkbox_pref("A9 devel/exprs/show redraw_counter?", "show redraw_counter? (slows redraw)", dflt = True), # works [new dflt & prefs key 070227]
     Highlightable(DisplistChunk(
         CenterY(TextRect( format_Expr("instance remade at redraw %r", call_Expr(get_redraw_counter)))) )),
             # NOTE: not usage/change tracked, thus not updated every redraw, which we depend on here
@@ -1687,7 +1687,7 @@ bottom_left_corner = Boxed(SimpleColumn(
             # note: used to have continuous redraw bug, never yet fully understood...
             # after checking the checkbox above, the bug showed up only after the selobj changes away from that checkbox.
             # update 070110 1040p: the bug is fixed in GLPane.py/changes.py; still not fully understood; more info to follow. ###e
-        Highlightable(DisplistChunk(TextRect("current redraw: use checkbox (bug is fixed)"))) ####
+        Highlightable(DisplistChunk(TextRect("current redraw: checkbox shows counter"))) ####
     ),
 ##    # this old form is redundant now, but was useful for debugging the failure of the new one to update:
 ##    Highlightable(DisplistChunk( CenterY(TextRect(max_cols = 100)( format_Expr("testname: %r (_app %r)", _app.testname, _app))) ),
