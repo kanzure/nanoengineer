@@ -84,11 +84,11 @@ class DraggablyBoxed(Boxed): # 070316; works 070317 [testexpr_36] before ww,hh S
     # new option
     resizable = Option(bool, False, doc = "whether to make it resizable at lower right")
         # works 070317 10pm (testexpr_36b) except for 4 ###BUGS:
-        # - wrong corner resizes (top right)
-        # - resizer doesn't move
-        # - negative sizes allowed
-        # - no clipping to interior of rectframe
-        # also, ###UNTESTED in rotated coordsys.
+        # - the wrong corner resizes (top right) (logic bug)
+        # - resizer doesn't move (understood -- wrong expr for its posn, commented below)
+        # - negative sizes allowed (missing feature - limit the drag - need new DragBehavior feature)
+        # - no clipping to interior of rectframe (mssing feature - draw something clipped)
+        # also, ###UNTESTED in rotated coordsys. (probably won't work -- wrong kind of DragBehavior.)
         # also the resizer is ugly.
     # state
         # WARNING: due to ipath persistence, if you revise dflt_expr you apparently need to restart ne1 to see the change.
@@ -132,6 +132,7 @@ class DraggablyBoxed(Boxed): # 070316; works 070317 [testexpr_36] before ww,hh S
                    - V_expr( thing.bleft + extra1, thing.bbottom + extra1) ),
         If( resizable,
             Translate( resizer, V_expr( thing.bright + extra1, - thing.bbottom - extra1))
+                ###WRONG - this posn is fixed by thing dims, not affected by ww, hh
          )
      ))
     _value = Translate( drawme, ## DisplistChunk( drawme), ###k this DisplistChunk might break the Highlightable in rectframe_h #####
