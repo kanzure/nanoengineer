@@ -1355,14 +1355,21 @@ import demo_ui
 reload_once(demo_ui)
 from demo_ui import * # this defines testexpr_19j, testexpr_30j, and testexpr_34*
 
-# ==
+# == StateArrayRefs
 
 testexpr_35 = test_StateArrayRefs()
 testexpr_35a = test_StateArrayRefs_2()
 
-# ==
+# == DraggablyBoxed
 
-testexpr_36 = DraggablyBoxed(Rect()) # works 070317 [but most args/options are ###UNTESTED]
+testexpr_36 = DraggablyBoxed(Rect()) # works 070317
+testexpr_36a = DraggablyBoxed(Rect(), bordercolor = red, pixelgap = 6, borderwidth = 2) # works
+testexpr_36b = testexpr_36(resizable = True) # partly works 070317 10pm -- see bug comments in the code
+testexpr_36c = testexpr_36(resizable = True) # do all testexprs share the same state for the same State attrs?? yes! ###PROBLEM.
+    # all 4 of these (36, 36a, 36b, 36c) share the same ww and hh state, though only 2 can change that state.
+    # a mitigation would be a testbed button to clear all state.
+    # a fix might be to include testexpr name in the toplevel ipath used by the testbed (when one is used)
+    # or the main instance maker (otherwise). ### SOLVE THIS SOMEHOW
 
 
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
@@ -1371,7 +1378,7 @@ testexpr_36 = DraggablyBoxed(Rect()) # works 070317 [but most args/options are #
 
 enable_testbed = True
 
-testexpr = testexpr_36
+testexpr = testexpr_36c
     # testexpr_34a - unfinished demo_ui
     # testexpr_30i - make dna cyls
     # testexpr_19i - demo_drag

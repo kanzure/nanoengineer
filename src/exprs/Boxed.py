@@ -9,7 +9,7 @@ from basic import _self
 
 import Rect
 reload_once(Rect)
-from Rect import RectFrame
+from Rect import Rect, RectFrame
 
 import Overlay
 reload_once(Overlay)
@@ -18,6 +18,10 @@ from Overlay import Overlay
 import transforms
 reload_once(transforms)
 from transforms import Translate
+
+import Center
+reload_once(Center)
+from Center import Center
 
 import Highlightable
 reload_once(Highlightable)
@@ -70,15 +74,32 @@ class Boxed(InstanceMacro): # 070316 slightly revised
 
 # ==
 
-class DraggablyBoxed(Boxed): # 070316; works 070317 [testexpr_36]
-    # inherit args, options, formulae from Boxed ###k will it work? [most args/options ###UNTESTED]
+class DraggablyBoxed(Boxed): # 070316; works 070317 [testexpr_36] before ww,hh State or resizable, and again (_36b) after them
+    # inherit args, options, formulae from Boxed
     thing = _self.thing ###k WONT WORK unless we kluge ExprsMeta to remove this assignment from the namespace -- which we did.
         ###e not sure this is best syntax though. attr = _super.attr implies it'd work inside larger formulae, but it can't;
         # attr = Boxed.attr might be ok, whether it can work is not reviewed; it too might imply what _super does, falsely I think.
     extra1 = _self.extra1 
     rectframe = _self.rectframe # a pure expr
+    # new option
+    resizable = Option(bool, False, doc = "whether to make it resizable at lower right")
+        # works 070317 10pm (testexpr_36b) except for 4 ###BUGS:
+        # - wrong corner resizes (top right)
+        # - resizer doesn't move
+        # - negative sizes allowed
+        # - no clipping to interior of rectframe
+        # also, ###UNTESTED in rotated coordsys.
+        # also the resizer is ugly.
     # state
+        # WARNING: due to ipath persistence, if you revise dflt_expr you apparently need to restart ne1 to see the change.
+##    ww = State(Width, thing.width  + 2 * extra1) # replaces non-state formula in superclass -- seems to work
+##    hh = State(Width, thing.height + 2 * extra1)
+##        # now we just need a way to get a stateref to, effectively, the 3-tuple (ww,hh,set-value-discarder) ... instead, use whj:
+    whj = State(Vector, V_expr(thing.width  + 2 * extra1, thing.height + 2 * extra1, 0)) #e not sure this is sound in rotated coordsys
     translation = State(Vector, ORIGIN)
+    # override super formulae
+    ww = whj[0] # seems to work
+    hh = whj[1]
     # appearance
     rectframe_h = Instance( Highlightable(
         ## rectframe(bordercolor=green),####### cust is just to see if it works -- it doesn't, i guess i sort of know why
@@ -94,12 +115,25 @@ class DraggablyBoxed(Boxed): # 070316; works 070317 [testexpr_36]
             ## fails - evalled at compile time, not an expr: LvalueFromObjAndAttr( _self, 'translation'),
                 ###BUG: why didn't anything complain when that bug caused the state value to be an add_Expr, not a number-array?
             call_Expr( LvalueFromObjAndAttr, _self, 'translation'),
+                #e alternate forms for this that we might want to make work:
+                #  - getattr_StateRef(_self, 'translation') # simple def of the above
+                #  - StateRef_for( _self.translation ) # turns any lvalue into a stateref! Name is not good enough, though.
          )
      ))
+    resizer = Instance( Highlightable(
+        Center(Rect(extra1, extra1)), #e also try BottomRight
+        Center(Rect(extra1, extra1, white)),
+        sbar_text = "resize the box frame",
+        behavior = SimpleDragBehavior( _self.resizer, call_Expr( LvalueFromObjAndAttr, _self, 'whj') )
+     ))
     drawme = Instance( Overlay(
+        thing,
         Translate( rectframe_h,
                    - V_expr( thing.bleft + extra1, thing.bbottom + extra1) ),
-        thing ) )
+        If( resizable,
+            Translate( resizer, V_expr( thing.bright + extra1, - thing.bbottom - extra1))
+         )
+     ))
     _value = Translate( drawme, ## DisplistChunk( drawme), ###k this DisplistChunk might break the Highlightable in rectframe_h #####
                         translation
                        )
