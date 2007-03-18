@@ -111,11 +111,11 @@ def selobj_for_glname(glname):#e use above? nah, it also has to store into here
 
 # ==
 
-class CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 070317
-    """Superclass for Instances which can capture the current OpenGL drawing coordinates,
+class CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 070317 ##e rename to make private?
+    """Abstract superclass for Instances which can capture the current OpenGL drawing coordinates,
     restore them later, and do OpenGL state queries within them.
        Superclass of Highlightable [though maybe it could just own one of us in an attr, instead?? ##e];
-    also [will be] used directly for holding a saved static coordsys.
+    and of SavedCoordsys, for holding a saved static coordsys.
        WARNING: implem and API may change once we introduce "draw decorators" to fix Highlightable/DisplistChunk bugs.
     """
     projection = Option(bool, False) # whether to save projection matrix too... would be default True except that breaks us. ###BUG
@@ -405,6 +405,14 @@ class CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 070317
 
     pass # end of class CoordsysHolder
 
+class SavedCoordsys(CoordsysHolder): #070317 unfinished
+    """One of these can be created from any instance of a CoordsysHolder subclass;
+    it saves a static copy of its coordsys, making it available for use by all the methods of CoordsysHolder.
+    (Including the one that saves a new version, save_coords.)
+    """
+    #e
+    pass
+
 # ==
 
 printdraw = False # debug flag [same name as one in cad/src/testdraw.py]
@@ -454,7 +462,7 @@ class Highlightable(CoordsysHolder, DelegatingMixin, DragHandler): #070317 split
     on_release_out = Option(Action, on_release,
                            doc = "mouse-up action for use if mouse is NOT over highlighted object when it's released")
     cmenu_maker = Option(ModelObject) # object which should make a context menu, by our calling obj.make_selobj_cmenu_items if it exists
-    # note: inherits projection Option from superclass CoordsysHolder
+    # note: inherits projection Option from superclass CoordsysHolder [###UNTESTED]
 ##    projection = Option(bool, False) # whether to save projection matrix too... would be default True except that breaks us. ###BUG
 ##        # guess: it might mess up the glselect use of the projection matrix. (since ours maybe ought to be multiplied with it or so)
 
