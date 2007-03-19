@@ -109,13 +109,6 @@ class WarpColors(DelegatingInstanceOrExpr):
 
 # ==
 
-### TODO: DraggableObject should ask the obj when it prefers to be moved (eg so other objs know its abs location) --
-# never; only at file save or some other kind of update; at end of drag; continuously.
-# ('m not sure things in that scheme are divided up quite right -- its model coords may need to update continuously regardless...
-# or at least that may be a different Q than whether a graphical delegate inside DraggableObj wants that.)
-
-#### NOTE: DraggableObject will be refactored soon. [070316]
-
 class DragBehavior(InstanceOrExpr):
     "abstract class [#doc, maybe more defaults]"
     # default implems
@@ -133,127 +126,66 @@ class DragBehavior(InstanceOrExpr):
         return
     pass
 
-class SimpleDragBehavior(DragBehavior): ###e zap or fix rotation maybe; perhaps more ; supposedly coded, doesn't work yet ###BUG
+# ==
+
+class SimpleDragBehavior(DragBehavior): #works circa 070317; revised 070318
     "the simplest kind of DragBehavior -- translate the passed state just like the mouse moves (screen-parallel) [#doc]"
+    ##e rename to indicate what it does -- translate, 3d, screen-parallel
+    # (no limits, no grid, no constraint -- could add opts for those #e)
 
     # note: for now, it probably doesn't matter if we are remade per drag event, or live through many of them --
-    # we store state during a drag (and left over afterwards) but reset it all when the next one starts -- ASSUMING
-    # we actually get an on_press event for it -- we don't detect the error of not getting that!
+    # we store state during a drag (and left over afterwards) but reset it all when the next one starts --
+    # ASSUMING we actually get an on_press event for it -- we don't detect the error of not getting that!
     # OTOH, even if we're newly made per drag, we don't detect or tolerate a missing initial on_press. ###BUG I guess
 
-    # args: a stateref to the translation state we should modify,
+    # args:
+    # a stateref to the translation state we should modify,
     # and something to ask about the drag event (for now, highlightable, but later, a DragEvent object)
     # (best arg order unclear; it may turn out that the DragEvent to ask is our delegate in the future -- so let it come first)
 
     highlightable = Arg(Anything) # for current_event_mousepoint (coordsys) -- will this always be needed? at least a DragEvent will be! 
     translation_ref = Arg(StateRef, doc = "ref to translation state, e.g. call_Expr( LvalueFromObjAndAttr, some_obj, 'translation')")
 
+    # state:
     saved_coordsys = Instance( SavedCoordsys() ) # provides transient state for saving a fixed coordsys to use throughout a drag
-    
-    ###### BEGIN DUPLICATED CODE [in SimpleDragBehavior; other copy is in same file; we're modifying this copy a bit]
-    # [not yet modified properly: self._delegate.altkey, self.rotation, self.selected]
 
-    def current_event_mousepoint(self, *args, **kws): ##e maybe zap this and inline it, for clarity?
+    def current_event_mousepoint(self, *args, **kws): #e zap this and inline it, for clarity? or move it into DragBehavior superclass??
         return self.saved_coordsys.current_event_mousepoint(*args, **kws)
+
+    # note: the following methods are heavily modified from the ones in DraggableObject.
+    # [They are the methods of some interface, informal so far,
+    #  but I don't know if it's exactly the one I've elsewhere called Draggable.]
     
     def on_press(self):
-        self.saved_coordsys.copy_from(self.highlightable) # needed, since self.highlightable's coordsys changes during the drag!
-        
+        self.saved_coordsys.copy_from( self.highlightable) # needed, since self.highlightable's coordsys changes during the drag!
         point = self.current_event_mousepoint() # the touched point on the visible object (hitpoint)
         self.oldpoint = self.startpoint = point
-        # decide type of drag now, so it's clearly constant during drag, and so decision code is only in one place.
-        # (but note that some modkey meanings might require that changes to them during the same drag are detected [nim].)
-        if 0: ##### self._delegate.altkey:
-            self._this_drag = 'free x-y rotate'
-                #e more options later, and/or more flags like this (maybe some should be booleans)
-                ###e or better, set up a function or object which turns later points into their effects... hmm, a DragCommand instance!
-                ##e or should that be renamed DragOperation??
-            self._screenrect = (ll, lr, ur, ul) = self.screenrect( self.startpoint)
-                # these points should be valid in our delegate's coords == self's coords
-            self._dx = _dx = norm(lr - ll)
-            self._dy = _dy = norm(ur - lr)
-            self._dz = cross(_dx, _dy) # towards the eye (if view is ortho) (but alg is correct whether or not it is, i think)
-                ###k check cross direction sign
-            self._scale = min(vlen(lr - ll), vlen(ur - lr)) * 0.4
-                # New motion UI suggests that 40% of that distance means 180 degrees of rotation.
-                # We'll draw an axis whose length is chosen so that dragging on a sphere of that size
-                # would have the same effect. (Maybe.)
-            self._objcenter = self._delegate.center
-            self.startrot = + self.rotation
-        else:
-            self._this_drag = 'free x-y translate'
-        if debug070209:
-            self.ndrags = 0
-        return
+        
     def on_drag(self):
-        # Note: we can assume this is a "real drag", since the caller (ultimately a selectMode method in testmode, as of 070209)
-        # is tracking mouse motion and not calling this until it becomes large enough, as the debug070209 prints show.
+        # Note: we can assume this is a "real drag", since the caller is responsible for not calling this until it is.
         oldpoint = self.oldpoint # was saved by prior on_drag or by on_press
         point = self.current_event_mousepoint(plane = self.startpoint)
-        if debug070209:
-            self.ndrags += 1
-##            if (self.ndrags == 1) or 1:
-##                print "drag event %d, model distance = %r, pixel dist not computed" % (self.ndrags, vlen(oldpoint - point),)
-        if self._this_drag == 'free x-y rotate':
-            # rotate using New motion UI
-            #  [probably works for this specific kind of rotation, one of 4 that UI proposes;
-            #   doesn't yet have fancy cursors or during-rotation graphics; add those only after it's a DragCommand]
-            # two implem choices:
-            # 1. know the eye direction and the screen dims in plane of startpoint, in model coords; compute in model coords
-            # 2. get the mouse positions (startpoint and point) and screen dims in window x,y coords, compute rotation in eye coords,
-            #   but remember to reorient it to correspond with model if model coords are rotated already.
-            # Not sure which one is better.
-            #   In general, placing user into model coords (or more precisely, into object local coords) seems more general --
-            # for example, what if there were several interacting users, each visible to the others?
-            # We'd want each user's eye & screen to be visible! (Maybe even an image of their face & screen, properly scaled and aligned?)
-            # And we'd want their posns to be used in the computations here, all in model coords.
-            # (Even if zoom had occurred, which means, even the user's *size* is quite variable!)
-            #   I need "user in model coords" for other reasons too, so ok, I'll do it that way.
-            #
-            # [Hey, I might as well fix the bug in current_event_mousepoint which fakes the center of view, at the same time.
-            # (I can't remember its details right now, but I think it assumed the local origin was the cov, which is obviously wrong.)
-            # (But I didn't look at that code or fix that bug now.)]
-            vec = point - self.startpoint
-            uvec = norm(vec) #k needed??
-            axisvec = cross(self._dz, uvec) # unit length (suitable for glRotate -- but we need to use it to make a quat!)
-            axisvec = norm(axisvec) # just to be sure (or to reduce numerical errors)
-            scale = self._scale
-            draw_axisvec = axisvec * scale #e times some other length constant too?
-            center = self._objcenter
-            self.axisends = (center - axisvec, center + axisvec) # draw a rotation axis here ###e
-            self.degrees = degrees = vlen(vec) / scale * 180.0 # draw a textual indicator with degrees (and axisvec angle too) ###e
-                ###e or print that info into sbar? or somewhere fixed in glpane? or in glpane near mouse?
-            # now set self.rotation to a quat made from axisvec and degrees
-            theta = degrees / 360.0 * 2 * pi
-            # print "axisvec %r, degrees %r, theta %r" % (axisvec ,degrees,theta)
-            rot = Q(axisvec, theta)
-            self.rotation = self.startrot + rot # note use of self.startrot rather than self.rotation on rhs
-                # avoid += to make sure it gets changed-tracked -- and since it would be the wrong op!
-
-        elif self._this_drag == 'free x-y translate':
-            ## self._cmd_drag_from_to( oldpoint, point) # use Draggable interface cmd on self
-            # inlined:
-            p1, p2 = oldpoint, point
-            ## self.delta_stateref.value = self.delta_stateref.value + (p2 - p1)
-            self.translation_ref.value = self.translation_ref.value + (p2 - p1)
-##            print "on_drag moved %r, got to %r" % (p2 - p1, self.translation_ref.value)
-        else:
-            assert 0
+        self.translation_ref.value = self.translation_ref.value + (point - oldpoint)
         self.oldpoint = point
-        return
+        
     def on_release(self):
-        #e here is where we'd decide if this was really just a "click", and if so, do something like select the object,
-        # if we are generalized to become the wrapper which handles that too.
-        if debug070209:
-            if not self.ndrags:
-                # print "release (no drags)" # ie a click
-                self.selected = not self.selected ###KLUGE test stub
-            else:
-                pass # print "release after %d drags" % self.ndrags
-            self.ndrags = 0
         pass
-    ###### END DUPLICATED CODE
-    pass
+    
+    pass # end of class SimpleDragBehavior
+
+# ==
+
+# [old cmt:]
+### TODO: DraggableObject should ask the obj when it prefers to be moved (eg so other objs know its abs location) --
+# never; only at file save or some other kind of update; at end of drag; continuously.
+# ('m not sure things in that scheme are divided up quite right -- its model coords may need to update continuously regardless...
+# or at least that may be a different Q than whether a graphical delegate inside DraggableObj wants that.)
+
+#### NOTE [070318]: DraggableObject will be refactored soon. Its drag event handling methods (on_*) need to be moved into
+# separate DragBehaviors, one for translate (i.e. SimpleDragBehavior) and one for rotate,
+# or maybe into a fancier DragBehavior which delegates to one or the other of those,
+# and also lets us know whether any on_drags occurred so we can do selection behavior in on_release if not.
+# See also: other uses of any DragBehavior.
 
 class DraggableObject(DelegatingInstanceOrExpr):
     """DraggableObject(obj) is a wrapper which makes any model object draggable (###doc the details),
@@ -463,8 +395,6 @@ class DraggableObject(DelegatingInstanceOrExpr):
     def move(self, motion):
         self.flush(motion)
         return
-
-    ###### BEGIN DUPLICATED CODE [in DraggableObject; other copy is in same file]
     
     # on_press etc methods are modified from demo_polygon.py class typical_DragCommand
 
@@ -562,8 +492,6 @@ class DraggableObject(DelegatingInstanceOrExpr):
                 pass # print "release after %d drags" % self.ndrags
             self.ndrags = 0
         pass
-
-    ###### END DUPLICATED CODE
 
     pass # end of class DraggableObject
 
