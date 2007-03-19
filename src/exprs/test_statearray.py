@@ -332,12 +332,13 @@ class test_StateArrayRefs_3( DelegatingInstanceOrExpr): # testexpr_35b, _35c
     direction = Arg(Vector, DX, "direction of permitted motion -- DZ is the goal but DX is easier for testing")
         ### DX for initial test (testexpr_35b), then DZ (testexpr_35c)
     range = Option(tuple_Expr, None, doc = "range limit of height")
+    msg = Option(str, "drag along a line")
     def _height_dragger_for_index(self, index):
         stateref = StateArrayRefs_getitem_as_stateref( self.heights, index )
             #e change to self.heights.getitem_as_stateref(index)? self.heights._staterefs[index]?? self.heights[index]???
         newindex = ('_height_dragger_3_for_index', index) 
         return self.Instance( _height_dragger_3( stateref, self.direction,
-                                                 sbar_text = "drag along a line (#%r)" % (index,),
+                                                 sbar_text = "%s (#%r)" % (self.msg, index,),
                                                  range = self.range
                                                 ), newindex )
     delegate = SimpleRow(

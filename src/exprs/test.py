@@ -1361,7 +1361,7 @@ testexpr_35 = test_StateArrayRefs() # works
 testexpr_35a = test_StateArrayRefs_2() # works (after undiagnosed bug finally fixed, 070318), but superceded.
 testexpr_35b = test_StateArrayRefs_3() # works, 070318 [default direction arg is DX]
 testexpr_35c = test_StateArrayRefs_3(DZ) # works, 070318 [but only if you rotate view so DZ is not directly towards screen -- expected]
-testexpr_35d = test_StateArrayRefs_3(range = (-2,4)) # works (note, default Image size is 2)
+testexpr_35d = test_StateArrayRefs_3(range = (-2,4), msg = "drag along line segment") # works (note, default Image size is 2)
 
 # == DraggablyBoxed
 
