@@ -176,7 +176,7 @@ reload_once(demo_polyline)
 
 import test_statearray
 reload_once(test_statearray)
-from test_statearray import test_StateArrayRefs, test_StateArrayRefs_2
+from test_statearray import test_StateArrayRefs, test_StateArrayRefs_2, test_StateArrayRefs_3
 
 ## WARNING: far below we also do "from demo_ui import *"
 
@@ -1357,8 +1357,10 @@ from demo_ui import * # this defines testexpr_19j, testexpr_30j, and testexpr_34
 
 # == StateArrayRefs
 
-testexpr_35 = test_StateArrayRefs()
-testexpr_35a = test_StateArrayRefs_2()
+testexpr_35 = test_StateArrayRefs() # works
+testexpr_35a = test_StateArrayRefs_2() # works (after undiagnosed bug finally fixed, 070318), but superceded.
+testexpr_35b = test_StateArrayRefs_3() # works, 070318
+testexpr_35b = test_StateArrayRefs_3(DZ) # --
 
 # == DraggablyBoxed
 
@@ -1378,7 +1380,7 @@ testexpr_36c = testexpr_36(resizable = True) # do all testexprs share the same s
 
 enable_testbed = True
 
-testexpr = testexpr_36c
+testexpr = testexpr_35b
     # testexpr_34a - unfinished demo_ui
     # testexpr_30i - make dna cyls
     # testexpr_19i - demo_drag
