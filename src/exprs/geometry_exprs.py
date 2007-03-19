@@ -130,10 +130,11 @@ def project_onto_unit_vector(vec, unit): ###UNTESTED
 # line_closest_pt_to_line( p1, v1, p2, v2) -> point on line1
 # line_closest_pt_params_to_line -> params of that point using p1,v1 (a single number)
 
-class Ray: ##e (InstanceOrExpr): #k revise super to something about 3d geom. #e add coordsys/units features ###UNTESTED
+class Ray: ##e (InstanceOrExpr): #k revise super to something about 3d geom. #e add coordsys/units features # not fully tested
     """Represent an infinite line, and a map from real numbers to points on it,
     by a point and vector (of any length), so that 0 and 1 map to p and p+v respectively.
     WARNING: in this initial kluge implem, p and v themselves are passed as bare 3-tuples.
+    WARNING: should be an expr, but isn't yet!
     """
     #e should it be drawable? if so, is there a synonym for a non-ray line which is identical except for the draw method?
     #e and, how would its draw method know how far to draw, anyway? it might need an estimate of viewing volume...
@@ -192,4 +193,5 @@ class Ray: ##e (InstanceOrExpr): #k revise super to something about 3d geom. #e 
         ##### assume other is a Numeric array vector 3-tuple -- should verify! and someday permit a Vector object too.
         p1, v1 = self.params
         return self.__class__(p1 + other, v1)
+            ###REVIEW: will this work once we're an InstanceOrExpr? (p1 and/or other might be an expr then)
     pass

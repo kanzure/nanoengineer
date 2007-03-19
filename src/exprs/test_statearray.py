@@ -296,11 +296,17 @@ class _height_dragger_3(DelegatingInstanceOrExpr):
     height_ref = Arg(StateRef, doc = "stateref to a height variable")
     # appearance/behavior
     #e should draw some "walls" too, and maybe limit the height
-    drag_handler = Instance( xxx_drag_behavior_3( _self._delegate, height_ref, Ray(ORIGIN,
-                                                                                   ## direction -- fails for some reason ###BUG
-                                                                                   DX
-                                                                                   ) )) 
-        ### NOTE: also being used to compute the translation from the height, even between drags.
+    drag_handler = Instance( xxx_drag_behavior_3( _self._delegate, height_ref,
+                                                  Ray(ORIGIN, DX) # works
+                                                  ## Ray(ORIGIN, DZ) # works, but only if you trackball it (as expected)...
+                                                  ## Ray(ORIGIN, direction) # fails -- Ray is an ordinary class, not an expr! ###FIX
+                                                  ## call_Expr(Ray, ORIGIN, direction) # see if this workaround fixes it for now --
+                                                      # it doesn't, don't know why -- doesn't move, repeatedly prints
+                                                      ## closest_pt_params_to_ray: too sensitive, returning None
+                                                      # (which would be correct if direction was DZ and we didn't change the viewpoint)
+                                                      ###DEBUG sometime, e.g. by printing direction... unless I make Ray an expr first.
+                            ))
+        ### NOTE: drag_handler is also being used to compute the translation from the height, even between drags.
     delegate = Highlightable(
         Translate(
             Image("blueflake.jpg"), ###e needs an option to be visible from both sides (default True, probably)
