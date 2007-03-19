@@ -297,14 +297,12 @@ class _height_dragger_3(DelegatingInstanceOrExpr):
     # appearance/behavior
     #e should draw some "walls" too, and maybe limit the height
     drag_handler = Instance( xxx_drag_behavior_3( _self._delegate, height_ref,
-                                                  Ray(ORIGIN, DX) # works
+                                                  ## Ray(ORIGIN, DX) # works
                                                   ## Ray(ORIGIN, DZ) # works, but only if you trackball it (as expected)...
                                                   ## Ray(ORIGIN, direction) # fails -- Ray is an ordinary class, not an expr! ###FIX
-                                                  ## call_Expr(Ray, ORIGIN, direction) # see if this workaround fixes it for now --
-                                                      # it doesn't, don't know why -- doesn't move, repeatedly prints
-                                                      ## closest_pt_params_to_ray: too sensitive, returning None
-                                                      # (which would be correct if direction was DZ and we didn't change the viewpoint)
-                                                      ###DEBUG sometime, e.g. by printing direction... unless I make Ray an expr first.
+                                                  call_Expr(Ray, ORIGIN, direction) # this workaround fixes it for now.
+                                                      # (in prior commit it didn't, but only because of a typo in the testexpr defs
+                                                      #  in tests.py, which meant I passed DZ when I thought I passed DX.)
                             ))
         ### NOTE: drag_handler is also being used to compute the translation from the height, even between drags.
     delegate = Highlightable(
