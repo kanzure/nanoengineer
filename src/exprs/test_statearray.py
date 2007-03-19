@@ -231,7 +231,7 @@ class xxx_drag_behavior_3(DragBehavior): #070318 (compare to SimpleDragBehavior)
     [noting that the hitpoint is not necessarily equal to the moved object's origin]
     [#doc better]
     """
-    # args
+    # args [#e replace 'height' with 'posn_parameter' or 'posn_param' in these comments & docstrings]
     highlightable = Arg(Anything) ###e is there a way we can require that we're passed an Instance rather than making it ourselves?
         # I suspect that violating that caused the bug in example 2.
         # (A way that would work: a specialcase check in _init_instance.
@@ -242,6 +242,7 @@ class xxx_drag_behavior_3(DragBehavior): #070318 (compare to SimpleDragBehavior)
         # note: the position of the height on this line is typically used as the position of the drawn movable object's origin;
         # we shouldn't assume the drag startpoint is on the line, since the drawn movable object might be touched at any of its points.
         ##e rename Ray -> MarkedLine? (a line, with real number markings on it) ParametricLine? (no, suggests they can be distorted/curved)
+    range = Option(tuple_Expr, None, doc = "range limit of height")#nim
     ##e drag event object can be passed to us... as a delegate! [In recent code, it seems like the Highlightable is taking this role.]
         
     # (if this delegates or supers to something that knows all about the drag in a lower level way,
@@ -282,7 +283,14 @@ class xxx_drag_behavior_3(DragBehavior): #070318 (compare to SimpleDragBehavior)
         mouseray = self.current_event_mouseray()
         k = self.line.closest_pt_params_to_ray(mouseray)
         if k is not None:
-            # store k
+            # store k, after range-limiting
+            range = self.range # don't use the python builtin of the same name, in this method! (#e or rename the option?)
+            if range is not None:
+                low, high = range
+                if low is not None and k < low:
+                    k = low
+                if high is not None and k > high:
+                    k = high
             self.posn_parameter_ref.value = k ##e by analogy with DraggableObject, should we perhaps save this side effect until the end?
         return
     def on_release(self):
@@ -291,18 +299,20 @@ class xxx_drag_behavior_3(DragBehavior): #070318 (compare to SimpleDragBehavior)
 
 class _height_dragger_3(DelegatingInstanceOrExpr):
     # args
-    direction = Arg(Vector) #e review arg order
-    #e coordsystem? for now let x/y be the way it spreads, z be the height
     height_ref = Arg(StateRef, doc = "stateref to a height variable")
+    direction = Arg(Vector)
+    sbar_text = Option(str, "_height_dragger_3")
+    range = Option(tuple_Expr, None, doc = "range limit of height")
     # appearance/behavior
     #e should draw some "walls" too, and maybe limit the height
     drag_handler = Instance( xxx_drag_behavior_3( _self._delegate, height_ref,
                                                   ## Ray(ORIGIN, DX) # works
                                                   ## Ray(ORIGIN, DZ) # works, but only if you trackball it (as expected)...
                                                   ## Ray(ORIGIN, direction) # fails -- Ray is an ordinary class, not an expr! ###FIX
-                                                  call_Expr(Ray, ORIGIN, direction) # this workaround fixes it for now.
+                                                  call_Expr(Ray, ORIGIN, direction), # this workaround fixes it for now.
                                                       # (in prior commit it didn't, but only because of a typo in the testexpr defs
                                                       #  in tests.py, which meant I passed DZ when I thought I passed DX.)
+                                                  range = range
                             ))
         ### NOTE: drag_handler is also being used to compute the translation from the height, even between drags.
     delegate = Highlightable(
@@ -311,7 +321,7 @@ class _height_dragger_3(DelegatingInstanceOrExpr):
             drag_handler._translation ###k ok?? only if that thing hangs around even in between drags, i guess!
                 #e #k not sure if this code-commoning is good, but it's tempting. hmm.
          ),
-        sbar_text = "_height_dragger_3",
+        sbar_text = sbar_text,
         behavior = drag_handler
      )
     pass
@@ -321,11 +331,15 @@ class test_StateArrayRefs_3( DelegatingInstanceOrExpr): # testexpr_35b, _35c
     heights = StateArrayRefs(Width, 0.0)
     direction = Arg(Vector, DX, "direction of permitted motion -- DZ is the goal but DX is easier for testing")
         ### DX for initial test (testexpr_35b), then DZ (testexpr_35c)
+    range = Option(tuple_Expr, None, doc = "range limit of height")
     def _height_dragger_for_index(self, index):
         stateref = StateArrayRefs_getitem_as_stateref( self.heights, index )
             #e change to self.heights.getitem_as_stateref(index)? self.heights._staterefs[index]?? self.heights[index]???
         newindex = ('_height_dragger_3_for_index', index) 
-        return self.Instance( _height_dragger_3( self.direction, stateref), newindex )
+        return self.Instance( _height_dragger_3( stateref, self.direction,
+                                                 sbar_text = "drag along a line (#%r)" % (index,),
+                                                 range = self.range
+                                                ), newindex )
     delegate = SimpleRow(
         MapListToExpr( _self._height_dragger_for_index, ###k _self needed??
                        indices,
