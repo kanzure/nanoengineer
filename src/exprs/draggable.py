@@ -162,7 +162,10 @@ class SimpleDragBehavior(DragBehavior): #works circa 070317; revised 070318
         self.oldpoint = self.startpoint = point
         
     def on_drag(self):
-        # Note: we can assume this is a "real drag", since the caller is responsible for not calling this until it is.
+        # Note (for any on_drag method -- really about the interface it's in [###e refile]):
+        # we can assume this is a "real drag",
+        # not one which is too short to count (and is therefore treated as a click instead),
+        # since the caller is responsible for not calling on_drag until it decides this is a real drag.
         oldpoint = self.oldpoint # was saved by prior on_drag or by on_press
         point = self.current_event_mousepoint(plane = self.startpoint)
         self.translation_ref.value = self.translation_ref.value + (point - oldpoint)
