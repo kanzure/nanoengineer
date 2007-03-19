@@ -1661,6 +1661,16 @@ class _test_show_and_choose(DelegatingInstanceOrExpr):
 
 # ==
 
+def _clear_state(): #070318; doesn't crash, but has bugs -- see comments where it's called just below.
+    "clear state, then reload (without reload, gets exception)"
+    print "clearing _state (len %d), then reloading" % len(_state)
+    _state.clear()
+    import env
+    win = env.mainwindow()
+    glpane = win.glpane
+    glpane.mode.reload()
+    return
+
 bottom_left_corner = Boxed(SimpleColumn(
 ##    checkbox_pref("A9 devel/testdraw/use old vv.displist?", "use old vv.displist?"), # see USE_DISPLAY_LIST_OPTIM
 ##    checkbox_pref("A9 devel/testdraw/drawtest in old way?", "drawtest in old way?", dflt = False),
@@ -1674,6 +1684,10 @@ bottom_left_corner = Boxed(SimpleColumn(
 ##    checkbox_pref(debug_prints_prefs_key, "debug prints for redraw?", dflt = False), # note prefs_key text != checkbox label text
     checkbox_pref("A9 devel/testmode/testmode capture MMB", "testmode capture MMB?", dflt = False), #070228 alias for a debug_pref
     ActionButton(_app.env.glpane.mode.reload, "btn: testmode.reload()"), #070227; seems faster than true empty space click! ##k
+    #e perhaps useful: text display of len(_state), or better, inspector of _state
+    ActionButton( _clear_state, "btn: clear _state and reload"), #070318; ###BUG: not all label chars visible.
+        ###BUG: this failed to cause a code change in testexpr_36c to take effect, tho ne1 restart did -- I don't know why.
+        # WARNING: It's not yet verified that _clear_state makes any difference compared to reload alone.
     SimpleRow(
         SpacerFor(Rect(15*PIXELS)), # same size as the rect button in ActionButton
         checkbox_pref("A9 devel/testmode/reload on empty space leftDown",  #070312, also in testmode.py
@@ -1700,7 +1714,7 @@ bottom_left_corner = Boxed(SimpleColumn(
 ##    Highlightable(DisplistChunk( CenterY(TextRect(max_cols = 100)( format_Expr("testname: %r (_app %r)", _app.testname, _app))) ),
 ##                  sbar_text = "current test" #e give it a cmenu? we need an obj to make the menu from a list of recent tests...
 ##                  ),
-    _test_show_and_choose() #070227 - like "testname: %r" % _app.testname, but has cmenu with list of recent tests
+    _test_show_and_choose(), #070227 - like "testname: %r" % _app.testname, but has cmenu with list of recent tests
  ))
     # cosmetic bugs in this: mouse stickiness on text label (worse on g4?) [fixed], and label not active for click [fixed],
     # but now that those are fixed, highlighting of text changes pixel alignment with screen,
