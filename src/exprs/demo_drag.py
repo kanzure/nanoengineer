@@ -231,7 +231,7 @@ from OpenGL.GL import *
 ##class polyline_handle(DelegatingInstanceOrExpr):
 ##    delegate = Draggable(Rect(0.3,green))
 
-class polyline(InstanceOrExpr):
+class polyline(InstanceOrExpr): # WARNING [070319]: duplicated code, demo_drag.py and demo_draw_on_surface.py [modified a bit]
     """A graphical object with an extendable (or resettable from outside I guess) list of points,
     and a kid (end1) (supplied, but optional (leaving it out is ###UNTESTED)) that can serve as a drag handle by default.
     (And which also picks up a cmenu from self. (kluge!))
@@ -302,17 +302,6 @@ class polyline(InstanceOrExpr):
         """
         menu_spec.extend([
             ("polyline", noop, 'disabled'), # or 'checked' or 'unchecked'; item = None for separator; submenu possible
-
-##            ("show potential crossovers", self._cmd_show_potential_crossovers), #e disable if none (or all are already shown or real)
-##
-##            ("change length", [
-##                ("left extend by 1 base", lambda self = self, left = 1, right = 0: self.extend(left, right)),
-##                ("left shrink by 1 base", lambda self = self, left = -1, right = 0: self.extend(left, right)),
-##                ("right extend by 1 base", lambda self = self, left = 0, right = 1: self.extend(left, right)),
-##                ("right shrink by 1 base", lambda self = self, left = 0, right = -1: self.extend(left, right)),
-##                ("both extend by 1 base", lambda self = self, left = 1, right = 1: self.extend(left, right)),
-##                ("both shrink by 1 base", lambda self = self, left = -1, right = -1: self.extend(left, right)),
-##             ] ),
         ])
 
     pass
@@ -448,6 +437,8 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro): # see also class World_dna_h
         newpos = point + DZ * DZFUZZ # kluge: move it slightly closer so we can see it in spite of bg
             ###e needs more principled fix -- not yet sure what that should be -- is it to *draw* closer? (in a perp dir from surface)
             #e or just to create spheres (or anything else with thickness in Z) instead? (that should not always be required)
+
+            ###BUG: DZ is not always the right direction! [more comment on that in demo_draw_on_surface.py]
 
         if not self.use_VertexView:
             # old code
