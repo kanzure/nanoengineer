@@ -124,9 +124,6 @@ def bond_type_menu_section(bond): #bruce 050716; replaces bond_type_submenu_spec
     # (which means, if current type is illegal, it is disabled and the sole legal type is enabled).
     disable_legal_types = (len(types) == 1)
     res = []
-    if (isinstance(bond, Bond) and not bond.is_open_bond()):
-        command = ( lambda arg1=None, arg2=None, bond=bond: bond.bust() )
-        res.append(("delete bond", command, None, None))
     for btype in types: # include current value even if it's illegal
         subtext = "%s bond" % btype # this string might be extended below
         checked = (btype == btype_now)
@@ -161,6 +158,10 @@ def bond_type_menu_section(bond): #bruce 050716; replaces bond_type_submenu_spec
     ##e if >1 legal value, maybe we should add a toggleable checkmark item to permit "locking" the bond to its current bond type;
     # this won't be needed until we have better bond inference (except maybe for bondpoints),
     # since right now [still true 060703] we never alter real bond types except when the user does an action on that specific bond.
+    if (isinstance(bond, Bond) and not bond.is_open_bond()):
+        command = ( lambda arg1=None, arg2=None, bond=bond: bond.bust() )
+        res.append(None) # separator
+        res.append(("Delete Bond", command))
     return res
 
 ##def bond_type_submenu_spec(bond): #bruce 050705 (#e add options??); probably not used in Alpha6
