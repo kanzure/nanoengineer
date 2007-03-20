@@ -21,7 +21,7 @@ from bond_constants import *
 import env
 from HistoryWidget import greenmsg, redmsg, orangemsg
 from debug import print_compact_stack
-
+from bonds import Bond
 
 def intersect_sequences(s1, s2):
     "Return the intersection of two sequences. If they are sorted in a compatible way, so will be the result."
@@ -97,7 +97,7 @@ def bond_menu_section(bond, quat = Q(1,0,0,0)):
     res.append(( bonded_atoms_summary(bond, quat = quat), noop, 'disabled' ))
     res.extend( bond_type_menu_section(bond) )
     return res
-
+    
 def bond_type_menu_section(bond): #bruce 050716; replaces bond_type_submenu_spec for Alpha6
     """Return a menu_spec for changing the bond_type of this bond
     (as one or more checkmark items, one per permitted bond-type given the atomtypes),
@@ -124,6 +124,9 @@ def bond_type_menu_section(bond): #bruce 050716; replaces bond_type_submenu_spec
     # (which means, if current type is illegal, it is disabled and the sole legal type is enabled).
     disable_legal_types = (len(types) == 1)
     res = []
+    if (isinstance(bond, Bond) and not bond.is_open_bond()):
+        command = ( lambda arg1=None, arg2=None, bond=bond: bond.bust() )
+        res.append(("delete bond", command, None, None))
     for btype in types: # include current value even if it's illegal
         subtext = "%s bond" % btype # this string might be extended below
         checked = (btype == btype_now)
