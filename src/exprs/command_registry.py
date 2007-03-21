@@ -14,16 +14,21 @@ register the types & commands [stub]
 # (Initially, we might deepcopy the dict into _app in order to notice when the whole thing changes,
 #  like we do with redraw_counter.)
 
-# but for now, here's the code we have for this, imported & partly called but not yet usefully used.
 
-# ===
+#e can't we just make a tree of exprs which do things like union some dicts and modify nicknames for uniqueness?
+# then each module just sets the value of its own dict of names...
+# and a recompute rule figures out what that means for the toplevel summary...
+
+# ==
+
+# but for now, here's the code we have for this, imported & partly called but not yet usefully used.
 
 # do dir() and globals() correspond?? yes, both 1244.
 ## print "len dir() = %d, len(globals()) = %d" % (len(dir()), len(globals()))
 
 # ==
 
-class registry: #e rename?
+class CommandRegistry: #e rename?
     def __init__(self):
         self.class_for_name = {}
         #e that should also register this registry with a more global one!
@@ -46,19 +51,25 @@ class registry: #e rename?
         # even given the set of cmds in it or set of names in it, so no method can do what this one says (except for fullnames).
     pass
 
-def auto_register( registry, namespace, modulename = None):
-    """Register with registry every public name/value pair in namespace (typically, globals() for the calling module)
-    whose value is a registerable class which (in standard attrs such as __module__)
-    says it was defined in a module with the given (dotted) modulename (namespace['__name__'] by default,
-     which means passing globals() of some module works as a way of providing that module's name [###explain this better]).
+def auto_register( namespace, registry = None, modulename = None):
+    """###doc this better -- it's correct and complete, but very unclear:
+    Register with registry (or with a global registry, if registry arg is not provided)
+    every public name/value pair in namespace (typically, globals() for the calling module)
+    whose value is a registerable class which (according to standard attrs such as __module__)
+    says it was defined in a module with the given (dotted) modulename (namespace['__name__'] by default).
+    This means that passing globals() of some module works as a way of providing that module's name.
     (The precise comparison, for val being worth considering, is val.__module__ == modulename.)
     (A public name is a name that doesn't start with '_'.)
     (A registerable class is one of a set of certain kinds of subclass of InstanceOrExpr (basically, ones which
      define any of several known interfaces for self-registration) -- see code comments for details.)
     """
+    #e permit namespace to be a list of names instead? but how would they be looked up? add another arg for the names?
     if modulename is None:
         # assume namespace is globals() of a module
         modulename = namespace['__name__']
+    if registry is None:
+        import __main__
+        registry = __main__._exprs__registry
     for name in dir():
         if not name.startswith('_'):
             try:
@@ -73,8 +84,15 @@ def auto_register( registry, namespace, modulename = None):
                 pass ### this will happen a lot (since issubclass raises an exception for a non-class val)
             else:
                 registry.register(name, val, warn_if_not_registerable = False )
-                    # the flag says it's ok if 
         continue
+    return
+
+def _setup_global_registry(): ###CALL ME
+    """[to be called once per session, or per reload of exprs module]
+    ###doc
+    """
+    import __main__
+    __main__._exprs__registry = CommandRegistry()
     return
 
 # end

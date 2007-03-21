@@ -136,18 +136,36 @@ class polyline3d(InstanceOrExpr): # WARNING [070319]: duplicated code, demo_drag
 PropertyGroup = DelegatingInstanceOrExpr
 
 class make_polyline3d_PG(PropertyGroup):###e call me ###e revise -- not clear it should refer to a pref
+    ###e who supplies this? the command? i guess so. is it a local class inside it? or at least the value of an attr inside it?
     "contents of property manager group for a polyline3d which is being made"
+    ###e needs some args that let it find that polyline3d or the making-command!
+    arg = Arg()
     #e someday be able to automake this from higher-level contents... but returning a widget is always going to be a possibility
     delegate = SimpleColumn(
         checkbox_pref( kluge_dragtool_state_prefs_key + "bla2", "closed?", dflt = False),
     )
+    title = "Polyline Properties" ###USE ME
+    pass
+
+class PM_from_groups(DelegatingInstanceOrExpr): ###e refile into demo_ui or so, and call it on [make_polyline3d_PG(somearg)]
+    groups = Arg(list_Expr)
+    delegate = MapListToExpr(
+        KLUGE_for_passing_expr_classes_as_functions_to_ArgExpr(Boxed), ###e change to a GroupBox, with a title from the group...
+        groups,
+        KLUGE_for_passing_expr_classes_as_functions_to_ArgExpr(SimpleColumn)
+     )
     pass
 
 # ==
 
-Command = Stub
+class PM_Command(InstanceOrExpr): #e review name, etc ##e delegating?? ###k hmm, is it a command, or a CommandRun? can those be same class?
+    "superclass for commands with their own property managers"
+    # default ways to get the PM
+    property_manager_groups = () # typically overridden by a subclass
+    property_manager = Instance( PM_from_groups( _self.property_manager_groups ))
+    
 
-class cmd_DrawOnSurface(Command):
+class cmd_DrawOnSurface(PM_Command):
     """A command for creating a new object, a 3d polyline, by drawing it over any visible surface
     (but the resulting object is in absolute model coords, in this version).
        To use the command, some UI invokes it, one-time or as a mode, and an object of this class gets
@@ -161,16 +179,20 @@ class cmd_DrawOnSurface(Command):
     even if it's only provisional -- outer code can decide if it shows up in the MT in that case, and if so, in what way).
     """
     # class constants, presumed to be part of a "registerable command API"
+    # name and description
     cmd_name = "DrawOnSurface"
     cmd_desc = "draw 3D polyline over surface"
     cmd_desc_long = "draw a dense 3D polyline over a 3D surface, following its contours"
+    
     #e categorization info, so a UI-builder knows where to include this command, how to classify it for browsing --
     # this includes what it needs to run, what it creates or modifies
 
     #e info about when this command can sensibly be offered, about what kind of command it is in terms of event-capturing
     # (one drag, many drags, uses selection, etc)...
 
-    #e for when the command is "active": a display style (or mod of one?) to use -- filter what is shown, how its shown --
+    #e for when the command is "active":
+
+    #e a display style (or mod of one?) to use -- filter what is shown, how its shown --
     # or maybe it's one of a family of commands that use the same display style -- then it needs to specify an interface
     # that it expects drawables to follow, while it's in effect -- and some overlying system has to decide whether to make
     # a new instance of a model-view and in what style... or maybe this command inserts itself into a tree of commands
@@ -179,6 +201,14 @@ class cmd_DrawOnSurface(Command):
     # ... ultimately this ensures that the drawables know enough for this command
     # to know how to highlight them, select them (if that can occur while it's active), which ones to operate on
     # (so it supplies its own selobj or glname filter)...
+
+    # a property manager
+
+    ## property_manager_groups = [make_polyline3d_PG] # functions to apply to an arg (which arg? ####), or exprheads, to get PM groups
+        ##### why not just say make_polyline3d_PG(_self)???
+    property_manager_groups = list_Expr( make_polyline3d_PG(_self) )
+
+        ###e super should make property_manager from the groups, if we don't make a whole one ourselves
     
     #e code for event handlers to initiate the drag
 
@@ -227,12 +257,13 @@ class cmd_DrawOnSurface(Command):
         if isinstance(self.newnode, polyline3d) and env.prefs.get(kluge_dragtool_state_prefs_key + "bla2", False):
             self.newnode._closed_state = True ####KLUGE, I'd rather say .closed but that won't work until I have OptionState
         return
-
     
     pass # end of class cmd_DrawOnSurface
 
 # ==
 
-__register__ = ['cmd_DrawOnSurface'] #e or could be filter(func, dir()) ... ###e is calling a global function clearer? yes.
+## __register__ = ['cmd_DrawOnSurface'] #e or could be filter(func, dir()) ... ###e is calling a global function clearer? yes.
+
+auto_register( globals()) #e or list the objects?
 
 # end
