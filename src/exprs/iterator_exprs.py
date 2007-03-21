@@ -32,11 +32,8 @@ class MapListToExpr(DelegatingInstanceOrExpr): #e rename? should this be what ma
         exprhead = self.exprhead
         index = '_C__delegate'
         # compute the expr we need (see comment above for why we need a new one each time)
-##        assert type(list(elements)) == type([])
-##            # note: this does not assert type(elements) == type([]), only that list(elements) works and makes a list
-##            # (i.e. it's redundant with error checking in the map call below)
         elts = map( function, elements)
-        def func2(elt, subindex): #070320
+        def func2((elt, subindex)): #070320
             if is_expr_Instance(elt):
                 res = elt
             elif is_pure_expr(elt):
@@ -53,7 +50,7 @@ class MapListToExpr(DelegatingInstanceOrExpr): #e rename? should this be what ma
         # do we need to eval expr first? in theory i forget, but I think we do.
         # in practice it's very likely to eval to itself, so it doesn't matter for now. ###k
         ##e do we need to discard usage tracking during the following??
-        res = self.instance_function( expr, (-1, index), permit_expr_to_vary = True)
+        res = self.instance_function( expr, (None, index), permit_expr_to_vary = True)
         return res
     pass # end of class MapListToExpr
 
