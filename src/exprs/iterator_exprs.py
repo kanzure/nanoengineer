@@ -11,11 +11,14 @@ class MapListToExpr(DelegatingInstanceOrExpr): #e rename? should this be what ma
     # note: this was modified from _MT_try2_kids_helper, which was then rewritten in terms of it.
     # args (#e should some be ArgOrOption? Note: that doesn't work right if it comes before Arg.)
     ###KLUGE: use ArgExpr to avoid problems when passing expr classes as functions -- not sure if generally ok (eg when ordinary callable is passed)#####
-    function = ArgExpr(Function, doc = "a python function which maps whatever you pass as elements to Instances")
+    function = ArgExpr(Function, doc = "a python function which maps members of elements to Instances or Exprs")
     elements = Arg(list_Expr, doc = "a list of elements (of whatever data type you want, suitable for passing to _my.function)")
-    exprhead = ArgExpr(Function, doc = """a python function which can be applied to a sequence of Instances
+    exprhead = ArgExpr(Function, doc = """a python function or expr which can be applied to a sequence of Instances
                     to produce an Expr we should instantiate as our _delegate, whenever our input list of elements changes.
-                    Typical values include expr classes like SimpleColumn, or customized ones like SimpleRow(pixelgap = 2)."""
+                    Typical values include expr classes like SimpleColumn, or customized ones like SimpleRow(pixelgap = 2).
+                    WARNING: due to logic bugs at present, expr classes passed to this argument (or to the function argument)
+                    need to be wrapped in KLUGE_for_passing_expr_classes_as_functions_to_ArgExpr.
+                    """
                 )
     instance_function = Option(Function, _self.Instance,
                                doc = "a python function with the API of some IorE object's .Instance method, to produce the Instances we delegate to" )
@@ -33,13 +36,24 @@ class MapListToExpr(DelegatingInstanceOrExpr): #e rename? should this be what ma
 ##            # note: this does not assert type(elements) == type([]), only that list(elements) works and makes a list
 ##            # (i.e. it's redundant with error checking in the map call below)
         elts = map( function, elements)
-        for elt in elts:
-            assert is_expr_Instance(elt), "not an Instance: %r" % (elt,)
+        def func2(elt, subindex): #070320
+            if is_expr_Instance(elt):
+                res = elt
+            elif is_pure_expr(elt):
+                # new feature 070320: if function(element) gives an expr, instantiate it with a suitable choice of index
+                eli = self.instance_function( elt, (subindex, index), permit_expr_to_vary = True)
+                assert is_expr_Instance(eli) #e error message with elt and eli
+                res = eli
+            else:
+                assert is_expr_Instance(elt) or is_pure_expr(elt) #e message
+            assert is_expr_Instance(res) # sanity check, can remove when works
+            return res
+        elts = map( func2, zip(elts, range(len(elts))))
         expr = exprhead(*elts)
         # do we need to eval expr first? in theory i forget, but I think we do.
         # in practice it's very likely to eval to itself, so it doesn't matter for now. ###k
         ##e do we need to discard usage tracking during the following??
-        res = self.instance_function( expr, index, permit_expr_to_vary = True)
+        res = self.instance_function( expr, (-1, index), permit_expr_to_vary = True)
         return res
     pass # end of class MapListToExpr
 
