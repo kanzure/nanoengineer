@@ -815,11 +815,11 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
             raise
         return res
         
-    def _i_grabarg( self, attr, argpos, dflt_expr): 
+    def _i_grabarg( self, attr, argpos, dflt_expr, _arglist = False): 
         "#doc, especially the special values for some of these args"
         if 0:
-            print_compact_stack( "_i_grabarg called with ( self %r, attr %r, argpos %r, dflt_expr %r): " % \
-                                 (self, attr, argpos, dflt_expr) )
+            print_compact_stack( "_i_grabarg called with ( self %r, attr %r, argpos %r, dflt_expr %r, _arglist %r): " % \
+                                 (self, attr, argpos, dflt_expr, _arglist) )
             print " and the data it grabs from is _e_kws = %r, _e_args = %r" % (self._e_kws, self._e_args)
         #k below should not _e_eval or canon_expr without review -- should return an arg expr or dflt expr, not its value
         # (tho for now it also can return None on error -- probably causing bugs in callers)
@@ -829,7 +829,8 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
             print "warning: possible bug: not self._e_has_args in _i_grabarg%r in %r" % ((attr, argpos), self)
         assert attr is None or isinstance(attr, str)
         assert argpos is None or (isinstance(argpos, int) and argpos >= 0)
-        external_flag, res0 = self._i_grabarg_0(attr, argpos, dflt_expr)
+        assert _arglist in (False, True)
+        external_flag, res0 = self._i_grabarg_0(attr, argpos, dflt_expr, _arglist = _arglist)
         if external_flag:
             # flag and this condition added 061116 443p to try to fix '_self dflt_expr bug'; seems to work in testexpr_9a;
             # I'm guessing type_expr doesn't have a similar bug since it's applied outside this call. #k
@@ -899,7 +900,7 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
             # WARNING: doing it here creates a cyclic ref from self to self, since the result is memoized in self.
         return res
 
-    def _i_grabarg_0( self, attr, argpos, dflt_expr):
+    def _i_grabarg_0( self, attr, argpos, dflt_expr, _arglist = False):
         "[private helper for _i_grabarg] return the pair (external-flag, expr to use for this arg)"
         # i think dflt_expr can be _E_REQUIRED_ARG_, or any (other) expr
         from __Symbols__ import _E_REQUIRED_ARG_
@@ -916,29 +917,48 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
         if attr is not None:
             # try to find it in _e_kws; I suppose the cond is an optim or for clarity, since None won't be a key of _e_kws
             try:
-                return 1, self._e_kws[attr]
+                return True, self._e_kws[attr]
             except KeyError:
                 pass
         if argpos is not None:
             try:
-                return 1, self._e_args[argpos]
+                res = self._e_args[argpos]
             except IndexError: # "tuple index out of range"
                 pass
-        # arg was not provided -- error or use dflt_expr
-        if required:
-            print "error: required arg %r or %r not provided to %r. [#e Instance-maker should have complained!] Using None." % \
-                  (attr, argpos, self)
-            # Note: older code returned literally None, not an expr, which caused a bug in caller which tried to _e_eval the result.
-            # Once we've printed the above, we might as well be easier to debug and not cause that bug right now,
-            # so we'll return a legal expr -- in some few cases this will not cause an error, making this effectively a warning,
-            # "missing args are interpreted as None". Review this later. [061118]
-            printnim("a better error retval might be a visible error indicator, if the type happens to be a widget")###e
-                #e I think we don't know the type here -- but we can return a general error-meaning-thing (incl error msg text)
-                # and let the type-coercers do with it what they will. Or we could return something equivalent to an exception
-                # (in our interpreted language) and revise our eval semantics to handle that kind of thing. [061118]
-            return 0, canon_expr(None)
+            else:
+                # res was the arg provided at argpos
+                if _arglist:
+                    res = tuple_Expr(* self._e_args[argpos:])
+                return True, res                
+        # no arg was provided at argpos
+        if _arglist:
+            # [_arglist supports ArgList, a new feature 070321]
+            # no args were provided for an ArgList -- use dflt_expr, or tuple_Expr().
+            # (Note: we don't use list_Expr. See comments near def of ArgList.)
+            if required:
+                return False, tuple_Expr() #k probably equiv to canon_expr(())
+                     ##k optim-related Q: what should external_flag be in this case? [070321 Q]
+            else:
+                return False, dflt_expr # note: nothing fundamental requires that dflt_expr evals/instantiates to a list or tuple,
+                    # though it would usually be an error if it doesn't (depending on how the class body formulae were written).
+                    # It's not an error per se, just likely to be one given how ArgList is conventionally used.
         else:
-            return 0, dflt_expr
+            # ordinary arg was not provided -- error or use dflt_expr
+            if required:
+                print "error: required arg %r or %r not provided to %r. [#e Instance-maker should have complained!] Using None." % \
+                      (attr, argpos, self)
+                # Note: older code returned literally None, not an expr, which caused a bug in caller which tried to _e_eval the result.
+                # Once we've printed the above, we might as well be easier to debug and not cause that bug right now,
+                # so we'll return a legal expr -- in some few cases this will not cause an error, making this effectively a warning,
+                # "missing args are interpreted as None". Review this later. [061118]
+                printnim("a better error retval might be a visible error indicator, if the type happens to be a widget")###e
+                    #e I think we don't know the type here -- but we can return a general error-meaning-thing (incl error msg text)
+                    # and let the type-coercers do with it what they will. Or we could return something equivalent to an exception
+                    # (in our interpreted language) and revise our eval semantics to handle that kind of thing. [061118]
+                return False, canon_expr(None)
+                    ##k optim-related Q: what should external_flag be in this case? [070321 Q]
+            else:
+                return False, dflt_expr
         pass # above should not _e_eval or canon_expr without review -- should return an arg or dflt expr, not its value
 
     def drawkid(self, kid): # note: supersedes nim _e_decorate_draw [070210]

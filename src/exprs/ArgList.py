@@ -4,6 +4,8 @@ ArgList.py
 $Id$
 
 scratch file to be merged into attr_decl_macros.py and instance_helpers.py
+
+ABANDONED (tentatively) on 070321 -- replaced by a new def ArgList in attr_decl_macros.py, and support features in ExprsMeta.py.
 """
 
 def ArgList(type_expr):

@@ -347,6 +347,10 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
             # Note: requires fast == on Expr -- currently we let Python use 'is' by default. [#k in py doc, verify that's what happens]
             # Note: '==' (unlike other ops) is not meant as a formula.
             # (Could it be a formula, but with a boolean value too, stored independently??)
+            #
+            # Note: this is not affected by the Numeric Python design flaw (i.e. bug) about what '==' means,
+            # since any Numeric arrays in args or kws have been wrapped by constant_Expr.
+            # [070321, educated guess, not absolutely verified ####k]
             return self # helps prevent memory leaks (by avoiding needless reconstruction of equal exprs); might help serno too??
         printnim("replace would be wrong for an expr with subexprs but also other data -- do we have any such? ##k")##k
             #k (wouldn't it also be wrong for expr w/ other data, even if no args/kws??)
@@ -663,6 +667,7 @@ class list_Expr(OpExpr): #k not well reviewed, re how it should be used, esp. in
     def __str__(self):
         return "%s" % (list(self._e_args),) #e need parens?
     _e_eval_function = staticmethod( lambda *args:list(args) )
+        ####e consider making this a tuple_Expr synonym -- see ArgList comments [070321]
     pass
 
 def printfunc(*args, **kws): #e refile, maybe rename dprint; compare to same-named *cannib*.py func
@@ -676,7 +681,7 @@ class tuple_Expr(OpExpr): #k not well reviewed, re how it should be used, esp. i
         pass
     def __str__(self):
         return "%s" % (tuple(self._e_args),) #e need parens?
-    _e_eval_function = staticmethod( lambda *args:args )
+    _e_eval_function = staticmethod( lambda *args:args ) ####e this will need fixing, and _e_make_in, due to ArgList [070321 comment]
     pass
 
 # same as in basic.py:
@@ -833,7 +838,9 @@ class internal_Expr(Expr):
         a1 = self.args
         a2 = other.args # must be tuples
         if a1 and a2:
-            if not same_vals(a1,a2): ####k assume same_vals works properly for Exprs; we need it due to Numeric arrays in lists or tuples
+            if not same_vals(a1,a2):
+                ####k assume same_vals works properly for Exprs [perhaps never verified -- might give false negatives];
+                # we need to use it instead of just == or != due to Numeric arrays in lists or tuples
                 return False
         else:
             if a1 != a2: # 'or' might be faster, and is correct, but that's less clear, so nevermind -- someday this will be in C anyway
@@ -918,7 +925,7 @@ class eval_to_lval_Expr(internal_Expr):#070119, needed only when EVAL_REFORM
 
 class property_Expr(internal_Expr): ##k guess, 061119, for attr 'open' in ToggleShow.py;
     # maybe just a kluge, since mixing properties with exprs is probably a temp workaround, tho in theory it might make sense...
-    # if it can be rationalized then it's good to leave it in, maybe even encourage it.
+    # if it can be rationalized then it's good to leave it in, maybe even encourage it. See also class State.
     "#doc; canon_expr will turn a python property into this (or maybe any misc data descriptor??)"
     def _internal_Expr_init(self):
         (self._e_property,) = self.args

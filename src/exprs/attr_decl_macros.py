@@ -63,15 +63,16 @@ _arg_order_counter = 0 #k might not really be needed?
 # they need it to calc the index to use, esp for ArgOrOption if it depends on how the arg was supplied
 # (unless we implem that using an If or using default expr saying "look in the option" -- consider those!)
 
-def Arg( type_expr, dflt_expr = _E_REQUIRED_ARG_, _attr_expr = None, **moreopts):
+def Arg( type_expr, dflt_expr = _E_REQUIRED_ARG_, _attr_expr = None, _arglist = False, **moreopts):
     ### [update 061204: i think this cmt is obs, not sure:] IMPLEM _E_REQUIRED_ARG_ - do we tell _i_instance somehow?
+    ###e see new notes at end of file about how to reform Arg into a more coherent object, useful in wider contexts... [070321]
     """To declare an Instance-argument in an expr class,
     use an assignment like this, directly in the class namespace:
           attr = Arg( type, optional default value expr )
        Order matters (specifically, execution order of the Arg macros, or maybe only
     of the exprs containing them, while Python is executing a given class definition,
     before the metaclass's __new__ runs); those attrs which are not already defined
-    as args in superclasses are appended to the inherited arglist, whose positions
+    as args in superclasses [nim] are appended to the inherited arglist, whose positions
     are counted from 0.
        (Handling anything about args in superclasses is NIM. ##e)
        The index of the instance made from this optional argument
@@ -82,11 +83,12 @@ def Arg( type_expr, dflt_expr = _E_REQUIRED_ARG_, _attr_expr = None, **moreopts)
     unless it's one of the special case symbols (meant only for private use by this family of macros)
     _E_REQUIRED_ARG_ or the other _E_ one.##doc
        [_attr_expr is a private option for use by ArgOrOption. So is _lvalue_flag and ###NIM _noinstance (in moreopts).]
+       [_arglist is a private option for use by ArgList.]
     """
     global _arg_order_counter
     _arg_order_counter += 1
     required = (dflt_expr is _E_REQUIRED_ARG_)
-    argpos_expr = _this_gets_replaced_with_argpos_for_current_attr( _arg_order_counter, required )
+    argpos_expr = _this_gets_replaced_with_argpos_for_current_attr( _arg_order_counter, required, _arglist )
         # Implem note:
         # _this_gets_replaced_with_argpos_for_current_attr(...) makes a special thing to be noticed by the FormulaScanner
         # and replaced with the actual arg order within the class (but the same within any single attr).
@@ -108,7 +110,7 @@ def LvalueArg(type_expr, dflt_expr = _E_REQUIRED_ARG_): #061204, experimental sy
     "Declare an Arg which will be evaluated not as usual, but to an lvalue object, so its value can be set using .set_to, etc." 
     return Arg(type_expr, dflt_expr, _lvalue_flag = True)
 
-def _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr, _lvalue_flag = False, **moreopts ):
+def _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr, _lvalue_flag = False, _arglist = False, **moreopts ):
     """[private helper for Arg, Option, and maybe ArgOrOption]
     attr_expr should be None, or some sort of expr (in practice always _E_ATTR so far)
       that will get replaced by a constant_Expr for the current attr (in ExprsMeta's FormulaScanner),
@@ -122,7 +124,8 @@ def _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr, _lvalue_fla
     type_expr ###doc, passed herein to canon_type
     dflt_expr ###doc, can also be _E_DFLT_FROM_TYPE_ or [handled in caller i think, but survives here unmatteringly] _E_REQUIRED_ARG_;
         will be passed through canon_expr
-    _lvalue_flag is a private option used by LvalueArg
+    _lvalue_flag is a private option used by LvalueArg.
+    _arglist is a private option used by ArgList.
     """
     if _lvalue_flag:
         printnim("_lvalue_flag's proper interaction with dflt_expr is nim") # in all cases below
@@ -130,6 +133,12 @@ def _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr, _lvalue_fla
     global _self # fyi
     type_expr = canon_type( type_expr)
     printnim("can type_expr legally be self-dependent and/or time-dependent? ###k I guess that's nim in current code!")#070115 comment
+    if _arglist:
+        # new feature 070321. The type is applied to each element, but the default value is for the entire list --
+        # OTOH, when would it ever be used, since even if no args are supplied, the list can be formed??
+        # Probably it would only be used when the list was 0 length, and could meaningfully be [], (), or another list-like thing...
+        # this is all a guess and I probably won't even review this code for this issue now, unless it fails when tried. ####k
+        type_expr = tuple_Expr(type_expr) # type-coerce the value to a list of the given type [070321 guess] ###e or list_Expr???
     if dflt_expr is _E_DFLT_FROM_TYPE_:
         dflt_expr = default_expr_from_type_expr( type_expr)
             ## note [070115], this would be impossible for time-dependent types! and for self-dep ones, possible but harder than current code.
@@ -148,7 +157,10 @@ def _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr, _lvalue_fla
         # Note, this gets evalled back into dflt_expr (treated as inert, may or may not be an expr depending on what it is right here)
         # by the time _i_grabarg sees it (the eval is done when the call_Expr evals its args before doing the call).
         # So if we wanted _i_grabarg to want None rather than _E_REQUIRED_ARG_ as a special case, we could change to that (there & here).
-    grabarg_expr = call_Expr( getattr_Expr(_self, '_i_grabarg'), attr_expr, argpos_expr, held_dflt_expr )
+    grabopts = {}
+    if _arglist:
+        grabopts.update(dict(_arglist = constant_Expr(_arglist)))
+    grabarg_expr = call_Expr( getattr_Expr(_self, '_i_grabarg'), attr_expr, argpos_expr, held_dflt_expr, **grabopts )
         # comments 070115:
         # - This will eval to an expr which depends on self but not on time. We could optim by wrapping it
         # (or declaring it final) in a way which effectively replaced it with its value-expr when first used.
@@ -200,7 +212,7 @@ def _type_coercion_expr( type_expr, thing_expr):
     
 class _this_gets_replaced_with_argpos_for_current_attr(internal_Expr):#e rename? mention FormulaScanner or ExprsMeta; shorten
     def _internal_Expr_init(self):
-        (self._e__arg_order_counter, self._e_is_required,) = self.args
+        (self._e__arg_order_counter, self._e_is_required, self._e_is_arglist) = self.args # _e_is_arglist added 070321
             # first arg not presently used, might be obs here and even in caller ##k
         self.attrs_ive_seen = {}
     def _e_override_replace(self, scanner):
@@ -217,8 +229,13 @@ class _this_gets_replaced_with_argpos_for_current_attr(internal_Expr):#e rename?
             printnim("improve quick & dirty check for two attrs claiming one arg (it may not even work)")###e
             self.attrs_ive_seen[attr] = 1
             assert len(self.attrs_ive_seen) <= 1, "these attrs claim the same arg: %r" % self.attrs_ive_seen.keys()
+            # WARNING: if this works, it will break the use of Arg in future things like lambda_expr or _e_extend
+            # where the same Arg() object might get passed to multiple class/attr contexts in runtime-generated exprs with Arg decls.
+            # If/when that happens, this object needs to be made immutable, which can be done by removing this code (inside 'if 1'),
+            # since it's probably either not working or redundant, according to the comments above and my best guess now. [070321 comment]
         required = self._e_is_required
-        pos = scanner.argpos(attr, required)
+        arglist = self._e_is_arglist
+        pos = scanner.argpos(attr, required, arglist = arglist)
         res = constant_Expr(pos) # this gets included in the scanner's processed expr
         return res
     def _e_eval(self, *args):
@@ -261,12 +278,32 @@ def ArgOrOptionExpr(*args, **moreopts):
     moreopts['_noinstance'] = True
     return ArgOrOption(*args, **moreopts)
 
+def ArgList(*args, **moreopts): #070321 [tentatively replaces the scratch file ArgList.py]
+    moreopts['_arglist'] = True
+        # WARNING: the implementing code for this uses tuple_Expr, not list_Expr.
+        # But args which take explicit lists typically declare their types as list_Expr,
+        # and formulae to construct them typically use list_Expr.
+        # Since all these are intended to be immutable lists
+        # (though perhaps time-dependent ones, with lengths changing even by insertion
+        #  due to time-dependent formulae constructing them),
+        # my guess is that eventually we'll just make list_Expr a synonym for tuple_Expr.
+        # But for now, they are distinct Exprs which eval to python lists/tuples respectively
+        # (when they contain nothing that needs instantiation). 
+    return Arg(*args, **moreopts)
+
+#e ArgListOrOption? it would let you pass a list inline as args, *or* (not and) as a list_Expr- or list- valued named option,
+#  or (ignoring the difference I think) a tuple_Expr- or tuple- valued one.
+#e ArgExprList? it would let you pass a list of expr formulae inline, turning them into a tuple_Expr, instantiable to a list and/or
+#   usable as a list of exprs (e.g. they might get individually wrapped before being instantiated, or get filtered or chosen from, etc)
+# But, we *won't* define the names: ArgListExpr (I think)... don't know about any mix of ArgListOrOption and Expr.
+# Don't know yet about any mixes of State and Expr, or State and Formula, either. [070321]
+
 # ==
 
 # stubs:
 
 def ArgStub(*args): return Arg(Anything)
-ArgList = ArgStub
+## ArgList = ArgStub #e see also ArgList.py
 InstanceList = InstanceDict = ArgStub
 
 StateArg = Arg ###STUB - state which can be initially set by an arg...
@@ -319,7 +356,7 @@ def default_expr_from_type_expr(type_expr): #061115
     "#doc"
 ##    assert type_expr is Stub # only permitted for these ones; not even correct for all of them, but surely not for others like int
 # Stub is not defined here, never mind
-    return canon_expr(None) # stub; only right for Action, wrong for int, str, etc
+    return canon_expr(None) # stub; only right for Action, wrong for int, str, etc ###e might need revision for ArgList?
 
 # ==
 
@@ -436,5 +473,87 @@ class State(data_descriptor_Expr): # note: often referred to as "State macro" ev
 # ==
 
 # note: for StateArray or StateArrayRefs see statearray.py
+
+# ==
+
+# some advice about reforming Arg in the future, and about implementing ArgList better then, but tolerably now
+# (which I'm in the middle of as of 070321 4pm):
+"""
+##e some future forms we might want:
+
+expr._e_customize( existing_option_or_arg = value_or_formula )
+
+expr._e_extend( new_option = Option(type, dflt, doc = ""))
+expr._e_extend( new_arg = Arg(type, dflt, doc = ""))
+
+so Option and Arg turn into parameter-declaring exprs
+
+which are special because inside a class def, they are not treated as formula for value,
+but as formula for type or descriptor, used with other data to get value, as well as set method...
+so they are not exprs in the same way as other things are -- we might not want to say they are at all.
+Lets say they turn into parameter descriptors. 
+(I'm guessing they'll be true Python descriptors. I haven't verified that's possible. ###k)
+
+expr._e_extend( new_var = State(type, dflt, doc = "")) # and options to control state-sharing, too
+
+
+expr._e_customize( _e_type = "..." ) ???
+
+expr._e_customize( _e_type_for_<interface> = ... ) ???
+
+expr._e_customize( _e_meets_<interface> = <boolean> ) ???
+
+==
+
+Arg advice: ###e point to this in ExprsMeta.py and def ArgList too
+
+Here is some new advice about how to reform Arg(), make ArgList(), etc --
+btw I then made ArgList today (or started it), but that doesn't supercede this:
+
+- it should become a kind of expr (also Option, etc; note that State already is an expr)
+
+- which is not mutable -- when it learns argpos or attr, it gets replaced with a related expr
+  - which might be toplevel-expressed as the same thing with new options which reveal those params,
+    i.e. Arg(type_expr, dflt_expr, doc = doc_expr,
+             argpos = argpos_expr, attr = attr_expr, required = boolean)
+
+- which has special behavior when used as toplevel class assignment value
+
+- but which in future will also have similar special behavior when used in a lambda_expr [nim], 
+  or in the _e_extend forms shown above [in '070227 coding log', dated 070321], or the like
+
+- for direct assignment of the Arg expr itself to a class attr, wrap it in hold_Expr, I think
+  (but since that permits replacements in general, does it turn them off in this case???
+   If not, we might need a special form of hold; or to make those special replacements 
+   only work at toplevel, i.e. if it's the whole rhs but not a subexpr of it.)
+  (maybe they are not even "replacements" but something else -- interactions of the scanner
+   with the top things, to decide how to treat them, which can do whatever they like,
+   e.g. allow the scanner to add them to an arg-decl-list, known to the class,
+   so it can finally detect extra or missing args, implem ArgList, etc.)
+
+- maybe the special behavior which assigns the argpos should be lazy...
+that is, replace Arg with something belonging to this instance of it
+but not yet knowing the exact argpos. Also put it in a list known to the class.
+Then the class (or customized expr) can scan that and assign numbers,
+and create code for processing real arglists and knowing what's extra, etc.
+Then ArgList is a simple variant of that processing code.
+
+... I decided to implem ArgList now, so I'm doing it, in a few files, see _arglist...
+plan is to test it in SimpleColumn...
+I'll have to worry about def Apply in controls.py which overrides it -- my guess is,
+I should rewrite it more fully than just for that issue... ###
+
+### list_Expr or tuple_Expr? the latter -- see comment near def ArgList
+
+### we might need some type related code to handle tuple_Expr(Anything) or so...
+
+### we'll need new code for _e_make_in on tuple_Expr.
+
+### tuple_Expr should eval to a tuple when it contains pure data,
+but not when it contains exprs that need instantiation!!!
+But right now we don't know how to tell the difference!
+Hmm, I guess we do -- does the value belong to IorE or have _e_make_in? A kluge but should work.
+
+"""
 
 # end

@@ -97,7 +97,8 @@ if old_EVAL_REFORM != EVAL_REFORM and old_EVAL_REFORM is not None:
     print "\n*** WARNING: EVAL_REFORM was %r before reload, is %r now -- might require restart of NE1 or testmode" % \
           (old_EVAL_REFORM, EVAL_REFORM)
 else:
-    print "EVAL_REFORM is %r" % EVAL_REFORM
+    if not EVAL_REFORM:
+        print "EVAL_REFORM is %r" % EVAL_REFORM
 
 ENABLE_RELOAD = True and platform.atom_debug
 

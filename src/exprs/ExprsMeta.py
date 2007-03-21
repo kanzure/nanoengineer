@@ -882,7 +882,8 @@ class ExprsMeta(type):
 ##            for junk, prefix, attr0, val in newitems:
 ##                print prefix, attr0, expr_serno(val), val.__class__ 
         # process the vals assigned to certain attrs, and assign them to the correct attrs even if they were prefixed
-        scanner = FormulaScanner() # this processes formulas by fixing them up where their source refers directly to an attr
+        scanner = FormulaScanner( debug_name = name) #070321 added debug_name
+            # this processes formulas by fixing them up where their source refers directly to an attr
             # defined by another (earlier) formula in the same class, or (#nim, maybe) in a superclass (by supername.attr).
             # It replaces a direct ref to attr (which it sees as a ref to its assigned formula value, in unprocessed form,
             # since python eval turns it into that before we see it) with the formula _self.attr (which can also be used directly).
@@ -932,12 +933,22 @@ class ExprsMeta(type):
     pass # end of class ExprsMeta
 
 class FormulaScanner: #061101  ##e should it also add the attr to the arglist of Arg and Option if it finds them? [061101]
-    def __init__(self):
+    def __init__(self, debug_name = ""):
+        self.debug_name = debug_name
         self.replacements = {}
         self.seen_order = -1 # this class knows about retvals of expr_serno (possible ones, possible non-unique ones)
         self.linecounter = 0 # this must be unique for each separate formula we scan, and be defined while we scan it
         self.argposns = {} # attr -> arg position ##e fix for superclass args
         self.next_argpos = 0 # next arg position to allocate ##e fix for superclass args
+        self.saw_arglist = False # whether an ArgList was declared (if so, it used up all remaining arg positions) [070321 new feature]
+        self.saw_non_required_arg = False # whether an Arg decl for a non-required Arg was seen [070321 new feature]
+            # WARNING: saw_arglist and saw_non_required_arg are used only for error messages, and thus are affected by kluges
+            # which reset them to False after one error message is emitted, to prevent them from issuing redundant ones.
+            # Therefore they are NOT permanent records of those errors. If that is needed, replace the kluges with two different
+            # attrs for each, one for whether the condition was seen and one for whether it led to an error message being printed.
+    def __repr__(self): #070321
+        debug_name = self.debug_name
+        return "<%s at %#x%s>" % (self.__class__.__name__, id(self), debug_name and (" (%s)" % debug_name) or "")
     def scan(self, formula, attr):
         """Scan the given formula (which might be or contain a C_rule object from a superclass) .... #doc
         Return a modified copy in which replacements were done, .... #doc
@@ -1051,9 +1062,9 @@ class FormulaScanner: #061101  ##e should it also add the attr to the arglist of
             # it's a python class -- has no replaceable parts
             return subexpr
         return subexpr._e_replace_using_subexpr_filter( self.replacement_subexpr ) ###IMPLEM in Expr #k does API survive lexscoping??
-    def argpos(self, attr, required):
+    def argpos(self, attr, required, arglist = False):
         """An Arg or ArgOrOption macro has just been seen for attr, in the source line identified by self.linecounter.
-        (It is a required arg iff required is true.)
+        (It is a required arg iff required is true. It is an ArgList iff arglist is true [new feature 070321].)
         (In the future, if a superclass defines args, this might be one of those or a new one.)
         What argument position (numbered 0, 1, 2, etc) does this arg correspond to? Return the answer, and record it.
            NIM: ASSUME NO ARGUMENTS COME FROM THE SUPERCLASSES. To fix that, we'll need to find out what they were,
@@ -1062,13 +1073,36 @@ class FormulaScanner: #061101  ##e should it also add the attr to the arglist of
            NIM: any decl to override this, like _args.
         """
         try:
-            return self.argposns[attr]
+            res = self.argposns[attr]
+            ## print "fyi: scanner argpos returned an already-known pos %d for %r; other data:" % (res, attr), self, self.argposns
+            # Note: this shows that finding the attr already recorded here is very common -- I guess since the thing that
+            # gets replaced with the argpos occurs twice in every expanded Arg macro, or in lots of them anyway.
+            # (It might also happen in a more unavoidable way, if we implemented inheritance of argpos from superclass someday,
+            #  tho the need for the recent kluge to permit attr = _self.attr (elsewhere in this file) suggests that might
+            #  not be possible after all -- allocated argpos could be inherited, but probably not the initial defns desired
+            #  in the class namespace, unless we added some sort of kluge to bring them in, which seems like a bad idea.) [070321]            
+            return res
         except KeyError:
-            # new argument
+            # new argument -- allocate an arglist position for it
+            if self.saw_arglist:
+                print "error (ignoring it): another arg is declared after an arglist was seen",\
+                      self,attr,required,arglist,self.argposns ###e improve message
+                self.saw_arglist = False # kluge: don't keep complaining about this for more args after the same ArgList
+            if arglist:
+                self.saw_arglist = True
+                    ##e also record this for this arg?
+                    # no need for now, but in future, recording all arg/opt decls in one list (of all kinds)
+                    # for processing once by the class (or customized expr) will permit better error checking of passed args/opts.
+                    # [070321 comment]
             pos = self.next_argpos
             self.next_argpos += 1
             self.argposns[attr] = pos
             ###e also record whether it's required, and assert that once they stop being required, new ones are also not required
+            if self.saw_non_required_arg and required:
+                print "warning: required arg decl for %r comes after non-required arg decl -- it won't do what you want" % attr, self ###e improve msg
+                self.saw_non_required_arg = False # kluge: don't keep complaining about this for the same non-required arg
+            if not required:
+                self.saw_non_required_arg = True
             # (do we also need to record their names? well, we're doing that. Do we need to record whether their names are public? #e)
             return pos
     pass # end of class FormulaScanner

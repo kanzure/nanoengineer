@@ -1381,7 +1381,7 @@ testexpr_36c = testexpr_36(resizable = True) # do all testexprs share the same s
 
 enable_testbed = True
 
-testexpr = testexpr_35d
+testexpr = testexpr_30i # testexpr_34a
     # testexpr_34a - unfinished demo_ui
     # testexpr_30i - make dna cyls
     # testexpr_19i - demo_drag
