@@ -29,6 +29,10 @@ import Boxed
 reload_once(Boxed)
 from Boxed import Boxed
 
+import command_registry
+reload_once(command_registry)
+from command_registry import auto_register, find_or_make_global_command_registry, CommandRegistry
+
 class Toolbar(DelegatingInstanceOrExpr):
     pass
 
@@ -82,8 +86,6 @@ class MainCommandToolButton(DelegatingInstanceOrExpr): #e rename?
         return ( subtool.name, subtool.cmd_invoke )
     pass
 
-Registry = StubType
-
 class MainToolbar(Toolbar): ###e how is the Main one different from any other one??? not in any way I yet thought of...
     # unless its flyout feature is unique... or maybe it has the behavior of deciding what to look like, inside it??
     # Nah, its client needs to provide the spec that, even if MainToolbar then does the work... but if it *can* do the work,
@@ -94,7 +96,7 @@ class MainToolbar(Toolbar): ###e how is the Main one different from any other on
     and maintains the state (passed as a stateref) of what tool/subtool is active.
     """
     # args
-    registry = Arg( Registry, doc = "the place in which tool name -> tool code mapping is registered, and in which subtools are found")
+    registry = Arg( CommandRegistry, doc = "the place in which tool name -> tool code mapping is registered, and in which subtools are found")
     #e the app object in which the tools operate?
     #e the world which they affect?
     toolnames = Arg(list_Expr, doc = "list of names of main tools")

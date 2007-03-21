@@ -51,7 +51,7 @@ class CommandRegistry: #e rename?
         # even given the set of cmds in it or set of names in it, so no method can do what this one says (except for fullnames).
     pass
 
-def auto_register( namespace, registry = None, modulename = None):
+def auto_register( namespace, registry = None, modulename = None): ###e this function needs a more explicit name
     """###doc this better -- it's correct and complete, but very unclear:
     Register with registry (or with a global registry, if registry arg is not provided)
     every public name/value pair in namespace (typically, globals() for the calling module)
@@ -67,32 +67,41 @@ def auto_register( namespace, registry = None, modulename = None):
     if modulename is None:
         # assume namespace is globals() of a module
         modulename = namespace['__name__']
+    print "auto_register, modulename = %r" % (modulename,) #####
     if registry is None:
-        import __main__
-        registry = __main__._exprs__registry
+        registry = find_or_make_global_command_registry()
     for name in dir():
         if not name.startswith('_'):
+            wantit = False # set to True if name names a registratable class defined in the namespace (not just imported into it)
             try:
-                # see if it's a registratable class defined in this module
-                val = globals()[name]
-                if issubclass(val, InstanceOrExpr) and val.__module__ == modulename:
-                    pass # register val in the else clause
-                else:
-                    assert 0
+                val = namespace[name] # should not fail
+                if issubclass(val, InstanceOrExpr) and val.__module__ == modulename: # often fails for various reasons
+                    wantit = True
             except:
-                ##raise
-                pass ### this will happen a lot (since issubclass raises an exception for a non-class val)
-            else:
+                pass # note: this will happen a lot (since issubclass raises an exception for a non-class val)
+            if wantit:
                 registry.register(name, val, warn_if_not_registerable = False )
+            pass
         continue
     return
 
-def _setup_global_registry(): ###CALL ME
-    """[to be called once per session, or per reload of exprs module]
+# ==
+
+def find_or_make_global_command_registry( remake = False ):
+    """[with remake = True: to be called once per session, or per reload of exprs module; with it False - call as needed to find it]
     ###doc
     """
+    # it doesn't really matter where we store __main__._exprs__registry --
+    # a global in this module might make more sense, if reload issues are ok ... #k
     import __main__
-    __main__._exprs__registry = CommandRegistry()
-    return
+    if remake:
+        __main__._exprs__registry = None
+        del __main__._exprs__registry
+    try:
+        return __main__._exprs__registry
+    except AttributeError:
+        __main__._exprs__registry = CommandRegistry()
+        return __main__._exprs__registry
+    pass
 
 # end

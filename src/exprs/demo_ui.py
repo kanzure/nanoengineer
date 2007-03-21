@@ -16,6 +16,10 @@ import toolbars
 reload_once(toolbars)
 from toolbars import MainToolbar
 
+import command_registry
+reload_once(command_registry)
+from command_registry import auto_register, find_or_make_global_command_registry, CommandRegistry
+
 # [this first part was written in test.py, thus the globalvar naming scheme.]
 
 # 070228:
@@ -210,7 +214,7 @@ class main_ui_layout(DelegatingInstanceOrExpr):
         # since we also have to deal with Tools in the sense of Tool Run Producers, eg toolbuttons. ###e
 
     # parts of the appearance
-    registry = None ###STUB, will fail --
+    registry = find_or_make_global_command_registry() ## None ###STUB, will fail --
         ## AttributeError: 'NoneType' object has no attribute 'command_for_toolname'
     toolstack_ref = None ###STUB
     toolbar = Instance( MainToolbar( registry, ["Features", "Build", "Sketch"], toolstack_ref ) ) #e arg order?

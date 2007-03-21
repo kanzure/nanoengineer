@@ -17,7 +17,7 @@ from basic import *
 
 import command_registry
 reload_once(command_registry)
-from command_registry import * # * for now, since set of names is volatile
+from command_registry import auto_register
 
 class CommandWithItsOwnEditMode( DelegatingInstanceOrExpr): #e rename! and inherit from Command or MouseCommand or so...
     "#doc"
@@ -417,11 +417,13 @@ class cmd_MakePolyline(ClickClickCommand): ##e review naming convention (and int
 ##e register the types & commands [stub]
 
 
-this_module_registry = registry() #e that should also register this registry with a more global one!
+##this_module_registry = registry() #e that should also register this registry with a more global one!
+##
+####class _x: pass # used only for _x.__module__ in following call [e.g. 'exprs.demo_polyline']
+##
+##auto_register( this_module_registry, globals()) ## , _x.__module__ )
 
-##class _x: pass # used only for _x.__module__ in following call [e.g. 'exprs.demo_polyline']
-
-auto_register( this_module_registry, globals()) ## , _x.__module__ )
+auto_register( globals()) ###e this function needs a more explicit name -- and passing the specific classnames would be better
 
 # ==
 
