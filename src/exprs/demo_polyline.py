@@ -1,16 +1,20 @@
 """
-demo_polyline.py
+demo_polyline.py -- demo file for Polyline datatype (too unsophisticated for real life) and related commands
 
 $Id$
 
-see also demo_polygon, polyline in _19g demo_drag, and DragCommand scratch, and free x-y rot code, and demo_ui.py
+The "demo" in the filename indicates that this is not part of the exprs module per se,
+but shows how to use it for a specific app. For use in our real app, lots of this will
+be moved into new files and made more sophisticated (relative coords, relations, better editing, etc).
 
-Is this the command to make one (maybe rename it demo_cmd_polyline.py)
-or the data type too, which happens to include the command (this name is good)?
+See also:
+- demo_polygon.py,
+- class polyline in testexpr_19g demo_drag.py
+- (superseded by demo_draw_on_surface.py once that works),
+- DragCommand scratch,
+- free x-y rot code in draggable.py,
+- demo_ui.py (which is supposed to be able to provide access to these commands).
 
-The "demo" is because it's not part of the exprs module per se, but shows how to use it for a specific app.
-
-NOTE: lots of stuff in here will end up being moved to new or other files. ###e
 """
 
 from basic import *

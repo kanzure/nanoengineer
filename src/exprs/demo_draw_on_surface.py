@@ -6,7 +6,20 @@ $Id$
 070319 a standalone version of the so-called polyline example in demo_drag.py (testexpr_19g)
 
 experimental, not yet finished or called
+
+See also:
+- demo_polyline.py (and the other files it refers to, like demo_ui.py)
+- TODO comments below
+- our_testexpr at bottom (substitute for demo_ui until it's ready)
+
 """
+
+from basic import *
+
+#e more needed
+
+# ==
+
 
 ###e plan: make it a demo command file alongside demo_polyline.py.
 
@@ -17,7 +30,6 @@ experimental, not yet finished or called
 ##
 ##need:
 Vertex
-self.world
 kluge_dragtool_state_prefs_key
 
 #e change class polyline3d to not show the red thing until you're done, and let the red thing be a kid of the polyline3d
@@ -158,12 +170,14 @@ class PM_from_groups(DelegatingInstanceOrExpr): ###e refile into demo_ui or so, 
 
 # ==
 
-class PM_Command(InstanceOrExpr): #e review name, etc ##e delegating?? ###k hmm, is it a command, or a CommandRun? can those be same class?
+class PM_Command(DelegatingInstanceOrExpr): #e review name, etc ##e delegating?? ###k hmm, is it a command, or a CommandRun? can those be same class?
     "superclass for commands with their own property managers"
     # default ways to get the PM
     property_manager_groups = () # typically overridden by a subclass
     property_manager = Instance( PM_from_groups( _self.property_manager_groups ))
-    
+    # find the world -- maybe this belongs in a yet higher Command superclass? ###e
+    world = Option(World)
+    pass
 
 class cmd_DrawOnSurface(PM_Command):
     """A command for creating a new object, a 3d polyline, by drawing it over any visible surface
@@ -208,10 +222,33 @@ class cmd_DrawOnSurface(PM_Command):
         ##### why not just say make_polyline3d_PG(_self)???
     property_manager_groups = list_Expr( make_polyline3d_PG(_self) )
 
-        ###e super should make property_manager from the groups, if we don't make a whole one ourselves
+        # super should make property_manager from the groups, if we don't make a whole one ourselves [might be already stub-coded]
     
-    #e code for event handlers to initiate the drag
+    ###e code for event handlers to initiate the drag
 
+    delegate = _self.world # draw whatever is in there
+
+        #####e TODO:   ####@@@@
+        # Q: how do we get the things in _self.world to draw in the way we want them to? (style, filtering, highlighting)
+        # A: provide them advice on that in our graphics dynenv, which we set up in a wrapper around the above delegation,
+        # which is a drawing-interface (graphics interface) delegation.
+        # Q: when they get activated, how do they send events to us?
+        # A: put ourself (as CommandRun with event interface they expect, e.g. on_press) into some dynenv var they can find.
+        # Q: What about empty space events?
+        # A: if done the same way, something needs to "draw empty space" so it can see dynenv event binding at the time
+        # and know what testmode should send those events to. Maybe related to "drawing the entire model"??
+        # Sounds like a kluge, but otherwise, something needs to register itself with testmode as the recipient of those events.
+        # In fact, those are the same: "draw empty space" can work by doing exactly that with the dynenv binding for event-handler obj
+        # at the time. Not sure if this generalizes to anything else... anyway, drawing the world can do this if we ask it to, maybe...
+        # not sure that's a good idea, what if we draw it twice? anyway, shouldn't it have more than one component we can draw?
+        # model, different parts, MT, etc... maybe we can add another one for empty space.
+        # FOR NOW, SAVE EMPTY SPACE FOR LATER, get this to work for other kinds of model objects in the world.
+        # But that means I need another command to add one, which gets drawn in a suitable way for this to work.
+        # Which means I need a wrapper sort of like DraggableObject but different, and a scheme for World to draw things
+        # with the right wrapper around them, and the right set of things, based on what the current command/mode favors.
+        # WAIT -- should World do that at all? Maybe it just holds the objs and lets the mode map them into drawables?
+        # Yes, that sounds better.
+        
     #e code for event handlers during the drag, eg on_drag -- in this class or (better) in another one (DragBehavior-like)
     def on_press(self):
         point = self.current_event_mousepoint()
@@ -259,6 +296,23 @@ class cmd_DrawOnSurface(PM_Command):
         return
     
     pass # end of class cmd_DrawOnSurface
+
+# ==
+
+# short term -- until demo_ui.py works,
+# make a testexpr which keeps us in the state in which this command is active and its PM is showing.
+
+class whatever(DelegatingInstanceOrExpr): # simulates the env that demo_ui will provide (stub version)
+    ui_and_world = Instance(World())#####
+    thisguy = Instance(cmd_DrawOnSurface(world = ui_and_world)) #e args? world? new object? does its super handle some? Command vs CommandRun?
+    pm = thisguy.property_manager
+    delegate = Overlay(
+        thisguy,
+        DrawInCorner(pm, corner = BOTTOM_RIGHT),
+     )
+    pass
+
+our_testexpr = whatever() 
 
 # ==
 
