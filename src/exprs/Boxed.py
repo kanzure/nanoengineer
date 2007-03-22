@@ -85,7 +85,8 @@ class DraggablyBoxed(Boxed): # 070316; works 070317 [testexpr_36] before ww,hh S
     thing = _self.thing ###k WONT WORK unless we kluge ExprsMeta to remove this assignment from the namespace -- which we did.
         ###e not sure this is best syntax though. attr = _super.attr implies it'd work inside larger formulae, but it can't;
         # attr = Boxed.attr might be ok, whether it can work is not reviewed; it too might imply what _super does, falsely I think.
-    extra1 = _self.extra1 
+    extra1 = _self.extra1
+    borderthickness = _self.borderthickness
     rectframe = _self.rectframe # a pure expr
     # new options
     resizable = Option(bool, False, doc = "whether to make it resizable at lower right")
@@ -145,10 +146,14 @@ class DraggablyBoxed(Boxed): # 070316; works 070317 [testexpr_36] before ww,hh S
     # or, to delegate appearance and layout to different instances ourselves. (Or just to define new formulae for lbox -- easiest.) #e
     drawme = Instance( Overlay(
         If( clipped,
-            Clipped(thing, planes = [call_Expr(clip_to_right_of_x0, - thing.bleft - extra1 + ww ), ## removed - extra1
+            Clipped(thing, planes = [call_Expr(clip_to_right_of_x0, - thing.bleft - extra1 + ww - borderthickness/2.0 ),
+                                         ## removed - extra1, replaced with - borderthickness/2.0 --
                                          ### last -extra1 is too much -- makes it more visible for debugging --
-                                         # but -0 or -borderthickness is better
-                                     call_Expr(clip_below_y0, thing.btop + extra1 - hh ) ]), ### removed +extra1 -- ditto
+                                         # but -0 or -borderthickness or -borderthickness/2.0 is better.
+                                         # Note: for a 3d object, the object can obscure the frame by not being confined to its plane!
+                                         # This makes me guess that -borderthickness/2.0 would be best.
+                                     call_Expr(clip_below_y0, thing.btop + extra1 - hh + borderthickness/2.0 )
+                                    ]), ### removed +extra1 -- ditto
             thing,
          ),
         Translate( rectframe_h, V_expr( - thing.bleft - extra1, thing.btop + extra1) ),

@@ -1391,6 +1391,8 @@ testexpr_36fb = testexpr_6f(fake = 2)
     # What to do is not clear, and it relates to a current topic about ipath reform, but I think this at least explains it all.
 
 testexpr_36d = DraggablyBoxed(Image("courier-128.png", size = Rect(4)), resizable = True, clipped = True) # works, 070322
+testexpr_36e = DraggablyBoxed(Sphere(2), resizable = True, clipped = True) # works [use trackball -- shows limits/benefits of implem]
+
 
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
 
@@ -1398,7 +1400,7 @@ testexpr_36d = DraggablyBoxed(Image("courier-128.png", size = Rect(4)), resizabl
 
 enable_testbed = True
 
-testexpr =  testexpr_36d # testexpr_36b # testexpr_34a # testexpr_8b (tests ArgList in SimpleColumn)
+testexpr =  testexpr_36e # testexpr_36b # testexpr_34a # testexpr_8b (tests ArgList in SimpleColumn)
     # testexpr_34a - unfinished demo_ui
     # testexpr_30i - make dna cyls
     # testexpr_19i - demo_drag
