@@ -73,6 +73,20 @@ class Clipped(InstanceOrExpr):
         return
     pass
 
-#e maybe add something to easily clip to an lbox or Rect, like we do in DraggablyBoxed.
+#e Maybe add something to easily clip to an lbox or Rect, like we do in DraggablyBoxed.
+
+#e Maybe add options to not cull faces in spheres (and other objects), and to draw both sides of the faces.
+# These could be turned on here for what we draw (using graphical dynenv).
+#
+# Even better, if we wanted spheres to look "filled with a solid color"
+# (rather than hollow) when they were clipped, we could probably do it like this:
+# - draw the regular model, clipped in the usual way
+# - for each face of the clip volume (presumed brick-shaped) exposed to the user, draw some of the model again,
+#   only including the spheres that intersect the clipping plane,
+#   clipping to include only what's outside that face (and "above it" -- i.e. in another brick-shaped region),
+#   but in a squished form so that all drawn surfaces are effectively squished almost totally onto the clipping plane.
+#   (I'm not sure this works perfectly for all ways spheres can intersect. In fact, I doubt it. It would be more correct
+#   to just draw filled circles, but to make them match up at the edges, they need to depend on the exac polyhedron used
+#   for the sphere, so they're complicated to compute.)
 
 # end
