@@ -31,12 +31,18 @@ import draggable
 reload_once(draggable)
 from draggable import DraggableObject, SimpleDragBehavior
 
-class Boxed(InstanceMacro): # 070316 slightly revised
+import clipping_planes
+reload_once(clipping_planes)
+from clipping_planes import clip_below_y0, clip_to_right_of_x0, Clipped
+
+
+class Boxed(InstanceMacro): # 070316 slightly revised 
     """Boxed(widget) is a boxed version of widget -- it looks like widget, centered inside a rectangular frame.
     Default options are pixelgap = 4 (in pixels), borderwidth = 4 (in pixels), bordercolor = white.
     [#e These can be changed in the env in the usual way. [nim]]
        WARNING: some deprecated but commonly used options are given in model units, not in pixels (probably a design flaw).
     """
+    #e (Does Boxed want a clipped option, like DraggablyBoxed has? What about just Rect?)
     # WARNING: would not work if it inherited from Widget2D,
     # since it would pick up Widget2D default values for lbox attrs like btop. [unconfirmed but likely; 061127 comment]
 
@@ -66,11 +72,11 @@ class Boxed(InstanceMacro): # 070316 slightly revised
     ww = thing.width  + 2 * extra1 #k I'm not sure that all Widget2Ds have width -- if not, make it so ##e [061114]
     hh = thing.height + 2 * extra1
     rectframe = RectFrame( ww, hh, thickness = borderthickness, color = bordercolor)
-    # appearance
+    # appearance -- note, rectframe appearing first is significant, since lbox attrs are delegated to it.
     _value = Overlay( Translate( rectframe,
                                  - V_expr( thing.bleft + extra1, thing.bbottom + extra1) ), #e can't we clarify this somehow?
                       thing)
-    pass
+    pass # end of class Boxed
 
 # ==
 
@@ -81,7 +87,7 @@ class DraggablyBoxed(Boxed): # 070316; works 070317 [testexpr_36] before ww,hh S
         # attr = Boxed.attr might be ok, whether it can work is not reviewed; it too might imply what _super does, falsely I think.
     extra1 = _self.extra1 
     rectframe = _self.rectframe # a pure expr
-    # new option
+    # new options
     resizable = Option(bool, False, doc = "whether to make it resizable at lower right")
         # works 070317 10pm (testexpr_36b) except for a few ###BUGS [updated info 070318 7pm]:
         # + [fixed] the wrong corner resizes (top right) (logic bug)
@@ -93,6 +99,7 @@ class DraggablyBoxed(Boxed): # 070316; works 070317 [testexpr_36] before ww,hh S
         # - resizer doesn't follow mouse in rotated coordsys, even in ortho view (though it's still useable).
         #   (This is not surprising -- we're using the wrong kind of DragBehavior as a simple kluge.)
         # - the resizer is ugly, in shape & color.
+    clipped = Option(bool, False, doc = "###doc") #070322 new feature ### make True default after testing?
     # state
         # WARNING: due to ipath persistence, if you revise dflt_expr you apparently need to restart ne1 to see the change.
 ##    ww = State(Width, thing.width  + 2 * extra1) # replaces non-state formula in superclass -- seems to work
@@ -132,8 +139,18 @@ class DraggablyBoxed(Boxed): # 070316; works 070317 [testexpr_36] before ww,hh S
         sbar_text = "resize the box frame",
         behavior = SimpleDragBehavior( _self.resizer, call_Expr( LvalueFromObjAndAttr, _self, 'whj') )
      ))
+    ###BUG: in Boxed, rectframe comes first, so lbox attrs are delegated to it. We should do that too --
+    # but right now we draw it later in order to obscure the thing if they overlap. With clipping we won't need that --
+    # but without clipping we will. If the latter still matters, we need a version of Overlay with delegation != drawing order,
+    # or, to delegate appearance and layout to different instances ourselves. (Or just to define new formulae for lbox -- easiest.) #e
     drawme = Instance( Overlay(
-        thing,
+        If( clipped,
+            Clipped(thing, planes = [call_Expr(clip_to_right_of_x0, - thing.bleft - extra1 + ww ), ## removed - extra1
+                                         ### last -extra1 is too much -- makes it more visible for debugging --
+                                         # but -0 or -borderthickness is better
+                                     call_Expr(clip_below_y0, thing.btop + extra1 - hh ) ]), ### removed +extra1 -- ditto
+            thing,
+         ),
         Translate( rectframe_h, V_expr( - thing.bleft - extra1, thing.btop + extra1) ),
         If( resizable,
             ## Translate( resizer, V_expr( thing.bright + extra1, - thing.bbottom - extra1))
@@ -147,6 +164,12 @@ class DraggablyBoxed(Boxed): # 070316; works 070317 [testexpr_36] before ww,hh S
     _value = Translate( drawme, ## DisplistChunk( drawme), ###k this DisplistChunk might break the Highlightable in rectframe_h #####
                         translation
                        )
-    pass
+    pass # end of class DraggablyBoxed
+
+# note 070322: we get this warning -- I guess it describes a normal situation which I should declare routine,
+# and remove the warning. ##e
+## once-per-session developer warning: this copy got copied again:
+##  <C_rule_for_method at 0xf6c02d0 for '_delegate' in 'Boxed'> for class Boxed
+##  copied as <C_rule_for_method at 0xf8a3a90 for '_delegate' in 'DraggablyBoxed'> for class DraggablyBoxed
 
 # end

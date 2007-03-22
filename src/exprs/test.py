@@ -1390,13 +1390,15 @@ testexpr_36fb = testexpr_6f(fake = 2)
     # (in its current implem) even if the explicit testname is not.
     # What to do is not clear, and it relates to a current topic about ipath reform, but I think this at least explains it all.
 
+testexpr_36d = DraggablyBoxed(Image("courier-128.png", size = Rect(4)), resizable = True, clipped = True) # works, 070322
+
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
 
 #e see also the _recent_tests system... should we use the most recent test instead? or have a setting for this var which means that?
 
 enable_testbed = True
 
-testexpr =  testexpr_36fa # testexpr_36b # testexpr_34a # testexpr_8b (tests ArgList in SimpleColumn)
+testexpr =  testexpr_36d # testexpr_36b # testexpr_34a # testexpr_8b (tests ArgList in SimpleColumn)
     # testexpr_34a - unfinished demo_ui
     # testexpr_30i - make dna cyls
     # testexpr_19i - demo_drag
