@@ -800,6 +800,8 @@ class ExprsMeta(type):
                     #e change that to a less harmless warning?
                     # note: it's not redundant with the similar assert below, except when *both* prefix and needs_wrap_by_ExprsMeta(val).
                     # note: ns contains just the symbols defined in class's scope in the source code, plus __doc__ and __module__.
+                    # update 070321: this causes trouble if we define attr = _self.attr and then def _C_attr, which I tried to do
+                    # for a0 and _C_a0 in SimpleColumn. I worked around it there, but it ought to be made legal here. ##e [070321 comment]
             else:
                 attr0 = attr
             if hasattr(val, '_ExprsMeta__set_attr'): # note 061203: maybe not needed after all, tho not harmful, might help catch errors
@@ -898,6 +900,7 @@ class ExprsMeta(type):
             # new feature 070316: if this assignment looks exactly like attr = _self.attr (before processor runs),
             # then don't store it in ns. This permits "inheritance of formulae from superclass"
             # but with the use of attr (not _self.attr) in subsequent formulae. Seems to work (testexpr_36).
+            # update 070321: see another comment of this date, about a conflict we should make legal between this and def _C_attr.
             from __Symbols__ import _self #k can this be at toplevel in the module??
             if isinstance(val, getattr_Expr) \
                and val._e_args[0] is _self \

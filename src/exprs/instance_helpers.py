@@ -817,7 +817,7 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
         
     def _i_grabarg( self, attr, argpos, dflt_expr, _arglist = False): 
         "#doc, especially the special values for some of these args"
-        if 0:
+        if _arglist:####
             print_compact_stack( "_i_grabarg called with ( self %r, attr %r, argpos %r, dflt_expr %r, _arglist %r): " % \
                                  (self, attr, argpos, dflt_expr, _arglist) )
             print " and the data it grabs from is _e_kws = %r, _e_args = %r" % (self._e_kws, self._e_args)
@@ -858,7 +858,7 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
         # I guess that is done inside _i_grabarg_0... ok, it's easy to add external_flag to its retval to tell us what to do. [done]
         ###k ARE THERE any other accesses of _e_args or _e_kws that need similar protection? Worry about this if I add
         # support for iterating specific args (tho that might just end up calling _i_grabarg and being fine).
-        if 0:
+        if _arglist:####
             print "_i_grabarg returns %r" % (res,)
         return res
 

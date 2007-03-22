@@ -54,15 +54,34 @@ class SimpleColumn(Widget2D): #061115, revised 070321 to use new ArgList -- won'
 ##                     and_Expr(a11, toomany)
 ##                     )
     args = ArgList(Widget2D, (), doc = "0 or more things (that can participate in 2d layout) to show in a column")
-    a0 = _self.a0 # kluge, but should be legal (so document it somewhere): get a0 into the class-def namespace for direct use below
-    def _C_a0(self):
+    ## a0 = _self.a0 # kluge, but should be legal (so document it somewhere): get a0 into the class-def namespace for direct use below
+        # oops, it fails like this:
+        ## AssertionError: error: can't define both 'a0' and '_C_a0' in the same class 'SimpleColumn'
+        ## (since ExprsMeta is its metaclass) ...
+        # but that's just because the kluge to remove a0 from ns when a0 = _self.a0 fails to then permit _C_a0 to be defined.
+        # I should fix that in ExprsMeta (see attr = _self.attr comment) -- but for now, use _C_a0_kluge instead:
+    ## def _C_a0(self):
+    a0 = _self.a0_kluge
+    def _C_a0_kluge(self):
         args = self.args
         args[0:] # make sure this works (i.e. args is a sequence)
         if len(args):
             return args[0]
         else:
             return None
-        pass 
+        pass
+
+    def _init_instance(self):##### debug only
+        super(SimpleColumn, self)._init_instance()
+        try:
+            args = 'bug' # for use in error message, in case of exception
+            args = self.args
+            print "fyi: this SimpleColumn has %d args" % len(args)
+                # TypeError: len() of unsized object -- just as if ArgList above was Arg instead. why? ### [a leftover stub def???]
+        except:
+            print "following exception concerns self = %r, args = %r" % (self, args)
+            raise
+        return
     
     ## gap = Option(Width, 3 * PIXELS)
     pixelgap = Option(float, 3) # 070104 int -> float
