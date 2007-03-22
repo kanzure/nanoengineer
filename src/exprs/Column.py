@@ -77,7 +77,7 @@ class SimpleColumn(Widget2D): #061115, revised 070321 to use new ArgList -- won'
             args = 'bug' # for use in error message, in case of exception
             args = self.args
             print "fyi: this SimpleColumn has %d args" % len(args)
-                # TypeError: len() of unsized object -- just as if ArgList above was Arg instead. why? ### [a leftover stub def???]
+            print "fyi: the args i mentioned are: %r" % (args,) #####
         except:
             print "following exception concerns self = %r, args = %r" % (self, args)
             raise

@@ -108,6 +108,20 @@ def expr_constant_value(expr): # written for use in def If, not reviewed for mor
         return False, "arb value"
     pass
 
+def is_constant_for_instantiation(expr): #070131, moved here 070321 from instance_helpers.py
+    """Is expr (which might be an arbitrary python object) a constant for instantiation?
+    (If true, it's also a constant for eval, but not necessarily vice versa.)
+    """
+    #e refile? should be compatible with _e_make_in methods in kinds of exprs it's true for
+    # anything except a pure expr is a constant, and so is an Expr subclass
+    if not (is_pure_expr(expr) and is_Expr_pyinstance(expr)):
+        return True
+    # cover a constant Symbol too, e.g. Automatic
+    #e (merge _e_sym_constant with _e_instance? see comment in Symbol._e_make_in for discussion)
+    if getattr(expr, '_e_sym_constant', False):
+        return True
+    return False
+
 # ==
 
 class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), InstanceOrExpr
@@ -681,7 +695,37 @@ class tuple_Expr(OpExpr): #k not well reviewed, re how it should be used, esp. i
         pass
     def __str__(self):
         return "%s" % (tuple(self._e_args),) #e need parens?
-    _e_eval_function = staticmethod( lambda *args:args ) ####e this will need fixing, and _e_make_in, due to ArgList [070321 comment]
+    def _e_eval_function(self, *argvals):
+        # only become a tuple if we contain nothing to instantiate -- otherwise a tuple_Expr -- needed for ArgList [070321]
+        for val in argvals:
+            if is_pure_expr(val): #k not sure this condition is exactly right
+                if self._e_args == argvals:
+                    return self # optimization
+                return tuple_Expr(*argvals)
+            continue
+        return argvals # a tuple, not a tuple_Expr
+    def _e_make_in(self, env, ipath): # 070321 needed for ArgList
+        # we don't need to eval each arg expr, since we ourselves were just evalled (and are the result of that)
+        # so all our args are evalled. But, not all evalled things have _e_make_in! Also, they went through canon_expr after eval.
+        # Either we need to check both for constant_Expr (or anything else canon_expr can make ###k), and check
+        # is_constant_for_instantiation like _i_instance does, or we need to actually call _i_instance,
+        # depending, I think, on how much we want to cache these instances. For now I'll do what's easiest
+        # (is_constant_for_instantiation, no caching) and review it later. WARNING: things like SimpleColumn
+        # which declared each arg separately used to be able to cache them individually -- so THIS IS ######WRONG.
+        # It'll work, I think, but be a slowdown.
+        mades = [self._e_make_argval(argval, env, i, ipath) for (i,argval) in zip(range(len(self._e_args)), self._e_args)]
+        return tuple(mades)
+    def _e_make_argval(self, argval, env, i, ipath):
+        "[private helper]"
+        if is_constant_for_instantiation(argval):
+            print "fyi: tuple_Expr is_constant_for_instantiation true for %r" % (argval,) # i suspect this may never happen ###k
+            return argval
+        constflag, constval = expr_constant_value(argval)
+        if constflag:
+            # argval is a constant_Expr -- this happens here (but not in _i_instance) due to canon_expr.
+            # btw, don't put _e_make_in on constant_Expr, i think - might hide bugs. (A correct def of it is there but cmted out.)
+            return constval
+        return argval._e_make_in(env, (i, ipath)) ###WRONG as explained in comment above.
     pass
 
 # same as in basic.py:
@@ -873,17 +917,6 @@ class constant_Expr(internal_Expr):
         # that failed (with the misleading AttrError from None due to Delegator),
         # but it's legit to fail now, since the constant can easily be in a lexenv with no binding for _self.
         return self._e_constant_value
-##        if '061103 kluge2':
-##            maybe = env.lexval_of_symbol(_self) #e suppress the print from this
-##            instantiating = (maybe is not _self)
-##            assert instantiating, "no _self rep in _e_eval of %r" % self # turns out _e_eval always has to implicitly instantiate [061105]
-##        if instantiating:
-##            res = self._e_constant_value
-##        else:
-##            assert 0
-##            ##e this can be what _e_simplify does, when we have that (for constant-folding and related optims)
-##            res = self
-##        return res
 ##    def _e_make_in(self, env, ipath): ###e equiv to _e_eval? see comment in _CV__i_instance_CVdict [061105]
 ##        "Instantiate self in env, at the given index-path."
 ##        #e also a method of InstanceOrExpr, tho not yet of any common superclass --

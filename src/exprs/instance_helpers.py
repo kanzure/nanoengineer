@@ -36,20 +36,6 @@ debug070120 = False # some debug prints, useful if bugs come up again in stuff r
 
 # ==
 
-def is_constant_for_instantiation(expr): #070131
-    """Is expr (which might be an arbitrary python object) a constant for instantiation?
-    (If true, it's also a constant for eval, but not necessarily vice versa.)
-    """
-    #e refile? should be compatible with _e_make_in methods in kinds of exprs it's true for
-    # anything except a pure expr is a constant, and so is an Expr subclass
-    if not (is_pure_expr(expr) and is_Expr_pyinstance(expr)):
-        return True
-    # cover a constant Symbol too, e.g. Automatic
-    #e (merge _e_sym_constant with _e_instance? see comment in Symbol._e_make_in for discussion)
-    if getattr(expr, '_e_sym_constant', False):
-        return True
-    return False
-
 # maybe merge this into InstanceOrExpr docstring:
 """Instances of subclasses of this can be unplaced or placed (aka "instantiated");
 if placed, they might be formulas (dependent on aspects of drawing-env state)
@@ -658,6 +644,7 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
                           (self,index,newdata,olddata) #e more info? i think this is an error and should not happen normally
                         # update 070122: it usually indicates an error, but it's a false alarm in the latest bugfixed testexpr_21g,
                         # since pure-expr equality should be based on formal structure, not pyobj identity. ###e
+                    ####e need to print a diff of the exprs, so we see what the problem is... [070321 comment; happens with ArgList]
                     
                     #e if it does happen, should we inval that instance? yes, if this ever happens without error.
                     # [addendum 061212: see also the comments in the new overriding method If_expr._e_eval.]
@@ -817,7 +804,8 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
         
     def _i_grabarg( self, attr, argpos, dflt_expr, _arglist = False): 
         "#doc, especially the special values for some of these args"
-        if _arglist:####
+        debug = False ## _arglist
+        if debug:
             print_compact_stack( "_i_grabarg called with ( self %r, attr %r, argpos %r, dflt_expr %r, _arglist %r): " % \
                                  (self, attr, argpos, dflt_expr, _arglist) )
             print " and the data it grabs from is _e_kws = %r, _e_args = %r" % (self._e_kws, self._e_args)
@@ -858,7 +846,7 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
         # I guess that is done inside _i_grabarg_0... ok, it's easy to add external_flag to its retval to tell us what to do. [done]
         ###k ARE THERE any other accesses of _e_args or _e_kws that need similar protection? Worry about this if I add
         # support for iterating specific args (tho that might just end up calling _i_grabarg and being fine).
-        if _arglist:####
+        if debug:
             print "_i_grabarg returns %r" % (res,)
         return res
 

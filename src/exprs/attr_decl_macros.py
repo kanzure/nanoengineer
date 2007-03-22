@@ -104,7 +104,7 @@ def Arg( type_expr, dflt_expr = _E_REQUIRED_ARG_, _attr_expr = None, _arglist = 
         # in finding the arg expr in an instance (the replacement instance for _self) --
         # this is None by default, since _E_ATTR (the attr we're on) shouldn't affect the index,
         # in this Arg macro. When we're used by other macros they can pass something else for that.
-    return _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr, **moreopts)
+    return _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr, _arglist = _arglist, **moreopts)
 
 def LvalueArg(type_expr, dflt_expr = _E_REQUIRED_ARG_): #061204, experimental syntax, likely to be revised; #e might need Option variant too
     "Declare an Arg which will be evaluated not as usual, but to an lvalue object, so its value can be set using .set_to, etc." 
@@ -203,6 +203,10 @@ def _type_coercion_expr( type_expr, thing_expr):
     """
     if type_expr is None or type_expr is Anything:
         return thing_expr
+    # ArgList causes us to get here as well:
+    # print "ignoring this type_expr for now: %r" % (type_expr,) # <tuple_Expr#1833: (S.Anything,)>
+    return thing_expr
+
     assert 0, "this will never run" # until we fix canon_type to not always return Anything!!
     print "TypeCoerce is nim, ignoring",type_expr #####070115   ###IMPLEM TypeCoerce 
     from xxx import TypeCoerce # note, if xxx == IorE's file, runtime import is required, else recursive import error; use new file??
@@ -279,7 +283,10 @@ def ArgOrOptionExpr(*args, **moreopts):
     return ArgOrOption(*args, **moreopts)
 
 def ArgList(*args, **moreopts): #070321 [tentatively replaces the scratch file ArgList.py]
+    # status, 070321 9:30pm: works, except for bad de-optim mentioned below,
+    # and unexplained 'expr or lvalflag for instance changed' in _30i. ###BUGS (not showstoppers)
     moreopts['_arglist'] = True
+        ###WARNING: there is a bad de-optim due to this, explained in tuple_Expr._e_make_in -- no per-arglist-elt instance caching.
         # WARNING: the implementing code for this uses tuple_Expr, not list_Expr.
         # But args which take explicit lists typically declare their types as list_Expr,
         # and formulae to construct them typically use list_Expr.

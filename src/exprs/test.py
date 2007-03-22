@@ -1379,9 +1379,9 @@ testexpr_36c = testexpr_36(resizable = True) # do all testexprs share the same s
 
 #e see also the _recent_tests system... should we use the most recent test instead? or have a setting for this var which means that?
 
-enable_testbed = False # True
+enable_testbed = True
 
-testexpr = testexpr_8b # testexpr_30i # testexpr_34a
+testexpr =  testexpr_30i # testexpr_34a # testexpr_8b (tests ArgList in SimpleColumn)
     # testexpr_34a - unfinished demo_ui
     # testexpr_30i - make dna cyls
     # testexpr_19i - demo_drag
