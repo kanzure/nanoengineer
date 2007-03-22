@@ -1373,7 +1373,22 @@ testexpr_36c = testexpr_36(resizable = True) # do all testexprs share the same s
     # a mitigation would be a testbed button to clear all state.
     # a fix might be to include testexpr name in the toplevel ipath used by the testbed (when one is used)
     # or the main instance maker (otherwise). ### SOLVE THIS SOMEHOW
-
+    # update 070322: trying to solve it via testname_for_testexpr --
+    # ###BUG: changing to _36c from _36b or back, using cmenu of testname text, with ArgList in SimpleColumn FYI,
+    # has delayed effect in a buggy-seeming way. It claims to have remade the instance at a recent redraw,
+    # and shows the new testname, but the instance itself (in the main graphics area) is using old state
+    # (don't know which testexpr it's using for sure). Could it be something about "ipath for App as opposed to test itself"??
+    # That is, are we using the new testexpr as desired, but not using the new ipath until an explicit reload makes us remake testbed?
+    # To find out, turn off testbed -- NO, then I can't use testname cmenu. Ok, to find out, display ipath? trying this:
+testexpr_36fa = testexpr_6f(fake = 1)
+testexpr_36fb = testexpr_6f(fake = 2)
+    # this works, but I can see the problem: it remakes the instance only because the exprs differ!
+    # (find_or_make_main_instance compares the exprs to decide whether to remake.)
+    # Trying again with _36{b,c}, the console output says it's not remaking it!
+    # I guess it's not obvious whether that's a bug -- tho since the testname is known in those cases (by user choice in menu),
+    # it could be considered part of the test... ah, another effect is that testname_for_testexpr[testexpr] will be the same
+    # (in its current implem) even if the explicit testname is not.
+    # What to do is not clear, and it relates to a current topic about ipath reform, but I think this at least explains it all.
 
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
 
@@ -1381,7 +1396,7 @@ testexpr_36c = testexpr_36(resizable = True) # do all testexprs share the same s
 
 enable_testbed = True
 
-testexpr =  testexpr_30i # testexpr_34a # testexpr_8b (tests ArgList in SimpleColumn)
+testexpr =  testexpr_36fa # testexpr_36b # testexpr_34a # testexpr_8b (tests ArgList in SimpleColumn)
     # testexpr_34a - unfinished demo_ui
     # testexpr_30i - make dna cyls
     # testexpr_19i - demo_drag
@@ -1567,6 +1582,12 @@ except:
     _save_recent_tests()
     pass
 
+try:
+    testname_for_testexpr
+except:
+    testname_for_testexpr = {}
+    pass
+
 def _testexpr_and_testnames_were_changed():
     """call this when you change those (which you must do in sync);
     the two callers (reload and _set_test) need to set them in different ways
@@ -1581,6 +1602,7 @@ def _testexpr_and_testnames_were_changed():
         this_test = testnames[-1] # just a local var
         _recent_tests = _add_recent_test( _recent_tests, this_test)
         _save_recent_tests()
+        testname_for_testexpr[testexpr] = ",".join(testnames) #070322 new feature
     return
 
 _testexpr_and_testnames_were_changed()
@@ -1888,7 +1910,14 @@ def _cmpmsg(e1,e2):
 
 def make_main_instance(glpane, staterefs, testexpr, testbed):
     some_env = widget_env(glpane, staterefs)
-    inst = some_env.make(testbed(testexpr), NullIpath)
+    try:
+        testname = testname_for_testexpr[testexpr] # new feature 070322
+    except KeyError:
+        print "no saved testname_for_testexpr"
+        testname = "?"
+        pass
+    ipath = (testname, NullIpath)
+    inst = some_env.make(testbed(testexpr), ipath)
     return inst
 
 class _find_or_make: #061217 from find_or_make_main_instance etc #e refile ### NOT YET USED
