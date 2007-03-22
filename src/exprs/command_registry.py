@@ -6,6 +6,8 @@ $Id$
 register the types & commands [stub]
 """
 
+from basic import InstanceOrExpr
+
 ###e THIS WILL BE REFACTORED before it is ever used, probably into a plain old dict, fully global for now, for the app object later,
 # (later to be replaced by a kind of dict that can track its changes)
 # plus per-module funcs to add things to that dict (modifying their source info as needed)
@@ -35,7 +37,7 @@ class CommandRegistry: #e rename?
     def register(self, name, val, warn_if_not_registerable = True ):
         "#doc ... by default, warn if val is not registerable due to lacking some required decls"
         # figure out the kind of class val is, by its decls, and register as appropriate
-        print "nim: register %s = %r" % (name, val)
+        # print "nim: register %s = %r" % (name, val) # this gets called for what's expected, e.g. CommandWithItsOwnEditMode
         # now record the interesting decls which let something know what to do with the class
         motopic = getattr(val, '_e_model_object_topic', None)
 
@@ -67,20 +69,26 @@ def auto_register( namespace, registry = None, modulename = None): ###e this fun
     if modulename is None:
         # assume namespace is globals() of a module
         modulename = namespace['__name__']
-    print "auto_register, modulename = %r" % (modulename,) #####
+    # print "auto_register, modulename = %r" % (modulename,)
     if registry is None:
         registry = find_or_make_global_command_registry()
-    for name in dir():
+    for name in namespace.keys():
         if not name.startswith('_'):
             wantit = False # set to True if name names a registratable class defined in the namespace (not just imported into it)
             try:
+                val = 'bug' # for error message, in case of exception
                 val = namespace[name] # should not fail
                 if issubclass(val, InstanceOrExpr) and val.__module__ == modulename: # often fails for various reasons
                     wantit = True
             except:
+                if 'Polyline' in name:
+                    raise ####### show silly bugs like not importing InstanceOrExpr
                 pass # note: this will happen a lot (since issubclass raises an exception for a non-class val)
             if wantit:
                 registry.register(name, val, warn_if_not_registerable = False )
+            else:
+                if 'Polyline' in name:
+                    print "not registering %r = %r" % (name,val,) #####
             pass
         continue
     return
