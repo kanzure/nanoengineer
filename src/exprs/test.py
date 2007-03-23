@@ -126,7 +126,7 @@ else:
 
 import demo_drag
 reload_once(demo_drag)
-from demo_drag import GraphDrawDemo_FixedToolOnArg1, kluge_dragtool_state_checkbox_expr, demo_drag_toolcorner_expr_maker
+from demo_drag import GraphDrawDemo_FixedToolOnArg1, kluge_dragtool_state_checkbox_expr, demo_drag_toolcorner_expr_maker, _BackgroundObject
 
 import projection
 reload_once(projection)
@@ -919,6 +919,8 @@ testexpr_19Q = eval_Expr( call_Expr( lambda world_ui:
                                      call_Expr( _app.Instance, testexpr_19Qaux, "#19Q")
                                      )) # works! (you can draw polylines on empty space just as well as on the gray rect)
 
+testexpr_19Q2 = _BackgroundObject( DraggableObject(Rect()) ) # works. (drag in empty space moves it; click selects it; no sbar text tho)
+
 # == DrawInCorner
 
 def func(text, color, corner):
@@ -1421,7 +1423,7 @@ testexpr_37 = our_testexpr
 
 enable_testbed = True
 
-testexpr = testexpr_19Q # testexpr_37 # testexpr_36b # testexpr_34a # testexpr_8b (tests ArgList in SimpleColumn)
+testexpr = testexpr_19Q2 # testexpr_37 # testexpr_36b # testexpr_34a # testexpr_8b (tests ArgList in SimpleColumn)
     # testexpr_34a - unfinished demo_ui
     # testexpr_30i - make dna cyls
     # testexpr_19i - demo_drag
