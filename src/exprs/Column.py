@@ -30,7 +30,11 @@ from OpenGL.GL import glPushMatrix, glPopMatrix, glTranslatef ##e revise later i
 
 debug070321 = False
 
-class SimpleColumn(Widget2D): #061115, revised 070321 to use new ArgList -- won't work right away ####### test _30i dna x 3, rects x 2
+class SimpleColumn_NEW(Widget2D): #061115, revised 070321 to use new ArgList -- but disabled 070322,
+    # since too slow for routine use (eg in testexpr_19g),
+    # until we fix that update speed bug which means a change in any element remakes them all.
+    ### fyi: a test that puts too many elts for SimpleColumn_OLD into the MT: _30i, dna x 3, rects x 2
+
     #e or use InstanceMacro using Overlay & Translate? Could work, but slower and not needed... might help in CL with fancier gaps.
     ## a0 = Arg(Widget2D) # note: this probably doesn't preclude caller from passing None, and even if it does, nothing enforces that yet;
         # if caller does pass None (to this or to Overlay), best thing is probably to replace this with Pass = Rect(0,0,white)
@@ -117,11 +121,7 @@ class SimpleColumn(Widget2D): #061115, revised 070321 to use new ArgList -- won'
             self.drawkid(a) ## a.draw()
         glPopMatrix()
         return
-    pass # end of class SimpleColumn
-
-
-
-
+    pass # end of class SimpleColumn_NEW or SimpleColumn
 
 # ==
 
@@ -129,7 +129,7 @@ class SimpleColumn(Widget2D): #061115, revised 070321 to use new ArgList -- won'
 # until the real one works. (See Column_old_nim.py for the "real one";
 # it includes CW, CL, CLE, which some comments herein may refer to.)
 
-class SimpleColumn_OLD(Widget2D): #061115
+class SimpleColumn(Widget2D): #061115
     #e or use InstanceMacro using Overlay & Translate? Could work, but slower and not needed... might help in CL with fancier gaps.
     ## a0 = Arg(Widget2D) # note: this probably doesn't preclude caller from passing None, and even if it does, nothing enforces that yet;
         # if caller does pass None (to this or to Overlay), best thing is probably to replace this with Pass = Rect(0,0,white)
@@ -185,7 +185,9 @@ class SimpleColumn_OLD(Widget2D): #061115
             self.drawkid(a) ## a.draw()
         glPopMatrix()
         return
-    pass # end of class SimpleColumn
+    pass # end of class SimpleColumn or SimpleColumn_OLD
+
+# ==
 
 class SimpleRow(Widget2D):
     # copy of SimpleColumn, but bbottom <-> bright, btop <-> bleft, width <- height, and 0,-dy -> dx,0, basically
