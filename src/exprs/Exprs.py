@@ -718,7 +718,9 @@ class tuple_Expr(OpExpr): #k not well reviewed, re how it should be used, esp. i
     def _e_make_argval(self, argval, env, i, ipath):
         "[private helper]"
         if is_constant_for_instantiation(argval):
-            print "fyi: tuple_Expr is_constant_for_instantiation true for %r" % (argval,) # i suspect this may never happen ###k
+            # print "fyi: tuple_Expr is_constant_for_instantiation true for %r" % (argval,)
+            # this happens when an Instance is passed as an ArgList element, e.g. <PM_from_groups#40798(i)> in a SimpleColumn;
+            # it's legit, so remove the print. [070322]
             return argval
         constflag, constval = expr_constant_value(argval)
         if constflag:

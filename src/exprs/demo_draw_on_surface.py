@@ -15,8 +15,15 @@ See also:
 """
 
 from basic import *
+from basic import _self, _my, _this
 
-#e more needed
+from test import * # get lazy for now
+
+from demo_drag import Vertex, kluge_dragtool_state_prefs_key
+
+from OpenGL.GL import * #e could be relegated to separate drawing code class, if we wanted...
+
+from command_registry import auto_register
 
 # ==
 
@@ -27,10 +34,6 @@ from basic import *
 ##just not sure where we get a coordsys for that -- maybe just make a Coordsys object then?
 ##
 ##we might rather use abs coords even if we're on an object with local ones!!!
-##
-##need:
-Vertex
-kluge_dragtool_state_prefs_key
 
 #e change class polyline3d to not show the red thing until you're done, and let the red thing be a kid of the polyline3d
 
@@ -58,8 +61,6 @@ kluge_dragtool_state_prefs_key
 # or we might decl it like that from the start -- a decl on the attribute in the model object.
 
 # ==
-
-from OpenGL.GL import * #e could be relegated to separate drawing code class, if we wanted...
 
 
 ##class polyline_handle(DelegatingInstanceOrExpr):
@@ -151,7 +152,7 @@ class make_polyline3d_PG(PropertyGroup):###e call me ###e revise -- not clear it
     ###e who supplies this? the command? i guess so. is it a local class inside it? or at least the value of an attr inside it?
     "contents of property manager group for a polyline3d which is being made"
     ###e needs some args that let it find that polyline3d or the making-command!
-    arg = Arg()
+##    arg = Arg()
     #e someday be able to automake this from higher-level contents... but returning a widget is always going to be a possibility
     delegate = SimpleColumn(
         checkbox_pref( kluge_dragtool_state_prefs_key + "bla2", "closed?", dflt = False),
@@ -301,14 +302,16 @@ class cmd_DrawOnSurface(PM_Command):
 
 # short term -- until demo_ui.py works,
 # make a testexpr which keeps us in the state in which this command is active and its PM is showing.
+# But the TODO items above are still needed to make this do anything.
 
 class whatever(DelegatingInstanceOrExpr): # simulates the env that demo_ui will provide (stub version)
     ui_and_world = Instance(World())#####
     thisguy = Instance(cmd_DrawOnSurface(world = ui_and_world)) #e args? world? new object? does its super handle some? Command vs CommandRun?
-    pm = thisguy.property_manager
+    pm = SimpleColumn(TextRect("PM for DrawOnSurface"),
+                      thisguy.property_manager )
     delegate = Overlay(
         thisguy,
-        DrawInCorner(pm, corner = BOTTOM_RIGHT),
+        DrawInCorner(pm, corner = LOWER_RIGHT),
      )
     pass
 

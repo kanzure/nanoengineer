@@ -178,7 +178,7 @@ import test_statearray
 reload_once(test_statearray)
 from test_statearray import test_StateArrayRefs, test_StateArrayRefs_2, test_StateArrayRefs_3
 
-## WARNING: far below we also do "from demo_ui import *"
+### WARNING: more imports far below! (of files that get lazy and do "from test import *", e.g. demo_ui)
 
 # ==
 
@@ -1393,6 +1393,13 @@ testexpr_36fb = testexpr_6f(fake = 2)
 testexpr_36d = DraggablyBoxed(Image("courier-128.png", size = Rect(4)), resizable = True, clipped = True) # works, 070322
 testexpr_36e = DraggablyBoxed(Sphere(2), resizable = True, clipped = True) # works [use trackball -- shows limits/benefits of implem]
 
+# == demo_draw_on_surface.py
+
+import demo_draw_on_surface
+reload_once(demo_draw_on_surface)
+from demo_draw_on_surface import our_testexpr
+
+testexpr_37 = our_testexpr
 
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
 
@@ -1400,7 +1407,7 @@ testexpr_36e = DraggablyBoxed(Sphere(2), resizable = True, clipped = True) # wor
 
 enable_testbed = True
 
-testexpr =  testexpr_36e # testexpr_36b # testexpr_34a # testexpr_8b (tests ArgList in SimpleColumn)
+testexpr =  testexpr_37 # testexpr_36b # testexpr_34a # testexpr_8b (tests ArgList in SimpleColumn)
     # testexpr_34a - unfinished demo_ui
     # testexpr_30i - make dna cyls
     # testexpr_19i - demo_drag
