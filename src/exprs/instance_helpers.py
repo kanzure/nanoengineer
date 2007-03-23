@@ -407,7 +407,9 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
         if not expr._e_has_args:
             # try testexpr_9fx6. See comments near that test.
             ### update 070120: here is how I'd fix this, and propose to do it as soon as it won't confound other debugging/testing:
-            print "warning: this expr will get 0 arguments supplied implicitly: %r" % self ### remove when works [why no serno yet??]
+            # print "warning: this expr will get 0 arguments supplied implicitly: %r" % self ### remove when works [why no serno yet??]
+            # 070323 -- removed the warning, since if it's ever an error, you'll find out when the missing args are accessed;
+            # so far it's almost always been legit, so it's just been distracting.
             self._destructive_supply_args( () ) # supply a 0-tuple of args
                 ##e in case having zero args is illegal and this [someday] detects it,
                 # we should pass it a flag saying to use different error msgs in this "implicit supply args" case. (implicit = True)

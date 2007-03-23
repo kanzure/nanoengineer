@@ -171,10 +171,4 @@ class DraggablyBoxed(Boxed): # 070316; works 070317 [testexpr_36] before ww,hh S
                        )
     pass # end of class DraggablyBoxed
 
-# note 070322: we get this warning -- I guess it describes a normal situation which I should declare routine,
-# and remove the warning. ##e
-## once-per-session developer warning: this copy got copied again:
-##  <C_rule_for_method at 0xf6c02d0 for '_delegate' in 'Boxed'> for class Boxed
-##  copied as <C_rule_for_method at 0xf8a3a90 for '_delegate' in 'DraggablyBoxed'> for class DraggablyBoxed
-
 # end

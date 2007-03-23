@@ -279,14 +279,17 @@ class ClassAttrSpecific_NonDataDescriptor(object):
             printfyi("copy_for_subclass from %r to %r" % (self.cls.__name__, cls.__name__))###@@@
         copy = self.__class__(cls.__name__, self.attr, *self.args, **self.kws)
         copy._ExprsMeta__set_cls(cls)
-        copy.__copycount = self.__copycount + 1
-        if copy.__copycount > 1:
-            if not seen_before("ClassAttrSpecific_{Non,}DataDescriptor copied again"):
-                print "once-per-session developer warning: this copy got copied again:", \
-                      self, "for class %s" % self.cls.__name__, "copied as", copy, "for class %s" % cls.__name__
+        copy.__copycount = self.__copycount + 1 #k needed anymore??
+##        if copy.__copycount > 1:
+##            if not seen_before("ClassAttrSpecific_{Non,}DataDescriptor copied again"):
+##                print "once-per-session developer warning: this copy got copied again:", \
+##                      self, "for class %s" % self.cls.__name__, "copied as", copy, "for class %s" % cls.__name__
                 # Note: this may be normal for Rect -> Spacer, and it's probably not an error at all.
                 # If this keeps seeming true, remove the message.
                 # (For that matter, I could probably remove the copying behavior entirely. ##k) [061205 comment]
+                # Update 070323: it's happened for more cases of inheritance chains, all legit, e.g.
+                # for '_delegate' in 'DraggablyBoxed' and for 'per_frame_state' in '_cmd_DrawOnSurface_BG',
+                # and AFAIK it's ok when this happens, so I'm removing the warning.
         return copy
     pass # end of class ClassAttrSpecific_NonDataDescriptor
 
