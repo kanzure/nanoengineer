@@ -28,6 +28,8 @@ from OpenGL.GL import glPushMatrix, glPopMatrix, glTranslatef ##e revise later i
 
 # ==
 
+debug070321 = False
+
 class SimpleColumn(Widget2D): #061115, revised 070321 to use new ArgList -- won't work right away ####### test _30i dna x 3, rects x 2
     #e or use InstanceMacro using Overlay & Translate? Could work, but slower and not needed... might help in CL with fancier gaps.
     ## a0 = Arg(Widget2D) # note: this probably doesn't preclude caller from passing None, and even if it does, nothing enforces that yet;
@@ -76,8 +78,10 @@ class SimpleColumn(Widget2D): #061115, revised 070321 to use new ArgList -- won'
         try:
             args = 'bug' # for use in error message, in case of exception
             args = self.args
-            print "fyi: this SimpleColumn has %d args" % len(args)
-            print "fyi: the args i mentioned are: %r" % (args,) #####
+            len(args) # make sure this works!
+            if debug070321:
+                print "fyi: this SimpleColumn has %d args" % len(args)
+                print "fyi: the args i mentioned are: %r" % (args,) #####
         except:
             print "following exception concerns self = %r, args = %r" % (self, args)
             raise
