@@ -1433,11 +1433,15 @@ testexpr_37 = our_testexpr
 
 enable_testbed = True
 
-testexpr = testexpr_19Q3 # testexpr_37 # testexpr_36b # testexpr_34a # testexpr_8b (tests ArgList in SimpleColumn)
+testexpr =  testexpr_37
+    # testexpr_37 - demo_draw_on_surface
+    # testexpr_36e - clipped sphere
     # testexpr_34a - unfinished demo_ui
     # testexpr_30i - make dna cyls
-    # testexpr_19i - demo_drag
     # testexpr_29aox3 # testexpr_9fx4 #  _26g _28
+    # testexpr_19Q3 - _19g (demo_drag) with drawing on background, no rect
+    # testexpr_19i - demo_drag
+    # testexpr_8b (tests ArgList in SimpleColumn, when that version of SimpleColumn is enabled)
 
     # as of 070121 at least these work ok in EVAL_REFORM with now-semipermanent kluge070119:
     # _2, _3a, _4a, _5, _5a, _10a, _10c, _9c, _9d, _9cx,
