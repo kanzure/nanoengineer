@@ -305,7 +305,22 @@ class polyline(InstanceOrExpr): # WARNING [070319]: duplicated code, demo_drag.p
         ])
 
     pass
-        
+
+# ===
+
+class _BackgroundObject(DelegatingInstanceOrExpr): #070322 #e refile
+    """#doc. One way to put it:
+    analogous to DrawInCorner, but draws "normally but into the role of receiving events for clicks on the background"
+    """
+    delegate = Arg(Widget)
+    #e add option not to actually draw it?
+    def draw(self):
+        self.drawkid(self._delegate)
+        mode = self.env.glpane.mode # kluge?
+        mode._background_object = self._delegate # see testmode.py comments for doc of _background_object (#doc here later)
+        return
+    pass
+
 # ===
 
 ## class World(ModelObject) -- moved to world.py, 070201
@@ -369,10 +384,9 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro): # see also class World_dna_h
     highlight_color = Option(Color, None) # suggest: ave_colors(0.9,gray,white)) # use this only if background takes a color option
     use_VertexView = Option(bool, False) # 070105 so I can try out new code w/o breaking old code #### TRYIT
     world = Option(World, World(), doc = "the set of model objects") # revised 070228 for use in _19j
+    test_background_object = Option(bool, False, doc = "test the new testmode._background_object feature") #070322
     # internals
-    ## world = Instance( World() ) # maintains the set of objects in the model
-    _value = Overlay(
-      DisplistChunk( # new feature as of 070103; works, and seems to be faster (hard to be sure)
+    highlightable_background = \
         Highlightable( background, #######   WAIT A MINUTE,   how can we do that -- background is already an instance?!? ######@@@@@@
                        ## background(color=green),####KLUGE, causes various bugs or weirdnesses... not yet fully understood,
                        ## e.g. AssertionError: compute method asked for on non-Instance <Rect#10415(a)>
@@ -407,13 +421,22 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro): # see also class World_dna_h
                        on_drag = _self.on_drag_bg,
                        on_release = _self.on_release_bg,
                        sbar_text = "gray bg"
-                       )), # end of Highlightable and DisplistChunk
-      If( _self.use_VertexView,
-          DisplistChunk( WithViewerFunc(world, viewerfunc) ),
-          # try DisplistChunk, 070103 later -- works, doesn't break dragging of contained old nodes.
-          DisplistChunk( world) ##, debug_prints = "World")
-          ## world # zap DisplistChunk to see if it fixes new 070115 bug about dragging old nodes -- nope
-      )
+                       )
+    use_highlightable_background = If( test_background_object,
+                                       _BackgroundObject( highlightable_background ),
+                                       DisplistChunk( # new feature as of 070103; works, and seems to be faster (hard to be sure)
+                                           highlightable_background
+                                        )
+                                    )
+    ## world = Instance( World() ) # maintains the set of objects in the model
+    _value = Overlay(
+        use_highlightable_background,
+        If( _self.use_VertexView,
+            DisplistChunk( WithViewerFunc(world, viewerfunc) ),
+            # try DisplistChunk, 070103 later -- works, doesn't break dragging of contained old nodes.
+            DisplistChunk( world) ##, debug_prints = "World")
+            ## world # zap DisplistChunk to see if it fixes new 070115 bug about dragging old nodes -- nope
+        )
     )
 
     newnode = None # note: name conflict(?) with one of those not yet used Command classes

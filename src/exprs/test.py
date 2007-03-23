@@ -886,7 +886,8 @@ testexpr_19g = eval_Expr( call_Expr( lambda thing:
                                      call_Expr( _app.Instance, testexpr_19b, "#19b")
                                      )) # works now, after some bugfixes [070122]
 
-testexpr_19haux = GraphDrawDemo_FixedToolOnArg1(Overlay(testexpr_11q1b(size = Rect(10)),SimpleRow(Sphere(2),Sphere(1),Sphere(0.5),Sphere(0.25))))
+testexpr_19haux = GraphDrawDemo_FixedToolOnArg1(Overlay(testexpr_11q1b(size = Rect(10)),
+                                                        SimpleRow(Sphere(2),Sphere(1),Sphere(0.5),Sphere(0.25))))
 testexpr_19h = eval_Expr( call_Expr( lambda thing:
                                      Overlay( thing,
                                               DrawInCorner( Boxed(
@@ -903,7 +904,20 @@ testexpr_19i = eval_Expr( call_Expr( lambda world_ui:
                                      )) # 070227
     # note, this is now the same as _30i except for demo_drag_toolcorner_expr_maker and the fact that it wants .world of its arg --
     # AND for the type of object it needs as the world_ui! (that's the worst difference, since the ops it needs are different.)
-    # See also _19j, far below.
+
+# See also testexpr_19j, imported far below.
+
+# == test testmode._background_object [070322]
+
+testexpr_19Qaux = GraphDrawDemo_FixedToolOnArg1( Rect(10), test_background_object = True)
+testexpr_19Q = eval_Expr( call_Expr( lambda world_ui:
+                                     Overlay( world_ui,
+                                              DrawInCorner( Boxed(
+                                                  eval_Expr( call_Expr( demo_drag_toolcorner_expr_maker, world_ui.world )) )),
+                                              DrawInCorner( MT_try2(getattr_Expr(world_ui, 'world')), WORLD_MT_CORNER ),
+                                      ),
+                                     call_Expr( _app.Instance, testexpr_19Qaux, "#19Q")
+                                     )) # works! (you can draw polylines on empty space just as well as on the gray rect)
 
 # == DrawInCorner
 
@@ -1407,7 +1421,7 @@ testexpr_37 = our_testexpr
 
 enable_testbed = True
 
-testexpr =  testexpr_37 # testexpr_36b # testexpr_34a # testexpr_8b (tests ArgList in SimpleColumn)
+testexpr = testexpr_19Q # testexpr_37 # testexpr_36b # testexpr_34a # testexpr_8b (tests ArgList in SimpleColumn)
     # testexpr_34a - unfinished demo_ui
     # testexpr_30i - make dna cyls
     # testexpr_19i - demo_drag
