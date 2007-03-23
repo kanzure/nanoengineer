@@ -146,14 +146,14 @@ class DraggablyBoxed(Boxed): # 070316; works 070317 [testexpr_36] before ww,hh S
     # or, to delegate appearance and layout to different instances ourselves. (Or just to define new formulae for lbox -- easiest.) #e
     drawme = Instance( Overlay(
         If( clipped,
-            Clipped(thing, planes = [call_Expr(clip_to_right_of_x0, - thing.bleft - extra1 + ww - borderthickness/2.0 ),
-                                         ## removed - extra1, replaced with - borderthickness/2.0 --
-                                         ### last -extra1 is too much -- makes it more visible for debugging --
-                                         # but -0 or -borderthickness or -borderthickness/2.0 is better.
-                                         # Note: for a 3d object, the object can obscure the frame by not being confined to its plane!
-                                         # This makes me guess that -borderthickness/2.0 would be best.
-                                     call_Expr(clip_below_y0, thing.btop + extra1 - hh + borderthickness/2.0 )
-                                    ]), ### removed +extra1 -- ditto
+            Clipped(thing, planes = [call_Expr(clip_to_right_of_x0, - thing.bleft - extra1 + ww - borderthickness ),
+                                         # note: the (- borderthickness) term makes the clipping reach exactly
+                                         # to the inner rectframe edge. Without it, clipping would reach to the outer edge,
+                                         # which for 3d objects inside the frame can cause them to obscure it.
+                                         # (Other interesting values are (- extra1) and (- borderthickness/2.0),
+                                         #  but they both look worse, IMHO.)
+                                     call_Expr(clip_below_y0, thing.btop + extra1 - hh + borderthickness )
+                                    ]),
             thing,
          ),
         Translate( rectframe_h, V_expr( - thing.bleft - extra1, thing.btop + extra1) ),
