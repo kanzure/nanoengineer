@@ -48,7 +48,7 @@ from Center import Center, CenterY
 
 import Highlightable
 reload_once(Highlightable)
-from Highlightable import Highlightable ##, Button, print_Expr
+from Highlightable import Highlightable, BackgroundObject ##, Button, print_Expr
 
 import TextRect
 reload_once(TextRect)
@@ -308,26 +308,6 @@ class polyline(InstanceOrExpr): # WARNING [070319]: duplicated code, demo_drag.p
 
 # ===
 
-class _BackgroundObject(DelegatingInstanceOrExpr): #070322 #e refile -- where? next to DrawInCorner?
-    """#doc. One way to describe it:
-    analogous to DrawInCorner, but draws "normally but into the role of receiving events for clicks on the background"
-    """
-    delegate = Arg(Widget)
-    hide = Option(bool, False, doc = "if true, don't draw delegate, but still let it receive background events")
-    def draw(self):
-        if not self.hide:
-            self.drawkid(self._delegate)
-        else:
-            self._delegate.save_coords() ###KLUGE, unsafe in general, though correct when it's a Highlightable --
-                # but without this, we get this debug print on every draw (for obvious reasons):
-                ## ;;in <Highlightable#44572(i)>, saved modelview_matrix is None, not using it
-        mode = self.env.glpane.mode # kluge?
-        mode._background_object = self._delegate # see testmode.py comments for doc of _background_object (#doc here later)
-        return
-    pass
-
-# ===
-
 ## class World(ModelObject) -- moved to world.py, 070201
 
 # ok, now how do we bind a click on empty space to class MakeANode ?
@@ -429,7 +409,7 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro): # see also class World_dna_h
                        sbar_text = "gray bg"
                        )
     use_highlightable_background = If( test_background_object,
-                                       _BackgroundObject( highlightable_background, hide = hide_background_object),
+                                       BackgroundObject( highlightable_background, hide = hide_background_object),
                                        DisplistChunk( # new feature as of 070103; works, and seems to be faster (hard to be sure)
                                            highlightable_background
                                         )

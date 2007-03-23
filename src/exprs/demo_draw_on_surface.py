@@ -230,26 +230,21 @@ class cmd_DrawOnSurface(PM_Command):
     delegate = _self.world # draw whatever is in there
 
         #####e TODO:   ####@@@@
+    
         # Q: how do we get the things in _self.world to draw in the way we want them to? (style, filtering, highlighting)
         # A: provide them advice on that in our graphics dynenv, which we set up in a wrapper around the above delegation,
         # which is a drawing-interface (graphics interface) delegation.
+        #
         # Q: when they get activated, how do they send events to us?
         # A: put ourself (as CommandRun with event interface they expect, e.g. on_press) into some dynenv var they can find.
-        # Q: What about empty space events?
-        # A: if done the same way, something needs to "draw empty space" so it can see dynenv event binding at the time
-        # and know what testmode should send those events to. Maybe related to "drawing the entire model"??
-        # Sounds like a kluge, but otherwise, something needs to register itself with testmode as the recipient of those events.
-        # In fact, those are the same: "draw empty space" can work by doing exactly that with the dynenv binding for event-handler obj
-        # at the time. Not sure if this generalizes to anything else... anyway, drawing the world can do this if we ask it to, maybe...
-        # not sure that's a good idea, what if we draw it twice? anyway, shouldn't it have more than one component we can draw?
-        # model, different parts, MT, etc... maybe we can add another one for empty space.
-        # FOR NOW, SAVE EMPTY SPACE FOR LATER, get this to work for other kinds of model objects in the world.
-        # But that means I need another command to add one, which gets drawn in a suitable way for this to work.
-        # Which means I need a wrapper sort of like DraggableObject but different, and a scheme for World to draw things
+        #
+        # So I need a wrapper sort of like DraggableObject but different, and a scheme for World to draw things
         # with the right wrapper around them, and the right set of things, based on what the current command/mode favors.
         # WAIT -- should World do that at all? Maybe it just holds the objs and lets the mode map them into drawables?
         # Yes, that sounds better.
-        
+        #
+        # For empty space events, when I draw the model through my filter, also draw BackgroundObject(thing to handle them).
+
     #e code for event handlers during the drag, eg on_drag -- in this class or (better) in another one (DragBehavior-like)
     def on_press(self):
         point = self.current_event_mousepoint()

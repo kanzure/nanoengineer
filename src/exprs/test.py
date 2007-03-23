@@ -87,7 +87,7 @@ from TextRect import TextRect
 
 import Highlightable
 reload_once(Highlightable)
-from Highlightable import Highlightable, Button, print_Expr, _setup_UNKNOWN_SELOBJ
+from Highlightable import Highlightable, Button, print_Expr, _setup_UNKNOWN_SELOBJ, BackgroundObject
 
 import ToggleShow
 reload_once(ToggleShow)
@@ -126,7 +126,7 @@ else:
 
 import demo_drag
 reload_once(demo_drag)
-from demo_drag import GraphDrawDemo_FixedToolOnArg1, kluge_dragtool_state_checkbox_expr, demo_drag_toolcorner_expr_maker, _BackgroundObject
+from demo_drag import GraphDrawDemo_FixedToolOnArg1, kluge_dragtool_state_checkbox_expr, demo_drag_toolcorner_expr_maker
 
 import projection
 reload_once(projection)
@@ -919,7 +919,7 @@ testexpr_19Q = eval_Expr( call_Expr( lambda world_ui:
                                      call_Expr( _app.Instance, testexpr_19Qaux, "#19Q")
                                      )) # works! (you can draw polylines on empty space just as well as on the gray rect)
 
-testexpr_19Q2 = _BackgroundObject( DraggableObject(Rect()) ) # works. (drag in empty space moves it; click selects it; no sbar text tho)
+testexpr_19Q2 = BackgroundObject( DraggableObject(Rect()) ) # works. (drag in empty space moves it; click selects it; no sbar text tho)
 
 testexpr_19Q3aux = GraphDrawDemo_FixedToolOnArg1( Rect(10), test_background_object = True, hide_background_object = True)
 testexpr_19Q3 = eval_Expr( call_Expr( lambda world_ui:
@@ -929,7 +929,7 @@ testexpr_19Q3 = eval_Expr( call_Expr( lambda world_ui:
                                               DrawInCorner( MT_try2(getattr_Expr(world_ui, 'world')), WORLD_MT_CORNER ),
                                       ),
                                      call_Expr( _app.Instance, testexpr_19Q3aux, "#19Q3")
-                                     )) # works
+                                     )) # works (like _19Q but no gray rect)
 
 # == DrawInCorner
 

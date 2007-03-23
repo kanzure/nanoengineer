@@ -928,6 +928,42 @@ def _setup_UNKNOWN_SELOBJ(mode): #061218
         mode.UNKNOWN_SELOBJ = _UNKNOWN_SELOBJ_class()
     return
 
+# ==
+
+class BackgroundObject(DelegatingInstanceOrExpr): #070322 [renamed from _BackgroundObject, and moved here from demo_drag.py, 070323]
+    """#doc. One way to describe it:
+    analogous to DrawInCorner, but draws "normally but into the role of receiving events for clicks on the background"
+    """
+    delegate = Arg(Highlightable,
+                   doc = "a Highlightable (or something that delegates to one) which can process background drag events")
+    hide = Option(bool, False,
+                  doc = "if true, don't draw delegate, but still let it receive background events")
+    def draw(self):
+        if not self.hide:
+            self.drawkid(self._delegate)
+        else:
+            self._delegate.save_coords() ###KLUGE, unsafe in general, though correct when it's a Highlightable --
+                # but without this, we get this debug print on every draw (for obvious reasons):
+                ## ;;in <Highlightable#44572(i)>, saved modelview_matrix is None, not using it
+        mode = self.env.glpane.mode # kluge?
+        mode._background_object = self._delegate # see testmode.py comments for doc of _background_object (#doc here later)
+        return
+    pass # end of class BackgroundObject
+
+# fyi, here are some slightly older comments about how to solve the problem which is now solved by BackgroundObject() --
+# the plan they describe is almost the same as what I did, but the part about "the dynenv binding for event-handler obj
+# at the time" is not part of what I did yet.
+#
+# Q: What about empty space events?
+# A: if done the same way, something needs to "draw empty space" so it can see dynenv event binding at the time
+# and know what testmode should send those events to. Maybe related to "drawing the entire model"??
+# Sounds like a kluge, but otherwise, something needs to register itself with testmode as the recipient of those events.
+# In fact, those are the same: "draw empty space" can work by doing exactly that with the dynenv binding for event-handler obj
+# at the time. Not sure if this generalizes to anything else... anyway, drawing the world can do this if we ask it to, maybe...
+# not sure that's a good idea, what if we draw it twice? anyway, shouldn't it have more than one component we can draw?
+# model, different parts, MT, etc... maybe we can add another one for empty space.
+# [end of older comments]
+
 # == NO CURRENT CODE IS BELOW HERE (I think)
 
 
