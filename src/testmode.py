@@ -81,6 +81,9 @@ class testmode(super):
         return
     
     def Draw(self):
+        self._background_object = None
+            # a _background_object is only active for event handlers when it was set
+            # during the most recent call of testdraw.Draw
         import testdraw
         try:
             testdraw.Draw(self, self.o, super)
@@ -120,15 +123,28 @@ class testmode(super):
             #e history message?
             print_compact_traceback("exception in testdraw.leftDown ignored: ")
 
+    _background_object = None #070322 new feature: can be set during self.Draw to something to handle clicks on background
+    
+    def get_obj_under_cursor(self, event): #070322
+        res = super.get_obj_under_cursor(self, event)
+        if res is None:
+            res = self._background_object # usually None, sometimes set during draw to something else [070322]
+            if not hasattr(res, 'leftClick'):
+                print "bug: testmode._background_object %r has no leftClick, will be ineffective" % (res,)
+        return res
+    
     def emptySpaceLeftDown(self, event):
+        #e note: if we override self.get_obj_under_cursor(event) to return a bg object rather than None,
+        # i.e. if something sets self._background_object to something other than None,
+        # then this won't be called by selectMode.leftDown.
         emptySpace_reload = debug_pref("testmode: reload on empty space leftDown?",
                                        Choice_boolean_True,
                                        prefs_key = "A9 devel/testmode/reload on empty space leftDown" ) #070312, also in exprs/test.py
         if emptySpace_reload:
             self.reload()
-        super.emptySpaceLeftDown(self, event) #e does testdraw need to intercept this?
+        super.emptySpaceLeftDown(self, event) #e does testdraw need to intercept this? no... instead we override get_obj_under_cursor
 
-    # let super do these, until we get around to defining them here and letting testdraw intercept them:
+    # let super do these -- no need to define them here and let testdraw intercept them:
 ##    def leftDrag(self, event):
 ##        pass
 ##
