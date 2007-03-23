@@ -1861,6 +1861,10 @@ class selectAtomsMode(selectMode):
         '''Return the object under the cursor.  Only atoms, singlets and bonds are returned.
         Returns None for all other cases, including when a bond, jig or nothing is under the cursor.
         ''' #bruce 060331 comment: this docstring appears wrong, since the code looks like it can return jigs.
+        #bruce 070322 note: this will be overridden (extended) in testmode, which will sometimes return a "background object"
+        # rather than None, in order that leftDown can be handled by background_object.leftClick in the same way as for
+        # other drag_handler-returning objects.
+        #
         ### WARNING: this is slow, and redundant with highlighting -- only call it on mousedown or mouseup, never in move or drag.
         # [true as of 060726 and before; bruce 060726 comment]
         # It may be that it's not called when highlighting is on, and it has no excuse to be, but I suspect it is anyway.
@@ -1882,7 +1886,7 @@ class selectAtomsMode(selectMode):
             
             if obj is None and self.o.selobj:
                 obj = self.o.selobj # a "highlighted" bond
-                    # [or anything else, except Atom or Jig -- i.e. a general/drag_handler/Drawable seolobj [bruce 060728]]
+                    # [or anything else, except Atom or Jig -- i.e. a general/drag_handler/Drawable selobj [bruce 060728]]
                 if env.debug():
                     # I want to know if either of these things occur -- I doubt they do, but I'm not sure about Jigs [bruce 060728]
                     if isinstance(obj, Atom):
@@ -1895,7 +1899,7 @@ class selectAtomsMode(selectMode):
                     pass
             
             if obj is None: # a "highlighted" jig [i think this comment is misleading, it might really be nothing -- bruce 060726]
-                obj = self.get_jig_under_cursor(event)
+                obj = self.get_jig_under_cursor(event) # [this can be slow -- bruce comment 070322]
                 if 0 and env.debug():
                     print "debug fyi: get_jig_under_cursor returns %r" % (obj,) # [bruce 060721] 
             pass
@@ -2274,6 +2278,7 @@ class selectAtomsMode(selectMode):
         obj = self.get_obj_under_cursor(event)
             # If highlighting is turned on, get_obj_under_cursor() returns atoms, singlets, bonds, jigs,
             # or anything that can be highlighted and end up in glpane.selobj. [bruce revised this comment, 060725]
+            # (It can also return a "background object" from testmode, as of bruce 070322.)
             # If highlighting is turned off, get_obj_under_cursor() returns atoms and singlets (not bonds or jigs).
             # [not sure if that's still true -- probably not. bruce 060725 addendum]
         
@@ -2285,6 +2290,7 @@ class selectAtomsMode(selectMode):
             #bruce 060725 new feature. Any selobj can decide how clicks/drags on it should behave, if it wants to.
             # Normally this will not apply to an Atom, Bond, or Jig, but there's no reason it couldn't in theory.
             # The API is experimental and is very likely to be modified, so don't depend on it yet.
+            # (But note that testmode and the exprs module do depend on it.)
             # For example, we're likely to tell it some modkeys, something about this mode, the mousepoints, etc,
             # and to respond more fundamentally to whatever is returned. ###@@@
             # (see also mouseover_statusbar_message, used in GLPane.set_selobj)
@@ -2362,9 +2368,15 @@ class selectAtomsMode(selectMode):
         
         if self.cursor_over_when_LMB_pressed == 'Empty Space':
             if self.drag_handler is not None:
-                print "possible bug (fyi): self.drag_handler is not None, but cursor_over_when_LMB_pressed == 'Empty Space'", \
-                      self.drag_handler #bruce 060728
-            self.emptySpaceLeftDrag(event)
+##                print "possible bug (fyi): self.drag_handler is not None, but cursor_over_when_LMB_pressed == 'Empty Space'", \
+##                      self.drag_handler #bruce 060728
+                # bruce 070322: this is permitted now, and we let the drag_handler handle it (for testmode & exprs module)...
+                # however, I don't think this new feature will be made use of yet, since testmode will instead sometimes
+                # override get_obj_under_cursor to make it return a background object rather than None,
+                # so this code will not set cursor_over_when_LMB_pressed to 'Empty Space'.
+                self.dragHandlerDrag(self.drag_handler, event) # does updates if needed
+            else:
+                self.emptySpaceLeftDrag(event)
             return
             
         if self.o.modkeys is not None:
