@@ -921,6 +921,16 @@ testexpr_19Q = eval_Expr( call_Expr( lambda world_ui:
 
 testexpr_19Q2 = _BackgroundObject( DraggableObject(Rect()) ) # works. (drag in empty space moves it; click selects it; no sbar text tho)
 
+testexpr_19Q3aux = GraphDrawDemo_FixedToolOnArg1( Rect(10), test_background_object = True, hide_background_object = True)
+testexpr_19Q3 = eval_Expr( call_Expr( lambda world_ui:
+                                     Overlay( world_ui,
+                                              DrawInCorner( Boxed(
+                                                  eval_Expr( call_Expr( demo_drag_toolcorner_expr_maker, world_ui.world )) )),
+                                              DrawInCorner( MT_try2(getattr_Expr(world_ui, 'world')), WORLD_MT_CORNER ),
+                                      ),
+                                     call_Expr( _app.Instance, testexpr_19Q3aux, "#19Q3")
+                                     )) # works
+
 # == DrawInCorner
 
 def func(text, color, corner):
@@ -1423,7 +1433,7 @@ testexpr_37 = our_testexpr
 
 enable_testbed = True
 
-testexpr = testexpr_19Q2 # testexpr_37 # testexpr_36b # testexpr_34a # testexpr_8b (tests ArgList in SimpleColumn)
+testexpr = testexpr_19Q3 # testexpr_37 # testexpr_36b # testexpr_34a # testexpr_8b (tests ArgList in SimpleColumn)
     # testexpr_34a - unfinished demo_ui
     # testexpr_30i - make dna cyls
     # testexpr_19i - demo_drag

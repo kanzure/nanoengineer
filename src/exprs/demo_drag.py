@@ -308,14 +308,19 @@ class polyline(InstanceOrExpr): # WARNING [070319]: duplicated code, demo_drag.p
 
 # ===
 
-class _BackgroundObject(DelegatingInstanceOrExpr): #070322 #e refile
-    """#doc. One way to put it:
+class _BackgroundObject(DelegatingInstanceOrExpr): #070322 #e refile -- where? next to DrawInCorner?
+    """#doc. One way to describe it:
     analogous to DrawInCorner, but draws "normally but into the role of receiving events for clicks on the background"
     """
     delegate = Arg(Widget)
-    #e add option not to actually draw it?
+    hide = Option(bool, False, doc = "if true, don't draw delegate, but still let it receive background events")
     def draw(self):
-        self.drawkid(self._delegate)
+        if not self.hide:
+            self.drawkid(self._delegate)
+        else:
+            self._delegate.save_coords() ###KLUGE, unsafe in general, though correct when it's a Highlightable --
+                # but without this, we get this debug print on every draw (for obvious reasons):
+                ## ;;in <Highlightable#44572(i)>, saved modelview_matrix is None, not using it
         mode = self.env.glpane.mode # kluge?
         mode._background_object = self._delegate # see testmode.py comments for doc of _background_object (#doc here later)
         return
@@ -385,6 +390,7 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro): # see also class World_dna_h
     use_VertexView = Option(bool, False) # 070105 so I can try out new code w/o breaking old code #### TRYIT
     world = Option(World, World(), doc = "the set of model objects") # revised 070228 for use in _19j
     test_background_object = Option(bool, False, doc = "test the new testmode._background_object feature") #070322
+    hide_background_object = Option(bool, False)
     # internals
     highlightable_background = \
         Highlightable( background, #######   WAIT A MINUTE,   how can we do that -- background is already an instance?!? ######@@@@@@
@@ -423,7 +429,7 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro): # see also class World_dna_h
                        sbar_text = "gray bg"
                        )
     use_highlightable_background = If( test_background_object,
-                                       _BackgroundObject( highlightable_background ),
+                                       _BackgroundObject( highlightable_background, hide = hide_background_object),
                                        DisplistChunk( # new feature as of 070103; works, and seems to be faster (hard to be sure)
                                            highlightable_background
                                         )
