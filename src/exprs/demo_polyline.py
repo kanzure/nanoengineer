@@ -183,7 +183,7 @@ class SketchEntity( ModelObject):#e stub
 
 from OpenGL.GL import *
 
-class Polyline(SketchEntity): #e rename -- 2D or general?
+class Polyline(SketchEntity): #e rename -- 2D or general? [see also class polyline3d in demo_draw_on_surface.py]
     #e assume SketchEntity super handles whatever relativity is needed? (even add_point coord transform??)
     # more comments on relativity at end of file
 
