@@ -174,12 +174,12 @@ class PM_from_groups(DelegatingInstanceOrExpr): ###e refile into demo_ui or so, 
         # with autoconversion of ParameterGroups to those...
     message = Option(str, "(PM message goes here)") # this has to be already split into lines, for now; all indentation is stripped
     # formulae
-    def _C_use_message0(self):
+    def _C_use_message(self):
         lines = self.message.split('\n')
         lines = [line.strip() for line in lines]
         lines = filter(None, lines)
         return '\n'.join(lines)
-    use_message = _self.use_message0 #e that extra '0' is a kluge, needs to be fixed in ExprsMeta
+    use_message = _self.use_message
     # appearance
     message_box = Boxed(TextRect(use_message), gap = 0, bordercolor = yellow)
     group_box_column = MapListToExpr(

@@ -41,34 +41,8 @@ class SimpleColumn_NEW(Widget2D): #061115, revised 070321 to use new ArgList -- 
         # and use it as a drawable, but have special case to use no gap under it -- or the equiv, as a simple change
         # to our btop formula so it's 0 if not a0 -- which is already done, so maybe there's no need to worry about a0 = None.
         # Maybe it should be an optional arg like the others. [061115]
-##    a0 = Arg(Widget2D, None) # even the first arg can be missing, as when applying it to a list of no elts [061205]
-##    a1 = Arg(Widget2D, None)
-##    a2 = Arg(Widget2D, None)
-##    a3 = Arg(Widget2D, None)
-##    a4 = Arg(Widget2D, None)
-##    a5 = Arg(Widget2D, None) # use ArgList here when that works
-##    a6 = Arg(Widget2D, None)
-##    a7 = Arg(Widget2D, None)
-##    a8 = Arg(Widget2D, None)
-##    a9 = Arg(Widget2D, None)
-##    a10 = Arg(Widget2D, None)
-##    a11 = Arg(Widget2D, None) # the 12th arg is 1 too many
-##    toomany = Instance(TextRect("too many args to SimpleColumn"))
-##        #070212 added Instance to fix mysterious bug manifesting as this debug output:
-##        ## getattr_debugprint: <lexenv_ipath_Expr... <TextRect#2331(a)>> has no 'bleft'
-##    args = list_Expr(a0,a1,a2,a3,a4,a5, a6,a7,a8,a9,a10, # could say or_Expr(a0, Spacer(0)) but here is not where it matters
-##                     and_Expr(a11, toomany)
-##                     )
     args = ArgList(Widget2D, (), doc = "0 or more things (that can participate in 2d layout) to show in a column")
-    ## a0 = _self.a0 # kluge, but should be legal (so document it somewhere): get a0 into the class-def namespace for direct use below
-        # oops, it fails like this:
-        ## AssertionError: error: can't define both 'a0' and '_C_a0' in the same class 'SimpleColumn'
-        ## (since ExprsMeta is its metaclass) ...
-        # but that's just because the kluge to remove a0 from ns when a0 = _self.a0 fails to then permit _C_a0 to be defined.
-        # I should fix that in ExprsMeta (see attr = _self.attr comment) -- but for now, use _C_a0_kluge instead:
-    ## def _C_a0(self):
-    a0 = _self.a0_kluge
-    def _C_a0_kluge(self):
+    def _C_a0(self):
         args = self.args
         args[0:] # make sure this works (i.e. args is a sequence)
         if len(args):
@@ -76,6 +50,8 @@ class SimpleColumn_NEW(Widget2D): #061115, revised 070321 to use new ArgList -- 
         else:
             return None
         pass
+    a0 = _self.a0 # kluge, but legal (due to special case in ExprsMeta, documented in comments there):
+        # get a0 into the class-def namespace for direct use below
 
     def _init_instance(self):##### debug only
         super(SimpleColumn, self)._init_instance()
