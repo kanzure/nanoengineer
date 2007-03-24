@@ -737,6 +737,18 @@ def needs_wrap_by_ExprsMeta(val, msg_info = ''): # renamed from val_is_special, 
 
 is_formula = is_Expr #####e review these -- a lot of them need more cases anyway
 
+def is_attr_equals_self_attr_assignment(attr, val, classname = "?"): #070324 split this predicate out for reuse
+    "is the assignment attr = val of the exact form attr = _self.attr (for the same attr, ie recursive)?"
+    from __Symbols__ import _self #k can this be at toplevel in the module??
+    if isinstance(val, getattr_Expr) \
+       and val._e_args[0] is _self \
+       and isinstance( val._e_args[1], constant_Expr) \
+       and val._e_args[1]._e_constant_value == attr:
+        assert len(val._e_args) == 2, \
+               "in class %s: dflt arg is not allowed in attr = getattr_Expr(_self, attr, dflt) (attr = %r)" % (classname, attr)
+        return True
+    return False
+
 # ==
     
 class ExprsMeta(type):
@@ -797,14 +809,15 @@ class ExprsMeta(type):
             prefix = attr_prefix(attr)
             if prefix:
                 attr0 = remove_prefix(attr, prefix)
-                assert not ns.has_key(attr0), \
+                if ns.has_key(attr0) and not is_attr_equals_self_attr_assignment(attr0, ns[attr0]):
+                    assert 0, \
                        "error: can't define both %r and %r in the same class %r (since ExprsMeta is its metaclass); ns contained %r" % \
                        ( attr0, attr, name, orig_ns_keys )
                     #e change that to a less harmless warning?
                     # note: it's not redundant with the similar assert below, except when *both* prefix and needs_wrap_by_ExprsMeta(val).
                     # note: ns contains just the symbols defined in class's scope in the source code, plus __doc__ and __module__.
-                    # update 070321: this causes trouble if we define attr = _self.attr and then def _C_attr, which I tried to do
-                    # for a0 and _C_a0 in SimpleColumn. I worked around it there, but it ought to be made legal here. ##e [070321 comment]
+                    # update 070321/23: added the exception for attr = _self.attr so it can coexist with def _C_attr.
+                    # (I ran into this for a0 and _C_a0 in SimpleColumn, 070321, and in one or two other places since then.)
             else:
                 attr0 = attr
             if hasattr(val, '_ExprsMeta__set_attr'): # note 061203: maybe not needed after all, tho not harmful, might help catch errors
@@ -904,13 +917,7 @@ class ExprsMeta(type):
             # then don't store it in ns. This permits "inheritance of formulae from superclass"
             # but with the use of attr (not _self.attr) in subsequent formulae. Seems to work (testexpr_36).
             # update 070321: see another comment of this date, about a conflict we should make legal between this and def _C_attr.
-            from __Symbols__ import _self #k can this be at toplevel in the module??
-            if isinstance(val, getattr_Expr) \
-               and val._e_args[0] is _self \
-               and isinstance( val._e_args[1], constant_Expr) \
-               and val._e_args[1]._e_constant_value == attr0:
-                assert len(val._e_args) == 2, \
-                       "in class %s: dflt arg is not allowed in attr = getattr_Expr(_self, attr, dflt) (attr = %r)" % (name, attr0)
+            if is_attr_equals_self_attr_assignment(attr0, val):
                 # assert val0 == val # should be ok, but there is not yet an __eq__ method on OpExpr!!!
                 # print "skipping ns[attr0] = val for attr0 = %r, val = %r" % (attr0, val) # works
                 del ns[attr0]
