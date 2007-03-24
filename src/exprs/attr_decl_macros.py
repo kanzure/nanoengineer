@@ -484,7 +484,7 @@ class State(data_descriptor_Expr): # note: often referred to as "State macro" ev
 # ==
 
 # some advice about reforming Arg in the future, and about implementing ArgList better then, but tolerably now
-# (which I'm in the middle of as of 070321 4pm):
+# (which I'm in the middle of as of 070321 4pm): [edited 070323]
 """
 ##e some future forms we might want:
 
@@ -525,6 +525,11 @@ btw I then made ArgList today (or started it), but that doesn't supercede this:
              argpos = argpos_expr, attr = attr_expr, required = boolean)
 
 - which has special behavior when used as toplevel class assignment value
+(turning into a special kind of descriptor, perhaps one that wraps the decl)
+(but review the need for ExprsMeta then modifying the descriptor as it gets inherited into subclasses --
+I can no longer remember a justification, since each use passes it the class, I think
+ [#k verify that! there was some use that failed to pass something! just the attr?!?],
+but I can remember trying to remember a justification and failing...)
 
 - but which in future will also have similar special behavior when used in a lambda_expr [nim], 
   or in the _e_extend forms shown above [in '070227 coding log', dated 070321], or the like
@@ -545,10 +550,35 @@ Then the class (or customized expr) can scan that and assign numbers,
 and create code for processing real arglists and knowing what's extra, etc.
 Then ArgList is a simple variant of that processing code.
 
-... I decided to implem ArgList now, so I'm doing it, in a few files, see _arglist...
+==
+
+update 070323:
+
+let's think about how, in practice, we extract the arg decls from an expr (whether made by ExprsMeta, or also by _e_extend).
+... Don't we want the expr to just know them? ExprsMeta should make them in an explicit way, and _e_extend should add to that
+(and know which ones are in the class and which ones only in customization formulae). There is, I guess, a decls object
+(or list, if that's enough) which has them all. It's trivial to add to them... a first step is reforming what these things
+like Arg() actually are. (See above on that.)
+
+There might be an easier short term kluge, too...
+
+- try1 idea [superseded below]: add stuff to those macros (def Arg, etc) which the formula scanner sees
+and adds to the decl list, even though it's not the same thing that makes it work.
+
+- better version of that: ##### DO THIS SOON
+make the new objects (class Arg, etc),
+let the scanner add them to the decl list, but to make them work, let it ask them to expand into the old macros for now.
+Just rename def Arg to def Arg_expansion, make a new class Arg, tell it about Arg_expansion, or something like that.
+For the simpler ones like ArgExpr and ArgList, let them have expansion methods instead.
+For how class Arg controls what ExprsMeta & its scanner does, see class State. Make sure class State fits into the scheme, too!
+
+==
+
+... I decided to implem ArgList now [070321], so I'm doing it, in a few files, see _arglist...
 plan is to test it in SimpleColumn...
 I'll have to worry about def Apply in controls.py which overrides it -- my guess is,
 I should rewrite it more fully than just for that issue... ###
+[note that it works but is too inefficient, so using it in SimpleColumn is disabled until that can be worked out -- 070323]
 
 ### list_Expr or tuple_Expr? the latter -- see comment near def ArgList
 
