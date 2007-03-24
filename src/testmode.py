@@ -126,7 +126,25 @@ class testmode(super):
     _background_object = None #070322 new feature: can be set during self.Draw to something to handle clicks on background
     
     def get_obj_under_cursor(self, event): #070322
+        "this is called in *some cases* by various mode event handler methods to find out what object the cursor is over"
+        # The kinds of calls of this method (whose interface assumptions we need to be sensitive to):
+        # - depositMode.singletLeftUp indirectly calls it and checks whether the return value is an instance of Atom,
+        #   handling it specially if so.
+        # - similarly, selectMode.atomLeftUp can indirectly call it and check whether it returns a non-singlet instance of Atom.
+        # - its main call is in selectMode.leftDown to decide (based on the kind of object returned -- None, or anything which
+        #   hasattr 'leftClick', or being an instance of Atom or Bond or Jig)
+        #   which kind of more specialized leftDown method to call.
+        # Note that this method is only called for leftDown or leftUp, never during a drag or baremotion,
+        # so its speed is not all-important. That means it might be fast enough, even if it creates new Instances
+        # (of exprs module classes) on each call.
+        #    WARNING: overriding this method doesn't override the lower-level determination of glpane.selobj,
+        # which is also used directly by mode event-handling methods in a similar way as they use this method,
+        # and is used in GLPane to determine hover-highlighting behavior (both between and within drags -- in fact,
+        #  there is not yet a good-enough way for hover-highlighting behavior to be different during a drag).
+        # For some purposes, overriding the determination of selobj in GLPane would be more useful and more flexible
+        # than overriding this method; to affect highlighting behavior, it would be essential. [070323 comment]
         res = super.get_obj_under_cursor(self, event)
+        #e here is where we might let some other mode attr replace or wrap objects in specified classes. [070323 comment]
         if res is None:
             res = self._background_object # usually None, sometimes set during draw to something else [070322]
             if not hasattr(res, 'leftClick'):
