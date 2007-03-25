@@ -61,6 +61,8 @@ class DragHandler: # implemented in selectMode.py; see leftClick, needed to use 
         pass
     def ReleasedOn(self, selobj, event, mode): ### will need better args #e rename
         pass
+    def leftDouble(self, event, mode):#070324 added this method to the interface (note: the call is implemented only in testmode)
+        pass
     pass
 
 # ==
@@ -477,6 +479,12 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler): #070317 spli
                            doc = "mouse-up action for use if mouse is over highlighted object when it's released")
     on_release_out = Option(Action, on_release,
                            doc = "mouse-up action for use if mouse is NOT over highlighted object when it's released")
+    ###e should we add on_click, to be run at the same time as on_release but only if on_drag was never called? [070324 idea]
+    on_doubleclick = Option(Action, # 070324 new feature
+                            doc = "mouse-down action for the 2nd click in a double click; on_release won't run for it")
+        ###BUG (likely): on_release won't run, nor on_press, but on_drag probably will, if you drag before releasing that click!
+        # (Unless Qt suppresses drag events in that situation -- unknown.###TEST)
+        # But my guess is, most on_drag methods will fail in that case! ####FIX, here or in testmode or in selectMode
     cmenu_maker = Option(ModelObject) # object which should make a context menu, by our calling obj.make_selobj_cmenu_items if it exists
     # note: inherits projection Option from superclass _CoordsysHolder [###UNTESTED]
 ##    projection = Option(bool, False) # whether to save projection matrix too... would be default True except that breaks us. ###BUG
@@ -805,6 +813,24 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler): #070317 spli
         #e need update?
         mode.update_selobj(event) #061120 to see if it fixes bugs (see discussion in comments)
         self.inval(mode) #k needed? (done in two places per method, guess is neither is needed)
+        return
+
+    def leftDouble(self, event, mode):
+        # print "fyi: Highlightable %r got leftDouble" % self
+        # Note: if something (this code, or its on_doubleclick option)
+        # decides to do on_press sometimes, it ought to reset the flag mode.ignore_next_leftUp_event
+        # which was just set by testmode.leftDouble, which otherwise prevents calling self.ReleasedOn.
+        # But if that something is the contents of on_doubleclick, how is that possible?!?
+        # The only solution I can think of is for on_drag and on_release to get replaced by on_double_drag and
+        # on_double_release in those cases (and to rename on_doubleclick to on_double_click).Hmm.... ###REVIEW SOON
+        # 
+        # Note: this is called on the press of the 2nd click in a double click (when self is the drag_handler),
+        # not on the release.
+        #
+        # Note: I don't know whether it's guaranteed that no significant mouse motion occurred during the doubleclick
+        # (or even that the two clicks occurred in the same Qt widget -- btw, when they didn't, it can be due to mouse motion,
+        #  or to a widget being hidden or shown).
+        self._do_action('on_doubleclick') #k is this all we need?? what about update_selobj? inval/gl_update?
         return
     
     def _do_action(self, name, motion = False, glpane_bindings = {}):
