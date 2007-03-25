@@ -123,6 +123,18 @@ class testmode(super):
             #e history message?
             print_compact_traceback("exception in testdraw.leftDown ignored: ")
 
+    def leftDouble(self, event):
+        #e to be modified soon [070324]. Issues:
+        # - depositMode version deposits when in empty space; ours must not do that if there's a background object
+        #   (unless that object says to, somehow), but should otherwise.
+        # - depositMode version sets "self.ignore_next_leftUp_event = True # Fixes bug 1467",
+        #   which I guess we should always set (even if not depositing) -- not sure. In theory, bg object should decide.
+        #   Also in theory, good code would never need this, since leftUp would only do things its leftDown asked it to do.
+        #   Guess: depositMode.leftUp doesn't follow that principle, and this flag works around that flaw by
+        #   "turning off an assumption about what leftDown did".
+        #   (For example (speculation), that it reset certain variables left over from prior drag??)
+        super.leftDouble(self, event)
+
     _background_object = None #070322 new feature: can be set during self.Draw to something to handle clicks on background
     
     def get_obj_under_cursor(self, event): #070322
@@ -317,7 +329,7 @@ class testmode(super):
         super.keyReleaseEvent(self, event) #bruce 070122 new feature (probably fixes some bugs), and basicMode->super
 
     def makeMenus(self):
-        ### WARNING: this copies and slightly modifies superclass (selectMode) makeMenus;
+        ### WARNING: this copies and slightly modifies selectMode.makeMenus (not those of our superclass, depositMode!);
         # with slightly more work, we could instead just decide when to call the super one here
         # vs. when not to, rather than duplicating the menu items it produces.
         # But we can't do that for now, since we want to ditch its general items
