@@ -368,14 +368,14 @@ class TextEditField(DelegatingInstanceOrExpr):
     dflt_dialog_label = "enter some text; use @@@ for \\n" # a public class attr (for clients to use in longer labels)
     dialog_label = Option(str, dflt_dialog_label)
     delegate = Highlightable(
-        SimpleRow(TextRect(label), TextRect(text)), #e long enough? nlines ok?
+        SimpleRow(Top(TextRect(label)), Top(TextRect(text))), #e long enough? too long? nlines ok? # Top is for when >1 line in text
         #e highlight form with blue border?
-        on_press = _self.on_press, ##e doubleclick binding might be better
-        sbar_text = "click to edit textfield",
+        on_doubleclick = _self.on_doubleclick, # on_press -> on_doubleclick -- probably better
+        sbar_text = "double-click to edit textfield",
         #e cmenu binding too?
      )
-    def on_press(self):
-        ok, text = grab_text_using_dialog( default = self.text, ###IMPLEM default attr
+    def on_doubleclick(self): 
+        ok, text = grab_text_using_dialog( default = self.text,
                                            title = self.dialog_title,
                                            label = self.dialog_label )
         if ok:
