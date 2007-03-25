@@ -1061,9 +1061,9 @@ class selectMode(basicMode):
             print_compact_traceback("bug: exception in dragHandlerLeftUp ignored: ")
         pass
         
-    def dragHandlerLeftDouble(self, drag_handler, event): #####@@@@@ CALL ME
+    def dragHandlerLeftDouble(self, drag_handler, event): # never called as of 070324; see also testmode.leftDouble
         if env.debug():
-            print "debug fyi: dragHandlerLeftDouble is nim" ###@@@
+            print "debug fyi: dragHandlerLeftDouble is nim"
         return
         
 #== Jig event handler helper methods
