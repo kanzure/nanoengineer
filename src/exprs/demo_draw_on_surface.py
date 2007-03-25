@@ -509,10 +509,16 @@ class cmd_MakeRect(PM_Command):
     
     # property manager
     property_manager_groups = list_Expr( make_Rect_PG(_self) )
+    # unclear, obsolete, and nim:
+##    property_manager_message = """
+##        Position the box around the space
+##        to be enclosed by the Rect.
+##    """
     property_manager_message = """
-        Position the box around the space
-        to be enclosed by the Rect.
-    """
+        Click anywhere to make
+        a draggable green Rect
+        at the origin.
+    """ # not very interesting sounding, but accurate for now!
     
     # appearance of world while we're active, including code for click/drag event handlers for objects or bg
     delegate = Overlay(
@@ -527,23 +533,42 @@ class cmd_MakeRect(PM_Command):
 # make a testexpr which keeps us in the state in which this command is active and its PM is showing.
 # But the TODO items above are still needed to make this do anything.
 
-class whatever(DelegatingInstanceOrExpr): # simulates the env that demo_ui will provide (stub version)
+class whatever(DelegatingInstanceOrExpr): ###e rename
+    # simulates the env that demo_ui will provide (stub version, evolving to be more like it)
     ui_and_world = Instance(World())#####
     ###e following needs to permit cmd_DrawOnSurface to vary
     # (at least let it also be cmd_MakeRect; use a menu of options? or use one ActionButton per command, since more like a toolbar?)
     # -- but with Instance inside the variation, I think --
     # ie it should be a map from the desired cmd expr to the cmd instance -- or, make a new one each time, so it's a cmdrun...
     # maybe see how demo_ui/toolbar was planning to do it... ###e
-    thisguy = Instance(
-        ##cmd_DrawOnSurface
-        cmd_MakeRect
-        (world = ui_and_world))
-        #e args? world? new object? does its super handle some? Command vs CommandRun?
-    pm = thisguy.property_manager
+    toolbar = SimpleColumn(
+        ActionButton( _self.do_cmd_DrawOnSurface, "button: cmd_DrawOnSurface"), #e make the text from the command #e the running one should look pressed
+        ActionButton( _self.do_cmd_MakeRect, "button: cmd_MakeRect"),
+     ) ###e show it where? above PM for now?
+    current_cmdrun = State(Anything, None) # what is actually in here? an Instance of a "command run",   [btw is None needed??]
+        # or of a command obj that handles multiple runs (ie a command_runner?)... up to it to not get messed up if that happens
+        # (and for now, unfortunately, not remaking it is probably a significant speed optim)
+        # (so should we let an outer command handler have the PM and get reused, but an inner CommandRun get remade? why bother?)
+    def do_cmd_DrawOnSurface(self): #e which name is better: do_cmd or set_cmd? depends on type of command!
+        self._do_cmd( cmd_DrawOnSurface)
+    def do_cmd_MakeRect(self):
+        self._do_cmd( cmd_MakeRect)
+    def _do_cmd( self, cmd):
+        "set self.current_cmdrun, etc..."
+        # do we make a new one if button pressed when one already running?? yes for now.
+        self.current_cmdrun = self.Instance( cmd(world = self.ui_and_world), id(cmd) ) #e cache that expr? index ok? why cache instance?
+            #old cmt: #e args? world? new object? does its super handle some? Command vs CommandRun?
+    pm = current_cmdrun.property_manager
+    corner_stuff = SimpleColumn( toolbar, pm)
     delegate = Overlay(
-        thisguy,
-        DrawInCorner(pm, corner = LOWER_RIGHT),
+        current_cmdrun,
+        DrawInCorner( corner_stuff, corner = LOWER_RIGHT),
      )
+    def _init_instance(self):
+        super(whatever, self)._init_instance()
+        self.do_cmd_DrawOnSurface() # or at least set some command, preferably a "null" or "default" one
+            # note that this resets the current tool state on reload -- not really desirable;
+            # how was demo_ui planning to handle that? ###k
     pass
 
 our_testexpr = whatever() 
