@@ -361,10 +361,70 @@ class cmd_DrawOnSurface(PM_Command):
 
 # ===
 
+class TextEditField(DelegatingInstanceOrExpr):
+    text = State(str, "(empty)") #e dflt should be an arg, or more to the point, the text should come from a stateref ###DOIT
+    label = Option(str, "(field label)")
+    dialog_title = Option(str, "(title)")
+    dflt_dialog_label = "enter some text; use @@@ for \\n" # a public class attr (for clients to use in longer labels)
+    dialog_label = Option(str, dflt_dialog_label)
+    delegate = Highlightable(
+        SimpleRow(TextRect(label), TextRect(text)), #e long enough? nlines ok?
+        #e highlight form with blue border?
+        on_press = _self.on_press, ##e doubleclick binding might be better
+        sbar_text = "click to edit textfield",
+        #e cmenu binding too?
+     )
+    def on_press(self):
+        ok, text = grab_text_using_dialog( default = self.text, ###IMPLEM default attr
+                                           title = self.dialog_title,
+                                           label = self.dialog_label )
+        if ok:
+            #e unicode?? (see cad/src MT Node renaming code, or Node.name mmp code, or the Comment Node,
+            # for example code that can handle it)
+            #e filter through a func about what's acceptable?
+            # if it fails, repeat dialog with more specific label?
+            # strip whitespace? etc
+            # eventually customize all that, for now just do what's most useful right here
+            text = text.strip()
+            self.text = text # changes state
+        else:
+            print "cancelled text edit, old text remains: %r" % (self.text,) #e some other place to put a message in the UI?
+        return
+    pass
+
+def grab_text_using_dialog( default = "", title = "title", label = "label" ): #e refile -- collect all our Qt code in one file
+    "#doc, esp the @@@ part, and the retval being True, text or False, None"
+    # modified from _set_test_from_dialog( ), which was modified from debug_runpycode_from_a_dialog,
+    # which does the "run py code" debug menu command
+    from qt import QInputDialog, QLineEdit ## Qt4??
+    text, ok = QInputDialog.getText(title, label, QLineEdit.Normal, default)
+    if ok:
+        # fyi: type(text) == <class '__main__.qt.QString'>
+        text = str(text)
+        text = text.replace("@@@",'\n')
+    else:
+        pass # print "grab_text_using_dialog: cancelled"
+    return ok, text
+
+# ===
+
 # how short can another command be?
 # ... looks like its UI needs to be thought through, or the longest part will be the scratch comments! #e
-ColorEdit = StatefulRect = Stub
+ColorEdit = TextEditField ###WRONG ARGS
 color_ref = label = "stubs"
+    ###BTW, StateRefs must not be designed well yet, since I'm always reluctant to use one and/or I forget how.
+    # also I need new HL helpers for them, eg to turn one (eg for Color) into another (for text) using state transforms --
+    # that latter one needs to be able to reject some sets since they don't meet its conds, noticably by the setting code.
+    # (by raising ValueError??)
+    # Digr: actually, if user can enter color using text, the state should include the text, not only the color derived from it!!
+    # So that helper function might be misguided in this context.
+    
+class StatefulRect(DelegatingInstanceOrExpr):
+    w = State(Width, 1)
+    h = State(Width, 1)
+    color = State(Color,green)
+    delegate = Rect(w,h,color)
+    pass
 
 class _cmd_MakeRect_BG(Highlightable):
     "background event bindings for making a Rect, using a DraggablyBoxed to indicate its size (kluge)"
@@ -406,7 +466,9 @@ class _cmd_MakeRect_BG(Highlightable):
             # maybe this means, split DraggableObject into event binding part (for this UI) and Movable part (for abs posn state). #k
             # BUT we will also need to use the aux objects above, and maybe redefine them to get state from this rect.... ####e
             # in fact this DraggableObject and the other DraggablyBoxed are partly redundant... #####FIX
-        
+
+            #e don't make until we drag!
+            
         newnode = self.world.make_and_add( node_expr, type = "Rect")
             
         self.newnode = newnode
@@ -472,7 +534,10 @@ class whatever(DelegatingInstanceOrExpr): # simulates the env that demo_ui will 
     # -- but with Instance inside the variation, I think --
     # ie it should be a map from the desired cmd expr to the cmd instance -- or, make a new one each time, so it's a cmdrun...
     # maybe see how demo_ui/toolbar was planning to do it... ###e
-    thisguy = Instance(cmd_DrawOnSurface(world = ui_and_world))
+    thisguy = Instance(
+        ##cmd_DrawOnSurface
+        cmd_MakeRect
+        (world = ui_and_world))
         #e args? world? new object? does its super handle some? Command vs CommandRun?
     pm = thisguy.property_manager
     delegate = Overlay(

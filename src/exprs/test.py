@@ -1663,10 +1663,13 @@ def _set_test(test):
     ##e need to print "doing it" or so into sbar, too, since redraw can take so long
     return
 
-def _set_test_from_dialog( ): # modified from debug_runpycode_from_a_dialog
+def _set_test_from_dialog( ): # see also grab_text_using_dialog in another file
+    "#doc"
+    # modified from debug_runpycode_from_a_dialog, which does the "run py code" debug menu command
     title = "title"
-    label = "testexpr_xxx, or any 1-line expr\n(or use @@@ to fake \\n for more lines)\n(or use execfile)"
-    from qt import QInputDialog # bruce 041216 bugfix
+    label = "testexpr_xxx, or any 1-line expr\n(or use @@@ to fake \\n for more lines)"
+        ## not applicable i think: \n(or use execfile)
+    from qt import QInputDialog
     text, ok = QInputDialog.getText(title, label)
     if ok:
         # fyi: type(text) == <class '__main__.qt.QString'>
