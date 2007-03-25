@@ -418,74 +418,80 @@ color_ref = label = "stubs"
     # (by raising ValueError??)
     # Digr: actually, if user can enter color using text, the state should include the text, not only the color derived from it!!
     # So that helper function might be misguided in this context.
-    
-class StatefulRect(DelegatingInstanceOrExpr):
-    w = State(Width, 1)
+
+Movable = Stub
+
+class StatefulRect(DelegatingInstanceOrExpr): ###UNFINISHED
+    # args
+    prototype = ArgOrOption(Movable(Rect), doc = "copy state from a snapshot of this guy's state") ###NIM ###e not sure of Movable
+    # state (maybe stateargs?)
+    w = State(Width, 1) ####k change defaults to look in prototype
     h = State(Width, 1)
     color = State(Color,green)
+    # appearance ###k missing the Movable -- does that belong in here, anyway??
     delegate = Rect(w,h,color)
     pass
 
+
 class _cmd_MakeRect_BG(Highlightable):
-    "background event bindings for making a Rect, using a DraggablyBoxed to indicate its size (kluge)"
+    """Background event bindings for dragging out new Rects.
+    (Not involved with selecting/moving/editing/resizing rects after they're made,
+     even if that happens immediately to a rect this code makes from a single drag.)
+    """
     # args [needed for sharing state with something]
     world = Option(World)
-    # state -- this is ###WRONG for w,h -- in current code we use DraggablyBoxed interior rect for that! How should we access that?? ###k
-    w = State(float, 4.0) ###e can these be stored in the Stateful(Rect) we're making, instead?? (like with polyline3d)
-    h = State(float, 2.0)
-    color = State(Color, red)
-    # aux objects
-    proto_rect = Instance(Rect(w,h,color))
-    rubberband_object = Instance( DraggablyBoxed( Spacer(4.0, 2.0), resizable = True, gap = 0 )) # spacer just sets initial size
-        #e use of DraggablyBoxed for this is just a kluge; really we need to create a custom object, once adding drag/resize is easy;
-        # then our custom obj's dragged staterefs can be exactly the rect's own dimension-state and posn-state
-        #e bordercolor should contrast with rect and bg
-        
-        ###e how can we get the rect dims inside it to be tied to its own dims?
-        #e or should it box a constant, and then we'll overlay the rect itself, rather than put the rect inside the box? YES. ###DOIT
-    delegate = Overlay(
-        ### WRONG, don't draw this until we press... OTOH does this command make one rect per press? NO! if it did, no way to change color.
-        # so how does it make another rect? hmm... hit the cmd-entry button again? i guess so. so it needs on_begin or so...
-        # but then, why does it need bg bindings? ah, for the first on_press to position it. But then it starts out 0 size... hmm. ####k
-        # (should PM have a "recent sizes" to choose from?? not for this one i guess, tho it needs size display & quantization & textedit)
-        # But then i guess that each on_press *does* drag out a new rect, which is then itself resizable...
-        # so we need some "rects being made" objects, which delegate to the actual Stateful(Rects) and help them move or resize
-        # while in this mode. Then the message is "move/resize existing Rects or drag out new ones", I guess... #####k
-        # do all existing rects look funny, or do you click on one to get the dragframe around it? or just drag it...
-        # note, to imitate a drawing program, the selected rect might have some control points (4 corner & 4 edge) visible for resize...
-
-        rubberband_object, #k does it matter whether this is first? (re delegation by overlay)
-        ###e draw proto_rect in the inside of the rubberband_object -- how?
-     )
+    #e something to share state with a control panel in the PM - unless we just use prefs for that
     
-    #e code for event handlers during the drag, eg on_drag
+    # The drag event handlers modify the following state and/or derived objects (some documented with their defs):
+    # self.rubber_rect = None or a newly made Rect we're dragging out right now
+    #  (implemented as a rubberband-object drawable -- NOT a model object -- since it has formulae to our state, not its own state)
+    # 
+    # nim: self.newnode = None or a Model Object version of the Rect we're dragging out now, or last dragged out...
+    #  in general this may be redundant with "the selection", if dragging out a rect selects it, or shift-dragging it adds it to sel...
+    # note, which of these are change-tracked? the ones used in drawing. that means all of them i guess.
+
+    startpoint = State(Point, None, doc = "mousedown position; one corner of the rect") #e (or its center, for variants of this cmd)
+    curpoint = State(Point, None, doc = "last mouse position used for the other corner of the rect")
+    making_a_rect_now = State(bool, False, doc = "whether we're making a rect right now, using the current drag")
+
+    # formulae
+    whj = curpoint - startpoint # contains dims of current rect; only valid while we're making one, or after it's done before next press
+    w = whj[0] ###k what if negative??
+    h = whj[1]
+    color = red # for now -- will be a pref or PM control for the color to use for new rects
+    rubber_rect = If( making_a_rect_now, Translate(Rect(w,h,color),startpoint))
+    
+    # code for event handlers during the drag. 
     def on_press(self):
-        point = self.current_event_mousepoint()
-        
-        node_expr = DraggableObject(StatefulRect()) # center its initial posn at point. also its state needs to include abs posn...
-            # maybe this means, split DraggableObject into event binding part (for this UI) and Movable part (for abs posn state). #k
-            # BUT we will also need to use the aux objects above, and maybe redefine them to get state from this rect.... ####e
-            # in fact this DraggableObject and the other DraggablyBoxed are partly redundant... #####FIX
-
-            #e don't make until we drag!
-            
-        newnode = self.world.make_and_add( node_expr, type = "Rect")
-            
-        self.newnode = newnode
+        self.startpoint = self.current_event_mousepoint()
+        self.making_a_rect_now = False #k probably not needed
+            # don't make until we drag!
+        self.curpoint = None #k probably not needed, but might help to catch bugs where whj is used when it shouldn't be
+        #e change cursor, someday; sooner, change state to name the desired cursor, and display that cursorname in the PM
         return
-    
-    def on_drag(self):
-        point = self.current_event_mousepoint()
-        lastnode = self.newnode # btw nothing clears this on mouseup, so in theory it could be left from a prior drag
 
-        ###e this would be for dragging out a new Rect - we'd have a rubber one and drag one of its defining corners, I guess.
-        # also decide if initial point is fixed at opp corner or at center - maybe we have both commands...
+    def on_drag(self):
+        self.curpoint = self.current_event_mousepoint( plane = self.startpoint )
+        self.making_a_rect_now = True
         return
 
     def on_release(self):
-        ###e do we need to do anything to make this rect real? or decide if it's not real for some reason (a dim is 0)?
+        ##e decide whether to really make one... here, assume we do:
+        node_expr = DraggableObject(StatefulRect(self.rubber_rect)) #e StatefulMovableRect? StatefulSnapshot(self.rubber_rect)??
+            ###k can we just pass the rubber rect and assume StatefulRect can grab its state from it by taking a snapshot??
+            ###WRONG for DraggableObject to be here, I think -- it's how we display it -- not sure, at least movability might be here...
+            ### the posn is in the rubber_rect since it has Translate... this seems potentially bad/klugy tho...
+            # older cmts, related: ... also its state needs to include abs posn...
+            # maybe this means, split DraggableObject into event binding part (for this UI) and Movable part (for abs posn state). #k
+            # obs cmts:
+            # BUT we will also need to use the aux objects above, and maybe redefine them to get state from this rect.... ####e
+            # in fact this DraggableObject and the other DraggablyBoxed are partly redundant... #####FIX
+
+        self.newnode = self.world.make_and_add( node_expr, type = "Rect")
         return
+    
     pass # end of class
+
 
 class make_Rect_PG(PropertyGroup):
     "property group contents for making a Rect"
@@ -494,7 +500,7 @@ class make_Rect_PG(PropertyGroup):
     # (not sure this is sensible)
     title = "Rect properties"
     delegate = SimpleColumn(
-        ColorEdit( color_ref, label ), ##e
+        ColorEdit( color_ref, label ), ##e [could put color name into prefs, for now...]
         #e dimensions? (numeric textfields) co-update with its draggability? yes...
         #e someday: units, gridding, ref plane, ...
      )
