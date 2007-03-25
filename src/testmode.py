@@ -124,7 +124,11 @@ class testmode(super):
             print_compact_traceback("exception in testdraw.leftDown ignored: ")
 
     def leftDouble(self, event):
-        #e to be modified soon [070324]. Issues:
+        # Note: added to testmode 070324. (See also selectMode.dragHandlerLeftDouble, which is never called --
+        # either it's obsolete, or this should be merged into selectMode.leftDouble and it should call that
+        # and let that do the rest of what this does now.)
+        #
+        # Some issues:
         # - depositMode version deposits when in empty space; ours must not do that if there's a background object
         #   (unless that object says to, somehow), but should otherwise.
         # - depositMode version sets "self.ignore_next_leftUp_event = True # Fixes bug 1467",
@@ -133,7 +137,28 @@ class testmode(super):
         #   Guess: depositMode.leftUp doesn't follow that principle, and this flag works around that flaw by
         #   "turning off an assumption about what leftDown did".
         #   (For example (speculation), that it reset certain variables left over from prior drag??)
-        super.leftDouble(self, event)
+        self.ignore_next_leftUp_event = True
+            # I'm guessing this is always necessary, though I'm not sure.
+            # Note that it will prevent the call of drag_handler.ReleasedOn -- this seems desirable,
+            # since the press method (leftClick) was not called either, for the 2nd click of a double click --
+            # and it's also the same behavior as before we added this implem of leftDouble.
+            # However, minor ###BUG: the superclasses only reset it in leftUp -- if they were more cautious
+            # they'd also do so in leftDown, in case of a missing (or buggily overidden) leftUp call.
+            # (Or GLPane would, so not every mode class has to. Or it'd just call leftDoubleUp or so.)
+        if self.drag_handler is not None:
+            print "fyi: testmode passing leftDouble to drag_handler = %r" % (self.drag_handler,) ####
+            # This works: it's a highlightable or a _background_object if we double-clicked on one,
+            # and otherwise false (presumably None).
+            # So when it's there, let's pass this event to it for handling, and not to the superclass.
+            # (Note: most of the DragHandler interface is implemented in selectMode,
+            #  but this new method in it ('leftDouble') is implemented only in testmode.)
+            method = getattr( self.drag_handler, 'leftDouble', None)
+            if method is not None:
+                method(event, self) #e protect from exceptions?
+        else:
+            print "fyi: testmode passing leftDouble to superclass (since no drag_handler)" ####
+            super.leftDouble(self, event)
+        return
 
     _background_object = None #070322 new feature: can be set during self.Draw to something to handle clicks on background
     
@@ -159,8 +184,9 @@ class testmode(super):
         #e here is where we might let some other mode attr replace or wrap objects in specified classes. [070323 comment]
         if res is None:
             res = self._background_object # usually None, sometimes set during draw to something else [070322]
-            if not hasattr(res, 'leftClick'):
-                print "bug: testmode._background_object %r has no leftClick, will be ineffective" % (res,)
+            if res is not None:
+                if not hasattr(res, 'leftClick'):
+                    print "bug: testmode._background_object %r has no leftClick, will be ineffective" % (res,)
         return res
     
     def emptySpaceLeftDown(self, event):
