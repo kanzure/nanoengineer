@@ -156,10 +156,10 @@ class make_polyline3d_PG(PropertyGroup):###e call me ###e revise -- not clear it
 ##    arg = Arg()
     #e someday be able to automake this from higher-level contents... but returning a widget is always going to be a possibility
     # (see also comments in PM_from_groups about this)
+    title = "Polyline Properties" ###e USE ME in PM_from_groups
     delegate = SimpleColumn(
         checkbox_pref( kluge_dragtool_state_prefs_key + "bla2", "closed loop?", dflt = False), # only gets closed when done -- ok??
     )
-    title = "Polyline Properties" ###e USE ME in PM_from_groups
     pass
 
 class PM_from_groups(DelegatingInstanceOrExpr): ###e refile into demo_ui or so, and call it on [make_polyline3d_PG(somearg)]
@@ -205,13 +205,13 @@ class PM_Command(DelegatingInstanceOrExpr): #e review name, etc ##e delegating??
     world = Option(World)
     pass
 
-# ==
+# ===
 
-class _cmd_DrawOnSurface_BG(Highlightable): ###k this super has never been tried like this... ought to work
+class _cmd_DrawOnSurface_BG(Highlightable):
     "[private helper] background drag event bindings for cmd_DrawOnSurface; intended for use inside BackgroundObject()"
     # args [needed for sharing state with something]
     world = Option(World)
-    #e code for event handlers during the drag, eg on_drag -- in this class or (better) in another one (DragBehavior-like)
+    #e code for event handlers during the drag, eg on_drag
     def on_press(self):
         point = self.current_event_mousepoint()
         newpos = point + DZ * DZFUZZ # kluge: move it slightly closer so we can see it in spite of bg
@@ -229,7 +229,7 @@ class _cmd_DrawOnSurface_BG(Highlightable): ###k this super has never been tried
         newnode = self.world.make_and_add( node_expr, type = "Vertex") #070206 added type = "Vertex"
             ###e may want to make, but not add... let it be a kid of the polyline3d
             
-        self.newnode = newnode ###KLUGE that we store it directly in self; might work tho; we store it only for use by on_drag_bg
+        self.newnode = newnode
         return
     
     def on_drag(self):
@@ -303,9 +303,10 @@ class cmd_DrawOnSurface(PM_Command):
     property_manager_message = """
         Sketch a 3D polyline
         on any model surface
-        [model surface is nim for
-        click, but ok for drag-over]
         or in free space.
+        [Note: model surface
+        is NIM for click, but
+        works for drag-over.]
     """
 
         # super should make property_manager from the groups, if we don't make a whole one ourselves [might be already stub-coded]
@@ -360,13 +361,119 @@ class cmd_DrawOnSurface(PM_Command):
 
 # ===
 
+# how short can another command be?
+# ... looks like its UI needs to be thought through, or the longest part will be the scratch comments! #e
+ColorEdit = StatefulRect = Stub
+color_ref = label = "stubs"
+
+class _cmd_MakeRect_BG(Highlightable):
+    "background event bindings for making a Rect, using a DraggablyBoxed to indicate its size (kluge)"
+    # args [needed for sharing state with something]
+    world = Option(World)
+    # state -- this is ###WRONG for w,h -- in current code we use DraggablyBoxed interior rect for that! How should we access that?? ###k
+    w = State(float, 4.0) ###e can these be stored in the Stateful(Rect) we're making, instead?? (like with polyline3d)
+    h = State(float, 2.0)
+    color = State(Color, red)
+    # aux objects
+    proto_rect = Instance(Rect(w,h,color))
+    rubberband_object = Instance( DraggablyBoxed( Spacer(4.0, 2.0), resizable = True, gap = 0 )) # spacer just sets initial size
+        #e use of DraggablyBoxed for this is just a kluge; really we need to create a custom object, once adding drag/resize is easy;
+        # then our custom obj's dragged staterefs can be exactly the rect's own dimension-state and posn-state
+        #e bordercolor should contrast with rect and bg
+        
+        ###e how can we get the rect dims inside it to be tied to its own dims?
+        #e or should it box a constant, and then we'll overlay the rect itself, rather than put the rect inside the box? YES. ###DOIT
+    delegate = Overlay(
+        ### WRONG, don't draw this until we press... OTOH does this command make one rect per press? NO! if it did, no way to change color.
+        # so how does it make another rect? hmm... hit the cmd-entry button again? i guess so. so it needs on_begin or so...
+        # but then, why does it need bg bindings? ah, for the first on_press to position it. But then it starts out 0 size... hmm. ####k
+        # (should PM have a "recent sizes" to choose from?? not for this one i guess, tho it needs size display & quantization & textedit)
+        # But then i guess that each on_press *does* drag out a new rect, which is then itself resizable...
+        # so we need some "rects being made" objects, which delegate to the actual Stateful(Rects) and help them move or resize
+        # while in this mode. Then the message is "move/resize existing Rects or drag out new ones", I guess... #####k
+        # do all existing rects look funny, or do you click on one to get the dragframe around it? or just drag it...
+        # note, to imitate a drawing program, the selected rect might have some control points (4 corner & 4 edge) visible for resize...
+
+        rubberband_object, #k does it matter whether this is first? (re delegation by overlay)
+        ###e draw proto_rect in the inside of the rubberband_object -- how?
+     )
+    
+    #e code for event handlers during the drag, eg on_drag
+    def on_press(self):
+        point = self.current_event_mousepoint()
+        
+        node_expr = DraggableObject(StatefulRect()) # center its initial posn at point. also its state needs to include abs posn...
+            # maybe this means, split DraggableObject into event binding part (for this UI) and Movable part (for abs posn state). #k
+            # BUT we will also need to use the aux objects above, and maybe redefine them to get state from this rect.... ####e
+            # in fact this DraggableObject and the other DraggablyBoxed are partly redundant... #####FIX
+        
+        newnode = self.world.make_and_add( node_expr, type = "Rect")
+            
+        self.newnode = newnode
+        return
+    
+    def on_drag(self):
+        point = self.current_event_mousepoint()
+        lastnode = self.newnode # btw nothing clears this on mouseup, so in theory it could be left from a prior drag
+
+        ###e this would be for dragging out a new Rect - we'd have a rubber one and drag one of its defining corners, I guess.
+        # also decide if initial point is fixed at opp corner or at center - maybe we have both commands...
+        return
+
+    def on_release(self):
+        ###e do we need to do anything to make this rect real? or decide if it's not real for some reason (a dim is 0)?
+        return
+    pass # end of class
+
+class make_Rect_PG(PropertyGroup):
+    "property group contents for making a Rect"
+    # note: classname includes make_Rect rather than MakeRect,
+    # since it might not be the *only* PG for cmd_MakeRect, and it might be shared by other commands' PMs.
+    # (not sure this is sensible)
+    title = "Rect properties"
+    delegate = SimpleColumn(
+        ColorEdit( color_ref, label ), ##e
+        #e dimensions? (numeric textfields) co-update with its draggability? yes...
+        #e someday: units, gridding, ref plane, ...
+     )
+    pass
+
+class cmd_MakeRect(PM_Command):
+    """#doc
+    """
+    # name and description
+    cmd_name = "MakeRect"
+    cmd_desc = "make a screen-aligned rectangle" # in abs coords, with choosable fill color
+    
+    # property manager
+    property_manager_groups = list_Expr( make_Rect_PG(_self) )
+    property_manager_message = """
+        Position the box around the space
+        to be enclosed by the Rect.
+    """
+    
+    # appearance of world while we're active, including code for click/drag event handlers for objects or bg
+    delegate = Overlay(
+        _self.world,
+        BackgroundObject( _cmd_MakeRect_BG(world = _self.world)),
+     )
+    pass # end of class cmd_MakeRect
+
+# ===
+
 # short term -- until demo_ui.py works,
 # make a testexpr which keeps us in the state in which this command is active and its PM is showing.
 # But the TODO items above are still needed to make this do anything.
 
 class whatever(DelegatingInstanceOrExpr): # simulates the env that demo_ui will provide (stub version)
     ui_and_world = Instance(World())#####
-    thisguy = Instance(cmd_DrawOnSurface(world = ui_and_world)) #e args? world? new object? does its super handle some? Command vs CommandRun?
+    ###e following needs to permit cmd_DrawOnSurface to vary
+    # (at least let it also be cmd_MakeRect; use a menu of options? or use one ActionButton per command, since more like a toolbar?)
+    # -- but with Instance inside the variation, I think --
+    # ie it should be a map from the desired cmd expr to the cmd instance -- or, make a new one each time, so it's a cmdrun...
+    # maybe see how demo_ui/toolbar was planning to do it... ###e
+    thisguy = Instance(cmd_DrawOnSurface(world = ui_and_world))
+        #e args? world? new object? does its super handle some? Command vs CommandRun?
     pm = thisguy.property_manager
     delegate = Overlay(
         thisguy,
