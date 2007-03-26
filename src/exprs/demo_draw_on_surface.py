@@ -423,13 +423,14 @@ Movable = Stub
 
 class StatefulRect(DelegatingInstanceOrExpr): ###UNFINISHED
     # args
-    prototype = ArgOrOption(Movable(Rect), doc = "copy state from a snapshot of this guy's state") ###NIM ###e not sure of Movable
+    rect = ArgOrOption(Movable(Rect), Rect(1,1,yellow), doc = "copy state from a snapshot of this guy's state")
+        ###k not sure of Movable; for now, we ignore it and just grab out the state attrs we happen to know about as Rect attrs
     # state (maybe stateargs?)
-    w = State(Width, 1) ####k change defaults to look in prototype
-    h = State(Width, 1)
-    color = State(Color,green)
+    width = State(Width, rect.width)
+    height = State(Width, rect.height)
+    color = State(Color, rect.color)
     # appearance ###k missing the Movable -- does that belong in here, anyway??
-    delegate = Rect(w,h,color)
+    delegate = Rect(width, height, color)
     pass
 
 
@@ -458,8 +459,10 @@ class _cmd_MakeRect_BG(Highlightable):
     whj = curpoint - startpoint # contains dims of current rect; only valid while we're making one, or after it's done before next press
     w = whj[0] ###k what if negative??
     h = whj[1]
-    color = red # for now -- will be a pref or PM control for the color to use for new rects
+    color = purple # for now -- will be a pref or PM control for the color to use for new rects
     rubber_rect = If( making_a_rect_now, Translate(Rect(w,h,color),startpoint))
+    # appearance
+    delegate = _self.rubber_rect
     
     # code for event handlers during the drag. 
     def on_press(self):
@@ -473,21 +476,25 @@ class _cmd_MakeRect_BG(Highlightable):
     def on_drag(self):
         self.curpoint = self.current_event_mousepoint( plane = self.startpoint )
         self.making_a_rect_now = True
+        self.KLUGE_gl_update() #k needed? don't know, since adding it didn't fix the bug of not drawing the rubber object!
         return
 
     def on_release(self):
-        ##e decide whether to really make one... here, assume we do:
-        node_expr = DraggableObject(StatefulRect(self.rubber_rect)) #e StatefulMovableRect? StatefulSnapshot(self.rubber_rect)??
-            ###k can we just pass the rubber rect and assume StatefulRect can grab its state from it by taking a snapshot??
-            ###WRONG for DraggableObject to be here, I think -- it's how we display it -- not sure, at least movability might be here...
-            ### the posn is in the rubber_rect since it has Translate... this seems potentially bad/klugy tho...
-            # older cmts, related: ... also its state needs to include abs posn...
-            # maybe this means, split DraggableObject into event binding part (for this UI) and Movable part (for abs posn state). #k
-            # obs cmts:
-            # BUT we will also need to use the aux objects above, and maybe redefine them to get state from this rect.... ####e
-            # in fact this DraggableObject and the other DraggablyBoxed are partly redundant... #####FIX
-
-        self.newnode = self.world.make_and_add( node_expr, type = "Rect")
+        ##e decide whether to really make one... here, assume we do, as long as we started one:
+        if self.making_a_rect_now:
+            node_expr = DraggableObject(StatefulRect(self.rubber_rect)) #e StatefulMovableRect? StatefulSnapshot(self.rubber_rect)??
+                ###k can we just pass the rubber rect and assume StatefulRect can grab its state from it by taking a snapshot??
+                ###WRONG for DraggableObject to be here, I think -- it's how we display it -- not sure, at least movability might be here...
+                ### the posn is in the rubber_rect since it has Translate... this seems potentially bad/klugy tho...
+                # older cmts, related: ... also its state needs to include abs posn...
+                # maybe this means, split DraggableObject into event binding part (for this UI) and Movable part (for abs posn state). #k
+                # obs cmts:
+                # BUT we will also need to use the aux objects above, and maybe redefine them to get state from this rect.... ####e
+                # in fact this DraggableObject and the other DraggablyBoxed are partly redundant... #####FIX
+            self.newnode = self.world.make_and_add( node_expr, type = "Rect")
+            self.newnode.motion = self.startpoint ###KLUGE
+        else:
+            print "fyi: click with no drag did nothing" ### remove after debug
         return
     
     pass # end of class
@@ -515,23 +522,33 @@ class cmd_MakeRect(PM_Command):
     
     # property manager
     property_manager_groups = list_Expr( make_Rect_PG(_self) )
-    # unclear, obsolete, and nim:
-##    property_manager_message = """
-##        Position the box around the space
-##        to be enclosed by the Rect.
-##    """
     property_manager_message = """
-        Click anywhere to make
-        a draggable green Rect
-        at the origin.
-    """ # not very interesting sounding, but accurate for now!
+        Drag out a purple Rect.
+        [bug: not visible until
+        you release the mouse.]
+    """
     
     # appearance of world while we're active, including code for click/drag event handlers for objects or bg
+    background = Instance( _cmd_MakeRect_BG(world = _self.world) ) #k might not need to be split out, once bugs are fixed
     delegate = Overlay(
         _self.world,
-        BackgroundObject( _cmd_MakeRect_BG(world = _self.world)),
+        background, ####e SHOULD NOT BE NEEDED, but doesn't work anyway 
+        BackgroundObject( background ),
      )
     pass # end of class cmd_MakeRect
+
+# cmd_MakeRect status as of 070326 mon morn:
+# - ###BUG: not drawing rubber band obj - does BackGround object forget to draw it now?
+#   or is "drawing what's stored in State" not working in class whatever?
+#   no, that has to be working or the cmd would not be active at all...
+# - ###TODO: need some visual indication after click, that drag would now make a rect... not sure what it can be... a tiny but toobig one??
+#   of course the best one is a cursor... how hard can it be to make a cursor? we have tons of example code for it...
+#   and for now, just pick an existing one that looks ok here.
+# - kluges about copying state, especially abs position
+# - lots of nfrs, esp color
+# - don't know why neg widths are working, but my guess is, Rect allows them and doesn't cull when drawing #k; needs cleanup
+#
+# mainly, i need to integrate all this with demo_ui.py.
 
 # ===
 
@@ -572,7 +589,7 @@ class whatever(DelegatingInstanceOrExpr): ###e rename
      )
     def _init_instance(self):
         super(whatever, self)._init_instance()
-        self.do_cmd_DrawOnSurface() # or at least set some command, preferably a "null" or "default" one
+        self.do_cmd_MakeRect() # or at least set some command, preferably a "null" or "default" one
             # note that this resets the current tool state on reload -- not really desirable;
             # how was demo_ui planning to handle that? ###k
     pass
