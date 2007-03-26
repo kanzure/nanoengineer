@@ -452,6 +452,10 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler): #070317 spli
     # args (which specify what it looks like in various states)
     plain = ArgOrOption(Widget2D) # Arg -> ArgOrOption 070304 -- but is it still required? it ought to be... but it's not.... ###e
     delegate = _self.plain # always use this one for lbox attrs, etc
+        # Note that subclasses of Highlightable generally need to override plain, not delegate,
+        # and also have to remember to override it with an Instance, not just an expr.
+        # This is basically a flaw in using subclassing (or in our subclass interface, but it's not easily fixable here)
+        # vs. delegation to normally-made Highlightables. [070326 comment]
     highlighted = ArgOrOption(Widget2D, plain)
         # fyi: leaving this out is useful for things that just want a glname to avoid mouseover stickiness
         # implem note: this kind of _self-referential dflt formula is not tested, but ought to work;
@@ -550,8 +554,12 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler): #070317 spli
 ##                           saved_modelview_matrix = None,
 ##                           saved_projection_matrix = None
 ##                           ) #k safe? (why not?) #e can't work inside display lists
+
+
+        assert is_expr_Instance_or_None( self.plain ), "%r.plain must be an Instance or None, not %r" % (self, self.plain)
+            # catch bugs in subclasses which override our formula for self.plain [070326]
         
-        return # from _init_instance
+        return # from _init_instance in Highlightable
     
     def draw(self):
         if not self.env.glpane.current_glselect:
@@ -972,6 +980,8 @@ class BackgroundObject(DelegatingInstanceOrExpr): #070322 [renamed from _Backgro
                 # but without this, we get this debug print on every draw (for obvious reasons):
                 ## ;;in <Highlightable#44572(i)>, saved modelview_matrix is None, not using it
         mode = self.env.glpane.mode # kluge?
+        # tell event handlers that run after the present rendered frame to send press/drag/release events on empty space
+        # to self._delegate
         mode._background_object = self._delegate # see testmode.py comments for doc of _background_object (#doc here later)
         return
     pass # end of class BackgroundObject

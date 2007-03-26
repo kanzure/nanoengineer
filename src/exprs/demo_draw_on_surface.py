@@ -421,7 +421,7 @@ color_ref = label = "stubs"
 
 Movable = Stub
 
-class StatefulRect(DelegatingInstanceOrExpr): ###UNFINISHED
+class StatefulRect(DelegatingInstanceOrExpr): ###UNFINISHED but works for now
     # args
     rect = ArgOrOption(Movable(Rect), Rect(1,1,yellow), doc = "copy state from a snapshot of this guy's state")
         ###k not sure of Movable; for now, we ignore it and just grab out the state attrs we happen to know about as Rect attrs
@@ -457,13 +457,16 @@ class _cmd_MakeRect_BG(Highlightable):
 
     # formulae
     whj = curpoint - startpoint # contains dims of current rect; only valid while we're making one, or after it's done before next press
-    w = whj[0] ###k what if negative??
-    h = whj[1]
+    w = whj[0] ###k what if negative?? evidently we make a neg-width Rect and nothing complains and it draws properly... ###REVIEW
+    h = whj[1] # ditto
     color = purple # for now -- will be a pref or PM control for the color to use for new rects
-    rubber_rect = If( making_a_rect_now, Translate(Rect(w,h,color),startpoint))
-    # appearance
-    delegate = _self.rubber_rect
-    
+    rubber_rect = Instance( If( making_a_rect_now, Translate(Rect(w,h,color),startpoint)) )
+        # this Instance is needed, at least by Highlightable
+    # appearance -- note, for superclass Highlightable, this is plain, not delegate, and must be an Instance.
+    # This means it's not good to subclass Highlightable rather than delegating to it. (Especially in example code!) ###FIX
+    ## delegate = _self.rubber_rect
+    plain = _self.rubber_rect
+
     # code for event handlers during the drag. 
     def on_press(self):
         self.startpoint = self.current_event_mousepoint()
@@ -476,7 +479,6 @@ class _cmd_MakeRect_BG(Highlightable):
     def on_drag(self):
         self.curpoint = self.current_event_mousepoint( plane = self.startpoint )
         self.making_a_rect_now = True
-        self.KLUGE_gl_update() #k needed? don't know, since adding it didn't fix the bug of not drawing the rubber object!
         return
 
     def on_release(self):
@@ -488,16 +490,15 @@ class _cmd_MakeRect_BG(Highlightable):
                 ### the posn is in the rubber_rect since it has Translate... this seems potentially bad/klugy tho...
                 # older cmts, related: ... also its state needs to include abs posn...
                 # maybe this means, split DraggableObject into event binding part (for this UI) and Movable part (for abs posn state). #k
-                # obs cmts:
-                # BUT we will also need to use the aux objects above, and maybe redefine them to get state from this rect.... ####e
-                # in fact this DraggableObject and the other DraggablyBoxed are partly redundant... #####FIX
             self.newnode = self.world.make_and_add( node_expr, type = "Rect")
+                ###BUG (understood): type = "Rect" is not affecting sbar_text in DraggableObject. Need to add it in StatefulRect itself.
             self.newnode.motion = self.startpoint ###KLUGE
+            self.making_a_rect_now = False # hide the rubber rect now that the real one is there
         else:
-            print "fyi: click with no drag did nothing" ### remove after debug
+            print "fyi: click with no drag did nothing" ##e remove after debug
         return
     
-    pass # end of class
+    pass # end of class _cmd_MakeRect_BG
 
 
 class make_Rect_PG(PropertyGroup):
@@ -524,8 +525,6 @@ class cmd_MakeRect(PM_Command):
     property_manager_groups = list_Expr( make_Rect_PG(_self) )
     property_manager_message = """
         Drag out a purple Rect.
-        [bug: not visible until
-        you release the mouse.]
     """
     
     # appearance of world while we're active, including code for click/drag event handlers for objects or bg
@@ -538,9 +537,6 @@ class cmd_MakeRect(PM_Command):
     pass # end of class cmd_MakeRect
 
 # cmd_MakeRect status as of 070326 mon morn:
-# - ###BUG: not drawing rubber band obj - does BackGround object forget to draw it now?
-#   or is "drawing what's stored in State" not working in class whatever?
-#   no, that has to be working or the cmd would not be active at all...
 # - ###TODO: need some visual indication after click, that drag would now make a rect... not sure what it can be... a tiny but toobig one??
 #   of course the best one is a cursor... how hard can it be to make a cursor? we have tons of example code for it...
 #   and for now, just pick an existing one that looks ok here.

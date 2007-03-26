@@ -87,6 +87,8 @@ class CommandWithItsOwnEditMode( DelegatingInstanceOrExpr): #e rename! and inher
 
     using_xor_mode_now = False # per-instance transient variable; let's hope no code reload can occur while it's True! #k
     using_background_incremental_drawing_now = False # ditto
+
+    # see also some notes about a "better xor mode object" (not in cvs) [070325]
     
     def on_baremotion(self): #e args? grab from env? yes, submethod does that, not us.
         ### CALL ME - needs new interface... note, is API same for in motion or drag??

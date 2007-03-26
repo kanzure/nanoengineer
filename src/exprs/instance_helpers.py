@@ -960,7 +960,7 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
                 if is_expr_Instance(kid):
                     kid.draw()
                 else:
-                    print "***BUG: drawkid sees non-Instance (skipping it): %r" % (kid,)
+                    print "***BUG: drawkid in %r sees non-Instance (skipping it): %r" % (self, kid,)
                         #070226, worrying about self.delegate rather than self._delegate being passed --
                         # common but why does it work??####BUG?? in testexpr_33x I tried it and it fails here...
                         # I predict there are a bunch of bugs like this, that some used to work, and others were not tested
