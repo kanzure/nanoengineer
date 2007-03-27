@@ -1452,7 +1452,7 @@ testexpr_37 = our_testexpr
 
 enable_testbed = True
 
-testexpr =  testexpr_37
+testexpr =  testexpr_30i # testexpr_37
     # testexpr_37 - demo_draw_on_surface
     # testexpr_36e - clipped sphere
     # testexpr_34a - unfinished demo_ui
