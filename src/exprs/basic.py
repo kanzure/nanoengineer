@@ -55,8 +55,10 @@ from prefs_constants import UPPER_RIGHT, UPPER_LEFT, LOWER_LEFT, LOWER_RIGHT # c
 
 # standard corners for various UI elements [070326, but some will be revised soon]
 WORLD_MT_CORNER = UPPER_LEFT
-PM_CORNER = LOWER_RIGHT #e revise
-DEBUG_CORNER = LOWER_LEFT #e revise
+##PM_CORNER = LOWER_RIGHT #e revise
+##DEBUG_CORNER = LOWER_LEFT #e revise
+PM_CORNER = LOWER_LEFT
+DEBUG_CORNER = LOWER_RIGHT
 
 from debug import reload_once_per_event, print_compact_traceback, print_compact_stack, safe_repr
 
