@@ -137,7 +137,7 @@ from draggable import DraggableObject
 
 import projection
 reload_once(projection)
-from projection import DrawInCorner
+from projection import DrawInCenter
 
 import pallettes
 reload_once(pallettes)
@@ -699,7 +699,7 @@ def dna_ribbon_view_toolcorner_expr_maker(world_holder): #070201 modified from d
         Overlay(
             DisplistChunk(TextRect( format_Expr( "(%d objects in world)" , number_of_objs ))),
             If( eq_Expr( number_of_objs, 0),
-                DrawInCorner(corner = (0,0))( TextRect("(empty model)") ),
+                DrawInCenter(corner = (0,0))( TextRect("(empty model)") ),
                 Spacer() ),
          ),
      )

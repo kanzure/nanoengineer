@@ -843,19 +843,23 @@ testexpr_19c = Overlay( testexpr_19b, # edit this one by hand if you want
                         Translate( kluge_dragtool_state_checkbox_expr, (6,-4) ) ###e need to wrap this with "draw at the edge, untrackballed"
                     )
 # later 061213:
+# [070326 adding PM_CORNER w/o retesting most of them -- note, since PM_CORNER is variable, this is not a test of DrawInCorner,
+#  but a test of other things which assumes that DrawInCorner works well enough that the corner choice can't affect the testing.]
 testexpr_19d = Overlay( testexpr_19b,
-                        DrawInCorner(Boxed(kluge_dragtool_state_checkbox_expr))
+                        DrawInCorner(Boxed(kluge_dragtool_state_checkbox_expr), PM_CORNER)
                     ) # (works but highlight-sync bug is annoying) -- after some changes inside 061214, still works
 
 testexpr_19e = Overlay( GraphDrawDemo_FixedToolOnArg1( Rect(9), highlight_color = green),
                             # this is the new (and only current) test of background.copy(color=green) experiment [061214]
-                        DrawInCorner(Boxed(kluge_dragtool_state_checkbox_expr)) ) # ugly color, but works
+                        DrawInCorner(Boxed(kluge_dragtool_state_checkbox_expr)), PM_CORNER ) # ugly color, but works
 
 # later 070106: (syntax is a kluge; see also testexpr_26)
 testexpr_19f = eval_Expr( call_Expr( lambda thing:
                                      Overlay( thing,
-                                              DrawInCorner( Boxed(
-                                                  eval_Expr( call_Expr( demo_drag_toolcorner_expr_maker, thing.world )) )) ),
+                                              DrawInCorner(
+                                                  Boxed( eval_Expr( call_Expr( demo_drag_toolcorner_expr_maker, thing.world )) ),
+                                                  PM_CORNER
+                                               ) ),
                                      testexpr_19b ))
     # This is not a valid example for EVAL_REFORM (and indeed it fails then):
     # testexpr_19b is not instantiated (when we eval the call_Expr and ask for thing.world) but needs to be.
@@ -870,8 +874,11 @@ testexpr_19f = eval_Expr( call_Expr( lambda thing:
 # fails because Instance wants to make one using _self._i_instance, but _self has no binding here, evals to itself.
 testexpr_19g_try1_fails = eval_Expr( call_Expr( lambda thing:
                                      Overlay( thing,
-                                              DrawInCorner( Boxed(
-                                                  eval_Expr( call_Expr( demo_drag_toolcorner_expr_maker, thing.world )) )) ),
+                                              DrawInCorner(
+                                                  Boxed( eval_Expr( call_Expr( demo_drag_toolcorner_expr_maker, thing.world )) ),
+                                                  PM_CORNER
+
+                                               ) ),
                                      Instance(testexpr_19b) ))
 # Is there a sensible default binding for _self? In this lexical place it might be "the _app, found dynamically"...
 # but to be less klugy we want to make Instance work differently here... or use a different thing to make one...
@@ -879,8 +886,10 @@ testexpr_19g_try1_fails = eval_Expr( call_Expr( lambda thing:
 # But as a test I can just manually insert whatever would work for that... hmm, how about this: [later: see also testexpr_30g]
 testexpr_19g = eval_Expr( call_Expr( lambda thing:
                                      Overlay( thing,
-                                              DrawInCorner( Boxed(
-                                                  eval_Expr( call_Expr( demo_drag_toolcorner_expr_maker, thing.world )) )) ),
+                                              DrawInCorner(
+                                                  Boxed( eval_Expr( call_Expr( demo_drag_toolcorner_expr_maker, thing.world )) ),
+                                                  PM_CORNER
+                                               ) ),
                                      ## _app._i_instance(testexpr_19b)
                                          # safety rule: automatic formation of getattr_Expr not allowed for attrs starting _i_
                                      call_Expr( _app.Instance, testexpr_19b, "#19b")
@@ -890,14 +899,18 @@ testexpr_19haux = GraphDrawDemo_FixedToolOnArg1(Overlay(testexpr_11q1b(size = Re
                                                         SimpleRow(Sphere(2),Sphere(1),Sphere(0.5),Sphere(0.25))))
 testexpr_19h = eval_Expr( call_Expr( lambda thing:
                                      Overlay( thing,
-                                              DrawInCorner( Boxed(
-                                                  eval_Expr( call_Expr( demo_drag_toolcorner_expr_maker, thing.world )) )) ),
+                                              DrawInCorner(
+                                                  Boxed( eval_Expr( call_Expr( demo_drag_toolcorner_expr_maker, thing.world )) ),
+                                                  PM_CORNER
+                                               ) ),
                                      call_Expr( _app.Instance, testexpr_19haux, "#19h")
                                      )) # 070223 -- works
 testexpr_19i = eval_Expr( call_Expr( lambda world_ui:
                                      Overlay( world_ui,
-                                              DrawInCorner( Boxed(
-                                                  eval_Expr( call_Expr( demo_drag_toolcorner_expr_maker, world_ui.world )) )),
+                                              DrawInCorner(
+                                                  Boxed( eval_Expr( call_Expr( demo_drag_toolcorner_expr_maker, world_ui.world )) ),
+                                                  PM_CORNER
+                                               ),
                                               DrawInCorner( MT_try2(getattr_Expr(world_ui, 'world')), WORLD_MT_CORNER ),
                                       ),
                                      call_Expr( _app.Instance, testexpr_19haux, "#19h")
@@ -905,15 +918,17 @@ testexpr_19i = eval_Expr( call_Expr( lambda world_ui:
     # note, this is now the same as _30i except for demo_drag_toolcorner_expr_maker and the fact that it wants .world of its arg --
     # AND for the type of object it needs as the world_ui! (that's the worst difference, since the ops it needs are different.)
 
-# See also testexpr_19j, imported far below.
+# See also testexpr_19j, once imported far below, now removed. But don't reuse the name.
 
 # == test testmode._background_object [070322]
 
 testexpr_19Qaux = GraphDrawDemo_FixedToolOnArg1( Rect(10), test_background_object = True)
 testexpr_19Q = eval_Expr( call_Expr( lambda world_ui:
                                      Overlay( world_ui,
-                                              DrawInCorner( Boxed(
-                                                  eval_Expr( call_Expr( demo_drag_toolcorner_expr_maker, world_ui.world )) )),
+                                              DrawInCorner(
+                                                  Boxed( eval_Expr( call_Expr( demo_drag_toolcorner_expr_maker, world_ui.world )) ),
+                                                  PM_CORNER
+                                               ),
                                               DrawInCorner( MT_try2(getattr_Expr(world_ui, 'world')), WORLD_MT_CORNER ),
                                       ),
                                      call_Expr( _app.Instance, testexpr_19Qaux, "#19Q")
@@ -924,8 +939,10 @@ testexpr_19Q2 = BackgroundObject( DraggableObject(Rect()) ) # works. (drag in em
 testexpr_19Q3aux = GraphDrawDemo_FixedToolOnArg1( Rect(10), test_background_object = True, hide_background_object = True)
 testexpr_19Q3 = eval_Expr( call_Expr( lambda world_ui:
                                      Overlay( world_ui,
-                                              DrawInCorner( Boxed(
-                                                  eval_Expr( call_Expr( demo_drag_toolcorner_expr_maker, world_ui.world )) )),
+                                              DrawInCorner(
+                                                  Boxed( eval_Expr( call_Expr( demo_drag_toolcorner_expr_maker, world_ui.world )) ),
+                                                  PM_CORNER
+                                               ),
                                               DrawInCorner( MT_try2(getattr_Expr(world_ui, 'world')), WORLD_MT_CORNER ),
                                       ),
                                      call_Expr( _app.Instance, testexpr_19Q3aux, "#19Q3")
@@ -1293,15 +1310,19 @@ testexpr_30a =  DisplistChunk(DNA_Cylinder()) # works 070131
 testexpr_30b = World_dna_holder()
 testexpr_30g = eval_Expr( call_Expr( lambda world_ui:
                                      Overlay( world_ui,
-                                              DrawInCorner( Boxed(
-                                                  eval_Expr( call_Expr( dna_ribbon_view_toolcorner_expr_maker, world_ui )) )) ),
+                                              DrawInCorner(
+                                                  Boxed( eval_Expr( call_Expr( dna_ribbon_view_toolcorner_expr_maker, world_ui )) ),
+                                                  PM_CORNER
+                                               ) ),
                                      ## _app._i_instance(testexpr_30b)
                                      call_Expr( _app.Instance, testexpr_30b, "#30b")
                                      ))
 testexpr_30h = eval_Expr( call_Expr( lambda world_ui: #070206
                                      Overlay( world_ui,
-                                              DrawInCorner( Boxed(
-                                                  eval_Expr( call_Expr( dna_ribbon_view_toolcorner_expr_maker, world_ui )) )),
+                                              DrawInCorner(
+                                                  Boxed( eval_Expr( call_Expr( dna_ribbon_view_toolcorner_expr_maker, world_ui )) ),
+                                                  PM_CORNER
+                                               ),
                                               ## DrawInCorner( testexpr_18, (1,1) ), # works
                                               ## DrawInCorner( MT_try1(world_ui.world), (1,1) ), # semi-works -- autoupdate fails,
                                                   # and it prints "bug: expr or lvalflag for instance changed",
@@ -1313,17 +1334,17 @@ testexpr_30h = eval_Expr( call_Expr( lambda world_ui: #070206
                                      call_Expr( _app.Instance, testexpr_30b, "#30bh")
                                      ))
 
-WORLD_MT_CORNER = (-1,1) # top right corner [changed from top left, 070210]
-
 testexpr_30i = eval_Expr( call_Expr( lambda world_ui: #070207 -- just like 30h except MT_try1 -> MT_try2 
                                      Overlay( world_ui,
-                                              DrawInCorner( Boxed(
-                                                  eval_Expr( call_Expr( dna_ribbon_view_toolcorner_expr_maker, world_ui )) )),
+                                              DrawInCorner(
+                                                  Boxed( eval_Expr( call_Expr( dna_ribbon_view_toolcorner_expr_maker, world_ui )) ),
+                                                  PM_CORNER
+                                               ),
                                               DrawInCorner( MT_try2(getattr_Expr(world_ui, 'world')), WORLD_MT_CORNER ),
                                              ),
                                      call_Expr( _app.Instance, testexpr_30b, "#30bi")
                                      ))
-# see also _30j far below
+# see also _30j far below -- don't reuse the name
 
 #070208 -- _30ix is like _30i except includes vv.reload_counter in world_ui make-index.
 # No effect except when instance remade after modifying test.py (thus reloading it).
@@ -1333,8 +1354,10 @@ testexpr_30i = eval_Expr( call_Expr( lambda world_ui: #070207 -- just like 30h e
 from testdraw import vv
 testexpr_30ix = eval_Expr( call_Expr( lambda world_ui: 
                                      Overlay( world_ui,
-                                              DrawInCorner( Boxed(
-                                                  eval_Expr( call_Expr( dna_ribbon_view_toolcorner_expr_maker, world_ui )) )),
+                                              DrawInCorner(
+                                                  Boxed( eval_Expr( call_Expr( dna_ribbon_view_toolcorner_expr_maker, world_ui )) ),
+                                                  PM_CORNER
+                                               ),
                                               DrawInCorner( MT_try2(getattr_Expr(world_ui, 'world')), WORLD_MT_CORNER ),
                                              ),
                                      call_Expr( _app.Instance, testexpr_30b, "#30bi(%d)" % vv.reload_counter)
@@ -1372,14 +1395,10 @@ testexpr_33x = Translate(_testexpr_33(), (2,-2)) # works now
 
 # 070228
 # How can we get the functions of both _19i and _30i in one integrated setup?
-# ....
-# [the rest of that moved to a new file demo_ui.py, and continued there, but imported right here:
-#       testexpr_34ix1, class _world_ui_user, testexpr_19j, testexpr_30j
-# ]
 
 import demo_ui
 reload_once(demo_ui)
-from demo_ui import * # this defines testexpr_19j, testexpr_30j, and testexpr_34*
+from demo_ui import * # this used to define testexpr_19j, testexpr_30j (obs, never worked); now it only defines testexpr_34*
 
 # == StateArrayRefs
 
@@ -1518,8 +1537,6 @@ def get_pref(key, dflt = _NOT_PASSED): #e see also... some stateref-maker I forg
 
 debug_prints_prefs_key = "A9 devel/debug prints for my bug?" # also defined in GLPane.py
 
-# bottom_left_corner had to be moved lower down
-
 class AppOuterLayer(DelegatingInstanceOrExpr): #e refile when works [070108 experiment]
     "helper class for use in testbed, to provide glue code between testexpr and the rest of NE1"
     redraw_counter = State(int)
@@ -1567,7 +1584,7 @@ def testbed(expr):
 ##                 ## _WrapDrawMethod(expr, ...)... with code to copy app state into instance State -- of what instance? smth in env...
                  DrawInCorner( top_left_corner, (-1,1)), # some sort of MT on top left
                  ## testexpr_20a,
-                 DrawInCorner( bottom_left_corner, (-1,-1)), # checkboxes on bot left [note: contains _app as ref to dynenv]
+                 DrawInCorner( debug_corner_stuff, DEBUG_CORNER), # redraw counter, etc [note: contains _app as ref to dynenv]
                 )
      )
 
@@ -1740,7 +1757,7 @@ def _clear_state(): #070318; doesn't crash, but has bugs -- see comments where i
     glpane.mode.reload()
     return
 
-bottom_left_corner = Boxed(SimpleColumn(
+debug_corner_stuff = Boxed(SimpleColumn(   # 070326 renamed bottom_left_corner -> debug_corner_stuff
 ##    checkbox_pref("A9 devel/testdraw/use old vv.displist?", "use old vv.displist?"), # see USE_DISPLAY_LIST_OPTIM
 ##    checkbox_pref("A9 devel/testdraw/drawtest in old way?", "drawtest in old way?", dflt = False),
 ##    checkbox_pref("A9 devel/testdraw/use GLPane_Overrider?", "use GLPane_Overrider? (after reload)", dflt = True), # works (moves compass)

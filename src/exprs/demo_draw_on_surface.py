@@ -581,7 +581,7 @@ class whatever(DelegatingInstanceOrExpr): ###e rename
     corner_stuff = SimpleColumn( toolbar, pm)
     delegate = Overlay(
         current_cmdrun,
-        DrawInCorner( corner_stuff, corner = LOWER_RIGHT),
+        DrawInCorner( corner_stuff, corner = PM_CORNER),
      )
     def _init_instance(self):
         super(whatever, self)._init_instance()

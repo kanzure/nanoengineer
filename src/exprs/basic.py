@@ -53,6 +53,11 @@ from constants import noop # def noop(*args,**kws): pass
 from prefs_constants import UPPER_RIGHT, UPPER_LEFT, LOWER_LEFT, LOWER_RIGHT # compass positions, also usable for DrawInCorner
     # note: their values are ints -- perhaps hard to change since they might correspond to Qt radiobutton indices (guess)
 
+# standard corners for various UI elements [070326, but some will be revised soon]
+WORLD_MT_CORNER = UPPER_LEFT
+PM_CORNER = LOWER_RIGHT #e revise
+DEBUG_CORNER = LOWER_LEFT #e revise
+
 from debug import reload_once_per_event, print_compact_traceback, print_compact_stack, safe_repr
 
 from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True, Choice #070228

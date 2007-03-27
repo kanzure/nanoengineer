@@ -140,7 +140,7 @@ class main_ui_layout(DelegatingInstanceOrExpr):
     graphics_area_topright_buttons = current_tool.graphics_area_topright_buttons
     # overall appearance
     delegate = Overlay(
-        # stuff in the corners
+        # stuff in the corners -- note, these don't use the corner constants for standalone tests like PM_CORNER
         DrawInCorner(corner = UPPER_LEFT)(
             SimpleColumn(
                 toolbar,
