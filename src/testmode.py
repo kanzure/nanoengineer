@@ -37,6 +37,8 @@ import time, math
 from state_utils import copy_val
 
 from selectMode import *
+from selectMolsMode import *
+from selectAtomsMode import *
 from depositMode import depositMode
 
 annoyers = ['editToolbar', 'fileToolbar', 'helpToolbar', 'modifyToolbar',

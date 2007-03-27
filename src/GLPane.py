@@ -33,6 +33,8 @@ from cookieMode import cookieMode
 from extrudeMode import extrudeMode, revolveMode
 from fusechunksMode import fusechunksMode
 from selectMode import *
+from selectMolsMode import *
+from selectAtomsMode import *
 from depositMode import depositMode
 from movieMode import movieMode
 from zoomMode import zoomMode

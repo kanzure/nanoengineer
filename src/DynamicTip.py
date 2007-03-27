@@ -18,6 +18,8 @@ import env
 import preferences
 from prefs_constants import dynamicToolTipWakeUpDelay_prefs_key
 from selectMode import *
+from selectMolsMode import *
+from selectAtomsMode import *
 from math import *
 from platform import fix_plurals
 

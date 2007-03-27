@@ -14,6 +14,8 @@ __author__ = "Mark"
 
 from Numeric import *
 from selectMode import *
+from selectMolsMode import *
+from selectAtomsMode import *
 from VQT import *
 from chem import *
 import drawer

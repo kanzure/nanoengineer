@@ -23,9 +23,6 @@ from TreeView import * # including class TreeView, and import * from many other 
 from widgets import makemenu_helper
 from platform import fix_buttons_helper
 from debug import DebugMenuMixin, print_compact_stack, print_compact_traceback
-##from selectMode import selectMode
-##from selectMode import selectMolsMode
-##from selectMode import selectAtomsMode
 allButtons = (leftButton|midButton|rightButton) #e should be defined in same file as the buttons
 import platform
 from platform import tupleFromQPoint, fix_plurals
@@ -599,8 +596,8 @@ class TreeWidget(TreeView, DebugMenuMixin):
         """
         if env.permit_atom_chunk_coselection(): #bruce 060721
             return
-        from selectMode import selectMolsMode
-        ## from selectMode import selectAtomsMode
+        from selectMolsMode import selectMolsMode
+
         #bruce 050519 revised docstring and totally rewrote code.
         assy = self.assy
         win = self.win

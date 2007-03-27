@@ -8,6 +8,8 @@ bruce 050913 used env.history in some places.
 """
 
 from selectMode import *
+from selectMolsMode import *
+from selectAtomsMode import *
 from widgets import FloatSpinBox
 from HistoryWidget import redmsg
 import env
