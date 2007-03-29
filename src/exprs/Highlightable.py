@@ -414,13 +414,11 @@ class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 07031
         assert ran_already_flag
         return funcres
 
-    pass # end of class _CoordsysHolder
-
-class SavedCoordsys(_CoordsysHolder): #070317
-    """One of these can be told to save a static copy of the coordsys from any instance of a _CoordsysHolder subclass,
-    or to save one from the current GL state, and then to make use of it in some of the same ways Highlightable can do. #doc better
-    """
-    def copy_from(self, other): #e perhaps move into superclass, if it'd help with the new objs in PalletteWell
+    def copy_saved_coordsys_from(self, other): #070328 moved here from subclass SavedCoordsys, and renamed from copy_from
+        if 'kluge 070328':
+            while not isinstance(other, _CoordsysHolder):
+                other = other._delegate # might fail, but if it does, this method was doomed to fail anyway (in current implem)
+                #e need better error message if it fails
         projection_matrix = other.per_frame_state.saved_projection_matrix
         modelview_matrix = other.per_frame_state.saved_modelview_matrix
         if projection_matrix is not None:
@@ -429,6 +427,17 @@ class SavedCoordsys(_CoordsysHolder): #070317
             modelview_matrix = + modelview_matrix #k let's hope this is a deep copy!
         self.per_frame_state.saved_projection_matrix = projection_matrix
         self.per_frame_state.saved_modelview_matrix = modelview_matrix
+
+    pass # end of class _CoordsysHolder
+
+class SavedCoordsys(_CoordsysHolder): #070317
+    """One of these can be told to save a static copy of the coordsys from any instance of a _CoordsysHolder subclass,
+    or to save one from the current GL state, and then to make use of it in some of the same ways Highlightable can do. #doc better
+    """
+    def copy_from(self, other): #070328 moved the method body to superclass & renamed it there.
+            #e Its fate here (both method & class existence) is undecided.
+            # guess: a better structure is for a saved coordsys to be a *member* of class _CoordsysHolder, not a subclass.
+        self.copy_saved_coordsys_from(other)
     pass
 
 # ==
