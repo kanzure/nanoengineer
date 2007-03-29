@@ -2,8 +2,6 @@
 #include "simulator.h"
 #include "rigid-ode.h"
 
-#define USE_ODE
-
 #ifndef USE_ODE
 static void
 check_rigid_support(struct part *p)

@@ -3,6 +3,8 @@
 #include "rigid-ode.h"
 #include <ode/ode.h>
 
+#ifdef USE_ODE
+
 // There is a sphere centered on a station point on body1, whose
 // radius is the square root of this value (in pm).  The corrosponding
 // station point on body2 must be inside that sphere.
@@ -221,3 +223,4 @@ rigid_ode_apply_force_relative(struct part *p, int bodyIndex, struct xyz force_l
   ERROR("rigid_ode_apply_force_relative not implemented");
 }
 
+#endif

@@ -7,6 +7,11 @@ PYDVER := $(shell python -c "import sys; print sys.version[:3]")
 # un-dotted python version (23, 24)
 PYVER := $(shell python -c "import sys; print sys.version[0]+sys.version[2]")
 
+LODE=
+USEODE=
+#LODE=-lode
+#USEODE=-DUSE_ODE
+
 ifeq ($(OS),Windows_NT)
 #---------------------------------------- Start Windows stuff
 # One dollar sign for DOS and two for Cygwin
@@ -18,9 +23,9 @@ CCDIR = C:/MinGW
 CC = "$(CCDIR)/bin/gcc.exe"
 #CFLAGS=-g -I"$(CCDIR)/include" -I"C:/cygwin/usr/local/include" -I"C:/Python$(PYVER)/include" -Disnan=_isnan
 
-CFLAGS=-g -I"$(CCDIR)/include" -I"C:/ode-win32-0.7/include" -I"C:/Python$(PYVER)/include" -Disnan=_isnan
+CFLAGS=-g -I"$(CCDIR)/include" -I"C:/ode-win32-0.7/include" -I"C:/Python$(PYVER)/include" -Disnan=_isnan $(USEODE)
 
-LDFLAGS=-L"$(CCDIR)/lib" -L"C:/ode-win32-0.7/lib/releasedll" -lode
+LDFLAGS=-L"$(CCDIR)/lib" -L"C:/ode-win32-0.7/lib/releasedll" $(LODE)
 PYREXTARGET=sim.dll
 STDC99=
 SIMTARGET=simulator.exe
@@ -44,8 +49,8 @@ LDSHARED=gcc -bundle
 else
 #---------------------------------------- Unix
 PYBASE:=$(shell which python | sed "s%/bin/python%%")
-CFLAGS+=-I$(PYBASE)/include/python$(PYDVER)
-LDFLAGS=-L$(PYBASE)/lib/python$(PYDVER)/config -lode -lm -lpython$(PYDVER)
+CFLAGS+=-I$(PYBASE)/include/python$(PYDVER) $(USEODE)
+LDFLAGS=-L$(PYBASE)/lib/python$(PYDVER)/config $(LODE) -lm -lpython$(PYDVER)
 LDSHARED=gcc -shared
 #---------------------------------------- End of Unix
 endif
