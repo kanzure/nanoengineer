@@ -1,9 +1,10 @@
 
 #include "simulator.h"
 #include "rigid-ode.h"
-#include <ode/ode.h>
 
 #ifdef USE_ODE
+
+#include <ode/ode.h>
 
 // There is a sphere centered on a station point on body1, whose
 // radius is the square root of this value (in pm).  The corrosponding
