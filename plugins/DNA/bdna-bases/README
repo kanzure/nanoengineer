@@ -9,6 +9,15 @@ to create DNA structures in the CAD program:
 	thymine.mmp
 
 -----
+3/29/2007
+NOTE: I've since changed these four files by hand to add an oxygen to the 3'
+carbon (where a bond point used to be), and removed the oxygen from the
+phosphate (where a bond point is now.) This configuration is more standard in
+the world of PDBs, GROMACS, and NAMOT, and is, in fact how the bdna.pdb file is
+set up. So the prepare.py script is out-of-date and will re-generate the old
+files if run.
+--Brian.
+-----
 
 The other files are what I used to prepare these. I started with the
 bdna.pdb file. I don't remember where I found it originally, but I

@@ -3,7 +3,7 @@ kelvin 300
 group (View Data)
 info opengroup open = True
 csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
-csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (8.153929) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.650826, -0.117672, -0.721452, 0.205148) (7.600996) (4.152000, -2.149000, -1.056500) (1.000000)
 egroup (View Data)
 group (guanine)
 info opengroup open = True
@@ -80,14 +80,14 @@ atom 30 (1) (526, 374, -170) def
 bond1 17
 atom 31 (1) (627, 3851, -207) def
 bond1 19
-atom 32 (8) (-8842, 1477, 3412) def
-bond1 1
-atom 33 (1) (1533, 2318, -308) def
+atom 32 (1) (1533, 2318, -308) def
 bond1 19
-atom 34 (0) (-9290, 1004, 3485) def
-bond1 32
-atom 35 (0) (-6298, 5642, 326) def
+atom 33 (0) (-8821, 1586, 3012) def
+bond1 1
+atom 34 (8) (-6084, 6270, 136) def
 bond1 8
+atom 35 (0) (-6094, 6262, -553) def
+bond1 34
 egroup (guanine)
 end1
 group (Clipboard)
