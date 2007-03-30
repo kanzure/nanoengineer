@@ -140,7 +140,7 @@ libpython$(PYVER).a: libpython$(PYVER).a.gz
 
 sim.dll: sim.c $(PYREXOBJS) libpython$(PYVER).a version.h
 	gcc -shared -I"C:/Python$(PYVER)/include" -o sim.dll $(PYREXOBJS) \
-		-Wl,--output-def,sim.def -L. -lpython$(PYVER) -L"C:/ode-win32-0.7/lib/releasedll" -lode
+		-Wl,--output-def,sim.def -L. -lpython$(PYVER) -L"C:/ode-win32-0.7/lib/releasedll" $(LODE)
 else
 # here's the distutils version:
 #sim.so: Makefile $(PYREXSRCS) version.h bends.gen bonds.gen sim.pyx simhelp.c
