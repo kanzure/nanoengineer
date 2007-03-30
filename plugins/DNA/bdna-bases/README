@@ -14,8 +14,19 @@ NOTE: I've since changed these four files by hand to add an oxygen to the 3'
 carbon (where a bond point used to be), and removed the oxygen from the
 phosphate (where a bond point is now.) This configuration is more standard in
 the world of PDBs, GROMACS, and NAMOT, and is, in fact how the bdna.pdb file is
-set up. So the prepare.py script is out-of-date and will re-generate the old
-files if run.
+set up.
+
+So the prepare.py script is out-of-date and will re-generate the old files if
+run. Note that prepare.py is not typically run, but is documentation about how
+the files where originally generated.
+
+This change does make a chemical difference in that there should be an oxygen
+bonded to the 3' carbon at the top of a 3'-to-5' strand (previously there was
+not.) Technically, when the strands are generated, the oxygen should also be
+hydrogenated *and* there should be no phosphate at the top of the 5'-to-3'
+strand - but this change makes the nucleotides by themselves conform to
+standards at least. A NAMOT-powered plugin should ultimately be used for the
+generation of DNA.
 --Brian.
 -----
 
