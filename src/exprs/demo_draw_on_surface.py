@@ -396,8 +396,16 @@ def grab_text_using_dialog( default = "", title = "title", label = "label" ): #e
     "#doc, esp the @@@ part, and the retval being True, text or False, None"
     # modified from _set_test_from_dialog( ), which was modified from debug_runpycode_from_a_dialog,
     # which does the "run py code" debug menu command
-    from qt import QInputDialog, QLineEdit ## Qt4??
-    text, ok = QInputDialog.getText(title, label, QLineEdit.Normal, default)
+    import __main__
+    if __main__.USING_Qt4:
+        # Qt4 version [070329; same code in Qt3 and Qt4 branches; similar code in another exprs-module file]
+        from PyQt4.Qt import QInputDialog, QLineEdit
+        parent = None
+        text, ok = QInputDialog.getText(parent, title, label, QLineEdit.Normal, default) # parent arg needed only in Qt4
+    else:
+        # Qt3 version
+        from qt import QInputDialog, QLineEdit
+        text, ok = QInputDialog.getText(title, label, QLineEdit.Normal, default)
     if ok:
         # fyi: type(text) == <class '__main__.qt.QString'>
         text = str(text)
