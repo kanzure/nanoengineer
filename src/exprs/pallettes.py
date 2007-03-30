@@ -71,7 +71,8 @@ class PalletteWell(DelegatingInstanceOrExpr):
             # and only make a real model object when the drag *ends* (in a suitable mouse position -- otherwise cancel the make).
 
         if 'kluge 070328':
-            self._newobj.copy_saved_coordsys_from( self) ### HELPS BUT NOT ENOUGH -- wrong coords. gets corrected on dragevent 1 or 2.
+            ## self._newobj.copy_saved_coordsys_from( self) ### HELPS BUT NOT ENOUGH -- wrong coords. gets corrected on dragevent 1 or 2.
+            self._newobj.copy_saved_coordsys_from( self.world) ###BUG -- not working yet
         # start a drag of the new object; first figure out where, in world coordinates, and in the depth plane
         # in which you want the new object to appear (and move the object there -- without that it'll be at the origin)
         point_in_newobj_coords = self._newobj.current_event_mousepoint(plane = ORIGIN)

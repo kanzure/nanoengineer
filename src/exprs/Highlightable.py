@@ -416,9 +416,16 @@ class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 07031
 
     def copy_saved_coordsys_from(self, other): #070328 moved here from subclass SavedCoordsys, and renamed from copy_from
         if 'kluge 070328':
+            other0 = other # for error messages only
             while not isinstance(other, _CoordsysHolder):
-                other = other._delegate # might fail, but if it does, this method was doomed to fail anyway (in current implem)
-                #e need better error message if it fails
+                try:
+                    other1 = other._delegate # might fail, but if it does, this method was doomed to fail anyway (in current implem)
+                    assert other1 is not None
+                    other = other1
+                except:
+                    print_compact_traceback("bug in %r.copy_saved_coordsys_from(%r): no _delegate in %r: " % (self, other0, other))
+                        #e may need better error message if it fails
+                    return
         projection_matrix = other.per_frame_state.saved_projection_matrix
         modelview_matrix = other.per_frame_state.saved_modelview_matrix
         if projection_matrix is not None:
