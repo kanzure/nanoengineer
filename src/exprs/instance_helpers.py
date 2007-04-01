@@ -1261,6 +1261,8 @@ class DelegatingInstanceOrExpr(InstanceOrExpr, DelegatingMixin): # moved here & 
 # ==
 
 class ModelObject(DelegatingInstanceOrExpr): #070201 moved here from demo_drag.py; see also ModelObject3D, Geom3D...
+    ###WARNING: as of 070401 it's unclear if the value of _e_model_type_you_make is used for anything except other implems
+    # of the same method.
     """#doc -- class for datalike objects within the model
     [this may diverge from DelegatingInstanceOrExpr somehow -- or i might be mistaken that it needs to differ,
     but if so, it might have a better name! ###e]

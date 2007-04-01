@@ -196,6 +196,11 @@ class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 07031
         if debug_saved_coords and old != new:
             print "debug_saved_coords: %r changes saved coords" % self
         return
+
+    def save_coords_if_safe(self):#070401 experiment -- consider whether each use of save_coords should call this instead ####DOIT
+        if not self.env.glpane.current_glselect: # cond copied from how Highlightable calls save_coords
+            self.save_coords()
+        return
         
     def begin_using_saved_coords(self):
         # fyi: examples of glLoadMatrix (and thus hopefully the glGet for that) can be found in these places on bruce's G4:
@@ -580,6 +585,7 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler): #070317 spli
     def draw(self):
         if not self.env.glpane.current_glselect:
             # see if this cond fixes the projection=True bug (when not in DrawInCorner_NOTWORKING_VERSION anyway)
+            # update 070401: did it fix that bug?? see also save_coords_if_safe (just added) which uses the same cond.
             self.save_coords()
         else:
             if self.projection: # since this debug print is only needed when investigating the bug _9cx in using that option

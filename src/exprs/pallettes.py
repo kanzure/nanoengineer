@@ -70,9 +70,8 @@ class PalletteWell(DelegatingInstanceOrExpr):
             # (maybe a thumbnail image made from expr? maybe use PixelGrabber on self, to get it?? #e)
             # and only make a real model object when the drag *ends* (in a suitable mouse position -- otherwise cancel the make).
 
-        if 'kluge 070328':
-            ## self._newobj.copy_saved_coordsys_from( self) ### HELPS BUT NOT ENOUGH -- wrong coords. gets corrected on dragevent 1 or 2.
-            self._newobj.copy_saved_coordsys_from( self.world) ###BUG -- not working yet
+        if 'kluge 070328, revised 070401': ###e see also comments in class World, 070401
+            self._newobj.copy_saved_coordsys_from( self.world._coordsys_holder )
         # start a drag of the new object; first figure out where, in world coordinates, and in the depth plane
         # in which you want the new object to appear (and move the object there -- without that it'll be at the origin)
         point_in_newobj_coords = self._newobj.current_event_mousepoint(plane = ORIGIN)
@@ -90,7 +89,7 @@ class PalletteWell(DelegatingInstanceOrExpr):
         # but we can't since not all objects define .move (need to ###FIX sometime).
         ## self._newobj.flush()
         # so try this even though it might not work:
-        point_in_newobj_coords_2 = self._newobj.current_event_mousepoint(plane = ORIGIN)
+##        point_in_newobj_coords_2 = self._newobj.current_event_mousepoint(plane = ORIGIN)
         ### but now, what do we do with this point???
         # print "debug note: compare these points:",point_in_newobj_coords, point_in_newobj_coords_2 # result: identical coords.
         # so it doesn't work and doesn't even make sense yet... i probably can't proceed until the logic bug above is fixed.

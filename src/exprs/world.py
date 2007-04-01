@@ -24,6 +24,8 @@ Note: for our use in dna_ribbon_view.py we said:
 from basic import *
 from basic import _self, _this, _my
 
+from Highlightable import SavedCoordsys #070401
+
 # I'm not sure whether this unfinished new code should be finished and used -- for now, comment it out [070206]
 #####e redesign and refile this type stuff (it's wrong in basic nature, terminology, rep, version control; undecided re pure exprs)
 ##
@@ -93,9 +95,31 @@ def model_type_predicate( model_type): #070206
 
 # ==
 
-class World(ModelObject): #070205 revised, public nodelist -> private _nodeset
+class World(InstanceOrExpr): #070205 revised, public nodelist -> private _nodeset
     """maintains the set of objects in the model; provides general operations on them
     """
+    #k is this 070401 change ok: ModelObject -> InstanceOrExpr? At least it doesn't seem to have caused trouble.
+    ###e Q: Is it ok for this to inherit _CoordsysHolder and have .draw save the coords? Or to own one of those to hold them?
+    # The goal is for some external thing to be able to copy the coords we will draw a newly made thing under.
+    # that's partly misguided given that we might in theory draw things in more than one place
+    # and/or in a different place than in the prior frame. The external thing that wants to do this
+    # is self._newobj.copy_saved_coordsys_from( self.world) in class PalletteWell.on_press as of 070401.
+    # It wants to use the right coordsys to turn a mouseray into that obj's initial position in the World. Hmm.
+    #    A: In principle, if we're drawing the world twice (eg in stereo), we'd better be able to tell from a mouseray
+    # used to put something into it, which world-instance we're putting it into! and each of those needs to know
+    # where mouse events would drop things (based on where it was last drawn -- no ambiguity there).
+    # So it's correct for something to save that and reveal it -- it just needs to be a world-drawn-instance
+    # which would somehow show up (as selobj?) when interpreting that mouseray. For now, it's ok to kluge this
+    # by assuming this class is taking the role of world-drawn-instance and being drawn only once. Alternatively,
+    # we could say that the recipient of the mouseray should also be told what background it's over (whether or not it
+    # hit the background or some object drawn over it) (this might be "one of several background objects" for stereo)
+    # so it would know how to find "absolute model coords" in a canonical way. Or a third way is for the World client code
+    # to include an invisible object drawn just to capture the coords. In the multi-world-drawn-instance case, we'd have to combine
+    # this object with our knowledge of which worldinstance was drawn, by storing the drawn coords under the crossproduct
+    # of that and the object...
+    # ... Trying one of these solutions with self._coordsys_holder below. Seems to work & fix the pallette bug. Comment needs cleanup.
+    # [070401]
+    #
     ###FLAW: logically, this should store exprs needed to remake its instances, merely caching the instances,
     # but in fact, stores the instances themselves. This will make save/load harder, and means instances survive code-reloading.
     # Probably it should be fixed before trying to do save/load. [070206 comment]
@@ -104,6 +128,8 @@ class World(ModelObject): #070205 revised, public nodelist -> private _nodeset
         # (###e optim: can that be fixed? we need a way to access the LvalForState and inval it)
         ###e we'll need to put that State on a different state-layer (i.e. kind of StatePlace) when we start saving/loading this
 
+    _coordsys_holder = Instance(SavedCoordsys()) #070401 -- see long comment above, about _CoordsysHolder
+    
     def _init_instance(self):
         super(World, self)._init_instance()
         set_default_attrs( self.untracked_model_state, _index_counter = 4000) #070213; could State() do this for us instead? #e
@@ -163,6 +189,7 @@ class World(ModelObject): #070205 revised, public nodelist -> private _nodeset
         # draw all the nodes [#e 070228 ###e in future we're more likely to draw X(node) for X supplied from caller & subset of nodes]
         # [optim idea 070103 late: have caller put this in a DisplistChunk; will it actually work?
         #  the hope is, yes for animating rotation, with proper inval when nodelist changes. It ought to work! Try it. It works!]
+        self._coordsys_holder.save_coords_if_safe() #070401
         for node in self._sorted_objects:
             # print "%r is drawing %r at %r" % (self, node, node.pos) # suspicious: all have same pos ... didn't stay true, nevermind
             self.drawkid( node) ## node.draw()
