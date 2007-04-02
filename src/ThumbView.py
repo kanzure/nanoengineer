@@ -361,6 +361,17 @@ class ThumbView(QGLWidget):
         # of this class and GLPane (and there are quite a few methods of GLPane about which that can be said,
         # some redundantly implemented here and some not).
         # [bruce 060829 comment]
+        #
+        # update [bruce 070402 comment]:
+        # sharing that code would now be a bit more complicated (but is still desirable),
+        # since GLPane.rescale_around_point is now best called by basicMode.rescale_around_point_re_user_prefs.
+        # The real lesson is that even ThumbViews ought to use some kind of "edit mode" (like full-fledged modes,
+        # even if some aspects of them would not be used), to handle mouse bindings. But this is likely to be
+        # nontrivial since full-fledged modes might have extra behavior that's inappropriate but hard to
+        # turn off. So if we decide to make ThumbView zoom compatible with that of the main graphics area,
+        # the easiest quick way is just to copy and modify rescale_around_point_re_user_prefs and basicMode.Wheel
+        # into this class.
+        
         dScale = 1.0/1200.0
         if but & shiftButton: dScale *= 0.5
         if but & cntlButton: dScale *= 2.0
