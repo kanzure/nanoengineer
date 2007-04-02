@@ -1273,14 +1273,54 @@ class basicMode(anyMode):
             # Shift + Wheel zooms in quickly (2x), Control + Wheel zooms in slowly (.25x). 
             # mark 060321
         farQ_junk, point = self.dragstart_using_GL_DEPTH( event)
-        factor = 1.0 + dScale * event.delta()
-        self.o.rescale_around_point( factor , point )
+        delta = event.delta()
+##        factor = 1.0 + dScale * delta
+        factor = exp(dScale * delta)
+            #bruce 070402 bugfix: original formula, factor = 1.0 + dScale * delta, was not reversible by inverting delta,
+            # so zooming in and then out (or vice versa) would fail to restore original scale precisely,
+            # especially for large delta. (Measured deltas: -360 or +360.)
+            # Fixed by using an exponential instead.
+        self.rescale_around_point_re_user_prefs( factor , point )
+            # note: depending on factor < 1.0 and user prefs, point is not always used.
         
         # Turn off hover highlighting while zooming with mouse wheel. Fixes bug 1657. Mark 060805.
         self.o.selobj = None # <selobj> is the object highlighted under the cursor.
         self.o.gl_update()
         return
 
+    def rescale_around_point_re_user_prefs(self, factor, point = None): #bruce 060829; revised/renamed/moved from GLPane, 070402
+        """Rescale by factor around point or center of view, depending on zoom direction and user prefs.
+        (Factor < 1.0 means zooming in.)
+           If point is not supplied, the center of view remains unchanged after the rescaling,
+        and user prefs have no effect.
+           Note that point need not be in the plane of the center of view, and if it's not, the depth
+        of the center of view will change. If callers wish to avoid this, they can project point onto
+        the plane of the center of view.
+        """
+        if point is not None:
+            # decide whether to recenter around point (or do nothing, i.e. stay centered on center of view).
+            if factor < 1.0:
+                # zooming in
+                recenter = not env.prefs[zoomAboutScreenCenter_prefs_key]
+                    # ninad 060924 Zoom about screen center is disabled by default (so recenter is True by default)
+            else:
+                # zooming out -- behavior changed for A9 by bruce 070402 on Mark request to not recenter on point.
+                # (Old behavior was to use the same pref as for zooming in.)
+                #e [Should this be a separate user pref? For now it's a debug pref, just for testing.
+                #   We might replace these two prefs with a 3-choice pref which controls them both.]
+                from debug_prefs import debug_pref, Choice_boolean_False
+                if debug_pref("GLPane: zoom out acts the same as zoom in?", Choice_boolean_False,
+                              prefs_key = "A9 devel/GLPane: zoom out same as zoom in?"
+                             ):
+                    recenter = not env.prefs[zoomAboutScreenCenter_prefs_key]
+                else:
+                    recenter = False # the new documented behavior
+            if not recenter:
+                point = None
+        glpane = self.o
+        glpane.rescale_around_point(factor, point) # note: point might have been modified above
+        return
+    
     # [remaining methods not yet analyzed by bruce 040922]
 
     

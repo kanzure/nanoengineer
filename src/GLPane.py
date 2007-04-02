@@ -1818,11 +1818,18 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
             return farQ, point, wX, wY, depth, farZ
         return farQ, point
 
-    def rescale_around_point(self, factor, point): #bruce 060829
-        """Change self.scale by the given multiplicative factor, changing the center of view
-        (- self.pov) so that the given point is at the same position in eyespace.
-        [In the initial commit, the effect on pov is not yet implemented.]
+    def rescale_around_point(self, factor, point = None): #bruce 060829; 070402 moved user prefs functionality into caller
+        """Rescale around point (or center of view == - self.pov, if point is not supplied),
+        by multiplying self.scale by factor (and shifting center of view if point is supplied).
+           Note: factor < 1 means zooming in, since self.scale is the model distance from screen center
+        to edge in plane of center of view.
+           Note: not affected by zoom in vs. zoom out, or by user prefs.
+        For that, see callers such as basicMode.rescale_around_point_re_user_prefs.
+           Note that point need not be in the plane of the center of view, and if it's not, the depth
+        of the center of view will change. If callers wish to avoid this, they can project point onto
+        the plane of the center of view.
         """
+        self.gl_update() #bruce 070402 precaution
         self.scale *= factor
             ###e The scale variable needs to set a limit, otherwise, it will set self.near = self.far = 0.0
             ###  because of machine precision, which will cause OpenGL Error. [needed but NIM] [Huaicai comment 10/18/04]
@@ -1837,10 +1844,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         # Test shows that works; but I don't yet understand why I needed to move cov in the opposite direction as I assumed.
         # But I worry about whether it will work if more than one Wheel event occurs between redraws (which rewrite depth buffer).
         # [bruce 060829]
-        
-        if not env.prefs[zoomAboutScreenCenter_prefs_key]: # ninad 060924 Zoom about screen center is disabled by default
+        if point is not None:
             self.pov += (factor - 1) * (point - (-self.pov))
-            return
+        return
             
     def gl_update_duration(self, new_part=False):
         '''Redraw GLPane and update the repaint duration variable <self._repaint_duration>

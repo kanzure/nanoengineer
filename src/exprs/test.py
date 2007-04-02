@@ -1782,6 +1782,8 @@ debug_corner_stuff = Boxed(SimpleColumn(   # 070326 renamed bottom_left_corner -
 ##    checkbox_pref("A9 devel/testdraw/draw test graphics?", "draw old test graphics?", dflt = False), # works, but turns off above two too (ignore)
 ##    checkbox_pref(debug_prints_prefs_key, "debug prints for redraw?", dflt = False), # note prefs_key text != checkbox label text
     checkbox_pref("A9 devel/testmode/testmode capture MMB", "testmode capture MMB?", dflt = False), #070228 alias for a debug_pref
+    checkbox_pref("A9 devel/GLPane: zoom out same as zoom in?", "zoom out around mouse?", dflt = False),
+        #070402 alias for new debug_pref also used in cad/src/modes.py (affects a change to mousewheel bindings added today)
     ActionButton(_app.env.glpane.mode.reload, "btn: testmode.reload()"), #070227; seems faster than true empty space click! ##k
     #e perhaps useful: text display of len(_state), or better, inspector of _state
     ActionButton( _clear_state, "btn: clear _state and reload"), #070318; ###BUG: not all label chars visible.
