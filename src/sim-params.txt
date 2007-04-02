@@ -1,0 +1,86 @@
+
+# format for element lines
+#
+#    Z (int)    number of protons, or atomType index
+#  grp (int)    group number in periodic table (not currently used)
+#                 groups 9-22 are lanthanides
+#                 groups 8-31 are transition metals
+#  per (int)    period in periodic table (not currently used)
+#  sym (string) abbreviated symbol name (one-three characters)
+#                 sym values are used in stretch and bend records
+# name (string) full name, for printing
+# mass (double) in yg (yoctograms, or 1e-24 g)
+# rvdW (double) van der Waals radius, in 1e-10 m or angstroms or 0.1 nm
+# evdW (double) van der Waals stiffness, in zJ (zepto Joules, or milli atto Joules, or 1e-21 J)
+#                 NOTE: specifing an evdW value < .1 will cause the value to be calculated based on number of protons
+# rcov (double) covalent radius in Angstroms (1e-10 m)
+#                 used to generate unspecified bond parameters
+# chrg (double) charge in mulitples of proton charge
+#
+#         Z grp per sym   name                      mass    rvdW  evdW  bnds rcov chrg
+
+element 200  0  0   Ax    DNA-Pseudo-Axis           167.0   0.0    0.00  4    1.7   0
+element 201  0  0   Ss    DNA-Pseudo-Sugar          167.0   2.6   10.00  3    1.8   0
+element 202  0  0   Pl    DNA-Pseudo-Phosphate      167.0   2.6   10.00  2    1.8  -1
+element 203  0  0   Sj    DNA-Pseudo-Sugar-Junction 167.0   2.6   10.00  3    1.8   0
+
+# format for stretch lines
+#
+#          ks (double) in N/m
+#          r0 (double) equilibrium distance, in pm, or 1e-12 m
+#          de (double) in aJ, or 1e-18 J
+#        beta (double) in 1e10 m^-1
+# inflectionR (double) r value in pm where d^2(Lippincott(r)) / dr^2 == 0
+#                        inflectionR is end of interpolation table during minimization
+#        qual (int)    quality of parameter (use of a parameter with quality < 5 produces a warning)
+#        quad (int)    flag, non-zero if this stretch should be quadratic instead of Lippincott/Morse
+#    bondName (string) symbol-bondOrder-symbol
+#                        bondOrders are: (1, a, g, 2, 3)  a is aromatic, g is graphitic
+#                        The atomType (number of protons) of the first symbol must be <= the second.
+#
+#         ks    r0      de      beta    inflectionR qual quad bondName
+
+stretch 500.00  340.00  1.0000  0.2236   640.99      9    1   Ax-1-Ax
+stretch 500.00  664.00  1.0000  0.1581  1149.90      9    1   Ax-1-Ss
+stretch 500.00  664.00  1.0000  0.1581  1149.90      9    1   Ax-1-Sj
+stretch 500.00  360.00  1.0000  0.1581   825.32      9    1   Ss-1-Pl
+stretch 500.00  400.00  1.0000  0.1581   825.32      9    1   Pl-1-Sj
+stretch 500.00  220.00  1.0000  1.6438   151.21      9    1   H-1-Ax
+stretch 500.00  350.00  1.0000  1.6438   151.21      9    1   H-1-Ss
+stretch 500.00  220.00  1.0000  1.6438   151.21      9    1   H-1-Pl
+
+# format for bend lines
+#
+# ktheta (double) in aJ / rad^2 (1e-18 J/rad^2)
+# theta0 (double) in radians
+#   qual (int)    quality of parameter (use of a parameter with quality < 5 produces a warning)
+#   name (string) symbol-bondOrder-symbol.hybridization-bondOrder-symbol
+#                        bondOrders are: (1, a, g, 2, 3)  a is aromatic, g is graphitic
+#                        atoms in group 3 have a default hybridization of sp2
+#                        other atoms have a default hybridization of sp3
+#                        an info line in the mmp file can change the hybridization
+#                        possible values are: (sp, sp2, sp2_g, sp3, sp3d)
+#                        sp2_g is graphitic, sp3d is not supported yet
+#
+#    ktheta          theta0         qual  bondName
+
+bend 100.0           3.14159265359   9   Ax-1-Ax.sp3-1-Ax
+bend  10.0           3.14159265359   9   H-1-Ax.sp3-1-Ax
+bend  10.0           3.14159265359   9   H-1-Ax.sp3-1-H
+bend  10.0           1.57079632679   9   Ax-1-Ax.sp3-1-Ss
+bend 100.0           1.57079632679   9   Ax-1-Ax.sp3-1-Sj
+bend  10.0           1.57079632679   9   H-1-Ax.sp3-1-Ss
+bend 100.0           2.5307274125    9   Ss-1-Ax.sp3-1-Ss
+bend 100.0           2.5307274125    9   Ss-1-Ax.sp3-1-Sj
+bend 100.0           2.5307274125    9   Sj-1-Ax.sp3-1-Sj
+bend  10.0           2.0943951       9   Ax-1-Sj.sp3-1-Pl
+bend  10.0           2.0943951       9   Ax-1-Ss.sp3-1-Pl
+bend  10.0           2.0943951       9   H-1-Ss.sp3-1-Ax
+bend  10.0           2.0943951       9   Pl-1-Ss.sp3-1-Pl
+bend  10.0           2.0943951       9   H-1-Ss.sp3-1-Pl
+bend  10.0           2.0943951       9   H-1-Ss.sp3-1-H
+bend  10.0           2.0943951       9   H-1-Pl.sp3-1-Ss
+bend  10.0           2.1816615625    9   Pl-1-Sj.sp3-1-Pl
+bend  10.0           1.584758959     9   Ss-1-Pl.sp3-1-Ss
+bend  10.0           1.584758959     9   Ss-1-Pl.sp3-1-Sj
+bend  10.0           2.108357734     9   Sj-1-Pl.sp3-1-Sj

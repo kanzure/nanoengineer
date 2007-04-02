@@ -17,6 +17,12 @@
 // Si has the highest vdw radius, 225 pm
 #define MAX_VDW_RADIUS 225
 
+// width of the whole vdw search grid is GRID_WRAP_COMPARE * 2
+// currently 38400 pm, or ~170 times Si vdw radius.
+
+// cutoff distance for DNA pseudo atom interactions should be in the
+// several nm range, which still leaves the grid comparison useful.
+
 enum hybridization {
   sp,
   sp2,
@@ -320,6 +326,14 @@ struct part
     int start_vanDerWaals_free_scan;
     struct vanDerWaals **vanDerWaals;
     void *vanDerWaals_validity;
+
+    // The largest vdW radius of any atom actually present in the
+    // part, in pm.
+    double maxVanDerWaalsRadius;
+
+    // Absolute value of the greatest charge on any particle in the
+    // part in multiples of the proton charge.
+    double maxParticleCharge;
     
     int num_stretches;
     struct stretch *stretches;

@@ -198,7 +198,6 @@ addInitialBondStretch(double ks,
   stretch = newBondStretch(bondName, ks, r0, de, beta*1e-2, inflectionR, quality, quadratic);
   old = hashtable_put(bondStretchHashtable, bondName, stretch);
   if (old != NULL) {
-    fprintf(stderr, "duplicate bondStretch: %s\n", bondName);
     free(old->bondName);
     free(old);
   }
@@ -216,7 +215,6 @@ addInitialBendData(double kb, double theta0, int quality, char *bendName)
   bend = newBendData(bendName, kb*1e6, theta0, quality);
   old = hashtable_put(bendDataHashtable, bendName, bend);
   if (old != NULL) {
-    fprintf(stderr, "duplicate bend data: %s\n", bendName);
     free(old->bendName);
     free(old);
   }
@@ -247,12 +245,14 @@ setElement(int protons,
            double vanDerWaalsRadius,
            double e_vanDerWaals,
            int n_bonds,
-           double covalentRadius)
+           double covalentRadius,
+           double charge)
 {
   struct atomType *entry;
+  struct atomType *oldEntry;
   char buf[256];
   
-  if (e_vanDerWaals < 0.1) {
+  if (e_vanDerWaals < 0.0) {
     e_vanDerWaals = 0.3 + protons * protons / 190.0;
   }
   entry = (struct atomType *)allocate(sizeof(struct atomType));
@@ -260,148 +260,59 @@ setElement(int protons,
   entry->protons = protons;
   entry->group = group;
   entry->period = period;
-  entry->name = name;
+  entry->name = copy_string(name);
   entry->symbol[0] = symbol[0];
   entry->symbol[1] = symbol[1];
-  entry->symbol[2] = symbol[2];
-  entry->symbol[3] = symbol[3]; // we inadvertantly copy past end of string on many elements.
+  entry->symbol[2] = symbol[2]; // we inadvertantly copy past end of string on many elements.
+  entry->symbol[3] = '\0';
   entry->mass = mass;
   entry->vanDerWaalsRadius = vanDerWaalsRadius;
   entry->e_vanDerWaals = e_vanDerWaals;
   entry->n_bonds = n_bonds;
   entry->covalentRadius = covalentRadius;
+  entry->charge = charge;
+  entry->refCount = 2;
 
-  hashtable_put(periodicHashtable, symbol, entry);
+  oldEntry = hashtable_put(periodicHashtable, symbol, entry);
+  if (oldEntry != NULL) {
+    oldEntry->refCount--;
+    if (oldEntry->refCount < 1) {
+      free(oldEntry->name);
+      free(oldEntry);
+    }
+  }
   sprintf(buf, "%d", protons);
-  hashtable_put(periodicHashtable, buf, entry);
-}
-
-
-void
-initializeBondTable(void)
-{
-  if (bondStretchHashtable != NULL) {
-    return;  // no need to repeat
+  oldEntry = hashtable_put(periodicHashtable, buf, entry);
+  if (oldEntry != NULL) {
+    oldEntry->refCount--;
+    if (oldEntry->refCount < 1) {
+      free(oldEntry->name);
+      free(oldEntry);
+    }
   }
-  
-  periodicHashtable = hashtable_new(50);
-  
-  // groups 9-22 are lanthanides
-  // groups 8-31 are transition metals
-  //
-  // mass in yg (yoctograms, or 1e-24 g)
-  // rvdW is in 1e-10 m or angstroms or 0.1 nm
-  // evdW in zJ (zepto Joules, or milli atto Joules, or 1e-21 J)
-  //   an e_vanDerWaals value < .1 will be calculated in setElement()
-  // rCovalent in Angstroms (1e-10 m)
-  // NOTE: change MAX_VDW_RADIUS in part.[ch] if adding an atom larger than Si
-  //
-  // protons, group, period, symbol, name, mass, vanDerWaalsRadius,
-  //    e_vanDerWaals, n_bonds, covalentRadius
-  //
-  //          Z grp per sym   name           mass    rvdW  evdW bnds rcov
-  //
- 
-  setElement( 0,  1, 1, "X",  "Singlet",    17.000,  1.1,  0.000, 1, 0);
-  setElement( 1,  1, 1, "H",  "Hydrogen",    1.6737, 1.5 , 0.382, 1, 30);
-  setElement( 2,  0, 1, "He", "Helium",      6.646,  1.4,  0.000, 0, 0);
- 
-  setElement( 3,  1, 2, "Li", "Lithium",    11.525,  0.97, 0.000, 1, 152);
-  setElement( 4,  2, 2, "Be", "Beryllium",  14.964,  1.10, 0.000, 2, 114);
-  setElement( 5,  3, 2, "B",  "Boron",      17.949,  1.99, 0.000, 3, 83);
-  setElement( 6,  4, 2, "C",  "Carbon",     19.925,  1.94, 0.357, 4, 77);
-  setElement( 7,  5, 2, "N",  "Nitrogen",   23.257,  1.82, 0.447, 3, 70);
-  setElement( 8,  6, 2, "O",  "Oxygen",     26.565,  1.74, 0.406, 2, 66);
-  setElement( 9,  7, 2, "F",  "Fluorine",   31.545,  1.65, 0.634, 1, 64);
-  setElement(10,  0, 2, "Ne", "Neon",       33.49,   1.82, 0.000, 0, 0);
- 
-  setElement(11,  1, 3, "Na", "Sodium",     38.1726, 1.29, 0.000, 1, 186);
-  setElement(12,  2, 3, "Mg", "Magnesium",  40.356,  1.15, 0.000, 2, 160);
-  setElement(13,  3, 3, "Al", "Aluminum",   44.7997, 2.0,  0.000, 3, 125);
-  setElement(14,  4, 3, "Si", "Silicon",    46.6245, 2.25, 1.137, 4, 116);
-  setElement(15,  5, 3, "P",  "Phosphorus", 51.429,  2.18, 1.365, 3, 110);
-  setElement(16,  6, 3, "S",  "Sulfur",     53.233,  2.10, 1.641, 2, 104);
-  setElement(17,  7, 3, "Cl", "Chlorine",   58.867,  2.03, 1.950, 1, 99);
-  setElement(18,  0, 3, "Ar", "Argon",      62.33,   1.88, 0.000, 0, 0);
-
-  setElement(19,  1, 4, "K",  "Potassium",  64.9256, 1.59, 0.000, 1, 231);
-  setElement(20,  2, 4, "Ca", "Calcium",    66.5495, 1.27, 0.000, 2, 197);
-  setElement(21,  8, 4, "Sc", "Scandium",   74.646,  2.0,  0.000, 0, 60);
-  setElement(22, 23, 4, "Ti", "Titanium",   79.534,  2.0,  0.000, 0, 147);
-  setElement(23, 24, 4, "V",  "Vanadium",   84.584,  2.0,  0.000, 0, 132);
-  setElement(24, 25, 4, "Cr", "Chromium",   86.335,  2.0,  0.000, 0, 125);
-  setElement(25, 26, 4, "Mn", "Manganese",  91.22,   2.0,  0.000, 0, 112);
-  setElement(26, 27, 4, "Fe", "Iron",       92.729,  2.0,  0.000, 0, 124);
-  setElement(27, 28, 4, "Co", "Cobalt",     97.854,  2.0,  0.000, 0, 125);
-  setElement(28, 29, 4, "Ni", "Nickel",     97.483,  2.3,  0.000, 0, 125);
-  setElement(29, 30, 4, "Cu", "Copper",    105.513,  2.3,  0.000, 0, 128);
-  setElement(30, 31, 4, "Zn", "Zinc",      108.541,  2.3,  0.000, 0, 133);
-  setElement(31,  3, 4, "Ga", "Gallium",   115.764,  2.3,  0.000, 0, 135);
-  setElement(32,  4, 4, "Ge", "Germanium", 120.53,   2.0,  0.000, 4, 122);
-  setElement(33,  5, 4, "As", "Arsenic",   124.401,  2.0,  0.000, 3, 120);
-  setElement(34,  6, 4, "Se", "Selenium",  131.106,  1.88, 0.000, 2, 119);
-  setElement(35,  7, 4, "Br", "Bromine",   132.674,  1.83, 0.000, 1, 119);
-  setElement(36,  0, 4, "Kr", "Krypton",   134.429,  1.9,  0.000, 0,  0);
-
-  setElement(51,  5, 5, "Sb", "Antimony",  124.401,  2.2,  0.000, 3, 144);
-  setElement(52,  6, 5, "Te", "Tellurium", 131.106,  2.1,  0.000, 2, 142);
-  setElement(53,  7, 5, "I",  "Iodine",    132.674,  2.0,  0.000, 1, 141);
-  setElement(54,  0, 5, "Xe", "Xenon",     134.429,  1.9,  0.000, 0, 0);
-
-  setElement(200, 0, 0, "Ax", "DNA-Pseudo-Axis",
-                                             1.000,  5.0,  0.000, 4, 0);
-  setElement(201, 0, 0, "Ss", "DNA-Pseudo-Sugar",
-                                             1.000,  5.0,  0.000, 3, 0);
-  setElement(202, 0, 0, "Sp", "DNA-Pseudo-Phosphate",
-                                             1.000,  5.0,  0.000, 2, 0);
-
-  bondStretchHashtable = hashtable_new(40);
-  
-#include "bonds.gen"
-  
-  deHashtable = hashtable_new(10);
-
-  addDeTableEntry("H-1-N",  0.75);
-  addDeTableEntry("N-1-O",  0.383);
-  addDeTableEntry("N-1-F",  0.422);
-  addDeTableEntry("F-1-S",  0.166);
-  addDeTableEntry("O-1-F",  0.302);
-  addDeTableEntry("C-1-I",  0.373);
-  addDeTableEntry("O-1-Cl", 0.397);
-  addDeTableEntry("O-1-I",  0.354);
-  addDeTableEntry("S-1-Cl", 0.489);
-
-  bendDataHashtable = hashtable_new(40);
-
-#include "bends.gen"
-
-  vanDerWaalsHashtable = hashtable_new(40);
 }
 
-static const char bends_rcsid[] = RCSID_BENDS_H;
-static const char bonds_rcsid[] = RCSID_BONDS_H;
-
-static void
-clearBondWarnings(char *bondName, void *entry)
+static int
+tokenizeInt(int *errp)
 {
-  ((struct bondStretch *)entry)->warned = 0;
-}
-
-static void
-clearBendWarnings(char *bendName, void *entry)
-{
-  ((struct bendData *)entry)->warned = 0;
-}
-
-void
-reInitializeBondTable()
-{
-  if (bondStretchHashtable != NULL) {
-    hashtable_iterate(bondStretchHashtable, clearBondWarnings);
+  char *token = strtok(NULL, " \n");
+  if (token != NULL) {
+    return atoi(token);
   }
-  if (bendDataHashtable != NULL) {
-    hashtable_iterate(bendDataHashtable, clearBendWarnings);
+  *errp = 1;
+  return 0;
+}
+
+static double
+tokenizeDouble(int *errp)
+{
+  char *token = strtok(NULL, " \n");
+  double value;
+  if (token != NULL) {
+    return atof(token);
   }
+  *errp = 1;
+  return 0.0;
 }
 
 static void
@@ -451,8 +362,8 @@ destroyVanDerWaals(void *v)
   free(vdw);
 }
 
-void
-destroyBondTable(void)
+static void
+destroyStaticBondTable(void)
 {
   hashtable_destroy(bondStretchHashtable, destroyBondStretch);
   bondStretchHashtable = NULL;
@@ -462,6 +373,270 @@ destroyBondTable(void)
   deHashtable = NULL;
   hashtable_destroy(vanDerWaalsHashtable, destroyVanDerWaals);
   vanDerWaalsHashtable = NULL;
+}
+
+static void
+readBondTableOverlay(char *filename)
+{
+  char buf[4096];
+  char *token;
+  int lineNumber = 0;
+  int err;
+  int protons;
+  int group;
+  int period;
+  char *symbol;
+  char *name;
+  double mass;
+  double rvdW;
+  double evdW;
+  int nBonds;
+  double rCovalent;
+  double charge;
+  double ks;
+  double r0;
+  double de;
+  double beta;
+  double inflectionR;
+  int quality;
+  int quadratic;
+  double ktheta;
+  double theta0;
+  FILE *f = fopen(filename, "r");
+  
+  if (f == NULL) {
+    // silent about not finding file
+    return;
+  }
+  while (fgets(buf, 4096, f)) {
+    lineNumber++;
+    token = strtok(buf, " \n");
+    if (token) {
+      if (!strncmp(token, "#", 1) ) {
+        continue;
+      } else if (!strcmp(token, "element")) {
+        err = 0;
+        protons = tokenizeInt(&err);
+        group = tokenizeInt(&err);
+        period = tokenizeInt(&err);
+        symbol = strtok(NULL, " \n");
+        name = strtok(NULL, " \n");
+        mass = tokenizeDouble(&err);
+        rvdW = tokenizeDouble(&err);
+        evdW = tokenizeDouble(&err);
+        nBonds = tokenizeInt(&err);
+        rCovalent = tokenizeDouble(&err);
+        charge = tokenizeDouble(&err);
+        if (err || symbol == NULL || name == NULL) {
+          fprintf(stderr, "format error at file %s line %d\n", filename, lineNumber);
+        } else {
+          setElement(protons, group, period, symbol, name, mass, rvdW, evdW, nBonds, rCovalent, charge);
+          DPRINT11(D_READER, "setElement: %d %d %d %s %s %f %f %f %d %f %f\n", protons, group, period, symbol, name, mass, rvdW, evdW, nBonds, rCovalent, charge);
+        }
+      } else if (!strcmp(token, "stretch")) {
+        err = 0;
+        ks = tokenizeDouble(&err);
+        r0 = tokenizeDouble(&err);
+        de = tokenizeDouble(&err);
+        beta = tokenizeDouble(&err);
+        inflectionR = tokenizeDouble(&err);
+        quality = tokenizeInt(&err);
+        quadratic = tokenizeInt(&err);
+        name = strtok(NULL, " \n");
+        if (err || name == NULL) {
+          fprintf(stderr, "format error at file %s line %d\n", filename, lineNumber);
+        } else {
+          addInitialBondStretch(ks, r0, de, beta, inflectionR, quality, quadratic, name);
+          DPRINT8(D_READER, "addBondStretch: %f %f %f %f %f %d %d %s\n", ks, r0, de, beta, inflectionR, quality, quadratic, name);
+
+        }
+      } else if (!strcmp(token, "bend")) {
+        err = 0;
+        ktheta = tokenizeDouble(&err);
+        theta0 = tokenizeDouble(&err);
+        quality = tokenizeInt(&err);
+        name = strtok(NULL, " \n");
+        if (err || name == NULL) {
+          fprintf(stderr, "format error at file %s line %d\n", filename, lineNumber);
+        } else {
+          addInitialBendData(ktheta, theta0, quality, name);
+          DPRINT4(D_READER, "addBendData: %f %f %d %s\n", ktheta, theta0, quality, name);
+        }
+      } else {
+        fprintf(stderr, "unrecognized line type at file %s line %d: %s\n", filename, lineNumber, token);
+      }
+    }
+  }
+  fclose(f);
+}
+
+static void
+initializeStaticBondTable(void)
+{
+  destroyStaticBondTable();
+  
+  periodicHashtable = hashtable_new(50);
+  
+  // groups 9-22 are lanthanides
+  // groups 8-31 are transition metals
+  //
+  // mass in yg (yoctograms, or 1e-24 g)
+  // rvdW is in 1e-10 m or angstroms or 0.1 nm
+  // evdW in zJ (zepto Joules, or milli atto Joules, or 1e-21 J)
+  //   an e_vanDerWaals value < 0 will be calculated in setElement()
+  // rCovalent in Angstroms (1e-10 m)
+  // NOTE: change MAX_VDW_RADIUS in part.[ch] if adding an atom larger than Si
+  //
+  // protons, group, period, symbol, name, mass, vanDerWaalsRadius,
+  //    e_vanDerWaals, n_bonds, covalentRadius
+  //
+  //          Z grp per sym   name           mass    rvdW  evdW bnds rcov chrg
+  //
+ 
+  setElement( 0,  1, 1, "X",  "Singlet",    17.000,  1.1,  -1.00, 1,   0, 0);
+  setElement( 1,  1, 1, "H",  "Hydrogen",    1.6737, 1.5 , 0.382, 1,  30, 0);
+  setElement( 2,  0, 1, "He", "Helium",      6.646,  1.4,  -1.00, 0,   0, 0);
+ 
+  setElement( 3,  1, 2, "Li", "Lithium",    11.525,  0.97, -1.00, 1, 152, 0);
+  setElement( 4,  2, 2, "Be", "Beryllium",  14.964,  1.10, -1.00, 2, 114, 0);
+  setElement( 5,  3, 2, "B",  "Boron",      17.949,  1.99, -1.00, 3,  83, 0);
+  setElement( 6,  4, 2, "C",  "Carbon",     19.925,  1.94, 0.357, 4,  77, 0);
+  setElement( 7,  5, 2, "N",  "Nitrogen",   23.257,  1.82, 0.447, 3,  70, 0);
+  setElement( 8,  6, 2, "O",  "Oxygen",     26.565,  1.74, 0.406, 2,  66, 0);
+  setElement( 9,  7, 2, "F",  "Fluorine",   31.545,  1.65, 0.634, 1,  64, 0);
+  setElement(10,  0, 2, "Ne", "Neon",       33.49,   1.82, -1.00, 0,   0, 0);
+ 
+  setElement(11,  1, 3, "Na", "Sodium",     38.1726, 1.29, -1.00, 1, 186, 0);
+  setElement(12,  2, 3, "Mg", "Magnesium",  40.356,  1.15, -1.00, 2, 160, 0);
+  setElement(13,  3, 3, "Al", "Aluminum",   44.7997, 2.0,  -1.00, 3, 125, 0);
+  setElement(14,  4, 3, "Si", "Silicon",    46.6245, 2.25, 1.137, 4, 116, 0);
+  setElement(15,  5, 3, "P",  "Phosphorus", 51.429,  2.18, 1.365, 3, 110, 0);
+  setElement(16,  6, 3, "S",  "Sulfur",     53.233,  2.10, 1.641, 2, 104, 0);
+  setElement(17,  7, 3, "Cl", "Chlorine",   58.867,  2.03, 1.950, 1,  99, 0);
+  setElement(18,  0, 3, "Ar", "Argon",      62.33,   1.88, -1.00, 0,   0, 0);
+
+  setElement(19,  1, 4, "K",  "Potassium",  64.9256, 1.59, -1.00, 1, 231, 0);
+  setElement(20,  2, 4, "Ca", "Calcium",    66.5495, 1.27, -1.00, 2, 197, 0);
+  setElement(21,  8, 4, "Sc", "Scandium",   74.646,  2.0,  -1.00, 0,  60, 0);
+  setElement(22, 23, 4, "Ti", "Titanium",   79.534,  2.0,  -1.00, 0, 147, 0);
+  setElement(23, 24, 4, "V",  "Vanadium",   84.584,  2.0,  -1.00, 0, 132, 0);
+  setElement(24, 25, 4, "Cr", "Chromium",   86.335,  2.0,  -1.00, 0, 125, 0);
+  setElement(25, 26, 4, "Mn", "Manganese",  91.22,   2.0,  -1.00, 0, 112, 0);
+  setElement(26, 27, 4, "Fe", "Iron",       92.729,  2.0,  -1.00, 0, 124, 0);
+  setElement(27, 28, 4, "Co", "Cobalt",     97.854,  2.0,  -1.00, 0, 125, 0);
+  setElement(28, 29, 4, "Ni", "Nickel",     97.483,  2.3,  -1.00, 0, 125, 0);
+  setElement(29, 30, 4, "Cu", "Copper",    105.513,  2.3,  -1.00, 0, 128, 0);
+  setElement(30, 31, 4, "Zn", "Zinc",      108.541,  2.3,  -1.00, 0, 133, 0);
+  setElement(31,  3, 4, "Ga", "Gallium",   115.764,  2.3,  -1.00, 0, 135, 0);
+  setElement(32,  4, 4, "Ge", "Germanium", 120.53,   2.0,  -1.00, 4, 122, 0);
+  setElement(33,  5, 4, "As", "Arsenic",   124.401,  2.0,  -1.00, 3, 120, 0);
+  setElement(34,  6, 4, "Se", "Selenium",  131.106,  1.88, -1.00, 2, 119, 0);
+  setElement(35,  7, 4, "Br", "Bromine",   132.674,  1.83, -1.00, 1, 119, 0);
+  setElement(36,  0, 4, "Kr", "Krypton",   134.429,  1.9,  -1.00, 0,   0, 0);
+
+  setElement(51,  5, 5, "Sb", "Antimony",  124.401,  2.2,  -1.00, 3, 144, 0);
+  setElement(52,  6, 5, "Te", "Tellurium", 131.106,  2.1,  -1.00, 2, 142, 0);
+  setElement(53,  7, 5, "I",  "Iodine",    132.674,  2.0,  -1.00, 1, 141, 0);
+  setElement(54,  0, 5, "Xe", "Xenon",     134.429,  1.9,  -1.00, 0,   0, 0);
+
+  bondStretchHashtable = hashtable_new(40);
+  
+#include "bonds.gen"
+  
+  deHashtable = hashtable_new(10);
+
+  addDeTableEntry("H-1-N",  0.75);
+  addDeTableEntry("N-1-O",  0.383);
+  addDeTableEntry("N-1-F",  0.422);
+  addDeTableEntry("F-1-S",  0.166);
+  addDeTableEntry("O-1-F",  0.302);
+  addDeTableEntry("C-1-I",  0.373);
+  addDeTableEntry("O-1-Cl", 0.397);
+  addDeTableEntry("O-1-I",  0.354);
+  addDeTableEntry("S-1-Cl", 0.489);
+
+  bendDataHashtable = hashtable_new(40);
+
+#include "bends.gen"
+
+  vanDerWaalsHashtable = hashtable_new(40);
+}
+
+static const char bends_rcsid[] = RCSID_BENDS_H;
+static const char bonds_rcsid[] = RCSID_BONDS_H;
+
+static char *bondTableOverlayFileName = NULL;
+static time_t bondTableOverlayModificationTime = 0;
+
+void
+initializeBondTable(void)
+{
+  struct stat statBuf;
+  char *home;
+  char *rest;
+  int len;
+  int reloadOverlay = 0;
+
+  if (bondStretchHashtable == NULL) {
+    reloadOverlay = 1;
+  }
+  if (bondTableOverlayFileName == NULL) {
+    home = getenv("HOME");
+    if (home == NULL) {
+      home = getenv("USERPROFILE"); // windows
+    }
+    if (home == NULL) {
+      home = "";
+    }
+    rest = "/Nanorex/sim-params.txt";
+    len = strlen(home) + strlen(rest) + 1;
+    bondTableOverlayFileName = (char *)allocate(len);
+    strcpy(bondTableOverlayFileName, home);
+    strcat(bondTableOverlayFileName, rest);
+  }
+  if (!stat(bondTableOverlayFileName, &statBuf)) {
+    if (bondTableOverlayModificationTime < statBuf.st_mtime) {
+      reloadOverlay = 1;
+      bondTableOverlayModificationTime = statBuf.st_mtime;
+    }
+  }
+  if (reloadOverlay) {
+    initializeStaticBondTable();
+    readBondTableOverlay(bondTableOverlayFileName);
+  }
+}
+
+void
+destroyBondTable(void)
+{
+  destroyStaticBondTable();
+  if (bondTableOverlayFileName != NULL) {
+    free(bondTableOverlayFileName);
+    bondTableOverlayFileName = NULL;
+  }
+}
+
+static void
+clearBondWarnings(char *bondName, void *entry)
+{
+  ((struct bondStretch *)entry)->warned = 0;
+}
+
+static void
+clearBendWarnings(char *bendName, void *entry)
+{
+  ((struct bendData *)entry)->warned = 0;
+}
+
+void
+reInitializeBondTable()
+{
+  if (bondStretchHashtable != NULL) {
+    hashtable_iterate(bondStretchHashtable, clearBondWarnings);
+  }
+  if (bendDataHashtable != NULL) {
+    hashtable_iterate(bendDataHashtable, clearBendWarnings);
+  }
 }
 
 static double

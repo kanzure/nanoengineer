@@ -115,6 +115,8 @@ struct atomType
   double e_vanDerWaals;       // zJ, or zeptoJoules, or 1e-21 J
   int n_bonds;
   double covalentRadius;      // Angstroms, or 1e-10 m
+  double charge;              // multiple of proton charge
+  int refCount;
 };
 
 extern struct atomType *getAtomTypeByIndex(int atomTypeIndex);
@@ -125,9 +127,9 @@ extern struct atomType *getAtomTypeByName(char *symbol);
 
 extern void initializeBondTable(void);
 
-extern void reInitializeBondTable(void);
-
 extern void destroyBondTable(void);
+
+extern void reInitializeBondTable(void);
 
 extern double getBondEquilibriumDistance(int element1, int element2, char bondOrder);
 

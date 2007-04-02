@@ -999,7 +999,7 @@ updateVanDerWaals(struct part *p, void *validity, struct xyz *positions)
 	    if (a->vdwNext) {
 		a->vdwNext->vdwPrev = a;
 	    }
-            r = (a->type->vanDerWaalsRadius * 100.0 + MAX_VDW_RADIUS) * VanDerWaalsCutoffFactor;
+            r = (a->type->vanDerWaalsRadius * 100.0 + p->maxVanDerWaalsRadius) * VanDerWaalsCutoffFactor;
             rSquared = r * r;
             dx = 0;
             while (1) {
@@ -1459,6 +1459,8 @@ void
 makeAtom(struct part *p, int externalID, int elementType, struct xyz position)
 {
     double mass;
+    double vdwRadius;
+    double absCharge;
     struct atom *a;
     
     if (externalID < 0) {
@@ -1503,6 +1505,15 @@ makeAtom(struct part *p, int externalID, int elementType, struct xyz position)
     a->vdwBucketInvalid = 1;
     a->vdwPrev = NULL;
     a->vdwNext = NULL;
+    vdwRadius = a->type->vanDerWaalsRadius * 100.0; // convert from angstroms to pm
+    if (vdwRadius > p->maxVanDerWaalsRadius) {
+        p->maxVanDerWaalsRadius = vdwRadius;
+    }
+    absCharge = fabs(a->type->charge);
+    if (absCharge > p->maxParticleCharge) {
+        p->maxParticleCharge = absCharge;
+    }
+    
     if (a->type->group == 3) {
         a->hybridization = sp2;
     } else {

@@ -57,6 +57,9 @@
 #include <math.h>
 #include <signal.h>
 #include <sys/time.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include <time.h>
 #include <stdarg.h>
 #include <errno.h>

@@ -23,6 +23,11 @@ extern int debug_flags;
 #define DPRINT4(flag, fmt,a,b,c,d) (DEBUG(flag) ? fprintf(stderr, fmt,a,b,c,d) : (void) 0)
 #define DPRINT5(flag, fmt,a,b,c,d,e) (DEBUG(flag) ? fprintf(stderr, fmt,a,b,c,d,e) : (void) 0)
 #define DPRINT6(flag, fmt,a,b,c,d,e,f) (DEBUG(flag) ? fprintf(stderr, fmt,a,b,c,d,e,f) : (void) 0)
+#define DPRINT7(flag, fmt,a,b,c,d,e,f,g) (DEBUG(flag) ? fprintf(stderr, fmt,a,b,c,d,e,f,g) : (void) 0)
+#define DPRINT8(flag, fmt,a,b,c,d,e,f,g,h) (DEBUG(flag) ? fprintf(stderr, fmt,a,b,c,d,e,f,g,h) : (void) 0)
+#define DPRINT9(flag, fmt,a,b,c,d,e,f,g,h,i) (DEBUG(flag) ? fprintf(stderr, fmt,a,b,c,d,e,f,g,h,i) : (void) 0)
+#define DPRINT10(flag, fmt,a,b,c,d,e,f,g,h,i,j) (DEBUG(flag) ? fprintf(stderr, fmt,a,b,c,d,e,f,g,h,i,j) : (void) 0)
+#define DPRINT11(flag, fmt,a,b,c,d,e,f,g,h,i,j,k) (DEBUG(flag) ? fprintf(stderr, fmt,a,b,c,d,e,f,g,h,i,j,k) : (void) 0)
 
 #define D_TABLE_BOUNDS    (1<<0)
 #define D_READER          (1<<1)
