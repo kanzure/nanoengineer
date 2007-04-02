@@ -56,7 +56,7 @@ from basic import _self, _this, _my, _app
 
 import Rect
 reload_once(Rect)
-from Rect import Rect, RectFrame, IsocelesTriangle, Spacer, Sphere, SpacerFor
+from Rect import Rect, RectFrame, IsocelesTriangle, Spacer, Sphere, SpacerFor, PartialDisk
 
 import Column
 reload_once(Column)
@@ -1447,13 +1447,17 @@ from demo_draw_on_surface import our_testexpr
 
 testexpr_37 = our_testexpr
 
+# == misc
+
+testexpr_38 = PartialDisk() # works 070401, in stub form with no settable parameters
+
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
 
 #e see also the _recent_tests system... should we use the most recent test instead? or have a setting for this var which means that?
 
 enable_testbed = True
 
-testexpr =  testexpr_30i # testexpr_37
+testexpr =  testexpr_38 # testexpr_30i # testexpr_37
     # testexpr_37 - demo_draw_on_surface
     # testexpr_36e - clipped sphere
     # testexpr_34a - unfinished demo_ui

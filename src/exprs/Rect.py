@@ -17,6 +17,8 @@ import draw_utils
 reload_once(draw_utils)
 from draw_utils import *
 
+from OpenGL.GLU import *
+
 class Rect(Widget2D): # finally working as of 061106
     """Rect(width, height, color) renders as a filled x/y-aligned rectangle
     of the given dimensions and color, with the origin on bottomleft,
@@ -169,7 +171,22 @@ class Line(Widget2D): #070211
         radius = 0.05
         capped = 0
         import drawer
-        drawer.drawcylinder(color, end1, end2, radius, capped = capped) ###STUB
+        drawer.drawcylinder(color, end1, end2, radius, capped = capped) ###STUB -- should use something like drawer.drawline does
+    pass
+
+# ==
+
+class PartialDisk(Widget2D): # stub (no settable parameters), works (testexpr_38), 070401
+    def _C_quadric(self):
+        "set up self.quadric"
+        # see PyOpenGL Demo/NeHe/lesson18.py
+        quadric = gluNewQuadric() #e it may be that this object could be shared by all instances, or even more globally -- not sure
+        gluQuadricNormals(quadric, GLU_SMOOTH) # Create Smooth Normals
+##        gluQuadricTexture(quadric, GL_TRUE)    # Create Texture Coords
+        return quadric
+    def draw(self):
+        gluPartialDisk(self.quadric,0.5,1.5,32,32,0,300) #e stub - should use named options
+        return
     pass
 
 # end
