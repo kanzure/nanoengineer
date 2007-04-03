@@ -164,9 +164,13 @@ class ElementPeriodicTable(Singleton):
         "Te" : (2.1,  [0.9, 0.35, 0.0]),
         "I" : (2.0,  [0.0, 0.5, 0.0]),
         "Xe" : (1.9,  [0.4, 0.45, 0.55]),
-        "Ax" : (4.0, [0.4, 0.4, 0.8]),    # DNA pseudo atom
-        "Ss" : (4.5, [0.4, 0.8, 0.4]),    # DNA pseudo atom
-        "Sp" : (4.0, [0.4, 0.1, 0.5])     # DNA pseudo atom
+        "Ax" : (5.0, [0.4, 0.4, 0.8]),    # DNA pseudo atom
+        "Ss" : (4.0, [0.4, 0.8, 0.4]),    # DNA pseudo atom
+        "Sj" : (4.0, [0.4, 0.8, 0.8]),    # DNA pseudo atom
+        "Pl" : (3.2, [0.4, 0.1, 0.5]),    # DNA pseudo atom
+        "Ae" : (3.5, [0.4, 0.4, 0.8]),    # DNA pseudo atom
+        "Pe" : (3.0, [0.4, 0.1, 0.5]),    # DNA pseudo atom
+        "Sh" : (2.5, [0.4, 0.8, 0.4]),    # DNA pseudo atom
         }
       
     _altRad_Color = {
@@ -328,7 +332,11 @@ to put the C+ value.
 
                   ("Ax", "DNA-Pseudo-Axis", 200, 1.0, [[4, 200, tetra4]]),
                   ("Ss", "DNA-Pseudo-Sugar", 201, 1.0, [[3, 210, flat]]),
-                  ("Sp", "DNA-Pseudo-Phosphate", 202, 1.0, [[2, 210, tetra2]])
+                  ("Pl", "DNA-Pseudo-Phosphate", 202, 1.0, [[2, 210, tetra2]]),
+                  ("Sj", "DNA-Pseudo-Sugar-Junction", 203, 1.0, [[3, 210, flat]]),
+                  ("Ae", "DNA-Pseudo-Axis-End", 204, 1.0, [[1, 0, None, 'sp']]),
+                  ("Pe", "DNA-Pseudo-Phosphate-End", 205, 1.0, [[1, 0, None, 'sp']]),
+                  ("Sh", "DNA-Pseudo-Sugar-End", 206, 1.0, [[1, 0, None, 'sp']]),
                 ]
     _periodicTable = {}
     _eltName2Num = {}
