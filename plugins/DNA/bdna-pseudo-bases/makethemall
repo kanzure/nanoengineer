@@ -1,5 +1,5 @@
 #!/bin/sh
 
-for i in adenine cytosine guanine thymine; do
+for i in adenine cytosine guanine thymine unknown; do
 	python Generate.py $i > $i.mmp
 done

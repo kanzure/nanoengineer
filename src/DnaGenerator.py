@@ -28,6 +28,8 @@ from fusechunksMode import fusechunksBase
 from platform import find_plugin_dir
 
 atompat = re.compile("atom (\d+) \((\d+)\) \((-?\d+), (-?\d+), (-?\d+)\)")
+numberPattern = re.compile(r"^\s*(\d+)\s*$")
+
 basepath_ok, basepath = find_plugin_dir("DNA")
 if not basepath_ok:
     # env.history.message(orangemsg("The DNA generator is not available."))
@@ -43,11 +45,13 @@ class Dna:
              basenameA={'C': 'cytosine',
                         'G': 'guanine',
                         'A': 'adenine',
-                        'T': 'thymine'},
+                        'T': 'thymine',
+                        'N': 'unknown'},
              basenameB={'G': 'cytosine',
                         'C': 'guanine',
                         'T': 'adenine',
-                        'A': 'thymine'}):
+                        'A': 'thymine',
+                        'N': 'unknown'}):
         baseList = [ ]
         def insertmmp(filename, subgroup, tfm, position=position):
             try:
@@ -83,6 +87,9 @@ class Dna:
             subgroup = grp
         subgroup.open = False
 
+        if (sequence.isdigit()):
+            baseCount = int(sequence)
+            sequence = baseCount * "N"
         theta = 0.0
         z = 0.5 * self.BASE_SPACING * (len(sequence) - 1)
         for i in range(len(sequence)):
@@ -232,7 +239,7 @@ class DnaGenerator(GeneratorBaseClass, dna_dialog):
     def gather_parameters(self):
         if not basepath_ok:
             raise PluginBug("The cad/plugins/DNA directory is missing.")
-        seq = self.get_sequence()
+        (seq, allKnown) = self._get_sequence()
         dnatype = str(self.dna_type_combox.currentText())
         if dnatype == 'A-DNA':
             raise PluginBug("A-DNA is not yet implemented -- please try B- or Z-DNA");
@@ -243,6 +250,8 @@ class DnaGenerator(GeneratorBaseClass, dna_dialog):
         if (representation == 'Base(experimental)'):
             representation = 'BasePseudoAtom'
         assert representation in ('Atom', 'BasePseudoAtom')
+        if (representation == 'Atom' and not allKnown):
+            raise UserError("Cannot use unknown bases (N) in Atom representation")
 
         if (representation == 'BasePseudoAtom' and dnatype == 'Z-DNA'):
             raise PluginBug("Z-DNA not implemented for Base Pseudo Atoms representation.  Use B-DNA.")
@@ -284,11 +293,17 @@ class DnaGenerator(GeneratorBaseClass, dna_dialog):
             grp.kill()
             raise
 
-    def get_sequence(self, reverse=False, complement=False,
-                     cdict={'C':'G', 'G':'C', 'A':'T', 'T':'A'}):
+    def _get_sequence(self, reverse=False, complement=False,
+                     cdict={'C':'G', 'G':'C', 'A':'T', 'T':'A', 'N':'N'}):
         seq = ''
+        allKnown = True
+        match = numberPattern.match(str(self.base_textedit.text()))
+        if (match):
+            return(match.group(1), False)
         for ch in str(self.base_textedit.text()).upper():
-            if ch in 'CGAT':
+            if ch in 'CGATN':
+                if ch == 'N':
+                    allKnown = False
                 if complement:
                     ch = cdict[ch]
                 seq += ch
@@ -301,7 +316,7 @@ class DnaGenerator(GeneratorBaseClass, dna_dialog):
             seq = list(seq)
             seq.reverse()
             seq = ''.join(seq)
-        return seq
+        return (seq, allKnown)
 
     def show(self):
         self.setSponsor()
@@ -323,13 +338,13 @@ class DnaGenerator(GeneratorBaseClass, dna_dialog):
 
     def complement_btn_clicked(self):
         def thunk():
-            seq = self.get_sequence(complement=True)
+            (seq, allKnown) = self._get_sequence(complement=True)
             self.base_textedit.setText(seq)
         self.handlePluginExceptions(thunk)
 
     def reverse_btn_clicked(self):
         def thunk():
-            seq = self.get_sequence(reverse=True)
+            (seq, allKnown) = self._get_sequence(reverse=True)
             self.base_textedit.setText(seq)
         self.handlePluginExceptions(thunk)
 
