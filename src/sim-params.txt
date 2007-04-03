@@ -19,7 +19,7 @@
 #
 #         Z grp per sym   name                      mass    rvdW  evdW  bnds rcov chrg
 
-element 200  0  0   Ax    DNA-Pseudo-Axis           167.0   0.0    0.00  4    1.7   0
+element 200  0  0   Ax    DNA-Pseudo-Axis           167.0   0.1    0.00  4    1.7   0
 element 201  0  0   Ss    DNA-Pseudo-Sugar          167.0   2.6   10.00  3    1.8   0
 element 202  0  0   Pl    DNA-Pseudo-Phosphate      167.0   2.6   10.00  2    1.8  -1
 element 203  0  0   Sj    DNA-Pseudo-Sugar-Junction 167.0   2.6   10.00  3    1.8   0
@@ -30,24 +30,27 @@ element 203  0  0   Sj    DNA-Pseudo-Sugar-Junction 167.0   2.6   10.00  3    1.
 #          r0 (double) equilibrium distance, in pm, or 1e-12 m
 #          de (double) in aJ, or 1e-18 J
 #        beta (double) in 1e10 m^-1
+#                        set to sqrt(ks / (2.0 * de)) / 10.0 if value here is less than zero
 # inflectionR (double) r value in pm where d^2(Lippincott(r)) / dr^2 == 0
 #                        inflectionR is end of interpolation table during minimization
+#                        set to r0*1.5 if value here is less than zero
 #        qual (int)    quality of parameter (use of a parameter with quality < 5 produces a warning)
 #        quad (int)    flag, non-zero if this stretch should be quadratic instead of Lippincott/Morse
+#                        currently ignored
 #    bondName (string) symbol-bondOrder-symbol
 #                        bondOrders are: (1, a, g, 2, 3)  a is aromatic, g is graphitic
 #                        The atomType (number of protons) of the first symbol must be <= the second.
 #
 #         ks    r0      de      beta    inflectionR qual quad bondName
 
-stretch 500.00  340.00  1.0000  0.2236   640.99      9    1   Ax-1-Ax
-stretch 500.00  664.00  1.0000  0.1581  1149.90      9    1   Ax-1-Ss
-stretch 500.00  664.00  1.0000  0.1581  1149.90      9    1   Ax-1-Sj
-stretch 500.00  360.00  1.0000  0.1581   825.32      9    1   Ss-1-Pl
-stretch 500.00  400.00  1.0000  0.1581   825.32      9    1   Pl-1-Sj
-stretch 500.00  220.00  1.0000  1.6438   151.21      9    1   H-1-Ax
-stretch 500.00  350.00  1.0000  1.6438   151.21      9    1   H-1-Ss
-stretch 500.00  220.00  1.0000  1.6438   151.21      9    1   H-1-Pl
+stretch 500.00  340.00  1.0000   -1         -1       9    1   Ax-1-Ax
+stretch 500.00  664.00  1.0000   -1         -1       9    1   Ax-1-Ss
+stretch 500.00  664.00  1.0000   -1         -1       9    1   Ax-1-Sj
+stretch 500.00  360.00  1.0000   -1         -1       9    1   Ss-1-Pl
+stretch 500.00  400.00  1.0000   -1         -1       9    1   Pl-1-Sj
+stretch 500.00  220.00  1.0000   -1         -1       9    1   H-1-Ax
+stretch 500.00  350.00  1.0000   -1         -1       9    1   H-1-Ss
+stretch 500.00  220.00  1.0000   -1         -1       9    1   H-1-Pl
 
 # format for bend lines
 #

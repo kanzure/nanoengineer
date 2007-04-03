@@ -195,6 +195,12 @@ addInitialBondStretch(double ks,
   struct bondStretch *stretch;
   struct bondStretch *old;
 
+  if (beta < 0) {
+    beta = sqrt(ks / (2.0 * de)) / 10.0 ;
+  }
+  if (inflectionR < 0) {
+    inflectionR = r0 * 1.5;
+  }
   stretch = newBondStretch(bondName, ks, r0, de, beta*1e-2, inflectionR, quality, quadratic);
   old = hashtable_put(bondStretchHashtable, bondName, stretch);
   if (old != NULL) {
