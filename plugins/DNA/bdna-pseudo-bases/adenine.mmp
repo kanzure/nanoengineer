@@ -3,32 +3,32 @@ kelvin 300
 group (View Data)
 info opengroup open = True
 csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
-csys (LastView) (0.995906, 0.088230, 0.019436, 0.002913) (10.770764) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
 egroup (View Data)
 group (adenine)
 info opengroup open = True
 mol (adenine) def
 atom 1 (200) (0, 0, 0) def
-atom 2 (0) (0, 0, 1696) def
+atom 2 (0) (0, 0, 1695) def
 bond1 1
 atom 3 (0) (0, 0, -1696) def
 bond1 1
-atom 4 (201) (7655, 548, -2290) def
+atom 4 (201) (6610, 0, 0) def
 bond1 1
-atom 5 (0) (8002, 1050, -500) def
+atom 5 (202) (8356, 2715, 1695) def
 bond1 4
-atom 6 (202) (8489, -2483, -1941) def
+atom 6 (0) (6852, 3300, 2543) def
+bond1 5
+atom 7 (0) (7483, -1357, -848) def
 bond1 4
-atom 7 (0) (7502, -3270, -3310) def
-bond1 6
-atom 8 (201) (-6349, 4153, 2333) def
+atom 8 (201) (-5414, -3791, 0) def
 bond1 1
-atom 9 (0) (-6049, 5153, 700) def
+atom 9 (202) (-8403, -2569, -1695) def
 bond1 8
-atom 10 (202) (-8570, 1954, 2058) def
+atom 10 (0) (-7506, -1226, -2543) def
+bond1 9
+atom 11 (0) (-5351, -5404, 848) def
 bond1 8
-atom 11 (0) (-8070, 1055, 3500) def
-bond1 10
 egroup (adenine)
 end1
 group (Clipboard)
