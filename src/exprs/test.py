@@ -528,7 +528,40 @@ testexpr_11pcy2 = imagetest("win_collapse_icon.png", convert = 'RGBA', _tmpmode 
     #e still need to test more images below with those options. plus the ones that work without them.
     #e should retest _tmpmode = JPEG since I altered code for that.
 
+# more translucent image tests inserted (& finally working after new options added) - 070403
 
+testexpr_11pd1 = Overlay( Closer(DraggableObject(Image("win_collapse_icon.png", convert = 'RGBA'))),
+                          DraggableObject(Image("blueflake.jpg"))
+                    ) # works, but closer image has no transparency (as expected with decal = True)
+testexpr_11pd2 = Overlay( Closer(DraggableObject(Image("win_collapse_icon.png", convert = 'RGBA', decal = False))),
+                          DraggableObject(Image("blueflake.jpg"))
+                    ) # works, but without blend option being set, still no transparency (expected)
+                      # (but does change image bg color from blue (prior test, might be an accident of color setting leakage) to black)
+testexpr_11pd3 = Overlay( Closer(DraggableObject(Image("win_collapse_icon.png", convert = 'RGBA', decal = False, blend = True))),
+                          DraggableObject(Image("blueflake.jpg"))
+                    ) # works, incl transparency after 070403-late changes in image.py,
+                      # but translucent image obscures the other one (expected, since drawn first, with depthwrite on)
+                      # (fyi, screenshot in 'translucent first+depthwrite.jpg', not in cvs)
+testexpr_11pd4 = Overlay( DraggableObject(Image("blueflake.jpg")),
+                          Closer(DraggableObject(Image("win_collapse_icon.png", convert = 'RGBA', decal = False, blend = True))),
+                    ) # works, including proper translucency, and (after GL_ALPHA_TEST added) properly not highlightable in fully transparent pixels
+                      ###e should add option to turn off depth buffer writing
+
+trans_image = Image(convert = 'RGBA', decal = False, blend = True,
+                    clamp = True, # this removes the artifacts that show the edges of the whole square of the image file
+                    ideal_width = 100, ideal_height = 100, size = Rect(100*PIXELS))
+_tmp = DraggableObject(Image("blueflake.jpg"))
+for _file in """Cancel_100x100_translucent.png
+Cancel_100x100.png
+OK_Cancel_100x100_translucent.png
+OK_Cancel_100x100.png
+OK_Cancel_Triangles_100x100_translucent.png
+OK_Cancel_Triangles_100x100.png
+OK_Cancel_TrianglesOutline_100x100.png""".split():
+    _tmp = Overlay( _tmp, Closer(DraggableObject(trans_image( "/Nanorex/confirmation-corner/" + _file ))) ) #e de-overlap them somehow
+
+testexpr_11pd5 = _tmp # works; only looks good over atoms ("the model") if you hack testdraw to draw the model before this expr,
+    # rather than after it (should introduce a debug_pref for that)
 
 # try some images only available on bruce's g4
 
@@ -1399,7 +1432,8 @@ testexpr_33x = Translate(_testexpr_33(), (2,-2)) # works now
 
 import demo_ui
 reload_once(demo_ui)
-from demo_ui import * # this used to define testexpr_19j, testexpr_30j (obs, never worked); now it only defines testexpr_34*
+from demo_ui import testexpr_34, testexpr_34a # not *, or it grabs old values of the testexprs it imported earlier from here!
+    # note: this used to define testexpr_19j, testexpr_30j (obs, never worked); now it only defines testexpr_34*
 
 # == StateArrayRefs
 
@@ -1457,7 +1491,7 @@ testexpr_38 = PartialDisk() # works 070401, in stub form with no settable parame
 
 enable_testbed = True
 
-testexpr =  testexpr_38 # testexpr_30i # testexpr_37
+testexpr = testexpr_11pd4 # testexpr_38 # testexpr_30i # testexpr_37
     # testexpr_37 - demo_draw_on_surface
     # testexpr_36e - clipped sphere
     # testexpr_34a - unfinished demo_ui

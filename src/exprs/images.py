@@ -55,9 +55,7 @@ import testdraw
     # when the time comes, the only reliable way to sort out & merge duplicated code (some in other cad/src files too)
     # is to search for all uses of the GL calls being used here.
 
-from OpenGL.GL import glGenTextures, glBindTexture, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_TEXTURE_WRAP_T, \
-     GL_CLAMP, GL_REPEAT, GL_TEXTURE_MAG_FILTER, GL_TEXTURE_MIN_FILTER, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_NEAREST, \
-     GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL, glTexParameterf, glTexEnvf
+from OpenGL.GL import *
 from OpenGL.GLU import gluProject
 
 debug_glGenTextures = True #070308 #####
@@ -149,7 +147,17 @@ class _texture_holder(object):
         if decal:
             glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL)
         else:
-            print "don't know what to set instead of GL_DECAL"###e
+            # see red book p410-411 -- can use GL_DECAL, GL_REPLACE, GL_MODULATE, GL_BLEND, GL_ADD, GL_COMBINE.
+            # (Except that I can't import GL_COMBINE (iMac G5) so maybe it's not always available.)
+            # GL_DECAL leaves fragment alpha unchanged and uses texture alpha to mix its color with fragment color
+            # (fragment data comes from the polygon's alpha & color as if drawn untextured).
+            # GL_REPLACE just discards fragment data in favor of texture data incl alpha -- that would be a better default.
+            # Eventually permit all these values -- for now just let decal = False mean GL_REPLACE. [070403]
+            #
+            ## print "getTextureData", self, self._image.getTextureData() # presence of correct alpha is plausible from this
+            # (in testexpr_11pd2). By itself, it does make a difference (alpha 0 places are black in testexpr_11pd2, not blue
+            # (probably a leaked color) like in testexpr_11pd1), but self.blend is also needed to make it translucent.
+            glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE)            
         
         return
     def __repr__(self): #070308
@@ -249,7 +257,18 @@ class Image(Widget2D):
     use_mipmaps = Option(bool, True) # whether to use mipmaps, if present in loaded texture object; only matters if pixmap is False
         #e what determines whether mipmaps are present? For now, they always are;
         # later, it might depend on whether we had RAM, or on a more global pref, or ....
-    decal = Option(bool, True) #e False is nim
+    decal = Option(bool, True) # as of 070403, False works and means GL_REPLACE -- should probably make that the default and rename this
+    blend = Option(bool, False, doc = "whether to blend translucent images with background") #070403
+        # Note: blend doesn't turn off depth buffer writing, but does reject fully transparent fragments (via GL_ALPHA_TEST),
+        # so only the translucent (i.e. partly transparent) pixels can obscure things if drawn first,
+        # or can be hover-highlighted (affect sbar_text, act as drag-grip-point, etc).
+        # This behavior is fine if translucency is used for antialiased edges.
+        # (Except for images that have very small nonzero alphas that really ought to be zero instead,
+        #  like the one used in testexpr_11pd3 (fyi, see screenshot 'alpha fluctuations.jpg', not in cvs) --
+        #  maybe this comes in through the rescaling and/or mipmap filtering?)
+        # See also slightly related glStencilFunc, glDepthFunc.
+    ###e should add option to turn off depth buffer writing
+    ##e should add option to not use GL_ALPHA_TEST when blend is True
     nreps = Option(float, 1.0) #e rename - repeat count; mostly only useful when clamp is False, but ought to work otherwise too
         ##e generalize to let caller supply tex_dx and tex_dy vectors, for rotating the texture within the drawing region;
         # (Can that be done as a more general value for this option? Unclear whether that's natural, tho passing in a matrix might be...)
@@ -283,7 +302,8 @@ class Image(Widget2D):
     
     def _C__texture_holder(self):
         # pil_kws added 061127, doc in nEImageOps;
-        #   current defaults are ideal_width = None, ideal_height = None, rescale = True, convert = False
+        # current defaults are ideal_width = None, ideal_height = None, rescale = True, convert = False, _tmpmode = None.
+        # Note: don't include texture_options here, since they don't affect the PIL image object itself.
         pil_kws = dict(rescale = self.rescale, ideal_width = self.ideal_width, ideal_height = self.ideal_height,
                        convert = self.convert, _tmpmode = self._tmpmode)
         items = pil_kws.items()
@@ -325,7 +345,16 @@ class Image(Widget2D):
 ##        dy = DY * self.btop
         dx = DX * (self.bleft + self.bright) # bugfix 070304: include bleft, bbottom here
         dy = DY * (self.bbottom + self.btop)
+        blend = self.blend
+        if blend:
+            glEnable(GL_BLEND)
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+            glEnable(GL_ALPHA_TEST) # (red book p.462-463)
+            glAlphaFunc(GL_GREATER, 0.0) # don't draw the fully transparent parts into the depth or stencil buffers
         draw_textured_rect(origin, dx, dy, tex_origin, tex_dx, tex_dy)
+        if blend:
+            glDisable(GL_BLEND)
+            glDisable(GL_ALPHA_TEST)
         return
 
     # note the suboptimal error message from this mistake:
@@ -354,7 +383,7 @@ IconImage = Image(ideal_width = 22, ideal_height = 22, convert = True, _tmpmode 
 
 # ==
 
-class NativeImage(DelegatingInstanceOrExpr): #070304 [works in testexpr_11u6]
+class NativeImage(DelegatingInstanceOrExpr): #070304 [works (imperfectly? see comments there) in testexpr_11u6]
     """Show an image in its native size and aspect ratio --
     that is, one image pixel == one texture pixel == one screen pixel,
     when the local coordsys is the standard viewing coordsys.
@@ -364,6 +393,7 @@ class NativeImage(DelegatingInstanceOrExpr): #070304 [works in testexpr_11u6]
     """
     # args
     filename = Arg(str, "x") #e better type, eg Filename?
+    ###BUG: ought to take all options and pass them on to Image [070403 comment]
     # formulae [non-public in spite of the names]
     im1_expr = Image(filename, use_mipmaps = True, ideal_width = -1, ideal_height = -1)
         # customize Image to use native texture size (but without controlling the aspect ratio for display)
