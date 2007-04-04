@@ -1808,7 +1808,8 @@ debug_corner_stuff = Boxed(SimpleColumn(   # 070326 renamed bottom_left_corner -
 ##    checkbox_pref("A9 devel/testdraw/use old vv.displist?", "use old vv.displist?"), # see USE_DISPLAY_LIST_OPTIM
 ##    checkbox_pref("A9 devel/testdraw/drawtest in old way?", "drawtest in old way?", dflt = False),
 ##    checkbox_pref("A9 devel/testdraw/use GLPane_Overrider?", "use GLPane_Overrider? (after reload)", dflt = True), # works (moves compass)
-    checkbox_pref("A9 devel/testdraw/super.Draw?", "draw model & region-sel rect?", dflt = True), # works
+    checkbox_pref("A9 devel/testdraw/super.Draw first?", "draw model & lasso first?", dflt = True), # revised 070404
+    checkbox_pref("A9 devel/testdraw/super.Draw last?", "draw model & lasso last?", dflt = False), # revised 070404
 # these next 4 work fine, but are not worth the screen space for now ...
 # when this turns into a browsable control they can be added back but not shown by default. [070227]
 ##    checkbox_pref("A9 devel/testdraw/show old timing data?", "show old timing data?", dflt = False), # works (side effect on text in next one)

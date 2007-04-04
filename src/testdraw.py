@@ -203,6 +203,11 @@ def Draw(mode, glpane, super): # called by testmode.Draw
     init_glpane_vars(glpane)
     vv.counter += 1
 
+    if env.prefs.get("A9 devel/testdraw/super.Draw first?", True): #070404
+        glPushMatrix() #k needed??
+        super.Draw(mode)
+        glPopMatrix()
+
     # glpane.part.draw(glpane) # this doesn't draw the model in any different place as when done below... [061211]
     
     glPushMatrix()
@@ -214,13 +219,13 @@ def Draw(mode, glpane, super): # called by testmode.Draw
     glPopMatrix() # it turns out this is needed, if drawtest0 does glTranslate, or our coords are messed up when glselect code
     # [not sure what this next comment is about:]
     # makes us draw twice! noticed on g4, should happen on g5 too, did it happen but less??
-    if env.prefs.get("A9 devel/testdraw/super.Draw?", True):
+    if env.prefs.get("A9 devel/testdraw/super.Draw last?", False): # revised prefs key and default, 070404
         glPushMatrix()
         if 1:
             super.Draw(mode) # needed for region selection's separate xor-drawing;
             # I suspect this is slower than the other case. Does it draw more than once (for glselect) or something like that? ####@@@@
         else:
-            # region selection's drawing won't work in this case, though its selection op itself will work
+            # region selection's drawing [later: xor mode, i guess] won't work in this case, though its selection op itself will work
             glpane.part.draw(glpane) # highlighting works fine on this copy...
         if 0 and 'draw copy2 of model':
             glTranslate(5,0,0)
@@ -790,13 +795,14 @@ def _initTextureEnv(have_mipmaps): # called during draw method [modified from ES
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL)
     return
 
-def drawPlane(color, w, h, textureReady, opacity, SOLID=False, pickCheckOnly=False): # modified(?) from drawer.py
+def drawPlane(color, w, h, textureReady, opacity, SOLID=False, pickCheckOnly=False):
+    # modified [seach for #mod to see in what ways] from drawer.py; not called as of long before 070402
     '''Draw polygon with size of <w>*<h> and with color <color>. Optionally, it could be texuture mapped, translucent.
        @pickCheckOnly This is used to draw the geometry only, used for OpenGL pick selection purpose.'''
     vs = [[-0.5, 0.5, 0.0], [-0.5, -0.5, 0.0], [0.5, -0.5, 0.0], [0.5, 0.5, 0.0]]
     vt = [[0.0, 1.0], [0.0, 0.0], [1.0, 0.0], [1.0, 1.0]]    
 
-    print "my drawplane"
+    print "my drawplane" #mod
     glDisable(GL_LIGHTING)
     glColor4fv(list(color) + [opacity])
     
@@ -810,8 +816,9 @@ def drawPlane(color, w, h, textureReady, opacity, SOLID=False, pickCheckOnly=Fal
     glDisable(GL_CULL_FACE) 
 
     if not pickCheckOnly:
+        #mod: commented this out (but not the later glDepthMask(GL_TRUE), for some reason)
 ##        glDepthMask(GL_FALSE) # This makes sure translucent object will not occlude another translucent object
-        # is this why it overwrote rendered text?? #### i guesas not, at least changing it didn't fix that 505p where i am
+        # is this why it overwrote rendered text?? #### i guess not, at least changing it didn't fix that 505p where i am
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
             
