@@ -96,21 +96,57 @@ bondpoint2 = midpoint(phosphate0, sugar)
 
 print prefix
 
-# Axis
-printAtom(1, 200, (0, 0, 0), 0) # Ax
-printAtom(2, 0, (0, 0, zSpacing/2), 1) # Axis bondpoint
-printAtom(3, 0, (0, 0, -zSpacing/2), 1) # Axis bondpoint
+if (baseName == 'end1'):
+    # Axis
+    printAtom(1, 200, (0, 0, 0), 0) # Ax
+    printAtom(2, 204, (0, 0, zSpacing/2), 1) # Ae
+    printAtom(3, 0, (0, 0, -zSpacing/2), 1) # Axis bondpoint
 
-# Strand1
-printAtom(4, 201, sugar, 1) # Ss
-printAtom(5, 202, phosphate, 4) # Pl
-printAtom(6, 0, bondpoint1, 5)
-printAtom(7, 0, bondpoint2, 4)
+    # Strand1
+    printAtom(4, 201, sugar, 1) # Ss
+    printAtom(5, 205, phosphate, 4) # Pe
+    printAtom(6, 0, bondpoint2, 4)
 
-# Strand2
-printAtom(8, 201, strand2(sugar), 1) # Ss
-printAtom(9, 202, strand2(phosphate), 8) # Pl
-printAtom(10, 0, strand2(bondpoint1), 9)
-printAtom(11, 0, strand2(bondpoint2), 8)
+    # Strand2
+    printAtom(7, 201, strand2(sugar), 1) # Ss
+    printAtom(8, 202, strand2(phosphate), 7) # Pl
+    printAtom(9, 0, strand2(bondpoint1), 8)
+    printAtom(10, 206, strand2(bondpoint2), 7) # Sh
+
+elif (baseName == 'end2'):
+    # Axis
+    printAtom(1, 200, (0, 0, 0), 0) # Ax
+    printAtom(2, 204, (0, 0, -zSpacing/2), 1) # Ae
+    printAtom(3, 0, (0, 0, zSpacing/2), 1) # Axis bondpoint
+
+    # Strand1
+    printAtom(4, 201, sugar, 1) # Ss
+    printAtom(5, 202, phosphate, 4) # Pl
+    printAtom(6, 0, bondpoint1, 5)
+    printAtom(7, 206, bondpoint2, 4) # Sh
+
+    # Strand2
+    printAtom(8, 201, strand2(sugar), 1) # Ss
+    printAtom(9, 205, strand2(phosphate), 8) # Pe
+    printAtom(10, 0, strand2(bondpoint2), 8)
+
+else:
+    
+    # Axis
+    printAtom(1, 200, (0, 0, 0), 0) # Ax
+    printAtom(2, 0, (0, 0, zSpacing/2), 1) # Axis bondpoint
+    printAtom(3, 0, (0, 0, -zSpacing/2), 1) # Axis bondpoint
+
+    # Strand1
+    printAtom(4, 201, sugar, 1) # Ss
+    printAtom(5, 202, phosphate, 4) # Pl
+    printAtom(6, 0, bondpoint1, 5)
+    printAtom(7, 0, bondpoint2, 4)
+
+    # Strand2
+    printAtom(8, 201, strand2(sugar), 1) # Ss
+    printAtom(9, 202, strand2(phosphate), 8) # Pl
+    printAtom(10, 0, strand2(bondpoint1), 9)
+    printAtom(11, 0, strand2(bondpoint2), 8)
 
 print postfix

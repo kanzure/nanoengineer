@@ -334,9 +334,9 @@ to put the C+ value.
                   ("Ss", "DNA-Pseudo-Sugar", 201, 1.0, [[3, 210, flat]]),
                   ("Pl", "DNA-Pseudo-Phosphate", 202, 1.0, [[2, 210, tetra2]]),
                   ("Sj", "DNA-Pseudo-Sugar-Junction", 203, 1.0, [[3, 210, flat]]),
-                  ("Ae", "DNA-Pseudo-Axis-End", 204, 1.0, [[1, 0, None, 'sp']]),
-                  ("Pe", "DNA-Pseudo-Phosphate-End", 205, 1.0, [[1, 0, None, 'sp']]),
-                  ("Sh", "DNA-Pseudo-Sugar-End", 206, 1.0, [[1, 0, None, 'sp']]),
+                  ("Ae", "DNA-Pseudo-Axis-End", 204, 1.0, [[1, 200, None, 'sp']]),
+                  ("Pe", "DNA-Pseudo-Phosphate-End", 205, 1.0, [[1, 210, None, 'sp']]),
+                  ("Sh", "DNA-Pseudo-Sugar-End", 206, 1.0, [[1, 210, None, 'sp']]),
                 ]
     _periodicTable = {}
     _eltName2Num = {}

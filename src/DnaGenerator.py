@@ -46,12 +46,16 @@ class Dna:
                         'G': 'guanine',
                         'A': 'adenine',
                         'T': 'thymine',
-                        'N': 'unknown'},
+                        'N': 'unknown',
+                        'Y': 'end1',
+                        'Z': 'end2'},
              basenameB={'G': 'cytosine',
                         'C': 'guanine',
                         'T': 'adenine',
                         'A': 'thymine',
-                        'N': 'unknown'}):
+                        'N': 'unknown',
+                        'Y': 'end1',
+                        'Z': 'end2'}):
         baseList = [ ]
         def insertmmp(filename, subgroup, tfm, position=position):
             try:
@@ -90,6 +94,7 @@ class Dna:
         if (sequence.isdigit()):
             baseCount = int(sequence)
             sequence = baseCount * "N"
+        sequence = self.addEndCaps(sequence)
         theta = 0.0
         z = 0.5 * self.BASE_SPACING * (len(sequence) - 1)
         for i in range(len(sequence)):
@@ -128,6 +133,9 @@ class Dna:
         for i in range(len(baseList) - 1):
             fcb.find_bondable_pairs([baseList[i]], [baseList[i+1]])
             fcb.make_bonds(assy)
+
+    def addEndCaps(self, sequence):
+        return sequence
 
 class A_Dna(Dna):
     """The geometry for A-DNA is very twisty and funky. I'd probably need to
@@ -169,6 +177,10 @@ class B_Dna_BasePseudoAtoms(B_Dna):
     fuseChunksTolerance = 1.0
     def baseFileName(self, basename):
         return os.path.join(basepath, 'bdna-pseudo-bases', '%s.mmp' % basename)
+    def addEndCaps(self, sequence):
+        if (len(sequence) > 1):
+            return 'Y' + sequence[1:-1] + 'Z'
+        return sequence
 
 class Z_Dna(Dna):
     geometry = "Z-DNA"
