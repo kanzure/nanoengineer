@@ -221,7 +221,16 @@ class DraggableObject(DelegatingInstanceOrExpr):
     
     # state
     selected = State(bool, False) ###KLUGE test stub, only set when debug070209
-    motion = State(Vector, V(0,0,0)) # publicly visible and settable (but only with =, not +=). ##e rename?
+    translation = Option(Vector, V(0,0,0), #070404
+                      doc = "initial translation [WARNING: might merge with misnamed self.motion (a State attr) to make a StateOption]")
+    motion = State(Vector, _self.translation) # publicly visible and settable (but only with =, not +=).
+        ##e rename to translation? (by making it a StateOption)
+        ##e (or deprecate the concept of StateOption but make any State settable initially by a special option not just with same name?
+        ##   eg either initial_attr or initial_data = [something with dict or attr access to the data] ??)
+        ##e NOTE [070404]: I miscoded translation as Arg rather than Option, and said StateArg rather than StateOption in docstring,
+        # though intending only named uses of it -- is this evidence that Arg / Option / Parameter should be the same,
+        # that Option should be the default meaning, and positional arglists should be handled differently and as an extra thing
+        # (eg like the old _args feature -- which leads to clearer code when subclassing)?? Guess: quite possibly, but needs more thought.
         # WARNING: use of += has two distinct bugs, neither error directly detectable:
         # - changes due to += (or the like) would not be change tracked.
         #   (But all changes to this need to be tracked, so our drawing effects are invalidated when it changes.)
@@ -267,8 +276,14 @@ class DraggableObject(DelegatingInstanceOrExpr):
     # appearance
 
     obj_name = call_Expr( node_name, obj) #070216
-        # Note: node_name is used in MT_try2; it's better than using _e_model_type_you_make (in sbar_text, below).
+        # Note: node_name is used in MT_try2; it's better than using _e_model_type_you_make (for our use in sbar_text, below).
         # BTW, node_name is a helper function associated with ModelTreeNodeInterface (informal so far).
+        #
+        # If you want to wrap an object with extra info which specifies its node_name, use ... what? ###k hmm, I forget if there
+        # is a way partway through being implemented...
+        # maybe WithAttributes( Center(Rect(0.4, 0.4, green)), mt_name = "green rect #n" )... i guess yes, ### TRY IT
+        # should clean this situation up, use Adaptor term for that pattern
+        # of interface conversion, etc... [070404 updated comment]
 
         # (Note [070216]: I had a bug when I had a comma after the above def. This made obj_name, included directly in another expr,
         #  turn into a singleton tuple of the call_Expr value, but when included as _self.obj_name (normally equivalent to obj_name),
