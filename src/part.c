@@ -21,7 +21,7 @@ static char const rcsid[] = "$Id$";
 // p->parseError().  When that happens, the stream pointer is set to
 // the part, allowing us to extract and print the filename where the
 // problem was found.
-static void
+static int
 defaultParseError(void *stream)
 {
     struct part *p;
@@ -29,7 +29,7 @@ defaultParseError(void *stream)
     p = (struct part *)stream;
     ERROR1("Parsing part %s", p->filename);
     done("Failed to parse part %s", p->filename);
-    exit(1); // XXX should throw exception so pyrex doesn't exit cad here
+    RAISER("Failed to parse part", 0);
 }
 
 // Create a new part.  Pass in a filename (or any other string
@@ -41,7 +41,7 @@ defaultParseError(void *stream)
 // will also be used after a call to endPart() if an error is
 // detected.
 struct part *
-makePart(char *filename, void (*parseError)(void *), void *stream)
+makePart(char *filename, int (*parseError)(void *), void *stream)
 {
     struct part *p;
     struct rigidBody *rb;
@@ -90,8 +90,10 @@ destroyPart(struct part *p)
         //a->type points into periodicTable, don't free
         //a->prev and next just point to other atoms
         //a->bonds has pointers into the p->bonds array
-        free(a->bonds);
-        a->bonds = NULL;
+        if (a->bonds != NULL) {
+            free(a->bonds);
+            a->bonds = NULL;
+        }
         free(a);
     }
     destroyAccumulator(p->atoms);
@@ -256,8 +258,8 @@ addBondsToAtoms(struct part *p)
     }
     for (i=0; i<p->num_bonds; i++) {
 	b = p->bonds[i];
-	addBondToAtom(p, b, b->a1);
-	addBondToAtom(p, b, b->a2);
+	addBondToAtom(p, b, b->a1); BAIL();
+	addBondToAtom(p, b, b->a2); BAIL();
     }
 }
 
@@ -285,11 +287,11 @@ endPart(struct part *p)
 void
 initializePart(struct part *p)
 {
-    updateVanDerWaals(p, NULL, p->positions);
-    generateStretches(p);
-    generateBends(p);
-    generateTorsions(p);
-    generateOutOfPlanes(p);
+    updateVanDerWaals(p, NULL, p->positions); BAIL();
+    generateStretches(p); BAIL();
+    generateBends(p); BAIL();
+    generateTorsions(p); BAIL();
+    generateOutOfPlanes(p); BAIL();
     rigid_init(p);
 }
 
@@ -385,7 +387,7 @@ generateBends(struct part *p)
 	a = p->atoms[i];
 	for (j=0; j<a->num_bonds; j++) {
 	    for (k=j+1; k<a->num_bonds; k++) {
-		makeBend(p, bend_index++, a, j, k);
+		makeBend(p, bend_index++, a, j, k); BAIL();
 	    }
 	}
     }
@@ -1112,11 +1114,13 @@ translateAtomID(struct part *p, int atomID)
     if (atomID < 0 || atomID > p->max_atom_id) {
 	ERROR2("atom ID %d out of range [0, %d]", atomID, p->max_atom_id);
 	p->parseError(p->stream);
+        return NULL;
     }
     atomIndex = p->atom_id_to_index_plus_one[atomID] - 1;
     if (atomIndex < 0) {
 	ERROR1("atom ID %d not yet encountered", atomID);
 	p->parseError(p->stream);
+        return NULL;
     }
     return p->atoms[atomIndex];
 }
@@ -1466,6 +1470,7 @@ makeAtom(struct part *p, int externalID, int elementType, struct xyz position)
     if (externalID < 0) {
 	ERROR1("atom ID %d must be >= 0", externalID);
 	p->parseError(p->stream);
+        return;        
     }
     if (externalID > p->max_atom_id) {
 	p->max_atom_id = externalID;
@@ -1475,6 +1480,7 @@ makeAtom(struct part *p, int externalID, int elementType, struct xyz position)
     if (p->atom_id_to_index_plus_one[externalID]) {
 	ERROR2("atom ID %d already defined with index %d", externalID, p->atom_id_to_index_plus_one[externalID] - 1);
 	p->parseError(p->stream);
+        return;
     }
     p->atom_id_to_index_plus_one[externalID] = ++(p->num_atoms);
     
@@ -1483,6 +1489,7 @@ makeAtom(struct part *p, int externalID, int elementType, struct xyz position)
     p->velocities = (struct xyz *)accumulator(p->velocities, sizeof(struct xyz) * p->num_atoms, 0);
     
     a = (struct atom *)allocate(sizeof(struct atom));
+    memset(a, 0, sizeof(struct atom));
     p->atoms[p->num_atoms - 1] = a;
     a->index = p->num_atoms - 1;
     a->atomID = externalID;
@@ -1493,18 +1500,11 @@ makeAtom(struct part *p, int externalID, int elementType, struct xyz position)
     if (!isAtomTypeValid(elementType)) {
 	ERROR1("Invalid element type: %d", elementType);
 	p->parseError(p->stream);
+        return;
     }
     a->type = getAtomTypeByIndex(elementType);
-    
-    a->isGrounded = 0;
-    a->num_bonds = 0;
-    a->bonds = NULL;
-    a->vdwBucketIndexX = 0;
-    a->vdwBucketIndexY = 0;
-    a->vdwBucketIndexZ = 0;
     a->vdwBucketInvalid = 1;
-    a->vdwPrev = NULL;
-    a->vdwNext = NULL;
+
     vdwRadius = a->type->vanDerWaalsRadius * 100.0; // convert from angstroms to pm
     if (vdwRadius > p->maxVanDerWaalsRadius) {
         p->maxVanDerWaalsRadius = vdwRadius;
@@ -1533,6 +1533,7 @@ setAtomHybridization(struct part *p, int atomID, enum hybridization h)
     if (atomID < 0 || atomID > p->max_atom_id || p->atom_id_to_index_plus_one[atomID] < 1) {
 	ERROR1("setAtomHybridization: atom ID %d not seen yet", atomID);
 	p->parseError(p->stream);
+        return;
     }
     a = p->atoms[p->atom_id_to_index_plus_one[atomID] - 1];
     a->hybridization = h;
@@ -1556,8 +1557,8 @@ makeBond(struct part *p, int atomID1, int atomID2, char order)
     p->bonds = (struct bond **)accumulator(p->bonds, sizeof(struct bond *) * p->num_bonds, 0);
     b = (struct bond *)allocate(sizeof(struct bond));
     p->bonds[p->num_bonds - 1] = b;
-    b->a1 = translateAtomID(p, atomID1);
-    b->a2 = translateAtomID(p, atomID2);
+    b->a1 = translateAtomID(p, atomID1); BAIL();
+    b->a2 = translateAtomID(p, atomID2); BAIL();
     CHECK_VALID_BOND(b);
     // XXX should we reject unknown bond orders here?
     b->order = order;
@@ -1576,8 +1577,8 @@ makeVanDerWaals(struct part *p, int atomID1, int atomID2)
     p->vanDerWaals = (struct vanDerWaals **)accumulator(p->vanDerWaals, sizeof(struct vanDerWaals *) * p->num_static_vanDerWaals, 0);
     v = (struct vanDerWaals *)allocate(sizeof(struct vanDerWaals));
     p->vanDerWaals[p->num_static_vanDerWaals - 1] = v;
-    v->a1 = translateAtomID(p, atomID1);
-    v->a2 = translateAtomID(p, atomID2);
+    v->a1 = translateAtomID(p, atomID1); BAIL();
+    v->a2 = translateAtomID(p, atomID2); BAIL();
     CHECK_VALID_BOND(v);
     v->parameters = getVanDerWaalsTable(v->a1->type->protons, v->a2->type->protons);
 }
@@ -1660,6 +1661,7 @@ makeRigidBody(struct part *p, char *name, double mass, double *inertiaTensor, st
     if (findRigidBodyByName(p, name) >= 0) {
         ERROR1("duplicate rigidBody declaration: %s", name);
         p->parseError(p->stream);
+        return;
     }
     
     p->num_rigidBodies++;
@@ -1695,12 +1697,14 @@ makeStationPoint(struct part *p, char *bodyName, char *stationName, struct xyz p
     if (i < 0) {
         ERROR1("rigidBody named (%s) not found", bodyName);
         p->parseError(p->stream);
+        return;
     }
     
     rb = &p->rigidBodies[i];
     if (findStationPointByName(p, i, stationName) >= 0) {
         ERROR2("duplicate stationName: %s on rigidBody: %s", stationName, bodyName);
         p->parseError(p->stream);
+        return;
     }
     
     rb->num_stations++;
@@ -1721,12 +1725,14 @@ makeBodyAxis(struct part *p, char *bodyName, char *axisName, struct xyz orientat
     if (i < 0) {
         ERROR1("rigidBody named (%s) not found", bodyName);
         p->parseError(p->stream);
+        return;
     }
     
     rb = &p->rigidBodies[i];
     if (findAxisByName(p, i, axisName) >= 0) {
         ERROR2("duplicate axisName: %s on rigidBody: %s", axisName, bodyName);
         p->parseError(p->stream);
+        return;
     }
     
     rb->num_axes++;
@@ -1748,18 +1754,20 @@ makeAtomAttachments(struct part *p, char *bodyName, int atomListLength, int *ato
     if (i < 0) {
         ERROR1("rigidBody named (%s) not found", bodyName);
         p->parseError(p->stream);
+        return;
     }
     
     rb = &p->rigidBodies[i];
     if (rb->num_attachments != 0) {
         ERROR1("more than one attachAtoms for body %s", bodyName);
         p->parseError(p->stream);
+        return;
     }
     rb->num_attachments = atomListLength;
     rb->attachmentLocations = (struct xyz *)allocate(atomListLength * sizeof(struct xyz));
     rb->attachmentAtomIndices = (int *)allocate(atomListLength * sizeof(int));
     for (j=0; j<atomListLength; j++) {
-	a = translateAtomID(p, atomList[j]);
+	a = translateAtomID(p, atomList[j]); BAIL();
         vsetc(rb->attachmentLocations[j], 0.0);
         rb->attachmentAtomIndices[j] = a->index;
     }
@@ -1791,6 +1799,7 @@ requireRigidBody(struct part *p, char *name)
     if (i < 0) {
         ERROR1("no rigid body named %s", name);
         p->parseError(p->stream);
+        return 0;
     }
     return i;
 }
@@ -1804,11 +1813,13 @@ requireStationPoint(struct part *p, char *bodyName, char *stationName)
     if (i < 0) {
         ERROR1("no rigid body named %s", bodyName);
         p->parseError(p->stream);
+        return 0;
     }
     j = findStationPointByName(p, i, stationName);
     if (j < 0) {
         ERROR2("no station named %s in rigid body %s", stationName, bodyName);
         p->parseError(p->stream);
+        return 0;
     }
     return j;
 }
@@ -1822,11 +1833,13 @@ requireAxis(struct part *p, char *bodyName, char *axisName)
     if (i < 0) {
         ERROR1("no rigid body named %s", bodyName);
         p->parseError(p->stream);
+        return 0;
     }
     j = findAxisByName(p, i, axisName);
     if (j < 0) {
         ERROR2("no axis named %s in rigid body %s", axisName, bodyName);
         p->parseError(p->stream);
+        return 0;
     }
     return j;
 }
@@ -1837,10 +1850,10 @@ makeBallJoint(struct part *p, char *bodyName1, char *stationName1, char *bodyNam
     struct joint *j = newJoint(p);
 
     j->type = JointBall;
-    j->rigidBody1 = requireRigidBody(p, bodyName1);
-    j->station1_1 = requireStationPoint(p, bodyName1, stationName1);
-    j->rigidBody2 = requireRigidBody(p, bodyName2);
-    j->station2_1 = requireStationPoint(p, bodyName2, stationName2);
+    j->rigidBody1 = requireRigidBody(p, bodyName1); BAIL();
+    j->station1_1 = requireStationPoint(p, bodyName1, stationName1); BAIL();
+    j->rigidBody2 = requireRigidBody(p, bodyName2); BAIL();
+    j->station2_1 = requireStationPoint(p, bodyName2, stationName2); BAIL();
 }
 
 void
@@ -1849,12 +1862,12 @@ makeHingeJoint(struct part *p, char *bodyName1, char *stationName1, char *axisNa
     struct joint *j = newJoint(p);
 
     j->type = JointHinge;
-    j->rigidBody1 = requireRigidBody(p, bodyName1);
-    j->station1_1 = requireStationPoint(p, bodyName1, stationName1);
-    j->axis1_1 = requireAxis(p, bodyName1, axisName1);
-    j->rigidBody2 = requireRigidBody(p, bodyName2);
-    j->station2_1 = requireStationPoint(p, bodyName2, stationName2);
-    j->axis2_1 = requireAxis(p, bodyName2, axisName2);
+    j->rigidBody1 = requireRigidBody(p, bodyName1); BAIL();
+    j->station1_1 = requireStationPoint(p, bodyName1, stationName1); BAIL();
+    j->axis1_1 = requireAxis(p, bodyName1, axisName1); BAIL();
+    j->rigidBody2 = requireRigidBody(p, bodyName2); BAIL();
+    j->station2_1 = requireStationPoint(p, bodyName2, stationName2); BAIL();
+    j->axis2_1 = requireAxis(p, bodyName2, axisName2); BAIL();
 }
 
 void
@@ -1863,10 +1876,10 @@ makeSliderJoint(struct part *p, char *bodyName1, char *axisName1, char *bodyName
     struct joint *j = newJoint(p);
 
     j->type = JointSlider;
-    j->rigidBody1 = requireRigidBody(p, bodyName1);
-    j->axis1_1 = requireAxis(p, bodyName1, axisName1);
-    j->rigidBody2 = requireRigidBody(p, bodyName2);
-    j->axis2_1 = requireAxis(p, bodyName2, axisName2);
+    j->rigidBody1 = requireRigidBody(p, bodyName1); BAIL();
+    j->axis1_1 = requireAxis(p, bodyName1, axisName1); BAIL();
+    j->rigidBody2 = requireRigidBody(p, bodyName2); BAIL();
+    j->axis2_1 = requireAxis(p, bodyName2, axisName2); BAIL();
 }
 
 
@@ -1903,7 +1916,7 @@ jigAtomList(struct part *p, struct jig *j, int atomListLength, int *atomList)
     j->atoms = (struct atom **)allocate(sizeof(struct atom *) * atomListLength);
     j->num_atoms = atomListLength;
     for (i=0; i<atomListLength; i++) {
-	j->atoms[i] = translateAtomID(p, atomList[i]);
+	j->atoms[i] = translateAtomID(p, atomList[i]); BAIL();
     }
 }
 
@@ -1920,7 +1933,7 @@ jigAtomRange(struct part *p, struct jig *j, int firstID, int lastID)
     j->atoms = (struct atom **)allocate(sizeof(struct atom *) * len);
     j->num_atoms = len;
     for (i=0, id=firstID; id<=lastID; i++, id++) {
-	j->atoms[i] = translateAtomID(p, id);
+	j->atoms[i] = translateAtomID(p, id); BAIL();
     }
 }
 
@@ -1934,7 +1947,7 @@ makeGround(struct part *p, char *name, int atomListLength, int *atomList)
     
     j->type = Ground;
     j->name = name;
-    jigAtomList(p, j, atomListLength, atomList);
+    jigAtomList(p, j, atomListLength, atomList); BAIL();
     for (i=0; i<atomListLength; i++) {
 	j->atoms[i]->isGrounded = 1;
         // The following lines test energy conservation of systems
@@ -1977,10 +1990,10 @@ makeDihedralMeter(struct part *p, char *name, int atomID1, int atomID2, int atom
     j->name = name;
     j->atoms = (struct atom **)allocate(sizeof(struct atom *) * 4);
     j->num_atoms = 4;
-    j->atoms[0] = translateAtomID(p, atomID1);
-    j->atoms[1] = translateAtomID(p, atomID2);
-    j->atoms[2] = translateAtomID(p, atomID3);
-    j->atoms[3] = translateAtomID(p, atomID4);
+    j->atoms[0] = translateAtomID(p, atomID1); BAIL();
+    j->atoms[1] = translateAtomID(p, atomID2); BAIL();
+    j->atoms[2] = translateAtomID(p, atomID3); BAIL();
+    j->atoms[3] = translateAtomID(p, atomID4); BAIL();
 }
 
 // Create an angle meter jig in this part, given the jig name, and the
@@ -1995,9 +2008,9 @@ makeAngleMeter(struct part *p, char *name, int atomID1, int atomID2, int atomID3
     j->name = name;
     j->atoms = (struct atom **)allocate(sizeof(struct atom *) * 3);
     j->num_atoms = 3;
-    j->atoms[0] = translateAtomID(p, atomID1);
-    j->atoms[1] = translateAtomID(p, atomID2);
-    j->atoms[2] = translateAtomID(p, atomID3);
+    j->atoms[0] = translateAtomID(p, atomID1); BAIL();
+    j->atoms[1] = translateAtomID(p, atomID2); BAIL();
+    j->atoms[2] = translateAtomID(p, atomID3); BAIL();
 }
 
 // Create a radius jig in this part, given the jig name, and the two
@@ -2012,8 +2025,8 @@ makeRadiusMeter(struct part *p, char *name, int atomID1, int atomID2)
     j->name = name;
     j->atoms = (struct atom **)allocate(sizeof(struct atom *) * 2);
     j->num_atoms = 2;
-    j->atoms[0] = translateAtomID(p, atomID1);
-    j->atoms[1] = translateAtomID(p, atomID2);
+    j->atoms[0] = translateAtomID(p, atomID1); BAIL();
+    j->atoms[1] = translateAtomID(p, atomID2); BAIL();
 }
 
 // Create a thermostat jig in this part, given the name of the jig,
@@ -2077,7 +2090,7 @@ makeRotaryMotor(struct part *p, char *name,
     j->j.rmotor.center = *center;
     j->j.rmotor.axis = uvec(*axis);
     // axis now has a length of one
-    jigAtomList(p, j, atomListLength, atomList);
+    jigAtomList(p, j, atomListLength, atomList); BAILR(NULL);
     
     j->j.rmotor.u = (struct xyz *)allocate(sizeof(struct xyz) * atomListLength);
     j->j.rmotor.v = (struct xyz *)allocate(sizeof(struct xyz) * atomListLength);
@@ -2176,7 +2189,7 @@ makeLinearMotor(struct part *p, char *name,
     j->j.lmotor.force = force; // in pN
     j->j.lmotor.stiffness = stiffness; // in N/m
     j->j.lmotor.axis = uvec(*axis);
-    jigAtomList(p, j, atomListLength, atomList);
+    jigAtomList(p, j, atomListLength, atomList); BAIL();
     
     centerOfAtoms = vcon(0.0);
     for (i=0; i<atomListLength; i++) {

@@ -14,7 +14,7 @@ struct mmpStream
 };
 
 // should be preceded by a call to ERROR() giving details
-static void
+static int
 mmpParseError(void *stream)
 {
   // We cast from void * here so that the part routines can take a
@@ -23,7 +23,7 @@ mmpParseError(void *stream)
   
   ERROR3("In mmp file %s, line %d, col %d", mmp->fileName, mmp->lineNumber, mmp->charPosition);
   done("Failed to parse mmp file");
-  exit(1); // XXX should throw exception
+  RAISER("Failed to parse mmp file", 0);
 }
 
 
@@ -189,7 +189,7 @@ expectInt(struct mmpStream *mmp, int *value, int checkForNewline)
   tok = readToken(mmp, 1);
   if (value == NULL) {
     ERROR("internal error, value==NULL");
-    mmpParseError(mmp);
+    return mmpParseError(mmp);
   }
   if (tok != NULL) {
     if ((*tok == '\n' || *tok == '\r') && checkForNewline) {
@@ -197,29 +197,28 @@ expectInt(struct mmpStream *mmp, int *value, int checkForNewline)
     }
     if (*tok == '\0') {
       ERROR("expected int, got \\0");
-      mmpParseError(mmp);
+      return mmpParseError(mmp);
     }
     errno = 0;
     val = strtol(tok, &end, 0);
     if (errno != 0) {
       ERROR1("integer value out of range: %s", tok);
-      mmpParseError(mmp);
+      return mmpParseError(mmp);
     }
     if (*end != '\0') {
       ERROR1("expected int, got %s", tok);
-      mmpParseError(mmp);
+      return mmpParseError(mmp);
     }
     if (val > INT_MAX || val < INT_MIN) {
       ERROR1("integer value out of range: %s", tok);
-      mmpParseError(mmp);
+      return mmpParseError(mmp);
     }
     *value = val;
     consumeWhitespace(mmp);
     return 1;
   }
   ERROR("expected int, got EOF");
-  mmpParseError(mmp);
-  return 0; // not reached
+  return mmpParseError(mmp);
 }
 
 // Parse a double.  Returns 1 if value was successfully filled in
@@ -239,7 +238,7 @@ expectDouble(struct mmpStream *mmp, double *value, int checkForNewline)
   tok = readToken(mmp, 1);
   if (value == NULL) {
     ERROR("internal error, value==NULL");
-    mmpParseError(mmp);
+    return mmpParseError(mmp);
   }
   if (tok != NULL) {
     if ((*tok == '\n' || *tok == '\r') && checkForNewline) {
@@ -247,25 +246,24 @@ expectDouble(struct mmpStream *mmp, double *value, int checkForNewline)
     }
     if (*tok == '\0') {
       ERROR("expected double, got \\0");
-      mmpParseError(mmp);
+      return mmpParseError(mmp);
     }
     errno = 0;
     val = strtod(tok, &end);
     if (errno != 0) {
       ERROR1("double value out of range: %s", tok);
-      mmpParseError(mmp);
+      return mmpParseError(mmp);
     }
     if (*end != '\0') {
       ERROR1("expected double, got %s", tok);
-      mmpParseError(mmp);
+      return mmpParseError(mmp);
     }
     *value = val;
     consumeWhitespace(mmp);
     return 1;
   }
   ERROR("expected double, got EOF");
-  mmpParseError(mmp);
-  return 0; // not reached
+  return mmpParseError(mmp);
 }
 
 // Parses:
@@ -284,18 +282,18 @@ expectNDoubles(struct mmpStream *mmp, int n, double *p)
   double d;
 
   consumeWhitespace(mmp);
-  expectToken(mmp, "(");
+  expectToken(mmp, "("); BAIL();
   for (i=0; i<n; i++) {
-    expectDouble(mmp, &d, 0);
+    expectDouble(mmp, &d, 0); BAIL();
     if (i < n-1) {
-      expectToken(mmp, ",");
+      expectToken(mmp, ","); BAIL();
     }
     if (p != NULL) {
       p[i] = d;
     }
   }
   consumeWhitespace(mmp); // only needed if n==0
-  expectToken(mmp, ")");
+  expectToken(mmp, ")"); BAIL();
   consumeWhitespace(mmp);
 }
 
@@ -316,13 +314,13 @@ expectXYZInts(struct mmpStream *mmp, struct xyz *p)
   int z;
 
   consumeWhitespace(mmp);
-  expectToken(mmp, "(");
-  expectInt(mmp, &x, 0);
-  expectToken(mmp, ",");
-  expectInt(mmp, &y, 0);
-  expectToken(mmp, ",");
-  expectInt(mmp, &z, 0);
-  expectToken(mmp, ")");
+  expectToken(mmp, "("); BAIL();
+  expectInt(mmp, &x, 0); BAIL();
+  expectToken(mmp, ","); BAIL();
+  expectInt(mmp, &y, 0); BAIL();
+  expectToken(mmp, ","); BAIL();
+  expectInt(mmp, &z, 0); BAIL();
+  expectToken(mmp, ")"); BAIL();
   consumeWhitespace(mmp);
 
   if (p != NULL) {
@@ -352,7 +350,7 @@ expectName(struct mmpStream *mmp)
   int len;
   
   consumeWhitespace(mmp);
-  expectToken(mmp, "(");
+  expectToken(mmp, "("); BAILR("");
   len = 0;
   tempBuffer = accumulator(tempBuffer, len + 1, 0);
   buf = (char *)tempBuffer;
@@ -368,6 +366,7 @@ expectName(struct mmpStream *mmp)
     if (*tok == '\n' || *tok == '\r') {
       ERROR("reading name, expected ), got newline");
       mmpParseError(mmp);
+      return "";
     }
     len += strlen(tok);
     tempBuffer = accumulator(tempBuffer, len + 1, 0);
@@ -376,7 +375,7 @@ expectName(struct mmpStream *mmp)
   }
   ERROR("reading name, expected ), got EOF");
   mmpParseError(mmp);
-  return ""; // not reached
+  return "";
 }
 
 // Parses a list of integers terminated by a newline.  An arbitrary
@@ -403,17 +402,22 @@ expectIntList(struct mmpStream *mmp, int **listPtr, int *length, int expectedLen
     buf = (int *)tempBuffer;
     buf[index++] = listElement;
   }
+  BAIL();
   if (index == 0) {
     ERROR("zero length list of atoms");
     mmpParseError(mmp);
+    return;
   }
   if (expectedLength != 0 && expectedLength != index) {
     ERROR2("expected exactly %d atoms, got %d", expectedLength, index);
     mmpParseError(mmp);
+    return;
   }
   *length = index;
   *listPtr = buf;
 }
+
+#define BAILP() if (EXCEPTION) { destroyPart(p); return NULL; }
 
 // Note that this must be called AFTER simulation parameters (like Dt)
 // have been set.  makeAtom() uses Dt to set inverseMass for each
@@ -465,6 +469,7 @@ readMMP(char *filename)
     mmp->lineNumber = 0;
     mmp->charPosition = 0;
     mmpParseError(mmp);
+    return NULL;
   }
 
   p = makePart(filename, &mmpParseError, mmp);
@@ -475,18 +480,18 @@ readMMP(char *filename)
     // Identifies a new atom with the given element type and position.
     // Position vectors are integers with units of 0.1pm.
     if (!strcmp(tok, "atom")) {
-      expectInt(mmp, &atomID, 0);
-      expectToken(mmp, "(");
-      expectInt(mmp, &elementType, 0);
-      expectToken(mmp, ")");
-      expectXYZInts(mmp, &position);
+      expectInt(mmp, &atomID, 0); BAILP();
+      expectToken(mmp, "("); BAILP();
+      expectInt(mmp, &elementType, 0); BAILP();
+      expectToken(mmp, ")"); BAILP();
+      expectXYZInts(mmp, &position); BAILP();
       consumeRestOfLine(mmp);
           
       // hack: change singlets to hydrogen
       // if (elementType == 0) elementType=1;
       previousAtomID = atomID;
 			
-      makeAtom(p, atomID, elementType, position);
+      makeAtom(p, atomID, elementType, position); BAILP();
     }
 
     // after an atom:
@@ -503,7 +508,7 @@ readMMP(char *filename)
           enum hybridization hybridization = sp3;
           
           consumeWhitespace(mmp);
-          expectToken(mmp, "=");
+          expectToken(mmp, "="); BAILP();
           consumeWhitespace(mmp);
           tok = readToken(mmp, 0);
 
@@ -520,41 +525,44 @@ readMMP(char *filename)
           } else {
             ERROR1("unknown hybridization: %s", tok);
             mmpParseError(mmp);
+            BAILP();
           }
 
           consumeRestOfLine(mmp);
 
-          setAtomHybridization(p, previousAtomID, hybridization);
+          setAtomHybridization(p, previousAtomID, hybridization); BAILP();
         }
       } else if (!strcmp(tok, "leaf")) {
         consumeWhitespace(mmp);
         tok = readToken(mmp, 0);
         if (!strcmp(tok, "initial_speed")) {
           consumeWhitespace(mmp);
-          expectToken(mmp, "=");
-          expectDouble(mmp, &initialSpeed, 0);
+          expectToken(mmp, "="); BAILP();
+          expectDouble(mmp, &initialSpeed, 0); BAILP();
           consumeRestOfLine(mmp);
 
           if (previousRotaryMotor == NULL) {
             ERROR("setting initial_speed without previous rotary motor");
             mmpParseError(mmp);
+            BAILP();
           }
           setInitialSpeed(previousRotaryMotor, initialSpeed);
         } else if (!strcmp(tok, "damping_coefficient")) {
           consumeWhitespace(mmp);
-          expectToken(mmp, "=");
-          expectDouble(mmp, &dampingCoefficient, 0);
+          expectToken(mmp, "="); BAILP();
+          expectDouble(mmp, &dampingCoefficient, 0); BAILP();
           consumeRestOfLine(mmp);
 
           if (previousRotaryMotor == NULL) {
             ERROR("setting damping_coefficient without previous rotary motor");
             mmpParseError(mmp);
+            BAILP();
           }
           setDampingCoefficient(previousRotaryMotor, dampingCoefficient);
         } else if (!strcmp(tok, "dampers_enabled")) {
           // info leaf dampers_enabled = False
           consumeWhitespace(mmp);
-          expectToken(mmp, "=");
+          expectToken(mmp, "="); BAILP();
           consumeWhitespace(mmp);
           tok = readToken(mmp, 0);
           dampingEnabled = strcmp(tok, "False") ? 1 : 0;
@@ -563,6 +571,7 @@ readMMP(char *filename)
           if (previousRotaryMotor == NULL) {
             ERROR("setting dampers_enabled without previous rotary motor");
             mmpParseError(mmp);
+            BAILP();
           }
           setDampingEnabled(previousRotaryMotor, dampingEnabled);
         }
@@ -577,7 +586,7 @@ readMMP(char *filename)
       // XXX should we accept zero length bond list?
       // XXX should we reject unknown bond orders?
       while (expectInt(mmp, &atomID, 1)) {
-        makeBond(p, previousAtomID, atomID, bondOrder);
+        makeBond(p, previousAtomID, atomID, bondOrder); BAILP();
       }
     }
 		
@@ -587,7 +596,7 @@ readMMP(char *filename)
     else if (!strcmp(tok, "waals")) {
       // XXX should we accept zero length vdw list?
       while (expectInt(mmp, &atomID, 1)) {
-        makeVanDerWaals(p, previousAtomID, atomID);
+        makeVanDerWaals(p, previousAtomID, atomID); BAILP();
       }
     }
 		
@@ -595,71 +604,71 @@ readMMP(char *filename)
     // accept "anchor" as synonym for "ground" wware 051213
     else if (!strcmp(tok, "ground") ||
 	     !strcmp(tok, "anchor")) {
-      name = expectName(mmp);
-      expectXYZInts(mmp, NULL); // ignore (rgb) triplet
-      expectIntList(mmp, &atomList, &atomListLength, 0);
-      makeGround(p, name, atomListLength, atomList);
+      name = expectName(mmp); BAILP();
+      expectXYZInts(mmp, NULL); BAILP(); // ignore (rgb) triplet
+      expectIntList(mmp, &atomList, &atomListLength, 0); BAILP();
+      makeGround(p, name, atomListLength, atomList); BAILP();
     }
 	
     // thermo (name) (r, g, b) <atom1> <atom2>
     // thermometer for atoms in range [atom1..atom2]
     else if (!strcmp(tok, "thermo")) {
-      name = expectName(mmp);
-      expectXYZInts(mmp, NULL); // ignore (rgb) triplet
-      expectIntList(mmp, &atomList, &atomListLength, 3); // only interested in first two
-      makeThermometer(p, name, atomList[0], atomList[1]);
+      name = expectName(mmp); BAILP();
+      expectXYZInts(mmp, NULL); BAILP(); // ignore (rgb) triplet
+      expectIntList(mmp, &atomList, &atomListLength, 3); BAILP(); // only interested in first two
+      makeThermometer(p, name, atomList[0], atomList[1]); BAILP();
     }
 
     // mdihedral (name) (Fontname) <fontsize> <atom1> <atom2> <atom3> <atom4>
     // dihedral meter
     else if (!strcmp(tok, "mdihedral")) {
-      name = expectName(mmp);
-      junk = expectName(mmp); // center of jig
-      fontname = expectName(mmp);
+      name = expectName(mmp); BAILP();
+      junk = expectName(mmp); BAILP(); // center of jig
+      fontname = expectName(mmp); BAILP();
       free(junk);
       free(fontname);
-      expectInt(mmp, &fontsize, 0);
-      expectIntList(mmp, &atomList, &atomListLength, 4);
+      expectInt(mmp, &fontsize, 0); BAILP();
+      expectIntList(mmp, &atomList, &atomListLength, 4); BAILP();
       makeDihedralMeter(p, name, atomList[0], atomList[1],
-			atomList[2], atomList[3]);
+			atomList[2], atomList[3]); BAILP();
     }
 
     // mangle (name) (Fontname) <fontsize> <atom1> <atom2> <atom3>
     // angle meter
     else if (!strcmp(tok, "mangle")) {
-      name = expectName(mmp);
-      junk = expectName(mmp); // center of jig
-      fontname = expectName(mmp);
+      name = expectName(mmp); BAILP();
+      junk = expectName(mmp); BAILP(); // center of jig
+      fontname = expectName(mmp); BAILP();
       free(junk);
       free(fontname);
-      expectInt(mmp, &fontsize, 0);
-      expectIntList(mmp, &atomList, &atomListLength, 3);
-      makeAngleMeter(p, name, atomList[0], atomList[1], atomList[2]);
+      expectInt(mmp, &fontsize, 0); BAILP();
+      expectIntList(mmp, &atomList, &atomListLength, 3); BAILP();
+      makeAngleMeter(p, name, atomList[0], atomList[1], atomList[2]); BAILP();
     }
 
     // mdistance (name) (Fontname) <fontsize> <atom1> <atom2>
     // radius meter
     else if (!strcmp(tok, "mdistance")) {
-      name = expectName(mmp);
-      junk = expectName(mmp); // center of jig
-      fontname = expectName(mmp);
+      name = expectName(mmp); BAILP();
+      junk = expectName(mmp); BAILP(); // center of jig
+      fontname = expectName(mmp); BAILP();
       free(junk);
       free(fontname);
-      expectInt(mmp, &fontsize, 0);
-      expectIntList(mmp, &atomList, &atomListLength, 2);
-      makeRadiusMeter(p, name, atomList[0], atomList[1]);
+      expectInt(mmp, &fontsize, 0); BAILP();
+      expectIntList(mmp, &atomList, &atomListLength, 2); BAILP();
+      makeRadiusMeter(p, name, atomList[0], atomList[1]); BAILP();
     }
 
     // stat (name) (r, g, b) (temp) <atom1> <atom2>
     // Langevin thermostat for atoms in range [atom1..atom2]
     else if (!strcmp(tok, "stat")) {
-      name = expectName(mmp);
-      expectXYZInts(mmp, NULL); // ignore (rgb) triplet
-      expectToken(mmp, "(");
-      expectDouble(mmp, &temperature, 0);
-      expectToken(mmp, ")");
-      expectIntList(mmp, &atomList, &atomListLength, 3); // only interested in first two
-      makeThermostat(p, name, temperature, atomList[0], atomList[1]);
+      name = expectName(mmp); BAILP();
+      expectXYZInts(mmp, NULL); BAILP(); // ignore (rgb) triplet
+      expectToken(mmp, "("); BAILP();
+      expectDouble(mmp, &temperature, 0); BAILP();
+      expectToken(mmp, ")"); BAILP();
+      expectIntList(mmp, &atomList, &atomListLength, 3); BAILP(); // only interested in first two
+      makeThermostat(p, name, temperature, atomList[0], atomList[1]); BAILP();
     }
 
     // rmotor (name) (r,g,b) <torque> <speed> (<center>) (<axis>)
@@ -668,16 +677,16 @@ readMMP(char *filename)
     // stall torque in nN*nm
     // speed in gigahertz
     else if (!strcmp(tok, "rmotor")) {
-      name = expectName(mmp);
-      expectXYZInts(mmp, NULL); // ignore (rgb) triplet
-      expectDouble(mmp, &stall, 0);
-      expectDouble(mmp, &speed, 0);
-      expectXYZInts(mmp, &center);
-      expectXYZInts(mmp, &axis);
+      name = expectName(mmp); BAILP();
+      expectXYZInts(mmp, NULL); BAILP(); // ignore (rgb) triplet
+      expectDouble(mmp, &stall, 0); BAILP();
+      expectDouble(mmp, &speed, 0); BAILP();
+      expectXYZInts(mmp, &center); BAILP();
+      expectXYZInts(mmp, &axis); BAILP();
       consumeRestOfLine(mmp);
-      expectToken(mmp, "shaft");
-      expectIntList(mmp, &atomList, &atomListLength, 0);
-      previousRotaryMotor = makeRotaryMotor(p, name, stall, speed, &center, &axis, atomListLength, atomList);
+      expectToken(mmp, "shaft"); BAILP();
+      expectIntList(mmp, &atomList, &atomListLength, 0); BAILP();
+      previousRotaryMotor = makeRotaryMotor(p, name, stall, speed, &center, &axis, atomListLength, atomList); BAILP();
     }
 
     /* lmotor (name) (r,g,b) <force> <stiff> (<center>) (<axis>) */
@@ -686,16 +695,16 @@ readMMP(char *filename)
     // force in pN
     // stiffness in N/m
     else if (0==strcmp(tok, "lmotor")) {
-      name = expectName(mmp);
-      expectXYZInts(mmp, NULL); // ignore (rgb) triplet
-      expectDouble(mmp, &force, 0);
-      expectDouble(mmp, &stiffness, 0);
-      expectXYZInts(mmp, &center);
-      expectXYZInts(mmp, &axis);
+      name = expectName(mmp); BAILP();
+      expectXYZInts(mmp, NULL); BAILP(); // ignore (rgb) triplet
+      expectDouble(mmp, &force, 0); BAILP();
+      expectDouble(mmp, &stiffness, 0); BAILP();
+      expectXYZInts(mmp, &center); BAILP();
+      expectXYZInts(mmp, &axis); BAILP();
       consumeRestOfLine(mmp);
-      expectToken(mmp, "shaft");
-      expectIntList(mmp, &atomList, &atomListLength, 0);
-      makeLinearMotor(p, name, force, stiffness, &center, &axis, atomListLength, atomList);
+      expectToken(mmp, "shaft"); BAILP();
+      expectIntList(mmp, &atomList, &atomListLength, 0); BAILP();
+      makeLinearMotor(p, name, force, stiffness, &center, &axis, atomListLength, atomList); BAILP();
     }
 		
     else if (!strcmp(tok, "end")) {
@@ -705,42 +714,42 @@ readMMP(char *filename)
 
     // rigidBody (bodyName) (<position 3vector>) (<orientation quaternion>) <mass> (<inertia matrix 6 elements>)
     else if (0==strcmp(tok, "rigidBody")) {
-      bodyName1 = expectName(mmp);
-      expectXYZInts(mmp, &center); // position
-      expectNDoubles(mmp, 4, quat); // quaternion, orientation
+      bodyName1 = expectName(mmp); BAILP();
+      expectXYZInts(mmp, &center); BAILP(); // position
+      expectNDoubles(mmp, 4, quat); BAILP(); // quaternion, orientation
       orientation.x = quat[0];
       orientation.y = quat[1];
       orientation.z = quat[2];
       orientation.a = quat[3];
-      expectDouble(mmp, &mass, 0);
-      expectNDoubles(mmp, 6, inertiaTensor); // inertia matrix
+      expectDouble(mmp, &mass, 0); BAILP();
+      expectNDoubles(mmp, 6, inertiaTensor); BAILP(); // inertia matrix
       consumeRestOfLine(mmp);
-      makeRigidBody(p, bodyName1, mass, inertiaTensor, center, orientation);
+      makeRigidBody(p, bodyName1, mass, inertiaTensor, center, orientation); BAILP();
     }
 
     // stationPoint (bodyName) (stationName) (<position 3vector>)
     else if (0==strcmp(tok, "stationPoint")) {
-      bodyName1 = expectName(mmp);
-      stationName1 = expectName(mmp);
-      expectXYZInts(mmp, &center);
-      makeStationPoint(p, bodyName1, stationName1, center);
+      bodyName1 = expectName(mmp); BAILP();
+      stationName1 = expectName(mmp); BAILP();
+      expectXYZInts(mmp, &center); BAILP();
+      makeStationPoint(p, bodyName1, stationName1, center); BAILP();
       free(bodyName1);
     }
 
     // bodyAxis (bodyName) (axisName) (<axis 3vector>)
     else if (0==strcmp(tok, "bodyAxis")) {
-      bodyName1 = expectName(mmp);
-      axisName1 = expectName(mmp);
-      expectXYZInts(mmp, &center);
-      makeBodyAxis(p, bodyName1, axisName1, center);
+      bodyName1 = expectName(mmp); BAILP();
+      axisName1 = expectName(mmp); BAILP();
+      expectXYZInts(mmp, &center); BAILP();
+      makeBodyAxis(p, bodyName1, axisName1, center); BAILP();
       free(bodyName1);
     }
 
     // attachAtoms (bodyName) atomset...
     else if (0==strcmp(tok, "attachAtoms")) {
-      bodyName1 = expectName(mmp);
-      expectIntList(mmp, &atomList, &atomListLength, 0);
-      makeAtomAttachments(p, bodyName1, atomListLength, atomList);
+      bodyName1 = expectName(mmp); BAILP();
+      expectIntList(mmp, &atomList, &atomListLength, 0); BAILP();
+      makeAtomAttachments(p, bodyName1, atomListLength, atomList); BAILP();
       free(bodyName1);
     }
     
@@ -749,12 +758,12 @@ readMMP(char *filename)
       tok = readToken(mmp, 0);
       // joint Ball (bodyName1) (stationName1) (bodyName2) (stationName2)
       if (0==strcmp(tok, "Ball")) {
-        bodyName1 = expectName(mmp);
-        stationName1 = expectName(mmp);
-        bodyName2 = expectName(mmp);
-        stationName2 = expectName(mmp);
+        bodyName1 = expectName(mmp); BAILP();
+        stationName1 = expectName(mmp); BAILP();
+        bodyName2 = expectName(mmp); BAILP();
+        stationName2 = expectName(mmp); BAILP();
         consumeRestOfLine(mmp);
-        makeBallJoint(p, bodyName1, stationName1, bodyName2, stationName2);
+        makeBallJoint(p, bodyName1, stationName1, bodyName2, stationName2); BAILP();
         free(bodyName1);
         free(stationName1);
         free(bodyName2);
@@ -762,14 +771,14 @@ readMMP(char *filename)
       }
       // joint Hinge (bodyName1) (stationName1) (axisName1) (bodyName2) (stationName2) (axisName2)
       else if (0==strcmp(tok, "Hinge")) {
-        bodyName1 = expectName(mmp);
-        stationName1 = expectName(mmp);
-        axisName1 = expectName(mmp);
-        bodyName2 = expectName(mmp);
-        stationName2 = expectName(mmp);
-        axisName2 = expectName(mmp);
+        bodyName1 = expectName(mmp); BAILP();
+        stationName1 = expectName(mmp); BAILP();
+        axisName1 = expectName(mmp); BAILP();
+        bodyName2 = expectName(mmp); BAILP();
+        stationName2 = expectName(mmp); BAILP();
+        axisName2 = expectName(mmp); BAILP();
         consumeRestOfLine(mmp);
-        makeHingeJoint(p, bodyName1, stationName1, axisName1, bodyName2, stationName2, axisName2);
+        makeHingeJoint(p, bodyName1, stationName1, axisName1, bodyName2, stationName2, axisName2); BAILP();
         free(bodyName1);
         free(stationName1);
         free(axisName1);
@@ -779,12 +788,12 @@ readMMP(char *filename)
       }
       // joint Slider (bodyName1) (axisName1) (bodyName2) (axisName2)
       else if (0==strcmp(tok, "Slider")) {
-        bodyName1 = expectName(mmp);
-        axisName1 = expectName(mmp);
-        bodyName2 = expectName(mmp);
-        axisName2 = expectName(mmp);
+        bodyName1 = expectName(mmp); BAILP();
+        axisName1 = expectName(mmp); BAILP();
+        bodyName2 = expectName(mmp); BAILP();
+        axisName2 = expectName(mmp); BAILP();
         consumeRestOfLine(mmp);
-        makeSliderJoint(p, bodyName1, axisName1, bodyName2, axisName2);
+        makeSliderJoint(p, bodyName1, axisName1, bodyName2, axisName2); BAILP();
         free(bodyName1);
         free(axisName1);
         free(bodyName2);
@@ -794,6 +803,7 @@ readMMP(char *filename)
       else {
         ERROR1("Unrecognized joint type: %s", tok);
         mmpParseError(mmp);
+        BAILP();
       }
     }
     
@@ -802,42 +812,42 @@ readMMP(char *filename)
     // bearing 
     /* bearing (name) (r,g,b) (<center>) (<axis>) */
     else if (0==strcasecmp(tok, "bearing")) {
-      name = expectName(mmp);
-      expectXYZInts(mmp, NULL); // ignore (rgb) triplet
-      expectXYZInts(mmp, &center);
-      expectXYZInts(mmp, &axis);
+      name = expectName(mmp); BAILP();
+      expectXYZInts(mmp, NULL); BAILP(); // ignore (rgb) triplet
+      expectXYZInts(mmp, &center); BAILP();
+      expectXYZInts(mmp, &axis); BAILP();
       consumeRestOfLine(mmp);
-      expectToken(mmp, "shaft");
-      expectIntList(mmp, &atomList, &atomListLength, 0);
-      makeBearing(p, name, &center, &axis, atomListLength, atomList);
+      expectToken(mmp, "shaft"); BAILP();
+      expectIntList(mmp, &atomList, &atomListLength, 0); BAILP();
+      makeBearing(p, name, &center, &axis, atomListLength, atomList); BAILP();
     }
 		
     // spring
     /* spring <stiffness>, (<center1>) (<center2>) */
     else if (0==strcasecmp(tok, "spring")) {
-      name = expectName(mmp);
-      expectXYZInts(mmp, NULL); // ignore (rgb) triplet
-      expectInt(mmp, &stiffness, 0);
-      expectXYZInts(mmp, &position);
-      expectXYZInts(mmp, &position2);
+      name = expectName(mmp); BAILP();
+      expectXYZInts(mmp, NULL); BAILP(); // ignore (rgb) triplet
+      expectInt(mmp, &stiffness, 0); BAILP();
+      expectXYZInts(mmp, &position); BAILP();
+      expectXYZInts(mmp, &position2); BAILP();
       consumeRestOfLine(mmp);
-      expectToken(mmp, "shaft");
-      expectIntList(mmp, &atomList, &atomListLength, 0);
-      makeSpring(p, name, stiffness, &position, &position2, atomListLength, atomList);
+      expectToken(mmp, "shaft"); BAILP();
+      expectIntList(mmp, &atomList, &atomListLength, 0); BAILP();
+      makeSpring(p, name, stiffness, &position, &position2, atomListLength, atomList); BAILP();
     }
 		
     // slider
     /* slider (<center>) (<axis>) */
     /* torque in nN*nm  speed in gigahertz */
     else if (0==strcasecmp(tok, "slider")) {
-      name = expectName(mmp);
-      expectXYZInts(mmp, NULL); // ignore (rgb) triplet
-      expectXYZInts(mmp, &center);
-      expectXYZInts(mmp, &axis);
+      name = expectName(mmp); BAILP();
+      expectXYZInts(mmp, NULL); BAILP(); // ignore (rgb) triplet
+      expectXYZInts(mmp, &center); BAILP();
+      expectXYZInts(mmp, &axis); BAILP();
       consumeRestOfLine(mmp);
-      expectToken(mmp, "shaft");
-      expectIntList(mmp, &atomList, &atomListLength, 0);
-      makeSlider(p, name, &center, &axis, atomListLength, atomList);
+      expectToken(mmp, "shaft"); BAILP();
+      expectIntList(mmp, &atomList, &atomListLength, 0); BAILP();
+      makeSlider(p, name, &center, &axis, atomListLength, atomList); BAILP();
     }
     
     // kelvin <temperature>

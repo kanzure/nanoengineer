@@ -286,7 +286,7 @@ struct part
     char *filename;
     
     // Function to call to signal an error while loading
-    void (*parseError)(void *);
+    int (*parseError)(void *);
     
     // Argument for parseError call
     void *stream;
@@ -356,7 +356,7 @@ struct part
     struct atom *vdwHash[GRID_SIZE][GRID_SIZE][GRID_SIZE];
 };
 
-extern struct part *makePart(char *filename, void (*parseError)(void *), void *stream);
+extern struct part *makePart(char *filename, int (*parseError)(void *), void *stream);
 
 extern void destroyPart(struct part *p);
 

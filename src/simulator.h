@@ -186,6 +186,9 @@ extern void set_py_exc_str(const char *filename,
 #define BAILR(x)  \
   if (EXCEPTION) { SAY("BAILR\n"); return x; }
 
+#define RAISE(except) { set_py_exc_str(__FILE__, __LINE__, except); return; }
+#define RAISER(except, retval) { set_py_exc_str(__FILE__, __LINE__, except); return (retval); }
+
 #endif
 
 /*

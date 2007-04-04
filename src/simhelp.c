@@ -398,6 +398,7 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
     initializeBondTable();
 
     part = readMMP(InputFileName);
+    PYBAIL();
     if (part == NULL) {
 	set_py_exc_str(__FILE__, __LINE__, "part is null");
 	PYBAIL();

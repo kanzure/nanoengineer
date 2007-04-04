@@ -429,6 +429,9 @@ main(int argc, char **argv)
     }
     
     part = readMMP(InputFileName);
+    if (EXCEPTION) {
+        exit(1);
+    }
     initializePart(part);
 
     if (printStructurePotentialEnergy) {
