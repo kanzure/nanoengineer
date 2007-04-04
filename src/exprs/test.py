@@ -550,7 +550,7 @@ testexpr_11pd4 = Overlay( DraggableObject(Image("blueflake.jpg")),
 trans_image = Image(convert = 'RGBA', decal = False, blend = True,
                     ## alpha_test = False, # see if this makes OK_Cancel_TrianglesOutline_100x100.png grabbable in blank areas -- works,
                         # and indeed makes all of them grabbable in the entire square. Move to separate test, try again with shape option
-                        # to limit to a triangle. ###e TRYIT
+                        # to limit to a triangle. [did this below, see testexpr_11pd6 etc]
                     clamp = True, # this removes the artifacts that show the edges of the whole square of the image file
                     ideal_width = 100, ideal_height = 100, size = Rect(100*PIXELS))
 _tmp = DraggableObject(Image("blueflake.jpg"))
@@ -570,6 +570,26 @@ for _file, _i in zip(_files, range(len(_files))):
 
 testexpr_11pd5 = _tmp # works; only looks good over atoms ("the model") if you hack testdraw to draw the model before this expr,
     # rather than after it (now there is a checkbox_pref for that, and it has the right default, 070404)
+
+ok_image = trans_image( shape = 'upper-left-half') # further customization
+ok_image_2 = trans_image( shape = [(1,1),(0,1),(0.5,0.75)]) # upper quarter, but only upper half of that again, just for testing
+
+cancel_image = trans_image( shape = 'lower-right-half') 
+
+testexpr_11pd6 = DraggableObject( ok_image( _dir + "OK_Cancel_TrianglesOutline_100x100.png", alpha_test = False )) # works (grabs in too many places)
+    # also confirms that the sharp edge is a bit too close for antialiasing, at least on the border with the other button (but that's ok on that edge)
+testexpr_11pd7 = DraggableObject( ok_image( _dir + "OK_Cancel_TrianglesOutline_100x100.png", alpha_test = True )) # works (grabs in too few places)
+    #e to grab in best set of places (i mean, let best set of pixels cause highlight, sbar text, and be potential drag-grip-points),
+    # but not mess up antialiasing of the visible edge, pass in a custom subtriangle shape...
+    # but we probably won't need this in practice, since the real images will not have fully transparent holes,
+    # so it'll be enough to use alpha_test = True (the default, given blend = true) for them.
+
+testexpr_11pd8 = DraggableObject( ok_image_2( _dir + "OK_Cancel_TrianglesOutline_100x100.png", alpha_test = False )) # works
+testexpr_11pd9 = DraggableObject( cancel_image( _dir + "OK_Cancel_TrianglesOutline_100x100.png", alpha_test = True )) # works (expected grab caveats)
+testexpr_11pd10 = DraggableObject( ok_image( "blueflake.jpg", alpha_test = True, convert = False )) # works (subtri of opaque image)
+    # tests different native size, jpg not png, perhaps different native format (RGB vs RGBA, don't know), tri coords ok for diff native size,
+    # and finding filename in usual way. BTW, with convert = RGBA or RGB has SystemError: unknown raw mode (and message mentions CMYK).
+testexpr_11pd10a = DraggableObject( ok_image( "blueflake.jpg", blend = False, convert = False )) # works (tests tri not needing blend)
 
 # try some images only available on bruce's g4
 
@@ -1499,7 +1519,7 @@ testexpr_38 = PartialDisk() # works 070401, in stub form with no settable parame
 
 enable_testbed = True
 
-testexpr = testexpr_11pd5 # testexpr_38 # testexpr_30i # testexpr_37
+testexpr = testexpr_11pd10a # testexpr_38 # testexpr_30i # testexpr_37
     # testexpr_37 - demo_draw_on_surface
     # testexpr_36e - clipped sphere
     # testexpr_34a - unfinished demo_ui

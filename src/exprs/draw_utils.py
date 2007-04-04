@@ -40,6 +40,28 @@ def draw_textured_rect(origin, dx, dy, tex_origin, tex_dx, tex_dy):
     glEnd()
     glDisable(GL_TEXTURE_2D)
 
+def draw_textured_rect_subtriangle(origin, dx, dy, tex_origin, tex_dx, tex_dy, points): #070404 modified from draw_textured_rect
+    """Like draw_textured_rect, but draw only the sub-triangle of the same rect (textured in the same way),
+    where the subtriangle has relative 2d vertices as specified inside that rect (treating its own coords as each in [0.0, 1.0]).
+       WARNING: depending on the glEnables set up by the caller, the sub-triangle coords might need to be
+    in CCW winding order for the triangle to be visible from the front.
+    """
+    #e could easily generalize API to polygon, and this implem to convex polygon, if desired
+    ##e WARNING: this function's name and api are likely to be revised;
+    # or we might just replace the whole scheme, using things like Textured(Triangle(...),...) instead,
+    # perhaps implemented by telling OpenGL how to compute the texture coords in a wrapper, then just drawing the triangle. 
+    assert len(points) == 3
+    # and each point should be a V of length 2, or a 2-tuple, with elements convertible to floats -- this is assumed below
+    glEnable(GL_TEXTURE_2D) 
+    glBegin(GL_TRIANGLES)
+    for px, py in points:
+        px = float(px)
+        py = float(py)        
+        glTexCoord2fv(tex_origin + px * tex_dx + py * tex_dy)
+        glVertex3fv(origin + px * dx + py * dy)
+    glEnd()
+    glDisable(GL_TEXTURE_2D)
+ 
 # Ideally we'd modularize the following to separate the fill/color info from the shape-info. (And optimize them.)
 # For now they're just demos that might be useful.
 

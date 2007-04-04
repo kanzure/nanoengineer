@@ -33,7 +33,7 @@ from basic import _self
 
 import draw_utils
 reload_once(draw_utils)
-from draw_utils import draw_textured_rect
+from draw_utils import draw_textured_rect, draw_textured_rect_subtriangle
 
 import Rect
 reload_once(Rect)
@@ -295,8 +295,14 @@ class Image(Widget2D):
         # - is it really Point rather than Vector?
         # - does it interact with [nim] drawing-region-origin so as to line up if we use the same one for adjacent regions?
     size = Option(Widget2D, Rect(2)) ##e also permit number or pair, ie args to Rect also should be ok # [experiment 061130]
-    ###e also permit shape option, to specify geometry (polygon) for drawing the image on as a texture? (default is effectively Rect)
-    # (has design issues re tex/model coord correspondence, and possible embedded textured parts)
+    shape = Option(Anything, None,
+                   doc = """shape name ('upper-left-half' or 'lower-right-half'),
+                           or sequence of 3 2d points (intrinsic coords, CCW),
+                           to draw only a sub-triangle of the textured rect image""" )
+    ###e also permit shape option to specify polygon, not just triangle, or, any geometry-drawing expr
+    # (see comments in helper function for more on that)
+    # (has design issues re tex/model coord correspondence [tho current scheme is well-defined and might be best for many uses],
+    #  and possible embedded textured parts)
 
     bleft = size.bleft
     bright = size.bright
@@ -369,7 +375,8 @@ class Image(Widget2D):
         
         blend = self.blend
         alpha_test = self.alpha_test
-        
+        shape = self.shape # for now, None or a symbolic string (choices are hardcoded below)
+                
         if blend:
             glEnable(GL_BLEND)
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
@@ -377,9 +384,25 @@ class Image(Widget2D):
             glEnable(GL_ALPHA_TEST) # (red book p.462-463)
             glAlphaFunc(GL_GREATER, 0.0) # don't draw the fully transparent parts into the depth or stencil buffers
                 ##e maybe let that 0.0 be an option? eg the value of alpha_test itself? Right now, it can be False ~== 0 (not None).
-            
-        draw_textured_rect(origin, dx, dy, tex_origin, tex_dx, tex_dy)
-        
+
+        if not shape:
+            draw_textured_rect( origin, dx, dy, tex_origin, tex_dx, tex_dy)
+        else:
+            # support sub-shapes of the image rect, but with unchanged texture coords relative to the whole rect [070404 ###UNTESTED]
+            if type(shape) == type(""):
+                ##e use an external shape name->value mapping?
+                # in fact, should such a mapping be part of the dynamic graphics-instance env (self.env)??
+                if shape == 'upper-left-half':
+                    shape = ((0,0), (1,1), (0,1))
+                elif shape == 'lower-right-half':
+                    shape = ((0,0), (1,0), (1,1))
+                else:
+                    assert 0, "in %r, don't know this shape name: %r" % (self, shape)
+            # otherwise assume it might be the right form to pass directly
+            # (list of 3 2d points in [0,1] x [0,1] relative coords -- might need to be in CCW winding order)
+            draw_textured_rect_subtriangle( origin, dx, dy, tex_origin, tex_dx, tex_dy,
+                                            shape )
+            pass
         if blend:
             glDisable(GL_BLEND)
         if alpha_test:
