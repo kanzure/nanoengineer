@@ -56,6 +56,8 @@ class Overlay(InstanceOrExpr, DelegatingMixin):
         for a in args:
             #e We'd like this to work properly for little filled polys drawn over big ones.
             # We might need something like z translation or depth offset or "decal mode"(??) or a different depth test.
+            # [later 070404: "decal mode" is probably unrelated -- GL_DECAL is for combining a texture with a non-textured color/alpha,
+            #  not related to using depth buffer when resulting textured object is drawn. Is "decal" used to mean anything else?? #k]
             # Different depth test would be best, but roundoff error might make it wrong...
             # This is definitely needed for overdrawing like that to work, but it's low priority for now.
             # Callers can kluge it using Closer, though that's imperfect in perspective mode (or when viewpoint is rotated).
