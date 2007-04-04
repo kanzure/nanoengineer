@@ -114,7 +114,7 @@ class _texture_holder(object):
             # whenever self.loaded_texture_data ran this recompute method, _C_loaded_texture_data
         assert tex_name == self.tex_name
         return have_mipmaps, tex_name
-    def bind_texture(self, clamp = False, use_mipmaps = True, decal = True, pixmap = False):
+    def bind_texture(self, clamp = False, use_mipmaps = True, decal = False, pixmap = False):
         "bind our texture, and set texture-related GL params as specified"
         # Notes [some of this belongs in docstring]:
         #e - we might want to pass these tex params as one chunk, or a flags word
@@ -124,7 +124,7 @@ class _texture_holder(object):
         
         have_mipmaps, tex_name = self.loaded_texture_data
         ## testdraw.setup_to_draw_texture_name(have_mipmaps, tex_name)
-        # let's inline that instead, including its call of _initTextureEnv, and then modify it [done, untested] [061126]
+        # let's inline that instead, including its call of _initTextureEnv, and then modify it [061126]
 
         glBindTexture(GL_TEXTURE_2D, tex_name)
         
@@ -152,6 +152,7 @@ class _texture_holder(object):
             # GL_DECAL leaves fragment alpha unchanged and uses texture alpha to mix its color with fragment color
             # (fragment data comes from the polygon's alpha & color as if drawn untextured).
             # GL_REPLACE just discards fragment data in favor of texture data incl alpha -- that would be a better default.
+            # [later 070404: now it is the default.]
             # Eventually permit all these values -- for now just let decal = False mean GL_REPLACE. [070403]
             #
             ## print "getTextureData", self, self._image.getTextureData() # presence of correct alpha is plausible from this
@@ -230,7 +231,7 @@ class Image(Widget2D):
     implem [i think] -- but the lack of image->texture options makes this academic for now) a new PIL Image to be created
     from the image file on disk.
        Options that affect how the texture is drawn (in any instance, at any moment) include:
-    clamp, pixmap [#e misnamed], use_mipmaps, decal [#e False is nim], tex_origin, nreps [#doc these].
+    clamp, pixmap [#e misnamed], use_mipmaps, decal, tex_origin, nreps [#doc these].
     [#e More options of this kind are needed.]
     All the texture-drawing options can be varied, either in different instances or over time in one instance
     (by passing them as formulae), without causing a new texture or PIL Image to be loaded as they vary. 
@@ -251,13 +252,17 @@ class Image(Widget2D):
     # args
     filename = Arg(str)
     use_filename = call_Expr( canon_image_filename, filename)
-    # named options -- clamp = False, use_mipmaps = True, decal = True, pixmap = False [redundant with defaults in bind_texture]
+    # named options -- clamp = False, use_mipmaps = True, decal = False, pixmap = False [redundant with defaults in bind_texture]
     clamp = Option(bool, False) # clamp or (default) repeat
     pixmap = Option(bool, False) #e misnamed -- whether to use GL_NEAREST filtering
     use_mipmaps = Option(bool, True) # whether to use mipmaps, if present in loaded texture object; only matters if pixmap is False
         #e what determines whether mipmaps are present? For now, they always are;
         # later, it might depend on whether we had RAM, or on a more global pref, or ....
-    decal = Option(bool, True) # as of 070403, False works and means GL_REPLACE -- should probably make that the default and rename this
+    decal = Option(bool, False, doc = "combine texture with color using GL_DECAL? (by default, use GL_REPLACE)")
+        # as of 070403, False works and means GL_REPLACE
+        # 070404 changing default to False; not sure if this can affect blend = false cases -- maybe yes beyond edges? ###UNTESTED
+        #e should probably rename this and change it from a bool to a choice or to more bools
+        # (since it has 5 or 6 possible values; see code comments)
     blend = Option(bool, False, doc = "whether to blend translucent images with background") #070403
         # Note: blend doesn't turn off depth buffer writing, but does reject fully transparent fragments (via GL_ALPHA_TEST),
         # so only the translucent (i.e. partly transparent) pixels can obscure things if drawn first,
@@ -267,8 +272,21 @@ class Image(Widget2D):
         #  like the one used in testexpr_11pd3 (fyi, see screenshot 'alpha fluctuations.jpg', not in cvs) --
         #  maybe this comes in through the rescaling and/or mipmap filtering?)
         # See also slightly related glStencilFunc, glDepthFunc.
-    ###e should add option to turn off depth buffer writing
-    ##e should add option to not use GL_ALPHA_TEST when blend is True
+    alpha_test = Option(bool, _self.blend,
+                        doc = "whether to use GL_ALPHA_TEST (by default, use it when blend option is true)" ) #070404
+        # this is effectively an option to not use GL_ALPHA_TEST when blend is True (as we'd normally do then)
+        
+    ###e should add option to turn off depth buffer writing -- see warning below
+        
+    ###e should add option to turn off color buffer writing -- glColorMask -- see warning below
+    # see also disable_color (widget2d.py, maybe move to GLPane.py?)
+
+        # [or find a more modular way to control things like that -- wrappers? std options?]
+    
+    ### WARNING: hard to disable those correctly (re restoring state)
+    # if we ever get drawn in a larger thing that disables one of them -- as we might,
+    #  do to selobj highlighting! ###k CHECK THIS for other new disables too, alpha and blend...
+    
     nreps = Option(float, 1.0) #e rename - repeat count; mostly only useful when clamp is False, but ought to work otherwise too
         ##e generalize to let caller supply tex_dx and tex_dy vectors, for rotating the texture within the drawing region;
         # (Can that be done as a more general value for this option? Unclear whether that's natural, tho passing in a matrix might be...)
@@ -277,18 +295,21 @@ class Image(Widget2D):
         # - is it really Point rather than Vector?
         # - does it interact with [nim] drawing-region-origin so as to line up if we use the same one for adjacent regions?
     size = Option(Widget2D, Rect(2)) ##e also permit number or pair, ie args to Rect also should be ok # [experiment 061130]
+    ###e also permit shape option, to specify geometry (polygon) for drawing the image on as a texture? (default is effectively Rect)
+    # (has design issues re tex/model coord correspondence, and possible embedded textured parts)
 
     bleft = size.bleft
     bright = size.bright
     bbottom = size.bbottom
     btop = size.btop
     
-    # more options, which affect initial image loading from file, thus are part of the texture-cache key [061127, untested]
+    # more options, which affect initial image loading from file, thus are part of the texture-cache key [061127]
     rescale = Option(bool, True) # whether to resize by rescaling or padding (default might be changed after testing #e)
     ideal_width = Option(int, 256) ###e let them be a func of image size, as a pair? (eg so they can be next greater 2pow?) someday.
     ideal_height = Option(int, 256)
-    convert = Option(bool, False) #061128, whether to convert image to DESIRED_MODE RGBX. [Someday may let you specify another mode --
-        # that already works but is untested -- and in that case may also affect getTextureData retval mode -- DOES NOW, try it #e]
+    convert = Option(bool, False) #061128, whether to convert image to DESIRED_MODE RGBX.
+        ### NOTE: type bool is wrong, since later [but long before 070404] it became able to let you specify another mode,
+        # and in that case it also affects getTextureData retval mode. This is now routinely used for transparent texture images.
     _tmpmode = Option(str, None) #k None is not str, is that ok? #doc [might be temp kluge]
     
     #e these are not fully implem -- at best, when rescale = False, you'll see black padding when drawing;
@@ -345,17 +366,26 @@ class Image(Widget2D):
 ##        dy = DY * self.btop
         dx = DX * (self.bleft + self.bright) # bugfix 070304: include bleft, bbottom here
         dy = DY * (self.bbottom + self.btop)
+        
         blend = self.blend
+        alpha_test = self.alpha_test
+        
         if blend:
             glEnable(GL_BLEND)
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        if alpha_test:
             glEnable(GL_ALPHA_TEST) # (red book p.462-463)
             glAlphaFunc(GL_GREATER, 0.0) # don't draw the fully transparent parts into the depth or stencil buffers
+                ##e maybe let that 0.0 be an option? eg the value of alpha_test itself? Right now, it can be False ~== 0 (not None).
+            
         draw_textured_rect(origin, dx, dy, tex_origin, tex_dx, tex_dy)
+        
         if blend:
             glDisable(GL_BLEND)
+        if alpha_test:
             glDisable(GL_ALPHA_TEST)
-        return
+            
+        return # from Image.draw
 
     # note the suboptimal error message from this mistake:
     #   bright = DX * 2
