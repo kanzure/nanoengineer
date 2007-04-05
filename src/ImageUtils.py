@@ -70,14 +70,16 @@ class nEImageOps:
             # im.convert(mode) => image
             if type(self.convert) == type(""):
                 mode = self.convert # let caller specify mode to convert to
-                ###e should this also affect getTextureData retval? if so, also reset self.DESIRED_MODE here. ###e
-                #e or maybe have a separate option, desired_mode or mode or convert_to? Guess: someday have that,
+                # Q: should this also affect getTextureData retval? if so, also reset self.DESIRED_MODE here. A: yes.
+                #e [or maybe have a separate option, desired_mode or mode or convert_to? Guess: someday have that,
                 # and the convert flag will go away since it will always be true, BUT the desired mode will be
-                # a function of the original mode! (just as that will be the case with the desired size.)
-                if 'try it': # useful for testing, so leave it in, but not yet used routinely.
-                    if mode != self.DESIRED_MODE:
-                        print "%r: warning: convert = mode %r is not yet fully supported" % (self, self.convert)
-                        self.DESIRED_MODE = mode
+                # a function of the original mode! (just as that will be the case with the desired size.)]
+                if mode != self.DESIRED_MODE:
+                    # as of circa 070403 this happens routinely for convert = 'RGBA', and seems harmless...
+                    # if DESIRED_MODE was cleaned up as suggested above it'd probably be a historical relic;
+                    # so remove the debug print. [bruce 070404]
+                    ## print "%r: warning: convert = mode %r is not yet fully supported" % (self, self.convert)
+                    self.DESIRED_MODE = mode
             else:
                 assert self.convert == True or self.convert == 1
                 mode = self.DESIRED_MODE
@@ -85,7 +87,7 @@ class nEImageOps:
             self.img = self.img.convert(mode) #k does it matter whether we do this before or after resizing it?
             new_data = self.img.size, self.img.mode
             if old_data != new_data and platform.atom_debug and self.debug:
-                print "debug: %r: fyi: image converted from %r to %r" % (self, old_data, new_data) ###e remove after devel
+                print "debug: %r: fyi: image converted from %r to %r" % (self, old_data, new_data)
                 ###e also need self.update() in this case?? if so, better do it later during __init__.
             pass
         self.orig_width = self.img.size[0] #bruce 061127
