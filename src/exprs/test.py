@@ -1543,7 +1543,7 @@ testexpr_38 = PartialDisk() # works 070401, in stub form with no settable parame
 
 enable_testbed = True
 
-testexpr = testexpr_9cy # testexpr_38 # testexpr_30i # testexpr_37
+testexpr = testexpr_30i # testexpr_38 # testexpr_30i # testexpr_37
     # testexpr_37 - demo_draw_on_surface
     # testexpr_36e - clipped sphere
     # testexpr_34a - unfinished demo_ui
