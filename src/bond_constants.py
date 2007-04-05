@@ -191,11 +191,11 @@ def _compute_bond_params(atomtype1, atomtype2, v6):
     try:
         # try to adjust rcov1 and rcov2 to make their sum the equilibrium bond length [bruce 060324 re bug 900]
         elementNumber1 = atomtype1.element.eltnum # note: both atoms and atomtypes have .element
-        if (elementNumber1 > MAX_ELEMENT):
-            elementNumber1 = MAX_ELEMENT
+##        if (elementNumber1 > MAX_ELEMENT):
+##            elementNumber1 = MAX_ELEMENT
         elementNumber2 = atomtype2.element.eltnum
-        if (elementNumber2 > MAX_ELEMENT):
-            elementNumber2 = MAX_ELEMENT
+##        if (elementNumber2 > MAX_ELEMENT):
+##            elementNumber2 = MAX_ELEMENT
         ltr = bond_letter_from_v6(v6)
         import sim
         pm = sim.getEquilibriumDistanceForBond(elementNumber1, elementNumber2, ltr) # C-C is (6, 6, '1')
