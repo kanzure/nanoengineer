@@ -523,7 +523,7 @@ debug_parse = False
 
 def get_description(filename):
     """For now, only the filename option is supported.
-    Someday, support the other ones mentioned in ParameterDialog.__init__.__doc__.
+    Someday, support the other ones mentioned in our caller, ParameterDialog.__init__.__doc__.
     """
     assert type(filename) == type(""), "get_description only supports filenames for now (and not even unicode filenames, btw)"
     

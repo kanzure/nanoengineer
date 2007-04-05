@@ -274,6 +274,20 @@ class ThingData(Info):
     option_attrs = attr_interface_to_dict(options) # also shared, also must be replaced if nonempty
     def init(self):
         self.name, self.thingargs, self.subthings = self._args # possible name conflict: .args vs .thingargs
+        #070330 improving the internal documentation:
+        ## print "debug ThingData: name = %r, thingargs = %r, subthings = %r" % self._args
+        # for an option setting like "max = 9999.0":
+        #   name = 'max', thingargs = [9999.0], subthings = []
+        #   so name is the option name, thingargs contains one member which is the value, subthings is empty.
+        # for a subobject:
+        #   name = 'parameter', thingargs = ['L2'], subthings = [ThingData()...]
+        #   so name is the type (or used by the parent to choose the type), thingargs has one (optional?) member which is the name,
+        #   and subthings contains both actual subobjects and option settings.
+        # for widget: combobox, two kluges are used: it acts as both a subthing and an option setting,
+        # and its own subthings, which look like option settings, also have an order which is preserved (I think).
+        # Both kluges apply to everything -- all option settings stay around in the subthings list,
+        # and (I think) all subthing typenames get treated as options set to the subthing name.
+
         self.args = self.thingargs # already assumed twice, in the using code for desc... should translate remaining thingargs -> args
         if self.subthings:
             self.options = {}
@@ -281,6 +295,8 @@ class ThingData(Info):
             ## self.optattrs = AttrHolder() # not yet needed... maybe better to make an obj providing attr interface to self.options
         for sub in self.subthings:
             sub.maybe_set_self_as_option_in(self.options)
+        ## print "options:",self.options
+        return
     def maybe_set_self_as_option_in(self, dict1):
         "If self is an option setting, set it in dict1"
         #e in future might need more args, like an env, or might need to store a formula
@@ -327,10 +343,20 @@ class ThingData(Info):
     def matches(self, paramval, valpattern):
         return paramval == valpattern or (type(valpattern) == type(()) and paramval in valpattern)
             # note: 'in' is not using recursive match, just ==
+    def as_expr(self):
+        "Return an Expr form of self. (Only call after it's fully parsed, since parsing is destructive.)"
+        # 070330, experimental. Will require exprs module. Not yet called. For now, advise don't call except when a debug_pref is set.
+        #e name -> exprhead? using an env? via a Symbol?
+        pass
+        
     pass
 
 def makeThing(name, args, subthings):
-    "we don't yet know if we're a subobject or an option-value-setting of our parent..."
+    """#doc...
+    Note: we don't yet know if the ThingData we return will end up as a subobject
+    or an option-value-setting of its parent... its parent will call
+    thingdata.maybe_set_self_as_option_in(parent) to make and execute that decision.
+    """
     if not args and not subthings:
         print "warning: \"%s:\" with no args or subthings" % (name,)
     return ThingData(name, args, subthings)
