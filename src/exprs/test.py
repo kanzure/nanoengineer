@@ -131,7 +131,7 @@ from demo_drag import GraphDrawDemo_FixedToolOnArg1, kluge_dragtool_state_checkb
 
 import projection
 reload_once(projection)
-from projection import DrawInCorner_NOTWORKING_VERSION, DrawInCorner
+from projection import DrawInCorner_projection, DrawInCorner
 
 import ModelNode # as of 061215 450p this import fails (no consistent MRO) but causes no other problems
     # (it did on try1 but that was after lots of file edits in a running session, and didn't repeat in a new session)
@@ -367,17 +367,8 @@ testexpr_9e = testexpr_9b( on_release_in = None) # works
     # test an action of None (should be same as a missing one) (also supplied by customization after args)
 
 testexpr_9cx = SimpleColumn(testexpr_9a, testexpr_9b(projection = True)) # works 070118?? [verified still works 070405]
-    # before that -- ###BUG -- that option breaks the functionality.
-    # guess: it might mess up the glselect use of the projection matrix. (since ours maybe ought to be multiplied with it or so)
-    #
-    # ... update 070118: if I understand this correctly, it's working now (EVAL_REFORM off or on both work, with no testbed).
-    # I don't know why/how/ifreally it got fixed, but maybe it did, since I did a few things to highlighting code since that time,
-    # including not using that z-offset kluge in the depth test, changing to GL_LEQUAL (with different Overlay order), maybe more.
-    # OTOH I didn't review this code now -- maybe all that happened is I disabled that projection option somehow. Who knows. #k
-    # BTW it has lots of debug prints like <Highlightable#146280(i)> (projection=True) not saving due to current_glselect.
-    # I don't know if it always did.
 
-testexpr_9cy = DrawInCorner_NOTWORKING_VERSION(Highlightable(Rect(1,1,black),Rect(1,1,green),projection=True)) # 070405, works!
+testexpr_9cy = DrawInCorner_projection(Highlightable(Rect(1,1,black),Rect(1,1,green),projection=True)) # 070405, works!
     # So, projection matrix changes are now ok re Highlightable if you tell it projection=True. See comments therein for more.
 
 
@@ -1579,7 +1570,7 @@ testexpr = testexpr_9cy # testexpr_38 # testexpr_30i # testexpr_37
     ## testexpr_9c column of two highlightables
         # testexpr_9cx has a bug, in highlightable with projection = True... the current_glselect cond fix attempt didn't fix it.
         # status 061209 eve: has debug prints, debug ideas are on paper, but for now I'll use a different method (not projection matrix)
-        # for doing things like DrawInCorner_NOTWORKING_VERSION. [not using overrider doesn't fix it.]
+        # for doing things like DrawInCorner_projection. [not using overrider doesn't fix it.]
         # status 070122: seemed to work recently in ER, don't know why, details commented next to the test.
         #
         # BUG in testexpr_9c (later: and all other highlightables), noticed 061210 morn g4:
@@ -1675,7 +1666,7 @@ class AppOuterLayer(DelegatingInstanceOrExpr): #e refile when works [070108 expe
 def testbed(expr):
     "this turns the current testexpr into the actual expr to render"
     ## return Overlay(expr, Closer(Rect(1,1,black), 3.4)) #stub
-    ## return Overlay(expr, If(1,DrawInCorner_NOTWORKING_VERSION,Closer)(Highlightable(Rect(1,1,black),Rect(1,1,green),projection=True)))
+    ## return Overlay(expr, If(1,DrawInCorner_projection,Closer)(Highlightable(Rect(1,1,black),Rect(1,1,green),projection=True)))
     ## return Overlay(expr, DrawInCorner(Highlightable(Rect(1,1,black),Rect(1,1,green)) ))
     return AppOuterLayer( # [note: defines _app in dynenv]
         Overlay( expr,

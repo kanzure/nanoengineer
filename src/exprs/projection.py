@@ -11,7 +11,30 @@ from prefs_constants import UPPER_RIGHT, UPPER_LEFT, LOWER_LEFT, LOWER_RIGHT # n
 from OpenGL.GL import *
 from OpenGL.GLU import gluPickMatrix, gluUnProject
 
-class DrawInCorner_NOTWORKING_VERSION(DelegatingInstanceOrExpr): ### WARNING: this version doesn't work, for unknown reasons. See below for a newer one.
+class DrawInCorner_projection(DelegatingInstanceOrExpr):
+    """DEPRECATED for general use -- use DrawInCorner instead.
+    This is a variant of DrawInCorner which works by changing the projection matrix,
+    and which has several bugs/niys. It only works for the default corner argument,
+    and any Highlightables in its main argument (delegate) only work properly for
+    highlighting if they are given the option projection = True (which is not the
+    default, for efficiency reasons).
+       Its usefulness is that it's the only expr (as of 070405) which changes the
+    projection matrix for the subexprs it draws, so it's the only good test of
+    Highlightable(projection = True).
+    """
+    # Note: renamed from DrawInCorner_NOTWORKING_VERSION to DrawInCorner_projection on 070405,
+    # since tests show that Highlightable(projection=True) has been working inside it for awhile.
+    #
+    # But to make it the usual implem of DrawInCorner would require:
+    # - a good reason (like pixel alignment bugs after trackballing, in the other implem -- not yet annoying enough);
+    # - args fixed up to match that one;
+    # - implem the other corners -- only the default one works now, I think;
+    # - make it unnecessary to say projection = True to embedded Highlightables,
+    #   using either a GLPane flag (with special provisions for display lists,
+    #   which might need two variants depending on that flag),
+    #   or a change of default value of that option,
+    #   or a change of algorithm in Highlightable.
+    
     delegate = Arg(Widget2D)
     corner = Arg(int, LOWER_RIGHT)
     def draw(self):
@@ -27,7 +50,7 @@ class DrawInCorner_NOTWORKING_VERSION(DelegatingInstanceOrExpr): ### WARNING: th
 
         try:
             glpane = self.env.glpane
-            aspect = 1.0 ###WRONG but the cases that use it don't work right anyway; BTW does glpane.aspect exist?
+            aspect = 1.0 ###WRONG but the corners that still use it below don't work right anyway; BTW does glpane.aspect exist?
             corner = self.corner
             delegate = self.delegate
 
@@ -35,14 +58,15 @@ class DrawInCorner_NOTWORKING_VERSION(DelegatingInstanceOrExpr): ### WARNING: th
             # (this code is copied from it)
             glselect = glpane.current_glselect
             if glselect:
-                print "%r (ipath %r) setting up gluPickMatrix" % (self, self.ipath)
+                # print "%r (ipath %r) setting up gluPickMatrix" % (self, self.ipath)
                 x,y,w,h = glselect
                 gluPickMatrix(
                         x,y,
                         w,h,
                         glGetIntegerv( GL_VIEWPORT ) #k is this arg needed? it might be the default...
                 )
-            
+
+            # the first three cases here are still ###WRONG
             if corner == UPPER_RIGHT:
                 glOrtho(-50*aspect, 5.5*aspect, -50, 5.5,  -5, 500) # Upper Right
             elif corner == UPPER_LEFT:
@@ -70,15 +94,7 @@ class DrawInCorner_NOTWORKING_VERSION(DelegatingInstanceOrExpr): ### WARNING: th
             glPopMatrix()
 
         return
-    pass # end of class DrawInCorner_NOTWORKING_VERSION
-
-# Will this really work with highlighting? (I mean if delegate contains a Highlightable?)
-# NO, because that doesn't save both matrices!
-# is it inefficient to make every highlightable save both? YES, so let them ask whether they need to,
-# and set a flag here that says they need to (but when we have displists we'll need to say how they should treat that flag,
-# unless we're saving the ipath instead, as I presume we will be by then).
-
-# BUT FOR NOW, just always save it, since easier.
+    pass # end of class DrawInCorner_projection
 
 # ==
 
@@ -140,9 +156,7 @@ class DrawInCorner(DelegatingInstanceOrExpr):
                 # different, but not sure. ###k (doesn't matter for now)
 
             # modified from _setup_modelview:
-##            glTranslatef( 0.0, 0.0, - glpane.vdist) # this should make no difference, I think. try leaving it out. ###k
 
-            ## saveplace = self
             saveplace = self.transient_state # see if this fixes the bug 061211 1117a mentioned below -- it does, use it.
             if glpane.current_glselect or (0 and 'KLUGE' and hasattr(saveplace, '_saved_stuff')):
                             # kluge did make it faster; still slow, and confounded by the highlighting-delay bug;

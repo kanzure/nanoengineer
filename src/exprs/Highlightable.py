@@ -122,8 +122,7 @@ class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 07031
     and of SavedCoordsys, for holding a saved static coordsys.
        WARNING: implem and API may change once we introduce "draw decorators" to fix Highlightable/DisplistChunk bugs.
     """
-    projection = Option(bool, False) # whether to save projection matrix too... would be default True except that breaks us. ###BUG
-        # guess: it might mess up the glselect use of the projection matrix. (since ours maybe ought to be multiplied with it or so)
+    projection = Option(bool, False) # whether to save projection matrix too... would be default True except inefficient
 
     def _init_instance(self):
         super(_CoordsysHolder, self)._init_instance()
@@ -181,11 +180,11 @@ class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 07031
             res = None
         return run_immediately, res # from run_OpenGL_in_local_coords
 
-    def save_coords(self):
+    def save_coords(self): #e make private? most calls go thru save_coords_if_safe -- not quite all do.
         # weirdly, this seems to cause bugs if done in the other order (if self.projection is False but not checked here)...
         # could it change the current matrix?? or be wrong when the wrong matrix is current???
         if self.projection:
-            glMatrixMode(GL_PROJECTION) ###k guess 061210 at possible _9cx bugfix -- needed?? anyway, these guesses didn't fix the bug.
+            glMatrixMode(GL_PROJECTION) #k needed?
             self.per_frame_state.saved_projection_matrix = glGetDoublev( GL_PROJECTION_MATRIX ) # needed by draw_in_abs_coords
             glMatrixMode(GL_MODELVIEW)
         if debug_saved_coords:
@@ -195,11 +194,36 @@ class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 07031
         self.per_frame_state.saved_modelview_matrix = new = glGetDoublev( GL_MODELVIEW_MATRIX ) # needed by draw_in_abs_coords
         if debug_saved_coords and old != new:
             print "debug_saved_coords: %r changes saved coords" % self
+        # these comments are about the implem of save_coords -- need review, which are obs and which should be moved? ###
+        #
+        ###WRONG if we can be used in a displaylist that might be redrawn in varying orientations/positions
+        #
+        # addendum 061121: if saved coords are usage tracked (which was never intended), then right here we invalidate whatever used it
+        # (but nothing used it yet, the first time we draw), but in draw_in_abs_coords we use it, so if we ever redraw
+        # after that (as we will - note, nothing yet clears/replaces this per_frame_state every frame),
+        # then that invals the highlighted thing... i can imagine this creating extra invals, esp since the change
+        # occurs during usage tracking of a computation (invalling it the first time), which then uses the same thing.
+        # I don't quite see the exact cause, but I certainly see that it's not an intended use of this system.
+        # (#e sometime I should think it through, understand what's legal and not legal, and add specific checks and warnings.)
+        #  Meanwhile, since all per_frame state is not intended to be usage-tracked, just recorded for ordinary untracked
+        # set and get, I'll just change it to have that property. And review glpane_state too.
+        ###@@@ [this, and 061120 cmts/stringlits]
         return
 
-    def save_coords_if_safe(self):#070401 experiment -- consider whether each use of save_coords should call this instead ####DOIT
-        if not self.env.glpane.current_glselect: # cond copied from how Highlightable calls save_coords
+    def save_coords_if_safe(self): #070401 [#e rename?]
+        "call self.save_coords if the glpane drawing phase indicates the results should be valid for highlighting"
+        if not self.env.glpane.current_glselect:
             self.save_coords()
+            # Historical note: using this cond apparently fixes the projection = True bug (even when used in DrawInCorner_projection),
+            # based on tests and debug prints of 070405. The cond itself was added long before. See testexpr_9cx / testexpr_9cy.
+            # It's not really known if that's all that fixed it; on 070118 I said:
+            #   I don't know why/how/ifreally it got fixed, but maybe it did,
+            #   since I did a few things to highlighting code since that time,
+            #   including not using that z-offset kluge in the depth test,
+            #   changing to GL_LEQUAL (with different Overlay order), maybe more.
+            #
+            # For details of debug prints, see cvs rev 1.66. They show that glpane.drawing_phase is 'main' here
+            # and 'glselect' when this cond is false, at least when self.projection is true and when using those testexprs.
         return
         
     def begin_using_saved_coords(self):
@@ -569,14 +593,6 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler): #070317 spli
                 recycle_glselect_name(self.env.glpane, glname, glname_handler)
             pass
 
-        # moved into superclass:
-##        # == per_frame_state
-##        set_default_attrs( self.per_frame_state,
-##                           saved_modelview_matrix = None,
-##                           saved_projection_matrix = None
-##                           ) #k safe? (why not?) #e can't work inside display lists
-
-
         assert is_expr_Instance_or_None( self.plain ), "%r.plain must be an Instance or None, not %r" % (self, self.plain)
             # catch bugs in subclasses which override our formula for self.plain [070326]
         
@@ -584,31 +600,7 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler): #070317 spli
     
     def draw(self):
         glpane = self.env.glpane
-        if not glpane.current_glselect: #e see also save_coords_if_safe (just added) which uses the same cond. use it here? 070401
-            # see if this cond fixes the projection=True bug (when not in DrawInCorner_NOTWORKING_VERSION anyway)
-            # update 070401: did it fix that bug?? at least it's fixed now...
-            self.save_coords()
-            if self.projection:
-                print "SAVED: %r (projection=%r): saved coords, drawing_phase = %r" % (self, self.projection, glpane.drawing_phase)
-                # always shows drawing_phase = 'main'
-        else:
-            if self.projection: # since this debug print is only needed when investigating the bug _9cx in using that option
-                print "NOT saved: %r (projection=%r) not saving due to current_glselect (%r)" % (self, self.projection, glpane.drawing_phase)####
-                # always shows drawing_phase = 'glselect'
-            # these comments are about the implem of save_coords -- need review, which are obs and which should be moved? ###
-            #
-            ###WRONG if we can be used in a displaylist that might be redrawn in varying orientations/positions
-            #
-            # addendum 061121: if this is usage tracked (which was never intended), then right here we invalidate whatever used it
-            # (but nothing used it yet, the first time we draw), but in draw_in_abs_coords we use it, so if we ever redraw
-            # after that (as we will - note, nothing yet clears/replaces this per_frame_state every frame),
-            # then that invals the highlighted thing... i can imagine this creating extra invals, esp since the change
-            # occurs during usage tracking of a computation (invalling it the first time), which then uses the same thing.
-            # I don't quite see the exact cause, but I certainly see that it's not an intended use of this system.
-            # (#e sometime I should think it through, understand what's legal and not legal, and add specific checks and warnings.)
-            #  Meanwhile, since all per_frame state is not intended to be usage-tracked, just recorded for ordinary untracked
-            # set and get, I'll just change it to have that property. And review glpane_state too.
-            ###@@@ [this, and 061120 cmts/stringlits]
+        self.save_coords_if_safe()
         if self.glname != self.glpane_state.glname:
             print "bug: in %r, self.glname %r != self.glpane_state.glname %r" % \
                   (self, self.glname, self.glpane_state.glname) #070213 -- since similar bug was seen for _index_counter in class World
