@@ -553,23 +553,52 @@ trans_image = Image(convert = 'RGBA', decal = False, blend = True,
                         # to limit to a triangle. [did this below, see testexpr_11pd6 etc]
                     clamp = True, # this removes the artifacts that show the edges of the whole square of the image file
                     ideal_width = 100, ideal_height = 100, size = Rect(100*PIXELS))
-_tmp = DraggableObject(Image("blueflake.jpg"))
-_files = """Cancel_100x100_translucent.png
+
+_files1 = """Cancel_100x100_translucent.png
 Cancel_100x100.png
 OK_Cancel_100x100_translucent.png
 OK_Cancel_100x100.png
 OK_Cancel_Triangles_100x100_translucent.png
 OK_Cancel_Triangles_100x100.png
 OK_Cancel_TrianglesOutline_100x100.png""".split()
-_dir = "/Nanorex/confirmation-corner/"
-for _file, _i in zip(_files, range(len(_files))):
-    _translation = (_i - 4) * 2.5 * DX # de-overlap them
-    _tmp = Overlay( _tmp, Closer(DraggableObject(
-        WithAttributes( trans_image( _dir + _file ), mt_name = _file ), #e rename mt_name in this interface? (used by DraggableObject)
-        translation = _translation)) ) 
 
-testexpr_11pd5 = _tmp # works; only looks good over atoms ("the model") if you hack testdraw to draw the model before this expr,
+_dir1 = "/Nanorex/confirmation-corner/" # not in cvs
+
+def test_translucent_icons(_files, _dir = ""): #e refile into images.py? (along with trans_image?)
+    if type(_files) == type(""):
+        # permit single file arg [untested, as is _dir = "" with os.path.join]
+        _files = [_files]
+    _tmp = DraggableObject(SimpleColumn(Image("blueflake.jpg", size = Rect(5)),
+                                        TextRect("drag blueflake under icons to see\n"
+                                                 "their translucency over it")),
+                           translation = (0,0,0))
+    for _file, _i in zip(_files, range(len(_files))):
+        _translation = (_i - 4) * 2.5 * DX # de-overlap them
+        _tmp = Overlay( _tmp, Closer(DraggableObject(
+            WithAttributes( trans_image( os.path.join( _dir, _file) ), mt_name = _file ), #e rename mt_name in this interface? (used by DraggableObject)
+            translation = _translation)) )
+    _tmp = Overlay(_tmp,
+                   DraggableObject(SimpleColumn(Rect(5,5,red),
+                                                TextRect("drag red rect under icons to see which\n"
+                                                         "pixels are highlightable/draggable\n"
+                                                         "(it's drawn so they'll obscure it fully)")),
+                                   translation = (-6,-8,-10)))
+    return _tmp
+
+testexpr_11pd5 = test_translucent_icons(_files1, _dir1) # works; only looks good over atoms ("the model") if you hack testdraw to draw the model before this expr,
     # rather than after it (now there is a checkbox_pref for that, and it has the right default, 070404)
+
+_files2 = """BigCancel.png
+BigCancel_pressed.png
+BigOK.png
+BigOK_pressed.png
+Cancel_pressed.png
+OK_Cancel.png
+OK_pressed.png""".split()
+
+_dir2 = "/Nanorex/confirmation-corner/new-icons/" # not in cvs
+
+testexpr_11pd5a = test_translucent_icons(_files2, _dir2) # test Mark's latest images -- they work
 
 ok_image = trans_image( shape = 'upper-left-half') # further customization
 ok_image_2 = trans_image( shape = [(1,1),(0,1),(0.5,0.75)]) # upper quarter, but only upper half of that again, just for testing
@@ -1519,7 +1548,7 @@ testexpr_38 = PartialDisk() # works 070401, in stub form with no settable parame
 
 enable_testbed = True
 
-testexpr = testexpr_11pd10a # testexpr_38 # testexpr_30i # testexpr_37
+testexpr = testexpr_11pd5a # testexpr_38 # testexpr_30i # testexpr_37
     # testexpr_37 - demo_draw_on_surface
     # testexpr_36e - clipped sphere
     # testexpr_34a - unfinished demo_ui
