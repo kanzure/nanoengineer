@@ -366,7 +366,8 @@ testexpr_9d = testexpr_9b( on_release_in = print_Expr('release in, customized'))
 testexpr_9e = testexpr_9b( on_release_in = None) # works
     # test an action of None (should be same as a missing one) (also supplied by customization after args)
 
-testexpr_9cx = SimpleColumn(testexpr_9a, testexpr_9b(projection = True)) # works 070118?? before that -- ###BUG -- that option breaks the functionality.
+testexpr_9cx = SimpleColumn(testexpr_9a, testexpr_9b(projection = True)) # works 070118?? [verified still works 070405]
+    # before that -- ###BUG -- that option breaks the functionality.
     # guess: it might mess up the glselect use of the projection matrix. (since ours maybe ought to be multiplied with it or so)
     #
     # ... update 070118: if I understand this correctly, it's working now (EVAL_REFORM off or on both work, with no testbed).
@@ -375,6 +376,9 @@ testexpr_9cx = SimpleColumn(testexpr_9a, testexpr_9b(projection = True)) # works
     # OTOH I didn't review this code now -- maybe all that happened is I disabled that projection option somehow. Who knows. #k
     # BTW it has lots of debug prints like <Highlightable#146280(i)> (projection=True) not saving due to current_glselect.
     # I don't know if it always did.
+
+testexpr_9cy = DrawInCorner_NOTWORKING_VERSION(Highlightable(Rect(1,1,black),Rect(1,1,green),projection=True)) # 070405, works!
+    # So, projection matrix changes are now ok re Highlightable if you tell it projection=True. See comments therein for more.
 
 
 testexpr_9f = Highlightable( Rect(color = If_expr(_this(Highlightable).env.glpane.in_drag, blue, lightblue))) # fails, silly reason
@@ -605,16 +609,16 @@ ok_image_2 = trans_image( shape = [(1,1),(0,1),(0.5,0.75)]) # upper quarter, but
 
 cancel_image = trans_image( shape = 'lower-right-half') 
 
-testexpr_11pd6 = DraggableObject( ok_image( _dir + "OK_Cancel_TrianglesOutline_100x100.png", alpha_test = False )) # works (grabs in too many places)
+testexpr_11pd6 = DraggableObject( ok_image( _dir1 + "OK_Cancel_TrianglesOutline_100x100.png", alpha_test = False )) # works (grabs in too many places)
     # also confirms that the sharp edge is a bit too close for antialiasing, at least on the border with the other button (but that's ok on that edge)
-testexpr_11pd7 = DraggableObject( ok_image( _dir + "OK_Cancel_TrianglesOutline_100x100.png", alpha_test = True )) # works (grabs in too few places)
+testexpr_11pd7 = DraggableObject( ok_image( _dir1 + "OK_Cancel_TrianglesOutline_100x100.png", alpha_test = True )) # works (grabs in too few places)
     #e to grab in best set of places (i mean, let best set of pixels cause highlight, sbar text, and be potential drag-grip-points),
     # but not mess up antialiasing of the visible edge, pass in a custom subtriangle shape...
     # but we probably won't need this in practice, since the real images will not have fully transparent holes,
     # so it'll be enough to use alpha_test = True (the default, given blend = true) for them.
 
-testexpr_11pd8 = DraggableObject( ok_image_2( _dir + "OK_Cancel_TrianglesOutline_100x100.png", alpha_test = False )) # works
-testexpr_11pd9 = DraggableObject( cancel_image( _dir + "OK_Cancel_TrianglesOutline_100x100.png", alpha_test = True )) # works (expected grab caveats)
+testexpr_11pd8 = DraggableObject( ok_image_2( _dir1 + "OK_Cancel_TrianglesOutline_100x100.png", alpha_test = False )) # works
+testexpr_11pd9 = DraggableObject( cancel_image( _dir1 + "OK_Cancel_TrianglesOutline_100x100.png", alpha_test = True )) # works (expected grab caveats)
 testexpr_11pd10 = DraggableObject( ok_image( "blueflake.jpg", alpha_test = True, convert = False )) # works (subtri of opaque image)
     # tests different native size, jpg not png, perhaps different native format (RGB vs RGBA, don't know), tri coords ok for diff native size,
     # and finding filename in usual way. BTW, with convert = RGBA or RGB has SystemError: unknown raw mode (and message mentions CMYK).
@@ -1548,7 +1552,7 @@ testexpr_38 = PartialDisk() # works 070401, in stub form with no settable parame
 
 enable_testbed = True
 
-testexpr = testexpr_11pd5a # testexpr_38 # testexpr_30i # testexpr_37
+testexpr = testexpr_9cy # testexpr_38 # testexpr_30i # testexpr_37
     # testexpr_37 - demo_draw_on_surface
     # testexpr_36e - clipped sphere
     # testexpr_34a - unfinished demo_ui

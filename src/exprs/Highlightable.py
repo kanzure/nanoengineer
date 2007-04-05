@@ -583,13 +583,18 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler): #070317 spli
         return # from _init_instance in Highlightable
     
     def draw(self):
-        if not self.env.glpane.current_glselect:
+        glpane = self.env.glpane
+        if not glpane.current_glselect: #e see also save_coords_if_safe (just added) which uses the same cond. use it here? 070401
             # see if this cond fixes the projection=True bug (when not in DrawInCorner_NOTWORKING_VERSION anyway)
-            # update 070401: did it fix that bug?? see also save_coords_if_safe (just added) which uses the same cond.
+            # update 070401: did it fix that bug?? at least it's fixed now...
             self.save_coords()
+            if self.projection:
+                print "SAVED: %r (projection=%r): saved coords, drawing_phase = %r" % (self, self.projection, glpane.drawing_phase)
+                # always shows drawing_phase = 'main'
         else:
             if self.projection: # since this debug print is only needed when investigating the bug _9cx in using that option
-                print "%r (projection=%r) not saving due to current_glselect" % (self, self.projection)####
+                print "NOT saved: %r (projection=%r) not saving due to current_glselect (%r)" % (self, self.projection, glpane.drawing_phase)####
+                # always shows drawing_phase = 'glselect'
             # these comments are about the implem of save_coords -- need review, which are obs and which should be moved? ###
             #
             ###WRONG if we can be used in a displaylist that might be redrawn in varying orientations/positions
