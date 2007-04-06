@@ -568,18 +568,28 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         mol = self.molecule
         return archive.childobj_liveQ(mol) and mol.atoms.has_key(self.key)
 
+    # For each entry in this dictionary, add a context menu entry on atoms of the key element type
+    # allowing transmutation to each of the element types in the value list.
+    _transmuteContextMenuEntries = {
+        'Ae': ['Ax'],
+        'Ax': ['Ae'],
+        'Pe': ['Pl', 'Sh'],
+        'Pl': ['Pe', 'Sh'],
+        'Sh': ['Pe', 'Pl'],
+        'Sj': ['Ss'],
+        'Ss': ['Sj'],
+        }
     def make_selobj_cmenu_items(self, menu_spec): #bruce 060405 (generalized from Jig method)
         '''Add self-specific context menu items to <menu_spec> list when self is the selobj,
         in modes that support it (e.g. depositMode and selectMode and subclasses).
         '''
-        if (self.element.symbol == 'Ss'):
-            newElement = PeriodicTable.getElement('Sj')
-            command = ( lambda arg1=None, arg2=None, atom=self, newElement=newElement: atom.Transmute(newElement) )
-            menu_spec.append(("Transmute to Sj", command))
-        if (self.element.symbol == 'Sj'):
-            newElement = PeriodicTable.getElement('Ss')
-            command = ( lambda arg1=None, arg2=None, atom=self, newElement=newElement: atom.Transmute(newElement) )
-            menu_spec.append(("Transmute to Ss", command))
+        fromSymbol = self.element.symbol
+        if (self._transmuteContextMenuEntries.has_key(fromSymbol)):
+            menu_spec.append(None) # separator
+            for toSymbol in self._transmuteContextMenuEntries[fromSymbol]:
+                newElement = PeriodicTable.getElement(toSymbol)
+                command = ( lambda arg1=None, arg2=None, atom=self, newElement=newElement: atom.Transmute(newElement) )
+                menu_spec.append(("Transmute to %s" % toSymbol, command))
         if platform.atom_debug:
             from undo_archive import _undo_debug_obj
             if self is _undo_debug_obj:
