@@ -877,6 +877,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         """do whatever updates are needed after self.mode might have changed
         (ok if this is called more than needed, except it might be slower)
         """
+        self.mouse_event_handler = None
+            #e maybe tell the old mouse_event_handler it's no longer active
+            # (i.e. give it a "leave event" if when == 'move') -- not needed for now [bruce 070405]
         if self.selatom is not None: #bruce 050612 precaution (scheme could probably be cleaned up #e)
             if platform.atom_debug:
                 print "atom_debug: update_after_new_mode storing None over self.selatom", self.selatom
@@ -1253,24 +1256,39 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
     modkeys = None
     in_drag = False
     button = None
+    mouse_event_handler = None # None, or an object to handle mouse events and related queries instead of self.mode
+        # [bruce 070405, new feature for confirmation corner support, and for any other overlay widgets which are handled
+        #  mostly independently of the current mode -- and in particular which are not allowed to depend on the recent APIs
+        #  added to selectMode, and/or which might need to be active even if current mode is doing xor-mode OpenGL drawing.]
     
-    def fix_event(self, but, when, target): #bruce 060220 added support for self.modkeys
-        """[For most documentation, see fix_event_helper.
+    def fix_event(self, event, when, target): #bruce 060220 added support for self.modkeys
+        """[For most documentation, see fix_event_helper. Argument <when> is one of 'press', 'release', or 'move'.
             We also set self.modkeys to replace the obsolete mode.modkey variable.
             This only works if we're called for all event types which want to look at that variable.]
         """
-        but = fix_event_helper(self, but, when, target)
+        but = fix_event_helper(self, event, when, target)
             # fix_event_helper has several known bugs as of 060220, including:
-            # - target is not currently used, and it's not clear what it might be for
+            # - target is not currently used, and it's not clear what it might be for [in this method, it's self.mode]
             # - it's overly bothered by dialogs that capture press and not release;
             # - maybe it can't be called for key events, but self.modkeys needs update then [might be fixed using in_drag #k];
             # - not sure it's always ok when user moves from one widget to another during a drag;
             # - confused if user releases two mouse buttons at different times to end a drag (thinks the first one ended it).
             # All these can be fixed straightforwardly when they become important enough. [bruce 060220]
-        
+
+        # How we'll update self.mouse_event_handler, so its new value can handle this event after we return
+        # (and handle queries by update_cursor and the like, either after we return or in this same method call):
+        # - press: change based on current point (event position in window coords)
+        # - move: if in_drag, leave unchanged, else (bareMotion) change based on current point.
+        # - release: leave unchanged (since release is part of the ongoing drag).
+        # We can't do this all now, since we don't know in_drag yet,
+        # nor all later, since that would be after a call of update_cursor -- except that
+        # in that case, we're not changing it, so (as a kluge) we can ignore that issue
+        # and do it all later.
+
         if when == 'release':
             self.in_drag = False
             self.button = None
+            # leave self.mouse_event_handler unchanged, so it can process the release if it was handling the drag
             self.mode.update_cursor()
         else:
             olddrag = self.in_drag
@@ -1284,7 +1302,17 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
                     # To get here, two mouse buttons were pressed at the same time and one was 
                     # released (i.e. in-drag = 3, 5, 6). Leave self.button unchanged.
                     pass 
-            
+            if when == 'press' or (when == 'move' and not self.in_drag):
+                wX = event.pos().x()
+                wY = self.height - event.pos().y()
+                new_mouse_event_handler = self.mode.mouse_event_handler_for_event_position( wX, wY) ####IMPLEM in basicMode etc
+                if new_mouse_event_handler is not self.mouse_event_handler:
+                    #e maybe tell the old one it's no longer active (i.e. give it a "leave event" if when == 'move')
+                    # and/or tell the new one it is (i.e. give it an "enter event" if when == 'move') -- not needed for now
+                    self.mouse_event_handler = new_mouse_event_handler
+                    self.mode.update_cursor()
+                pass
+                
         self.update_modkeys(but)
             # need to call this when drag starts; ok to call it during drag too,
             # since retval is what came from fix_event
@@ -1358,6 +1386,11 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
             # env.postevent_updates (see its call to find them). But I might do the lone-releaseEvent checkpoint too. [bruce 060323]
             # Update, 060326: reverting the most_of_paintGL checkpointing, since it caused bug 1759 (more info there).
 
+        handler = self.mouse_event_handler # updated by fix_event [bruce 070405]
+        if handler is not None:
+            handler.mouseDoubleClickEvent(event)
+            return
+
         if but & leftButton:
             self.mode.leftDouble(event)
         if but & midButton:
@@ -1421,7 +1454,12 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         ## print "Button pressed: ", but
 
         self.checkpoint_before_drag(event, but)
-        
+
+        handler = self.mouse_event_handler # updated by fix_event [bruce 070405]
+        if handler is not None:
+            handler.mousePressEvent(event)
+            return
+
         if but & leftButton:
             if but & shiftButton:
                 self.mode.leftShiftDown(event)
@@ -1457,7 +1495,13 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         ## but = event.state()
         but = self.fix_event(event, 'release', self.mode)
         ## print "Button released: ", but
-        
+
+        handler = self.mouse_event_handler # updated by fix_event [bruce 070405]
+        if handler is not None:
+            handler.mouseReleaseEvent(event)
+            self.checkpoint_after_drag(event)
+            return
+
         try:
             if but & leftButton:
                 if but & shiftButton:
@@ -1533,6 +1577,11 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         ##self.debug_event(event, 'mouseMoveEvent')
         ## but = event.state()
         but = self.fix_event(event, 'move', self.mode)
+
+        handler = self.mouse_event_handler # updated by fix_event [bruce 070405]
+        if handler is not None:
+            handler.mouseMoveEvent(event)
+            return
         
         if but & leftButton:
             if but & shiftButton:
@@ -2003,6 +2052,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         return # from paintGL
 
     standard_glDepthFunc = GL_LESS # default value for modes that don't have one, and default initial value for our instance var
+    standard_glDepthFunc_name = 'GL_LESS' # should correspond; used only in error messages [bruce 070406]
     
     def most_of_paintGL(self): #bruce 060323 split this out of paintGL
         "Do most of what paintGL should do."
@@ -2025,26 +2075,29 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
             drawer.enable_fog()
 
         # restore standard OpenGL state settings [bruce 070117, though seems like a good idea for the past; #e should make it a method]
-        self.standard_glDepthFunc = getattr(self.mode, 'standard_glDepthFunc', self.__class__.standard_glDepthFunc)
+        default_glDepthFunc = self.__class__.standard_glDepthFunc
+        default_glDepthFunc_name = self.__class__.standard_glDepthFunc_name
+        self.standard_glDepthFunc = getattr( self.mode, 'standard_glDepthFunc', default_glDepthFunc)
             #e I plan to try GL_LEQUAL in testmode, and if it works, maybe adopt it generally [bruce 070117]
         if 1:
-            # Ninad reported a bug when leaving cookiemode with Done after drawing a cookie:
+            # Ninad reported a bug when leaving cookiemode with Done after drawing a cookie: 
             # "TypeError: an integer is required" when self.glDepthFunc calls glDepthFunc on its first arg.
-            # I can't understand how that could happen, but I can try to protect against it.
+            # I can't understand how that could happen [later: probably from nullMode], but I can try to protect against it.
             # If we never see this print, we can call it nonrepeatable and remove this;
             # otherwise we should diagnose the cause and fix it. [bruce 070126]
+            if self.standard_glDepthFunc is None:
+                self.standard_glDepthFunc = default_glDepthFunc # let None mean "use standard", so nullMode can do this [bruce 070406]
             if self.standard_glDepthFunc not in (GL_LESS, GL_LEQUAL): # should never happen
-                print "bug: self.standard_glDepthFunc should not be %r -- setting it to GL_LESS == %r" % \
-                      (self.standard_glDepthFunc,  GL_LESS)
-                self.standard_glDepthFunc = GL_LESS
+                print "bug: self.standard_glDepthFunc should not be %r -- setting it to %r == %r" % \
+                      (self.standard_glDepthFunc, default_glDepthFunc_name, default_glDepthFunc)
+                self.standard_glDepthFunc = default_glDepthFunc
         self.glDepthFunc( self.standard_glDepthFunc, always = True)
         
-        try: #bruce 061208
-            self.mode.render_scene
-        except AttributeError:
+        method = getattr(self.mode, 'render_scene', None) #bruce 070406 revised this
+        if method is None:
             self.render_scene() # usual case
         else:
-            self.mode.render_scene( self) # let the mode override it
+            method( self) # let the mode override it
 
         if fog_test_enable:
             # this next line really should be just after rendering
@@ -2544,6 +2597,14 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
             else:
                 drawer.drawaxes(self.scale, (0.0,0.0,0.0), coloraxes=True, dashEnabled = True)
 
+        self.drawing_phase = 'overlay'
+	try:
+            glMatrixMode(GL_MODELVIEW) #k needed?
+            self.mode.draw_overlay() #bruce 070405
+        except:
+            print_compact_traceback( "exception in self.mode.draw_overlay(): " )
+        self.drawing_phase = '?'
+        
         glMatrixMode(GL_MODELVIEW) #bruce 050707 precaution in case drawing code outside of paintGL forgets to do this
             # (see discussion in bug 727, which was caused by that)
             # (it might also be good to set mode-specific standard GL state before checking self.redrawGL in paintGL #e)

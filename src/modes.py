@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2007 Nanorex, Inc.  All rights reserved.
 """
 modes.py -- provides basicMode, the superclass for all modes, and
 modeMixin, for GLPane.
@@ -111,8 +111,16 @@ class anyMode( StateMixin): #bruce 060223 renamed mixin class
 
     def selobj_still_ok(self, selobj): #bruce 050702 added this to mode API; overridden in basicMode, and docstring is there
         return True
+
+    def mouse_event_handler_for_event_position(self, wX, wY): #bruce 070405
+        return None
+
+    def draw_overlay(self): #bruce 070405
+        return
+
+    standard_glDepthFunc = None #bruce 070406; this means GLPane will use its own default
     
-    pass
+    pass # end of class anyMode
 
 
 class nullMode(anyMode):
@@ -150,7 +158,10 @@ class nullMode(anyMode):
         pass
     def Done(self, *args, **kws): #bruce 060316 added this to remove frequent harmless debug print
         pass
-    pass ##e maybe needs to have some other specific methods?
+    render_scene = None #bruce 070406; this tells GLPane to use default method,
+        # but removes the harmless debug print for missing nullMode attr
+    compass_moved_in_from_corner = False  #bruce 070406
+    pass # end of class nullMode ##e maybe needs to have some other specific methods?
 
 
 class basicMode(anyMode):
@@ -353,6 +364,69 @@ class basicMode(anyMode):
         that needs to put up a context menu (useful for "dynamic context menus").]
         """
         pass ###e move the default menu_spec to here in case subclasses want to use it?
+
+    # ==
+
+    # confirmation corner methods [bruce 070405]
+    
+    def want_confirmation_corner_type(self):
+        """Subclasses should return the type of confirmation corner they currently want,
+        typically computed from their current state. The return value can be one of the
+        strings XXX, or None, or a suitable expr [see confirmation_corner.py for related info].
+        [Many subclasses will need to override this; we might also revise the default
+         to be computed in a typically correct manner, e.g. by using hasNontrivialState(sp?).]
+        """
+        return 'Done+Cancel' # default, mainly useful for testing
+
+    _ccinstance = None
+    
+    def draw_overlay(self): #bruce 070405
+        "called from GLPane with drawing coordsys XXX"
+        from debug_prefs import debug_pref, Choice_boolean_False
+        if not debug_pref("enable confirmation_corner stub code?", Choice_boolean_False, prefs_key = True):
+            ###DISABLED by default for initial commit, so NE1 needn't import exprs module code by default until it needs to...
+            return 
+        # figure out what kind of confirmation corner we want, and draw it
+        import confirmation_corner
+        cctype = self.want_confirmation_corner_type()
+        self._ccinstance = confirmation_corner.find_or_make(cctype, self)
+            # might use an instance cached in self (in an attr private to that helper function)
+            # self._ccinstance might be None
+        if self._ccinstance is not None:
+            # it's an expr instance we want to draw, and to keep around for queries
+            self._ccinstance.draw()
+        return
+
+    def mouse_event_handler_for_event_position(self, wX, wY): #bruce 070405
+        """Some mouse events should be handled by special "overlay" widgets
+        (e.g. confirmation corner buttons) rather than by the GLPane & mode's
+        usual event handling functions. This mode API method is called by the
+        GLPane to determine whether a given mouse position (in OpenGL-style
+        window coordinates, 0,0 at bottom left) lies over such an overlay widget.
+           Its return value is saved in glpane.mouse_event_handler -- a public
+        fact, which can be depended on by mode methods such as update_cursor --
+        and should be None or an object that obeys the MouseEventHandler interface.
+        (Note that modes themselves don't (currently) provide that interface --
+        they get their mouse events from GLPane in a more-digested way than that
+        interface supplies.)
+           Note that this method is not called for all mouse events -- whether
+        it's called depends on the event type (and perhaps modkeys). The caller's
+        policy as of 070405 (fyi) is that the mouse event handler is not changed
+        during a drag, even if the drag goes off the overlay widget, but it is
+        changed during bareMotion if the mouse goes on or off of one. But that
+        policy is the caller's business, not self's.
+           [Subclasses should override this if they show extra or nostandard
+        overlay widgets, but as of the initial implem (070405), that's not likely
+        to be needed.]
+        """
+        if self._ccinstance is not None:
+            method = getattr(self._ccinstance, 'want_event_position')
+            if method:
+                if method(wX, wY):
+                    return self._ccinstance
+            elif platform.atom_debug:
+                print "atom_debug: fyi: ccinstance %r with no want_event_position method" % (self._ccinstance,)
+        return None
 
     # ==
     
@@ -1418,6 +1492,12 @@ class basicMode(anyMode):
         '''Update the cursor based on the current mouse button and mod keys pressed.
         '''
         #print "basicMode.update_cursor(): button=",self.o.button,", modkey=",self.o.modkeys
+        
+        handler = self.o.mouse_event_handler # [bruce 070405]
+        if handler is not None:
+            handler.update_cursor(self)
+            return
+        
         if self.o.button is None:
             self.update_cursor_for_no_MB()
         elif self.o.button == 'LMB':
