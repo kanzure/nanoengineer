@@ -1,4 +1,4 @@
-# Copyright (c) 2006 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2006-2007 Nanorex, Inc.  All rights reserved.
 '''
 testdraw.py -- scratchpad for new code, OWNED BY BRUCE, not imported by default.
 

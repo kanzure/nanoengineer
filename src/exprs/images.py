@@ -66,7 +66,7 @@ class _texture_holder(object):
     objects of this class are meant to be saved as a memoized dict value with the filename being the dict key
     """
     #e so far, no param choices, keep only one version, no mgmt, no scaling...
-    __metaclass__ = ExprsMeta #e or could use SimpleComputeMethodMixin(sp?) I think
+    __metaclass__ = ExprsMeta #e or could use ConstantComputeMethodMixin I think
     def __init__(self, tex_key):
         self.filename, self.pil_kws_items = tex_key # have to put sorted items tuple in key, since dict itself is unhashable
         self.pil_kws = dict(self.pil_kws_items)
