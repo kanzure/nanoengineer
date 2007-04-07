@@ -1806,10 +1806,14 @@ def assy_merge_mols(assy, mollist):
     ## # position in model tree groups, I think...
     ## for now, don't sort, use selection order instead.
     res = mollist[0]
+    from debug_prefs import debug_pref, Choice_boolean_False
+    if debug_pref("Extrude: don't merge selected chunks", Choice_boolean_False, prefs_key = True):
+        #bruce 070406; when it works, change default?? not sure. hook up to new dashboard checkbox, i guess. ###e
+        res = fake_merged_mol(res)
     for mol in mollist[1:]: # ok if no mols in this loop
         if platform.atom_debug:
             print "fyi (atom_debug): extrude merging a mol"
-        res.merge(mol) ###k ###@@@ 041116 new feature, untested
+        res.merge(mol) #041116 new feature
         # note: this will unpick mol (modifying assy.selmols) and kill it
     return res
 
@@ -1950,6 +1954,74 @@ def mergeable_singlets_Q_and_offset(s1, s2, offset2 = None, tol = 1.0):
         if vlen(offset2 - ideal_offset2) > error_offset2:
             return res_bad
     return (True, ideal_offset2, error_offset2)
+
+# ==
+
+# bruce 070406 new stuff for making it possible to not merge the mols in assy_extrude_unit
+
+## from exprs.ExprsMeta import ConstantComputeMethodMixin
+class fake_merged_mol: ## (ConstantComputeMethodMixin):
+    "private helper class for use in Extrude, to let it treat a set of mols as if they were merged into one."
+    def __init__(self, mols, _imacopy = False):
+        print "warning: this extrude non-merging thing doesn't yet work, in fact it eats some of your mols" ####
+        self._saw = {} # for initial debug only; see __getattr__ (dict of attrs we've delegated)
+        self._imacopy = _imacopy # so far, just for debug msgs; might turn out to be useful for extrude to know, we'll see
+        self._mols = []
+        try:
+            mols = list(mols)
+        except:
+            mols = [mols] # kluge(?) -- let mols be a single mol or a list of them
+        for mol in mols:
+            self.merge(mol)
+    def merge(self, mol):
+        """Unlike Chunk.merge(mol) (for mol being another chunk),
+        only remember mol, don't steal its atoms and kill it.
+        Also let mol be a Group, not just a Chunk
+        (though we may define fewer methods correctly in that case,
+         since we define just barely enough to get by in the current private use).
+        We will let Extrude call this method and think it's really merging, though it's not.
+        NOTE: it may do this not only in assy_extrude_unit, but in merging the copies
+        to create the final product.
+        """
+        self._mols.append(mol)
+        return
+    def __getattr__(self, attr):
+        ###STUB for debug: delegate to first mol (non-caching), and report doing so once.
+        if attr.startswith('__'):
+            raise AttributeError, attr
+        if not self._saw.get(attr):
+            print "fake_merged_mol (copy? %r) will delegate attr %r" % (self._imacopy, attr)
+            self._saw[attr] = 1
+        return getattr(self._mols[0], attr)
+    def copy(self, dad):
+        # design Q: should the copies be actual groups? 
+        # It'd be easier to add them to assy.tree that way; we could always ungroup them later.
+
+        # Guess: that would be simpler. Depends what methods we use on them. 
+        # To find out, make a group here, then wrap that with this class 
+        # so we print the methods needed on it. Probably most are already ok on it. 
+        ##### TRY THAT NEXT
+        assert dad is None
+        copies = [mol.copy(None) for mol in self._mols]
+        assy = self._mols[0].assy
+        group = Group('extruded', assy, None, copies)
+        return self.__class__([group], _imacopy = True) #e or maybe have another class just for wrapping a single Group -- cleaner
+         
+    pass
+    # the methods/attrs we need to handle on the baseunit are:
+    ##fake_merged_mol will delegate attr 'externs'
+    ##fake_merged_mol will delegate attr 'full_inval_and_update'
+    ##fake_merged_mol will delegate attr 'atoms'
+    ##fake_merged_mol will delegate attr 'get_dispdef'
+    ##fake_merged_mol will delegate attr 'singlets'
+    ##fake_merged_mol will delegate attr 'center'
+    ##fake_merged_mol will delegate attr 'quat'
+    ##fake_merged_mol will delegate attr 'copy'
+    ##fake_merged_mol will delegate attr 'unpick'
+    ##fake_merged_mol will delegate attr 'changeapp'
+    ##fake_merged_mol will delegate attr 'draw'
+    # and on the copies? don't know yet, but at least also set_basecenter_and_quat...
+
 
 # ==
 
