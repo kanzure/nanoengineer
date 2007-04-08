@@ -402,7 +402,7 @@ class extrudeMode(basicMode):
         old = self.product_type
         new = self.w.extrude_productTypeComboBox_ptypes[val]
         if new != old:
-            print "product_type = %r" % (new,) ####@@@Debug
+            # print "product_type = %r" % (new,)
             self.product_type = new
             ## i will remove those "not neededs" as soon as this is surely past the josh demo snapshot [041017 night]
             self.needs_repaint = 1 #k not needed since update_from_controls would do this too, i hope!
@@ -1614,7 +1614,7 @@ class extrudeMode(basicMode):
                     mol.draw(self.o, dispdef) # ...dispdef arg not used (041013)
                         # update, bruce 070407: now that mol can also be a fake_copied_mol,
                         # it's simplest to just use a fake dispdef here.
-            try: #bruce 050203 experiment
+            try: #bruce 050203
                 for unit1,unit2 in zip(self.molcopies[:-1],self.molcopies[1:]):
                     self.draw_bond_lines(unit1,unit2)
             except:
@@ -1801,6 +1801,8 @@ class extrudeMode(basicMode):
 
 # ==
 
+# helper functions for extrudeMode.Enter
+
 # should be a method in assembly (maybe there is one like this already??)
 def assy_merge_mols(assy, mollist):
     "merge multiple mols in assy into one mol in assy, and return it"
@@ -1813,7 +1815,8 @@ def assy_merge_mols(assy, mollist):
     res = mollist[0]
     from debug_prefs import debug_pref, Choice_boolean_False
     if debug_pref("Extrude: leave base-chunks separate", Choice_boolean_False, prefs_key = True):
-        #bruce 070406; when it works, change default?? not sure. hook up to new dashboard checkbox, i guess. ###e
+        #bruce 070407; when it works, change default?? not sure. hook up to new dashboard checkbox, i guess. ###e
+        # could optim by not doing this when only one member, but that might hide bugs and doesn't matter otherwise, so nevermind
         res = fake_merged_mol(res)
     for mol in mollist[1:]: # ok if no mols in this loop
 ##        if platform.atom_debug:
@@ -1993,7 +1996,7 @@ def true_Chunks_in(mol): #bruce 070407
 
 # ==
 
-# bruce 070406 new stuff for making it possible to not merge the mols in assy_extrude_unit
+# bruce 070407 new stuff for making it possible to not merge the mols in assy_extrude_unit
 
 class virtual_group_of_Chunks:
     "private superclass for sets of chunks treated in some ways as if they were one chunk"
@@ -2034,9 +2037,10 @@ class virtual_group_of_Chunks:
     
 class fake_merged_mol( virtual_group_of_Chunks):
     "private helper class for use in Extrude, to let it treat a set of mols as if they were merged into one."
+    officially_delegated = ('center','quat')
     def __init__(self, mols):
         self._saw = {} # for initial debug only; see __getattr__ (dict of attrs we've delegated)
-        for attr in ('center','quat'):
+        for attr in self.officially_delegated:
             self._saw[attr] = 1 # since default delegation for those is correct
         self._mols = []
         try:
@@ -2067,15 +2071,16 @@ class fake_merged_mol( virtual_group_of_Chunks):
             self._mols.append(mol)
         return
     def __getattr__(self, attr):
-        ###STUB for debug: delegate to first mol (non-caching), and report doing so once.
+        # for debugging (and for attrs named in officially_delegated):
+        # delegate to first mol (non-caching), and report doing so only once.
         if attr.startswith('__'):
             raise AttributeError, attr
         if attr == 'externs':
-            return self._get_externs() # don't cache, since return value is not constant -- will this be too slow?? ####e
+            return self._get_externs() # don't cache, since return value is not constant -- will this be too slow?? ###e
         if attr == 'singlets':
             return self._get_singlets() # don't cache, since return value is not constant
         if not self._saw.get(attr):
-            print_compact_stack("fake_merged_mol will delegate attr %r: " % (attr))
+            print_compact_stack("fake_merged_mol will delegate attr %r: " % (attr)) # not printed for attrs in officially_delegated
             self._saw[attr] = 1
         return getattr(self._mols[0], attr)
     def copy(self, dad):
@@ -2089,30 +2094,22 @@ class fake_merged_mol( virtual_group_of_Chunks):
         return
     pass # end of class fake_merged_mol
 
-    # the methods/attrs we need to handle on the baseunit are: [#e move these usage cmts onto the methods]
+    # the methods/attrs we need to handle on the baseunit are:
     
     ##fake_merged_mol will delegate attr 'externs' + [needed to bust them so singlets have definite .info attr, preserved on copy]
     ##fake_merged_mol will delegate attr 'full_inval_and_update' + [needed to reset quats to 0, i think -- maybe since done by copy??]
-    ##fake_merged_mol will delegate attr 'atoms' ###### [needed in mark_singlets, at least -- maybe rewrite it or use separate_basemols]
-    ##fake_merged_mol will delegate attr 'get_dispdef' -- zapped the uses, i hope ###k
+    ##fake_merged_mol will delegate attr 'atoms' - not needed -- was in mark_singlets and another, both rewritten as loops
+    ##fake_merged_mol will delegate attr 'get_dispdef' -- zapped the uses
     ##fake_merged_mol will delegate attr 'singlets' + [used in recompute_for_new_unit]
-    ##fake_merged_mol will delegate attr 'center' #k - 1st mol ok
-    ##fake_merged_mol will delegate attr 'quat' #k - 1st mol ok
+    ##fake_merged_mol will delegate attr 'center' - 1st mol ok
+    ##fake_merged_mol will delegate attr 'quat' - 1st mol ok
     
     ##fake_merged_mol will delegate attr 'copy' +
-    ##fake_merged_mol will delegate attr 'unpick'- ###k NEEDED?
+    ##fake_merged_mol will delegate attr 'unpick' +
     ##fake_merged_mol will delegate attr 'changeapp' +
     ##fake_merged_mol will delegate attr 'draw' +
     
     # and on the copies? don't know yet, but at least also set_basecenter_and_quat...
-
-# design Q: should the copies be actual groups? 
-# It'd be easier to add them to assy.tree that way; we could always ungroup them later.
-
-# Guess: that would be simpler. Depends what methods we use on them. 
-# To find out, make a group here, then wrap that with this class 
-# so we print the methods needed on it. Probably most are already ok on it. 
-
 
 class fake_copied_mol( virtual_group_of_Chunks):
     """Holds a list of copied mols made by copying extrude's basemol when it's a fake_merged_mol,
@@ -2126,19 +2123,18 @@ class fake_copied_mol( virtual_group_of_Chunks):
         self._mols = copies # list of mol copies, made by an instance of fake_merged_mol, corresponding with its mols
         self._originals = originals # needed only in set_basecenter_and_quat (due to a kluge)
         assy = copies[0].assy
-        self._group = Group('extruded', assy, None, copies) # not yet in MT; OBSOLETE except for delegation, might cause bugs... ###
-##            # KLUGE: our client, extrudeMode, knows about self._group, and grabs it for use in MT rather than self, as special case
-##            # Note: we might find it useful to own a fake_merged_mol rather than a Group...
+##        self._group = Group('extruded', assy, None, copies) # not yet in MT; OBSOLETE except for delegation;
+            # I worried that it might cause dad-conflict bugs in the members, but evidently it doesn't...
+            # even so, safer to remove both this and __getattr__ (not only this, or __getattr__ infrecurs)
         return
-    ## __getattr__ still needed to get bond-drawing and bonding code to work
-    def __getattr__(self, attr):
-        #STUB for debug: delegate to self._group, and report doing so once. Delegation to group is ok for draw, but no longer used.
-        if attr.startswith('__'):
-            raise AttributeError, attr
-        if not self._saw.get(attr):
-            print_compact_stack( "fake_copied_mol will delegate attr %r: " % (attr))
-            self._saw[attr] = 1
-        return getattr(self._group, attr) ###kluge
+##    def __getattr__(self, attr):
+##        #STUB for debug: delegate to self._group, and report doing so once. Delegation to group is ok for draw, but no longer used.
+##        if attr.startswith('__'):
+##            raise AttributeError, attr
+##        if not self._saw.get(attr):
+##            print_compact_stack( "fake_copied_mol will delegate attr %r: " % (attr))
+##            self._saw[attr] = 1
+##        return getattr(self._group, attr) #kluge
     def set_basecenter_and_quat(self, c, q):
         std_basecenter = self._originals[0].basecenter
         for mol, orig in zip(self._mols, self._originals):
@@ -2148,16 +2144,15 @@ class fake_copied_mol( virtual_group_of_Chunks):
         return
     pass # end of class fake_copied_mol
 
-
-### do this before we can say we're done:
-# - review all uses of molcopies[ii] above ###
-# - fix all '####' above-near, incl stubs, center_quat stuff
-# - change the initial Enter code to not use the wrapper for one selected mol, i think
-# - test whether it works properly for merge products set or unset [done, it does, but only tested with groups present]
+# do this before we can say we're done with 'leave base-chunks separate' [bruce 070407]:
+# + deal with _colorfunc
+# + review all uses of molcopies[ii] above
+# + fix all '####' above-near, incl stubs, center_quat stuff
+# n change the initial Enter code to not use the wrapper for one selected mol, i think -- don't bother til ui/default is chosen
+# + test whether it works properly for merge products set or unset
 # + remove those groups it makes, or debug_pref them (and surely remove them at end if product gets merged)
-# - debug pref should be checkbox
-
-# did already: colorfunc
+# - test ring mode [should make several parallel rings] ###
+# - debug pref should be checkbox ###
 
 # ==
 
@@ -2172,5 +2167,4 @@ class revolveMode(extrudeMode):
 
     pass
 
-# see above, slightly, for a list of a few unfinished things or bugs in the code
 # end
