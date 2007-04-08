@@ -808,16 +808,20 @@ class extrudeMode(basicMode):
             # new code 050216:
             new = self.basemol.copy(None) # None is the dad, and as of 050214 or so, passing any other dad is deprecated for now
             if isinstance(new, fake_copied_mol):#bruce 070407 kluge
-                new_in_model = new._group
+                ## new_nodes = [new._group]
+                new_nodes = new._mols
             else:
-                new_in_model = new
-            self.o.assy.addmol(new_in_model) #e addmol is inefficient when adding many mols at once, needs change to inval system
-            # end 050216 changes
-            if self.keeppicked:
-                pass ## done later: self.basemol.pick()
-            else:
-                ## self.basemol.unpick()
-                new_in_model.unpick() # undo side effect of assy_copy #k maybe no longer needed [long before 050216]
+                new_nodes = [new]
+            for node in new_nodes:
+                self.o.assy.addmol(node)
+                    #e addmol is inefficient when adding many mols at once, needs change to inval system
+                    #e this is probably not the best place in the MT to add it
+                # end 050216 changes
+                if self.keeppicked:
+                    pass ## done later: self.basemol.pick()
+                else:
+                    ## self.basemol.unpick()
+                    node.unpick() # undo side effect of assy_copy #k maybe no longer needed [long before 050216]
             self.molcopies.append(new)
             c, q = self.want_center_and_quat(ii)
             self.molcopies[ii].set_basecenter_and_quat( c, q)
@@ -1263,22 +1267,26 @@ class extrudeMode(basicMode):
         # you must first call prep_to_make_inter_unit_bonds, once
         #e this is quadratic in number of singlets, sorry; not hard to fix
         ##print "bonds are %r",bonds
-        from HistoryWidget import redmsg
-        if (not unit1.assy) or (not unit2.assy): ###@@@ better test for mol.killed?
-            #bruce 050317: don't bond to deleted units (though I doubt this
-            # is sufficient to avoid bugs from user deleting them in the MT during this mode)
-            ###@@@ this 'then clause', and the condition being inclusive enough, is untested as of 050317
-            msg = "warning: can't bond deleted repeat-units"
-                #e should collapse several warnings into one
-            env.history.message( redmsg( msg))
-            return
-        if unit1.part != unit2.part:
-            #bruce 050317: avoid making inter-part bonds (even if merging units could fix that)
-            msg = "warning: can't bond repeat-units in different Parts"
-                ###e could improve, name the parts, collapse several to 1 or name the units
-                # (but not high priority, since we haven't documented this as a feature)
-            env.history.message( redmsg( msg))
-            return
+        if isinstance(unit1, Chunk):
+            #bruce 070407 kluge: don't bother supporting this yet for fake_copied_mols etc.
+            # To support it we'd have to scan & compare every true chunk.
+            # Sometime it'd be good to do this... #e
+            from HistoryWidget import redmsg
+            if (not unit1.assy) or (not unit2.assy): ###@@@ better test for mol.killed?
+                #bruce 050317: don't bond to deleted units (though I doubt this
+                # is sufficient to avoid bugs from user deleting them in the MT during this mode)
+                ###@@@ this 'then clause', and the condition being inclusive enough, is untested as of 050317
+                msg = "warning: can't bond deleted repeat-units"
+                    #e should collapse several warnings into one
+                env.history.message( redmsg( msg))
+                return
+            if unit1.part != unit2.part:
+                #bruce 050317: avoid making inter-part bonds (even if merging units could fix that)
+                msg = "warning: can't bond repeat-units in different Parts"
+                    ###e could improve, name the parts, collapse several to 1 or name the units
+                    # (but not high priority, since we haven't documented this as a feature)
+                env.history.message( redmsg( msg))
+                return
         for (offset,permitted_error,(i1,i2)) in bonds:
             # ignore offset,permitted_error; i1,i2 are singlet indices
             # assume no singlet appears twice in this list!
@@ -1301,14 +1309,13 @@ class extrudeMode(basicMode):
         (all this singlet-numbering is specific to our current basemol)
         (only works if you first once called prep_to_make_inter_unit_bonds)
         """
-        mark = self.i1_to_mark[i1] # mark is basemol key, but unrelated to other mols' keys
-        for atm in unit.atoms.itervalues():
-            #bruce 050524 removed try/except now that all atoms have .info (default None)
-##            try:
+        mark = self.i1_to_mark[i1]
+            # note: mark is basemol key [i guess that means: singlet's Atom.key in basemol],
+            # but unrelated to other mols' keys
+        for unitmol in true_Chunks_in(unit):
+            for atm in unitmol.atoms.itervalues(): #e optimize this someday -- its speed can probably matter
                 if atm.info == mark:
                     return atm
-##            except:
-##                pass # not sure if singlets have .info
         print "extrude bug (trying to ignore it): singlet not found",unit,i1
         # can happen until we remove dup i1,i2 from bonds
         return None
@@ -1605,8 +1612,7 @@ class extrudeMode(basicMode):
 ##                    dispdef = mol.get_dispdef( self.o) # not needed, since...
                     dispdef = 'bug'
                     mol.draw(self.o, dispdef) # ...dispdef arg not used (041013)
-                        # update, bruce 070407: now that mol can also be a fake_copied_mol, and after verifying Group.draw
-                        # only uses dispdef to pass it to Chunk.draw (in the case of a Group of Chunks, like in fake_copied_mol),
+                        # update, bruce 070407: now that mol can also be a fake_copied_mol,
                         # it's simplest to just use a fake dispdef here.
             try: #bruce 050203 experiment
                 for unit1,unit2 in zip(self.molcopies[:-1],self.molcopies[1:]):
@@ -2112,7 +2118,7 @@ class fake_copied_mol( virtual_group_of_Chunks):
     """Holds a list of copied mols made by copying extrude's basemol when it's a fake_merged_mol,
     and a Group made from them (for use in MT).
     WARNING: our client extrudeMode will also do isinstance tests on this class,
-    and peer into our private attrs like self._group,
+    and peer into our private attrs like self._mols,
     so some of our semantics comes from client code that depends on our class.
     """
     def __init__(self, copies, originals):
@@ -2120,12 +2126,13 @@ class fake_copied_mol( virtual_group_of_Chunks):
         self._mols = copies # list of mol copies, made by an instance of fake_merged_mol, corresponding with its mols
         self._originals = originals # needed only in set_basecenter_and_quat (due to a kluge)
         assy = copies[0].assy
-        self._group = Group('extruded', assy, None, copies) # not yet in MT
-            # KLUGE: our client, extrudeMode, knows about self._group, and grabs it for use in MT rather than self, as special case
-            # Note: we might find it useful to own a fake_merged_mol rather than a Group...
+        self._group = Group('extruded', assy, None, copies) # not yet in MT; OBSOLETE except for delegation, might cause bugs... ###
+##            # KLUGE: our client, extrudeMode, knows about self._group, and grabs it for use in MT rather than self, as special case
+##            # Note: we might find it useful to own a fake_merged_mol rather than a Group...
         return
+    ## __getattr__ still needed to get bond-drawing and bonding code to work
     def __getattr__(self, attr):
-        ###STUB for debug: delegate to self._group, and report doing so once. Delegation to group is fine for: draw.
+        #STUB for debug: delegate to self._group, and report doing so once. Delegation to group is ok for draw, but no longer used.
         if attr.startswith('__'):
             raise AttributeError, attr
         if not self._saw.get(attr):
@@ -2146,8 +2153,8 @@ class fake_copied_mol( virtual_group_of_Chunks):
 # - review all uses of molcopies[ii] above ###
 # - fix all '####' above-near, incl stubs, center_quat stuff
 # - change the initial Enter code to not use the wrapper for one selected mol, i think
-# + test whether it works properly for merge products set or unset [done, it does, but only tested with groups present]
-# - remove those groups it makes, or debug_pref them (and surely remove them at end if product gets merged)
+# - test whether it works properly for merge products set or unset [done, it does, but only tested with groups present]
+# + remove those groups it makes, or debug_pref them (and surely remove them at end if product gets merged)
 # - debug pref should be checkbox
 
 # did already: colorfunc
