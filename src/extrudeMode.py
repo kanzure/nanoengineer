@@ -1814,7 +1814,7 @@ def assy_merge_mols(assy, mollist):
     ## for now, don't sort, use selection order instead.
     res = mollist[0]
     from debug_prefs import debug_pref, Choice_boolean_False
-    if debug_pref("Extrude: leave base-chunks separate", Choice_boolean_False, prefs_key = True):
+    if debug_pref("Extrude: leave base-chunks separate", Choice_boolean_False, non_debug = True, prefs_key = True):
         #bruce 070407; when it works, change default?? not sure. hook up to new dashboard checkbox, i guess. ###e
         # could optim by not doing this when only one member, but that might hide bugs and doesn't matter otherwise, so nevermind
         res = fake_merged_mol(res)
