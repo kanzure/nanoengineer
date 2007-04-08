@@ -640,10 +640,17 @@ class extrudeMode(basicMode):
     ## use_circle_n_from_ncopies_kluge = 1 # constant, until we add that back #e not in all places in code that it should be
     def want_center_and_quat(self, ii, ptype = None):
         "Return desired basecenter and quat of molcopies[ii], relative to original ones, assuming they're same as in basemol"
-        ###e plan 070407: revise to return info for passing to mov/rot/pivot instead -- effectively, delta center and delta quat??
-        # it's problematic to do that due to roundoff errors! maybe use deltas rel to origs and do assume they remain fixed??
-        # or have new features in mols to permit this set rel to orig coords, in some official way? or to turn off
-        # auto-remake of basecenter & quat so they're stable for use for set this way??
+        #  update 070407: if self.basemol is a fake_merged_mol, we use the basecenter of its first true Chunk
+        # (arbitrary choice which chunk, but has to be consistent with fake_copied_mol.set_basecenter_and_quat).
+        # This is then compensated for in fake_copied_mol.set_basecenter_and_quat (for center -- it assumes all quats
+        # are the same, true since they are all Q(1,0,0,0) due to full_inval_and_update).
+        #  At first I planned to revise this method to return info for passing to mov/rot/pivot instead -- but we'd have to do that
+        # relative to initial orientation, not prior one, or risk buildup of roundoff errors, but there's no good way to think
+        # of a chunk as "rotated from initial orientation" except via its basecenter & quat.
+        #  An improvement would be to officially temporarily disable re-choosing basecenter & quat in all these chunks,
+        # rather than on relying on it not to happen "by luck" (since it only happens when we do ops we're not doing here --
+        # but note that nothing currently prevents user from doing them during this mode, unless UI tool disables do).
+        # Meanwhile, the current scheme should be as correct for multiple base-chunks as it was for one.
         offset = self.offset
         cn = self.circle_n ### does far-below code have bugs when ii >= cn?? that might explain some things i saw...
         basemol = self.separate_basemols[0] #bruce 070407 revision; see also fake_copied_mol.set_basecenter_and_quat
@@ -2056,8 +2063,8 @@ class fake_merged_mol( virtual_group_of_Chunks):
         (though we may define fewer methods correctly in that case,
          since we define just barely enough to get by in the current private use).
         We will let Extrude call this method and think it's really merging, though it's not.
-        NOTE: it may call this not only in assy_extrude_unit, but in merging the copies
-        to create the final product. We should detect that and act differently... ###
+        NOTE: it calls this not only in assy_extrude_unit, but in merging the copies
+        to create the final product. We detect that (by class of mol) and act differently.
         """
         if isinstance(mol, fake_copied_mol):
             # assume it's a copy of us, and this is during extrude's "final product merge";
@@ -2109,8 +2116,6 @@ class fake_merged_mol( virtual_group_of_Chunks):
     ##fake_merged_mol will delegate attr 'changeapp' +
     ##fake_merged_mol will delegate attr 'draw' +
     
-    # and on the copies? don't know yet, but at least also set_basecenter_and_quat...
-
 class fake_copied_mol( virtual_group_of_Chunks):
     """Holds a list of copied mols made by copying extrude's basemol when it's a fake_merged_mol,
     and a Group made from them (for use in MT).
@@ -2139,6 +2144,7 @@ class fake_copied_mol( virtual_group_of_Chunks):
         std_basecenter = self._originals[0].basecenter
         for mol, orig in zip(self._mols, self._originals):
             # correct c for how our basemol differs from first one
+            # (for explanation, see long comment in want_center_and_quat)
             c1 = c - std_basecenter + orig.basecenter
             mol.set_basecenter_and_quat(c1, q)
         return
@@ -2149,9 +2155,10 @@ class fake_copied_mol( virtual_group_of_Chunks):
 # + review all uses of molcopies[ii] above
 # + fix all '####' above-near, incl stubs, center_quat stuff
 # n change the initial Enter code to not use the wrapper for one selected mol, i think -- don't bother til ui/default is chosen
-# + test whether it works properly for merge products set or unset
-# + remove those groups it makes, or debug_pref them (and surely remove them at end if product gets merged)
-# - test ring mode [should make several parallel rings] ###
+# + test whether it works properly for merge products set or unset [works]
+# + remove those groups it makes
+#   - #e or debug_pref them (and surely remove them at end if product gets merged)
+# + test ring mode [should make several parallel rings] [works]
 # - debug pref should be checkbox ###
 
 # ==
