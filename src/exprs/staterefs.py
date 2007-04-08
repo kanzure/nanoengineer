@@ -127,43 +127,43 @@ if 0: # e.g. code, scratch area
 
 # == old code
 
-# kluge to test state toggling:
-
-if 0:
-
-    def bcolor(env, nextness = 0):
-        n = vv.state.setdefault('buttoncolor',0)
-        return (green, yellow, red)[(n + nextness) % 3]
-
-    def next_bcolor(env):
-        return bcolor(env, 1)
-
-    def toggleit():
-        n = vv.state.setdefault('buttoncolor',0)
-        n += 1
-        n = n % 3
-        vv.state['buttoncolor'] = n
-        return
-
-    def getit(fakeenv): # note: the bug of saying getit() rather than getit in an expr was hard to catch; will be easier when env is real
-        return "use displist? %s" % ('no', 'yes')[not not USE_DISPLAY_LIST_OPTIM]
-
-    def setit(val = None):
-        global USE_DISPLAY_LIST_OPTIM
-        if val is None:
-            # toggle it
-            val = not USE_DISPLAY_LIST_OPTIM
-        USE_DISPLAY_LIST_OPTIM = not not val
-        vv.havelist = 0
-        print "set USE_DISPLAY_LIST_OPTIM = %r" % USE_DISPLAY_LIST_OPTIM
-
-    displist_expr_BUGGY = Button(Row(Rect(0.5,0.5,black),TextRect(getit, 2, 18)), on_press = setit) # updated TextRect arg order 070212, tho this is obs code
-        # works, but has bug: not sensitive to baremotion or click on text if you drag onto it from empty space,
-        # only if you drag onto it from the Rect.
-        
-    displist_expr = Row(
-        Button( Rect(0.5,0.5,black), DebugPrintAttrs( Rect(0.5,0.5,gray), "grayguy"), on_press = setit),
-        TextRect(getit, 2, 18)) # updated TextRect arg order 070212, tho this is obs code
+### kluge to test state toggling:
+##
+##if 0:
+##
+##    def bcolor(env, nextness = 0):
+##        n = vv.state.setdefault('buttoncolor',0)
+##        return (green, yellow, red)[(n + nextness) % 3]
+##
+##    def next_bcolor(env):
+##        return bcolor(env, 1)
+##
+##    def toggleit():
+##        n = vv.state.setdefault('buttoncolor',0)
+##        n += 1
+##        n = n % 3
+##        vv.state['buttoncolor'] = n
+##        return
+##
+##    def getit(fakeenv): # note: the bug of saying getit() rather than getit in an expr was hard to catch; will be easier when env is real
+##        return "use displist? %s" % ('no', 'yes')[not not USE_DISPLAY_LIST_OPTIM]
+##
+##    def setit(val = None):
+##        global USE_DISPLAY_LIST_OPTIM
+##        if val is None:
+##            # toggle it
+##            val = not USE_DISPLAY_LIST_OPTIM
+##        USE_DISPLAY_LIST_OPTIM = not not val
+##        vv.havelist = 0
+##        print "set USE_DISPLAY_LIST_OPTIM = %r" % USE_DISPLAY_LIST_OPTIM
+##
+##    displist_expr_BUGGY = Button(Row(Rect(0.5,0.5,black),TextRect(getit, 2, 18)), on_press = setit) # updated TextRect arg order 070212, tho this is obs code
+##        # works, but has bug: not sensitive to baremotion or click on text if you drag onto it from empty space,
+##        # only if you drag onto it from the Rect.
+##        
+##    displist_expr = Row(
+##        Button( Rect(0.5,0.5,black), DebugPrintAttrs( Rect(0.5,0.5,gray), "grayguy"), on_press = setit),
+##        TextRect(getit, 2, 18)) # updated TextRect arg order 070212, tho this is obs code
 
 # end
 
