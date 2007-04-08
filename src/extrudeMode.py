@@ -562,12 +562,12 @@ class extrudeMode(basicMode):
             self.status_msg("%s refused: %s" % (self.msg_modename, msg,))
             return 1
 
-        # debugging code, safe to leave in indefinitely:
-        import __main__
-        __main__.mode = self
-        if platform.atom_debug:
-            print "fyi: extrude/revolve debug instructions: __main__.mode = this extrude mode obj; use debug window; has members assy, etc"
-            ##print "also, use Menu1 entries to run debug code, like explore() to check out singlet pairs in self.basemol"
+##        # debugging code, safe to leave in indefinitely: [not really, 'mode' is too common a name -- bruce 070407 zapping this]
+##        import __main__
+##        __main__.mode = self
+##        if platform.atom_debug:
+##            print "fyi: extrude/revolve debug instructions: __main__.mode = this extrude mode obj; use debug window; has members assy, etc"
+##            ##print "also, use Menu1 entries to run debug code, like explore() to check out singlet pairs in self.basemol"
 
         return # from Enter
     
@@ -1177,7 +1177,8 @@ class extrudeMode(basicMode):
             self.final_msg_accum = "%s making %s%s: " % (self.msg_modename.split()[0], self.product_type, desc) # first word of modename
             msg0 = "leaving mode, finalizing product..." # if this lasts long enough to read, something went wrong
             self.status_msg(self.final_msg_accum + msg0)
-            print "fyi: extrude params not mentioned in statusbar: offset = %r, tol = %r" % (self.offset, self.bond_tolerance)
+            # bruce 070407 not printing this anymore:
+            ## print "fyi: extrude params not mentioned in statusbar: offset = %r, tol = %r" % (self.offset, self.bond_tolerance)
         else:
             msg = "%s cancelled (alpha warning: might not fully restore initial state)" % (self.msg_modename.split()[0],)
             self.status_msg( msg)
@@ -1790,12 +1791,6 @@ class extrudeMode(basicMode):
         print "done with reinit modes, now see if you can select the reloaded mode"
         return
 
-    #bruce 050419: these seem unused    
-##    def copy(self):
-##        print 'NYI'
-##    def move(self):
-##        print 'NYI'
-
     pass # end of class extrudeMode
 
 # ==
@@ -1815,8 +1810,8 @@ def assy_merge_mols(assy, mollist):
         #bruce 070406; when it works, change default?? not sure. hook up to new dashboard checkbox, i guess. ###e
         res = fake_merged_mol(res)
     for mol in mollist[1:]: # ok if no mols in this loop
-        if platform.atom_debug:
-            print "fyi (atom_debug): extrude merging a mol"
+##        if platform.atom_debug:
+##            print "fyi (atom_debug): extrude merging a mol"
         res.merge(mol) #041116 new feature
         # note: this will unpick mol (modifying assy.selmols) and kill it
     return res
@@ -2034,7 +2029,6 @@ class virtual_group_of_Chunks:
 class fake_merged_mol( virtual_group_of_Chunks):
     "private helper class for use in Extrude, to let it treat a set of mols as if they were merged into one."
     def __init__(self, mols):
-        print "warning: this extrude non-merging thing doesn't yet work, in fact it eats some of your mols" ####
         self._saw = {} # for initial debug only; see __getattr__ (dict of attrs we've delegated)
         for attr in ('center','quat'):
             self._saw[attr] = 1 # since default delegation for those is correct
@@ -2089,7 +2083,7 @@ class fake_merged_mol( virtual_group_of_Chunks):
         return
     pass # end of class fake_merged_mol
 
-    # the methods/attrs we need to handle on the baseunit are:
+    # the methods/attrs we need to handle on the baseunit are: [#e move these usage cmts onto the methods]
     
     ##fake_merged_mol will delegate attr 'externs' + [needed to bust them so singlets have definite .info attr, preserved on copy]
     ##fake_merged_mol will delegate attr 'full_inval_and_update' + [needed to reset quats to 0, i think -- maybe since done by copy??]
@@ -2122,7 +2116,6 @@ class fake_copied_mol( virtual_group_of_Chunks):
     so some of our semantics comes from client code that depends on our class.
     """
     def __init__(self, copies, originals):
-        print "fyi: made a fake_copied_mol" ####
         self._saw = {}
         self._mols = copies # list of mol copies, made by an instance of fake_merged_mol, corresponding with its mols
         self._originals = originals # needed only in set_basecenter_and_quat (due to a kluge)
@@ -2153,7 +2146,8 @@ class fake_copied_mol( virtual_group_of_Chunks):
 # - review all uses of molcopies[ii] above ###
 # - fix all '####' above-near, incl stubs, center_quat stuff
 # - change the initial Enter code to not use the wrapper for one selected mol, i think
-# - test for merge products or not
+# + test whether it works properly for merge products set or unset [done, it does, but only tested with groups present]
+# - remove those groups it makes, or debug_pref them (and surely remove them at end if product gets merged)
 # - debug pref should be checkbox
 
 # did already: colorfunc

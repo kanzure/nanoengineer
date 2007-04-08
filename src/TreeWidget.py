@@ -708,7 +708,6 @@ class TreeWidget(TreeView, DebugMenuMixin):
             debug._event = event
             debug._event_state = event.state()
             debug._event_stateAfter = event.stateAfter()
-            print "set debug._event"
         
         # handle debug menu; canonicalize buttons and modifier keys.
         
