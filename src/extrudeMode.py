@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2007 Nanorex, Inc.  All rights reserved.
 """
 extrudeMode.py
 
@@ -496,6 +496,8 @@ class extrudeMode(basicMode):
             self.status_msg("%s refused: %r" % (self.msg_modename, whynot,))
             return 1 # refused!
         self.basemol = mol
+        #bruce 070407 set self.separate_basemols; all uses of it must be read, to fully understand fake_merged_mol semantics
+        self.separate_basemols = true_Chunks_in(mol) # since mol might be a Chunk or a fake_merged_mol
         ## partly done new code [bruce 041222] ###@@@
         # temporarily break bonds between our base unit (mol) and the rest
         # of the model; record the pairs of singlets thus formed,
@@ -521,9 +523,9 @@ class extrudeMode(basicMode):
         # The following is necessary to work around a bug in this code, which is
         # its assumption (wrong, in general) that mol.copy().quat == mol.quat.
         # A better fix would be to stop using set_basecenter_and_quat, replacing
-        # that with an equivalent use of mol.pivot.
+        # that with an equivalent use of mol.pivot and/or move and/or rot.
         self.basemol.full_inval_and_update()
-        mark_singlets(self.basemol, self.colorfunc) ###@@@ make this behave differently for broken_externs
+        mark_singlets(self.separate_basemols, self.colorfunc) ###@@@ make this behave differently for broken_externs
         # now set up a consistent initial state, even though it will probably
         # be modified as soon as we look at the actual controls
         self.offset = V(15.0,16.0,17.0) # initial value doesn't matter
@@ -637,9 +639,14 @@ class extrudeMode(basicMode):
 
     ## use_circle_n_from_ncopies_kluge = 1 # constant, until we add that back #e not in all places in code that it should be
     def want_center_and_quat(self, ii, ptype = None):
+        "Return desired basecenter and quat of molcopies[ii], relative to original ones, assuming they're same as in basemol"
+        ###e plan 070407: revise to return info for passing to mov/rot/pivot instead -- effectively, delta center and delta quat??
+        # it's problematic to do that due to roundoff errors! maybe use deltas rel to origs and do assume they remain fixed??
+        # or have new features in mols to permit this set rel to orig coords, in some official way? or to turn off
+        # auto-remake of basecenter & quat so they're stable for use for set this way??
         offset = self.offset
         cn = self.circle_n ### does far-below code have bugs when ii >= cn?? that might explain some things i saw...
-        basemol = self.basemol
+        basemol = self.separate_basemols[0] #bruce 070407 revision; see also fake_copied_mol.set_basecenter_and_quat
         if not ptype:
             ptype = self.product_type
         #e the following should become the methods of product-type classes
@@ -647,25 +654,9 @@ class extrudeMode(basicMode):
             centerii = basemol.center + ii * offset
             # quatii = Q(1,0,0,0)
             quatii = basemol.quat
-        elif ptype == "corkscrew": # not yet accessible?? # this code is wrong, anyway
-            # stub, to extrude to right and then down -- axis is out of screen -- varies with pov!!!
-            # Q(V(x,y,z), theta) = axis vector and angle
-            
-            quat1 = Q(self.o.out, 2 * pi / cn)
-            quatii_rel = Q(self.o.out, 2 * pi * ii / cn)
-            print quatii_rel
-            # offset in plane of quat is tangent to circle; perp to it is preserved...
-            axis = quat1.axis
-            trans = dot(offset,axis) * axis
-            tangent = offset - trans
-            circumf = vlen(tangent) * cn
-            radius = circumf / (2 * pi)
-            radius_vec = cross(tangent, axis) * cn / (2 * pi)
-              #####k I might have this negative... it should point from c_center to basemol.center
-            check_floats_near(vlen(radius_vec),radius) ##### BUG -- these are not near!!! ###### ###@@@
-            c_center = basemol.center - radius_vec
-            centerii = c_center + trans * ii + quatii_rel.rot(radius_vec) ##### probably wrong...
-            quatii = basemol.quat + quatii_rel
+##        elif ptype == "corkscrew": # not accessible (combobox item for this is commented out) # this code is wrong, anyway
+##            # [removed this code 070407]
+##            assert 0
         elif ptype == "closed ring": # default for Revolve
             #e We store self.o.down (etc) when we enter the mode...
             # now we pick a circle in plane of that and current offset.
@@ -786,7 +777,7 @@ class extrudeMode(basicMode):
             # invalidate all memoized data which is specific to these params
             self.have_offset_specific_data = 0 #misnamed
             self.offset = offset_wanted
-            junk = self.want_center_and_quat(0) # this just asserts that the formulas don't want to move basemol
+            junk = self.want_center_and_quat(0) # this just asserts (inside the function) that the formulas don't want to move basemol
             for ii in range(1, ncopies_common):
                 if 0: # this might accumulate position errors - don't do it:
                     motion = (offset_wanted - self.offset)*ii
@@ -816,13 +807,17 @@ class extrudeMode(basicMode):
             ## new = newmols[0]
             # new code 050216:
             new = self.basemol.copy(None) # None is the dad, and as of 050214 or so, passing any other dad is deprecated for now
-            self.o.assy.addmol(new) #e addmol is inefficient when adding many mols at once, needs change to inval system
+            if isinstance(new, fake_copied_mol):#bruce 070407 kluge
+                new_in_model = new._group
+            else:
+                new_in_model = new
+            self.o.assy.addmol(new_in_model) #e addmol is inefficient when adding many mols at once, needs change to inval system
             # end 050216 changes
             if self.keeppicked:
                 pass ## done later: self.basemol.pick()
             else:
                 ## self.basemol.unpick()
-                new.unpick() # undo side effect of assy_copy #k maybe no longer needed [long before 050216]
+                new_in_model.unpick() # undo side effect of assy_copy #k maybe no longer needed [long before 050216]
             self.molcopies.append(new)
             c, q = self.want_center_and_quat(ii)
             self.molcopies[ii].set_basecenter_and_quat( c, q)
@@ -888,13 +883,14 @@ class extrudeMode(basicMode):
         
         self.show_bond_offsets_handlesets = [] # for now, assume no other function wants to keep things in this list
         hset = self.basemol_atoms_handleset = repunitHandleSet(target = self)
-        for atom in self.basemol.atoms.values():
-            # make a handle for it... to use in every copy we show
-            pos = atom.posn() ###e make this relative?
-            dispdef = self.basemol.get_dispdef(self.o)
-            disp, radius = atom.howdraw(dispdef)
-            info = None #####
-            hset.addHandle(pos, radius, info)
+        for mol in self.separate_basemols:#bruce 070407
+            for atom in mol.atoms.values():
+                # make a handle for it... to use in every copy we show
+                pos = atom.posn() ###e make this relative?
+                dispdef = mol.get_dispdef(self.o)
+                disp, radius = atom.howdraw(dispdef)
+                info = None #####
+                hset.addHandle(pos, radius, info)
         self.basemol_singlets = list(self.basemol.singlets) #bruce 041222 precaution: copy list
         hset = self.nice_offsets_handleset = niceoffsetsHandleSet(target = self)
         hset.radius_multiplier = abs(self.bond_tolerance) # kluge -- might be -1 or 1 initially! (sorry, i'm in a hurry)
@@ -1147,15 +1143,19 @@ class extrudeMode(basicMode):
     def _stateDoneOrCancel(self, cancelling = 0): #e rename? revise? #bruce 050228 to help fix bug 314 and unreported bugs
         "common method for StateDone and StateCancel"
         ## self.update_from_controls() #k 041017 night - will this help or hurt? since hard to know, not adding it now.
-        # restore normal appearance
+        # restore normal appearance [bruce 070407 revised this in case each mol is not a Chunk]
         for mol in self.molcopies:
-            try:
-                del mol._colorfunc # let class attr [added 050524] be visible again; exception if it already was
-            except:
-                pass
-            else:
-                #bruce 060308 revision: do this outside the try/except, in case bugs would be hidden otherwise
-                mol.changeapp(0)
+            # mol might be Chunk, fake_merged_mol, or fake_copied_mol [bruce 070407]
+            for chunk in true_Chunks_in(mol):
+                try:
+                    del chunk._colorfunc # let class attr [added 050524] be visible again; exception if it already was
+                    #e also unpatch info from the atoms? not needed but might as well [nah]
+                except:
+                    pass
+                else:
+                    #bruce 060308 revision: do this outside the try/except, in case bugs would be hidden otherwise
+                    chunk.changeapp(0)
+            continue            
         self.finalize_product(cancelling = cancelling)
             # this also emits status messages and does some cleanup of broken_externs...
         self.o.assy.update_parts()
@@ -1601,8 +1601,12 @@ class extrudeMode(basicMode):
             else:
                 for mol in self.molcopies:
                     #e use per-repunit drawing styles...
-                    dispdef = mol.get_dispdef( self.o) # not needed, since...
+##                    dispdef = mol.get_dispdef( self.o) # not needed, since...
+                    dispdef = 'bug'
                     mol.draw(self.o, dispdef) # ...dispdef arg not used (041013)
+                        # update, bruce 070407: now that mol can also be a fake_copied_mol, and after verifying Group.draw
+                        # only uses dispdef to pass it to Chunk.draw (in the case of a Group of Chunks, like in fake_copied_mol),
+                        # it's simplest to just use a fake dispdef here.
             try: #bruce 050203 experiment
                 for unit1,unit2 in zip(self.molcopies[:-1],self.molcopies[1:]):
                     self.draw_bond_lines(unit1,unit2)
@@ -1807,7 +1811,7 @@ def assy_merge_mols(assy, mollist):
     ## for now, don't sort, use selection order instead.
     res = mollist[0]
     from debug_prefs import debug_pref, Choice_boolean_False
-    if debug_pref("Extrude: don't merge selected chunks", Choice_boolean_False, prefs_key = True):
+    if debug_pref("Extrude: leave base-chunks separate", Choice_boolean_False, prefs_key = True):
         #bruce 070406; when it works, change default?? not sure. hook up to new dashboard checkbox, i guess. ###e
         res = fake_merged_mol(res)
     for mol in mollist[1:]: # ok if no mols in this loop
@@ -1957,15 +1961,83 @@ def mergeable_singlets_Q_and_offset(s1, s2, offset2 = None, tol = 1.0):
 
 # ==
 
+# detect reloading
+try:
+    _already_loaded
+except:
+    _already_loaded = 1
+else:
+    print "reloading extrudeMode.py"
+pass
+
+def mark_singlets(separate_basemols, colorfunc):
+    for basemol in separate_basemols:#bruce 070407 [#e or could use true_Chunks_in]
+        for a in basemol.atoms.itervalues():
+            ## a.info = a.key
+            a.set_info(a.key) #bruce 060322
+        basemol._colorfunc = colorfunc # maps atoms to colors (due to a hack i will add)
+    return
+
+def true_Chunks_in(mol): #bruce 070407
+    if isinstance(mol, Chunk):
+        return [mol]
+    else:
+        return list(mol._mols)
+    pass
+
+# not done:
+# for (i1,i2) in bonds:
+            # assume no singlet appears twice in this list!
+# this is not yet justified, and if false will crash it when it makes bonds
+
+# ==
+
 # bruce 070406 new stuff for making it possible to not merge the mols in assy_extrude_unit
 
-## from exprs.ExprsMeta import ConstantComputeMethodMixin
-class fake_merged_mol: ## (ConstantComputeMethodMixin):
+class virtual_group_of_Chunks:
+    "private superclass for sets of chunks treated in some ways as if they were one chunk"
+    # Note: we don't define __init__ since it differs in each subclass.
+    # But it's always required to somehow create a list, self._mols.
+    # Note: we define some methods here even if only one subclass needs them,
+    # when they'd clearly be correct for any virtual group of Chunks.
+    def draw(self, glpane, dispdef):
+        for mol in self._mols:
+            mol.draw(glpane, dispdef)
+    def changeapp(self, *args):
+        for mol in self._mols:
+            mol.changeapp(*args)
+    def _get_externs(self):
+        "Get a list of bonds which bridge atoms in one of our chunks to atoms not in one of them."
+        # alg: this is a subset of the union of the sets of externs of our chunks.
+        ourmols = dict([(mol,1) for mol in self._mols]) #e could cache this, but not important
+        is_ourmol = lambda mol: mol in ourmols
+        res = []
+        for mol in self._mols:
+            for bon in mol.externs:
+                if not (is_ourmol(bon.atom1.molecule) and is_ourmol(bon.atom2.molecule)):
+                    res.append(bon)
+        return res
+    def _get_singlets(self):
+        res = []
+        for mol in self._mols:
+            res.extend(mol.singlets)
+        return res
+    def get_dispdef(self):
+        assert 0, "need to zap all direct uses of get_dispdef in class %r" % (self.__class__.__name__)
+    def unpick(self):
+        for mol in self._mols:
+            mol.unpick()
+        return
+    pass # end of class virtual_group_of_Chunks
+
+    
+class fake_merged_mol( virtual_group_of_Chunks):
     "private helper class for use in Extrude, to let it treat a set of mols as if they were merged into one."
-    def __init__(self, mols, _imacopy = False):
+    def __init__(self, mols):
         print "warning: this extrude non-merging thing doesn't yet work, in fact it eats some of your mols" ####
         self._saw = {} # for initial debug only; see __getattr__ (dict of attrs we've delegated)
-        self._imacopy = _imacopy # so far, just for debug msgs; might turn out to be useful for extrude to know, we'll see
+        for attr in ('center','quat'):
+            self._saw[attr] = 1 # since default delegation for those is correct
         self._mols = []
         try:
             mols = list(mols)
@@ -1980,78 +2052,113 @@ class fake_merged_mol: ## (ConstantComputeMethodMixin):
         (though we may define fewer methods correctly in that case,
          since we define just barely enough to get by in the current private use).
         We will let Extrude call this method and think it's really merging, though it's not.
-        NOTE: it may do this not only in assy_extrude_unit, but in merging the copies
-        to create the final product.
+        NOTE: it may call this not only in assy_extrude_unit, but in merging the copies
+        to create the final product. We should detect that and act differently... ###
         """
-        self._mols.append(mol)
+        if isinstance(mol, fake_copied_mol):
+            # assume it's a copy of us, and this is during extrude's "final product merge";
+            # merge its mols into ours, in order
+            assert len(self._mols) == len(mol._mols)
+            for ourmol, itsmol in zip(self._mols, mol._mols):
+                ourmol.merge(itsmol)
+        else:
+            # assume we're being initially built up by assy_merge_mols, so mol is a Chunk
+            assert isinstance(mol, Chunk)
+            self._mols.append(mol)
         return
     def __getattr__(self, attr):
         ###STUB for debug: delegate to first mol (non-caching), and report doing so once.
         if attr.startswith('__'):
             raise AttributeError, attr
+        if attr == 'externs':
+            return self._get_externs() # don't cache, since return value is not constant -- will this be too slow?? ####e
+        if attr == 'singlets':
+            return self._get_singlets() # don't cache, since return value is not constant
         if not self._saw.get(attr):
-            print "fake_merged_mol (copy? %r) will delegate attr %r" % (self._imacopy, attr)
+            print_compact_stack("fake_merged_mol will delegate attr %r: " % (attr))
             self._saw[attr] = 1
         return getattr(self._mols[0], attr)
     def copy(self, dad):
-        # design Q: should the copies be actual groups? 
-        # It'd be easier to add them to assy.tree that way; we could always ungroup them later.
-
-        # Guess: that would be simpler. Depends what methods we use on them. 
-        # To find out, make a group here, then wrap that with this class 
-        # so we print the methods needed on it. Probably most are already ok on it. 
-        ##### TRY THAT NEXT
+        # copy our mols and store them in a new fake_copied_mol (which might make a Group from them, fyi)
         assert dad is None
         copies = [mol.copy(None) for mol in self._mols]
-        assy = self._mols[0].assy
-        group = Group('extruded', assy, None, copies)
-        return self.__class__([group], _imacopy = True) #e or maybe have another class just for wrapping a single Group -- cleaner
-         
-    pass
+        return fake_copied_mol(copies, self._mols) # originals are only needed for their basecenters due to a kluge
+    def full_inval_and_update(self):
+        for mol in self._mols:
+            mol.full_inval_and_update()
+        return
+    pass # end of class fake_merged_mol
+
     # the methods/attrs we need to handle on the baseunit are:
-    ##fake_merged_mol will delegate attr 'externs'
-    ##fake_merged_mol will delegate attr 'full_inval_and_update'
-    ##fake_merged_mol will delegate attr 'atoms'
-    ##fake_merged_mol will delegate attr 'get_dispdef'
-    ##fake_merged_mol will delegate attr 'singlets'
-    ##fake_merged_mol will delegate attr 'center'
-    ##fake_merged_mol will delegate attr 'quat'
-    ##fake_merged_mol will delegate attr 'copy'
-    ##fake_merged_mol will delegate attr 'unpick'
-    ##fake_merged_mol will delegate attr 'changeapp'
-    ##fake_merged_mol will delegate attr 'draw'
+    
+    ##fake_merged_mol will delegate attr 'externs' + [needed to bust them so singlets have definite .info attr, preserved on copy]
+    ##fake_merged_mol will delegate attr 'full_inval_and_update' + [needed to reset quats to 0, i think -- maybe since done by copy??]
+    ##fake_merged_mol will delegate attr 'atoms' ###### [needed in mark_singlets, at least -- maybe rewrite it or use separate_basemols]
+    ##fake_merged_mol will delegate attr 'get_dispdef' -- zapped the uses, i hope ###k
+    ##fake_merged_mol will delegate attr 'singlets' + [used in recompute_for_new_unit]
+    ##fake_merged_mol will delegate attr 'center' #k - 1st mol ok
+    ##fake_merged_mol will delegate attr 'quat' #k - 1st mol ok
+    
+    ##fake_merged_mol will delegate attr 'copy' +
+    ##fake_merged_mol will delegate attr 'unpick'- ###k NEEDED?
+    ##fake_merged_mol will delegate attr 'changeapp' +
+    ##fake_merged_mol will delegate attr 'draw' +
+    
     # and on the copies? don't know yet, but at least also set_basecenter_and_quat...
 
+# design Q: should the copies be actual groups? 
+# It'd be easier to add them to assy.tree that way; we could always ungroup them later.
+
+# Guess: that would be simpler. Depends what methods we use on them. 
+# To find out, make a group here, then wrap that with this class 
+# so we print the methods needed on it. Probably most are already ok on it. 
+
+
+class fake_copied_mol( virtual_group_of_Chunks):
+    """Holds a list of copied mols made by copying extrude's basemol when it's a fake_merged_mol,
+    and a Group made from them (for use in MT).
+    WARNING: our client extrudeMode will also do isinstance tests on this class,
+    and peer into our private attrs like self._group,
+    so some of our semantics comes from client code that depends on our class.
+    """
+    def __init__(self, copies, originals):
+        print "fyi: made a fake_copied_mol" ####
+        self._saw = {}
+        self._mols = copies # list of mol copies, made by an instance of fake_merged_mol, corresponding with its mols
+        self._originals = originals # needed only in set_basecenter_and_quat (due to a kluge)
+        assy = copies[0].assy
+        self._group = Group('extruded', assy, None, copies) # not yet in MT
+            # KLUGE: our client, extrudeMode, knows about self._group, and grabs it for use in MT rather than self, as special case
+            # Note: we might find it useful to own a fake_merged_mol rather than a Group...
+        return
+    def __getattr__(self, attr):
+        ###STUB for debug: delegate to self._group, and report doing so once. Delegation to group is fine for: draw.
+        if attr.startswith('__'):
+            raise AttributeError, attr
+        if not self._saw.get(attr):
+            print_compact_stack( "fake_copied_mol will delegate attr %r: " % (attr))
+            self._saw[attr] = 1
+        return getattr(self._group, attr) ###kluge
+    def set_basecenter_and_quat(self, c, q):
+        std_basecenter = self._originals[0].basecenter
+        for mol, orig in zip(self._mols, self._originals):
+            # correct c for how our basemol differs from first one
+            c1 = c - std_basecenter + orig.basecenter
+            mol.set_basecenter_and_quat(c1, q)
+        return
+    pass # end of class fake_copied_mol
+
+
+### do this before we can say we're done:
+# - review all uses of molcopies[ii] above ###
+# - fix all '####' above-near, incl stubs, center_quat stuff
+# - change the initial Enter code to not use the wrapper for one selected mol, i think
+# - test for merge products or not
+# - debug pref should be checkbox
+
+# did already: colorfunc
 
 # ==
-
-# detect reloading
-try:
-    _already_loaded
-except:
-    _already_loaded = 1
-else:
-    print "reloading extrudeMode.py"
-pass
-
-def mark_singlets(basemol, colorfunc):
-    for a in basemol.atoms.itervalues():
-        ## a.info = a.key
-        a.set_info(a.key) #bruce 060322
-    basemol._colorfunc = colorfunc # maps atoms to colors (due to a hack i will add)
-    return
-
-
-#end of extrude
- # + remember to unpatch _colorfunc from the mols when i'm done
-# and info from the atoms? not needed but might as well [nah]
-
-# not done:
-
-# for (i1,i2) in bonds:
-            # assume no singlet appears twice in this list!
-# this is not yet justified, and if false will crash it when it makes bonds
-
 
 class revolveMode(extrudeMode):
     "revolve, a slightly different version of Extrude, someday with a different dashboard"
