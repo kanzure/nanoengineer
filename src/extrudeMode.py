@@ -651,6 +651,7 @@ class extrudeMode(basicMode):
         # rather than on relying on it not to happen "by luck" (since it only happens when we do ops we're not doing here --
         # but note that nothing currently prevents user from doing them during this mode, unless UI tool disables do).
         # Meanwhile, the current scheme should be as correct for multiple base-chunks as it was for one.
+        #  See also the comments in fake_copied_mol.set_basecenter_and_quat, especially about how this affects ring mode.
         offset = self.offset
         cn = self.circle_n ### does far-below code have bugs when ii >= cn?? that might explain some things i saw...
         basemol = self.separate_basemols[0] #bruce 070407 revision; see also fake_copied_mol.set_basecenter_and_quat
@@ -1231,6 +1232,17 @@ class extrudeMode(basicMode):
                     bond_at_singlets(s1, s2, move = 0)
                 except:#050228
                     print_compact_traceback("error fixing some broken bond, ignored: ") # can happen in ring mode, at least
+
+        # update 070408: if not cancelling, here is where we might merge original selection (and each copy)
+        # into a single chunk (or turn it into a group), if desired by a new dashboard checkbox (nim).
+        ##e
+        self.whendone_merge_each_unit = False # True works when tested ### debug_pref("Extrude: internal merge at end", ...)
+        if self.whendone_merge_each_unit and not cancelling:
+            for unit in self.molcopies:
+                unit.internal_merge()
+            self.basemol = self.molcopies[0]
+            self.separate_basemols = [self.basemol] # needed only if still used (unlikely); but harmless, so do it to be safe
+            ###e other internal updates needed??
         
         if self.whendone_all_one_part and not cancelling:
             # rejoin base unit with its home molecule, if any -- NIM [even after 041222]
@@ -1810,9 +1822,12 @@ class extrudeMode(basicMode):
 
 # helper functions for extrudeMode.Enter
 
-# should be a method in assembly (maybe there is one like this already??)
-def assy_merge_mols(assy, mollist):
-    "merge multiple mols in assy into one mol in assy, and return it"
+def assy_merge_mols(assy, mollist): 
+    """merge multiple mols (Chunks) in assy (namely, the elements of sequence mollist)
+    into one mol in assy [destructively modifying the first mol in mollist to be the one],
+    and return it
+    """
+    # note: doesn't use assy arg, but assumes all mols in mollist are in same assy and Part [070408 comment]
     mollist = list(mollist) # be safe in case it's identical to assy.selmols,
         # which we might modify as we run
     assert len(mollist) >= 1
@@ -1823,6 +1838,12 @@ def assy_merge_mols(assy, mollist):
     from debug_prefs import debug_pref, Choice_boolean_False
     if debug_pref("Extrude: leave base-chunks separate", Choice_boolean_False, non_debug = True, prefs_key = True):
         #bruce 070407; when it works, change default?? not sure. hook up to new dashboard checkbox, i guess. ###e
+        #
+        # update 070408: if this is a checkbox, we need to use the value when we make the product, in finalize_product,
+        # not here when we enter the mode! So this would turn into 'if 1' and the checkbox would be used
+        # in finalize_product. I've added stub code to do that, using self.whendone_merge_each_unit, False now
+        # but works when tested at True. That's where to check the checkbox corresponding to this debug_pref.
+        #
         # could optim by not doing this when only one member, but that might hide bugs and doesn't matter otherwise, so nevermind
         res = fake_merged_mol(res)
     for mol in mollist[1:]: # ok if no mols in this loop
@@ -1857,7 +1878,6 @@ def assy_fix_selmol_bugs(assy):
     #e worry about selatoms too?
     return
 
-# this can remain a local function
 def assy_extrude_unit(assy, really_make_mol = 1):
     """If we can find a good extrude unit in assy,
        make it a molecule in there, and return (True, mol);
@@ -2039,11 +2059,21 @@ class virtual_group_of_Chunks:
         for mol in self._mols:
             mol.unpick()
         return
+    def internal_merge(self):
+        "merge each of our chunks into the first one"
+        first = self._mols[0]
+        others = self._mols[1:]
+        for other in others:
+            first.merge(other)
+        return
     pass # end of class virtual_group_of_Chunks
 
     
-class fake_merged_mol( virtual_group_of_Chunks):
-    "private helper class for use in Extrude, to let it treat a set of mols as if they were merged into one."
+class fake_merged_mol( virtual_group_of_Chunks): #e rename? 'extrude_unit_holder'
+    """private helper class for use in Extrude,
+    to let it treat a set of chunks (comprising the extrude unit)
+    as if they were merged into one chunk, without actually merging them.
+    """
     officially_delegated = ('center','quat')
     def __init__(self, mols):
         self._saw = {} # for initial debug only; see __getattr__ (dict of attrs we've delegated)
@@ -2116,10 +2146,11 @@ class fake_merged_mol( virtual_group_of_Chunks):
     ##fake_merged_mol will delegate attr 'changeapp' +
     ##fake_merged_mol will delegate attr 'draw' +
     
-class fake_copied_mol( virtual_group_of_Chunks):
-    """Holds a list of copied mols made by copying extrude's basemol when it's a fake_merged_mol,
-    and a Group made from them (for use in MT).
-    WARNING: our client extrudeMode will also do isinstance tests on this class,
+class fake_copied_mol( virtual_group_of_Chunks): #e rename? 'extrude_unit_copy_holder'
+    """private helper class for extrude, to serve as a "rep-unit" copy of a fake_merged_mol instance.
+    Holds a list of copied mols (chunks) made by copying extrude's basemol when it's a fake_merged_mol,
+    and (if desired) a Group made from them (for use in MT).
+       WARNING: our client extrudeMode will also do isinstance tests on this class,
     and peer into our private attrs like self._mols,
     so some of our semantics comes from client code that depends on our class.
     """
@@ -2143,8 +2174,14 @@ class fake_copied_mol( virtual_group_of_Chunks):
     def set_basecenter_and_quat(self, c, q):
         std_basecenter = self._originals[0].basecenter
         for mol, orig in zip(self._mols, self._originals):
-            # correct c for how our basemol differs from first one
-            # (for explanation, see long comment in want_center_and_quat)
+            # Compute correct c for how our basemol differs from first one
+            # (for explanation, see long comment in want_center_and_quat).
+            #
+            # Note: this is not ideal behavior for ring mode, in which q varies -- we should correct c for that, too,
+            # but we don't, which means we make several parallel rings (one per element of self._mols),
+            # rather than one ring with a common center. To fix this, we'd correct c for q here,
+            # and also compute an overall center in fake_merged_mol rather than just delegating it
+            # to one of the components.
             c1 = c - std_basecenter + orig.basecenter
             mol.set_basecenter_and_quat(c1, q)
         return
