@@ -76,7 +76,6 @@ stretch 500.00  350.00  1.0000   -1         -1       9    1   Ss-1-Pe
 # 180 degree along Axis
 bend 100.0           3.14159265359   9   Ax-1-Ax.sp3-1-Ax
 bend  10.0           3.14159265359   9   H-1-Ax.sp3-1-Ax
-bend  10.0           3.14159265359   9   H-1-Ax.sp3-1-H
 bend  10.0           3.14159265359   9   H-1-Ax.sp3-1-Ae
 bend  10.0           3.14159265359   9   Ax-1-Ax.sp3-1-Ae
 bend  10.0           3.14159265359   9   Ae-1-Ax.sp3-1-Ae
@@ -86,11 +85,16 @@ bend  10.0           1.57079632679   9   Ax-1-Ax.sp3-1-Ss
 bend 100.0           1.57079632679   9   Ax-1-Ax.sp3-1-Sj
 bend  10.0           1.57079632679   9   H-1-Ax.sp3-1-Ss
 bend  10.0           1.57079632679   9   Ss-1-Ax.sp3-1-Ae
+bend  10.0           1.57079632679   9   H-1-Ax.sp3-1-Ax
+bend  10.0           1.57079632679   9   H-1-Ax.sp3-1-Ae
+bend  10.0           1.57079632679   9   H-1-Ax.sp3-1-H
 
 # 145 degree minor grove
 bend 100.0           2.5307274125    9   Ss-1-Ax.sp3-1-Ss
 bend 100.0           2.5307274125    9   Ss-1-Ax.sp3-1-Sj
 bend 100.0           2.5307274125    9   Sj-1-Ax.sp3-1-Sj
+bend 100.0           2.5307274125    9   H-1-Ax.sp3-1-Ss
+bend 100.0           2.5307274125    9   H-1-Ax.sp3-1-Sj
 
 # 120 degree Axis Sugar Phosphate
 bend  10.0           2.0943951       9   Ax-1-Ss.sp3-1-Pl
