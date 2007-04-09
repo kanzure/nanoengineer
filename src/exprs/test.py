@@ -148,9 +148,9 @@ from DisplistChunk import DisplistChunk
 ##reload_once(demo_polygon)
 ##from demo_polygon import newerBoxed, resizablyBoxed
 
-import lvals
-reload_once(lvals)
-from lvals import Lval_which_recomputes_every_time ##e and more? refile in basic??
+##import lvals
+##reload_once(lvals)
+##from lvals import Lval_which_recomputes_every_time ##e and more? refile in basic??
 
 import widget_env
 reload_once(widget_env)
@@ -1981,11 +1981,12 @@ def drawtest1_innards(glpane):
     
     from basic import printnim, printfyi
 
-    if 'kluge':
-        #### KLUGE: get back to the standard drawing coords
-        # (only works since exactly one level of this is pushed since mode.Draw is entered, and we control all that code)
-        glPopMatrix()
-        glPushMatrix()
+# no longer needed, 070408
+##    if 'kluge':
+##        #### KLUGE: get back to the standard drawing coords
+##        # (only works since exactly one level of this is pushed since mode.Draw is entered, and we control all that code)
+##        glPopMatrix()
+##        glPushMatrix()
 
     inst.draw() # can't use self.drawkid -- we're not an IorE instance (just a function)
     if not glpane.is_animating: # cond added 061121, but will probably need mod so we print the first & last ones or so... #e
@@ -2013,11 +2014,6 @@ def drawtest1_innards(glpane):
         # When the time comes (eg to optim it), just use print_compact_stack here. [061116 comment]
         printnim("see code for how to optim by replacing two redraws with one, when mouse goes over an object") # see comment above
     return
-
-# ==  what to draw in the corner @@@@ ###NIM for now
-
-## corner_expr = Rect(3,2,red)
-corner_expr = testexpr_16c # works to show it, but it doesn't work as a control since it doesn't get highlighted!!! ###LOGIC BUG
 
 # ==
 

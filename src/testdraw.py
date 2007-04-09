@@ -126,33 +126,20 @@ trans_green = translucent_color(green)
 
 try:
     vv
-##    vv.displist
-##    vv.havelist
     vv.reload_counter += 1
-##    vv.when_drawtest1_last_ran
     vv.state
 except:
     vv = attrholder()
     vv.tex_name = 0
     vv.tex_data = None
-##    vv.counter = 0
-##    vv.displist = glGenLists(1)
-##    vv.havelist = 0
     vv.reload_counter = 0
-##    vv.when_drawtest1_last_ran = -1
     vv.state = {} # prototype of a place to store persistent state (presuming some persistent way of allocating keys, eg hardcoding)
     ##e should modify to make it easier to set up defaults; sort of like a debug_pref?
-
-# vv.counter = 0 # just to get started (was needed when i moved file to another machine, already running, too)
 
 # ==
 
 print "\n%d reloads" % vv.reload_counter
 
-##if vv.havelist:
-##    vv.havelist = 0
-##    print "(fyi, this reload needed to reset vv.havelist)"
-    
 def end_of_Enter(glpane):
     # called by testmode.Enter after it does everything else including super Enter; was never called before 070103
     ## glpane.win.setViewHome() # not tested, might be wrong; redundant now (if home view is the default)
@@ -173,7 +160,6 @@ def leftDown(mode, event, glpane, super): # called from testmode.leftDown
     # but don't replace selobj with the new one! So we predict not selobj_still_ok -- should print that from there ###@@@
     # [fixed now? note, reload is not right here, but in super.leftDown when it calls testmode.emptySpaceLeftDown]
     if printdraw: print "\ntestdraw leftDown" ###@@@
-##    vv.havelist = 0 # so editing this file (and clicking) uses the new code -- this also affects clicks on selobj which don't reload
     super.leftDown(mode, event) # this might call testmode.emptySpaceLeftDown (or other class-specific leftDown methods in it)
     glpane.gl_update() # always, for now [might be redundant with super.leftDown, too]
 
@@ -185,7 +171,6 @@ def render_scene(mode, glpane): # called by testmode.render_scene # 061208
 def Draw(mode, glpane, super): # called by testmode.Draw
     
     init_glpane_vars(glpane)
-##    vv.counter += 1
 
     if env.prefs.get("A9 devel/testdraw/super.Draw first?", True): #070404
         glPushMatrix() #k needed??
@@ -232,45 +217,28 @@ def Draw_after_highlighting(mode, pickCheckOnly, glpane, super):
 
 # ==
 
-##def havelist_counters(glpane):
-##    "return some counters which better have the same value or we'll treat havelist as if it was invalidated"
-##    assy = glpane.assy
-##    return (assy._view_change_counter,) # this doesn't work, since changing view doesn't actually incr that counter. ###@@@
-
-def display_list_helper(self, glpane, drawfunc): ###e clean this up more (inline it)
-    "now equiv to drawfunc(), with some debug prints and exception handling; doesn't use self, glpane"
-##    "self needs .havelist and .displist"
-##    self.havelist = 0 #bruce 051209: this is now needed
-
-    # bruce 041028 -- protect against exceptions while making display
-    # list, or OpenGL will be left in an unusable state (due to the lack
-    # of a matching glEndList) in which any subsequent glNewList is an
-    # invalid operation. (Also done in shape.py; not needed in drawer.py.)
-    try:
-##        self.draw_displist(glpane, disp, (hd, delegate_draw_atoms, delegate_draw_chunk))
-        if printdraw: print "drawfunc (redraw %d)" % env.redraw_counter
-        drawfunc()
-    except:
-        print_compact_traceback("exception in testdraw.py's drawfunc call ignored: ")
-    return # self, glpane
-
-# ==
-
-# old:
-####@@@@
-# next up: mouse event bindings, state, programming constructs incl scope, formulas (getters? inval?), option-defaults
-
 def drawtest0(glpane):
-    "run drawtest1 inside a global display list [old, removed now: then run drawtest2 outside it]"
+    "run drawtest1, protected from exceptions, after setting up some of its environment"
     # load the texture for the courier bitmap font; params incl tex_name are in vv
     ensure_courierfile_loaded() # used to be done inside drawtest1
 
-    vv.start_time = time.time() # drawing can use this to get time so far, but it's up to it to be drawn near the end of what we draw
+    vv.start_time = time.time()
+        # anything that gets drawn can compare this with realtime
+        # to get time so far in this frame, but it's up to it to be drawn
+        # near the end of what we draw in the frame
     
-    # drawtest1, in displist [vv has ##.havelist and .displist]
-    drawfunc = lambda:drawtest1(glpane)
-    display_list_helper( vv, glpane, drawfunc)
+    try:
+        if printdraw: print "drawfunc (redraw %d)" % env.redraw_counter
+        drawtest1(glpane)
+    except:
+        print_compact_traceback("exception in testdraw.py's drawfunc call ignored: ") # this happens sometimes
+    return
 
+def drawtest1(glpane):
+    # main special drawing -- let the exprs module do it
+    reload_basic_and_test()
+    from exprs.test import drawtest1_innards
+    drawtest1_innards(glpane)
     return
 
 def ensure_courierfile_loaded(): #e rename to reflect binding too
@@ -298,18 +266,9 @@ def _bind_courier_font_texture(): # kluge 061125 so exprs/images.py won't mess u
     # OTOH it's too expensive to do that all the time (and maybe even this, if same tex already bound -- remains to be seen).
     return
 
-def drawtest1(glpane):
-    # main special drawing; if a global flag is set, it's all put into a global displist by caller (tho it doesn't all work there)
-
-    # let the exprs module do it
-    reload_basic_and_test()
-    from exprs.test import drawtest1_innards
-    drawtest1_innards(glpane)
-    
-    return # drawtest1 #e rename
-
 def reload_basic_and_test():
-    global basic, test, draw_utils
+##    global basic, test # those are not needed as global names
+    global draw_utils
     from exprs import basic
     basic.reload_once(basic) # moved this before import of test [061113 late, when this was just part of drawtest1],
         # to see if it'll fix my occasional failures to actually reload test,
@@ -321,6 +280,8 @@ def reload_basic_and_test():
     from exprs import draw_utils # for draw_textured_rect
     basic.reload_once(draw_utils)
     return
+
+# ==
 
 #e put these into an object for a texture font!
 tex_width = 6 # pixel width of 1 char within the texture image
@@ -507,7 +468,6 @@ def drawfont2(glpane, msg = None, charwidth = None, charheight = None, testpatte
 
     return #drawfont2 #e rename, clean up
 
-    
 def mymousepoints(glpane, x, y):
     # modified from GLPane.mousepoints; x and y are window coords (except y is 0 at bottom, positive as you go up [guess 070124])
     self = glpane
@@ -524,20 +484,6 @@ def mymousepoints(glpane, x, y):
     p2 = p1 + k*(p2-p1)
     return (p1, p2)
 
-    
-# working well: ease of trying a change: save and click!
-
-# wishlist:
-
-# archive of backcopies of this file (or diffs of that)
-# (how fast to run shell diff each time it changes when we redraw? or md5, then copy it to its md5name?)
-# (could do that in drawtest itself!)
-
-# primitive layout expr - series of dy's between things to try out, enableable in MT
-
-# (minor: archive screenshots too)
-
-## courierfile = "/Users/bruce/PythonModules/data/courier-128.png"
 courierfile = os.path.join( os.path.dirname(__file__), "experimental/textures/courier-128.png")
 
 '''
@@ -545,6 +491,8 @@ courierfile = os.path.join( os.path.dirname(__file__), "experimental/textures/co
 ()()(8)
 8888 -- there's one more pixel of vertical space between the chars, here in idlehack, than in my courier-128.png image file!
 '''
+
+# ==
 
 # high-level helpers
 def load_image_into_new_texture_name(image_file, tex_name = 0):
@@ -635,6 +583,6 @@ def _initTextureEnv(have_mipmaps): # called during draw method [modified from ES
 # ==
 
 # (some outtakes removed to bruceG5 testdraw-outtakes.py, last here in rev 1.11)
-# (lots more removed 070408, last here in rev 1.55)
+# (lots more removed 070408 over several commits, last here in rev 1.55)
 
 # end
