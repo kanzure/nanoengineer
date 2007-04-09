@@ -1,3 +1,16 @@
+#
+# $Id$
+#
+
+# This file should be placed in your ~/Nanorex directory.  It is read
+# by the simulator before each simulation or minimization run.  You
+# should be able to edit and save it between runs and see the new
+# results in later runs.
+
+# The element, stretch, and bend lines define new force field
+# parameters which override or extend the force field compiled into
+# the simulator.
+
 
 # format for element lines
 #
