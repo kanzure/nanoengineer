@@ -6,6 +6,8 @@ confirmation_corner.py -- helpers for modes with a confirmation corner
 $Id$
 """
 
+#### UNFINISHED
+
 __author__ = "bruce"
 
 ## from exprs.basic import *
@@ -13,18 +15,9 @@ from exprs.Highlightable import Highlightable
 from exprs.images import Image
 from exprs.Overlay import Overlay
 
-## from exprs.test import * # remove when less lazy; may have bad side effects, or crash from thinking we're in testmode ###k
 
-
-# stuff to set up the env... see what testdraw does
-
-# a place to make instances, new ones have totally fresh state, but only keep one, or let caller supply index...
-
-
-
-
-class MouseEventHandler: #bruce 070405 #e refile #e put implems in subclass #e some methods may need mode and/or glpane arg...
-    "interface for objects used as glpane.mouse_event_handler"
+class MouseEventHandler: #e refile #e put implems in subclass #e some methods may need mode and/or glpane arg...
+    "interface for objects used as glpane.mouse_event_handler [abstract class]"
     def mouseMoveEvent(self, event):
         ""
     def mouseDoubleClickEvent(self, event):
@@ -34,24 +27,33 @@ class MouseEventHandler: #bruce 070405 #e refile #e put implems in subclass #e s
     def mouseReleaseEvent(self, event):
         ""
     def update_cursor(self, mode):
+        "Perform side effects in mode (assumed to be a basicMode subclass) to give it the right cursor for being over self"
+        ###e probably needs more args (like mouse posn, mod keys, etc), or official access to more info (like glpane.button),
+        # to choose the cursor
+    def want_event_position(self, wX, wY):
+        "Return True if self wants to handle mouse events at the given OpenGL window coords, False otherwise"
+    def draw(self):
         ""
-        self = mode
-        self.o.setCursor(self.w.RotateCursor) ###stub for testing
-    def want_event_position(self, wX, wY):###stub for testing
+    pass
+
+class MouseEventHandlerSubclass(MouseEventHandler): #e rename # an instance can be returned from find_or_make for testing...
+    "###doc"
+    def update_cursor(self, mode):
+         ###stub for testing
+        glpane = mode.o
+        win = mode.w
+        glpane.setCursor(win.RotateCursor)
+    def want_event_position(self, wX, wY):
+        ###stub for testing
         dx = self.o.width - wX
         dy = self.o.height - wY
         if dx + dy <= 100:
             return True
         return False
+    def draw(self):
+        pass ###stub
     pass
 
-class InstanceHolder:
-    "A self-contained place to make and hold Instances of exprs, which makes its own drawing env."
-    def __init__(self, glpane):
-        self.thing = None ####STUB ...
-    def Instance(self, *args, **kws):
-        return self.thing.Instance(*args, **kws)
-    pass
     
 def interpret_cctype(cctype, mode):
     "return None or an expr, ..."
@@ -60,15 +62,6 @@ def interpret_cctype(cctype, mode):
 def find_or_make(cctype, mode):
     "Return a confirmation corner instance for mode, of the given cctype."
     return None ##### STUB
-    try:
-        place = mode._confirmation_corner__place
-    except AttributeError:
-        glpane = mode.o
-        place = mode._confirmation_corner__place = InstanceHolder(glpane) ###IMPLEM; what about the env, does it have one? etc
-    ccexpr = interpret_cctype(cctype, mode) # None or an expr
-    if ccexpr is not None:
-        # find or make an instance of that expr (caching nothing except the one currently in use)
-        ccinstance = place.Instance(ccexpr, 'index', permit_expr_to_vary = True) #####BUG: pass unique ipath, or clear state, or ....
-    else:
-        ccinstance = None
-    return ccinstance
+    # see exprs/cc_scratch.py
+
+# end

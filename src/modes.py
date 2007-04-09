@@ -367,7 +367,7 @@ class basicMode(anyMode):
 
     # ==
 
-    # confirmation corner methods [bruce 070405]
+    # confirmation corner methods [bruce 070405-070409]
     
     def want_confirmation_corner_type(self):
         """Subclasses should return the type of confirmation corner they currently want,
@@ -381,7 +381,7 @@ class basicMode(anyMode):
     _ccinstance = None
     
     def draw_overlay(self): #bruce 070405
-        "called from GLPane with drawing coordsys XXX"
+        "called from GLPane with drawing coordsys XXX [part of GLPane's drawing interface to modes]"
         from debug_prefs import debug_pref, Choice_boolean_False
         if not debug_pref("enable confirmation_corner stub code?", Choice_boolean_False, prefs_key = True):
             ###DISABLED by default for initial commit, so NE1 needn't import exprs module code by default until it needs to...
@@ -420,7 +420,7 @@ class basicMode(anyMode):
         to be needed.]
         """
         if self._ccinstance is not None:
-            method = getattr(self._ccinstance, 'want_event_position')
+            method = getattr(self._ccinstance, 'want_event_position', None)
             if method:
                 if method(wX, wY):
                     return self._ccinstance
