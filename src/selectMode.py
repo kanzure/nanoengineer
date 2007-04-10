@@ -479,7 +479,7 @@ class selectMode(basicMode):
         #bruce 060316 set self.drag_offset to help fix bug 1474 (this should be moved into a method so singlets can call it too):
         farQ, dragpoint = self.dragstart_using_GL_DEPTH( event)
         apos0 = a.posn()
-        if farQ or vlen( dragpoint - apos0 ) > a.selatom_radius() + 0.2:
+        if farQ or vlen( dragpoint - apos0 ) > a.max_pixel_radius():
             # dragpoint is not realistic -- find a better one (using code similar to innards of dragstart_using_GL_DEPTH)
             ###@@@ Note: + 0.2 is purely a guess (probably too big) -- what it should be is a new method a.max_drawn_radius(),
             # which gives max distance from center of a drawn pixel, including selatom, highlighting, wirespheres,

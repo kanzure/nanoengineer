@@ -58,7 +58,7 @@ from Utility import *
 from ChunkProp import * # Renamed MoleculeProp to ChunkProp.  Mark 050929
 from mdldata import marks, links, filler
 from povheader import povpoint #bruce 050413
-from debug_prefs import debug_pref, Choice_boolean_False #bruce 060307
+from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True, Choice
 from changes import register_changedict, register_class_changedicts
 
 try:
@@ -951,10 +951,50 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         
         return disp # from Atom.draw. [bruce 050513 added retval to help with an optim]
 
+    def _draw_atom_style(self): #bruce 070409 split this out of draw_atom_sphere
+        """[private helper method for draw_atom_sphere, and perhaps related methods like draw_wirespheres]
+        Return a short hardcoded string (known to draw_atom_sphere) saying in what style to draw the atom's sphere.
+        None means use an actual sphere; other values distinguish the special cases encoded into draw_atom_sphere.
+           We check not only the desirability of the special cases, but all their correctness conditions,
+        making sure that those don't depend on the other parameters of draw_atom_sphere (like abs_coords),
+        and making it easier for draw_atom_sphere to fallback to its default style when those conditions fail.
+        """
+        if self.element is Singlet and len(self.bonds) == 1:
+            if debug_pref("draw Pl-bondpoints as arrowheads", Choice_boolean_True, prefs_key = True, non_debug = True): #bruce 070409
+                other = self.bonds[0].other(self)
+                if other.element.symbol == 'Pl' and len(other.bonds) == 2:
+                    if len(other.singNeighbors()) == 1:
+                        # at end, but not isolated
+                        return 'arrowhead-away1'
+                        ###e REVIEW: does Bond.draw need to be updated due to this, if "draw bondpoints as stubs" is True?
+            if debug_pref("draw bondpoints as stubs", Choice_boolean_False, prefs_key = True):
+                # current implem has cosmetic bugs (details commented there), so don't say non_debug = True
+                return 'bondpoint-stub' #k this might need to correspond with related code in Bond.draw
+        if self.element.symbol == 'Pe' and len(self.bonds) == 1 and \
+           debug_pref("draw Pe as arrowhead", Choice_boolean_True, prefs_key = True, non_debug = True): #bruce 070409
+            other = self.bonds[0].other(self)
+            # other is a bondpoint or a real pseudoatom, in either case farther away than self
+            # from the end of the strand (arrow should point other way).
+            # (We want to draw even an isolated Pe (with bondpoint) as a cone, in case it's in MMKit,
+            #  since it always looks like a cone when in use.)
+            if other.molecule is not self.molecule:
+                # It's too hard to support this case for now; a bug report (bruce, A9) should be filed.
+                # The implem issues are (1) baseposns are in different coord systems; (2) self.molecule display list
+                # would need updating if self -> other direction (in self's coordsys) changed.
+                return None
+            return 'arrowhead-away1'
+        if self.element.symbol == 'Pl' and len(self.bonds) == 2 and \
+           debug_pref("draw Pl at end as arrowhead", Choice_boolean_False, prefs_key = True, non_debug = True): #bruce 070409
+            if len(self.singNeighbors()) == 1:
+                # at end, but not isolated
+                return 'arrowhead-to-bp'
+        return None
+    
     def draw_atom_sphere(self, color, pos, drawrad, level, dispdef, abs_coords = False):
         "#doc [dispdef can be None if not known to caller]"
         #bruce 060630 split this out for sharing with draw_in_abs_coords
-        if self.element is Singlet and self.bonds and debug_pref("draw bondpoints as stubs", Choice_boolean_False, prefs_key = True):
+        style = self._draw_atom_style()
+        if style == 'bondpoint-stub':
             #bruce 060629/30 experiment -- works, incl for highlighting,
             # and even fixes the bondpoint-buried-in-big-atom bugs,
             # but sometimes the bond cyls project out beyond the bp cyls
@@ -967,41 +1007,55 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 otherpos = other.posn()
             else:
                 otherpos = other.baseposn()
+                    # note: this is only correct since self and other are guaranteed to belong to the same chunk --
+                    # if they didn't, their baseposns (pos and otherpos) would be in different coordinate systems.
             rad = other.selatom_radius(dispdef) # ok to pass None
             out = norm(pos - otherpos)
             buried = max(0, rad - vlen(pos - otherpos))
             inpos = pos - 0.015 * out
             outpos = pos + (buried + 0.015) * out # be sure we're visible outside a big other atom
             drawcylinder(color, inpos, outpos, drawrad, 1) #e see related code in Bond.draw; drawrad is slightly more than the bond rad
-        elif self.element.symbol == 'Pe' and len(self.bonds) == 1 and \
-                debug_pref("draw Pe as arrowhead", Choice_boolean_False, prefs_key = True, non_debug = True):#bruce 070409
-            other = self.bonds[0].other(self)
+        elif style in ('arrowhead-away1', 'arrowhead-to-bp'): #bruce 070409
+            # arrowhead-to-bp means arrowhead pointing to the sole bondpoint (out of any number of bonds)
+            # arrowhead-away1 means arrowhead pointing away from the sole bond
+            if style == 'arrowhead-away1':
+                other = self.bonds[0].other(self)
+                # other is a singlet or real pseudoatom, away from the end of the strand (arrow should point other way)
+                otherdir = -1
+            else:
+                # exactly one singlet-neighbor, and arrow should point towards it
+                # (don't make it point away from the real neighbor instead -- won't work if they're in different chunks)
+                other = self.singNeighbors()[0]
+                otherdir = 1
             if abs_coords:
                 otherpos = other.posn()
             else:
-                otherpos = other.baseposn() ### WRONG if it's in a different mol! I think it's a singlet and can't be... ### FIND OUT
-            out = norm(pos - otherpos)
-            center = pos
-##            axis = out
-##            l = h = w = 2 * drawrad
-##            l *= 1.5
-##            drawbrick(color, center, axis, l, h, w)
+                otherpos = other.baseposn() # this would be wrong if it's in a different chunk! Conditions above prevent that.
+                assert self.molecule is other.molecule
+            out = norm(otherpos - pos) * otherdir
             axis = out * drawrad
-            # the following cone dims enclose the original sphere (and therefore the bond-cylinder end too):
+            # the following cone dimensions enclose the original sphere (and therefore the bond-cylinder end too):
             # cone base at pos - axis, radius = 2 * drawrad, cone midplane (radius = drawrad) at pos + axis,
             # thus cone tip at pos + 3 * axis.
-            drawsphere(color, pos, drawrad, level) ###KLUGE to set color and also to verify cone encloses sphere
+            # WARNING: this cone would obscure the wirespheres, except for special cases in self.draw_wirespheres().
+            # If you make the cone bigger you might need to change that code too.
+            drawsphere(color, pos, drawrad, level) #KLUGE (harmless) to set color and also to verify cone encloses sphere
             from OpenGL.GLE import glePolyCone
             glePolyCone([pos - 2 * axis, pos - axis, pos + 3 * axis, pos + 4 * axis], # point array (2 end points not drawn)
                         None, # color array (None means use current color)
                         [drawrad * 2, drawrad * 2, 0, 0] # radius array
-                    )
+                       )
         else:
+            if style is not None:
+                print "bug (ignored): unknown _draw_atom_style return value for %r: %r" % (self, style,)
             drawsphere(color, pos, drawrad, level)
         return
     
     def draw_wirespheres(self, glpane, disp, pos, pickedrad):
         #bruce 060315 split this out of self.draw so I can add it to draw_in_abs_coords
+        if self._draw_atom_style() in ('arrowhead-away1', 'arrowhead-to-bp'):
+            # compensate for the cone (drawn by draw_atom_sphere in this case) being bigger than the sphere [bruce 070409]
+            pickedrad *= debug_pref("Pe pickedrad ratio", Choice([1.8, 1.9, 1.7, 1.0])) ####
         if self.picked: # (do this even if disp == diINVISIBLE or diLINES [bruce comment 050825])
             #bruce 041217 experiment: show valence errors for picked atoms by
             # using a different color for the wireframe.
@@ -1029,7 +1083,14 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 #e we might want to not draw this when self.bad() but draw that differently,
                 # and optim this when atomtype is initial one (or its numbonds == valence).
         return
-        
+
+    def max_pixel_radius(self): #bruce 070409
+        "Return an estimate (upper bound) of the maximum distance from self's center to any pixel drawn for self."
+        res = self.selatom_radius() + 0.2
+        if self._draw_atom_style() in ('arrowhead-away1', 'arrowhead-to-bp'):
+            res *= 3
+        return res
+    
     def bad(self): #bruce 041217 experiment; note: some of this is inlined into self.getinfo()
         "is this atom breaking any rules?"
         if self.element is Singlet:
@@ -1128,11 +1189,13 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             level = self.molecule.assy.drawLevel
         pos = self.posn() # note, unlike for draw_as_selatom, this is in main model coordinates
         drawrad = self.selatom_radius() # slightly larger than normal drawing radius
-        drawsphere(color, pos, drawrad, level) # always draw, regardless of display mode
+        ## drawsphere(color, pos, drawrad, level) # always draw, regardless of display mode
+        self.draw_atom_sphere(color, pos, drawrad, level, None, abs_coords = True)
+            #bruce 070409 bugfix (draw_atom_sphere); important if it's really a cone
         return
     
     def draw_in_abs_coords(self, glpane, color): #bruce 050610
-        ###@@@ needs to be told whether or not to "draw as selatom"; now it does
+        ###@@@ needs to be told whether or not to "draw as selatom"; now it does [i.e. it's misnamed]
         """Draw this atom in absolute (world) coordinates,
         using the specified color (ignoring the color it would naturally be drawn with).
         See code comments about radius and display mode (current behavior might not be correct or optimal).
@@ -1158,7 +1221,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             # by other changes today, but this still might cause other bugs of highlighting
             # otherwise-invisible atoms. Needs review. ###@@@
             # (Indirectly related: drawwiresphere acts like drawsphere for hit-test purposes.)
-        if len(self.bonds) == 1 and self.element is Singlet: #bruce 050708 new feature
+        if len(self.bonds) == 1 and self.element is Singlet: #bruce 050708 new feature - bond is part of self for highlighting
             dispdef = self.molecule.get_dispdef()
                 #bruce 050719 question: is it correct to ignore .display of self and its base atom? ###@@@
                 #bruce 060630 guess answer: yes, since howdraw covers it.
@@ -1185,17 +1248,18 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             pass
         self.molecule.popMatrix()
         return
-    
-    def draw_as_selatom(self, glpane, dispdef, color, level):
-        #bruce 041206, to avoid need for changeapp() when selatom changes
-        # (fyi, as of 041206 the color arg is not used)
-        if self.element is Singlet:
-            color = pink
-        else:
-            color = orange
-        pos = self.baseposn() # note, this is for use in the mol's coordinate system
-        drawrad = self.selatom_radius(dispdef)
-        drawsphere(color, pos, drawrad, level) # always draw, regardless of disp
+
+#bruce 070409 removing draw_as_selatom since no longer called, and has bug [needs drawsphere -> self.draw_atom_sphere]
+##    def draw_as_selatom(self, glpane, dispdef, color, level):
+##        #bruce 041206, to avoid need for changeapp() when selatom changes
+##        # (fyi, as of 041206 the color arg is not used)
+##        if self.element is Singlet:
+##            color = pink
+##        else:
+##            color = orange
+##        pos = self.baseposn() # note, this is for use in the mol's coordinate system
+##        drawrad = self.selatom_radius(dispdef)
+##        drawsphere(color, pos, drawrad, level) # always draw, regardless of disp
 
     def selatom_radius(self, dispdef = None): #bruce 041207, should integrate with draw_as_selatom
         if dispdef is None:
@@ -1786,7 +1850,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         "return a list of the real atoms (not singlets) bonded to this atom"
         return filter(lambda atm: atm.element is not Singlet, self.neighbors())
     
-    def singNeighbors(self):
+    def singNeighbors(self): #e when we have only one branch again, rename this singletNeighbors or bondpointNeighbors
         "return a list of the singlets bonded to this atom"
         return filter(lambda atm: atm.element is Singlet, self.neighbors())
     

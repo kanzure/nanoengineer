@@ -1162,7 +1162,9 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                 ## code copied from selatom.draw_as_selatom(glpane, disp, color, level)
                 pos1 = hs.baseposn()
                 drawrad1 = hs.selatom_radius(disp)
-                drawsphere(color, pos1, drawrad1, level) # always draw, regardless of disp
+                ## drawsphere(color, pos1, drawrad1, level) # always draw, regardless of disp
+                hs.draw_atom_sphere(color, pos1, drawrad1, level, None, abs_coords = False)
+                    #bruce 070409 bugfix (draw_atom_sphere); important if it's really a cone
             except:
                 if 1 or platform.atom_debug: ###@@@ decide which
                     print_compact_traceback("atom_debug: ignoring exception in overdraw_hotspot %r, %r: " % (self,hs))
