@@ -16,7 +16,7 @@ __author__ = "bruce"
 extrude_loop_debug = 0 # do not commit with 1, change back to 0
 
 from modes import *
-from debug_prefs import debug_pref, Choice
+from debug_prefs import debug_pref, Choice, Choice_boolean_False, Choice_boolean_True
 
 from handles import *
 from debug import print_compact_traceback
@@ -162,7 +162,11 @@ def do_what_MainWindowUI_should_do(self):
             #   "join parts" (sounds like "bond");
             # - "ring" (unclear), "make ring" (might be ok), "bend into ring" (too long?).
             self.extrudePref3 = TogglePrefCheckBox("Make Bonds", parent_now(), "extrudePref3", attr = 'whendone_make_bonds')
-            self.extrudePref4 = TogglePrefCheckBox("Merge Chunks", parent_now(), "extrudePref4", attr = 'whendone_all_one_part') #fixed bug 513 items 2, 3ninad060724
+            self.extrudePref4 = TogglePrefCheckBox("Merge Copies", parent_now(), "extrudePref4", attr = 'whendone_all_one_part',
+                                                   default = False)
+                #fixed bug 513 items 2, 3ninad060724
+                #bruce 070410 renamed "Merge Chunks" to "Merge Copies" and changed default = False, after discussion with Mark;
+                # these changes in Qt3 may need to be manually merged into Qt4 (since Qt3 dashboard is replaced with Qt4 PM)
         end()
     end()
 
@@ -488,6 +492,8 @@ class extrudeMode(basicMode):
         self.clear() ##e see comment there
         self.initial_down = self.o.down
         self.initial_out = self.o.out
+        self.get_whendone_merge_each_unit() #bruce 070410 exercise debug pref so it appears in menu
+            #e should find a better place to do it
         initial_length = debug_pref("Extrude: initial offset length (A)", Choice([3.0, 7.0, 15.0, 30.0], default_value = 7.0),
                                     prefs_key = True, non_debug = True) #bruce 070410
         reinit_extrude_controls(self.w, self.o, length = initial_length, attr_target = self)
@@ -1242,10 +1248,11 @@ class extrudeMode(basicMode):
                 except:#050228
                     print_compact_traceback("error fixing some broken bond, ignored: ") # can happen in ring mode, at least
 
-        # update 070408: if not cancelling, here is where we might merge original selection (and each copy)
-        # into a single chunk (or turn it into a group), if desired by a new dashboard checkbox (nim).
-        ##e
-        self.whendone_merge_each_unit = False # True works when tested ### debug_pref("Extrude: internal merge at end", ...)
+        # 070410: if not cancelling, here is where we merge original selection (and each copy)
+        # into a single chunk (or turn it into a group), if desired by a new debug_pref
+        # (or dashboard checkbox (nim)).
+        self.whendone_merge_each_unit = self.get_whendone_merge_each_unit()
+        
         if self.whendone_merge_each_unit and not cancelling:
             for unit in self.molcopies:
                 unit.internal_merge()
@@ -1254,6 +1261,9 @@ class extrudeMode(basicMode):
             ###e other internal updates needed??
         
         if self.whendone_all_one_part and not cancelling:
+            # update, bruce 070410: "whendone_all_one_part" is now misnamed, since it's independent with "merge selection",
+            # so it's now called Merge Copies in the UI (Qt3, desired for Qt4) rather than Merge Chunks.
+            
             # rejoin base unit with its home molecule, if any -- NIM [even after 041222]
             #e even the nim-warning msg is nim...
             #e (once we do this, maybe do it even when not self.whendone_all_one_part??)
@@ -1282,6 +1292,12 @@ class extrudeMode(basicMode):
                 self.status_msg(self.final_msg_accum)
         return
 
+    def get_whendone_merge_each_unit(self): #bruce 070410
+        # split this out so it can be exercised in Enter to make sure the pref appears in the menu,
+        # and so there's one method to change if we make this a checkbox.
+        return debug_pref("Extrude: merge selection?", Choice_boolean_False,
+                          non_debug = True, prefs_key = True)
+    
     def prep_to_make_inter_unit_bonds(self):
         self.i1_to_mark = {}
         #e keys are a range of ints, could have used an array -- but entire alg needs revision anyway
@@ -1844,20 +1860,15 @@ def assy_merge_mols(assy, mollist):
     ## # position in model tree groups, I think...
     ## for now, don't sort, use selection order instead.
     res = mollist[0]
-    from debug_prefs import debug_pref, Choice_boolean_False
-    if debug_pref("Extrude: leave base-chunks separate", Choice_boolean_False, non_debug = True, prefs_key = True):
-        #bruce 070407; when it works, change default?? not sure. hook up to new dashboard checkbox, i guess. ###e
+    if 1: ## debug_pref("Extrude: leave base-chunks separate", Choice_boolean_False, non_debug = True, prefs_key = True):
+        #bruce 070410 making this always happen now (but Enter should call get_whendone_merge_each_unit to exercise debug pref);
+        # when we're done we will do the merge differently
+        # according to "merge selection" checkbox or debug_pref, in finalize_product,
+        # not here when we enter the mode!
         #
-        # update 070408: if this is a checkbox, we need to use the value when we make the product, in finalize_product,
-        # not here when we enter the mode! So this would turn into 'if 1' and the checkbox would be used
-        # in finalize_product. I've added stub code to do that, using self.whendone_merge_each_unit, False now
-        # but works when tested at True. That's where to check the checkbox corresponding to this debug_pref.
-        #
-        # could optim by not doing this when only one member, but that might hide bugs and doesn't matter otherwise, so nevermind
+        # could optim by not doing this when only one member, but that might hide bugs and doesn't matter otherwise, so nevermind.
         res = fake_merged_mol(res)
     for mol in mollist[1:]: # ok if no mols in this loop
-##        if platform.atom_debug:
-##            print "fyi (atom_debug): extrude merging a mol"
         res.merge(mol) #041116 new feature
         # note: this will unpick mol (modifying assy.selmols) and kill it
     return res
