@@ -959,6 +959,9 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         making sure that those don't depend on the other parameters of draw_atom_sphere (like abs_coords),
         and making it easier for draw_atom_sphere to fallback to its default style when those conditions fail.
         """
+        # WARNING: various routines make use of this return value in different ways,
+        # but these ways are not independent (eg one might draw a cone and one might estimate its size),
+        # so changes in any of the uses need to be reviewed for possibly needing changes in the others. [bruce 070409]
         if self.element is Singlet and len(self.bonds) == 1:
             if debug_pref("draw Pl-bondpoints as arrowheads", Choice_boolean_True, prefs_key = True, non_debug = True): #bruce 070409
                 other = self.bonds[0].other(self)
