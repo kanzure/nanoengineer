@@ -199,9 +199,10 @@ def _compute_bond_params(atomtype1, atomtype2, v6):
         ltr = bond_letter_from_v6(v6)
         import sim
         pm = sim.getEquilibriumDistanceForBond(elementNumber1, elementNumber2, ltr) # C-C is (6, 6, '1')
-        assert pm > 1.7, "too-low pm %r for getEquilibriumDistanceForBond%r" % (pm, (elementNumber1, elementNumber2, ltr))
+        assert pm > 2.0, "too-low pm %r for getEquilibriumDistanceForBond%r" % (pm, (elementNumber1, elementNumber2, ltr))
             # 1.0 means an error occurred; 2.0 is still ridiculously low [not as of 070410]; btw what will happen for He-He??
             # update 070410: it's 1.8 for (202, 0, '1').
+            # -- but a new sim-params.txt today changes the above to 170
         nicelen = pm / 100.0
     except:
         # be fast when this happens a lot (not important now that our retval is cached, actually; even so, don't print too much)
