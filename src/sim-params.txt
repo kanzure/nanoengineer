@@ -32,13 +32,13 @@
 #
 #         Z grp per sym   name                      mass    rvdW  evdW  bnds rcov chrg
 
-element 200  0  0   Ax    DNA-Pseudo-Axis           167.0   0.2    0.01  4   1700   0
-element 201  0  0   Ss    DNA-Pseudo-Sugar          167.0   0.2    0.01  3   1800   0
-element 202  0  0   Pl    DNA-Pseudo-Phosphate      167.0   2.6   10.00  2   1800  -1
-element 203  0  0   Sj    DNA-Pseudo-Sugar-Junction 167.0   2.6   10.00  3   1800   0
-element 204  0  0   Ae    DNA-Pseudo-Axis-End       167.0   0.2    0.01  1   1700   0
-element 205  0  0   Pe    DNA-Pseudo-Phosphate-End  167.0   2.6   10.00  2   1800  -1
-element 206  0  0   Sh    DNA-Pseudo-Sugar-End      167.0   2.5    0.50  2   1800  -1
+element 200  0  0   Ax    DNA-Pseudo-Axis           167.0   0.2    0.01  4   100   0
+element 201  0  0   Ss    DNA-Pseudo-Sugar          167.0   0.2    0.01  3   170   0
+element 202  0  0   Pl    DNA-Pseudo-Phosphate      167.0   2.6   10.00  2   170  -1
+element 203  0  0   Sj    DNA-Pseudo-Sugar-Junction 167.0   2.6   10.00  3   170   0
+element 204  0  0   Ae    DNA-Pseudo-Axis-End       167.0   0.2    0.01  1   100   0
+element 205  0  0   Pe    DNA-Pseudo-Phosphate-End  167.0   2.6   10.00  2   170  -1
+element 206  0  0   Sh    DNA-Pseudo-Sugar-End      167.0   2.5    0.50  2   170  -1
 
 # format for stretch lines
 #
