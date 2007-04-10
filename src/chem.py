@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2007 Nanorex, Inc.  All rights reserved.
 '''
 chem.py -- class Atom, for single atoms, and related code
 
@@ -973,6 +973,29 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             inpos = pos - 0.015 * out
             outpos = pos + (buried + 0.015) * out # be sure we're visible outside a big other atom
             drawcylinder(color, inpos, outpos, drawrad, 1) #e see related code in Bond.draw; drawrad is slightly more than the bond rad
+        elif self.element.symbol == 'Pe' and len(self.bonds) == 1 and \
+                debug_pref("draw Pe as arrowhead", Choice_boolean_False, prefs_key = True, non_debug = True):#bruce 070409
+            other = self.bonds[0].other(self)
+            if abs_coords:
+                otherpos = other.posn()
+            else:
+                otherpos = other.baseposn() ### WRONG if it's in a different mol! I think it's a singlet and can't be... ### FIND OUT
+            out = norm(pos - otherpos)
+            center = pos
+##            axis = out
+##            l = h = w = 2 * drawrad
+##            l *= 1.5
+##            drawbrick(color, center, axis, l, h, w)
+            axis = out * drawrad
+            # the following cone dims enclose the original sphere (and therefore the bond-cylinder end too):
+            # cone base at pos - axis, radius = 2 * drawrad, cone midplane (radius = drawrad) at pos + axis,
+            # thus cone tip at pos + 3 * axis.
+            drawsphere(color, pos, drawrad, level) ###KLUGE to set color and also to verify cone encloses sphere
+            from OpenGL.GLE import glePolyCone
+            glePolyCone([pos - 2 * axis, pos - axis, pos + 3 * axis, pos + 4 * axis], # point array (2 end points not drawn)
+                        None, # color array (None means use current color)
+                        [drawrad * 2, drawrad * 2, 0, 0] # radius array
+                    )
         else:
             drawsphere(color, pos, drawrad, level)
         return
