@@ -490,11 +490,12 @@ initializeStaticBondTable(void)
   // rvdW is in 1e-10 m or angstroms or 0.1 nm
   // evdW in zJ (zepto Joules, or milli atto Joules, or 1e-21 J)
   //   an e_vanDerWaals value < 0 will be calculated in setElement()
-  // rCovalent in Angstroms (1e-10 m)
+  // rCovalent in pm (picoMeters, or 1e-12 m)
+  // chrg in multiples of proton charge
   // NOTE: change MAX_VDW_RADIUS in part.[ch] if adding an atom larger than Si
   //
   // protons, group, period, symbol, name, mass, vanDerWaalsRadius,
-  //    e_vanDerWaals, n_bonds, covalentRadius
+  //    e_vanDerWaals, n_bonds, covalentRadius, charge
   //
   //          Z grp per sym   name           mass    rvdW  evdW bnds rcov chrg
   //

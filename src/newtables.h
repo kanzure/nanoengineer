@@ -114,7 +114,7 @@ struct atomType
   double vanDerWaalsRadius;   // Angstroms, or 1e-10 m
   double e_vanDerWaals;       // zJ, or zeptoJoules, or 1e-21 J
   int n_bonds;
-  double covalentRadius;      // Angstroms, or 1e-10 m
+  double covalentRadius;      // pm, or 1e-12 m
   double charge;              // multiple of proton charge
   int refCount;
 };

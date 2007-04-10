@@ -26,19 +26,19 @@
 # rvdW (double) van der Waals radius, in 1e-10 m or angstroms or 0.1 nm
 # evdW (double) van der Waals stiffness, in zJ (zepto Joules, or milli atto Joules, or 1e-21 J)
 #                 NOTE: specifing an evdW value < .1 will cause the value to be calculated based on number of protons
-# rcov (double) covalent radius in Angstroms (1e-10 m)
+# rcov (double) covalent radius in pm (1e-12 m)
 #                 used to generate unspecified bond parameters
 # chrg (double) charge in mulitples of proton charge
 #
 #         Z grp per sym   name                      mass    rvdW  evdW  bnds rcov chrg
 
-element 200  0  0   Ax    DNA-Pseudo-Axis           167.0   0.2    0.01  4    1.7   0
-element 201  0  0   Ss    DNA-Pseudo-Sugar          167.0   0.2    0.01  3    1.8   0
-element 202  0  0   Pl    DNA-Pseudo-Phosphate      167.0   2.6   10.00  2    1.8  -1
-element 203  0  0   Sj    DNA-Pseudo-Sugar-Junction 167.0   2.6   10.00  3    1.8   0
-element 204  0  0   Ae    DNA-Pseudo-Axis-End       167.0   0.2    0.01  1    1.7   0
-element 205  0  0   Pe    DNA-Pseudo-Phosphate-End  167.0   2.6   10.00  2    1.8  -1
-element 206  0  0   Sh    DNA-Pseudo-Sugar-End      167.0   2.5    0.50  2    1.8  -1
+element 200  0  0   Ax    DNA-Pseudo-Axis           167.0   0.2    0.01  4   1700   0
+element 201  0  0   Ss    DNA-Pseudo-Sugar          167.0   0.2    0.01  3   1800   0
+element 202  0  0   Pl    DNA-Pseudo-Phosphate      167.0   2.6   10.00  2   1800  -1
+element 203  0  0   Sj    DNA-Pseudo-Sugar-Junction 167.0   2.6   10.00  3   1800   0
+element 204  0  0   Ae    DNA-Pseudo-Axis-End       167.0   0.2    0.01  1   1700   0
+element 205  0  0   Pe    DNA-Pseudo-Phosphate-End  167.0   2.6   10.00  2   1800  -1
+element 206  0  0   Sh    DNA-Pseudo-Sugar-End      167.0   2.5    0.50  2   1800  -1
 
 # format for stretch lines
 #
