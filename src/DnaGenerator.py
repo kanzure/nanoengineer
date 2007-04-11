@@ -174,6 +174,8 @@ class B_Dna(Dna):
         return (basefile, zoffset, thetaOffset)
 
 class B_Dna_BasePseudoAtoms(B_Dna):
+    TWIST_PER_BASE = -33.75 * pi / 180   # radians
+    BASE_SPACING = 3.18              # angstroms
     fuseChunksTolerance = 1.0
     def baseFileName(self, basename):
         return os.path.join(basepath, 'bdna-pseudo-bases', '%s.mmp' % basename)

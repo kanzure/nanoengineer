@@ -9,25 +9,25 @@ group (thymine)
 info opengroup open = True
 mol (thymine) def
 atom 1 (200) (0, 0, 0) def
-atom 2 (0) (0, 0, 1695) def
+atom 2 (0) (0, 0, 1590) def
 bond1 1
-atom 3 (0) (0, 0, -1696) def
+atom 3 (0) (0, 0, -1590) def
 bond1 1
-atom 4 (201) (6610, 0, 0) def
+atom 4 (201) (6760, 0, 0) def
 bond1 1
-atom 5 (202) (8356, 2715, 1695) def
+atom 5 (202) (8699, 2638, 1590) def
 bond1 4
-atom 6 (0) (6852, 3300, 2543) def
+atom 6 (0) (7160, 3197, 2385) def
 bond1 5
-atom 7 (0) (7483, -1357, -848) def
+atom 7 (0) (7729, -1319, -795) def
 bond1 4
-atom 8 (201) (-5414, -3791, 0) def
+atom 8 (201) (-4610, -4943, 0) def
 bond1 1
-atom 9 (202) (-8403, -2569, -1695) def
+atom 9 (202) (-7863, -4562, -1590) def
 bond1 8
-atom 10 (0) (-7506, -1226, -2543) def
+atom 10 (0) (-7221, -3056, -2385) def
 bond1 9
-atom 11 (0) (-5351, -5404, 848) def
+atom 11 (0) (-4306, -6553, 795) def
 bond1 8
 egroup (thymine)
 end1

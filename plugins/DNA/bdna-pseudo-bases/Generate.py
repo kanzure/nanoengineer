@@ -7,12 +7,12 @@
 import sys
 import math
 
-zSpacing = 3391 # pm
-minorGroveDegrees = 145
-baseTwistDegrees = 36
+zSpacing = 3180 # 0.1 pm
+minorGroveDegrees = 133
+baseTwistDegrees = 33.75
 
-sugarRadius = 6610 # pm -- Value from EricD's pdb: 6760
-sugarPhosphateDistance = 3646 # Value from EricD's pdb: 3574
+sugarRadius = 6760 # pm -- Value from EricD's pdb: 6760
+sugarPhosphateDistance = 3640 # Value from EricD's pdb: 3574
 
 baseTwist = math.pi * baseTwistDegrees / 180
 
