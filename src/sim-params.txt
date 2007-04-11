@@ -32,13 +32,14 @@
 #
 #         Z grp per sym   name                      mass    rvdW  evdW  bnds rcov chrg
 
-element 200  0  0   Ax    DNA-Pseudo-Axis           167.0   0.2    0.01  4   100   0
-element 201  0  0   Ss    DNA-Pseudo-Sugar          167.0   0.2    0.01  3   170   0
-element 202  0  0   Pl    DNA-Pseudo-Phosphate      167.0   2.6   10.00  2   170  -1
-element 203  0  0   Sj    DNA-Pseudo-Sugar-Junction 167.0   2.6   10.00  3   170   0
-element 204  0  0   Ae    DNA-Pseudo-Axis-End       167.0   0.2    0.01  1   100   0
-element 205  0  0   Pe    DNA-Pseudo-Phosphate-End  167.0   2.6   10.00  2   170  -1
-element 206  0  0   Sh    DNA-Pseudo-Sugar-End      167.0   2.5    0.50  2   170  -1
+element 200  0  0   Ax    DNA-Pseudo-Axis           167.0   0.2    0.01  4   100   0   700
+element 201  0  0   Ss    DNA-Pseudo-Sugar          167.0   0.2    0.01  3   170   0   800
+element 202  0  0   Pl    DNA-Pseudo-Phosphate      167.0   3.6   10.00  2   170  -1   900
+element 203  0  0   Sj    DNA-Pseudo-Sugar-Junction 167.0   0.2   10.00  3   170   0   810
+element 204  0  0   Ae    DNA-Pseudo-Axis-End       167.0   0.2    0.01  1   100   0   701
+element 205  0  0   Pe    DNA-Pseudo-Phosphate-End  167.0   3.6   10.00  1   170  -2   901
+element 206  0  0   Sh    DNA-Pseudo-Sugar-End      167.0   0.2    0.01  1   170   0   902
+element 207  0  0   Hp    DNA-Pseudo-Hairpin        167.0   0.2    0.01  2   100   0   820
 
 # format for stretch lines
 #
@@ -59,17 +60,21 @@ element 206  0  0   Sh    DNA-Pseudo-Sugar-End      167.0   2.5    0.50  2   170
 #
 #         ks    r0      de      beta    inflectionR qual quad bondName
 
-stretch 500.00  340.00  1.0000   -1         -1       9    1   Ax-1-Ax
-stretch 500.00  664.00  1.0000   -1         -1       9    1   Ax-1-Ss
-stretch 500.00  664.00  1.0000   -1         -1       9    1   Ax-1-Sj
-stretch 500.00  360.00  1.0000   -1         -1       9    1   Ss-1-Pl
-stretch 500.00  400.00  1.0000   -1         -1       9    1   Pl-1-Sj
-stretch 500.00  220.00  1.0000   -1         -1       9    1   H-1-Ax
-stretch 500.00  350.00  1.0000   -1         -1       9    1   H-1-Ss
-stretch 500.00  220.00  1.0000   -1         -1       9    1   H-1-Pl
-stretch 500.00  220.00  1.0000   -1         -1       9    1   Ax-1-Ae
-stretch 500.00  350.00  1.0000   -1         -1       9    1   Ss-1-Sh
-stretch 500.00  350.00  1.0000   -1         -1       9    1   Ss-1-Pe
+stretch   4.00  318.00  1.0000   -1         -1       9    1   Ax-1-Ax
+stretch  50.00  676.00  1.0000   -1         -1       9    1   Ax-1-Ss
+stretch  50.00  676.00  1.0000   -1         -1       9    1   Ax-1-Sj
+stretch   4.00  364.00  1.0000   -1         -1       9    1   Ss-1-Pl
+stretch   4.00  400.00  1.0000   -1         -1       9    1   Pl-1-Sj
+stretch   4.00  180.00  1.0000   -1         -1       9    1   H-1-Ax
+stretch   4.00  200.00  1.0000   -1         -1       9    1   H-1-Ss
+stretch   4.00  200.00  1.0000   -1         -1       9    1   H-1-Pl
+stretch   4.00  180.00  1.0000   -1         -1       9    1   Ax-1-Ae
+stretch   4.00  200.00  1.0000   -1         -1       9    1   Ss-1-Sh
+stretch   4.00  364.00  1.0000   -1         -1       9    1   Ss-1-Pe
+stretch   4.00  357.00  1.0000   -1         -1       9    1   Pl-1-Hp
+stretch   4.00  357.00  1.0000   -1         -1       9    1   Pe-1-Hp
+stretch   4.00  200.00  1.0000   -1         -1       9    1   Sh-1-Hp
+stretch   4.00  200.00  1.0000   -1         -1       9    1   H-1-Hp
 
 # format for bend lines
 #
@@ -87,74 +92,95 @@ stretch 500.00  350.00  1.0000   -1         -1       9    1   Ss-1-Pe
 #    ktheta          theta0         qual  bondName
 
 # 180 degree along Axis
-bend 100.0           3.14159265359   9   Ax-1-Ax.sp3-1-Ax
-bend  10.0           3.14159265359   9   H-1-Ax.sp3-1-Ax
-bend  10.0           3.14159265359   9   H-1-Ax.sp3-1-Ae
-bend  10.0           3.14159265359   9   Ax-1-Ax.sp3-1-Ae
-bend  10.0           3.14159265359   9   Ae-1-Ax.sp3-1-Ae
+bend   0.18          3.14159265359   9   Ax-1-Ax.sp3-1-Ax
+bend   0.18          3.14159265359   9   H-1-Ax.sp3-1-Ax
+bend   0.18          3.14159265359   9   H-1-Ax.sp3-1-Ae
+bend   0.18          3.14159265359   9   Ax-1-Ax.sp3-1-Ae
+bend   0.18          3.14159265359   9   Ae-1-Ax.sp3-1-Ae
 
 # 90 degree Axis to Sugar
-bend  10.0           1.57079632679   9   Ax-1-Ax.sp3-1-Ss
-bend 100.0           1.57079632679   9   Ax-1-Ax.sp3-1-Sj
-bend  10.0           1.57079632679   9   H-1-Ax.sp3-1-Ss
-bend  10.0           1.57079632679   9   Ss-1-Ax.sp3-1-Ae
-bend  10.0           1.57079632679   9   H-1-Ax.sp3-1-Ax
-bend  10.0           1.57079632679   9   H-1-Ax.sp3-1-Ae
-bend  10.0           1.57079632679   9   H-1-Ax.sp3-1-H
+bend   1.0           1.57079632679   9   Ax-1-Ax.sp3-1-Ss
+bend   1.0           1.57079632679   9   Ax-1-Ax.sp3-1-Sj
+bend   1.0           1.57079632679   9   H-1-Ax.sp3-1-Ss
+bend   1.0           1.57079632679   9   Ss-1-Ax.sp3-1-Ae
+bend   1.0           1.57079632679   9   H-1-Ax.sp3-1-Ax
+bend   1.0           1.57079632679   9   H-1-Ax.sp3-1-Ae
+bend   1.0           1.57079632679   9   H-1-Ax.sp3-1-H
 
-# 145 degree minor grove
-bend 100.0           2.5307274125    9   Ss-1-Ax.sp3-1-Ss
-bend 100.0           2.5307274125    9   Ss-1-Ax.sp3-1-Sj
-bend 100.0           2.5307274125    9   Sj-1-Ax.sp3-1-Sj
-bend 100.0           2.5307274125    9   H-1-Ax.sp3-1-Ss
-bend 100.0           2.5307274125    9   H-1-Ax.sp3-1-Sj
+# 133 degree minor grove
+bend   1.0           2.3212879025    9   Ss-1-Ax.sp3-1-Ss
+bend   1.0           2.3212879025    9   Ss-1-Ax.sp3-1-Sj
+bend   1.0           2.3212879025    9   Sj-1-Ax.sp3-1-Sj
+bend   1.0           2.3212879025    9   H-1-Ax.sp3-1-Ss
+bend   1.0           2.3212879025    9   H-1-Ax.sp3-1-Sj
 
-# 120 degree Axis Sugar Phosphate
-bend  10.0           2.0943951       9   Ax-1-Ss.sp3-1-Pl
-bend  10.0           2.0943951       9   Ax-1-Sj.sp3-1-Pl
-bend  10.0           2.0943951       9   Ax-1-Ss.sp3-1-Pe
-bend  10.0           2.0943951       9   Ax-1-Sj.sp3-1-Pe
-bend  10.0           2.0943951       9   H-1-Ss.sp3-1-Ax
-bend  10.0           2.0943951       9   H-1-Sj.sp3-1-Ax
-bend  10.0           2.0943951       9   Ax-1-Ss.sp3-1-Sh
-bend  10.0           2.0943951       9   Ax-1-Sj.sp3-1-Sh
+# 121 degree Axis Sugar Phosphate
+bend   0.04          2.1118483925    9   Ax-1-Ss.sp3-1-Pl
+bend   0.04          2.1118483925    9   Ax-1-Ss.sp3-1-Pe
+bend   0.04          2.1118483925    9   Ax-1-Ss.sp3-1-Sh
+bend   0.04          2.1118483925    9   H-1-Ss.sp3-1-Ax
 
-# 120 degree Phosphate Sugar Phosphate
-bend  10.0           2.0943951       9   Pl-1-Ss.sp3-1-Pl
-bend  10.0           2.0943951       9   Pl-1-Ss.sp3-1-Pe
-bend  10.0           2.0943951       9   H-1-Ss.sp3-1-Pl
-bend  10.0           2.0943951       9   H-1-Ss.sp3-1-H
-bend  10.0           2.0943951       9   H-1-Ss.sp3-1-Pe
-bend  10.0           2.0943951       9   Pe-1-Ss.sp3-1-Pe
-bend  10.0           2.0943951       9   Pl-1-Ss.sp3-1-Sh
-bend  10.0           2.0943951       9   Pe-1-Ss.sp3-1-Sh
-bend  10.0           2.0943951       9   H-1-Ss.sp3-1-Sh
-bend  10.0           2.0943951       9   Sh-1-Ss.sp3-1-Sh
+# 127 degree Phosphate Sugar Phosphate
+bend   0.04          2.2165681475    9   Pl-1-Ss.sp3-1-Pl
+bend   0.04          2.2165681475    9   Pl-1-Ss.sp3-1-Pe
+bend   0.04          2.2165681475    9   Pl-1-Ss.sp3-1-Sh
+bend   0.04          2.2165681475    9   Pe-1-Ss.sp3-1-Pe
+bend   0.04          2.2165681475    9   Pe-1-Ss.sp3-1-Sh
+bend   0.04          2.2165681475    9   Sh-1-Ss.sp3-1-Sh
+bend   0.04          2.2165681475    9   H-1-Ss.sp3-1-Pl
+bend   0.04          2.2165681475    9   H-1-Ss.sp3-1-Pe
+bend   0.04          2.2165681475    9   H-1-Ss.sp3-1-Sh
+bend   0.04          2.2165681475    9   H-1-Ss.sp3-1-H
 
-# 125 degree Phosphate JunctionSugar Phosphate
-bend  10.0           2.1816615625    9   Pl-1-Sj.sp3-1-Pl
-bend  10.0           2.1816615625    9   Pl-1-Sj.sp3-1-Pe
-bend  10.0           2.1816615625    9   H-1-Sj.sp3-1-Pl
-bend  10.0           2.1816615625    9   H-1-Sj.sp3-1-H
-bend  10.0           2.1816615625    9   H-1-Sj.sp3-1-Pe
-bend  10.0           2.1816615625    9   Pe-1-Sj.sp3-1-Pe
-bend  10.0           2.0943951       9   Pl-1-Sj.sp3-1-Sh
-bend  10.0           2.0943951       9   Pe-1-Sj.sp3-1-Sh
-bend  10.0           2.0943951       9   H-1-Sj.sp3-1-Sh
-bend  10.0           2.0943951       9   Sh-1-Sj.sp3-1-Sh
+# 127 degree Phosphate Hairpin Phosphate
+bend   0.04          2.2165681475    9   Pl-1-Hp.sp3-1-Pl
+bend   0.04          2.2165681475    9   Pl-1-Hp.sp3-1-Pe
+bend   0.04          2.2165681475    9   Pl-1-Hp.sp3-1-Sh
+bend   0.04          2.2165681475    9   Pe-1-Hp.sp3-1-Pe
+bend   0.04          2.2165681475    9   Pe-1-Hp.sp3-1-Sh
+bend   0.04          2.2165681475    9   Sh-1-Hp.sp3-1-Sh
+bend   0.04          2.2165681475    9   H-1-Hp.sp3-1-Pl
+bend   0.04          2.2165681475    9   H-1-Hp.sp3-1-Pe
+bend   0.04          2.2165681475    9   H-1-Hp.sp3-1-Sh
+bend   0.04          2.2165681475    9   H-1-Hp.sp3-1-H
 
-# 90.8 degree Sugar Phosphate Sugar
-bend  10.0           1.584758959     9   Ss-1-Pl.sp3-1-Ss
-bend  10.0           1.584758959     9   Ss-1-Pl.sp3-1-Sh
-bend  10.0           1.584758959     9   H-1-Pl.sp3-1-Ss
-bend  10.0           1.584758959     9   Sh-1-Pl.sp3-1-Sh
-bend  10.0           1.584758959     9   H-1-Pl.sp3-1-Sh
-bend  10.0           1.584758959     9   H-1-Pl.sp3-1-H
+# 115 degree Axis JunctionSugar Phosphate
+bend   0.04          2.0071286375    9   Ax-1-Sj.sp3-1-Pl
+bend   0.04          2.0071286375    9   Ax-1-Sj.sp3-1-Pe
+bend   0.04          2.0071286375    9   Ax-1-Sj.sp3-1-Sh
+bend   0.04          2.0071286375    9   H-1-Sj.sp3-1-Ax
 
-# 90.8 degree Sugar Phosphate JunctionSugar
-bend  10.0           1.584758959     9   Ss-1-Pl.sp3-1-Sj
-bend  10.0           1.584758959     9   Sj-1-Pl.sp3-1-Sh
-bend  10.0           1.584758959     9   H-1-Pl.sp3-1-Sj
+# 110 degree Phosphate JunctionSugar Phosphate
+bend   0.04          1.919862175     9   Pl-1-Sj.sp3-1-Pl
+bend   0.04          1.919862175     9   Pl-1-Sj.sp3-1-Pe
+bend   0.04          1.919862175     9   H-1-Sj.sp3-1-Pl
+bend   0.04          1.919862175     9   H-1-Sj.sp3-1-H
+bend   0.04          1.919862175     9   H-1-Sj.sp3-1-Pe
+bend   0.04          1.919862175     9   Pe-1-Sj.sp3-1-Pe
 
-# 120.8 degree JunctionSugar Phosphate JunctionSugar
-bend  10.0           2.108357734     9   Sj-1-Pl.sp3-1-Sj
+# 127 degree Phosphate JunctionSugar end
+bend   0.04          2.2165681475    9   Pl-1-Sj.sp3-1-Sh
+bend   0.04          2.2165681475    9   Pe-1-Sj.sp3-1-Sh
+bend   0.04          2.2165681475    9   Sh-1-Sj.sp3-1-Sh
+bend   0.04          2.2165681475    9   H-1-Sj.sp3-1-Sh
+
+# 92.5 degree Sugar Phosphate Sugar
+bend   0.04          1.61442955625   9   Ss-1-Pl.sp3-1-Ss
+bend   0.04          1.61442955625   9   Ss-1-Pl.sp3-1-Sh
+bend   0.04          1.61442955625   9   Ss-1-Pl.sp3-1-Hp
+bend   0.04          1.61442955625   9   Sh-1-Pl.sp3-1-Sh
+bend   0.04          1.61442955625   9   Sh-1-Pl.sp3-1-Hp
+bend   0.04          1.61442955625   9   Hp-1-Pl.sp3-1-Hp
+bend   0.04          1.61442955625   9   H-1-Pl.sp3-1-Ss
+bend   0.04          1.61442955625   9   H-1-Pl.sp3-1-Sh
+bend   0.04          1.61442955625   9   H-1-Pl.sp3-1-Hp
+bend   0.04          1.61442955625   9   H-1-Pl.sp3-1-H
+
+# 92.5 degree Sugar Phosphate JunctionSugar
+bend   0.04          1.61442955625   9   Ss-1-Pl.sp3-1-Sj
+bend   0.04          1.61442955625   9   Sj-1-Pl.sp3-1-Sh
+bend   0.04          1.61442955625   9   Sj-1-Pl.sp3-1-Hp
+bend   0.04          1.61442955625   9   H-1-Pl.sp3-1-Sj
+
+# 115.8 degree JunctionSugar Phosphate JunctionSugar
+bend   0.04          2.0210912715    9   Sj-1-Pl.sp3-1-Sj
