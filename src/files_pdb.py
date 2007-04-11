@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2007 Nanorex, Inc.  All rights reserved.
 """
 files_pdb.py -- reading and writing PDB files
 
@@ -9,6 +9,11 @@ until bruce 050414 started splitting that
 into separate modules for each file format.
 
 bruce 050901 used env.history in some places.
+
+bruce 070410 added some hacks to read more pdb files successfully --
+but they need review by someone who knows whether they're correct or not.
+(I'll commit this to both branches, Qt3 & Qt4, since this file is presently
+identical in both, so doing that should not cause a problem.)
 """
 
 import os
@@ -20,9 +25,9 @@ from elements import PeriodicTable, Singlet
 from platform import fix_plurals
 from HistoryWidget import redmsg, orangemsg
 from VQT import A, vlen
-import env #bruce 050901
+import env
 
-def _readpdb(assy, filename, isInsert = False): #bruce 050322 revised method & docstring in several ways
+def _readpdb(assy, filename, isInsert = False):
     """Read a Protein DataBank-format file into a single new chunk, which is returned,
     unless there are no atoms in the file, in which case a warning is printed
     and None is returned. (The new chunk (if returned) is in assy, but is not
@@ -32,7 +37,7 @@ def _readpdb(assy, filename, isInsert = False): #bruce 050322 revised method & d
     """
     fi = open(filename,"rU")
     lines = fi.readlines()
-    fi.close() #bruce 050322 added fi.close
+    fi.close()
     
     dir, nodename = os.path.split(filename)
     if not isInsert:
@@ -41,25 +46,47 @@ def _readpdb(assy, filename, isInsert = False): #bruce 050322 revised method & d
     mol = molecule(assy, nodename)
     numconects = 0
 
+    atomname_exceptions = {
+        "HB":"H", #k these are all guesses -- I can't find this documented anywhere [bruce 070410]
+        ## "HE":"H", ### REVIEW: I'm not sure about this one -- leaving it out means it's read as Helium,
+        # but including it erroneously might prevent reading an actual Helium if that was intended.
+        # Guess for now: include it for ATOM but not HETATM. (So it's specialcased below, rather than
+        # being included in this table.)
+        "HN":"H",
+     }
+
     for card in lines:
         key = card[:6].lower().replace(" ", "")
         if key in ["atom", "hetatm"]:
-            sym = capitalize(card[12:14].replace(" ", "").replace("_", ""))
+            ## sym = capitalize(card[12:14].replace(" ", "").replace("_", "")) 
+            #bruce 070410 revised this to also discard digits, handle HB, HE, HN (guesses)
+            atomname = card[12:14] # column numbers 13-14 in pdb format
+                # (though full atom name is 13-16; see http://www.wwpdb.org/documentation/format2.3-0108-us.pdf page 156)
+            for bad in "_ 0123456789":
+                atomname = atomname.replace(bad, "")
+            atomname = atomname_exceptions.get(atomname, atomname)
+            if atomname == "HE" and key == "atom":
+                atomname = "H" # see comment in atomname_exceptions
+            sym = capitalize(atomname) 
             try:
                 PeriodicTable.getElement(sym)
             except:
-                #bruce 050322 replaced print with history warning,
-                # and generalized exception from KeyError
-                # (since a test reveals AssertionError is what happens)
-                env.history.message( redmsg( "Warning: Pdb file: unknown element %s in: %s" % (sym,card) ))
-                ## print 'unknown element "',sym,'" in: ',card
-                #
+                # note: this typically fails with AssertionError (not e.g. KeyError) [bruce 050322]
+                msg = "Warning: Pdb file: unknown element %s in: %s" % (sym,card)
+                print msg #bruce 070410 added this print
+                env.history.message( redmsg( msg ))
+
+                ##e It would probably be better to create a fake atom, so the CONECT records would still work.
+                # Better still might be to create a fake element, so we could write out the pdb file again
+                # (albeit missing lots of info). [bruce 070410 comment]
+                
                 # Note: an advisor tells us:
                 #   PDB files sometimes encode atomtypes,
                 #   using C_R instead of C, for example, to represent sp2 carbons.
-                # I suspect that would trigger this exception, and ought to be handled,
-                # preferably by setting the atomtype here (and perhaps using it when
-                # inferring bonds, if the file doesn't have any). [bruce 060614 comment]
+                # That particular case won't trigger this exception, since we only look at 2 characters,
+                # i.e. C_ in that case. It would be better to realize this means sp2
+                # and set the atomtype here (and perhaps then use it when inferring bonds,
+                # which we do later if the file doesn't have any bonds). [bruce 060614/070410 comment]
             else:
                 xyz = map(float, [card[30:38],card[38:46],card[46:54]])
                 n = int(card[6:11])
@@ -184,7 +211,7 @@ def writepdb(part, filename): #bruce 050927 replaced arg assy with part, added d
             f.write("%5d" % index)
         f.write("\n")
 
-    f.write("END\n") #bruce 050318 added newline
+    f.write("END\n")
     f.close()
     if excluded:
         msg = "Warning: excluded %d open bond(s) from saved PDB file; consider Hydrogenating and resaving." % excluded
