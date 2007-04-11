@@ -171,6 +171,7 @@ class ElementPeriodicTable(Singleton):
         "Ae" : (3.5, [0.4, 0.4, 0.8]),    # DNA pseudo atom
         "Pe" : (3.0, [0.4, 0.1, 0.5]),    # DNA pseudo atom
         "Sh" : (2.5, [0.4, 0.8, 0.4]),    # DNA pseudo atom
+        "Hp" : (4.0, [0.3, 0.7, 0.3]),    # DNA pseudo atom
         }
       
     _altRad_Color = {
@@ -337,6 +338,7 @@ to put the C+ value.
                   ("Ae", "DNA-Pseudo-Axis-End", 204, 1.0, [[1, 200, None, 'sp']]),
                   ("Pe", "DNA-Pseudo-Phosphate-End", 205, 1.0, [[1, 210, None, 'sp']]),
                   ("Sh", "DNA-Pseudo-Sugar-End", 206, 1.0, [[1, 210, None, 'sp']]),
+                  ("Hp", "DNA-Pseudo-Hairpin", 207, 1.0, [[1, 210, None, 'sp']]),
                 ]
     _periodicTable = {}
     _eltName2Num = {}
