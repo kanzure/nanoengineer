@@ -568,8 +568,13 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         mol = self.molecule
         return archive.childobj_liveQ(mol) and mol.atoms.has_key(self.key)
 
-    # For each entry in this dictionary, add a context menu entry on atoms of the key element type
+    # For each entry in this dictionary, add a context menu command on atoms of the key element type
     # allowing transmutation to each of the element types in the value list.
+    # (bruce 070412 addition: if the selected atoms are all one element, and
+    #  one of those is the context menu target, make this command apply to all
+    #  those selected atoms.
+    #  [Q: should it apply to the subset of the same element, if that's not all?
+    #   Guess: yes. That further enhancement is NIM for now.])
     _transmuteContextMenuEntries = {
         'Ae': ['Ax'],
         'Ax': ['Ae'],
@@ -585,11 +590,48 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         '''
         fromSymbol = self.element.symbol
         if (self._transmuteContextMenuEntries.has_key(fromSymbol)):
+            #bruce 070412 (enhancing EricM's recent new feature):
+            # If unpicked, do it for just this atom;
+            # If picked, do it for all picked atoms, but only if they are all the same element.
+            # (But if they're not, still offer to do it for just this atom, clearly saying so if possible.)
+            if self.picked:
+                selatoms = self.molecule.assy.selatoms # there ought to be more direct access to this
+                doall = True
+                for atom in selatoms.itervalues():
+                    if atom.element.symbol != fromSymbol:
+                        doall = False
+                        break
+                    continue
+                # Note: both doall and self.picked are used below,
+                # to determine the proper menu item name and command.
+                # Note: as a kluge which is important for speed,
+                # we don't actually make a selatoms list here as part of the command,
+                # since this menu item won't usually be the one chosen,
+                # and it can find the selatoms again.
             menu_spec.append(None) # separator
             for toSymbol in self._transmuteContextMenuEntries[fromSymbol]:
                 newElement = PeriodicTable.getElement(toSymbol)
-                command = ( lambda arg1=None, arg2=None, atom=self, newElement=newElement: atom.Transmute(newElement) )
-                menu_spec.append(("Transmute to %s" % toSymbol, command))
+                if self.picked:
+                    if doall:
+                        cmdname = "Transmute selected atoms to %s" % toSymbol
+                            #e could also say the number of atoms
+                        command = ( lambda arg1=None, arg2=None,
+                                    atom=self, newElement=newElement: atom.Transmute_selection(newElement) )
+                            # Kluge: locate that command method on atom, used for access to selatoms,
+                            # even though it's not defined to operate on atom (tho it does in this case).
+                            # One motivation is to ease the upcoming emergency merge by not modifying more files/code
+                            # than necessary.
+                    else:
+                        cmdname = "Transmute this atom to %s" % toSymbol
+                            #e could also say fromSymbol, tho it appears elsewhere in the menu
+                        command = ( lambda arg1=None, arg2=None,
+                                    atom=self, newElement=newElement: atom.Transmute(newElement) )
+                else:
+                    cmdname = "Transmute to %s" % toSymbol
+                    command = ( lambda arg1=None, arg2=None,
+                                atom=self, newElement=newElement: atom.Transmute(newElement) )
+                menu_spec.append((cmdname, command))
+                continue
         if platform.atom_debug:
             from undo_archive import _undo_debug_obj
             if self is _undo_debug_obj:
@@ -2463,6 +2505,17 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 return
         # in all other cases, do the change (even if it's a noop) and also replace all singlets with 0 or more new ones
         self.direct_Transmute( elt, atomtype)
+        return
+
+    def Transmute_selection(self, elt): #bruce 070412; could use review for appropriate level, error handling, etc
+        """[this may be a private method for use when making our cmenu;
+        if not, it needs more options and a better docstring.]
+        Transmute as many as possible of the selected atoms to elt.
+        """
+        selatoms = self.molecule.assy.selatoms
+        atoms = selatoms.values() # not itervalues, too dangerous
+        for atom in atoms:
+            atom.Transmute(elt)
         return
 
     def permitted_btypes_for_bond(self, bond): #bruce 060523
