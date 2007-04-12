@@ -526,7 +526,7 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
         ipath = (index, ipath0)
         return env, ipath
 
-    def Instance(self, expr, index = None, permit_expr_to_vary = False): #070207 added permit_expr_to_vary
+    def Instance(self, expr, index = None, permit_expr_to_vary = False, skip_expr_compare = False): #070207 added permit_expr_to_vary
         """toplevel interface (public for use in exprs) to self._i_instance; needs ##doc;
         similar to Instance macro for use in class assignments;
         except where that uses ipaths relative to _self, this uses them relative to self.
@@ -542,9 +542,9 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
         if index is None:
 ##            index = self._i_allocate_unique_kid_index(...)
             assert index is not None, "error: %r.Instance(%r) requires explicit index (automatic unique index is nim)" % (self, expr)
-        return self._i_instance( expr, index, permit_expr_to_vary = permit_expr_to_vary)
+        return self._i_instance( expr, index, permit_expr_to_vary = permit_expr_to_vary, skip_expr_compare = skip_expr_compare)
     
-    def _i_instance( self, expr, index, _lvalue_flag = False,  permit_expr_to_vary = False ): #070207 added permit_expr_to_vary
+    def _i_instance( self, expr, index, _lvalue_flag = False,  permit_expr_to_vary = False, skip_expr_compare = False ):
         # see also def Instance (the method, just above, not the macro)
         """[semi-private; used by macros like Instance, Arg, Option]
         Find or create (or perhaps recompute if invalid, but only the latest version is memoized) (and return)
@@ -617,7 +617,13 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
             pass
         newdata = (expr, _lvalue_flag) # revised 061204, was just expr, also renamed; cmt above is semiobs due to this
         olddata = self._i_instance_decl_data.get(index, None) # see above comment
-        if olddata != newdata:
+        if skip_expr_compare:
+            #070411 new optim option (public) ###UNTESTED; might or might not use in confirmation corner
+            ###e should use in Arg, Option -- might be a big speedup -- but is it safe?? maybe only with IorE If, not eval If!! ###k
+            expr_is_new = (olddata is None)
+        else:
+            expr_is_new = (olddata != newdata)
+        if expr_is_new:
             if olddata is not None:
                 if permit_expr_to_vary:
                     # new feature 070207
@@ -657,8 +663,9 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
 
             self._i_instance_decl_data[index] = newdata
         else:
-            # they're equal
-            if 0 and olddata[0] is not expr: # this print worked, but it's not usually useful (not enough is printed) so I disabled it
+            # they're equal (or we were told not to bother comparing them, in which case, use the old one)
+            if 0 and (not skip_expr_compare) and olddata[0] is not expr:
+                # this print worked, but it's not usually useful (not enough is printed) so I disabled it
                 # they're only equal because __eq__ is working on non-identical exprs [implemented in Expr late 070122]
                 print "fyi: non-identical exprs compared equal (did we get it right?): %r and %r" % (olddata[0], expr) ### remove sometime
             pass

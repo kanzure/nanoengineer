@@ -2,8 +2,6 @@
 $Id$
 """
 
-#e cvs add
-
 from exprs.basic import *
 
 
@@ -62,8 +60,9 @@ class InstanceHolder:#obs?
 ##        ccinstance = None
 ##    return ccinstance
 
-#e refile some of this into exprs module: (might have to split pieces out, to do that)
-class cc_memoizer(InstanceOrExpr):
+#e refile some of this into other files in exprs module: (might have to split pieces out, to do that)
+class cc_memoizer(InstanceOrExpr): # need it be in IorE? maybe we want it to contain toplevel Instances?
+    ##e set up self.env, if not in IorE
     def find_or_make(self, cctype, mode):
         ""
         bgcolor_data = None #e this should be a function of mode.bgcolor which affects the look of the CC icons
@@ -77,19 +76,24 @@ class cc_memoizer(InstanceOrExpr):
         #e use bgcolor_data to help make the expr
         ccexpr = interpret_cctype(cctype, bgcolor_data) # None or an expr
             #e pkg above back into cc_data for passing in to that helper
-        return self.Instance(ccexpr, index, skip_expr_compare = True) ###IMPLEM skip_expr_compare
-            ###e needs the comparison optim; or, do our own make right here (might be better)
-        ## return ccexpr._e_make_in... - not enough, needs various checks, etc... need to split out some of that from .Instance
-        # and/or get env.make to do it (maybe it does already?) ###
+##        return self.Instance(ccexpr, index, skip_expr_compare = True) ###IMPLEM skip_expr_compare
+##            ###e needs the comparison optim; or, do our own make right here (might be better)
+##        ## return ccexpr._e_make_in... - not enough, needs various checks, etc... need to split out some of that from .Instance
+##        # and/or get env.make to do it (maybe it does already?) ###
+        ipath = index
+        return self.env.make( ccexpr, ipath)
     pass
 
+###e change that into: InstanceMemoizer subclass with methods to turn args to index, index to expr??
+
 # TODO:
-#  ###IMPLEM skip_expr_compare
-#  see what env.make does
+#  ###IMPLEM skip_expr_compare - done, untested, maybe not needed here anymore
+#  see what env.make does... just eval and _e_make_in; call it like env.make(expr, ipath).
 # set up one of the above objects
 # set up its drawing env (with glpane & stateplace), initial ipath, etc -- hmm, is some of that needed in the data? no, to find the obj.
 
 # set up cc_memoizer - needs glpane, so needs to be an attr of some object -- which one? glpane itself??? yes!
+# or should glpane have a mixin which gives it this power to own an env and make objects in it?
 
     try:
         place = glpane._confirmation_corner__place

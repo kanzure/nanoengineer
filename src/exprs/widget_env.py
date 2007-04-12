@@ -109,8 +109,10 @@ class widget_env(Delegator):
         #e Q: is this memoized? does it allocate anything like a state obj ref, or was that already done by customizing this env?
         ## print "making",expr,ipath
         # assume it's an understood expr at this point
+        #
         # update 070117 re EVAL_REFORM: maybe we'll need to be an explicit noop for numbers or Instances (non-pure-exprs) --
         # we will if some calls to _e_make_in are changed into calls to this, which seems likely. #k
+        # The way to do that is to do what _i_instance does -- it calls some helper function to decide what's idempotent for make.
         if eval:
             # new feature 070118 -- fixes testexpr_19f when no testbed and when not EVAL_REFORM
             # (guess, unconfirmed: its failure then is an old bug predating EVAL_REFORM, not a new bug)
