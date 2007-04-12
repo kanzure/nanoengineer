@@ -189,6 +189,11 @@ class selectMode(basicMode):
     hover_highlighting_enabled = True
         # Set this to False if you want to disable hover highlighting.
 
+    def __init__(self, glpane): #bruce 070412
+        basicMode.__init__(self, glpane)
+        self.get_smooth_reshaping_drag() # exercise debug_pref to make sure it's always in the menu.
+        return
+
     # init_gui handles all the GUI display when entering a mode    
     def init_gui(self):
         pass # let the subclass handle everything for the GUI - Mark [2004-10-11]
@@ -503,6 +508,7 @@ class selectMode(basicMode):
             self.baggage, self.nonbaggage = a.baggage_and_other_neighbors()
             self.drag_multiple_atoms = False
         else:
+            self.smooth_reshaping_drag = self.get_smooth_reshaping_drag() #bruce 070412
             self.dragatoms, self.baggage, self.dragchunks = self.get_dragatoms_and_baggage()
                 # if no atoms in alist, dragatoms and baggage are empty lists, which is good.
             self.drag_multiple_atoms = True
@@ -512,36 +518,36 @@ class selectMode(basicMode):
         self.dragjigs = self.o.assy.getSelectedJigs()
 
     def get_dragatoms_and_baggage(self): # by mark. later optimized and extended by bruce, 060410.
-        
+        """#doc... return dragatoms, baggage, dragchunks; look at self.smooth_reshaping_drag [nim];
+        how atoms are divided between dragatoms & baggage is arbitrary and is not defined.
+        [A rewrite of callers would either change them to treat those differently and change
+        this to care how they're divided up (requiring a decision about selected baggage atoms),
+        or remove self.baggage entirely.]
+        """
         #bruce 060410 optimized this; it had a quadratic algorithm (part of the cause of bugs 1828 / 1438), and other slownesses.
-        # The old code is commented out for comparison.
+        # The old code was commented out for comparison [and later, 070412, was removed].
         #
         # Note: as of 060410, it looks like callers only care about the total set of atoms in the two returned lists,
         # not about which atom is in which list, so the usefulness of having two lists is questionable.
-        # But I preserved the behavior regarding how atoms are distributed between the two lists.
-        # (I didn't preserve the order of the lists, since I'm sure this shouldn't matter.)
+        # The old behavior was (by accident) that selected baggage atoms end up only in the baggage list, not in dragatoms.
+        # This was probably not intended but did not matter at the time.
+        # The dragchunks optimization at the end [060410] changes this by returning all atoms in dragatoms or dragchunks,
+        # none in baggage. The new smooth reshaping feature [070412] may change this again.
         
         dragatoms = []
         baggage = []
-        ## nonbaggage = []
         
         selatoms = self.o.assy.selatoms
-##        selatoms = self.o.assy.selatoms_list()
         
         # Accumulate all the baggage from the selected atoms, which can include
         # selected atoms if a selected atom is another selected atom's baggage.
         # BTW, it is not possible for an atom to end up in self.baggage twice.
         
         for at in selatoms.itervalues():
-            bag, nbag = at.baggage_and_other_neighbors()
+            bag, nbag_junk = at.baggage_and_other_neighbors()
             baggage.extend(bag) # the baggage we'll keep.
-            #all_nonbaggage += nonbaggage
-##        for at in selatoms[:]:
-##            bag, nbag = at.baggage_and_other_neighbors()
-##            baggage += bag # the baggage we'll keep.
-##            #all_nonbaggage += nonbaggage
 
-        bagdict = dict([(at.key, None) for at in baggage]) # bruce 060410 added bagdict
+        bagdict = dict([(at.key, None) for at in baggage])
                 
         # dragatoms should contain all the selected atoms minus atoms that are also baggage.
         # It is critical that dragatoms does not contain any baggage atoms or they 
@@ -549,37 +555,18 @@ class selectMode(basicMode):
         for key, at in selatoms.iteritems():
             if key not in bagdict: # no baggage atoms in dragatoms.
                 dragatoms.append(at)
-##        for at in selatoms[:]:
-##            if not at in baggage: # no baggage atoms in dragatoms.
-##                dragatoms.append(at)
                 
         # Accumulate all the nonbaggage bonded to the selected atoms.
         # We also need to keep a record of which selected atom belongs to
         # each nonbaggage atom.  This is not implemented yet, but will be needed
         # to get drag_selected_atoms() to work properly.  I'm commenting it out for now.
         # mark 060202.
-        #for at in all_nonbaggage[:]:
-        #    if not at in dragatoms:
-        #        nonbaggage.append(at)
+        ## [code removed, 070412]
         
-        # Debugging print statements.  mark 060202.
-        #print "dragatoms = ", dragatoms
-        #print "baggage = ", baggage    
-        #print "nonbaggage = ", nonbaggage
 
         #bruce 060410 new code: optimize when all atoms in existing chunks are being dragged.
         # (##e Soon we hope to extend this to all cases, by making new temporary chunks to contain dragged atoms,
         #  invisibly to the user, taking steps to not mess up existing chunks re their hotspot, display mode, etc.)
-##        mols = {} # id(mol) -> mol for all involved mols
-##        molcounts = {} # id(mol) -> number of atoms we're dragging in that mol
-##        atoms = {} # atom.key -> atom for all dragged atoms
-##        def doit(at):
-##            mol = at.molecule
-##            c = molcounts.setdefault(id(mol), 0)
-##            molcounts[id(mol)] = c + 1
-##            if not c:
-##                mols[id(mol)] = mol
-##            return # from doit
         atomsets = {} # id(mol) -> (dict from atom.key -> atom) for dragged atoms in that mol
         def doit(at):
             mol = at.molecule
@@ -720,6 +707,8 @@ class selectMode(basicMode):
     # - work for single atom too (with its baggage, implying all bps for real atoms in case chunk rule for that matters)
     # - (not directly related:)
     #   review why reset_drag_vars is only called in selectAtomsMode but the vars are used in the superclass selectMode
+    #   [later 070412: maybe because the methods calling it are themselves only called from selectAtomsMode? it looks that way anyway]
+    #   [later 070412: ###WARNING: in Qt3, reset_drag_vars is defined in selectAtomsMode, but in Qt4, it's defined in selectMode.]
     # 
     bc_in_use = None # None, or a BorrowerChunk in use for the current drag,
             # which should be drawn while in use, and demolished when the drag is done (without fail!) #####@@@@@ need failsafe
@@ -749,6 +738,8 @@ class selectMode(basicMode):
     maybe_use_bc = False # precaution
     
     def drag_selected_atoms(self, offset):
+        # WARNING: this (and quite a few other methods) is probably only called (ultimately) from event handlers
+        # in selectAtomsMode, and probably uses some attrs of self that only exist in that mode. [bruce 070412 comment]
 
         if self.maybe_use_bc and self.dragatoms and self.bc_in_use is None:
             #bruce 060414 move selatoms optimization (unfinished); as of 060414 this never happens unless you set a debug_pref.
@@ -1100,12 +1091,20 @@ class selectMode(basicMode):
         '''Setup for a click, double-click or drag event for jig <j>.
         '''
         self.objectSetup(j)
+
+        self.smooth_reshaping_drag = self.get_smooth_reshaping_drag() #bruce 070412
         
         self.dragatoms, self.baggage, self.dragchunks = self.get_dragatoms_and_baggage()
             # if no atoms are selected, dragatoms and baggage are empty lists, which is good.
             
         # dragjigs contains all the selected jigs.
         self.dragjigs = self.o.assy.getSelectedJigs()
+
+    def get_smooth_reshaping_drag(self): #bruce 070412; implement "smooth-reshaping drag" feature
+        res = debug_pref("Drag reshapes selected atoms when bonded to unselected atoms?",
+                         Choice_boolean_False,
+                         prefs_key = True, non_debug = True )
+        return res
         
     def jigDrag(self, j, event):
         """Drag jig <j> and any other selected jigs or atoms.  <event> is a drag event.

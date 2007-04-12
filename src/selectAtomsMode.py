@@ -85,6 +85,12 @@ class selectAtomsMode(selectMode):
             #  are always correct. bruce 060721 comment]
         self.drag_multiple_atoms = False
             # set to True when we are dragging a movable unit of 2 or more atoms.
+        self.smooth_reshaping_drag = False
+            # set to True when we're going to do a "smooth-reshaping drag" in the current drag. [bruce 070412]
+            ###WARNING: this method is in selectAtomsMode.py in Qt3 branch, and in selectMode.py in Qt4 branch.
+            # When merging this change from Qt3 to Qt4, this specific part will need manual merging
+            # (unless this entire method is first moved over in Qt3, but that might complicate the merging as well,
+            #  in the short run, though it would be a good change in the longer run).
         self.maybe_use_bc = False # whether to use the BorrowerChunk optimization for the current drag (experimental) [bruce 060414]
         self.current_obj = None
             # current_obj is the object under the cursor when the LMB was pressed.
