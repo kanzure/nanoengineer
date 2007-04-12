@@ -510,6 +510,7 @@ class extrudeMode(basicMode):
             whynot = mol
             self.status_msg("%s refused: %r" % (self.msg_modename, whynot,))
             return 1 # refused!
+        assert isinstance(mol, fake_merged_mol) #bruce 070412
         self.basemol = mol
         #bruce 070407 set self.separate_basemols; all uses of it must be read, to fully understand fake_merged_mol semantics
         self.separate_basemols = true_Chunks_in(mol) # since mol might be a Chunk or a fake_merged_mol
@@ -1251,7 +1252,12 @@ class extrudeMode(basicMode):
         
         if self.whendone_merge_each_unit and not cancelling:
             for unit in self.molcopies:
-                unit.internal_merge()
+                assert not isinstance(unit, Chunk) #bruce 070412
+                try:
+                    unit.internal_merge()
+                except AttributeError:
+                    print "following exception in unit.internal_merge() concerns unit = %r" % (unit,)
+                    raise
             self.basemol = self.molcopies[0]
             self.separate_basemols = [self.basemol] # needed only if still used (unlikely); but harmless, so do it to be safe
             ###e other internal updates needed??
@@ -1896,13 +1902,14 @@ def assy_fix_selmol_bugs(assy):
 
 def assy_extrude_unit(assy, really_make_mol = 1):
     """If we can find a good extrude unit in assy,
-       make it a molecule in there, and return (True, mol);
+       make it a molecule in there, and return (True, mol)
+       [as of 070412 bugfixes, mol is always a fake_merged_mol];
        else return (False, whynot).
        Note: we might modify assy even if we return False in the end!!!
        To mitigate that (for use in refuseEnter), caller can pass
        really_make_mol = 0, and then we will not change anything in assy
        (unless it has bugs caught by assy_fix_selmol_bugs),
-       and return either (True, "not a mol") or (False, whynot).
+       and we'll return either (True, "not a mol") or (False, whynot).
     """
     # bruce 041222: adding really_make_mol flag.
 
@@ -1934,6 +1941,7 @@ def assy_extrude_unit(assy, really_make_mol = 1):
         # nothing selected, but exactly one molecule in all -- just use it
         if really_make_mol:
             resmol = assy.molecules[0]
+            resmol = fake_merged_mol(resmol)#bruce 070412 bugfix, might be redundant with another one or might fix other uncaught bugs
         return True, resmol
     else:
         ## print 'assy.molecules is',`assy.molecules` #debug
