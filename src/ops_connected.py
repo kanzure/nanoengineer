@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2007 Nanorex, Inc.  All rights reserved.
 """
 ops_connected.py -- operations on the connectivity of bond networks.
 
@@ -224,9 +224,12 @@ class ops_connected_Mixin:
         return n
         
 
-    def getConnectedAtoms(self, atomlist, singlet_ok = False):
-        '''Return a list of atoms reachable from all the atoms in atomlist.
+    def getConnectedAtoms(self, atomlist, singlet_ok = False, _return_marked = False):
+        '''Return a list of atoms reachable from all the atoms in atomlist,
+        not following bonds which are "not really connected" (e.g. pseudo-DNA strand-axis bonds).
         Normally never returns singlets. Optional arg <singlet_ok> permits returning singlets.
+        [Private option _return_marked just returns the internal marked dictionary
+         (including singlets regardless of other options).]
         '''
         marked = {} # maps id(atom) -> atom, for processed atoms
         todo = atomlist # list of atoms we must still mark and explore (recurse on all unmarked neighbors)
@@ -242,14 +245,20 @@ class ops_connected_Mixin:
                 # only if they were not initially picked, so nevermind that optim for now.
                 for b in atom.bonds:
                     at1, at2 = b.atom1, b.atom2 # simplest to just process both atoms, rather than computing b.other(atom)
-                    really_connected = True
+                    really_connected = True # will be changed to False for certain bonds below.
                     if 1:
                         # new feature -- don't consider pseudoatom strand-axis bonds as really connected
                         # (initial kluge for trying it out -- needs cleanup, generalization, optim (use element attrs, not lists),
-                        #  control by option of this method,
-                        #  and needs to also affect neighbors_of_last_deleted_atom in selectMode.py ###e) [bruce 070411]
-                        axis_elements = ('Ax','Ae') ###k and Hp??
-                        strand_elements = ('Ss','Pl','Sj','Pe','Sh')
+                        #  control by option of this method, and needs to also affect
+                        #  neighbors_of_last_deleted_atom in selectMode.py ###e) [bruce 070411]
+                        #
+                        ###e really_connected should probably be an attr of each bond,
+                        # renamed to b.connected, computed from its elements, via a global helper
+                        # function in bond_constants.py which computes it for a pair of atoms.
+                        # Someday we might have other kinds of non-connected bonds,
+                        # e.g. hydrogen bonds, or higher-level analogues of that. [bruce 070411]
+                        axis_elements = ('Ax','Ae')
+                        strand_elements = ('Ss','Pl','Sj','Pe','Sh', 'Hp') #k needs review: does Hp belong in this list?
                         if at1.element.symbol in axis_elements and at2.element.symbol in strand_elements:
                             really_connected = False
                         elif at2.element.symbol in axis_elements and at1.element.symbol in strand_elements:
@@ -262,6 +271,10 @@ class ops_connected_Mixin:
                             marked[id(at2)] = at2
                             newtodo.append(at2)
             todo = newtodo
+
+        if _return_marked:
+            return marked # KLUGE [bruce 070411], should split out a separate method instead
+                # (but this form is safer for now -- cvs merge conflicts/errors are less likely this way)
         
         alist = []
         
@@ -277,27 +290,10 @@ class ops_connected_Mixin:
     def getConnectedSinglets(self, atomlist):
         '''Return a list of singlets reachable from all the atoms in atomlist.
         '''
-        marked = {} # maps id(atom) -> atom, for processed atoms
-        todo = atomlist # list of atoms we must still mark and explore (recurse on all unmarked neighbors)
-        # from elements import Singlet
-        for atom in todo:
-            marked[id(atom)] = atom # since marked means "it's been appended to the todo list"
-        while todo:
-            newtodo = []
-            for atom in todo:
-                assert id(atom) in marked
-                #e could optim by skipping singlets, here or before appending them.
-                #e in fact, we could skip all univalent atoms here, but (for non-singlets)
-                # only if they were not initially picked, so nevermind that optim for now.
-                for b in atom.bonds:
-                    at1, at2 = b.atom1, b.atom2 # simplest to just process both atoms, rather than computing b.other(atom)
-                    if id(at1) not in marked: #e could also check for singlets here...
-                        marked[id(at1)] = at1
-                        newtodo.append(at1)
-                    if id(at2) not in marked:
-                        marked[id(at2)] = at2
-                        newtodo.append(at2)
-            todo = newtodo
+        marked = self.getConnectedAtoms( atomlist, _return_marked = True )
+            # use private option of sibling method, to incorporate the new details
+            # of its functionality (i.e. its meaning of "connected"/"reachable")
+            # [bruce 070411]
         
         slist = []
         
