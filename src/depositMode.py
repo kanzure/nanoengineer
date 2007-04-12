@@ -1480,7 +1480,10 @@ class depositMode(selectAtomsMode):
         
         self.singlet_list = self.o.assy.getConnectedSinglets([a])
             # get list of all singlets that we can reach from any sequence of bonds to <a>.
-            # used in doubleLeft() if the user clicks on 
+            # used in doubleLeft() if the user clicks on
+
+            # note: it appears that self.singlet_list is never used, tho another routine computes it
+            # locally under the same name and uses that. [bruce 070411 comment, examining Qt3 branch]
         
         pivatom = a.neighbors()[0]
         self.baggage, self.nonbaggage = pivatom.baggage_and_other_neighbors() #bruce 051209
