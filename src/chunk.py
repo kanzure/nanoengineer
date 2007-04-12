@@ -662,6 +662,8 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             # unary '+' prevents mods to basecenter from affecting average_position;
             # it might not be needed (that depends on numarray += semantics).
         # Note: basecenter is arbitrary, but should be somewhere near the atoms...
+        # except see set_basecenter_and_quat, used in extrudeMode -- it may be that it's not really arbitrary
+        # due to kluges in how that's used [still active as of 070411].
         if debug_messup_basecenter:
             # ... so this flag lets us try some other value to test that!!
             blorp = messupKey.next()
@@ -721,7 +723,8 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     
     _inputs_for_average_position = ['atpos']
     def _recompute_average_position(self):
-        """Average position of the atoms (including singlets); store it,
+        """Compute or recompute self.average_position,
+        the average position of the atoms (including singlets); store it,
         so _recompute_atpos can also call it since it needs the same value;
         not sure if it's useful to have a separate recompute method
         for this attribute; but probably yes, so it can run after incremental
@@ -734,6 +737,12 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             self.average_position = V(0,0,0)
         return
 
+    def _get_center_weight(self):#bruce 070411
+        """Compute self.center_weight, the weight that should be given to self.center
+        for making group centers as weighted averages of chunk centers.
+        """
+        return len(self.atoms)
+    
     _inputs_for_bbox = ['atpos']
     def _recompute_bbox(self):
         "Make a new bounding box from the atom positions (including singlets)."
