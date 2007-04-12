@@ -577,13 +577,6 @@ class extrudeMode(basicMode):
             self.status_msg("%s refused: %s" % (self.msg_modename, msg,))
             return 1
 
-##        # debugging code, safe to leave in indefinitely: [not really, 'mode' is too common a name -- bruce 070407 zapping this]
-##        import __main__
-##        __main__.mode = self
-##        if platform.atom_debug:
-##            print "fyi: extrude/revolve debug instructions: __main__.mode = this extrude mode obj; use debug window; has members assy, etc"
-##            ##print "also, use Menu1 entries to run debug code, like explore() to check out singlet pairs in self.basemol"
-
         return # from Enter
     
     singlet_color = {} # we also do this in clear()
@@ -673,8 +666,6 @@ class extrudeMode(basicMode):
         # treating center as the "default basecenter" from that thing, to which requested new ones are relative.
         offset = self.offset
         cn = self.circle_n ### does far-below code have bugs when ii >= cn?? that might explain some things i saw...
-##        basemol = self.separate_basemols[0] #bruce 070407 revision; see also fake_copied_mol.set_basecenter_and_quat
-#070411 that's wrong now
         basemol = self.basemol
         if not ptype:
             ptype = self.product_type
@@ -703,10 +694,8 @@ class extrudeMode(basicMode):
             # but doesn't change whether bonds are correct.
             
             # now all our quats (relative to basemol.quat) are around axis. Note: axis might be backwards, need to test this. ##k
-##            quat1 = Q(axis, 2 * pi / cn)
             quatii_rel = Q(axis, 2 * pi * ii / cn)
             if "try2 bugfix": ###@@@ why? could just be convention for theta the reverse of my guess
-##                quat1 = quat1 * -1.0
                 quatii_rel = quatii_rel * -1.0 #k would -1 work too?
             #e possible optim: above stuff (in ring case) is independent of basemol. Some stuff, above and below, is indep of ii.
             quatii = basemol.quat + quatii_rel # (i think) this doesn't depend on where we are around the circle!
@@ -1319,7 +1308,7 @@ class extrudeMode(basicMode):
         #e this is quadratic in number of singlets, sorry; not hard to fix
         ##print "bonds are %r",bonds
         if isinstance(unit1, Chunk):
-            #bruce 070407 kluge: don't bother supporting this yet for fake_copied_mols etc.
+            #bruce 070407 kluge: don't bother supporting this uncommon error message yet for fake_copied_mols etc.
             # To support it we'd have to scan & compare every true chunk.
             # Sometime it'd be good to do this... #e
             from HistoryWidget import redmsg
@@ -2105,11 +2094,7 @@ class fake_merged_mol( virtual_group_of_Chunks): #e rename? 'extrude_unit_holder
     to let it treat a set of chunks (comprising the extrude unit)
     as if they were merged into one chunk, without actually merging them.
     """
-##    officially_delegated = ('center','quat')
     def __init__(self, mols):
-##        self._saw = {} # for initial debug only; see __getattr__ (dict of attrs we've delegated)
-##        for attr in self.officially_delegated:
-##            self._saw[attr] = 1 # since default delegation for those is correct
         self._mols = []
         try:
             mols = list(mols)
@@ -2139,8 +2124,6 @@ class fake_merged_mol( virtual_group_of_Chunks): #e rename? 'extrude_unit_holder
             self._mols.append(mol)
         return
     def __getattr__(self, attr):
-        # for debugging (and for attrs named in officially_delegated):
-        # delegate to first mol (non-caching), and report doing so only once.
         if attr.startswith('__'):
             raise AttributeError, attr
         if attr == 'externs':
@@ -2150,10 +2133,6 @@ class fake_merged_mol( virtual_group_of_Chunks): #e rename? 'extrude_unit_holder
         if attr == 'quat':
             return getattr(self._mols[0], attr)
         # update 070411: self.center is computed and cached in full_inval_and_update; before that it's illegal to ask for
-##        if not self._saw.get(attr):
-##            print_compact_stack("fake_merged_mol will delegate attr %r: " % (attr)) # not printed for attrs in officially_delegated
-##            self._saw[attr] = 1
-##        return getattr(self._mols[0], attr)
         raise AttributeError, "%r has no %r" % (self, attr)
     def copy(self, dad):
         # copy our mols and store them in a new fake_copied_mol (which might make a Group from them, fyi)
@@ -2200,7 +2179,6 @@ class fake_copied_mol( virtual_group_of_Chunks): #e rename? 'extrude_unit_copy_h
     """
     def __init__(self, copies, _a_fake_merged_mol):
         self._parent = _a_fake_merged_mol
-##        self._saw = {}
         self._mols = copies # list of mol copies, made by an instance of fake_merged_mol, corresponding with its mols
         self._originals = _a_fake_merged_mol._mols # needed only in set_basecenter_and_quat (due to a kluge)
         assy = copies[0].assy
@@ -2208,16 +2186,7 @@ class fake_copied_mol( virtual_group_of_Chunks): #e rename? 'extrude_unit_copy_h
             # I worried that it might cause dad-conflict bugs in the members, but evidently it doesn't...
             # even so, safer to remove both this and __getattr__ (not only this, or __getattr__ infrecurs)
         return
-##    def __getattr__(self, attr):
-##        #STUB for debug: delegate to self._group, and report doing so once. Delegation to group is ok for draw, but no longer used.
-##        if attr.startswith('__'):
-##            raise AttributeError, attr
-##        if not self._saw.get(attr):
-##            print_compact_stack( "fake_copied_mol will delegate attr %r: " % (attr))
-##            self._saw[attr] = 1
-##        return getattr(self._group, attr) #kluge
     def set_basecenter_and_quat(self, c, q):
-        ## std_basecenter = self._originals[0].basecenter
         std_basecenter = self._parent.center
         for mol, orig in zip(self._mols, self._originals):
             # Compute correct c for how our basemol differs from first one
@@ -2242,17 +2211,6 @@ class fake_copied_mol( virtual_group_of_Chunks): #e rename? 'extrude_unit_copy_h
             mol.set_basecenter_and_quat(orig.basecenter + c1, q)
         return
     pass # end of class fake_copied_mol
-
-# do this before we can say we're done with 'leave base-chunks separate' [bruce 070407]:
-# + deal with _colorfunc
-# + review all uses of molcopies[ii] above
-# + fix all '####' above-near, incl stubs, center_quat stuff
-# n change the initial Enter code to not use the wrapper for one selected mol, i think -- don't bother til ui/default is chosen
-# + test whether it works properly for merge products set or unset [works]
-# + remove those groups it makes
-#   - #e or debug_pref them (and surely remove them at end if product gets merged)
-# + test ring mode [should make several parallel rings] [works]
-# - debug pref should be checkbox ###
 
 # ==
 
