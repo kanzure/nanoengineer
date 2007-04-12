@@ -242,12 +242,25 @@ class ops_connected_Mixin:
                 # only if they were not initially picked, so nevermind that optim for now.
                 for b in atom.bonds:
                     at1, at2 = b.atom1, b.atom2 # simplest to just process both atoms, rather than computing b.other(atom)
-                    if id(at1) not in marked: #e could also check for singlets here...
-                        marked[id(at1)] = at1
-                        newtodo.append(at1)
-                    if id(at2) not in marked:
-                        marked[id(at2)] = at2
-                        newtodo.append(at2)
+                    really_connected = True
+                    if 1:
+                        # new feature -- don't consider pseudoatom strand-axis bonds as really connected
+                        # (initial kluge for trying it out -- needs cleanup, generalization, optim (use element attrs, not lists),
+                        #  control by option of this method,
+                        #  and needs to also affect neighbors_of_last_deleted_atom in selectMode.py ###e) [bruce 070411]
+                        axis_elements = ('Ax','Ae') ###k and Hp??
+                        strand_elements = ('Ss','Pl','Sj','Pe','Sh')
+                        if at1.element.symbol in axis_elements and at2.element.symbol in strand_elements:
+                            really_connected = False
+                        elif at2.element.symbol in axis_elements and at1.element.symbol in strand_elements:
+                            really_connected = False
+                    if really_connected:
+                        if id(at1) not in marked: #e could also check for singlets here...
+                            marked[id(at1)] = at1
+                            newtodo.append(at1)
+                        if id(at2) not in marked:
+                            marked[id(at2)] = at2
+                            newtodo.append(at2)
             todo = newtodo
         
         alist = []
