@@ -667,9 +667,15 @@ class extrudeMode(basicMode):
         # but note that nothing currently prevents user from doing them during this mode, unless UI tool disables do).
         # Meanwhile, the current scheme should be as correct for multiple base-chunks as it was for one.
         #  See also the comments in fake_copied_mol.set_basecenter_and_quat, especially about how this affects ring mode.
+        # Update, bruce 070411, fixing this now for fake_copied_mol ring mode:
+        # - why does this use .center when what we set later is basecenter? guess: only ok since full_inval_and_update
+        # sets basecenter to center. So if we return a new kind of center from fake_merged_mol, we need to preserve that relation,
+        # treating center as the "default basecenter" from that thing, to which requested new ones are relative.
         offset = self.offset
         cn = self.circle_n ### does far-below code have bugs when ii >= cn?? that might explain some things i saw...
-        basemol = self.separate_basemols[0] #bruce 070407 revision; see also fake_copied_mol.set_basecenter_and_quat
+##        basemol = self.separate_basemols[0] #bruce 070407 revision; see also fake_copied_mol.set_basecenter_and_quat
+#070411 that's wrong now
+        basemol = self.basemol
         if not ptype:
             ptype = self.product_type
         #e the following should become the methods of product-type classes
@@ -697,11 +703,12 @@ class extrudeMode(basicMode):
             # but doesn't change whether bonds are correct.
             
             # now all our quats (relative to basemol.quat) are around axis. Note: axis might be backwards, need to test this. ##k
-            quat1 = Q(axis, 2 * pi / cn)
+##            quat1 = Q(axis, 2 * pi / cn)
             quatii_rel = Q(axis, 2 * pi * ii / cn)
             if "try2 bugfix": ###@@@ why? could just be convention for theta the reverse of my guess
-                quat1 = quat1 * -1.0
+##                quat1 = quat1 * -1.0
                 quatii_rel = quatii_rel * -1.0 #k would -1 work too?
+            #e possible optim: above stuff (in ring case) is independent of basemol. Some stuff, above and below, is indep of ii.
             quatii = basemol.quat + quatii_rel # (i think) this doesn't depend on where we are around the circle!
             towards_center = cross(offset,axis) # these are perp, axis is unit, so only cn is needed to make this correct length
             neg_radius_vec = towards_center * cn / (2 * pi)
@@ -2079,6 +2086,10 @@ class virtual_group_of_Chunks:
         for mol in self._mols:
             mol.unpick()
         return
+    def kill(self):
+        for mol in self._mols:
+            mol.kill()
+        return
     def internal_merge(self):
         "merge each of our chunks into the first one"
         first = self._mols[0]
@@ -2094,11 +2105,11 @@ class fake_merged_mol( virtual_group_of_Chunks): #e rename? 'extrude_unit_holder
     to let it treat a set of chunks (comprising the extrude unit)
     as if they were merged into one chunk, without actually merging them.
     """
-    officially_delegated = ('center','quat')
+##    officially_delegated = ('center','quat')
     def __init__(self, mols):
-        self._saw = {} # for initial debug only; see __getattr__ (dict of attrs we've delegated)
-        for attr in self.officially_delegated:
-            self._saw[attr] = 1 # since default delegation for those is correct
+##        self._saw = {} # for initial debug only; see __getattr__ (dict of attrs we've delegated)
+##        for attr in self.officially_delegated:
+##            self._saw[attr] = 1 # since default delegation for those is correct
         self._mols = []
         try:
             mols = list(mols)
@@ -2136,18 +2147,31 @@ class fake_merged_mol( virtual_group_of_Chunks): #e rename? 'extrude_unit_holder
             return self._get_externs() # don't cache, since return value is not constant -- will this be too slow?? ###e
         if attr == 'singlets':
             return self._get_singlets() # don't cache, since return value is not constant
-        if not self._saw.get(attr):
-            print_compact_stack("fake_merged_mol will delegate attr %r: " % (attr)) # not printed for attrs in officially_delegated
-            self._saw[attr] = 1
-        return getattr(self._mols[0], attr)
+        if attr == 'quat':
+            return getattr(self._mols[0], attr)
+        # update 070411: self.center is computed and cached in full_inval_and_update; before that it's illegal to ask for
+##        if not self._saw.get(attr):
+##            print_compact_stack("fake_merged_mol will delegate attr %r: " % (attr)) # not printed for attrs in officially_delegated
+##            self._saw[attr] = 1
+##        return getattr(self._mols[0], attr)
+        raise AttributeError, "%r has no %r" % (self, attr)
     def copy(self, dad):
         # copy our mols and store them in a new fake_copied_mol (which might make a Group from them, fyi)
         assert dad is None
         copies = [mol.copy(None) for mol in self._mols]
-        return fake_copied_mol(copies, self._mols) # originals are only needed for their basecenters due to a kluge
+        return fake_copied_mol(copies, self)
+            # self is needed for .center and for basecenters of originals (._mols), due to a kluge
     def full_inval_and_update(self):
         for mol in self._mols:
             mol.full_inval_and_update()
+            assert mol.quat == Q(1,0,0,0) # KLUGE, but much here depends on this [bruce 070411]
+            assert not (mol.center != mol.basecenter) # ditto (this "not !=" is how you have to compare Numeric arrays) [bruce 070411]
+                # note: this will fail if Chunk has user_specified_center (nim at the moment),
+                # and Chunk.set_basecenter_and_quat may not be correct then anyway (not sure).
+        # compute self.center as weighted average of component centers
+        sum_center_weight = sum([mol.center_weight for mol in self._mols])
+        sum_center = sum([mol.center for mol in self._mols])
+        self.center = sum_center / float(sum_center_weight)
         return
     pass # end of class fake_merged_mol
 
@@ -2174,10 +2198,11 @@ class fake_copied_mol( virtual_group_of_Chunks): #e rename? 'extrude_unit_copy_h
     and peer into our private attrs like self._mols,
     so some of our semantics comes from client code that depends on our class.
     """
-    def __init__(self, copies, originals):
-        self._saw = {}
+    def __init__(self, copies, _a_fake_merged_mol):
+        self._parent = _a_fake_merged_mol
+##        self._saw = {}
         self._mols = copies # list of mol copies, made by an instance of fake_merged_mol, corresponding with its mols
-        self._originals = originals # needed only in set_basecenter_and_quat (due to a kluge)
+        self._originals = _a_fake_merged_mol._mols # needed only in set_basecenter_and_quat (due to a kluge)
         assy = copies[0].assy
 ##        self._group = Group('extruded', assy, None, copies) # not yet in MT; OBSOLETE except for delegation;
             # I worried that it might cause dad-conflict bugs in the members, but evidently it doesn't...
@@ -2192,18 +2217,29 @@ class fake_copied_mol( virtual_group_of_Chunks): #e rename? 'extrude_unit_copy_h
 ##            self._saw[attr] = 1
 ##        return getattr(self._group, attr) #kluge
     def set_basecenter_and_quat(self, c, q):
-        std_basecenter = self._originals[0].basecenter
+        ## std_basecenter = self._originals[0].basecenter
+        std_basecenter = self._parent.center
         for mol, orig in zip(self._mols, self._originals):
             # Compute correct c for how our basemol differs from first one
             # (for explanation, see long comment in want_center_and_quat).
             #
             # Note: this is not ideal behavior for ring mode, in which q varies -- we should correct c for that, too,
-            # but we don't, which means we make several parallel rings (one per element of self._mols),
+            # but we don't [update, 070411: fixing that now],
+            # which means we make several parallel rings (one per element of self._mols),
             # rather than one ring with a common center. To fix this, we'd correct c for q here,
             # and also compute an overall center in fake_merged_mol rather than just delegating it
             # to one of the components.
-            c1 = c - std_basecenter + orig.basecenter
-            mol.set_basecenter_and_quat(c1, q)
+            c1 = c - std_basecenter
+            # The caller's intent is to rotate self by q around its center, then shift self by c1,
+            # all relative to self's starting point, as the caller recorded earlier (self.center and self.quat),
+            # either on self or on its parent (from which self was copied, after full_inval_and_update).
+            # Internally we do the same, except we correct for a different center of rotation.
+            #
+            # ... if we want self center to be *here*, where do we want component center to be?
+            orig_offset = orig.center - std_basecenter
+            net_offset = q.rot(orig_offset) - orig_offset
+            c1 = c1 + net_offset
+            mol.set_basecenter_and_quat(orig.basecenter + c1, q)
         return
     pass # end of class fake_copied_mol
 
