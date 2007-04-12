@@ -2117,6 +2117,11 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     # since it's used in many places and ways in depositMode and extrudeMode... it'd be nice to rewrite it to call general copier...
     
     def copy(self, dad = None, offset = V(0,0,0), cauterize = 1):
+        # NOTE: to copy several chunks and not break interchunk bonds, don't use this --
+        # use copied_nodes_for_DND instead (or a utility routine that calls it [nim]).
+        # For now, you have to do a few more things to use its output; see its existing calls
+        # (e.g. in extrudeMode.py) for details. [bruce 070412 comment]
+        #
         #bruce 060308 major rewrite, and no longer permit args to vary from defaults
         """Public method: Copy the molecule to a new molecule.
         Offset tells where it will go relative to the original.

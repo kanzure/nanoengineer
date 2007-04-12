@@ -2145,7 +2145,29 @@ class fake_merged_mol( virtual_group_of_Chunks): #e rename? 'extrude_unit_holder
     def copy(self, dad):
         # copy our mols and store them in a new fake_copied_mol (which might make a Group from them, fyi)
         assert dad is None
-        copies = [mol.copy(None) for mol in self._mols]
+        ## copies = [mol.copy(None) for mol in self._mols]
+            # this is wrong when there are bonds between these mols!
+        # WARNING: the following is similar to other code which calls copied_nodes_for_DND, e.g. in depositMode.py.
+        # A higher-level utility routine which does all this should be added to ops_copy.py. ###e
+        from ops_copy import copied_nodes_for_DND
+        oldnodes = self._mols
+        newnodes = copied_nodes_for_DND(list(self._mols)) #k list() wrapper is just a precaution, probably not needed
+            # note: these copies are not yet added to the model (assy.tree).
+        assert type(newnodes) == type([])
+        assert len(newnodes) == len(oldnodes)
+            #k can one of these fail if we try to copy a jig w/o its atoms? probably yes! (low-pri bug)
+            # (I don't know if extrude is documented to work for jigs, but it ought to,
+            #  but I'm sure there are several other things it's doing that also don't work in jigs.) [bruce 070412]
+        ###k are these nodes renamed?? if not we'll have to do that now...
+        assy = oldnodes[0].assy
+        for newMol in newnodes:
+            from chunk import mol_copy_name
+            newMol.name = mol_copy_name(newMol.name)
+                # this should work for any kind of node, unless it has an update bug for some of them,
+                # but since the node doesn't yet have a dad, that's very unlikely.
+            assy.addmol(newMol)
+        ###k will we also need assy.update_parts()??
+        copies = newnodes
         return fake_copied_mol(copies, self)
             # self is needed for .center and for basecenters of originals (._mols), due to a kluge
     def full_inval_and_update(self):
