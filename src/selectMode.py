@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2007 Nanorex, Inc.  All rights reserved.
 """
 selectMode.py -- Select Chunks and Select Atoms modes, also used as superclasses for some other modes
 
@@ -533,6 +533,31 @@ class selectMode(basicMode):
         # This was probably not intended but did not matter at the time.
         # The dragchunks optimization at the end [060410] changes this by returning all atoms in dragatoms or dragchunks,
         # none in baggage. The new smooth reshaping feature [070412] may change this again.
+
+        # revisions, bruce 070412, for smooth reshaping and also for general simplification:
+        # - treat general case as smooth reshaping with different (trivial) motion-function
+        #   (though we'll optimize for that) -- gather the same setup data either way.
+        #   That will reduce bug-differences between smooth reshaping and plain drags,
+        #   and it might help with other features in the future, like handling baggage better
+        #   when there are multiple selected atoms.
+        # - any baggage atom B has exactly one neighbor S, and if that neighbor is selected
+        #   (which is the only time we might think of B as baggage here), we want B to move
+        #   with S, regardless of smooth reshaping which might otherwise move them differently.
+        #   This is true even if B itself is selected. So, for baggage atoms (even if selected)
+        #   make a dict which points them to other selected atoms. If we find cycles in that,
+        #   those atoms must be closed for selection or can be treated that way,
+        #   so move those atoms into a third dict for moving atoms which are not connected to
+        #   unmoving atoms. (These never participate in smooth reshaping -- they always move
+        #   with the drag.)
+        # - the other atoms which move with the drag are the ones we find later with N == N_max,
+        #   and the other ones not bonded to unselected nonbaggage atoms, and all of them if
+        #   we're not doing reshaping drag.
+        # - then for all atoms which move with the drag (including some of the baggage,
+        #   so rescan it to find those), we do the dragchunk optim;
+        #   for the ones which move, but not with the drag, we store their motion-offset-ratio
+        #   in a dict to be used during the drag (or maybe return it and let caller store it #k).
+        # - finally, maybe done in another routine, selected jigs move in a way that depends on how
+        #   their atoms move -- maybe their offset-ratio is the average of that of their atoms.
         
         dragatoms = []
         baggage = []
