@@ -198,6 +198,7 @@ class selectMode(basicMode):
     def __init__(self, glpane): #bruce 070412
         basicMode.__init__(self, glpane)
         self.get_smooth_reshaping_drag() # exercise debug_pref to make sure it's always in the menu.
+        self.get_use_old_safe_drag_code() # ditto
         return
 
     # init_gui handles all the GUI display when entering a mode    
@@ -523,7 +524,7 @@ class selectMode(basicMode):
         # dragjigs contains all the selected jigs.
         self.dragjigs = self.o.assy.getSelectedJigs()
 
-    def get_dragatoms_and_baggage(self): # by mark. later optimized and extended by bruce, 060410.
+    def OLD_get_dragatoms_and_baggage(self): # by mark. later optimized and extended by bruce, 060410. Still used, 070413.
         """#doc... return dragatoms, baggage, dragchunks; look at self.smooth_reshaping_drag [nim];
         how atoms are divided between dragatoms & baggage is arbitrary and is not defined.
         [A rewrite of callers would either change them to treat those differently and change
@@ -539,8 +540,101 @@ class selectMode(basicMode):
         # This was probably not intended but did not matter at the time.
         # The dragchunks optimization at the end [060410] changes this by returning all atoms in dragatoms or dragchunks,
         # none in baggage. The new smooth reshaping feature [070412] may change this again.
+        # WARNING: THIS IS NOT USED for smooth reshaping; see (non-OLD) get_dragatoms_and_baggage for that.
+        
+        dragatoms = []
+        baggage = []
+        
+        selatoms = self.o.assy.selatoms
+        
+        # Accumulate all the baggage from the selected atoms, which can include
+        # selected atoms if a selected atom is another selected atom's baggage.
+        # BTW, it is not possible for an atom to end up in self.baggage twice.
+        
+        for at in selatoms.itervalues():
+            bag, nbag_junk = at.baggage_and_other_neighbors()
+            baggage.extend(bag) # the baggage we'll keep.
 
-        # revisions, bruce 070412, for smooth reshaping and also for general simplification:
+        bagdict = dict([(at.key, None) for at in baggage])
+                
+        # dragatoms should contain all the selected atoms minus atoms that are also baggage.
+        # It is critical that dragatoms does not contain any baggage atoms or they 
+        # will be moved twice in drag_selected_atoms(), so we remove them here.
+        for key, at in selatoms.iteritems():
+            if key not in bagdict: # no baggage atoms in dragatoms.
+                dragatoms.append(at)
+                
+        # Accumulate all the nonbaggage bonded to the selected atoms.
+        # We also need to keep a record of which selected atom belongs to
+        # each nonbaggage atom.  This is not implemented yet, but will be needed
+        # to get drag_selected_atoms() to work properly.  I'm commenting it out for now.
+        # mark 060202.
+        ## [code removed, 070412]
+        
+
+        #bruce 060410 new code: optimize when all atoms in existing chunks are being dragged.
+        # (##e Soon we hope to extend this to all cases, by making new temporary chunks to contain dragged atoms,
+        #  invisibly to the user, taking steps to not mess up existing chunks re their hotspot, display mode, etc.)
+        atomsets = {} # id(mol) -> (dict from atom.key -> atom) for dragged atoms in that mol
+        def doit(at):
+            mol = at.molecule
+            atoms = atomsets.setdefault(id(mol), {}) # dragged atoms which are in this mol, so far, as atom.key -> atom
+            atoms[at.key] = at # atoms serves later to count them, to let us make fragments, and to identify the source mol
+        for at in dragatoms:
+            doit(at)
+        for at in baggage:
+            doit(at)
+        dragatoms = []
+        baggage = [] # no longer used
+        dragchunks = []
+        for atomset in atomsets.itervalues():
+            assert atomset
+            mol = None # to detect bugs
+            for key, at in atomset.iteritems():
+                mol = at.molecule
+                break # i.e. pick an arbitrary item... is there an easier way? is this way efficient?
+            if len(mol.atoms) == len(atomset):
+                # all mol's atoms are being dragged
+                dragchunks.append(mol)
+            else:
+                # some but not all of mol's atoms are being dragged
+                ##e soon we can optimize this case too by separating those atoms into a temporary chunk,
+                # but for now, just drag them individually as before:
+                dragatoms.extend(atomset.itervalues())
+                    #k itervalues ok here? Should be, and seems to work ok. Faster than .values? Might be, in theory; not tested.
+            continue
+        
+        return dragatoms, baggage, dragchunks  # return from OLD_get_dragatoms_and_baggage; this routine will be removed later
+        
+    def get_dragatoms_and_baggage(self):
+        """#doc... return dragatoms, baggage, dragchunks; look at self.smooth_reshaping_drag [nim];
+        how atoms are divided between dragatoms & baggage is arbitrary and is not defined.
+        [A rewrite of callers would either change them to treat those differently and change
+        this to care how they're divided up (requiring a decision about selected baggage atoms),
+        or remove self.baggage entirely.]
+        """
+        #bruce 060410 optimized this; it had a quadratic algorithm (part of the cause of bugs 1828 / 1438), and other slownesses.
+        # The old code was commented out for comparison [and later, 070412, was removed].
+        # [Since then, it was totally rewritten by bruce 070412.]
+        #
+        # Note: as of 060410, it looks like callers only care about the total set of atoms in the two returned lists,
+        # not about which atom is in which list, so the usefulness of having two lists is questionable.
+        # The old behavior was (by accident) that selected baggage atoms end up only in the baggage list, not in dragatoms.
+        # This was probably not intended but did not matter at the time.
+        # The dragchunks optimization at the end [060410] changes this by returning all atoms in dragatoms or dragchunks,
+        # none in baggage. The new smooth reshaping feature [070412] may change this again.
+
+        if not self.smooth_reshaping_drag and self.get_use_old_safe_drag_code():
+            # by default, for now: for safety, use the old drag code, if we're not doing a smooth_reshaping_drag.
+            # After FNANO I'll change the default for use_old_safe_drag_code to False. [bruce 070413]
+            return self.OLD_get_dragatoms_and_baggage()
+
+        print "fyi: using experimental code for get_dragatoms_and_baggage; smooth_reshaping_drag = %r" % self.smooth_reshaping_drag
+            # Remove this print after FNANO when this code becomes standard, at least for non-smooth_reshaping_drag case.
+            # But consider changing the Undo cmdname, drag -> smooth drag or reshaping drag. #e
+
+        # rewrite, bruce 070412, for smooth reshaping and also for general simplification:
+        # [this comment and the partly redundant ones in the code will be merged later]
         # - treat general case as smooth reshaping with different (trivial) motion-function
         #   (though we'll optimize for that) -- gather the same setup data either way.
         #   That will reduce bug-differences between smooth reshaping and plain drags,
@@ -776,7 +870,9 @@ class selectMode(basicMode):
 
         assert len(fastatoms) == len(dragatoms) + sum([len(chunk.atoms) for chunk in dragchunks])
         
-        return dragatoms, slowatoms.values(), dragchunks # these are all lists
+        res = (dragatoms, slowatoms.values(), dragchunks) # these are all lists
+
+        return res # from (NEW) get_dragatoms_and_baggage
         
     def delete_atom_and_baggage(self, event):
         '''If the object under the cursor is an atom, delete it and any baggage.  
@@ -1311,6 +1407,13 @@ class selectMode(basicMode):
                          Choice_boolean_False,
                          prefs_key = True, non_debug = True )
         return res
+
+    def get_use_old_safe_drag_code(self): #bruce 070413
+        res = debug_pref("use old safe drag code, when not reshaping?",
+                         Choice_boolean_True, ###e change this default to False (and change the prefs key) after FNANO
+                         prefs_key = True, non_debug = True )
+        return res
+        
         
     def jigDrag(self, j, event):
         """Drag jig <j> and any other selected jigs or atoms.  <event> is a drag event.
