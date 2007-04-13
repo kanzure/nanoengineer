@@ -130,7 +130,10 @@ class _eq_id_mixin_: ##e use more? (GLPane?)
 
 # ==
 
-def transclose( toscan, collector ):
+def noop(*args,**kws): #k redundant with noop in constants, but i don't want to try importing from there right now [bruce 070412]
+    pass
+
+def transclose( toscan, collector, layer_collector = noop, pass_counter = False):
     """General transitive closure routine using dictionaries for collections in its API,
     where the keys can be whatever you want as long as they are unique (for desired equiv classes of objects)
     and used consistently.
@@ -142,6 +145,15 @@ def transclose( toscan, collector ):
     are all the objects we found. Collector will have been called exactly once on each object we return.
     It must not modify toscan (since we use itervalues on it while calling collector),
     at least when it was called on one of the values in toscan.
+       If pass_counter = True, then pass collector a third argument, counter,
+    which is 1 for values in toscan, 2 for new values found directly connected to those,
+    3 for the new values found connected to *those*, etc.
+       If layer_collector is provided, then pass it (counter, set of values with that counter)
+    each time that becomes known. If it stores counter and collector can see that value,
+    it can know the counter value it would be passed (same as the last stored one).
+    If it wants to store the set of values, it can know we won't modify it, but it must not
+    modify it itself either, until we return. After that, it can own all those sets it got,
+    except that the first one might be identical to (i.e. be the same mutable object as) toscan.
     """
     # We have three dicts at a time: objects we're finding (not being checked for newness yet),
     # objects we're scanning to look for those, and objects seen (i.e. done with or being scanned).
@@ -149,11 +161,17 @@ def transclose( toscan, collector ):
     # but what they actually are is entirely up to our args (but they must be consistent between the two args as well).
     # [#doc: need to explain that better]
     seen = dict(toscan)
+    counter = 1 # only matters for pass_counter or layer_collector
     while toscan:
+        layer_collector(counter, toscan) # new feature [bruce 070412]
         found = {}
         len1 = len(toscan)
         for obj in toscan.itervalues():
-            collector(obj, found) #e might the collector also want to know the key??
+            if pass_counter:
+                # new feature [bruce 070412] [untested, since layer_collector turned out to be more useful]
+                collector(obj, found, counter)
+            else:
+                collector(obj, found) #e might the collector also want to know the key??
         len2 = len(toscan)
         if len1 != len2:
             # btw, if this happens when toscan is not the one passed in, it's still a bug.
@@ -165,7 +183,8 @@ def transclose( toscan, collector ):
             if not seen.has_key(key):
                 new[key] = obj
         seen.update(new)
-        toscan = new
+        toscan = new ##e should API permit asking us to store each toscan in an external dict? more useful than passing counter!
+        counter += 1
         continue
     return seen
 
