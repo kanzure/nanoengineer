@@ -545,7 +545,8 @@ class selectMode(basicMode):
         #   with S, regardless of smooth reshaping which might otherwise move them differently.
         #   This is true even if B itself is selected. So, for baggage atoms (even if selected)
         #   make a dict which points them to other selected atoms. If we find cycles in that,
-        #   those atoms must be closed for selection or can be treated that way,
+        #   those atoms must be closed for selection (ie not indirectly bonded to unselected atoms,
+        #   which is what matters for smooth reshaping alg) or can be treated that way,
         #   so move those atoms into a third dict for moving atoms which are not connected to
         #   unmoving atoms. (These never participate in smooth reshaping -- they always move
         #   with the drag.)
@@ -556,9 +557,100 @@ class selectMode(basicMode):
         #   so rescan it to find those), we do the dragchunk optim;
         #   for the ones which move, but not with the drag, we store their motion-offset-ratio
         #   in a dict to be used during the drag (or maybe return it and let caller store it #k).
-        # - finally, maybe done in another routine, selected jigs move in a way that depends on how
+        #
+        # - I think all the above can be simplified to the following:
+        #   - expand selatoms to include baggage (then no need to remember which was which,
+        #     since "monovalent" is good enough to mean "drag with neighbor", even for non-baggage)
+        #   - point monovalent atoms in that set, whose neighbors are in it, to those neighbors
+        #     (removing them from that set) (permitting cycles, which are always length 2)
+        #     (during the drag, we'll move them with neighbors, then in future correct
+        #      their posn for the motion of other atoms around those neighbors, as is now only done
+        #      in single-atom dragging)
+        #   - analyze remaining atoms in set for closeness (across bonds) to unselected atoms
+        #     (permitting infinite dist == no connection to them)
+        #   - then sort all the atoms into groups that move with the same offset, and find whole chunks
+        #     in those groups (or at least in the group that moves precisely with the drag). (In future
+        #     we'd use the whole-chunk and borrowerchunk optims (or equiv) for the slower-moving groups too.
+        #     Even now, it'd be easy to use whole-chunk optim then, but only very rarely useful, so don't bother.)
+        #
+        # - finally, maybe done in another routine, selected movable jigs move in a way that depends on how
         #   their atoms move -- maybe their offset-ratio is the average of that of their atoms.
         
+        # Ok, here we go:
+        #   - expand selatoms to include baggage (then no need to remember which was which,
+        #     since "monovalent" is good enough to mean "drag with neighbor", even for non-baggage)
+
+        selatoms = self.o.assy.selatoms # maps atom.key -> atom
+            # note: after this, we care only which atoms are in selatoms, not whether they're selected --
+            # in other words, you could pass some other dict in place of selatoms if we modified the API for that,
+            # and no code after this point would need to change.
+        atoms_todo = dict(selatoms) # a copy which we'll modify in the following loop,and later;
+            # in general it contains all moving atoms we didn't yet decide how to handle.
+        monovalents = {} # maps a monvalent atom -> its neighbor, starting with baggage atoms we find
+        boundary = {} # maps boundary atoms (selected, with unselected nonbaggage neighbor) to themselves
+        ## unselected = {} # maps an unselected nonbaggage atom (next to one or more selected ones) to an arbitrary selected one
+        for atom in selatoms.itervalues():
+            baggage, nonbaggage = atom.baggage_and_other_neighbors()
+            for b in baggage:
+                monovalents[b] = atom # note: b (I mean b.key) might also be in atoms_todo
+            for n in nonbaggage:
+                if n.key not in selatoms:
+                    ## unselected[n] = atom
+                    boundary[atom] = atom
+                    break
+            continue
+        del selatoms
+        # note: monovalents might overlap atoms_todo; we'll fix that later.
+        # also it is not yet complete, we'll extend it later.
+
+        #   - point monovalent atoms in that set (atoms_todo), whose neighbors are in it, to those neighbors
+        #     (removing them from that set) (permitting cycles, which are always length 2 -- handled later ###DOIT)
+        for atom in atoms_todo.itervalues():
+            if len(atom.bonds) == 1:
+                bond = atom.bonds[0]
+                if bond.atom1.key in atoms_todo and bond.atom2.key in atoms_todo:
+                    monovalents[atom] = bond.other(atom)
+        for b in monovalents:
+            atoms_todo.pop(b.key, None) # make sure b is not in atoms_todo, if it ever was
+        
+        #   - analyze remaining atoms in set (atoms_todo) for closeness (across bonds) to unselected atoms
+        #     (permitting infinite dist == no connection to them)
+        # Do this by transclosing boundary across bonds to atoms in atoms_todo.
+        layers = {} # will map N to set-of-atoms-with-N (using terminology of smooth-reshaping drag proposal)
+        from state_utils import transclose
+        def collector( atom, dict1):
+            """add neighbors of atom which are in atoms_todo (which maps atom keys to atoms)
+            to dict1 (which maps atoms to atoms)."""
+            for n in atom.neighbors():
+                if n.key in atoms_todo:
+                    dict1[n] = n
+            return
+        def layer_collector( counter, set):
+            layers[counter] = set
+            ## max_counter = counter # calling order is guaranteed by transclose
+                # no good namespace to store this in -- grab it later
+            return
+        seen = transclose( boundary, collector, layer_collector)
+        max_counter = len(layers)
+
+        # now seen is a subset of atoms_todo;
+        # the other atoms in it are the ones not connected to unselected nonbaggage atoms.
+        
+        ####@@@@
+        
+        #   - then sort all the atoms into groups that move with the same offset, and find whole chunks
+        #     in those groups (or at least in the group that moves precisely with the drag). (In future
+        #     we'd use the whole-chunk and borrowerchunk optims (or equiv) for the slower-moving groups too.
+        #     Even now, it'd be easy to use whole-chunk optim then, but only very rarely useful, so don't bother.)
+        #
+        # - finally, maybe done in another routine, selected movable jigs move in a way that depends on how
+        #   their atoms move -- maybe their offset-ratio is the average of that of their atoms.
+
+
+        #     (during the drag, we'll move them with neighbors, then in future correct
+        #      their posn for the motion of other atoms around those neighbors, as is now only done
+        #      in single-atom dragging)
+
         dragatoms = []
         baggage = []
         
