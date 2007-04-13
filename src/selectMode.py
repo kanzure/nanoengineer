@@ -1056,9 +1056,12 @@ class selectMode(basicMode):
         "When self.smooth_reshaping_drag, return the drag_offset_ratio for any atom (0 if we're not dragging it)."
         N = float(self.smooth_N_dict.get(atom, 0))
             # If found: from 1 to Max_N
-        Max_N = self.smooth_Max_N # 0 or more
-        R = (Max_N - N)/Max_N # ranges from just above 0 to just below 1, in slow case, or can be exact 0 or 1 in general
-        f = (1-R**2)**2 # could be precomputed for each N, but that's probably not a big optim
+        Max_N = self.smooth_Max_N # 0 or more (integer)
+        if Max_N == 0:
+            R = 0; f = 1
+        else:
+            R = (Max_N - N)/Max_N # ranges from just above 0 to just below 1, in slow case, or can be exact 0 or 1 in general
+            f = (1-R**2)**2 # could be precomputed for each N, but that's probably not a big optim
         if assert_slow:
             assert 1 <= N < Max_N
             assert 0 < R < 1, "why is R == %r not strictly between 0 and 1? N = %r, Max_N = %r, atom = %r" % \
