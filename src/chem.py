@@ -582,7 +582,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         'Pl': ['Pe', 'Sh'],
         'Sh': ['Pe', 'Pl'],
         'Sj': ['Ss'],
-        'Ss': ['Sj'],
+        'Ss': ['Sj', 'Hp'],
+        'Hp': ['Ss'], #bruce 070412 added Ss <-> Hp; not sure if that's enough entries for Hp
         }
     def make_selobj_cmenu_items(self, menu_spec): #bruce 060405 (generalized from Jig method)
         '''Add self-specific context menu items to <menu_spec> list when self is the selobj,
@@ -602,7 +603,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                         doall = False
                         break
                     continue
-                # Note: both doall and self.picked are used below,
+                # Note: both doall and self.picked and len(selatoms) are used below,
                 # to determine the proper menu item name and command.
                 # Note: as a kluge which is important for speed,
                 # we don't actually make a selatoms list here as part of the command,
@@ -611,7 +612,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             menu_spec.append(None) # separator
             for toSymbol in self._transmuteContextMenuEntries[fromSymbol]:
                 newElement = PeriodicTable.getElement(toSymbol)
-                if self.picked:
+                if self.picked and len(selatoms) > 1:
                     if doall:
                         cmdname = "Transmute selected atoms to %s" % toSymbol
                             #e could also say the number of atoms
