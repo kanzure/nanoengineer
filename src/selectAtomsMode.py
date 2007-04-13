@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2007 Nanorex, Inc.  All rights reserved.
 """
 selectAtomsMode.py 
 
@@ -274,6 +274,7 @@ class selectAtomsMode(selectMode):
                     # [or anything else, except Atom or Jig -- i.e. a general/drag_handler/Drawable selobj [bruce 060728]]
                 if env.debug():
                     # I want to know if either of these things occur -- I doubt they do, but I'm not sure about Jigs [bruce 060728]
+                    # (this does happen for Jigs, see below)
                     if isinstance(obj, Atom):
                         print "debug fyi: likely bug: selobj is Atom but not in selatom: %r" % (obj,)
                     elif isinstance(obj, Jig):
@@ -281,6 +282,7 @@ class selectAtomsMode(selectMode):
                         # I suspect some jigs can occur here
                         # (and if not, we should put them here -- I know of no excuse for jig highlighting
                         #  to work differently than for anything else) [bruce 060721]
+                        # update 070413: yes, this happens (e.g. select some atoms and an rmotor jig, then drag the jig).
                     pass
             
             if obj is None: # a "highlighted" jig [i think this comment is misleading, it might really be nothing -- bruce 060726]
