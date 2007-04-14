@@ -347,6 +347,18 @@ class selectAtomsMode(selectMode):
                             # Fixes bug 1522. mark 060301.
                             return None
                         return env.prefs[atomHighlightColor_prefs_key]
+                            # Possible bug: bruce 070413 seems to observe this not working except when the mouse goes over
+                            # the end of a bond attached to that atom (which counts as the atom for highlighting),
+                            # or when the atom is already highlighted. (Could it be the cursor going over the rubberband
+                            # line? Not always. But it might be intermittent.)
+                    elif selobj.element.symbol == 'Sh':
+                        ##e and isinstance(self.current_obj, Atom), and is_singlet, and its neighbor is a Pl:
+                        # bruce 070413 KLUGE: make new depositMode behavior in (a specialcase of) this case possible
+                        ###e [needs to be generalized, and made so that only one place needs to know this condition;
+                        # note that the above is not the complete condition since i got lazy (and this NFR is urgent)]
+##                        if env.debug():
+##                            print "highlighting Sh like a bondpoint"
+                        return env.prefs[bondpointHighlightColor_prefs_key] # look like bondpoint, since treated as one
                     else:
                         return None
                 if self.o.modkeys == 'Shift+Control':

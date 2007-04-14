@@ -1560,12 +1560,21 @@ class depositMode(selectAtomsMode):
         - If the cursor is over empty space, do nothing.
         <event> is a LMB release event.
         '''
-        if not s1.is_singlet(): return
-        
-        self.line = None # required to erase white rubberband line on next gl_update.
-        
-        s2 = self.get_singlet_under_cursor(event)
-            ####@@@@ POSSIBLE BUG: s2 is not deterministic if cursor is over a real atom (see its docstring);
+        self.line = None # required to erase white rubberband line on next gl_update. [bruce 070413 moved this before tests]
+
+        if not s1.is_singlet():
+            return
+
+        if len(s1.bonds) != 1:
+            return #bruce 070413 precaution
+
+        neighbor = s1.singlet_neighbor()
+
+        s2 = self.get_singlet_under_cursor(event, reaction_from = neighbor.element.symbol)
+            # if reaction_from activates the atom under the cursor, s2 might be that atom itself, not a singlet,
+            # or might be that atom after it transmutes itself into a singlet [bruce 070413 new feature]
+            #
+            ####@@@@ POSSIBLE BUG: s2 is not deterministic if cursor is over a real atom w/ >1 singlets (see its docstring);
             # this may lead to bond type changer on singlet sometimes but not always working, 
             # if cursor goes up over its base atom; or it may lead to nondeterministic remaining bondpoint
             # position or bondorder when bonding s1 to another atom.
@@ -1601,7 +1610,7 @@ class depositMode(selectAtomsMode):
             
         self.only_highlight_singlets = False
         
-    def get_singlet_under_cursor(self, event):
+    def get_singlet_under_cursor(self, event, reaction_from = None ):
         '''If the object under the cursor is a singlet, return it.  If the object under the cursor is a
         real atom with one or more singlets, return one of its singlets. Otherwise, return None.
         '''
@@ -1614,6 +1623,16 @@ class depositMode(selectAtomsMode):
                     #bruce 060721
                     print "debug warning (likely bug): get_singlet_under_cursor returning an arbitrary bondpoint of %r" % (a,)
                 return a.singNeighbors()[0]
+            if reaction_from == 'Pl' and a.element.symbol == 'Sh' and len(a.bonds) == 1 and len(a.realNeighbors()) == 1:
+                #bruce 070413 for "Joining strands by dragging a Pl bondboint and dropping on Sh."
+                # (Should also verify the realNeighbor is an Ss, I suppose... ##e)
+                # Doing this here is not enough to make it work -- selectAtomsMode.selobj_highlight_color
+                # filters the highlighting, and also needs to know this is ok, so I taught it (too generously, for now).
+                # That's a kluge -- we need a central source for this info.
+                if env.debug():
+                    print "reacting Pl-bondpoint to %r, by transmuting %r to a bondpoint" % (a,a)
+                a.mvElement(Singlet) ##e ok, but emits debug print -- should fix that.
+                return a
         return None
 
     def bond_singlets(self, s1, s2):
