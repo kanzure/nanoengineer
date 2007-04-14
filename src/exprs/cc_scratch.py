@@ -18,14 +18,6 @@ def find_or_make(cctype, mode):
     if 1:
         return None # stub
 
-class InstanceHolder:#obs?
-    "A self-contained place to make and hold Instances of exprs, which makes its own drawing env."
-    def __init__(self, glpane):
-        self.thing = None ####STUB ...
-    def Instance(self, *args, **kws):
-        return self.thing.Instance(*args, **kws)
-    pass
-
 
     # We keep the instances in a global place shared by all modes, indexed by cc_data.
     # They have their own state & drawing env, separate from those of other expr Instances
@@ -44,25 +36,8 @@ class InstanceHolder:#obs?
         # and texture_holder? (texture_holder_for_filename = MemoDict(_texture_holder))
 
 
-##def obscode:
-##    try:
-##        place = mode._confirmation_corner__place
-##    except AttributeError:
-##        glpane = mode.o
-##        place = mode._confirmation_corner__place = InstanceHolder(glpane) ###IMPLEM; what about the env, does it have one? etc
-##
-##    ccexpr = ...
-##    
-##    if ccexpr is not None:
-##        # find or make an instance of that expr (caching nothing except the one currently in use)
-##        ccinstance = place.Instance(ccexpr, 'index', permit_expr_to_vary = True) #####BUG: pass unique ipath, or clear state, or ....
-##    else:
-##        ccinstance = None
-##    return ccinstance
-
 #e refile some of this into other files in exprs module: (might have to split pieces out, to do that)
-class cc_memoizer(InstanceOrExpr): # need it be in IorE? maybe we want it to contain toplevel Instances?
-    ##e set up self.env, if not in IorE
+class cc_memoizer(InstanceOrExpr):
     def find_or_make(self, cctype, mode):
         ""
         bgcolor_data = None #e this should be a function of mode.bgcolor which affects the look of the CC icons
@@ -80,9 +55,15 @@ class cc_memoizer(InstanceOrExpr): # need it be in IorE? maybe we want it to con
 ##            ###e needs the comparison optim; or, do our own make right here (might be better)
 ##        ## return ccexpr._e_make_in... - not enough, needs various checks, etc... need to split out some of that from .Instance
 ##        # and/or get env.make to do it (maybe it does already?) ###
-        ipath = index
+        ipath = index #e or (index, self.ipath)?
         return self.env.make( ccexpr, ipath)
     pass
+
+def kluge_get_glpane_cc_memoizer(glpane): #070414 ###@@@ CALL ME
+    "Find or make a central place to store cached CC Instances."
+    place = kluge_get_glpane_InstanceHolder(glpane)
+    return place.Instance(cc_memoizer(), 'kluge_get_glpane_cc_memoizer', skip_expr_compare = True)
+
 
 ###e change that into: InstanceMemoizer subclass with methods to turn args to index, index to expr??
 # in fact, best if we could dynamically separate it into an InstanceHolder(glpane)
@@ -98,8 +79,3 @@ class cc_memoizer(InstanceOrExpr): # need it be in IorE? maybe we want it to con
 # set up cc_memoizer - needs glpane, so needs to be an attr of some object -- which one? glpane itself??? yes!
 # or should glpane have a mixin which gives it this power to own an env and make objects in it?
 
-def kluge_get_glpane_
-    try:
-        place = glpane._confirmation_corner__place
-    except AttributeError:
-        place = glpane._confirmation_corner__place = InstanceHolder(glpane) ###IMPLEM; what about the env, does it have one? etc

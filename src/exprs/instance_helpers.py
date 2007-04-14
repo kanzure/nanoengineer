@@ -1058,6 +1058,39 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
     
     pass # end of class InstanceOrExpr
 
+# ==
+
+class InstanceHolder: #070414
+    """A self-contained place to make and hold Instances of exprs for use with a given glpane,
+    which makes its own drawing env and (by default) its own state and initial ipath,
+    and which caches the Instances at specified indices (using the API of InstanceOrExpr.Instance for details).
+    """
+    def __init__(self, glpane, state = None, ipath = None):
+        if state is None:
+            state = {}
+        if ipath is None:
+            ipath = 'InstanceHolder-Null-ipath'
+        self.ipath = ipath
+        self.env = widget_env( glpane, state)
+        self._thing = self.env.make( InstanceOrExpr(), self.ipath ) #k will this expr work?
+            # make this exactly once;
+            # its only purpose is to cache instances and provide the .Instance API
+    def Instance(self, expr, index, **kws):
+        """make instances in self, using API similar to IorE.Instance
+        [identical in present implem, but that may not last]
+        """
+        return self._thing.Instance(expr, index, **kws)
+    pass
+
+def kluge_get_glpane_InstanceHolder(glpane): #070414
+    "Find or make a central place to store cached expr Instances associated with a given glpane."
+    try:
+        place = glpane._exprs__InstanceHolder
+        #e could decide whether we need to remake it for some reason, e.g. code-reload
+    except AttributeError:
+        place = glpane._exprs__InstanceHolder = InstanceHolder(glpane)
+    return place
+
 # ===
 
 _DELEGATION_DEBUG_ATTR = '' # you can set this to an attrname of interest, at runtime, for debugging
