@@ -959,9 +959,19 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
         pass # above should not _e_eval or canon_expr without review -- should return an arg or dflt expr, not its value
 
     def drawkid(self, kid): # note: supersedes nim _e_decorate_draw [070210]
-        #e plans: protect from exceptions [done 070226], debug_pref for no-coord-change enforcement (for testing),
+        #e plans: debug_pref for no-net-coord-change enforcement (for testing),
         # and most importantly, make possible a drawing pass which draws only a specified subset of drawables
         # but in their coord- or glstate- transforming containers, e.g. for a highlight-drawing pass.
+        #
+        # Update 070414:
+        #    To accomplish that, we need to record a kid->parent map during draw (transient per-frame) or before it;
+        # for kids with multiple parents, we hope (in evolving a simple API for this) that the parent-chains
+        # have different glname-chains unless both kid copies can be co-highlighted;
+        # for kids drawn twice by one parent (e.g. a stereo-viewer or a parent which does some sort of draw/overdraw scheme),
+        # we'd probably like that parent to wrap each one differently, so no kid is really drawn twice by one parent,
+        # and so the wrapper can give each one a different glname if necessary, or tell one not to record drawing-coords
+        # (or equiv drawing-parent-chain info) for highlighting.
+        #    For a prototype of related code from 070219 or earlier, see a scratch file, rendering.py.
         if kid is not None:
             try:
                 if is_expr_Instance(kid):
@@ -979,9 +989,7 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
                 print_compact_traceback("bug: exception in %r.drawkid(%r): " % (self, kid))
         return
     
-    def _C__delegate(self):#070121
-        ## print "_C__delegate returns %r from %r" % (self.delegate, self)
-        ## return self.delegate # stub - works
+    def _C__delegate(self): #070121
         delegate = self.delegate
         if is_pure_expr(delegate):
             # instantiate it, as if it was wrapped with Instance -- do exactly what Instance would do
@@ -1010,11 +1018,12 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
         color = normalize_color(color)
         warpfuncs = getattr(self.env.glpane, '_exprs__warpfuncs', None) #070215 new feature
         while warpfuncs:
-            func, warpfuncs = warpfuncs
+            func, warpfuncs = warpfuncs # pop next func from nested list
             try:
+                # do color = normalize_color(func(color)), but don't change color if anything goes wrong
                 color0 = '?' # for error message in case of exception
                 color0 = func(color) # don't alter color itself until we're sure we had no exception in this try clause
-                color = normalize_color(color0)
+                color = normalize_color(color0) # do this here (not in next while loop body), since errors in it are func's fault
             except:
                 print_compact_traceback("exception in %r.fix_color(%r) warping color %r with func %r (color0 = %r): " % \
                                         ( self, color_orig, color, func, color0 ) )

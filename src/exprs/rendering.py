@@ -21,7 +21,7 @@ $Id$
             continue
         return color
 
-    and is now:
+    and is now: (except it doesn't really contain that _exprs__whatever line):
 
     def drawkid(self, kid): # note: supersedes nim _e_decorate_draw [070210]
         #e plans: protect from exceptions, debug_pref for no-coord-change enforcement (for testing),

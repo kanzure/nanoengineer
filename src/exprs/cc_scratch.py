@@ -85,16 +85,20 @@ class cc_memoizer(InstanceOrExpr): # need it be in IorE? maybe we want it to con
     pass
 
 ###e change that into: InstanceMemoizer subclass with methods to turn args to index, index to expr??
+# in fact, best if we could dynamically separate it into an InstanceHolder(glpane)
+# and a way for one thing inside that (findable at some index and using state at that index or inside self)
+# to be a cc_memoizer. In fact, since cc_memoizer is an IorE, that might be required... ###k FIGURE OUT
 
 # TODO:
 #  ###IMPLEM skip_expr_compare - done, untested, maybe not needed here anymore
 #  see what env.make does... just eval and _e_make_in; call it like env.make(expr, ipath).
-# set up one of the above objects
+# set up one of the above cc_memoizer objects
 # set up its drawing env (with glpane & stateplace), initial ipath, etc -- hmm, is some of that needed in the data? no, to find the obj.
 
 # set up cc_memoizer - needs glpane, so needs to be an attr of some object -- which one? glpane itself??? yes!
 # or should glpane have a mixin which gives it this power to own an env and make objects in it?
 
+def kluge_get_glpane_
     try:
         place = glpane._confirmation_corner__place
     except AttributeError:

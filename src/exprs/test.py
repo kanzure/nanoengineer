@@ -1525,6 +1525,41 @@ testexpr_36fb = testexpr_6f(fake = 2)
 testexpr_36d = DraggablyBoxed(Image("courier-128.png", size = Rect(4)), resizable = True, clipped = True) # works, 070322
 testexpr_36e = DraggablyBoxed(Sphere(2), resizable = True, clipped = True) # works [use trackball -- shows limits/benefits of implem]
 
+class Kluge_DrawTheModel(Widget2D): #070414 #e refile along with the "app object" (AppOuterLayer)
+    """Draw the (old legacy code) model.
+    Kluge in many ways:
+    - *what* model?
+      - answer is not well defined in a more general context
+      - and even current answer is grabbed thru env in a way that can't easily be modified by a wrapper
+    - highlighting on this model may not work, or may mess up highlighting on the main model or some other call of this
+      - it will matter which copy of the model is drawn last
+      - if that's this one, and if it's not drawn in absolute coords, highlighting won't work at all
+      - the model's drawing code might mess up gl state (when changing/restoring it) if we draw inside any nonstd state
+        (thought to be not yet possible in practice as of 070414)
+    - the model is not change-tracked (except by gl_update calls from high-level legacy code ops that change it).
+      If this is inside a displist, it won't update often enough.
+    """
+    #e highlightable option not yet supportable; see docstring; the last-drawn model will highlight, *iff* drawn in abs coords.
+    def draw(self):
+        self.env.glpane.part.draw( self.env.glpane) #k or try part.topnode.draw? maybe it doesn't matter
+    pass
+
+testexpr_36f = DraggablyBoxed( Kluge_DrawTheModel( highlightable = False), resizable = True, clipped = True)
+    # 070414 try to draw the model in a clipped way. sort of works, but has ###BUGS:
+    # - only clips on bottom and right, not on top and left.
+    # - starts out very small and not around model, since Kluge_DrawTheModel has no lbox.
+    #   (could it get one somehow from model's bbox??)
+    # - drawing model in abs coords (maybe good for highlighting, but not for convenience), but starting out at origin...
+    #   - then if you drag the box frame, the model is no longer drawn in abs coords (it moves with the box), which means:
+    #     - so highlighting won't work (verified) (even tho no displist is involved),
+    #     - and no way to position box relative to model -- you have to position the model in space, instead.
+    #     - OTOH, highlighting works fine if you trackball entire viewing space (no displist, so no need even to remake instance).
+    # - highlighting (yellow atom with blue wireframe, as selobj) is not clipped. (conceivably that counts as a feature, sometimes.)
+    # Fixing highlighting in general (rendering.py) would fix the highlight-clip and permit us to draw in different coords.
+    # The other problems could then be fixed in some straightforward way.
+    # Even now, this could probably be used to get a screenshot of a specific clipped model.
+    # (So it might even be useful sometimes, if it was user-accessible, but it can't be until some of those bugs are fixed.)
+    
 # == demo_draw_on_surface.py
 
 import demo_draw_on_surface
@@ -1543,7 +1578,7 @@ testexpr_38 = PartialDisk() # works 070401, in stub form with no settable parame
 
 enable_testbed = True
 
-testexpr = testexpr_30i # testexpr_38 # testexpr_30i # testexpr_37
+testexpr = testexpr_36f # testexpr_38 # testexpr_30i # testexpr_37
     # testexpr_37 - demo_draw_on_surface
     # testexpr_36e - clipped sphere
     # testexpr_34a - unfinished demo_ui
