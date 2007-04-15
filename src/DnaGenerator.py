@@ -134,7 +134,14 @@ class Dna:
             fcb.find_bondable_pairs([baseList[i]], [baseList[i+1]])
             fcb.make_bonds(assy)
 
-        self.postprocess(baseList)#bruce 070414
+        from debug import print_compact_traceback
+        try:
+            self.postprocess(baseList) #bruce 070414
+        except:
+            if env.debug():
+                print_compact_traceback("debug: exception in %r.postprocess(baseList = %r) (reraising): " % (self, baseList,))
+            raise
+        return
 
     def addEndCaps(self, sequence):
         return sequence

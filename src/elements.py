@@ -331,6 +331,7 @@ to put the C+ value.
                   ("I",  "Iodine",      53, 132.674,  [[1, 119, onebond]]),
                   ("Xe", "Xenon",       54, 134.429,  None),
 
+                  # B-DNA pseudo atoms (see also DIRECTIONAL_BOND_ELEMENTS below)
                   ("Ax", "DNA-Pseudo-Axis", 200, 1.0, [[4, 200, tetra4]]),
                   ("Ss", "DNA-Pseudo-Sugar", 201, 1.0, [[3, 210, flat]]),
                   ("Pl", "DNA-Pseudo-Phosphate", 202, 1.0, [[2, 210, tetra2]]),
@@ -511,7 +512,16 @@ to put the C+ value.
           for elm in self._periodicTable.values():
               elms[elm.symbol] = (elm.rvdw, elm.color)
           prefs.update(elms)
-          #print "__del__() is called now."    
+          #print "__del__() is called now."
+
+    pass # end of class ElementPeriodicTable
+
+# ==
+
+DIRECTIONAL_BOND_ELEMENTS = ('Ss', 'Pl', 'Sj', 'Pe', 'Sh', 'Hp') # symbols of elements which permit "directional bonds"
+    # We can't include X (for Singlet == bondpoint); for why, see comments where this constant is used. [bruce 070415]
+
+# ==
 
 ###Some global definitons, it's not necessary, but currently I don't want
 ### to change a lot of code ---Huaicai 3/9/05
@@ -539,3 +549,5 @@ if __name__ == '__main__':
         print pt1.getElemSymbol(12)
         
         pt1.deepCopy()
+
+# end

@@ -469,7 +469,7 @@ def next_bond_in_sp_chain(bond, atom):
 def pi_bond_alone_in_its_sp_chain_Q(bond):
     return next_bond_in_sp_chain(bond, bond.atom1) is None and next_bond_in_sp_chain(bond, bond.atom2) is None
 
-def grow_pi_sp_chain(bond, atom):
+def grow_pi_sp_chain(bond, atom): # WARNING: very similar to grow_bond_chain, SHOULD BE made into a call of it; see below ##e
     """Given a potential pi bond and one of its atoms,
     grow the pi-sp-chain containing bond in the direction of atom,
     adding newly found bonds and atoms to respective lists (listb, lista) which we'll return,
@@ -481,7 +481,7 @@ def grow_pi_sp_chain(bond, atom):
     listb, lista = [], []
     origbond = bond # for detecting a ring
     while 1:
-        nextbond = next_bond_in_sp_chain(bond, atom)
+        nextbond = next_bond_in_sp_chain(bond, atom) # this is the main difference from grow_bond_chain
         if nextbond is None:
             return False, listb, lista
         if nextbond is origbond:
@@ -491,6 +491,11 @@ def grow_pi_sp_chain(bond, atom):
         lista.append(nextatom)
         bond, atom = nextbond, nextatom
     pass
+
+def grow_pi_sp_chain_NEWER_BETTER(bond, atom):
+    #bruce 070415 -- newer & better implem of grow_pi_sp_chain (equiv,
+    # but uses general helper func), but untested. Switch to this one when there's time to test it.
+    return grow_bond_chain(bond, atom, next_bond_in_sp_chain)
 
 # ==
 

@@ -504,6 +504,7 @@ class Bond(BondBase, StateMixin):
     def _undo_update(self): #bruce 060223 guess
         self.changed_atoms()
         self.changed_valence()
+        self._changed_bond_direction() #bruce 070415
         ## self.invalidate_bonded_mols() # probably not needed, leave out at first
         # not setup_invalidate, that needs calling by our Atom's _undo_update methods ##k
         StateMixin._undo_update(self)
@@ -549,30 +550,7 @@ class Bond(BondBase, StateMixin):
 ##               and not a1._Atom__killed and not a2._Atom__killed \
 ##               and self in a1.bonds and self in a2.bonds
 
-    def set_bond_direction_from(self, atom, direction, propogate = False): #bruce 070414, called but not yet finished ###
-        """Assume self is a directional bond (not checked);
-        set its direction (from atom to the other atom) to the given direction.
-        The given direction must be -1, 0, or 1 (not checked);
-        atom must be one of self's atoms. (The direction from the other atom
-        will be the negative of the direction from the given atom.)
-           If propogate is True, call this recursively in both directions
-        in a chain of directional bonds, stopping only when the chain ends
-        or loops back to self. This will set an entire strand or ring of
-        directional bonds to the same direction.
-        """
-        if atom is self.atom1:
-            self._direction = direction
-        elif atom is self.atom2:
-            self._direction = - direction
-        else:
-            assert 0, "%r.set_bond_direction_from(%r, %r), but that bond doesn't have that atom" % (self, atom, direction)
-        ####e now we need some kind of change notification, probably same as if we changed bond order
-        # (but try to only give it if the value actually changed)
-        if propogate and env.debug():
-            print "debug: %r.set_bond_direction_from(%r, %r): propogate = True is NIM" % (self, atom, direction)###
-        return
-
-    def bond_direction_from(self, atom): #bruce 070414, not yet called ###
+    def bond_direction_from(self, atom): #bruce 070414
         """Assume self is a directional bond (not checked);
         return its direction, starting from the given atom
         (which must be one of its atoms).
@@ -587,6 +565,127 @@ class Bond(BondBase, StateMixin):
             assert 0, "%r.bond_direction_from(%r), but that bond doesn't have that atom" % (self, atom)
         return
 
+    def set_bond_direction_from(self, atom, direction, propogate = False): #bruce 070415
+        """Assume self is a directional bond (not checked);
+        set its direction (from atom to the other atom) to the given direction.
+        The given direction must be -1, 0, or 1 (not checked);
+        atom must be one of self's atoms. (The direction from the other atom
+        will be the negative of the direction from the given atom.)
+           If propogate is True, call this recursively in both directions
+        in a chain of directional bonds, stopping only when the chain ends
+        or loops back to self. This will set an entire strand or ring of
+        directional bonds to the same direction.
+        """
+        old = self._direction
+        if atom is self.atom1:
+            self._direction = direction
+        elif atom is self.atom2:
+            self._direction = - direction
+        else:
+            assert 0, "%r.set_bond_direction_from(%r, %r), but that bond doesn't have that atom" % (self, atom, direction)
+        if 1 or platform.atom_debug:
+            # after Qt4 port and after some testing without atom_debug, this can be relaxed to "if platform.atom_debug"
+            assert self.bond_direction_from(atom) == direction
+            assert self.bond_direction_from(self.other(atom)) == - direction
+        if old != self._direction:
+            if 0 and platform.atom_debug:
+                print "fyi: changed direction of %r from %r to %r" % (self, old, self._direction)
+            self._changed_bond_direction()
+        if propogate:
+            # propogate self's direction both ways, as far as possible, overwriting any prior directions encountered
+            # (and do this even if this bond's direction was already the same as the one we're setting)
+            # (note: the direction being set here can be 0)
+            # (note: if self can ever be a bond which *silently ignores* sets of direction,
+            #  then for the following to be correct, we'd need to pass the initial direction to use,
+            #  which would be an opposite one to each call. Not doing that now makes direction-switching bugs less likely
+            #  or tests the default direction used by propogate_bond_direction_towards.)
+            ringQ = self.propogate_bond_direction_towards(self.atom1)
+            if not ringQ:
+                self.propogate_bond_direction_towards(self.atom2)
+        return
+
+    def _clear_bond_direction(self): #bruce 070415
+        if self._direction:
+            del self._direction # let default value (0) show through
+            assert not self._direction
+            self._changed_bond_direction()
+        return
+
+    def _changed_bond_direction(self): #bruce 070415
+        """[private method]
+        Do whatever invalidations or change-notices are needed due to an internal change to self._direction.
+        (See also _undo_update, which calls this, and the other self.changed*() methods.)
+        """        
+        # For Undo, we only worry about changes to "definitive" (not derived) state. That's only in self.
+        # Since Bonds use an optimized system for changetracking, we have to store self in a dictionary.
+        _changed_Bonds[id(self)] = self # tells Undo that something in this bond has changed
+        
+        # Someday, doing that should also cover all modification notices to model object containers that contain us,
+        # such as the file we're saved in. It might already do that, but I'm not sure, so do that explicitly:
+        self.changed()
+        
+        # For appearance changes, we need to be far-reaching enough
+        # to hit Ax atoms which color themselves based on attached strand directions.
+        #
+        # In all, the bonds that need to know (re appearance or warnings) are self and the touching non-directional bonds,
+        # and the atoms that need to know are all the atoms on that set of bonds.
+        # [And *maybe* the touching directional bonds should know, if they (not just atoms in the middle)
+        # might draw differently if their direction is inconsistent with that of a neighboring directional bond.
+        # For now I'll assume that won't happen and leave it out.]
+        #
+        # I think there are no Atom and Bond methods for "changed appearance for miscellaneous causes",
+        # so for the atoms we just tell their Chunk that they need redrawing, and for bonds we just tell their atoms
+        # (i.e. their atoms' chunks). That should be fixed (or better yet, this whole scheme scrapped and replaced
+        #  with per-attr change/usage tracking, like in the exprs module), but for now, just handle it directly
+        # on the set of atoms we need to change. [BTW, this is inefficient compared to extending something
+        # like bond_updater to do this in a batch manner from a global dictionary of changed bonds. That's ok for now. #e]
+        dict1 = {}
+        def collect(atom):
+            dict1[id(atom)] = atom
+        for atom in (self.atom1, self.atom2):
+            for bond in atom.bonds:
+                #e don't bother checking bond.is_directional(), just catch them all,
+                # tho as explained above we only need the non-directional ones for now
+                #k Need to inval anything directly on the bond? I don't think so --
+                # geometric info has not changed, appearance is not cached except
+                # by whatever draws the atoms (handled by the changeapp calls below).
+                collect(bond.atom1)
+                collect(bond.atom2)
+        for atom in dict1.itervalues():
+            atom.molecule.changeapp(0) # why is this not an Atom method?
+            #e need to call anything else?
+            # What about atom._changed_structure? I think it's not related.
+        return
+
+    def propogate_bond_direction_towards(self, atom): #bruce 070414
+        """Copy the bond_direction on self (which must be a directional bond)
+        onto all bonds in the same chain or ring of directional bonds
+        in the direction (from self) of atom (which must be one of self's atoms).
+           Stop when reaching self (in a ring) or the last bond in a chain.
+        Don't modify self's own direction.
+        Do all necessary change-notification.
+           Return ringQ, a boolean which is True if self is part of a ring
+        (as opposed to linear chain) of directional bonds.
+        """
+        backdir = self.bond_direction_from(atom) # measured backwards, relative to direction in which we're propogating
+        ringQ, listb, lista = grow_directional_bond_chain(self, atom)
+        if ringQ:
+            assert bond.other(atom) is lista[-1]
+        for b, a in zip(listb, lista):
+            b.set_bond_direction_from(a, backdir)
+        return ringQ
+
+    def is_directional(self): #bruce 070415  #e this might be replaced with an auto-updated attribute, self.directional
+        """Does self have the atomtypes and bond order that make it want to have a direction?
+        Note: open bonds never count as directional, since that can lead to them getting directions
+        which become illegal when something is deposited on them (like Ax), and can lead to an atom with
+        three directional bonds but no errors (which confuses or needlessly complicates related algorithms).
+        """
+        if self.atom1.element.symbol in DIRECTIONAL_BOND_ELEMENTS and \
+           self.atom2.element.symbol in DIRECTIONAL_BOND_ELEMENTS:
+            return True
+        return False
+    
     def getToolTipInfo(self, glpane, isBondChunkInfo, isBondLength, atomDistPrecision): #Ninad 060830
         '''Returns a string that has bond related info ...used in DynamicTool Tip'''
         ###WARNING: this method uses both self and glpane.selobj, and appears to assume they are the same object. [bruce 070414 comment]
@@ -637,6 +736,8 @@ class Bond(BondBase, StateMixin):
     def destroy(self): #bruce 060322 (not yet called) ###@@@
         """[see comments in Atom.destroy docstring]
         """
+        if self._direction:
+            self._changed_bond_direction() #bruce 070415
         env.dealloc_my_glselect_name( self, self.glname )
         key = id(self)
         for dict1 in _Bond_global_dicts:
@@ -817,6 +918,9 @@ class Bond(BondBase, StateMixin):
                     print_compact_stack( "atom_debug: bug or fyi: one or both Parts None when bonding atoms: %r, %r" % (at1,at2))
             elif at1.molecule.part is not at2.molecule.part:
                 print_compact_stack( "atom_debug: likely bug: bonding atoms whose parts differ: %r, %r" % (at1,at2))
+
+        if self._direction and not self.is_directional(): #bruce 070415
+            self._clear_bond_direction()
         return
     
     def invalidate_bonded_mols(self): #bruce 041109
@@ -1062,12 +1166,13 @@ class Bond(BondBase, StateMixin):
         # but since atom.unbond now kills singlets lacking any bonds,
         # and since not doing that would be bad, I added a note about that
         # to the docstring.
+        self._clear_bond_direction() #bruce 070415
         x1 = self.atom1.unbond(self) # does all needed invals
         x2 = self.atom2.unbond(self)
         ###e do we want to also change our atoms and key to None, for safety?
         ###e check all callers and decide -- in case some callers reuse the bond or for some reason still need its atoms
         return x1, x2 # retval is new feature, bruce 041222
-    
+
     def rebond(self, old, new):
         """Self is a bond between old (typically a singlet) and some atom A;
         replace old with new in this same bond (self),
@@ -1256,8 +1361,18 @@ class Bond(BondBase, StateMixin):
 
     def __str__(self): #bruce 050705 revised this; note that it contains chars not compatible with HTML unless quoted
         ## return str(self.atom1) + " <--> " + str(self.atom2)
-        return bonded_atoms_summary(self)
-        # no quat is easily available here; better results if you call that subr directly and pass one
+        # No quat is easily available here; better results if you call that subr directly and pass one;
+        # the right one is (in current code, AFAIK, 070415) glpane.quat for the glpane that will display the bond
+        # (whether or not it's an internal bond); let's try to guess that:
+        quat = Q(1,0,0,0)
+        try:
+            glpane = self.atom1.molecule.assy.o
+            quat = glpane.quat
+        except:
+            if env.debug():
+                print_compact_traceback("bug: exception in self.atom1.molecule.assy.o.quat: ") # don't print self here!
+            pass
+        return bonded_atoms_summary(self, quat = quat) #bruce 070415 added quat arg and above code to guess it ###UNTESTED
 
     def __repr__(self):
         return str(self.atom1) + "::" + str(self.atom2)
@@ -1284,6 +1399,56 @@ register_class_changedicts( Bond, _Bond_global_dicts )
 # ==
 
 # some more bond-related functions
+
+def grow_bond_chain(bond, atom, next_bond_in_chain): #bruce 070415; generalized from grow_pi_sp_chain
+    """Given a bond and one of its atoms, grow the bond chain containing bond
+    (as defined by next_bond_in_chain, called on a bond and one of its atoms)
+    in the direction of atom,
+    adding newly found bonds and atoms to respective lists (listb, lista) which we'll return,
+    until you can't or until you notice that it came back to bond and formed a ring
+    (in which case return as much as possible, but not another ref to bond or atom).
+       Return value is the tuple (ringQ, listb, lista) where ringQ says whether a ring was detected
+    and len(listb) == len(lista) == number of new (bond, atom) pairs found.
+       Note that each (bond, atom) pair found (at corresponding positions in the lists)
+    has a direction (in bond, from atom) which is backwards along the direction of chain growth.
+       Note that listb never includes the original bond, so it is never a complete list of bonds in the chain.
+    In general, to form a complete chain, a caller must piece together a starting bond and two bond lists
+    grown in opposite directions. (See also XXX [nim, to be modified from make_pi_bond_obj], which calls us twice and does this.)
+       The function next_bond_in_chain(bond, atom) must return another bond containing atom
+    in the same chain or ring, or None if the chain ends at bond (on the end of bond which is atom),
+    and must be defined in such a way that its progress through any atom is consistent from
+    either direction. That means it's not possible to find a ring which comes back to bond
+    but does not include bond (by coming back to atom before coming to bond's other atom),
+    so if that happens, we raise an exception.
+    """
+    listb, lista = [], []
+    origbond = bond # for detecting a ring
+    origatom = atom # for error checking
+    while 1:
+        nextbond = next_bond_in_chain(bond, atom) # this is the main difference from grow_pi_sp_chain
+        if nextbond is None:
+            return False, listb, lista
+        nextatom = nextbond.other(atom)
+        if nextbond is origbond:
+            assert nextatom is not origatom, "grow_bond_chain(%r, %r, %r): can't have 3 bonds in chain at atom; data: %r" % \
+                   (origbond, origatom, next_bond_in_chain, (listb, lista))
+            return True, listb, lista
+        listb.append(nextbond)
+        lista.append(nextatom)
+        bond, atom = nextbond, nextatom
+    pass
+
+def grow_directional_bond_chain(bond, atom): #bruce 070415
+    "Grow a chain of directional bonds. For details, see docstring of grow_bond_chain."
+    return grow_bond_chain(bond, atom, next_directional_bond_in_chain)
+
+def next_directional_bond_in_chain(bond, atom): #bruce 070415
+    assert bond.is_directional()
+    bonds = filter(lambda bond1: bond1 is not bond and bond1.is_directional(), atom.bonds)
+    assert len(bonds) <= 1, "atom %r has more than two directional bonds: %r and %r" % (atom, bond, bonds)
+    if len(bonds) == 1:
+        return bonds[0]
+    return None
 
 # [bruce 050502 moved bond_at_singlets from chunk.py to here]
 
