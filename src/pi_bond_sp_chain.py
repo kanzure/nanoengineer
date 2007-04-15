@@ -1,11 +1,27 @@
 # Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
-'''
+"""
 pi_bond_sp_chain.py
 
-geometic info for individual pi bonds or chains of them connected by sp atoms.
+geometric info for individual pi bonds or chains of them connected by sp atoms.
 
 $Id$
-'''
+
+Note, 070414: it turns out a lot of the same concepts and similar code
+ought to be useful for keeping track of chains of "directional bonds"
+(such as pseudo-atom DNA backbones) in which direction-inference
+and consistency checks should occur. Maybe I'll even create a general class
+for perceiving bond-chains (or rings), with subclasses which know
+about specific ways of recognizing bonds they apply to; or a class
+whose instances hold bond-classifiers and act as perceivers of chains
+of bonds of that type. (Once the chain is perceived, by generic code,
+it does need specific code for its chain-type to figure out what to
+do, though the basic fact of being destroyed when involved-atom-structure
+changes is probably common. In the bond direction case, unlike in PiBondSpChain,
+destroying the perceived strand will leave behind some persistent state,
+namely the per-bond directions themselves; the perceived strand's role
+is to help change those directions in an organized way.)
+"""
+
 __author__ = 'bruce'
 
 
@@ -141,7 +157,7 @@ class PiBondSpChain(PerceivedStructureType):
         return
     super = PerceivedStructureType # needed for this to work across reloads
     listb = () # permit repeated destroy [bruce 060322]
-    _recompile_counter = None # ditto (nor sure if needed)
+    _recompile_counter = None # ditto (not sure if needed)
     def destroy(self):
         super = self.super
         for bond in self.listb:
@@ -431,7 +447,7 @@ def sp_atom_2bonds(atom):
     ## warning: this being true is *not* enough to know that a pi bond containing atom has an sp-chain length > 1.
     return atom.atomtype.spX == 1 and len(atom.bonds) == 2 and atom.atomtype.numbonds == 2
 
-def next_bond_in_sp_chain(bond, atom): # this is 
+def next_bond_in_sp_chain(bond, atom):
     """Given a pi bond and one of its atoms, try to grow the chain beyond that atom... return next bond, or None.
     [This function not returning None (for either atom on the end of a potential pi bond)
     is the definitive condition for that bond not being the only one in its sp-chain.]
