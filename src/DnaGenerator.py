@@ -1,4 +1,4 @@
-# Copyright (c) 2006 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2006-2007 Nanorex, Inc.  All rights reserved.
 """
 DnaGenerator.py
 
@@ -134,8 +134,14 @@ class Dna:
             fcb.find_bondable_pairs([baseList[i]], [baseList[i+1]])
             fcb.make_bonds(assy)
 
+        self.postprocess(baseList)#bruce 070414
+
     def addEndCaps(self, sequence):
         return sequence
+
+    def postprocess(self, baseList):
+        return
+    pass
 
 class A_Dna(Dna):
     """The geometry for A-DNA is very twisty and funky. I'd probably need to
@@ -183,6 +189,32 @@ class B_Dna_BasePseudoAtoms(B_Dna):
         if (len(sequence) > 1):
             return 'Y' + sequence[1:-1] + 'Z'
         return sequence
+    def postprocess(self, baseList): # bruce 070414
+        # Figure out how to set bond direction on the backbone bonds of these strands.
+        # This implem depends on the specifics of how the end-representations are terminated.
+        # If that's changed, it might stop working or it might start giving wrong results.
+        # In the current representation,
+        # baseList[0] (a chunk) is called "end1" in MT, and has two bonds whose directions we should set,
+        # which will determine the directions of their strands: Ss -> Sh, and Ss <- Pe.
+        # Just find those bonds and set the strand directions
+        # (until such time as they can be present to start with in the end1 mmp file).
+        # (If we were instead passed all the atoms, we could be correct if we just did this
+        #  to the first Pe and Sh we saw, or to both of each if setting the same direction twice
+        #  is allowed.)
+        atoms = baseList[0].atoms.values()
+        Pe_list = filter( lambda atom: atom.element.symbol == 'Pe', atoms)
+        Sh_list = filter( lambda atom: atom.element.symbol == 'Sh', atoms)
+        if len(Pe_list) == len(Sh_list) == 1:
+            for atom in Pe_list:
+                assert len(atom.bonds) == 1
+                atom.bonds[0].set_bond_direction_from(atom, 1, propogate = True)
+            for atom in Sh_list:
+                assert len(atom.bonds) == 1
+                atom.bonds[0].set_bond_direction_from(atom, -1, propogate = True)
+        else:
+            raise PluginBug("error in setting strand bond direction; not set");
+        return
+    pass
 
 class Z_Dna(Dna):
     geometry = "Z-DNA"

@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2007 Nanorex, Inc.  All rights reserved.
 '''
 bonds.py -- class Bond, for any supported type of chemical bond between two atoms
 (one of which might be a "singlet" to represent an "open bond" in the UI),
@@ -475,17 +475,30 @@ class Bond(BondBase, StateMixin):
     _s_attr_pi_bond_obj = S_CACHE # see comments in pi_bond_sp_chain.py. [bruce 060224]
 
     _s_attr_v6 = S_DATA
+    _s_attr__direction = S_DATA #bruce 070414
     _s_attr_atom1 = S_PARENT # too bad these can change, or we might not need them (not sure, might need them for saving a file... #k)
     _s_attr_atom2 = S_PARENT
 
     atom1 = atom2 = _valid_data = None # make sure these attrs always have values!
     _saved_geom = None
+    _direction = 0
+        # _direction is 0 for most bonds; for directional bonds [###e term to be defined elsewhere] it will be 1 if atom1 comes first,
+        # or -1 if atom2 comes first, or 0 if the direction is not known.
+        #    I think no code destructively swaps the atoms in a bond; if it ever does, it needs to invert self._direction too.
+        # That goes for the process of mmp save/load as well, and for copying of a bond (which *might* reverse the atoms) --
+        # write and read this info with care, since it's the first time in NE1 that the order of a bond's atoms will matter.
+        #    This is a private attr, since its meaning depends on atom order; public access methods must be
+        # passed one of self's atoms, so they can accept or return directions relative to that atom.
+        #    For comments about how chains/rings of directional bonds might best be perceived,
+        # for purposes of inferring directions or warning about inconsistencies,
+        # see pi_bond_sp_chain.py's module docstring.
+        # [bruce 070414, mostly nim ###]
 
     _s_attr_key = S_DATA #bruce 060405, not sure why this wasn't needed before (or if it will help now)
         # (update 060407: I don't if it did help, but it still seems needed in principle.
         #  It's change-tracked by self.changed_atoms.)
 
-    # this is needed for repeated destroy [bruce 060322]
+    # this default value is needed for repeated destroy [bruce 060322]
     glname = 0 
     
     def _undo_update(self): #bruce 060223 guess
@@ -536,9 +549,48 @@ class Bond(BondBase, StateMixin):
 ##               and not a1._Atom__killed and not a2._Atom__killed \
 ##               and self in a1.bonds and self in a2.bonds
 
+    def set_bond_direction_from(self, atom, direction, propogate = False): #bruce 070414, called but not yet finished ###
+        """Assume self is a directional bond (not checked);
+        set its direction (from atom to the other atom) to the given direction.
+        The given direction must be -1, 0, or 1 (not checked);
+        atom must be one of self's atoms. (The direction from the other atom
+        will be the negative of the direction from the given atom.)
+           If propogate is True, call this recursively in both directions
+        in a chain of directional bonds, stopping only when the chain ends
+        or loops back to self. This will set an entire strand or ring of
+        directional bonds to the same direction.
+        """
+        if atom is self.atom1:
+            self._direction = direction
+        elif atom is self.atom2:
+            self._direction = - direction
+        else:
+            assert 0, "%r.set_bond_direction_from(%r, %r), but that bond doesn't have that atom" % (self, atom, direction)
+        ####e now we need some kind of change notification, probably same as if we changed bond order
+        # (but try to only give it if the value actually changed)
+        if propogate and env.debug():
+            print "debug: %r.set_bond_direction_from(%r, %r): propogate = True is NIM" % (self, atom, direction)###
+        return
+
+    def bond_direction_from(self, atom): #bruce 070414, not yet called ###
+        """Assume self is a directional bond (not checked);
+        return its direction, starting from the given atom
+        (which must be one of its atoms).
+           This is 1 if the bond direction points away from that atom,
+        -1 if it points towards it, and 0 if no direction has been set.
+        """
+        if atom is self.atom1:
+            return self._direction
+        elif atom is self.atom2:
+            return - self._direction
+        else:
+            assert 0, "%r.bond_direction_from(%r), but that bond doesn't have that atom" % (self, atom)
+        return
+
     def getToolTipInfo(self, glpane, isBondChunkInfo, isBondLength, atomDistPrecision): #Ninad 060830
         '''Returns a string that has bond related info ...used in DynamicTool Tip'''
-        #ninad060830 moved these methodes from the class DynamicTip
+        ###WARNING: this method uses both self and glpane.selobj, and appears to assume they are the same object. [bruce 070414 comment]
+        #ninad060830 moved these methods from the class DynamicTip
         bondStr = str(glpane.selobj)
         bondInfoStr = bondStr
         # check for user pref 'bond_chunk_info'
@@ -556,19 +608,22 @@ class Bond(BondBase, StateMixin):
         ''' returns chunk information of the atoms forming a bond. Returns none if Bond chunk user pref is unchecked.
         It uses some code of bonded_atoms_summary method
         '''
+        ###WARNING: this method does not use self, and appears to assume glpane.selobj can stand in for self.  [bruce 070414 comment]
         a1 = glpane.selobj.atom1
         a2 = glpane.selobj.atom2
         chunk1 = a1.molecule.name
         chunk2 = a2.molecule.name
             
-            #ninad060822 I am noot checking if chunk 1 and 2 are the same. I think its not needed as the tooltip string won't be compact
-            #even if it is implemented.so leaving it as is
+            #ninad060822 I am not checking if chunk 1 and 2 are the same.
+            #I think it's not needed as the tooltip string won't be compact
+            #even if it is implemented. so leaving it as is
         bondChunkInfo = str(a1) + " in [" + str(chunk1) + "]\n" + str(a2) + " in [" + str(chunk2) + "]"
         return bondChunkInfo
             
     def getBondLength(self, glpane, atomDistPrecision):#Ninad 060830
         '''returns the atom center distance between the atoms connected by the highlighted bond.
         Note that this does *not* return the covalent bondlength'''
+        ###WARNING: this method does not use self, and appears to assume glpane.selobj can stand in for self.  [bruce 070414 comment]
         from VQT import vlen
 
         a1 = glpane.selobj.atom1

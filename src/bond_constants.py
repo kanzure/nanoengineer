@@ -128,24 +128,34 @@ def v6_from_btype(btype): #bruce 050705
     "Return the v6 corresponding to the given bond-type name ('single', 'double', etc). Exception if name not legal."
     return bond_type_names_inverted[btype]
 
-def bonded_atoms_summary(bond, quat = Q(1,0,0,0)): #bruce 050705
+_bond_arrows = {
+    0: "<- ->".split(),
+    1: "-- ->".split(), # from atom1 to atom2, i.e. to the right
+   -1: "<- --".split(),
+}
+    
+def bonded_atoms_summary(bond, quat = Q(1,0,0,0)): #bruce 050705; direction feature, bruce 070414.
     """Given a bond, and an optional quat describing the orientation it's shown in,
     order the atoms left to right based on that quat,
     and return a text string summarizing the bond
-    in the form C26(sp2) <-2-> C34(sp3) or so.
+    in the form C26(sp2) <-2-> C34(sp3) or so,
+    leaving out the < or > if the bond has a direction.
     """
     a1 = bond.atom1
     a2 = bond.atom2
+    direction = bond._direction
     vec = a2.posn() - a1.posn()
     vec = quat.rot(vec)
     if vec[0] < 0.0:
         a1, a2 = a2, a1
+        direction = - direction
     a1s = describe_atom_and_atomtype(a1)
     a2s = describe_atom_and_atomtype(a2)
     bondletter = bond_letter_from_v6(bond.v6)
     if bondletter == '1':
         bondletter = ''
-    return "%s <-%s-> %s" % (a1s, bondletter, a2s)
+    arrows = _bond_arrows.get(direction, ("<-", " (invalid direction) ->"))
+    return "%s %s%s%s %s" % (a1s, arrows[0], bondletter, arrows[1], a2s)
 
 def describe_atom_and_atomtype(atom): #bruce 050705, revised 050727 #e refile?
     """Return a string like C26(sp2) with atom name and atom hybridization type,
