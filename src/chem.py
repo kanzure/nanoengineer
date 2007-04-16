@@ -1006,7 +1006,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         # but these ways are not independent (eg one might draw a cone and one might estimate its size),
         # so changes in any of the uses need to be reviewed for possibly needing changes in the others. [bruce 070409]
         if self.element is Singlet and len(self.bonds) == 1:
-            if debug_pref("draw Pl-bondpoints as arrowheads", Choice_boolean_False): #bruce 070409, revised/deprecated 070415
+            if 0 and debug_pref("draw Pl-bondpoints as arrowheads", Choice_boolean_False): #bruce 070409, revised/deprecated 070415
                 other = self.bonds[0].other(self)
                 if other.element.symbol == 'Pl' and len(other.bonds) == 2:
                     if len(other.singNeighbors()) == 1:
@@ -1016,7 +1016,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             if debug_pref("draw bondpoints as stubs", Choice_boolean_False, prefs_key = True):
                 # current implem has cosmetic bugs (details commented there), so don't say non_debug = True
                 return 'bondpoint-stub' #k this might need to correspond with related code in Bond.draw
-        if self.element.symbol == 'Pe' and len(self.bonds) == 1 and \
+        if 0 and self.element.symbol == 'Pe' and len(self.bonds) == 1 and \
            debug_pref("draw Pe as arrowhead", Choice_boolean_False): #bruce 070409, revised/deprecated 070415
             other = self.bonds[0].other(self)
             # other is a bondpoint or a real pseudoatom, in either case farther away than self
@@ -1029,12 +1029,47 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 # would need updating if self -> other direction (in self's coordsys) changed.
                 return None
             return 'arrowhead-away1'
-        if self.element.symbol == 'Pl' and len(self.bonds) == 2 and \
+        if 0 and self.element.symbol == 'Pl' and len(self.bonds) == 2 and \
            debug_pref("draw Pl at end as arrowhead", Choice_boolean_False): #bruce 070409, revised/deprecated 070415
             if len(self.singNeighbors()) == 1:
                 # at end, but not isolated
                 return 'arrowhead-to-bp'
+        if self.element.symbol in DIRECTIONAL_BOND_ELEMENTS: #bruce 070415, correct end-arrowheads, replacing the prefs above
+            bond = self.strand_end_bond()
+            if bond is not None:
+                direction = bond.bond_direction_from(self)
+                if direction == 1 and debug_pref("draw 5' ends as in-arrowheads?", Choice_boolean_True,
+                                                 prefs_key = True, non_debug = True):
+                    return 'arrowhead-in'
+                if direction == -1 and debug_pref("draw 3' ends as out-arrowheads?", Choice_boolean_True,
+                                                 prefs_key = True, non_debug = True):
+                    return 'arrowhead-out'
+                #e add option to draw the dir == 0 case too, to point out you ought to propogate the direction
         return None
+
+    def strand_end_bond(self): #bruce 070415
+        """Is self on the end of a chain of directional bonds
+        (whether or not they have an assigned direction)?
+        If so, return the single directional bond on self
+        (from which the strand's direction from self can be determined
+         using bond.bond_direction_from(self)).
+        If not, return None.
+        (Note; there being exactly one directional bond on self
+        is precisely the same condition as self being on the end
+        of a chain of directional bonds.)
+        """
+        if self.element.symbol not in DIRECTIONAL_BOND_ELEMENTS: #e this could be optimized by being a flag set in each Element
+            return None # important optimization
+        dirbonds = self.directional_bonds()
+        if len(dirbonds) == 1:
+            return dirbonds[0]
+        return None
+
+    def directional_bonds(self): #bruce 070415
+        """Return a list of our directional bonds. Its length might be 0, 1, or 2,
+        or in the case of erroneous structures, 3 or more.
+        """
+        return filter(lambda bond: bond.is_directional(), self.bonds)
     
     def draw_atom_sphere(self, color, pos, drawrad, level, dispdef, abs_coords = False):
         "#doc [dispdef can be None if not known to caller]"
@@ -1061,23 +1096,40 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             inpos = pos - 0.015 * out
             outpos = pos + (buried + 0.015) * out # be sure we're visible outside a big other atom
             drawcylinder(color, inpos, outpos, drawrad, 1) #e see related code in Bond.draw; drawrad is slightly more than the bond rad
-        elif style in ('arrowhead-away1', 'arrowhead-to-bp'): #bruce 070409
-            # arrowhead-to-bp means arrowhead pointing to the sole bondpoint (out of any number of bonds)
-            # arrowhead-away1 means arrowhead pointing away from the sole bond
+        elif style and style.startswith('arrowhead-'):
+            # two deprecated options, bruce 070409, INCORRECT, no longer used as of 070415 (can remove soon):
+            # - arrowhead-to-bp means arrowhead pointing to the sole bondpoint (out of any number of bonds)
+            # - arrowhead-away1 means arrowhead pointing away from the sole bond
+            # and two newer options, bruce 070415:
+            # - arrowhead-in means pointing in along the strand_end_bond
+            # - arrowhead-out means pointing outwards from the strand_end_bond
             if style == 'arrowhead-away1':
                 other = self.bonds[0].other(self)
                 # other is a singlet or real pseudoatom, away from the end of the strand (arrow should point other way)
                 otherdir = -1
-            else:
+            elif style == 'arrowhead-to-bp':
                 # exactly one singlet-neighbor, and arrow should point towards it
                 # (don't make it point away from the real neighbor instead -- won't work if they're in different chunks)
                 other = self.singNeighbors()[0]
                 otherdir = 1
+            elif style == 'arrowhead-in':
+                bond = self.strand_end_bond()
+                other = bond.other(self)
+                otherdir = 1
+            elif style == 'arrowhead-out':
+                bond = self.strand_end_bond()
+                other = bond.other(self)
+                otherdir = -1
+            else:
+                assert 0
             if abs_coords:
                 otherpos = other.posn()
+            elif self.molecule is other.molecule:
+                otherpos = other.baseposn() # this would be wrong if it's in a different chunk!
             else:
-                otherpos = other.baseposn() # this would be wrong if it's in a different chunk! Conditions above prevent that.
-                assert self.molecule is other.molecule
+                otherpos = self.molecule.abs_to_base(other.posn())
+                    ###BUG: this becomes wrong if the chunks move relative to each other! But we don't get updated then. ###FIX
+                ## color = gray # to indicate the direction is suspicious and might become invalid (for now)
             out = norm(otherpos - pos) * otherdir
             axis = out * drawrad
             # the following cone dimensions enclose the original sphere (and therefore the bond-cylinder end too):
@@ -1085,7 +1137,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             # thus cone tip at pos + 3 * axis.
             # WARNING: this cone would obscure the wirespheres, except for special cases in self.draw_wirespheres().
             # If you make the cone bigger you might need to change that code too.
-            drawsphere(color, pos, drawrad, level) #KLUGE (harmless) to set color and also to verify cone encloses sphere
+            drawsphere(color, pos, drawrad, 0) #KLUGE (harmless but slow) to set color and also to verify cone encloses sphere
             from OpenGL.GLE import glePolyCone
             glePolyCone([pos - 2 * axis, pos - axis, pos + 3 * axis, pos + 4 * axis], # point array (2 end points not drawn)
                         None, # color array (None means use current color)
