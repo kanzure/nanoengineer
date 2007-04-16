@@ -481,7 +481,7 @@ class Bond(BondBase, StateMixin):
 
     atom1 = atom2 = _valid_data = None # make sure these attrs always have values!
     _saved_geom = None
-    _direction = 0
+    _direction = 0 # default value of private (except known to Atom.writemmp) instance variable for bond_direction [bruce 070414]
         # _direction is 0 for most bonds; for directional bonds [###e term to be defined elsewhere] it will be 1 if atom1 comes first,
         # or -1 if atom2 comes first, or 0 if the direction is not known.
         #    I think no code destructively swaps the atoms in a bond; if it ever does, it needs to invert self._direction too.
@@ -685,6 +685,30 @@ class Bond(BondBase, StateMixin):
            self.atom2.element.symbol in DIRECTIONAL_BOND_ELEMENTS:
             return True
         return False
+
+    def mmprecord_bond_direction(self, atom, mapping): #bruce 070415
+        """Return an mmp record line or lines (not including terminating \n)
+        which identifies self (which has already been written into the mmp file,
+        along with both its atoms, just after the given atom was written),
+        and encodes the direction of self,
+        using mapping (a writemmp_mapping(sp?) object) to find atom codes.
+           Note that this API makes no provision for writing one record
+        to encode the direction of more than one bond at a time
+        (e.g. an entire strand). However, the record format we're writing
+        could support that, and the mmp reading code we're adding at the same time
+        does support that.
+        """
+        # We'll support a bond_direction record which only writes atoms in bond_direction order.
+        # That way we needn't write out the direction itself, and the record format permits encoding
+        # a bond-chain in one record listing a chain of atomcodes
+        # (though we don't yet take advantage of that when writing).
+        other = self.other(atom)
+        direction = self.bond_direction_from(atom)
+        assert direction # otherwise we should not be writing this record (#e could extend API to let us return "" in this case)
+        if direction < 0:
+            atom, other = other, atom
+        atomcodes = map( mapping.encode_atom, (atom, other) )
+        return "bond_direction " + " ".join(atomcodes)
     
     def getToolTipInfo(self, glpane, isBondChunkInfo, isBondLength, atomDistPrecision): #Ninad 060830
         '''Returns a string that has bond related info ...used in DynamicTool Tip'''

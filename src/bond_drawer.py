@@ -21,6 +21,7 @@ from prefs_constants import _default_toolong_hicolor ## not yet in prefs db
 
 import platform
 from debug import print_compact_stack, print_compact_traceback
+from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
 
 from OpenGL.GL import *
 from OpenGL.GLU import *
@@ -214,6 +215,24 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, povfile = None)
         v6_for_bands = V_SINGLE
     
     shorten_tubes = highlighted
+
+    dir_info = (0, False) # usual case for non-directional bonds; draws nothing; change this below if necessary
+    if self._direction or self.is_directional(): #bruce 070415
+        #e we should speed up the latter test for this use, or remove it.
+        # we might want to show this bond's direction, or the lack of it.
+        ###BUG (possible): changing this debug_pref fails to redraw internal bonds accordingly (tho fine for external bonds).
+        # This is as if it's not usage tracked by the chunk display list compile,
+        # or as if the change to it via the debug menu is not change tracked.
+        # Workaround (not very convenient): Undo past where you created the DNA, and redo.
+        # Or, probably, just change the chunk display style.
+        # The bug is not always repeatable: I changed display to cpk (all arrows gone, finally correct),
+        # then back to tubes, then turned arrows on, and this time they all showed up, and again as I try off/on.
+        # Maybe it was an artifact of reloading this code??
+        if debug_pref("draw arrows on all directional bonds?",
+                      Choice_boolean_False,
+                      prefs_key = True, non_debug = True):
+            dir_info = (self.bond_direction_from(self.atom1), self.is_directional())
+        pass
     
     # do calcs common to all bond-cylinders for multi-cylinder bonds
 
@@ -278,13 +297,13 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, povfile = None)
                     a2posm = a2pos + offset * pvec2
                     geom = self.geom_from_posns(a1posm, a2posm) # correct in either abs or rel coords
                     draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highlighted, level, \
-                                   cylrad, shorten_tubes, geom, v6_for_bands, povfile )
+                                   cylrad, shorten_tubes, geom, v6_for_bands, povfile, dir_info )
     if draw_sigma_cyl or howmany == 1:
         # draw one central cyl, regardless of bond type
         geom = selfgeom #e could be optimized to compute less for CPK case
         cylrad = sigmabond_cyl_radius
         draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highlighted, level, \
-                       cylrad, shorten_tubes, geom, v6_for_bands, povfile )
+                       cylrad, shorten_tubes, geom, v6_for_bands, povfile, dir_info )
 
     if self.v6 != V_SINGLE:
         if draw_vanes:
@@ -336,7 +355,7 @@ def multicyl_pvecs( howmany, a2py, a2pz):
     pass
 
 def draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highlighted, level, \
-                   sigmabond_cyl_radius, shorten_tubes, geom, v6, povfile ):
+                   sigmabond_cyl_radius, shorten_tubes, geom, v6, povfile, dir_info):
     """Draw one cylinder, which might be for a sigma bond, or one of 2 or 3 cyls for double or triple bonds.
     [private function for a single caller, which is the only reason such a long arglist is tolerable]
     """
@@ -383,6 +402,8 @@ def draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highli
         # modified to use macros that take a radius, plus a separate call for banding.
         # This should cover: multiple cyls, banding, radius prefs; but won't cover: color prefs, other fancy things listed above.
         # [bruce 060622]
+        # It also doesn't yet cover the debug_pref "draw arrows on all directional bonds?" --
+        # i.e. for now that does not affect POV-Ray. [bruce 070415]
         old_writepov_bondcyl(atom1, atom2, disp, a1pos, c1, center, c2, a2pos, toolong, color1, color2, povfile, sigmabond_cyl_radius)
         if banding and disp in (diBALL, diTUBES):
             povfile.drawcylinder(band_color, bandpos1, bandpos2, sigmabond_cyl_radius * 1.2)
@@ -449,6 +470,38 @@ def draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highli
                 drawsphere(black, c2, sigmabond_cyl_radius, level)
         if banding:
             drawcylinder(band_color, bandpos1, bandpos2, sigmabond_cyl_radius * 1.2)
+        pass
+
+    # maybe draw arrowhead showing bond direction [bruce 070415]
+    direction, is_directional = dir_info
+    if (direction or is_directional) and (disp in (diBALL, diTUBES)):        
+        # If the bond has a direction, draw an arrowhead in the middle of the bond-cylinder to show it.
+        # (Make that gray if this is ok, or red if this is a non-directional bond.)
+        # If it has no direction but "wants one" (is_directional), draw something to indicate that, not sure what. ##e
+        if direction < 0:
+            a1pos, a2pos = a2pos, a1pos ###e should move into submethod to avoid error if these are used lower down
+            direction = - direction
+            color1, color2 = color2, color1
+        error = direction and not is_directional
+        if error:
+            color = red
+        else:
+            color = color2
+        from drawer import glePolyCone
+        if direction == 0:
+            pass # print "draw a confused/unknown direction somehow" # two orange arrows? no arrow?
+        else:            
+            # draw arrowhead pointing from a1pos to a2pos, closer to a2pos.
+            pos = a1pos
+            axis = a2pos - a1pos
+            drawrad = sigmabond_cyl_radius
+            drawsphere(color, pos + 0.8 * axis, drawrad * 0.1, 1) ###KLUGE to set color
+            glePolyCone([pos + 0.5 * axis, pos + 0.6 * axis, pos + 1.0 * axis, pos + 1.1 * axis], # point array (2 end points not drawn)
+                        None, # color array (None means use current color)
+                        [drawrad * 2, drawrad * 2, 0, 0] # radius array
+                       )
+        pass
+
     return # from draw_bond_cyl
 
 # ==

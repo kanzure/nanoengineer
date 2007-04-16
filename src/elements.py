@@ -338,7 +338,7 @@ to put the C+ value.
                   ("Sj", "DNA-Pseudo-Sugar-Junction", 203, 1.0, [[3, 210, flat]]),
                   ("Ae", "DNA-Pseudo-Axis-End", 204, 1.0, [[1, 200, None, 'sp']]),
                   ("Pe", "DNA-Pseudo-Phosphate-End", 205, 1.0, [[1, 210, None, 'sp']]),
-                  ("Sh", "DNA-Pseudo-Sugar-End", 206, 1.0, [[1, 210, None, 'sp']]),
+                  ("Sh", "DNA-Pseudo-Sugar-Hydroxyl", 206, 1.0, [[1, 210, None, 'sp']]), #bruce 070415: End->Hydroxyl per ED email
                   ("Hp", "DNA-Pseudo-Hairpin", 207, 1.0, [[2, 210, tetra2]]),
                 ]
     _periodicTable = {}

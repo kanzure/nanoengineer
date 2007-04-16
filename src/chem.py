@@ -1006,7 +1006,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         # but these ways are not independent (eg one might draw a cone and one might estimate its size),
         # so changes in any of the uses need to be reviewed for possibly needing changes in the others. [bruce 070409]
         if self.element is Singlet and len(self.bonds) == 1:
-            if debug_pref("draw Pl-bondpoints as arrowheads", Choice_boolean_True, prefs_key = True, non_debug = True): #bruce 070409
+            if debug_pref("draw Pl-bondpoints as arrowheads", Choice_boolean_False): #bruce 070409, revised/deprecated 070415
                 other = self.bonds[0].other(self)
                 if other.element.symbol == 'Pl' and len(other.bonds) == 2:
                     if len(other.singNeighbors()) == 1:
@@ -1017,7 +1017,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 # current implem has cosmetic bugs (details commented there), so don't say non_debug = True
                 return 'bondpoint-stub' #k this might need to correspond with related code in Bond.draw
         if self.element.symbol == 'Pe' and len(self.bonds) == 1 and \
-           debug_pref("draw Pe as arrowhead", Choice_boolean_True, prefs_key = True, non_debug = True): #bruce 070409
+           debug_pref("draw Pe as arrowhead", Choice_boolean_False): #bruce 070409, revised/deprecated 070415
             other = self.bonds[0].other(self)
             # other is a bondpoint or a real pseudoatom, in either case farther away than self
             # from the end of the strand (arrow should point other way).
@@ -1030,7 +1030,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 return None
             return 'arrowhead-away1'
         if self.element.symbol == 'Pl' and len(self.bonds) == 2 and \
-           debug_pref("draw Pl at end as arrowhead", Choice_boolean_False, prefs_key = True, non_debug = True): #bruce 070409
+           debug_pref("draw Pl at end as arrowhead", Choice_boolean_False): #bruce 070409, revised/deprecated 070415
             if len(self.singNeighbors()) == 1:
                 # at end, but not isolated
                 return 'arrowhead-to-bp'
@@ -1470,6 +1470,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         # one line per type of bond (only if we need to write any bonds of that type)
         bldict = {} # maps valence to list of 0 or more atom-encodings for bonds of that valence we need to write
         ## bl = [] # (note: in pre-050322 code bl held ints, not strings)
+        bonds_with_direction = []
         for b in self.bonds:
             oa = b.other(self)
             #bruce 050322 revised this:
@@ -1479,12 +1480,17 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 valence = b.v6
                 bl = bldict.setdefault(valence, [])
                 bl.append(oa_code)
+                if b._direction:
+                    bonds_with_direction.append(b)
         bondrecords = bldict.items()
         bondrecords.sort() # by valence
         from bonds import bonds_mmprecord # avoid recursive import problem by doing this at runtime
         for valence, atomcodes in bondrecords:
             assert len(atomcodes) > 0
             mapping.write( bonds_mmprecord( valence, atomcodes ) + "\n")
+        for bond in bonds_with_direction:
+            mapping.write( bond.mmprecord_bond_direction(self, mapping) + "\n") #bruce 070415
+        return
 
     def readmmp_info_atom_setitem( self, key, val, interp ): #bruce 050511
         "For documentation, see docstring of an analogous method, such as readmmp_info_leaf_setitem."

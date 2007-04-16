@@ -101,6 +101,8 @@ Part Properties dialog), so no harm is caused by changing it.
 
 '050920 required; 060522 preferred' -- bruce, adding "comment" and "info leaf commentline <encoding>" [will be in Alpha8]
 
+'050920 required; 070415 preferred' -- bruce, adding "bond_direction" record
+
 ===
 
 General notes about when to change the mmp format version:
@@ -113,7 +115,7 @@ new file, which is initially in the same directory as this file.]
 
 """
 
-MMP_FORMAT_VERSION_TO_WRITE = '050920 required; 060421 preferred'
+MMP_FORMAT_VERSION_TO_WRITE = '050920 required; 070415 preferred'
 #bruce modified this to indicate required & ideal reader versions... see general notes above.
 
 from Numeric import *
@@ -421,7 +423,16 @@ class _readmmp_state:
             print "error in MMP file: atom ", self.prevcard
             print card
             #e better error action, like some exception?
-            
+
+    def _read_bond_direction(self, card): #bruce 070415
+        atomcodes = card.strip().split()[1:] # note: these are strings, but self.ndix needs ints
+        assert len(atomcodes) >= 2
+        atoms = map((lambda nstr: self.ndix[int(nstr)]), atomcodes)
+        for atom1, atom2 in zip(atoms[:-1], atoms[1:]):
+            bond = find_bond(atom1, atom2)
+            bond.set_bond_direction_from(atom1, 1)
+        return
+    
     # Read the MMP record for a Rotary Motor as either:
     # rmotor (name) (r, g, b) torque speed (cx, cy, cz) (ax, ay, az) length, radius, spoke_radius
     # rmotor (name) (r, g, b) torque speed (cx, cy, cz) (ax, ay, az)
