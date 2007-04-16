@@ -86,7 +86,9 @@ def bond_type_warning(bond, btype): # 050707
     # if there are any other numbonds=1 atoms which show up here, they should be valence-checked too (generalizing the above)
     # (which might be easiest if atomtype stores a "valence-permitted btypes" when numbonds is 1), but I don't think there are others
     return ""
-    
+
+_BOND_DIR_TEXTS = {0:"unset", 1:" --->", -1:"<--- "} # see also _BOND_DIR_NAMES #e refile
+
 def bond_menu_section(bond, quat = Q(1,0,0,0)):
     """Return a menu_spec subsection for displaying info about a highlighted bond,
     changing its bond_type, offering commands about it, etc.
@@ -96,6 +98,17 @@ def bond_menu_section(bond, quat = Q(1,0,0,0)):
     res = []
     res.append(( bonded_atoms_summary(bond, quat = quat), noop, 'disabled' ))
     res.extend( bond_type_menu_section(bond) )
+    if bond.is_directional(): #bruce 070415; preliminary version
+        submenu_contents = bond_direction_submenu_contents(bond, quat)
+        left_atom = bond_left_atom(bond, quat) # same one that comes first in bonded_atoms_summary
+            #e ideally, for mostly vertical bonds, we'd switch to an up/down distinction for the menu text about directions
+            #e and whatever the direction names, maybe we should explore farther along the strand to see what they are...
+            # unless it hairpins or crosses over... hmm.
+        current_dir = bond.bond_direction_from(left_atom)
+        current_dir_str = _BOND_DIR_TEXTS[current_dir]
+        text = "strand direction (%s)" % current_dir_str
+        item = (text, submenu_contents)
+        res.append(item)
     return res
     
 def bond_type_menu_section(bond): #bruce 050716; replaces bond_type_submenu_spec for Alpha6
@@ -338,5 +351,33 @@ def best_atype(atom, atomtypes = None): #bruce 060523
     costitems = [(cost(atype), atype) for atype in atomtypes]
     costitems.sort()
     return costitems[0][1]
+
+_BOND_DIR_NAMES = {0:"unset", 1:"right", -1:"left"} # see also _BOND_DIR_TEXTS #e refile
+
+def bond_direction_submenu_contents(bond, quat): #bruce 070415
+    res = []
+    left_atom = bond_left_atom(bond, quat)
+    direction = bond.bond_direction_from(left_atom)
+##    # order will be: if this bond has a dir: this dir, opp dir, unset;
+##    # or if not: unset, right, left. So current dir is always first. Not sure this is good! In fact, I'm sure it's not!
+##    if direction:
+##        dir_order = [direction, - direction, 0]
+##    else:
+##        dir_order = [0, 1, -1]
+    dir_order = [1, -1, 0]
+    for dir in dir_order:
+        text = "make it %s" % _BOND_DIR_NAMES[dir]
+            # how do we say concisely:
+            # "make the bond dirs all one way along entire strand,
+            #  so they're going (eg) right, when they pass thru this bond"?
+        if dir == direction:
+            text += " (like this bond)" #e also use checkmark, or is that confusing since it's not a noop? for now, use it.
+        command = (lambda _guard = None, bond = bond, left_atom = left_atom, dir = dir:
+                   bond.set_bond_direction_from(left_atom, dir, propogate = True))
+        checkmark = (dir == direction) and 'checked' or None
+        item = (text, command, checkmark)
+        res.append(item)
+    res.append(('set to fit minor groove (not implemented)', noop, 'disabled'))
+    return res
 
 # end

@@ -134,7 +134,7 @@ _bond_arrows = {
    -1: "<- --".split(),
 }
     
-def bonded_atoms_summary(bond, quat = Q(1,0,0,0)): #bruce 050705; direction feature, bruce 070414.
+def bonded_atoms_summary(bond, quat = Q(1,0,0,0)): #bruce 050705; direction feature, bruce 070414. ###e SHOULD CALL bond_left_atom
     """Given a bond, and an optional quat describing the orientation it's shown in,
     order the atoms left to right based on that quat,
     and return a text string summarizing the bond
@@ -156,6 +156,20 @@ def bonded_atoms_summary(bond, quat = Q(1,0,0,0)): #bruce 050705; direction feat
         bondletter = ''
     arrows = _bond_arrows.get(direction, ("<-", " (invalid direction) ->"))
     return "%s %s%s%s %s" % (a1s, arrows[0], bondletter, arrows[1], a2s)
+    
+def bond_left_atom(bond, quat = Q(1,0,0,0)): #bruce 070415, modified from bonded_atoms_summary, which ought to call this now ##e
+    """Given a bond, and an optional quat describing the orientation it's shown in,
+    order the atoms left to right based on that quat
+    (i.e. as the bond would be shown on the screen using it),
+    and return the leftmost atom.
+    """
+    a1 = bond.atom1
+    a2 = bond.atom2
+    vec = a2.posn() - a1.posn()
+    vec = quat.rot(vec)
+    if vec[0] < 0.0:
+        a1, a2 = a2, a1
+    return a1
 
 def describe_atom_and_atomtype(atom): #bruce 050705, revised 050727 #e refile?
     """Return a string like C26(sp2) with atom name and atom hybridization type,
