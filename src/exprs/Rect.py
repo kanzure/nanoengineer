@@ -160,18 +160,19 @@ class RectFrame(Widget2D):
 
 # ==
 
-class Line(Widget2D): #070211
+class Line(InstanceOrExpr): #070211; revised 070419 (Widget2D -> IorE, more options)
     end1 = Arg(Point)
     end2 = Arg(Point)
     color = ArgOrOption( Color, black)
+    width = Option(int, 1) #e rename linewidth?
+    dashed = Option(bool, False)
     def draw(self):
         color = self.fix_color(self.color)
         end1, end2 = self.end1, self.end2
-        #e axis? center?
-        radius = 0.05
-        capped = 0
+        width = self.width
+        dashed = self.dashed
         import drawer
-        drawer.drawcylinder(color, end1, end2, radius, capped = capped) ###STUB -- should use something like drawer.drawline does
+        drawer.drawline(color, end1, end2, width = width, dashEnabled = dashed) ###k dashEnabled untested here
     pass
 
 # ==
