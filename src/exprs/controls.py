@@ -353,7 +353,7 @@ class ActionButton(DelegatingInstanceOrExpr): # 070104 quick prototype
     button = Arg(Widget2D, Rect(15.*PIXELS)) # can it be left out so only text label is used? ideally we'd have text with special border...
     enabled = Option(bool, True) # whether the button should look enabled, and whether the command will run when the button is operated
     # formulae
-    use_label = TextRect(text,1,20)###e revise
+    use_label = TextRect(text) ## TextRect(text,1,20)###e revise
     plain_button = CenterY(button)
     highlighted_button = Boxed( plain_button, # note: despite the name, this is only shown as the highlighted form when enabled is true
                         bordercolor = blue, # should color adapt to bg? is it a bad idea to put this over bg rather than over button?
