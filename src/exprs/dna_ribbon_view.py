@@ -560,17 +560,24 @@ class DNA_Cylinder(ModelObject): #070215 DIorE -> ModelObject (affects _e_model_
         # or it might be able to be a vector, if we store a relative path... get this straight! ###e (for now assume axis could be either)
     ## here's an easier way, and better anyway (since the path's state (when it has any) should be separate):
     path2 = path1(theta_offset = 150*2*pi/360 - n_bases_left / bpt * 2*pi)
+
+    # optional extender drag handles [070418] --
+    # doesn't yet work, apparently *not* due to nested HL issue, but due to coordsys being wrong for it due to outer Draggable
+    # (presumed, but output from debug_pref: preDraw_glselect_dict failure consistent...)
+    # If that's fixed, it might still fail if big object that includes us is drawn first as a candidate!
+    # To fix that, change stencil ref value from 1 to 0 (see glpane.py for how) while drawing nested glnamed obj,
+    # when inside another one drawing with stencil on (in draw_in_abs_coords, knowable by drawing_phase == 'selobj').
+    handle = Highlightable(Center(Rect(0.3, 2.0, purple)),
+                           Center(Rect(0.3, 2.0, white)))
+    drag_handles = Overlay( Translate(handle, end1 - direction), Translate(handle, end2))
     
     # prefs values used in appearance [##e in future, we'll also use these to index a set of display lists, or so]
     show_phosphates = call_Expr( get_dna_pref, 'show phosphates', dflt = False) ###e phosphates -> sugars
     show_lines = call_Expr( get_dna_pref, 'show lines', dflt = False) ##e lines -> bases, or base_lines (since other ways to show bases)
     
     # appearance (stub -- add handles/actions, more options)
-    delegate = Overlay( If(
-                            call_Expr( get_dna_pref, 'show central cyl', dflt = False),
-                            cyl,
-                            Spacer() #e try None here sometime
-                           ),
+    delegate = Overlay( If( call_Expr( get_dna_pref, 'show central cyl', dflt = False),  cyl ),
+                        If( call_Expr( get_dna_pref, 'show drag handles', dflt = True),  drag_handles ), #e has no checkbox yet
                         Cylinder_Ribbon(cyl, path1, color1, showballs = show_phosphates, showlines = show_lines ),
                         Cylinder_Ribbon(cyl, path2, color2, showballs = show_phosphates, showlines = show_lines )
                        )
