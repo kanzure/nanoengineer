@@ -15,7 +15,7 @@ from Column import SimpleColumn, SimpleRow
 
 import Rect
 reload_once(Rect)
-from Rect import Rect
+from Rect import Rect, Line
 
 import Highlightable
 reload_once(Highlightable)
@@ -48,6 +48,10 @@ from geometry_exprs import Ray
 import transforms
 reload_once(transforms)
 from transforms import Translate
+
+import Overlay
+reload_once(Overlay)
+from Overlay import Overlay
 
 def StateArrayRefs_getitem_as_stateref(statearrayrefs, index): #070313 renamed getitem_stateref to StateArrayRefs_getitem_as_stateref
     "#doc; args are values not exprs in the present form, but maybe can also be exprs someday, returning an expr..."
@@ -315,14 +319,18 @@ class _height_dragger_3(DelegatingInstanceOrExpr):
                                                   range = range
                             ))
         ### NOTE: drag_handler is also being used to compute the translation from the height, even between drags.
-    delegate = Highlightable(
-        Translate(
-            Image("blueflake.jpg"), ###e needs an option to be visible from both sides (default True, probably)
-            drag_handler._translation ###k ok?? only if that thing hangs around even in between drags, i guess!
-                #e #k not sure if this code-commoning is good, but it's tempting. hmm.
+    delegate = Overlay(
+        Highlightable(
+            Translate(
+                Image("blueflake.jpg"), ###e needs an option to be visible from both sides (default True, probably)
+                drag_handler._translation ###k ok?? only if that thing hangs around even in between drags, i guess!
+                    #e #k not sure if this code-commoning is good, but it's tempting. hmm.
+             ),
+            sbar_text = sbar_text,
+            behavior = drag_handler
          ),
-        sbar_text = sbar_text,
-        behavior = drag_handler
+        Translate(Rect(2), direction * -0.01),
+        Line(ORIGIN, ORIGIN + direction * height_ref.value, white)
      )
     pass
 
