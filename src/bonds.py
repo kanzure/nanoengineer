@@ -565,6 +565,10 @@ class Bond(BondBase, StateMixin):
             assert 0, "%r.bond_direction_from(%r), but that bond doesn't have that atom" % (self, atom)
         return
 
+    def bond_direction_vector(self): #bruce 070417
+        """Return self's bond direction vector (in abs coords)."""
+        return self._direction * (self.atom2.posn() - self.atom1.posn())
+
     def set_bond_direction_from(self, atom, direction, propogate = False): #bruce 070415
         """Assume self is a directional bond (not checked);
         set its direction (from atom to the other atom) to the given direction.

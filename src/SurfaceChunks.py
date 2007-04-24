@@ -531,7 +531,7 @@ class SurfaceChunks(ChunkDisplayMode):
 	    atoms = []
             coltypes = []
 	    for a in chunk.atoms.values():
-		col = a.element.color
+		col = a.drawing_color()
 		ii = 0 
 		for ic in range(len(coltypes)):
 		    ct = coltypes[ic]

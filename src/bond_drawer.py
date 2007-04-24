@@ -239,8 +239,8 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, povfile = None)
     atom1 = self.atom1
     atom2 = self.atom2
     
-    color1 = col or atom1.element.color
-    color2 = col or atom2.element.color
+    color1 = col or atom1.drawing_color()
+    color2 = col or atom2.drawing_color()
     bondcolor = col or None ## if None, we look up the value when it's used [bruce 050805]
    
     v1 = atom1.display != diINVISIBLE
@@ -534,8 +534,8 @@ def writepov_bond(self, file, dispdef, col):
 
 ##    # == the rest of this function is obsolete, if above revisions work properly
 ##    
-##    color1 = col or self.atom1.element.color
-##    color2 = col or self.atom2.element.color
+##    color1 = col or self.atom1.drawing_color()
+##    color2 = col or self.atom2.drawing_color()
 ##
 ##    ### some of the following math is now redundant, should be removed for speed (more info below) [bruce 060622]
 ####    a1pos = self.atom1.posn()

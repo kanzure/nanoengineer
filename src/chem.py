@@ -972,7 +972,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             pickedrad = drawrad * 1.8 # this code snippet is now shared between draw and draw_in_abs_coords [bruce 060315]
         else:
             pickedrad = drawrad * 1.1
-        color = col or self.element.color
+        color = col or self.drawing_color()
 
         glname = self.glname
         glPushName( glname) #bruce 050610 (for comments, see same code in Bond.draw)
@@ -993,6 +993,32 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             glPopName()
         
         return disp # from Atom.draw. [bruce 050513 added retval to help with an optim]
+
+    def drawing_color(self, molcolor = None): #bruce 070417 [most calls have the bug of letting molcolor override this ###FIX]
+        """Return the color in which to draw self, and certain things that touch self.
+        This is molcolor or self.element.color by default
+        (where molcolor is self.molecule.color if not supplied),
+        but some preferences can override that with a warning or error color
+        for atoms with something wrong with them.
+        """
+        if molcolor is None:
+            molcolor = self.molecule.color
+        color = molcolor
+        if color is None:
+            color = self.element.color
+##        #e see if warning color is needed
+##        if self.element.symbol == 'Ax':
+##            pass
+##            ## color = orange # kluge for testing
+##            #e should we just use self.bad for this? not for this initial test anyway.
+##            #e call a method of the element or atomtype for this special case code??
+##            # get neighbors that are Ss or Sj,
+##            # get arb Ss neighbors of those,
+##            #  i.e. find the pattern self-Ss|Sj-Ss (but optimize)
+##            ## ... self.Ax_strands() ...
+##            # get bond direction vectors (bond.bond_direction_vector()...), check antiparallel,
+##            # check minor groove using cross... how do we write "methods on patterns of atomtypes"? on pattern classes?
+        return color
 
     def _draw_atom_style(self): #bruce 070409 split this out of draw_atom_sphere
         """[private helper method for draw_atom_sphere, and perhaps related methods like draw_wirespheres]
@@ -1565,7 +1591,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
     
     # write to a povray file:  draw a single atom
     def writepov(self, file, dispdef, col):
-        color = col or self.element.color
+        color = col or self.drawing_color()
         disp, rad = self.howdraw(dispdef)
         if disp in [diTrueCPK, diBALL]:
             file.write("atom(" + povpoint(self.posn()) +
@@ -1580,7 +1606,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
 
     # write to a MDL file.  By Chris Phoenix and Mark for John Burch [04-12-03]
     def writemdl(self, alist, f, dispdef, col):
-        color = col or self.element.color
+        color = col or self.drawing_color()
         disp, radius = self.howdraw(dispdef)
         xyz=map(float, A(self.posn()))
         rgb=map(int,A(color)*255)
