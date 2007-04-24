@@ -1,5 +1,5 @@
 # Copyright (c) 2004-2007 Nanorex, Inc.  All rights reserved.
-'''
+"""
 chem.py -- class Atom, for single atoms, and related code
 
 $Id$
@@ -33,7 +33,7 @@ History:
   (eliminating Atom.xyz and Chunk.curpos, adding Atom._posn, eliminating incremental update of atpos/basepos).
   Motivation is to make it simpler to rewrite high-frequency methods in Pyrex. 
 
-'''
+"""
 __author__ = "Josh"
 
 # some of these imports might not be needed here in chem.py;
@@ -1832,7 +1832,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
     def break_unmade_bond(self, origbond, origatom): #bruce 050524
         """Add singlets (or do equivalent invals) as if origbond was copied from origatom
         onto self (a copy of origatom), then broken; uses origatom
-        so it can find the other atom and know bond direction
+        so it can find the other atom and know bond direction in space
         (it assumes self might be translated but not rotated, wrt origatom).
         For now this works like mol.copy used to, but later it might "inval singlets" instead.
         """
@@ -1843,11 +1843,11 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         x = atom('X', b.ubp(a), numol) ###k verify atom.__init__ makes copy of posn, not stores original (tho orig ok if never mods it)
         na = self ## na = ndix[a.key]
         from bonds import bond_copied_atoms # can't do at start of module -- recursive import
-        bond_copied_atoms(na, x, origbond) # same properties as origbond... sensible in all cases?? ##k
+        bond_copied_atoms(na, x, origbond, origatom) # same properties as origbond... sensible in all cases?? ##k
         return
         
     def unbond(self, b):
-        """Private method (for use mainly by bonds); remove b from self and
+        """Private method (for use mainly by bonds); remove bond b from self and
         usually replace it with a singlet (which is returned). Details:
            Remove bond b from self (error if b not in self.bonds).
         Note that bonds are compared with __eq__, not 'is', by 'in' and 'remove'.
@@ -1907,7 +1907,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             print "debug_1779: atom.unbond on %r is making X" % self
         x = atom('X', b.ubp(self), self.molecule) # invals mol as needed
         #bruce 050727 new feature: copy the bond type from the old bond (being broken) to the new open bond that replaces it
-        bond_copied_atoms( self, x, b)
+        from bonds import bond_copied_atoms # can't do at start of module -- recursive import
+        bond_copied_atoms( self, x, b, self)
         ## self.molecule.bond(self, x) # invals mol as needed
         return x # new feature, bruce 041222
 

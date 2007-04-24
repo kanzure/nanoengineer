@@ -1,5 +1,5 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
-'''
+# Copyright (c) 2004-2007 Nanorex, Inc.  All rights reserved.
+"""
 chunk.py -- provides class molecule, for a chunk of atoms
 which can be moved and selected as a unit.
 
@@ -38,7 +38,7 @@ History:
    and drawing it then recomputes them -- or maybe not, since it's only when remaking display list that it should need to.
    Sometime I should review this and see if there is some obvious optimization needed.]
 
-'''
+"""
 __author__ = "Josh"
 
 # a lot of what we import from chem might not be needed here in chunk.py,
@@ -2057,7 +2057,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                         # arbitrary condition which is true for exactly one ordering of the atoms;
                         # note both keys are for original atoms (it would also work if both were from
                         # copied atoms, but not if they were mixed)
-                        bond_copied_atoms(na, ndix[a2key], b)
+                        bond_copied_atoms(na, ndix[a2key], b, a)
                 else:
                     # external bond [or at least outside of atoms in pairlis/ndix] - caller will handle it when all chunks
                     # and individual atoms have been copied (copy it if it appears here twice, or break it if once)
@@ -2190,7 +2190,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                         # arbitrary condition which is true for exactly one ordering of the atoms;
                         # note both keys are for original atoms (it would also work if both were from
                         # copied atoms, but not if they were mixed)
-                        bond_copied_atoms(na, ndix[a2key], b)
+                        bond_copied_atoms(na, ndix[a2key], b, a)
                     ## pre-050715 code: numol.bond(na,ndix[b.other(a).key])
                 else:
                     # external bond - after loop done, make a singlet in the copy
@@ -2214,7 +2214,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                 na = ndix[a.key]
                 #bruce 050715 bugfix: also copy the bond-type (two places in this routine)
                 ## numol.bond(na, x)
-                bond_copied_atoms( na, x, b)
+                bond_copied_atoms( na, x, b, a)
         if copied_hotspot is not None:
             numol.set_hotspot( ndix[copied_hotspot.key])
         #e also copy (but translate by offset) user-specified axis, center, etc,

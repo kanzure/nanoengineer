@@ -1,5 +1,5 @@
 # Copyright (c) 2004-2007 Nanorex, Inc.  All rights reserved.
-'''
+"""
 bonds.py -- class Bond, for any supported type of chemical bond between two atoms
 (one of which might be a "singlet" to represent an "open bond" in the UI),
 and related code
@@ -25,7 +25,7 @@ History:
   (also removed some imports not needed here, even though chem.py still does "from bonds import *"
    and some other modules import * from chem, so there is no guarantee these were not needed indirectly)
 
-'''
+"""
 __author__ = "Josh"
 
 # a lot of these imports might not be needed here in bonds.py,
@@ -222,19 +222,31 @@ def bond_atoms_faster(at1, at2, v6): #bruce 050513; docstring corrected 050706
     at2.bonds.append(b)
     return b
 
-def bond_copied_atoms(at1, at2, oldbond): #bruce 050524
-    """Bond the given atoms (and return the new bond object),
+def bond_copied_atoms(at1, at2, oldbond, origat1): #bruce 050524; revised 070424
+    """Bond the given atoms, at1 and at2 (and return the new bond object),
     copying whatever bond state is relevant from oldbond,
     which is presumably a bond between the originals of the same atoms,
     or it might be a half-copied bond if at1 or at2 is a singlet
     (whether to use this function like that is not yet decided).
     As of 050727 this is also used in Atom.unbond to copy bond types
     onto open bonds which replace broken real bonds.
-       This API assumes that bond state is not "directional".
-    If that changes, we'll probably need to be told which atom is which
-    in the old bond wrt the new bond.
+       If oldbond might be "directional" (and thus might have state
+    which is directional, i.e. which looks different depending on which
+    of its atoms you're looking at), the caller must pass origat1,
+    an atom of oldbond corresponding to at1 in the new bond.
     """
-    return bond_atoms_faster(at1, at2, oldbond.v6)
+    newbond = bond_atoms_faster(at1, at2, oldbond.v6)
+    if origat1 is not None:
+        #bruce 070424 also copy bond_direction, if newbond is directional
+        # (which can be false in practice when at2 is a bondpoint) 
+        if oldbond._direction and newbond.is_directional():
+            direction = oldbond.bond_direction_from(origat1)
+            newbond.set_bond_direction_from(at1, direction)
+    else:
+        # this case is deprecated, and thought never to happen, as of bruce 070424
+        ## if oldbond._direction and platform.atom_debug:
+        print_compact_stack( "debug: bond_copied_atoms%r needs origat1: " % ((at1, at2, oldbond, origat1),) )
+    return newbond
 
 # == helper functions related to bonding (I might move these lower in the file #e)
 

@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2007 Nanorex, Inc.  All rights reserved.
 """
 ops_copy.py -- general cut/copy/delete operations on selections
 containing all kinds of model tree nodes.
@@ -500,7 +500,7 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
             if atom1 is not None:
                 na1 = origid_to_copy[id(atom1)]
                 na2 = origid_to_copy[id(atom2)]
-                bond_copied_atoms(na1, na2, bond)
+                bond_copied_atoms(na1, na2, bond, atom1)
             else:
                 halfbonds[id(bond)] = atom2
                 actualbonds[id(bond)] = bond
