@@ -1020,47 +1020,24 @@ class Atom(AtomBase, InvalMixin, StateMixin):
 ##            # check minor groove using cross... how do we write "methods on patterns of atomtypes"? on pattern classes?
         return color
 
-    def _draw_atom_style(self): #bruce 070409 split this out of draw_atom_sphere
+    def _draw_atom_style(self): #bruce 070409 split this out of draw_atom_sphere; 070424 revised return value (None -> "")
         """[private helper method for draw_atom_sphere, and perhaps related methods like draw_wirespheres]
         Return a short hardcoded string (known to draw_atom_sphere) saying in what style to draw the atom's sphere.
-        None means use an actual sphere; other values distinguish the special cases encoded into draw_atom_sphere.
+        Return value "" (not None) means to use an actual sphere; other values distinguish the special cases
+        encoded into draw_atom_sphere (and a few other calling methods).
            We check not only the desirability of the special cases, but all their correctness conditions,
         making sure that those don't depend on the other parameters of draw_atom_sphere (like abs_coords),
         and making it easier for draw_atom_sphere to fallback to its default style when those conditions fail.
         """
         # WARNING: various routines make use of this return value in different ways,
-        # but these ways are not independent (eg one might draw a cone and one might estimate its size),
+        # but these ways are not independent (e.g. one might draw a cone and one might estimate its size),
         # so changes in any of the uses need to be reviewed for possibly needing changes in the others. [bruce 070409]
         if self.element is Singlet and len(self.bonds) == 1:
-            if 0 and debug_pref("draw Pl-bondpoints as arrowheads", Choice_boolean_False): #bruce 070409, revised/deprecated 070415
-                other = self.bonds[0].other(self)
-                if other.element.symbol == 'Pl' and len(other.bonds) == 2:
-                    if len(other.singNeighbors()) == 1:
-                        # at end, but not isolated
-                        return 'arrowhead-away1'
-                        ###e REVIEW: does Bond.draw need to be updated due to this, if "draw bondpoints as stubs" is True?
+            # self is a bondpoint
             if debug_pref("draw bondpoints as stubs", Choice_boolean_False, prefs_key = True):
                 # current implem has cosmetic bugs (details commented there), so don't say non_debug = True
                 return 'bondpoint-stub' #k this might need to correspond with related code in Bond.draw
-        if 0 and self.element.symbol == 'Pe' and len(self.bonds) == 1 and \
-           debug_pref("draw Pe as arrowhead", Choice_boolean_False): #bruce 070409, revised/deprecated 070415
-            other = self.bonds[0].other(self)
-            # other is a bondpoint or a real pseudoatom, in either case farther away than self
-            # from the end of the strand (arrow should point other way).
-            # (We want to draw even an isolated Pe (with bondpoint) as a cone, in case it's in MMKit,
-            #  since it always looks like a cone when in use.)
-            if other.molecule is not self.molecule:
-                # It's too hard to support this case for now; a bug report (bruce, A9) should be filed.
-                # The implem issues are (1) baseposns are in different coord systems; (2) self.molecule display list
-                # would need updating if self -> other direction (in self's coordsys) changed.
-                return None
-            return 'arrowhead-away1'
-        if 0 and self.element.symbol == 'Pl' and len(self.bonds) == 2 and \
-           debug_pref("draw Pl at end as arrowhead", Choice_boolean_False): #bruce 070409, revised/deprecated 070415
-            if len(self.singNeighbors()) == 1:
-                # at end, but not isolated
-                return 'arrowhead-to-bp'
-        if self.element.symbol in DIRECTIONAL_BOND_ELEMENTS: #bruce 070415, correct end-arrowheads, replacing the prefs above
+        if self.element.symbol in DIRECTIONAL_BOND_ELEMENTS: #bruce 070415, correct end-arrowheads
             bond = self.strand_end_bond()
             if bond is not None:
                 direction = bond.bond_direction_from(self)
@@ -1070,8 +1047,11 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 if direction == -1 and debug_pref("draw 3' ends as out-arrowheads?", Choice_boolean_True,
                                                  prefs_key = True, non_debug = True):
                     return 'arrowhead-out'
-                #e add option to draw the dir == 0 case too, to point out you ought to propogate the direction
-        return None
+                #e REVIEW: does Bond.draw need to be updated due to this, if "draw bondpoints as stubs" is True?
+                #e REVIEW: Do we want to draw even an isolated Pe (with bondpoint) as a cone, in case it's in MMKit,
+                #  since it usually looks like a cone when it's correctly used? Current code won't do that.
+                #e Maybe add option to draw the dir == 0 case too, to point out you ought to propogate the direction
+        return ""
 
     def strand_end_bond(self): #bruce 070415
         """Is self on the end of a chain of directional bonds
@@ -1122,23 +1102,11 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             inpos = pos - 0.015 * out
             outpos = pos + (buried + 0.015) * out # be sure we're visible outside a big other atom
             drawcylinder(color, inpos, outpos, drawrad, 1) #e see related code in Bond.draw; drawrad is slightly more than the bond rad
-        elif style and style.startswith('arrowhead-'):
-            # two deprecated options, bruce 070409, INCORRECT, no longer used as of 070415 (can remove soon):
-            # - arrowhead-to-bp means arrowhead pointing to the sole bondpoint (out of any number of bonds)
-            # - arrowhead-away1 means arrowhead pointing away from the sole bond
-            # and two newer options, bruce 070415:
+        elif style.startswith('arrowhead-'):
+            # two options, bruce 070415:
             # - arrowhead-in means pointing in along the strand_end_bond
             # - arrowhead-out means pointing outwards from the strand_end_bond
-            if style == 'arrowhead-away1':
-                other = self.bonds[0].other(self)
-                # other is a singlet or real pseudoatom, away from the end of the strand (arrow should point other way)
-                otherdir = -1
-            elif style == 'arrowhead-to-bp':
-                # exactly one singlet-neighbor, and arrow should point towards it
-                # (don't make it point away from the real neighbor instead -- won't work if they're in different chunks)
-                other = self.singNeighbors()[0]
-                otherdir = 1
-            elif style == 'arrowhead-in':
+            if style == 'arrowhead-in':
                 bond = self.strand_end_bond()
                 other = bond.other(self)
                 otherdir = 1
@@ -1170,14 +1138,14 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                         [drawrad * 2, drawrad * 2, 0, 0] # radius array
                        )
         else:
-            if style is not None:
+            if style:
                 print "bug (ignored): unknown _draw_atom_style return value for %r: %r" % (self, style,)
             drawsphere(color, pos, drawrad, level)
         return
     
     def draw_wirespheres(self, glpane, disp, pos, pickedrad):
         #bruce 060315 split this out of self.draw so I can add it to draw_in_abs_coords
-        if self._draw_atom_style() in ('arrowhead-away1', 'arrowhead-to-bp'):
+        if self._draw_atom_style().startswith('arrowhead-'):
             # compensate for the cone (drawn by draw_atom_sphere in this case) being bigger than the sphere [bruce 070409]
             pickedrad *= debug_pref("Pe pickedrad ratio", Choice([1.8, 1.9, 1.7, 1.0])) ####
         if self.picked: # (do this even if disp == diINVISIBLE or diLINES [bruce comment 050825])
@@ -1211,7 +1179,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
     def max_pixel_radius(self): #bruce 070409
         "Return an estimate (upper bound) of the maximum distance from self's center to any pixel drawn for self."
         res = self.selatom_radius() + 0.2
-        if self._draw_atom_style() in ('arrowhead-away1', 'arrowhead-to-bp'):
+        if self._draw_atom_style().startswith('arrowhead-'):
             res *= 3
         return res
     
