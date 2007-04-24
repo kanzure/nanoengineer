@@ -666,15 +666,15 @@ class Bond(BondBase, StateMixin):
         onto all bonds in the same chain or ring of directional bonds
         in the direction (from self) of atom (which must be one of self's atoms).
            Stop when reaching self (in a ring) or the last bond in a chain.
+        (Note that this means we *don't* change bonds *before* self in a chain,
+         unless it's a ring; to change all bonds in a chain we have to be called twice.)
         Don't modify self's own direction.
         Do all necessary change-notification.
            Return ringQ, a boolean which is True if self is part of a ring
-        (as opposed to linear chain) of directional bonds.
+        (as opposed to a linear chain) of directional bonds.
         """
         backdir = self.bond_direction_from(atom) # measured backwards, relative to direction in which we're propogating
         ringQ, listb, lista = grow_directional_bond_chain(self, atom)
-        if ringQ:
-            assert bond.other(atom) is lista[-1]
         for b, a in zip(listb, lista):
             b.set_bond_direction_from(a, backdir)
         return ringQ
@@ -1430,22 +1430,26 @@ register_class_changedicts( Bond, _Bond_global_dicts )
 
 def grow_bond_chain(bond, atom, next_bond_in_chain): #bruce 070415; generalized from grow_pi_sp_chain
     """Given a bond and one of its atoms, grow the bond chain containing bond
-    (as defined by next_bond_in_chain, called on a bond and one of its atoms)
+    (of the kind defined by next_bond_in_chain, called on a bond and one of its atoms)
     in the direction of atom,
     adding newly found bonds and atoms to respective lists (listb, lista) which we'll return,
-    until you can't or until you notice that it came back to bond and formed a ring
-    (in which case return as much as possible, but not another ref to bond or atom).
+    until the chain ends or comes back to bond and forms a ring
+    (in which case return as much of the chain as possible, but not another ref to bond or atom).
        Return value is the tuple (ringQ, listb, lista) where ringQ says whether a ring was detected
     and len(listb) == len(lista) == number of new (bond, atom) pairs found.
        Note that each (bond, atom) pair found (at corresponding positions in the lists)
-    has a direction (in bond, from atom) which is backwards along the direction of chain growth.
+    has a direction (in bond, from atom to bond.other(atom)) which is backwards along the direction of chain growth.
        Note that listb never includes the original bond, so it is never a complete list of bonds in the chain.
     In general, to form a complete chain, a caller must piece together a starting bond and two bond lists
-    grown in opposite directions. (See also XXX [nim, to be modified from make_pi_bond_obj], which calls us twice and does this.)
+    grown in opposite directions, or one bond list if bond is part of a ring.
+    (See also XXX [nim, to be modified from make_pi_bond_obj], which calls us twice and does this.)
        The function next_bond_in_chain(bond, atom) must return another bond containing atom
     in the same chain or ring, or None if the chain ends at bond (on the end of bond which is atom),
-    and must be defined in such a way that its progress through any atom is consistent from
-    either direction. That means it's not possible to find a ring which comes back to bond
+    and must be defined in such a way that its progress from bond to bond, through any atom, is consistent from
+    either direction. (I.e., if given bond1 and atom1 it returns bond2 and atom2, then given bond2 and atom1 it
+    must return bond1 and bond1.other(atom1).) However, we don't promise to do full checking on whether the function
+    satisfies this requirement.
+       That requirement means it's not possible to find a ring which comes back to bond
     but does not include bond (by coming back to atom before coming to bond's other atom),
     so if that happens, we raise an exception.
     """
@@ -1453,14 +1457,15 @@ def grow_bond_chain(bond, atom, next_bond_in_chain): #bruce 070415; generalized 
     origbond = bond # for detecting a ring
     origatom = atom # for error checking
     while 1:
-        nextbond = next_bond_in_chain(bond, atom) # this is the main difference from grow_pi_sp_chain
+        nextbond = next_bond_in_chain(bond, atom) # the function called here is the main difference from grow_pi_sp_chain
         if nextbond is None:
             return False, listb, lista
-        nextatom = nextbond.other(atom)
         if nextbond is origbond:
-            assert nextatom is not origatom, "grow_bond_chain(%r, %r, %r): can't have 3 bonds in chain at atom; data: %r" % \
-                   (origbond, origatom, next_bond_in_chain, (listb, lista))
+            assert atom is not origatom, "grow_bond_chain(%r, %r, %r): can't have 3 bonds in chain at atom %r; data: %r" % \
+                   (origbond, origatom, next_bond_in_chain, atom, (nextbond, listb, lista)) #revised to fix bug 2328 [bruce 070424]
+            assert nextbond.other(atom) is origatom
             return True, listb, lista
+        nextatom = nextbond.other(atom)
         listb.append(nextbond)
         lista.append(nextatom)
         bond, atom = nextbond, nextatom
