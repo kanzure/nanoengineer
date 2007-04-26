@@ -32,14 +32,40 @@
 #
 #         Z grp per sym   name                      mass    rvdW  evdW  bnds rcov chrg
 
-element 200  0  0   Ax    DNA-Pseudo-Axis           167.0   0.2    0.01  4   100   0   700
-element 201  0  0   Ss    DNA-Pseudo-Sugar          167.0   0.2    0.01  3   170   0   800
-element 202  0  0   Pl    DNA-Pseudo-Phosphate      167.0   3.6   10.00  2   170  -1   900
-element 203  0  0   Sj    DNA-Pseudo-Sugar-Junction 167.0   0.2   10.00  3   170   0   810
-element 204  0  0   Ae    DNA-Pseudo-Axis-End       167.0   0.2    0.01  1   100   0   701
-element 205  0  0   Pe    DNA-Pseudo-Phosphate-End  167.0   3.6   10.00  1   170  -2   901
-element 206  0  0   Sh    DNA-Pseudo-Sugar-End      167.0   0.2    0.01  1   170   0   902
-element 207  0  0   Hp    DNA-Pseudo-Hairpin        167.0   0.2    0.01  2   100   0   820
+element 200  0  0   Ax    DNA-Pseudo-Axis           167.0   0.0    0.0   4   100   0   700
+element 201  0  0   Ss    DNA-Pseudo-Sugar          167.0   0.0    0.0   3   170   0   800
+element 202  0  0   Pl    DNA-Pseudo-Phosphate      167.0   3.6   10.0   2   170  -1   900
+element 203  0  0   Sj    DNA-Pseudo-Sugar-Junction 167.0   0.0   10.0   3   170   0   810
+element 204  0  0   Ae    DNA-Pseudo-Axis-End       167.0   0.0    0.0   1   100   0   701
+element 205  0  0   Pe    DNA-Pseudo-Phosphate-End  167.0   3.6   10.0   1   170  -2   901
+element 206  0  0   Sh    DNA-Pseudo-Sugar-End      167.0   0.0    0.0   1   170   0   902
+element 207  0  0   Hp    DNA-Pseudo-Hairpin        167.0   0.0    0.0   2   100   0   820
+
+# format for vdw lines
+#
+# rvdW              (double) van der Waals radius in pm or 1e-12 m
+# evdW              (double) van der Waals energy in zJ or 1e-21 J
+# cutoffRadiusStart (double) start of smooth transition in pm
+# cutoffRadiusEnd   (double) end of smooth transition in pm
+# name              (string) symbol-v-symbol
+#                        The atomType (number of protons) of the first symbol must be <= the second.
+#
+# The vdw potential is multiplied by a smooth transition function
+# between cutoffRadiusStart and cutoffRadiusEnd.  Beyond
+# cutoffRadiusEnd the vdw potential is identically zero.  If
+# cutoffRadiusEnd < cutoffRadiusStart, this transition is disabled,
+# and the potential is shifted so that it is zero at cutoffRadiusEnd.
+# If cutoffRadiusStart < 0, it is set to rvdW.  If cutoffRadiusEnd <
+# 0, it is set to rvdW * VanDerWaalsCutoffFactor (specified by
+# --vdw-cutoff-factor).  Setting cutoffRadiusEnd to rvdW, and
+# cutoffRadiusStart to any larger value selects only the repulsive
+# interaction.
+#
+#  rvdW evdW start end name
+
+vdw 7.2 10.0 100.0 7.2 Pl-v-Pl
+vdw 7.2 10.0 100.0 7.2 Pl-v-Pe
+vdw 7.2 10.0 100.0 7.2 Pe-v-Pe
 
 # format for stretch lines
 #
@@ -107,7 +133,7 @@ bend   1.0           1.57079632679   9   H-1-Ax.sp3-1-Ax
 bend   1.0           1.57079632679   9   H-1-Ax.sp3-1-Ae
 bend   1.0           1.57079632679   9   H-1-Ax.sp3-1-H
 
-# 133 degree minor grove
+# 133 degree minor groove
 bend   1.0           2.3212879025    9   Ss-1-Ax.sp3-1-Ss
 bend   1.0           2.3212879025    9   Ss-1-Ax.sp3-1-Sj
 bend   1.0           2.3212879025    9   Sj-1-Ax.sp3-1-Sj

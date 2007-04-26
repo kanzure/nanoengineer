@@ -581,7 +581,7 @@ readMMP(char *filename)
     // bondO atno atno atno ...
     // Indicates bonds of order O between previous atom and listed
     // atoms.
-    else if (!strncmp(tok, "bond", 4)) {
+    else if (!strncmp(tok, "bond", 4) && strlen(tok) == 5) {
       bondOrder = tok[4];
       // XXX should we accept zero length bond list?
       // XXX should we reject unknown bond orders?

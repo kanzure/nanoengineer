@@ -396,37 +396,76 @@ gradientBuckingham(double r, void *p)
   return y;
 }
 
+// Switching function to smoothly reduce a function to zero.
+// Transition begins when r == start, below which the value is 1.  The
+// value smoothly changes to 0 by the time r == end, after which it
+// remains 0.
+//
+// Potential functions are mulitplied by the switching function S:
+//
+//          (r/start - 1)^4
+// S = (1 - ----------------- ) ^4
+//          (end/start - 1)^4
+//
+// in the range start < r < end.
+//
+static double
+smoothCutoff(double r, double start, double end)
+{
+  double rDiff;
+  double rCutoffDiff;
+  double S1;
+  double S;
+
+  if (r <= start) {
+    return 1.0;
+  }
+  if (r >= end) {
+    return 0.0;
+  }
+  rDiff = (r / start) - 1.0;
+  rCutoffDiff = (end / start) - 1.0;
+  S1 = 1 - (rDiff * rDiff * rDiff * rDiff) / (rCutoffDiff * rCutoffDiff * rCutoffDiff *rCutoffDiff);
+  S = S1 * S1 * S1 * S1;
+  return S;
+}
+
+// derivitive of smoothCutoff with respect to r
+static double
+dSmoothCutoff(double r, double start, double end)
+{
+  double rDiff;
+  double rCutoffDiff;
+  double S1;
+  double dS;
+
+  if (r <= start) {
+    return 0.0;
+  }
+  if (r >= end) {
+    return 0.0;
+  }
+  rDiff = (r / start) - 1.0;
+  rCutoffDiff = (end / start) - 1.0;
+  S1 = 1 - (rDiff * rDiff * rDiff * rDiff) / (rCutoffDiff * rCutoffDiff * rCutoffDiff *rCutoffDiff);
+  dS = (-16.0 * rDiff * rDiff * rDiff * S1 * S1 * S1) /
+    (rCutoffDiff * rCutoffDiff * rCutoffDiff * rCutoffDiff * start);
+  return dS;
+}
+
+
 // The Buckingham potential for van der Waals / London force.
 // Modified by a switching function to allow the potential to smoothly
 // approach zero by the time it reaches the cutoff radius.
-//
-// The potential function is mulitplied by the switching function S:
-//
-// S = (1 - (r/rvdW - 1)^4 / (rCutoff-1)^4)^4
-//
-// when r > rvdW.
 //
 // result in aJ
 double
 potentialModifiedBuckingham(double r, void *p)
 {
   struct vanDerWaalsParameters *vdw = (struct vanDerWaalsParameters *)p;
-  double rDiff;
-  double rCutoffDiff;
-  double S1;
-  double S;
   
-  if (r <= vdw->rvdW) {
-    return potentialBuckingham(r, p);
-  }
-  if (r >= VanDerWaalsCutoffFactor * vdw->rvdW) {
-    return 0.0;
-  }
-  rDiff = (r / vdw->rvdW) - 1.0;
-  rCutoffDiff = VanDerWaalsCutoffFactor - 1.0;
-  S1 = 1 - (rDiff * rDiff * rDiff * rDiff) / (rCutoffDiff * rCutoffDiff * rCutoffDiff *rCutoffDiff);
-  S = S1 * S1 * S1 * S1;
-  return S * potentialBuckingham(r, p);
+  return smoothCutoff(r, vdw->cutoffRadiusStart, vdw->cutoffRadiusEnd)
+    * potentialBuckingham(r, p);
 }
 
 // the result is in attoJoules per picometer = microNewtons
@@ -435,52 +474,25 @@ double
 gradientModifiedBuckingham(double r, void *p)
 {
   struct vanDerWaalsParameters *vdw = (struct vanDerWaalsParameters *)p;
-  double rDiff;
-  double rCutoffDiff;
-  double S1;
-  double S;
-  double dS;
-  
-  if (r <= vdw->rvdW) {
-    return gradientBuckingham(r, p);
-  }
-  if (r >= VanDerWaalsCutoffFactor * vdw->rvdW) {
-    return 0.0;
-  }
-  rDiff = (r / vdw->rvdW) - 1.0;
-  rCutoffDiff = VanDerWaalsCutoffFactor - 1.0;
-  S1 = 1 - (rDiff * rDiff * rDiff * rDiff) / (rCutoffDiff * rCutoffDiff * rCutoffDiff *rCutoffDiff);
-  S = S1 * S1 * S1 * S1;
-  dS = (-16.0 * rDiff * rDiff * rDiff * S1 * S1 * S1) /
-    (rCutoffDiff * rCutoffDiff * rCutoffDiff * rCutoffDiff * vdw->rvdW);
+  double S = smoothCutoff(r, vdw->cutoffRadiusStart, vdw->cutoffRadiusEnd);
+  double dS = dSmoothCutoff(r, vdw->cutoffRadiusStart, vdw->cutoffRadiusEnd);
+
   return S * gradientBuckingham(r, p) + dS * potentialBuckingham(r, p);
 }
 
 void
-initializeVanDerWaalsInterpolator(struct vanDerWaalsParameters *vdw, int element1, int element2)
+initializeVanDerWaalsInterpolator(struct vanDerWaalsParameters *vdw)
 {
   double start;
   double scale;
   double end;
 
-  // getAtomTypeByIndex().vanDerWaalsRadius is in 1e-10 m
-  // maximum rvdw is 2.25e-10 m for Si, so highest cutoff radius is 675 pm
-  // minimum rvdw is 0.97e-10 m for Li, so lowest cutoff radius is 291 pm
-  // Carbon is 1.94e-10 m, cutoff at 582 pm
-  // Hydrogen is 1.5e-10 m, cutoff for H~C interaction at 516 pm
-  // so rvdW is in 1e-12 m or pm
-  vdw->rvdW = 100.0 * (getAtomTypeByIndex(element1)->vanDerWaalsRadius +
-                  getAtomTypeByIndex(element2)->vanDerWaalsRadius);
-  // evdW in 1e-21 J or zJ
-  vdw->evdW = (getAtomTypeByIndex(element1)->e_vanDerWaals +
-               getAtomTypeByIndex(element2)->e_vanDerWaals) / 2.0;
-
   start = vdw->rvdW * 0.4;
-  end = vdw->rvdW * VanDerWaalsCutoffFactor;
+  end = vdw->cutoffRadiusEnd;
   scale = (end - start) / TABLEN;
 
   vdw->vInfinity = 0.0;
-  if (DEBUG(D_VDW_NO_SWITCHOVER)) {
+  if (vdw->cutoffRadiusEnd <= vdw->cutoffRadiusStart || DEBUG(D_VDW_NO_SWITCHOVER)) {
     vdw->vInfinity = potentialBuckingham(end, vdw);
   
     fillInterpolationTable(&vdw->Buckingham,

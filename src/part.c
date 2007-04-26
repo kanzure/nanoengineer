@@ -961,6 +961,9 @@ updateVanDerWaals(struct part *p, void *validity, struct xyz *positions)
     NULLPTR(positions);
     for (i=0; i<p->num_atoms; i++) {
 	a = p->atoms[i];
+        if (a->type->vanDerWaalsRadius <= 0.0) {
+            continue;
+        }
 	ax = (int)(positions[i].x / GRID_SPACING);
 	ay = (int)(positions[i].y / GRID_SPACING);
 	az = (int)(positions[i].z / GRID_SPACING);
@@ -1049,7 +1052,7 @@ updateVanDerWaals(struct part *p, void *validity, struct xyz *positions)
 
                                                 a2 = p->vdwHash[ax2&GRID_MASK][ay2&GRID_MASK][az2&GRID_MASK];
                                                 for (; a2 != NULL; a2=a2->vdwNext) {
-                                                    if (!isBondedToSame(a, a2)) {
+                                                    if (a2->type->vanDerWaalsRadius > 0.0 && !isBondedToSame(a, a2)) {
                                                         // At this point, we know the types of both
                                                         // atoms, so we can eliminate buckets which
                                                         // might be in range for some atom types,

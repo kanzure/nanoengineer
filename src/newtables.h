@@ -71,13 +71,24 @@ struct vanDerWaalsParameters
   double rvdW; // in pm (1e-12 m)
   double evdW; // in zJ (1e-21 J)
 
-  // We subtract vInfinity from the potential, so it reaches zero at
-  // the end of the interpolation table, rather than have a step
-  // there.
+  // Transition interval for smooth cutoff.  Normal function is used
+  // for 0<r<cutoffRadiusStart.  For
+  // cutoffRadiusStart<r<cutoffRadiusEnd the function is multiplied by
+  // a smooth transition function.  For cutoffRadiusEnd<r, the value
+  // is identically zero.  See smoothCutoff() in interpolate.c.  If
+  // cutoffRadiusEnd<=cutoffRadiusStart, no transition function is
+  // used, instead, the potential is translated by vInfinity, so it
+  // reaches zero at cutoffRadiusEnd.
+  double cutoffRadiusStart; // in pm (1e-12 m)
+  double cutoffRadiusEnd; // in pm (1e-12 m)
+  
+  // If no transition function is used, we subtract vInfinity from the
+  // potential, so it reaches zero at the end of the interpolation
+  // table, rather than have a step there.
   // XXX This changes the depth of the potential well, which may be a problem.
   double vInfinity; // potential at "infinity", the end of the interpolation table
 
-  // Index into the interpolation tables where the potnetial exceeds
+  // Index into the interpolation tables where the potential exceeds
   // ExcessiveEnergyLevel.  If a dynamics run references a table entry
   // at less than this index, a warning will be emitted.
   int minPhysicalTableIndex;

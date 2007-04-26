@@ -241,6 +241,62 @@ addDeTableEntry(char *bondName, double de)
   }
 }
 
+static struct vanDerWaalsParameters *
+addVanDerWaalsInteraction(char *bondName, double rvdW, double evdW,
+                          double cutoffRadiusStart, double cutoffRadiusEnd)
+{
+  struct vanDerWaalsParameters *vdw;
+  struct vanDerWaalsParameters *old;
+  
+  vdw = (struct vanDerWaalsParameters *)allocate(sizeof(struct vanDerWaalsParameters));
+  vdw->vdwName = copy_string(bondName);
+  vdw->rvdW = rvdW;
+  vdw->evdW = evdW;
+
+  if (cutoffRadiusStart < 0.0) {
+    vdw->cutoffRadiusStart = rvdW;
+  } else {
+    vdw->cutoffRadiusStart = cutoffRadiusStart;
+  }
+
+  if (cutoffRadiusEnd < 0.0) {
+    vdw->cutoffRadiusEnd = VanDerWaalsCutoffFactor * rvdW;
+  } else {
+    vdw->cutoffRadiusEnd = cutoffRadiusEnd;
+  }
+  
+  initializeVanDerWaalsInterpolator(vdw);
+  old = hashtable_put(vanDerWaalsHashtable, bondName, vdw);
+  if (old != NULL) {
+    fprintf(stderr, "duplicate vdw: %s\n", bondName);
+    free(old->vdwName);
+    free(old);
+  }
+  return vdw;
+}
+
+static struct vanDerWaalsParameters *
+generateVanDerWaals(char *bondName, int element1, int element2)
+{
+  double rvdW;
+  double evdW;
+  
+  // getAtomTypeByIndex().vanDerWaalsRadius is in 1e-10 m
+  // maximum rvdw is 2.25e-10 m for Si, so highest cutoff radius is 675 pm
+  // minimum rvdw is 0.97e-10 m for Li, so lowest cutoff radius is 291 pm
+  // Carbon is 1.94e-10 m, cutoff at 582 pm
+  // Hydrogen is 1.5e-10 m, cutoff for H~C interaction at 516 pm
+  // so rvdW is in 1e-12 m or pm
+  rvdW = 100.0 * (getAtomTypeByIndex(element1)->vanDerWaalsRadius +
+                  getAtomTypeByIndex(element2)->vanDerWaalsRadius);
+  // evdW in 1e-21 J or zJ
+  evdW = (getAtomTypeByIndex(element1)->e_vanDerWaals +
+               getAtomTypeByIndex(element2)->e_vanDerWaals) / 2.0;
+
+
+  return addVanDerWaalsInteraction(bondName, rvdW, evdW, -1.0, -1.0);
+}
+
 static void
 setElement(int protons,
            int group,
@@ -408,6 +464,8 @@ readBondTableOverlay(char *filename)
   int quadratic;
   double ktheta;
   double theta0;
+  double cutoffRadiusStart;
+  double cutoffRadiusEnd;
   FILE *f = fopen(filename, "r");
   
   if (f == NULL) {
@@ -467,6 +525,19 @@ readBondTableOverlay(char *filename)
         } else {
           addInitialBendData(ktheta, theta0, quality, name);
           DPRINT4(D_READER, "addBendData: %f %f %d %s\n", ktheta, theta0, quality, name);
+        }
+      } else if (!strcmp(token, "vdw")) {
+        err = 0;
+        rvdW = tokenizeDouble(&err);
+        evdW = tokenizeDouble(&err);
+        cutoffRadiusStart = tokenizeDouble(&err);
+        cutoffRadiusEnd = tokenizeDouble(&err);
+        name = strtok(NULL, " \n");
+        if (err || name == NULL) {
+          fprintf(stderr, "format error at file %s line %d\n", filename, lineNumber);
+        } else {
+          addVanDerWaalsInteraction(name, rvdW, evdW, cutoffRadiusStart, cutoffRadiusEnd);
+          DPRINT5(D_READER, "addVanDerWaalsInteraction: %f %f %f %f %s\n", rvdW, evdW, cutoffRadiusStart, cutoffRadiusEnd, name);
         }
       } else {
         fprintf(stderr, "unrecognized line type at file %s line %d: %s\n", filename, lineNumber, token);
@@ -842,24 +913,6 @@ generateGenericBendData(char *bendName,
   // kb in zeptoJoules / radian^2 (1e-21 J/rad^2)
 
   return addBendData(bendName, kb*1000.0, theta0, 1);
-}
-
-static struct vanDerWaalsParameters *
-generateVanDerWaals(char *bondName, int element1, int element2)
-{
-  struct vanDerWaalsParameters *vdw;
-  struct vanDerWaalsParameters *old;
-
-  vdw = (struct vanDerWaalsParameters *)allocate(sizeof(struct vanDerWaalsParameters));
-  vdw->vdwName = copy_string(bondName);
-  initializeVanDerWaalsInterpolator(vdw, element1, element2);
-  old = hashtable_put(vanDerWaalsHashtable, bondName, vdw);
-  if (old != NULL) {
-    fprintf(stderr, "duplicate vdw: %s\n", bondName);
-    free(old->vdwName);
-    free(old);
-  }
-  return vdw;
 }
 
 static struct bondStretch *
