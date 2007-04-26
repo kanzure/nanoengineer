@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2007 Nanorex, Inc.  All rights reserved.
 """
 ops_rechunk.py -- operations for changing the way atoms are divided
 into chunks, without altering the atoms or bonds themselves.
@@ -82,6 +82,7 @@ class ops_rechunk_Mixin:
                     a.hopmol(numol)
             if numol.atoms:
                 numol.setDisplay(mol.display) # Fixed bug 391.  Mark 050710
+                numol.setcolor(mol.color) #bruce 070425, fix Extrude bug 2331 (also good for Separate in general), "nice to have" for A9
                 self.addmol(numol) ###e move it to just after the one it was made from? or, end of same group??
                 numolist+=[numol]
                 if new_old_callback:
