@@ -501,10 +501,10 @@ def tempfiles_dir(make = True): #bruce 060614
     #bruce 060614; current implem is a kluge, but should be ok in practice
     # unless you start more than one nE-1 process in one second, and furthermore they
     # happen to both think they own the same history file name (unlikely but possible)
+    global _tempfiles_dir
     if _tempfiles_dir_has_moved:
         print "bug: _tempfiles_dir_has_moved but we're calling tempfiles_dir after that; _tempfiles_dir == %r" % (_tempfiles_dir,)
     assert _histfile_timestamp_string, "too early to call tempfiles_dir"
-    global _tempfiles_dir
     if _tempfiles_dir:
         return _tempfiles_dir
     _tempfiles_dir = find_or_make_Nanorex_subdir("TemporaryFiles/t%s" % _histfile_timestamp_string, make = make )
