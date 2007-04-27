@@ -1,5 +1,5 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
-'''
+# Copyright (c) 2004-2007 Nanorex, Inc.  All rights reserved.
+"""
 autoBuild.py -- Creates the NanoEngineer-1 install package for Windows, Mac and Linux.
 
 $Id$
@@ -11,7 +11,9 @@ History:
 051110 Taken over by Will Ware
 
 050501 Initial version, created by Huaicai
-'''
+
+Usage: see http://www.nanoengineer-1.net/mediawiki/index.php?title=Building_release_packages
+"""
 
 __author__ = "Will"
 
@@ -46,7 +48,7 @@ def listResults(cmd):
         return x.rstrip()
     return map(strip, os.popen(cmd).readlines())
 
-def copytree(src, dst, symlinks=False):
+def copytree(src, dst, symlinks = False):
     """shutil.copytree() is annoying because it insists on creating
     the directory. If the directory already exists, issue a warning
     to standard error, but continue working.
@@ -71,6 +73,7 @@ def copytree(src, dst, symlinks=False):
                 copytree(srcname, dstname, symlinks)
             else:
                 copy2(srcname, dstname)
+                    ###e where is copy2 defined? Maybe in shutil? [bruce 070426 Q]
             # XXX What about devices, sockets etc.?
         except (IOError, os.error), why:
             errors.append((srcname, dstname, why))
@@ -112,13 +115,20 @@ class AbstractMethod(Exception):
 class NanoBuildBase:
     """This is the base class for creating a installation package.
     It works for Linux, Mac OS X, and WinXP.
+       It is instantiated in this module's main() function, then additional
+    attributes are assigned (sourceDirectory) and additional methods called (startup_warnings, build).
     """
-    def  __init__(self, appname, iconfile, rootDir, version, relNo, stat, tag):
+    def  __init__(self, appname, iconfile, rootDir, version, relNo, stat, tag, qtversion = None):
         self.currentPath = os.getcwd() # Current working directory
         self.rootPath = rootDir # sub-directory where the executable and temporary files are stored
         self.appName = appname # Application name, e.g., 'NanoEngineer-1'
         self.iconFile = iconfile # The icon file name
         self.version = version # version number, e.g. '0.7'
+        self.qtversion = qtversion
+        assert qtversion in ('3','4')
+        self.Qt3_flag = (qtversion == '3')
+        self.Qt4_flag = (qtversion == '4')
+        print "will build for Qt%s" % (qtversion,)
         self.releaseNo = relNo # release number, e.g. '1' (can be missing; presumably actual value is then '')
         if self.releaseNo:
             self.fullversion = "%s.%s" % (self.version, self.releaseNo) #bruce 060420 to help support missing self.releaseNo
@@ -189,12 +199,21 @@ class NanoBuildBase:
                             'cad/licenses-Linux',
                             'cad/licenses-Windows',
                             'cad/licenses-Mac'))
+        if self.Qt3_flag: #bruce 070426
+            dirlist += " cad/images"
         if self.sourceDirectory:
             # we would only do this when experimenting anyway, so we don't
             # need the restriction on cad/doc here
             ####e THIS EFFECT OF -s NEEDS TO BE DOCUMENTED! [bruce 060420 comment]
-            system("cp -r %s ." % os.path.join(self.sourceDirectory, "cad"))
-            system("cp -r %s ." % os.path.join(self.sourceDirectory, "sim"))
+            # btw, what *is* that restriction on cad/doc (caused by cvs checkout -l, I guess)? [bruce 070426 Q]
+
+            ## system("cp -r %s ." % os.path.join(self.sourceDirectory, "cad"))
+            ## system("cp -r %s ." % os.path.join(self.sourceDirectory, "sim"))
+            #bruce 070426: do this for the specific directories in dirlist (plus cad/doc), not for everything in cad
+            os.mkdir("cad")
+            for dir1 in dirlist.split() + ["cad/doc"]:
+                print "copying %s to %s" % (os.path.join(self.sourceDirectory, dir1), dir1)
+                copytree( os.path.join(self.sourceDirectory, dir1), dir1 )
         elif not self.cvsTag:
             system('cvs -Q -z9 checkout -l cad/doc')
             system('cvs -Q -z9 checkout -P ' + dirlist)
@@ -203,7 +222,8 @@ class NanoBuildBase:
             system('cvs -Q -z9 checkout -r %s -R %s' % (self.cvsTag, dirlist))
 
         # Remove all those 'CVS' directories and their entries.
-        # Maybe could have used 'cvs export' instead of 'cvs checkout'.
+        # (Maybe we could have used 'cvs export' instead of 'cvs checkout'.
+        #  But that would not be enough for the self.sourceDirectory option.)
         self.removeCVSFiles('cad')
         self.removeCVSFiles('sim')
 
@@ -239,16 +259,21 @@ class NanoBuildBase:
 
     def buildSourceForDistribution(self):
         """Freeze Python code into an executable. Where necessary, compile
-        and link C code."""
+        and link C code. [superclass version -- apparently not used for Mac]"""
+        print "calling buildSourceForDistribution" #bruce 070426
         self.buildSimulator()
         self.buildOpenGLAccelerator()
         self.buildPlugins()
         os.chdir(os.path.join(self.atomPath,'cad'))
         copytree('doc', os.path.join(self.buildSourcePath, 'doc'))
         copytree('partlib', os.path.join(self.buildSourcePath, 'partlib'))
-        #copytree('images', os.path.join(self.buildSourcePath, 'images'))
-        os.mkdir(os.path.join(self.buildSourcePath, 'src'))
-        copytree('src/ui', os.path.join(self.buildSourcePath, 'src/ui'))
+        if self.Qt3_flag: #bruce 070426
+            # this case has probably never been tested
+            copytree('images', os.path.join(self.buildSourcePath, 'images'))
+                # removed for Qt4 -- probably still needed for a Qt3 build
+        if self.Qt4_flag: #bruce 070426
+            os.mkdir(os.path.join(self.buildSourcePath, 'src'))
+            copytree('src/ui', os.path.join(self.buildSourcePath, 'src/ui')) # cad/src/ui replaces cad/images for Qt4
         copytree('plugins', os.path.join(self.buildSourcePath, 'plugins'))
         self.copyLicenses()
 
@@ -656,8 +681,13 @@ class NanoBuildMacOSX(NanoBuildBase):
         print
         print "(making sure some required imports will succeed)"
         import py2app as _junk # required by 'python setup.py py2app'
+            #e Note: we should print py2app path and version. For Mac Qt3, Ninad used py2app 0.1.5.
+            # For Qt4, so far 0.1.5 and 0.3.5 were tried and didn't work. Bruce plans to try 0.3.6.
+            # Some pathnames in the app have changed and will require compensation here and/or in Python sources.
         ##e should also make sure the files we'll later copy are there, e.g. gnuplot
-        assert self.get_md5(os.path.join(self.currentPath, 'libaquaterm.1.0.0.dylib')) == self.LIBAQUA_MD5
+        libaquaterm_path = os.path.join(self.currentPath, 'libaquaterm.1.0.0.dylib')
+        its_md5 = self.get_md5( libaquaterm_path )
+        assert its_md5 == self.LIBAQUA_MD5, "MD5 of %r should be %r but is %r" % ( libaquaterm_path, self.LIBAQUA_MD5, its_md5 )
         return
     
     def createMiddleDirectories(self):
@@ -670,7 +700,8 @@ class NanoBuildMacOSX(NanoBuildBase):
         copytree('licenses-Mac', os.path.join(self.buildSourcePath, 'licenses'))
 
     def buildSourceForDistribution(self):
-        """Pack source together for distribution (all platforms)."""
+        """Pack source together for distribution [Mac version, replaces superclass version]"""
+        print "calling buildSourceForDistribution (Mac version)"
         self.buildSimulator()
         self.buildOpenGLAccelerator()
         self.buildPlugins()
@@ -696,21 +727,20 @@ class NanoBuildMacOSX(NanoBuildBase):
         os.chdir(os.path.join(self.atomPath,'cad'))
         copytree('doc', os.path.join(self.buildSourcePath, appname, 'Contents/doc'))
 
-
-        #########################################
-
-        print """
-        
-        
+        if self.Qt3_flag: #bruce 070426
+            copytree('images', os.path.join(self.buildSourcePath, appname, 'Contents/images'))
+                # removed for Qt4 -- might be needed for a Qt3 build
+        if self.Qt4_flag: #bruce 070426
+            # the destination directory is a guess by bruce 070426 -- it hasn't been tried, or compared with Qt4 sources;
+            # see also the superclass version, which does mkdir src and copies to src/ui
+            copytree('src/ui', os.path.join(self.buildSourcePath, appname, 'Contents/images')) 
+            
         # wware 061229 - not sure if this is correct
-        copytree('ui', os.path.join(self.buildSourcePath, appname, 'Contents/ui'))
+        ## copytree('ui', os.path.join(self.buildSourcePath, appname, 'Contents/ui'))
+            # [bruce 070426 comments: in Qt3 there is no ui dir anywhere.
+            #  In Qt4 there is cad/src/ui (handled in superclass method, which we don't call),
+            #  but not cad/ui which this line looks for.]
         
-        
-        """
-
-        ###########################################
-
-
         copytree('plugins', os.path.join(self.buildSourcePath, appname, 'Contents', 'plugins'))
         # Put the partlib outside the app bundle, where users can see its internal
         # directories and files. Put a symbolic link to it from the normal
@@ -728,7 +758,7 @@ class NanoBuildMacOSX(NanoBuildBase):
         ##        for f in ne1files:
         ##            os.chmod(f, 0755)
         self.copyOtherSources()
-        print "------All python modules are packaged together."
+        print "------All python modules are packaged together. (Mac version)"
 
 
     def freezePythonExecutable(self):
@@ -959,8 +989,8 @@ def usage():
     """
 
 def main():
-    shortargs = 'ho:i:s:t:v:p'
-    longargs = ['help', 'outdir=', 'iconfile=', 'sourcedir=', 'tag=', 'version=', 'premature-exit']
+    shortargs = 'ho:i:q:s:t:v:p'
+    longargs = ['help', 'outdir=', 'iconfile=', 'Qt=', 'sourcedir=', 'tag=', 'version=', 'premature-exit']
    
     try:
         opts, args = getopt.getopt(sys.argv[1:], shortargs, longargs)
@@ -982,31 +1012,44 @@ def main():
     cvsTag = None
     sourceDirectory = None
     specialVersion = None
+    qtversion = '4' # default value [bruce 070426 added this and its -q / --Qt options]
     
     for o, a in opts:
-        if o in ("-o", "--outdir"):
+        if o in ("-h", "--help"):
+            usage()
+            sys.exit()
+        elif o in ("-o", "--outdir"):
             rootDir = os.path.join(currentDir, a)
         elif o in ("-i", "--iconfile"):
             iconFile = os.path.join(currentDir, a)
-        elif o in ("-t", "--tag"):
-            cvsTag = a
+        elif o in ("-q", "--Qt"):
+            o1 = o
+            if o1 == "--Qt":
+                o1 += ' ' #k or is it '='?
+            assert a in ("3", "4"), "please specify either %s%s or %s%s" % (o1,"3",o1,"4")
+            qtversion = a
         elif o in ("-s", "--sourcedir"):
             sourceDirectory = a
+        elif o in ("-t", "--tag"):
+            cvsTag = a
         elif o in ("-v", "--version"):
             specialVersion = a
         elif o in ("-p", "--premature-exit"):
             global prematureExit
             prematureExit = True
-        elif o in ("-h", "--help"):
-            usage()
-            sys.exit()
-
+        else:
+            assert 0, "unknown option: (%r, %r)" % (o, a)
 
     sp = sys.path[:]
     cadDir = os.path.join(os.getcwd(), "cad")
     if sourceDirectory:
-        system("rm -rf " + cadDir)
-        system("cp -r %s %s" % (os.path.join(sourceDirectory, "cad"), cadDir))
+        system("rm -rf " + cadDir) # [note: this is a local def, which prints the command before passing it to os.system]
+        ## system("cp -r %s %s" % (os.path.join(sourceDirectory, "cad"), cadDir))
+        # bruce 070426 replaced that with the following, to copy only the version.py file:
+        os.mkdir(cadDir)
+        os.mkdir(os.path.join(cadDir, "src"))
+        system("cp -r %s %s" % (os.path.join(sourceDirectory, "cad", "src", "version.py"),
+                                os.path.join(cadDir, "src", "version.py")))
     elif cvsTag:
         # Get the version information by checking out only the version.py file
         system("cvs -Q -z9 checkout -r %s cad/src/version.py" % cvsTag)
@@ -1043,7 +1086,7 @@ def main():
         relNo = "%d" % VERSION.tiny
     builder = NanoBuild(appName, iconFile, rootDir,
                         "%d.%d" % (VERSION.major, VERSION.minor),
-                        relNo, VERSION.releaseType, cvsTag)
+                        relNo, VERSION.releaseType, cvsTag, qtversion = qtversion)
     builder.sourceDirectory = sourceDirectory
     print
     builder.startup_warnings() #bruce 060420 (it would be nice to do this earlier #e)
@@ -1059,5 +1102,9 @@ def main():
 
     if os.path.isdir(rootDir) and not os.listdir(rootDir): os.rmdir(rootDir)
 
+    return
+
 if __name__ == '__main__':
     main()
+
+# end
