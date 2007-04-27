@@ -1996,6 +1996,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
             # and maybe some in look of glpane after resizing, toolbar changes, or popups/dialogs going up or down,
             # any of which might be platform-dependent. The debug_pref's purpose is experimentation --
             # if we could figure out which repaints are really needed, we could probably optimize away quite a few unneeded ones.
+            #
+            # Update, bruce 070414: so far I only found one bug this debug_pref causes: MT clicks which change chunk selection
+            # don't cause redraws, but need to (to show their selection wireframes). That could be easily fixed.
             if not self._needs_repaint: #bruce 050516 experiment
                 # This probably happens fairly often when Qt calls paintGL but our own code
                 # didn't change anything and therefore didn't call gl_update.
