@@ -76,7 +76,7 @@ stretchPotential(struct part *p, struct stretch *stretch, struct bondStretch *st
 
   struct interpolationTable *iTable;
 
-  if (QuadraticStretchPotential) {
+  if (QuadraticStretchPotential || stretchType->quadratic) {
     potential = stretchType->ks * 5e-7 * (r - stretchType->r0) * (r - stretchType->r0);
     return potential;
   }
@@ -157,7 +157,7 @@ stretchGradient(struct part *p, struct stretch *stretch, struct bondStretch *str
 
   struct interpolationTable *iTable;
 
-  if (QuadraticStretchPotential) {
+  if (QuadraticStretchPotential || stretchType->quadratic) {
     gradient = stretchType->ks * (r - stretchType->r0);
     return gradient;
   }
