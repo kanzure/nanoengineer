@@ -1,13 +1,22 @@
-"""Version information for NanoEngineer-1,
+"""
+version.py -- provide version information for NanoEngineer-1,
 including author list, program name, release info, etc.
+
+$Id$
+
+NOTE: this is copied and imported by autoBuild.py in a directory
+which contains no other files, so it needs to be completely self-contained.
+(I.e. it should not import anything else in its source directory,
+only builtin Python modules.)
 """
 
-__copyright__ = "Copyright (C) 2004-2006, Nanorex, Inc."
+__copyright__ = "Copyright (C) 2004-2007, Nanorex, Inc."
 
 # Alphabetical by last name
 __author__ = """Damian Allis
 K. Eric Drexler
 Josh Hall
+Brian Helfrich
 Eric Messick
 Huaicai Mo
 Ninad Sathaye
@@ -24,11 +33,11 @@ class Version:
     # Every instance of Version will share the same state
     __shared_state = {
         "major": 0,
-        "minor": 8,
-        #"tiny": 0,     # tiny and teeny are optional
+        "minor": 9,
+        #"tiny": 0,     # tiny and teensy are optional
         # "teensy": 0,   # you can have both, or just tiny, or neither
         "releaseType": "Alpha",
-        "releaseDate": "July 13, 2006",
+        "releaseDate": "June 1, 2007",
         "product": "NanoEngineer-1",
         "copyright": __copyright__,
         "authors": __author__
