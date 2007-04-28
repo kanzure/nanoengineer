@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2007 Nanorex, Inc.  All rights reserved.
 """
 depositMode.py -- Build mode.
 
@@ -920,7 +920,8 @@ class depositMode(selectAtomsMode):
     
     def _depositLibraryPart(self, newPart, hotspotAtom, atom_or_pos): # probably by Huaicai; revised by bruce 051227, 060627
         '''This method serves as an overloaded method, <atom_or_pos> is 
-           the Singlet atom or the empty position that the new part <newPart> [an assy?] will be attached to or placed at.
+           the Singlet atom or the empty position that the new part <newPart>
+           [which is an assy, at least sometimes] will be attached to or placed at.
            [If <atom_or_pos> is a singlet, <hotspotAtom> should be an atom in some chunk in <newPart>.]
            Currently, it doesn't consider group or jigs in the <newPart>. Not so sure if my attempt to copy a part into
            another assembly is all right. [It wasn't, so bruce 051227 revised it.]
