@@ -96,6 +96,25 @@ struct vanDerWaalsParameters
   struct interpolationTable Buckingham;
 };
 
+struct electrostaticParameters
+{
+  char *electrostaticName;
+
+  double k; // in aJ pm (1e-30 J m), potential is k/r, gradient is -k/r^2
+
+  double vInfinity; // potential at "infinity", the end of the interpolation table
+  
+  double cutoffRadiusStart; // in pm (1e-12 m)
+  double cutoffRadiusEnd; // in pm (1e-12 m)
+
+  // Index into the interpolation tables where the potential exceeds
+  // ExcessiveEnergyLevel.  If a dynamics run references a table entry
+  // at less than this index, a warning will be emitted.
+  int minPhysicalTableIndex;
+
+  struct interpolationTable Coulomb;
+};
+
 struct deTableEntry
 {
   double de;

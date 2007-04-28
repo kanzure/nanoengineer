@@ -140,6 +140,7 @@ static struct hashtable *bondStretchHashtable = NULL;
 static struct hashtable *bendDataHashtable = NULL;
 static struct hashtable *deHashtable = NULL;
 static struct hashtable *vanDerWaalsHashtable = NULL;
+static struct hashtable *electrostaticHashtable = NULL;
 
 // ks in N/m
 // r0 in pm, or 1e-12 m
@@ -297,6 +298,51 @@ generateVanDerWaals(char *bondName, int element1, int element2)
   return addVanDerWaalsInteraction(bondName, rvdW, evdW, -1.0, -1.0);
 }
 
+static struct electrostaticParameters *
+addElectrostaticInteraction(char *electrostaticName, double q1, double q2,
+                          double cutoffRadiusStart, double cutoffRadiusEnd)
+{
+  struct electrostaticParameters *es;
+  struct electrostaticParameters *old;
+  
+  es = (struct electrostaticParameters *)allocate(sizeof(struct electrostaticParameters));
+  es->electrostaticName = copy_string(electrostaticName);
+  es->k = COULOMB * q1 * q2 / DielectricConstant;
+
+  if (cutoffRadiusEnd < 0.0) {
+    es->cutoffRadiusEnd = es->k / MinElectrostaticSensitivity;
+  } else {
+    es->cutoffRadiusEnd = cutoffRadiusEnd;
+  }
+
+  if (cutoffRadiusStart < 0.0) {
+    es->cutoffRadiusStart = 0.9 * es->cutoffRadiusEnd;
+  } else {
+    es->cutoffRadiusStart = cutoffRadiusStart;
+  }
+  
+  initializeElectrostaticInterpolator(es);
+  old = hashtable_put(electrostaticHashtable, electrostaticName, es);
+  if (old != NULL) {
+    fprintf(stderr, "duplicate electrostatic: %s\n", electrostaticName);
+    free(old->electrostaticName);
+    free(old);
+  }
+  return es;
+}
+
+static struct electrostaticParameters *
+generateElectrostatic(char *electrostaticName, int element1, int element2)
+{
+  double q1;
+  double q2;
+
+  q1 = getAtomTypeByIndex(element1)->charge;
+  q2 = getAtomTypeByIndex(element2)->charge;
+  
+  return addElectrostaticInteraction(electrostaticName, q1, q2, -1.0, -1.0);
+}
+
 static void
 setElement(int protons,
            int group,
@@ -425,6 +471,19 @@ destroyVanDerWaals(void *v)
 }
 
 static void
+destroyElectrostatic(void *e)
+{
+  struct electrostaticParameters *es = (struct electrostaticParameters *)e;
+  if (es != NULL) {
+    if (es->electrostaticName != NULL) {
+      free(es->electrostaticName);
+      es->electrostaticName = NULL;
+    }
+  }
+  free(es);
+}
+
+static void
 destroyStaticBondTable(void)
 {
   hashtable_destroy(bondStretchHashtable, destroyBondStretch);
@@ -435,6 +494,8 @@ destroyStaticBondTable(void)
   deHashtable = NULL;
   hashtable_destroy(vanDerWaalsHashtable, destroyVanDerWaals);
   vanDerWaalsHashtable = NULL;
+  hashtable_destroy(electrostaticHashtable, destroyElectrostatic);
+  electrostaticHashtable = NULL;
 }
 
 static void
@@ -638,6 +699,7 @@ initializeStaticBondTable(void)
 #include "bends.gen"
 
   vanDerWaalsHashtable = hashtable_new(40);
+  electrostaticHashtable = hashtable_new(40);
 }
 
 static const char bends_rcsid[] = RCSID_BENDS_H;
@@ -1009,6 +1071,20 @@ getVanDerWaalsTable(int element1, int element2)
     vdw = generateVanDerWaals(bondName, element1, element2);
   }
   return vdw;
+}
+
+struct electrostaticParameters *
+getElectrostaticParameters(int element1, int element2)
+{
+  struct electrostaticParameters *es;
+  char electrostaticName[10];
+
+  generateBondName(electrostaticName, element1, element2, 'e');
+  es = (struct electrostaticParameters *)hashtable_get(electrostaticHashtable, electrostaticName);
+  if (es == NULL) {
+    es = generateElectrostatic(electrostaticName, element1, element2);
+  }
+  return es;
 }
 
 

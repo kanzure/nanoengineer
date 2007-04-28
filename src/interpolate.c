@@ -288,6 +288,7 @@ findExcessiveEnergyLevel(struct interpolationTable *t,
                          int searchIncrement,
                          int searchLimit,
                          double minPotential,
+                         double sign,
                          char *name)
 {
   double start = t->start;
@@ -303,7 +304,7 @@ findExcessiveEnergyLevel(struct interpolationTable *t,
   k = (int)((r0 - start) / scale);
   while ((searchLimit-k)*searchIncrement > 0) {
     r = k * scale + start;
-    potential = ((a[k] * r + b[k]) * r + c[k]) * r + d[k] - minPotential;
+    potential = sign * (((a[k] * r + b[k]) * r + c[k]) * r + d[k] - minPotential);
     if (potential > ExcessiveEnergyLevel) {
       return k;
     }
@@ -361,9 +362,9 @@ initializeBondStretchInterpolater(struct bondStretch *stretch)
                          gradientLippincottMorse,
                          rmin, scale, stretch);
   stretch->maxPhysicalTableIndex = findExcessiveEnergyLevel(&stretch->LippincottMorse,
-                                                            stretch->r0, 1, TABLEN, 0.0, stretch->bondName);
+                                                            stretch->r0, 1, TABLEN, 0.0, 1.0, stretch->bondName);
   stretch->minPhysicalTableIndex = findExcessiveEnergyLevel(&stretch->LippincottMorse,
-                                                            stretch->r0, -1, 0, 0.0, stretch->bondName);
+                                                            stretch->r0, -1, 0, 0.0, 1.0, stretch->bondName);
   
 }
 
@@ -502,7 +503,7 @@ initializeVanDerWaalsInterpolator(struct vanDerWaalsParameters *vdw)
     vdw->minPhysicalTableIndex = findExcessiveEnergyLevel(&vdw->Buckingham,
                                                           vdw->rvdW, -1, 0,
                                                           potentialBuckingham(vdw->rvdW, vdw),
-                                                          vdw->vdwName);
+                                                          1.0, vdw->vdwName);
   } else {
     fillInterpolationTable(&vdw->Buckingham,
                            potentialModifiedBuckingham,
@@ -511,7 +512,82 @@ initializeVanDerWaalsInterpolator(struct vanDerWaalsParameters *vdw)
     vdw->minPhysicalTableIndex = findExcessiveEnergyLevel(&vdw->Buckingham,
                                                           vdw->rvdW, -1, 0,
                                                           potentialModifiedBuckingham(vdw->rvdW, vdw),
-                                                          vdw->vdwName);
+                                                          1.0, vdw->vdwName);
+  }
+}
+
+double potentialCoulomb(double r, void *p)
+{
+  struct electrostaticParameters *es = (struct electrostaticParameters *)p;
+  return (es->k / r) - es->vInfinity;
+}
+
+double gradientCoulomb(double r, void *p)
+{
+  struct electrostaticParameters *es = (struct electrostaticParameters *)p;
+  return -es->k / (r * r);
+}
+
+// The Coulomb potential for electrostatic force.
+// Modified by a switching function to allow the potential to smoothly
+// approach zero by the time it reaches the cutoff radius.
+//
+// result in aJ
+double
+potentialModifiedCoulomb(double r, void *p)
+{
+  struct electrostaticParameters *es = (struct electrostaticParameters *)p;
+  
+  return smoothCutoff(r, es->cutoffRadiusStart, es->cutoffRadiusEnd)
+    * potentialCoulomb(r, p);
+}
+
+// the result is in attoJoules per picometer = microNewtons
+// aJ / pm = 1e-18 J / 1e-12 m = 1e-6 J / m = uN
+double
+gradientModifiedCoulomb(double r, void *p)
+{
+  struct electrostaticParameters *es = (struct electrostaticParameters *)p;
+  double S = smoothCutoff(r, es->cutoffRadiusStart, es->cutoffRadiusEnd);
+  double dS = dSmoothCutoff(r, es->cutoffRadiusStart, es->cutoffRadiusEnd);
+
+  return S * gradientCoulomb(r, p) + dS * potentialCoulomb(r, p);
+}
+
+void
+initializeElectrostaticInterpolator(struct electrostaticParameters *es)
+{
+  double start;
+  double scale;
+  double end;
+  double sign;
+
+  sign = (es->k > 0.0) ? 1.0 : -1.0;
+  start = es->k / (1.1 * ExcessiveEnergyLevel);
+  end = es->cutoffRadiusEnd;
+  scale = (end - start) / TABLEN;
+
+  es->vInfinity = 0.0;
+  if (es->cutoffRadiusEnd <= es->cutoffRadiusStart || DEBUG(D_VDW_NO_SWITCHOVER)) {
+    es->vInfinity = potentialCoulomb(end, es);
+  
+    fillInterpolationTable(&es->Coulomb,
+                           potentialCoulomb,
+                           gradientCoulomb,
+                           start, scale, es);
+    es->minPhysicalTableIndex = findExcessiveEnergyLevel(&es->Coulomb,
+                                                          end, -1, 0,
+                                                          0.0,
+                                                          sign, es->electrostaticName);
+  } else {
+    fillInterpolationTable(&es->Coulomb,
+                           potentialModifiedCoulomb,
+                           gradientModifiedCoulomb,
+                           start, scale, es);
+    es->minPhysicalTableIndex = findExcessiveEnergyLevel(&es->Coulomb,
+                                                          end, -1, 0,
+                                                          0.0,
+                                                          sign, es->electrostaticName);
   }
 }
 

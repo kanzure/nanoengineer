@@ -84,6 +84,28 @@ double Temperature;	// Kelvins
 const double Boltz = 1.3806503e-23;	/* k, in J/K */
 const double Pi = 3.14159265358979323846;
 
+// permittivity constant, epsilon_naught = 8.854187818 * 10^-12 F/m (Halliday&Resnick, third edition, 1978, p. A23)
+// F/m is C/(V m) is A^2 s^4 kg^-1 m^-3
+// elementary charge, e = 1.6021892 * 10^-19 C (H&R)
+// C is A s
+
+// mksCoulomb = 1/(4 pi epsilon_naught) in kg m^3 A^-2 s^-4
+// mksCoulomb e^2 in kg m^3 e^-2 s^-2
+// mksCoulomb e^2 10^12 in kg pm m^2 e^-2 s^-2 or J pm e^-2
+// mksCoulomb e^2 10^12 10^18 in aJ pm e^-2
+// COULOMB = 1e12 * 1e18 * 1.6021892e-19 * 1.6021892e-19 / (4 * Pi * 8.854187818e-12);
+
+// Constant for electrostatic Coulomb force.  Multiply by the charge
+// in elementary units, and divide by the separation in pm to get the
+// potential in aJ
+
+// aJ pm e^-2
+const double COULOMB = 230.711374295;
+
+const double MinElectrostaticSensitivity = 0.0015; // aJ
+
+const double DielectricConstant = 160;
+
 double totClipped;  // internal thermostat for numerical stability
 
 

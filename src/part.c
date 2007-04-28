@@ -98,6 +98,8 @@ destroyPart(struct part *p)
     }
     destroyAccumulator(p->atoms);
     p->atoms = NULL;
+    destroyAccumulator(p->charged_atoms);
+    p->charged_atoms = NULL;
     destroyAccumulator(p->positions);
     p->positions = NULL;
     destroyAccumulator(p->velocities);
@@ -1521,6 +1523,12 @@ makeAtom(struct part *p, int externalID, int elementType, struct xyz position)
         a->hybridization = sp2;
     } else {
         a->hybridization = sp3;
+    }
+
+    if (a->type->charge != 0.0) {
+        p->num_charged_atoms++;
+        p->charged_atoms = (struct atom **)accumulator(p->charged_atoms, sizeof(struct atom *) * p->num_charged_atoms, 0);
+        p->charged_atoms[p->num_charged_atoms - 1] = a;
     }
     
     mass = a->type->mass * 1e-27;

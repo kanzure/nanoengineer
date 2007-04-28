@@ -20,6 +20,16 @@ extern double gradientModifiedBuckingham(double r, void *p);
 
 extern void initializeVanDerWaalsInterpolator(struct vanDerWaalsParameters *vdw);
 
+extern double potentialCoulomb(double r, void *p);
+
+extern double gradientCoulomb(double r, void *p);
+
+extern double potentialModifiedCoulomb(double r, void *p);
+
+extern double gradientModifiedCoulomb(double r, void *p);
+
+extern void initializeElectrostaticInterpolator(struct electrostaticParameters *es);
+
 extern void printPotentialAndGradientFunctions(char *name, double initial, double increment, double limit);
 
 extern void printBendStretch(void);

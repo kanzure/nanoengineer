@@ -72,6 +72,9 @@ extern double Dmass;           // units of mass vs. kg
 extern double Temperature;	/* Kelvins */
 extern const double Boltz;	/* k, in J/K */
 extern const double Pi;
+extern const double COULOMB;   // aJ pm e^-2
+extern const double MinElectrostaticSensitivity; // aJ
+extern const double DielectricConstant; // unitless
 
 extern double totClipped;  // internal thermostat for numerical stability
 

@@ -279,6 +279,12 @@ struct outOfPlane
     double A; // aJ/pm^2
 };
 
+struct electrostatic
+{
+    struct atom *a;
+    struct atom *b;
+    struct electrostaticParameters *parameters;
+};
 
 struct part 
 {
@@ -303,6 +309,9 @@ struct part
     
     int num_atoms;
     struct atom **atoms;
+
+    int num_charged_atoms;
+    struct atom **charged_atoms;
     
     int num_bonds;
     struct bond **bonds;
