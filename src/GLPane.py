@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2007 Nanorex, Inc.  All rights reserved.
 """
 GLPane.py -- NE1's main model view, based on Qt's OpenGL widget.
 
@@ -2970,24 +2970,33 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
             print_compact_traceback("exception ignored: ")
         return ours
 
-    def custom_mode_names_files(self): #bruce 061207 revised this
+    def custom_mode_names_files(self): #bruce 061207 & 070427 revised this
         res = []
         try:
-            # special case for cad/src/testmode.py
-            testmodefile = os.path.join( os.path.dirname(__file__), "testmode.py")
-            assert os.path.isfile(testmodefile)
-            res.append(( 'testmode', testmodefile ))
+            # special case for cad/src/testmode.py (or .pyc)
+            for filename in ('testmode.py', 'testmode.pyc'):
+                testmodefile = os.path.join( os.path.dirname(__file__), filename)
+                if os.path.isfile(testmodefile):
+                    res.append(( 'testmode', testmodefile ))
+                    break
+            assert res
         except:
             if platform.atom_debug:
                 print "fyi: error adding testmode.py from cad/src to custom modes menu (ignored)"
             pass
-        modes_dir = os.path.join( self.win.tmpFilePath, "Modes")
-        if os.path.isdir( modes_dir):
-            for file in os.listdir( modes_dir):
-                if file.endswith('.py') and '-' not in file:
-                    modename, ext = os.path.splitext(file)
-                    modefile = os.path.join( modes_dir, file)
-                    res.append(( modename, modefile ))
+        try:
+            import gpl_only
+        except ImportError:
+            pass
+        else:
+            modes_dir = os.path.join( self.win.tmpFilePath, "Modes")
+            if os.path.isdir( modes_dir):
+                for file in os.listdir( modes_dir):
+                    if file.endswith('.py') and '-' not in file:
+                        modename, ext = os.path.splitext(file)
+                        modefile = os.path.join( modes_dir, file)
+                        res.append(( modename, modefile ))
+            pass
         res.sort()
         return res
 
@@ -3002,11 +3011,19 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         ###e need better way to import from this specific file!
         # (Like using an appropriate function in the import-related Python library module.)
         # This kluge is not protected against weird chars in base.
+        oldpath = list(sys.path)
         if dir not in sys.path:
             sys.path.append(dir)
-        exec("import %s as _module" % (base,)) ###e use the platform or debug func to limit this to GPL versions
+                # Note: this doesn't guarantee we load file from that dir --
+                # if it's present in another one on path (e.g. cad/src),
+                # we'll load it from there instead. That's basically a bug,
+                # but prepending dir onto path would risk much worse bugs
+                # if dir masked any standard modules which got loaded now.
+        import gpl_only # make sure exec is ok in this version (caller should have done this already)
+        exec("import %s as _module" % (base,))
         reload(_module)
         exec("from %s import %s as _modeclass" % (base,base))
+        sys.path = oldpath
         modeobj = _modeclass(self) # this should put it into self.modetab under the name defined in the mode module
         self.modetab[modename] = modeobj # also put it in under this name, if different [### will this cause bugs?]
         self.setMode(modename)
