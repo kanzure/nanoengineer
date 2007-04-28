@@ -210,6 +210,7 @@ class NanoBuildBase:
             ## system("cp -r %s ." % os.path.join(self.sourceDirectory, "cad"))
             ## system("cp -r %s ." % os.path.join(self.sourceDirectory, "sim"))
             #bruce 070426: do this for the specific directories in dirlist (plus cad/doc), not for everything in cad
+            print "(working in %s)" % os.getcwd()
             os.mkdir("cad")
             for dir1 in dirlist.split() + ["cad/doc"]:
                 print "copying %s to %s" % (os.path.join(self.sourceDirectory, dir1), dir1)
@@ -224,18 +225,29 @@ class NanoBuildBase:
         # Remove all those 'CVS' directories and their entries.
         # (Maybe we could have used 'cvs export' instead of 'cvs checkout'.
         #  But that would not be enough for the self.sourceDirectory option.)
+        # (Note: there are a few CVS directories which this apparently doesn't cover
+        #  and which still make it into the installed package (harmlessly I presume),
+        #  at least on Mac Qt3 as of bruce 070427.)
         self.removeCVSFiles('cad')
         self.removeCVSFiles('sim')
 
         self.buildTarball() # For Linux only.
-        print "----------Sources have been checked out and made.\n"
+        print "----------Sources have been checked out or copied.\n"
 
     def buildSimulator(self):
         """Build the simulators (standalone and pyrex)"""
         os.chdir(os.path.normpath(os.path.join(self.atomPath, 'sim/src')))
-        system('make')
-        system('make pyx')
-        print "----------Simulators (standalone and pyrex) have been built.\n"
+        if os.path.isfile("simulator") and os.path.isfile("sim.so"):
+            #bruce 070427 added this case; only works for OSes using .so as dll extension (should fix, easy)
+            assert self.sourceDirectory, "error: simulator executable/dll exist in sources we just checked out!"
+            print "not building simulators, since they were copied from your local sources"
+        else:
+            print "Build the simulators (standalone and pyrex)"
+            system('make clean') #bruce 070427 added this, for when sim was copied
+            system('make')
+            system('make pyx')
+            print "----------Simulators (standalone and pyrex) have been built.\n"
+        return
 
     def buildOpenGLAccelerator(self):
         os.chdir(os.path.join(self.atomPath, 'cad/src/experimental/pyrex-opengl'))
@@ -377,16 +389,21 @@ class NanoBuildWin32(NanoBuildBase):
 
     def removeGPLFiles(self):
         """Remove non gpl files (Windows only)"""
-        print "\n------------------------------------------------------\nRemoving GPL Files"
-        srcPath = os.path.join(self.atomPath,'cad/src/')
-        entries = os.listdir(srcPath)
-        for entry in entries[:]:
-            file = os.path.join(srcPath, entry)
-            if os.path.isfile(file) and entry.startswith('gpl_'):
-                    print "File removed: ", entry
-                    os.remove(file)
-        print "Done"
-
+        if self.Qt4_flag:
+            #bruce 070427 added this case
+            print "\n------------------------------------------------------\nNot removing GPL Files (they're allowed in Qt4)"
+        else:            
+            print "\n------------------------------------------------------\nRemoving GPL Files"
+            srcPath = os.path.join(self.atomPath,'cad/src/')
+            entries = os.listdir(srcPath)
+            for entry in entries[:]:
+                file = os.path.join(srcPath, entry)
+                if os.path.isfile(file) and entry.startswith('gpl_'):
+                        print "File removed: ", entry
+                        os.remove(file)
+            print "Done"
+        return
+    
     def standaloneSimulatorName(self):
         return "simulator.exe"
 
@@ -684,10 +701,23 @@ class NanoBuildMacOSX(NanoBuildBase):
             #e Note: we should print py2app path and version. For Mac Qt3, Ninad used py2app 0.1.5.
             # For Qt4, so far 0.1.5 and 0.3.5 were tried and didn't work. Bruce plans to try 0.3.6.
             # Some pathnames in the app have changed and will require compensation here and/or in Python sources.
+        print "py2app.__version__ = %r (not controlled by autoBuild.py -- up to you whether it's right)" % (_junk.__version__,)
+            #bruce 070427
         ##e should also make sure the files we'll later copy are there, e.g. gnuplot
         libaquaterm_path = os.path.join(self.currentPath, 'libaquaterm.1.0.0.dylib')
         its_md5 = self.get_md5( libaquaterm_path )
         assert its_md5 == self.LIBAQUA_MD5, "MD5 of %r should be %r but is %r" % ( libaquaterm_path, self.LIBAQUA_MD5, its_md5 )
+        # see if PackageMaker is findable [bruce 070427]
+        print 
+        print "If the following says \"command not found\" rather than printing some"
+        print "PackageMaker help info, abort this command and fix your shell path:"
+        print
+        try:
+            system('export PATH=$PATH:/Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS;'\
+                   'PackageMaker -help')
+        except NonZeroExitStatus:
+            pass # it's usually exit status 1, so nevermind
+        print
         return
     
     def createMiddleDirectories(self):
@@ -764,9 +794,51 @@ class NanoBuildMacOSX(NanoBuildBase):
     def freezePythonExecutable(self):
         os.chdir(os.path.join(self.atomPath,'cad/src'))
         os.rename('atom.py', self.appName + '.py')
-        #bruce 060420 adding more excludes: _tkinter (otherwise it copies /Library/Frameworks/{Tcl,Tk}.framework into Contents/Frameworks)
-        system('python setup.py py2app --includes=sip --excludes=OpenGL,_tkinter --iconfile %s  -d %s' %
-               (self.iconFile, self.buildSourcePath))
+        
+        #bruce 060420 adding more excludes:
+        # _tkinter (otherwise it copies /Library/Frameworks/{Tcl,Tk}.framework into Contents/Frameworks)
+        # (it already had OpenGL, I don't know why; instead it copies it manually, later)
+        
+        #bruce 070427 comment: consider using these py2app options:
+        # --xref, for html module crossreference output (added in py2app 0.3.0) [not tried]
+        # --graph (produces a text file like /tmp/foo/installRoot/NanoEngineer-1-0.9/NanoEngineer-1.dot,
+        #    which shows how specific modules got included -- useful for adding to --excludes or --dylib-excludes --
+        #    works in py2app 0.2.0)
+        # --debug-modulegraph [not tried]
+        # --dry-run -- this seems to have a bug -- at least, when I used it I got this error:
+        ##          File "/Library/Python/2.3/py2app/py2app/util.py", line 183, in byte_compile
+        ##            if mod.filename == mod.identifier:
+        ##        AttributeError: 'NoneType' object has no attribute 'filename'
+        #   but it did speed things up and showed me the .dot file and the modules it made loaders for, so it might be useful.
+
+        # (btw, which setup.py is running? not the one in cad/src; rather, the one in your current dir when you run autoBuild.)
+
+        #bruce 070427 revised excludes-related options
+        # (note: if excludes or dylib_excludes can ever be empty, the following has to be revised)
+        debug_options = "--graph" # this works in py2app 0.2.0 -- not sure about 0.1.5 (which Ninad sometimes uses for Qt3)
+            ### SHOULD FIX: should move the resulting .dot file into a different place --
+            # right now it's at toplevel in installed folder
+        excludes = ['OpenGL', '_tkinter']
+        dylib_excludes = []
+        if not self.Qt4_flag:
+            excludes.append('PyQt4')
+                # PyQt4 has to be in excludes -- didn't work when in dylib_excludes alone
+            dylib_excludes.append('PyQt4')
+                #k probably not needed, but leaving it out is untested,
+                # and this string can't be empty anyway due to format string below
+            #FIX sometime -- also add the qtxxx we don't need
+        if not self.Qt3_flag:
+            ### this case is totally UNTESTED; I don't know if a file extension is needed, or which exclude variable matters here
+            for mod in ("qtsql", "qttable", "qtcanvas", "qt", "qtext", "qtui", "qtgl", "qtxml", "qtnetwork"):
+                excludes.append(mod)
+                dylib_excludes.append(mod)
+        assert excludes
+        assert dylib_excludes # otherwise format string below needs revision
+        excludes = ','.join(excludes)
+        dylib_excludes = ','.join(dylib_excludes)
+
+        system("python setup.py py2app %s --includes=sip --excludes=%s --dylib-excludes=%s --iconfile %s  -d %s" %
+               (debug_options, excludes, dylib_excludes, self.iconFile, self.buildSourcePath))
         return
 
     # We really want to do something like this:
@@ -786,15 +858,44 @@ class NanoBuildMacOSX(NanoBuildBase):
         copy(os.path.join(self.atomPath, 'sim/src', self.pyrexSimulatorName()), self.binPath)
         copy(os.path.join(self.atomPath, 'cad/src/experimental/pyrex-opengl',
                           self.openglAcceleratorName()), self.binPath)
-        copy(os.path.join(self.atomPath, 'cad/src/all_mac_imports.py'),
-                          os.path.join(self.buildSourcePath, appname, 'Contents/Resources'))
+        if os.path.exists(os.path.join(self.atomPath, 'cad/src/all_mac_imports.py')):
+            copy(os.path.join(self.atomPath, 'cad/src/all_mac_imports.py'),
+                              os.path.join(self.buildSourcePath, appname, 'Contents/Resources'))
+            print "copied all_mac_imports.py into Contents/Resources"
+        else:
+            print "(all_mac_imports.py was not found)" #bruce 070427 added this case
         copy('/usr/local/bin/gnuplot', self.binPath)
         #Copy rungms script into 'bin' directory
         copy(os.path.join(self.atomPath,'cad/src/rungms'), self.binPath)
+        
         #Copy OpenGL package into buildSource/program
-        copytree('site-packages',
-                 os.path.join(self.buildSourcePath, appname,
-                              'Contents/Resources/Python/site-packages'))
+        #[bruce comment 070427: warning about a platform difference (I don't know why it's this way):
+        # this OpenGL copy is done here in copyOtherSources for Mac, and done for all of site-packages
+        # (I'm not sure if that's more than just OpenGL),
+        # but it's done in freezePythonExecutable for Linux, and only for OpenGL specifically]
+        #bruce 070427 change: py2app 0.1.5 and 0.2 use Contents/Resources/Python (as did the code below),
+        # but some later py2apps use Contents/Resources/lib/python2.3. I'll revise this code to figure out
+        # which one has already been created, print it and use it, or complain if it's more than one.
+        ### BTW this might also require adaptation in cad/src/atom.py and/or all_mac_imports.py.
+        dirs_to_look_for = (
+            'Contents/Resources/Python',
+            'Contents/Resources/lib/python2.3',
+            'Contents/Resources/lib/python2.4', # guessing this might be possible
+            'Contents/Resources/lib/python2.5', # ditto
+            )
+        dirs_to_look_for = map( lambda dir1: os.path.join(self.buildSourcePath, appname, dir1), dirs_to_look_for )
+        pythondirs = filter( lambda dir1: os.path.exists(dir1), dirs_to_look_for )
+        if len(pythondirs) != 1:
+            assert 0, "error: don't know where to copy site-packages: of these, we needed exactly one to exist:\n%s" % \
+                  '\n'.join(dirs_to_look_for)
+        dir1 = pythondirs[0]
+        assert os.path.isdir(dir1)
+        print "will copy site-packages to", dir1
+        ## self.contents_resources_python = dir1 # this value is not yet needed elsewhere
+        # old code was equivalent to:
+        ## dir1 = os.path.join(self.buildSourcePath, appname, 'Contents/Resources/Python')
+        copytree('site-packages', os.path.join( dir1, 'site-packages'))
+        
         copy(os.path.join(self.atomPath,'cad/src/KnownBugs.htm'),
              self.buildSourcePath)
         copyfile(os.path.join(self.atomPath,'cad/src/README.txt'),
@@ -934,8 +1035,14 @@ class NanoBuildMacOSX(NanoBuildBase):
             # do chown root last, since after that we can't change things inside (unless running as root)
         print "done fixing file permissions and ownership"
         # Run PackageMaker to build the final installation package
+        # Note: on some Macs, PackageMaker resides in /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS
+        # so this needs to be on your shell path. Maybe we should add it here... did that [bruce 070427], it seems to work.
+        # It would also be nice to detect whether PackageMaker is present. PackageMaker -help prints some info and exits
+        # with exit status 1; missing commands (in tcsh anyway) print an error message and exit with exit status 1. Hmm.
+        # I didn't try to detect this, but I added some prints in startup_warnings() which ought to tell the user whether it's working.
         try:
-            system('PackageMaker -build -p ' + pkgName + ' -f ' + self.installRootPath +
+            system('export PATH=$PATH:/Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS;'\
+                   'PackageMaker -build -p ' + pkgName + ' -f ' + self.installRootPath +
                    ' -r ' + self.resourcePath + ' -i ' + plistFile + ' -d ' + descrip)
         except NonZeroExitStatus:
             # this happens, apparently not a problem
