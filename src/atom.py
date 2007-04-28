@@ -296,6 +296,8 @@ if __name__ == '__main__':
         MINIMUM_SPLASH_TIME = 3.0 
             # I intend to add a user pref for MINIMUM_SPLASH_TIME for A7. mark 060131.
         splash_start = time.time()
+    else:
+        print "note: splash.png was not found"
     
     foo = MWsemantics() # This does a lot of initialization (in MainWindow.__init__)
 
