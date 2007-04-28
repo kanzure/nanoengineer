@@ -2975,10 +2975,12 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         try:
             # special case for cad/src/testmode.py (or .pyc)
             for filename in ('testmode.py', 'testmode.pyc'):
-                testmodefile = os.path.join( os.path.dirname(__file__), filename)
+                testmodefile = os.path.join( os.path.dirname(__file__), filename) # fails inside site-packages.zip (in Mac release)
                 if os.path.isfile(testmodefile):
                     res.append(( 'testmode', testmodefile ))
                     break
+            if not res and os.path.dirname(__file__).endswith('site-packages.zip'):
+                res.append(( 'testmode', testmodefile )) # special case for Mac release (untested) (do other platforms need this?)
             assert res
         except:
             if platform.atom_debug:
