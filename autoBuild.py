@@ -240,7 +240,7 @@ class NanoBuildBase:
         if os.path.isfile("simulator") and os.path.isfile("sim.so"):
             #bruce 070427 added this case; only works for OSes using .so as dll extension (should fix, easy)
             assert self.sourceDirectory, "error: simulator executable/dll exist in sources we just checked out!"
-            print "not building simulators, since they were copied from your local sources"
+            print "\n*** not building simulators, since they were copied from your local sources ***\n"
         else:
             print "Build the simulators (standalone and pyrex)"
             system('make clean') #bruce 070427 added this, for when sim was copied
@@ -761,9 +761,10 @@ class NanoBuildMacOSX(NanoBuildBase):
             copytree('images', os.path.join(self.buildSourcePath, appname, 'Contents/images'))
                 # removed for Qt4 -- might be needed for a Qt3 build
         if self.Qt4_flag: #bruce 070426
-            # the destination directory is a guess by bruce 070426 -- it hasn't been tried, or compared with Qt4 sources;
+            # the destination directory is a guess by bruce 070428 -- it hasn't been tried, or compared with Qt4 sources;
             # see also the superclass version, which does mkdir src and copies to src/ui
-            copytree('src/ui', os.path.join(self.buildSourcePath, appname, 'Contents/images')) 
+            os.mkdir(os.path.join(self.buildSourcePath, appname, 'Contents/src'))
+            copytree('src/ui', os.path.join(self.buildSourcePath, appname, 'Contents/src/ui'))
             
         # wware 061229 - not sure if this is correct
         ## copytree('ui', os.path.join(self.buildSourcePath, appname, 'Contents/ui'))
@@ -816,8 +817,6 @@ class NanoBuildMacOSX(NanoBuildBase):
         #bruce 070427 revised excludes-related options
         # (note: if excludes or dylib_excludes can ever be empty, the following has to be revised)
         debug_options = "--graph" # this works in py2app 0.2.0 -- not sure about 0.1.5 (which Ninad sometimes uses for Qt3)
-            ### SHOULD FIX: should move the resulting .dot file into a different place --
-            # right now it's at toplevel in installed folder
         excludes = ['OpenGL', '_tkinter']
         dylib_excludes = []
         if not self.Qt4_flag:
@@ -839,6 +838,14 @@ class NanoBuildMacOSX(NanoBuildBase):
 
         system("python setup.py py2app %s --includes=sip --excludes=%s --dylib-excludes=%s --iconfile %s  -d %s" %
                (debug_options, excludes, dylib_excludes, self.iconFile, self.buildSourcePath))
+
+        # move .dot file if one was produced [bruce 070428]
+        dotold = os.path.join(self.buildSourcePath, self.appName + '.dot')
+        dotnew = os.path.join(self.buildSourcePath, self.appName + '.app', 'Contents', 'Frameworks', self.appName + '.dot')
+        if os.path.isfile( dotold):
+            print "moving %s to %s" % (dotold, dotnew)
+            os.rename( dotold, dotnew)
+                       
         return
 
     # We really want to do something like this:
