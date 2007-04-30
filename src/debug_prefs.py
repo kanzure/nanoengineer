@@ -52,9 +52,12 @@ def debug_pref_object(name): #bruce 060213 experiment
 
 class Pref: #e might be merged with the DataType (aka PrefDataType) objects
     "Pref objects record all you need to know about a currently active preference lvalue [with optional persistence as of 060124]"
+    # class constants or instance variable initial values (some might be overridden in subclasses)
     prefs_key = None
     print_changes = False
     non_debug = False # should this be True here and False in DebugPref subclass? decide when it matters.
+    classname_for_repr = 'Pref' #bruce 070430
+    starts_out_from_where = "from prefs db" #bruce 070430 (used in some history messages)
     def __init__(self, name, dtype, prefs_key = False, non_debug = False, subs = ()): #bruce 060124 added prefs_key & non_debug options
         #e for now, name is used locally (for UI, etc, and maybe for prefs db);
         # whether/how to find this obj using name is up to the caller
@@ -77,10 +80,12 @@ class Pref: #e might be merged with the DataType (aka PrefDataType) objects
             from state_utils import same_vals #bruce 070228 [recursive import if done at toplevel; seems to work ok here...]
             if self.print_changes and not same_vals(self.value, self._dfltval): #bruce 070228 new feature for debug_pref
                 # note: we use same_vals to avoid bugs in case of tuples or lists of Numeric arrays
-                msg = "Warning: %s (default %r) starts out %r from prefs db" % \
-                      (self, self._dfltval, self.value)
+                msg = "Warning: %s (default %r) starts out %r %s" % \
+                      (self, self._dfltval, self.value, self.starts_out_from_where)
                 print msg
-                env.history.message(msg, quote_html = True, color = 'orange') #k too early? (if so, do they silently disappear?)
+                env.history.message(msg, quote_html = True, color = 'orange')
+                    # warning: this can happen too early for showing text in history
+                    # (which is one reason we always print it to console first)
         self.non_debug = non_debug # show up in debug_prefs submenu even when ATOM-DEBUG is not set?
         self.subscribers = []
         for sub in subs:
@@ -141,13 +146,17 @@ class Pref: #e might be merged with the DataType (aka PrefDataType) objects
         extra = ""
         if self.prefs_key:
             extra = " (prefs_key %r)" % self.prefs_key
-        return "<Pref %r at %#x%s>" % (self.name, id(self), extra)
+        return "<%s %r at %#x%s>" % (self.classname_for_repr, self.name, id(self), extra)
     def __str__(self):
-        return "<Pref %r>" % (self.name,)
+        return "<%s %r>" % (self.classname_for_repr, self.name,)
     pass
 
+# ==
+
 class DebugPref(Pref):
+    classname_for_repr = 'debug_pref' #bruce 070430, for clearer History messages
     print_changes = True
+    starts_out_from_where = "(from debug prefs submenu)" #bruce 070430, for clearer History messages
     pass
 
 # == datatypes
