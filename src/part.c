@@ -2487,6 +2487,34 @@ printVanDerWaals(FILE *f, struct part *p, struct vanDerWaals *v)
 }
 
 void
+printElectrostatic(FILE *f, struct part *p, struct electrostatic *es)
+{
+    double len;
+    double potential;
+    double gradient;
+    struct xyz p1;
+    struct xyz p2;
+    
+    if (es != NULL) {
+	fprintf(f, " electrostatic ");
+	CHECK_VALID_BOND(es);
+	printAtomShort(f, es->a1);
+	fprintf(f, " ");
+	printAtomShort(f, es->a2);
+	
+	p1 = p->positions[es->a1->index];
+	p2 = p->positions[es->a2->index];
+	vsub(p1, p2);
+	len = vlen(p1);
+	
+	
+	potential = electrostaticPotential(NULL, NULL, es->parameters, len);
+	gradient = electrostaticGradient(NULL, NULL, es->parameters, len);
+	fprintf(f, " r: %f k: %f, V: %f, dV: %f\n", len, es->parameters->k, potential, gradient);
+    }
+}
+
+void
 printStretch(FILE *f, struct part *p, struct stretch *s)
 {
     double len;
@@ -2656,6 +2684,9 @@ printPart(FILE *f, struct part *p)
     }
     for (i=0; i<p->num_vanDerWaals; i++) {
 	printVanDerWaals(f, p, p->vanDerWaals[i]);
+    }
+    for (i=0; i<p->num_electrostatic; i++) {
+	printElectrostatic(f, p, p->electrostatic[i]);
     }
     for (i=0; i<p->num_stretches; i++) {
 	printStretch(f, p, &p->stretches[i]);

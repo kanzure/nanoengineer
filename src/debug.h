@@ -49,6 +49,7 @@ extern int debug_flags;
 #define D_SKIP_OUT_OF_PLANE (1<<17)
 #define D_GRADIENT_COMPARISON (1<<18)
 #define D_PYREX_SIM (1<<19)
+#define D_SKIP_ELECTROSTATIC (1<<20)
 // this one is temporary:
 #define D_VDW_NO_SWITCHOVER (1<<31)
 

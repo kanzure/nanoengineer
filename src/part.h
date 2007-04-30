@@ -281,8 +281,8 @@ struct outOfPlane
 
 struct electrostatic
 {
-    struct atom *a;
-    struct atom *b;
+    struct atom *a1;
+    struct atom *a2;
     struct electrostaticParameters *parameters;
 };
 
@@ -343,6 +343,9 @@ struct part
     // Absolute value of the greatest charge on any particle in the
     // part in multiples of the proton charge.
     double maxParticleCharge;
+
+    int num_electrostatic;
+    struct electrostatic **electrostatic;
     
     int num_stretches;
     struct stretch *stretches;
@@ -456,6 +459,8 @@ extern void printJoint(FILE *f, struct part *p, struct joint *j);
 extern void printRigidBody(FILE *f, struct part *p, struct rigidBody *rb);
 
 extern void printVanDerWaals(FILE *f, struct part *p, struct vanDerWaals *v);
+
+extern void printElectrostatic(FILE *f, struct part *p, struct electrostatic *es);
 
 extern void printStretch(FILE *f, struct part *p, struct stretch *s);
 

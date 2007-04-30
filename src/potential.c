@@ -1043,6 +1043,167 @@ vdwGradientPart(struct part *p, struct xyz *position, struct xyz *force)
 
 // result in aJ (1e-18 J)
 double
+electrostaticPotential(struct part *p, struct electrostatic *es, struct electrostaticParameters *parameters, double r)
+{
+  double potential;
+  int k;
+  double *a;
+  double *b;
+  double *c;
+  double *d;
+  double start;
+  double scale;
+  struct interpolationTable *iTable;
+  
+  /* table setup  */
+  iTable = &parameters->Coulomb;
+  start = iTable->start;
+  scale = iTable->scale;
+  a = iTable->a;
+  b = iTable->b;
+  c = iTable->c;
+  d = iTable->d;
+
+  k=(int)((r - start) / scale);
+  if (k < 0) {
+    if (!ToMinimize && DEBUG(D_TABLE_BOUNDS)) { //linear
+      fprintf(stderr, "es: off table low -- r=%.2f \n",  r);
+      printElectrostatic(stderr, p, es);
+    }
+    potential = ((a[0] * r + b[0]) * r + c[0]) * r + d[0];
+  } else if (k>=TABLEN) {
+    potential = 0.0;
+  } else if (DirectEvaluate) {
+    potential = potentialCoulomb(r, parameters);
+  } else {
+    potential = ((a[k] * r + b[k]) * r + c[k]) * r + d[k];
+  }
+  return potential;
+}
+
+static double
+electrostaticPotentialPart(struct part *p, struct xyz *position)
+{
+  int j;
+  struct electrostatic *es;
+  struct xyz rv;
+  double rSquared;
+  double r;
+  double potential = 0.0;
+    
+  /* do the Coulomb forces */
+  for (j=0; j<p->num_electrostatic; j++) {
+    es = p->electrostatic[j];
+
+    // The electrostatic array changes over time, and might have
+    // NULL's in it as entries are deleted.
+    if (es == NULL) {
+      continue;
+    }
+      
+    vsub2(rv, position[es->a1->index], position[es->a2->index]);
+    rSquared = vdot(rv, rv);
+    r = sqrt(rSquared);
+    potential += electrostaticPotential(p, es, es->parameters, r);
+    CHECKNANR(potential, 0.0);
+  }
+  return potential;
+}
+
+// result in pN (1e-12 J/m)
+double
+electrostaticGradient(struct part *p, struct electrostatic *es, struct electrostaticParameters *parameters, double r)
+{
+  double gradient; // in uN, converted to pN at return
+  int k;
+  double *a;
+  double *b;
+  double *c;
+  double start;
+  double scale;
+  struct interpolationTable *iTable;
+      
+  /* table setup  */
+  iTable = &parameters->Coulomb;
+  start = iTable->start;
+  scale = iTable->scale;
+  a = iTable->a;
+  b = iTable->b;
+  c = iTable->c;
+					
+  k=(int)((r - start) / scale);
+
+  if (!ToMinimize &&
+      !ExcessiveEnergyWarning &&
+      k < parameters->minPhysicalTableIndex)
+  {
+    WARNING2("excessive energy in %s es at iteration %d -- further warnings suppressed", parameters->electrostaticName, Iteration);
+    ExcessiveEnergyWarningThisFrame++;
+  }
+
+  if (k < 0) {
+    if (!ToMinimize && DEBUG(D_TABLE_BOUNDS)) { //linear
+      fprintf(stderr, "es: off table low -- r=%.2f \n",  r);
+      printElectrostatic(stderr, p, es);
+    }
+    gradient = (3.0 * a[0] * r + 2.0 * b[0]) * r + c[0];
+  } else if (DirectEvaluate) {
+    gradient = gradientCoulomb(r, parameters);
+  } else if (k>=TABLEN) {
+    gradient = 0.0;
+  } else {
+    gradient = (3.0 * a[k] * r + 2.0 * b[k]) * r + c[k];
+  }
+  return gradient * 1e6;
+}
+
+static void
+electrostaticGradientPart(struct part *p, struct xyz *position, struct xyz *force)
+{
+  int j;
+  double rSquared;
+  double gradient;
+  struct electrostatic *es;
+  struct xyz rv;
+  struct xyz f;
+  double r;
+    
+  /* do the Coulomb forces */
+  for (j=0; j<p->num_electrostatic; j++) {
+    es = p->electrostatic[j];
+
+    // The electrostatic array changes over time, and might have
+    // NULL's in it as entries are deleted.
+    if (es == NULL) {
+      continue;
+    }
+      
+    vsub2(rv, position[es->a1->index], position[es->a2->index]);
+    rSquared = vdot(rv, rv);
+    r = sqrt(rSquared);
+
+    if (r > ALMOST_ZERO) {
+      gradient = electrostaticGradient(p, es, es->parameters, r) / r;
+    
+      vmul2c(f, rv, gradient);
+      vsub(force[es->a1->index], f);
+      vadd(force[es->a2->index], f);
+    } else {
+      gradient = 0.0;
+    }
+    if (DEBUG(D_STRESS_MOVIE)) { // -D12
+      writeSimpleStressVector(position, es->a1->index, es->a2->index, -1, gradient, 10.0, 100.0);
+    }
+    if (DEBUG(D_MINIMIZE_GRADIENT_MOVIE_DETAIL) && r > ALMOST_ZERO) { // -D5
+      writeSimpleForceVector(position, es->a2->index, &f, 4, 1.0); // cyan
+      vmulc(f, -1.0);
+      writeSimpleForceVector(position, es->a1->index, &f, 4, 1.0); // cyan
+    }
+  }
+}
+
+// result in aJ (1e-18 J)
+double
 calculatePotential(struct part *p, struct xyz *position)
 {
   double potential = 0.0;
@@ -1071,6 +1232,11 @@ calculatePotential(struct part *p, struct xyz *position)
 
   if (!DEBUG(D_SKIP_VDW)) { // -D9
     potential += vdwPotentialPart(p, position);
+    CHECKNANR(potential, 0.0);
+  }
+
+  if (!DEBUG(D_SKIP_ELECTROSTATIC)) { // -D9
+    potential += electrostaticPotentialPart(p, position);
     CHECKNANR(potential, 0.0);
   }
   
@@ -1112,6 +1278,11 @@ calculateGradient(struct part *p, struct xyz *position, struct xyz *force)
 
   if (!DEBUG(D_SKIP_VDW)) { // -D9
     vdwGradientPart(p, position, force);
+    BAIL();
+  }
+
+  if (!DEBUG(D_SKIP_ELECTROSTATIC)) { // -D9
+    electrostaticGradientPart(p, position, force);
     BAIL();
   }
 }

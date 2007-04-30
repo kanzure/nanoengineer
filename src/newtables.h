@@ -174,4 +174,6 @@ extern struct bendData *getBendData(int element_center,
 
 extern struct vanDerWaalsParameters *getVanDerWaalsTable(int element1, int element2);
 
+extern struct electrostaticParameters *getElectrostaticParameters(int element1, int element2);
+
 #endif

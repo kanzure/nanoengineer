@@ -788,6 +788,80 @@ printVdWPAndG(char *vdwName, double initial, double increment, double limit)
   }
 }
 
+static void
+printElectrostaticPAndG(char *electrostaticName, double initial, double increment, double limit)
+{
+  char elt1[4];
+  char elt2[4];
+  struct atomType *e1;
+  struct atomType *e2;
+  struct electrostaticParameters *es;
+  double r;
+  double interpolated_potential;
+  double interpolated_gradient;
+  double direct_potential;
+  double direct_gradient;
+  double modified_potential;
+  double modified_gradient;
+  double lip; // last interpolated_potential
+  double dip; // derivitive of interpolated_potential
+  
+  convertDashToSpace(electrostaticName);
+  if (2 != sscanf(electrostaticName, "%2s e %2s", elt1, elt2)) {
+    fprintf(stderr, "es format must be: es:Pl-e-Pl\n");
+    exit(1);
+  }
+  e1 = getAtomTypeByName(elt1);
+  if (e1 == NULL) {
+    fprintf(stderr, "Element %s not defined\n", elt1);
+    exit(1);
+  }
+  e2 = getAtomTypeByName(elt2);
+  if (e2 == NULL) {
+    fprintf(stderr, "Element %s not defined\n", elt2);
+    exit(1);
+  }
+  
+  es = getElectrostaticParameters(e1->protons, e2->protons);
+
+  printf("# k=%e cutoffStart=%e\n", es->k, es->cutoffRadiusStart);
+
+  printf("# table start = %e table end = %e\n",
+         es->Coulomb.start,
+         es->cutoffRadiusEnd);
+
+  if (initial < 0) {
+    initial = es->Coulomb.start;
+  }
+  if (limit < initial) {
+    limit = es->cutoffRadiusEnd;
+  }
+  if (increment < 0) {
+    increment = (limit - initial) / 1000.0;
+  }
+  interpolated_potential = electrostaticPotential(NULL, NULL, es, initial);
+  for (r=initial; r<limit; r+=increment) {
+    lip = interpolated_potential;
+    interpolated_potential = electrostaticPotential(NULL, NULL, es, r);
+    dip = interpolated_potential - lip;
+    interpolated_gradient = electrostaticGradient(NULL, NULL, es, r);
+    direct_potential = potentialCoulomb(r, es);
+    direct_gradient = gradientCoulomb(r, es) * 1e6;
+    modified_potential = potentialModifiedCoulomb(r, es);
+    modified_gradient = gradientModifiedCoulomb(r, es) * 1e6;
+    printf("%19.12e %19.12e %19.12e %19.12e %19.12e %19.12e %19.12e %19.12e\n",
+           r,                      // 1
+           interpolated_potential, // 2
+           interpolated_gradient, // 3
+           direct_potential,       // 4
+           direct_gradient,       // 5
+           dip,                    // 6
+           modified_potential,    // 7
+           modified_gradient      //8
+           );
+  }
+}
+
 void
 printPotentialAndGradientFunctions(char *name, double initial, double increment, double limit)
 {
@@ -798,12 +872,15 @@ printPotentialAndGradientFunctions(char *name, double initial, double increment,
     printBendPAndG(name+5, initial, increment, limit);
   } else if (!strncmp(name, "vdw:", 4)) {
     printVdWPAndG(name+4, initial, increment, limit);
+  } else if (!strncmp(name, "es:", 3)) {
+    printElectrostaticPAndG(name+3, initial, increment, limit);
   } else {
     fprintf(stderr, "You must specify the type of entry you want printed.\n");
     fprintf(stderr, "For example:\n");
     fprintf(stderr, " bond:C-1-H\n");
     fprintf(stderr, " bend:C-1-C-1-H\n");
     fprintf(stderr, " vdw:C-v-H\n");
+    fprintf(stderr, " es:Pl-e-Pl\n");
     exit(1);
   }
 }

@@ -11,6 +11,9 @@ extern double stretchGradient(struct part *p, struct stretch *stretch, struct bo
 extern double vanDerWaalsPotential(struct part *p, struct vanDerWaals *vdw, struct vanDerWaalsParameters *parameters, double rSquared);
 
 extern double vanDerWaalsGradient(struct part *p, struct vanDerWaals *vdw, struct vanDerWaalsParameters *parameters, double rSquared);
+extern double electrostaticPotential(struct part *p, struct electrostatic *es, struct electrostaticParameters *parameters, double r);
+
+extern double electrostaticGradient(struct part *p, struct electrostatic *es, struct electrostaticParameters *parameters, double r);
 
 extern double calculatePotential(struct part *p, struct xyz *position);
 

@@ -29,6 +29,7 @@ usage(void)
                        bond:C-1-H\n\
                        bend:C-1-C-1-H\n\
                        vdw:C-v-H\n\
+                       es:Pl-e-Pl\n\
                     you may also want to change the defaults for --initial, --increment, and --limit\n\
    --initial=<r>    lowest r value in the potential function table printed above (in pm)\n\
    --increment=<dr> spacing of r values for above table (in pm)\n\
