@@ -36,8 +36,9 @@ def linenum():
 class NonZeroExitStatus(Exception):
     pass
 
-def system(cmd):
-    print cmd
+def system(cmd, noprint = False):
+    if not noprint:
+        print cmd
     ret = os.system(cmd)
     if ret != 0:
         raise NonZeroExitStatus, cmd
@@ -107,6 +108,69 @@ def clean(rootPath, cleanAll=False):
             else:
                 os.remove(fname)   # symbolic link (try 1, didn't work on Mac partlib, left in in case it helps other things)
 
+def all_subfiles(filename, results = None): #bruce 070429 [modified from all_subfiles in bruce's my_path_utils.py]
+    """Return a list of all files and directories under filename, directly or indirectly, 
+     but NOT FOLLOWING symbolic links, or including them in the list.
+     This is not quite doable by os.path.walk, since filename might be a single file.
+     Note that os.path.islink doesn't work right (i.e. detect aliases) on a Mac,
+     so this won't work if Mac aliases are present.
+         Error if filename is not an existing file or directory, but existence of non-directories is not checked.
+     If the second argument is given, it should be a list object of already-collected results,
+     to which new results (pathname strings) will be appended in-place, instead of being returned.
+    """
+    if results is None:
+        results = [] # make a new list each time
+        ret = 1
+    else:
+        ret = 0
+    if not os.path.islink(filename):
+        #e future: verify filename exists as file or directory
+        results.append(filename) ### does this modify results in-place? I think so.
+        if os.path.isdir(filename):
+            files = os.listdir(filename)
+            for f in files:
+                all_subfiles(os.path.join(filename, f), results)
+    if ret:
+        return results
+    pass
+
+def fix_1724(dir1, get_md5): #bruce 070429, Mac-specific
+    """Modify every .so file inside dir1, using the equivalent of
+        install_name_tool -change
+             /Library/Frameworks/Python.framework/Versions/2.3/Python
+        /System/Library/Frameworks/Python.framework/Versions/2.3/Python $file
+       and print names and count of files it modifies
+       (checked by comparing md5 before/after, as computed by get_md5(filename)).
+    """
+    files = []
+    for arg in [dir1]:
+        all_subfiles(arg, files)
+        
+    files2 = filter( lambda file: file.endswith(".dylib"), files)
+    if files2:
+        print "fyi: fix_1724 is ignoring these %d .dylib files:" % len(files2)
+        print "\n".join(files2)
+        print
+        
+    files = filter( lambda file: file.endswith(".so"), files)
+    print "fyi: fix_1724 will scan %d .so files" % (len(files),)
+
+    count = 0
+    for file in files:
+        old = get_md5(file)
+        system("install_name_tool -change "
+                      "/Library/Frameworks/Python.framework/Versions/2.3/Python "
+               "/System/Library/Frameworks/Python.framework/Versions/2.3/Python '%s'" % file, noprint = True)
+        new = get_md5(file)
+        if old != new:
+            print file + "       [FIXED]"
+            count += 1
+        else:
+            pass # print file + " [unchanged]"
+        pass
+    print "fyi: fix_1724 modified %d files" % count
+    return
+
 class AbstractMethod(Exception):
     """Indicates that something must be overloaded because it isn't usefully
     defined in the context where it's being used."""
@@ -117,6 +181,7 @@ class NanoBuildBase:
     It works for Linux, Mac OS X, and WinXP.
        It is instantiated in this module's main() function, then additional
     attributes are assigned (sourceDirectory) and additional methods called (startup_warnings, build).
+    It also accesses some globals set by main, e.g. PMMT.
     """
     def  __init__(self, appname, iconfile, rootDir, version, relNo, stat, tag, qtversion = None):
         self.currentPath = os.getcwd() # Current working directory
@@ -144,7 +209,7 @@ class NanoBuildBase:
         self.setupBuildSourcePath()
 
     def get_md5(self, file):
-        return listResults("md5sum " + file + " | cut -c -32")[0]
+        return listResults("md5sum " + file + " | cut -c -32")[0] #e or use " '%s'" % file, if file could contain spaces
 
     def startup_warnings(self):
         """Print warnings about prerequisites, etc, to user, specific to each platform.
@@ -690,7 +755,7 @@ class NanoBuildMacOSX(NanoBuildBase):
     LIBAQUA_MD5 = "c43f7944d0d7ed42f82e2a9ba45687d0"
 
     def get_md5(self, file):
-        return listResults("md5 " + file + " | cut -d'=' -f 2 | cut -c 2-")[0]
+        return listResults("md5 " + file + " | cut -d'=' -f 2 | cut -c 2-")[0] #e or use " '%s'" % file, if file could contain spaces
 
     def startup_warnings(self): #bruce 060420
         print "* * * WARNING: after most of this script has finished, we'll run a sudo chown root"
@@ -718,6 +783,23 @@ class NanoBuildMacOSX(NanoBuildBase):
         except NonZeroExitStatus:
             pass # it's usually exit status 1, so nevermind
         print
+        # test that the developer switched to the proper Qt version corresponding to what we're building [bruce 070429]
+        if self.Qt3_flag:
+            print "Checking whether Qt3 import will succeed; if not, we might fail silently, bus error, or traceback"
+                # what actually happens to me is a traceback for "ImportError: No module named qt" [bruce 070429]
+            print "(which probably means you are using a machine that can run either Qt3 or Qt4, and it's not switched"
+            print " to the correct one; some developers use commands sip-3 and sip-4 to do that switching)"
+            from qt import QApplication
+            print "Qt3 import succeeded (from qt import QApplication)"
+            print
+        if self.Qt4_flag:
+            print "Checking whether Qt4 import will succeed; if not, we might fail silently, bus error, or traceback"
+                # what actually happens to me is a Bus Error, exit code 138 [bruce 070429]
+            print "(which probably means you are using a machine that can run either Qt3 or Qt4, and it's not switched"
+            print " to the correct one; some developers use commands sip-3 and sip-4 to do that switching)"
+            from PyQt4.Qt import QApplication
+            print "Qt4 import succeeded (from PyQt4.Qt import QApplication)"
+            print
         return
     
     def createMiddleDirectories(self):
@@ -750,6 +832,10 @@ class NanoBuildMacOSX(NanoBuildBase):
         cfdir = os.path.join(self.buildSourcePath, appname, 'Contents', 'Frameworks')
         assert os.path.isdir(cfdir) #bruce 060420
         #bruce 060420 moved this here, replacing postflight script's move, making postflight script unnecessary
+        if os.path.exists( os.path.join(cfdir, 'libaquaterm.1.0.0.dylib') ):
+            #bruce 070429 added this check, since the one we're copying looks suspicious in its otool -L output;
+            # for me, Qt3, this doesn't happen, btw
+            print "note: libaquaterm.1.0.0.dylib is overwriting one which was put in place by py2app" # and maybe it ought not to...
         copy(os.path.join(self.currentPath, 'libaquaterm.1.0.0.dylib'), cfdir)
         # wware 060428 record lib md5s before prebinding step
         system("(cd %s; md5 * > original-md5s.txt)" % cfdir)
@@ -789,6 +875,7 @@ class NanoBuildMacOSX(NanoBuildBase):
         ##        for f in ne1files:
         ##            os.chmod(f, 0755)
         self.copyOtherSources()
+        self.rewrite_load_commands() #bruce 070429 (to fix bug 1724)
         print "------All python modules are packaged together. (Mac version)"
 
 
@@ -817,7 +904,9 @@ class NanoBuildMacOSX(NanoBuildBase):
         #bruce 070427 revised excludes-related options
         # (note: if excludes or dylib_excludes can ever be empty, the following has to be revised)
         debug_options = "--graph" # this works in py2app 0.2.0 -- not sure about 0.1.5 (which Ninad sometimes uses for Qt3)
-        excludes = ['OpenGL', '_tkinter']
+        excludes = ['OpenGL', '_tkinter'] # note: py2app might well handle PyOpenGL better than we do, in versions that have the
+            # recipe for it; never tried AFAIK. Our own binary of PyOpenGL (OpenGL package) is defective in load commands re bug 1724;
+            # this is now fixed in rewrite_load_commands as of 070429.
         dylib_excludes = []
         if not self.Qt4_flag:
             excludes.append('PyQt4')
@@ -827,7 +916,9 @@ class NanoBuildMacOSX(NanoBuildBase):
                 # and this string can't be empty anyway due to format string below
             #FIX sometime -- also add the qtxxx we don't need
         if not self.Qt3_flag:
-            ### this case is totally UNTESTED; I don't know if a file extension is needed, or which exclude variable matters here
+            ### this case has been run, but is still effectively UNTESTED since a working Mac Qt4 release has not yet been built
+            # [as of bruce 070429]; I don't know if a file extension is needed on these, or a dotted name,
+            # or which exclude variable matters here [#e tho i could find out by looking in the .dot file I made recently]
             for mod in ("qtsql", "qttable", "qtcanvas", "qt", "qtext", "qtui", "qtgl", "qtxml", "qtnetwork"):
                 excludes.append(mod)
                 dylib_excludes.append(mod)
@@ -845,7 +936,8 @@ class NanoBuildMacOSX(NanoBuildBase):
         if os.path.isfile( dotold):
             print "moving %s to %s" % (dotold, dotnew)
             os.rename( dotold, dotnew)
-                       
+
+        # see also self.rewrite_load_commands(), called later
         return
 
     # We really want to do something like this:
@@ -915,11 +1007,22 @@ class NanoBuildMacOSX(NanoBuildBase):
         copyfile(os.path.join(self.atomPath,'cad/src/LICENSE'),
                  os.path.join(self.resourcePath, 'License'))
 
+    def rewrite_load_commands(self): #bruce 070429 (to fix bug 1724)
+        # rewrite load commands to fix bug 1724 -- a recent-enough py2app might do this better than we do
+        # (more generally, and correctly for Python version != 2.3.x),
+        # but (1) it wasn't doing it in the version that built bruce's local A7, for e.g. multiarray.so,
+        # (2) we're still copying in some .so's independently of py2app (not sure we still ought to be, but we are),
+        # which need this (namely OpenGL).
+        fix_1724(self.buildSourcePath, self.get_md5) #bruce 070429
+            #e someday we might have to protect get_md5 from spaces in filenames
+        return
+    
     def setupBuildSourcePath(self):
         self.installRootPath = os.path.join(self.rootPath, 'installRoot')
         self.buildSourcePath = os.path.join(self.installRootPath, PMMT)
         self.diskImagePath = os.path.join(self.rootPath, 'diskImage')
         self.resourcePath = os.path.join(self.rootPath, 'resources')
+        assert not ' ' in self.buildSourcePath, "sorry, space character is not allowed in %r" % (self.buildSourcePath,) #bruce 070429
 
     def createWelcomeFile(self, welcomeFile):
         """Write the welcome file for Mac package installer """
