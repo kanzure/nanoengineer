@@ -1,0 +1,102 @@
+#!/usr/bin/env python
+"""
+$Id$
+# bruce 070429
+"""
+
+import sys, os, time
+
+assert len(sys.argv) >= 2, """
+
+Usage: fix-1724 [<file> | <directory>] ...
+modifies every .so file named by an argument, or inside a directory argument,
+using the equivalent of
+  install_name_tool -change
+         /Library/Frameworks/Python.framework/Versions/2.3/Python
+  /System/Library/Frameworks/Python.framework/Versions/2.3/Python $file
+and prints names and count of files it modifies (checked by comparing md5 before/after).
+"""
+
+def all_subfiles(filename, results = None): # modified from all_subfiles in bruce's my_path_utils.py
+    """Return a list of all files and directories under filename, directly or indirectly, 
+     but NOT FOLLOWING symbolic links, or including them in the list.
+     This is not quite doable by os.path.walk, since filename might be a single file.
+     Note that os.path.islink doesn't work right (i.e. detect aliases) on a Mac,
+     so this won't work if Mac aliases are present.
+         Error if filename is not an existing file or directory, but existence of non-directories is not checked.
+     If the second argument is given, it should be a list object of already-collected results,
+     to which new results (pathname strings) will be appended in-place, instead of being returned.
+    """
+    if results is None:
+        results = [] # make a new list each time
+        ret = 1
+    else:
+        ret = 0
+    if not os.path.islink(filename):
+        #e future: verify filename exists as file or directory
+        results.append(filename) ### does this modify results in-place? I think so.
+        if os.path.isdir(filename):
+            files = os.listdir(filename)
+            for f in files:
+                all_subfiles(os.path.join(filename, f), results)
+    if ret:
+        return results
+    pass
+
+# misc functions copied from Distribution/autoBuild.py
+
+class NonZeroExitStatus(Exception):
+    pass
+
+def system(cmd):
+    ## print cmd
+    ret = os.system(cmd)
+    if ret != 0:
+        raise NonZeroExitStatus, cmd
+    return ret
+
+def listResults(cmd):
+    def strip(x):
+        return x.rstrip()
+    return map(strip, os.popen(cmd).readlines())
+
+def get_md5(file):
+    return listResults("md5 '%s'" % file + " | cut -d'=' -f 2 | cut -c 2-")[0] # this differs from autoBuild -- tolerates spaces in file
+
+# ==
+
+args = sys.argv[1:]
+
+files = []
+for arg in args:
+    all_subfiles(arg, files)
+    
+files2 = filter( lambda file: file.endswith(".dylib"), files)
+if files2:
+    print "ignoring these %d .dylib files:" % len(files2)
+    print "\n".join(files2)
+    print
+    
+files = filter( lambda file: file.endswith(".so"), files)
+print "found %d .so files in/under %d file-or-dirname args" % (len(files), len(args))
+
+count = 0
+for file in files:
+    old = get_md5(file)
+    system("install_name_tool -change "
+                  "/Library/Frameworks/Python.framework/Versions/2.3/Python "
+           "/System/Library/Frameworks/Python.framework/Versions/2.3/Python '%s'" % file)
+    new = get_md5(file)
+    if old != new:
+        print file + "       [FIXED]"
+        count += 1
+    else:
+        pass # print file + " [unchanged]"
+    pass
+
+print "modified %d files" % count
+
+print "done"
+sys.exit(0)
+
+# end
