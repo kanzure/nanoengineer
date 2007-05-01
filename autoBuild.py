@@ -393,8 +393,10 @@ class NanoBuildBase:
 
 class NanoBuildWin32(NanoBuildBase):
 
-    def  __init__(self, appname, iconfile, rootDir, version, relNo, stat, tag):
-        NanoBuildBase.__init__(self, appname, iconfile, rootDir, version, relNo, stat, tag)
+    def  __init__(self, appname, iconfile, rootDir, version, relNo, stat, tag, 
+                  qtversion=None):
+        NanoBuildBase.__init__(self, appname, iconfile, rootDir, version, 
+                               relNo, stat, tag, qtversion = qtversion)
         # are we running in a Cygwin terminal or a DOS window?
         self.cygwin = (os.environ.get('TERM') == 'cygwin')
 
@@ -554,10 +556,12 @@ class NanoBuildWin32(NanoBuildBase):
         """Add all the required dlls into <program> (Windows only) """
         print "\n------------------------------------------------------\nAdding DLLs"
         copy('win32/glut32.dll', os.path.join(self.buildSourcePath, 'program'))
-        print "glut32.dll"
+        print "glut32.dll ...copied"
         copy('win32/msvcr71.dll', os.path.join(self.buildSourcePath, 'program'))
-        print "msvcr71.dll"
-        print "Done"
+        print "msvcr71.dll ...copied"
+        #ninad070501: copy QtSvg4.dll to 'program' dir (needed to fix bug2337)
+        copy('C:/Qt/4.2.2/bin/QtSvg4.dll', os.path.join(self.buildSourcePath, 'program'))
+        print "QtSvg4.dll ...copied"
 
     def makePlatformPackage(self):
         self._addModuleToZip('program/library.zip', 'OpenGL')
