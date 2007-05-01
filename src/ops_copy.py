@@ -304,12 +304,12 @@ class ops_copy_Mixin:
 
 # ==
 
-def copied_nodes_for_DND( nodes, autogroup_at_top = False): #bruce 050527
+def copied_nodes_for_DND( nodes, autogroup_at_top = False, assy = None): #bruce 050527; added assy arg, bruce 070430
     from ops_select import Selection
     if not nodes:
         return None
     part = nodes[0].part # kluge
-    copier = Copier(Selection(part, nodes = nodes))
+    copier = Copier(Selection(part, nodes = nodes), assy = assy)
     copier.prep_for_copy_to_shelf()
     if not copier.ok():
         #e histmsg?
@@ -322,10 +322,20 @@ def copied_nodes_for_DND( nodes, autogroup_at_top = False): #bruce 050527
 # ==
 
 class Copier: #bruce 050523-050526; might need revision for merging with DND copy
-    "Controller for copying selected nodes and/or atoms."
-    def __init__(self, sel):
-        self.sel = sel # a Selection object
-        self.assy = sel.part.assy
+    """Control one run of an operation which copies selected nodes and/or atoms.
+    [Note: When this is passed to Node copy routines, it's referred to in argument names as a mapping.]
+    """
+    def __init__(self, sel, assy = None):
+        """Create a new Copier for a new (upcoming) copy operation,
+        where sel is a Selection object which represents the set of things we'll copy
+        (or maybe a superset of that?? #k),
+        and assy (optional) is the assembly object which should contain the new node copies
+        (if not provided, they'll be in the same assembly as before; all nodes in a Selection object
+         must be in a single assembly).
+        """
+        self.sel = sel
+        self.assy = assy or sel.part.assy # the assy we'll put copies into
+            # [new feature, bruce 070430: self.assy can differ from assy of originals -- ###NIM, here and in copy_xxx defs]
         self.objectsCopied = 0  # wware 20051128, bug 1118, no error msg if already given
     def prep_for_copy_to_shelf(self):
         """Figure out whether to make a new toplevel Group,
