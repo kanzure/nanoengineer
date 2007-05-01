@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2007 Nanorex, Inc.  All rights reserved.
 """
 jigs_planes.py -- Classes for Plane jigs, including RectGadget, GridPlane and ESPImage.
 
@@ -127,9 +127,9 @@ class RectGadget(Jig):
 
     ###[Huaicai 9/29/05: The following two methods are temporarally copied here, this is try to fix jig copy related bugs
     ### not fully analynized how the copy works yet. It fixed some problems, but not sure if it's completely right.
-    def copy_full_in_mapping(self, mapping):
+    def copy_full_in_mapping(self, mapping): #bruce 070430 revised to honor mapping.assy
         clas = self.__class__
-        new = clas(self.assy, [], True) # don't pass any atoms yet (maybe not all of them are yet copied)
+        new = clas(mapping.assy, [], True) # don't pass any atoms yet (maybe not all of them are yet copied)
             # [Note: as of about 050526, passing atomlist of [] is permitted for motors, but they assert it's [].
             #  Before that, they didn't even accept the arg.]
         # Now, how to copy all the desired state? We could wait til fixup stage, then use mmp write/read methods!

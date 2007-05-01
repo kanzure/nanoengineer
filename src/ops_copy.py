@@ -334,8 +334,8 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
          must be in a single assembly).
         """
         self.sel = sel
-        self.assy = assy or sel.part.assy # the assy we'll put copies into
-            # [new feature, bruce 070430: self.assy can differ from assy of originals -- ###NIM, here and in copy_xxx defs]
+        self.assy = assy or sel.part.assy # the assy into which we'll put copies
+            # [new feature, bruce 070430: self.assy can differ from assy of originals -- ###UNTESTED; will use for partlib groups]
         self.objectsCopied = 0  # wware 20051128, bug 1118, no error msg if already given
     def prep_for_copy_to_shelf(self):
         """Figure out whether to make a new toplevel Group,

@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2007 Nanorex, Inc.  All rights reserved.
 """
 Utility.py -- class Node (superclass for all model-tree objects), Group, and a few subclasses,
 defining a uniform API to permit all Node subclasses to be shown in the model tree.
@@ -966,7 +966,7 @@ class Node( StateMixin):
         """
         If self can be fully copied, this method (as overridden in self's subclass) should do so,
         recording in mapping how self and all its components (eg chunk atoms, group members) get copied,
-        and returning the copy of self.
+        and returning the copy of self, which must be created in mapping.assy (which may differ from self.assy).
            If self will refuse to be fully copied, this method should return None.
         ###k does it need to record that in mapping, too?? not for now.
            It can assume self and all its components have not been copied yet (except for shared components like bonds #k #doc).
@@ -984,7 +984,7 @@ class Node( StateMixin):
         # but since copy_partial_in_mapping is not presently called, I won't bother to clean it up for now.
 
     def copy_in_mapping_with_specified_atoms(self, mapping, atoms): #bruce circa 050525; docstring revised 050704
-        "#doc; certain subclasses should override [e.g. chunk]; for use in copying selected atoms"
+        "#doc; must honor mapping.assy; certain subclasses should override [e.g. chunk]; for use in copying selected atoms"
         return None
 
     def copy_copyable_attrs_to(self, target, own_mutable_state = True): #bruce 050526; behavior and docstring revised 051003
@@ -992,6 +992,8 @@ class Node( StateMixin):
         from self to target (presumably a Node of the same subclass, but this is not checked,
         and violating it might not be an error, in principle; in particular, as of 051003 target is explicitly permitted
         to be a methodless attribute-holder).
+           Target and self need not be in the same assy (i.e. need not have the same .assy attribute),
+        and when this situation occurs, it must not be disturbed (e.g. setting target.assy = self.assy would be a bug).
         Doesn't do any invals or updates in target.
            This is not intended to be a full copy of self, since copyable_attrs (in current client code)
         should not contain object-valued attrs like Group.members, Node.dad, or Chunk.atoms, but only
@@ -1009,6 +1011,7 @@ class Node( StateMixin):
         or doing appropriate invals or updates in target.
         """
         for attr in self.copyable_attrs:
+            assert attr != 'assy' #e could optim by doing this once per class or once per instance
             val = getattr(self, attr)
             if own_mutable_state:
                 val = copy_val(val)
@@ -1881,7 +1884,7 @@ class Group(Node):
         #doc; overrides Node method; copies any subclass of Group as if it was a plain Group
         [subclasses can override or extend that behavior if desired]
         """
-        new = Group(self.name, self.assy, None)
+        new = Group(self.name, mapping.assy, None)
         self.copy_copyable_attrs_to(new)
             # redundantly copies .name; also copies .open
             # (This might be wrong for some Group subclasses! Not an issue for now, but someday
@@ -2088,10 +2091,18 @@ class SimpleCopyMixin(Node):
         clas = self.__class__
         method = self._um_initargs # fyi: for Node, the returned args are assy, name
         args, kws = method()
+        # replace self.assy with mapping.assy in args [new requirement of this method API, bruce 070430]
+        newargs = list(args)
+        for i in range(len(args)):
+            if args[i] is self.assy:
+                newargs[i] = mapping.assy
+        args = tuple(newargs)
         new = clas(*args, **kws)
         # store special info to help _copy_fixup_at_end
         # (note: these attrnames don't start with __ since name-mangling would prevent
-        #  subclasses from overriding _copy_fixup_at_end or this method)
+        #  subclasses from overriding _copy_fixup_at_end or this method;
+        #  that means all subclasses have to take care not to use those attrnames!
+        #  It might be better to let them be "manually name-mangled". ##e FIX)
         new._orig = self
         new._mapping = mapping
         new.name = "[being copied]" # should never be seen

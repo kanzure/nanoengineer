@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2007 Nanorex, Inc.  All rights reserved.
 """
 jigs.py -- Classes for motors and other jigs, and their superclass, Jig.
 
@@ -182,9 +182,9 @@ class Jig(Node):
         "[overrides Node method]"
         return True # this is correct for jigs that say yes to jig.confers_properties_on(atom), and doesn't matter for others.
 
-    def copy_full_in_mapping(self, mapping):
+    def copy_full_in_mapping(self, mapping): #bruce 070430 revised to honor mapping.assy
         clas = self.__class__
-        new = clas(self.assy, []) # don't pass any atoms yet (maybe not all of them are yet copied)
+        new = clas(mapping.assy, []) # don't pass any atoms yet (maybe not all of them are yet copied)
             # [Note: as of about 050526, passing atomlist of [] is permitted for motors, but they assert it's [].
             #  Before that, they didn't even accept the arg.]
         # Now, how to copy all the desired state? We could wait til fixup stage, then use mmp write/read methods!

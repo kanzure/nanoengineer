@@ -1966,18 +1966,19 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         assert 0, "should never be called, since a chunk does not *refer* to selatoms, or appear in atom.jigs"
         return True # but if it ever is called, answer should be true
     
-    def copy_empty_shell_in_mapping(self, mapping):
+    def copy_empty_shell_in_mapping(self, mapping): #bruce 070430 revised to honor mapping.assy
         """[private method to help the public copy methods, all of which start with this except the deprecated mol.copy]
         Copy this chunk's name (w/o change), properties, etc, but not any of its atoms
         (caller will presumably copy some or all of them separately).
-        Don't copy hotspot. New chunk is in same assy but not in any Group or Part.
+        Don't copy hotspot. New chunk is in mapping.assy (NOT necessarily the same as self.assy)
+        but not in any Group or Part.
            #doc: invalidation status of resulting chunk?
         Update orig->copy correspondence in mapping (for self, and in future
         for any copyable subobject which gets copied by this method, if any does).
            Never refuses. Returns copy (a new chunk with no atoms).
         Ok to assume self has never yet been copied.
         """
-        numol = molecule(self.assy, self.name)
+        numol = molecule(mapping.assy, self.name)
         self.copy_copyable_attrs_to(numol) # copies .name (redundantly), .hidden, .display, .color...
         mapping.record_copy(self, numol)
         # also copy user-specified axis, center, etc, if we ever have those
