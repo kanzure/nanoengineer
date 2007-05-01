@@ -281,7 +281,7 @@ class Node( StateMixin):
         if self.part is not None:
             self.part.changed() #e someday we'll do self.changed which will do dad.changed....
         elif self.assy is not None:
-            pass # not sure if it would be correct to call assy.changed in this case [bruce 060227 comment]
+            pass # not sure if it would be correct to call assy.changed in this case (when there's no part set) [bruce 060227 comment]
         return
     
     def is_group(self): #bruce 050216
@@ -1353,6 +1353,21 @@ class Node( StateMixin):
         """
         pass
 
+    def move(self, offset): #bruce 070501 added this to Node API
+        """translate self in 3d space (if applicable to self's class) by offset;
+        do all necessary invalidations, but try to optimize those based on self's
+        relative structure not having changed or reoriented.
+        [subclasses with any content in 3d space should override this as needed]
+        """
+        return # correct for many kinds of nodes
+
+    def pickatoms(self): #bruce 070501 added this to Node API [was defined only in Chunk]
+        """Pick the atoms owned by self which are not already picked, and which the selection filter
+        permits the user to pick (select). Return the number of newly picked atoms.
+        [overridden in some subclasses]
+        """
+        return 0 # correct for most kinds of nodes
+
     # end of class Node
 
     
@@ -2065,6 +2080,21 @@ class Group(Node):
     def __str__(self):
         return "<group " + self.name +">"
 
+    def move(self, offset): # in Group [bruce 070501 added this to Node API]
+        """[overrides Node.move]
+        """
+        for m in self.members:
+            m.move(offset)
+        return
+    
+    def pickatoms(self): # in Group [bruce 070501 added this to Node API]
+        """[overrides Node method]
+        """
+        npicked = 0
+        for m in self.members:
+            npicked += m.pickatoms()
+        return npicked
+
     pass # end of class Group
 
 
@@ -2253,6 +2283,12 @@ class Csys(SimpleCopyMixin, Node):
         cmd = greenmsg("Set View: ")
         msg = 'View "%s" now set to the current view.' % (self.name)
         env.history.message( cmd + msg )
+
+    def move(self, offset): # in class Csys (Named View) [bruce 070501, used when these are deposited from partlib]
+        "[properly implements Node API method]"
+        self.pov = self.pov - offset # minus, because what we move is the center of view, defined as -1 * self.pov
+        self.changed()
+        return
 
     pass # end of class Csys
 

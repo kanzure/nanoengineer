@@ -1614,8 +1614,9 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             if a.element.symbol == "X": stats.nsinglets +=1
     
     def pickatoms(self): # mark 060211. Could use a complementary unpickatoms() method. [not referring to the one in ops_select --bruce]
-        '''Pick the atoms of self not already picked. Return the number of newly picked atoms.
-        '''
+        """Pick the atoms of self not already picked. Return the number of newly picked atoms.
+        [overrides Node method]
+        """
         self.assy.permit_pick_atoms()
         npicked = 0
         for a in self.atoms.itervalues():
@@ -2680,6 +2681,7 @@ def mol_copy_name(name): # bruce 041124
     else:
         # name must look like xxx-copy<n>
         name = "-copy".join(parts[:-1]) # this is the xxx part
+            # (fyi: it doesn't contain '-copy' unless original name contained it twice)
     return gensym(name + "-copy") # we assume this adds a number to the end
 
 # == Numeric.array utilities [bruce 041207/041213]

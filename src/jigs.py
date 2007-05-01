@@ -286,11 +286,6 @@ class Jig(Node):
             Node.unpick(self) # bruce 050126 -- required now
             self.color = self.normcolor # see also a copy method which has to use the same statement to compensate for this kluge
 
-    def move(self, offset):
-        #bruce 050208 made this default method. Is it ever called, in any subclasses??
-        pass
-    
-
     def rot(self, quat):
         pass
 

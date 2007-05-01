@@ -97,6 +97,8 @@ class RectGadget(Jig):
         
     def move(self, offset):
         '''Move the plane by <offset>, which is a 'V' object. '''
+        ###k NEEDS REVIEW: does this conform to the new Node API method 'move',
+        # or should it do more invalidations / change notifications / updates? [bruce 070501 question]
         self.center += offset
 
     

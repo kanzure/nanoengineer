@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2007 Nanorex, Inc.  All rights reserved.
 """
 jigs_measurements.py -- Classes for measurement jigs.
 
@@ -86,6 +86,7 @@ class MeasurementJig(Jig):
         self.handle_offset = self.constrainedPosition() - self.center()
 
     def move(self, offset):
+        ###k NEEDS REVIEW: does this conform to the new Node API method 'move', or should it be renamed? [bruce 070501 question]
         self.handle_offset += offset
         self.constrain()
 

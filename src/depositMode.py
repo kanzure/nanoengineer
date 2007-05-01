@@ -24,7 +24,7 @@ import platform
 from debug import print_compact_traceback
 from elements import PeriodicTable
 from Utility import imagename_to_pixmap
-from HistoryWidget import orangemsg, redmsg
+from HistoryWidget import orangemsg, redmsg, greenmsg, quote_html
 
 from bonds import bond_atoms, bond_at_singlets
 from bond_constants import V_SINGLE
@@ -853,7 +853,7 @@ class depositMode(selectAtomsMode):
         return self._pastable_atomtype
 
     def ensure_visible(self, stuff, status):
-        """if any chunk in stuff (#doc format) is not visible now, make it visible by changing its
+        """if any chunk in stuff (a node, or a list of nodes) is not visible now, make it visible by changing its
         display mode, and append a warning about this to the given status message,
         which is returned whether or not it's modified.
            Suggested revision: if some chunks in a library part are explicitly invisible and some are visible, I suspect this
@@ -895,8 +895,11 @@ class depositMode(selectAtomsMode):
         else:
             assert isinstance(stuff, Node) # presumably Jig
             ##e not sure how to handle this or whether we need to [bruce 051227]; leave it out and await bug report?
+            # [this will definitely occur once there's a partlib part which deposits a Jig or Comment or Named View;
+            #  for Jigs should it Unhide them? For that matter, what about for Chunks? What if the hiddenness or
+            #  invisibility came from the partlib?]
             if platform.atom_debug:
-                print "atom_debug: ignoring object of unhandled type (Jig?) in ensure_visible_0", stuff
+                print "atom_debug: ignoring object of unhandled type (Jig? Comment? Named View?) in ensure_visible_0", stuff
             return 0
         pass
     
@@ -918,7 +921,7 @@ class depositMode(selectAtomsMode):
         bond = bond_atoms(a1,a2,vnew,s1,s2) # tell it the singlets to replace or reduce; let this do everything now, incl updates
         return
     
-    def _depositLibraryPart(self, newPart, hotspotAtom, atom_or_pos): # probably by Huaicai; revised by bruce 051227, 060627
+    def _depositLibraryPart(self, newPart, hotspotAtom, atom_or_pos): # probably by Huaicai; revised by bruce 051227, 060627, 070501
         '''This method serves as an overloaded method, <atom_or_pos> is 
            the Singlet atom or the empty position that the new part <newPart>
            [which is an assy, at least sometimes] will be attached to or placed at.
@@ -935,7 +938,7 @@ class depositMode(selectAtomsMode):
         if isinstance(atom_or_pos, Atom):
             attch2Singlet = atom_or_pos
             if hotspotAtom and hotspotAtom.is_singlet() and attch2Singlet .is_singlet():
-                newMol = hotspotAtom.molecule.copy(None)
+                newMol = hotspotAtom.molecule.copy(None) # [this can break interchunk bonds, thus it still has bug 2028]
                 newMol.setAssy(self.o.assy) #bruce 051227 revised this
                 hs = newMol.hotspot
                 ha = hs.singlet_neighbor() # hotspot neighbor atom
@@ -970,7 +973,7 @@ class depositMode(selectAtomsMode):
         if attach2Bond: # Connect part to a bondpoint of an existing chunk
             for m in newPart.molecules:
               if not m is hotspotAtom.molecule: 
-                newMol = m.copy(None)
+                newMol = m.copy(None) # [this can break interchunk bonds, thus it still has bug 2028]
                 newMol.setAssy(self.o.assy) #bruce 051227 revised this
                 
                 ## Get each of all other chunks' center movement for the rotation around 'rotCenter'
@@ -984,25 +987,65 @@ class depositMode(selectAtomsMode):
                 self.o.assy.addmol(newMol)
                 stuff.append(newMol)
         else: # Behaves like dropping a part anywhere you specify, independent of existing chunks.
-            nodes = newPart.molecules
-            #bruce 060627 new code: fix bug 2028 (non-hotspot case only) about interchunk bonds being broken
-            import ops_copy as hmm
-            import debug
-            debug.reload_once_per_event(hmm) # only reloads if atom_debug is set, and tolerates failure (I think)
             from ops_copy import copied_nodes_for_DND
-            newnodes = copied_nodes_for_DND(nodes)
-            if newnodes is None:
-                print "bug: newnodes should not be None; nodes was %r (saved in debug._bugnodes)" % (nodes,)
-                debug._bugnodes = nodes
-                newnodes = [] # kluge
-            for newMol in newnodes:
-                # some of the following probably only work for Chunks,
-                # though coding them for other nodes would not be hard
-                newMol.setAssy(self.o.assy)
-                newMol.move(moveOffset)
-                self.o.assy.addmol(newMol)
-                stuff.append(newMol)
-##            # old code, breaks interchunk bonds since it copies chunks one at a time (bug 2028)
+            # copy all nodes in newPart (except those in clipboard items), regardless of node classes;
+            # put it in a new Group if more than one thing [bruce 070501]
+            # [TODO: this should be done in the cases above, too, but that's not yet implemented,
+            #  and requires adding rot or pivot to the Node API and revising the rot-calling code above,
+            #  and also reviewing the definition of the "hotspot of a Part" and maybe of a "depositable clipboard item".]
+            assert newPart.tree.is_group()
+            nodes = list(newPart.tree.members) # might be []
+            assy = self.o.assy
+            newnodes = copied_nodes_for_DND(nodes, autogroup_at_top = True, assy = assy)
+                # note: that calls name_autogrouped_nodes_for_clipboard internally, if it forms a Group,
+                # but we ignore that and rename the new node differently below, whether or not it was
+                # autogrouped. We could just as well do the autogrouping ourselves...
+            if not newnodes:
+                if newnodes is None:
+                    print "bug: newnodes should not be None; nodes was %r (saved in debug._bugnodes)" % (nodes,)
+                        # TODO: This might be possible, for arbitrary partlib contents, just not for legitimate ones...
+                        # but partlib will probably be (or is) user-expandable, so we should turn this into history message,
+                        # not a bug print. But I'm not positive it's possible w/o a bug, so review first. ###FIX [bruce 070501 comment]
+                    import debug
+                    debug._bugnodes = nodes
+                    newnodes = []
+                msg = redmsg( "error: nothing to deposit in [%s]" % quote_html(str(newPart.name)) )
+                return [], msg
+            assert len(newnodes) == 1 # due to autogroup_at_top = True
+            # but the remaining code works fine regardless of len(newnodes), in case we make autogroup a preference
+            for newnode in newnodes:
+                # Rename newnode based on the partlib name and a unique number.
+                # It seems best to let the partlib mmp file contents (not just filename)
+                # control the name used here, so use newPart.tree.name rather than just newPart.name.
+                # (newPart.name is a complete file pathname; newPart.tree.name is usually its basename w/o extension.)
+                basename = str(newPart.tree.name)
+                if basename == 'Untitled':
+                    # kluge, for the sake of 3 current partlib files, and files saved only once by users (due to NE1 bug in save)
+                    dirjunk, base = os.path.split(newPart.name)
+                    basename, extjunk = os.path.splitext(base)
+                from chunk import gensym
+                newnode.name = gensym( basename + " " ) # ok? 
+                newnode.move(moveOffset) #k not sure this method is correctly implemented for measurement jigs, named views
+                assy.addnode(newnode)
+                stuff.append(newnode)
+            pass
+            
+##            #bruce 060627 new code: fix bug 2028 (non-hotspot case only) about interchunk bonds being broken
+##            nodes = newPart.molecules
+##            newnodes = copied_nodes_for_DND(nodes)
+##            if newnodes is None:
+##                print "bug: newnodes should not be None; nodes was %r (saved in debug._bugnodes)" % (nodes,)
+##                debug._bugnodes = nodes
+##                newnodes = [] # kluge
+##            for newMol in newnodes:
+##                # some of the following probably only work for Chunks,
+##                # though coding them for other nodes would not be hard
+##                newMol.setAssy(self.o.assy)
+##                newMol.move(moveOffset)
+##                self.o.assy.addmol(newMol)
+##                stuff.append(newMol)
+
+##            # pre-060627 old code, breaks interchunk bonds since it copies chunks one at a time (bug 2028)
 ##            for m in nodes:
 ##                newMol = m.copy(None)
 ##                newMol.setAssy(self.o.assy) #bruce 051227 revised this
@@ -1014,7 +1057,7 @@ class depositMode(selectAtomsMode):
 ##            pass
         self.o.assy.update_parts() #bruce 051227 see if this fixes the atom_debug exception in checkparts
         
-        msg = greenmsg("deposited library part: ") + " [" + str(newPart.name) + "]"  #ninad060924 fix bug 1164 
+        msg = greenmsg("deposited library part: ") + " [" + quote_html(str(newPart.name)) + "]"  #ninad060924 fix bug 1164 
         
         return stuff, msg  ####@@@@ should revise this message (stub is by bruce 051227)
 

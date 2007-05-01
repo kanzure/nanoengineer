@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2007 Nanorex, Inc.  All rights reserved.
 """
 jigs_motors.py -- Classes for motors.
 
@@ -142,7 +142,9 @@ class Motor(Jig):
         self.assy.changed()
         return
             
-    def move(self, offset): #k can this ever be called?
+    def move(self, offset):
+        ###k NEEDS REVIEW: does this conform to the new Node API method 'move',
+        # or should it do more invalidations / change notifications / updates? [bruce 070501 question]
         self.center += offset
     
     def rot(self, q):
