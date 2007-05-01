@@ -484,7 +484,7 @@ def mymousepoints(glpane, x, y):
     p2 = p1 + k*(p2-p1)
     return (p1, p2)
 
-courierfile = os.path.join( os.path.dirname(__file__), "experimental/textures/courier-128.png")
+courierfile = os.path.join( os.path.dirname(__file__), "experimental/textures/courier-128.png") # see also exprs/images.py
 
 '''
 ()()

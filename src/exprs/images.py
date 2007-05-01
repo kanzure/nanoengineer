@@ -189,11 +189,14 @@ def canon_image_filename( filename):
     #stub, might work for now:
     thisdir = os.path.dirname(__file__) # dir of exprs module
     cad_src = os.path.dirname( thisdir)
+        # [note: in a built Mac release, this might be Contents/Resources/Python/site-packages.zip, or
+        #  a different pathname with one more component; but an env var RESOURCEPATH (sp?) should also
+        #  be available (only in a release and only on Mac), and might make more sense to use then. #e]
     cad = os.path.dirname( cad_src)
     path = [ #e could precompute; doesn't matter much
         thisdir,
-        os.path.join( cad_src, "experimental/textures"),
-        os.path.join( cad, "images"), #e still correct??
+        os.path.join( cad_src, "experimental/textures"), # [not yet supported by autoBuild.py; also hardcoded in testdraw.py]
+        os.path.join( cad, "images"), #e still correct?? [not correct in Qt4]
     ]
     tries = map( lambda dir: os.path.join(dir, filename), path)
     lastresort = testdraw.courierfile
