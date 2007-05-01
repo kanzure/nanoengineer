@@ -3004,28 +3004,36 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
 
     def enter_custom_mode( self, modename, modefile): #bruce 050515
         fn = modefile
-        if not os.path.exists(fn):
+        if not os.path.exists(fn) and modename != 'testmode':
             env.history.message("should never happen: file does not exist: [%s]" % fn)
             return
-        dir, file = os.path.split(fn)
-        base, ext = os.path.splitext(file)
-        ## modename = base
-        ###e need better way to import from this specific file!
-        # (Like using an appropriate function in the import-related Python library module.)
-        # This kluge is not protected against weird chars in base.
-        oldpath = list(sys.path)
-        if dir not in sys.path:
-            sys.path.append(dir)
-                # Note: this doesn't guarantee we load file from that dir --
-                # if it's present in another one on path (e.g. cad/src),
-                # we'll load it from there instead. That's basically a bug,
-                # but prepending dir onto path would risk much worse bugs
-                # if dir masked any standard modules which got loaded now.
-        import gpl_only # make sure exec is ok in this version (caller should have done this already)
-        exec("import %s as _module" % (base,))
-        reload(_module)
-        exec("from %s import %s as _modeclass" % (base,base))
-        sys.path = oldpath
+        if modename == 'testmode':
+            #bruce 070429 explicit import probably needed for sake of py2app (so an explicit --include is not needed for it)
+            # (but this is apparently still failing to let the testmode item work in a built release -- I don't know why ###FIX)
+            print "enter_custom_mode specialcase for testmode" #e remove this print, when it works in a built release
+            import testmode
+            reload(testmode)
+            from testmode import testmode as _modeclass
+        else:
+            dir, file = os.path.split(fn)
+            base, ext = os.path.splitext(file)
+            ## modename = base
+            ###e need better way to import from this specific file!
+            # (Like using an appropriate function in the import-related Python library module.)
+            # This kluge is not protected against weird chars in base.
+            oldpath = list(sys.path)
+            if dir not in sys.path:
+                sys.path.append(dir)
+                    # Note: this doesn't guarantee we load file from that dir --
+                    # if it's present in another one on path (e.g. cad/src),
+                    # we'll load it from there instead. That's basically a bug,
+                    # but prepending dir onto path would risk much worse bugs
+                    # if dir masked any standard modules which got loaded now.
+            import gpl_only # make sure exec is ok in this version (caller should have done this already)
+            exec("import %s as _module" % (base,))
+            reload(_module)
+            exec("from %s import %s as _modeclass" % (base,base))
+            sys.path = oldpath
         modeobj = _modeclass(self) # this should put it into self.modetab under the name defined in the mode module
         self.modetab[modename] = modeobj # also put it in under this name, if different [### will this cause bugs?]
         self.setMode(modename)
