@@ -109,7 +109,7 @@ static int raiseExceptionIfNoneEarlier(PyObject *exception, const char *str)
 PyObject *
 specialExceptionIs(PyObject *specialExcep)
 {
-    if (!PyClass_Check(specialExcep)) {
+    if (!(PyType_Check(specialExcep) || PyClass_Check(specialExcep))) {
 	raiseExceptionIfNoneEarlier(PyExc_SystemError,
 				    "argument must be a PyClass");
 	return NULL;

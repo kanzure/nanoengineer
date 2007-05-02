@@ -41,6 +41,7 @@ extern double MinimizeThresholdCutoverMax;
 extern double MinimizeThresholdEndRMS;
 extern double MinimizeThresholdEndMax;
 extern double VanDerWaalsCutoffFactor;
+extern int EnableElectrostatic;
 extern int TimeReversal;
 extern double ThermostatGamma;
 extern double ThermostatG1;

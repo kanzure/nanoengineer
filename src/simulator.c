@@ -58,6 +58,8 @@ usage(void)
                     ...when max force is below this level.\n\
    --vdw-cutoff-factor=<float>\n\
                     maximum range of vdw force, as multiple of rvdW.\n\
+   --enable-electrostatic=<flag>\n\
+                    specify 0 to disable electrostatic interactions, default is non-zero.\n\
    -E, --print-structure-energy\n\
                     print structure potential energy\n\
    --print-energies\n\
@@ -149,6 +151,7 @@ set_py_exc_str(const char *filename,
 #define OPT_TIME_REVERSAL     LONG_OPT (14)
 #define OPT_THERMOSTAT_GAMMA  LONG_OPT (15)
 #define OPT_PRINT_ENERGIES    LONG_OPT (16)
+#define OPT_ENABLE_ELECTROSTATIC LONG_OPT (17)
 
 static const struct option option_vec[] = {
     { "help", no_argument, NULL, 'h' },
@@ -165,6 +168,7 @@ static const struct option option_vec[] = {
     { "min-threshold-end-rms", required_argument, NULL, OPT_MIN_THRESH_END_RMS},
     { "min-threshold-end-max", required_argument, NULL, OPT_MIN_THRESH_END_MAX},
     { "vdw-cutoff-factor", required_argument, NULL, OPT_VDW_CUTOFF_FACTOR},
+    { "enable-electrostatic", required_argument, NULL, OPT_ENABLE_ELECTROSTATIC},
     { "time-reversal", no_argument, NULL, OPT_TIME_REVERSAL},
     { "thermostat-gamma", required_argument, NULL, OPT_THERMOSTAT_GAMMA},
     { "print-energies", no_argument, NULL, OPT_PRINT_ENERGIES},
@@ -276,6 +280,9 @@ main(int argc, char **argv)
             break;
         case OPT_VDW_CUTOFF_FACTOR:
             VanDerWaalsCutoffFactor = atof(optarg);
+            break;
+        case OPT_ENABLE_ELECTROSTATIC:
+            EnableElectrostatic = atoi(optarg);
             break;
         case OPT_TIME_REVERSAL:
             TimeReversal = 1;

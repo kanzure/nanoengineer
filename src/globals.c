@@ -59,6 +59,8 @@ double ThermostatG1;
 // force is considered exactly zero beyond this point.
 double VanDerWaalsCutoffFactor;
 
+int EnableElectrostatic;
+
 FILE *OutputFile;
 FILE *TraceFile;
 
@@ -144,6 +146,8 @@ reinit_globals(void)
     MinimizeThresholdEndMax = 0.0; // set by constrainGlobals, below
 
     VanDerWaalsCutoffFactor = 1.7;
+
+    EnableElectrostatic = 1;
     
     OutputFile = NULL;
     TraceFile = NULL;
@@ -209,6 +213,7 @@ printGlobals()
         write_traceline("# MinimizeThresholdEndMax: %f\n", MinimizeThresholdEndMax);
     }
     write_traceline("# VanDerWaalsCutoffFactor: %f\n", VanDerWaalsCutoffFactor);
+    write_traceline("# EnableElectrostatic: %d\n", EnableElectrostatic);
     write_traceline("# ThermostatGamma: %f\n", ThermostatGamma);
     write_traceline("#\n");
 }
