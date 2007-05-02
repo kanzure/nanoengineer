@@ -757,6 +757,57 @@ makeDynamicVanDerWaals(struct part *p, struct atom *a1, struct atom *a2)
 #endif
 }
 
+// Scan the dynamic electrostatic list and mark as invalid any
+// interaction involving atom a.
+static void
+invalidateElectrostatic(struct part *p, struct atom *a)
+{
+    int i;
+    struct electrostatic *es;
+    
+    for (i=0; i<p->num_electrostatic; i++) {
+	es = p->electrostatic[i];
+	if (es && (es->a1 == a || es->a2 == a)) {
+	    p->electrostatic[i] = NULL;
+	    free(es);
+	    if (i < p->start_electrostatic_free_scan) {
+		p->start_electrostatic_free_scan = i;
+	    }
+	}
+    }
+}
+
+// Find a free slot in the dynamic electrostatic list (either one
+// marked invalid above, or a new one appended to the list).  Fill it
+// with a new, valid, interaction.
+static void
+makeDynamicElectrostatic(struct part *p, struct atom *a1, struct atom *a2)
+{
+    int i;
+    struct electrostatic *es = NULL;
+    
+    es = (struct electrostatic *)allocate(sizeof(struct electrostatic));
+    
+    for (i=p->start_electrostatic_free_scan; i<p->num_electrostatic; i++) {
+	if (!(p->electrostatic[i])) {
+	    p->electrostatic[i] = es;
+	    p->start_electrostatic_free_scan = i + 1;
+	    break;
+	}
+    }
+    if (i >= p->num_electrostatic) {
+	p->num_electrostatic++;
+	p->electrostatic = (struct electrostatic **)
+	    accumulator(p->electrostatic,
+			sizeof(struct electrostatic *) * p->num_electrostatic, 0);
+	p->electrostatic[p->num_electrostatic - 1] = es;
+	p->start_electrostatic_free_scan = p->num_electrostatic;
+    }
+    es->a1 = a1;
+    es->a2 = a2;
+    es->parameters = getElectrostaticParameters(a1->type->protons, a2->type->protons);
+}
+
 // Are a1 and a2 both bonded to the same atom (or to each other)?
 static int
 isBondedToSame(struct atom *a1, struct atom *a2)
@@ -933,10 +984,15 @@ updateVanDerWaals(struct part *p, void *validity, struct xyz *positions)
     int az2;
     struct atom *a;
     struct atom *a2;
+    struct atom *aNext;
+    struct atom *aPrev;
     struct atom **bucket;
     double r;
     double rSquared;
     double actualR;
+    double r_maxVdw;
+    double r_maxElectrostatic;
+    double coulombK;
     struct xyz dr;
     double drSquared;
     int dx;
@@ -981,6 +1037,7 @@ updateVanDerWaals(struct part *p, void *validity, struct xyz *positions)
             (az - a->vdwBucketIndexZ) & GRID_MASK_FUZZY) {
 
 	    invalidateVanDerWaals(p, a);
+            invalidateElectrostatic(p, a);
 	    // remove a from it's old bucket chain
 	    if (a->vdwNext) {
 		a->vdwNext->vdwPrev = a->vdwPrev;
@@ -999,14 +1056,50 @@ updateVanDerWaals(struct part *p, void *validity, struct xyz *positions)
             a->vdwBucketIndexZ = az & GRID_MASK;
             a->vdwBucketInvalid = 0;
             bucket = &(p->vdwHash[a->vdwBucketIndexX][a->vdwBucketIndexY][a->vdwBucketIndexZ]);
+
+            // If a is charged, we put it on the front of the list, otherwise
+            // we search for the first non-charged atom and insert it there.
+            // This maintains the invariant that charged atoms preceed non
+            // charged atoms.
+            if (a->isCharged) {
+                a->vdwNext = *bucket;
+                a->vdwPrev = NULL;
+                *bucket = a;
+                if (a->vdwNext) {
+                    a->vdwNext->vdwPrev = a;
+                }
+            } else {
+                aNext = *bucket;
+                aPrev = NULL;
+                while (aNext != NULL && aNext->isCharged) {
+                    aPrev = aNext;
+                    aNext = aNext->vdwNext;
+                }
+                // At this point, aNext is the first non-charged atom
+                // and aPrev is the last charged atom.  Either or both
+                // may be NULL.
+                a->vdwNext = aNext;
+                a->vdwPrev = aPrev;
+                if (aPrev == NULL) {
+                    *bucket = a;
+                } else {
+                    aPrev->vdwNext = a;
+                }
+                if (aNext != NULL) {
+                    aNext->vdwPrev = a;
+                }
+            }
             
-	    a->vdwNext = *bucket;
-	    a->vdwPrev = NULL;
-	    *bucket = a;
-	    if (a->vdwNext) {
-		a->vdwNext->vdwPrev = a;
-	    }
-            r = (a->type->vanDerWaalsRadius * 100.0 + p->maxVanDerWaalsRadius) * VanDerWaalsCutoffFactor;
+            r_maxVdw = (a->type->vanDerWaalsRadius * 100.0 + p->maxVanDerWaalsRadius) * VanDerWaalsCutoffFactor;
+            r = r_maxVdw;
+            if (EnableElectrostatic && a->isCharged) {
+                coulombK = COULOMB * a->type->charge * p->maxParticleCharge / DielectricConstant;
+                r_maxElectrostatic = fabs(coulombK) / MinElectrostaticSensitivity;
+                if (r_maxElectrostatic > r) {
+                    r = r_maxElectrostatic;
+                }
+            }
+
             rSquared = r * r;
             dx = 0;
             while (1) {
@@ -1054,7 +1147,11 @@ updateVanDerWaals(struct part *p, void *validity, struct xyz *positions)
 
                                                 a2 = p->vdwHash[ax2&GRID_MASK][ay2&GRID_MASK][az2&GRID_MASK];
                                                 for (; a2 != NULL; a2=a2->vdwNext) {
-                                                    if (a2->type->vanDerWaalsRadius > 0.0 && !isBondedToSame(a, a2)) {
+                                                    if (isBondedToSame(a, a2)) {
+                                                        continue;
+                                                    }
+                                                    if (a->type->vanDerWaalsRadius > 0.0 &&
+                                                        a2->type->vanDerWaalsRadius > 0.0) {
                                                         // At this point, we know the types of both
                                                         // atoms, so we can eliminate buckets which
                                                         // might be in range for some atom types,
@@ -1084,6 +1181,25 @@ updateVanDerWaals(struct part *p, void *validity, struct xyz *positions)
                                                                 makeDynamicVanDerWaals(p, a, a2); BAIL();
                                                             } else {
                                                                 makeDynamicVanDerWaals(p, a2, a); BAIL();
+                                                            }
+                                                        }
+                                                    }
+                                                    if (EnableElectrostatic && a->isCharged && a2->isCharged) {
+                                                        coulombK = COULOMB * a->type->charge * a2->type->charge /
+                                                            DielectricConstant;
+                                                        actualR = fabs(coulombK) / MinElectrostaticSensitivity;
+                                                        if (deltaXSquared +
+                                                            deltaYSquared +
+                                                            deltaZSquared > (actualR * actualR)) {
+                                                            continue;
+                                                        }
+                                                        dr = vdif(positions[i], positions[a2->index]);
+                                                        drSquared = vdot(dr, dr);
+                                                        if (drSquared < GRID_WRAP_COMPARE * GRID_WRAP_COMPARE) {
+                                                            if (i < a2->index) {
+                                                                makeDynamicElectrostatic(p, a, a2); BAIL();
+                                                            } else {
+                                                                makeDynamicElectrostatic(p, a2, a); BAIL();
                                                             }
                                                         }
                                                     }
@@ -1526,6 +1642,7 @@ makeAtom(struct part *p, int externalID, int elementType, struct xyz position)
     }
 
     if (a->type->charge != 0.0) {
+        a->isCharged = 1;
         p->num_charged_atoms++;
         p->charged_atoms = (struct atom **)accumulator(p->charged_atoms, sizeof(struct atom *) * p->num_charged_atoms, 0);
         p->charged_atoms[p->num_charged_atoms - 1] = a;

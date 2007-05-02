@@ -40,14 +40,21 @@ struct atom
     unsigned char vdwBucketIndexY;
     unsigned char vdwBucketIndexZ;    
     unsigned char vdwBucketInvalid;    
+
+    // These are pointers along the bucket chain for vdw buckets.
+    // All atoms for which isCharged is set preceed all those
+    // for which it is not set.
     struct atom *vdwPrev;
     struct atom *vdwNext;
+    
     double mass;               // yg, or yoctograms, or 1e-24 g
     double inverseMass;        // Dt*Dt / (mass * 1e-27)
-    //double charge;
+
+    // non-zero if this atom's type indicates a non-zero charge
+    unsigned char isCharged;
     
     // non-zero if this atom is in any ground jigs
-    int isGrounded;
+    unsigned char isGrounded;
     
     int index;
     int atomID;
@@ -345,6 +352,7 @@ struct part
     double maxParticleCharge;
 
     int num_electrostatic;
+    int start_electrostatic_free_scan;
     struct electrostatic **electrostatic;
     
     int num_stretches;
