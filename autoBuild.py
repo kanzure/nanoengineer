@@ -480,7 +480,7 @@ class NanoBuildWin32(NanoBuildBase):
     def openglAcceleratorName(self):
         return "quux.dll"
 
-    def freezePythonExecutable(self):
+    def freezePythonExecutable(self): # Windows
         print "\n------------------------------------------------------\nFreezing Python Executable"
         self.removeGPLFiles()
         try:
@@ -614,7 +614,7 @@ class NanoBuildLinux(NanoBuildBase):
         copy(os.path.join(self.atomPath,'cad/src/LICENSE'), os.path.join(self.buildSourcePath, 'doc'))
         copy(os.path.join(self.atomPath,'cad/src/RELEASENOTES.txt'), os.path.join(self.buildSourcePath, 'doc'))
 
-    def freezePythonExecutable(self):
+    def freezePythonExecutable(self): # Linux
         # Mandrake 10.1 calls it 'libsip', Mandriva 2006 calls it 'sip'
         try:
             cmd = ('FreezePython --include-modules=libsip,dbhash' +
@@ -815,7 +815,7 @@ class NanoBuildMacOSX(NanoBuildBase):
         NanoBuildBase.copyLicenses(self)
         copytree('licenses-Mac', os.path.join(self.buildSourcePath, 'licenses'))
 
-    def buildSourceForDistribution(self):
+    def buildSourceForDistribution(self): # Mac
         """Pack source together for distribution [Mac version, replaces superclass version]"""
         print "calling buildSourceForDistribution (Mac version)"
         self.buildSimulator()
@@ -883,7 +883,7 @@ class NanoBuildMacOSX(NanoBuildBase):
         print "------All python modules are packaged together. (Mac version)"
 
 
-    def freezePythonExecutable(self):
+    def freezePythonExecutable(self): # Mac
         os.chdir(os.path.join(self.atomPath,'cad/src'))
         os.rename('atom.py', self.appName + '.py')
         
@@ -979,7 +979,7 @@ class NanoBuildMacOSX(NanoBuildBase):
         #bruce 070427 change: py2app 0.1.5 and 0.2 use Contents/Resources/Python (as did the code below),
         # but some later py2apps use Contents/Resources/lib/python2.3. I'll revise this code to figure out
         # which one has already been created, print it and use it, or complain if it's more than one.
-        ### BTW this might also require adaptation in cad/src/atom.py and/or all_mac_imports.py.
+        ### BTW this might also require adaptation in cad/src/atom.py and/or other files.
         dirs_to_look_for = (
             'Contents/Resources/Python',
             'Contents/Resources/lib/python2.3',
