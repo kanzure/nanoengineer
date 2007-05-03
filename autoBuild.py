@@ -1179,7 +1179,8 @@ class NanoBuildMacOSX(NanoBuildBase):
             # do chown root last, since after that we can't change things inside (unless running as root)
         print "done fixing file permissions and ownership"
         print
-        print "*** AT THIS POINT (or when we're done), YOU CAN TEST THE RELEASE without installing it,
+        print "*** AT THIS POINT (or when we're done), YOU CAN TEST THE RELEASE" 
+        print "without installing it,"
         print "*** by using this shell command:"
         print "***"
         print "*** % open %s" % self.buildSourcePath ###k [bruce 070429] UNTESTED
