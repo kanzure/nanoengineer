@@ -206,6 +206,12 @@ class NanoBuildBase:
         # cvs checkouts, specify a directory containing cad and sim trees.
 
         self.atomPath = os.path.join(self.rootPath, 'atom')
+            # NOTE: there is no need to rename this path to end with 'main' -- it's used during release building
+            # but is not part of the produced program. For Mac and (I think) Linux, it's arbitrary,
+            # so we *could* rename it (ideally to something other than 'main' -- it's the subdirectory into which
+            # we copy the sources and slightly modify them before building them, so 'sources' would make sense),
+            # but for Windows I don't know if we can (without modifying other programs I don't know about),
+            # so I'm leaving it unchanged for now. [bruce 070502]
         self.setupBuildSourcePath()
 
     def get_md5(self, file):
@@ -254,7 +260,7 @@ class NanoBuildBase:
         return "quux.so"
 
     def prepareSources(self):
-        """Checkout source code from cvs for the release """
+        """Checkout source code from cvs for the release [extended by some subclasses]"""
         os.chdir(self.atomPath)
         dirlist = ' '.join(('cad/src',
                             'cad/plugins',
@@ -295,6 +301,20 @@ class NanoBuildBase:
         #  at least on Mac Qt3 as of bruce 070427.)
         self.removeCVSFiles('cad')
         self.removeCVSFiles('sim')
+
+        if os.path.exists('cad/src/main.py'): #bruce 070502 permit startup python file to have this name
+            self.startup_python_basename = 'main'
+            print "startup python file is cad/src/main.py"
+            if os.path.exists('cad/src/atom.py'):
+                # presumably it's either an error, or a leftover or convenience-symlink for some developer --
+                # remove it, so it can't accidently end up in the built program along with main.py 
+                print "removing cad/src/atom.py from sources to build from"
+                os.remove('cad/src/atom.py')
+        elif os.path.exists('cad/src/atom.py'):
+            self.startup_python_basename = 'atom'
+            print "startup python file is cad/src/atom.py"
+        else:
+            assert 0, "can't find main.py or atom.py to set self.startup_python_basename"
 
         self.buildTarball() # For Linux only.
         print "----------Sources have been checked out or copied.\n"
@@ -410,7 +430,7 @@ class NanoBuildWin32(NanoBuildBase):
         NanoBuildBase.copyLicenses(self)
         copytree('licenses-Windows', os.path.join(self.buildSourcePath, 'licenses'))
 
-    def prepareSources(self):
+    def prepareSources(self): # Windows
         """Checkout source code from cvs for the release """
         print "\n------------------------------------------------------\nPreparing Sources"
                 
@@ -466,8 +486,8 @@ class NanoBuildWin32(NanoBuildBase):
             for entry in entries[:]:
                 file = os.path.join(srcPath, entry)
                 if os.path.isfile(file) and entry.startswith('gpl_'):
-                        print "File removed: ", entry
-                        os.remove(file)
+                    os.remove(file)
+                    print "File removed: ", entry
             print "Done"
         return
     
@@ -520,6 +540,10 @@ class NanoBuildWin32(NanoBuildBase):
         isf.write('Source: "%s\\*"; DestDir: "{app}"; Flags: recursesubdirs\n' % sourceDir)
         isf.write('Source: "README.txt"; DestDir: "{app}"; Flags: isreadme\n')
         isf.write("\n[Icons]\n")
+        ### FIX: I am not sure whether/when "atom.exe" in the following two statements should be replaced
+        # with "%s.exe" % self.startup_python_basename (or perhaps just with "main.exe" if there is no need
+        # to build for Windows from old sources). I am also not sure what else (outside of this file)
+        # needs to have 'atom' replaced by 'main', for Windows release building. [bruce 070502]
         isf.write(('Name: "{group}\\%s"; Filename: "{app}\\program\\atom.exe"; ' +
                    'WorkingDir: "{app}\\program"; IconFilename: "{app}\\nanorex_48x.ico"\n') % appName)
         isf.write(('Name: "{userdesktop}\\%s"; Filename: "{app}\\program\\atom.exe"; ' +
@@ -620,13 +644,13 @@ class NanoBuildLinux(NanoBuildBase):
             cmd = ('FreezePython --include-modules=libsip,dbhash' +
                    ' --exclude-modules=OpenGL' +
                    ' --install-dir=' + self.progPath +
-                   ' --target-name=' + self.appName + ' atom.py')
+                   ' --target-name=' + self.appName + ' %s.py' % self.startup_python_basename)
             system(cmd)
         except:
             cmd = ('FreezePython --include-modules=sip,dbhash' +
                    ' --exclude-modules=OpenGL' +
                    ' --install-dir=' + self.progPath +
-                   ' --target-name=' + self.appName + ' atom.py')
+                   ' --target-name=' + self.appName + ' %s.py' % self.startup_python_basename)
             system(cmd)
         #Copy OpenGL package into buildSource/program
         copytree(os.path.join(PYLIBPATH, 'site-packages', 'OpenGL'),
@@ -885,7 +909,7 @@ class NanoBuildMacOSX(NanoBuildBase):
 
     def freezePythonExecutable(self): # Mac
         os.chdir(os.path.join(self.atomPath,'cad/src'))
-        os.rename('atom.py', self.appName + '.py')
+        os.rename('%s.py' % self.startup_python_basename, self.appName + '.py')
         
         #bruce 060420 adding more excludes:
         # _tkinter (otherwise it copies /Library/Frameworks/{Tcl,Tk}.framework into Contents/Frameworks)
@@ -962,11 +986,17 @@ class NanoBuildMacOSX(NanoBuildBase):
         copy(os.path.join(self.atomPath, 'cad/src/experimental/pyrex-opengl',
                           self.openglAcceleratorName()), self.binPath)
         if os.path.exists(os.path.join(self.atomPath, 'cad/src/all_mac_imports.py')):
-            copy(os.path.join(self.atomPath, 'cad/src/all_mac_imports.py'),
-                              os.path.join(self.buildSourcePath, appname, 'Contents/Resources'))
-            print "copied all_mac_imports.py into Contents/Resources"
+##            copy(os.path.join(self.atomPath, 'cad/src/all_mac_imports.py'),
+##                              os.path.join(self.buildSourcePath, appname, 'Contents/Resources'))
+##            print "copied all_mac_imports.py into Contents/Resources"
+            # no longer needed -- autoBuild can even build old sources (that have this file) without needing
+            # to copy it into the place where old versions of atom.py (aka main.py) will look for it
+            # (and will build a better app that way -- faster startup) [bruce 070502]
+            print "not copying obsolete file all_mac_imports.py into Contents/Resources"
+            print "(not sure if it will get compiled into the built program)"
         else:
-            print "(all_mac_imports.py was not found)" #bruce 070427 added this case
+            print "(all_mac_imports.py was not found -- that's good, it's obsolete)"
+                #bruce 070427 added this case; as of 070429 it should be normal
         copy('/usr/local/bin/gnuplot', self.binPath)
         #Copy rungms script into 'bin' directory
         copy(os.path.join(self.atomPath,'cad/src/rungms'), self.binPath)
@@ -979,7 +1009,7 @@ class NanoBuildMacOSX(NanoBuildBase):
         #bruce 070427 change: py2app 0.1.5 and 0.2 use Contents/Resources/Python (as did the code below),
         # but some later py2apps use Contents/Resources/lib/python2.3. I'll revise this code to figure out
         # which one has already been created, print it and use it, or complain if it's more than one.
-        ### BTW this might also require adaptation in cad/src/atom.py and/or other files.
+        ### BTW this might also require adaptation in cad/src/atom.py (soon to be renamed to main.py) and/or other files.
         dirs_to_look_for = (
             'Contents/Resources/Python',
             'Contents/Resources/lib/python2.3',
@@ -1148,6 +1178,12 @@ class NanoBuildMacOSX(NanoBuildBase):
         system("sudo chown -R root %s" % self.buildSourcePath)
             # do chown root last, since after that we can't change things inside (unless running as root)
         print "done fixing file permissions and ownership"
+        print
+        print "*** AT THIS POINT (or when we're done), YOU CAN TEST THE RELEASE without installing it,
+        print "*** by using this shell command:"
+        print "***"
+        print "*** % open %s" % self.buildSourcePath ###k [bruce 070429] UNTESTED
+        print
         # Run PackageMaker to build the final installation package
         # Note: on some Macs, PackageMaker resides in /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS
         # so this needs to be on your shell path. Maybe we should add it here... did that [bruce 070427], it seems to work.
