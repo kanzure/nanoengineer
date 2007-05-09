@@ -1,3 +1,5 @@
+// Copyright (c) 2004-2006 Nanorex, Inc. All Rights Reserved.
+
 #ifndef SIMULATOR_H_INCLUDED
 #define SIMULATOR_H_INCLUDED
 
@@ -23,8 +25,6 @@
     RCSID_MINSTRUCTURE_H \
     RCSID_WRITEMOVIE_H \
     RCSID_GLOBALS_H
-
-// Copyright (c) 2004-2006 Nanorex, Inc. All Rights Reserved.
 
 // SI prefixes:
 //

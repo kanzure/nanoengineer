@@ -3,7 +3,7 @@
 
 # usage:
 #
-# merge.parameters existingParameterFile newParameterFiles...
+# merge.parameters.py existingParameterFile newParameterFiles...
 #
 # creates existingParameterFile.new
 #

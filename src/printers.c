@@ -1,5 +1,5 @@
+// Copyright (c) 2004-2006 Nanorex, Inc. All Rights Reserved.
 /*
- * Copyright (c) 2004-2006 Nanorex, Inc. All Rights Reserved.
  * Routines to handle printing to the trace file.
  *
  * CHANGES  (reverse chronological order, use CVS log for details)
