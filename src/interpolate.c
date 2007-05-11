@@ -310,8 +310,14 @@ findExcessiveEnergyLevel(struct interpolationTable *t,
     }
     k += searchIncrement;
   }
-  WARNING3("ExcessiveEnergyLevel %e exceeds interpolation table limits at %e for %s",
-           ExcessiveEnergyLevel, potential, name);
+
+  // Warning disabled to keep it from triggering on DNA pseudo atoms.
+  // Should be reinstated in some way when cad provides a method to
+  // set ExcessiveEnergyLevel.
+  //
+  //WARNING3("ExcessiveEnergyLevel %e exceeds interpolation table limits at %e for %s",
+  //ExcessiveEnergyLevel, potential, name);
+
   return searchLimit;
 }
 
