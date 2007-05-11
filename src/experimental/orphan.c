@@ -1,4 +1,5 @@
 
+// Copyright 2005 Nanorex, Inc.  See LICENSE file for details. 
 /* factor for a unit vector given length squared -- rtned in uf, i is temp */
 /** tables and setup function for same */
 double uft1[UFTLEN], uft2[UFTLEN];

@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2006 Nanorex, Inc.  See LICENSE file for details. 
 """Vectors, Quaternions, and Trackballs
 
 Vectors are a simplified interface to the Numeric arrays.

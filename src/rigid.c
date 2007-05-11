@@ -1,4 +1,5 @@
 
+// Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 #include "simulator.h"
 #include "rigid-ode.h"
 

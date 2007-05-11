@@ -1,3 +1,4 @@
+# Copyright 2005 Nanorex, Inc.  See LICENSE file for details. 
 from Numeric import *
 from VQT import *
 from string import *

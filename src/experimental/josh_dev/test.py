@@ -1,4 +1,5 @@
 
+# Copyright 2005 Nanorex, Inc.  See LICENSE file for details. 
 from bondage import *
 e,p,b = readmmp('ethane.mmp')
 bondsetup(b)

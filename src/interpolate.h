@@ -1,4 +1,4 @@
-/* Copyright (c) 2006 Nanorex, Inc. All rights reserved. */
+// Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 #ifndef INTERPOLATE_H_INCLUDED
 #define INTERPOLATE_H_INCLUDED
 

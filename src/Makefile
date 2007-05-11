@@ -1,4 +1,5 @@
 # Makefile for the simulator
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 # $Id$
 
 UNAME := $(shell uname)

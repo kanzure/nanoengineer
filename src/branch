@@ -1,4 +1,4 @@
-Copyright (c) 2006 Nanorex, Inc. All rights reserved.
+ Copyright 2005-2006 Nanorex, Inc.  See LICENSE file for details. 
 
 CVS branching is sometimes usefully done with small subsets of a
 source tree. In that case, you would change the branch file to be

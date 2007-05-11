@@ -1,5 +1,6 @@
 
 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 
 CC=gcc
 CFLAGS=-Wall -g -I/usr/X11R6/include -I/usr/include/python2.3

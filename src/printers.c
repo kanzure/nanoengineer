@@ -1,4 +1,4 @@
-// Copyright (c) 2004-2006 Nanorex, Inc. All Rights Reserved.
+// Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 /*
  * Routines to handle printing to the trace file.
  *

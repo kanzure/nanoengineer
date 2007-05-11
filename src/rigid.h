@@ -1,4 +1,5 @@
 
+// Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
 extern void rigid_init(struct part *p);
 
 extern void rigid_destroy(struct part *p);

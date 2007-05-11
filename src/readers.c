@@ -1,4 +1,4 @@
-// Copyright (c) 2004-2006 Nanorex, Inc. All Rights Reserved.
+// Copyright 2004-2006 Nanorex, Inc.  See LICENSE file for details. 
 
 #include "simulator.h"
 

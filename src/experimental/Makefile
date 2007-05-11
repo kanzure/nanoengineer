@@ -1,5 +1,6 @@
 
 
+# Copyright 2005, 2007 Nanorex, Inc.  See LICENSE file for details. 
 CFLAGS=-Wall -O2 -pg
 
 test: testsqrt
