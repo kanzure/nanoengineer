@@ -1,4 +1,4 @@
-# Portions copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2005-2006 Nanorex, Inc.  See LICENSE file for details. 
 '''
 bonds_from_atoms.py -- experimental code for inferring bonds from atom positions and elements alone
 

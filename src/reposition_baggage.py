@@ -1,4 +1,4 @@
-# Copyright (c) 2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
 '''
 reposition_baggage.py -- help reposition baggage atoms after real neighbor atoms have moved
 

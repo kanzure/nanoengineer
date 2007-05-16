@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 
 """
 part.py
@@ -612,7 +612,25 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         items = [(atm.pick_order(), atm) for atm in self.selatoms.itervalues()]
         items.sort()
         return [pair[1] for pair in items]
-        
+
+    def selected_atoms_list(self, include_atoms_in_selected_chunks = False): #bruce 070508
+        """Return a list of all selected atoms. If the option says to, also include
+        real (i.e. selectable, ignoring selection filter) atoms in selected chunks.
+        Atoms are in arbitrary order, except that if only atoms were selected (not chunks),
+        then they're in order of selection.
+        """
+        res = self.selatoms_list() # use some private knowledge: we now own this mutable list.
+        if include_atoms_in_selected_chunks:
+            #e [someday it might be that chunks too will have a pick_order;
+            #   then we could sort them with the atoms before expanding them into atoms,
+            #   and change our spec to return all atoms in order of selection
+            #   (using arb or mmp file order within picked chunks)]
+            for chunk in self.selmols:
+                for atom in chunk.atoms.itervalues():
+                    if not atom.is_singlet():
+                        res.append(atom)
+        return res
+    
     # ==
     
     def addmol(self, mol): #bruce 050228 revised this for Part (was on assy) and for inval/update of part-summary attrs.

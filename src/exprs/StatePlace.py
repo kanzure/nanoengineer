@@ -1,7 +1,9 @@
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 StatePlace.py - help InstanceOrExpr or its subclasses define and store state, in layers [#redoc that] 
 
 $Id$
+
 
 note: this used to be part of staterefs.py; split it out on 061203
 """

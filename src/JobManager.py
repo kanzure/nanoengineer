@@ -1,13 +1,14 @@
-# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
-'''
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+"""
 JobManager.py
 
 $Id$
-'''
+"""
 __author__ = "Mark"
 
 import os
 from HistoryWidget import redmsg
+from PyQt4.Qt import * 
 
 def touch_job_id_status_file(job_id, Status='Queued'):
     '''Creates the status file for a given job provided the job_id and status.
@@ -95,17 +96,26 @@ from GamessJob import GamessJob
 
 ###Huaicai: Temporary fix the problem of bug 754: an older version of PyQt has problem working with
 ###Qt3.3.3 for the QTable class.
-#from JobManagerDialog import JobManagerDialog
-if 0:
- class JobManager(JobManagerDialog):
+###Will: Hopefully that will be resolved in Qt 4.1.
+
+from JobManagerDialog import Ui_JobManagerDialog
+
+class JobManager(QWidget, Ui_JobManagerDialog):
     jobType = {"GAMESS": GamessJob, "nanoSIM-1": None}
     def __init__(self, parent):
-        JobManagerDialog.__init__(self, parent)
+        QWidget.__init__(self, parent)
+        self.setupUi(self)
+        self.connect(self.close_btn,SIGNAL("clicked()"),self.close)
+        self.connect(self.job_table,SIGNAL("clicked(int,int,int,const QPoint&)"),self.cell_clicked)
+        self.connect(self.delete_btn,SIGNAL("clicked()"),self.delete_job)
+        self.connect(self.refresh_btn,SIGNAL("clicked()"),self.refresh_job_table)
+        self.connect(self.start_btn,SIGNAL("clicked()"),self.startJob)
+        self.connect(self.stop_btn,SIGNAL("clicked()"),self.stopJob)
         
         self.win = parent
         self.jobs = [] # The job object, currently selected in the job table.
         self.setup()
-        self.exec_loop()
+        self.exec_()
 
 
     def setup(self):
@@ -257,5 +267,3 @@ if 0:
                 pass
                 
         return jobs
-    
-                

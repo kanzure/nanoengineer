@@ -1,4 +1,4 @@
-# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 '''
 widget_hacks.py
 
@@ -22,9 +22,9 @@ __author__ = 'bruce'
 try:
     from __main__ import original_QToolButton as QToolButton
 except:
-    from qt import QToolButton
+    from PyQt4.Qt import QToolButton
 
-from qt import QPainter, Qt, QPen, QColor
+from PyQt4.Qt import QPainter, Qt, QPen, QColor
 
 toolbutton_highlight_color = QColor(80,80,255) # light blue; should perhaps be a pref
 
@@ -34,9 +34,7 @@ class hacked_QToolButton(QToolButton):
     is_hacked_class = True
     def paintEvent(self, event):
         res = QToolButton.paintEvent(self, event)
-        if _enable_hacked_QToolButton_paintEvent and self.isOn():
-            # Qt doc fails to document that this method is self.isOn rather than self.on,
-            # though it does mention the analogous fact for the 'on' property of QAction.
+        if _enable_hacked_QToolButton_paintEvent and self.isChecked():
             r = event.rect()
             x,y = r.left(), r.top()
             w,h = r.width(), r.height()
@@ -47,6 +45,7 @@ class hacked_QToolButton(QToolButton):
             ## 0 29 30 0 35 36
             ## 0 31 32 0 32 33
             p = QPainter(self, True) # True claims to mean un-clipped -- not sure if this is good.
+                ## Qt4 error: TypeError: too many arguments to QPainter(), 1 at most expected
             color = toolbutton_highlight_color
             p.setPen(QPen(color, 3)) # try 3 and 2
             p.drawRect(x+2,y+2,w-4,h-4) #e could also try drawRoundRect(r, xroundedness, yroundedness)
@@ -58,15 +57,26 @@ def replacement_QToolButton_constructor(*args): #e could probably just install t
 
 def replace_QToolButton_constructor( func):
     "only call this once, and call it before any QToolButton is made"
-    import qt
+    import PyQt4.Qt as qt #bruce 070425 bugfix in Qt4 port: added "as qt"
     import __main__
     __main__.original_QToolButton = qt.QToolButton
     qt.QToolButton = func
     ## print "replaced qt.QToolButton %r with %r" % ( __main__.original_QToolButton, func)
+    # The following is needed for this to work on Qt4 [bruce 070425]:
+    for attr in ('MenuButtonPopup',):
+        val = getattr( __main__.original_QToolButton, attr)
+        setattr(func, attr, val)
     return
 
 def doit3():
-    "this is called once very early in startup, on Macs only"
+    "this is called once very early in startup, on Qt3 Macs only"
+    # Note: it might not be necessary to call this when using Qt4, since the Qt3 bug it was meant to work around
+    # may have been fixed in Qt4. We've never tested this. The debug menu option it supports,
+    # "Mac OS 10.4 QToolButton workaround", also doesn't yet work in Qt4 due to an incomplete port
+    # (see the "Qt4 error" comments herein). For these reasons I'm disabling the call to this routine
+    # and that debug menu command in Qt4. We'll need to test a built release on Tiger to find out if the
+    # bug this worked around is still present. If so, we'll need to reenable this code and complete the port to Qt4.
+    # [bruce 070425]
     replace_QToolButton_constructor( replacement_QToolButton_constructor)
 
 # ==
@@ -79,9 +89,10 @@ def hack_QToolButton_1(qtoolbutton): #bruce 050729 experiment to work around QTo
     if text:
         return # return early
     iconset = qtoolbutton.iconSet()
+        ## Qt4 error: AttributeError: iconSet
     from debug_prefs import modify_iconset_On_states
     modify_iconset_On_states(iconset, use_color = toolbutton_highlight_color )
-    qtoolbutton.setIconSet(iconset) #k might not be needed
+    qtoolbutton.setIcon(iconset) #k might not be needed
     return
 
 def apply2allchildwidgets(widget, func):
@@ -125,7 +136,7 @@ hack_every_QToolButton_warning = "(This might not be visible in dialogs until th
 def find_layout(widget):
     "search all layouts under widget's toplevel widget to find the (first) (#e enabled?) layout controlling widget"
     win = widget.topLevelWidget()
-    from qt import QLayout
+    from PyQt4.Qt import QLayout
     res = []
     keep = [] # for making debug print addrs not be reused
     widgeo = widget.geometry() # QRect object

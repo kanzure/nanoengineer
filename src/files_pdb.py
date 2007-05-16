@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2007 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 files_pdb.py -- reading and writing PDB files
 
@@ -153,6 +153,9 @@ def insertpdb(assy,filename):
 
 def writepdb(part, filename): #bruce 050927 replaced arg assy with part, added docstring
     "write the given part into a new PDB file with the given name"
+    
+    # PDB File Format available at http://www.rcsb.org/pdb/static.do?p=file_formats/pdb/index.html
+    
     f = open(filename, "w") # doesn't yet detect errors in opening file [bruce 050927 comment]
     
     # Atom object's key is the key, the atomIndex is the value  
@@ -164,11 +167,26 @@ def writepdb(part, filename): #bruce 050927 replaced arg assy with part, added d
     atomIndex = 1
 
     def exclude(atm): #bruce 050318
-        "should we exclude this atom (and bonds to it) from the file?"
-        return atm.element == Singlet
+        """Exclude this atom (and bonds to it) from the file under the following conditions:
+        - if it is a singlet
+        - if it is not visible
+        - if it is a member of a hidden chunk (molecule)
+        """
+        # Added not visible and hidden member of chunk. This effectively deletes these atoms, which might be considered a bug.
+        # Suggested solutions:
+        # - if the current file is a PDB and has hidden atoms/chunks, warn user before quitting NE1 (suggest saving as MMP).
+        # - do not support native PDB. Open PDBs as MMPs; only allow export of PDB.
+        # Fixes bug 2329. Mark 070423
+        return atm.element == Singlet or not atm.visible() or atm.molecule.hidden
 
     excluded = 0
+    molnum=1
+    chainId = chr(96+molnum)
+    space = " "
+    
     for mol in part.molecules:
+        molstr = "MOL" + str(molnum) + "\n"
+        f.write(str(molstr))
         for a in mol.atoms.itervalues():
             if exclude(a):
                 excluded += 1
@@ -178,9 +196,11 @@ def writepdb(part, filename): #bruce 050927 replaced arg assy with part, added d
             f.write("%5d" % atomIndex)
             f.write("%3s" % a.element.symbol)
             pos = a.posn()
-            fpos = (float(pos[0]), float(pos[1]), float(pos[2]))
-            space = " "
-            f.write("%16s" % space)
+            fpos = (float(pos[0]), float(pos[1]), float(pos[2])) 
+            f.write("%7s" % space)
+            f.write("%1s" % chainId.upper()) # Chain identifier - single letter in column 22. 
+                # This has been tested with 35 chunks and still works in QuteMol. Mark 070430.
+            f.write("%8s" % space)
             f.write("%8.3f%8.3f%8.3f" % fpos)
 
             atomsTable[a.key] = atomIndex
@@ -203,16 +223,22 @@ def writepdb(part, filename): #bruce 050927 replaced arg assy with part, added d
                 # I think so, so I'm doing that (unlike the previous code).
 
             f.write("\n")
+            
+        for aList in connectList:
+            f.write("CONECT")
+            for a in aList:
+                index = atomsTable[a.key]
+                f.write("%5d" % index)
+            f.write("\n")
+            
+        connectList = []
+        molnum+=1
+        chainId = chr(96+molnum)
 
-    for aList in connectList:
-        f.write("CONECT")
-        for a in aList:
-            index = atomsTable[a.key]
-            f.write("%5d" % index)
-        f.write("\n")
-
-    f.write("END\n")
+        f.write("END\n")
+    
     f.close()
+    
     if excluded:
         msg = "Warning: excluded %d open bond(s) from saved PDB file; consider Hydrogenating and resaving." % excluded
         msg = fix_plurals(msg)

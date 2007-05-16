@@ -1,20 +1,42 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 ESPImagePropDialog
 
 $Id$
 """
 
-from qt import *
+from PyQt4.Qt import *
 from ESPImagePropDialog import *
-from widgets import RGBf_to_QColor, QColor_to_RGBf
+from widgets import RGBf_to_QColor, QColor_to_RGBf, get_widget_with_color_palette
 import copy
 
 
-class ESPImageProp(ESPImagePropDialog):
+class ESPImageProp(QDialog, Ui_ESPImagePropDialog):
     def __init__(self, esp_image, glpane):
 
-        ESPImagePropDialog.__init__(self)
+        QWidget.__init__(self)
+        self.setupUi(self)
+        self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
+        self.connect(self.cancel_btn,SIGNAL("clicked()"),self.reject)
+        self.connect(self.choose_border_color_btn,SIGNAL("clicked()"),self.change_border_color)
+        self.connect(self.choose_fill_color_btn,SIGNAL("clicked()"),self.change_fill_color)
+        self.connect(self.show_esp_bbox_checkbox,SIGNAL("toggled(bool)"),self.show_esp_bbox)
+        self.connect(self.select_atoms_btn,SIGNAL("clicked()"),self.select_atoms_inside_esp_bbox)
+        self.connect(self.highlight_atoms_in_bbox_checkbox,SIGNAL("toggled(bool)"),self.highlight_atoms_in_bbox)
+        self.connect(self.calculate_esp_btn,SIGNAL("clicked()"),self.calculate_esp)
+        self.connect(self.rotate_ccw_btn,SIGNAL("clicked()"),self.rotate_90)
+        self.connect(self.rotate_cw_btn,SIGNAL("clicked()"),self.rotate_neg_90)
+        self.connect(self.flip_btn,SIGNAL("clicked()"),self.flip_esp_image)
+        self.connect(self.mirror_btn,SIGNAL("clicked()"),self.mirror_esp_image)
+        self.connect(self.opacity_slider,SIGNAL("valueChanged(int)"),self.change_opacity)
+        self.connect(self.choose_file_btn,SIGNAL("clicked()"),self.change_esp_image)
+        self.connect(self.load_btn,SIGNAL("clicked()"),self.load_esp_image)
+        self.connect(self.clear_btn,SIGNAL("clicked()"),self.clear_esp_image)
+        self.connect(self.xaxis_spinbox,SIGNAL("valueChanged(int)"),self.change_xaxisOrient)
+        self.connect(self.yaxis_spinbox,SIGNAL("valueChanged(int)"),self.change_yaxisOrient)
+        self.connect(self.width_linedit,SIGNAL("returnPressed()"),self.change_jig_size)
+        self.connect(self.edge_offset_linedit,SIGNAL("returnPressed()"),self.change_jig_size)
+        self.connect(self.image_offset_linedit,SIGNAL("returnPressed()"),self.change_jig_size)
         self.jig = esp_image
         self.glpane = glpane
     
@@ -28,8 +50,13 @@ class ESPImageProp(ESPImagePropDialog):
         # Jig color
         self.fill_QColor = RGBf_to_QColor(self.jig.fill_color) # Used as default color by Color Chooser
         self.border_QColor = RGBf_to_QColor(self.jig.normcolor) # Used as default color by Color Chooser
-        self.fill_color_pixmap.setPaletteBackgroundColor(self.fill_QColor)
-        self.border_color_pixmap.setPaletteBackgroundColor(self.border_QColor)
+        
+        self.fill_color_pixmap = get_widget_with_color_palette(
+            self.fill_color_pixmap, self.fill_QColor)
+        
+        self.border_color_pixmap = get_widget_with_color_palette(
+            self.border_color_pixmap,self.border_QColor)
+        
         
         self.name_linedit.setText(self.jig.name)
         self.width_linedit.setText(str(self.jig.width))
@@ -51,23 +78,27 @@ class ESPImageProp(ESPImagePropDialog):
         
         self.png_fname_linedit.setText(self.jig.espimage_file)
         
+        
     def change_fill_color(self):
         '''Slot method to change fill color.'''
-        color = QColorDialog.getColor(self.fill_QColor, self, "ColorDialog")
+        color = QColorDialog.getColor(self.fill_QColor, self)
 
-        if color.isValid():
-            self.fill_color_pixmap.setPaletteBackgroundColor(color)
+        if color.isValid():            
             self.fill_QColor = color
+            self.fill_color_pixmap = get_widget_with_color_palette(
+                self.fill_color_pixmap, self.fill_QColor)
+            
             self.jig.fill_color = QColor_to_RGBf(color)
             self.glpane.gl_update()
             
     def change_border_color(self):
         '''Slot method change border color.'''
-        color = QColorDialog.getColor(self.border_QColor, self, "ColorDialog")
+        color = QColorDialog.getColor(self.border_QColor, self)
 
         if color.isValid():
-            self.border_color_pixmap.setPaletteBackgroundColor(color)
             self.border_QColor = color
+            self.border_color_pixmap = get_widget_with_color_palette(
+                self.border_color_pixmap,self.border_QColor)
             self.jig.color = self.jig.normcolor = QColor_to_RGBf(color)
             self.glpane.gl_update()
     

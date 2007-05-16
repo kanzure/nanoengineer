@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2007 Nanorex, Inc.  All rights reserved.
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 testmode.py -- scratchpad for new code (mainly related to DNA Origami),
 OWNED BY BRUCE, not imported by default.
@@ -7,6 +7,7 @@ FOR NOW [060716], NO ONE BUT BRUCE SHOULD EDIT THIS FILE IN ANY WAY.
 (Unless Ninad needs to edit the Qt4 version.)
 
 $Id$
+
 
 How to use:   [see also exprs/README.txt, which is more up to date]
 

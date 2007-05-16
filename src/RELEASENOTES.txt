@@ -1,4 +1,32 @@
-# Copyright (c) 2006 Nanorex, Inc. All rights reserved.
+ Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+
+Release Notes for NanoEngineer-1 v0.9 (Alpha 9)
+
+What is new in NanoEngineer-1 v0.9 (6/1/2007):
+
+1. Completely ported GUI from Qt 3.x to Qt 4.x
+
+   - NanoEngineer-1 Alpha 9 is now GPL'd for all platforms, including Windows.
+
+2. Improved Graphical User Interface, improved ease of use
+
+   - New Property Manager presents users with options for current commands
+   - New Command Manager Toolbar provides easy access to most common commands
+   - Improved selection and highlighting heuristics
+   - Better, more intuitive interactive graphics for translating and rotating selected components
+   - Interactive zooming on cursor focus point
+
+3. Special support for Structural DNA Nanotechnology
+
+   - DNA "reduced model" allows easy design of complex DNA structures
+
+   - Collection of DNA motifs included in part library:
+      - Basic motifs (i.e. holliday junctions, double crossovers, triple crossovers, etc.)
+      - Star structures
+      - DNA tiles
+      - DNA origami
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 Release Notes for NanoEngineer-1 v0.8 (Alpha 8)
 
@@ -47,6 +75,7 @@ What is new in NanoEngineer-1 v0.8 (7/13/2006):
    - Bond types can be changed using context menu or bond tools, even when this requires changing atom types or removing bondpoints. 
    - The bond order of a bondpoint can be changed using bond tools. 
    - Automatic repositioning of bondpoints when dragging connected atoms has been improved
+
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 What was new in NanoEngineer-1 v0.7 (4/24/2006):

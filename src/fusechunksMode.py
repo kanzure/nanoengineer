@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 fusechunksMode.py
 
@@ -15,62 +15,73 @@ from bonds import bond_at_singlets
 from HistoryWidget import redmsg, orangemsg
 from platform import fix_plurals
 import env
+from FusePropertyManager import FusePropertyManager
 
-MAKEBONDS = 'Make Bonds'
-FUSEATOMS = 'Fuse Atoms'
+MAKEBONDS = 'Make Bonds Between Chunks'
+FUSEATOMS = 'Fuse Overlapping Atoms'
 
 def do_what_MainWindowUI_should_do(w):
     'Populate the Fuse Chunks dashboard'
     
     w.fuseChunksDashboard.clear()
-    
-    w.fuseChunksLabel = QLabel(w.fuseChunksDashboard)
-    w.fuseChunksLabel.setText(" Fuse Chunks ")
+
+    #w.textLabel1_3.setText(" Fuse Chunks ")
+    w.fuseChunksDashboard.addWidget(w.textLabel1_3)
     
     w.fuseChunksDashboard.addSeparator()
 
     # moveFreeAction, transXAction, transYAction, and transZAction are shared with modifyMode.
-    w.moveFreeAction.addTo(w.fuseChunksDashboard)
+    w.fuseChunksDashboard.addAction(w.moveFreeAction)
     
     w.fuseChunksDashboard.addSeparator()
     
-    w.transXAction.addTo(w.fuseChunksDashboard)
-    w.transYAction.addTo(w.fuseChunksDashboard)
-    w.transZAction.addTo(w.fuseChunksDashboard)
+    w.fuseChunksDashboard.addAction(w.transXAction)
+    w.fuseChunksDashboard.addAction(w.transYAction)
+    w.fuseChunksDashboard.addAction(w.transZAction)
     
     w.fuseChunksDashboard.addSeparator()
     
-    w.fuseActionLabel = QLabel(w.fuseChunksDashboard)
+    w.fuseActionLabel = QLabel()
     w.fuseActionLabel.setText(" Fuse Mode : ")
+    w.fuseChunksDashboard.addWidget(w.fuseActionLabel)
     
-    w.fuse_mode_combox = QComboBox(0, w.fuseChunksDashboard, "fuse_mode_combox")
+    w.fuse_mode_combox = QComboBox()
+    w.fuseChunksDashboard.addWidget(w.fuse_mode_combox)
     
     w.goPB = QPushButton("Make Bonds", w.fuseChunksDashboard)
+    w.fuseChunksDashboard.addWidget(w.goPB)
     
     w.mergeCB = QCheckBox("Merge chunks", w.fuseChunksDashboard)
     w.mergeCB.setChecked(True)
+    w.fuseChunksDashboard.addWidget(w.mergeCB)
     
     w.fuseChunksDashboard.addSeparator()
     
-    w.tolLB = QLabel(w.fuseChunksDashboard)
+    w.tolLB = QLabel()
     w.tolLB.setText(" Tolerance: ")
-    w.toleranceSL = QSlider(0,300,5,100,Qt.Horizontal,w.fuseChunksDashboard)
-    w.toleranceLB = QLabel(w.fuseChunksDashboard)
+    w.fuseChunksDashboard.addWidget(w.tolLB)
+    #w.toleranceSL = QSlider(0,300,5,100,Qt.Horizontal,w.fuseChunksDashboard)
+    w.toleranceSL = QSlider(Qt.Horizontal)
+    w.toleranceSL.setMaximumWidth(100)
+    w.toleranceSL.setValue(100)
+    w.toleranceSL.setRange(0, 300)
+    w.fuseChunksDashboard.addWidget(w.toleranceSL)
+    w.toleranceLB = QLabel()
     w.toleranceLB.setText("100% => 0 bondable pairs")
+    w.fuseChunksDashboard.addWidget(w.toleranceLB)
     
     w.fuseChunksDashboard.addSeparator()
     
-    w.toolsBackUpAction.addTo(w.fuseChunksDashboard)
-    w.toolsDoneAction.addTo(w.fuseChunksDashboard)
+    w.fuseChunksDashboard.addAction(w.toolsBackUpAction)
+    w.fuseChunksDashboard.addAction(w.toolsDoneAction)
     
-    w.fuseChunksDashboard.setLabel("Fuse Chunks") #Toolbar tooltip label
+    w.fuseChunksDashboard.setWindowTitle("Fuse Chunks") #Toolbar tooltip label - no good for Qt 4
     w.fuse_mode_combox.clear()
     # these are identified by both their *position* and not their text
-    w.fuse_mode_combox.insertItem(MAKEBONDS) 
-    w.fuse_mode_combox.insertItem(FUSEATOMS) 
+    w.fuse_mode_combox.insertItem(0,MAKEBONDS) 
+    w.fuse_mode_combox.insertItem(1,FUSEATOMS) 
     
 
-    
 def fusechunks_lambda_tol_nbonds(tol, nbonds, mbonds, bondable_pairs):
     '''Returns the bondable pairs tolerance string for the tolerance slider.
     '''
@@ -279,7 +290,7 @@ class fusechunksBase:
     
 
 
-class fusechunksMode(modifyMode, fusechunksBase):
+class fusechunksMode(modifyMode, fusechunksBase, FusePropertyManager):
     '''Allows user to move chunks and fuse them to other chunks in the part.
     Two fuse methods are supported:
         1. Make Bonds - bondpoints between chunks will form bonds when they are near each other.
@@ -289,6 +300,7 @@ class fusechunksMode(modifyMode, fusechunksBase):
     # class constants
     modename = 'FUSECHUNKS'
     default_mode_status_text = "Mode: Fuse Chunks"
+
     
     something_was_picked = False
         # 'something_was_picked' is a special boolean flag needed by Draw() to determine when 
@@ -317,28 +329,38 @@ class fusechunksMode(modifyMode, fusechunksBase):
     def Enter(self):
         modifyMode.Enter(self)
         self.recompute_fusables = True
-        self.change_fuse_mode(self.w.fuse_mode_combox.currentText()) 
+        ##self.change_fuse_mode(self.w.fuse_mode_combox.currentText()) 
             # This maintains state of fuse mode when leaving/reentering mode, and
             # syncs the dashboard and glpane (and does a gl_update).
             
     def init_gui(self):
-        self.w.toolsFuseChunksAction.setOn(1) # toggle on the Fuse Chunks icon
-        self.w.fuseChunksDashboard.show() # show the Fuse Chunks dashboard
+                
+        FusePropertyManager.__init__(self) 
+        self.openPropertyManager(self)
         
+        self.change_fuse_mode(self.fuse_mode_combox.currentText()) 
+            # This maintains state of fuse mode when leaving/reentering mode, and
+            # syncs the dashboard and glpane (and does a gl_update).
+        
+        self.w.toolsFuseChunksAction.setChecked(1) # toggle on the Fuse Chunks icon
+                
         # connect signals (these all need to be disconnected in restore_gui) [mark 050901]
         self.connect_or_disconnect_signals(True)
         
         if self.o.assy.selmols:
             self.something_was_picked = True
-            
-        # Always reset the dashboard icon to "Move Free" when entering FUSE CHUNKS mode.
-        # Mark 050428
-        self.w.moveFreeAction.setOn(1) # toggle on the Move Free action on the dashboard
-        self.moveOption = 'MOVEDEFAULT'
+       
+        if self.isMoveGroupBoxActive:
+            self.w.moveFreeAction.setChecked(True) # toggle on the Move Free action on the dashboard
+            self.moveOption = 'MOVEDEFAULT'
+        else:
+            self.w.rotateFreeAction.setChecked(True)
+            self.rotateOption = 'ROTATEDEFAULT'
 
     def restore_gui(self):
-        self.w.fuseChunksDashboard.hide()
+        self.closePropertyManager()
         self.connect_or_disconnect_signals(False)
+        self.w.toolsFuseChunksAction.setChecked(False)
         
     def connect_or_disconnect_signals(self, connect): #copied from depositMode.py. mark 050901
         if connect:
@@ -346,11 +368,33 @@ class fusechunksMode(modifyMode, fusechunksBase):
         else:
             change_connect = self.w.disconnect
             
-        change_connect(self.w.goPB,SIGNAL("clicked()"),self.fuse_something)
-        change_connect(self.w.toleranceSL,SIGNAL("valueChanged(int)"),self.tolerance_changed)
-        # This is so we can use the X, Y, Z modifier keys from modifyMode.
-        change_connect(self.w.MoveOptionsGroup, SIGNAL("selected(QAction *)"), self.changeMoveOption)
-        change_connect(self.w.fuse_mode_combox, SIGNAL("activated(const QString&)"), self.change_fuse_mode)
+        change_connect(self.goPB,SIGNAL("clicked()"),self.fuse_something)
+        change_connect(self.toleranceSL,SIGNAL("valueChanged(int)"),
+                       self.tolerance_changed)
+        
+        
+        change_connect(self.w.MoveOptionsGroup, 
+                       SIGNAL("triggered(QAction *)"), self.changeMoveOption)
+        change_connect(self.w.rotateOptionsGroup, 
+                       SIGNAL("triggered(QAction *)"), self.changeRotateOption)
+        
+        change_connect(self.fuse_mode_combox, 
+                       SIGNAL("activated(const QString&)"), 
+                       self.change_fuse_mode)
+        
+        change_connect(self.w.moveDeltaPlusAction, SIGNAL("activated()"), 
+                       self.moveDeltaPlus)
+        change_connect(self.w.moveDeltaMinusAction, SIGNAL("activated()"), 
+                       self.moveDeltaMinus)
+        change_connect(self.w.moveAbsoluteAction, SIGNAL("activated()"), 
+                       self.moveAbsolute)
+        change_connect(self.w.rotateThetaPlusAction, SIGNAL("activated()"),
+                       self.moveThetaPlus)        
+        change_connect(self.w.rotateThetaMinusAction, SIGNAL("activated()"),                        
+                       self.moveThetaMinus)
+        change_connect(self.w.movetype_combox, 
+                       SIGNAL("activated(const QString&)"), 
+                       self.setup_movetype)
         
         return
         
@@ -372,7 +416,7 @@ class fusechunksMode(modifyMode, fusechunksBase):
             tol_str = fusechunks_lambda_tol_nbonds(self.tol, 0, 0, 0) # 0 bonds
         else:
             tol_str = fusechunks_lambda_tol_natoms(self.tol, 0) # 0 overlapping atoms
-        self.w.toleranceLB.setText(tol_str) 
+        self.toleranceLB.setText(tol_str) 
     
     def find_fusables(self):
         'Finds bondable pairs or overlapping atoms, based on the Fuse Action combo box'
@@ -386,7 +430,8 @@ class fusechunksMode(modifyMode, fusechunksBase):
         if self.fuse_mode == fuse_mode:
             return # The mode did not change.  Don't do anything.
         self.fuse_mode = str(fuse_mode) # Must cast here.
-        self.w.goPB.setText(fuse_mode) # Update the button text.
+        if fuse_mode == str(MAKEBONDS): self.goPB.setText('Make Bonds')
+        else: self.goPB.setText('Fuse Atoms') 
         self.o.gl_update() # the Draw() method will update based on the current combo box item.
 
     def Backup(self):
@@ -437,6 +482,251 @@ class fusechunksMode(modifyMode, fusechunksBase):
         '''
         basicMode.Wheel(self, event)
         self.recompute_fusables = False
+    
+
+    def leftDown(self, event):        
+        """Move the selected object(s).
+        Overrides modifymode.LeftDown
+        """
+        
+        if self.isConstrainedDragAlongAxis:
+            self.leftADown(event)
+            return
+       
+        if self.w.rotateFreeAction.isChecked():
+            self.leftCntlDown(event)
+        
+        self.reset_drag_vars()
+        
+        self.LMB_press_event = QMouseEvent(event) # Make a copy of this event and save it. 
+        # We will need it later if we change our mind and start selecting a 2D region in leftDrag().
+        # Copying the event in this way is necessary because Qt will overwrite <event> later (in 
+        # leftDrag) if we simply set self.LMB_press_event = event.  mark 060220
+        
+        self.LMB_press_pt_xy = (event.pos().x(), event.pos().y())
+            # <LMB_press_pt_xy> is the position of the mouse in window coordinates when the LMB was pressed.
+            # Used in mouse_within_stickiness_limit (called by leftDrag() and other methods).
+            # We don't bother to vertically flip y using self.height (as mousepoints does),
+            # since this is only used for drag distance within single drags.
+       
+##        from constants import GL_FAR_Z
+
+        self.o.SaveMouse(event)
+        self.picking = True
+        self.dragdist = 0.0
+        self.transDelta = 0 # X, Y or Z deltas for translate.
+        self.rotDelta = 0 # delta for constrained rotations.
+        self.moveOffset = [0.0, 0.0, 0.0] # X, Y and Z offset for move.
+        
+        # This needs to be refactored further into move and translate methods. mark 060301.
+        
+        # Move section
+        farQ_junk, self.movingPoint = self.dragstart_using_GL_DEPTH( event)
+            #bruce 060316 replaced equivalent old code with this new method
+        self.startpt = self.movingPoint # Used in leftDrag() to compute move offset during drag op.
+        
+        # end of Move section
+           
+        # Translate section     
+        if self.isMoveGroupBoxActive:            
+            if self.moveOption != 'MOVEDEFAULT':
+                if self.moveOption == 'TRANSX': 
+                    ma = V(1,0,0) # X Axis
+                    self.axis = 'X'
+                elif self.moveOption == 'TRANSY': 
+                    ma = V(0,1,0) # Y Axis
+                    self.axis = 'Y'
+                elif self.moveOption == 'TRANSZ': 
+                    ma = V(0,0,1) # Z Axis
+                    self.axis = 'Z'
+                else: print "modifyMode: Error - unknown moveOption value =", self.moveOption
+                
+                ma = norm(V(dot(ma,self.o.right),dot(ma,self.o.up)))
+                # When in the front view, right = 1,0,0 and up = 0,1,0, so ma will be computed as 0,0.
+                # This creates a special case problem when the user wants to constrain rotation around
+                # the Z axis because Zmat will be zero.  So we have to test for this case (ma = 0,0) and
+                # fix ma to -1,0.  This was needed to fix bug 537.  Mark 050420
+                if ma[0] == 0.0 and ma[1] == 0.0: ma = [-1.0, 0.0] 
+                self.Zmat = A([ma,[-ma[1],ma[0]]])                
+                # end of Translate section                
+        else:
+            if self.rotateOption != 'ROTATEDEFAULT':
+                if self.rotateOption == 'ROTATEX': 
+                    ma = V(1,0,0) # X Axis
+                    self.axis = 'X'
+                elif self.rotateOption == 'ROTATEY': 
+                    ma = V(0,1,0) # Y Axis
+                    self.axis = 'Y'
+                elif self.rotateOption == 'ROTATEZ': 
+                    ma = V(0,0,1) # Z Axis
+                    self.axis = 'Z'
+                else: print "modifyMode: Error - unknown rotateOption value =", self.rotateOption
+
+                ma = norm(V(dot(ma,self.o.right),dot(ma,self.o.up)))
+                # When in the front view, right = 1,0,0 and up = 0,1,0, so ma will be computed as 0,0.
+                # This creates a special case problem when the user wants to constrain rotation around
+                # the Z axis because Zmat will be zero.  So we have to test for this case (ma = 0,0) and
+                # fix ma to -1,0.  This was needed to fix bug 537.  Mark 050420
+                if ma[0] == 0.0 and ma[1] == 0.0: ma = [-1.0, 0.0] 
+                self.Zmat = A([ma,[-ma[1],ma[0]]])
+                       
+                                    
+        #Permit movable object picking upon left down.             
+        obj = self.get_obj_under_cursor(event)
+        # If highlighting is turned on, get_obj_under_cursor() returns atoms, singlets, bonds, jigs,
+        # or anything that can be highlighted and end up in glpane.selobj. [bruce revised this comment, 060725]
+            # If highlighting is turned off, get_obj_under_cursor() returns atoms and singlets (not bonds or jigs).
+            # [not sure if that's still true -- probably not. bruce 060725 addendum]
+        if obj is None: # Cursor over empty space.
+            self.emptySpaceLeftDown(event)
+            return
+        
+        if isinstance(obj, Atom) and obj.is_singlet(): # Cursor over a singlet
+            self.singletLeftDown(obj, event)
+                # no win_update() needed. It's the responsibility of singletLeftDown to do it if needed.
+            return                
+        elif isinstance(obj, Atom) and not obj.is_singlet(): # Cursor over a real atom
+            self.atomLeftDown(obj, event)
+        elif isinstance(obj, Bond) and not obj.is_open_bond(): # Cursor over a bond.
+            self.bondLeftDown(obj, event)
+        elif isinstance(obj, Jig): # Cursor over a jig.
+            self.jigLeftDown(obj, event)
+        else: # Cursor is over something else other than an atom, singlet or bond. 
+            # The program never executes lines in this else statement since
+            # get_obj_under_cursor() only returns atoms, singlets or bonds.
+            # [perhaps no longer true, if it ever was -- bruce 060725]
+            pass
+        
+        self.w.win_update()
+            
+       
+    def leftDrag(self, event):
+        """Move the selected object(s):
+        - in the plane of the screen following the mouse, 
+        - or slide and rotate along the an axis
+        Overrides modifyMode.leftDrag
+        """
+
+        
+        if not self.picking: return
+        
+        if not self.o.assy.getSelectedMovables(): return
+        
+        if self.isConstrainedDragAlongAxis:
+            try:
+                self.leftADrag(event)
+                return
+            except:
+                print "Key A presssed after Left Down. controlled translation will not be performed"
+                pass
+        
+        if self.w.rotateFreeAction.isChecked():
+            self.leftCntlDrag(event)
+            return
+        
+        # Fixes bugs 583 and 674 along with change in keyRelease.  Mark 050623
+        if self.movingPoint is None: self.leftDown(event) # Fix per Bruce's email.  Mark 050704
+        
+        if self.isMoveGroupBoxActive:
+            # Move section
+            if self.moveOption == 'MOVEDEFAULT':
+                deltaMouse = V(event.pos().x() - self.o.MousePos[0],
+                           self.o.MousePos[1] - event.pos().y(), 0.0)
+    
+                point = self.dragto( self.movingPoint, event) #bruce 060316 replaced old code with dragto (equivalent)
+            
+                # Print status bar msg indicating the current move delta.
+                if 1:
+                    self.moveOffset = point - self.startpt # Fixed bug 929.  mark 060111
+                    msg = "Offset: [X: %.2f] [Y: %.2f] [Z: %.2f]" % (self.moveOffset[0], self.moveOffset[1], self.moveOffset[2])
+                    env.history.statusbar_msg(msg)
+    
+                self.o.assy.movesel(point - self.movingPoint)
+                self.movingPoint = point    
+                # end of Move section
+            
+            # Translate section
+            else:
+                w=self.o.width+0.0
+                h=self.o.height+0.0
+                deltaMouse = V(event.pos().x() - self.o.MousePos[0],
+                           self.o.MousePos[1] - event.pos().y())
+                a =  dot(self.Zmat, deltaMouse)
+                dx,dy =  a * V(self.o.scale/(h*0.5), 2*pi/w)
+                if self.moveOption == 'TRANSX' :     ma = V(1,0,0) # X Axis
+                elif self.moveOption == 'TRANSY' :  ma = V(0,1,0) # Y Axis
+                elif self.moveOption == 'TRANSZ' :  ma = V(0,0,1) # Z Axis
+                else: 
+                    print "modifyMode.leftDrag: Error - unknown moveOption value =",
+                    self.moveOption                
+                    return       
+                self.transDelta += dx # Increment translation delta                   
+                self.o.assy.movesel(dx*ma) 
+                
+        else:
+            #Rotate section      
+            w=self.o.width+0.0
+            h=self.o.height+0.0
+            deltaMouse = V(event.pos().x() - self.o.MousePos[0],
+                       self.o.MousePos[1] - event.pos().y())
+            a =  dot(self.Zmat, deltaMouse)
+            dx,dy =  a * V(self.o.scale/(h*0.5), 2*pi/w)
+
+            if self.rotateOption == 'ROTATEX' :     ma = V(1,0,0) # X Axis
+            elif self.rotateOption == 'ROTATEY' :  ma = V(0,1,0) # Y Axis
+            elif self.rotateOption == 'ROTATEZ' :  ma = V(0,0,1) # Z Axis
+            else: 
+                print "modifyMode.leftDrag: Error - unknown rotateOption value =", self.rotateOption                
+                return                
+            qrot = Q(ma,-dy) # Quat for rotation delta.
+            self.rotDelta += qrot.angle *180.0/pi * sign(dy) # Increment rotation delta (and convert to degrees)
+            
+            self.updateRotationDeltaLabels(self.rotateOption, self.rotDelta)
+            self.o.assy.rotsel(qrot) 
+            
+            #End of Rotate Section
+            
+        # Print status bar msg indicating the current translation and rotation delta.
+        if self.o.assy.selmols:
+            msg = "%s delta: [%.2f Angstroms] [%.2f Degrees]" % (self.axis, self.transDelta, self.rotDelta)
+            env.history.statusbar_msg(msg)
+            
+                                
+        # Print status bar msg indicating the current translation and rotation delta.
+        if self.o.assy.selmols:
+            msg = "%s delta: [%.2f Angstroms] [%.2f Degrees]" % (self.axis, self.transDelta, self.rotDelta)
+            env.history.statusbar_msg(msg)
+            
+        # common finished code
+        self.dragdist += vlen(deltaMouse)
+        self.o.SaveMouse(event)
+        self.o.gl_update()        
+        # end of leftDrag
+    
+    def leftUp(self, event):  
+        '''Overrides leftup method of modifyMode'''        
+        if self.dragdist < 2:
+            selectMolsMode.leftUp(self,event)
+        # end of leftUp
+    
+           
+    def leftCntlDown(self, event):
+        """Setup a trackball action on the selected chunk(s).
+        """
+        if not self.o.assy.getSelectedMovables(): return
+        
+        self.o.SaveMouse(event)
+        self.o.trackball.start(self.o.MousePos[0],self.o.MousePos[1])
+        self.picking = True
+        self.dragdist = 0.0
+
+
+
+    def leftCntlUp(self, event):
+        ''' Overrides modifyMode.leftCntlUp'''  
+        
+        self.EndPick(event, SUBTRACT_FROM_SELECTION)
+        
 
     def Draw(self):
         '''Draw bondable pairs or overlapping atoms.
@@ -514,7 +804,7 @@ class fusechunksMode(modifyMode, fusechunksBase):
         to bond with any other bondpoints in a list of chunks.  Hidden chunks are skipped.
         '''
         tol_str = fusechunksBase.find_bondable_pairs(self, chunk_list, None)
-        self.w.toleranceLB.setText(tol_str)
+        self.toleranceLB.setText(tol_str)
 
     def fuse_something(self):
         '''Slot for 'Make Bonds/Fuse Atoms' button.
@@ -533,7 +823,7 @@ class fusechunksMode(modifyMode, fusechunksBase):
         
     def _make_bonds_2(self):
         # Merge the chunks if the "merge chunks" checkbox is checked
-        if self.w.mergeCB.isChecked() and self.bondable_pairs_atoms:
+        if self.mergeCB.isChecked() and self.bondable_pairs_atoms:
             for a1, a2 in self.bondable_pairs_atoms:
                 # Ignore a1, they are atoms from the selected chunk(s)
                 # It is possible that a2 is an atom from a selected chunk, so check it
@@ -617,7 +907,7 @@ class fusechunksMode(modifyMode, fusechunksBase):
         # Update tolerance label and status bar msgs.
         natoms = len(self.overlapping_atoms)
         tol_str = fusechunks_lambda_tol_natoms(self.tol, natoms)
-        self.w.toleranceLB.setText(tol_str)
+        self.toleranceLB.setText(tol_str)
         
 
     def fuse_atoms(self):
@@ -642,7 +932,7 @@ class fusechunksMode(modifyMode, fusechunksBase):
 #        print "Fused chunks list:", fused_chunks
         
         # Merge the chunks if the "merge chunks" checkbox is checked
-        if self.w.mergeCB.isChecked() and self.overlapping_atoms:
+        if self.mergeCB.isChecked() and self.overlapping_atoms:
             # This will bond and merge the selected chunks only with
             # chunks that had overlapping atoms.
             #& This has bugs when the bonds don't line up nicely between overlapping atoms in the selected chunk

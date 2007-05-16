@@ -1,4 +1,4 @@
-# Copyright (c) 2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
 """
 Drawable.py - shared properties of all drawable objects
 

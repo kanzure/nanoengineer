@@ -1,194 +1,119 @@
-# Copyright (c) 2006 Nanorex, Inc. All rights reserved.
 # -*- coding: utf-8 -*-
 
+# Copyright 2005-2006 Nanorex, Inc.  See LICENSE file for details. 
 # Form implementation generated from reading ui file 'JobManagerDialog.ui'
 #
-# Created: Tue Sep 13 16:00:26 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
+# Created: Wed Sep 20 08:10:41 2006
+#      by: PyQt4 UI code generator 4.0.1
 #
 # WARNING! All changes made in this file will be lost!
 
+import sys
+from PyQt4 import QtCore, QtGui
 
-from qt import *
-from qttable import QTable
+class Ui_JobManagerDialog(object):
+    def setupUi(self, JobManagerDialog):
+        JobManagerDialog.setObjectName("JobManagerDialog")
+        JobManagerDialog.resize(QtCore.QSize(QtCore.QRect(0,0,1009,258).size()).expandedTo(JobManagerDialog.minimumSizeHint()))
 
-image0_data = [
-"22 22 12 1",
-". c None",
-"j c #000000",
-"i c #2b2b86",
-"# c #3737a9",
-"g c #4242ce",
-"d c #525252",
-"f c #6f6fdd",
-"c c #787878",
-"e c #8e8ee4",
-"b c #919191",
-"a c #aaaaaa",
-"h c #ffffff",
-"......................",
-"......................",
-"......................",
-".#abcccccccccccccccd#.",
-".#eefffffffffffffffg#.",
-".#g###########h#h#hi#.",
-".#jjjjjjjjjjjjjjjjjj#.",
-".#hhhhh#hhhhhh#hhhhh#.",
-".#hhhhh#hhhhhh#hhhhh#.",
-".####################.",
-".#hhhhh#hhhhhh#hhhhh#.",
-".#hhhhh#hhhhhh#hhhhh#.",
-".####################.",
-".#hhhhh#hhhhhh#hhhhh#.",
-".#hhhhh#hhhhhh#hhhhh#.",
-".####################.",
-".#hhhhh#hhhhhh#hhhhh#.",
-".#hhhhh#hhhhhh#hhhhh#.",
-".####################.",
-"......................",
-"......................",
-"......................"
-]
+        self.vboxlayout = QtGui.QVBoxLayout(JobManagerDialog)
+        self.vboxlayout.setMargin(11)
+        self.vboxlayout.setSpacing(6)
+        self.vboxlayout.setObjectName("vboxlayout")
 
-class JobManagerDialog(QDialog):
-    def __init__(self,parent = None,name = None,modal = 0,fl = 0):
-        QDialog.__init__(self,parent,name,modal,fl)
+        self.groupBox1 = QtGui.QGroupBox(JobManagerDialog)
+        self.groupBox1.setObjectName("groupBox1")
 
-        self.image0 = QPixmap(image0_data)
+        self.vboxlayout1 = QtGui.QVBoxLayout(self.groupBox1)
+        self.vboxlayout1.setMargin(11)
+        self.vboxlayout1.setSpacing(6)
+        self.vboxlayout1.setObjectName("vboxlayout1")
 
-        if not name:
-            self.setName("JobManagerDialog")
-
-        self.setIcon(self.image0)
-
-        JobManagerDialogLayout = QVBoxLayout(self,11,6,"JobManagerDialogLayout")
-
-        self.groupBox1 = QGroupBox(self,"groupBox1")
-        self.groupBox1.setColumnLayout(0,Qt.Vertical)
-        self.groupBox1.layout().setSpacing(6)
-        self.groupBox1.layout().setMargin(11)
-        groupBox1Layout = QVBoxLayout(self.groupBox1.layout())
-        groupBox1Layout.setAlignment(Qt.AlignTop)
-
-        self.job_table = QTable(self.groupBox1,"job_table")
-        self.job_table.setNumCols(self.job_table.numCols() + 1)
-        self.job_table.horizontalHeader().setLabel(self.job_table.numCols() - 1,self.__tr("Name"))
-        self.job_table.setNumCols(self.job_table.numCols() + 1)
-        self.job_table.horizontalHeader().setLabel(self.job_table.numCols() - 1,self.__tr("Engine"))
-        self.job_table.setNumCols(self.job_table.numCols() + 1)
-        self.job_table.horizontalHeader().setLabel(self.job_table.numCols() - 1,self.__tr("Calculation"))
-        self.job_table.setNumCols(self.job_table.numCols() + 1)
-        self.job_table.horizontalHeader().setLabel(self.job_table.numCols() - 1,self.__tr("Description"))
-        self.job_table.setNumCols(self.job_table.numCols() + 1)
-        self.job_table.horizontalHeader().setLabel(self.job_table.numCols() - 1,self.__tr("Status"))
-        self.job_table.setNumCols(self.job_table.numCols() + 1)
-        self.job_table.horizontalHeader().setLabel(self.job_table.numCols() - 1,self.__tr("Server Id"))
-        self.job_table.setNumCols(self.job_table.numCols() + 1)
-        self.job_table.horizontalHeader().setLabel(self.job_table.numCols() - 1,self.__tr("Job Id"))
-        self.job_table.setNumCols(self.job_table.numCols() + 1)
-        self.job_table.horizontalHeader().setLabel(self.job_table.numCols() - 1,self.__tr("Time"))
-        self.job_table.setNumRows(self.job_table.numRows() + 1)
-        self.job_table.verticalHeader().setLabel(self.job_table.numRows() - 1,self.__tr("1"))
+        self.job_table = QtGui.QTableWidget(self.groupBox1)
         self.job_table.setNumRows(1)
         self.job_table.setNumCols(8)
-        self.job_table.setSorting(0)
-        self.job_table.setSelectionMode(QTable.SingleRow)
-        groupBox1Layout.addWidget(self.job_table)
+        self.job_table.setSorting(False)
+        self.job_table.setSelectionMode(QtGui.QTable.SingleRow)
+        self.job_table.setObjectName("job_table")
+        self.vboxlayout1.addWidget(self.job_table)
 
-        layout6 = QHBoxLayout(None,0,6,"layout6")
+        self.hboxlayout = QtGui.QHBoxLayout()
+        self.hboxlayout.setMargin(0)
+        self.hboxlayout.setSpacing(6)
+        self.hboxlayout.setObjectName("hboxlayout")
 
-        self.start_btn = QPushButton(self.groupBox1,"start_btn")
-        self.start_btn.setEnabled(0)
-        layout6.addWidget(self.start_btn)
+        self.start_btn = QtGui.QPushButton(self.groupBox1)
+        self.start_btn.setEnabled(False)
+        self.start_btn.setObjectName("start_btn")
+        self.hboxlayout.addWidget(self.start_btn)
 
-        self.stop_btn = QPushButton(self.groupBox1,"stop_btn")
-        self.stop_btn.setEnabled(0)
-        layout6.addWidget(self.stop_btn)
+        self.stop_btn = QtGui.QPushButton(self.groupBox1)
+        self.stop_btn.setEnabled(False)
+        self.stop_btn.setObjectName("stop_btn")
+        self.hboxlayout.addWidget(self.stop_btn)
 
-        self.edit_btn = QPushButton(self.groupBox1,"edit_btn")
-        self.edit_btn.setEnabled(0)
-        layout6.addWidget(self.edit_btn)
+        self.edit_btn = QtGui.QPushButton(self.groupBox1)
+        self.edit_btn.setEnabled(False)
+        self.edit_btn.setObjectName("edit_btn")
+        self.hboxlayout.addWidget(self.edit_btn)
 
-        self.view_btn = QPushButton(self.groupBox1,"view_btn")
-        self.view_btn.setEnabled(0)
-        layout6.addWidget(self.view_btn)
+        self.view_btn = QtGui.QPushButton(self.groupBox1)
+        self.view_btn.setEnabled(False)
+        self.view_btn.setObjectName("view_btn")
+        self.hboxlayout.addWidget(self.view_btn)
 
-        self.delete_btn = QPushButton(self.groupBox1,"delete_btn")
-        self.delete_btn.setEnabled(0)
-        layout6.addWidget(self.delete_btn)
+        self.delete_btn = QtGui.QPushButton(self.groupBox1)
+        self.delete_btn.setEnabled(False)
+        self.delete_btn.setObjectName("delete_btn")
+        self.hboxlayout.addWidget(self.delete_btn)
 
-        self.move_btn = QPushButton(self.groupBox1,"move_btn")
-        self.move_btn.setEnabled(0)
-        layout6.addWidget(self.move_btn)
-        spacer1 = QSpacerItem(280,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout6.addItem(spacer1)
-        groupBox1Layout.addLayout(layout6)
-        JobManagerDialogLayout.addWidget(self.groupBox1)
+        self.move_btn = QtGui.QPushButton(self.groupBox1)
+        self.move_btn.setEnabled(False)
+        self.move_btn.setObjectName("move_btn")
+        self.hboxlayout.addWidget(self.move_btn)
 
-        layout2 = QHBoxLayout(None,0,6,"layout2")
+        spacerItem = QtGui.QSpacerItem(280,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.hboxlayout.addItem(spacerItem)
+        self.vboxlayout1.addLayout(self.hboxlayout)
+        self.vboxlayout.addWidget(self.groupBox1)
 
-        self.refresh_btn = QPushButton(self,"refresh_btn")
-        layout2.addWidget(self.refresh_btn)
+        self.hboxlayout1 = QtGui.QHBoxLayout()
+        self.hboxlayout1.setMargin(0)
+        self.hboxlayout1.setSpacing(6)
+        self.hboxlayout1.setObjectName("hboxlayout1")
 
-        self.filter_btn = QPushButton(self,"filter_btn")
-        layout2.addWidget(self.filter_btn)
-        spacer2 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout2.addItem(spacer2)
+        self.refresh_btn = QtGui.QPushButton(JobManagerDialog)
+        self.refresh_btn.setObjectName("refresh_btn")
+        self.hboxlayout1.addWidget(self.refresh_btn)
 
-        self.close_btn = QPushButton(self,"close_btn")
-        layout2.addWidget(self.close_btn)
-        JobManagerDialogLayout.addLayout(layout2)
+        self.filter_btn = QtGui.QPushButton(JobManagerDialog)
+        self.filter_btn.setObjectName("filter_btn")
+        self.hboxlayout1.addWidget(self.filter_btn)
 
-        self.languageChange()
+        spacerItem1 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.hboxlayout1.addItem(spacerItem1)
 
-        self.resize(QSize(1009,258).expandedTo(self.minimumSizeHint()))
-        self.clearWState(Qt.WState_Polished)
+        self.close_btn = QtGui.QPushButton(JobManagerDialog)
+        self.close_btn.setObjectName("close_btn")
+        self.hboxlayout1.addWidget(self.close_btn)
+        self.vboxlayout.addLayout(self.hboxlayout1)
 
-        self.connect(self.close_btn,SIGNAL("clicked()"),self.close)
-        self.connect(self.job_table,SIGNAL("clicked(int,int,int,const QPoint&)"),self.cell_clicked)
-        self.connect(self.delete_btn,SIGNAL("clicked()"),self.delete_job)
-        self.connect(self.refresh_btn,SIGNAL("clicked()"),self.refresh_job_table)
-        self.connect(self.start_btn,SIGNAL("clicked()"),self.startJob)
-        self.connect(self.stop_btn,SIGNAL("clicked()"),self.stopJob)
+        self.retranslateUi(JobManagerDialog)
+        QtCore.QObject.connect(self.close_btn,QtCore.SIGNAL("clicked()"),JobManagerDialog.close)
+        QtCore.QMetaObject.connectSlotsByName(JobManagerDialog)
 
-
-    def languageChange(self):
-        self.setCaption(self.__tr("NanoEngineer-1 Job Manager"))
-        self.groupBox1.setTitle(self.__tr("Jobs"))
-        self.job_table.horizontalHeader().setLabel(0,self.__tr("Name"))
-        self.job_table.horizontalHeader().setLabel(1,self.__tr("Engine"))
-        self.job_table.horizontalHeader().setLabel(2,self.__tr("Calculation"))
-        self.job_table.horizontalHeader().setLabel(3,self.__tr("Description"))
-        self.job_table.horizontalHeader().setLabel(4,self.__tr("Status"))
-        self.job_table.horizontalHeader().setLabel(5,self.__tr("Server Id"))
-        self.job_table.horizontalHeader().setLabel(6,self.__tr("Job Id"))
-        self.job_table.horizontalHeader().setLabel(7,self.__tr("Time"))
-        self.job_table.verticalHeader().setLabel(0,self.__tr("1"))
-        self.start_btn.setText(self.__tr("Start"))
-        self.stop_btn.setText(self.__tr("Stop"))
-        self.edit_btn.setText(self.__tr("Edit"))
-        self.view_btn.setText(self.__tr("View"))
-        self.delete_btn.setText(self.__tr("Delete"))
-        self.move_btn.setText(self.__tr("Move"))
-        self.refresh_btn.setText(self.__tr("Refresh"))
-        self.filter_btn.setText(self.__tr("Filter..."))
-        self.close_btn.setText(self.__tr("Close"))
-
-
-    def cell_clicked(self):
-        print "JobManagerDialog.cell_clicked(): Not implemented yet"
-
-    def delete_job(self):
-        print "JobManagerDialog.delete_job(): Not implemented yet"
-
-    def refresh_job_table(self):
-        print "JobManagerDialog.refresh_job_table(): Not implemented yet"
-
-    def startJob(self):
-        print "JobManagerDialog.startJob(): Not implemented yet"
-
-    def stopJob(self):
-        print "JobManagerDialog.stopJob(): Not implemented yet"
-
-    def __tr(self,s,c = None):
-        return qApp.translate("JobManagerDialog",s,c)
+    def retranslateUi(self, JobManagerDialog):
+        JobManagerDialog.setWindowTitle(QtGui.QApplication.translate("JobManagerDialog", "NanoEngineer-1 Job Manager", None, QtGui.QApplication.UnicodeUTF8))
+        self.groupBox1.setTitle(QtGui.QApplication.translate("JobManagerDialog", "Jobs", None, QtGui.QApplication.UnicodeUTF8))
+        self.job_table.clear()
+        self.job_table.setColumnCount(0)
+        self.job_table.setRowCount(0)
+        self.start_btn.setText(QtGui.QApplication.translate("JobManagerDialog", "Start", None, QtGui.QApplication.UnicodeUTF8))
+        self.stop_btn.setText(QtGui.QApplication.translate("JobManagerDialog", "Stop", None, QtGui.QApplication.UnicodeUTF8))
+        self.edit_btn.setText(QtGui.QApplication.translate("JobManagerDialog", "Edit", None, QtGui.QApplication.UnicodeUTF8))
+        self.view_btn.setText(QtGui.QApplication.translate("JobManagerDialog", "View", None, QtGui.QApplication.UnicodeUTF8))
+        self.delete_btn.setText(QtGui.QApplication.translate("JobManagerDialog", "Delete", None, QtGui.QApplication.UnicodeUTF8))
+        self.move_btn.setText(QtGui.QApplication.translate("JobManagerDialog", "Move", None, QtGui.QApplication.UnicodeUTF8))
+        self.refresh_btn.setText(QtGui.QApplication.translate("JobManagerDialog", "Refresh", None, QtGui.QApplication.UnicodeUTF8))
+        self.filter_btn.setText(QtGui.QApplication.translate("JobManagerDialog", "Filter...", None, QtGui.QApplication.UnicodeUTF8))
+        self.close_btn.setText(QtGui.QApplication.translate("JobManagerDialog", "Close", None, QtGui.QApplication.UnicodeUTF8))

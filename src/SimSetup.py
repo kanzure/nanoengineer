@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 '''
 SimSetup.py
 
@@ -22,10 +22,14 @@ __author__ = "Mark"
 from SimSetupDialog import *
 import os
 from movie import Movie
+from PyQt4.Qt import *
 from debug import print_compact_traceback
 import env
 from prefs_widgets import connect_checkbox_with_boolean_pref
 from prefs_constants import Potential_energy_tracefile_prefs_key
+from prefs_constants import electrostaticsForDnaDuringDynamics_prefs_key
+from qt4transition import *
+from debug_prefs import debug_pref, Choice_boolean_False
 
 # class FakeMovie:
 #
@@ -55,7 +59,7 @@ class FakeMovie:
 _stickyParams = None # sometimes this is a FakeMovie object
 
 
-class SimSetup(SimSetupDialog): # before 050325 this class was called runSim
+class SimSetup(QDialog, Ui_SimSetupDialog): # before 050325 this class was called runSim
     "dialog class for setting up a simulator run"
     def __init__(self, part, previous_movie = None, suffix = ""):
         """use previous_movie (if passed) for default values,
@@ -63,13 +67,28 @@ class SimSetup(SimSetupDialog): # before 050325 this class was called runSim
         (whether or not that sim got aborted), or default values if that never happened in this session;
         on success or failure, make a new Movie and store it as self.movie
         """
-        SimSetupDialog.__init__(self)
+        QDialog.__init__(self)
+        self.setupUi(self)
+        self.update_btngrp_group = QButtonGroup()
+        self.update_btngrp_group.setExclusive(True)
+        for obj in self.update_btngrp.children():
+            if isinstance(obj, QAbstractButton):
+                self.update_btngrp_group.addButton(obj)
+        self.connect(self.run_sim_btn,SIGNAL("clicked()"),self.createMoviePressed)
+        self.connect(self.cancel_btn,SIGNAL("clicked()"),self.close)
+        qt4todo('self.connect(self.watch_motion_checkbox,SIGNAL("toggled(bool)"),self.setEnabled) ???')
+        self.watch_motion_checkbox.setEnabled(True)
         ## self.part = part
             # not yet needed, though in future we might display info
             # about this Part in the dialog, to avoid confusion
             # if it's not the main Part.
         connect_checkbox_with_boolean_pref(self.potential_energy_checkbox,
                                            Potential_energy_tracefile_prefs_key)
+        
+        connect_checkbox_with_boolean_pref(
+            self.electrostaticsForDnaDuringDynamics_checkBox,
+            electrostaticsForDnaDuringDynamics_prefs_key)
+        
         self.assy = part.assy # used only for assy.filename
         self.suffix = suffix
         self.previous_movie = previous_movie or _stickyParams or Movie(self.assy) # used only for its parameter settings
@@ -86,30 +105,41 @@ class SimSetup(SimSetupDialog): # before 050325 this class was called runSim
             # self.movie is now a public attribute.
             #bruce 050329 comment: couldn't we set .movie to None, until we learn we succeeded? ###e ###@@@
         self.setup()
-        QWhatsThis.add(self.watch_motion_checkbox, """<p><b>Watch Motion In Real Time</b></p>Enables real time graphical
+        self.watch_motion_checkbox.setWhatsThis("""<p><b>Watch Motion In Real Time</b></p>Enables real time graphical
         updates during simulation runs.""")
-        QWhatsThis.add(self.update_number_spinbox, """<b>Update every <i>n units.</u></b>
+        self.update_number_spinbox.setWhatsThis("""<b>Update every <i>n units.</u></b>
         <p>Specify how often to update
         the model during the simulation. This allows the user to monitor simulation results while the simulation is running.</p>""")
-        QWhatsThis.add(self.update_units_combobox, """<b>Update every <i>n units.</u></b>
+        self.update_units_combobox.setWhatsThis("""<b>Update every <i>n units.</u></b>
         <p>Specify how often to update
         the model during the simulation. This allows the user to monitor simulation results while the simulation is running.</p>""")
-        QWhatsThis.add(self.update_every_rbtn, """<b>Update every <i>n units.</u></b>
+        self.update_every_rbtn.setWhatsThis("""<b>Update every <i>n units.</u></b>
         <p>Specify how often to update
         the model during the simulation. This allows the user to monitor simulation results while the simulation is running.</p>""")
-        QWhatsThis.add(self.update_asap_rbtn, """<b>Update as fast as possible</b>
+        self.update_asap_rbtn.setWhatsThis("""<b>Update as fast as possible</b>
         <p>
         Update every 2 seconds,
         or faster (up to 20x/sec) if it doesn't slow simulation by more than 20%</p>""")
-        QWhatsThis.add(self.tempSB, """<b>Temperature</b><p>The temperature of the simulation in Kelvin
+        self.tempSB.setWhatsThis("""<b>Temperature</b><p>The temperature of the simulation in Kelvin
         (300 K = room temp)</p>""")
-        QWhatsThis.add(self.nframesSB, """<b>Total Frames</b><p>The number of frames for the simulation
+        self.nframesSB.setWhatsThis("""<b>Total Frames</b><p>The number of frames for the simulation
         run.</p>""")
-        QWhatsThis.add(self.stepsperSB, """<b>Steps per Frame</b><p>The time duration between frames. 10
+        self.stepsperSB.setWhatsThis("""<b>Steps per Frame</b><p>The time duration between frames. 10
         steps = 1 femtosecond.</p>""")
-        QWhatsThis.add(self, """<b>Run Dynamics</b><p>NanoEngineer-1 Molecular Dynamics
+        self.setWhatsThis("""<b>Run Dynamics</b><p>NanoEngineer-1 Molecular Dynamics
         Simulator Setup. Enter the parameters of the simulation and click <b>Run Simulation</b>.</p>""")
-        self.exec_loop()
+        
+        if not debug_pref("GROMACS Enabled", Choice_boolean_False,
+                          prefs_key=True):
+            # Hide the Simulation engine chooser altogether.
+            self.parms_grpbox_2.setHidden(True)
+            self.base_frame.setFixedHeight(self.base_frame.geometry().height() - 65)
+            geometry = self.layout20.geometry()
+            geometry.moveBottom(geometry.bottom() - 65)
+            self.layout20.setGeometry(geometry)
+            self.setFixedHeight(self.geometry().height() - 65)
+            
+        self.exec_()
         
     def setup(self):
         self.movie.cancelled = True # We will assume the user will cancel
@@ -136,7 +166,7 @@ class SimSetup(SimSetupDialog): # before 050325 this class was called runSim
             #bruce 060705 use new common code, if it works
             from widget_controllers import realtime_update_controller
             self.ruc = realtime_update_controller(
-                ( self.update_btngrp, self.update_number_spinbox, self.update_units_combobox ),
+                ( self.update_btngrp_group, self.update_number_spinbox, self.update_units_combobox ),
                 self.watch_motion_checkbox
                 # no prefs key for checkbox
             )
@@ -161,103 +191,118 @@ class SimSetup(SimSetupDialog): # before 050325 this class was called runSim
         ###@@@ bruce 050324 comment: Not sure if/when user can rename the file.
         QDialog.accept(self)
 
-        errorcode, partdir = self.assy.find_or_make_part_files_directory()
+        if self.simulation_engine_combobox.currentIndex() == 1:
+            # GROMACS was selected as the simulation engine.
+            #
+            # NOTE: This code is just for demo and prototyping purposes - the 
+            # real approach will be architected and utilize plugins.
+            #
+            # Brian Helfrich 2007-04-06
+            #
+            from GROMACS import GROMACS
+            gmx = GROMACS(self.assy.part)
+            gmx.run("md")
 
-        self.movie.cancelled = False # This is the only way caller can tell we succeeded.
-        self.movie.totalFramesRequested = self.nframesSB.value()
-        self.movie.temp = self.tempSB.value()
-        self.movie.stepsper = self.stepsperSB.value()
-        self.movie.print_energy = self.potential_energy_checkbox.isChecked()
-#        self.movie.timestep = self.timestepSB.value() # Not supported in Alpha
-        #self.movie.create_movie_file = self.create_movie_file_checkbox.isChecked() 
-            # removed for A7 (bug 1729). mark 060321
-        self.movie.create_movie_file = True
-
-        # compute update_data and update_cond, using new or old code
-        try:
-            # try new common code for this, bruce 060705            
-            ruc = self.ruc
-            update_cond = ruc.get_update_cond_from_widgets()
-            assert update_cond or (update_cond is False) ###@@@ remove when works, and all the others like this
-            # note, if those widgets are connected to env.prefs, that's not handled here or in ruc;
-            # I'm not sure if they are. Ideally we'd tell ruc the prefs_keys and have it handle that too,
-            # perhaps making it a long-lived object (though that might not be necessary).
-            update_data = ruc.get_update_data_from_widgets() # redundant, but we can remove it when ruc handles prefs
-        except:
-            print_compact_traceback("bug using realtime_update_controller in SimSetup, will use older code instead: ")
-                # this older code can be removed after A8 if we don't see that message
-            #bruce 060530 use new watch_motion rate parameters
-            self.movie.watch_motion = self.watch_motion_checkbox.isChecked() # [deprecated for setattr as of 060705]
-            if env.debug():
-                print "debug fyi: sim setup watch_motion = %r" % (self.movie.watch_motion,)
-            # This code works, but I'll try to replace it with calls to common code (above). [bruce 060705]
-            # first grab them from the UI
-            update_as_fast_as_possible_data = self.update_btngrp.selectedId() # 0 means yes, 1 means no (for now)
-                # ( or -1 means neither, but that's prevented by how the button group is set up, at least when it's enabled)
-            update_as_fast_as_possible = (update_as_fast_as_possible_data != 1)
-            update_number = self.update_number_spinbox.value() # 1, 2, etc (or perhaps 0??)
-            update_units = str(self.update_units_combobox.currentText()) # 'frames', 'seconds', 'minutes', 'hours'
-            # for sake of propogating them to the next sim run:
-            update_data = update_number, update_units, update_as_fast_as_possible_data, self.movie.watch_motion
-##                if env.debug():
-##                    print "stored _update_data %r into movie %r" % (self.movie._update_data, self.movie)
-##                    print "debug: self.update_btngrp.selectedId() = %r" % (update_as_fast_as_possible_data,)
-##                    print "debug: self.update_number_spinbox.value() is %r" % self.update_number_spinbox.value() # e.g. 1
-##                    print "debug: combox text is %r" % str(self.update_units_combobox.currentText()) # e.g. 'frames'
-            # Now figure out what these user settings mean our realtime updating algorithm should be,
-            # as a function to be used for deciding whether to update the 3D view when each new frame is received,
-            # which takes as arguments the time since the last update finished (simtime), the time that update took (pytime),
-            # and the number of frames since then (nframes, 1 or more), and returns a boolean for whether to draw this new frame.
-            # Notes:
-            # - The Qt progress update will be done independently of this, at most once per second (in runSim.py).
-            # - The last frame we expect to receive will always be drawn. (This func may be called anyway in case it wants
-            #   to do something else with the info like store it somewhere, or it may not (check runSim.py for details #k),
-            #   but its return value will be ignored if it's called for the last frame.)
-            # The details of these functions (and the UI feeding them) might be revised.
-
-            # This code for setting update_cond is duplicated (inexactly) in Minimize_CommandRun.doMinimize() in runSim.py
-            if update_as_fast_as_possible:
-                # This radiobutton might be misnamed; it really means "use the old code,
-                # i.e. not worse than 20% slowdown, with threshholds".
-                # It's also ambiguous -- does "fast" mean "fast progress"
-                # or "often" (which are opposites)? It sort of means "often".
-                update_cond = ( lambda simtime, pytime, nframes:
-                                simtime >= max(0.05, min(pytime * 4, 2.0)) )
-            elif update_units == 'frames':
-                update_cond = ( lambda simtime, pytime, nframes, _nframes = update_number:  nframes >= _nframes )
-            elif update_units == 'seconds':
-                update_cond = ( lambda simtime, pytime, nframes, _timelimit = update_number:  simtime + pytime >= _timelimit )
-            elif update_units == 'minutes':
-                update_cond = ( lambda simtime, pytime, nframes, _timelimit = update_number * 60:  simtime + pytime >= _timelimit )
-            elif update_units == 'hours':
-                update_cond = ( lambda simtime, pytime, nframes, _timelimit = update_number * 3600:  simtime + pytime >= _timelimit )
-            else:
-                print "don't know how to set update_cond from (%r, %r)" % (update_number, update_units)
-                update_cond = None
-            # revision in this old code, 060705:
-            if not self.movie.watch_motion:
-                update_cond = False
-            del self.movie.watch_motion # let getattr do it
-        # now do this, however we got update_data and update_cond:
-        self.movie._update_data = update_data # for propogating them to the next sim run
-        self.movie.update_cond = update_cond # used this time
-        # end of 060705 changes
-
-        suffix = self.suffix
-        if self.assy.filename and not errorcode: # filename could be an MMP or PDB file.
-            import shutil
-            dir, fil = os.path.split(self.assy.filename)
-            fil, ext = os.path.splitext(fil)
-            self.movie.filename = os.path.join(partdir, fil + suffix + '.dpb')
-            self.movie.origfile = os.path.join(partdir, fil + '.orig' + ext)
-            shutil.copy(self.assy.filename, self.movie.origfile)
-        else: 
-            self.movie.filename = os.path.join(self.assy.w.tmpFilePath, "Untitled%s.dpb" % suffix)
-            # Untitled parts usually do not have a filename
-        #bruce 060601 fix bug 1840, also make params sticky across opening of new files
-        global _stickyParams
-        _stickyParams = FakeMovie(self.movie) # these will be used as default params next time, whether or not this gets aborted
-        return
+        else:
+            # NanoDynamics-1 was selected as the simulation engine
+            #
+            errorcode, partdir = self.assy.find_or_make_part_files_directory()
+    
+            self.movie.cancelled = False # This is the only way caller can tell we succeeded.
+            self.movie.totalFramesRequested = self.nframesSB.value()
+            self.movie.temp = self.tempSB.value()
+            self.movie.stepsper = self.stepsperSB.value()
+            self.movie.print_energy = self.potential_energy_checkbox.isChecked()
+    #        self.movie.timestep = self.timestepSB.value() # Not supported in Alpha
+            #self.movie.create_movie_file = self.create_movie_file_checkbox.isChecked() 
+                # removed for A7 (bug 1729). mark 060321
+            self.movie.create_movie_file = True
+    
+            # compute update_data and update_cond, using new or old code
+            try:
+                # try new common code for this, bruce 060705            
+                ruc = self.ruc
+                update_cond = ruc.get_update_cond_from_widgets()
+                assert update_cond or (update_cond is False) ###@@@ remove when works, and all the others like this
+                # note, if those widgets are connected to env.prefs, that's not handled here or in ruc;
+                # I'm not sure if they are. Ideally we'd tell ruc the prefs_keys and have it handle that too,
+                # perhaps making it a long-lived object (though that might not be necessary).
+                update_data = ruc.get_update_data_from_widgets() # redundant, but we can remove it when ruc handles prefs
+            except:
+                print_compact_traceback("bug using realtime_update_controller in SimSetup, will use older code instead: ")
+                    # this older code can be removed after A8 if we don't see that message
+                #bruce 060530 use new watch_motion rate parameters
+                self.movie.watch_motion = self.watch_motion_checkbox.isChecked() # [deprecated for setattr as of 060705]
+                if env.debug():
+                    print "debug fyi: sim setup watch_motion = %r" % (self.movie.watch_motion,)
+                # This code works, but I'll try to replace it with calls to common code (above). [bruce 060705]
+                # first grab them from the UI
+                update_as_fast_as_possible_data = self.update_btngrp.selectedId() # 0 means yes, 1 means no (for now)
+                    # ( or -1 means neither, but that's prevented by how the button group is set up, at least when it's enabled)
+                update_as_fast_as_possible = (update_as_fast_as_possible_data != 1)
+                update_number = self.update_number_spinbox.value() # 1, 2, etc (or perhaps 0??)
+                update_units = str(self.update_units_combobox.currentText()) # 'frames', 'seconds', 'minutes', 'hours'
+                # for sake of propogating them to the next sim run:
+                update_data = update_number, update_units, update_as_fast_as_possible_data, self.movie.watch_motion
+    ##                if env.debug():
+    ##                    print "stored _update_data %r into movie %r" % (self.movie._update_data, self.movie)
+    ##                    print "debug: self.update_btngrp.selectedId() = %r" % (update_as_fast_as_possible_data,)
+    ##                    print "debug: self.update_number_spinbox.value() is %r" % self.update_number_spinbox.value() # e.g. 1
+    ##                    print "debug: combox text is %r" % str(self.update_units_combobox.currentText()) # e.g. 'frames'
+                # Now figure out what these user settings mean our realtime updating algorithm should be,
+                # as a function to be used for deciding whether to update the 3D view when each new frame is received,
+                # which takes as arguments the time since the last update finished (simtime), the time that update took (pytime),
+                # and the number of frames since then (nframes, 1 or more), and returns a boolean for whether to draw this new frame.
+                # Notes:
+                # - The Qt progress update will be done independently of this, at most once per second (in runSim.py).
+                # - The last frame we expect to receive will always be drawn. (This func may be called anyway in case it wants
+                #   to do something else with the info like store it somewhere, or it may not (check runSim.py for details #k),
+                #   but its return value will be ignored if it's called for the last frame.)
+                # The details of these functions (and the UI feeding them) might be revised.
+    
+                # This code for setting update_cond is duplicated (inexactly) in Minimize_CommandRun.doMinimize() in runSim.py
+                if update_as_fast_as_possible:
+                    # This radiobutton might be misnamed; it really means "use the old code,
+                    # i.e. not worse than 20% slowdown, with threshholds".
+                    # It's also ambiguous -- does "fast" mean "fast progress"
+                    # or "often" (which are opposites)? It sort of means "often".
+                    update_cond = ( lambda simtime, pytime, nframes:
+                                    simtime >= max(0.05, min(pytime * 4, 2.0)) )
+                elif update_units == 'frames':
+                    update_cond = ( lambda simtime, pytime, nframes, _nframes = update_number:  nframes >= _nframes )
+                elif update_units == 'seconds':
+                    update_cond = ( lambda simtime, pytime, nframes, _timelimit = update_number:  simtime + pytime >= _timelimit )
+                elif update_units == 'minutes':
+                    update_cond = ( lambda simtime, pytime, nframes, _timelimit = update_number * 60:  simtime + pytime >= _timelimit )
+                elif update_units == 'hours':
+                    update_cond = ( lambda simtime, pytime, nframes, _timelimit = update_number * 3600:  simtime + pytime >= _timelimit )
+                else:
+                    print "don't know how to set update_cond from (%r, %r)" % (update_number, update_units)
+                    update_cond = None
+                # revision in this old code, 060705:
+                if not self.movie.watch_motion:
+                    update_cond = False
+                del self.movie.watch_motion # let getattr do it
+            # now do this, however we got update_data and update_cond:
+            self.movie._update_data = update_data # for propogating them to the next sim run
+            self.movie.update_cond = update_cond # used this time
+            # end of 060705 changes
+    
+            suffix = self.suffix
+            if self.assy.filename and not errorcode: # filename could be an MMP or PDB file.
+                import shutil
+                dir, fil = os.path.split(self.assy.filename)
+                fil, ext = os.path.splitext(fil)
+                self.movie.filename = os.path.join(partdir, fil + suffix + '.dpb')
+                self.movie.origfile = os.path.join(partdir, fil + '.orig' + ext)
+                shutil.copy(self.assy.filename, self.movie.origfile)
+            else: 
+                self.movie.filename = os.path.join(self.assy.w.tmpFilePath, "Untitled%s.dpb" % suffix)
+                # Untitled parts usually do not have a filename
+            #bruce 060601 fix bug 1840, also make params sticky across opening of new files
+            global _stickyParams
+            _stickyParams = FakeMovie(self.movie) # these will be used as default params next time, whether or not this gets aborted
+            return
 
     pass # end of class SimSetup
 

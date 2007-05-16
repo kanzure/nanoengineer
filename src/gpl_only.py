@@ -1,5 +1,5 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
-'''
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+"""
 gpl_only.py
 
 This module contains code which is only distributed in the GPL version,
@@ -28,40 +28,12 @@ only job is to handle the case where this module gpl_only is not available.
 -- bruce 041217
 
 $Id$
-'''
+"""
 
-import sys, os
+#bruce 070425: Qt4 is all-GPL, so (for Qt4) I'm removing the check for Windows
+# and/or the gpl_only_ok file.
 
-# note: as of 12/3/04 I am told that sys.platform is always one of the
-# following, on our supported systems:
-#
-# - "linux2" (on Mandrake 10.x) (GPL)
-# - "darwin" (on Mac OS X 10.3) (GPL)
-# - "win32" (on WindowsXP)      (non-GPL)
-#
-# If this changes, modify the list of GPL versions hardcoded below.
-
-cheatpath = os.path.join( os.path.dirname(__file__), "gpl_only_ok")
-
-if os.path.exists(cheatpath):
-    # If cad/src/gpl_only_ok exists, we permit this module to exist, even on Windows.
-    # this is a temporary hack meant to be removed before Alpha is released.
-    # (though if we change our minds and leave it in, this might actually be ok.)
-    print "WARNING: permitting gpl_only.py to exist because gpl_only_ok does;\n" \
-          "REMOVE THEM BOTH (and the .pyc file too!!!) before making any distribution\n" \
-          "from this working directory!"
-elif sys.platform not in ['darwin','linux2']:
-    print "sys.platform == %r; this is not known to be a GPL version." % (sys.platform,)
-    try:
-        fname = os.path.basename(__file__)
-    except:
-        fname = ""
-    msg = "This file %r should not have been distributed with your version!!! Exiting." % (fname,)
-    print msg
-    # no dialog needed, since this should only happen to developers, not users.
-    sys.exit(1)
-
-# and here are those functions we can't allow those Windows users to run:
+# Here are those functions we can't allow Qt3 Windows users to run:
 
 def _execfile_in_globals(filename, globals):
     execfile(filename, globals)

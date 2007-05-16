@@ -1,3 +1,4 @@
+// Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
 #include "anillo.h"
 #include "Atomo.h"
 #include "String.h"

@@ -1,5 +1,6 @@
 cad/src/exprs/BUGS.txt
 
+ Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 # $Id$
 
 This is a place to record bugs in the exprs module that need to not be

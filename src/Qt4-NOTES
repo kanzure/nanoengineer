@@ -1,0 +1,63 @@
+
+
+ Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+
+This is an overview of the changes in the code that were necessary for
+the port to Qt 4. As of this writing (27 Dec 2006) the Qt 4 code is on
+the CVS branch "wware_qt4_20060919". For most files, the diffs can be
+seen by going to
+http://mirror2.cvsdude.com/~polosims/vcvs/cgi/viewcvs.cgi/cad/src/?pathrev=wware_qt4_20060919
+and clicking the filename in the left column, then clicking the diff
+"to branch point" for the most recent revision. For files with big
+changes, the diff may be too confusing to be useful.
+
+There are several relevant pages on the public wiki.
+
+* "Transition to Qt 4"
+	This page is primarily about installing Qt 4 on your platform.
+
+* "Current Issues: NE1 on Qt4"
+	This has been a bug list that Ninad and Will have worked from
+	as the Qt 4 port has started to become useable.
+
+* "Qt 4 mysteries"
+	This page is a laundry list of random issues that Will ran
+	into in the early stages of the Qt 4 port. There is probably
+	very little here of practical value, except perhaps to Ninad
+	as he might run into similar issues in the future. Also, there
+	may be enough breadcrumbs here to help assemble this overview
+	of the significant changes in the code.
+
+* "Qt 4 C/C object deleted"
+	This page describes an error message that comes up
+	periodically while one works on Qt 4. Initially it was very
+	confusing to us, but now we think we understand it better and
+	we have some diagnostic tools for helping to figure out any
+	future incidents of this error.
+
+One big thing is that we have moved away from using Qt Designer. There
+are still *.ui files in the Qt 4 branch, but they are long obsolete
+and should really be removed to avoid confusion.
+
+There are really big changes in MWsemantics.py and MainWindowUI.py.
+They are probably barely recognizable from their Qt 3 counterparts.
+
+The hierarchy of classes used to support the model tree has seen lots
+of very big changes too. TreeWidget.py and TreeView.py are no longer
+used and have been replaced by modelTreeGui.py. The work on the model
+tree was prototyped in modelTreePrototype.py, which is not used in
+the main program but shows some of the model tree design thinking in
+its original form before it was merged with the rest of NE-1.
+
+The DirView class becomes much simpler in Qt 4, so the DirView.py
+file is no longer relevant and can be removed. The DirView class now
+lives in MMKit.py, currently at line 596. This was possible because
+Qt 4 provides a more useful set of classes than Qt 3 did, and stuff
+we needed to do ourselves in Qt 3 is available as part of Qt 4.
+
+There have been a lot of changes to MMKit.py. Some have to do with
+bringing in connect statements from MMKitDialog.py, as it appears that
+the convention with Qt 4 is that connect statements go in the
+user-written code rather than the qt-designer-generated code. That's
+not bad, as we are no longer using Qt Designer to generate code
+anyway.

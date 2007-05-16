@@ -1,18 +1,29 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 GridPlaneProp.py
 
 $Id$
 """
 
-from qt import *
+from PyQt4.Qt import *
 from GridPlanePropDialog import *
-from widgets import RGBf_to_QColor, QColor_to_RGBf
+from widgets import RGBf_to_QColor, QColor_to_RGBf, get_widget_with_color_palette
 
-class GridPlaneProp(GridPlanePropDialog):
+class GridPlaneProp(QDialog, Ui_GridPlanePropDialog):
     def __init__(self, gridPlane, glpane):
 
-        GridPlanePropDialog.__init__(self)
+        QWidget.__init__(self)
+        self.setupUi(self)
+        self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
+        self.connect(self.cancel_btn,SIGNAL("clicked()"),self.reject)
+        self.connect(self.choose_border_color_btn,SIGNAL("clicked()"),self.change_border_color)
+        self.connect(self.choose_grid_color_btn,SIGNAL("clicked()"),self.change_grid_color)
+        self.connect(self.width_spinbox,SIGNAL("valueChanged(int)"),self.change_width)
+        self.connect(self.height_spinbox,SIGNAL("valueChanged(int)"),self.change_height)
+        self.connect(self.x_spacing_spinbox,SIGNAL("valueChanged(int)"),self.change_x_spacing)
+        self.connect(self.y_spacing_spinbox,SIGNAL("valueChanged(int)"),self.change_y_spacing)
+        self.connect(self.grid_type_combox,SIGNAL("activated(int)"),self.change_grid_type)
+        self.connect(self.line_type_combox,SIGNAL("activated(int)"),self.change_line_type)
         self.grid_plane = gridPlane
         self.glpane = glpane
 
@@ -22,11 +33,15 @@ class GridPlaneProp(GridPlanePropDialog):
         
         # Border color
         self.border_color = RGBf_to_QColor(self.grid_plane.normcolor) # Used as default color by Color Chooser
-        self.border_color_pixmap.setPaletteBackgroundColor(self.border_color)
-        
+                
         # Grid color
         self.grid_color = RGBf_to_QColor(self.grid_plane.grid_color) # Used as default color by Color Chooser
-        self.grid_color_pixmap.setPaletteBackgroundColor(self.grid_color)
+ 
+        self.grid_color_pixmap = get_widget_with_color_palette(
+            self.grid_color_pixmap, self.grid_color)
+        
+        self.border_color_pixmap = get_widget_with_color_palette(
+            self.border_color_pixmap,self.border_color)
         
         self.name_linedit.setText(self.grid_plane.name)
         
@@ -35,11 +50,12 @@ class GridPlaneProp(GridPlanePropDialog):
         self.x_spacing_spinbox.setValue(self.grid_plane.x_spacing)
         self.y_spacing_spinbox.setValue(self.grid_plane.y_spacing)
         
-        self.grid_type_combox.setCurrentItem(self.grid_plane.grid_type)
-        self.line_type_combox.setCurrentItem(self.grid_plane.line_type)
+        self.grid_type_combox.setCurrentIndex(self.grid_plane.grid_type)
+        self.line_type_combox.setCurrentIndex(self.grid_plane.line_type)
         
         self._set_xyspacing_enabled(self.grid_plane.grid_type)
 
+        
     def _set_xyspacing_enabled(self, grid_type):
         '''If <grid_type> == 1, which is SiC type, disable x, y spacing comboBox, otherwise, enable it. '''
         from prefs_constants import SiC_GRID, SQUARE_GRID
@@ -67,22 +83,24 @@ class GridPlaneProp(GridPlanePropDialog):
         
     def change_grid_color(self):
         '''Slot method to change grid color.'''
-        color = QColorDialog.getColor(self.grid_color, self, "ColorDialog")
+        color = QColorDialog.getColor(self.grid_color, self)
 
-        if color.isValid():
-            self.grid_color_pixmap.setPaletteBackgroundColor(color)
+        if color.isValid():            
             self.grid_color = color
+            self.grid_color_pixmap = get_widget_with_color_palette(
+            self.grid_color_pixmap, self.grid_color)
             self.grid_plane.grid_color = QColor_to_RGBf(color)
             self.glpane.gl_update()
 
             
     def change_border_color(self):
         '''Slot method change border color.'''
-        color = QColorDialog.getColor(self.border_color, self, "ColorDialog")
+        color = QColorDialog.getColor(self.border_color, self)
 
         if color.isValid():
-            self.border_color_pixmap.setPaletteBackgroundColor(color)
             self.border_color = color
+            self.border_color_pixmap = get_widget_with_color_palette(
+                self.border_color_pixmap,self.border_color)
             self.grid_plane.color = self.grid_plane.normcolor = QColor_to_RGBf(color)
             self.glpane.gl_update()
 

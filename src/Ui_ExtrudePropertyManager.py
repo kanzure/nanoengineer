@@ -1,0 +1,529 @@
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+
+"""
+$Id$
+"""
+import sys
+from PyQt4 import QtCore, QtGui
+from PyQt4.Qt import *
+from Utility import geticon, getpixmap
+from widgets import FloatSpinBox, TogglePrefCheckBox
+from qt4transition import qt4todo
+
+class Ui_ExtrudePropertyManager(object):
+    def setupUi(self, ExtrudePropertyManager):
+        ExtrudePropertyManager.setObjectName("ExtrudePropertyManager")
+        ExtrudePropertyManager.resize(QtCore.QSize(QtCore.QRect(0,0,200,320).size()).expandedTo(ExtrudePropertyManager.minimumSizeHint()))
+
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(3),QtGui.QSizePolicy.Policy(3))
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(ExtrudePropertyManager.sizePolicy().hasHeightForWidth())
+        ExtrudePropertyManager.setSizePolicy(sizePolicy)
+        #ExtrudePropertyManager.setMinimumSize(QtCore.QSize(190,750))
+        
+        ExtrudePropertyManager.setPalette(self.getPropertyManagerPalette())
+        
+        self.vboxlayout = QtGui.QVBoxLayout(ExtrudePropertyManager)
+        self.vboxlayout.setMargin(1)
+        self.vboxlayout.setSpacing(1)
+        self.vboxlayout.setObjectName("vboxlayout")
+        self.vboxlayout.setSizeConstraint(QLayout.SetMinimumSize)
+        
+        self.heading_frame = QtGui.QFrame(ExtrudePropertyManager)
+        self.heading_frame.setFrameShape(QtGui.QFrame.NoFrame)
+        self.heading_frame.setFrameShadow(QtGui.QFrame.Plain)
+        self.heading_frame.setObjectName("heading_frame")
+        
+        palette2 = QtGui.QPalette()
+        palette2.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(10),
+                          QtGui.QColor(150,150,140)) #bgrole(10) is 'Windows'
+        palette2.setColor(QtGui.QPalette.Inactive,
+                          QtGui.QPalette.ColorRole(10),
+                          QtGui.QColor(150, 150,140)) #bgrole(10) is 'Windows'
+        palette2.setColor(QtGui.QPalette.Disabled,
+                          QtGui.QPalette.ColorRole(10),
+                          QtGui.QColor(150,150,140)) #bgrole(10) is 'Windows'
+        self.heading_frame.setAutoFillBackground(True)
+        self.heading_frame.setPalette(palette2)
+
+        self.hboxlayout_heading = QtGui.QHBoxLayout(self.heading_frame)
+        self.hboxlayout_heading .setMargin(0)
+        self.hboxlayout_heading .setSpacing(3)
+        self.hboxlayout_heading .setObjectName("hboxlayout")
+
+        self.heading_pixmap = QtGui.QLabel(self.heading_frame)
+        self.heading_pixmap.setPixmap(getpixmap(
+            'ui/actions/Insert/Features/Extrude')) 
+
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(0),
+                                       QtGui.QSizePolicy.Policy(0))
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.heading_pixmap.sizePolicy().hasHeightForWidth())
+        self.heading_pixmap.setSizePolicy(sizePolicy)
+        self.heading_pixmap.setScaledContents(True)
+        self.heading_pixmap.setObjectName("heading_pixmap")
+        self.hboxlayout_heading .addWidget(self.heading_pixmap)
+        
+        self.heading_label = QtGui.QLabel(self.heading_frame)
+
+        font = QtGui.QFont(self.heading_label.font())
+        font.setFamily("Sans Serif")
+        font.setPointSize(12)
+        font.setWeight(75)
+        font.setItalic(False)
+        font.setUnderline(False)
+        font.setStrikeOut(False)
+        font.setBold(True)
+        self.heading_label.setFont(font)
+        self.heading_label.setObjectName("heading_label")
+        
+        self.hboxlayout_heading .addWidget(self.heading_label)
+        
+        self.vboxlayout.addWidget(self.heading_frame)
+
+        self.sponsor_frame = QtGui.QFrame(ExtrudePropertyManager)
+        self.sponsor_frame.setFrameShape(QtGui.QFrame.NoFrame)
+        self.sponsor_frame.setFrameShadow(QtGui.QFrame.Plain)
+        self.sponsor_frame.setObjectName("sponsor_frame")
+
+        self.gridlayout_sponsor = QtGui.QGridLayout(self.sponsor_frame)
+        self.gridlayout_sponsor.setMargin(0)
+        self.gridlayout_sponsor.setSpacing(0)
+        self.gridlayout_sponsor.setObjectName("gridlayout")
+
+        self.sponsor_btn = QtGui.QPushButton(self.sponsor_frame)
+        self.sponsor_btn.setAutoDefault(False)
+        self.sponsor_btn.setFlat(True)
+        self.sponsor_btn.setObjectName("sponsor_btn")
+        self.gridlayout_sponsor.addWidget(self.sponsor_btn,0,0,1,1)
+        
+        self.vboxlayout.addWidget(self.sponsor_frame)
+                        
+        # ninad 070221 Call methods that define different groupboxes and 
+        #done cancel rows (groupbox  methods also define spacer items 
+        #after the groupbox)
+        
+        self.ui_doneCancelButtonRow(ExtrudePropertyManager)
+        
+        self.ui_productSpecs_GroupBox(ExtrudePropertyManager)
+        
+        self.ui_extrudeDirections_GroupBox(ExtrudePropertyManager)
+        
+        self.ui_advancedOps_GroupBox(ExtrudePropertyManager)
+        
+        #ninad 070120 Following spacerItem is important to add in the main vboxlayout to prevent the size adjustments in 
+        #the property manager when the group items are hidden 
+        spacerItem4 = QtGui.QSpacerItem(20,5,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
+        self.vboxlayout.addItem(spacerItem4)
+        
+        self.retranslateUi(ExtrudePropertyManager)
+        QtCore.QMetaObject.connectSlotsByName(ExtrudePropertyManager)
+        
+    def ui_doneCancelButtonRow(self, ExtrudePropertyManager):
+        
+        #Start Done , Abort, button row
+        
+        hboxlayout_buttonrow = QtGui.QHBoxLayout()
+        
+        leftSpacer = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QSizePolicy.Minimum)
+        hboxlayout_buttonrow.addItem(leftSpacer)
+        
+                        
+        self.button_frame = QtGui.QFrame(ExtrudePropertyManager)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(0),QtGui.QSizePolicy.Policy(0))
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.button_frame.sizePolicy().hasHeightForWidth())
+        self.button_frame.setSizePolicy(sizePolicy)
+        self.button_frame.setFrameShape(QtGui.QFrame.StyledPanel)
+        self.button_frame.setFrameShadow(QtGui.QFrame.Raised)
+        self.button_frame.setObjectName("button_frame")
+        
+        self.hboxlayout_buttonframe = QtGui.QHBoxLayout(self.button_frame)
+        self.hboxlayout_buttonframe.setMargin(2)
+        self.hboxlayout_buttonframe.setSpacing(2)
+        self.hboxlayout_buttonframe.setObjectName("hboxlayout_buttonframe")
+                
+        self.done_btn = QtGui.QPushButton(self.button_frame)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(0),QtGui.QSizePolicy.Policy(0))
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.done_btn.sizePolicy().hasHeightForWidth())
+        self.done_btn.setSizePolicy(sizePolicy)
+
+        self.done_btn.setIcon(geticon("ui/actions/Properties Manager/Done.png"))
+        self.done_btn.setObjectName("done_btn")
+        
+        self.hboxlayout_buttonframe.addWidget(self.done_btn)
+        
+        self.abort_btn = QtGui.QPushButton(self.button_frame)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(0),QtGui.QSizePolicy.Policy(0))
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.abort_btn.sizePolicy().hasHeightForWidth())
+        self.abort_btn.setSizePolicy(sizePolicy)
+        self.abort_btn.setIcon(geticon("ui/actions/Properties Manager/Abort.png"))
+        self.abort_btn.setObjectName("abort_btn")
+        self.hboxlayout_buttonframe.addWidget(self.abort_btn)
+        
+        self.whatthis_btn = QtGui.QPushButton(self.button_frame)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(0),QtGui.QSizePolicy.Policy(0))
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.whatthis_btn.sizePolicy().hasHeightForWidth())
+        self.whatthis_btn.setSizePolicy(sizePolicy)
+        self.whatthis_btn.setIcon(geticon("ui/actions/Properties Manager/WhatsThis.png"))
+        self.whatthis_btn.setObjectName("whatthis_btn")
+        self.hboxlayout_buttonframe.addWidget(self.whatthis_btn)
+        
+        hboxlayout_buttonrow.addWidget(self.button_frame)
+        
+        rightSpacer = QtGui.QSpacerItem(40, 10, QtGui.QSizePolicy.Expanding, QSizePolicy.Minimum)
+        hboxlayout_buttonrow.addItem(rightSpacer)
+    
+        #self.vboxlayout.addWidget(self.button_frame)
+        self.vboxlayout.addLayout(hboxlayout_buttonrow)
+        
+               
+        #End Done , Abort button row
+    
+    def ui_productSpecs_GroupBox(self, ExtrudePropertyManager):
+        # Start Product Specifications Groupbox
+        self.productSpec_groupBox = QtGui.QGroupBox(ExtrudePropertyManager)
+        self.productSpec_groupBox.setObjectName("productSpec_groupBox")
+        
+        self.productSpec_groupBox.setAutoFillBackground(True) 
+        palette =  ExtrudePropertyManager.getGroupBoxPalette()
+        self.productSpec_groupBox.setPalette(palette)
+            
+        styleSheet = ExtrudePropertyManager.getGroupBoxStyleSheet()        
+        self.productSpec_groupBox.setStyleSheet(styleSheet)
+    
+        self.vboxlayout_grpbox1 = QtGui.QVBoxLayout(self.productSpec_groupBox)
+        self.vboxlayout_grpbox1.setMargin(0)
+        self.vboxlayout_grpbox1.setSpacing(6)
+        self.vboxlayout_grpbox1.setObjectName("vboxlayout_grpbox1")
+
+        self.productSpec_groupBoxButton = ExtrudePropertyManager.getGroupBoxTitleButton(
+            "Product Specifications", self.productSpec_groupBox)
+        self.vboxlayout_grpbox1.addWidget(self.productSpec_groupBoxButton)
+        
+        self.productSpec_groupBoxWidget = QtGui.QWidget(
+            self.productSpec_groupBox)
+        
+   
+        
+        vlo_grpbx_widget = QtGui.QVBoxLayout(
+            self.productSpec_groupBoxWidget)
+        vlo_grpbx_widget.setMargin(4)
+        vlo_grpbx_widget.setSpacing(2)
+              
+        ### Start Product Type Combobox 
+        
+        self.hboxlayout1_grpbox1 = QtGui.QHBoxLayout()
+        self.hboxlayout1_grpbox1.setMargin(4)
+        self.hboxlayout1_grpbox1.setSpacing(4)
+        self.hboxlayout1_grpbox1.setObjectName("hboxlayout1_grpbox1")
+        
+        self.extrude_productType_label = QtGui.QLabel(
+            self.productSpec_groupBoxWidget)
+        self.hboxlayout1_grpbox1.addWidget(self.extrude_productType_label)
+        
+        self.spacerItem1= QtGui.QSpacerItem(4,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.hboxlayout1_grpbox1.addItem(self.spacerItem1)
+          
+        self.extrude_productTypeComboBox= QtGui.QComboBox(
+            self.productSpec_groupBoxWidget)
+        
+        self.extrude_productTypeComboBox.insertItem(0,"rod") # these names are seen by user but not by our code        
+        self.extrude_productTypeComboBox.insertItem(1,"ring")        
+        self.extrude_productTypeComboBox_ptypes = ["straight rod", "closed ring", "corkscrew"] # names used in the code, same order
+        # # # # if you comment out items from combobox, you also have to remove them from this list unless they are at the end!!!
+        
+        self.hboxlayout1_grpbox1.addWidget(self.extrude_productTypeComboBox)
+                  
+        ### Endt ProductType Combobox 
+        
+ 
+        
+        vlo_grpbx_widget.addLayout(self.hboxlayout1_grpbox1)  
+        
+        ###Start Total Number of copies Spinbox (Including Base Unit)
+        
+        self.hboxlayout2_grpbox1 = QtGui.QHBoxLayout()        
+        self.hboxlayout2_grpbox1.setMargin(4)
+        self.hboxlayout2_grpbox1.setSpacing(4)
+        self.hboxlayout2_grpbox1.setObjectName("hboxlayout2_grpbox1")
+        
+        self.extrudeSpinBox_n_label = QtGui.QLabel(
+            self.productSpec_groupBoxWidget)
+        
+        self.hboxlayout2_grpbox1.addWidget(self.extrudeSpinBox_n_label)
+          
+        self.spacerItem2= QtGui.QSpacerItem(4,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.hboxlayout2_grpbox1.addItem(self.spacerItem2)
+                        
+        self.extrudeSpinBox_n = QtGui.QSpinBox(self.productSpec_groupBoxWidget)
+        self.extrudeSpinBox_n.setObjectName("extrudeSpinBox_n")
+        
+        self.hboxlayout2_grpbox1.addWidget(self.extrudeSpinBox_n)        
+        ###End Total Number of copies Spinbox (Including Base Unit)
+        vlo_grpbx_widget.addLayout(self.hboxlayout2_grpbox1) 
+        
+        self.vboxlayout_grpbox1.addWidget(self.productSpec_groupBoxWidget)
+        
+        # End  Product Specifications Groupbox        
+        self.vboxlayout.addWidget(self.productSpec_groupBox)
+        spacer_prodspecs_grpbx = QtGui.QSpacerItem(10,10,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.vboxlayout.addItem(spacer_prodspecs_grpbx)
+        
+        
+        
+    def ui_extrudeDirections_GroupBox(self, ExtrudePropertyManager):
+        #Start extrudeDirection groupbox
+        self.extrudeDirection_groupBox = QtGui.QGroupBox(ExtrudePropertyManager)
+        self.extrudeDirection_groupBox.setObjectName("extrudeDirection_groupBox")
+        
+        self.extrudeDirection_groupBox.setAutoFillBackground(True) 
+        palette =  ExtrudePropertyManager.getGroupBoxPalette()
+        self.extrudeDirection_groupBox.setPalette(palette)
+               
+        styleSheet = ExtrudePropertyManager.getGroupBoxStyleSheet()        
+        self.extrudeDirection_groupBox.setStyleSheet(styleSheet)
+        
+        self.vboxlayout_grpbox2 = QtGui.QVBoxLayout(self.extrudeDirection_groupBox)
+        self.vboxlayout_grpbox2.setMargin(0)
+        self.vboxlayout_grpbox2.setSpacing(6)
+        self.vboxlayout_grpbox2.setObjectName("vboxlayout_grpbox2")
+        
+        self.extrudeDirection_groupBoxButton = ExtrudePropertyManager.getGroupBoxTitleButton(
+            "Extrude Direction", self.extrudeDirection_groupBox)
+        self.vboxlayout_grpbox2.addWidget(self.extrudeDirection_groupBoxButton)
+    
+        # End extrudeDirection  Groupbox         
+        self.vboxlayout.addWidget(self.extrudeDirection_groupBox)
+        spacer_extrudedirection_grpbx = QtGui.QSpacerItem(10,10,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.vboxlayout.addItem(spacer_extrudedirection_grpbx)
+        
+        #Hide extrude direction group box until it is implemented - ninad070411
+        self.extrudeDirection_groupBox.hide()
+
+        
+    def ui_advancedOps_GroupBox(self, ExtrudePropertyManager):
+        #Start AdvancedOptions Groupbox
+        self.advancedOptions_groupBox = QtGui.QGroupBox(ExtrudePropertyManager)
+        self.advancedOptions_groupBox .setObjectName("advancedOptions_groupBox")
+        
+        self.advancedOptions_groupBox.setAutoFillBackground(True) 
+        palette =  ExtrudePropertyManager.getGroupBoxPalette()
+        self.advancedOptions_groupBox.setPalette(palette)
+        
+        styleSheet = ExtrudePropertyManager.getGroupBoxStyleSheet()        
+        self.advancedOptions_groupBox.setStyleSheet(styleSheet)
+        
+        self.vboxlayout_grpbox3 = QtGui.QVBoxLayout(self.advancedOptions_groupBox)
+        self.vboxlayout_grpbox3.setMargin(0)
+        self.vboxlayout_grpbox3.setSpacing(6)
+        self.vboxlayout_grpbox3.setObjectName("vboxlayout_grpbox3")
+
+        self.advancedOptions_groupBoxButton = ExtrudePropertyManager.getGroupBoxTitleButton(
+            "Advanced Options", self.advancedOptions_groupBox)        
+           
+        self.vboxlayout_grpbox3.addWidget(self.advancedOptions_groupBoxButton)
+        
+        self.advancedOptions_groupBoxWidget = QtGui.QWidget(
+            self.advancedOptions_groupBox)
+        
+        vlo_grpbx_widget = QtGui.QVBoxLayout(
+            self.advancedOptions_groupBoxWidget)
+        vlo_grpbx_widget.setMargin(4)
+        vlo_grpbx_widget.setSpacing(4)
+        
+        self.extrudePref1 = TogglePrefCheckBox(
+            "Show Whole Model", 
+            self.advancedOptions_groupBoxWidget,
+            "extrudePref1", 
+            default = False,
+            attr = 'show_whole_model',
+            repaintQ = True )
+        
+        vlo_grpbx_widget.addWidget(self.extrudePref1)        
+       
+        self.extrudePref3 = TogglePrefCheckBox(
+            "Make Bonds", 
+            self.advancedOptions_groupBoxWidget,
+            "extrudePref3", 
+            attr = 'whendone_make_bonds')
+        
+        vlo_grpbx_widget.addWidget(self.extrudePref3)
+        
+        self.extrudePref2 = TogglePrefCheckBox(
+            "Show Bond-offset Spheres", 
+            self.advancedOptions_groupBoxWidget,
+            "extrudePref2", default = False,  
+            attr = 'show_bond_offsets', 
+            repaintQ = True )
+        
+        
+        self.extrudeBondCriterionLabel = QLabel("")
+        #self.extrudeBondCriterionLabel_lambda_tol_nbonds = lambda_tol_nbonds
+        self.extrudeBondCriterionSlider_dflt = dflt = 100
+        vlo_grpbx_widget.addWidget(self.extrudeBondCriterionLabel)
+        
+        
+        self.extrudeBondCriterionSlider = QSlider(
+            Qt.Horizontal,
+            self.advancedOptions_groupBoxWidget)
+        
+        self.extrudeBondCriterionSlider.setMinimum(0)
+        self.extrudeBondCriterionSlider.setMaximum(300)
+        self.extrudeBondCriterionSlider.setPageStep(5)
+        self.extrudeBondCriterionSlider.setValue(dflt)
+        vlo_grpbx_widget.addWidget(self.extrudeBondCriterionSlider)
+        
+        #ninad070410: Bruce should hook-up the following preference       
+        self.extrudePrefMergeSelection = TogglePrefCheckBox(
+            "Merge Selection", 
+            self.advancedOptions_groupBoxWidget, 
+            "extrudePrefMergeSelection",
+            attr = 'whendone_merge_selection',
+            default= False)
+        
+        vlo_grpbx_widget.addWidget(self.extrudePrefMergeSelection)
+        
+        self.extrudePref4 = TogglePrefCheckBox(
+            "Merge Copies", 
+            self.advancedOptions_groupBoxWidget, 
+            "extrudePref4",
+            attr = 'whendone_all_one_part',
+            default= False)    
+        
+        vlo_grpbx_widget.addWidget(self.extrudePref4)
+        
+        
+        #@@@ extrudeSpinBox_x/y/z and length are temporarily placed in Advanced option gruopbox
+        
+        qt4todo('#@@@ extrudeSpinBox_x/y/z and length are \
+        temporarily placed in Advanced option gruopbox')
+        
+        #vbox layout for X, Y, Z and length spinboxes
+        spinboxes_vlayout = QtGui.QVBoxLayout()
+        
+        spacerItem_spinbox_x= QtGui.QSpacerItem(20,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        spacerItem_spinbox_y= QtGui.QSpacerItem(20,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        spacerItem_spinbox_z= QtGui.QSpacerItem(20,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        spacerItem_spinbox_length= QtGui.QSpacerItem(20,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        
+        spinbox_length_hlayout = QtGui.QHBoxLayout()       
+        spinbox_length_hlayout.setSpacing(4)
+        spinbox_length_hlayout.setMargin(4)
+        
+        self.length_label = QtGui.QLabel(self.advancedOptions_groupBoxWidget)       
+        spinbox_length_hlayout.addWidget(self.length_label)  
+        
+        self.extrudeSpinBox_length = QDoubleSpinBox(
+            self.advancedOptions_groupBoxWidget)
+        self.extrudeSpinBox_length.setDecimals(2)
+        self.extrudeSpinBox_length.setRange(0.1, 2000)
+        spinbox_length_hlayout.addWidget(self.extrudeSpinBox_length)
+        
+                
+        spinbox_length_hlayout.addItem(spacerItem_spinbox_length)
+        spinboxes_vlayout.addLayout(spinbox_length_hlayout)
+        
+        spinbox_x_hlayout = QtGui.QHBoxLayout()   
+        spinbox_x_hlayout.setSpacing(4)
+        spinbox_x_hlayout.setMargin(4)
+        
+        self.x_label = QtGui.QLabel(self.advancedOptions_groupBoxWidget)
+        spinbox_x_hlayout.addWidget(self.x_label)
+        
+        self.extrudeSpinBox_x = QDoubleSpinBox(
+            self.advancedOptions_groupBoxWidget)
+        self.extrudeSpinBox_x.setDecimals(2)
+        self.extrudeSpinBox_x.setRange(-1000.0, 1000.0)        
+        spinbox_x_hlayout.addWidget(self.extrudeSpinBox_x)
+        
+        spinbox_x_hlayout.addItem(spacerItem_spinbox_x)
+        
+        spinboxes_vlayout.addLayout(spinbox_x_hlayout)
+        
+        spinbox_y_hlayout = QtGui.QHBoxLayout()  
+        spinbox_y_hlayout.setSpacing(4)
+        spinbox_y_hlayout.setMargin(4)
+        
+              
+        self.y_label = QtGui.QLabel(self.advancedOptions_groupBoxWidget)       
+        spinbox_y_hlayout.addWidget(self.y_label)        
+        
+        self.extrudeSpinBox_y = QDoubleSpinBox(
+            self.advancedOptions_groupBoxWidget)
+        self.extrudeSpinBox_y.setDecimals(2)
+        self.extrudeSpinBox_y.setRange(-1000.0, 1000.0)
+        spinbox_y_hlayout.addWidget(self.extrudeSpinBox_y)
+        
+        spinbox_y_hlayout.addItem(spacerItem_spinbox_y)
+        
+        spinboxes_vlayout.addLayout(spinbox_y_hlayout)
+        
+        spinbox_z_hlayout = QtGui.QHBoxLayout()
+        spinbox_z_hlayout.setSpacing(4)
+        spinbox_z_hlayout.setMargin(4)
+               
+        
+        self.z_label = QtGui.QLabel(self.advancedOptions_groupBoxWidget)       
+        spinbox_z_hlayout.addWidget(self.z_label)  
+                
+        self.extrudeSpinBox_z = QDoubleSpinBox(
+            self.advancedOptions_groupBoxWidget)
+        self.extrudeSpinBox_z.setDecimals(2)
+        self.extrudeSpinBox_z.setRange(-1000.0, 1000.0)
+        spinbox_z_hlayout.addWidget(self.extrudeSpinBox_z)
+        
+        spinbox_z_hlayout.addItem(spacerItem_spinbox_z)
+        
+        spinboxes_vlayout.addLayout(spinbox_z_hlayout) 
+        spinboxes_vlayout.setSpacing(2)
+        spinboxes_vlayout.setMargin(2)
+        
+        vlo_grpbx_widget.addLayout(spinboxes_vlayout)
+        
+        ##Start bondOptionsWidget
+        #self.bondOptionsWidget = QtGui.QWidget(
+        #          self.advancedOptions_groupBoxWidget )
+               
+        ##End  bondOptionsWidget
+        
+        ##Start displayOptionsWidget
+        #self.displayOptionsWidget = QtGui.QWidget(
+        #                  self.advancedOptions_groupBoxWidget)
+        
+        ## End displayOptionsWidget        
+        self.vboxlayout_grpbox3.addWidget(self.advancedOptions_groupBoxWidget)
+        
+        #End Advanced Options
+        self.vboxlayout.addWidget(self.advancedOptions_groupBox)
+        spacer_advancedops_grpbx = QtGui.QSpacerItem(10,10,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.vboxlayout.addItem(spacer_advancedops_grpbx)
+        
+
+    def retranslateUi(self, ExtrudePropertyManager):
+        ExtrudePropertyManager.setWindowTitle(QtGui.QApplication.translate("ExtrudePropertyManager", 
+                                                                           "ExtrudePropertyManager", None, QtGui.QApplication.UnicodeUTF8))
+        self.heading_label.setText(QtGui.QApplication.translate("ExtrudePropertyManager",
+                                                                "<font color=\"#FFFFFF\">Extrude </font>", 
+                                                                None, QtGui.QApplication.UnicodeUTF8))
+        self.extrude_productType_label.setText(QtGui.QApplication.translate("ExtrudePropertyManager", 
+                                                                            "Type of Final Product:", None, QtGui.QApplication.UnicodeUTF8))
+        self.extrudeSpinBox_n_label.setText(QtGui.QApplication.translate("ExtrudePropertyManager", 
+                                                                         "Total Number of Copies(N):", None, QtGui.QApplication.UnicodeUTF8))
+        self.x_label.setText(QtGui.QApplication.translate("ExtrudePropertyManager", 
+                                                          "X:", None, QtGui.QApplication.UnicodeUTF8))
+        self.y_label.setText(QtGui.QApplication.translate("ExtrudePropertyManager", 
+                                                          "Y:", None, QtGui.QApplication.UnicodeUTF8))
+        self.z_label.setText(QtGui.QApplication.translate("ExtrudePropertyManager", 
+                                                          "Z:", None, QtGui.QApplication.UnicodeUTF8))
+        self.length_label.setText(QtGui.QApplication.translate("ExtrudePropertyManager", 
+                                                               "Length:", None, QtGui.QApplication.UnicodeUTF8))

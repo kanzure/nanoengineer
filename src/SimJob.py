@@ -1,4 +1,4 @@
-# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2005-2006 Nanorex, Inc.  See LICENSE file for details. 
 '''
 SimJob.py
 
@@ -8,7 +8,7 @@ __author__ = "Mark"
 
 import time
 import sys
-from qt import QObject
+from PyQt4.Qt import QObject
 
 class SimJob(QObject):
     """The base class for a simulation job"""

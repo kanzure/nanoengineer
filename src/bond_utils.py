@@ -1,4 +1,4 @@
-# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 '''
 bond_utils.py
 

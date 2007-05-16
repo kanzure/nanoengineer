@@ -1,3 +1,4 @@
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 demo_ui.py - try out a more CAD-like UI organization
 

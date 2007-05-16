@@ -1,8 +1,10 @@
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 lvals.py - various kinds of "lvalue" objects (slots for holding attribute values)
 with special behavior such as usage-tracking and invalidation/update.
 
 $Id$
+
 
 ===
 

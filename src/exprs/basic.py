@@ -1,7 +1,9 @@
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 basic.py -- define things to be imported by every module in this package (using import *)
 
 $Id$
+
 """
 
 # Import order issues --

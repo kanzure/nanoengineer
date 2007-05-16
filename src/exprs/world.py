@@ -1,8 +1,10 @@
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 
 world.py -- prototype Model Data Set owning/storing object, not yet very general.
 
 $Id$
+
 
 070201 Moved here from demo_drag.py.
 Class & file likely to be renamed -- but not to DataSet since that's different --

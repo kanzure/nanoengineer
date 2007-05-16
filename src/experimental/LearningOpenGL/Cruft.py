@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+# Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
 """
 >... anything I'm doing wrong?
 

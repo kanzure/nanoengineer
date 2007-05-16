@@ -1,3 +1,4 @@
+// Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
 #ifndef ATOMLIST_H_INCLUDED
 #define ATOMLIST_H_INCLUDED
 

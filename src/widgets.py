@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 '''
 widgets.py
 
@@ -10,18 +10,13 @@ $Id$
 '''
 __author__ = "bruce"
 
-from qt import *
+from PyQt4.Qt import *
+from PyQt4 import QtGui
+from qt4transition import *
 
-def is_qt_widget(obj):
-    return isinstance(obj, QWidget)
-
-def qt_widget(obj):
-    if is_qt_widget(obj):
-        return obj
-    else:
-        # assume it's a megawidget
-        return obj.widget
-    pass
+# These don't exist in Qt4 but we can make begin(QVBox) and
+# begin(QHBox) act the same as before.
+QVBox, QHBox = range(2)
 
 class widget_filler:
     """Helper class to make it more convenient to revise the code
@@ -42,27 +37,57 @@ class widget_filler:
             # their parent).
         self.label_prefix = label_prefix
         self.textfilter = textfilter
+        self.layoutstack = [ ]
     def parent(self):
         """To use this widget_filler, create new widgets whose parent is what
         this method returns (always a qt widget, not a megawidget)
         [#e we might need a raw_parent method to return megawidgets directly]
         """
-        return qt_widget( self.where[-1] )
+        # return qt_widget( self.where[-1] )
+        return self.where[-1]
+
+    class MyGroupBox(QGroupBox):
+        pass
+
     def begin(self, thing):
         "use this to start a QVBox or QHBox, or a splitter; thing is the Qt widget class" #e or megawidget?
-        box = thing(self.parent())
-        self.where.append(box) #e for megawidgets, decide if we turn this to a qt widget now or on each use
+        assert thing in (QVBox, QHBox)
+        if len(self.layoutstack) == len(self.where):
+            grpbox = self.MyGroupBox()
+            self.where.append(grpbox)
+            self.layoutstack[-1].addWidget(grpbox)
+        p = self.where[-1]
+        if thing is QVBox:
+            layoutklas = QVBoxLayout
+        else:
+            layoutklas = QHBoxLayout
+        layout = layoutklas()
+        self.layoutstack.append(layout)
+        if len(self.where) > 1:
+            p.setLayout(layout)
+        if False:  # debug
+            print '<<<'
+            for x, y in map(None, self.where, self.layoutstack):
+                print x, y
+            print '>>>'
         return 1
-            # return value is so you can say "if begin(): ..." if you want to
-            # use python indentation to show the widget nesting structure
+        # return value is so you can say "if begin(): ..." if you want to
+        # use python indentation to show the widget nesting structure
+
+        # if this doesn't work, look at
+        # PyQt-x11-gpl-4.0.1/examples/widgets/spinboxes.py
+
     def end(self):
-        self.where.pop()
+        self.layoutstack.pop()
+        if isinstance(self.where[-1], self.MyGroupBox):
+            self.where.pop()
     def label(self, text):
         if self.label_prefix is not None:
             name = self.label_prefix + text.strip()
         else:
             name = None #k ok?
-        label = QLabel(self.parent(), name)
+        #label = QLabel(self.parent(), name)
+        label = QLabel(self.parent())  # ignore name for Qt 4
         if self.textfilter:
             text = self.textfilter(text)
         label.setText(text) # initial text
@@ -81,10 +106,19 @@ class FloatSpinBox(QSpinBox):
         #k why was i not allowed to put 'for_a_length = 0' into this arglist??
         for_a_length = kws.pop('for_a_length',0)
         assert not kws, "keyword arguments are not supported by QSpinBox"
-        QSpinBox.__init__(self, *args) #k #e note, if the args can affect the range, we'll mess that up below
+
+        # QSpinBox.__init__(self, *args) #k #e note, if the args can affect the range, we'll mess that up below
+        QSpinBox.__init__(self) #k #e note, if the args can affect the range, we'll mess that up below
+        assert len(args) is 2
+        assert type(args[1]) is type('abc')
+        self.setObjectName(args[1])
+        qt4warning('QSpinBox() ignoring args: ' + repr(args))
+
         ## self.setValidator(0) # no keystrokes are prevented from being entered
             ## TypeError: argument 1 of QSpinBox.setValidator() has an invalid type -- hmm, manual didn't think so -- try None? #e
-        self.setValidator( QDoubleValidator( - self.range_angstroms, self.range_angstroms, 2, self ))
+
+        qt4todo('self.setValidator( QDoubleValidator( - self.range_angstroms, self.range_angstroms, 2, self ))')
+
             # QDoubleValidator has a bug: it turns 10.2 into 10.19! But mostly it works. Someday we'll need our own. [bruce 041009]
         if not for_a_length:
             self.setRange( - int(self.range_angstroms * self.precision_angstroms),
@@ -92,7 +126,8 @@ class FloatSpinBox(QSpinBox):
         else:
             self.setRange( int(self.min_length * self.precision_angstroms),
                            int(self.max_length * self.precision_angstroms) )
-        self.setSteps( self.precision_angstroms, self.precision_angstroms * 10 ) # set linestep and pagestep
+        qt4todo('self.setSteps( self.precision_angstroms, self.precision_angstroms * 10 ) # set linestep and pagestep')
+
     def mapTextToValue(self):
         text = self.cleanText()
         text = str(text) # since it's a qt string
@@ -122,7 +157,13 @@ class TogglePrefCheckBox(QCheckBox):
         self.attr = kws.pop('attr', None) # name of mode attribute (if any) which this should set
         self.repaintQ = kws.pop('repaintQ', False) # whether mode might need to repaint if this changes
         assert not kws, "keyword arguments are not supported by QCheckBox"
-        QCheckBox.__init__(self, *args)
+        
+        assert len(args) is 3
+        assert type(args[0]) is type('abc')
+        assert type(args[2]) is type('abc')        
+        QCheckBox.__init__(self, args[0])
+        
+        self.setObjectName(args[2])
         #e set tooltip - how? see .py file made from .ui to find out (qt assistant didn't say).
     def value(self):
         if self.isChecked():
@@ -171,12 +212,12 @@ def wrap_callable_for_undo(func, cmdname = "menu command"): #bruce 060324
     #  when returning lambdas out of the defining scope of local variables they reference)
     return lambda _g1_ = None, _g2_ = None, _g3_ = None, func = func, cmdname = cmdname: do_callable_for_undo(func, cmdname)
 
-def makemenu_helper( widget, menu_spec):
+def makemenu_helper(widget, menu_spec, menu=None):
     """make and return a reusable popup menu from menu_spec,
     which gives pairs of command names and callables,
     or None for a separator.
     New feature [bruce 041010]:
-    the "callable" can instead be a QPopupMenu object,
+    the "callable" can instead be a QMenu object,
     or [bruce 041103] a list
     (indicating a menu spec like our 'menu_spec' argument),
     to be used as a submenu.
@@ -185,20 +226,33 @@ def makemenu_helper( widget, menu_spec):
     """
     from debug import print_compact_traceback
     import types
+    if menu is None:
+        menu = QMenu(widget)
+        ## menu.show()
+        #bruce 070514 removed menu.show() to fix a cosmetic and performance bug
+        # (on Mac, possibly on other platforms too; probably unreported)
+        # in which the debug menu first appears in screen center, slowly grows
+        # to full size while remaining blank, then moves to its final position
+        # and looks normal (causing a visual glitch, and a 2-3 second delay
+        # in being able to use it). May fix similar issues with other menus.
+        # If this causes harm for some menus or platforms, we can adapt it.
     # bruce 040909-16 moved this method from basicMode to GLPane,
     # leaving a delegator for it in basicMode.
     # (bruce was not the original author, but modified it)
-    menu = QPopupMenu( widget)
+    #menu = QMenu( widget)
+    placeSeparator = False
     for m in menu_spec:
         try: #bruce 050416 added try/except as debug code and for safety
             menutext = m and widget.trUtf8(m[0])
-            if m and isinstance(m[1], QPopupMenu): #bruce 041010 added this case
+            if m and isinstance(m[1], QMenu): #bruce 041010 added this case
                 submenu = m[1]
-                menu.insertItem( menutext, submenu )
+                #menu.insertItem( menutext, submenu )
+                menu.addMenu(submenu)   # how do I get menutext in there?
                     # (similar code might work for QAction case too, not sure)
             elif m and isinstance(m[1], types.ListType): #bruce 041103 added this case
-                submenu = makemenu_helper( widget, m[1]) # [used to call widget.makemenu]
-                menu.insertItem( menutext, submenu )
+                submenu = QMenu(menutext, menu)
+                submenu = makemenu_helper(widget, m[1], submenu) # [used to call widget.makemenu]
+                menu.addMenu(submenu)
             elif m:
                 assert callable(m[1]), \
                     "%r[1] needs to be a callable" % (m,) #bruce 041103
@@ -213,25 +267,33 @@ def makemenu_helper( widget, menu_spec):
                     #  menus for reuse multiple times, and for them we never want to deallocate func even when some
                     #  menu command gets used. We could solve both of these by making the caller pass a place to keep these
                     #  which it would deallocate someday or which would ensure only one per distinct kind of menu is kept. #e)
-                if len(m) == 2:
-                    # old code
-                    # (this case might not be needed anymore, but it's known to work)
-                    act = QAction( widget,m[0]+'Action')
+                if 'disabled' not in m[2:]:
+                    act = QAction(widget)
                     act.setText( menutext)
-                    act.setMenuText( menutext)
-                    act.addTo(menu)
+                    if 'checked' in m[2:]:
+                        act.setCheckable(True)
+                        act.setChecked(True)
+                    menu.addAction(act)
+                    if placeSeparator:
+                        menu.insertSeparator(act)
+                        placeSeparator = False
                     widget.connect(act, SIGNAL("activated()"), func)
                 else:
                     insert_command_into_menu(menu, menutext, func, options = m[2:], raw_command = True)
             else:
-                menu.insertSeparator()
-        except:
-            print_compact_traceback("exception in makemenu_helper ignored, for %r:\n" % (m,) )
+                placeSeparator = True
+                pass
+        except Exception, e:
+            if isinstance(e, SystemExit):
+                raise
+            qt4skipit('print_compact_traceback("exception in makemenu_helper ignored, for %r:\n" % (m,) )')
+            qt4message(repr(m))
+            qt4message(e.args[0])
             pass #e could add a fake menu item here as an error message
     return menu # from makemenu_helper
 
 def insert_command_into_menu(menu, menutext, command, options = (), position = -1, raw_command = False, undo_cmdname = None): 
-    """Insert a new item into menu (a QPopupMenu), whose menutext, command, and options are as given,
+    """Insert a new item into menu (a QMenu), whose menutext, command, and options are as given,
     with undo_cmdname defaulting to menutext (used only if raw_command is false), 
     where options is a list or tuple in the same form as used in "menu_spec" lists
     such as are passed to makemenu_helper (which this function helps implement).
@@ -269,33 +331,34 @@ def insert_command_into_menu(menu, menutext, command, options = (), position = -
                     iconset = imagename_to_pixmap(filename)
                 if isinstance(iconset, QPixmap):
                     # (this is true for imagename_to_pixmap retval)
-                    iconset = QIconSet(iconset)
+                    iconset = QIcon(iconset)
     if iconset is not None:
         import changes
         changes.keep_forever(iconset) #e memory leak; ought to make caller pass a place to keep it, or a unique id of what to keep
-        mitem_id = menu.insertItem( iconset, menutext, -1, position ) #bruce 050614, revised 060613 (added -1, position)
+        #mitem_id = menu.insertItem( iconset, menutext, -1, position ) #bruce 050614, revised 060613 (added -1, position)
+        mitem = menu.addAction( iconset, menutext ) #bruce 050614, revised 060613 (added -1, position)
             # Will this work with checkmark items? Yes, but it replaces the checkmark --
             # instead, the icon looks different for the checked item.
             # For the test case of gamess.png on Mac, the 'checked' item's icon
             # looked like a 3d-depressed button.
             # In the future we can tell the iconset what to display in each case
-            # (see QIconSet and/or QPopupMenu docs, and helper funcs presently in debug_prefs.py.)
+            # (see QIcon and/or QMenu docs, and helper funcs presently in debug_prefs.py.)
     else:
-        mitem_id = menu.insertItem( menutext, -1, position ) #bruce revised 060613 (added -1, position)
-    menu.connectItem(mitem_id, command) # semi-guess
+        # mitem_id = len(menu) -- mitem_id was previously an integer, indexing into the menu
+        mitem = menu.addAction(menutext)
     for option in options:
         if option == 'checked':
-            menu.setItemChecked(mitem_id, True)
+            mitem.setChecked(True)
         elif option == 'unchecked': #bruce 050614 -- see what this does visually, if anything
-            menu.setItemChecked(mitem_id, False)
+            mitem.setChecked(False)
         elif option == 'disabled':
-            menu.setItemEnabled(mitem_id, False)
+            mitem.setEnabled(False)
         elif type(option) is types.TupleType:
             if option[0] == 'whatsThis':
                 txt = option[1]
                 if enable_whatsthis_links:
                     txt = turn_featurenames_into_links(txt)
-                menu.setWhatsThis(mitem_id, txt)
+                mitem.setWhatsThis(txt)
             elif option[0] == 'iconset':
                 pass # this was processed above
             else:
@@ -308,9 +371,9 @@ def insert_command_into_menu(menu, menutext, command, options = (), position = -
             if platform.atom_debug:
                 print "atom_debug: fyi: don't understand menu_spec option %r", (option,)
         pass
-        #e and something to use QMenuData.setAccel
+        #e and something to use QMenuData.setShortcut
         #e and something to run whatever func you want on menu and mitem_id
-    return mitem_id # from insert_command_into_menu
+    return mitem # from insert_command_into_menu
 
 # ==
 
@@ -339,7 +402,7 @@ def double_fixup(validator, text, prevtext):
 def colorchoose(self, r, g, b):
     "#doc -- note that the args r,g,b should be ints, but the retval is a 3-tuple of floats. (Sorry, that's how I found it.)"
     # r, g, b is the default color displayed in the QColorDialog window.
-    from qt import QColorDialog
+    from PyQt4.Qt import QColorDialog
     color = QColorDialog.getColor(QColor(r, g, b), self, "choose") #k what does "choose" mean?
     if color.isValid():
         return color.red()/255.0, color.green()/255.0, color.blue()/255.0
@@ -359,6 +422,21 @@ def QColor_to_RGBf(qcolor): # by Mark 050921
     "Converts QColor to RGB float."
     return qcolor.red()/255.0, qcolor.green()/255.0, qcolor.blue()/255.0
 
+def get_widget_with_color_palette(frame, color):
+    ''' Return the widget with the background palette set to the 
+    Qcolor provided by the user'''
+    #ninad070502: This is used in many dialogs which show a colored frame 
+    #that represents the current color of the object in the glpane. 
+    #Example, in Rotary motor prop dialog, you will find a colored frame 
+    #that shows the present color of the rotary motor. 
+    frame.setAutoFillBackground(True)
+    plt = QtGui.QPalette()      
+    plt.setColor(QtGui.QPalette.Active,QtGui.QPalette.Window,color)
+    plt.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.Window,color)
+    plt.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.Window,color)
+    frame.setPalette(plt)
+    return frame
+
 # ==
 
 class TextMessageBox(QDialog):
@@ -370,34 +448,37 @@ class TextMessageBox(QDialog):
     Call the setText() method to insert text into the textedit widget.
     """
     def __init__(self,parent = None,name = None,modal = 1,fl = 0):
-        QDialog.__init__(self,parent,name,modal,fl)
+        #QDialog.__init__(self,parent,name,modal,fl)
+        QDialog.__init__(self,parent)
+        self.setModal(modal)
+        qt4todo("handle flags in TextMessageBox.__init__")
 
-        if not name:
-            self.setName("TextMessageBox")
+        if name is None: name = "TextMessageBox"
+        self.setObjectName(name)
+        self.setWindowTitle(name)
 
-        TextMessageLayout = QGridLayout(self,1,1,5,-1,"TextMessageLayout")
+        TextMessageLayout = QVBoxLayout(self)
+        TextMessageLayout.setMargin(5)
+        TextMessageLayout.setSpacing(1)
         
-        self.text_edit = QTextEdit(self,"text_edit")
+        self.text_edit = QTextEdit(self)
 
-        TextMessageLayout.addMultiCellWidget(self.text_edit,0,0,0,1)
+        TextMessageLayout.addWidget(self.text_edit)
 
-        self.close_button = QPushButton(self,"close_button")
+        self.close_button = QPushButton(self)
         self.close_button.setText("Close")
-        TextMessageLayout.addWidget(self.close_button,1,1)
-        
-        spacer = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        TextMessageLayout.addItem(spacer,1,0)
+        TextMessageLayout.addWidget(self.close_button)
 
         self.resize(QSize(350, 300).expandedTo(self.minimumSizeHint())) 
             # Width changed from 300 to 350. Now hscrollbar doesn't appear in
             # Help > Graphics Info textbox. mark 060322
-        self.clearWState(Qt.WState_Polished)
+        qt4todo('self.clearWState(Qt.WState_Polished)') # what is this?
 
         self.connect(self.close_button,SIGNAL("clicked()"),self.close)
         
     def setText(self, txt):
         "Sets the textedit's text to txt"
-        self.text_edit.setText(txt)
+        self.text_edit.setPlainText(txt)
 
 #==
 
@@ -413,7 +494,7 @@ def PleaseConfirmMsgBox(text='Please Confirm.'): # mark 060302.
             str(text) + "\n",
             "Confirm",
             "Cancel", 
-            None, 
+            "",
             1,  # The "default" button, when user presses Enter or Return (1 = Cancel)
             1)  # Escape (1= Cancel)
           

@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 '''
 runSim.py
 
@@ -28,12 +28,13 @@ bruce 051231 partly-done code for using pyrex interface to sim; see use_dylib
 '''
 
 from debug import print_compact_traceback, _sim_params_set, _sim_param_values
+from qt4transition import qt4todo
 import platform
 from platform import fix_plurals
 import os, sys, time
 from math import sqrt
 from SimSetup import SimSetup
-from qt import QApplication, QCursor, Qt, QStringList, QProcess, QObject, SIGNAL
+from PyQt4.Qt import QApplication, QCursor, Qt, QStringList, QProcess, QObject, SIGNAL
 from movie import Movie
 from HistoryWidget import redmsg, greenmsg, orangemsg, quote_html, _graymsg
 import env
@@ -43,6 +44,9 @@ import re
 from chem import AtomDict
 from debug_prefs import debug_pref, Choice, Choice_boolean_True, Choice_boolean_False
 
+from prefs_constants import electrostaticsForDnaDuringAdjust_prefs_key
+from prefs_constants import electrostaticsForDnaDuringMinimize_prefs_key
+from prefs_constants import electrostaticsForDnaDuringDynamics_prefs_key
 # more imports lower down
 
 debug_sim_exceptions = 0 # DO NOT COMMIT WITH 1 -- set this to reproduce a bug mostly fixed by Will today #bruce 060111
@@ -79,6 +83,9 @@ def timestep_flag_and_arg( mflag = False): #bruce 060503
 ##    # since it won't be an issue later when timestep is again supported as a movie attribute.
 
 # ==
+
+
+
 
 class SimRunner:
     "class for running the simulator [subclasses can run it in special ways, maybe]"
@@ -548,18 +555,36 @@ class SimRunner:
             # "args" = arguments for the simulator.
             #SIMOPT -- this appears to be the only place the entire standalone simulator command line is created.
             if mflag:
+		#argument to enable or disable electrostatics
+		electrostaticArg = '--enable-electrostatic='
+		if self.cmd_type == 'Adjust' or self.cmd_type == 'Adjust Atoms':
+		    electrostaticFlag = self.getElectrostaticPrefValueForAdjust()
+		else:
+		    electrostaticFlag = self.getElectrostaticPrefValueForMinimize()
+		    
+		electrostaticArg.append(str(electrostaticFlag))		    
+		
                 # [bruce 05040 infers:] mflag true means minimize; -m tells this to the sim.
                 # (mflag has two true flavors, 1 and 2, for the two possible output filetypes for Minimize.)
                 # [later, bruce 051231: I think only one of the two true mflag values is presently supported.]
-                args = [program, '-m', str(formarg), traceFileArg, outfileArg, infile] #SIMOPT
+                args = [program, '-m', str(formarg), 
+			traceFileArg, outfileArg,
+			electrostaticArg,
+			infile] #SIMOPT
             else: 
                 # THE TIMESTEP ARGUMENT IS MISSING ON PURPOSE.
                 # The timestep argument "-s + (movie.timestep)" is not supported for Alpha. #SIMOPT
+		
+		electrostaticArg = '--enable-electrostatic='		
+		electrostaticFlag = self.getElectrostaticPrefValueForDynamics()
+		electrostaticArg.append(str(electrostaticFlag))	
+		
                 args = [program, 
                             '-f' + str(movie.totalFramesRequested), #SIMOPT
                             '-t' + str(movie.temp),  #SIMOPT
                             '-i' + str(movie.stepsper),  #SIMOPT
                             '-r', #SIMOPT
+			    electrostaticArg,
                             str(formarg),
                             traceFileArg,
                             outfileArg,
@@ -609,14 +634,51 @@ class SimRunner:
                 simopts.Temperature = movie.temp
                 simopts.IterPerFrame = movie.stepsper
                 simopts.PrintFrameNums = 0
+		simopts.EnableElectrostatic = self.getElectrostaticPrefValueForDynamics()
             if mflag:
                 self.set_minimize_threshhold_prefs(simopts)
+		if self.cmd_type == 'Adjust' or self.cmd_type == 'Adjust Atoms':		    
+		    simopts.EnableElectrostatic = self.getElectrostaticPrefValueForAdjust()
+		else:
+		    simopts.EnableElectrostatic = self.getElectrostaticPrefValueForMinimize()
+		    
             #e we might need other options to make it use Python callbacks (nim, since not needed just to launch it differently);
             # probably we'll let the later sim-start code set those itself.
             self._simopts = simopts
             self._simobj = simobj
         # return whatever results are appropriate -- for now, we stored each one in an attribute (above)
         return # from setup_sim_args
+    
+    def getElectrostaticPrefValueForAdjust(self):
+	#ninad20070509
+	#int EnableElectrostatic =1 implies electrostatic is enabled 
+	#and 0 implies it is disabled. This sim arg is defined in sim.pyx in sim/src 
+	if env.prefs[electrostaticsForDnaDuringAdjust_prefs_key]:
+	    val = 1
+	else:
+	    val = 0	
+	return val
+
+    def getElectrostaticPrefValueForMinimize(self):
+	#ninad20070509
+	# int EnableElectrostatic =1 implies electrostatic is enabled 
+	#and 0 implies it is disabled. This sim arg is defined in sim.pyx in sim/src 
+	if env.prefs[electrostaticsForDnaDuringMinimize_prefs_key]:
+	    val = 1
+	else:
+	    val = 0	
+	return val
+    
+
+    def getElectrostaticPrefValueForDynamics(self):
+	#ninad20070509
+	# int EnableElectrostatic =1 implies electrostatic is enabled 
+	#and 0 implies it is disabled. This sim arg is defined in sim.pyx in sim/src 
+	if env.prefs[electrostaticsForDnaDuringDynamics_prefs_key]:
+	    val = 1 
+	else:
+	    val = 0	
+	return val
         
     def set_minimize_threshhold_prefs(self, simopts): #bruce 060628, revised 060705
         def warn(msg):
@@ -929,8 +991,8 @@ class SimRunner:
             # wware 060310, bug 1294
             numframes = simopts.NumFrames
             self.win.status_pbar.reset()
-            self.win.status_pbar.setTotalSteps(numframes)
-            self.win.status_pbar.setProgress(0)
+            self.win.status_pbar.setRange(0, numframes)
+            self.win.status_pbar.setValue(0)
             self.win.status_pbar.show()
         from StatusBar import AbortButtonForOneTask
             #bruce 060106 try to let pyrex sim share some abort button code with non-pyrex sim
@@ -1061,7 +1123,7 @@ class SimRunner:
 
         if not self.mflag:
             # wware 060310, bug 1294
-            self.win.status_pbar.setProgress(numframes)
+            self.win.status_pbar.setValue(numframes)
             self.win.status_pbar.reset()
             self.win.status_pbar.hide()
         env.history.progress_msg("") # clear out elapsed time messages
@@ -1199,7 +1261,7 @@ class SimRunner:
                 env.history.progress_msg(msg)
                 if not self.mflag:
                     # wware 060310, bug 1294
-                    self.win.status_pbar.setProgress(self.__frame_number)
+                    self.win.status_pbar.setValue(self.__frame_number)
                 pass
 
             # do the Qt redrawing for either the GLPane or the status bar (or anything else that might need it),
@@ -1700,8 +1762,6 @@ def readxyz(filename, alist):
 
 # == user-visible commands for running the simulator, for simulate or minimize
 
-from qt import QMimeSourceFactory
-
 class CommandRun: # bruce 050324; mainly a stub for future use when we have a CLI
     """Class for single runs of commands.
     Commands themselves (as opposed to single runs of them)
@@ -1731,6 +1791,7 @@ class simSetup_CommandRun(CommandRun):
         if not self.part.molecules: # Nothing in the part to simulate.
             msg = redmsg("Nothing to simulate.")
             env.history.message(self.cmdname + ": " + msg)
+	    self.win.simSetupAction.setChecked(0) # toggle the Simulator icon ninad061113
             return
         
         env.history.message(self.cmdname + ": " + "Enter simulation parameters and select <b>Run Simulation.</b>")
@@ -1769,9 +1830,9 @@ class simSetup_CommandRun(CommandRun):
             # This makes a copy of the movie tool icon to put in the HistoryWidget.
             #e (Is there a way to make that act like a button, so clicking on it in history plays that movie?
             #   If so, make sure it plays the correct one even if new ones have been made since then!)
-            QMimeSourceFactory.defaultFactory().setPixmap( "movieicon", 
-                        self.win.simMoviePlayerAction.iconSet().pixmap() )
+            #QMimeSourceFactory.defaultFactory().setPixmap( "movieicon",  self.win.simMoviePlayerAction.iconSet().pixmap() )
             env.history.message(self.cmdname + ": " + msg)
+	    self.win.simSetupAction.setChecked(0)
             self.win.simMoviePlayerAction.setEnabled(1) # Enable "Movie Player"
             self.win.simPlotToolAction.setEnabled(1) # Enable "Plot Tool"
             #bruce 050324 question: why are these enabled here and not in the subr or even if it's cancelled? bug? ####@@@@
@@ -2111,7 +2172,7 @@ class Minimize_CommandRun(CommandRun):
                 uprefs = env.mainwindow().uprefs
                 from prefs_constants import Adjust_watchRealtimeMinimization_prefs_key ###@@@ should depend on command, or be in movie...
                 ruc = realtime_update_controller(
-                    ( uprefs.update_btngrp, ###k name
+                    ( uprefs.update_btngrp_group, ###k name
                       uprefs.update_number_spinbox, uprefs.update_units_combobox ),
                     None, # checkbox ###@@@ maybe not needed, since UserPrefs sets up the connection #k
                     Adjust_watchRealtimeMinimization_prefs_key )

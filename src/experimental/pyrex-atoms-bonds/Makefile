@@ -1,3 +1,7 @@
+
+
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+
 CC=gcc
 #CFLAGS=-I/usr/include/python2.4 -Wall -g -O0
 #CFLAGS=-I/usr/include/python2.4 -Wall -g -O3

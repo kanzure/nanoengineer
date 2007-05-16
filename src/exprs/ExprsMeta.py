@@ -1,8 +1,10 @@
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 ExprsMeta.py -- one metaclass, to take care of whatever is best handled using a metaclass,
 and intended to be used for all or most classes in this module.
 
 $Id$
+
 
 ===
 

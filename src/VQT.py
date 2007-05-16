@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 VQT.py 
 
@@ -10,6 +10,8 @@ Trackball produces incremental quaternions using a mapping of the screen
 onto a sphere, tracking the cursor on the sphere.
 
 $Id$
+
+
 """
 
 __author__ = "Josh"
@@ -21,7 +23,8 @@ from LinearAlgebra import *
 import platform
 from debug import print_compact_traceback #bruce 060228
 from prefs_constants import * #ninad060906 
-import env #ninad 060906 
+import env #ninad 060906
+from qt4transition import *
 
 debug_quats = 1 #bruce 050518; I'll leave this turned on in the main sources for awhile
 
@@ -606,6 +609,7 @@ def check_quats_near(q1,q2,msg=""): #bruce, circa 040924
         res = res and check_floats_near(q1[i],q2[i],msg+"[%d]"%i)
     return res
 
+
 # == test code [bruce 070227]
 
 if __name__ == '__main__':
@@ -620,3 +624,4 @@ if __name__ == '__main__':
     print "tests done"
     
 # end
+

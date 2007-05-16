@@ -1,4 +1,4 @@
-# Copyright (c) 2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 Sponsors.py
 
@@ -30,6 +30,7 @@ import random
 import re
 import socket
 import string
+import threading
 import time
 import types
 import urllib
@@ -37,23 +38,24 @@ import platform
 from xml.dom.minidom import parseString
 from wiki_help import WikiHelpBrowser
 from debug import print_compact_stack, print_compact_traceback
-from qt import *
-from prefs_constants import sponsor_download_permission_prefs_key, sponsor_permanent_permission_prefs_key
+from qt4transition import qt4todo
+from PyQt4.Qt import *
+from prefs_constants import \
+    sponsor_download_permission_prefs_key,  \
+    sponsor_permanent_permission_prefs_key, \
+    sponsor_md5_mismatch_flag_key
 from HistoryWidget import redmsg, orangemsg, greenmsg
-
-# One might decide that downloading even just the MD5 hash would
-# constitute a violation of the user's privacy. Should we ask
-# permission before downloading the MD5? If yes, then the user
-# will be subjected to more frequent permission dialogs, which
-# may be irritating.
-NEED_PERMISSION_TO_DOWNLOAD_MD5 = False
+from Utility import geticon
 
 _sponsordir = platform.find_or_make_Nanorex_subdir('Sponsors')
-_nanorex_server = 'http://willware.net/'
-# _nanorex_server = 'file:///home/wware/polosims/cad/src/'
-_sponsors_xml = _nanorex_server + 'sponsors.xml'
-_sponsors_md5 = _nanorex_server + 'sponsors.md5'
 _sponsors = { }
+
+# Include a trailing slash in the following sponsor server URLs.
+_sponsor_servers = \
+    [#'file:///transfers/',
+     'http://nanoengineer-1.com/NE1_Sponsors/',
+     'http://nanohive-1.org/NE1_Sponsors/']
+
 
 def fixHtml(rc):
     startUrl=re.compile('\[')
@@ -61,6 +63,9 @@ def fixHtml(rc):
     finishUrl=re.compile('\]')
     rc = string.replace(rc, '[P]', '<p>')
     rc = string.replace(rc, '[p]', '<p>')
+    rc = string.replace(rc, '[ul]', '<ul>')
+    rc = string.replace(rc, '[/ul]', '</ul>')
+    rc = string.replace(rc, '[li]', '<li>')
     while True:
         m = startUrl.search(rc)
         if m == None:
@@ -84,34 +89,64 @@ class Sponsor:
 
     def configureSponsorButton(self, btn):
         qimg = QImage(self.imgfile)
-        qpxmp = QPixmap(qimg)
-        btn.setPixmap(qpxmp)
+        pixmap = QPixmap.fromImage(qimg)
+        size = QSize(pixmap.width(), pixmap.height())
+        btn.setIconSize(size)
+        btn.setIcon(QIcon(pixmap))
 
     def wikiHelp(self):
-        w = WikiHelpBrowser(self.text, caption=self.name)
+        parent = env.mainwindow()
+        w = WikiHelpBrowser(self.text,parent,caption=self.name)
         w.show()
 
 
-def _get_remote_file(url):
-    # This may raise OSError if the URL can't be opened. Don't waste
-    # more than five seconds trying to get a network connection.
+def _get_remote_file(filename, prefix):
+    """
+    Input Parameters
+      filename - the name of the file to get
+      prefix   - a short string that is expected at the beginning of the file
+                 for the retrieval to be denoted as successfull
+               
+    Output Parameters
+      gotContents  - True if the file contents were successfully retrieved,
+                     False otherwise
+      fileContents - the contents of the requested file
+    """
+    
+    # Try to connect for up to five seconds per host
     socket.setdefaulttimeout(5)
-    f = urllib.urlopen(url)
-    r = f.read()
-    f.close()
-    return r
+    
+    fileContents = ""
+    gotContents = False
+    for host in _sponsor_servers:
+        url = host + filename
+        try:
+            fileHandle = urllib.urlopen(url)
+            fileContents = fileHandle.read()
+            fileHandle.close()
+            if fileContents.startswith(prefix):
+                gotContents = True
+                break
+            
+        except IOError:
+            pass # Fail silently
+            
+    return gotContents, fileContents
 
-def _download_xml_file(xmlfile):
-    r = _get_remote_file(_sponsors_xml)
-    # If we got this far, we have info to replace the local copy of
-    # sponsors.xml. If we never got this far but a local copy exists,
-    # then we'll just use the existing local copy.
-    if os.path.exists(xmlfile):
-        os.remove(xmlfile)
-    f = open(xmlfile, 'w')
-    f.write(r)
-    f.close()
+    
+def _download_xml_file(xmlfile):  
+    (gotSponsorsFile, fileContents) = _get_remote_file("sponsors.xml", "<?xml")
+    if gotSponsorsFile:
+        # If we got this far, we have info to replace the local copy of
+        # sponsors.xml. If we never got this far but a local copy exists,
+        # then we'll just use the existing local copy.
+        if os.path.exists(xmlfile):
+            os.remove(xmlfile)
+        fileHandle = open(xmlfile, 'w')
+        fileHandle.write(fileContents)
+        fileHandle.close()
 
+        
 def _load_sponsor_info(xmlfile, win):
     def getXmlText(doc, tag):
         parent = doc.getElementsByTagName(tag)[0]
@@ -166,7 +201,7 @@ def _force_download():
 
 ############################################
 
-class PermissionDialog(QDialog):
+class PermissionDialog(QDialog, threading.Thread):
 
     # Politely explain what we're doing as clearly as possible. This will be the
     # user's first experience of the sponsorship system and we want to use the
@@ -181,32 +216,46 @@ class PermissionDialog(QDialog):
     def __init__(self, win):
         self.xmlfile = os.path.join(_sponsordir, 'sponsors.xml')
         self.win = win
-        self.fini = False
-        self._gotPermission = False
+        
+        self.needToAsk = False
+        self.downloadSponsors = False
+        threading.Thread.__init__(self)
+        
         if not self.refreshWanted():
-            self.finish()
             return
         if env.prefs[sponsor_permanent_permission_prefs_key]:
-            # we have a permanent answer so no need for a dialog
+            # We have a permanent answer so no need for a dialog
             if env.prefs[sponsor_download_permission_prefs_key]:
-                self.doTheDownload()
-            self.finish()
+                self.downloadSponsors = True
             return
+            
+        self.needToAsk = True
         QDialog.__init__(self, None)
-        self.setName("Permission")
-        layout = QGridLayout(self,1,3,0,-1,"PermissionLayout")
-        self.text_browser = QTextBrowser(self,"text_browser")
-        layout.addMultiCellWidget(self.text_browser,0,0,0,3)
+        self.setObjectName("Permission")
+        self.setModal(True) #This fixes bug 2296. Mitigates bug 2297 
+        layout = QGridLayout()
+        self.setLayout(layout)
+        layout.setMargin(0)
+        layout.setSpacing(0)
+        layout.setObjectName("PermissionLayout")
+        self.text_browser = QTextBrowser(self)
+        self.text_browser.setObjectName("text_browser")
+        layout.addWidget(self.text_browser,0,0,1,4)
         self.text_browser.setMinimumSize(400, 80)
-        self.setCaption('May we use your network connection?')
-        self.text_browser.setText(self.text)
-        self.accept_button = QPushButton(self,"accept_button")
+        self.setWindowTitle('May we use your network connection?')
+        self.setWindowIcon(geticon('ui/border/MainWindow'))
+        self.text_browser.setPlainText(self.text)
+        self.accept_button = QPushButton(self)
+        self.accept_button.setObjectName("accept_button")
         self.accept_button.setText("Always OK")
-        self.accept_once_button = QPushButton(self,"accept_once_button")
+        self.accept_once_button = QPushButton(self)
+        self.accept_once_button.setObjectName("accept_once_button")
         self.accept_once_button.setText("OK now")
-        self.decline_once_button = QPushButton(self,"decline_once_button")
+        self.decline_once_button = QPushButton(self)
+        self.decline_once_button.setObjectName("decline_once_button")
         self.decline_once_button.setText("Not now")
-        self.decline_always_button = QPushButton(self,"decline_always_button")
+        self.decline_always_button = QPushButton(self)
+        self.decline_always_button.setObjectName("decline_always_button")
         self.decline_always_button.setText("Never")
         layout.addWidget(self.accept_button,1,0)
         layout.addWidget(self.accept_once_button,1,1)
@@ -220,67 +269,66 @@ class PermissionDialog(QDialog):
     def acceptAlways(self):
         env.prefs[sponsor_download_permission_prefs_key] = True
         env.prefs[sponsor_permanent_permission_prefs_key] = True
-        self.doTheDownload()
+        self.downloadSponsors = True
         self.close()
 
     def acceptJustOnce(self):
         env.prefs[sponsor_permanent_permission_prefs_key] = False
-        self.doTheDownload()
+        self.downloadSponsors = True
         self.close()
 
     def declineAlways(self):
         env.prefs[sponsor_download_permission_prefs_key] = False
         env.prefs[sponsor_permanent_permission_prefs_key] = True
-        self.finish()
         self.close()
 
     def declineJustOnce(self):
         env.prefs[sponsor_permanent_permission_prefs_key] = False
-        self.finish()
         self.close()
 
+        
+    def run(self):
+        #
+        # Implements superclass's threading.Thread.run() function
+        #
+        if self.downloadSponsors:
+            _download_xml_file(self.xmlfile)
+        self.finish()
+        env.prefs[sponsor_md5_mismatch_flag_key] = self.md5Mismatch()
+        
+        
     def refreshWanted(self):
         if not os.path.exists(self.xmlfile):
             return True
-        if NEED_PERMISSION_TO_DOWNLOAD_MD5:
-            # refresh every two days
-            # getmtime? getctime?
-            age = time.time() - os.path.getmtime(self.xmlfile)
-            if age < 2 * 24 * 3600:
-                return False
-        else:
-            # refresh whenever the MD5 hash changes
-            return self.md5Mismatch()
+
+        if env.prefs[sponsor_md5_mismatch_flag_key]:
+            return True
+            
+        return False
+        
 
     def md5Mismatch(self):
         # Check the MD5 hash - if it hasn't changed, then there is
         # no reason to download sponsors.xml.
         try:
-            r = _get_remote_file(_sponsors_md5)
-            m = md5.new()
-            m.update(open(self.xmlfile).read())
-            digest = base64.encodestring(m.digest())
-            return (r != digest)
+            (gotMD5_File, remoteDigest) = \
+                _get_remote_file("sponsors.md5", "md5:")
+            if gotMD5_File:
+                m = md5.new()
+                m.update(open(self.xmlfile).read())
+                localDigest = "md5:" + base64.encodestring(m.digest())
+                remoteDigest = remoteDigest.rstrip()
+                localDigest = localDigest.rstrip()
+                return (remoteDigest != localDigest)
+                
+            else:
+                return True
         except:
             return True
 
-    def doTheDownload(self):
-        try:
-            getIt = True
-            if NEED_PERMISSION_TO_DOWNLOAD_MD5:
-                # We couldn't check earlier because we didn't have
-                # permission yet, but now we do. If the MD5 hash
-                # already matches, then we don't need to get it.
-                getIt = self.md5Mismatch()
-            if getIt:
-                _download_xml_file(self.xmlfile)
-        except:
-            pass
-        self.finish()
-
+            
     def finish(self):
         _load_sponsor_info(self.xmlfile, self.win)
-        self.fini = True
 
 ###############################################
 

@@ -1,14 +1,18 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 cookieMode.py -- cookie cutter mode.
 
 $Id$
 
 bruce 050913 used env.history in some places.
+
+Note: Till Alpha8, this mode was called Cookie Cutter mode. In Alpha9 
+it has been renamed to 'Build Crystal' mode. -- ninad 20070511
 """
 from modes import *
 from CookieCtrlPanel import CookieCtrlPanel
 import env
+from qt4transition import *
 
 class cookieMode(basicMode):
 
@@ -17,7 +21,7 @@ class cookieMode(basicMode):
     backgroundGradient = False # Mark 051029.
     gridColor = 222/255.0, 148/255.0, 0/255.0
     modename = 'COOKIE'
-    default_mode_status_text = "Mode: Cookie Cutter"
+    default_mode_status_text = "Mode: Build Crystal"
     displayMode = diTUBES 
         # displayMode isn't used except for updating the 'Display Mode' combobox in the Preference dialog.
         # Cookie mode uses its own attr <cookieDisplayMode> to display Tubes (default) or Spheres.
@@ -56,6 +60,7 @@ class cookieMode(basicMode):
     def __init__(self, glpane):
         """The initial function is called only once for the whole program """
         basicMode.__init__(self, glpane)
+        
         self.ctrlPanel = CookieCtrlPanel(self.w)
     
     def Enter(self): 
@@ -75,7 +80,7 @@ class cookieMode(basicMode):
         self.savedOrtho = self.o.ortho
         self.o.ortho = True
         self.cookieQuat = None
-        
+
         ##Every time enters into this mode, we need to set this to False
         self.freeView = False
         self.ctrlPanel.freeViewCheckBox.setChecked(self.freeView)
@@ -88,7 +93,7 @@ class cookieMode(basicMode):
         
         self.showFullModel = self.ctrlPanel.fullModelCheckBox.isChecked()
         self.cookieDisplayMode = str(self.ctrlPanel.dispModeCBox.currentText())
-        self.latticeType = self.LATTICE_TYPES[self.ctrlPanel.latticeCBox.currentItem()]
+        self.latticeType = self.LATTICE_TYPES[self.ctrlPanel.latticeCBox.currentIndex()]
         
         self.layers = [] ## Stores 'surface origin' for each layer
         self.layers += [V(self.o.pov[0], self.o.pov[1], self.o.pov[2])]
@@ -103,6 +108,10 @@ class cookieMode(basicMode):
             # Set to True in end_selection_curve() when doing a poly-rubber-band selection.
         self.lastDrawStored = []
        
+        #Show the flyout toolbar
+        
+        #self.w.commandManager.updateCommandManager(self.ctrlPanel.btn_list, entering =True)        
+        
         self.selectionShape = self.ctrlPanel.getSelectionShape()
         
     
@@ -116,7 +125,7 @@ class cookieMode(basicMode):
         # generally speaking, I think the code structure for mode 
         # operations like enter/init/cancel, etc, are kind of confusing.
         # The code readability is also not very good. --Huaicai
-        self.setThickness(self.ctrlPanel.layerCellsSpinBox.value())
+        self.setThickness(self.ctrlPanel.layerCellsSpinBox.value()) 
 
         # I don't know if this is better to do here or just before setThickness (or if it matters): ####@@@@
         # Disable Undo/Redo actions, and undo checkpoints, during this mode (they *must* be reenabled in restore_gui).
@@ -124,8 +133,8 @@ class cookieMode(basicMode):
         # since if it's done and never undone, Undo/Redo won't work for the rest of the session.
         # [bruce 060414; same thing done in some other modes]
         import undo_manager
-        undo_manager.disable_undo_checkpoints('Cookie Mode')
-        undo_manager.disable_UndoRedo('Cookie Mode', "in Cookie Cutter") # optimizing this for shortness in menu text
+        undo_manager.disable_undo_checkpoints('Build Crystal Mode')
+        undo_manager.disable_UndoRedo('Build Crystal Mode', "in Build Crystal") # optimizing this for shortness in menu text
             # this makes Undo menu commands and tooltips look like "Undo (not permitted in Cookie Cutter)" (and similarly for Redo)
    
    
@@ -137,16 +146,16 @@ class cookieMode(basicMode):
         # (since if it never happens, Undo/Redo won't work for the rest of the session)
         # [bruce 060414; same thing done in some other modes]
         import undo_manager
-        undo_manager.reenable_undo_checkpoints('Cookie Mode')
-        undo_manager.reenable_UndoRedo('Cookie Mode')
-        self.set_cmdname('Cookie Cutter') # this covers all changes while we were in the mode
+        undo_manager.reenable_undo_checkpoints('Build Crystal Mode')
+        undo_manager.reenable_UndoRedo('Build Crystal Mode')
+        self.set_cmdname('Build Crystal') # this covers all changes while we were in the mode
             # (somewhat of a kluge, and whether this is the best place to do it is unknown;
             #  without this the cmdname is "Done")
 
         self.ctrlPanel.restoreGui()
-        
+                
         if not self.savedOrtho:
-            self.w.setViewPerspecAction.setOn(True)
+            self.w.setViewPerspecAction.setChecked(True)
             
         #Restore GL states
         self.o.redrawGL = True
@@ -168,7 +177,8 @@ class cookieMode(basicMode):
             #Save current pov before free view transformation
             self.cookiePov = V(self.o.pov[0], self.o.pov[1], self.o.pov[2])
             
-            env.history.message(orangemsg("'Free View' enabled. You can not cut cookies while Free View is enabled."))
+            env.history.message(orangemsg(
+                "'Free View' enabled. You can not create crystal shapes while Free View is enabled."))
             self.w.setViewOrthoAction.setEnabled(True)
             self.w.setViewPerspecAction.setEnabled(True)
             
@@ -181,10 +191,11 @@ class cookieMode(basicMode):
             
             if self.drawingCookieSelCurve: #Cancel any unfinished cookie drawing
                 self._afterCookieSelection()
-                env.history.message(redmsg("In free view mode,the unfinished cookie selection has be cancelled."))
+                env.history.message(redmsg(
+                    "In free view mode,the unfinished crystal shape creation has been cancelled."))
             
         else: ## Restore cookie cutting mode
-            self.w.setViewOrthoAction.setOn(True)  
+            self.w.setViewOrthoAction.setChecked(True)  
             self.w.setViewOrthoAction.setEnabled(False)
             self.w.setViewPerspecAction.setEnabled(False)
             
@@ -584,7 +595,7 @@ class cookieMode(basicMode):
         # bruce 041213 comment: shape might already exist, from prior drags
         if not self.o.shape:
             self.o.shape=CookieShape(self.o.right, self.o.up, self.o.lineOfSight, self.cookieDisplayMode, self.latticeType)
-            self.ctrlPanel.latticeCBox.setEnabled(False)
+            self.ctrlPanel.latticeCBox.setEnabled(False) 
             self.ctrlPanel.enableViewChanges(False)
             
         # took out kill-all-previous-curves code -- Josh
@@ -597,7 +608,7 @@ class cookieMode(basicMode):
                                   self.currentLayer, Slab(-self.o.pov, self.o.out, self.thickness))
         
         if self.currentLayer < (self.MAX_LAYERS - 1) and self.currentLayer == len(self.layers) - 1:
-                self.ctrlPanel.addLayerButton.setEnabled(True)
+            self.ctrlPanel.addLayerButton.setEnabled(True) 
         self._afterCookieSelection()
   
   
@@ -892,11 +903,11 @@ class cookieMode(basicMode):
         self.o.pov = V(pov[0], pov[1], pov[2])
         
         maxCells = self._findMaxNoLattCell(self.currentLayer)
-        self.ctrlPanel.layerCellsSpinBox.setMaxValue(maxCells)
+        self.ctrlPanel.layerCellsSpinBox.setMaximum(maxCells)
        
         ##Cancel any selection if any.
         if self.drawingCookieSelCurve:
-            env.history.message(redmsg("Layer changed during cookie selection, cancel this selection."))
+            env.history.message(redmsg("Layer changed during crystal shape creation, shape creation cancelled"))
             self._cancelSelection()
        
         self.o.gl_update()
@@ -917,10 +928,9 @@ class cookieMode(basicMode):
         
         self.whichsurf = num
         self.setThickness(self.ctrlPanel.layerCellsSpinBox.value())
-        button = self.ctrlPanel.orientButtonGroup.find(self.whichsurf)
-        button.setOn(True)
-        self.w.dispbarLabel.setText(QToolTip.textFor(button))
-        
+        button = self.ctrlPanel.orientButtonGroup.button(self.whichsurf)
+        button.setChecked(True)     
+        self.w.dispbarLabel.setText(button.toolTip()) 
 
     def setThickness(self, num):
         self.thickness = num*DiGridSp*sqrt(self.whichsurf+1)
@@ -948,7 +958,7 @@ class cookieMode(basicMode):
             #Cancel current selection if any. Otherwise, it may cause
             #bugs like 587
             if self.selCurve_List: ##
-                env.history.message(redmsg("Current cookie selection was cancelled because of selection shape change. "))
+                env.history.message(redmsg("Current crystal shape creation cancelled as a different shape profile is selected. "))
                 self._cancelSelection()
             self.selectionShape = newShape
     
@@ -1232,7 +1242,10 @@ def molmake(assy,shap):
         #bruce 050222 comment: this is not needed, since it's done by addmol
     shap.combineLayers()    
     if not shap.curves: return
-    mol = molecule(assy, gensym("Cookie."))
+    #@@@ ninad20070511 : Is the followinf ever used?? I found another code
+    # which eventually decided the chunk name after Crystal creation. 
+    # it is in shape.py -> buildChunk method
+    mol = molecule(assy, gensym("Crystal."))
     ndx={}
     hashAtomPos #bruce 050222 comment: this line is probably a harmless typo, should be removed
     bbhi, bblo = shap.bbox.data

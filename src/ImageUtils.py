@@ -1,9 +1,10 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 ImageUtils.py - Image utilities based on PIL.
 (Some doc of PIL can be found at http://www.pythonware.com/library/pil/handbook .)
 
 $Id$
+
 
 History: 
 

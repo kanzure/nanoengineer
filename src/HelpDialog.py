@@ -1,144 +1,75 @@
-# Copyright (c) 2006 Nanorex, Inc. All rights reserved.
 # -*- coding: utf-8 -*-
 
+# Copyright 2005-2006 Nanorex, Inc.  See LICENSE file for details. 
 # Form implementation generated from reading ui file 'HelpDialog.ui'
 #
-# Created: Tue Sep 13 16:00:26 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
+# Created: Tue Sep 19 21:01:19 2006
+#      by: PyQt4 UI code generator 4.0.1
 #
 # WARNING! All changes made in this file will be lost!
 
+import sys
+from PyQt4 import QtCore, QtGui
 
-from qt import *
+class Ui_HelpDialog(object):
+    def setupUi(self, HelpDialog):
+        HelpDialog.setObjectName("HelpDialog")
+        HelpDialog.resize(QtCore.QSize(QtCore.QRect(0,0,600,480).size()).expandedTo(HelpDialog.minimumSizeHint()))
 
-image0_data = [
-"20 20 46 1",
-"s c #0065a3",
-"y c #0065a4",
-"G c #0166a4",
-"r c #0266a5",
-"B c #0367a5",
-"t c #0568a5",
-"C c #0568a6",
-"K c #0568a7",
-"x c #0669a7",
-"q c #0769a7",
-"u c #0c6ca8",
-"F c #0e6da9",
-"m c #0f6ea9",
-"I c #126faa",
-"k c #1370aa",
-"l c #1470ab",
-"J c #1772ab",
-"H c #2077ae",
-"N c #2278af",
-"M c #257aaf",
-"A c #297cb0",
-"a c #359103",
-"j c #3784b5",
-"Q c #3a86b5",
-"n c #3c87b6",
-"b c #469903",
-"c c #4f9e03",
-"d c #5aa403",
-"e c #61a702",
-"p c #68a0c2",
-"f c #68ab01",
-"D c #6ea3c4",
-"# c #70af00",
-"P c #71a5c5",
-"R c #75a7c6",
-"L c #87b1cb",
-"w c #93b8cf",
-"v c #96bacf",
-"i c #a3c1d3",
-"o c #b0c8d7",
-"h c #bdd0da",
-"O c #bdd0db",
-"E c #bed1db",
-"g c #c2d3dc",
-"z c #cdd9df",
-". c #ffffff",
-"....................",
-".###################",
-"..a...#########.....",
-"..b...#########.....",
-"..c...#########.....",
-"..d...#########.....",
-"..e...#########.....",
-"..f......ghg........",
-"..f....ijklmno......",
-"..f...pqrssstuv.....",
-"..f..wxysssssykz....",
-".....ABsssssssCD....",
-"....EFssssssssGH....",
-"....hIssssssssyJ....",
-"....gFysssssssyA....",
-".....ntsssssssKL....",
-".....ouysssssGM.....",
-"......vkCGyGxNO.....",
-".......zPQnQR.......",
-"...................."
-]
+        self.vboxlayout = QtGui.QVBoxLayout(HelpDialog)
+        self.vboxlayout.setMargin(11)
+        self.vboxlayout.setSpacing(6)
+        self.vboxlayout.setObjectName("vboxlayout")
 
-class HelpDialog(QDialog):
-    def __init__(self,parent = None,name = None,modal = 0,fl = 0):
-        QDialog.__init__(self,parent,name,modal,fl)
+        self.help_tab = QtGui.QTabWidget(HelpDialog)
+        self.help_tab.setObjectName("help_tab")
 
-        self.image0 = QPixmap(image0_data)
+        self.tab = QtGui.QWidget()
+        self.tab.setObjectName("tab")
 
-        if not name:
-            self.setName("HelpDialog")
+        self.gridlayout = QtGui.QGridLayout(self.tab)
+        self.gridlayout.setMargin(0)
+        self.gridlayout.setSpacing(6)
+        self.gridlayout.setObjectName("gridlayout")
 
-        self.setIcon(self.image0)
+        self.mouse_controls_textbrowser = QtGui.QTextBrowser(self.tab)
+        self.mouse_controls_textbrowser.setObjectName("mouse_controls_textbrowser")
+        self.gridlayout.addWidget(self.mouse_controls_textbrowser,0,0,1,1)
+        self.help_tab.addTab(self.tab, "")
 
-        HelpDialogLayout = QVBoxLayout(self,11,6,"HelpDialogLayout")
+        self.tab1 = QtGui.QWidget()
+        self.tab1.setObjectName("tab1")
 
-        self.help_tab = QTabWidget(self,"help_tab")
+        self.gridlayout1 = QtGui.QGridLayout(self.tab1)
+        self.gridlayout1.setMargin(0)
+        self.gridlayout1.setSpacing(6)
+        self.gridlayout1.setObjectName("gridlayout1")
 
-        self.tab = QWidget(self.help_tab,"tab")
-        tabLayout = QGridLayout(self.tab,1,1,11,6,"tabLayout")
+        self.keyboard_shortcuts_textbrowser = QtGui.QTextBrowser(self.tab1)
+        self.keyboard_shortcuts_textbrowser.setObjectName("keyboard_shortcuts_textbrowser")
+        self.gridlayout1.addWidget(self.keyboard_shortcuts_textbrowser,0,0,1,1)
+        self.help_tab.addTab(self.tab1, "")
+        self.vboxlayout.addWidget(self.help_tab)
 
-        self.mouse_controls_textbrowser = QTextBrowser(self.tab,"mouse_controls_textbrowser")
+        self.hboxlayout = QtGui.QHBoxLayout()
+        self.hboxlayout.setMargin(0)
+        self.hboxlayout.setSpacing(6)
+        self.hboxlayout.setObjectName("hboxlayout")
 
-        tabLayout.addWidget(self.mouse_controls_textbrowser,0,0)
-        self.help_tab.insertTab(self.tab,QString.fromLatin1(""))
+        spacerItem = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.hboxlayout.addItem(spacerItem)
 
-        self.tab_2 = QWidget(self.help_tab,"tab_2")
-        tabLayout_2 = QGridLayout(self.tab_2,1,1,11,6,"tabLayout_2")
+        self.close_btn = QtGui.QPushButton(HelpDialog)
+        self.close_btn.setObjectName("close_btn")
+        self.hboxlayout.addWidget(self.close_btn)
+        self.vboxlayout.addLayout(self.hboxlayout)
 
-        self.keyboard_shortcuts_textbrowser = QTextBrowser(self.tab_2,"keyboard_shortcuts_textbrowser")
+        self.retranslateUi(HelpDialog)
+        QtCore.QObject.connect(self.close_btn,QtCore.SIGNAL("clicked()"),HelpDialog.close)
+        QtCore.QMetaObject.connectSlotsByName(HelpDialog)
 
-        tabLayout_2.addWidget(self.keyboard_shortcuts_textbrowser,0,0)
-        self.help_tab.insertTab(self.tab_2,QString.fromLatin1(""))
-        HelpDialogLayout.addWidget(self.help_tab)
-
-        layout1 = QHBoxLayout(None,0,6,"layout1")
-        spacer3 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout1.addItem(spacer3)
-
-        self.close_btn = QPushButton(self,"close_btn")
-        layout1.addWidget(self.close_btn)
-        HelpDialogLayout.addLayout(layout1)
-
-        self.languageChange()
-
-        self.resize(QSize(600,480).expandedTo(self.minimumSizeHint()))
-        self.clearWState(Qt.WState_Polished)
-
-        self.connect(self.help_tab,SIGNAL("selected(const QString&)"),self.setup_current_page)
-        self.connect(self.close_btn,SIGNAL("clicked()"),self.close)
-
-
-    def languageChange(self):
-        self.setCaption(self.__tr("NanoEngineer-1 Help"))
-        self.help_tab.changeTab(self.tab,self.__tr("Mouse Controls"))
-        self.help_tab.changeTab(self.tab_2,self.__tr("Keyboard Shortcuts"))
-        self.close_btn.setText(self.__tr("Close"))
-
-
-    def setup_current_page(self):
-        print "HelpDialog.setup_current_page(): Not implemented yet"
-
-    def __tr(self,s,c = None):
-        return qApp.translate("HelpDialog",s,c)
+    def retranslateUi(self, HelpDialog):
+        HelpDialog.setWindowTitle(QtGui.QApplication.translate("HelpDialog", "NanoEngineer-1 Help", None, QtGui.QApplication.UnicodeUTF8))
+        self.help_tab.setTabText(self.help_tab.indexOf(self.tab), QtGui.QApplication.translate("HelpDialog", "Mouse Controls", None, QtGui.QApplication.UnicodeUTF8))
+        self.help_tab.setTabText(self.help_tab.indexOf(self.tab1), QtGui.QApplication.translate("HelpDialog", "Keyboard Shortcuts", None, QtGui.QApplication.UnicodeUTF8))
+        self.close_btn.setText(QtGui.QApplication.translate("HelpDialog", "Close", None, QtGui.QApplication.UnicodeUTF8))

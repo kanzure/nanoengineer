@@ -1,13 +1,14 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2006 Nanorex, Inc.  See LICENSE file for details. 
 """
 GroupProp.py
 
 $Id$
 """
 
-from qt import *
+from PyQt4.Qt import *
 from GroupPropDialog import *
 from VQT import V
+from qt4transition import *
 
 class Statistics:
     def __init__(self, group):
@@ -23,73 +24,73 @@ class Statistics:
         # Subtract singlets from total number of atoms            
         self.num_atoms = self.natoms - self.nsinglets 
             
-        # Display stats in listview
-        statsView.setSorting( -1) # Turn off sorting
+        item = QListWidgetItem()
+        item.setText("Measure Dihedral:" + str(self.num_mdihedral))
+        statsView.addItem(item)
         
-        item = QListViewItem(statsView,None)
-        item.setText(0,"Measure Dihedral:")
-        item.setText(1, str(self.num_mdihedral))
-        
-        item = QListViewItem(statsView,None)
-        item.setText(0,"Measure Angle:")
-        item.setText(1, str(self.num_mangle))
+        item = QListWidgetItem()
+        item.setText("Measure Angle:" + str(self.num_mangle))
+        statsView.addItem(item)
 
-        item = QListViewItem(statsView,None)
-        item.setText(0,"Measure Distance:")
-        item.setText(1, str(self.num_mdistance))
+        item = QListWidgetItem()
+        item.setText("Measure Distance:" + str(self.num_mdistance))
+        statsView.addItem(item)
         
-        item = QListViewItem(statsView,None)
-        item.setText(0,"Grid Plane:")
-        item.setText(1, str(self.num_gridplane))
+        item = QListWidgetItem()
+        item.setText("Grid Plane:" + str(self.num_gridplane))
+        statsView.addItem(item)
         
-        item = QListViewItem(statsView,None)
-        item.setText(0,"ESP Image:")
-        item.setText(1, str(self.num_espimage))
+        item = QListWidgetItem()
+        item.setText("ESP Image:" + str(self.num_espimage))
+        statsView.addItem(item)
         
-        item = QListViewItem(statsView,None)
-        item.setText(0,"Gamess:")
-        item.setText(1, str(self.ngamess))
+        item = QListWidgetItem()
+        item.setText("Gamess:" + str(self.ngamess))
+        statsView.addItem(item)
                 
-        item = QListViewItem(statsView,None)
-        item.setText(0,"Thermometers:")
-        item.setText(1, str(self.nthermos))
+        item = QListWidgetItem()
+        item.setText("Thermometers:" + str(self.nthermos))
+        statsView.addItem(item)
         
-        item = QListViewItem(statsView,None)
-        item.setText(0,"Thermostats:")
-        item.setText(1, str(self.nstats))
+        item = QListWidgetItem()
+        item.setText("Thermostats:" + str(self.nstats))
+        statsView.addItem(item)
 
-        item = QListViewItem(statsView,None)
-        item.setText(0,"Anchors:")
-        item.setText(1, str(self.nanchors))
+        item = QListWidgetItem()
+        item.setText("Anchors:" + str(self.nanchors))
+        statsView.addItem(item)
 
-        item = QListViewItem(statsView,None)
-        item.setText(0,"Linear Motors:")
-        item.setText(1, str(self.nlmotors))
+        item = QListWidgetItem()
+        item.setText("Linear Motors:" + str(self.nlmotors))
+        statsView.addItem(item)
         
-        item = QListViewItem(statsView,None)
-        item.setText(0,"Rotary Motors:")
-        item.setText(1, str(self.nrmotors))
+        item = QListWidgetItem()
+        item.setText("Rotary Motors:" + str(self.nrmotors))
+        statsView.addItem(item)
         
-        item = QListViewItem(statsView,None)
-        item.setText(0,"Groups:")
-        item.setText(1, str(self.ngroups))
+        item = QListWidgetItem()
+        item.setText("Groups:" + str(self.ngroups))
+        statsView.addItem(item)
 
-        item = QListViewItem(statsView,None)
-        item.setText(0,"Bondpoints:")
-        item.setText(1, str(self.nsinglets))
+        item = QListWidgetItem()
+        item.setText("Bondpoints:" + str(self.nsinglets))
+        statsView.addItem(item)
 
-        item = QListViewItem(statsView,None)
-        item.setText(0,"Atoms:")
-        item.setText(1, str(self.num_atoms))
+        item = QListWidgetItem()
+        item.setText("Atoms:" + str(self.num_atoms))
+        statsView.addItem(item)
                         
-        item = QListViewItem(statsView,None)
-        item.setText(0,"Chunks:")
-        item.setText(1, str(self.nchunks))
+        item = QListWidgetItem()
+        item.setText("Chunks:" + str(self.nchunks))
+        statsView.addItem(item)
 
-class GroupProp(GroupPropDialog):
+class GroupProp(QDialog, Ui_GroupPropDialog):
     def __init__(self, group):
 
-        GroupPropDialog.__init__(self)
+        QDialog.__init__(self)
+        self.setupUi(self)
+        self.connect(self.okPushButton,SIGNAL("clicked()"),self.accept)
+        self.connect(self.cancelPushButton,SIGNAL("clicked()"),self.reject)
         self.group = group
         
         self.nameLineEdit.setText(group.name)

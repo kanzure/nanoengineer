@@ -1,10 +1,11 @@
-# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 '''
 state_utils.py
 
 General state-related utilities.
 
 $Id$
+
 '''
 __author__ = 'bruce'
 
@@ -860,7 +861,7 @@ else:
 # ==
 
 def copy_QColor(obj):
-    from qt import QColor
+    from PyQt4.Qt import QColor
     assert obj.__class__ is QColor # might fail (in existing calls) if some other class has the same name
     if env.debug():
         print "atom_debug: ran copy_QColor" # remove when works once; will equality work right? ###@@@
@@ -871,7 +872,7 @@ try:
     # becomes a problem (e.g. if this module should work in environments where qt is not available),
     # make other modules register QColor with us, or make sure it's ok if this import fails
     # (it is in theory).
-    from qt import QColor
+    from PyQt4.Qt import QColor
 except:
     if env.debug():
         print "fyi: can't import QColor from qt, so not registering its copy function"

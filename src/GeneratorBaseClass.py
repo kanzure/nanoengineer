@@ -1,21 +1,25 @@
-# Copyright (c) 2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 GeneratorBaseClass.py -- base class for generator dialogs or their controllers
 which supplies ok/cancel/preview logic and some other common behavior
 
 $Id$
+
 """
 
 __author__ = "Will"
 
 import platform
 import env
-from qt import *
+from PyQt4.Qt import *
 from chem import gensym
 from Sponsors import SponsorableMixin
 from HistoryWidget import redmsg, orangemsg, greenmsg
 from debug import print_compact_traceback
+from qt4transition import *
+from PropertyManagerMixin import PropertyManagerMixin
 import EpydocTest
+
 
 _up_arrow_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d\x49\x48\x44\x52" \
@@ -79,20 +83,21 @@ class GroupButtonMixin:
         _up_arrow.loadFromData(_up_arrow_data)
         _down_arrow = QPixmap()
         _down_arrow.loadFromData(_down_arrow_data)
-
-    def toggle_groupbox(self, button, *things):
+    
+    def toggle_groupbox_in_dialogs(self, button, *things):
         """This is intended to be part of the slot method for clicking on an open/close icon
         of a dialog GroupBox. The arguments should be the button (whose icon will be altered here)
         and the child widgets in the groupbox whose visibility should be toggled.
         """
-        if things[0].isShown():
-            button.setIconSet(QIconSet(self._down_arrow))
+        if things[0].isVisible():
+            button.setIcon(QIcon(self._down_arrow))
             for thing in things:
                 thing.hide()
         else:
-            button.setIconSet(QIconSet(self._up_arrow))
+            button.setIcon(QIcon(self._up_arrow))
             for thing in things:
                 thing.show()
+
 
 class AbstractMethod(Exception):
     def __init__(self):
@@ -131,7 +136,7 @@ class UserError(Exception):
         else:
             Exception.__init__(self)
 
-class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
+class GeneratorBaseClass(SponsorableMixin, PropertyManagerMixin):
     """There is some logic associated with Preview/OK/Abort that's
     complicated enough to put it in one place, so that individual
     generators can focus on what they need to do. As much as possible,
@@ -158,6 +163,8 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
     # pass window arg to constructor rather than use a global, wware 051103
     def __init__(self, win):
         self.win = win
+        self.pw = None # pw = part window. Its subclasses will create their partwindow objects (and destroy them after Done)
+            
         self.struct = None
         self.previousParams = None
         #bruce 060616 added the following kluge to make sure both cmdname and cmd are set properly.
@@ -216,7 +223,15 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
             # like preview button - do not close the dialog
             self.accept() #bruce 060621
         self.struct = None
+        
+        #Close Property manager 
+        if self.pw:
+            self.pw.featureManager.setCurrentIndex(0)
+            self.pw.featureManager.removeTab(self.pw.featureManager.indexOf(self))                 
+            self.pw = None  
+                    
         return
+    
 
     def handlePluginExceptions(self, thunk):
         self.pluginException = False
@@ -331,6 +346,13 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
         self._revert_number()
         ## QDialog.accept(self)
         self.reject() #bruce 060621
+        
+        #Close Property manager 
+        if self.pw:
+            self.pw.featureManager.setCurrentIndex(0)
+            self.pw.featureManager.removeTab(self.pw.featureManager.indexOf(self.pw.propertyManagerScrollArea)) 
+            self.pw = None 
+            
         return
 
     def close(self, e=None):

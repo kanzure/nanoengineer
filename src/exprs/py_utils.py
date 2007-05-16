@@ -1,7 +1,9 @@
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 py_utils.py
 
 $Id$
+
 
 simple utility functions for python built-in types
 """

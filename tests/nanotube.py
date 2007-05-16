@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+# Copyright 2005 Nanorex, Inc.  See LICENSE file for details. 
 """Nanotube generation tool for nanoENGINEER-1
 Usage:
     nanotube.py <n> <m> <length>

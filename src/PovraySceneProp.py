@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 '''
 PovraySceneProp.py - the PovraySceneProp class, including all methods needed by the POV-Ray Scene dialog.
 
@@ -10,8 +10,8 @@ mark 060602 - Created for NFR: "Insert > POV-Ray Scene".
 '''
 __author__ = "Mark"
 
-from qt import SIGNAL, QDialog, QWhatsThis, QIconSet
-from PovrayScenePropDialog import PovrayScenePropDialog
+from PyQt4.Qt import SIGNAL, QDialog, QWhatsThis, QIcon, QDialog
+from PovrayScenePropDialog import Ui_PovrayScenePropDialog
 from HistoryWidget import greenmsg
 from widgets import double_fixup
 import env, os
@@ -19,7 +19,7 @@ from HistoryWidget import redmsg, orangemsg, greenmsg
 from GeneratorBaseClass import GroupButtonMixin
 from Sponsors import SponsorableMixin
 
-class PovraySceneProp(SponsorableMixin, GroupButtonMixin, PovrayScenePropDialog):
+class PovraySceneProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_PovrayScenePropDialog):
 
     cmdname = greenmsg("Insert POV-Ray Scene: ")
     sponsor_keyword = 'DNA'
@@ -27,18 +27,31 @@ class PovraySceneProp(SponsorableMixin, GroupButtonMixin, PovrayScenePropDialog)
     extension = ".pov"
 
     def __init__(self, win):
-        PovrayScenePropDialog.__init__(self, win)  # win is parent.
+        QDialog.__init__(self, win)  # win is parent.
+        self.setupUi(self)
+        self.connect(self.cancel_btn,SIGNAL("clicked()"),self.cancel_btn_clicked)
+        self.connect(self.done_btn,SIGNAL("clicked()"),self.ok_btn_clicked)
+        self.connect(self.height_spinbox,SIGNAL("valueChanged(int)"),self.change_height)
+        self.connect(self.ok_btn,SIGNAL("clicked()"),self.ok_btn_clicked)
+        self.connect(self.preview_btn,SIGNAL("clicked()"),self.preview_btn_clicked)
+        self.connect(self.restore_btn,SIGNAL("clicked()"),self.restore_defaults_btn_clicked)
+        self.connect(self.sponsor_btn,SIGNAL("clicked()"),self.open_sponsor_homepage)
+        self.connect(self.whatsthis_btn,SIGNAL("clicked()"),self.whatsthis_btn_clicked)
+        self.connect(self.width_spinbox,SIGNAL("valueChanged(int)"),self.change_width)
+        self.connect(self.abort_btn,SIGNAL("clicked()"),self.cancel_btn_clicked)
+        self.connect(self.grpbtn_1,SIGNAL("clicked()"),self.toggle_grpbtn_1)
+        self.connect(self.grpbtn_2,SIGNAL("clicked()"),self.toggle_grpbtn_2)
         self.win = win
         self.glpane = self.win.glpane
         self.node = None
         self.previousParams = None
-        QWhatsThis.add(self.sponsor_btn, """<b>NanoEngineer-1 Sponsor</b>
+        self.sponsor_btn.setWhatsThis("""<b>NanoEngineer-1 Sponsor</b>
         <p>Click on the logo to learn more
         about this NanoEngineer-1 sponsor.</p>""")
-        QWhatsThis.add(self.name_linedit, """<b>Node Name</b>
+        self.name_linedit.setWhatsThis("""<b>Node Name</b>
         <p>The POV-Ray Scene file node name as it appears
         in the Model Tree.</p>""")
-        QWhatsThis.add(self.output_type_combox, """<b>Image Format </b>- the output image format when rendering
+        self.output_type_combox.setWhatsThis("""<b>Image Format </b>- the output image format when rendering
         an image from this POV-Ray Scene file.""")
         
     def setup(self, pov=None):
@@ -79,7 +92,8 @@ class PovraySceneProp(SponsorableMixin, GroupButtonMixin, PovrayScenePropDialog)
     def update_widgets(self):
         'Update the widgets using the current attr values.'
         self.name_linedit.setText(self.name)
-        self.output_type_combox.setCurrentText(self.output_type.upper())
+        self.output_type_combox.setItemText(self.output_type_combox.currentIndex(),
+                                                                            self.output_type.upper())
         
         # This must be called before setting the values of the width and height spinboxes. Mark 060621.
         self.aspect_ratio = float(self.width) / float(self.height)
@@ -241,12 +255,12 @@ class PovraySceneProp(SponsorableMixin, GroupButtonMixin, PovrayScenePropDialog)
 
     def toggle_grpbtn_1(self):
         'Slot for first groupbox toggle button'
-        self.toggle_groupbox(self.grpbtn_1, self.line2,
+        self.toggle_groupbox_in_dialogs(self.grpbtn_1, self.line2,
                             self.name_linedit)
 
     def toggle_grpbtn_2(self):
         'Slot for second groupbox toggle button'
-        self.toggle_groupbox(self.grpbtn_2, self.line3,
+        self.toggle_groupbox_in_dialogs(self.grpbtn_2, self.line3,
                             self.output_type_label, self.output_type_combox,
                             self.width_label, self.width_spinbox,
                             self.height_label, self.height_spinbox,

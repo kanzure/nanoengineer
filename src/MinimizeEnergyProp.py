@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 '''
 MinimizeEnergyProp.py - the MinimizeEnergyProp class, including all methods needed by the Minimize Energy dialog.
 
@@ -10,74 +10,109 @@ mark 060705 - Created for Alpha 8 NFR: "Simulator > Minimize Energy".
 '''
 __author__ = "Mark"
 
-from qt import *
+from PyQt4.Qt import *
 from HistoryWidget import greenmsg, redmsg, orangemsg, _graymsg, quote_html
-from MinimizeEnergyPropDialog import MinimizeEnergyPropDialog
+from MinimizeEnergyPropDialog import Ui_MinimizeEnergyPropDialog
 from GeneratorBaseClass import GroupButtonMixin
 from Sponsors import SponsorableMixin
+from qt4transition import *
+from Utility import geticon
 
 from prefs_constants import Minimize_watchRealtimeMinimization_prefs_key
 from prefs_constants import Minimize_endRMS_prefs_key as endRMS_prefs_key
 from prefs_constants import Minimize_endMax_prefs_key as endMax_prefs_key
 from prefs_constants import Minimize_cutoverRMS_prefs_key as cutoverRMS_prefs_key
 from prefs_constants import Minimize_cutoverMax_prefs_key as cutoverMax_prefs_key
+from prefs_constants import electrostaticsForDnaDuringMinimize_prefs_key
 
 from debug import print_compact_traceback
 import env, platform
 from UserPrefs import get_pref_or_optval
 from widgets import double_fixup
 import preferences
+from debug_prefs import debug_pref, Choice_boolean_False
+from prefs_widgets import connect_checkbox_with_boolean_pref
 
-class MinimizeEnergyProp(SponsorableMixin, GroupButtonMixin, MinimizeEnergyPropDialog):
+class MinimizeEnergyProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_MinimizeEnergyPropDialog):
 
     cmdname = greenmsg("Minimize Energy: ") # WARNING: self.cmdname might be used by one of the superclasses
     plain_cmdname = "Minimize Energy"
     sponsor_keyword = None
 
     def __init__(self, win):
-        MinimizeEnergyPropDialog.__init__(self, win)  # win is parent.
+        QDialog.__init__(self, win)  # win is parent.
+        self.setupUi(self)
+        self.update_btngrp_group = QButtonGroup()
+        self.update_btngrp_group.setExclusive(True)
+        for obj in self.update_btngrp.children():
+            if isinstance(obj, QAbstractButton):
+                self.update_btngrp_group.addButton(obj)
+        
+        #fix some icon problems
+        self.setWindowIcon(geticon('ui/border/MinimizeEnergy'))
+        self.done_btn.setIcon(geticon('ui/actions/Properties Manager/Done'))
+        self.abort_btn.setIcon(geticon('ui/actions/Properties Manager/Abort'))
+        self.restore_btn.setIcon(geticon('ui/actions/Properties Manager/Restore'))
+        self.whatsthis_btn.setIcon(geticon('ui/actions/Properties Manager/WhatsThis'))
+        
+        self.connect(self.cancel_btn,SIGNAL("clicked()"),self.cancel_btn_clicked)
+        self.connect(self.done_btn,SIGNAL("clicked()"),self.ok_btn_clicked)
+        self.connect(self.ok_btn,SIGNAL("clicked()"),self.ok_btn_clicked)
+        self.connect(self.restore_btn,SIGNAL("clicked()"),self.restore_defaults_btn_clicked)
+        self.connect(self.sponsor_btn,SIGNAL("clicked()"),self.open_sponsor_homepage)
+        self.connect(self.whatsthis_btn,SIGNAL("clicked()"),self.whatsthis_btn_clicked)
+        self.connect(self.abort_btn,SIGNAL("clicked()"),self.cancel_btn_clicked)
+        self.connect(self.grpbtn_1,SIGNAL("clicked()"),self.toggle_grpbtn_1)
+        self.connect(self.grpbtn_2,SIGNAL("clicked()"),self.toggle_grpbtn_2)
+        self.connect(self.grpbtn_3,SIGNAL("clicked()"),self.toggle_grpbtn_3)
+        self.connect(self.grpbtn_4,SIGNAL("clicked()"),self.toggle_grpbtn_4)
+        
+        connect_checkbox_with_boolean_pref(
+            self.electrostaticsForDnaDuringMinimize_checkBox,
+            electrostaticsForDnaDuringMinimize_prefs_key)
+        
         self.win = win
         self.previousParams = None
         self.setup_ruc()
         self.setup_validators()
         self.seltype = 'All'
-        QWhatsThis.add(self.sponsor_btn, """<b>NanoEngineer-1 Sponsor</b>
+        self.sponsor_btn.setWhatsThis("""<b>NanoEngineer-1 Sponsor</b>
         <p>Click on the logo to learn more
         about this NanoEngineer-1 sponsor.</p>""")
-        QWhatsThis.add(self.minimize_all_rbtn, """<b>Minimize All</b><p>Perform energy minimization on all the
+        self.minimize_all_rbtn.setWhatsThis("""<b>Minimize All</b><p>Perform energy minimization on all the
         atoms in the workspace.</p>""")
-        QWhatsThis.add(self.minimize_sel_rbtn, """<b>Minimize Selection</b><p>Perform energy minimization on the
+        self.minimize_sel_rbtn.setWhatsThis("""<b>Minimize Selection</b><p>Perform energy minimization on the
         atoms that are currently selected.</p>""")
-        QWhatsThis.add(self.watch_minimization_checkbox, """<p><b>Watch Motion In Real Time</b></p>Enables real time graphical
+        self.watch_minimization_checkbox.setWhatsThis("""<p><b>Watch Motion In Real Time</b></p>Enables real time graphical
         updates during minimization runs.""")
-        QWhatsThis.add(self.update_asap_rbtn, """<b>Update as fast as possible</b>
+        self.update_asap_rbtn.setWhatsThis("""<b>Update as fast as possible</b>
         <p>
         Update every 2 seconds,
         or faster (up to 20x/sec) if it doesn't slow minimization by more than 20%</p>""")
-        QWhatsThis.add(self.update_every_rbtn, """<b>Update every <i>n units.</u></b>
+        self.update_every_rbtn.setWhatsThis("""<b>Update every <i>n units.</u></b>
         <p>Specify how often to update
         the model during the minimization. This allows the user to monitor minimization results while the minimization is running.</p>""")
-        QWhatsThis.add(self.update_number_spinbox, """<b>Update every <i>n units.</u></b>
+        self.update_number_spinbox.setWhatsThis("""<b>Update every <i>n units.</u></b>
         <p>Specify how often to update
         the model during the minimization. This allows the user to monitor minimization results while the minimization is running.</p>""")
-        QWhatsThis.add(self.update_units_combobox, """<b>Update every <i>n units.</u></b>
+        self.update_units_combobox.setWhatsThis("""<b>Update every <i>n units.</u></b>
         <p>Specify how often to update
         the model during the minimization. This allows the user to monitor minimization results while the minimization is running.</p>""")
-        QWhatsThis.add(self.endrms_linedit, """<b>EndRMS</b>
+        self.endrms_linedit.setWhatsThis("""<b>EndRMS</b>
         <p>Continue until this RMS force is reached.</p>""")
-        QWhatsThis.add(self.endmax_linedit, """<b>EndMax</b>
+        self.endmax_linedit.setWhatsThis("""<b>EndMax</b>
         <p>Continue until the total force on each atom
         is less than this value.</p>""")
-        QWhatsThis.add(self.cutoverrms_linedit, """<b>CutoverRMS</b>
+        self.cutoverrms_linedit.setWhatsThis("""<b>CutoverRMS</b>
         <p>Use steepest descent until this RMS force
         is reached.</p>""")
-        QWhatsThis.add(self.cutovermax_linedit, """<b>CutoverMax</b>
+        self.cutovermax_linedit.setWhatsThis("""<b>CutoverMax</b>
         <p>Use steepest descent  until the total force
         on each atom is less than this value.</p>""")
-        QWhatsThis.add(self.cancel_btn, """<b>Cancel</b><p>Dismiss this dialog without taking any action.</p>""")
-        QWhatsThis.add(self.ok_btn, """<b>Minimize Energy</b><p>Using the parameters specified above,
+        self.cancel_btn.setWhatsThis("""<b>Cancel</b><p>Dismiss this dialog without taking any action.</p>""")
+        self.ok_btn.setWhatsThis("""<b>Minimize Energy</b><p>Using the parameters specified above,
         perform energy minimization on some or all of the atoms.</p>""")
-        QWhatsThis.add(self, """<u><b>Minimize Energy</b></u>
+        self.setWhatsThis("""<u><b>Minimize Energy</b></u>
         <p>The potential energy of a chemical
         structure is a function of the relative positions of its atoms. To obtain this energy with complete accuracy involves a lot
         of computer time spent on quantum mechanical calculations, which cannot be practically done on a desktop computer. To get
@@ -90,6 +125,13 @@ class MinimizeEnergyProp(SponsorableMixin, GroupButtonMixin, MinimizeEnergyPropD
         y, and z coordinates) so the search space is multi-dimensional. The global minimum is the configuration that the atoms will
         settle into if lowered to zero Kelvin.
         </p>""")
+        
+        if not debug_pref("GROMACS Enabled", Choice_boolean_False,
+                          prefs_key=True):
+            # Hide the Energy Minimization engine chooser altogether.
+            self.buttonGroup8_2.setHidden(True)
+            self.setMaximumHeight(0)
+            
         self.update_widgets() # to make sure self attrs are set
 
     def setup_ruc(self):
@@ -97,7 +139,8 @@ class MinimizeEnergyProp(SponsorableMixin, GroupButtonMixin, MinimizeEnergyPropD
         #bruce 060705 use new common code, if it works
         from widget_controllers import realtime_update_controller
         self.ruc = realtime_update_controller( 
-            ( self.update_btngrp, self.update_number_spinbox, self.update_units_combobox ),
+            #( self.update_btngrp, self.update_number_spinbox, self.update_units_combobox ),
+            ( self.update_btngrp_group, self.update_number_spinbox, self.update_units_combobox ),
             self.watch_minimization_checkbox,
             Minimize_watchRealtimeMinimization_prefs_key
         )
@@ -149,7 +192,7 @@ class MinimizeEnergyProp(SponsorableMixin, GroupButtonMixin, MinimizeEnergyPropD
         
         self.cutovermax = get_pref_or_optval(cutoverMax_prefs_key, -1.0, '')
         self.cutovermax_linedit.setText(str(self.cutovermax))
-
+        
         ###e also watch in realtime prefs for this -- no, thats in another method for now
         return
         
@@ -157,26 +200,41 @@ class MinimizeEnergyProp(SponsorableMixin, GroupButtonMixin, MinimizeEnergyPropD
         'Slot for OK button.'
         QDialog.accept(self)
         if env.debug(): print 'ok'
-        self.gather_parameters()
-            ### kluge: has side effect on env.prefs
-            # (should we pass these as arg to Minimize_CommandRun rather than thru env.prefs??)
-        if platform.atom_debug:
-            print "debug: reloading runSim on each use, for development"
-            import runSim, debug
-            debug.reload_once_per_event(runSim)
-        from runSim import Minimize_CommandRun
-        # do this in gather?
-        if self.minimize_all_rbtn.isChecked():
-            self.seltype = 'All'
-            seltype_name = "All"
-        else:
-            self.seltype = 'Sel'
-            seltype_name = "Selection"
-        self.win.assy.current_command_info(cmdname = self.plain_cmdname + " (%s)" % seltype_name) # cmdname for Undo
 
-        update_cond = self.ruc.get_update_cond_from_widgets()
-        cmdrun = Minimize_CommandRun( self.win, self.seltype, type = 'Minimize', update_cond = update_cond)
-        cmdrun.run()
+        if self.minimize_engine_combobox.currentIndex() == 1:
+            # GROMACS was selected as the minimization engine.
+            #
+            # NOTE: This code is just for demo and prototyping purposes - the 
+            # real approach will be architected and utilize plugins.
+            #
+            # Brian Helfrich 2007-03-31
+            #
+            from GROMACS import GROMACS
+            gmx = GROMACS(self.win.assy.part)
+            gmx.run("em")
+
+        else:
+            # NanoDynamics-1 was selected as the minimization engine
+            self.gather_parameters()
+                ### kluge: has side effect on env.prefs
+                # (should we pass these as arg to Minimize_CommandRun rather than thru env.prefs??)
+            if platform.atom_debug:
+                print "debug: reloading runSim on each use, for development"
+                import runSim, debug
+                debug.reload_once_per_event(runSim)
+            from runSim import Minimize_CommandRun
+            # do this in gather?
+            if self.minimize_all_rbtn.isChecked():
+                self.seltype = 'All'
+                seltype_name = "All"
+            else:
+                self.seltype = 'Sel'
+                seltype_name = "Selection"
+            self.win.assy.current_command_info(cmdname = self.plain_cmdname + " (%s)" % seltype_name) # cmdname for Undo
+    
+            update_cond = self.ruc.get_update_cond_from_widgets()
+            cmdrun = Minimize_CommandRun( self.win, self.seltype, type = 'Minimize', update_cond = update_cond)
+            cmdrun.run()
         return
         
     def cancel_btn_clicked(self):
@@ -203,23 +261,28 @@ class MinimizeEnergyProp(SponsorableMixin, GroupButtonMixin, MinimizeEnergyPropD
 
     def toggle_grpbtn_1(self):
         'Slot for first groupbox toggle button'
-        self.toggle_groupbox(self.grpbtn_1, self.line1,
+        self.toggle_groupbox_in_dialogs(self.grpbtn_1, self.line1,
                             self.minimize_all_rbtn, self.minimize_sel_rbtn)
 
     def toggle_grpbtn_2(self):
         'Slot for second groupbox toggle button'
-        self.toggle_groupbox(self.grpbtn_2, self.line2,
+        self.toggle_groupbox_in_dialogs(self.grpbtn_2, self.line2,
                             self.watch_minimization_checkbox, self.update_btngrp)
         
     def toggle_grpbtn_3(self):
         'Slot for third groupbox toggle button'
-        self.toggle_groupbox(self.grpbtn_3, self.line3,
+        self.toggle_groupbox_in_dialogs(self.grpbtn_3, self.line3,
                             self.endrms_lbl, self.endrms_linedit,
                             self.endmax_lbl, self.endmax_linedit,
                             self.cutoverrms_lbl, self.cutoverrms_linedit,
                             self.cutovermax_lbl, self.cutovermax_linedit,
                             ##self.spacer_3 - had to be set to 1 pixel in ui file, since it's a local var, not a self attr
                             )
+
+    def toggle_grpbtn_4(self):
+        'Slot for fourth groupbox toggle button'
+        self.toggle_groupbox_in_dialogs(self.grpbtn_4, self.line4,
+                            self.minimize_engine_combobox)
 
     # WARNING: some of the following code is mostly duplicated by UserPrefs code;
     # the docstrings are wrong in this context, since these methods have no signal connections

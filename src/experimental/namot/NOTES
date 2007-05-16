@@ -1,3 +1,7 @@
+
+
+ Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+
 To build NAMOT, I needed to run 'ldconfig' as root so that the
 configure script could find libgsl.so in /usr/local/lib. You find
 this out when configure fails by studying config.log.

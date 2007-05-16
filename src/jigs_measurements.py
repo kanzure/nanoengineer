@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2007 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 jigs_measurements.py -- Classes for measurement jigs.
 
@@ -192,7 +192,7 @@ class MeasureDistance(MeasurementJig):
     '''
     
     sym = "Distance"
-    icon_names = ["measuredistance.png", "measuredistance-hide.png"]
+    icon_names = ["modeltree/measuredistance.png", "modeltree/measuredistance-hide.png"]
     featurename = "Measure Distance Jig" # added, wware 20051202
 
     def constrainedPosition(self):
@@ -262,7 +262,7 @@ class MeasureAngle(MeasurementJig):
     '''A Measure Angle jig has three atoms.'''
     
     sym = "Angle"
-    icon_names = ["measureangle.png", "measureangle-hide.png"]
+    icon_names = ["modeltree/measureangle.png", "modeltree/measureangle-hide.png"]
     featurename = "Measure Angle Jig" # added, wware 20051202
 
     def constrainedPosition(self):
@@ -324,7 +324,7 @@ class MeasureDihedral(MeasurementJig):
     '''A Measure Dihedral jig has four atoms.'''
     
     sym = "Dihedral"
-    icon_names = ["measuredihedral.png", "measuredihedral-hide.png"]
+    icon_names = ["modeltree/measuredihedral.png", "modeltree/measuredihedral-hide.png"]
     featurename = "Measure Dihedral Jig" # added, wware 20051202
 
     def constrainedPosition(self):

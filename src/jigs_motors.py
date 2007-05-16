@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2007 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 jigs_motors.py -- Classes for motors.
 
@@ -200,7 +200,7 @@ class RotaryMotor(Motor):
        To Be Done -- selecting & manipulation'''
     
     sym = "Rotary Motor"
-    icon_names = ["rmotor.png", "rmotor-hide.png"]
+    icon_names = ["modeltree/rmotor.png", "modeltree/rmotor-hide.png"]
     featurename = "Rotary Motor" #bruce 051203
 
     _initial_posns = None #bruce 060310 added default values for _initial_* and added them to copyable_attrs, to fix bug 1656
@@ -488,7 +488,7 @@ class LinearMotor(Motor):
        To Be Done -- selecting & manipulation'''
 
     sym = "Linear Motor"
-    icon_names = ["lmotor.png", "lmotor-hide.png"]
+    icon_names = ["modeltree/lmotor.png", "modeltree/lmotor-hide.png"]
     featurename = "Linear Motor" #bruce 051203
 
     copyable_attrs = Motor.copyable_attrs + ('force', 'stiffness', 'length', 'width', 'sradius', 'center', 'axis', \

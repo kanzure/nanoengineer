@@ -1,4 +1,4 @@
-# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2005-2006 Nanorex, Inc.  See LICENSE file for details. 
 '''
 ProgressBar.py - progress bar dialog, for use while waiting for simulator
 to finish writing output into a known file of known final length.
@@ -9,14 +9,14 @@ __author__ = "Mark"
 
 import os, time
 
-from qt import qApp, QMessageBox
-from ProgressBarDialog import ProgressBarDialog
+from PyQt4.Qt import qApp, QMessageBox, QDialog
+from ProgressBarDialog import Ui_ProgressBarDialog
     #bruce 050415 removed "import *" from both of those
 
 from platform import hhmmss_str #bruce 060106 moved that function there
 import env #bruce 060103
 
-class ProgressBar( ProgressBarDialog ):
+class ProgressBar( QDialog, Ui_ProgressBarDialog ):
     def __init__(self):
         ### Huaicai 1/10/05: make the dialog as a modal dialog, 
         ### otherwise, if the user close the main window, it will get 
@@ -31,7 +31,11 @@ class ProgressBar( ProgressBarDialog ):
         # But for now I'll disable this experiment (modal = True).
         parent = env.mainwindow()
         modal = True # can work with False, see comment above
-        ProgressBarDialog.__init__(self, parent, None, modal)
+        QDialog.__init__(self, parent)
+	qt4todo('what about modal?')
+	self.setupUi(self)
+        self.connect(self.abortPB,SIGNAL("clicked()"),self.abort_run)
+        #ProgressBarDialog.__init__(self, parent, None, modal)
             #args are: def __init__(self,parent = None,name = None,modal = 0,fl = 0)
 
         
@@ -119,7 +123,7 @@ class ProgressBar( ProgressBarDialog ):
             "Please confirm you want to abort.\n",
             "Confirm",
             "Cancel", 
-            None, 
+            "", 
             1,  # The "default" button, when user presses Enter or Return (1 = Cancel)
             1)  # Escape (1= Cancel)
           

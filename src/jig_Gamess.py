@@ -1,13 +1,11 @@
-# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
-'''
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+"""
 jig_Gamess.py
 
 $Id$
 
 Created by Mark.
-
-bruce 050913 used env.history in some places.
-'''
+"""
 __author__ = "Mark"
 
 from jigs import Jig
@@ -28,8 +26,8 @@ import state_utils #bruce 060306
 class Gamess(Jig):
     '''A Gamess jig has a list of atoms with one or more parameter sets used to run a GAMESS calcuation.'''
 
-    sym = "Gamess"
-    icon_names = ["gamess.png", "gamess-hide.png"]
+    sym = "GAMESS"
+    icon_names = ["modeltree/gamess.png", "modeltree/gamess-hide.png"]
     featurename = "GAMESS Jig" #bruce 051203
 
     #bruce 050704 added these attrs and related methods, to make copying of this jig work properly

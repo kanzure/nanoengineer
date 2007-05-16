@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2006 Nanorex, Inc.  See LICENSE file for details. 
 '''
 elementSelector.py
 
@@ -6,13 +6,18 @@ $Id$
 '''
 
 from ElementSelectorDialog import *
+from PyQt4.Qt import QDialog
 from elementColors import ElementView
 from elements import PeriodicTable
 from constants import diTUBES
 
-class elementSelector(ElementSelectorDialog):
+class elementSelector(QDialog, Ui_ElementSelectorDialog):
     def __init__(self, win):
-        ElementSelectorDialog.__init__(self, win)
+        QDialog.__init__(self, win)
+        self.setupUi(self)
+        self.connect(self.closePTableButton,SIGNAL("clicked()"),self.close)
+        self.connect(self.TransmuteButton,SIGNAL("clicked()"),self.transmutePressed)
+        self.connect(self.elementButtonGroup,SIGNAL("clicked(int)"),self.setElementInfo)
         self.w = win
         self.elemTable = PeriodicTable
         self.displayMode = diTUBES
@@ -21,10 +26,10 @@ class elementSelector(ElementSelectorDialog):
         # Put the GL widget inside the frame
         flayout = QVBoxLayout(self.elementFrame,1,1,'flayout')
         flayout.addWidget(self.elemGLPane,1)
-        QWhatsThis.add(self.elementFrame, """3D view of current atom type""")
-        QWhatsThis.add(self.TransmuteButton, """Transmutes selected atoms in the 3D workspace to current atom
+        self.elementFrame.setWhatsThis("""3D view of current atom type""")
+        self.TransmuteButton.setWhatsThis("""Transmutes selected atoms in the 3D workspace to current atom
         above.""")
-        QWhatsThis.add(self.transmuteCheckBox, """Check if transmuted atoms should keep all existing bonds,  even
+        self.transmuteCheckBox.setWhatsThis("""Check if transmuted atoms should keep all existing bonds,  even
         if chemistry is wrong.""")
 
     def setElementInfo(self,value):

@@ -1,3 +1,4 @@
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 '''
 NewInval.py [to be cannibalized -- as of 061231, obs or mostly obs]
 

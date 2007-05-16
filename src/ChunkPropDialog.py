@@ -1,182 +1,152 @@
-# Copyright (c) 2006 Nanorex, Inc. All rights reserved.
-# -*- coding: utf-8 -*-
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+"""
+$Id$
+"""
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\ChunkPropDialog.ui'
-#
-# Created: Tue Nov 22 17:56:19 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
-#
-# WARNING! All changes made in this file will be lost!
+import sys
+from PyQt4 import QtCore, QtGui
 
+class Ui_ChunkPropDialog(object):
+    def setupUi(self, ChunkPropDialog):
+        ChunkPropDialog.setObjectName("ChunkPropDialog")
+        ChunkPropDialog.resize(QtCore.QSize(QtCore.QRect(0,0,243,354).size()).expandedTo(ChunkPropDialog.minimumSizeHint()))
 
-from qt import *
+        self.vboxlayout = QtGui.QVBoxLayout(ChunkPropDialog)
+        self.vboxlayout.setMargin(11)
+        self.vboxlayout.setSpacing(6)
+        self.vboxlayout.setObjectName("vboxlayout")
 
-image0_data = \
-    "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
-    "\x49\x48\x44\x52\x00\x00\x00\x14\x00\x00\x00\x14" \
-    "\x08\x06\x00\x00\x00\x8d\x89\x1d\x0d\x00\x00\x01" \
-    "\x00\x49\x44\x41\x54\x78\x9c\xcd\x94\x3d\x8e\x85" \
-    "\x20\x14\x46\x3f\x9e\xb3\x03\x0a\x17\x61\x68\x4d" \
-    "\x2c\xed\x5c\x8a\x8b\x72\x55\xda\xd9\xda\x99\x60" \
-    "\x61\x4c\x8c\x82\xe1\x35\x0f\x22\x0f\xf0\x67\xcc" \
-    "\x24\xf3\x55\x70\x21\x87\x03\x21\x17\xf8\xef\x21" \
-    "\xa1\x05\xc6\x98\xba\x03\x6a\x9a\x86\x00\xc0\x4f" \
-    "\x08\x56\x96\x25\xe2\x38\x3e\x05\x15\x45\x81\x2c" \
-    "\xcb\xcc\xdc\x01\x32\xc6\x54\x55\x55\x97\xac\xd2" \
-    "\x34\x45\x9e\xe7\x56\xed\xf5\x5b\x58\x92\x24\x0e" \
-    "\xcc\x32\x7c\x6a\x66\x01\x19\x63\xaa\xae\xeb\x4b" \
-    "\x30\x00\x41\x98\x65\xd8\x75\x5d\x70\xd3\xb6\x6d" \
-    "\x66\xdc\xf7\x3d\x00\x80\x52\x0a\xce\xb9\xb3\xf7" \
-    "\xe5\x54\x3c\x89\xa2\xc8\xa9\xf9\x60\x96\xa1\x10" \
-    "\x02\x4a\x29\x10\x42\x40\x48\xf0\x7b\x9a\x84\x0c" \
-    "\x0d\x50\x5b\xac\xeb\xea\x05\x28\x65\xff\xf3\x53" \
-    "\x43\xfd\x4e\xfb\xf7\x7a\x64\x28\x84\x80\x94\xd2" \
-    "\x31\xf9\x8e\xbe\xc1\xa9\xe1\x1e\x7c\x94\x79\x9e" \
-    "\xaf\x19\xea\xd3\x97\x65\xb9\x65\xc8\x39\x37\x8d" \
-    "\xc1\x02\x8e\xe3\x08\x00\x90\x52\x1e\x02\xf5\x3a" \
-    "\xa5\x14\x6d\xdb\x5a\x30\x0b\x38\x4d\x13\x86\x61" \
-    "\x38\x84\xed\xe3\x83\x01\x9f\x7e\x78\xb7\xf7\x01" \
-    "\xf0\xc2\xfe\x24\x6f\x83\xef\x89\x50\x2f\xd0\xee" \
-    "\x65\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60" \
-    "\x82"
+        self.gridlayout = QtGui.QGridLayout()
+        self.gridlayout.setMargin(0)
+        self.gridlayout.setSpacing(6)
+        self.gridlayout.setObjectName("gridlayout")
 
-class ChunkPropDialog(QDialog):
-    def __init__(self,parent = None,name = None,modal = 0,fl = 0):
-        QDialog.__init__(self,parent,name,modal,fl)
+        self.atomsTextBrowser = QtGui.QTextBrowser(ChunkPropDialog)
+        self.atomsTextBrowser.setObjectName("atomsTextBrowser")
+        self.gridlayout.addWidget(self.atomsTextBrowser,1,1,1,1)
 
-        self.image0 = QPixmap()
-        self.image0.loadFromData(image0_data,"PNG")
-        if not name:
-            self.setName("ChunkPropDialog")
+        self.vboxlayout1 = QtGui.QVBoxLayout()
+        self.vboxlayout1.setMargin(0)
+        self.vboxlayout1.setSpacing(6)
+        self.vboxlayout1.setObjectName("vboxlayout1")
 
-        self.setIcon(self.image0)
+        self.textLabel2 = QtGui.QLabel(ChunkPropDialog)
+        self.textLabel2.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.textLabel2.setObjectName("textLabel2")
+        self.vboxlayout1.addWidget(self.textLabel2)
 
-        ChunkPropDialogLayout = QVBoxLayout(self,11,6,"ChunkPropDialogLayout")
+        spacerItem = QtGui.QSpacerItem(20,113,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
+        self.vboxlayout1.addItem(spacerItem)
+        self.gridlayout.addLayout(self.vboxlayout1,1,0,1,1)
 
-        layout16 = QGridLayout(None,1,1,0,6,"layout16")
+        self.nameLineEdit = QtGui.QLineEdit(ChunkPropDialog)
+        self.nameLineEdit.setAlignment(QtCore.Qt.AlignLeading)
+        self.nameLineEdit.setObjectName("nameLineEdit")
+        self.gridlayout.addWidget(self.nameLineEdit,0,1,1,1)
 
-        self.atomsTextBrowser = QTextBrowser(self,"atomsTextBrowser")
+        self.textLabel1 = QtGui.QLabel(ChunkPropDialog)
+        self.textLabel1.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.textLabel1.setObjectName("textLabel1")
+        self.gridlayout.addWidget(self.textLabel1,0,0,1,1)
+        self.vboxlayout.addLayout(self.gridlayout)
 
-        layout16.addWidget(self.atomsTextBrowser,1,1)
+        self.hboxlayout = QtGui.QHBoxLayout()
+        self.hboxlayout.setMargin(0)
+        self.hboxlayout.setSpacing(6)
+        self.hboxlayout.setObjectName("hboxlayout")
 
-        layout100 = QVBoxLayout(None,0,6,"layout100")
+        self.colorTextLabel = QtGui.QLabel(ChunkPropDialog)
+        self.colorTextLabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.colorTextLabel.setObjectName("colorTextLabel")
+        self.hboxlayout.addWidget(self.colorTextLabel)
 
-        self.textLabel2 = QLabel(self,"textLabel2")
-        self.textLabel2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout100.addWidget(self.textLabel2)
-        spacer1 = QSpacerItem(20,113,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        layout100.addItem(spacer1)
+        self.hboxlayout1 = QtGui.QHBoxLayout()
+        self.hboxlayout1.setMargin(0)
+        self.hboxlayout1.setSpacing(6)
+        self.hboxlayout1.setObjectName("hboxlayout1")
 
-        layout16.addLayout(layout100,1,0)
+        self.chunk_color_frame = QtGui.QLabel(ChunkPropDialog)
+        self.chunk_color_frame.setAutoFillBackground(True)
 
-        self.nameLineEdit = QLineEdit(self,"nameLineEdit")
-        self.nameLineEdit.setFrameShape(QLineEdit.LineEditPanel)
-        self.nameLineEdit.setFrameShadow(QLineEdit.Sunken)
-        self.nameLineEdit.setAlignment(QLineEdit.AlignLeft)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(5),QtGui.QSizePolicy.Policy(5))
+        sizePolicy.setHorizontalStretch(1)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.chunk_color_frame.sizePolicy().hasHeightForWidth())
+        self.chunk_color_frame.setSizePolicy(sizePolicy)
+        self.chunk_color_frame.setMinimumSize(QtCore.QSize(40,0))
+        self.chunk_color_frame.setFrameShape(QtGui.QFrame.Box)
+        self.chunk_color_frame.setFrameShadow(QtGui.QFrame.Plain)
+        self.chunk_color_frame.setScaledContents(True)
+        self.chunk_color_frame.setObjectName("chunk_color_frame")
+        self.hboxlayout1.addWidget(self.chunk_color_frame)
 
-        layout16.addWidget(self.nameLineEdit,0,1)
+        self.choose_color_btn = QtGui.QPushButton(ChunkPropDialog)
+        self.choose_color_btn.setEnabled(True)
+        self.choose_color_btn.setAutoDefault(False)
+        self.choose_color_btn.setObjectName("choose_color_btn")
+        self.hboxlayout1.addWidget(self.choose_color_btn)
 
-        self.textLabel1 = QLabel(self,"textLabel1")
-        self.textLabel1.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        spacerItem1 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.hboxlayout1.addItem(spacerItem1)
+        self.hboxlayout.addLayout(self.hboxlayout1)
+        self.vboxlayout.addLayout(self.hboxlayout)
 
-        layout16.addWidget(self.textLabel1,0,0)
-        ChunkPropDialogLayout.addLayout(layout16)
+        self.reset_color_btn = QtGui.QPushButton(ChunkPropDialog)
+        self.reset_color_btn.setEnabled(True)
+        self.reset_color_btn.setAutoDefault(False)
+        self.reset_color_btn.setObjectName("reset_color_btn")
+        self.vboxlayout.addWidget(self.reset_color_btn)
 
-        layout15 = QHBoxLayout(None,0,6,"layout15")
+        self.make_atoms_visible_btn = QtGui.QPushButton(ChunkPropDialog)
+        self.make_atoms_visible_btn.setEnabled(True)
+        self.make_atoms_visible_btn.setAutoDefault(False)
+        self.make_atoms_visible_btn.setObjectName("make_atoms_visible_btn")
+        self.vboxlayout.addWidget(self.make_atoms_visible_btn)
 
-        self.colorTextLabel = QLabel(self,"colorTextLabel")
-        self.colorTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout15.addWidget(self.colorTextLabel)
+        spacerItem2 = QtGui.QSpacerItem(20,20,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
+        self.vboxlayout.addItem(spacerItem2)
 
-        layout8 = QHBoxLayout(None,0,6,"layout8")
+        self.hboxlayout2 = QtGui.QHBoxLayout()
+        self.hboxlayout2.setMargin(0)
+        self.hboxlayout2.setSpacing(6)
+        self.hboxlayout2.setObjectName("hboxlayout2")
 
-        self.chunk_color_frame = QLabel(self,"chunk_color_frame")
-        self.chunk_color_frame.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,1,0,self.chunk_color_frame.sizePolicy().hasHeightForWidth()))
-        self.chunk_color_frame.setMinimumSize(QSize(40,0))
-        self.chunk_color_frame.setFrameShape(QLabel.Box)
-        self.chunk_color_frame.setFrameShadow(QLabel.Plain)
-        self.chunk_color_frame.setScaledContents(1)
-        layout8.addWidget(self.chunk_color_frame)
+        spacerItem3 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.hboxlayout2.addItem(spacerItem3)
 
-        self.choose_color_btn = QPushButton(self,"choose_color_btn")
-        self.choose_color_btn.setEnabled(1)
-        self.choose_color_btn.setAutoDefault(0)
-        layout8.addWidget(self.choose_color_btn)
-        spacer2 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout8.addItem(spacer2)
-        layout15.addLayout(layout8)
-        ChunkPropDialogLayout.addLayout(layout15)
+        self.ok_btn = QtGui.QPushButton(ChunkPropDialog)
+        self.ok_btn.setMinimumSize(QtCore.QSize(0,0))
+        self.ok_btn.setDefault(True)
+        self.ok_btn.setObjectName("ok_btn")
+        self.hboxlayout2.addWidget(self.ok_btn)
 
-        self.reset_color_btn = QPushButton(self,"reset_color_btn")
-        self.reset_color_btn.setEnabled(1)
-        self.reset_color_btn.setAutoDefault(0)
-        ChunkPropDialogLayout.addWidget(self.reset_color_btn)
+        self.cancel_btn = QtGui.QPushButton(ChunkPropDialog)
+        self.cancel_btn.setMinimumSize(QtCore.QSize(0,0))
+        self.cancel_btn.setDefault(False)
+        self.cancel_btn.setObjectName("cancel_btn")
+        self.hboxlayout2.addWidget(self.cancel_btn)
+        self.vboxlayout.addLayout(self.hboxlayout2)
 
-        self.make_atoms_visible_btn = QPushButton(self,"make_atoms_visible_btn")
-        self.make_atoms_visible_btn.setEnabled(1)
-        self.make_atoms_visible_btn.setAutoDefault(0)
-        ChunkPropDialogLayout.addWidget(self.make_atoms_visible_btn)
-        spacer4 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        ChunkPropDialogLayout.addItem(spacer4)
+        self.retranslateUi(ChunkPropDialog)
+        
+        ChunkPropDialog.setTabOrder(self.nameLineEdit,self.atomsTextBrowser)
+        ChunkPropDialog.setTabOrder(self.atomsTextBrowser,self.choose_color_btn)
+        ChunkPropDialog.setTabOrder(self.choose_color_btn,self.reset_color_btn)
+        ChunkPropDialog.setTabOrder(self.reset_color_btn,self.make_atoms_visible_btn)
+        ChunkPropDialog.setTabOrder(self.make_atoms_visible_btn,self.ok_btn)
+        ChunkPropDialog.setTabOrder(self.ok_btn,self.cancel_btn)
 
-        layout13 = QHBoxLayout(None,0,6,"layout13")
-        spacer3 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout13.addItem(spacer3)
-
-        self.ok_btn = QPushButton(self,"ok_btn")
-        self.ok_btn.setMinimumSize(QSize(0,0))
-        self.ok_btn.setDefault(1)
-        layout13.addWidget(self.ok_btn)
-
-        self.cancel_btn = QPushButton(self,"cancel_btn")
-        self.cancel_btn.setMinimumSize(QSize(0,0))
-        self.cancel_btn.setDefault(0)
-        layout13.addWidget(self.cancel_btn)
-        ChunkPropDialogLayout.addLayout(layout13)
-
-        self.languageChange()
-
-        self.resize(QSize(243,354).expandedTo(self.minimumSizeHint()))
-        self.clearWState(Qt.WState_Polished)
-
-        self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
-        self.connect(self.cancel_btn,SIGNAL("clicked()"),self.reject)
-        self.connect(self.reset_color_btn,SIGNAL("clicked()"),self.reset_chunk_color)
-        self.connect(self.choose_color_btn,SIGNAL("clicked()"),self.change_chunk_color)
-        self.connect(self.make_atoms_visible_btn,SIGNAL("clicked()"),self.make_atoms_visible)
-
-        self.setTabOrder(self.nameLineEdit,self.atomsTextBrowser)
-        self.setTabOrder(self.atomsTextBrowser,self.choose_color_btn)
-        self.setTabOrder(self.choose_color_btn,self.reset_color_btn)
-        self.setTabOrder(self.reset_color_btn,self.make_atoms_visible_btn)
-        self.setTabOrder(self.make_atoms_visible_btn,self.ok_btn)
-        self.setTabOrder(self.ok_btn,self.cancel_btn)
-
-
-    def languageChange(self):
-        self.setCaption(self.__tr("Chunk Properties"))
-        self.textLabel2.setText(self.__tr("Atoms:"))
-        self.nameLineEdit.setText(QString.null)
-        self.textLabel1.setText(self.__tr("Name:"))
-        self.colorTextLabel.setText(self.__tr("Chunk Color:"))
-        self.choose_color_btn.setText(self.__tr("Choose..."))
-        QToolTip.add(self.choose_color_btn,self.__tr("Change chunk color"))
-        self.reset_color_btn.setText(self.__tr("Reset Chunk Color to Default"))
-        self.make_atoms_visible_btn.setText(self.__tr("Make Invisible Atoms Visible"))
-        self.ok_btn.setText(self.__tr("&OK"))
-        self.ok_btn.setAccel(self.__tr("Alt+O"))
-        self.cancel_btn.setText(self.__tr("&Cancel"))
-        self.cancel_btn.setAccel(self.__tr("Alt+C"))
-
-
-    def reset_chunk_color(self):
-        print "ChunkPropDialog.reset_chunk_color(): Not implemented yet"
-
-    def change_chunk_color(self):
-        print "ChunkPropDialog.change_chunk_color(): Not implemented yet"
-
-    def make_atoms_visible(self):
-        print "ChunkPropDialog.make_atoms_visible(): Not implemented yet"
-
-    def __tr(self,s,c = None):
-        return qApp.translate("ChunkPropDialog",s,c)
+    def retranslateUi(self, ChunkPropDialog):
+        ChunkPropDialog.setWindowTitle(QtGui.QApplication.translate("ChunkPropDialog", "Chunk Properties", None, QtGui.QApplication.UnicodeUTF8))
+        ChunkPropDialog.setWindowIcon(QtGui.QIcon("ui/border/Chunk"))
+        self.textLabel2.setText(QtGui.QApplication.translate("ChunkPropDialog", "Atoms:", None, QtGui.QApplication.UnicodeUTF8))
+        self.textLabel1.setText(QtGui.QApplication.translate("ChunkPropDialog", "Name:", None, QtGui.QApplication.UnicodeUTF8))
+        self.colorTextLabel.setText(QtGui.QApplication.translate("ChunkPropDialog", "Chunk Color:", None, QtGui.QApplication.UnicodeUTF8))
+        self.choose_color_btn.setToolTip(QtGui.QApplication.translate("ChunkPropDialog", "Change chunk color", None, QtGui.QApplication.UnicodeUTF8))
+        self.choose_color_btn.setText(QtGui.QApplication.translate("ChunkPropDialog", "Choose...", None, QtGui.QApplication.UnicodeUTF8))
+        self.reset_color_btn.setText(QtGui.QApplication.translate("ChunkPropDialog", "Reset Chunk Color to Default", None, QtGui.QApplication.UnicodeUTF8))
+        self.make_atoms_visible_btn.setText(QtGui.QApplication.translate("ChunkPropDialog", "Make Invisible Atoms Visible", None, QtGui.QApplication.UnicodeUTF8))
+        self.ok_btn.setText(QtGui.QApplication.translate("ChunkPropDialog", "&OK", None, QtGui.QApplication.UnicodeUTF8))
+        self.ok_btn.setShortcut(QtGui.QApplication.translate("ChunkPropDialog", "Alt+O", None, QtGui.QApplication.UnicodeUTF8))
+        self.cancel_btn.setText(QtGui.QApplication.translate("ChunkPropDialog", "&Cancel", None, QtGui.QApplication.UnicodeUTF8))
+        self.cancel_btn.setShortcut(QtGui.QApplication.translate("ChunkPropDialog", "Alt+C", None, QtGui.QApplication.UnicodeUTF8))

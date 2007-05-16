@@ -1,4 +1,4 @@
-# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 movie.py -- the Movie class.
 
@@ -20,7 +20,7 @@ __author__ = "Mark"
 
 import os, sys
 from struct import unpack
-from qt import Qt, qApp, QApplication, QCursor, SIGNAL
+from PyQt4.Qt import Qt, qApp, QApplication, QCursor, SIGNAL
 from HistoryWidget import redmsg, orangemsg, greenmsg
 from VQT import A #k needed??
 from chem import move_alist_and_snuggle
@@ -496,6 +496,10 @@ class Movie:
             dont_update_spinbox = self.win._movieDashboard_in_valuechanged_SB
             if not dont_update_slider:
                 self.win.frameNumberSL.setValue(self.currentFrame) # SL = Slider
+                currentFrameLbl = str(self.win.frameNumberSL.value())
+                totalFrameLbl = str(self.totalFramesActual)
+                flabel = currentFrameLbl + "/" + totalFrameLbl
+                self.win.movieFrameUpdateLabel.setText(flabel)
             if not dont_update_spinbox:
                 self.win.frameNumberSB.setValue(self.currentFrame) # Spinbox
         finally:
@@ -504,17 +508,17 @@ class Movie:
     
     def update_dashboard_frame_controls(self): #bruce 050427 split this out of _setup; ##e it should become a method of movieDashboardSlotsMixin
         "update dashboard controls which show self.currentFrame or self.totalFramesActual"
-        self.win.frameNumberSL.setMaxValue(self.totalFramesActual)      
+        self.win.frameNumberSL.setMaximum(self.totalFramesActual)      
 
 #        self.win.movieProgressBar.setTotalSteps(self.totalFramesActual) # Progress bar
 #        self.win.movieProgressBar.setProgress(self.currentFrame)
 
-        self.win.frameNumberSB.setMaxValue(self.totalFramesActual)
+        self.win.frameNumberSB.setMaximum(self.totalFramesActual)
         
-        self.win.skipSB.setMaxValue(self.totalFramesActual) #ninad060928 fixed bug 2285
-
+        self.win.skipSB.setMaximum(self.totalFramesActual) #ninad060928 fixed bug 2285
+        
         self.update_dashboard_currentFrame()
-
+      
         flabel = "Frame (" + str(self.totalFramesActual) + " total):"
         self.win.frameLabel.setText(flabel) # Spinbox label
         return

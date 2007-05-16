@@ -1,22 +1,30 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 LinearMotorProp.py
 
 $Id$
 """
 
-from qt import *
+from PyQt4.Qt import *
 from LinearMotorPropDialog import *
-from widgets import RGBf_to_QColor, QColor_to_RGBf
+from widgets import RGBf_to_QColor, QColor_to_RGBf, get_widget_with_color_palette
 import copy
 
-class LinearMotorProp(LinearMotorPropDialog):
+class LinearMotorProp(QDialog, Ui_LinearMotorPropDialog):
     def __init__(self, motor, glpane):
 
-        LinearMotorPropDialog.__init__(self)
+        QWidget.__init__(self)
+        self.setupUi(self)
+        
+        self.connect(self.cancel_btn,SIGNAL("clicked()"),self.reject)
+        self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
+        self.connect(self.choose_color_btn,SIGNAL("clicked()"),self.change_jig_color)
+        self.connect(self.lengthLineEdit,SIGNAL("returnPressed()"),self.change_motor_size)
+        self.connect(self.widthLineEdit,SIGNAL("returnPressed()"),self.change_motor_size)
+        self.connect(self.sradiusLineEdit,SIGNAL("returnPressed()"),self.change_motor_size)
         self.jig = motor
         self.glpane = glpane
-        QWhatsThis.add(self.forceLineEdit, """<b>Force </b><p>Simulations will begin with the motor's force
+        self.forceLineEdit.setWhatsThis("""<b>Force </b><p>Simulations will begin with the motor's force
         set to this
         value. On each simulation time step, the displacement of the linear motor's atoms are computed using Hooke's
         Law, where:</p>
@@ -29,9 +37,9 @@ class LinearMotorProp(LinearMotorPropDialog):
         <p>When Stiffness = 0, the restoring force is 0 and the displacement
         will
         continue in one direction.</p>""")
-        QWhatsThis.add(self.nameLineEdit, """<b>Name</b><p>Name of Linear Motor that appears in the Model
+        self.nameLineEdit.setWhatsThis("""<b>Name</b><p>Name of Linear Motor that appears in the Model
         Tree</p>""")
-        QWhatsThis.add(self.stiffnessLineEdit, """<b>Stiffness </b><p>Simulations will begin with the motor's stiffness
+        self.stiffnessLineEdit.setWhatsThis("""<b>Stiffness </b><p>Simulations will begin with the motor's stiffness
         set to this
         value. On each simulation time step, the displacement of the linear motor's atoms are computed using Hooke's
         Law, where:</p>
@@ -44,10 +52,10 @@ class LinearMotorProp(LinearMotorPropDialog):
         <p>When Stiffness = 0, the restoring force is 0 and the displacement
         will
         continue in one direction.</p>""")
-        QWhatsThis.add(self.textLabel1_5, """<b>Enable in Minimize <i>(experimental)</i></b><p>If checked,
+        self.textLabel1_5.setWhatsThis("""<b>Enable in Minimize <i>(experimental)</i></b><p>If checked,
         the force specified above will be applied to the motor's atoms during a structure minimization.  While intended to allow
         simulations to begin with linear motors running at speed, this feature requires more work to be useful.</p>""")
-        QWhatsThis.add(self.enable_minimize_checkbox, """<b>Enable in Minimize <i>(experimental)</i></b><p>If checked,
+        self.enable_minimize_checkbox.setWhatsThis("""<b>Enable in Minimize <i>(experimental)</i></b><p>If checked,
         the force specified above will be applied to the motor's atoms during a structure minimization.  While intended to allow
         simulations to begin with linear motors running at speed, this feature requires more work to be useful.</p>""")
 
@@ -57,8 +65,8 @@ class LinearMotorProp(LinearMotorPropDialog):
         
         # Jig color
         self.jig_QColor = RGBf_to_QColor(self.jig.normcolor) # Used as default color by Color Chooser
-        self.jig_color_pixmap.setPaletteBackgroundColor(self.jig_QColor)
-
+        self.jig_color_pixmap = get_widget_with_color_palette(
+            self.jig_color_pixmap, self.jig_QColor)
         self.nameLineEdit.setText(self.jig.name)
         self.stiffnessLineEdit.setText(str(self.jig.stiffness))
         self.forceLineEdit.setText(str(self.jig.force))
@@ -66,14 +74,15 @@ class LinearMotorProp(LinearMotorPropDialog):
         self.widthLineEdit.setText(str(self.jig.width))
         self.sradiusLineEdit.setText(str(self.jig.sradius)) # spoke radius
         self.enable_minimize_checkbox.setChecked(self.jig.enable_minimize)
-
+   
     def change_jig_color(self):
         '''Slot method to change the jig's color.'''
-        color = QColorDialog.getColor(self.jig_QColor, self, "ColorDialog")
+        color = QColorDialog.getColor(self.jig_QColor, self)
 
-        if color.isValid():
-            self.jig_color_pixmap.setPaletteBackgroundColor(color)
+        if color.isValid():            
             self.jig_QColor = color
+            self.jig_color_pixmap = get_widget_with_color_palette(
+            self.jig_color_pixmap, self.jig_QColor)
             self.jig.color = self.jig.normcolor = QColor_to_RGBf(color)
             self.glpane.gl_update()
             

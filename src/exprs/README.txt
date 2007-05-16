@@ -1,5 +1,6 @@
 cad/src/exprs/README.txt
 
+ Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 # $Id$
 
 Note: this directory cad/src/exprs will someday become a python package in NE1,

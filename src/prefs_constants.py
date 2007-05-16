@@ -1,4 +1,4 @@
-# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 '''
 prefs_constants.py
 
@@ -27,9 +27,10 @@ from constants import *
 # for the compass position and relate directly to the radio button group values for the options 
 # presented in the Prefences/General dialog.  Do not change the value of these 4 constants!
 # Mark 050919.
-UPPER_RIGHT = 0
+# UPPER_RIGHT will conflict with the Confirmation Corner when it is implemented in A10.
+UPPER_RIGHT = 0 # May need to remove this option in A10. Mark 2007-05-07.
 UPPER_LEFT = 1
-LOWER_LEFT = 2
+LOWER_LEFT = 2 # New default. Mark 2007-05-07
 LOWER_RIGHT = 3
 
 # View Projection Types
@@ -93,6 +94,12 @@ Adjust_endMax_prefs_key = 'A8/End Max Adjust'
 Adjust_cutoverRMS_prefs_key = 'A8/Cutover RMS Adjust'
 Adjust_cutoverMax_prefs_key = 'A8/Cutover Max Adjust'
 
+#Ninad 20070509 Adjust , Minimize and Simulation(Dynamics) Preferences for DNA 
+#reduced model(Enable or disable elecrostatics)
+electrostaticsForDnaDuringAdjust_prefs_key = 'A9/ Electrostatics for Dna During Adjust'
+electrostaticsForDnaDuringMinimize_prefs_key = 'A9/ Electrostatics For Dna During Minimize'
+electrostaticsForDnaDuringDynamics_prefs_key = 'A9/ Electrostatics For Dna During Simulation'
+
 # Minimize prefs for Minimize Energy dialog (independent settings, different defaults) [bruce 060705]
 Minimize_watchRealtimeMinimization_prefs_key = 'A8/Watch Realtime Minimization Minimize'
 Minimize_endRMS_prefs_key = 'A8/End RMS Minimize' 
@@ -119,6 +126,7 @@ bondStretchColor_prefs_key = 'A6/Bond Stretch Color'
 bondVaneColor_prefs_key = 'A6/Bond Vane Color'
 diBALL_bondcolor_prefs_key = 'A6/Bond CPK Color' # this is about diBALL, not CPK [bruce 060607 comment]
     #bruce 060607 renamed bondCPKColor_prefs_key -> diBALL_bondcolor_prefs_key ###DOIT
+showBondStretchIndicators_prefs_key = 'A9/ Show Bond Stretch Indicators'
 pibondStyle_prefs_key = 'A6/Pi Bond Style'
 pibondLetters_prefs_key = 'A6/Pi Bond Letters'
 showValenceErrors_prefs_key = 'A6/Show Valence Errors'
@@ -127,6 +135,10 @@ linesDisplayModeThickness_prefs_key = 'A7/Line Thickness for Lines Display Mode'
 #CPK cylinder radius (percentage), mark 051003
 diBALL_BondCylinderRadius_prefs_key = 'A7/CPK Cylinder Radius Percentage' # about diBALL, called Ball and Stick as of 060307
     #bruce 060607 renamed cpkCylinderRadius_prefs_key -> diBALL_BondCylinderRadius_prefs_key ###DOIT
+
+arrowsOnBackBones_prefs_key = 'A9/ Show arrows on all directional bonds' 
+arrowsOnThreePrimeEnds_prefs_key = 'A9/ Show three prime ends as out arrow heads'
+arrowsOnFivePrimeEnds_prefs_key = 'A9/ Show five prime ends as in arrow heads'
 
 # Modes prefs [added by mark 050910]
 # The background style and color for each mode is initialized in init_prefs()
@@ -185,8 +197,17 @@ captionFullPath_prefs_key = 'A6/Caption Full Path'
 # Bug-workaround prefs, Mac-specific
 
 QToolButton_MacOSX_Tiger_workaround_prefs_key = 'A6/QToolButton MacOSX Tiger workaround' #bruce 050810
-sponsor_download_permission_prefs_key = 'A8/Sponsor download permission'
-sponsor_permanent_permission_prefs_key = 'A8/Sponsor download permission is permanent'
+
+sponsor_download_permission_prefs_key   = 'A8/Sponsor download permission'
+sponsor_permanent_permission_prefs_key  = 'A8/Sponsor download permission is permanent'
+
+# The following key is not a user preference, it's a state variable that is used
+# to keep track of when the sponsor logos files change. This will go away once
+# Sponsors.py is re-written to incorporate a thread-safe main program
+# event/command queue that can be utilized to throw up a download-permission
+# dialog at the same time new logos files are detected.
+#
+sponsor_md5_mismatch_flag_key           = 'A9/Sponsor md5 file mismatch'
 
 #==
 
@@ -275,7 +296,7 @@ prefs_table = (
 
     ('display_compass', 'boolean', displayCompass_prefs_key, True),
     ('display_compass_labels', 'boolean', displayCompassLabels_prefs_key, True),
-    ('display_position', 'int', compassPosition_prefs_key, UPPER_RIGHT),
+    ('display_position', 'int', compassPosition_prefs_key, LOWER_LEFT), # Mark 2007-0507.
     ('display_origin_axis', 'boolean', displayOriginAxis_prefs_key, True),
     ('display_pov_axis', 'boolean', displayPOVAxis_prefs_key, False),
     ('default_projection', 'int', defaultProjection_prefs_key, ORTHOGRAPHIC), # Changed to Ortho. Mark 051029.
@@ -290,7 +311,15 @@ prefs_table = (
     ('display origin as small axis', 'boolean', displayOriginAsSmallAxis_prefs_key, True), #Ninad 060920
     ('zoom to screen center', 'boolean', zoomAboutScreenCenter_prefs_key, False), # Ninad 060924
     
-
+    #Ninad 20070509 Adjust,Minimize and Simulation(Dynamics)preferences for DNA 
+    #reduced model(enable or disable elecrostatics)
+    ('Electrostatics for Dna During Adjust','boolean',
+     electrostaticsForDnaDuringAdjust_prefs_key, False),
+    ('Electrostatics For Dna During Minimize', 'boolean',
+     electrostaticsForDnaDuringMinimize_prefs_key, True),
+    ('Electrostatics For Dna During Simulation', 'boolean',
+     electrostaticsForDnaDuringDynamics_prefs_key, True),
+   
     # Minimize prefs (some are in General prefs pane, some are in dialogs)
     # [mark 060627, revised & extended by bruce 060628, 060705 for A8]
     # (none yet are specific to Adjust Atoms aka Local Minimize)
@@ -335,6 +364,10 @@ prefs_table = (
     ('',               'color', diBALL_bondcolor_prefs_key, _default_bondColor),
 
     # Bond preferences - other
+    
+    #ninad 070430 Enable or disable display of bond stretch indicators --
+    ('show_bond_stretch_indicators', 'boolean', 
+     showBondStretchIndicators_prefs_key, True),   
 
     ('pi_bond_style',   ['multicyl','vane','ribbon'],  pibondStyle_prefs_key,   'multicyl' ),
     ('pi_bond_letters', 'boolean',                     pibondLetters_prefs_key, False ),
@@ -342,10 +375,25 @@ prefs_table = (
     ('', 'int', linesDisplayModeThickness_prefs_key, 1), #mark 050831 made this up
     ('', 'float', diBALL_BondCylinderRadius_prefs_key, 1.0), #mark 051003
     
+    #ninad070504: Enable or disable display of arrow heads in DNA reduced model 
+    #representation
+    
+    ('show_arrows_on_all_directional_bonds', 'boolean', 
+     arrowsOnBackBones_prefs_key, True), 
+    
+    ('show_three_prime_ends_as_out_arrow_heads', 'boolean', 
+     arrowsOnThreePrimeEnds_prefs_key, True), 
+    
+    ('show_five_prime_ends_as_in_arrow_heads', 'boolean', 
+     arrowsOnFivePrimeEnds_prefs_key, True), 
+    
     # Modes preferences [added to this table by mark 050910]
     
     ('startup_mode', 'string', startupMode_prefs_key,   '$DEFAULT_MODE' ),
-    ('default_mode', 'string', defaultMode_prefs_key,   'DEPOSIT' ), # as suggested by Eric.  Mark 051028.
+    ##('default_mode', 'string', defaultMode_prefs_key,   'DEPOSIT' ), # as suggested by Eric.  Mark 051028.
+    #ninad070430:  made select chunks mode the only startup and defasult option 
+    #for A9  based on discussion
+    ('default_mode', 'string', defaultMode_prefs_key,   'SELECTMOLS' ), 
     ('buildmode_autobond', 'boolean', buildModeAutobondEnabled_prefs_key, True ), # mark 060203.
     ('buildmode_water', 'boolean', buildModeWaterEnabled_prefs_key, False ), # mark 060218.
     ('buildmode_highlighting', 'boolean', buildModeHighlightingEnabled_prefs_key, True ), # mark 060203.
@@ -399,8 +447,10 @@ prefs_table = (
     # ...
 
     ('', 'boolean', QToolButton_MacOSX_Tiger_workaround_prefs_key, False ), #bruce 050810
+    
     ('', 'boolean', sponsor_download_permission_prefs_key, False ),
     ('', 'boolean', sponsor_permanent_permission_prefs_key, False ),
+    ('', 'boolean', sponsor_md5_mismatch_flag_key, True ),
     
     # Dynamic Tooltip preferences [added to this table by ninad 060818]
     ('wake_up_delay', 'float', dynamicToolTipWakeUpDelay_prefs_key, 1.0), # 1 second. Mark 060817.

@@ -1,5 +1,8 @@
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 """
+
 $Id$
+
 """
 
 from exprs.basic import *

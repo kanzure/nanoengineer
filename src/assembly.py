@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 
 """
 assembly.py -- provides class assembly, for everything stored in one file,
@@ -73,6 +73,7 @@ import re
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from struct import unpack
+from qt4transition import *
 
 from chem import *
     # is this still needed? Yes, not by this file but by selectMode needing Atom. That should be fixed so this can be removed.
@@ -162,7 +163,7 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
         
         # the MWsemantics displaying this assembly (or None, when called from ThumbView)
         self.w = win
-        # self.mt = win.modelTreeView
+        # self.mt = win.modelTreeView [or win.mt, probably the same thing, not 100% clear -- bruce 070503 comment]
         # self.o = win.glpane
         #  ... done in MWsemantics to avoid a circularity
         
@@ -183,8 +184,12 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
             # so any fix like that is more unclear than just having our __init__-caller pass us this flag.
             assert self.w
             global _assy_owning_win
-            if _assy_owning_win is not None:
-                _assy_owning_win.deinit() # make sure assys don't fight over control of main menus, etc [bruce 060122]
+            from debug_prefs import debug_pref, Choice_boolean_False
+            if not debug_pref("Multipane GUI", Choice_boolean_False):
+                # wware 20061115 - we need to permit assys to coexist
+                if _assy_owning_win is not None:
+                    _assy_owning_win.deinit()
+                    # make sure assys don't fight over control of main menus, etc [bruce 060122]
             _assy_owning_win = self
 
             want_undo_manager = True #bruce 060223: don't actually make one until init of all state attrs is complete

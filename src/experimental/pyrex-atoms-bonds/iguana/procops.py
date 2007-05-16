@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2006 Nanorex, Inc. All rights reserved.
+# Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
 # $Id$
 
 import string, os, sys, re

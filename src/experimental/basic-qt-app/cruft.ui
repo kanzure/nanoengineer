@@ -1,72 +1,52 @@
-<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
-<class>Cruft</class>
-<widget class="QDialog">
-    <property name="name">
-        <cstring>Cruft</cstring>
-    </property>
-    <property name="geometry">
-        <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>689</width>
-            <height>541</height>
-        </rect>
-    </property>
-    <property name="caption">
-        <string>Cruft</string>
-    </property>
-    <widget class="QFrame">
-        <property name="name">
-            <cstring>frame1</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>20</x>
-                <y>20</y>
-                <width>640</width>
-                <height>450</height>
-            </rect>
-        </property>
-        <property name="minimumSize">
-            <size>
-                <width>400</width>
-                <height>300</height>
-            </size>
-        </property>
-        <property name="frameShape">
-            <enum>StyledPanel</enum>
-        </property>
-        <property name="frameShadow">
-            <enum>Raised</enum>
-        </property>
-    </widget>
-    <widget class="QPushButton">
-        <property name="name">
-            <cstring>pushButton1</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>280</x>
-                <y>480</y>
-                <width>111</width>
-                <height>41</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>Quit</string>
-        </property>
-    </widget>
-</widget>
-<connections>
-    <connection>
-        <sender>pushButton1</sender>
-        <signal>clicked()</signal>
-        <receiver>Cruft</receiver>
-        <slot>pushButton1_clicked()</slot>
-    </connection>
-</connections>
-<slots>
-    <slot>pushButton1_clicked()</slot>
-</slots>
-<layoutdefaults spacing="6" margin="11"/>
-</UI>
+<ui version="4.0" >
+ <author></author>
+ <comment></comment>
+ <exportmacro></exportmacro>
+ <class>Cruft</class>
+ <widget class="QDialog" name="Cruft" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>252</width>
+    <height>157</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Cruft</string>
+  </property>
+  <widget class="QPushButton" name="pushButton1" >
+   <property name="geometry" >
+    <rect>
+     <x>70</x>
+     <y>90</y>
+     <width>111</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="whatsThis" >
+    <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;/head>&lt;body style=" white-space: pre-wrap; font-family:Sans Serif; font-size:9pt; font-weight:400; font-style:normal; text-decoration:none;">&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">This is a QUIT button.&lt;/p>&lt;/body>&lt;/html></string>
+   </property>
+   <property name="text" >
+    <string>Quit</string>
+   </property>
+  </widget>
+  <widget class="QTextBrowser" name="textBrowser" >
+   <property name="geometry" >
+    <rect>
+     <x>20</x>
+     <y>20</y>
+     <width>211</width>
+     <height>52</height>
+    </rect>
+   </property>
+   <property name="readOnly" >
+    <bool>false</bool>
+   </property>
+  </widget>
+ </widget>
+ <layoutdefault spacing="6" margin="11" />
+ <pixmapfunction>qPixmapFromMimeSource</pixmapfunction>
+ <resources/>
+ <connections/>
+</ui>

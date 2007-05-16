@@ -1,4 +1,4 @@
-# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2005-2006 Nanorex, Inc.  See LICENSE file for details. 
 """
 moviefile.py -- classes and other code for interpreting movie files
 (of various formats, once we have them)

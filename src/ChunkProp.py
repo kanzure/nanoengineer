@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 ChunkProp.py
 
@@ -10,16 +10,26 @@ History: Original code from MoleculeProps.py and cleaned up by Mark.
 
 __author__ = "Mark"
 
-from qt import *
+from PyQt4.Qt import *
 from constants import *
 from ChunkPropDialog import *
 from widgets import RGBf_to_QColor, QColor_to_RGBf
+from qt4transition import *
 
-class ChunkProp(ChunkPropDialog):
+class ChunkProp(QDialog, Ui_ChunkPropDialog):
     def __init__(self, chunk):
-        ChunkPropDialog.__init__(self)
+        QDialog.__init__(self)
+        self.setupUi(self)
+        
         self.chunk = chunk
         self.glpane = chunk.glpane
+        
+        self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
+        self.connect(self.cancel_btn,SIGNAL("clicked()"),self.reject)
+        self.connect(self.reset_color_btn,SIGNAL("clicked()"),self.reset_chunk_color)
+        self.connect(self.choose_color_btn,SIGNAL("clicked()"),self.change_chunk_color)
+        self.connect(self.make_atoms_visible_btn,SIGNAL("clicked()"),self.make_atoms_visible)
+        
         self.setup()
 
     def setup(self):
@@ -30,12 +40,16 @@ class ChunkProp(ChunkPropDialog):
         if self.chunk.color: # Set colortile to chunk color (without border)
             self.chunk_QColor = RGBf_to_QColor(self.chunk.color) # Used as default color by Color Chooser
         else: # Set the colortile to the dialog's bg color (no color)
-            self.chunk_QColor = self.paletteBackgroundColor()
-        self.chunk_color_frame.setPaletteBackgroundColor(self.chunk_QColor)
-
-        self.nameLineEdit.setText(self.chunk.name)
+            self.chunk_QColor =self.palette().color(QtGui.QPalette.Window)
         
-        self.atomsTextBrowser.setText(self.get_chunk_props_info())
+        plt = QtGui.QPalette()      
+        plt.setColor(QtGui.QPalette.Active,QtGui.QPalette.Window,self.chunk_QColor)
+        plt.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.Window,self.chunk_QColor)
+        plt.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.Window,self.chunk_QColor)        
+        self.chunk_color_frame.setPalette(plt)
+        
+        self.nameLineEdit.setText(self.chunk.name)        
+        self.atomsTextBrowser.setPlainText(self.get_chunk_props_info())
         
     def get_chunk_props_info(self):
         "Return chunk properties information."
@@ -70,22 +84,38 @@ class ChunkProp(ChunkPropDialog):
             
     def change_chunk_color(self):
         '''Slot method to change the chunk's color.'''
-        color = QColorDialog.getColor(self.chunk_QColor, self, "ColorDialog")
-
+        color = QColorDialog.getColor(self.chunk_QColor, self)
+        
         if color.isValid():
-            self.chunk_color_frame.setPaletteBackgroundColor(color)
+            plt = QtGui.QPalette()      
+            plt.setColor(QtGui.QPalette.Active,QtGui.QPalette.Window,color)
+            plt.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.Window,color)
+            plt.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.Window,color)
+            self.chunk_color_frame.setPalette(plt)
+            
             self.chunk_QColor = color
             self.chunk.color = QColor_to_RGBf(color)
             self.chunk.setcolor(self.chunk.color)
             if self.chunk.hidden: # A hidden chunk has no glpane attr.
-                return
+                return            
+            #Ninad 070321: 
+            #Note:
+            #The chunk is NOT unpicked immediately after changing the color via 
+            #chunk property dialog, This is intentional. 
+            #BTW I don't know why it deselects the chunk  after hitting OK or Cancel!
+            #(looks like an old Qt4 transition bug) 
             self.glpane.gl_update()
 
     def reset_chunk_color(self):
         '''Slot method to reset the chunk's color.'''
         if not self.chunk.color: return
-        self.chunk_QColor = self.paletteBackgroundColor()
-        self.chunk_color_frame.setPaletteBackgroundColor(self.chunk_QColor)
+        self.chunk_QColor = self.palette().color(QtGui.QPalette.Window)
+        plt = QtGui.QPalette()      
+        plt.setColor(QtGui.QPalette.Active,QtGui.QPalette.Window,self.chunk_QColor)
+        plt.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.Window,self.chunk_QColor)
+        plt.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.Window,self.chunk_QColor)
+        self.chunk_color_frame.setPalette(plt)
+        
         self.chunk.color = None
         self.chunk.setcolor(self.chunk.color)
         if self.chunk.hidden: # A hidden chunk has no glpane attr.
@@ -104,8 +134,7 @@ class ChunkProp(ChunkPropDialog):
         '''Slot for the 'OK' button '''
         self.chunk.try_rename(self.nameLineEdit.text())
         self.chunk.assy.w.win_update() # Update model tree
-        self.chunk.assy.changed()
-        
+        self.chunk.assy.changed()        
         QDialog.accept(self)
         
     def reject(self):
@@ -119,5 +148,5 @@ class ChunkProp(ChunkPropDialog):
         # A hidden chunk has no glpane attr.  This fixes bug 1137.  Mark 051126.
         if self.chunk.hidden:
             return
-            
+
         self.glpane.gl_update()

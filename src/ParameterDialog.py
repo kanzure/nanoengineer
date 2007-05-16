@@ -1,4 +1,4 @@
-# Copyright (c) 2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 '''
 ParameterDialog.py -- generate dialogs for editing sets of parameters,
 from descriptions of the parameters and of how to edit them,
@@ -19,7 +19,7 @@ __author__ = "bruce"
 # Actually they won't be...
 
 
-from qt import *
+from PyQt4.Qt import *
 
 from generator_button_images import image0_data,  image1_data,  image2_data,  image3_data,  image4_data,  image5_data,  image6_data,  image7_data
 
@@ -33,11 +33,11 @@ import env # for env.debug(); warning: some methods have a local variable which 
 # image uses -- we should rename them ####@@@@
 ##self.heading_pixmap.setPixmap(self.image1) # should be: title_icon ####
 ##self.sponsor_btn.setPixmap(self.image2)
-##self.done_btn.setIconSet(QIconSet(self.image3))
-##self.abort_btn.setIconSet(QIconSet(self.image4))
-##self.preview_btn.setIconSet(QIconSet(self.image5))
-##self.whatsthis_btn.setIconSet(QIconSet(self.image6))
-##self.nt_parameters_grpbtn.setIconSet(QIconSet(self.image7))
+##self.done_btn.setIcon(QIcon(self.image3))
+##self.abort_btn.setIcon(QIcon(self.image4))
+##self.preview_btn.setIcon(QIcon(self.image5))
+##self.whatsthis_btn.setIcon(QIcon(self.image6))
+##self.nt_parameters_grpbtn.setIcon(QIcon(self.image7))
         
 ## class parameter_dialog(QDialog): # was nanotube_dialog
 class parameter_dialog_or_frame:
@@ -143,19 +143,19 @@ class parameter_dialog_or_frame:
         layout59.addItem(left_spacer)
 
         self.done_btn = QToolButton(self.body_frame,"done_btn")
-        self.done_btn.setIconSet(QIconSet(self.image3))
+        self.done_btn.setIcon(QIcon(self.image3))
         layout59.addWidget(self.done_btn)
 
         self.abort_btn = QToolButton(self.body_frame,"abort_btn")
-        self.abort_btn.setIconSet(QIconSet(self.image4))
+        self.abort_btn.setIcon(QIcon(self.image4))
         layout59.addWidget(self.abort_btn)
 
         self.preview_btn = QToolButton(self.body_frame,"preview_btn")
-        self.preview_btn.setIconSet(QIconSet(self.image5))
+        self.preview_btn.setIcon(QIcon(self.image5))
         layout59.addWidget(self.preview_btn)
 
         self.whatsthis_btn = QToolButton(self.body_frame,"whatsthis_btn")
-        self.whatsthis_btn.setIconSet(QIconSet(self.image6))
+        self.whatsthis_btn.setIcon(QIcon(self.image6))
         layout59.addWidget(self.whatsthis_btn)
         right_spacer = QSpacerItem(20,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout59.addItem(right_spacer)
@@ -186,7 +186,7 @@ class parameter_dialog_or_frame:
             self.nt_parameters_grpbtn.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Fixed,0,0,self.nt_parameters_grpbtn.sizePolicy().hasHeightForWidth()))
             self.nt_parameters_grpbtn.setMaximumSize(QSize(16,16))
             self.nt_parameters_grpbtn.setAutoDefault(0)
-            self.nt_parameters_grpbtn.setIconSet(QIconSet(self.image7)) ### not always right, but doesn't matter
+            self.nt_parameters_grpbtn.setIcon(QIcon(self.image7)) ### not always right, but doesn't matter
             self.nt_parameters_grpbtn.setFlat(1)
             layout20.addWidget(self.nt_parameters_grpbtn)
 
@@ -226,7 +226,8 @@ class parameter_dialog_or_frame:
                     #e following should be known in a place that knows the input language, not here
                     paramname = param.options.get('name') or (param.args and param.args[0]) or "?"
                     paramlabel = param.options.get('label') or paramname ##e wrong, label "" or none ought to be possible
-                    label.setText(self.__tr(paramlabel))
+                    # QtGui.QApplication.translate(self.__class__.__name__, "xyz")
+                    label.setText(QtGui.QApplication.translate(self.__class__.__name__, paramlabel))
                     
                 if param.isa('parameter', widget = 'combobox', type = ('str',None)):
                     self.members_combox = QComboBox(0,self.parameters_grpbox,"members_combox") ###k  what's 0?
@@ -238,13 +239,13 @@ class parameter_dialog_or_frame:
                     for item in thewidgetkid.kids('item'):
                         itemval = item.args[0]
                         itemtext = itemval
-                        self.members_combox.insertItem(self.__tr(itemtext)) #k __tr ok??
+                        self.members_combox.insertItem(QtGui.QApplication.translate(self.__class__.__name__, itemtext)) #k __tr ok??
                         if itemval == default: #k or itemtext?
                             pass ##k i find no setItem in our py code, so not sure yet what to do for this.
                     nt_parameters_body_layout.addWidget(self.members_combox,thisrow,1)
                     hidethese.append(self.members_combox)
                     getter = (lambda combobox = self.members_combox: str(combobox.currentText()))
-                        ##e due to __tr or non-str values, it might be better to use currentItem and look it up in a table
+                        ##e due to __tr or non-str values, it might be better to use currentIndex and look it up in a table
                         # (though whether __tr is good here might depend on what it's used for)
                                     
                 elif param.isa('parameter', widget = ('lineedit', None), type = ('str',None)):
@@ -255,7 +256,7 @@ class parameter_dialog_or_frame:
                     nt_parameters_body_layout.addWidget(self.length_linedit,thisrow,1)
                     hidethese.append(self.length_linedit)
                     default = str(param.options.get('default', ""))
-                    self.length_linedit.setText(self.__tr(default)) # __tr ok?
+                    self.length_linedit.setText(QtGui.QApplication.translate(self.__class__.__name__, default)) # __tr ok?
                     getter = (lambda lineedit = self.length_linedit: str(lineedit.text()))
                     
                 elif param.isa('parameter', widget = ('lineedit', None), type = 'float'):
@@ -273,14 +274,14 @@ class parameter_dialog_or_frame:
                     editfield = self.chirality_N_spinbox
                     ### seems like Qt defaults for min and max are 0,100 -- way too small a range!
                     if param.options.has_key('min') or 1:
-                        self.chirality_N_spinbox.setMinValue(param.options.get('min', -999999999)) # was 0
+                        self.chirality_N_spinbox.setMinimum(param.options.get('min', -999999999)) # was 0
                     if param.options.has_key('max') or 1:
-                        self.chirality_N_spinbox.setMaxValue(param.options.get('max', +999999999)) # wasn't in egcode, but needed
+                        self.chirality_N_spinbox.setMaximum(param.options.get('max', +999999999)) # wasn't in egcode, but needed
                     self.chirality_N_spinbox.setValue(param.options.get('default', 0)) # was 5
                         ##e note: i suspect this default 0 should come from something that knows this desc grammar.
                     suffix = param.options.get('suffix', '')
                     if suffix:
-                        self.chirality_N_spinbox.setSuffix(self.__tr(suffix))
+                        self.chirality_N_spinbox.setSuffix(QtGui.QApplication.translate(self.__class__.__name__, suffix))
                     else:
                         self.chirality_N_spinbox.setSuffix(QString.null) # probably not needed
                     nt_parameters_body_layout.addWidget(self.chirality_N_spinbox,thisrow,1)
@@ -297,9 +298,9 @@ class parameter_dialog_or_frame:
                     ###e do it for more kinds of params; share the code somehow; do it in controller, or setup-aid?
                     ###k QToolTip appropriateness; tooltip option might be entirely untested
                     if tooltip and label:
-                        QToolTip.add(label, self.__tr(tooltip))
+                        QToolTip.add(label, QtGui.QApplication.translate(self.__class__.__name__, tooltip))
                     if tooltip and editfield:
-                        QToolTip.add(editfield, self.__tr(tooltip)) ##k ok?? review once not all params have same-row labels.
+                        QToolTip.add(editfield, QtGui.QApplication.translate(self.__class__.__name__, tooltip)) ##k ok?? review once not all params have same-row labels.
                 
                 if getter and paramname and paramname != '?':
                     self.param_getters[paramname] = getter
@@ -317,7 +318,7 @@ class parameter_dialog_or_frame:
             if 1: # i don't know if these are needed:
                 self.parameters_grpbox.setTitle(QString.null)
                 self.nt_parameters_grpbtn.setText(QString.null)
-            self.parameters_grpbox_label.setText(self.__tr(group_desc.args[0])) # was "Nanotube Parameters"
+            self.parameters_grpbox_label.setText(QtGui.QApplication.translate(self.__class__.__name__, group_desc.args[0])) # was "Nanotube Parameters"
                 ##e note that it's questionable in the syntax design for this property of a group (overall group label)
                 # to be in that position (desc arg 0).
         
@@ -350,7 +351,7 @@ class parameter_dialog_or_frame:
         self.languageChange()
 
         self.resize(QSize(246,618).expandedTo(self.minimumSizeHint())) ### this size will need to be adjusted (guess -- it's only place overall size is set)
-        self.clearWState(Qt.WState_Polished)
+        qt4todo('self.clearWState(Qt.WState_Polished)')
 
         ## self.connect(self.nt_parameters_grpbtn,SIGNAL("clicked()"),self.toggle_nt_parameters_grpbtn) ####
 
@@ -370,47 +371,42 @@ class parameter_dialog_or_frame:
     def languageChange(self):
         opts = self.desc.option_attrs
         
-        self.setCaption(self.__tr(opts.caption)) # was "Nanotube"
-        self.heading_label.setText(self.__tr(opts.title)) # was "Nanotube"
+        self.setCaption(QtGui.QApplication.translate(self.__class__.__name__, opts.caption)) # was "Nanotube"
+        self.heading_label.setText(QtGui.QApplication.translate(self.__class__.__name__, opts.title)) # was "Nanotube"
         self.sponsor_btn.setText(QString.null)
         
         self.done_btn.setText(QString.null)
-        QToolTip.add(self.done_btn,self.__tr("Done"))
+        QToolTip.add(self.done_btn,QtGui.QApplication.translate(self.__class__.__name__, "Done"))
         
         self.abort_btn.setText(QString.null)
-        QToolTip.add(self.abort_btn,self.__tr("Cancel"))
+        QToolTip.add(self.abort_btn,QtGui.QApplication.translate(self.__class__.__name__, "Cancel"))
         
         self.preview_btn.setText(QString.null)
-        QToolTip.add(self.preview_btn,self.__tr("Preview"))
+        QToolTip.add(self.preview_btn,QtGui.QApplication.translate(self.__class__.__name__, "Preview"))
         
         self.whatsthis_btn.setText(QString.null)
-        QToolTip.add(self.whatsthis_btn,self.__tr("What's This Help"))
+        QToolTip.add(self.whatsthis_btn,QtGui.QApplication.translate(self.__class__.__name__, "What's This Help"))
 
         ### move these up:
 ##        if 0:
 ##            self.parameters_grpbox.setTitle(QString.null)
 ##            self.nt_parameters_grpbtn.setText(QString.null)
-##            self.parameters_grpbox_label.setText(self.__tr("Nanotube Parameters"))
+##            self.parameters_grpbox_label.setText(QtGui.QApplication.translate(self.__class__.__name__, "Nanotube Parameters"))
 
 ##        if 0:
-##            self.members_label.setText(self.__tr("Members :"))
-##            self.length_label.setText(self.__tr("Length :"))
-##            self.chirality_n_label.setText(self.__tr("Chirality (n) :"))
+##            self.members_label.setText(QtGui.QApplication.translate(self.__class__.__name__, "Members :"))
+##            self.length_label.setText(QtGui.QApplication.translate(self.__class__.__name__, "Length :"))
+##            self.chirality_n_label.setText(QtGui.QApplication.translate(self.__class__.__name__, "Chirality (n) :"))
 ##            self.members_combox.clear()
-##            self.members_combox.insertItem(self.__tr("C - C"))
-##            self.members_combox.insertItem(self.__tr("B - N"))
-##            self.length_linedit.setText(self.__tr("20.0 A"))
+##            self.members_combox.insertItem(QtGui.QApplication.translate(self.__class__.__name__, "C - C"))
+##            self.members_combox.insertItem(QtGui.QApplication.translate(self.__class__.__name__, "B - N"))
+##            self.length_linedit.setText(QtGui.QApplication.translate(self.__class__.__name__, "20.0 A"))
 ##            self.chirality_N_spinbox.setSuffix(QString.null)
 
-        self.cancel_btn.setText(self.__tr("Cancel"))
-        self.ok_btn.setText(self.__tr("OK"))
+        self.cancel_btn.setText(QtGui.QApplication.translate(self.__class__.__name__, "Cancel"))
+        self.ok_btn.setText(QtGui.QApplication.translate(self.__class__.__name__, "OK"))
         return
     
-    def __tr(self,s,c = None):
-        return qApp.translate("nanotube_dialog",s,c)
-
-    _tr = __tr # for access from other objects
-
     pass # end of class parameter_dialog_or_frame -- maybe it should be renamed
 
 # ==
@@ -596,8 +592,8 @@ if __name__ == '__main__': # this has the parsing calls
     w = NTdialog(parent, desc) ### also, env to supply prefs, state to control
     w.show()
     a.connect(a, SIGNAL('lastWindowClosed()'), a, SLOT('quit()'))
-    print "about to exec_loop"
-    a.exec_loop()
+    print "about to exec_"
+    a.exec_()
     
     print "exiting, test done"
     

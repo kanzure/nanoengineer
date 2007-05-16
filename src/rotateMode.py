@@ -1,4 +1,4 @@
-# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2005-2006 Nanorex, Inc.  See LICENSE file for details. 
 """
 rotateMode.py -- rotate mode.
 
@@ -20,7 +20,7 @@ class rotateMode(basicMode):
     
     # init_gui handles all the GUI display when entering this mode [mark 041004
     def init_gui(self):
-        self.w.rotateToolAction.setOn(1) # toggle on the Rotate Tool icon
+        self.w.rotateToolAction.setChecked(1) # toggle on the Rotate Tool icon
         self.o.setCursor(self.w.RotateCursor)
         self.w.rotateDashboard.show()
             
@@ -50,7 +50,7 @@ class rotateMode(basicMode):
             
     # restore_gui handles all the GUI display when leavinging this mode [mark 041004]
     def restore_gui(self):
-        self.w.rotateToolAction.setOn(0) # toggle off the Rotate Tool icon
+        self.w.rotateToolAction.setChecked(0) # toggle off the Rotate Tool icon
         self.w.rotateDashboard.hide()
 
     # mouse and key events

@@ -1,3 +1,4 @@
+// Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
 /*----------------------------------------------------------------------------
 
 Copyright (c) 2000, Brad Grantham and Applied Conjecture. All

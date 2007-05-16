@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2007 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 jigs.py -- Classes for motors and other jigs, and their superclass, Jig.
 
@@ -55,7 +55,7 @@ class Jig(Node):
     #
     # and can optionally redefine some of the following class constants:
     sym = "Jig" # affects name-making code in __init__
-    pickcolor = (1.0, 0.0, 0.0) # color in glpane when picked (default: red)
+    pickcolor = darkgreen # color in glpane when picked. [mark 2007-05-07 modified color]
     mmp_record_name = "#" # if not redefined, this means it's just a comment in an mmp file
     featurename = "" # wiki help featurename for each Jig (or Node) subclass, or "" if it doesn't have one yet [bruce 051201]
         # (Each Jig subclass should override featurename with a carefully chosen name; for a few jigs it should end in "Jig".)
@@ -272,8 +272,10 @@ class Jig(Node):
     
     def pick(self): 
         """select the Jig"""
-        env.history.message(self.getinfo())
-            #bruce 050901 revised this; now done even if jig is killed (might affect fixed bug 451-9)
+        from debug_prefs import debug_pref_History_print_every_selected_object
+        if debug_pref_History_print_every_selected_object(): #bruce 070504 added this condition
+            env.history.message(self.getinfo())
+                #bruce 050901 revised this; now done even if jig is killed (might affect fixed bug 451-9)
         if not self.picked: #bruce 050131 added this condition (maybe good for history.message too?)
             Node.pick(self) #bruce 050131 for Alpha: using Node.pick
             self.normcolor = self.color # bug if this is done twice in a row! [bruce 050131 maybe fixed now due to the 'if']
@@ -627,7 +629,7 @@ class Jig(Node):
             # when changing the jig's color from the properties dialog since it will remain highlighted
             # if we don't do this. mark 060312.
         self.cntl.setup()
-        self.cntl.exec_loop()
+        self.cntl.exec_()
         
     def toggleJigDisabled(self):
         '''Enable/Disable jig.
@@ -670,7 +672,7 @@ class Anchor(Jig):
     '''an Anchor (Ground) just has a list of atoms that are anchored in space'''
 
     sym = "Anchor"
-    icon_names = ["anchor.png", "anchor-hide.png"]
+    icon_names = ["modeltree/anchor.png", "modeltree/anchor-hide.png"]
     featurename = "Anchor" # wiki help featurename [bruce 051201; note that for a few jigs this should end in "Jig"]
     
     # create a blank Anchor with the given list of atoms
@@ -808,7 +810,7 @@ class Stat( Jig_onChunk_by1atom ):
     '''
     #bruce 050210 for Alpha-2: fix bug in Stat record reported by Josh to ne1-users    
     sym = "Stat"
-    icon_names = ["stat.png", "stat-hide.png"]
+    icon_names = ["modeltree/stat.png", "modeltree/stat-hide.png"]
     featurename = "Thermostat" #bruce 051203
 
     copyable_attrs = Jig_onChunk_by1atom.copyable_attrs + ('temp',)
@@ -872,7 +874,7 @@ class Thermo(Jig_onChunk_by1atom):
     '''
     #bruce 050210 for Alpha-2: fixed same bug as in Stat.
     sym = "Thermo"
-    icon_names = ["thermo.png", "thermo-hide.png"]
+    icon_names = ["modeltree/thermo.png", "modeltree/thermo-hide.png"]
     featurename = "Thermometer" #bruce 051203
 
     # creates a thermometer for a specific atom. "list" contains only one atom.
@@ -925,7 +927,7 @@ class AtomSet(Jig):
     '''an Atom Set just has a list of atoms that can be easily selected by the user'''
 
     sym = "Atom Set"
-    icon_names = ["atomset.png", "atomset-hide.png"]
+    icon_names = ["modeltree/atomset.png", "modeltree/atomset-hide.png"]
     featurename = "Atom Set" #bruce 051203
 
     # create a blank AtomSet with the given list of atoms
@@ -1075,16 +1077,20 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         self.assy.w.win_update()
 
     def makegamess(self):
-        """Makes a GAMESS jig...
+        """Makes a GAMESS jig from the selected chunks or atoms.
         """
-        # [bruce 050210 modified docstring]
+        # [mark 2007-05-07 modified docstring]
         
         cmd = greenmsg("Gamess: ")
-
-        atoms = self.assy.selatoms_list() #bruce 051031 change
+        
+        atoms = []
+        
+        # Get a list of atoms from the selected chunks or atoms.
+        atoms = self.assy.selected_atoms_list( include_atoms_in_selected_chunks = True)
         
         if not atoms:
-            env.history.message(cmd + redmsg("At least one atom must be selected to create a Gamess Jig."))
+            env.history.message(cmd + redmsg(
+                "At least one atom must be selected to create a GAMESS Jig."))
             return
         
         # Make sure that no more than 200 atoms are selected.
@@ -1099,7 +1105,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
                 "GAMESS Jigs with more than 50 atoms may take an\n"
                 "excessively long time to compute (days or weeks).\n"
                 "Are you sure you want to continue?",
-                "&Continue", "Cancel", None,
+                "&Continue", "Cancel", "",
                 0, 1 )
                 
             if ret==1: # Cancel
@@ -1116,7 +1122,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         self.unpickall_in_GLPane() # [was unpickatoms -- bruce 060721]
         self.place_new_jig(m)
         
-        env.history.message(cmd + "Gamess Jig created")
+        env.history.message(cmd + "GAMESS Jig created")
         self.assy.w.win_update()
         
     def makeAnchor(self):
@@ -1372,7 +1378,7 @@ def atom_limit_exceeded_and_confirmed(parent, natoms, limit=200):
     # The line of code above works, but places the checkbox in the upperleft corner of the dialog, 
     # obscuring important text.  I'll fix this later. Mark 051122.
 
-    ret = dialog.exec_loop()
+    ret = dialog.exec_()
 
     if ret != QMessageBox.Yes:
         return True

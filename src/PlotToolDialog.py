@@ -1,95 +1,89 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Documents and Settings\Mark\My Documents\ne1 sandbox\cad\src\PlotToolDialog.ui'
+# Copyright 2005-2006 Nanorex, Inc.  See LICENSE file for details. 
+# Form implementation generated from reading ui file 'PlotToolDialog.ui'
 #
-# Created: Mon Aug 7 11:47:16 2006
-#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
+# Created: Wed Sep 20 07:07:09 2006
+#      by: PyQt4 UI code generator 4.0.1
 #
 # WARNING! All changes made in this file will be lost!
 
+import sys
+from PyQt4 import QtCore, QtGui
 
-from qt import *
+class Ui_PlotToolDialog(object):
+    def setupUi(self, PlotToolDialog):
+        PlotToolDialog.setObjectName("PlotToolDialog")
+        PlotToolDialog.resize(QtCore.QSize(QtCore.QRect(0,0,264,150).size()).expandedTo(PlotToolDialog.minimumSizeHint()))
 
+        self.gridlayout = QtGui.QGridLayout(PlotToolDialog)
+        self.gridlayout.setMargin(11)
+        self.gridlayout.setSpacing(6)
+        self.gridlayout.setObjectName("gridlayout")
 
-class PlotToolDialog(QDialog):
-    def __init__(self,parent = None,name = None,modal = 0,fl = 0):
-        QDialog.__init__(self,parent,name,modal,fl)
+        self.vboxlayout = QtGui.QVBoxLayout()
+        self.vboxlayout.setMargin(0)
+        self.vboxlayout.setSpacing(6)
+        self.vboxlayout.setObjectName("vboxlayout")
 
-        if not name:
-            self.setName("PlotToolDialog")
+        self.gridlayout1 = QtGui.QGridLayout()
+        self.gridlayout1.setMargin(0)
+        self.gridlayout1.setSpacing(6)
+        self.gridlayout1.setObjectName("gridlayout1")
 
+        self.hboxlayout = QtGui.QHBoxLayout()
+        self.hboxlayout.setMargin(0)
+        self.hboxlayout.setSpacing(6)
+        self.hboxlayout.setObjectName("hboxlayout")
 
-        PlotToolDialogLayout = QGridLayout(self,1,1,11,6,"PlotToolDialogLayout")
+        self.plot_btn = QtGui.QPushButton(PlotToolDialog)
+        self.plot_btn.setObjectName("plot_btn")
+        self.hboxlayout.addWidget(self.plot_btn)
 
-        layout5 = QVBoxLayout(None,0,6,"layout5")
+        self.done_btn = QtGui.QPushButton(PlotToolDialog)
+        self.done_btn.setObjectName("done_btn")
+        self.hboxlayout.addWidget(self.done_btn)
+        self.gridlayout1.addLayout(self.hboxlayout,2,0,1,1)
 
-        layout2 = QGridLayout(None,1,1,0,6,"layout2")
+        self.plot_combox = QtGui.QComboBox(PlotToolDialog)
+        self.plot_combox.setObjectName("plot_combox")
+        self.gridlayout1.addWidget(self.plot_combox,1,0,1,1)
 
-        layout1 = QHBoxLayout(None,0,6,"layout1")
+        self.textLabel1 = QtGui.QLabel(PlotToolDialog)
+        self.textLabel1.setObjectName("textLabel1")
+        self.gridlayout1.addWidget(self.textLabel1,0,0,1,1)
+        self.vboxlayout.addLayout(self.gridlayout1)
 
-        self.plot_btn = QPushButton(self,"plot_btn")
-        layout1.addWidget(self.plot_btn)
+        spacerItem = QtGui.QSpacerItem(20,16,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
+        self.vboxlayout.addItem(spacerItem)
 
-        self.done_btn = QPushButton(self,"done_btn")
-        layout1.addWidget(self.done_btn)
+        self.hboxlayout1 = QtGui.QHBoxLayout()
+        self.hboxlayout1.setMargin(0)
+        self.hboxlayout1.setSpacing(6)
+        self.hboxlayout1.setObjectName("hboxlayout1")
 
-        layout2.addLayout(layout1,2,0)
+        self.open_trace_file_btn = QtGui.QPushButton(PlotToolDialog)
+        self.open_trace_file_btn.setObjectName("open_trace_file_btn")
+        self.hboxlayout1.addWidget(self.open_trace_file_btn)
 
-        self.plot_combox = QComboBox(0,self,"plot_combox")
+        self.open_gnuplot_btn = QtGui.QPushButton(PlotToolDialog)
+        self.open_gnuplot_btn.setObjectName("open_gnuplot_btn")
+        self.hboxlayout1.addWidget(self.open_gnuplot_btn)
+        self.vboxlayout.addLayout(self.hboxlayout1)
+        self.gridlayout.addLayout(self.vboxlayout,0,0,1,1)
 
-        layout2.addWidget(self.plot_combox,1,0)
+        self.retranslateUi(PlotToolDialog)
+        QtCore.QObject.connect(self.done_btn,QtCore.SIGNAL("clicked()"),PlotToolDialog.close)
+        QtCore.QMetaObject.connectSlotsByName(PlotToolDialog)
+        PlotToolDialog.setTabOrder(self.plot_combox,self.plot_btn)
+        PlotToolDialog.setTabOrder(self.plot_btn,self.done_btn)
+        PlotToolDialog.setTabOrder(self.done_btn,self.open_trace_file_btn)
+        PlotToolDialog.setTabOrder(self.open_trace_file_btn,self.open_gnuplot_btn)
 
-        self.textLabel1 = QLabel(self,"textLabel1")
-
-        layout2.addWidget(self.textLabel1,0,0)
-        layout5.addLayout(layout2)
-        spacer2 = QSpacerItem(20,16,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        layout5.addItem(spacer2)
-
-        layout6 = QHBoxLayout(None,0,6,"layout6")
-
-        self.open_trace_file_btn = QPushButton(self,"open_trace_file_btn")
-        layout6.addWidget(self.open_trace_file_btn)
-
-        self.open_gnuplot_btn = QPushButton(self,"open_gnuplot_btn")
-        layout6.addWidget(self.open_gnuplot_btn)
-        layout5.addLayout(layout6)
-
-        PlotToolDialogLayout.addLayout(layout5,0,0)
-
-        self.languageChange()
-
-        self.resize(QSize(264,148).expandedTo(self.minimumSizeHint()))
-        self.clearWState(Qt.WState_Polished)
-
-        self.connect(self.done_btn,SIGNAL("clicked()"),self.close)
-        self.connect(self.plot_btn,SIGNAL("clicked()"),self.genPlot)
-        self.connect(self.open_gnuplot_btn,SIGNAL("clicked()"),self.openGNUplotFile)
-        self.connect(self.open_trace_file_btn,SIGNAL("clicked()"),self.openTraceFile)
-
-        self.setTabOrder(self.plot_combox,self.plot_btn)
-        self.setTabOrder(self.plot_btn,self.done_btn)
-        self.setTabOrder(self.done_btn,self.open_trace_file_btn)
-        self.setTabOrder(self.open_trace_file_btn,self.open_gnuplot_btn)
-
-
-    def languageChange(self):
-        self.setCaption(self.__tr("Make Graphs"))
-        self.plot_btn.setText(self.__tr("Make Graph"))
-        self.done_btn.setText(self.__tr("Done"))
-        self.textLabel1.setText(self.__tr("Select jig to graph:"))
-        self.open_trace_file_btn.setText(self.__tr("Open Trace File"))
-        self.open_gnuplot_btn.setText(self.__tr("Open GNUplot File"))
-
-
-    def genPlot(self):
-        print "PlotToolDialog.genPlot(): Not implemented yet"
-
-    def openTraceFile(self):
-        print "PlotToolDialog.openTraceFile(): Not implemented yet"
-
-    def openGNUplotFile(self):
-        print "PlotToolDialog.openGNUplotFile(): Not implemented yet"
-
-    def __tr(self,s,c = None):
-        return qApp.translate("PlotToolDialog",s,c)
+    def retranslateUi(self, PlotToolDialog):
+        PlotToolDialog.setWindowTitle(QtGui.QApplication.translate("PlotToolDialog", "Make Graphs", None, QtGui.QApplication.UnicodeUTF8))
+        self.plot_btn.setText(QtGui.QApplication.translate("PlotToolDialog", "Make Graph", None, QtGui.QApplication.UnicodeUTF8))
+        self.done_btn.setText(QtGui.QApplication.translate("PlotToolDialog", "Done", None, QtGui.QApplication.UnicodeUTF8))
+        self.textLabel1.setText(QtGui.QApplication.translate("PlotToolDialog", "Select jig to graph:", None, QtGui.QApplication.UnicodeUTF8))
+        self.open_trace_file_btn.setText(QtGui.QApplication.translate("PlotToolDialog", "Open Trace File", None, QtGui.QApplication.UnicodeUTF8))
+        self.open_gnuplot_btn.setText(QtGui.QApplication.translate("PlotToolDialog", "Open GNUplot File", None, QtGui.QApplication.UnicodeUTF8))

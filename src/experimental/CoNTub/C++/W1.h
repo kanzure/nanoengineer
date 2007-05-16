@@ -1,3 +1,4 @@
+// Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
 #ifndef W1_H_INCLUDED
 #define W1_H_INCLUDED
 

@@ -1,3 +1,4 @@
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 toolbars.py - OpenGL toolbars, basically serving as "working mockups" for Qt toolbars
 (but someday we should be able to turn the same toolbar configuration code

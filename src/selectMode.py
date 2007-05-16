@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2007 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 selectMode.py -- Select Chunks and Select Atoms modes, also used as superclasses for some other modes
 
@@ -19,6 +19,8 @@ can act as one, if only it is dragged and if it knows how), the code would be cl
 would be easier to fix, and some NFRs easier to implement. [bruce 060728 -- I'm adding drag_handlers
 for use by new kinds of draggable or buttonlike things (only in selectAtoms mode and subclasses),
 but not changing how old dragging code works.]
+
+- Ninad 070216 moved selectAtomsMode and selectMolsMode out of selectMode.py 
 """
 
 from modes import *
@@ -70,27 +72,32 @@ def do_what_MainWindowUI_should_do(w):
      
     w.selectAtomsDashboard.clear()
 
-    w.depositAtomLabel = QLabel(w.selectAtomsDashboard,"Select Atoms")
+    w.depositAtomLabel = QLabel(w.selectAtomsDashboard)
     w.depositAtomLabel.setText(" Select Atoms ")
     w.selectAtomsDashboard.addSeparator()
 
-    selectLabel = QLabel(w.selectAtomsDashboard, "Select:")
+    selectLabel = QLabel()
+    w.selectAtomsDashboard.addWidget(selectLabel)
     selectLabel.setText("Select: ")
     
-    w.elemFilterComboBox = QComboBox(0,w.selectAtomsDashboard, "elemFilterComboBox")
+    w.elemFilterComboBox = QComboBox()
+    w.selectAtomsDashboard.addWidget(w.elemFilterComboBox)
     
-    #w.selectConnectedAction.addTo(w.selectAtomsDashboard)
-    #w.selectDoublyAction.addTo(w.selectAtomsDashboard)
+    #w.selectAtomsDashboard.addAction(w.selectConnectedAction)
+    #w.selectAtomsDashboard.addAction(w.selectDoublyAction)
         # Removed these now that select connected works on double-click. mark 060220.
     
     w.selectAtomsDashboard.addSeparator()
 
-    transmute2Label = QLabel(w.selectAtomsDashboard, "Transmute_to:")
+    transmute2Label = QLabel()
+    w.selectAtomsDashboard.addWidget(transmute2Label)
     transmute2Label.setText("Transmute to: ")
-    w.transmute2ComboBox = QComboBox(0,w.selectAtomsDashboard, "transmute2ComboBox")
+    w.transmute2ComboBox = QComboBox()
+    w.selectAtomsDashboard.addWidget(w.transmute2ComboBox)
     w.connect(w.transmute2ComboBox, SIGNAL("activated(int)"), w.transmuteElementChanged)
 
-    w.atomSelect_hybridComboBox = QComboBox(0, w.selectAtomsDashboard, "hybridComboBox") 
+    w.atomSelect_hybridComboBox = QComboBox()
+    w.selectAtomsDashboard.addWidget(w.atomSelect_hybridComboBox)
     # Set the width of the hybrid drop box.  Mark 050810.
     width = w.hybridComboBox.fontMetrics().width(" sp2(graphitic) ")
     w.atomSelect_hybridComboBox.setMinimumSize ( QSize (width, 0) )
@@ -103,8 +110,8 @@ def do_what_MainWindowUI_should_do(w):
     w.selectAtomsDashboard.highlightingCB = QCheckBox("Highlighting", w.selectAtomsDashboard)
 
     w.selectAtomsDashboard.addSeparator()
-    w.toolsDoneAction.addTo(w.selectAtomsDashboard)
-    w.selectAtomsDashboard.setLabel("Select Atoms")
+    w.selectAtomsDashboard.addAction(w.toolsDoneAction)
+    w.selectAtomsDashboard.setWindowTitle("Select Atoms")
 
     w.elemFilterComboBox.clear()
     # WARNING:
@@ -115,54 +122,59 @@ def do_what_MainWindowUI_should_do(w):
     # Both eCCBtab1 and eCCBtab2 are set up and used in MWsemantics but should be moved here,
     # or perhaps with some part moved into elements.py if it ought to share code with elementSelector.py
     # and elementColors.py (though it doesn't now).
-    w.elemFilterComboBox.insertItem("All Elements")
-    w.elemFilterComboBox.insertItem("Hydrogen")
-    w.elemFilterComboBox.insertItem("Helium")
-    w.elemFilterComboBox.insertItem("Boron")
-    w.elemFilterComboBox.insertItem("Carbon") # will change to two entries, Carbon(sp3) and Carbon(sp2) -- no, use separate combobox
-    w.elemFilterComboBox.insertItem("Nitrogen")
-    w.elemFilterComboBox.insertItem("Oxygen")
-    w.elemFilterComboBox.insertItem("Fluorine")
-    w.elemFilterComboBox.insertItem("Neon")
-    w.elemFilterComboBox.insertItem("Aluminum")
-    w.elemFilterComboBox.insertItem("Silicon")
-    w.elemFilterComboBox.insertItem("Phosphorus")
-    w.elemFilterComboBox.insertItem("Sulfur")
-    w.elemFilterComboBox.insertItem("Chlorine")
-    w.elemFilterComboBox.insertItem("Argon")
-    w.elemFilterComboBox.insertItem("Germanium")
-    w.elemFilterComboBox.insertItem("Arsenic")
-    w.elemFilterComboBox.insertItem("Selenium")
-    w.elemFilterComboBox.insertItem("Bromine")
-    w.elemFilterComboBox.insertItem("Krypton")
+    w.elemFilterComboBox.insertItem(0,"All Elements")
+    w.elemFilterComboBox.insertItem(1,"Hydrogen")
+    w.elemFilterComboBox.insertItem(2,"Helium")
+    w.elemFilterComboBox.insertItem(3,"Boron")
+    w.elemFilterComboBox.insertItem(4,"Carbon") # will change to two entries, Carbon(sp3) and Carbon(sp2) -- no, use separate combobox
+    w.elemFilterComboBox.insertItem(5,"Nitrogen")
+    w.elemFilterComboBox.insertItem(6,"Oxygen")
+    w.elemFilterComboBox.insertItem(7,"Fluorine")
+    w.elemFilterComboBox.insertItem(8,"Neon")
+    w.elemFilterComboBox.insertItem(9,"Aluminum")
+    w.elemFilterComboBox.insertItem(10,"Silicon")
+    w.elemFilterComboBox.insertItem(11,"Phosphorus")
+    w.elemFilterComboBox.insertItem(12,"Sulfur")
+    w.elemFilterComboBox.insertItem(13,"Chlorine")
+    w.elemFilterComboBox.insertItem(14,"Argon")
+    w.elemFilterComboBox.insertItem(15,"Germanium")
+    w.elemFilterComboBox.insertItem(16,"Arsenic")
+    w.elemFilterComboBox.insertItem(17,"Selenium")
+    w.elemFilterComboBox.insertItem(18,"Bromine")
+    w.elemFilterComboBox.insertItem(19,"Krypton")
     #w.elemFilterComboBox.insertItem("Antimony")
     #w.elemFilterComboBox.insertItem("Tellurium")
     #w.elemFilterComboBox.insertItem("Iodine")
     #w.elemFilterComboBox.insertItem("Xenon")
     
     w.transmute2ComboBox.clear()
-    w.transmute2ComboBox.insertItem("Hydrogen")
-    w.transmute2ComboBox.insertItem("Helium")
-    w.transmute2ComboBox.insertItem("Boron")
-    w.transmute2ComboBox.insertItem("Carbon") # will change to two entries, Carbon(sp3) and Carbon(sp2) -- no, use separate combobox
-    w.transmute2ComboBox.insertItem("Nitrogen")
-    w.transmute2ComboBox.insertItem("Oxygen")
-    w.transmute2ComboBox.insertItem("Fluorine")
-    w.transmute2ComboBox.insertItem("Neon")
-    w.transmute2ComboBox.insertItem("Aluminum")
-    w.transmute2ComboBox.insertItem("Silicon")
-    w.transmute2ComboBox.insertItem("Phosphorus")
-    w.transmute2ComboBox.insertItem("Sulfur")
-    w.transmute2ComboBox.insertItem("Chlorine")
-    w.transmute2ComboBox.insertItem("Argon")
-    w.transmute2ComboBox.insertItem("Germanium")
-    w.transmute2ComboBox.insertItem("Arsenic")
-    w.transmute2ComboBox.insertItem("Selenium")
-    w.transmute2ComboBox.insertItem("Bromine")
-    w.transmute2ComboBox.insertItem("Krypton")
+    w.transmute2ComboBox.insertItem(0,"Hydrogen")
+    w.transmute2ComboBox.insertItem(1,"Helium")
+    w.transmute2ComboBox.insertItem(2,"Boron")
+    w.transmute2ComboBox.insertItem(3,"Carbon") # will change to two entries, Carbon(sp3) and Carbon(sp2) -- no, use separate combobox
+    w.transmute2ComboBox.insertItem(4,"Nitrogen")
+    w.transmute2ComboBox.insertItem(5,"Oxygen")
+    w.transmute2ComboBox.insertItem(6,"Fluorine")
+    w.transmute2ComboBox.insertItem(7,"Neon")
+    w.transmute2ComboBox.insertItem(8,"Aluminum")
+    w.transmute2ComboBox.insertItem(9,"Silicon")
+    w.transmute2ComboBox.insertItem(10,"Phosphorus")
+    w.transmute2ComboBox.insertItem(11,"Sulfur")
+    w.transmute2ComboBox.insertItem(12,"Chlorine")
+    w.transmute2ComboBox.insertItem(13,"Argon")
+    w.transmute2ComboBox.insertItem(14,"Germanium")
+    w.transmute2ComboBox.insertItem(15,"Arsenic")
+    w.transmute2ComboBox.insertItem(16,"Selenium")
+    w.transmute2ComboBox.insertItem(17,"Bromine")
+    w.transmute2ComboBox.insertItem(18,"Krypton")
     
     from whatsthis import create_whats_this_descriptions_for_selectAtomsMode
     create_whats_this_descriptions_for_selectAtomsMode(w)
+
+    # select chunks dashboard, imported from MainWindowUI.py
+    w.selectMolDashboard.addWidget(w.textLabel1_2)
+    w.selectMolDashboard.addAction(w.nullAction)
+    w.selectMolDashboard.addAction(w.toolsDoneAction)
 
     return
 
@@ -208,6 +220,125 @@ class selectMode(basicMode):
     # restore_gui handles all the GUI display when leavinging this mode [mark 041004]
     def restore_gui(self):
         pass # let the subclass handle everything for the GUI - Mark [2004-10-11]
+    
+    def reset_drag_vars(self):
+        """This resets (or initializes) per-drag instance variables, and is called in Enter and at beginning of leftDown.
+        [Subclasses can override this to add variables, but those methods should call this version too.]
+        """
+        #WARNING: This method has been duplicated 
+        #in the subclass (selectAtomsMode.py) This needs cleanup . 
+        #Note that this duplication is NOT exact 
+        #See selectAtomsMode.reset_drag_vars for further details. 
+          
+        #bruce 041124 split this out of Enter; as of 041130,
+        # required bits of it are inlined into Down methods as bugfixes
+        set_DRAG_STICKINESS_LIMIT_from_pref()
+        self.cursor_over_when_LMB_pressed = None
+            # <cursor_over_when_LMB_pressed> keeps track of what the cursor was over 
+            # when the LMB was pressed, which can be one of:
+            #   'Empty Space'
+            #   'Picked Atom'
+            #   'Unpicked Atom'
+            #   'Singlet'
+            #   'Bond'
+            # [later note: it is only used to compare to 'Empty Space';
+            #  self.current_obj and other state variables are used instead of
+            #  checking for the other values; I don't know if the other values
+            #  are always correct. bruce 060721 comment]
+        self.drag_multiple_atoms = False
+            # set to True when we are dragging a movable unit of 2 or more atoms.
+        self.maybe_use_bc = False # whether to use the BorrowerChunk optimization for the current drag (experimental) [bruce 060414]
+        self.current_obj = None
+            # current_obj is the object under the cursor when the LMB was pressed.
+            # [it is set to that obj by objectSetup, and set back to None by some, but not all,
+            #  mousedrag and mouseup methods. It's used by leftDrag and leftUp to decide what to do,
+            #  to what object. When a drag_handler is in use, I think [bruce 060728] this will be the
+            #  drag_handler (not the selobj that it is for), but I'll still have a separate self.drag_handler
+            #  attr to also record that. One of these is redundant, but this will most clearly separate old and new code,
+            #  while ensuring that if old code tests current_obj it won't see a class it thinks it knows how to handle
+            #  (even if I sometimes use drag_handlers to drag old specialcase object classes), and won't see None.
+            #  (Other possibilities would be to not have self.drag_handler at all, and/or to let this be the selobj
+            #   that a drag_handler was made for; these seem worse now, but I mention them in case I need to switch to them.)
+            #  Maybe we'll need some uses of current_obj to filter it though a self method which converts drag_handlers
+            #  back to their underlying objects (i.e. the selobj that they were made from or made for). (Or have a .selobj attr.)
+            #  #####@@@@@ [bruce 060728 comment]]
+        self.dragatoms = []
+            # dragatoms is constructed in get_dragatoms_and_baggage() and contains all 
+            # the selected atoms (except selected baggage atoms) that are dragged around
+            # as part of the current selection in drag_selected_atoms().
+            # Selected atoms that are baggage are placed in self.baggage
+            # along with non-selected baggage atoms connected to dragatoms.
+            # See atomSetup() for more information.
+            #bruce 060410 note: self.dragatoms is only set along with self.baggage,
+            # and the atoms in these lists are only moved together (in all cases involving self.dragatoms,
+            #  though not in all cases involving self.baggage),
+            # so it doesn't matter which atoms are in which lists (in those cases),
+            # and probably the code should be revised to use only the self.dragatoms list (in those cases).
+            #bruce 060410 optimization and change: when all atoms in existing chunks are being dragged
+            # (or if new chunks could be temporarily and transparently made for which all their atoms were being dragged),
+            # then we can take advantage of chunk display lists to get a big speedup in dragging the atoms.
+            # We do this by listing such chunks in self.dragchunks and excluding their atoms from self.dragatoms
+            # and self.baggage.
+        self.dragchunks = []
+        self.dragjigs = []
+            # dragjigs is constructed in jigSetup() and contains all the selected jigs that 
+            # are dragged around as part of the current selection in jigDrag().
+            # See jigSetup() for more information.
+        self.baggage = []
+            # baggage contains singlets and/or monovalent atoms (i.e. H, O(sp2), F, Cl, Br)
+            # which are connected to a dragged atom and get dragged around with it.
+            # Also, no atom which has baggage can also be baggage.
+        self.nonbaggage = []
+            # nonbaggage contains atoms which are bonded to a dragged atom but 
+            # are not dragged around with it. Their own baggage atoms are moved when a 
+            # single atom is dragged in atomDrag().
+        self.current_obj_clicked = False 
+            # current_obj_clicked is used to determine if a lit up atom, singlet or bond was picked (clicked)
+            # or not picked (dragged). It must be set to False here so that a newly 
+            # deposited atom doesn't pick itself right away (although now this is the default behavior).
+            # current_obj_clicked is set to True in *LeftDown() before it gets dragged (if it does at all).
+            # If it is dragged, it is set to False in *LeftDrag().
+            # *LeftUp() checks it to determine whether the object gets picked or not. mark 060125.
+            # [bruce 060727 comments: it seems to mean "was self.current_obj clicked, but not (yet) dragged",
+            #  and its basic point seems to be to let leftUp decide whether to select the object,
+            #  i.e. to not require all drags of objects to select them.
+            #    Note: it is set back to False only by class-specific drag methods, not by leftDrag itself;
+            #  similarly, it is used only in class-specific mouseup methods, not by leftUp itself.
+            #    For drag_handlers, it looks like we should treat all drag_handler uses as another object type,
+            #  so we should set this in the same way in the drag_handler-specific methods.
+            #  Hmm, maybe we want separate submethods like dragHandlerLeft*, just as for Atom/Bond/Jig. #####@@@@@
+            # ]
+        self.obj_doubleclicked = None
+            # used by leftDouble() to determine the object that was double clicked.
+            # [bruce 060727 comments: This is the same object found by the first click's leftDown -- mouse motion
+            #  is not checked for! That might be a bug -- if the mouse slipped off this object, it might be better
+            #  to discard the entire drag (and a stencil buffer test could check for this, without needing glSelect).
+            #  At least, this is always the correct object if anything is.
+            #    It is used in obj-class-specific leftDown methods, and assumed to be an object of the right class
+            #  (which seems ok, since leftDouble uses isinstance on it to call one of those methods).
+            #    If a drag_handler is in use, this should probably be the drag_handler itself
+            #  (no current code compares it to any selobj -- it only isinstances it to decide what drag code to run),
+            #  but if some Atoms/Bonds/Jigs ever use self as a drag_handler, our isinstance tests on this
+            #  will be problematic; we may need an "are you acting as a drag_handler" method instead. #####@@@@@
+            # ]
+        #bruce 060315 replaced drag_stickiness_limit_exceeded with max_dragdist_pixels
+        self.max_dragdist_pixels = 0
+            # used in mouse_within_stickiness_limit
+        self.drag_offset = V(0,0,0) #bruce 060316
+            # default value of offset from object reference point (e.g. atom center) to dragpoint (used by some drag methods)
+        self.only_highlight_singlets = False
+            # when set to True, only singlets get highlighted when dragging a singlet.
+            # depositMode.singletSetup() sets this to True when dragging a singlet around.
+        self.neighbors_of_last_deleted_atom = []
+            # list of the real atom neighbors connected to a deleted atom.  Used by atomLeftDouble()
+            # to find the connected atoms to a recently deleted atom when double clicking with 'Shift+Control'
+            # modifier keys pressed together.
+        self.atoms_of_last_deleted_jig = []
+            # list of the real atoms connected to a deleted jig.  Used by jigLeftDouble()
+            # to retreive the atoms of a recently deleted jig when double clicking with 'Shift+Control'
+            # modifier keys pressed together.
+        self.drag_handler = None #bruce 060725
+        return
     
 # == LMB event handling methods ====================================
 
@@ -447,7 +578,7 @@ class selectMode(basicMode):
 
 #== Atom selection and dragging helper methods
 
-    def atomLeftDown(self, a, event):
+    def atomLeftDown(self, a, event):            
         if not a.picked and self.o.modkeys is None:
             self.o.assy.unpickall_in_GLPane() # was unpickatoms and unpickparts [bruce 060721]
                 # Note: a comment said that this was intended to unpick (among other things) jigs.
@@ -1851,5 +1982,4 @@ class selectMode(basicMode):
     pass # end of class selectMode
 
 # ==
-
 # end

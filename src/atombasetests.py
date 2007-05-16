@@ -1,4 +1,4 @@
-# Copyright (c) 2006 Nanorex, Inc. All rights reserved.
+# Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
 """\
 Python atoms, atom sets, diff factories, diff objects (tests)
 

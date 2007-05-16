@@ -1,5 +1,6 @@
 cad/src/exprs/BUGS-fixed.txt
 
+ Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 # $Id$
 
 This is where bug reports in the BUGS file are moved when they are fully

@@ -1,8 +1,9 @@
-# Copyright (c) 2004-2007 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 depositMode.py -- Build mode.
 
 $Id$
+
 
 - bruce 050513 optims: using 'is' and 'is not' rather than '==', '!='
   for atoms, elements, atomtypes, in several places (not all commented individually); 050513
@@ -22,12 +23,16 @@ import drawer
 from constants import elemKeyTab, GL_FAR_Z
 import platform
 from debug import print_compact_traceback
+from qt4transition import qt4todo
 from elements import PeriodicTable
 from Utility import imagename_to_pixmap
 from HistoryWidget import orangemsg, redmsg, greenmsg, quote_html
+from qt4transition import *
 
 from bonds import bond_atoms, bond_at_singlets
 from bond_constants import V_SINGLE
+from PropertyManagerMixin import PropertyManagerMixin
+from MMKit import MMKit
 
 import env
 
@@ -82,21 +87,24 @@ def do_what_MainWindowUI_should_do(w):
 
     w.depositAtomDashboard.clear()
 
-    w.depositAtomLabel = QLabel(w.depositAtomDashboard,"Build")
-    w.depositAtomLabel.setText(" Build ")
+    w.depositAtomLabel = QLabel()
+    w.depositAtomLabel.setText(" Chunk ")
+    w.depositAtomDashboard.addWidget(w.depositAtomLabel)
     w.depositAtomDashboard.addSeparator()
 
-    w.pasteComboBox = QComboBox(0,w.depositAtomDashboard, "pasteComboBox")
+    w.pasteComboBox = QComboBox(w.depositAtomDashboard)
     # bruce 041124: that combobox needs to be wider, or to grow to fit items
     # (before this change it had width 100 and minimumWidth 0):
     w.pasteComboBox.setMinimumWidth(160) # barely holds "(clipboard is empty)"
-
+    
+    
     if not HIDE_PASTE_WIDGETS_FOR_A7:
         w.depositAtomDashboard.addSeparator()
+    
 
-    w.elemChangeComboBox = QComboBox(0,w.depositAtomDashboard, "elemChangeComboBox")
+    w.elemChangeComboBox = QComboBox()
 
-    w.hybridComboBox = QComboBox(0,w.depositAtomDashboard, "hybridComboBox") #bruce 050606 for choice of atomtypes
+    w.hybridComboBox = QComboBox() #bruce 050606 for choice of atomtypes
     
     # Set the width of the hybrid drop box.  Mark 050810.
     width = w.hybridComboBox.fontMetrics().width(" sp2(graphitic) ")
@@ -106,16 +114,31 @@ def do_what_MainWindowUI_should_do(w):
     ## w.connect(w.hybridComboBox,SIGNAL("activated(int)"),w.elemChange_hybrid) #bruce 050606
     w.hybridComboBox_elem = None
     
-#    w.modifySetElementAction.addTo(w.depositAtomDashboard) # Element Selector.  Obsolete as of 050726.
-    w.modifyMMKitAction.addTo(w.depositAtomDashboard) # Molecular Modeling Toolkit.  Mark 050726
+    w.depositAtomDashboard.addAction(w.modifyMMKitAction) # Molecular Modeling Toolkit.  Mark 050726
 
     if not HIDE_PASTE_WIDGETS_FOR_A7:
         w.depositAtomDashboard.addSeparator()
 
-    bg = QButtonGroup(w.depositAtomDashboard)
-    bg.setExclusive(1)
-    lay = QHBoxLayout(bg)
-    lay.setAutoAdd(True)
+    bg1 = w.depositAtomDashboard.buildmode_btngrp = QButtonGroup()
+    bg1.setExclusive(True)
+    
+    w.depositAtomDashboard.addSeparator()
+
+    w.depositAtomDashboard.pasteBtn = QToolButton()
+    bg1.addButton(w.depositAtomDashboard.pasteBtn)
+    w.depositAtomDashboard.addWidget(w.depositAtomDashboard.pasteBtn)
+    w.depositAtomDashboard.pasteBtn.setIcon(QIcon(imagename_to_pixmap('dashboard/paste1.png')))
+    w.depositAtomDashboard.pasteBtn.setCheckable(1)
+    w.depositAtomDashboard.pasteBtn.setAutoRaise(1)
+    w.depositAtomDashboard.pasteBtn.setToolTip(qApp.translate("MainWindow","Paste", None))
+    
+    w.depositAtomDashboard.depositBtn = QToolButton()
+    bg1.addButton(w.depositAtomDashboard.depositBtn)
+    w.depositAtomDashboard.addWidget(w.depositAtomDashboard.depositBtn)
+    w.depositAtomDashboard.depositBtn.setIcon(QIcon(imagename_to_pixmap('dashboard/deposit.png')))
+    w.depositAtomDashboard.depositBtn.setCheckable(1)
+    w.depositAtomDashboard.depositBtn.setAutoRaise(1)
+    w.depositAtomDashboard.depositBtn.setToolTip(qApp.translate("MainWindow","Deposit", None))
     
     # Changed the radio buttons to push buttons.  Should change the RB suffix to Button.
     # Added bond1, bond2, bond3 and bonda to the button group.
@@ -130,92 +153,98 @@ def do_what_MainWindowUI_should_do(w):
     # this is correct based on how these are used. But I can't get QToolButton to work right, so I won't do this now.
 
     w.depositAtomDashboard.addSeparator()
-    bg2 = w.depositAtomDashboard.submode_btngrp = QButtonGroup(w.depositAtomDashboard)
+    w.depositAtomDashboard.addSeparator()
+    bg2 = w.depositAtomDashboard.submode_btngrp = QButtonGroup()
     bg2.setExclusive(True)
-    lay2 = QHBoxLayout(bg2)
-    lay2.setAutoAdd(True)
 
     # QToolButton property "setAutoRaise" looks much better on Linux and Windows.
     # It also looks good on Panther.  Maybe this will solve the problem on Tiger?
     # Let's ask Bruce.  Mark 050809
     
-    w.depositAtomDashboard.pasteBtn = QToolButton(bg,"")
-    w.depositAtomDashboard.pasteBtn.setPixmap(imagename_to_pixmap('paste1.png'))
-    w.depositAtomDashboard.pasteBtn.setToggleButton(1)
-    w.depositAtomDashboard.pasteBtn.setAutoRaise(1)
-    QToolTip.add(w.depositAtomDashboard.pasteBtn, qApp.translate("MainWindow","Paste", None))
-    
-    w.depositAtomDashboard.depositBtn = QToolButton(bg,"")
-    w.depositAtomDashboard.depositBtn.setPixmap(imagename_to_pixmap('deposit.png'))
-    w.depositAtomDashboard.depositBtn.setToggleButton(1)
-    w.depositAtomDashboard.depositBtn.setAutoRaise(1)
-    QToolTip.add(w.depositAtomDashboard.depositBtn, qApp.translate("MainWindow","Deposit", None))
-    
-    w.depositAtomDashboard.buildBtn = QToolButton(bg2, "")
-    w.depositAtomDashboard.buildBtn.setPixmap(imagename_to_pixmap('buildmode.png'))
-    w.depositAtomDashboard.buildBtn.setToggleButton(1)
+    # w.depositAtomDashboard.addSeparator()
+
+    w.depositAtomDashboard.buildBtn = QToolButton()
+    bg2.addButton(w.depositAtomDashboard.buildBtn)
+    w.depositAtomDashboard.addWidget(w.depositAtomDashboard.buildBtn)
+    w.depositAtomDashboard.buildBtn.setIcon(QIcon(imagename_to_pixmap('dashboard/buildmode.png')))
+    w.depositAtomDashboard.buildBtn.setCheckable(1)
     w.depositAtomDashboard.buildBtn.setAutoRaise(1)
-    w.depositAtomDashboard.buildBtn.setOn(1)
-    QToolTip.add(w.depositAtomDashboard.buildBtn, qApp.translate("MainWindow","Atom Tool", None))
-    
-    #& Reinstate in A8.  mark 060301.
-    #w.depositAtomDashboard.atomBtn = QToolButton(bg2, "")
-    #w.depositAtomDashboard.atomBtn.setPixmap(imagename_to_pixmap('atom.png'))
-    #w.depositAtomDashboard.atomBtn.setToggleButton(1)
-    #w.depositAtomDashboard.atomBtn.setAutoRaise(1)
-    #QToolTip.add(w.depositAtomDashboard.atomBtn, qApp.translate("MainWindow","Change Atom Mode", None))
-    
-    w.depositAtomDashboard.bond1Btn = QToolButton(bg2, "")
-    w.depositAtomDashboard.bond1Btn.setPixmap(imagename_to_pixmap('bond1.png'))
-    w.depositAtomDashboard.bond1Btn.setToggleButton(1)
+    w.depositAtomDashboard.buildBtn.setToolTip(qApp.translate("MainWindow","Atom Tool", None))
+    def yikes(): print 'YIKES'
+    w.connect(w.depositAtomDashboard.buildBtn,SIGNAL("clicked()"),yikes)
+
+    w.depositAtomDashboard.bond1Btn = QToolButton()
+    bg2.addButton(w.depositAtomDashboard.bond1Btn)
+    w.depositAtomDashboard.addWidget(w.depositAtomDashboard.bond1Btn)
+    w.depositAtomDashboard.bond1Btn.setIcon(QIcon(imagename_to_pixmap('dashboard/bond1.png')))
+    w.depositAtomDashboard.bond1Btn.setCheckable(1)
     w.depositAtomDashboard.bond1Btn.setAutoRaise(1)
-    QToolTip.add(w.depositAtomDashboard.bond1Btn, qApp.translate("MainWindow","Single Bond Tool", None))
+    w.depositAtomDashboard.bond1Btn.setToolTip(qApp.translate("MainWindow","Single Bond Tool", None))
     
-    w.depositAtomDashboard.bond2Btn = QToolButton(bg2, "")
-    w.depositAtomDashboard.bond2Btn.setPixmap(imagename_to_pixmap('bond2.png'))
-    w.depositAtomDashboard.bond2Btn.setToggleButton(1)
+    w.depositAtomDashboard.bond2Btn = QToolButton()
+    bg2.addButton(w.depositAtomDashboard.bond2Btn)
+    w.depositAtomDashboard.addWidget(w.depositAtomDashboard.bond2Btn)
+    w.depositAtomDashboard.bond2Btn.setIcon(QIcon(imagename_to_pixmap('dashboard/bond2.png')))
+    w.depositAtomDashboard.bond2Btn.setCheckable(1)
     w.depositAtomDashboard.bond2Btn.setAutoRaise(1)
-    QToolTip.add(w.depositAtomDashboard.bond2Btn, qApp.translate("MainWindow","Double Bond Tool", None))
+    w.depositAtomDashboard.bond2Btn.setToolTip(qApp.translate("MainWindow","Double Bond Tool", None))
     
-    w.depositAtomDashboard.bond3Btn = QToolButton(bg2, "")
-    w.depositAtomDashboard.bond3Btn.setPixmap(imagename_to_pixmap('bond3.png'))
-    w.depositAtomDashboard.bond3Btn.setToggleButton(1)
+    w.depositAtomDashboard.bond3Btn = QToolButton()
+    bg2.addButton(w.depositAtomDashboard.bond3Btn)
+    w.depositAtomDashboard.addWidget(w.depositAtomDashboard.bond3Btn)
+    w.depositAtomDashboard.bond3Btn.setIcon(QIcon(imagename_to_pixmap('dashboard/bond3.png')))
+    w.depositAtomDashboard.bond3Btn.setCheckable(1)
     w.depositAtomDashboard.bond3Btn.setAutoRaise(1)
-    QToolTip.add(w.depositAtomDashboard.bond3Btn, qApp.translate("MainWindow","Triple Bond Tool", None))
+    w.depositAtomDashboard.bond3Btn.setToolTip(qApp.translate("MainWindow","Triple Bond Tool", None))
     
-    w.depositAtomDashboard.bondaBtn = QToolButton(bg2, "")
-    w.depositAtomDashboard.bondaBtn.setPixmap(imagename_to_pixmap('bonda.png'))
-    w.depositAtomDashboard.bondaBtn.setToggleButton(1)
+    w.depositAtomDashboard.bondaBtn = QToolButton()
+    bg2.addButton(w.depositAtomDashboard.bondaBtn)
+    w.depositAtomDashboard.addWidget(w.depositAtomDashboard.bondaBtn)
+    w.depositAtomDashboard.bondaBtn.setIcon(QIcon(imagename_to_pixmap('dashboard/bonda.png')))
+    w.depositAtomDashboard.bondaBtn.setCheckable(1)
     w.depositAtomDashboard.bondaBtn.setAutoRaise(1)
-    QToolTip.add(w.depositAtomDashboard.bondaBtn, qApp.translate("MainWindow","Aromatic Bond Tool", None))
+    w.depositAtomDashboard.bondaBtn.setToolTip(qApp.translate("MainWindow","Aromatic Bond Tool", None))
     
-    w.depositAtomDashboard.bondgBtn = QToolButton(bg2, "")
-    w.depositAtomDashboard.bondgBtn.setPixmap(imagename_to_pixmap('bondg.png'))
-    w.depositAtomDashboard.bondgBtn.setToggleButton(1)
+    w.depositAtomDashboard.bondgBtn = QToolButton()
+    bg2.addButton(w.depositAtomDashboard.bondgBtn)
+    w.depositAtomDashboard.addWidget(w.depositAtomDashboard.bondgBtn)
+    w.depositAtomDashboard.bondgBtn.setIcon(QIcon(imagename_to_pixmap('dashboard/bondg.png')))
+    w.depositAtomDashboard.bondgBtn.setCheckable(1)
     w.depositAtomDashboard.bondgBtn.setAutoRaise(1)
-    QToolTip.add(w.depositAtomDashboard.bondgBtn, qApp.translate("MainWindow","Graphitic Bond Tool", None))
+    w.depositAtomDashboard.bondgBtn.setToolTip(qApp.translate("MainWindow","Graphitic Bond Tool", None))
 
     w.depositAtomDashboard.addSeparator()
+
     w.depositAtomDashboard.filterCB = QCheckBox("Select Only :", w.depositAtomDashboard)
     w.depositAtomDashboard.filterCB.setChecked(0)
-    w.depositAtomDashboard.filterlistLE = QLineEdit(w.depositAtomDashboard,"filter_syms_list")
+    w.depositAtomDashboard.addWidget(w.depositAtomDashboard.filterCB)
+    w.depositAtomDashboard.filterlistLE = QLineEdit(w.depositAtomDashboard)
     w.depositAtomDashboard.filterlistLE.setReadOnly(1)
     w.depositAtomDashboard.filterlistLE.setEnabled(0)
+    w.depositAtomDashboard.addWidget(w.depositAtomDashboard.filterlistLE)
     
     w.depositAtomDashboard.addSeparator()
+
     w.depositAtomDashboard.transmuteBtn = QPushButton("Transmute", w.depositAtomDashboard)
+    w.depositAtomDashboard.addWidget(w.depositAtomDashboard.transmuteBtn)
     w.depositAtomDashboard.transmuteCB = QCheckBox(" Force to Keep Bonds", w.depositAtomDashboard)
+    w.depositAtomDashboard.addWidget(w.depositAtomDashboard.transmuteCB)
     
     w.depositAtomDashboard.addSeparator()
+
     w.depositAtomDashboard.autobondCB = QCheckBox("Autobond", w.depositAtomDashboard)
     w.depositAtomDashboard.autobondCB.setChecked(env.prefs[buildModeAutobondEnabled_prefs_key])
+    w.depositAtomDashboard.addWidget(w.depositAtomDashboard.autobondCB)
 
     w.depositAtomDashboard.highlightingCB = QCheckBox("Highlighting", w.depositAtomDashboard)
+    w.depositAtomDashboard.addWidget(w.depositAtomDashboard.highlightingCB)
     w.depositAtomDashboard.waterCB = QCheckBox("Water", w.depositAtomDashboard)
+    w.depositAtomDashboard.addWidget(w.depositAtomDashboard.waterCB)
 
     w.depositAtomDashboard.addSeparator()
-    w.toolsDoneAction.addTo(w.depositAtomDashboard)
-    w.depositAtomDashboard.setLabel("Build")
+
+    w.depositAtomDashboard.addAction(w.toolsDoneAction)
+    w.depositAtomDashboard.setWindowTitle("Build")
     w.elemChangeComboBox.clear()
     # WARNING [comment added by bruce 050511]:
     # these are identified by *position*, not by their text, using corresponding entries in eCCBtab1;
@@ -225,25 +254,25 @@ def do_what_MainWindowUI_should_do(w):
     # Both eCCBtab1 and eCCBtab2 are set up and used in MWsemantics but should be moved here,
     # or perhaps with some part moved into elements.py if it ought to share code with elementSelector.py
     # and elementColors.py (though it doesn't now).
-    w.elemChangeComboBox.insertItem("Hydrogen")
-    w.elemChangeComboBox.insertItem("Helium")
-    w.elemChangeComboBox.insertItem("Boron")
-    w.elemChangeComboBox.insertItem("Carbon") # will change to two entries, Carbon(sp3) and Carbon(sp2) -- no, use separate combobox
-    w.elemChangeComboBox.insertItem("Nitrogen")
-    w.elemChangeComboBox.insertItem("Oxygen")
-    w.elemChangeComboBox.insertItem("Fluorine")
-    w.elemChangeComboBox.insertItem("Neon")
-    w.elemChangeComboBox.insertItem("Aluminum")
-    w.elemChangeComboBox.insertItem("Silicon")
-    w.elemChangeComboBox.insertItem("Phosphorus")
-    w.elemChangeComboBox.insertItem("Sulfur")
-    w.elemChangeComboBox.insertItem("Chlorine")
-    w.elemChangeComboBox.insertItem("Argon")
-    w.elemChangeComboBox.insertItem("Germanium")
-    w.elemChangeComboBox.insertItem("Arsenic")
-    w.elemChangeComboBox.insertItem("Selenium")
-    w.elemChangeComboBox.insertItem("Bromine")
-    w.elemChangeComboBox.insertItem("Krypton")
+    w.elemChangeComboBox.insertItem(0,"Hydrogen")
+    w.elemChangeComboBox.insertItem(1,"Helium")
+    w.elemChangeComboBox.insertItem(2,"Boron")
+    w.elemChangeComboBox.insertItem(3,"Carbon") # will change to two entries, Carbon(sp3) and Carbon(sp2) -- no, use separate combobox
+    w.elemChangeComboBox.insertItem(4,"Nitrogen")
+    w.elemChangeComboBox.insertItem(5,"Oxygen")
+    w.elemChangeComboBox.insertItem(6,"Fluorine")
+    w.elemChangeComboBox.insertItem(7,"Neon")
+    w.elemChangeComboBox.insertItem(8,"Aluminum")
+    w.elemChangeComboBox.insertItem(9,"Silicon")
+    w.elemChangeComboBox.insertItem(10,"Phosphorus")
+    w.elemChangeComboBox.insertItem(11,"Sulfur")
+    w.elemChangeComboBox.insertItem(12,"Chlorine")
+    w.elemChangeComboBox.insertItem(13,"Argon")
+    w.elemChangeComboBox.insertItem(14,"Germanium")
+    w.elemChangeComboBox.insertItem(15,"Arsenic")
+    w.elemChangeComboBox.insertItem(16,"Selenium")
+    w.elemChangeComboBox.insertItem(17,"Bromine")
+    w.elemChangeComboBox.insertItem(18,"Krypton")
     #w.elemChangeComboBox.insertItem("Antimony")
     #w.elemChangeComboBox.insertItem("Tellurium")
     #w.elemChangeComboBox.insertItem("Iodine")
@@ -254,7 +283,7 @@ def do_what_MainWindowUI_should_do(w):
         w.pasteComboBox.hide()
         w.elemChangeComboBox.hide()
         w.hybridComboBox.hide()
-        bg.hide()
+        # bg.hide()
         w.depositAtomDashboard.pasteBtn.hide()
         w.depositAtomDashboard.depositBtn.hide()
         #w.depositAtomDashboard.atomBtn.hide() # Not supported for A7.  mark 060214.
@@ -281,10 +310,12 @@ def update_hybridComboBox(win, text = None): #bruce 050606
     win.hybridComboBox_elem = elem
     atypes = elem.atomtypes
     if len(atypes) > 1:
+        i = 0
         for atype in atypes:
-            win.hybridComboBox.insertItem( atype.name)
+            win.hybridComboBox.insertItem(i, atype.name)
+            i += 1
             if atype.name == text:
-                win.hybridComboBox.setCurrentItem( win.hybridComboBox.count() - 1 ) #k sticky as more added?
+                win.hybridComboBox.setCurrentIndex( win.hybridComboBox.count() - 1 ) #k sticky as more added?
         if HIDE_PASTE_WIDGETS_FOR_A7:
             win.hybridComboBox.hide()
         else:
@@ -294,7 +325,7 @@ def update_hybridComboBox(win, text = None): #bruce 050606
     return
 
 
-class depositMode(selectAtomsMode):
+class depositMode(selectAtomsMode, MMKit):
     """ This class is used to manually add atoms to create any structure.
        Users know it as "Build mode".
     """
@@ -303,11 +334,15 @@ class depositMode(selectAtomsMode):
     gridColor = 74/255.0, 186/255.0, 226/255.0
     modename = 'DEPOSIT' 
     msg_modename = "Build Mode" # Capitalized 'Mode'. Fixes bugs 612-1.2 and 1.3. mark 060323
-    default_mode_status_text = "Mode: Build"
+    default_mode_status_text = "Mode: Build Atoms"
     highlight_singlets = True # Always highlight singlets in depositMode. Mark 060220.
 
     def __init__(self, glpane):
+		
         selectAtomsMode.__init__(self, glpane)
+		
+	self.pw = None  # make it None in init method of each mode. 
+		
         self.pastables_list = [] #k not needed here?
         self.water_enabled = env.prefs[buildModeWaterEnabled_prefs_key] # mark 060203.
             # if True, only atoms and bonds above the water surface can be 
@@ -316,20 +351,48 @@ class depositMode(selectAtomsMode):
             # surface is not displayed.
         self.hover_highlighting_enabled = env.prefs[buildModeHighlightingEnabled_prefs_key]
             # Moved here as part of fix for bug 1620.  mark 060322
-    # methods related to entering this mode
-    
+    # methods related to entering this mode	    
     dont_update_gui = True
+    	
+    
     def Enter(self):
+	
+	#Following Actions are added in the Flyout toolbar. 
+	#Defining them outside that method as those are being used
+	#by the subclasses of deposit mode (testmode.py as of 070410) -- ninad
+	
+	self.depositAtomsAction = QtGui.QWidgetAction(self.w)
+	self.depositAtomsAction.setText("Atoms Tool")
+	self.depositAtomsAction.setIcon(geticon(
+	    'ui/actions/Toolbars/Smart/Deposit_Atoms'))
+	self.depositAtomsAction.setCheckable(True)
+	self.depositAtomsAction.setChecked(True)
+	
+		
+	self.transmuteBondsAction = QtGui.QWidgetAction(self.w)
+	self.transmuteBondsAction.setText("Bonds Tool")
+	self.transmuteBondsAction.setIcon(geticon(
+	    'ui/actions/Toolbars/Smart/Transmute_Bonds'))
+	self.transmuteBondsAction.setCheckable(True)
+	
+	#Initialize MMKit  Eariler this was initialized 
+	#*after calling selectAtomsMode.Enter due to a dependency on selection 
+	#filter methods. - not require anymore. -- ninad070411
+	#Now it is defined before selectMode.Enter for update cursor related 
+	#methods which needs actions that are defined in MMKit. 
+	
+	MMKit.__init__(self, self.w)
+	
         selectAtomsMode.Enter(self) # this calls self.reset_drag_vars(), which itself calls the super version
-        
+	
         #self.o.assy.permit_pick_atoms() #bruce 050517 revised API of this call
             # moved permit_pick_atoms() to selectAtomsMode.Enter().  mark 060219.
         self.pastable = None #k would it be nicer to preserve it from the past??
             # note, this is also done redundantly in init_gui.
         self.pastables_list = [] # should be ok, since update_gui comes after this...
         ## removed this since it's redundant [bruce 060726]: self.reset_drag_vars()
-        self.w.depositAtomDashboard.filterCB.setChecked(0) # generates signal.
-
+	
+	
     def reset_drag_vars(self):
         # called in Enter and at start of (super's) leftDown
         selectAtomsMode.reset_drag_vars(self)
@@ -346,41 +409,78 @@ class depositMode(selectAtomsMode):
         """called once each time the mode is entered;
         should be called only by code in modes.py
         """
+	
+	self.enable_gui_actions(False) # Gui actions such  Nanotubegenerator are disabled 
+	                                                      #while in the Build mode (new ui design) ninad 061214
+	
         self.dont_update_gui = True # redundant with Enter, I think; changed below
             # (the possible orders of calling all these mode entering/exiting
             #  methods is badly in need of documentation, if not cleanup...
             #  [says bruce 050121, who is to blame for this])
+	
+    	
+	self.update_dialog(self.w.Element)
+		
+	#Ninad 061226 moved the following from selectAtomsMode.Enter to here .
+	#(MMKit was moved to Property manager
+	#and so the following was needed to instantiate MMKit before 
+	#calling this function)
+	self.set_selection_filter(0) # disable selection filter 
+	
+	#(sets current item to "All Elements").  mark 060301.
+	
+	self.filterCB.setChecked(0)
+	
+	
+	self._createFlyoutToolBar()	
+	
+	self.updateCommandManager(bool_entering = True)    
+	 
+	 #Open the Build Chunks Property Manager
+	self.openPropertyManager(self)
+	
+	if self.depositAtomsAction.isChecked():
+	    self.activateAtomsTool()
+	elif self.transmuteBondsAction.isChecked():
+	    self.activateBondsTool()
+    	
+	self.w.dashboardHolder.hide() #@@ ninad 070104  Once all the dashboards become Property Managers,
+        #the w.dashBoardHolder (dockwidget) will be removed completely. So this is a temporary code. (see also restoreGui)
 
-        self.w.toolsDepositAtomAction.setOn(1) # turn on the Deposit Atoms icon
-
+	self.w.toolsDepositAtomAction.setChecked(True) # turn on the Deposit Atoms icon
+	
         self.pastable = None # by bruce 041124, for safety
 
         update_hybridComboBox(self.w) #bruce 050606; not sure this is the best place for it
 
         self.bondclick_v6 = None
+	
         self.update_bond_buttons()
         
         # Do these before connecting signals or we'll get history msgs.  Part of fix for bug 1620. mark 060322
-        self.w.depositAtomDashboard.highlightingCB.setChecked(self.hover_highlighting_enabled)
-        self.w.depositAtomDashboard.waterCB.setChecked(self.water_enabled)
-        
-        # connect signals (these all need to be disconnected in restore_gui) [bruce 050728 revised this]
-        self.connect_or_disconnect_signals(True)
-        
-        self.w.depositAtomDashboard.show() # show the Deposit Atoms dashboard
-
-        self.dont_update_gui = False
-        
-        # Huaicai 7/29/05: Open the MMKit every time entering this mode.
-        self.MMKit = self.w.modifyMMKit()
-        
+        self.highlightingCB.setChecked(self.hover_highlighting_enabled)
+        self.waterCB.setChecked(self.water_enabled)
+                
         # This is a workaround for a bug caused by the way in which the MMKit is created.
         # This should be fixed when the MMKit code gets cleaned up.  Mark 051216.
-        self.MMKit.elemGLPane.setBackgroundColor(self.o.backgroundColor, self.o.backgroundGradient)
-        
-        self.w.depositAtomDashboard.buildBtn.setOn(1) # Fixes bug 1537. mark 060301.
-
-        return # the caller will now call update_gui(); we rely on that [bruce 050122]
+        self.elemGLPane.setBackgroundColor(self.o.backgroundColor, self.o.backgroundGradient)
+	
+	# connect signals (these all need to be disconnectedfilterCB in restore_gui) [bruce 050728 revised this]
+        self.connect_or_disconnect_signals(True)        
+        #self.w.dashboardHolder.setWidget(self.w.depositAtomDashboard)
+	
+        self.dont_update_gui = False
+   
+        return # the caller will now call update_gui(); we rely on that [bruce 050122]  
+    
+    def enable_gui_actions(self, bool):
+	'''Enable or disable some gui actions depending on 
+	whether user is entering or leaving the mode'''
+	self.w.insertNanotubeAction.setEnabled(bool)
+	self.w.buildDnaAction.setEnabled(bool)
+	self.w.insertGrapheneAction.setEnabled(bool)
+	self.w.toolsCookieCutAction.setEnabled(bool)
+	#@@This should also contain HeteroJunctionAction. (in general Plugin actions)
 
     def connect_or_disconnect_signals(self, connect): #bruce 050728
         if connect:
@@ -392,54 +492,316 @@ class depositMode(selectAtomsMode):
         change_connect(self.w.elemChangeComboBox,SIGNAL("activated(int)"),
                        self.setAtom) #widget hidden in A7. mark 060327
             # Qt doc about SIGNAL("activated(int)"): This signal is not emitted
-            # if the item is changed programmatically, e.g. using setCurrentItem().
+            # if the item is changed programmatically, e.g. using setCurrentIndex().
             # Good! [bruce 050121 comment]
+	    
         change_connect(self.w.depositAtomDashboard.pasteBtn,
                        SIGNAL("pressed()"), self.setPaste) #widget hidden in A7. mark 060327
         change_connect(self.w.depositAtomDashboard.depositBtn,
                        SIGNAL("pressed()"), self.setAtom) #widget hidden in A7. mark 060327
         
         # New bond slots connections to the bond buttons on the dashboard. [mark 050727]
-        change_connect(self.w.depositAtomDashboard.bond1Btn,
-                       SIGNAL("toggled(bool)"), self.setBond1) #bruce 050727 changed "pressed()" to "toggled(bool)"
-        change_connect(self.w.depositAtomDashboard.bond2Btn,
-                       SIGNAL("toggled(bool)"), self.setBond2)
-        change_connect(self.w.depositAtomDashboard.bond3Btn,
-                       SIGNAL("toggled(bool)"), self.setBond3)
-        change_connect(self.w.depositAtomDashboard.bondaBtn,
-                       SIGNAL("toggled(bool)"), self.setBonda)
-        change_connect(self.w.depositAtomDashboard.bondgBtn,
-                       SIGNAL("toggled(bool)"), self.setBondg)
-        change_connect(self.w.depositAtomDashboard.buildBtn,
-                       SIGNAL("toggled(bool)"), self.setAtom) 
-                       # This was missing. Might have been cause of bug 1545. Theory not tested (try in A8).
-                       # This is needed to update cursor when buildBtn (Atom Tool) is selected.
-                       # See fix_submodes_btngrp() for more info. mark 060327
-                       
-        change_connect(self.w.depositAtomDashboard.transmuteBtn,
-                        SIGNAL("clicked()"),self.transmutePressed)
+	
+	#Build Prop manager signals Start
+	
+	
+	#Atom , Bond Tools Groupbox
+	change_connect(self.bondToolsActionGroup,
+		       SIGNAL("triggered(QAction *)"), self.changeBondTool)
+		
+	
+        change_connect(self.transmuteAtomsAction,
+                        SIGNAL("triggered()"),self.transmutePressed)
         
         # Slots for the Water and Highlight checkboxes. mark 060202.    
-        change_connect(self.w.depositAtomDashboard.waterCB,
+        change_connect(self.waterCB,
                         SIGNAL("toggled(bool)"),self.setWater)
-        change_connect(self.w.depositAtomDashboard.highlightingCB,
+	
+        change_connect(self.highlightingCB,
                         SIGNAL("toggled(bool)"),self.set_hoverHighlighting)
-        change_connect(self.w.depositAtomDashboard.filterCB,
-                        SIGNAL("toggled(bool)"),self.set_selection_filter)
-        
-        # Workaround for Qt bug. See more info in fix_submodes_btngrp() docstring. mark 060301.      
+	
+                
+        # Workaround for Qt bug. See more info in fix_submodes_btngrp() 
+	#docstring. mark 060301.      
         change_connect(self.w.depositAtomDashboard.submode_btngrp,
                         SIGNAL("released(int)"),self.fix_submodes_btngrp)
-                        
+	
+	change_connect(self.exitBuildAction, SIGNAL("triggered()"), 
+		       self.w.toolsDone)
+	change_connect(self.subControlActionGroup, 
+		       SIGNAL("triggered(QAction *)"),
+		       self.updateCommandManager)
+	
+	change_connect(self.transmuteBondsAction, 
+		       SIGNAL("triggered()"), 
+		       self.activateBondsTool)
+	
+	change_connect(self.depositAtomsAction, 
+		       SIGNAL("triggered()"), 
+		       self.activateAtomsTool)
+	                        
         return
+    
+    def _createFlyoutToolBar(self): #Ninad 070126
+	""" Adds custom actions to the flyout toolbar of this mode. 
+	This doesn't literally 'creates' flyoutToolbar instance
+	but returns a list of buttons to the 'updateCommandManager method"""
+	
+	actionlist, flyoutDictionary = self.getFlyoutActionList()
+	
+	#Control button color palette for the Exit Chunk button in the 
+	#flyout toolbar
+	controlPalette = QtGui.QPalette() 
+	controlPalette.setColor(QtGui.QPalette.Active,
+				   QtGui.QPalette.Button,
+				   QtGui.QColor(204,204,255)) 
+	controlPalette.setColor(QtGui.QPalette.Inactive,
+				   QtGui.QPalette.Button,
+				   QtGui.QColor(204,204,255)) 
+	controlPalette.setColor(QtGui.QPalette.Disabled,
+				   QtGui.QPalette.Button,
+				   QtGui.QColor(204,204,255)) 
+	
+	#Set a different color palette for the 'SubControl' buttons in the 
+	#command manager. 
+	subControlPalette = QtGui.QPalette() 
+	subControlPalette.setColor(QtGui.QPalette.Active,
+				   QtGui.QPalette.Button,
+				   QtGui.QColor(190,210,190)) 
+	subControlPalette.setColor(QtGui.QPalette.Inactive,
+				   QtGui.QPalette.Button,
+				   QtGui.QColor(190,210,190)) 
+	subControlPalette.setColor(QtGui.QPalette.Disabled,
+				   QtGui.QPalette.Button,
+				   QtGui.QColor(190,210,190)) 
+	
+	
+	# following needs to be a separate callable method -ninad070126
+	for action in actionlist:	    
+	    if action.__class__.__name__ is QtGui.QWidgetAction.__name__:
+		btn = QToolButton()
+		btn.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)	
+		btn.setFixedWidth(65)
+		btn.setMinimumHeight(55)				
+		#ninad 070125: make sure to a) define *default action* 
+		#of button to action and b) *default widget* of *action* 
+		#to 'button' 
+		#(a) ensures button has got action's signals, icon,  text and 
+		#other properties
+		#(b) ensures action has got button's geometry	    
+		btn.setDefaultAction(action)
+		action.setDefaultWidget(btn)
+		
+		#ninad 070201 temporary solution -- truncate the toolbutton 
+		#text if too long. 
+		
+		text = self.w.commandManager.truncateText(action.text())
+		btn.setText(text)
+		
+		#@@@ ninad070125 The following function 
+		#adds a newline character after each word in toolbutton text. 
+		#but the changes are reflected only on 'mode' toolbuttons 
+		#on the flyout toolbar (i.e.only Checkable buttons.Don't know why)
+		#Disabling its use for now. 
+		debug_wrapText = False
+		
+		if debug_wrapText:
+		    text = self.w.commandManager.wrapToolButtonText(action.text())
+		    if text:	
+			action.setText(text)	
+		
+		#Set a different color palette for the 'SubControl' buttons in 
+		#the command manager. 
+		if [key for (counter, key) in flyoutDictionary.keys() 
+		    if key is action]:
+		    btn.setAutoFillBackground(True)
+		    btn.setPalette(subControlPalette)	
+		
+		#Set control button color palette for the Exit Chunk button in 
+		#the flyout toolbar
+		if action is self.exitBuildAction:
+		    btn.setAutoFillBackground(True)
+		    btn.setPalette(controlPalette)		    
+			    
+	self.flyoutDictionary = flyoutDictionary			
+	
+    def getFlyoutActionList(self): #Ninad 070126
+	""" returns custom actionlist that will be used in a specific mode or 
+	editing a feature etc 	Example: while in Build molecules mode, 
+	the _createFlyoutToolBar method calls this. 
+	It also returns the 'subcontrolAreaActionList'  """	
+	
+	#ninad070330 This implementation may change in future. 
+	
+	#'allActionsList' returns all actions in the flyout toolbar 
+	#including the subcontrolArea actions. 
+	allActionsList = []
+	#Action List for  subcontrol Area buttons. 
+	#For now this list is just used to set a different palette to thisaction
+	#buttons in the toolbar
+	subControlAreaActionList =[] 
+	
+			
+	self.exitBuildAction = QtGui.QWidgetAction(self.w)
+	self.exitBuildAction.setText("Exit Atoms")
+	self.exitBuildAction.setIcon(geticon('ui/actions/Toolbars/Smart/Exit'))
+	self.exitBuildAction.setCheckable(True)
+	self.exitBuildAction.setChecked(True)
+		
+	self.subControlActionGroup = QtGui.QActionGroup(self.w)
+	self.subControlActionGroup.setExclusive(True)	
+	
+	
+	
+	
+	
+	self.subControlActionGroup.addAction(self.depositAtomsAction)	
+	##self.subControlActionGroup.addAction(self.transmuteAtomsAction)
+	self.subControlActionGroup.addAction(self.transmuteBondsAction)
+	
+	#Append subcontrol area actions to  subControlAreaActionList
+	#The 'Exit button' althought in the subcontrol area, would 
+	#look as if its in the Control area because of the different color palette 
+	#and the separator after it. This is intentional.
+	subControlAreaActionList.append(self.exitBuildAction)
+	separator1 = QtGui.QAction(self.w)
+	separator1.setSeparator(True)
+	subControlAreaActionList.append(separator1) 
+	
+	subControlAreaActionList.append(self.depositAtomsAction)	
+	##subControlAreaActionList.append(self.transmuteAtomsAction)
+	subControlAreaActionList.append(self.transmuteBondsAction)	
+	separator = QtGui.QAction(self.w)
+	separator.setSeparator(True)
+	subControlAreaActionList.append(separator) 
+	
+	#Also add the subcontrol Area actions to the 'allActionsList'
+	for a in subControlAreaActionList:
+	    allActionsList.append(a)	
+	##actionlist.append(self.w.modifyAdjustSelAction)
+	##actionlist.append(self.w.modifyAdjustAllAction)
+	
+	#Ninad 070330:
+	#Command Actions : These are the actual actions that will respond the 
+	#a button pressed in the 'subControlArea (if present). 
+	#Each Subcontrol area button can have its own 'command list' 
+	#The subcontrol area buuton and its command list form a 'key:value pair 
+	#in a python dictionary object
+	#In Build mode, as of 070330 we have 3 subcontrol area buttons 
+	#(or 'actions)'
+	commandActionLists = [] 
+	
+	#Append empty 'lists' in 'commandActionLists equal to the 
+	#number of actions in subControlArea 
+	for i in range(len(subControlAreaActionList)):
+	    lst = []
+	    commandActionLists.append(lst)
+	
+	#Command list for the subcontrol area button 'Atoms Tool'
+	#For others, this list will remain empty for now -- ninad070330	
+	depositAtomsCmdLst = []
+	depositAtomsCmdLst.append(self.w.modifyHydrogenateAction)
+	depositAtomsCmdLst.append(self.w.modifyDehydrogenateAction)
+	depositAtomsCmdLst.append(self.w.modifyPassivateAction)
+	separatorAfterPassivate = QtGui.QAction(self.w)
+	separatorAfterPassivate.setSeparator(True)
+	depositAtomsCmdLst.append(separatorAfterPassivate) 
+	depositAtomsCmdLst.append(self.transmuteAtomsAction)	
+	separatorAfterTransmute = QtGui.QAction(self.w)
+	separatorAfterTransmute.setSeparator(True)
+	depositAtomsCmdLst.append(separatorAfterTransmute)
+	depositAtomsCmdLst.append(self.w.modifyDeleteBondsAction)
+	depositAtomsCmdLst.append(self.w.modifySeparateAction)
+	depositAtomsCmdLst.append(self.w.makeChunkFromAtomsAction)
+			
+	commandActionLists[2].extend(depositAtomsCmdLst)
+	
+	##for action in self.w.buildToolsMenu.actions():
+	    ##commandActionLists[2].append(action)
+	
+	#Command list for the subcontrol area button 'Bonds Tool'
+	#For others, this list will remain empty for now -- ninad070405	
+	bondsToolCmdLst = []
+	bondsToolCmdLst.append(self.bond1Action)
+	bondsToolCmdLst.append(self.bond2Action)
+	bondsToolCmdLst.append(self.bond3Action)
+	bondsToolCmdLst.append(self.bondaAction)
+	bondsToolCmdLst.append(self.bondgAction)
+	commandActionLists[3].extend(bondsToolCmdLst)
+	
+	#The subcontrol area button and its command list form a 'key:value pair
+	#in a python dictionary object
+	flyoutDictionary = {}
+	
+	counter = 0
+	for k in subControlAreaActionList:
+	    # counter is used to sort the keys in the order in which they 
+	    #were added
+	    key = (counter, k) 
+	    flyoutDictionary[key] = commandActionLists[counter]
+	    #Also add command actions to the 'allActionsList'
+	    allActionsList.extend(commandActionLists[counter]) 
+	    counter +=1
+	    	    
+	return allActionsList, flyoutDictionary
+    
+    def updateCommandManager(self, bool_entering = True):
+	''' Update the command manager '''
+	
+	self.w.commandManager.updateCommandManager(self.w.toolsDepositAtomAction,
+						   self.flyoutDictionary, 
+						   entering =bool_entering)
+    
+    def activateAtomsTool(self):
+	''' Activate the atoms tool of the build chunks mode 
+	hide only the Atoms Tools groupbox in the Build chunks Property manager
+	and show all others the others.'''
+	
+	self.bondTools_grpBox.hide()
+	
+	for grpbox in self.thumbView_groupBox,	\
+	self.MMKit_groupBox,\
+	self.selectionFilter_groupBox:
+	    grpbox.show()  
+	
+	self.pw.propertyManagerScrollArea.ensureWidgetVisible(
+	    self.heading_label)
+	
+	self.setAtom()
+		
+    def activateBondsTool(self):
+	''' Activate the bond tool of the build chunks mode 
+	Show only the Bond Tools groupbox in the Build chunks Property manager
+	and hide the others.'''
+	
+	self.bond1Action.setChecked(True)
+	self.changeBondTool(self.bond1Action)
+			
+	for grpbox in self.thumbView_groupBox,	\
+	self.MMKit_groupBox,\
+	self.selectionFilter_groupBox:
+	    grpbox.hide()  
+	
+	self.bondTools_grpBox.show()
+	
+	self.pw.propertyManagerScrollArea.ensureWidgetVisible(
+	    self.heading_label)
+		   
 
     def update_bond_buttons(self): #bruce 050728 (should this be used more widely?); revised 050831
         "make the dashboard one-click-bond-changer state buttons match whatever is stored in self.bondclick_v6"
-        self.w.depositAtomDashboard.bond1Btn.setOn( self.bondclick_v6 == V_SINGLE)
-        self.w.depositAtomDashboard.bond2Btn.setOn( self.bondclick_v6 == V_DOUBLE)
-        self.w.depositAtomDashboard.bond3Btn.setOn( self.bondclick_v6 == V_TRIPLE)
-        self.w.depositAtomDashboard.bondaBtn.setOn( self.bondclick_v6 == V_AROMATIC)
-        self.w.depositAtomDashboard.bondgBtn.setOn( self.bondclick_v6 == V_GRAPHITE)
+	
+	#Notes:
+	# In A8, self.bond1Btn was self.w.depositAtomDashboard.build1Btn and like that. Since the dashboard will be moved to 
+	#Property Manager, gradually, all self.w.depositAtomDashboard calls will be changed to sel.MMKit calls. 
+	#Also note that , it may even be called by a different name instead of MMKit (e.g. BuildPropertyManager which might
+	 #be called as self.pw.blahblah where self.pw = active part window. This comment is subjected to revision - Ninad 061214
+	self.bond1Action.setChecked( self.bondclick_v6 == V_SINGLE)
+        self.bond2Action.setChecked( self.bondclick_v6 == V_DOUBLE)
+        self.bond3Action.setChecked( self.bondclick_v6 == V_TRIPLE)
+        self.bondaAction.setChecked( self.bondclick_v6 == V_AROMATIC)
+        self.bondgAction.setChecked( self.bondclick_v6 == V_GRAPHITE)
+	
         #####@@@@@ else set the Atom Tool on?? [bruce 060702 comment]
         return
     
@@ -524,14 +886,14 @@ class depositMode(selectAtomsMode):
         # update the spinbox contents to match that
         self.w.pasteComboBox.clear()
         for ob in self.pastables_list:
-            self.w.pasteComboBox.insertItem(ob.name)
+            self.w.pasteComboBox.insertItem(-1, ob.name)
         if not self.pastables_list:
             # insert a text label saying why spinbox is empty [bruce 041124]
             if members:
                 whynot = "(no clips are pastable)" # this text should not be longer than the one below, for now
             else:
                 whynot = "(clipboard is empty)"
-            self.w.pasteComboBox.insertItem( whynot)
+            self.w.pasteComboBox.insertItem(-1, whynot)
             #e Should we disable this item? we can't (acc'd to Qt doc for combobox),
             # but it might work to change font for all items using box.setFont,
             # but I didn't yet find out if that could be used to gray them out.
@@ -549,10 +911,10 @@ class depositMode(selectAtomsMode):
                 # (no longer cares about selection of clipboard items -- bruce 050121)
             assert self.pastable # can fail if None is in the list or "not in" doesn't work right for None
             cx = self.pastables_list.index(self.pastable)
-            self.w.pasteComboBox.setCurrentItem(cx)
+            self.w.pasteComboBox.setCurrentIndex(cx)
                 # Q. does that activate it and tell us it changed, as if user changed it?
                 # A: no -- Qt doc about SIGNAL("activated(int)"): This signal is not emitted
-                # if the item is changed programmatically, e.g. using setCurrentItem().
+                # if the item is changed programmatically, e.g. using setCurrentIndex().
                 # Good!
             enabled = 1
         
@@ -575,7 +937,7 @@ class depositMode(selectAtomsMode):
             ## call this from update_gui (called by UpdateDashboard) instead,
             ## so it will happen the first time we're setting it up, too:
             ## self.resubscribe_to_clipboard_members_changed()
-            self.MMKit.update_clipboard_items() # Fixes bugs 1569, 1570, 1572 and 1573. mark 060306.
+            self.update_clipboard_items() # Fixes bugs 1569, 1570, 1572 and 1573. mark 060306.
                 # Note and bugfix, bruce 060412: doing this now was also causing traceback bugs 1726, 1629,
                 # and the traceback part of bug 1677, and some related (perhaps unreported) bugs.
                 # The problem was that this is called during pasteBond's addmol (due to its addchild), before it's finished,
@@ -631,12 +993,18 @@ class depositMode(selectAtomsMode):
     # [mark 041004]
     def restore_gui(self):
         # disconnect signals which were connected in init_gui [bruce 050728]
+		
+	self.w.toolsDepositAtomAction.setChecked(False) # toggle the Deposit Atoms icon
+	
         self.connect_or_disconnect_signals(False)
+	self.enable_gui_actions(True)
         
         self.w.depositAtomDashboard.hide() # Stow away dashboard
+	
+	self.updateCommandManager(bool_entering = False)      
         
-        self.MMKit.close() # Close the MMKit when leaving Build mode.
-
+        self.closePropertyManager()
+		
 # Now uses superclass method selectAtomsMode.restore_patches(). mark 060207.
 #    def restore_patches(self):
 #        self.o.setDisplay(self.saveDisp) #bruce 041129; see notes for bug 133
@@ -662,7 +1030,7 @@ class depositMode(selectAtomsMode):
             num = self.w.hybridComboBox.count()
             if key in acKeys[:num]:
                 hybridId = acKeys.index(key)
-                self.w.hybridComboBox.setCurrentItem(hybridId)
+                self.w.hybridComboBox.setCurrentIndex(hybridId)
                 self.w.hybridComboBox.emit(SIGNAL("activated"), (hybridId,))
                 
         # Pressing Escape does the following:
@@ -672,10 +1040,10 @@ class depositMode(selectAtomsMode):
         # current selection.
         # Fixes bug (nfr) 1770. mark 060402
         if key == Qt.Key_Escape:
-            if not self.w.depositAtomDashboard.buildBtn.isOn() or self.w.selection_filter_enabled:
+            if not self.depositAtomsAction.isChecked() or self.w.selection_filter_enabled:
                 # Uncheck (disable) the Atom Selection Filter and activate the Atom Tool.
-                self.w.depositAtomDashboard.filterCB.setChecked(0) # generates signal.
-                self.w.depositAtomDashboard.buildBtn.setOn(1)
+                self.filterCB.setChecked(0) # generates signal.
+                self.depositAtomsAction.setChecked(1)
                 return
         
         selectAtomsMode.keyPress(self,key) # bruce 050128
@@ -685,9 +1053,20 @@ class depositMode(selectAtomsMode):
     def update_cursor_for_no_MB_selection_filter_disabled(self):
         '''Update the cursor for 'Build' mode (when no mouse button is pressed).
         '''
-        cursor_id = self.w.depositAtomDashboard.submode_btngrp.selectedId()
-        
-        if self.o.modkeys is None:
+        #cursor_id = self.w.depositAtomDashboard.submode_btngrp.selectedId()
+        cursor_id = 0
+        if hasattr(self.w, "current_bondtool_button") and self.w.current_bondtool_button is not None:
+            cursor_id = self.w.current_bondtool_button.index
+	
+	if self.depositAtomsAction.isChecked(): cursor_id =0
+	elif self.bond1Action.isChecked(): cursor_id = 1
+	elif self.bond2Action.isChecked(): cursor_id = 2
+	elif self.bond3Action.isChecked(): cursor_id = 3
+	elif self.bondaAction.isChecked(): cursor_id = 4
+	elif self.bondgAction.isChecked(): cursor_id = 5
+	else: cursor_id = 0	 
+	
+        if self.o.modkeys is None:	       
             self.o.setCursor(self.w.BondToolCursor[cursor_id])
         elif self.o.modkeys == 'Shift':
             self.o.setCursor(self.w.BondToolAddCursor[cursor_id])
@@ -1167,21 +1546,37 @@ class depositMode(selectAtomsMode):
         # so for now [bruce 060702] it's deemed the official condition.
         # But I can't tell for sure whether the other conditions (modkeys, or commented out access to another button)
         # belong here, so I didn't copy them here but left the code in bondLeftUp unchanged (at least for A8).
-        return not self.w.depositAtomDashboard.buildBtn.isOn()
+	
+	# In A8, self.depositAtomsAction was self.w.depositAtomDashboard.buildBtn. Since the dashboard will be moved to 
+	    #Property Manager, gradually, all self.w.depositAtomDashboard calls will be changed to sel.MMKit calls. 
+	    #Also note that , it may even be called by a different name instead of MMKit (e.g. BuildPropertyManager which might
+	    #be called as self.pw.blahblah where self.pw = active part window. This comment is subjected to revision - Ninad 061214
+	#ninad 070205: self.buildBtn is now replaced with self.depositAtomsAction
+	return not self.depositAtomsAction.isChecked()
+    
+    
+    
+	
         
     def bondLeftUp(self, b, event): # was bondClicked(). mark 060220. [WARNING: docstring appears to be out of date -- bruce 060702]
         '''Bond <b> was clicked, so select or unselect its atoms or delete bond <b> 
         based on the current modkey.
-        - If no modkey is pressed, clear the selection and pick <b>'s two atoms.
-        - If Shift is pressed, pick <b>'s two atoms, adding them to the current selection.
-        - If Ctrl is pressed,  unpick <b>'s two atoms, removing them from the current selection.
+        - If no modkey is pressed, clear the selection and pick <b>\'s two atoms.
+        - If Shift is pressed, pick <b>\'s two atoms, adding them to the current selection.
+        - If Ctrl is pressed,  unpick <b>\'s two atoms, removing them from the current selection.
         - If Shift+Control (Delete) is pressed, delete bond <b>.
         <event> is a LMB release event.
         '''
 
         if self.o.modkeys is None:
-            if not self.w.depositAtomDashboard.buildBtn.isOn(): ### see also self.bond_type_changer_is_active()
-            #&if not self.w.depositAtomDashboard.buildBtn.isOn() and not self.w.depositAtomDashboard.atomBtn.isOn():
+           
+	    if not self.depositAtomsAction.isChecked(): ### see also self.bond_type_changer_is_active()
+	    # In A8, self.depositAtomsAction was self.w.depositAtomDashboard.buildBtn. Since the dashboard will be moved to 
+	    #Property Manager, gradually, all self.w.depositAtomDashboard calls will be changed to sel.MMKit calls. 
+	    #Also note that , it may even be called by a different name instead of MMKit (e.g. BuildPropertyManager which might
+	    #be called as self.pw.blahblah where self.pw = active part window. This comment is subjected to revision - Ninad 061214
+	    
+            #&if not self.w.depositAtomDashboard.buildBtn.isChecked() and not self.w.depositAtomDashboard.atomBtn.isChecked():
             #& Reinstate in A8.  mark 060301.
                 self.bond_change_type(b, allow_remake_bondpoints = True)
                 self.o.gl_update()
@@ -1299,7 +1694,7 @@ class depositMode(selectAtomsMode):
         Otherwise, deposit the part at the position 'atom_or_pos'.
         Return (deposited_stuff, status_msg_text), whether or not deposition was successful.
         ''' 
-        newPart, hotSpot = self.MMKit.getPastablePart()
+        newPart, hotSpot = self.getPastablePart()
         
         if not newPart: # Make sure a part is selected in the MMKit Library.
             # Whenever the MMKit is closed with the 'Library' page open,
@@ -1394,7 +1789,7 @@ class depositMode(selectAtomsMode):
                     reload(build_utils)
                 from build_utils import AtomTypeDepositionTool
                 deptool = AtomTypeDepositionTool( atype)
-                autobond = self.w.depositAtomDashboard.autobondCB.isChecked() #bruce 050831
+                autobond = self.autobondCB.isChecked() #bruce 050831
                 a1, desc = deptool.attach_to(a, autobond = autobond)
                         #e this might need to take over the generation of the following status msg...
                 ## a1, desc = self.attach(el, a)
@@ -1712,6 +2107,7 @@ class depositMode(selectAtomsMode):
         paste a copy of self.pastable onto the given singlet;
         return (the copy, description) or (None, whynot)
         """
+	self.update_pastable()
         pastable = self.pastable
             # as of 050316 addmol can change self.pastable! See comments in pasteFree.
         # bruce 041123 added return values (and guessed docstring).
@@ -1757,6 +2153,7 @@ class depositMode(selectAtomsMode):
     # objectionable after this, it can be removed (or made a nondefault preference).
     # ... bruce 050124: that feature bothers me, decided to remove it completely.
     def pasteFree(self, pos):
+        self.update_pastable()
         pastable = self.pastable
             # as of 050316 addmol can change self.pastable!
             # (if we're operating in the same clipboard item it's stored in,
@@ -1808,7 +2205,7 @@ class depositMode(selectAtomsMode):
     def update_pastable(self): #bruce 050121 split this out of my revised setPaste
         "update self.pastable from the current spinbox position"
         try:
-            cx = self.w.pasteComboBox.currentItem()
+            cx = self.w.pasteComboBox.currentIndex()
             self.pastable = self.pastables_list[cx] # was self.o.assy.shelf.members
         except: # various causes, mostly not errors
             self.pastable = None
@@ -1864,34 +2261,58 @@ class depositMode(selectAtomsMode):
 ##        return
         
     def setAtom(self):
-        "Slot for Atoms Tool dashboard button." 
-        self.pastable = None # but spinbox records it... but not if set of pastables is updated! so maybe a bad idea? ##k
+        "Slot for Atoms Tool button in the Build Chunks property manager"
+        self.pastable = None
+        # but spinbox records it... but not if set of pastables is updated! so maybe a bad idea? ##k
         self.update_cursor()
         self.w.depositState = 'Atoms'
+        # update_depositState_buttons is defined in MWsemantics.py.
+        # When you hit buildBtn, it automatically changes you to
+        # depositBtn, giving the impression that buildBtn is somehow
+        # unpressable.
+        #
         self.w.update_depositState_buttons()
         self.UpdateDashboard() #bruce 050121 added this
 
     bondclick_v6 = None
     
+    def changeBondTool(self, action):
+	''' Change the bond tool (e.g. single, double, triple, aromatic 
+	and graphitic) depending upon the checked action.
+	@param: action is the checked bond tool action in the 
+	bondToolsActionGroup'''
+	state = action.isChecked()
+	if action ==  self.bond1Action:
+	    self.setBond1(state)
+	elif action == self.bond2Action:
+	    self.setBond2(state)
+	elif action == self.bond3Action:
+	    self.setBond3(state)
+	elif action == self.bondaAction:
+	    self.setBonda(state)
+	elif action == self.bondgAction:
+	    self.setBondg(state)
+	    
+    
     def setBond1(self, state):
-        "Slot for Bond Tool Single dashboard button."
-        self.setBond(V_SINGLE, state, self.w.depositAtomDashboard.bond1Btn )
+        "Slot for Bond Tool Single button."
+	self.setBond(V_SINGLE, state)
         
     def setBond2(self, state):
-        "Slot for Bond Tool Double dashboard button."
-        self.setBond(V_DOUBLE, state, self.w.depositAtomDashboard.bond2Btn )
+        "Slot for Bond Tool Double button."
+	self.setBond(V_DOUBLE, state)
     
     def setBond3(self, state):
-        "Slot for Bond Tool Triple dashboard button."
-        self.setBond(V_TRIPLE, state, self.w.depositAtomDashboard.bond3Btn )
+        "Slot for Bond Tool Triple button."
+	self.setBond(V_TRIPLE, state )
         
     def setBonda(self, state):
-        "Slot for Bond Tool Aromatic dashboard button."
-        self.setBond(V_AROMATIC, state, self.w.depositAtomDashboard.bondaBtn )
+        "Slot for Bond Tool Aromatic button."
+	self.setBond(V_AROMATIC, state)
 
     def setBondg(self, state): #mark 050831
         "Slot for Bond Tool Graphitic dashboard button."
-        self.setBond(V_GRAPHITE, state, self.w.depositAtomDashboard.bondgBtn )
+	self.setBond(V_GRAPHITE, state)
         
     def setBond(self, v6, state, button = None):
         "#doc; v6 might be None, I guess, though this is not yet used"
@@ -1899,7 +2320,7 @@ class depositMode(selectAtomsMode):
             if self.bondclick_v6 == v6 and button is not None and v6 is not None:
                 # turn it off when clicked twice -- BUG: this never happens, maybe due to QButtonGroup.setExclusive behavior
                 self.bondclick_v6 = None
-                button.setOn(False) # doesn't work?
+                button.setChecked(False) # doesn't work?
             else:
                 self.bondclick_v6 = v6
             if self.bondclick_v6:
@@ -1915,6 +2336,7 @@ class depositMode(selectAtomsMode):
         else:
             pass # print "toggled(false) for",btype_from_v6(v6) # happens for the one that was just on, unless you click same one
         self.update_cursor()
+	
         return
     
     def fix_submodes_btngrp(self, button_id):
@@ -1941,55 +2363,9 @@ class depositMode(selectAtomsMode):
             msg = "Water surface disabled."
         env.history.message(msg)
         self.o.gl_update()
-        
-    #== Atom Selection Filter helper methods
-        
-    def set_selection_filter(self, enabled):
-        '''Slot for Atom Selection Filter checkbox. Prints history message when selection filter is
-        enabled/disabled and updates the cursor.
-        '''
-        
-        if enabled != self.w.selection_filter_enabled:
-            if enabled:
-                env.history.message("Atom Selection Filter enabled.")
-            else:
-                env.history.message("Atom Selection Filter disabled.")
-        
-        self.w.selection_filter_enabled = enabled
-
-        #print "update_selection_filter_list(): self.w.filtered_elements=", self.w.filtered_elements
-        
-        self.update_selection_filter_list_widget()
-        self.w.depositAtomDashboard.filterlistLE.setEnabled(enabled)
-        self.update_cursor()
-    
-    def update_selection_filter_list(self):
-        '''Adds/removes the element selected in the MMKit to/from Atom Selection Filter
-        based on what modifier key is pressed (if any).
-        '''
-        eltnum = self.w.Element
-        
-        if self.o.modkeys is None:
-            self.w.filtered_elements = []
-            self.w.filtered_elements.append(PeriodicTable.getElement(eltnum))
-        if self.o.modkeys == 'Shift':
-            if not PeriodicTable.getElement(eltnum) in self.w.filtered_elements[:]:
-                self.w.filtered_elements.append(PeriodicTable.getElement(eltnum))
-        elif self.o.modkeys == 'Control':
-            if PeriodicTable.getElement(eltnum) in self.w.filtered_elements[:]:
-                self.w.filtered_elements.remove(PeriodicTable.getElement(eltnum))
-                
-        self.update_selection_filter_list_widget()
-        
-    def update_selection_filter_list_widget(self):
-        '''Updates the list of elements displayed in the Atom Selection Filter List.
-        '''
-        filtered_syms=''
-        for e in self.w.filtered_elements[:]:
-            if filtered_syms: filtered_syms += ", "
-            filtered_syms += e.symbol
-        self.w.depositAtomDashboard.filterlistLE.setText(filtered_syms)
-    
+	
+            
+            
     #== Transmute helper methods
     
     def get_atomtype_from_MMKit(self):
@@ -2016,7 +2392,7 @@ class depositMode(selectAtomsMode):
         
     def transmutePressed(self):
         '''Slot for "Transmute" button. '''
-        force = self.w.depositAtomDashboard.transmuteCB.isChecked()
+        force = self.transmuteCB.isChecked()
         atomType = self.get_atomtype_from_MMKit()
         self.w.assy.modifyTransmute(self.w.Element, force = force, atomType=atomType)
         
@@ -2060,7 +2436,7 @@ class depositMode(selectAtomsMode):
         """Draw the water's surface -- a sketch plane to indicate where the new atoms will sit by default,
         which also prevents (some kinds of) selection of objects behind it.
         """
-        if not self.w.depositAtomDashboard.waterCB.isChecked():
+        if not self.waterCB.isChecked():
             return
             
         glDisable(GL_LIGHTING)
@@ -2367,7 +2743,11 @@ class depositMode(selectAtomsMode):
             # (this might date from before hotspots were ever visible -- not sure):
             ## also update glpane if we show pastable someday; not needed now
             ## [and removed by bruce 050121]
-            
+	    
+	    #Open the clipboard page (for set hotspot and copy operation performed 
+	    #on a bond point in the main part (while in deposit mode)
+	    self.change2ClipboardPage()
+	   	            
         return
 
     def set_pastable(self, pastable): # no one calls this yet, but they could... [bruce 050121; untested]

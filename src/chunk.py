@@ -1,9 +1,10 @@
-# Copyright (c) 2004-2007 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 chunk.py -- provides class molecule, for a chunk of atoms
 which can be moved and selected as a unit.
 
 $Id$
+
 
 History:
 
@@ -231,6 +232,12 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         
         return # from molecule.__init__
 
+    def contains_atom(self, atom): #bruce 070514
+        """Does self contain the given atom (a real atom or bondpoint)?
+        """
+        #e the same-named method would be useful in Node, Selection, etc, someday
+        return atom.molecule is self
+    
     def break_interpart_bonds(self): #bruce 050308-16 to help fix bug 371; revised 050513
         "[overrides Node method]"
         assert self.part is not None
@@ -303,14 +310,16 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
 	"molvdw.png",
 	"mollines.png",
 	"molcpk.png",
-	"moltubes.png" ]
+	"moltubes.png",
+        "molcylinder.png" ]
     hideicon_names = [
         "moldefault-hide.png",
         "molinvisible-hide.png",
         "molvdw-hide.png",
         "mollines-hide.png",
         "molcpk-hide.png",
-        "moltubes-hide.png" ]
+        "moltubes-hide.png",
+        "molcylinder-hide.png" ]
     mticon = []
     hideicon = []
     def init_icons(self):
@@ -322,9 +331,9 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             return
         # the following runs once per Atom session.
         for name in self.mticon_names:
-            self.mticon.append( imagename_to_pixmap( name))
+            self.mticon.append( imagename_to_pixmap( "modeltree/" + name))
         for name in self.hideicon_names:
-            self.hideicon.append( imagename_to_pixmap( name))
+            self.hideicon.append( imagename_to_pixmap( "modeltree/" + name))
         return
     def node_icon(self, display_prefs): # bruce 050109 revised this [was seticon]; revised again 060608
         try:
@@ -338,7 +347,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             if hd:
                 return hd.get_icon(self.hidden)
             # hmm, some sort of bug
-            return imagename_to_pixmap("junk.png")
+            return imagename_to_pixmap("modeltree/junk.png")
         pass
     def bond(self, at1, at2):
         """Cause atom at1 to be bonded to atom at2.
@@ -877,6 +886,15 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         #  due to a special system used by self.changeapp() in place of self.track_change(),
         #  but it should be harmless.)
         self.track_use()
+        
+        #@@@ninad 070219 temporary code to draw the chunk as a colored selection instead of selection polyhedron. 
+        # It is slow. Should be reimplemented. 
+        #Need to discuss this with Bruce. 
+        #ninad070406 disabled the following. drawing the chunks as a colored 
+        #selection  in its display list --(which speeds up the chunk drawing and 
+        #also fixes ome bugs where the green color looks 'patchy' at some places.
+        
+        ##self._draw_colored_selection(glpane)
 
         drawLevel = self.assy.drawLevel # this might recompute it
             # (if that happens and grabs the pref value, I think this won't subscribe our display list to it,
@@ -921,8 +939,9 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
 
             #bruce 060608 moved drawing of selection wireframe from here to after the new increment of _havelist_inval_counter
             # (and split it into a new submethod), even though it's done outside of the display list.
-            # This was necessary for _drawchunk_selection_frame's use of memoized data to work.
+            # This was necessary for _drawchunk_selection_frame's use of memoized data to work.            
             ## self._draw_selection_frame(glpane, delegate_selection_wireframe, hd)
+            
 
             # cache chunk display (other than selection wireframe or hover highlighting) as OpenGL display list
             
@@ -985,7 +1004,10 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                     #e (in future it might be safer to remake the display list to contain
                     # only a known-safe thing, like a bbox and an indicator of the bug.)
                 pass
-            self._draw_selection_frame(glpane, delegate_selection_wireframe, hd) #bruce 060608 moved this here
+            
+            #@@ninad 070219 disabling the following--
+            #self._draw_selection_frame(glpane, delegate_selection_wireframe, hd) #bruce 060608 moved this here
+            
             assert `should_not_change` == `( + self.basecenter, + self.quat )`, \
                 "%r != %r, what's up?" % (should_not_change , ( + self.basecenter, + self.quat))
                 # (we use `x` == `y` since x == y doesn't work well for these data types)
@@ -1027,6 +1049,12 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                 hd._drawchunk_selection_frame(glpane, self, PickedColor, highlighted = False)
             pass
         return
+    
+    def _draw_colored_selection(self, glpane):#@@@ ninad 070216
+        if self.picked:
+            glpane.drawHighlightedChunk(self, darkgreen)
+        pass
+    
 
     def draw_displist(self, glpane, disp0, hd_info): #bruce 050513 optimizing this somewhat; 060608 revising it
         "[private submethod of self.draw]"
@@ -1067,8 +1095,15 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # bruce 041014 hack for extrude -- use _colorfunc if present [part 1; optimized 050513]
         _colorfunc = self._colorfunc # might be None [as of 050524 we supply a default so it's always there]
         _dispfunc = self._dispfunc #bruce 060411 hack for BorrowerChunk, might be more generally useful someday
-        color = self.color # only used if _colorfunc is None
-        bondcolor = self.color # never changed
+        
+        #ninad070405 Following draws the chunk as a colored selection 
+        #(if selected)
+        if self.picked:
+            color = darkgreen
+            bondcolor = darkgreen
+        else:
+            color = self.color # only used if _colorfunc is None
+            bondcolor = self.color # never changed
         
         for atm in self.atoms.itervalues(): #bruce 050513 using itervalues here (probably safe, speed is needed)
             try:
@@ -1120,7 +1155,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                             else:
                                 # internal bond, not yet drawn
                                 drawn[bon.key] = bon
-                                bon.draw(glpane, disp, bondcolor, drawLevel)
+                                bon.draw(glpane, disp, bondcolor, drawLevel)  
             except:
                 # [bruce 041028 general workaround to make bugs less severe]
                 # exception in drawing one atom. Ignore it and try to draw the
@@ -1632,7 +1667,8 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         """select the molecule.
         """
         if not self.picked:
-            self.assy.permit_pick_parts() #bruce 050125 added this... hope it's ok! ###k ###@@@
+            if self.assy is not None:
+                self.assy.permit_pick_parts() #bruce 050125 added this... hope it's ok! ###k ###@@@
                 # (might not be needed for other kinds of leaf nodes... not sure. [bruce 050131])
             Node.pick(self)
             #bruce 050308 comment: Node.pick has ensured that we're in the current selection group,
@@ -1642,10 +1678,23 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             # [bruce 060130 cleaned this up, should be equivalent]
             if self.part:
                 self.part.selmols_append(self)
+                
+            ##Earlier comment from Bruce (when chunk was selected as a 'wireframe' 
+            ##instead of a colored selection -- ninad 070406
             # bruce 041207 thinks self.havelist = 0 is no longer needed here,
             # since self.draw uses self.picked outside of its display list,
             # so I'm removing that! This might speed up some things.
-            ## self.havelist = 0
+            
+            #@@@ ninad 070406: enabled 'havelist'  to permit chunk picking 
+            #as a colored selection. (the selected chunk is shown in 'green color' 
+            #earlier I was using the same code as used for highlighting a chunk 
+            #but it was slow. Enabling the 'havelist' speeds up the selection 
+            #based on my tests. (Selecting chunks in Pump.mmp is about 
+            #1.5 seconds faster using display list than draiwing using the code that 
+            #is used to highlight the chunk.     
+            #Note: There needs to be a user preference that will allow user to 
+            # seletc the chunk as a wireframe --  ninad
+            self.havelist = 0 
             # bruce 041227 moved history message from here to one caller, pick_at_event
         return
     
@@ -1660,9 +1709,24 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             # [bruce 060130 cleaned this up, should be equivalent]            
             if self.part:
                 self.part.selmols_remove(self)
+            
+            ##Earlier comment from Bruce (when chunk was selected as a 'wireframe' 
+            ##instead of a colored selection -- ninad 070406
             # bruce 041207 thinks self.havelist = 0 is no longer needed here
             # (see comment in self.pick).
-            ## self.havelist = 0
+            
+            #@@@ ninad 070406: enabled 'havelist'  to permit chunk unpicking 
+            #which was selected as a colored selection/
+            #(the selected chunk is shown in 'green color' )
+            #earlier I was using the same code as used for highlighting a chunk 
+            #but it was slow. Enabling the 'havelist' speeds up the de-selection 
+            #based on my tests. (DeSelecting chunks in Pump.mmp is about 
+            #1.5-2 seconds faster using display list than draiwing using the code
+            #that is used to highlight the chunk.     
+            #Note: There needs to be a user preference that will allow user to 
+            # seletc the chunk as a wireframe --  ninad
+            self.havelist = 0 
+            
         return
     
     def kill(self):
@@ -2271,7 +2335,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             
     def edit(self):
         cntl = ChunkProp(self) # Renamed MoleculeProp to ChunkProp.  Mark 050929
-        cntl.exec_loop()
+        cntl.exec_()
         self.assy.mt.mt_update()
         ###e bruce 041109 comment: don't we want to repaint the glpane, too?
 
@@ -2653,7 +2717,7 @@ def shakedown_poly_evals_evecs_axis(basepos):
         # with the pre-060119 version of this routine. This would also permit
         # a future optimization in computing other kinds of axes for the same
         # chunk (by passing different options to compute_heuristic_axis),
-        # as we may want to do in setViewParallelTo and setViewNormalTo
+        # as we may want to do in viewParallelTo and viewNormalTo
         # (see also the comments about those in compute_heuristic_axis).
 
     axis = compute_heuristic_axis( basepos, 'chunk',

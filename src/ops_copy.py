@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2007 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 ops_copy.py -- general cut/copy/delete operations on selections
 containing all kinds of model tree nodes.

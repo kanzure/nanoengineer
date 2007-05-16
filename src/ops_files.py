@@ -1,5 +1,5 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
-'''
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+"""
 ops_files.py provides fileSlotsMixin for MWsemantics,
 with file slot methods and related helper methods.
 
@@ -16,12 +16,13 @@ bruce 050907 split this out of MWsemantics.py.
 bruce 050913 used env.history in some places.
 
 mark 060730 removed unsupported slot method fileNew(); refined and added missing docstrings
-'''
+"""
 
-from qt import QFileDialog, QMessageBox, QString, qApp, QSettings
+from PyQt4.Qt import QFileDialog, QMessageBox, QString, qApp, QSettings
 from assembly import assembly
 import os, shutil
 import platform
+from qt4transition import *
 
 from fileIO import * # this might be needed for some of the many other modules it imports; who knows? [bruce 050418 comment]
     # (and it's certainly needed for the functions it defines, e.g. writepovfile.)
@@ -36,6 +37,20 @@ import preferences
 import env
 
 debug_babel = False   # DO NOT COMMIT with True
+
+debug_recent_files = False  # Do not commit with True
+
+if debug_recent_files:
+    def debug_fileList(fileList):
+        qt4here(show_traceback=True)
+        print 'BEGIN fileList'
+        for x in fileList:
+            print x
+        print 'END fileList'
+else:
+    def debug_fileList(fileList):
+        pass
+
 
 def set_waitcursor(on_or_off):
     """For on_or_off True, set the main window waitcursor.
@@ -128,11 +143,19 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             "XYZ cartesian coordinates (*.xyz);;"\
             "YASARA.org YOB (*.yob)"
         
-        fn = QFileDialog.getOpenFileName(self.currentWorkingDirectory,
+        """fn = QFileDialog.getOpenFileName(self.currentWorkingDirectory,
                 formats,
                 self,
                 "Import File dialog",
-                "Select file to Import" )
+                "Select file to Import" )"""
+        
+        fn = QFileDialog.getOpenFileName(self, 
+                                 "Select a file to import", 
+                                 self.currentWorkingDirectory, 
+                                 formats
+                                 ) 
+        
+    
                 
         if not fn:
              env.history.message(cmd + "Cancelled")
@@ -281,12 +304,14 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
 
             ## Don't use OpenBabel for MDL, otherwise it would look like this
 
-        fn = QFileDialog.getSaveFileName(self.currentWorkingDirectory,
+        
+        fn = QFileDialog.getSaveFileName(self, 
+                                         "Export File", 
+                                         self.currentWorkingDirectory, 
                                          formats,
-                                         self,
-                                         "Export File dialog",
-                                         "Select file to Export",
-                                         sfilter)
+                                         sfilter
+                                         ) #@@@ ninad061009  Not sure how to set "Select file to Export" as default selected 
+                                            #filter option in qt4
 
         if not fn:
             env.history.message(cmd + "Cancelled")
@@ -355,16 +380,12 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         if platform.atom_debug:
             print 'start runBabel(%s, %s)' % (repr(infile), repr(outfile))
         import time
-        from qt import QStringList, QProcess
+        from PyQt4.Qt import QStringList, QProcess
         arguments = QStringList()
-        filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
-        program = os.path.normpath(filePath + '/../bin/babel')
         if sys.platform == 'win32':
-            program += '.exe'
-        if not os.path.exists(program):
-            env.history.message(redmsg("The OpenBabel program [" + program
-                                       + "] is missing. Translation aborted."))
-            return False
+            program = 'babel.exe'
+        else:
+            program = 'babel'
         i = 0
         for arg in [program, infile, outfile]:
             if platform.atom_debug:
@@ -419,13 +440,12 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                     "Protein Data Bank (*.pdb);;"\
                     "GAMESS (*.out);;"\
                     "All Files (*.*)"
-        
-        fn = QFileDialog.getOpenFileName(self.currentWorkingDirectory,
-                formats,
-                self,
-                "Insert File dialog",
-                "Select file to insert" ) # This is the caption for the dialog.  Fixes bug 1125. Mark 051116.
-                
+       
+        fn = QFileDialog.getOpenFileName(self, 
+                                         "Select a file to insert", 
+                                         self.currentWorkingDirectory, 
+                                         formats)
+                        
         if not fn:
              env.history.message("Cancelled")
              return
@@ -488,10 +508,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         """
         env.history.message(greenmsg("Open File:"))
         
-        mmkit_was_hidden = self.hide_MMKit_during_open_or_save_on_MacOS() # Fixes bug 1744. mark 060325
-        
         if self.assy.has_changed():
-            ret = QMessageBox.warning( self, self.name(),
+            ret = QMessageBox.warning( self, "Warning!",
                 "The part contains unsaved changes.\n"
                 "Do you want to save the changes before opening a new part?",
                 "&Save", "&Discard", "Cancel",
@@ -502,23 +520,25 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 ##Huaicai 1/6/05: If user canceled save operation, return 
                 ## without letting user open another file
                 if not self.fileSave():
-                    if mmkit_was_hidden: self.glpane.mode.MMKit.show() # Fixes bug 1744. mark 060325
                     return
                 
             ## Huaicai 12/06/04. Don't clear it, user may cancel the file open action    
             elif ret==1: pass#self.__clear() 
             
             elif ret==2: 
-                env.history.message("Cancelled.")
-                if mmkit_was_hidden: self.glpane.mode.MMKit.show() # Fixes bug 1744. mark 060325
+                env.history.message("Cancelled.")              
                 return # Cancel clicked or Alt+C pressed or Escape pressed
 
         if recentFile:
             if not os.path.exists(recentFile):
-              QMessageBox.warning( self, self.name(),
-                "The file [ " + recentFile + " ] doesn't exist any more.", QMessageBox.Ok, QMessageBox.NoButton)
-              if mmkit_was_hidden: self.glpane.mode.MMKit.show() # Fixes bug 1744. mark 060325
-              return
+                if hasattr(self, "name"):
+                    name = self.name()
+                else:
+                    name = "???"
+                QMessageBox.warning( self, name,
+                                     "The file [ " + recentFile + " ] doesn't exist any more.",
+                                     QMessageBox.Ok, QMessageBox.NoButton)
+                return
             
             fn = recentFile
         else:
@@ -527,15 +547,15 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                     "Protein Data Bank (*.pdb);;"\
                     "All Files (*.*)"
             
-            fn = QFileDialog.getOpenFileName(self.currentWorkingDirectory,
-                    formats,
-                    self ) #fixes bug 316 ninad060724
+            fn = QFileDialog.getOpenFileName(self,
+                                             "Choose a file to open",
+                                             self.currentWorkingDirectory,
+                                             formats)
                     
             if not fn:
                 env.history.message("Cancelled.")
-                if mmkit_was_hidden: self.glpane.mode.MMKit.show() # Fixes bug 1744. mark 060325
                 return
-        
+
         if fn:
             self._updateRecentFileList(fn)
 
@@ -544,7 +564,6 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 
             fn = str(fn)
             if not os.path.exists(fn):
-                if mmkit_was_hidden: self.glpane.mode.MMKit.show() # Fixes bug 1744. mark 060325
                 return
 
             #k Can that return ever happen? Does it need an error message?
@@ -588,8 +607,6 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             self.glpane.gl_update_duration(new_part=True) #mark 060116.
             
             self.mt.mt_update()
-
-        if mmkit_was_hidden: self.glpane.mode.MMKit.show() # Fixes bug 1744. mark 060325
         
         self.setCurrentWorkingDirectory()
         
@@ -672,13 +689,12 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                     "JPEG (*.jpg);;"\
                     "Portable Network Graphics (*.png)"
 
-        mmkit_was_hidden = self.hide_MMKit_during_open_or_save_on_MacOS() # Fixes bug 1744. mark 060325
         
-        fn = QFileDialog.getSaveFileName(sdir, 
-                                         formats,
-                                         self, 
-                                         None,
-                                         "Save As",
+               
+        fn = QFileDialog.getSaveFileName(self, 
+                                         "Save As", 
+                                         sdir, 
+                                         formats, 
                                          sfilter)
 
         if fn:
@@ -694,16 +710,16 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 if os.path.exists(safile): # ...and if the "Save As" file exists...
 
                     # ... confirm overwrite of the existing file.
-                    ret = QMessageBox.warning( self, self.name(),
+                    ret = QMessageBox.warning( self, "Warning!",
                         "The file \"" + fil + ext + "\" already exists.\n"\
-                        "Do you want to overwrite the existing file or cancel?",
-                        "&Overwrite", "&Cancel", None,
+                        "Do you want to overwrite the existing file?",
+                        "&Overwrite", "&Cancel", "",
                         0,      # Enter == button 0
                         1 )     # Escape == button 1
 
                     if ret==1: # The user cancelled
                         env.history.message( "Cancelled.  Part not saved." )
-                        if mmkit_was_hidden: self.glpane.mode.MMKit.show() # Fixes bug 1744. mark 060325
+                       
                         return None # Cancel clicked or Alt+C pressed or Escape pressed
 
             ###e bruce comment 050927: this might be a good place to test whether we can write to that filename,
@@ -711,14 +727,10 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             # But we shouldn't do this if it's the main filename, to avoid erasing that file now.
             # (If we only do this test with each function
             # that writes into the file, then if that fails it'll more likely require user to redo the entire op.)
-            
-            if mmkit_was_hidden: self.glpane.mode.MMKit.show() # Fixes bug 1744. mark 060325
-                        
+                      
             return safile
             
-        else:
-            if mmkit_was_hidden: self.glpane.mode.MMKit.show() # Fixes bug 1744. mark 060325
-            
+        else:            
             return None ## User canceled.
 
     def fileSaveSelection(self): #bruce 050927
@@ -940,7 +952,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                         "Do you want to overwrite this directory, or skip copying the Part Files from the old mmp file?\n"\
                         "(If you skip copying them now, you can rename this directory and copy them using your OS;\n"\
                         "if you don't rename it, the copied mmp file will use it as its own Part Files directory.)",
-                        "&Overwrite", "&Skip", None,
+                        "&Overwrite", "&Skip", "",
                         0,      # Enter == button 0
                         1 )     # Escape == button 1
 
@@ -1011,7 +1023,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             SimRunner.PREPARE_TO_CLOSE = True
             return True
         else:
-            rc = QMessageBox.warning( self, self.name(),
+            rc = QMessageBox.warning( self, "Warning!",
                 "The part contains unsaved changes.\n"
                 "Do you want to save the changes before exiting?",
                 "&Save", "&Discard", "Cancel",
@@ -1042,7 +1054,6 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         if shouldEventBeAccepted:
             self.cleanUpBeforeExiting() #bruce 060127 added this re bug 1412 (defined in MWsemantics)
             ce.accept()
-            ##self.periodicTable.close()
         else:
             ce.ignore()
             env.history.message("Cancelled exit.") # bruce 050907 added this message
@@ -1056,7 +1067,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         
         isFileSaved = True
         if self.assy.has_changed():
-            ret = QMessageBox.warning( self, self.name(),
+            ret = QMessageBox.warning( self, "Warning!" ,
                 "The part contains unsaved changes.\n"
                 "Do you want to save the changes before closing this part?",
                 "&Save", "&Discard", "Cancel",
@@ -1099,10 +1110,11 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         """
 
         env.history.message(greenmsg("Set Working Directory:"))
-        
+    
         wd = env.prefs[workingDirectory_prefs_key]
         wdstr = "Current Working Directory - [" + wd  + "]"
-        wd = QFileDialog.getExistingDirectory( wd, self, "get existing directory", wdstr, 1 )
+        #wd = QFileDialog.getExistingDirectory( wd, self, "get existing directory", wdstr, 1 )
+        wd = QFileDialog.getExistingDirectory( self, wdstr, wd )
         
         if not wd:
             env.history.message("Cancelled.")
@@ -1132,7 +1144,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         self.update_mainwindow_caption()
         self.glpane.setAssy(self.assy) # leaves glpane.mode as nullmode, as of 050911
         self.assy.mt = self.mt
-        
+
         ### Hack by Huaicai 2/1 to fix bug 369
         self.mt.resetAssy_and_clear() 
         
@@ -1145,14 +1157,16 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         '''Add the <fileName> into the recent file list '''
         LIST_CAPACITY = 4 #This could be set by user preference, not added yet
         from MWsemantics import recentfiles_use_QSettings #bruce 050919 debug code #####@@@@@
-            
+        
         if recentfiles_use_QSettings:
-            prefsSetting = QSettings()
-            fileList = prefsSetting.readListEntry('/Nanorex/nE-1/recentFiles')[0]
+            prefsSetting = QSettings("Nanorex", "NanoEngineer-1")
+            fileList = prefsSetting.value('/Nanorex/nE-1/recentFiles').toStringList()
         else:
             fileName = str(fileName)
             prefsSetting = preferences.prefs_context()
             fileList = prefsSetting.get('/Nanorex/nE-1/recentFiles', [])
+        
+        debug_fileList(fileList)
         
         if len(fileList) > 0:
            if fileName == fileList[0]:
@@ -1169,9 +1183,18 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             fileList.insert(0, fileName)
             
         fileList = fileList[:LIST_CAPACITY]
-        
+
+        debug_fileList(fileList)
         if recentfiles_use_QSettings:
-            prefsSetting.writeEntry('/Nanorex/nE-1/recentFiles', fileList)
+            assert isinstance(prefsSetting, QSettings)
+            prefsSetting.setValue('/Nanorex/nE-1/recentFiles', QVariant(fileList))
+            if debug_recent_files:
+                # confirm that the information really made it into the QSetting.
+                fileListTest = prefsSetting.value('/Nanorex/nE-1/recentFiles').toStringList()
+                fileListTest = map(str, list(fileListTest))
+                assert len(fileListTest) == len(fileList)
+                for i in range(len(fileList)):
+                    assert str(fileList[i]) == str(fileListTest[i])
         else:
             prefsSetting['/Nanorex/nE-1/recentFiles'] = fileList 
         
@@ -1182,43 +1205,61 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
 
     def _openRecentFile(self, idx):
         '''Slot method when user choose from the recently opened files submenu. '''
-        from MWsemantics import recentfiles_use_QSettings #bruce 050919 debug code #####@@@@@
-        if recentfiles_use_QSettings:
-            prefsSetting = QSettings()
-            fileList = prefsSetting.readListEntry('/Nanorex/nE-1/recentFiles')[0]
-        else:
-            prefsSetting = preferences.prefs_context()
-            fileList = prefsSetting.get('/Nanorex/nE-1/recentFiles', [])
-        
-        assert idx <= len(fileList)
-        
-        selectedFile = str(fileList[idx])
+        text = str(idx.text())
+        selectedFile = text[text.index("  ")+2:]
+        if False:
+            # Do we want this stuff from Qt 3 days? Or shall we just
+            # trust that when the "Open Recent Files" menu was set up,
+            # it had the correct list of recent files? For now, assume
+            # the latter.
+            from MWsemantics import recentfiles_use_QSettings #bruce 050919 debug code #####@@@@@
+            if recentfiles_use_QSettings:
+                prefsSetting = QSettings("Nanorex", "NanoEngineer-1")
+                fileList = prefsSetting.value('/Nanorex/nE-1/recentFiles').toStringList()
+            else:
+                prefsSetting = preferences.prefs_context()
+                fileList = prefsSetting.get('/Nanorex/nE-1/recentFiles', [])
+
+            print idx, len(fileList)
+            assert idx >= 0 and idx <= len(fileList)
+            selectedFile = str(fileList[idx])
         self.fileOpen(selectedFile)
         return
         
     def _createRecentFilesList(self):
         '''Dynamically construct the list of recently opened files submenus '''
-        from MWsemantics import recentfiles_use_QSettings #bruce 050919 debug code #####@@@@@
+        if hasattr(self.assy.w, "recentFileMenu"):
+            # Remove the previous recent-file menu
+            recentFileMenu = self.assy.w.recentFileMenu
+            self.fileMenu.removeAction(self.recentFileMenuAction)
+
+        # Create a new recent-file menu from the updated recent file list.
+        recentFileMenu = QMenu("Open Recent Files", self)
+        self.assy.w.recentFileMenu = recentFileMenu
         
+        from MWsemantics import recentfiles_use_QSettings #bruce 050919 debug code #####@@@@@
+
         if recentfiles_use_QSettings:
-            prefsSetting = QSettings()
-            fileList = prefsSetting.readListEntry('/Nanorex/nE-1/recentFiles')[0]
+            prefsSetting = QSettings("Nanorex", "NanoEngineer-1")
+            fileList = prefsSetting.value('/Nanorex/nE-1/recentFiles').toStringList()
         else:
             prefsSetting = preferences.prefs_context()
             fileList = prefsSetting.get('/Nanorex/nE-1/recentFiles', [])
+        debug_fileList(fileList)
         
-        self.recentFilePopupMenu = QPopupMenu(self)
+        #self.assy.w.recentFileMenu = rfm = QMenu("Open Recent Files", self)
+        recentFileMenu.clear()
         for ii in range(len(fileList)):
             recentFilename = os.path.normpath(str(fileList[ii])) # Fixes bug 2193. Mark 060808.
-            self.recentFilePopupMenu.insertItem(qApp.translate("Main Window",  "&" + str(ii+1) + "  " + recentFilename, None), ii)
+            recentFileMenu.addAction(QtGui.QApplication.translate("Main Window",
+                                                                  "&" + str(ii+1) + "  " + recentFilename, None))
         
-        menuIndex = self.RECENT_FILES_MENU_INDEX
-        self.fileMenu.removeItemAt(menuIndex)
-        self.fileMenu.insertItem(qApp.translate("Main Window", "Open Recent Files", None), self.recentFilePopupMenu, menuIndex, menuIndex)
-            # WARNING: this is added in two places, in MWsemantics.__init__ and in _createRecentFilesList in ops_files.py.
-            # Some of the other code here is duplicated as well, but not quite identically. [bruce 060808 comment]
-        
-        self.connect(self.recentFilePopupMenu, SIGNAL('activated (int)'), self._openRecentFile)
+        menuItem = self.RECENT_FILES_MENU_ITEM
+        self.fileMenu.removeAction(menuItem)
+        act = self.fileMenu.insertMenu(self.fileCloseAction, recentFileMenu)
+        self.recentFileMenuAction = act
+        act.setText(QtGui.QApplication.translate("Main Window", "Open Recent Files", None))
+        self.connect(recentFileMenu, SIGNAL('triggered(QAction*)'), self._openRecentFile)
         return
 
     pass # end of class fileSlotsMixin
@@ -1229,7 +1270,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
 ## Test code--By cleaning the recent files list of QSettings###
 if __name__ == '__main__':
     prefs = QSettings()
-    from qt import QStringList
+    from PyQt4.Qt import QStringList
     emptyList = QStringList()
     prefs.writeEntry('/Nanorex/nE-1/recentFiles', emptyList)
     

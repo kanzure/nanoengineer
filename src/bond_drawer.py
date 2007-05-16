@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 '''
 bond_drawer.py -- implementations of Bond.draw and Bond.writepov.
 
@@ -36,7 +36,7 @@ from bond_constants import *
 
 from elements import Singlet
 
-from qt import QFont, QString, QColor ###k
+from PyQt4.Qt import QFont, QString, QColor ###k
 from ThumbView import MMKitView
 
 import env
@@ -118,7 +118,7 @@ class writepov_to_file:
 
 # ==
 
-def draw_bond(self, glpane, dispdef, col, level, highlighted = False):
+def draw_bond(self, glpane, dispdef, col, level, highlighted = False, bool_fullBondLength = False):
     #bruce 050702 adding shorten_tubes option; 050727 that's now implied by new highlighted option
     """Draw the bond 'self'. This function is only meant to be called as the implementation of Bond.draw.
     See that method's docstring for details of how it's called.
@@ -127,7 +127,7 @@ def draw_bond(self, glpane, dispdef, col, level, highlighted = False):
     """
     atom1 = self.atom1
     atom2 = self.atom2
-
+    
     disp = max(atom1.display, atom2.display)
     if disp == diDEFAULT:
         disp = dispdef
@@ -158,8 +158,10 @@ def draw_bond(self, glpane, dispdef, col, level, highlighted = False):
         # self.glname needs to remain the same (and we need to remain registered under it)
         # as long as we live.
 
-    try: #bruce 050610 to ensure calling glPopName        
-        draw_bond_main( self, glpane, disp, col, level, highlighted)
+    try: #bruce 050610 to ensure calling glPopName    
+        povfile = None
+        draw_bond_main( self, glpane, disp, col, level, highlighted, 
+                        povfile, bool_fullBondLength)
     except:
         glPopName()
         print_compact_traceback("ignoring exception when drawing bond %r: " % self) #bruce 060622 moved this before ColorSorter.popName
@@ -170,7 +172,7 @@ def draw_bond(self, glpane, dispdef, col, level, highlighted = False):
     
     return # from draw_bond, implem of Bond.draw
 
-def draw_bond_main( self, glpane, disp, col, level, highlighted, povfile = None):
+def draw_bond_main( self, glpane, disp, col, level, highlighted, povfile = None, bool_fullBondLength = False):
     "[private helper function for this module only.] self is a bond. For other doc, see the calls."
     
     # figure out how this display mode draws bonds; return now if it doesn't [moved inside this function, bruce 060622]
@@ -228,9 +230,13 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, povfile = None)
         # The bug is not always repeatable: I changed display to cpk (all arrows gone, finally correct),
         # then back to tubes, then turned arrows on, and this time they all showed up, and again as I try off/on.
         # Maybe it was an artifact of reloading this code??
-        if debug_pref("draw arrows on all directional bonds?",
-                      Choice_boolean_False,
-                      prefs_key = True, non_debug = True):
+        
+        #ninad070504: added the bond arrows preferences to Preferences dialog. 
+        #using this preference key instead of debug preference.
+        
+        bool_arrowsOnAll = env.prefs[arrowsOnBackBones_prefs_key]
+        
+        if bool_arrowsOnAll:
             dir_info = (self.bond_direction_from(self.atom1), self.is_directional())
         pass
     
@@ -297,13 +303,16 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, povfile = None)
                     a2posm = a2pos + offset * pvec2
                     geom = self.geom_from_posns(a1posm, a2posm) # correct in either abs or rel coords
                     draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highlighted, level, \
-                                   cylrad, shorten_tubes, geom, v6_for_bands, povfile, dir_info )
+                                   cylrad, shorten_tubes, geom, v6_for_bands, povfile, dir_info, bool_fullBondLength )
+
     if draw_sigma_cyl or howmany == 1:
         # draw one central cyl, regardless of bond type
         geom = selfgeom #e could be optimized to compute less for CPK case
         cylrad = sigmabond_cyl_radius
         draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highlighted, level, \
-                       cylrad, shorten_tubes, geom, v6_for_bands, povfile, dir_info )
+                       cylrad, shorten_tubes, geom, v6_for_bands, povfile, dir_info, bool_fullBondLength)
+
+
 
     if self.v6 != V_SINGLE:
         if draw_vanes:
@@ -355,11 +364,23 @@ def multicyl_pvecs( howmany, a2py, a2pz):
     pass
 
 def draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highlighted, level, \
-                   sigmabond_cyl_radius, shorten_tubes, geom, v6, povfile, dir_info):
+                   sigmabond_cyl_radius, shorten_tubes, geom, v6, povfile, dir_info, bool_fullBondLength = False ):
+
     """Draw one cylinder, which might be for a sigma bond, or one of 2 or 3 cyls for double or triple bonds.
     [private function for a single caller, which is the only reason such a long arglist is tolerable]
     """
+    # Note: bool_fullBondLength represent whether full bond length to be drawn
+    # it is used only in select Chunks mode while highlighting the whole chunk and when
+    #the atom display is Tubes display -- ninad 070214
+    
     a1pos, c1, center, c2, a2pos, toolong = geom
+    
+    #following turns off the bond stretch indicators based on the user 
+    #preference
+    bool_showBondStretch = env.prefs[showBondStretchIndicators_prefs_key]
+    if not bool_showBondStretch:
+        toolong = False
+       
 
     # Figure out banding (only in CPK or Tubes display modes).
     # This is only done in multicyl mode, because caller makes our v6 equal V_SINGLE otherwise.
@@ -435,9 +456,11 @@ def draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highli
                 #bruce 050726 changed that constant from 1.0 to 0.9
             vec = norm(a2pos-a1pos) # warning: if atom1 is a singlet, a1pos == center, so center-a1pos is not good to use here.
             if atom1.element is not Singlet:
-                a1pos = a1pos + vec * rad
+                    if not bool_fullBondLength:
+                            a1pos = a1pos + vec * rad
             if atom2.element is not Singlet:
-                a2pos = a2pos - vec * rad
+                    if not bool_fullBondLength:
+                            a2pos = a2pos - vec * rad
             # note: this does not affect bandpos1, bandpos2 (which is good)
         ###e bruce 050513 future optim idea: when color1 == color2, draw just
         # one longer cylinder, then overdraw toolong indicator if needed.

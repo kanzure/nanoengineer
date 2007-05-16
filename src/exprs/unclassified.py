@@ -1,5 +1,6 @@
 ### THIS FILE IS NOT YET IN CVS
 
+# Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
 
 #e above:
 # code for a formula expr, to eval it in an env and object, to a definite value (number or widget or widget expr),

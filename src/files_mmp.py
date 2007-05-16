@@ -1,8 +1,9 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 files_mmp.py -- reading and writing MMP files
 
 $Id$
+
 
 History: bruce 050414 pulled this out of fileIO.py rev. 1.97
 (of which it was the major part),
@@ -614,6 +615,7 @@ class _readmmp_state:
     # mdistance (name) (r, g, b) (font_name) font_size a1 a2
     # no longer modeled on motor, wware 051103
     def _read_mdistance(self, card):
+        from jigs_measurements import MeasureDistance
         m = mdistancepat.match(card) # Try to read card
         assert len(m.groups()) == 8
         name = m.group(1)

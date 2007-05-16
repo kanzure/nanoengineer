@@ -1,5 +1,6 @@
 $Id$
 
+ Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 What are all these files? Four of them are used by DnaGenerator.py
 to create DNA structures in the CAD program:
 

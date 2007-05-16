@@ -1,3 +1,4 @@
+// Copyright 2004 Nanorex, Inc.  See LICENSE file for details. 
 //====================================================================//
 /*	Program to compare two mmp files. 
 	

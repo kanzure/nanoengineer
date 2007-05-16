@@ -1,5 +1,5 @@
-# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
-'''
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+"""
 UserPrefs.py
 
 $Id$
@@ -10,21 +10,24 @@ Created by Mark.
 
 Modified somewhat by Bruce 050805 for bond color prefs,
 and 050810 to fix bugs 785 (partly in MWsemantics.py) and 881 for Alpha6.
-'''
+"""
 __author__ = "Mark"
 
-from qt import *
-from UserPrefsDialog import UserPrefsDialog
+from PyQt4.Qt import *
+from PyQt4 import QtCore, QtGui
+from UserPrefsDialog import Ui_UserPrefsDialog
 import preferences
 import os, sys
 from constants import *
 from debug import print_compact_traceback
 import env
-from widgets import RGBf_to_QColor #bruce 050805 moved RGBf_to_QColor from here to widgets.py
+from widgets import RGBf_to_QColor, QColor_to_RGBf
 from widgets import double_fixup
 from prefs_widgets import connect_colorpref_to_colorframe, connect_checkbox_with_boolean_pref
 import platform
 from povray import get_default_plugin_path
+from qt4transition import *
+from Utility import geticon
 
 debug_sliders = False # Do not commit as True
 
@@ -36,6 +39,13 @@ modes = ['SELECTMOLS', 'MODIFY', 'DEPOSIT', 'COOKIE', 'EXTRUDE', 'FUSECHUNKS', '
 
 # List of Default Modes and Startup Modes.  Mark 050921.
 # [bruce 060403 guesses these need to correspond to certain combobox indices.]
+
+#ninad070430, 070501 For A9 , startup mode = default mode = SELECTMOLS mode 
+#but not changing the values in the list per Bruc's suggestions. 
+#instead, default_modename and startup_modename will return 'SELMOLS'
+#Although the following lists contain "illegal values",
+#there is code that cares about their indices in the lists.
+
 default_modes = ['SELECTMOLS', 'MODIFY', 'DEPOSIT']
 startup_modes = ['$DEFAULT_MODE', 'DEPOSIT']
 
@@ -61,13 +71,17 @@ def default_modename(): #bruce 060403
     """Return the modename string of the user's default mode.
     External code should use this, rather than directly using env.prefs[ defaultMode_prefs_key ].
     """
-    return fix_modename_pref( env.prefs[ defaultMode_prefs_key ], default_modes)
+    #ninad070501 For A9 , startup mode = default mode = SELECTMOLS mode
+    return 'SELECTMOLS'
+    ##return fix_modename_pref( env.prefs[ defaultMode_prefs_key ], default_modes)
 
 def startup_modename(): #bruce 060403
     """Return the modename string (literal or symbolic, e.g. '$DEFAULT_MODE') of the user's startup mode.
     External code should use this, rather than directly using env.prefs[ startupMode_prefs_key ].
     """
-    return fix_modename_pref( env.prefs[ startupMode_prefs_key ], startup_modes, startup_modes[0] )
+    #ninad 070501 For A9 , startup mode = default mode = SELECTMOLS mode
+    return 'SELECTMOLS'
+    ##return fix_modename_pref( env.prefs[ startupMode_prefs_key ], startup_modes, startup_modes[0] )
 
 def parentless_open_dialog_pref(): #bruce 060710 for Mac A8
     # see if setting this True fixes the Mac-specific bugs in draggability of this dialog, and CPU usage while it's up
@@ -89,11 +103,10 @@ def get_filename_and_save_in_prefs(parent, prefs_key, caption=''):
         parent = None
     
     filename = str(QFileDialog.getOpenFileName(
-                    get_rootdir(), # '/' on Mac or Linux, something else on Windows
-                    None, # filter (kinds of files to permit choosing)
                     parent,
-                    None, # name
-                    caption ))
+                    caption,
+                    get_rootdir(), # '/' on Mac or Linux, something else on Windows
+                    ))
                 
     if not filename: # Cancelled.
         return None
@@ -116,10 +129,10 @@ def get_dirname_and_save_in_prefs(parent, prefs_key, caption=''): #bruce 060710 
         parent = None
     
     filename = str(QFileDialog.getExistingDirectory(
+                    parent,### if this was None, it might fix the Mac bug where you can't drag the dialog around [bruce 060710]
+                    caption,
                     get_rootdir(), # '/' on Mac or Linux -- maybe not the best choice if they've chosen one before?
-                    parent, ### if this was None, it might fix the Mac bug where you can't drag the dialog around [bruce 060710]
-                    None, # name
-                    caption ))
+                ))
                 
     if not filename: # Cancelled.
         return None
@@ -147,7 +160,7 @@ def validate_gamess_path(parent, gmspath):
     else:
         ret = QMessageBox.warning( parent, "GAMESS Executable Path",
             gmspath + " does not exist.\nDo you want to use the File Chooser to browse for the GAMESS executable?",
-            "&Yes", "&No", None,
+            "&Yes", "&No", "",
             0, 1 )
                 
         if ret==0: # Yes
@@ -168,12 +181,184 @@ def get_pref_or_optval(key, val, optval):
     else:
         return env.prefs[key]
 
-class UserPrefs(UserPrefsDialog):
+class UserPrefs(QDialog, Ui_UserPrefsDialog):
     '''The User Preferences dialog used for accessing and changing user preferences
     '''
        
     def __init__(self, assy):
-        UserPrefsDialog.__init__(self)
+        QDialog.__init__(self)
+        self.setupUi(self)
+        
+        self.resetMouseSpeedDuringRotation_btn.setIcon(
+            geticon('ui/dialogs/Reset.png'))
+        self.reset_cpk_scale_factor_btn.setIcon(
+            geticon('ui/dialogs/Reset.png'))
+        #this is for solid background color frame. It is important to 
+        #setAutofillBackground to True in order for it to work.
+        #ideally should be done in UserPrefsDialog.py -- ninad070430
+        self.bg1_color_frame.setAutoFillBackground(True)
+        
+        self.setWindowTitle("Preferences")
+        self.setWindowIcon(geticon("ui/actions/Tools/Options.png"))
+        
+        self.update_btngrp_group = QButtonGroup()
+        self.update_btngrp_group.setExclusive(True)
+        
+        for obj in self.update_btngrp.children():
+            if isinstance(obj, QAbstractButton):
+                self.update_btngrp_group.addButton(obj)
+        
+        # Default Projection Groupbox in General tab (as of 070430)
+        self.default_projection_btngrp = QButtonGroup()
+        self.default_projection_btngrp.setExclusive(True)
+        objId = 0
+        for obj in self.default_projection_grpBox.children():
+            if isinstance(obj, QAbstractButton):
+                self.default_projection_btngrp.addButton(obj)
+                self.default_projection_btngrp.setId(obj, objId)
+                objId +=1       
+        
+        if env.prefs[defaultProjection_prefs_key] == 0:
+            self.perspective_radioButton.setChecked(True)
+        else:
+            self.orthographic_radioButton.setChecked(True)
+                
+        #Default atom Display groupbox in Modes tab (as of 070430)
+        self.default_display_btngrp = QButtonGroup()
+        self.default_display_btngrp.setExclusive(True)
+        
+        #self.cpk_rbtn --> diTrueCPK which has id 2 (defined in constants.py)
+        self.default_display_btngrp.addButton(self.cpk_rbtn)
+        self.default_display_btngrp.setId(self.cpk_rbtn, 2)
+        
+        #self.lines_rbtn is the 'Lines' display mode
+        self.default_display_btngrp.addButton(self.lines_rbtn)
+        self.default_display_btngrp.setId(self.lines_rbtn, 3)
+        
+        #self.ballNstick_rbtn is the 'Ball and Stick' display mode
+        self.default_display_btngrp.addButton(self.ballNstick_rbtn)
+        self.default_display_btngrp.setId(self.ballNstick_rbtn, 4)
+        
+        #self.tubes_rbtn is the 'Tubes' display mode
+        self.default_display_btngrp.addButton(self.tubes_rbtn)
+        self.default_display_btngrp.setId(self.tubes_rbtn, 5)
+        
+        self.high_order_bond_display_btngrp = QButtonGroup()
+        self.high_order_bond_display_btngrp.setExclusive(True)
+        
+        objId = 0
+        for obj in [self.multCyl_radioButton, self.vanes_radioButton, 
+                    self.ribbons_radioButton]:
+            self.high_order_bond_display_btngrp.addButton(obj)
+            self.high_order_bond_display_btngrp.setId(obj, objId)
+            objId +=1
+           
+        # Sponsor logos download permission in General tab
+        self.logosDownloadPermissionBtnGroup = QButtonGroup()
+        self.logosDownloadPermissionBtnGroup.setExclusive(True)
+        for button in self.sponsorLogosGroupBox.children():
+            if isinstance(button, QAbstractButton):
+                self.logosDownloadPermissionBtnGroup.addButton(button)
+                buttonId = 0
+                if button.text().startsWith("Never ask"):
+                    buttonId = 1
+                elif button.text().startsWith("Never download"):
+                    buttonId = 2
+                self.logosDownloadPermissionBtnGroup.setId(button, buttonId)
+        self.setUI_LogoDownloadPermissions()
+                       
+        self.connect(self.animation_speed_slider,SIGNAL("sliderReleased()"),self.change_view_animation_speed)
+        self.connect(self.atom_hilite_color_btn,SIGNAL("clicked()"),self.change_atom_hilite_color)
+        self.connect(self.ballstick_bondcolor_btn,SIGNAL("clicked()"),self.change_ballstick_bondcolor)
+        self.connect(self.bond_hilite_color_btn,SIGNAL("clicked()"),self.change_bond_hilite_color)
+        self.connect(self.bond_line_thickness_spinbox,SIGNAL("valueChanged(int)"),self.change_bond_line_thickness)
+        self.connect(self.bond_stretch_color_btn,SIGNAL("clicked()"),self.change_bond_stretch_color)
+        self.connect(self.bond_vane_color_btn,SIGNAL("clicked()"),self.change_bond_vane_color)
+        self.connect(self.bondpoint_hilite_color_btn,SIGNAL("clicked()"),self.change_bondpoint_hilite_color)
+               
+        self.connect(self.caption_fullpath_checkbox,SIGNAL("stateChanged(int)"),self.set_caption_fullpath)
+        self.connect(self.change_element_colors_btn,SIGNAL("clicked()"),self.change_element_colors)
+        self.connect(self.compass_position_combox,SIGNAL("activated(int)"),self.set_compass_position)
+        self.connect(self.cpk_atom_rad_spinbox,SIGNAL("valueChanged(int)"),self.change_ballstick_atom_radius)
+        self.connect(self.cpk_cylinder_rad_spinbox,SIGNAL("valueChanged(int)"),self.change_ballstick_cylinder_radius)
+        self.connect(self.cpk_scale_factor_slider,SIGNAL("sliderReleased()"),self.save_cpk_scale_factor)
+        self.connect(self.cpk_scale_factor_slider,SIGNAL("valueChanged(int)"),self.change_cpk_scale_factor)
+        self.connect(self.current_height_spinbox,SIGNAL("valueChanged(int)"),self.change_window_size)
+        self.connect(self.current_width_spinbox,SIGNAL("valueChanged(int)"),self.change_window_size)
+        self.connect(self.cutovermax_linedit,SIGNAL("textChanged(const QString&)"),self.change_cutovermax)
+        self.connect(self.cutoverrms_linedit,SIGNAL("textChanged(const QString&)"),self.change_cutoverrms)
+        self.connect(self.default_display_btngrp,SIGNAL("buttonClicked(int)"),
+                     self.set_default_display_mode)
+        #ninad070430 : For A9, there is only one default and startup mode 
+        #(which is Select Chunbks mode) So disabling the following. 
+        ##self.connect(self.default_mode_combox,SIGNAL("activated(int)"),
+             ##self.change_default_mode)
+        ##self.connect(self.startup_mode_combox,
+             ##SIGNAL("activated(const QString&)"),self.change_startup_mode)
+        self.connect(self.default_projection_btngrp,SIGNAL("buttonClicked(int)"),self.set_default_projection)
+        self.connect(self.display_compass_checkbox,SIGNAL("stateChanged(int)"),self.display_compass)
+        self.connect(self.endmax_linedit,SIGNAL("textChanged(const QString&)"),self.change_endmax)
+        self.connect(self.endrms_linedit,SIGNAL("textChanged(const QString&)"),self.change_endrms)
+        self.connect(self.logosDownloadPermissionBtnGroup,
+                     SIGNAL("buttonClicked(int)"),
+                     self.setPrefsLogoDownloadPermissions)
+        self.connect(self.gamess_checkbox,SIGNAL("toggled(bool)"),self.enable_gamess)
+        self.connect(self.gamess_choose_btn,SIGNAL("clicked()"),self.set_gamess_path)
+        self.connect(self.high_order_bond_display_btngrp,SIGNAL("buttonClicked(int)"),self.change_high_order_bond_display)
+        self.connect(self.hotspot_color_btn,SIGNAL("clicked()"),self.change_hotspot_color)
+        self.connect(self.level_of_detail_combox,SIGNAL("activated(int)"),self.change_level_of_detail)
+        self.connect(self.light_ambient_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
+        self.connect(self.light_ambient_slider,SIGNAL("sliderReleased()"),self.save_lighting)
+        self.connect(self.light_checkbox,SIGNAL("toggled(bool)"),self.toggle_light)
+        self.connect(self.light_color_btn,SIGNAL("clicked()"),self.change_light_color)
+        self.connect(self.light_combobox,SIGNAL("activated(int)"),self.change_active_light)
+        self.connect(self.light_diffuse_slider,SIGNAL("sliderReleased()"),self.save_lighting)
+        self.connect(self.light_diffuse_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
+        self.connect(self.light_specularity_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
+        self.connect(self.light_specularity_slider,SIGNAL("sliderReleased()"),self.save_lighting)
+        self.connect(self.light_x_linedit,SIGNAL("returnPressed()"),self.save_lighting)
+        self.connect(self.light_y_linedit,SIGNAL("returnPressed()"),self.save_lighting)
+        self.connect(self.light_z_linedit,SIGNAL("returnPressed()"),self.save_lighting)
+        self.connect(self.lighting_restore_defaults_btn,SIGNAL("clicked()"),self.restore_default_lighting)
+        self.connect(self.megapov_checkbox,SIGNAL("toggled(bool)"),self.enable_megapov)
+        self.connect(self.megapov_choose_btn,SIGNAL("clicked()"),self.set_megapov_path)
+        self.connect(self.ms_brightness_slider,SIGNAL("sliderReleased()"),self.change_material_brightness_stop)
+        self.connect(self.ms_brightness_slider,SIGNAL("valueChanged(int)"),self.change_material_brightness)
+        self.connect(self.ms_brightness_slider,SIGNAL("sliderPressed()"),self.change_material_brightness_start)
+        self.connect(self.ms_finish_slider,SIGNAL("valueChanged(int)"),self.change_material_finish)
+        self.connect(self.ms_finish_slider,SIGNAL("sliderReleased()"),self.change_material_finish_stop)
+        self.connect(self.ms_finish_slider,SIGNAL("sliderPressed()"),self.change_material_finish_start)
+        self.connect(self.ms_on_checkbox,SIGNAL("toggled(bool)"),self.toggle_material_specularity)
+        self.connect(self.ms_shininess_slider,SIGNAL("sliderReleased()"),self.change_material_shininess_stop)
+        self.connect(self.ms_shininess_slider,SIGNAL("sliderPressed()"),self.change_material_shininess_start)
+        self.connect(self.ms_shininess_slider,SIGNAL("valueChanged(int)"),self.change_material_shininess)
+        self.connect(self.nanohive_checkbox,SIGNAL("toggled(bool)"),self.enable_nanohive)
+        self.connect(self.nanohive_choose_btn,SIGNAL("clicked()"),self.set_nanohive_path)
+        self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
+        self.connect(self.povdir_checkbox,SIGNAL("toggled(bool)"),self.enable_povdir)
+        self.connect(self.povdir_choose_btn,SIGNAL("clicked()"),self.set_povdir)
+        self.connect(self.povray_checkbox,SIGNAL("toggled(bool)"),self.enable_povray)
+        self.connect(self.povray_choose_btn,SIGNAL("clicked()"),self.set_povray_path)
+        self.connect(self.prefs_tab,SIGNAL("selected(const QString&)"),self.setup_current_page)
+        self.connect(self.reset_atom_colors_btn,SIGNAL("clicked()"),self.reset_atom_colors)
+        self.connect(self.reset_bond_colors_btn,SIGNAL("clicked()"),self.reset_bond_colors)
+        self.connect(self.reset_cpk_scale_factor_btn,SIGNAL("clicked()"),self.reset_cpk_scale_factor)
+        self.connect(self.restore_saved_size_btn,SIGNAL("clicked()"),self.restore_saved_size)
+        self.connect(self.save_current_btn,SIGNAL("clicked()"),self.save_current_win_pos_and_size)
+        self.connect(self.show_bond_labels_checkbox,SIGNAL("toggled(bool)"),self.change_bond_labels)
+        self.connect(self.show_valence_errors_checkbox,SIGNAL("toggled(bool)"),self.change_show_valence_errors)
+        
+        self.connect(self.undo_stack_memory_limit_spinbox,SIGNAL("valueChanged(int)"),self.change_undo_stack_memory_limit)
+        self.connect(self.update_number_spinbox,SIGNAL("valueChanged(int)"),self.update_number_spinbox_valueChanged)
+        self.connect(self.watch_min_in_realtime_checkbox,SIGNAL("toggled(bool)"),self.setEnabled)
+        self.connect(self.fill_type_combox,SIGNAL("activated(const QString&)"),self.change_fill_type)
+        self.connect(self.restore_bgcolor_btn,SIGNAL("clicked()"),self.restore_default_bgcolor)
+        self.connect(self.choose_bg1_color_btn,SIGNAL("clicked()"),self.change_bg1_color)
+        self.connect(self.dynamicToolTipAtomDistancePrecision_spinbox,SIGNAL("valueChanged(int)"),self.change_dynamicToolTipAtomDistancePrecision)
+        self.connect(self.dynamicToolTipBendAnglePrecision_spinbox,SIGNAL("valueChanged(int)"),self.change_dynamicToolTipBendAnglePrecision)
+        self.connect(self.historyHeight_spinbox,SIGNAL("valueChanged(int)"),self.change_historyHeight)
+        self.connect(self.mouseSpeedDuringRotation_slider,SIGNAL("valueChanged(int)"),self.change_mouseSpeedDuringRotation)
+        self.connect(self.resetMouseSpeedDuringRotation_btn,SIGNAL("clicked()"),self.reset_mouseSpeedDuringRotation)
         self.glpane = assy.o
         self.w = assy.w
         self.assy = assy
@@ -196,6 +381,13 @@ class UserPrefs(UserPrefsDialog):
         self.cutovermax_validator.setRange(0.0, 100.0, 2) # Range for linedits: 0 to 100, 2 decimal places
         self.cutovermax_linedit.setValidator(self.cutovermax_validator)
         
+        #ninad20070509 setup general page. The items on the general page don't 
+        #work properly if the current index of UserPrefs dialog is set as 0 
+        #(which is 'General' page) . The following call makes sure that 
+        #this won't happen.
+         
+        self._setup_general_page()
+        
         #bruce 050811 added these:
         self._setup_window_page() # make sure the LineEdits are initialized before we hear their signals
         self._setup_caption_signals()
@@ -206,74 +398,89 @@ class UserPrefs(UserPrefsDialog):
         from whatsthis import create_whats_this_descriptions_for_UserPrefs_dialog
         create_whats_this_descriptions_for_UserPrefs_dialog(self)
 
-        QWhatsThis.add(self.display_origin_axis_checkbox, """<p><b>Display Origin Axis</b></p>Shows/Hides the Origin Axis""")
-        QWhatsThis.add(self.display_pov_axis_checkbox, """<p><b>Display Point of View Axis</b></p>Shows/Hides the Point
+        self.display_origin_axis_checkbox.setWhatsThis("""<p><b>Display Origin Axis</b></p>Shows/Hides the Origin Axis""")
+        self.display_pov_axis_checkbox.setWhatsThis("""<p><b>Display Point of View Axis</b></p>Shows/Hides the Point
         of View Axis""")
-        QWhatsThis.add(self.display_compass_checkbox, """<p><b>Display Compass</b></p>Shows/Hides the Display Compass""")
-        QWhatsThis.add(self.display_compass_labels_checkbox, """<p><b>Display Compass</b></p>Shows/Hides the Display Compass""")
-        QWhatsThis.add(self.watch_min_in_realtime_checkbox, """<p><b>Watch motion in real time</b></p>Enables/disables real
+        self.display_compass_checkbox.setWhatsThis("""<p><b>Display Compass</b></p>Shows/Hides the Display Compass""")
+        self.display_compass_labels_checkbox.setWhatsThis("""<p><b>Display Compass</b></p>Shows/Hides the Display Compass""")
+        self.watch_min_in_realtime_checkbox.setWhatsThis("""<p><b>Watch motion in real time</b></p>Enables/disables real
         time graphical updates during adjust operations when using <b>Adjust All</b> or <b>Adjust Selection</b>""")
-        QWhatsThis.add(self.update_number_spinbox, """<b>Update every <i>n units.</u></b>
+        self.update_number_spinbox.setWhatsThis("""<b>Update every <i>n units.</u></b>
         <p>Specify how often to update
         the model during the adjustment. This allows the user to monitor results during adjustments.</p>""")
-        QWhatsThis.add(self.update_units_combobox, """<b>Update every <i>n units.</u></b>
+        self.update_units_combobox.setWhatsThis("""<b>Update every <i>n units.</u></b>
         <p>Specify how often to update
         the model during the adjustment. This allows the user to monitor results during adjustments.</p>""")
-        QWhatsThis.add(self.update_every_rbtn, """<b>Update every <i>n units.</u></b>
+        self.update_every_rbtn.setWhatsThis("""<b>Update every <i>n units.</u></b>
         <p>Specify how often to update
         the model during the adjustment. This allows the user to monitor results during adjustments.</p>""")
-        QWhatsThis.add(self.update_asap_rbtn, """<b>Update as fast as possible</b>
+        self.update_asap_rbtn.setWhatsThis("""<b>Update as fast as possible</b>
         <p>
         Update every 2 seconds,
         or faster (up to 20x/sec) if it doesn't slow adjustments by more than 20%</p>""")
-        QWhatsThis.add(self.endrms_lbl, """<b>EndRMS</b>
+        self.endrms_lbl.setWhatsThis("""<b>EndRMS</b>
         <p>Continue until this RMS force is reached.</p>""")
-        QWhatsThis.add(self.endmax_lbl, """<b>EndMax</b>
+        self.endmax_lbl.setWhatsThis("""<b>EndMax</b>
         <p>Continue until no interaction exceeds this force.</p>""")
-        QWhatsThis.add(self.endmax_linedit, """<b>EndMax</b>
+        self.endmax_linedit.setWhatsThis("""<b>EndMax</b>
         <p>Continue until no interaction exceeds this force.</p>""")
-        QWhatsThis.add(self.endrms_linedit, """<b>EndRMS</b>
+        self.endrms_linedit.setWhatsThis("""<b>EndRMS</b>
         <p>Continue until this RMS force is reached.</p>""")
-        QWhatsThis.add(self.cutovermax_lbl, """<b>CutoverMax</b>
+        self.cutovermax_lbl.setWhatsThis("""<b>CutoverMax</b>
         <p>Use steepest descent until no interaction
         exceeds this force.</p>""")
-        QWhatsThis.add(self.cutovermax_linedit, """<b>CutoverMax</b>
+        self.cutovermax_linedit.setWhatsThis("""<b>CutoverMax</b>
         <p>Use steepest descent until no interaction
         exceeds this force.</p>""")
-        QWhatsThis.add(self.cutoverrms_linedit, """<b>CutoverRMS</b>
+        self.cutoverrms_linedit.setWhatsThis("""<b>CutoverRMS</b>
         <p>Use steepest descent until this RMS force
         is reached.</p>""")
-        QWhatsThis.add(self.cutoverrms_lbl, """<b>CutoverRMS</b>
+        self.cutoverrms_lbl.setWhatsThis("""<b>CutoverRMS</b>
         <p>Use steepest descent until this RMS force
         is reached.</p>""")
-        QWhatsThis.add(self.groupBox14, """<b>Settings for Adjust</b>
+        self.groupBox14.setWhatsThis("""<b>Settings for Adjust</b>
         <p>This group of settings affect the
         behavior of <b>Adjust All</b> and <b>Adjust Selection</b>.</p>""")
-        QWhatsThis.add(self.animate_views_checkbox, """<p><b>Animate Between Views</b></p>Enables/disables animation
+        
+        # Sponsor Logos Download Permission
+        self.sponsorLogosGroupBox.setWhatsThis("""<b>Sponsor Logos Download Permission</b>
+        <p>This group of buttons sets the permission for downloading sponsor 
+        logos.</p>""")
+        self.logoAlwaysAskRadioBtn.setWhatsThis("""<b>Always ask before downloading</b>
+        <p>When sponsor logos have been updated, ask permission to download 
+        them.</p>""")
+        self.logoNeverAskRadioBtn.setWhatsThis("""<b>Never ask before downloading</b>
+        <p>When sponsor logos have been updated, download them without asking
+        permission to do so.</p>""")
+        self.logoNeverDownLoadRadioBtn.setWhatsThis("""<b>Never download</b>
+        <p>Don't ask permission to download sponsor logos and don't download 
+        them.</p>""")
+        
+        self.animate_views_checkbox.setWhatsThis("""<p><b>Animate Between Views</b></p>Enables/disables animation
         when switching between the current view and a new view.""")
-        QWhatsThis.add(self.animation_speed_slider, """<p><b>View Animation Speed</b></p>Sets the animation speed when
+        self.animation_speed_slider.setWhatsThis("""<p><b>View Animation Speed</b></p>Sets the animation speed when
         animating between view (i.e. Front View to Right View).  It is recommended that this be set to Fast when working on large
         models.""")
-        QWhatsThis.add(self.textLabel1_7, """<p><b>Level of Detail</b></p>Sets the <b>Level of Detail</b>
+        self.textLabel1_7.setWhatsThis("""<p><b>Level of Detail</b></p>Sets the <b>Level of Detail</b>
         for atoms and bonds.<br><br>  <b>High</b> = Best graphics quality (slowest rendering speed)<br><b>Medium</b> = Good graphics
         quality<br> <b>Low</b> = Poor graphics quality (fastest rendering speed) <br><b>Variable</b> automatically switches between
         High, Medium and Low based on the model size (number of atoms).""")
-        QWhatsThis.add(self.level_of_detail_combox, """<p><b>Level of Detail</b></p>Sets the graphics quality for atoms
+        self.level_of_detail_combox.setWhatsThis("""<p><b>Level of Detail</b></p>Sets the graphics quality for atoms
         (and bonds)<br><br>  <b>High</b> = Best graphics quality (slowest rendering speed)<br><b>Medium</b> = Good graphics quality<br>
         <b>Low</b> = Poor graphics quality (fastest rendering speed) <br><b>Variable</b> automatically switches between High, Medium
         and Low based on the number of atoms in the current part.""")
-        QWhatsThis.add(self.textLabel1_3_2, """<p><b>Ball and Stick Atom Scale</b></p>Sets the Ball and Stick
+        self.textLabel1_3_2.setWhatsThis("""<p><b>Ball and Stick Atom Scale</b></p>Sets the Ball and Stick
         Atom Scale factor. It is best to change the scale factor while the current model is displayed in Ball and Stick mode.""")
-        QWhatsThis.add(self.cpk_atom_rad_spinbox, """<p><b>Ball and Stick Atom Scale</b></p>Sets the Ball and Stick
+        self.cpk_atom_rad_spinbox.setWhatsThis("""<p><b>Ball and Stick Atom Scale</b></p>Sets the Ball and Stick
         Atom Scale factor. It is best to change the scale factor while the current model is displayed in Ball and Stick mode.""")
-        QWhatsThis.add(self.textLabel1_3_2_2, """<p><b>CPK Atom Scale</b></p>Changes the CPK Atom Scale factor.
+        self.textLabel1_3_2_2.setWhatsThis("""<p><b>CPK Atom Scale</b></p>Changes the CPK Atom Scale factor.
         It is best to change the scale factor while in CPK display mode so you can see the graphical effect of changing the scale.""")
-        QWhatsThis.add(self.cpk_scale_factor_linedit, """Displays the value of the CPK Atom Scale""")
-        QWhatsThis.add(self.cpk_scale_factor_slider, """<p><b>CPK Atom Scale</b></p>Slider control for chaning the CPK
+        self.cpk_scale_factor_linedit.setWhatsThis("""Displays the value of the CPK Atom Scale""")
+        self.cpk_scale_factor_slider.setWhatsThis("""<p><b>CPK Atom Scale</b></p>Slider control for chaning the CPK
         Atom Scale factor. It is best to change the scale factor while in CPK display mode so you can see the graphical effect of
         changing the scale.""")
-        QWhatsThis.add(self.reset_cpk_scale_factor_btn, """Restore the default value of the CPK Scale Factor""")
-        QWhatsThis.add(self.radioButton11, """<p><b>Multiple Cylinders</b></p>
+        self.reset_cpk_scale_factor_btn.setWhatsThis("""Restore the default value of the CPK Scale Factor""")
+        self.multCyl_radioButton.setWhatsThis("""<p><b>Multiple Cylinders</b></p>
         <p><b>High Order Bonds</b> are
         displayed using <b>Multiple Cylinders.</b></p>
         <b>Double bonds</b> are drawn with two cylinders.<br>
@@ -281,19 +488,19 @@ class UserPrefs(UserPrefsDialog):
         are drawn with three cylinders.<br>
         <b>Aromatic bonds</b> are drawn as a single cylinder with a short green cylinder in the
         middle.""")
-        QWhatsThis.add(self.radioButton11_2, """<p><b>Vanes</b></p>
+        self.vanes_radioButton.setWhatsThis("""<p><b>Vanes</b></p>
         <p><i>High Order Bonds</i> are displayed
         using <b>Vanes.</b></p>
         <p>Vanes represent <i>pi systems</i> in high order bonds and are rendered as rectangular polygons.
         The orientation of the vanes approximates the orientation of the pi system(s).</p>
         <p>Create an acetylene or ethene molecule
         and select this option to see how vanes are rendered.</p>""")
-        QWhatsThis.add(self.radioButton11_2_2, """<p><b>Ribbons</b></p>
+        self.ribbons_radioButton.setWhatsThis("""<p><b>Ribbons</b></p>
         <p><i>High Order Bonds</i> are displayed
         using <b>Ribbons.</b></p>
         <p>Ribbons represent <i>pi systems</i> in high order bonds and are rendered as ribbons. The orientation of the ribbons approximates the orientation of the pi system.</p>
         <p>Create an acetylene or ethene molecule and select this option to see how ribbons are rendered.</p>""")
-        QWhatsThis.add(self.show_bond_labels_checkbox, """<p><b>Show Bond Type Letters</b></p>
+        self.show_bond_labels_checkbox.setWhatsThis("""<p><b>Show Bond Type Letters</b></p>
         <p>Shows/Hides Bond Type
         letters (labels) on top of bonds.</p>
         <u>Bond Type Letters:</u><br>
@@ -302,86 +509,78 @@ class UserPrefs(UserPrefsDialog):
         <b>A</b>
         = Aromatic bond<br>
         <b>G</b> = Graphitic bond<br>""")
-        QWhatsThis.add(self.show_valence_errors_checkbox, """<p><b>Show Valence Errors</b></p><p>Enables/Disables Valence
+        self.show_valence_errors_checkbox.setWhatsThis("""<p><b>Show Valence Errors</b></p><p>Enables/Disables Valence
         Error Checker.</p>When enabled, atoms with valence errors are displayed with an orange wireframe sphere. This indicates
         that one or more of the atom's bonds are not of the correct order (type).""")
-        QWhatsThis.add(self.textLabel1_3, """<p><b>Ball and Stick Bond Scale</b></p>Set scale (size) factor for the cylinder representing bonds in Ball and Stick display mode""")
-        QWhatsThis.add(self.textLabel1, """<p><b>Bond Line Thickness</b></p>Bond thickness (in pixels) for Lines Display Mode""")
-        QWhatsThis.add(self.cpk_cylinder_rad_spinbox, """<p><b>Ball and Stick Bond Scale</b></p>Set scale (size) factor
+        self.textLabel1_3.setWhatsThis("""<p><b>Ball and Stick Bond Scale</b></p>Set scale (size) factor for the cylinder representing bonds in Ball and Stick display mode""")
+        self.textLabel1.setWhatsThis("""<p><b>Bond Line Thickness</b></p>Bond thickness (in pixels) for Lines Display Mode""")
+        self.cpk_cylinder_rad_spinbox.setWhatsThis("""<p><b>Ball and Stick Bond Scale</b></p>Set scale (size) factor
         for the cylinder representing bonds in Ball and Stick display mode""")
-        QWhatsThis.add(self.bond_line_thickness_spinbox, """<p><b>Bond Line Thickness</b></p>Bond thickness (in pixels) for
+        self.bond_line_thickness_spinbox.setWhatsThis("""<p><b>Bond Line Thickness</b></p>Bond thickness (in pixels) for
         Lines Display Mode""")
-        QWhatsThis.add(self.startup_mode_lbl, """<p><b>Startup Mode</b></p>This specifies which mode the program
-        will start in.""")
-        QWhatsThis.add(self.startup_mode_combox, """<p><b>Startup Mode</b></p>This specifies which mode the program
-        will start in.""")
-        QWhatsThis.add(self.default_mode_lbl, """<p><b>Default Mode</b></p>This specifies which mode the user
-        will be placed in when exiting any other mode.""")
-        QWhatsThis.add(self.default_mode_combox, """<p><b>Default Mode</b></p>This specifies which mode the user
-        will be placed in when exiting any other mode.""")
-        QWhatsThis.add(self.fill_type_combox, """<p><b>Fill Type</b></p>
+        self.fill_type_combox.setWhatsThis("""<p><b>Fill Type</b></p>
         <p>Sets the fill type of the background. Each mode can have a different color, if desired.</p>""")
-        QWhatsThis.add(self.vwd_rbtn, """<u><b>CPK (Space Filling)</b></u><br>
+        self.cpk_rbtn.setWhatsThis("""<u><b>CPK (Space Filling)</b></u><br>
         <p>Changes the <i>Default Display Mode</i>  to <b>CPK</b> mode.
         Atoms are rendered as space filling spheres. Bonds are not rendered.</p>""")
-        QWhatsThis.add(self.cpk_rbtn, """<u><b>Ball and Stick</b></u><br>
+        self.ballNstick_rbtn.setWhatsThis("""<u><b>Ball and Stick</b></u><br>
         <p>Changes the <i>Default Display Mode</i>  to <b>Ball and Stick</b> mode. Atoms are rendered  as spheres (balls) and bonds are rendered as narrow cylinders
         (sticks).</p>""")
-        QWhatsThis.add(self.lines_rbtn, """<u><b>Lines</b></u><br>
+        self.lines_rbtn.setWhatsThis("""<u><b>Lines</b></u><br>
         <p>Changes the <i>Default Display Mode</i> to <b>Lines</b> mode. Bonds are rendered as lines. Atoms are not rendered.</p>""")
-        QWhatsThis.add(self.tubes_rbtn, """<u><b>Tubes</b></u><br>
+        self.tubes_rbtn.setWhatsThis("""<u><b>Tubes</b></u><br>
         <p>Changes the <i>Default Display Mode</i> to <b>Tubes</b> mode.Atoms and bonds are rendered as colored tubes.</p>""")
-        QWhatsThis.add(self.autobond_checkbox, """Build mode's default setting for Autobonding at startup (enabled/disabled)""")
-        QWhatsThis.add(self.water_checkbox, """Build mode's default setting for Water at startup (enabled/disabled)""")
-        QWhatsThis.add(self.buildmode_select_atoms_checkbox, """<p><b>Select Atoms of Deposited Object</b></p>
+        self.autobond_checkbox.setWhatsThis("""Build mode's default setting for Autobonding at startup (enabled/disabled)""")
+        self.water_checkbox.setWhatsThis("""Build mode's default setting for Water at startup (enabled/disabled)""")
+        self.buildmode_select_atoms_checkbox.setWhatsThis("""<p><b>Select Atoms of Deposited Object</b></p>
         When depositing atoms, clipboard chunks or library parts, their atoms will automatically be selected.""")
-        QWhatsThis.add(self.buildmode_highlighting_checkbox, """Build mode's default setting for Highlighting at startup (enabled/disabled)""")
-        QWhatsThis.add(self.povray_checkbox, """This enables POV-Ray as a plug-in. POV-Ray is a free raytracing program available from http://www.povray.org/. POV-Ray must be installed on your computer before you can enable the POV-Ray plug-in.""")
-        QWhatsThis.add(self.povray_lbl, """This enables POV-Ray as a plug-in. POV-Ray is a free raytracing program available from http://www.povray.org/. POV-Ray must be installed on your computer before you can enable the POV-Ray plug-in.""")
-        QWhatsThis.add(self.nanohive_lbl, """This enables Nano-Hive as a plug-in. Nano-Hive is available for download from  http://www.nano-hive.com/. Nano-Hive must be installed on your computer before you can enable the Nano-Hive plug-in.""")
-        QWhatsThis.add(self.nanohive_checkbox, """This enables Nano-Hive as a plug-in. Nano-Hive is available for download from http://www.nano-hive.com/. Nano-Hive must be installed on your computer before you can enable the Nano-Hive plug-in.""")
-        QWhatsThis.add(self.povray_path_linedit, """The full path to the POV-Ray executable file.""")
-        QWhatsThis.add(self.nanohive_path_linedit, """The full path to the Nano-Hive executable file.""")
-        QWhatsThis.add(self.gamess_lbl, """<p>This enables PC-GAMESS (Windows) or GAMESS (Linux or MacOS) as a plug-in. </p>
+        self.buildmode_highlighting_checkbox.setWhatsThis("""Build mode's default setting for Highlighting at startup (enabled/disabled)""")
+        self.povray_checkbox.setWhatsThis("""This enables POV-Ray as a plug-in. POV-Ray is a free raytracing program available from http://www.povray.org/. POV-Ray must be installed on your computer before you can enable the POV-Ray plug-in.""")
+        self.povray_lbl.setWhatsThis("""This enables POV-Ray as a plug-in. POV-Ray is a free raytracing program available from http://www.povray.org/. POV-Ray must be installed on your computer before you can enable the POV-Ray plug-in.""")
+        self.nanohive_lbl.setWhatsThis("""This enables Nano-Hive as a plug-in. Nano-Hive is available for download from  http://www.nano-hive.com/. Nano-Hive must be installed on your computer before you can enable the Nano-Hive plug-in.""")
+        self.nanohive_checkbox.setWhatsThis("""This enables Nano-Hive as a plug-in. Nano-Hive is available for download from http://www.nano-hive.com/. Nano-Hive must be installed on your computer before you can enable the Nano-Hive plug-in.""")
+        self.povray_path_linedit.setWhatsThis("""The full path to the POV-Ray executable file.""")
+        self.nanohive_path_linedit.setWhatsThis("""The full path to the Nano-Hive executable file.""")
+        self.gamess_lbl.setWhatsThis("""<p>This enables PC-GAMESS (Windows) or GAMESS (Linux or MacOS) as a plug-in. </p>
         <p>For Windows users, PC-GAMESS is available for download from http://classic.chem.msu.su/gran/gamess/.
         PC-GAMESS must be installed on your computer before you can enable the PC-GAMESS plug-in.</p>
         <p>For Linux and MacOS users,
         GAMESS is available for download from http://www.msg.ameslab.gov/GAMESS/GAMESS.html. GAMESS must be installed on your computer before you can enable the GAMESS plug-in.</p>""")
-        QWhatsThis.add(self.megapov_path_linedit, """The full path to the MegaPOV executable file (megapov.exe).""")
-        QWhatsThis.add(self.megapov_checkbox, """This enables MegaPOV as a plug-in. MegaPOV is a free addon raytracing program available from http://megapov.inetart.net/. Both MegaPOV and POV-Ray must be installed on your computer before you can enable the MegaPOV plug-in. MegaPOV allows rendering to happen silently on Windows (i.e. no POV_Ray GUI is displayed while rendering).""")
-        QWhatsThis.add(self.gamess_path_linedit, """The gamess executable file. Usually it's called gamess.??.x or
+        self.megapov_path_linedit.setWhatsThis("""The full path to the MegaPOV executable file (megapov.exe).""")
+        self.megapov_checkbox.setWhatsThis("""This enables MegaPOV as a plug-in. MegaPOV is a free addon raytracing program available from http://megapov.inetart.net/. Both MegaPOV and POV-Ray must be installed on your computer before you can enable the MegaPOV plug-in. MegaPOV allows rendering to happen silently on Windows (i.e. no POV_Ray GUI is displayed while rendering).""")
+        self.gamess_path_linedit.setWhatsThis("""The gamess executable file. Usually it's called gamess.??.x or
         ??gamess.exe.""")
-        QWhatsThis.add(self.gamess_checkbox, """<p>This enables PC-GAMESS (Windows) or GAMESS (Linux or MacOS)
+        self.gamess_checkbox.setWhatsThis("""<p>This enables PC-GAMESS (Windows) or GAMESS (Linux or MacOS)
         as a plug-in. </p>
         <p>For Windows users, PC-GAMESS is available for download from http://classic.chem.msu.su/gran/gamess/.
         PC-GAMESS must be installed on your computer before you can enable the PC-GAMESS plug-in.</p>
         <p>For Linux and MacOS users,
         GAMESS is available for download from http://www.msg.ameslab.gov/GAMESS/GAMESS.html. GAMESS must be installed on your computer before you can enable the GAMESS plug-in.</p>""")
-        QWhatsThis.add(self.povdir_linedit, """Specify a directory for where to find POV-Ray or MegaPOV include
+        self.povdir_linedit.setWhatsThis("""Specify a directory for where to find POV-Ray or MegaPOV include
         files such as transforms.inc.""")
-        QWhatsThis.add(self.nanohive_choose_btn, """This opens up a file chooser dialog so that you can specify the
+        self.nanohive_choose_btn.setWhatsThis("""This opens up a file chooser dialog so that you can specify the
         location of the Nano-Hive executable.""")
-        QWhatsThis.add(self.povray_choose_btn, """This opens up a file chooser dialog so that you can specify the
+        self.povray_choose_btn.setWhatsThis("""This opens up a file chooser dialog so that you can specify the
         location of the POV-Ray executable.""")
-        QWhatsThis.add(self.megapov_choose_btn, """This opens up a file chooser dialog so that you can specify the
+        self.megapov_choose_btn.setWhatsThis("""This opens up a file chooser dialog so that you can specify the
         location of the MegaPOV executable (megapov.exe).""")
-        QWhatsThis.add(self.gamess_choose_btn, """This opens up a file chooser dialog so that you can specify the
+        self.gamess_choose_btn.setWhatsThis("""This opens up a file chooser dialog so that you can specify the
         location of the GAMESS or PC-GAMESS executable.""")
-        QWhatsThis.add(self.megapov_lbl, """This enables MegaPOV as a plug-in. MegaPOV is a free addon raytracing program available from http://megapov.inetart.net/. Both MegaPOV and POV-Ray must be installed on your computer before you can enable the MegaPOV plug-in. MegaPOV allows rendering to happen silently on Windows (i.e. no POV_Ray GUI is displayed while rendering).""")
-        QWhatsThis.add(self.povdir_checkbox, """Select a user-customized directory for POV-Ray and MegaPOV include files, such as transforms.inc.""")
-        QWhatsThis.add(self.undo_automatic_checkpoints_checkbox, """<p><b>Automatic Checkpoints</b></p>Specifies whether <b>Automatic
+        self.megapov_lbl.setWhatsThis("""This enables MegaPOV as a plug-in. MegaPOV is a free addon raytracing program available from http://megapov.inetart.net/. Both MegaPOV and POV-Ray must be installed on your computer before you can enable the MegaPOV plug-in. MegaPOV allows rendering to happen silently on Windows (i.e. no POV_Ray GUI is displayed while rendering).""")
+        self.povdir_checkbox.setWhatsThis("""Select a user-customized directory for POV-Ray and MegaPOV include files, such as transforms.inc.""")
+        self.undo_automatic_checkpoints_checkbox.setWhatsThis("""<p><b>Automatic Checkpoints</b></p>Specifies whether <b>Automatic
         Checkpointing</b> is enabled/disabled during program startup only.  It does not enable/disable <b>Automatic Checkpointing</b>
         when the program is running.
         <p><b>Automatic Checkpointing</b> can be enabled/disabled by the user at any time from <b>Edit > Automatic Checkpointing</b>. When enabled, the program maintains the Undo stack automatically.  When disabled, the user is required to manually set Undo checkpoints using the <b>Set Checkpoint</b> button in the Edit Toolbar/Menu.</p>
         <p><b>Automatic Checkpointing</b> can impact program performance. By disabling Automatic Checkpointing, the program will run faster.</p><p><b><i>Remember to you must set your own Undo checkpoints manually when Automatic Checkpointing is disabled.</i></b></p>""")
-        QWhatsThis.add(self.undo_restore_view_checkbox, """<p><b>Restore View when Undoing Structural Changes</b></p>
+        self.undo_restore_view_checkbox.setWhatsThis("""<p><b>Restore View when Undoing Structural Changes</b></p>
         <p>When checked, the current view is stored along with each <b><i>structural change</i></b> on the undo stack.  The view is then
         restored when the user undoes a structural change.</p>
         <p><b><i>Structural changes</i></b> include any operation that modifies the model. Examples include adding, deleting or moving an atom, chunk or jig. </p>
         <p>Selection (picking/unpicking) and view changes are examples of operations that do not modify the model (i.e. are not structural changes).</p>""")
-        QWhatsThis.add(self.groupBox3, """Format Prefix and Suffix text the delimits the part name in the caption in window border.""")
-        QWhatsThis.add(self.save_current_btn, """Saves the main window's current position and size for the next time the program starts.""")
-        QWhatsThis.add(self.restore_saved_size_btn, """Saves the main window's current position and size for the next time the program starts.""")
+        self.groupBox3.setWhatsThis("""Format Prefix and Suffix text the delimits the part name in the caption in window border.""")
+        self.save_current_btn.setWhatsThis("""Saves the main window's current position and size for the next time the program starts.""")
+        self.restore_saved_size_btn.setWhatsThis("""Saves the main window's current position and size for the next time the program starts.""")
         return
 
     def _setup_caption_signals(self):
@@ -427,31 +626,32 @@ class UserPrefs(UserPrefsDialog):
         # Added to fix bug 894.  Mark.
         # [circa 050817, adds bruce; what's new is the pagename argument]
         if pagename == 'General': # Default
-            self.prefs_tab.setCurrentPage(0)
+            self.prefs_tab.setCurrentIndex(0)
         elif pagename == 'Atoms':
-            self.prefs_tab.setCurrentPage(1)
+            self.prefs_tab.setCurrentIndex(1)
         elif pagename == 'Bonds':
-            self.prefs_tab.setCurrentPage(2)
+            self.prefs_tab.setCurrentIndex(2)
         elif pagename == 'Modes':
-            self.prefs_tab.setCurrentPage(3)
+            self.prefs_tab.setCurrentIndex(3)
         elif pagename == 'Lighting':
-            self.prefs_tab.setCurrentPage(4)
+            self.prefs_tab.setCurrentIndex(4)
         elif pagename == 'Plug-ins':
-            self.prefs_tab.setCurrentPage(5)
+            self.prefs_tab.setCurrentIndex(5)
         elif pagename == 'Undo':
-            self.prefs_tab.setCurrentPage(6)
+            self.prefs_tab.setCurrentIndex(6)
         elif pagename == 'Caption':
             #bruce 051216 comment: I don't know if it's safe to change this string to 'Window' to match tab text
-            self.prefs_tab.setCurrentPage(7)
+            self.prefs_tab.setCurrentIndex(7)
         elif pagename == 'ToolTips':
-            self.prefs_tab.setCurrentPage(8)
+            self.prefs_tab.setCurrentIndex(8)
         else:
             print 'Error: Preferences page unknown: ', pagename
 
-        self.mmkit_was_hidden = self.w.hide_MMKit_during_open_or_save_on_MacOS() # Mark 060704
+       
+        self.setUI_LogoDownloadPermissions()
         
-        self.exec_loop()
-        # bruce comment 050811: using exec_loop rather than show forces this dialog to be modal.
+        self.exec_()
+        # bruce comment 050811: using exec_ rather than show forces this dialog to be modal.
         # For now, it's probably still only correct if it's modal, so I won't change this for A6.
         return
 
@@ -464,10 +664,24 @@ class UserPrefs(UserPrefsDialog):
         connect_checkbox_with_boolean_pref( self.display_compass_labels_checkbox, displayCompassLabels_prefs_key )
         connect_checkbox_with_boolean_pref( self.display_origin_axis_checkbox, displayOriginAxis_prefs_key )
         connect_checkbox_with_boolean_pref( self.display_pov_axis_checkbox, displayPOVAxis_prefs_key )
-        self.compass_position_combox.setCurrentItem(self.glpane.compassPosition)
-        self.default_projection_btngrp.setButton(env.prefs[defaultProjection_prefs_key])
+        self.compass_position_combox.setCurrentIndex(self.glpane.compassPosition)
+        
+        if env.prefs[defaultProjection_prefs_key] == 0:
+            self.perspective_radioButton.setChecked(True)
+        else:
+            self.orthographic_radioButton.setChecked(True)
+      
+       
         connect_checkbox_with_boolean_pref( self.animate_views_checkbox, animateStandardViews_prefs_key )
         connect_checkbox_with_boolean_pref( self.watch_min_in_realtime_checkbox, Adjust_watchRealtimeMinimization_prefs_key )
+        
+        
+        #Preference for enabling/disabling electrostatics during Adjustment 
+        #for the DNA reduced model. Ninad 20070809
+        connect_checkbox_with_boolean_pref(
+            self.electrostaticsForDnaDuringAdjust_checkBox,
+            electrostaticsForDnaDuringAdjust_prefs_key)
+        
         
         # This has been removed for A9. It has never been implemented anyway. Mark 060815.
         # connect_checkbox_with_boolean_pref( self.high_quality_graphics_checkbox, animateHighQualityGraphics_prefs_key )
@@ -484,16 +698,18 @@ class UserPrefs(UserPrefsDialog):
             self.resetMouseSpeedDuringRotation_btn.setEnabled(1)
             
         self.mouseSpeedDuringRotation_slider.setValue(mouseSpeedDuringRotation) # generates signal
-        
-        self.update_originAxis_btngroup.setEnabled(env.prefs[displayOriginAxis_prefs_key]) #ninad060920
-        
-        #@@@ ninad060920 In the dialog box, I have made the axis related radio buttons exclusive
-        #but still I need to supply the following condition , otherwise, if the Small Axis Radio button is False
-        #and user restarts the session, both the radio buttons are set to false.  Not sure why this is happening
-        if env.prefs[displayOriginAsSmallAxis_prefs_key ]:
-            self.displayOriginAsSmallAxis_rbtn.setChecked(True)
-        else:
-            self.displayOriginAsCrossWires_rbtn.setChecked(True) 
+
+        if 0:
+            # bruce 070424: comment out this code which doesn't yet work in Qt4
+            self.update_originAxis_btngroup.setEnabled(env.prefs[displayOriginAxis_prefs_key]) #ninad060920
+            
+            #@@@ ninad060920 In the dialog box, I have made the axis related radio buttons exclusive
+            #but still I need to supply the following condition , otherwise, if the Small Axis Radio button is False
+            #and user restarts the session, both the radio buttons are set to false.  Not sure why this is happening
+            if env.prefs[displayOriginAsSmallAxis_prefs_key ]:
+                self.displayOriginAsSmallAxis_rbtn.setChecked(True)
+            else:
+                self.displayOriginAsCrossWires_rbtn.setChecked(True) 
             
                
         self.update_btngrp.setEnabled(env.prefs[Adjust_watchRealtimeMinimization_prefs_key])
@@ -517,6 +733,8 @@ class UserPrefs(UserPrefsDialog):
             self.bg_gradient_setup()
         else:
             self.bg_solid_setup()
+
+        self.setUI_LogoDownloadPermissions()
 
     def _setup_plugins_page(self):
         ''' Setup widgets to initial (default or defined) values on the Plug-ins page.
@@ -557,8 +775,11 @@ class UserPrefs(UserPrefsDialog):
         """ Setup widgets to initial (default or defined) values on the Modes page.
         """
         
+        #ninad070430 startup and default modes are same for A9 
+        #(== select chunks) so following is disabled
+        
         # Update the "Default Mode" and "Startup Mode" combo boxes.
-        self.default_mode_combox.setCurrentItem( default_modes.index( default_modename() )) #bruce 060403 revised this
+        ##self.default_mode_combox.setCurrentIndex( default_modes.index( default_modename() )) #bruce 060403 revised this
         
         # Fix for bug 1008. Mark 050924. [use '$DEFAULT_MODE' == startup_modes[0] if smode not in startup_modes]
         # [then bruce 060403 revised this to do same thing in a different way]
@@ -567,10 +788,19 @@ class UserPrefs(UserPrefsDialog):
 ##        if smode not in startup_modes:
 ##            smode = startup_modes[0] # = Default Mode
         
-        self.startup_mode_combox.setCurrentItem(startup_modes.index(smode))
+        #ninad070430 startup and default modes are same for A9 
+        #(== select chunks) so following is disabled
+        ##self.startup_mode_combox.setCurrentIndex(startup_modes.index(smode))
             
         # Bug 799 fix.  Mark 050731
-        self.default_display_btngrp.setButton( env.prefs[defaultDisplayMode_prefs_key] ) #bruce 050810 revised this
+       
+        disp_key = env.prefs[defaultDisplayMode_prefs_key]
+        if disp_key == 2:self.cpk_rbtn.setChecked(True)
+        elif disp_key == 4: self.ballNstick_rbtn.setChecked(True)
+        elif disp_key == 3: self.lines_rbtn.setChecked(True)
+        elif disp_key == 5: self.tubes_rbtn.setChecked(True)
+        
+        
             # bruce comments:
             # - it's wrong to use any other data source here than the prefs db, e.g. via env.prefs. Fixed, 050810.
             # - the codes for the buttons are (by experiment) 2,4,5,3 from top to bottom. Apparently these
@@ -595,7 +825,7 @@ class UserPrefs(UserPrefsDialog):
         else:
             self.lights = lights
             
-        light_num = self.light_combobox.currentItem()
+        light_num = self.light_combobox.currentIndex()
         
         self.update_light_combobox_items()
         
@@ -702,7 +932,7 @@ class UserPrefs(UserPrefsDialog):
 ##        elif lod > 3: # change this to compare to '2' for A7 (in a few days)
         elif lod > 2:
             loditem = 2
-        self.level_of_detail_combox.setCurrentItem(loditem)
+        self.level_of_detail_combox.setCurrentIndex(loditem)
         
         # Set Ball & Stick Atom radius (percentage).  Mark 051003.
         self.cpk_atom_rad_spinbox.setValue(int (env.prefs[diBALL_AtomRadius_prefs_key] * 100.0))
@@ -731,10 +961,7 @@ class UserPrefs(UserPrefsDialog):
         ''' Setup widgets to initial (default or defined) values on the bonds page.
         '''
         # Set colors for bond color swatches
-##        self.bond_hilite_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(blue))
-##        self.bond_stretch_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(red))
-##        self.bond_vane_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(violet)) # Purple
-##        self.ballstick_bondcolor_frame.setPaletteBackgroundColor(RGBf_to_QColor(gray))
+
 
         #bruce 050805 here's the new way: subscribe to the preference value,
         # but make sure to only have one such subs (for one widget's bgcolor) at a time.
@@ -744,7 +971,24 @@ class UserPrefs(UserPrefsDialog):
         connect_colorpref_to_colorframe( bondStretchColor_prefs_key, self.bond_stretch_color_frame)
         connect_colorpref_to_colorframe( bondVaneColor_prefs_key, self.bond_vane_color_frame)
         connect_colorpref_to_colorframe( diBALL_bondcolor_prefs_key, self.ballstick_bondcolor_frame)
-
+        connect_checkbox_with_boolean_pref(
+            self.showBondStretchIndicators_checkBox,
+            showBondStretchIndicators_prefs_key)
+        
+        #DNA reduced model representation preferences 
+        connect_checkbox_with_boolean_pref(
+            self.arrowsOnBackBones_checkBox,
+            arrowsOnBackBones_prefs_key)
+                
+        connect_checkbox_with_boolean_pref(
+            self.arrowsOnThreePrimeEnds_checkBox,
+            arrowsOnThreePrimeEnds_prefs_key)
+        
+        connect_checkbox_with_boolean_pref(
+            self.arrowsOnFivePrimeEnds_checkBox,
+            arrowsOnFivePrimeEnds_prefs_key)
+        
+        
         # also handle the non-color prefs on this page:
         #  ('pi_bond_style',   ['multicyl','vane','ribbon'],  pibondStyle_prefs_key,   'multicyl' ),
         pibondstyle_sym = env.prefs[ pibondStyle_prefs_key]
@@ -752,7 +996,12 @@ class UserPrefs(UserPrefsDialog):
             # Errors in prefs db are not detected -- we just use the first button because (we happen to know) it's the default.
             # This int encoding is specific to this buttongroup.
             # The prefs db and the rest of the code uses the symbolic strings listed above.
-        self.high_order_bond_display_btngrp.setButton( button_code)
+        if button_code == 0:
+            self.multCyl_radioButton.setChecked(True)
+        elif button_code ==1:
+            self.vanes_radioButton.setChecked(True)
+        else:
+            self.ribbons_radioButton.setChecked(True)
 
         #  ('pi_bond_letters', 'boolean',                     pibondLetters_prefs_key, False ),
         self.show_bond_labels_checkbox.setChecked( env.prefs[ pibondLetters_prefs_key] )
@@ -813,8 +1062,8 @@ class UserPrefs(UserPrefsDialog):
         # Update the max value of the Current Size Spinboxes
         screen = screen_pos_size()
         ((x0,y0),(w,h)) = screen
-        self.current_width_spinbox.setMaxValue(w)
-        self.current_height_spinbox.setMaxValue(h)
+        self.current_width_spinbox.setRange(1,w)
+        self.current_height_spinbox.setRange(1,h)
         
         # Set value of the Current Size Spinboxes
         pos, size = get_window_pos_size(self.w)
@@ -860,20 +1109,21 @@ class UserPrefs(UserPrefsDialog):
         # Will do later.  Mark 050716.
 
         # (in theory, only one of these has changed, and even though we resave prefs for both,
-        #  only the changed one will trigger any formulas watching the prefs value for changes. [bruce 050811])        
-        prefix = QString(self.caption_prefix_linedit.text())
-        text = prefix.stripWhiteSpace() # make sure prefix is not just whitespaces
-        if text: 
-            env.prefs[captionPrefix_prefs_key] = str(text) + ' '
-        else:
-            env.prefs[captionPrefix_prefs_key] = ''
+        #  only the changed one will trigger any formulas watching the prefs value for changes. [bruce 050811])
+        #bruce 070503 Qt4 bugfix (prefix and suffix): str().strip() rather than QString().stripWhiteSpace()
+        # (but, like the old code, still only allows one space char on the side that can have one,
+        #  in order to most easily require at least one on that side; if mot for that, we'd use rstrip and lstrip)
+        prefix = str(self.caption_prefix_linedit.text())
+        prefix = prefix.strip()
+        if prefix:
+            prefix = prefix + ' '
+        env.prefs[captionPrefix_prefs_key] = prefix
         
-        suffix = QString(self.caption_suffix_linedit.text())
-        text = suffix.stripWhiteSpace() # make sure suffix is not just whitespaces
-        if text: 
-            env.prefs[captionSuffix_prefs_key] = ' ' + str(text)
-        else:
-            env.prefs[captionSuffix_prefs_key] = ''
+        suffix = str(self.caption_suffix_linedit.text())
+        suffix = suffix.strip()
+        if suffix:
+            suffix = ' ' + suffix
+        env.prefs[captionSuffix_prefs_key] = suffix
         return
 
     ###### End of private methods. ########################
@@ -1011,7 +1261,28 @@ class UserPrefs(UserPrefsDialog):
             self.cutovermax = cutovermax_str
         except:
             print_compact_traceback("bug in change_cutovermax ignored: ") #bruce 060627
+
+
+    def setPrefsLogoDownloadPermissions(self, permission):
+        """
+        Set the sponsor logos download permissions in the persistent user
+		preferences database.
+		
+        0 = Always ask before downloading, 1 = Never ask before downloading
+        2 = Never download
+        """
+        if permission == 1:
+            env.prefs[sponsor_permanent_permission_prefs_key] = True
+            env.prefs[sponsor_download_permission_prefs_key] = True
             
+        elif permission == 2:
+            env.prefs[sponsor_permanent_permission_prefs_key] = True
+            env.prefs[sponsor_download_permission_prefs_key] = False
+            
+        else:
+            env.prefs[sponsor_permanent_permission_prefs_key] = False
+
+        
     ########### BG Color slots ############
     
     def change_fill_type(self, ftype):
@@ -1032,37 +1303,63 @@ class UserPrefs(UserPrefsDialog):
         self.bg1_color_frame.setEnabled(True)
         self.choose_bg1_color_btn.setEnabled(True)
         
-        self.fill_type_combox.setCurrentItem(0) # Solid
+        self.fill_type_combox.setCurrentIndex(0) # Solid
         
         # Get the bg color rgb values of the glpane.
-        self.bg1_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(self.glpane.backgroundColor))
+        
+        plt = QtGui.QPalette()      
+        plt.setColor(QtGui.QPalette.Active,QtGui.QPalette.Window,
+                     RGBf_to_QColor(self.glpane.backgroundColor))
+        plt.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.Window,
+                 RGBf_to_QColor(self.glpane.backgroundColor))
+        plt.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.Window,
+                 RGBf_to_QColor(self.glpane.backgroundColor))
+    
+        self.bg1_color_frame.setPalette(plt)
         
         self.glpane.setBackgroundGradient(False) # This also stores the pref in the db.
     
     def bg_gradient_setup(self):
         '''Setup the Modes page for the background gradient fill type.
         '''
-
         self.bg1_color_lbl.setEnabled(False)
         self.bg1_color_frame.setEnabled(False)
         self.choose_bg1_color_btn.setEnabled(False)
         
-        self.fill_type_combox.setCurrentItem(1) # Gradient
+        self.fill_type_combox.setCurrentIndex(1) # Gradient
         
         # Get the bg color rgb values of the mode selected in the "Mode" combo box.
-        self.bg1_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(self.glpane.backgroundColor))
+        
+        plt = QtGui.QPalette()      
+        plt.setColor(QtGui.QPalette.Active,QtGui.QPalette.Window,
+                     RGBf_to_QColor(self.glpane.backgroundColor))
+        plt.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.Window,
+                 RGBf_to_QColor(self.glpane.backgroundColor))
+        plt.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.Window,
+                 RGBf_to_QColor(self.glpane.backgroundColor))
+
+        self.bg1_color_frame.setPalette(plt)
+       
         
         self.glpane.setBackgroundGradient(True) # This also stores the pref in the db.
 
     def change_bg1_color(self):
-        '''Change a mode's primary background color.
+        '''Change a mode\'s primary background color.
         '''
         # Allow user to select a new background color and set it.
-        c = QColorDialog.getColor(self.bg1_color_frame.paletteBackgroundColor(), self, "choose")
+        self.glpane.setBackgroundRole(QPalette.Window)
+                    
+        ##self.bg1_color_frame.setBackgroundRole(QPalette.Window)
+        c = QColorDialog.getColor(self.bg1_color_frame.palette().color(QPalette.Window), self)
         if c.isValid():
-            bgcolor = (c.red()/255.0, c.green()/255.0, c.blue()/255.0)
-            self.glpane.setBackgroundColor( bgcolor )
-            self.bg1_color_frame.setPaletteBackgroundColor(c)
+            plt = QtGui.QPalette()      
+            plt.setColor(QtGui.QPalette.Active,QtGui.QPalette.Window,c)
+            plt.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.Window,c)
+            plt.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.Window,c)
+            self.bg1_color_frame.setPalette(plt)
+            
+            self.glpane.backgroundColor = QColor_to_RGBf(c)
+            self.bg_solid_setup()
             
         self.glpane.gl_update()
                 
@@ -1084,11 +1381,24 @@ class UserPrefs(UserPrefsDialog):
          View > Zoom About Screen Center (and not in Edit > Preferences)'''
         #ninad061003 : Also, we may need to change the wording 'Zoom About Screen Center' 
         #to 'Zoom About 3D workspace center'  or something similar
-        if self.w.viewZoomAboutScreenCenterAction.isOn():
+        if self.w.viewZoomAboutScreenCenterAction.isChecked():
             env.prefs[zoomAboutScreenCenter_prefs_key] = True
         else:
             env.prefs[zoomAboutScreenCenter_prefs_key] = False
-            
+           
+        
+    def setUI_LogoDownloadPermissions(self):
+        """
+		Set the sponsor logos download permissions in the user interface.
+		"""
+        if env.prefs[sponsor_permanent_permission_prefs_key]:
+            if env.prefs[sponsor_download_permission_prefs_key]:
+                self.logoNeverAskRadioBtn.setChecked(True)
+            else:
+                self.logoNeverDownLoadRadioBtn.setChecked(True)
+        else:
+            self.logoAlwaysAskRadioBtn.setChecked(True)
+
             
     ########## End of slot methods for "General" page widgets ###########
     
@@ -1124,7 +1434,7 @@ class UserPrefs(UserPrefsDialog):
             bondpointHighlightColor_prefs_key,
             bondpointHotspotColor_prefs_key
         ])
-    
+        
     def change_level_of_detail(self, level_of_detail_item): #bruce 060215 revised this
         '''Change the level of detail, where <level_of_detail_item> is a value between 0 and 3 where:
             0 = low
@@ -1258,19 +1568,19 @@ class UserPrefs(UserPrefsDialog):
 
     def change_startup_mode(self, option):
         "Slot for the combobox that sets the Startup Mode."
-        env.prefs[ startupMode_prefs_key ] = startup_modes[self.startup_mode_combox.currentItem()]
+        env.prefs[ startupMode_prefs_key ] = startup_modes[self.startup_mode_combox.currentIndex()]
         return
         
     def change_default_mode(self, val):
         "Slot for the combobox that sets the Default Mode."
-        env.prefs[ defaultMode_prefs_key ] = default_modes[self.default_mode_combox.currentItem()]
+        env.prefs[ defaultMode_prefs_key ] = default_modes[self.default_mode_combox.currentIndex()]
         self.glpane.mode.UpdateDashboard() # Update Done button on dashboard.
         return
             
     def set_default_display_mode(self, displayMode): #bruce 050810 revised this to set the pref immediately
         '''Set default display mode to <displayMode>. 
         This also changes the current display mode of the glpane to <displayMode>.
-        '''
+        '''        
         if displayMode == env.prefs[defaultDisplayMode_prefs_key]:
             print "No change in Default Display Mode: ddm=", displayMode
             return
@@ -1290,7 +1600,7 @@ class UserPrefs(UserPrefsDialog):
         light checkboxes and sliders. This is also the slot for the light sliders.
         '''
         
-        light_num = self.light_combobox.currentItem()
+        light_num = self.light_combobox.currentIndex()
         
         light1, light2, light3 = self.glpane.getLighting()
         
@@ -1338,17 +1648,17 @@ class UserPrefs(UserPrefsDialog):
                 txt = "%d (On)" % (i+1)
             else:
                 txt = "%d (Off)" % (i+1)
-            self.light_combobox.changeItem(txt, i)
+            self.light_combobox.setItemText(i, txt)
     
     def toggle_light(self, on):
         '''Slot for light 'On' checkbox.  
         It updates the current item in the light combobox with '(On)' or '(Off)' label.
         '''
         if on:
-            txt = "%d (On)" % (self.light_combobox.currentItem()+1)
+            txt = "%d (On)" % (self.light_combobox.currentIndex()+1)
         else:
-            txt = "%d (Off)" % (self.light_combobox.currentItem()+1)
-        self.light_combobox.setCurrentText(txt)
+            txt = "%d (Off)" % (self.light_combobox.currentIndex()+1)
+        self.light_combobox.setItemText(self.light_combobox.currentIndex(),txt)
         
         self.save_lighting()
             
@@ -1774,7 +2084,6 @@ class UserPrefs(UserPrefsDialog):
     def accept(self):
         '''The slot method for the 'OK' button.'''
         # self._update_prefs() # Mark 050919
-        if self.mmkit_was_hidden: self.glpane.mode.MMKit.show() # Mark 060704.
         QDialog.accept(self)
         
     def reject(self):
@@ -1787,7 +2096,6 @@ class UserPrefs(UserPrefsDialog):
         # This will need to be removed when we implement a true cancel function.
         # Mark 050629.
         # self._update_prefs() # Removed by Mark 050919.
-        if self.mmkit_was_hidden: self.glpane.mode.MMKit.show() # Mark 060704.
         QDialog.reject(self)
 
     pass # end of class UserPrefs

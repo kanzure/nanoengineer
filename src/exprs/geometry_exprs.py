@@ -1,3 +1,4 @@
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 geometry_exprs.py -- time-varying geometric primitives that can know their units & coordinate system.
 

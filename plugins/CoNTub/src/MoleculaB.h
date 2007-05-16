@@ -1,3 +1,4 @@
+// Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
 /* $Id$ */
 
 #ifndef MOLECULAB_H_INCLUDED

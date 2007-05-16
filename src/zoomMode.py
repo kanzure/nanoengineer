@@ -1,4 +1,4 @@
-# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2005-2006 Nanorex, Inc.  See LICENSE file for details. 
 """
 zoomMode.py -- zoom mode.
 
@@ -33,7 +33,7 @@ class zoomMode(basicMode):
         
     # init_gui handles all the GUI display when entering this mode [mark 041004
     def init_gui(self):
-        self.w.zoomToolAction.setOn(1) # toggle on the Zoom Tool icon
+        self.w.zoomToolAction.setChecked(1) # toggle on the Zoom Tool icon
         self.o.setCursor(self.w.ZoomCursor)
         self.w.zoomDashboard.show()
             
@@ -74,7 +74,7 @@ class zoomMode(basicMode):
             
     # restore_gui handles all the GUI display when leavinging this mode [mark 041004]
     def restore_gui(self):
-        self.w.zoomToolAction.setOn(0) # toggle off the Zoom Tool icon
+        self.w.zoomToolAction.setChecked(0) # toggle off the Zoom Tool icon
         self.w.zoomDashboard.hide()
 
     # mouse and key events

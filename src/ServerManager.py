@@ -1,4 +1,4 @@
-# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 '''
 ServerManager.py
 
@@ -6,14 +6,16 @@ $Id$
 '''
 __author__ = "Huaicai"
 
-from ServerManagerDialog import ServerManagerDialog
-from qt import QListViewItem
+from ServerManagerDialog import Ui_ServerManagerDialog
+from PyQt4.Qt import QDialog, QStringList, SIGNAL
 from SimServer import SimServer
 import os
 import cPickle as pickle
 from debug import print_compact_stack
+from qt4transition import qt4todo
 
-class ServerManager(ServerManagerDialog):
+
+class ServerManager(QDialog, Ui_ServerManagerDialog):
     serverFile = 'serverList'
     import platform
     
@@ -21,8 +23,14 @@ class ServerManager(ServerManagerDialog):
     serverFile = os.path.join(tmpFilePath, "JobManager", serverFile)
     
     def __init__(self):
-        ServerManagerDialog.__init__(self)
-        self.server_listview.setSorting(-1)
+        QDialog.__init__(self)
+        self.setupUi(self)
+        self.connect(self.new_btn,SIGNAL("clicked()"),self.addServer)
+        self.connect(self.exit_btn,SIGNAL("clicked()"),self.close)
+        self.connect(self.server_listview,SIGNAL("currentChanged(QListViewItem*)"),self.changeServer)
+        self.connect(self.engine_combox,SIGNAL("activated(const QString&)"),self.engineChanged)
+        self.connect(self.del_btn,SIGNAL("clicked()"),self.deleteServer)
+        qt4todo('self.server_listview.setSorting(-1)')
         ## The ordered server list
         self.servers = self._loadServerList()
         
@@ -30,7 +38,7 @@ class ServerManager(ServerManagerDialog):
     def showDialog(self, selectedServer = 0):
         if not selectedServer: selectedServer = self.servers[0]
         self.setup(selectedServer)
-        self.exec_loop()    
+        self.exec_()    
     
     
     def _fillServerProperties(self, s):
@@ -52,12 +60,16 @@ class ServerManager(ServerManagerDialog):
         servers = self.servers[:]
         servers.reverse()
         for s in servers:
-            item = QListViewItem(self.server_listview, str(s.server_id), s.engine)
+            item = QStringList()
+            item.append(s.server_id)
+            item.append(s.item)
+            self.server_listview.addItems(item)
+            #item = QListViewItem(self.server_listview, str(s.server_id), s.engine)
             self.items += [item]
             if s == selectedServer:
                 selectedItem = item 
         self.items.reverse()
-        self.server_listview.setCurrentItem(selectedItem)
+        self.server_listview.setCurrentIndex(selectedItem)
         
         self._fillServerProperties(selectedServer)
         
@@ -73,14 +85,14 @@ class ServerManager(ServerManagerDialog):
              'username':str(self.username_linedit.text()),
              'password':str(self.password_linedit.text())}
         
-        item = self.server_listview.currentItem()
+        item = self.server_listview.currentIndex()
         item.setText(1, s['engine'])
         
         self.servers[self.items.index(item)].set_parms(s)
      
     
     def engineChanged(self, newItem):
-        item = self.server_listview.currentItem()
+        item = self.server_listview.currentIndex()
         sevr = self.servers[self.items.index(item)]
         sevr.engine = str(newItem) 
         item.setText(1, sevr.engine)       
@@ -100,7 +112,7 @@ class ServerManager(ServerManagerDialog):
                 "At least 1 server is needed to exist, after deleting the last one, a default new server will be created.",
                                     QMessageBox.Ok) 
         
-        item = self.server_listview.currentItem()
+        item = self.server_listview.currentIndex()
         self.server_listview.takeItem(item)
         del self.servers[self.items.index(item)]
         self.items.remove(item)
@@ -176,6 +188,6 @@ class ServerManager(ServerManagerDialog):
 
 ##Test code
 if __name__ == '__main__':
-        from qt import QApplication
+        from PyQt4.Qt import QApplication, QDialog
         
         

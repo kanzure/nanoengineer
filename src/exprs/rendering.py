@@ -1,7 +1,9 @@
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 rendering.py -- rendering loop control, etc
 
 $Id$
+
 """
 
     IorE drawkid def should be sort of like:

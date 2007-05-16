@@ -1,7 +1,9 @@
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 Set.py - provide the assignment action called Set, and (for now) the deprecated older variant SetStateRefValue.
 
 $Id$
+
 
 Note: this operation name is important enough to override any worry about the potential
 name conflict with something related to mathematical set-theory sets or Python dict-like sets.

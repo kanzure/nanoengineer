@@ -1,3 +1,4 @@
+// Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
 #ifndef PTO3D_H_INCLUDED
 #define PTO3D_H_INCLUDED
 

@@ -1,4 +1,4 @@
-# Copyright (c) 2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 '''
 parse_utils.py -- utilities for general parsing, and for parsing streams of python tokens.
 Also a prototype "description class" which can be used to represent results of parsing a "description".

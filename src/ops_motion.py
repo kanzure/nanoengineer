@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 ops_motion.py -- various ways of moving or spatially distorting
 selected atoms or chunks (and someday, attached jigs).
@@ -134,7 +134,7 @@ class ops_motion_Mixin:
                 
         if jigCounter < 1:
             msg = redmsg("No mirror plane selected. Please select a Grid Plane first.")
-            instruction = "  (If it doesn't exists, create it using <b>Jigs > Grid Plane</b> )"
+            instruction = "  (If it doesn't exists, create it using <b>Insert > Reference Geometry > Grid Plane</b> )"
             env.history.message(cmd + msg  + instruction)
             return 
         elif jigCounter >1:

@@ -1,4 +1,4 @@
-# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 '''
 NanoHive.py
 
@@ -10,8 +10,8 @@ Created by Mark.
 '''
 __author__ = "Mark"
 
-from qt import *
-from NanoHiveDialog import NanoHiveDialog
+from PyQt4.Qt import *
+from NanoHiveDialog import Ui_NanoHiveDialog
 from HistoryWidget import redmsg, greenmsg, orangemsg
 import env, os
 from constants import *
@@ -50,12 +50,19 @@ def find_all_ESP_image_jigs_under( root):
     root.apply2all( grab_if_ESP_Image_jig)
     return res
 
-class NanoHive(NanoHiveDialog):
+class NanoHive(QWidget, Ui_NanoHiveDialog):
     '''The Nano-Hive dialog
     '''
        
     def __init__(self, assy):
-        NanoHiveDialog.__init__(self)
+        QWidget.__init__(self)
+        self.setupUi(self)
+        self.connect(self.run_sim_btn,SIGNAL("clicked()"),self.accept)
+        self.connect(self.cancel_btn,SIGNAL("clicked()"),self.reject)
+        self.connect(self.MPQC_ESP_checkbox,SIGNAL("toggled(bool)"),self.update_ESP_window_combox)
+        self.connect(self.MPQC_GD_checkbox,SIGNAL("toggled(bool)"),self.update_MPQC_GD_options_btn)
+        self.connect(self.ESP_image_combox,SIGNAL("activated(int)"),self.set_ESP_window)
+        self.connect(self.MPQC_GD_options_btn,SIGNAL("clicked()"),self.show_MPQC_GD_options_dialog)
         self.assy = assy
         self.part=assy.part
         self.esp_image_list = [] # List of ESP Image jigs.
@@ -83,7 +90,7 @@ class NanoHive(NanoHiveDialog):
         
         self._init_dialog()
         
-        self.exec_loop()
+        self.exec_()
         return
         
     def _init_dialog(self):
@@ -130,7 +137,8 @@ class NanoHive(NanoHiveDialog):
         
         self.ESP_image_combox.clear()
         for jig in self.esp_image_list:
-            self.ESP_image_combox.insertItem(jig.name)
+            self.ESP_image_combox.insertItem(100, jig.name)
+            # 100 makes sure item is appended to list. [mark 2007-05-04]
         
         if self.esp_image_list:
             # Set default ESP Image to the first one in the list.
@@ -220,7 +228,7 @@ class NanoHive(NanoHiveDialog):
         '''
         sp = NH_Sim_Parameters()
         
-        sp.desc = self.description_textedit.text()
+        sp.desc = self.description_textedit.toPlainText()
         sp.iterations = self.nframes_spinbox.value() # Iterations = Frames
         sp.spf = self.stepsper_spinbox.value() * 1e-17 # Steps per Frame
         sp.temp = self.temp_spinbox.value() # Temp in Kelvin

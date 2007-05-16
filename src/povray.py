@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 '''
 povray.py provides routines to support POV-Ray rendering in nE-1.
 
@@ -18,7 +18,7 @@ from constants import *
 import preferences, env
 import os, sys
 from HistoryWidget import redmsg, orangemsg, greenmsg, _graymsg
-from qt import QApplication, QCursor, Qt, QStringList, QProcess, QDir, QMessageBox
+from PyQt4.Qt import QApplication, QCursor, Qt, QStringList, QProcess, QDir, QMessageBox
 from debug import print_compact_traceback
 
 def _dialog_to_offer_prefs_fixup(win, caption, text, macwarning_ok): #bruce 060710
@@ -31,7 +31,7 @@ def _dialog_to_offer_prefs_fixup(win, caption, text, macwarning_ok): #bruce 0607
         "but the Unix command-line versions can be compiled on the Mac\n"\
         "and should work. Contact support@nanorex.com for more info."
     ret = QMessageBox.warning( win, caption, text + macwarning, 
-        "&OK", "Cancel", None,
+        "&OK", "Cancel", "",
         0, 1 )
     if ret==0: # OK
         win.uprefs.showDialog('Plug-ins') # Show Preferences | Plug-in.
@@ -276,7 +276,7 @@ def launch_povray_or_megapov(win, info, povray_ini): #bruce 060707/11 revised th
 	
     # Render scene.
     try:
-        args = [program, tmp_ini]
+        args = [tmp_ini]
         if exit:
             args += [exit]
         if env.debug():
@@ -289,18 +289,14 @@ def launch_povray_or_megapov(win, info, povray_ini): #bruce 060707/11 revised th
             if arg != "":
                 arguments.append(arg)
     
-        from Process import Process
+        from Process import Process, ensure_QStringList
         p = Process()
             #bruce 060707: this doesn't take advantage of anything not in QProcess,
             # unless it matters that it reads and discards stdout/stderr
             # (eg so large output would not block -- unlikely that this matters).
             # It doesn't echo stdout/stderr. See also blabout/blaberr in other files. Maybe fix this? ###@@@
-        p.setArguments(arguments)
-        
-        wd = QDir(workdir)
-        p.setWorkingDirectory(wd) # This gets us around POV-Ray's 'I/O Restrictions' feature.
-
-        p.start()
+        p.setWorkingDirectory(workdir)	
+        p.start(program, arguments)
 	        
         # Put up hourglass cursor to indicate we are busy. Restore the cursor below. Mark 060621.
 	QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
@@ -309,7 +305,7 @@ def launch_povray_or_megapov(win, info, povray_ini): #bruce 060707/11 revised th
         
         import time
         msg = "Rendering image"
-        while p.isRunning():
+	while p.state() == QProcess.Running:
             # Display a message on the status bar that POV-Ray/MegaPOV is rendering.
             # I'd much rather display a progressbar and stop button by monitoring the size of the output file.
 	    # This would require the output file to be written in PPM or BMP format, but not PNG format, since
@@ -341,7 +337,7 @@ def launch_povray_or_megapov(win, info, povray_ini): #bruce 060707/11 revised th
     if 1:
         #bruce 060707 added this (after Windows A8, before Linux/Mac A8):
         # set an appropriate exitcode and msg
-        if p.normalExit():
+        if p.exitStatus() == QProcess.NormalExit:
             exitcode = p.exitStatus()
             if not exitcode:
                 msg = "Rendering finished!"
@@ -352,6 +348,7 @@ def launch_povray_or_megapov(win, info, povray_ini): #bruce 060707/11 revised th
                     # improve error reporting). ###@@@
                     # [bruce 060707]
         else:
+	    exitcode = p.exitStatus()
             exitcode = -1
             msg = "Abnormal exit (or failure to launch)"
         if exitcode or env.debug():

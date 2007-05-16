@@ -1,4 +1,4 @@
-# Copyright (c) 2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 '''
 StatusBar.py - status bar widgets and their methods.
 
@@ -12,49 +12,51 @@ by mark on 060105.
 __author__ = "Mark"
 
 import os, time
-from qt import QProgressBar, QFrame, QToolButton, QIconSet, QLabel, SIGNAL, QMessageBox
+from PyQt4.Qt import QProgressBar, QFrame, QToolButton, QIcon, QLabel, SIGNAL, QMessageBox
 from platform import hhmmss_str #bruce 060106 moved that function there
 import env
 from HistoryWidget import redmsg #bruce 060208 fix bug in traceback printing re bug 1263 (doesn't fix 1263 itself)
+from qt4transition import qt4todo, lineage
 
 def do_what_MainWindowUI_should_do(win):
     """Create some widgets inside the Qt-supplied statusbar, self.statusBar()."""
     # (see also env.history.message())
     
+    # Create a status message bar. Bug 1343, wware 060309
+    win.statusMsgLabel = QLabel()
+    
+    win.statusMsgLabel.setMinimumWidth(200)
+    win.statusMsgLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
+    win.statusBar().addPermanentWidget(win.statusMsgLabel)
+    
     # Create progressbar.
     win.status_pbar = QProgressBar(win)
     win.status_pbar.setMaximumWidth(250)
-    win.status_pbar.setCenterIndicator(True)
-    win.statusBar().addWidget(win.status_pbar,0,True)
+    qt4todo('win.status_pbar.setCenterIndicator(True)')
+    win.statusBar().addPermanentWidget(win.status_pbar)
     win.status_pbar.hide()
     
-    # Create a status message bar. Bug 1343, wware 060309
-    win.statusMsgLabel = QLabel(win.statusBar(), "statusMsgLabel")
-    win.statusMsgLabel.setMinimumWidth(200)
-    win.statusMsgLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
-    win.statusBar().addWidget(win.statusMsgLabel, 0, True)
-    
     # Create sim abort (stop) button.
-    win.simAbortButton = QToolButton(win, "")
-    from Utility import imagename_to_pixmap
-    pixmap = imagename_to_pixmap("stopsign.png")
-    win.simAbortButton.setIconSet(QIconSet(pixmap))
+    win.simAbortButton = QToolButton(win)
+    from Utility import geticon
+    pixmap = geticon("ui/actions/Simulation/Stopsign.png")
+    win.simAbortButton.setIcon(QIcon(pixmap))
     win.simAbortButton.setMaximumWidth(32)
-    win.statusBar().addWidget(win.simAbortButton,1,True)
+    win.statusBar().addPermanentWidget(win.simAbortButton)
     win.connect(win.simAbortButton,SIGNAL("clicked()"),win.simAbort)
         # as of 060106 this puts up confirmation dialog,
         # then does self.sim_abort_button_pressed = True (if user confirms)
     win.simAbortButton.hide()
 
     # Create (current) display mode bar.
-    win.dispbarLabel = QLabel(win.statusBar(), "dispbarLabel")
+    win.dispbarLabel = QLabel()
     win.dispbarLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
-    win.statusBar().addWidget(win.dispbarLabel, 0, True)
+    win.statusBar().addPermanentWidget(win.dispbarLabel)
     
     # Create (current) mode bar.        
-    win.modebarLabel = QLabel(win.statusBar(), "modebarLabel")
+    win.modebarLabel = QLabel()
     win.modebarLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
-    win.statusBar().addWidget(win.modebarLabel, 0, True)
+    win.statusBar().addPermanentWidget(win.modebarLabel)
 
     # == following code is unused as of 060106 -- might become real soon, don't know yet;
     # please don't remove it without asking me [bruce 060106]
@@ -104,9 +106,9 @@ def show_progressbar_and_stop_button(win, nsteps, filename = '', cmdname = "<unk
     ###e the following is WRONG if there is more than one task at a time... [bruce 060106 comment]
     win.stime = time.time() 
     win.status_pbar.reset()
-    win.status_pbar.setTotalSteps(nsteps)
-    win.status_pbar.setProgress(0)
-    win.status_pbar.show()
+    win.status_pbar.setMaximum(nsteps)
+    win.status_pbar.setValue(0)
+    win.status_pbar.show() 
     
     ## win.simAbortButton.show() # moved into AbortButtonForOneTask.start
 
@@ -117,7 +119,7 @@ def show_progressbar_and_stop_button(win, nsteps, filename = '', cmdname = "<unk
     # Main loop
     while filesize < nsteps:
         if os.path.exists(filename): filesize = os.path.getsize(filename)
-        win.status_pbar.setProgress( filesize )
+        win.status_pbar.setValue( filesize )
         import env
         env.call_qApp_processEvents()
             # Process queued events (e.g. clicking Abort button,
@@ -153,7 +155,7 @@ def show_progressbar_and_stop_button(win, nsteps, filename = '', cmdname = "<unk
         time.sleep(sinc) # Take a rest
         
     # End of Main loop (this only runs if it ended without being aborted)
-    win.status_pbar.setProgress(nsteps)
+    win.status_pbar.setValue(nsteps)
     win._duration = time.time() - win.stime
     time.sleep(0.1)  # Give the progress bar a moment to show 100%
     win.status_pbar.hide()
@@ -178,8 +180,8 @@ def show_pbar_and_stop_button_for_esp_calculation(win, sim_id, nh_socket, show_d
     win.stime = time.time()
         
     win.status_pbar.reset()
-    win.status_pbar.setTotalSteps(100) # 0-100 percent
-    win.status_pbar.setProgress(0)
+    win.status_pbar.setMaximum(100) # 0-100 percent
+    win.status_pbar.setValue(0)
     win.status_pbar.show()
         
     win.simAbortButton.show()
@@ -204,7 +206,7 @@ def show_pbar_and_stop_button_for_esp_calculation(win, sim_id, nh_socket, show_d
 
         #print "responseCode =", responseCode,", percentDone =", percentDone
 
-        win.status_pbar.setProgress( percentDone )
+        win.status_pbar.setValue( percentDone )
         import env
         env.call_qApp_processEvents() #bruce 050908 replaced qApp.processEvents()
         # Process queued events (i.e. clicking Abort button).
@@ -229,7 +231,7 @@ def show_pbar_and_stop_button_for_esp_calculation(win, sim_id, nh_socket, show_d
         time.sleep(sinc) # Take a rest
             
     # End of Main loop
-    win.status_pbar.setProgress(100) # 100 percent
+    win.status_pbar.setValue(100) # 100 percent
     win._duration = time.time() - win.stime
     time.sleep(0.1)  # Give the progress bar a moment to show 100%
     win.status_pbar.hide()

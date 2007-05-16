@@ -1,3 +1,4 @@
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 staterefs.py - facilities for defining and referencing state,
 in widget exprs which display it, edit it, operate on it, produce it

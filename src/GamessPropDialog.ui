@@ -1,1428 +1,1250 @@
-<!DOCTYPE UI>
-<UI stdsetdef="1" version="3.3">
-<class>GamessPropDialog</class>
-<widget class="QDialog">
-    <property name="name">
-        <cstring>GamessPropDialog</cstring>
-    </property>
-    <property name="geometry">
-        <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>509</width>
-            <height>551</height>
-        </rect>
-    </property>
-    <property name="caption">
-        <string>GAMESS Properties</string>
-    </property>
-    <property name="icon">
-        <pixmap>image0</pixmap>
-    </property>
-    <vbox>
-        <property name="name">
-            <cstring>unnamed</cstring>
+<ui version="4.0" >
+ <class>GamessPropDialog</class>
+ <widget class="QDialog" name="GamessPropDialog" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>450</width>
+    <height>512</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>GAMESS Properties</string>
+  </property>
+  <property name="windowIcon" >
+   <iconset/>
+  </property>
+  <layout class="QGridLayout" >
+   <property name="margin" >
+    <number>9</number>
+   </property>
+   <property name="spacing" >
+    <number>6</number>
+   </property>
+   <item row="0" column="0" colspan="5" >
+    <layout class="QGridLayout" >
+     <property name="margin" >
+      <number>0</number>
+     </property>
+     <property name="spacing" >
+      <number>6</number>
+     </property>
+     <item row="1" column="1" >
+      <widget class="QComboBox" name="runtyp_combox" >
+       <property name="toolTip" >
+        <string>"Energy" = Energy Minina, "Optimization" = Equilibrium Geometry</string>
+       </property>
+       <property name="currentIndex" >
+        <number>0</number>
+       </property>
+       <item>
+        <property name="text" >
+         <string>Energy</string>
         </property>
-        <widget class="QLayoutWidget">
-            <property name="name">
-                <cstring>layout32</cstring>
+       </item>
+       <item>
+        <property name="text" >
+         <string>Optimization</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="1" column="2" colspan="2" >
+      <spacer>
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType" >
+        <enum>QSizePolicy::Expanding</enum>
+       </property>
+       <property name="sizeHint" >
+        <size>
+         <width>231</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="3" column="1" colspan="2" >
+      <layout class="QHBoxLayout" >
+       <property name="margin" >
+        <number>0</number>
+       </property>
+       <property name="spacing" >
+        <number>6</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="jig_color_pixmap" >
+         <property name="sizePolicy" >
+          <sizepolicy>
+           <hsizetype>5</hsizetype>
+           <vsizetype>5</vsizetype>
+           <horstretch>1</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize" >
+          <size>
+           <width>40</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="scaledContents" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="choose_color_btn" >
+         <property name="enabled" >
+          <bool>true</bool>
+         </property>
+         <property name="sizePolicy" >
+          <sizepolicy>
+           <hsizetype>1</hsizetype>
+           <vsizetype>0</vsizetype>
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip" >
+          <string>Change the GAMESS jig color</string>
+         </property>
+         <property name="text" >
+          <string>Choose...</string>
+         </property>
+         <property name="autoDefault" >
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item rowspan="4" row="0" column="0" >
+      <layout class="QVBoxLayout" >
+       <property name="margin" >
+        <number>0</number>
+       </property>
+       <property name="spacing" >
+        <number>6</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="psetslbl_2_2" >
+         <property name="text" >
+          <string>Name :</string>
+         </property>
+         <property name="alignment" >
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="textLabel1_2_3" >
+         <property name="text" >
+          <string>Calculate :</string>
+         </property>
+         <property name="alignment" >
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="textLabel1_3" >
+         <property name="text" >
+          <string>Description :</string>
+         </property>
+         <property name="alignment" >
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="textLabel1_3_2" >
+         <property name="text" >
+          <string>Color :</string>
+         </property>
+         <property name="alignment" >
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="0" column="1" colspan="3" >
+      <widget class="QLineEdit" name="name_linedit" >
+       <property name="toolTip" >
+        <string>Name of the GAMESS jig</string>
+       </property>
+       <property name="text" >
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1" colspan="3" >
+      <widget class="QLineEdit" name="comment_linedit" >
+       <property name="toolTip" >
+        <string>Description, also placed in the $DATA section of the INP file</string>
+       </property>
+       <property name="text" >
+        <string/>
+       </property>
+       <property name="maxLength" >
+        <number>80</number>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="3" >
+      <spacer>
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType" >
+        <enum>QSizePolicy::Expanding</enum>
+       </property>
+       <property name="sizeHint" >
+        <size>
+         <width>191</width>
+         <height>25</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="0" colspan="5" >
+    <layout class="QHBoxLayout" >
+     <property name="margin" >
+      <number>0</number>
+     </property>
+     <property name="spacing" >
+      <number>6</number>
+     </property>
+     <item>
+      <widget class="QGroupBox" name="scftyp_grpbox" >
+       <property name="title" >
+        <string>Electronic Structure Properties</string>
+       </property>
+       <layout class="QGridLayout" >
+        <property name="margin" >
+         <number>9</number>
+        </property>
+        <property name="spacing" >
+         <number>6</number>
+        </property>
+        <item row="0" column="0" >
+         <layout class="QHBoxLayout" >
+          <property name="margin" >
+           <number>0</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item>
+           <widget class="QRadioButton" name="rhf_radiobtn" >
+            <property name="toolTip" >
+             <string>Restricted Hartree-Fock</string>
             </property>
-            <hbox>
-                <property name="name">
-                    <cstring>unnamed</cstring>
+            <property name="text" >
+             <string>RHF</string>
+            </property>
+            <property name="checked" >
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="uhf_radiobtn" >
+            <property name="toolTip" >
+             <string>Unrestricted Hartree-Fock</string>
+            </property>
+            <property name="text" >
+             <string>UHF</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="rohf_radiobtn" >
+            <property name="toolTip" >
+             <string>Restricted Open-shell Hartree-Fock</string>
+            </property>
+            <property name="text" >
+             <string>ROHF</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="1" column="0" >
+         <layout class="QHBoxLayout" >
+          <property name="margin" >
+           <number>0</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="textLabel1_4" >
+            <property name="text" >
+             <string>Charge:</string>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="icharg_spinbox" >
+            <property name="toolTip" >
+             <string>The total charge of the structure (IGHARG)</string>
+            </property>
+            <property name="maximum" >
+             <number>1</number>
+            </property>
+            <property name="minimum" >
+             <number>-1</number>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="textLabel1_2_2" >
+            <property name="text" >
+             <string>Multiplicity:</string>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="multi_combox" >
+            <property name="toolTip" >
+             <string>N + 1, where N is the number of unpaired electrons (MULT)</string>
+            </property>
+            <item>
+             <property name="text" >
+              <string>1</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>2</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>3</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>4</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>5</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>6</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>7</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupBox8" >
+       <property name="title" >
+        <string>System Memory and Usage</string>
+       </property>
+       <layout class="QGridLayout" >
+        <property name="margin" >
+         <number>9</number>
+        </property>
+        <property name="spacing" >
+         <number>6</number>
+        </property>
+        <item row="0" column="0" >
+         <layout class="QHBoxLayout" >
+          <property name="margin" >
+           <number>0</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="textLabel2_2" >
+            <property name="text" >
+             <string>Memory :</string>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="memory_spinbox" >
+            <property name="toolTip" >
+             <string>System memory reserved for calculation</string>
+            </property>
+            <property name="maximum" >
+             <number>1024</number>
+            </property>
+            <property name="minimum" >
+             <number>70</number>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="textLabel1" >
+            <property name="text" >
+             <string>MB</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="1" column="0" >
+         <widget class="QCheckBox" name="dirscf_checkbox" >
+          <property name="toolTip" >
+           <string>Run the calculation in RAM</string>
+          </property>
+          <property name="text" >
+           <string>DirectSCF</string>
+          </property>
+          <property name="checked" >
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="4" column="0" colspan="5" >
+    <widget class="QCheckBox" name="edit_input_file_cbox" >
+     <property name="toolTip" >
+      <string>Opens INP file in an editor</string>
+     </property>
+     <property name="text" >
+      <string>Open Input File in text editor</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="2" >
+    <widget class="QPushButton" name="run_job_btn" >
+     <property name="toolTip" >
+      <string>Save GAMESS parameters and launch job</string>
+     </property>
+     <property name="text" >
+      <string>Save and Run</string>
+     </property>
+     <property name="autoDefault" >
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="4" >
+    <widget class="QPushButton" name="cancel_btn" >
+     <property name="toolTip" >
+      <string>Cancel</string>
+     </property>
+     <property name="text" >
+      <string>Cancel</string>
+     </property>
+     <property name="autoDefault" >
+      <bool>false</bool>
+     </property>
+     <property name="default" >
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="3" >
+    <widget class="QPushButton" name="save_btn" >
+     <property name="toolTip" >
+      <string>Save GAMESS parameters and generates the INP file</string>
+     </property>
+     <property name="text" >
+      <string>Save</string>
+     </property>
+     <property name="autoDefault" >
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1" >
+    <spacer>
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeType" >
+      <enum>QSizePolicy::Expanding</enum>
+     </property>
+     <property name="sizeHint" >
+      <size>
+       <width>121</width>
+       <height>27</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="5" column="0" >
+    <widget class="QToolButton" name="whats_this_btn" >
+     <property name="minimumSize" >
+      <size>
+       <width>30</width>
+       <height>27</height>
+      </size>
+     </property>
+     <property name="toolTip" >
+      <string>What's This Help Utility</string>
+     </property>
+     <property name="text" >
+      <string/>
+     </property>
+     <property name="icon" >
+      <iconset>../../../../:icons/GamessPropDialog_image1</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="5" >
+    <widget class="QGroupBox" name="groupBox3" >
+     <property name="title" >
+      <string>Convergence Criteria</string>
+     </property>
+     <layout class="QGridLayout" >
+      <property name="margin" >
+       <number>9</number>
+      </property>
+      <property name="spacing" >
+       <number>6</number>
+      </property>
+      <item row="0" column="3" >
+       <spacer>
+        <property name="orientation" >
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType" >
+         <enum>QSizePolicy::Expanding</enum>
+        </property>
+        <property name="sizeHint" >
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="5" >
+       <spacer>
+        <property name="orientation" >
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType" >
+         <enum>QSizePolicy::Expanding</enum>
+        </property>
+        <property name="sizeHint" >
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="4" >
+       <layout class="QVBoxLayout" >
+        <property name="margin" >
+         <number>0</number>
+        </property>
+        <property name="spacing" >
+         <number>6</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="iterations_lbl" >
+          <property name="enabled" >
+           <bool>false</bool>
+          </property>
+          <property name="text" >
+           <string>Iterations :</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="iterations_spinbox" >
+          <property name="enabled" >
+           <bool>false</bool>
+          </property>
+          <property name="toolTip" >
+           <string>Maximum number of SCF iteration cycles (MAXIT)</string>
+          </property>
+          <property name="value" >
+           <number>50</number>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="0" column="2" >
+       <layout class="QVBoxLayout" >
+        <property name="margin" >
+         <number>0</number>
+        </property>
+        <property name="spacing" >
+         <number>6</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="rmsd_lbl" >
+          <property name="enabled" >
+           <bool>false</bool>
+          </property>
+          <property name="text" >
+           <string>RMSD:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="rmsd_combox" >
+          <property name="enabled" >
+           <bool>false</bool>
+          </property>
+          <property name="font" >
+           <font>
+            <family>Sans Serif</family>
+            <pointsize>9</pointsize>
+            <weight>50</weight>
+            <italic>false</italic>
+            <bold>false</bold>
+            <underline>false</underline>
+            <strikeout>false</strikeout>
+           </font>
+          </property>
+          <property name="toolTip" >
+           <string>Gradient convergence tolerance (OPTTOL)</string>
+          </property>
+          <property name="currentIndex" >
+           <number>1</number>
+          </property>
+          <item>
+           <property name="text" >
+            <string>Coarse</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>Medium</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>Fine</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>Very Fine</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="0" column="1" >
+       <spacer>
+        <property name="orientation" >
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType" >
+         <enum>QSizePolicy::Expanding</enum>
+        </property>
+        <property name="sizeHint" >
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="0" >
+       <layout class="QVBoxLayout" >
+        <property name="margin" >
+         <number>0</number>
+        </property>
+        <property name="spacing" >
+         <number>6</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="textLabel3" >
+          <property name="text" >
+           <string>Energy and Density:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="density_conv_combox" >
+          <property name="toolTip" >
+           <string>Accuracy of the electron density convergence (CONV)</string>
+          </property>
+          <property name="currentIndex" >
+           <number>1</number>
+          </property>
+          <item>
+           <property name="text" >
+            <string>Coarse</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>Medium</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>Fine</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>Very Fine</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="5" >
+    <widget class="QGroupBox" name="groupBox2" >
+     <property name="title" >
+      <string>Electron Correlation Method</string>
+     </property>
+     <layout class="QGridLayout" >
+      <property name="margin" >
+       <number>9</number>
+      </property>
+      <property name="spacing" >
+       <number>6</number>
+      </property>
+      <item row="1" column="0" >
+       <layout class="QHBoxLayout" >
+        <property name="margin" >
+         <number>0</number>
+        </property>
+        <property name="spacing" >
+         <number>6</number>
+        </property>
+        <item>
+         <layout class="QVBoxLayout" >
+          <property name="margin" >
+           <number>0</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item>
+           <widget class="QCheckBox" name="checkBox10_3_2" >
+            <property name="enabled" >
+             <bool>false</bool>
+            </property>
+            <property name="toolTip" >
+             <string>Read $HESS group from previous output file</string>
+            </property>
+            <property name="text" >
+             <string>Read $HESS Group</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="checkBox10_2_2_2" >
+            <property name="enabled" >
+             <bool>false</bool>
+            </property>
+            <property name="toolTip" >
+             <string comment="Only if Hf basis same as CI basis" >Read $VEC group from previous output file</string>
+            </property>
+            <property name="text" >
+             <string>Read $VEC Group</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="checkBox35" >
+            <property name="enabled" >
+             <bool>false</bool>
+            </property>
+            <property name="text" >
+             <string>Frequencies</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="ecm_grpbox" >
+          <property name="title" >
+           <string/>
+          </property>
+          <layout class="QVBoxLayout" >
+           <property name="margin" >
+            <number>11</number>
+           </property>
+           <property name="spacing" >
+            <number>6</number>
+           </property>
+           <item>
+            <widget class="QRadioButton" name="none_radiobtn" >
+             <property name="toolTip" >
+              <string>Neglect electron correlation</string>
+             </property>
+             <property name="text" >
+              <string>None</string>
+             </property>
+             <property name="checked" >
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="dft_radiobtn" >
+             <property name="toolTip" >
+              <string>Perform a density functional theory calculation</string>
+             </property>
+             <property name="text" >
+              <string>DFT</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="mp2_radiobtn" >
+             <property name="toolTip" >
+              <string>Perform a Second-Order Moeller Plesset calculation</string>
+             </property>
+             <property name="text" >
+              <string>MP2</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <layout class="QVBoxLayout" >
+          <property name="margin" >
+           <number>0</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item>
+           <layout class="QHBoxLayout" >
+            <property name="margin" >
+             <number>0</number>
+            </property>
+            <property name="spacing" >
+             <number>6</number>
+            </property>
+            <item>
+             <layout class="QVBoxLayout" >
+              <property name="margin" >
+               <number>0</number>
+              </property>
+              <property name="spacing" >
+               <number>6</number>
+              </property>
+              <item>
+               <widget class="QLabel" name="dfttyp_label" >
+                <property name="enabled" >
+                 <bool>false</bool>
                 </property>
-                <widget class="QLayoutWidget">
-                    <property name="name">
-                        <cstring>layout30</cstring>
-                    </property>
-                    <vbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <widget class="QLabel">
-                            <property name="name">
-                                <cstring>psetslbl_2_2</cstring>
-                            </property>
-                            <property name="text">
-                                <string>Name :</string>
-                            </property>
-                            <property name="alignment">
-                                <set>AlignVCenter|AlignRight</set>
-                            </property>
-                        </widget>
-                        <widget class="QLabel">
-                            <property name="name">
-                                <cstring>textLabel1_2_3</cstring>
-                            </property>
-                            <property name="text">
-                                <string>Calculate :</string>
-                            </property>
-                            <property name="alignment">
-                                <set>AlignVCenter|AlignRight</set>
-                            </property>
-                        </widget>
-                        <widget class="QLabel">
-                            <property name="name">
-                                <cstring>textLabel1_3</cstring>
-                            </property>
-                            <property name="text">
-                                <string>Description :</string>
-                            </property>
-                            <property name="alignment">
-                                <set>AlignVCenter|AlignRight</set>
-                            </property>
-                        </widget>
-                        <widget class="QLabel">
-                            <property name="name">
-                                <cstring>textLabel1_3_2</cstring>
-                            </property>
-                            <property name="text">
-                                <string>Color :</string>
-                            </property>
-                            <property name="alignment">
-                                <set>AlignVCenter|AlignRight</set>
-                            </property>
-                        </widget>
-                    </vbox>
-                </widget>
-                <widget class="QLayoutWidget">
-                    <property name="name">
-                        <cstring>layout31</cstring>
-                    </property>
-                    <vbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <widget class="QLineEdit">
-                            <property name="name">
-                                <cstring>name_linedit</cstring>
-                            </property>
-                            <property name="frameShape">
-                                <enum>LineEditPanel</enum>
-                            </property>
-                            <property name="frameShadow">
-                                <enum>Sunken</enum>
-                            </property>
-                            <property name="text">
-                                <string/>
-                            </property>
-                            <property name="toolTip" stdset="0">
-                                <string>Name of the GAMESS jig</string>
-                            </property>
-                            
-                        </widget>
-                        <widget class="QLayoutWidget">
-                            <property name="name">
-                                <cstring>layout28</cstring>
-                            </property>
-                            <hbox>
-                                <property name="name">
-                                    <cstring>unnamed</cstring>
-                                </property>
-                                <widget class="QComboBox">
-                                    <item>
-                                        <property name="text">
-                                            <string>Energy</string>
-                                        </property>
-                                    </item>
-                                    <item>
-                                        <property name="text">
-                                            <string>Optimization</string>
-                                        </property>
-                                    </item>
-                                    <property name="name">
-                                        <cstring>runtyp_combox</cstring>
-                                    </property>
-                                    <property name="currentItem">
-                                        <number>0</number>
-                                    </property>
-                                    <property name="toolTip" stdset="0">
-                                        <string>&quot;Energy&quot; = Energy Minina, &quot;Optimization&quot; = Equilibrium Geometry</string>
-                                    </property>
-                                    
-                                </widget>
-                                <spacer>
-                                    <property name="name">
-                                        <cstring>spacer3</cstring>
-                                    </property>
-                                    <property name="orientation">
-                                        <enum>Horizontal</enum>
-                                    </property>
-                                    <property name="sizeType">
-                                        <enum>Expanding</enum>
-                                    </property>
-                                    <property name="sizeHint">
-                                        <size>
-                                            <width>167</width>
-                                            <height>20</height>
-                                        </size>
-                                    </property>
-                                </spacer>
-                            </hbox>
-                        </widget>
-                        <widget class="QLineEdit">
-                            <property name="name">
-                                <cstring>comment_linedit</cstring>
-                            </property>
-                            <property name="frameShape">
-                                <enum>LineEditPanel</enum>
-                            </property>
-                            <property name="frameShadow">
-                                <enum>Sunken</enum>
-                            </property>
-                            <property name="text">
-                                <string/>
-                            </property>
-                            <property name="maxLength">
-                                <number>80</number>
-                            </property>
-                            <property name="toolTip" stdset="0">
-                                <string>Description, also placed in the $DATA section of the INP file</string>
-                            </property>
-                            
-                        </widget>
-                        <widget class="QLayoutWidget">
-                            <property name="name">
-                                <cstring>layout72</cstring>
-                            </property>
-                            <hbox>
-                                <property name="name">
-                                    <cstring>unnamed</cstring>
-                                </property>
-                                <widget class="QLayoutWidget">
-                                    <property name="name">
-                                        <cstring>layout71</cstring>
-                                    </property>
-                                    <hbox>
-                                        <property name="name">
-                                            <cstring>unnamed</cstring>
-                                        </property>
-                                        <widget class="QLabel">
-                                            <property name="name">
-                                                <cstring>jig_color_pixmap</cstring>
-                                            </property>
-                                            <property name="sizePolicy">
-                                                <sizepolicy>
-                                                    <hsizetype>5</hsizetype>
-                                                    <vsizetype>5</vsizetype>
-                                                    <horstretch>1</horstretch>
-                                                    <verstretch>0</verstretch>
-                                                </sizepolicy>
-                                            </property>
-                                            <property name="minimumSize">
-                                                <size>
-                                                    <width>40</width>
-                                                    <height>0</height>
-                                                </size>
-                                            </property>
-                                            <property name="paletteBackgroundColor">
-                                                <color>
-                                                    <red>0</red>
-                                                    <green>0</green>
-                                                    <blue>0</blue>
-                                                </color>
-                                            </property>
-                                            <property name="scaledContents">
-                                                <bool>true</bool>
-                                            </property>
-                                        </widget>
-                                        <widget class="QPushButton">
-                                            <property name="name">
-                                                <cstring>choose_color_btn</cstring>
-                                            </property>
-                                            <property name="enabled">
-                                                <bool>true</bool>
-                                            </property>
-                                            <property name="sizePolicy">
-                                                <sizepolicy>
-                                                    <hsizetype>1</hsizetype>
-                                                    <vsizetype>0</vsizetype>
-                                                    <horstretch>0</horstretch>
-                                                    <verstretch>0</verstretch>
-                                                </sizepolicy>
-                                            </property>
-                                            <property name="text">
-                                                <string>Choose...</string>
-                                            </property>
-                                            <property name="autoDefault">
-                                                <bool>false</bool>
-                                            </property>
-                                            <property name="toolTip" stdset="0">
-                                                <string>Change the GAMESS jig color</string>
-                                            </property>
-                                            
-                                        </widget>
-                                    </hbox>
-                                </widget>
-                                <spacer>
-                                    <property name="name">
-                                        <cstring>spacer13_3</cstring>
-                                    </property>
-                                    <property name="orientation">
-                                        <enum>Horizontal</enum>
-                                    </property>
-                                    <property name="sizeType">
-                                        <enum>Expanding</enum>
-                                    </property>
-                                    <property name="sizeHint">
-                                        <size>
-                                            <width>40</width>
-                                            <height>20</height>
-                                        </size>
-                                    </property>
-                                </spacer>
-                            </hbox>
-                        </widget>
-                    </vbox>
-                </widget>
-            </hbox>
-        </widget>
-        <widget class="QLayoutWidget">
-            <property name="name">
-                <cstring>layout69</cstring>
-            </property>
-            <hbox>
-                <property name="name">
-                    <cstring>unnamed</cstring>
+                <property name="text" >
+                 <string>Functional:</string>
                 </property>
-                <widget class="QButtonGroup">
-                    <property name="name">
-                        <cstring>scftyp_btngrp</cstring>
-                    </property>
-                    <property name="title">
-                        <string>Electronic Structure Properties</string>
-                    </property>
-                    <property name="exclusive">
-                        <bool>true</bool>
-                    </property>
-                    <vbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <widget class="QLayoutWidget">
-                            <property name="name">
-                                <cstring>layout20</cstring>
-                            </property>
-                            <hbox>
-                                <property name="name">
-                                    <cstring>unnamed</cstring>
-                                </property>
-                                <widget class="QRadioButton">
-                                    <property name="name">
-                                        <cstring>rhf_radiobtn</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>RHF</string>
-                                    </property>
-                                    <property name="checked">
-                                        <bool>true</bool>
-                                    </property>
-                                    <property name="buttonGroupId">
-                                        <number>-1</number>
-                                    </property>
-                                    <property name="toolTip" stdset="0">
-                                        <string>Restricted Hartree-Fock</string>
-                                    </property>
-                                    
-                                </widget>
-                                <widget class="QRadioButton">
-                                    <property name="name">
-                                        <cstring>uhf_radiobtn</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>UHF</string>
-                                    </property>
-                                    <property name="buttonGroupId">
-                                        <number>-1</number>
-                                    </property>
-                                    <property name="toolTip" stdset="0">
-                                        <string>Unrestricted Hartree-Fock</string>
-                                    </property>
-                                    
-                                </widget>
-                                <widget class="QRadioButton">
-                                    <property name="name">
-                                        <cstring>rohf_radiobtn</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>ROHF</string>
-                                    </property>
-                                    <property name="buttonGroupId">
-                                        <number>-1</number>
-                                    </property>
-                                    <property name="toolTip" stdset="0">
-                                        <string>Restricted Open-shell Hartree-Fock</string>
-                                    </property>
-                                    
-                                </widget>
-                            </hbox>
-                        </widget>
-                        <widget class="QLayoutWidget">
-                            <property name="name">
-                                <cstring>layout21</cstring>
-                            </property>
-                            <hbox>
-                                <property name="name">
-                                    <cstring>unnamed</cstring>
-                                </property>
-                                <widget class="QLabel">
-                                    <property name="name">
-                                        <cstring>textLabel1_4</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>Charge:</string>
-                                    </property>
-                                    <property name="alignment">
-                                        <set>AlignVCenter|AlignRight</set>
-                                    </property>
-                                </widget>
-                                <widget class="QSpinBox">
-                                    <property name="name">
-                                        <cstring>icharg_spinbox</cstring>
-                                    </property>
-                                    <property name="maxValue">
-                                        <number>1</number>
-                                    </property>
-                                    <property name="minValue">
-                                        <number>-1</number>
-                                    </property>
-                                    <property name="toolTip" stdset="0">
-                                        <string>The total charge of the structure (IGHARG)</string>
-                                    </property>
-                                    
-                                </widget>
-                                <widget class="QLabel">
-                                    <property name="name">
-                                        <cstring>textLabel1_2_2</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>Multiplicity:</string>
-                                    </property>
-                                    <property name="alignment">
-                                        <set>AlignVCenter|AlignRight</set>
-                                    </property>
-                                </widget>
-                                <widget class="QComboBox">
-                                    <item>
-                                        <property name="text">
-                                            <string>1</string>
-                                        </property>
-                                    </item>
-                                    <item>
-                                        <property name="text">
-                                            <string>2</string>
-                                        </property>
-                                    </item>
-                                    <item>
-                                        <property name="text">
-                                            <string>3</string>
-                                        </property>
-                                    </item>
-                                    <item>
-                                        <property name="text">
-                                            <string>4</string>
-                                        </property>
-                                    </item>
-                                    <item>
-                                        <property name="text">
-                                            <string>5</string>
-                                        </property>
-                                    </item>
-                                    <item>
-                                        <property name="text">
-                                            <string>6</string>
-                                        </property>
-                                    </item>
-                                    <item>
-                                        <property name="text">
-                                            <string>7</string>
-                                        </property>
-                                    </item>
-                                    <property name="name">
-                                        <cstring>multi_combox</cstring>
-                                    </property>
-                                    <property name="toolTip" stdset="0">
-                                        <string>N + 1, where N is the number of unpaired electrons (MULT)</string>
-                                    </property>
-                                    
-                                </widget>
-                            </hbox>
-                        </widget>
-                    </vbox>
-                </widget>
-                <widget class="QGroupBox">
-                    <property name="name">
-                        <cstring>groupBox8</cstring>
-                    </property>
-                    <property name="title">
-                        <string>System Memory and Usage</string>
-                    </property>
-                    <vbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <widget class="QLayoutWidget">
-                            <property name="name">
-                                <cstring>layout22</cstring>
-                            </property>
-                            <hbox>
-                                <property name="name">
-                                    <cstring>unnamed</cstring>
-                                </property>
-                                <widget class="QLabel">
-                                    <property name="name">
-                                        <cstring>textLabel2_2</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>Memory :</string>
-                                    </property>
-                                    <property name="alignment">
-                                        <set>AlignVCenter|AlignRight</set>
-                                    </property>
-                                </widget>
-                                <widget class="QSpinBox">
-                                    <property name="name">
-                                        <cstring>memory_spinbox</cstring>
-                                    </property>
-                                    <property name="maxValue">
-                                        <number>1024</number>
-                                    </property>
-                                    <property name="minValue">
-                                        <number>70</number>
-                                    </property>
-                                    <property name="toolTip" stdset="0">
-                                        <string>System memory reserved for calculation</string>
-                                    </property>
-                                    
-                                </widget>
-                                <widget class="QLabel">
-                                    <property name="name">
-                                        <cstring>textLabel1</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>MB</string>
-                                    </property>
-                                </widget>
-                            </hbox>
-                        </widget>
-                        <widget class="QCheckBox">
-                            <property name="name">
-                                <cstring>dirscf_checkbox</cstring>
-                            </property>
-                            <property name="text">
-                                <string>DirectSCF</string>
-                            </property>
-                            <property name="checked">
-                                <bool>true</bool>
-                            </property>
-                            <property name="toolTip" stdset="0">
-                                <string>Run the calculation in RAM</string>
-                            </property>
-                            
-                        </widget>
-                    </vbox>
-                </widget>
-            </hbox>
-        </widget>
-        <widget class="QGroupBox">
-            <property name="name">
-                <cstring>groupBox2</cstring>
-            </property>
-            <property name="title">
-                <string>Electron Correlation Method</string>
-            </property>
-            <vbox>
-                <property name="name">
-                    <cstring>unnamed</cstring>
+                <property name="alignment" >
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                 </property>
-                <widget class="QLayoutWidget">
-                    <property name="name">
-                        <cstring>layout24</cstring>
-                    </property>
-                    <hbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <widget class="QLabel">
-                            <property name="name">
-                                <cstring>textLabel6</cstring>
-                            </property>
-                            <property name="text">
-                                <string>Basis Set :</string>
-                            </property>
-                            <property name="alignment">
-                                <set>AlignVCenter|AlignRight</set>
-                            </property>
-                        </widget>
-                        <widget class="QComboBox">
-                            <item>
-                                <property name="text">
-                                    <string>AM1</string>
-                                </property>
-                            </item>
-                            <item>
-                                <property name="text">
-                                    <string>PM3</string>
-                                </property>
-                            </item>
-                            <item>
-                                <property name="text">
-                                    <string>STO-3G</string>
-                                </property>
-                            </item>
-                            <item>
-                                <property name="text">
-                                    <string>STO-6G</string>
-                                </property>
-                            </item>
-                            <item>
-                                <property name="text">
-                                    <string>3-21G</string>
-                                </property>
-                            </item>
-                            <item>
-                                <property name="text">
-                                    <string>3-21G*</string>
-                                </property>
-                            </item>
-                            <item>
-                                <property name="text">
-                                    <string>6-31G</string>
-                                </property>
-                            </item>
-                            <item>
-                                <property name="text">
-                                    <string>6-31G(d)</string>
-                                </property>
-                            </item>
-                            <item>
-                                <property name="text">
-                                    <string>6-31G(d,p)</string>
-                                </property>
-                            </item>
-                            <item>
-                                <property name="text">
-                                    <string>6-31+G(d)</string>
-                                </property>
-                            </item>
-                            <item>
-                                <property name="text">
-                                    <string>6-31+G(d,p)</string>
-                                </property>
-                            </item>
-                            <item>
-                                <property name="text">
-                                    <string>6-31++G(d)</string>
-                                </property>
-                            </item>
-                            <item>
-                                <property name="text">
-                                    <string>6-31++G(d,p)</string>
-                                </property>
-                            </item>
-                            <item>
-                                <property name="text">
-                                    <string>6-311G</string>
-                                </property>
-                            </item>
-                            <item>
-                                <property name="text">
-                                    <string>6-311G(d)</string>
-                                </property>
-                            </item>
-                            <item>
-                                <property name="text">
-                                    <string>6-311G(d,p)</string>
-                                </property>
-                            </item>
-                            <item>
-                                <property name="text">
-                                    <string>6-311+G(d,p)</string>
-                                </property>
-                            </item>
-                            <item>
-                                <property name="text">
-                                    <string>6-311++G(d,p)</string>
-                                </property>
-                            </item>
-                            <property name="name">
-                                <cstring>gbasis_combox</cstring>
-                            </property>
-                            <property name="currentItem">
-                                <number>0</number>
-                            </property>
-                            <property name="toolTip" stdset="0">
-                                <string>Gaussian-type basis sets and semi-empirical parameters</string>
-                            </property>
-                            
-                        </widget>
-                        <spacer>
-                            <property name="name">
-                                <cstring>spacer2</cstring>
-                            </property>
-                            <property name="orientation">
-                                <enum>Horizontal</enum>
-                            </property>
-                            <property name="sizeType">
-                                <enum>Expanding</enum>
-                            </property>
-                            <property name="sizeHint">
-                                <size>
-                                    <width>20</width>
-                                    <height>20</height>
-                                </size>
-                            </property>
-                        </spacer>
-                    </hbox>
-                </widget>
-                <widget class="QLayoutWidget">
-                    <property name="name">
-                        <cstring>layout64</cstring>
-                    </property>
-                    <hbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <widget class="QLayoutWidget">
-                            <property name="name">
-                                <cstring>layout27</cstring>
-                            </property>
-                            <vbox>
-                                <property name="name">
-                                    <cstring>unnamed</cstring>
-                                </property>
-                                <widget class="QCheckBox">
-                                    <property name="name">
-                                        <cstring>checkBox10_3_2</cstring>
-                                    </property>
-                                    <property name="enabled">
-                                        <bool>false</bool>
-                                    </property>
-                                    <property name="text">
-                                        <string>Read $HESS Group</string>
-                                    </property>
-                                    <property name="toolTip" stdset="0">
-                                        <string>Read $HESS group from previous output file</string>
-                                    </property>
-                                    
-                                </widget>
-                                <widget class="QCheckBox">
-                                    <property name="name">
-                                        <cstring>checkBox10_2_2_2</cstring>
-                                    </property>
-                                    <property name="enabled">
-                                        <bool>false</bool>
-                                    </property>
-                                    <property name="text">
-                                        <string>Read $VEC Group</string>
-                                    </property>
-                                    <property name="toolTip" stdset="0">
-                                        <string>Read $VEC group from previous output file</string>
-                                        <comment>Only if Hf basis same as CI basis</comment>
-                                    </property>
-                                    
-                                </widget>
-                                <widget class="QCheckBox">
-                                    <property name="name">
-                                        <cstring>checkBox35</cstring>
-                                    </property>
-                                    <property name="enabled">
-                                        <bool>false</bool>
-                                    </property>
-                                    <property name="text">
-                                        <string>Frequencies</string>
-                                    </property>
-                                </widget>
-                            </vbox>
-                        </widget>
-                        <widget class="QButtonGroup">
-                            <property name="name">
-                                <cstring>ecm_btngrp</cstring>
-                            </property>
-                            <property name="title">
-                                <string/>
-                            </property>
-                            <property name="exclusive">
-                                <bool>true</bool>
-                            </property>
-                            <vbox>
-                                <property name="name">
-                                    <cstring>unnamed</cstring>
-                                </property>
-                                <widget class="QRadioButton">
-                                    <property name="name">
-                                        <cstring>none_radiobtn</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>None</string>
-                                    </property>
-                                    <property name="checked">
-                                        <bool>true</bool>
-                                    </property>
-                                    <property name="buttonGroupId">
-                                        <number>0</number>
-                                    </property>
-                                    <property name="toolTip" stdset="0">
-                                        <string>Neglect electron correlation</string>
-                                    </property>
-                                    
-                                </widget>
-                                <widget class="QRadioButton">
-                                    <property name="name">
-                                        <cstring>dft_radiobtn</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>DFT</string>
-                                    </property>
-                                    <property name="toolTip" stdset="0">
-                                        <string>Perform a density functional theory calculation</string>
-                                    </property>
-                                    
-                                </widget>
-                                <widget class="QRadioButton">
-                                    <property name="name">
-                                        <cstring>mp2_radiobtn</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>MP2</string>
-                                    </property>
-                                    <property name="buttonGroupId">
-                                        <number>2</number>
-                                    </property>
-                                    <property name="toolTip" stdset="0">
-                                        <string>Perform a Second-Order Moeller Plesset calculation</string>
-                                    </property>
-                                    
-                                </widget>
-                            </vbox>
-                        </widget>
-                        <widget class="QLayoutWidget">
-                            <property name="name">
-                                <cstring>layout63</cstring>
-                            </property>
-                            <vbox>
-                                <property name="name">
-                                    <cstring>unnamed</cstring>
-                                </property>
-                                <widget class="QLayoutWidget">
-                                    <property name="name">
-                                        <cstring>layout32</cstring>
-                                    </property>
-                                    <hbox>
-                                        <property name="name">
-                                            <cstring>unnamed</cstring>
-                                        </property>
-                                        <widget class="QLayoutWidget">
-                                            <property name="name">
-                                                <cstring>layout22</cstring>
-                                            </property>
-                                            <vbox>
-                                                <property name="name">
-                                                    <cstring>unnamed</cstring>
-                                                </property>
-                                                <widget class="QLabel">
-                                                    <property name="name">
-                                                        <cstring>dfttyp_label</cstring>
-                                                    </property>
-                                                    <property name="enabled">
-                                                        <bool>false</bool>
-                                                    </property>
-                                                    <property name="text">
-                                                        <string>Functional:</string>
-                                                    </property>
-                                                    <property name="alignment">
-                                                        <set>AlignVCenter|AlignRight</set>
-                                                    </property>
-                                                </widget>
-                                                <widget class="QLabel">
-                                                    <property name="name">
-                                                        <cstring>gridsize_label</cstring>
-                                                    </property>
-                                                    <property name="enabled">
-                                                        <bool>false</bool>
-                                                    </property>
-                                                    <property name="text">
-                                                        <string>Grid Size:</string>
-                                                    </property>
-                                                    <property name="alignment">
-                                                        <set>AlignVCenter|AlignRight</set>
-                                                    </property>
-                                                </widget>
-                                            </vbox>
-                                        </widget>
-                                        <widget class="QLayoutWidget">
-                                            <property name="name">
-                                                <cstring>layout23</cstring>
-                                            </property>
-                                            <vbox>
-                                                <property name="name">
-                                                    <cstring>unnamed</cstring>
-                                                </property>
-                                                <widget class="QComboBox">
-                                                    <item>
-                                                        <property name="text">
-                                                            <string>SLATER (E)</string>
-                                                        </property>
-                                                    </item>
-                                                    <item>
-                                                        <property name="text">
-                                                            <string>BECKE (E)</string>
-                                                        </property>
-                                                    </item>
-                                                    <item>
-                                                        <property name="text">
-                                                            <string>GILL (E)</string>
-                                                        </property>
-                                                    </item>
-                                                    <item>
-                                                        <property name="text">
-                                                            <string>PBE (E)</string>
-                                                        </property>
-                                                    </item>
-                                                    <item>
-                                                        <property name="text">
-                                                            <string>VWN (C)</string>
-                                                        </property>
-                                                    </item>
-                                                    <item>
-                                                        <property name="text">
-                                                            <string>LYP (C)</string>
-                                                        </property>
-                                                    </item>
-                                                    <item>
-                                                        <property name="text">
-                                                            <string>OP (C)</string>
-                                                        </property>
-                                                    </item>
-                                                    <item>
-                                                        <property name="text">
-                                                            <string>SVWN/LDA (E+C)</string>
-                                                        </property>
-                                                    </item>
-                                                    <item>
-                                                        <property name="text">
-                                                            <string>SLYP (E+C)</string>
-                                                        </property>
-                                                    </item>
-                                                    <item>
-                                                        <property name="text">
-                                                            <string>SOP (E+C)</string>
-                                                        </property>
-                                                    </item>
-                                                    <item>
-                                                        <property name="text">
-                                                            <string>BVWN (E+C)</string>
-                                                        </property>
-                                                    </item>
-                                                    <item>
-                                                        <property name="text">
-                                                            <string>BLYP (E+C)</string>
-                                                        </property>
-                                                    </item>
-                                                    <item>
-                                                        <property name="text">
-                                                            <string>BOP (E+C)</string>
-                                                        </property>
-                                                    </item>
-                                                    <item>
-                                                        <property name="text">
-                                                            <string>GVWN (E+C)</string>
-                                                        </property>
-                                                    </item>
-                                                    <item>
-                                                        <property name="text">
-                                                            <string>GLYP (E+C)</string>
-                                                        </property>
-                                                    </item>
-                                                    <item>
-                                                        <property name="text">
-                                                            <string>GOP (E+C)</string>
-                                                        </property>
-                                                    </item>
-                                                    <item>
-                                                        <property name="text">
-                                                            <string>PBEVWN (E+C)</string>
-                                                        </property>
-                                                    </item>
-                                                    <item>
-                                                        <property name="text">
-                                                            <string>PBELYP (E+C)</string>
-                                                        </property>
-                                                    </item>
-                                                    <item>
-                                                        <property name="text">
-                                                            <string>PBEOP (E+C)</string>
-                                                        </property>
-                                                    </item>
-                                                    <item>
-                                                        <property name="text">
-                                                            <string>BHHLYP (H)</string>
-                                                        </property>
-                                                    </item>
-                                                    <item>
-                                                        <property name="text">
-                                                            <string>B3LYP (H)</string>
-                                                        </property>
-                                                    </item>
-                                                    <property name="name">
-                                                        <cstring>dfttyp_combox</cstring>
-                                                    </property>
-                                                    <property name="enabled">
-                                                        <bool>false</bool>
-                                                    </property>
-                                                    <property name="toolTip" stdset="0">
-                                                        <string>Density functional</string>
-                                                    </property>
-                                                    
-                                                </widget>
-                                                <widget class="QComboBox">
-                                                    <item>
-                                                        <property name="text">
-                                                            <string>Coarse</string>
-                                                        </property>
-                                                    </item>
-                                                    <item>
-                                                        <property name="text">
-                                                            <string>Default</string>
-                                                        </property>
-                                                    </item>
-                                                    <item>
-                                                        <property name="text">
-                                                            <string>Fine</string>
-                                                        </property>
-                                                    </item>
-                                                    <item>
-                                                        <property name="text">
-                                                            <string>Army Grade</string>
-                                                        </property>
-                                                    </item>
-                                                    <property name="name">
-                                                        <cstring>gridsize_combox</cstring>
-                                                    </property>
-                                                    <property name="enabled">
-                                                        <bool>false</bool>
-                                                    </property>
-                                                    <property name="currentItem">
-                                                        <number>1</number>
-                                                    </property>
-                                                    <property name="toolTip" stdset="0">
-                                                        <string>Grid spacing for the DFT calculation</string>
-                                                    </property>
-                                                    
-                                                </widget>
-                                            </vbox>
-                                        </widget>
-                                    </hbox>
-                                </widget>
-                                <widget class="QCheckBox">
-                                    <property name="name">
-                                        <cstring>core_electrons_checkbox</cstring>
-                                    </property>
-                                    <property name="enabled">
-                                        <bool>false</bool>
-                                    </property>
-                                    <property name="text">
-                                        <string>Core electrons?</string>
-                                    </property>
-                                    <property name="toolTip" stdset="0">
-                                        <string>Include both the valence and core electrons in the MP2 calculation</string>
-                                    </property>
-                                    
-                                </widget>
-                            </vbox>
-                        </widget>
-                    </hbox>
-                </widget>
-            </vbox>
-        </widget>
-        <widget class="QGroupBox">
-            <property name="name">
-                <cstring>groupBox3</cstring>
-            </property>
-            <property name="title">
-                <string>Convergence Criteria</string>
-            </property>
-            <hbox>
-                <property name="name">
-                    <cstring>unnamed</cstring>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="gridsize_label" >
+                <property name="enabled" >
+                 <bool>false</bool>
                 </property>
-                <widget class="QLayoutWidget">
-                    <property name="name">
-                        <cstring>layout66</cstring>
-                    </property>
-                    <vbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <widget class="QLabel">
-                            <property name="name">
-                                <cstring>textLabel3</cstring>
-                            </property>
-                            <property name="text">
-                                <string>Energy and Density:</string>
-                            </property>
-                        </widget>
-                        <widget class="QComboBox">
-                            <item>
-                                <property name="text">
-                                    <string>Coarse</string>
-                                </property>
-                            </item>
-                            <item>
-                                <property name="text">
-                                    <string>Medium</string>
-                                </property>
-                            </item>
-                            <item>
-                                <property name="text">
-                                    <string>Fine</string>
-                                </property>
-                            </item>
-                            <item>
-                                <property name="text">
-                                    <string>Very Fine</string>
-                                </property>
-                            </item>
-                            <property name="name">
-                                <cstring>density_conv_combox</cstring>
-                            </property>
-                            <property name="currentItem">
-                                <number>1</number>
-                            </property>
-                            <property name="toolTip" stdset="0">
-                                <string>Accuracy of the electron density convergence (CONV)</string>
-                            </property>
-                            
-                        </widget>
-                    </vbox>
-                </widget>
-                <spacer>
-                    <property name="name">
-                        <cstring>spacer16</cstring>
-                    </property>
-                    <property name="orientation">
-                        <enum>Horizontal</enum>
-                    </property>
-                    <property name="sizeType">
-                        <enum>Expanding</enum>
-                    </property>
-                    <property name="sizeHint">
-                        <size>
-                            <width>40</width>
-                            <height>20</height>
-                        </size>
-                    </property>
-                </spacer>
-                <widget class="QLayoutWidget">
-                    <property name="name">
-                        <cstring>layout67</cstring>
-                    </property>
-                    <vbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <widget class="QLabel">
-                            <property name="name">
-                                <cstring>rmsd_lbl</cstring>
-                            </property>
-                            <property name="enabled">
-                                <bool>false</bool>
-                            </property>
-                            <property name="text">
-                                <string>RMSD:</string>
-                            </property>
-                        </widget>
-                        <widget class="QComboBox">
-                            <item>
-                                <property name="text">
-                                    <string>Coarse</string>
-                                </property>
-                            </item>
-                            <item>
-                                <property name="text">
-                                    <string>Medium</string>
-                                </property>
-                            </item>
-                            <item>
-                                <property name="text">
-                                    <string>Fine</string>
-                                </property>
-                            </item>
-                            <item>
-                                <property name="text">
-                                    <string>Very Fine</string>
-                                </property>
-                            </item>
-                            <property name="name">
-                                <cstring>rmsd_combox</cstring>
-                            </property>
-                            <property name="enabled">
-                                <bool>false</bool>
-                            </property>
-                            <property name="font">
-                                <font>
-                                </font>
-                            </property>
-                            <property name="currentItem">
-                                <number>1</number>
-                            </property>
-                            <property name="toolTip" stdset="0">
-                                <string>Gradient convergence tolerance (OPTTOL)</string>
-                            </property>
-                            
-                        </widget>
-                    </vbox>
-                </widget>
-                <spacer>
-                    <property name="name">
-                        <cstring>spacer13</cstring>
-                    </property>
-                    <property name="orientation">
-                        <enum>Horizontal</enum>
-                    </property>
-                    <property name="sizeType">
-                        <enum>Expanding</enum>
-                    </property>
-                    <property name="sizeHint">
-                        <size>
-                            <width>40</width>
-                            <height>20</height>
-                        </size>
-                    </property>
-                </spacer>
-                <widget class="QLayoutWidget">
-                    <property name="name">
-                        <cstring>layout47</cstring>
-                    </property>
-                    <vbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <widget class="QLabel">
-                            <property name="name">
-                                <cstring>iterations_lbl</cstring>
-                            </property>
-                            <property name="enabled">
-                                <bool>false</bool>
-                            </property>
-                            <property name="text">
-                                <string>Iterations :</string>
-                            </property>
-                        </widget>
-                        <widget class="QSpinBox">
-                            <property name="name">
-                                <cstring>iterations_spinbox</cstring>
-                            </property>
-                            <property name="enabled">
-                                <bool>false</bool>
-                            </property>
-                            <property name="value">
-                                <number>50</number>
-                            </property>
-                            <property name="toolTip" stdset="0">
-                                <string>Maximum number of SCF iteration cycles (MAXIT)</string>
-                            </property>
-                            
-                        </widget>
-                    </vbox>
-                </widget>
-                <spacer>
-                    <property name="name">
-                        <cstring>spacer13_2</cstring>
-                    </property>
-                    <property name="orientation">
-                        <enum>Horizontal</enum>
-                    </property>
-                    <property name="sizeType">
-                        <enum>Expanding</enum>
-                    </property>
-                    <property name="sizeHint">
-                        <size>
-                            <width>40</width>
-                            <height>20</height>
-                        </size>
-                    </property>
-                </spacer>
-            </hbox>
-        </widget>
-        <widget class="QCheckBox">
-            <property name="name">
-                <cstring>edit_input_file_cbox</cstring>
-            </property>
-            <property name="text">
-                <string>Open Input File in text editor</string>
-            </property>
-            <property name="toolTip" stdset="0">
-                <string>Opens INP file in an editor</string>
-            </property>
-            
-        </widget>
-        <widget class="QLayoutWidget">
-            <property name="name">
-                <cstring>layout22</cstring>
-            </property>
-            <hbox>
-                <property name="name">
-                    <cstring>unnamed</cstring>
+                <property name="text" >
+                 <string>Grid Size:</string>
                 </property>
-                <widget class="QToolButton">
-                    <property name="name">
-                        <cstring>whats_this_btn</cstring>
-                    </property>
-                    <property name="minimumSize">
-                        <size>
-                            <width>30</width>
-                            <height>27</height>
-                        </size>
-                    </property>
-                    <property name="text">
-                        <string/>
-                    </property>
-                    <property name="iconSet">
-                        <iconset>image1</iconset>
-                    </property>
-                    <property name="toolTip" stdset="0">
-                        <string>What's This Help Utility</string>
-                    </property>
-                    
-                </widget>
-                <spacer>
-                    <property name="name">
-                        <cstring>spacer7</cstring>
-                    </property>
-                    <property name="orientation">
-                        <enum>Horizontal</enum>
-                    </property>
-                    <property name="sizeType">
-                        <enum>Expanding</enum>
-                    </property>
-                    <property name="sizeHint">
-                        <size>
-                            <width>40</width>
-                            <height>20</height>
-                        </size>
-                    </property>
-                </spacer>
-                <widget class="QPushButton">
-                    <property name="name">
-                        <cstring>run_job_btn</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Save and Run</string>
-                    </property>
-                    <property name="autoDefault">
-                        <bool>false</bool>
-                    </property>
-                    <property name="toolTip" stdset="0">
-                        <string>Save GAMESS parameters and launch job</string>
-                    </property>
-                    
-                </widget>
-                <widget class="QPushButton">
-                    <property name="name">
-                        <cstring>save_btn</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Save</string>
-                    </property>
-                    <property name="autoDefault">
-                        <bool>false</bool>
-                    </property>
-                    <property name="toolTip" stdset="0">
-                        <string>Save GAMESS parameters and generates the INP file</string>
-                    </property>
-                    
-                </widget>
-                <widget class="QPushButton">
-                    <property name="name">
-                        <cstring>cancel_btn</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Cancel</string>
-                    </property>
-                    <property name="autoDefault">
-                        <bool>false</bool>
-                    </property>
-                    <property name="default">
-                        <bool>false</bool>
-                    </property>
-                    <property name="toolTip" stdset="0">
-                        <string>Cancel</string>
-                    </property>
-                    
-                </widget>
-            </hbox>
-        </widget>
-    </vbox>
-</widget>
-<images>
-    <image name="image0">
-        <data format="XPM.GZ" length="2801">789c8d94495323471046effc0a0579231c3952b75a5287630eec2096016681c1e1432f6a1020c422b139fcdf5ddfeb394cd8785af5b83c32ab2b5595551f565a674707ad950f4b8fb36c362e5ac565f6d05a29e793c9eb1f7f7efc6b69398a5ae1afd3eeb5a2e5df96967dd82a5ad666e0477824f0733c16722bf044e063bc27f0195e08e6a7782988cff14a105f977718780f8f04be8b7705dec6138177f14cf0fd0d3c17c44ff042e0095e097c5bce72ac6fd4137505f11d7c20f0437c24f03579dc11cc7fc1238197784f90bf850f0471be1fa782f827bc10c41d2f055ec9bb6d41fe1e4ec138eb776381731e5d06f3dff044e007784f907f830f047e8ba7827cf6ab9b0be29c67b710f83d5e0afc0aaf047e29e7f8eafda2fe2416c49f710ac4e9b7a42770fa2de90b7c15cf05fe809702e7f72623c17afc9ea412c42772da97fdb40ce7c0887fc719f81dde17f8299e0a3cc673c1f71ee5fd48107fc2bb02ff82f383f0af380b309ffeef3370c33341fe677c24f08e7c9008f2e9b7414fe0dcf7412ac81fe099c0a977900bf2a77825f07d791a09f22f701a9878ed340c4e3fa489209ffad9aeba1ece2fed0b9cfb4479f5fdd8c47381d33f6925f8deb53c6b0be2ec2fcf41fd9ebce2b1209ee33d419cfbc9cfaffbfd0c67e0757e2e70eac94ac1f7b82f592570fa9de7a75e9ffb95c78238ef47de1738fd9733c867bff352e0dcf77c24c8a7ff785eebfb4fbff2bcd5ebf1fe711debfd677f8a4a10efcbcb8e20cefe9491c0b97f5cdf7a3ef7a94c05f347f848e0dfe4a358e0114e43e2f40be5d7e7c77ca6d7bfef1867c88f79af2a46edffc5edbdff1ecfdecbf7cc732fbcf491574df97ee1973ef62bbff61b9ff8ad8f1bf2a77ee7f7fee08f3ef3b93ff973533dfee2affe16ea59f5355ff78dc6fc4ddff26ddff15d1ffa9eef37e61ff8a13ffb273f0a5fbff1e386fa4721fbc43ffb175619fad786fc6f61774efdccbffb79c86e7ba7b19ec863ef7a12b27bde5fe8bc069e869a86e68b9daf9965965b61a58d16caafecc22e6d1cb86aceb76b3fb71b9bd8385474bb40fed48fecceeead083bb4630f0dfb791a7665e2953d86b39a85151abe6f739fdb933d87de1986158661ad177bfdbf7cdfb437bfb3555bb3f5907b621ba12fb67ebe3bffca9f867d8f6dd3b6bcb0ed80ba2ef1e92fead9b5a1ed8555863f98fd5ccdbbfdb06ffb61c641c0ec7091f3fa15cb7fffbef40f8044c392</data>
-    </image>
-    <image name="image1">
-        <data format="PNG" length="242">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b000000b949444154789cd594c10e83300c43ed8affff65ef308222134a103069967a4afaeaa46d807f94de803281d972211d1a2149cf151ace535eb9f2a1236dc20c2e49d99024b879925b45f4ead6cdbb921c1a657b2ce203a633e75dedc04fc14bf01d78b4696924291de4f1c3de4fc12919b870a153b0df34be6d295f824301eb7101a3adb63670941bf0bb2f63c9d0ee2692ccbfcadb10aa5c2954c57d665483695c711a50379867449751baee383e7dc795ba3d9ea935a77faa0f666baedcb63ecd840000000049454e44ae426082</data>
-    </image>
-</images>
-<connections>
-    <connection>
-        <sender>cancel_btn</sender>
-        <signal>clicked()</signal>
-        <receiver>GamessPropDialog</receiver>
-        <slot>reject()</slot>
-    </connection>
-    <connection>
-        <sender>ecm_btngrp</sender>
-        <signal>clicked(int)</signal>
-        <receiver>GamessPropDialog</receiver>
-        <slot>set_ecmethod()</slot>
-    </connection>
-    <connection>
-        <sender>multi_combox</sender>
-        <signal>activated(int)</signal>
-        <receiver>GamessPropDialog</receiver>
-        <slot>set_multiplicity()</slot>
-    </connection>
-    <connection>
-        <sender>run_job_btn</sender>
-        <signal>clicked()</signal>
-        <receiver>GamessPropDialog</receiver>
-        <slot>run_job()</slot>
-    </connection>
-    <connection>
-        <sender>save_btn</sender>
-        <signal>clicked()</signal>
-        <receiver>GamessPropDialog</receiver>
-        <slot>accept()</slot>
-    </connection>
-    <connection>
-        <sender>runtyp_combox</sender>
-        <signal>activated(int)</signal>
-        <receiver>GamessPropDialog</receiver>
-        <slot>calculate_changed()</slot>
-    </connection>
-    <connection>
-        <sender>choose_color_btn</sender>
-        <signal>clicked()</signal>
-        <receiver>GamessPropDialog</receiver>
-        <slot>change_jig_color()</slot>
-    </connection>
-    <connection>
-        <sender>whats_this_btn</sender>
-        <signal>clicked()</signal>
-        <receiver>GamessPropDialog</receiver>
-        <slot>whats_this()</slot>
-    </connection>
-</connections>
-<slots>
-    <slot>set_ecmethod()</slot>
-    <slot>set_multiplicity()</slot>
-    <slot>serverChanged(int)</slot>
-    <slot>run_job()</slot>
-    <slot>openServerManager()</slot>
-    <slot>calculate_changed()</slot>
-    <slot>set_gamess_location()</slot>
-    <slot>change_jig_color()</slot>
-    <slot>whats_this()</slot>
-</slots>
-<layoutdefaults margin="11" spacing="6"/>
-</UI>
+                <property name="alignment" >
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" >
+              <property name="margin" >
+               <number>0</number>
+              </property>
+              <property name="spacing" >
+               <number>6</number>
+              </property>
+              <item>
+               <widget class="QComboBox" name="dfttyp_combox" >
+                <property name="enabled" >
+                 <bool>false</bool>
+                </property>
+                <property name="toolTip" >
+                 <string>Density functional</string>
+                </property>
+                <item>
+                 <property name="text" >
+                  <string>SLATER (E)</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>BECKE (E)</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>GILL (E)</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>PBE (E)</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>VWN (C)</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>LYP (C)</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>OP (C)</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>SVWN/LDA (E+C)</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>SLYP (E+C)</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>SOP (E+C)</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>BVWN (E+C)</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>BLYP (E+C)</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>BOP (E+C)</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>GVWN (E+C)</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>GLYP (E+C)</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>GOP (E+C)</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>PBEVWN (E+C)</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>PBELYP (E+C)</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>PBEOP (E+C)</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>BHHLYP (H)</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>B3LYP (H)</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="gridsize_combox" >
+                <property name="enabled" >
+                 <bool>false</bool>
+                </property>
+                <property name="toolTip" >
+                 <string>Grid spacing for the DFT calculation</string>
+                </property>
+                <property name="currentIndex" >
+                 <number>1</number>
+                </property>
+                <item>
+                 <property name="text" >
+                  <string>Coarse</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>Default</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>Fine</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>Army Grade</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="core_electrons_checkbox" >
+            <property name="enabled" >
+             <bool>false</bool>
+            </property>
+            <property name="toolTip" >
+             <string>Include both the valence and core electrons in the MP2 calculation</string>
+            </property>
+            <property name="text" >
+             <string>Core electrons?</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+      <item row="0" column="0" >
+       <layout class="QHBoxLayout" >
+        <property name="margin" >
+         <number>0</number>
+        </property>
+        <property name="spacing" >
+         <number>6</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="textLabel6" >
+          <property name="text" >
+           <string>Basis Set :</string>
+          </property>
+          <property name="alignment" >
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="gbasis_combox" >
+          <property name="toolTip" >
+           <string>Gaussian-type basis sets and semi-empirical parameters</string>
+          </property>
+          <property name="currentIndex" >
+           <number>0</number>
+          </property>
+          <item>
+           <property name="text" >
+            <string>AM1</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>PM3</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>STO-3G</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>STO-6G</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>3-21G</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>3-21G*</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>6-31G</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>6-31G(d)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>6-31G(d,p)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>6-31+G(d)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>6-31+G(d,p)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>6-31++G(d)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>6-31++G(d,p)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>6-311G</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>6-311G(d)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>6-311G(d,p)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>6-311+G(d,p)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>6-311++G(d,p)</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item>
+         <spacer>
+          <property name="orientation" >
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType" >
+           <enum>QSizePolicy::Expanding</enum>
+          </property>
+          <property name="sizeHint" >
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11" />
+ <resources/>
+ <connections>
+  <connection>
+   <sender>cancel_btn</sender>
+   <signal>clicked()</signal>
+   <receiver>GamessPropDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>save_btn</sender>
+   <signal>clicked()</signal>
+   <receiver>GamessPropDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

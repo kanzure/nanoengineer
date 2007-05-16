@@ -1,3 +1,7 @@
+
+
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+
 # If there is a problem building this on the Mac, it's possible that the
 # 'F' in "AGL.framework" was incorrectly capitalized.
 #                                                 V--- RIGHT HERE
@@ -12,13 +16,16 @@ PYVER := $(shell python -c "import sys; print sys.version[0]+sys.version[2]")
 
 ifeq (XX$(OS),XXWindows_NT)
 #---------------------------------------- Start Windows stuff
-CC="C:/Dev-Cpp/bin/gcc.exe"
-CXX="C:/Dev-Cpp/bin/g++.exe"
+CC="C:/MinGW/bin/gcc.exe"
+CXX="C:/MinGW/bin/g++.exe"
 CFLAGS=-g -Wall -Wmissing-prototypes
-CFLAGS+=-I"C:/Dev-Cpp/include" -I"C:/Python$(PYVER)/include"
-CXXFLAGS+=-Wall -I"C:/Dev-Cpp/include" -I"C:/Python$(PYVER)/include"
-LDFLAGS=-Wl,--output-def,quux.def -L. -L"C:/Dev-Cpp/lib" \
+CFLAGS+=-I"C:/MinGW/include" -I"C:/Python$(PYVER)/include"
+CXXFLAGS+=-Wall -I"C:/MinGW/include" -I"C:/Python$(PYVER)/include"
+#LDFLAGS=-Wl,--output-def,quux.def -L. -L"C:/MinGW/lib" \
+	#-lpython$(PYVER) -lopengl32
+LDFLAGS=-Wl,--output-def,quux.def -L. -L"C:/MinGW/lib" \
 	-lpython$(PYVER) -lopengl32
+
 PYTHON=c:/Python$(PYVER)/python
 PYREXC=c:/Python$(PYVER)/python c:/Python$(PYVER)/Scripts/pyrexc.py
 TARGET=quux.dll
@@ -78,8 +85,11 @@ PyrexOpenGLGui.py: PyrexOpenGLGui.ui
 libpython23.a: libpython23.a.gz
 	gunzip < libpython23.a.gz > libpython23.a
 
+libpython24.a: libpython24.a.gz
+	gunzip < libpython24.a.gz > libpython24.a
+
 # Windows can't use distutils (avoid MSVC, use Dev-Cpp)
-quux.dll: quux.o bradg.o glextensions.o vector.o libpython23.a
+quux.dll: quux.o bradg.o glextensions.o vector.o libpython24.a
 	$(CXX) -shared -o quux.dll quux.o bradg.o glextensions.o vector.o $(LDFLAGS)
 
 test: $(TARGET)

@@ -1,5 +1,6 @@
 
 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 # usage:
 #
 # python Generate.py adenine > adenine.mmp

@@ -1,26 +1,41 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 '''
 elementColors.py
 
 $Id$
 
+
 bruce 050913 used env.history in some places.
 '''
 from ElementColorsDialog import *
+from PyQt4.Qt import *
 from elements import PeriodicTable 
 from constants import diTrueCPK, diBALL, diTUBES 
 from ThumbView import ElementView
+from qt4transition import qt4todo
 
 from HistoryWidget import redmsg # Mark 050311
 from VQT import V
 from widgets import RGBf_to_QColor
 import env
 
-class elementColors(ElementColorsDialog):
+class elementColors(QDialog, Ui_ElementColorsDialog):
     _displayList = (diTUBES, diBALL, diTrueCPK)
     
     def __init__(self, win):
-        ElementColorsDialog.__init__(self, win, None, 0, Qt.WStyle_Customize | Qt.WStyle_NormalBorder | Qt.WStyle_Title | Qt.WStyle_SysMenu)
+        qt4todo('what to do with all those options?')
+        # ElementColorsDialog.__init__(self, win, None, 0, Qt.WStyle_Customize | Qt.WStyle_NormalBorder | Qt.WStyle_Title | Qt.WStyle_SysMenu)
+        QDialog.__init__(self, win)
+        self.setupUi(self)
+        self.connect(self.okButton,SIGNAL("clicked()"),self.ok)
+        self.connect(self.loadColorsPB,SIGNAL("clicked()"),self.read_element_rgb_table)
+        self.connect(self.saveColorsPB,SIGNAL("clicked()"),self.write_element_rgb_table)
+        self.connect(self.cancelButton,SIGNAL("clicked()"),self.reject)
+        self.connect(self.defaultButton,SIGNAL("clicked()"),self.loadDefaultProp)
+        self.connect(self.alterButton,SIGNAL("clicked()"),self.loadAlterProp)
+        self.connect(self.elementButtonGroup,SIGNAL("clicked(int)"),self.setElementInfo)
+        self.connect(self.previewPB,SIGNAL("clicked()"),self.preview_color_change)
+        self.connect(self.restorePB,SIGNAL("clicked()"),self.restore_current_color)
         self.w = win
         self.fileName = None
         self.isElementModified = False
@@ -31,14 +46,61 @@ class elementColors(ElementColorsDialog):
         
         self.elemGLPane = ElementView(self.elementFrame, "element glPane", self.w.glpane)
         # Put the GL widget inside the frame
-        flayout = QVBoxLayout(self.elementFrame,1,1,'flayout')
+        flayout = QVBoxLayout(self.elementFrame)
+        flayout.setMargin(1)
+        flayout.setSpacing(1)
         flayout.addWidget(self.elemGLPane,1)
         
+        def elementId(symbol):
+            return PeriodicTable.getElement(symbol).eltnum
+        self.toolButton6.setChecked(True)
+        self.elementButtonGroup.setId(self.toolButton6, elementId("C"))
+        self.elementButtonGroup.setId(self.toolButton8, elementId("O"))
+        self.elementButtonGroup.setId(self.toolButton10, elementId("Ne"))
+        self.elementButtonGroup.setId(self.toolButton9, elementId("F"))
+        self.elementButtonGroup.setId(self.toolButton13, elementId("Al"))
+        self.elementButtonGroup.setId(self.toolButton17, elementId("Cl"))
+        self.elementButtonGroup.setId(self.toolButton5, elementId("B"))
+        self.elementButtonGroup.setId(self.toolButton10_2, elementId("Ar"))
+        self.elementButtonGroup.setId(self.toolButton15, elementId("P"))
+        self.elementButtonGroup.setId(self.toolButton16, elementId("S"))
+        self.elementButtonGroup.setId(self.toolButton14, elementId("Si"))
+        self.elementButtonGroup.setId(self.toolButton33, elementId("As"))
+        self.elementButtonGroup.setId(self.toolButton34, elementId("Se"))
+        self.elementButtonGroup.setId(self.toolButton35, elementId("Br"))
+        self.elementButtonGroup.setId(self.toolButton36, elementId("Kr"))
+        self.elementButtonGroup.setId(self.toolButton32, elementId("Ge"))
+        self.elementButtonGroup.setId(self.toolButton7, elementId("N"))
+        self.elementButtonGroup.setId(self.toolButton2, elementId("He"))
+        self.elementButtonGroup.setId(self.toolButton1, elementId("H"))
+        self.elementButtonGroup.setId(self.toolButton0, elementId("X"))
+
+        self.connect(self.toolButton6,SIGNAL("clicked()"),self.updateElemColorDisplay)
+        self.connect(self.toolButton8,SIGNAL("clicked()"),self.updateElemColorDisplay)
+        self.connect(self.toolButton10,SIGNAL("clicked()"),self.updateElemColorDisplay)
+        self.connect(self.toolButton9,SIGNAL("clicked()"),self.updateElemColorDisplay)
+        self.connect(self.toolButton13,SIGNAL("clicked()"),self.updateElemColorDisplay)
+        self.connect(self.toolButton17,SIGNAL("clicked()"),self.updateElemColorDisplay)
+        self.connect(self.toolButton5,SIGNAL("clicked()"),self.updateElemColorDisplay)
+        self.connect(self.toolButton10_2,SIGNAL("clicked()"),self.updateElemColorDisplay)
+        self.connect(self.toolButton15,SIGNAL("clicked()"),self.updateElemColorDisplay)
+        self.connect(self.toolButton16,SIGNAL("clicked()"),self.updateElemColorDisplay)
+        self.connect(self.toolButton14,SIGNAL("clicked()"),self.updateElemColorDisplay)
+        self.connect(self.toolButton33,SIGNAL("clicked()"),self.updateElemColorDisplay)
+        self.connect(self.toolButton34,SIGNAL("clicked()"),self.updateElemColorDisplay)
+        self.connect(self.toolButton35,SIGNAL("clicked()"),self.updateElemColorDisplay)
+        self.connect(self.toolButton36,SIGNAL("clicked()"),self.updateElemColorDisplay)
+        self.connect(self.toolButton32,SIGNAL("clicked()"),self.updateElemColorDisplay)
+        self.connect(self.toolButton7,SIGNAL("clicked()"),self.updateElemColorDisplay)
+        self.connect(self.toolButton2,SIGNAL("clicked()"),self.updateElemColorDisplay)
+        self.connect(self.toolButton1,SIGNAL("clicked()"),self.updateElemColorDisplay)
+        self.connect(self.toolButton0,SIGNAL("clicked()"),self.updateElemColorDisplay)
+        
         self.connectChangingControls()
-        QWhatsThis.add(self.saveColorsPB, """Save the current color settings for elements in a text file.""")
-        QWhatsThis.add(self.defaultButton, """Restore current element colors to the default colors.""")
-        QWhatsThis.add(self.loadColorsPB, """Load element colors from an external text file.""")
-        QWhatsThis.add(self.alterButton, """Set element colors to the alternate color set.""")
+        self.saveColorsPB.setWhatsThis("""Save the current color settings for elements in a text file.""")
+        self.defaultButton.setWhatsThis("""Restore current element colors to the default colors.""")
+        self.loadColorsPB.setWhatsThis("""Load element colors from an external text file.""")
+        self.alterButton.setWhatsThis("""Set element colors to the alternate color set.""")
         
     def closeEvent(self, e):
         """When user closes dialog by clicking the 'X' button on the dialog title bar, this method
@@ -69,7 +131,7 @@ class elementColors(ElementColorsDialog):
         """Load default set of color/rvdw for the current periodic table """    
         self.elemTable.loadDefaults()
         self._updateModelDisplay()
-        elemNum =  self.elementButtonGroup.selectedId()
+        elemNum =  self.elementButtonGroup.checkedId()
         self.setDisplay(elemNum)
         self.isElementModified = True
         
@@ -77,7 +139,7 @@ class elementColors(ElementColorsDialog):
         """Load alternate set of color/rvdw for the current periodic table """ 
         self.elemTable.loadAlternates()
         self._updateModelDisplay()
-        elemNum =  self.elementButtonGroup.selectedId()
+        elemNum =  self.elementButtonGroup.checkedId()
         self.setDisplay(elemNum)
         self.isElementModified = True
     
@@ -87,7 +149,7 @@ class elementColors(ElementColorsDialog):
         newMode = self._displayList[value]
         if newMode != self.displayMode:
             self.displayMode = newMode
-            elemNum =  self.elementButtonGroup.selectedId()
+            elemNum =  self.elementButtonGroup.checkedId()
             elm = self.elemTable.getElement(elemNum)
             self.elemGLPane.refreshDisplay(elm, self.displayMode)
  
@@ -96,7 +158,7 @@ class elementColors(ElementColorsDialog):
         self.setDisplay(value)
         
     def setDisplay(self, value):
-        self.elementButtonGroup.setButton(value)
+        qt4todo('self.elementButtonGroup.setButton(value)')
         self.updateElemGraphDisplay()
         self.original_color = self.color
         
@@ -119,17 +181,16 @@ class elementColors(ElementColorsDialog):
     def updateElemGraphDisplay(self):
         """Update non user interactive controls display for current selected element:
         element label info and element graphics info """
-        elemNum =  self.elementButtonGroup.selectedId()
-        self.color = self.elemTable.getElemColor(elemNum)
-        
+        elemNum =  self.elementButtonGroup.checkedId()
+        self.color = self.elemTable.getElemColor(elemNum)       
         elm = self.elemTable.getElement(elemNum)
         self.elemGLPane.resetView()
         self.elemGLPane.refreshDisplay(elm, self.displayMode)
  
     
     def updateElemColorDisplay(self):
-        '''Update GL display for user's color change. '''
-        elemNum =  self.elementButtonGroup.selectedId()
+        '''Update GL display for user\'s color change. '''
+        elemNum =  self.elementButtonGroup.checkedId()
         self.color = self.elemTable.getElemColor(elemNum)
         
         elm = self.elemTable.getElement(elemNum)
@@ -147,9 +208,12 @@ class elementColors(ElementColorsDialog):
         else: 
             from prefs_constants import workingDirectory_prefs_key
             odir = env.prefs[workingDirectory_prefs_key]
-        self.fileName = str(QFileDialog.getOpenFileName(odir,
-                "Elements color file (*.txt);;All Files (*.*);;",
-                self ))
+        self.fileName = str(QFileDialog.getOpenFileName(
+                                                         self,
+                                                        "Load Element Color",
+                                                        odir,
+                                                        "Elements color file (*.txt);;All Files (*.*);;"
+                                                         ))
         if self.fileName:
             colorTable = readElementColors(self.fileName)
             
@@ -162,7 +226,7 @@ class elementColors(ElementColorsDialog):
                 self.elemTable.setElemColors(colorTable)
                 self._updateModelDisplay()     
                 
-                elemNum =  self.elementButtonGroup.selectedId()
+                elemNum =  self.elementButtonGroup.checkedId()
                 self.setDisplay(elemNum)
         #After loading a file, reset the flag        
         self.isElementModified = False        
@@ -177,9 +241,12 @@ class elementColors(ElementColorsDialog):
         else:
            sdir = self.fileName
            
-        fn = QFileDialog.getSaveFileName(sdir,
-                    "Element Color File (*.txt);;",
-                    self, "colorSaveDialog", "Save Element Colors As ...")
+        fn = QFileDialog.getSaveFileName(
+                     self,              
+                     "Save Element Colors As ...",
+                     sdir,
+                    "Element Color File (*.txt)"
+                     )
         
         if fn:
             fn = str(fn)
@@ -191,7 +258,7 @@ class elementColors(ElementColorsDialog):
                     # ... confirm overwrite of the existing file.
                     ret = QMessageBox.warning( self, "Save Element Colors...", "The file \"" + fn + "\" already exists.\n"\
                         "Do you want to overwrite the existing file or cancel?",
-                        "&Overwrite", "&Cancel", None,
+                        "&Overwrite", "&Cancel", "",
                         0,      # Enter == button 0
                         1 )     # Escape == button 1
 
@@ -207,7 +274,7 @@ class elementColors(ElementColorsDialog):
     def changeSliderBlue(self,a0):
         self.blueSlider.blockSignals(True)
         self.blueSlider.setValue(a0)
-        elemNum =  self.elementButtonGroup.selectedId()
+        elemNum =  self.elementButtonGroup.checkedId()
         self.elemTable.setElemColor(elemNum,  [self.color[0], self.color[1], a0/255.0])
         self.updateElemColorDisplay()
         self.isElementModified = True
@@ -216,7 +283,7 @@ class elementColors(ElementColorsDialog):
     def changeSpinRed(self,a0):
         self.redSpinBox.blockSignals(True)
         self.redSpinBox.setValue(a0)
-        elemNum =  self.elementButtonGroup.selectedId()
+        elemNum =  self.elementButtonGroup.checkedId()
         self.elemTable.setElemColor(elemNum,  [a0/255.0, self.color[1], self.color[2]])
         self.updateElemColorDisplay()
         self.isElementModified = True
@@ -225,7 +292,7 @@ class elementColors(ElementColorsDialog):
     def changeSliderRed(self,a0):
         self.redSlider.blockSignals(True)
         self.redSlider.setValue(a0)
-        elemNum =  self.elementButtonGroup.selectedId()
+        elemNum =  self.elementButtonGroup.checkedId()
         self.elemTable.setElemColor(elemNum,  [a0/255.0, self.color[1], self.color[2]])
         self.updateElemColorDisplay()
         self.isElementModified = True
@@ -234,7 +301,7 @@ class elementColors(ElementColorsDialog):
     def changeSpinBlue(self,a0):
         self.blueSpinBox.blockSignals(True)
         self.blueSpinBox.setValue(a0)
-        elemNum =  self.elementButtonGroup.selectedId()
+        elemNum =  self.elementButtonGroup.checkedId()
         self.elemTable.setElemColor(elemNum,  [self.color[0], self.color[1], a0/255.0])
         self.updateElemColorDisplay()
         self.isElementModified = True
@@ -244,7 +311,7 @@ class elementColors(ElementColorsDialog):
     def changeSpinGreen(self,a0):
         self.greenSpinBox.blockSignals(True)
         self.greenSpinBox.setValue(a0)
-        elemNum =  self.elementButtonGroup.selectedId()
+        elemNum =  self.elementButtonGroup.checkedId()
         self.elemTable.setElemColor(elemNum,  [self.color[0], a0/255.0, self.color[2]])
         self.updateElemColorDisplay()
         self.isElementModified = True
@@ -254,7 +321,7 @@ class elementColors(ElementColorsDialog):
     def changeSliderGreen(self,a0): 
         self.greenSlider.blockSignals(True)
         self.greenSlider.setValue(a0)
-        elemNum =  self.elementButtonGroup.selectedId()
+        elemNum =  self.elementButtonGroup.checkedId()
         self.elemTable.setElemColor(elemNum,  [self.color[0], a0/255.0, self.color[2]])
         self.updateElemColorDisplay()
         self.isElementModified = True
@@ -405,4 +472,6 @@ if __name__=='__main__':
   w.resize(400,350)
   w.show()
   w.setCaption('box')
-  app.exec_loop()
+  app.exec_()        
+
+

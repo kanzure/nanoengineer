@@ -1,5 +1,5 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
-'''
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+"""
 startup_funcs.py
 
 Contains application startup actions, organized into functions called
@@ -11,7 +11,7 @@ History:
 
 bruce 050902 made this by moving some code out of atom.py,
 and adding some stub functions which will be filled in later.
-'''
+"""
 
 import sys, os
 
@@ -29,7 +29,7 @@ def before_most_imports( main_globals ):
             # and if not, complain (to developers) whenever the program starts
         print "(running a GPL distribution)" #e retain or zap this?
     except ImportError:
-        print "(running a non-GPL distribution)" #e retain or zap this?
+        print "(running a non-GPL distribution)" #e retain or zap this? [should never happen for Qt4, as of 070425]
         pass # this is normal for non-GPL distributions
     try:
         rc = "~/.atom-debug-rc"
@@ -45,14 +45,18 @@ def before_most_imports( main_globals ):
         print """exception in execfile(%r); traceback printed to stderr or console; exiting""" % (rc,)
         raise
 
-    #bruce 050809 part of improved Mac OS X Tiger QToolButton bug workaround
-    if sys.platform == 'darwin':
-        try:
-            import widget_hacks
-            widget_hacks.doit3()
-        except:
-            print "exception in widget_hacks.doit3() (or in importing it) ignored"
-        pass
+#bruce 070425 disabling this for Qt4 (in multiple files); see comment inside widget_hacks.doit3() for why.
+##    #bruce 050809 part of improved Mac OS X Tiger QToolButton bug workaround
+##    if sys.platform == 'darwin':
+##        try:
+##            import widget_hacks
+##            widget_hacks.doit3()
+##                # see comment in that function about whether it's a good idea to do it in Qt4 [bruce 070425]
+##        except:
+##            #bruce 070425 revised this case in Qt4 branch
+##            msg = "exception in widget_hacks.doit3() (or in importing it) ignored"
+##            print msg ## not yet available: print_compact_traceback(msg + ": ")
+##        pass
 
     # Figure out whether we're run by a developer from cvs sources (_end_user = False),
     # or by an end-user from an installer-created program (_end_user = True).
@@ -168,7 +172,7 @@ def pre_main_show( win):
         norm_y = min( want_y, (screen_h - norm_h)) + y0
     
     # Set the main window geometry, hopefully before the caller shows the window
-    from qt import QRect
+    from PyQt4.Qt import QRect
     win.setGeometry(QRect(norm_x, norm_y, norm_w, norm_h))
 
     ###e it might be good to register this as the default geom. in the prefs system, and use that to implement "restore defaults"

@@ -1,3 +1,4 @@
+// Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
 #ifndef NANOTUBO_H_DEFINED
 #define NANOTUBO_H_DEFINED
 

@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 modifyMode.py
 
@@ -13,89 +13,121 @@ from selectAtomsMode import *
 from widgets import FloatSpinBox
 from HistoryWidget import redmsg
 import env
+from qt4transition import *
+from MovePropertyManager import MovePropertyManager
 
 def do_what_MainWindowUI_should_do(w):
     'Populate the Move Chunks dashboard'
     
     w.moveChunksDashboard.clear()
     
-    w.moveChunksLabel = QLabel(w.moveChunksDashboard,"Move Chunks")
-    w.moveChunksLabel.setText(" Move Chunks ")
-    w.moveChunksDashboard.addSeparator()
+    w.moveChunksDashboard.addWidget(w.textLabel1)
 
-    w.moveFreeAction.addTo(w.moveChunksDashboard)
+    w.moveChunksDashboard.addAction(w.moveFreeAction)
     
     w.moveChunksDashboard.addSeparator()
     
-    w.transXAction.addTo(w.moveChunksDashboard)
-    w.transYAction.addTo(w.moveChunksDashboard)
-    w.transZAction.addTo(w.moveChunksDashboard)
+    w.moveChunksDashboard.addAction(w.transXAction)
+    w.moveChunksDashboard.addAction(w.transYAction)
+    w.moveChunksDashboard.addAction(w.transZAction)
     
     w.moveChunksDashboard.addSeparator()
     
-    movetype_qvbox = QVBox(w.moveChunksDashboard)
-    w.movetype_combox = QComboBox(0,movetype_qvbox,"movetype_combox")
-    w.movetype_combox.insertItem('Translate')
-    w.movetype_combox.insertItem('Rotate X')
-    w.movetype_combox.insertItem('Rotate Y')
-    w.movetype_combox.insertItem('Rotate Z')
+    w.movetype_combox = QComboBox()
+    w.moveChunksDashboard.addWidget(w.movetype_combox)
+    w.movetype_combox.insertItem(0,'Translate')
+    w.movetype_combox.insertItem(1,'Rotate X')
+    w.movetype_combox.insertItem(2,'Rotate Y')
+    w.movetype_combox.insertItem(3,'Rotate Z')
     
-    w.moveXLabel = QLabel(" X ", w.moveChunksDashboard)
+    w.moveXLabel = QLabel()
+    w.moveXLabel.setText(" X ")
+    w.moveChunksDashboard.addWidget(w.moveXLabel)
     w.moveXSpinBox = FloatSpinBox(w.moveChunksDashboard, "moveXSpinBox")
     w.moveXSpinBox.setSuffix(" A")
-    QToolTip.add(w.moveXSpinBox,'Delta X (Angstroms)')
-    w.moveYLabel = QLabel(" Y ", w.moveChunksDashboard)
+    w.moveXSpinBox.setToolTip('Delta X (Angstroms)')
+    w.moveChunksDashboard.addWidget(w.moveXSpinBox)
+    w.moveYLabel = QLabel()
+    w.moveYLabel.setText(" Y ")
+    w.moveChunksDashboard.addWidget(w.moveYLabel)
     w.moveYSpinBox = FloatSpinBox(w.moveChunksDashboard, "moveYSpinBox")
     w.moveYSpinBox.setSuffix(" A")
-    QToolTip.add(w.moveYSpinBox,'Delta Y (Angstroms)')
-    w.moveZLabel = QLabel(" Z ", w.moveChunksDashboard)
+    w.moveYSpinBox.setToolTip('Delta Y (Angstroms)')
+    w.moveChunksDashboard.addWidget(w.moveYSpinBox)
+    w.moveZLabel = QLabel()
+    w.moveZLabel.setText(" Z ")
+    w.moveChunksDashboard.addWidget(w.moveZLabel)
     w.moveZSpinBox = FloatSpinBox(w.moveChunksDashboard, "moveZSpinBox")
     w.moveZSpinBox.setSuffix(" A")
-    QToolTip.add(w.moveZSpinBox,'Delta Z (Angstroms)')
-    w.moveThetaLabel = QLabel(" Theta ", w.moveChunksDashboard)
+    w.moveZSpinBox.setToolTip('Delta Z (Angstroms)')
+    w.moveChunksDashboard.addWidget(w.moveZSpinBox)
+    w.moveThetaLabel = QLabel()
+    w.moveThetaLabel.setText(" Theta ")
+    w.moveChunksDashboard.addWidget(w.moveThetaLabel)
     w.moveThetaSpinBox = FloatSpinBox(w.moveChunksDashboard, "moveThetaSpinBox")
-    QToolTip.add(w.moveThetaSpinBox,'Rotation (Degrees)')
-    w.moveThetaSpinBox.setMaxValue(36000) # Actually 360
-    w.moveThetaSpinBox.setMinValue(-36000) # Actually -360
+    w.moveThetaSpinBox.setToolTip('Rotation (Degrees)')
+    w.moveThetaSpinBox.setRange(-36000,36000) # Actually -360 to 360
+    w.moveChunksDashboard.addWidget(w.moveThetaSpinBox)
     
-    w.moveDeltaPlusAction.addTo(w.moveChunksDashboard)
-    w.moveDeltaMinusAction.addTo(w.moveChunksDashboard)
-    w.moveAbsoluteAction.addTo(w.moveChunksDashboard)
-    w.moveThetaPlusAction.addTo(w.moveChunksDashboard)
-    w.moveThetaMinusAction.addTo(w.moveChunksDashboard)
+    w.moveChunksDashboard.addAction(w.moveDeltaPlusAction)
+    w.moveChunksDashboard.addAction(w.moveDeltaMinusAction)
+    w.moveChunksDashboard.addAction(w.moveAbsoluteAction)
+    w.moveChunksDashboard.addAction(w.rotateThetaPlusAction)
+    w.moveChunksDashboard.addAction(w.rotateThetaMinusAction)
     
     w.moveChunksDashboard.addSeparator()
     
     # I needed this for nanocar animation. Mark 060524.
     w.moveChunksDashboard.rotateAsUnitCB = QCheckBox("Rotate as unit", w.moveChunksDashboard)
     w.moveChunksDashboard.rotateAsUnitCB.setChecked(1)
-    QToolTip.add(w.moveChunksDashboard.rotateAsUnitCB,'Rotate selection as a unit')
+    w.moveChunksDashboard.rotateAsUnitCB.setToolTip('Rotate selection as a unit')
+    w.moveChunksDashboard.addWidget(w.moveChunksDashboard.rotateAsUnitCB)
     
     w.moveChunksDashboard.addSeparator()
     
-    w.toolsDoneAction.addTo(w.moveChunksDashboard)
+    w.moveChunksDashboard.addAction(w.toolsDoneAction)
 
-def set_move_xyz(win,x,y,z):
+def set_move_xyz(obj,x,y,z):
     '''Set values of X, Y and Z in the dashboard.
     '''
-    self = win
-    self.moveXSpinBox.setFloatValue(x)
-    self.moveYSpinBox.setFloatValue(y)
-    self.moveZSpinBox.setFloatValue(z)
+    self = obj
+    self.moveXSpinBox.setValue(x)
+    self.moveYSpinBox.setValue(y)
+    self.moveZSpinBox.setValue(z)
 
-def get_move_xyz(win, Plus = True):
+def get_move_xyz(obj):
     '''Returns X, Y and Z values in the dashboard based on Plus.
     If Plus is True, returns x, y, z
     If Plus is False, returns -x, -y, -z
     '''
-    self = win
-    x = self.moveXSpinBox.floatValue()
-    y = self.moveYSpinBox.floatValue()
-    z = self.moveZSpinBox.floatValue()
-    if Plus: return (x,y,z) # Plus
-    else: return (-x, -y, -z) # Minus
+    self = obj
+
+    x = self.moveXSpinBox.value()
+    y = self.moveYSpinBox.value()
+    z = self.moveZSpinBox.value()
     
-class modifyMode(selectMolsMode): # changed superclass from basicMode to selectMolsMode.  mark 060301.
+    return (x,y,z)   
+    
+def set_move_delta_xyz(obj, delX, delY, delZ):
+    """sets the values for 'move by distance delta' spinboxes """
+    self = obj
+    self.moveDeltaXSpinBox.setValue(delX)
+    self.moveDeltaYSpinBox.setValue(delY)
+    self.moveDeltaZSpinBox.setValue(delZ)
+
+def get_move_delta_xyz(obj, Plus =True):
+    """Returns the values for 'move by distance delta' spinboxes """
+    
+    self = obj
+    delX = self.moveDeltaXSpinBox.value()
+    delY = self.moveDeltaYSpinBox.value()
+    delZ = self.moveDeltaZSpinBox.value()
+    
+    if Plus: return (delX,delY,delZ) # Plus
+    else: return (-delX, -delY, -delZ) # Minus
+    
+    
+class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from basicMode to selectMolsMode.  mark 060301.
     "[bruce comment 040923:] a transient mode entered from selectMode in response to certain mouse events"
 
     # class constants
@@ -107,6 +139,7 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
     
     # class variables
     moveOption = 'MOVEDEFAULT'
+    rotateOption = 'ROTATEDEFAULT'
     axis = 'X'
     RotationOnly = False
     TranslationOnly = False
@@ -114,103 +147,204 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
     # no __init__ method needed
 
     def Enter(self):
-        basicMode.Enter(self)
+        
+        #Initialize the flag for Constrained translation and rotation
+        #along the axis of the chunk to False. This flag is set 
+        #to True whenever keyboard key 'A' is pressed 
+        #while in Translate/Rotate mode. See methods keyPress, keyRelease, 
+        #leftDown, Drag and leftADown, Drag for details. 
+        self.isConstrainedDragAlongAxis = False
+
+        #ninad 070212. modifyMode is a subclass of selMols mode. 
+        #Using the following instead of basicMode.Enter(self)
+        #It is also useful in setting a proper flag when move mode is 
+        #used as a 'pseudo mode' in Select chunks mode.          
+        selectMolsMode.Enter(self) 
         self.o.assy.selectChunksWithSelAtoms()
         self.dragdist = 0.0
+        self.setGoBackToMode(False, 'MODIFY')
         
     # (see basicMode.Done.__doc__ for the ones we don't override here [bruce 040923])
 
     def init_gui(self):
-        self.w.toolsMoveMoleculeAction.setOn(1) # toggle on the Move Chunks icon
+        
+        MovePropertyManager.__init__(self)
+                
+        self.openPropertyManager(self) # ninad 061227 see PropertymanagerMixin
+    
+        
         # connect signals (these all need to be disconnected in restore_gui)
+                
         self.connect_or_disconnect_signals(True)
+        
+        self.w.dashboardHolder.setWidget(self.w.moveChunksDashboard)
+        
         self.w.moveChunksDashboard.show() # show the Move Molecules dashboard
         
-        set_move_xyz(self.w, 0, 0, 0) # Init X, Y, and Z to zero
-        self.w.moveThetaSpinBox.setFloatValue(0) # Init Theta spinbox to zero
+        set_move_xyz(self, 0, 0, 0) # Init X, Y, and Z to zero
+        set_move_delta_xyz(self, 0,0,0) # Init DelX,DelY, DelZ to zero
+        self.w.moveThetaSpinBox.setValue(0) # Init Theta spinbox to zero
         self.setup_movetype(self.w.movetype_combox.currentText())
 
         # Always reset the dashboard icon to "Move Free" when entering MODIFY mode.
         # Mark 050410
-        self.w.moveFreeAction.setOn(1) # toggle on the Move Free action on the dashboard
+        #self.w.moveFreeAction.setChecked(1) # toggle on the Move Free action on the dashboard
         self.moveOption = 'MOVEDEFAULT'
-        
+        self.rotateOption = 'ROTATEDEFAULT'
+    
     def connect_or_disconnect_signals(self, connect): # mark 060304.
         if connect:
             change_connect = self.w.connect
         else:
             change_connect = self.w.disconnect
-        change_connect(self.w.MoveOptionsGroup, SIGNAL("selected(QAction *)"), self.changeMoveOption)
+        #change_connect(self.w.MoveOptionsGroup, SIGNAL("selected(QAction *)"), self.changeMoveOption)
+        change_connect(self.w.MoveOptionsGroup, SIGNAL("triggered(QAction *)"), self.changeMoveOption)
+        change_connect(self.w.rotateOptionsGroup, SIGNAL("triggered(QAction *)"), self.changeRotateOption)
+        
         change_connect(self.w.moveDeltaPlusAction, SIGNAL("activated()"), self.moveDeltaPlus)
         change_connect(self.w.moveDeltaMinusAction, SIGNAL("activated()"), self.moveDeltaMinus)
         change_connect(self.w.moveAbsoluteAction, SIGNAL("activated()"), self.moveAbsolute)
-        change_connect(self.w.moveThetaPlusAction, SIGNAL("activated()"), self.moveThetaPlus)
-        change_connect(self.w.moveThetaMinusAction, SIGNAL("activated()"), self.moveThetaMinus)
+        change_connect(self.w.rotateThetaPlusAction, SIGNAL("activated()"), self.moveThetaPlus)
+        change_connect(self.w.rotateThetaMinusAction, SIGNAL("activated()"), self.moveThetaMinus)
         change_connect(self.w.movetype_combox, SIGNAL("activated(const QString&)"), self.setup_movetype)
+        
         
     def restore_gui(self):
         # disconnect signals which were connected in init_gui [bruce 050728]
+        self.closePropertyManager()
+        self.w.toolsMoveMoleculeAction.setChecked(False) # toggle on the Move Chunks icon
+        self.w.rotateComponentsAction.setChecked(False)
         self.connect_or_disconnect_signals(False)
         self.w.moveChunksDashboard.hide()
         
-    def keyPress(self,key):
+    def keyPress(self,key):           
         basicMode.keyPress(self, key)
-
+        
         # For these key presses, we toggle the Action item, which will send 
         # an event to changeMoveMode, where the business is done.
         # Mark 050410
-        if key == Qt.Key_X:
-            self.w.transXAction.setOn(1) # toggle on the Translate X action item
-        elif key == Qt.Key_Y:
-            self.w.transYAction.setOn(1) # toggle on the Translate Y action item
-        elif key == Qt.Key_Z:
-            self.w.transZAction.setOn(1) # toggle on the Translate Z action item
+        if self.w.toolsMoveMoleculeAction.isChecked():  
+            if key == Qt.Key_X:
+                self.w.transXAction.setChecked(1) # toggle on the Translate X action item
+                self.changeMoveOption(self.w.transXAction)
+            elif key == Qt.Key_Y:
+                self.w.transYAction.setChecked(1) # toggle on the Translate Y action item
+                self.changeMoveOption(self.w.transYAction)
+            elif key == Qt.Key_Z:
+                self.w.transZAction.setChecked(1) # toggle on the Translate Z action item
+                self.changeMoveOption(self.w.transZAction)
+        elif self.w.rotateComponentsAction.isChecked():
+            if key == Qt.Key_X:
+                self.w.rotXAction.setChecked(1) # toggle on the Rotate X action item
+                self.changeRotateOption(self.w.rotXAction)
+            elif key == Qt.Key_Y:
+                self.w.rotYAction.setChecked(1) # toggle on the Rotate Y action item
+                self.changeRotateOption(self.w.rotYAction)
+            elif key == Qt.Key_Z:
+                self.w.rotZAction.setChecked(1) # toggle on the Rotate Z action item
+                self.changeRotateOption(self.w.rotZAction)
+        
+        #If Key 'A' is pressed, set the flag for Constrained trasnlation and rotation
+        #along the axis of the chunk to True
+        if key == Qt.Key_A:
+            self.isConstrainedDragAlongAxis = True 
             
-        # R and T keys constrain movement to rotation or translation only while they are pressed.
-        elif key == Qt.Key_R:
-            self.RotationOnly = True # Rotation only.
-        elif key == Qt.Key_T:
-            self.TranslationOnly = True # Translation only.
+        else:
+            self.isConstrainedDragAlongAxis = False 
+        
+        self.update_cursor()
+            
                 
     def keyRelease(self,key):
         basicMode.keyRelease(self, key)
-
-        if key == Qt.Key_X or key == Qt.Key_Y or key == Qt.Key_Z: 
-            self.w.moveFreeAction.setOn(1) # toggle on the Move Chunks icon
+        
+    
+        if key == Qt.Key_X or key == Qt.Key_Y or key == Qt.Key_Z:
+            self.w.moveFreeAction.setChecked(1) # toggle on the Move Chunks icon
+            self.changeMoveOption(self.w.moveFreeAction)
             self.movingPoint = None # Fixes bugs 583 and 674 along with change in leftDrag().  Mark 050623
         elif key == Qt.Key_R:
             self.RotationOnly = False # Unconstrain translation.
         elif key == Qt.Key_T:
             self.TranslationOnly = False # Unconstrain rotation.
+        
+        #Set the flag for Constrained translation and rotation
+        #along the axis of the chunk to False
+        self.isConstrainedDragAlongAxis = False 
+        self.update_cursor()
             
     def update_cursor_for_no_MB(self):
         '''Update the cursor for 'Move Chunks' mode.
         '''
         if self.o.modkeys is None:
-            self.o.setCursor(self.w.MoveSelectCursor)
+            if self.isConstrainedDragAlongAxis:
+                self.o.setCursor(self.w.MolSelAxisRotTransCursor)
+            else:
+                if self.w.toolsMoveMoleculeAction.isChecked():
+                    self.o.setCursor(self.w.MolSelTransCursor)
+                else:
+                    self.o.setCursor(self.w.MolSelRotCursor)
         elif self.o.modkeys == 'Shift':
-            self.o.setCursor(self.w.MoveAxisRotateMolCursor)
+            if self.w.toolsMoveMoleculeAction.isChecked():
+                self.o.setCursor(self.w.MolSelTransAddCursor)
+            else:
+                self.o.setCursor(self.w.MolSelRotAddCursor)
         elif self.o.modkeys == 'Control':
-            self.o.setCursor(self.w.MoveFreeRotateMolCursor)
+            if self.w.toolsMoveMoleculeAction.isChecked():
+                self.o.setCursor(self.w.MolSelTransSubCursor)
+            else:
+                self.o.setCursor(self.w.MolSelRotSubCursor)  
         elif self.o.modkeys == 'Shift+Control':
             self.o.setCursor(self.w.DeleteCursor)
         else:
             print "Error in update_cursor_for_no_MB(): Invalid modkey=", self.o.modkeys
+        
         return
            
     def leftDown(self, event):
         """Move the selected object(s).
         """
-##        from constants import GL_FAR_Z
         
+        # If keyboard key 'A' is pressed, set it up for constrained translation
+        #and rotation along the axis and return. 
+        if not self.isGoBackToMode():  
+            if self.isConstrainedDragAlongAxis:
+                self.leftADown(event)
+                return
+        
+        #If its pseudo move mode only permit free move(translate) drag
+        if self.isGoBackToMode():
+            self.w.toolsMoveMoleculeAction.setChecked(True)
+            self.w.moveFreeAction.setChecked(True)            
+        else:
+            #Ninad 070308 for 'rotate components mode, left down = old ctrl + left down
+            #@@@ this will be revised. I am planning to write methods such as 'rotateFree drag setup, 
+            #move free drag setup etc and call them here and in leftDrag.
+            if self.w.rotateFreeAction.isChecked():
+                self.leftCntlDown(event)
+    
+            
+        self.reset_drag_vars()
+        
+        self.LMB_press_event = QMouseEvent(event) # Make a copy of this event and save it. 
+        # We will need it later if we change our mind and start selecting a 2D region in leftDrag().
+        # Copying the event in this way is necessary because Qt will overwrite <event> later (in 
+        # leftDrag) if we simply set self.LMB_press_event = event.  mark 060220
+        
+        self.LMB_press_pt_xy = (event.pos().x(), event.pos().y())
+            # <LMB_press_pt_xy> is the position of the mouse in window coordinates when the LMB was pressed.
+            # Used in mouse_within_stickiness_limit (called by leftDrag() and other methods).
+            # We don't bother to vertically flip y using self.height (as mousepoints does),
+            # since this is only used for drag distance within single drags.
+       
+##        from constants import GL_FAR_Z
+
         self.o.SaveMouse(event)
         self.picking = True
         self.dragdist = 0.0
         self.transDelta = 0 # X, Y or Z deltas for translate.
         self.rotDelta = 0 # delta for constrained rotations.
         self.moveOffset = [0.0, 0.0, 0.0] # X, Y and Z offset for move.
-        
-        if not self.o.assy.getSelectedMovables(): return
         
         # This needs to be refactored further into move and translate methods. mark 060301.
         
@@ -220,30 +354,83 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         self.startpt = self.movingPoint # Used in leftDrag() to compute move offset during drag op.
         
         # end of Move section
+           
+        # Translate section     
+        if self.w.toolsMoveMoleculeAction.isChecked():            
+            if self.moveOption != 'MOVEDEFAULT':
+                if self.moveOption == 'TRANSX': 
+                    ma = V(1,0,0) # X Axis
+                    self.axis = 'X'
+                elif self.moveOption == 'TRANSY': 
+                    ma = V(0,1,0) # Y Axis
+                    self.axis = 'Y'
+                elif self.moveOption == 'TRANSZ': 
+                    ma = V(0,0,1) # Z Axis
+                    self.axis = 'Z'
+                else: print "modifyMode: Error - unknown moveOption value =", self.moveOption
+                
+                ma = norm(V(dot(ma,self.o.right),dot(ma,self.o.up)))
+                # When in the front view, right = 1,0,0 and up = 0,1,0, so ma will be computed as 0,0.
+                # This creates a special case problem when the user wants to constrain rotation around
+                # the Z axis because Zmat will be zero.  So we have to test for this case (ma = 0,0) and
+                # fix ma to -1,0.  This was needed to fix bug 537.  Mark 050420
+                if ma[0] == 0.0 and ma[1] == 0.0: ma = [-1.0, 0.0] 
+                self.Zmat = A([ma,[-ma[1],ma[0]]])
+                
+                # end of Translate section
+                
+        if self.w.rotateComponentsAction.isChecked():
+            if self.rotateOption != 'ROTATEDEFAULT':
+                if self.rotateOption == 'ROTATEX': 
+                    ma = V(1,0,0) # X Axis
+                    self.axis = 'X'
+                elif self.rotateOption == 'ROTATEY': 
+                    ma = V(0,1,0) # Y Axis
+                    self.axis = 'Y'
+                elif self.rotateOption == 'ROTATEZ': 
+                    ma = V(0,0,1) # Z Axis
+                    self.axis = 'Z'
+                else: print "modifyMode: Error - unknown rotateOption value =", self.rotateOption
 
-        # Translate section
-        if self.moveOption != 'MOVEDEFAULT':
-
-            if self.moveOption == 'TRANSX': 
-                ma = V(1,0,0) # X Axis
-                self.axis = 'X'
-            elif self.moveOption == 'TRANSY': 
-                ma = V(0,1,0) # Y Axis
-                self.axis = 'Y'
-            elif self.moveOption == 'TRANSZ': 
-                ma = V(0,0,1) # Z Axis
-                self.axis = 'Z'
-            else: print "modifyMode: Error - unknown moveOption value =", self.moveOption
+                ma = norm(V(dot(ma,self.o.right),dot(ma,self.o.up)))
+                # When in the front view, right = 1,0,0 and up = 0,1,0, so ma will be computed as 0,0.
+                # This creates a special case problem when the user wants to constrain rotation around
+                # the Z axis because Zmat will be zero.  So we have to test for this case (ma = 0,0) and
+                # fix ma to -1,0.  This was needed to fix bug 537.  Mark 050420
+                if ma[0] == 0.0 and ma[1] == 0.0: ma = [-1.0, 0.0] 
+                self.Zmat = A([ma,[-ma[1],ma[0]]])
+                
         
-            ma = norm(V(dot(ma,self.o.right),dot(ma,self.o.up)))
-            # When in the front view, right = 1,0,0 and up = 0,1,0, so ma will be computed as 0,0.
-            # This creates a special case problem when the user wants to constrain rotation around
-            # the Z axis because Zmat will be zero.  So we have to test for this case (ma = 0,0) and
-            # fix ma to -1,0.  This was needed to fix bug 537.  Mark 050420
-            if ma[0] == 0.0 and ma[1] == 0.0: ma = [-1.0, 0.0] 
-            self.Zmat = A([ma,[-ma[1],ma[0]]])
+        if not self.isGoBackToMode():                            
+            #Permit movable object picking upon left down.             
+            obj = self.get_obj_under_cursor(event)
+            # If highlighting is turned on, get_obj_under_cursor() returns atoms, singlets, bonds, jigs,
+            # or anything that can be highlighted and end up in glpane.selobj. [bruce revised this comment, 060725]
+                # If highlighting is turned off, get_obj_under_cursor() returns atoms and singlets (not bonds or jigs).
+                # [not sure if that's still true -- probably not. bruce 060725 addendum]
+            if obj is None: # Cursor over empty space.
+                self.emptySpaceLeftDown(event)
+                return
+            
+            if isinstance(obj, Atom) and obj.is_singlet(): # Cursor over a singlet
+                self.singletLeftDown(obj, event)
+                    # no win_update() needed. It's the responsibility of singletLeftDown to do it if needed.
+                return                
+            elif isinstance(obj, Atom) and not obj.is_singlet(): # Cursor over a real atom
+                self.atomLeftDown(obj, event)
+            elif isinstance(obj, Bond) and not obj.is_open_bond(): # Cursor over a bond.
+                self.bondLeftDown(obj, event)
+            elif isinstance(obj, Jig): # Cursor over a jig.
+                self.jigLeftDown(obj, event)
+            else: # Cursor is over something else other than an atom, singlet or bond. 
+                # The program never executes lines in this else statement since
+                # get_obj_under_cursor() only returns atoms, singlets or bonds.
+                # [perhaps no longer true, if it ever was -- bruce 060725]
+                pass
+            
+            self.w.win_update()
 
-        # end of Translate section
+        # end of Rotate section
         
     def leftDrag(self, event):
         """Move the selected object(s):
@@ -255,76 +442,213 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         # the mouse event processing function. For bug 460, the 
         # obvious reason is leftDown() is not called before the leftDrag()
         #& Not sure this is true anymore with the new cursor/modkey API.  mark 060301.
+        
+        
         if not self.picking: return
         
+        if not self.isGoBackToMode():  
+            if self.isConstrainedDragAlongAxis:
+                try:
+                    self.leftADrag(event)
+                    return
+                except:
+                    print "Key A presssed after Left Down. controlled translation will not be performed"
+                    pass
+        
+        #Ninad 070314: Following ensures that you are in Move mode 
+        #(and not pseudo move mode) and returns from left drag if 
+        #'free' drag option in the combobox is not set.
+        if not self.isGoBackToMode():       
+            if self.w.toolsMoveMoleculeAction.isChecked():
+                if self.movetype_combox.currentText() != "Free Drag":
+                    return
+            elif self.w.rotateComponentsAction.isChecked():
+                if self.rotatetype_combox.currentText() != "Free Drag":
+                    return                
+            #Ninad 070308 for 'rotate components mode, left drag = old ctrl + left drag
+            if self.w.rotateComponentsAction.isChecked():
+                if self.w.rotateFreeAction.isChecked():      
+                    self.leftCntlDrag(event)
+                    return
+
         if not self.o.assy.getSelectedMovables(): return
+        
         
         # Fixes bugs 583 and 674 along with change in keyRelease.  Mark 050623
         if self.movingPoint is None: self.leftDown(event) # Fix per Bruce's email.  Mark 050704
-
-        # Move section
-        if self.moveOption == 'MOVEDEFAULT':
-            deltaMouse = V(event.pos().x() - self.o.MousePos[0],
-                       self.o.MousePos[1] - event.pos().y(), 0.0)
-
-            point = self.dragto( self.movingPoint, event) #bruce 060316 replaced old code with dragto (equivalent)
         
-            # Print status bar msg indicating the current move delta.
-            if 1:
-                self.moveOffset = point - self.startpt # Fixed bug 929.  mark 060111
-                msg = "Offset: [X: %.2f] [Y: %.2f] [Z: %.2f]" % (self.moveOffset[0], self.moveOffset[1], self.moveOffset[2])
-                env.history.statusbar_msg(msg)
-
-            self.o.assy.movesel(point - self.movingPoint)
-            self.movingPoint = point
-
-        # end of Move section
-        
-        # Translate/Rotate section
-        else: 
-        
+                    
+        if self.w.toolsMoveMoleculeAction.isChecked():            
+            # Move section
+            if self.moveOption == 'MOVEDEFAULT':
+                deltaMouse = V(event.pos().x() - self.o.MousePos[0],
+                           self.o.MousePos[1] - event.pos().y(), 0.0)
+    
+                point = self.dragto( self.movingPoint, event) #bruce 060316 replaced old code with dragto (equivalent)
+            
+                # Print status bar msg indicating the current move delta.
+                if 1:
+                    self.moveOffset = point - self.startpt # Fixed bug 929.  mark 060111
+                    msg = "Offset: [X: %.2f] [Y: %.2f] [Z: %.2f]" % (self.moveOffset[0], self.moveOffset[1], self.moveOffset[2])
+                    env.history.statusbar_msg(msg)
+    
+                self.o.assy.movesel(point - self.movingPoint)
+                self.movingPoint = point    
+                # end of Move section
+            
+            # Translate section
+            else:
+                w=self.o.width+0.0
+                h=self.o.height+0.0
+                deltaMouse = V(event.pos().x() - self.o.MousePos[0],
+                           self.o.MousePos[1] - event.pos().y())
+                a =  dot(self.Zmat, deltaMouse)
+                dx,dy =  a * V(self.o.scale/(h*0.5), 2*pi/w)
+                if self.moveOption == 'TRANSX' :     ma = V(1,0,0) # X Axis
+                elif self.moveOption == 'TRANSY' :  ma = V(0,1,0) # Y Axis
+                elif self.moveOption == 'TRANSZ' :  ma = V(0,0,1) # Z Axis
+                else: 
+                    print "modifyMode.leftDrag: Error - unknown moveOption value =", self.moveOption                
+                    return
+       
+                self.transDelta += dx # Increment translation delta                   
+                self.o.assy.movesel(dx*ma) 
+                
+        if self.w.rotateComponentsAction.isChecked():
+            #Rotate section      
             w=self.o.width+0.0
             h=self.o.height+0.0
             deltaMouse = V(event.pos().x() - self.o.MousePos[0],
                        self.o.MousePos[1] - event.pos().y())
             a =  dot(self.Zmat, deltaMouse)
             dx,dy =  a * V(self.o.scale/(h*0.5), 2*pi/w)
-            
-            if self.RotationOnly: dx = 0.0
-            if self.TranslationOnly: dy = 0.0
 
-            if self.moveOption == 'TRANSX': ma = V(1,0,0) # X Axis
-            elif self.moveOption == 'TRANSY': ma = V(0,1,0) # Y Axis
-            elif self.moveOption == 'TRANSZ': ma = V(0,0,1) # Z Axis
+            if self.rotateOption == 'ROTATEX' :     ma = V(1,0,0) # X Axis
+            elif self.rotateOption == 'ROTATEY' :  ma = V(0,1,0) # Y Axis
+            elif self.rotateOption == 'ROTATEZ' :  ma = V(0,0,1) # Z Axis
             else: 
-                print "modifyMode.leftDrag: Error - unknown moveOption value =", self.moveOption
-                return
-
-            self.transDelta += dx # Increment translation delta
+                print "modifyMode.leftDrag: Error - unknown rotateOption value =", self.rotateOption                
+                return                
             qrot = Q(ma,-dy) # Quat for rotation delta.
             self.rotDelta += qrot.angle *180.0/pi * sign(dy) # Increment rotation delta (and convert to degrees)
             
-            self.o.assy.movesel(dx*ma) # [Huaicai 8/30/05: call this method instead]
-            self.o.assy.rotsel(qrot) # [Huaicai 8/30/05: call this method instead]
+            self.updateRotationDeltaLabels(self.rotateOption, self.rotDelta)
+            self.o.assy.rotsel(qrot) 
             
-            # Print status bar msg indicating the current translation and rotation delta.
-            if self.o.assy.selmols:
-                msg = "%s delta: [%.2f Angstroms] [%.2f Degrees]" % (self.axis, self.transDelta, self.rotDelta)
-                env.history.statusbar_msg(msg)
+            #End of Rotate Section
             
-        # end of Translate section
+        # Print status bar msg indicating the current translation and rotation delta.
+        if self.o.assy.selmols:
+            msg = "%s delta: [%.2f Angstroms] [%.2f Degrees]" % (self.axis, self.transDelta, self.rotDelta)
+            env.history.statusbar_msg(msg)
+            
 
         # common finished code
-        
         self.dragdist += vlen(deltaMouse)
         self.o.SaveMouse(event)
         self.o.gl_update()
         
-    # end of leftDrag
-
-    def leftUp(self, event):
-        self.EndPick(event, START_NEW_SELECTION)
+    # end of leftDrag    
+    
+    def updateRotationDeltaLabels(self, rotateOption, rotationDelta):
+        """ Updates the Rotation Delta labels in the Rotate combobox  while rotating
+        the selection aroung an axis"""
+        ##self.rotationAngleDeltas_lbl.show()
         
+        if rotateOption == 'ROTATEX':
+            listx = [self.lbl_x, self. deltaThetaX_lbl, 
+                     self.degree_lbl_x]
+            
+            listyz = [self.deltaThetaY_lbl, self.deltaThetaZ_lbl, 
+                      self.lbl_y, self.lbl_z, self.degree_lbl_y,
+                      self.degree_lbl_z]            
+            for lbl in listx:
+                lbl.show()
+                font = QtGui.QFont(lbl.font())
+                font.setBold(True)
+                lbl.setFont(font)
+            self.deltaThetaX_lbl.setText(str(round(self.rotDelta, 2)))
+            for lbl in listyz:
+                font = QtGui.QFont(lbl.font())
+                font.setBold(False)
+                lbl.setFont(font)
+                lbl.show()
+        elif rotateOption == 'ROTATEY':
+            listy = [self.lbl_y, self. deltaThetaY_lbl, self.degree_lbl_y]
+            listxz =[self.deltaThetaX_lbl, self.deltaThetaZ_lbl, 
+                     self.lbl_x, self.lbl_z, self.degree_lbl_x, 
+                     self.degree_lbl_z]
+            for lbl in listy :
+                font = QtGui.QFont(lbl.font())
+                font.setBold(True)
+                lbl.setFont(font)        
+                lbl.show()
+            self.deltaThetaY_lbl.setText(str(round(self.rotDelta, 2)))
+            for lbl in listxz:
+                font = QtGui.QFont(lbl.font())
+                font.setBold(False)
+                lbl.setFont(font)
+                lbl.show()
+        elif rotateOption == 'ROTATEZ':
+            listz = [self.lbl_z, self. deltaThetaZ_lbl, self.degree_lbl_z]
+            listxy =  [ self.deltaThetaX_lbl, self.deltaThetaY_lbl, 
+                        self.lbl_x, self.lbl_y, self.degree_lbl_x,
+                        self.degree_lbl_y]
+            for lbl in listz:
+                font = QtGui.QFont(lbl.font())
+                font.setBold(True)
+                lbl.setFont(font)
+                lbl.show()
+            self.deltaThetaZ_lbl.setText(str(round(self.rotDelta, 2)))
+            for lbl in listxy:
+                font = QtGui.QFont(lbl.font())
+                font.setBold(False)
+                lbl.setFont(font)   
+                lbl.show()
+        else:
+            print "modifyMode.updateRotationDeltaLabels: Error - unknown rotateOption value =", self.rotateOption
+                
+          
+    #Ninad 070212 : Flags that set which mode to return after left mouse dragging (left down) is finished. 
+    #This is used in 'psudo -move mode' which is accessed from the Select chunks mode. 
+    def setGoBackToMode(self, bool = False, modeToReturn = 'MODIFY'):
+        """ Sets the flag go back to mode. Move mode acts like a pesudo mode while in 
+        Select chunks mode. (it is activated only during left drag (leftDown) in select mode and then 
+        user returns to the select chunks mode upon mouse release"""
+        self.bool_goBackToMode = bool
+        self.modeToReturn = modeToReturn
+    
+    def isGoBackToMode(self):
+        """ Returns True if Go back to mode is requested. Move mode acts like a pesudo mode while in 
+        Select chunks mode. (it is activated only during left drag in select mode and then 
+        user returns to the select chunks mode upon mouse release"""
+        return self.bool_goBackToMode
+    
+    def goBackToMode(self, modeToReturn = 'MODIFY'):
+        """ Returns the mode to go back to. The default value is Move mode (i.e. it stays in move mode) 
+        Move mode acts like a pesudo mode while in 
+        Select chunks mode. (it is activated only during left drag in select mode and then 
+        user returns to the select chunks mode upon mouse release"""        
+        return self.modeToReturn
+    
+    def leftUp(self, event):  
+        '''Overrides leftdrag method of selectMolsMode'''        
+        #Ninad 070212: Flags that set which mode to return after left mouse dragging (left down) is finished.
+        # Example: SelectMols Mode's leftDrag event calls modifyMode's leftDown Event and sets proper 
+        #flags before so that when the left mouse button is released, program returns to the select mols mode. 
+        #Thus  we can make use of the free drag functionality while in select chunks mode.    
+        if self.isGoBackToMode():
+            modeToReturn = self.goBackToMode()
+            self.o.setMode(modeToReturn)            
+        else:
+            if self.dragdist < 2:
+                selectMolsMode.leftUp(self,event)
+           
+        #ninad 070212 This is necessary to make sure that program remains in the Move mode when 
+        #user is in that mode 
+        self.setGoBackToMode(False, 'MODIFY')
+        
+       
     def EndPick(self, event, selSense):
         """Pick if click
         """
@@ -358,6 +682,11 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         """
         if not self.o.assy.getSelectedMovables(): return
         
+        #If its pseudo move mode only permit free move(translate) drag
+        if self.isGoBackToMode():
+            self.w.rotateComponentsAction.setChecked(True)
+            self.w.rotateFreeAction.setChecked(True)
+        
         self.o.SaveMouse(event)
         self.o.trackball.start(self.o.MousePos[0],self.o.MousePos[1])
         self.picking = True
@@ -369,7 +698,7 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         """
         ##See comments of leftDrag()--Huaicai 3/23/05
         if not self.picking: return
-        
+                
         if not self.o.assy.getSelectedMovables(): return
         
         w=self.o.width+0.0
@@ -380,8 +709,8 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         self.o.SaveMouse(event)
         q = self.o.trackball.update(self.o.MousePos[0],self.o.MousePos[1],
                                     self.o.quat)
-        
-        if self.w.moveChunksDashboard.rotateAsUnitCB.isChecked():
+    
+        if self.rotateAsUnitCB.isChecked():
             self.o.assy.rotsel(q) # Rotate the selection as a unit.
         else:
             for mol in self.o.assy.selmols: # Rotate each chunk individually.
@@ -390,15 +719,21 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         self.o.gl_update()
 
     def leftCntlUp(self, event):
-        self.EndPick(event, SUBTRACT_FROM_SELECTION)
+        #Ninad 070322: Flags that set which mode to return after Control left mouse dragging  is finished.
+        # Example: SelectMols Mode's leftCntlDrag event calls modifyMode's leftCntlDown Event and sets proper 
+        #flags before so that when the left+ cntl  mouse buttons are  released, program returns to the select mols mode. 
+        #Thus  we can make use of the 'free rotate drag' functionality while in select chunks mode.    
+        if self.isGoBackToMode():
+            modeToReturn = self.goBackToMode()
+            self.o.setMode(modeToReturn)         
+        else:
+            self.EndPick(event, SUBTRACT_FROM_SELECTION)
     
-    def leftShiftDown(self, event):
-        """ Set up for sliding and/or rotating the selected chunk(s) along/around its own axis.
-        """
-        if self.o.modkeys == 'Shift+Control':
-            self.start_selection_curve(event, DELETE_SELECTION)
-            return
-            
+        
+    def leftADown(self, event):
+        """ Set up for sliding and/or rotating the selected chunk(s) 
+        along/around its own axis when left mouse and key 'A' is pressed.
+        """            
         movables = self.o.assy.getSelectedMovables()
         if not movables: return
         
@@ -410,20 +745,16 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         self.Zmat = A([ma,[-ma[1],ma[0]]])
         self.picking = True
         self.dragdist = 0.0
-
-        
-    def leftShiftDrag(self, event):
+       
+    def leftADrag(self, event):
         """Move selected chunk(s) along its axis (mouse goes up or down)
-           and rotate around its axis (left-right)
+           and rotate around its axis (left-right) while left dragging
+           the selection with keyboard key 'A' pressed
         """
             
         ##See comments of leftDrag()--Huaicai 3/23/05
         if not self.picking: return
         
-        if self.o.modkeys == 'Shift+Control':
-            self.continue_selection_curve(event)
-            return
-
         movables = self.o.assy.getSelectedMovables()
         if not movables: return
         
@@ -443,73 +774,70 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         self.o.assy.changed() #ninad060924 fixed bug 2278
         self.o.gl_update()
         
-        
-    
     
     def leftShiftUp(self, event):
-                
         if self.o.modkeys == 'Shift+Control':
             self.end_selection_curve(event)
             return
-            
         self.EndPick(event, ADD_TO_SELECTION)
 
-
     def leftDouble(self, event):
-        '''Switch to Select Chunks mode.  This will go away in A8. mark 060303.
+        '''Do nothing upon double click , while in move mode (pre Alpha9 - experimental)
         '''
-        # Current plans are to merge Select Chunks and Move Chunks modes in A8.
-        self.o.setMode('SELECTMOLS') # Fixes bug 1182. mark 060301.
+	#@@ninad070329  Till Alpha8, it used to Switch to Select Chunks Mode. 
+        #for Alpha9, (pr pre Alpha9), it won't do anything. 
+	#this implementation might change in future. 
+	
+        ## Current plans are to merge Select Chunks and Move Chunks modes in A8.
+        ##self.o.setMode('SELECTMOLS') # Fixes bug 1182. mark 060301.
         return
 
     def setup_movetype(self, movetype):
-        
-        if movetype == 'Translate':
+
+        # Very mysterious: if movetype (a QString) is "Rotate X" or
+        # "Rotate Y" or "Rotate Z", then it takes two tries for the
+        # visibility changes to take effect. Why is that??? - wware
+        # 20061214
+        translate = (movetype == 'Translate')
             
-            self.w.moveXLabel.show()
-            self.w.moveXSpinBox.show()
-            self.w.moveYLabel.show()
-            self.w.moveYSpinBox.show()
-            self.w.moveZLabel.show()
-            self.w.moveZSpinBox.show()
-            self.w.moveThetaLabel.hide()
-            self.w.moveThetaSpinBox.hide()
-            
-            self.w.moveDeltaPlusAction.setVisible(1)
-            self.w.moveDeltaMinusAction.setVisible(1)
-            self.w.moveAbsoluteAction.setVisible(1)
-            self.w.moveThetaPlusAction.setVisible(0)
-            self.w.moveThetaMinusAction.setVisible(0)
-            
-        else: # Rotate
-            
-            self.w.moveXLabel.hide()
-            self.w.moveXSpinBox.hide()
-            self.w.moveYLabel.hide()
-            self.w.moveYSpinBox.hide()
-            self.w.moveZLabel.hide()
-            self.w.moveZSpinBox.hide()
-            self.w.moveThetaLabel.show()
-            self.w.moveThetaSpinBox.show()
-            
-            self.w.moveDeltaPlusAction.setVisible(0)
-            self.w.moveDeltaMinusAction.setVisible(0)
-            self.w.moveAbsoluteAction.setVisible(0)
-            self.w.moveThetaPlusAction.setVisible(1)
-            self.w.moveThetaMinusAction.setVisible(1)
+        self.w.moveXLabel.setVisible(translate)
+        self.w.moveXSpinBox.setVisible(translate)
+        self.w.moveYLabel.setVisible(translate)
+        self.w.moveYSpinBox.setVisible(translate)
+        self.w.moveZLabel.setVisible(translate)
+        self.w.moveZSpinBox.setVisible(translate)
+        self.w.moveThetaLabel.setVisible(not translate)
+        self.w.moveThetaSpinBox.setVisible(not translate)
+
+        self.w.moveDeltaPlusAction.setVisible(translate)
+        self.w.moveDeltaMinusAction.setVisible(translate)
+        self.w.moveAbsoluteAction.setVisible(translate)
+        self.w.rotateThetaPlusAction.setVisible(not translate)
+        self.w.rotateThetaMinusAction.setVisible(not translate)
 
     def moveThetaPlus(self):
         "Rotate the selected chunk(s) by theta (plus)"
-        rotype = self.w.movetype_combox.currentText()
-        theta = self.w.moveThetaSpinBox.floatValue()
+        button= self.rotateAroundAxisButtonGroup.checkedButton()
+        if button:
+            rotype = button.objectName()
+        else:
+            env.history.message(redmsg("Rotate By Specified Angle: Please press the button \
+            corresponding to the axis of rotation"))
+            return
+        theta = self.rotateThetaSpinBox.value()
         self.moveTheta( rotype, theta)
         
     def moveThetaMinus(self):
         "Rotate the selected chunk(s) by theta (minus)"
-        rotype = self.w.movetype_combox.currentText()
-        theta = self.w.moveThetaSpinBox.floatValue() * -1.0
+        button= self.rotateAroundAxisButtonGroup.checkedButton()
+        if button:
+            rotype = button.objectName()
+        else:
+            env.history.message(redmsg("Rotate By Specified Angle: Please press the button \
+            corresponding to the axis of rotation"))
+            return
+        theta = self.rotateThetaSpinBox.value() * -1.0
         self.moveTheta( rotype, theta)
-        
         
     def moveTheta(self, rotype, theta):
         "Rotate the selected chunk(s) /jig(s) around the specified axis by theta (degrees)"
@@ -527,28 +855,32 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
             print 'modifyMody.moveThetaPlus: Error.  rotype = ', rotype, ', which is undefined.'
             return
 
-        dy = theta / 180.0 * pi # Convert to radians
+        # wware 20061214: I don't know where the need arose for this factor of 100,
+        # but it's necessary to get correct angles.        
+        #ninad 070322:
+        #Will's above comment was for "dy = 100.0 * (pi / 180.0) * theta  # Convert to radians" 
+        #I agree with this. In fact if I enter angle of  1 degree, it multiplies it by 100!
+        #May be it was necessary in Qt3 branch. I am modifying this formula 
+        #to remove this  multiplication factor of 100 as its giving wrong results
+        dy =  (pi / 180.0) * theta  # Convert to radians
         qrot = Q(ma,dy) # Quat for rotation delta.
         
-        if self.w.moveChunksDashboard.rotateAsUnitCB.isChecked():
+        if self.rotateAsUnitCB.isChecked():
             self.o.assy.rotsel(qrot) # Rotate the selection as a unit.
         else:
             for mol in self.o.assy.selmols: # Rotate each chunk individually.
                 mol.rot(qrot)
     
         self.o.gl_update()
-      
         
     def moveDeltaPlus(self):
         "Add X, Y, and Z to the selected chunk(s) current position"
         if not self.o.assy.getSelectedMovables(): 
             env.history.message(redmsg("No chunks or movable jigs selected."))
             return
-        
-        offset = get_move_xyz(self.w)
+        offset = get_move_delta_xyz(self)
         self.o.assy.movesel(offset)
         self.o.gl_update()
-
 
     def moveDeltaMinus(self):
         "Subtract X, Y, and Z from the selected chunk(s) current position"
@@ -556,10 +888,9 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
             env.history.message(redmsg("No chunks or movable jigs selected."))
             return
         
-        offset = get_move_xyz(self.w, Plus=False)
+        offset = get_move_delta_xyz(self, Plus=False)
         self.o.assy.movesel(offset)
         self.o.gl_update()
-
 
     def moveAbsolute(self):
         '''Move selected chunk(s), jig(s) to absolute X, Y, and Z by computing the bbox center
@@ -578,7 +909,7 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
                 bbox.merge(m.bbox)
         pt1 = bbox.center() # pt1 = center point for bbox of selected chunk(s).
        
-        pt2 = get_move_xyz(self.w) # pt2 = X, Y, Z values from dashboard.
+        pt2 = get_move_xyz(self) # pt2 = X, Y, Z values from dashboard.
         offset = pt2 - pt1 # Compute offset for movesel.
         
         self.o.assy.movesel(offset) # Move the selected chunk(s)/jig(s).
@@ -591,10 +922,9 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         env.history.message(msg)
         self.o.gl_update()
         
-        
     def changeMoveOption(self, action):
-        '''Slot for Move Chunks dashboard's Move Options
-        '''
+        '''Slot for Move Chunks dashboard\'s Move Options
+        '''        
         if action == self.w.transXAction:
             self.moveOption = 'TRANSX'
         elif action == self.w.transYAction:
@@ -603,6 +933,48 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
             self.moveOption = 'TRANSZ'
         else:
             self.moveOption = 'MOVEDEFAULT'
+            
+    def changeRotateOption(self, action):
+        '''Change the rotate action
+        '''   
+        if action == self.w.rotXAction:
+            self.rotateOption = 'ROTATEX'
+            self.rotateAsUnitCB.hide()
+            self.toggleRotationDeltaLabels(show = True)
+        elif action == self.w.rotYAction:
+            self.rotateOption = 'ROTATEY'
+            self.rotateAsUnitCB.hide()
+            self.toggleRotationDeltaLabels(show = True)
+        elif action == self.w.rotZAction:
+            self.rotateOption = 'ROTATEZ'
+            self.rotateAsUnitCB.hide()
+            self.toggleRotationDeltaLabels(show = True)
+        else:
+            self.rotateOption = 'ROTATEDEFAULT'        
+            #Hides all the rotation delta labels when  
+            #rotateFreeDragAction is checked
+            self.toggleRotationDeltaLabels(show = False)
+            self.rotateAsUnitCB.show()
+    
+    def toggleRotationDeltaLabels(self, show=False):
+        """ Hide all the rotation delta labels when  
+        rotateFreeDragAction is checked """
+        lst = [self.lbl_y, self.lbl_z, self.lbl_x,
+                   self.deltaThetaX_lbl, 
+                   self.deltaThetaY_lbl, 
+                   self.deltaThetaZ_lbl,
+                   self.degree_lbl_x,
+                   self.degree_lbl_y,
+                   self.degree_lbl_z
+                   ]
+        if not show:            
+            for lbl in lst:
+                lbl.hide()    
+        else:
+            for lbl in lst:
+                lbl.show()    
+            
+            
 
     def skip(self):
         pass

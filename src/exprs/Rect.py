@@ -1,3 +1,4 @@
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 Rect.py -- provide Rect, RectFrame, and other simple 2d shapes
 

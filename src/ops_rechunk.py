@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2007 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 ops_rechunk.py -- operations for changing the way atoms are divided
 into chunks, without altering the atoms or bonds themselves.
@@ -99,23 +99,10 @@ class ops_rechunk_Mixin:
         # this is mostly academic since there's no pleasing way to use it on them,
         # though it's theoretically possible (since Groups can be cut and maybe copied).
         
-        cmd = greenmsg("Merge: ")
+        cmd = greenmsg("Combine Chunks: ")
 
         if self.selatoms:
-            #bruce 060329 new feature: work on atoms too (put all selected atoms into a new chunk)
-            self.ensure_toplevel_group() # avoid bug for part containing just one chunk, all atoms selected
-            numol = molecule(self.assy, gensym("Chunk"))
-            natoms = len(self.selatoms)
-            for a in self.selatoms.values():
-                # leave the moved atoms picked, so still visible
-                a.hopmol(numol)
-            self.addmol(numol)
-                #e should we add it in the same groups (and just after the chunks) which these atoms used to belong to?
-                # could use similar scheme to placing jigs...
-            msg = fix_plurals("made chunk from %d atom(s)" % natoms) # len(numol.atoms) would count bondpoints, this doesn't
-            msg = msg.replace('chunk', numol.name)
-            env.history.message(cmd + msg)
-            self.w.win_update()
+            self.makeChunkFromAtoms()
             return
             
         if len(self.selmols) < 2:
@@ -126,6 +113,54 @@ class ops_rechunk_Mixin:
         mol = self.selmols[0]
         for m in self.selmols[1:]:
             mol.merge(m)
+    
+    def makeChunkFromAtoms(self):
+        ''' Create a new chunk from the selected atoms'''
+        
+        #ninad 070411 moved the original method out of 'merge' method to 
+        #facilitate implementation of 'Create New Chunk 
+        #from selected atoms' feature
+        
+        cmd = greenmsg("Create New Chunk: ")
+        if not self.selatoms:
+            msg1 = "Create New Chunk: "
+            msg2 = redmsg('Select some atoms first to create a new chunk')
+            env.history.message(msg1+msg2)
+            return
+        
+        #ninad070411 : Following checks if the selected molecules 
+        #belong to more than one chunk. If they don't (i.e. if they are a part of
+        # a sinle chunk, it returns from the method with proper histry msg
+        
+        molList = []
+        for atm in self.selatoms.values():
+            if not len(molList) > 1:
+                mol =  atm.molecule            
+                if mol not in molList:
+                    molList.append(mol)     
+            
+        if len(molList) < 2:
+            msg1 = "Create New Chunk: "
+            msg2 = redmsg('Not created as the selected atoms are part of the \
+            same chunk.')
+            env.history.message(msg1+msg2)
+            return
+                    
+        #bruce 060329 new feature: work on atoms too (put all selected atoms into a new chunk)
+        self.ensure_toplevel_group() # avoid bug for part containing just one chunk, all atoms selected
+        numol = molecule(self.assy, gensym("Chunk"))
+        natoms = len(self.selatoms)
+        for a in self.selatoms.values():
+            # leave the moved atoms picked, so still visible
+            a.hopmol(numol)
+        self.addmol(numol)
+            #e should we add it in the same groups (and just after the chunks) which these atoms used to belong to?
+            # could use similar scheme to placing jigs...
+        msg = fix_plurals("made chunk from %d atom(s)" % natoms) # len(numol.atoms) would count bondpoints, this doesn't
+        msg = msg.replace('chunk', numol.name)
+        env.history.message(cmd + msg)
+        self.w.win_update()
+        
 
     pass # end of class ops_rechunk_Mixin
 

@@ -1,7 +1,9 @@
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 controls.py - some simple controls, like ChoiceButton, ChoiceColumn/Row, checkbox_v3
 
 $Id$
+
 
 ###e also has some general things we need to refile
 

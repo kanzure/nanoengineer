@@ -1,4 +1,4 @@
-# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2005-2006 Nanorex, Inc.  See LICENSE file for details. 
 """
 panMode.py -- pan mode.
 
@@ -20,7 +20,7 @@ class panMode(basicMode):
 
     # init_gui handles all the GUI display when entering this mode [mark 041004
     def init_gui(self):
-        self.w.panToolAction.setOn(1) # toggle on the Pan Tool icon
+        self.w.panToolAction.setChecked(1) # toggle on the Pan Tool icon
         self.o.setCursor(self.w.MoveCursor)
         self.w.panDashboard.show()
             
@@ -50,7 +50,7 @@ class panMode(basicMode):
         
     # restore_gui handles all the GUI display when leavinging this mode [mark 041004]
     def restore_gui(self):
-        self.w.panToolAction.setOn(0) # toggle off the Pan Tool icon
+        self.w.panToolAction.setChecked(0) # toggle off the Pan Tool icon
         self.w.panDashboard.hide()
 
     # mouse and key events

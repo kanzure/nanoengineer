@@ -1,7 +1,9 @@
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 If_expr.py - provide the expr (or macro) If(cond, _then, _else) and related functions/classes
 
 $Id$
+
 
 Note: the current implem can't reside in Exprs.py since it uses higher-level features.
 It's likely that this will be replaced someday with a lower-level implem,

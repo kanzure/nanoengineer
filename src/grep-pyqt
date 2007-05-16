@@ -1,0 +1,18 @@
+#!/bin/bash
+
+FILES=$(find ~/PyQt-x11-gpl-4.0.1 -name '*.py' -or -name '*.sip')
+
+while [ $# != 0 ]; do
+    FILES2=
+    for x in $FILES; do
+	if egrep -l "$1" $x > /dev/null; then
+	    FILES2="$FILES2 $x"
+	fi
+    done
+    FILES=$FILES2
+    shift
+done
+
+for x in $FILES; do
+    echo $x
+done

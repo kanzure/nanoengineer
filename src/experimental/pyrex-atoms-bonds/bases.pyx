@@ -1,5 +1,6 @@
 # Pyrex file for base classes
 
+# Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
 cdef extern from "Numeric/arrayobject.h":
     object PyArray_FromDims(int nd, int *d, int type)
 

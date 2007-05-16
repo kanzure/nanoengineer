@@ -1,7 +1,9 @@
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 widget2d.py
 
 $Id$
+
 """
 ###e rename module, to same caps? hmm, maybe just to widget, since it has that class too? or move that class?
 

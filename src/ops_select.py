@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2006 Nanorex, Inc.  See LICENSE file for details. 
 """
 ops_select.py -- operations and internal methods for changing what's selected
 and maintaining other selection-related state. (Not well-organized.)

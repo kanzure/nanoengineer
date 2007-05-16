@@ -1,4 +1,4 @@
-# Copyright (c) 2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
 """
 state_constants.py -- constants for declaring attributes' roles in
 holding state or referring to objects that hold state.

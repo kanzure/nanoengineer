@@ -1,3 +1,4 @@
+// Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
 #ifndef MOLECULAT_H_INCLUDED
 #define MOLECULAT_H_INCLUDED
 

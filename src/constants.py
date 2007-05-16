@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2006 Nanorex, Inc.  See LICENSE file for details. 
 """
 constants.py
 
@@ -10,7 +10,7 @@ in all modules.
 $Id$
 """
 
-from qt import Qt
+from PyQt4.Qt import Qt
 
 DIAMOND_BOND_LENGTH = 1.544
     #bruce 051102 added this based on email from Damian Allis:
@@ -21,11 +21,11 @@ leftButton = 1
 rightButton = 2
 # in Qt/Mac, control key with left mouse button simulates right mouse button.
 midButton = 4
-shiftButton = 256
-cntlButton = 512
+shiftModifier = 33554432
+cntlModifier = 67108864
 # in Qt/Mac, this flag indicates the command key rather than the control key.
 
-altButton = 1024 # in Qt/Mac, this flag indicates the Alt/Option modifier key.
+altModifier = 134217728 # in Qt/Mac, this flag indicates the Alt/Option modifier key.
 
 # Note: it would be better if we replaced the above by the equivalent
 # named constants provided by Qt. Before doing this, we have to find
@@ -37,7 +37,7 @@ altButton = 1024 # in Qt/Mac, this flag indicates the Alt/Option modifier key.
 # bruce 040916
 
 
-# debugButtons should be an unusual combination of modifier keys, used
+# debugModifiers should be an unusual combination of modifier keys, used
 # to bring up an undocumented debug menu intended just for developers
 # (if a suitable preference is set). The following value is good for
 # the Mac; someone on Windows or Linux can decide what value would be
@@ -46,7 +46,7 @@ altButton = 1024 # in Qt/Mac, this flag indicates the Alt/Option modifier key.
 # be what you'd guess -- it can be either "darwin" or "mac" (I think),
 # depending on the python installation.)  -- bruce 040916
 
-debugButtons = cntlButton | shiftButton | altButton
+debugModifiers = cntlModifier | shiftModifier | altModifier
 # on the mac, this really means command-shift-alt
 
 
@@ -134,6 +134,8 @@ darkred = (0.6, 0.0, 0.2)
 violet = (0.6, 0.1, 0.9) # Will change this to purple later.  Mark 050730
 purple = violet #bruce 061016, just so this color name is defined -- if you have better rgb values, feel free to modify it
 pink = (0.8, 0.4, 0.4) #bruce 050610 darkened this and called it 'pink'; old value was (1.0, 0.5, 0.5), called LEDon
+
+lightblue = ave_colors(0.03, white, blue) #ninad060922 using it while drawing origin axis
 
 lightblue = ave_colors(0.03, white, blue) #ninad060922 using it while drawing origin axis
 

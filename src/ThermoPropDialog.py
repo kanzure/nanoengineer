@@ -1,175 +1,173 @@
-# Copyright (c) 2006 Nanorex, Inc. All rights reserved.
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\ThermoPropDialog.ui'
+# Copyright 2005-2006 Nanorex, Inc.  See LICENSE file for details. 
+# Form implementation generated from reading ui file 'ThermoPropDialog.ui'
 #
-# Created: Fri Sep 30 15:34:23 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
+# Created: Wed Sep 20 08:56:21 2006
+#      by: PyQt4 UI code generator 4.0.1
 #
 # WARNING! All changes made in this file will be lost!
 
+import sys
+from PyQt4 import QtCore, QtGui
 
-from qt import *
+class Ui_ThermoPropDialog(object):
+    def setupUi(self, ThermoPropDialog):
+        ThermoPropDialog.setObjectName("ThermoPropDialog")
+        ThermoPropDialog.resize(QtCore.QSize(QtCore.QRect(0,0,307,170).size()).expandedTo(ThermoPropDialog.minimumSizeHint()))
 
-image0_data = [
-"22 22 8 1",
-"b c #170f07",
-"a c #4e4942",
-"d c #afadab",
-"# c #bebcbb",
-"e c #f19977",
-"f c #f5b49b",
-"c c #ff0000",
-". c #ffffff",
-"......................",
-".........#aa#.........",
-".........a..a.........",
-".........b..b.........",
-".........b.bb.........",
-".........b..b.........",
-".........b..b.........",
-".........b.bb.........",
-".........b..b.........",
-".........bccb.........",
-".........bcbb.........",
-".........bccb.........",
-".........bccb.........",
-".........bcbb.........",
-"........daccad........",
-".......daccccad.......",
-".......acceccca.......",
-".......bceccccb.......",
-".......bcfccccb.......",
-".......accfccca.......",
-".......daccccad.......",
-"........dabbad........"
-]
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(7),QtGui.QSizePolicy.Policy(7))
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(ThermoPropDialog.sizePolicy().hasHeightForWidth())
+        ThermoPropDialog.setSizePolicy(sizePolicy)
+        ThermoPropDialog.setSizeGripEnabled(True)
 
-class ThermoPropDialog(QDialog):
-    def __init__(self,parent = None,name = None,modal = 0,fl = 0):
-        QDialog.__init__(self,parent,name,modal,fl)
+        self.vboxlayout = QtGui.QVBoxLayout(ThermoPropDialog)
+        self.vboxlayout.setMargin(11)
+        self.vboxlayout.setSpacing(6)
+        self.vboxlayout.setObjectName("vboxlayout")
 
-        self.image0 = QPixmap(image0_data)
+        self.hboxlayout = QtGui.QHBoxLayout()
+        self.hboxlayout.setMargin(0)
+        self.hboxlayout.setSpacing(6)
+        self.hboxlayout.setObjectName("hboxlayout")
 
-        if not name:
-            self.setName("ThermoPropDialog")
+        self.vboxlayout1 = QtGui.QVBoxLayout()
+        self.vboxlayout1.setMargin(0)
+        self.vboxlayout1.setSpacing(6)
+        self.vboxlayout1.setObjectName("vboxlayout1")
 
-        self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding,0,0,self.sizePolicy().hasHeightForWidth()))
-        self.setIcon(self.image0)
-        self.setSizeGripEnabled(1)
+        self.nameTextLabel = QtGui.QLabel(ThermoPropDialog)
 
-        ThermoPropDialogLayout = QVBoxLayout(self,11,6,"ThermoPropDialogLayout")
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(5),QtGui.QSizePolicy.Policy(5))
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.nameTextLabel.sizePolicy().hasHeightForWidth())
+        self.nameTextLabel.setSizePolicy(sizePolicy)
+        self.nameTextLabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.nameTextLabel.setObjectName("nameTextLabel")
+        self.vboxlayout1.addWidget(self.nameTextLabel)
 
-        layout89 = QHBoxLayout(None,0,6,"layout89")
+        self.molnameTextLabel = QtGui.QLabel(ThermoPropDialog)
 
-        layout91 = QVBoxLayout(None,0,6,"layout91")
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(5),QtGui.QSizePolicy.Policy(5))
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.molnameTextLabel.sizePolicy().hasHeightForWidth())
+        self.molnameTextLabel.setSizePolicy(sizePolicy)
+        self.molnameTextLabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.molnameTextLabel.setObjectName("molnameTextLabel")
+        self.vboxlayout1.addWidget(self.molnameTextLabel)
 
-        self.nameTextLabel = QLabel(self,"nameTextLabel")
-        self.nameTextLabel.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,0,0,self.nameTextLabel.sizePolicy().hasHeightForWidth()))
-        self.nameTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout91.addWidget(self.nameTextLabel)
+        self.colorTextLabel = QtGui.QLabel(ThermoPropDialog)
+        self.colorTextLabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.colorTextLabel.setObjectName("colorTextLabel")
+        self.vboxlayout1.addWidget(self.colorTextLabel)
+        self.hboxlayout.addLayout(self.vboxlayout1)
 
-        self.molnameTextLabel = QLabel(self,"molnameTextLabel")
-        self.molnameTextLabel.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,0,0,self.molnameTextLabel.sizePolicy().hasHeightForWidth()))
-        self.molnameTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout91.addWidget(self.molnameTextLabel)
+        self.vboxlayout2 = QtGui.QVBoxLayout()
+        self.vboxlayout2.setMargin(0)
+        self.vboxlayout2.setSpacing(6)
+        self.vboxlayout2.setObjectName("vboxlayout2")
 
-        self.colorTextLabel = QLabel(self,"colorTextLabel")
-        self.colorTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout91.addWidget(self.colorTextLabel)
-        layout89.addLayout(layout91)
+        self.nameLineEdit = QtGui.QLineEdit(ThermoPropDialog)
+        self.nameLineEdit.setEnabled(True)
+        self.nameLineEdit.setAlignment(QtCore.Qt.AlignLeading)
+        self.nameLineEdit.setObjectName("nameLineEdit")
+        self.vboxlayout2.addWidget(self.nameLineEdit)
 
-        layout88 = QVBoxLayout(None,0,6,"layout88")
+        self.molnameLineEdit = QtGui.QLineEdit(ThermoPropDialog)
+        self.molnameLineEdit.setEnabled(True)
+        self.molnameLineEdit.setAlignment(QtCore.Qt.AlignLeading)
+        self.molnameLineEdit.setReadOnly(True)
+        self.molnameLineEdit.setObjectName("molnameLineEdit")
+        self.vboxlayout2.addWidget(self.molnameLineEdit)
 
-        self.nameLineEdit = QLineEdit(self,"nameLineEdit")
-        self.nameLineEdit.setEnabled(1)
-        self.nameLineEdit.setFrameShape(QLineEdit.LineEditPanel)
-        self.nameLineEdit.setFrameShadow(QLineEdit.Sunken)
-        self.nameLineEdit.setAlignment(QLineEdit.AlignLeft)
-        layout88.addWidget(self.nameLineEdit)
+        self.hboxlayout1 = QtGui.QHBoxLayout()
+        self.hboxlayout1.setMargin(0)
+        self.hboxlayout1.setSpacing(6)
+        self.hboxlayout1.setObjectName("hboxlayout1")
 
-        self.molnameLineEdit = QLineEdit(self,"molnameLineEdit")
-        self.molnameLineEdit.setEnabled(1)
-        self.molnameLineEdit.setFrameShape(QLineEdit.LineEditPanel)
-        self.molnameLineEdit.setFrameShadow(QLineEdit.Sunken)
-        self.molnameLineEdit.setAlignment(QLineEdit.AlignLeft)
-        self.molnameLineEdit.setReadOnly(1)
-        layout88.addWidget(self.molnameLineEdit)
+        self.hboxlayout2 = QtGui.QHBoxLayout()
+        self.hboxlayout2.setMargin(0)
+        self.hboxlayout2.setSpacing(6)
+        self.hboxlayout2.setObjectName("hboxlayout2")
 
-        layout87 = QHBoxLayout(None,0,6,"layout87")
+        self.jig_color_pixmap = QtGui.QLabel(ThermoPropDialog)
 
-        layout86 = QHBoxLayout(None,0,6,"layout86")
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(5),QtGui.QSizePolicy.Policy(5))
+        sizePolicy.setHorizontalStretch(1)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.jig_color_pixmap.sizePolicy().hasHeightForWidth())
+        self.jig_color_pixmap.setSizePolicy(sizePolicy)
+        self.jig_color_pixmap.setMinimumSize(QtCore.QSize(40,0))
+        self.jig_color_pixmap.setScaledContents(True)
+        self.jig_color_pixmap.setObjectName("jig_color_pixmap")
+        self.hboxlayout2.addWidget(self.jig_color_pixmap)
 
-        self.jig_color_pixmap = QLabel(self,"jig_color_pixmap")
-        self.jig_color_pixmap.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,1,0,self.jig_color_pixmap.sizePolicy().hasHeightForWidth()))
-        self.jig_color_pixmap.setMinimumSize(QSize(40,0))
-        self.jig_color_pixmap.setPaletteBackgroundColor(QColor(0,0,0))
-        self.jig_color_pixmap.setScaledContents(1)
-        layout86.addWidget(self.jig_color_pixmap)
+        self.choose_color_btn = QtGui.QPushButton(ThermoPropDialog)
+        self.choose_color_btn.setEnabled(True)
 
-        self.choose_color_btn = QPushButton(self,"choose_color_btn")
-        self.choose_color_btn.setEnabled(1)
-        self.choose_color_btn.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Fixed,0,0,self.choose_color_btn.sizePolicy().hasHeightForWidth()))
-        self.choose_color_btn.setAutoDefault(0)
-        layout86.addWidget(self.choose_color_btn)
-        layout87.addLayout(layout86)
-        spacer19 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout87.addItem(spacer19)
-        layout88.addLayout(layout87)
-        layout89.addLayout(layout88)
-        ThermoPropDialogLayout.addLayout(layout89)
-        spacer6 = QSpacerItem(20,25,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        ThermoPropDialogLayout.addItem(spacer6)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(1),QtGui.QSizePolicy.Policy(0))
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.choose_color_btn.sizePolicy().hasHeightForWidth())
+        self.choose_color_btn.setSizePolicy(sizePolicy)
+        self.choose_color_btn.setAutoDefault(False)
+        self.choose_color_btn.setObjectName("choose_color_btn")
+        self.hboxlayout2.addWidget(self.choose_color_btn)
+        self.hboxlayout1.addLayout(self.hboxlayout2)
 
-        layout67 = QHBoxLayout(None,0,6,"layout67")
-        spacer17 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout67.addItem(spacer17)
+        spacerItem = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.hboxlayout1.addItem(spacerItem)
+        self.vboxlayout2.addLayout(self.hboxlayout1)
+        self.hboxlayout.addLayout(self.vboxlayout2)
+        self.vboxlayout.addLayout(self.hboxlayout)
 
-        self.ok_btn = QPushButton(self,"ok_btn")
-        self.ok_btn.setMinimumSize(QSize(0,0))
-        self.ok_btn.setAutoDefault(0)
-        self.ok_btn.setDefault(0)
-        layout67.addWidget(self.ok_btn)
+        spacerItem1 = QtGui.QSpacerItem(20,25,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
+        self.vboxlayout.addItem(spacerItem1)
 
-        self.cancel_btn = QPushButton(self,"cancel_btn")
-        self.cancel_btn.setMinimumSize(QSize(0,0))
-        self.cancel_btn.setAutoDefault(0)
-        self.cancel_btn.setDefault(0)
-        layout67.addWidget(self.cancel_btn)
-        ThermoPropDialogLayout.addLayout(layout67)
+        self.hboxlayout3 = QtGui.QHBoxLayout()
+        self.hboxlayout3.setMargin(0)
+        self.hboxlayout3.setSpacing(6)
+        self.hboxlayout3.setObjectName("hboxlayout3")
 
-        self.languageChange()
+        spacerItem2 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.hboxlayout3.addItem(spacerItem2)
 
-        self.resize(QSize(307,170).expandedTo(self.minimumSizeHint()))
-        self.clearWState(Qt.WState_Polished)
+        self.ok_btn = QtGui.QPushButton(ThermoPropDialog)
+        self.ok_btn.setMinimumSize(QtCore.QSize(0,0))
+        self.ok_btn.setAutoDefault(False)
+        self.ok_btn.setDefault(False)
+        self.ok_btn.setObjectName("ok_btn")
+        self.hboxlayout3.addWidget(self.ok_btn)
 
-        self.connect(self.cancel_btn,SIGNAL("clicked()"),self.reject)
-        self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
-        self.connect(self.choose_color_btn,SIGNAL("clicked()"),self.change_jig_color)
+        self.cancel_btn = QtGui.QPushButton(ThermoPropDialog)
+        self.cancel_btn.setMinimumSize(QtCore.QSize(0,0))
+        self.cancel_btn.setAutoDefault(False)
+        self.cancel_btn.setDefault(False)
+        self.cancel_btn.setObjectName("cancel_btn")
+        self.hboxlayout3.addWidget(self.cancel_btn)
+        self.vboxlayout.addLayout(self.hboxlayout3)
 
-        self.setTabOrder(self.nameLineEdit,self.molnameLineEdit)
-        self.setTabOrder(self.molnameLineEdit,self.choose_color_btn)
-        self.setTabOrder(self.choose_color_btn,self.ok_btn)
-        self.setTabOrder(self.ok_btn,self.cancel_btn)
+        self.retranslateUi(ThermoPropDialog)
+        QtCore.QObject.connect(self.cancel_btn,QtCore.SIGNAL("clicked()"),ThermoPropDialog.reject)
+        QtCore.QObject.connect(self.ok_btn,QtCore.SIGNAL("clicked()"),ThermoPropDialog.accept)
+        QtCore.QMetaObject.connectSlotsByName(ThermoPropDialog)
+        ThermoPropDialog.setTabOrder(self.nameLineEdit,self.molnameLineEdit)
+        ThermoPropDialog.setTabOrder(self.molnameLineEdit,self.choose_color_btn)
+        ThermoPropDialog.setTabOrder(self.choose_color_btn,self.ok_btn)
+        ThermoPropDialog.setTabOrder(self.ok_btn,self.cancel_btn)
 
-
-    def languageChange(self):
-        self.setCaption(self.__tr("Thermometer Properties"))
-        self.nameTextLabel.setText(self.__tr("Name:"))
-        self.molnameTextLabel.setText(self.__tr("Attached to:"))
-        self.colorTextLabel.setText(self.__tr("Color:"))
-        self.nameLineEdit.setText(QString.null)
-        self.molnameLineEdit.setText(QString.null)
-        self.choose_color_btn.setText(self.__tr("Choose..."))
-        QToolTip.add(self.choose_color_btn,self.__tr("Change color"))
-        self.ok_btn.setText(self.__tr("&OK"))
-        self.ok_btn.setAccel(self.__tr("Alt+O"))
-        self.cancel_btn.setText(self.__tr("&Cancel"))
-        self.cancel_btn.setAccel(self.__tr("Alt+C"))
-
-
-    def change_jig_color(self):
-        print "ThermoPropDialog.change_jig_color(): Not implemented yet"
-
-    def __tr(self,s,c = None):
-        return qApp.translate("ThermoPropDialog",s,c)
+    def retranslateUi(self, ThermoPropDialog):
+        ThermoPropDialog.setWindowTitle(QtGui.QApplication.translate("ThermoPropDialog", "Thermometer Properties", None, QtGui.QApplication.UnicodeUTF8))
+        self.nameTextLabel.setText(QtGui.QApplication.translate("ThermoPropDialog", "Name:", None, QtGui.QApplication.UnicodeUTF8))
+        self.molnameTextLabel.setText(QtGui.QApplication.translate("ThermoPropDialog", "Attached to:", None, QtGui.QApplication.UnicodeUTF8))
+        self.colorTextLabel.setText(QtGui.QApplication.translate("ThermoPropDialog", "Color:", None, QtGui.QApplication.UnicodeUTF8))
+        self.choose_color_btn.setToolTip(QtGui.QApplication.translate("ThermoPropDialog", "Change color", None, QtGui.QApplication.UnicodeUTF8))
+        self.choose_color_btn.setText(QtGui.QApplication.translate("ThermoPropDialog", "Choose...", None, QtGui.QApplication.UnicodeUTF8))
+        self.ok_btn.setText(QtGui.QApplication.translate("ThermoPropDialog", "&OK", None, QtGui.QApplication.UnicodeUTF8))
+        self.ok_btn.setShortcut(QtGui.QApplication.translate("ThermoPropDialog", "Alt+O", None, QtGui.QApplication.UnicodeUTF8))
+        self.cancel_btn.setText(QtGui.QApplication.translate("ThermoPropDialog", "&Cancel", None, QtGui.QApplication.UnicodeUTF8))
+        self.cancel_btn.setShortcut(QtGui.QApplication.translate("ThermoPropDialog", "Alt+C", None, QtGui.QApplication.UnicodeUTF8))

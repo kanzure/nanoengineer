@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
 # Think about the set sizes for which this scheme is memory efficient.
 
 import time

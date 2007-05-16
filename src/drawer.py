@@ -1,15 +1,23 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 drawer.py
 
 OpenGL drawing utilities.
 
 $Id$
+
 """
 
 from OpenGL.GL import *
 from OpenGL.GLU import *
-from OpenGL.GLE import glePolyCone, gleGetNumSides, gleSetNumSides
+try:
+        from OpenGL.GLE import glePolyCone, gleGetNumSides, gleSetNumSides
+except:
+        print "GLE module can't be imported. Now trying _GLE"
+        from OpenGL._GLE import glePolyCone, gleGetNumSides, gleSetNumSides
+	
+##from OpenGL.GLE import glePolyCone, gleGetNumSides, gleSetNumSides
+
 import math
 import os
 import sys
@@ -1856,8 +1864,78 @@ def drawOriginAsSmallAxis(n, point, dashEnabled = False):
     glLineWidth(1.0)
     
 
+## What follows was what we did in Qt 3.
+
+##     #Perhaps we should split this method into smaller methods? ninad060920
+##     #Notes:
+##     #1. drawing arrowheads implemented on 060918
+##     #2. ninad060921 Show the origin axes as dotted if behind the mode. 
+##     #3. ninad060922 The arrow heads are drawn as wireframe cones if behind the object
+##     # the arrowhead size is slightly smaller (otherwise some portion of the 
+##     # the wireframe arrow shows up!
+##     #3.Making origin non-zoomable is acheived by passing replacing 
+##     #hardcoded 'n' with glpane's scale - ninad060922
+
+    
+##     from constants import blue, red, darkgreen, black, lightblue
+    
+##     #ninad060922 in future , the following could be user preferences. 
+##     x1, y1, z1 = n*0.01, n*0.01, n*0.01
+##     xEnd, yEnd, zEnd = n*0.04, n*0.09, n*0.025
+##     arrowBase = n*0.0075
+##     arrowHeight = n*0.035
+##     lineWidth = 1.0
+
+##     glPushMatrix()
+
+##     glTranslate(point[0], point[1], point[2])
+##     glDisable(GL_LIGHTING)
+##     glLineWidth(lineWidth)
+    
+##     #Code to show hidden lines of the origin if some model obscures it  ninad060921
+##     if dashEnabled:
+##         glLineStipple(2, 0xAAAA)
+##         glEnable(GL_LINE_STIPPLE)
+##         glDisable(GL_DEPTH_TEST)
         
-        
+##     glBegin(GL_LINES)
+
+##     #glColor3f(black)
+##     glColor3fv(lightblue)
+
+##     #start draw a point at origin . 
+##     #ninad060922 is thinking about using GL_POINTS here
+    
+##     glVertex(-x1,0.0,0.0)
+##     glVertex(x1,0.0,0.0)
+##     glVertex(0.0, -y1, 0.0)
+##     glVertex(0.0, y1, 0.0)
+##     glVertex(-x1,y1,z1)
+##     glVertex(x1, -y1, -z1)    
+##     glVertex(x1, y1, z1)
+##     glVertex(-x1, -y1,- z1)    
+##     glVertex(x1, y1, -z1)
+##     glVertex(-x1, -y1, z1)    
+##     glVertex(-x1, y1, -z1)
+##     glVertex(x1, -y1, z1)   
+##     #end draw a point at origin 
+
+##     #start draw small origin axes
+##     #glColor3fv(darkred)
+##     glColor3fv(lightblue)
+##     glVertex(xEnd,0.0,0.0)
+##     glVertex(0.0,0.0,0.0)
+##     #glColor3f(darkgreen[0], darkgreen[1], darkgreen[2])
+##     glColor3fv(lightblue)
+##     glVertex(0.0,yEnd,0.0)
+##     glVertex(0.0,0.0,0.0)
+##     #glColor3f(blue[0], blue[1], blue[2])
+##     glColor3fv(lightblue)
+##     glVertex(0.0,0.0,zEnd)
+##     glVertex(0.0,0.0,0.0)
+##     glEnd() #end draw lines
+##     glLineWidth(1.0)
+    
     glPopMatrix() # end push matrix for drawing various lines in the origin and axes
             
     #start draw solid arrow heads  for  X , Y and Z axes
@@ -2446,7 +2524,7 @@ def drawtext(text, color, pt, size, glpane):
     glDisable(GL_LIGHTING)
     glDisable(GL_DEPTH_TEST)
     
-    from qt import QFont, QString, QColor
+    from PyQt4.Qt import QFont, QString, QColor
     font = QFont( QString("Helvetica"), size)
     #glpane.qglColor(QColor(75, 75, 75))
     from widgets import RGBf_to_QColor

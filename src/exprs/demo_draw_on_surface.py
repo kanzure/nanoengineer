@@ -1,7 +1,9 @@
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 demo_draw_on_surface.py
 
 $Id$
+
 
 070319 a standalone version of the so-called polyline example in demo_drag.py (testexpr_19g)
 

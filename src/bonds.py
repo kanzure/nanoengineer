@@ -1,10 +1,11 @@
-# Copyright (c) 2004-2007 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 bonds.py -- class Bond, for any supported type of chemical bond between two atoms
 (one of which might be a "singlet" to represent an "open bond" in the UI),
 and related code
 
 $Id$
+
 
 History:
 
@@ -46,7 +47,7 @@ from drawer import *
 from shape import *
 
 from constants import *
-from qt import *
+from PyQt4.Qt import *
 from Utility import *
 from ChunkProp import * # Renamed MoleculeProp to ChunkProp.  Mark 050929
 from mdldata import marks, links, filler
@@ -1311,7 +1312,7 @@ class Bond(BondBase, StateMixin):
         # on 060228 i confirmed this is needed by test (otherwise != doesn't call __eq__)
         return not self.__eq__(ob)
 
-    def draw(self, glpane, dispdef, col, level, **kws): #bruce 050727 moving implem to separate file
+    def draw(self, glpane, dispdef, col, level, highlighted = False, bool_fullBondLength = False): #bruce 050727 moving implem to separate file
         """Draw the bond. Note that for external bonds, this is called twice,
         once for each bonded molecule (in arbitrary order)
         (and is never cached in either mol's display list);
@@ -1329,6 +1330,10 @@ class Bond(BondBase, StateMixin):
         and the caller has to draw those kinds of bonds in the proper coordinate
         system (absolute or mol-relative for external or internal bonds respectively).
         """
+        #Note: bool_fullBondLength represent whether full bond length to be drawn
+        #it is used only in select Chunks mode while highlighting the whole chunk and when
+        #the atom display is Tubes display -- ninad 070214
+        
         #bruce 041104 revised docstring, added comments about possible bugs.
         # Note that this code depends on finding the attrs toolong, center,
         # a1pos, a2pos, c1, c2, as created by self.__setup_update().
@@ -1338,7 +1343,7 @@ class Bond(BondBase, StateMixin):
             import bond_drawer, debug
             debug.reload_once_per_event( bond_drawer) #bruce 050825 use reload_once_per_event to remove intolerable slowdown
         from bond_drawer import draw_bond
-        draw_bond( self, glpane, dispdef, col, level, **kws)
+        draw_bond( self, glpane, dispdef, col, level, highlighted, bool_fullBondLength)
         return
 
     def legal_for_atomtypes(self): #bruce 050716
@@ -1348,13 +1353,19 @@ class Bond(BondBase, StateMixin):
     def permits_v6(self, v6): #bruce 050806 #e should merge this somehow with self.legal_for_atomtypes()
         return self.atom1.atomtype.permits_v6(v6) and self.atom2.atomtype.permits_v6(v6)
 
-    def draw_in_abs_coords(self, glpane, color): #bruce 050609
+    def draw_in_abs_coords(self, glpane, color, bool_fullBondLength = False): #bruce 050609
         """Draw this bond in absolute (world) coordinates (even if it's an internal bond),
         using the specified color (ignoring the color it would naturally be drawn with).
            This is only called for special purposes related to mouseover-highlighting,
         and should be renamed to reflect that, since its behavior can and should be specialized
         for that use. (E.g. it doesn't happen inside display lists; and it need not use glName at all.)
         """
+        #Note: bool_fullBondLength represent whether full bond length to be drawn
+        #it is used only in select Chunks mode while highlighting the whole chunk and when
+        #the atom display is Tubes display -- ninad 070214
+        
+        highlighted = True  # ninad 070214 - passing 'highlghted' to bond.draw instead of highlighted = bool
+        
         if self.killed():
             #bruce 050702, part of fix 2 of 2 redundant fixes for bug 716 (both fixes are desirable)
             return
@@ -1363,7 +1374,8 @@ class Bond(BondBase, StateMixin):
         if mol is mol2:
             # internal bond; geometric info is stored in chunk-relative coords; we need mol's help to use those
             mol.pushMatrix()
-            self.draw(glpane, mol.get_dispdef(glpane), color, mol.assy.drawLevel, highlighted = True)
+            self.draw(glpane, mol.get_dispdef(glpane), color, mol.assy.drawLevel, 
+                      highlighted , bool_fullBondLength )
                 # sorry for all the kluges (e.g. 2 of those args) that beg for refactoring! The info passing in draw methods
                 # is not designed for drawing leaf nodes by themselves in a clean way! (#e should clean up somehow)
                 #bruce 050702 using shorten_tubes [as of 050727, this is done via highlighted = True]

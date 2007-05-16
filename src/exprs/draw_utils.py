@@ -1,7 +1,9 @@
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 draw_utils.py
 
 $Id$
+
 """
 
 from basic import * # autoreload of basic is done before we're imported

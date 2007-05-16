@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2006 Nanorex, Inc.  See LICENSE file for details. 
 """
 $Id$
 
@@ -11,16 +11,25 @@ Rewritten by Mark as a mininal help facility for Alpha 6.
 __author__ = "Josh"
 
 
-from qt import *
-from HelpDialog import HelpDialog
+from PyQt4.Qt import *
+from HelpDialog import Ui_HelpDialog
+from Utility import geticon
 import os, sys
 
-class Help(HelpDialog):
+class Help(QWidget, Ui_HelpDialog):
     '''The Help dialog used for mouse controls and keyboard shortcuts
     '''
        
     def __init__(self):
-        HelpDialog.__init__(self)
+        QWidget.__init__(self)
+        self.setupUi(self)
+        self.connect(self.help_tab,SIGNAL("currentChanged(int)"),self.setup_current_page)
+        self.connect(self.close_btn,SIGNAL("clicked()"),self.close)
+        
+        self.setWindowIcon(geticon('ui/border/MainWindow'))
+        
+        if self.help_tab.currentIndex() == 0:
+            self._setup_mouse_controls_page()
         return
     
     def showDialog(self, pagenum):
@@ -29,7 +38,7 @@ class Help(HelpDialog):
         0 = Mouse Controls
         1 = Keyboard Shortcuts
         '''
-        self.help_tab.setCurrentPage(pagenum) # Sends signal to setup_current_page()
+        self.help_tab.setCurrentIndex(pagenum) # Sends signal to setup_current_page()
         self.show() # Non-modal 
         return
 
@@ -46,10 +55,10 @@ class Help(HelpDialog):
         
         # Make sure help document exists.  If not, display msg in textbrowser.
         if os.path.exists(htmlDoc):
-            self.mouse_controls_textbrowser.setSource(htmlDoc)
+            self.mouse_controls_textbrowser.setHtml(open(htmlDoc).read())
         else:
             msg =  "Help file " + htmlDoc + " not found."
-            self.mouse_controls_textbrowser.setText(msg)
+            self.mouse_controls_textbrowser.setPlainText(msg)
 
     def _setup_keyboard_shortcuts_page(self):
         ''' Setup the Keyboard Shortcuts help page.
@@ -63,15 +72,16 @@ class Help(HelpDialog):
         
         # Make sure help document exists.  If not, display msg in textbrowser.
         if os.path.exists(htmlDoc):
-            self.keyboard_shortcuts_textbrowser.setSource(htmlDoc)
+            self.keyboard_shortcuts_textbrowser.setHtml(open(htmlDoc).read())
         else:
             msg =  "Help file " + htmlDoc + " not found."
-            self.keyboard_shortcuts_textbrowser.setText(msg)
+            self.keyboard_shortcuts_textbrowser.setPlainText(msg)
         
-    def setup_current_page(self, pagename):
-        if pagename == 'Mouse Controls':
+    def setup_current_page(self):
+        pagenumber = self.help_tab.currentIndex()
+        if pagenumber is 0:
             self._setup_mouse_controls_page()
-        elif pagename == 'Keyboard Shortcuts':
+        elif pagenumber is 1:
             self._setup_keyboard_shortcuts_page()
         else:
             print 'Error: Help page unknown: ', pagename

@@ -1,8 +1,9 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 elements.py -- elements, periodic table, element display prefs
 
 $Id$
+
 
 History:
 
@@ -428,14 +429,15 @@ to put the C+ value.
     def setElemColor(self, eleNum, c):
         """Set element <eleNum> color as <c> """
         assert type(eleNum) == type(1)
+        assert eleNum >= 0
         assert type(c) == type([1,1,1])
         self.color_change_counter += 1
         self._periodicTable[eleNum].color = c
-        #self._updateModelDisplay()
         
     def getElemColor(self, eleNum):
         """Return the element color as a triple list for <eleNum> """
         assert type(eleNum) == type(1)
+        assert eleNum >= 0
         return self._periodicTable[eleNum].color
     
     def getPTsenil(self):

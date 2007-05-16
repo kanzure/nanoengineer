@@ -1,4 +1,4 @@
-# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 changes.py
 
@@ -7,6 +7,7 @@ Utilities for tracking changes, usage, nested events, etc.
 [This module is owned by Bruce until further notice. Unsigned comments are by Bruce.]
 
 $Id$
+
 
 History:
 

@@ -1,4 +1,4 @@
-# Copyright (c) 2007 Nanorex, Inc.  All rights reserved.
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 confirmation_corner.py -- helpers for modes with a confirmation corner
 (or other overlay widgets).

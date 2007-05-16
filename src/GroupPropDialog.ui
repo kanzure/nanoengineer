@@ -1,216 +1,211 @@
-<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
-<class>GroupPropDialog</class>
-<widget class="QDialog">
-    <property name="name">
-        <cstring>GroupPropDialog</cstring>
-    </property>
-    <property name="geometry">
-        <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>258</width>
-            <height>357</height>
-        </rect>
-    </property>
-    <property name="caption">
-        <string>Group Properties</string>
-    </property>
-    <property name="icon">
-        <pixmap>image0</pixmap>
-    </property>
-    <grid>
-        <property name="name">
-            <cstring>unnamed</cstring>
-        </property>
-        <widget class="QLayoutWidget" row="0" column="0">
-            <property name="name">
-                <cstring>layout8</cstring>
-            </property>
-            <vbox>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <widget class="QLayoutWidget">
-                    <property name="name">
-                        <cstring>layout6</cstring>
-                    </property>
-                    <hbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <widget class="QLabel">
-                            <property name="name">
-                                <cstring>nameLabel</cstring>
-                            </property>
-                            <property name="text">
-                                <string>Name:</string>
-                            </property>
-                            <property name="alignment">
-                                <set>AlignVCenter|AlignLeft</set>
-                            </property>
-                        </widget>
-                        <widget class="QLineEdit">
-                            <property name="name">
-                                <cstring>nameLineEdit</cstring>
-                            </property>
-                            <property name="focusPolicy">
-                                <enum>StrongFocus</enum>
-                            </property>
-                            <property name="frameShape">
-                                <enum>LineEditPanel</enum>
-                            </property>
-                            <property name="frameShadow">
-                                <enum>Sunken</enum>
-                            </property>
-                            <property name="text">
-                                <string></string>
-                            </property>
-                            <property name="alignment">
-                                <set>AlignLeft</set>
-                            </property>
-                        </widget>
-                    </hbox>
-                </widget>
-                <widget class="QLabel">
-                    <property name="name">
-                        <cstring>mmpformatLabel</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Group Statistics:</string>
-                    </property>
-                    <property name="alignment">
-                        <set>AlignVCenter|AlignLeft</set>
-                    </property>
-                </widget>
-                <widget class="QLayoutWidget">
-                    <property name="name">
-                        <cstring>layout7</cstring>
-                    </property>
-                    <hbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <widget class="QListView">
-                            <column>
-                                <property name="text">
-                                    <string>Object Name</string>
-                                </property>
-                                <property name="clickable">
-                                    <bool>true</bool>
-                                </property>
-                                <property name="resizable">
-                                    <bool>true</bool>
-                                </property>
-                            </column>
-                            <column>
-                                <property name="text">
-                                    <string>Value</string>
-                                </property>
-                                <property name="clickable">
-                                    <bool>true</bool>
-                                </property>
-                                <property name="resizable">
-                                    <bool>true</bool>
-                                </property>
-                            </column>
-                            <property name="name">
-                                <cstring>statsView</cstring>
-                            </property>
-                            <property name="focusPolicy">
-                                <enum>NoFocus</enum>
-                            </property>
-                        </widget>
-                    </hbox>
-                </widget>
-            </vbox>
+<ui version="4.0" >
+ <author></author>
+ <comment></comment>
+ <exportmacro></exportmacro>
+ <class>GroupPropDialog</class>
+ <widget class="QDialog" name="GroupPropDialog" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>258</width>
+    <height>357</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Group Properties</string>
+  </property>
+  <property name="windowIcon" >
+   <iconset/>
+  </property>
+  <layout class="QGridLayout" >
+   <property name="margin" >
+    <number>11</number>
+   </property>
+   <property name="spacing" >
+    <number>6</number>
+   </property>
+   <item row="0" column="0" >
+    <layout class="QVBoxLayout" >
+     <property name="margin" >
+      <number>0</number>
+     </property>
+     <property name="spacing" >
+      <number>6</number>
+     </property>
+     <item>
+      <layout class="QHBoxLayout" >
+       <property name="margin" >
+        <number>0</number>
+       </property>
+       <property name="spacing" >
+        <number>6</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="nameLabel" >
+         <property name="text" >
+          <string>Name:</string>
+         </property>
+         <property name="alignment" >
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
         </widget>
-        <spacer row="1" column="0">
-            <property name="name">
-                <cstring>spacer11</cstring>
-            </property>
-            <property name="orientation">
-                <enum>Vertical</enum>
-            </property>
-            <property name="sizeType">
-                <enum>Expanding</enum>
-            </property>
-            <property name="sizeHint">
-                <size>
-                    <width>20</width>
-                    <height>16</height>
-                </size>
-            </property>
-        </spacer>
-        <widget class="QLayoutWidget" row="2" column="0">
-            <property name="name">
-                <cstring>layout96</cstring>
-            </property>
-            <hbox>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <widget class="QPushButton">
-                    <property name="name">
-                        <cstring>okPushButton</cstring>
-                    </property>
-                    <property name="text">
-                        <string>&amp;OK</string>
-                    </property>
-                    <property name="accel">
-                        <string>Alt+O</string>
-                    </property>
-                    <property name="autoDefault">
-                        <bool>true</bool>
-                    </property>
-                    <property name="default">
-                        <bool>true</bool>
-                    </property>
-                </widget>
-                <widget class="QPushButton">
-                    <property name="name">
-                        <cstring>cancelPushButton</cstring>
-                    </property>
-                    <property name="text">
-                        <string>&amp;Cancel</string>
-                    </property>
-                    <property name="accel">
-                        <string>Alt+C</string>
-                    </property>
-                    <property name="autoDefault">
-                        <bool>true</bool>
-                    </property>
-                    <property name="default">
-                        <bool>false</bool>
-                    </property>
-                </widget>
-            </hbox>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="nameLineEdit" >
+         <property name="focusPolicy" >
+          <enum>Qt::StrongFocus</enum>
+         </property>
+         <property name="text" >
+          <string/>
+         </property>
+         <property name="alignment" >
+          <set>Qt::AlignLeading</set>
+         </property>
         </widget>
-    </grid>
-</widget>
-<images>
-    <image name="image0">
-        <data format="PNG" length="431">89504e470d0a1a0a0000000d49484452000000140000001408060000008d891d0d0000017649444154789ce594bf2f43511480bfd79634123a0949b5823461e86024919445241683894dc25403a388c9c6c264788bc47f2024966e6d2422a48d5442157df550fd91563c527d86f228f7512bdf76ce3df7bbf7dc9b7be1df217d0c826b6e5d54d43b752189f2df125c73eb6604569a840b89b001ec2c35ea3d93e7802c2cf2f95502349b4afba7af8d0e6c46b62003599329cbf8fcaa70e478cb873c67d527169352a51040d3b83cda2371bc2b949ad1d50ae1ed61dd3bb429550a53707a18c2e91dc5e35b2de78a1ad8eca6b23232eb0bf37cd961a99402c0d5edc238cfca258568aac2d3b3a05c8985b1d6d46277b48096f9d9f44a3a734b9d56f8244ca828c9188d6d1dc00314cc2ee8034528dee7484543d4395b81c8bbf0adddf73eb4aa84855c9658fc919199880460791bbb514eb03534d139380e89f8cfb257324a8cf45dda880de1597c1f4fdf40d522338c96258b0587b31da207bf129c5f25b16b7923369eccc66c7dd5eff53363cbf9df7f1e7f8717977790c4d6041ad50000000049454e44ae426082</data>
-    </image>
-</images>
-<connections>
-    <connection>
-        <sender>okPushButton</sender>
-        <signal>clicked()</signal>
-        <receiver>GroupPropDialog</receiver>
-        <slot>accept()</slot>
-    </connection>
-    <connection>
-        <sender>cancelPushButton</sender>
-        <signal>clicked()</signal>
-        <receiver>GroupPropDialog</receiver>
-        <slot>reject()</slot>
-    </connection>
-</connections>
-<tabstops>
-    <tabstop>nameLineEdit</tabstop>
-    <tabstop>okPushButton</tabstop>
-    <tabstop>cancelPushButton</tabstop>
-    <tabstop>statsView</tabstop>
-</tabstops>
-<layoutdefaults spacing="6" margin="11"/>
-</UI>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="QLabel" name="mmpformatLabel" >
+       <property name="text" >
+        <string>Group Statistics:</string>
+       </property>
+       <property name="alignment" >
+        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" >
+       <property name="margin" >
+        <number>0</number>
+       </property>
+       <property name="spacing" >
+        <number>6</number>
+       </property>
+       <item>
+        <widget class="QListView" name="statsView" >
+         <property name="focusPolicy" >
+          <enum>Qt::NoFocus</enum>
+         </property>
+         <column>
+          <property name="text" >
+           <string>Object Name</string>
+          </property>
+         </column>
+         <column>
+          <property name="text" >
+           <string>Value</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="0" >
+    <spacer>
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeType" >
+      <enum>QSizePolicy::Expanding</enum>
+     </property>
+     <property name="sizeHint" >
+      <size>
+       <width>20</width>
+       <height>16</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="2" column="0" >
+    <layout class="QHBoxLayout" >
+     <property name="margin" >
+      <number>0</number>
+     </property>
+     <property name="spacing" >
+      <number>6</number>
+     </property>
+     <item>
+      <widget class="QPushButton" name="okPushButton" >
+       <property name="text" >
+        <string>&amp;OK</string>
+       </property>
+       <property name="shortcut" >
+        <string>Alt+O</string>
+       </property>
+       <property name="autoDefault" >
+        <bool>true</bool>
+       </property>
+       <property name="default" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="cancelPushButton" >
+       <property name="text" >
+        <string>&amp;Cancel</string>
+       </property>
+       <property name="shortcut" >
+        <string>Alt+C</string>
+       </property>
+       <property name="autoDefault" >
+        <bool>true</bool>
+       </property>
+       <property name="default" >
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11" />
+ <pixmapfunction></pixmapfunction>
+ <tabstops>
+  <tabstop>nameLineEdit</tabstop>
+  <tabstop>okPushButton</tabstop>
+  <tabstop>cancelPushButton</tabstop>
+  <tabstop>statsView</tabstop>
+ </tabstops>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>okPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>GroupPropDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cancelPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>GroupPropDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

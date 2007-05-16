@@ -1,304 +1,298 @@
-# Copyright (c) 2006 Nanorex, Inc. All rights reserved.
 # -*- coding: utf-8 -*-
 
+# Copyright 2005-2006 Nanorex, Inc.  See LICENSE file for details. 
 # Form implementation generated from reading ui file 'LightingToolDialog.ui'
 #
-# Created: Tue Sep 13 16:00:26 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
+# Created: Wed Sep 20 10:27:48 2006
+#      by: PyQt4 UI code generator 4.0.1
 #
 # WARNING! All changes made in this file will be lost!
 
+import sys
+from PyQt4 import QtCore, QtGui
 
-from qt import *
+class Ui_LightingToolDialog(object):
+    def setupUi(self, LightingToolDialog):
+        LightingToolDialog.setObjectName("LightingToolDialog")
+        LightingToolDialog.resize(QtCore.QSize(QtCore.QRect(0,0,411,470).size()).expandedTo(LightingToolDialog.minimumSizeHint()))
 
+        self.gridlayout = QtGui.QGridLayout(LightingToolDialog)
+        self.gridlayout.setMargin(11)
+        self.gridlayout.setSpacing(6)
+        self.gridlayout.setObjectName("gridlayout")
 
-class LightingToolDialog(QDialog):
-    def __init__(self,parent = None,name = None,modal = 0,fl = 0):
-        QDialog.__init__(self,parent,name,modal,fl)
-
-        if not name:
-            self.setName("LightingToolDialog")
-
-
-        LightingToolDialogLayout = QGridLayout(self,1,1,11,6,"LightingToolDialogLayout")
-
-        self.frame1_2 = QFrame(self,"frame1_2")
-        self.frame1_2.setFrameShape(QFrame.Box)
-        self.frame1_2.setFrameShadow(QFrame.Raised)
+        self.frame1_2 = QtGui.QFrame(LightingToolDialog)
+        self.frame1_2.setFrameShape(QtGui.QFrame.Box)
+        self.frame1_2.setFrameShadow(QtGui.QFrame.Raised)
         self.frame1_2.setMargin(0)
-        frame1_2Layout = QGridLayout(self.frame1_2,1,1,11,6,"frame1_2Layout")
+        self.frame1_2.setObjectName("frame1_2")
 
-        layout34 = QVBoxLayout(None,0,6,"layout34")
+        self.gridlayout1 = QtGui.QGridLayout(self.frame1_2)
+        self.gridlayout1.setMargin(11)
+        self.gridlayout1.setSpacing(6)
+        self.gridlayout1.setObjectName("gridlayout1")
 
-        self.light1CB = QCheckBox(self.frame1_2,"light1CB")
-        layout34.addWidget(self.light1CB)
+        self.vboxlayout = QtGui.QVBoxLayout()
+        self.vboxlayout.setMargin(0)
+        self.vboxlayout.setSpacing(6)
+        self.vboxlayout.setObjectName("vboxlayout")
 
-        layout33 = QGridLayout(None,1,1,0,6,"layout33")
+        self.light1CB = QtGui.QCheckBox(self.frame1_2)
+        self.light1CB.setObjectName("light1CB")
+        self.vboxlayout.addWidget(self.light1CB)
 
-        self.ambLight1LCD = QLCDNumber(self.frame1_2,"ambLight1LCD")
-        self.ambLight1LCD.setSmallDecimalPoint(0)
-        self.ambLight1LCD.setSegmentStyle(QLCDNumber.Flat)
-        self.ambLight1LCD.setProperty("value",QVariant(1))
-        self.ambLight1LCD.setProperty("intValue",QVariant(1))
+        self.gridlayout2 = QtGui.QGridLayout()
+        self.gridlayout2.setMargin(0)
+        self.gridlayout2.setSpacing(6)
+        self.gridlayout2.setObjectName("gridlayout2")
 
-        layout33.addWidget(self.ambLight1LCD,0,1)
+        self.ambLight1LCD = QtGui.QLCDNumber(self.frame1_2)
+        self.ambLight1LCD.setSmallDecimalPoint(False)
+        self.ambLight1LCD.setSegmentStyle(QtGui.QLCDNumber.Flat)
+        self.ambLight1LCD.setProperty("value",QtCore.QVariant(1.0))
+        self.ambLight1LCD.setProperty("intValue",QtCore.QVariant(1))
+        self.ambLight1LCD.setObjectName("ambLight1LCD")
+        self.gridlayout2.addWidget(self.ambLight1LCD,0,1,1,1)
 
-        self.ambLight1SL = QSlider(self.frame1_2,"ambLight1SL")
-        self.ambLight1SL.setMaxValue(100)
-        self.ambLight1SL.setLineStep(1)
-        self.ambLight1SL.setOrientation(QSlider.Horizontal)
-        self.ambLight1SL.setTickmarks(QSlider.Below)
+        self.ambLight1SL = QtGui.QSlider(self.frame1_2)
+        self.ambLight1SL.setMaximum(100)
+        self.ambLight1SL.setSingleStep(1)
         self.ambLight1SL.setTickInterval(10)
+        self.ambLight1SL.setObjectName("ambLight1SL")
+        self.gridlayout2.addWidget(self.ambLight1SL,0,0,1,1)
 
-        layout33.addWidget(self.ambLight1SL,0,0)
-
-        self.diffuseLight1SL = QSlider(self.frame1_2,"diffuseLight1SL")
-        self.diffuseLight1SL.setMaxValue(100)
-        self.diffuseLight1SL.setLineStep(1)
-        self.diffuseLight1SL.setOrientation(QSlider.Horizontal)
-        self.diffuseLight1SL.setTickmarks(QSlider.Below)
+        self.diffuseLight1SL = QtGui.QSlider(self.frame1_2)
+        self.diffuseLight1SL.setMaximum(100)
+        self.diffuseLight1SL.setSingleStep(1)
         self.diffuseLight1SL.setTickInterval(10)
+        self.diffuseLight1SL.setObjectName("diffuseLight1SL")
+        self.gridlayout2.addWidget(self.diffuseLight1SL,1,0,1,1)
 
-        layout33.addWidget(self.diffuseLight1SL,1,0)
+        self.diffuseLight1LCD = QtGui.QLCDNumber(self.frame1_2)
+        self.diffuseLight1LCD.setSmallDecimalPoint(False)
+        self.diffuseLight1LCD.setSegmentStyle(QtGui.QLCDNumber.Flat)
+        self.diffuseLight1LCD.setProperty("value",QtCore.QVariant(1.0))
+        self.diffuseLight1LCD.setProperty("intValue",QtCore.QVariant(1))
+        self.diffuseLight1LCD.setObjectName("diffuseLight1LCD")
+        self.gridlayout2.addWidget(self.diffuseLight1LCD,1,1,1,1)
+        self.vboxlayout.addLayout(self.gridlayout2)
+        self.gridlayout1.addLayout(self.vboxlayout,0,1,1,1)
 
-        self.diffuseLight1LCD = QLCDNumber(self.frame1_2,"diffuseLight1LCD")
-        self.diffuseLight1LCD.setSmallDecimalPoint(0)
-        self.diffuseLight1LCD.setSegmentStyle(QLCDNumber.Flat)
-        self.diffuseLight1LCD.setProperty("value",QVariant(1))
-        self.diffuseLight1LCD.setProperty("intValue",QVariant(1))
+        self.vboxlayout1 = QtGui.QVBoxLayout()
+        self.vboxlayout1.setMargin(0)
+        self.vboxlayout1.setSpacing(6)
+        self.vboxlayout1.setObjectName("vboxlayout1")
 
-        layout33.addWidget(self.diffuseLight1LCD,1,1)
-        layout34.addLayout(layout33)
+        self.textLabel2_4 = QtGui.QLabel(self.frame1_2)
+        self.textLabel2_4.setObjectName("textLabel2_4")
+        self.vboxlayout1.addWidget(self.textLabel2_4)
 
-        frame1_2Layout.addLayout(layout34,0,1)
+        self.textLabel1_4 = QtGui.QLabel(self.frame1_2)
+        self.textLabel1_4.setObjectName("textLabel1_4")
+        self.vboxlayout1.addWidget(self.textLabel1_4)
 
-        layout35 = QVBoxLayout(None,0,6,"layout35")
+        self.textLabel1_3_2 = QtGui.QLabel(self.frame1_2)
+        self.textLabel1_3_2.setObjectName("textLabel1_3_2")
+        self.vboxlayout1.addWidget(self.textLabel1_3_2)
+        self.gridlayout1.addLayout(self.vboxlayout1,0,0,1,1)
+        self.gridlayout.addWidget(self.frame1_2,0,0,1,1)
 
-        self.textLabel2_4 = QLabel(self.frame1_2,"textLabel2_4")
-        layout35.addWidget(self.textLabel2_4)
+        self.frame5 = QtGui.QFrame(LightingToolDialog)
+        self.frame5.setFrameShape(QtGui.QFrame.Box)
+        self.frame5.setFrameShadow(QtGui.QFrame.Raised)
+        self.frame5.setObjectName("frame5")
 
-        self.textLabel1_4 = QLabel(self.frame1_2,"textLabel1_4")
-        layout35.addWidget(self.textLabel1_4)
+        self.gridlayout3 = QtGui.QGridLayout(self.frame5)
+        self.gridlayout3.setMargin(11)
+        self.gridlayout3.setSpacing(6)
+        self.gridlayout3.setObjectName("gridlayout3")
 
-        self.textLabel1_3_2 = QLabel(self.frame1_2,"textLabel1_3_2")
-        layout35.addWidget(self.textLabel1_3_2)
+        self.vboxlayout2 = QtGui.QVBoxLayout()
+        self.vboxlayout2.setMargin(0)
+        self.vboxlayout2.setSpacing(6)
+        self.vboxlayout2.setObjectName("vboxlayout2")
 
-        frame1_2Layout.addLayout(layout35,0,0)
+        self.light2CB = QtGui.QCheckBox(self.frame5)
+        self.light2CB.setObjectName("light2CB")
+        self.vboxlayout2.addWidget(self.light2CB)
 
-        LightingToolDialogLayout.addWidget(self.frame1_2,0,0)
+        self.gridlayout4 = QtGui.QGridLayout()
+        self.gridlayout4.setMargin(0)
+        self.gridlayout4.setSpacing(6)
+        self.gridlayout4.setObjectName("gridlayout4")
 
-        self.frame5 = QFrame(self,"frame5")
-        self.frame5.setFrameShape(QFrame.Box)
-        self.frame5.setFrameShadow(QFrame.Raised)
-        frame5Layout = QGridLayout(self.frame5,1,1,11,6,"frame5Layout")
-
-        layout37 = QVBoxLayout(None,0,6,"layout37")
-
-        self.light2CB = QCheckBox(self.frame5,"light2CB")
-        layout37.addWidget(self.light2CB)
-
-        layout36 = QGridLayout(None,1,1,0,6,"layout36")
-
-        self.ambLight2SL = QSlider(self.frame5,"ambLight2SL")
-        self.ambLight2SL.setMaxValue(100)
-        self.ambLight2SL.setLineStep(1)
-        self.ambLight2SL.setOrientation(QSlider.Horizontal)
-        self.ambLight2SL.setTickmarks(QSlider.Below)
+        self.ambLight2SL = QtGui.QSlider(self.frame5)
+        self.ambLight2SL.setMaximum(100)
+        self.ambLight2SL.setSingleStep(1)
         self.ambLight2SL.setTickInterval(10)
+        self.ambLight2SL.setObjectName("ambLight2SL")
+        self.gridlayout4.addWidget(self.ambLight2SL,0,0,1,1)
 
-        layout36.addWidget(self.ambLight2SL,0,0)
+        self.diffuseLight2LCD = QtGui.QLCDNumber(self.frame5)
+        self.diffuseLight2LCD.setSmallDecimalPoint(False)
+        self.diffuseLight2LCD.setSegmentStyle(QtGui.QLCDNumber.Flat)
+        self.diffuseLight2LCD.setProperty("value",QtCore.QVariant(1.0))
+        self.diffuseLight2LCD.setProperty("intValue",QtCore.QVariant(1))
+        self.diffuseLight2LCD.setObjectName("diffuseLight2LCD")
+        self.gridlayout4.addWidget(self.diffuseLight2LCD,1,1,1,1)
 
-        self.diffuseLight2LCD = QLCDNumber(self.frame5,"diffuseLight2LCD")
-        self.diffuseLight2LCD.setSmallDecimalPoint(0)
-        self.diffuseLight2LCD.setSegmentStyle(QLCDNumber.Flat)
-        self.diffuseLight2LCD.setProperty("value",QVariant(1))
-        self.diffuseLight2LCD.setProperty("intValue",QVariant(1))
+        self.ambLight2LCD = QtGui.QLCDNumber(self.frame5)
+        self.ambLight2LCD.setSmallDecimalPoint(False)
+        self.ambLight2LCD.setSegmentStyle(QtGui.QLCDNumber.Flat)
+        self.ambLight2LCD.setProperty("value",QtCore.QVariant(1.0))
+        self.ambLight2LCD.setObjectName("ambLight2LCD")
+        self.gridlayout4.addWidget(self.ambLight2LCD,0,1,1,1)
 
-        layout36.addWidget(self.diffuseLight2LCD,1,1)
-
-        self.ambLight2LCD = QLCDNumber(self.frame5,"ambLight2LCD")
-        self.ambLight2LCD.setSmallDecimalPoint(0)
-        self.ambLight2LCD.setSegmentStyle(QLCDNumber.Flat)
-        self.ambLight2LCD.setProperty("value",QVariant(1))
-
-        layout36.addWidget(self.ambLight2LCD,0,1)
-
-        self.diffuseLight2SL = QSlider(self.frame5,"diffuseLight2SL")
-        self.diffuseLight2SL.setMaxValue(100)
-        self.diffuseLight2SL.setLineStep(1)
-        self.diffuseLight2SL.setOrientation(QSlider.Horizontal)
-        self.diffuseLight2SL.setTickmarks(QSlider.Below)
+        self.diffuseLight2SL = QtGui.QSlider(self.frame5)
+        self.diffuseLight2SL.setMaximum(100)
+        self.diffuseLight2SL.setSingleStep(1)
         self.diffuseLight2SL.setTickInterval(10)
+        self.diffuseLight2SL.setObjectName("diffuseLight2SL")
+        self.gridlayout4.addWidget(self.diffuseLight2SL,1,0,1,1)
+        self.vboxlayout2.addLayout(self.gridlayout4)
+        self.gridlayout3.addLayout(self.vboxlayout2,0,1,1,1)
 
-        layout36.addWidget(self.diffuseLight2SL,1,0)
-        layout37.addLayout(layout36)
+        self.vboxlayout3 = QtGui.QVBoxLayout()
+        self.vboxlayout3.setMargin(0)
+        self.vboxlayout3.setSpacing(6)
+        self.vboxlayout3.setObjectName("vboxlayout3")
 
-        frame5Layout.addLayout(layout37,0,1)
+        self.textLabel2_2 = QtGui.QLabel(self.frame5)
+        self.textLabel2_2.setObjectName("textLabel2_2")
+        self.vboxlayout3.addWidget(self.textLabel2_2)
 
-        layout38 = QVBoxLayout(None,0,6,"layout38")
+        self.textLabel1_2 = QtGui.QLabel(self.frame5)
+        self.textLabel1_2.setObjectName("textLabel1_2")
+        self.vboxlayout3.addWidget(self.textLabel1_2)
 
-        self.textLabel2_2 = QLabel(self.frame5,"textLabel2_2")
-        layout38.addWidget(self.textLabel2_2)
+        self.textLabel1_3_3 = QtGui.QLabel(self.frame5)
+        self.textLabel1_3_3.setObjectName("textLabel1_3_3")
+        self.vboxlayout3.addWidget(self.textLabel1_3_3)
+        self.gridlayout3.addLayout(self.vboxlayout3,0,0,1,1)
+        self.gridlayout.addWidget(self.frame5,1,0,1,1)
 
-        self.textLabel1_2 = QLabel(self.frame5,"textLabel1_2")
-        layout38.addWidget(self.textLabel1_2)
+        self.frame6 = QtGui.QFrame(LightingToolDialog)
+        self.frame6.setFrameShape(QtGui.QFrame.Box)
+        self.frame6.setFrameShadow(QtGui.QFrame.Raised)
+        self.frame6.setObjectName("frame6")
 
-        self.textLabel1_3_3 = QLabel(self.frame5,"textLabel1_3_3")
-        layout38.addWidget(self.textLabel1_3_3)
+        self.gridlayout5 = QtGui.QGridLayout(self.frame6)
+        self.gridlayout5.setMargin(11)
+        self.gridlayout5.setSpacing(6)
+        self.gridlayout5.setObjectName("gridlayout5")
 
-        frame5Layout.addLayout(layout38,0,0)
+        self.vboxlayout4 = QtGui.QVBoxLayout()
+        self.vboxlayout4.setMargin(0)
+        self.vboxlayout4.setSpacing(6)
+        self.vboxlayout4.setObjectName("vboxlayout4")
 
-        LightingToolDialogLayout.addWidget(self.frame5,1,0)
+        self.light3CB = QtGui.QCheckBox(self.frame6)
+        self.light3CB.setObjectName("light3CB")
+        self.vboxlayout4.addWidget(self.light3CB)
 
-        self.frame6 = QFrame(self,"frame6")
-        self.frame6.setFrameShape(QFrame.Box)
-        self.frame6.setFrameShadow(QFrame.Raised)
-        frame6Layout = QGridLayout(self.frame6,1,1,11,6,"frame6Layout")
+        self.gridlayout6 = QtGui.QGridLayout()
+        self.gridlayout6.setMargin(0)
+        self.gridlayout6.setSpacing(6)
+        self.gridlayout6.setObjectName("gridlayout6")
 
-        layout40 = QVBoxLayout(None,0,6,"layout40")
-
-        self.light3CB = QCheckBox(self.frame6,"light3CB")
-        layout40.addWidget(self.light3CB)
-
-        layout39 = QGridLayout(None,1,1,0,6,"layout39")
-
-        self.diffuseLight3SL = QSlider(self.frame6,"diffuseLight3SL")
-        self.diffuseLight3SL.setMaxValue(100)
-        self.diffuseLight3SL.setLineStep(1)
-        self.diffuseLight3SL.setOrientation(QSlider.Horizontal)
-        self.diffuseLight3SL.setTickmarks(QSlider.Below)
+        self.diffuseLight3SL = QtGui.QSlider(self.frame6)
+        self.diffuseLight3SL.setMaximum(100)
+        self.diffuseLight3SL.setSingleStep(1)
         self.diffuseLight3SL.setTickInterval(10)
+        self.diffuseLight3SL.setObjectName("diffuseLight3SL")
+        self.gridlayout6.addWidget(self.diffuseLight3SL,1,0,1,1)
 
-        layout39.addWidget(self.diffuseLight3SL,1,0)
+        self.diffuseLight3LCD = QtGui.QLCDNumber(self.frame6)
+        self.diffuseLight3LCD.setSmallDecimalPoint(False)
+        self.diffuseLight3LCD.setSegmentStyle(QtGui.QLCDNumber.Flat)
+        self.diffuseLight3LCD.setProperty("value",QtCore.QVariant(1.0))
+        self.diffuseLight3LCD.setProperty("intValue",QtCore.QVariant(1))
+        self.diffuseLight3LCD.setObjectName("diffuseLight3LCD")
+        self.gridlayout6.addWidget(self.diffuseLight3LCD,1,1,1,1)
 
-        self.diffuseLight3LCD = QLCDNumber(self.frame6,"diffuseLight3LCD")
-        self.diffuseLight3LCD.setSmallDecimalPoint(0)
-        self.diffuseLight3LCD.setSegmentStyle(QLCDNumber.Flat)
-        self.diffuseLight3LCD.setProperty("value",QVariant(1))
-        self.diffuseLight3LCD.setProperty("intValue",QVariant(1))
+        self.ambLight3LCD = QtGui.QLCDNumber(self.frame6)
+        self.ambLight3LCD.setSmallDecimalPoint(False)
+        self.ambLight3LCD.setSegmentStyle(QtGui.QLCDNumber.Flat)
+        self.ambLight3LCD.setProperty("value",QtCore.QVariant(1.0))
+        self.ambLight3LCD.setObjectName("ambLight3LCD")
+        self.gridlayout6.addWidget(self.ambLight3LCD,0,1,1,1)
 
-        layout39.addWidget(self.diffuseLight3LCD,1,1)
-
-        self.ambLight3LCD = QLCDNumber(self.frame6,"ambLight3LCD")
-        self.ambLight3LCD.setSmallDecimalPoint(0)
-        self.ambLight3LCD.setSegmentStyle(QLCDNumber.Flat)
-        self.ambLight3LCD.setProperty("value",QVariant(1))
-
-        layout39.addWidget(self.ambLight3LCD,0,1)
-
-        self.ambLight3SL = QSlider(self.frame6,"ambLight3SL")
-        self.ambLight3SL.setMaxValue(100)
-        self.ambLight3SL.setLineStep(1)
-        self.ambLight3SL.setOrientation(QSlider.Horizontal)
-        self.ambLight3SL.setTickmarks(QSlider.Below)
+        self.ambLight3SL = QtGui.QSlider(self.frame6)
+        self.ambLight3SL.setMaximum(100)
+        self.ambLight3SL.setSingleStep(1)
         self.ambLight3SL.setTickInterval(10)
+        self.ambLight3SL.setObjectName("ambLight3SL")
+        self.gridlayout6.addWidget(self.ambLight3SL,0,0,1,1)
+        self.vboxlayout4.addLayout(self.gridlayout6)
+        self.gridlayout5.addLayout(self.vboxlayout4,0,1,1,1)
 
-        layout39.addWidget(self.ambLight3SL,0,0)
-        layout40.addLayout(layout39)
+        self.vboxlayout5 = QtGui.QVBoxLayout()
+        self.vboxlayout5.setMargin(0)
+        self.vboxlayout5.setSpacing(6)
+        self.vboxlayout5.setObjectName("vboxlayout5")
 
-        frame6Layout.addLayout(layout40,0,1)
+        self.textLabel2_3 = QtGui.QLabel(self.frame6)
+        self.textLabel2_3.setObjectName("textLabel2_3")
+        self.vboxlayout5.addWidget(self.textLabel2_3)
 
-        layout41 = QVBoxLayout(None,0,6,"layout41")
+        self.textLabel1_2_2 = QtGui.QLabel(self.frame6)
+        self.textLabel1_2_2.setObjectName("textLabel1_2_2")
+        self.vboxlayout5.addWidget(self.textLabel1_2_2)
 
-        self.textLabel2_3 = QLabel(self.frame6,"textLabel2_3")
-        layout41.addWidget(self.textLabel2_3)
+        self.textLabel1_3_3_2 = QtGui.QLabel(self.frame6)
+        self.textLabel1_3_3_2.setObjectName("textLabel1_3_3_2")
+        self.vboxlayout5.addWidget(self.textLabel1_3_3_2)
+        self.gridlayout5.addLayout(self.vboxlayout5,0,0,1,1)
+        self.gridlayout.addWidget(self.frame6,2,0,1,1)
 
-        self.textLabel1_2_2 = QLabel(self.frame6,"textLabel1_2_2")
-        layout41.addWidget(self.textLabel1_2_2)
+        self.hboxlayout = QtGui.QHBoxLayout()
+        self.hboxlayout.setMargin(0)
+        self.hboxlayout.setSpacing(6)
+        self.hboxlayout.setObjectName("hboxlayout")
 
-        self.textLabel1_3_3_2 = QLabel(self.frame6,"textLabel1_3_3_2")
-        layout41.addWidget(self.textLabel1_3_3_2)
+        self.okPB = QtGui.QPushButton(LightingToolDialog)
+        self.okPB.setObjectName("okPB")
+        self.hboxlayout.addWidget(self.okPB)
 
-        frame6Layout.addLayout(layout41,0,0)
+        self.restoreDefaultsPB = QtGui.QPushButton(LightingToolDialog)
+        self.restoreDefaultsPB.setObjectName("restoreDefaultsPB")
+        self.hboxlayout.addWidget(self.restoreDefaultsPB)
 
-        LightingToolDialogLayout.addWidget(self.frame6,2,0)
+        self.cancelPB = QtGui.QPushButton(LightingToolDialog)
+        self.cancelPB.setObjectName("cancelPB")
+        self.hboxlayout.addWidget(self.cancelPB)
+        self.gridlayout.addLayout(self.hboxlayout,3,0,1,1)
 
-        layout11 = QHBoxLayout(None,0,6,"layout11")
+        self.retranslateUi(LightingToolDialog)
+        QtCore.QObject.connect(self.okPB,QtCore.SIGNAL("clicked()"),LightingToolDialog.accept)
+        QtCore.QObject.connect(self.cancelPB,QtCore.SIGNAL("clicked()"),LightingToolDialog.reject)
+        QtCore.QMetaObject.connectSlotsByName(LightingToolDialog)
+        LightingToolDialog.setTabOrder(self.light1CB,self.ambLight1SL)
+        LightingToolDialog.setTabOrder(self.ambLight1SL,self.diffuseLight1SL)
+        LightingToolDialog.setTabOrder(self.diffuseLight1SL,self.light2CB)
+        LightingToolDialog.setTabOrder(self.light2CB,self.ambLight2SL)
+        LightingToolDialog.setTabOrder(self.ambLight2SL,self.diffuseLight2SL)
+        LightingToolDialog.setTabOrder(self.diffuseLight2SL,self.light3CB)
+        LightingToolDialog.setTabOrder(self.light3CB,self.ambLight3SL)
+        LightingToolDialog.setTabOrder(self.ambLight3SL,self.diffuseLight3SL)
+        LightingToolDialog.setTabOrder(self.diffuseLight3SL,self.okPB)
+        LightingToolDialog.setTabOrder(self.okPB,self.restoreDefaultsPB)
+        LightingToolDialog.setTabOrder(self.restoreDefaultsPB,self.cancelPB)
 
-        self.okPB = QPushButton(self,"okPB")
-        layout11.addWidget(self.okPB)
-
-        self.restoreDefaultsPB = QPushButton(self,"restoreDefaultsPB")
-        layout11.addWidget(self.restoreDefaultsPB)
-
-        self.cancelPB = QPushButton(self,"cancelPB")
-        layout11.addWidget(self.cancelPB)
-
-        LightingToolDialogLayout.addLayout(layout11,3,0)
-
-        self.languageChange()
-
-        self.resize(QSize(411,470).expandedTo(self.minimumSizeHint()))
-        self.clearWState(Qt.WState_Polished)
-
-        self.connect(self.okPB,SIGNAL("clicked()"),self.accept)
-        self.connect(self.cancelPB,SIGNAL("clicked()"),self.reject)
-        self.connect(self.ambLight1SL,SIGNAL("valueChanged(int)"),self.valueChangedAmbient1)
-        self.connect(self.diffuseLight1SL,SIGNAL("valueChanged(int)"),self.valueChangedDiffuse1)
-        self.connect(self.diffuseLight2SL,SIGNAL("valueChanged(int)"),self.valueChangedDiffuse2)
-        self.connect(self.diffuseLight3SL,SIGNAL("valueChanged(int)"),self.valueChangedDiffuse3)
-        self.connect(self.ambLight2SL,SIGNAL("valueChanged(int)"),self.valueChangedAmbient2)
-        self.connect(self.ambLight3SL,SIGNAL("valueChanged(int)"),self.valueChangedAmbient3)
-        self.connect(self.light1CB,SIGNAL("clicked()"),self.setLights)
-        self.connect(self.light2CB,SIGNAL("clicked()"),self.setLights)
-        self.connect(self.light3CB,SIGNAL("clicked()"),self.setLights)
-        self.connect(self.restoreDefaultsPB,SIGNAL("clicked()"),self.restore)
-
-        self.setTabOrder(self.light1CB,self.ambLight1SL)
-        self.setTabOrder(self.ambLight1SL,self.diffuseLight1SL)
-        self.setTabOrder(self.diffuseLight1SL,self.light2CB)
-        self.setTabOrder(self.light2CB,self.ambLight2SL)
-        self.setTabOrder(self.ambLight2SL,self.diffuseLight2SL)
-        self.setTabOrder(self.diffuseLight2SL,self.light3CB)
-        self.setTabOrder(self.light3CB,self.ambLight3SL)
-        self.setTabOrder(self.ambLight3SL,self.diffuseLight3SL)
-        self.setTabOrder(self.diffuseLight3SL,self.okPB)
-        self.setTabOrder(self.okPB,self.restoreDefaultsPB)
-        self.setTabOrder(self.restoreDefaultsPB,self.cancelPB)
-
-
-    def languageChange(self):
-        self.setCaption(self.__tr("Lighting"))
-        self.light1CB.setText(self.__tr("On"))
-        self.textLabel2_4.setText(self.__tr("Light Source #1:"))
-        self.textLabel1_4.setText(self.__tr("Ambient Brightness:"))
-        self.textLabel1_3_2.setText(self.__tr("Diffuse Brightness:"))
-        self.light2CB.setText(self.__tr("On"))
-        self.textLabel2_2.setText(self.__tr("Light Source #2:"))
-        self.textLabel1_2.setText(self.__tr("Ambient Brightness:"))
-        self.textLabel1_3_3.setText(self.__tr("Diffuse Brightness:"))
-        self.light3CB.setText(self.__tr("On"))
-        self.textLabel2_3.setText(self.__tr("Light Source #3:"))
-        self.textLabel1_2_2.setText(self.__tr("Ambient Brightness:"))
-        self.textLabel1_3_3_2.setText(self.__tr("Diffuse Brightness:"))
-        self.okPB.setText(self.__tr("Save"))
-        self.restoreDefaultsPB.setText(self.__tr("Restore Defaults"))
-        self.cancelPB.setText(self.__tr("Cancel"))
-
-
-    def valueChangedAmbient1(self):
-        print "LightingToolDialog.valueChangedAmbient1(): Not implemented yet"
-
-    def valueChangedDiffuse1(self):
-        print "LightingToolDialog.valueChangedDiffuse1(): Not implemented yet"
-
-    def valueChangedAmbient2(self):
-        print "LightingToolDialog.valueChangedAmbient2(): Not implemented yet"
-
-    def valueChangedAmbient3(self):
-        print "LightingToolDialog.valueChangedAmbient3(): Not implemented yet"
-
-    def valueChangedDiffuse2(self):
-        print "LightingToolDialog.valueChangedDiffuse2(): Not implemented yet"
-
-    def valueChangedDiffuse3(self):
-        print "LightingToolDialog.valueChangedDiffuse3(): Not implemented yet"
-
-    def setLights(self):
-        print "LightingToolDialog.setLights(): Not implemented yet"
-
-    def restore(self):
-        print "LightingToolDialog.restore(): Not implemented yet"
-
-    def __tr(self,s,c = None):
-        return qApp.translate("LightingToolDialog",s,c)
+    def retranslateUi(self, LightingToolDialog):
+        LightingToolDialog.setWindowTitle(QtGui.QApplication.translate("LightingToolDialog", "Lighting", None, QtGui.QApplication.UnicodeUTF8))
+        self.light1CB.setText(QtGui.QApplication.translate("LightingToolDialog", "On", None, QtGui.QApplication.UnicodeUTF8))
+        self.textLabel2_4.setText(QtGui.QApplication.translate("LightingToolDialog", "Light Source #1:", None, QtGui.QApplication.UnicodeUTF8))
+        self.textLabel1_4.setText(QtGui.QApplication.translate("LightingToolDialog", "Ambient Brightness:", None, QtGui.QApplication.UnicodeUTF8))
+        self.textLabel1_3_2.setText(QtGui.QApplication.translate("LightingToolDialog", "Diffuse Brightness:", None, QtGui.QApplication.UnicodeUTF8))
+        self.light2CB.setText(QtGui.QApplication.translate("LightingToolDialog", "On", None, QtGui.QApplication.UnicodeUTF8))
+        self.textLabel2_2.setText(QtGui.QApplication.translate("LightingToolDialog", "Light Source #2:", None, QtGui.QApplication.UnicodeUTF8))
+        self.textLabel1_2.setText(QtGui.QApplication.translate("LightingToolDialog", "Ambient Brightness:", None, QtGui.QApplication.UnicodeUTF8))
+        self.textLabel1_3_3.setText(QtGui.QApplication.translate("LightingToolDialog", "Diffuse Brightness:", None, QtGui.QApplication.UnicodeUTF8))
+        self.light3CB.setText(QtGui.QApplication.translate("LightingToolDialog", "On", None, QtGui.QApplication.UnicodeUTF8))
+        self.textLabel2_3.setText(QtGui.QApplication.translate("LightingToolDialog", "Light Source #3:", None, QtGui.QApplication.UnicodeUTF8))
+        self.textLabel1_2_2.setText(QtGui.QApplication.translate("LightingToolDialog", "Ambient Brightness:", None, QtGui.QApplication.UnicodeUTF8))
+        self.textLabel1_3_3_2.setText(QtGui.QApplication.translate("LightingToolDialog", "Diffuse Brightness:", None, QtGui.QApplication.UnicodeUTF8))
+        self.okPB.setText(QtGui.QApplication.translate("LightingToolDialog", "Save", None, QtGui.QApplication.UnicodeUTF8))
+        self.restoreDefaultsPB.setText(QtGui.QApplication.translate("LightingToolDialog", "Restore Defaults", None, QtGui.QApplication.UnicodeUTF8))
+        self.cancelPB.setText(QtGui.QApplication.translate("LightingToolDialog", "Cancel", None, QtGui.QApplication.UnicodeUTF8))

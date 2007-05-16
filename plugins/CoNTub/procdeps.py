@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
 # $Id$
 # This is used only for "make deps"
 

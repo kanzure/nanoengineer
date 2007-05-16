@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (c) 2005 Nanorex, Inc. All rights reserved.
+# Copyright 2005-2006 Nanorex, Inc.  See LICENSE file for details. 
 
 '''
 this is just bruce's drag & drop example code -- it's not part of our product.
@@ -26,8 +26,8 @@ so it can find the 'butterfly.png' file.
 '''
 
 import sys
-from qt import *
-from qtcanvas import *
+from PyQt4.Qt import *
+from PyQt4.Qt import *
 import random
 
 import time #bruce
@@ -260,7 +260,7 @@ class FigureEditor(QCanvasView):
 
     def contentsDragEnterEvent(self, event): # the dup ones can't be told apart by any method i know of except lack of move/drop/leave.
         print_compact_stack("dragEnterEvent stack (fyi): ")
-            # nothing on stack except this code-line and app.exec_loop() [not even a call of this method]
+            # nothing on stack except this code-line and app.exec_() [not even a call of this method]
         try:
             event.bruce_saw_me
         except:
@@ -849,7 +849,7 @@ if __name__=='__main__':
 
     QObject.connect( qApp, SIGNAL("lastWindowClosed()"), qApp, SLOT("quit()") )
 
-    app.exec_loop() ###@@@ this is first on dragEnterEvent stack
+    app.exec_() ###@@@ this is first on dragEnterEvent stack
 
     # We need to explicitly delete the canvas now (and, therefore, the main
     # window beforehand) to make sure that the sprite logo doesn't get garbage

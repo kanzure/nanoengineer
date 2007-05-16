@@ -1,4 +1,7 @@
+
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 $Id$
+
 
 old code for ToggleShow [nim], taken from testdraw2_cannib.py
 

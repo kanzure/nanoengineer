@@ -1,3 +1,4 @@
+// Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
 #ifndef STRING_H_INCLUDED
 #define STRING_H_INCLUDED
 

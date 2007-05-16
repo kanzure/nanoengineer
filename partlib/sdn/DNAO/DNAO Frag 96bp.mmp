@@ -1,0 +1,2300 @@
+mmpformat 050920 required; 070415 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (125.970462) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (125.970462) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (HomeView1) (1.000000, 0.000000, 0.000000, 0.000000) (125.970462) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView1) (1.000000, 0.000000, 0.000000, 0.000000) (125.970462) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (DNAO Frag 96bp)
+info opengroup open = True
+mol (DNAO Extrude Frag) def
+atom 1 (200) (-75992, 10268, 15) def
+atom 2 (200) (-72594, 10163, 62) def
+bond1 1
+atom 3 (200) (-96374, 9856, -107) def
+atom 4 (200) (-92982, 9943, -221) def
+bond1 3
+atom 5 (200) (-89587, 10071, -278) def
+bond1 4
+atom 6 (200) (-103151, 9901, 145) def
+atom 7 (200) (-99767, 9840, 28) def
+bond1 3 6
+atom 8 (200) (-86189, 10202, -264) def
+bond1 5
+atom 9 (200) (-82790, 10293, -189) def
+bond1 8
+atom 10 (200) (-79391, 10317, -80) def
+bond1 1 9
+atom 11 (200) (-106528, 10025, 208) def
+bond1 6
+atom 12 (200) (-1238, 10138, -154) def
+atom 13 (200) (2159, 10009, -140) def
+bond1 12
+atom 14 (200) (-38615, 10230, -107) def
+atom 15 (200) (-35217, 10108, -76) def
+bond1 14
+atom 16 (200) (-59004, 9936, -318) def
+atom 17 (200) (-55606, 10028, -416) def
+bond1 16
+atom 18 (200) (-52208, 10150, -446) def
+bond1 17
+atom 19 (200) (-65799, 9944, -52) def
+atom 20 (200) (-62401, 9904, -185) def
+bond1 16 19
+atom 21 (200) (-48810, 10261, -404) def
+bond1 18
+atom 22 (200) (-45412, 10322, -307) def
+bond1 21
+atom 23 (200) (-42013, 10310, -194) def
+bond1 14 22
+atom 24 (200) (-69196, 10041, 38) def
+bond1 2 19
+atom 25 (200) (-21627, 9924, -471) def
+atom 26 (200) (-18229, 10027, -540) def
+bond1 25
+atom 27 (200) (-14830, 10147, -537) def
+bond1 26
+atom 28 (200) (-28421, 9895, -220) def
+atom 29 (200) (-25024, 9874, -351) def
+bond1 25 28
+atom 30 (200) (-11432, 10241, -465) def
+bond1 27
+atom 31 (200) (-8034, 10275, -349) def
+bond1 30
+atom 32 (200) (-4636, 10237, -233) def
+bond1 12 31
+atom 33 (200) (-31821, 9982, -118) def
+bond1 15 28
+atom 34 (204) (163984, 10046, 173) def
+atom 35 (200) (161787, 9945, 213) def
+bond1 34
+atom 36 (200) (36137, 10060, -112) def
+atom 37 (200) (39536, 9934, -113) def
+bond1 36
+atom 38 (200) (15750, 9904, -524) def
+atom 39 (200) (19149, 10019, -561) def
+bond1 38
+atom 40 (200) (22547, 10137, -524) def
+bond1 39
+atom 41 (200) (8954, 9826, -303) def
+atom 42 (200) (12352, 9831, -427) def
+bond1 38 41
+atom 43 (200) (25945, 10216, -424) def
+bond1 40
+atom 44 (200) (29342, 10228, -296) def
+bond1 43
+atom 45 (200) (32738, 10170, -180) def
+bond1 36 44
+atom 46 (200) (5556, 9893, -195) def
+bond1 13 41
+atom 47 (200) (42934, 9835, -183) def
+bond1 37
+atom 48 (200) (114290, 9875, 183) def
+atom 49 (200) (117688, 9814, 100) def
+bond1 48
+atom 50 (200) (76913, 9901, -5) def
+atom 51 (200) (80311, 9822, -83) def
+bond1 50
+atom 52 (200) (56526, 10049, -477) def
+atom 53 (200) (59923, 10161, -409) def
+bond1 52
+atom 54 (200) (63322, 10222, -287) def
+bond1 53
+atom 55 (200) (49730, 9828, -403) def
+atom 56 (200) (53128, 9924, -474) def
+bond1 52 55
+atom 57 (200) (66719, 10214, -150) def
+bond1 54
+atom 58 (200) (70117, 10137, -39) def
+bond1 57
+atom 59 (200) (73515, 10019, 13) def
+bond1 50 58
+atom 60 (200) (46332, 9795, -292) def
+bond1 47 55
+atom 61 (200) (93903, 10105, -297) def
+atom 62 (200) (97302, 10204, -199) def
+bond1 61
+atom 63 (200) (100699, 10242, -61) def
+bond1 62
+atom 64 (200) (87108, 9867, -284) def
+atom 65 (200) (90506, 9978, -327) def
+bond1 61 64
+atom 66 (200) (104096, 10208, 80) def
+bond1 63
+atom 67 (200) (107494, 10111, 182) def
+bond1 66
+atom 68 (200) (110892, 9987, 218) def
+bond1 48 67
+atom 69 (200) (83710, 9809, -190) def
+bond1 51 64
+atom 70 (200) (158419, 9815, 286) def
+bond1 35
+atom 71 (200) (151655, 9800, 474) def
+atom 72 (200) (155041, 9767, 385) def
+bond1 70 71
+atom 73 (200) (131282, 10131, -18) def
+atom 74 (200) (134678, 10205, 107) def
+bond1 73
+atom 75 (200) (138078, 10214, 261) def
+bond1 74
+atom 76 (200) (124486, 9898, -71) def
+atom 77 (200) (127884, 10015, -81) def
+bond1 73 76
+atom 78 (200) (141474, 10148, 403) def
+bond1 75
+atom 79 (200) (144869, 10032, 495) def
+bond1 78
+atom 80 (200) (148261, 9900, 518) def
+bond1 71 79
+atom 81 (200) (121087, 9823, 1) def
+bond1 49 76
+atom 82 (200) (-75992, -9731, 15) def
+atom 83 (200) (-72594, -9836, 62) def
+bond1 82
+atom 84 (200) (-96374, -10142, -107) def
+atom 85 (200) (-92982, -10056, -221) def
+bond1 84
+atom 86 (200) (-89587, -9928, -278) def
+bond1 85
+atom 87 (200) (-103151, -10097, 145) def
+atom 88 (200) (-99767, -10158, 28) def
+bond1 84 87
+atom 89 (200) (-86189, -9797, -264) def
+bond1 86
+atom 90 (200) (-82790, -9706, -189) def
+bond1 89
+atom 91 (200) (-79391, -9682, -80) def
+bond1 82 90
+atom 92 (200) (-106528, -9974, 208) def
+bond1 87
+atom 93 (200) (-1238, -9861, -154) def
+atom 94 (200) (2159, -9990, -140) def
+bond1 93
+atom 95 (200) (-38615, -9769, -107) def
+atom 96 (200) (-35217, -9891, -76) def
+bond1 95
+atom 97 (200) (-59004, -10063, -318) def
+atom 98 (200) (-55606, -9971, -416) def
+bond1 97
+atom 99 (200) (-52208, -9849, -446) def
+bond1 98
+atom 100 (200) (-65799, -10055, -52) def
+atom 101 (200) (-62401, -10094, -185) def
+bond1 97 100
+atom 102 (200) (-48810, -9738, -404) def
+bond1 99
+atom 103 (200) (-45412, -9677, -307) def
+bond1 102
+atom 104 (200) (-42013, -9689, -194) def
+bond1 95 103
+atom 105 (200) (-69196, -9958, 38) def
+bond1 83 100
+atom 106 (200) (-21627, -10074, -471) def
+atom 107 (200) (-18229, -9972, -540) def
+bond1 106
+atom 108 (200) (-14830, -9852, -537) def
+bond1 107
+atom 109 (200) (-28421, -10103, -220) def
+atom 110 (200) (-25024, -10124, -351) def
+bond1 106 109
+atom 111 (200) (-11432, -9758, -465) def
+bond1 108
+atom 112 (200) (-8034, -9724, -349) def
+bond1 111
+atom 113 (200) (-4636, -9762, -233) def
+bond1 93 112
+atom 114 (200) (-31821, -10017, -118) def
+bond1 96 109
+atom 115 (204) (163984, -9953, 173) def
+atom 116 (200) (161787, -10054, 213) def
+bond1 115
+atom 117 (200) (36137, -9939, -112) def
+atom 118 (200) (39536, -10065, -113) def
+bond1 117
+atom 119 (200) (15750, -10094, -524) def
+atom 120 (200) (19149, -9980, -561) def
+bond1 119
+atom 121 (200) (22547, -9862, -524) def
+bond1 120
+atom 122 (200) (8954, -10172, -303) def
+atom 123 (200) (12352, -10167, -427) def
+bond1 119 122
+atom 124 (200) (25945, -9783, -424) def
+bond1 121
+atom 125 (200) (29342, -9771, -296) def
+bond1 124
+atom 126 (200) (32738, -9829, -180) def
+bond1 117 125
+atom 127 (200) (5556, -10105, -195) def
+bond1 94 122
+atom 128 (200) (42934, -10163, -183) def
+bond1 118
+atom 129 (200) (114290, -10123, 183) def
+atom 130 (200) (117688, -10184, 100) def
+bond1 129
+atom 131 (200) (76913, -10097, -5) def
+atom 132 (200) (80311, -10176, -83) def
+bond1 131
+atom 133 (200) (56527, -9950, -477) def
+atom 134 (200) (59924, -9838, -409) def
+bond1 133
+atom 135 (200) (63322, -9777, -287) def
+bond1 134
+atom 136 (200) (49730, -10170, -403) def
+atom 137 (200) (53129, -10074, -474) def
+bond1 133 136
+atom 138 (200) (66719, -9785, -150) def
+bond1 135
+atom 139 (200) (70117, -9862, -39) def
+bond1 138
+atom 140 (200) (73515, -9980, 13) def
+bond1 131 139
+atom 141 (200) (46331, -10203, -292) def
+bond1 128 136
+atom 142 (200) (93904, -9894, -297) def
+atom 143 (200) (97302, -9795, -199) def
+bond1 142
+atom 144 (200) (100699, -9757, -61) def
+bond1 143
+atom 145 (200) (87108, -10131, -284) def
+atom 146 (200) (90506, -10021, -327) def
+bond1 142 145
+atom 147 (200) (104096, -9791, 80) def
+bond1 144
+atom 148 (200) (107494, -9888, 182) def
+bond1 147
+atom 149 (200) (110892, -10012, 218) def
+bond1 129 148
+atom 150 (200) (83710, -10189, -190) def
+bond1 132 145
+atom 151 (200) (158419, -10183, 286) def
+bond1 116
+atom 152 (200) (151655, -10198, 474) def
+atom 153 (200) (155041, -10231, 385) def
+bond1 151 152
+atom 154 (200) (131282, -9868, -18) def
+atom 155 (200) (134678, -9794, 107) def
+bond1 154
+atom 156 (200) (138078, -9785, 261) def
+bond1 155
+atom 157 (200) (124486, -10100, -71) def
+atom 158 (200) (127884, -9984, -81) def
+bond1 154 157
+atom 159 (200) (141474, -9851, 403) def
+bond1 156
+atom 160 (200) (144869, -9967, 495) def
+bond1 159
+atom 161 (200) (148261, -10098, 518) def
+bond1 152 160
+atom 162 (200) (121087, -10175, 1) def
+bond1 130 157
+atom 163 (200) (-144507, -9947, 161) def
+atom 164 (200) (-141109, -10051, 115) def
+bond1 163
+atom 165 (200) (-161497, -9986, -237) def
+atom 166 (200) (-158102, -9858, -181) def
+bond1 165
+atom 167 (200) (-154704, -9782, -74) def
+bond1 166
+atom 168 (200) (-151305, -9777, 44) def
+bond1 167
+atom 169 (200) (-147906, -9842, 134) def
+bond1 163 168
+atom 170 (200) (-127519, -9919, -308) def
+atom 171 (200) (-124121, -9784, -304) def
+bond1 170
+atom 172 (200) (-120723, -9680, -233) def
+bond1 171
+atom 173 (200) (-134314, -10111, -123) def
+atom 174 (200) (-130916, -10040, -241) def
+bond1 170 173
+atom 175 (200) (-117325, -9638, -124) def
+bond1 172
+atom 176 (200) (-113927, -9669, -14) def
+bond1 175
+atom 177 (200) (-110528, -9762, 52) def
+bond1 92 176
+atom 178 (200) (-137711, -10114, 8) def
+bond1 164 173
+atom 179 (200) (-144507, 10090, 152) def
+atom 180 (200) (-141109, 9980, 119) def
+bond1 179
+atom 181 (200) (-161497, 10002, -238) def
+atom 182 (200) (-158102, 10136, -197) def
+bond1 181
+atom 183 (200) (-154704, 10225, -102) def
+bond1 182
+atom 184 (200) (-151305, 10244, 15) def
+bond1 183
+atom 185 (200) (-147906, 10190, 113) def
+bond1 179 184
+atom 186 (200) (-127519, 10061, -317) def
+atom 187 (200) (-124121, 10195, -329) def
+bond1 186
+atom 188 (200) (-120723, 10307, -271) def
+bond1 187
+atom 189 (200) (-134314, 9891, -110) def
+atom 190 (200) (-130916, 9948, -236) def
+bond1 186 189
+atom 191 (200) (-117325, 10362, -168) def
+bond1 188
+atom 192 (200) (-113927, 10344, -55) def
+bond1 191
+atom 193 (200) (-110528, 10260, 21) def
+bond1 11 192
+atom 194 (200) (-137711, 9904, 20) def
+bond1 180 189
+atom 195 (204) (-163984, 9898, -216) def
+bond1 181
+atom 196 (204) (-163984, -10090, -228) def
+bond1 165
+atom 197 (202) (119853, 5740, 7941) def
+atom 198 (202) (4393, 15796, 6515) def
+atom 199 (202) (109704, 18586, 2648) def
+atom 200 (202) (45136, 9166, 8619) def
+atom 201 (202) (106340, 18614, -2579) def
+atom 202 (203) (2394, 15673, 3550) def
+bond1 198 13
+bond_direction 202 198
+atom 203 (202) (162663, -944, -2910) def
+atom 204 (202) (41744, 14269, 7574) def
+atom 205 (202) (160708, 1427, 2920) def
+atom 206 (202) (31582, 16905, -6056) def
+atom 207 (202) (28185, 12560, -8926) def
+atom 208 (202) (24781, 7357, -8895) def
+atom 209 (202) (21374, 3054, -5975) def
+atom 210 (202) (17968, 1103, -1153) def
+atom 211 (202) (38357, 17935, 3867) def
+atom 212 (202) (34972, 18925, -1251) def
+atom 213 (201) (39753, 14742, 4638) def
+bond1 204 211 37
+bond_direction 213 204
+bond_direction 211 213
+atom 214 (201) (36364, 16699, 1163) def
+bond1 211 212 36
+bond_direction 214 211
+bond_direction 212 214
+atom 215 (202) (14567, 2163, 3939) def
+atom 216 (201) (19372, 3750, -3092) def
+bond1 209 210 39
+bond_direction 216 209
+bond_direction 210 216
+atom 217 (201) (22778, 6333, -6112) def
+bond1 208 209 40
+bond_direction 217 208
+bond_direction 209 217
+atom 218 (201) (15970, 3286, 856) def
+bond1 210 215 38
+bond_direction 218 210
+bond_direction 215 218
+atom 219 (202) (11173, 5880, 7588) def
+atom 220 (201) (9178, 8576, 6339) def
+bond1 219 41
+bond_direction 220 219
+atom 221 (201) (12572, 5097, 4399) def
+bond1 215 219 42
+bond_direction 221 215
+bond_direction 219 221
+atom 222 (201) (29582, 13942, -5944) def
+bond1 206 207 44
+bond_direction 222 206
+bond_direction 207 222
+atom 223 (201) (32975, 16397, -2809) def
+bond1 206 212 45
+bond_direction 206 223
+bond_direction 223 212
+atom 224 (201) (26181, 10161, -7184) def
+bond1 207 208 43
+bond_direction 224 207
+bond_direction 208 224
+atom 225 (202) (7783, 11001, 8555) def
+bond1 220
+bond_direction 225 220
+atom 226 (201) (5787, 12548, 6021) def
+bond1 198 225 46
+bond_direction 198 226
+bond_direction 226 225
+atom 227 (202) (102968, 15743, -6943) def
+atom 228 (202) (99581, 10942, -8977) def
+atom 229 (202) (96178, 5832, -8003) def
+atom 230 (202) (116452, 10842, 8969) def
+atom 231 (202) (113072, 15667, 6982) def
+atom 232 (203) (162126, 3190, 165) def
+bond1 203 205 35
+bond_direction 232 203
+bond_direction 205 232
+atom 233 (201) (43144, 11188, 6441) def
+bond1 200 204 47
+bond_direction 233 200
+bond_direction 204 233
+atom 234 (202) (82496, 7402, 8410) def
+atom 235 (202) (72336, 18932, 671) def
+atom 236 (202) (68960, 17914, -4447) def
+atom 237 (202) (65578, 14228, -8138) def
+atom 238 (202) (62182, 9120, -9161) def
+atom 239 (202) (58777, 4314, -7173) def
+atom 240 (202) (79097, 12608, 8401) def
+atom 241 (202) (75713, 16939, 5497) def
+atom 242 (201) (80505, 9818, 6677) def
+bond1 234 240 51
+bond_direction 242 234
+bond_direction 240 242
+atom 243 (201) (77112, 13657, 5615) def
+bond1 240 241 50
+bond_direction 243 240
+bond_direction 241 243
+atom 244 (202) (55364, 1430, -2850) def
+atom 245 (201) (60174, 7556, -6647) def
+bond1 238 239 53
+bond_direction 245 238
+bond_direction 239 245
+atom 246 (201) (63574, 11525, -6920) def
+bond1 237 238 54
+bond_direction 246 237
+bond_direction 238 246
+atom 247 (201) (56767, 4415, -4212) def
+bond1 239 244 52
+bond_direction 247 239
+bond_direction 244 247
+atom 248 (202) (51947, 1443, 2342) def
+atom 249 (201) (49947, 4223, 3375) def
+bond1 248 55
+bond_direction 249 248
+atom 250 (201) (53356, 3163, -448) def
+bond1 244 248 56
+bond_direction 250 244
+bond_direction 248 250
+atom 251 (201) (117865, 8455, 6724) def
+bond1 197 230 49
+bond_direction 251 197
+bond_direction 230 251
+atom 252 (201) (70347, 16765, -1364) def
+bond1 235 236 58
+bond_direction 252 235
+bond_direction 236 252
+atom 253 (201) (73727, 16268, 2596) def
+bond1 235 241 59
+bond_direction 235 253
+bond_direction 253 241
+atom 254 (201) (66964, 14985, -4937) def
+bond1 236 237 57
+bond_direction 254 236
+bond_direction 237 254
+atom 255 (202) (48538, 4348, 6652) def
+bond1 249
+bond_direction 255 249
+atom 256 (201) (46542, 7237, 5965) def
+bond1 200 255 60
+bond_direction 200 256
+bond_direction 256 255
+atom 257 (201) (114473, 12428, 6446) def
+bond1 230 231 48
+bond_direction 257 230
+bond_direction 231 257
+atom 258 (202) (92757, 2137, -4355) def
+atom 259 (201) (97569, 8904, -6832) def
+bond1 228 229 62
+bond_direction 259 228
+bond_direction 229 259
+atom 260 (201) (100964, 12850, -6295) def
+bond1 227 228 63
+bond_direction 260 227
+bond_direction 228 260
+atom 261 (201) (94161, 5336, -5088) def
+bond1 229 258 61
+bond_direction 261 229
+bond_direction 258 261
+atom 262 (202) (89332, 1103, 727) def
+atom 263 (201) (87325, 3617, 2292) def
+bond1 262 64
+bond_direction 263 262
+atom 264 (201) (90744, 3350, -1657) def
+bond1 258 262 65
+bond_direction 264 258
+bond_direction 262 264
+atom 265 (201) (107721, 16872, 212) def
+bond1 199 201 67
+bond_direction 265 199
+bond_direction 201 265
+atom 266 (201) (111093, 15590, 4003) def
+bond1 199 231 68
+bond_direction 199 266
+bond_direction 266 231
+atom 267 (201) (104347, 15842, -3651) def
+bond1 201 227 66
+bond_direction 267 201
+bond_direction 227 267
+atom 268 (202) (85909, 3081, 5524) def
+bond1 263
+bond_direction 268 263
+atom 269 (201) (83910, 6048, 5426) def
+bond1 234 268 69
+bond_direction 234 269
+bond_direction 269 268
+atom 270 (202) (157201, 4190, 7246) def
+atom 271 (201) (158688, 4178, 4014) def
+bond1 205 270 70
+bond_direction 271 205
+bond_direction 270 271
+atom 272 (202) (147121, 17849, 4578) def
+atom 273 (202) (143757, 18907, -533) def
+atom 274 (202) (140375, 16975, -5374) def
+atom 275 (202) (136986, 12688, -8336) def
+atom 276 (202) (133575, 7492, -8417) def
+atom 277 (202) (153849, 9021, 9269) def
+atom 278 (202) (150454, 14133, 8272) def
+atom 279 (201) (155223, 7096, 6596) def
+bond1 270 277 72
+bond_direction 279 270
+bond_direction 277 279
+atom 280 (201) (151821, 11043, 7120) def
+bond1 277 278 71
+bond_direction 280 277
+bond_direction 278 280
+atom 281 (202) (130145, 3140, -5595) def
+atom 282 (201) (134966, 10263, -6649) def
+bond1 275 276 74
+bond_direction 282 275
+bond_direction 276 282
+atom 283 (201) (138361, 14018, -5323) def
+bond1 274 275 75
+bond_direction 283 274
+bond_direction 275 283
+atom 284 (201) (131552, 6421, -5666) def
+bond1 276 281 73
+bond_direction 284 276
+bond_direction 281 284
+atom 285 (202) (126708, 1108, -830) def
+atom 286 (201) (124697, 3258, 1202) def
+bond1 285 76
+bond_direction 286 285
+atom 287 (201) (128126, 3789, -2713) def
+bond1 281 285 77
+bond_direction 287 281
+bond_direction 285 287
+atom 288 (201) (145097, 16648, 1880) def
+bond1 272 273 79
+bond_direction 288 272
+bond_direction 273 288
+atom 289 (201) (148448, 14629, 5352) def
+bond1 272 278 80
+bond_direction 272 289
+bond_direction 289 278
+atom 290 (201) (141738, 16417, -2124) def
+bond1 273 274 78
+bond_direction 290 273
+bond_direction 274 290
+atom 291 (202) (123274, 2084, 4257) def
+bond1 286
+bond_direction 291 286
+atom 292 (201) (121274, 5011, 4749) def
+bond1 197 291 81
+bond_direction 197 292
+bond_direction 292 291
+atom 293 (202) (118922, -12808, -8434) def
+atom 294 (202) (3318, -18903, -828) def
+atom 295 (202) (1690, -19913, 4252) def
+atom 296 (202) (112067, -18910, -607) def
+atom 297 (202) (44122, -15935, -7003) def
+atom 298 (202) (105218, -13958, 7994) def
+atom 299 (203) (1923, -16555, 1469) def
+bond1 294 295 94
+bond_direction 294 299
+bond_direction 299 295
+atom 300 (202) (108637, -17747, 4444) def
+atom 301 (202) (40711, -18656, -2574) def
+atom 302 (202) (159781, -6102, -7713) def
+atom 303 (202) (33896, -15384, 6823) def
+atom 304 (202) (27109, -5432, 7382) def
+atom 305 (202) (30499, -10494, 8612) def
+atom 306 (202) (37300, -18450, 2619) def
+atom 307 (202) (16934, -3297, -6326) def
+atom 308 (202) (20330, -1103, -1603) def
+atom 309 (201) (39306, -16820, 144) def
+bond1 301 306 118
+bond_direction 301 309
+bond_direction 309 306
+atom 310 (201) (35901, -15409, 3859) def
+bond1 303 306 117
+bond_direction 310 303
+bond_direction 306 310
+atom 311 (202) (23721, -1905, 3543) def
+atom 312 (201) (18930, -3846, -3407) def
+bond1 307 308 120
+bond_direction 312 307
+bond_direction 308 312
+atom 313 (201) (22324, -3183, 518) def
+bond1 308 311 121
+bond_direction 313 308
+bond_direction 311 313
+atom 314 (201) (15530, -6579, -6298) def
+bond1 307 119
+bond_direction 307 314
+atom 315 (202) (10125, -12938, -8801) def
+atom 316 (202) (13531, -7743, -9028) def
+bond1 314
+bond_direction 314 316
+atom 317 (201) (8723, -14166, -5758) def
+bond1 315 122
+bond_direction 315 317
+atom 318 (201) (12127, -10454, -7182) def
+bond1 315 316 123
+bond_direction 318 315
+bond_direction 316 318
+atom 319 (201) (29106, -8186, 6274) def
+bond1 304 305 125
+bond_direction 319 304
+bond_direction 305 319
+atom 320 (201) (32500, -12165, 6162) def
+bond1 303 305 126
+bond_direction 303 320
+bond_direction 320 305
+atom 321 (201) (25715, -4811, 4154) def
+bond1 304 311 124
+bond_direction 304 321
+bond_direction 321 311
+atom 322 (202) (6719, -17131, -5722) def
+bond1 317
+bond_direction 317 322
+atom 323 (201) (5321, -16458, -2507) def
+bond1 294 322 127
+bond_direction 323 294
+bond_direction 322 323
+atom 324 (202) (115499, -17053, -5448) def
+atom 325 (202) (95058, -1322, 2239) def
+atom 326 (203) (161491, -5401, -4681) def
+bond1 203 302 116
+bond_direction 203 326
+bond_direction 326 302
+atom 327 (201) (42714, -15922, -3723) def
+bond1 297 301 128
+bond_direction 297 327
+bond_direction 327 301
+atom 328 (202) (98432, -4078, 6675) def
+atom 329 (202) (81523, -14461, -7921) def
+atom 330 (202) (74686, -18863, 985) def
+atom 331 (202) (67858, -12281, 8435) def
+atom 332 (202) (71267, -16708, 5710) def
+atom 333 (202) (78108, -18019, -4136) def
+atom 334 (202) (57695, -1044, 284) def
+atom 335 (202) (61074, -2858, 5176) def
+atom 336 (201) (80109, -15108, -4708) def
+bond1 329 333 132
+bond_direction 329 336
+bond_direction 336 333
+atom 337 (201) (76694, -16768, -1106) def
+bond1 330 333 131
+bond_direction 337 330
+bond_direction 333 337
+atom 338 (202) (64461, -7079, 8237) def
+atom 339 (201) (59687, -3505, 1951) def
+bond1 334 335 134
+bond_direction 339 334
+bond_direction 335 339
+atom 340 (201) (63074, -5826, 5196) def
+bond1 335 338 135
+bond_direction 340 335
+bond_direction 338 340
+atom 341 (201) (56303, -3371, -2036) def
+bond1 334 133
+bond_direction 334 341
+atom 342 (202) (50926, -6067, -8340) def
+atom 343 (202) (54314, -2250, -4790) def
+bond1 341
+bond_direction 341 343
+atom 344 (201) (49522, -9096, -7078) def
+bond1 342 136
+bond_direction 342 344
+atom 345 (201) (52916, -5472, -5427) def
+bond1 342 343 137
+bond_direction 345 342
+bond_direction 343 345
+atom 346 (201) (69868, -13424, 5704) def
+bond1 331 332 139
+bond_direction 346 331
+bond_direction 332 346
+atom 347 (201) (73278, -16135, 2805) def
+bond1 330 332 140
+bond_direction 330 347
+bond_direction 347 332
+atom 348 (201) (66466, -9552, 6604) def
+bond1 331 338 138
+bond_direction 331 348
+bond_direction 348 338
+atom 349 (202) (47528, -11206, -9170) def
+bond1 344
+bond_direction 344 349
+atom 350 (201) (46121, -13021, -6437) def
+bond1 297 349 141
+bond_direction 350 297
+bond_direction 349 350
+atom 351 (201) (117500, -14086, -5420) def
+bond1 293 324 130
+bond_direction 293 351
+bond_direction 351 324
+atom 352 (201) (114078, -16436, -2231) def
+bond1 296 324 129
+bond_direction 352 296
+bond_direction 324 352
+atom 353 (202) (101816, -8824, 8834) def
+atom 354 (201) (97052, -4065, 3383) def
+bond1 325 328 143
+bond_direction 354 325
+bond_direction 328 354
+atom 355 (201) (100434, -6989, 6104) def
+bond1 328 353 144
+bond_direction 355 328
+bond_direction 353 355
+atom 356 (201) (93676, -3138, -504) def
+bond1 325 142
+bond_direction 325 356
+atom 357 (202) (88315, -4517, -7234) def
+atom 358 (202) (91690, -1488, -2982) def
+bond1 356
+bond_direction 356 358
+atom 359 (201) (86913, -7740, -6609) def
+bond1 357 145
+bond_direction 357 359
+atom 360 (201) (90298, -4517, -4255) def
+bond1 357 358 146
+bond_direction 360 357
+bond_direction 358 360
+atom 361 (201) (107235, -14529, 5094) def
+bond1 298 300 148
+bond_direction 361 298
+bond_direction 300 361
+atom 362 (201) (110654, -16602, 1718) def
+bond1 296 300 149
+bond_direction 296 362
+bond_direction 362 300
+atom 363 (201) (103827, -10918, 6744) def
+bond1 298 353 147
+bond_direction 298 363
+bond_direction 363 353
+atom 364 (202) (84927, -9391, -9087) def
+bond1 359
+bond_direction 359 364
+atom 365 (201) (83516, -11718, -6777) def
+bond1 329 364 150
+bond_direction 365 329
+bond_direction 364 365
+atom 366 (202) (156515, -11282, -8546) def
+atom 367 (201) (158208, -9051, -6375) def
+bond1 302 366 151
+bond_direction 302 367
+bond_direction 367 366
+atom 368 (202) (149432, -18637, -2098) def
+atom 369 (202) (142572, -15519, 7325) def
+atom 370 (202) (145948, -18528, 3053) def
+atom 371 (202) (152978, -15897, -6402) def
+atom 372 (202) (132429, -1980, 4191) def
+atom 373 (202) (135789, -5570, 7992) def
+atom 374 (201) (154872, -12931, -5815) def
+bond1 366 371 153
+bond_direction 366 374
+bond_direction 374 371
+atom 375 (201) (151465, -15894, -3167) def
+bond1 368 371 152
+bond_direction 375 368
+bond_direction 371 375
+atom 376 (202) (139167, -10653, 9167) def
+atom 377 (201) (134419, -4898, 4767) def
+bond1 372 373 155
+bond_direction 377 372
+bond_direction 373 377
+atom 378 (201) (137793, -8308, 6856) def
+bond1 373 376 156
+bond_direction 378 373
+bond_direction 376 378
+atom 379 (201) (131053, -3207, 1135) def
+bond1 372 154
+bond_direction 372 379
+atom 380 (202) (125709, -3206, -5747) def
+atom 381 (202) (129074, -1092, -965) def
+bond1 379
+bond_direction 379 381
+atom 382 (201) (124306, -6488, -5786) def
+bond1 380 157
+bond_direction 380 382
+atom 383 (201) (127685, -3805, -2824) def
+bond1 380 381 158
+bond_direction 383 380
+bond_direction 381 383
+atom 384 (201) (144592, -15501, 4372) def
+bond1 369 370 160
+bond_direction 384 369
+bond_direction 370 384
+atom 385 (201) (148021, -16857, 658) def
+bond1 368 370 161
+bond_direction 368 385
+bond_direction 385 370
+atom 386 (201) (141184, -12289, 6706) def
+bond1 369 376 159
+bond_direction 369 386
+bond_direction 386 376
+atom 387 (202) (122326, -7607, -8549) def
+bond1 382
+bond_direction 382 387
+atom 388 (201) (120911, -10350, -6757) def
+bond1 293 387 162
+bond_direction 388 293
+bond_direction 387 388
+atom 389 (0) (2083, 17624, 3860) def
+bond1 202
+atom 390 (0) (2001, -21864, 3941) def
+bond1 295
+atom 391 (202) (-5806, 15657, -7339) def
+atom 392 (202) (-70356, 18108, 3890) def
+atom 393 (202) (-9215, 10829, -9269) def
+atom 394 (202) (-12621, 5742, -8185) def
+atom 395 (202) (-16021, 2115, -4452) def
+atom 396 (202) (-19412, 1173, 670) def
+atom 397 (202) (-644, 20940, 2966) def
+atom 398 (202) (-80609, 12504, -8740) def
+atom 399 (202) (-83997, 7293, -8602) def
+atom 400 (202) (-87369, 3026, -5591) def
+atom 401 (202) (-90737, 1140, -717) def
+atom 402 (202) (-2400, 18595, -3046) def
+atom 403 (202) (-94057, 2303, 4412) def
+atom 404 (202) (-73782, 19006, -1218) def
+atom 405 (202) (-77203, 16902, -5964) def
+atom 406 (201) (-72368, 16823, 1224) def
+bond1 392 404 2
+bond_direction 406 392
+bond_direction 404 406
+atom 407 (201) (-75786, 16450, -2720) def
+bond1 404 405 1
+bond_direction 407 404
+bond_direction 405 407
+atom 408 (202) (-97488, 6066, 7986) def
+atom 409 (201) (-92726, 3351, 1271) def
+bond1 401 403 4
+bond_direction 409 401
+bond_direction 403 409
+atom 410 (201) (-89354, 3763, -2707) def
+bond1 400 401 5
+bond_direction 410 400
+bond_direction 401 410
+atom 411 (201) (-96111, 5212, 4803) def
+bond1 403 408 3
+bond_direction 411 403
+bond_direction 408 411
+atom 412 (202) (-100999, 11115, 8882) def
+atom 413 (201) (-102908, 12681, 6309) def
+bond1 412 6
+bond_direction 413 412
+atom 414 (201) (-99518, 8711, 6693) def
+bond1 408 412 7
+bond_direction 414 408
+bond_direction 412 414
+atom 415 (201) (-82595, 10128, -6947) def
+bond1 398 399 9
+bond_direction 415 398
+bond_direction 399 415
+atom 416 (201) (-79197, 13936, -5791) def
+bond1 398 405 10
+bond_direction 398 416
+bond_direction 416 405
+atom 417 (201) (-85979, 6307, -5791) def
+bond1 399 400 8
+bond_direction 417 399
+bond_direction 400 417
+atom 418 (202) (-104529, 15820, 6937) def
+bond1 413
+bond_direction 418 413
+atom 419 (201) (-106253, 15720, 3841) def
+bond1 418 11
+bond_direction 419 418
+atom 420 (202) (-32967, 17114, 5273) def
+atom 421 (202) (-43208, 14194, -8240) def
+atom 422 (202) (-46616, 9074, -9154) def
+atom 423 (202) (-50011, 4304, -7062) def
+atom 424 (202) (-53393, 1495, -2667) def
+atom 425 (202) (-56769, 1596, 2550) def
+atom 426 (202) (-36376, 19032, 441) def
+atom 427 (202) (-39792, 17934, -4635) def
+atom 428 (201) (-34975, 16397, 2399) def
+bond1 420 426 15
+bond_direction 428 420
+bond_direction 426 428
+atom 429 (201) (-38385, 16835, -1544) def
+bond1 426 427 14
+bond_direction 429 426
+bond_direction 427 429
+atom 430 (202) (-60146, 4575, 6835) def
+atom 431 (201) (-55381, 3269, -279) def
+bond1 424 425 17
+bond_direction 431 424
+bond_direction 425 431
+atom 432 (201) (-51998, 4456, -4090) def
+bond1 423 424 18
+bond_direction 432 423
+bond_direction 424 432
+atom 433 (201) (-58762, 4395, 3551) def
+bond1 425 430 16
+bond_direction 433 425
+bond_direction 430 433
+atom 434 (202) (-63534, 9426, 8744) def
+atom 435 (201) (-65543, 11410, 6546) def
+bond1 434 19
+bond_direction 435 434
+atom 436 (201) (-62148, 7452, 6113) def
+bond1 430 434 20
+bond_direction 436 430
+bond_direction 434 436
+atom 437 (201) (-45206, 11514, -6963) def
+bond1 421 422 22
+bond_direction 437 421
+bond_direction 422 437
+atom 438 (201) (-41797, 15000, -5063) def
+bond1 421 427 23
+bond_direction 421 438
+bond_direction 438 427
+atom 439 (201) (-48607, 7553, -6599) def
+bond1 422 423 21
+bond_direction 439 422
+bond_direction 423 439
+atom 440 (202) (-66938, 14510, 7636) def
+bond1 435
+bond_direction 440 435
+atom 441 (201) (-68951, 14929, 4707) def
+bond1 392 440 24
+bond_direction 392 441
+bond_direction 441 440
+atom 442 (203) (-1002, 16897, -235) def
+bond1 397 402 12
+bond_direction 442 397
+bond_direction 402 442
+atom 443 (202) (-22797, 3238, 5459) def
+atom 444 (201) (-18014, 3377, -1761) def
+bond1 395 396 26
+bond_direction 444 395
+bond_direction 396 444
+atom 445 (201) (-14617, 5299, -5249) def
+bond1 394 395 27
+bond_direction 445 394
+bond_direction 395 445
+atom 446 (201) (-21404, 3718, 2208) def
+bond1 396 443 25
+bond_direction 446 396
+bond_direction 443 446
+atom 447 (202) (-26180, 7614, 8296) def
+atom 448 (201) (-28179, 10005, 6537) def
+bond1 447 28
+bond_direction 448 447
+atom 449 (201) (-24791, 6206, 5326) def
+bond1 443 447 29
+bond_direction 449 443
+bond_direction 447 449
+atom 450 (201) (-7809, 12779, -6630) def
+bond1 391 393 31
+bond_direction 450 391
+bond_direction 393 450
+atom 451 (201) (-4404, 15809, -4059) def
+bond1 391 402 32
+bond_direction 391 451
+bond_direction 451 402
+atom 452 (201) (-11215, 8830, -7076) def
+bond1 393 394 30
+bond_direction 452 393
+bond_direction 394 452
+atom 453 (202) (-29569, 12826, 8225) def
+bond1 448
+bond_direction 453 448
+atom 454 (201) (-31573, 13832, 5437) def
+bond1 420 453 33
+bond_direction 420 454
+bond_direction 454 453
+atom 455 (202) (-3464, -13799, 7739) def
+atom 456 (202) (-71401, -18297, 2931) def
+atom 457 (202) (-10243, -3930, 6306) def
+atom 458 (202) (-6852, -8647, 8519) def
+atom 459 (202) (-78173, -10251, 8832) def
+atom 460 (202) (-85017, -1771, 3667) def
+atom 461 (202) (-81587, -5220, 7538) def
+atom 462 (202) (-20460, -4580, -7520) def
+atom 463 (202) (-74779, -15164, 7105) def
+atom 464 (202) (-95304, -7818, -8731) def
+atom 465 (202) (-91891, -3337, -6114) def
+atom 466 (201) (-72796, -15237, 4127) def
+bond1 456 463 83
+bond_direction 456 466
+bond_direction 466 463
+atom 467 (201) (-76186, -11961, 6398) def
+bond1 459 463 82
+bond_direction 467 459
+bond_direction 463 467
+atom 468 (202) (-88451, -1066, -1464) def
+atom 469 (201) (-93248, -6636, -6050) def
+bond1 464 465 85
+bond_direction 469 464
+bond_direction 465 469
+atom 470 (201) (-89847, -3842, -3221) def
+bond1 465 468 86
+bond_direction 470 465
+bond_direction 468 470
+atom 471 (201) (-96627, -10547, -6854) def
+bond1 464 84
+bond_direction 464 471
+atom 472 (202) (-102049, -17186, -5279) def
+atom 473 (202) (-98662, -13032, -8429) def
+bond1 471
+bond_direction 471 473
+atom 474 (202) (-17048, -1487, -3344) def
+atom 475 (201) (-103388, -16492, -2044) def
+bond1 472 87
+bond_direction 472 475
+atom 476 (201) (-100006, -14247, -5353) def
+bond1 472 473 88
+bond_direction 476 472
+bond_direction 473 476
+atom 477 (201) (-83006, -4661, 4311) def
+bond1 460 461 90
+bond_direction 477 460
+bond_direction 461 477
+atom 478 (201) (-79589, -7988, 6464) def
+bond1 459 461 91
+bond_direction 459 478
+bond_direction 478 461
+atom 479 (201) (-86428, -3102, 671) def
+bond1 460 468 89
+bond_direction 460 479
+bond_direction 479 468
+atom 480 (202) (-105363, -18915, -311) def
+bond1 475
+bond_direction 475 480
+atom 481 (201) (-106817, -16522, 1882) def
+bond1 480 92
+bond_direction 480 481
+atom 482 (202) (-34053, -18760, 1034) def
+atom 483 (202) (-40816, -12042, 8423) def
+atom 484 (202) (-47613, -2667, 5056) def
+atom 485 (202) (-44208, -6840, 8161) def
+atom 486 (202) (-37433, -16519, 5747) def
+atom 487 (202) (-57864, -6093, -8330) def
+atom 488 (202) (-54449, -2219, -4868) def
+atom 489 (201) (-35443, -15998, 2820) def
+bond1 482 486 96
+bond_direction 482 489
+bond_direction 489 486
+atom 490 (201) (-38828, -13235, 5697) def
+bond1 483 486 95
+bond_direction 490 483
+bond_direction 486 490
+atom 491 (202) (-51029, -932, 160) def
+atom 492 (201) (-55852, -5450, -5442) def
+bond1 487 488 98
+bond_direction 492 487
+bond_direction 488 492
+atom 493 (201) (-52439, -3296, -2110) def
+bond1 488 491 99
+bond_direction 493 488
+bond_direction 491 493
+atom 494 (201) (-59258, -9101, -7009) def
+bond1 487 97
+bond_direction 487 494
+atom 495 (202) (-64654, -15939, -6783) def
+atom 496 (202) (-61267, -11245, -9052) def
+bond1 494
+bond_direction 494 496
+atom 497 (201) (-66038, -15873, -3492) def
+bond1 495 100
+bond_direction 495 497
+atom 498 (201) (-62653, -13015, -6280) def
+bond1 495 496 101
+bond_direction 498 495
+bond_direction 496 498
+atom 499 (201) (-45617, -5636, 5111) def
+bond1 484 485 103
+bond_direction 499 484
+bond_direction 485 499
+atom 500 (201) (-42218, -9343, 6556) def
+bond1 483 485 104
+bond_direction 483 500
+bond_direction 500 485
+atom 501 (201) (-49025, -3365, 1854) def
+bond1 484 491 102
+bond_direction 484 501
+bond_direction 501 491
+atom 502 (202) (-68029, -18589, -2283) def
+bond1 497
+bond_direction 497 502
+atom 503 (201) (-69416, -16708, 413) def
+bond1 456 502 105
+bond_direction 503 456
+bond_direction 502 503
+atom 504 (203) (-1467, -14422, 4835) def
+bond1 455 93
+bond_direction 504 455
+atom 505 (202) (-13641, -1241, 1849) def
+atom 506 (201) (-18455, -4535, -4557) def
+bond1 462 474 107
+bond_direction 506 462
+bond_direction 474 506
+atom 507 (201) (-15048, -3099, -853) def
+bond1 474 505 108
+bond_direction 507 474
+bond_direction 505 507
+atom 508 (201) (-21863, -7789, -6832) def
+bond1 462 106
+bond_direction 462 508
+atom 509 (202) (-27275, -14519, -7994) def
+atom 510 (202) (-23871, -9476, -9268) def
+bond1 508
+bond_direction 508 510
+atom 511 (201) (-28667, -15110, -4761) def
+bond1 509 109
+bond_direction 509 511
+atom 512 (201) (-25269, -11761, -6910) def
+bond1 509 510 110
+bond_direction 512 509
+bond_direction 510 512
+atom 513 (201) (-8250, -6852, 5769) def
+bond1 457 458 112
+bond_direction 513 457
+bond_direction 458 513
+atom 514 (201) (-4859, -10778, 6449) def
+bond1 455 458 113
+bond_direction 455 514
+bond_direction 514 458
+atom 515 (201) (-11646, -3969, 3024) def
+bond1 457 505 111
+bond_direction 457 515
+bond_direction 515 505
+atom 516 (202) (-30669, -18007, -4125) def
+bond1 511
+bond_direction 511 516
+atom 517 (201) (-32058, -16704, -1106) def
+bond1 482 516 114
+bond_direction 517 482
+bond_direction 516 517
+atom 518 (202) (-139916, -17837, -4265) def
+atom 519 (202) (-146688, -16857, 5661) def
+atom 520 (202) (-153532, -7350, 8525) def
+atom 521 (202) (-150102, -12534, 8543) def
+atom 522 (202) (-143294, -18852, 851) def
+atom 523 (202) (-161658, -67, -3880) def
+atom 524 (202) (-160406, -1113, 827) def
+atom 525 (201) (-141311, -16684, -1190) def
+bond1 518 522 164
+bond_direction 518 525
+bond_direction 525 522
+atom 526 (201) (-144701, -16187, 2763) def
+bond1 519 522 163
+bond_direction 526 519
+bond_direction 522 526
+atom 527 (202) (-156966, -3058, 5623) def
+atom 528 (203) (-161763, -3363, -1584) def
+bond1 523 524 165
+bond_direction 528 523
+bond_direction 524 528
+atom 529 (201) (-158362, -3604, 2383) def
+bond1 524 527 166
+bond_direction 529 524
+bond_direction 527 529
+atom 530 (201) (-151521, -9758, 6805) def
+bond1 520 521 168
+bond_direction 530 520
+bond_direction 521 530
+atom 531 (201) (-148104, -13583, 5765) def
+bond1 519 521 169
+bond_direction 519 531
+bond_direction 531 521
+atom 532 (201) (-154943, -6008, 5534) def
+bond1 520 527 167
+bond_direction 520 532
+bond_direction 532 527
+atom 533 (202) (-109368, -17799, 4107) def
+bond1 481
+bond_direction 481 533
+atom 534 (202) (-116128, -8982, 8786) def
+atom 535 (202) (-112723, -14078, 7754) def
+atom 536 (202) (-126379, -1304, -2702) def
+atom 537 (202) (-122964, -1294, 2492) def
+atom 538 (202) (-119544, -4179, 6809) def
+atom 539 (201) (-124367, -3025, -295) def
+bond1 536 537 171
+bond_direction 539 536
+bond_direction 537 539
+atom 540 (201) (-120954, -4066, 3532) def
+bond1 537 538 172
+bond_direction 540 537
+bond_direction 538 540
+atom 541 (201) (-127773, -4296, -4059) def
+bond1 536 170
+bond_direction 536 541
+atom 542 (202) (-133169, -9031, -8999) def
+atom 543 (202) (-129782, -4207, -7020) def
+bond1 541
+bond_direction 541 543
+atom 544 (201) (-134553, -11435, -6752) def
+bond1 542 173
+bond_direction 542 544
+atom 545 (201) (-131168, -7453, -6486) def
+bond1 542 543 174
+bond_direction 545 542
+bond_direction 543 545
+atom 546 (201) (-114132, -11004, 6613) def
+bond1 534 535 176
+bond_direction 546 534
+bond_direction 535 546
+atom 547 (201) (-110733, -14556, 4818) def
+bond1 533 535 177
+bond_direction 533 547
+bond_direction 547 535
+atom 548 (201) (-117540, -7065, 6128) def
+bond1 534 538 175
+bond_direction 534 548
+bond_direction 548 538
+atom 549 (202) (-136544, -14149, -7966) def
+bond1 544
+bond_direction 544 549
+atom 550 (201) (-137931, -14900, -4764) def
+bond1 518 549 178
+bond_direction 550 518
+bond_direction 549 550
+atom 551 (202) (-138871, 13435, 8233) def
+atom 552 (202) (-149124, 17541, -4960) def
+atom 553 (202) (-152512, 13530, -8289) def
+atom 554 (202) (-155884, 8337, -8835) def
+atom 555 (202) (-159252, 3706, -6411) def
+atom 556 (202) (-142297, 17478, 4980) def
+atom 557 (202) (-145718, 19021, 23) def
+atom 558 (201) (-140883, 14224, 5381) def
+bond1 551 556 180
+bond_direction 558 551
+bond_direction 556 558
+atom 559 (201) (-144301, 16543, 2166) def
+bond1 556 557 179
+bond_direction 559 556
+bond_direction 557 559
+atom 560 (203) (-161241, 4059, -3457) def
+bond1 523 555 181
+bond_direction 523 560
+bond_direction 560 555
+atom 561 (201) (-157869, 6990, -6180) def
+bond1 554 555 182
+bond_direction 561 554
+bond_direction 555 561
+atom 562 (201) (-151110, 14572, -5177) def
+bond1 552 553 184
+bond_direction 562 552
+bond_direction 553 562
+atom 563 (201) (-147712, 16676, -1799) def
+bond1 552 557 185
+bond_direction 552 563
+bond_direction 563 557
+atom 564 (201) (-154494, 10936, -6824) def
+bond1 553 554 183
+bond_direction 564 553
+bond_direction 554 564
+atom 565 (202) (-111723, 18483, -3471) def
+atom 566 (202) (-115131, 15233, -7531) def
+atom 567 (202) (-118526, 10267, -9100) def
+atom 568 (202) (-121908, 5258, -7644) def
+atom 569 (202) (-125284, 1895, -3652) def
+atom 570 (202) (-128661, 1314, 1533) def
+atom 571 (201) (-123896, 5020, -4679) def
+bond1 568 569 187
+bond_direction 571 568
+bond_direction 569 571
+atom 572 (201) (-120513, 8423, -6764) def
+bond1 567 568 188
+bond_direction 572 567
+bond_direction 568 572
+atom 573 (201) (-127277, 3342, -1055) def
+bond1 569 570 186
+bond_direction 573 569
+bond_direction 570 573
+atom 574 (202) (-132049, 3706, 6165) def
+atom 575 (201) (-134058, 6647, 5818) def
+bond1 574 189
+bond_direction 575 574
+atom 576 (201) (-130663, 3954, 2885) def
+bond1 570 574 190
+bond_direction 576 570
+bond_direction 574 576
+atom 577 (201) (-113721, 15625, -4276) def
+bond1 565 566 192
+bond_direction 577 565
+bond_direction 566 577
+atom 578 (201) (-110312, 16997, -549) def
+bond1 565 193
+bond_direction 565 578
+atom 579 (201) (-117122, 12406, -6611) def
+bond1 566 567 191
+bond_direction 579 566
+bond_direction 567 579
+atom 580 (202) (-135453, 8260, 8680) def
+bond1 575
+bond_direction 580 575
+atom 581 (201) (-137466, 10506, 6753) def
+bond1 551 580 194
+bond_direction 551 581
+bond_direction 581 580
+atom 582 (202) (-107973, 18567, 2097) def
+bond1 419 578
+bond_direction 582 419
+bond_direction 578 582
+atom 583 (0) (-968, 22771, 3704) def
+bond1 397
+atom 584 (0) (-1142, -16253, 4097) def
+bond1 504
+atom 585 (202) (118922, 7190, -8434) def
+atom 586 (202) (112067, 1088, -607) def
+atom 587 (202) (159781, 13897, -7713) def
+atom 588 (202) (115499, 2945, -5448) def
+atom 589 (203) (161491, 14598, -4681) def
+bond1 587 35
+bond_direction 589 587
+atom 590 (201) (117500, 5911, -5420) def
+bond1 585 588 49
+bond_direction 585 590
+bond_direction 590 588
+atom 591 (201) (114078, 3563, -2231) def
+bond1 586 588 48
+bond_direction 591 586
+bond_direction 588 591
+atom 592 (203) (110654, 3396, 1718) def
+bond1 586 68
+bond_direction 586 592
+atom 593 (202) (156515, 8716, -8546) def
+atom 594 (201) (158208, 10948, -6375) def
+bond1 587 593 70
+bond_direction 587 594
+bond_direction 594 593
+atom 595 (202) (149432, 1362, -2098) def
+atom 596 (202) (142572, 4479, 7325) def
+atom 597 (202) (145948, 1470, 3053) def
+atom 598 (202) (152978, 4101, -6402) def
+atom 599 (202) (132429, 18020, 4191) def
+atom 600 (202) (135789, 14429, 7992) def
+atom 601 (201) (154872, 7067, -5815) def
+bond1 593 598 72
+bond_direction 593 601
+bond_direction 601 598
+atom 602 (201) (151465, 4104, -3167) def
+bond1 595 598 71
+bond_direction 602 595
+bond_direction 598 602
+atom 603 (202) (139167, 9345, 9167) def
+atom 604 (201) (134419, 15101, 4767) def
+bond1 599 600 74
+bond_direction 604 599
+bond_direction 600 604
+atom 605 (201) (137793, 11691, 6856) def
+bond1 600 603 75
+bond_direction 605 600
+bond_direction 603 605
+atom 606 (201) (131053, 16792, 1135) def
+bond1 599 73
+bond_direction 599 606
+atom 607 (202) (125709, 16793, -5747) def
+atom 608 (202) (129074, 18907, -965) def
+bond1 606
+bond_direction 606 608
+atom 609 (201) (124306, 13511, -5786) def
+bond1 607 76
+bond_direction 607 609
+atom 610 (201) (127685, 16193, -2824) def
+bond1 607 608 77
+bond_direction 610 607
+bond_direction 608 610
+atom 611 (201) (144592, 4497, 4372) def
+bond1 596 597 79
+bond_direction 611 596
+bond_direction 597 611
+atom 612 (201) (148021, 3142, 658) def
+bond1 595 597 80
+bond_direction 595 612
+bond_direction 612 597
+atom 613 (201) (141184, 7709, 6706) def
+bond1 596 603 78
+bond_direction 596 613
+bond_direction 613 603
+atom 614 (202) (122326, 12392, -8549) def
+bond1 609
+bond_direction 609 614
+atom 615 (201) (120911, 9648, -6757) def
+bond1 585 614 81
+bond_direction 615 585
+bond_direction 614 615
+atom 616 (202) (119853, -14258, 7941) def
+atom 617 (202) (112009, -1216, 1312) def
+bond1 592
+bond_direction 592 617
+atom 618 (202) (160708, -18571, 2920) def
+atom 619 (202) (116452, -9157, 8969) def
+atom 620 (202) (113072, -4332, 6982) def
+atom 621 (203) (162126, -16808, 165) def
+bond1 618 116
+bond_direction 618 621
+atom 622 (201) (117865, -11543, 6724) def
+bond1 616 619 130
+bond_direction 622 616
+bond_direction 619 622
+atom 623 (201) (114473, -7571, 6446) def
+bond1 619 620 129
+bond_direction 623 619
+bond_direction 620 623
+atom 624 (203) (111093, -4409, 4003) def
+bond1 617 620 149
+bond_direction 617 624
+bond_direction 624 620
+atom 625 (202) (157201, -15808, 7246) def
+atom 626 (201) (158688, -15820, 4014) def
+bond1 618 625 151
+bond_direction 626 618
+bond_direction 625 626
+atom 627 (202) (147121, -2150, 4578) def
+atom 628 (202) (143757, -1092, -533) def
+atom 629 (202) (140375, -3024, -5374) def
+atom 630 (202) (136986, -7311, -8336) def
+atom 631 (202) (133575, -12506, -8417) def
+atom 632 (202) (153849, -10977, 9269) def
+atom 633 (202) (150454, -5866, 8272) def
+atom 634 (201) (155223, -12902, 6596) def
+bond1 625 632 153
+bond_direction 634 625
+bond_direction 632 634
+atom 635 (201) (151821, -8956, 7120) def
+bond1 632 633 152
+bond_direction 635 632
+bond_direction 633 635
+atom 636 (202) (130145, -16858, -5595) def
+atom 637 (201) (134966, -9736, -6649) def
+bond1 630 631 155
+bond_direction 637 630
+bond_direction 631 637
+atom 638 (201) (138361, -5981, -5323) def
+bond1 629 630 156
+bond_direction 638 629
+bond_direction 630 638
+atom 639 (201) (131552, -13577, -5666) def
+bond1 631 636 154
+bond_direction 639 631
+bond_direction 636 639
+atom 640 (202) (126708, -18891, -830) def
+atom 641 (201) (124697, -16741, 1202) def
+bond1 640 157
+bond_direction 641 640
+atom 642 (201) (128126, -16210, -2713) def
+bond1 636 640 158
+bond_direction 642 636
+bond_direction 640 642
+atom 643 (201) (145097, -3351, 1880) def
+bond1 627 628 160
+bond_direction 643 627
+bond_direction 628 643
+atom 644 (201) (148448, -5370, 5352) def
+bond1 627 633 161
+bond_direction 627 644
+bond_direction 644 633
+atom 645 (201) (141738, -3582, -2124) def
+bond1 628 629 159
+bond_direction 645 628
+bond_direction 629 645
+atom 646 (202) (123274, -17915, 4257) def
+bond1 641
+bond_direction 646 641
+atom 647 (201) (121274, -14987, 4749) def
+bond1 616 646 162
+bond_direction 616 647
+bond_direction 647 646
+atom 648 (202) (162805, -20945, -3189) def
+bond1 621
+bond_direction 621 648
+atom 649 (0) (162266, -22770, -3800) def
+bond1 648
+atom 650 (0) (162030, 16424, -4070) def
+bond1 589
+atom 651 (202) (-138871, -7596, 8585) def
+atom 652 (202) (-149124, -1935, -4019) def
+atom 653 (202) (-152512, -5517, -7806) def
+atom 654 (202) (-155884, -10606, -8972) def
+atom 655 (202) (-159252, -15494, -7121) def
+atom 656 (202) (-142297, -3192, 5842) def
+atom 657 (202) (-145718, -1064, 1106) def
+atom 658 (201) (-140883, -6470, 5848) def
+bond1 651 656 164
+bond_direction 658 651
+bond_direction 656 658
+atom 659 (201) (-144301, -3782, 2936) def
+bond1 656 657 163
+bond_direction 659 656
+bond_direction 657 659
+atom 660 (203) (-161241, -15499, -4146) def
+bond1 655 165
+bond_direction 660 655
+atom 661 (201) (-157869, -12262, -6497) def
+bond1 654 655 166
+bond_direction 661 654
+bond_direction 655 661
+atom 662 (201) (-151110, -4856, -4591) def
+bond1 652 653 168
+bond_direction 662 652
+bond_direction 653 662
+atom 663 (201) (-147712, -3174, -985) def
+bond1 652 657 169
+bond_direction 652 663
+bond_direction 663 657
+atom 664 (201) (-154494, -8268, -6663) def
+bond1 653 654 167
+bond_direction 664 653
+bond_direction 654 664
+atom 665 (202) (-111723, -1179, -2428) def
+atom 666 (202) (-115131, -3917, -6849) def
+atom 667 (202) (-118526, -8660, -9003) def
+atom 668 (202) (-121908, -13805, -8159) def
+atom 669 (202) (-125284, -17623, -4599) def
+atom 670 (202) (-128661, -18824, 478) def
+atom 671 (201) (-123896, -14399, -5244) def
+bond1 668 669 171
+bond_direction 671 668
+bond_direction 669 671
+atom 672 (201) (-120513, -10769, -6905) def
+bond1 667 668 172
+bond_direction 672 667
+bond_direction 668 672
+atom 673 (201) (-127277, -16500, -1847) def
+bond1 669 670 170
+bond_direction 673 669
+bond_direction 670 673
+atom 674 (202) (-132049, -17006, 5364) def
+atom 675 (201) (-134058, -14044, 5373) def
+bond1 674 173
+bond_direction 675 674
+atom 676 (201) (-130663, -16366, 2137) def
+bond1 670 674 174
+bond_direction 676 670
+bond_direction 674 676
+atom 677 (201) (-113721, -3919, -3570) def
+bond1 665 666 176
+bond_direction 677 665
+bond_direction 666 677
+atom 678 (203) (-110312, -3005, 293) def
+bond1 665 177
+bond_direction 665 678
+atom 679 (201) (-117122, -6834, -6275) def
+bond1 666 667 175
+bond_direction 679 666
+bond_direction 667 679
+atom 680 (202) (-135453, -12786, 8408) def
+bond1 675
+bond_direction 680 675
+atom 681 (201) (-137466, -10326, 6765) def
+bond1 651 680 178
+bond_direction 651 681
+bond_direction 681 680
+atom 682 (202) (-139916, 1724, -3295) def
+atom 683 (202) (-146688, 3889, 6443) def
+atom 684 (202) (-153532, 13672, 8144) def
+atom 685 (202) (-150102, 8527, 8784) def
+atom 686 (202) (-143294, 1331, 1906) def
+atom 687 (202) (-160406, 18940, -245) def
+atom 688 (201) (-141311, 3238, -380) def
+bond1 682 686 180
+bond_direction 682 688
+bond_direction 688 686
+atom 689 (201) (-144701, 4206, 3485) def
+bond1 683 686 179
+bond_direction 689 683
+bond_direction 686 689
+atom 690 (202) (-156966, 17584, 4747) def
+atom 691 (203) (-161763, 16415, -2371) def
+bond1 687 181
+bond_direction 687 691
+atom 692 (201) (-158362, 16653, 1596) def
+bond1 687 690 182
+bond_direction 692 687
+bond_direction 690 692
+atom 693 (201) (-151521, 11074, 6725) def
+bond1 684 685 184
+bond_direction 693 684
+bond_direction 685 693
+atom 694 (201) (-148104, 7152, 6153) def
+bond1 683 685 185
+bond_direction 683 694
+bond_direction 694 685
+atom 695 (201) (-154943, 14645, 5013) def
+bond1 684 690 183
+bond_direction 684 695
+bond_direction 695 690
+atom 696 (202) (-116128, 12083, 8599) def
+atom 697 (202) (-112723, 6898, 8186) def
+atom 698 (202) (-126379, 18326, -3728) def
+atom 699 (202) (-122964, 18960, 1426) def
+atom 700 (202) (-119544, 16614, 6059) def
+atom 701 (201) (-124367, 16907, -1132) def
+bond1 698 699 187
+bond_direction 701 698
+bond_direction 699 701
+atom 702 (201) (-120954, 16332, 2792) def
+bond1 699 700 188
+bond_direction 702 699
+bond_direction 700 702
+atom 703 (201) (-127773, 15193, -4717) def
+bond1 698 186
+bond_direction 698 703
+atom 704 (202) (-133169, 9898, -9052) def
+atom 705 (202) (-129782, 14925, -7667) def
+bond1 703
+bond_direction 703 705
+atom 706 (201) (-134553, 7780, -6532) def
+bond1 704 189
+bond_direction 704 706
+atom 707 (201) (-131168, 11767, -6747) def
+bond1 704 705 190
+bond_direction 707 704
+bond_direction 705 707
+atom 708 (201) (-114132, 9814, 6684) def
+bond1 696 697 192
+bond_direction 708 696
+bond_direction 697 708
+atom 709 (203) (-110733, 6072, 5329) def
+bond1 697 193
+bond_direction 709 697
+atom 710 (201) (-117540, 13668, 5730) def
+bond1 696 700 191
+bond_direction 696 710
+bond_direction 710 700
+atom 711 (202) (-136544, 4941, -7411) def
+bond1 706
+bond_direction 706 711
+atom 712 (201) (-137931, 4579, -4142) def
+bond1 682 711 194
+bond_direction 712 682
+bond_direction 711 712
+atom 713 (202) (-110424, 956, 3886) def
+bond1 678 709
+bond_direction 678 713
+bond_direction 713 709
+atom 714 (202) (-161866, 20793, -2134) def
+bond1 691
+bond_direction 691 714
+atom 715 (0) (-161534, -17238, -3202) def
+bond1 660
+atom 716 (0) (-161573, 22532, -3077) def
+bond1 714
+atom 717 (202) (-71401, 1701, 2931) def
+atom 718 (202) (-78173, 9747, 8832) def
+atom 719 (202) (-85017, 18228, 3667) def
+atom 720 (202) (-81587, 14779, 7538) def
+atom 721 (202) (-74779, 4834, 7105) def
+atom 722 (202) (-95304, 12181, -8731) def
+atom 723 (202) (-91891, 16662, -6114) def
+atom 724 (201) (-72796, 4761, 4127) def
+bond1 717 721 2
+bond_direction 717 724
+bond_direction 724 721
+atom 725 (201) (-76186, 8037, 6398) def
+bond1 718 721 1
+bond_direction 725 718
+bond_direction 721 725
+atom 726 (202) (-88451, 18933, -1464) def
+atom 727 (201) (-93248, 13363, -6050) def
+bond1 722 723 4
+bond_direction 727 722
+bond_direction 723 727
+atom 728 (201) (-89847, 16157, -3221) def
+bond1 723 726 5
+bond_direction 728 723
+bond_direction 726 728
+atom 729 (201) (-96627, 9451, -6854) def
+bond1 722 3
+bond_direction 722 729
+atom 730 (202) (-102049, 2813, -5279) def
+atom 731 (202) (-98662, 6966, -8429) def
+bond1 729
+bond_direction 729 731
+atom 732 (201) (-103388, 3506, -2044) def
+bond1 730 6
+bond_direction 730 732
+atom 733 (201) (-100006, 5751, -5353) def
+bond1 730 731 7
+bond_direction 733 730
+bond_direction 731 733
+atom 734 (201) (-83006, 15338, 4311) def
+bond1 719 720 9
+bond_direction 734 719
+bond_direction 720 734
+atom 735 (201) (-79589, 12011, 6464) def
+bond1 718 720 10
+bond_direction 718 735
+bond_direction 735 720
+atom 736 (201) (-86428, 16897, 671) def
+bond1 719 726 8
+bond_direction 719 736
+bond_direction 736 726
+atom 737 (202) (-105363, 1083, -311) def
+bond1 732
+bond_direction 732 737
+atom 738 (203) (-106817, 3476, 1882) def
+bond1 737 11
+bond_direction 737 738
+atom 739 (202) (-57864, 13906, -8330) def
+atom 740 (203) (-55852, 14549, -5442) def
+bond1 739 17
+bond_direction 740 739
+atom 741 (201) (-59258, 10898, -7009) def
+bond1 739 16
+bond_direction 739 741
+atom 742 (202) (-64654, 4059, -6783) def
+atom 743 (202) (-61267, 8753, -9052) def
+bond1 741
+bond_direction 741 743
+atom 744 (201) (-66038, 4125, -3492) def
+bond1 742 19
+bond_direction 742 744
+atom 745 (201) (-62653, 6983, -6280) def
+bond1 742 743 20
+bond_direction 745 742
+bond_direction 743 745
+atom 746 (202) (-68029, 1410, -2283) def
+bond1 744
+bond_direction 744 746
+atom 747 (201) (-69416, 3291, 413) def
+bond1 717 746 24
+bond_direction 747 717
+bond_direction 746 747
+atom 748 (202) (-70356, -1891, 3890) def
+atom 749 (202) (-80609, -7495, -8740) def
+atom 750 (202) (-83997, -12705, -8602) def
+atom 751 (202) (-87369, -16973, -5591) def
+atom 752 (202) (-90737, -18858, -717) def
+atom 753 (202) (-94057, -17695, 4412) def
+atom 754 (202) (-73782, -993, -1218) def
+atom 755 (202) (-77203, -3097, -5964) def
+atom 756 (201) (-72368, -3176, 1224) def
+bond1 748 754 83
+bond_direction 756 748
+bond_direction 754 756
+atom 757 (201) (-75786, -3549, -2720) def
+bond1 754 755 82
+bond_direction 757 754
+bond_direction 755 757
+atom 758 (202) (-97488, -13932, 7986) def
+atom 759 (201) (-92726, -16647, 1271) def
+bond1 752 753 85
+bond_direction 759 752
+bond_direction 753 759
+atom 760 (201) (-89354, -16235, -2707) def
+bond1 751 752 86
+bond_direction 760 751
+bond_direction 752 760
+atom 761 (201) (-96111, -14786, 4803) def
+bond1 753 758 84
+bond_direction 761 753
+bond_direction 758 761
+atom 762 (202) (-100999, -8884, 8882) def
+atom 763 (201) (-102908, -7318, 6309) def
+bond1 762 87
+bond_direction 763 762
+atom 764 (201) (-99518, -11287, 6693) def
+bond1 758 762 88
+bond_direction 764 758
+bond_direction 762 764
+atom 765 (201) (-82595, -9871, -6947) def
+bond1 749 750 90
+bond_direction 765 749
+bond_direction 750 765
+atom 766 (201) (-79197, -6064, -5791) def
+bond1 749 755 91
+bond_direction 749 766
+bond_direction 766 755
+atom 767 (201) (-85979, -13691, -5791) def
+bond1 750 751 89
+bond_direction 767 750
+bond_direction 751 767
+atom 768 (202) (-104529, -4179, 6937) def
+bond1 763
+bond_direction 768 763
+atom 769 (203) (-106253, -4279, 3841) def
+bond1 768 92
+bond_direction 769 768
+atom 770 (202) (-54947, -20930, -3520) def
+atom 771 (202) (-56769, -18403, 2550) def
+atom 772 (202) (-60146, -15423, 6835) def
+atom 773 (203) (-55381, -16729, -279) def
+bond1 770 771 98
+bond_direction 773 770
+bond_direction 771 773
+atom 774 (201) (-58762, -15603, 3551) def
+bond1 771 772 97
+bond_direction 774 771
+bond_direction 772 774
+atom 775 (202) (-63534, -10572, 8744) def
+atom 776 (201) (-65543, -8589, 6546) def
+bond1 775 100
+bond_direction 776 775
+atom 777 (201) (-62148, -12546, 6113) def
+bond1 772 775 101
+bond_direction 777 772
+bond_direction 775 777
+atom 778 (202) (-66938, -5489, 7636) def
+bond1 776
+bond_direction 778 776
+atom 779 (201) (-68951, -5070, 4707) def
+bond1 748 778 105
+bond_direction 748 779
+bond_direction 779 778
+atom 780 (202) (-106941, 137, 4332) def
+bond1 738 769
+bond_direction 738 780
+bond_direction 780 769
+atom 781 (0) (-55489, 16359, -4672) def
+bond1 740
+atom 782 (0) (-55309, -22739, -4290) def
+bond1 770
+atom 783 (202) (4393, -4203, 6515) def
+atom 784 (202) (-5806, -4342, -7339) def
+atom 785 (202) (-9215, -9170, -9269) def
+atom 786 (202) (-12621, -14256, -8185) def
+atom 787 (202) (-16021, -17884, -4452) def
+atom 788 (202) (-19412, -18825, 670) def
+atom 789 (202) (-1186, 1404, 2027) def
+atom 790 (202) (-2400, -1404, -3046) def
+atom 791 (202) (45136, -10832, 8619) def
+atom 792 (202) (-32967, -2885, 5273) def
+atom 793 (202) (-43208, -5805, -8240) def
+atom 794 (202) (-46616, -10924, -9154) def
+atom 795 (202) (-50011, -15694, -7062) def
+atom 796 (202) (-36376, -967, 441) def
+atom 797 (202) (-39792, -2065, -4635) def
+atom 798 (201) (-34975, -3602, 2399) def
+bond1 792 796 96
+atom 799 (201) (-38385, -3164, -1544) def
+bond1 796 797 95
+atom 800 (203) (-51998, -15542, -4090) def
+bond1 795 99
+atom 801 (203) (2394, -4326, 3550) def
+bond1 783 94
+bond_direction 801 783
+atom 802 (201) (-45206, -8485, -6963) def
+bond1 793 794 103
+atom 803 (201) (-41797, -4999, -5063) def
+bond1 793 797 104
+atom 804 (201) (-48607, -12445, -6599) def
+bond1 794 795 102
+atom 805 (203) (-1002, -3102, -235) def
+bond1 789 790 93
+atom 806 (202) (-22797, -16760, 5459) def
+atom 807 (201) (-18014, -16622, -1761) def
+bond1 787 788 107
+atom 808 (201) (-14617, -14699, -5249) def
+bond1 786 787 108
+atom 809 (201) (-21404, -16280, 2208) def
+bond1 788 806 106
+atom 810 (202) (-26180, -12384, 8296) def
+atom 811 (201) (-28179, -9994, 6537) def
+bond1 810 109
+atom 812 (201) (-24791, -13792, 5326) def
+bond1 806 810 110
+atom 813 (201) (-7809, -7220, -6630) def
+bond1 784 785 112
+atom 814 (201) (-4404, -4190, -4059) def
+bond1 784 790 113
+atom 815 (201) (-11215, -11168, -7076) def
+bond1 785 786 111
+atom 816 (202) (-29569, -7173, 8225) def
+bond1 811
+atom 817 (201) (-31573, -6167, 5437) def
+bond1 792 816 114
+atom 818 (202) (41744, -5730, 7574) def
+atom 819 (202) (31582, -3094, -6056) def
+atom 820 (202) (28185, -7439, -8926) def
+atom 821 (202) (24781, -12641, -8895) def
+atom 822 (202) (21374, -16945, -5975) def
+atom 823 (202) (17968, -18895, -1153) def
+atom 824 (202) (38357, -2064, 3867) def
+atom 825 (202) (34972, -1074, -1251) def
+atom 826 (201) (39753, -5257, 4638) def
+bond1 818 824 118
+bond_direction 826 818
+bond_direction 824 826
+atom 827 (201) (36364, -3300, 1163) def
+bond1 824 825 117
+bond_direction 827 824
+bond_direction 825 827
+atom 828 (202) (14567, -17836, 3939) def
+atom 829 (201) (19372, -16248, -3092) def
+bond1 822 823 120
+bond_direction 829 822
+bond_direction 823 829
+atom 830 (201) (22778, -13665, -6112) def
+bond1 821 822 121
+bond_direction 830 821
+bond_direction 822 830
+atom 831 (201) (15970, -16712, 856) def
+bond1 823 828 119
+bond_direction 831 823
+bond_direction 828 831
+atom 832 (202) (11173, -14118, 7588) def
+atom 833 (201) (9178, -11422, 6339) def
+bond1 832 122
+bond_direction 833 832
+atom 834 (201) (12572, -14901, 4399) def
+bond1 828 832 123
+bond_direction 834 828
+bond_direction 832 834
+atom 835 (201) (29582, -6057, -5944) def
+bond1 819 820 125
+bond_direction 835 819
+bond_direction 820 835
+atom 836 (201) (32975, -3602, -2809) def
+bond1 819 825 126
+bond_direction 819 836
+bond_direction 836 825
+atom 837 (201) (26181, -9838, -7184) def
+bond1 820 821 124
+bond_direction 837 820
+bond_direction 821 837
+atom 838 (202) (7783, -8998, 8555) def
+bond1 833
+bond_direction 838 833
+atom 839 (201) (5787, -7451, 6021) def
+bond1 783 838 127
+bond_direction 783 839
+bond_direction 839 838
+atom 840 (201) (43144, -8811, 6441) def
+bond1 791 818 128
+bond_direction 840 791
+bond_direction 818 840
+atom 841 (202) (53931, -20674, -3928) def
+atom 842 (202) (51948, -18555, 2342) def
+atom 843 (201) (49947, -15775, 3375) def
+bond1 842 136
+bond_direction 843 842
+atom 844 (203) (53357, -16836, -448) def
+bond1 841 842 137
+bond_direction 844 841
+bond_direction 842 844
+atom 845 (202) (48538, -15650, 6652) def
+bond1 843
+bond_direction 845 843
+atom 846 (201) (46541, -12761, 5965) def
+bond1 791 845 141
+bond_direction 791 846
+bond_direction 846 845
+atom 847 (0) (-52290, -17503, -4356) def
+bond1 800
+atom 848 (0) (53535, -22544, -4512) def
+bond1 841
+atom 849 (202) (3318, 1096, -828) def
+atom 850 (202) (-3464, 6199, 7739) def
+atom 851 (202) (-10243, 16068, 6306) def
+atom 852 (202) (-6852, 11352, 8519) def
+atom 853 (202) (2148, 137, 4033) def
+bond1 801
+bond_direction 853 801
+atom 854 (202) (-20460, 15419, -7520) def
+atom 855 (202) (-17048, 18512, -3344) def
+atom 856 (202) (-34053, 1238, 1034) def
+atom 857 (202) (44121, 4062, -7003) def
+atom 858 (202) (-40816, 7956, 8423) def
+atom 859 (202) (-47613, 17332, 5056) def
+atom 860 (202) (-44208, 13159, 8161) def
+atom 861 (202) (-37433, 3479, 5747) def
+atom 862 (202) (-52650, 20076, -4686) def
+atom 863 (201) (-35443, 4000, 2820) def
+bond1 856 861 15
+atom 864 (201) (-38828, 6763, 5697) def
+bond1 858 861 14
+atom 865 (202) (-51029, 19067, 160) def
+atom 866 (203) (-52439, 16703, -2110) def
+bond1 862 865 18
+atom 867 (201) (-45617, 14363, 5111) def
+bond1 859 860 22
+atom 868 (201) (-42218, 10656, 6556) def
+bond1 858 860 23
+atom 869 (201) (-49025, 16634, 1854) def
+bond1 859 865 21
+atom 870 (203) (1923, 3444, 1469) def
+bond1 849 853 13
+bond_direction 849 870
+bond_direction 870 853
+atom 871 (203) (-1467, 5576, 4835) def
+bond1 850 12 789
+atom 872 (202) (-13641, 18758, 1849) def
+atom 873 (201) (-18455, 15464, -4557) def
+bond1 854 855 26
+atom 874 (201) (-15048, 16900, -853) def
+bond1 855 872 27
+atom 875 (201) (-21863, 12210, -6832) def
+bond1 854 25
+atom 876 (202) (-27275, 5479, -7994) def
+atom 877 (202) (-23871, 10523, -9268) def
+bond1 875
+atom 878 (201) (-28667, 4888, -4761) def
+bond1 876 28
+atom 879 (201) (-25269, 8237, -6910) def
+bond1 876 877 29
+atom 880 (201) (-8250, 13147, 5769) def
+bond1 851 852 31
+atom 881 (201) (-4859, 9220, 6449) def
+bond1 850 852 32
+atom 882 (201) (-11646, 16030, 3024) def
+bond1 851 872 30
+atom 883 (202) (-30669, 1991, -4125) def
+bond1 878
+atom 884 (201) (-32058, 3295, -1106) def
+bond1 856 883 33
+atom 885 (202) (40711, 1343, -2574) def
+atom 886 (202) (33895, 4614, 6823) def
+atom 887 (202) (27109, 14567, 7382) def
+atom 888 (202) (30499, 9504, 8612) def
+atom 889 (202) (37300, 1548, 2619) def
+atom 890 (202) (16934, 16702, -6326) def
+atom 891 (202) (20330, 18896, -1603) def
+atom 892 (201) (39306, 3179, 144) def
+bond1 885 889 37
+bond_direction 885 892
+bond_direction 892 889
+atom 893 (201) (35901, 4589, 3859) def
+bond1 886 889 36
+bond_direction 893 886
+bond_direction 889 893
+atom 894 (202) (23721, 18094, 3543) def
+atom 895 (201) (18930, 16152, -3407) def
+bond1 890 891 39
+bond_direction 895 890
+bond_direction 891 895
+atom 896 (201) (22324, 16816, 518) def
+bond1 891 894 40
+bond_direction 896 891
+bond_direction 894 896
+atom 897 (201) (15530, 13420, -6298) def
+bond1 890 38
+bond_direction 890 897
+atom 898 (202) (10125, 7060, -8801) def
+atom 899 (202) (13531, 12256, -9028) def
+bond1 897
+bond_direction 897 899
+atom 900 (201) (8723, 5832, -5758) def
+bond1 898 41
+bond_direction 898 900
+atom 901 (201) (12127, 9544, -7182) def
+bond1 898 899 42
+bond_direction 901 898
+bond_direction 899 901
+atom 902 (201) (29106, 11813, 6274) def
+bond1 887 888 44
+bond_direction 902 887
+bond_direction 888 902
+atom 903 (201) (32500, 7833, 6162) def
+bond1 886 888 45
+bond_direction 886 903
+bond_direction 903 888
+atom 904 (201) (25715, 15188, 4154) def
+bond1 887 894 43
+bond_direction 887 904
+bond_direction 904 894
+atom 905 (202) (6719, 2868, -5722) def
+bond1 900
+bond_direction 900 905
+atom 906 (201) (5321, 3540, -2507) def
+bond1 849 905 46
+bond_direction 906 849
+bond_direction 905 906
+atom 907 (201) (42714, 4075, -3723) def
+bond1 857 885 47
+bond_direction 857 907
+bond_direction 907 885
+atom 908 (202) (50926, 13932, -8340) def
+atom 909 (201) (49521, 10903, -7078) def
+bond1 908 55
+bond_direction 908 909
+atom 910 (203) (52916, 14527, -5427) def
+bond1 908 56
+bond_direction 910 908
+atom 911 (202) (47527, 8792, -9170) def
+bond1 909
+bond_direction 909 911
+atom 912 (201) (46121, 6977, -6437) def
+bond1 857 911 60
+bond_direction 912 857
+bond_direction 911 912
+atom 913 (0) (-52358, 22036, -4419) def
+bond1 862
+atom 914 (0) (53312, 16398, -4842) def
+bond1 910
+atom 915 (202) (105218, 6040, 7994) def
+atom 916 (202) (106619, 970, 3735) def
+atom 917 (202) (95058, 18677, 2239) def
+atom 918 (202) (98432, 15921, 6675) def
+atom 919 (202) (81523, 5537, -7921) def
+atom 920 (202) (74686, 1135, 985) def
+atom 921 (202) (67858, 7717, 8435) def
+atom 922 (202) (71267, 3290, 5710) def
+atom 923 (202) (78108, 1979, -4136) def
+atom 924 (202) (57694, 18955, 284) def
+atom 925 (202) (61074, 17141, 5176) def
+atom 926 (201) (80109, 4890, -4708) def
+bond1 919 923 51
+bond_direction 919 926
+bond_direction 926 923
+atom 927 (201) (76694, 3231, -1106) def
+bond1 920 923 50
+bond_direction 927 920
+bond_direction 923 927
+atom 928 (202) (64461, 12920, 8237) def
+atom 929 (201) (59687, 16494, 1951) def
+bond1 924 925 53
+bond_direction 929 924
+bond_direction 925 929
+atom 930 (201) (63074, 14173, 5196) def
+bond1 925 928 54
+bond_direction 930 925
+bond_direction 928 930
+atom 931 (203) (56303, 16628, -2036) def
+bond1 924 52
+bond_direction 924 931
+atom 932 (202) (55996, 20131, -4774) def
+bond1 931
+bond_direction 931 932
+atom 933 (201) (69868, 6574, 5704) def
+bond1 921 922 58
+bond_direction 933 921
+bond_direction 922 933
+atom 934 (201) (73278, 3863, 2805) def
+bond1 920 922 59
+bond_direction 920 934
+bond_direction 934 922
+atom 935 (201) (66466, 10447, 6604) def
+bond1 921 928 57
+bond_direction 921 935
+bond_direction 935 928
+atom 936 (202) (101816, 11175, 8834) def
+atom 937 (201) (97052, 15934, 3383) def
+bond1 917 918 62
+bond_direction 937 917
+bond_direction 918 937
+atom 938 (201) (100434, 13010, 6104) def
+bond1 918 936 63
+bond_direction 938 918
+bond_direction 936 938
+atom 939 (201) (93676, 16861, -504) def
+bond1 917 61
+bond_direction 917 939
+atom 940 (202) (88315, 15482, -7234) def
+atom 941 (202) (91690, 18511, -2982) def
+bond1 939
+bond_direction 939 941
+atom 942 (201) (86913, 12259, -6609) def
+bond1 940 64
+bond_direction 940 942
+atom 943 (201) (90298, 15482, -4255) def
+bond1 940 941 65
+bond_direction 943 940
+bond_direction 941 943
+atom 944 (203) (107235, 5469, 5094) def
+bond1 915 916 67
+bond_direction 944 915
+bond_direction 916 944
+atom 945 (201) (103827, 9080, 6744) def
+bond1 915 936 66
+bond_direction 915 945
+bond_direction 945 936
+atom 946 (202) (84927, 10608, -9087) def
+bond1 942
+bond_direction 942 946
+atom 947 (201) (83516, 8280, -6777) def
+bond1 919 946 69
+bond_direction 947 919
+bond_direction 946 947
+atom 948 (202) (106340, -1385, -2579) def
+atom 949 (202) (102968, -4256, -6943) def
+atom 950 (202) (99581, -9057, -8977) def
+atom 951 (202) (96178, -14166, -8003) def
+atom 952 (202) (82496, -12596, 8410) def
+atom 953 (202) (72336, -1067, 671) def
+atom 954 (202) (68960, -2085, -4447) def
+atom 955 (202) (65578, -5771, -8138) def
+atom 956 (202) (62183, -10878, -9161) def
+atom 957 (202) (58778, -15684, -7173) def
+atom 958 (202) (79097, -7391, 8401) def
+atom 959 (202) (75713, -3060, 5497) def
+atom 960 (201) (80505, -10180, 6677) def
+bond1 952 958 132
+bond_direction 960 952
+bond_direction 958 960
+atom 961 (201) (77112, -6342, 5615) def
+bond1 958 959 131
+bond_direction 961 958
+bond_direction 959 961
+atom 962 (201) (60174, -12442, -6647) def
+bond1 956 957 134
+bond_direction 962 956
+bond_direction 957 962
+atom 963 (201) (63574, -8474, -6920) def
+bond1 955 956 135
+bond_direction 963 955
+bond_direction 956 963
+atom 964 (203) (56768, -15583, -4212) def
+bond1 957 133
+bond_direction 964 957
+atom 965 (201) (70347, -3234, -1364) def
+bond1 953 954 139
+bond_direction 965 953
+bond_direction 954 965
+atom 966 (201) (73727, -3731, 2596) def
+bond1 953 959 140
+bond_direction 953 966
+bond_direction 966 959
+atom 967 (201) (66964, -5014, -4937) def
+bond1 954 955 138
+bond_direction 967 954
+bond_direction 955 967
+atom 968 (202) (92758, -17861, -4355) def
+atom 969 (201) (97569, -11094, -6832) def
+bond1 950 951 143
+bond_direction 969 950
+bond_direction 951 969
+atom 970 (201) (100964, -7149, -6295) def
+bond1 949 950 144
+bond_direction 970 949
+bond_direction 950 970
+atom 971 (201) (94161, -14662, -5088) def
+bond1 951 968 142
+bond_direction 971 951
+bond_direction 968 971
+atom 972 (202) (89332, -18895, 727) def
+atom 973 (201) (87325, -16381, 2292) def
+bond1 972 145
+bond_direction 973 972
+atom 974 (201) (90744, -16649, -1657) def
+bond1 968 972 146
+bond_direction 974 968
+bond_direction 972 974
+atom 975 (203) (107721, -3127, 212) def
+bond1 916 948 148
+bond_direction 975 916
+bond_direction 948 975
+atom 976 (201) (104347, -4157, -3651) def
+bond1 948 949 147
+bond_direction 976 948
+bond_direction 949 976
+atom 977 (202) (85909, -16918, 5524) def
+bond1 973
+bond_direction 977 973
+atom 978 (201) (83910, -13950, 5426) def
+bond1 952 977 150
+bond_direction 952 978
+bond_direction 978 977
+atom 979 (0) (56416, -17535, -4468) def
+bond1 964
+atom 980 (0) (56348, 22083, -4518) def
+bond1 932
+egroup (DNAO Frag 96bp)
+end1
+group (Clipboard)
+info opengroup open = False
+comment (citation) ascii Paul W. K. Rothemund 
+info leaf commentline utf-8 = “Folding DNA to create nanoscale shapes and patterns”
+info leaf commentline ascii = Nature, 440:297-302 (2006)
+info leaf commentline ascii = 
+info leaf commentline ascii = 
+egroup (Clipboard)
+end molecular machine part DNAO Frag 96bp

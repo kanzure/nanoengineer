@@ -1,3 +1,7 @@
+
+
+ Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+
 The idea is to create Pyrex base classes for atoms, bonds, and atom
 sets that make some operations much more efficient, primarily graphics
 operations and undo/redo operations. An additional benefit is that we

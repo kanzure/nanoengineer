@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2006 Nanorex, Inc.  See LICENSE file for details. 
 """
 shape.py
 
@@ -1328,7 +1328,7 @@ class CookieShape(shape):
             #print "allCarbons: ", allCarbons
                 
             carbonAtoms = {}
-            mol = molecule(assy, gensym("Cookie."))
+            mol = molecule(assy, gensym("Crystal."))
             for bKey, bBonds in allBonds.items():
                 keyHedron = True
                 if len(bBonds):

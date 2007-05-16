@@ -1,5 +1,8 @@
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
+
 $Id$
+
 
 This will start out as just a straight port of class Highlightable from cad/src/testdraw.py,
 with the same limitations in API and implem (e.g. it won't work inside display lists).

@@ -1,4 +1,4 @@
-# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 movieMode.py -- movie player mode.
 
@@ -14,6 +14,8 @@ Adding various comments and revising docstrings; perhaps not signing every such 
  probably just be to adapt this file to the external changes.)
 
 bruce 050913 used env.history in some places.
+
+ninad20070507: moved Movie Player dashboard to Movie Property Manager. 
 """
 
 __author__ = "Mark"
@@ -21,38 +23,48 @@ __author__ = "Mark"
 from modes import *
 from HistoryWidget import redmsg, orangemsg
 
-from qt import QFileDialog, QMessageBox, QString, QMimeSourceFactory
+from MoviePropertyManager import MoviePropertyManager
 
+from PyQt4.Qt import QFileDialog, QMessageBox, QString
+from qt4transition import *
 import env
+
 
 auto_play = False # whether to automatically start playing the movie when you enter the mode
     # bruce 050510 disabling automatic play per Mark urgent request (this is also a bug or NFR in bugzilla).
     # Not sure whether this will need to be added back under certain conditions,
     # therefore I'm adding this flag, so it's easy to review all the places that might need changing.
 
-from qt import QDialog, QGridLayout, QPushButton, QTextBrowser
+from PyQt4.Qt import QDialog, QGridLayout, QPushButton, QTextBrowser
 
 class MovieRewindDialog(QDialog):
 
     def __init__(self, movie):
         self.movie = movie
         QDialog.__init__(self, None)
-        self.setName("movie_warning")
-        self.text_browser = QTextBrowser(self,"movie_warning_textbrowser")
+        self.setObjectName("movie_warning")
+        self.text_browser = QTextBrowser(self)
+        self.text_browser.setObjectName("movie_warning_textbrowser")
         self.text_browser.setMinimumSize(400, 40)
-        self.setCaption('Rewind your movie?')
-        self.text_browser.setText(
+        self.setWindowTitle('Rewind your movie?')
+        self.text_browser.setPlainText(
             "You may want to rewind the movie now. If you save the part without " +
             "rewinding the movie, the movie file will become invalid because it " +
             "depends upon the initial atom positions. The atoms move as the movie " +
             "progresses, and saving the part now will save the final positions, " +
             "which are incorrect for the movie you just watched.")
-        self.ok_button = QPushButton(self,"ok_button")
+        self.ok_button = QPushButton(self)
+        self.ok_button.setObjectName("ok_button")
         self.ok_button.setText("Rewind movie")
-        self.cancel_button = QPushButton(self,"cancel_button")
+        self.cancel_button = QPushButton(self)
+        self.cancel_button.setObjectName("cancel_button")
         self.cancel_button.setText("No thanks")
-        layout = QGridLayout(self,1,1,0,-1,"movie_warning_layout")
-        layout.addMultiCellWidget(self.text_browser,0,0,0,1)
+        #layout = QGridLayout(self,1,1,0,-1,"movie_warning_layout")
+        #layout.addMultiCellWidget(self.text_browser,0,0,0,1)
+        #layout.addWidget(self.ok_button,1,0)
+        #layout.addWidget(self.cancel_button,1,1)
+        layout = QGridLayout(self)
+        layout.addWidget(self.text_browser,0,0,0,1)
         layout.addWidget(self.ok_button,1,0)
         layout.addWidget(self.cancel_button,1,1)
         self.connect(self.ok_button,SIGNAL("clicked()"),self.rewindMovie)
@@ -68,7 +80,7 @@ class MovieRewindDialog(QDialog):
 
 ###doc
 
-class movieMode(basicMode):
+class movieMode(basicMode,MoviePropertyManager):
     """ This class is used to play movie files.
        Users know it as "Movie mode".
        When entered, it might start playing a recently-made movie,
@@ -99,13 +111,18 @@ class movieMode(basicMode):
         movie = self.o.assy.current_movie
         if movie.currentFrame is not 0:
             mrd = MovieRewindDialog(movie)
-            mrd.exec_loop()
+            mrd.exec_()
         basicMode._exitMode(self, new_mode)
 
     def init_gui(self):
+        
+        MoviePropertyManager.__init__(self)
+        
+        self.openPropertyManager(self) # ninad 061227 see PropertymanagerMixin
+        
 
-        self.w.simMoviePlayerAction.setOn(1) # toggle on the Movie Player icon
-
+        self.w.simMoviePlayerAction.setChecked(1) # toggle on the Movie Player icon+
+      
         # Disable some action items in the main window.
         # [bruce 050426 comment: I'm skeptical of disabling the ones marked #k 
         #  and suggest for some others (especially "simulator") that they
@@ -128,6 +145,7 @@ class movieMode(basicMode):
         self.w.frameNumberSB.setValue(frameno) # SB = Spinbox [bruce 050428 question: does this call our slot method?? ###k]
         self.w.moviePlayActiveAction.setVisible(0)
         self.w.moviePlayRevActiveAction.setVisible(0)
+        self.w.dashboardHolder.setWidget(self.w.moviePlayerDashboard)
         self.w.moviePlayerDashboard.show()
         
         if self.might_be_playable(): # We have a movie file ready.  It's showtime! [bruce 050426 changed .filename -> .might_be_playable()]
@@ -145,6 +163,9 @@ class movieMode(basicMode):
         undo_manager.disable_undo_checkpoints('Movie Player')
         undo_manager.disable_UndoRedo('Movie Player', "in Movie Player") # optimizing this for shortness in menu text
             # this makes Undo menu commands and tooltips look like "Undo (not permitted in Movie Player)" (and similarly for Redo)
+        
+        self.w.connect(self.w.frameNumberSL,SIGNAL("valueChanged(int)"),self.w.movieSlider)
+        self.w.connect(self.w.frameNumberSB,SIGNAL("valueChanged(int)"),self.w.moviePlayFrame)
 
     def _controls(self, On = True): #bruce 050427
         _controls( self.w, On)
@@ -187,13 +208,19 @@ class movieMode(basicMode):
 
     def restore_gui(self):
         "[#doc]"
+        
+        self.closePropertyManager()
+        
         # Reenable Undo/Redo actions, and undo checkpoints (disabled in init_gui);
         # do it first to protect it from exceptions in the rest of this method
         # (since if it never happens, Undo/Redo won't work for the rest of the session)
         # [bruce 060414; same thing done in some other modes]
         import undo_manager
+        
         undo_manager.reenable_undo_checkpoints('Movie Player')
         undo_manager.reenable_UndoRedo('Movie Player')
+        
+        self.w.simMoviePlayerAction.setChecked(0) # toggle on the Movie Player icon
         self.set_cmdname('Movie Player') # this covers all changes while we were in the mode
             # (somewhat of a kluge, and whether this is the best place to do it is unknown;
             #  without this the cmdname is "Done")
@@ -250,6 +277,7 @@ class movieMode(basicMode):
 
 # ==
 
+
 def _controls(win, On = True):
     """Enable or disable movie controls on movieMode dashboard."""
     #bruce 050427 moved this here -- it was a method on class Movie.
@@ -279,6 +307,7 @@ def simMoviePlayer(assy):
         # just by opening a movie file, so there's no point in going into the mode -- it's only meant
         # for playing a movie for the *current contents of the current part*, for now.]
         env.history.message(redmsg("Movie Player: Need a model."))
+        win.simMoviePlayerAction.setChecked(0) # toggle on the Movie Player icon ninad 061113
         return
 
     if assy.current_movie and assy.current_movie.might_be_playable():
@@ -370,8 +399,8 @@ class movieDashboardSlotsMixin:
     def _movieDashboard_reinit(self):
         self._movieDashboard_ignore_slider_and_spinbox = True
         try:
-            self.frameNumberSB.setMaxValue(999999) # in UI.py code
-            self.frameNumberSL.setMaxValue(999999) # guess
+            self.frameNumberSB.setMaximum(999999) # in UI.py code
+            self.frameNumberSL.setMaximum(999999) # guess
             self.frameNumberSB.setValue(0) # guess
             self.frameNumberSL.setValue(0) # guess
         finally:
@@ -471,9 +500,12 @@ class movieDashboardSlotsMixin:
         else:
             odir = self.currentWorkingDirectory # Fixes bug 291 (comment #4). Mark 060729.
 
-        fn = QFileDialog.getOpenFileName(odir,
+            
+        fn = QFileDialog.getOpenFileName(self, 
                 "Differential Position Bytes Format (*.dpb)",
-                self )
+                odir
+                )
+        
 
         if not fn:
             env.history.message("Cancelled.")
@@ -525,8 +557,8 @@ class movieDashboardSlotsMixin:
             msg = redmsg("Save Movie File: No movie file to save.")
             env.history.message(msg)
             msg = "To create a movie, click on the <b>Simulator</b> <img source=\"simicon\"> icon."
-            QMimeSourceFactory.defaultFactory().setPixmap( "simicon", 
-                        self.simSetupAction.iconSet().pixmap() )
+            #QMimeSourceFactory.defaultFactory().setPixmap( "simicon", 
+            #            self.simSetupAction.iconSet().pixmap() )
             env.history.message(msg)
             return
         
@@ -539,11 +571,14 @@ class movieDashboardSlotsMixin:
         
         # Removed .xyz as an option in the sfilter since the section of code below 
         # to save XYZ files never worked anyway.  This also fixes bug 492.  Mark 050816.
-        fn = QFileDialog.getSaveFileName(sdir,
-                    "Differential Position Bytes Format (*.dpb);;POV-Ray Series (*.pov)",
-                    self, "IDONTKNOWWHATTHISIS",
-                    "Save As",
-                    sfilter)
+             
+        fn = QFileDialog.getSaveFileName(
+            self,
+            "Save As",
+            sdir,
+            "Differential Position Bytes Format (*.dpb);;POV-Ray Series (*.pov)",
+             sfilter)
+               
         
         if not fn:
             env.history.message("Cancelled.")
@@ -565,7 +600,7 @@ class movieDashboardSlotsMixin:
                 ret = QMessageBox.warning( self, self.name(),
                         "The file \"" + fil + ext + "\" already exists.\n"\
                         "Do you want to overwrite the existing file or cancel?",
-                        "&Overwrite", "&Cancel", None,
+                        "&Overwrite", "&Cancel", "",
                         0,      # Enter == button 0
                         1 )     # Escape == button 1
 

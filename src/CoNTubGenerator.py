@@ -1,4 +1,4 @@
-# Copyright (c) 2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 CoNTubGenerator.py
 
@@ -50,7 +50,7 @@ from debug_prefs import use_property_pane
 
 def add_insert_menu_item(win, command, name_of_what_to_insert, options = ()): ###e this should be a method of MWsemantics.py
     menuIndex = 2 ### kluge - right after Nanotube, at the moment (since indices start from 0)
-    menu = win.Insert
+    menu = win.buildStructuresMenu
     menutext = "%s" % (name_of_what_to_insert,)
     undo_cmdname = "Insert %s" % (name_of_what_to_insert,) ## get this from caller, or, make it available to the command as it runs
         ###e but need to translate it ourselves, ##qApp.translate("Main Window", "Recent Files", None)
@@ -499,7 +499,7 @@ class PluginlikeGenerator:
 
     def run_command(self, program, args):
         if debug_run(): print "will run this command:",program,args
-        from qt import QStringList, QProcess, QObject, SIGNAL, QDir
+        from PyQt4.Qt import QStringList, QProcess, QObject, SIGNAL, QDir
         # modified from runSim.py
         arguments = QStringList()
         if sys.platform == 'win32':

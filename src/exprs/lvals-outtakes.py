@@ -1,4 +1,7 @@
+
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 $Id$
+
 
 this file won't be in cvs for long -- but it might be there temporarily, since it's not yet fully cannibalized
 

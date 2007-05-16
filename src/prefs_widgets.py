@@ -1,5 +1,5 @@
-# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
-'''
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+"""
 prefs_widgets.py
 
 Utilities related to both user preferences and Qt widgets.
@@ -9,7 +9,7 @@ $Id$
 History:
 
 Bruce 050805 started this module.
-'''
+"""
 
 __author__ = ['Bruce']
 
@@ -19,10 +19,11 @@ import platform
 
 from changes import Formula
 from widgets import RGBf_to_QColor
-from qt import QColorDialog
-from qt import SIGNAL
+from PyQt4.Qt import QColorDialog
+from PyQt4.Qt import SIGNAL
+from PyQt4.QtGui import QPalette
 
-def colorpref_edit_dialog( parent, prefs_key, caption = "choose"): #bruce 050805
+def colorpref_edit_dialog( parent, prefs_key, caption = "choose"): #bruce 050805; revised 070425 in Qt4 branch
     #bruce 050805: heavily modified this from some slot methods in UserPrefs.py.
     # Note that the new code for this knows the prefs key and that it's a color,
     # and nothing else that those old slot methods needed to know!
@@ -31,18 +32,17 @@ def colorpref_edit_dialog( parent, prefs_key, caption = "choose"): #bruce 050805
     # or where the color is stored besides in env.prefs.
     # That knowledge now resides with the code that defines it, or in central places.
     
-    ## old_color = self.bond_vane_color_frame.paletteBackgroundColor()
     old_color = RGBf_to_QColor( env.prefs[prefs_key] )
-    c = QColorDialog.getColor(old_color, parent, caption)
+    c = QColorDialog.getColor(old_color, parent) # In Qt3 this also had a caption argument
     if c.isValid():
         new_color = (c.red()/255.0, c.green()/255.0, c.blue()/255.0)
-        ## self.bond_vane_color_frame.setPaletteBackgroundColor(c)
-        # instead, subscribe that color swatch (whenever dialog is shown) to the prefs value for the color
         env.prefs[prefs_key] = new_color
-        ## self.glpane.gl_update() [this was not enough anyway, and now it's not needed]
+            # this is change tracked, which permits the UI's color swatch
+            # (as well as the glpane itself, or whatever else uses this prefs color)
+            # to notice this and update its color
     return
 
-def connect_colorpref_to_colorframe( pref_key, colorframe ): #bruce 050805
+def connect_colorpref_to_colorframe( pref_key, colorframe ): #bruce 050805; revised 070425/070430 in Qt4 branch
     """Cause the bgcolor of the given Qt "color frame" to be set to each new legal color value stored in the given pref."""
     # first destroy any prior connection trying to control the same thing
     try:
@@ -53,18 +53,35 @@ def connect_colorpref_to_colorframe( pref_key, colorframe ): #bruce 050805
     else:
         conn.destroy() # this removes any subscriptions that object held
     colorframe.__bgcolor_conn = None # in case of exceptions in the following
+    # For Qt4, to fix bug 2320, we need to give the colorframe a unique palette, in which we can modify the background color.
+    # To get this to work, it was necessary to make a new palette each time the color changes, modify it, and re-save into colorframe
+    # (done below). This probably relates to "implicit sharing" of QPalette (see Qt 4.2 online docs).
+    # [bruce 070425]
     def colorframe_bgcolor_setter(color):
         #e no convenient/clean way for Formula API to permit but not require this function to receive the formula,
         # unless we store it temporarily in env._formula (which we might as well do if this feature is ever needed)
         try:
             # make sure errors here don't stop the formula from running:
             # (Need to protect against certain kinds of erroneous color values? RGBf_to_QColor does it well enough.)
-            colorframe.setPaletteBackgroundColor(RGBf_to_QColor(color))
-            ## colorframe.update() ###@@@ guess at bugfix -- not sure if has an effect... after this, 2nd time and beyond, color changes,
-                # but wrongly. before this? not sure. now it always sets to the prior color. hmm, check Formula code.
-            if 0 and platform.atom_debug:
-                print "atom_debug: fyi: colorframe %r set color %r for prefkey %r" % (colorframe,color,pref_key)
+            ## Qt3 code used: colorframe.setPaletteBackgroundColor(RGBf_to_QColor(color))
+            qcolor = RGBf_to_QColor(color)
+            palette = QPalette() # QPalette(qcolor) would have window color set from qcolor, but that doesn't help us here
+            qcolorrole = QPalette.Window
+                ## http://doc.trolltech.com/4.2/qpalette.html#ColorRole-enum says:
+                ##   QPalette.Window    10    A general background color.
+            palette.setColor(QPalette.Active, qcolorrole, qcolor) # used when window is in fg and has focus
+            palette.setColor(QPalette.Inactive, qcolorrole, qcolor) # used when window is in bg or does not have focus
+            palette.setColor(QPalette.Disabled, qcolorrole, qcolor) # used when widget is disabled
+            colorframe.setPalette(palette)
+            colorframe.setAutoFillBackground(True)
+            # [Note: the above scheme was revised again by bruce 070430, for improved appearance
+            #  (now has thin black border around color patch), based on Ninad's change in UserPrefs.py.]
+            ## no longer needed: set color for qcolorrole = QPalette.ColorRole(role) for role in range(14)
+            ## no longer needed: colorframe.setLineWidth(500) # width of outline of frame (at least half max possible size)
         except:
+            print "data for following exception: ",
+            print "colorframe %r has palette %r" % (colorframe, colorframe.palette())
+                # fyi: in Qt4, like in Qt3, colorframe is a QFrame
             print_compact_traceback( "bug (ignored): exception in formula-setter: " ) #e include formula obj in this msg?
         pass
     conn = Formula( lambda: env.prefs.get( pref_key) , colorframe_bgcolor_setter )

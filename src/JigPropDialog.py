@@ -1,116 +1,131 @@
-# Copyright (c) 2006 Nanorex, Inc. All rights reserved.
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\JigPropDialog.ui'
+# Copyright 2005-2006 Nanorex, Inc.  See LICENSE file for details. 
+# Form implementation generated from reading ui file 'JigPropDialog.ui'
 #
-# Created: Wed Sep 28 17:24:20 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
+# Created: Wed Sep 20 07:56:23 2006
+#      by: PyQt4 UI code generator 4.0.1
 #
 # WARNING! All changes made in this file will be lost!
 
+import sys
+from PyQt4 import QtCore, QtGui
 
-from qt import *
+class Ui_JigPropDialog(object):
+    def setupUi(self, JigPropDialog):
+        JigPropDialog.setObjectName("JigPropDialog")
+        JigPropDialog.resize(QtCore.QSize(QtCore.QRect(0,0,245,145).size()).expandedTo(JigPropDialog.minimumSizeHint()))
+        JigPropDialog.setSizeGripEnabled(True)
 
+        self.vboxlayout = QtGui.QVBoxLayout(JigPropDialog)
+        self.vboxlayout.setMargin(11)
+        self.vboxlayout.setSpacing(6)
+        self.vboxlayout.setObjectName("vboxlayout")
 
-class JigPropDialog(QDialog):
-    def __init__(self,parent = None,name = None,modal = 0,fl = 0):
-        QDialog.__init__(self,parent,name,modal,fl)
+        self.hboxlayout = QtGui.QHBoxLayout()
+        self.hboxlayout.setMargin(0)
+        self.hboxlayout.setSpacing(6)
+        self.hboxlayout.setObjectName("hboxlayout")
 
-        if not name:
-            self.setName("JigPropDialog")
+        self.vboxlayout1 = QtGui.QVBoxLayout()
+        self.vboxlayout1.setMargin(0)
+        self.vboxlayout1.setSpacing(6)
+        self.vboxlayout1.setObjectName("vboxlayout1")
 
-        self.setSizeGripEnabled(1)
+        self.nameTextLabel = QtGui.QLabel(JigPropDialog)
+        self.nameTextLabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.nameTextLabel.setObjectName("nameTextLabel")
+        self.vboxlayout1.addWidget(self.nameTextLabel)
 
-        JigPropDialogLayout = QVBoxLayout(self,11,6,"JigPropDialogLayout")
+        self.colorTextLabel = QtGui.QLabel(JigPropDialog)
+        self.colorTextLabel.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
+        self.colorTextLabel.setObjectName("colorTextLabel")
+        self.vboxlayout1.addWidget(self.colorTextLabel)
+        self.hboxlayout.addLayout(self.vboxlayout1)
 
-        layout92 = QHBoxLayout(None,0,6,"layout92")
+        self.vboxlayout2 = QtGui.QVBoxLayout()
+        self.vboxlayout2.setMargin(0)
+        self.vboxlayout2.setSpacing(6)
+        self.vboxlayout2.setObjectName("vboxlayout2")
 
-        layout90 = QVBoxLayout(None,0,6,"layout90")
+        self.nameLineEdit = QtGui.QLineEdit(JigPropDialog)
+        self.nameLineEdit.setEnabled(True)
+        self.nameLineEdit.setObjectName("nameLineEdit")
+        self.vboxlayout2.addWidget(self.nameLineEdit)
 
-        self.nameTextLabel = QLabel(self,"nameTextLabel")
-        self.nameTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout90.addWidget(self.nameTextLabel)
+        self.hboxlayout1 = QtGui.QHBoxLayout()
+        self.hboxlayout1.setMargin(0)
+        self.hboxlayout1.setSpacing(6)
+        self.hboxlayout1.setObjectName("hboxlayout1")
 
-        self.colorTextLabel = QLabel(self,"colorTextLabel")
-        self.colorTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignLeft)
-        layout90.addWidget(self.colorTextLabel)
-        layout92.addLayout(layout90)
+        self.hboxlayout2 = QtGui.QHBoxLayout()
+        self.hboxlayout2.setMargin(0)
+        self.hboxlayout2.setSpacing(6)
+        self.hboxlayout2.setObjectName("hboxlayout2")
 
-        layout91 = QVBoxLayout(None,0,6,"layout91")
+        self.jig_color_pixmap = QtGui.QLabel(JigPropDialog)
+        self.jig_color_pixmap.setMinimumSize(QtCore.QSize(40,0))
+        self.jig_color_pixmap.setScaledContents(True)
+        self.jig_color_pixmap.setObjectName("jig_color_pixmap")
+        self.hboxlayout2.addWidget(self.jig_color_pixmap)
 
-        self.nameLineEdit = QLineEdit(self,"nameLineEdit")
-        self.nameLineEdit.setEnabled(1)
-        self.nameLineEdit.setFrameShape(QLineEdit.LineEditPanel)
-        self.nameLineEdit.setFrameShadow(QLineEdit.Sunken)
-        layout91.addWidget(self.nameLineEdit)
+        self.choose_color_btn = QtGui.QPushButton(JigPropDialog)
+        self.choose_color_btn.setEnabled(True)
 
-        layout84 = QHBoxLayout(None,0,6,"layout84")
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(5),QtGui.QSizePolicy.Policy(0))
+        sizePolicy.setHorizontalStretch(1)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.choose_color_btn.sizePolicy().hasHeightForWidth())
+        self.choose_color_btn.setSizePolicy(sizePolicy)
+        self.choose_color_btn.setObjectName("choose_color_btn")
+        self.hboxlayout2.addWidget(self.choose_color_btn)
+        self.hboxlayout1.addLayout(self.hboxlayout2)
 
-        layout83 = QHBoxLayout(None,0,6,"layout83")
+        spacerItem = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.hboxlayout1.addItem(spacerItem)
+        self.vboxlayout2.addLayout(self.hboxlayout1)
+        self.hboxlayout.addLayout(self.vboxlayout2)
+        self.vboxlayout.addLayout(self.hboxlayout)
 
-        self.jig_color_pixmap = QLabel(self,"jig_color_pixmap")
-        self.jig_color_pixmap.setMinimumSize(QSize(40,0))
-        self.jig_color_pixmap.setPaletteBackgroundColor(QColor(0,0,0))
-        self.jig_color_pixmap.setScaledContents(1)
-        layout83.addWidget(self.jig_color_pixmap)
+        spacerItem1 = QtGui.QSpacerItem(20,20,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
+        self.vboxlayout.addItem(spacerItem1)
 
-        self.choose_color_btn = QPushButton(self,"choose_color_btn")
-        self.choose_color_btn.setEnabled(1)
-        self.choose_color_btn.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Fixed,1,0,self.choose_color_btn.sizePolicy().hasHeightForWidth()))
-        layout83.addWidget(self.choose_color_btn)
-        layout84.addLayout(layout83)
-        spacer8 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout84.addItem(spacer8)
-        layout91.addLayout(layout84)
-        layout92.addLayout(layout91)
-        JigPropDialogLayout.addLayout(layout92)
-        spacer11 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        JigPropDialogLayout.addItem(spacer11)
+        self.hboxlayout3 = QtGui.QHBoxLayout()
+        self.hboxlayout3.setMargin(0)
+        self.hboxlayout3.setSpacing(6)
+        self.hboxlayout3.setObjectName("hboxlayout3")
 
-        layout50 = QHBoxLayout(None,0,6,"layout50")
-        spacer9 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout50.addItem(spacer9)
+        spacerItem2 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.hboxlayout3.addItem(spacerItem2)
 
-        self.ok_btn = QPushButton(self,"ok_btn")
-        self.ok_btn.setAutoDefault(1)
-        self.ok_btn.setDefault(1)
-        layout50.addWidget(self.ok_btn)
+        self.ok_btn = QtGui.QPushButton(JigPropDialog)
+        self.ok_btn.setAutoDefault(True)
+        self.ok_btn.setDefault(True)
+        self.ok_btn.setObjectName("ok_btn")
+        self.hboxlayout3.addWidget(self.ok_btn)
 
-        self.cancel_btn = QPushButton(self,"cancel_btn")
-        self.cancel_btn.setAutoDefault(1)
-        self.cancel_btn.setDefault(0)
-        layout50.addWidget(self.cancel_btn)
-        JigPropDialogLayout.addLayout(layout50)
+        self.cancel_btn = QtGui.QPushButton(JigPropDialog)
+        self.cancel_btn.setAutoDefault(True)
+        self.cancel_btn.setDefault(False)
+        self.cancel_btn.setObjectName("cancel_btn")
+        self.hboxlayout3.addWidget(self.cancel_btn)
+        self.vboxlayout.addLayout(self.hboxlayout3)
 
-        self.languageChange()
+        self.retranslateUi(JigPropDialog)
+        QtCore.QObject.connect(self.cancel_btn,QtCore.SIGNAL("clicked()"),JigPropDialog.reject)
+        QtCore.QObject.connect(self.ok_btn,QtCore.SIGNAL("clicked()"),JigPropDialog.accept)
+        QtCore.QMetaObject.connectSlotsByName(JigPropDialog)
+        JigPropDialog.setTabOrder(self.nameLineEdit,self.choose_color_btn)
+        JigPropDialog.setTabOrder(self.choose_color_btn,self.ok_btn)
+        JigPropDialog.setTabOrder(self.ok_btn,self.cancel_btn)
 
-        self.resize(QSize(245,145).expandedTo(self.minimumSizeHint()))
-        self.clearWState(Qt.WState_Polished)
-
-        self.connect(self.cancel_btn,SIGNAL("clicked()"),self.reject)
-        self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
-        self.connect(self.choose_color_btn,SIGNAL("clicked()"),self.change_jig_color)
-
-        self.setTabOrder(self.nameLineEdit,self.choose_color_btn)
-        self.setTabOrder(self.choose_color_btn,self.ok_btn)
-        self.setTabOrder(self.ok_btn,self.cancel_btn)
-
-
-    def languageChange(self):
-        self.setCaption(self.__tr("Jig Properties"))
-        self.nameTextLabel.setText(self.__tr("Name:"))
-        self.colorTextLabel.setText(self.__tr("Color:"))
-        self.nameLineEdit.setText(QString.null)
-        self.choose_color_btn.setText(self.__tr("Choose..."))
-        QToolTip.add(self.choose_color_btn,self.__tr("Change Color"))
-        self.ok_btn.setText(self.__tr("&OK"))
-        self.ok_btn.setAccel(self.__tr("Alt+O"))
-        self.cancel_btn.setText(self.__tr("&Cancel"))
-        self.cancel_btn.setAccel(self.__tr("Alt+C"))
-
-
-    def change_jig_color(self):
-        print "JigPropDialog.change_jig_color(): Not implemented yet"
-
-    def __tr(self,s,c = None):
-        return qApp.translate("JigPropDialog",s,c)
+    def retranslateUi(self, JigPropDialog):
+        JigPropDialog.setWindowTitle(QtGui.QApplication.translate("JigPropDialog", "Jig Properties", None, QtGui.QApplication.UnicodeUTF8))
+        self.nameTextLabel.setText(QtGui.QApplication.translate("JigPropDialog", "Name:", None, QtGui.QApplication.UnicodeUTF8))
+        self.colorTextLabel.setText(QtGui.QApplication.translate("JigPropDialog", "Color:", None, QtGui.QApplication.UnicodeUTF8))
+        self.choose_color_btn.setToolTip(QtGui.QApplication.translate("JigPropDialog", "Change Color", None, QtGui.QApplication.UnicodeUTF8))
+        self.choose_color_btn.setText(QtGui.QApplication.translate("JigPropDialog", "Choose...", None, QtGui.QApplication.UnicodeUTF8))
+        self.ok_btn.setText(QtGui.QApplication.translate("JigPropDialog", "&OK", None, QtGui.QApplication.UnicodeUTF8))
+        self.ok_btn.setShortcut(QtGui.QApplication.translate("JigPropDialog", "Alt+O", None, QtGui.QApplication.UnicodeUTF8))
+        self.cancel_btn.setText(QtGui.QApplication.translate("JigPropDialog", "&Cancel", None, QtGui.QApplication.UnicodeUTF8))
+        self.cancel_btn.setShortcut(QtGui.QApplication.translate("JigPropDialog", "Alt+C", None, QtGui.QApplication.UnicodeUTF8))

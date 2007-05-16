@@ -1,5 +1,6 @@
 $Id$
 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 this file should not remain in cvs once devel is done
 
 

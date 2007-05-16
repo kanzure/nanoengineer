@@ -1,4 +1,4 @@
-# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 '''
 PlotTool.py
 
@@ -13,7 +13,7 @@ to trace file format.
 __author__ = "Mark"
 
 from PlotToolDialog import *
-from qt import *
+from PyQt4.Qt import *
 import time
 import sys, os, string
 from HistoryWidget import redmsg, greenmsg, orangemsg
@@ -27,19 +27,28 @@ debug_gnuplot = False
 debug_plottool = False
 
 cmd = greenmsg("Make Graphs: ") #### this is bad, needs to be removed, but that's hard to do safely [bruce 060105 comment] #ninad060807 renamed Plot Tool to 'Make Graphs'
-
-class PlotTool(PlotToolDialog):
+        
+class PlotTool(QWidget, Ui_PlotToolDialog):
     # Bug 1484, wware 060317 - PlotTool requires a trace file and a plot file.
     def __init__(self, assy, basefilename):
-        parent = assy.w
-        PlotToolDialog.__init__(self, parent)
+        QWidget.__init__(self)
+        self.setupUi(self)
+        self.connect(self.done_btn,SIGNAL("clicked()"),self.close)
+        self.connect(self.plot_btn,SIGNAL("clicked()"),self.genPlot)
+        self.connect(self.open_gnuplot_btn,SIGNAL("clicked()"),self.openGNUplotFile)
+        self.connect(self.open_trace_file_btn,SIGNAL("clicked()"),self.openTraceFile)
+        
         try:
-            tracefilename = basefilename[:-4] + "-xyztrace.txt"
+            tracefilename = assy.current_movie.get_trace_filename()
+            plotfilename = tracefilename[:-13] + "-plot.txt"
+            #tracefilename = basefilename[:-4] + "-xyztrace.txt"
             inf = open(tracefilename)
             inf.close()
         except IOError:
-            tracefilename = basefilename[:-4] + "-trace.txt"
-        plotfilename = basefilename[:-4] + "-plot.txt"
+            tracefilename = assy.current_movie.get_trace_filename()
+            plotfilename = tracefilename[:-10] + "-plot.txt"
+            #tracefilename = basefilename[:-4] + "-trace.txt"
+        
         self.traceFile = tracefilename
         self.plotFile = plotfilename
         self.setup()
@@ -140,7 +149,7 @@ class PlotTool(PlotToolDialog):
         # Populate the plot combobox with plotting options.
         if ncols:
             for i in range(ncols):
-                self.plot_combox.insertItem( column_header[i] )
+                self.plot_combox.insertItem( i, column_header[i] )
         else: # No jigs in the part, so nothing to plot.  Revised msgs per bug 440-2.  Mark 050731.
             msg = redmsg("The part contains no jigs that write data to the trace file.  Nothing to plot.")
             env.history.message(cmd + msg)
@@ -169,7 +178,7 @@ class PlotTool(PlotToolDialog):
             env.history.message(cmd + msg)
             return
             
-        col = self.plot_combox.currentItem() + 2 # Column number to plot
+        col = self.plot_combox.currentIndex() + 2 # Column number to plot
         
         # If this plot was the same as the last plot, just run GNUplot on the plotfile.
         # This allows us to edit the current plotfile in a text editor via "Open GNUplot File"
@@ -284,27 +293,29 @@ class PlotTool(PlotToolDialog):
             return
         
         # Create arguments list for plotProcess.
-        args = [program, plotfile]
+        args = [plotfile, environVb]
         ###e It might also be good to pass gnuplot some arg to tell it to ignore ~/.gnuplot. [bruce 060425 guess]
-        arguments = QStringList()
+        arguments = []
         for arg in args:
-            arguments.append(arg)
+            if arg != "" and arg != None: # None test needed to remove environVb for Windows. [mark 2007-05-03]
+                arguments.append(arg)
         
-        # Run GNUplot as a separate process
         plotProcess = None
         try:
-            plotProcess = QProcess()
-            plotProcess.setArguments(arguments)
-            rst = plotProcess.start(environVb)
-               
-            if not rst: 
-                env.history.message(redmsg("GNUplot failed to run!"))
+            from Process import Process
+            plotProcess = Process()
+            # print "\nGNUplot arguments:", arguments
+            # Run gnuplot as a new, separate process. 
+            started = plotProcess.startDetached(program, arguments)  
+
+            if not started:
+                env.history.message(redmsg("gnuplot failed to run!"))
             else: 
-                env.history.message("Running GNUplot file: " + plotfile)
+                env.history.message("Running gnuplot file: " + plotfile)
                 if debug_gnuplot:
                     try:
                         #bruce 060425 debug code; Qt assistant for QProcess says this won't work on Windows (try it there anyway).
-                        pid = plotProcess.processIdentifier()
+                        pid = plotProcess.pid() # This should work on Windows in Qt 4.2 [mark 2007-05-03]
                         pid = int(pid) # this is what is predicted to fail on Windows
                         env.history.message("(debug: gnuplot is %r, its process id is %d)" % (program, pid))
                     except:
@@ -331,7 +342,7 @@ class PlotTool(PlotToolDialog):
 # == 
 
 def simPlot(assy): # moved here from MWsemantics method, bruce 050327
-    """Opens the Plot Tool dialog (and waits until it's dismissed),
+    """Opens the "Make Graphs" dialog (and waits until it's dismissed),
     for the current movie if there is one, otherwise for a previously saved
     dpb file with the same name as the current part, if one can be found.
     Returns the dialog, after it's dismissed (probably useless),
@@ -348,6 +359,11 @@ def simPlot(assy): # moved here from MWsemantics method, bruce 050327
 
     if assy.current_movie and assy.current_movie.filename:
         return PlotTool(assy, assy.current_movie.filename)
+    else:
+        msg = redmsg("There is no current movie file loaded.")
+        env.history.message(cmd + msg)
+        return None
+        
     # wware 060317, bug 1484
     if assy.filename:
         return PlotTool(assy, assy.filename)

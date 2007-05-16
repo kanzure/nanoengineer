@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2006 Nanorex, Inc.  See LICENSE file for details. 
 """
 assistant.py
 
@@ -6,7 +6,7 @@ $Id$
 """
 
 import sys, string
-from qt import *
+from PyQt4.Qt import *
 from os import *
 
 class AssistantWindow(QWidget):
@@ -78,6 +78,6 @@ if __name__=='__main__':
 
     QObject.connect(app,SIGNAL('lastWindowClosed()'),app,SLOT('quit()'))
 
-    app.exec_loop()
+    app.exec_()
 
 # end of assistant.py

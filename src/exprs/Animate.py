@@ -1,7 +1,9 @@
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 Animate.py [just notes so far]
 
 $Id$
+
 """
 
 

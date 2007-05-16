@@ -1,7 +1,9 @@
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 pallettes.py
 
 $Id$
+
 """
 
 from basic import *

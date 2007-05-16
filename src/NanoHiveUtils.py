@@ -1,4 +1,4 @@
-# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 '''
 NanoHiveUtils.py
 
@@ -15,7 +15,7 @@ __author__ = "Brian"
 import env, os, sys, time
 from platform import find_or_make_Nanorex_subdir
 from constants import nanohive_path_prefs_key, nanohive_enabled_prefs_key
-from qt import Qt, QApplication, QCursor
+from PyQt4.Qt import Qt, QApplication, QCursor
 
 def get_nh_simspec_filename(basename):
     '''Return the full path of the Nano-Hive simulation specification file.
@@ -227,11 +227,11 @@ def activate_nh_plugin(win):
     win is the main window object.
     '''
 
-    from qt import QMessageBox
+    from PyQt4.Qt import QMessageBox
     ret = QMessageBox.warning( win, "Activate Nano-Hive Plug-in",
         "Nano-Hive plug-in not enabled. Please select <b>OK</b> to \n" \
         "activate the Nano-Hive plug-in from the Preferences dialog.",
-        "&OK", "Cancel", None,
+        "&OK", "Cancel", "",
         0, 1 )
             
     if ret==0: # OK
@@ -264,38 +264,35 @@ def verify_program(program, version_flag, vstring):
     if not os.path.exists(program):
         return 1
         
-    args = [program, version_flag]
+    args = [version_flag]
     
-    from qt import QStringList, QProcess
+    from Process import Process
     
-    arguments = QStringList()
+    arguments = []
     for arg in args:
         if arg != "":
             arguments.append(arg)
     
-    p = QProcess()
-    p.setArguments(arguments)
-    p.start()
+    print
+    print "arguments:", arguments
     
-    start = time.time()
-    while not p.canReadLineStdout():
-        time.sleep(0.25)
-        duration = time.time() - start
-        if duration > 5.0: # Anything less than 5 seconds is not long enough. Mark 060518.
-            return 1
+    p = Process()
+    p.start(program, arguments)
+    
+    if not p.waitForFinished (10000): # Wait for 10000 milliseconds = 10 seconds
+        return 1
     
     output = 'Not vstring'
     
-    if p.canReadLineStdout():
-        output = str(p.readLineStdout())
+    output = str(p.readAllStandardOutput())
     
     #print "output=", output
     #print "vstring=", vstring
-        
-    if output == vstring:
-        return 0
-    else:
+    
+    if output.find(vstring) == -1:
         return 1
+    else:
+        return 0 # Match found.
     
 def start_nh():
     '''Starts Nano-Hive server in the background.
@@ -316,20 +313,19 @@ def start_nh():
     if not nanohive_config:
         return 2
         
-    args = [nanohive_exe, '-f', nanohive_config]
+    args = ['-f', nanohive_config]
     
     #print "start_nh(): args=", args
     
-    from qt import QStringList, QProcess
+    from Process import Process
     
-    arguments = QStringList()
+    arguments = []
     for arg in args:
         if arg != "":
             arguments.append(arg)
     
-    nhProcess = QProcess()
-    nhProcess.setArguments(arguments)
-    nhProcess.start()
+    nhProcess = Process()
+    nhProcess.start(nanohive_exe, args)
     
     return 0
 

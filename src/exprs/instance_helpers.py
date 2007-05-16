@@ -1,9 +1,12 @@
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 instance_helpers.py
 
 $Id$
 
+
 070129 moved still-nim GlueCodeMemoizer into new file Column_old_nim.py
+
 """
 
 from basic import * # autoreload of basic is done before we're imported; this is a recursive import

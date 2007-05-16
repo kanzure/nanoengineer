@@ -1,8 +1,8 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-modelTree.py -- The model tree display widget. Inherits from TreeWidget.py.
+modelTree.py -- The model tree display widget.
 
-[mostly owned by Bruce]
+[Note: in Qt4, this no longer uses TreeWidget.py or TreeView.py.]
 
 $Id$
 
@@ -11,22 +11,36 @@ Huaicai, Josh, and Mark. Bruce (Jan 2005) reorganized its interface with
 Node and Group and their subclasses (Utility.py and other modules)
 and rewrote a lot of the model-tree code (mainly to fix bugs),
 and split it into three modules:
+
 - TreeView.py (display and update),
+
 - TreeWidget.py (event handling, and some conventions suitable for
   all our tree widgets, if we define other ones), and
+
 - modelTree.py (customized for showing a "model tree" per se).
 
-bruce 050913 used env.history in some places.
+After that, Will ported it to Qt4, and since the Q3 compatibility
+classes were unsupported by PyQt4, rewrote much of it, in the process
+replacing TreeView.py and TreeWidget.py by a new file, modelTreeGui.py,
+and adding a standalone prototype file modelTreePrototype.py (functional
+as a separate test program, but not used by NE1). The current organization
+might therefore be:
+
+- modelTreeGui.py (display and update, event handling, and some
+  conventions suitable for all our tree widgets, if we define other ones), and
+  
+- modelTree.py (customized for showing an NE1 "model tree" per se).
 """
 
-from TreeWidget import * # including class TreeWidget itself, and Node, Group
 from chunk import molecule
 from jigs import Jig
+from chem import gensym
 import platform # for atom_debug
+from platform import fix_plurals #bruce 070503 Qt4
 from HistoryWidget import redmsg, greenmsg, orangemsg # not all used, that's ok
 import env
-
-debug_columns = 0 # bruce 050531 experiment (works, disabled now) - multiple columns in MT
+from Utility import *
+import modelTreeGui   # ModelTreeGui, Ne1Model_api
 
 debug_preftree = 0 # bruce 050602 experiment; requires new (not yet committed) file when enabled #####@@@@@ DO NOT COMMIT with 1
 
@@ -77,98 +91,149 @@ def accumulate_stats(node, stats):
     stats.nopen += int(node.open)
     return
 
-# custom QListViewItem
 
-class mt_QListViewItem( QListViewItem):
-    "used for nodes with specialize drawing for various purposes (maybe more than one purpose at once)"
-    dotcolor = Qt.red # also available: Qt.blue, Qt.green, Qt.black, QColor(128,0,128), QColor(200,100,0)...
-    def setText(self, col, text):
-        # this is called... when the super.paintCell line below runs! which is called by TreeeView's call of QListView.viewportPaintEvent.
-##        if debug_columns:
-##            print "setText called in custom item",col,text
-##            if col:
-##                print_compact_stack("setText col 1: ")
-##                print text, "%r" % (text,), type(text)
-##                pass ## text = QString("colhack")
-        ##     # this happens for all nodes after the first in each set of node-kids
-        super = QListViewItem
-        return super.setText(self, col, text)
-    def paintCell(self, p, cg, col, width, align):
-                  # QPainter * p, const QColorGroup & cg, int column, int width, int align )
-                  # for align see "Qt::AlignmentFlags"... not sure if they'd help; this doesn't cover the area I want to paint
-        ## print "paintCell",p, cg, col, width, align # might happen a lot
-        ## # paintCell <constants.qt.QPainter object at 0xcf51330> <constants.qt.QColorGroup object at 0xce97120> 0 132 1
-        # 0. grab useful values; if this fails use super method
-        super = QListViewItem
-        if col != 0: #bruce 050531
-            return super.paintCell(self, p, cg, col, width, align)
-        try:
-            node = self.object
-            assy = node.assy
-            sg = assy.current_selgroup_iff_valid()
-        except:
-            print "bug"
-            print_compact_traceback("exception in mt_QListViewItem.paintCell: ")
-            return super.paintCell(self, p, cg, col, width, align)
-        # 1. modify painter before superclass paintcell runs
-        p.save()
-        if node.is_disabled():
-            if 1: #bruce 050423 try to fix bug 562 by erasing to the right of our italic text...
-                ## use p.clipRegion? p.eraseRect? Ask QLV for the rect?
-                ## print "width is",self.width() -- width needs args for font and column and maybe more! (could find them if necessary)
-                ## print "height is",self.height()
-                p.eraseRect(0,0,500,self.height())
-                    # the 500 is just an obviously-too-large width... will it mess up scrollbar? not on mac.
-            # italic name indicates a disabled node (e.g. a jig whose atoms are not in same part, which won't affect the sim)
-            p.shear(0, -0.5)
-            # WARNING: this shear might have no effect on some platforms, because Qt doc for QListViewItem.paintCell says
-            # it should assume painter p state is undefined (I think). Of course p's translation matters, so maybe that's why
-            # shear matters, I don't know; or it might just be a Qt bug that it works on the Mac. I also tried setting its
-            # pen color and thickness [ p.setPen(QPen(Qt.red, 3)) ], and this had no effect, as predicted by that Qt doc.
-            # [bruce 050421]
-            #e We should also perhaps alter color for some nodes, e.g. the chunks "touched" by selected jigs (or chunks?)
-            # or vice versa... above comment implies that to do this in their text, we'd pass paintCell a modified cg;
-            # or we could draw more stuff on top of them (like the red dot below). [bruce 050421]
-        res = super.paintCell(self, p, cg, col, width, align)
-        p.restore() # without this, shear also affects the red dot drawn below,
-            # and text in the drag-graphic (but not other QLVitems) [bruce 050421]
-        # 2. red dot indicates currently shown clipboard item, if any
-        try:
-            if sg == node and node != assy.tree:
-                ## before 050421 this class was only used when node.is_top_of_selection_group(), and that if condition was: 
-                ## if node != assy.tree and (node.part == assy.part or node == assy.part.topnode.dad): # needs deklugification
-                # 
-                ## print "super.paintCell returned",res # always None
-                ## Python insists self must be right class, so this fails: TreeView.drawbluething( "self arg not used", p)
-                p.save()
-                p.setPen(QPen(self.dotcolor, 3)) # 3 is pen thickness; btw, this also sets color of the "moving 1 item" at bottom of DND graphic!
-                w,h = 100,9 # bbox rect size of what we draw (i think)
-                x,y = -21,8 # topleft of what we draw; 0,0 is topleft corner of icon; neg coords work, not sure how far or how safe
-                p.drawEllipse(x,y,h,h) # gets onto topleft of the icon (pixmap) region. Useful for something but not for what I want.
-                p.restore() # without this, changed color affects text in the drag-graphic [bruce 050421]
-        except:
-            print "bug"
-            print_compact_traceback("exception in mt_QListViewItem.paintCell: ")
-        return res
-    pass # end of class mt_QListViewItem
+############################################################
 
 # main widget class
 
-class modelTree(TreeWidget):
+class modelTree(modelTreeGui.Ne1Model_api):
     def __init__(self, parent, win, name = "modelTreeView", size = (200, 560)):
         """#doc"""
         ###@@@ review all init args & instvars, here vs subclasses
-        columns = ["Model Tree"]
-        if debug_columns:
-            columns.extend( ["Class", "Col3"] )
-        TreeWidget.__init__(self, parent, win, name, columns = columns, size = size) # stores self.win
+        self.modelTreeGui = modelTreeGui.ModelTreeGui(win, name, self, parent)
+            # WARNING: self.modelTreeGui is a PUBLIC MEMBER which is accessed by MWsemantics (at least)
+            # for use in building the Qt widget layout. For public access purposes it can be considered
+            # "the Qt widget containing the model tree" and it ought to have a special name (or get-method)
+            # just for that purpose, so this attr could be made private.
+            #    Worse, the code before late on 070509 sometimes stored self.modelTreeGui rather than self
+            # in win.mt (maybe) and assy.mt (definitely), but other times stored self!
+            # And lots of files call various methods on assy.mt and/or win.mt, namely:
+            # - update_select_mode
+            # - resetAssy_and_clear
+            # - mt_update
+            # - open_clipboard
+            # and in mwsem:
+            # - self.mt.setMinimumSize(0, 0)
+            # - self.mt.setColumnWidth(0,225)
+            # So for now, I made sure all those can be called on self (it was already true),
+            # and in future, they need to be documented in the api, or the external calls should
+            # call them explicitly on the widget member (accessing it in a valid public way).
+            # [bruce 070509 comment]
+        self.win = win
 
         # debug menu and reload command - inited in superclass ###k ok?
 
         self.assy = win.assy #k needed? btw does any superclass depend on this?? ###@@@
 
-        self.initialized = 1 ###@@@ review where this is done
-        self.mt_update() ###@@@ review where done, and name (split it?)
+        self.mt_update()
+        return
+
+    def update_select_mode(self): #bruce 050124; should generalize and refile; should be used for more or for all events ###@@@
+        #bruce 060403 revised this but didn't update docstring; now it can change from *Chunk modes to Build, only, I think
+        """This should be called at the end of event handlers which might have
+        changed the current internal selection mode (atoms vs chunks),
+        to resolve disagreements between that and the visible selection mode
+        iff it's one of the Select modes [or more generally, i assume as of 060403,
+        if the current mode wants to be ditched if selwhat has to have certain values it dislikes].
+           If the current mode is not one of Select Atoms or Select Chunks, this routine has no effect.
+        (In particular, if selwhat changed but could be changed back to what it was,
+        it does nothing to correct that [obs? see end of docstring], and indeed it doesn't know the old value of
+        selwhat unless the current mode (being a selectMode) implies that.)
+           [We should generalize this so that other modes could constrain the selection
+        mode to just one of atoms vs chunks if they wanted to. However, the details of this
+        need design, since for those modes we'd change the selection whereas for the
+        select modes we change which mode we're in and don't change the selection. ###@@@]
+           If possible, we leave the visible mode the same (even changing assy.selwhat
+        to fit, if nothing is actually selected [that part was NIM until 050519]).
+        But if forced to, by what is currently selected, then we change the visible
+        selection mode to fit what is actually selected. (We always assert that selwhat
+        permitted whatever was selected to be selected.)
+        """
+        if env.permit_atom_chunk_coselection(): #bruce 060721
+            return
+        from selectMolsMode import selectMolsMode
+        ## from selectAtomsMode import selectAtomsMode
+        #bruce 050519 revised docstring and totally rewrote code.
+        assy = self.assy
+        win = self.win
+        mode = self.win.glpane.mode
+        del self
+        part = assy.part
+        # 0. Appraise the situation.
+        # 0a: assy.selwhat is what internal code thinks selection restriction is, currently.
+        selwhat = assy.selwhat
+        assert selwhat in (SELWHAT_CHUNKS, SELWHAT_ATOMS) # any more choices, or change in rules, requires rewriting this method
+        # 0b. What does current mode think it needs to be?
+        # (Someday we might distinguish modes that constrain this,
+        #  vs modes that change to fit it or to fit the actual selection.
+        #  For now we only handle modes that change to fit the actual selection.) 
+        selwhat_from_mode = None # most modes don't care
+        if isinstance( mode, selectMolsMode):
+            selwhat_from_mode = SELWHAT_CHUNKS
+        #bruce 060403 commenting out the following, in advance of proposed removal of Select Atoms mode entirely:
+##        elif isinstance( mode, selectAtomsMode) and mode.modename == selectAtomsMode.modename:
+##            #bruce 060210 added modename condition to fix bug when current mode is Build (now a subclass of Select Atoms)
+##            selwhat_from_mode = SELWHAT_ATOMS
+        change_mode_to_fit = (selwhat_from_mode is not None) # used later; someday some modes won't follow this
+        # 0c. What does current selection itself think it needs to be?
+        # (If its desires are inconsistent, complain and fix them.)
+        if assy.selatoms and assy.selmols:
+            if platform.atom_debug:
+                #bruce 060210 made this debug-only, since what it reports is not too bad, and it happens routinely now in Build mode
+                # if atoms are selected and you then select a chunk in MT
+                print "atom_debug: bug, fyi: there are both atoms and chunks selected. Deselecting some of them to fit current mode or internal code."
+            new_selwhat_influences = ( selwhat_from_mode, selwhat) # old mode has first say in this case, if it wants it
+            #e (We could rewrite this (equivalently) to just use the other case with selwhat_from_sel = None.)
+        else:
+            # figure out what to do, in this priority order: actual selection, old mode, internal code.
+            if assy.selatoms:
+                selwhat_from_sel = SELWHAT_ATOMS
+            elif assy.selmols:
+                selwhat_from_sel = SELWHAT_CHUNKS
+            else:
+                selwhat_from_sel = None
+            new_selwhat_influences = ( selwhat_from_sel, selwhat_from_mode, selwhat)
+            if selwhat_from_sel is not None and selwhat_from_sel != selwhat:
+                # following code will fix this with no harm, so let's not consider it a big deal,
+                # but it does indicate a bug -- so just print a debug-only message.
+                # (As of 050519 740pm, we get this from the jig cmenu command "select this jig's atoms"
+                #  when the current mode is more compatible with selecting chunks. But I think this causes
+                #  no harm, so I might as well wait until we further revise selection code to fix it.)
+                if platform.atom_debug:
+                    print "atom_debug: bug, fyi: actual selection (%s) inconsistent " \
+                          "with internal variable for that (%s); will fix internal variable" % \
+                          (SELWHAT_NAMES[selwhat_from_sel], SELWHAT_NAMES[selwhat])
+        # Let the strongest (first listed) influence, of those with an opinion,
+        # decide what selmode we'll be in now, and make everything consistent with that.
+        for opinion in new_selwhat_influences:
+            if opinion is not None:
+                # We have our decision. Carry it out (on mode, selection, and assy.selwhat) and return.
+                selwhat = opinion
+                if change_mode_to_fit and selwhat_from_mode != selwhat:
+                    #bruce 050520 fix bug 644 by only doing this if needed (i.e. if selwhat_from_mode != selwhat).
+                    # Without this fix, redundantly changing the mode using these tool buttons
+                    # immediately cancels (or completes?) any node-renaming-by-dblclick
+                    # right after it gets initiated (almost too fast to see).
+                    if selwhat == SELWHAT_CHUNKS:
+                        win.toolsSelectMolecules()
+                        print "fyi: forced mode to Select Chunks" # should no longer ever happen as of 060403 
+                    elif selwhat == SELWHAT_ATOMS:
+                        win.toolsBuildAtoms() #bruce 060403 change: toolsSelectAtoms -> toolsBuildAtoms
+                        ## win.toolsSelectAtoms() #bruce 050504 making use of this case for the first time; seems to work
+                # that might have fixed the following too, but never mind, we'll just always do it -- sometimes it's needed.
+                if selwhat == SELWHAT_CHUNKS:
+                    part.unpickatoms()
+                    assy.set_selwhat(SELWHAT_CHUNKS)
+                elif selwhat == SELWHAT_ATOMS:
+                    if assy.selmols: # only if needed (due to a bug), since this also desels Groups and Jigs
+                        # (never happens if no bug, since then the actual selection has the strongest say -- as of 050519 anyway)
+                        part.unpickparts()
+                    assy.set_selwhat(SELWHAT_ATOMS) # (this by itself does not deselect anything, as of 050519)
+                return
+        assert 0, "new_selwhat_influences should not have ended in None: %r" % (new_selwhat_influences,)
+        # scratch comments:
+        # if we had been fixing selwhat in the past, it would have fixed bug 500 in spite of permit_pick_parts in cm_hide/cm_unhide.
+        # So why aren't we? let's find out with some debug code... (now part of the above, in theory)
         return
 
     def resetAssy_and_clear(self): #bruce 050201 for Alpha, part of Huaicai's bug 369 fix
@@ -187,10 +252,27 @@ class modelTree(TreeWidget):
         would be needed to MWsemantics.__clear(), but for now, we'll just do it
         like this.
         """
-        self.clear()
+        self.modelTreeGui.replace_item_tree( unpickEverybody = True )
         # prevents Windows crash if an item's text is being edited in-place
         # [huaicai & bruce 050201 for Alpha to fix bug 369; not sure how it works]
         return
+
+    def mt_update(self):
+        # note: bruce 070509 changed a lot of calls of self.modelTreeGui.mt_update to call self.mt_update.
+        # note: bruce 070511 removed all direct sets here of mt_update_needed, since mt_update now sets it.
+        return self.modelTreeGui.mt_update()
+
+    def setMinimumSize(self, h, w):
+        return self.modelTreeGui.setMinimumSize(h, w)
+    
+    def setMaximumWidth(self, w): #k might not be needed
+        return self.modelTreeGui.setMaximumWidth(w)
+    
+    def setColumnWidth(self, column, w):
+        return self.modelTreeGui.setColumnWidth(column, w)
+    
+    def setGeometry(self, w, h): #k might not be needed
+        return self.modelTreeGui.setGeometry(QtCore.QRect(0,0,w,h))
 
     # callbacks from superclass to help it update the display
     
@@ -220,7 +302,42 @@ class modelTree(TreeWidget):
                 print_compact_traceback("error importing prefsTree or making one: ")
         return topnodes
 
-    def post_update_topitems(self):
+    def get_current_part_topnode(self): #bruce 070509 added this to the API ###doc
+        return self.win.assy.part.topnode
+    
+    def node_to_item(self, node):
+        return self.modelTreeGui.item_to_node_dict.get(node, None)
+            #bruce 070503 comment: likely ###BUG, should use node_to_item_dict -- but this is not called anywhere!
+            # (Where was it called in Qt3?)
+
+    def open_clipboard(self): #bruce 050108, probably temporary
+        ###REVIEW: do we need the effect that's disabled here?
+        if False:
+            # self.toggle_open( self.shelf_item, openflag = True)  # what we did in Qt 3
+            # shelf_item should be the item for the self.assy.shelf node
+            shelf_item = self.modelTreeGui.item_to_node_dict[self.assy.shelf]
+                #bruce 070503 comment: likely ###BUG, should use node_to_item_dict -- that explains the KeyError...
+            # typically that gives a KeyError
+            self.toggle_open(shelf_item, openflag = True)
+            # toggle_open is defined in TreeView.py in the Qt 3 code
+        # I want to call the MMKit's change2ClipboardPage method.
+        mmkit = self.win.modifyMMKit()
+        mmkit.update_clipboard_items()
+        mmkit.change2ClipboardPage()
+        if False:
+            qt4here(show_traceback=True)
+            def grep_dash_il(str, substr):
+                str = str.upper()
+                substr = substr.upper()
+                try:
+                    str.index(substr)
+                    return True
+                except ValueError:
+                    return False
+            print filter(lambda x: grep_dash_il(x, "mmkit"), dir(self.win))
+        return
+
+    def post_update_topitems(self): ###REVIEW: is this still needed?
         self.tree_item, self.shelf_item = self.topitems[0:2] # ignore 3rd element (prefsTree when that's enabled)
             # the actual items are different each time this is called
             ###@@@ as of 050602 the only uses of these are:
@@ -228,19 +345,8 @@ class modelTree(TreeWidget):
             # shelf_item, in our open_clipboard method.
             ##e so I should replace those with something else and remove these.
 
-    def QListViewItem_subclass_for_node( self, node, parent, display_prefs, after):
-        if node.is_top_of_selection_group() or node.is_disabled():
-                ## can't do this -- it's causing a bug where clipboard won't reopen with red dot: or node == node.assy.shelf:
-            return mt_QListViewItem
-        return QListViewItem
-
-    # special calls from external code
-    
-    def open_clipboard(self): #bruce 050108, probably temporary
-        ## self._open_listitem(self.shelf_item)
-        self.toggle_open( self.shelf_item, openflag = True)
-    
-    # context menus
+    ############################################################
+    # Everything else in this class is context menu stuff
     
     def make_cmenuspec_for_set(self, nodeset, optflag): # [see also the term Menu_spec]
         "#doc... see superclass docstring"
@@ -402,6 +508,10 @@ class modelTree(TreeWidget):
             res.append(( 'Properties...', self.cm_properties ))
         else:
             res.append(( 'Properties...', noop, 'disabled' )) # nim for multiple items
+        
+        #ninad 070320 - context menu option to edit color of multiple chunks
+        if allstats.nchunks:
+            res.append(("Edit Chunk Color...", self.cmEditChunkColor))
 
         # subsection of menu (not a submenu unless they specify one) for node-class-specific menu items, when exactly one node
         if len(nodeset) == 1:
@@ -577,13 +687,12 @@ class modelTree(TreeWidget):
 
         return res # from make_cmenuspec_for_set
 
-    ## Context menu handler functions [bruce 050112 renamed them; "hide" hid a QWidget method!]
-
-    # these ones are good enough for now [050125]
-    # (but they'll need revision when we fix clipboard bugs)
+    # Context menu handler functions [bruce 050112 renamed them; e.g. old name "hide" overrode a method of QWidget!]
+    #
+    # Note: these must do their own updates (win_update, gl_update, mt_update) as needed.
     
     def cm_hide(self):
-        env.history.message("Hide: %d selected items or groups" % len(self.topmost_selected_nodes()))
+        env.history.message("Hide: %d selected items or groups" % len(self.modelTreeGui.topmost_selected_nodes()))
         #####@@@@@ bruce 050517 comment: the following line (of unknown reason or date, but by me) causes bug 500;
         # that method was added 050125 and used in chunk.pick on same date, so adding it here must be then or later.
         # Let's see what happens if I remove it?
@@ -591,13 +700,13 @@ class modelTree(TreeWidget):
         self.assy.Hide() # includes win_update
         
     def cm_unhide(self):
-        env.history.message("Unhide: %d selected items or groups" % len(self.topmost_selected_nodes()))
+        env.history.message("Unhide: %d selected items or groups" % len(self.modelTreeGui.topmost_selected_nodes()))
         ## self.assy.permit_pick_parts() #e should not be needed here [see same comment above]
         self.assy.Unhide() # includes win_update
 
     def cm_set_node(self): #bruce 050604, for debugging
         import debug
-        nodeset = self.topmost_selected_nodes()
+        nodeset = self.modelTreeGui.topmost_selected_nodes()
         if len(nodeset) == 1:
             debug._node = nodeset[0]
             print "set debug._node to", debug._node
@@ -607,7 +716,7 @@ class modelTree(TreeWidget):
         return
     
     def cm_properties(self):
-        nodeset = self.topmost_selected_nodes()
+        nodeset = self.modelTreeGui.topmost_selected_nodes()
         if len(nodeset) != 1:
             env.history.message("error: cm_properties called on no or multiple items")
                 # (internal error, not user error)
@@ -699,13 +808,13 @@ class modelTree(TreeWidget):
         # glpane to show new picked state), whose bug number I forget, which this should fix.
         # [bruce 050316]
         ## new.pick() # this will emit an undesirable history message... fix that?
-        self.win.glpane.gl_update() #k needed?
+        self.win.glpane.gl_update() #k needed? (e.g. for selection change? not sure.)
         self.mt_update()
         return
     
     def cm_ungroup(self):
         from platform import fix_plurals
-        nodeset = self.topmost_selected_nodes()
+        nodeset = self.modelTreeGui.topmost_selected_nodes()
         assert len(nodeset) == 1 # caller guarantees this
         node = nodeset[0]
         assert node.permits_ungrouping() # ditto
@@ -743,7 +852,7 @@ class modelTree(TreeWidget):
         #e history.message?
         for assy in need_update_parts:
             assy.update_parts() # this should break new inter-part bonds
-        self.win.glpane.gl_update()
+        self.win.glpane.gl_update() #k needed? (e.g. for selection change? not sure. Needed if inter-part bonds break!)
         self.mt_update()
         return
 
@@ -752,14 +861,10 @@ class modelTree(TreeWidget):
     # anyway I tried to fix or mitigate their bugs [bruce 050131]:
     
     def cm_copy(self):
-        self.assy.copy_sel(use_selatoms = False)
-        ## bruce 050427: removing mt_update since copy_sel does win_update:
-        ## self.mt_update()
+        self.assy.copy_sel(use_selatoms = False) # does win_update
     
     def cm_cut(self):
-        self.assy.cut_sel(use_selatoms = False)
-        ## bruce 050427: removing win_update since cut_sel does it:
-        ## self.win.win_update() # Changed from self.mt_update [bruce 050421 precaution, seems necessary tho I didn't notice bugs]
+        self.assy.cut_sel(use_selatoms = False) # does win_update
     
     def cm_delete(self): # renamed from cm_kill which was renamed from kill
         # note: this is now the same code as MWsemantics.killDo. [bruce 050131]
@@ -767,17 +872,41 @@ class modelTree(TreeWidget):
         ##bruce 050427 moved win_update into delete_sel as part of fixing bug 566
         ##self.win.win_update()
         
-    def cmSelectAllAtomsInChunk(self):
-        "ninad060816 added this. It selects all the atoms preseent in the selected chunk(s)" 
-        nodeset = self.topmost_selected_nodes()
+    def cmSelectAllAtomsInChunk(self): #Ninad060816
+        """Selects all the atoms preseent in the selected chunk(s)"""
+        nodeset = self.modelTreeGui.topmost_selected_nodes()
         self.assy.part.permit_pick_atoms()
         for m in nodeset:
             for a in m.atoms.itervalues():
                 a.pick()
         self.win.win_update()
-
+    
+    def cmEditChunkColor(self): #Ninad 070321
+         '''Edit the color of the selected chunks using the Model Tree context menu'''         
+         from widgets import RGBf_to_QColor
+         
+         nodeset = self.modelTreeGui.topmost_selected_nodes()
+         chunkList = []
+         #Find the chunks in the selection and store them temporarily
+         for m in nodeset:
+             if isinstance(m, molecule):
+                 chunkList.append(m)
+         #Following selects  the current color of the chunk 
+         #in the QColor dialog. If multiple chunks are selected, 
+         #it simply sets the selected color in the dialog as 'white'
+         if len(chunkList) == 1:
+             m = chunkList[0]            
+             if m.color:
+                 m_QColor =  RGBf_to_QColor(m.color)
+             else:
+                 m_QColor = None
+                
+             self.win.dispObjectColor(currentcolor = m_QColor)
+         else:         
+             self.win.dispObjectColor()
+        
     def cm_disable(self): #bruce 050421
-        nodeset = self.topmost_selected_nodes()
+        nodeset = self.modelTreeGui.topmost_selected_nodes()
         assert len(nodeset) == 1 # caller guarantees this
         node = nodeset[0]
         jig = node # caller guarantees this is a jig; if not, this silently has no effect
@@ -785,7 +914,7 @@ class modelTree(TreeWidget):
         self.win.win_update()
 
     def cm_enable(self): #bruce 050421
-        nodeset = self.topmost_selected_nodes()
+        nodeset = self.modelTreeGui.topmost_selected_nodes()
         assert len(nodeset) == 1, "len nodeset should be 1, but nodeset is %r" % nodeset
         node = nodeset[0]
         jig = node
@@ -793,7 +922,7 @@ class modelTree(TreeWidget):
         self.win.win_update()
 
     def cm_select_jigs_atoms(self): #bruce 050504
-        nodeset = self.topmost_selected_nodes()
+        nodeset = self.modelTreeGui.topmost_selected_nodes()
         otherpart = {} #bruce 050505 to fix bug 589
         did_these = {}
         nprior = len(self.assy.selatoms)

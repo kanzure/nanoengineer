@@ -1,16 +1,19 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2006 Nanorex, Inc.  See LICENSE file for details. 
 """
 PartProp.py
 
 $Id$
 """
 
-from qt import *
+from PyQt4.Qt import *
 from PartPropDialog import *
 
-class PartProp(PartPropDialog):
+class PartProp(QDialog, Ui_PartPropDialog):
     def __init__(self, assy):
-        PartPropDialog.__init__(self)
+        QDialog.__init__(self)
+        self.setupUi(self)
+        self.connect(self.okPushButton,SIGNAL("clicked()"),self.accept)
+        self.connect(self.cancelPushButton,SIGNAL("clicked()"),self.reject)
 
         self.nameLineEdit.setText(assy.name)
         

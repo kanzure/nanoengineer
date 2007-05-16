@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2007 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 GLPane.py -- NE1's main model view, based on Qt's OpenGL widget.
 
@@ -11,14 +11,22 @@ bruce 050913 used env.history in some places.
 """
 
 ## bruce 050408 removed several "import *" below
-from qt import QFont, QWidget, QMessageBox, QTimer, QToolTip, QRect, QString
-from qtgl import QGLWidget
+from PyQt4.Qt import Qt, QFont, QWidget, QMessageBox, QTimer, QToolTip, QRect, QString
+from PyQt4.Qt import QGLWidget
 from OpenGL.GL import *
 from OpenGL.GLU import *
-from OpenGL.GLE import *
+
+try:
+        from OpenGL.GLE import *
+except:
+        print "GLE module can't be imported. Now trying _GLE"
+        from OpenGL._GLE import *
+
 import math
 from LinearAlgebra import *
 from commands import *
+
+from qt4transition import *
 
 import os,sys
 import time
@@ -116,10 +124,13 @@ allQuats = quats100 + quats110 + quats111
 
 MIN_REPAINT_TIME = 0.01 # minimum time to repaint (in seconds)
 
-button = {0:None, 1:'LMB', 2:'RMB', 4:'MMB'} ###e NEEDS RENAME -- global variables need to be given more distinctive names
-    # (but to rename it, someone has to search the entire program for places that might import it and use it,
-    #  and preferably do it many weeks before a release so any rare bugs it causes might be found)
-    # Also, the numeric constants need to be replaced by named constants from Qt (or at least from constants.py).
+## button_names = {0:None, 1:'LMB', 2:'RMB', 4:'MMB'} 
+button_names = {Qt.NoButton:None, Qt.LeftButton:'LMB', Qt.RightButton:'RMB', Qt.MidButton:'MMB'}
+    #bruce 070328 renamed this from 'button' (only in Qt4 branch), and changed the dict keys from ints to symbolic constants,
+    # and changed the usage from dict lookup to iteration over items, to fix some cursor icon bugs.
+    # For the constants, see http://www.riverbankcomputing.com/Docs/PyQt4/html/qmouseevent.html
+    # [Note: if there is an import of GLPane.button elsewhere, that'll crash now due to the renaming. Unfortunately, for such
+    #  a common word, it's not practical to find out except by renaming it and seeing if that causes bugs.]
 
 # ==
 
@@ -246,7 +257,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
 
     always_draw_hotspot = False #bruce 060627; not really needed, added for compatibility with ThumbView.py
 
-    def __init__(self, assy, master=None, name=None, win=None):
+    def __init__(self, assy, parent=None, name=None, win=None):
         
         self.win = win
 
@@ -257,7 +268,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         glformat = QGLFormat()
         glformat.setStencil(True)
         
-        QGLWidget.__init__(self, glformat, master, name)
+        QGLWidget.__init__(self, glformat, parent)
+        self.partWindow = parent
 
         self.stencilbits = 0 # conservative guess, will be set to true value below
         
@@ -342,10 +354,6 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         # [as of 050418 (and before), this is used in cookieMode and selectMode]
         self.shape = None
         
-        # Dynamic tooltip that is displayed whenever the mouse pauses over a highlighted object.
-        # See the docstring for DynamicToolTip.maybeTip() for details. Mark 060818
-        self.dynamicToolTip = DynamicTip(self)
-        
         # Cursor position of the last timer event. Mark 060818
         self.timer_event_last_xy = (0, 0)
 
@@ -355,7 +363,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         # See comments above our keyPressEvent method.
         ###e I did not yet review  the choice of StrongFocus in the Qt docs,
         # just copied it from MWsemantics.
-        self.setFocusPolicy(QWidget.StrongFocus)
+        self.setFocusPolicy(Qt.StrongFocus)
 
 ##        self.singlet = None #bruce 060220 zapping this, seems to be old and to no longer be used
         self.selatom = None # josh 10/11/04 supports depositMode
@@ -401,7 +409,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         # this is here in anticipation of being able to have multiple windows on the same assembly.
         # Start the GLPane's current display mode in "Default Display Mode" (pref).
         self.displayMode = env.prefs[defaultDisplayMode_prefs_key]
-        self.win.dispbarLabel.setText( "Current Display: " + dispLabel[self.displayMode] )
+        #self.win.dispbarLabel.setText( "Current Display: " + dispLabel[self.displayMode] )
         
         ###### End of User Preference initialization ########################## 
         
@@ -411,11 +419,14 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         self.setAssy(assy) # leaves self.mode as nullmode, as of 050911
 
         self.loadLighting() #bruce 050311
-            #bruce question 051212: why doesn't this prevent bug 1204 in use of lighting directions on startup?
+	#bruce question 051212: why doesn't this prevent bug 1204 in use of lighting directions on startup?
+	    
+	self.dynamicToolTip = DynamicTip(self)
             
         
         return # from GLPane.__init__ 
     
+	        
     #== Background color helper methods. Moved here from basicMode (modes.py). Mark 060814.
     
     def restoreDefaultBackground(self):
@@ -432,7 +443,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         self.gl_update()
         
     def setBackgroundColor(self, color): # bruce 050105 new feature [bruce 050117 cleaned it up]
-        '''Sets the mode's background color and stores it in the prefs db.'''
+        '''Sets the mode\'s background color and stores it in the prefs db.'''
         self.backgroundColor = color
         env.prefs[ backgroundColor_prefs_key ] = color
         return
@@ -681,7 +692,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         
     def setViewProjection(self, projection): # Added by Mark 050918.
         '''Set projection, where 0 = Perspective and 1 = Orthographic.  It does not set the 
-        prefs db value itself, since we don't want all user changes to projection to be stored
+        prefs db value itself, since we don\'t want all user changes to projection to be stored
         in the prefs db, only the ones done from the Preferences dialog.
         '''
 
@@ -690,10 +701,11 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         # because self.ortho and the toggle state of the corresponding action may 
         # not be in sync at startup time. This fixes bug #996.
         # Mark 050924.
-        if projection:
-            self.win.setViewOrthoAction.setOn(1)
-        else:
-            self.win.setViewPerspecAction.setOn(1)
+	qt4todo('setViewOrthoAction, setViewPerspecAction??')
+        #if projection:
+        #    self.win.setViewOrthoAction.setChecked(1)
+        #else:
+        #    self.win.setViewPerspecAction.setChecked(1)
         
         if self.ortho == projection:
             return
@@ -904,7 +916,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
             r = int(bgcolor[0]*255 + 0.5) # (same formula as in elementSelector.py)
             g = int(bgcolor[1]*255 + 0.5)
             b = int(bgcolor[2]*255 + 0.5)
-            self.setPaletteBackgroundColor(QColor(r, g, b))
+            pal = QPalette()
+            pal.setColor(self.backgroundRole(), QColor(r, g, b))
+            self.setPalette(pal)
                 # see Qt docs for this and for backgroundMode
         
         #e also update tool-icon visual state in the toolbar?
@@ -940,8 +954,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
                 #bruce 060220 new code; should make it unnecessary (and incorrect)
                 # for modes to track mod key press/release for cursor,
                 # once update_modkeys calls a cursor updating routine
-                but = e.stateAfter()
-                self.update_modkeys(but)
+                #but = e.stateAfter()
+                #self.update_modkeys(but)
+                self.update_modkeys(e.modifiers())
             self.mode.keyPressEvent( atom_event(e) )
         finally:
             env.end_op(mc)
@@ -952,8 +967,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         try:
             if not self.in_drag:
                 #bruce 060220 new code; see comment in keyPressEvent
-                but = e.stateAfter()
-                self.update_modkeys(but)
+                #but = e.stateAfter()
+                #self.update_modkeys(but)
+                self.update_modkeys(e.modifiers())
             self.mode.keyReleaseEvent( atom_event(e) )
         finally:
             env.end_op(mc)
@@ -1266,7 +1282,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
             We also set self.modkeys to replace the obsolete mode.modkey variable.
             This only works if we're called for all event types which want to look at that variable.]
         """
-        but = fix_event_helper(self, event, when, target)
+        but, mod = fix_event_helper(self, event, when, target)
             # fix_event_helper has several known bugs as of 060220, including:
             # - target is not currently used, and it's not clear what it might be for [in this method, it's self.mode]
             # - it's overly bothered by dialogs that capture press and not release;
@@ -1291,17 +1307,22 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
             # leave self.mouse_event_handler unchanged, so it can process the release if it was handling the drag
             self.mode.update_cursor()
         else:
+            #bruce 070328 adding some debug code/comments to this (for some Qt4 or Qt4/Mac specific bugs), and bugfixing it.
             olddrag = self.in_drag
-            self.in_drag = but & (leftButton|midButton|rightButton)
+            self.in_drag = but & (Qt.LeftButton|Qt.MidButton|Qt.RightButton) # Qt4 note: this is a PyQt4.QtCore.MouseButtons object
                 # you can also use this to see which mouse buttons are involved.
-            if not olddrag:
-                try:
-                    # in_drag has values of 0 (None), 1 (LMB), 4 (MMB). or 2 (RMB) allowed here.
-                    self.button = button[self.in_drag]
-                except:
-                    # To get here, two mouse buttons were pressed at the same time and one was 
-                    # released (i.e. in-drag = 3, 5, 6). Leave self.button unchanged.
-                    pass 
+                # WARNING: that would only work in Qt4 if you use the symbolic constants listed in button_names.keys().
+            if not olddrag: # this test seems to still work in Qt4 (apparently MouseButtons.__nonzero__ is sensibly defined)
+                #bruce 070328 revised algorithm, since PyQt evidently forgot to make MouseButtons constants work as dict keys.
+                # It works now for bareMotion (None), real buttons (LMB or RMB), and simulated MMB (option+LMB).
+                # In the latter case I think it fixes a bug, by displaying the rotate cursor during option+LMB drag.
+                for lhs, rhs in button_names.iteritems():
+                    if self.in_drag == lhs:
+                        self.button = rhs
+                        break
+                    continue
+                # Note: if two mouse buttons were pressed at the same time (I think -- bruce 070328), we leave self.button unchanged.
+
             if when == 'press' or (when == 'move' and not self.in_drag):
                 wX = event.pos().x()
                 wY = self.height - event.pos().y()
@@ -1312,13 +1333,13 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
                     self.mouse_event_handler = new_mouse_event_handler
                     self.mode.update_cursor()
                 pass
-                
-        self.update_modkeys(but)
+
+        self.update_modkeys(mod)
             # need to call this when drag starts; ok to call it during drag too,
             # since retval is what came from fix_event
-        return but
+        return but, mod
 
-    def update_modkeys(self, but):
+    def update_modkeys(self, mod):
         """Call this whenever you have some modifier key flags from an event (as returned from fix_event,
         or found directly on the event as stateAfter in events not passed to fix_event).
         Exception: don't call it during a drag, except on values returned from fix_event, or bugs will occur.
@@ -1326,13 +1347,13 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
            This method updates self.modkeys, setting it to None, 'Shift', 'Control' or 'Shift+Control'.
         (All uses of the obsolete mode.modkey variable should be replaced by this one.)
         """
-        shift_control_flags = but & (shiftButton | cntlButton)
+        shift_control_flags = mod & (Qt.ShiftModifier | Qt.ControlModifier)
         oldmodkeys = self.modkeys
-        if shift_control_flags == shiftButton:
+        if shift_control_flags == Qt.ShiftModifier:
             self.modkeys = 'Shift'
-        elif shift_control_flags == cntlButton:
+        elif shift_control_flags == Qt.ControlModifier:
             self.modkeys = 'Control'
-        elif shift_control_flags == (shiftButton | cntlButton):
+        elif shift_control_flags == (Qt.ShiftModifier | Qt.ControlModifier):
             self.modkeys = 'Shift+Control'
         else:
             self.modkeys = None
@@ -1366,7 +1387,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         
         self.debug_event(event, 'mouseDoubleClickEvent')
         
-        but = self.fix_event(event, 'press', self.mode)
+        but, mod = self.fix_event(event, 'press', self.mode)
         ## but = event.stateAfter()
         #k I'm guessing this event comes in place of a mousePressEvent;
         # need to test this, and especially whether a releaseEvent then comes
@@ -1391,11 +1412,11 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
             handler.mouseDoubleClickEvent(event)
             return
 
-        if but & leftButton:
+        if but & Qt.LeftButton:
             self.mode.leftDouble(event)
-        if but & midButton:
+        if but & Qt.MidButton:
             self.mode.middleDouble(event)
-        if but & rightButton:
+        if but & Qt.RightButton:
             self.mode.rightDouble(event)
 
         return
@@ -1406,7 +1427,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
     __flag_and_begin_retval = None
 
     def checkpoint_before_drag(self, event, but): #bruce 060124; split out of caller, 060126
-        if but & (leftButton|midButton|rightButton):
+        if but & (Qt.LeftButton|Qt.MidButton|Qt.RightButton):
             # Do undo_checkpoint_before_command if possible.
             #
             #bruce 060124 for Undo; will need cleanup of begin-end matching with help of fix_event;
@@ -1424,6 +1445,14 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
                 self.__flag_and_begin_retval = True, begin_retval
             pass
         return
+
+    def makeCurrent(self):
+        QGLWidget.makeCurrent(self)
+        # also tell the MainWindow that my PartWindow is the active one
+        from debug_prefs import debug_pref, Choice_boolean_False
+        if debug_pref("Multipane GUI", Choice_boolean_False):
+            pw = self.partWindow
+            pw.parent._activepw = pw
     
     def mousePressEvent(self, event):
         """Dispatches mouse press events depending on shift and
@@ -1442,7 +1471,13 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
             # drag/release events until the next press? [bruce 060126 questions]
             return
         ## but = event.stateAfter()
-        but = self.fix_event(event, 'press', self.mode)
+        but, mod = self.fix_event(event, 'press', self.mode)
+            # Notes [bruce 070328]:
+            # but = <PyQt4.QtCore.MouseButtons object at ...>,
+            # mod = <PyQt4.QtCore.KeyboardModifiers object at ...>.
+            # for doc on these objects see http://www.riverbankcomputing.com/Docs/PyQt4/html/qt-mousebuttons.html
+            # and for info about event methods button and buttons (related to state and stateAfter in Qt3) see
+            # http://www.riverbankcomputing.com/Docs/PyQt4/html/qmouseevent.html#button
 
         # (I hope fix_event makes sure at most one button flag remains; if not,
         #  following if/if/if should be given some elifs. ###k
@@ -1459,29 +1494,29 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         if handler is not None:
             handler.mousePressEvent(event)
             return
-
-        if but & leftButton:
-            if but & shiftButton:
+        
+        if but & Qt.LeftButton:
+            if mod & Qt.ShiftModifier:
                 self.mode.leftShiftDown(event)
-            elif but & cntlButton:
+            elif mod & Qt.ControlModifier:
                 self.mode.leftCntlDown(event)
             else:
                 self.mode.leftDown(event)
 
-        if but & midButton:
-            if but & shiftButton and but & cntlButton: # mark 060228.
+        if but & Qt.MidButton:
+            if mod & Qt.ShiftModifier and mod & Qt.ControlModifier: # mark 060228.
                 self.mode.middleShiftCntlDown(event)
-            elif but & shiftButton:
+            elif mod & Qt.ShiftModifier:
                 self.mode.middleShiftDown(event)
-            elif but & cntlButton:
+            elif mod & Qt.ControlModifier:
                 self.mode.middleCntlDown(event)
             else:
                 self.mode.middleDown(event)
 
-        if but & rightButton:
-            if but & shiftButton:
+        if but & Qt.RightButton:
+            if mod & Qt.ShiftModifier:
                 self.mode.rightShiftDown(event)
-            elif but & cntlButton:
+            elif mod & Qt.ControlModifier:
                 self.mode.rightCntlDown(event)
             else:
                 self.mode.rightDown(event)         
@@ -1493,7 +1528,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         """
         self.debug_event(event, 'mouseReleaseEvent')
         ## but = event.state()
-        but = self.fix_event(event, 'release', self.mode)
+        but, mod = self.fix_event(event, 'release', self.mode)
         ## print "Button released: ", but
 
         handler = self.mouse_event_handler # updated by fix_event [bruce 070405]
@@ -1503,28 +1538,28 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
             return
 
         try:
-            if but & leftButton:
-                if but & shiftButton:
+            if but & Qt.LeftButton:
+                if mod & Qt.ShiftModifier:
                     self.mode.leftShiftUp(event)
-                elif but & cntlButton:
+                elif mod & Qt.ControlModifier:
                     self.mode.leftCntlUp(event)
                 else:
                     self.mode.leftUp(event)
 
-            if but & midButton:
-                if but & shiftButton and but & cntlButton: # mark 060228.
+            if but & Qt.MidButton:
+                if mod & Qt.ShiftModifier and mod & Qt.ControlModifier: # mark 060228.
                     self.mode.middleShiftCntlUp(event)
-                elif but & shiftButton:
+                elif mod & Qt.ShiftModifier:
                     self.mode.middleShiftUp(event)
-                elif but & cntlButton:
+                elif mod & Qt.ControlModifier:
                     self.mode.middleCntlUp(event)
                 else:
                     self.mode.middleUp(event)
 
-            if but & rightButton:
-                if but & shiftButton:
+            if but & Qt.RightButton:
+                if mod & Qt.ShiftModifier:
                      self.mode.rightShiftUp(event)
-                elif but & cntlButton:
+                elif mod & Qt.ControlModifier:
                     self.mode.rightCntlUp(event)
                 else:
                     self.mode.rightUp(event)
@@ -1576,35 +1611,35 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         
         ##self.debug_event(event, 'mouseMoveEvent')
         ## but = event.state()
-        but = self.fix_event(event, 'move', self.mode)
+        but, mod = self.fix_event(event, 'move', self.mode)
 
         handler = self.mouse_event_handler # updated by fix_event [bruce 070405]
         if handler is not None:
             handler.mouseMoveEvent(event)
             return
         
-        if but & leftButton:
-            if but & shiftButton:
+        if but & Qt.LeftButton:
+            if mod & Qt.ShiftModifier:
                 self.mode.leftShiftDrag(event)
-            elif but & cntlButton:
+            elif mod & Qt.ControlModifier:
                 self.mode.leftCntlDrag(event)
             else:
                 self.mode.leftDrag(event)
 
-        elif but & midButton:
-            if but & shiftButton and but & cntlButton: # mark 060228.
+        elif but & Qt.MidButton:
+            if mod & Qt.ShiftModifier and mod & Qt.ControlModifier: # mark 060228.
                 self.mode.middleShiftCntlDrag(event)
-            elif but & shiftButton:
+            elif mod & Qt.ShiftModifier:
                 self.mode.middleShiftDrag(event)
-            elif but & cntlButton:
+            elif mod & Qt.ControlModifier:
                 self.mode.middleCntlDrag(event)
             else:
                 self.mode.middleDrag(event)
 
-        elif but & rightButton:
-            if but & shiftButton:
+        elif but & Qt.RightButton:
+            if mod & Qt.ShiftModifier:
                 self.mode.rightShiftDrag(event)
-            elif but & cntlButton:
+            elif mod & Qt.ControlModifier:
                 self.mode.rightCntlDrag(event)
             else:
                 self.mode.rightDrag(event)
@@ -1616,8 +1651,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
     def wheelEvent(self, event):
         self.debug_event(event, 'wheelEvent')
         if not self.in_drag:
-            but = event.state() # I think this event has no stateAfter() [bruce 060220]
-            self.update_modkeys(but) #bruce 060220
+            #but = event.buttons() # I think this event has no stateAfter() [bruce 060220]
+            self.update_modkeys(event.modifiers()) #bruce 060220
         self.mode.Wheel(event) # mode bindings use modkeys from event; maybe this is ok?
             # Or would it be better to ignore this completely during a drag? [bruce 060220 questions]
         return
@@ -1698,14 +1733,19 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
             
             if self.triggerBareMotionEvent:
                 #print "Calling bareMotion. xy_now = ", xy_now
-                mouseEvent = QMouseEvent( QEvent.MouseMove, cursorPos, Qt.NoButton, Qt.NoButton ) 
+                mouseEvent = QMouseEvent( QEvent.MouseMove, cursorPos, Qt.NoButton, Qt.NoButton, Qt.NoModifier)
+                                          #Qt.NoButton & Qt.MouseButtonMask,
+                                          #Qt.NoButton & Qt.KeyButtonMask )
                 self.mode.bareMotion(mouseEvent) # Only selectMode.mouse_exceeded_distance() makes use of this.
                 
             self.triggerBareMotionEvent = False
-            
+                
+	    helpEvent = QHelpEvent(QEvent.ToolTip, QPoint(cursorPos), QPoint(cursor.pos()) )
+	    
+	    
             if self.dynamicToolTip: # Probably always True. Mark 060818.
                 # The cursor hasn't moved since the last timer event. See if we should display the tooltip now.
-                self.dynamicToolTip.maybeTip(cursorPos) # maybeTip() is responsible for displaying the tooltip.
+                self.dynamicToolTip.maybeTip(helpEvent) # maybeTip() is responsible for displaying the tooltip.
             
         else:
             
@@ -1896,7 +1936,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         if point is not None:
             self.pov += (factor - 1) * (point - (-self.pov))
         return
-            
+
     def gl_update_duration(self, new_part=False):
         '''Redraw GLPane and update the repaint duration variable <self._repaint_duration>
         used by animateToView() to compute the proper number of animation frames.
@@ -1965,7 +2005,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         """
         # bruce comment 041220: besides our own calls of this function
         # [later: which no longer exist after 050127], it can
-        # be called directly from the app.exec_loop() in atom.py; I'm not sure
+        # be called directly from the app.exec_() in atom.py; I'm not sure
         # exactly why or under what circumstances, but one case (on Mac) is when you
         # switch back into the app by clicking in the blank part of the model tree
         # (multiple repaints by different routes in that case),
@@ -2449,7 +2489,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         # what was just drawn above) for two reasons:
         # - it might be in a display list in non-highlighted form (and if so, the above draw used that form);
         # - we need to draw it into the stencil buffer too, so mode.bareMotion can tell when mouse is still over it.
-        if self.selobj is not None:
+        if self.selobj is not None:	
             # draw the selobj as highlighted, and make provisions for fast test
             # (by external code) of mouse still being over it (using stencil buffer)
 
@@ -2541,7 +2581,19 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
 
             try:
                 self.drawing_phase = 'selobj' #bruce 070124 [do we need this around selobj.pre_draw_in_abs_coords too, & post_draw? #k]
-                self.selobj.draw_in_abs_coords(self, hicolor or black) ###@@@ test having color writing disabled here, does stencil still happen??
+                    #bruce 070329 moved set of drawing_phase from just after selobj.draw_in_abs_coords to just before it.
+                    # [This should fix the Qt4 transition issue which is the subject of reminder bug 2300,
+                    #  though it can't be tested yet since it has no known effect on current code, only on future code.]
+                
+		#ninad 070214 to permit chunk highlighting
+		if self.mode.modename is selectMolsMode.modename:
+			self.drawHighlightedChunk(self.selobj, hicolor) 			
+			if isinstance(self.selobj, Jig):
+				self.selobj.draw_in_abs_coords(self, hicolor or black)		
+		else:			
+			self.selobj.draw_in_abs_coords(self, hicolor or black)
+                            ###@@@ test having color writing disabled here -- does stencil write still happen??
+
             except:
                 # try/except added for GL-state safety, bruce 061218
                 print_compact_traceback("bug: exception in %r.draw_in_abs_coords ignored: " % self.selobj)
@@ -2654,6 +2706,65 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         self.selobj = selobj
         #e notify some observers?
         return
+
+   
+    def drawHighlightedChunk(self, selobj, hicolor): #Ninad 070214 
+	    """
+	    Highlight the whole chunk to which 'selobj' belongs to, using the 'hicolor'
+	    selobj = highlighted object 
+	    hicolor = highlight color
+	    """
+	    #Note: This method is called in GLPane.standard_repaint_0 -- ninad 070214
+	    
+	    #Note: bool_fullBondLength represent whether full bond length to be drawn
+	    #it is used only in select Chunks mode while highlighting the whole chunk and when
+	    #the atom display is Tubes display -- ninad 070214
+	    
+	    bool_fullBondLength = True
+	    
+	    if isinstance(selobj, molecule):
+		    chunk = selobj
+		    for hiatom in chunk.atoms.itervalues():
+			    hiatom.draw_in_abs_coords(self, hicolor or black, 
+						      useSmallAtomRadius = True)
+			    for hibond in hiatom.bonds:
+				    hibond.draw_in_abs_coords(self, hicolor or black,
+							      bool_fullBondLength)
+	
+	    if isinstance(selobj, Atom):
+		chunk = selobj.molecule
+		for hiatom in chunk.atoms.itervalues():
+		    hiatom.draw_in_abs_coords(self, hicolor or black, 
+					      useSmallAtomRadius = True)
+		    for hibond in hiatom.bonds:
+			    hibond.draw_in_abs_coords(self, hicolor or black,
+						      bool_fullBondLength)
+	    elif isinstance(self.selobj, Bond):	    
+		hiatom1 = self.selobj.atom1
+		hiatom2 = self.selobj.atom2			
+		chunk1 = hiatom1.molecule
+		chunk2 = hiatom2.molecule
+		
+		if chunk1 is chunk2:
+			for hiatom in chunk1.atoms.itervalues():
+				hiatom.draw_in_abs_coords(self, hicolor or black, 
+							  useSmallAtomRadius = True)
+				for hibond in hiatom.bonds:
+					hibond.draw_in_abs_coords(self, hicolor or black, 
+								  bool_fullBondLength)
+		else:
+			for hiatom in chunk1.atoms.itervalues():
+				hiatom.draw_in_abs_coords(self, hicolor or black,
+							  useSmallAtomRadius = True)
+				for hibond in hiatom.bonds:
+					hibond.draw_in_abs_coords(self, hicolor or black,
+								  bool_fullBondLength)
+			for hiatom in chunk2.atoms.itervalues():
+				hiatom.draw_in_abs_coords(self, orange or black,
+							  useSmallAtomRadius = True)
+				for hibond in hiatom.bonds:
+					hibond.draw_in_abs_coords(self, orange or black,
+								  bool_fullBondLength)
 
     def preDraw_glselect_dict(self): #bruce 050609
         # We need to draw glselect_dict objects separately, so their drawing code runs now rather than in the past
@@ -2849,20 +2960,22 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         glPushMatrix()
         glLoadIdentity() #k needed?
         
+        
         # Set compass position using glOrtho
         if self.compassPosition == UPPER_RIGHT:
             # hack for use in testmode [revised bruce 070110 when GLPane_overrider merged into GLPane]:
             if getattr(self.mode, "compass_moved_in_from_corner", False):                
                 glOrtho(-40*aspect, 15.5*aspect, -50, 5.5,  -5, 500)
             else:
-                glOrtho(-50*aspect, 5.5*aspect, -50, 5.5,  -5, 500) # Upper Right
+                glOrtho(-50*aspect, 3.5*aspect, -50, 4.5,  -5, 500) # Upper Right
         elif self.compassPosition == UPPER_LEFT:
-            glOrtho(-5*aspect, 50.5*aspect, -50, 5.5,  -5, 500) # Upper Left
+            glOrtho(-3.5*aspect, 50.5*aspect, -50, 4.5,  -5, 500) # Upper Left
         elif self.compassPosition == LOWER_LEFT:
-            glOrtho(-5*aspect, 50.5*aspect, -5, 50.5,  -5, 500) # Lower Left
+            glOrtho(-3.5*aspect, 50.5*aspect, -4.5, 50.5,  -5, 500) # Lower Left
         else:
-            glOrtho(-50*aspect, 5.5*aspect, -5, 50.5,  -5, 500) # Lower Right
+            glOrtho(-50*aspect, 3.5*aspect, -4.5, 50.5,  -5, 500) # Lower Right
         
+        	    
         q = self.quat
         glRotatef(q.angle*180.0/pi, q.x, q.y, q.z)
         glEnable(GL_COLOR_MATERIAL)
@@ -2870,20 +2983,31 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         glDisable(GL_CULL_FACE)
         glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE)
         
-        # X Arrow (Red)      
-        glePolyCone([[-1,0,0], [0,0,0], [4,0,0], [3,0,0], [5,0,0], [6,0,0]],
+        #ninad 070122 - parametrized the compass drawing. (also added some doc). 
+	#Also reduced the overall size of the compass. 
+	
+	p1 = -1 # ? start point of arrow cyl? 
+	p2 = 3.25 #end point of the arrow cylinderical portion
+	p3 = 2.5 #arrow head start point
+	p4 = 3.8 # ??? may be used to specify the slant of the arrow head (conical portion).?
+	p5 = 4.5 # cone tip
+	
+	r1 = 0.2 #cylinder radius 
+	r2 =0.2
+	r3 = 0.2
+	r4 = 0.60 #cone base radius
+	
+	glePolyCone([[p1,0,0], [0,0,0], [p2,0,0], [p3,0,0], [p4,0,0], [p5,0,0]],
                     [[0,0,0], [1,0,0], [1,0,0], [.5,0,0], [.5,0,0], [0,0,0]],
-                    [.3,.3,.3,.75,0,0])
+                    [r1,r2,r3,r4,0,0])
         
-        # Y Arrow (Green) 
-        glePolyCone([[0,-1,0], [0,0,0], [0,4,0], [0,3,0], [0,5,0], [0,6,0]],
+        glePolyCone([[0,p1,0], [0,0,0], [0,p2,0], [0,p3,0], [0,p4,0], [0,p5,0]],
                     [[0,0,0], [0,.9,0], [0,.9,0], [0,.4,0], [0,.4,0], [0,0,0]],
-                    [.3,.3,.3,.75,0,0])
-        
-        # Z Arrow (Blue)
-        glePolyCone([[0,0,-1], [0,0,0], [0,0,4], [0,0,3], [0,0,5], [0,0,6]],
+                    [r1,r2,r3,r4,0,0])
+	
+	glePolyCone([[0,0,p1], [0,0,0], [0,0,p2], [0,0,p3], [0,0,p4], [0,0,p5]],
                     [[0,0,0], [0,0,1], [0,0,1], [0,0,.4], [0,0,.4], [0,0,0]],
-                    [.3,.3,.3,.75,0,0])
+                    [r1,r2,r3,r4,0,0])
                     
         glEnable(GL_CULL_FACE)
         glDisable(GL_COLOR_MATERIAL)
@@ -2898,11 +3022,11 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
                 ## glPushMatrix()
                 font = QFont( QString("Helvetica"), 12)
                 self.qglColor(QColor(200, 75, 75)) # Dark Red
-                self.renderText(5.3, 0.0, 0.0, QString("x"), font)
+                self.renderText(p4, 0.0, 0.0, QString("x"), font)
                 self.qglColor(QColor(25, 100, 25)) # Dark Green
-                self.renderText(0.0, 4.8, 0.0, QString("y"), font)
+                self.renderText(0.0, p4, 0.0, QString("y"), font)
                 self.qglColor(QColor(50, 50, 200)) # Dark Blue
-                self.renderText(0.0, 0.0, 5.0, QString("z"), font)
+                self.renderText(0.0, 0.0, p4+0.2, QString("z"), font)
                 ## glPopMatrix()
                 glEnable(GL_DEPTH_TEST)
                 glEnable(GL_LIGHTING)
@@ -2930,6 +3054,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         glViewport(0, 0, self.width, self.height)
         if not self.initialised:
             self.initialised = 1
+        if width < 300: width = 300
+        if height < 300: height = 300
         self.trackball.rescale(width, height)
         self.gl_update()
         return
@@ -2942,12 +3068,12 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
     def __str__(self):
         return "<GLPane " + self.name + ">"
 
-    def makemenu(self, menu_spec):
+    def makemenu(self, menu_spec, menu):
         # this overrides the one from DebugMenuMixin (with the same code), but that's ok,
         # since we want to be self-contained in case someone later removes that mixin class;
         # this method is called by our modes to make their context menus.
         # [bruce 050418 comment]
-        return makemenu_helper(self, menu_spec)
+        return makemenu_helper(self, menu_spec, menu)
     
     def debug_menu_items(self): #bruce 050515
         "overrides method from DebugMenuMixin"
@@ -3057,3 +3183,4 @@ def typecheckViewArgs(q2, s2, p2, z2): #mark 060128
     return
 
 #end
+

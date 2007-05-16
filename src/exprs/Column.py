@@ -1,3 +1,4 @@
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 Column.py - provide SimpleColumn and SimpleRow, and someday, fancier Column and Row
 
@@ -5,8 +6,6 @@ Column.py - provide SimpleColumn and SimpleRow, and someday, fancier Column and 
 
 $Id$
 
-070129 moved old still-nim fancy Column code into new file Column_old_nim.py,
-leaving only Simple{Row,Column} here for now
 """
 
 from basic import * # autoreload of basic is done before we're imported

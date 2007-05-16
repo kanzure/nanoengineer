@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 files_gms.py -- reading and writing GAMESS files
 
@@ -8,8 +8,6 @@ History:
 
 GAMESS file IO was part of GamessJob.py until I moved it here 
 to make it more modular and consistent.
-
-bruce 050913 used env.history in some places.
 """
 
 __author__ = "Mark"

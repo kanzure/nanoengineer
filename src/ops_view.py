@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 '''
 ops_view.py provides viewSlotsMixin for MWsemantics,
 with view slot methods and related helper methods.
@@ -18,24 +18,25 @@ from HistoryWidget import greenmsg, redmsg, orangemsg
 from constants import *
 from VQT import *
 from math import *
+from PyQt4.Qt import Qt, QString
+from ViewOrientationWindow import ViewOrientationWindow
+
 
 import preferences
 import env
 
 class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
     "Mixin class to provide view-related methods for class MWsemantics. Has slot methods and their helper methods."
+   
     
-    ###################################
-    # View Toolbar Slots
-    ###################################
-
+    
     def setViewHome(self):
         """Reset view to Home view"""
         cmd = greenmsg("Current View: ")
         info = 'Home'
         env.history.message(cmd + info)
         self.glpane.setViewHome()
-
+        
     def setViewFitToWindow(self):
         """ Fit to Window """
         cmd = greenmsg("Fit to Window: ")
@@ -72,7 +73,6 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
          View > Zoom About Screen Center (and not in Edit > Preferences). '''
         
         self.uprefs.changeZoomBehaviorPreference()  # self.uprefs is a UserPrefs object ninad061003
-        #self.viewZoomAboutScreenCenterAction.setOn(env.prefs[zoomAboutScreenCenter_prefs_key])
                 
     def zoomTool(self, val):
         """Zoom Tool, allowing the user to specify a rectangular area 
@@ -138,7 +138,7 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
     def setViewPerspec(self):
         self.glpane.setViewProjection(PERSPECTIVE)
 
-    def setViewNormalTo(self): # 
+    def viewNormalTo(self): # 
         '''Set view to the normal vector of the plane defined by 3 or more
         selected atoms or a jig's (Motor or RectGadget) axis.
         '''
@@ -193,7 +193,7 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
         info = 'View set to normal vector of the plane defined by the selected atoms.'
         env.history.message(cmd + info)
         
-    def setViewNormalTo_NEW(self):
+    def viewNormalTo_NEW(self):
         '''Set view to the normal vector of the plane defined by 3 or more
         selected atoms or a jig's (Motor or RectGadget) axis.
         '''
@@ -234,7 +234,7 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
         info = 'View set to normal of the plane defined by the selection.'
         env.history.message(cmd + info)
         
-    def setViewParallelTo(self):
+    def viewParallelTo(self):
         '''Set view parallel to the vector defined by 2 selected atoms.
         '''
         cmd = greenmsg("Set View Parallel To: ")
@@ -266,65 +266,65 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
         info = 'View set parallel to the vector defined by the 2 selected atoms.'
         env.history.message(cmd + info)
     
-    def setViewOpposite(self):
+    def viewRotate180(self):
         '''Set view to the opposite of current view. '''
         cmd = greenmsg("Opposite View: ")
         info = 'Current view opposite to the previous view'
         env.history.message(cmd + info)
         self.glpane.rotateView(self.glpane.quat + Q(V(0,1,0), pi))
   
-    def setViewPlus90(self): # Added by Mark. 051013.
+    def viewRotatePlus90(self): # Added by Mark. 051013.
         '''Increment the current view by 90 degrees around the vertical axis. '''
         cmd = greenmsg("Rotate View +90 : ")
         info = 'View incremented by 90 degrees'
         env.history.message(cmd + info)
         self.glpane.rotateView(self.glpane.quat + Q(V(0,1,0), pi/2))
         
-    def setViewMinus90(self): # Added by Mark. 051013.
+    def viewRotateMinus90(self): # Added by Mark. 051013.
         '''Decrement the current view by 90 degrees around the vertical axis. '''
         cmd = greenmsg("Rotate View -90 : ")
         info = 'View decremented by 90 degrees'
         env.history.message(cmd + info)
         self.glpane.rotateView(self.glpane.quat + Q(V(0,1,0), -pi/2))
 
-    def setViewBack(self):
+    def viewBack(self):
         cmd = greenmsg("Back View: ")
         info = 'Current view is Back View'
         env.history.message(cmd + info)
         self.glpane.rotateView(Q(V(0,1,0),pi))
 
-    def setViewBottom(self):
+    def viewBottom(self):
         cmd = greenmsg("Bottom View: ")
         info = 'Current view is Bottom View'
         env.history.message(cmd + info)
         self.glpane.rotateView(Q(V(1,0,0),-pi/2))
 
-    def setViewFront(self):
+    def viewFront(self):
         cmd = greenmsg("Front View: ")
         info = 'Current view is Front View'
         env.history.message(cmd + info)
         self.glpane.rotateView(Q(1,0,0,0))
 
-    def setViewLeft(self):
+    def viewLeft(self):
         cmd = greenmsg("Left View: ")
         info = 'Current view is Left View'
         env.history.message(cmd + info)
         self.glpane.rotateView(Q(V(0,1,0),pi/2))
 
-    def setViewRight(self):
+    def viewRight(self):
         cmd = greenmsg("Right View: ")
         info = 'Current view is Right View'
         env.history.message(cmd + info)
         self.glpane.rotateView(Q(V(0,1,0),-pi/2))
 
-    def setViewTop(self):
+    def viewTop(self):
         cmd = greenmsg("Top View: ")
         info = 'Current view is Top View'
         env.history.message(cmd + info)
 
         self.glpane.rotateView(Q(V(1,0,0),pi/2))
 
-    def setViewIsometric(self):
+    def viewIsometric(self):
         "This sets the view to isometric. For isometric view, it needs"\
         "rotation around the vertical axis by pi/4 *followed* by rotation around horizontal axis by asin(tan(pi/6) - ninad060810"
         #This is not yet called from the MainWindow. Need UI for this. Also need code review -ninad060810
@@ -343,7 +343,37 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
                                 self.glpane.zoomFactor, 
                                 self.glpane.quat)
         self.assy.addnode(csys)
+        
         self.mt.mt_update()
+                                
+    
+    def getNamedViewList(self):
+        '''Returns a list of all the named view nodes in the MT inside a part.'''
+        
+        from Utility import Csys
+        
+        namedViewList = [] #Hold the result list
+        
+        def function(node):
+            if isinstance(node, Csys):
+                namedViewList.append(node)
+            return
+        #Append all Csys nodes to the namedview list --
+        self.assy.part.topnode.apply2all(function)
+        
+        return namedViewList
+    
+    def showStandardViewsMenu(self):
+        """When Standard Views button is activated, show its QMenu"""
+        ## By default, nothing happens if you click on the 
+        ## toolbutton with submenus. The menus are displayed only when you click on the small downward arrow 
+        ## of the tool button. Therefore the following slot is added. ninad 070109
+        
+        if self.standardViewsMenu.isVisible():
+            self.standardViewsMenu.hide()
+        else:
+            self.standardViews_btn.showMenu()
+
     
     def viewRaytraceScene(self):
         """Slot for 'View > Raytrace Scene'.

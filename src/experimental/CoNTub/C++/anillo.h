@@ -1,3 +1,4 @@
+// Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
 #ifndef ANILLO_H_INCLUDED
 #define ANILLO_H_INCLUDED
 

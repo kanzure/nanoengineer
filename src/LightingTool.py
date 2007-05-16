@@ -1,4 +1,4 @@
-# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2005-2006 Nanorex, Inc.  See LICENSE file for details. 
 '''
 LightingTool.py
 
@@ -8,12 +8,25 @@ __author__ = "Mark"
 
 from LightingToolDialog import *
 
-class LightingTool(LightingToolDialog):
+class LightingTool(QWidget, Ui_LightingToolDialog):
     def __init__(self, glpane):
-        LightingToolDialog.__init__(self)
+        QWidget.__init__(self)
+        self.setupUi(self)
+        self.connect(self.okPB,SIGNAL("clicked()"),self.accept)
+        self.connect(self.cancelPB,SIGNAL("clicked()"),self.reject)
+        self.connect(self.ambLight1SL,SIGNAL("valueChanged(int)"),self.valueChangedAmbient1)
+        self.connect(self.diffuseLight1SL,SIGNAL("valueChanged(int)"),self.valueChangedDiffuse1)
+        self.connect(self.diffuseLight2SL,SIGNAL("valueChanged(int)"),self.valueChangedDiffuse2)
+        self.connect(self.diffuseLight3SL,SIGNAL("valueChanged(int)"),self.valueChangedDiffuse3)
+        self.connect(self.ambLight2SL,SIGNAL("valueChanged(int)"),self.valueChangedAmbient2)
+        self.connect(self.ambLight3SL,SIGNAL("valueChanged(int)"),self.valueChangedAmbient3)
+        self.connect(self.light1CB,SIGNAL("clicked()"),self.setLights)
+        self.connect(self.light2CB,SIGNAL("clicked()"),self.setLights)
+        self.connect(self.light3CB,SIGNAL("clicked()"),self.setLights)
+        self.connect(self.restoreDefaultsPB,SIGNAL("clicked()"),self.restore)
         self.glpane = glpane
         if self.setup(): return
-        self.exec_loop()
+        self.exec_()
 
     def setup(self):
         """ Setup sliders and checkboxes. Return true on error (not yet possible).

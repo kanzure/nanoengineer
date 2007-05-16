@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2007 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 Utility.py -- class Node (superclass for all model-tree objects), Group, and a few subclasses,
 defining a uniform API to permit all Node subclasses to be shown in the model tree.
@@ -16,7 +16,7 @@ __author__ = "Josh"
 
 from VQT import *
 from shape import *
-from qt import QPixmap
+from PyQt4.Qt import QPixmap
 import sys, os
 from PartProp import *
 from GroupProp import *
@@ -32,6 +32,25 @@ debug_undoable_attrs = False
 
 _pixmap_image_path = None
 _pixmaps = {}
+_icons = {}
+
+_iconprefix = os.path.dirname(os.path.abspath(sys.argv[0]))
+_iconprefix = os.sep.join(_iconprefix.split(os.sep)[:-1] + ["src"])
+
+def geticon(name, _iconprefix=_iconprefix):
+    path = os.path.join(_iconprefix, name)
+    icon = QtGui.QIcon(path)
+    if icon.isNull():
+        print 'geticon - null icon for: ' + path
+    return QtGui.QIcon(path)
+
+def getpixmap(name, _iconprefix=_iconprefix):
+    path = os.path.join(_iconprefix, name)
+    icon = QtGui.QPixmap(path)
+    if icon.isNull():
+        print 'geticon - null icon for: ' + path
+    return QtGui.QPixmap(path)
+    
 
 def imagename_to_pixmap(imagename): #bruce 050108
     """Given the basename of a file in our cad/images directory,
@@ -57,13 +76,53 @@ def imagename_to_pixmap(imagename): #bruce 050108
             # and we want .../cad/images.
             from os.path import dirname, abspath
             cadpath = dirname(dirname(abspath(sys.argv[0]))) # ../cad
-            _pixmap_image_path = os.path.join(cadpath, "images")
+            _pixmap_image_path = os.path.join(cadpath, "src/ui/")
+            assert os.path.isdir(_pixmap_image_path), "missing pixmap directory: \"%s\"" % _pixmap_image_path
+        pixmappath = os.path.join( _pixmap_image_path, imagename)
+        if not os.path.exists(pixmappath):
+            print 'pixmap does not exist: ' + pixmappath
+            import traceback
+            traceback.print_stack(file=sys.stdout)
+        pixmap = QPixmap(pixmappath)
+            # missing file prints a warning but doesn't cause an exception,
+            # just makes a null pixmap [confirmed by mark 060202]
+        _pixmaps[imagename] = pixmap
+        return pixmap
+    pass
+
+def imagename_to_icon(imagename): #bruce 050108
+    """Given the basename of a file in our cad/images directory,
+    return a QPixmap created from that file. Cache these
+    (in our own Python directory, not Qt's QPixmapCache)
+    so that at most one QPixmap is made from each file.
+    If the imagename does not exist, a Null pixmap is returned.
+    """
+    global _pixmap_image_path, _icons
+    try:
+        return _icons[imagename]
+    except KeyError:
+        if not _pixmap_image_path:
+            # This runs once per Atom session (unless this directory is missing).
+            #
+            # (We don't run it until needed, in case something modifies
+            #  sys.argv[0] during init (we want the modified form in that case).
+            #  As of 050108 this is not known to ever happen. Another reason:
+            #  if we run it when this module is imported, we get the error message
+            #  "QPaintDevice: Must construct a QApplication before a QPaintDevice".)
+            #
+            # We assume sys.argv[0] looks like .../cad/src/xxx.py
+            # and we want .../cad/images.
+            from os.path import dirname, abspath
+            cadpath = dirname(dirname(abspath(sys.argv[0]))) # ../cad
+            _pixmap_image_path = os.path.join(cadpath, "src/ui/")
             assert os.path.isdir(_pixmap_image_path), "missing pixmap directory: \"%s\"" % _pixmap_image_path
         iconpath = os.path.join( _pixmap_image_path, imagename)
-        icon = QPixmap(iconpath)
+        if not os.path.exists(iconpath):
+            print 'icon does not exist: ' + iconpath
+        icon = QIcon(iconpath)
             # missing file prints a warning but doesn't cause an exception,
             # just makes a null icon [confirmed by mark 060202]
-        _pixmaps[imagename] = icon
+        _icons[imagename] = icon
         return icon
     pass
 
@@ -631,9 +690,9 @@ class Node( StateMixin):
         [all Node subclasses should override this]
         """
         try:
-            return self.const_icon # let simple nodes just set this in __init__ and be done with it [bruce 060523]
+            return self.const_pixmap # let simple nodes just set this in __init__ and be done with it [bruce 060523]
         except:
-            msg = "bug - Node subclass %s forgot to override node_icon method or set self.const_icon" % self.__class__.__name__
+            msg = "bug - Node subclass %s forgot to override node_icon method or set self.const_pixmap" % self.__class__.__name__
             fake_filename = msg
             return imagename_to_pixmap( fake_filename)
                 # should print msg, at most once per class
@@ -1745,11 +1804,13 @@ class Group(Node):
             # so ob.pick() sees it's picked when its subr scans up the tree
         for ob in self.members:
             ob.pick()
-        # bruce 050131 comment:
-        # I'm very skeptical of doing this history.message
-        # recursively, but I'm not changing it for Alpha
-        msg = self.description_for_history() # bruce 050121 let subclass decide on this
-        env.history.message( msg )
+        from debug_prefs import debug_pref_History_print_every_selected_object
+        if debug_pref_History_print_every_selected_object(): #bruce 070504 added this condition
+            # bruce 050131 comment:
+            # I'm very skeptical of doing this history.message
+            # recursively, but I'm not changing it for Alpha
+            msg = self.description_for_history() # bruce 050121 let subclass decide on this
+            env.history.message( msg )
         return
 
     def description_for_history(self):
@@ -1965,9 +2026,9 @@ class Group(Node):
     def node_icon(self, display_prefs):
         open = display_prefs.get('open', False)
         if open:
-            return imagename_to_pixmap("group-expanded.png")
+            return imagename_to_pixmap("modeltree/group-expanded.png")
         else:
-            return imagename_to_pixmap("group-collapsed.png")
+            return imagename_to_pixmap("modeltree/group-collapsed.png")
 
     def kids(self, display_prefs): #bruce 050109 [#k is this used?]
         """[Overrides Node.kids()]
@@ -1999,7 +2060,7 @@ class Group(Node):
     def edit(self):
         "[this is overridden in some subclasses of Group]"
         cntl = GroupProp(self) # Normal group prop
-        cntl.exec_loop()
+        cntl.exec_()
         self.assy.mt.mt_update()
 
     def dumptree(self, depth=0):
@@ -2183,7 +2244,7 @@ class Csys(SimpleCopyMixin, Node):
     scale = pov = zoomFactor = quat = None # Undo might require these to have default values (not sure) [bruce 060523]
 
     def __init__(self, assy, name, scale, pov, zoomFactor, w, x = None, y = None, z = None):
-        self.const_icon = imagename_to_pixmap("csys.png")
+        self.const_pixmap = imagename_to_pixmap("modeltree/csys.png")
         if name:
             Node.__init__(self, assy, name)
         else:
@@ -2317,7 +2378,7 @@ class PartGroup(Group):
     def permits_ungrouping(self): return False
     def node_icon(self, display_prefs):
         # same whether closed or open
-        return imagename_to_pixmap("part.png")
+        return imagename_to_pixmap("modeltree/part.png")
 ##    # And this temporary kluge makes it possible to use this subclass where it's
 ##    # needed, without modifying assembly.py or files_mmp.py:
 ##    def kluge_set_initial_nonmember_kids(self, lis): #bruce 050302 comment: no longer used, for now
@@ -2340,7 +2401,7 @@ class PartGroup(Group):
         cntl = PartProp(self.assy)
             #bruce comment 050420: PartProp is passed assy and gets its stats from assy.tree.
             # This needs revision if it should someday be available for Parts on the clipboard.
-        cntl.exec_loop()
+        cntl.exec_()
         self.assy.mt.mt_update()
     def description_for_history(self):
         """[overridden from Group method]"""
@@ -2386,14 +2447,14 @@ class ClipboardShelfGroup(Group):
         del display_prefs # unlike most Groups, we don't even care about 'open'
         non_empty = (len(self.members) > 0)
         if non_empty:
-            kluge_icon = imagename_to_pixmap("clipboard-full.png")
-            res = imagename_to_pixmap("clipboard-full.png")
+            kluge_pixmap = imagename_to_pixmap("modeltree/clipboard-full.png")
+            res = imagename_to_pixmap("modeltree/clipboard-full.png")
         else:
-            kluge_icon = imagename_to_pixmap("clipboard-gray.png")
-            res = imagename_to_pixmap("clipboard-empty.png")
+            kluge_pixmap = imagename_to_pixmap("modeltree/clipboard-gray.png")
+            res = imagename_to_pixmap("modeltree/clipboard-empty.png")
         # kluge: guess: makes paste tool look enabled or disabled
         ###@@@ clean this up somehow?? believe it or not, it might actually be ok...
-        self.assy.w.editPasteAction.setIconSet(QIconSet(kluge_icon))
+        self.assy.w.editPasteAction.setIcon(QIcon(kluge_pixmap))
         return res
     def edit(self):
         return "The Clipboard does not yet provide a property-editing dialog."

@@ -1,6 +1,5 @@
 #! /usr/bin/python
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
-
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 atom.py is the startup script for NanoEngineer-1.
 
@@ -50,14 +49,16 @@ by someone accidentally running "import atom" (which is wrong but causes no harm
 __author__ = "Josh"
 
 import sys, os, time
+from Sponsors import PermissionDialog
+
 print
 print "starting NanoEngineer-1 in [%s]," % os.getcwd(), time.asctime() #bruce 070429
 
 #bruce 061222: define global flags (available to other modules via import __main__) that indicate
 # whether we're in the Qt3 or Qt4 version of NE1. This works by hardcoding the flags differently
-# in the MAIN and wware_qt4_20060919 cvs branches. Here, we set them for the MAIN (Qt3) branch:
-USING_Qt3 = True
-USING_Qt4 = False
+# in the MAIN and wware_qt4_20060919 cvs branches. Here, we set them for Qt4:
+USING_Qt3 = False
+USING_Qt4 = True
 
 if __name__ != '__main__':
     #bruce 050902 added this warning
@@ -85,7 +86,9 @@ if __name__ == '__main__':
 
 # most imports in this file should be done here, or inside functions in startup_funcs
 
-from qt import QApplication, QSplashScreen, SIGNAL ## bruce 050902 removed QRect, QDesktopWidget
+
+
+from PyQt4.Qt import QApplication, QSplashScreen, SIGNAL ## bruce 050902 removed QRect, QDesktopWidget
 
 ## from constants import *
     #bruce 050902 removing import of constants since I doubt it's still needed here.
@@ -107,7 +110,7 @@ if __name__ == '__main__':
     # If you don't want the splashscreen, just rename the splash image.
     # mark 060131.
     from Utility import imagename_to_pixmap
-    splash_pixmap = imagename_to_pixmap( "splash.png" ) # rename it if you don't want it.
+    splash_pixmap = imagename_to_pixmap( "images/splash.png" ) # rename it if you don't want it.
     if not splash_pixmap.isNull():
         splash = QSplashScreen(splash_pixmap) # create the splashscreen
         splash.show()
@@ -116,6 +119,18 @@ if __name__ == '__main__':
         splash_start = time.time()
     else:
         print "note: splash.png was not found"
+ 
+    from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
+    ##########################################################################################################
+    #
+    # The debug preference menu is now working in Qt 4 but you can't effectively change this debug
+    # preference after the program has already come up, as too much of the GUI is already in place
+    # by then. To change it, manually edit it here.
+    #
+    debug_pref("Multipane GUI", Choice_boolean_True)
+    #debug_pref("Multipane GUI", Choice_boolean_False)
+    #
+    ##########################################################################################################
     
     foo = MWsemantics() # This does a lot of initialization (in MainWindow.__init__)
 
@@ -138,25 +153,28 @@ if __name__ == '__main__':
         splash.finish( foo ) # Take away the splashscreen
     
     foo.show() # show the main window
-    
-    if foo.glpane.mode.modename == 'DEPOSIT':
-        # Two problems are addressed here when nE-1 starts in Build (DEPOSIT) mode.
-        # 1. The MMKit can cover the splashscreen (bug #1439).
-        #   BTW, the other part of bug fix 1439 is in MWsemantics.modifyMMKit()
-        # 2. The MMKit appears 1-3 seconds before the main window.
-        # Both situations now resolved.  mark 060202
-        # Should this be moved to startup_funcs.post_main_show()? I chose to leave
-        # it here since the splashscreen code it refers to is in this file.  mark 060202.
-        foo.glpane.mode.MMKit.show()
-        if sys.platform == 'linux2':
-            # During startup on Linux, the MMKit dialog must be "shown" before it can be moved.
-            # Fixes bug 1444.  mark 060311.
-            x, y = foo.glpane.mode.MMKit.get_location(False)
-                # Call MMKit.move_to_best_location(), not get_location(), and move x += 5 there.
-                # Then we can remove MMKit.move, too.
-            x += 5 # Add 5 pixels. X11 didn't include the border when we called get_location().
-            foo.glpane.mode.MMKit.move(x, y)
+
+    if sys.platform != 'darwin': #bruce 070515 add condition to disable this on Mac, until Brian fixes the hang on Mac
+##        print "start sponsors startup code"
+        # Show the dialog that asks permission to download the sponsor logos, then
+        # launch it as a thread to download and process the logos.
+        #
+        permdialog = PermissionDialog(foo)
+        if permdialog.needToAsk:
+            permdialog.exec_()
+        permdialog.start()
+##        print "end sponsors startup code"
         
+    if not debug_pref("Multipane GUI", Choice_boolean_False):
+        if foo.glpane.mode.modename == 'DEPOSIT':
+            # Two problems are addressed here when nE-1 starts in Build (DEPOSIT) mode.
+            # 1. The MMKit can cover the splashscreen (bug #1439).
+            #   BTW, the other part of bug fix 1439 is in MWsemantics.modifyMMKit()
+            # 2. The MMKit appears 1-3 seconds before the main window.
+            # Both situations now resolved.  mark 060202
+            # Should this be moved to startup_funcs.post_main_show()? I chose to leave
+            # it here since the splashscreen code it refers to is in this file.  mark 060202.
+            foo.glpane.mode.MMKit.show()        
     try:
         # do this, if user asked us to by defining it in .atom-debug-rc
         meth = atom_debug_post_main_show 
@@ -208,9 +226,6 @@ if __name__ == '__main__':
     except:
         pass
 
-    if not foo.permdialog.fini:
-        foo.permdialog.show()
-
     from platform import atom_debug
     if atom_debug:
         # Use a ridiculously specific keyword, so this isn't triggered accidentally.
@@ -225,13 +240,13 @@ if __name__ == '__main__':
     if atom_debug_profile_filename:
         if PROFILE_WITH_HOTSHOT:
             profile = hotshot.Profile(atom_debug_profile_filename)
-            profile.run('app.exec_loop()')
+            profile.run('app.exec_()')
         else:
-            profile.run('app.exec_loop()', atom_debug_profile_filename)
+            profile.run('app.exec_()', atom_debug_profile_filename)
         print "\nprofile data was presumably saved into %r" % (atom_debug_profile_filename,)
     else:
         # if you change this code, also change the string literal just above
-        app.exec_loop() 
+        app.exec_() 
 
     pass
 

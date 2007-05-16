@@ -1,3 +1,4 @@
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 demo_polyline.py -- demo file for Polyline datatype (too unsophisticated for real life) and related commands
 

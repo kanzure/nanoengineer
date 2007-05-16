@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 whatsthis.py
 
@@ -28,7 +28,8 @@ A8 to find all the whats-this text specified in UI files, and move it
 into whatsthis.py (or maybe in some cases other Python source files).
 """
 
-from qt import *
+from PyQt4.Qt import *
+from qt4transition import qt4todo, qt4warning
 
 #bruce 051227-29 code for putting hyperlinks into most WhatsThis texts
 # (now finished enough for release, though needs testing and perhaps cleanup and documentation)
@@ -43,72 +44,6 @@ use_debug_refix_cutoff = False # DO NOT COMMIT with True
 
 debug_refix_cutoff = 24 # vary this by binary search in a debugger; this value is large enough to not matter
 
-class MyWhatsThis(QWhatsThis): #bruce 060120 revised this as part of fixing bug 1295, and added docstring
-    """QWhatsThis subclass for handling links. Due to quirks in Qt, this is used in two distinct ways:
-     1. For most widgets, mainly toolbuttons, they have their own whatsthis text, but that's ignored when they have this
-    object attached to them for handling whatsthis; Qt queries it for the text and also calls its clicked method.
-    So in this case, this object does two jobs: know the text (with embedded links), and know how to handle link clicks.
-     2. For menu items in QPopupMenu, the menu item itself is not a widget, and neither is the QAction it was probably
-    made from; neither of those (menu item or QAction) can have a QWhatsThis object of their own. The QPopupMenu can
-    have one, but it doesn't know which item to return text for, which doesn't matter anyway because Qt, for some
-    reason, never bothers to ask it for the text in the first place. But Qt will let it handle links. So this object
-    does only the click handling, and we separately modify the menu item whatsthis text (via their QActions) to contain
-    the links.
-     1+2. These ways interact as follows: separate code must modify QAction whatsthis text to contain links (so case (2)
-    can work), but that same text gets seen on toolbuttons made from those QActions, and modified again (re case (1)).
-    So the code to modify the text has to not cause trouble when run twice. See that code (end of this file) for details.
-    """
-    ## note: doesn't work on QActions (at least for an earlier version of the class with no __init__ method):
-    ## MyWhatsThis(self.editCopyAction) ## TypeError: argument 1 of QWhatsThis() has an invalid type
-    def __init__(self, widget, text = None):
-        QWhatsThis.__init__(self, widget) # this has a side effect of registering self as the whatsthis handler for widget
-        self.__text = text # notes: using QString(text) here is ok but not required. text might be None.
-        self.__widget = widget # perhaps only used for debug prints
-    def text(self, pos):
-        # Note: this runs when Qt puts up a WhatsThis help window for widget --
-        # but not for QPopupMenu widgets (at least not those in the main menu bar; context menu popups untested).
-        # It also runs [by experiment much later, 060319] when we rerun fix_whatsthis_text_and_links after running it once,
-        # presumably because (when run the 2nd time) it queries whatsthis text from MyWhatsThis objects installed the first time.
-        # Qt requires its return type to be str (or presumably QString) -- if it returns None, Qt prints a console message
-        #   TypeError: invalid result type from MyWhatsThis.text()
-        #
-        if debug_whatsthis_links:
-            print "text at pos %r in %r for %r queried by Qt" % (pos, self, self.__widget) # note: pos repr not useful, doesn't show x,y
-            print " type(text) is", type(self.__text)
-        text = self.__text
-        if not text and debug_whatsthis_links:
-            print " no text" # never happens in current calling code [051227] (still true 060120, in theory) (not true, 060319)
-        return text or "" # or "" is to prevent Qt from printing "TypeError: invalid result type from MyWhatsThis.text()"
-    def clicked(self, link):
-        # this runs when user clicks on a hyperlink in the help text, with 'link' being the link text (href attribute)
-        link = str(link) # QString to string (don't know if this is needed, guess yes)
-        # note: link is not a real URL, but either false or "Feature:<featurename>"
-        # (whether or not wiki_help_url() still hardcodes "Feature:" or some other prefix).
-        if link:
-            if debug_whatsthis_links:
-                print "clicked hyperlink in %r for %r, href text is %r" % (self, self.__widget, link)
-            # change link text to URL, and open browser to help page (see wiki_help.py)
-            if link.startswith("Feature:"):
-                from wiki_help import wiki_help_url, open_wiki_help_URL
-                featurename = link[len("Feature:"):]
-                    # not exactly the featurename, since we already turned ' ' into '_', but close enough (doing it twice won't hurt)
-                url = wiki_help_url( featurename) # presently this just redundantly turns ' ' into '_' and re-prepends "Feature:"
-                worked = open_wiki_help_URL(url, whosdoingthis = "What's This link")
-                ## close_dialog = worked # let it stay open if it fails (not sure why since it'll go away soon anyway)
-                close_dialog = True # close it even on failure so user knows something happened and looks at history
-            else:
-                print "bug: invalid What's This pseudo-url %r" % link # even if not debug_whatsthis_links
-                ## close_dialog = False
-                close_dialog = True
-        else:
-            # happens for clicking any empty part or other text in that popup dialog
-            if debug_whatsthis_links:
-                print "clicked non-link in %r for %r, text starts %r" % (self, self.__widget, (self.__text or "")[:27])
-            close_dialog = True
-        return close_dialog # return True to make help text widget go away, or False to keep it around (with no change in contents)
-        # hint for debugging 1359: see if returning False helps prevent hangs on Linux. [bruce guess 060120]
-    pass # end of class MyWhatsThis
-
 # ===
 
 def createWhatsThis(self):
@@ -118,14 +53,12 @@ def createWhatsThis(self):
         #
         
         # Open File
-        
+
+          
         fileOpenText = "<u><b>Open File</b></u>    (Ctrl + O)<br> "\
-                        "<p><img source=\"fileopen\"><br> "\
+                        "<p><img source=\"ui/actions/File/Open.png\"><br> "\
                        "Opens a new file."\
                        "</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "fileopen",
-                                                       self.fileOpenAction.iconSet().pixmap() )
 
         self.fileOpenAction.setWhatsThis( fileOpenText )
         
@@ -150,12 +83,9 @@ def createWhatsThis(self):
         # Save File
         
         fileSaveText = "<u><b>Save File</b></u>     (Ctrl + S)<br> "\
-                       "<p><img source=\"filesave\"><br> "\
+                       "<p><img source=\"ui/actions//Save.png\"><br> "\
                        "Saves the current file."\
                        "</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "filesave",
-                                                       self.fileSaveAction.iconSet().pixmap() )
 
         self.fileSaveAction.setWhatsThis( fileSaveText )
         
@@ -167,12 +97,9 @@ def createWhatsThis(self):
         # Make Checkpoint ###
         
         editMakeCheckpointText =  "<u><b>Make Checkpoint</b></u>"\
-                       "<p><img source=\"editMakeCheckpoint\"><br> "\
+                       "<p><img source=\"ui/actions/Edit/Make_CheckPoint.png\"><br> "\
                        "Make Undo checkpoint."\
                        "</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "editMakeCheckpoint",
-                                                       self.editMakeCheckpointAction.iconSet().pixmap() )
 
         self.editMakeCheckpointAction.setWhatsThis( editMakeCheckpointText )
         
@@ -182,7 +109,7 @@ def createWhatsThis(self):
                        "<p>Enables/Disables <b>Automatic Checkpointing</b>. When enabled, the program "\
                        "maintains the Undo stack automatically.  When disabled, the user is required to "\
                        "manually create Undo checkpoints using the <b>Make Checkpoint</b> button: </p>"\
-                       "<p><img source=\"editMakeCheckpoint\"></p>"\
+                       "<p><img source=\"ui/actions/Edit/Make_CheckPoint.png\"></p>"\
                        "<p><b>Automatic Checkpointing</b> can impact program performance. By disabling "\
                        "Automatic Checkpointing, the program will run faster.</p>"\
                        "<p><b><i>Remember that you must make your own Undo checkpoints manually when "\
@@ -202,7 +129,7 @@ def createWhatsThis(self):
         # Undo
         
         editUndoText =  "<u><b>Undo</b></u>     (Ctrl + Z)<br> "\
-                       "<p><img source=\"editUndo\"><br> "\
+                       "<p><img source=\"ui/actions/Undo.png\"><br> "\
                        "Reverses the last edit or command which changed structure or selection. "\
                        "<br><font color=\"#808080\">"\
                        "Known bug: the link to wiki help for Undo "\
@@ -210,9 +137,6 @@ def createWhatsThis(self):
                        "not from the Undo toolbutton."\
                        "</font>"\
                        "</p>" #bruce 060317 revised this text to reflect what it does in A7; 060320 added 1421-not-fixed warning
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "editUndo",
-                                                       self.editUndoAction.iconSet().pixmap() )
 
         self.editUndoAction.setWhatsThis( editUndoText )
 
@@ -228,7 +152,7 @@ def createWhatsThis(self):
             redo_accel = "(Ctrl + Y)"
         
         editRedoText =  "<u><b>Redo</b></u>     %s<br> "\
-                       "<p><img source=\"editRedo\"> <br>"\
+                       "<p><img source=\"ui/actions/Edit/Redo.png\"> <br>"\
                        "Restores a change which was undone using the Undo command."\
                        "<br><font color=\"#808080\">"\
                        "Known bug: the link to wiki help for Redo "\
@@ -238,9 +162,6 @@ def createWhatsThis(self):
                        "</p>" % redo_accel
             #bruce 060317 revised this text to be more accurate, and split out redo_accel; 060320 added 1421-not-fixed warning
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "editRedo",
-                                                       self.editRedoAction.iconSet().pixmap() )
-
         self.editRedoAction.setWhatsThis( editRedoText )
 
         self.editRedoText = editRedoText #bruce 060317 to help fix bug 1421 in Redo whatsthis wiki help link
@@ -248,33 +169,27 @@ def createWhatsThis(self):
         # Cut
         
         editCutText =  "<u><b>Cut</b></u>     (Ctrl + X)<br> "\
-                       "<p><img source=\"editCut\"><br> "\
+                       "<p><img source=\"ui/actions/Edit/Cut.png\"><br> "\
                        "Removes the selected object(s) and stores the cut data on the"\
                        "clipboard."\
                        "</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "editCut",
-                                                       self.editCutAction.iconSet().pixmap() )
 
         self.editCutAction.setWhatsThis( editCutText )
         
         # Copy
         
         editCopyText =  "<u><b>Copy</b></u>     (Ctrl + C)<br> "\
-                       "<p><img source=\"editCopy\"><br> "\
+                       "<p><img source=\"ui/actions/Edit/Copy.png\"><br> "\
                       "Places a copy of the selected chunk(s) on the clipboard "\
                       "while leaving the original chunk(s) unaffected."\
                       "</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "editCopy",
-                                                       self.editCopyAction.iconSet().pixmap() )
 
         self.editCopyAction.setWhatsThis( editCopyText )
         
         # Paste
         
         editPasteText = "<u><b>Paste</b></u>     (Ctrl + V)<br> "\
-                       "<p><img source=\"editPaste\"><br> "\
+                       "<p><img source=\"ui/actions/Edit/Paste_On.png\"><br> "\
                        "<b>Paste</b> places the user in <b>Build</b> mode where copied chunks on "\
                        "the clipboard can be pasted into the model by double clicking in empty space. "\
                        "If the current clipboard chunk has a <b><i>hotspot</i></b>, it can be bonded to "\
@@ -286,22 +201,16 @@ def createWhatsThis(self):
                        "<b><i>MMKit's Thumbview</i></b>."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "editPaste",
-                                                       self.editPasteAction.iconSet().pixmap() )
-
         self.editPasteAction.setWhatsThis( editPasteText )
    
         # Delete
                                  
         editDeleteText =  "<u><b>Delete</b></u>     (DEL)<br> "\
-                       "<p><img source=\"editDelete\"><br> "\
+                       "<p><img source=\"ui/actions/Delete.png\"><br> "\
                        "Deletes the selected object(s).  "\
                        "For this Alpha release, deleted objects may be permanently lost, or they might be recoverable using Undo.</p>"
             #bruce 060212 revised above text (and fixed spelling error); should be revised again before A7 release
         
-        QMimeSourceFactory.defaultFactory().setPixmap( "editDelete",
-                                                       self.editDeleteAction.iconSet().pixmap() )
-
         self.editDeleteAction.setWhatsThis( editDeleteText )
         
         #Preferences Dialog
@@ -319,50 +228,38 @@ def createWhatsThis(self):
         # Home View
         
         setViewHomeActionText = "<u><b>Home</b></u>     (Home)<br>"\
-                       "<p><img source=\"setViewHome\"><br> "\
+                       "<p><img source=\"ui/actions/View/Modify/Home.png\"><br> "\
                        "When you create a new model, it appears in a default view orientation (FRONT view). When you open an existing model, it appears in the orientation it was last saved.  You can change the default orientation by selecting <b>Set Home View to Current View</b> from the <b>View</b> menu.</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "setViewHome",
-                                                       self.setViewHomeAction.iconSet().pixmap() )
 
         self.setViewHomeAction.setWhatsThis( setViewHomeActionText )
 
         # Fit to Window
         
         setViewFitToWindowActionText = "<u><b>Fit To Window</b></u><br>"\
-                       "<p><img source=\"setViewFitToWindow\"><br> "\
+                       "<p><img source=\"ui/actions/View/Modify/Zoom_To_Fit.png\"><br> "\
                        "Refits the model to the screen so you can view the entire model."\
                        "</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "setViewFitToWindow",
-                                                       self.setViewFitToWindowAction.iconSet().pixmap() )
 
         self.setViewFitToWindowAction.setWhatsThis( setViewFitToWindowActionText )   
 
         # Recenter
         
         setViewRecenterActionText = "<u><b>Recenter</b></u><br>"\
-                       "<p><img source=\"setViewRecenter\"><br> "\
+                       "<p><img source=\"ui/actions/View/Modify/Recenter.png\"><br> "\
                        "Changes the view center and zoom factor so that the origin is in the "\
                        "center of the view and you can view the entire model."\
                        "</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "setViewRecenter",
-                                                       self.setViewRecenterAction.iconSet().pixmap() )
 
         self.setViewRecenterAction.setWhatsThis( setViewRecenterActionText )       
         
         # Zoom Tool
         
         setzoomToolActionText = "<u><b>Zoom Tool</b></u><br>"\
-                       "<p><img source=\"setzoomTool\"><br> "\
+                       "<p><img source=\"ui/actions/View/Modify/Zoom.png\"><br> "\
                        "Allows the user to zoom into a specific area of the model by specifying a rectangular area. "\
                        "This is done by holding down the left button and dragging the mouse.</p>"\
                        "<p>A mouse with a mouse wheel can also be used to zoom in and out "\
                        "at any time, without using the Zoom Tool.</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "setzoomTool",
-                                                       self.zoomToolAction.iconSet().pixmap() )
 
         self.zoomToolAction.setWhatsThis( setzoomToolActionText )      
 
@@ -370,13 +267,10 @@ def createWhatsThis(self):
         # Pan Tool
         
         setpanToolActionText = "<u><b>Pan Tool</b></u><br>"\
-                       "<p><img source=\"setpanTool\"><br> "\
+                       "<p><img source=\"ui/actions/View/Modify/Pan.png\"><br> "\
                        "Allows X-Y panning using the left mouse button.</p>"\
                        "<p>Users with a 3-button mouse can pan the model at any time by pressing "\
                        "the middle mouse button while holding down the Shift key.</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "setpanTool",
-                                                       self.panToolAction.iconSet().pixmap() )
 
         self.panToolAction.setWhatsThis( setpanToolActionText )
 
@@ -384,13 +278,10 @@ def createWhatsThis(self):
         # Rotate Tool
         
         setrotateToolActionText = "<u><b>Rotate Tool</b></u><br>"\
-                       "<p><img source=\"setrotateTool\"><br> "\
+                       "<p><img source=\"ui/actions/View/Modify/Rotate.png\"><br> "\
                        "Allows free rotation using the left mouse button.</p>"\
                        "<p>Users with a 3-button mouse can rotate the model at any time by pressing "\
                        "the middle mouse button and dragging the mouse.</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "setrotateTool",
-                                                       self.rotateToolAction.iconSet().pixmap() )
 
         self.rotateToolAction.setWhatsThis( setrotateToolActionText )
         
@@ -399,9 +290,6 @@ def createWhatsThis(self):
         setViewOrthoActionText = "<u><b>Orthographic Projection</b></u><br>"\
                        "<p>Sets nonperspective (or parallel) projection, with no foreshortening."\
                        "</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "setViewOrtho",
-                                                       self.setViewOrthoAction.iconSet().pixmap() )
 
         self.setViewOrthoAction.setWhatsThis( setViewOrthoActionText )
 
@@ -412,183 +300,138 @@ def createWhatsThis(self):
                        "that are closer to the viewer."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "setViewPerspec",
-                                                       self.setViewPerspecAction.iconSet().pixmap() )
-
-        self.setViewPerspecAction.setWhatsThis( setViewPerspecActionText )        
+        self.setViewPerspecAction.setWhatsThis( setViewPerspecActionText )
 
         # Normal To
         
-        setViewNormalToActionText = "<u><b>Set View Normal To</b></u><br>"\
-                       "<p><img source=\"setViewNormalTo\"><br> "\
+        viewNormalToActionText = "<u><b>Set View Normal To</b></u><br>"\
+                       "<p><img source=\"ui/actions/View/Set_View_Normal_To.png/\"><br> "\
                        "Orients view to the normal vector of the plane defined by "\
                        "3 or more selected atoms, or a jig's axis."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "setViewNormalTo",
-                                                       self.setViewNormalToAction.iconSet().pixmap() )
-
-        self.setViewNormalToAction.setWhatsThis( setViewNormalToActionText )
+        self.viewNormalToAction.setWhatsThis( viewNormalToActionText )
         
         # Parallel To
         
-        setViewParallelToActionText = "<u><b>Set View Parallel To</b></u><br>"\
-                       "<p><img source=\"setViewParallelTo\"><br> "\
+        viewParallelToActionText = "<u><b>Set View Parallel To</b></u><br>"\
+                       "<p><img source=\"ui/actions/View/Set_View_Parallel_To.png\"><br> "\
                        "Orients view parallel to the vector defined by 2 selected atoms."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "setViewParallelTo",
-                                                       self.setViewParallelToAction.iconSet().pixmap() )
-
-        self.setViewParallelToAction.setWhatsThis( setViewParallelToActionText ) 
+        self.viewParallelToAction.setWhatsThis( viewParallelToActionText ) 
         
         # Save Named View
         
         saveNamedViewActionText = "<u><b>Save Named View</b></u><br>"\
-                       "<p><img source=\"saveNamedView\"><br> "\
+                       "<p><img source=\"ui/actions/View/Modify/Save_Named_View.png\"><br> "\
                        "Saves the current view as a custom <b>named view</b> and places it in the Model Tree.</p>" \
                        "<p>The view can be restored by selecting <b>Change View</b> from its context menu in the Model Tree."\
                        "</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "saveNamedView",
-                                                       self.saveNamedViewAction.iconSet().pixmap() )
 
         self.saveNamedViewAction.setWhatsThis( saveNamedViewActionText ) 
         
         
         # Front View
         
-        setViewFrontActionText = "<u><b>Front View</b></u><br>"\
-                       "<p><img source=\"setViewFront\"><br> "\
+        viewFrontActionText = "<u><b>Front View</b></u><br>"\
+                       "<p><img source=\"ui/actions/View/Front.png\"><br> "\
                        "Orients the view to the Front View."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "setViewFront",
-                                                       self.setViewFrontAction.iconSet().pixmap() )
-
-        self.setViewFrontAction.setWhatsThis( setViewFrontActionText )  
+        self.viewFrontAction.setWhatsThis( viewFrontActionText )  
 
         # Back View
         
-        setViewBackActionText = "<u><b>Back View</b></u><br>"\
-                       "<p><img source=\"setViewBack\"><br> "\
+        viewBackActionText = "<u><b>Back View</b></u><br>"\
+                       "<p><img source=\"ui/actions/View/Back.png\"><br> "\
                        "Orients the view to the Back View."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "setViewBack",
-                                                       self.setViewBackAction.iconSet().pixmap() )
-
-        self.setViewBackAction.setWhatsThis( setViewBackActionText )     
+        self.viewBackAction.setWhatsThis( viewBackActionText )     
         
         # Top View
         
-        setViewTopActionText = "<u><b>Top View</b></u><br>"\
-                       "<p><img source=\"setViewTop\"><br> "\
+        viewTopActionText = "<u><b>Top View</b></u><br>"\
+                       "<p><img source=\"ui/actions/View/Top.png\"><br> "\
                        "Orients the view to the Top View."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "setViewTop",
-                                                       self.setViewTopAction.iconSet().pixmap() )
-
-        self.setViewTopAction.setWhatsThis( setViewTopActionText )      
+        self.viewTopAction.setWhatsThis( viewTopActionText )      
         
         # Bottom View
         
-        setViewBottomActionText = "<u><b>Bottom View</b></u><br>"\
-                       "<p><img source=\"setViewBottom\"><br> "\
+        viewBottomActionText = "<u><b>Bottom View</b></u><br>"\
+                       "<p><img source=\"ui/actions/View/Bottom.png\"><br> "\
                        "Orients the view to the Bottom View."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "setViewBottom",
-                                                       self.setViewBottomAction.iconSet().pixmap() )
-
-        self.setViewBottomAction.setWhatsThis( setViewBottomActionText )  
+        self.viewBottomAction.setWhatsThis( viewBottomActionText )  
         
         # Left View
         
-        setViewLeftActionText = "<u><b>Left View</b></u><br>"\
-                       "<p><img source=\"setViewLeft\"><br> "\
+        viewLeftActionText = "<u><b>Left View</b></u><br>"\
+                       "<p><img source=\"ui/actions/View/Left.png\"><br> "\
                        "Orients the view to the Left View."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "setViewLeft",
-                                                       self.setViewLeftAction.iconSet().pixmap() )
-
-        self.setViewLeftAction.setWhatsThis( setViewLeftActionText )
+        self.viewLeftAction.setWhatsThis( viewLeftActionText )
         
         # Right View
         
-        setViewRightActionText = "<u><b>Right View</b></u><br>"\
-                       "<p><img source=\"setViewRight\"><br> "\
+        viewRightActionText = "<u><b>Right View</b></u><br>"\
+                       "<p><img source=\"ui/actions/View/Right.png\"><br> "\
                        "Orients the view to the Right View."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "setViewRight",
-                                                       self.setViewRightAction.iconSet().pixmap() )
-
-        self.setViewRightAction.setWhatsThis( setViewRightActionText )
+        self.viewRightAction.setWhatsThis( viewRightActionText )
         
         #Isometric View 
         
-        setViewIsometricActionText = "<u><b>IsometricView</b></u><br>"\
-                       "<p><img source=\"setViewIsometric\"><br> "\
+        viewIsometricActionText = "<u><b>IsometricView</b></u><br>"\
+                       "<p><img source=\"ui/actions/View/Isometric.png\"><br> "\
                        "Orients the view to the Isometric View."\
                        "</p>"
                        
-        QMimeSourceFactory.defaultFactory().setPixmap( "setViewIsometric",
-                                                       self.setViewIsometricAction.iconSet().pixmap() )
-
-        self.setViewIsometricAction.setWhatsThis( setViewIsometricActionText )
+        self.viewIsometricAction.setWhatsThis( viewIsometricActionText )
 
         
         # Rotate View 180
         
-        setViewOppositeActionText = "<u><b>Rotate View 180</b></u><br>"\
-                       "<p><img source=\"setViewOpposite\"><br> "\
+        viewRotate180ActionText = "<u><b>Rotate View 180</b></u><br>"\
+                       "<p><img source=\"ui/actions/View/Rotate_View_180.png.png\"><br> "\
                        "Rotates the view 180 degrees."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "setViewOpposite",
-                                                       self.setViewOppositeAction.iconSet().pixmap() )
-
-        self.setViewOppositeAction.setWhatsThis( setViewOppositeActionText )
+        self.viewRotate180Action.setWhatsThis( viewRotate180ActionText )
         
         # Rotate View +90
         
-        setViewPlus90ActionText = "<u><b>Rotate View +90</b></u><br>"\
-                       "<p><img source=\"setViewPlus90\"><br> "\
+        viewRotatePlus90ActionText = "<u><b>Rotate View +90</b></u><br>"\
+                       "<p><img source=\"ui/actions/View/Rotate_View_+90.png\"><br> "\
                        "Increment the current view by 90 degrees around the vertical axis."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "setViewPlus90",
-                                                       self.setViewPlus90Action.iconSet().pixmap() )
-
-        self.setViewPlus90Action.setWhatsThis( setViewPlus90ActionText )
+        self.viewRotatePlus90Action.setWhatsThis( viewRotatePlus90ActionText )
         
         # Rotate View -90
         
-        setViewMinus90ActionText = "<u><b>Rotate View -90</b></u><br>"\
-                       "<p><img source=\"setViewMinus90\"><br> "\
+        viewRotateMinus90ActionText = "<u><b>Rotate View -90</b></u><br>"\
+                       "<p><img source=\"ui/actions/View/Rotate_View_-90.png\"><br> "\
                        "Decrement the current view by 90 degrees around the vertical axis."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "setViewMinus90",
-                                                       self.setViewMinus90Action.iconSet().pixmap() )
-
-        self.setViewMinus90Action.setWhatsThis( setViewMinus90ActionText )
+        self.viewRotateMinus90Action.setWhatsThis( viewRotateMinus90ActionText )
         
         # Raytrace Scene
         
         viewRaytraceSceneActionText = "<u><b>Raytrace Scene</b></u><br>"\
-                       "<p><img source=\"viewRaytraceSceneAction\"><br> "\
+                       "<p><img source=\"ui/actions/View/Display/Raytrace_Scene.png\"><br> "\
                        "Raytrace the current scene using POV-Ray. This provides a convenient way to preview "\
                        "the results of a POV-Ray scene rendering."\
                        "</p>" \
                        "POV-Ray must be installed for this feature to work. POV-Ray can be downloaded from http://www.povray.org" \
                        "</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "viewRaytraceSceneAction",
-                                                       self.viewRaytraceSceneAction.iconSet().pixmap() )
 
         self.viewRaytraceSceneAction.setWhatsThis( viewRaytraceSceneActionText )
         
@@ -599,39 +442,30 @@ def createWhatsThis(self):
         # Surface 100
         
         orient100ActionText = "<u><b>Surface 100</b></u><br>"\
-                       "<p><img source=\"orient100Action\"><br> "\
+                       "<p><img source=\"ui\actions\Properties Manager/Surface100.png\"><br> "\
                        "Reorients the view to the nearest angle that would "\
                        "look straight into a (1,0,0) surface of a diamond lattice."\
                        "</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "orient100Action",
-                                                       self.orient100Action.iconSet().pixmap() )
 
         self.orient100Action.setWhatsThis(orient100ActionText )
         
         # Surface 110
         
         orient110ActionText = "<u><b>Surface 110</b></u><br>"\
-                       "<p><img source=\"orient110Action\"><br> "\
+                       "<p><img source=\"ui\actions\Properties Manager/Surface110.png\"><br> "\
                        "Reorients the view to the nearest angle that would "\
                        "look straight into a (1,1,0) surface of a diamond lattice."\
                        "</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "orient110Action",
-                                                       self.orient110Action.iconSet().pixmap() )
 
         self.orient110Action.setWhatsThis(orient110ActionText )
         
         # Surface 111
 
         orient111ActionText = "<u><b>Surface 111</b></u><br>"\
-                       "<p><img source=\"orient111Action\"><br> "\
+                       "<p><img source=\"ui\actions\Properties Manager/Surface111.png\"><br> "\
                        "Reorients the view to the nearest angle that would "\
                        "look straight into a (1,1,1) surface of a diamond lattice."\
                        "</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "orient111Action",
-                                                       self.orient111Action.iconSet().pixmap() )
 
         self.orient111Action.setWhatsThis(orient111ActionText )
         
@@ -641,61 +475,66 @@ def createWhatsThis(self):
         
         # Graphene
 
-        insertGrapheneActionText = "<u><b>Insert Graphene</b></u><br>"\
-                       "<p><img source=\"insertGrapheneAction\"><br> "\
-                       "Inserts a graphene sheet provided with width, height and bond length parameters. "\
-                       "</p>"
+        insertGrapheneActionText = \
+                "<u><b>Build Graphene</b></u><br>"\
+                "<p><img source=\"ui/actions/Tools/Build Structures/Graphene.png\"><br> "\
+                "Inserts a 2D sheet of graphene in the model "\
+                "based on the current parameters in the Property Manager. "\
+                "To preview the structure based on the current parameters, "\
+                "click the Preview button located at the top of the "\
+                "Property Manager :<br> "\
+                "<img source=\"ui/actions/Properties Manager/Preview.png\"> "\
+                "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "insertGrapheneAction",
-                                                       self.insertGrapheneAction.iconSet().pixmap() )
 
         self.insertGrapheneAction.setWhatsThis(insertGrapheneActionText )
         
-        # Nanotube
+        # Build Nanotube
 
-        insertNanotubeActionText = "<u><b>Insert Nanotube</b></u><br>"\
-                       "<p><img source=\"insertNanotubeAction\"><br> "\
-                       "Inserts a nanotube provided with chirality (M, N) and length parameters. "\
-                       "</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "insertNanotubeAction",
-                                                       self.insertNanotubeAction.iconSet().pixmap() )
+        insertNanotubeActionText = \
+                "<u><b>Build Nanotube</b></u>"\
+                "<p><img source=\"ui/actions/Tools/Build Structures/Nanotube.png\"> <br>"\
+                "Inserts a carbon or boron nitride nanotube in the model "\
+                "based on the current parameters in the Property Manager. "\
+                "To preview the structure based on the current parameters, "\
+                "click the Preview button located at the top of the "\
+                "Property Manager :<br> "\
+                "<img source=\"ui/actions/Properties Manager/Preview.png\"> "\
+                "</p>"
 
         self.insertNanotubeAction.setWhatsThis(insertNanotubeActionText )
         
-        # DNA
+        # Build DNA
 
-        insertDnaActionText = "<u><b>Insert DNA</b></u><br>"\
-                       "<p><img source=\"insertDnaAction\"><br> "\
-                       "Inserts a single or double strand of B or Z-DNA given a nucleotide sequence. "\
-                       "</p>"
+        buildDnaActionText = \
+                "<u><b>Build DNA</b></u><br>"\
+                "<p><img source=\"ui/actions/Tools/Build Structures/DNA.png\"><br> "\
+                "Inserts DNA in the model "\
+                "based on the current parameters in the Property Manager. "\
+                "To preview the structure based on the current parameters, "\
+                "click the Preview button located at the top of the "\
+                "Property Manager :<br> "\
+                "<img source=\"ui/actions/Properties Manager/Preview.png\"> "\
+                "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "insertDnaAction",
-                                                       self.insertDnaAction.iconSet().pixmap() )
 
-        self.insertDnaAction.setWhatsThis(insertDnaActionText )
+        self.buildDnaAction.setWhatsThis(buildDnaActionText )
         
         # POV-Ray Scene
 
         insertPovraySceneActionText = "<u><b>Insert POV-Ray Scene</b></u><br>"\
-                       "<p><img source=\"insertPovraySceneAction\"><br> "\
+                       "<p><img source=\"ui/actions/POV-Ray_Scene.png\"><br> "\
                        "Inserts a POV-Ray Scene file based on the current model and viewpoint. "\
                        "</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "insertPovraySceneAction",
-                                                       self.insertPovraySceneAction.iconSet().pixmap() )
 
         self.insertPovraySceneAction.setWhatsThis(insertPovraySceneActionText )
         
         # Comment
 
         insertCommentActionText = "<u><b>Insert Comment</b></u><br>"\
-                       "<p><img source=\"insertCommentAction\"><br> "\
+                       "<p><img source=\"ui/actions/Insert/Comment.png\"><br> "\
                        "Inserts a comment in the current part. "\
                        "</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "insertCommentAction",
-                                                       self.insertCommentAction.iconSet().pixmap() )
 
         self.insertCommentAction.setWhatsThis(insertCommentActionText )
         
@@ -706,7 +545,7 @@ def createWhatsThis(self):
         # Display Default 
 
         dispDefaultActionText = "<u><b>Display Default</b></u><br>"\
-                       "<p><img source=\"dispDefaultAction\"><br> "\
+                       "<p><img source=\"ui/actions/View/Display/Default.png\"><br> "\
                        "Changes the <i>display setting</i> of selected atoms or chunks to "\
                        "<b>Default</b> , rendering them in the <b>Current Display Mode</b>."\
                        "</p>"\
@@ -722,15 +561,12 @@ def createWhatsThis(self):
                        "lower right corner of the main window."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "dispDefaultAction",
-                                                       self.dispDefaultAction.iconSet().pixmap() )
-
         self.dispDefaultAction.setWhatsThis(dispDefaultActionText )
  
         # Display Invisible
 
         dispInvisActionText = "<u><b>Display Invisible</b></u><br>"\
-                       "<p><img source=\"dispInvisAction\"><br> "\
+                       "<p><img source=\"ui/actions/View/Display/Invisible.png\"><br> "\
                        "Changes the <i>display setting</i> of selected atoms or chunks to "\
                        "<b>Invisible</b>, making them invisible."\
                        "</p>"\
@@ -740,15 +576,12 @@ def createWhatsThis(self):
                        "this display property."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "dispInvisAction",
-                                                       self.dispInvisAction.iconSet().pixmap() )
-
         self.dispInvisAction.setWhatsThis(dispInvisActionText )       
 
         # Display Lines
 
         dispLinesActionText = "<u><b>Display Lines</b></u><br>"\
-                       "<p><img source=\"dispLinesAction\"><br> "\
+                       "<p><img source=\"ui/actions/View/Display/Lines.png\"><br> "\
                        "Changes the <i>display setting</i> of selected atoms or chunks to "\
                        " <b>Lines</b>.  Only bonds are rendered as colored lines."\
                        "</p>"\
@@ -758,15 +591,12 @@ def createWhatsThis(self):
                        "this display property."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "dispLinesAction",
-                                                       self.dispLinesAction.iconSet().pixmap() )
-
         self.dispLinesAction.setWhatsThis(dispLinesActionText )  
         
         # Display Tubes
 
         dispTubesActionText = "<u><b>Display Tubes</b></u><br>"\
-                       "<p><img source=\"dispTubesAction\"><br> "\
+                       "<p><img source=\"ui/actions/View/Display/Tubes.png\"><br> "\
                        "Changes the <i>display setting</i> of selected atoms or chunks to "\
                        "<b>Tubes</b>.  Atoms and bonds are rendered as colored tubes."\
                        "</p>"\
@@ -777,15 +607,12 @@ def createWhatsThis(self):
                        "</p>"
 
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "dispTubesAction",
-                                                       self.dispTubesAction.iconSet().pixmap() )
-
         self.dispTubesAction.setWhatsThis(dispTubesActionText )  
         
         # Display Ball and Stick
 
         dispBallActionText = "<u><b>Display Ball and Stick</b></u><br>"\
-                       "<p><img source=\"dispBallAction\"><br> "\
+                       "<p><img source=\"ui/actions/View/Display/Ball_and_Stick.png\"><br> "\
                        "Changes the <i>display setting</i> of selected atoms or chunks to "\
                        "<b>Ball and Stick</b> mode.  Atoms are rendered "\
                        "as spheres and bonds are rendered as narrow cylinders."\
@@ -799,15 +626,12 @@ def createWhatsThis(self):
                        "<b>Atoms</b> and <b>Bonds</b> pages of the <b>Preferences</b> dialog."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "dispBallAction",
-                                                       self.dispBallAction.iconSet().pixmap() )
-
         self.dispBallAction.setWhatsThis(dispBallActionText ) 
         
         # Display CPK # [bruce extended and slightly corrected text, 060307]
 
         dispCPKActionText = "<u><b>Display CPK</b></u><br>"\
-                       "<p><img source=\"dispCPKAction\"><br> "\
+                       "<p><img source=\"ui/actions/View/Display/CPK.png\"><br> "\
                        "Changes the <i>display setting</i> of selected atoms or chunks to "\
                        "<b>CPK</b> mode.  Atoms are rendered as spheres with "\
                        "a size equal to 0.78 of their VdW radius, corresponding "\
@@ -823,15 +647,12 @@ def createWhatsThis(self):
                        "<b>Atoms</b> and <b>Bonds</b> pages of the <b>Preferences</b> dialog."\
                        "</p>"
                       
-        QMimeSourceFactory.defaultFactory().setPixmap( "dispCPKAction",
-                                                       self.dispCPKAction.iconSet().pixmap() )
-
         self.dispCPKAction.setWhatsThis(dispCPKActionText )
         
         # Display Cylinder
 
         dispCylinderActionText = "<u><b>Display Cylinder</b></u><br>"\
-                       "<p><img source=\"dispCylinderAction\"><br> "\
+                       "<p><img source=\"ui/actions/View/Display/Cylinder.png\"><br> "\
                        "Changes the <i>display setting</i> of selected chunks to "\
                        "<b>Cylinder</b> mode.  Chunks are rendered as cylinders."\
                        "</p>"\
@@ -841,15 +662,12 @@ def createWhatsThis(self):
                        "this display property."\
                        "</p>"
                       
-        QMimeSourceFactory.defaultFactory().setPixmap( "dispCylinderAction",
-                                                       self.dispCylinderAction.iconSet().pixmap() )
-
         self.dispCylinderAction.setWhatsThis(dispCylinderActionText )
         
         # Display Surface
 
         dispSurfaceActionText = "<u><b>Display Surface</b></u><br>"\
-                       "<p><img source=\"dispSurfaceAction\"><br> "\
+                       "<p><img source=\"ui/actions/View/Display/Surface.png\"><br> "\
                        "Changes the <i>display setting</i> of selected chunks to "\
                        "<b>Surface</b> mode.  Chunks are rendered as a smooth surface."\
                        "</p>"\
@@ -859,9 +677,6 @@ def createWhatsThis(self):
                        "this display property."\
                        "</p>"
                       
-        QMimeSourceFactory.defaultFactory().setPixmap( "dispSurfaceAction",
-                                                       self.dispSurfaceAction.iconSet().pixmap() )
-
         self.dispSurfaceAction.setWhatsThis(dispSurfaceActionText )
         
         #Reset Chunk Color
@@ -907,88 +722,67 @@ def createWhatsThis(self):
         # Select All
 
         selectAllActionText = "<u><b>Select All</b></u> (Ctrl + A)<br>"\
-                       "<p><img source=\"selectAllAction\"><br> "\
+                       "<p><img source=\"ui/actions/Tools/Select/Select_All.png\"><br> "\
                        "When in <b>Build</b> mode, this will select all the atoms in "\
                        "the model.  Otherwise, this will select all the chunks in the model."\
                        "</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "selectAllAction",
-                                                       self.selectAllAction.iconSet().pixmap() )
 
         self.selectAllAction.setWhatsThis(selectAllActionText )
         
         # Select None
 
         selectNoneActionText = "<u><b>Select None</b></u></p><br>"\
-                       "<p><img source=\"selectNoneAction\"><br> "\
+                       "<p><img source=\"ui/actions/Tools/Select/Select_None.png\"><br> "\
                        "Unselects everything currently selected.</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "selectNoneAction",
-                                                       self.selectNoneAction.iconSet().pixmap() )
 
         self.selectNoneAction.setWhatsThis(selectNoneActionText )
  
         # InvertSelection
 
         selectInvertActionText = "<u><b>Invert Selection</b></u> (Ctrl + Shift + I)<br>"\
-                       "<p><img source=\"selectInvertAction\"><br> "\
+                       "<p><img source=\"ui/actions/Tools/Select/Select_Invert.png\"><br> "\
                        "Inverts the current selection.</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "selectInvertAction",
-                                                       self.selectInvertAction.iconSet().pixmap() )
 
         self.selectInvertAction.setWhatsThis(selectInvertActionText )
         
         # Select Connected
 
         selectConnectedActionText = "<u><b>Select Connected</b></u> (Ctrl + Shift + C)<br>"\
-            "<p><img source=\"selectConnectedAction\"><br> "\
+            "<p><img source=\"ui/actions/Tools/Select/Select_Connected.png\"><br> "\
             "Selects all the atoms that can be reached by the currently selected atom "\
             "via an unbroken chain of bonds. </p>"\
             "<p>You can also select all connected atoms by double clicking on an atom or bond "\
             "while in <b>Build</b> mode.</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "selectConnectedAction",
-                                                       self.selectConnectedAction.iconSet().pixmap() )
 
         self.selectConnectedAction.setWhatsThis(selectConnectedActionText )
         
         # Select Doubly
 
         selectDoublyActionText = "<u><b>Select Doubly</b></u><br>"\
-                       "<p><img source=\"selectDoublyAction\"><br> "\
+                       "<p><img source=\"ui/actions/Tools/Select/Select_Doubly.png\"><br> "\
                        "Selects all the atoms that can be reached from a currently selected "\
                        "atom through two disjoint unbroken chains of bonds.  Atoms singly "\
                        "connected to this group and unconnected to anything else are also "\
                        "included in the selection."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "selectDoublyAction",
-                                                       self.selectDoublyAction.iconSet().pixmap() )
-
         self.selectDoublyAction.setWhatsThis(selectDoublyActionText )
         
         # Expand Selection
 
         selectExpandActionText = "<u><b>Expand Selection</b></u>    (Ctrl + D)<br>"\
-                       "<p><img source=\"selectExpandAction\"><br> "\
+                       "<p><img source=\"ui/actions/Tools/Select/Expand.png\"><br> "\
                        "Selects any atom that is a neighbor of a currently selected atom."\
                        "</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "selectExpandAction",
-                                                       self.selectExpandAction.iconSet().pixmap() )
 
         self.selectExpandAction.setWhatsThis(selectExpandActionText )
         
         # Contract Selection
 
         selectContractActionText = "<u><b>Contract Selection</b></u>    (Ctrl + Shift + D)<br>"\
-                       "<p><img source=\"selectContractAction\"><br> "\
+                       "<p><img source=\"ui/actions/Tools/Select/Contract.png\"><br> "\
                        "Deselects any atom that is a neighbor of a non-picked atom or has a bondpoint."\
                        "</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "selectContractAction",
-                                                       self.selectContractAction.iconSet().pixmap() )
 
         self.selectContractAction.setWhatsThis(selectContractActionText )
         
@@ -999,117 +793,87 @@ def createWhatsThis(self):
         # Adjust Selection
 
         modifyAdjustSelActionText = "<u><b>Adjust Selection</b></u><br>"\
-                       "<p><img source=\"modifyAdjustSelAction\"><br> "\
+                       "<p><img source=\"ui/actions/Tools/Adjust_Selection.png\"><br> "\
                        "Adjusts the atom and bond positions (<i>of the selection</i>) to make the geometry more realistic. "\
                        "The operations used to move the atoms and bonds approximate molecular mechanics methods."\
                        "</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "modifyAdjustSelAction",
-                                                       self.modifyAdjustSelAction.iconSet().pixmap() )
 
         self.modifyAdjustSelAction.setWhatsThis(modifyAdjustSelActionText )
         
         # Adjust All
 
         modifyAdjustAllActionText = "<u><b>Adjust All</b></u><br>"\
-                       "<p><img source=\"modifyAdjustAllAction\"><br> "\
+                       "<p><img source=\"ui/actions/Tools/Adjust_All.png\"><br> "\
                        "Adjusts the atom and bond positions (<i>of the entire part</i>) to make the geometry of the part more realistic. "\
                        "The operations used to move the atoms and bonds approximate molecular mechanics methods."\
                        "</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "modifyAdjustAllAction",
-                                                       self.modifyAdjustAllAction.iconSet().pixmap() )
 
         self.modifyAdjustAllAction.setWhatsThis(modifyAdjustAllActionText )
         
         # Hydrogenate
 
         modifyHydrogenateActionText = "<u><b>Hydrogenate</b></u> <br>"\
-                       "<p><img source=\"modifyHydrogenateAction\"><br> "\
+                       "<p><img source=\"ui/actions/Tools/Build Tools/Hydrogenate.png\"><br> "\
                        "Adds hydrogen atoms to all the bondpoints in the selection.</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "modifyHydrogenateAction",
-                                                       self.modifyHydrogenateAction.iconSet().pixmap() )
 
         self.modifyHydrogenateAction.setWhatsThis(modifyHydrogenateActionText )
 
         # Dehydrogenate
 
         modifyDehydrogenateActionText = "<u><b>Dehydrogenate</b></u><br>"\
-                       "<p><img source=\"modifyDehydrogenateAction\"><br> "\
+                       "<p><img source=\"ui/actions/Tools/Build Tools/Dehydrogenate.png\"><br> "\
                        "Removes all hydrogen atoms from the selection.</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "modifyDehydrogenateAction",
-                                                       self.modifyDehydrogenateAction.iconSet().pixmap() )
 
         self.modifyDehydrogenateAction.setWhatsThis(modifyDehydrogenateActionText )     
         
         # Passivate
 
         modifyPassivateActionText = "<u><b>Passivate</b></u>    (Ctrl + P)<br>"\
-                       "<p><img source=\"modifyPassivateAction\"><br> "\
+                       "<p><img source=\"ui/actions/Tools/Build Tools/Passivate.png\"><br> "\
                        "Changes the types of incompletely bonded atoms to atoms with the "\
                        "right number of bonds, using atoms with the best atomic radius."\
                        "</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "modifyPassivateAction",
-                                                       self.modifyPassivateAction.iconSet().pixmap() )
 
         self.modifyPassivateAction.setWhatsThis(modifyPassivateActionText )
         
         # Stretch
 
         modifyStretchActionText = "<u><b>Stretch</b></u><br>"\
-                       "<p><img source=\"modifyStretchAction\"><br> "\
+                       "<p><img source=\"ui/actions/Tools/Build Tools/Stretch.png\"><br> "\
                        "Stretches the bonds of the selected chunk(s).</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "modifyStretchAction",
-                                                       self.modifyStretchAction.iconSet().pixmap() )
 
         self.modifyStretchAction.setWhatsThis(modifyStretchActionText )
 
         # Delete Bonds
 
         modifyDeleteBondsActionText = "<u><b>Delete Bonds</b></u><br>"\
-                       "<p><img source=\"modifyDeleteBondsAction\"><br> "\
+                       "<p><img source=\"ui/actions/Tools/Build Tools/Delete_Bonds.png\"><br> "\
                        "Delete all bonds between selected and unselected atoms or chunks.</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "modifyDeleteBondsAction",
-                                                       self.modifyDeleteBondsAction.iconSet().pixmap() )
 
         self.modifyDeleteBondsAction.setWhatsThis(modifyDeleteBondsActionText )  
         
         # Separate
 
         modifySeparateActionText = "<u><b>Separate</b></u><br>"\
-                       "<p><img source=\"modifySeparateAction\"><br> "\
+                       "<p><img source=\"ui/actions/Tools/Build Tools/Separate.png\"><br> "\
                        "Creates a new chunk from the currently selected atoms.</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "modifySeparateAction",
-                                                       self.modifySeparateAction.iconSet().pixmap() )
 
         self.modifySeparateAction.setWhatsThis(modifySeparateActionText )  
         
         # Merge Chunks
 
         modifyMergeActionText = "<u><b>Merge Chunks</b></u><br>"\
-                       "<p><img source=\"modifyMergeAction\"><br> "\
+                       "<p><img source=\"ui/actions/Tools/Build Tools/Merge.png\"><br> "\
                        "Merges two or more chunks into a single chunk.</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "modifyMergeAction",
-                                                       self.modifyMergeAction.iconSet().pixmap() )
-       
         self.modifyMergeAction.setWhatsThis(modifyMergeActionText )  
                 
         # Invert Chunks
 
         modifyInvertActionText = "<u><b>Invert</b></u><br>"\
-                       "<p><img source=\"modifyInvertAction\"><br> "\
+                       "<p><img source=\"ui/actions/Tools/Build Tools/Invert.png\"><br> "\
                        "Inverts the atoms of the selected chunks.</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "modifyInvertAction",
-                                                       self.modifyInvertAction.iconSet().pixmap() )
-       
         self.modifyInvertAction.setWhatsThis(modifyInvertActionText )  
         
         # Mirror Selected Chunks
@@ -1117,26 +881,20 @@ def createWhatsThis(self):
         #Note that the the feature name is intentionally kept "Mirror" instead of "Mirror Chunks" because 
         # in future we will support mirrroing atoms as well. -- ninad060814
         modifyMirrorActionText = "<u><b>Mirror</b></u><br>"\
-                       "<p><img source=\"modifyMirrorAction\"><br> "\
+                       "<p><img source=\"ui/actions/Tools/Build Tools/Mirror.png\"><br> "\
                        "Mirrors the selected <b> chunks </b> about a reference Grid Plane.<br>"\
                        "<font color=\"#808080\">Note: In this version, it doesn't mirror jigs or individual atoms.</font> </p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "modifyMirrorAction",
-                                                       self.modifyMirrorAction.iconSet().pixmap() )
-       
         self.modifyMirrorAction.setWhatsThis(modifyMirrorActionText )  
 
         # Align to Common Axis
 
         modifyAlignCommonAxisActionText = "<u><b>Align To Common Axis</b></u><br>"\
-                       "<p><img source=\"modifyAlignCommonAxis\"><br> "\
+                       "<p><img source=\"ui/actions/Tools/Build Tools/AlignToCommonAxis.png\"><br> "\
                        "Aligns one or more chunks to the axis of the first selected chunk."\
                        "You must select two or more chunks before using this feature."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "modifyAlignCommonAxis",
-                                                       self. modifyAlignCommonAxisAction.iconSet().pixmap() )
-       
         self. modifyAlignCommonAxisAction.setWhatsThis( modifyAlignCommonAxisActionText )
         
         #Center on Common Axis 
@@ -1145,9 +903,6 @@ def createWhatsThis(self):
         "and also <b>aligns</b> them to the axis of the first one ."\
         "You must select two or more chunks before using this feature. </p>" 
         
-        #QMimeSourceFactory.defaultFactory().setPixmap( "modifyCenterCommonAxis",
-         #                                              self. modifyCenterCommonAxisAction.iconSet().pixmap() )
-                                                       
         self.modifyCenterCommonAxisAction.setWhatsThis(modifyCenterCommonAxisActionText)
         
         #
@@ -1157,7 +912,7 @@ def createWhatsThis(self):
         # Select Chunks
 
         toolsSelectMoleculesActionText = "<u><b>Select Chunks</b></u><!-- [[Feature:Select Chunks Mode]] --><br>"\
-                       "<p><img source=\" toolsSelectMoleculesAction\"><br> "\
+                       "<p><img source=\"ui/actions/Toolbars/Standard/63.png\"><br> "\
                        "<b>Select Chunks</b> allows you to select/unselect chunks with the mouse.</p>"\
                        "<p><b><u>Mouse/Key Combinations</u></b></p>"\
                        "<p><b>Left Click/Drag</b> - selects a chunk(s).</p>"\
@@ -1165,31 +920,13 @@ def createWhatsThis(self):
                        "<p><b>Shift+Left Click/Drag</b> - adds chunk(s) to selection."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( " toolsSelectMoleculesAction",
-                                                       self. toolsSelectMoleculesAction.iconSet().pixmap() )
-       
-        self. toolsSelectMoleculesAction.setWhatsThis( toolsSelectMoleculesActionText )  
+        self. toolsSelectMoleculesAction.setWhatsThis( toolsSelectMoleculesActionText )
 
-        # Select Atoms
-
-        toolsSelectAtomsActionText = "<u><b>Select Atoms</b></u><!-- [[Feature:Select Atoms Mode]] --><br>"\
-                       "<p><img source=\" toolsSelectAtomsAction\"><br> "\
-                       "<b>Select Atoms</b> allows you to select/unselect atoms with the mouse.</p>"\
-                       "<p><b><u>Mouse/Key Combinations</u></b></p>"\
-                       "<p><b>Left Click/Drag</b> - selects an atom(s).</p>"\
-                       "<p><b>Ctrl+Left Click/Drag</b> - removes atom(s) from selection.</p>"\
-                       "<p><b>Shift+Left Click/Drag</b> - adds atom(s) to selection."\
-                       "</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( " toolsSelectAtomsAction",
-                                                       self. toolsSelectAtomsAction.iconSet().pixmap() )
-       
-        self. toolsSelectAtomsAction.setWhatsThis( toolsSelectAtomsActionText ) 
-        
+         
         # Move Chunks
 
         toolsMoveMoleculeActionText = "<u><b>Move Chunks</b></u><!-- [[Feature:Move Chunks Mode]] --><br>"\
-                       "<p><img source=\" toolsMoveMoleculeAction\"><br> "\
+                       "<p><img source=\"ui/actions/Toolbars/Standard/64.png\"><br> "\
                        "Activates <b>Move Chunks</b> mode, allowing you to select, "\
                        "move and rotate one of more chunks with the mouse.</p>"\
                        "<p><b><u>Mouse/Key Combinations</u></b></p>"\
@@ -1198,53 +935,44 @@ def createWhatsThis(self):
                        "<p><b>Shift+Left Drag</b> - constrained movement and rotation of a chunk about its own axis."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( " toolsMoveMoleculeAction",
-                                                       self. toolsMoveMoleculeAction.iconSet().pixmap() )
-       
-        self. toolsMoveMoleculeAction.setWhatsThis( toolsMoveMoleculeActionText ) 
+        self. toolsMoveMoleculeAction.setWhatsThis( toolsMoveMoleculeActionText )
         
-        # Build Mode
+        # Build Atoms
 
-        toolsDepositAtomActionText = "<u><b>Build Mode</b></u><!-- [[Feature:Build Mode]] --><br>"\
-                       "<p><img source=\" toolsDepositAtomAction\"><br> "\
-                       "<b>Build Mode</b> allows you to build structures by depositing objects "\
-                       "from the Molecular Modeling Kit, including atoms, clipboard objects and parts "\
-                       "from the NanoEngineer-1 Library.</p>"\
-                       "</p>"
+        toolsDepositAtomActionText = \
+                "<u><b>Build Atoms</b></u><!-- [[Feature:Build Atoms]] --><br>"\
+                "<p><img source=\"ui/actions/Tools/Build Structures/Atoms.png\"><br> "\
+                "<b>Build Atoms</b> allows you to build structures one atom at a time or by depositing objects "\
+                "that are on the paste clipboard. You can also insert structures from the  "\
+                "NanoEngineer-1 Parts Library.</p>"\
+                "<p>It is also possible to change bond types between atoms using the <b>Bond Tool</b> or by "\
+                "simply dragging and dropping one bondpoint onto another."\
+                "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( " toolsDepositAtomAction",
-                                                       self. toolsDepositAtomAction.iconSet().pixmap() )
-       
-        self. toolsDepositAtomAction.setWhatsThis( toolsDepositAtomActionText ) 
+        self. toolsDepositAtomAction.setWhatsThis( toolsDepositAtomActionText )
         
-        # Cookie Cutter Mode
+        # Build Crystal (was Cookie Cutter Mode)
                                         
-        toolsCookieCutActionText = "<u><b>Cookie Cutter Mode</b></u><!-- [[Feature:Cookie Cutter Mode]] --><br>"\
-                       "<p><><img source=\" toolsCookieCutAction\"><br> "\
-                       "<b>Cookie Cutter</b> mode provides tools for cutting out multi-layered shapes from "\
-                       "slabs of diamond or lonsdaleite lattice.</p>"
+        toolsCookieCutActionText = "<u><b>Build Crystal</b></u><!-- [[Feature:Build Crystal]] --><br>"\
+                "<p><><img source=\"ui/actions/Tools/Build Structures/Cookie_Cutter.png\"><br> "\
+                "<b>Build Crystal</b> provides tools for cutting out multi-layered shapes from "\
+                "slabs of diamond or lonsdaleite lattice.</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( " toolsCookieCutAction",
-                                                       self. toolsCookieCutAction.iconSet().pixmap() )
-       
         self. toolsCookieCutAction.setWhatsThis( toolsCookieCutActionText )
        
-        # Extrude Mode
+        # Tools > Extrude
 
-        toolsExtrudeActionText = "<u><b>Extrude Mode</b></u><!-- [[Feature:Extrude Mode]] --><br>"\
-                       "<p><img source=\" toolsExtrudeAction\"><br> "\
+        toolsExtrudeActionText = "<u><b>Extrude</b></u><!-- [[Feature:Extrude Mode]] --><br>"\
+                       "<p><img source=\"ui/actions/Insert/Features/Extrude.png\"><br> "\
                        "Activates <b>Extrude</b> mode, allowing you to create a rod or ring using a chunk as "\
                        "a repeating unit.</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( " toolsExtrudeAction",
-                                                       self. toolsExtrudeAction.iconSet().pixmap() )
-       
-        self. toolsExtrudeAction.setWhatsThis( toolsExtrudeActionText )  
+        self. toolsExtrudeAction.setWhatsThis( toolsExtrudeActionText )
         
         # Fuse Chunks Mode
 
         toolsFuseChunksActionText = "<u><b>Fuse Chunks Mode</b></u><!-- [[Feature:Fuse Chunks Mode]] --><br>"\
-                       "<p><img source=\" toolsFuseChunksAction\"><br> "\
+                       "<p><img source=\"ui/actions/Tools/Build Tools/Fuse.png\"><br> "\
                        "<b>Fuse Chunks</b> can be used to interactively join two or more "\
                        "chunks by dragging chunks around and fusing them together.  "\
                        "Two fusing options are supported:<br><br>"\
@@ -1260,9 +988,6 @@ def createWhatsThis(self):
                        "minimize this problem, try to get the bonds of overlapping atoms oriented similarly.<br>"\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( " toolsFuseChunksAction",
-                                                       self. toolsFuseChunksAction.iconSet().pixmap() )
-       
         self.toolsFuseChunksAction.setWhatsThis( toolsFuseChunksActionText )
         
         #
@@ -1272,7 +997,7 @@ def createWhatsThis(self):
         # Minimize Energy
 
         simMinimizeEnergyActionText = "<u><b>Minimize Energy</b></u><br>"\
-                       "<p><img source=\" simMinimizeEnergyAction\"><br> "\
+                       "<p><img source=\"ui/actions/Simulation/Minimize_Energy.png\"><br> "\
                        "The potential energy of a chemical structure is a function of the relative positions of its atoms. " \
                         "To obtain this energy with complete accuracy involves a lot of computer time spent on quantum " \
                         "mechanical calculations, which cannot be practically done on a desktop computer. "\
@@ -1287,41 +1012,32 @@ def createWhatsThis(self):
                         "coordinates) so the search space is multi-dimensional. The global minimum is the configuration " \
                         "that the atoms will settle into if lowered to zero Kelvin. </p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( " simMinimizeEnergyAction",
-                                                       self. simMinimizeEnergyAction.iconSet().pixmap() )
-       
         self. simMinimizeEnergyAction.setWhatsThis( simMinimizeEnergyActionText )
 
         # Run Dynamics (was NanoDynamics-1). Mark 060807.
 
         simSetupActionText = "<u><b>Run Dynamics</b></u><br>"\
-                    "<p><img source=\" simSetupAction\"><br> "\
+                    "<p><img source=\"ui/actions/Simulation/Run_Dynamics.png\"><br> "\
                     "This is the interface to the NanoEngineer-1 molecular dynamics simulator. "\
                     "Enter the parameters of the simulation and click <b>Run Simulation</b>."\
                     "The simulator creates a trajectory (movie) file by calculating the inter-atomic potentials and bonding "\
                     "of the entire model.</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( " simSetupAction",
-                                                       self. simSetupAction.iconSet().pixmap() )
-       
         self. simSetupAction.setWhatsThis( simSetupActionText )
         
         # Play Movie (was Movie Player) Mark 060807.
 
         simMoviePlayerActionText = "<u><b>Play Movie</b></u><br>"\
-                       "<p><img source=\" simMoviePlayerAction\"><br> "\
+                       "<p><img source=\"ui/actions/Simulation/Play_Movie.png\"><br> "\
                        "Plays the most recent trajectory (movie) file created by the NanoEngineer-1 molecular dynamics simulator."\
                        "To create a movie file, select <b>Run Dynamics</b>.</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( " simMoviePlayerAction",
-                                                       self. simMoviePlayerAction.iconSet().pixmap() )
-       
-        self. simMoviePlayerAction.setWhatsThis( simMoviePlayerActionText )  
+        self. simMoviePlayerAction.setWhatsThis( simMoviePlayerActionText )
 
         # Make Graphs (was Plot Tool) Mark 060807.
 
         simPlotToolActionText = "<u><b>Make Graphs</b></u><br>"\
-                       "<p><img source=\" simPlotToolAction\"><br> "\
+                       "<p><img source=\"ui/actions/Simulation/Make_Graphs.png\"><br> "\
                        "Make a graph of a simulator trace file using GNUplot.  A simulation must be run to create "\
                        "the trace file and the part must have a jig that writes output to the trace file. <br><br>"\
                        "The following list of jigs write data to the trace file:<br>"\
@@ -1335,9 +1051,6 @@ def createWhatsThis(self):
                        "<b>Measure Dihedral:</b> dihedral(degrees)<br>"\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( " simPlotToolAction",
-                                                       self. simPlotToolAction.iconSet().pixmap() )
-       
         self. simPlotToolAction.setWhatsThis( simPlotToolActionText )
                 
         #
@@ -1347,61 +1060,44 @@ def createWhatsThis(self):
         # Done
 
         toolsDoneActionText = "<u><b>Done</b></u><br>"\
-                       "<p><img source=\" toolsDoneAction\"><br> "\
+                       "<p><img source=\"ui/actions/Properties Manager/Done.png\"><br> "\
                        "Completes the current operation and enters the default mode."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( " toolsDoneAction",
-                                                       self. toolsDoneAction.iconSet().pixmap() )
-       
         self. toolsDoneAction.setWhatsThis( toolsDoneActionText )  
 
         # Cancel
 
         toolsCancelActionText = "<u><b>Cancel</b></u><br>"\
-                       "<p><img source=\" toolsCancelAction\"><br> "\
+                       "<p><img source=\"ui/actions/Properties Manager/Cancel.png\"><br> "\
                        "Cancels the current operation and enters the default mode."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( " toolsCancelAction",
-                                                       self.toolsCancelAction.iconSet().pixmap() )
-       
         self. toolsCancelAction.setWhatsThis( toolsCancelActionText ) 
         
         # Back up
 
         toolsBackUpActionText = "<u><b>Back Up</b></u><br>"\
-                       "<p><img source=\" toolsBackUpAction\"><br> "\
                        "Undoes the previous operation."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( " toolsBackUpAction",
-                                                       self.toolsBackUpAction.iconSet().pixmap() )
-       
         self. toolsBackUpAction.setWhatsThis( toolsBackUpActionText ) 
    
         # Start Over
                         
         toolsStartOverActionText = "<u><b>Start Over</b></u><br>"\
-                       "<p><img source=\"toolsStartOverAction\"><br> "\
                        "Cancels the current operation, leaving the user in the current mode."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "toolsStartOverAction",
-                                                       self.toolsStartOverAction.iconSet().pixmap() )
-       
         self.toolsStartOverAction.setWhatsThis(toolsStartOverActionText ) 
         
         # Add Layers
                         
         ccAddLayerActionText = "<u><b>Add Layer</b></u><br>"\
-                       "<p><img source=\"ccAddLayerAction\"><br> "\
+                       "<p><img source=\"ui/actions/Properties Manager/addlayer.png\"><br> "\
                        "Adds a new layer of diamond lattice to the existing layer."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "ccAddLayerAction",
-                                                       self.ccAddLayerAction.iconSet().pixmap() )
-       
         self.ccAddLayerAction.setWhatsThis(ccAddLayerActionText ) 
         
         #
@@ -1411,7 +1107,7 @@ def createWhatsThis(self):
         # Anchor
 
         jigsAnchorActionText = "<u><b>Anchor</b></u><br>"\
-                       "<p><img source=\"jigsAnchorAction\"><br> "\
+                       "<p><img source=\"ui/actions/Simulation/Anchor.png\"><br> "\
                        "Attaches an <b>Anchor</b> to the selected atom(s), which "\
                        "constrains its motion during a minimization or simulation."\
                        "</p>"\
@@ -1420,15 +1116,12 @@ def createWhatsThis(self):
                        "Anchors are drawn as a black wireframe box around each selected atom."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "jigsAnchorAction",
-                                                       self.jigsAnchorAction.iconSet().pixmap() )
-       
         self.jigsAnchorAction.setWhatsThis(jigsAnchorActionText )  
         
         # Rotary Motor
 
         jigsMotorActionText = "<u><b>Rotary Motor</b></u><br>"\
-                       "<p><img source=\"jigsMotorAction\"><br> "\
+                       "<p><img source=\"ui/actions/Simulation/Rotary_Motor.png\"><br> "\
                        "Attaches a <b>Rotary Motor</b> to the selected atoms.  The Rotary Motor is used by "\
                        "the simulator to apply rotary motion to a set of atoms during a simulation run.  You may "\
                        "specify the <b>torque (in nN*nm)</b> and <b>speed (in Ghz)</b> of the motor."\
@@ -1437,15 +1130,12 @@ def createWhatsThis(self):
                        "select the atoms you want to attach the motor to and then select this action."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "jigsMotorAction",
-                                                       self.jigsMotorAction.iconSet().pixmap() )
-       
         self.jigsMotorAction.setWhatsThis(jigsMotorActionText )  
         
         # Linear Motor
 
         jigsLinearMotorActionText = "<u><b>Linear Motor</b></u><br>"\
-                       "<p><img source=\"jigsLinearMotorAction\"><br> "\
+                       "<p><img source=\"ui/actions/Simulation/Linear_Motor.png\"><br> "\
                        "Attaches a <b>Linear Motor</b> to the selected atoms.  The Linear Motor is used by "\
                        "the simulator to apply linear motion to a set of atoms during a simulation run.  You may "\
                        "specify the <b>force (in nN*nm)</b> and <b>stiffness (in N/m)</b> of the motor."\
@@ -1454,15 +1144,12 @@ def createWhatsThis(self):
                        "select the atoms you want to attach the motor to and then select this action."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "jigsLinearMotorAction",
-                                                       self.jigsLinearMotorAction.iconSet().pixmap() )
-       
         self.jigsLinearMotorAction.setWhatsThis(jigsLinearMotorActionText )  
         
         # Thermostat
 
         jigsStatActionText = "<u><b>Thermostat</b></u><br>"\
-                       "<p><img source=\"jigsStatAction\"><br> "\
+                       "<p><img source=\"ui/actions/Simulation/Thermostat.png\"><br> "\
                        "Attaches a <b>Langevin Thermostat</b> to a single selected atom, thereby associating "\
                        "the themostat to the entire molecule of which the selected atom is a member. The user "\
                        "specifies the temperature (in Kelvin)."\
@@ -1475,15 +1162,12 @@ def createWhatsThis(self):
                        "blue wireframe box around the selected atom."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "jigsStatAction",
-                                                       self.jigsStatAction.iconSet().pixmap() )
-       
         self.jigsStatAction.setWhatsThis(jigsStatActionText ) 
 
         # Thermometer
 
         jigsThermoActionText = "<u><b>Thermometer</b></u><br>"\
-                       "<p><img source=\"jigsThermoAction\"><br> "\
+                       "<p><img source=\"ui/actions/Simulation/Measurements/Thermometer.png\"><br> "\
                         "Attaches a <b>Thermometer</b> to a single selected atom, thereby associating "\
                        "the themometer to the entire molecule of which the selected atom is a member. "\
                        "<p>The temperature of the molecule will be recorded and written to a trace file "\
@@ -1494,15 +1178,12 @@ def createWhatsThis(self):
                        "dark red wireframe box around the selected atom."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "jigsThermoAction",
-                                                       self.jigsThermoAction.iconSet().pixmap() )
-       
         self.jigsThermoAction.setWhatsThis(jigsThermoActionText )
         
         # ESP Image
         
         jigsESPImageActionText = "<u><b>ESP Image</b></u><br>"\
-                       "<p><img source=\"jigsESPImageAction\"><br> "\
+                       "<p><img source=\"ui/actions/Simulation/ESP_Image.png\"><br> "\
                         "An <b>ESP Image</b> allows the user to visualize the electrostatic potential "\
                         "of points on the face of a square 2D surface. Nano-Hive's MPQC ESP Plane plug-in "\
                         "is used to calculate the electrostatic potential."\
@@ -1512,15 +1193,12 @@ def createWhatsThis(self):
                        "plane with a bounding volume."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "jigsESPImageAction",
-                                                       self.jigsESPImageAction.iconSet().pixmap() )
-       
         self.jigsESPImageAction.setWhatsThis(jigsESPImageActionText )
         
         # Atom Set
         
         jigsAtomSetActionText = "<u><b>Atom Set</b></u><br>"\
-                       "<p><img source=\"jigsAtomSetAction\"><br> "\
+                       "<p><img source=\"ui/actions/Tools/Atom_Set.png\"><br> "\
                         "An <b>Atom Set</b> jig provides a convienient way to save an atom "\
                         "selection which can be reselected later."\
                        "</p>"\
@@ -1533,15 +1211,12 @@ def createWhatsThis(self):
                        "<b>Select this jig's atoms</b>."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "jigsAtomSetAction",
-                                                       self.jigsAtomSetAction.iconSet().pixmap() )
-       
         self.jigsAtomSetAction.setWhatsThis(jigsAtomSetActionText )
         
         # Measure Distance
         
         jigsDistanceActionText = "<u><b>Measure Distance Jig</b></u><br>"\
-                       "<p><img source=\"jigsDistanceAction\"><br> "\
+                       "<p><img source=\"ui/actions/Simulation/Measurements/Measure_Distance.png\"><br> "\
                         "A <b>Measure Distance Jig</b> functions as a dimension to display the "\
                         "distance between two atoms."\
                        "</p>"\
@@ -1556,15 +1231,12 @@ def createWhatsThis(self):
                        "for each frame of a simulation run and can be plotted using the Plot Tool."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "jigsDistanceAction",
-                                                       self.jigsDistanceAction.iconSet().pixmap() )
-       
         self.jigsDistanceAction.setWhatsThis(jigsDistanceActionText )
         
         # Measure Angle
         
         jigsAngleActionText = "<u><b>Measure Angle Jig</b></u><br>"\
-                       "<p><img source=\"jigsAngleAction\"><br> "\
+                       "<p><img source=\"ui/actions/Simulation/Measurements/Measure_Angle.png\"><br> "\
                         "A <b>Measure Angle Jig</b> functions as a dimension to display the "\
                         "angle between three atoms.</p>"\
                        "<p>To create the Measure Angle Jig, enter <b>Build</b> mode, "\
@@ -1576,15 +1248,12 @@ def createWhatsThis(self):
                        "for each frame of a simulation run and can be plotted using the Plot Tool."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "jigsAngleAction",
-                                                       self.jigsAngleAction.iconSet().pixmap() )
-       
         self.jigsAngleAction.setWhatsThis(jigsAngleActionText )
         
         # Measure Dihedral
         
         jigsDihedralActionText = "<u><b>Measure Dihedral Jig</b></u><br>"\
-                       "<p><img source=\"jigsDihedralAction\"><br> "\
+                       "<p><img source=\"ui/actions/Simulation/Measurements/Measure_Dihedral.png\"><br> "\
                         "A <b>Measure Dihedral Jig</b> functions as a dimension to display the "\
                         "dihedral angle of a four atom sequence.</p>"\
                        "<p>To create the Measure Dihedral Jig, enter <b>Build</b> mode, "\
@@ -1596,15 +1265,12 @@ def createWhatsThis(self):
                        "for each frame of a simulation run and can be plotted using the Plot Tool."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "jigsDihedralAction",
-                                                       self.jigsDihedralAction.iconSet().pixmap() )
-       
         self.jigsDihedralAction.setWhatsThis(jigsDihedralActionText )
         
         # GAMESS Jig
         
         jigsGamessActionText = "<u><b>GAMESS Jig</b></u><br>"\
-                       "<p><img source=\"jigsGamessAction\"><br> "\
+                       "<p><img source=\"ui/actions/Simulation/Gamess.png\"><br> "\
                         "A <b>GAMESS Jig</b> is used to tag a set of atoms for running a GAMESS "\
                         "calculation. <b>Energy</b> and <b>Geometry Optimization</b> calculations are supported."\
                         "</p>"\
@@ -1613,15 +1279,12 @@ def createWhatsThis(self):
                         "set of magenta wireframe boxes around each atom."\
                         "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "jigsGamessAction",
-                                                       self.jigsGamessAction.iconSet().pixmap() )
-       
         self.jigsGamessAction.setWhatsThis(jigsGamessActionText )
         
         # Grid Plane Jig
         
         jigsGridPlaneActionText = "<u><b>Grid Plane</b></u><br>"\
-                       "<p><img source=\"jigsGridPlaneAction\"><br> "\
+                       "<p><img source=\"ui/actions/Insert/Reference Geometry/Grid_Plane.png\"><br> "\
                         "A <b>Grid Plane</b> jig is a rectanglar plane that can display a square or SiC grid "\
                         "within its boundary. It is often used as an aid in constructing large lattice "\
                         "structures made of silicon carbide (SiC).  It is also used as a visual aid in estimating "\
@@ -1633,36 +1296,8 @@ def createWhatsThis(self):
                         "<p>The Grid Plane jig is drawn as a rectanglar plane with a grid."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "jigsGridPlaneAction",
-                                                       self.jigsGridPlaneAction.iconSet().pixmap() )
-       
         self.jigsGridPlaneAction.setWhatsThis(jigsGridPlaneActionText )
         
-        #
-        # Display
-        #
-        
-        # Display Chunk Color
-
-        dispObjectColorActionText = "<u><b>Chunk Color</b></u><br>"\
-                       "<p><img source=\"dispObjectColorAction\"><br> "\
-                       "Allows you to change the color of the selected chunks(s).</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "dispObjectColorAction",
-                                                       self.dispObjectColorAction.iconSet().pixmap() )
-       
-        self.dispObjectColorAction.setWhatsThis(dispObjectColorActionText ) 
-        
-        # Display Background Color
-
-        dispBGColorActionText = "<u><b>Background Color</b></u><br>"\
-                       "<p><img source=\"dispBGColorAction\"><br> "\
-                       "Allows you to change the background color of the main window.</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "dispBGColorAction",
-                                                       self.dispBGColorAction.iconSet().pixmap() )
-       
-        self.dispBGColorAction.setWhatsThis(dispBGColorActionText ) 
        
         #
         # Help Toolbar
@@ -1671,13 +1306,10 @@ def createWhatsThis(self):
         # What's This
         
         helpWhatsThisText = "<u><b>What's This</b></u><br>"\
-                        "<p><img source=\"helpWhatsThis\"><br> "\
+                        "<p><img source=\"ui/actions/Help/WhatsThis.png\"><br> "\
                        "Click this option to invoke a small question mark that is attached to the mouse pointer. "\
                        "Click on a feature which you would like more information about. "\
                        "A popup box appears with information about the feature.</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( "helpWhatsThis",
-                                                       self.helpWhatsThisAction.iconSet().pixmap() )
 
         self.helpWhatsThisAction.setWhatsThis( helpWhatsThisText )
 
@@ -1691,9 +1323,9 @@ def create_whats_this_descriptions_for_selectAtomsMode(w):
                 "<p>To disable the selection filter, select <b>All Elements</b> or press the <b>Escape</b> key. "\
                 "</p>"
                         
-    QWhatsThis.add ( w.elemFilterComboBox, atomSelectionFilterText)
+    w.elemFilterComboBox.setWhatsThis(atomSelectionFilterText)
     
-    QToolTip.add(w.elemFilterComboBox, qApp.translate("MainWindow","Atom Selection Filter", None))
+    w.elemFilterComboBox.setToolTip(qApp.translate("MainWindow","Atom Selection Filter", None))
     
     
     # Transmute to (Element) Combobox
@@ -1701,33 +1333,33 @@ def create_whats_this_descriptions_for_selectAtomsMode(w):
     transmuteToElementTypeText = "Specifies what element type to transmute all currently selected atoms "\
                 "to when the <b>Transmute</b> button is pressed.</p>"
                         
-    QWhatsThis.add ( w.transmute2ComboBox, transmuteToElementTypeText)
+    w.transmute2ComboBox.setWhatsThis(transmuteToElementTypeText)
     
-    QToolTip.add(w.transmute2ComboBox, qApp.translate("MainWindow","Transmute to Element Type", None))
+    w.transmute2ComboBox.setToolTip(qApp.translate("MainWindow","Transmute to Element Type", None))
     
     # Transmute to (Hybrid) Combobox
     transmuteToHybridTypeText = "Specifies the atomic hybrid for the current element type selected in the "\
                 "<b>Transmute to</b> dropbox."
                         
-    QWhatsThis.add ( w.atomSelect_hybridComboBox, transmuteToHybridTypeText)
+    w.atomSelect_hybridComboBox.setWhatsThis(transmuteToHybridTypeText)
     
-    QToolTip.add(w.atomSelect_hybridComboBox, qApp.translate("MainWindow","Transmute to Element Hybrid Type", None))
+    w.atomSelect_hybridComboBox.setToolTip(qApp.translate("MainWindow","Transmute to Element Hybrid Type", None))
     
     # Transmute button
     transmuteButtonText = "Transmutes the currently selected atom(s) to the element (and hybrid) "\
                 "type specified in the <b>Transmute to</b> dropbox(es).</p>"
                         
-    QWhatsThis.add ( w.transmuteButton, transmuteButtonText)
+    w.transmuteButton.setWhatsThis(transmuteButtonText)
     
-    QToolTip.add(w.transmuteButton, qApp.translate("MainWindow","Transmutes selected atoms", None))
+    w.transmuteButton.setToolTip(qApp.translate("MainWindow","Transmutes selected atoms", None))
     
     # Force to Keep All Bonds checkbox
     
     keepBondsText = "When checked, forces all existing bonds of transmuted atoms to remain in place."
                         
-    QWhatsThis.add ( w.transmuteCheckBox, keepBondsText)
+    w.transmuteCheckBox.setWhatsThis(keepBondsText)
     
-    QToolTip.add(w.transmuteCheckBox, qApp.translate("MainWindow","Check to keep all bonds when transmuting", None))
+    w.transmuteCheckBox.setToolTip(qApp.translate("MainWindow","Check to keep all bonds when transmuting", None))
     
     # Highlighting checkbox
     
@@ -1740,11 +1372,11 @@ def create_whats_this_descriptions_for_selectAtomsMode(w):
                         "or <b>Bonds</b> tab."\
                         "</p>"
 
-    QWhatsThis.add ( w.selectAtomsDashboard.highlightingCB, highlightingText )
+    w.selectAtomsDashboard.highlightingCB.setWhatsThis(highlightingText )
     
     highlightingTipText = "Enables/disables 'Hover Highlighting'"
 
-    QToolTip.add(w.selectAtomsDashboard.highlightingCB, highlightingTipText)
+    w.selectAtomsDashboard.highlightingCB.setToolTip(highlightingTipText)
     
     
 def create_whats_this_descriptions_for_depositMode(w):
@@ -1753,13 +1385,10 @@ def create_whats_this_descriptions_for_depositMode(w):
     # Modeling Kit
 
     mmkitText = "<u><b>Modeling Kit</b></u><br>"\
-                       "<p><img source=\"mmkiticon\"><br> "\
+                       "<p><img source=\"ui/actions/Properties Manager/MMKit.png\"><br> "\
                        "Opens the Molecular Modeling Kit (MMKit)."\
                        "</p>"
 
-    QMimeSourceFactory.defaultFactory().setPixmap( "mmkiticon",
-                                                       w.modifyMMKitAction.iconSet().pixmap() )
-       
     w.modifyMMKitAction.setWhatsThis(mmkitText )
         
     # Deposit (Atom) button
@@ -1769,10 +1398,7 @@ def create_whats_this_descriptions_for_depositMode(w):
                         "Sets <i>Deposit Atom</i> mode."\
                         "</p>"
 
-    QMimeSourceFactory.defaultFactory().setPixmap( "eyedroppericon",
-                        w.depositAtomDashboard.depositBtn.iconSet().pixmap() )
-
-    QWhatsThis.add ( w.depositAtomDashboard.depositBtn, depositText )
+    w.depositAtomDashboard.depositBtn.setWhatsThis(depositText )
     
     # Paste button
     
@@ -1781,10 +1407,7 @@ def create_whats_this_descriptions_for_depositMode(w):
                         "Sets <i>Paste</i> mode."\
                         "</p>"
 
-    QMimeSourceFactory.defaultFactory().setPixmap( "clipboardicon",
-                        w.depositAtomDashboard.pasteBtn.iconSet().pixmap() )
-
-    QWhatsThis.add ( w.depositAtomDashboard.pasteBtn, pasteText )
+    w.depositAtomDashboard.pasteBtn.setWhatsThis(pasteText )
     
     # Atom Tool button
     
@@ -1795,10 +1418,7 @@ def create_whats_this_descriptions_for_depositMode(w):
                         "if the MMKit object has a hotspot."\
                         "</p>"
 
-    QMimeSourceFactory.defaultFactory().setPixmap( "buildatomsicon",
-                        w.depositAtomDashboard.buildBtn.iconSet().pixmap() )
-
-    QWhatsThis.add ( w.depositAtomDashboard.buildBtn, buildAtomsText )
+    w.depositAtomDashboard.buildBtn.setWhatsThis(buildAtomsText )
     
     # Single Bond Tool button
     
@@ -1808,10 +1428,7 @@ def create_whats_this_descriptions_for_depositMode(w):
                         "will change the bond to a single bond, if permitted."\
                         "</p>"
 
-    QMimeSourceFactory.defaultFactory().setPixmap( "singlebondicon",
-                        w.depositAtomDashboard.bond1Btn.iconSet().pixmap() )
-
-    QWhatsThis.add ( w.depositAtomDashboard.bond1Btn, singleBondText )
+    w.depositAtomDashboard.bond1Btn.setWhatsThis(singleBondText )
     
     # Double Bond Tool button
     
@@ -1821,10 +1438,7 @@ def create_whats_this_descriptions_for_depositMode(w):
                         "will change the bond to a double bond, if permitted."\
                         "</p>"
 
-    QMimeSourceFactory.defaultFactory().setPixmap( "doublebondicon",
-                        w.depositAtomDashboard.bond2Btn.iconSet().pixmap() )
-
-    QWhatsThis.add ( w.depositAtomDashboard.bond2Btn, doubleBondText )
+    w.depositAtomDashboard.bond2Btn.setWhatsThis(doubleBondText )
     
     # Triple Bond Tool button
     
@@ -1834,10 +1448,7 @@ def create_whats_this_descriptions_for_depositMode(w):
                         "will change the bond to a triple bond, if permitted."\
                         "</p>"
 
-    QMimeSourceFactory.defaultFactory().setPixmap( "triplebondicon",
-                        w.depositAtomDashboard.bond3Btn.iconSet().pixmap() )
-
-    QWhatsThis.add ( w.depositAtomDashboard.bond3Btn, tripleBondText )
+    w.depositAtomDashboard.bond3Btn.setWhatsThis(tripleBondText )
     
     # Aromatic Bond Tool button
     
@@ -1847,10 +1458,7 @@ def create_whats_this_descriptions_for_depositMode(w):
                         "will change the bond to an aromatic bond, if permitted."\
                         "</p>"
 
-    QMimeSourceFactory.defaultFactory().setPixmap( "aromaticbondicon",
-                        w.depositAtomDashboard.bondaBtn.iconSet().pixmap() )
-
-    QWhatsThis.add ( w.depositAtomDashboard.bondaBtn, aromaticBondText )
+    w.depositAtomDashboard.bondaBtn.setWhatsThis(aromaticBondText )
     
     # Graphitic Bond Tool button
     
@@ -1860,10 +1468,7 @@ def create_whats_this_descriptions_for_depositMode(w):
                         "will change the bond to a graphitic bond, if permitted."\
                         "</p>"
 
-    QMimeSourceFactory.defaultFactory().setPixmap( "graphiticbondicon",
-                        w.depositAtomDashboard.bondgBtn.iconSet().pixmap() )
-
-    QWhatsThis.add ( w.depositAtomDashboard.bondgBtn, graphiticBondText )
+    w.depositAtomDashboard.bondgBtn.setWhatsThis(graphiticBondText )
     
     
     # Atom Selection Filter Checkbox #
@@ -1873,9 +1478,9 @@ def create_whats_this_descriptions_for_depositMode(w):
                 "will be selected when performing selection operations."\
                 "</p>"
                         
-    QWhatsThis.add ( w.depositAtomDashboard.filterCB, atomSelectionFilterText)
+    w.depositAtomDashboard.filterCB.setWhatsThis(atomSelectionFilterText)
     
-    QToolTip.add(w.depositAtomDashboard.filterCB, qApp.translate("MainWindow","Atom Selection Filter", None))
+    w.depositAtomDashboard.filterCB.setToolTip(qApp.translate("MainWindow","Atom Selection Filter", None))
     
     # Selection Filter List #
     
@@ -1886,18 +1491,18 @@ def create_whats_this_descriptions_for_depositMode(w):
                 "the element types."\
                 "</p>"
                         
-    QWhatsThis.add ( w.depositAtomDashboard.filterlistLE, selectionFilterListText)
+    w.depositAtomDashboard.filterlistLE.setWhatsThis(selectionFilterListText)
     
-    QToolTip.add(w.depositAtomDashboard.filterlistLE, qApp.translate("MainWindow","Atom Selection Filter List", None))
+    w.depositAtomDashboard.filterlistLE.setToolTip(qApp.translate("MainWindow","Atom Selection Filter List", None))
 
     # Transmute button
     transmuteButtonText = "<b>Transmute</b>"\
                 "<p>Transmutes the currently selected atom(s) to the atom type specified in the <i>MMKit</i>."\
                 "</p>"
                         
-    QWhatsThis.add ( w.depositAtomDashboard.transmuteBtn, transmuteButtonText)
+    w.depositAtomDashboard.transmuteBtn.setWhatsThis(transmuteButtonText)
     
-    QToolTip.add(w.depositAtomDashboard.transmuteBtn, qApp.translate("MainWindow","Transmutes selected atoms", None))
+    w.depositAtomDashboard.transmuteBtn.setToolTip(qApp.translate("MainWindow","Transmutes selected atoms", None))
     
     # Force to Keep All Bonds checkbox
     
@@ -1905,9 +1510,9 @@ def create_whats_this_descriptions_for_depositMode(w):
         "<p>When enabled, forces all existing bonds of transmuted atoms to remain in place."\
         "</p>"
                         
-    QWhatsThis.add ( w.depositAtomDashboard.transmuteCB, keepBondsText)
+    w.depositAtomDashboard.transmuteCB.setWhatsThis(keepBondsText)
     
-    QToolTip.add(w.depositAtomDashboard.transmuteCB, qApp.translate("MainWindow","Check to keep all bonds when transmuting", None))
+    w.depositAtomDashboard.transmuteCB.setToolTip(qApp.translate("MainWindow","Check to keep all bonds when transmuting", None))
     
     # Autobond checkbox
     
@@ -1919,11 +1524,11 @@ def create_whats_this_descriptions_for_depositMode(w):
         "<p>When disabled, the deposited atom will bond only with the bondpoint (atom) clicked on."\
         "</p>"
 
-    QWhatsThis.add ( w.depositAtomDashboard.autobondCB, autoBondText )
+    w.depositAtomDashboard.autobondCB.setWhatsThis(autoBondText )
     
     autoBondTipText = "Enables/disables 'Autobonding'"
 
-    QToolTip.add(w.depositAtomDashboard.autobondCB, autoBondTipText)
+    w.depositAtomDashboard.autobondCB.setToolTip(autoBondTipText)
     
     # Water checkbox
     
@@ -1939,11 +1544,11 @@ def create_whats_this_descriptions_for_depositMode(w):
         "and down."\
         "</p>"
 
-    QWhatsThis.add ( w.depositAtomDashboard.waterCB, waterText )
+    w.depositAtomDashboard.waterCB.setWhatsThis(waterText )
     
     waterTipText = "Enables/disables the 'Water Surface' selection filter"
 
-    QToolTip.add(w.depositAtomDashboard.waterCB, waterTipText)
+    w.depositAtomDashboard.waterCB.setToolTip(waterTipText)
     
     # Highlighting checkbox
     
@@ -1957,11 +1562,11 @@ def create_whats_this_descriptions_for_depositMode(w):
         "<b>Edit > Preferences</b> and clicking on the <b>Atoms</b> or <b>Bonds</b> tab."\
         "</p>"
 
-    QWhatsThis.add ( w.depositAtomDashboard.highlightingCB, highlightingText )
+    w.depositAtomDashboard.highlightingCB.setWhatsThis(highlightingText )
     
     highlightingTipText = "Enables/disables 'Hover Highlighting'"
 
-    QToolTip.add(w.depositAtomDashboard.highlightingCB, highlightingTipText)
+    w.depositAtomDashboard.highlightingCB.setToolTip(highlightingTipText)
     
 
 def create_whats_this_descriptions_for_UserPrefs_dialog(w):
@@ -1975,7 +1580,7 @@ def create_whats_this_descriptions_for_UserPrefs_dialog(w):
                        "have been set to <b>Lines</b> display."\
                        "</p>"
        
-    QWhatsThis.add ( w.bond_line_thickness_spinbox, bondThicknessText )
+    w.bond_line_thickness_spinbox.setWhatsThis(bondThicknessText )
 
 def create_whats_this_descriptions_for_NanoHive_dialog(w):
     "Create What's This descriptions for the Nano-Hive dialog widgets."
@@ -1986,11 +1591,11 @@ def create_whats_this_descriptions_for_NanoHive_dialog(w):
                        "Enables the <i>MPQC Electrostatics Potential Plane</i> plugin. "\
                        "</p>"
        
-    QWhatsThis.add ( w.MPQC_ESP_checkbox, MPQCESPText )
+    w.MPQC_ESP_checkbox.setWhatsThis(MPQCESPText )
     
     MPQCESPTipText = "Enables/disables MPQC Electrostatics Potential Plane Plugin"
 
-    QToolTip.add(w.MPQC_ESP_checkbox, MPQCESPTipText)
+    w.MPQC_ESP_checkbox.setToolTip(MPQCESPTipText)
 
 # ===
 
@@ -2027,7 +1632,7 @@ def fix_whatsthis_text_and_links(parent, refix_later = (), debug_cutoff = 0): #b
     mac = is_macintosh()
     if mac or enable_whatsthis_links:
         # fix text in 1 or 2 ways for all QAction objects (which are not widgets)
-        objList = parent.queryList("QAction")
+        objList = filter(lambda x: isinstance(x, QAction), parent.children())
         if 0 and debug_cutoff:
             print "returning after query list action" ####@@@@@ bug is not fixed yet; the illegal instr crash happens after reload whatsthis
             return
@@ -2055,7 +1660,7 @@ def fix_whatsthis_text_and_links(parent, refix_later = (), debug_cutoff = 0): #b
         # add MyWhatsThis objects to all widgets that might need them
         # (and also fix their text if it's not fixed already --
         #  needed in case it didn't come from a QAction; maybe that never happens as of 060120)
-        objList = parent.queryList("QWidget")
+        objList = filter(lambda x: isinstance(x, QWidget), parent.children())
             # this includes QMenuBar, QPopupMenu for each main menu and cmenu (I guess),
             # but not menuitems themselves. (No hope of including dynamic cmenu items, but since
             # we make those, we could set their whatsthis text and process it the same way
@@ -2080,17 +1685,19 @@ def fix_whatsthis_text_and_links(parent, refix_later = (), debug_cutoff = 0): #b
                 assert text # we'll just feed it to a MyWhatsThis object so we don't have to store it here
             else:
                 text = None # turn "" into None
-            ismenu = isinstance(obj, QPopupMenu)
+            #ismenu = isinstance(obj, QPopupMenu)
+            ismenu = isinstance(obj, QMenu)
             try:
                 ismenubar = isinstance(obj, QMenuBar)
             except:
                 # usual for non-Macs, I presume
                 ismenubar = False
-            if text or ismenu or ismenubar:
+            if text is not None and (ismenu or ismenubar):
                 # assume any text (even if not changed here) might contain hyperlinks,
                 # so any widget with text might need a MyWhatsThis object;
                 # the above code (which doesn't bother storing mac-modified text) also assumes we're doing this
-                give_widget_MyWhatsThis_and_text( obj, text)
+                print text
+                obj.setWhatsThis(text)
                 #bruce 060319 part of fixing bug 1421
                 ts = str(text)
                 if "Undo" in ts or "Redo" in ts or obj in refix_later or ismenu or ismenubar:
@@ -2149,8 +1756,6 @@ def replace_ctrl_with_cmd(text): # by mark; might be wrong for text which uses C
     text = text.replace('ctrl', 'cmd')
     return text
 
-_KEEPERS = [] # keep permanent refs to certain objects we create
-
 def whatsthis_text_for_widget(widget): #bruce 060120 split this out of other code
     "Return a Python string containing the WhatsThis text for widget (perhaps ""), or None if we can't find that."
     try:
@@ -2164,12 +1769,6 @@ def whatsthis_text_for_widget(widget): #bruce 060120 split this out of other cod
             # note: the 'or ""' above is in case we got None (probably never needed, but might as well be safe)
             # note: the str() (in case of QString) might not be needed; during debug it seemed this was already a Python string
     pass
-
-def give_widget_MyWhatsThis_and_text(widget, text): #bruce 051229; renamed 060120
-    obj1 = MyWhatsThis( widget, text)
-    ## widget._KEEP_WHATSTHIS = obj1 # this was not sufficient to prevent a bus error
-    _KEEPERS.append(obj1) # this is needed to prevent a bus error
-    return
 
 def debracket(text, left, right): #bruce 051229 ##e refile this?
     """If text contains (literal substrings) left followed eventually by right (without another occurrence of left),
@@ -2215,7 +1814,10 @@ def turn_featurenames_into_links(text, savekey = None, saveplace = None): #bruce
                 saveplace[savekey] = featurename
             link = "Feature:" + featurename.replace(' ','_')
                 # maybe we can't let ' ' remain in it, otherwise replacement not needed since will be done later anyway
-            return "<a href=\"%s\">%s</a>" % (link, name) + rest # featurename will be made into URL later (url prefix varies at runtime)
+	    #from wiki_help import wiki_prefix
+            #text = "<a href=\"%s%s\">%s</a>" % (wiki_prefix(), link, name) + rest
+            text = "<a href=\"%s\">%s</a>" % (link, name) + rest
+            return text
     return text
 
 # end

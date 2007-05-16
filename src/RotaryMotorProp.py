@@ -1,37 +1,44 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 RotaryMotorProp.py
 
 $Id$
 """
 
-from qt import *
+from PyQt4.Qt import *
 from RotaryMotorPropDialog import *
-from widgets import RGBf_to_QColor, QColor_to_RGBf
+from widgets import RGBf_to_QColor, QColor_to_RGBf, get_widget_with_color_palette
 import copy
 
-class RotaryMotorProp(RotaryMotorPropDialog):
+class RotaryMotorProp(QDialog, Ui_RotaryMotorPropDialog):
     def __init__(self, motor, glpane):
 
-        RotaryMotorPropDialog.__init__(self)
+        QWidget.__init__(self)
+        self.setupUi(self)      
+        self.connect(self.cancel_btn,SIGNAL("clicked()"),self.reject)
+        self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
+        self.connect(self.choose_color_btn,SIGNAL("clicked()"),self.change_jig_color)
+        self.connect(self.lengthLineEdit,SIGNAL("returnPressed()"),self.change_motor_size)
+        self.connect(self.radiusLineEdit,SIGNAL("returnPressed()"),self.change_motor_size)
+        self.connect(self.sradiusLineEdit,SIGNAL("returnPressed()"),self.change_motor_size)
         self.jig = motor
         self.glpane = glpane
-        QWhatsThis.add(self.nameLineEdit, """<b>Name</b><p>Name of Rotary Motor that appears in the Model
+        self.nameLineEdit.setWhatsThis("""<b>Name</b><p>Name of Rotary Motor that appears in the Model
         Tree</p>""")
-        QWhatsThis.add(self.torqueLineEdit, """<b>Torque </b><p>Simulations will begin with the motor's torque
+        self.torqueLineEdit.setWhatsThis("""<b>Torque </b><p>Simulations will begin with the motor's torque
         set to this value.</p>""")
-        QWhatsThis.add(self.speedLineEdit, """<b>Final Speed</b><p>The final velocity of the motor's flywheel
+        self.speedLineEdit.setWhatsThis("""<b>Final Speed</b><p>The final velocity of the motor's flywheel
         during simulations.</p>""")
-        QWhatsThis.add(self.initialSpeedLineEdit, """<b>Initial Speed</b><p>Simulations will begin with the motor's
+        self.initialSpeedLineEdit.setWhatsThis("""<b>Initial Speed</b><p>Simulations will begin with the motor's
         flywheel rotating at this velocity.</p>""")
-        QWhatsThis.add(self.dampers_textlabel, """<b>Dampers</b><p>If checked, the dampers are enabled for this
+        self.dampers_textlabel.setWhatsThis("""<b>Dampers</b><p>If checked, the dampers are enabled for this
         motor during a simulation. See the Rotary Motor web page on the NanoEngineer-1 Wiki for more information.</p>""")
-        QWhatsThis.add(self.textLabel1_5, """<b>Enable in Minimize <i>(experimental)</i></b><p>If checked,
+        self.textLabel1_5.setWhatsThis("""<b>Enable in Minimize <i>(experimental)</i></b><p>If checked,
         the torque specified above will be applied to the motor atoms during a structure minimization.  While intended to allow simulations
         to begin with rotary motors running at speed, this feature requires more work to be useful.</p>""")
-        QWhatsThis.add(self.dampers_checkbox, """<b>Dampers</b><p>If checked, the dampers are enabled for this
+        self.dampers_checkbox.setWhatsThis("""<b>Dampers</b><p>If checked, the dampers are enabled for this
         motor during a simulation. See the Rotary Motor web page on the NanoEngineer-1 Wiki for more information.</p>""")
-        QWhatsThis.add(self.enable_minimize_checkbox, """<b>Enable in Minimize <i>(experimental)</i></b><p>If checked,
+        self.enable_minimize_checkbox.setWhatsThis("""<b>Enable in Minimize <i>(experimental)</i></b><p>If checked,
         the torque specified above will be applied to the motor atoms during a structure minimization.  While intended to allow simulations
         to begin with rotary motors running at speed, this feature requires more work to be useful.</p>""")
 
@@ -41,8 +48,9 @@ class RotaryMotorProp(RotaryMotorPropDialog):
         
         # Jig color
         self.jig_QColor = RGBf_to_QColor(self.jig.normcolor) # Used as default color by Color Chooser
-        self.jig_color_pixmap.setPaletteBackgroundColor(self.jig_QColor)
-
+        self.jig_color_pixmap = get_widget_with_color_palette(
+            self.jig_color_pixmap, self.jig_QColor)
+   
         self.nameLineEdit.setText(self.jig.name)
         self.torqueLineEdit.setText(str(self.jig.torque))
         self.initialSpeedLineEdit.setText(str(self.jig.initial_speed))
@@ -52,14 +60,16 @@ class RotaryMotorProp(RotaryMotorPropDialog):
         self.sradiusLineEdit.setText(str(self.jig.sradius)) # spoke radius
         self.enable_minimize_checkbox.setChecked(self.jig.enable_minimize)
         self.dampers_checkbox.setChecked(self.jig.dampers_enabled) # mark & bruce 060421
+        
 
     def change_jig_color(self):
         '''Slot method to change the jig's color.'''
-        color = QColorDialog.getColor(self.jig_QColor, self, "ColorDialog")
+        color = QColorDialog.getColor(self.jig_QColor, self)
 
         if color.isValid():
-            self.jig_color_pixmap.setPaletteBackgroundColor(color)
             self.jig_QColor = color
+            self.jig_color_pixmap = get_widget_with_color_palette(
+            self.jig_color_pixmap, self.jig_QColor)   
             self.jig.color = self.jig.normcolor = QColor_to_RGBf(color)
             self.glpane.gl_update()
             

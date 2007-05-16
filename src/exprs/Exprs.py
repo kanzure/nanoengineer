@@ -1,7 +1,9 @@
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 Exprs.py -- class Expr, and related subclasses and utilities, other than those involving Instances
 
 $Id$
+
 
 #e this file is getting kind of long - maybe split it in some sensible way?
 """

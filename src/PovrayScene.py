@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 '''
 PovrayScene.py - The POV-Ray Scene class.
 
@@ -15,7 +15,7 @@ __author__ = "Mark"
 from Utility import SimpleCopyMixin, Node, imagename_to_pixmap
 from povray import decode_povray_prefs, write_povray_ini_file, launch_povray_or_megapov
 from fileIO import writepovfile
-from qt import *
+from PyQt4.Qt import *
 from HistoryWidget import redmsg, orangemsg, greenmsg, _graymsg
 import env, os, sys
 from platform import find_or_make_any_directory, find_or_make_Nanorex_subdir
@@ -69,15 +69,18 @@ class PovrayScene(SimpleCopyMixin, Node):
             # If this code is superceded, Node.__init__ must provide a way to verify that the filename (derived from the name)
             # doesn't exist, since this would be an invalid name. Mark 060702.
             name = generate_povrayscene_name(assy, self.sym, self.extension)
+            
+        self.const_icon = imagename_to_pixmap("modeltree/povrayscene.png")
+            # note: this might be changed later; this value is not always correct; that may be a bug when this node is copied.
+            # [bruce 060620 comment]
+            
         Node.__init__(self, assy, name)
         if params:
             self.set_parameters(params)
         else:
             def_params = (assy.o.width, assy.o.height, 'png')
             self.set_parameters(def_params)
-        self.const_icon = imagename_to_pixmap("povrayscene.png")
-            # note: this might be changed later; this value is not always correct; that may be a bug when this node is copied.
-            # [bruce 060620 comment]
+        
         return
             
     def set_parameters(self, params): #bruce 060620 removed name from params list
@@ -154,9 +157,9 @@ class PovrayScene(SimpleCopyMixin, Node):
             found = not filename or os.path.exists(filename)
         # otherwise found should have been passed as True or False
         if found:
-            self.const_icon = imagename_to_pixmap("povrayscene.png")
+            self.const_icon = imagename_to_pixmap("modeltree/povrayscene.png")
         else:
-            self.const_icon = imagename_to_pixmap("povrayscene-notfound.png")
+            self.const_icon = imagename_to_pixmap("modeltree/povrayscene-notfound.png")
             if print_missing_file:
                 msg = redmsg("POV-Ray Scene file [" + filename + "] does not exist.") #e some callers would prefer orangemsg, cmd, etc.
                 env.history.message(msg)
@@ -164,7 +167,7 @@ class PovrayScene(SimpleCopyMixin, Node):
         
     def __str__(self):
         return "<povrayscene " + self.name + ">"
-    
+        
     def write_povrayscene_file(self):
         '''Writes a POV-Ray Scene file of the current scene in the GLPane to the POV-Ray Scene Files directory.
         If successful, returns errorcode=0 and the absolute path of povrayscene file.
@@ -392,24 +395,24 @@ class ImageViewer(QDialog):
     """ImageViewer displays the POV-Ray image <image_filename> after it has been rendered.
     """
     def __init__(self,image_filename,parent = None,name = None,modal = 0,fl = 0):
-        QDialog.__init__(self,parent,name,modal,fl)
+        #QDialog.__init__(self,parent,name,modal,fl)
+        QDialog.__init__(self,parent)
 
         self.image = QPixmap(image_filename)
         width = self.image.width()
         height = self.image.height()
         caption = image_filename + " (" + str(width) + " x " + str(height) + ")"
-        self.setCaption(caption)
+        self.setWindowTitle(caption)
 
-        if not name:
-            self.setName("ImageViewer")
+        if name is None: name = "ImageViewer"
+        self.setObjectName(name)
 
-        self.pixmapLabel = QLabel(self,"pixmapLabel")
+        self.pixmapLabel = QLabel(self)
         self.pixmapLabel.setGeometry(QRect(0, 0, width, height))
         self.pixmapLabel.setPixmap(self.image)
         self.pixmapLabel.setScaledContents(1)
 
         self.resize(QSize(width, height).expandedTo(self.minimumSizeHint()))
-        self.clearWState(Qt.WState_Polished)
     
     def display(self):
         """Display the image in the ImageViewer, making sure it isn't larger than the desktop size.

@@ -1,4 +1,4 @@
-# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 debug_prefs.py
 
@@ -6,6 +6,7 @@ Some prototype general-prefs code, useful now for "debugging prefs",
 i.e. user-settable temporary flags to help with debugging.
 
 $Id$
+
 """
 
 __all__ = ['debug_pref', 'Choice', 'debug_prefs_menuspec'] # funcs to declare and access prefs; datatypes; UI funcs for prefs
@@ -14,6 +15,7 @@ __author__ = "bruce" # 050614
 
 from constants import noop
 from constants import black, white, red, green, blue, gray, orange, yellow, magenta, pink
+from qt4transition import *
 
 import env
 # see below for import preferences at runtime; we can't import it here due to errors caused by recursive import
@@ -330,7 +332,7 @@ class ColorType(DataType): #e might be renamed ColorPrefType or ColorPref
         if value is None:
             value = self.default_value()
         rgb = self.value_as_int_tuple(value)
-        from qt import QColor
+        from PyQt4.Qt import QColor
         return QColor(rgb[0], rgb[1], rgb[2]) #k guess
     def default_value(self):
         return self._default_value
@@ -366,8 +368,8 @@ class ColorType(DataType): #e might be renamed ColorPrefType or ColorPref
 
 def pass_chosen_color_lambda( newval_receiver_func, curval, dialog_parent = None): #k I hope None is ok as parent
     def func():
-        from qt import QColorDialog
-        color = QColorDialog.getColor( qcolor_from_anything(curval), dialog_parent, "choose") #k what does "choose" mean?
+        from PyQt4.Qt import QColorDialog
+        color = QColorDialog.getColor( qcolor_from_anything(curval), dialog_parent) 
         if color.isValid():
             newval = color.red()/255.0, color.green()/255.0, color.blue()/255.0
             newval_receiver_func(newval)
@@ -375,7 +377,7 @@ def pass_chosen_color_lambda( newval_receiver_func, curval, dialog_parent = None
     return func
         
 def qcolor_from_anything(color):
-    from qt import QColor
+    from PyQt4.Qt import QColor
     if isinstance(color, QColor):
         return color
     if color is None:
@@ -385,7 +387,7 @@ def qcolor_from_anything(color):
 def contrasting_color(qcolor, notwhite = False ):
     "return a QColor which contrasts with qcolor; if notwhite is true, it should also contrast with white."
     rgb = qcolor.red(), qcolor.green(), qcolor.blue() / 2 # blue is too dark, have to count it as closer to black
-    from qt import Qt
+    from PyQt4.Qt import Qt
     if max(rgb) > 90: # threshhold is a guess, mostly untested; even blue=153 seemed a bit too low so this is dubiously low.
         # it's far enough from black (I hope)
         return Qt.black
@@ -399,23 +401,24 @@ def pixmap_from_color_and_size(color, size):
         size = size, size
     w,h = size
     qcolor = qcolor_from_anything(color)
-    from qt import QPixmap
+    from PyQt4.Qt import QPixmap
     qp = QPixmap(w,h)
     qp.fill(qcolor)
     return qp
 
 def iconset_from_color(color):
-    """Return a QIconSet suitable for showing the given color in a menu item or (###k untested, unreviewed) some other widget.
+    """Return a QIcon suitable for showing the given color in a menu item or (###k untested, unreviewed) some other widget.
     The color can be a QColor or any python type we use for colors (out of the few our helper funcs understand).
     """
     # figure out desired size of a small icon
-    from qt import QIconSet
-    size = QIconSet.iconSize(QIconSet.Small) # a QSize object
-    w, h = size.width(), size.height()
+    from PyQt4.Qt import QIcon
+    #size = QIcon.iconSize(QIcon.Small) # a QSize object
+    #w, h = size.width(), size.height()
+    w, h = 16, 16   # hardwire it and be done
     # get pixmap of that color
     pixmap = pixmap_from_color_and_size( color, (w,h) )
     # for now, let Qt figure out the Active appearance, etc. Later we can draw our own black outline, or so. ##e
-    iconset = QIconSet(pixmap)
+    iconset = QIcon(pixmap)
     checkmark = ("checkmark" == debug_pref("color checkmark", Choice(["checkmark","box"])))
 
     modify_iconset_On_states( iconset, color = color, checkmark = checkmark )
@@ -430,14 +433,17 @@ def modify_iconset_On_states( iconset, color = white, checkmark = False, use_col
     checkmark whose color contrasts with white, *or* with the specified color if one is provided.
     Exception to all that: if use_color is provided, it's used directly rather than any computed color.
     """
-    from qt import QIconSet, QPixmap
-    for size in [QIconSet.Small, QIconSet.Large]: # Small, Large = 1,2
-        for mode in [QIconSet.Normal]: # Normal = 0; might also need Active for when mouse over item; don't yet need Disabled
+    from PyQt4.Qt import QIcon, QPixmap
+    if True:
+        print 'in debug_prefs.modify_iconset_On_states : implement modify_iconset_On_states for Qt 4'
+        return
+    for size in [QIcon.Small, QIcon.Large]: # Small, Large = 1,2
+        for mode in [QIcon.Normal]: # Normal = 0; might also need Active for when mouse over item; don't yet need Disabled
             # make the On state have a checkmark; first cause it to generate both of them, and copy them both
             # (just a precaution so it doesn't make Off from the modified On,
             #  even though in my test it treats the one we passed it as Off --
             #  but I only tried asking for Off first)
-##            for state in [QIconSet.Off, QIconSet.On]: # Off = 1, On = 0, apparently!
+##            for state in [QIcon.Off, QIcon.On]: # Off = 1, On = 0, apparently!
 ##                # some debug code that might be useful later:
 ##                ## pixmap = iconset.pixmap(size, mode, state) # it reuses the same pixmap for both small and large!!! how?
 ##                ## generated = iconset.isGenerated(size, mode, state) # only the size 1, state 1 (Small Off) says it's not generated
@@ -448,7 +454,7 @@ def modify_iconset_On_states( iconset, color = white, checkmark = False, use_col
 ##                ## print pixmap # verify unique address
 ##                iconset.setPixmap(pixmap, size, mode, state)
             # now modify the On pixmap; assume we own it
-            state = QIconSet.On
+            state = QIcon.On
             pixmap = iconset.pixmap(size, mode, state)
             #e should use QPainter.drawPixmap or some other way to get a real checkmark and add it,
             # but for initial test this is easiest and will work: copy some of this color into middle of black.
@@ -458,7 +464,7 @@ def modify_iconset_On_states( iconset, color = white, checkmark = False, use_col
 ##            import platform
 ##            if platform.atom_debug:
 ##                print "atom_debug: pixmap(%s,%s,%s) size == %d,%d" % (size, mode, state, w,h)
-            from qt import copyBlt
+            from PyQt4.Qt import copyBlt
             if checkmark:
                 if use_color is None:
                     use_color = contrasting_color( qcolor_from_anything(color))
@@ -546,6 +552,14 @@ def use_property_pane():
     (only offered in debug menu if a property pane is permitted this session)
     """
     return this_session_permit_property_pane() and _use_property_pane()
+
+def debug_pref_History_print_every_selected_object(): #bruce 070504
+    res = debug_pref("History: print every selected object?",
+                      Choice_boolean_False,
+                      non_debug = True,
+                      prefs_key = "A9/History/print every selected object?"
+                     )
+    return res
 
 # == test code
 

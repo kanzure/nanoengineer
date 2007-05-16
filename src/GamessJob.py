@@ -1,10 +1,9 @@
-# This is the GAMESS Job parms default settings.
-# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
-'''
-GamessJob.py
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+"""
+GamessJob.py -- This is the GAMESS Job parms default settings.
 
 $Id$
-'''
+"""
 __author__ = "Mark"
 
 import os, sys, time, re
@@ -15,11 +14,11 @@ from SimServer import SimServer
 from GamessProp import GamessProp
 from HistoryWidget import redmsg
 from files_gms import writegms_inpfile, writegms_batfile
-from qt import * 
-from qt import QMessageBox
+from PyQt4.Qt import * 
 import preferences
 from constants import *
 import env
+from Utility import geticon
 
 
 failpat = re.compile("-ABNORMALLY-")
@@ -52,6 +51,7 @@ class GamessJob(SimJob):
             from ServerManager import ServerManager
             sManager = ServerManager()
             self.server = sManager.getServers()[0]
+    
         
         
     def edit(self):
@@ -135,7 +135,7 @@ class GamessJob(SimJob):
             
         ret = QMessageBox.warning( parent, "GAMESS Executable Path",
             msg + "Please select OK to set the location of GAMESS for this computer.",
-            "&OK", "Cancel", None,
+            "&OK", "Cancel", "",
             0, 1 )
                 
         if ret==0: # OK
@@ -247,7 +247,7 @@ class GamessJob(SimJob):
         self.stime = time.time()
         self.jobTimer.start(1)
         
-        ret = self.progressDialog.exec_loop()
+        ret = self.progressDialog.exec_()
         if ret == QDialog.Accepted: retValue = 0
         else: retValue = 1
         
@@ -303,25 +303,29 @@ class GamessJob(SimJob):
         #print  "Spawnv args are %r" % (args,) # this %r remains (see above)
         #os.spawnv(os.P_WAIT, self.job_batfile, args)
         
-        args = [self.server.program, '-i', self.job_inputfile, '-o', self.job_outputfile]
+        arg_list = ['-i', self.job_inputfile, '-o', self.job_outputfile]
+        args = QStringList()        
+        for s in arg_list:
+            args.append(str(s))          
             
         process = QProcess()
-        for s in args:
-                process.addArgument(s)
-        if not process.start():
+        process.start(self.server.program, args)
+        #Blocks for n millisconds until the process has started and started() 
+        #signal is emitted.Returns true if the process was started successfullly. 
+        if not process.waitForStarted(2000): 
                 print "The process can't be started."
                 return 2
         progressDialog = self.showProgress()
         progressDialog.show()
         i = 55; pInc = True
-        while process.isRunning():
+        while  process.state() == QProcess.Running:
                 env.call_qApp_processEvents() #bruce 050908 replaced qApp.processEvents()
                 if  progressDialog.wasCanceled():
                     process.kill()
                     os.chdir(oldir)
                     return 1 # Job cancelled.
-                        
-                progressDialog.setProgress(i)
+                               
+                progressDialog.setValue(i)
                 if pInc:
                     if i < 75: i += 1
                     else: pInc = False
@@ -330,10 +334,10 @@ class GamessJob(SimJob):
                     else: pInc = True
                 #Do sth here
                 time.sleep(0.05)
-                if not process.isRunning():
+                if not process.state() == QProcess.Running:
                      break
                   
-        progressDialog.setProgress(100)        
+        progressDialog.setValue(100)
         progressDialog.accept()
         
         os.chdir(oldir)
@@ -347,15 +351,21 @@ class GamessJob(SimJob):
         #Replace "self.edit_cntl.win" with "None
         #---Huaicai 7/7/05: To fix bug 751, the "win" may be none.
         #Feel awkward for the design of our code.        
-        simProgressDialog = QProgressDialog(None, "progressDialog", modal)
+        simProgressDialog = QProgressDialog()
+        simProgressDialog.setModal(True)
+        simProgressDialog.setObjectName("progressDialog")
+        simProgressDialog.setWindowIcon(geticon('ui/border/MainWindow'))
         if self.Calculation == 'Energy':
-            simProgressDialog.setLabelText("Calculating Energy ...")
+            simProgressDialog.setWindowTitle("Calculating Energy ...Please Wait")
         else:
-            simProgressDialog.setLabelText("Optimizing ...")
-        simProgressDialog.setCaption("Please Wait")
+            simProgressDialog.setWindowTitle("Optimizing ...Please Wait")
+        
+       
         progBar = QProgressBar(simProgressDialog)
-        progBar.setTotalSteps(0)
-        progBar.setPercentageVisible(False)
+        progBar.setMaximum(0)
+        progBar.setMinimum(0)
+        progBar.setValue(0)
+        progBar.setTextVisible(False)
         simProgressDialog.setBar(progBar)
         simProgressDialog.setAutoReset(False)
         simProgressDialog.setAutoClose(False)
@@ -369,7 +379,7 @@ class GamessJob(SimJob):
             "Please confirm you want to abort the GAMESS simulation.\n",
             "Confirm",
             "Cancel", 
-            None, 
+            "", 
             1,  # The "default" button, when user presses Enter or Return (1 = Cancel)
             1)  # Escape (1= Cancel)
           

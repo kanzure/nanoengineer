@@ -1,9 +1,10 @@
-# Copyright (c) 2004-2007 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 modes.py -- provides basicMode, the superclass for all modes, and
 modeMixin, for GLPane.
 
 $Id$
+
 
 [bruce 050507 moved Hydrogenate and Dehydrogenate into another file]
 
@@ -64,11 +65,17 @@ as well look at them all.
 # import what they need directly, and then define __all__ =
 # ['basicMode', 'modeMixin'] here. ##e
 
-from qt import *
-from qtgl import *
+from PyQt4.Qt import *
+from PyQt4.Qt import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
-from OpenGL.GLE import *
+
+try:
+        from OpenGL.GLE import *
+except:
+        print "GLE module can't be imported. Now trying _GLE"
+        from OpenGL._GLE import *
+
 import math
 
 import os,sys
@@ -196,6 +203,9 @@ class basicMode(anyMode):
            It sets up that mode to be available (but not yet active)
            in that glpane.
         """
+        
+        self.pw = None # pw = part window)
+        
         # init or verify modename and msg_modename
         name = self.modename
         assert not name.startswith('('), \
@@ -355,9 +365,12 @@ class basicMode(anyMode):
                     # might this look better before the above submenus, with no separator?
                     ## self.Menu_spec.append( ("web help: " + self.user_modename(), self.menucmd_open_wiki_help_page) )
                     self.Menu_spec.extend( ms )
-        self.Menu1 = self.makemenu(self.Menu_spec)
-        self.Menu2 = self.makemenu(self.Menu_spec_shift)
-        self.Menu3 = self.makemenu(self.Menu_spec_control)
+        self.Menu1 = QMenu()
+        self.makemenu(self.Menu_spec, self.Menu1)
+        self.Menu2 = QMenu()
+        self.makemenu(self.Menu_spec_shift, self.Menu2)
+        self.Menu3 = QMenu()
+        self.makemenu(self.Menu_spec_control, self.Menu3)
 
     def makeMenus(self):
         """[Subclasses can override this to assign menu_spec lists (describing
@@ -873,8 +886,7 @@ class basicMode(anyMode):
            unless they have a good reason not to. Note: it doesn't draw the model,
            since not all modes want to always draw it.
         """
-        
-        
+                
         # Draw the Origin axis.
         if env.prefs[displayOriginAxis_prefs_key]:
             if env.prefs[displayOriginAsSmallAxis_prefs_key]: #ninad060920
@@ -899,7 +911,7 @@ class basicMode(anyMode):
                         drawer.drawaxes(self.o.scale, -self.o.pov)
             else:
                 drawer.drawaxes(self.o.scale, -self.o.pov)
-                
+		                
             
         # bruce 040929/041103 debug code -- for developers who enable this
         # feature, check for bugs in atom.picked and mol.picked for everything
@@ -1282,22 +1294,24 @@ class basicMode(anyMode):
     
     def rightDown(self, event):
         self.setup_menus_in_each_cmenu_event()
-        self.Menu1.exec_loop(event.globalPos(),3)
-        # [bruce 041104 comment:] Huaicai says that menu.popup and menu.exec_loop
-        # differ in that menu.popup returns immediately, whereas menu.exec_loop
+        self.Menu1.exec_(event.globalPos())
+        #ninad061009: Qpopupmenu in qt3 is  QMenu in Qt4
+	#apparently QMenu._exec does not take option int indexAtPoint.
+        # [bruce 041104 comment:] Huaicai says that menu.popup and menu.exec_
+        # differ in that menu.popup returns immediately, whereas menu.exec_
         # returns after the menu is dismissed. What matters most for us is whether
         # the callable in the menu item is called (and returns) just before
-        # menu.exec_loop returns, or just after (outside of all event processing).
+        # menu.exec_ returns, or just after (outside of all event processing).
         # I would guess "just before", in which case we have to worry about order
-        # of side effects for any code we run after calling exec_loop, since in
+        # of side effects for any code we run after calling exec_, since in
         # general, our Qt event processing functions assume they are called purely
         # sequentially. I also don't know for sure whether the rightUp() method
-        # would be called by Qt during or after the exec_loop call. If any of this
-        # ever matters, we need to test it. Meanwhile, exec_loop is probably best
+        # would be called by Qt during or after the exec_ call. If any of this
+        # ever matters, we need to test it. Meanwhile, exec_ is probably best
         # for context menus, provided we run no code in the same method after it
         # returns, nor in the corresponding mouseUp() method, whose order we don't
         # yet know. (Or at least I don't yet know.)
-        #  With either method (popup or exec_loop), the menu stays up if you just
+        #  With either method (popup or exec_), the menu stays up if you just
         # click rather than drag (which I don't like); this might be fixable in
         # the corresponding mouseup methods, but that requires worrying about the
         # above-described issues.
@@ -1310,7 +1324,14 @@ class basicMode(anyMode):
     
     def rightShiftDown(self, event):
         self.setup_menus_in_each_cmenu_event()
-        self.Menu2.exec_loop(event.globalPos(),3)
+        # Previously we did this:
+        # self.Menu2.exec_(event.globalPos(),3)
+        # where 3 specified the 4th? action in the list. The exec_ method now
+        # needs a pointer to the action itself, not a numerical index. The only
+        # ways I can see to do that is with lots of bookkeeping, or if the menu
+        # had a listOfActions method. This isn't important enough for the former
+        # and Qt does not give us the latter. So forget about the 3.
+        self.Menu2.exec_(event.globalPos())
 
                 
     def rightShiftDrag(self, event):
@@ -1321,7 +1342,8 @@ class basicMode(anyMode):
     
     def rightCntlDown(self, event):
         self.setup_menus_in_each_cmenu_event()
-        self.Menu3.exec_loop(event.globalPos(),3)
+        # see note above
+        self.Menu3.exec_(event.globalPos())
         
     def rightCntlDrag(self, event):
         pass
@@ -1340,12 +1362,12 @@ class basicMode(anyMode):
     def Wheel(self, event):
         #e sometime we need to give this a modifier key binding too;
         # see some email from Josh with a suggested set of them [bruce 041220]
-        but = event.state()
+        mod = event.modifiers()
             ###@@@ this might need a fix_buttons call to work the same
             # on the Mac [bruce 041220]
         dScale = 1.0/1200.0
-        if but & shiftButton: dScale *= 2.0
-        if but & cntlButton: dScale *= 0.25
+        if mod & Qt.ShiftModifier: dScale *= 2.0
+        if mod & Qt.ControlModifier: dScale *= 0.25
             # Switched Shift and Control zoom factors to be more intuitive.
             # Shift + Wheel zooms in quickly (2x), Control + Wheel zooms in slowly (.25x). 
             # mark 060321
@@ -1545,10 +1567,10 @@ class basicMode(anyMode):
         '''
         pass
 
-    def makemenu(self, lis):
+    def makemenu(self, menu, lis):
         # bruce 040909 moved most of this method into GLPane.
         glpane = self.o
-        return glpane.makemenu(lis)
+        return glpane.makemenu(menu, lis)
 
     def draw_selection_curve(self):
         """Draw the (possibly unfinished) freehand selection curve.

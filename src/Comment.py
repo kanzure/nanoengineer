@@ -1,5 +1,5 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
-'''
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+"""
 Comment.py - The Comment class.
 
 $Id$
@@ -8,7 +8,7 @@ History:
 
 mark 060530 - Comment class moved here from Utility.py.
 
-'''
+"""
 
 from Utility import SimpleCopyMixin, Node, imagename_to_pixmap, genViewNum
 
@@ -28,7 +28,7 @@ class Comment(SimpleCopyMixin, Node):
         # and together with SimpleCopyMixin it also fixes bug 1940 (copy) 
 
     def __init__(self, assy, name, text=''):
-        self.const_icon = imagename_to_pixmap("comment.png")
+        self.const_pixmap = imagename_to_pixmap("modeltree/comment.png")
         if not name:
             name = genViewNum("%s-" % self.sym)
         Node.__init__(self, assy, name)
@@ -36,20 +36,29 @@ class Comment(SimpleCopyMixin, Node):
         self.set_text(text)
         return
 
+    def assert_valid_line(self, line): #bruce 070502
+        assert type(line) in (type(""), type(u"")), "invalid type for line = %r, with str = %s" % (line, line)
+        return
+    
     def set_text(self, text):
         """Set our text (represented in self.lines, a list of 1 or more str or unicode strings, no newlines)
         to the lines in the given str or unicode python string, or QString.
         """
         oldlines = self.lines
-        try:
-            # this works for str or unicode
+        if type(text) in (type(""), type(u"")):
+            # this (text.split) works for str or unicode text;
+            # WARNING: in Qt4 it would also work for QString, but produces QStrings,
+            # so we have to do the explicit type test rather than try/except like in Qt3.
+            # (I didn't check whether we got away with try/except in Qt3 due to QString.split not working
+            #  or due to not being passed a QString in that case.) [bruce 070502 Qt4 bugfix]
             lines = text.split('\n')
-        except:
-            # this happens for QStrings
+        else:
+            # it must be a QString
             text = unicode(text)
             ## self.text = text # see if edit still works after this -- it does
             lines = text.split('\n')
             # ok that they are unicode but needn't be? yes.
+        map( self.assert_valid_line, lines) 
         self.lines = lines
         if oldlines != lines:
             self.changed()
@@ -57,7 +66,7 @@ class Comment(SimpleCopyMixin, Node):
 
     def get_text(self):
         "return our text (perhaps as a unicode string, whether or not unicode is needed)"
-        return u'\n'.join(self.lines)
+        return u'\n'.join(self.lines) #bruce 070502 bugfix: revert Qt4 porting error which broke this for unicode
 
     def _add_line(self, line, encoding = 'ascii'):
         """[private method to support mmp reading (main record and info records)]
@@ -69,6 +78,7 @@ class Comment(SimpleCopyMixin, Node):
             if encoding != 'ascii':
                 print "Comment._add_line treating unknown encoding as if ascii:", encoding
             # no need to decode
+        self.assert_valid_line(line)
         self.lines.append(line)
         self.changed()
         return
@@ -106,6 +116,7 @@ class Comment(SimpleCopyMixin, Node):
     def writemmp(self, mapping):
         lines = self.lines
         def encodeline(line):
+            self.assert_valid_line(line) #k should be redundant, since done whenever we modify self.lines
             try:
                 return 'ascii', line.encode('ascii')
             except:

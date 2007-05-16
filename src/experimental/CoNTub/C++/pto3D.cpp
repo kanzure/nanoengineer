@@ -1,3 +1,4 @@
+// Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
 #include <math.h>
 #include "pto3D.h"
 #include "pto2D.h"

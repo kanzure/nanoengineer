@@ -1,3 +1,4 @@
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 version.py -- provide version information for NanoEngineer-1,
 including author list, program name, release info, etc.
@@ -10,7 +11,7 @@ which contains no other files, so it needs to be completely self-contained.
 only builtin Python modules.)
 """
 
-__copyright__ = "Copyright (C) 2004-2007, Nanorex, Inc."
+__copyright__ = "Copyright 2004-2007, Nanorex, Inc."
 
 # Alphabetical by last name
 __author__ = """Damian Allis
@@ -37,7 +38,7 @@ class Version:
         #"tiny": 0,     # tiny and teensy are optional
         # "teensy": 0,   # you can have both, or just tiny, or neither
         "releaseType": "Alpha",
-        "releaseDate": "June 1, 2007",
+        "releaseDate": "May 11, 2007",
         "product": "NanoEngineer-1",
         "copyright": __copyright__,
         "authors": __author__

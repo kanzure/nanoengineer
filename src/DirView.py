@@ -1,6 +1,9 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-General directory view widget. Based on Qt/PyQt example dirview.py.
+General directory view widget. Based on Qt/PyQt example dirview.py,
+with modifications for use in MMKit.
+
+Note: in Qt3 this was used in MMKit.py, but in Qt4 it's not used there.
 
 $Id$
 
@@ -8,7 +11,6 @@ This file contains some code from the Qt/PyQt example dirview.py,
 whose copyright notice reads as follows:
 
 **************************************************************************
-** $Id$
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 ** Some corrections by M. Biermaier (http://www.office-m.at)
@@ -20,7 +22,8 @@ whose copyright notice reads as follows:
 """
 
 import sys
-from qt import *
+from PyQt4.Qt import *
+from qt4transition import *
 
 folder_closed_image =[
     "16 16 9 1",
@@ -140,9 +143,32 @@ folderLockedIcon = 0
 folderOpenIcon = 0
 fileIcon = 0
 
-class FileItem(QListViewItem):
+qt4todo("""The QListView, QListViewItem, QCheckListItem, and
+QListViewItemIterator classes have been renamed Q3ListView,
+Q3ListViewItem, Q3CheckListItem, and Q3ListViewItemIterator, and have
+been moved to the Qt3Support library. New Qt applications should use
+one of the following four classes instead: QTreeView or QTreeWidget
+for tree-like structures; QListWidget or the new QListView class for
+one-dimensional lists.
+
+See Model/View Programming for an overview of the new item view
+classes.
+http://doc.trolltech.com/4.0/model-view-programming.html
+
+Examples involving QTreeWidgetItem:
+Qt-4.1.4/examples/network/torrent/mainwindow.cpp
+Qt-4.1.4/examples/tools/plugandpaint/plugindialog.cpp
+--> Qt-4.1.4/examples/tools/settingseditor/settingstree.cpp <--
+Qt-4.1.4/examples/xml/dombookmarks/xbeltree.cpp
+Qt-4.1.4/examples/xml/saxbookmarks/xbelgenerator.cpp
+Qt-4.1.4/examples/xml/saxbookmarks/xbelhandler.cpp""")
+
+class FileItem(QTreeWidgetItem):
     def __init__(self, parent, fio, name=None):
-        apply(QListViewItem.__init__, (self, parent))#, name))
+        QTreeWidgetItem.__init__(self)
+        parent.addChild(self)
+        if name is not None:
+            self.setText(1, name)
         
         self.f = name
         self.fileObj = fio
@@ -156,13 +182,13 @@ class FileItem(QListViewItem):
     
     #def setup(self):
     #    self.setExpandable(1)
-    #    QListViewItem.setup(self)
+    #    QTreeWidgetItem.setup(self)
         
 
-class Directory(QListViewItem):
+class Directory(QTreeWidgetItem):
     
     def __init__(self, parent, name=None):
-        apply(QListViewItem.__init__,(self,parent, name))
+        QTreeWidgetItem.__init__(self)
         
         self.filterList = ('mmp', 'MMP')
         
@@ -175,23 +201,26 @@ class Directory(QListViewItem):
         else:
             self.p = parent
             self.f = name
-   
-                
             
         self.readable = QDir( self.fullName() ).isReadable()
 
         if  not self.readable :
-            self.setPixmap(0, folderLockedIcon )
+            self.setIcon(0, folderLockedIcon)
         else:
-            self.setPixmap(0, folderClosedIcon )
-
+            self.setIcon(0, folderClosedIcon)
+        if name is not None:
+            self.setText(1, name)
+        if isinstance(parent, QTreeWidget):
+            parent.addTopLevelItem(self)
+        else:
+            parent.addChild(self)
         
 
     def setOpen(self, o):
         if  o: 
-            self.setPixmap(0, folderOpenIcon )
+            self.setIcon(0, folderOpenIcon)
         else:
-            self.setPixmap(0, folderClosedIcon )
+            self.setIcon(0, folderClosedIcon)
 
         if o and not self.childCount():
             s = self.fullName()
@@ -203,12 +232,14 @@ class Directory(QListViewItem):
             files = thisDir.entryInfoList()
             if files:
                 for f in files:
+                    # f is a QFileInfo
+                    # f.fileName is '.' or '..' or 'bearings' or...
                     fileName = str(f.fileName())
                     if fileName == '.' or fileName == '..':
                         continue
                     elif f.isSymLink():
-                        d = QListViewItem(self, fileName)#, 'Symbolic Link')
-                        d.setPixmap(0, fileIcon)
+                        d = QTreeWidgetItem(self, fileName)#, 'Symbolic Link')
+                        d.setIcon(0, fileIcon)
                     elif f.isDir():
                         if fileName == 'CVS':
                             #bruce 060319 skip CVS directories, so developers see same set of directories as end-users
@@ -224,21 +255,26 @@ class Directory(QListViewItem):
                             s = 'File'
                         else:
                             s = 'Special'
-                        if not fileName[-3:] in self.filterList: continue
+                        if not fileName[-3:] in self.filterList:
+                            continue
                         d = FileItem(self, f.absFilePath(), fileName)
-                        d.setPixmap(0, fileIcon)
+                        d.setIcon(0, fileIcon)
     
-        QListViewItem.setOpen(self, o)
+        qt4todo('QTreeWidgetItem.setOpen(self, o)')
 
 
     def setup(self):
         self.setExpandable(1)
-        QListViewItem.setup(self)
+        QTreeWidgetItem.setup(self)
 
 
     def fullName(self):
         if self.p:
-            s = self.p.fullName() + self.f 
+            if not hasattr(self.p, 'fullName'):
+                qt4todo('Make the parent a Directory instead of a DirView')
+                s = self.f
+            else:
+                s = self.p.fullName() + self.f 
         else:
             s = self.f
         
@@ -260,19 +296,20 @@ class Directory(QListViewItem):
            @param filterList is a list of file tyes like '.mmp' or '.MMP' etc. '''
         self.filterList = filterList
 
-class DirView(QListView):
+class DirView(QTreeWidget):
     def __init__(self, parent=None, name=None):
-        QListView.__init__(self, parent, name) 
+        QTreeWidget.__init__(self, parent) 
         global folderClosedIcon, folderLockedIcon, folderOpenIcon, fileIcon
 
-        folderClosedIcon = QPixmap(folder_closed_image)
-        folderLockedIcon = QPixmap(folder_locked_image)
-        folderOpenIcon = QPixmap(folder_open_image)
-        fileIcon = QPixmap(pix_file_image)
+        folderClosedIcon = QIcon(QPixmap(folder_closed_image))
+        folderLockedIcon = QIcon(QPixmap(folder_locked_image))
+        folderOpenIcon = QIcon(QPixmap(folder_open_image))
+        fileIcon = QIcon(QPixmap(pix_file_image))
 
-        self.addColumn("Name", 150) # added 150. mark 060303. [bruce then changed 'width=150' to '150' to avoid exception]
+        self.setHeaderLabels(["", "Name"])
+        #self.addColumn("Name", 150) # added 150. mark 060303. [bruce then changed 'width=150' to '150' to avoid exception]
             # Calling addColumn() here causes DirView to change size after its parent (MMKit) is shown.
-            # I've not been successful figuring out how to control the height of the DirView (QListView) 
+            # I've not been successful figuring out how to control the height of the DirView (QTreeWidget) 
             # after adding this column. See comments in MWsemantics._findGoodLocation() for more 
             # information about how I compensate for this. Mark 060222.
         #self.setGeometry(QRect(7,-1,191,150))
@@ -280,15 +317,15 @@ class DirView(QListView):
             # Trying to force height to be 150, but addColumn() overrides this.  To see the problem,
             # simply comment out addColumn() above and enter Build mode. mark 060222.
         #self.setSizePolicy(QSizePolicy(QSizePolicy.MinimumExpanding,QSizePolicy.MinimumExpanding,0,0,self.sizePolicy().hasHeightForWidth()))
-        self.setTreeStepSize(20)
-        self.setColumnWidth(0, 150) # Force the column width to 150 again. Fixes bug 1613. mark 060303.
+        qt4todo('self.setTreeStepSize(20)')
+        qt4todo('self.setColumnWidth(0, 150)') # Force the column width to 150 again. Fixes bug 1613. mark 060303.
             # The only time you'll see bug 1613 is when your partlib path is very long.
             # The column width is set by the width of the partlib path.  
             # If you have a short path (i.e. /atom/cad/partlib), you wouldn't notice this bug.  
             # A fresh Windows install has its partlib in C:\Program Files\NanoEngineer-1 vx.x.x Alpha\partlib.  
             # This was causing the MMKit to be very wide on Windows by default on startup.
         
-        #self.connect(self, SIGNAL("selectionChanged(QListViewItem *)"), self.partChanged)
+        #self.connect(self, SIGNAL("selectionChanged(QTreeWidgetItem *)"), self.partChanged)
         
     def partChanged(self, item):
         if isinstance(item, FileItem):
@@ -297,25 +334,46 @@ class DirView(QListView):
     
     
     
+########################################################################
 # Test code
+# Here is the example we find in PyQt-x11-gpl-4.0.1/examples/itemviews/dirview.py
+
 if __name__ == '__main__':
+    from PyQt4 import QtGui
+    app = QtGui.QApplication(sys.argv)
+
+    model = QtGui.QDirModel(['*.mmp', '*.MMP'], QDir.AllEntries|QDir.AllDirs, QDir.Name)
+    tree = QtGui.QTreeView()
+    tree.setModel(model)
+    tree.setRootIndex(model.index('../partlib'))
+
+    tree.setWindowTitle(tree.tr("Dir View"))
+    tree.resize(250, 480)
+    tree.show()
+    for i in range(1,4):
+        tree.hideColumn(i)
+
+    sys.exit(app.exec_())
+
+
+if False and __name__ == '__main__':
     a = QApplication(sys.argv)
     if 1:
         mw = DirView()
         a.setMainWidget(mw)
         mw.setCaption('PyQt Example - Directory Browser')
         mw.resize(400, 400)
-        #mw.setSelectionMode(QListView.Extended)
+        #mw.setSelectionMode(QTreeWidget.Extended)
         root = Directory(mw)#, '/huaicai')
         root.setOpen(1)
         mw.show()
-        a.exec_loop()
+        a.exec_()
     
     else:
         roots = QDir("/download")
         fiList = roots.entryInfoList()
         for drv in fiList:
             print "The file path is: ", str(drv.absFilePath())
-        a.exec_loop()
+        a.exec_()
 
 # end

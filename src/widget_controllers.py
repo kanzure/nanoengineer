@@ -1,4 +1,4 @@
-# Copyright (c) 2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
 '''
 widget_controllers.py
 
@@ -15,10 +15,14 @@ __author__ = "bruce"
 # wants access to 2 iconsets made from given imagenames in the "usual way for this env"
 # (can that just be the program env as a whole?)
 
-from qt import QIconSet, SIGNAL
+from PyQt4.Qt import QIcon, SIGNAL
+from PyQt4 import QtGui
+from qt4transition import *
+
 import env
 
-def env_imagename_to_QIconSet(imagename, _cache = {}): ### to be replaced with env.imagename_to_QIconSet for global env or an arg env
+
+def env_imagename_to_QIcon(imagename, _cache = {}): ### to be replaced with env.imagename_to_QIcon for global env or an arg env
     try:
         return _cache[imagename]
     except KeyError:
@@ -29,8 +33,8 @@ def env_imagename_to_QIconSet(imagename, _cache = {}): ### to be replaced with e
     pixmap = imagename_to_pixmap(imagename)
     pixmap_fname = pixmap # will this arg work too?
     
-    res = QIconSet()
-    res.setPixmap(pixmap_fname, QIconSet.Automatic)
+    res = QIcon()
+    res.setPixmap(pixmap_fname, QIcon.Automatic)
     _cache[imagename] = res # memoize, and also keep permanent python reference
     return res
 
@@ -47,7 +51,7 @@ class CollapsibleGroupController_Qt:
         self.groupbutton = groupbutton # the QPushButton in the group header (used in two ways: signal, and change the icon)
 
         self.style = 'Mac' ### set from env
-        ## self.env #e needs imagename_to_QIconSet
+        ## self.env #e needs imagename_to_QIcon
 
         self.options = self.desc.options
         expanded = self.options.get('expanded', True) # these options were set when the desc was interpreted, e.g. "expanded = True"
@@ -91,8 +95,8 @@ class CollapsibleGroupController_Qt:
                 imagename = "win_expand_icon.png" 
             else:
                 imagename = "win_collapse_icon.png"
-        iconset = env_imagename_to_QIconSet(imagename) # memoized
-        self.groupbutton.setIconSet(iconset)
+        iconset = env_imagename_to_QIcon(imagename) # memoized
+        self.groupbutton.setIcon(iconset)
         return
     def set_children_shown(self, open):
         for child in self.hidethese:
@@ -165,14 +169,18 @@ class realtime_update_controller: #bruce 060705, consolidate code from runSim.py
                 self.checkbox.setChecked(enable)
             if self.checkbox_prefs_key: #k could be elif, if we connected them above
                 env.prefs[self.checkbox_prefs_key] = enable
-            self.update_btngrp.setButton( update_as_fast_as_possible_data)
+            qt4todo('self.update_btngrp.setButton( update_as_fast_as_possible_data')
             self.update_number_spinbox.setValue( update_number)
-            self.update_units_combobox.setCurrentText( update_units)
+            for i in range(self.update_units_combobox.count()):
+                if self.update_units_combobox.itemText(i) == update_units:
+                    self.update_units_combobox.setCurrentIndex(i)
+                    return
+            raise Exception("update_units_combobox has no such option: " + update_units)
         else:
             pass # rely on whatever is already in them (better than guessing here)
         return
     def get_update_data_from_widgets(self):
-        update_as_fast_as_possible_data = self.update_btngrp.selectedId() # 0 means yes, 1 means no (for now)
+        update_as_fast_as_possible_data = self.update_btngrp.checkedId() # 0 means yes, 1 means no (for now)
             # ( or -1 means neither, but that's prevented by how the button group is set up, at least when it's enabled)
         update_number = self.update_number_spinbox.value() # 1, 2, etc (or perhaps 0??)
         update_units = str(self.update_units_combobox.currentText()) # 'frames', 'seconds', 'minutes', 'hours'

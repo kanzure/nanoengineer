@@ -1,267 +1,213 @@
-# Copyright (c) 2006 Nanorex, Inc. All rights reserved.
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\StatPropDialog.ui'
+# Copyright 2004-2006 Nanorex, Inc.  See LICENSE file for details. 
+# Form implementation generated from reading ui file 'StatPropDialog.ui'
 #
-# Created: Fri Sep 30 15:11:25 2005
-#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
+# Created: Wed Sep 20 09:07:17 2006
+#      by: PyQt4 UI code generator 4.0.1
 #
 # WARNING! All changes made in this file will be lost!
 
+import sys
+from PyQt4 import QtCore, QtGui
 
-from qt import *
+class Ui_StatPropDialog(object):
+    def setupUi(self, StatPropDialog):
+        StatPropDialog.setObjectName("StatPropDialog")
+        StatPropDialog.resize(QtCore.QSize(QtCore.QRect(0,0,299,202).size()).expandedTo(StatPropDialog.minimumSizeHint()))
 
-image0_data = [
-"22 22 75 2",
-".# c #0111e5",
-".y c #0312db",
-"#i c #0715c4",
-".7 c #263138",
-".I c #293232",
-".9 c #293875",
-".3 c #294545",
-".A c #2a5459",
-".q c #2b3f3f",
-"## c #2c3837",
-".w c #2c3a3a",
-"#d c #2c5757",
-".N c #2c5857",
-".Y c #2d3939",
-"#. c #2d4141",
-".Q c #2f3c3c",
-".r c #308282",
-".p c #313e58",
-".v c #318281",
-".k c #334242",
-".6 c #339494",
-".0 c #339695",
-"#b c #3441ea",
-".L c #349c9b",
-"#c c #35a3a2",
-".i c #364747",
-".U c #364d4d",
-".R c #36a9a8",
-".H c #37b0af",
-".j c #395353",
-".h c #3a4646",
-".S c #3a4949",
-".X c #3a5353",
-".E c #3ac3c2",
-".K c #3b4848",
-".1 c #3c4b4b",
-".W c #3ccbca",
-".Z c #3ccfce",
-".u c #3ed9d8",
-".B c #3edcdb",
-".s c #3fe0df",
-".2 c #40e6e6",
-".V c #41edec",
-".M c #42f2f1",
-".t c #42f3f2",
-".C c #44fdfc",
-".D c #44fefd",
-".l c #495858",
-".z c #4f5b5b",
-".8 c #5b64cc",
-"#f c #5b7575",
-".O c #5e6e6e",
-".f c #6068dc",
-"#g c #617f7f",
-".a c #6770ef",
-"#e c #6b7e7e",
-".x c #727d7d",
-".4 c #738383",
-".F c #778080",
-"#h c #7a8b8b",
-".g c #909c9c",
-"#a c #9ea4a4",
-".m c #acb3b3",
-".J c #c2c8c8",
-".c c #d7d7d7",
-".d c #d9d9d9",
-".o c #e1e1e1",
-".b c #eaeaea",
-".e c #f3f3f3",
-".T c #f4f4f4",
-".n c #f6f6f6",
-".G c #fafafa",
-".P c #fcfcfc",
-".5 c #fefefe",
-"Qt c #ffffff",
-"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
-"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
-"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
-"QtQtQtQtQtQtQt.#.#.#.#.#.#.#.#.#.#.#.#.#QtQt",
-"QtQtQtQtQtQt.#.aQt.b.c.c.d.eQtQtQtQt.#.#QtQt",
-"QtQtQtQtQt.#Qt.f.g.h.i.j.k.l.m.nQt.#Qt.#QtQt",
-"QtQtQtQt.#Qt.o.p.q.r.s.t.u.v.w.x.yQtQt.#QtQt",
-"QtQtQt.#Qt.b.z.A.B.C.D.D.D.C.E.#.F.GQt.#QtQt",
-"QtQt.#.#.#.#.#.#.#.#.#.#.#.#.#.H.I.JQt.#QtQt",
-"QtQt.#Qt.b.K.L.D.D.D.D.D.D.D.#.M.N.O.P.#QtQt",
-"QtQt.#Qt.c.Q.u.D.D.D.D.D.D.D.#.D.R.S.T.#QtQt",
-"QtQt.#Qt.c.U.V.D.D.D.D.D.D.D.#.D.W.X.T.#QtQt",
-"QtQt.#Qt.d.Y.Z.D.D.D.D.D.D.D.#.D.0.1.T.#QtQt",
-"QtQt.#Qt.e.l.v.C.D.D.D.D.D.D.#.2.3.4.5.#QtQt",
-"QtQt.#QtQt.m.w.E.D.D.D.D.D.D.#.6.7.8.a.#QtQt",
-"QtQt.#QtQt.n.9#..H.M.D.D.D.M.####a.5.#QtQtQt",
-"QtQt.#QtQt#b.T.F.I.N.R.W#c#d.##a.P.#QtQtQtQt",
-"QtQt.#Qt#bQtQt.G.J#e#f#g#f#h#i.5.#QtQtQtQtQt",
-"QtQt.##bQtQtQtQtQtQtQtQtQtQt.#.#QtQtQtQtQtQt",
-"QtQt.#.#.#.#.#.#.#.#.#.#.#.#.#QtQtQtQtQtQtQt",
-"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
-"QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt"
-]
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(7),QtGui.QSizePolicy.Policy(7))
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(StatPropDialog.sizePolicy().hasHeightForWidth())
+        StatPropDialog.setSizePolicy(sizePolicy)
+        StatPropDialog.setSizeGripEnabled(True)
 
-class StatPropDialog(QDialog):
-    def __init__(self,parent = None,name = None,modal = 0,fl = 0):
-        QDialog.__init__(self,parent,name,modal,fl)
+        self.vboxlayout = QtGui.QVBoxLayout(StatPropDialog)
+        self.vboxlayout.setMargin(11)
+        self.vboxlayout.setSpacing(6)
+        self.vboxlayout.setObjectName("vboxlayout")
 
-        self.image0 = QPixmap(image0_data)
+        self.hboxlayout = QtGui.QHBoxLayout()
+        self.hboxlayout.setMargin(0)
+        self.hboxlayout.setSpacing(6)
+        self.hboxlayout.setObjectName("hboxlayout")
 
-        if not name:
-            self.setName("StatPropDialog")
+        self.vboxlayout1 = QtGui.QVBoxLayout()
+        self.vboxlayout1.setMargin(0)
+        self.vboxlayout1.setSpacing(6)
+        self.vboxlayout1.setObjectName("vboxlayout1")
 
-        self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding,0,0,self.sizePolicy().hasHeightForWidth()))
-        self.setIcon(self.image0)
-        self.setSizeGripEnabled(1)
+        self.nameTextLabel = QtGui.QLabel(StatPropDialog)
 
-        StatPropDialogLayout = QVBoxLayout(self,11,6,"StatPropDialogLayout")
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(5),QtGui.QSizePolicy.Policy(5))
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.nameTextLabel.sizePolicy().hasHeightForWidth())
+        self.nameTextLabel.setSizePolicy(sizePolicy)
+        self.nameTextLabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.nameTextLabel.setObjectName("nameTextLabel")
+        self.vboxlayout1.addWidget(self.nameTextLabel)
 
-        layout74 = QHBoxLayout(None,0,6,"layout74")
+        self.temp_lbl = QtGui.QLabel(StatPropDialog)
+        self.temp_lbl.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.temp_lbl.setObjectName("temp_lbl")
+        self.vboxlayout1.addWidget(self.temp_lbl)
 
-        layout80 = QVBoxLayout(None,0,6,"layout80")
+        self.molnameTextLabel = QtGui.QLabel(StatPropDialog)
 
-        self.nameTextLabel = QLabel(self,"nameTextLabel")
-        self.nameTextLabel.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,0,0,self.nameTextLabel.sizePolicy().hasHeightForWidth()))
-        self.nameTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout80.addWidget(self.nameTextLabel)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(5),QtGui.QSizePolicy.Policy(5))
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.molnameTextLabel.sizePolicy().hasHeightForWidth())
+        self.molnameTextLabel.setSizePolicy(sizePolicy)
+        self.molnameTextLabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.molnameTextLabel.setObjectName("molnameTextLabel")
+        self.vboxlayout1.addWidget(self.molnameTextLabel)
 
-        self.temp_lbl = QLabel(self,"temp_lbl")
-        self.temp_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout80.addWidget(self.temp_lbl)
+        self.colorTextLabel = QtGui.QLabel(StatPropDialog)
+        self.colorTextLabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.colorTextLabel.setObjectName("colorTextLabel")
+        self.vboxlayout1.addWidget(self.colorTextLabel)
+        self.hboxlayout.addLayout(self.vboxlayout1)
 
-        self.molnameTextLabel = QLabel(self,"molnameTextLabel")
-        self.molnameTextLabel.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,0,0,self.molnameTextLabel.sizePolicy().hasHeightForWidth()))
-        self.molnameTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout80.addWidget(self.molnameTextLabel)
+        self.vboxlayout2 = QtGui.QVBoxLayout()
+        self.vboxlayout2.setMargin(0)
+        self.vboxlayout2.setSpacing(6)
+        self.vboxlayout2.setObjectName("vboxlayout2")
 
-        self.colorTextLabel = QLabel(self,"colorTextLabel")
-        self.colorTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout80.addWidget(self.colorTextLabel)
-        layout74.addLayout(layout80)
+        self.nameLineEdit = QtGui.QLineEdit(StatPropDialog)
+        self.nameLineEdit.setEnabled(True)
+        self.nameLineEdit.setAlignment(QtCore.Qt.AlignLeading)
+        self.nameLineEdit.setObjectName("nameLineEdit")
+        self.vboxlayout2.addWidget(self.nameLineEdit)
 
-        layout73 = QVBoxLayout(None,0,6,"layout73")
+        self.hboxlayout1 = QtGui.QHBoxLayout()
+        self.hboxlayout1.setMargin(0)
+        self.hboxlayout1.setSpacing(6)
+        self.hboxlayout1.setObjectName("hboxlayout1")
 
-        self.nameLineEdit = QLineEdit(self,"nameLineEdit")
-        self.nameLineEdit.setEnabled(1)
-        self.nameLineEdit.setFrameShape(QLineEdit.LineEditPanel)
-        self.nameLineEdit.setFrameShadow(QLineEdit.Sunken)
-        self.nameLineEdit.setAlignment(QLineEdit.AlignLeft)
-        layout73.addWidget(self.nameLineEdit)
+        self.hboxlayout2 = QtGui.QHBoxLayout()
+        self.hboxlayout2.setMargin(0)
+        self.hboxlayout2.setSpacing(6)
+        self.hboxlayout2.setObjectName("hboxlayout2")
 
-        layout101 = QHBoxLayout(None,0,6,"layout101")
+        self.tempSpinBox = QtGui.QSpinBox(StatPropDialog)
 
-        layout100 = QHBoxLayout(None,0,6,"layout100")
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(1),QtGui.QSizePolicy.Policy(0))
+        sizePolicy.setHorizontalStretch(1)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.tempSpinBox.sizePolicy().hasHeightForWidth())
+        self.tempSpinBox.setSizePolicy(sizePolicy)
+        self.tempSpinBox.setMaximum(9999)
+        self.tempSpinBox.setProperty("value",QtCore.QVariant(300))
+        self.tempSpinBox.setObjectName("tempSpinBox")
+        self.hboxlayout2.addWidget(self.tempSpinBox)
 
-        self.tempSpinBox = QSpinBox(self,"tempSpinBox")
-        self.tempSpinBox.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Fixed,1,0,self.tempSpinBox.sizePolicy().hasHeightForWidth()))
-        self.tempSpinBox.setMaxValue(9999)
-        self.tempSpinBox.setValue(300)
-        layout100.addWidget(self.tempSpinBox)
+        self.K_lbl = QtGui.QLabel(StatPropDialog)
+        self.K_lbl.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
+        self.K_lbl.setObjectName("K_lbl")
+        self.hboxlayout2.addWidget(self.K_lbl)
+        self.hboxlayout1.addLayout(self.hboxlayout2)
 
-        self.K_lbl = QLabel(self,"K_lbl")
-        self.K_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignLeft)
-        layout100.addWidget(self.K_lbl)
-        layout101.addLayout(layout100)
-        temp_spacer = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout101.addItem(temp_spacer)
-        layout73.addLayout(layout101)
+        spacerItem = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.hboxlayout1.addItem(spacerItem)
+        self.vboxlayout2.addLayout(self.hboxlayout1)
 
-        self.molnameLineEdit = QLineEdit(self,"molnameLineEdit")
-        self.molnameLineEdit.setEnabled(1)
-        self.molnameLineEdit.setFrameShape(QLineEdit.LineEditPanel)
-        self.molnameLineEdit.setFrameShadow(QLineEdit.Sunken)
-        self.molnameLineEdit.setAlignment(QLineEdit.AlignLeft)
-        self.molnameLineEdit.setReadOnly(1)
-        layout73.addWidget(self.molnameLineEdit)
+        self.molnameLineEdit = QtGui.QLineEdit(StatPropDialog)
+        self.molnameLineEdit.setEnabled(True)
+        self.molnameLineEdit.setAlignment(QtCore.Qt.AlignLeading)
+        self.molnameLineEdit.setReadOnly(True)
+        self.molnameLineEdit.setObjectName("molnameLineEdit")
+        self.vboxlayout2.addWidget(self.molnameLineEdit)
 
-        layout72 = QHBoxLayout(None,0,6,"layout72")
+        self.hboxlayout3 = QtGui.QHBoxLayout()
+        self.hboxlayout3.setMargin(0)
+        self.hboxlayout3.setSpacing(6)
+        self.hboxlayout3.setObjectName("hboxlayout3")
 
-        layout71 = QHBoxLayout(None,0,6,"layout71")
+        self.hboxlayout4 = QtGui.QHBoxLayout()
+        self.hboxlayout4.setMargin(0)
+        self.hboxlayout4.setSpacing(6)
+        self.hboxlayout4.setObjectName("hboxlayout4")
 
-        self.jig_color_pixmap = QLabel(self,"jig_color_pixmap")
-        self.jig_color_pixmap.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,1,0,self.jig_color_pixmap.sizePolicy().hasHeightForWidth()))
-        self.jig_color_pixmap.setMinimumSize(QSize(40,0))
-        self.jig_color_pixmap.setPaletteBackgroundColor(QColor(0,0,0))
-        self.jig_color_pixmap.setScaledContents(1)
-        layout71.addWidget(self.jig_color_pixmap)
+        self.jig_color_pixmap = QtGui.QLabel(StatPropDialog)
 
-        self.choose_color_btn = QPushButton(self,"choose_color_btn")
-        self.choose_color_btn.setEnabled(1)
-        self.choose_color_btn.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Fixed,0,0,self.choose_color_btn.sizePolicy().hasHeightForWidth()))
-        self.choose_color_btn.setAutoDefault(0)
-        layout71.addWidget(self.choose_color_btn)
-        layout72.addLayout(layout71)
-        spacer13 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout72.addItem(spacer13)
-        layout73.addLayout(layout72)
-        layout74.addLayout(layout73)
-        StatPropDialogLayout.addLayout(layout74)
-        spacer16_2 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        StatPropDialogLayout.addItem(spacer16_2)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(5),QtGui.QSizePolicy.Policy(5))
+        sizePolicy.setHorizontalStretch(1)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.jig_color_pixmap.sizePolicy().hasHeightForWidth())
+        self.jig_color_pixmap.setSizePolicy(sizePolicy)
+        self.jig_color_pixmap.setMinimumSize(QtCore.QSize(40,0))
+        self.jig_color_pixmap.setScaledContents(True)
+        self.jig_color_pixmap.setObjectName("jig_color_pixmap")
+        self.hboxlayout4.addWidget(self.jig_color_pixmap)
 
-        layout59 = QHBoxLayout(None,0,6,"layout59")
-        spacer14 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout59.addItem(spacer14)
+        self.choose_color_btn = QtGui.QPushButton(StatPropDialog)
+        self.choose_color_btn.setEnabled(True)
 
-        self.ok_btn = QPushButton(self,"ok_btn")
-        self.ok_btn.setMinimumSize(QSize(0,0))
-        self.ok_btn.setAutoDefault(0)
-        self.ok_btn.setDefault(0)
-        layout59.addWidget(self.ok_btn)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(1),QtGui.QSizePolicy.Policy(0))
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.choose_color_btn.sizePolicy().hasHeightForWidth())
+        self.choose_color_btn.setSizePolicy(sizePolicy)
+        self.choose_color_btn.setAutoDefault(False)
+        self.choose_color_btn.setObjectName("choose_color_btn")
+        self.hboxlayout4.addWidget(self.choose_color_btn)
+        self.hboxlayout3.addLayout(self.hboxlayout4)
 
-        self.cancel_btn = QPushButton(self,"cancel_btn")
-        self.cancel_btn.setMinimumSize(QSize(0,0))
-        self.cancel_btn.setAutoDefault(0)
-        self.cancel_btn.setDefault(0)
-        layout59.addWidget(self.cancel_btn)
-        StatPropDialogLayout.addLayout(layout59)
+        spacerItem1 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.hboxlayout3.addItem(spacerItem1)
+        self.vboxlayout2.addLayout(self.hboxlayout3)
+        self.hboxlayout.addLayout(self.vboxlayout2)
+        self.vboxlayout.addLayout(self.hboxlayout)
 
-        self.languageChange()
+        spacerItem2 = QtGui.QSpacerItem(20,20,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
+        self.vboxlayout.addItem(spacerItem2)
 
-        self.resize(QSize(299,202).expandedTo(self.minimumSizeHint()))
-        self.clearWState(Qt.WState_Polished)
+        self.hboxlayout5 = QtGui.QHBoxLayout()
+        self.hboxlayout5.setMargin(0)
+        self.hboxlayout5.setSpacing(6)
+        self.hboxlayout5.setObjectName("hboxlayout5")
 
-        self.connect(self.cancel_btn,SIGNAL("clicked()"),self.reject)
-        self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
-        self.connect(self.choose_color_btn,SIGNAL("clicked()"),self.change_jig_color)
+        spacerItem3 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.hboxlayout5.addItem(spacerItem3)
 
-        self.setTabOrder(self.nameLineEdit,self.tempSpinBox)
-        self.setTabOrder(self.tempSpinBox,self.molnameLineEdit)
-        self.setTabOrder(self.molnameLineEdit,self.choose_color_btn)
-        self.setTabOrder(self.choose_color_btn,self.ok_btn)
-        self.setTabOrder(self.ok_btn,self.cancel_btn)
+        self.ok_btn = QtGui.QPushButton(StatPropDialog)
+        self.ok_btn.setMinimumSize(QtCore.QSize(0,0))
+        self.ok_btn.setAutoDefault(False)
+        self.ok_btn.setDefault(False)
+        self.ok_btn.setObjectName("ok_btn")
+        self.hboxlayout5.addWidget(self.ok_btn)
 
+        self.cancel_btn = QtGui.QPushButton(StatPropDialog)
+        self.cancel_btn.setMinimumSize(QtCore.QSize(0,0))
+        self.cancel_btn.setAutoDefault(False)
+        self.cancel_btn.setDefault(False)
+        self.cancel_btn.setObjectName("cancel_btn")
+        self.hboxlayout5.addWidget(self.cancel_btn)
+        self.vboxlayout.addLayout(self.hboxlayout5)
 
-    def languageChange(self):
-        self.setCaption(self.__tr("Stat Properties"))
-        self.nameTextLabel.setText(self.__tr("Name :"))
-        self.temp_lbl.setText(self.__tr("Temperature :"))
-        self.molnameTextLabel.setText(self.__tr("Attached to :"))
-        self.colorTextLabel.setText(self.__tr("Color :"))
-        self.nameLineEdit.setText(QString.null)
-        self.K_lbl.setText(self.__tr("Kelvin"))
-        self.molnameLineEdit.setText(QString.null)
-        self.choose_color_btn.setText(self.__tr("Choose..."))
-        QToolTip.add(self.choose_color_btn,self.__tr("Change color"))
-        self.ok_btn.setText(self.__tr("&OK"))
-        self.ok_btn.setAccel(self.__tr("Alt+O"))
-        self.cancel_btn.setText(self.__tr("&Cancel"))
-        self.cancel_btn.setAccel(self.__tr("Alt+C"))
+        self.retranslateUi(StatPropDialog)
+        QtCore.QObject.connect(self.cancel_btn,QtCore.SIGNAL("clicked()"),StatPropDialog.reject)
+        QtCore.QObject.connect(self.ok_btn,QtCore.SIGNAL("clicked()"),StatPropDialog.accept)
+        QtCore.QMetaObject.connectSlotsByName(StatPropDialog)
+        StatPropDialog.setTabOrder(self.nameLineEdit,self.tempSpinBox)
+        StatPropDialog.setTabOrder(self.tempSpinBox,self.molnameLineEdit)
+        StatPropDialog.setTabOrder(self.molnameLineEdit,self.choose_color_btn)
+        StatPropDialog.setTabOrder(self.choose_color_btn,self.ok_btn)
+        StatPropDialog.setTabOrder(self.ok_btn,self.cancel_btn)
 
-
-    def change_jig_color(self):
-        print "StatPropDialog.change_jig_color(): Not implemented yet"
-
-    def __tr(self,s,c = None):
-        return qApp.translate("StatPropDialog",s,c)
+    def retranslateUi(self, StatPropDialog):
+        StatPropDialog.setWindowTitle(QtGui.QApplication.translate("StatPropDialog", "Stat Properties", None, QtGui.QApplication.UnicodeUTF8))
+        self.nameTextLabel.setText(QtGui.QApplication.translate("StatPropDialog", "Name :", None, QtGui.QApplication.UnicodeUTF8))
+        self.temp_lbl.setText(QtGui.QApplication.translate("StatPropDialog", "Temperature :", None, QtGui.QApplication.UnicodeUTF8))
+        self.molnameTextLabel.setText(QtGui.QApplication.translate("StatPropDialog", "Attached to :", None, QtGui.QApplication.UnicodeUTF8))
+        self.colorTextLabel.setText(QtGui.QApplication.translate("StatPropDialog", "Color :", None, QtGui.QApplication.UnicodeUTF8))
+        self.K_lbl.setText(QtGui.QApplication.translate("StatPropDialog", "Kelvin", None, QtGui.QApplication.UnicodeUTF8))
+        self.choose_color_btn.setToolTip(QtGui.QApplication.translate("StatPropDialog", "Change color", None, QtGui.QApplication.UnicodeUTF8))
+        self.choose_color_btn.setText(QtGui.QApplication.translate("StatPropDialog", "Choose...", None, QtGui.QApplication.UnicodeUTF8))
+        self.ok_btn.setText(QtGui.QApplication.translate("StatPropDialog", "&OK", None, QtGui.QApplication.UnicodeUTF8))
+        self.ok_btn.setShortcut(QtGui.QApplication.translate("StatPropDialog", "Alt+O", None, QtGui.QApplication.UnicodeUTF8))
+        self.cancel_btn.setText(QtGui.QApplication.translate("StatPropDialog", "&Cancel", None, QtGui.QApplication.UnicodeUTF8))
+        self.cancel_btn.setShortcut(QtGui.QApplication.translate("StatPropDialog", "Alt+C", None, QtGui.QApplication.UnicodeUTF8))

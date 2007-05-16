@@ -1,7 +1,9 @@
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 Boxed.py -- example of high-level layout expr
 
 $Id$
+
 """
 
 from basic import *

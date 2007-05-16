@@ -1,6 +1,6 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 
-'''
+"""
 debug.py -- debugging functions
 
 (Collects various functions related to debugging.)
@@ -26,13 +26,14 @@ History:
 Created by bruce.
 
 bruce 050913 used env.history in some places.
-'''
+"""
 
 import sys, os, time, types
-from constants import debugButtons, noop
+from constants import debugModifiers, noop
 from prefs_constants import QToolButton_MacOSX_Tiger_workaround_prefs_key, mainwindow_geometry_prefs_key_prefix
 import env
 import platform
+from qt4transition import *
 
 from debug_prefs import debug_prefs_menuspec # bruce 050614
 
@@ -52,9 +53,6 @@ class APIViolation(Exception):
 _default_x = object()
 def print_verbose_traceback(x=_default_x):
     import sys, traceback
-    #stack = traceback.extract_stack()
-    #for tpl in stack[:-1]:
-    #    print "%s line %d    %s\n\t%s" % tpl
     traceback.print_stack(file=sys.stdout)
     if x is not _default_x:
         print x
@@ -136,12 +134,14 @@ else:
 
 # ==
 # Generally useful line number function, wware 051205
-def linenum():
+def linenum(depth=0):
     try:
         raise Exception
     except:
         tb = sys.exc_info()[2]
-        f = tb.tb_frame.f_back
+        f = tb.tb_frame
+        for i in range(depth + 1):
+            f = f.f_back
         print f.f_code.co_filename, f.f_code.co_name, f.f_lineno
 
 # ==
@@ -190,10 +190,10 @@ def standardExclude(attr, obj):
     from GLPane import GLPane
     # I am rarely interested in peeking inside these, and they create
     # tons of output.
-    return isinstance(obj, MWsemantics) or isinstance(obj, GLPane)
+    return False
 
 class ObjectDescender:
-    def __init__(self, maxdepth, outf=sys.stderr):
+    def __init__(self, maxdepth, outf=sys.stdout):
         self.already = [ ]
         self.maxdepth = maxdepth
         self.outf = outf
@@ -211,7 +211,13 @@ class ObjectDescender:
             if v == None:
                 return "None"
             elif type(v) == types.InstanceType:
-                r = v.__class__.__name__
+                def classWithBases(cls):
+                    r = cls.__name__
+                    for b in cls.__bases__:
+                        r += ":" + classWithBases(b)
+                    return r
+                # r = v.__class__.__name__
+                r = "<" + classWithBases(v.__class__) + ">"
             else:
                 r = repr(type(v))
             return "%s at %x" % (r, id(v))
@@ -232,12 +238,13 @@ class ObjectDescender:
             for x in obj.__dict__.keys():
                 if x not in lst:
                     lst.append(x)
+        def no_double_underscore(x):
+            return not x.startswith('__')
+        lst = filter(no_double_underscore, lst)
         lst.sort()
-        def filt(x):
-            return x not in ("__doc__",)
-        return filter(filt, lst)
+        return lst
 
-    def descend(self, obj, depth=0, pathname=[ ]):
+    def descend(self, obj, depth=0, pathname=[ ], excludeClassVars=False):
         if obj in self.already:
             return
         self.already.append(obj)
@@ -291,7 +298,9 @@ class ObjectDescender:
             else:
                 # Look at all variables and methods
                 ckeys = ( )
-            keys = filter(lambda x: x not in ckeys, self.getAttributes(obj))
+            keys = self.getAttributes(obj)
+            if excludeClassVars:
+                keys = filter(lambda x: x not in ckeys, keys)
             lst = [ ]
             for k in keys:
                 x = getattr(obj, k)
@@ -303,7 +312,7 @@ class ObjectDescender:
             for k, v, pn in lst:
                 self.descend(v, depth+1, pn)
 
-def objectBrowse(obj, maxdepth=5, exclude=standardExclude, showThis=None, outf=sys.stderr):
+def objectBrowse(obj, maxdepth=1, exclude=standardExclude, showThis=None, outf=sys.stdout):
     od = ObjectDescender(maxdepth=maxdepth, outf=outf)
     if showThis != None:
         od.showThis = showThis
@@ -377,6 +386,7 @@ def call_func_with_timing_histmsg( func): #bruce 051202 moved this here from und
 # ==
 
 # the following are needed to comply with our Qt/PyQt license agreements.
+# [in Qt4, all-GPL, they work on all platforms, as of 070425]
 
 def legally_execfile_in_globals(filename, globals, error_exception = True):
     """if/as permitted by our Qt/PyQt license agreements,
@@ -445,8 +455,12 @@ def safe_repr(obj, maxlen = 1000):
 # traceback
 
 def print_compact_traceback(msg = "exception ignored: "):
-    # raise
-    print >> sys.__stderr__, msg + compact_traceback()
+    print >> sys.__stderr__, msg + compact_traceback() # bruce 061227 changed this back to old form
+    return
+    ## import traceback
+    ## print >> sys.__stderr__, msg
+    ## traceback.print_stack()   # goes to stderr by default
+    ## # bug: that doesn't print the exception itself.
 
 def compact_traceback():
     type, value, traceback = sys.exc_info()
@@ -635,14 +649,17 @@ _sim_param_values = {
     # "Temperature": 300.0,
     }
 
-from qt import QDialog, QGridLayout, QLabel, QPushButton, QLineEdit, SIGNAL
+from PyQt4.Qt import QDialog, QGridLayout, QLabel, QPushButton, QLineEdit, SIGNAL
 class SimParameterDialog(QDialog):
 
     def __init__(self, win=None):
         import string
         QDialog.__init__(self, win)
-        self.setCaption('Manually edit sim parameters')
-        layout = QGridLayout(self,len(_sim_param_table)+1,4,1,-1,"SimParameterDialog")
+        self.setWindowTitle('Manually edit sim parameters')
+        layout = QGridLayout(self)
+        layout.setMargin(1)
+        layout.setSpacing(-1)
+        layout.setObjectName("SimParameterDialog")
         for i in range(len(_sim_param_table)):
             attr, paramtype = _sim_param_table[i]
             current = _sim_param_values[attr]
@@ -693,8 +710,7 @@ class SimParameterDialog(QDialog):
                 self.connect(btn, SIGNAL("clicked()"), change)
         btn = QPushButton(self)
         btn.setText('Done')
-        layout.addMultiCellWidget(btn, len(_sim_param_table),
-                                  len(_sim_param_table), 0, 3)
+        layout.addWidget(btn, len(_sim_param_table), 0, len(_sim_param_table), 4)
         def done(self=self):
             import pprint
             global _sim_params_set
@@ -713,8 +729,12 @@ _sim_parameter_dialog = None
 def debug_runpycode_from_a_dialog( source = "some debug menu??"):
     title = "debug: run py code"
     label = "one line of python to exec in debug.py's globals()\n(or use @@@ to fake \\n for more lines)\n(or use execfile)"
-    from qt import QInputDialog # bruce 041216 bugfix
-    text, ok = QInputDialog.getText(title, label)
+    from PyQt4.Qt import QInputDialog
+    parent = None
+        #bruce 070329 Qt4 bugfix -- in Qt4 a new first argument (parent) is needed by QInputDialog.getText.
+        # [FYI, for a useful reference to QInputDialog with lots of extra info, see
+        #  http://www.bessrc.aps.anl.gov/software/qt4-x11-4.2.2-browser/d9/dcb/class_q_input_dialog.html ]
+    text, ok = QInputDialog.getText(parent, title, label)
     if ok:
         # fyi: type(text) == <class '__main__.qt.QString'>
         command = str(text)
@@ -729,8 +749,9 @@ def debug_runpycode_from_a_dialog( source = "some debug menu??"):
 def debug_timing_test_pycode_from_a_dialog( ): #bruce 051117
     title = "debug: time python code"
     label = "one line of python to compile and exec REPEATEDLY in debug.py's globals()\n(or use @@@ to fake \\n for more lines)"
-    from qt import QInputDialog
-    text, ok = QInputDialog.getText(title, label)
+    from PyQt4.Qt import QInputDialog
+    parent = None
+    text, ok = QInputDialog.getText(parent, title, label) # parent argument needed only in Qt4 [bruce 070329, more info above]
     if not ok:
         print "time python code code: cancelled"
         return
@@ -911,7 +932,7 @@ class DebugMenuMixin:
         # make the menu -- now done each time it's needed
         return
 
-    def makemenu(self, menu_spec): # bruce 050304 added this, so subclasses no longer have to
+    def makemenu(self, menu_spec, menu=None): # bruce 050304 added this, so subclasses no longer have to
         """Make and return a menu object for use in this widget, from the given menu_spec.
         [This can be overridden by a subclass, but probably never needs to be,
         unless it needs to make *all* menus differently (thus we do use the overridden
@@ -919,7 +940,7 @@ class DebugMenuMixin:
         and wants to be self-contained.]
         """
         from widgets import makemenu_helper
-        return makemenu_helper(self, menu_spec)
+        return makemenu_helper(self, menu_spec, menu)
     
     def debug_menu_items(self):
         """#doc; as of 050416 this will be called every time the debug menu needs to be put up,
@@ -957,15 +978,16 @@ class DebugMenuMixin:
                 ('ATOM_DEBUG', self._debug_enable_atom_debug ),
             ] )
 
-        if (sys.platform == 'darwin' or platform.atom_debug) and self._debug_win:
-            #bruce 050806 to give Alpha6 a workaround for Mac OS X 10.4 Tiger QToolButton bug
-            #bruce 050810 use checkmark item to let that be a persistent pref,
-            # and provide this on all platforms when ATOM_DEBUG is set
-            # (so we can see if it works and we like it, on other systems)
-            checked = env.prefs[QToolButton_MacOSX_Tiger_workaround_prefs_key]
-            res.extend( [
-                ('Mac OS 10.4 QToolButton workaround', self._debug_toggle_QToolButton_workaround, checked and 'checked' or None ),
-            ] )
+#bruce 070425 disabling this for Qt4 (in multiple files); see comment inside widget_hacks.doit3() for why.
+##        if (sys.platform == 'darwin' or platform.atom_debug) and self._debug_win:
+##            #bruce 050806 to give Alpha6 a workaround for Mac OS X 10.4 Tiger QToolButton bug
+##            #bruce 050810 use checkmark item to let that be a persistent pref,
+##            # and provide this on all platforms when ATOM_DEBUG is set
+##            # (so we can see if it works and we like it, on other systems)
+##            checked = env.prefs[QToolButton_MacOSX_Tiger_workaround_prefs_key]
+##            res.extend( [
+##                ('Mac OS 10.4 QToolButton workaround', self._debug_toggle_QToolButton_workaround, checked and 'checked' or None ),
+##            ] )
         
         #bruce 060124 changes: always call debug_prefs_menuspec, but pass platform.atom_debug to filter the prefs,
         # and change API to return a list of menu items (perhaps empty) rather than exactly one
@@ -1051,7 +1073,7 @@ class DebugMenuMixin:
     
     def _debug_choose_font(self): #bruce 050304 experiment; works; could use toString/fromString to store it in prefs...
         oldfont = self.font()
-        from qt import QFontDialog
+        from PyQt4.Qt import QFontDialog
         newfont, ok = QFontDialog.getFont(oldfont)
             ##e can we change QFontDialog to let us provide initial sample text,
             # and permit typing \n into it? If not, can we fool it by providing
@@ -1086,9 +1108,10 @@ class DebugMenuMixin:
            Linux: <cntrl><shift><alt><left click>
            Windows: probably same as linux
         """
-        # In constants.py: debugButtons = cntlButton | shiftButton | altButton
+        # In constants.py: debugModifiers = cntlButton | shiftButton | altButton
         # On the mac, this really means command-shift-alt [alt == option].
-        if debug_menu_enabled and permit_debug_menu_popup and ((event.state() & debugButtons) == debugButtons):
+        if debug_menu_enabled and permit_debug_menu_popup and \
+           int(event.modifiers() & debugModifiers) == debugModifiers:
             ## print "\n* * * fyi: got debug click, will try to put up a debug menu...\n" # bruce 050316 removing this
             self.do_debug_menu(event)
             return 1 # caller should detect this and not run its usual event code...
@@ -1113,21 +1136,14 @@ class DebugMenuMixin:
         "[public method for subclasses] #doc"
         ## menu = self.debug_menu
         #bruce 050416: remake the menu each time it's needed
-        menu = None
+        menu_spec = None
         try:
-            menu_spec = "<not yet computed>" # might be needed for error message in 'except' clause [bruce 050509 bugfix]
             menu_spec = self.debug_menu_items()
-            menu = self.makemenu( menu_spec ) # might be []
+            menu = self.makemenu(menu_spec, None)
+            if menu: # might be []
+                menu.exec_(event.globalPos())
         except:
             print_compact_traceback("bug in do_debug_menu ignored; menu_spec is %r" % (menu_spec,) )
-            menu = None # for now
-        
-        ## removed [bruce 050416] since badly named and not yet used:
-        ## self.current_event = event # (so debug commands can see it)
-        if menu:
-            menu.exec_loop(event.globalPos(), 1)
-        ## self.current_event = None
-        return 1
 
     def _debug_printself(self):
         print self
@@ -1172,40 +1188,42 @@ class DebugMenuMixin:
         debug_timing_test_pycode_from_a_dialog( )
         return
 
-    def _debug_toggle_QToolButton_workaround(self): #bruce 050806, revised 050810
-        """[only provided in menu on Mac (or maybe on all systems when ATOM_DEBUG is set),
-        and only needed for Mac OS X 10.4 Tiger, but might work for all platforms -- who knows]
-        """
-        enabled_now = env.prefs[QToolButton_MacOSX_Tiger_workaround_prefs_key]
-        enable = not enabled_now
-        from HistoryWidget import orangemsg, redmsg, greenmsg
-        if enable:
-            ###e ask user if ok; if we add that feature, also add "..." to menu command text
-            # note: if we enable, disable, and enable, all in one session, the following happens twice, but that's ok.
-            env.history.message( greenmsg( "Modifying every QToolButton to work around a Qt bug in Mac OS X 10.4 Tiger..." ))
-            from widget_hacks import hack_every_QToolButton, hack_every_QToolButton_warning
-            if hack_every_QToolButton_warning:
-                env.history.message( orangemsg( hack_every_QToolButton_warning ))
-            hack_every_QToolButton( self._debug_win )
-            env.prefs[QToolButton_MacOSX_Tiger_workaround_prefs_key] = True
-            env.history.message( "Done. This will be redone automatically in new sessions (with no history message)" \
-                                 " unless you disable this menu item.")
-            # see auto_enable_MacOSX_Tiger_workaround_if_desired and its call, for how it gets enabled in new sessions.
-        else:
-            env.prefs[QToolButton_MacOSX_Tiger_workaround_prefs_key] = False
-            env.history.message( orangemsg(
-                "Disabled the workaround for the QToolButton bug in Mac OS X 10.4 Tiger." \
-                " This change in pressed toolbutton appearance will only take effect" \
-                " after you quit and restart this program." ))
-        return
+#bruce 070425 disabling this for Qt4 (in multiple files); see comment inside widget_hacks.doit3() for why.
+##    def _debug_toggle_QToolButton_workaround(self): #bruce 050806, revised 050810
+##        """[only provided in menu on Mac (or maybe on all systems when ATOM_DEBUG is set),
+##        and only needed for Mac OS X 10.4 Tiger, but might work for all platforms -- who knows]
+##        """
+##        enabled_now = env.prefs[QToolButton_MacOSX_Tiger_workaround_prefs_key]
+##        enable = not enabled_now
+##        from HistoryWidget import orangemsg, redmsg, greenmsg
+##        if enable:
+##            ###e ask user if ok; if we add that feature, also add "..." to menu command text
+##            # note: if we enable, disable, and enable, all in one session, the following happens twice, but that's ok.
+##            env.history.message( greenmsg( "Modifying every QToolButton to work around a Qt bug in Mac OS X 10.4 Tiger..." ))
+##            from widget_hacks import hack_every_QToolButton, hack_every_QToolButton_warning
+##            if hack_every_QToolButton_warning:
+##                env.history.message( orangemsg( hack_every_QToolButton_warning ))
+##            hack_every_QToolButton( self._debug_win )
+##            env.prefs[QToolButton_MacOSX_Tiger_workaround_prefs_key] = True
+##            env.history.message( "Done. This will be redone automatically in new sessions (with no history message)" \
+##                                 " unless you disable this menu item.")
+##            # see auto_enable_MacOSX_Tiger_workaround_if_desired and its call, for how it gets enabled in new sessions.
+##        else:
+##            env.prefs[QToolButton_MacOSX_Tiger_workaround_prefs_key] = False
+##            env.history.message( orangemsg(
+##                "Disabled the workaround for the QToolButton bug in Mac OS X 10.4 Tiger." \
+##                " This change in pressed toolbutton appearance will only take effect" \
+##                " after you quit and restart this program." ))
+##        return
         
     pass # end of class DebugMenuMixin
 
 def auto_enable_MacOSX_Tiger_workaround_if_desired( win): #bruce 050810
-    enable = env.prefs[QToolButton_MacOSX_Tiger_workaround_prefs_key]
-    if enable:
-        from widget_hacks import hack_every_QToolButton
-        hack_every_QToolButton( win)
+#bruce 070425 disabling this for Qt4 (in multiple files); see comment inside widget_hacks.doit3() for why.
+##    enable = env.prefs[QToolButton_MacOSX_Tiger_workaround_prefs_key]
+##    if enable:
+##        from widget_hacks import hack_every_QToolButton
+##        hack_every_QToolButton( win)
     return
 
 # ===

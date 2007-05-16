@@ -1,7 +1,9 @@
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 demo_drag.py
 
 $Id$
+
 
 demo not only some drag actions, but some ways of setting up new model types
 and their edit tools and behaviors. [Eventually.]

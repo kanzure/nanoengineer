@@ -1,3 +1,4 @@
+# Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
 """Convert CoNTub's PDB output to an MMP file
 
 Typical usage:

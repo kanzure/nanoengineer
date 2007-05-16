@@ -1,13 +1,14 @@
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 demo_MT.py
 
 $Id$
 
+
 ### WARNING: the rest of this docstring has not been reviewed since before MT_try2 was implemented
 and MT_try1 was moved into an outtakes file, demo_MT_try1_obs.py. Some of the comments in this file
 may belong in that outtakes file rather than here. [070210]
 
-==
 
 works in testexpr_18
 

@@ -1,4 +1,4 @@
-# Copyright (c) 2007 Nanorex, Inc.  All rights reserved.
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 EpydocTest.py Tests to see if a module is being imported by epydoc in
 order to document it, rather than for actual use.

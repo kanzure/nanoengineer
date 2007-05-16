@@ -1,4 +1,4 @@
-# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2005-2006 Nanorex, Inc.  See LICENSE file for details. 
 '''
 env.py
 
@@ -181,7 +181,7 @@ _in_event_loop = True #bruce 060127
 
 def call_qApp_processEvents(*args): #bruce 050908
     "No other code should directly call qApp.processEvents -- always call it via this function."
-    from qt import qApp #k ??
+    from PyQt4.Qt import qApp #k ??
     mc = begin_recursive_event_processing()
     try:
         res = qApp.processEvents(*args)

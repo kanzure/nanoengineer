@@ -1,4 +1,4 @@
-# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2005-2006 Nanorex, Inc.  See LICENSE file for details. 
 '''
 undo_manager.py
 
@@ -23,7 +23,7 @@ from prefs_constants import undoAutomaticCheckpoints_prefs_key
 import env
 from HistoryWidget import orangemsg, greenmsg, redmsg, _graymsg
 from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
-from qt import SIGNAL
+from PyQt4.Qt import SIGNAL
 import time
 
 class UndoManager:
@@ -73,7 +73,8 @@ class AssyUndoManager(UndoManager):
 ##        self.remake_UI_menuitems() # so it runs for initial checkpoint and disables menu items, etc
         if platform.is_macintosh(): 
             win = assy.w
-            win.editRedoAction.setAccel(win._MainWindow__tr("Ctrl+Shift+Z")) # set up incorrectly (for Mac) as "Ctrl+Y"
+            from PyQt4.Qt import Qt
+            win.editRedoAction.setShortcut(Qt.CTRL+Qt.SHIFT+Qt.Key_Z) # set up incorrectly (for Mac) as "Ctrl+Y"
                 # note: long before 060414 this is probably no longer needed (since now done in whatsthis.py),
                 # but it's safe and can be left in as a backup.
         # exercise the debug-only old pref (deprecated to use it):
@@ -349,7 +350,7 @@ class AssyUndoManager(UndoManager):
                 op = ops[0]
                 op = self.wrap_op_with_merging_flags(op) #060127
                 text = op.menu_desc() + extra #060126
-                action.setMenuText(text)
+                action.setText(text)
                 fix_tooltip(action, text) # replace description, leave (accelkeys) alone (they contain unicode chars on Mac)
                 self._current_main_menu_ops[optype] = op #e should store it into menu item if we can, I suppose
                 op.you_have_been_offered()
@@ -359,9 +360,9 @@ class AssyUndoManager(UndoManager):
             else:
                 action.setEnabled(False)
                 ## action.setText("Can't %s" % optype) # someday we might have to say "can't undo Cmdxxx" for certain cmds
-                ## action.setMenuText("Nothing to %s" % optype)
+                ## action.setText("Nothing to %s" % optype)
                 text = "%s%s" % (optype, extra)
-                action.setMenuText(text) # for 061117 commit, look like it used to look, for the time being
+                action.setText(text) # for 061117 commit, look like it used to look, for the time being
                 fix_tooltip(action, text)
                 self._current_main_menu_ops[optype] = None
             pass
@@ -395,18 +396,18 @@ class AssyUndoManager(UndoManager):
         action = win.editClearUndoStackAction
         text = "Clear Undo Stack" + '...' # workaround missing '...' (remove this when the .ui file is fixed)
         #e future: add an estimate of RAM to be cleared
-        action.setMenuText(text)
+        action.setText(text)
         fix_tooltip(action, text)
         enable_it = not not (undos or redos)
         action.setEnabled( enable_it )
         return
         ''' the kinds of things we can set on one of those actions include:
-        self.setViewFitToWindowAction.setText(self.__tr("Fit to Window"))
-        self.setViewFitToWindowAction.setMenuText(self.__tr("&Fit to Window"))
-        self.setViewFitToWindowAction.setToolTip(self.__tr("Fit to Window (Ctrl+F)"))
-        self.setViewFitToWindowAction.setAccel(self.__tr("Ctrl+F"))
-        self.setViewRightAction.setStatusTip(self.__tr("Right View"))
-        self.helpMouseControlsAction.setWhatsThis(self.__tr("Displays help for mouse controls"))
+        self.setViewFitToWindowAction.setText(QtGui.QApplication.translate(self.__class__.__name__, "Fit to Window"))
+        self.setViewFitToWindowAction.setText(QtGui.QApplication.translate(self.__class__.__name__, "&Fit to Window"))
+        self.setViewFitToWindowAction.setToolTip(QtGui.QApplication.translate(self.__class__.__name__, "Fit to Window (Ctrl+F)"))
+        self.setViewFitToWindowAction.setShortcut(QtGui.QApplication.translate(self.__class__.__name__, "Ctrl+F"))
+        self.viewRightAction.setStatusTip(QtGui.QApplication.translate(self.__class__.__name__, "Right View"))
+        self.helpMouseControlsAction.setWhatsThis(QtGui.QApplication.translate(self.__class__.__name__, "Displays help for mouse controls"))
         '''
 
     def wrap_op_with_merging_flags(self, op, flags = None): #e will also accept merging-flag or -pref arguments
@@ -581,7 +582,7 @@ def editMakeCheckpoint():
 try:
     _editAutoCheckpointing_recursing
 except:
-    _editAutoCheckpointing_recursing = False # only if we're not reloading -- otherwise, bug when setOn calls MWsem slot which reloads
+    _editAutoCheckpointing_recursing = False # only if we're not reloading -- otherwise, bug when setChecked calls MWsem slot which reloads
 else:
     if _editAutoCheckpointing_recursing and env.debug():
         pass # print "note: _editAutoCheckpointing_recursing true during reload" # this happens!
@@ -626,7 +627,7 @@ def editAutoCheckpointing(enabled, update_UI = True, print_to_history = True): #
         # this is only needed when the preference changed, not when the menu item slot is used:
         _editAutoCheckpointing_recursing = True
         try:
-            win.editAutoCheckpointingAction.setOn( enabled ) # warning: this recurses, via slot in MWsemantics [060314]
+            win.editAutoCheckpointingAction.setChecked( enabled ) # warning: this recurses, via slot in MWsemantics [060314]
         finally:
             _editAutoCheckpointing_recursing = False
     return

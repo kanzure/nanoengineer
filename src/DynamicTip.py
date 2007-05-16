@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 DynamicTip.py 
 
@@ -8,11 +8,11 @@ History:
 060817 Mark created dynamicTip class
 060818 Ninad moved DynamiceTip class into this file DynamicTip.py and added more
 
-
 $Id$
 
+
 """
-from qt import QToolTip, QRect
+from PyQt4.Qt import QToolTip, QRect
 import time
 import env
 import preferences
@@ -25,18 +25,18 @@ from platform import fix_plurals
 
 
 
-class DynamicTip(QToolTip): # Mark and Ninad 060817.
+class DynamicTip: # Mark and Ninad 060817.
     """For the support of dynamic, informative tooltips of a highligthed object in the GLPane. 
     """
-    def __init__(self, parent):
-        QToolTip.__init__(self, parent)
-        self.glpane = parent
+    def __init__(self, glpane):
+        
+        self.glpane = glpane       
         
         # <toolTipShown> is a flag set to True when a tooltip is currently displayed for the 
         # highlighted object under the cursor.
         self.toolTipShown = False
      
-    def maybeTip(self, cursorPos):
+    def maybeTip(self, helpEvent):
         """Determines if this tooltip should be displayed. The tooltip will be displayed at
         <cusorPos> if an object is highlighted and the mouse hasn't moved for 
         some period of time, called the "wake up delay" period, which is a user pref
@@ -71,22 +71,18 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
             
         if self.toolTipShown:
             # The tooltip is already displayed, so return. Do not allow tip() to be called again or it will "flash".
-            #print "maybeTip(): TOOLTIP ALREADY SHOWN. highlighted object = ", str(self.glpane.selobj)
             return
-            
-        # Position and size of QRect for tooltip.
-        rect = QRect(cursorPos.x()-1, cursorPos.y()-1, 3, 3)
-        #print "maybeTip(): CREATING AND DISPLAYING TOOLTIP. highlighted object = ", str(self.glpane.selobj)
-            
+                   
+  
         tipText = self.getToolTipText()
+        
+        if not tipText:            
+            tipText = "" #This makes sure that dynamic tip is not displayed 
+            #when the highlightable object is 'unknown' to the dynamic tip class
             
-        self.tip(rect, tipText) # Display the tooltip for the highlighted object <self.glpane.selobj>.
-            # This should always display a tooltip when called. There are times when it will not work, at least on Windows.
-            # For example, if you rest the cursor over an atom until the tooltip is displayed, then highlight a different atom,
-            # then move back to the first atom and rest the cursor, the tooltip will not display. Try this again, it will work. 
-            # Another time, it will not work. This appears to be a Qt bug. Not serious, however, since slightly moving and
-            # resting the cursor over the same atom will cause the tooltip to appear. Mark 060817.
-                
+        
+        QToolTip.showText(helpEvent.globalPos(), tipText)  #@@@ ninad061107 works fine but need code review
+               
         self.toolTipShown = True
                             
                             

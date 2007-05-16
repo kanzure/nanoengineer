@@ -1,4 +1,4 @@
-# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 wiki_help.py -- associate webpages (typically in a wiki) with program features,
 and provide access to them. Pages typically contain feature-specific help info,
@@ -27,7 +27,8 @@ bruce 051201 made new source file for it, extended it to other kinds of objects 
 """
 __author__ = ["Will", "Bruce"]
 
-from qt import *
+from PyQt4 import QtGui
+from PyQt4.Qt import *
 import env
 import webbrowser
 from debug import print_compact_traceback
@@ -203,67 +204,42 @@ def wiki_help_menuspec_for_featurename( featurename):
 
 # ==
 
-_keep_reference = None
+class QToolBar_WikiHelp(QToolBar):
+    # Any widget can be extended this way. Wherever we need to have wiki help
+    # active (presumably in a container with buttons or some such) we should
+    # feel free to extend other container widgets as needed.
+    def event(self, evt):
+        if isinstance(evt, QWhatsThisClickedEvent):
+            url = wiki_prefix() + evt.href()
+            webbrowser_open(str(url)) # Must be string. mark 2007-05-10
+            return True
+        return QToolBar.event(self, evt)
 
 class WikiHelpBrowser(QDialog):
     """The WikiHelpBrowser Dialog.
     """
     def __init__(self, text, parent=None, clicked_func = None, caption = "(caption)"):
         QDialog.__init__(self,parent)
-
-        self.setName("WikiHelpBrowser")
-        TextBrowserLayout = QGridLayout(self,1,1,5,-1,"WikiHelpBrowserLayout")
-        self.text_browser = QTextBrowser(self,"text_browser")
-        TextBrowserLayout.addMultiCellWidget(self.text_browser,0,0,0,1)
         
-        class MimeFactory(QMimeSourceFactory):
-            def data(self, name, context=None):
-                # [obs comment:] You'll always get a warning like this:
-                # QTextBrowser: no mimesource for http://....
-                # This could be avoided with QApplication.qInstallMsgHandler,
-                # but I don't think that's supported until PyQt 3.15. Also this falls
-                # victim to all the problems swarming around webbrowser.open().
-                name = str(name) # in case it's a QString
-                if clicked_func:
-                    close_dialog = clicked_func(name) #e might generalize to let clicked_func return new html to show, etc...
-                else:
-                    #bruce 051216 let this just be default clicked_func (for testing) -- let provided clicked_func do this itself
-                    webbrowser_open(name) ###e should this be moved into clicked_func?
-                    close_dialog = True
-                if close_dialog:
-                    # don't do this if you want the dialog to stay open after the link is clicked,
-                    #  but its text will change to "link was clicked" due to the code below
-                    ## self.owner.close() -- this caused hourglass cursor to remain in GLPane [bug 1233]
-                    ## self.owner.hide() - also causes hourglass cursor
-                    self.owner.deleteLater() # using deleteLater instead of close or hide fixed bug 1233 [bruce 051219]
-                #bruce 051209 kluge:
-                # one way to avoid the warning, in trusty old PyQt 3.12:
-                ##   QMimeSourceFactory.defaultFactory().setText("arbuniqname","hi mom") 
-                ##   res = QMimeSourceFactory.defaultFactory().data("arbuniqname") 
-                # a simpler way, except that it doesn't work...
-                ##   res = QTextDrag("hi")
-                ##   print "res is",res
-                ##   return res
-                ## res is <__main__.qt.QTextDrag object at 0x1394120>
-                ## pure virtual method called
-                ## Abort
-                ## Exit 134
-                # let's try again and this time keep a reference to it -- ok, that works.
-                # I didn't dare try to let the old one get discarded by a new one,
-                # so we make at most one per apprun.
-                global _keep_reference
-                if _keep_reference is None:
-                    _keep_reference = QTextDrag("link was clicked")
-                return _keep_reference
+        self.setWindowTitle(caption)
+        self.setWindowIcon(QtGui.QIcon("ui/border/MainWindow"))
+        self.setObjectName("WikiHelpBrowser")
+        ##TextBrowserLayout = QGridLayout(self,1,1,5,-1,"WikiHelpBrowserLayout")
+        TextBrowserLayout = QGridLayout(self)
+        TextBrowserLayout.setSpacing(1)
+        self.text_browser = QTextBrowser(self)
+        self.text_browser.setOpenExternalLinks(True)
+        self.text_browser.setObjectName("text_browser")
+        TextBrowserLayout.addWidget(self.text_browser,0,0,0,1)
+        
         self.text_browser.setMinimumSize(400, 200)
-        self.setCaption(caption) #bruce 051219 (fixes bug 1234)
         # make it pale yellow like a post-it note
-        self.text_browser.setText("<qt bgcolor=\"#FFFF80\">" + text)
-        self.mf = mf = MimeFactory()
-        mf.owner = self
-        self.text_browser.setMimeSourceFactory(mf)
+        self.text_browser.setHtml("<qt bgcolor=\"#FFFF80\">" + text)
+        #self.mf = mf = MimeFactory()
+        #mf.owner = self
         
-        self.close_button = QPushButton(self,"close_button")
+        self.close_button = QPushButton(self)
+        self.close_button.setObjectName("close_button")
         self.close_button.setText("Close")
         TextBrowserLayout.addWidget(self.close_button,1,1)
         
@@ -271,60 +247,20 @@ class WikiHelpBrowser(QDialog):
         TextBrowserLayout.addItem(spacer,1,0)
 
         self.resize(QSize(300, 300).expandedTo(self.minimumSizeHint()))
-        self.clearWState(Qt.WState_Polished)
-
+  
         self.connect(self.close_button,SIGNAL("clicked()"),self.close)
         
 
 class WikiHelpBrowser_ORIG(QTextBrowser): # this is being used in real code as of bruce 051215
     def __init__(self, text, parent=None, clicked_func = None, caption = "(caption)"):
-        class MimeFactory(QMimeSourceFactory):
-            def data(self, name, context=None):
-                # [obs comment:] You'll always get a warning like this:
-                # QTextBrowser: no mimesource for http://....
-                # This could be avoided with QApplication.qInstallMsgHandler,
-                # but I don't think that's supported until PyQt 3.15. Also this falls
-                # victim to all the problems swarming around webbrowser.open().
-                name = str(name) # in case it's a QString
-                if clicked_func:
-                    close_dialog = clicked_func(name) #e might generalize to let clicked_func return new html to show, etc...
-                else:
-                    #bruce 051216 let this just be default clicked_func (for testing) -- let provided clicked_func do this itself
-                    webbrowser_open(name) ###e should this be moved into clicked_func?
-                    close_dialog = True
-                if close_dialog:
-                    # don't do this if you want the dialog to stay open after the link is clicked,
-                    #  but its text will change to "link was clicked" due to the code below
-                    ## self.owner.close() -- this caused hourglass cursor to remain in GLPane [bug 1233]
-                    ## self.owner.hide() - also causes hourglass cursor
-                    self.owner.deleteLater() # using deleteLater instead of close or hide fixed bug 1233 [bruce 051219]
-                #bruce 051209 kluge:
-                # one way to avoid the warning, in trusty old PyQt 3.12:
-                ##   QMimeSourceFactory.defaultFactory().setText("arbuniqname","hi mom") 
-                ##   res = QMimeSourceFactory.defaultFactory().data("arbuniqname") 
-                # a simpler way, except that it doesn't work...
-                ##   res = QTextDrag("hi")
-                ##   print "res is",res
-                ##   return res
-                ## res is <__main__.qt.QTextDrag object at 0x1394120>
-                ## pure virtual method called
-                ## Abort
-                ## Exit 134
-                # let's try again and this time keep a reference to it -- ok, that works.
-                # I didn't dare try to let the old one get discarded by a new one,
-                # so we make at most one per apprun.
-                global _keep_reference
-                if _keep_reference is None:
-                    _keep_reference = QTextDrag("link was clicked")
-                return _keep_reference
         QTextBrowser.__init__(self,parent)
         self.setMinimumSize(400, 300)
         self.setCaption(caption) #bruce 051219 (fixes bug 1234)
         # make it pale yellow like a post-it note
         self.setText("<qt bgcolor=\"#FFFF80\">" + text)
-        self.mf = mf = MimeFactory()
-        mf.owner = self
-        self.setMimeSourceFactory(mf)
+        #self.mf = mf = MimeFactory()
+        #mf.owner = self
+        qt4todo('self.setMimeSourceFactory(mf)')
 
 def wiki_url_for_topic(topic, wikiprefix = None):
     wikiprefix = wikiprefix or "http://www.nanoengineer-1.net/mediawiki/index.php?title="
@@ -352,7 +288,7 @@ def __testWikiHelpBrowser():
     w.show()
     app.connect(app, SIGNAL("lastWindowClosed()"),
                 app, SLOT("quit()"))
-    app.exec_loop()
+    app.exec_()
 
 if __name__=="__main__":
     __testWikiHelpBrowser()

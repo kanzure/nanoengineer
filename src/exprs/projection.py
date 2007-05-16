@@ -1,7 +1,9 @@
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 projection.py - utilities loosely related to setting up the projection matrix
 
 $Id$
+
 """
 
 from basic import *

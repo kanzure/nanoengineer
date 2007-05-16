@@ -1,4 +1,4 @@
-# Copyright (c) 2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 '''
 SurfaceChunks.py -- define a new whole-chunk display mode,
 which uses Oleksandr's new code to display a chunk as a surface in the chunk's color.
@@ -19,7 +19,7 @@ import env
 from constants import ave_colors
 from constants import diTrueCPK
 from prefs_constants import atomHighlightColor_prefs_key
-from qt import QApplication, Qt, QCursor
+from PyQt4.Qt import QApplication, Qt, QCursor
 from HistoryWidget import redmsg, orangemsg, greenmsg
 
 _psurface_ok = False
@@ -556,6 +556,7 @@ class SurfaceChunks(ChunkDisplayMode):
 	    for i in range(len(spheres)):
 		st = spheres[i] / radius
 		rt = radiuses[i] / radius
+		# cspheres.append((st[0],st[1],st[2],rt,use_colors))
 		cspheres.append((st[0],st[1],st[2],rt,atoms[i]))
 	    #cspheres.append((-0.3,0,0,0.3,1))
 	    #cspheres.append((0.3,0,0,0.3,2))

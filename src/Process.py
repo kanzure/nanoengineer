@@ -1,4 +1,4 @@
-# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 '''
 Process.py
 
@@ -23,7 +23,7 @@ with uses of this class, if that would simplify them (but I'm not sure whether i
 
 __author__ = 'bruce'
 
-from qt import QProcess, QStringList, qApp, SIGNAL, QDir, QString
+from PyQt4.Qt import QProcess, QStringList, qApp, SIGNAL, QDir, QString
 import time
 
 def ensure_QStringList(args):
@@ -50,7 +50,7 @@ class Process(QProcess):
     stdout = stderr = None
     def __init__(self, *args):
         """Like QProcess.__init__, but the form with arguments might not be usable with a Python list.
-        (But see our setArguments method, which is overridden to accept one.)
+        
         """
         super.__init__(self, *args)
         # I don't know if we'd need to use these signals if we wanted to discard the data.
@@ -68,14 +68,15 @@ class Process(QProcess):
         bytes = self.readStderr() # QByteArray
         bytes = str(bytes) ###k
         self.got_stderr(bytes)
-    def setArguments(self, args): #k needed?
-        "Overrides QProcess.setArguments so it can accept a Python list as well as a QStringList."
-        args = ensure_QStringList(args)
-        super.setArguments(self, args)
-    def setWorkingDirectory(self, arg): # definitely needed
-        "Overrides QProcess.setWorkingDirectory so it can accept a Python string or QString as well as a QDir object."
-        arg = ensure_QDir(arg)
-        super.setWorkingDirectory(self, arg)
+    
+    ##def setArguments(self, args): #k needed?
+        ##"Overrides QProcess.setArguments so it can accept a Python list as well as a QStringList."
+        ##args = ensure_QStringList(args)
+        ##super.setArguments(self, args)
+    ##def setWorkingDirectory(self, arg): # definitely needed
+        ##"Overrides QProcess.setWorkingDirectory so it can accept a Python string or QString as well as a QDir object."
+        ##arg = ensure_QDir(arg)
+        ##super.setWorkingDirectory(self, arg)
     def set_stdout(self, stdout):
         """Cause stdout from this process to be written to the given file-like object
         (which must have write method, and whose flush method is also used if it exists).

@@ -1,8 +1,9 @@
-# Copyright (c) 2004-2007 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 chem.py -- class Atom, for single atoms, and related code
 
 $Id$
+
 
 History:
 
@@ -53,7 +54,7 @@ from shape import *
 
 from constants import *
 from bond_constants import V_SINGLE
-from qt import *
+from PyQt4.Qt import *
 from Utility import *
 from ChunkProp import * # Renamed MoleculeProp to ChunkProp.  Mark 050929
 from mdldata import marks, links, filler
@@ -1041,11 +1042,15 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             bond = self.strand_end_bond()
             if bond is not None:
                 direction = bond.bond_direction_from(self)
-                if direction == 1 and debug_pref("draw 5' ends as in-arrowheads?", Choice_boolean_True,
-                                                 prefs_key = True, non_debug = True):
+                #ninad070504: added the bond arrows preferences to Preferences dialog. 
+                #using this preference key instead of debug preference.
+                bool_arrowsOnFivePrimeEnds = env.prefs[arrowsOnFivePrimeEnds_prefs_key]
+                
+                bool_arrowsOnThreePrimeEnds = env.prefs[arrowsOnThreePrimeEnds_prefs_key]
+                
+                if direction == 1 and bool_arrowsOnFivePrimeEnds:
                     return 'arrowhead-in'
-                if direction == -1 and debug_pref("draw 3' ends as out-arrowheads?", Choice_boolean_True,
-                                                 prefs_key = True, non_debug = True):
+                if direction == -1 and bool_arrowsOnThreePrimeEnds:
                     return 'arrowhead-out'
                 #e REVIEW: does Bond.draw need to be updated due to this, if "draw bondpoints as stubs" is True?
                 #e REVIEW: Do we want to draw even an isolated Pe (with bondpoint) as a cone, in case it's in MMKit,
@@ -1131,8 +1136,16 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             # thus cone tip at pos + 3 * axis.
             # WARNING: this cone would obscure the wirespheres, except for special cases in self.draw_wirespheres().
             # If you make the cone bigger you might need to change that code too.
+
+            drawsphere(color, pos, drawrad, level) #KLUGE (harmless) to set color and also to verify cone encloses sphere
+            try:
+                from OpenGL.GLE import glePolyCone
+            except:
+                print "GLE module can't be imported. Now trying _GLE"
+                from OpenGL._GLE import glePolyCone
+
             drawsphere(color, pos, drawrad, 0) #KLUGE (harmless but slow) to set color and also to verify cone encloses sphere
-            from OpenGL.GLE import glePolyCone
+
             glePolyCone([pos - 2 * axis, pos - axis, pos + 3 * axis, pos + 4 * axis], # point array (2 end points not drawn)
                         None, # color array (None means use current color)
                         [drawrad * 2, drawrad * 2, 0, 0] # radius array
@@ -1286,7 +1299,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             #bruce 070409 bugfix (draw_atom_sphere); important if it's really a cone
         return
     
-    def draw_in_abs_coords(self, glpane, color): #bruce 050610
+
+    def draw_in_abs_coords(self, glpane, color, useSmallAtomRadius = False): #bruce 050610
         ###@@@ needs to be told whether or not to "draw as selatom"; now it does [i.e. it's misnamed]
         """Draw this atom in absolute (world) coordinates,
         using the specified color (ignoring the color it would naturally be drawn with).
@@ -1304,7 +1318,11 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         level = self.molecule.assy.drawLevel # this doesn't work if atom has been killed!
         pos = self.posn()
         ###@@@ remaining code might or might not be correct (issues: larger radius, display-mode independence)
-        drawrad = self.selatom_radius() # slightly larger than normal drawing radius
+        
+        if useSmallAtomRadius:
+                drawrad = self.selatom_small_radius()
+        else:
+                drawrad = self.selatom_radius() # slightly larger than normal drawing radius
         ## drawsphere(color, pos, drawrad, level)
         self.draw_atom_sphere(color, pos, drawrad, level, None, abs_coords = True)
             # always draw, regardless of display mode
@@ -1367,6 +1385,22 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 drawrad *= 1.7
             else:
                 drawrad *= 1.02
+        return drawrad
+
+
+    def selatom_small_radius(self, dispdef = None): #ninad070213 for chunk highlighting
+        if dispdef is None:
+            dispdef = self.molecule.get_dispdef()
+        disp, drawrad = self.howdraw(dispdef)
+        if self.element is Singlet:
+            drawrad *= 1.02
+                # increased radius might not be needed, if we would modify the
+                # OpenGL depth threshhold criterion used by GL_DEPTH_TEST
+                # to overwrite when depths are equal [bruce 041206]
+        else:
+            if disp == diTUBES:
+                    drawrad *= 1.0
+               
         return drawrad
         
     def setDisplay(self, disp):

@@ -1,3 +1,4 @@
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 Command_scratch_1.py
 
@@ -5,6 +6,7 @@ $Id$
 
 [061212 is the date of some small mods to make this parse -- probably it was mostly written
 then or a few days before, within demo_drag.py]
+
 
 070105 moved the pseudocode for Command & DragCommand class etc from demo_drag.py
 into this new file Command_scratch_1.py --

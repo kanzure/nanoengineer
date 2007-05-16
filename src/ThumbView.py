@@ -1,11 +1,11 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 '''
 ThumbView.py
 
 $Id$
 '''
 
-from qtgl import *
+from PyQt4.Qt import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from VQT import *
@@ -29,7 +29,8 @@ class ThumbView(QGLWidget):
         if shareWidget:
             self.shareWidget = shareWidget #bruce 051212
             format = shareWidget.format()
-            QGLWidget.__init__(self, format, parent, name, shareWidget)
+            # QGLWidget.__init__(self, format, parent, name, shareWidget)
+            QGLWidget.__init__(self, format, parent, shareWidget)
             if not self.isSharing():
                 print "Request of display list sharing is failed."
                 return
@@ -240,7 +241,7 @@ class ThumbView(QGLWidget):
         ## as current, otherwise, the first event will get wrong coordinates
         self.makeCurrent()
         
-        but = event.stateAfter()
+        buttons, modifiers = event.buttons(), event.modifiers()
         #print "Button pressed: ", but
 
         if 1:
@@ -249,26 +250,26 @@ class ThumbView(QGLWidget):
             main_assy = env.mainwindow().assy
             self.__begin_retval = undo_manager.external_begin_cmd_checkpoint(main_assy, cmdname = "(mmkit)")
         
-        if but & leftButton:
-            if but & shiftButton:
+        if buttons & Qt.LeftButton:
+            if modifiers & Qt.ShiftModifier:
                 pass#self.mode.leftShiftDown(event)
-            elif but & cntlButton:
+            elif modifiers & Qt.ControlModifier:
                 pass#self.mode.leftCntlDown(event)
             else:
                 self.leftDown(event)
 
-        if but & midButton:
-            if but & shiftButton:
+        if buttons & Qt.MidButton:
+            if modifiers & Qt.ShiftModifier:
                 pass#self.mode.middleShiftDown(event)
-            elif but & cntlButton:
+            elif modifiers & Qt.ControlModifier:
                 pass#self.mode.middleCntlDown(event)
             else:
                 self.middleDown(event)
 
-        if but & rightButton:
-            if but & shiftButton:
+        if buttons & Qt.RightButton:
+            if modifiers & Qt.ShiftModifier:
                 pass#self.mode.rightShiftDown(event)
-            elif but & cntlButton:
+            elif modifiers & Qt.ControlModifier:
                 pass#self.mode.rightCntlDown(event)
             else:
                 pass#self.rightDown(event)         
@@ -278,30 +279,30 @@ class ThumbView(QGLWidget):
     def mouseReleaseEvent(self, event):
         """Only used to detect the end of a freehand selection curve.
         """
-        but = event.state()
+        buttons, modifiers = event.buttons(), event.modifiers()
         
         #print "Button released: ", but
         
-        if but & leftButton:
-            if but & shiftButton:
+        if buttons & Qt.LeftButton:
+            if modifiers & Qt.ShiftModifier:
                 pass#self.leftShiftUp(event)
-            elif but & cntlButton:
+            elif modifiers & Qt.ControlModifier:
                 pass#self.leftCntlUp(event)
             else:
                 self.leftUp(event)
 
-        if but & midButton:
-            if but & shiftButton:
+        if buttons & Qt.MidButton:
+            if modifiers & Qt.ShiftModifier:
                 pass#self.mode.middleShiftUp(event)
-            elif but & cntlButton:
+            elif modifiers & Qt.ControlModifier:
                 pass#self.mode.middleCntlUp(event)
             else:
                 self.middleUp(event)
 
-        if but & rightButton:
-            if but & shiftButton:
+        if buttons & Qt.RightButton:
+            if modifiers & Qt.ShiftModifier:
                  pass#self.rightShiftUp(event)
-            elif but & cntlButton:
+            elif modifiers & Qt.ControlModifier:
                 pass#self.rightCntlUp(event)
             else:
                 pass#self.rightUp(event)
@@ -319,28 +320,28 @@ class ThumbView(QGLWidget):
         control key state.
         """
         ##self.debug_event(event, 'mouseMoveEvent')
-        but = event.state()
+        buttons, modifiers = event.buttons(), event.modifiers()
         
-        if but & leftButton:
-            if but & shiftButton:
+        if buttons & Qt.LeftButton:
+            if modifiers & Qt.ShiftModifier:
                 pass#self.leftShiftDrag(event)
-            elif but & cntlButton:
+            elif modifiers & Qt.ControlModifier:
                 pass#self.leftCntlDrag(event)
             else:
                 pass#self.leftDrag(event)
 
-        elif but & midButton:
-            if but & shiftButton:
+        elif buttons & Qt.MidButton:
+            if modifiers & Qt.ShiftModifier:
                 pass#self.middleShiftDrag(event)
-            elif but & cntlButton:
+            elif modifiers & Qt.ControlModifier:
                 pass#self.middleCntlDrag(event)
             else:
                 self.middleDrag(event)
 
-        elif but & rightButton:
-            if but & shiftButton:
+        elif buttons & Qt.RightButton:
+            if modifiers & Qt.ShiftModifier:
                 pass#self.rightShiftDrag(event)
-            elif but & cntlButton:
+            elif modifiers & Qt.ControlModifier:
                 pass#self.rightCntlDrag(event)
             else:
                 pass#self.rightDrag(event)
@@ -354,7 +355,7 @@ class ThumbView(QGLWidget):
 
 
     def wheelEvent(self, event):
-        but = event.state()
+        buttons, modifiers = event.buttons(), event.modifiers()
 
         # The following copies some code from basicMode.Wheel, but not yet the call of rescale_around_point,
         # since that is not implemented in this class; it ought to be made a method of a new common superclass
@@ -373,8 +374,8 @@ class ThumbView(QGLWidget):
         # into this class.
         
         dScale = 1.0/1200.0
-        if but & shiftButton: dScale *= 0.5
-        if but & cntlButton: dScale *= 2.0
+        if modifiers & Qt.ShiftModifier: dScale *= 0.5
+        if modifiers & Qt.ControlModifier: dScale *= 2.0
         self.scale *= 1.0 + dScale * event.delta()
             ##: The scale variable needs to set a limit, otherwise, it will set self.near = self.far = 0.0
             ##  because of machine precision, which will cause OpenGL Error. Huaicai 10/18/04
@@ -763,6 +764,9 @@ class MMKitView(ThumbView):
             self.hotspotAtom = obj
             self.updateGL()
 
+    def gl_update(self): #bruce 070502 bugfix (can be called when ESPImage jigs appear in a partlib part)
+        self.updateGL() #k guess at correct/safe thing to do
+        return
 
     def updateModel(self, newObj):
         '''Set new chunk or assembly for display'''

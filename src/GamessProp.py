@@ -1,4 +1,4 @@
-# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 '''
 GamessProp.py
 
@@ -14,6 +14,7 @@ bruce 050913 used env.history in some places.
 __author__ = "Mark"
 
 import env
+from qt4transition import qt4todo
 # many more imports lower down
 
 
@@ -219,16 +220,17 @@ gbasis='AM1 NGAUSS=0 NDFUNC=0 NPFUNC=0 NFFUNC=0 DIFFSP=.F. DIFFS=.F.', \
     'N311 NGAUSS=6 NDFUNC=1 NPFUNC=0 NFFUNC=0 DIFFSP=.T. DIFFS=.T.', \
     'N311 NGAUSS=6 NDFUNC=1 NPFUNC=1 NFFUNC=0 DIFFSP=.T. DIFFS=.T.'
 
-from qt import *
+from PyQt4.Qt import *
 import sys, os, time
 from GamessPropDialog import *
 from ServerManager import ServerManager
 from HistoryWidget import redmsg
 from files_gms import insertgms
 from debug import print_compact_traceback
-from widgets import RGBf_to_QColor, QColor_to_RGBf
+from widgets import RGBf_to_QColor, QColor_to_RGBf, get_widget_with_color_palette
+
         
-class GamessProp(GamessPropDialog):
+class GamessProp(QDialog, Ui_GamessPropDialog):
     '''The Gamess Jig Properties dialog used for:
     - running a GAMESS energy calculation on a structure (group of atoms).
     - running a GAMESS optimization on a structure.
@@ -236,39 +238,73 @@ class GamessProp(GamessPropDialog):
     '''
        
     def __init__(self):
-        GamessPropDialog.__init__(self, modal=True)
+        QDialog.__init__(self)
+        self.setModal(True)
+        self.setupUi(self)
+        
+        self.ecm_btngrp = QButtonGroup()
+        self.ecm_btngrp.setExclusive(True)
+        objId = 0
+        for obj in self.ecm_grpbox.children():
+            if isinstance(obj, QAbstractButton):
+                self.ecm_btngrp.addButton(obj)
+                self.ecm_btngrp.setId(obj, objId)
+                objId +=1  
+        
+        self.scftyp_btngrp = QButtonGroup()
+        self.scftyp_btngrp.setExclusive(True)
+        objId = 0
+        for obj in self.scftyp_grpbox.children():
+            if isinstance(obj, QAbstractButton):
+                self.scftyp_btngrp.addButton(obj)
+                self.scftyp_btngrp.setId(obj, objId)
+                objId +=1 
+                
+        self.connect(self.cancel_btn,SIGNAL("clicked()"),self.reject)
+        self.connect(self.ecm_btngrp,SIGNAL("buttonPressed(int)"),self.set_ecmethod)
+        self.connect(self.multi_combox,SIGNAL("activated(int)"),self.set_multiplicity)
+        self.connect(self.run_job_btn,SIGNAL("clicked()"),self.run_job)
+        self.connect(self.save_btn,SIGNAL("clicked()"),self.accept)
+        self.connect(self.runtyp_combox,SIGNAL("activated(int)"),self.calculate_changed)
+        self.connect(self.choose_color_btn,SIGNAL("clicked()"),self.change_jig_color)
+        self.connect(self.whats_this_btn,SIGNAL("clicked()"),self.whats_this)
+        ##self.connect(self.new_btn,SIGNAL("clicked()"),self.addServer)
+        ##self.connect(self.exit_btn,SIGNAL("clicked()"),self.close)
+        ##self.connect(self.server_listview,SIGNAL("currentChanged(QListViewItem*)"),self.changeServer)
+        ##self.connect(self.engine_combox,SIGNAL("activated(const QString&)"),self.engineChanged)
+        ##self.connect(self.del_btn,SIGNAL("clicked()"),self.deleteServer)
         self.sManager = ServerManager()
         self.servers = self.sManager.getServers()
         self.server = self.servers[0]
         
-        QWhatsThis.add(self.name_linedit, """Name of the GAMESS jig.""")
-        QWhatsThis.add(self.runtyp_combox, """Type of calculation, where "Energy" calculates the Energy Minima,and "Optimization" calculates the "Equilibrium Geometry".""")
-        QWhatsThis.add(self.comment_linedit, """Description, also placed in the comment line of the $DATA section of the INP file.""")
-        QWhatsThis.add(self.choose_color_btn, """Change the GAMESS jig color.""")
-        QWhatsThis.add(self.rhf_radiobtn, """Restricted Hartree-Fock.  All electrons are paired and each spatial orbital is doubly occupied.  Cannot be used with multiplicities greater than 1.""")
-        QWhatsThis.add(self.uhf_radiobtn, """Unrestricted Hartree-Fock.  All electrons are unpaired and spatial (spin) orbitals are uniquely defined for each electron.  More time consuming, but more accurate, than ROHF.  """)
-        QWhatsThis.add(self.rohf_radiobtn, """Restricted Open-shell Hartree-Fock.  Spin-paired electrons are assigned to doubly-occupied spatial orbitals, while electrons with unpaired spins are provided unique spatial orbitals.""")
-        QWhatsThis.add(self.icharg_spinbox, """The total charge of the structure to be treated quantum mechanically (ICHARG).""")
-        QWhatsThis.add(self.multi_combox, """N + 1, where N is the number of unpaired electrons (MULT).""")
-        QWhatsThis.add(self.memory_spinbox, """System memory reserved for calculation""")
-        QWhatsThis.add(self.dirscf_checkbox, """Check this box to run the calculation in RAM and avoid hard disk usage for integral storage.""")
-        QWhatsThis.add(self.gbasis_combox, """Select from among the standard Gaussian-type basis sets and semi-empirical parameters in GAMESS.""")
-        QWhatsThis.add(self.checkBox10_3_2, """Reads the $HESS group from the output file of a previous GAMESS calculation.  Only valid for identical molecules.""")
-        QWhatsThis.add(self.checkBox10_2_2_2, """Reads the $VEC group from the output of a previous GAMESS calculation. Requires that both the molecule and basis set be identical.  Useful for restarted calculations and starting orbitals for electron correlation methods.""")
-        QWhatsThis.add(self.none_radiobtn, """Select this button to neglect electron correlation in the calculation.""")
-        QWhatsThis.add(self.dft_radiobtn, """Select this button to perform a density functional theory calculation.""")
-        QWhatsThis.add(self.mp2_radiobtn, """Select this button to perform a Second-Order Moeller Plesset calculation.""")
-        QWhatsThis.add(self.dfttyp_combox, """Select an available density functional in GAMESS.""")
-        QWhatsThis.add(self.gridsize_combox, """Select the grid spacing for the DFT calculation.""")
-        QWhatsThis.add(self.core_electrons_checkbox, """Check this box to include both the valence and core electrons in the MP2 calculation.""")
-        QWhatsThis.add(self.density_conv_combox, """Selects the accuracy of the electron density convergence for the calculation (CONV).""")
-        QWhatsThis.add(self.rmsd_combox, """Gradient convergence tolerance (OPTTOL), in Hartree/Bohr. Convergence of a geometry search requires the largest component of the gradient to be less than this value, and the root mean square gradient less than 1/3 of OPTTOL.  (default=0.0001)""")
-        QWhatsThis.add(self.iterations_spinbox, """Maximum number of SCF iteration cycles (MAXIT).""")
-        QWhatsThis.add(self.edit_input_file_cbox, """Opens the INP file generated by NanoEngineer-1 in a text editor.""")
-        QWhatsThis.add(self.whats_this_btn, """What's This Help Utility""")
-        QWhatsThis.add(self.run_job_btn, """Save GAMESS parameters, generates the INP file and launches the GAMESS job.""")
-        QWhatsThis.add(self.save_btn, """Save GAMESS parameters and generates the INP file.  It does not launch the GAMESS job.""")
-        QWhatsThis.add(self.cancel_btn, """Cancels changes and closes dialog.""")
+        self.name_linedit.setWhatsThis("""Name of the GAMESS jig.""")
+        self.runtyp_combox.setWhatsThis("""Type of calculation, where "Energy" calculates the Energy Minima,and "Optimization" calculates the "Equilibrium Geometry".""")
+        self.comment_linedit.setWhatsThis("""Description, also placed in the comment line of the $DATA section of the INP file.""")
+        self.choose_color_btn.setWhatsThis("""Change the GAMESS jig color.""")
+        self.rhf_radiobtn.setWhatsThis("""Restricted Hartree-Fock.  All electrons are paired and each spatial orbital is doubly occupied.  Cannot be used with multiplicities greater than 1.""")
+        self.uhf_radiobtn.setWhatsThis("""Unrestricted Hartree-Fock.  All electrons are unpaired and spatial (spin) orbitals are uniquely defined for each electron.  More time consuming, but more accurate, than ROHF.  """)
+        self.rohf_radiobtn.setWhatsThis("""Restricted Open-shell Hartree-Fock.  Spin-paired electrons are assigned to doubly-occupied spatial orbitals, while electrons with unpaired spins are provided unique spatial orbitals.""")
+        self.icharg_spinbox.setWhatsThis("""The total charge of the structure to be treated quantum mechanically (ICHARG).""")
+        self.multi_combox.setWhatsThis("""N + 1, where N is the number of unpaired electrons (MULT).""")
+        self.memory_spinbox.setWhatsThis("""System memory reserved for calculation""")
+        self.dirscf_checkbox.setWhatsThis("""Check this box to run the calculation in RAM and avoid hard disk usage for integral storage.""")
+        self.gbasis_combox.setWhatsThis("""Select from among the standard Gaussian-type basis sets and semi-empirical parameters in GAMESS.""")
+        self.checkBox10_3_2.setWhatsThis("""Reads the $HESS group from the output file of a previous GAMESS calculation.  Only valid for identical molecules.""")
+        self.checkBox10_2_2_2.setWhatsThis("""Reads the $VEC group from the output of a previous GAMESS calculation. Requires that both the molecule and basis set be identical.  Useful for restarted calculations and starting orbitals for electron correlation methods.""")
+        self.none_radiobtn.setWhatsThis("""Select this button to neglect electron correlation in the calculation.""")
+        self.dft_radiobtn.setWhatsThis("""Select this button to perform a density functional theory calculation.""")
+        self.mp2_radiobtn.setWhatsThis("""Select this button to perform a Second-Order Moeller Plesset calculation.""")
+        self.dfttyp_combox.setWhatsThis("""Select an available density functional in GAMESS.""")
+        self.gridsize_combox.setWhatsThis("""Select the grid spacing for the DFT calculation.""")
+        self.core_electrons_checkbox.setWhatsThis("""Check this box to include both the valence and core electrons in the MP2 calculation.""")
+        self.density_conv_combox.setWhatsThis("""Selects the accuracy of the electron density convergence for the calculation (CONV).""")
+        self.rmsd_combox.setWhatsThis("""Gradient convergence tolerance (OPTTOL), in Hartree/Bohr. Convergence of a geometry search requires the largest component of the gradient to be less than this value, and the root mean square gradient less than 1/3 of OPTTOL.  (default=0.0001)""")
+        self.iterations_spinbox.setWhatsThis("""Maximum number of SCF iteration cycles (MAXIT).""")
+        self.edit_input_file_cbox.setWhatsThis("""Opens the INP file generated by NanoEngineer-1 in a text editor.""")
+        self.whats_this_btn.setWhatsThis("""What's This Help Utility""")
+        self.run_job_btn.setWhatsThis("""Save GAMESS parameters, generates the INP file and launches the GAMESS job.""")
+        self.save_btn.setWhatsThis("""Save GAMESS parameters and generates the INP file.  It does not launch the GAMESS job.""")
+        self.cancel_btn.setWhatsThis("""Cancels changes and closes dialog.""")
         
     def showDialog(self, job):
         '''Display the GAMESS Jig Properties dialog'''
@@ -279,7 +315,7 @@ class GamessProp(GamessPropDialog):
         self.glpane = self.gamessJig.assy.o
         
         if self._setup(): return
-        self.exec_loop()
+        self.exec_()
 
 
     ######Private or helper methods###############################
@@ -298,18 +334,20 @@ class GamessProp(GamessPropDialog):
         # Jig color
         self.original_normcolor = self.gamessJig.normcolor 
         self.jig_QColor = RGBf_to_QColor(self.gamessJig.normcolor) # Used as default color by Color Chooser
-        self.jig_color_pixmap.setPaletteBackgroundColor(self.jig_QColor)
+        self.jig_color_pixmap = get_widget_with_color_palette(
+		self.jig_color_pixmap, self.jig_QColor)
         
         # Init the top widgets (name, runtyp drop box, comment)
         self.name_linedit.setText(self.gamessJig.name)
-        self.runtyp_combox.setCurrentItem(self.pset.ui.runtyp) # RUNTYP
+        self.runtyp_combox.setCurrentIndex(self.pset.ui.runtyp) # RUNTYP
         self.calculate_changed(self.pset.ui.runtyp)
         self.comment_linedit.setText(self.pset.ui.comment)
         
         # Electronic Structure Properties section.
-        self.scftyp_btngrp.setButton(self.pset.ui.scftyp) # RHF, UHF, or ROHF
+        btn = self.scftyp_btngrp.button(self.pset.ui.scftyp)# RHF, UHF, or ROHF
+        btn.setChecked(True)
         self.icharg_spinbox.setValue(self.pset.ui.icharg) # Charge
-        self.multi_combox.setCurrentItem(self.pset.ui.mult) # Multiplicity
+        self.multi_combox.setCurrentIndex(self.pset.ui.mult) # Multiplicity
         # Disable RHF if multiplicity is not the first item.
         if self.pset.ui.mult == 0:
             self.rhf_radiobtn.setEnabled(1) # Enable RHF
@@ -322,19 +360,20 @@ class GamessProp(GamessPropDialog):
         
         # Electron Correlation Method and Basis Set
         ecm = self.pset.ui.ecm
-        self.ecm_btngrp.setButton(self.pset.ui.ecm) # None, DFT or MP2
+        btn = self.ecm_btngrp.button(self.pset.ui.ecm)# None, DFT or MP2
+        btn.setChecked(True)
         self.set_ecmethod(self.pset.ui.ecm) # None, DFT or MP2
-        self.gbasis_combox.setCurrentItem(self.pset.ui.gbasis) # Basis set
+        self.gbasis_combox.setCurrentIndex(self.pset.ui.gbasis) # Basis set
         
         # Load the combo box with all the valid DFT functions.  
         self._load_dfttyp_combox()
-        self.dfttyp_combox.setCurrentItem(self.pset.ui.dfttyp) # DFT Functional
-        self.gridsize_combox.setCurrentItem(self.pset.ui.gridsize) # Grid Size
+        self.dfttyp_combox.setCurrentIndex(self.pset.ui.dfttyp) # DFT Functional
+        self.gridsize_combox.setCurrentIndex(self.pset.ui.gridsize) # Grid Size
         self.core_electrons_checkbox.setChecked(self.pset.ui.ncore) # Include core electrons
             
         # Convergence Criteria
-        self.density_conv_combox.setCurrentItem(self.pset.ui.conv) # Density Convergence
-        self.rmsd_combox.setCurrentItem(self.pset.ui.rmsdconv) # RMSD Convergence
+        self.density_conv_combox.setCurrentIndex(self.pset.ui.conv) # Density Convergence
+        self.rmsd_combox.setCurrentIndex(self.pset.ui.rmsdconv) # RMSD Convergence
         self.iterations_spinbox.setValue(self.pset.ui.iterations) # Iterations
 
 # These have been removed per discussions with Damian.
@@ -356,67 +395,71 @@ class GamessProp(GamessPropDialog):
         """ Load the server combo box"""
         self.server_combox.clear()
         for s in self.servers:
-            self.server_combox.insertItem(s.hostname + "-" + s.engine)
+            self.server_combox.insertItem(100, s.hostname + "-" + s.engine)
+            # 100 makes sure item is appended to list. [mark 2007-05-04]
         if self.server not in self.servers:
             self.server = self.servers[0]
         indx = self.servers.index(self.server)
-        self.server_combox.setCurrentItem(indx)    
+        self.server_combox.setCurrentIndex(indx)    
 
     def _load_dfttyp_combox(self):
         '''Load list of DFT function in a combobox widget'''
         self.dfttyp_combox.clear() # Clear all combo box items
         if self.server.engine == 'GAMESS':
             for f in gms_dfttyp_items:
-                self.dfttyp_combox.insertItem(f)
+                self.dfttyp_combox.insertItem(100, f)
+                # 100 makes sure item is appended to list. [mark 2007-05-04]
         elif self.server.engine == 'PC GAMESS':
             for f in pcgms_dfttyp_items:
-                self.dfttyp_combox.insertItem(f)
+                self.dfttyp_combox.insertItem(100, f)
+                # 100 makes sure item is appended to list. [mark 2007-05-04]
         else:
             print "load_dfttyp_combox: Unknown GAMESS Version.  Loading GAMES DFT functionals."
             for f in gms_dfttyp_items:
-                self.dfttyp_combox.insertItem(f)
+                self.dfttyp_combox.insertItem(100, f)
+                # 100 makes sure item is appended to list. [mark 2007-05-04]
 
     def _update_gbasis_list(self, val):
         '''Add/remove AM1 and PM3 to/from the gbasis list. '''
-        citem = self.gbasis_combox.currentItem()
+        citem = self.gbasis_combox.currentIndex()
         if val == DFT or val == MP2:
             if self.gbasis_combox.count() == 18:
                 self.gbasis_combox.removeItem(0)
                 self.gbasis_combox.removeItem(0)
-                self.gbasis_combox.setCurrentItem(max(0, citem-2))
+                self.gbasis_combox.setCurrentIndex(max(0, citem-2))
         else:
             if self.gbasis_combox.count() != 18:
-                self.gbasis_combox.insertItem("PM3",0)
-                self.gbasis_combox.insertItem("AM1",0)
-                self.gbasis_combox.setCurrentItem(citem+2)
+                self.gbasis_combox.insertItem(0,"PM3") # 0 prepends item to list.
+                self.gbasis_combox.insertItem(0,"AM1")
+                self.gbasis_combox.setCurrentIndex(citem+2)
 
     def _save_ui_settings(self):
         '''Save the UI settings in the Gamess jig pset.  There is one setting for each pset.
         '''
         self.pset.ui.comment = str(self.comment_linedit.text()) # Description
-        self.pset.ui.runtyp = self.runtyp_combox.currentItem() # RUNTYP = Energy or Optimize
+        self.pset.ui.runtyp = self.runtyp_combox.currentIndex() # RUNTYP = Energy or Optimize
         
         # Electronic Structure Props and Basis Set section.
-        self.pset.ui.scftyp = self.scftyp_btngrp.selectedId() # SCFTYP = RHF, UHF, or ROHF
+        self.pset.ui.scftyp = self.scftyp_btngrp.checkedId() # SCFTYP = RHF, UHF, or ROHF
         self.pset.ui.icharg = self.icharg_spinbox.value() # Charge
-        self.pset.ui.mult = self.multi_combox.currentItem() # Multiplicity
+        self.pset.ui.mult = self.multi_combox.currentIndex() # Multiplicity
         
         # System Memory and Usage
         self.pset.ui.memory = self.memory_spinbox.value() # Memory
         self.pset.ui.dirscf = self.dirscf_checkbox.isChecked() # DIRSCF
         
         # Electron Correlation Method
-        self.pset.ui.ecm = self.ecm_btngrp.selectedId() # None, DFT or MP2
+        self.pset.ui.ecm = self.ecm_btngrp.checkedId() # None, DFT or MP2
         #self.pset.ui.inttyp = self.ecm_btngrp.selectedId() # INTTYP
-        self.pset.ui.gbasis = self.gbasis_combox.currentItem() # Basis Set
+        self.pset.ui.gbasis = self.gbasis_combox.currentIndex() # Basis Set
         self.pset.ui.gbasisname = str(self.gbasis_combox.currentText())
-        self.pset.ui.dfttyp = self.dfttyp_combox.currentItem() # DFT Functional Type
-        self.pset.ui.gridsize = self.gridsize_combox.currentItem() # Grid Size
+        self.pset.ui.dfttyp = self.dfttyp_combox.currentIndex() # DFT Functional Type
+        self.pset.ui.gridsize = self.gridsize_combox.currentIndex() # Grid Size
         self.pset.ui.ncore = self.core_electrons_checkbox.isChecked() # Include core electrons
         
         # Convergence Criteria
-        self.pset.ui.conv = self.density_conv_combox.currentItem() # Density Convergence
-        self.pset.ui.rmsdconv = self.rmsd_combox.currentItem() # RMSD Convergence
+        self.pset.ui.conv = self.density_conv_combox.currentIndex() # Density Convergence
+        self.pset.ui.rmsdconv = self.rmsd_combox.currentIndex() # RMSD Convergence
         self.pset.ui.iterations = self.iterations_spinbox.value() # Iterations
         
 #        self.pset.ui.extrap = self.extrap_checkbox.isChecked() # EXTRAP
@@ -484,9 +527,10 @@ class GamessProp(GamessPropDialog):
         '''Enable/disable widgets when user changes Multiplicity.
         '''
         if val != 0:
-            if scftyp[self.scftyp_btngrp.selectedId()] != 'RHF':
-                self.rhf_radiobtn.setEnabled(0)
-                return
+            qt4todo("if scftyp[self.scftyp_btngrp.selectedId()] != 'RHF':")
+            #if scftyp[self.scftyp_btngrp.selectedId()] != 'RHF':
+            #    self.rhf_radiobtn.setEnabled(0)
+            #    return
             
             ret = QMessageBox.warning( self, "Multiplicity Conflict",
                 "If Multiplicity is greater than 1, then <b>UHF</b> or <b>ROHF</b> must be selected.\n"
@@ -503,7 +547,7 @@ class GamessProp(GamessPropDialog):
                 self.rhf_radiobtn.setEnabled(0)
             
             elif ret==2: # Cancel
-                self.multi_combox.setCurrentItem(0)
+                self.multi_combox.setCurrentIndex(0)
         
         elif val == 0:
             self.rhf_radiobtn.setEnabled(1)
@@ -511,7 +555,7 @@ class GamessProp(GamessPropDialog):
     def set_ecmethod(self, val):
         '''Enable/disable widgets when user changes Electron Correlation Method.
         '''
-#        print "set_ecmethod = ", val
+        #print "set_ecmethod = ", val
         if val == DFT:
             self.dfttyp_label.setEnabled(1)
             self.dfttyp_combox.setEnabled(1)
@@ -598,11 +642,13 @@ class GamessProp(GamessPropDialog):
 
     def change_jig_color(self):
         '''Slot method to change the jig's color.'''
-        color = QColorDialog.getColor(self.jig_QColor, self, "ColorDialog")
+        color = QColorDialog.getColor(self.jig_QColor, self)
 
         if color.isValid():
-            self.jig_color_pixmap.setPaletteBackgroundColor(color)
             self.jig_QColor = color
+            self.jig_color_pixmap = get_widget_with_color_palette(
+		self.jig_color_pixmap, self.jig_QColor)
+            
             self.gamessJig.color = self.gamessJig.normcolor = QColor_to_RGBf(color)
             self.glpane.gl_update()
                                 
@@ -625,5 +671,5 @@ class GamessProp(GamessPropDialog):
         self.glpane.gl_update()
         
     def whats_this(self):
-        from qt import QWhatsThis
+        from PyQt4.Qt import QWhatsThis, QDialog
         QWhatsThis.enterWhatsThisMode()

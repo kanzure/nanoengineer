@@ -1,5 +1,5 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
-'''
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+"""
 MWsemantics.py provides the main window class, MWsemantics.
 
 $Id$
@@ -15,13 +15,12 @@ mark 060120 split out viewSlotsMixin
 [Much more splitup of this file is needed. Ideally we would
 split up the class MWsemantics (as for cookieMode), not just the file.]
 
-bruce 050913 used env.history in some places; also officially
-deprecated any remaining uses of win.history, and print a console
-warning whenever they occur.
-'''
+[some of that splitup has been done, now, by Ninad in the Qt4 branch]
+"""
 
-from qt import QWidget, QFrame, SIGNAL, QFileDialog
-from qt import QCursor, QBitmap, QWMatrix, QLabel, QSplitter, QMessageBox, QString, QColorDialog, QColor
+from PyQt4.Qt import QMainWindow, QFrame, SIGNAL, QFileDialog
+from PyQt4.Qt import QCursor, QBitmap, QLabel, QSplitter, QMessageBox, QString, QColorDialog, QColor
+from PyQt4 import QtCore
 from GLPane import GLPane 
 from assembly import assembly 
 from drawer import get_gl_info_string ## grantham 20051201
@@ -30,6 +29,8 @@ import help
 from math import ceil
 from modelTree import modelTree 
 import platform
+from qt4transition import *
+from Utility import geticon
 
 from constants import *
 from elementColors import elementColors 
@@ -37,6 +38,9 @@ from elementSelector import elementSelector
 from MMKit import MMKit
 from fileIO import * # this might be needed for some of the many other modules it imports; who knows? [bruce 050418 comment]
 from Sponsors import PermissionDialog
+from debug_prefs import debug_pref, Choice_boolean_False
+
+from ViewOrientationWindow import ViewOrientationWindow # Ninad 061121
 
 # most of the file format imports are probably no longer needed; I'm removing some of them
 # (but we need to check for imports of them from here by other modules) [bruce 050907]
@@ -46,7 +50,7 @@ from files_mmp import readmmp, insertmmp
 
 from debug import print_compact_traceback
 
-from MainWindowUI import MainWindow
+from MainWindowUI import Ui_MainWindow
 from HistoryWidget import greenmsg, redmsg
 
 from movieMode import movieDashboardSlotsMixin
@@ -62,6 +66,7 @@ elementColorsWin = None
 MMKitWin = None
 windowList = []
 
+
 eCCBtab1 = [1,2, 5,6,7,8,9,10, 13,14,15,16,17,18, 32,33,34,35,36, 51,52,53,54]
 
 eCCBtab2 = {}
@@ -70,7 +75,171 @@ for i,elno in zip(range(len(eCCBtab1)), eCCBtab1):
 
 recentfiles_use_QSettings = True #bruce 050919 debug flag (replacing use of __debug__) ###@@@
 
-class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, MainWindow):
+########################################################################
+
+class PartWindow(QWidget):
+    def __init__(self, assy, parent):
+        QWidget.__init__(self, parent)
+        self.parent = parent
+        self.setWindowTitle("My Part Window")
+        self.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
+	
+        _layout = QtGui.QHBoxLayout(self)
+        layout = QSplitter(Qt.Horizontal)
+        layout.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        _layout.addWidget(layout)
+
+        #########################
+
+        holder = QWidget(parent)
+        holder.setMinimumWidth(230)
+	holder.setMaximumWidth(230)
+        sublayout = QVBoxLayout(holder)
+        sublayout.setMargin(0)
+        sublayout.setSpacing(0)
+        
+	layout.addWidget(holder)
+	
+        ###
+
+        self.featureManager = QtGui.QTabWidget()
+        self.featureManager.setCurrentIndex(0)
+	self.featureManager.setAutoFillBackground(True)	
+	
+	from widgets import RGBf_to_QColor
+		
+	palette = QtGui.QPalette()
+	#bgrole(10) is 'Window'
+        palette.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(10),QtGui.QColor(230,231,230))
+	##following won't give a gradient background ( we set it for glpane using paintGL.) . Need to make backgrounds of glpane and 
+	## feature manager identical. 
+	##palette.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(10), RGBf_to_QColor(self.glpane.backgroundColor))
+	self.featureManager.setPalette(palette)
+	
+	#self.featureManager.setMinimumSize(0,0)
+        self.featureManager.setMinimumWidth(230)
+	self.featureManager.setMaximumWidth(230)
+	#ninad 070102 Setting the size policy as 'Ignored' makes the default MT widget width to 0
+	#so commenting out the following for now
+	
+	#self.featureManager.setSizePolicy(QSizePolicy.Ignored,QSizePolicy.Ignored)
+					
+        self.modelTreeTab = QtGui.QWidget()
+        self.featureManager.addTab(self.modelTreeTab,geticon("ui/modeltree/Model_Tree"), "") 
+	
+        modelTreeTabLayout = QtGui.QVBoxLayout(self.modelTreeTab)
+        modelTreeTabLayout.setMargin(0)
+        modelTreeTabLayout.setSpacing(0)
+			
+        self.propertyManagerTab = QtGui.QWidget()
+	
+	self.propertyManagerScrollArea = QtGui.QScrollArea(self.featureManager)
+	#self.propertyManagerScrollArea.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+	self.propertyManagerScrollArea.setAlignment(Qt.AlignHCenter)
+	self.propertyManagerScrollArea.setWidget(self.propertyManagerTab) 	
+		
+	self.featureManager.addTab(self.propertyManagerScrollArea, geticon("ui/modeltree/Property_Manager"), "")       
+        sublayout.addWidget(self.featureManager)
+
+        ###
+
+        self.modelTree = modelTree(self.modelTreeTab, parent)
+        modelTreeTabLayout.addWidget(self.modelTree.modelTreeGui)
+
+	vlayout = QSplitter(Qt.Vertical, layout)
+        self.glpane = GLPane(assy, self, 'glpane name', parent)		    	
+	qt4warnDestruction(self.glpane, 'GLPane of PartWindow')
+        vlayout.addWidget(self.glpane)
+	
+		
+	from HistoryWidget import HistoryWidget
+	
+        histfile = platform.make_history_filename() #@@@ ninad 061213 This is likely a new bug for multipane concept 
+	#as each file in a session will have its own history widget
+	qt4todo('histfile = platform.make_history_filename()')
+	
+        #bruce 050913 renamed self.history to self.history_object, and deprecated direct access
+        # to self.history; code should use env.history to emit messages, self.history_widget
+        # to see the history widget, or self.history_object to see its owning object per se
+        # rather than as a place to emit messages (this is rarely needed).
+        self.history_object = HistoryWidget(self, filename = histfile, mkdirs = 1)
+            # this is not a Qt widget, but its owner;
+            # use self.history_widget for Qt calls that need the widget itself.
+        self.history_widget = self.history_object.widget
+	self.history_widget.setSizePolicy(QSizePolicy.Ignored,QSizePolicy.Ignored)
+	
+            #bruce 050913, in case future code splits history widget (as main window subwidget)
+            # from history message recipient (the global object env.history).
+        
+        env.history = self.history_object #bruce 050727, revised 050913
+	
+	vlayout.addWidget(self.history_widget)
+	
+	layout.addWidget(vlayout)
+
+    def setRowCol(self, row, col):
+        self.row, self.col = row, col
+	
+    def updatePropertyManagerTab(self, tab): #Ninad 061207
+	"Update the Properties Manager tab with 'tab' "
+	
+	if self.propertyManagerScrollArea.widget():
+	    #The following is necessary to get rid of those c object deleted errors (and the resulting bugs)
+	    lastwidgetobject = self.propertyManagerScrollArea.takeWidget()  
+	    lastwidgetobject.hide() # @ ninad 061212 perhaps hiding the widget is not needed
+	       
+	self.featureManager.removeTab(self.featureManager.indexOf(self.propertyManagerScrollArea))
+
+	
+	#Set the PropertyManager tab scroll area to the appropriate widget .at
+	self.propertyManagerScrollArea.setWidget(tab)
+		
+	self.featureManager.addTab(self.propertyManagerScrollArea, 
+				   geticon("ui/modeltree/Property_Manager"), "")
+				   
+	self.featureManager.setCurrentIndex(self.featureManager.indexOf(self.propertyManagerScrollArea))
+	
+
+    def dismiss(self):
+        self.parent.removePartWindow(self)
+
+class GridPosition:
+    def __init__(self):
+        self.row, self.col = 0, 0
+        self.availableSlots = [ ]
+        self.takenSlots = { }
+
+    def next(self, widget):
+        if len(self.availableSlots) > 0:
+            row, col = self.availableSlots.pop(0)
+        else:
+            row, col = self.row, self.col
+            if row == col:
+                # when on the diagonal, start a new self.column
+                self.row = 0
+                self.col = col + 1
+            elif row < col:
+                # continue moving down the right edge until we're about
+                # to hit the diagonal, then start a new bottom self.row
+                if row == col - 1:
+                    self.row = row + 1
+                    self.col = 0
+                else:
+                    self.row = row + 1
+            else:
+                # move right along the bottom edge til you hit the diagonal
+                self.col = col + 1
+        self.takenSlots[widget] = (row, col)
+        return row, col
+
+    def removeWidget(self, widget):
+        rc = self.takenSlots[widget]
+        self.availableSlots.append(rc)
+        del self.takenSlots[widget]
+
+########################################################################
+
+class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Ui_MainWindow):
     "The single Main Window object."
 
     #bruce 050413 split out movieDashboardSlotsMixin, which needs to come before MainWindow
@@ -82,16 +251,302 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
     _ok_to_autosave_geometry_changes = False #bruce 051218
 
     # This determines the location of "Open Recent Files" menu item in the File Menu. Mark 060807.
-    RECENT_FILES_MENU_INDEX = 1 
+    RECENT_FILES_MENU_ITEM = None
 
     def __init__(self, parent = None, name = None):
     
         global windowList
-        
+        self._activepw = None
+	
+        self.orientationWindow = None
+		
         undo.just_before_mainwindow_super_init()
+
+        qt4warning('MainWindow.__init__(self, parent, name, Qt.WDestructiveClose) - what is destructive close?')
+        QMainWindow.__init__(self, parent)
+        self.DefaultSelAction = QAction(self)
+        self.LassoSelAction = QAction(self)
+        self.RectCornerSelAction = QAction(self)
+        self.RectCtrSelAction = QAction(self)
+        self.SquareSelAction = QAction(self)
+        self.TriangleSelAction = QAction(self)
+        self.DiamondSelAction = QAction(self)
+        self.CircleSelAction = QAction(self)
+        self.HexagonSelAction = QAction(self)
+
+                	
+        self.setViewPerspecAction = QAction(self)
+	self.setViewPerspecAction.setText(QtGui.QApplication.translate("MainWindow", "Perspective",
+                                                  None, QtGui.QApplication.UnicodeUTF8))
+	
+        self.setViewOrthoAction = QAction(self)
+	self.setViewOrthoAction.setText(QtGui.QApplication.translate("MainWindow", "Orthographic",
+                                                  None, QtGui.QApplication.UnicodeUTF8))
+	
+
+        self.toolsSelectAtomsAction = QAction(self)
+        self.simMoviePlayerAction = QAction(self)
+        self.setupUi(self)	 
+	
+	#hide these toolbars by default @@@ ninad070330. 
+        #This(display and position of toolbars) needs to be a preference sooner. 
+	self.buildStructuresToolBar.hide()
+	self.buildToolsToolBar.hide()
+	self.selectToolBar.hide()
+	self.simulationToolBar.hide()
+	
+                       
+
+        self.MoveOptionsGroup = QActionGroup(self)
+        self.MoveOptionsGroup.setObjectName("MoveOptionsGroup")
+	self.MoveOptionsGroup.setExclusive(True)
+	
+	self.moveFreeAction = QAction(self.MoveOptionsGroup)
+        self.moveFreeAction.setObjectName("moveFreeAction")
+        self.moveFreeAction.setCheckable(True)
+	self.moveFreeAction.setIcon(geticon("ui/actions/Properties Manager/Move_Free"))
+	
+        self.transXAction = QAction(self.MoveOptionsGroup)
+        self.transXAction.setObjectName("transXAction")
+        self.transXAction.setCheckable(True)
+        self.transXAction.setIcon(geticon("ui/actions/Properties Manager/TranslateX"))
+        self.transYAction = QAction(self.MoveOptionsGroup)
+        self.transYAction.setObjectName("transYAction")
+        self.transYAction.setCheckable(True)
+        self.transYAction.setIcon(geticon("ui/actions/Properties Manager/TranslateY"))
+        self.transZAction = QAction(self.MoveOptionsGroup)
+        self.transZAction.setObjectName("transZAction")
+        self.transZAction.setCheckable(True)
+        self.transZAction.setIcon(geticon("ui/actions/Properties Manager/TranslateZ"))
+	
+	#Free Drag rotate action group (rotate components groupbox)
+	self.rotateOptionsGroup = QActionGroup(self)
+	self.rotateOptionsGroup.setObjectName("RotateOptionsGroup")
+	self.rotateOptionsGroup.setExclusive(True)
+		
+	#Ninad 070308 added rotate free action (free drag rotate) -- See Move/ Rotate Property manager . 
+        self.rotateFreeAction = QAction(self.rotateOptionsGroup)
+	self.rotateFreeAction.setObjectName("rotateFreeAction")
+	self.rotateFreeAction.setCheckable(True)	
+        self.rotateFreeAction.setIcon(geticon("ui/actions/Properties Manager/Rotate_Free"))
+	
+        self.rotXAction = QAction(self.rotateOptionsGroup)
+        self.rotXAction.setObjectName("rotXAction")
+        self.rotXAction.setCheckable(True)
+        self.rotXAction.setIcon(geticon("ui/actions/Properties Manager/RotateX"))
+        self.rotYAction = QAction(self.rotateOptionsGroup)
+        self.rotYAction.setObjectName("rotYAction")
+        self.rotYAction.setCheckable(True)
+        self.rotYAction.setIcon(geticon("ui/actions/Properties Manager/RotateY"))
+        self.rotZAction = QAction(self.rotateOptionsGroup)
+        self.rotZAction.setObjectName("rotZAction")
+        self.rotZAction.setCheckable(True)
+        self.rotZAction.setIcon(geticon("ui/actions/Properties Manager/RotateZ"))
+	        
+        	
+        self.moveDeltaPlusAction = QAction(self)
+        self.moveDeltaPlusAction.setObjectName("moveDeltaPlusAction")
+        self.moveDeltaPlusAction.setIcon(geticon("ui/actions/Properties Manager/Move_Delta_Plus"))
+        self.moveAbsoluteAction = QAction(self)
+        self.moveAbsoluteAction.setObjectName("moveAbsoluteAction")
+        self.moveAbsoluteAction.setIcon(geticon("ui/actions/Properties Manager/Move_Absolute"))
+        self.moveDeltaMinusAction = QAction(self)
+        self.moveDeltaMinusAction.setObjectName("moveDeltaMinusAction")
+        self.moveDeltaMinusAction.setIcon(geticon("ui/actions/Properties Manager/Move_Delta_Minus"))
+        self.rotateThetaMinusAction = QAction(self)
+        self.rotateThetaMinusAction.setObjectName("rotateThetaMinusAction")
+        self.rotateThetaMinusAction.setIcon(geticon("ui/actions/Properties Manager/Move_Theta_Minus"))
+        self.rotateThetaPlusAction = QAction(self)
+        self.rotateThetaPlusAction.setObjectName("rotateThetaPlusAction")
+        self.rotateThetaPlusAction.setIcon(geticon("ui/actions/Properties Manager/Move_Theta_Plus"))
+
+        self.connect(self.dispBGColorAction,SIGNAL("triggered()"),self.dispBGColor)
+        self.connect(self.dispBallAction,SIGNAL("triggered()"),self.dispBall)
+        self.connect(self.dispDefaultAction,SIGNAL("triggered()"),self.dispDefault)
+        self.connect(self.dispElementColorSettingsAction,SIGNAL("triggered()"),self.dispElementColorSettings)
+        self.connect(self.dispInvisAction,SIGNAL("triggered()"),self.dispInvis)
+        self.connect(self.dispLightingAction,SIGNAL("triggered()"),self.dispLighting)
+        self.connect(self.dispLinesAction,SIGNAL("triggered()"),self.dispLines)
+        self.connect(self.dispObjectColorAction,SIGNAL("triggered()"),self.dispObjectColor)
+        self.connect(self.dispResetAtomsDisplayAction,SIGNAL("triggered()"),self.dispResetAtomsDisplay)
+        self.connect(self.dispResetChunkColorAction,SIGNAL("triggered()"),self.dispResetChunkColor)
+        self.connect(self.dispShowInvisAtomsAction,SIGNAL("triggered()"),self.dispShowInvisAtoms)
+        self.connect(self.dispTubesAction,SIGNAL("triggered()"),self.dispTubes)
+        self.connect(self.dispCPKAction,SIGNAL("triggered()"),self.dispCPK)
+	self.connect(self.dispHybridAction,SIGNAL("triggered()"),self.dispHybrid)
+	
+        self.connect(self.editAutoCheckpointingAction,SIGNAL("toggled(bool)"),self.editAutoCheckpointing)
+        self.connect(self.editClearUndoStackAction,SIGNAL("triggered()"),self.editClearUndoStack)
+        self.connect(self.editCopyAction,SIGNAL("triggered()"),self.editCopy)
+        self.connect(self.editCutAction,SIGNAL("triggered()"),self.editCut)
+        self.connect(self.editDeleteAction,SIGNAL("triggered()"),self.killDo)
+        #self.connect(self.editFindAction,SIGNAL("triggered()"),self.editFind)
+        self.connect(self.editMakeCheckpointAction,SIGNAL("triggered()"),self.editMakeCheckpoint)
+        self.connect(self.editPasteAction,SIGNAL("triggered()"),self.editPaste)
+        self.connect(self.editPrefsAction,SIGNAL("triggered()"),self.editPrefs)
+        self.connect(self.editRedoAction,SIGNAL("triggered()"),self.editRedo)
+        self.connect(self.editUndoAction,SIGNAL("triggered()"),self.editUndo)
+        #self.connect(self.fileClearAction,SIGNAL("triggered()"),self.fileClear)
+        self.connect(self.fileCloseAction,SIGNAL("triggered()"),self.fileClose)
+        self.connect(self.fileExitAction,SIGNAL("triggered()"),self.close)
+        #self.connect(self.fileImageAction,SIGNAL("triggered()"),self.fileImage)
+        self.connect(self.fileInsertAction,SIGNAL("triggered()"),self.fileInsert)
+        self.connect(self.fileOpenAction,SIGNAL("triggered()"),self.fileOpen)
+        self.connect(self.fileOpenMovieAction,SIGNAL("triggered()"),self.fileOpenMovie)
+        self.connect(self.fileSaveAction,SIGNAL("triggered()"),self.fileSave)
+        self.connect(self.fileSaveAsAction,SIGNAL("triggered()"),self.fileSaveAs)
+        self.connect(self.fileSaveMovieAction,SIGNAL("triggered()"),self.fileSaveMovie)
+        self.connect(self.fileSaveSelectionAction,SIGNAL("triggered()"),self.fileSaveSelection)
+        self.connect(self.fileSetWorkDirAction,SIGNAL("triggered()"),self.fileSetWorkDir)
+        #self.connect(self.frameNumberSB,SIGNAL("valueChanged(int)"),self.moviePlayFrame)
+        #self.connect(self.frameNumberSL,SIGNAL("valueChanged(int)"),self.movieSlider)
+        self.connect(self.helpAboutAction,SIGNAL("triggered()"),self.helpAbout)
+        #self.connect(self.helpContentsAction,SIGNAL("triggered()"),self.helpContents)
+        self.connect(self.helpGraphicsCardAction,SIGNAL("triggered()"),self.helpGraphicsCard)
+        self.connect(self.helpKeyboardShortcutsAction,SIGNAL("triggered()"),self.helpKeyboardShortcuts)
+        self.connect(self.helpMouseControlsAction,SIGNAL("triggered()"),self.helpMouseControls)
+        self.connect(self.helpWhatsThisAction,SIGNAL("triggered()"),self.helpWhatsThis)
+        self.connect(self.buildDnaAction,SIGNAL("triggered()"),self.insertDna)
+        self.connect(self.insertCommentAction,SIGNAL("triggered()"),self.insertComment)
+        self.connect(self.insertNanotubeAction,SIGNAL("triggered()"),self.insertNanotube)
+        self.connect(self.insertGrapheneAction,SIGNAL("triggered()"),self.insertGraphene)
+        self.connect(self.jigsAnchorAction,SIGNAL("triggered()"),self.makeAnchor)
+        self.connect(self.jigsAngleAction,SIGNAL("triggered()"),self.makeMeasureAngle)
+        self.connect(self.jigsAtomSetAction,SIGNAL("triggered()"),self.makeAtomSet)
+        #self.connect(self.jigsBearingAction,SIGNAL("triggered()"),self.makeBearing)
+        self.connect(self.jigsDihedralAction,SIGNAL("triggered()"),self.makeMeasureDihedral)
+        self.connect(self.jigsDistanceAction,SIGNAL("triggered()"),self.makeMeasureDistance)
+        #self.connect(self.jigsDynoAction,SIGNAL("triggered()"),self.makeDyno)
+        self.connect(self.jigsESPImageAction,SIGNAL("triggered()"),self.makeESPImage)
+        self.connect(self.jigsGamessAction,SIGNAL("triggered()"),self.makeGamess)
+        self.connect(self.jigsGridPlaneAction,SIGNAL("triggered()"),self.makeGridPlane)
+        #self.connect(self.jigsHandleAction,SIGNAL("triggered()"),self.makeHandle)
+        #self.connect(self.jigsHeatsinkAction,SIGNAL("triggered()"),self.makeHeatsink)
+        self.connect(self.jigsLinearMotorAction,SIGNAL("triggered()"),self.makeLinearMotor)
+        self.connect(self.jigsMotorAction,SIGNAL("triggered()"),self.makeMotor)
+        #self.connect(self.jigsSpringAction,SIGNAL("triggered()"),self.makeSpring)
+        self.connect(self.jigsStatAction,SIGNAL("triggered()"),self.makeStat)
+        self.connect(self.jigsThermoAction,SIGNAL("triggered()"),self.makeThermo)
+        self.connect(self.modifyAlignCommonAxisAction,SIGNAL("triggered()"),self.modifyAlignCommonAxis)
+        self.connect(self.modifyCenterCommonAxisAction,SIGNAL("triggered()"),self.modifyCenterCommonAxis)
+        self.connect(self.modifyDehydrogenateAction,SIGNAL("triggered()"),self.modifyDehydrogenate)
+        self.connect(self.modifyDeleteBondsAction,SIGNAL("triggered()"),self.modifyDeleteBonds)
+        self.connect(self.modifyHydrogenateAction,SIGNAL("triggered()"),self.modifyHydrogenate)
+        self.connect(self.modifyInvertAction,SIGNAL("triggered()"),self.modifyInvert)
+        self.connect(self.modifyMergeAction,SIGNAL("triggered()"),self.modifyMerge)
+	self.connect(self.makeChunkFromAtomsAction,
+		     SIGNAL("triggered()"),self.makeChunkFromAtom)
+	
+	
+        self.connect(self.modifyAdjustAllAction,SIGNAL("triggered()"),self.modifyAdjustAll)
+        self.connect(self.modifyAdjustSelAction,SIGNAL("triggered()"),self.modifyAdjustSel)
+        self.connect(self.modifyMMKitAction,SIGNAL("triggered()"),self.modifyMMKit)
+        self.connect(self.modifyPassivateAction,SIGNAL("triggered()"),self.modifyPassivate)
+        self.connect(self.modifySeparateAction,SIGNAL("triggered()"),self.modifySeparate)
+        self.connect(self.modifyStretchAction,SIGNAL("triggered()"),self.modifyStretch)
+        #self.connect(self.movieDoneAction,SIGNAL("triggered()"),self.movieDone)
+        self.connect(self.movieInfoAction,SIGNAL("triggered()"),self.movieInfo)
+        self.connect(self.movieMoveToEndAction,SIGNAL("triggered()"),self.movieMoveToEnd)
+        self.connect(self.moviePauseAction,SIGNAL("triggered()"),self.moviePause)
+        self.connect(self.moviePlayAction,SIGNAL("triggered()"),self.moviePlay)
+        self.connect(self.moviePlayRevAction,SIGNAL("triggered()"),self.moviePlayRev)
+        self.connect(self.movieResetAction,SIGNAL("triggered()"),self.movieReset)
+        #self.connect(self.orient100Action,SIGNAL("triggered()"),self.orient100)
+        #self.connect(self.orient110Action,SIGNAL("triggered()"),self.orient110)
+        #self.connect(self.orient111Action,SIGNAL("triggered()"),self.orient111)
+        #self.connect(self.panDoneAction,SIGNAL("triggered()"),self.panDone)
+        self.connect(self.panToolAction,SIGNAL("toggled(bool)"),self.panTool)
+        self.connect(self.rotateToolAction,SIGNAL("toggled(bool)"),self.rotateTool)
+        self.connect(self.saveNamedViewAction,SIGNAL("triggered()"),self.saveNamedView)
+        self.connect(self.selectAllAction,SIGNAL("triggered()"),self.selectAll)
+        self.connect(self.selectConnectedAction,SIGNAL("triggered()"),self.selectConnected)
+        self.connect(self.selectContractAction,SIGNAL("triggered()"),self.selectContract)
+        self.connect(self.selectDoublyAction,SIGNAL("triggered()"),self.selectDoubly)
+        self.connect(self.selectExpandAction,SIGNAL("triggered()"),self.selectExpand)
+        self.connect(self.selectInvertAction,SIGNAL("triggered()"),self.selectInvert)
+        self.connect(self.selectNoneAction,SIGNAL("triggered()"),self.selectNone)
+        self.connect(self.serverManagerAction,SIGNAL("triggered()"),self.serverManager)
         
-        MainWindow.__init__(self, parent, name, Qt.WDestructiveClose)
-            # fyi: this connects 138 or more signals to our slot methods [bruce 050917 comment]
+        self.connect(self.viewOrientationAction,SIGNAL("triggered()"),self.showOrientationWindow) #ninad061114
+	
+	
+	
+	##When Standard Views button is clicked, show its QMenu.-- By default, nothing happens if you click on the 
+	##toolbutton with submenus. The menus are displayed only when you click on the small downward arrow 
+	## of the tool button. Therefore the following slot is added. Also QWidgetAction is used 
+	## for it to add this feature (see Ui_ViewToolBar for details) ninad 070109 
+	self.connect(self.standardViews_btn,SIGNAL("pressed()"),self.showStandardViewsMenu)
+	
+	self.connect(self.viewBackAction,SIGNAL("triggered()"),self.viewBack)
+        self.connect(self.viewBottomAction,SIGNAL("triggered()"),self.viewBottom)
+        self.connect(self.setViewFitToWindowAction,SIGNAL("triggered()"),self.setViewFitToWindow)
+        self.connect(self.viewFrontAction,SIGNAL("triggered()"),self.viewFront)
+        self.connect(self.setViewHomeAction,SIGNAL("triggered()"),self.setViewHome)
+        self.connect(self.setViewHomeToCurrentAction,SIGNAL("triggered()"),self.setViewHomeToCurrent)
+        self.connect(self.viewLeftAction,SIGNAL("triggered()"),self.viewLeft)
+        self.connect(self.viewRotateMinus90Action,SIGNAL("triggered()"),self.viewRotateMinus90)
+        self.connect(self.viewNormalToAction,SIGNAL("triggered()"),self.viewNormalTo)
+        self.connect(self.viewRotate180Action,SIGNAL("triggered()"),self.viewRotate180)
+        self.connect(self.setViewOrthoAction,SIGNAL("triggered()"),self.setViewOrtho)
+        self.connect(self.viewParallelToAction,SIGNAL("triggered()"),self.viewParallelTo)
+        self.connect(self.setViewPerspecAction,SIGNAL("triggered()"),self.setViewPerspec)
+        self.connect(self.viewRotatePlus90Action,SIGNAL("triggered()"),self.viewRotatePlus90)
+        self.connect(self.setViewRecenterAction,SIGNAL("triggered()"),self.setViewRecenter)
+        self.connect(self.viewRightAction,SIGNAL("triggered()"),self.viewRight)
+        self.connect(self.viewTopAction,SIGNAL("triggered()"),self.viewTop)
+        self.connect(self.simJobManagerAction,SIGNAL("triggered()"),self.JobManager)
+        self.connect(self.simMoviePlayerAction,SIGNAL("triggered()"),self.simMoviePlayer)
+        self.connect(self.simNanoHiveAction,SIGNAL("triggered()"),self.simNanoHive)
+        self.connect(self.simPlotToolAction,SIGNAL("triggered()"),self.simPlot)
+        self.connect(self.simSetupAction,SIGNAL("triggered()"),self.simSetup)
+        #self.connect(self.toggleDatumDispTbarAction,SIGNAL("triggered()"),self.toggleDatumDispTbar)
+        #self.connect(self.toggleEditTbarAction,SIGNAL("triggered()"),self.toggleEditTbar)
+        #self.connect(self.toggleFileTbarAction,SIGNAL("triggered()"),self.toggleFileTbar)
+        #self.connect(self.toggleModelDispTbarAction,SIGNAL("triggered()"),self.toggleModelDispTbar)
+        #self.connect(self.toggleModifyTbarAction,SIGNAL("triggered()"),self.toggleModifyTbar)
+        #self.connect(self.toggleSelectTbarAction,SIGNAL("triggered()"),self.toggleSelectTbar)
+        #self.connect(self.toggleToolsTbarAction,SIGNAL("triggered()"),self.toggleToolsTbar)
+        #self.connect(self.toggleViewTbarAction,SIGNAL("triggered()"),self.toggleViewTbar)
+        self.connect(self.toolsBackUpAction,SIGNAL("triggered()"),self.toolsBackUp)
+        self.connect(self.toolsCancelAction,SIGNAL("triggered()"),self.toolsCancel)
+        self.connect(self.toolsCookieCutAction,SIGNAL("triggered()"),self.toolsCookieCut)
+	
+        self.connect(self.toolsDepositAtomAction,
+		     SIGNAL("triggered()"),
+		     self.toolsBuildAtoms)
+	
+	#Slot for DNA Origami
+	self.connect(self.buildDnaOrigamiAction,
+		     SIGNAL("triggered()"),
+		     self.buildDnaOrigami)
+	
+        self.connect(self.toolsDoneAction,SIGNAL("triggered()"),self.toolsDone)
+        self.connect(self.toolsExtrudeAction,SIGNAL("triggered()"),self.toolsExtrude)
+        ###self.connect(self.toolsFuseAtomsAction,SIGNAL("triggered()"),self.toolsFuseAtoms)
+        self.connect(self.toolsFuseChunksAction,SIGNAL("triggered()"),self.toolsFuseChunks)
+        ###self.connect(self.toolsMirrorAction,SIGNAL("triggered()"),self.toolsMirror)
+        ###self.connect(self.toolsMirrorCircularBoundaryAction,SIGNAL("triggered()"),self.toolsMirrorCircularBoundary)
+	#Move and Rotate Components mode
+        self.connect(self.toolsMoveMoleculeAction,SIGNAL("triggered()"),self.toolsMoveMolecule)
+	self.connect(self.rotateComponentsAction,SIGNAL("triggered()"),self.toolsRotateComponents)
+	
+        ###self.connect(self.toolsRevolveAction,SIGNAL("triggered()"),self.toolsRevolve)
+        self.connect(self.toolsSelectAtomsAction,SIGNAL("triggered()"),self.toolsSelectAtoms)
+        self.connect(self.toolsSelectMoleculesAction,SIGNAL("triggered()"),self.toolsSelectMolecules)
+        self.connect(self.toolsStartOverAction,SIGNAL("triggered()"),self.toolsStartOver)
+        self.connect(self.zoomToolAction,SIGNAL("toggled(bool)"),self.zoomTool)
+	self.connect(self.viewZoomAboutScreenCenterAction,SIGNAL("toggled(bool)"),
+		     self.changeZoomBehavior)
+        self.connect(self.viewRaytraceSceneAction,SIGNAL("triggered()"),self.viewRaytraceScene)
+        self.connect(self.insertPovraySceneAction,SIGNAL("triggered()"),self.insertPovrayScene)
+        self.connect(self.dispSurfaceAction,SIGNAL("triggered()"),self.dispSurface)
+        self.connect(self.dispCylinderAction,SIGNAL("triggered()"),self.dispCylinder)
+        self.connect(self.simMinimizeEnergyAction,SIGNAL("triggered()"),self.simMinimizeEnergy)
+        self.connect(self.fileImportAction,SIGNAL("triggered()"),self.fileImport)
+        self.connect(self.fileExportAction,SIGNAL("triggered()"),self.fileExport)
+        self.connect(self.viewIsometricAction,SIGNAL("triggered()"),self.viewIsometric)
+        self.connect(self.modifyMirrorAction,SIGNAL("triggered()"),self.modifyMirror)
+        self.connect(self.setViewZoomtoSelectionAction,SIGNAL("triggered()"),self.setViewZoomToSelection)
 
         # mark 060105 commented out self.make_buttons_not_in_UI_file()
         # Now done below: _StatusBar.do_what_MainWindowUI_should_do(self)
@@ -103,10 +558,6 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         # (it might need to be moved into atom.py at some point)
         self.tmpFilePath = platform.find_or_make_Nanorex_directory()
 
-        # bruce 040920: until MainWindow.ui does the following, I'll do it manually:
-        import extrudeMode as _extrudeMode
-        _extrudeMode.do_what_MainWindowUI_should_do(self)
-        # (the above function will set up both Extrude and Revolve)
         
         import depositMode as _depositMode
         _depositMode.do_what_MainWindowUI_should_do(self)
@@ -123,6 +574,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         import fusechunksMode as _fusechunksMode
         _fusechunksMode.do_what_MainWindowUI_should_do(self)
         
+               
         # Load additional icons to QAction iconsets.
         # self.load_icons_to_iconsets() # Uncomment this line to test if Redo button has custom icon when disabled. mark 060427
         
@@ -132,15 +584,17 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         
         # Hide all dashboards
         self.hideDashboards()
+
+        #qt4todo('just a hack'); print self.moviePlayerDashboard; self.moviePlayerDashboard.show()
         
         # Create our 2 status bar widgets - msgbarLabel and modebarLabel
         # (see also env.history.message())
         import StatusBar as _StatusBar
         _StatusBar.do_what_MainWindowUI_should_do(self)
-
+	
         windowList += [self]
         if name == None:
-            self.setName("NanoEngineer-1") # Mark 11-05-2004
+            self.setWindowTitle("NanoEngineer-1") # Mark 11-05-2004
 
         # start with empty window 
         self.assy = assembly(self, "Untitled", own_window_UI = True) # own_window_UI is required for this assy to support Undo
@@ -154,7 +608,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         # hsplitter and vsplitter reimplemented. mark 060222.
         # Create the horizontal-splitter between the model tree (left) and the glpane 
         # and history widget (right)
-        hsplitter = QSplitter(Qt.Horizontal, self, "ContentsWindow")
+        hsplitter = QSplitter(Qt.Horizontal, self)
 
         from debug_prefs import this_session_permit_property_pane
         mtree_in_a_vsplitter = this_session_permit_property_pane() or False
@@ -165,65 +619,79 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
             self.vsplitter2 = vsplitter2 # use this for property pane parent? doesn't work, don't know why. [060623]
             ## vsplitter2.setBaseSize(QSize(225,150)) #k experiment, guess, height is wrong; has no effect
             mtree_parent = vsplitter2
+	    
         else:
             mtree_parent = hsplitter
-        
-        # Create the model tree widget. Width of 225 matches width of MMKit.  Mark 060222.
-        self.mt = self.modelTreeView = modelTree(mtree_parent, self)
-        self.modelTreeView.setMinimumSize(0, 0)
-
-        if mtree_in_a_vsplitter:
-            mtree_view_in_hsplitter = vsplitter2
-        else:
-            mtree_view_in_hsplitter = self.mt
-        
+	    
+        if not debug_pref("Multipane GUI", Choice_boolean_False):
+            # Create the model tree widget. Width of 225 matches width of MMKit.  Mark 060222.
+            self.mt = modelTree(mtree_parent, self)
+	    self.mt.setMinimumSize(0, 0)
+	    #self.mt.setColumnWidth(0,225)
+	    
+            if mtree_in_a_vsplitter:
+                mtree_view_in_hsplitter = vsplitter2
+            else:
+                mtree_view_in_hsplitter = self.mt.modelTreeGui  # @@ninad 061205 replaced self.mt with self.mt.modelTreeGui 
+		#to get   hsplitter.setStretchFactor working (without errors)
+		        
         # Create the vertical-splitter between the glpane (top) and the
         # history widget (bottom) [history is new as of 041223]
         vsplitter = QSplitter(Qt.Vertical, hsplitter)
         
-        if 0: 
-            #& This creates a gplane with a black 1 pixel border around it.  Leave it in in case we want to use this.
-            #& mark 060222. [bruce 060612 committed with 'if 0', in an updated/tested form]
-            glframe = QFrame(vsplitter)
-            glframe.setFrameShape ( QFrame.Box ) 
-            flayout = QVBoxLayout(glframe,1,1,'flayout')
-            self.glpane = GLPane(self.assy, glframe, "glpane", self)
-            flayout.addWidget(self.glpane,1)
-        else:
-            # Create the glpane - where all the action is!
-            self.glpane = GLPane(self.assy, vsplitter, "glpane", self)
-                #bruce 050911 revised GLPane.__init__ -- now it leaves glpane's mode as nullmode;
-                # we change it below, since doing so now would be too early for some modes permitted as startup mode
-                # (e.g. Build mode, which when Entered needs self.Element to exist, as of 050911)
-            
-        # Create the history area at the bottom
-        from HistoryWidget import HistoryWidget
-        histfile = platform.make_history_filename()
-        #bruce 050913 renamed self.history to self.history_object, and deprecated direct access
-        # to self.history; code should use env.history to emit messages, self.history_widget
-        # to see the history widget, or self.history_object to see its owning object per se
-        # rather than as a place to emit messages (this is rarely needed).
-        self.history_object = HistoryWidget(vsplitter, filename = histfile, mkdirs = 1)
-            # this is not a Qt widget, but its owner;
-            # use self.history_widget for Qt calls that need the widget itself.
-        self.history_widget = self.history_object.widget
-            #bruce 050913, in case future code splits history widget (as main window subwidget)
-            # from history message recipient (the global object env.history).
-        
-        env.history = self.history_object #bruce 050727, revised 050913
+        if not debug_pref("Multipane GUI", Choice_boolean_False):
+            if 0: 
+                #& This creates a gplane with a black 1 pixel border around it.  Leave it in in case we want to use this.
+                #& mark 060222. [bruce 060612 committed with 'if 0', in an updated/tested form]
+                glframe = QFrame(vsplitter)
+                glframe.setFrameShape ( QFrame.Box ) 
+                flayout = QVBoxLayout(glframe,1,1,'flayout')
+                self.glpane = GLPane(self.assy, glframe, "glpane", self)
+                flayout.addWidget(self.glpane,1)
+            else:
+                # Create the glpane - where all the action is!
+                self.glpane = GLPane(self.assy, vsplitter, "glpane", self)
+                    #bruce 050911 revised GLPane.__init__ -- now it leaves glpane's mode as nullmode;
+                    # we change it below, since doing so now would be too early for some modes permitted as startup mode
+                    # (e.g. Build mode, which when Entered needs self.Element to exist, as of 050911)
+         
+	if not debug_pref("Multipane GUI", Choice_boolean_False):
+	    # Create the history area at the bottom
+	    from HistoryWidget import HistoryWidget
+	    histfile = platform.make_history_filename()
+	    #bruce 050913 renamed self.history to self.history_object, and deprecated direct access
+	    # to self.history; code should use env.history to emit messages, self.history_widget
+	    # to see the history widget, or self.history_object to see its owning object per se
+	    # rather than as a place to emit messages (this is rarely needed).
+	    self.history_object = HistoryWidget(vsplitter, filename = histfile, mkdirs = 1)
+		# this is not a Qt widget, but its owner;
+		# use self.history_widget for Qt calls that need the widget itself.
+	    self.history_widget = self.history_object.widget
+	    
+		#bruce 050913, in case future code splits history widget (as main window subwidget)
+		# from history message recipient (the global object env.history).
+	    
+	    env.history = self.history_object #bruce 050727, revised 050913
 
         # Some final hsplitter setup...
         hsplitter.setHandleWidth(3) # Default is 5 pixels (too wide).  mark 060222.
-        hsplitter.setResizeMode(mtree_view_in_hsplitter, QSplitter.KeepSize)
-        hsplitter.setOpaqueResize(False)
-        
+        qt4todo('hsplitter.setResizeMode(mtree_view_in_hsplitter, QSplitter.KeepSize)')
+	qt4todo('hsplitter.setStretchFactor(hsplitter.indexOf(mtree_view_in_hsplitter), 0)')
+	#hsplitter.setStretchFactor(0, 0)
+	hsplitter.setOpaqueResize(False)	
+	
+        	
         # ... and some final vsplitter setup [bruce 041223]
         vsplitter.setHandleWidth(3) # Default is 5 pixels (too wide).  mark 060222.
-        vsplitter.setResizeMode(self.history_widget, QSplitter.KeepSize)
+        qt4todo('vsplitter.setResizeMode(self.history_widget, QSplitter.KeepSize)')
+	qt4todo('vsplitter.setStretchFactor(vsplitter.indexOf(self.history_widget), 0)')
         vsplitter.setOpaqueResize(False)
-        self.setCentralWidget(hsplitter) # This is required.
+	
+        if not debug_pref("Multipane GUI", Choice_boolean_False):
+            self.setCentralWidget(hsplitter) # This is required.
             # This makes the hsplitter the central widget, spanning the height of the mainwindow.
             # mark 060222.
+	    
 
         if mtree_in_a_vsplitter:
             hsplitter.setSizes([225,]) #e this works, but 225 is evidently not always the MMKit width (e.g. on bruce's iMac g4)
@@ -231,16 +699,143 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
             vsplitter2.setOpaqueResize(False)
             # client code adding things to vsplitter2 may want to call something like:
             ## vsplitter2.setResizeMode(newthing-in-vsplitter2, QSplitter.KeepSize)
+	    
 
-#bruce 060106: this is not used anymore, but don't remove the code or file entirely until after A7 goes out.
-##        # Create a progress bar widget for use during time consuming operations,
-##        # such as minimize, simulator and select doubly.  Mark 050101
-##        # [bruce 060103 suspects it's by now quite customized for Minimize and Simulate; not sure.]
-##        from ProgressBar import ProgressBar
-##        self.progressbar = ProgressBar()
+        if debug_pref("Multipane GUI", Choice_boolean_False):
+            # Create the "What's This?" online help system.
+            from whatsthis import createWhatsThis
+            createWhatsThis(self)
+
+            start_element = 6 # Carbon
+
+            # Start with Carbon as the default element (for Deposit Mode and the Element Selector)
+            self.Element = start_element
+            self.setElement(start_element)
+
+            # Attr/list for Atom Selection Filter. mark 060401
+            self.filtered_elements = [] # Holds list of elements to be selected when the Atom Selection Filter is enabled.
+            self.filtered_elements.append(PeriodicTable.getElement(start_element)) # Carbon
+            self.selection_filter_enabled = False # Set to True to enable the Atom Selection Filter.
+
+            self.currentWorkingDirectory = ''
+            self.hideDashboards()
+            self.setWindowTitle("My Main Window")
+            MAIN_WINDOW_SIZE = (800, 600)
+            self.setMinimumWidth(MAIN_WINDOW_SIZE[0])
+            self.setMinimumHeight(MAIN_WINDOW_SIZE[1])
+
+            ##############################################
+
+            centralwidget = QWidget()
+            self.setCentralWidget(centralwidget)
+            layout = QVBoxLayout(centralwidget)
+            layout.setMargin(0)
+            layout.setSpacing(0)
+            middlewidget = QWidget()
+	    
+	    
+	    from CommandManager import CommandManager
+	    
+	    self.commandManager = CommandManager(self)
+	    self.cmdManager = self.commandManager.cmdManager  
+	    layout.addWidget(self.cmdManager)	    
+	    
+	    
+            layout.addWidget(middlewidget)
+            self.layout = QGridLayout(middlewidget)
+            self.layout.setMargin(0)
+            self.layout.setSpacing(0)
+            self.gridPosition = GridPosition()
+            self.numParts = 0
+
+            self.addPartWindow(self.assy)
+        else:
+            self.init_part_two()
+    
+    def createPopupMenu(self):#Ninad 070328
+	''' Reimplemented createPopPupMenu method that allows 
+	display of custom context menu (toolbars and dockwidgets) 
+	when you rightclick on QMainWindow widget. '''
+	menu = QMenu(self)
+	contextMenuToolBars = [self.standardToolBar, self.viewToolBar,
+			   self.simulationToolBar, self.buildToolsToolBar,
+			   self.selectToolBar, self.buildStructuresToolBar]
+	for toolbar in contextMenuToolBars:
+	    menu.addAction(toolbar.toggleViewAction())
+	return menu
+	
+	
+    def removePartWindow(self, pw):
+        self.layout.removeWidget(pw)
+        self.gridPosition.removeWidget(pw)
+        self.numParts -= 1
+        if self.numParts == 0:
+            self.cmdManagerControlArea.hide()
+        # [bruce 070503 question: why do we not worry about whether pw == self._activepw?]
+
+    def addPartWindow(self, assy):
+        # This should be associated with fileOpen (ops_files.py) or with creating a new structure
+        # from scratch.
+        # [bruce 070503 question: why do we get passed an assy, and use it for some things and self.assy for others?]
+        if self.numParts == 0:
+            #self.cmdManagerControlArea.show()
+	    self.cmdManager.show()
+        self.numParts += 1
+        pw = PartWindow(assy, self)
+        row, col = self.gridPosition.next(pw)
+        self.layout.addWidget(pw, row, col)
+        self.assy.o = pw.glpane
+        self.assy.mt = pw.modelTree #bruce 070509 revised this, was pw.modelTree.modelTreeGui
+        self._activepw = pw
+            # Note: nothing in this class can set self._activepw (except to None),
+            # which one might guess means that no code yet switches between partwindows,
+            # but GLPane.makeCurrent *does* set self._activepw to its .partWindow
+            # (initialized to its parent arg when it's created), so that conclusion is not clear.
+            # [bruce 070503 comment]
+        if not hasattr(self, '_init_part_two_done'):
+            # I bet there are pieces of init_part_two that should be done EVERY time we bring up a
+            # new partwindow.
+            # [I guess that comment is by Will... for now, this code doesn't do those things
+            #  more than once, it appears. [bruce 070503 comment]]
+            MWsemantics.init_part_two(self)
+            self._init_part_two_done = True
+                # WARNING: even setting it to False would have the same effect on the hasattr test above. [bruce 070503 comment]
+
+        pw.glpane.start_using_mode('$STARTUP_MODE') #bruce 050911
+	
+
+    def __getattr__(self, key):
+        #
+        # Somebody wants our glpane, but we no longer have just one glpane. We have one
+        # glpane for each PartWindow, and only one PartWindow is active.
+        #
+        def locate(attr):
+            try:
+                raise Exception
+            except:
+                import sys
+                tb = sys.exc_info()[2]
+                f = tb.tb_frame
+                f = f.f_back.f_back
+                print 'MainWindow.'+attr+' ->', f.f_code.co_filename, f.f_code.co_name, f.f_lineno
+        if debug_pref("Multipane GUI", Choice_boolean_False):
+            if key == 'glpane':
+                # locate('glpane')   # who is asking for this?
+                pw = self.activePartWindow()
+                assert pw is not None
+                return pw.glpane
+            if key == 'mt':
+                # locate('mt')    # who is asking for this?
+                pw = self.activePartWindow()
+                assert pw is not None
+                return pw.modelTree
+        raise AttributeError(key)
         
+    def init_part_two(self):
         # Create the Preferences dialog widget.
         # Mark 050628
+        if not debug_pref("Multipane GUI", Choice_boolean_False):
+            self.assy.o = self.glpane
         from UserPrefs import UserPrefs
         self.uprefs = UserPrefs(self.assy)
 
@@ -250,29 +845,29 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         self.uprefs.enable_gamess(env.prefs[gamess_enabled_prefs_key])
         
         #Zoom behavior setting  (View > Zoom About Screen Center)
-        self.viewZoomAboutScreenCenterAction.setOn(env.prefs[zoomAboutScreenCenter_prefs_key])
+        self.viewZoomAboutScreenCenterAction.setChecked(
+	    env.prefs[zoomAboutScreenCenter_prefs_key])
         
         #Huaicai 9/14/05: Initialization for the 'Recently opened files' feature
-        from qt import QSettings, QWhatsThis
-        menuIndex = self.RECENT_FILES_MENU_INDEX
+        from PyQt4.Qt import QSettings, QWhatsThis
+        menuItem = self.RECENT_FILES_MENU_ITEM
         if recentfiles_use_QSettings:
-            prefsSetting = QSettings()
+            prefsSetting = QSettings("Nanorex", "NanoEngineer-1")
         else:
             prefsSetting = preferences.prefs_context()
-        popupMenu = QPopupMenu(self)        
-        self.fileMenu.insertItem(qApp.translate("Main Window", "Open Recent Files", None), popupMenu, menuIndex, menuIndex)
-            # WARNING: this is added in two places, in MWsemantics.__init__ and in _createRecentFilesList in ops_files.py.
-            # Some of the other code here is duplicated as well, but not quite identically. [bruce 060808 comment]
-        
+	    
         if recentfiles_use_QSettings:
-            fileList = prefsSetting.readListEntry('/Nanorex/nE-1/recentFiles')[0]
+            # Qt3: fileList = prefsSetting.readListEntry('/Nanorex/nE-1/recentFiles')[0]
+            fileList = prefsSetting.value('/Nanorex/nE-1/recentFiles').toStringList()
         else:
             fileList = prefsSetting.get('/Nanorex/nE-1/recentFiles', [])
-        if len(fileList): 
-            self.fileMenu.setItemEnabled(menuIndex, True)
+        if len(fileList):  
+            qt4warning('self.fileMenu.setItemEnabled(menuItem, True)')
+            if menuItem is not None: menuItem.setEnabled(True)
             self._createRecentFilesList()
         else:
-            self.fileMenu.setItemEnabled(menuIndex, False)
+            qt4warning('self.fileMenu.setItemEnabled(menuItem, False)')
+            if menuItem is not None: menuItem.setEnabled(False)
         self.helpMouseControlsAction.setWhatsThis('Displays help for mouse controls')
         self.helpKeyboardShortcutsAction.setWhatsThis('Displays help for keyboard shortcuts')
         self.insertCommentAction.setWhatsThis('Inserts a comment in the part.')
@@ -295,27 +890,28 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         # Minimize Energy dialog. Mark 060705.
         from MinimizeEnergyProp import MinimizeEnergyProp
         self.minimize_energy = MinimizeEnergyProp(self)
-
-        self.permdialog = PermissionDialog(self)
         
-        # do here to avoid a circular dependency
-        self.assy.o = self.glpane
-        self.assy.mt = self.mt
+        if not debug_pref("Multipane GUI", Choice_boolean_False):
+            # do here to avoid a circular dependency
+            # note: as of long before now, this doesn't normally run [bruce 070503 comment]
+            self.assy.o = self.glpane
+            self.assy.mt = self.mt
 
         # We must enable keyboard focus for a widget if it processes
         # keyboard events. [Note added by bruce 041223: I don't know if this is
         # needed for this window; it's needed for some subwidgets, incl. glpane,
         # and done in their own code. This window forwards its own key events to
         # the glpane. This doesn't prevent other subwidgets from having focus.]
-        self.setFocusPolicy(QWidget.StrongFocus)
+        self.setFocusPolicy(QtCore.Qt.StrongFocus)
         
         # Hide the "Make Checkpoint" toolbar button/menu item. mark 060302.
         self.editMakeCheckpointAction.setVisible(False)
-        
+
         # Create the "What's This?" online help system.
         from whatsthis import createWhatsThis, fix_whatsthis_text_and_links
-        createWhatsThis(self)
-        
+        if not debug_pref("Multipane GUI", Choice_boolean_False):
+            createWhatsThis(self)
+
         # IMPORTANT: All widget creation (i.e. dashboards, dialogs, etc.) and their 
         # whatthis text should be created before this line. [If this is not possible,
         # we'll need to split out some functions within this one which can be called
@@ -323,17 +919,18 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         fix_whatsthis_text_and_links(self, refix_later = (self.editMenu,)) # (main call) Fixes bug 1136.  Mark 051126.
             # [bruce 060319 added refix_later as part of fixing bug 1421]
 
-        start_element = 6 # Carbon
-        
-        # Attr/list for Atom Selection Filter. mark 060401
-        self.filtered_elements = [] # Holds list of elements to be selected when the Atom Selection Filter is enabled.
-        self.filtered_elements.append(PeriodicTable.getElement(start_element)) # Carbon
-        self.selection_filter_enabled = False # Set to True to enable the Atom Selection Filter.
-        
-        # Start with Carbon as the default element (for Deposit Mode and the Element Selector)
-        self.Element = start_element
-        self.setElement(start_element)
-        
+        if not debug_pref("Multipane GUI", Choice_boolean_False):
+            start_element = 6 # Carbon
+
+            # Attr/list for Atom Selection Filter. mark 060401
+            self.filtered_elements = [] # Holds list of elements to be selected when the Atom Selection Filter is enabled.
+            self.filtered_elements.append(PeriodicTable.getElement(start_element)) # Carbon
+            self.selection_filter_enabled = False # Set to True to enable the Atom Selection Filter.
+
+            # Start with Carbon as the default element (for Deposit Mode and the Element Selector)
+            self.Element = start_element
+            self.setElement(start_element)
+
         # 'depositState' is used by depositMode and MMKit to synchonize the 
         # depositMode dashboard (Deposit and Paste toggle buttons) and the MMKit pages (tabs).
         # It is also used to determine what type of object (atom, clipboard chunk or library part)
@@ -402,10 +999,11 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
 
         return # from MWsemantics.__init__
 
+    def activePartWindow(self):
+        return self._activepw
+
     def closeEvent(self, ce):
         fileSlotsMixin.closeEvent(self, ce)
-        if not self.permdialog.fini:
-            self.permdialog.close()
 
     def sponsoredList(self):
         return (self.graphenecntl,
@@ -422,8 +1020,10 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         # After the main window(its size and location) has been setup, begin to run the program from this method. 
         # [Huaicai 11/1/05: try to fix the initial MMKitWin off screen problem by splitting from the __init__() method]
         
-        self.glpane.start_using_mode( '$STARTUP_MODE') #bruce 050911
+        if not debug_pref("Multipane GUI", Choice_boolean_False):
+            self.glpane.start_using_mode( '$STARTUP_MODE') #bruce 050911
             # Note: this might depend on self's geometry in choosing dialog placement, so it shouldn't be done in __init__.
+
         self.win_update() # bruce 041222
         undo.just_before_mainwindow_init_returns() # (this is now misnamed, now that it's not part of __init__)
         return
@@ -435,6 +1035,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
                 self.uprefs.save_current_win_pos_and_size()
             ## this seems to take too long, and is probably not needed: self.__clear()
             self.deleteMMKit()  # wware 060406 bug 1263 - don't leave MMKit open after exiting program
+	    self.deleteOrientationWindow() # ninad 061121- perhaps its unnecessary
             self.assy.deinit()
                 # in particular, stop trying to update Undo/Redo actions all the time
                 # (which might cause crashes once their associated widgets are deallocated)
@@ -470,10 +1071,10 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
 ##            pixmap = imagename_to_pixmap("stopsign.png")
 ##                # icon file stopsign.png (as of bruce 060104) works in menu but not in toolbar (for Mac Panther)
 ##                # (actually it works when enabled, it's just gray when disabled, in toolbar.)
-##        self.simAbortAction.setIconSet(QIconSet(pixmap))
-##        self.simAbortAction.addTo(self.simToolbar)
-##        self.simAbortAction.addTo(self.simulatorMenu)
-##        self.connect(self.simAbortAction,SIGNAL("activated()"),self.simAbort)
+##        self.simAbortAction.setIcon(QIcon(pixmap))
+##        self.simToolbar.addAction(self.simAbortAction)
+##        self.simulatorMenu.addAction(self.simAbortAction)
+##        self.connect(self.simAbortAction,SIGNAL("triggered()"),self.simAbort)
 ##        self.simAbortAction.setText("Abort Sim") # removed __tr, could add it back if desired
 ##        self.simAbortAction.setMenuText("Abort Sim...")
 ##
@@ -513,7 +1114,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
             "Please confirm you want to abort.\n",
             "Confirm",
             "Cancel", 
-            None, 
+            "", 
             1,  # The "default" button, when user presses Enter or Return (1 = Cancel)
             1)  # Escape (1= Cancel)
           
@@ -574,12 +1175,12 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         try:
             widget = self.modebarLabel
         except AttributeError:
-            print "AttributeError: self.modebarLabel"
+            print "Caught <AttributeError: self.modebarLabel>, normal behavior, not a bug"
             pass # this is normal, before the widget exists
         else:
             mode_obj = mode_obj or self.glpane.mode
             text = mode_obj.get_mode_status_text()
-            widget.setText( text )
+            #widget.setText( text )
 
 
     ##################################################
@@ -596,12 +1197,18 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         """
         if not self.initialised:
             return #bruce 041222
-        self.glpane.gl_update() ###e should inval instead -- soon, this method will!
-        self.mt.mt_update()
-        self.history_object.h_update() #bruce 050104
-            # this is self.history_object, not env.history,
-            # since it's really about this window's widget-owner,
-            # not about the place to print history messages [bruce 050913]
+        if debug_pref("Multipane GUI", Choice_boolean_False):
+            pw = self.activePartWindow()
+            pw.glpane.gl_update()
+            pw.modelTree.mt_update()
+	    pw.history_object.h_update()
+        else:
+            self.glpane.gl_update()
+            self.mt.mt_update()	
+	    self.history_object.h_update() #bruce 050104
+		# this is self.history_object, not env.history,
+		# since it's really about this window's widget-owner,
+		# not about the place to print history messages [bruce 050913]
         
     ###################################
     # File Toolbar Slots 
@@ -666,10 +1273,10 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
     def editPaste(self):
         if self.assy.shelf.members:
             env.history.message(greenmsg("Paste:"))
-            self.glpane.setMode('DEPOSIT')
-            global MMKitWin
-            if MMKitWin: 
-                MMKitWin.change2ClipboardPage() # Fixed bug 1230.  Mark 051219.
+	    if self.glpane.mode.modename != "DEPOSIT":
+		self.glpane.setMode('DEPOSIT')
+		
+	    self.glpane.mode.change2ClipboardPage() # Fixed bug 1230.  Mark 051219.
             
     # editDelete
     def killDo(self):
@@ -703,6 +1310,10 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
 
     def dispCPK(self): #e this slot method (here and in .ui file) renamed from dispVdW to dispCPK [bruce 060607]
         self.setDisplay(diTrueCPK)
+	
+    def dispHybrid(self): #@@ Ninad 070308
+	print "Hybrid display is  Implemented yet"
+	pass
 
     def dispTubes(self):
         self.setDisplay(diTUBES)
@@ -753,16 +1364,36 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
 
     # set the color of the selected molecule
     # atom colors cannot be changed singly
-    def dispObjectColor(self):
+    def dispObjectColor(self, currentcolor = None):
         if not self.assy.selmols: 
             env.history.message(redmsg("Set Chunk Color: No chunks selected.")) #bruce 050505 added this message
             return
-        c = QColorDialog.getColor(self.paletteBackgroundColor(), self, "Choose color")
+	if not currentcolor:
+	    c = QColorDialog.getColor(Qt.white, self)
+	else:
+	    c = QColorDialog.getColor(currentcolor, self)
+	    
         if c.isValid():
             molcolor = c.red()/255.0, c.green()/255.0, c.blue()/255.0
+	    list = []
             for ob in self.assy.selmols:
                 ob.setcolor(molcolor)
-            self.glpane.gl_update()
+		list.append(ob)
+		
+	    #Ninad 070321: Since the chunk is selected as a colored selection, 
+	    #it should be unpicked after changing its color. 
+	    #The user has most likely selected the chunk to change its color 
+	    #and won't like it still shown 'green'(the selection color) 
+	    #even after changing the color. so deselect it. 	
+	    # The chunk is NOT unpicked IF the color is changed via chunk property
+	    #dialog. see ChunkProp.change_chunk_color for details. This is intentional.
+	    
+	    for ob in list: 		
+		ob.unpick()
+	    
+	    self.win_update()
+            #self.glpane.gl_update()
+    
 
     def dispResetChunkColor(self):
         "Resets the selected chunk's atom colors to the current element colors"
@@ -851,7 +1482,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         #Huaicai 2/24/05: Create a new element selector window each time,  
         #so it will be easier to always start from the same states.
         # Make sure only a single element window is shown
-        if elementColorsWin and elementColorsWin.isShown(): 
+        if elementColorsWin and elementColorsWin.isVisible(): 
                     return 
                     
         if not parent: # added parent arg to allow the caller (i.e. Preferences dialog) to make it modal.
@@ -1028,6 +1659,13 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         """ Create a single chunk from two of more selected chunks """
         self.assy.merge()
         self.win_update()
+    
+    def makeChunkFromAtom(self):
+	''' Create a new chunk from the selected atoms'''
+	self.assy.makeChunkFromAtoms()
+	self.win_update()
+	
+	
 
     def modifyInvert(self):
         """ Invert the atoms of the selected chunk(s) """
@@ -1068,13 +1706,13 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         self.help.showDialog(1)
     
     def helpGraphicsCard(self):
-        '''Displays details about the system's graphics card.
+        '''Displays details about the system\'s graphics card.
         '''
         ginfo = get_gl_info_string( self.glpane) #bruce 070308 added glpane arg
         
         from widgets import TextMessageBox
         msgbox = TextMessageBox(self)
-        msgbox.setCaption("Graphics Card Info")
+        msgbox.setWindowTitle("Graphics Card Info")
         msgbox.setText(ginfo)
         msgbox.show()
 
@@ -1128,7 +1766,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         QMessageBox.about ( self, "About NanoEngineer-1", aboutstr)
              
     def helpWhatsThis(self):
-        from qt import QWhatsThis ##bruce 050408
+        from PyQt4.Qt import QWhatsThis ##bruce 050408
         QWhatsThis.enterWhatsThisMode ()
 
 
@@ -1144,14 +1782,35 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
     def toolsSelectMolecules(self):# note: this can also be called from update_select_mode [bruce 060403 comment]
         self.glpane.setMode('SELECTMOLS')
 
-    # get into Move Chunks mode        
+    # get into Move Chunks (or Translate Components) mode        
     def toolsMoveMolecule(self):
-        self.glpane.setMode('MODIFY')
+	if self.glpane.mode.modename == 'MODIFY':
+	    self.glpane.mode.activate_moveGroupBox()		
+	else:
+	    self.glpane.setMode('MODIFY')
+	
+    #Rotate Components mode. 
+    def toolsRotateComponents(self):
+	if self.glpane.mode.modename == 'MODIFY':
+	    self.glpane.mode.activate_rotateGroupBox()
+	else:
+	    self.glpane.setMode('MODIFY')
+	    
+	    
+	
    
     # get into Build mode        
     def toolsBuildAtoms(self): # note: this can now be called from update_select_mode [as of bruce 060403]
         self.depositState = 'Atoms'
         self.glpane.setMode('DEPOSIT')
+	
+    #get into Build DNA Origami mode
+    def buildDnaOrigami(self):
+	''' Enter DNA Origami mode'''
+	msg1 = greenmsg("DNA Origami: ")
+	msg2 = " Not implemented yet"
+	final_msg = msg1 + msg2
+	env.history.message(final_msg)
 
     # get into cookiecutter mode
     def toolsCookieCut(self):
@@ -1195,13 +1854,16 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         self.nanohive.showDialog(self.assy)
 
     def simPlot(self):
-        """Opens the Plot Tool dialog... for details see subroutine's docstring.
+        """Opens the "Make Graphs" dialog if there is a "current" movie file
+	(i.e. a movie file has been opened in the Movie Player).
+	For details see subroutine's docstring.
         """
         from PlotTool import simPlot
-        dialog = simPlot(self.assy)
+        dialog = simPlot(self.assy) # Returns "None" if there is no current movie file. [mark 2007-05-03]
         if dialog:
             self.plotcntl = dialog #probably useless, but done since old code did it;
                 # conceivably, keeping it matters due to its refcount. [bruce 050327]
+		# matters now, since dialog can be None. [mark 2007-05-03]
         return
     
     def simMoviePlayer(self):
@@ -1231,12 +1893,18 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
     ###################################
         
     def insertGraphene(self):
+	if self.glpane.mode.modename != 'SELECTMOLS':
+	    self.glpane.setMode('SELECTMOLS')
         self.graphenecntl.show()
 
     def insertNanotube(self):
+	if self.glpane.mode.modename != 'SELECTMOLS':
+	    self.glpane.setMode('SELECTMOLS')
         self.nanotubecntl.show()
 
     def insertDna(self):
+	if self.glpane.mode.modename != 'SELECTMOLS':
+	    self.glpane.setMode('SELECTMOLS')
         self.dnacntl.show()
         
     def insertPovrayScene(self):
@@ -1298,7 +1966,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         #Huaicai 2/24/05: Create a new element selector window each time,  
         #so it will be easier to always start from the same states.
         # Make sure only a single element window is shown
-        if elementSelectorWin and elementSelectorWin.isShown():
+        if elementSelectorWin and elementSelectorWin.isVisible():
             return 
         
         elementSelectorWin = elementSelector(self)
@@ -1313,12 +1981,12 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
             #  if that changes then we can supply an *optional* argument to get this info
             #  from a nonstandard source [bruce 051230])
         if depositState == 'Atoms':
-            self.depositAtomDashboard.depositBtn.setOn(True)
+            self.depositAtomDashboard.depositBtn.setChecked(True)
         elif depositState == 'Clipboard':
-            self.depositAtomDashboard.pasteBtn.setOn(True)
+            self.depositAtomDashboard.pasteBtn.setChecked(True)
         elif depositState == 'Library':
-            self.depositAtomDashboard.depositBtn.setOn(False)
-            self.depositAtomDashboard.pasteBtn.setOn(False)
+            self.depositAtomDashboard.depositBtn.setChecked(False)
+            self.depositAtomDashboard.pasteBtn.setChecked(False)
         else:
             print "Bug: depositState unknown: ", depositState, ".  depositState buttons unchanged." #bruce 051230 revised text
         return
@@ -1328,7 +1996,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         '''
         # This should probably be moved elsewhere
         global MMKitWin
-        if MMKitWin and MMKitWin.isShown():
+        if MMKitWin and not MMKitWin.isHidden():
             return MMKitWin
 
         # It's very important to add the following condition, so only a single instance
@@ -1338,24 +2006,17 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         if not MMKitWin:
             firstShow = True
             MMKitWin = MMKit(self)
+
+        self.current_bondtool_button = None
+        def bondtool_button_clicked(button, self=self):
+            self.current_bondtool_button = button
+            self.glpane.mode.update_cursor_for_no_MB_selection_filter_disabled()
+	
+	#ninad070412 disabled the following action. bondToolButtons attribute doesn't
+	#exist in ne1qt4
+        ##QObject.connect(MMKitWin.bondToolButtons, SIGNAL("buttonClicked(QAbstractButton *)"), bondtool_button_clicked)
         
-        MMKitWin.update_dialog(self.Element)
-        
-        if sys.platform == 'linux2':
-            # On Linux, X11 has some problem for window location before it's shown. 
-            # So show it first and then move it, which will have the flash problem.
-            if self.isVisible(): 
-                # Only show the MMKit when the main window is shown. Fixes bug 1439. mark 060202
-                MMKitWin.show()
-            MMKitWin.move_to_best_location(False)
-        else:
-            MMKitWin.move_to_best_location(False)
-            if self.isVisible(): 
-                # Only show the MMKit when the main window is shown. Fixes bug 1439. mark 060202
-                MMKitWin.show()
-                MMKitWin.dirView.setMinimumSize(QSize(175,150))
-                    # any value > 175 will cause the MMKit to get wider when clicking on the clipboard tab.
-                    # Fixes bug 1563. mark 060303.
+        MMKitWin.update_dialog(self.Element)	
         return MMKitWin
         
     def hide_MMKit_during_open_or_save_on_MacOS(self): # added to fix bug 1744. mark 060324
@@ -1365,7 +2026,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         '''
         if sys.platform == 'darwin':
             global MMKitWin
-            if MMKitWin and MMKitWin.isShown():
+            if MMKitWin and MMKitWin.isVisible():
                 MMKitWin.hide()
                 return True
         return False
@@ -1421,20 +2082,21 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         
         self.Element = elt
         
-        if self.glpane.mode.modename == 'DEPOSIT':
-            self.glpane.mode.update_selection_filter_list() # depositMode.update_selection_filter_list()
+        pw = self.activePartWindow()
+        if pw is not None and pw.glpane.mode.modename == 'DEPOSIT':
+            pw.glpane.mode.update_selection_filter_list() # depositMode.update_selection_filter_list()
 
         #Huaicai: These are redundant since the elemChange() will do all of them. 8/10/05
         #if elementSelectorWin: elementSelectorWin.update_dialog(elt)
         #if MMKitWin: MMKitWin.update_dialog(elt)
         
         line = eCCBtab2[elt]
-        self.elemChangeComboBox.setCurrentItem(line) ###k does this send the signal, or not (if not that might cause bug 690)?
-        #bruce 050706 fix bug 690 by calling the same slot that elemChangeComboBox.setCurrentItem should have called
+        #self.elemChangeComboBox.setCurrentIndex(line) ###k does this send the signal, or not (if not that might cause bug 690)?
+        #bruce 050706 fix bug 690 by calling the same slot that elemChangeComboBox.setCurrentIndex should have called
         # (not sure in principle that this is always safe or always a complete fix, but it seems to work)
         
         # Huaicai 8/10/05: remove the synchronization.
-        #self.elemFilterComboBox.setCurrentItem(line)
+        #self.elemFilterComboBox.setCurrentIndex(line)
         
         self.elemChange(line) #k arg is a guess, but seems to work
             # (btw if you use keypress to change to the same element you're in, it *doesn't* reset that element
@@ -1456,7 +2118,36 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
 
     def setNitrogen(self):
         self.setElement(7)
-
+	
+	
+    ######################################
+    #Show View > Orientation Window     
+    #######################################
+    
+    def showOrientationWindow(self): #Ninad 061121
+	
+	if not self.orientationWindow:
+	    self.orientationWindow  = ViewOrientationWindow(self)
+	    #self.orientationWindow.createOrientationViewList(namedViewList)
+	    self.orientationWindow.createOrientationViewList()
+	    self.viewOrientationAction.setChecked(True)
+	    self.orientationWindow.setVisible(True)    	
+	else:
+	    if not self.orientationWindow.isVisible():
+		self.orientationWindow.setVisible(True)
+		self.viewOrientationAction.setChecked(True)
+		
+	return self.orientationWindow
+    
+    def deleteOrientationWindow(self):
+	'''Delete the orientation window when the main window closes'''
+	#ninad 061121 - this is probably unnecessary  
+	if self.orientationWindow:
+	    self.orientationWindow.close()
+	    self.orientationWindow = None
+	    
+	return self.orientationWindow
+            
     # key event handling revised by bruce 041220 to fix some bugs;
     # see comments in the GLPane methods.
     
@@ -1508,15 +2199,15 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         
         # Add the small "disabled/off" icon for the Redo QAction, displayed when editRedoAction.setDisabled(1).
         editRedoIconSet = self.editRedoAction.iconSet()
-        editRedoIconSet.setPixmap ( small_disabled_on_icon_fname, QIconSet.Small, QIconSet.Disabled, QIconSet.Off )
-        self.editRedoAction.setIconSet ( editRedoIconSet )
+        editRedoIconSet.setPixmap ( small_disabled_on_icon_fname, QIcon.Small, QIcon.Disabled, QIcon.Off )
+        self.editRedoAction.setIcon ( editRedoIconSet )
     
     def hideDashboards(self):
         # [bruce 050408 comment: this list should be recoded somehow so that it
         #  lists what to show, not what to hide. ##e]
         self.cookieCutterDashboard.hide()
-        self.extrudeDashboard.hide()
-        self.revolveDashboard.hide()
+        #self.extrudeDashboard.hide()
+	#self.revolveDashboard.hide()
         self.depositAtomDashboard.hide()
         self.selectMolDashboard.hide()
         self.selectAtomsDashboard.hide()
@@ -1527,46 +2218,45 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         self.rotateDashboard.hide()
         self.fuseChunksDashboard.hide()
         self.cookieSelectDashboard.hide()
-
-        # This section used by Mark and David to hide toolbars, etc when creating
-        # tutorial videos.        
-#        self.helpToolbar.hide()
-        
-        ##Huaicai 12/08/04, remove unnecessary toolbars from context menu
-        objList = self.queryList("QToolBar")
+	
+	##Huaicai 12/08/04, remove unnecessary toolbars from context menu
+        objList = self.findChildren(QToolBar)
         for obj in objList:
             # [bruce 050408 comment: this is bad style; the default should be setAppropriate False
             #  (to keep most dashboard names out of the context menu in the toolbar area),
             #  and we should list here the few we want to include in that menu (setAppropriate True),
             #  not the many we want to exclude (which is also a list that changes more often). ##e]
+	    """
             if obj in [self.moviePlayerDashboard, self.moveChunksDashboard,
                 self.cookieCutterDashboard, self.depositAtomDashboard, self.extrudeDashboard,
                 self.selectAtomsDashboard, self.selectMolDashboard, self.zoomDashboard,
                 self.panDashboard, self.rotateDashboard, self.fuseChunksDashboard,
                 self.cookieSelectDashboard]:
-                    self.setAppropriate(obj, False)
+                    obj.setHidden(True)"""
+
+
             
     def enableViews(self, enableFlag=True):
         '''Disables/enables view actions on toolbar and menu.
         '''
-        self.setViewNormalToAction.setEnabled(enableFlag)
-        self.setViewParallelToAction.setEnabled(enableFlag)
+        self.viewNormalToAction.setEnabled(enableFlag)
+        self.viewParallelToAction.setEnabled(enableFlag)
         
-        self.setViewFrontAction.setEnabled(enableFlag)
-        self.setViewBackAction.setEnabled(enableFlag)
-        self.setViewTopAction.setEnabled(enableFlag)
-        self.setViewBottomAction.setEnabled(enableFlag)
-        self.setViewLeftAction.setEnabled(enableFlag)
-        self.setViewRightAction.setEnabled(enableFlag)
-        self.setViewIsometricAction.setEnabled(enableFlag)
+        self.viewFrontAction.setEnabled(enableFlag)
+        self.viewBackAction.setEnabled(enableFlag)
+        self.viewTopAction.setEnabled(enableFlag)
+        self.viewBottomAction.setEnabled(enableFlag)
+        self.viewLeftAction.setEnabled(enableFlag)
+        self.viewRightAction.setEnabled(enableFlag)
+        self.viewIsometricAction.setEnabled(enableFlag)
         
         self.setViewHomeAction.setEnabled(enableFlag)
         self.setViewFitToWindowAction.setEnabled(enableFlag)
         self.setViewRecenterAction.setEnabled(enableFlag)
         
-        self.setViewOppositeAction.setEnabled(enableFlag)
-        self.setViewPlus90Action.setEnabled(enableFlag)
-        self.setViewMinus90Action.setEnabled(enableFlag)
+        self.viewRotate180Action.setEnabled(enableFlag)
+        self.viewRotatePlus90Action.setEnabled(enableFlag)
+        self.viewRotateMinus90Action.setEnabled(enableFlag)
     
     def disable_QActions_for_extrudeMode(self, disableFlag=True):
         '''Disables action items in the main window for extrudeMode.
@@ -1580,6 +2270,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         self.modifySeparateAction.setEnabled(not disableFlag)
         self.modifyMergeAction.setEnabled(not disableFlag)
         self.modifyInvertAction.setEnabled(not disableFlag)
+	self.modifyMirrorAction.setEnabled(not disableFlag)
         self.modifyAlignCommonAxisAction.setEnabled(not disableFlag)
         # All QActions in the Modify menu/toolbar should be disabled, too. mark 060323
         
@@ -1654,9 +2345,12 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
 
         ##e [bruce 050811 comment:] perhaps we should move prefix to the beginning, rather than just before "[";
         # and in any case the other stuff here, self.name() + " - " + "[" + "]", should also be user-changeable, IMHO.
-        self.setCaption(self.trUtf8(self.name() + " - " + prefix + "[" + partname + "]" + suffix))
+	#print "****self.accessibleName *****=" , self.accessibleName()
+	self.setWindowTitle(self.trUtf8("NanoEngineer-1" + " - " +prefix + "[" + partname + "]" + suffix))
+	self.setWindowIcon(geticon("ui/border/MainWindow"))
         return
     
     pass # end of class MWsemantics
 
 # end
+

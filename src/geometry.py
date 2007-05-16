@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2006 Nanorex, Inc.  See LICENSE file for details. 
 '''
 geometry.py -- miscellaneous purely geometric routines.
 
@@ -214,11 +214,11 @@ def compute_heuristic_axis( basepos, type,
     'normal' - try to return the shortest axis; if ambiguous, use near directions to choose within a plane,
        or return dflt for a blob. Works for 2 or more points; treats single point (or no points) as a blob.
        This should be used by rotary and linear motors, since they want to connect to atoms on a surface (intention as of 060119),
-       and by setViewNormalTo.
-    'parallel' - try to return the longest axis; otherwise like 'normal'. This should be used by setViewParallelTo.
+       and by viewNormalTo.
+    'parallel' - try to return the longest axis; otherwise like 'normal'. This should be used by viewParallelTo.
     'chunk' - for slabs close enough to circles or squares (using aspect_threshhold), like 'normal', otherwise like 'parallel'.
        This is used for computing axes of chunks for purposes of how they interactively slide in certain UI modes.
-       (Note that setViewParallelTo and setViewNormalTo, applied to a chunk or perhaps to jigs containing sets of atoms,
+       (Note that viewParallelTo and viewNormalTo, applied to a chunk or perhaps to jigs containing sets of atoms,
        should compute their own values as if applied to the same atoms, since the chunk or jig will compute its axis in
        a different way, both in choice of type argument, and in values of near1, near2, and dflt.)
     """

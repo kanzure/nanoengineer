@@ -1,470 +1,872 @@
-# -*- coding: utf-8 -*-
-
-# Form implementation generated from reading ui file 'MMKitDialog.ui'
-#
-# Created: Wed Jul 26 23:37:18 2006
-#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
-#
-# WARNING! All changes made in this file will be lost!
-
-
-from qt import *
-
-image0_data = \
-    "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
-    "\x49\x48\x44\x52\x00\x00\x00\x14\x00\x00\x00\x14" \
-    "\x08\x06\x00\x00\x00\x8d\x89\x1d\x0d\x00\x00\x00" \
-    "\xd6\x49\x44\x41\x54\x78\x9c\xed\x94\x31\x0a\xc2" \
-    "\x30\x14\x86\xbf\xd4\xd5\x3b\x78\x95\x37\xd5\x3b" \
-    "\x78\x04\xa1\x9e\xa1\xbb\x14\x74\x76\x74\xeb\x11" \
-    "\x8a\x43\x71\xc9\xe4\xe0\xe6\x20\x78\x87\x42\x16" \
-    "\x11\x7e\x87\xa0\x88\xa0\x52\x15\x41\xf4\x83\x0c" \
-    "\x49\xc8\xff\x1e\x1f\xbc\xc0\x9b\x71\x6d\x1f\x18" \
-    "\xe8\xd6\x5d\xfd\x44\x1e\x06\x3a\x61\xa0\xb5\x0f" \
-    "\x5a\xfb\xa0\x53\xa1\xa4\x75\xe2\x03\xde\x1e\xe8" \
-    "\xec\x8e\x93\xb6\xd4\xe0\x62\x87\x93\x43\x5c\xc0" \
-    "\xa8\x2c\x19\x95\x25\x00\xbe\x2f\x7c\x3f\xd6\x1b" \
-    "\x77\x3b\x8c\xbb\x1d\x00\x96\x55\xc1\xb2\x2a\x00" \
-    "\x98\xfa\xc0\xd4\x87\x73\xe8\xaf\x3a\x1c\xce\x02" \
-    "\xc3\x59\xf4\x60\x79\x8e\xe5\x39\x00\x59\x7a\x20" \
-    "\x4b\xa3\xdb\xc5\x26\x65\xb1\x49\xe3\xf9\x7e\x40" \
-    "\xb6\x1f\x00\x7f\x87\xd7\xb3\x6c\xa0\xdd\xd6\x69" \
-    "\xb7\x75\x32\xd0\x8a\x46\x2b\x1a\x19\x48\xf3\x9e" \
-    "\x34\xef\xc9\x40\x49\x55\x28\xa9\x8a\x6f\x9d\xe5" \
-    "\xcb\x8d\xbd\xe8\xb3\x7e\xe6\x3f\xfc\x38\x47\x7b" \
-    "\x8b\x6a\xb3\x66\x96\x9a\x5a\x00\x00\x00\x00\x49" \
-    "\x45\x4e\x44\xae\x42\x60\x82"
-
-class MMKitDialog(QDialog):
-    def __init__(self,parent = None,name = None,modal = 0,fl = 0):
-        QDialog.__init__(self,parent,name,modal,fl)
-
-        self.image0 = QPixmap()
-        self.image0.loadFromData(image0_data,"PNG")
-        if not name:
-            self.setName("MMKitDialog")
-
-        self.setSizePolicy(QSizePolicy(QSizePolicy.MinimumExpanding,QSizePolicy.MinimumExpanding,0,0,self.sizePolicy().hasHeightForWidth()))
-        self.setMinimumSize(QSize(190,400))
-        pal = QPalette()
-        cg = QColorGroup()
-        cg.setColor(QColorGroup.Foreground,Qt.black)
-        cg.setColor(QColorGroup.Button,QColor(230,231,230))
-        cg.setColor(QColorGroup.Light,Qt.white)
-        cg.setColor(QColorGroup.Midlight,QColor(242,243,242))
-        cg.setColor(QColorGroup.Dark,QColor(115,115,115))
-        cg.setColor(QColorGroup.Mid,QColor(153,154,153))
-        cg.setColor(QColorGroup.Text,Qt.black)
-        cg.setColor(QColorGroup.BrightText,Qt.white)
-        cg.setColor(QColorGroup.ButtonText,Qt.black)
-        cg.setColor(QColorGroup.Base,Qt.white)
-        cg.setColor(QColorGroup.Background,QColor(230,231,230))
-        cg.setColor(QColorGroup.Shadow,Qt.black)
-        cg.setColor(QColorGroup.Highlight,QColor(0,0,128))
-        cg.setColor(QColorGroup.HighlightedText,Qt.white)
-        cg.setColor(QColorGroup.Link,Qt.black)
-        cg.setColor(QColorGroup.LinkVisited,Qt.black)
-        pal.setActive(cg)
-        cg.setColor(QColorGroup.Foreground,Qt.black)
-        cg.setColor(QColorGroup.Button,QColor(230,231,230))
-        cg.setColor(QColorGroup.Light,Qt.white)
-        cg.setColor(QColorGroup.Midlight,Qt.white)
-        cg.setColor(QColorGroup.Dark,QColor(115,115,115))
-        cg.setColor(QColorGroup.Mid,QColor(153,154,153))
-        cg.setColor(QColorGroup.Text,Qt.black)
-        cg.setColor(QColorGroup.BrightText,Qt.white)
-        cg.setColor(QColorGroup.ButtonText,Qt.black)
-        cg.setColor(QColorGroup.Base,Qt.white)
-        cg.setColor(QColorGroup.Background,QColor(230,231,230))
-        cg.setColor(QColorGroup.Shadow,Qt.black)
-        cg.setColor(QColorGroup.Highlight,QColor(0,0,128))
-        cg.setColor(QColorGroup.HighlightedText,Qt.white)
-        cg.setColor(QColorGroup.Link,QColor(0,0,255))
-        cg.setColor(QColorGroup.LinkVisited,QColor(255,0,255))
-        pal.setInactive(cg)
-        cg.setColor(QColorGroup.Foreground,QColor(128,128,128))
-        cg.setColor(QColorGroup.Button,QColor(230,231,230))
-        cg.setColor(QColorGroup.Light,Qt.white)
-        cg.setColor(QColorGroup.Midlight,Qt.white)
-        cg.setColor(QColorGroup.Dark,QColor(115,115,115))
-        cg.setColor(QColorGroup.Mid,QColor(153,154,153))
-        cg.setColor(QColorGroup.Text,QColor(128,128,128))
-        cg.setColor(QColorGroup.BrightText,Qt.white)
-        cg.setColor(QColorGroup.ButtonText,QColor(128,128,128))
-        cg.setColor(QColorGroup.Base,Qt.white)
-        cg.setColor(QColorGroup.Background,QColor(230,231,230))
-        cg.setColor(QColorGroup.Shadow,Qt.black)
-        cg.setColor(QColorGroup.Highlight,QColor(0,0,128))
-        cg.setColor(QColorGroup.HighlightedText,Qt.white)
-        cg.setColor(QColorGroup.Link,QColor(0,0,255))
-        cg.setColor(QColorGroup.LinkVisited,QColor(255,0,255))
-        pal.setDisabled(cg)
-        self.setPalette(pal)
-        self.setIcon(self.image0)
-
-        MMKitDialogLayout = QVBoxLayout(self,2,2,"MMKitDialogLayout")
-
-        self.elementFrame = QFrame(self,"elementFrame")
-        self.elementFrame.setSizePolicy(QSizePolicy(QSizePolicy.MinimumExpanding,QSizePolicy.MinimumExpanding,0,1,self.elementFrame.sizePolicy().hasHeightForWidth()))
-        self.elementFrame.setMinimumSize(QSize(150,150))
-        self.elementFrame.setFrameShape(QFrame.Box)
-        self.elementFrame.setFrameShadow(QFrame.Raised)
-        MMKitDialogLayout.addWidget(self.elementFrame)
-        spacer4_2_3_2 = QSpacerItem(20,5,QSizePolicy.Minimum,QSizePolicy.Fixed)
-        MMKitDialogLayout.addItem(spacer4_2_3_2)
-
-        self.mmkit_tab = QTabWidget(self,"mmkit_tab")
-        self.mmkit_tab.setEnabled(1)
-        self.mmkit_tab.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Minimum,0,0,self.mmkit_tab.sizePolicy().hasHeightForWidth()))
-
-        self.atomsPage = QWidget(self.mmkit_tab,"atomsPage")
-        atomsPageLayout = QGridLayout(self.atomsPage,1,1,4,2,"atomsPageLayout")
-
-        self.frame5 = QFrame(self.atomsPage,"frame5")
-        self.frame5.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Minimum,0,0,self.frame5.sizePolicy().hasHeightForWidth()))
-        self.frame5.setFrameShape(QFrame.NoFrame)
-        self.frame5.setFrameShadow(QFrame.Plain)
-        frame5Layout = QGridLayout(self.frame5,1,1,2,2,"frame5Layout")
-
-        self.elementButtonGroup = QButtonGroup(self.frame5,"elementButtonGroup")
-        self.elementButtonGroup.setSizePolicy(QSizePolicy(QSizePolicy.MinimumExpanding,QSizePolicy.Minimum,0,0,self.elementButtonGroup.sizePolicy().hasHeightForWidth()))
-        self.elementButtonGroup.setMinimumSize(QSize(0,95))
-        self.elementButtonGroup.setBackgroundOrigin(QButtonGroup.AncestorOrigin)
-        self.elementButtonGroup.setFrameShape(QButtonGroup.NoFrame)
-        self.elementButtonGroup.setFrameShadow(QButtonGroup.Plain)
-        self.elementButtonGroup.setLineWidth(0)
-        self.elementButtonGroup.setExclusive(1)
-        self.elementButtonGroup.setColumnLayout(0,Qt.Vertical)
-        self.elementButtonGroup.layout().setSpacing(0)
-        self.elementButtonGroup.layout().setMargin(0)
-        elementButtonGroupLayout = QGridLayout(self.elementButtonGroup.layout())
-        elementButtonGroupLayout.setAlignment(Qt.AlignTop)
-
-        self.toolButton1 = QToolButton(self.elementButtonGroup,"toolButton1")
-        self.toolButton1.setMinimumSize(QSize(26,26))
-        self.toolButton1.setToggleButton(1)
-        self.elementButtonGroup.insert( self.toolButton1,1)
-
-        elementButtonGroupLayout.addWidget(self.toolButton1,0,4)
-
-        self.toolButton2 = QToolButton(self.elementButtonGroup,"toolButton2")
-        self.toolButton2.setMinimumSize(QSize(26,26))
-        self.toolButton2.setToggleButton(1)
-        self.elementButtonGroup.insert( self.toolButton2,2)
-
-        elementButtonGroupLayout.addWidget(self.toolButton2,0,5)
-
-        self.toolButton6 = QToolButton(self.elementButtonGroup,"toolButton6")
-        self.toolButton6.setMinimumSize(QSize(26,26))
-        self.toolButton6.setToggleButton(1)
-        self.elementButtonGroup.insert( self.toolButton6,6)
-
-        elementButtonGroupLayout.addWidget(self.toolButton6,1,1)
-
-        self.toolButton7 = QToolButton(self.elementButtonGroup,"toolButton7")
-        self.toolButton7.setMinimumSize(QSize(26,26))
-        self.toolButton7.setToggleButton(1)
-        self.elementButtonGroup.insert( self.toolButton7,7)
-
-        elementButtonGroupLayout.addWidget(self.toolButton7,1,2)
-
-        self.toolButton8 = QToolButton(self.elementButtonGroup,"toolButton8")
-        self.toolButton8.setMinimumSize(QSize(26,26))
-        self.toolButton8.setToggleButton(1)
-        self.elementButtonGroup.insert( self.toolButton8,8)
-
-        elementButtonGroupLayout.addWidget(self.toolButton8,1,3)
-
-        self.toolButton10 = QToolButton(self.elementButtonGroup,"toolButton10")
-        self.toolButton10.setMinimumSize(QSize(26,26))
-        self.toolButton10.setToggleButton(1)
-        self.elementButtonGroup.insert( self.toolButton10,10)
-
-        elementButtonGroupLayout.addWidget(self.toolButton10,1,5)
-
-        self.toolButton9 = QToolButton(self.elementButtonGroup,"toolButton9")
-        self.toolButton9.setMinimumSize(QSize(26,26))
-        self.toolButton9.setToggleButton(1)
-        self.elementButtonGroup.insert( self.toolButton9,9)
-
-        elementButtonGroupLayout.addWidget(self.toolButton9,1,4)
-
-        self.toolButton13 = QToolButton(self.elementButtonGroup,"toolButton13")
-        self.toolButton13.setMinimumSize(QSize(26,26))
-        self.toolButton13.setToggleButton(1)
-        self.elementButtonGroup.insert( self.toolButton13,13)
-
-        elementButtonGroupLayout.addWidget(self.toolButton13,2,0)
-
-        self.toolButton17 = QToolButton(self.elementButtonGroup,"toolButton17")
-        self.toolButton17.setMinimumSize(QSize(26,26))
-        self.toolButton17.setToggleButton(1)
-        self.elementButtonGroup.insert( self.toolButton17,17)
-
-        elementButtonGroupLayout.addWidget(self.toolButton17,2,4)
-
-        self.toolButton5 = QToolButton(self.elementButtonGroup,"toolButton5")
-        self.toolButton5.setMinimumSize(QSize(26,26))
-        self.toolButton5.setToggleButton(1)
-        self.elementButtonGroup.insert( self.toolButton5,5)
-
-        elementButtonGroupLayout.addWidget(self.toolButton5,1,0)
-
-        self.toolButton10_2 = QToolButton(self.elementButtonGroup,"toolButton10_2")
-        self.toolButton10_2.setMinimumSize(QSize(26,26))
-        self.toolButton10_2.setToggleButton(1)
-        self.elementButtonGroup.insert( self.toolButton10_2,18)
-
-        elementButtonGroupLayout.addWidget(self.toolButton10_2,2,5)
-
-        self.toolButton15 = QToolButton(self.elementButtonGroup,"toolButton15")
-        self.toolButton15.setMinimumSize(QSize(26,26))
-        self.toolButton15.setToggleButton(1)
-        self.elementButtonGroup.insert( self.toolButton15,15)
-
-        elementButtonGroupLayout.addWidget(self.toolButton15,2,2)
-
-        self.toolButton16 = QToolButton(self.elementButtonGroup,"toolButton16")
-        self.toolButton16.setMinimumSize(QSize(26,26))
-        self.toolButton16.setToggleButton(1)
-        self.elementButtonGroup.insert( self.toolButton16,16)
-
-        elementButtonGroupLayout.addWidget(self.toolButton16,2,3)
-
-        self.toolButton14 = QToolButton(self.elementButtonGroup,"toolButton14")
-        self.toolButton14.setMinimumSize(QSize(26,26))
-        self.toolButton14.setToggleButton(1)
-        self.elementButtonGroup.insert( self.toolButton14,14)
-
-        elementButtonGroupLayout.addWidget(self.toolButton14,2,1)
-
-        self.toolButton33 = QToolButton(self.elementButtonGroup,"toolButton33")
-        self.toolButton33.setMinimumSize(QSize(26,26))
-        self.toolButton33.setToggleButton(1)
-        self.elementButtonGroup.insert( self.toolButton33,33)
-
-        elementButtonGroupLayout.addWidget(self.toolButton33,3,2)
-
-        self.toolButton34 = QToolButton(self.elementButtonGroup,"toolButton34")
-        self.toolButton34.setMinimumSize(QSize(26,26))
-        self.toolButton34.setToggleButton(1)
-        self.elementButtonGroup.insert( self.toolButton34,34)
-
-        elementButtonGroupLayout.addWidget(self.toolButton34,3,3)
-
-        self.toolButton35 = QToolButton(self.elementButtonGroup,"toolButton35")
-        self.toolButton35.setMinimumSize(QSize(26,26))
-        self.toolButton35.setToggleButton(1)
-        self.elementButtonGroup.insert( self.toolButton35,35)
-
-        elementButtonGroupLayout.addWidget(self.toolButton35,3,4)
-
-        self.toolButton32 = QToolButton(self.elementButtonGroup,"toolButton32")
-        self.toolButton32.setMinimumSize(QSize(26,26))
-        self.toolButton32.setToggleButton(1)
-        self.elementButtonGroup.insert( self.toolButton32,32)
-
-        elementButtonGroupLayout.addWidget(self.toolButton32,3,1)
-
-        self.toolButton36 = QToolButton(self.elementButtonGroup,"toolButton36")
-        self.toolButton36.setMinimumSize(QSize(26,26))
-        self.toolButton36.setToggleButton(1)
-        self.elementButtonGroup.insert( self.toolButton36,36)
-
-        elementButtonGroupLayout.addWidget(self.toolButton36,3,5)
-
-        frame5Layout.addWidget(self.elementButtonGroup,0,0)
-
-        atomsPageLayout.addWidget(self.frame5,0,0)
-        spacer8 = QSpacerItem(20,16,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        atomsPageLayout.addItem(spacer8,2,0)
-
-        layout14 = QHBoxLayout(None,0,6,"layout14")
-
-        self.hybrid_btngrp = QButtonGroup(self.atomsPage,"hybrid_btngrp")
-        self.hybrid_btngrp.setSizePolicy(QSizePolicy(QSizePolicy.MinimumExpanding,QSizePolicy.Fixed,0,0,self.hybrid_btngrp.sizePolicy().hasHeightForWidth()))
-        self.hybrid_btngrp.setFrameShape(QButtonGroup.NoFrame)
-        self.hybrid_btngrp.setFrameShadow(QButtonGroup.Plain)
-        self.hybrid_btngrp.setLineWidth(0)
-        self.hybrid_btngrp.setExclusive(1)
-        self.hybrid_btngrp.setColumnLayout(0,Qt.Vertical)
-        self.hybrid_btngrp.layout().setSpacing(0)
-        self.hybrid_btngrp.layout().setMargin(2)
-        hybrid_btngrpLayout = QHBoxLayout(self.hybrid_btngrp.layout())
-        hybrid_btngrpLayout.setAlignment(Qt.AlignTop)
-
-        self.sp3_btn = QToolButton(self.hybrid_btngrp,"sp3_btn")
-        self.sp3_btn.setMinimumSize(QSize(30,30))
-        self.sp3_btn.setToggleButton(1)
-        self.hybrid_btngrp.insert( self.sp3_btn,0)
-        hybrid_btngrpLayout.addWidget(self.sp3_btn)
-
-        self.sp2_btn = QToolButton(self.hybrid_btngrp,"sp2_btn")
-        self.sp2_btn.setMinimumSize(QSize(30,30))
-        self.sp2_btn.setToggleButton(1)
-        self.hybrid_btngrp.insert( self.sp2_btn,1)
-        hybrid_btngrpLayout.addWidget(self.sp2_btn)
-
-        self.sp_btn = QToolButton(self.hybrid_btngrp,"sp_btn")
-        self.sp_btn.setMinimumSize(QSize(30,30))
-        self.sp_btn.setToggleButton(1)
-        self.hybrid_btngrp.insert( self.sp_btn,2)
-        hybrid_btngrpLayout.addWidget(self.sp_btn)
-
-        self.graphitic_btn = QToolButton(self.hybrid_btngrp,"graphitic_btn")
-        self.graphitic_btn.setMinimumSize(QSize(30,30))
-        self.graphitic_btn.setToggleButton(1)
-        self.hybrid_btngrp.insert( self.graphitic_btn,3)
-        hybrid_btngrpLayout.addWidget(self.graphitic_btn)
-        spacer19 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        hybrid_btngrpLayout.addItem(spacer19)
-        layout14.addWidget(self.hybrid_btngrp)
-        spacer18 = QSpacerItem(20,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout14.addItem(spacer18)
-
-        atomsPageLayout.addLayout(layout14,1,0)
-        self.mmkit_tab.insertTab(self.atomsPage,QString.fromLatin1(""))
-
-        self.clipboardPage = QWidget(self.mmkit_tab,"clipboardPage")
-        clipboardPageLayout = QGridLayout(self.clipboardPage,1,1,4,2,"clipboardPageLayout")
-
-        self.chunkListBox = QListBox(self.clipboardPage,"chunkListBox")
-        self.chunkListBox.setSizePolicy(QSizePolicy(QSizePolicy.MinimumExpanding,QSizePolicy.Minimum,0,2,self.chunkListBox.sizePolicy().hasHeightForWidth()))
-        self.chunkListBox.setMinimumSize(QSize(100,100))
-        self.chunkListBox.setVariableWidth(0)
-
-        clipboardPageLayout.addWidget(self.chunkListBox,0,0)
-        self.mmkit_tab.insertTab(self.clipboardPage,QString.fromLatin1(""))
-
-        self.libraryPage = QWidget(self.mmkit_tab,"libraryPage")
-        self.mmkit_tab.insertTab(self.libraryPage,QString.fromLatin1(""))
-        MMKitDialogLayout.addWidget(self.mmkit_tab)
-        spacer10 = QSpacerItem(20,5,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        MMKitDialogLayout.addItem(spacer10)
-
-        layout4 = QHBoxLayout(None,0,0,"layout4")
-        spacer4_2_3_3 = QSpacerItem(5,20,QSizePolicy.Fixed,QSizePolicy.Minimum)
-        layout4.addItem(spacer4_2_3_3)
-
-        self.browseButton = QPushButton(self,"browseButton")
-        self.browseButton.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Fixed,0,0,self.browseButton.sizePolicy().hasHeightForWidth()))
-        self.browseButton.setDefault(1)
-        layout4.addWidget(self.browseButton)
-
-        self.closePTableButton = QPushButton(self,"closePTableButton")
-        self.closePTableButton.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Fixed,0,0,self.closePTableButton.sizePolicy().hasHeightForWidth()))
-        self.closePTableButton.setDefault(1)
-        layout4.addWidget(self.closePTableButton)
-        spacer4_2_3 = QSpacerItem(5,20,QSizePolicy.Fixed,QSizePolicy.Minimum)
-        layout4.addItem(spacer4_2_3)
-        MMKitDialogLayout.addLayout(layout4)
-
-        self.languageChange()
-
-        self.resize(QSize(190,400).expandedTo(self.minimumSizeHint()))
-        self.clearWState(Qt.WState_Polished)
-
-        self.connect(self.closePTableButton,SIGNAL("clicked()"),self.close)
-        self.connect(self.hybrid_btngrp,SIGNAL("clicked(int)"),self.set_hybrid_type)
-        self.connect(self.mmkit_tab,SIGNAL("currentChanged(QWidget*)"),self.setup_current_page)
-        self.connect(self.chunkListBox,SIGNAL("selectionChanged(QListBoxItem*)"),self.chunkChanged)
-        self.connect(self.browseButton,SIGNAL("clicked()"),self.browseDirectories)
-        self.connect(self.elementButtonGroup,SIGNAL("clicked(int)"),self.setElementInfo)
-
-
-
-    def languageChange(self):
-        self.setCaption(self.__tr("MMKit"))
-        QToolTip.add(self,self.__tr("Molecular Modeling Kit"))
-        QToolTip.add(self.elementFrame,self.__tr("3D thumbnail view"))
-        self.elementButtonGroup.setTitle(QString.null)
-        self.toolButton1.setText(self.__tr("H"))
-        self.toolButton1.setAccel(self.__tr("H"))
-        QToolTip.add(self.toolButton1,self.__tr("Hydrogen"))
-        self.toolButton2.setText(self.__tr("He"))
-        self.toolButton2.setAccel(QString.null)
-        QToolTip.add(self.toolButton2,self.__tr("Helium"))
-        self.toolButton6.setText(self.__tr("C"))
-        self.toolButton6.setAccel(self.__tr("C"))
-        QToolTip.add(self.toolButton6,self.__tr("Carbon"))
-        self.toolButton7.setText(self.__tr("N"))
-        self.toolButton7.setAccel(self.__tr("N"))
-        QToolTip.add(self.toolButton7,self.__tr("Nitrogen"))
-        self.toolButton8.setText(self.__tr("O"))
-        self.toolButton8.setAccel(self.__tr("O"))
-        QToolTip.add(self.toolButton8,self.__tr("Oxygen"))
-        self.toolButton10.setText(self.__tr("Ne"))
-        self.toolButton10.setAccel(QString.null)
-        QToolTip.add(self.toolButton10,self.__tr("Neon"))
-        self.toolButton9.setText(self.__tr("F"))
-        self.toolButton9.setAccel(self.__tr("F"))
-        QToolTip.add(self.toolButton9,self.__tr("Fluorine"))
-        self.toolButton13.setText(self.__tr("Al"))
-        self.toolButton13.setAccel(self.__tr("A"))
-        QToolTip.add(self.toolButton13,self.__tr("Aluminum"))
-        self.toolButton17.setText(self.__tr("Cl"))
-        self.toolButton17.setAccel(self.__tr("L"))
-        QToolTip.add(self.toolButton17,self.__tr("Chlorine"))
-        self.toolButton5.setText(self.__tr("B"))
-        self.toolButton5.setAccel(self.__tr("B"))
-        QToolTip.add(self.toolButton5,self.__tr("Boron"))
-        self.toolButton10_2.setText(self.__tr("Ar"))
-        self.toolButton10_2.setAccel(QString.null)
-        QToolTip.add(self.toolButton10_2,self.__tr("Argon"))
-        self.toolButton15.setText(self.__tr("P"))
-        self.toolButton15.setAccel(self.__tr("P"))
-        QToolTip.add(self.toolButton15,self.__tr("Phosphorus"))
-        self.toolButton16.setText(self.__tr("S"))
-        self.toolButton16.setAccel(self.__tr("S"))
-        QToolTip.add(self.toolButton16,self.__tr("Sulfur"))
-        self.toolButton14.setText(self.__tr("Si"))
-        self.toolButton14.setAccel(self.__tr("Q"))
-        QToolTip.add(self.toolButton14,self.__tr("Silicon"))
-        self.toolButton33.setText(self.__tr("As"))
-        QToolTip.add(self.toolButton33,self.__tr("Arsenic"))
-        self.toolButton34.setText(self.__tr("Se"))
-        QToolTip.add(self.toolButton34,self.__tr("Selenium"))
-        self.toolButton35.setText(self.__tr("Br"))
-        QToolTip.add(self.toolButton35,self.__tr("Bromine"))
-        self.toolButton32.setText(self.__tr("Ge"))
-        QToolTip.add(self.toolButton32,self.__tr("Germanium"))
-        self.toolButton36.setText(self.__tr("Kr"))
-        QToolTip.add(self.toolButton36,self.__tr("Krypton"))
-        self.hybrid_btngrp.setTitle(QString.null)
-        self.sp3_btn.setText(QString.null)
-        self.sp3_btn.setAccel(self.__tr("3"))
-        QToolTip.add(self.sp3_btn,self.__tr("sp3"))
-        self.sp2_btn.setText(QString.null)
-        self.sp2_btn.setAccel(self.__tr("2"))
-        QToolTip.add(self.sp2_btn,self.__tr("sp2"))
-        self.sp_btn.setText(QString.null)
-        self.sp_btn.setAccel(self.__tr("1"))
-        QToolTip.add(self.sp_btn,self.__tr("sp"))
-        self.graphitic_btn.setText(QString.null)
-        self.graphitic_btn.setAccel(self.__tr("4"))
-        QToolTip.add(self.graphitic_btn,self.__tr("Graphitic"))
-        self.mmkit_tab.changeTab(self.atomsPage,QString.null)
-        self.mmkit_tab.changeTab(self.clipboardPage,QString.null)
-        self.mmkit_tab.changeTab(self.libraryPage,QString.null)
-        self.browseButton.setText(self.__tr("Browse..."))
-        QToolTip.add(self.browseButton,self.__tr("Open file chooser dialog to select a new directory."))
-        self.closePTableButton.setText(self.__tr("Close"))
-
-
-    def setElementInfo(self,a0):
-        print "MMKitDialog.setElementInfo(int): Not implemented yet"
-
-    def set_hybrid_type(self,a0):
-        print "MMKitDialog.set_hybrid_type(int): Not implemented yet"
-
-    def setup_current_page(self):
-        print "MMKitDialog.setup_current_page(): Not implemented yet"
-
-    def chunkChanged(self,a0):
-        print "MMKitDialog.chunkChanged(QListBoxItem*): Not implemented yet"
-
-    def browseDirectories(self):
-        print "MMKitDialog.browseDirectories(): Not implemented yet"
-
-    def __tr(self,s,c = None):
-        return qApp.translate("MMKitDialog",s,c)
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+"""
+MMKit.py 
+
+$Id$
+
+History: 
+
+Originally created by Mark and Huaicai using Qt3 designer
+Till Alpha8,  MMKit existed  as a Dialog. 
+
+In October 2006 Will ported MMKitDialog to NE1 on Qt4 
+
+October 2006 onwards Ninad integrated Build Dashboard and MMKitDialog 
+and converted it into a 'Property Manager' 
+
+ninad070207 made enhancements to this Build Property Manager
+
+As of 070207 it is still refered as MMKitDialog. Should really be called
+'Build Property Manager' as it also implements old dashboard functionality
+-- ninad 070207
+
+"""
+
+import sys
+from PyQt4 import QtCore, QtGui
+from PyQt4.Qt import *
+from Utility import geticon, getpixmap
+import env
+from prefs_constants import *
+        
+class Ui_MMKitDialog(object):
+    def setupUi(self, MMKitDialog):
+        MMKitDialog.setObjectName("MMKitDialog")
+        MMKitDialog.resize(QtCore.QSize(QtCore.QRect(0,0,200,1000).size()).expandedTo(MMKitDialog.minimumSizeHint()))
+        
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(3),QtGui.QSizePolicy.Policy(3))
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(MMKitDialog.sizePolicy().hasHeightForWidth())
+        MMKitDialog.setSizePolicy(sizePolicy)
+        #MMKitDialog.setMinimumSize(QtCore.QSize(190,750))
+
+        palette = QtGui.QPalette()
+        palette.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(0),QtGui.QColor(0,0,0))
+        palette.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(1),QtGui.QColor(230,231,230))
+        palette.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(2),QtGui.QColor(255,255,255))
+        palette.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(3),QtGui.QColor(242,243,242))
+        palette.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(4),QtGui.QColor(115,115,115))
+        palette.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(5),QtGui.QColor(153,154,153))
+        palette.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(6),QtGui.QColor(0,0,0))
+        palette.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(7),QtGui.QColor(255,255,255))
+        palette.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(8),QtGui.QColor(0,0,0))
+        palette.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(9),QtGui.QColor(255,255,255))
+        palette.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(10),QtGui.QColor(230,231,230))
+        palette.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(11),QtGui.QColor(0,0,0))
+        palette.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(12),QtGui.QColor(0,0,128))
+        palette.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(13),QtGui.QColor(255,255,255))
+        palette.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(14),QtGui.QColor(0,0,0))
+        palette.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(15),QtGui.QColor(0,0,0))
+        palette.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(16),QtGui.QColor(232,232,232))
+        palette.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(0),QtGui.QColor(0,0,0))
+        palette.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(1),QtGui.QColor(230,231,230))
+        palette.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(2),QtGui.QColor(255,255,255))
+        palette.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(3),QtGui.QColor(255,255,255))
+        palette.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(4),QtGui.QColor(115,115,115))
+        palette.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(5),QtGui.QColor(153,154,153))
+        palette.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(6),QtGui.QColor(0,0,0))
+        palette.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(7),QtGui.QColor(255,255,255))
+        palette.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(8),QtGui.QColor(0,0,0))
+        palette.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(9),QtGui.QColor(255,255,255))
+        palette.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(10),QtGui.QColor(230,231,230))
+        palette.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(11),QtGui.QColor(0,0,0))
+        palette.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(12),QtGui.QColor(0,0,128))
+        palette.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(13),QtGui.QColor(255,255,255))
+        palette.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(14),QtGui.QColor(0,0,255))
+        palette.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(15),QtGui.QColor(255,0,255))
+        palette.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(16),QtGui.QColor(232,232,232))
+        palette.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(0),QtGui.QColor(128,128,128))
+        palette.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(1),QtGui.QColor(230,231,230))
+        palette.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(2),QtGui.QColor(255,255,255))
+        palette.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(3),QtGui.QColor(255,255,255))
+        palette.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(4),QtGui.QColor(115,115,115))
+        palette.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(5),QtGui.QColor(153,154,153))
+        palette.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(6),QtGui.QColor(128,128,128))
+        palette.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(7),QtGui.QColor(255,255,255))
+        palette.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(8),QtGui.QColor(128,128,128))
+        palette.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(9),QtGui.QColor(255,255,255))
+        palette.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(10),QtGui.QColor(230,231,230))
+        palette.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(11),QtGui.QColor(0,0,0))
+        palette.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(12),QtGui.QColor(0,0,128))
+        palette.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(13),QtGui.QColor(255,255,255))
+        palette.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(14),QtGui.QColor(0,0,255))
+        palette.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(15),QtGui.QColor(255,0,255))
+        palette.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(16),QtGui.QColor(232,232,232))
+        MMKitDialog.setPalette(palette)
+
+        self.vboxlayout = QtGui.QVBoxLayout(MMKitDialog)
+        self.vboxlayout.setMargin(1)
+        self.vboxlayout.setSpacing(1)
+        self.vboxlayout.setObjectName("vboxlayout")
+        
+        self.heading_frame = QtGui.QFrame(MMKitDialog)
+        self.heading_frame.setFrameShape(QtGui.QFrame.NoFrame)
+        self.heading_frame.setFrameShadow(QtGui.QFrame.Plain)
+        self.heading_frame.setObjectName("heading_frame")
+        
+        palette2 = QtGui.QPalette()
+        palette2.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(10),QtGui.QColor(150,150,140)) #bgrole(10) is 'Windows'
+        palette2.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(10),QtGui.QColor(150, 150,140)) #bgrole(10) is 'Windows'
+        palette2.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(10),QtGui.QColor(150,150,140)) #bgrole(10) is 'Windows'
+        self.heading_frame.setAutoFillBackground(True)
+        self.heading_frame.setPalette(palette2)
+
+        self.hboxlayout_heading = QtGui.QHBoxLayout(self.heading_frame)
+        self.hboxlayout_heading .setMargin(0)
+        self.hboxlayout_heading .setSpacing(3)
+        self.hboxlayout_heading .setObjectName("hboxlayout")
+        
+        self.heading_pixmap = QtGui.QLabel(self.heading_frame)
+        self.heading_pixmap.setPixmap(getpixmap('ui/actions/Tools/Build Structures/Atoms.png'))     
+        
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(0),QtGui.QSizePolicy.Policy(0))
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.heading_pixmap.sizePolicy().hasHeightForWidth())
+        self.heading_pixmap.setSizePolicy(sizePolicy)
+        #self.heading_pixmap.setScaledContents(True)
+        self.heading_pixmap.setObjectName("heading_pixmap")
+        self.hboxlayout_heading .addWidget(self.heading_pixmap)
+        
+        self.heading_label = QtGui.QLabel(self.heading_frame)
+
+        font = QtGui.QFont(self.heading_label.font())
+        font.setFamily("Sans Serif")
+        font.setPointSize(12)
+        font.setWeight(75)
+        font.setItalic(False)
+        font.setUnderline(False)
+        font.setStrikeOut(False)
+        font.setBold(True)
+        self.heading_label.setFont(font)
+        self.heading_label.setObjectName("heading_label")
+        
+        self.hboxlayout_heading .addWidget(self.heading_label)
+        
+        self.vboxlayout.addWidget(self.heading_frame)
+
+        self.sponsor_frame = QtGui.QFrame(MMKitDialog)
+        self.sponsor_frame.setFrameShape(QtGui.QFrame.NoFrame)
+        self.sponsor_frame.setFrameShadow(QtGui.QFrame.Plain)
+        self.sponsor_frame.setObjectName("sponsor_frame")
+
+        self.gridlayout_sponsor = QtGui.QGridLayout(self.sponsor_frame)
+        self.gridlayout_sponsor.setMargin(0)
+        self.gridlayout_sponsor.setSpacing(0)
+        self.gridlayout_sponsor.setObjectName("gridlayout")
+
+        self.sponsor_btn = QtGui.QPushButton(self.sponsor_frame)
+        self.sponsor_btn.setAutoDefault(False)
+        self.sponsor_btn.setFlat(True)
+        self.sponsor_btn.setObjectName("sponsor_btn")
+        self.gridlayout_sponsor.addWidget(self.sponsor_btn,0,0,1,1)
+        
+        self.vboxlayout.addWidget(self.sponsor_frame)
+        
+        # ninad 070221 Call methods that define different groupboxes and 
+        #done cancel rows (groupbox  methods also define spacer items 
+        #after the groupbox)
+        self.ui_doneCancelButtonRow(MMKitDialog)
+        
+        self.ui_bondTools_grpBox(MMKitDialog)
+        
+        self.ui_preview_GroupBox(MMKitDialog)
+        
+        self.ui_MMKit_GroupBox(MMKitDialog)
+        
+        self.ui_selectionFilter_GroupBox(MMKitDialog)
+        
+        self.ui_advancedOps_GroupBox(MMKitDialog)
+                                
+        ######################################################.
+        
+        #ninad 070120 Following spacerItem is important to add in the main vboxlayout to prevent the size adjustments in 
+        #the property manager when the group items are hidden 
+        spacerItem4 = QtGui.QSpacerItem(20,5,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
+        self.vboxlayout.addItem(spacerItem4)
+
+        
+        self.retranslateUi(MMKitDialog)
+        
+        QtCore.QMetaObject.connectSlotsByName(MMKitDialog)
+    
+    def ui_doneCancelButtonRow(self, MMKitDialog):
+        #Start Done , Abort, button row
+        
+        hboxlayout_buttonrow = QtGui.QHBoxLayout()
+        
+        leftSpacer = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QSizePolicy.Minimum)
+        hboxlayout_buttonrow.addItem(leftSpacer)
+        
+                        
+        self.button_frame = QtGui.QFrame(MMKitDialog)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(0),QtGui.QSizePolicy.Policy(0))
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.button_frame.sizePolicy().hasHeightForWidth())
+        self.button_frame.setSizePolicy(sizePolicy)
+        self.button_frame.setFrameShape(QtGui.QFrame.StyledPanel)
+        self.button_frame.setFrameShadow(QtGui.QFrame.Raised)
+        self.button_frame.setObjectName("button_frame")
+        
+        self.hboxlayout_buttonframe = QtGui.QHBoxLayout(self.button_frame)
+        self.hboxlayout_buttonframe.setMargin(2)
+        self.hboxlayout_buttonframe.setSpacing(2)
+        self.hboxlayout_buttonframe.setObjectName("hboxlayout_buttonframe")
+                
+        self.done_btn = QtGui.QPushButton(self.button_frame)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(0),QtGui.QSizePolicy.Policy(0))
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.done_btn.sizePolicy().hasHeightForWidth())
+        self.done_btn.setSizePolicy(sizePolicy)
+
+        self.done_btn.setIcon(geticon("ui/actions/Properties Manager/Done.png"))
+        self.done_btn.setObjectName("done_btn")
+        
+        self.hboxlayout_buttonframe.addWidget(self.done_btn)
+                
+        self.whatthis_btn = QtGui.QPushButton(self.button_frame)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(0),QtGui.QSizePolicy.Policy(0))
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.whatthis_btn.sizePolicy().hasHeightForWidth())
+        self.whatthis_btn.setSizePolicy(sizePolicy)
+        self.whatthis_btn.setIcon(geticon("ui/actions/Properties Manager/WhatsThis.png"))
+        self.whatthis_btn.setObjectName("whatthis_btn")
+        self.hboxlayout_buttonframe.addWidget(self.whatthis_btn)
+        
+        hboxlayout_buttonrow.addWidget(self.button_frame)
+        
+        rightSpacer = QtGui.QSpacerItem(40, 10, QtGui.QSizePolicy.Expanding, QSizePolicy.Minimum)
+        hboxlayout_buttonrow.addItem(rightSpacer)
+    
+        #self.vboxlayout.addWidget(self.button_frame)
+        self.vboxlayout.addLayout(hboxlayout_buttonrow)
+        
+        #End Done , Abort button row
+    
+    def ui_bondTools_grpBox(self, MMKitDialog):
+        #Start Atom Bond tools Groupbox
+    
+	self.bondTools_grpBox = QtGui.QGroupBox(MMKitDialog)
+	self.bondTools_grpBox.setObjectName("bondTools_grpBox")
+	
+	self.bondTools_grpBox.setAutoFillBackground(True) 
+	palette = MMKitDialog.getGroupBoxPalette()
+	self.bondTools_grpBox.setPalette(palette)
+	
+	styleSheet = MMKitDialog.getGroupBoxStyleSheet()        
+	self.bondTools_grpBox.setStyleSheet(styleSheet)
+
+	self.vboxlayout_grpbox1 = QtGui.QVBoxLayout(self.bondTools_grpBox)
+	self.vboxlayout_grpbox1.setMargin(0)
+	self.vboxlayout_grpbox1.setSpacing(0)
+	self.vboxlayout_grpbox1.setObjectName("vboxlayout_grpbox1")
+	
+	self.bondTool_groupBoxButton = MMKitDialog.getGroupBoxTitleButton(
+	    "Bonds Tool", 
+	    self.bondTools_grpBox)      
+	
+	self.vboxlayout_grpbox1.addWidget(self.bondTool_groupBoxButton)
+	
+	#Atom and bond Tools action
+	#Following Actions are added in the Flyout toolbar. 
+	#Defining them outside that method as those are being used
+	#by the subclasses of deposit mode (testmode.py as of 070410) -- ninad
+	
+	self.depositAtomsAction = QtGui.QWidgetAction(self.w)
+	self.depositAtomsAction.setText("Atoms Tool")
+	self.depositAtomsAction.setIcon(geticon(
+	    'ui/actions/Toolbars/Smart/Deposit_Atoms'))
+	self.depositAtomsAction.setCheckable(True)
+	self.depositAtomsAction.setChecked(True)
+	
+		
+	self.transmuteBondsAction = QtGui.QWidgetAction(self.w)
+	self.transmuteBondsAction.setText("Bonds Tool")
+	self.transmuteBondsAction.setIcon(geticon(
+	    'ui/actions/Toolbars/Smart/Transmute_Bonds'))
+	self.transmuteBondsAction.setCheckable(True)
+		
+	self.bondToolWidget = QtGui.QWidget(self.bondTools_grpBox)	
+	
+	hlo_bondtool = QtGui.QHBoxLayout(self.bondToolWidget)
+	hlo_bondtool.setMargin(2)
+	hlo_bondtool.setSpacing(2)
+    
+	self.bondToolsActionGroup = QtGui.QActionGroup(MMKitDialog.w)
+	self.bondToolsActionGroup.setExclusive(True)
+		
+	self.bond1Action = QtGui.QWidgetAction(MMKitDialog.w)  
+	self.bond1Action.setText("Single")
+	self.bond1Action.setIcon(geticon("ui/dashboard/bond1.png"))
+    
+	self.bond2Action = QtGui.QWidgetAction(MMKitDialog.w)  
+	self.bond2Action.setText("Double")
+	self.bond2Action.setIcon(geticon("ui/dashboard/bond2.png"))
+	
+	self.bond3Action = QtGui.QWidgetAction(MMKitDialog.w)  
+	self.bond3Action.setText("Triple")
+	self.bond3Action.setIcon(geticon("ui/dashboard/bond3.png"))
+	
+	self.bondaAction = QtGui.QWidgetAction(MMKitDialog.w)  
+	self.bondaAction.setText("Aromatic")
+	self.bondaAction.setIcon(geticon("ui/dashboard/bonda.png"))
+	
+	self.bondgAction = QtGui.QWidgetAction(MMKitDialog.w)  
+	self.bondgAction.setText("Graphitic")
+	self.bondgAction.setIcon(geticon("ui/dashboard/bondg.png"))
+
+	for action in self.bond1Action, self.bond2Action, self.bond3Action,self.bondaAction, self.bondgAction:
+	    
+	    btn = QtGui.QToolButton()
+	    btn.setDefaultAction(action)       
+	    btn.setIconSize(QtCore.QSize(22,22))
+	    btn.setAutoRaise(1)        
+	    action.setCheckable(True)	
+	    self.bondToolsActionGroup.addAction(action)
+	    hlo_bondtool.addWidget(btn)
+       
+	self.vboxlayout_grpbox1.addWidget(self.bondToolWidget)
+	
+	#End Atom Bond Tools Groupbox
+	self.vboxlayout.addWidget(self.bondTools_grpBox)
+	spacer_BondTools_grpbx = QtGui.QSpacerItem(10,10,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+	self.vboxlayout.addItem(spacer_BondTools_grpbx)
+    
+    def ui_preview_GroupBox(self, MMKitDialog):
+        # Start MMKit ThumbView  (Preview) GroupBox        
+        
+        self.thumbView_groupBox = QtGui.QGroupBox(MMKitDialog)
+        self.thumbView_groupBox.setObjectName("thumbView_groupBox")
+        
+        self.thumbView_groupBox.setAutoFillBackground(True) 
+        palette = MMKitDialog.getGroupBoxPalette()
+        self.thumbView_groupBox.setPalette(palette)
+        
+        styleSheet = MMKitDialog.getGroupBoxStyleSheet()        
+        self.thumbView_groupBox.setStyleSheet(styleSheet)
+        
+        
+        self.vboxlayout_grpbox2 = QtGui.QVBoxLayout(self.thumbView_groupBox)
+        self.vboxlayout_grpbox2.setMargin(0)
+        self.vboxlayout_grpbox2.setSpacing(0)
+        self.vboxlayout_grpbox2.setObjectName("vboxlayout_grpbox2")
+
+        self.thumbView_groupBoxButton = MMKitDialog.getGroupBoxTitleButton("Preview", self.thumbView_groupBox)
+        
+        self.vboxlayout_grpbox2.addWidget(self.thumbView_groupBoxButton)
+      
+               
+        self.elementFrame = QtGui.QFrame(self.thumbView_groupBox)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(3),QtGui.QSizePolicy.Policy(0))
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(1)
+        sizePolicy.setHeightForWidth(self.elementFrame.sizePolicy().hasHeightForWidth())
+        self.elementFrame.setSizePolicy(sizePolicy)
+        self.elementFrame.setMinimumSize(QtCore.QSize(150,150))
+        self.elementFrame.setFrameShape(QtGui.QFrame.Box)
+        self.elementFrame.setFrameShadow(QtGui.QFrame.Raised)
+        self.elementFrame.setObjectName("elementFrame")
+        
+        self.vboxlayout_grpbox2.addWidget(self.elementFrame)   
+    
+        #End  MMKit ThumbView  (Preview) GroupBox 
+        self.vboxlayout.addWidget(self.thumbView_groupBox)        
+        spacer_thumbview_grpbx = QtGui.QSpacerItem(10,10,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.vboxlayout.addItem(spacer_thumbview_grpbx)
+    
+    def ui_MMKit_GroupBox(self, MMKitDialog):        
+        #Start MMKit groupbox (includes atom, clipboard and library tabs)
+        self.MMKit_groupBox = QtGui.QGroupBox(MMKitDialog)
+        self.MMKit_groupBox.setObjectName("MMKit_groupBox")
+        
+        self.MMKit_groupBox.setAutoFillBackground(True) 
+        palette = MMKitDialog.getGroupBoxPalette()
+        self.MMKit_groupBox.setPalette(palette)
+        
+        styleSheet = MMKitDialog.getGroupBoxStyleSheet()        
+        self.MMKit_groupBox.setStyleSheet(styleSheet)
+
+        self.vboxlayout_grpbox3 = QtGui.QVBoxLayout(self.MMKit_groupBox)
+        self.vboxlayout_grpbox3.setMargin(0)
+        self.vboxlayout_grpbox3.setSpacing(0)
+        self.vboxlayout_grpbox3.setObjectName("vboxlayout_grpbox3")
+
+        self.MMKit_groupBoxButton = MMKitDialog.getGroupBoxTitleButton("MMKit", self.MMKit_groupBox)
+       
+        self.vboxlayout_grpbox3.addWidget(self.MMKit_groupBoxButton)
+
+        self.mmkit_tab = QtGui.QTabWidget(self.MMKit_groupBox)
+        self.mmkit_tab.setEnabled(True)
+        #self.mmkit_tab.setMinimumSize(QtCore.QSize(100, 200))        
+        
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(1),QtGui.QSizePolicy.Policy(1))
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.mmkit_tab.sizePolicy().hasHeightForWidth())
+        self.mmkit_tab.setSizePolicy(sizePolicy)
+        
+        self.mmkit_tab.setObjectName("mmkit_tab")
+
+        self.atomsPage = QtGui.QWidget()
+        self.atomsPage.setObjectName("atomsPage")
+        
+        self.mmkit_tab.addTab(self.atomsPage, "")    
+
+        self.frame5 = QtGui.QFrame(self.atomsPage)
+        
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(3),QtGui.QSizePolicy.Policy(1))
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.frame5.sizePolicy().hasHeightForWidth())
+        self.frame5.setSizePolicy(sizePolicy)
+        self.frame5.setFrameShape(QtGui.QFrame.NoFrame)
+        self.frame5.setFrameShadow(QtGui.QFrame.Plain)
+        self.frame5.setMinimumSize(QtCore.QSize(100,100))
+        self.frame5.setObjectName("frame5")
+        
+        self.vboxlayout_atomsPage = QtGui.QVBoxLayout(self.frame5)
+        self.vboxlayout_atomsPage.setMargin(4)
+        self.vboxlayout_atomsPage.setSpacing(2)
+
+        self.elementButtonGroup = QtGui.QGroupBox(self.frame5)
+
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(3),QtGui.QSizePolicy.Policy(1))
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.elementButtonGroup.sizePolicy().hasHeightForWidth())
+        self.elementButtonGroup.setSizePolicy(sizePolicy)
+        self.elementButtonGroup.setMinimumSize(QtCore.QSize(0,95))
+        self.elementButtonGroup.setObjectName("elementButtonGroup")
+
+        self.gridlayout2 = QtGui.QGridLayout(self.elementButtonGroup)
+        self.gridlayout2.setMargin(0)
+        self.gridlayout2.setSpacing(0)
+        self.gridlayout2.setObjectName("gridlayout2")
+
+        self.toolButton1 = QtGui.QToolButton(self.elementButtonGroup)
+        self.toolButton1.setMinimumSize(QtCore.QSize(26,26))
+        self.toolButton1.setCheckable(True)
+        self.toolButton1.setObjectName("toolButton1")
+        self.gridlayout2.addWidget(self.toolButton1,0,4,1,1)
+
+        self.toolButton2 = QtGui.QToolButton(self.elementButtonGroup)
+        self.toolButton2.setMinimumSize(QtCore.QSize(26,26))
+        self.toolButton2.setCheckable(True)
+        self.toolButton2.setObjectName("toolButton2")
+        self.gridlayout2.addWidget(self.toolButton2,0,5,1,1)
+
+        self.toolButton6 = QtGui.QToolButton(self.elementButtonGroup)
+        self.toolButton6.setMinimumSize(QtCore.QSize(26,26))
+        self.toolButton6.setCheckable(True)
+        self.toolButton6.setObjectName("toolButton6")
+        self.gridlayout2.addWidget(self.toolButton6,1,1,1,1)
+
+        self.toolButton7 = QtGui.QToolButton(self.elementButtonGroup)
+        self.toolButton7.setMinimumSize(QtCore.QSize(26,26))
+        self.toolButton7.setCheckable(True)
+        self.toolButton7.setObjectName("toolButton7")
+        self.gridlayout2.addWidget(self.toolButton7,1,2,1,1)
+
+        self.toolButton8 = QtGui.QToolButton(self.elementButtonGroup)
+        self.toolButton8.setMinimumSize(QtCore.QSize(26,26))
+        self.toolButton8.setCheckable(True)
+        self.toolButton8.setObjectName("toolButton8")
+        self.gridlayout2.addWidget(self.toolButton8,1,3,1,1)
+
+        self.toolButton10 = QtGui.QToolButton(self.elementButtonGroup)
+        self.toolButton10.setMinimumSize(QtCore.QSize(26,26))
+        self.toolButton10.setCheckable(True)
+        self.toolButton10.setObjectName("toolButton10")
+        self.gridlayout2.addWidget(self.toolButton10,1,5,1,1)
+
+        self.toolButton9 = QtGui.QToolButton(self.elementButtonGroup)
+        self.toolButton9.setMinimumSize(QtCore.QSize(26,26))
+        self.toolButton9.setCheckable(True)
+        self.toolButton9.setObjectName("toolButton9")
+        self.gridlayout2.addWidget(self.toolButton9,1,4,1,1)
+
+        self.toolButton13 = QtGui.QToolButton(self.elementButtonGroup)
+        self.toolButton13.setMinimumSize(QtCore.QSize(26,26))
+        self.toolButton13.setCheckable(True)
+        self.toolButton13.setObjectName("toolButton13")
+        self.gridlayout2.addWidget(self.toolButton13,2,0,1,1)
+
+        self.toolButton17 = QtGui.QToolButton(self.elementButtonGroup)
+        self.toolButton17.setMinimumSize(QtCore.QSize(26,26))
+        self.toolButton17.setCheckable(True)
+        self.toolButton17.setObjectName("toolButton17")
+        self.gridlayout2.addWidget(self.toolButton17,2,4,1,1)
+
+        self.toolButton5 = QtGui.QToolButton(self.elementButtonGroup)
+        self.toolButton5.setMinimumSize(QtCore.QSize(26,26))
+        self.toolButton5.setCheckable(True)
+        self.toolButton5.setObjectName("toolButton5")
+        self.gridlayout2.addWidget(self.toolButton5,1,0,1,1)
+
+        self.toolButton10_2 = QtGui.QToolButton(self.elementButtonGroup)
+        self.toolButton10_2.setMinimumSize(QtCore.QSize(26,26))
+        self.toolButton10_2.setCheckable(True)
+        self.toolButton10_2.setObjectName("toolButton10_2")
+        self.gridlayout2.addWidget(self.toolButton10_2,2,5,1,1)
+
+        self.toolButton15 = QtGui.QToolButton(self.elementButtonGroup)
+        self.toolButton15.setMinimumSize(QtCore.QSize(26,26))
+        self.toolButton15.setCheckable(True)
+        self.toolButton15.setObjectName("toolButton15")
+        self.gridlayout2.addWidget(self.toolButton15,2,2,1,1)
+
+        self.toolButton16 = QtGui.QToolButton(self.elementButtonGroup)
+        self.toolButton16.setMinimumSize(QtCore.QSize(26,26))
+        self.toolButton16.setCheckable(True)
+        self.toolButton16.setObjectName("toolButton16")
+        self.gridlayout2.addWidget(self.toolButton16,2,3,1,1)
+
+        self.toolButton14 = QtGui.QToolButton(self.elementButtonGroup)
+        self.toolButton14.setMinimumSize(QtCore.QSize(26,26))
+        self.toolButton14.setCheckable(True)
+        self.toolButton14.setObjectName("toolButton14")
+        self.gridlayout2.addWidget(self.toolButton14,2,1,1,1)
+
+        self.toolButton33 = QtGui.QToolButton(self.elementButtonGroup)
+        self.toolButton33.setMinimumSize(QtCore.QSize(26,26))
+        self.toolButton33.setCheckable(True)
+        self.toolButton33.setObjectName("toolButton33")
+        self.gridlayout2.addWidget(self.toolButton33,3,2,1,1)
+
+        self.toolButton34 = QtGui.QToolButton(self.elementButtonGroup)
+        self.toolButton34.setMinimumSize(QtCore.QSize(26,26))
+        self.toolButton34.setCheckable(True)
+        self.toolButton34.setObjectName("toolButton34")
+        self.gridlayout2.addWidget(self.toolButton34,3,3,1,1)
+
+        self.toolButton35 = QtGui.QToolButton(self.elementButtonGroup)
+        self.toolButton35.setMinimumSize(QtCore.QSize(26,26))
+        self.toolButton35.setCheckable(True)
+        self.toolButton35.setObjectName("toolButton35")
+        self.gridlayout2.addWidget(self.toolButton35,3,4,1,1)
+
+        self.toolButton32 = QtGui.QToolButton(self.elementButtonGroup)
+        self.toolButton32.setMinimumSize(QtCore.QSize(26,26))
+        self.toolButton32.setCheckable(True)
+        self.toolButton32.setObjectName("toolButton32")
+        self.gridlayout2.addWidget(self.toolButton32,3,1,1,1)
+
+        self.toolButton36 = QtGui.QToolButton(self.elementButtonGroup)
+        self.toolButton36.setMinimumSize(QtCore.QSize(26,26))
+        self.toolButton36.setCheckable(True)
+        self.toolButton36.setObjectName("toolButton36")
+        self.gridlayout2.addWidget(self.toolButton36,3,5,1,1)
+        
+        self.vboxlayout_atomsPage.addWidget(self.elementButtonGroup)
+          
+        spacerItem1 = QtGui.QSpacerItem(20,16,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
+        
+        
+        self.hboxlayout = QtGui.QHBoxLayout()
+        self.hboxlayout.setMargin(0)
+        self.hboxlayout.setSpacing(6)
+        self.hboxlayout.setObjectName("hboxlayout")
+
+        self.hybrid_btngrp = QtGui.QGroupBox(self.frame5)
+        self.hybrid_btngrp.setObjectName("hybrid_btngrp")
+        self.hboxlayout.addWidget(self.hybrid_btngrp)
+        
+
+        self.hboxlayout1 = QtGui.QHBoxLayout(self.hybrid_btngrp)
+        self.hboxlayout1.setMargin(2)
+        self.hboxlayout1.setSpacing(0)
+        self.hboxlayout1.setObjectName("hboxlayout1")
+
+        self.sp3_btn = QtGui.QToolButton(self.hybrid_btngrp)
+        self.sp3_btn.setMinimumSize(QtCore.QSize(30,30))
+        self.sp3_btn.setCheckable(True)
+        self.sp3_btn.setObjectName("sp3_btn")
+        self.hboxlayout1.addWidget(self.sp3_btn)
+
+        self.sp2_btn = QtGui.QToolButton(self.hybrid_btngrp)
+        self.sp2_btn.setMinimumSize(QtCore.QSize(30,30))
+        self.sp2_btn.setCheckable(True)
+        self.sp2_btn.setObjectName("sp2_btn")
+        self.hboxlayout1.addWidget(self.sp2_btn)
+
+        self.sp_btn = QtGui.QToolButton(self.hybrid_btngrp)
+        self.sp_btn.setMinimumSize(QtCore.QSize(30,30))
+        self.sp_btn.setCheckable(True)
+        self.sp_btn.setObjectName("sp_btn")
+        self.hboxlayout1.addWidget(self.sp_btn)
+
+        self.graphitic_btn = QtGui.QToolButton(self.hybrid_btngrp)
+        self.graphitic_btn.setMinimumSize(QtCore.QSize(30,30))
+        self.graphitic_btn.setCheckable(True)
+        self.graphitic_btn.setObjectName("graphitic_btn")
+        self.hboxlayout1.addWidget(self.graphitic_btn)
+
+        spacerItem2 = QtGui.QSpacerItem(16,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.hboxlayout1.addItem(spacerItem2)   
+        
+        #ninad 071017 - specify the height of spacer item in hboxlayout slightly larger than 
+        #the hboxlayout1 which contains hybrid button group. 
+        #This is needed to fix (or woraround) an annoying bug when the hybrid button group is hidden.
+        #(that bug is: when hybrid btns are hidden, the element button group size changes) 
+        # specifying spaceritems height as self.hybrid_btngrp.height() + 10 ensures that 
+        #self.hboxlayout's height is governed by spacerItem3 (which is always visible) 
+        
+        spacerItem3 = QtGui.QSpacerItem(20,self.hybrid_btngrp.height() + 10,
+                                        QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        
+        self.hboxlayout.addItem(spacerItem3)         
+         
+        self.vboxlayout_atomsPage.addLayout(self.hboxlayout)
+
+        self.clipboardPage = QtGui.QWidget()
+        self.clipboardPage.setObjectName("clipboardPage")
+
+        self.gridlayout3 = QtGui.QGridLayout(self.clipboardPage)
+        self.gridlayout3.setMargin(4)
+        self.gridlayout3.setSpacing(2)
+        self.gridlayout3.setObjectName("gridlayout3")
+
+        self.chunkListBox = QtGui.QListWidget(self.clipboardPage)
+
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(3),QtGui.QSizePolicy.Policy(1))
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(2)
+        sizePolicy.setHeightForWidth(self.chunkListBox.sizePolicy().hasHeightForWidth())
+        self.chunkListBox.setSizePolicy(sizePolicy)
+        self.chunkListBox.setMinimumSize(QtCore.QSize(100,100))
+        self.chunkListBox.setObjectName("chunkListBox")
+        self.gridlayout3.addWidget(self.chunkListBox,0,0,1,1)
+        self.mmkit_tab.addTab(self.clipboardPage, "")
+        
+        
+        self.libraryPage = QtGui.QWidget()
+        #self.libraryPage = QtGui.QScrollArea()
+        #self.libraryPageWidget = QtGui.QWidget()
+        #self.libraryPage.setWidget(self.libraryPageWidget)
+        self.libraryPage.setObjectName("libraryPage")
+        self.mmkit_tab.addTab(self.libraryPage, "")
+        self.vboxlayout_grpbox3.addWidget(self.mmkit_tab)
+        
+        self.transmuteAtomsAction = QtGui.QWidgetAction(self.w)
+	self.transmuteAtomsAction.setText("Transmute")
+	self.transmuteAtomsAction.setIcon(geticon(
+	    'ui/actions/Toolbars/Smart/Transmute_Atoms'))	
+	self.transmuteAtomsAction.setCheckable(False)
+	
+        hlo_1 = QtGui.QHBoxLayout()
+	
+        self.transmuteBtn = QtGui.QToolButton(self.MMKit_groupBox)
+	self.transmuteBtn.setDefaultAction(self.transmuteAtomsAction)
+        self.transmuteBtn.setFixedSize(QtCore.QSize(36, 36))
+	self.transmuteBtn.setIconSize(QtCore.QSize(22,22))
+        hlo_1.addWidget(self.transmuteBtn)
+	
+	self.browseButton = QtGui.QPushButton(MMKitDialog)
+	self.browseButton.setMaximumSize(QtCore.QSize(80,60))
+	hlo_1.addWidget(self.browseButton)
+	
+	self.defaultPartLibButton = QtGui.QPushButton(MMKitDialog)
+	self.defaultPartLibButton.setMaximumSize(QtCore.QSize(80,60))
+	hlo_1.addWidget(self.defaultPartLibButton)
+	
+	spacer_browsebtn = QtGui.QSpacerItem(5,5,
+					     QtGui.QSizePolicy.Expanding,
+					     QtGui.QSizePolicy.Minimum)
+	
+	hlo_1.addItem(spacer_browsebtn)
+	
+	self.vboxlayout_grpbox3.addLayout(hlo_1)
+        
+        self.transmuteCB = QtGui.QCheckBox(" Force to Keep Bonds", self.MMKit_groupBox)
+        
+        self.vboxlayout_grpbox3.addWidget(self.transmuteCB)
+	
+	
+            
+        #End MMKit groupbox
+        self.vboxlayout.addWidget(self.MMKit_groupBox)
+        
+        spacer_mmkit_grpbx = QtGui.QSpacerItem(10,10,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.vboxlayout.addItem(spacer_mmkit_grpbx)  
+    
+    def ui_selectionFilter_GroupBox(self, MMKitDialog):
+        #Start Selection Filter GroupBox
+        self.selectionFilter_groupBox = QtGui.QGroupBox(MMKitDialog)
+        self.selectionFilter_groupBox.setObjectName("selectionFilter_groupBox")
+        
+        self.selectionFilter_groupBox.setAutoFillBackground(True) 
+        palette = MMKitDialog.getGroupBoxPalette()
+        self.selectionFilter_groupBox.setPalette(palette)
+        
+        styleSheet = MMKitDialog.getGroupBoxStyleSheet()        
+        self.selectionFilter_groupBox.setStyleSheet(styleSheet)
+        
+        self.hboxlayout_selfilter = QtGui.QHBoxLayout()
+        self.hboxlayout_selfilter.setMargin(0)
+        self.hboxlayout_selfilter.setSpacing(6)
+        self.hboxlayout_selfilter.setObjectName("hboxlayout_selfilter")
+        
+        self.vboxlayout_selfilter = QtGui.QVBoxLayout(self.selectionFilter_groupBox)
+        self.vboxlayout_selfilter.setMargin(0)
+        self.vboxlayout_selfilter.setSpacing(6)
+        self.vboxlayout_selfilter.setObjectName("vboxlayout_selfilter")
+
+        self.filterCB = MMKitDialog.getGroupBoxTitleCheckBox("Selection Filter ", self.selectionFilter_groupBox )
+        
+        self.vboxlayout_selfilter.addWidget(self.filterCB)
+        
+        self.selectionFilter_label = QtGui.QLabel(self.selectionFilter_groupBox)
+        self.vboxlayout_selfilter.addWidget(self.selectionFilter_label)
+        
+        self.filterlistLE = QLineEdit(self.selectionFilter_groupBox)
+        self.filterlistLE.setReadOnly(1)
+        self.filterlistLE.setEnabled(0)
+        
+        if self.filterCB.isChecked():
+            self.filterlistLE.show()
+            self.selectionFilter_label.show()
+        else:
+            self.filterlistLE.hide()
+            self.selectionFilter_label.hide()  
+            
+        self.vboxlayout_selfilter.addWidget(self.filterlistLE)        
+        #End Selection filter GroupBox
+        self.vboxlayout.addWidget(self.selectionFilter_groupBox)
+        
+        spacer_selfilter_grpbx = QtGui.QSpacerItem(10,10,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.vboxlayout.addItem(spacer_selfilter_grpbx)
+        
+    def ui_advancedOps_GroupBox(self, MMKitDialog):
+        #Start Advanced Options GroupBox
+        self.advancedOptions_groupBox = QtGui.QGroupBox(MMKitDialog)        
+        self.advancedOptions_groupBox.setObjectName("advancedOptions_groupBox")
+        
+        self.advancedOptions_groupBox.setAutoFillBackground(True) 
+        palette = MMKitDialog.getGroupBoxPalette()
+        self.advancedOptions_groupBox.setPalette(palette)
+        
+        styleSheet = MMKitDialog.getGroupBoxStyleSheet()        
+        self.advancedOptions_groupBox.setStyleSheet(styleSheet)
+        
+        self.vboxlayout_grpbox4 = QtGui.QVBoxLayout(self.advancedOptions_groupBox)
+        self.vboxlayout_grpbox4.setMargin(0)
+        self.vboxlayout_grpbox4.setSpacing(4)
+        self.vboxlayout_grpbox4.setObjectName("vboxlayout_grpbox4")
+
+        self.advancedOptions_groupBoxButton = MMKitDialog.getGroupBoxTitleButton("Advanced Options", 
+                                                                                 self.advancedOptions_groupBox)
+        
+        self.vboxlayout_grpbox4.addWidget(self.advancedOptions_groupBoxButton)
+
+        self.autobondCB = QtGui.QCheckBox("Autobond", self.advancedOptions_groupBox )
+        self.autobondCB.setChecked(env.prefs[buildModeAutobondEnabled_prefs_key])
+        self.vboxlayout_grpbox4.addWidget(self.autobondCB)
+        
+        self.highlightingCB = QtGui.QCheckBox("Highlighting", self.advancedOptions_groupBox )
+        self.highlightingCB.setChecked(env.prefs[buildModeHighlightingEnabled_prefs_key])
+        self.vboxlayout_grpbox4.addWidget(self.highlightingCB)
+        
+        self.waterCB = QtGui.QCheckBox("Water", self.advancedOptions_groupBox )
+        self.waterCB.setChecked(env.prefs[buildModeWaterEnabled_prefs_key])
+        self.vboxlayout_grpbox4.addWidget(self.waterCB)
+        
+        #End Advanced Options GroupBox
+        self.vboxlayout.addWidget(self.advancedOptions_groupBox)
+
+    def retranslateUi(self, MMKitDialog):
+        MMKitDialog.setWindowTitle(QtGui.QApplication.translate("MMKitDialog", 
+                                                                "MMKit", None, QtGui.QApplication.UnicodeUTF8))
+        MMKitDialog.setWindowIcon(QtGui.QIcon("ui/border/MMKit"))
+	
+        MMKitDialog.setToolTip(QtGui.QApplication.translate(
+	    "MMKitDialog","Molecular Modeling Kit", 
+	    None, QtGui.QApplication.UnicodeUTF8))
+	
+        self.heading_label.setText(QtGui.QApplication.translate(
+	    "MMKitDialog", "<font color=\"#FFFFFF\">Build Atoms </font>",
+	    None, QtGui.QApplication.UnicodeUTF8))
+	
+        self.elementFrame.setToolTip(QtGui.QApplication.translate("MMKitDialog", "3D thumbnail view", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton1.setToolTip(QtGui.QApplication.translate("MMKitDialog", "Hydrogen", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton1.setText(QtGui.QApplication.translate("MMKitDialog", "H", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton1.setShortcut(QtGui.QApplication.translate("MMKitDialog", "H", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton2.setToolTip(QtGui.QApplication.translate("MMKitDialog", "Helium", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton2.setText(QtGui.QApplication.translate("MMKitDialog", "He", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton6.setToolTip(QtGui.QApplication.translate("MMKitDialog", "Carbon", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton6.setText(QtGui.QApplication.translate("MMKitDialog", "C", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton6.setShortcut(QtGui.QApplication.translate("MMKitDialog", "C", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton7.setToolTip(QtGui.QApplication.translate("MMKitDialog", "Nitrogen", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton7.setText(QtGui.QApplication.translate("MMKitDialog", "N", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton7.setShortcut(QtGui.QApplication.translate("MMKitDialog", "N", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton8.setToolTip(QtGui.QApplication.translate("MMKitDialog", "Oxygen", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton8.setText(QtGui.QApplication.translate("MMKitDialog", "O", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton8.setShortcut(QtGui.QApplication.translate("MMKitDialog", "O", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton10.setToolTip(QtGui.QApplication.translate("MMKitDialog", "Neon", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton10.setText(QtGui.QApplication.translate("MMKitDialog", "Ne", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton9.setToolTip(QtGui.QApplication.translate("MMKitDialog", "Fluorine", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton9.setText(QtGui.QApplication.translate("MMKitDialog", "F", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton9.setShortcut(QtGui.QApplication.translate("MMKitDialog", "F", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton13.setToolTip(QtGui.QApplication.translate("MMKitDialog", "Aluminum", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton13.setText(QtGui.QApplication.translate("MMKitDialog", "Al", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton13.setShortcut(QtGui.QApplication.translate("MMKitDialog", "A", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton17.setToolTip(QtGui.QApplication.translate("MMKitDialog", "Chlorine", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton17.setText(QtGui.QApplication.translate("MMKitDialog", "Cl", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton17.setShortcut(QtGui.QApplication.translate("MMKitDialog", "L", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton5.setToolTip(QtGui.QApplication.translate("MMKitDialog", "Boron", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton5.setText(QtGui.QApplication.translate("MMKitDialog", "B", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton5.setShortcut(QtGui.QApplication.translate("MMKitDialog", "B", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton10_2.setToolTip(QtGui.QApplication.translate("MMKitDialog", "Argon", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton10_2.setText(QtGui.QApplication.translate("MMKitDialog", "Ar", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton15.setToolTip(QtGui.QApplication.translate("MMKitDialog", "Phosphorus", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton15.setText(QtGui.QApplication.translate("MMKitDialog", "P", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton15.setShortcut(QtGui.QApplication.translate("MMKitDialog", "P", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton16.setToolTip(QtGui.QApplication.translate("MMKitDialog", "Sulfur", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton16.setText(QtGui.QApplication.translate("MMKitDialog", "S", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton16.setShortcut(QtGui.QApplication.translate("MMKitDialog", "S", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton14.setToolTip(QtGui.QApplication.translate("MMKitDialog", "Silicon", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton14.setText(QtGui.QApplication.translate("MMKitDialog", "Si", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton14.setShortcut(QtGui.QApplication.translate("MMKitDialog", "Q", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton33.setToolTip(QtGui.QApplication.translate("MMKitDialog", "Arsenic", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton33.setText(QtGui.QApplication.translate("MMKitDialog", "As", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton34.setToolTip(QtGui.QApplication.translate("MMKitDialog", "Selenium", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton34.setText(QtGui.QApplication.translate("MMKitDialog", "Se", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton35.setToolTip(QtGui.QApplication.translate("MMKitDialog", "Bromine", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton35.setText(QtGui.QApplication.translate("MMKitDialog", "Br", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton32.setToolTip(QtGui.QApplication.translate("MMKitDialog", "Germanium", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton32.setText(QtGui.QApplication.translate("MMKitDialog", "Ge", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton36.setToolTip(QtGui.QApplication.translate("MMKitDialog", "Krypton", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolButton36.setText(QtGui.QApplication.translate("MMKitDialog", "Kr", None, QtGui.QApplication.UnicodeUTF8))
+        self.sp3_btn.setToolTip(QtGui.QApplication.translate("MMKitDialog", "sp3", None, QtGui.QApplication.UnicodeUTF8))
+        self.sp3_btn.setShortcut(QtGui.QApplication.translate("MMKitDialog", "3", None, QtGui.QApplication.UnicodeUTF8))
+        self.sp2_btn.setToolTip(QtGui.QApplication.translate("MMKitDialog", "sp2", None, QtGui.QApplication.UnicodeUTF8))
+        self.sp2_btn.setShortcut(QtGui.QApplication.translate("MMKitDialog", "2", None, QtGui.QApplication.UnicodeUTF8))
+        self.sp_btn.setToolTip(QtGui.QApplication.translate("MMKitDialog", "sp", None, QtGui.QApplication.UnicodeUTF8))
+        self.sp_btn.setShortcut(QtGui.QApplication.translate("MMKitDialog", "1", None, QtGui.QApplication.UnicodeUTF8))
+        self.graphitic_btn.setToolTip(QtGui.QApplication.translate("MMKitDialog", "Graphitic", None, QtGui.QApplication.UnicodeUTF8))
+        self.graphitic_btn.setShortcut(QtGui.QApplication.translate("MMKitDialog", "4", None, QtGui.QApplication.UnicodeUTF8))
+        self.mmkit_tab.setTabText(self.mmkit_tab.indexOf(self.atomsPage), QtGui.QApplication.translate("MMKitDialog", "", None, QtGui.QApplication.UnicodeUTF8))
+        self.mmkit_tab.setTabText(self.mmkit_tab.indexOf(self.clipboardPage), QtGui.QApplication.translate("MMKitDialog", "", None, QtGui.QApplication.UnicodeUTF8))
+        self.mmkit_tab.setTabText(self.mmkit_tab.indexOf(self.libraryPage), QtGui.QApplication.translate("MMKitDialog", "", None, QtGui.QApplication.UnicodeUTF8))
+        self.selectionFilter_label.setText(QtGui.QApplication.translate("selectionFilter_groupBox", 
+                                                                        "Apply Filter To:", 
+                                                                        None, QtGui.QApplication.UnicodeUTF8))
+       
+        self.browseButton.setToolTip(QtGui.QApplication.translate(
+	    "MMKitDialog",
+	    "Open file chooser dialog to select a new directory.",
+	    None, QtGui.QApplication.UnicodeUTF8))
+	
+        self.browseButton.setText(QtGui.QApplication.translate(
+	    "MMKitDialog", "Browse...",None, QtGui.QApplication.UnicodeUTF8))
+	
+	self.defaultPartLibButton.setText(QtGui.QApplication.translate(
+	    "MMKitDialog", "Default Dir", None, QtGui.QApplication.UnicodeUTF8))
+	
+	self.defaultPartLibButton.setToolTip(QtGui.QApplication.translate(
+	    "MMKitDialog", "Reset the partlib directory path to program default", 
+	    None, QtGui.QApplication.UnicodeUTF8))
+  

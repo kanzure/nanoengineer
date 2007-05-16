@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 cursors.py
 
@@ -9,7 +9,7 @@ mark 060427 - loadCursors() moved from MWsemantics.py.
 
 __author__ = "Mark" 
 
-from qt import QCursor, QBitmap
+from PyQt4.Qt import QCursor, QBitmap
 import os, sys
         
 def loadCursors(w):
@@ -39,8 +39,8 @@ def loadCursors(w):
         I need to discuss this with Bruce more, especially since I don't know how to
         create the cursor_name from the filename. Mark 060428.
         '''
-        cursor_bitmap = filePath + "/../images/" + cursor_name + ".bmp"
-        cursor_bitmsk = filePath + "/../images/" + cursor_name + "-bm.bmp"
+        cursor_bitmap = filePath + "/../src/ui/cursors/" + cursor_name + ".bmp"
+        cursor_bitmsk = filePath + "/../src/ui/cursors/" + cursor_name + "-bm.bmp"
         
         if os.path.exists(cursor_bitmap) and os.path.exists(cursor_bitmsk):
             cursor = QCursor(
@@ -93,26 +93,36 @@ def loadCursors(w):
     w.BondToolSubtractCursor.append(loadCursor("BondGToolSubtractCursor", 0, 0))
         
     # Select Chunks mode - normal cursors
-    w.SelectMolsCursor = loadCursor("SelectMolsCursor", 0, 0)
-    w.SelectMolsAddCursor = loadCursor("SelectMolsAddCursor", 0, 0)
-    w.SelectMolsSubtractCursor = loadCursor("SelectMolsSubtractCursor", 0, 0)
+    w.MolSelCursor = loadCursor("MolSelCursor", 0, 0) # was SelectMolsCursor
+    w.MolSelAddCursor = loadCursor("MolSelAddCursor", 0, 0) # was SelectMolsAddCursor
+    w.MolSelSubCursor = loadCursor("MolSelSubCursor", 0, 0) # was SelectMolsSubCursor
         
-    # Move mode - normal cursors
-    w.MoveCursor = loadCursor("MoveCursor", 0, 0)
-    w.MoveSelectCursor = loadCursor("MoveSelectCursor", -1, -1)
-    #w.MoveAddCursor = loadCursor("MoveAddCursor", -1, -1) # Not used
-    #w.MoveSubtractCursor = loadCursor("MoveSubtractCursor", -1, -1) # Not used
-    w.MoveAxisRotateMolCursor = loadCursor("MoveRotateMolCursor", -1, -1) # Shift
-    w.MoveFreeRotateMolCursor = loadCursor("RotateMolCursor", -1, -1) # Control/Cmd
+    # Translate select cursors
+    ## w.MoveCursor = loadCursor("MoveCursor", 0, 0)
+    w.MolSelTransCursor = loadCursor("MolSelTransCursor", 0, 0) # was MoveSelectCursor
+    w.MolSelTransAddCursor = loadCursor("MolSelTransAddCursor", 0, 0) # was MoveSelectAddCursor
+    w.MolSelTransSubCursor = loadCursor("MolSelTransSubCursor", 0, 0) # was MoveSelectSubtractCursor
+    
+    # Rotate select cursors
+    w.MolSelRotCursor = loadCursor("MolSelRotCursor", 0, 0) # was MoveSelectCursor
+    w.MolSelRotAddCursor = loadCursor("MolSelRotAddCursor", 0, 0) # was MoveSelectAddCursor
+    w.MolSelRotSubCursor = loadCursor("MolSelRotSubCursor", 0, 0) # was MoveSelectSubtractCursor
+    
+    # Misc rotate and translate cursors
+    w.MolSelAxisRotTransCursor = loadCursor("MolSelAxisRotTransCursor", -1, -1) # Shift accel key - was MoveAxisRotateMolCursor
+    #w.MolSelRotCursor = loadCursor("MolSelRotCursor", -1, -1) # Control/Cmd accel key - was MoveFreeRotateMolCursor
         
     # Cookie Cutter mode - normal cursors
     w.CookieCursor = loadCursor("CookieCursor", -1, -1)
     w.CookieAddCursor = loadCursor("CookieAddCursor", -1, -1)
     w.CookieSubtractCursor = loadCursor("CookieSubtractCursor", -1, -1)
         
+    # View Zoom, Pan, Rotate cursors
+    w.ZoomCursor = loadCursor("ZoomCursor", 10, 10) # change to ZoomViewCursor
+    w.MoveCursor = loadCursor("MoveCursor", 0, 0) # change to PanViewCursor
+    w.RotateCursor = loadCursor("RotateCursor", 0, 0) # change to RotateViewCursor
+    
     # Miscellaneous cursors
-    w.ZoomCursor = loadCursor("ZoomCursor", 10, 10)
-    w.RotateCursor = loadCursor("RotateCursor", 0, 0)
     w.RotateZCursor = loadCursor("RotateZCursor", 0, 0)
     w.ZoomPOVCursor = loadCursor("ZoomPOVCursor", -1, -1)
     w.SelectWaitCursor = loadCursor("SelectWaitCursor", 0, 0)

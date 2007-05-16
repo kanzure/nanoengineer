@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 '''
 MMKit.py
 
@@ -15,19 +15,24 @@ bruce has fixed some bugs in it.
 '''
 
 from MMKitDialog import *
+from PyQt4.Qt import Qt, QDialog, SIGNAL, QIcon, QVBoxLayout, QStringList, QFileDialog, QDir, QTreeView, QTreeWidgetItem, QAbstractItemDelegate
 from ThumbView import MMKitView, ChunkView
 from elements import PeriodicTable
 from constants import diTUBES
 from chem import atom
 from chunk import molecule
-from Utility import imagename_to_pixmap
-from DirView import FileItem, Directory, DirView
+from Utility import imagename_to_icon, geticon
 from assembly import assembly
 from files_mmp import readmmp
 from part import Part
 import os, sys
 import env
 import platform
+from debug import print_compact_traceback
+from qt4transition import *
+from Sponsors import SponsorableMixin
+from PropertyManagerMixin import PropertyManagerMixin
+#from GeneratorBaseClass import GroupButtonMixin
 
 # PageId constants for mmkit_tab
 AtomsPage=0
@@ -37,12 +42,84 @@ LibraryPage=2
 # debugging flags -- do not commit with True
 debug_mmkit_events = False
 
-class MMKit(MMKitDialog):
+class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
     bond_id2name =['sp3', 'sp2', 'sp', 'sp2(graphitic)']
+    sponsor_keyword = 'Build'
     
     def __init__(self, win):
-        MMKitDialog.__init__(self, win, fl=Qt.WType_Dialog)# Qt.WStyle_Customize | Qt.WStyle_Tool | Qt.WStyle_Title | Qt.WStyle_NoBorder)
-        self.w = win
+        QDialog.__init__(self, win, Qt.Dialog)# Qt.WStyle_Customize | Qt.WStyle_Tool | Qt.WStyle_Title | Qt.WStyle_NoBorder)
+	
+	self.w = win
+        self.o = self.w.glpane
+	
+        self.setupUi(self)
+        
+        #self.connect(self.hybrid_btngrp,SIGNAL("buttonClicked(int)"),self.set_hybrid_type)
+        
+        self.pw = None # pw = partwindow
+
+        self.connect(self.mmkit_tab,SIGNAL("currentChanged(int)"),self.tabCurrentChanged)
+
+        self.connect(self.chunkListBox,
+                     SIGNAL("currentItemChanged(QListWidgetItem*,QListWidgetItem*)"),
+                     self.chunkChanged)
+        self.connect(self.browseButton,SIGNAL("clicked(bool)"),self.browseDirectories)
+	self.connect(self.defaultPartLibButton,
+		     SIGNAL("clicked(bool)"),self.useDefaultPartLibDirectory)
+	
+        #self.connect(self.elementButtonGroup,SIGNAL("buttonClicked(int)"),self.setElementInfo)
+        
+        self.connect(self.sponsor_btn,SIGNAL("clicked()"),self.sponsor_btn_clicked)
+     
+        self.connect(self.thumbView_groupBoxButton, SIGNAL("clicked()"),
+		     self.toggle_thumbView_groupBox)
+        self.connect(self.bondTool_groupBoxButton , SIGNAL("clicked()"),
+		     self.toggle_bondTool_groupBox)
+        self.connect(self.MMKit_groupBoxButton, SIGNAL("clicked()"),
+		     self.toggle_MMKit_groupBox)
+        self.connect(self.filterCB, SIGNAL("stateChanged(int)"),
+		     self.toggle_selectionFilter_groupBox)
+        self.connect(self.advancedOptions_groupBoxButton, SIGNAL("clicked()"), 
+		     self.toggle_advancedOptions_groupBox)
+        
+        self.connect(self.done_btn,SIGNAL("clicked()"),win.toolsDone)
+
+        # Make the elements act like a big exclusive radio button.
+        self.theElements = QtGui.QButtonGroup()
+        self.theElements.setExclusive(True)
+        self.theElements.addButton(self.toolButton1, 1)
+        self.theElements.addButton(self.toolButton2, 2)
+        self.theElements.addButton(self.toolButton6, 6)
+        self.theElements.addButton(self.toolButton7, 7)
+        self.theElements.addButton(self.toolButton8, 8)
+        self.theElements.addButton(self.toolButton10, 10)
+        self.theElements.addButton(self.toolButton9, 9)
+        self.theElements.addButton(self.toolButton13,13)
+        self.theElements.addButton(self.toolButton17,17)
+        self.theElements.addButton(self.toolButton5, 5)
+        self.theElements.addButton(self.toolButton10_2, 18)
+        self.theElements.addButton(self.toolButton15, 15)
+        self.theElements.addButton(self.toolButton16, 16)
+        self.theElements.addButton(self.toolButton14, 14)
+        self.theElements.addButton(self.toolButton33, 33)
+        self.theElements.addButton(self.toolButton34, 34)
+        self.theElements.addButton(self.toolButton35, 35)
+        self.theElements.addButton(self.toolButton32, 32)
+        self.theElements.addButton(self.toolButton36, 36)
+        self.connect(self.theElements, SIGNAL("buttonPressed(int)"), self.update_dialog)
+
+        self.theHybridizations = QtGui.QButtonGroup()
+        self.theHybridizations.setExclusive(True)
+        self.theHybridizations.addButton(self.sp3_btn, 0)
+        self.theHybridizations.addButton(self.sp2_btn, 1)
+        self.theHybridizations.addButton(self.sp_btn, 2)
+        self.theHybridizations.addButton(self.graphitic_btn, 3)
+        self.connect(self.theHybridizations, SIGNAL("buttonClicked(int)"), self.update_hybrid_btngrp)
+        
+        self.connect(self.filterCB,
+                        SIGNAL("toggled(bool)"),self.set_selection_filter)
+
+        
         self.elemTable = PeriodicTable
         self.displayMode = diTUBES
         self.elm = None
@@ -55,39 +132,56 @@ class MMKit(MMKitDialog):
         # hardware self.icon_tabs to True and simplify code accordingly. But we're not 100% certain, so by leaving
         # it as a debug pref, we can help any users who see those bugs come up again.
         # wware 060420
+        #
+        # Update, bruce 070328: the False value of this debug_pref is known to fail in the Qt4 version (on Mac anyway),
+        # due to AttributeError exceptions for setMargin and setTabLabel,
+        # so I'm changing the prefs key for it in order to let Qt3 and Qt4 have independent debug_pref settings,
+        # adding a warning in the menu text, and adding a try/except to help in debugging this if anyone ever wants to.
+        # (If the bugs Will mentioned go away entirely, we can abandon support for the False value instead of fixing it,
+        #  as Will suggested.)
         from debug_prefs import debug_pref, Choice_boolean_True
-        self.icon_tabs = debug_pref("use icons in MMKit tabs?", Choice_boolean_True, prefs_key = "A7/mmkit tab icons")
+        self.icon_tabs = debug_pref("use icons in MMKit tabs? (only True works in Qt4)", Choice_boolean_True,
+                                    prefs_key = "A7/mmkit tab icons/Qt4")
             #e Changes to this only take effect in the next session.
             # Ideally we'd add a history message about that, when this is changed.
             # (It's not yet easy to do that in a supported way in debug_pref.) [bruce 060313]
-
+        
         if not self.icon_tabs:
-            self.mmkit_tab.setMargin ( 0 ) 
+            # This code is known to fail in Qt4 Mac version, as explained above. [bruce 061222 and 070328]
+            try:
+                self.mmkit_tab.setMargin ( 0 ) 
+            except:
+                print_compact_traceback("ignoring this Qt4-specific exception: ") #bruce 061222
+                pass
             self.mmkit_tab.setTabLabel (self.atomsPage, 'Atoms')
             self.mmkit_tab.setTabLabel (self.clipboardPage, 'Clipbd')
             self.mmkit_tab.setTabLabel (self.libraryPage, 'Lib')
         else:
             # Add icons to MMKit's tabs. mark 060223.
-            atoms_pm = imagename_to_pixmap("atoms.png")
-            self.mmkit_tab.setTabIconSet ( self.atomsPage, QIconSet(atoms_pm))
+            atoms_ic = imagename_to_icon("modeltree/atoms.png")
+            self.mmkit_tab.setTabIcon(self.mmkit_tab.indexOf(self.atomsPage), QIcon(atoms_ic))
         
-            clipboard_pm = imagename_to_pixmap("clipboard-empty.png")
-            self.mmkit_tab.setTabIconSet ( self.clipboardPage, QIconSet(clipboard_pm)) # (modified in another method below)
+            clipboard_ic = imagename_to_icon("modeltree/clipboard-empty.png")
+            self.mmkit_tab.setTabIcon(self.mmkit_tab.indexOf(self.clipboardPage), QIcon(clipboard_ic))
+            # (modified in another method below)
         
-            library_pm = imagename_to_pixmap("library.png")
-            self.mmkit_tab.setTabIconSet ( self.libraryPage, QIconSet(library_pm))
+            library_ic = imagename_to_icon("modeltree/library.png")
+            self.mmkit_tab.setTabIcon(self.mmkit_tab.indexOf(self.libraryPage), QIcon(library_ic))
         
         # Tab tooltips. mark 060326
-        self.mmkit_tab.setTabToolTip (self.atomsPage, 'Atoms')
-        self.mmkit_tab.setTabToolTip (self.clipboardPage, 'Clipboard')
-        self.mmkit_tab.setTabToolTip (self.libraryPage, 'Part Library')
+        self.mmkit_tab.setTabToolTip(self.mmkit_tab.indexOf(self.atomsPage), 'Atoms')
+        self.mmkit_tab.setTabToolTip(self.mmkit_tab.indexOf(self.clipboardPage), 'Clipboard')
+        self.mmkit_tab.setTabToolTip(self.mmkit_tab.indexOf(self.libraryPage), 'Part Library')
         
         self._setNewView('MMKitView')
         
         # Set current element in element button group.
-        self.elementButtonGroup.setButton(self.w.Element) 
         
-        self.connect(self, PYSIGNAL("chunkSelectionChanged"), self.w.pasteComboBox, SIGNAL("activated(int)"))
+        
+        self.theElements.button(self.w.Element).setChecked(True)
+        
+        #self.connect(self., SIGNAL("), ) 
+
         self.connect(self.w.hybridComboBox, SIGNAL("activated(int)"), self.hybridChangedOutside)
         
         self.connect(self.w.hybridComboBox, SIGNAL("activated(const QString&)"), self.change2AtomsPage)
@@ -98,10 +192,10 @@ class MMKit(MMKitDialog):
         self.connect(self.w.depositAtomDashboard.pasteBtn, SIGNAL("stateChanged(int)"), self.pasteBtnStateChanged) 
         self.connect(self.w.depositAtomDashboard.depositBtn, SIGNAL("stateChanged(int)"), self.depositBtnStateChanged)
         
-        self.connect(self.dirView, SIGNAL("selectionChanged(QListViewItem *)"), self.partChanged)
+        self.connect(self.dirView, SIGNAL("selectionChanged(QItemSelection *, QItemSelection *)"), self.partChanged)
 
-        QWhatsThis.add(self, """Molecular Modeling Kit""")
-        QWhatsThis.add(self.elementFrame, """3D thumbnail view""")
+        self.setWhatsThis("""Molecular Modeling Kit""")
+        self.elementFrame.setWhatsThis("""3D thumbnail view""")
         return # from __init__
 
     # ==
@@ -111,6 +205,164 @@ class MMKit(MMKitDialog):
         
     __needs_update_clipboard_items = False
         # (there could be other flags like this for other kinds of updates we might need)
+    
+    def update_dialog(self, elemNum):
+        """Called when the current element has been changed.
+           Update non user interactive controls display for current selected 
+           element: element label info and element graphics info """
+        
+        elm = self.elemTable.getElement(elemNum)
+	
+	currentIndex = self.mmkit_tab.currentIndex()
+	atomPageIndex = self.mmkit_tab.indexOf(self.atomsPage)
+
+		
+        ##if elm == self.elm and self.currentPageOpen(AtomsPage): return
+	if elm == self.elm and (currentIndex == atomPageIndex) : return
+        
+        ## The following statements are redundant in some situations.
+        self.theElements.button(elemNum).setChecked(True)
+        self.w.Element = elemNum
+
+        self.color = self.elemTable.getElemColor(elemNum)
+        self.elm = self.elemTable.getElement(elemNum)
+        
+        self.update_hybrid_btngrp()
+        
+        self.elemGLPane.resetView()
+        self.elemGLPane.refreshDisplay(self.elm, self.displayMode)
+	
+	#update the selection filter
+	self.update_selection_filter_list()        
+
+        # Fix for bug 353, to allow the dialog to be updated with the correct page.  For example,
+        # when the user selects Paste from the Edit toolbar/menu, the MMKit should show
+        # the Clipboard page and not the Atoms page. Mark 050808
+        if self.w.depositState == 'Clipboard':
+            self.change2ClipboardPage()
+        else:
+            self.change2AtomsPage()
+        self.tabCurrentChanged()
+    
+    #== Atom Selection Filter helper methods
+        
+    def set_selection_filter(self, enabled):
+        '''Slot for Atom Selection Filter checkbox. Prints history message when selection filter is
+        enabled/disabled and updates the cursor.
+        '''
+        
+        if enabled != self.w.selection_filter_enabled:
+            if enabled:
+                env.history.message("Atom Selection Filter enabled.")
+            else:
+                env.history.message("Atom Selection Filter disabled.")
+        
+        self.w.selection_filter_enabled = enabled
+
+        #print "update_selection_filter_list(): self.w.filtered_elements=", self.w.filtered_elements
+        
+        ##self.update_selection_filter_list_widget()
+	self.update_selection_filter_list()
+	self.filterlistLE.setEnabled(enabled)
+        self.o.mode.update_cursor()
+    
+    def update_selection_filter_list(self):
+        '''Adds/removes the element selected in the MMKit to/from Atom Selection Filter
+        based on what modifier key is pressed (if any).
+        '''
+        eltnum = self.w.Element
+        
+        if self.o.modkeys is None:
+            self.w.filtered_elements = []
+            self.w.filtered_elements.append(PeriodicTable.getElement(eltnum))
+        if self.o.modkeys == 'Shift':
+            if not PeriodicTable.getElement(eltnum) in self.w.filtered_elements[:]:
+                self.w.filtered_elements.append(PeriodicTable.getElement(eltnum))
+        elif self.o.modkeys == 'Control':
+            if PeriodicTable.getElement(eltnum) in self.w.filtered_elements[:]:
+                self.w.filtered_elements.remove(PeriodicTable.getElement(eltnum))
+                
+        self.update_selection_filter_list_widget()
+        
+    def update_selection_filter_list_widget(self):
+        '''Updates the list of elements displayed in the Atom Selection Filter List.
+        '''
+        filtered_syms=''
+        for e in self.w.filtered_elements[:]:
+            if filtered_syms: filtered_syms += ", "
+            filtered_syms += e.symbol
+        #self.w.depositAtomDashboard.filterlistLE.setText(filtered_syms)
+	self.filterlistLE.setText(filtered_syms)
+    
+    def toggle_bondTool_groupBox(self):
+        self.toggle_groupbox(self.bondTool_groupBoxButton, self.bondToolWidget)
+        
+    def toggle_thumbView_groupBox(self):
+        self.toggle_groupbox(self.thumbView_groupBoxButton, self.elementFrame)
+        
+    def toggle_MMKit_groupBox(self):
+        self.toggle_groupbox(self.MMKit_groupBoxButton, self.mmkit_tab, self.transmuteBtn, self.transmuteCB)
+        
+    def toggle_selectionFilter_groupBox(self, state):
+        """ Toggles the groupbox item display depending on checked state of the selection filter checkbox """
+        
+        #Current state is 'off' or(Qt.Unchecked)
+        
+        if state is 0:
+            styleSheet = self.getGroupBoxCheckBoxStyleSheet(bool_expand = False)
+            self.filterCB.setStyleSheet(styleSheet)
+            
+            palette = self.getGroupBoxCheckBoxPalette()
+            self.filterCB.setPalette(palette)
+            
+            #hide the following widgets when checkbox is unchecked --
+            self.selectionFilter_label.hide()
+            self.filterlistLE.hide()
+        else:
+            styleSheet = self.getGroupBoxCheckBoxStyleSheet(bool_expand = True)
+            self.filterCB.setStyleSheet(styleSheet)
+            
+            palette = self.getGroupBoxCheckBoxPalette()
+            self.filterCB.setPalette(palette)
+            
+            #hide the following widgets when checkbox is unchecked --
+            self.selectionFilter_label.show()
+            self.filterlistLE.show()
+                        
+        
+    def toggle_advancedOptions_groupBox(self):
+        self.toggle_groupbox(self.advancedOptions_groupBoxButton, self.autobondCB, self.waterCB, self.highlightingCB)
+    
+    def toggle_groupbox(self, button, *things):
+        """This is intended to be part of the slot method for clicking on an open/close icon
+        of a dialog GroupBox. The arguments should be the button (whose icon will be altered here)
+        and the child widgets in the groupbox whose visibility should be toggled.
+        """
+        if things[0].isVisible():
+            styleSheet = self.getGroupBoxButtonStyleSheet(bool_expand = False)            
+            button.setStyleSheet(styleSheet)      
+            palette = self.getGroupBoxButtonPalette()
+            button.setPalette(palette)
+            button.setIcon(geticon("ui/actions/Properties Manager/GHOST_ICON"))
+            for thing in things:
+                thing.hide()
+        else:
+            styleSheet = self.getGroupBoxButtonStyleSheet(bool_expand = True)
+            button.setStyleSheet(styleSheet)             
+            palette = self.getGroupBoxButtonPalette()
+            button.setPalette(palette)
+            button.setIcon(geticon("ui/actions/Properties Manager/GHOST_ICON"))
+            for thing in things:
+                thing.show()
+                        
+
+    def tabCurrentChanged(self):
+        pageIndex = self.mmkit_tab.currentIndex()
+        page = None
+        if pageIndex is 0: page = self.atomsPage
+        elif pageIndex is 1: page = self.clipboardPage
+        elif pageIndex is 2: page = self.libraryPage
+        self.setup_current_page(page)
 
     def update_clipboard_items(self):
         self.__needs_update_clipboard_items = True
@@ -121,12 +373,12 @@ class MMKit(MMKitDialog):
         if debug_mmkit_events:
             print "debug: MMKit.event got %r, type %r" % (event, event.type())
                 # Qt doc for QEvent lists 'enum type' codes; the subclass is also printed by %r
-        
+
         if self.__needs_update_clipboard_items:
             self.__really_update_clipboard_items()
             self.__needs_update_clipboard_items = False
         
-        res = MMKitDialog.event(self, event)
+        res = QDialog.event(self, event)
         if debug_mmkit_events:
             if res is not None:
                 print "debug: MMKit.event returns %r" % (res,) # usually True, sometimes False
@@ -150,63 +402,36 @@ class MMKit(MMKitDialog):
     def hybridChangedOutside(self, newId):
         '''Slot method. Called when user changes element hybridization from the dashboard. 
          This method achieves the same effect as user clicked one of the hybridization buttons.'''
-        self.hybrid_btngrp.setButton(newId)
+        self.theElements.button(newId).setChecked(True)
         self.set_hybrid_type(newId)
+        self.w.Element = newId
         
         ## fix bug 868
-        self.w.depositAtomDashboard.depositBtn.setOn(True)
+        self.w.depositAtomDashboard.depositBtn.setChecked(True)
        
 
     def change2AtomsPage(self):
         '''Slot method called when user changes element/hybrid combobox or 
         presses Deposit button from Build mode dashboard.
         '''
-        if self.mmkit_tab.currentPageIndex() == AtomsPage: return
-        self.mmkit_tab.setCurrentPage(AtomsPage) # Generates signal
-            
+        if self.mmkit_tab.currentIndex() != AtomsPage:
+            self.mmkit_tab.setCurrentIndex(AtomsPage) # Generates signal
 
     def change2ClipboardPage(self):
         '''Slot method called when user changes pastable item combobox or 
         presses the Paste button from the Build mode dashboard. '''
-        #if not (self.mmkit_tab.currentPageIndex() == ClipboardPage):
-        self.mmkit_tab.setCurrentPage(ClipboardPage) # Generates signal
+        if self.mmkit_tab.currentIndex() != ClipboardPage:
+            self.mmkit_tab.setCurrentIndex(ClipboardPage) # Generates signal??
             
 
     def setElementInfo(self,value):
         '''Slot method called when an element button is pressed in the element ButtonGroup.
         '''
         self.w.setElement(value)
-
-
-    def update_dialog(self, elemNum):
-        """Called when the current element has been changed.
-           Update non user interactive controls display for current selected 
-           element: element label info and element graphics info """
-
-        elm = self.elemTable.getElement(elemNum)
-        if elm == self.elm and self.currentPageOpen(AtomsPage): return
+               
         
-        ## The following statements are redundant in some situations.
-        self.elementButtonGroup.setButton(elemNum)
-
-        self.color = self.elemTable.getElemColor(elemNum)
-        self.elm = self.elemTable.getElement(elemNum)
-        
-        self.update_hybrid_btngrp()
-        
-        self.elemGLPane.resetView()
-        self.elemGLPane.refreshDisplay(self.elm, self.displayMode)
-        
-        # Fix for bug 353, to allow the dialog to be updated with the correct page.  For example,
-        # when the user selects Paste from the Edit toolbar/menu, the MMKit should show
-        # the Clipboard page and not the Atoms page. Mark 050808
-        if self.w.depositState == 'Clipboard':
-            self.change2ClipboardPage()
-        else:
-            self.change2AtomsPage()
-        
-    def update_hybrid_btngrp(self):
-        '''Update the buttons of the current element's hybridization types into hybrid_btngrp; 
+    def update_hybrid_btngrp(self, buttonIndex=0):
+        '''Update the buttons of the current element\'s hybridization types into hybrid_btngrp; 
         select the specified one if provided'''
         elem = PeriodicTable.getElement(self.w.Element) # self.w.Element is atomic number
         
@@ -222,51 +447,55 @@ class MMKit(MMKitDialog):
             self.setup_S_hybrid_buttons()
         else:
             self.hybrid_btngrp.hide()
+            #self.hboxlayout.insertItem(0, self.spacerItem_hybrid_btngrp)
             self.elemGLPane.changeHybridType(None)
             return
         
         #if len(atypes) > 1:
         # Prequisite: w.hybridComboBox has been updated at this moment.
-        type_id = self.w.hybridComboBox.currentItem()
-        b_name = self.bond_id2name[type_id]
+        b_name = self.bond_id2name[buttonIndex]
         self.elemGLPane.changeHybridType(b_name)
-        self.hybrid_btngrp.setButton(type_id)
-            
+        self.elemGLPane.refreshDisplay(self.elm, self.displayMode)
+        self.theHybridizations.button(buttonIndex).setChecked(True)
+        self.set_hybrid_type(buttonIndex)
         self.hybrid_btngrp.show()
 
 
     def setup_C_hybrid_buttons(self):
         '''Displays the Carbon hybrid buttons.
         '''
-        self.elementButtonGroup.setButton(self.w.Element)
-        self.sp3_btn.setPixmap(imagename_to_pixmap('C_sp3.png'))
+        
+        self.theElements.button(self.w.Element).setChecked(True)
+        self.hybrid_btngrp.show()
+        self.sp3_btn.setIcon(imagename_to_icon('modeltree/C_sp3.png'))
         self.sp3_btn.show()
-        self.sp2_btn.setPixmap(imagename_to_pixmap('C_sp2.png'))
+        self.sp2_btn.setIcon(imagename_to_icon('modeltree/C_sp2.png'))
         self.sp2_btn.show()
-        self.sp_btn.setPixmap(imagename_to_pixmap('C_sp.png'))
+        self.sp_btn.setIcon(imagename_to_icon('modeltree/C_sp.png'))
         self.sp_btn.show()
         self.graphitic_btn.hide()
+        
     
         
     def setup_N_hybrid_buttons(self):
         '''Displays the Nitrogen hybrid buttons.
         '''
-        self.sp3_btn.setPixmap(imagename_to_pixmap('N_sp3.png'))
+        self.sp3_btn.setIcon(imagename_to_icon('modeltree/N_sp3.png'))
         self.sp3_btn.show()
-        self.sp2_btn.setPixmap(imagename_to_pixmap('N_sp2.png'))
+        self.sp2_btn.setIcon(imagename_to_icon('modeltree/N_sp2.png'))
         self.sp2_btn.show()
-        self.sp_btn.setPixmap(imagename_to_pixmap('N_sp.png'))
+        self.sp_btn.setIcon(imagename_to_icon('modeltree/N_sp.png'))
         self.sp_btn.show()
-        self.graphitic_btn.setPixmap(imagename_to_pixmap('N_graphitic.png'))
+        self.graphitic_btn.setIcon(imagename_to_icon('modeltree/N_graphitic.png'))
         self.graphitic_btn.show()
         
         
     def setup_O_hybrid_buttons(self):
         '''Displays the Oxygen hybrid buttons.
         '''
-        self.sp3_btn.setPixmap(imagename_to_pixmap('O_sp3.png'))
+        self.sp3_btn.setIcon(imagename_to_icon('modeltree/O_sp3.png'))
         self.sp3_btn.show()
-        self.sp2_btn.setPixmap(imagename_to_pixmap('O_sp2.png'))
+        self.sp2_btn.setIcon(imagename_to_icon('modeltree/O_sp2.png'))
         self.sp2_btn.show()
         self.sp_btn.hide()
         self.graphitic_btn.hide()
@@ -275,9 +504,9 @@ class MMKit(MMKitDialog):
     def setup_S_hybrid_buttons(self):
         '''Displays the Sulfur hybrid buttons.
         '''
-        self.sp3_btn.setPixmap(imagename_to_pixmap('O_sp3.png')) # S and O are the same.
+        self.sp3_btn.setIcon(imagename_to_icon('modeltree/O_sp3.png')) # S and O are the same.
         self.sp3_btn.show()
-        self.sp2_btn.setPixmap(imagename_to_pixmap('O_sp2.png'))
+        self.sp2_btn.setIcon(imagename_to_icon('modeltree/O_sp2.png'))
         self.sp2_btn.show()
         self.sp_btn.hide()
         self.graphitic_btn.hide()
@@ -285,12 +514,12 @@ class MMKit(MMKitDialog):
     
     def set_hybrid_type(self, type_id):
         '''Slot method. Called when any of the hybrid type buttons was clicked. '''
-        self.w.hybridComboBox.setCurrentItem( type_id )
+        self.w.hybridComboBox.setCurrentIndex( type_id )
 
         b_name = self.bond_id2name[type_id]
         
         #This condition fixs bug 866, also saves time since no need to draw without MMKIt shown
-        if self.isShown():
+        if self.isVisible():
             self.elemGLPane.changeHybridType(b_name)
             self.elemGLPane.refreshDisplay(self.elm, self.displayMode)
         
@@ -300,7 +529,7 @@ class MMKit(MMKitDialog):
         'Atoms', 'Clipboard' or 'Library' tab to change to that page.
         '''
         
-        #print "setup_current_page: pagename=", pagename
+        #print "setup_current_page: page=", page
         
         if page == self.atomsPage:  # Atoms page
             self.w.depositState = 'Atoms'
@@ -308,6 +537,7 @@ class MMKit(MMKitDialog):
             self.elemGLPane.resetView()
             self.elemGLPane.refreshDisplay(self.elm, self.displayMode)
             self.browseButton.hide()
+	    self.defaultPartLibButton.hide()
         
         elif page == self.clipboardPage: # Clipboard page
             self.w.depositState = 'Clipboard'
@@ -315,12 +545,14 @@ class MMKit(MMKitDialog):
             self.elemGLPane.setDisplay(self.displayMode)
             self._clipboardPageView()
             self.browseButton.hide()
+	    self.defaultPartLibButton.hide()
             
         elif page == self.libraryPage: # Library page
             if self.rootDir:
                 self.elemGLPane.setDisplay(self.displayMode)
                 self._libPageView()
             self.browseButton.show()
+	    self.defaultPartLibButton.show()
             
             #Turn off both paste and deposit buttons, so when in library page and user choose 'set hotspot and copy'
             #it will change to paste page, also, when no chunk selected, a history message shows instead of depositing an atom.
@@ -331,26 +563,25 @@ class MMKit(MMKitDialog):
             
         self.elemGLPane.setFocus()
         
-    def chunkChanged(self, item):
+    def chunkChanged(self, item, previous):
         '''Slot method. Called when user changed the selected chunk. '''
-        
-        itemId = self.chunkListBox.index(item)
+
+        itemId = self.chunkListBox.row(item)
         newChunk = self.pastableItems[itemId]
                 
-        #self.w.pasteComboBox.setCurrentItem(itemId)
+        #self.w.pasteComboBox.setCurrentIndex(itemId)
         #buildModeObj = self.w.glpane.modetab['DEPOSIT']
         #assert buildModeObj
         #buildModeObj.setPaste()
         
         ##Compared to the above way, I think this way is better. Modules are more uncoupled.
-        self.w.pasteComboBox.setCurrentItem(itemId) # Fixes bug 1754. mark 060325
-        self.emit(PYSIGNAL('chunkSelectionChanged'), (itemId,))
-        
+        self.w.pasteComboBox.setCurrentIndex(itemId) # Fixes bug 1754. mark 060325
+       
         self.elemGLPane.updateModel(newChunk)
         
     
     def __really_update_clipboard_items(self): #bruce 060412 renamed this from update_clipboard_items to __really_update_clipboard_items
-        '''Updates the items in the clipboard's listview, if the clipboard is currently shown. '''
+        '''Updates the items in the clipboard\'s listview, if the clipboard is currently shown. '''
         if self.currentPageOpen(ClipboardPage): #bruce 060313 added this condition to fix bugs 1631, 1669, and MMKit part of 1627
             self._clipboardPageView() # includes self.update_clipboard_page_icon()
         else:
@@ -359,7 +590,7 @@ class MMKit(MMKitDialog):
         
     def partChanged(self, item):
         '''Slot method, called when user changed the partlib brower tree'''
-        if isinstance(item, FileItem):
+        if isinstance(item, self.FileItem):
            self._libPageView(True)
         else:
            self.newModel = None
@@ -378,7 +609,7 @@ class MMKit(MMKitDialog):
             1 = Clipboard page
             2 = Library page
         '''
-        pageIndex = self.mmkit_tab.currentPageIndex()
+        pageIndex = self.mmkit_tab.currentIndex()
 
         if page_id == pageIndex:
             return True
@@ -387,48 +618,58 @@ class MMKit(MMKitDialog):
            
     def _libPageView(self, isFile=False):
         item = self.dirView.selectedItem()
-        if not isFile and not isinstance(item, FileItem):
+        if not isFile and not isinstance(item, self.FileItem):
             self.newModel = None
             self.elemGLPane.updateModel(self.newModel)
             return
         
         mmpfile = str(item.getFileObj())
-        #self.newModel = assembly(self.w, "assembly 1")
-        self.newModel = assembly(self.w, os.path.normpath(mmpfile)) #ninad060924 to fix bug 1164
-        
-        self.newModel.o = self.elemGLPane ## Make it looks "assembly" used by glpane.
-        readmmp(self.newModel, mmpfile)
+        if os.path.isfile(mmpfile):
+            #self.newModel = assembly(self.w, "assembly 1")
+            self.newModel = assembly(self.w, os.path.normpath(mmpfile)) #ninad060924 to fix bug 1164
+            self.newModel.o = self.elemGLPane ## Make it looks "assembly" used by glpane.
+            readmmp(self.newModel, mmpfile)
 
-        # The following is absolute nonsense, and is part of what's breaking the fix of bug 2028,
-        # so it needs to be revised, to give this assy a standard structure.
-        # We'll have to find some other way to draw the hotspot singlet
-        # (e.g. a reasonable, straightforward way). So we did -- MMKitView.always_draw_hotspot is True.
-        # [bruce 060627]
+# What we did in Qt 3:
+##         #self.newModel = assembly(self.w, "assembly 1")
+##         self.newModel = assembly(self.w, os.path.normpath(mmpfile)) #ninad060924 to fix bug 1164
         
-##        # Move all stuff under assembly.tree into assy.shelf. This is needed to draw hotspot singlet
-##        def addChild(child):
-##            self.newModel.shelf.addchild(child)
-##        
-##        # Remove existing clipboard items from the libary part before adopting childern from 'tree'.
-##        self.newModel.shelf.members = []
-##        self.newModel.tree.apply2all(addChild)
-##        
-##        self.newModel.shelf.prior_part = None
-##        self.newModel.part = Part(self.newModel, self.newModel.shelf)
+##         self.newModel.o = self.elemGLPane ## Make it looks "assembly" used by glpane.
+##         readmmp(self.newModel, mmpfile)
 
-        if 1: #bruce 060627
+##         # The following is absolute nonsense, and is part of what's breaking the fix of bug 2028,
+##         # so it needs to be revised, to give this assy a standard structure.
+##         # We'll have to find some other way to draw the hotspot singlet
+##         # (e.g. a reasonable, straightforward way). So we did -- MMKitView.always_draw_hotspot is True.
+##         # [bruce 060627]
+        
+## ##        # Move all stuff under assembly.tree into assy.shelf. This is needed to draw hotspot singlet
+## ##        def addChild(child):
+## ##            self.newModel.shelf.addchild(child)
+## ##        
+## ##        # Remove existing clipboard items from the libary part before adopting childern from 'tree'.
+## ##        self.newModel.shelf.members = []
+## ##        self.newModel.tree.apply2all(addChild)
+## ##        
+## ##        self.newModel.shelf.prior_part = None
+## ##        self.newModel.part = Part(self.newModel, self.newModel.shelf)
+
+##         if 1: #bruce 060627
+
             self.newModel.update_parts() #k not sure if needed after readmmp)
             self.newModel.checkparts()
             if self.newModel.shelf.members:
                 if platform.atom_debug:
-                    print "debug warning: library part %r contains clipboard items" % mmpfile # we'll see if this is common
+                    print "debug warning: library part %r contains clipboard items" % mmpfile
+                    # we'll see if this is common
                     # happens for e.g. nanokids/nanoKid-C39H42O2.mmp
                 for m in self.newModel.shelf.members[:]:
                     m.kill() #k guess about a correct way to handle them
                 self.newModel.update_parts() #k probably not needed
                 self.newModel.checkparts() #k probably not needed
-            pass
-            
+        else:
+            self.newModel = None
+
         self.elemGLPane.updateModel(self.newModel)
                 
     
@@ -442,23 +683,23 @@ class MMKit(MMKitDialog):
             return
         
         self.pastableItems = self.w.assy.shelf.get_pastable_chunks()
-        
-        list = QStringList()
-        for item in self.pastableItems:
-            list.append(item.name)
-        
         self.chunkListBox.clear()
-        self.chunkListBox.insertStringList(list)
-        if len(list): 
-            i = self.w.pasteComboBox.currentItem()
-            if self.currentPageOpen(ClipboardPage):
-                # Make sure the clipboard page is open before calling selSelected(), because
-                # setSelected() causes the clipboard page to be displayed when we don't want it to
-                # be displayed (i.e. pressing Control+C to copy something to the clipboard).
-                self.chunkListBox.setSelected(i, True)
-            #bruce 060313 question: why don't we now have to pass the selected chunk to self.elemGLPane.updateModel? ###@@@
-        else:
-            self.elemGLPane.updateModel(None)
+        for item in self.pastableItems:
+            self.chunkListBox.addItem(item.name)
+
+        newModel = None
+        if len(self.pastableItems):
+            i = self.w.pasteComboBox.currentIndex()
+            if i < 0:
+                i = self.w.pasteComboBox.count() - 1
+            # Make sure the clipboard page is open before calling selSelected(), because
+            # setSelected() causes the clipboard page to be displayed when we don't want it to
+            # be displayed (i.e. pressing Control+C to copy something to the clipboard).
+            self.chunkListBox.setCurrentItem(self.chunkListBox.item(i))
+            # bruce 060313 question: why don't we now have to pass the selected chunk to
+            # self.elemGLPane.updateModel? ###@@@
+            newModel = self.pastableItems[i]
+        self.elemGLPane.updateModel(newModel)
         self.update_clipboard_page_icon()
         
     
@@ -470,48 +711,160 @@ class MMKit(MMKitDialog):
             return
             
         if self.w.assy.shelf.get_pastable_chunks():
-            clipboard_pm = imagename_to_pixmap("clipboard-full.png")
+            clipboard_ic = imagename_to_icon("modeltree/clipboard-full.png")
         else:
-            clipboard_pm = imagename_to_pixmap("clipboard-empty.png")
+            clipboard_ic = imagename_to_icon("modeltree/clipboard-empty.png")
         
-        self.mmkit_tab.setTabIconSet (self.clipboardPage, QIconSet(clipboard_pm))
+        self.mmkit_tab.setTabIcon(self.mmkit_tab.indexOf(self.clipboardPage), QIcon(clipboard_ic))
 
-    
+    class DirView(QTreeView):
+        def __init__(self, mmkit, parent):
+            QTreeView.__init__(self, parent)            
+            
+            self.setEnabled(True)
+            self.model = QtGui.QDirModel(['*.mmp', '*.MMP'], # name filters
+                                         QDir.AllEntries|QDir.AllDirs|QDir.NoDotAndDotDot, # filters
+                                         QDir.Name # sort order
+                                         )
+                # explanation of filters (from Qt 4.2 doc for QDirModel):
+                # - QDir.AllEntries = list files, dirs, drives, symlinks.
+                # - QDir.AllDirs = include dirs regardless of other filters [guess: needed to ignore the name filters for dirs]
+                # - QDir.NoDotAndDotDot = don't include '.' and '..' dirs
+                #
+                # about dirnames of "CVS":
+                # The docs don't mention any way to filter the dirnames using a callback,
+                # or any choices besides "filter them same as filenames" or "don't filter them".
+                # So there is no documented way to filter out the "CVS" subdirectories like we did in Qt3
+                # (short of subclassing this and overriding some methods,
+                #  but the docs don't make it obvious how to do that correctly).
+                # Fortunately, autoBuild.py removes them from the partlib copy in built releases.
+                #
+                # Other QDirModel methods we might want to use:
+                # QDirModel.refresh, to update its state from the filesystem (but see the docs --
+                #  they imply we might have to pass the model's root pathname to that method,
+                #  even if it hasn't changed, but they're not entirely clear on that).
+                #
+                # [bruce 070502 comments]
+                
+            self.path = None
+            self.mmkit = mmkit
+            self.setModel(self.model)    
+            self.setWindowTitle(self.tr("Dir View"))
+            
+            self.setItemsExpandable(True)
+            self.setAlternatingRowColors(True)
+            self.setColumnWidth(0, 200)            
+            for i in range(2,4):
+                self.setColumnWidth(i, 4)        
+                
+            self.show()
+        
+        #Ninad 070326 reimplementing mouseReleaseEvent and resizeEvent
+        #for DirView Class (which is a subclass of QTreeView) 
+        #The old code reimplemented 'event' class which handles *all* events. 
+        #There was a bad bug which didn't send an event when the widget is resized
+        # and then the seletcion is changed. In NE1Qt3 this wasn't a problem because 
+        #it only had one column. Now that we have multiple columns 
+        #(which are needed to show the horizontal scrollbar. 
+        # While using Library page only resize event or mouse release events
+        #by the user should update the thumbview. 
+        #The Qt documentation also suggests reimplementing subevents instead of the main 
+        #event handler method (event()) 
+        def mouseReleaseEvent(self, evt):
+            ''' Reimplementation of mouseReleaseEvent method of QTreeView'''
+            if self.selectedItem() is not None:
+                    self.mmkit._libPageView()
+            return QTreeView.mouseReleaseEvent(self, evt)
+        
+        def resizeEvent(self, evt):
+            ''' Reimplementation of resizeEvent method of QTreeView'''
+            if self.selectedItem() is not None:
+                    self.mmkit._libPageView()
+            return QTreeView.resizeEvent(self, evt)                              
+            
+        
+        #Following method (event() ) is not reimplemented anymore. Instead, the subevent handlers are 
+        #reimplemented (see above)  -- ninad 070326 
+        """
+        def event(self, evt):
+            if evt.type() == evt.Timer:
+                # This is the event we get when the library selection changes, so if there has
+                # been a library selection, update the library page's GLPane. But this can also
+                # happen without a selection; in that case don't erase the atom page's display.
+                if self.selectedItem() is not None:
+                    self.mmkit._libPageView()
+            return QTreeView.event(self, evt)"""
+
+        def setRootPath(self, path):
+            self.path = path
+            self.setRootIndex(self.model.index(path))
+
+        def selectedItem(self):
+            indexes = self.selectedIndexes()
+            if not indexes:
+                return None
+            index = indexes[0]
+            if not index.isValid():
+                return None
+            
+            return self.FileItem(str(self.model.filePath(index)))
+
+    class FileItem:
+        def __init__(self, path):
+            self.path = path
+            dummy, self.filename = os.path.split(path)
+        def name(self):
+            return self.filename
+        def getFileObj(self):
+            return self.path
+    DirView.FileItem = FileItem
+
     def _setNewView(self, viewClassName):
         # Put the GL widget inside the frame
         if not self.flayout:
-            self.flayout = QVBoxLayout(self.elementFrame,1,1,'flayout')
+            self.flayout = QVBoxLayout(self.elementFrame)
+            self.flayout.setMargin(1)
+            self.flayout.setSpacing(1)
         else:
             if self.elemGLPane: 
                 self.flayout.removeChild(self.elemGLPane)
                 self.elemGLPane = None
         
         if viewClassName == 'ChunkView':
+            # We never come here! How odd.
             self.elemGLPane = ChunkView(self.elementFrame, "chunk glPane", self.w.glpane)
         elif viewClassName == 'MMKitView':
             self.elemGLPane = MMKitView(self.elementFrame, "MMKitView glPane", self.w.glpane)
         
         self.flayout.addWidget(self.elemGLPane,1)
         
-        self.dirView = DirView(self.libraryPage)
-        libraryPageLayout = QVBoxLayout(self.libraryPage,4,2,"libraryPageLayout")
-        libraryPageLayout.addWidget(self.dirView)
         
+        #ninad 070326. Note that self.DirView inherits QTreeView. 
+        #It has got nothing to do with the experimental class DirView in file Dirview.py
+        self.dirView = self.DirView(self, self.libraryPage)
+        self.dirView.setSortingEnabled (True)
+        ##self.dirView.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+
+        libraryPageLayout = QVBoxLayout(self.libraryPage)
+        libraryPageLayout.setMargin(4)
+        libraryPageLayout.setSpacing(2)
+        libraryPageLayout.addWidget(self.dirView)
+            
+
         filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
         libDir = os.path.normpath(filePath + '/../partlib')
         
         self.libPathKey = '/nanorex/nE-1/libraryPath'
         libDir = env.prefs.get(self.libPathKey, libDir)
-        
+
         if os.path.isdir(libDir):
-            self.rootDir = Directory(self.dirView, libDir)
-            self.rootDir.setOpen(True)
+            self.rootDir = libDir
+            self.dirView.setRootPath(libDir)
         else:
             self.rootDir = None
             from HistoryWidget import redmsg
             env.history.message(redmsg("The part library directory: %s doesn't exist." %libDir))
 
-            
     def browseDirectories(self):
        '''Slot method for the browse button of library page. '''
        # Determine what directory to open.
@@ -521,25 +874,43 @@ class MMKit(MMKitDialog):
            from prefs_constants import workingDirectory_prefs_key
            odir = env.prefs[workingDirectory_prefs_key]
         
-       fdir = QFileDialog.getExistingDirectory(odir, self, "Choose directory", "Choose library directory", True)
+       fdir = QFileDialog.getExistingDirectory(self, "Choose library directory", odir)
        libDir = str(fdir)
-       #fileDialog = QFileDialog(self, "Choose library directory", True)
-       #fileDialog.setCaption("Choose library directory")
-       #fileDialog.setMode(QFileDialog.Directory)
-       if libDir:#fileDialog.exec_loop() == QDialog.Accepted:
-           #libDir = str(fileDialog.selectedFile())
-           if os.path.isdir(libDir):
-               env.prefs[self.libPathKey] = libDir
-               
-               #Clear any previous tree items before creating the new one
-               self.dirView.clear()
-        
-               self.rootDir = Directory(self.dirView, libDir)
-               self.rootDir.setOpen(True)
-            
-               #Refresh GL-thumbView display
-               self.newModel = None
-               self.elemGLPane.updateModel(self.newModel)
+       if libDir and os.path.isdir(libDir):
+           env.prefs[self.libPathKey] = libDir
+           self.dirView.setRootPath(libDir)
+           #Refresh GL-thumbView display
+           self.newModel = None
+           self.elemGLPane.updateModel(self.newModel)
+    
+    def useDefaultPartLibDirectory(self):
+	''' Slot method that to reset the part lib directory path to default'''
+	from HistoryWidget import redmsg
+	
+	#ninad070503 : A future enhancement would be a preference to have 
+	# a user defined 'default dir path' for the 
+	#part lib location. 
+	
+	# set libDir to the standard partlib path
+	filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
+	libDir = os.path.normpath(filePath + '/../partlib')
+ 
+	if libDir and os.path.isdir(libDir):
+	    if self.dirView.path == libDir:
+		msg1 = "Current directory path for the partlib is the default path." 
+		msg2 = " Current path not changed"
+		env.history.message(redmsg(msg1 + msg2))
+		return
+	    env.prefs[self.libPathKey] = libDir
+	    self.dirView.setRootPath(libDir)
+	    #Refresh GL-thumbView display
+	    self.newModel = None
+	    self.elemGLPane.updateModel(self.newModel)
+	else:
+	    msg1 = "The default patlib directory %s doesn't exist."%libDir
+	    msg2 = "Current path not changed"
+	    env.history.message(redmsg(msg1 + msg2))
+	
 
     def closeEvent(self, e):
         """This event handler receives all MMKit close events.  In other words,
@@ -550,99 +921,8 @@ class MMKit(MMKitDialog):
         # If the 'Library' page is open, change it to 'Atoms'.  Mark 051212.
         if self.currentPageOpen(LibraryPage):
             self.setup_current_page(self.atomsPage)
-            
-    def get_location_ORIG(self, firstShow):
-        '''Returns the best x, y screen coordinate for positioning the MMKit.
-        If <firstShow> is True, the Model Tree width is set to 200 pixels.
-        Should only be called MMKit has been created.
-        '''
-
-        if sys.platform == 'linux2' and firstShow:
-            # Qt Notes: On X11 system, widgets do not have a frameGeometry() before show() is called.
-            # This is why we have special case code in atom.py, MWsemantics.py and here to work
-            # around this issue on Linux.  mark 060311.
-            mmk_height = 500
-        else:
-            mmk_height = self.frameGeometry().height() 
-                # <mmk_height> is wrong when firstShow is True.  This is due to a problem with the
-                # Library's QListView (DirView) widget.  See DirView.__init__() for more info on this.
-                # We compensate for <mmk_height>'s wrong value below. Mark 060222.
-
-        buildmode_dashboard_height = self.w.depositAtomDashboard.frameGeometry().height()
-        status_bar_height = self.w.statusBar().frameGeometry().height()
+                  
         
-        # Compute the y coordinate
-        y = self.w.geometry().y() \
-            + self.w.geometry().height() \
-            - mmk_height \
-            - buildmode_dashboard_height \
-            - status_bar_height
-        
-        # Make small adjustments to the y coordinate based on various situations for different platforms.   
-        if firstShow:
-            # Avoid traceback on Linux, because mmk_geometry isn't defined. wware 060224
-            if sys.platform != 'linux2':
-                y -= 58
-                # This is to compensate for a strange bug related to the Library's QListView widget changing size
-                # after the MMKit is created but not yet shown.  This bug causes <mmk_height> of the
-                # MMKit be off by 58 pixels on Windows. MacOS and Linux will probably need a different value.
-                # See DirView.__init__() for more info on this. mark 060222.
-                
-            self.w.mt.setGeometry(0,0,200,560) 
-                # Set model tree width to 200. mark 060303.
-                # Make sure this is really needed. I seem to remember that I tried initializing the MT to a width
-                # of 200 pixels, but something wasn't working.  This may be needed, but my guess right now
-                # is that it isn't required.  mark 060311.
-        else:
-            if sys.platform == 'linux2':
-                y -= 33
-        # Make sure the MMKit stays on the screen.
-        y = max(0, y)
-        x = max(4,self.w.geometry().x()) # Fixes bug 1636.  Mark 060310.
-
-        #print "x=%d, y =%d" % (x,y)
-        return x, y
-        
-    def get_location(self, firstShow):
-        '''Returns the best x, y screen coordinate for positioning the MMKit.
-        If <firstShow> is True, the Model Tree width is set to 200 pixels.
-        Should only be called MMKit has been created.
-        '''
-
-        mmkit_height = self.frameGeometry().height()
-        #&print "MMKit.get_location_NEW().MMKit height =", mmkit_height
-        buildmode_dashboard_height = self.w.depositAtomDashboard.frameGeometry().height()
-        status_bar_height = self.w.statusBar().frameGeometry().height()
-        
-        # Compute the y coordinate
-        y = self.w.geometry().y() \
-            + self.w.geometry().height() \
-            - mmkit_height \
-            - buildmode_dashboard_height \
-            - status_bar_height
-        
-        # Make small adjustments to the y coordinate based on various situations for different platforms.   
-        if firstShow:
-            self.w.mt.setGeometry(0,0,200,560)
-            if sys.platform == 'win32':
-                y -= 58
-                # This is to compensate for a strange bug related to the Library's QListView widget changing size
-                # after the MMKit is created but not yet shown.  This bug causes <mmk_height> of the
-                # MMKit be off by 58 pixels on Windows. MacOS and Linux will probably need a different value.
-                # See DirView.__init__() for more info on this. mark 060222.
-            if sys.platform == 'darwin':
-                y -= 39 # Tested and working. mark 060315.
-        
-        if sys.platform == 'linux2':
-            y -= 33 # Tested and working. mark 060315.
-
-        # Make sure the MMKit stays on the screen.
-        y = max(0, y)
-        x = max(0, self.w.geometry().x()) # Fixes bug 1636.  Mark 060310.
-
-        #&print "MMKit.get_location_NEW().x=%d, y =%d" % (x,y)
-        return x, y
-    
     num_polish = 0
     
     def polish(self):
@@ -650,9 +930,9 @@ class MMKit(MMKitDialog):
         Polishing is useful for final initialization which depends on having an instantiated widget. 
         This is something a constructor cannot guarantee since the initialization of the subclasses might not be finished.
         After this function, the widget has a proper font and palette and QApplication.polish() has been called.
-        Remember to call QWidget's implementation when reimplementing this function.
+        Remember to call QDialog's implementation when reimplementing this function.
         '''
-        QWidget.polish(self) # call QWidget's polish() implementation
+        QDialog.polish(self) # call QDialog's polish() implementation
         self.num_polish += 1
         #&print "num_polish =", self.num_polish
         if self.num_polish < 2:
@@ -662,18 +942,27 @@ class MMKit(MMKitDialog):
             return
         self.move_to_best_location(True)
         
-    def move_to_best_location(self, firstShow):
-        x, y = self.get_location(firstShow)
-        self.move(x, y)
-        #&print "MMKit.move_to_best_location: x=%r, y=%r" % (x,y)
         
     def show(self):
-        '''MMKit's show slot.
+        '''MMKit\'s show slot.
         '''
-        QDialog.show(self)
+        #QDialog.show(self)
         #&print "MMKit.move: setting mainwindow to active window"
-        self.w.setActiveWindow() # Fixes bug 1503.  mark 060216.
+        #Show it in Property Manager Tab ninad061207
+        if not self.pw or self:            
+            self.pw = self.w.activePartWindow()       #@@@ ninad061206  
+            self.pw.updatePropertyManagerTab(self)
+            self.setSponsor()
+                        
+        else:
+            if not self.pw:
+                self.pw = self.w.activePartWindow()                 
+            self.pw.updatePropertyManagerTab(self)
+            
+            
+        self.w.activateWindow() # Fixes bug 1503.  mark 060216.
             # Required to give the keyboard input focus back to self (MainWindow).
+            
         
     pass # end of class MMKit
 

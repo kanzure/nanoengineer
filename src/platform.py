@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 platform.py -- module for platform-specific code,
 especially for such code that needs to be called from various other modules.
@@ -10,18 +10,20 @@ or the screen or files, that is, issues having to do with both the UI and the
 OS interface.
 
 $Id$
-
-bruce 050913 used env.history in some places, revised open_file_in_editor API.
 """
 __author__ = "bruce" # and others
 
 import sys, os, time
-from qt import Qt, QDesktopWidget, QRect
-from constants import * # e.g. for leftButton
-
+from PyQt4.Qt import Qt, QDesktopWidget, QRect
+from constants import * # e.g. for Qt.LeftButton
+from qt4transition import *
 import env
 
-# file utilities
+# == constants (or variables settable by a debugger) read by code in other modules
+
+## atom_debug is set lower down
+
+# == file utilities
 
 def mkdirs_in_filename(filename):
     """Make all directories needed for the directory part of this filename,
@@ -37,7 +39,7 @@ def mkdirs_in_filename(filename):
         os.mkdir(dir)
     return
 
-# event code
+# == event code
 
 def is_macintosh():
     #e we might need to update this, since I suspect some mac pythons
@@ -126,14 +128,21 @@ def middle_button_prefix():
 # [moved here from GLPane.py -- bruce 050112]
 
 def fix_event_helper(self, event, when, target = None): #bruce 050913 new API; should merge them, use target, doc this one
-    if when == 'press':
-        but = event.stateAfter()
-    else:
-        but = event.state()
-    but = fix_buttons_helper(self, but, when)
-    return but
+    qt4todo('reconcile state and stateAfter')
+        # fyi: for info about event methods button and buttons (related to state and stateAfter in Qt3) see
+        # http://www.riverbankcomputing.com/Docs/PyQt4/html/qmouseevent.html#button
+        # [bruce 070328]
+##     if when == 'press':
+##         but = event.stateAfter()
+##     else:
+##         but = event.state()
+    but, mod = event.buttons(), event.modifiers()
+##    if when == 'press':
+##        print "in fix_event_helper: but/mod ints before fix_buttons_helper",int(but),int(mod)#bruce 070328
+    but, mod = fix_buttons_helper(self, but, mod, when)
+    return but, mod
 
-def fix_buttons_helper(self, but, when):
+def fix_buttons_helper(self, but, mod, when):
     """
     Every mouse event's button and modifier key flags should be
     filtered through this method (actually just a "method helper function").
@@ -175,25 +184,43 @@ def fix_buttons_helper(self, but, when):
     common to release a modifier key then).
 
     2. On the Mac, remap
-    Option+leftButton to middleButton, so that the Option key
+    Option+Qt.LeftButton to middleButton, so that the Option key
     (also called the Alt key) simulates the middle mouse button.
     (Note that Qt/Mac, by default, lets Control key simulate
     rightButton and remaps Command key to the same flag we call
-    cntlButton; we like this and don't change it here.)
+    cntlButton; we like this and don't change it here.
+    In Qt4.2.2/Mac, the Control key is no longer simulating right button --
+    in fact, right button is simulating control key! So we fix that here.)
     """
     # [by bruce, 040917 (in GLPane.py). At time of commit,
     # tested only on Mac with one-button mouse.]
-    
-    allButtons = (leftButton|midButton|rightButton)
-    allModKeys = (shiftButton|cntlButton|altButton)
-    allFlags = (allButtons|allModKeys)
+
+    if sys.platform in ['darwin']:
+        #bruce 070328 Qt4/Mac bugfix:
+        # work around a bug in Qt 4.2.2/Mac in which the control key is no longer mapped to the
+        # right mouse button, and not only that, the right mouse button itself is no longer mapped
+        # to the right mouse button, turning into control-LMB instead! (Undo that unwanted change here.
+        # It caused GLPane context menus to not work at all, at least on my Mac OS 10.3.9 / Qt 4.2.2.)
+        try:
+            if (mod & Qt.MetaModifier) and (but & Qt.LeftButton):
+                mod = mod & ~Qt.MetaModifier
+                but = (but & ~Qt.LeftButton) | Qt.RightButton
+        except:
+            print "following exception concerns but = %r, mod = %r; btw Qt.MetaModifier = %r" % (but, mod, Qt.MetaModifier)
+            raise
+        pass
+
+    allButtons = (Qt.LeftButton|Qt.MidButton|Qt.RightButton)
+    allModifiers = (Qt.ShiftModifier|Qt.ControlModifier|Qt.AltModifier)
+    #allFlags = (allButtons|allModKeys)
     _debug = 0 # set this to 1 to see some debugging messages
     if when == 'move' and (but & allButtons):
         when = 'drag'
     assert when in ['move','press','drag','release']
 
     if not hasattr(self, '_fix_buttons_saved_buttons'):
-        self._fix_buttons_saved_buttons = 0
+        self._fix_buttons_saved_buttons = Qt.NoButton
+        self._fix_buttons_saved_modifiers = Qt.NoModifier
     
     # 1. bugfix: make mod keys during drag and button-release the
     # same as on the initial button-press.  Do the same with mouse
@@ -202,7 +229,8 @@ def fix_buttons_helper(self, but, when):
     # modkey/mousebutton combinations in part 2 below!
     
     if when == 'press':
-        self._fix_buttons_saved_buttons = but & allFlags
+        self._fix_buttons_saved_buttons = but & allButtons
+        self._fix_buttons_saved_modifiers = mod & allModifiers
         # we'll reuse this button/modkey state during the same
         # drag and release
         if _debug and self._fix_buttons_saved_buttons != but:
@@ -211,13 +239,20 @@ def fix_buttons_helper(self, but, when):
             # fyi: on Mac I once got 2050 - 2 = 0x800 from this statement;
             # don't know what flag 0x800 means; shouldn't be a problem
     elif when in ['drag','release']:
-        if (self._fix_buttons_saved_buttons & allButtons):
+        if ((self._fix_buttons_saved_buttons & allButtons) or
+            (self._fix_buttons_saved_modifiers & allModifiers)):
             but0 = but
-            but &= ~allFlags
+            but &= ~allButtons
             but |= self._fix_buttons_saved_buttons
             # restore the modkeys and mousebuttons from the mousepress
             if _debug and but0 != but:
                 print "fyi, debug: fix_buttons rewrote but0 0x%x to but 0x%x" % (but0, but) #works
+            mod0 = mod
+            mod &= ~allModifiers
+            mod |= self._fix_buttons_saved_modifiers
+            # restore the modkeys and mousemodifiers from the mousepress
+            if _debug and mod0 != mod:
+                print "fyi, debug: fix_buttons rewrote mod0 0x%x to mod 0x%x" % (mod0, mod) #works
         else:
             
             # fyi: This case might happen in the following rare
@@ -244,7 +279,8 @@ def fix_buttons_helper(self, but, when):
         pass # pure move (no mouse buttons down):
              #  don't revise the event flags
     if when == 'release':
-        self._fix_buttons_saved_buttons = 0
+        self._fix_buttons_saved_buttons = Qt.NoButton
+        self._fix_buttons_saved_modifiers = Qt.NoModifier
     
     # 2. let the Mac's Alt/Option mod key simulate middle mouse button.
     if sys.platform in ['darwin']:
@@ -266,10 +302,19 @@ def fix_buttons_helper(self, but, when):
         # less than 3 mouse buttons) and document it.
         
         # -- bruce 040916-17
-        
-        if (but & altButton) and (but & leftButton):
-            but = but - altButton - leftButton + midButton
-    return but
+
+        ## qt4todo('Not sure this is what Bruce intended...') # nope, it crashed! Fixing it using & and ~. bruce 070328
+        try:
+            if (mod & Qt.AltModifier) and (but & Qt.LeftButton):
+                ## mod = mod - Qt.AltModifier
+                    ## TypeError: unsupported operand type(s) for -: 'KeyboardModifiers' and 'KeyboardModifier'
+                ## but = but - Qt.LeftButton + Qt.MidButton
+                mod = mod & ~Qt.AltModifier
+                but = (but & ~Qt.LeftButton) | Qt.MidButton
+        except:
+            print "following exception concerns mod = %r; btw Qt.AltModifier = %r" % (mod, Qt.AltModifier)
+            raise
+    return but, mod
 
 # ===
 
@@ -431,6 +476,7 @@ def find_plugin_dir(plugin_name):
             return False, "error: can't find built-in plugins directory [%s] (or it's not a directory)" % (appdir,)
         path = os.path.join(appdir, plugin_name)
         if os.path.isdir(path):
+            qt4message(path)
             return True, path
         return False, "can't find plugin %r" % (plugin_name,)
     except:

@@ -1,4 +1,4 @@
-# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2005-2006 Nanorex, Inc.  See LICENSE file for details. 
 '''
 undo.py
 
@@ -43,8 +43,8 @@ import env
 from debug import register_debug_menu_command, register_debug_menu_command_maker
     ###@@@ don't put all those commands in there -- use a submenu, use atom-debug,
     # or let them only show up if a related flag is set, or so...
-from qt import SIGNAL, QObject, QWidget #k ok to do these imports at toplevel? I hope so, since we need them in several places.
-import qt
+from PyQt4.Qt import SIGNAL, QObject, QWidget #k ok to do these imports at toplevel? I hope so, since we need them in several places.
+import PyQt4.Qt
 from constants import genKey, noop
 import platform # for atom_debug [bruce 060128, suggested by Mark;
     # if this works, we should simplify some defs which worry if it's too early for this]
@@ -610,7 +610,7 @@ def hack_qwidget_pre_win_init(): # call this once, or more times if you can't av
 # app startup code must call these at the right times:
 
 def call_asap_after_QWidget_and_platform_imports_are_ok():
-    import qt
+    import PyQt4.Qt
     import platform # make sure these imports can be done now; platform will be needed later for atom_debug
     if not _use_hcmi_hack: return
     hack_qwidget_pre_win_init()

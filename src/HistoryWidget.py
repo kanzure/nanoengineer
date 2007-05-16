@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 '''
 HistoryWidget.py provides a Qt "megawidget" supporting our history/status area.
 
@@ -22,10 +22,12 @@ $Id$
 '''
 __author__ = "bruce"
 
-from qt import *
+from PyQt4.Qt import *
+from PyQt4 import QtCore, QtGui
 import sys, os, time
 import platform # for atom_debug, and more
 from debug import DebugMenuMixin
+from qt4transition import qt4todo
 from constants import *
 import preferences
 import env #bruce 050810
@@ -105,7 +107,11 @@ class message:
         assert 0, "nim" # same fields as widget text, but in xml, and not affected by display prefs
     pass
 
-hte_super = QTextEdit # also works (sort of) with QTextBrowser [bruce 050914]
+# hte_super = QTextEdit # also works (sort of) with QTextBrowser [bruce 050914]
+# Switching to QTextBrowser also removes some misleading things from the HistoryWidget's context
+# menu, since a user isn't allowed to put text in it. (E.g. "Insert Unicode control character")
+#hte_super = QTextBrowser
+hte_super = QTextEdit
 m_super = DebugMenuMixin
 
 class History_QTextEdit(hte_super, m_super):
@@ -219,14 +225,21 @@ class HistoryWidget:
     def _init_widget(self, parent):
         "[private] set up self.widget"
         self.widget = History_QTextEdit(parent) # public member, private value (except that it's a Qt widget)
-        self.widget.setFocusPolicy(QWidget.ClickFocus) ##e StrongFocus also can be tabbed to, might be better
+        self.widget.setFocusPolicy(QtCore.Qt.ClickFocus) ##e StrongFocus also can be tabbed to, might be better
             # not needed on Mac [bruce], but needed on Windows [mark],
             # to support copy/paste command sequences, etc
 
         # Partial implem for NFR 843.  Need a method for updating the height of the widget. Mark 050729
                 
         h = self.widget.fontMetrics().lineSpacing() * self.history_height + 2 # Plus 2 pixels
-        self.widget.setGeometry(QRect(0,0,100,h))
+        #self.widget.setGeometry(QRect(0,0,100,h))
+        self.widget.setMaximumHeight(int(h))
+        self.widget.setWordWrapMode(QTextOption.WordWrap)
+        self.widget.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.widget.ensureCursorVisible()
+        
+        
+                
         return
     
     file = None
@@ -291,7 +304,7 @@ class HistoryWidget:
                 # (we also flush in self.h_update(), whether or not debugging)
                 self.file.flush()
         self.widget.append(something) # apparently prepends a newline if needed
-        self.widget.scrollToBottom()
+        self.widget.ensureCursorVisible()
             #e Someday we need a checkbox or heuristic to turn off this
             # autoscrolling, in case user wants to read or copy something
             # while new status messages keep pouring in.
@@ -444,9 +457,9 @@ class HistoryWidget:
             sbar = win.statusBar()
         # now we can emit the message
         if msg_text:
-            sbar.message(msg_text)
+            sbar.showMessage(msg_text)
         else:
-            sbar.clear()
+            sbar.clearMessage()
         if repaint:
             ## this didn't work, so don't do it until I know why it didn't work:
             ## sbar.repaint()

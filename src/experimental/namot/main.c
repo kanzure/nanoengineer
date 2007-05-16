@@ -1,3 +1,4 @@
+// Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
 /*
  * Copyright, 1994-1996, The Regents of the University of California. 
  * This software was produced under U.S. Government contract(W-7405-ENG-36) 
