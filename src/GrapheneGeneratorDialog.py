@@ -1,230 +1,225 @@
-# -*- coding: utf-8 -*-
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+"""
 
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
-# Form implementation generated from reading ui file 'GrapheneGeneratorDialog.ui'
-#
-# Created: Wed Sep 27 14:00:19 2006
-#      by: PyQt4 UI code generator 4.0.1
-#
-# WARNING! All changes made in this file will be lost!
+$Id$
+
+History:
+
+Mark 2007-05-17: This used to be generated from its .ui file. Now it uses PropMgrBaseClass
+  to construct its property manager dialog.
+
+"""
+        
+__author__ = "Mark"
 
 import sys
-from PyQt4 import QtCore, QtGui
+from PyQt4 import Qt, QtCore, QtGui
 from Utility import geticon, getpixmap
+from PyQt4.Qt import *
+from PropertyManagerMixin import PropMgrBaseClass
+from PropMgr_Constants import *
+from bonds import CC_GRAPHITIC_BONDLENGTH
 
-class Ui_graphene_sheet_dialog(object):
-    def setupUi(self, graphene_sheet_dialog):
-        graphene_sheet_dialog.setObjectName("graphene_sheet_dialog")
-        graphene_sheet_dialog.resize(QtCore.QSize(QtCore.QRect(0,0,200,294).size()).expandedTo(graphene_sheet_dialog.minimumSizeHint()))
+class GraphenePropMgr(object, PropMgrBaseClass):
+    
+    def __init__(self):
+        """Construct the Graphene Property Manager.
+        """
+        PropMgrBaseClass.__init__(self)
+        self.setPropMgrIcon('ui/actions/Tools/Build Structures/Graphene.png')
+        self.setPropMgrTitle("Graphene Sheet")
+        self.addGroupBoxes()
+        self.addBottomSpacer() 
+        self.add_whats_this_text()
+        self.connect_or_disconnect_signals(connect=True)
         
-        palette = graphene_sheet_dialog.getPropertyManagerPalette()
-        graphene_sheet_dialog.setPalette(palette)
+        msg = "Edit the Graphene sheet parameters and select <b>Preview</b> to \
+        preview the structure. Click <b>Done</b> to insert it into the model."
+        self.insertHtmlMsg(msg)
         
-        self.vboxlayout = QtGui.QVBoxLayout(graphene_sheet_dialog)
-        self.vboxlayout.setMargin(0)
-        self.vboxlayout.setSpacing(0)
-        self.vboxlayout.setObjectName("vboxlayout")
-
-        self.heading_frame = QtGui.QFrame(graphene_sheet_dialog)
-        self.heading_frame.setFrameShape(QtGui.QFrame.NoFrame)
-        self.heading_frame.setFrameShadow(QtGui.QFrame.Plain)
-        self.heading_frame.setObjectName("heading_frame")
+    def addGroupBoxes(self):
+        """Add the 1 groupbox for the Graphene Property Manager.
+        """
+        self.addGroupBox1("Parameters")
+              
+    def addGroupBox1(self, title):
+        """Adds a spacer, then it creates layout and widgets for the 
+        "DNA Parameters" groupbox.
+        """
         
-        palette2 = QtGui.QPalette()
-        palette2.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(10),QtGui.QColor(150,150,140)) #bgrole(10) is 'Windows'
-        palette2.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(10),QtGui.QColor(150, 150,140)) #bgrole(10) is 'Windows'
-        palette2.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(10),QtGui.QColor(150,150,140)) #bgrole(10) is 'Windows'
-        self.heading_frame.setAutoFillBackground(True)
-        self.heading_frame.setPalette(palette2)
-
-        self.hboxlayout = QtGui.QHBoxLayout(self.heading_frame)
-        self.hboxlayout.setMargin(0)
-        self.hboxlayout.setSpacing(3)
-        self.hboxlayout.setObjectName("hboxlayout")
-
-        self.heading_pixmap = QtGui.QLabel(self.heading_frame)
-        self.heading_pixmap.setPixmap(getpixmap('ui/actions/Tools/Build Structures/Graphene'))
-
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(0),QtGui.QSizePolicy.Policy(0))
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.heading_pixmap.sizePolicy().hasHeightForWidth())
-        self.heading_pixmap.setSizePolicy(sizePolicy)
-        self.heading_pixmap.setScaledContents(True)
-        self.heading_pixmap.setObjectName("heading_pixmap")
-        self.hboxlayout.addWidget(self.heading_pixmap)
-
-        self.heading_label = QtGui.QLabel(self.heading_frame)
-
-        font = QtGui.QFont(self.heading_label.font())
-        font.setFamily("Sans Serif")
-        font.setPointSize(12)
-        font.setWeight(75)
-        font.setItalic(False)
-        font.setUnderline(False)
-        font.setStrikeOut(False)
-        font.setBold(True)
-        self.heading_label.setFont(font)
-        self.heading_label.setObjectName("heading_label")
-        self.hboxlayout.addWidget(self.heading_label)
-        self.vboxlayout.addWidget(self.heading_frame)
-
-        self.sponsor_frame = QtGui.QFrame(graphene_sheet_dialog)
-        self.sponsor_frame.setFrameShape(QtGui.QFrame.NoFrame)
-        self.sponsor_frame.setFrameShadow(QtGui.QFrame.Plain)
-        self.sponsor_frame.setObjectName("sponsor_frame")
-
-        self.gridlayout = QtGui.QGridLayout(self.sponsor_frame)
-        self.gridlayout.setMargin(0)
-        self.gridlayout.setSpacing(0)
-        self.gridlayout.setObjectName("gridlayout")
-
-        self.sponsor_btn = QtGui.QPushButton(self.sponsor_frame)
-        self.sponsor_btn.setMaximumSize(QtCore.QSize(32767,32767))
-        self.sponsor_btn.setAutoDefault(False)
-        self.sponsor_btn.setFlat(True)
-        self.sponsor_btn.setObjectName("sponsor_btn")
-        self.gridlayout.addWidget(self.sponsor_btn,0,0,1,1)
-        self.vboxlayout.addWidget(self.sponsor_frame)
-
-        self.body_frame = QtGui.QFrame(graphene_sheet_dialog)
-        self.body_frame.setFrameShape(QtGui.QFrame.StyledPanel)
-        self.body_frame.setFrameShadow(QtGui.QFrame.Raised)
-        self.body_frame.setObjectName("body_frame")
-
-        self.vboxlayout1 = QtGui.QVBoxLayout(self.body_frame)
-        self.vboxlayout1.setMargin(3)
-        self.vboxlayout1.setSpacing(3)
-        self.vboxlayout1.setObjectName("vboxlayout1")
-
-        self.hboxlayout1 = QtGui.QHBoxLayout()
-        self.hboxlayout1.setMargin(0)
-        self.hboxlayout1.setSpacing(2)
-        self.hboxlayout1.setObjectName("hboxlayout1")
-
-        spacerItem = QtGui.QSpacerItem(10,10,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.hboxlayout1.addItem(spacerItem)
-
-        self.done_btn = QtGui.QPushButton(self.body_frame)
-        self.done_btn.setIcon(geticon("ui/actions/Properties Manager/Done"))
-        self.done_btn.setObjectName("done_btn")
-        self.hboxlayout1.addWidget(self.done_btn)
-
-        self.abort_btn = QtGui.QPushButton(self.body_frame)
-        self.abort_btn.setIcon(geticon("ui/actions/Properties Manager/Abort"))
-        self.abort_btn.setObjectName("abort_btn")
-        self.hboxlayout1.addWidget(self.abort_btn)
-
-        self.restore_defaults_btn = QtGui.QPushButton(self.body_frame)
-        self.restore_defaults_btn.setIcon(geticon("ui/actions/Properties Manager/Restore"))
-        self.restore_defaults_btn.setObjectName("restore_defaults_btn")
-        self.hboxlayout1.addWidget(self.restore_defaults_btn)
-
-        self.preview_btn = QtGui.QPushButton(self.body_frame)
-        self.preview_btn.setIcon(geticon("ui/actions/Properties Manager/Preview"))
-        self.preview_btn.setObjectName("preview_btn")
-        self.hboxlayout1.addWidget(self.preview_btn)
-
-        self.whatsthis_btn = QtGui.QPushButton(self.body_frame)
-        self.whatsthis_btn.setIcon(geticon("ui/actions/Properties Manager/WhatsThis"))
-        self.whatsthis_btn.setObjectName("whatsthis_btn")
-        self.hboxlayout1.addWidget(self.whatsthis_btn)
-
-        spacerItem1 = QtGui.QSpacerItem(20,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.hboxlayout1.addItem(spacerItem1)
-        self.vboxlayout1.addLayout(self.hboxlayout1)
-
-        self.parameters_grpbox = QtGui.QGroupBox(self.body_frame)
-        self.parameters_grpbox.setObjectName("parameters_grpbox")
+        self.addGroupBoxSpacer()
+                
+        self.pmGroupBox1 = QtGui.QGroupBox(self)
+        self.pmGroupBox1.setObjectName("pmGroupBox1")
         
-        self.parameters_grpbox.setAutoFillBackground(True) 
-        palette_param_grpbx =  graphene_sheet_dialog.getGroupBoxPalette()
-        self.parameters_grpbox.setPalette(palette_param_grpbx)
+        self.pmGroupBox1.setAutoFillBackground(True) 
+        palette =  self.getGroupBoxPalette()
+        self.pmGroupBox1.setPalette(palette)
         
-        styleSheet = graphene_sheet_dialog.getGroupBoxStyleSheet()        
-        self.parameters_grpbox.setStyleSheet(styleSheet)
-
-        self.vboxlayout2 = QtGui.QVBoxLayout(self.parameters_grpbox)
-        self.vboxlayout2.setMargin(0)
-        self.vboxlayout2.setSpacing(2)
-        self.vboxlayout2.setObjectName("vboxlayout2")
-
-        ###self.graphene_parameters_grpbtn = QtGui.QPushButton(self.parameters_grpbox)
-
-        self.graphene_parameters_grpbtn = graphene_sheet_dialog.getGroupBoxTitleButton(
-            "Parameters",
-            self.parameters_grpbox)
+        styleSheet = self.getGroupBoxStyleSheet()        
+        self.pmGroupBox1.setStyleSheet(styleSheet)
         
-        self.vboxlayout2.addWidget(self.graphene_parameters_grpbtn)
+        # Create vertical box layout
+        GrpBox1MainVBoxLayout = QtGui.QVBoxLayout(self.pmGroupBox1)
+        GrpBox1MainVBoxLayout.setMargin(pmGrpBoxVboxLayoutMargin)
+        GrpBox1MainVBoxLayout.setSpacing(pmGrpBoxVboxLayoutSpacing)
 
-        self.gridlayout1 = QtGui.QGridLayout()
-        self.gridlayout1.setMargin(2)
-        self.gridlayout1.setSpacing(6)
-        self.gridlayout1.setObjectName("gridlayout1")
-
-        self.height_label = QtGui.QLabel(self.parameters_grpbox)
-        self.height_label.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        # Title button for groupbox1
+        
+        self.pmGroupBoxBtn1 = self.getGroupBoxTitleButton(
+            title, self.pmGroupBox1)
+        
+        GrpBox1MainVBoxLayout.addWidget(self.pmGroupBoxBtn1)
+        
+        # Create grid layout
+        GrpBox1GridLayout1 = QtGui.QGridLayout()
+        GrpBox1GridLayout1.setMargin(pmGridLayoutMargin)
+        GrpBox1GridLayout1.setSpacing(pmGridLayoutSpacing)
+        
+        # Height Label
+        self.height_label = QtGui.QLabel(self.pmGroupBox1)
+        self.height_label.setAlignment(Qt.AlignRight|
+                                       Qt.AlignTrailing|
+                                       Qt.AlignVCenter)
         self.height_label.setObjectName("height_label")
-        self.gridlayout1.addWidget(self.height_label,1,0,1,1)
+        self.height_label.setText("Height (A) :")
+        GrpBox1GridLayout1.addWidget(self.height_label,1,0,1,1)
 
-        self.height_linedit = QtGui.QLineEdit(self.parameters_grpbox)
+        # Height LineEdit
+        self.height_linedit = QtGui.QLineEdit(self.pmGroupBox1)
         self.height_linedit.setObjectName("height_linedit")
-        self.gridlayout1.addWidget(self.height_linedit,1,1,1,1)
+        self.height_linedit.setText("20.0")
+        GrpBox1GridLayout1.addWidget(self.height_linedit,1,1,1,1)
 
-        self.width_label = QtGui.QLabel(self.parameters_grpbox)
-        self.width_label.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        # Width Label
+        self.width_label = QtGui.QLabel(self.pmGroupBox1)
+        self.width_label.setAlignment(Qt.AlignRight|
+                                      Qt.AlignTrailing|
+                                      Qt.AlignVCenter)
         self.width_label.setObjectName("width_label")
-        self.gridlayout1.addWidget(self.width_label,2,0,1,1)
+        self.width_label.setText("Width (A) :")
+        GrpBox1GridLayout1.addWidget(self.width_label,2,0,1,1)
 
-        self.width_linedit = QtGui.QLineEdit(self.parameters_grpbox)
+        # Width LineEdit
+        self.width_linedit = QtGui.QLineEdit(self.pmGroupBox1)
         self.width_linedit.setObjectName("width_linedit")
-        self.gridlayout1.addWidget(self.width_linedit,2,1,1,1)
+        self.width_linedit.setText("20.0")
+        GrpBox1GridLayout1.addWidget(self.width_linedit,2,1,1,1)
 
-        self.bond_length_label = QtGui.QLabel(self.parameters_grpbox)
-        self.bond_length_label.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        # Bond Length Label
+        self.bond_length_label = QtGui.QLabel(self.pmGroupBox1)
+        self.bond_length_label.setAlignment(Qt.AlignRight|
+                                            Qt.AlignTrailing|
+                                            Qt.AlignVCenter)
         self.bond_length_label.setObjectName("bond_length_label")
-        self.gridlayout1.addWidget(self.bond_length_label,3,0,1,1)
+        self.bond_length_label.setText("Bond Length (A) :")
+        GrpBox1GridLayout1.addWidget(self.bond_length_label,3,0,1,1)
 
-        self.bond_length_linedit = QtGui.QLineEdit(self.parameters_grpbox)
+        # Bond Length LineEdit
+        self.bond_length_linedit = QtGui.QLineEdit(self.pmGroupBox1)
         self.bond_length_linedit.setObjectName("bond_length_linedit")
-        self.gridlayout1.addWidget(self.bond_length_linedit,3,1,1,1)
+        GrpBox1GridLayout1.addWidget(self.bond_length_linedit,3,1,1,1)
 
-        self.endings_label = QtGui.QLabel(self.parameters_grpbox)
-        self.endings_label.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        # Endings Label
+        self.endings_label = QtGui.QLabel(self.pmGroupBox1)
+        self.endings_label.setAlignment(Qt.AlignRight|
+                                        Qt.AlignTrailing|
+                                        Qt.AlignVCenter)
         self.endings_label.setObjectName("endings_label")
-        self.gridlayout1.addWidget(self.endings_label,4,0,1,1)
+        self.endings_label.setText("Endings :")
+        GrpBox1GridLayout1.addWidget(self.endings_label,4,0,1,1)
 
-        self.endings_combox = QtGui.QComboBox(self.parameters_grpbox)
+        # Endings ComboBox
+        self.endings_combox = QtGui.QComboBox(self.pmGroupBox1)
         self.endings_combox.setObjectName("endings_combox")
-        self.gridlayout1.addWidget(self.endings_combox,4,1,1,1)
-        self.vboxlayout2.addLayout(self.gridlayout1)
-        self.vboxlayout1.addWidget(self.parameters_grpbox)
-        self.vboxlayout.addWidget(self.body_frame)
+        self.endings_combox.addItem("None")
+        self.endings_combox.addItem("Hydrogen")
+        self.endings_combox.addItem("Nitrogen")
+        GrpBox1GridLayout1.addWidget(self.endings_combox,4,1,1,1)
+        
+        GrpBox1MainVBoxLayout.addLayout(GrpBox1GridLayout1)
+        
+        self.pmMainVboxLO.addWidget(self.pmGroupBox1) # Add groupbox
+        
+        # Last minute stuff.
+        
+        # Validator for the linedit widgets.
+        self.validator = QDoubleValidator(self)
+        # Range for linedits: 1 to 1000, 3 decimal places
+        self.validator.setRange(1.0, 1000.0, 3)
+        self.height_linedit.setValidator(self.validator)
+        self.width_linedit.setValidator(self.validator)
+        self.bond_length_linedit.setValidator(self.validator)
+        self.hstr = self.height_linedit.text()
+        self.wstr = self.width_linedit.text()
+        self.blstr = self.bond_length_linedit.text()
+        self.bond_length_linedit.setText(str(CC_GRAPHITIC_BONDLENGTH))
 
-        spacerItem3 = QtGui.QSpacerItem(20,20,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
-        self.vboxlayout.addItem(spacerItem3)
 
-        self.retranslateUi(graphene_sheet_dialog)
-        QtCore.QMetaObject.connectSlotsByName(graphene_sheet_dialog)
-
-    def retranslateUi(self, graphene_sheet_dialog):
-        graphene_sheet_dialog.setWindowTitle(QtGui.QApplication.translate("graphene_sheet_dialog", "Graphene sheet", None, QtGui.QApplication.UnicodeUTF8))
-        graphene_sheet_dialog.setWindowIcon(QtGui.QIcon("ui/border/Graphene"))
-        self.heading_label.setText(QtGui.QApplication.translate("graphene_sheet_dialog", 
-                                                                "<font color=\"#FFFFFF\">Graphene Sheet </font>", 
-                                                                None, QtGui.QApplication.UnicodeUTF8))
-        self.done_btn.setToolTip(QtGui.QApplication.translate("graphene_sheet_dialog", "Done", None, QtGui.QApplication.UnicodeUTF8))
-        self.abort_btn.setToolTip(QtGui.QApplication.translate("graphene_sheet_dialog", "Cancel", None, QtGui.QApplication.UnicodeUTF8))
-        self.restore_defaults_btn.setToolTip(QtGui.QApplication.translate("graphene_sheet_dialog", "Restore Defaults", None, QtGui.QApplication.UnicodeUTF8))
-        self.preview_btn.setToolTip(QtGui.QApplication.translate("graphene_sheet_dialog", "Preview", None, QtGui.QApplication.UnicodeUTF8))
-        self.whatsthis_btn.setToolTip(QtGui.QApplication.translate("graphene_sheet_dialog", "What\'s This Help", None, QtGui.QApplication.UnicodeUTF8))
-        self.height_label.setText(QtGui.QApplication.translate("graphene_sheet_dialog", "Height (A) :", None, QtGui.QApplication.UnicodeUTF8))
-        self.height_linedit.setText(QtGui.QApplication.translate("graphene_sheet_dialog", "20.0", None, QtGui.QApplication.UnicodeUTF8))
-        self.width_label.setText(QtGui.QApplication.translate("graphene_sheet_dialog", "Width (A) :", None, QtGui.QApplication.UnicodeUTF8))
-        self.width_linedit.setText(QtGui.QApplication.translate("graphene_sheet_dialog", "20.0", None, QtGui.QApplication.UnicodeUTF8))
-        self.bond_length_label.setText(QtGui.QApplication.translate("graphene_sheet_dialog", "Bond Length (A):", None, QtGui.QApplication.UnicodeUTF8))
-        self.bond_length_linedit.setText(QtGui.QApplication.translate("graphene_sheet_dialog", "1.40", None, QtGui.QApplication.UnicodeUTF8))
-        self.endings_label.setText(QtGui.QApplication.translate("graphene_sheet_dialog", "Endings :", None, QtGui.QApplication.UnicodeUTF8))
-        self.endings_combox.addItem(QtGui.QApplication.translate("graphene_sheet_dialog", "None", None, QtGui.QApplication.UnicodeUTF8))
-        self.endings_combox.addItem(QtGui.QApplication.translate("graphene_sheet_dialog", "Hydrogen", None, QtGui.QApplication.UnicodeUTF8))
-        self.endings_combox.addItem(QtGui.QApplication.translate("graphene_sheet_dialog", "Nitrogen", None, QtGui.QApplication.UnicodeUTF8))
+    def add_whats_this_text(self):
+        """What's This text for some of the widgets in the Property Manager.
+        """
+        
+        self.height_linedit.setWhatsThis("""<b>Height</b>
+        <p>The height of the graphite sheet in angstroms.</p>""")
+        
+        self.width_linedit.setWhatsThis("""<b>Width</b>
+        <p>The width of the graphene sheet in angstroms.</p>""")
+        
+        self.bond_length_linedit.setWhatsThis("""<b>Bond length</b>
+        <p>You can change the bond lengths in the
+        graphene sheet. We believe the default value is accurate for sp
+        <sup>2</sup>-hybridized carbons.</p>""")
+        
+        self.endings_combox.setWhatsThis("""<b>Endings</b>
+        <p>Graphene sheets can be unterminated (dangling
+        bonds), or terminated with hydrogen atoms or nitrogen atoms.</p>""")
+        
+    def connect_or_disconnect_signals(self, connect=True):
+        """Connect/disconnect this pmgr's widgets signals to/from their slots.
+        If <connect> is False, disconnect all slots listed.
+        """
+        
+        if connect:
+            contype = self.connect
+        else:
+            contype = self.disconnect
+        
+        # Groupbox Toggle Buttons.
+        contype(self.pmGroupBoxBtn1,SIGNAL("clicked()"),
+                self.toggle_pmGroupBox1)
+       
+        # Groupbox1.
+        contype(self.height_linedit,
+                SIGNAL("returnPressed()"),
+                self.length_fixup)
+        contype(self.width_linedit,
+                SIGNAL("returnPressed()"),
+                self.length_fixup)
+        contype(self.bond_length_linedit,
+                SIGNAL("returnPressed()"),
+                self.length_fixup)
+        
+    # GroupBox1 slots (and other methods) supporting the DNA Parameters groupbox.
+        
+    def length_fixup(self):
+        '''Slot for various linedit widgets.
+        This gets called each time a user types anything into the widget.
+        '''
+        hstr = double_fixup(self.validator, self.height_linedit.text(), self.hstr)
+        self.height_linedit.setText(hstr)
+        wstr = double_fixup(self.validator, self.width_linedit.text(), self.wstr)
+        self.width_linedit.setText(wstr)
+        blstr = double_fixup(self.validator, self.bond_length_linedit.text(), self.blstr)
+        self.bond_length_linedit.setText(blstr)
+        self.hstr, self.wstr, self.blstr = hstr, wstr, blstr
+        
+        
+    # Collapse/expand toggle slots for groupbox buttons.
+    
+    def toggle_pmGroupBox1(self):
+        self.toggle_groupbox(self.pmGroupBoxBtn1,
+                             self.height_label, self.height_linedit,
+                             self.width_label, self.width_linedit,
+                             self.bond_length_label, self.bond_length_linedit,
+                             self.endings_label, self.endings_combox)

@@ -3,12 +3,16 @@
 GrapheneGenerator.py
 
 $Id$
+
+History:
+
+Mark 2007-05-17: Implemented PropMgrBaseClass.
 """
 
 __author__ = "Will"
 
 import platform
-from GrapheneGeneratorDialog import Ui_graphene_sheet_dialog
+from GrapheneGeneratorDialog import GraphenePropMgr
 from math import atan2, sin, cos, pi
 import assembly, chem, bonds, Utility
 from chem import molecule, Atom
@@ -16,6 +20,7 @@ import env
 from HistoryWidget import redmsg, orangemsg, greenmsg
 from PyQt4.Qt import Qt, QDialog, QApplication, QCursor, QDialog, QDoubleValidator, QValidator, QWhatsThis, SIGNAL
 from PyQt4 import QtGui
+from GrapheneGeneratorDialog import GraphenePropMgr
 from VQT import dot
 import string
 from widgets import double_fixup
@@ -31,7 +36,7 @@ quartet = ((0, sqrt3 / 2), (0.5, 0), (1.5, 0), (2, sqrt3 / 2))
 TOROIDAL = False   # Just for Will
 
 # GeneratorBaseClass must come BEFORE the dialog in the list of parents
-class GrapheneGenerator(QDialog, GeneratorBaseClass, Ui_graphene_sheet_dialog):
+class GrapheneGenerator(QDialog, GeneratorBaseClass, GraphenePropMgr):
 
     cmd = greenmsg("Build Graphene: ")
     sponsor_keyword = 'Graphene'
@@ -42,40 +47,9 @@ class GrapheneGenerator(QDialog, GeneratorBaseClass, Ui_graphene_sheet_dialog):
 
     # pass window arg to constructor rather than use a global, wware 051103
     def __init__(self, win):
-        QDialog.__init__(self, win) # win is parent.  Fixes bug 1089.  Mark 051119.
-        self.setupUi(self)
-        self.connect(self.graphene_parameters_grpbtn,SIGNAL("clicked()"),self.toggle_graphene_parameters_grpbox)
-        self.connect(self.whatsthis_btn,SIGNAL("clicked()"),self.enter_WhatsThisMode)
-        self.connect(self.sponsor_btn,SIGNAL("clicked()"),self.sponsor_btn_clicked)
-        self.connect(self.preview_btn,SIGNAL("clicked()"),self.preview_btn_clicked)
-        self.connect(self.abort_btn,SIGNAL("clicked()"),self.abort_btn_clicked)
-        self.connect(self.done_btn,SIGNAL("clicked()"),self.done_btn_clicked)
-        self.connect(self.height_linedit,SIGNAL("returnPressed()"),self.length_fixup)
-        self.connect(self.width_linedit,SIGNAL("returnPressed()"),self.length_fixup)
-        self.connect(self.bond_length_linedit,SIGNAL("returnPressed()"),self.length_fixup)
-        self.connect(self.restore_defaults_btn,SIGNAL("clicked()"),self.defaults_btn_clicked)
+        QDialog.__init__(self, win)
+        GraphenePropMgr.__init__(self)
         GeneratorBaseClass.__init__(self, win)
-        # Validator for the linedit widgets.
-        self.validator = QDoubleValidator(self)
-        # Range for linedits: 1 to 1000, 3 decimal places
-        self.validator.setRange(1.0, 1000.0, 3)
-        self.height_linedit.setValidator(self.validator)
-        self.width_linedit.setValidator(self.validator)
-        self.bond_length_linedit.setValidator(self.validator)
-        self.hstr = self.height_linedit.text()
-        self.wstr = self.width_linedit.text()
-        self.blstr = self.bond_length_linedit.text()
-        self.bond_length_linedit.setText(str(CC_GRAPHITIC_BONDLENGTH))
-        self.height_linedit.setWhatsThis("""<b>Height</b>
-        <p>The height of the graphite sheet in angstroms.</p>""")
-        self.width_linedit.setWhatsThis("""<b>Width</b>
-        <p>The width of the graphene sheet in angstroms.</p>""")
-        self.bond_length_linedit.setWhatsThis("""<b>Bond length</b>
-        <p>You can change the bond lengths in the
-        graphene sheet. We believe the default value is accurate for sp<sup>2</sup>-hybridized carbons.</p>""")
-        self.endings_combox.setWhatsThis("""<b>Endings</b>
-        <p>Graphene sheets can be unterminated (dangling
-        bonds), or terminated with hydrogen atoms or nitrogen atoms.</p>""")
 
     ###################################################
     # How to build this kind of structure, along with
@@ -119,18 +93,6 @@ class GrapheneGenerator(QDialog, GeneratorBaseClass, Ui_graphene_sheet_dialog):
             env.history.message(greenmsg("%g seconds to build %d atoms" %
                                          (t, len(atoms.values()))))
         return mol
-
-    def length_fixup(self):
-        '''Slot for various linedit widgets.
-        This gets called each time a user types anything into the widget.
-        '''
-        hstr = double_fixup(self.validator, self.height_linedit.text(), self.hstr)
-        self.height_linedit.setText(hstr)
-        wstr = double_fixup(self.validator, self.width_linedit.text(), self.wstr)
-        self.width_linedit.setText(wstr)
-        blstr = double_fixup(self.validator, self.bond_length_linedit.text(), self.blstr)
-        self.bond_length_linedit.setText(blstr)
-        self.hstr, self.wstr, self.blstr = hstr, wstr, blstr
 
     def populate(self, mol, height, width, z, bond_length, endings, position):
 
@@ -242,13 +204,12 @@ class GrapheneGenerator(QDialog, GeneratorBaseClass, Ui_graphene_sheet_dialog):
 
     ###################################################
     # Special UI things that still must be implemented
-    def toggle_graphene_parameters_grpbox(self):
-        self.toggle_groupbox(self.graphene_parameters_grpbtn,
-                             self.height_label, self.height_linedit,
-                             self.width_label, self.width_linedit,
-                             self.bond_length_label, self.bond_length_linedit,
-                             self.endings_label, self.endings_combox)
+    
 
-    def defaults_btn_clicked(self):
+    def restore_defaults_btn_clicked(self):
+        """Slot for restore defaults button in Property Manager.
+        """
         self.languageChange()
         self.bond_length_linedit.setText(str(CC_GRAPHITIC_BONDLENGTH))
+        self.height_linedit.setText("20.0")
+        self.width_linedit.setText("20.0")
