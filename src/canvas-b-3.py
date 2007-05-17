@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 # Copyright 2005-2006 Nanorex, Inc.  See LICENSE file for details. 
 
-'''
-this is just bruce's drag & drop example code -- it's not part of our product.
+"""
+this is just some drag & drop example code -- it's not part of our product.
+
+note -- it runs in Qt3 but has not been ported to Qt4.
 
 it comes with a test file 'butterfly.png' which needs to be next to it for it to work.
 
@@ -21,18 +23,21 @@ but if it is this doesn't seem to be a problem.
 it's a main program, just run it with "python <filename>"
 or whatever is needed for your python installation to start it with a GUI
 (e.g. pythonw, or drag and drop it onto something that launches it).
+E.g.:
+
+  pythonw `pwd`/canvas-b-3.py
+  
 The current dir probably needs to be the same dir as this code module
 so it can find the 'butterfly.png' file.
-'''
+"""
 
 import sys
-from PyQt4.Qt import *
-from PyQt4.Qt import *
+from PyQt4.Qt import * # this statement has been ported to Qt4, but nothing else has!
 import random
 
 import time #bruce
 try:
-    from debug import print_compact_stack ### hmm, how will this be on our path? resave this...
+    from debug import print_compact_stack
 except:
     print "could not import print_compact_stack"
     def print_compact_stack(msg):
