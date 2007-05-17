@@ -46,7 +46,7 @@ def is_macintosh():
     # have a different value for sys.platform
     return sys.platform in ['darwin']
 
-def filter_key(key, debug_keys = 0):
+def filter_key(key, debug_keys = 0): #bruce revised this 070517
     """given a Qt keycode key, usually return it unchanged,
        but return a different keycode if that would help fix platform-specific bugs in Qt keycodes
        or in our use of them.
@@ -54,37 +54,54 @@ def filter_key(key, debug_keys = 0):
     # bruce 040929 split this out of basicMode.keyPress(), where I'd added it
     # as a mac-specific bugfix.
     if is_macintosh():
+##        from debug import print_compact_stack
+##        print_compact_stack( "filter_key gets %r: " % (key,))
         # Help fix Qt's Mac-specific Delete key bug, bug 93.
         ###bruce 040924 temp fix, should be revised once we understand relation to other systems (see my email to josh & ninad):
-        if key == 4099: ##k will this 4099 be the same in other macs? other platforms? Does Qt define it anywhere??
+        if key == 16777219:
+            # This was 4099 in Qt3 and worked for a long time.
+            ##k will this 4099 be the same in other macs? other platforms? Does Qt define it anywhere??
+            # Now it's 16777219 in Qt4 (Mac OS 10.3.9, iMac G5 standard keyboard, Qt 4.2.2).
+            # It'd be nice to find it documented somewhere so we could have some confidence
+            # in the value being portable. Note: the other Del key (in a 6-key keypad) is 16777223,
+            # and is Qt.Key_Delete. (See also: comments in TreeWidget.keyPressEvent about how that key
+            #  is handled differently by Qt. Trying it now, Qt.Key_Delete gets into this method only once
+            #  per press/release, apparently only for release, whereas the regular delete key gets into
+            #  this method once for press and once for release. It turns out that a keypress in the model tree
+            #  gets handled by MWsemantics and passed to the GLPane, so no fix is needed in modelTreeGui now;
+            #  if it's ever given its own keyPressEvent handler, one will be needed there as it was needed in
+            #  TreeWidget in Qt3.
+            # [bruce 070517, part of fixing Delete key on Mac for A9]
             if debug_keys:
                 print "fyi: mac bugfix: remapping key %d (actual delete key) to key %d (Qt.Key_Delete)" % (key, Qt.Key_Delete)
             key = Qt.Key_Delete
     return key
 
-def atom_event(qt_event):
+def wrap_key_event( qt_event): #bruce 070517 renamed this
     """Return our own event object in place of (or wrapping) the given Qt event.
     Fix bugs in Qt events, and someday provide new features to help in history-tracking.
     So far [041220] this only handles key events, and does no more than fix the Mac-specific
     bug in the Delete key (bug 93).
     """
-    return atomEvent(qt_event)
+    return _wrapped_KeyEvent(qt_event)
 
-class atomEvent:
-    "our own event type. API should be non-qt-specific."
+class _wrapped_KeyEvent: #bruce 070517 renamed this
+    "Our own event type. API should be non-Qt-specific (but isn't really)."
+    # presently used only for GLPane key events;
+    # not all methods work in Qt4, but the nonworking ones aren't used
+    # [bruce 070517 comment]
     def __init__(self, qt_event):
         self._qt_event = qt_event # private
     def key(self):
         return filter_key( self._qt_event.key() )
     def ascii(self):
-        return filter_key( self._qt_event.ascii() )
+        return filter_key( self._qt_event.ascii() ) #k (does filter_key matter here?)
     def state(self):
         return self._qt_event.state()
     def stateAfter(self):
         return self._qt_event.stateAfter()
-    # Added isAutoRepeat.  Mark 050410
     def isAutoRepeat(self):
-        return filter_key( self._qt_event.isAutoRepeat() )
+        return self._qt_event.isAutoRepeat()
     #e more methods might be needed here
     pass
 

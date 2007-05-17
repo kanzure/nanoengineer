@@ -1722,6 +1722,15 @@ class ModelTreeGui(QTreeView, ModelTreeGui_api):
             print "end _renamed_contextMenuEvent"
         return
 
+    # ==
+
+    # Note: if we ever want our own keyPressEvent or keyReleaseEvent bindings, see the code and comments
+    # in TreeWidget.keyPressEvent about doing this correctly, and for how Qt3 did the arrow key actions.
+    # We will need the filter_key call it does (or an equivalent use of wrap_key_event as done in GLPane)
+    # or NE1 will have a Mac-specific delete key bug whenever the MT has the focus. This does not happen now
+    # since MWsemantics handles our key presses, and it passes them to GLPane, which has the bugfix for that.
+    # See also the comments in filter_key(). [bruce 070517 comment]
+    
     pass # end of class ModelTreeGui
 
 ################ End of implementation #############################

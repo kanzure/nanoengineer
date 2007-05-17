@@ -957,7 +957,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
                 #but = e.stateAfter()
                 #self.update_modkeys(but)
                 self.update_modkeys(e.modifiers())
-            self.mode.keyPressEvent( atom_event(e) )
+            self.mode.keyPressEvent( wrap_key_event(e) )
         finally:
             env.end_op(mc)
         return
@@ -970,7 +970,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
                 #but = e.stateAfter()
                 #self.update_modkeys(but)
                 self.update_modkeys(e.modifiers())
-            self.mode.keyReleaseEvent( atom_event(e) )
+            self.mode.keyReleaseEvent( wrap_key_event(e) )
         finally:
             env.end_op(mc)
         return
