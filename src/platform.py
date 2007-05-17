@@ -46,32 +46,27 @@ def is_macintosh():
     # have a different value for sys.platform
     return sys.platform in ['darwin']
 
-def filter_key(key, debug_keys = 0): #bruce revised this 070517
+def filter_key(key, debug_keys = 0): #bruce revised this 070517 to fix Mac-specific delete key bug which resurfaced in Qt4
     """given a Qt keycode key, usually return it unchanged,
        but return a different keycode if that would help fix platform-specific bugs in Qt keycodes
        or in our use of them.
     """
-    # bruce 040929 split this out of basicMode.keyPress(), where I'd added it
-    # as a mac-specific bugfix.
     if is_macintosh():
-##        from debug import print_compact_stack
-##        print_compact_stack( "filter_key gets %r: " % (key,))
         # Help fix Qt's Mac-specific Delete key bug, bug 93.
-        ###bruce 040924 temp fix, should be revised once we understand relation to other systems (see my email to josh & ninad):
-        if key == 16777219:
+        if key == Qt.Key_Backspace: #bruce 070517 revised value; note: this is 16777219 == 0x1000003
             # This was 4099 in Qt3 and worked for a long time.
             ##k will this 4099 be the same in other macs? other platforms? Does Qt define it anywhere??
             # Now it's 16777219 in Qt4 (Mac OS 10.3.9, iMac G5 standard keyboard, Qt 4.2.2).
-            # It'd be nice to find it documented somewhere so we could have some confidence
-            # in the value being portable. Note: the other Del key (in a 6-key keypad) is 16777223,
-            # and is Qt.Key_Delete. (See also: comments in TreeWidget.keyPressEvent about how that key
-            #  is handled differently by Qt. Trying it now, Qt.Key_Delete gets into this method only once
-            #  per press/release, apparently only for release, whereas the regular delete key gets into
+            # The Qt doc (4.2.2) says this is Qt.Key_Backspace, and that named constant works here to fix the bug.
+            # Note: the other Del key (in a 6-key keypad) is 16777223 == 0x1000007 == Qt.Key_Delete.
+            # (See also: comments in TreeWidget.keyPressEvent about how these two keys are handled
+            #  differently by Qt. Trying it now, Qt.Key_Delete gets into this method only once
+            #  per press/release, apparently only for release, whereas the regular delete key (Qt.Key_Backspace) gets into
             #  this method once for press and once for release. It turns out that a keypress in the model tree
             #  gets handled by MWsemantics and passed to the GLPane, so no fix is needed in modelTreeGui now;
             #  if it's ever given its own keyPressEvent handler, one will be needed there as it was needed in
-            #  TreeWidget in Qt3.
-            # [bruce 070517, part of fixing Delete key on Mac for A9]
+            #  TreeWidget in Qt3. I added a comment about that in modelTreeGui.
+            # [bruce 070517]
             if debug_keys:
                 print "fyi: mac bugfix: remapping key %d (actual delete key) to key %d (Qt.Key_Delete)" % (key, Qt.Key_Delete)
             key = Qt.Key_Delete
