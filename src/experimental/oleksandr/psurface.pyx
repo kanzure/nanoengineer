@@ -1,3 +1,4 @@
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 cdef extern from "csurface.h":
     void cAdd(double x, double y, double z, double r, int p)
     void cCreateSurface()

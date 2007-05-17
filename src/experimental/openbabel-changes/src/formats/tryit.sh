@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 # This is a script for quickly testing changes to mmpformat.cpp on a Linux box.
 # (For the moment, Will's Linux box in particular.)
 

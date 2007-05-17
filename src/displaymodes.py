@@ -1,4 +1,4 @@
-# Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 '''
 displaymodes.py -- support for new modular display modes. [Not fully implemented, as of 060608.]
 

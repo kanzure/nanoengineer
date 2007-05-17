@@ -1,4 +1,4 @@
-# Copyright 2004-2006 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 ops_atoms.py -- operations on the atoms and/or bonds inside a Part.
 These operations generally create or destroy atoms, bondpoints, or real bonds.

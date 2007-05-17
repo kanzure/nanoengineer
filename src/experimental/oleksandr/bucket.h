@@ -1,6 +1,6 @@
+// Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 /*
   Name: bucket.h
-  Copyright: 2006 Nanorex, Inc.  All rights reserved.
   Author: Oleksandr Shevchenko
   Description: class for bucket representation
 */

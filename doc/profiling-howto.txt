@@ -1,5 +1,6 @@
 # $Id$
 
+ Copyright 2004-2006 Nanorex, Inc.  See LICENSE file for details. 
 [by bruce, 040920; still current as of 061230]
 
 I added a feature to atom.py so that developers can request python profiling

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006 Nanorex, Inc.  All rights reserved. */
+// Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 
 #ifndef NE1_HDF5_SIMRESULTS_H
 #define NE1_HDF5_SIMRESULTS_H

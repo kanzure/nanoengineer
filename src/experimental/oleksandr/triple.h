@@ -1,6 +1,6 @@
+// Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 /*
   Name: triple.h
-  Copyright: 2006 Nanorex, Inc.  All rights reserved.
   Author: Oleksandr Shevchenko
   Description: coordinate 3D point management class 
 */

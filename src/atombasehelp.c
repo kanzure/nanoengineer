@@ -1,4 +1,4 @@
-// Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
+// Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 // gcc -I/usr/include/python2.4 -c -Wall atombasehelp.c 
 
 #include "Python.h"

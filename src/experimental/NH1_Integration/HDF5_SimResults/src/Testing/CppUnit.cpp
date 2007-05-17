@@ -1,6 +1,6 @@
+// Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 /*
 NanoHive-1 Nanosystems Simulator
-Copyright (c) 2006 Nanorex, Inc.  All rights reserved.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

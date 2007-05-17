@@ -1,4 +1,5 @@
 
+# Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
 """
 Encapsulates the information necessary for viewing and editing single parameters
 via some GUI.

@@ -1,4 +1,4 @@
-# Copyright 2004-2006 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 shape.py
 

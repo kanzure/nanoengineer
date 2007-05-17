@@ -1,4 +1,5 @@
 
+# Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
 """
 Encapsulates all the particulars of a simulation.
 The L{SimSpecification} class is essentially a hierarchical parameter set that

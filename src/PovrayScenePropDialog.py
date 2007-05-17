@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 # Form implementation generated from reading ui file 'PovrayScenePropDialog.ui'
 #
 # Created: Wed Sep 27 14:24:15 2006

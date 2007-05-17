@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2004-2006 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 # Form implementation generated from reading ui file 'AboutDialog.ui'
 #
 # Created: Wed Sep 20 09:55:12 2006
@@ -64,6 +64,6 @@ class Ui_AboutDialog(object):
     def retranslateUi(self, AboutDialog):
         AboutDialog.setWindowTitle(QtGui.QApplication.translate("AboutDialog", "About NanoEngineer-1", None, QtGui.QApplication.UnicodeUTF8))
         self.textLabel1.setText(QtGui.QApplication.translate("AboutDialog", "NanoEngineer-1 Version 1.0 (Alpha)", None, QtGui.QApplication.UnicodeUTF8))
-        self.textLabel2.setText(QtGui.QApplication.translate("AboutDialog", "Copyright (C) 2004, Nanorex, Inc.", None, QtGui.QApplication.UnicodeUTF8))
+        self.textLabel2.setText(QtGui.QApplication.translate("AboutDialog", "Copyright 2004-2007, Nanorex, Inc.", None, QtGui.QApplication.UnicodeUTF8))
         self.textLabel2_2.setText(QtGui.QApplication.translate("AboutDialog", "www.nanorex.com", None, QtGui.QApplication.UnicodeUTF8))
         self.okPushButton.setText(QtGui.QApplication.translate("AboutDialog", "OK", None, QtGui.QApplication.UnicodeUTF8))

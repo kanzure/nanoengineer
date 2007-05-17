@@ -1,4 +1,4 @@
-# Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 '''testdraw2.py - testdraw.py was getting too big to edit conveniently
 '''
 

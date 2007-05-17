@@ -1,4 +1,4 @@
-# Copyright 2005-2006 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 '''
 env.py
 

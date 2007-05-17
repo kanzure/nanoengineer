@@ -1,4 +1,5 @@
 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 Encapsulates a simulation results data store.
 The main class in this module is L{SimResultsDataStore}. The L{SimResultsBond}

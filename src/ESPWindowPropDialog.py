@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2005-2006 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 # Form implementation generated from reading ui file 'ESPWindowPropDialog.ui'
 #
 # Created: Wed Sep 20 10:42:42 2006

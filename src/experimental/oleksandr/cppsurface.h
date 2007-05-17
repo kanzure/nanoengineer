@@ -1,6 +1,6 @@
+// Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 /*
   Name: cppsurface.h
-  Copyright: 2006 Nanorex, Inc.  All rights reserved.
   Author: Oleksandr Shevchenko
   Description: CPP functions to call from C 
 */

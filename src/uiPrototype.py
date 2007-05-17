@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 """\
 <p>This is an attempt to implement Mark's \"Starting NE-1\" slideshow
 ideas. This is just a little prototype, and is meant to be tweaked as

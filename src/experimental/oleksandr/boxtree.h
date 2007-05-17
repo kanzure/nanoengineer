@@ -1,6 +1,6 @@
+// Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
 /*
   Name: boxtree.h
-  Copyright: 2006 Nanorex, Inc.  All rights reserved.
   Author: Oleksandr Shevchenko
   Description: class for boxtree representation 
 */

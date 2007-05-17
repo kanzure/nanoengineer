@@ -1,6 +1,6 @@
+// Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
 /*
   Name: rotationmatrix.cpp
-  Copyright: 2006 Nanorex, Inc.  All rights reserved.
   Author: Oleksandr Shevchenko
   Description: class for rotation in 3-D space  
 */

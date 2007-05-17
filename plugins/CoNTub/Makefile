@@ -1,6 +1,6 @@
 # $Id$
 
-# Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 ifeq (x$(OS),xWindows_NT)
 #---------------------------------------- Start Windows stuff
 CC="C:/Dev-Cpp/bin/gcc.exe"

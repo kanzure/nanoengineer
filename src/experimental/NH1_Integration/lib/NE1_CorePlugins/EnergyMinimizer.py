@@ -1,4 +1,5 @@
 
+# Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
 """
 Adjusts the positions of the given atoms so as to minimize the structure's total
 energy.

@@ -1,4 +1,4 @@
-# Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 cdef extern from "comphelp.c":
     setup(int n)
     internalForces(double stiffness, double viscosityOverDt, double dtm)

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 """Try to do all the OpenGL stuff in Python, on the theory that
 C extensions are hard to debug.
 """

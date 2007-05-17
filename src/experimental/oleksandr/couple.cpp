@@ -1,6 +1,6 @@
+// Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
 /*
   Name: couple.cpp
-  Copyright: 2006 Nanorex, Inc.  All rights reserved.
   Author: Oleksandr Shevchenko
   Description: coordinate 2D point management class  
 */

@@ -1,5 +1,6 @@
 # $Id$
 
+ Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 Simple utilities (such as command-line scripts) for miscellaneous purposes.
 
 One way to make use of these is to make symbolic links to them 

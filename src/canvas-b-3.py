@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright 2005-2006 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 
 """
 this is just some drag & drop example code -- it's not part of our product.

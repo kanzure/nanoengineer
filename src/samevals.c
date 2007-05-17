@@ -1,4 +1,4 @@
-// Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
+// Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 /* C extension for speeding up same_vals function
  * Type "python setup2.py build_ext --inplace" to build.
  */
