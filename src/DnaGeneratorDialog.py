@@ -30,7 +30,7 @@ class DnaPropMgr(object, PropMgrBaseClass):
     valid_base_letters = "NATCG" # Reduced model letters.
     
     def __init__(self):
-        """Build the DNA Property Manager.
+        """Construct the DNA Property Manager.
         """
         PropMgrBaseClass.__init__(self)
         self.setPropMgrIcon('ui/actions/Tools/Build Structures/DNA.png')
@@ -39,6 +39,10 @@ class DnaPropMgr(object, PropMgrBaseClass):
         self.addBottomSpacer() 
         self.add_whats_this_text()
         self.connect_or_disconnect_signals(connect=True)
+        
+        msg = "Edit the DNA parameters and select <b>Preview</b> to \
+        preview the structure. Click <b>Done</b> to insert it into the model."
+        self.insertHtmlMsg(msg)
         
     def addGroupBoxes(self):
         """Add the 3 groupboxes for the DNA Property Manager.
@@ -65,23 +69,21 @@ class DnaPropMgr(object, PropMgrBaseClass):
         self.pmGroupBox1.setStyleSheet(styleSheet)
         
         # Create vertical box layout
-        self.pmGB1MainVboxLO = QtGui.QVBoxLayout(self.pmGroupBox1)
-        self.pmGB1MainVboxLO.setMargin(0)
-        self.pmGB1MainVboxLO.setSpacing(6)
-        self.pmGB1MainVboxLO.setObjectName("pmGB1MainVboxLO")
+        self.GrpBox1MainVBoxLayout = QtGui.QVBoxLayout(self.pmGroupBox1)
+        self.GrpBox1MainVBoxLayout.setMargin(0)
+        self.GrpBox1MainVBoxLayout.setSpacing(2)
 
         # Title button for groupbox1
         
         self.pmGroupBoxBtn1 = self.getGroupBoxTitleButton(
             title, self.pmGroupBox1)
         
-        self.pmGB1MainVboxLO.addWidget(self.pmGroupBoxBtn1)
+        self.GrpBox1MainVBoxLayout.addWidget(self.pmGroupBoxBtn1)
    
         # Create grid layout
-        self.pmGB1GridLO1 = QtGui.QGridLayout(self)
-        self.pmGB1GridLO1.setMargin(0)
-        self.pmGB1GridLO1.setSpacing(6)
-        self.pmGB1GridLO1.setObjectName("pmGB1GridLO1")
+        self.GrpBox1GridLayout1 = QtGui.QGridLayout()
+        self.GrpBox1GridLayout1.setMargin(2)
+        self.GrpBox1GridLayout1.setSpacing(4)
         
         # "Conformation" label.
         self.dnaConformation_lbl = QtGui.QLabel(self.pmGroupBox1)
@@ -90,13 +92,13 @@ class DnaPropMgr(object, PropMgrBaseClass):
                                               Qt.AlignVCenter)
         self.dnaConformation_lbl.setObjectName("dnaConformation_lbl")
         self.dnaConformation_lbl.setText("Conformation :")
-        self.pmGB1GridLO1.addWidget(self.dnaConformation_lbl,0,0,1,1)
+        self.GrpBox1GridLayout1.addWidget(self.dnaConformation_lbl,0,0,1,1)
 
         # "Conformation" combobox.
         self.dnaConformation_combox = QtGui.QComboBox(self.pmGroupBox1)
         self.dnaConformation_combox.setObjectName("dnaConformation_combox")
         self.dnaConformation_combox.addItem("B-DNA")
-        self.pmGB1GridLO1.addWidget(self.dnaConformation_combox,0,1,1,1)
+        self.GrpBox1GridLayout1.addWidget(self.dnaConformation_combox,0,1,1,1)
         
         # "Strand Type" label.
         self.strandType_lbl = QtGui.QLabel(self.pmGroupBox1)
@@ -105,13 +107,13 @@ class DnaPropMgr(object, PropMgrBaseClass):
                                          Qt.AlignVCenter)
         self.strandType_lbl.setObjectName("strandType_lbl")
         self.strandType_lbl.setText("Strand Type :")
-        self.pmGB1GridLO1.addWidget(self.strandType_lbl,5,0,1,1)
+        self.GrpBox1GridLayout1.addWidget(self.strandType_lbl,1,0,1,1)
 
         # "Strand Type" combobox.
         self.strandType_combox = QtGui.QComboBox(self.pmGroupBox1)
         self.strandType_combox.setObjectName("strandType_combox")
         self.strandType_combox.addItem("Double")
-        self.pmGB1GridLO1.addWidget(self.strandType_combox,5,1,1,1)
+        self.GrpBox1GridLayout1.addWidget(self.strandType_combox,1,1,1,1)
         
         # "Bases Per Turn" label.
         self.basesPerTurn_lbl = QLabel()
@@ -120,20 +122,20 @@ class DnaPropMgr(object, PropMgrBaseClass):
                                            Qt.AlignVCenter)
         
         self.basesPerTurn_lbl.setText("Bases Per Turn :")
-        self.pmGB1GridLO1.addWidget(self.basesPerTurn_lbl, 10,0,1,1,)
+        self.GrpBox1GridLayout1.addWidget(self.basesPerTurn_lbl, 2,0,1,1,)
         
         # "Bases Per Turn" combobox.
         self.basesPerTurn_combox = QtGui.QComboBox(self.pmGroupBox1)
         self.basesPerTurn_combox.insertItem(0, "10.0")
         self.basesPerTurn_combox.insertItem(1, "10.5")
         self.basesPerTurn_combox.insertItem(2, "10.67")
-        self.pmGB1GridLO1.addWidget(self.basesPerTurn_combox, 10,1,1,1,)
+        self.GrpBox1GridLayout1.addWidget(self.basesPerTurn_combox, 2,1,1,1,)
         
         #10.5 is the default value for Bases per turn. 
         #So set the current index to 1
         self.basesPerTurn_combox.setCurrentIndex(1) 
         
-        self.pmGB1MainVboxLO.addLayout(self.pmGB1GridLO1)
+        self.GrpBox1MainVBoxLayout.addLayout(self.GrpBox1GridLayout1)
         
         self.pmMainVboxLO.addWidget(self.pmGroupBox1) # Add groupbox
         
@@ -155,20 +157,22 @@ class DnaPropMgr(object, PropMgrBaseClass):
         styleSheet = self.getGroupBoxStyleSheet()        
         self.pmGroupBox2.setStyleSheet(styleSheet)
         
-        self.pmGB2MainVboxLO = QtGui.QVBoxLayout(self.pmGroupBox2)
-        self.pmGB2MainVboxLO.setMargin(0)
-        self.pmGB2MainVboxLO.setSpacing(6)  
+        # Create vertical box layout
+        self.GrpBox2MainVBoxLayout = QtGui.QVBoxLayout(self.pmGroupBox2)
+        self.GrpBox2MainVBoxLayout.setMargin(0)
+        self.GrpBox2MainVBoxLayout.setSpacing(2)
         
         # "Representation" title button for groupbox3
         
         self.pmGroupBoxBtn2 = self.getGroupBoxTitleButton(
             title, self.pmGroupBox2)
         
-        self.pmGB2MainVboxLO.addWidget(self.pmGroupBoxBtn2)
-                
-        pmGB2HboxLO1 = QtGui.QHBoxLayout()
-        pmGB2HboxLO1.setMargin(0)
-        pmGB2HboxLO1.setSpacing(6)
+        self.GrpBox2MainVBoxLayout.addWidget(self.pmGroupBoxBtn2)
+        
+        # Create grid layout
+        self.GrpBox2GridLayout1 = QtGui.QGridLayout()
+        self.GrpBox2GridLayout1.setMargin(2)
+        self.GrpBox2GridLayout1.setSpacing(4)
         
         # "Model" label and combobox.
         
@@ -177,19 +181,13 @@ class DnaPropMgr(object, PropMgrBaseClass):
                                            Qt.AlignTrailing|
                                            Qt.AlignVCenter)
         self.model_combox_lbl.setText("Model :")
-        pmGB2HboxLO1.addWidget(self.model_combox_lbl)
+        self.GrpBox2GridLayout1.addWidget(self.model_combox_lbl,0,0,1,1)
                 
         self.model_combox = QtGui.QComboBox(self.pmGroupBox2)
         self.model_combox.insertItem(1, "Reduced")
         self.model_combox.insertItem(2, "Atomistic")
         
-        pmGB2HboxLO1.addWidget(self.model_combox)
-                
-        self.pmGB2MainVboxLO.addLayout(pmGB2HboxLO1)
-        
-        hlo_chunkOp = QtGui.QHBoxLayout()
-        hlo_chunkOp.setMargin(0)
-        hlo_chunkOp.setSpacing(2)
+        self.GrpBox2GridLayout1.addWidget(self.model_combox,0,1,1,1)
         
         # "Create" label and combobox.
         
@@ -198,16 +196,16 @@ class DnaPropMgr(object, PropMgrBaseClass):
         self.dnaChunkOptions_lbl.setAlignment(Qt.AlignRight|
                                               Qt.AlignTrailing|
                                               Qt.AlignVCenter)
-        hlo_chunkOp.addWidget(self.dnaChunkOptions_lbl)
+        self.GrpBox2GridLayout1.addWidget(self.dnaChunkOptions_lbl,1,0,1,1)
         
         self.dnaChunkOptions_combox = QtGui.QComboBox(self.pmGroupBox2)
         self.dnaChunkOptions_combox.addItem("DNA Chunk")
         self.dnaChunkOptions_combox.addItem("Strand Chunks")  
         self.dnaChunkOptions_combox.addItem("Base-Pair Chunks")   
                 
-        hlo_chunkOp.addWidget(self.dnaChunkOptions_combox)
+        self.GrpBox2GridLayout1.addWidget(self.dnaChunkOptions_combox,1,1,1,1)
         
-        self.pmGB2MainVboxLO.addLayout(hlo_chunkOp)
+        self.GrpBox2MainVBoxLayout.addLayout(self.GrpBox2GridLayout1)
         
         self.pmMainVboxLO.addWidget(self.pmGroupBox2) # Add groupbox
                 
@@ -223,38 +221,36 @@ class DnaPropMgr(object, PropMgrBaseClass):
         self.pmGroupBox3.setObjectName("pmGroupBox3")
         
         self.pmGroupBox3.setAutoFillBackground(True) 
-        palette =  self.getGroupBoxPalette()
+        palette = self.getGroupBoxPalette()
         self.pmGroupBox3.setPalette(palette)
         
         styleSheet = self.getGroupBoxStyleSheet()        
         self.pmGroupBox3.setStyleSheet(styleSheet)
-
-        self.pmGB3MainVboxLO = QtGui.QVBoxLayout(self.pmGroupBox3)
-        self.pmGB3MainVboxLO.setMargin(0)
-        self.pmGB3MainVboxLO.setSpacing(4)
-        self.pmGB3MainVboxLO.setObjectName("pmGB3MainVboxLO")
+        
+        # Create vertical box layout
+        self.GrpBox3MainVBoxLayout = QtGui.QVBoxLayout(self.pmGroupBox3)
+        self.GrpBox3MainVBoxLayout.setMargin(0)
+        self.GrpBox3MainVBoxLayout.setSpacing(2)
         
         # Title button
-        
         self.pmGroupBoxBtn3 = self.getGroupBoxTitleButton(
             title, self.pmGroupBox3)
         
-        self.pmGB3MainVboxLO.addWidget(self.pmGroupBoxBtn3)
+        self.GrpBox3MainVBoxLayout.addWidget(self.pmGroupBoxBtn3)
+        
+        # Create grid layout
+        self.GrpBox3GridLayout1 = QtGui.QGridLayout()
+        self.GrpBox3GridLayout1.setMargin(2)
+        self.GrpBox3GridLayout1.setSpacing(4)
         
         # "Total Length" Label
-        
-        self.pmGB3HboxLO1 = QtGui.QHBoxLayout()
-        self.pmGB3HboxLO1.setMargin(0)
-        self.pmGB3HboxLO1.setSpacing(6)
-        self.pmGB3HboxLO1.setObjectName("pmGB3HboxLO1")
-        
         self.length_lbl = QtGui.QLabel(self.pmGroupBox3)
         self.length_lbl.setAlignment(Qt.AlignRight|
                                      Qt.AlignTrailing|
                                      Qt.AlignVCenter)
         self.length_lbl.setText("Total Length :")
         
-        self.pmGB3HboxLO1.addWidget(self.length_lbl)
+        self.GrpBox3GridLayout1.addWidget(self.length_lbl,0,0,1,1)
         
         # "Total Length" SpinBox
         self.length_spinbox = QtGui.QSpinBox(self.pmGroupBox3)
@@ -262,16 +258,7 @@ class DnaPropMgr(object, PropMgrBaseClass):
         self.length_spinbox.setMaximum(10000)
         self.length_spinbox.setValue(0)
         self.length_spinbox.setSuffix(" bases")
-        self.pmGB3HboxLO1.addWidget(self.length_spinbox)
-        
-        self.pmGB3MainVboxLO.addLayout(self.pmGB3HboxLO1)
-        
-        # "New Bases Are" label and gridbox layout.
-        
-        self.pmGB3HboxLO2 = QtGui.QHBoxLayout()
-        self.pmGB3HboxLO2.setMargin(0)
-        self.pmGB3HboxLO2.setSpacing(6)
-        self.pmGB3HboxLO2.setObjectName("pmGB3HboxLO2")
+        self.GrpBox3GridLayout1.addWidget(self.length_spinbox,0,1,1,1)    
         
         # "New Bases Are" label
         self.newBaseOptions_lbl = QtGui.QLabel(self.pmGroupBox3)
@@ -280,7 +267,7 @@ class DnaPropMgr(object, PropMgrBaseClass):
                                              Qt.AlignVCenter)
         self.newBaseOptions_lbl.setText("New Bases Are :")
         
-        self.pmGB3HboxLO2.addWidget(self.newBaseOptions_lbl)
+        self.GrpBox3GridLayout1.addWidget(self.newBaseOptions_lbl,1,0,1,1)
         
         # "New Bases Are" combobox
         self.newBaseOptions_combox = QtGui.QComboBox(self.pmGroupBox3)
@@ -289,39 +276,31 @@ class DnaPropMgr(object, PropMgrBaseClass):
         self.newBaseOptions_combox.addItem("T")  
         self.newBaseOptions_combox.addItem("C")
         self.newBaseOptions_combox.addItem("G")
-        self.pmGB3HboxLO2.addWidget(self.newBaseOptions_combox)
-        
-        self.pmGB3MainVboxLO.addLayout(self.pmGB3HboxLO2)
+        self.GrpBox3GridLayout1.addWidget(self.newBaseOptions_combox,1,1,1,1)
+
+        # "Complement" button
+        self.complement_btn = QtGui.QPushButton(self.pmGroupBox3)
+        self.complement_btn.setAutoDefault(False)
+        self.complement_btn.setObjectName("complement_btn")
+        self.complement_btn.setText("Complement")
+        self.GrpBox3GridLayout1.addWidget(self.complement_btn,2,0,1,1)
+
+        # "Reverse" button
+        self.reverse_btn = QtGui.QPushButton(self.pmGroupBox3)
+        self.reverse_btn.setAutoDefault(False)
+        self.reverse_btn.setObjectName("reverse_btn")
+        self.reverse_btn.setText("Reverse")
+        self.GrpBox3GridLayout1.addWidget(self.reverse_btn,2,1,1,1)
         
         # "Base sequence" TextEdit
-
         self.base_textedit = QtGui.QTextEdit(self.pmGroupBox3)
         self.base_textedit.setObjectName("base_textedit")
         self.base_textedit.setMinimumSize(200,70)
         self.base_textedit.setSizePolicy(QSizePolicy.MinimumExpanding,
                                          QSizePolicy.Minimum)
-        self.pmGB3MainVboxLO.addWidget(self.base_textedit)
+        self.GrpBox3GridLayout1.addWidget(self.base_textedit,3,0,1,2)
         
-        # "Complementary" and "Reverse" buttons
-
-        self.pmGB3HboxLO3 = QtGui.QHBoxLayout()
-        self.pmGB3HboxLO3.setMargin(0)
-        self.pmGB3HboxLO3.setSpacing(6)
-        self.pmGB3HboxLO3.setObjectName("pmGB3HboxLO3")
-
-        self.complement_btn = QtGui.QPushButton(self.pmGroupBox3)
-        self.complement_btn.setAutoDefault(False)
-        self.complement_btn.setObjectName("complement_btn")
-        self.complement_btn.setText("Complement")
-        self.pmGB3HboxLO3.addWidget(self.complement_btn)
-
-        self.reverse_btn = QtGui.QPushButton(self.pmGroupBox3)
-        self.reverse_btn.setAutoDefault(False)
-        self.reverse_btn.setObjectName("reverse_btn")
-        self.reverse_btn.setText("Reverse")
-        self.pmGB3HboxLO3.addWidget(self.reverse_btn)
-        
-        self.pmGB3MainVboxLO.addLayout(self.pmGB3HboxLO3)
+        self.GrpBox3MainVBoxLayout.addLayout(self.GrpBox3GridLayout1)
         
         self.pmMainVboxLO.addWidget(self.pmGroupBox3) # Add groupbox
 
