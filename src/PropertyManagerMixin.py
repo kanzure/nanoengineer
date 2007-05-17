@@ -25,6 +25,7 @@ from Sponsors import SponsorableMixin
 from qt4transition import lineage
 from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False, Choice
 from Utility import geticon, getpixmap
+from PropMgr_Constants import *
 
 COLOR_THEME = "Gray" # 
     #& To do: Make it a user pref in the Prefs Dialog.  Mark 2007-05-16
@@ -124,7 +125,7 @@ class PropertyManager:
         # PropMgr's Header.
         self.addHeader()
         self.addSponsorButton()
-        self.addTopBtnsRow() # Create top buttons row
+        self.addTopRowBtns() # Create top buttons row
         self.addMessageGroupBox()
                 
         # Keep this around. I might want to use it now that I understand it.
@@ -229,7 +230,7 @@ class PropertyManager:
         
         self.pmMainVboxLO.addWidget(self.sponsor_frame)
 
-    def addTopBtnsRow(self):
+    def addTopRowBtns(self, showFlags=None):
         """Creates the OK, Cancel, Preview, and What's This 
         buttons row at the top of the Pmgr.
         """
@@ -240,7 +241,7 @@ class PropertyManager:
         #
         # The Top Buttons Row includes the following widgets:
         #
-        # - self.pmTopBtnsRow (Hbox Layout containing everything:)
+        # - self.pmTopRowBtns (Hbox Layout containing everything:)
         #   - left spacer (10x10)
         #   - frame
         #     - hbox layout "frameHboxLO" (margin=2, spacing=2)
@@ -252,7 +253,7 @@ class PropertyManager:
         
         
         # Main "button group" widget (but it is not a QButtonGroup).
-        self.pmTopBtnsRow = QtGui.QHBoxLayout()
+        self.pmTopRowBtns = QtGui.QHBoxLayout()
         
         # Left and right spacers
         leftSpacer = QtGui.QSpacerItem(10, 10, 
@@ -263,20 +264,20 @@ class PropertyManager:
                                         QSizePolicy.Minimum)
         
         # Frame containing all the buttons.
-        self.topBtnsRowFrame = QtGui.QFrame()
-        self.topBtnsRowFrame.setObjectName("topBtnsRowFrame")
+        self.TopRowBtnsFrame = QtGui.QFrame()
+        self.TopRowBtnsFrame.setObjectName("TopRowBtnsFrame")
                 
-        self.topBtnsRowFrame.setFrameShape(QtGui.QFrame.StyledPanel)
-        self.topBtnsRowFrame.setFrameShadow(QtGui.QFrame.Raised)
+        self.TopRowBtnsFrame.setFrameShape(QtGui.QFrame.StyledPanel)
+        self.TopRowBtnsFrame.setFrameShadow(QtGui.QFrame.Raised)
         
         # Create Hbox layout for main frame.
-        self.frameHboxLO = QtGui.QHBoxLayout(self.topBtnsRowFrame)
+        self.frameHboxLO = QtGui.QHBoxLayout(self.TopRowBtnsFrame)
         self.frameHboxLO.setMargin(2)
         self.frameHboxLO.setSpacing(2)
         self.frameHboxLO.setObjectName("frameHboxLO")
         
         # OK (Done) button.
-        self.done_btn = QtGui.QPushButton(self.topBtnsRowFrame)
+        self.done_btn = QtGui.QPushButton(self.TopRowBtnsFrame)
         self.done_btn.setObjectName("done_btn")
         self.done_btn.setIcon(
             geticon("ui/actions/Properties Manager/Done.png"))
@@ -287,7 +288,7 @@ class PropertyManager:
         self.frameHboxLO.addWidget(self.done_btn)
         
         # Cancel (Abort) button.
-        self.abort_btn = QtGui.QPushButton(self.topBtnsRowFrame)
+        self.abort_btn = QtGui.QPushButton(self.TopRowBtnsFrame)
         self.abort_btn.setObjectName("abort_btn")
         self.abort_btn.setIcon(
             geticon("ui/actions/Properties Manager/Abort.png"))
@@ -298,7 +299,7 @@ class PropertyManager:
         self.frameHboxLO.addWidget(self.abort_btn)
         
         # Restore button.
-        self.restore_defaults_btn = QtGui.QPushButton(self.topBtnsRowFrame)
+        self.restore_defaults_btn = QtGui.QPushButton(self.TopRowBtnsFrame)
         self.restore_defaults_btn.setObjectName("restore_defaults_btn")
         self.restore_defaults_btn.setIcon(
             geticon("ui/actions/Properties Manager/Restore.png"))
@@ -308,7 +309,7 @@ class PropertyManager:
         self.frameHboxLO.addWidget(self.restore_defaults_btn)
         
         # Preview (glasses) button.
-        self.preview_btn = QtGui.QPushButton(self.topBtnsRowFrame)
+        self.preview_btn = QtGui.QPushButton(self.TopRowBtnsFrame)
         self.preview_btn.setObjectName("preview_btn")
         self.preview_btn.setIcon(
             geticon("ui/actions/Properties Manager/Preview.png"))
@@ -319,7 +320,7 @@ class PropertyManager:
         self.frameHboxLO.addWidget(self.preview_btn)        
         
         # What's This (?) button.
-        self.whatsthis_btn = QtGui.QPushButton(self.topBtnsRowFrame)
+        self.whatsthis_btn = QtGui.QPushButton(self.TopRowBtnsFrame)
         self.whatsthis_btn.setObjectName("whatsthis_btn")
         self.whatsthis_btn.setIcon(
             geticon("ui/actions/Properties Manager/WhatsThis.png"))
@@ -330,11 +331,47 @@ class PropertyManager:
         self.frameHboxLO.addWidget(self.whatsthis_btn)
         
         # Create Button Row
-        self.pmTopBtnsRow.addItem(leftSpacer)
-        self.pmTopBtnsRow.addWidget(self.topBtnsRowFrame)
-        self.pmTopBtnsRow.addItem(rightSpacer)
+        self.pmTopRowBtns.addItem(leftSpacer)
+        self.pmTopRowBtns.addWidget(self.TopRowBtnsFrame)
+        self.pmTopRowBtns.addItem(rightSpacer)
         
-        self.pmMainVboxLO.addLayout(self.pmTopBtnsRow)
+        self.pmMainVboxLO.addLayout(self.pmTopRowBtns)
+        
+        return
+
+    def hideTopRowButtons(self, hideFlags=None):
+        """Hide one or more top row buttons using <hideFlags>.
+        Hide button flags not set will cause the button to be shown,
+        if currently hidden.
+        
+        The hide button flags are:
+            pmShowAllButtons = 0
+            pmHideDoneButton = 1
+            pmHideCancelButton = 2
+            pmHideRestoreDefaultsButton = 4
+            pmHidePreviewButton = 8
+            pmHideWhatsThisButton = 16
+            pmHideAllButtons = 31
+            
+        These flags are defined in PropMgr_Constants.py.
+        """
+        
+        if hideFlags & pmHideDoneButton: self.done_btn.hide()
+        else: self.done_btn.show()
+            
+        if hideFlags & pmHideCancelButton: self.abort_btn.hide()
+        else: self.abort_btn.show()
+            
+        if hideFlags & pmHideRestoreDefaultsButton: 
+            self.restore_defaults_btn.hide()
+        else: self.restore_defaults_btn.show()
+            
+        if hideFlags & pmHidePreviewButton: self.preview_btn.hide()
+        else: self.preview_btn.show()
+            
+        if hideFlags & pmHideWhatsThisButton: self.whatsthis_btn.hide()
+        else: self.whatsthis_btn.show()
+            
         
     def addMessageGroupBox(self):
         """Creates layout and widgets for the "Message" groupbox.
