@@ -74,7 +74,7 @@ else: # Blue Color Theme
     # Colors for Property Manager widgets.
     pmColor = QtGui.QColor(230, 231, 230)
     pmGrpBoxColor = QtGui.QColor(201,203,223)
-    pmTitleFrameColor = QtGui.QColor(120,120,120)
+    pmTitleFrameColor = QtGui.QColor(120,120,120) # I like (50,90,230).
     pmTitleLabelColor = QtGui.QColor(255,255,255)
     pmGrpBoxButtonColor = QtGui.QColor(172,173,190)
     pmCheckBoxTextColor = QtGui.QColor(0,0,255)
@@ -92,7 +92,7 @@ else: # Blue Color Theme
 
 pmGroupBoxSpacing = 5 # 5 pixel between groupboxes.
 
-class PropertyManager:
+class PropMgrBaseClass:
     '''Property Manager base class'''
 
     def __init__(self):

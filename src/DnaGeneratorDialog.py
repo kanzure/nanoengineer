@@ -16,7 +16,8 @@ import sys
 from PyQt4 import Qt, QtCore, QtGui
 from Utility import geticon, getpixmap
 from PyQt4.Qt import *
-from PropertyManagerMixin import PropertyManager
+from PropertyManagerMixin import PropMgrBaseClass
+from PropMgr_Constants import *
 
 # DNA model type variables.
 REDUCED_MODEL=0
@@ -24,13 +25,14 @@ ATOMISTIC_MODEL=1
 BDNA=0
 ZDNA=1
 
-class DnaPropMgr(object, PropertyManager):
+class DnaPropMgr(object, PropMgrBaseClass):
     
     valid_base_letters = "NATCG" # Reduced model letters.
     
     def __init__(self):
-        PropertyManager.__init__(self)
-        
+        """Build the DNA Property Manager.
+        """
+        PropMgrBaseClass.__init__(self)
         self.setPropMgrIcon('ui/actions/Tools/Build Structures/DNA.png')
         self.setPropMgrTitle("DNA")
         self.addGroupBoxes()
