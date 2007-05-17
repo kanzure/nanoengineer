@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 # Simplify the process of managing a joint branch in both the cad and sim directories.
 
 PWD=`pwd`
