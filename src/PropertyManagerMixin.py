@@ -120,7 +120,6 @@ class PropMgrBaseClass:
         self.pmMainVboxLO = QtGui.QVBoxLayout(self)
         self.pmMainVboxLO.setMargin(0)
         self.pmMainVboxLO.setSpacing(0)
-        self.pmMainVboxLO.setObjectName("pmMainVboxLO")
 
         # PropMgr's Header.
         self.addHeader()
@@ -229,6 +228,8 @@ class PropMgrBaseClass:
         self.pmGridLO1.addWidget(self.sponsor_btn,0,0,1,1)
         
         self.pmMainVboxLO.addWidget(self.sponsor_frame)
+        
+        return
 
     def addTopRowBtns(self, showFlags=None):
         """Creates the OK, Cancel, Preview, and What's This 
@@ -409,13 +410,7 @@ class PropMgrBaseClass:
         self.pmMsgTextEdit.setSizePolicy(QSizePolicy.MinimumExpanding,
                                          QSizePolicy.Minimum )
         self.pmMsgTextEdit.setReadOnly(True)
-        msg = "Edit the DNA parameters and select <b>Preview</b> to preview the structure. \
-        Click <b>Done</b> to insert it into the model."
         
-        # Preview button image.
-        # <img source=\"ui/actions/Properties Manager/Preview.png\"><br> \ 
-        
-        self.pmMsgTextEdit.insertHtml(msg)
         
         msg_palette =  self.getMsgGroupBoxPalette()
         self.pmMsgTextEdit.setPalette(msg_palette)
@@ -423,6 +418,11 @@ class PropMgrBaseClass:
         self.pmMsgVboxLO.addWidget(self.pmMsgTextEdit)
         
         self.pmMainVboxLO.addWidget(self.pmMsgGroupBox) # Add Msg groupbox
+        
+    def insertHtmlMsg(self, htmlMsg):
+        """Insert HTML message into the Prop Mgr's message groupbox.
+        """
+        self.pmMsgTextEdit.insertHtml(htmlMsg)
         
     def addGroupBoxSpacer(self):
         """Add vertical groupbox spacer. 
