@@ -2005,7 +2005,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         """
         # bruce comment 041220: besides our own calls of this function
         # [later: which no longer exist after 050127], it can
-        # be called directly from the app.exec_() in atom.py; I'm not sure
+        # be called directly from the app.exec_() in main.py; I'm not sure
         # exactly why or under what circumstances, but one case (on Mac) is when you
         # switch back into the app by clicking in the blank part of the model tree
         # (multiple repaints by different routes in that case),

@@ -271,7 +271,7 @@ class PlotTool(QWidget, Ui_PlotToolDialog):
                 #bruce 060425 thinks the following might also be needed.
                 # In my tests, it made no difference, whether /usr/local/lib/libaquaterm.1.0.0.dylib
                 # was a bad dylib or was missing. But it seems desirable in theory so I'll leave it in.
-                dyld_path = os.environ.get('DYLD_LIBRARY_PATH') # set in atom.py
+                dyld_path = os.environ.get('DYLD_LIBRARY_PATH') # set in main.py
                 if dyld_path:
                     dfd = 'DYLD_LIBRARY_PATH=%s' % dyld_path
                     if debug_gnuplot:

@@ -716,9 +716,9 @@ def hhmmss_str(secs):
 
 # code for determining screen size (different for Mac due to menubar)
 
-#e (I should also pull in some more related code from atom.py...)
+#e (I should also pull in some more related code from main.py...)
 
-def screen_pos_size(): ###e this copies code in atom.py -- atom.py should call this
+def screen_pos_size(): ###e this copies code in main.py -- main.py should call this
     """Return (x,y),(w,h), where the main screen area
     (not including menubar, for Mac) is in a rect of size w,h,
     topleft at x,y. Note that x,y is 0,0 except for Mac.

@@ -1680,7 +1680,7 @@ class ModelTreeGui(QTreeView, ModelTreeGui_api):
         if 1:
             print "\n *** fyi: MT: something called self.contextMenuEvent directly -- likely bug ***\n"
             print_compact_stack("hmm, who called it?: ")
-                # Note: this can be called directly by app.exec_() in atom.py,
+                # Note: this can be called directly by app.exec_() in main.py,
                 # and is, if we use microsoft mouse right click on iMac G5 in Qt 4.2.2, *or* control-left-click;
                 # if that can't be changed (by finding an interceptable caller in common with mousePressEvent),
                 # we might need to revise this to also do selection click actions,

@@ -1,7 +1,7 @@
 #! /usr/bin/python
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-atom.py is the startup script for NanoEngineer-1.
+main.py is the startup script for NanoEngineer-1.
 
 $Id$
 
@@ -24,9 +24,9 @@ starts the right python interpreter and has it run this script
 (possibly passing command-line arguments, but that might not be implemented yet).
 
 Developers running nE-1 from cvs can run this script using a command line
-like "python atom.py" or "pythonw atom.py", depending on the Python
+like "python main.py" or "pythonw main.py", depending on the Python
 installation. Some Python or Qt installations require that the absolute
-pathname of atom.py be used, but the current directory should always be
+pathname of main.py be used, but the current directory should always be
 the one containing this file, when it's run manually in this way.
 
 This script then imports and starts everything else.
@@ -63,7 +63,7 @@ USING_Qt4 = True
 if __name__ != '__main__':
     #bruce 050902 added this warning
     print
-    print "Warning: atom.py should not be imported except as the __main__ module."
+    print "Warning: main.py should not be imported except as the __main__ module."
     print " (It is now being imported under the name %r.\n" \
           "  This is a bug, but should cause no direct harm.)" % (__name__,)
     print
@@ -222,7 +222,7 @@ if __name__ == '__main__':
     # (in case it's shown inappropriately in a later traceback)
     try:
         assert 0, "if you see this exception in a traceback, it is from" \
-            " the startup script atom.py, not the code that printed the traceback"
+            " the startup script main.py, not the code that printed the traceback"
     except:
         pass
 

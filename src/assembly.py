@@ -539,7 +539,7 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
             # AssertionError: node.part.nodecount 3 != len(kids) 1
             # ...
             # self <assembly.assembly instance at 0xd1d62b0>,
-            # glpane <ThumbView.MMKitView object at 0xcc38f00>: [atom.py:186] [ThumbView.py:193] [ThumbView.py:594] [assembly.py:513]
+            # glpane <ThumbView.MMKitView object at 0xcc38f00>: [main.py:186] [ThumbView.py:193] [ThumbView.py:594] [assembly.py:513]
             try:
                 self.checkparts()
             except: #bruce 051227 catch exception in order to act more like non-atom_debug version

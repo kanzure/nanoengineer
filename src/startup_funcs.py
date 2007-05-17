@@ -3,13 +3,13 @@
 startup_funcs.py
 
 Contains application startup actions, organized into functions called
-at specific times by the actual startup script, atom.py (their only caller).
+at specific times by the actual startup script, main.py (their only caller).
 
 $Id$
 
 History:
 
-bruce 050902 made this by moving some code out of atom.py,
+bruce 050902 made this by moving some code out of main.py,
 and adding some stub functions which will be filled in later.
 """
 
@@ -17,7 +17,7 @@ import sys, os
 
 def before_most_imports( main_globals ):
     """Do things that should be done before anything that might possibly have side effects.
-    main_globals should be the value of globals() in the __main__ module (our caller, atom.py).
+    main_globals should be the value of globals() in the __main__ module (our caller, main.py).
     """
 
     # user-specific debug code to be run before any other imports [bruce 040903]
@@ -64,7 +64,7 @@ def before_most_imports( main_globals ):
     # assume we are (so as to turn off certain code it might not be safe for end-users to run).
     # [bruce 050902 new feature; revised 051006 to work in Windows built packages]
 
-    # Method 1. As of 050902, package builders on all platforms reportedly move atom.py
+    # Method 1. As of 050902, package builders on all platforms reportedly move main.py
     # (the __main__ script) into a higher directory than the compiled python files.
     # But developers running from cvs leave them all in cad/src.
     # So we compare the directories.

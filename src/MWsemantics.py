@@ -555,7 +555,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         undo.just_after_mainwindow_super_init()
 
         # bruce 050104 moved this here so it can be used earlier
-        # (it might need to be moved into atom.py at some point)
+        # (it might need to be moved into main.py at some point)
         self.tmpFilePath = platform.find_or_make_Nanorex_directory()
 
         
