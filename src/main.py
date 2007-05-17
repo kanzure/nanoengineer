@@ -5,7 +5,7 @@ main.py is the startup script for NanoEngineer-1.
 
 $Id$
 
-This file should not be imported as the "atom" module -- doing so
+This file should not be imported as the "main" module -- doing so
 prints a warning [as of 050902] and doesn't run the contained code.
 If necessary, it can be imported as the __main__ module
 from within the nE-1 process it starts, by "import __main__".
@@ -43,7 +43,7 @@ bruce 050902 revised module docstring, and added comments explaining why
 there are two separate tests of __name__ == '__main__'
 (which surrounds most code in this module).
 The reason this condition is needed at all is to reduce the harm caused
-by someone accidentally running "import atom" (which is wrong but causes no harm).
+by someone accidentally running "import main" (which is wrong but causes no harm).
 """
 
 __author__ = "Josh"
