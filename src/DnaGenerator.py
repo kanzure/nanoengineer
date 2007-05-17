@@ -16,8 +16,8 @@ import env
 import re
 from math import atan2, sin, cos, pi
 from PyQt4 import QtCore
-from PyQt4.Qt import QWhatsThis, QDialog, SIGNAL, QTextCursor
-from DnaGeneratorDialog import Ui_dna_dialog
+from PyQt4.Qt import QWhatsThis, QDialog, QWidget, SIGNAL, QTextCursor
+from DnaGeneratorDialog import DnaPropMgr
 from chem import Atom
 from Utility import Group
 from HistoryWidget import redmsg, orangemsg, greenmsg
@@ -267,106 +267,19 @@ class Z_Dna_BasePseudoAtoms(Z_Dna):
 
 ###############################################################################
 
-# DNA model type variables.
-REDUCED_MODEL=0
-ATOMISTIC_MODEL=1
-BDNA=0
-ZDNA=1
-
 # GeneratorBaseClass must come BEFORE the dialog in the list of parents
-class DnaGenerator(QDialog, GeneratorBaseClass, Ui_dna_dialog):
+class DnaGenerator(QDialog, GeneratorBaseClass, DnaPropMgr):
 
     cmd = greenmsg("Build DNA: ")
     sponsor_keyword = 'DNA'
     prefix = 'DNA-'   # used for gensym
-    valid_base_letters = "NATCG" # Reduced model letters.
-
+    
     # pass window arg to constructor rather than use a global, wware 051103
     def __init__(self, win):
-        QDialog.__init__(self, win) # win is parent.  Fixes bug 1089.  Mark 051119.
-        self.setupUi(self)
+        QDialog.__init__(self, win)
+        DnaPropMgr.__init__(self)
         GeneratorBaseClass.__init__(self, win)
-        self._connect_or_disconnect_signals(connect=True)
-        self._add_whats_this_text()
     
-    def _connect_or_disconnect_signals(self, connect=True):
-        """Connect this pmgr's widgets signals to their slots.
-        """
-        if connect:
-            contype = self.connect
-        else:
-            contype = self.disconnect
-        
-        # Sponsor button
-        contype(self.sponsor_btn,SIGNAL("clicked()"),
-                self.open_sponsor_homepage)
-        
-        # Top Button Row (OK, Cancel, Preview, What's This).
-        contype(self.done_btn,SIGNAL("clicked()"),
-                self.ok_btn_clicked)
-        contype(self.abort_btn,SIGNAL("clicked()"),
-                self.abort_btn_clicked)
-        contype(self.preview_btn,SIGNAL("clicked()"),
-                self.preview_btn_clicked)
-        contype(self.whatsthis_btn,SIGNAL("clicked()"),
-                self.enter_WhatsThisMode)
-        
-        # Groupbox Title Buttons.
-        contype(self.pmMsgGroupBoxBtn,SIGNAL("clicked()"),
-                self.toggle_pmMsgGroupBox)
-        contype(self.pmGroupBoxBtn1,SIGNAL("clicked()"),
-                self.toggle_pmGroupBox1)
-        contype(self.pmGroupBoxBtn2, SIGNAL("clicked()"), 
-                self.toggle_pmGroupBox2) 
-        contype(self.pmGroupBoxBtn3,SIGNAL("clicked()"),
-                self.toggle_pmGroupBox3)
-       
-        # Groupbox1.
-        contype(self.dnaConformation_combox,
-                SIGNAL("currentIndexChanged(int)"),
-                self.dnaConformation_combox_changed)
-        
-        # Groupbox2.
-        contype(self.model_combox,SIGNAL("currentIndexChanged(int)"),
-                self.model_combox_changed)
-        
-        # Groupbox3.
-        contype(self.length_spinbox,SIGNAL("valueChanged(int)"),
-                self.length_changed)
-        contype(self.base_textedit,SIGNAL("textChanged()"),
-                self.sequence_changed)
-        contype(self.base_textedit,SIGNAL("cursorPositionChanged()"),
-                self.cursorpos_changed)
-        contype(self.complement_btn,SIGNAL("clicked()"),
-                self.complement_btn_clicked)
-        contype(self.reverse_btn,SIGNAL("clicked()"),
-                self.reverse_btn_clicked)
-    
-    def _add_whats_this_text(self):
-        """What's This text for all widgets the the DNA generator's property manager.
-        """
-        
-        self.dnaConformation_combox.setWhatsThis("""<b>Conformation</b>
-        <p>There are three DNA geometries, A-DNA, B-DNA,
-        and Z-DNA. Only B-DNA and Z-DNA are currently supported.</p>""")
-        
-        self.strandType_combox.setWhatsThis("""<b>Strand Type</b>
-        <p>DNA strands can be single or double.</p>""")
-        
-        self.base_textedit.setWhatsThis("""<b>Strand Sequence</b>
-        <p>Type in the strand sequence you want to generate here (5' => 3')
-        </p>""")
-        
-        self.complement_btn.setWhatsThis("""<b>Complement</b>
-        <p>Change the current strand sequence to the complement strand 
-        sequence.</p>""")
-        
-        self.reverse_btn.setWhatsThis("""<b>Reverse</b>
-        <p>Reverse the strand sequence that has been entered.</p>""")
-        
-        self.model_combox.setWhatsThis("""<b>Model</b>
-        <p>Determines the type of DNA model that is generated.</p> """)
-
     ###################################################
     # How to build this kind of structure, along with
     # any necessary helper functions
@@ -689,199 +602,3 @@ class DnaGenerator(QDialog, GeneratorBaseClass, Ui_dna_dialog):
         else:
             dbl = ""
         return "Done creating a %sstrand of %s." % (dbl, dna.geometry)
-
-    ###################################################
-    # Any special controls for this kind of structure
-    
-    # Methods for handling the Strand Sequence groupbox. ###############
-    
-    def length_changed(self, length):
-        """Slot for the length spinbox.
-        """
-        #print "New length = ", length, ", Current length =", self.get_sequence_length()
-        if length < 0: return # Should never happen.
-        
-        if length < self.get_sequence_length():
-            # If length is less than the previous length, simply truncate the current sequence to "length".
-            if length < 0: return # Should never happen.
-            for p in range(self.get_sequence_length()-length):
-                self.base_textedit.moveCursor(QTextCursor.Left, QTextCursor.KeepAnchor) # Move the cursor one position to the left. 
-            self.base_textedit.cut()
-            return
-        else:
-            # If length has increased, add the correct number of base letters to the current strand sequence.
-            numNewBases = length - self.get_sequence_length()
-            # print "Number of new bases = ", numNewBases
-            bases = ''
-            base = str(self.newBaseOptions_combox.currentText()) # Current base selected in combobox.
-            bases = base[0] * numNewBases
-            self.base_textedit.insertPlainText(bases)
-        
-    def update_length(self):
-        """Update the Length spinbox; always the length of the strand sequence.
-        """
-        self.disconnect(self.length_spinbox,SIGNAL("valueChanged(int)"),
-                     self.length_changed)
-        self.length_spinbox.setValue(self.get_sequence_length())
-        self.connect(self.length_spinbox,SIGNAL("valueChanged(int)"),
-                     self.length_changed)
-    
-    def sequence_changed(self):       
-        """Slot for the strand sequence textedit widget.
-        Make sure only A, T, C or G (and N for reduced model) are allowed.
-        """
-        
-        pm_seq = str(self.base_textedit.toPlainText()).upper()
-        curpos = self.get_cursorpos()
-        
-        if curpos == 0:
-            # User deleted all text in sequence widget.
-            self.update_length()
-            return
-        
-        ch = pm_seq[curpos-1] # This is the character the user typed.
-        #print "Cursor pos=", curpos, ", Char typed was: ", ch
-        
-        # Disconnect while we edit the sequence.
-        self.disconnect(self.base_textedit,SIGNAL("textChanged()"),
-                     self.sequence_changed)
-        
-        # Delete the character the user just typed in. We'll replace it in upper case (if legal) or not (if not legal).
-        self.base_textedit.moveCursor(QTextCursor.Left, QTextCursor.KeepAnchor) # Move the cursor one position to the left. 
-        self.base_textedit.cut() # Delete (cut) single character user typed in.
-
-        if ch in self.valid_base_letters: # Remove "N: if atomistic model is selected. (later)
-            self.base_textedit.insertPlainText(ch.upper()) # Change to upper case.
-        
-        self.connect(self.base_textedit,SIGNAL("textChanged()"),
-                     self.sequence_changed)
-        
-        self.update_length() # Update Length spinbox.
-    
-    def get_sequence_length(self):
-        """Returns the number of characters in the strand sequence textedit widget.
-        """
-        #print "get_sequence_length(): strand length =", len(self.base_textedit.toPlainText())   
-        return len(self.base_textedit.toPlainText())
-        
-    def get_cursorpos(self):
-        """Returns the cursor position in the strand sequence textedit widget.
-        """
-        cursor = self.base_textedit.textCursor()
-        return cursor.position()
-
-    def cursorpos_changed(self):
-        """Slot called when the cursor position changes.
-        """
-        # Useful for debugging. mark 2007-05-09.
-        # print "cursorpos_changed(): Cursor at position ", self.get_cursorpos()
-        return
-    
-    def dnaConformation_combox_changed(self, idx):
-        """Slot for the Conformation combobox.
-        """
-        self.basesPerTurn_combox.clear()
-        
-        if idx == BDNA:
-            self.basesPerTurn_combox.insertItem(0, "10.0")
-            self.basesPerTurn_combox.insertItem(1, "10.5")
-            self.basesPerTurn_combox.insertItem(2, "10.67")
-        
-            #10.5 is the default value for Bases per turn. 
-            #So set the current index to 1
-            self.basesPerTurn_combox.setCurrentIndex(1) 
-        
-        elif idx == ZDNA:
-            self.basesPerTurn_combox.insertItem(0, "12.0")
-            
-        else:
-            print "dnaConformation_combox_changed(): Error - unknown DNA conformation. Index =", idx
-            return
-        
-    def model_combox_changed(self, idx):
-        """Slot for the Model combobox.
-        """
-        
-        seqlen = self.get_sequence_length()
-        self.base_textedit.clear()
-        
-        self.disconnect(self.dnaConformation_combox,SIGNAL("currentIndexChanged(int)"),
-                     self.dnaConformation_combox_changed)
-        
-        self.newBaseOptions_combox.clear() # Generates signal!
-        self.dnaConformation_combox.clear() # Generates signal!
-        self.strandType_combox.clear() # Generates signal!
-        
-        if idx == REDUCED_MODEL:
-            self.newBaseOptions_combox.addItem("N (undefined)")
-            self.newBaseOptions_combox.addItem("A")
-            self.newBaseOptions_combox.addItem("T")  
-            self.newBaseOptions_combox.addItem("C")
-            self.newBaseOptions_combox.addItem("G") 
-            
-            seq = "N" * seqlen
-            self.base_textedit.insertPlainText(seq)
-            self.valid_base_letters = "NATCG"
-            
-            self.dnaConformation_combox.addItem("B-DNA")
-            
-            self.strandType_combox.addItem("Double")
-            
-        elif idx == ATOMISTIC_MODEL:
-            self.newBaseOptions_combox.addItem("A")
-            self.newBaseOptions_combox.addItem("T")  
-            self.newBaseOptions_combox.addItem("C")
-            self.newBaseOptions_combox.addItem("G")
-            self.valid_base_letters = "ATCG"
-            
-            self.dnaConformation_combox.addItem("B-DNA")
-            self.dnaConformation_combox.addItem("Z-DNA")
-            
-            self.strandType_combox.addItem("Double")
-            self.strandType_combox.addItem("Single")
-            
-        else:
-            print "model_combox_changed(): Error - unknown model representation. Index =", idx
-        
-        self.connect(self.dnaConformation_combox,SIGNAL("currentIndexChanged(int)"),
-                     self.dnaConformation_combox_changed)
-
-    ############################
-        
-    def complement_btn_clicked(self):
-        """Slot for the Complement button.
-        """
-        def thunk():
-            (seq, allKnown) = self._get_sequence(complement=True)
-            self.base_textedit.setPlainText(seq)
-        self.handlePluginExceptions(thunk)
-
-    def reverse_btn_clicked(self):
-        """Slot for the Reverse button.
-        """
-        def thunk():
-            (seq, allKnown) = self._get_sequence(reverse=True)
-            self.base_textedit.setPlainText(seq)
-        self.handlePluginExceptions(thunk)
-
-    def toggle_pmMsgGroupBox(self): # Message groupbox
-        self.toggle_groupbox(self.pmMsgGroupBoxBtn, 
-                             self.pmMsgTextEdit)
-        
-    def toggle_pmGroupBox1(self): # DNA Parameters groupbox
-        self.toggle_groupbox(self.pmGroupBoxBtn1, 
-                             self.dnaConformation_lbl, self.dnaConformation_combox,
-                             self.strandType_lbl, self.strandType_combox,
-                             self.basesPerTurn_lbl, self.basesPerTurn_combox)
-
-    def toggle_pmGroupBox2(self): # Represenation groupbox
-        self.toggle_groupbox(self.pmGroupBoxBtn2, 
-                             self.model_combox_lbl, self.model_combox,
-                             self.dnaChunkOptions_lbl, self.dnaChunkOptions_combox )
-    
-    def toggle_pmGroupBox3(self): # Strand Sequence groupbox
-        self.toggle_groupbox(self.pmGroupBoxBtn3, 
-                             self.length_lbl, self.length_spinbox,
-                             self.newBaseOptions_lbl, self.newBaseOptions_combox,
-                             self.base_textedit,
-                             self.complement_btn, self.reverse_btn)

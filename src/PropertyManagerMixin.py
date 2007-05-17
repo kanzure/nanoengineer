@@ -10,17 +10,21 @@ ninad20061215: created this mixin class to provide helper methods in various
 Property managers 
 ninad20070206: added many new methods to help prop manager ui generation.
 
+mark 2007-05-17: added new PropertyManager class.
+
 """
 
 __author__ = "Ninad"
 
+
 from PyQt4.Qt import *
-from PyQt4 import QtGui
+from PyQt4 import Qt, QtCore, QtGui
 from Utility import geticon
 from PyQt4.QtGui import *
 from Sponsors import SponsorableMixin
 from qt4transition import lineage
 from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False, Choice
+from Utility import geticon, getpixmap
 
 COLOR_THEME = "Gray" # 
     #& To do: Make it a user pref in the Prefs Dialog.  Mark 2007-05-16
@@ -43,46 +47,364 @@ if COLOR_THEME == "Gray":
 
     # Dark Gray Color Theme
     
-    # Colors for Property Manager widgets (dark gray theme).
+    # Colors for Property Manager widgets.
     pmColor = QtGui.QColor(230, 231, 230)
-    groupBoxColor = QtGui.QColor(201,203,223)
-    headerColor = QtGui.QColor(120,120,120)
-    groupBoxButtonColor = QtGui.QColor(172,173,190)
-    checkBoxTextColor = QtGui.QColor(0,0,255)
-    checkBoxButtonColor = QtGui.QColor(172,173,190)
-    msgGroupBoxColor = QtGui.QColor(255,255,100)
-
-    # Style sheet colors for GroupBox buttons (dark gray theme).
+    pmGrpBoxColor = QtGui.QColor(201,203,223)
+    pmTitleFrameColor = QtGui.QColor(120,120,120)
+    pmTitleLabelColor = QtGui.QColor(255,255,255)
+    pmGrpBoxButtonColor = QtGui.QColor(172,173,190)
+    pmCheckBoxTextColor = QtGui.QColor(0,0,255) # used in MMKit
+    pmCheckBoxButtonColor = QtGui.QColor(172,173,190)
+    pmMsgGrpBoxColor = QtGui.QColor(255,255,100)
+    
+    # Property Manager colors set by HTML Color Codes
+    #@ To do: I intend to add a method for each (like those above) 
+    # that returns a palette. Mark 2007-05-17.
     pmGrpBoxBorderColor = "#444F51"
     pmGrpBoxButtonBorderColor = "#939089"
-    pmGrpBoxButtonTextColor = "#282821"
+    pmGrpBoxButtonTextColor = "#282821" # Same as pmCheckBoxTextColor
 
-    # Locations of groupbox opened and closed images (dark gray theme).
+    # Locations of groupbox opened and closed images.
     pmGrpBoxOpenedImage = "ui/actions/Properties Manager/GroupBox_Opened_Gray.png"
     pmGrpBoxClosedImage = "ui/actions/Properties Manager/GroupBox_Closed_Gray.png"
 
 else: # Blue Color Theme
     
-    # Colors for Property Manager widgets (blue theme).
+    # Colors for Property Manager widgets.
     pmColor = QtGui.QColor(230, 231, 230)
-    groupBoxColor = QtGui.QColor(201,203,223)
-    headerColor = QtGui.QColor(120,120,120)
-    groupBoxButtonColor = QtGui.QColor(172,173,190)
-    checkBoxTextColor = QtGui.QColor(0,0,255)
-    checkBoxButtonColor = QtGui.QColor(172,173,190)
-    msgGroupBoxColor = QtGui.QColor(255,255,100)
+    pmGrpBoxColor = QtGui.QColor(201,203,223)
+    pmTitleFrameColor = QtGui.QColor(120,120,120)
+    pmTitleLabelColor = QtGui.QColor(255,255,255)
+    pmGrpBoxButtonColor = QtGui.QColor(172,173,190)
+    pmCheckBoxTextColor = QtGui.QColor(0,0,255)
+    pmCheckBoxButtonColor = QtGui.QColor(172,173,190)
+    pmMsgGrpBoxColor = QtGui.QColor(255,255,100)
 
-    # Style sheet colors for GroupBox buttons (blue theme).
+    # Style sheet colors for GroupBox buttons.
     pmGrpBoxBorderColor = "blue"
     pmGrpBoxButtonBorderColor = "gray"
     pmGrpBoxButtonTextColor = "blue"
 
-    # Locations of groupbox opened and closed images (blue theme).
+    # Locations of groupbox opened and closed images.
     pmGrpBoxOpenedImage = "ui/actions/Properties Manager/GroupBox_Opened_Blue.png"
     pmGrpBoxClosedImage = "ui/actions/Properties Manager/GroupBox_Closed_Blue.png"
 
+pmGroupBoxSpacing = 5 # 5 pixel between groupboxes.
+
+class PropertyManager:
+    '''Property Manager base class'''
+
+    def __init__(self):
+        
+        # NOTE: This establishes the width and height of the
+        # Property Manager "container". 
+        # Height of 600 needs to be tested on a 1024 x 768 monitor.
+        # The height should auto-adjust to fit contents, but
+        # doesn't as of now. Needs to be fixed. Mark 2007-05-14.
+        # PropMgr width (230 pixels) should be set via global constant. 
+        # The width is currently set in MWsemantics.py (PartWindow).
+        # The width of propmgr is 230 - (4 x 2) = 222 pixels on Windows.
+        # Need to test width on MacOS.
+        # Mark 2007-05-15.
+        
+        self.resize(QtCore.QSize(
+            QtCore.QRect(0,0,222,550).size()).expandedTo(
+                self.minimumSizeHint()))
+        
+        # Main pallete for PropMgr.
+        propmgr_palette = self.getPropertyManagerPalette()
+        self.setPalette(propmgr_palette)
+        
+        # Main vertical layout for PropMgr.
+        self.pmMainVboxLO = QtGui.QVBoxLayout(self)
+        self.pmMainVboxLO.setMargin(0)
+        self.pmMainVboxLO.setSpacing(0)
+        self.pmMainVboxLO.setObjectName("pmMainVboxLO")
+
+        # PropMgr's Header.
+        self.addHeader()
+        self.addSponsorButton()
+        self.addTopBtnsRow() # Create top buttons row
+        self.addMessageGroupBox()
+                
+        # Keep this around. I might want to use it now that I understand it.
+        # Mark 2007-05-17.
+        #QtCore.QMetaObject.connectSlotsByName(self)
+        
+        
+    def addHeader(self):
+        """Creates the Property Manager header, which contains
+        a pixmap and white text label.
+        """
+        
+        # Heading frame (dark gray), which contains 
+        # a pixmap and (white) heading text.
+        self.header_frame = QtGui.QFrame(self)
+        self.header_frame.setFrameShape(QtGui.QFrame.NoFrame)
+        self.header_frame.setFrameShadow(QtGui.QFrame.Plain)
+        self.header_frame.setObjectName("header_frame")
+        
+        header_frame_palette = self.getPropMgrTitleFramePalette()
+        self.header_frame.setPalette(header_frame_palette)
+        self.header_frame.setAutoFillBackground(True)
+
+        # HBox layout for heading frame, containing the pixmap
+        # and label (title).
+        self.pmHboxLO1 = QtGui.QHBoxLayout(self.header_frame)
+        self.pmHboxLO1.setMargin(2) # 2 pixels around edges.
+        self.pmHboxLO1.setSpacing(5) # 5 pixel between pixmap and label.
+        self.pmHboxLO1.setObjectName("pmHboxLO1")
+
+        # PropMgr icon. Set image by calling setPropMgrIcon() at any time.
+        self.header_pixmap = QtGui.QLabel(self.header_frame)
+        self.header_pixmap.setObjectName("header_pixmap")
+        self.header_pixmap.setSizePolicy(
+            QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(QSizePolicy.Fixed),
+                              QtGui.QSizePolicy.Policy(QSizePolicy.Fixed)))
+            
+        self.header_pixmap.setScaledContents(True)
+        
+        self.pmHboxLO1.addWidget(self.header_pixmap)
+        
+        # Call from PropMgr subclass.
+        #self.setPropMgrIcon('ui/actions/Tools/Build Structures/DNA.png')
+        
+        # PropMgr title label (DNA)
+        self.header_label = QtGui.QLabel(self.header_frame)
+        self.header_label.setObjectName("header_label")
+        header_label_palette = self.getPropMgrTitleLabelPalette()
+        self.header_label.setPalette(header_label_palette)
+
+        # PropMgr heading font (for label).
+        font = QtGui.QFont(self.header_label.font())
+        font.setFamily("Sans Serif")
+        font.setPointSize(12)
+        font.setWeight(75)
+        font.setItalic(False)
+        font.setUnderline(False)
+        font.setStrikeOut(False)
+        font.setBold(True)
+        self.header_label.setFont(font)
+        
+        self.pmHboxLO1.addWidget(self.header_label)
+        
+        self.pmMainVboxLO.addWidget(self.header_frame)
+        
+    def setPropMgrTitle(self, title):
+        """Set the Propery Manager header title to string <title>.
+        """
+        self.header_label.setText(title)
+        
+    def setPropMgrIcon(self, png_path):
+        """Set the Propery Manager icon in the header.
+        <png_path> is the relative path to the PNG file.
+        """
+        self.header_pixmap.setPixmap(getpixmap(png_path))
+        
+    
+    def addSponsorButton(self):
+        """Creates the Property Manager sponsor button, which contains
+        a QPushButton inside of a QGridLayout inside of a QFrame.
+        """
+        
+        # Sponsor button (inside a frame)
+        self.sponsor_frame = QtGui.QFrame(self)
+        self.sponsor_frame.setObjectName("sponsor_frame")
+        self.sponsor_frame.setFrameShape(QtGui.QFrame.NoFrame)
+        self.sponsor_frame.setFrameShadow(QtGui.QFrame.Plain)
+
+        self.pmGridLO1 = QtGui.QGridLayout(self.sponsor_frame)
+        self.pmGridLO1.setMargin(0)
+        self.pmGridLO1.setSpacing(0)
+        self.pmGridLO1.setObjectName("pmGridLO1")
+
+        self.sponsor_btn = QtGui.QPushButton(self.sponsor_frame)
+        self.sponsor_btn.setObjectName("sponsor_btn")
+        self.sponsor_btn.setAutoDefault(False)
+        self.sponsor_btn.setFlat(True)
+        self.connect(self.sponsor_btn,SIGNAL("clicked()"),
+                     self.open_sponsor_homepage)
+        
+        self.pmGridLO1.addWidget(self.sponsor_btn,0,0,1,1)
+        
+        self.pmMainVboxLO.addWidget(self.sponsor_frame)
+
+    def addTopBtnsRow(self):
+        """Creates the OK, Cancel, Preview, and What's This 
+        buttons row at the top of the Pmgr.
+        """
+        
+        #@ To do: add "Restore Defaults" button.
+        #@ To do: add arg to select buttons to display (i.e. many times we
+        #         only want to see "Cancel").
+        #
+        # The Top Buttons Row includes the following widgets:
+        #
+        # - self.pmTopBtnsRow (Hbox Layout containing everything:)
+        #   - left spacer (10x10)
+        #   - frame
+        #     - hbox layout "frameHboxLO" (margin=2, spacing=2)
+        #     - Done (OK) button
+        #     - Abort (Cancel) button
+        #     - Preview button
+        #     - What's This button
+        #   - right spacer (10x10)
+        
+        
+        # Main "button group" widget (but it is not a QButtonGroup).
+        self.pmTopBtnsRow = QtGui.QHBoxLayout()
+        
+        # Left and right spacers
+        leftSpacer = QtGui.QSpacerItem(10, 10, 
+                                       QtGui.QSizePolicy.Expanding, 
+                                       QSizePolicy.Minimum)
+        rightSpacer = QtGui.QSpacerItem(10, 10, 
+                                        QtGui.QSizePolicy.Expanding,
+                                        QSizePolicy.Minimum)
+        
+        # Frame containing all the buttons.
+        self.topBtnsRowFrame = QtGui.QFrame()
+        self.topBtnsRowFrame.setObjectName("topBtnsRowFrame")
+                
+        self.topBtnsRowFrame.setFrameShape(QtGui.QFrame.StyledPanel)
+        self.topBtnsRowFrame.setFrameShadow(QtGui.QFrame.Raised)
+        
+        # Create Hbox layout for main frame.
+        self.frameHboxLO = QtGui.QHBoxLayout(self.topBtnsRowFrame)
+        self.frameHboxLO.setMargin(2)
+        self.frameHboxLO.setSpacing(2)
+        self.frameHboxLO.setObjectName("frameHboxLO")
+        
+        # OK (Done) button.
+        self.done_btn = QtGui.QPushButton(self.topBtnsRowFrame)
+        self.done_btn.setObjectName("done_btn")
+        self.done_btn.setIcon(
+            geticon("ui/actions/Properties Manager/Done.png"))
+        self.connect(self.done_btn,SIGNAL("clicked()"),
+                     self.ok_btn_clicked)
+        self.done_btn.setToolTip("Done")
+        
+        self.frameHboxLO.addWidget(self.done_btn)
+        
+        # Cancel (Abort) button.
+        self.abort_btn = QtGui.QPushButton(self.topBtnsRowFrame)
+        self.abort_btn.setObjectName("abort_btn")
+        self.abort_btn.setIcon(
+            geticon("ui/actions/Properties Manager/Abort.png"))
+        self.connect(self.abort_btn,SIGNAL("clicked()"),
+                     self.abort_btn_clicked)
+        self.abort_btn.setToolTip("Cancel")
+        
+        self.frameHboxLO.addWidget(self.abort_btn)
+        
+        # Preview (glasses) button.
+        self.preview_btn = QtGui.QPushButton(self.topBtnsRowFrame)
+        self.preview_btn.setObjectName("preview_btn")
+        self.preview_btn.setIcon(
+            geticon("ui/actions/Properties Manager/Preview.png"))
+        self.connect(self.preview_btn,SIGNAL("clicked()"),
+                     self.preview_btn_clicked)
+        self.preview_btn.setToolTip("Preview")
+        
+        self.frameHboxLO.addWidget(self.preview_btn)        
+        
+        # What's This (?) button.
+        self.whatsthis_btn = QtGui.QPushButton(self.topBtnsRowFrame)
+        self.whatsthis_btn.setObjectName("whatsthis_btn")
+        self.whatsthis_btn.setIcon(
+            geticon("ui/actions/Properties Manager/WhatsThis.png"))
+        self.connect(self.whatsthis_btn,SIGNAL("clicked()"),
+                     self.enter_WhatsThisMode)
+        self.whatsthis_btn.setToolTip("What\'s This Help")
+        
+        self.frameHboxLO.addWidget(self.whatsthis_btn)
+        
+        # Create Button Row
+        self.pmTopBtnsRow.addItem(leftSpacer)
+        self.pmTopBtnsRow.addWidget(self.topBtnsRowFrame)
+        self.pmTopBtnsRow.addItem(rightSpacer)
+        
+        self.pmMainVboxLO.addLayout(self.pmTopBtnsRow)
+        
+    def addMessageGroupBox(self):
+        """Creates layout and widgets for the "Message" groupbox.
+        """
+        self.pmMsgGroupBox = QtGui.QGroupBox(self)
+        self.pmMsgGroupBox.setObjectName("pmMsgGroupBox")
+        
+        self.pmMsgGroupBox.setAutoFillBackground(True) 
+        palette =  self.getGroupBoxPalette()
+        self.pmMsgGroupBox.setPalette(palette)
+        
+        styleSheet = self.getGroupBoxStyleSheet()        
+        self.pmMsgGroupBox.setStyleSheet(styleSheet)
+
+        self.pmMsgVboxLO = QtGui.QVBoxLayout(self.pmMsgGroupBox)
+        self.pmMsgVboxLO.setMargin(0)
+        self.pmMsgVboxLO.setSpacing(0)
+        self.pmMsgVboxLO.setObjectName("pmMsgVboxLO")
+        
+        # "Message" title button for pmMsgGroupBox
+        
+        self.pmMsgGroupBoxBtn = self.getGroupBoxTitleButton(
+            "Message", self.pmMsgGroupBox)
+        self.connect(self.pmMsgGroupBoxBtn,SIGNAL("clicked()"),
+                     self.toggle_pmMsgGroupBox)
+        
+        self.pmMsgVboxLO.addWidget(self.pmMsgGroupBoxBtn)
+        
+        # "Message" TextEdit
+
+        self.pmMsgTextEdit = QtGui.QTextEdit(self.pmMsgGroupBox)
+        self.pmMsgTextEdit.setObjectName("pmMsgTextEdit")
+        self.pmMsgTextEdit.setMinimumSize(200,46)
+        self.pmMsgTextEdit.setMaximumSize(300,60)
+        self.pmMsgTextEdit.setSizePolicy(QSizePolicy.MinimumExpanding,
+                                         QSizePolicy.Minimum )
+        self.pmMsgTextEdit.setReadOnly(True)
+        msg = "Edit the DNA parameters and select <b>Preview</b> to preview the structure. \
+        Click <b>Done</b> to insert it into the model."
+        
+        # Preview button image.
+        # <img source=\"ui/actions/Properties Manager/Preview.png\"><br> \ 
+        
+        self.pmMsgTextEdit.insertHtml(msg)
+        
+        msg_palette =  self.getMsgGroupBoxPalette()
+        self.pmMsgTextEdit.setPalette(msg_palette)
+        
+        self.pmMsgVboxLO.addWidget(self.pmMsgTextEdit)
+        
+        self.pmMainVboxLO.addWidget(self.pmMsgGroupBox) # Add Msg groupbox
+        
+    def addGroupBoxSpacer(self):
+        """Add vertical groupbox spacer. 
+        """
+        pmGroupBoxSpacer = QtGui.QSpacerItem(10,pmGroupBoxSpacing,
+                                           QtGui.QSizePolicy.Fixed,
+                                           QtGui.QSizePolicy.Fixed)
+        
+        self.pmMainVboxLO.addItem(pmGroupBoxSpacer) # Add spacer
+    
+    def addBottomSpacer(self):
+        """Add spacer at the very bottom of the PropMgr. 
+        It is needed to assist proper collasping/expanding of groupboxes.
+        """
+        pmBottomSpacer = QtGui.QSpacerItem(10,self.height(),
+                                           QtGui.QSizePolicy.Minimum,
+                                           QtGui.QSizePolicy.Expanding)
+        
+        self.pmMainVboxLO.addItem(pmBottomSpacer) # Add spacer to bottom
+        
+        
+    def toggle_pmMsgGroupBox(self): # Message groupbox
+        self.toggle_groupbox(self.pmMsgGroupBoxBtn, 
+                             self.pmMsgTextEdit)
+        
+
 class PropertyManagerMixin(SponsorableMixin):
-    '''Mixiin class that provides methods common to various property managers''' 
+    '''Mixin class that provides methods common to various property managers''' 
+        
     def openPropertyManager(self, tab):
         #tab = property manager widget
         self.pw = self.w.activePartWindow()         
@@ -129,53 +451,50 @@ class PropertyManagerMixin(SponsorableMixin):
     
     def getPropertyManagerPalette(self):
         """ Return a palette for the property manager.
-        (All property managers have the same palette).
         """
         # in future we might want to set different palette colors for prop managers. 
         return self.getPalette(None,
                                QtGui.QPalette.ColorRole(10),
                                pmColor)
-                               #QtGui.QColor(230,231,230))
     
-    def getPropMgrHeadingPalette(self):
-        """ Return a palette for Property Manager headers. 
-        (all property manager headers have the same palette).
+    def getPropMgrTitleFramePalette(self):
+        """ Return a palette for Property Manager title frame. 
         """
         #bgrole(10) is 'Windows'
         return self.getPalette(None,
                                QtGui.QPalette.ColorRole(10),
-                               headerColor)
-                               #QtGui.QColor(150,150,140))
+                               pmTitleFrameColor)
+    
+    def getPropMgrTitleLabelPalette(self):
+        """ Return a palette for Property Manager title label. 
+        """
+        return self.getPalette(None,
+                               QtGui.QPalette.WindowText,
+                               pmTitleLabelColor)
     
     def getMsgGroupBoxPalette(self):
-        """ Return a palette for Property Manager message groupboxes. 
-        (all property manager message groupboxes have the same palette).
+        """ Return a palette for Property Manager message groupboxes.
         """
         return self.getPalette(None,
                                QtGui.QPalette.Base,
-                               msgGroupBoxColor)
-                               #QtGui.QColor(255,255,100))
+                               pmMsgGrpBoxColor)
                                
     def getGroupBoxPalette(self):
         """ Return a palette for Property Manager groupboxes. 
-        (all property manager groupboxes have the same palette).
         This distinguishes the groupboxes in a property manager.
         The color is slightly darker than the property manager background.
         """
         #bgrole(10) is 'Windows'
         return self.getPalette(None,
                                QtGui.QPalette.ColorRole(10),
-                               groupBoxColor)
-                               #QtGui.QColor(201,203,223))
+                               pmGrpBoxColor)
     
     def getGroupBoxButtonPalette(self):
         """ Return a palette for the groupbox Title button. 
-        (all groupbox title buttons have the same palette).
         """
         return self.getPalette(None,
                                QtGui.QPalette.Button, 
-                               groupBoxButtonColor)
-                               #QtGui.QColor(172,173,190))
+                               pmGrpBoxButtonColor)
     
     def getGroupBoxCheckBoxPalette(self):
         """ Returns the background color for the checkbox of any groupbox 
@@ -184,13 +503,11 @@ class PropertyManagerMixin(SponsorableMixin):
         """
         palette = self.getPalette(None,
                                QtGui.QPalette.WindowText, 
-                               checkBoxTextColor)
-                               #QtGui.QColor(0,0,255))
+                               pmCheckBoxTextColor)
         
         return self.getPalette(palette,
                                QtGui.QPalette.Button, 
-                               checkBoxButtonColor)
-                               #QtGui.QColor(172,173,190))
+                               pmCheckBoxButtonColor)
     
     def getPalette(self, palette, obj, color):
         """ Given a palette, Qt object and a color, return a new palette.
