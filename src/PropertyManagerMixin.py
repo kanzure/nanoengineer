@@ -118,8 +118,8 @@ class PropMgrBaseClass:
         
         # Main vertical layout for PropMgr.
         self.pmMainVboxLO = QtGui.QVBoxLayout(self)
-        self.pmMainVboxLO.setMargin(0)
-        self.pmMainVboxLO.setSpacing(0)
+        self.pmMainVboxLO.setMargin(pmMainVboxLayoutMargin)
+        self.pmMainVboxLO.setSpacing(pmMainVboxLayoutSpacing)
 
         # PropMgr's Header.
         self.addHeader()
@@ -142,7 +142,6 @@ class PropMgrBaseClass:
         self.header_frame = QtGui.QFrame(self)
         self.header_frame.setFrameShape(QtGui.QFrame.NoFrame)
         self.header_frame.setFrameShadow(QtGui.QFrame.Plain)
-        self.header_frame.setObjectName("header_frame")
         
         header_frame_palette = self.getPropMgrTitleFramePalette()
         self.header_frame.setPalette(header_frame_palette)
@@ -150,10 +149,9 @@ class PropMgrBaseClass:
 
         # HBox layout for heading frame, containing the pixmap
         # and label (title).
-        self.pmHboxLO1 = QtGui.QHBoxLayout(self.header_frame)
-        self.pmHboxLO1.setMargin(2) # 2 pixels around edges.
-        self.pmHboxLO1.setSpacing(5) # 5 pixel between pixmap and label.
-        self.pmHboxLO1.setObjectName("pmHboxLO1")
+        HeaderFrameHLayout = QtGui.QHBoxLayout(self.header_frame)
+        HeaderFrameHLayout.setMargin(pmHeaderFrameMargin) # 2 pixels around edges.
+        HeaderFrameHLayout.setSpacing(pmHeaderFrameSpacing) # 5 pixel between pixmap and label.
 
         # PropMgr icon. Set image by calling setPropMgrIcon() at any time.
         self.header_pixmap = QtGui.QLabel(self.header_frame)
@@ -164,7 +162,7 @@ class PropMgrBaseClass:
             
         self.header_pixmap.setScaledContents(True)
         
-        self.pmHboxLO1.addWidget(self.header_pixmap)
+        HeaderFrameHLayout.addWidget(self.header_pixmap)
         
         # Call from PropMgr subclass.
         #self.setPropMgrIcon('ui/actions/Tools/Build Structures/DNA.png')
@@ -186,7 +184,7 @@ class PropMgrBaseClass:
         font.setBold(True)
         self.header_label.setFont(font)
         
-        self.pmHboxLO1.addWidget(self.header_label)
+        HeaderFrameHLayout.addWidget(self.header_label)
         
         self.pmMainVboxLO.addWidget(self.header_frame)
         
@@ -213,10 +211,9 @@ class PropMgrBaseClass:
         self.sponsor_frame.setFrameShape(QtGui.QFrame.NoFrame)
         self.sponsor_frame.setFrameShadow(QtGui.QFrame.Plain)
 
-        self.pmGridLO1 = QtGui.QGridLayout(self.sponsor_frame)
-        self.pmGridLO1.setMargin(0)
-        self.pmGridLO1.setSpacing(0)
-        self.pmGridLO1.setObjectName("pmGridLO1")
+        SponsorFrameGrid = QtGui.QGridLayout(self.sponsor_frame)
+        SponsorFrameGrid.setMargin(pmSponsorFrameMargin)
+        SponsorFrameGrid.setSpacing(pmSponsorFrameSpacing) # Has no effect.
 
         self.sponsor_btn = QtGui.QPushButton(self.sponsor_frame)
         self.sponsor_btn.setObjectName("sponsor_btn")
@@ -225,7 +222,7 @@ class PropMgrBaseClass:
         self.connect(self.sponsor_btn,SIGNAL("clicked()"),
                      self.open_sponsor_homepage)
         
-        self.pmGridLO1.addWidget(self.sponsor_btn,0,0,1,1)
+        SponsorFrameGrid.addWidget(self.sponsor_btn,0,0,1,1)
         
         self.pmMainVboxLO.addWidget(self.sponsor_frame)
         
@@ -272,10 +269,10 @@ class PropMgrBaseClass:
         self.TopRowBtnsFrame.setFrameShadow(QtGui.QFrame.Raised)
         
         # Create Hbox layout for main frame.
-        self.frameHboxLO = QtGui.QHBoxLayout(self.TopRowBtnsFrame)
-        self.frameHboxLO.setMargin(2)
-        self.frameHboxLO.setSpacing(2)
-        self.frameHboxLO.setObjectName("frameHboxLO")
+        TopRowBtnsHLayout = QtGui.QHBoxLayout(self.TopRowBtnsFrame)
+        TopRowBtnsHLayout.setMargin(pmTopRowBtnsMargin)
+        TopRowBtnsHLayout.setSpacing(pmTopRowBtnsSpacing)
+        TopRowBtnsHLayout.setObjectName("frameHboxLO")
         
         # OK (Done) button.
         self.done_btn = QtGui.QPushButton(self.TopRowBtnsFrame)
@@ -286,7 +283,7 @@ class PropMgrBaseClass:
                      self.ok_btn_clicked)
         self.done_btn.setToolTip("Done")
         
-        self.frameHboxLO.addWidget(self.done_btn)
+        TopRowBtnsHLayout.addWidget(self.done_btn)
         
         # Cancel (Abort) button.
         self.abort_btn = QtGui.QPushButton(self.TopRowBtnsFrame)
@@ -297,7 +294,7 @@ class PropMgrBaseClass:
                      self.abort_btn_clicked)
         self.abort_btn.setToolTip("Cancel")
         
-        self.frameHboxLO.addWidget(self.abort_btn)
+        TopRowBtnsHLayout.addWidget(self.abort_btn)
         
         # Restore button.
         self.restore_defaults_btn = QtGui.QPushButton(self.TopRowBtnsFrame)
@@ -307,7 +304,7 @@ class PropMgrBaseClass:
         self.connect(self.restore_defaults_btn,SIGNAL("clicked()"),
                      self.restore_defaults_btn_clicked)
         self.restore_defaults_btn.setToolTip("Restore Defaults")
-        self.frameHboxLO.addWidget(self.restore_defaults_btn)
+        TopRowBtnsHLayout.addWidget(self.restore_defaults_btn)
         
         # Preview (glasses) button.
         self.preview_btn = QtGui.QPushButton(self.TopRowBtnsFrame)
@@ -318,7 +315,7 @@ class PropMgrBaseClass:
                      self.preview_btn_clicked)
         self.preview_btn.setToolTip("Preview")
         
-        self.frameHboxLO.addWidget(self.preview_btn)        
+        TopRowBtnsHLayout.addWidget(self.preview_btn)        
         
         # What's This (?) button.
         self.whatsthis_btn = QtGui.QPushButton(self.TopRowBtnsFrame)
@@ -329,7 +326,7 @@ class PropMgrBaseClass:
                      self.enter_WhatsThisMode)
         self.whatsthis_btn.setToolTip("What\'s This Help")
         
-        self.frameHboxLO.addWidget(self.whatsthis_btn)
+        TopRowBtnsHLayout.addWidget(self.whatsthis_btn)
         
         # Create Button Row
         self.pmTopRowBtns.addItem(leftSpacer)
@@ -387,10 +384,10 @@ class PropMgrBaseClass:
         styleSheet = self.getGroupBoxStyleSheet()        
         self.pmMsgGroupBox.setStyleSheet(styleSheet)
 
-        self.pmMsgVboxLO = QtGui.QVBoxLayout(self.pmMsgGroupBox)
-        self.pmMsgVboxLO.setMargin(0)
-        self.pmMsgVboxLO.setSpacing(0)
-        self.pmMsgVboxLO.setObjectName("pmMsgVboxLO")
+        MsgGrpBoxVLayout = QtGui.QVBoxLayout(self.pmMsgGroupBox)
+        MsgGrpBoxVLayout.setMargin(pmMsgGrpBoxMargin)
+        MsgGrpBoxVLayout.setSpacing(pmMsgGrpBoxSpacing) # Has no effect.
+        MsgGrpBoxVLayout.setObjectName("pmMsgVboxLO")
         
         # "Message" title button for pmMsgGroupBox
         
@@ -399,7 +396,7 @@ class PropMgrBaseClass:
         self.connect(self.pmMsgGroupBoxBtn,SIGNAL("clicked()"),
                      self.toggle_pmMsgGroupBox)
         
-        self.pmMsgVboxLO.addWidget(self.pmMsgGroupBoxBtn)
+        MsgGrpBoxVLayout.addWidget(self.pmMsgGroupBoxBtn)
         
         # "Message" TextEdit
 
@@ -415,7 +412,7 @@ class PropMgrBaseClass:
         msg_palette =  self.getMsgGroupBoxPalette()
         self.pmMsgTextEdit.setPalette(msg_palette)
         
-        self.pmMsgVboxLO.addWidget(self.pmMsgTextEdit)
+        MsgGrpBoxVLayout.addWidget(self.pmMsgTextEdit)
         
         self.pmMainVboxLO.addWidget(self.pmMsgGroupBox) # Add Msg groupbox
         
