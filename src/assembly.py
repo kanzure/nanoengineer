@@ -185,8 +185,9 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
             assert self.w
             global _assy_owning_win
             from debug_prefs import debug_pref, Choice_boolean_False
-            if not debug_pref("Multipane GUI", Choice_boolean_False):
-                # wware 20061115 - we need to permit assys to coexist
+            if 1: #bruce 070517 fix a change that looks wrong -- make this always happen, like it used to
+##                if not debug_pref("Multipane GUI", Choice_boolean_False):
+##                # wware 20061115 - we need to permit assys to coexist
                 if _assy_owning_win is not None:
                     _assy_owning_win.deinit()
                     # make sure assys don't fight over control of main menus, etc [bruce 060122]
