@@ -210,10 +210,15 @@ class GeneratorBaseClass(SponsorableMixin, PropertyManagerMixin):
         else:
             if platform.atom_debug: print 'No structure to remove'
 
+    def restore_defaults_btn_clicked(self):
+        """Slot for the Restore Defaults button.
+        """
+        if platform.atom_debug: print 'restore defaults button clicked'
+        
     def preview_btn_clicked(self):
         if platform.atom_debug: print 'preview button clicked'
         self._ok_or_preview(previewing=True)
-
+    
     def ok_btn_clicked(self):
         'Slot for the OK button'
         if platform.atom_debug: print 'ok button clicked'

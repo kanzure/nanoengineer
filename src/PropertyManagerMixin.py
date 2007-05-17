@@ -297,6 +297,16 @@ class PropertyManager:
         
         self.frameHboxLO.addWidget(self.abort_btn)
         
+        # Restore button.
+        self.restore_defaults_btn = QtGui.QPushButton(self.topBtnsRowFrame)
+        self.restore_defaults_btn.setObjectName("restore_defaults_btn")
+        self.restore_defaults_btn.setIcon(
+            geticon("ui/actions/Properties Manager/Restore.png"))
+        self.connect(self.restore_defaults_btn,SIGNAL("clicked()"),
+                     self.restore_defaults_btn_clicked)
+        self.restore_defaults_btn.setToolTip("Restore Defaults")
+        self.frameHboxLO.addWidget(self.restore_defaults_btn)
+        
         # Preview (glasses) button.
         self.preview_btn = QtGui.QPushButton(self.topBtnsRowFrame)
         self.preview_btn.setObjectName("preview_btn")

@@ -602,3 +602,12 @@ class DnaGenerator(QDialog, GeneratorBaseClass, DnaPropMgr):
         else:
             dbl = ""
         return "Done creating a %sstrand of %s." % (dbl, dna.geometry)
+    
+    ###################################################
+    # Restore defaults
+    
+    def restore_defaults_btn_clicked(self):
+        """Slot for Restore Defaults button
+        """
+        self.model_combox.setCurrentIndex(0)
+        self.length_spinbox.setValue(0)
