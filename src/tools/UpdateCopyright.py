@@ -104,10 +104,10 @@ commentStringMapping = [
     "README", "",    "",
     "Doxyfile", "#", "",    # project description
     "Makefile", "#", "",
-#    "/makethemall", "#", "", # sh script
-#    "/jbranch", "#", "",    # sh script
-#    "/rungms", "#", "",     # sh script
-#    "/runmac", "#", "",     # sh script
+    "/makethemall", "#", "", # sh script
+    "/jbranch", "#", "",    # sh script
+    "/rungms", "#", "",     # sh script
+    "/runmac", "#", "",     # sh script
     ]
 
 # If we're printing a message for each file we DON'T process, then we
