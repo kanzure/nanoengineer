@@ -99,7 +99,7 @@ def retranslateUi(win):
          QtGui.QApplication.UnicodeUTF8))
      win.insertNanotubeAction.setToolTip(QtGui.QApplication.translate(
          "MainWindow", 
-         "Nanotube Generator", 
+         "Build Nanotube", 
          None,
          QtGui.QApplication.UnicodeUTF8))
      win.insertGrapheneAction.setIconText(QtGui.QApplication.translate(
@@ -109,7 +109,7 @@ def retranslateUi(win):
          QtGui.QApplication.UnicodeUTF8))
      win.insertGrapheneAction.setToolTip(QtGui.QApplication.translate(
          "MainWindow", 
-         "Graphene Generator", 
+         "Build Graphene Sheet", 
          None, 
          QtGui.QApplication.UnicodeUTF8))
      win.buildDnaAction.setText(QtGui.QApplication.translate(
@@ -124,6 +124,6 @@ def retranslateUi(win):
          QtGui.QApplication.UnicodeUTF8))
      win.buildDnaAction.setToolTip(QtGui.QApplication.translate(
          "MainWindow",
-         "DNA Generator", 
+         "Build DNA", 
          None, 
          QtGui.QApplication.UnicodeUTF8))
