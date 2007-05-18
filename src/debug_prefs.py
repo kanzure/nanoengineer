@@ -259,7 +259,12 @@ class Choice(DataType): #e might be renamed ChoicePrefType, or renamed ChoicePre
     def changer_menuspec( self, instance_name, newval_receiver_func, curval = None): # for Choice (aka ChoicePrefType)
         #e could have special case for self.values == [True, False] or the reverse
         text = self.changer_menu_text( instance_name, curval) # e.g. "instance_name: curval"
-        submenu = submenu_from_name_value_pairs( zip(self.names, self.values), newval_receiver_func, curval = curval )
+        submenu = submenu_from_name_value_pairs( zip(self.names, self.values),
+                                                 newval_receiver_func,
+                                                 curval = curval,
+                                                 indicate_default_value = True, #bruce 070518 new feature
+                                                 default_value = self._default_value
+                                                )
         #e could add some "dimmed info" and/or menu commands to the end of submenu
         return ( text, submenu )
     pass
@@ -267,14 +272,20 @@ class Choice(DataType): #e might be renamed ChoicePrefType, or renamed ChoicePre
 Choice_boolean_False = Choice([False, True])
 Choice_boolean_True =  Choice([False, True], default_value = True)
 
-def submenu_from_name_value_pairs( nameval_pairs, newval_receiver_func, curval = None, mitem_value_func = None ):
+def submenu_from_name_value_pairs( nameval_pairs, newval_receiver_func,
+                                   curval = None, mitem_value_func = None,
+                                   indicate_default_value = False, default_value = None
+                                   ):
     from debug import print_compact_traceback # do locally to avoid recursive import problem
     submenu = []
     for name, value in nameval_pairs:
-        mitem = ( name,
-                         lambda event = None, func = newval_receiver_func, val = value: func(val),
-                         (curval == value) and 'checked' or None
-                        )
+        text = name
+        if indicate_default_value and value == default_value: #bruce 070518 new feature
+            text += " (default)"
+        mitem = ( text,
+                  lambda event = None, func = newval_receiver_func, val = value: func(val),
+                  (curval == value) and 'checked' or None
+                )
         if mitem_value_func is not None:
             try:
                 res = "<no retval yet>" # for error messages
