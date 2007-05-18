@@ -136,46 +136,7 @@ def stringVec(v):
 
 # == Atom
 
-##e bruce 041109 thinks class atom should be renamed Atom so it's easier to find
-# all its uses in the code. To ease the change, I'll wait for my rewrites to
-# go in before doing the renaming at all, then define atom() to print a warning
-# and call Atom().
-# [later: first look for atom in the same line as isinstance. There are some now [060223]!
-#  (What about as a class argument to some other routine? Unlikely.)
-# ]
-
 from inval import InvalMixin #bruce 050510
-
-#bruce 060223 disabling this -- don't remove it yet, we might need it for Atomsets or let it handle Atom objkeys for Undo:
-#
-##_atom_for_key = {} #bruce 051011 for Undo ###e should make weakvalued, i think; or have a destroy method for atoms ##@@
-##
-##def atom_for_key(key): #bruce 051011 for Undo
-##    """Return the atom for the given key, if it exists; otherwise return None.
-##    Atom might be killed; but whether killed atoms are returned as such, or None is returned, is undefined.
-##    """
-##    return _atom_for_key.get(key) # might be None, might be killed
-##
-##def live_atom_for_key(key): #bruce 051011 for Undo
-##    atom = atom_for_key(key)
-##    assert atom is not None
-##    assert not atom.killed() ###k I'm not sure this intent is a valid assertion for the intended caller!
-##    return atom
-
-#bruce 060223 experiment for Undo:
-#
-##def update_atom_jigs(assy, old_atomsets, new_atomsets): 
-##    """Undo is changing a bunch of Jig atomset fields... find all involved atoms and recompute their .jigs lists...
-##    including (for incremental Undo) the entries for pi_bond Jigs for near-enough atoms...
-##    """
-##    # how might we declare to Undo that we want it to give us this info and run us in some order (related to class/attr pairs)?
-##    jigs # or just use all jigs in assy, but old and new atomsets from undo
-##    atoms # in old and new sets (or set diffs, to be fancy)
-##    for a in atoms:
-##        a.jigs = []
-##        pass # look on all near-enough bonds for pi_bond jigs to cover, add these to jigs (a dict)
-##    for j in jigs:
-##        pass # add it to a.jigs for a in its atomset
 
 def _undo_update_Atom_jigs(archive, assy):
     "[register this to run after all Jigs, atoms, and bonds are updated, as cache-invalidator for a.jigs and b.pi_bond_obj]"
@@ -312,6 +273,7 @@ def Atom_prekill_prep(): #bruce 060328
     
 class Atom(AtomBase, InvalMixin, StateMixin):
     #bruce 050610 renamed this from class atom, but most code still uses "atom" for now
+    # (so we have to assign atom = Atom, after this class definition, until all code has been revised)
     """An atom instance represents one real atom, or one "singlet"
     (a place near a real atom where another atom could bond to it).
        At any time, each atom has an element, a position in space,
@@ -324,7 +286,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
     self.index. The attributes .index and .xyz are essentially for the
     private use of the owning molecule; see the methods posn and baseposn
     for details. Other code might add other attributes to an atom; some of
-    those might be copied in the private method atom.copy_for_mol_copy().
+    those might be copied in the private method atom.copy_for_mol_copy() [now removed].
     """
     # bruce 041109-16 wrote docstring
     # default values of instance variables:
@@ -373,14 +335,9 @@ class Atom(AtomBase, InvalMixin, StateMixin):
 ##    _s_attr_key = S_DATA # this is not yet related to Undo's concept of objkey (I think #k) [bruce 060223]
 
     # storing .index as Undo state is no longer needed [bruce 060313]
-##    _s_attr_index = S_DATA
-##        # this is only valid since chunk's atom order is deterministic; it might be useless due to chunk._undo_update;
-##        # but if we don't save it, we have to either reset it to -1 in _undo_update and recompute it before using it (nim),
-##        # or reset it to an accurate value there, or make sure our chunk has no atlist so it will recompute and reset it itself.
-##        # We should probably do all that (or eliminate the need for .index), as an optim of undo scanning speed and archive size
-##        # (useful even after that's done in Pyrex). [bruce 060308 comment]
+        # note: a long comment removed on 070518 explained that when we had it,
+        # it was only valid since chunk's atom order is deterministic
 
-##    _s_attr_xyz = S_DATA
     _s_attr__posn = S_DATA #bruce 060308 rewrite
     _s_attr_element = S_DATA
 
@@ -437,37 +394,6 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         ##    jig.moved_atom(self)   ####@@@@ need to do this later?
         StateMixin._undo_update(self)
 
-#bruce 060314 -- this turns out not to be useful, but leave it around for now as the only example of _undo_setattr_
-##    def _undo_setattr_molecule(self, newmol, archive): #bruce 060313
-##        """Undo is mashing changed state into lots of objects' attrs at once;
-##        this lets us handle that specially, just for self.molecule, but in unknown order (for now)
-##        relative either to our attrs or other objects.
-##        """
-##        # we happen to know (or assume) archive is an AssyUndoArchive, not just any old kind of UndoArchive,
-##        # so we know it knows it needs to have a dict of all chunks whose .atoms dicts will need invalidating
-##        # (and that it will actually call some updater which does that, sometime after all these setattrs).
-##        # This implem inlines some of chunk.addatom and delatom, and some code (mislocated) in assy_become_scanned_state
-##        # inlines the rest.
-##        oldmol = self.molecule
-##        self.molecule = newmol
-##        dict1 = archive.mols_with_invalid_atomsets
-##        # We could store None or _nullMol in there if we coded it to tolerate that,
-##        # but we need to check for them here anyway (to avoid updating their .atoms dicts),
-##        # so we might as well also condition the storing into dict1 by that.
-##        # (BTW we can update .atoms dicts in any order, since we assume we own their item at self.key in all mols.)
-##        from chunk import _nullMol # not sure how early this is defined, but if any atom has it, it must be defined by now (else None)
-##        if oldmol is not None and oldmol is not _nullMol:
-##            dict1[ id(oldmol) ] = oldmol
-##            try:
-##                del oldmol.atoms[ self.key ]
-##            except KeyError:
-##                # should never happen
-##                print "bug: why am i not in my oldmols' .atoms dict? self = %r, oldmol = %r, newmol = %r" % (self, oldmol, newmol)
-##        if newmol is not None and newmol is not _nullMol:
-##            dict1[ id(newmol) ] = newmol
-##            newmol.atoms[ self.key ] = self
-##        return
-    
     def __init__(self, sym, where, mol = None): #bruce 060612 let mol be left out
         """Create an atom of element sym
         (e.g. 'C' -- sym can be an element, atomtype, or element-symbol, or another atom to copy these from)
@@ -480,7 +406,6 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         self.key = atKey.next()
             # unique key for hashing and/or use as a dict key;
             # also used in str(self)
-##        _atom_for_key[self.key] = self
         _changed_parent_Atoms[self.key] = self # since this dict tracks all new atoms (i.e. liveness of atoms) (among other things)
         self.glname = env.alloc_my_glselect_name( self) #bruce 050610
         # self.element is an Elem object which specifies this atom's element
@@ -520,22 +445,17 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         # until replaced with 'no' by various private methods in Atom or Chunk, indicating
         # the location should be found using the formula in self.posn();
         # or it can be passed as 'no' by caller of __init__
-        if 1:
-            #bruce 060308 rewrite:
+        
+        if 1: #bruce 060308 rewrote this part:
             assert where != 'no'
             assert type(where) is type(V(0,0,0))
             self._posn = + where
             _changed_posn_Atoms[self.key] = self #bruce 060322
-#bruce 060308 removed:
-##        self.xyz = where
             
         # list of bond objects
         self.bonds = []
         # list of jigs (###e should be treated analogously to self.bonds)
-        self.jigs = [] # josh 10/26 to fix bug 85
-        # can be set to override molecule or global value
-        ## [initialized as a class constant:]
-        ## self.display = diDEFAULT
+        self.jigs = []
 
         # pointer to molecule containing this atom
         # (note that the assembly is not explicitly stored
@@ -543,11 +463,6 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         self.molecule = None # checked/replaced by mol.addatom
         if mol is not None:
             mol.addatom(self)
-            # bruce 041109 wrote addatom to do following for us and for hopmol:
-            ## self.molecule = mol
-            ## self.molecule.atoms[self.key] = self
-            ## # now do the necessary invals in self.molecule for adding an atom
-            ## ...
         else:
             # this now happens in mol.copy as of 041113
             # print "fyi: creating atom with mol == None"
@@ -767,15 +682,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         # posns of the same atom was getting a reference to the curpos[index]
         # array element, even though this was part of a longer array, so it
         # always got two refs to the same mutable data (which compared equal)!
-        if 1:
-            #bruce 060308 rewrite:
-            res = + self._posn
-        # code continues below
-#bruce 060308 removed:
-##        if self.xyz != 'no':
-##            res = + self.xyz
-##        else:
-##            res = + self.molecule.curpos[self.index]
+        #bruce 060308 rewrote the following        
+        res = + self._posn
         try:
             #bruce 060208: try to protect callers against almost-overflowing values stored by buggy code
             # (see e.g. bugs 1445, 1459)
@@ -840,33 +748,10 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         mol = self.molecule
         if mol is not None:
             mol.changed_atom_posn()
-        # note: code continues below!
         
-#bruce 060308 removed this:
-##        if self.xyz != 'no':
-##            # bruce 041108 added xyz check, rather than asserting we don't need it;
-##            # this might never happen
-##            self.xyz = pos
-##            # The position being stored in the atom implies it's never been used
-##            # in the molecule (in curpos or atpos or anything derived from them),
-##            # so we don't need to invalidate anything in the molecule.
-##            # [bruce 041207 wonders: not even self.molecule.havelist = 0??
-##            #  I guess so, since mol.draw recomputes basepos, but not sure.
-##            #  But I also see no harm in doing it, and it was being done by
-##            #  deprecated code in setup_invalidate below, so I think I'll do it
-##            #  just to be safe.]
-##            self.molecule.havelist = 0
-##            self.molecule.changed() #bruce 060227
-##        else:
-##            # the position is stored in the molecule, so let it figure out the
-##            # proper way of adjusting it -- this also does the necessary invals.
-##            self.molecule.setatomposn(self.index, pos, self.element) #bruce 060227 added self.molecule.changed() to that method
-##                # Warning: if atpos exists, this does lots of work being "incremental" rather than
-##                # just getting rid of it. Would it be better to always get rid of it completely?
-##                # At least, callers who'll call us a lot should consider doing that first [see setposn_batch]. [bruce 050513]
-
         # also invalidate the bonds or jigs which depend on our position.
         #e (should this be a separate method -- does anything else need it?)
+        # note: the comment mentions jigs, but this code doesn't alert them to the move. Bug?? [bruce 070518 question]
         for b in self.bonds:
             b.setup_invalidate()
         return # from setposn
@@ -884,20 +769,6 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 # however, there are other change methods for atoms in jigs (maybe changed_structure?),
                 # so it's not clear how many different lists are needed, so it's unlikely the complexity is justified.
         return # from setposn_no_chunk_or_bond_invals
-
-##    def setposn_batch(self, pos): #bruce 050513; I wonder if almost all calls of setposn should be this instead? maybe...
-##        "use this in place of setposn, for speed, if you will run it a lot on atoms in the same chunk"
-##        mol = self.molecule
-##        try:
-##            del mol.atpos
-##        except:
-##            pass
-##        else:
-##            mol.changed_attr('atpos') #### , skip = ('basepos',) )
-##                ##@@ this 'skip' probably causes bug 632, but is it needed for speed? [bruce 050516]
-                    # [by 060314 that bug 632 is long since fixed, so this comment is obs; this entire commented-out func can be zapped]
-##                #e not yet perfect, since we'd like to let mol stay frozen, with basepos same as curpos; will it when atpos comes back?
-##        self.setposn(pos)
     
     def adjBaggage(self, atom, nupos): #bruce 051209 revised meaning and name from adjSinglets
         """We're going to move atom, a neighbor of yours, to nupos,
@@ -1359,18 +1230,6 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         self.molecule.popMatrix()
         return
 
-#bruce 070409 removing draw_as_selatom since no longer called, and has bug [needs drawsphere -> self.draw_atom_sphere]
-##    def draw_as_selatom(self, glpane, dispdef, color, level):
-##        #bruce 041206, to avoid need for changeapp() when selatom changes
-##        # (fyi, as of 041206 the color arg is not used)
-##        if self.element is Singlet:
-##            color = pink
-##        else:
-##            color = orange
-##        pos = self.baseposn() # note, this is for use in the mol's coordinate system
-##        drawrad = self.selatom_radius(dispdef)
-##        drawsphere(color, pos, drawrad, level) # always draw, regardless of disp
-
     def selatom_radius(self, dispdef = None): #bruce 041207, should integrate with draw_as_selatom
         if dispdef is None:
             dispdef = self.molecule.get_dispdef()
@@ -1829,26 +1688,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             self.molecule.changed_selection() #bruce 060227
         return
     
-##    def copy_for_mol_copy(self, numol):
-##        # bruce 041113 changed semantics, and renamed from copy()
-##        # to ensure only one caller, which is mol.copy()
-##        """create a copy of the atom (to go in numol, a copy of its molecule),
-##        with .xyz == 'no' and .index the same as in self;
-##        caller must also call numol.invalidate_atom_lists() at least once
-##        [private method, only suitable for use from mol.copy(), since use of
-##         same .index assumes numol will be given copied curpos/basepos arrays.]
-##        """
-##        assert 0, "if we still need this we'll have to rewrite it" #bruce 060308 ###@@@
-##        nuat = atom(self, 'no', None) #bruce 050524: pass self so its atomtype is copied
-##        numol.addcopiedatom(nuat)
-##        ## numol.invalidate_atom_lists() -- done in caller now
-##        nuat.index = self.index
-##        nuat.display = self.display #bruce 041109 new feature, seems best
-##        # no need in new atoms for anything like _changed_otherwise_Atoms[nuat.key] = nuat #bruce 060322 guess (in commented-out code)
-##        nuat.info = self.info # bruce 041109, needed by extrude and other future things; revised 050524
-##        return nuat
-
-    def copy(self): # bruce 041116, new method (has same name as an older method, now named copy_for_mol_copy)
+    def copy(self): #bruce 041116
         """Public method: copy an atom, with no special assumptions;
         new atom is not in any mol but could be added to one using mol.addatom.
         """
@@ -2068,16 +1908,9 @@ class Atom(AtomBase, InvalMixin, StateMixin):
     def changed(self): #bruce 050509; perhaps should use more widely
         mol = self.molecule
         if mol is None: return #k needed??
-        mol.changed() #bruce 050719 revised this -- previously it inlined that method
-##        part = mol.part
-##        if part is None: return # (might well be needed, tho not sure)
-##        part.changed()
+        mol.changed()
         return
 
-##    def invalidate_bonds(self): # also often inlined
-##        for b in self.bonds:
-##            b.setup_invalidate()
-    
     def killed(self): #bruce 041029; totally revised by bruce 050702
         """(Public method) Report whether an atom has been killed.
         """
@@ -2311,8 +2144,6 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 print_compact_stack( "atom_debug: bug (ignored): snuggling a killed singlet of atomkey %r: " %
                                      self.key )#bruce 051221 revised this; untested
             return
-##        if platform.atom_debug:#bruce 051221 debug code for bug 1239
-##            print_compact_stack( "atom_debug: snuggle %r, info printed below: " % self )
         #bruce 050406 revised docstring to say mol needn't be frozen.
         # note that this could be rewritten to call ideal_posn_re_neighbor,
         # but we'll still use it since it's better tested and faster.
@@ -2321,9 +2152,6 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         sp = self.posn()
         np = norm(sp-op)*o.atomtype.rcovalent + op
         self.setposn(np) # bruce 041112 rewrote last line
-##        if platform.atom_debug:#bruce 051221 debug code for bug 1239
-##            print "  self %r posn %r, other %r posn %r, new self posn %r, new self-other distance %r" % (
-##                self, sp, o, op, np, vlen(np-op) )
         return
 
     def Passivate(self): ###@@@ not yet modified for atomtypes since it's not obvious what it should do! [bruce 050511]
@@ -2554,8 +2382,6 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         If there are too many real bonds for the new element type, refuse
         to transmute unless force is True.
         """
-        ##print "transmute called, self.atomtype_iff_set is %r" % self.atomtype_iff_set()
-        ##print "transmute called, elt atomtype = %r %r, self attrs for those are %r, %r" % (elt, atomtype, self.element, self.atomtype) 
         if self.element is Singlet:
             # does this ever happen? #k
             return
@@ -2910,7 +2736,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
 register_class_changedicts( Atom, _Atom_global_dicts )
     # error if one class has two same-named changedicts (so be careful re module reload)
 
-atom = Atom # old name of that class -- must remain here until all code has been revised [bruce 050610]
+atom = Atom # old name of that class -- must remain here until all code has been revised to use new name [bruce 050610]
 
 def singlet_atom(singlet):
     "return the atom a singlet is bonded to, checking assertions"

@@ -1103,9 +1103,7 @@ class MovableAtomList: #bruce 050426 splitting this out of class Movie... except
         [#e someday we might have a version which only does this for the atoms now in a given Part]
         """
         #e later we'll optimize this by owning atoms and speeding up or eliminating invals
-##        for atm, pos in zip(self.alist, newposns):
-##            atm.setposn_batch( pos) #bruce 050513 try to optimize this
-        #bruce 060109 replaced above code with this recently split out routine, so that singlet correction is done on every frame;
+        #bruce 060109 replaced prior code with this recently split out routine, so that singlet correction is done on every frame;
         # could be optimized, e.g. by precomputing singlet list and optimizing setposn_batch on lists of atoms
         move_alist_and_snuggle(self.alist, newposns)
 
