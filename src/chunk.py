@@ -159,6 +159,10 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return
 
     def _undo_setattr_hotspot(self, hotspot, archive): #bruce 060404; 060410 use store_if_invalid to fix new bug 1829
+        """Undo is mashing changed state into lots of objects' attrs at once;
+        this lets us handle that specially, just for self.hotspot, but in unknown order (for now)
+        relative either to our attrs or other objects.
+        """
         self.set_hotspot( hotspot, store_if_invalid = True)
     
     def __init__(self, assy, name = None):
