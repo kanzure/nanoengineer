@@ -429,7 +429,11 @@ class DnaPropMgr(object, PropMgrBaseClass):
             self.newBaseOptions_combox.addItem("T")  
             self.newBaseOptions_combox.addItem("C")
             self.newBaseOptions_combox.addItem("G")
-            self.valid_base_letters = "ATCG"
+            self.newBaseOptions_combox.addItem("N (random)")
+            self.valid_base_letters = "ATCGN"
+                #bruce 070518 added N, meaning a randomly chosen base.
+                # This makes several comments/docstrings in other places incorrect
+                # (because they were not modular), but I didn't fix them.
             
             self.dnaConformation_combox.addItem("B-DNA")
             self.dnaConformation_combox.addItem("Z-DNA")
@@ -531,7 +535,9 @@ class DnaPropMgr(object, PropMgrBaseClass):
         """Slot for the Complement button.
         """
         def thunk():
-            (seq, allKnown) = self._get_sequence(complement=True)
+            (seq, allKnown) = self._get_sequence(complement=True, reverse=True)
+                #bruce 070518 added reverse=True, since complementing a sequence is usually understood
+                # to include reversing the base order, due to the strands in B-DNA being antiparallel.
             self.base_textedit.setPlainText(seq)
         self.handlePluginExceptions(thunk)
 

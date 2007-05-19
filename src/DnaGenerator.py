@@ -6,6 +6,32 @@ $Id$
 
 http://en.wikipedia.org/wiki/DNA
 http://en.wikipedia.org/wiki/Image:Dna_pairing_aa.gif
+
+Note: soon we may extend this to permit the following mixed-base code letters:
+
+(reference: http://www.idtdna.com/InstantKB/article.aspx?id=13763 )
+
+    The standard IUB codes for degenerate bases are:
+
+    A = Adenosine;
+    C = Cytosine; 
+    G = Guanosine;
+    T = Thymidine;
+    B = C,G, or T;
+    D = A,G, or T; 
+    H = A,C, or T;
+    V = A,C, or G;
+    R = A or G (puRine);
+    Y = C or T (pYrimidine);
+    K = G or T (Keto);
+    M = A or C (aMino);
+    S = G or C (Strong -3H bonds);
+    W = A or T (Weak - 2H bonds);
+    N = aNy base.
+
+First we need to revise the current code to not use 'Y' as an internal end-marker.
+I'm doing that now [bruce 070518].
+
 """
 
 __author__ = "Will"
@@ -33,7 +59,6 @@ numberPattern = re.compile(r"^\s*(\d+)\s*$")
 
 basepath_ok, basepath = find_plugin_dir("DNA")
 if not basepath_ok:
-    # env.history.message(orangemsg("The DNA generator is not available."))
     env.history.message(orangemsg("The cad/plugins/DNA directory is missing."))
 
 DEBUG = False
@@ -46,15 +71,15 @@ class Dna:
                         'A': 'adenine',
                         'T': 'thymine',
                         'N': 'unknown',
-                        'Y': 'end1',
-                        'Z': 'end2'},
+                        '[': 'end1',
+                        ']': 'end2'},
              basenameB={'G': 'cytosine',
                         'C': 'guanine',
                         'T': 'adenine',
                         'A': 'thymine',
                         'N': 'unknown',
-                        'Y': 'end1',
-                        'Z': 'end2'}):
+                        '[': 'end1',
+                        ']': 'end2'}):
         baseList = [ ]
         def insertmmp(filename, subgroup, tfm, position=position):
             try:
@@ -86,10 +111,6 @@ class Dna:
         
         if doubleStrand:
             subgroup = Group("strand 1", grp.assy, None)
-                #bruce 060714 don't call this the "3' strand" -- there is no such thing.
-                # When we look up whether its bases are oriented in 3' to 5' or 5' to 3' direction,
-                # maybe we can call it something like "3' to 5'" or "5' to 3'",
-                # in order to indicate its direction.
             grp.addchild(subgroup)
         else:
             subgroup = grp
@@ -112,7 +133,7 @@ class Dna:
             z -= self.BASE_SPACING
         
         if doubleStrand:
-            subgroup = Group("strand 2", grp.assy, None) #bruce 060714 don't call this the "5' strand" (more info above)
+            subgroup = Group("strand 2", grp.assy, None)
             subgroup.open = False
             grp.addchild(subgroup)
             theta = 0.0
@@ -202,7 +223,7 @@ class B_Dna_BasePseudoAtoms(B_Dna):
         return os.path.join(basepath, 'bdna-pseudo-bases', '%s.mmp' % basename)
     def addEndCaps(self, sequence):
         if (len(sequence) > 1):
-            return 'Y' + sequence[1:-1] + 'Z'
+            return '[' + sequence[1:-1] + ']' #bruce 070518 replaced end-codes 'Y' and 'Z' with '[' and ']'
         return sequence
     def postprocess(self, baseList): # bruce 070414
         # Figure out how to set bond direction on the backbone bonds of these strands.
@@ -287,7 +308,6 @@ class DnaGenerator(QDialog, GeneratorBaseClass, DnaPropMgr):
     def gather_parameters(self):
         if not basepath_ok:
             raise PluginBug("The cad/plugins/DNA directory is missing.")
-        (seq, allKnown) = self._get_sequence()
         dnatype = str(self.dnaConformation_combox.currentText())
         if dnatype == 'A-DNA':
             raise PluginBug("A-DNA is not yet implemented -- please try B- or Z-DNA");
@@ -303,14 +323,22 @@ class DnaGenerator(QDialog, GeneratorBaseClass, DnaPropMgr):
         representation = str(self.model_combox.currentText())
         if (representation == 'Reduced'):
             representation = 'BasePseudoAtom'
-            chunkOption = str(self.dnaChunkOptions_combox.currentText())      
+            chunkOption = str(self.dnaChunkOptions_combox.currentText())
+            resolve_random = False # later this may depend on a new checkbox in that case;
+                # for now it doesn't matter, since sequence info is discarded for reduced bases anyway
         if (representation == 'Atomistic'):
             representation = 'Atom'
             chunkOption = str(self.dnaChunkOptions_combox.currentText())
+            resolve_random = True
+                # if this flag was not set, for atomistic case, random base letters would cause error message below,
+                # but the error message needs rewording for that... for now, it can't happen
             
         assert representation in ('Atom', 'BasePseudoAtom')
+
+        (seq, allKnown) = self._get_sequence( resolve_random = resolve_random)
+
         if (representation == 'Atom' and not allKnown):
-            raise UserError("Cannot use unknown bases (N) in Atomistic representation")
+            raise UserError("Cannot use unknown bases (N) in Atomistic representation") # needs rewording (see above)
 
         if (representation == 'BasePseudoAtom' and dnatype == 'Z-DNA'):
             raise PluginBug("Z-DNA not implemented for 'Reduced model' representation.  Use B-DNA.")
@@ -369,11 +397,25 @@ class DnaGenerator(QDialog, GeneratorBaseClass, DnaPropMgr):
             grp.kill()
             raise
 
-    def _get_sequence(self, reverse=False, complement=False,
-                     cdict={'C':'G', 'G':'C', 'A':'T', 'T':'A', 'N':'N'}):
+    def _get_sequence(self, reverse = False, complement = False, resolve_random = False,
+                     cdict = {'C':'G', 'G':'C', 'A':'T', 'T':'A', 'N':'N'}):
+        """Return a tuple (seq, allKnown)
+        where seq is a string in which each letter describes one base
+        of the sequence currently described by the UI,
+        as modified by the passed reverse, complement, and resolve_random flags,
+        and allKnown is a boolean which says whether every base in the return value
+        has a known identity.
+           This method is not fully private. It's used repeatedly to get the same sequence
+        when making the DNA (which means its return value should be deterministic,
+        even when making sequences with randomly chosen bases [nim]),
+        and it's also called from class DnaPropMgr (in DnaGeneratorDialog.py) to return data
+        to be stored back into the UI, for implementing the reverse and complement buttons.
+        (Ideally it would preserve whitespace and capitalization when used that way, but it doesn't.)
+        """
         seq = ''
         allKnown = True
         # The current base sequence (or number of bases) in the PropMgr. Mark [070405]
+        # (Note: I think this code implies that it can no longer be a number of bases. [bruce 070518 comment])
         pm_seq = str(self.base_textedit.toPlainText()).upper()
         #print "pm_seq =", pm_seq
         #match = numberPattern.match(pm_seq)
@@ -381,20 +423,24 @@ class DnaGenerator(QDialog, GeneratorBaseClass, DnaPropMgr):
         #    return(match.group(1), False)
         for ch in pm_seq:
             if ch in 'CGATN':
-                if ch == 'N':
-                    allKnown = False
+                if ch == 'N': ###e soon: or any other letter indicating a random base
+                    if resolve_random: #bruce 070518 new feature
+                        pos = len(seq)
+                        ch = 'ACTG'[pos%4] ###STUB, should use pos and ch to choose a random base in a deterministic way...
+                    else:
+                        allKnown = False
                 if complement:
                     ch = cdict[ch]
                 seq += ch
             elif ch in '\ \t\r\n':
                 pass
             else:
-                raise UserError('Bogus DNA base: ' + ch + ' (should be C, G, A, or T)')
+                raise UserError('Bogus DNA base: ' + ch + ' (should be C, G, A, T, or N)')
         assert len(seq) > 0, 'Please enter a valid sequence'
         if reverse:
             seq = list(seq)
             seq.reverse()
-            seq = ''.join(seq)            
+            seq = ''.join(seq)
         return (seq, allKnown)
     
     def _makeSingleChunkDna(self, grp, seq, representation, 
