@@ -14,7 +14,7 @@ import env
 from PyQt4.Qt import *
 from chem import gensym
 from Sponsors import SponsorableMixin
-from HistoryWidget import redmsg, orangemsg, greenmsg
+from HistoryWidget import redmsg, orangemsg, greenmsg, quote_html
 from debug import print_compact_traceback
 from qt4transition import *
 from PropertyManagerMixin import PropertyManagerMixin
@@ -185,7 +185,9 @@ class GeneratorBaseClass(SponsorableMixin, PropertyManagerMixin):
         elif self.cmdname and not self.cmd:
             # this is intended to be the usual situation, but isn't yet, as of 060616
             self.cmd = greenmsg(self.cmdname + ": ")
-
+        self.change_random_seed()
+        return
+    
     def build_struct(self, name, params, position):
         """Build the structure (model object) in question. This is an abstract method
         and must be overloaded in the specific generator.
@@ -217,12 +219,14 @@ class GeneratorBaseClass(SponsorableMixin, PropertyManagerMixin):
         
     def preview_btn_clicked(self):
         if platform.atom_debug: print 'preview button clicked'
+        self.change_random_seed()
         self._ok_or_preview(previewing=True)
     
     def ok_btn_clicked(self):
         'Slot for the OK button'
         if platform.atom_debug: print 'ok button clicked'
         self._ok_or_preview(doneMsg=True)
+        self.change_random_seed() # for next time
         if not self.pluginException:
             # if there was a (UserError, CadBug, PluginBug) then behave
             # like preview button - do not close the dialog
@@ -236,28 +240,28 @@ class GeneratorBaseClass(SponsorableMixin, PropertyManagerMixin):
             self.pw = None  
                     
         return
-    
 
     def handlePluginExceptions(self, thunk):
         self.pluginException = False
         try:
             return thunk()
         except CadBug, e:
-            env.history.message(redmsg("Bug in the CAD system: " + " - ".join(map(str, e.args))))
-            self.remove_struct()
-            self.pluginException = True
+            explan = "Bug in the CAD system"
         except PluginBug, e:
-            env.history.message(redmsg("Bug in the plug-in: " + " - ".join(map(str, e.args))))
-            self.remove_struct()
-            self.pluginException = True
+            explan = "Bug in the plug-in"
         except UserError, e:
-            env.history.message(redmsg("User error: " + " - ".join(map(str, e.args))))
-            self.remove_struct()
-            self.pluginException = True
+            explan = "User error"
         except Exception, e:
-            env.history.message(self.cmd + redmsg(" - ".join(map(str, e.args))))
-            self.remove_struct()
-
+            #bruce 070518 revised the message in this case,
+            # and revised subsequent code to set self.pluginException
+            # even in this case (since I am interpreting it as a bug)
+            explan = "Exception" #e should improve, include exception name
+        print_compact_traceback(explan + ": ")
+        env.history.message(redmsg(explan + ": " + quote_html(" - ".join(map(str, e.args)))))
+        self.remove_struct()
+        self.pluginException = True
+        return
+    
     def _ok_or_preview(self, doneMsg=False, previewing=False):
         QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
         self.win.assy.current_command_info(cmdname = self.cmdname) #bruce 060616
@@ -268,6 +272,14 @@ class GeneratorBaseClass(SponsorableMixin, PropertyManagerMixin):
         self.handlePluginExceptions(thunk)
         QApplication.restoreOverrideCursor() # Restore the cursor
         self.win.win_update()
+
+    def change_random_seed(self): #burce 070518 added this to API
+        '''If the generator makes use of randomness in gather_parameters,
+        it may do so deterministically based on a saved random seed;
+        if so, this should be overloaded in the specific generator
+        to change the random seed to a new value (or do the equivalent).
+        '''
+        return
 
     def gather_parameters(self):
         '''Return a tuple of the current parameters. This is an

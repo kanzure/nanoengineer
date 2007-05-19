@@ -29,9 +29,7 @@ Note: soon we may extend this to permit the following mixed-base code letters:
     W = A or T (Weak - 2H bonds);
     N = aNy base.
 
-First we need to revise the current code to not use 'Y' as an internal end-marker.
-I'm doing that now [bruce 070518].
-
+Right now [070518] we just permit N, out of those.
 """
 
 __author__ = "Will"
@@ -53,15 +51,20 @@ from files_mmp import _readmmp
 from GeneratorBaseClass import GeneratorBaseClass, PluginBug, UserError
 from fusechunksMode import fusechunksBase
 from platform import find_plugin_dir
+import random
 
 atompat = re.compile("atom (\d+) \((\d+)\) \((-?\d+), (-?\d+), (-?\d+)\)")
 numberPattern = re.compile(r"^\s*(\d+)\s*$")
+
+END1 = '[' # these must be single characters, not used for base letters. 
+END2 = ']'
 
 basepath_ok, basepath = find_plugin_dir("DNA")
 if not basepath_ok:
     env.history.message(orangemsg("The cad/plugins/DNA directory is missing."))
 
 DEBUG = False
+DEBUG_SEQUENCE = False
 
 class Dna:
 
@@ -71,16 +74,18 @@ class Dna:
                         'A': 'adenine',
                         'T': 'thymine',
                         'N': 'unknown',
-                        '[': 'end1',
-                        ']': 'end2'},
+                        END1: 'end1',
+                        END2: 'end2'},
              basenameB={'G': 'cytosine',
                         'C': 'guanine',
                         'T': 'adenine',
                         'A': 'thymine',
                         'N': 'unknown',
-                        '[': 'end1',
-                        ']': 'end2'}):
+                        END1: 'end1',
+                        END2: 'end2'}):
         baseList = [ ]
+        if DEBUG_SEQUENCE:
+            print "making", sequence
         def insertmmp(filename, subgroup, tfm, position=position):
             try:
                 grouplist  = _readmmp(assy, filename, isInsert=True)
@@ -159,11 +164,9 @@ class Dna:
             fcb.find_bondable_pairs([baseList[i]], [baseList[i+1]])
             fcb.make_bonds(assy)
         
-            
-
         from debug import print_compact_traceback
         try:
-            self.postprocess(baseList) #bruce 070414
+            self.postprocess(baseList)
         except:
             if env.debug():
                 print_compact_traceback("debug: exception in %r.postprocess(baseList = %r) (reraising): " % (self, baseList,))
@@ -223,7 +226,7 @@ class B_Dna_BasePseudoAtoms(B_Dna):
         return os.path.join(basepath, 'bdna-pseudo-bases', '%s.mmp' % basename)
     def addEndCaps(self, sequence):
         if (len(sequence) > 1):
-            return '[' + sequence[1:-1] + ']' #bruce 070518 replaced end-codes 'Y' and 'Z' with '[' and ']'
+            return END1 + sequence[1:-1] + END2 #bruce 070518 replaced end-codes 'Y' and 'Z' with END1 and END2
         return sequence
     def postprocess(self, baseList): # bruce 070414
         # Figure out how to set bond direction on the backbone bonds of these strands.
@@ -300,10 +303,21 @@ class DnaGenerator(QDialog, GeneratorBaseClass, DnaPropMgr):
         QDialog.__init__(self, win)
         DnaPropMgr.__init__(self)
         GeneratorBaseClass.__init__(self, win)
+        self._random_data = []
     
     ###################################################
     # How to build this kind of structure, along with
     # any necessary helper functions
+
+    def change_random_seed(self):
+        if DEBUG_SEQUENCE:
+            print "change random seed"
+        self._random_data = []
+
+    def _random_data_for_index(self, i):
+        while len(self._random_data) < i+1:
+            self._random_data.append( random.randrange(12) )
+        return self._random_data[i]
 
     def gather_parameters(self):
         if not basepath_ok:
@@ -425,8 +439,9 @@ class DnaGenerator(QDialog, GeneratorBaseClass, DnaPropMgr):
             if ch in 'CGATN':
                 if ch == 'N': ###e soon: or any other letter indicating a random base
                     if resolve_random: #bruce 070518 new feature
-                        pos = len(seq)
-                        ch = 'ACTG'[pos%4] ###STUB, should use pos and ch to choose a random base in a deterministic way...
+                        i = len(seq)
+                        data = self._random_data_for_index(i) # a random int in range(12), in a lazily extended cache
+                        ch = 'ACTG'[data%4]
                     else:
                         allKnown = False
                 if complement:
