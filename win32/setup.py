@@ -8,4 +8,4 @@ opts = { "py2exe": {"excludes": "OpenGL",
        } 
       
 setup(options = opts,
-     windows=["atom.py"])
+     windows=["main.py"])
