@@ -2,6 +2,7 @@
 """
 MWsemantics.py provides the main window class, MWsemantics.
 
+
 $Id$
 
 History: too much to mention, except for breakups of the file.
@@ -420,6 +421,10 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.connect(self.jigsESPImageAction,SIGNAL("triggered()"),self.makeESPImage)
         self.connect(self.jigsGamessAction,SIGNAL("triggered()"),self.makeGamess)
         self.connect(self.jigsGridPlaneAction,SIGNAL("triggered()"),self.makeGridPlane)
+	
+	self.connect(self.referencePlaneAction,SIGNAL("triggered()"),
+		     self.createPlane)
+	
         #self.connect(self.jigsHandleAction,SIGNAL("triggered()"),self.makeHandle)
         #self.connect(self.jigsHeatsinkAction,SIGNAL("triggered()"),self.makeHeatsink)
         self.connect(self.jigsLinearMotorAction,SIGNAL("triggered()"),self.makeLinearMotor)
@@ -890,6 +895,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         # Minimize Energy dialog. Mark 060705.
         from MinimizeEnergyProp import MinimizeEnergyProp
         self.minimize_energy = MinimizeEnergyProp(self)
+	
         
         if not debug_pref("Multipane GUI", Choice_boolean_False):
             # do here to avoid a circular dependency
@@ -1585,6 +1591,9 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 
     def makeLinearMotor(self):
         self.assy.makeLinearMotor(self.glpane.lineOfSight)
+	
+    def createPlane(self):
+	self.assy.createPlane()	
         
     def makeGridPlane(self):
         self.assy.makeGridPlane()
@@ -1603,6 +1612,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         
     def makeMeasureDihedral(self):
         self.assy.makeMeasureDihedral()
+	
 
     ###################################
     # Modify Toolbar Slots

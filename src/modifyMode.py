@@ -422,6 +422,10 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
                 self.bondLeftDown(obj, event)
             elif isinstance(obj, Jig): # Cursor over a jig.
                 self.jigLeftDown(obj, event)
+            elif isinstance(obj, ReferenceGeometry): # Cursor over a Geometry.
+                self.geometryLeftDown(obj, event)
+            elif isinstance(obj, Handle): # Cursor over a geometry handle.
+                self.handleLeftDown(obj, event)
             else: # Cursor is over something else other than an atom, singlet or bond. 
                 # The program never executes lines in this else statement since
                 # get_obj_under_cursor() only returns atoms, singlets or bonds.

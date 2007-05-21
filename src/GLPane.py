@@ -50,6 +50,8 @@ from panMode import panMode
 from rotateMode import rotateMode
 from modes import modeMixin
 
+from ReferenceGeometry import ReferenceGeometry
+
 import operator
 import struct
 ##bruce 050413 removed: from povheader import povheader, povpoint
@@ -2584,11 +2586,14 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
                     #bruce 070329 moved set of drawing_phase from just after selobj.draw_in_abs_coords to just before it.
                     # [This should fix the Qt4 transition issue which is the subject of reminder bug 2300,
                     #  though it can't be tested yet since it has no known effect on current code, only on future code.]
-                
 		#ninad 070214 to permit chunk highlighting
 		if self.mode.modename is selectMolsMode.modename:
 			self.drawHighlightedChunk(self.selobj, hicolor) 			
 			if isinstance(self.selobj, Jig):
+				self.selobj.draw_in_abs_coords(self, hicolor or black)
+			elif isinstance(self.selobj, ReferenceGeometry):
+				self.selobj.draw_in_abs_coords(self, hicolor or black)
+			elif isinstance(self.selobj, Handle):
 				self.selobj.draw_in_abs_coords(self, hicolor or black)		
 		else:			
 			self.selobj.draw_in_abs_coords(self, hicolor or black)

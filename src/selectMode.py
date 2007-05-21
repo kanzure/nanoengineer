@@ -28,6 +28,7 @@ from HistoryWidget import orangemsg
 from chunk import molecule
 import env
 from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False, Choice
+from Plane import Handle
 
 def average(seq, default = 0.0): #bruce 070412 #e refile or find elsewhere
     "return the numerical average value of seq, or default if seq is empty"
@@ -1492,8 +1493,55 @@ class selectMode(basicMode):
         if env.debug():
             print "debug fyi: dragHandlerLeftDouble is nim"
         return
+
+    #Reference Geometry handler helper methods
+    #@@ This and jig helper methods need to be combined. -- ninad 20070516
+    def geometryLeftDown(self, geom, event):
+        self.jigLeftDown(geom, event)
+    
+    def geometryLeftUp(self, geom, event):
+        self.jigLeftUp(geom, event)
+        
+    
+    #@@@EXPERIMENTAL -- ninad 20070518
+    def handleLeftDown(self, hdl, event):
+        # Move section
+        farQ_junk, self.handle_MovePt = self.dragstart_using_GL_DEPTH(event)
+        # Used in leftDrag() to compute move offset during drag op.
+        self.handle_StartPt = self.handle_MovePt 
+        self.handleSetup(handle)
+        pass
+    
+    def handleLeftDrag(self, hdl, event):
+        handle_NewPt = self.dragto( self.handle_MovePt, event)
+        # Print status bar msg indicating the current move offset.
+        if 1:
+            self.moveOffset = handle_NewPt - self.handle_StartPt
+            msg = "Offset: [X: %.2f] [Y: %.2f] [Z: %.2f]" % (self.moveOffset[0], self.moveOffset[1], self.moveOffset[2])
+            env.history.statusbar_msg(msg)
+
+        offset = handle_NewPt - self.handle_MovePt
+        
+        hdl.parent.resizeGeometry(hdl, offset)
+                        
+        self.handle_MovePt = handle_NewPt
+        
+        self.current_obj_clicked = False 
+        self.o.gl_update()
+        pass
+    
+    def handleLeftUp(self, hdl, event):
+        pass
+    
+    def handleSetUp(self, hdl):
+        self.objectSetup(hdl)
+        pass
+    
+
         
 #== Jig event handler helper methods
+    
+    
 
     def jigLeftDown(self, j, event):
         

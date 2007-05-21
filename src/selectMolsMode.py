@@ -32,6 +32,9 @@ from chunk import molecule
 import env
 from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False, Choice
 from selectMode import *
+from ReferenceGeometry import ReferenceGeometry
+#@@ to be modified to: from handles import Handle -- ninad20070518
+from Plane import Handle 
 
 class selectMolsMode(selectMode):
     "Select Chunks mode"
@@ -377,7 +380,6 @@ class selectMolsMode(selectMode):
             # or anything that can be highlighted and end up in glpane.selobj. [bruce revised this comment, 060725]
             # If highlighting is turned off, get_obj_under_cursor() returns atoms and singlets (not bonds or jigs).
             # [not sure if that's still true -- probably not. bruce 060725 addendum]
-        
         if obj is None: # Cursor over empty space.
             self.emptySpaceLeftDown(event)
             return
@@ -431,6 +433,12 @@ class selectMolsMode(selectMode):
         
         elif isinstance(obj, Jig): # Cursor over a jig.
             self.jigLeftDown(obj, event)
+        
+        elif isinstance(obj, ReferenceGeometry):
+            self.geometryLeftDown(obj, event)
+        
+        elif isinstance(obj, Handle):
+            self.handleLeftDown(obj, event)
 
         else: # Cursor is over something else other than an atom, singlet or bond. 
             # The program never executes lines in this else statement since
@@ -526,6 +534,12 @@ class selectMolsMode(selectMode):
         elif isinstance(obj, Jig): # Jig
             self.jigLeftUp(obj, event)
         
+        elif isinstance(obj, ReferenceGeometry): #Geometry
+            self.geometryLeftUp(obj, event)
+        
+        elif isinstance(obj, Handle):
+            self.handleLeftUp(obj, event)
+        
         else:
             pass
         
@@ -556,6 +570,7 @@ class selectMolsMode(selectMode):
         #code in select chunks mode. 
         #It needs further refinement. May be we should move this to selectMode class. 
         
+                
         if not self.hover_highlighting_enabled:
             return None
 
@@ -567,6 +582,10 @@ class selectMolsMode(selectMode):
             return yellow
         elif isinstance(selobj, Bond):
             return yellow 
+        elif isinstance(selobj, ReferenceGeometry):
+            return yellow
+        elif isinstance(obj, Handle):
+            return orange
         elif isinstance(selobj, Jig): #bruce 050729 bugfix (for some bugs caused by Huaicai's jig-selection code)
             if not self.o.jigSelectionEnabled: #mark 060312.
                 # jigSelectionEnabled set from GLPane context menu.

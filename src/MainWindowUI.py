@@ -660,7 +660,7 @@ class Ui_MainWindow(object):
         
         self.simNanoHiveAction.setText(QtGui.QApplication.translate("MainWindow", "Nano-Hive...", None, QtGui.QApplication.UnicodeUTF8))
         self.simNanoHiveAction.setIconText(QtGui.QApplication.translate("MainWindow", "Nano-Hive", None, QtGui.QApplication.UnicodeUTF8))
-        self.jigsGridPlaneAction.setIconText(QtGui.QApplication.translate("MainWindow", "Grid Plane", None, QtGui.QApplication.UnicodeUTF8))
+        
         
         
         self.fileSaveSelectionAction.setIconText(QtGui.QApplication.translate("MainWindow", "Save Selection...", None, QtGui.QApplication.UnicodeUTF8))

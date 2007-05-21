@@ -767,8 +767,26 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         "Unhide all selected chunks and jigs"
         self.topnode.apply2picked(lambda x: x.unhide())
         self.w.win_update()
+        
 
     # ==
+    
+    def createPlane(self):
+        #Insert Reference Geometry 
+	from Plane import Plane
+	plane = Plane(self.w)	
+        self.ensure_toplevel_group()
+        self.addnode(plane)
+        from node_indices import fix_one_or_complain
+        def errfunc(msg):
+            "local function for error message output"
+            # Bruce thinks this should never happen
+            env.history.message( redmsg( "Internal error making new geometry: " + msg))
+        fix_one_or_complain( plane, self.topnode, errfunc)
+        self.assy.changed()
+        self.w.win_update() 
+     
+        
 
     def place_new_jig(self, jig): #bruce 050415, split from all jig makers, extended, bugfixed
         """Place a new jig
