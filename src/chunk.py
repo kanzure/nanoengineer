@@ -982,7 +982,11 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                     wantlist = True
                 if wantlist:
                     match_checking_code = self.begin_tracking_usage()
-                    glNewList(self.displist, GL_COMPILE_AND_EXECUTE)
+                    try:
+                        glNewList(self.displist, GL_COMPILE_AND_EXECUTE)
+                    except:
+                        print "data related to following exception: self.displist = %r" % (self.displist,) #bruce 070521
+                        raise
                     ColorSorter.start() # grantham 20051205
 
                 # bruce 041028 -- protect against exceptions while making display
