@@ -212,8 +212,6 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # must remain consistent
         ## self.picked=0 # bruce 050308 removed this, redundant with Node.__init__
         
-        # for caching the display as a GL call list
-        self.displist = glGenLists(1)
         self.havelist = 0 # note: havelist is not handled by InvalMixin
         self.haveradii = 0 # ditto
         
@@ -234,6 +232,10 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             # for use by anything that wants to store its own memo data on us, using a key it's sure is unique [bruce 060608]
             # (when we eventually have a real destroy method, it should zap this; maybe this will belong on class Node #e)
         
+        self.displist = glGenLists(1)
+        assert type(self.displist) in (type(1), type(1L)) #bruce 070521 added these two asserts
+        assert self.displist != 0 # this will presumably fail for Eric M on Linux in Extrude -- will he see the traceback?
+
         return # from molecule.__init__
 
     def contains_atom(self, atom): #bruce 070514
