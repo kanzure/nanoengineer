@@ -842,7 +842,7 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
         #ninad 070326. Note that self.DirView inherits QTreeView. 
         #It has got nothing to do with the experimental class DirView in file Dirview.py
         self.dirView = self.DirView(self, self.libraryPage)
-        self.dirView.setSortingEnabled (True)
+        self.dirView.setSortingEnabled(False) #bruce 070521 changed True to False -- fixes "reverse order" bug on my Mac
         ##self.dirView.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
 
         libraryPageLayout = QVBoxLayout(self.libraryPage)
