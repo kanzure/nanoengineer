@@ -7,7 +7,7 @@ from ReferenceGeometry import ReferenceGeometry
 from shape import fill
 from drawer import drawLineLoop, drawPlane
 from constants import black, gray, orange, yellow, darkgreen
-from VQT import V,Q, cross, dot
+from VQT import V,Q, cross, dot, Veq
 from OpenGL.GL import *
 from math import pi
 from debug import print_compact_traceback
@@ -60,95 +60,7 @@ class Plane(ReferenceGeometry):
             print_compact_traceback("ignoring exception when drawing Plane %r: " % self)
         else:
             glPopName()
-                    
-                    
-    def _draw_geometry_ORIG(self, glpane, color, highlighted=False):
-        '''Draw a Plane.'''
-        
-        # Reference planes don't support textures so set this property to False 
-        # in the drawer.drawPlane method        
-        textureReady = False
-        glPushMatrix()
-
-        glTranslatef( self.center[0], self.center[1], self.center[2])
-        q = self.quat
-        glRotatef( q.angle*180.0/pi, q.x, q.y, q.z)
-
-        hw = self.width/2.0; hh = self.height/2.0
-        
-        corners_pos = [V(-hw, hh, 0.0), 
-                       V(-hw, -hh, 0.0), 
-                       V(hw, -hh, 0.0), 
-                       V(hw, hh, 0.0)]
-        
-                
-        drawPlane(self.fill_color, 
-                  self.width, 
-                  self.height, 
-                  textureReady,
-                  self.opacity, 
-                  SOLID=True, 
-                  pickCheckOnly=self.pickCheckOnly)
-        
-        if self.picked:
-            drawLineLoop(self.color, corners_pos)  
-        else:
-            if highlighted:
-                drawLineLoop(yellow, corners_pos, width=2)
-            else:  
-                #Following draws the border of the plane in orange color 
-                #for it's front side (side that was in front 
-                #when the plane was created and a gray border for the back side. 
-                if dot(self.getaxis(), glpane.lineOfSight) < 0:
-                    bordercolor = gray #backside
-                else:
-                    bordercolor = color #frontside
-                drawLineLoop(bordercolor, corners_pos)                  
-        glPopMatrix()
-        
-        #We need to compute the corner positions to draw 
-        #the handles. The list 'corners_pos' can't be used for this 
-        #purpose as it computes the corners in a translation matrix 
-        #whose center is always at the center of the geometry. 
-        # Then why not use the above translation matrix for handles?
-        #-- we can't do this because then the handles are not drawn parallel
-        #to the screen in some orientations (i.e. user doesn't see them as 
-        #squares in some orientations) -- ninad 20070518
-        corner_handle_pos = []
-        bottom_left = V(self.center[0] - hw,
-                        self.center[1] - hh,
-                        self.center[2])
-        bottom_right = V(self.center[0] + hw,
-                        self.center[1] - hh,
-                        self.center[2])
-        
-        top_right = V(self.center[0] + hw,
-                        self.center[1] + hh,
-                        self.center[2])
-        top_left = V(self.center[0] - hw,
-                        self.center[1] + hh,
-                        self.center[2])
-        
-        
-        corner_handle_pos = [ bottom_left,
-                              bottom_right,
-                              top_right,
-                              top_left
-                              ]        
-        
-        # Draw the handles when selected. 
-        if self.picked:
-            self._draw_handles(corner_handle_pos)
-            if highlighted:
-                glPushMatrix()
-                glTranslatef( self.center[0], self.center[1], self.center[2])
-                q = self.quat
-                glRotatef( q.angle*180.0/pi, q.x, q.y, q.z)
-                drawLineLoop(yellow, corners_pos, width=2)
-                glPopMatrix()
-           
-        return
-    
+                   
     def _draw_geometry(self, glpane, color, highlighted=False):
         '''Draw a Plane.'''
         
@@ -218,8 +130,7 @@ class Plane(ReferenceGeometry):
         
         cornerHandleCenters =  [bottom_left,bottom_right,
                                 top_right,top_left]       
-                    
-    
+                        
         # Draw the handles when selected. 
         if self.picked:
             self._draw_handles(cornerHandleCenters)
@@ -232,67 +143,7 @@ class Plane(ReferenceGeometry):
                 glPopMatrix()
            
         return
-    
-    
-    def _draw_handles_ORIG(self, cornerPoints):
-        '''' Draw the handles that permit the geometry resizing. 
-        Example: For a plane, there will be 8 small squares along the 
-        border...4 at plane corners and remaining in the middle 
-        of each side of the plane. The handles will be displayed only when the 
-        geometry is selected
-        @param: cornerPoints : List of corner points. The handles will be
-        drawn at these corners PLUS in the middle of each side of tthe Plane'''
-        
-        # No texture in handles. 
-        # Ideally the following value in the drawer.drawPlane method 
-        #should be False by default.
-        textureReady = False
-        
-        #self.handles (a list containing the centerpoints of all the handles)
-        self.handles = cornerPoints
-                 
-        midpoint1 = (self.handles[0] + self.handles[1])/2      
-        midpoint2 = (self.handles[1] + self.handles[2])/2
-        midpoint3 = (self.handles[2] + self.handles[3])/2
-        midpoint4 = (self.handles[3] + self.handles[0])/2
-        for midpt in [midpoint1,midpoint2, midpoint3, midpoint4]:
-            self.handles.append(midpt)
-        
-        
-        #Always draw the handle geometry facing the line of sight. So that 
-        #the handles are visible in any orientation of the plane.   
-
-        handleNorm = self.glpane.lineOfSight        
-        handleQuat = Q(V(0.0, 0.0, 1.0), handleNorm)
-        
-        #Use glpane's scale for drawing the handle. This makes sure that
-        # the handle is non-zoomable. 
-        side = self.glpane.scale*0.015
-        
-        for handle in self.handles:  
-            glPushMatrix()                
-            glTranslatef(handle[0], handle[1], handle[2])
-            q = handleQuat
-            glRotatef( q.angle*180.0/pi, q.x, q.y, q.z)
-            drawPlane(darkgreen, 
-                  side, 
-                  side, 
-                  textureReady,
-                  0.9, 
-                  SOLID=True, 
-                  pickCheckOnly=self.pickCheckOnly) 
-            
-            
-            handle_hw = side/2.0 #handle's half width
-            handle_hh = side/2.0 #handle's half height
-            
-            handle_corner = [V(-handle_hw, handle_hh, 0.0), 
-                   V(-handle_hw, -handle_hh, 0.0), 
-                   V(handle_hw, -handle_hh, 0.0), 
-                   V(handle_hw, handle_hh, 0.0)]                
-            drawLineLoop(black, handle_corner)                
-            glPopMatrix()
-         
+           
     def __init_quat_center(self, lst = None):
         if lst:    
             self.atomPos =[]
@@ -323,6 +174,14 @@ class Plane(ReferenceGeometry):
     def move(self, offset):
         '''Move the plane by <offset>, which is a 'V' object.'''
         self.center += offset
+        #Following makes sure that handles move as the geometry moves. 
+        #@@ do not call Plane.move method during the Plane resizing. 
+        #call recomputeCenter method instead. -- ninad 20070522
+        if len(self.handles) == 8:
+            for hdl in self.handles:
+                assert isinstance(hdl, Handle)
+                hdl.move(offset)
+            
         
     def rot(self, q):
         self.quat += q
@@ -344,27 +203,42 @@ class Plane(ReferenceGeometry):
         drawn at these corners PLUS in the middle of each side of tthe Plane'''
         
         handleCenters = list(cornerPoints)
-                 
+        
+        cornerHandleCenters = list(cornerPoints) 
+        
+        self.midBtm = (handleCenters[0] + handleCenters[1])/2
+        self.midRt =  (handleCenters[1] + handleCenters[2])/2
+        self.midTop = (handleCenters[2] + handleCenters[3])/2
+        self.midLft = (handleCenters[3] + handleCenters[0])/2 
+        
+        """
         midpoint1 = (handleCenters[0] + handleCenters[1])/2      
         midpoint2 = (handleCenters[1] + handleCenters[2])/2
         midpoint3 = (handleCenters[2] + handleCenters[3])/2
         midpoint4 = (handleCenters[3] + handleCenters[0])/2
+        """
         
-        for midpt in [midpoint1,midpoint2, midpoint3, midpoint4]:
+        ##for midpt in [midpoint1,midpoint2, midpoint3, midpoint4]:
+        for midpt in [self.midBtm, self.midRt, self.midTop, self.midLft]:
             handleCenters.append(midpt)
-  
-        for hCenter in handleCenters: 
-            handle = Handle(self, self.glpane, hCenter)
-            handle.draw() 
+            
         
-        cornerHandleCenters = list(cornerPoints) 
-      
-        for hCenter in handleCenters:
-            if handle not in self.handles:
-                self.handles.append(handle)
-            if hCenter in cornerHandleCenters:
-                if handle not in self.cornerHandles:
-                    self.cornerHandles.append(handle)
+        if len(self.handles)> 0:
+            for hdl in self.handles:                
+                hdl.draw()
+        else:            
+            for hCenter in handleCenters: 
+                handle = Handle(self, self.glpane, hCenter)
+                handle.draw() 
+                if handle not in self.handles:
+                    self.handles.append(handle)
+                        
+        for hdl in self.handles:
+            if hdl.center in cornerHandleCenters:
+                if hdl not in self.cornerHandles:
+                    self.cornerHandles.append(hdl)
+                    
+            
       
     def recomputeCenter(self, bottomleftPt):
         ''' Recompute the center of the Plane based on a new corner point
@@ -387,15 +261,14 @@ class Plane(ReferenceGeometry):
         #this is intended only for midpoint handles. Need special cases 
         #for corners. -- NIY
         
-        print "***self.handles :", self.handles
-        movedHandle.center += offset
-        neighbors = []
         neighbors = list(movedHandle.nearestNeighbors())
-        ##neighbors = movedHandle.nearestNeighbors()
+               
         for hdl in neighbors:
-            if hdl in self.handles:
-                hdl.center += offset    
-    
+            if hdl in self.handles:               
+                hdl.center += offset   
+        
+        movedHandle.center += offset
+      
     def resizeGeometry(self, movedHandle, offset):
         self.recomputeHandleCenters(movedHandle, offset)
         btmLeftHandle = self.cornerHandles[0]
@@ -497,17 +370,27 @@ class Handle:
         
         neighbors = []
         
+        ##@@@ ninad20070522 following is not correct. work in progress
         east_nbr = V(self.center[0] + w/2.0, self.center[1], self.center[2])
         west_nbr = V(self.center[0] - w/2.0 , self.center[1], self.center[2])
         north_nbr = V(self.center[0], self.center[1] + h/2.0, self.center[2])
         south_nbr = V(self.center[0], self.center[1] - h/2.0, self.center[2])
         
-        nbrs = [east_nbr,west_nbr, north_nbr, south_nbr] 
+        nbrs = [east_nbr,west_nbr, north_nbr, south_nbr]
+      
         if w and h:
             for hdl in self.parent.handles:
-                if hdl.center in nbrs:
-                    neighbors.append(hdl)   
+                i = 0
+                for i in range(len(nbrs)):                    
+                    if hdl.center == list(nbrs[i]):
+                       
+                        neighbors.append(hdl)
+                        break
                     
+                        
+                ##if hdl.center in nbrs:                    
+                    ##neighbors.append(hdl)   
+       
         return neighbors
     
       
