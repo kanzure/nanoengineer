@@ -240,7 +240,7 @@ def makemenu_helper(widget, menu_spec, menu=None):
     # leaving a delegator for it in basicMode.
     # (bruce was not the original author, but modified it)
     #menu = QMenu( widget)
-    placeSeparator = False
+##    placeSeparator = False
     for m in menu_spec:
         try: #bruce 050416 added try/except as debug code and for safety
             menutext = m and widget.trUtf8(m[0])
@@ -274,21 +274,23 @@ def makemenu_helper(widget, menu_spec, menu=None):
                         act.setCheckable(True)
                         act.setChecked(True)
                     menu.addAction(act)
-                    if placeSeparator:
-                        menu.insertSeparator(act)
-                        placeSeparator = False
+##                    if placeSeparator:
+##                        menu.insertSeparator(act)
+##                        placeSeparator = False
                     widget.connect(act, SIGNAL("activated()"), func)
                 else:
+                    # disabled case
+                    # [why is this case done differently, in this Qt4 port?? -- bruce 070522 question]
                     insert_command_into_menu(menu, menutext, func, options = m[2:], raw_command = True)
             else:
-                placeSeparator = True
+##                placeSeparator = True
+                menu.addSeparator() #bruce 070522 bugfix
                 pass
         except Exception, e:
             if isinstance(e, SystemExit):
                 raise
-            qt4skipit('print_compact_traceback("exception in makemenu_helper ignored, for %r:\n" % (m,) )')
-            qt4message(repr(m))
-            qt4message(e.args[0])
+            print_compact_traceback("exception in makemenu_helper ignored, for %r:\n" % (m,) )
+                #bruce 070522 restored this (was skipped in Qt4 port)
             pass #e could add a fake menu item here as an error message
     return menu # from makemenu_helper
 
