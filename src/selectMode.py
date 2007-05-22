@@ -1505,11 +1505,13 @@ class selectMode(basicMode):
     
     #@@@EXPERIMENTAL -- ninad 20070518
     def handleLeftDown(self, hdl, event):
+        self.cursor_over_when_LMB_pressed = 'Handle'
+        self.currentHandleObject = hdl
         # Move section
         farQ_junk, self.handle_MovePt = self.dragstart_using_GL_DEPTH(event)
         # Used in leftDrag() to compute move offset during drag op.
         self.handle_StartPt = self.handle_MovePt 
-        self.handleSetup(handle)
+        self.handleSetUp(hdl)
         pass
     
     def handleLeftDrag(self, hdl, event):

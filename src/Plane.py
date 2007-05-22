@@ -387,8 +387,11 @@ class Plane(ReferenceGeometry):
         #this is intended only for midpoint handles. Need special cases 
         #for corners. -- NIY
         
+        print "***self.handles :", self.handles
         movedHandle.center += offset
+        neighbors = []
         neighbors = list(movedHandle.nearestNeighbors())
+        ##neighbors = movedHandle.nearestNeighbors()
         for hdl in neighbors:
             if hdl in self.handles:
                 hdl.center += offset    
@@ -398,7 +401,6 @@ class Plane(ReferenceGeometry):
         btmLeftHandle = self.cornerHandles[0]
         btmLeftPoint = btmLeftHandle.center        
         self.recomputeCenter(btmLeftPoint)
-        print "**** in Plane.resizeGeometry "
                 
             
 class Handle:
@@ -422,7 +424,14 @@ class Handle:
                
     
     def draw(self):
-        self._draw()    
+        try:
+            glPushName(self.glname)
+            self._draw()    
+        except:
+            glPopName()
+            print_compact_traceback("ignoring exception when drawing handle %r: " % self)
+        else:
+            glPopName()
     
     def _draw(self, highlighted = False):
         ''' Draw the handle object '''        
@@ -476,7 +485,7 @@ class Handle:
         
     def nearestNeighbors(self):
         ''' Nearest Handle objects (in the parent)to the current handle object
-        @return: List of Handle Objects nearest to the '''
+        @return: List of Handle Objects nearest to the current handle '''
         assert self in self.parent.handles
         
         w = None
@@ -493,13 +502,16 @@ class Handle:
         north_nbr = V(self.center[0], self.center[1] + h/2.0, self.center[2])
         south_nbr = V(self.center[0], self.center[1] - h/2.0, self.center[2])
         
+        nbrs = [east_nbr,west_nbr, north_nbr, south_nbr] 
         if w and h:
             for hdl in self.parent.handles:
-                if hdl.center in [east_nbr,west_nbr, north_nbr, south_nbr]:
-                        neighbors.append[hdl]                   
-            
+                if hdl.center in nbrs:
+                    neighbors.append(hdl)   
+                    
         return neighbors
-            
+    
+      
+                 
         
         
     

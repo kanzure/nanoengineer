@@ -463,7 +463,10 @@ class selectMolsMode(selectMode):
         if self.cursor_over_when_LMB_pressed == 'Empty Space': 
             self.continue_selection_curve(event)             
             return
-        
+        if self.cursor_over_when_LMB_pressed == 'Handle':
+            self.handleLeftDrag(self.currentHandleObject,event)
+            return
+                        
         if self.o.assy.getSelectedMovables():
             bool_goBackToMode = True
             self.o.setMode('MODIFY')  
@@ -584,7 +587,7 @@ class selectMolsMode(selectMode):
             return yellow 
         elif isinstance(selobj, ReferenceGeometry):
             return yellow
-        elif isinstance(obj, Handle):
+        elif isinstance(selobj, Handle):
             return orange
         elif isinstance(selobj, Jig): #bruce 050729 bugfix (for some bugs caused by Huaicai's jig-selection code)
             if not self.o.jigSelectionEnabled: #mark 060312.
