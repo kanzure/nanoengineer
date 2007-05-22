@@ -501,10 +501,10 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         'Ss': ['Sj', 'Hp'],
         'Hp': ['Ss'], #bruce 070412 added Ss <-> Hp; not sure if that's enough entries for Hp
         }
-    def make_selobj_cmenu_items(self, menu_spec): #bruce 060405 (generalized from Jig method)
-        '''Add self-specific context menu items to <menu_spec> list when self is the selobj,
+    def make_selobj_cmenu_items(self, menu_spec):
+        """Add self-specific context menu items to <menu_spec> list when self is the selobj,
         in modes that support it (e.g. depositMode and selectMode and subclasses).
-        '''
+        """
         fromSymbol = self.element.symbol
         if (self._transmuteContextMenuEntries.has_key(fromSymbol)):
             #bruce 070412 (enhancing EricM's recent new feature):
@@ -525,6 +525,23 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 # we don't actually make a selatoms list here as part of the command,
                 # since this menu item won't usually be the one chosen,
                 # and it can find the selatoms again.
+                #
+                # higher-level entry for Pl, first [bruce 070522]:
+                if fromSymbol == 'Pl' and doall and len(selatoms) == 2:
+##                    import crossovers
+##                    try:
+##                        reload(crossovers)##### REMOVE WHEN DEVEL IS DONE, for debug only, fails in release building
+##                    except:
+##                        print "can't reload crossovers"######
+                    from crossovers import crossover_menu_spec
+                    ms1 = crossover_menu_spec(self, selatoms)
+                    if ms1:
+                        menu_spec.append(None) # separator
+                            ###BUG: if all (1 or 2) commands in ms1 are disabled, then this separator doesn't show up;
+                            # if it has one disabled and one enabled command, it shows up *between* them.
+                            # Likely bug in the menu_spec processor (its handling of None) or in Qt itself.
+                            # ... now fixed in widgets.py -- on Mac; does fix break anything for Windows or Linux? [bruce 070522]
+                        menu_spec.extend(ms1)
             menu_spec.append(None) # separator
             for toSymbol in self._transmuteContextMenuEntries[fromSymbol]:
                 newElement = PeriodicTable.getElement(toSymbol)
