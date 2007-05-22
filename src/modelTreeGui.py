@@ -37,7 +37,7 @@ from Utility import Group, Node
 from debug import print_compact_traceback, print_compact_stack
 from platform import fix_plurals
 from HistoryWidget import quote_html
-from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
+from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False, Choice
 from widgets import makemenu_helper
 import env
 
@@ -705,6 +705,13 @@ class ModelTreeGui(QTreeView, ModelTreeGui_api):
         self.lastPickedNodes = [ ]
 
         self.debug_pref_use_fancy_DND_graphic() # make sure this is visible from the start in the debug_prefs menu
+
+        # and same with these (WARNING (kluge): duplicated code, defaults are set here):
+        debug_pref("MT debug: setDirtyRegion", Choice(["large","small","none"]), non_debug = True, prefs_key = True)
+        debug_pref("MT debug: updateGeometry", Choice_boolean_True, non_debug = True, prefs_key = True)
+        debug_pref("MT debug: scrollToBottom", Choice_boolean_True, non_debug = True, prefs_key = True)
+        debug_pref("MT debug: set_scrollpos", Choice_boolean_True, non_debug = True, prefs_key = True)
+
         return
 
     def recurseOnItems(self, func, topitem = None): ###REVIEW: could/should this method be defined in _QtTreeModel?
@@ -813,18 +820,32 @@ class ModelTreeGui(QTreeView, ModelTreeGui_api):
 
     # ==
 
+    _inside_paintEvent = False
+    
     def mt_update(self):
         """
         """
+        if self._inside_paintEvent:
+            print "likely bug: mt_update when self._inside_paintEvent"
+            
         #bruce 070510 rewrote this to be an invalidation method, not an update method,
         # just as it was in the Qt3 code. This improves efficiency and helps fix some bugs.
         self._mt_update_needed = True #bruce 070511 revised this (attr is now private and in self, not in self.ne1model)
-        x,y = 0,0
-        w,h = 10000,10000 # hopefully that should be enough -- but (1) not if Mt is very long! (not sure what coords it's in)
-            # and (2) i don't know if it matters what it covers, as long as it covers something visible -- the only need for this
-            # is that update alone is not enough to cause paintEvent to be called.
-        region = QRegion(x,y,w,h)
-        self.setDirtyRegion(region) # needs region arg - can we get the whole thing? in what coords?
+        regiontype = debug_pref("MT debug: setDirtyRegion", Choice(["large","small","none"]), non_debug = True, prefs_key = True)
+        if regiontype == "large":
+            x,y = 0,0
+            w,h = 10000,10000 # hopefully that should be enough -- but (1) not if Mt is very long! (not sure what coords it's in)
+                # and (2) i don't know if it matters what it covers, as long as it covers something visible -- the only need for this
+                # is that update alone is not enough to cause paintEvent to be called.
+            region = QRegion(x,y,w,h)
+            self.setDirtyRegion(region) # needs region arg - can we get the whole thing? in what coords?
+        elif regiontype == "small":
+            # might not work if scrolled, even if it works normally; but might affect scrollbar recursion bug 2399 (conceivably)
+            x,y = 0,0
+            w,h = 1,1
+            region = QRegion(x,y,w,h)
+            self.setDirtyRegion(region)
+        
         self.update() ##k is this enough to call our paintEvent? NO. (And if it does: with enough of a dirty region?)
 
     # ==
@@ -834,13 +855,18 @@ class ModelTreeGui(QTreeView, ModelTreeGui_api):
         # without any line number or traceback, but apparently by Qt itself. Can we fix that?
         if DEBUG3:
             print "begin paintEvent"
+        if self._inside_paintEvent:
+            print "likely bug: recursive MT.paintEvent"
+        old = self._inside_paintEvent
         try:
             if self._mt_update_needed:
                 self._update_if_data_changed()
                 self._mt_update_needed = False
+            self._inside_paintEvent = True
             QTreeView.paintEvent(self, event) # this indirectly calls the item paint methods
         except:
             print_compact_traceback()
+        self._inside_paintEvent = old
         if DEBUG3:
             print "end paintEvent"
         return
@@ -899,7 +925,10 @@ class ModelTreeGui(QTreeView, ModelTreeGui_api):
         # use the record of the scroll position from the mousePress, so it can be set to something similar below
         pos1 = self.get_scrollpos("initial") # the current value has already been messed up in some cases! (e.g. after cmenu commands)
         try:
-            scrollpos = self.mouse_press_scrollpos
+            scrollpos = self.mouse_press_scrollpos # note: as of 070522 (and earlier) we're setting this iff this is a cmenu event.
+                # but then the assert 0 below ignores it.
+            assert 0 ### DISABLE THIS FOR NOW, too weird in effects on scrollbar... sometimes it jumps when you click scrollthumb itself
+            
             ###BUG: probably wrong if user scrolled manually! or if we're called in another way...
             # e.g. during it!
             # not sure how to fix -- erasing it during mouseRelease won't work if that event is missed!!
@@ -909,7 +938,6 @@ class ModelTreeGui(QTreeView, ModelTreeGui_api):
             # does not fully work, or causes other worse effects. would it work to do this only after a real mt that does stuff?
             # or in caller? no, that's unlikely. next best guess: don't do this del, do capture manual scroll changes. BUT HOW??#####
             # Another poss -- don't do this for mouseclicks, unless they are for cmenu events...
-            assert 0 ### DISABLE THIS FOR NOW, too weird in effects on scrollbar... sometimes it jumps when you click scrollthumb itself
         except: # makes it work to start, but doesn't cure manual-scroll bug (predicted, verified (w/o del))
             scrollpos = pos1
         
@@ -918,24 +946,28 @@ class ModelTreeGui(QTreeView, ModelTreeGui_api):
         # set the scroll position to what it ought to be [bruce circa 050113. Fixes bug 177.] [ported to Qt4, bruce 070511]
         # (the frequent get_scrollpos calls are for debugging, but it's conceivable they are needed due to undocumented side effects.)
         self.get_scrollpos("after remake alone")
-        self.updateGeometry() #k don't know if this is needed
-        self.get_scrollpos("after updateGeometry")
-        
-        self.scrollToBottom() # this is needed -- it prevents temporary removal of scrollbar.
-            # Maybe that's related to the updates it does internally, unlike scrollToTop?
-            # The source code, in gui/itemviews/qabstractitemview.cpp (Qt 4.2.2), says:
-                ##    void QAbstractItemView::scrollToBottom()
-                ##    {
-                ##        Q_D(QAbstractItemView);
-                ##        if (d->delayedLayout.isActive()) {
-                ##            d->executePostedLayout();
-                ##            updateGeometries();
-                ##        }
-                ##        verticalScrollBar()->setValue(verticalScrollBar()->maximum());
-                ##    }
-        self.get_scrollpos("after scrollToBottom")
 
-        self.set_scrollpos( scrollpos)
+        if debug_pref("MT debug: updateGeometry", Choice_boolean_True, non_debug = True, prefs_key = True):
+            self.updateGeometry() #k don't know if this is needed
+            self.get_scrollpos("after updateGeometry")
+        
+        if debug_pref("MT debug: scrollToBottom", Choice_boolean_True, non_debug = True, prefs_key = True):
+            self.scrollToBottom() # this is needed -- it prevents temporary removal of scrollbar.
+                # Maybe that's related to the updates it does internally, unlike scrollToTop?
+                # The source code, in gui/itemviews/qabstractitemview.cpp (Qt 4.2.2), says:
+                    ##    void QAbstractItemView::scrollToBottom()
+                    ##    {
+                    ##        Q_D(QAbstractItemView);
+                    ##        if (d->delayedLayout.isActive()) {
+                    ##            d->executePostedLayout();
+                    ##            updateGeometries();
+                    ##        }
+                    ##        verticalScrollBar()->setValue(verticalScrollBar()->maximum());
+                    ##    }
+            self.get_scrollpos("after scrollToBottom")
+
+        if debug_pref("MT debug: set_scrollpos", Choice_boolean_True, non_debug = True, prefs_key = True):
+            self.set_scrollpos( scrollpos)
 
         # Qt3 comment, not sure if still an issue in Qt4:
         ### not yet perfect, since we need to correct height
