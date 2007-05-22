@@ -219,7 +219,9 @@ class basicMode(anyMode):
                   (self.msg_modename, self.__class__.__name__)
         # check whether subclasses override methods we don't want them to
         # (after this works I might remove it, we'll see)
-        ####@@@@ bruce 050130 removing 'Done' temporarily; see panMode.Done for why
+        ####@@@@ bruce 050130 removing 'Done' temporarily; see panMode.Done for why.
+        # later note: as of 070521, we always get warned "subclass movieMode overrides basicMode._exitMode".
+        # I am not sure whether this override is legitimate so I'm not removing the warning for now. [bruce 070521]
         weird_to_override = ['Cancel', 'Flush', 'StartOver', 'Restart',
                              'userSetMode', '_exitMode', 'Abandon', '_cleanup']
             # not 'modifyTransmute', 'keyPress', they are normal to override;
@@ -246,14 +248,6 @@ class basicMode(anyMode):
             # instance of same mode, when setassy called, eg for file
             # open; this might (or might not) cause some bugs; i
             # should fix this but didn't yet do so as of 040923
-
-        ###e bruce 040922: what are these selection things doing here?
-        ### i suspect they ought to be mode-specific... not sure.
-
-        #self.sellist = []
-        #self.selShape = 0
-            #& These selection attrs have been moved to selectMode and cookieMode 
-            #& where they belong.  I intend to remove these soon (from here). mark 060205.
 
         self.setup_menus_in_init()
 
