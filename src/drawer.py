@@ -2023,16 +2023,6 @@ def drawGrid(scale, center, latticeType):
     
     #drawCubeCell(V(1, 0, 0))
     return
-
-def drawSquare(center, side, linecolor, linethickness = 1, \
-	       filled = False, fillcolor = None):
-	''' Draw a square
-	@param: center = vector representing the center of the square
-	@param: side: int side 
-	@param: linethickness: default line thickness '''
-	if filled:
-		if not fillcolor: fillcolor = linecolor
-	
 	
 
 def drawrectangle(pt1, pt2, rt, up, color):
@@ -2094,7 +2084,10 @@ def drawLineLoop(color,lines, width = 1):
     for v in lines:
         glVertex3fv(v)
     glEnd()
-    glEnable(GL_LIGHTING)    
+    glEnable(GL_LIGHTING)  
+    #reset the glLineWidth to 1
+    if width!=1:
+	glLineWidth(1)
     return
     
 def drawlinelist(color,lines):
