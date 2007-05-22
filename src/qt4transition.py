@@ -1,5 +1,7 @@
 # Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 """Useful markers and messages for Qt 4 transition work.
+
+$Id$
 """
 from debug_prefs import debug_pref, Choice_boolean_False
 
@@ -117,10 +119,13 @@ def qt4warnDestruction(obj, name=''):
         message += f.f_code.co_filename + (':%d' % f.f_lineno)
     if name:
         message += ' ' + name
-    print 'Setting up destruction warning', message
+    if debug_pref("Enable QT4 WARNING messages", 
+                      Choice_boolean_False,
+                      prefs_key=True):
+        print 'Setting up destruction warning', message
     def destruction(ignore, message=message):
         import sys
-        print 'OBJECT DESTROYED', message
+        print 'OBJECT DESTROYED (exiting)', message #bruce 070521 revised message
         sys.exit(1)
     from PyQt4.Qt import QObject, SIGNAL
     QObject.connect(obj, SIGNAL("destroyed(QObject *)"), destruction)
