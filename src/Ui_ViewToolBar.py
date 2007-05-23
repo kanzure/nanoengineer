@@ -31,12 +31,6 @@ def setupUi(win):
             
             #Create Standard Views dropdown menu in the View Tool bar ---
             
-            #win.standardViewsAction = QtGui.QAction(MainWindow)
-            win.standardViewsAction = QtGui.QWidgetAction(MainWindow)
-            win.standardViewsAction.setEnabled(True)
-            win.standardViewsAction.setIcon(geticon("ui/actions/View/Standard_Views"))
-            win.standardViewsAction.setObjectName("standardViews")
-            
             win.standardViewsMenu = QtGui.QMenu("Standard Views")
             
             win.standardViewsMenu .addAction(win.viewFrontAction)
@@ -46,14 +40,18 @@ def setupUi(win):
             win.standardViewsMenu .addAction(win.viewTopAction)
             win.standardViewsMenu .addAction(win.viewBottomAction)
             win.standardViewsMenu .addAction(win.viewIsometricAction)
-                                   
-            win.standardViews_btn = QtGui.QToolButton()
-            win.standardViews_btn.setMenu(win.standardViewsMenu)
-            win.standardViews_btn.setPopupMode(QToolButton.MenuButtonPopup)
-            win.standardViews_btn.setIcon(geticon("ui/actions/View/Standard_Views"))
-            win.standardViewsAction.setDefaultWidget(win.standardViews_btn)
             
+            win.standardViewsAction = QtGui.QWidgetAction(MainWindow)
+            win.standardViewsAction.setEnabled(True)
+            win.standardViewsAction.setIcon(geticon("ui/actions/View/Standard_Views"))
+            win.standardViewsAction.setObjectName("standardViews")
+            win.standardViewsAction.setText("Standard Views")
             win.standardViewsAction.setMenu(win.standardViewsMenu)
+                                   
+            win.standardViews_btn = QtGui.QToolButton()            
+            win.standardViews_btn.setPopupMode(QToolButton.MenuButtonPopup)
+            win.standardViewsAction.setDefaultWidget(win.standardViews_btn)
+            win.standardViews_btn.setDefaultAction(win.standardViewsAction)
                         
             win.viewToolBar.addAction(win.standardViewsAction)
                         
