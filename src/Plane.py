@@ -238,9 +238,15 @@ class Plane(ReferenceGeometry):
                 if hdl not in self.cornerHandles:
                     self.cornerHandles.append(hdl)
                     
-            
+    def recomputeCenter(self, handleOffset):
+        ''' Recompute the center of the Plane based on the handleOffset
+        This is needed during resizing'''
+        
+        ##self.move(handleOffset/2.0)
+        self.center += handleOffset/2.0
+        
       
-    def recomputeCenter(self, bottomleftPt):
+    def recomputeCenter_ORIG(self, bottomleftPt):
         ''' Recompute the center of the Plane based on a new corner point
         This is needed during resizing'''
         
@@ -250,8 +256,19 @@ class Plane(ReferenceGeometry):
         
         self.center[0] =  pt[0] + w/2
         self.center[1] = pt[1] + h/2
-        
+    
     def recomputeHandleCenters(self, movedHandle, offset):
+        ''' Recompute the coordinates of all the handle centers
+        based on the handle moved.'''
+        
+        assert movedHandle in self.handles
+      
+        for hdl in self.handles:
+          if not hdl is movedHandle:
+              hdl.center += offset
+            
+        
+    def recomputeHandleCenters_ORIG(self, movedHandle, offset):
         ''' Recompute the coordinates of all the handle centers
         based on the handle moved.'''
         
@@ -270,6 +287,29 @@ class Plane(ReferenceGeometry):
         movedHandle.center += offset
       
     def resizeGeometry(self, movedHandle, offset):
+        handleOffset = offset
+             
+        ##self.recomputeHandleCenters(movedHandle, handleOffset)
+        
+        new_center = self.center + handleOffset/2.0
+        moved_handle_center = movedHandle.center + handleOffset
+        
+        if new_center[0] != moved_handle_center[0]:
+            hw = abs(new_center[0] - moved_handle_center[0])
+            self.setWidth(hw*2.0)
+            
+        if new_center[1] != moved_handle_center[1]:
+            hh = abs(new_center[1] - moved_handle_center[1])
+            self.setHeight(hh*2.0)
+        
+        self.recomputeCenter(handleOffset)
+        
+        self.recomputeHandleCenters(movedHandle, handleOffset)
+        
+        
+        
+        
+    def resizeGeometry_ORIG(self, movedHandle, offset):
         self.recomputeHandleCenters(movedHandle, offset)
         btmLeftHandle = self.cornerHandles[0]
         btmLeftPoint = btmLeftHandle.center        
