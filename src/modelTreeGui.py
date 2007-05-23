@@ -711,7 +711,7 @@ class ModelTreeGui(QTreeView, ModelTreeGui_api):
         debug_pref("MT debug: updateGeometry", Choice_boolean_True, non_debug = True, prefs_key = True)
         debug_pref("MT debug: scrollToBottom", Choice_boolean_True, non_debug = True, prefs_key = True)
         debug_pref("MT debug: set_scrollpos",  Choice_boolean_True, non_debug = True, prefs_key = True)
-        debug_pref("MT debug: show",           Choice_boolean_True, non_debug = True, prefs_key = True)
+        debug_pref("MT debug: show after replace", Choice_boolean_True, non_debug = True, prefs_key = True)
         debug_pref("MT debug: debug prints",               Choice_boolean_False, non_debug = True, prefs_key = True)
         debug_pref("MT debug: disable replace_items",      Choice_boolean_False, non_debug = True, prefs_key = True)
         debug_pref("MT debug: disable _remake_contents_0", Choice_boolean_False, non_debug = True, prefs_key = True)
