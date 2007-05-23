@@ -231,13 +231,30 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         self.memo_dict = {}
             # for use by anything that wants to store its own memo data on us, using a key it's sure is unique [bruce 060608]
             # (when we eventually have a real destroy method, it should zap this; maybe this will belong on class Node #e)
-        
-        self.displist = glGenLists(1)
-        assert type(self.displist) in (type(1), type(1L)) #bruce 070521 added these two asserts
-        assert self.displist != 0 # this will presumably fail for Eric M on Linux in Extrude -- will he see the traceback?
+
+        # self.displist is allocated on demand by _get_displist [bruce 070523]
 
         return # from molecule.__init__
-
+    
+    def _get_displist(self):
+        "initialize and return self.displist [must only be called when an appropriate GL context is current]"
+        #bruce 070523 change: do this on demand, not in __init__, to see if it fixes bug 2402
+        # in which this displist can be 0 on Linux (when entering Extrude).
+        # Theory: you should allocate it only when you know you're in a good GL context
+        # and are ready to draw, which is most safely done when you are first drawing,
+        # so allocating it on demand is the easiest way to do that. Theory about bug 2042:
+        # maybe some Qt drawing was changing the GL context in an unpredictable way;
+        # we were not even making glpane (or a thumbview) current before allocating this, until now.
+        #
+        # Note: we use _get_displist rather than _recompute_displist so we don't need to teach
+        # full_inval_and_update to ignore 'displist' as a special case. WARNING: for this method
+        # it's appropriate to set self.displist as well as returning it, but for most uses of
+        # _get_xxx methods, setting it would be wrong.
+        self.displist = glGenLists(1)
+        assert type(self.displist) in (type(1), type(1L)) #bruce 070521 added these two asserts
+        assert self.displist != 0 # this failed on Linux in Extrude, when we did it in __init__ (bug 2042)
+        return self.displist
+    
     def contains_atom(self, atom): #bruce 070514
         """Does self contain the given atom (a real atom or bondpoint)?
         """
