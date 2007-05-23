@@ -12,38 +12,37 @@ Mark 2007-05-17: Implemented PropMgrBaseClass.
 __author__ = "Will"
 
 import platform
-from GrapheneGeneratorDialog import GraphenePropMgr
 from math import atan2, sin, cos, pi
 import assembly, chem, bonds, Utility
 from chem import molecule, Atom
 import env
-from HistoryWidget import redmsg, orangemsg, greenmsg
-from PyQt4.Qt import Qt, QDialog, QApplication, QCursor, QDialog, QDoubleValidator, QValidator, QWhatsThis, SIGNAL
-from PyQt4 import QtGui
-from GrapheneGeneratorDialog import GraphenePropMgr
 from VQT import dot
 import string
-from widgets import double_fixup
 from debug import Stopwatch, objectBrowse
 from Utility import Group
-from GeneratorBaseClass import GeneratorBaseClass
 from elements import PeriodicTable
-from bonds import CC_GRAPHITIC_BONDLENGTH
+from HistoryWidget import greenmsg
+
+from PyQt4.Qt import QDialog
+from GrapheneGeneratorDialog import GraphenePropMgr
+from GeneratorBaseClass import GeneratorBaseClass
+
 
 sqrt3 = 3 ** 0.5
 quartet = ((0, sqrt3 / 2), (0.5, 0), (1.5, 0), (2, sqrt3 / 2))
 
 TOROIDAL = False   # Just for Will
 
-# GeneratorBaseClass must come BEFORE the dialog in the list of parents
-class GrapheneGenerator(QDialog, GeneratorBaseClass, GraphenePropMgr):
+# GraphenePropMgr must come BEFORE GeneratorBaseClass in this list.
+class GrapheneGenerator(QDialog, GraphenePropMgr, GeneratorBaseClass):
+    """The Graphene Sheet Generator class.
+    """
 
     cmd = greenmsg("Build Graphene: ")
-    sponsor_keyword = 'Graphene'
     prefix = 'Graphene-'   # used for gensym
-
     # We now support multiple keywords in a list or tuple
     # sponsor_keyword = ('Graphenes', 'Carbon')
+    sponsor_keyword = 'Graphene'
 
     # pass window arg to constructor rather than use a global, wware 051103
     def __init__(self, win):
@@ -56,28 +55,18 @@ class GrapheneGenerator(QDialog, GeneratorBaseClass, GraphenePropMgr):
     # any necessary helper functions
 
     def gather_parameters(self):
-        # Get length from height_linedit and make sure it is not zero.
-        # height_linedit's validator makes sure this has a valid number (float).  
-        # The only exception is when there is no text.  Mark 051103.
-        if not self.height_linedit.text():
-            raise Exception("Please specify a valid length.")
-        height = string.atof(str(self.height_linedit.text()))
-
-        if not self.width_linedit.text():
-            raise Exception("Please specify a valid width.")
-        width = string.atof(str(self.width_linedit.text()))
-
-        if not self.bond_length_linedit.text():
-            raise Exception("Please specify a valid bond length.")
-        bond_length = str(self.bond_length_linedit.text())
-        bond_length = bond_length.split(' ')[0]
-        self.bond_length = bond_length = string.atof(bond_length)
-
-        endings = self.endings_combox.currentIndex()
+        """Return all the parameters from the Property Manager.
+        """
+        height = self.heightField.value()
+        width = self.widthField.value()
+        self.bond_length = bond_length = self.bondLengthField.value()
+        endings = self.endingsComboBox.currentIndex()
 
         return (height, width, bond_length, endings)
 
     def build_struct(self, name, params, position):
+        """Build a graphene sheet from the parameters.
+        """
         height, width, bond_length, endings = params
         PROFILE = False
         if PROFILE:
@@ -95,6 +84,8 @@ class GrapheneGenerator(QDialog, GeneratorBaseClass, GraphenePropMgr):
         return mol
 
     def populate(self, mol, height, width, z, bond_length, endings, position):
+        """Create a graphene sheet chunk.
+        """
 
         def add(element, x, y, atomtype='sp2'):
             atm = Atom(element, chem.V(x, y, z), mol)
@@ -146,7 +137,8 @@ class GrapheneGenerator(QDialog, GeneratorBaseClass, GraphenePropMgr):
                 atm.kill()
 
         def trimCarbons():
-            # trim all the carbons that only have one carbon neighbor
+            """Trim all the carbons that only have one carbon neighbor.
+            """
             for i in range(2):
                 for atm in atoms.values():
                     if not atm.is_singlet() and len(atm.realNeighbors()) == 1:
@@ -186,30 +178,3 @@ class GrapheneGenerator(QDialog, GeneratorBaseClass, GraphenePropMgr):
 
         if num_atoms == len(mol.atoms):
             raise Exception("Graphene sheet too small - no atoms added")
-    
-    def show(self):
-        
-        #QDialog.show(self)
-        
-        #Show it in Property Manager Tab ninad061207
-        if not self.pw or self:            
-            self.pw = self.win.activePartWindow()       #@@@ ninad061206  
-            self.pw.updatePropertyManagerTab(self)
-            self.pw.featureManager.setCurrentIndex(self.pw.featureManager.indexOf(self))
-            self.setSponsor()
-            
-        else:
-            self.pw.updatePropertyManagerTab(self)
-            self.pw.featureManager.setCurrentIndex(self.pw.featureManager.indexOf(self))
-
-    ###################################################
-    # Special UI things that still must be implemented
-    
-
-    def restore_defaults_btn_clicked(self):
-        """Slot for restore defaults button in Property Manager.
-        """
-        self.languageChange()
-        self.bond_length_linedit.setText(str(CC_GRAPHITIC_BONDLENGTH))
-        self.height_linedit.setText("20.0")
-        self.width_linedit.setText("20.0")

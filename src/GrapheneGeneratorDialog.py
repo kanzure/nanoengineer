@@ -14,212 +14,159 @@ __author__ = "Mark"
 
 import sys
 from PyQt4 import Qt, QtCore, QtGui
-from Utility import geticon, getpixmap
 from PyQt4.Qt import *
-from PropertyManagerMixin import PropMgrBaseClass
+from Utility import geticon, getpixmap
+from PropMgrBaseClass import *
 from PropMgr_Constants import *
 from bonds import CC_GRAPHITIC_BONDLENGTH
 
 class GraphenePropMgr(object, PropMgrBaseClass):
     
+    # <title> - the title that appears in the property manager header.
+    title = "Graphene Sheet"
+    # <name> - the name of this property manager. This will be set to
+    # the name of the PropMgr (this) object via setObjectName().
+    name = title + " Property Manager"
+    # <iconPath> - full path to PNG file that appears in the header.
+    iconPath = "ui/actions/Tools/Build Structures/Graphene.png"
+    
     def __init__(self):
         """Construct the Graphene Property Manager.
         """
-        PropMgrBaseClass.__init__(self)
-        self.setPropMgrIcon('ui/actions/Tools/Build Structures/Graphene.png')
-        self.setPropMgrTitle("Graphene Sheet")
+        PropMgrBaseClass.__init__(self, self.name)
+        self.setPropMgrIcon(self.iconPath)
+        self.setPropMgrTitle(self.title)
         self.addGroupBoxes()
         self.addBottomSpacer() 
         self.add_whats_this_text()
-        self.connect_or_disconnect_signals(connect=True)
+        self.connect_or_disconnect_signals()
         
         msg = "Edit the Graphene sheet parameters and select <b>Preview</b> to \
         preview the structure. Click <b>Done</b> to insert it into the model."
-        self.insertHtmlMsg(msg)
+        
+        # This causes the "Message" box to be displayed as well.
+        self.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=False)
         
     def addGroupBoxes(self):
         """Add the 1 groupbox for the Graphene Property Manager.
         """
-        self.addGroupBox1("Parameters")
+        self.addGroupBoxSpacer()
+        self.pmGroupBox1 = PropMgrGroupBox(self, 
+                                           title="Graphene Parameters",
+                                           titleButton=True)
+        self.loadGroupBox1(self.pmGroupBox1)
               
-    def addGroupBox1(self, title):
-        """Adds a spacer, then it creates layout and widgets for the 
-        "DNA Parameters" groupbox.
+    def loadGroupBox1(self, GroupBox1):
+        """Load widgets in groubox 1.
         """
         
-        self.addGroupBoxSpacer()
-                
-        self.pmGroupBox1 = QtGui.QGroupBox(self)
-        self.pmGroupBox1.setObjectName("pmGroupBox1")
+        self.heightField = \
+            PropMgrDoubleSpinBox(GroupBox1, 
+                                label="Height : ", 
+                                val=20.0, setAsDefault=True,
+                                min=1.0, max=50.0, 
+                                singleStep=1.0, decimals=1, 
+                                suffix=' Angstroms')
         
-        self.pmGroupBox1.setAutoFillBackground(True) 
-        palette =  self.getGroupBoxPalette()
-        self.pmGroupBox1.setPalette(palette)
+        self.widthField = \
+            PropMgrDoubleSpinBox(GroupBox1,
+                                label="Width : ", 
+                                val=20.0, setAsDefault=True,
+                                min=1.0, max=50.0, 
+                                singleStep=1.0, decimals=1, 
+                                suffix=' Angstroms')
         
-        styleSheet = self.getGroupBoxStyleSheet()        
-        self.pmGroupBox1.setStyleSheet(styleSheet)
+        self.bondLengthField = \
+            PropMgrDoubleSpinBox(GroupBox1,
+                                label="Bond Length : ", 
+                                val=CC_GRAPHITIC_BONDLENGTH, setAsDefault=True,
+                                min=1.0, max=3.0, 
+                                singleStep=0.1, decimals=3, 
+                                suffix=' Angstroms')
         
-        # Create vertical box layout
-        GrpBox1MainVBoxLayout = QtGui.QVBoxLayout(self.pmGroupBox1)
-        GrpBox1MainVBoxLayout.setMargin(pmGrpBoxVboxLayoutMargin)
-        GrpBox1MainVBoxLayout.setSpacing(pmGrpBoxVboxLayoutSpacing)
+        endingChoices = ["None", "Hydrogen", "Nitrogen"]
+        self.endingsComboBox= \
+            PropMgrComboBox(GroupBox1,
+                            label='Endings : ', 
+                            choices=endingChoices, 
+                            idx=0, setAsDefault=True,
+                            spanWidth=False)
+        
+        # I intend to create a special PropMgr to display all widget types
+        # for testing purposes. For now, I just add them to the end of the
+        # Graphene Sheet property manager. Mark 2007-05-22
+        
+        if 0: # Display all PropMgr widget types.
+            self.spinBox = PropMgrSpinBox(GroupBox1, 
+                                      label="Spinbox : ", 
+                                      val=5, setAsDefault=True,
+                                      min=2, max=10, 
+                                      suffix=' things',
+                                      spanWidth=True)
+            
+            self.doubleSpinBox = \
+                PropMgrDoubleSpinBox(GroupBox1, 
+                                    #label="Spanning DoubleSpinBox : ",
+                                    label="", # No label
+                                    val=5.0, setAsDefault=True,
+                                    min=1.0, max=10.0, 
+                                    singleStep=1.0, decimals=1, 
+                                    suffix=' Suffix',
+                                    spanWidth=True)
+            
+            # Add a prefix example.
+            self.doubleSpinBox.setPrefix("Prefix ")
+            
+            choices = ["First", "Second", "Third (Default)", "Forth"]
+            self.comboBox= \
+                PropMgrComboBox(GroupBox1,
+                                label='Choices : ', 
+                                choices=choices, 
+                                idx=2, setAsDefault=True,
+                                spanWidth=True)
+        
+            self.textEdit = PropMgrTextEdit(GroupBox1, 
+                                        label="TextEdit : ", 
+                                        spanWidth=False)
+        
+            self.spanTextEdit = PropMgrTextEdit(GroupBox1, 
+                                        label="Spanning TextEdit : ", 
+                                        spanWidth=True)
+            
+            self.groupBox = PropMgrGroupBox(GroupBox1, 
+                                        title="Group Box Title",
+                                        titleButton=False)
+            
+            self.comboBox2= \
+                PropMgrComboBox(self.groupBox,
+                                label='Choices : ', 
+                                choices=choices, 
+                                idx=2, setAsDefault=True,
+                                spanWidth=False)
 
-        # Title button for groupbox1
+    def connect_or_disconnect_signals(connect=True):
+        """Add special slots for PropMgr widgets here.
+        """
+        return
         
-        self.pmGroupBoxBtn1 = self.getGroupBoxTitleButton(
-            title, self.pmGroupBox1)
-        
-        GrpBox1MainVBoxLayout.addWidget(self.pmGroupBoxBtn1)
-        
-        # Create grid layout
-        GrpBox1GridLayout1 = QtGui.QGridLayout()
-        GrpBox1GridLayout1.setMargin(pmGridLayoutMargin)
-        GrpBox1GridLayout1.setSpacing(pmGridLayoutSpacing)
-        
-        # Height Label
-        self.height_label = QtGui.QLabel(self.pmGroupBox1)
-        self.height_label.setAlignment(Qt.AlignRight|
-                                       Qt.AlignTrailing|
-                                       Qt.AlignVCenter)
-        self.height_label.setObjectName("height_label")
-        self.height_label.setText("Height (A) :")
-        GrpBox1GridLayout1.addWidget(self.height_label,1,0,1,1)
-
-        # Height LineEdit
-        self.height_linedit = QtGui.QLineEdit(self.pmGroupBox1)
-        self.height_linedit.setObjectName("height_linedit")
-        self.height_linedit.setText("20.0")
-        GrpBox1GridLayout1.addWidget(self.height_linedit,1,1,1,1)
-
-        # Width Label
-        self.width_label = QtGui.QLabel(self.pmGroupBox1)
-        self.width_label.setAlignment(Qt.AlignRight|
-                                      Qt.AlignTrailing|
-                                      Qt.AlignVCenter)
-        self.width_label.setObjectName("width_label")
-        self.width_label.setText("Width (A) :")
-        GrpBox1GridLayout1.addWidget(self.width_label,2,0,1,1)
-
-        # Width LineEdit
-        self.width_linedit = QtGui.QLineEdit(self.pmGroupBox1)
-        self.width_linedit.setObjectName("width_linedit")
-        self.width_linedit.setText("20.0")
-        GrpBox1GridLayout1.addWidget(self.width_linedit,2,1,1,1)
-
-        # Bond Length Label
-        self.bond_length_label = QtGui.QLabel(self.pmGroupBox1)
-        self.bond_length_label.setAlignment(Qt.AlignRight|
-                                            Qt.AlignTrailing|
-                                            Qt.AlignVCenter)
-        self.bond_length_label.setObjectName("bond_length_label")
-        self.bond_length_label.setText("Bond Length (A) :")
-        GrpBox1GridLayout1.addWidget(self.bond_length_label,3,0,1,1)
-
-        # Bond Length LineEdit
-        self.bond_length_linedit = QtGui.QLineEdit(self.pmGroupBox1)
-        self.bond_length_linedit.setObjectName("bond_length_linedit")
-        GrpBox1GridLayout1.addWidget(self.bond_length_linedit,3,1,1,1)
-
-        # Endings Label
-        self.endings_label = QtGui.QLabel(self.pmGroupBox1)
-        self.endings_label.setAlignment(Qt.AlignRight|
-                                        Qt.AlignTrailing|
-                                        Qt.AlignVCenter)
-        self.endings_label.setObjectName("endings_label")
-        self.endings_label.setText("Endings :")
-        GrpBox1GridLayout1.addWidget(self.endings_label,4,0,1,1)
-
-        # Endings ComboBox
-        self.endings_combox = QtGui.QComboBox(self.pmGroupBox1)
-        self.endings_combox.setObjectName("endings_combox")
-        self.endings_combox.addItem("None")
-        self.endings_combox.addItem("Hydrogen")
-        self.endings_combox.addItem("Nitrogen")
-        GrpBox1GridLayout1.addWidget(self.endings_combox,4,1,1,1)
-        
-        GrpBox1MainVBoxLayout.addLayout(GrpBox1GridLayout1)
-        
-        self.pmMainVboxLO.addWidget(self.pmGroupBox1) # Add groupbox
-        
-        # Last minute stuff.
-        
-        # Validator for the linedit widgets.
-        self.validator = QDoubleValidator(self)
-        # Range for linedits: 1 to 1000, 3 decimal places
-        self.validator.setRange(1.0, 1000.0, 3)
-        self.height_linedit.setValidator(self.validator)
-        self.width_linedit.setValidator(self.validator)
-        self.bond_length_linedit.setValidator(self.validator)
-        self.hstr = self.height_linedit.text()
-        self.wstr = self.width_linedit.text()
-        self.blstr = self.bond_length_linedit.text()
-        self.bond_length_linedit.setText(str(CC_GRAPHITIC_BONDLENGTH))
-
-
     def add_whats_this_text(self):
         """What's This text for some of the widgets in the Property Manager.
         """
         
-        self.height_linedit.setWhatsThis("""<b>Height</b>
-        <p>The height of the graphite sheet in angstroms.</p>""")
+        self.heightField.setWhatsThis("""<b>Height</b>
+        <p>The height (up to 50 Angstroms) of the graphite sheet 
+        in angstroms.</p>""")
         
-        self.width_linedit.setWhatsThis("""<b>Width</b>
-        <p>The width of the graphene sheet in angstroms.</p>""")
+        self.widthField.setWhatsThis("""<b>Width</b>
+        <p>The width (up to 50 Angstroms) of the graphene sheet 
+        in angstroms.</p>""")
         
-        self.bond_length_linedit.setWhatsThis("""<b>Bond length</b>
-        <p>You can change the bond lengths in the
+        self.bondLengthField.setWhatsThis("""<b>Bond length</b>
+        <p>You can change the bond lengths (1.0-3.0 Angstroms) in the
         graphene sheet. We believe the default value is accurate for sp
         <sup>2</sup>-hybridized carbons.</p>""")
         
-        self.endings_combox.setWhatsThis("""<b>Endings</b>
+        self.endingsComboBox.setWhatsThis("""<b>Endings</b>
         <p>Graphene sheets can be unterminated (dangling
         bonds), or terminated with hydrogen atoms or nitrogen atoms.</p>""")
         
-    def connect_or_disconnect_signals(self, connect=True):
-        """Connect/disconnect this pmgr's widgets signals to/from their slots.
-        If <connect> is False, disconnect all slots listed.
-        """
-        
-        if connect:
-            contype = self.connect
-        else:
-            contype = self.disconnect
-        
-        # Groupbox Toggle Buttons.
-        contype(self.pmGroupBoxBtn1,SIGNAL("clicked()"),
-                self.toggle_pmGroupBox1)
-       
-        # Groupbox1.
-        contype(self.height_linedit,
-                SIGNAL("returnPressed()"),
-                self.length_fixup)
-        contype(self.width_linedit,
-                SIGNAL("returnPressed()"),
-                self.length_fixup)
-        contype(self.bond_length_linedit,
-                SIGNAL("returnPressed()"),
-                self.length_fixup)
-        
-    # GroupBox1 slots (and other methods) supporting the DNA Parameters groupbox.
-        
-    def length_fixup(self):
-        '''Slot for various linedit widgets.
-        This gets called each time a user types anything into the widget.
-        '''
-        hstr = double_fixup(self.validator, self.height_linedit.text(), self.hstr)
-        self.height_linedit.setText(hstr)
-        wstr = double_fixup(self.validator, self.width_linedit.text(), self.wstr)
-        self.width_linedit.setText(wstr)
-        blstr = double_fixup(self.validator, self.bond_length_linedit.text(), self.blstr)
-        self.bond_length_linedit.setText(blstr)
-        self.hstr, self.wstr, self.blstr = hstr, wstr, blstr
-        
-        
-    # Collapse/expand toggle slots for groupbox buttons.
-    
-    def toggle_pmGroupBox1(self):
-        self.toggle_groupbox(self.pmGroupBoxBtn1,
-                             self.height_label, self.height_linedit,
-                             self.width_label, self.width_linedit,
-                             self.bond_length_label, self.bond_length_linedit,
-                             self.endings_label, self.endings_combox)
