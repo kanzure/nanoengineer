@@ -240,7 +240,6 @@ def makemenu_helper(widget, menu_spec, menu=None):
     # leaving a delegator for it in basicMode.
     # (bruce was not the original author, but modified it)
     #menu = QMenu( widget)
-##    placeSeparator = False
     for m in menu_spec:
         try: #bruce 050416 added try/except as debug code and for safety
             menutext = m and widget.trUtf8(m[0])
@@ -274,17 +273,16 @@ def makemenu_helper(widget, menu_spec, menu=None):
                         act.setCheckable(True)
                         act.setChecked(True)
                     menu.addAction(act)
-##                    if placeSeparator:
-##                        menu.insertSeparator(act)
-##                        placeSeparator = False
                     widget.connect(act, SIGNAL("activated()"), func)
                 else:
                     # disabled case
                     # [why is this case done differently, in this Qt4 port?? -- bruce 070522 question]
                     insert_command_into_menu(menu, menutext, func, options = m[2:], raw_command = True)
             else:
-##                placeSeparator = True
-                menu.addSeparator() #bruce 070522 bugfix
+                menu.addSeparator() #bruce 070522 bugfix -- before this, separators were placed lower down or dropped
+                    # so as not to come before disabled items, for unknown reasons.
+                    # (Speculation: maybe because insertSeparator was used, since addSeparator didn't work or wasn't noticed,
+                    #  and since disabled item were added by an older function (also for unknown reasons)?)
                 pass
         except Exception, e:
             if isinstance(e, SystemExit):
