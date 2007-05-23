@@ -10,7 +10,7 @@ ninad20061215: created this mixin class to provide helper methods in various
 Property managers 
 ninad20070206: added many new methods to help prop manager ui generation.
 
-mark 2007-05-17: added new PropertyManager class.
+mark 2007-05-17: added the new property manager base class PropMgrBaseClass.
 
 """
 
@@ -56,7 +56,7 @@ if COLOR_THEME == "Gray":
     pmGrpBoxButtonColor = QtGui.QColor(172,173,190)
     pmCheckBoxTextColor = QtGui.QColor(0,0,255) # used in MMKit
     pmCheckBoxButtonColor = QtGui.QColor(172,173,190)
-    pmMsgGrpBoxColor = QtGui.QColor(255,255,100)
+    pmMessageTextEditColor = QtGui.QColor(255,255,100)
     
     # Property Manager colors set by HTML Color Codes
     #@ To do: I intend to add a method for each (like those above) 
@@ -79,7 +79,7 @@ else: # Blue Color Theme
     pmGrpBoxButtonColor = QtGui.QColor(172,173,190)
     pmCheckBoxTextColor = QtGui.QColor(0,0,255)
     pmCheckBoxButtonColor = QtGui.QColor(172,173,190)
-    pmMsgGrpBoxColor = QtGui.QColor(255,255,100)
+    pmMessageTextEditColor = QtGui.QColor(255,255,100)
 
     # Style sheet colors for GroupBox buttons.
     pmGrpBoxBorderColor = "blue"
@@ -89,8 +89,6 @@ else: # Blue Color Theme
     # Locations of groupbox opened and closed images.
     pmGrpBoxOpenedImage = "ui/actions/Properties Manager/GroupBox_Opened_Blue.png"
     pmGrpBoxClosedImage = "ui/actions/Properties Manager/GroupBox_Closed_Blue.png"
-
-pmGroupBoxSpacing = 5 # 5 pixel between groupboxes.
 
 class PropMgrBaseClass:
     '''Property Manager base class'''
@@ -521,7 +519,7 @@ class PropertyManagerMixin(SponsorableMixin):
         """
         return self.getPalette(None,
                                QtGui.QPalette.Base,
-                               pmMsgGrpBoxColor)
+                               pmMessageTextEditColor)
                                
     def getGroupBoxPalette(self):
         """ Return a palette for Property Manager groupboxes. 

@@ -19,6 +19,8 @@ pmHideAllButtons = pmHideDoneButton | pmHideCancelButton | pmHideRestoreDefaults
           pmHidePreviewButton | pmHideWhatsThisButton
 
 # PropMgr Layout constants.
+pmGrpBoxLeftColumn = 0
+pmGroupBoxSpacing = 5 # 5 pixels between groupboxes.
 pmMainVboxLayoutMargin = 0 # PropMgr's master VboxLayout margin
 pmMainVboxLayoutSpacing = 0 # PropMgr's master VboxLayout spacing
 pmHeaderFrameMargin = 2 # margin around icon and title.
@@ -27,9 +29,18 @@ pmSponsorFrameMargin = 0 # margin around sponsor button.
 pmSponsorFrameSpacing = 0 # has no effect.
 pmTopRowBtnsMargin = 2 # margin around buttons.
 pmTopRowBtnsSpacing = 2 # space between buttons.
+
+# GroupBox Layout constants.
 pmMsgGrpBoxMargin = 0 # margin around yellow text window.
 pmMsgGrpBoxSpacing = 0 # has no effect.
 pmGrpBoxVboxLayoutMargin = 0 # Groupbox VboxLayout margin
 pmGrpBoxVboxLayoutSpacing = 2 # Groupbox VboxLayout spacing
-pmGridLayoutMargin = 2 # Grid contains all widgets in a grpbox
-pmGridLayoutSpacing = 4 # Grid contains all widgets in a grpbox
+pmGrpBoxGridLayoutMargin = 2 # Grid contains all widgets in a grpbox
+pmGrpBoxGridLayoutSpacing = 4 # Grid contains all widgets in a grpbox
+
+# These need to be deleted by me. Mark 2007-05-20
+pmGridLayoutMargin = 2 # Grid contains all widgets in a grpbox (obsolete)
+pmGridLayoutSpacing = 4 # Grid contains all widgets in a grpbox (obsolete)
+
+# Directory containing icons/images for the property manager.
+pmImagePath = "ui/actions/Properties Manager/"
