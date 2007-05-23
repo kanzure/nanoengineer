@@ -710,7 +710,11 @@ class ModelTreeGui(QTreeView, ModelTreeGui_api):
         debug_pref("MT debug: setDirtyRegion", Choice(["large","small","none"]), non_debug = True, prefs_key = True)
         debug_pref("MT debug: updateGeometry", Choice_boolean_True, non_debug = True, prefs_key = True)
         debug_pref("MT debug: scrollToBottom", Choice_boolean_True, non_debug = True, prefs_key = True)
-        debug_pref("MT debug: set_scrollpos", Choice_boolean_True, non_debug = True, prefs_key = True)
+        debug_pref("MT debug: set_scrollpos",  Choice_boolean_True, non_debug = True, prefs_key = True)
+        debug_pref("MT debug: show",           Choice_boolean_True, non_debug = True, prefs_key = True)
+        debug_pref("MT debug: debug prints",               Choice_boolean_False, non_debug = True, prefs_key = True)
+        debug_pref("MT debug: disable replace_items",      Choice_boolean_False, non_debug = True, prefs_key = True)
+        debug_pref("MT debug: disable _remake_contents_0", Choice_boolean_False, non_debug = True, prefs_key = True)
 
         return
 
@@ -756,6 +760,9 @@ class ModelTreeGui(QTreeView, ModelTreeGui_api):
         from ops_select import topmost_selected_nodes
         return topmost_selected_nodes(nodes)
 
+    def MT_debug_prints(self):
+        return debug_pref("MT debug: debug prints", Choice_boolean_False, non_debug = True, prefs_key = True)
+    
     def replace_item_tree(self, unpickEverybody = False): ###SLATED FOR REWRITE OR REPLACEMENT [partly done?]
         """Discard old item tree and replace it with a new one (made of all new items),
         updating item state as needed, including open/closed state.
@@ -763,9 +770,14 @@ class ModelTreeGui(QTreeView, ModelTreeGui_api):
         """
         # [bruce 070509 renamed clear -> replace_item_tree and changed default value of unpickEverybody to False,
         #  revising calls as needed to keep them equivalent.]
+
+        if debug_pref("MT debug: disable replace_items", Choice_boolean_False, non_debug = True, prefs_key = True):
+            return
         
         # throw away all references to existing list items
         if unpickEverybody and hasattr(self, 'node_to_item_dict'):
+            if self.MT_debug_prints():
+                print "MT debug: FYI: unpickEverybody"
             for node in self.node_to_item_dict.keys():
                 node.unpick() #e optim: this descends into Groups, so we're doing extra work in this loop
         self.item_to_node_dict = { }
@@ -814,8 +826,9 @@ class ModelTreeGui(QTreeView, ModelTreeGui_api):
             index = self.qtmodel.indexdict[item]
             self.setExpanded( index, open )
         self.recurseOnItems(expand_if_open)
-        
-        self.show()
+
+        if debug_pref("MT debug: show after replace", Choice_boolean_True, non_debug = True, prefs_key = True):
+            self.show()
         return
 
     # ==
@@ -921,6 +934,9 @@ class ModelTreeGui(QTreeView, ModelTreeGui_api):
         """
         """
         # note: this corresponds to update_state_0 in Qt3 code
+
+        if debug_pref("MT debug: disable _remake_contents_0", Choice_boolean_False, non_debug = True, prefs_key = True):
+            return
 
         # use the record of the scroll position from the mousePress, so it can be set to something similar below
         pos1 = self.get_scrollpos("initial") # the current value has already been messed up in some cases! (e.g. after cmenu commands)
