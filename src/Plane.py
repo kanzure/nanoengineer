@@ -223,9 +223,12 @@ class Plane(ReferenceGeometry):
             handleCenters.append(midpt)
             
         
-        if len(self.handles)> 0:
-            for hdl in self.handles:                
-                hdl.draw()
+        
+        if len(self.handles)> 0:   
+            assert len(self.handles) == len(handleCenters)
+            i = 0
+            for i in range(len(self.handles)):
+                self.handles[i].draw(hCenter = handleCenters[i])
         else:            
             for hCenter in handleCenters: 
                 handle = Handle(self, self.glpane, hCenter)
@@ -336,18 +339,24 @@ class Handle:
         self.glname = env.alloc_my_glselect_name(self)
                
     
-    def draw(self):
+    def draw(self, hCenter = None):
         try:
             glPushName(self.glname)
-            self._draw()    
+            if hCenter:
+                self._draw(hCenter)    
+            else:
+                self._draw()
         except:
             glPopName()
             print_compact_traceback("ignoring exception when drawing handle %r: " % self)
         else:
             glPopName()
     
-    def _draw(self, highlighted = False):
+    def _draw(self, hCenter = None, highlighted = False):
         ''' Draw the handle object '''        
+        
+        if hCenter:
+            self.center = hCenter
         
         #Always draw the handle geometry facing the line of sight. So that 
         #the handles are visible in any orientation of the plane.   
