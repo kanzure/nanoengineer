@@ -35,7 +35,8 @@ class Plane(ReferenceGeometry):
         
         self.handles = []        
         self.cornerHandles = []
-        self.middleHandles = []   
+        self.xHandles = []   
+        self.yHandles = []
         
         #This is used to notify drawing code if it's just for picking purpose
         #copied from jig_planes.ESPImage
@@ -205,119 +206,83 @@ class Plane(ReferenceGeometry):
         handleCenters = list(cornerPoints)
         
         cornerHandleCenters = list(cornerPoints) 
+                
+        midBtm = (handleCenters[0] + handleCenters[1])/2      
+        midRt = (handleCenters[1] + handleCenters[2])/2
+        midTop = (handleCenters[2] + handleCenters[3])/2
+        midLft = (handleCenters[3] + handleCenters[0])/2
         
-        self.midBtm = (handleCenters[0] + handleCenters[1])/2
-        self.midRt =  (handleCenters[1] + handleCenters[2])/2
-        self.midTop = (handleCenters[2] + handleCenters[3])/2
-        self.midLft = (handleCenters[3] + handleCenters[0])/2 
+        xHandleCenters = [midRt, midLft]
+        yHandleCenters = [midBtm, midTop]
         
-        """
-        midpoint1 = (handleCenters[0] + handleCenters[1])/2      
-        midpoint2 = (handleCenters[1] + handleCenters[2])/2
-        midpoint3 = (handleCenters[2] + handleCenters[3])/2
-        midpoint4 = (handleCenters[3] + handleCenters[0])/2
-        """
-        
-        ##for midpt in [midpoint1,midpoint2, midpoint3, midpoint4]:
-        for midpt in [self.midBtm, self.midRt, self.midTop, self.midLft]:
+        for midpt in [midBtm,midRt,midTop, midLft]:
             handleCenters.append(midpt)
+        
+                  
             
-        
-        
         if len(self.handles)> 0:   
             assert len(self.handles) == len(handleCenters)
             i = 0
             for i in range(len(self.handles)):
                 self.handles[i].draw(hCenter = handleCenters[i])
-        else:            
+        else:   
+            hdlIndex = 0
             for hCenter in handleCenters: 
                 handle = Handle(self, self.glpane, hCenter)
                 handle.draw() 
                 if handle not in self.handles:
                     self.handles.append(handle)
-                        
-        for hdl in self.handles:
-            if hdl.center in cornerHandleCenters:
-                if hdl not in self.cornerHandles:
-                    self.cornerHandles.append(hdl)
-                    
+                
+                #handleIndex = 0, 1, 2, 3 -->
+                #--> bottomLeft, bottomRight, topRight, topLeft corners respt
+                #handleIndex = 4, 5, 6, 7 -->
+                #-->midBottom, midRight, midTop, midLeft Handles respt.
+    
+                if hdlIndex == 5 or hdlIndex == 7: 
+                    handle.setType('X-Handle')
+                elif hdlIndex == 4 or hdlIndex == 6:
+                    handle.setType('Y-Handle')
+                else:
+                    handle.setType('Corner')
+                
+                hdlIndex +=1
+                                            
     def recomputeCenter(self, handleOffset):
         ''' Recompute the center of the Plane based on the handleOffset
         This is needed during resizing'''
         
         ##self.move(handleOffset/2.0)
         self.center += handleOffset/2.0
-        
-      
-    def recomputeCenter_ORIG(self, bottomleftPt):
-        ''' Recompute the center of the Plane based on a new corner point
-        This is needed during resizing'''
-        
-        pt = bottomleftPt
-        w = self.getWidth()
-        h = self.getHeight()
-        
-        self.center[0] =  pt[0] + w/2
-        self.center[1] = pt[1] + h/2
-    
-    def recomputeHandleCenters(self, movedHandle, offset):
-        ''' Recompute the coordinates of all the handle centers
-        based on the handle moved.'''
-        
-        assert movedHandle in self.handles
-      
-        for hdl in self.handles:
-          if not hdl is movedHandle:
-              hdl.center += offset
-            
-        
-    def recomputeHandleCenters_ORIG(self, movedHandle, offset):
-        ''' Recompute the coordinates of all the handle centers
-        based on the handle moved.'''
-        
-        assert movedHandle in self.handles
-        
-        #@@@EXPERIMENTAL. Still work in progress -- ninad 20070518
-        #this is intended only for midpoint handles. Need special cases 
-        #for corners. -- NIY
-        
-        neighbors = list(movedHandle.nearestNeighbors())
-               
-        for hdl in neighbors:
-            if hdl in self.handles:               
-                hdl.center += offset   
-        
-        movedHandle.center += offset
-      
+
     def resizeGeometry(self, movedHandle, offset):
         handleOffset = offset
-             
-        ##self.recomputeHandleCenters(movedHandle, handleOffset)
-        
+                    
         new_center = self.center + handleOffset/2.0
         moved_handle_center = movedHandle.center + handleOffset
         
-        if new_center[0] != moved_handle_center[0]:
+        if movedHandle.getType() == 'X-Handle':
             hw = abs(new_center[0] - moved_handle_center[0])
-            self.setWidth(hw*2.0)
-            
-        if new_center[1] != moved_handle_center[1]:
-            hh = abs(new_center[1] - moved_handle_center[1])
+            self.setWidth(hw*2.0) 
+            xOffset = handleOffset
+            xOffset[1] -= handleOffset[1]
+            xOffset[2] -= handleOffset[2]
+            self.recomputeCenter(xOffset)
+        elif movedHandle.getType() == 'Y-Handle':
+            hh = abs(new_center[1] - moved_handle_center[1])                
             self.setHeight(hh*2.0)
-        
-        self.recomputeCenter(handleOffset)
-        
-        self.recomputeHandleCenters(movedHandle, handleOffset)
-        
-        
-        
-        
-    def resizeGeometry_ORIG(self, movedHandle, offset):
-        self.recomputeHandleCenters(movedHandle, offset)
-        btmLeftHandle = self.cornerHandles[0]
-        btmLeftPoint = btmLeftHandle.center        
-        self.recomputeCenter(btmLeftPoint)
-                
+            yOffset = handleOffset
+            yOffset[0] -= handleOffset[0]
+            yOffset[2] -= handleOffset[2]
+            self.recomputeCenter(yOffset)
+        elif movedHandle.getType() == 'Corner':
+            hw = abs(new_center[0] - moved_handle_center[0])
+            hh = abs(new_center[1] - moved_handle_center[1]) 
+            self.setWidth(hw*2.0)
+            self.setHeight(hh*2.0)
+            cornerOffset = handleOffset
+            cornerOffset[2] -= handleOffset[2]
+            self.recomputeCenter(cornerOffset)
+  
             
 class Handle:
     '''@@@EXPERIMENTAL -- ninad 20070517 
@@ -337,7 +302,9 @@ class Handle:
         self.pickCheckOnly = False
         
         self.glname = env.alloc_my_glselect_name(self)
-               
+        
+        self.type = None
+     
     
     def draw(self, hCenter = None):
         try:
@@ -356,17 +323,19 @@ class Handle:
         ''' Draw the handle object '''        
         
         if hCenter:
-            self.center = hCenter
-        
+            if self.center != hCenter:
+                self.center = hCenter
+                    
         #Always draw the handle geometry facing the line of sight. So that 
         #the handles are visible in any orientation of the plane.   
 
         handleNorm = self.glpane.lineOfSight        
         handleQuat = Q(V(0.0, 0.0, 1.0), handleNorm)
+       
         
         #Use glpane's scale for drawing the handle. This makes sure that
         # the handle is non-zoomable. 
-        side = self.glpane.scale*0.15        
+        side = self.glpane.scale*0.015        
         
         glPushMatrix()                
         glTranslatef(self.center[0], 
@@ -392,9 +361,9 @@ class Handle:
                V(handle_hw, handle_hh, 0.0)] 
         
         if highlighted:
-                drawLineLoop(orange, handle_corner, width=2)
+                drawLineLoop(orange, handle_corner, width=3)
         else:
-            drawLineLoop(black, handle_corner)                
+            drawLineLoop(black, handle_corner, width=2)                
         glPopMatrix()
 
     def draw_in_abs_coords(self, glpane, color):
@@ -435,13 +404,33 @@ class Handle:
                        
                         neighbors.append(hdl)
                         break
-                    
                         
                 ##if hdl.center in nbrs:                    
                     ##neighbors.append(hdl)   
        
         return neighbors
     
+    def setType(self, handleType):
+        ''' @param: handleType: returns the '''
+        assert handleType in [ 'X-Handle' , 'Y-Handle' , 'Corner']
+        self.type = handleType
+       
+        
+    def getType(self):
+        '''@return: string self.type that tells whether its a X or Y 
+        or a corner handle '''
+        assert self.type is not None
+        return self.type
+    """
+        if self.type:
+            return self.type
+        else:
+            self.type  = 'Corner'
+            print " bug:handle type not defined. Assigning type as a corner.."
+            print " ..handle. Likely to introduce bugs."
+            print "Assign a type to this handle  using setType method"
+            return self.type
+            """
       
                  
         
