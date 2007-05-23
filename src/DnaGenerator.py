@@ -220,7 +220,6 @@ class B_Dna(Dna):
 class B_Dna_BasePseudoAtoms(B_Dna):
     BASE_SPACING = 3.18 # angstroms
     handedness = -1     # right-handed
-    fuseChunksTolerance = 1.0
     
     def baseFileName(self, basename):
         return os.path.join(basepath, 'bdna-pseudo-bases', '%s.mmp' % basename)
