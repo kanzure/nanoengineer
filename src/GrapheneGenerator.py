@@ -65,7 +65,7 @@ class GrapheneGenerator(QDialog, GraphenePropMgr, GeneratorBaseClass):
         return (height, width, bond_length, endings)
 
     def build_struct(self, name, params, position):
-        """Build a graphene sheet from the parameters.
+        """Build a graphene sheet from the parameters in the Property Manager.
         """
         height, width, bond_length, endings = params
         PROFILE = False
