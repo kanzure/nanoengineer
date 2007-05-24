@@ -769,6 +769,7 @@ class ModelTreeGui(QTreeView, ModelTreeGui_api):
         debug_pref("MT debug: debug prints",               Choice_boolean_False, non_debug = True, prefs_key = True)
         debug_pref("MT debug: disable replace_items",      Choice_boolean_False, non_debug = True, prefs_key = True)
         debug_pref("MT debug: disable _remake_contents_0", Choice_boolean_False, non_debug = True, prefs_key = True)
+        debug_pref("MT debug: disable scrollBar.valueChanged()", Choice_boolean_False, non_debug = True, prefs_key = True)
 
         return
 
@@ -1020,7 +1021,12 @@ class ModelTreeGui(QTreeView, ModelTreeGui_api):
         if debug_pref("MT debug: updateGeometry", Choice_boolean_True, non_debug = True, prefs_key = True):
             self.updateGeometry() #k don't know if this is needed
             self.get_scrollpos("after updateGeometry")
-        
+
+        disable_valueChanged = debug_pref("MT debug: disable scrollBar.valueChanged()",
+                                          Choice_boolean_False, non_debug = True, prefs_key = True)
+        if disable_valueChanged:
+            self.set_scrollbar_valueChanged_enabled( False) #bruce 070524 experiment
+
         if debug_pref("MT debug: scrollToBottom", Choice_boolean_True, non_debug = True, prefs_key = True):
             self.scrollToBottom() # this is needed -- it prevents temporary removal of scrollbar.
                 # Maybe that's related to the updates it does internally, unlike scrollToTop?
@@ -1038,6 +1044,9 @@ class ModelTreeGui(QTreeView, ModelTreeGui_api):
 
         if debug_pref("MT debug: set_scrollpos", Choice_boolean_True, non_debug = True, prefs_key = True):
             self.set_scrollpos( scrollpos)
+
+        if disable_valueChanged:
+            self.set_scrollbar_valueChanged_enabled( True) #bruce 070524 experiment
 
         # Qt3 comment, not sure if still an issue in Qt4:
         ### not yet perfect, since we need to correct height
@@ -1096,6 +1105,24 @@ class ModelTreeGui(QTreeView, ModelTreeGui_api):
                 print "warning: tried to set scrollpos to %r, but it's now %r" % (pos,pos1)
         return
 
+    def set_scrollbar_valueChanged_enabled( self, enabled): #bruce 070524 experiment
+        """Enable or disable the sending of the valueChanged signal (or, of all signals)
+        from whichever scrollbars we have (horizontal and/or vertical)
+        """
+        # relevant Qt 4.2.2 docs:
+        # bool QObject::signalsBlocked() -- Returns true if signals are blocked; otherwise returns false.
+        # bool QObject::blockSignals ( bool block ) -- If block is true, signals emitted by this object is blocked
+        # (i.e., emitted signals disappear into hyperspace). If block is false, no such blocking will occur.
+        # The return value is the previous value of signalsBlocked().
+        hsb = self.horizontalScrollBar()
+        if hsb:
+            resh = hsb.blockSignals( not enabled)
+        vsb = self.verticalScrollBar()
+        if vsb:
+            resv = vsb.blockSignals( not enabled)
+        # print "set_scrollbar_valueChanged_enabled(%r), prior enabled states were" % enabled, not resh, not resv 
+        return resh, resv # retval not yet used or documented
+    
     def display_prefs_for_node(self, node):
         """For doc, see the global function of the same name."""
         return display_prefs_for_node(node) #bruce 070511 revised this to make it a global function
