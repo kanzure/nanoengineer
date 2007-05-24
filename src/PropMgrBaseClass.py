@@ -191,7 +191,7 @@ class PropMgrBaseClass:
     '''Property Manager base class'''
     
     widgets = [] # All widgets in the PropMgr dialog (
-    #groupboxes = [] # All groupboxes in the PropMgr, except the message groupbox.
+    pmHeightComputed = False # See show() for explaination.
     
     def __init__(self, name):
         
@@ -231,7 +231,13 @@ class PropMgrBaseClass:
         else:
             self.pw.updatePropertyManagerTab(self)
             self.pw.featureManager.setCurrentIndex(self.pw.featureManager.indexOf(self))
-        self.fitContents()
+        
+        if not self.pmHeightComputed:
+            # This fixes a bug (discovered by Ninad) in which the 
+            # user *reenters* the PropMgr, and the PropMgr has a 
+            # collapsed groubbox. When the user expands the collapsed groupbox,
+            # widgets are "crushed" in all expanded groupboxes. Mark 2007-05-24
+            self.fitContents() # pmHeightComputed set to True in fitContents().
             
     def fitContents(self):
         """Sets the final width and height of the PropMgr based on the
@@ -270,6 +276,7 @@ class PropMgrBaseClass:
         # The width of propmgr is 230 - (4 x 2) = 222 pixels on Windows.
         pmWidth = 230 - (4 * 2) # 230 should be global/constant
         pmHeight = self.sizeHint().height()
+        self.pmHeightComputed = True # See show() for explanation.
         
         self.resize(pmWidth, pmHeight)
         
@@ -951,6 +958,10 @@ class PropMgrTextEdit(QTextEdit, PropMgrWidgetMixin):
         # wrapWrapMode seems to be set to QTextOption.WrapAnywhere on MacOS,
         # so let's force it here. Mark 2007-05-22.
         self.setWordWrapMode(QTextOption.WordWrap)
+        
+        # Needed for Intel MacOS. Otherwise, the horizontal scrollbar
+        # is displayed in the MessageGroupBox. Mark 2007-05-24.
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         
         # Curious to see what this is on MacOS. Mark 2007-05-23
         #print "PropMgrTextEdit.wordWrapMode=", self.wordWrapMode()
