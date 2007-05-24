@@ -23,9 +23,7 @@ __author__ = "Mark"
 
 # Mark's To Do List (by order of priority):
 #
-# - Test/fix MessageGroupBox on MacOS
 # - Add PropMgrPushButton class (needed by DNAGeneratorDialog)
-# - Migrate NanotubeGenerator and NanotubeDialog.
 # - Migrate DNAGenerator and DNAGeneratorDialog.
 # - Clean up PropertyManagerMixin.py
 # - Compute message box size using FontMetrics (important)
@@ -43,6 +41,7 @@ __author__ = "Mark"
 # - Create TopRowButtns class with attrs and methods to hide/show 
 #   buttons. (minor)
 # - add setObjectName("name") to all widgets.
+# - "range" attr (str) that can be included in What's This text.
 
 from PyQt4.Qt import *
 from PyQt4 import QtCore
@@ -192,12 +191,12 @@ class PropMgrBaseClass:
     '''Property Manager base class'''
     
     widgets = [] # All widgets in the PropMgr dialog (
-    groupboxes = [] # All groupboxes in the PropMgr, except the message groupbox.
+    #groupboxes = [] # All groupboxes in the PropMgr, except the message groupbox.
     
     def __init__(self, name):
         
         self.setObjectName(name)
-        widgets = [] # All widgets in the groupbox (except the title button).
+        self.widgets = [] # All widgets in the groupbox (except the title button).
         
         # Main pallete for PropMgr.
         propmgr_palette = self.getPropertyManagerPalette()
@@ -285,9 +284,11 @@ class PropMgrBaseClass:
     # On the verge of insanity, then I wrote this.... Mark 2007-05-22
     def debugSizePolicy(self): 
         """Special method for debugging sizePolicy.
-        Without this, I couldn't figure out which sizePolicies should
-        be set for the Property Manager widgets, especially TextEdits
-        and GroupBoxes. They are slippery. Mark 2007-05-22
+        Without this, I couldn't figure out how to make groupboxes
+        (and their widgets) behave themselves when collapsing and
+        expanding them. I needed to experiment with different sizePolicies,
+        especially TextEdits and GroupBoxes, to get everything working
+        just right. Their layouts can be slippery. Mark 2007-05-22
         """
         
         if 0: # Override PropMgr sizePolicy.
@@ -565,14 +566,7 @@ class PropMgrBaseClass:
         
     def restore_defaults_btn_clicked(self):
         """Slot for "Restore Defaults" button in the Property Manager.
-        """
-        
-        """
-        for groupbox in self.groupboxes:
-            for widget in groupbox.widgets:
-                widget.restoreDefault()
-        """
-        
+        """        
         for widget in self.widgets:
             if isinstance(widget, PropMgrGroupBox):
                 widget.restoreDefault()
@@ -628,7 +622,6 @@ class PropMgrGroupBox(QGroupBox, PropMgrWidgetMixin):
     expanded = True # Set to False when groupbox is collapsed.
     widgets = [] # All widgets in the groupbox (except the title button).
     num_rows = 0 # Number of rows in the groupbox.
-    #groupboxes = [] # All groupboxes inside this groupbox.
 
     def __init__(self, parent, title='', titleButton=False):
         """
@@ -654,9 +647,8 @@ class PropMgrGroupBox(QGroupBox, PropMgrWidgetMixin):
         # unknown reason. Mark 2007-05-20.
         parent.VBoxLayout.addWidget(self) # Add self to PropMgr's VBoxLayout
         
-        widgets = [] # All widgets in the groupbox (except the title button).
-        #parent.groupboxes.append(self) # REMOVE THIS
-        parent.widgets.append(self) # KEEP if works
+        self.widgets = [] # All widgets in the groupbox (except the title button).
+        parent.widgets.append(self)
         
         self.setAutoFillBackground(True) 
         self.setPalette(self.getPalette())
@@ -877,7 +869,7 @@ class PropMgrMessageGroupBox(PropMgrGroupBox):
         PropMgrGroupBox.__init__(self, parent, title, titleButton=True)
         self.setObjectName("MessageGroupBox")
         
-        widgets = [] # All widgets in the groupbox (except the title button).
+        self.widgets = [] # All widgets in the groupbox (except the title button).
         
         self.VBoxLayout.setMargin(pmMsgGrpBoxMargin)
         self.VBoxLayout.setSpacing(pmMsgGrpBoxSpacing)
@@ -910,46 +902,6 @@ class PropMgrMessageGroupBox(PropMgrGroupBox):
         
 # End of PropMgrMessageGroupBox ############################
 
-class PropMgrWidgetMixin_MOVED:
-    """Property Manager Widget Mixin class.
-    """
-    
-    def hide(self):
-        """Hide this widget and its label. If hidden, the widget
-        will not be displayed when its groupbox is expanded.
-        Call show() to unhide this widget (and its label).
-        """
-        self.hidden = True
-        QWidget.hide(self) # Hide self.
-        if self.labelWidget:# Hide self's label if it has one.
-            self.labelWidget.hide() 
-            
-    def show(self):
-        """Show this widget and its label.
-        """
-        self.hidden = False
-        QWidget.show(self) # Show self.
-        if self.labelWidget:# Show self's label if it has one.
-            self.labelWidget.show() 
-        
-    def collapse(self):
-        """Hides this widget (and its label) when the groupbox is collapsed.
-        """
-        QWidget.hide(self) # Hide self.
-        if self.labelWidget:# Hide self's label if it has one.
-            self.labelWidget.hide() 
-        
-    def expand(self):
-        """Shows this widget (and its label) when the groupbox is expanded,
-        unless this widget is hidden (via its hidden attr).
-        """
-        if self.hidden: return
-        QWidget.show(self) # Show self.
-        if self.labelWidget:# Show self's label if it has one.
-            self.labelWidget.show()
-            
-# End of PropMgrWidgetMixin ############################
-
 class PropMgrTextEdit(QTextEdit, PropMgrWidgetMixin):
     """PropMgr TextEdit class, for groupboxes (PropMgrGroupBox) only.
     """
@@ -973,8 +925,6 @@ class PropMgrTextEdit(QTextEdit, PropMgrWidgetMixin):
         <spanWidth> - if True, the TextEdit and its label will span the width
                       of its groupbox. Its label will appear directly above
                       the TextEdit (unless the label is empty) left justified.
-                      
-        .
         """
         
         if 0: # Debugging code
