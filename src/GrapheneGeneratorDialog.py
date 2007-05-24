@@ -55,7 +55,7 @@ class GraphenePropMgr(object, PropMgrBaseClass):
                                            titleButton=True)
         self.loadGroupBox1(self.pmGroupBox1)
         
-        AddTestGroupBox = True # For testing. Mark 2007-05-24
+        AddTestGroupBox = False # For testing. Mark 2007-05-24
         
         if not AddTestGroupBox: # Add test widgets to their own groupbox.
             return
