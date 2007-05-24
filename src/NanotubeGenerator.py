@@ -10,30 +10,21 @@ for notes about what's going on here.
 
 __author__ = "Will"
 
-import platform
-
-from NanotubeGeneratorDialog import Ui_nanotube_dialog
 from math import atan2, sin, cos, pi, asin
 import assembly, chem, bonds, Utility
-from chem import molecule, Atom
-import env
-from HistoryWidget import redmsg, orangemsg, greenmsg
-from PyQt4.Qt import Qt, SIGNAL, QDialog, QApplication, QCursor, QDialog, \
-     QDoubleValidator, QIntValidator, QValidator, QWhatsThis
-from PyQt4 import QtGui
+#from PyQt4.Qt import Qt, SIGNAL, QDialog, QApplication, QCursor, QDialog, \
+#     QDoubleValidator, QIntValidator, QValidator, QWhatsThis
+#from PyQt4 import QtGui
 from VQT import dot, vlen, cross, norm
-import random
-import string
-from widgets import double_fixup
+import env, platform, random, string
+#from widgets import double_fixup
 from debug import Stopwatch, objectBrowse
 from Utility import Group
-from GeneratorBaseClass import GeneratorBaseClass
+from chem import molecule, Atom
 from elements import PeriodicTable
 from bonds import bonded, bond_atoms, V_GRAPHITE, NeighborhoodGenerator
-from bonds import CC_GRAPHITIC_BONDLENGTH, BN_GRAPHITIC_BONDLENGTH
 from bonds_from_atoms import make_bonds
 from buckyball import BuckyBall
-import platform
 
 sqrt3 = 3 ** 0.5
 
@@ -307,141 +298,59 @@ def add_endcap(mol, length, radius, bondlength):
 
 #################################################################
 
-# GeneratorBaseClass must come BEFORE the dialog in the list of parents
-class NanotubeGenerator(QDialog, GeneratorBaseClass, Ui_nanotube_dialog):
+from PyQt4.Qt import QDialog
+from NanotubeGeneratorDialog import NanotubePropMgr
+from GeneratorBaseClass import GeneratorBaseClass
+from HistoryWidget import redmsg, orangemsg, greenmsg
+
+class NanotubeGenerator(QDialog, NanotubePropMgr, GeneratorBaseClass):
+    """The Nanotube Generator class.
+    """
 
     cmd = greenmsg("Build Nanotube: ")
-    sponsor_keyword = 'Nanotubes'
     prefix = 'Nanotube-'   # used for gensym
-
     # We now support multiple keywords in a list or tuple
     # sponsor_keyword = ('Nanotubes', 'Carbon')
-
+    sponsor_keyword = 'Nanotubes'
+    
     # pass window arg to constructor rather than use a global, wware 051103
     def __init__(self, win):
-        QDialog.__init__(self, win) # win is parent.  Fixes bug 1089.  Mark 051119.
-        self.setupUi(self)
-        self.connect(self.nt_distortion_grpbtn,SIGNAL("clicked()"),self.toggle_nt_distortion_grpbox)
-        self.connect(self.nt_parameters_grpbtn,SIGNAL("clicked()"),self.toggle_nt_parameters_grpbox)
-        self.connect(self.mwcnt_grpbtn,SIGNAL("clicked()"),self.toggle_mwcnt_grpbox)
-        self.connect(self.whatsthis_btn,SIGNAL("clicked()"),self.enter_WhatsThisMode)
- 
-        self.connect(self.sponsor_btn,SIGNAL("clicked()"),self.sponsor_btn_clicked)
-        self.connect(self.length_linedit,SIGNAL("returnPressed()"),self.parameter_fixup)
-        self.connect(self.preview_btn,SIGNAL("clicked()"),self.preview_btn_clicked)
-        self.connect(self.abort_btn,SIGNAL("clicked()"),self.abort_btn_clicked)
-        self.connect(self.done_btn,SIGNAL("clicked()"),self.done_btn_clicked)
-        self.connect(self.bond_length_linedit,SIGNAL("returnPressed()"),self.parameter_fixup)
-        self.connect(self.z_distortion_linedit,SIGNAL("returnPressed()"),self.parameter_fixup)
-        self.connect(self.xy_distortion_linedit,SIGNAL("returnPressed()"),self.parameter_fixup)
-        self.connect(self.mwcnt_spacing_linedit,SIGNAL("returnPressed()"),self.parameter_fixup)
-        self.connect(self.restore_defaults_btn,SIGNAL("clicked()"),self.defaults_btn_clicked)
-        self.connect(self.chirality_n_spinbox,SIGNAL("valueChanged(int)"),self.parameter_fixup)
-        self.connect(self.chirality_m_spinbox,SIGNAL("valueChanged(int)"),self.parameter_fixup)
-        self.connect(self.endings_combox,SIGNAL("textChanged(const QString&)"),self.parameter_fixup)
-        self.connect(self.members_combox,SIGNAL("textChanged(const QString&)"),self.parameter_fixup)
+        QDialog.__init__(self, win)
+        NanotubePropMgr.__init__(self)
         GeneratorBaseClass.__init__(self, win)
-        # Validator for the length linedit widget.
-        self.validator = QDoubleValidator(self)
-        # Range of nanotube length (0-1000, 3 decimal places)
-        # also used to validate bond length
-        self.validator.setRange(0.0, 1000.0, 3)
-        self.length_linedit.setValidator(self.validator)
-        self.bond_length_linedit.setValidator(self.validator)
-        self.bond_length_linedit.setText(str(CC_GRAPHITIC_BONDLENGTH))
-        self.m = 5
-        self.n = 5
-
-        self.cursor_pos = 0
-        self.nstr = str(self.chirality_n_spinbox.value())
-        self.mstr = str(self.chirality_m_spinbox.value())
-        self.lenstr = str(self.length_linedit.text())
-        self.blstr = str(self.bond_length_linedit.text())
-        self.zstr = str(self.z_distortion_linedit.text())
-        self.xystr = str(self.xy_distortion_linedit.text())
-        self.spstr = str(self.mwcnt_spacing_linedit.text())
-        self.members = self.members_combox.currentIndex()
-
-        self.chirality_m_spinbox.setWhatsThis("""<b>Chirality (m)</b>
-        <p>Specifies <i>m</i> of the chiral vector
-        (n, m), where n and m are integers of the vector equation R = na1 + ma2 .</p>""")
-        self.chirality_m_label.setWhatsThis("""Chirality (m)""")
-        self.chirality_n_spinbox.setWhatsThis("""<b>Chirality (n)</b>
-        <p>Specifies <i>n</i> of the chiral vector
-        (n, m), where n and m are integers of the vector equation R = na1 + ma2 .</p>""")
-        self.members_combox.setWhatsThis("""<b>Type</b>
-        <p>Specifies the type of nanotube to generate.</p>
-        <p>Selecting
-        <b>Carbon</b> creates a carbon nanotube (CNT) made entirely of carbon atoms.
-        <p>Selecting <b>Boron nitride</b> creates a
-        boron nitride (BN) nanotube made of boron and nitrogen atoms.</p>""")
-        self.endings_combox.setWhatsThis("""<b>Endings</b>
-        <p>Specify how to deal with bondpoints on the
-        two ends of the nanotube.</p>
-        <p>Selecting <b>None</b> does nothing, leaving bondpoints on the ends.</p>
-        <p>Selecting <b>Hydrogen
-        </b>terminates the bondpoints using hydrogen atoms.</p>
-        <p>Selecting <b>Nitrogen </b>transmutes atoms with bondpoints into
-        nitrogen atoms.</p>""")
-        self.length_linedit.setWhatsThis("""<b>Length</b>
-        <p>Specify the length of the nanotube in angstroms.</p>""")
-        self.bond_length_linedit.setWhatsThis("""<b>Bond Length</b>
-        <p>Specify the bond length between atoms in
-        angstroms.</p>""")
-        self.twist_spinbox.setWhatsThis("""<b>Twist</b>
-        <p>Introduces a twist along the length of the nanotube
-        specified in degrees/angstrom.</p>""")
-        self.z_distortion_linedit.setWhatsThis("""<b>Z-distortion</b>
-        <p>Distorts the bond length between atoms
-        along the length of the nanotube by this amount in angstroms.</p>""")
-        self.bend_spinbox.setWhatsThis("""<b>Bend</b>
-        <p>Bend the nanotube by the specified number of degrees.</p>""")
-        self.xy_distortion_linedit.setWhatsThis("""<b>XY-distortion</b>
-        <p>Distorts the tube's cross-section so
-        that the width in the X direction is this many angstroms greater than the width in the Y direction. Some distortion  of bond
-        lengths results.</p>""")
-        self.mwcnt_count_spinbox.setWhatsThis("""<b>Number of Nanotubes</b>
-        <p>Specifies the number or Multi-Walled
-        Nanotubes. Multi-Walled nanotubes (MWNT) consist of many concentric tubes wrapped one inside another.</p>
-        <p>The specified
-        chirality applies only to the innermost nanotube. The others, being larger, will have larger chiralities.
-        </p>""")
-        self.mwcnt_spacing_linedit.setWhatsThis("""<b>Spacing</b>
-        <p>Specify the spacing between nanotubes in angstroms.</p>""")
 
     ###################################################
     # How to build this kind of structure, along with
     # any necessary helper functions
 
     def gather_parameters(self):
-        n = self.chirality_n_spinbox.value()
-        m = self.chirality_m_spinbox.value()
-        # Get length from length_linedit and make sure it is not zero.
-        # length_linedit's validator makes sure this has a valid number (float).  
-        # The only exception is when there is no text.  Mark 051103.
-        def fetch(name, linedit):
-            x = str(linedit.text())
-            if not x:
-                raise Exception("Please specify a valid " + name)
-            return string.atof(x.split(' ')[0])
+        """Return all the parameters from the Property Manager.
+        """
+        
+        n = self.chiralityNSpinBox.value()
+        m = self.chiralityMSpinBox.value()
 
-        self.length = length = fetch('length', self.length_linedit)
-        self.bond_length = bond_length = fetch('bond length', self.bond_length_linedit)
-        self.zdist = zdist = fetch('Z distortion', self.z_distortion_linedit)
-        self.xydist = xydist = fetch('XY distortion', self.xy_distortion_linedit)
-        self.spacing = spacing = fetch('spacing', self.mwcnt_spacing_linedit)
+        self.length = length = self.lengthField.value()
+        self.bond_length = bond_length = self.bondLengthField.value()
+        self.zdist = zdist = self.zDistortionField.value()
+        self.xydist = xydist = self.xyDistortionField.value()
+        self.spacing = spacing = self.mwntSpacingField.value()
 
-        twist = pi * self.twist_spinbox.value() / 180.0
-        bend = pi * self.bend_spinbox.value() / 180.0
-        members = self.members_combox.currentIndex()
-        endings = self.endings_combox.currentText()
+        twist = pi * self.twistSpinBox.value() / 180.0
+        bend = pi * self.bendSpinBox.value() / 180.0
+        members = self.typeComboBox.currentIndex()
+        endings = self.endingsComboBox.currentText()
         if endings == "Capped" and not platform.atom_debug:
             raise Exception('Nanotube endcaps not implemented yet.')
-        numwalls = self.mwcnt_count_spinbox.value()
+        numwalls = self.mwntCountSpinBox.value()
+        
         return (length, n, m, bond_length, zdist, xydist,
                 twist, bend, members, endings, numwalls, spacing)
 
     def build_struct(self, name, params, position, mol=None, createPrinted=False):
+        """Build a nanotube from the parameters in the Property Manger.
+        """
+        
         length, n, m, bond_length, zdist, xydist, \
                 twist, bend, members, endings, numwalls, spacing = params
         # This can take a few seconds. Inform the user.
@@ -490,7 +399,6 @@ class NanotubeGenerator(QDialog, GeneratorBaseClass, Ui_nanotube_dialog):
             x *= (radius + 0.5 * xydist) / radius
             y *= (radius - 0.5 * xydist) / radius
             atm.setposn(chem.V(x, y, z))
-
 
         # Judgement call: because we're discarding carbons with funky
         # valences, we will necessarily get slightly more ragged edges
@@ -558,17 +466,22 @@ class NanotubeGenerator(QDialog, GeneratorBaseClass, Ui_nanotube_dialog):
             self.build_struct(name, params, position, mol=mol, createPrinted=True)
 
         return mol
-
-    def parameter_fixup(self):
+    
+    def chirality_fixup_MOVED(self):
         '''Slot for several validators for different parameters.
         This gets called each time a user types anything into a widget or changes a spinbox.
         '''
+        
+        print "chirality_fixup(): Here!"
+        
         if not hasattr(self, 'n'):
+            print "No n. Returning"
             return
+        
         n_previous = int(self.n)
         m_previous = int(self.m)
-        n = self.chirality_n_spinbox.value()
-        m = self.chirality_m_spinbox.value()
+        n = self.chiralityNSpinBox.value()
+        m = self.chiralityMSpinBox.value()
         # Two restrictions to maintain
         # n >= 2
         # 0 <= m <= n
@@ -582,78 +495,7 @@ class NanotubeGenerator(QDialog, GeneratorBaseClass, Ui_nanotube_dialog):
             # The user changed n. If n became smaller than m, make m smaller.
             if m > n:
                 m = n
-        self.chirality_n_spinbox.setValue(n)
-        self.chirality_m_spinbox.setValue(m)
+        self.chiralityNSpinBox.setValue(n)
+        self.chiralityMSpinBox.setValue(m)
         self.m, self.n = m, n
 
-        members = self.members_combox.currentIndex()
-        if members != self.members:
-            # The user has switched between C-C and B-N, change the default bond length
-            if members != 0:
-                self.bond_length_linedit.setText(str(BN_GRAPHITIC_BONDLENGTH))
-            else:
-                self.bond_length_linedit.setText(str(CC_GRAPHITIC_BONDLENGTH))
-            self.members = members
-
-        self.blstr = double_fixup(self.validator, self.bond_length_linedit.text(), self.blstr)
-        self.bond_length_linedit.setText(self.blstr)
-        self.lenstr = double_fixup(self.validator, self.length_linedit.text(), self.lenstr)
-        self.length_linedit.setText(self.lenstr)
-        self.zstr = double_fixup(self.validator, self.z_distortion_linedit.text(), self.zstr)
-        self.z_distortion_linedit.setText(self.zstr)
-        self.xystr = double_fixup(self.validator, self.xy_distortion_linedit.text(), self.xystr)
-        self.xy_distortion_linedit.setText(self.xystr)
-        self.spstr = double_fixup(self.validator, self.mwcnt_spacing_linedit.text(), self.spstr)
-        self.mwcnt_spacing_linedit.setText(self.spstr)
-
-    ###################################################
-    # The done message
-
-    def done_msg(self):
-        return "Nanotube created."
-    
-
-    def show(self):
-        self.setSponsor()
-        #QDialog.show(self)
-        
-        #Show it in Property Manager Tab ninad061207
-        if not self.pw:            
-            self.pw = self.win.activePartWindow()       #@@@ ninad061206  
-            self.pw.updatePropertyManagerTab(self)
-            self.pw.featureManager.setCurrentIndex(self.pw.featureManager.indexOf(self))            
-        else:
-            self.pw.updatePropertyManagerTab(self)
-            self.pw.featureManager.setCurrentIndex(self.pw.featureManager.indexOf(self))
-            
-    ###################################################
-    # Special UI things that still must be implemented
-    def toggle_nt_distortion_grpbox(self):
-        self.toggle_groupbox(self.nt_distortion_grpbtn, 
-                             self.z_distortion_label, self.z_distortion_linedit,
-                             self.xy_distortion_label, self.xy_distortion_linedit,
-                             self.twist_label, self.twist_spinbox,
-                             self.bend_label, self.bend_spinbox)
-
-    def toggle_nt_parameters_grpbox(self):
-        self.toggle_groupbox(self.nt_parameters_grpbtn,
-                             self.chirality_n_label, self.chirality_n_spinbox,
-                             self.chirality_m_label, self.chirality_m_spinbox,
-                             self.length_label, self.length_linedit,
-                             self.type_label, self.members_combox,
-                             self.endings_label, self.endings_combox,
-                             self.bond_length_label, self.bond_length_linedit)
-
-    def toggle_mwcnt_grpbox(self):
-        self.toggle_groupbox(self.mwcnt_grpbtn,
-                             self.mwcnt_spacing_label, self.mwcnt_spacing_linedit,
-                             self.mwcnt_count_label, self.mwcnt_count_spinbox)
-
-    def defaults_btn_clicked(self):
-        self.languageChange()
-        self.chirality_m_spinbox.setValue(5)
-        self.chirality_n_spinbox.setValue(5)
-        self.twist_spinbox.setValue(0)
-        self.bend_spinbox.setValue(0)
-        self.mwcnt_count_spinbox.setValue(1)
-        self.bond_length_linedit.setText(str(CC_GRAPHITIC_BONDLENGTH))
