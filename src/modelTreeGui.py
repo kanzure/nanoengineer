@@ -300,12 +300,28 @@ class _QtTreeItem(QItemDelegate):
     # QTreeWidget can give you icons and a tree structure, but you don't get much ability to
     # customize things like shear, and you can't force a repaint of the model tree when you want it.
     # QTreeView provides a forced repaint with the setModel() method (so that's the one we use).
+
+    # update, bruce 070523:
+    # WARNING: the Qt docs suggest that we only need one QItemDelegate (our rootItem), not a tree of them.
+    # We were constructing an entire tree of items of this class, but the docs and some other evidence
+    # hinted that most methods of it are only called on the rootItem. So to test this, I split it into
+    # this class for the rootItem alone, and a much simpler _nonRootItem class (defined just below this one)
+    # for all other items, and this seems to work fine. So, this class is really mashing together two
+    # roles or functions that don't belong together -- an item for our own use, and a QItemDelegate.
+    # These roles are still mixed together and confused for the rootItem itself, but not anymore (as of now)
+    # for the other items (whose class is probably not really needed at all).
+    # (Note: I'm using the term "roles" here generically -- no relation to Qt's color(?) roles,
+    #  also mentioned in some of this code.)
     #
-    def __init__(self, node, parent=None):
+    # WARNING: a few methods at the start of classes _nonRootItem and _QtTreeItem contain identical code.
+    #
+    # WARNING: It's also not yet clear which attribute names are ours vs. Qts (eg childItems, parentItem).
+    # Guess: they're all ours.
+    
+    def __init__(self, node, parent = None):
         QItemDelegate.__init__(self, parent)
         self.node = node
         self.childItems = []
-##        self.cmenu = [ ] ###REVIEW: is this saved? if so, why?
         if parent is not None and hasattr(parent, 'childItems'):
             parent.childItems.append(self)
         self.parentItem = parent
@@ -319,11 +335,11 @@ class _QtTreeItem(QItemDelegate):
     def height(self): #bruce 070511 for use by other methods here ###REVIEW whether it could mess up Qt, or give a wrong value
         return _ICONSIZE[1] 
 
-    def showTree(self, indent=0):
-        "handy diagnostic"
-        print (indent * '\t') + repr(self)
-        for ch in self.childItems:
-            ch.showTree(indent + 1)
+##    def showTree(self, indent=0):
+##        "handy diagnostic"
+##        print (indent * '\t') + repr(self)
+##        for ch in self.childItems:
+##            ch.showTree(indent + 1)
 
     def paint(self, painter, option, index, pos = None): #k is this our methodname & API, or Qt's?
         """
@@ -410,6 +426,8 @@ class _QtTreeItem(QItemDelegate):
         return # from paint
 
     # Methods to support renaming on double click
+    ###QUESTION: are these called on the rootItem, or on the item being edited? [bruce 070523 Q]
+    # [same Q for all other methods here] [for answer, see comment at start of class]
 
     def createEditor(self, parent, option, index):
         qle = QLineEdit(parent)
@@ -434,6 +452,27 @@ class _QtTreeItem(QItemDelegate):
         editor.setGeometry(rect)
 
     pass # end of class _QtTreeItem
+
+# ==
+
+class _nonRootItem: #bruce 070523 experiment; works
+    "use this for all non-Root items, to test theory that Qt never sees them or cares about them"
+    # WARNING: a few methods at the start of classes _nonRootItem and _QtTreeItem contain identical code.
+    def __init__(self, node, parent = None):
+        ## QItemDelegate.__init__(self, parent)
+        self.node = node
+        self.childItems = []
+        if parent is not None and hasattr(parent, 'childItems'):
+            parent.childItems.append(self)
+        self.parentItem = parent
+
+    def __repr__(self):
+        return '<%s \"%s\">' % (self.__class__.__name__, self.node.name)
+
+    def height(self): #bruce 070511 for use by other methods here ###REVIEW whether it could mess up Qt, or give a wrong value
+        return _ICONSIZE[1]
+    
+    pass # end of class _nonRootItem
 
 ####################################################################
 
@@ -504,7 +543,7 @@ class _QtTreeModel(QAbstractItemModel):
     def setData(self, index, qvar):
         item = index.internalPointer()
         item.node.name = str(qvar.toString()) ###BUG: this needs to go through node.try_rename. (Like this, it'll fail on unicode.)
-            # But when it does, the caller (i _QtTreeItem) may also need revision, since a modified name might be stored here.
+            # But when it does, the caller may also need revision, since a modified name might be stored here.
 
     def headerData(self, section, orientation, role):
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
@@ -554,6 +593,21 @@ class _QtTreeModel(QAbstractItemModel):
         pass
     
     pass # end of class _QtTreeModel
+
+# ==
+
+# experimental new version of that, works totally differently (lazily, incrementally) [bruce 070523; unfinished, not used]
+
+class _QtTreeModel2(QAbstractItemModel):
+    def __init__(self, rootnode, modeltreegui):
+        "create an item model for the given rootnode, which will incrementally follow changes in its data or node subtree"
+        self.rootnode = rootnode
+        self.modeltreegui = modeltreegui
+        pass
+    def _scan_node(self, node):
+        "scan a node to find out all data inside it that might make us want to send a dataChanged signal for it (not recursive)"
+        return (node.name, )####STUB, needs picked, icon, members, open (or members iff open?), etc... note, alg not really designed
+    pass
 
 ####################################################################
 
@@ -1046,10 +1100,12 @@ class ModelTreeGui(QTreeView, ModelTreeGui_api):
         """For doc, see the global function of the same name."""
         return display_prefs_for_node(node) #bruce 070511 revised this to make it a global function
     
-    def make_new_subtree_for_node(self, node, parent=None):
+    def make_new_subtree_for_node(self, node, parent = None):
         if parent is None:
             parent = self
-        item = _QtTreeItem(node, parent)
+            item = _QtTreeItem(node, parent) # this class is misnamed... see docstring and initial comment
+        else:
+            item = _nonRootItem(node, parent) #bruce 070523 experiment; works
         ## item_prefs = self.display_prefs_for_node(node)
             # [bruce 070504 comment: item_prefs was not yet used; in principle, should be passed to make_new_subtree_for_node]
         self.item_to_node_dict[item] = node
