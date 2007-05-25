@@ -7,11 +7,12 @@ from ReferenceGeometry import ReferenceGeometry
 from shape import fill
 from drawer import drawLineLoop, drawPlane
 from constants import black, gray, orange, yellow, darkgreen
-from VQT import V,Q, cross, dot, Veq
+from VQT import V,Q, cross, dot
 from OpenGL.GL import *
 from math import pi
 from debug import print_compact_traceback
 import env
+from OpenGL.GLU import gluProject, gluUnProject
 
 class Plane(ReferenceGeometry):    
     sym = "Plane"    
@@ -34,9 +35,6 @@ class Plane(ReferenceGeometry):
         self.opacity = 0.3
         
         self.handles = []        
-        self.cornerHandles = []
-        self.xHandles = []   
-        self.yHandles = []
         
         #This is used to notify drawing code if it's just for picking purpose
         #copied from jig_planes.ESPImage
@@ -72,6 +70,7 @@ class Plane(ReferenceGeometry):
 
         glTranslatef( self.center[0], self.center[1], self.center[2])
         q = self.quat
+    
         glRotatef( q.angle*180.0/pi, q.x, q.y, q.z)
 
         hw = self.width/2.0; hh = self.height/2.0
@@ -79,8 +78,8 @@ class Plane(ReferenceGeometry):
         corners_pos = [V(-hw, hh, 0.0), 
                        V(-hw, -hh, 0.0), 
                        V(hw, -hh, 0.0), 
-                       V(hw, hh, 0.0)]
-        
+                       V(hw, hh, 0.0)]          
+                
                 
         drawPlane(self.fill_color, 
                   self.width, 
@@ -92,6 +91,8 @@ class Plane(ReferenceGeometry):
         
         if self.picked:
             drawLineLoop(self.color, corners_pos)  
+            #See comment near line 138 below -- Ninad 20070525 
+            self._draw_handles(corners_pos)
         else:
             if highlighted:
                 drawLineLoop(yellow, corners_pos, width=2)
@@ -114,7 +115,7 @@ class Plane(ReferenceGeometry):
         #-- we can't do this because then the handles are not drawn parallel
         #to the screen in some orientations (i.e. user doesn't see them as 
         #squares in some orientations) -- ninad 20070518
-                
+        
         bottom_left = V(self.center[0] - hw,
                         self.center[1] - hh,
                         self.center[2])
@@ -129,12 +130,27 @@ class Plane(ReferenceGeometry):
                         self.center[1] + hh,
                         self.center[2])
         
+
         cornerHandleCenters =  [bottom_left,bottom_right,
                                 top_right,top_left]       
                         
         # Draw the handles when selected. 
         if self.picked:
-            self._draw_handles(cornerHandleCenters)
+            #[A] Following line draws the handles outside of the 
+            # push-pop matrix that draws the plane. But this is wrong. 
+            # it works only in front plane. When plane is created in other
+            #orientations, the handle geometry is still created in front plane. 
+            # This is happening because the 'cornerHandleCenters' computation
+            #done above is not correct.  I am disabling the call to _draw_handles
+            #and [B] instead calling it inside of the push-pop matrix that does the plane
+            #drawing. This way it uses the correct handle centers, but then there
+            #is a problem in correct computation of quaternion that draws the 
+            #Handle geometry. The handle geometry should always be drawn 
+            #parallel to the screen. 
+            #This is not (yet) acheived by doing [B] described above. Need 
+            #some more work.  -- Ninad 20070525
+            
+            ##self._draw_handles(cornerHandleCenters)
             if highlighted:
                 glPushMatrix()
                 glTranslatef( self.center[0], self.center[1], self.center[2])
@@ -187,6 +203,12 @@ class Plane(ReferenceGeometry):
     def rot(self, q):
         self.quat += q
         
+        if len(self.handles) == 8:
+            for hdl in self.handles:
+                assert isinstance(hdl, Handle)
+                hdl.rot(q)
+        
+        
     def _getPlaneOrientation(self, atomPos):
         assert len(atomPos) >= 3
         v1 = atomPos[-2] - atomPos[-1]
@@ -204,22 +226,18 @@ class Plane(ReferenceGeometry):
         drawn at these corners PLUS in the middle of each side of tthe Plane'''
         
         handleCenters = list(cornerPoints)
-        
+       
         cornerHandleCenters = list(cornerPoints) 
-                
+        
         midBtm = (handleCenters[0] + handleCenters[1])/2      
         midRt = (handleCenters[1] + handleCenters[2])/2
         midTop = (handleCenters[2] + handleCenters[3])/2
         midLft = (handleCenters[3] + handleCenters[0])/2
         
-        xHandleCenters = [midRt, midLft]
-        yHandleCenters = [midBtm, midTop]
-        
+       
         for midpt in [midBtm,midRt,midTop, midLft]:
             handleCenters.append(midpt)
         
-                  
-            
         if len(self.handles)> 0:   
             assert len(self.handles) == len(handleCenters)
             i = 0
@@ -232,12 +250,10 @@ class Plane(ReferenceGeometry):
                 handle.draw() 
                 if handle not in self.handles:
                     self.handles.append(handle)
-                
                 #handleIndex = 0, 1, 2, 3 -->
                 #--> bottomLeft, bottomRight, topRight, topLeft corners respt
                 #handleIndex = 4, 5, 6, 7 -->
                 #-->midBottom, midRight, midTop, midLeft Handles respt.
-    
                 if hdlIndex == 5 or hdlIndex == 7: 
                     handle.setType('X-Handle')
                 elif hdlIndex == 4 or hdlIndex == 6:
@@ -268,7 +284,7 @@ class Plane(ReferenceGeometry):
             xOffset[2] -= handleOffset[2]
             self.recomputeCenter(xOffset)
         elif movedHandle.getType() == 'Y-Handle':
-            hh = abs(new_center[1] - moved_handle_center[1])                
+            hh = abs(new_center[1] - moved_handle_center[1]) 
             self.setHeight(hh*2.0)
             yOffset = handleOffset
             yOffset[0] -= handleOffset[0]
@@ -283,7 +299,7 @@ class Plane(ReferenceGeometry):
             cornerOffset[2] -= handleOffset[2]
             self.recomputeCenter(cornerOffset)
   
-            
+        
 class Handle:
     '''@@@EXPERIMENTAL -- ninad 20070517 
     - unreleated with things in handles.py
@@ -293,18 +309,14 @@ class Handle:
         #this could be parent.glpane , but pass glpane object explicitely
         #for creating  a handle to avoid any errors
         self.glpane = glpane
-        
         self.center = handleCenter
         # No texture in handles (drawn Handle object). 
         # Ideally the following value in the drawer.drawPlane method 
         #should be False by default.
         self.textureReady = False
-        self.pickCheckOnly = False
-        
-        self.glname = env.alloc_my_glselect_name(self)
-        
-        self.type = None
-     
+        self.pickCheckOnly = False        
+        self.glname = env.alloc_my_glselect_name(self)        
+        self.type = None      
     
     def draw(self, hCenter = None):
         try:
@@ -324,44 +336,48 @@ class Handle:
         
         if hCenter:
             if self.center != hCenter:
-                self.center = hCenter
-                    
-        #Always draw the handle geometry facing the line of sight. So that 
-        #the handles are visible in any orientation of the plane.   
-
-        handleNorm = self.glpane.lineOfSight        
-        handleQuat = Q(V(0.0, 0.0, 1.0), handleNorm)
-       
-        
+                self.center = hCenter             
         #Use glpane's scale for drawing the handle. This makes sure that
         # the handle is non-zoomable. 
-        side = self.glpane.scale*0.015        
-        
-        glPushMatrix()                
+        side = self.glpane.scale*0.02                
+        glPushMatrix()           
+            
+        #Bruce suggested undoing the glpane.quat rotation and plane quat rotation 
+        #before drawing the handle geometry. Unfortunately this dowen't yet work 
+        #so disabling the following four lines -- ninad20070525
+        ##parent_q = self.parent.quat        
+        ##glpane_q = self.glpane.quat 
+        ##glRotatef(-parent_q.angle*180.0/pi, parent_q.x, parent_q.y, parent_q.z)          
+        ##glRotatef(-glpane_q.angle*180.0/pi, glpane_q.x, glpane_q.y, glpane_q.z)
+        #Translate to the center of the handle
         glTranslatef(self.center[0], 
                      self.center[1], 
-                     self.center[2])
-        q = handleQuat
-        glRotatef( q.angle*180.0/pi, q.x, q.y, q.z)
+                     self.center[2])        
+        #Always draw the handle geometry facing the line of sight. So that 
+        #the handles are visible in any orientation of the plane.
+        handleNorm = self.glpane.lineOfSight 
+        #@@@ ninad20070523 bug when the plane is created after rotating the glpane          
+        self.quat = Q(V(0.0, 0.0, 1.0), handleNorm)
+        q = self.quat     
+        glRotatef(q.angle*180.0/pi, q.x, q.y, q.z)
+                
         drawPlane(darkgreen, 
               side, 
               side, 
               self.textureReady,
               0.9, 
               SOLID=True, 
-              pickCheckOnly=self.pickCheckOnly) 
-        
+              pickCheckOnly=self.pickCheckOnly)         
         
         handle_hw = side/2.0 #handle's half width
-        handle_hh = side/2.0 #handle's half height
-        
+        handle_hh = side/2.0 #handle's half height        
         handle_corner = [V(-handle_hw, handle_hh, 0.0), 
                V(-handle_hw, -handle_hh, 0.0), 
                V(handle_hw, -handle_hh, 0.0), 
-               V(handle_hw, handle_hh, 0.0)] 
+               V(handle_hw, handle_hh, 0.0)]   
         
-        if highlighted:
-                drawLineLoop(orange, handle_corner, width=3)
+        if highlighted:    
+            drawLineLoop(orange, handle_corner, width=3)
         else:
             drawLineLoop(black, handle_corner, width=2)                
         glPopMatrix()
@@ -373,43 +389,11 @@ class Handle:
     def move(self, offset):
         '''Move the handle by <offset>, which is a 'V' object.'''
         self.center += offset
-        
-    def nearestNeighbors(self):
-        ''' Nearest Handle objects (in the parent)to the current handle object
-        @return: List of Handle Objects nearest to the current handle '''
-        assert self in self.parent.handles
-        
-        w = None
-        h = None
-        
-        if isinstance(self.parent, Plane):
-            w = self.parent.getWidth()
-            h = self.parent.getHeight()
-        
-        neighbors = []
-        
-        ##@@@ ninad20070522 following is not correct. work in progress
-        east_nbr = V(self.center[0] + w/2.0, self.center[1], self.center[2])
-        west_nbr = V(self.center[0] - w/2.0 , self.center[1], self.center[2])
-        north_nbr = V(self.center[0], self.center[1] + h/2.0, self.center[2])
-        south_nbr = V(self.center[0], self.center[1] - h/2.0, self.center[2])
-        
-        nbrs = [east_nbr,west_nbr, north_nbr, south_nbr]
-      
-        if w and h:
-            for hdl in self.parent.handles:
-                i = 0
-                for i in range(len(nbrs)):                    
-                    if hdl.center == list(nbrs[i]):
-                       
-                        neighbors.append(hdl)
-                        break
-                        
-                ##if hdl.center in nbrs:                    
-                    ##neighbors.append(hdl)   
-       
-        return neighbors
     
+    def rot(self, q):
+        #@@ ninad 20070524 : This is NIY and might not be necessary
+        self.quat += q
+        
     def setType(self, handleType):
         ''' @param: handleType: returns the '''
         assert handleType in [ 'X-Handle' , 'Y-Handle' , 'Corner']
@@ -421,20 +405,3 @@ class Handle:
         or a corner handle '''
         assert self.type is not None
         return self.type
-    """
-        if self.type:
-            return self.type
-        else:
-            self.type  = 'Corner'
-            print " bug:handle type not defined. Assigning type as a corner.."
-            print " ..handle. Likely to introduce bugs."
-            print "Assign a type to this handle  using setType method"
-            return self.type
-            """
-      
-                 
-        
-        
-    
-             
-    
