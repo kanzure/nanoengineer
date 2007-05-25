@@ -262,51 +262,37 @@ class PlotTool(QWidget, Ui_PlotToolDialog):
         else:
             program = os.path.normpath(filePath + '/../bin/gnuplot')
 
-        #Huaicai 3/18:  set environment variable to make gnuplot use a specific AquaTerm on Mac
-        environVb = None
+        # Set environment variables to make gnuplot use a specific AquaTerm on
+        # Mac. Originally "Huaicai 3/18", fixed by Brian Helfrich May 23, 2007.
+        #
         if sys.platform == 'darwin':
-            aquaPath = os.path.join(os.path.normpath(filePath + '/../bin'), 'AquaTerm.app')
-            environVb =  QStringList(QString('AQUATERM_PATH=%s' % aquaPath))
-            if 1:
-                #bruce 060425 thinks the following might also be needed.
-                # In my tests, it made no difference, whether /usr/local/lib/libaquaterm.1.0.0.dylib
-                # was a bad dylib or was missing. But it seems desirable in theory so I'll leave it in.
-                dyld_path = os.environ.get('DYLD_LIBRARY_PATH') # set in main.py
-                if dyld_path:
-                    dfd = 'DYLD_LIBRARY_PATH=%s' % dyld_path
-                    if debug_gnuplot:
-                        print dfd # it does happen
-                    environVb.append(dfd)
-                environVb.append('GNUTERM=aqua')
-                pass
-            pass
-	 
-	        #The other option is to set it in the parent process using the Python way, 
-	        # but the previous way is better.    [huaicai comment]
-            #os.environ['AQUATERM_PATH']=aquaPath
-        
+            aquaPath = os.path.normpath(filePath + '/../bin/AquaTerm.app')
+            os.environ['AQUATERM_PATH'] = aquaPath
+            aquaPath = \
+                os.path.normpath(filePath + '/../Frameworks/AquaTerm.framework')
+            os.environ['DYLD_LIBRARY_PATH'] = aquaPath
+            # Note: I tried using:
+            #   environment.append(QString('AQUATERM_PATH=%s' % aquaPath))
+            #   environment.append(QString('DYLD_LIBRARY_PATH=%s' % aquaPath))
+            # followed by plotProcess.setEnvironment(environment), but it just
+            # wouldn't see the AquaTerm library. So, although the above is more
+            # heavy-handed than just changing the Process environment, at least
+            # it works.
 
         # Make sure GNUplot executable exists
         if not os.path.exists(program):
             msg = redmsg("GNUplot executable [" + program + "] is missing.  Plot aborted.")
             env.history.message(cmd + msg)
             return
-        
-        # Create arguments list for plotProcess.
-        args = [plotfile, environVb]
-        ###e It might also be good to pass gnuplot some arg to tell it to ignore ~/.gnuplot. [bruce 060425 guess]
-        arguments = []
-        for arg in args:
-            if arg != "" and arg != None: # None test needed to remove environVb for Windows. [mark 2007-05-03]
-                arguments.append(arg)
-        
+                
         plotProcess = None
         try:
             from Process import Process
             plotProcess = Process()
-            # print "\nGNUplot arguments:", arguments
+            
             # Run gnuplot as a new, separate process. 
-            started = plotProcess.startDetached(program, arguments)  
+            started = plotProcess.startDetached(program, QStringList(plotfile))
+            ###e It might also be good to pass gnuplot some arg to tell it to ignore ~/.gnuplot. [bruce 060425 guess]
 
             if not started:
                 env.history.message(redmsg("gnuplot failed to run!"))
@@ -325,6 +311,7 @@ class PlotTool(QWidget, Ui_PlotToolDialog):
         except: # We had an exception.
             print"exception in GNUplot; continuing: "
             if plotProcess:
+                print ">>> %d" % plotProcess.error()
                 print "Killing process"
                 plotProcess.kill()
                 plotProcess = None
