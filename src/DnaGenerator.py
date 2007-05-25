@@ -290,8 +290,8 @@ class Z_Dna_BasePseudoAtoms(Z_Dna):
 
 ###############################################################################
 
-# GeneratorBaseClass must come BEFORE the dialog in the list of parents
-class DnaGenerator(QDialog, GeneratorBaseClass, DnaPropMgr):
+# DnaPropMgr must come BEFORE GeneratorBaseClass in this list
+class DnaGenerator(QDialog, DnaPropMgr, GeneratorBaseClass):
 
     cmd = greenmsg("Build DNA: ")
     sponsor_keyword = 'DNA'
@@ -321,27 +321,27 @@ class DnaGenerator(QDialog, GeneratorBaseClass, DnaPropMgr):
     def gather_parameters(self):
         if not basepath_ok:
             raise PluginBug("The cad/plugins/DNA directory is missing.")
-        dnatype = str(self.dnaConformation_combox.currentText())
+        dnatype = str(self.conformationComboBox.currentText())
         if dnatype == 'A-DNA':
             raise PluginBug("A-DNA is not yet implemented -- please try B- or Z-DNA");
         assert dnatype in ('B-DNA', 'Z-DNA')
-        double = str(self.strandType_combox.currentText())
+        double = str(self.strandTypeComboBox.currentText())
 
         # Bases per turn
-        basesPerTurnString = str(self.basesPerTurn_combox.currentText())
+        basesPerTurnString = str(self.basesPerTurnComboBox.currentText())
         basesPerTurn = float(basesPerTurnString)
         if (basesPerTurn < 1) | (basesPerTurn > 100):
             basesPerTurn = 10.5
         
-        representation = str(self.model_combox.currentText())
+        representation = str(self.modelComboBox.currentText())
         if (representation == 'Reduced'):
             representation = 'BasePseudoAtom'
-            chunkOption = str(self.dnaChunkOptions_combox.currentText())
+            chunkOption = str(self.createComboBox.currentText())
             resolve_random = False # later this may depend on a new checkbox in that case;
                 # for now it doesn't matter, since sequence info is discarded for reduced bases anyway
         if (representation == 'Atomistic'):
             representation = 'Atom'
-            chunkOption = str(self.dnaChunkOptions_combox.currentText())
+            chunkOption = str(self.createComboBox.currentText())
             resolve_random = True
                 # if this flag was not set, for atomistic case, random base letters would cause error message below,
                 # but the error message needs rewording for that... for now, it can't happen
@@ -390,7 +390,7 @@ class DnaGenerator(QDialog, GeneratorBaseClass, DnaPropMgr):
             dna.make(self.win.assy, grp, seq, doubleStrand, basesPerTurn,
                      position)
             
-            if self.dnaChunkOptions_combox.currentText() == 'Strand Chunks':
+            if self.createComboBox.currentText() == 'Strand chunks':
                 if representation == 'Atom':
                     nodeForMT = self._makeSingleChunkStrands(grp,seq,representation,
                                              doubleStrand)
@@ -399,7 +399,7 @@ class DnaGenerator(QDialog, GeneratorBaseClass, DnaPropMgr):
                     nodeForMT = self._makeStrandAndAxisDna(grp,representation)
                     return nodeForMT
                     
-            elif self.dnaChunkOptions_combox.currentText()=='DNA Chunk':
+            elif self.createComboBox.currentText()=='Single chunk':
                 nodeForMT = self._makeSingleChunkDna(grp,seq,representation,
                                          doubleStrand)                
                 return nodeForMT
@@ -429,7 +429,7 @@ class DnaGenerator(QDialog, GeneratorBaseClass, DnaPropMgr):
         allKnown = True
         # The current base sequence (or number of bases) in the PropMgr. Mark [070405]
         # (Note: I think this code implies that it can no longer be a number of bases. [bruce 070518 comment])
-        pm_seq = str(self.base_textedit.toPlainText()).upper()
+        pm_seq = str(self.strandSeqTextEdit.toPlainText()).upper()
         #print "pm_seq =", pm_seq
         #match = numberPattern.match(pm_seq)
         #if (match):
@@ -615,8 +615,7 @@ class DnaGenerator(QDialog, GeneratorBaseClass, DnaPropMgr):
                 self.win.win_update()
                 
                 return grp
-         
-        
+             
     def _makeChunkFromAtomList(self, atmList):
         """Creates a new chunk from the given atom list
         @return : numol:created molecule
@@ -638,20 +637,6 @@ class DnaGenerator(QDialog, GeneratorBaseClass, DnaPropMgr):
             a.hopmol(numol)
         return numol   
                                
-    def show(self):
-        self.setSponsor()
-        
-        #Show it in Property Manager Tab ninad061207
-        if not self.pw:            
-            self.pw = self.win.activePartWindow()       #@@@ ninad061206  
-            self.pw.updatePropertyManagerTab(self)
-            self.pw.featureManager.setCurrentIndex(
-                self.pw.featureManager.indexOf(self))
-        else:
-            self.pw.updatePropertyManagerTab(self)
-            self.pw.featureManager.setCurrentIndex(
-                self.pw.featureManager.indexOf(self))
-
     ###################################################
     # The done message
 
@@ -662,12 +647,4 @@ class DnaGenerator(QDialog, GeneratorBaseClass, DnaPropMgr):
         else:
             dbl = ""
         return "Done creating a %sstrand of %s." % (dbl, dna.geometry)
-    
-    ###################################################
-    # Restore defaults
-    
-    def restore_defaults_btn_clicked(self):
-        """Slot for Restore Defaults button
-        """
-        self.model_combox.setCurrentIndex(0)
-        self.length_spinbox.setValue(0)
+
