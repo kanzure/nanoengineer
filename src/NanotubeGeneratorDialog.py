@@ -23,7 +23,7 @@ class NanotubePropMgr(object, PropMgrBaseClass):
     title = "Nanotube"
     # <name> - the name of this property manager. This will be set to
     # the name of the PropMgr (this) object via setObjectName().
-    name = title + " Property Manager"
+    name = "pm" + title
     # <iconPath> - full path to PNG file that appears in the header.
     iconPath = "ui/actions/Tools/Build Structures/Nanotube.png"
     
