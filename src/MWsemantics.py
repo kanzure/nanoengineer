@@ -34,6 +34,7 @@ from qt4transition import *
 from Utility import geticon
 
 from constants import *
+from PropMgr_Constants import pmDefaultWidth, pmMaxWidth, pmMinWidth
 from elementColors import elementColors 
 from elementSelector import elementSelector 
 from MMKit import MMKit
@@ -83,7 +84,7 @@ class PartWindow(QWidget):
         QWidget.__init__(self, parent)
         self.parent = parent
         self.setWindowTitle("My Part Window")
-        self.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
+	self.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
 	
         _layout = QtGui.QHBoxLayout(self)
         layout = QSplitter(Qt.Horizontal)
@@ -92,9 +93,13 @@ class PartWindow(QWidget):
 
         #########################
 
+	# <holder> - the area to the left of the vertical splitter, next to the
+	# GLPane. 
         holder = QWidget(parent)
-        holder.setMinimumWidth(230)
-	holder.setMaximumWidth(230)
+        holder.setMinimumWidth(pmMinWidth) # Mark 2007-05-24
+	holder.setMaximumWidth(pmMaxWidth) # Always defaults to this width. (no good).
+	self.resize(pmDefaultWidth, holder.sizeHint().height())
+        
         sublayout = QVBoxLayout(holder)
         sublayout.setMargin(0)
         sublayout.setSpacing(0)
@@ -118,8 +123,9 @@ class PartWindow(QWidget):
 	self.featureManager.setPalette(palette)
 	
 	#self.featureManager.setMinimumSize(0,0)
-        self.featureManager.setMinimumWidth(230)
-	self.featureManager.setMaximumWidth(230)
+        self.featureManager.setMinimumWidth(pmMinWidth) # Mark 2007-05-24
+	self.featureManager.setMaximumWidth(pmMaxWidth) # Mark 2007-05-24
+	self.resize(pmDefaultWidth, holder.sizeHint().height())
 	#ninad 070102 Setting the size policy as 'Ignored' makes the default MT widget width to 0
 	#so commenting out the following for now
 	
