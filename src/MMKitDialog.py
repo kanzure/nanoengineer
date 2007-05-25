@@ -96,8 +96,8 @@ class Ui_MMKitDialog(object):
         MMKitDialog.setPalette(palette)
 
         self.vboxlayout = QtGui.QVBoxLayout(MMKitDialog)
-        self.vboxlayout.setMargin(1)
-        self.vboxlayout.setSpacing(1)
+        self.vboxlayout.setMargin(0) # was 1. Mark 2007-05-24.
+        self.vboxlayout.setSpacing(0) # was 1. Mark 2007-05-24.
         self.vboxlayout.setObjectName("vboxlayout")
         
         self.heading_frame = QtGui.QFrame(MMKitDialog)
@@ -106,15 +106,15 @@ class Ui_MMKitDialog(object):
         self.heading_frame.setObjectName("heading_frame")
         
         palette2 = QtGui.QPalette()
-        palette2.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(10),QtGui.QColor(150,150,140)) #bgrole(10) is 'Windows'
-        palette2.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(10),QtGui.QColor(150, 150,140)) #bgrole(10) is 'Windows'
-        palette2.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(10),QtGui.QColor(150,150,140)) #bgrole(10) is 'Windows'
+        palette2.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(10),QtGui.QColor(120,120,120)) #bgrole(10) is 'Windows'
+        palette2.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(10),QtGui.QColor(120,120,120)) #bgrole(10) is 'Windows'
+        palette2.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(10),QtGui.QColor(120,120,120)) #bgrole(10) is 'Windows'
         self.heading_frame.setAutoFillBackground(True)
         self.heading_frame.setPalette(palette2)
 
         self.hboxlayout_heading = QtGui.QHBoxLayout(self.heading_frame)
-        self.hboxlayout_heading .setMargin(0)
-        self.hboxlayout_heading .setSpacing(3)
+        self.hboxlayout_heading .setMargin(2)
+        self.hboxlayout_heading .setSpacing(5)
         self.hboxlayout_heading .setObjectName("hboxlayout")
         
         self.heading_pixmap = QtGui.QLabel(self.heading_frame)

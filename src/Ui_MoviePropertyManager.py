@@ -36,8 +36,8 @@ class Ui_MoviePropertyManager(object):
         MoviePropertyManager.setPalette(palette)
         
         self.vboxlayout = QtGui.QVBoxLayout(MoviePropertyManager)
-        self.vboxlayout.setMargin(1)
-        self.vboxlayout.setSpacing(1)
+        self.vboxlayout.setMargin(0) # was 1. Mark 2007-05-24.
+        self.vboxlayout.setSpacing(0) # was 1. Mark 2007-05-24.
         self.vboxlayout.setSizeConstraint(QLayout.SetMinimumSize)
         self.vboxlayout.setObjectName("vboxlayout")
         
@@ -48,17 +48,17 @@ class Ui_MoviePropertyManager(object):
         
         palette2 = QtGui.QPalette()
         palette2.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(10),
-                          QtGui.QColor(150,150,140)) #bgrole(10) is 'Windows'
+                          QtGui.QColor(120,120,120)) #bgrole(10) is 'Windows'
         palette2.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(10),
-                          QtGui.QColor(150, 150,140)) #bgrole(10) is 'Windows'
+                          QtGui.QColor(120,120,120)) #bgrole(10) is 'Windows'
         palette2.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(10),
-                          QtGui.QColor(150,150,140)) #bgrole(10) is 'Windows'
+                          QtGui.QColor(120,120,120)) #bgrole(10) is 'Windows'
         self.heading_frame.setAutoFillBackground(True)
         self.heading_frame.setPalette(palette2)
 
         self.hboxlayout_heading = QtGui.QHBoxLayout(self.heading_frame)
-        self.hboxlayout_heading .setMargin(0)
-        self.hboxlayout_heading .setSpacing(3)
+        self.hboxlayout_heading .setMargin(2)
+        self.hboxlayout_heading .setSpacing(5)
         self.hboxlayout_heading .setObjectName("hboxlayout")
 
 
