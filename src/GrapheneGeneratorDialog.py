@@ -26,7 +26,7 @@ class GraphenePropMgr(object, PropMgrBaseClass):
     title = "Graphene Sheet"
     # <name> - the name of this property manager. This will be set to
     # the name of the PropMgr (this) object via setObjectName().
-    name = title + " Property Manager"
+    name = "pm" + title
     # <iconPath> - full path to PNG file that appears in the header.
     iconPath = "ui/actions/Tools/Build Structures/Graphene.png"
     
@@ -61,10 +61,16 @@ class GraphenePropMgr(object, PropMgrBaseClass):
             return
         
         self.addGroupBoxSpacer()
-        self.testGroupBox = PropMgrGroupBox(self, 
-                                           title="Test Widgets",
+        self.testGroupBox1 = PropMgrGroupBox(self, 
+                                           title="Test Widgets1",
                                            titleButton=True)
-        self.addTestWidgets(self.testGroupBox)
+        self.loadTestWidgets1(self.testGroupBox1)
+        
+        self.addGroupBoxSpacer()
+        self.testGroupBox2 = PropMgrGroupBox(self, 
+                                           title="Test Widgets2",
+                                           titleButton=True)
+        self.loadTestWidgets2(self.testGroupBox2)
               
     def loadGroupBox1(self, pmGroupBox):
         """Load widgets in groubox 1.
@@ -102,7 +108,7 @@ class GraphenePropMgr(object, PropMgrBaseClass):
                             idx=0, setAsDefault=True,
                             spanWidth=False)
         
-    def addTestWidgets(self, pmGroupBox):
+    def loadTestWidgets1(self, pmGroupBox):
         """Adds widgets to <pmGroupBox>.
         Used for testing purposes. Mark 2007-05-24
         """
@@ -145,7 +151,7 @@ class GraphenePropMgr(object, PropMgrBaseClass):
                                         spanWidth=False)
         
         self.spanTextEdit = PropMgrTextEdit(pmGroupBox, 
-                                        label="Spanning TextEdit :", 
+                                        label="", 
                                         spanWidth=True)
             
         self.groupBox = PropMgrGroupBox(pmGroupBox, 
@@ -158,6 +164,36 @@ class GraphenePropMgr(object, PropMgrBaseClass):
                                 choices=choices, 
                                 idx=2, setAsDefault=True,
                                 spanWidth=False)
+        
+        self.pushButton1 = \
+            PropMgrPushButton(pmGroupBox,
+                              label="",
+                              text="PushButton1")
+        
+        self.pushButton2 = \
+            PropMgrPushButton(pmGroupBox,
+                              label="",
+                              text="PushButton2",
+                              spanWidth=True)
+    
+    def loadTestWidgets2(self, pmGroupBox):
+        """Load widgets in groubox 1.
+        """
+        
+        self.strandSeqTextEdit = \
+            PropMgrTextEdit(pmGroupBox, 
+                            label="", 
+                            spanWidth=True)
+        
+        self.complementPushButton = \
+            PropMgrPushButton(pmGroupBox,
+                              label="",
+                              text="Complement")
+        
+        self.reversePushButton = \
+            PropMgrPushButton(pmGroupBox,
+                              label="",
+                              text="Reverse")
         
     def add_whats_this_text(self):
         """What's This text for some of the widgets in the Property Manager.
