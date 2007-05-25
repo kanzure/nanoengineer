@@ -11,13 +11,17 @@ $Id$
 from OpenGL.GL import *
 from OpenGL.GLU import *
 try:
-        from OpenGL.GLE import glePolyCone, gleGetNumSides, gleSetNumSides
+        from OpenGL.GLE import glePolyCone
 except:
         print "GLE module can't be imported. Now trying _GLE"
-        from OpenGL._GLE import glePolyCone, gleGetNumSides, gleSetNumSides
-	
-##from OpenGL.GLE import glePolyCone, gleGetNumSides, gleSetNumSides
+        from OpenGL._GLE import glePolyCone
 
+try:
+    from OpenGL.GL import glScale
+except:
+    # The installed version of OpenGL requires argument-typed glScale calls.
+    glScale = glScalef
+    
 import math
 import os
 import sys
@@ -1814,16 +1818,12 @@ def drawOriginAsSmallAxis(n, point, dashEnabled = False):
     glDisable(GL_LIGHTING)
     glLineWidth(lineWidth)
     
-    gleNumSides = gleGetNumSides()
     #Code to show hidden lines of the origin if some model obscures it  ninad060921
     if dashEnabled:
         glLineStipple(2, 0xAAAA)
         glEnable(GL_LINE_STIPPLE)
         glDisable(GL_DEPTH_TEST)
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
-        gleSetNumSides(5)
-    else:
-        gleSetNumSides(10)
         
     glBegin(GL_LINES)
 
@@ -1900,7 +1900,6 @@ def drawOriginAsSmallAxis(n, point, dashEnabled = False):
         glDisable(GL_LINE_STIPPLE)
         glEnable(GL_DEPTH_TEST)
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
-    gleSetNumSides(gleNumSides)
     glEnable(GL_CULL_FACE)
     glEnable(GL_LIGHTING)
     glPopMatrix() 
