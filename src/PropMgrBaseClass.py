@@ -955,7 +955,7 @@ class PropMgrTextEdit(QTextEdit, PropMgrWidgetMixin):
         # Needed for Intel MacOS. Otherwise, the horizontal scrollbar
         # is displayed in the MessageGroupBox. Mark 2007-05-24.
         # Shouldn't be needed with _setHeight().
-        #self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         
         # A function that returns all the widget and label layout params.
         widgetRow, widgetColumn, widgetSpanCols, incRows, \
