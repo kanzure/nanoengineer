@@ -92,7 +92,7 @@ class Plane(ReferenceGeometry):
         if self.picked:
             drawLineLoop(self.color, corners_pos)  
             #See comment near line 138 below -- Ninad 20070525 
-            self._draw_handles(corners_pos)
+            ##self._draw_handles(corners_pos)
         else:
             if highlighted:
                 drawLineLoop(yellow, corners_pos, width=2)
@@ -141,16 +141,16 @@ class Plane(ReferenceGeometry):
             # it works only in front plane. When plane is created in other
             #orientations, the handle geometry is still created in front plane. 
             # This is happening because the 'cornerHandleCenters' computation
-            #done above is not correct.  I am disabling the call to _draw_handles
-            #and [B] instead calling it inside of the push-pop matrix that does the plane
-            #drawing. This way it uses the correct handle centers, but then there
+            #done above is not correct. 
+            #[B] If called inside of the push-pop matrix that does the plane
+            #drawing, it uses the correct handle centers, but then there
             #is a problem in correct computation of quaternion that draws the 
             #Handle geometry. The handle geometry should always be drawn 
             #parallel to the screen. 
             #This is not (yet) acheived by doing [B] described above. Need 
             #some more work.  -- Ninad 20070525
             
-            ##self._draw_handles(cornerHandleCenters)
+            self._draw_handles(cornerHandleCenters)
             if highlighted:
                 glPushMatrix()
                 glTranslatef( self.center[0], self.center[1], self.center[2])
@@ -336,7 +336,14 @@ class Handle:
         
         if hCenter:
             if self.center != hCenter:
-                self.center = hCenter             
+                self.center = hCenter    
+        
+        #Always draw the handle geometry facing the line of sight. So that 
+        #the handles are visible in any orientation of the plane.
+        handleNorm = self.glpane.lineOfSight 
+        #@@@ ninad20070523 bug when the plane is created after rotating the glpane          
+        self.quat = Q(V(0.0, 0.0, 1.0), handleNorm)
+        
         #Use glpane's scale for drawing the handle. This makes sure that
         # the handle is non-zoomable. 
         side = self.glpane.scale*0.02                
@@ -353,11 +360,7 @@ class Handle:
         glTranslatef(self.center[0], 
                      self.center[1], 
                      self.center[2])        
-        #Always draw the handle geometry facing the line of sight. So that 
-        #the handles are visible in any orientation of the plane.
-        handleNorm = self.glpane.lineOfSight 
-        #@@@ ninad20070523 bug when the plane is created after rotating the glpane          
-        self.quat = Q(V(0.0, 0.0, 1.0), handleNorm)
+ 
         q = self.quat     
         glRotatef(q.angle*180.0/pi, q.x, q.y, q.z)
                 
