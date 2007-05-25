@@ -7,12 +7,16 @@ from ReferenceGeometry import ReferenceGeometry
 from shape import fill
 from drawer import drawLineLoop, drawPlane
 from constants import black, gray, orange, yellow, darkgreen
-from VQT import V,Q, cross, dot
+from VQT import V,Q, cross, dot, A
 from OpenGL.GL import *
 from math import pi
 from debug import print_compact_traceback
 import env
 from OpenGL.GLU import gluProject, gluUnProject
+
+#draw handle inside or outside of push-pop matrix that draws the Plane geometry
+#default is True (handle drawn inside) 
+DEBUG_DRAW_HANDLE_INSIDE = False
 
 class Plane(ReferenceGeometry):    
     sym = "Plane"    
@@ -75,10 +79,14 @@ class Plane(ReferenceGeometry):
 
         hw = self.width/2.0; hh = self.height/2.0
         
-        corners_pos = [V(-hw, hh, 0.0), 
-                       V(-hw, -hh, 0.0), 
-                       V(hw, -hh, 0.0), 
-                       V(hw, hh, 0.0)]          
+        bottom_left = V(- hw,- hh, 0.0)                       
+        bottom_right = V(+ hw,- hh, 0.0)        
+        top_right = V(+ hw, + hh, 0.0)
+        top_left = V(- hw, + hh, 0.0)
+        
+        
+        corners_pos = [bottom_left, bottom_right, 
+                       top_right, top_left]          
                 
                 
         drawPlane(self.fill_color, 
@@ -92,7 +100,8 @@ class Plane(ReferenceGeometry):
         if self.picked:
             drawLineLoop(self.color, corners_pos)  
             #See comment near line 138 below -- Ninad 20070525 
-            ##self._draw_handles(corners_pos)
+            if DEBUG_DRAW_HANDLE_INSIDE:
+                self._draw_handles(corners_pos)               
         else:
             if highlighted:
                 drawLineLoop(yellow, corners_pos, width=2)
@@ -106,58 +115,58 @@ class Plane(ReferenceGeometry):
                     bordercolor = color #frontside
                 drawLineLoop(bordercolor, corners_pos)                  
         glPopMatrix()
-        
-        #We need to compute the corner positions to draw 
-        #the handles. The list 'corners_pos' can't be used for this 
-        #purpose as it computes the corners in a translation matrix 
-        #whose center is always at the center of the geometry. 
-        # Then why not use the above translation matrix for handles?
-        #-- we can't do this because then the handles are not drawn parallel
-        #to the screen in some orientations (i.e. user doesn't see them as 
-        #squares in some orientations) -- ninad 20070518
-        
-        bottom_left = V(self.center[0] - hw,
-                        self.center[1] - hh,
-                        self.center[2])
-        bottom_right = V(self.center[0] + hw,
-                        self.center[1] - hh,
-                        self.center[2])
-        
-        top_right = V(self.center[0] + hw,
-                        self.center[1] + hh,
-                        self.center[2])
-        top_left = V(self.center[0] - hw,
-                        self.center[1] + hh,
-                        self.center[2])
-        
-
-        cornerHandleCenters =  [bottom_left,bottom_right,
-                                top_right,top_left]       
-                        
-        # Draw the handles when selected. 
-        if self.picked:
-            #[A] Following line draws the handles outside of the 
-            # push-pop matrix that draws the plane. But this is wrong. 
-            # it works only in front plane. When plane is created in other
-            #orientations, the handle geometry is still created in front plane. 
-            # This is happening because the 'cornerHandleCenters' computation
-            #done above is not correct. 
-            #[B] If called inside of the push-pop matrix that does the plane
-            #drawing, it uses the correct handle centers, but then there
-            #is a problem in correct computation of quaternion that draws the 
-            #Handle geometry. The handle geometry should always be drawn 
-            #parallel to the screen. 
-            #This is not (yet) acheived by doing [B] described above. Need 
-            #some more work.  -- Ninad 20070525
+        if not DEBUG_DRAW_HANDLE_INSIDE:            
+            #We need to compute the corner positions to draw 
+            #the handles. The list 'corners_pos' can't be used for this 
+            #purpose as it computes the corners in a translation matrix 
+            #whose center is always at the center of the geometry. 
+            # Then why not use the above translation matrix for handles?
+            #-- we can't do this because then the handles are not drawn parallel
+            #to the screen in some orientations (i.e. user doesn't see them as 
+            #squares in some orientations) -- ninad 20070518
+          
+            bottom_left = V(self.center[0] - hw,
+                            self.center[1] - hh,
+                            self.center[2])
+            bottom_right = V(self.center[0] + hw,
+                            self.center[1] - hh,
+                            self.center[2])
             
-            self._draw_handles(cornerHandleCenters)
-            if highlighted:
-                glPushMatrix()
-                glTranslatef( self.center[0], self.center[1], self.center[2])
-                q = self.quat
-                glRotatef( q.angle*180.0/pi, q.x, q.y, q.z)
-                drawLineLoop(yellow, corners_pos, width=2)
-                glPopMatrix()
+            top_right = V(self.center[0] + hw,
+                            self.center[1] + hh,
+                            self.center[2])
+            top_left = V(self.center[0] - hw,
+                            self.center[1] + hh,
+                            self.center[2])
+            
+        
+            cornerHandleCenters =  [bottom_left,bottom_right,
+                                    top_right,top_left]       
+                          
+            # Draw the handles when selected. 
+            if self.picked:
+                #[A] Following line draws the handles outside of the 
+                # push-pop matrix that draws the plane. But this is wrong. 
+                # it works only in front plane. When plane is created in other
+                #orientations, the handle geometry is still created in front plane. 
+                # This is happening because the 'cornerHandleCenters' computation
+                #done above is not correct. 
+                #[B] If called inside of the push-pop matrix that does the plane
+                #drawing, it uses the correct handle centers, but then there
+                #is a problem in correct computation of quaternion that draws the 
+                #Handle geometry. The handle geometry should always be drawn 
+                #parallel to the screen. 
+                #This is not (yet) acheived by doing [B] described above. Need 
+                #some more work.  -- Ninad 20070525
+                self._draw_handles(cornerHandleCenters)
+              
+                if highlighted:
+                    glPushMatrix()
+                    glTranslatef( self.center[0], self.center[1], self.center[2])
+                    q = self.quat
+                    glRotatef( q.angle*180.0/pi, q.x, q.y, q.z)
+                    drawLineLoop(yellow, corners_pos, width=2)
+                    glPopMatrix()        
            
         return
            
@@ -203,12 +212,6 @@ class Plane(ReferenceGeometry):
     def rot(self, q):
         self.quat += q
         
-        if len(self.handles) == 8:
-            for hdl in self.handles:
-                assert isinstance(hdl, Handle)
-                hdl.rot(q)
-        
-        
     def _getPlaneOrientation(self, atomPos):
         assert len(atomPos) >= 3
         v1 = atomPos[-2] - atomPos[-1]
@@ -238,7 +241,7 @@ class Plane(ReferenceGeometry):
         for midpt in [midBtm,midRt,midTop, midLft]:
             handleCenters.append(midpt)
         
-        if len(self.handles)> 0:   
+        if len(self.handles)==8:   
             assert len(self.handles) == len(handleCenters)
             i = 0
             for i in range(len(self.handles)):
@@ -267,12 +270,13 @@ class Plane(ReferenceGeometry):
         ''' Recompute the center of the Plane based on the handleOffset
         This is needed during resizing'''
         
-        ##self.move(handleOffset/2.0)
+        ##self.move(handleOffset/2.0) 
         self.center += handleOffset/2.0
-
+      
     def resizeGeometry(self, movedHandle, offset):
+        
         handleOffset = offset
-                    
+                            
         new_center = self.center + handleOffset/2.0
         moved_handle_center = movedHandle.center + handleOffset
         
@@ -338,31 +342,34 @@ class Handle:
             if self.center != hCenter:
                 self.center = hCenter    
         
-        #Always draw the handle geometry facing the line of sight. So that 
-        #the handles are visible in any orientation of the plane.
-        handleNorm = self.glpane.lineOfSight 
-        #@@@ ninad20070523 bug when the plane is created after rotating the glpane          
-        self.quat = Q(V(0.0, 0.0, 1.0), handleNorm)
+        if not DEBUG_DRAW_HANDLE_INSIDE:
+            #Always draw the handle geometry facing the line of sight. So that 
+            #the handles are visible in any orientation of the plane.
+            handleNorm = self.glpane.lineOfSight 
+            #@@@ ninad20070523 bug when the plane is created after rotating the glpane          
+            self.quat = Q(V(0.0, 0.0, 1.0), handleNorm)
         
         #Use glpane's scale for drawing the handle. This makes sure that
         # the handle is non-zoomable. 
-        side = self.glpane.scale*0.02                
+        side = self.glpane.scale*0.05                
         glPushMatrix()           
             
-        #Bruce suggested undoing the glpane.quat rotation and plane quat rotation 
-        #before drawing the handle geometry. Unfortunately this dowen't yet work 
-        #so disabling the following four lines -- ninad20070525
-        ##parent_q = self.parent.quat        
-        ##glpane_q = self.glpane.quat 
-        ##glRotatef(-parent_q.angle*180.0/pi, parent_q.x, parent_q.y, parent_q.z)          
-        ##glRotatef(-glpane_q.angle*180.0/pi, glpane_q.x, glpane_q.y, glpane_q.z)
+        
         #Translate to the center of the handle
         glTranslatef(self.center[0], 
                      self.center[1], 
-                     self.center[2])        
- 
-        q = self.quat     
-        glRotatef(q.angle*180.0/pi, q.x, q.y, q.z)
+                     self.center[2])   
+        
+        if DEBUG_DRAW_HANDLE_INSIDE:
+            #Bruce suggested undoing the glpane.quat rotation and plane quat rotation 
+            #before drawing the handle geometry. -- ninad 20070525
+            parent_q = self.parent.quat        
+            glpane_q = self.glpane.quat 
+            glRotatef(-parent_q.angle*180.0/pi, parent_q.x, parent_q.y, parent_q.z)          
+            glRotatef(-glpane_q.angle*180.0/pi, glpane_q.x, glpane_q.y, glpane_q.z)        
+        else:
+            q = self.quat     
+            glRotatef(q.angle*180.0/pi, q.x, q.y, q.z)
                 
         drawPlane(darkgreen, 
               side, 
@@ -380,23 +387,28 @@ class Handle:
                V(handle_hw, handle_hh, 0.0)]   
         
         if highlighted:    
-            drawLineLoop(orange, handle_corner, width=3)
+            drawLineLoop(orange, handle_corner, width=6)
         else:
             drawLineLoop(black, handle_corner, width=2)                
         glPopMatrix()
-
+        
     def draw_in_abs_coords(self, glpane, color):
         ''' Draw the handle as a highlighted object'''
+        if DEBUG_DRAW_HANDLE_INSIDE:            
+            q = self.parent.quat  
+            glPushMatrix()
+            glTranslatef( self.parent.center[0],
+                          self.parent.center[1], 
+                          self.parent.center[2])
+            glRotatef( q.angle*180.0/pi, q.x, q.y, q.z)            
         self._draw(highlighted = True)
+        if DEBUG_DRAW_HANDLE_INSIDE:   
+            glPopMatrix()
         
     def move(self, offset):
         '''Move the handle by <offset>, which is a 'V' object.'''
         self.center += offset
     
-    def rot(self, q):
-        #@@ ninad 20070524 : This is NIY and might not be necessary
-        self.quat += q
-        
     def setType(self, handleType):
         ''' @param: handleType: returns the '''
         assert handleType in [ 'X-Handle' , 'Y-Handle' , 'Corner']
