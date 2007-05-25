@@ -303,6 +303,7 @@ from NanotubeGeneratorDialog import NanotubePropMgr
 from GeneratorBaseClass import GeneratorBaseClass
 from HistoryWidget import redmsg, orangemsg, greenmsg
 
+# NanotubePropMgr must come BEFORE GeneratorBaseClass in this list
 class NanotubeGenerator(QDialog, NanotubePropMgr, GeneratorBaseClass):
     """The Nanotube Generator class.
     """
@@ -466,36 +467,4 @@ class NanotubeGenerator(QDialog, NanotubePropMgr, GeneratorBaseClass):
             self.build_struct(name, params, position, mol=mol, createPrinted=True)
 
         return mol
-    
-    def chirality_fixup_MOVED(self):
-        '''Slot for several validators for different parameters.
-        This gets called each time a user types anything into a widget or changes a spinbox.
-        '''
-        
-        print "chirality_fixup(): Here!"
-        
-        if not hasattr(self, 'n'):
-            print "No n. Returning"
-            return
-        
-        n_previous = int(self.n)
-        m_previous = int(self.m)
-        n = self.chiralityNSpinBox.value()
-        m = self.chiralityMSpinBox.value()
-        # Two restrictions to maintain
-        # n >= 2
-        # 0 <= m <= n
-        if n < 2:
-            n = 2
-        if m != self.m:
-            # The user changed m. If m became larger than n, make n bigger.
-            if m > n:
-                n = m
-        elif n != self.n:
-            # The user changed n. If n became smaller than m, make m smaller.
-            if m > n:
-                m = n
-        self.chiralityNSpinBox.setValue(n)
-        self.chiralityMSpinBox.setValue(m)
-        self.m, self.n = m, n
 
