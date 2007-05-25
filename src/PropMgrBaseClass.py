@@ -24,7 +24,6 @@ __author__ = "Mark"
 # Mark's To Do List (by order of priority):
 #
 # - Add PropMgrPushButton class (needed by DNAGeneratorDialog)
-# - Migrate DNAGenerator and DNAGeneratorDialog.
 # - Clean up PropertyManagerMixin.py
 # - Compute message box size using FontMetrics (important)
 # - getWidgetGridLayoutParms() => addWidgetLabel()
@@ -33,15 +32,13 @@ __author__ = "Mark"
 # - Make fitContents() "smarter". See docstring.
 # - Resize width of PropMgr automatically when scrollbar appears to make
 #   extra room for it.
-# - Ask Bruce how he would move restoreDefault() into PropMgrWidgetMixin
-#   class.
-# - Standard names for all widgets. (minor)
 # - Add color theme user pref in Preferences dialog. (nice to have)
 # - Set title button color via style sheet (see getTitleButtonStyleSheet)
 # - Create TopRowButtns class with attrs and methods to hide/show 
 #   buttons. (minor)
-# - add setObjectName("name") to all widgets.
 # - "range" attr (str) that can be included in What's This text.
+# - override setObjectName() in PropMgrWidgetMixin class to create 
+#   standard names.
 
 from PyQt4.Qt import *
 from PyQt4 import QtCore
@@ -54,74 +51,34 @@ from PropMgr_Constants import *
 from widgets import double_fixup
 import os, sys
 
-def getPropMgrImagePath(imageName):
-    """Returns the relative path to the icon/image file <imageName>.
+
+# Special Qt debugging functions written by Mark. 2007-05-24 ############
+
+def printSizePolicy(widget):
+    """Special method for debugging Qt sizePolicies.
+    Prints the horizontal and vertical policy of <widget>.
     """
-    return os.path.join (pmImagePath + imageName)
-
-COLOR_THEME = "Gray"
-
-_colortheme_Choice = Choice(["Gray", "Blue"], default_value = COLOR_THEME)
-
-COLOR_THEME_prefs_key = "A9/Color Theme"
-
-def set_Color_Theme_from_pref():
-    global COLOR_THEME
-    COLOR_THEME = debug_pref("Color Theme (next session)",
-                                       _colortheme_Choice,
-                                       non_debug = True,
-                                       prefs_key = COLOR_THEME_prefs_key)
-    return
-
-set_Color_Theme_from_pref()
-
-# Standard colors for all themes.
-pmColor = QColor(230, 231, 230) # Should get this from the main window (parent).
-pmGrpBoxColor = QColor(201,203,223)
-pmMessageTextEditColor = QColor(255,255,100) # Yellow msg box (QTextEdit widget).
+    sizePolicy = widget.sizePolicy()
+    print "-----------------------------------"
+    print "Widget name =", widget.objectName()
+    print "Horizontal SizePolicy =", sizePolicy.horizontalPolicy()
+    print "Vertical SizePolicy =", sizePolicy.verticalPolicy()
     
-if COLOR_THEME == "Gray":
+def printSizeHints(widget):
+    """Special method for debugging Qt size hints.
+    Prints the minimumSizeHint (width and height)
+    and the sizeHint (width and height) of <widget>.
+    """
+    print "-----------------------------------"
+    print "Widget name =", widget.objectName()
+    print "Current Width, Height =", widget.width(), widget.height()
+    minSize = widget.minimumSizeHint()
+    print "Min Width, Height =", minSize.width(), minSize.height() 
+    sizeHint = widget.sizeHint()
+    print "SizeHint Width, Height =", sizeHint.width(), sizeHint.height()
 
-    # Dark Gray Color Theme
-    
-    # Colors for Property Manager widgets.
-    pmTitleFrameColor = QColor(120,120,120)
-    pmTitleLabelColor = QColor(255,255,255)
-    pmGrpBoxButtonColor = QColor(172,173,190)
-    pmCheckBoxTextColor = QColor(0,0,255) # used in MMKit
-    pmCheckBoxButtonColor = QColor(172,173,190)
-    
-    
-    # Property Manager stylesheet colors (uses HTML Color Codes)
-    #@ To do: I intend to add a method for each (like those above) 
-    # that returns a palette. Mark 2007-05-17.
-    pmGrpBoxBorderColor = "#444F51"
-    pmGrpBoxButtonBorderColor = "#939089"
-    pmGrpBoxButtonTextColor = "#282821" # Same as pmCheckBoxTextColor
+# PropMgr helper functions ##########################################
 
-    # Locations of expanded and collapsed title button images.
-    pmGrpBoxExpandedImage = getPropMgrImagePath("GroupBox_Opened_Gray.png")
-    pmGrpBoxCollapsedImage = getPropMgrImagePath("GroupBox_Closed_Gray.png")
-
-else: # Blue Color Theme
-    
-    # Colors for Property Manager widgets.
-    pmTitleFrameColor = QColor(120,120,120) # I like (50,90,230). mark
-    pmTitleLabelColor = QColor(255,255,255)
-    pmGrpBoxButtonColor = QColor(172,173,190)
-    pmCheckBoxTextColor = QColor(0,0,255)
-    pmCheckBoxButtonColor = QColor(172,173,190)
-    pmMessageTextEditColor = QColor(255,255,100)
-
-    # Property Manager stylesheet colors (uses HTML Color Codes)
-    pmGrpBoxBorderColor = "blue"
-    pmGrpBoxButtonBorderColor = "gray"
-    pmGrpBoxButtonTextColor = "blue"
-
-    # Locations of groupbox opened and closed images.
-    pmGrpBoxExpandedImage = getPropMgrImagePath("GroupBox_Opened_Blue.png")
-    pmGrpBoxCollapsedImage = getPropMgrImagePath("GroupBox_Closed_Blue.png")
-    
 def getPalette(palette, obj, color):
     """ Given a palette, Qt object and a color, return a new palette.
     If palette is None, create and return a new palette.
@@ -190,7 +147,8 @@ def getWidgetGridLayoutParms(label, row, spanWidth):
 class PropMgrBaseClass:
     '''Property Manager base class'''
     
-    widgets = [] # All widgets in the PropMgr dialog (
+    widgets = [] # All widgets in the PropMgr dialog
+    num_groupboxes = 0 # Number of groupboxes in PropMgr.
     pmHeightComputed = False # See show() for explaination.
     
     def __init__(self, name):
@@ -213,13 +171,44 @@ class PropMgrBaseClass:
         self.addTopRowBtns() # Create top buttons row
         self.MessageGroupBox = PropMgrMessageGroupBox(self, "Message")
         
-        self.debugSizePolicy() # For me. Mark 2007-05-17.
+        if 0: # For me. Mark 2007-05-17.
+            self.debugSizePolicy() 
         
         # Keep this around; it might be useful.
         # I may want to use it now that I understand it.
         # Mark 2007-05-17.
         #QtCore.QMetaObject.connectSlotsByName(self)
     
+    # On the verge of insanity, then I wrote this.... Mark 2007-05-22
+    def debugSizePolicy(self): 
+        """Special method for debugging sizePolicy.
+        Without this, I couldn't figure out how to make groupboxes
+        (and their widgets) behave themselves when collapsing and
+        expanding them. I needed to experiment with different sizePolicies,
+        especially TextEdits and GroupBoxes, to get everything working
+        just right. Their layouts can be slippery. Mark 2007-05-22
+        """
+    
+        if 0: # Override PropMgr sizePolicy.
+            self.setSizePolicy(
+                QSizePolicy(QSizePolicy.Policy(QSizePolicy.Preferred),
+                            QSizePolicy.Policy(QSizePolicy.Minimum)))
+        
+        if 0: # Override MessageGroupBox sizePolicy.
+            self.MessageGroupBox.setSizePolicy(
+                QSizePolicy(QSizePolicy.Policy(QSizePolicy.Preferred),
+                            QSizePolicy.Policy(QSizePolicy.Fixed)))
+        
+        if 0: # Override MessageTextEdit sizePolicy.
+            self.MessageTextEdit.setSizePolicy(
+                QSizePolicy(QSizePolicy.Policy(QSizePolicy.Preferred),
+                            QSizePolicy.Policy(QSizePolicy.Fixed)))
+
+        if 1: # Print the current sizePolicies.
+            printSizePolicy(self)
+            printSizePolicy(self.MessageGroupBox)
+            printSizePolicy(self.MessageTextEdit)
+        
     def show(self):
         """Show the Graphene Sheet Property Manager.
         """
@@ -263,18 +252,10 @@ class PropMgrBaseClass:
         Ask Bruce how to do this. Mark 2007-05-23
         """
         if 0: # Let's see what minimumSizeHint and sizeHint say.
-            minSize = self.minimumSizeHint()
-            print "Min Width, Height =", \
-                  minSize.width(), \
-                  minSize.height()
-        
-            sizeHint = self.sizeHint()
-            print "SizeHint Width, Height =", \
-                  sizeHint.width(), \
-                  sizeHint.height()
+            printSizeHints(self)
         
         # The width of propmgr is 230 - (4 x 2) = 222 pixels on Windows.
-        pmWidth = 230 - (4 * 2) # 230 should be global/constant
+        pmWidth = pmDefaultWidth - (4 * 2) # 230 should be global/constant
         pmHeight = self.sizeHint().height()
         self.pmHeightComputed = True # See show() for explanation.
         
@@ -287,46 +268,6 @@ class PropMgrBaseClass:
         
         if 0:
             print "PropMgr Width, Height =", self.width(), self.height()
-    
-    # On the verge of insanity, then I wrote this.... Mark 2007-05-22
-    def debugSizePolicy(self): 
-        """Special method for debugging sizePolicy.
-        Without this, I couldn't figure out how to make groupboxes
-        (and their widgets) behave themselves when collapsing and
-        expanding them. I needed to experiment with different sizePolicies,
-        especially TextEdits and GroupBoxes, to get everything working
-        just right. Their layouts can be slippery. Mark 2007-05-22
-        """
-        
-        if 0: # Override PropMgr sizePolicy.
-            self.setSizePolicy(
-                QSizePolicy(QSizePolicy.Policy(QSizePolicy.Preferred),
-                            QSizePolicy.Policy(QSizePolicy.Minimum)))
-        
-        if 0: # Override MessageGroupBox sizePolicy.
-            self.MessageGroupBox.setSizePolicy(
-                QSizePolicy(QSizePolicy.Policy(QSizePolicy.Preferred),
-                            QSizePolicy.Policy(QSizePolicy.Fixed)))
-        
-        if 0: # Override MessageTextEdit sizePolicy.
-            self.MessageTextEdit.setSizePolicy(
-                QSizePolicy(QSizePolicy.Policy(QSizePolicy.Preferred),
-                            QSizePolicy.Policy(QSizePolicy.Fixed)))
-
-        if 0: # Print the current sizePolicies.
-            self.printSizePolicy(self)
-            self.printSizePolicy(self.MessageGroupBox)
-            self.printSizePolicy(self.MessageTextEdit)
-    
-    def printSizePolicy(self, widget):
-        """Special method for debugging sizePolicy.
-        Prints the horizontal and vertical policy of <widget>.
-        """
-        sizePolicy = widget.sizePolicy()
-        print "-----------------------------------"
-        print "Widget name =", self.objectName(), "-", widget.objectName()
-        print "Horizontal SizePolicy =", sizePolicy.horizontalPolicy()
-        print "Vertical SizePolicy =", sizePolicy.verticalPolicy()
         
     def addHeader(self):
         """Creates the Property Manager header, which contains
@@ -583,7 +524,7 @@ class PropMgrBaseClass:
 class PropMgrWidgetMixin:
     """Property Manager Widget Mixin class.
     """
-    
+                              
     def hide(self):
         """Hide this widget and its label. If hidden, the widget
         will not be displayed when its groupbox is expanded.
@@ -618,6 +559,43 @@ class PropMgrWidgetMixin:
         if self.labelWidget:# Show self's label if it has one.
             self.labelWidget.show()
             
+    def restoreDefault(self):
+        """Restores the default value this widget.
+        
+        Note: Need to disconnect and reconnect wigdets to slots.
+        """
+        
+        if 0: # Debugging. Mark 2007-05-25
+            if self.setAsDefault:
+                print "Restoring default for ", self.objectName()
+                
+        if isinstance(self, PropMgrGroupBox):
+            for widget in self.widgets:
+                widget.restoreDefault()
+                
+        if isinstance(self, PropMgrTextEdit):
+            if self.setAsDefault:
+                self.insertHtml(self.defaultText, True)
+        
+        if isinstance(self, PropMgrDoubleSpinBox):
+            if self.setAsDefault:
+                self.setValue(self.defaultValue)
+                
+        if isinstance(self, PropMgrSpinBox):
+            if self.setAsDefault:
+                self.setValue(self.defaultValue)
+                
+        if isinstance(self, PropMgrComboBox):
+            if self.setAsDefault:
+                self.clear()
+                for choice in self.defaultChoices:
+                    self.addItem(choice)
+                self.setCurrentIndex(self.defaultIdx)
+                
+        if isinstance(self, PropMgrPushButton):
+            if self.setAsDefault:
+                self.setText(self.defaultText)
+            
 # End of PropMgrWidgetMixin ############################
        
 class PropMgrGroupBox(QGroupBox, PropMgrWidgetMixin):
@@ -628,9 +606,13 @@ class PropMgrGroupBox(QGroupBox, PropMgrWidgetMixin):
     labelWidget = None # Needed for PropMgrWidgetMixin class (might use to hold title).
     expanded = True # Set to False when groupbox is collapsed.
     widgets = [] # All widgets in the groupbox (except the title button).
-    num_rows = 0 # Number of rows in the groupbox.
+    num_rows = 0 # Number of rows in this groupbox.
+    num_groupboxes = 0 # Number of groupboxes in this groupbox.
+    setAsDefault = True # If set to False, no widgets in this groupbox will be
+                        # reset to their default value when the Restore Defaults 
+                        # button is clicked, regardless thier own <setAsDefault> value.
 
-    def __init__(self, parent, title='', titleButton=False):
+    def __init__(self, parent, title='', titleButton=False, setAsDefault=True):
         """
         Appends a QGroupBox widget to <parent>, a property manager groupbox.
         
@@ -644,10 +626,22 @@ class PropMgrGroupBox(QGroupBox, PropMgrWidgetMixin):
                         if False, no titleButton is added. <title> will be
                         used as the GroupBox title and the GroupBox will
                         not be collapsable/expandable.
+        <setAsDefault> - if False, no widgets in this groupbox will have thier
+                        default values restored when the Restore Defaults 
+                        button is clicked, regardless thier own <setAsDefault> value.
         """
         
         QGroupBox.__init__(self)
+        
         self.parent = parent
+        parent.num_groupboxes += 1
+        num_groupboxes = 0
+        
+        self.setObjectName(parent.objectName() + 
+                           "/pmGroupBox" + 
+                           str(parent.num_groupboxes))
+        
+        self.setAsDefault = setAsDefault
         
         # Calling addWidget() here is important. If done at the end,
         # the title button does not get assigned its palette for some 
@@ -852,12 +846,6 @@ class PropMgrGroupBox(QGroupBox, PropMgrWidgetMixin):
         ##Other options not used : font:bold 10px;  
         
         return styleSheet
-    
-    def restoreDefault(self):
-        """Restores the default value for all widgets in this groupbox.
-        """
-        for widget in self.widgets:
-            widget.restoreDefault()
 
 # End of PropMgrGroupBox ############################
 
@@ -867,6 +855,7 @@ class PropMgrMessageGroupBox(PropMgrGroupBox):
     expanded = True # Set to False when groupbox is collapsed.
     widgets = [] # All widgets in the groupbox (except the title button).
     num_rows = 0 # Number of rows in the groupbox.
+    num_grouboxes = 0 # Number of groupboxes in this msg groupbox.
     
     def __init__(self, parent, title):
         """Constructor for PropMgr group box.
@@ -874,7 +863,13 @@ class PropMgrMessageGroupBox(PropMgrGroupBox):
         <title> is the label used on the the title button
         """
         PropMgrGroupBox.__init__(self, parent, title, titleButton=True)
-        self.setObjectName("MessageGroupBox")
+        
+        parent.num_groupboxes += 1
+        num_groupboxes = 0
+        
+        self.setObjectName(parent.objectName() + 
+                           "/pmMessageGroupBox" + 
+                           str(parent.num_groupboxes))
         
         self.widgets = [] # All widgets in the groupbox (except the title button).
         
@@ -885,6 +880,10 @@ class PropMgrMessageGroupBox(PropMgrGroupBox):
         self.GridLayout.setSpacing(0)
         
         self.MessageTextEdit = PropMgrTextEdit(self, label='', spanWidth=True)
+        
+        # wrapWrapMode seems to be set to QTextOption.WrapAnywhere on MacOS,
+        # so let's force it here. Mark 2007-05-22.
+        self.MessageTextEdit.setWordWrapMode(QTextOption.WordWrap)
         
         parent.MessageTextEdit = self.MessageTextEdit
         
@@ -900,11 +899,15 @@ class PropMgrMessageGroupBox(PropMgrGroupBox):
         # Hide until insertHtmlMessage() loads a message.
         self.hide()
         
-    def insertHtmlMessage(self, text, setAsDefault=False):
+    def insertHtmlMessage(self, text, setAsDefault=False, minLines=0, maxLines=10):
         """Insert <text> (HTML) into the Prop Mgr's message groupbox.
-        Show the message groupbox.
+        <minLines> - The minimum number of lines (of text) to display in the TextEdit.
+        if 0 (default) the TextEdit will fit to <text>. 
+        <maxLines> - The maximum number of lines to display in the TextEdit widget.
+
+        Shows the message groupbox.
         """
-        self.MessageTextEdit.insertHtml(text, setAsDefault)
+        self.MessageTextEdit.insertHtml(text, setAsDefault, minLines=0, maxLines=10)
         self.show()
         
 # End of PropMgrMessageGroupBox ############################
@@ -943,28 +946,16 @@ class PropMgrTextEdit(QTextEdit, PropMgrWidgetMixin):
             return
         
         QTextEdit.__init__(self)
+        self.setObjectName(parent.objectName() + 
+                           "/pmTextEdit" + 
+                           str(parent.num_rows))
         
-        # Temporary kludge for A9 prerelease. Mark 2007-05-22
-        # The problem: I cannot figure out how to set props such
-        #   that the textedit height will auto-adjust to fit the 
-        #   contents.
-        if sys.platform == 'darwin': 
-            self.setMinimumSize(40,80) #@ Compute using FontMetrics.
-            self.setMaximumSize(300,80)
-        else:
-            self.setMinimumSize(40,50) #@ Compute using FontMetrics.
-            self.setMaximumSize(300,50)
-        
-        # wrapWrapMode seems to be set to QTextOption.WrapAnywhere on MacOS,
-        # so let's force it here. Mark 2007-05-22.
-        self.setWordWrapMode(QTextOption.WordWrap)
+        self._setHeight() # Default height is 4 lines high.
         
         # Needed for Intel MacOS. Otherwise, the horizontal scrollbar
         # is displayed in the MessageGroupBox. Mark 2007-05-24.
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        
-        # Curious to see what this is on MacOS. Mark 2007-05-23
-        #print "PropMgrTextEdit.wordWrapMode=", self.wordWrapMode()
+        # Shouldn't be needed with _setHeight().
+        #self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         
         # A function that returns all the widget and label layout params.
         widgetRow, widgetColumn, widgetSpanCols, incRows, \
@@ -997,7 +988,7 @@ class PropMgrTextEdit(QTextEdit, PropMgrWidgetMixin):
         
         parent.num_rows += incRows
         
-    def insertHtml(self, text, setAsDefault=False):
+    def insertHtml(self, text, setAsDefault=False, minLines=4, maxLines=6):
         """Insert <text> (HTML) into the Prop Mgr's message groupbox.
         """
         if setAsDefault:
@@ -1006,19 +997,60 @@ class PropMgrTextEdit(QTextEdit, PropMgrWidgetMixin):
     
         QTextEdit.insertHtml(self, text)
         
+        self._setHeight(minLines, maxLines)
+        
+    def _setHeight(self, minLines=4, maxLines=8):
+        """Set the height just high enough to display
+        the current text without a vertical scrollbar.
+        """
+        
+        if minLines == 0:
+            fitToHeight=True
+        else:
+            fitToHeight=False
+        
+        # Current width of PropMgrTextEdit widget.
+        current_width = self.sizeHint().width()
+        
+        # Probably including Html tags.
+        text = self.toPlainText()
+        text_width = self.fontMetrics().width(text)
+        
+        num_lines = text_width/current_width + 1
+            # + 1 may create an extra (empty) line on rare occasions.
+                        
+        if fitToHeight:
+            num_lines = min(num_lines, maxLines)
+                
+        else:
+            num_lines = max(num_lines, minLines)
+            
+        margin = 6 # based on trial and error. Mark 2007-05-24.
+        new_height = num_lines * self.fontMetrics().lineSpacing() + margin
+        
+        if 0: # Debugging code for me. Mark 2007-05-24
+            print "--------------------------------"
+            print "Widget name =", self.objectName()
+            print "text =", text   
+            print "Text width=", text_width
+            print "current_width (of PropMgrTextEdit)=", current_width
+            print "num_lines=", num_lines
+            print "New height=", new_height
+        
+        # Reset height of PropMgrTextEdit.
+        self.setMinimumSize(40, new_height)
+        self.setMaximumSize(current_width, new_height)
+        
+        # Need to call "fitContents()" here. Need <parent> to do so. 
+        # Not critical now, but will be when we have a rich message
+        # system implemented for NE1. Mark 2007-05-24.
+        
     def getMessageTextEditPalette(self):
         """ Returns a (yellow) palette a message TextEdit.
         """
         return getPalette(None,
                           QPalette.Base,
                           pmMessageTextEditColor)
-        
-    def restoreDefault(self):
-        """Restores the default value for this widget.
-        Does nothing if the attr "setAsDefault" is False.
-        """
-        if self.setAsDefault:
-            self.insertHtml(self.defaultText, True)
 
 # End of PropMgrTextEdit ############################
 
@@ -1075,6 +1107,11 @@ class PropMgrDoubleSpinBox(QDoubleSpinBox, PropMgrWidgetMixin):
         
         QDoubleSpinBox.__init__(self)
         
+        self.setObjectName(parent.objectName() + 
+                           "/pmDoubleSpinBox" + 
+                           str(parent.num_groupboxes) +
+                           "/'" + label + "'")
+        
         # A function that returns all the widget and label layout params.
         widgetRow, widgetColumn, widgetSpanCols, incRows, \
         labelRow, labelColumn, labelSpanCols, labelAlignment = \
@@ -1111,13 +1148,6 @@ class PropMgrDoubleSpinBox(QDoubleSpinBox, PropMgrWidgetMixin):
         parent.widgets.append(self)
         
         parent.num_rows += incRows
-        
-    def restoreDefault(self):
-        """Restores the default value for this widget.
-        Does nothing if the attr "setAsDefault" is False.
-        """
-        if self.setAsDefault:
-            self.setValue(self.defaultValue)
 
 # End of PropMgrDoubleSpinBox ############################
 
@@ -1169,6 +1199,11 @@ class PropMgrSpinBox(QSpinBox, PropMgrWidgetMixin):
         
         QSpinBox.__init__(self)
         
+        self.setObjectName(parent.objectName() + 
+                           "/pmSpinBox" + 
+                           str(parent.num_groupboxes) +
+                           "/'" + label + "'")
+        
         # A function that returns all the widget and label layout params.
         widgetRow, widgetColumn, widgetSpanCols, incRows, \
         labelRow, labelColumn, labelSpanCols, labelAlignment = \
@@ -1203,13 +1238,6 @@ class PropMgrSpinBox(QSpinBox, PropMgrWidgetMixin):
         parent.widgets.append(self)
         
         parent.num_rows += incRows
-        
-    def restoreDefault(self):
-        """Restores the default value for this widget.
-        Does nothing if the attr "setAsDefault" is False.
-        """
-        if self.setAsDefault:
-            self.setValue(self.defaultValue)
 
 # End of PropMgrSpinBox ############################
 
@@ -1221,8 +1249,10 @@ class PropMgrComboBox(QComboBox, PropMgrWidgetMixin):
     # Set setAsDefault to False if "Restore Defaults" should not 
     # reset this widget's choice index to idx.
     setAsDefault = True
-    # <defaultIdx> - default index when "Restore Default" is clicked
+    # <defaultIdx> - default index when "Restore Defaults" is clicked
     defaultIdx = 0
+    # <defaultChoices> - default choices when "Restore Defaults" is clicked.
+    defaultChoices = []
     
     def __init__(self, parent, label='', 
                  choices=[], idx=0, setAsDefault=True,
@@ -1256,6 +1286,11 @@ class PropMgrComboBox(QComboBox, PropMgrWidgetMixin):
         
         QComboBox.__init__(self)
         
+        self.setObjectName(parent.objectName() + 
+                           "/pmComboBox" + 
+                           str(parent.num_groupboxes) +
+                           "/'" + label + "'")
+        
         # A function that returns all the widget and label layout params.
         widgetRow, widgetColumn, widgetSpanCols, incRows, \
         labelRow, labelColumn, labelSpanCols, labelAlignment = \
@@ -1273,12 +1308,13 @@ class PropMgrComboBox(QComboBox, PropMgrWidgetMixin):
             self.labelWidget = None
         
         # Load QComboBox widget choices and set initial choice (index).
-        for i in range(len(choices)):
-            self.addItem(choices[i])
+        for choice in choices:
+            self.addItem(choice)
         self.setCurrentIndex(idx)
         
         # Set default index
         self.defaultIdx=idx
+        self.defaultChoices=choices
         self.setAsDefault = setAsDefault
         
         parent.GridLayout.addWidget(self,
@@ -1287,12 +1323,83 @@ class PropMgrComboBox(QComboBox, PropMgrWidgetMixin):
         parent.widgets.append(self)
         
         parent.num_rows += incRows
-    
-    def restoreDefault(self):
-        """Restores the default choice index for this widget.
-        Does nothing if the attr "setAsDefault" is False.
-        """
-        if self.setAsDefault:
-            self.setCurrentIndex(self.defaultIdx)
 
 # End of PropMgrComboBox ############################
+
+class PropMgrPushButton(QPushButton, PropMgrWidgetMixin):
+    """PropMgr PushButton class.
+    """
+    # Set to True to always hide this widget, even when groupbox is expanded.
+    hidden = False
+    # Set setAsDefault to False if "Restore Defaults" should not 
+    # reset this widget's text.
+    setAsDefault = True
+    # <defaultText> - default text when "Restore Default" is clicked
+    defaultText = ""
+    
+    def __init__(self, parent, label='', 
+                 text='', setAsDefault=True,
+                 spanWidth=False):
+        """
+        Appends a QPushButton widget to <parent>, a property manager groupbox.
+        
+        Arguments:
+        
+        <parent> - a property manager groupbox (PropMgrGroupBox).
+        <label> - label that appears to the left of (or above) the PushButton.
+        <text> - text displayed on the PushButton.
+        <setAsDefault> - if True, will restore <text> as the PushButton's text
+                         when the "Restore Defaults" button is clicked.
+        <spanWidth> - if True, the PushButton and its label will span the width
+                      of its groupbox. Its label will appear directly above
+                      the ComboBox (unless the label is empty) left justified.
+        """
+        
+        if 0: # Debugging code
+            print "PropMgrPushButton.__init__():"
+            print "  label=",label
+            print "  text =", text
+            print "  setAsDefault =", setAsDefault
+            print "  spanWidth =", spanWidth
+        
+        if not parent:
+            return
+        
+        QPushButton.__init__(self)
+        
+        self.setObjectName(parent.objectName() + 
+                           "/pmPushButton" + 
+                           str(parent.num_groupboxes) +
+                           "/'" + label + "'")
+        
+        # A function that returns all the widget and label layout params.
+        widgetRow, widgetColumn, widgetSpanCols, incRows, \
+        labelRow, labelColumn, labelSpanCols, labelAlignment = \
+        getWidgetGridLayoutParms(label, parent.num_rows, spanWidth)
+        
+        if label:
+            # Create QLabel widget.
+            self.labelWidget = QLabel()
+            self.labelWidget.setAlignment(labelAlignment)
+            self.labelWidget.setText(label)
+            parent.GridLayout.addWidget(self.labelWidget,
+                                        labelRow, 0,
+                                        1, labelSpanCols)
+        else:
+            self.labelWidget = None
+        
+        # Set text
+        self.setText(text)
+        
+        # Set default text
+        self.defaultText=text
+        self.setAsDefault = setAsDefault
+        
+        parent.GridLayout.addWidget(self,
+                                    widgetRow, widgetColumn,
+                                    1, widgetSpanCols)
+        parent.widgets.append(self)
+        
+        parent.num_rows += incRows
+
+# End of PropMgrPushButton ############################

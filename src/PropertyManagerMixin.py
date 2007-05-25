@@ -16,7 +16,6 @@ mark 2007-05-17: added the new property manager base class PropMgrBaseClass.
 
 __author__ = "Ninad"
 
-
 from PyQt4.Qt import *
 from PyQt4 import Qt, QtCore, QtGui
 from Utility import geticon
@@ -26,71 +25,9 @@ from qt4transition import lineage
 from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False, Choice
 from Utility import geticon, getpixmap
 from PropMgr_Constants import *
+import os
 
-COLOR_THEME = "Gray" # 
-    #& To do: Make it a user pref in the Prefs Dialog.  Mark 2007-05-16
-
-_colortheme_Choice = Choice(["Gray", "Blue"], default_value = COLOR_THEME)
-
-COLOR_THEME_prefs_key = "A9/Color Theme"
-
-def set_Color_Theme_from_pref():
-    global COLOR_THEME
-    COLOR_THEME = debug_pref("Color Theme (next session)",
-                                       _colortheme_Choice,
-                                       non_debug = True,
-                                       prefs_key = COLOR_THEME_prefs_key)
-    return
-
-set_Color_Theme_from_pref()
-
-if COLOR_THEME == "Gray":
-
-    # Dark Gray Color Theme
-    
-    # Colors for Property Manager widgets.
-    pmColor = QtGui.QColor(230, 231, 230)
-    pmGrpBoxColor = QtGui.QColor(201,203,223)
-    pmTitleFrameColor = QtGui.QColor(120,120,120)
-    pmTitleLabelColor = QtGui.QColor(255,255,255)
-    pmGrpBoxButtonColor = QtGui.QColor(172,173,190)
-    pmCheckBoxTextColor = QtGui.QColor(0,0,255) # used in MMKit
-    pmCheckBoxButtonColor = QtGui.QColor(172,173,190)
-    pmMessageTextEditColor = QtGui.QColor(255,255,100)
-    
-    # Property Manager colors set by HTML Color Codes
-    #@ To do: I intend to add a method for each (like those above) 
-    # that returns a palette. Mark 2007-05-17.
-    pmGrpBoxBorderColor = "#444F51"
-    pmGrpBoxButtonBorderColor = "#939089"
-    pmGrpBoxButtonTextColor = "#282821" # Same as pmCheckBoxTextColor
-
-    # Locations of groupbox opened and closed images.
-    pmGrpBoxOpenedImage = "ui/actions/Properties Manager/GroupBox_Opened_Gray.png"
-    pmGrpBoxClosedImage = "ui/actions/Properties Manager/GroupBox_Closed_Gray.png"
-
-else: # Blue Color Theme
-    
-    # Colors for Property Manager widgets.
-    pmColor = QtGui.QColor(230, 231, 230)
-    pmGrpBoxColor = QtGui.QColor(201,203,223)
-    pmTitleFrameColor = QtGui.QColor(120,120,120) # I like (50,90,230).
-    pmTitleLabelColor = QtGui.QColor(255,255,255)
-    pmGrpBoxButtonColor = QtGui.QColor(172,173,190)
-    pmCheckBoxTextColor = QtGui.QColor(0,0,255)
-    pmCheckBoxButtonColor = QtGui.QColor(172,173,190)
-    pmMessageTextEditColor = QtGui.QColor(255,255,100)
-
-    # Style sheet colors for GroupBox buttons.
-    pmGrpBoxBorderColor = "blue"
-    pmGrpBoxButtonBorderColor = "gray"
-    pmGrpBoxButtonTextColor = "blue"
-
-    # Locations of groupbox opened and closed images.
-    pmGrpBoxOpenedImage = "ui/actions/Properties Manager/GroupBox_Opened_Blue.png"
-    pmGrpBoxClosedImage = "ui/actions/Properties Manager/GroupBox_Closed_Blue.png"
-
-class PropMgrBaseClass:
+class PropMgrBaseClass_OBSOLETE: # Mark 2005-05-25
     '''Property Manager base class'''
 
     def __init__(self):
@@ -631,7 +568,7 @@ class PropertyManagerMixin(SponsorableMixin):
             font:bold 12px 'Arial'; \
             color: " + pmGrpBoxButtonTextColor + ";\
             min-width:10em;\
-            background-image: url(" + pmGrpBoxOpenedImage + ");\
+            background-image: url(" + pmGrpBoxExpandedImage + ");\
             background-position: right;\
             background-repeat: no-repeat;\
             }"       
@@ -644,7 +581,7 @@ class PropertyManagerMixin(SponsorableMixin):
             font: bold 12px 'Arial'; \
             color: " + pmGrpBoxButtonTextColor + ";\
             min-width:10em;\
-            background-image: url(" + pmGrpBoxClosedImage + ");\
+            background-image: url(" + pmGrpBoxCollapsedImage + ");\
             background-position: right;\
             background-repeat: no-repeat;\
             }"
