@@ -67,7 +67,8 @@ DEBUG3 = False # stack, begin, end, for event processing
 # Bruce's original intent was that this code should be useful for other trees besides the model tree.
 # To do that, you should subclass ModelTreeGui below and redefine make_new_subtree_for_node() to refer to
 # a new class that inherits _QtTreeItem. Perhaps the subclass of QItemDelegate could be a parameter of
-# ModelTreeGui.
+# ModelTreeGui. [This comment is no longer correct now that _QtTreeItem's two roles, which never belonged
+# together, are split into _our_QItemDelegate and (misnamed) _our_TreeItem. bruce 070525]
 #
 # How this was done previously was that the NE-1 model would define a method for creating the item for
 # a Node.
@@ -253,7 +254,7 @@ class Node_api(Api):
 class ModelTreeGui_api(Api):
     """This should be a Qt4 widget that can be put into a layout.
     """
-    def replace_item_tree(self, unpickEverybody = False): # in ModelTreeGui_api
+    def update_item_tree(self, unpickEverybody = False): # in ModelTreeGui_api
         """Removes and deletes all the items in this list view and triggers an update. Previously
         this was the 'clear' method in Q3ListView. 
         """
@@ -292,7 +293,10 @@ class ModelTreeGui_api(Api):
 
 _ICONSIZE = (22, 22)
 
-class _QtTreeItem(QItemDelegate):
+class _our_QItemDelegate(QItemDelegate):
+    #bruce 070525 renamed this from _QtTreeItem and split away all tree-item functionality,
+    # leaving it only in _our_TreeItem
+
     # Extending QItemDelegate allows you to customize the paint() method. We need to do this because
     # we have a combination of requirements that weren't anticipated in Qt 4.1; more might be
     # available in Qt 4.2.
@@ -306,6 +310,7 @@ class _QtTreeItem(QItemDelegate):
     # We were constructing an entire tree of items of this class, but the docs and some other evidence
     # hinted that most methods of it are only called on the rootItem. So to test this, I split it into
     # this class for the rootItem alone, and a much simpler _nonRootItem class (defined just below this one)
+    # [later renamed to _our_TreeItem and used for root item too]
     # for all other items, and this seems to work fine. So, this class is really mashing together two
     # roles or functions that don't belong together -- an item for our own use, and a QItemDelegate.
     # These roles are still mixed together and confused for the rootItem itself, but not anymore (as of now)
@@ -313,33 +318,15 @@ class _QtTreeItem(QItemDelegate):
     # (Note: I'm using the term "roles" here generically -- no relation to Qt's color(?) roles,
     #  also mentioned in some of this code.)
     #
-    # WARNING: a few methods at the start of classes _nonRootItem and _QtTreeItem contain identical code.
-    #
-    # WARNING: It's also not yet clear which attribute names are ours vs. Qts (eg childItems, parentItem).
+    # WARNING: It's not yet clear which attribute names are ours vs. Qts (eg childItems, parentItem).
     # Guess: they're all ours.
     
-    def __init__(self, node, parent = None):
-        QItemDelegate.__init__(self, parent)
-        self.node = node
-        self.childItems = []
-        if parent is not None and hasattr(parent, 'childItems'):
-            parent.childItems.append(self)
-        self.parentItem = parent
+    def __init__(self, modeltreegui): ## was: self, node, parent = None):
+        QItemDelegate.__init__(self, modeltreegui)
+        self.view = modeltreegui #bruce 070525: do this here, not in caller
 
-    def __repr__(self):
-        return '<%s \"%s\">' % (self.__class__.__name__, self.node.name)
-
-    def sizeHint(self, styleOption, index):
+    def sizeHint(self, styleOption, index): ###REVIEW: why is this correct (or is it), since it only returns an icon size?
         return QSize(_ICONSIZE[0], _ICONSIZE[1])
-
-    def height(self): #bruce 070511 for use by other methods here ###REVIEW whether it could mess up Qt, or give a wrong value
-        return _ICONSIZE[1] 
-
-##    def showTree(self, indent=0):
-##        "handy diagnostic"
-##        print (indent * '\t') + repr(self)
-##        for ch in self.childItems:
-##            ch.showTree(indent + 1)
 
     def paint(self, painter, option, index, pos = None): #k is this our methodname & API, or Qt's?
         """
@@ -350,21 +337,14 @@ class _QtTreeItem(QItemDelegate):
         else:
             x, y = option.rect.x(), option.rect.y() ##k what is option? it seems we use it to determine the position of drawing...
 ##        if DEBUG3:
-##            print "option is %r in _QtTreeItem.paint" % (option,)###
-            ##option is <PyQt4.QtGui.QStyleOptionViewItem object at 0x4cf0228> in _QtTreeItem.paint
+##            print "option is %r in _our_QItemDelegate.paint" % (option,)###
+            ##option is <PyQt4.QtGui.QStyleOptionViewItem object at 0x4cf0228> in _our_QItemDelegate.paint
+
+        # Note: I don't know what coordinate system x, y are in --
+        # relative to self, or to item; and, in scrolled tree coords or its viewports coords. [bruce comment]
 
         # figure out what item to draw, and its node
         item = index.internalPointer()
-        # Note: a very weird fact: self is a _QtTreeItem, and item is a _QtTreeItem, but they are not the same one! For example:
-            ##    if item is not self:
-            ##        print "fyi: item %r is not self %r in _QtTreeItem.paint" % (item,self)
-            ##fyi: item <_QtTreeItem "Untitled"> is not self <_QtTreeItem "Model tree"> in _QtTreeItem.paint
-        # It seems that self is always the "root item" (I confirmed that for an item in a Group, too).
-        # (The expression self.view below also hints this, but I'm not positive .view is only set in that item.
-        #  At least self.view here seems to always be the ModelTreeGui object (confirmed by debug print).
-        #
-        # For that matter, I don't know what coordinate system x, y are in --
-        # relative to self, or to item; and, in scrolled tree coords or its viewports coords.
         
         node = item.node
         
@@ -425,9 +405,7 @@ class _QtTreeItem(QItemDelegate):
 
         return # from paint
 
-    # Methods to support renaming on double click
-    ###QUESTION: are these called on the rootItem, or on the item being edited? [bruce 070523 Q]
-    # [same Q for all other methods here] [for answer, see comment at start of class]
+    # Methods to support renaming on double click; index tells which item is being renamed
 
     def createEditor(self, parent, option, index):
         qle = QLineEdit(parent)
@@ -451,28 +429,77 @@ class _QtTreeItem(QItemDelegate):
         rect.setWidth(width)
         editor.setGeometry(rect)
 
-    pass # end of class _QtTreeItem
+    pass # end of class _our_QItemDelegate
 
 # ==
 
-class _nonRootItem: #bruce 070523 experiment; works
-    "use this for all non-Root items, to test theory that Qt never sees them or cares about them"
-    # WARNING: a few methods at the start of classes _nonRootItem and _QtTreeItem contain identical code.
-    def __init__(self, node, parent = None):
-        ## QItemDelegate.__init__(self, parent)
+class _our_TreeItem: #bruce 070523 experiment; works; now used for root items too, 070525
+    "use this for all tree items (root or not), to test theory that Qt never sees them directly or cares about them -- seems true"
+    def __init__(self, node, parent):
+        # parent is either an item of this class, or a modelTreeGui object
         self.node = node
         self.childItems = []
-        if parent is not None and hasattr(parent, 'childItems'):
+        assert parent is not None
+        if hasattr(parent, 'childItems'): #k not sure if this is true for a modelTreeGui object
             parent.childItems.append(self)
         self.parentItem = parent
 
     def __repr__(self):
         return '<%s \"%s\">' % (self.__class__.__name__, self.node.name)
 
-    def height(self): #bruce 070511 for use by other methods here ###REVIEW whether it could mess up Qt, or give a wrong value
+    def height(self): #bruce 070511 for use by other methods here
         return _ICONSIZE[1]
     
-    pass # end of class _nonRootItem
+    pass # end of class _our_TreeItem
+
+class _our_TreeItem_NEW(object): #bruce 070525 incremental (lazy) version of that.
+    # Note: doesn't memoize, since node structure can change.
+    def __init__(self, node, modeltreegui):
+        self.node = node
+        self._modeltreegui = modeltreegui
+        self._modeltreegui.item_to_node_dict[self] = node
+        self._modeltreegui.node_to_item_dict[node] = self
+
+    def _get_parentItem(self):
+        # assume item tree structure corresponds exactly to node tree, at least for parent/dad
+        return self._modeltreegui.node_to_item( self.node.dad ) # note: has special case for dad of toplevel nodes
+    
+    parentItem = property( _get_parentItem)
+
+    def _get_childItems(self):
+        node = self.node
+        try:
+            ###k what if node is collapsed? old code stores childItems then anyway...
+            # not sure if new code can safely optim by not yet returning them
+            children = node.members
+        except AttributeError:
+            return []
+        return map( self._modeltreegui.node_to_item, children )
+
+    childItems = property( _get_childItems)
+
+    def __repr__(self):
+        return '<%s \"%s\">' % (self.__class__.__name__, self.node.name)
+
+    def height(self): #bruce 070511 for use by other methods here
+        return _ICONSIZE[1]
+    
+    pass # end of class _our_TreeItem_NEW
+
+
+# What attrs does the current code use in that class? [as of 070525]
+# Text search for item.xxx or Item.xxx (covers various localvars) to find:
+# - item.node -- used all the time; maybe the items always come from index.internalPointer (not sure)
+# - item.height() (constant)
+# - item.childItems -- used in _QtTreeModel .__init__, .index, .parent, .rowCount, and in modelTreeGui.recurseOnItems
+# - item.parentItem -- used in _QtTreeModel.parent
+# To make it more incremental, we'd want to compute childItems and parentItem as needed. Should be easy using node to item dict.
+# But we also need to create indices as needed. Not sure how easy that is. We'd need to update the treemodel's index_for_item dict.
+# Also worth knowing -- how long do these item objects last? Where are they grabbed from for use?
+#
+# false alarms from that text search:
+# - not item.setText(col,newname) -- it's only in a comment about Qt3 code)
+# - not item.width(fontmetrics, self, 0) -- only used in some Qt3 code for DND drag graphic, not yet ported to Qt4
 
 ####################################################################
 
@@ -481,28 +508,37 @@ class _nonRootItem: #bruce 070523 experiment; works
 # in the model. But all that stuff is packaged into something that looks like a
 # view, from NE-1's perspective.
 
-class _QtTreeModel(QAbstractItemModel):
-    def __init__(self, rootItem):
+class _QtTreeModel(QAbstractItemModel): # see also _QtTreeModel_NEW variant, which overrides two of our methods
+    def __init__(self, root_Item): # note: different in _QtTreeModel_NEW
         """Create a _QtTreeModel containing the tree of items
-        (which must already exist and be complete) starting at rootItem.
-        Assign indices to the non-root items and store them in self.indexdict[item].
+        (which must already exist and be complete) starting at root_Item.
+        Assign indices to the non-root items and store them in self.index_for_item[item].
         """
         QAbstractItemModel.__init__(self)
-        self.rootItem = rootItem
-        self.indexdict = { }   # maps items to indexes
-        def helper(item, depth):
+        self.root_Item = root_Item
+        self.index_for_item = { }   # maps items to indexes [bruce 070525 renamed this from indexdict]
+        def helper(item): ##, depth):
             row = 0
-            for x in item.childItems:
-                self.indexdict[x] = self.createIndex(row, 0, x) # args are: row, column, internalPointer
+            for item in item.childItems:
+                self.index_for_item[item] = self.createIndex(row, 0, item)
+                    # Qt method; args are: row, column, internalPointer == item
                 row += 1
-                helper(x, depth+1)
-        helper(rootItem, 0)
+                helper(item) ##, depth+1)
+        helper(root_Item) ##, 0)
 
-    # We don't need indexToItem because we can use index.internalPointer().
+    # We don't need indexToItem because we can use index.internalPointer()...
+    # unless index might be invalid, in which case, use this:
 
-    def itemToIndex(self, item):
+    def indexToItem(self, index): #bruce 070525
+        if not index.isValid():
+            item = self.root_Item
+        else:
+            item = index.internalPointer()
+        return item
+
+    def itemToIndex(self, item): # note: different in _QtTreeModel_NEW
         try:
-            return self.indexdict[item]
+            return self.index_for_item[item]
         except KeyError:
             return QModelIndex()
 
@@ -522,7 +558,7 @@ class _QtTreeModel(QAbstractItemModel):
     
     def columnCount(self, parent):
         return 1
-
+    
     def data(self, index, role): # usually this is the node.name
         if not index.isValid():
             return QVariant()
@@ -533,8 +569,9 @@ class _QtTreeModel(QAbstractItemModel):
 
     def flags(self, index):
         assert index.isValid()
-        r = Qt.ItemIsEnabled | Qt.ItemIsSelectable
+        r = Qt.ItemIsEnabled ## | Qt.ItemIsSelectable
             ###REVIEW: is ItemIsSelectable ok given that we want to stop using Qt idea of selection?
+                # probably ok, but turn it off to see if that helps with anything, eg the two-clipboard bug. [bruce 070525]
             ###REVIEW: do we want to use other flags here, eg to control whether node can be DND source and/or target?
         if index.internalPointer().node.rename_enabled():
             r |= Qt.ItemIsEditable
@@ -547,26 +584,25 @@ class _QtTreeModel(QAbstractItemModel):
 
     def headerData(self, section, orientation, role):
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
-            return QVariant(self.rootItem.node.name)
+            return QVariant(self.root_Item.node.name)
         return QVariant()
 
-    def index(self, row, column, parent): ### needs review, not yet understood by bruce
-        if not parent.isValid():
-            parentItem = self.rootItem
-        else:
-            parentItem = parent.internalPointer()
+    def index(self, row, column, parent): ### needs review, not yet fully understood by bruce
+        # parent is an index; guess: come up with a requested child index
+        parentItem = self.indexToItem(parent)
         childItem = parentItem.childItems[row]
         if childItem:
             return self.createIndex(row, column, childItem)
         else:
+            print "childItem false in _QtTreeModel.index -- i thought this would not happen"
             return QModelIndex()
 
-    def parent(self, index): ### needs review, not yet understood by bruce
+    def parent(self, index): ### needs review, not yet fully understood by bruce
         if not index.isValid():
             return QModelIndex()
         childItem = index.internalPointer()
         parentItem = childItem.parentItem
-        if parentItem == self.rootItem:
+        if parentItem == self.root_Item:
             return QModelIndex()
         if parentItem.parentItem is None:
             parentRow = 0
@@ -576,18 +612,15 @@ class _QtTreeModel(QAbstractItemModel):
 
     def rowCount(self, parent):
         # in QStandardItem doc: "Returns the number of rows in the model that contain items with the given parent"
-        if not parent.isValid():
-            parentItem = self.rootItem
-        else:
-            parentItem = parent.internalPointer()
+        parentItem = self.indexToItem(parent)
         return len(parentItem.childItems)
 
     def hasChildren(self, parent): #bruce 070504 guess; Qt seems to use this to decide whether to display the openclose decoration
-        if not parent.isValid():
-            ## parentItem = self.rootItem
+        # see also, in Qt dos: fetchmore, canfetchmore (sp?)
+        parentItem = self.indexToItem(parent)
+        if parentItem is self.root_Item:
             return True
         else:
-            parentItem = parent.internalPointer()
             node = parentItem.node
             return node.openable() ###REVIEW: is it better to return False for some or all Groups with no children, e.g. Clipboard??
         pass
@@ -596,18 +629,40 @@ class _QtTreeModel(QAbstractItemModel):
 
 # ==
 
-# experimental new version of that, works totally differently (lazily, incrementally) [bruce 070523; unfinished, not used]
+# experimental new version of that, works totally differently (lazily, incrementally, keeps items more private)
+# [bruce 070523-25; unfinished, not yet usable, tho a live debug_pref tries to use it]
 
-class _QtTreeModel2(QAbstractItemModel):
-    def __init__(self, rootnode, modeltreegui):
-        "create an item model for the given rootnode, which will incrementally follow changes in its data or node subtree"
-        self.rootnode = rootnode
-        self.modeltreegui = modeltreegui
+class _QtTreeModel_NEW( _QtTreeModel):
+    def __init__(self, root_Item):
+        #e might be better to pass rootnode, create root_Item here
+        """... incrementally follow changes in its data or node subtree
+        """
+        QAbstractItemModel.__init__(self)
+        self.root_Item = root_Item ### RENAME back to rootItem I think
+        self.index_for_item = { }   # maps items to indexes; lazily filled, so semi-private [bruce 070525 renamed this from indexdict]
+        return
+
+##    def _scan_node(self, node): # ???
+##        "scan a node to find out all data inside it that might make us want to send a dataChanged signal for it (not recursive)"
+##        return (node.name, )####STUB, needs picked, icon, members, open (or members iff open?), etc... note, alg not really designed
+
+    def itemToIndex(self, item):
+        try:
+            return self.index_for_item[item]
+        except KeyError:
+            if item is self.root_Item:
+                return QModelIndex() ###k can't we just store this one? review all uses of the dict, to see
+            # generate new indexes for all siblings at once
+            parentItem = item.parentItem
+            row = 0
+            for item1 in parentItem.childItems:
+                self.index_for_item[item1] = self.createIndex(row, 0, item1)
+                    # Qt method; args are: row, column, internalPointer == item1
+                row += 1
+            return self.index_for_item[item] # KeyError if still not set (indicates bug in node tree structure)
         pass
-    def _scan_node(self, node):
-        "scan a node to find out all data inside it that might make us want to send a dataChanged signal for it (not recursive)"
-        return (node.name, )####STUB, needs picked, icon, members, open (or members iff open?), etc... note, alg not really designed
-    pass
+
+    pass # end of class _QtTreeModel_NEW
 
 ####################################################################
 
@@ -631,10 +686,6 @@ _modifiers = dict(shift = Qt.ShiftModifier,
     # may involve either RightButton or MetaModifier. (Also, Qt seems to mess them up in a complicated way,
     # splitting them into an event with inconsistent button/buttons flags (LMB and RMB respectively), followed
     # by a contextMenuEvent call, at least if we don't use setContextMenuPolicy.
-
-
-##if DEBUG2:
-##    print "_buttons = %r, _modifiers = %r" % (_buttons, _modifiers) #k need to map int over vals?
     
 def describe_buttons(buttons):
     return _describe( int(buttons), _buttons)
@@ -664,7 +715,7 @@ def describe_index(index):
 # ==
 
 # Things can be simpler if we admit that display_prefs don't yet depend on the ModelTreeGui object.
-# So for now I'm pulling this out of that object, so _QtTreeItem.paint can access it without having a pointer to that object.
+# So for now I'm pulling this out of that object, so _our_QItemDelegate.paint can access it without having a pointer to that object.
 # I'm also optimizing it, since it'll be called a lot more often now.
 # (Even better would be to optimize the node_icon API so we can pass .open directly.
 #  We don't want to let the node use its own .open, in case in future we show one node in different MTs.)
@@ -738,17 +789,17 @@ class ModelTreeGui(QTreeView, ModelTreeGui_api):
         #
 ##        self.setSelectionMode(self.MultiSelection)
 ##        self.setSelectionMode(self.ExtendedSelection)
-        self.setSelectionMode(self.NoSelection) #bruce 070507 hack experiment -- doesn't make a noticeable difference.
+        self.setSelectionMode(self.NoSelection) #bruce 070507 change -- doesn't make a noticeable difference.
         self.setContextMenuPolicy(Qt.PreventContextMenu) #bruce 070509 change; I hope it will prevent direct calls of contextMenuEvent
         
         self.setUniformRowHeights(True)
-            #bruce 070507 optimization; known to be true due to our _QtTreeItem.sizeHint method;
+            #bruce 070507 optimization; known to be true due to our _our_QItemDelegate.sizeHint method;
             # said to be significant in some of these related web pages:
             # - http://lists.trolltech.com/qt-interest/2006-08/thread00736-0.html
             # - http://wiki.kde.org/tiki-index.php?page=ItemView+Tips
             # (doc: http://doc.trolltech.com/4.2/qtreeview.html#uniformRowHeights-prop )
 
-        self.qtmodel = None
+        self.qttreemodel = None
         self._mousepress_info_for_move = None
             # set by any mousePress that supports mouseMove not being a noop, to info about what that move should do #bruce 070509
         self._ongoing_DND_info = None # set to a tuple of a private format, during a DND drag (not used during a selection-drag #k)
@@ -770,14 +821,15 @@ class ModelTreeGui(QTreeView, ModelTreeGui_api):
         debug_pref("MT debug: disable replace_items",      Choice_boolean_False, non_debug = True, prefs_key = True)
         debug_pref("MT debug: disable _remake_contents_0", Choice_boolean_False, non_debug = True, prefs_key = True)
         debug_pref("MT debug: disable scrollBar.valueChanged()", Choice_boolean_False, non_debug = True, prefs_key = True)
+        debug_pref("MT debug: incremental update_item_tree?",    Choice_boolean_False, non_debug = True, prefs_key = True)
 
         return
 
     def recurseOnItems(self, func, topitem = None): ###REVIEW: could/should this method be defined in _QtTreeModel?
         if topitem is None:
-            if self.qtmodel is None:
+            if self.qttreemodel is None:
                 return
-            topitem = self.qtmodel.rootItem
+            topitem = self.qttreemodel.root_Item
         func(topitem)
         for child in topitem.childItems:
             self.recurseOnItems(func, child)
@@ -818,16 +870,38 @@ class ModelTreeGui(QTreeView, ModelTreeGui_api):
     def MT_debug_prints(self):
         return debug_pref("MT debug: debug prints", Choice_boolean_False, non_debug = True, prefs_key = True)
     
-    def replace_item_tree(self, unpickEverybody = False): ###SLATED FOR REWRITE OR REPLACEMENT [partly done?]
+    def update_item_tree(self, unpickEverybody = False): ###SLATED FOR REWRITE OR REPLACEMENT [partly done?]
         """Discard old item tree and replace it with a new one (made of all new items),
         updating item state as needed, including open/closed state.
-        Also unpick all nodes, if requested by the option.
+        OR, if a debug_pref says to, keep using the same item tree if possible, but send signals to tell the TreeView it changed.
+           Also unpick all nodes (and in that case always remake the model), if requested by the option.
         """
         # [bruce 070509 renamed clear -> replace_item_tree and changed default value of unpickEverybody to False,
-        #  revising calls as needed to keep them equivalent.]
+        #  revising calls as needed to keep them equivalent. Then, bruce 070525 renamed it again, to update_item_tree.]
 
-        if debug_pref("MT debug: disable replace_items", Choice_boolean_False, non_debug = True, prefs_key = True):
+        newcode = debug_pref("MT debug: incremental update_item_tree?", Choice_boolean_False, non_debug = True, prefs_key = True)
+
+        if newcode:
+            self.update_item_tree_NEW(unpickEverybody = unpickEverybody)
+                # let it redundantly get the disabled debug_pref,
+                # since it will eventually replace this method entirely (if it works)
             return
+
+        disabled = debug_pref("MT debug: disable replace_items", Choice_boolean_False, non_debug = True, prefs_key = True)
+        
+        if disabled and unpickEverybody:
+            print "ignoring \"MT debug: disable replace_items\" for initializing new assy"
+            disabled = False
+
+        if disabled and not isinstance(self.qttreemodel, _QtTreeModel):
+            print "ignoring \"MT debug: disable replace_items\" since qttreemodel not there or wrong class"
+            disabled = False
+
+        if disabled:
+            print "update_item_tree: skipped (disabled)"
+            return
+
+        # OLD CODE (but still used by default as of 070525 3pm)
         
         # throw away all references to existing list items
         if unpickEverybody and hasattr(self, 'node_to_item_dict'):
@@ -838,7 +912,7 @@ class ModelTreeGui(QTreeView, ModelTreeGui_api):
         self.item_to_node_dict = { }
         self.node_to_item_dict = { }
         # Make a "fake" root node and give it the list of top nodes as children. Convert the tree of
-        # Nodes to a whole new tree of _QtTreeItems, thereby populating the two dictionaries.
+        # Nodes to a whole new tree of items, thereby populating the two dictionaries.
         class FakeTopNode(Node):
             def __init__(self, name, members=[ ]):
                 self.name = name
@@ -851,41 +925,182 @@ class ModelTreeGui(QTreeView, ModelTreeGui_api):
             def unpick(self):
                 pass
         rootNode = FakeTopNode("Model tree", self.ne1model.get_topnodes())
-        rootItem = self.make_new_subtree_for_node(rootNode)
-        self.qtmodel = model = _QtTreeModel(rootItem) # creates item indices in model.indexdict[item]
+        root_Item = self.make_new_subtree_for_node(rootNode)
+        self.qttreemodel = model = _QtTreeModel(root_Item) # creates item indices in model.index_for_item[item]
+
+        self.itemDelegate = _our_QItemDelegate(self)
+            # note: we'll store this here, not in the qttreemodel [bruce 070525, splitting it from root_Item]
+        
         self.setModel(model)  # undoes all Qt-native item selections (no effect on node selections)
-        self.setItemDelegate(rootItem)
+        self.setItemDelegate( self.itemDelegate)
             #k I don't know whether this delegate needs to be an item (like it is),
             # or just any object with a certain API for handling items, like def paint.
             # [bruce 070511 comment]
-        rootItem.view = self  # needed for paint() ###REVIEW: is .view our own made-up name, or something known to Qt?
+
+##        ### kluge: should do following in its init method:
+##        itemDelegate.view = self  # needed for paint()
+            ###REVIEW: is .view our own made-up name, or something known to Qt?
             # guess: our own, and too generic to search for, and used in two different objects for different-class values,
             # so they ought to be renamed to different attrnames. [bruce 070511 comment]
 
         if DEBUG3:
-            print "\nMT replace_item_tree (%d)" % _debug_mt_update_counter ### when is this happening? [bruce 070507]
-##        self.expandAll()
-            # do we really want this? # bruce 070504 comment: likely ###BUG, might be why we can't close anything --
-            # it probably is, but without it, we can't yet reliably *open* anything...
-            # I removed it, and the individual expands below do work, but I'm adding it back [070508 noon PT]
-            # as a temporary fix to new bug 2384 (probably caused by my removing it, which was inadvisable to commit yet),
-            # since it's worse for things (like the clipboard) to be stuck closed rather than stuck open.
-##        if 'temporary kluge':
-##            self.win.assy.shelf.open = True
+            print "\nMT update_item_tree (%d)" % _debug_mt_update_counter ### when is this happening? [bruce 070507]
         #bruce 070507 use setExpanded (we'll probably move this into another method to call separately, as in the Qt3 code)
         def expand_if_open(item):
-            if item is rootItem:
+            if item is root_Item:
                 return
             node = item.node
             open = node.openable() and node.open
-            index = self.qtmodel.indexdict[item]
+            index = self.qttreemodel.index_for_item[item]
             self.setExpanded( index, open )
         self.recurseOnItems(expand_if_open)
 
         if debug_pref("MT debug: show after replace", Choice_boolean_True, non_debug = True, prefs_key = True):
             self.show()
-        return
+        return # from update_item_tree (old version)
 
+    # ==
+
+    qttreemodel = None
+    
+    def update_item_tree_NEW(self, unpickEverybody = False): #bruce 070525
+        """
+        """
+        
+        disabled = debug_pref("MT debug: disable replace_items", Choice_boolean_False, non_debug = True, prefs_key = True)
+        
+        if disabled and unpickEverybody:
+            print "ignoring \"MT debug: disable replace_items\" for initializing new assy"
+            disabled = False
+
+        correct_class = isinstance(self.qttreemodel, _QtTreeModel_NEW)
+        
+        if disabled and not correct_class:
+            print "ignoring \"MT debug: disable replace_items\" since qttreemodel not there or wrong class"
+            disabled = False
+
+        if disabled:
+            print "update_item_tree_NEW: skipped (disabled)"
+            return
+
+        print "update_item_tree_NEW" ####
+
+        # NEW CODE: use the new incremental algorithm, but remember that we might be clearing state or not have created it yet.
+
+        # The attrs which hold the state we need to incrementally update or initialize are:
+        # - self.qttreemodel -- an old-code _QtTreeModel or a new-code _QtTreeModel_NEW
+        #   which includes:
+        #   - self.qttreemodel.index_for_item
+        # - self.item_to_node_dict
+        # - self.node_to_item_dict
+
+        # Some methods we need to call here to set state in other objects are:
+        # - self.setModel
+        # - self.setItemDelegate
+        # - self.setExpanded( index, open)
+
+        remake = False
+        try:
+            # decide whether to remake from scratch -- any exception here means we want to
+            # (we probably ought to do this in a more principled way, e.g. comparing assy to the prior one we saw --
+            #  right now we're probably relying on being called with unpickEverybody true, whenever assy changes)
+            assert correct_class, "remake if qttreemodel is not there or not correct class"
+            assert not unpickEverybody, "remake if a new assy is being initialized"
+            # see if all necessary attrs have been initialized
+##            self.qttreemodel
+            self.qttreemodel.index_for_item
+            self.item_to_node_dict
+            self.node_to_item_dict
+            ### not sure we want this last condition -- "and they are nonempty"
+##            assert self.qttreemodel.index_for_item
+##            assert self.item_to_node_dict
+##            assert self.node_to_item_dict
+            print "update will be incremental"####
+        except:
+            DEBUG_070525 = True
+            if DEBUG_070525:
+                print_compact_traceback("not a bug: remaking item tree, for this reason: ")####
+            remake = True
+
+        if remake:
+            if unpickEverybody and hasattr(self, 'node_to_item_dict'):
+                if self.MT_debug_prints():
+                    print "MT debug: FYI: unpickEverybody"
+                for node in self.node_to_item_dict.keys():
+                    node.unpick() #e optim: this descends into Groups, so we're doing extra work in this loop
+
+            # throw away all references to existing list items
+            self.item_to_node_dict = { }
+            self.node_to_item_dict = { }
+            # Make a "fake" root node and give it the list of top nodes as children. Convert the tree of
+            # Nodes to a whole new tree of items, thereby populating the two dictionaries.
+            class FakeTopNode(Node):
+                def __init__(self, name, members=[ ]):
+                    self.name = name
+                    self.members = members
+                    self.picked = False
+                def rename_enabled(self):
+                    return False
+                def pick(self):
+                    pass
+                def unpick(self):
+                    pass
+            rootNode = FakeTopNode("Model tree", self.ne1model.get_topnodes())
+            root_Item = self.make_new_subtree_for_node_NEW(rootNode)
+                # note: this remains available as self.qttreemodel.root_Item
+            self.qttreemodel = model = _QtTreeModel_NEW(root_Item) # creates item indices in model.index_for_item[item] (lazily)
+
+            self.itemDelegate = _our_QItemDelegate(self)
+            # note: we'll store this here, not in the qttreemodel [bruce 070525, splitting it from root_Item]
+            
+            self.setModel(model)  # undoes all Qt-native item selections (no effect on node selections)
+            self.setItemDelegate(self.itemDelegate)
+##            self.itemDelegate.view = self  # needed for paint()
+                ###REVIEW: is .view our own made-up name, or something known to Qt?
+                # guess: our own, and too generic to search for, and used in two different objects for different-class values,
+                # so they ought to be renamed to different attrnames. [bruce 070511 comment]
+        else:
+            pass # handle incremental updates lower down
+
+        #bruce 070507 use setExpanded (we'll probably move this into another method to call separately, as in the Qt3 code)
+        def expand_if_open(item):
+            if item is self.qttreemodel.root_Item:
+                return
+            node = item.node
+            open = node.openable() and node.open
+            index = self.qttreemodel.itemToIndex(item)
+            self.setExpanded( index, open )
+        self.recurseOnItems(expand_if_open)
+
+        if debug_pref("MT debug: show after replace", Choice_boolean_True, non_debug = True, prefs_key = True):
+            self.show()
+
+        if not remake:
+            # incremental updates
+            rootIndex = self.qttreemodel.itemToIndex( self.qttreemodel.root_Item)
+            print "rootIndex.isValid() is", rootIndex.isValid()
+            self.dataChanged( rootIndex, rootIndex ) ###k will this index be there? will this have desired update effect?
+                # do we need to do this in mt_update rather than here inside paintEvent? #### GUESS: YES
+        
+        return # from update_item_tree_NEW
+
+    def node_to_item(self, node): #bruce 070525, only used when _NEW routines are used ###k
+        "For node being some known node's dad or child, return the corresponding tree item (creating it if necessary)"
+        try:
+            return self.node_to_item_dict[node] # note: never contains root_Item (#k not sure if we can safely change that)
+        except KeyError:
+            assert node is not None
+            assert isinstance(node, Node) # I don't think FakeTopNode gets here, but it's a Node even if it does
+            if node.__class__.__name__ == 'RootGroup':
+                ###KLUGE -- better to compare to toplevel nodes, or at least, assy.root
+                ###Doc -- this exception to .parent and .dad correspondence should be mentioned, in a comment that says they corr.
+                return self.qttreemodel.root_Item
+            assert node is not self.qttreemodel.root_Item.node # i.e. assert no other way for us to need to return root_Item
+            item = _our_TreeItem_NEW(node, self)
+                # that constructor saves it in self.node_to_item_dict and the other one
+            return item
+        pass
+            
     # ==
 
     _inside_paintEvent = False
@@ -1012,7 +1227,7 @@ class ModelTreeGui(QTreeView, ModelTreeGui_api):
         except: # makes it work to start, but doesn't cure manual-scroll bug (predicted, verified (w/o del))
             scrollpos = pos1
         
-        self.replace_item_tree()
+        self.update_item_tree()
 
         # set the scroll position to what it ought to be [bruce circa 050113. Fixes bug 177.] [ported to Qt4, bruce 070511]
         # (the frequent get_scrollpos calls are for debugging, but it's conceivable they are needed due to undocumented side effects.)
@@ -1128,11 +1343,10 @@ class ModelTreeGui(QTreeView, ModelTreeGui_api):
         return display_prefs_for_node(node) #bruce 070511 revised this to make it a global function
     
     def make_new_subtree_for_node(self, node, parent = None):
+        "make a new item tree for the node tree; return the root item; parent should be None or a parent item" #bruce 070525 docstring
         if parent is None:
-            parent = self
-            item = _QtTreeItem(node, parent) # this class is misnamed... see docstring and initial comment
-        else:
-            item = _nonRootItem(node, parent) #bruce 070523 experiment; works
+            parent = self # kluge, i think [bruce 070525 comment]: parent has some of the same attrs as _our_TreeItem
+        item = _our_TreeItem(node, parent) #bruce 070523 experiment; works; bruce 070525 update: now using it for the root too
         ## item_prefs = self.display_prefs_for_node(node)
             # [bruce 070504 comment: item_prefs was not yet used; in principle, should be passed to make_new_subtree_for_node]
         self.item_to_node_dict[item] = node
@@ -1141,6 +1355,19 @@ class ModelTreeGui(QTreeView, ModelTreeGui_api):
             for child in node.members:
                 self.make_new_subtree_for_node(child, item)
         #bruce 070507 use setExpanded -- can't do it here, since index is not yet set; done by caller
+        return item
+
+    def make_new_subtree_for_node_NEW(self, node): #bruce 070525
+        mtgui = self # kluge, i think [bruce 070525 comment]: self has some of the same attrs as _our_TreeItem_NEW ###k see if true
+        item = _our_TreeItem_NEW(node, mtgui) #bruce 070523 experiment; works; bruce 070525 update: now using it for the root too
+        ## item_prefs = self.display_prefs_for_node(node)
+            # [bruce 070504 comment: item_prefs was not yet used; in principle, should be passed to make_new_subtree_for_node]
+##        self.item_to_node_dict[item] = node # now done in _our_TreeItem_NEW
+##        self.node_to_item_dict[node] = item
+##        if hasattr(node, 'members'):
+##            for child in node.members:
+##                self.make_new_subtree_for_node(child, item)
+##        #bruce 070507 use setExpanded -- can't do it here, since index is not yet set; done by caller
         return item
 
     # == DND start methods
@@ -1321,9 +1548,9 @@ class ModelTreeGui(QTreeView, ModelTreeGui_api):
 
     def paint_item(self, p, item):
         option = None # not used when pos is provided
-        index = self.qtmodel.itemToIndex(item) #bruce 070511 (first use of itemToIndex)
+        index = self.qttreemodel.itemToIndex(item) #bruce 070511 (first use of itemToIndex)
         assert index.isValid()
-        self.qtmodel.rootItem.paint(p, option, index, pos = (0,0))
+        self.itemDelegate.paint(p, option, index, pos = (0,0))
         width = 160 ###k guess; should compute in paint and return, or in an aux subr if Qt would not like that
         return width
     
@@ -1885,8 +2112,6 @@ class TestNode(Node_api):
             def update_parts(self):
                 pass
         self.assy = FakeAssembly() #bruce 070511 comment: this appears to never be used
-        # We need to implement a tree structure with Nodes, which
-        # is then duplicated in the _QtTreeItems.
         self.parentNode = parent
         if parent is not None:
             parent.members.append(self)
@@ -2123,10 +2348,10 @@ class TestWrapper(QGroupBox):
 def test_api():
     # Test API compliance. If we remove all the functionality, pushing buttons shouldn't raise any
     # exceptions.
-    global ModelTreeGui, _QtTreeItem, _QtTreeModel
+    global ModelTreeGui, _our_QItemDelegate, _QtTreeModel
     ModelTreeGui = ModelTreeGui_api
     del _QtTreeModel
-    del _QtTreeItem
+    del _our_QItemDelegate
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):

@@ -252,7 +252,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
         would be needed to MWsemantics.__clear(), but for now, we'll just do it
         like this.
         """
-        self.modelTreeGui.replace_item_tree( unpickEverybody = True )
+        self.modelTreeGui.update_item_tree( unpickEverybody = True )
         # prevents Windows crash if an item's text is being edited in-place
         # [huaicai & bruce 050201 for Alpha to fix bug 369; not sure how it works]
         return
@@ -786,7 +786,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
                 ## node.delmember(new) #e (addsibling ought to do this for us...) [now it does]
                 m.addsibling(new, before = True)
                 break # (this always happens, since something was picked under node)
-        node.apply2picked(lambda(x): x.moveto(new)) # was self.tree_item.object.apply2picked
+        node.apply2picked(lambda(x): x.moveto(new))
             # this will have skipped new before moving anything picked into it!
             # even so, I'd feel better if it unpicked them before moving them...
             # but I guess it doesn't. for now, just see if it works this way... seems to work.
@@ -969,8 +969,8 @@ class modelTree(modelTreeGui.Ne1Model_api):
     def cm_delete_clipboard(self): #bruce 050505; docstring added 050602
         "Delete all clipboard items"
         ###e get confirmation from user?
-        for item in self.assy.shelf.members[:]:
-            item.kill() # will this be safe even if one of these is presently displayed? ###k
+        for node in self.assy.shelf.members[:]:
+            node.kill() # will this be safe even if one of these is presently displayed? ###k
         self.mt_update()
     
     pass # end of class modelTree
