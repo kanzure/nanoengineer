@@ -1587,9 +1587,10 @@ class selectMode(basicMode):
         self.dragjigs = self.o.assy.getSelectedJigs()
 
     def get_smooth_reshaping_drag(self): #bruce 070412; implement "smooth-reshaping drag" feature
-        res = debug_pref("Drag reshapes selected atoms when bonded to unselected atoms?",
+        res = debug_pref("Drag reshapes selected atoms?", #bruce 070525 shortened text (it made entire menu too wide)
                          Choice_boolean_False,
-                         prefs_key = True, non_debug = True )
+                         prefs_key = '_debug_pref_key:Drag reshapes selected atoms when bonded to unselected atoms?',
+                         non_debug = True )
         return res
 
     def get_use_old_safe_drag_code(self): #bruce 070413
