@@ -2209,11 +2209,14 @@ class fake_merged_mol( virtual_group_of_Chunks): #e rename? 'extrude_unit_holder
         assert dad is None
         ## copies = [mol.copy(None) for mol in self._mols]
             # this is wrong when there are bonds between these mols!
-        # WARNING: the following is similar to other code which calls copied_nodes_for_DND, e.g. in depositMode.py.
-        # A higher-level utility routine which does all this should be added to ops_copy.py. ###e
-        from ops_copy import copied_nodes_for_DND
+        # WARNING: the following code after our call to copy_nodes_in_order is similar to
+        # other code after calls to the related function copied_nodes_for_DND, e.g. in depositMode.py.
+        # A higher-level utility routine which does all this post-processing should be added to ops_copy.py. ###e
+        from ops_copy import copy_nodes_in_order
+            #bruce 070525 precaution: use this instead of copied_nodes_for_DND, since order
+            # (in fact, precise 1-1 orig-copy correspondence) matters here.
         oldnodes = self._mols
-        newnodes = copied_nodes_for_DND(list(self._mols)) #k list() wrapper is just a precaution, probably not needed
+        newnodes = copy_nodes_in_order(list(self._mols)) #k list() wrapper is just a precaution, probably not needed
             # note: these copies are not yet added to the model (assy.tree).
         assert type(newnodes) == type([])
         assert len(newnodes) == len(oldnodes)
@@ -2223,11 +2226,14 @@ class fake_merged_mol( virtual_group_of_Chunks): #e rename? 'extrude_unit_holder
         ###k are these nodes renamed?? if not we'll have to do that now...
         assy = oldnodes[0].assy
         for newMol in newnodes:
-            from chunk import mol_copy_name
-            newMol.name = mol_copy_name(newMol.name)
-                # this should work for any kind of node, unless it has an update bug for some of them,
-                # but since the node doesn't yet have a dad, that's very unlikely.
-            assy.addmol(newMol)
+            if newMol is not None: #bruce 070525 precaution
+                from chunk import mol_copy_name
+                newMol.name = mol_copy_name(newMol.name)
+                    # this should work for any kind of node, unless it has an update bug for some of them,
+                    # but since the node doesn't yet have a dad, that's very unlikely.
+                assy.addmol(newMol)
+            else:
+                print "warning: extrude ignoring failed copy" # can this ever happen? if so, we'll print way too much here...
         ###k will we also need assy.update_parts()??
         copies = newnodes
         return fake_copied_mol(copies, self)

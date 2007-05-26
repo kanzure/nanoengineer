@@ -1376,9 +1376,12 @@ class depositMode(selectAtomsMode, MMKit):
             nodes = list(newPart.tree.members) # might be []
             assy = self.o.assy
             newnodes = copied_nodes_for_DND(nodes, autogroup_at_top = True, assy = assy)
-                # note: that calls name_autogrouped_nodes_for_clipboard internally, if it forms a Group,
+                # Note: that calls name_autogrouped_nodes_for_clipboard internally, if it forms a Group,
                 # but we ignore that and rename the new node differently below, whether or not it was
                 # autogrouped. We could just as well do the autogrouping ourselves...
+                # Note [bruce 070525]: it's better to call copied_nodes_for_DND here than copy_nodes_in_order,
+                # even if we didn't need to autogroup. One reason is that if some node is not copied,
+                # that's not necessarily an error, since we don't care about 1-1 orig-copy correspondence here.
             if not newnodes:
                 if newnodes is None:
                     print "bug: newnodes should not be None; nodes was %r (saved in debug._bugnodes)" % (nodes,)

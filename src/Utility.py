@@ -28,6 +28,15 @@ from state_utils import copy_val, StateMixin #bruce 060223
 
 debug_undoable_attrs = False
 
+def debug_pref_DND_drop_at_start_of_groups(): # not yet used, but will be
+    #bruce 070525 -- this is so we can experiment with this NFR someday.
+    # The code that needs to be affected by this is not yet implemented (but has a commented out call to it).
+    # If we implement that and it works and we like it,
+    # we'll change the default, or maybe even hardcode it, or maybe make it an official pref setting.
+    from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True
+        # not sure if toplevel import is safe, and needing a debug_pref is probably temporary
+    return debug_pref("DND: drop at start of groups?", Choice_boolean_False, non_debug = True, prefs_key = True)
+
 # utility function: global cache for QPixmaps (needed by most Node subclasses)
 
 _pixmap_image_path = None
@@ -634,16 +643,38 @@ class Node( StateMixin):
         #e rewrite to use copy_nodes (nim)? (also rewrite the assy methods? not for alpha)
         res = [] #bruce 050203: return any new nodes this creates (toplevel nodes only, for copied groups)
         #bruce 050216: order is correct if you're dropping on a group, but (for the ops used below)
-        # wrong if you're dropping on a node. This needs a big cleanup, but for now, use this kluge:
+        # wrong if you're dropping on a node. This needs a big cleanup, but for now, use this kluge
+        # [revised to fix bug 2403 (most likely, this never worked as intended for copy until now), bruce 070525]:
         if not isinstance(self, Group):
-            nodes = nodes[::-1] # reverse order if self is a leaf node
+            # drops on leaf nodes (like self) are placed after them,
+            # when done by the methods named in the following flags,
+            # so to drop several nodes in a row and preserve order,
+            # drop them in reverse order -- but *when* we reverse them
+            # (as well as which method we use) depends on whether we're
+            # doing move or copy, so these flags are used in the right
+            # place below.
+            reverse_moveto = True
+            reverse_addmember = True
         else:
+            # drops on groups (like self) go at the end of their members,
+            # when done by those methods, so *don't* reverse node order.
+            #
+            # [WARNING: this might change if we decide to put nodes dropped
+            # on groups at the beginning of their members list. But implementing that
+            # is not just a matter of changing these, but of calling different functions
+            # to move or add the nodes. Also, a review might be needed to find other things
+            # that need to be changed.]
+            ## assert not debug_pref_DND_drop_at_start_of_groups()
+            reverse_moveto = False
+            reverse_addmember = False
             #bruce 060203 removing this, to implement one aspect of NFR 932:
             ## self.open = True # open groups which have nodes dropped on them [bruce 050528 new feature]
             pass
         if drag_type == 'move':
+            if reverse_moveto:
+                nodes = nodes[::-1]
             for node in nodes[:]:
-                node.moveto(self) ###k guess/stub; works
+                node.moveto(self)
         else:
             #bruce 050527 new code to "copy anything". Preliminary (probably not enough history messages, or maybe sometimes
             # too many). Would be better to create the Copier object (done in a subr here) earlier, when the drag is started,
@@ -654,12 +685,19 @@ class Node( StateMixin):
                 #e or perhaps better, a per-group method to process the nodes list, eg to do the grouping
                 # as the comment in copied_nodes_for_DND or its subr suggests.
             nodes = copied_nodes_for_DND(nodes, autogroup_at_top = autogroup_at_top)
+                # Note: this ignores order within input list of nodes, using only their MT order
+                # to affect the order of copied nodes which it returns. [bruce 070525 comment]
             if not nodes: # might be None
                 return [] # return copied nodes
+            res.extend(nodes)
+            if reverse_addmember:
+                nodes = nodes[::-1]
+                    # note: if autogroup_at_top makes len(nodes) == 1, this has no effect,
+                    # but it's harmless then, and logically best to do it whenever using
+                    # addmember on list elements.
             for nc in nodes[:]:
-                res.append(nc)
                 self.addmember(nc) # self is sometimes a Group, so this does need to be addmember (not addchild or addsibling)
-        self.assy.update_parts() #e could be optimized to scan only what's needed (same for most other calls of this)
+        self.assy.update_parts() #e could be optimized to scan only what's needed (same for most other calls of update_parts)
         return res
 
     #bruce 050203: these drop_unders were not used for Alpha-1 -- no time to support dropping into gaps.

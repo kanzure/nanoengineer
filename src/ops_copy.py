@@ -304,21 +304,86 @@ class ops_copy_Mixin:
 
 # ==
 
-def copied_nodes_for_DND( nodes, autogroup_at_top = False, assy = None): #bruce 050527; added assy arg, bruce 070430
+DEBUG_ORDER = False #bruce 070525, can remove soon
+
+def copied_nodes_for_DND( nodes, autogroup_at_top = False, assy = None, _sort = False):
+    """Given a list of nodes (which must live in the same Part, though this may go unchecked),
+    copy them (into their existing assy, or into a new one if given), as if they were being DND-copied
+    from their existing Part, but don't place the copies under any Group (caller must do that).
+    Honor the autogroup_at_top option (see class Copier for details).
+       WARNING: this ignores their order in the list of input nodes, using only their
+    MT order (native order within their Part's topnode) to determine the order
+    of the returned list of copied nodes. If the input order matters, use
+    copy_nodes_in_order instead.
+       _sort is a private option for use by copy_nodes_in_order.
+    """
+    # note: used in other files, not only for DND
     from ops_select import Selection
     if not nodes:
         return None
+    if DEBUG_ORDER:
+        print "copied_nodes_for_DND: got nodes",nodes
+        print "their ids are",map(id,nodes)
     part = nodes[0].part # kluge
+    originals = nodes[:] #k not sure if this list-copy is needed
     copier = Copier(Selection(part, nodes = nodes), assy = assy)
+        ### WARNING: this loses all info about the order of nodes! At least, it does once copier copies them.
+        # That was indirectly the cause of bug 2403 (copied nodes reversed in DND) -- the caller reversed them
+        # to try to compensate, but that had no effect. It might risk bugs in our use for Extrude, as well [fixed now].
+        # But for most copy applications (including DND for a general selected set), it does make sense to use MT order
+        # rather than the order in which a list of nodes was provided (which in some cases might be selection order
+        # or an arbitrary dict-value order). So -- I fixed the DND order bug by reversing the copies
+        # (not the originals) in the caller; and I added copy_nodes_in_order for copying a list of nodes
+        # in the same order as in the list, and used it in Extrude as a precaution.
+        # [bruce 070525]
     copier.prep_for_copy_to_shelf()
     if not copier.ok():
         #e histmsg?
         return None
     nodes = copier.copy_as_list_for_DND() # might be None (after histmsg) or a list
+    if _sort:
+        # sort the copies to correspond with the originals -- or, more precisely,
+        # only include in the output the copies of the originals
+        # (whether or not originals are duplicated, or new wrapping nodes were created when copying).
+        # If some original was not copied, print a warning (for now only -- later this will be legitimized)
+        # and use None in its place -- thus preserving orig-copy correspondence at same positions in
+        # input and output lists. [bruce 070525]
+        def lookup(orig):
+            "return the copy corresponding to orig"
+            res = copier.origid_to_copy.get(id(orig), None)
+            if res is None:
+                print "debug note: copy of %r is None" % (orig,) # remove this if it happens legitimately
+            return res
+        nodes = map(lookup, originals)
     if nodes and autogroup_at_top:
+        if _sort:
+            nodes = filter( lambda node: node is not None , nodes)
         nodes = copier.autogroup_if_several(nodes)
+    if DEBUG_ORDER:
+        print "copied_nodes_for_DND: return nodes",nodes
+        print "their ids are",map(id,nodes)
+        print "copier.origid_to_copy is",copier.origid_to_copy
+        print "... looking at that with id",[(k,id(v)) for (k,v) in copier.origid_to_copy.items()]
     return nodes
 
+def copy_nodes_in_order(nodes, assy = None): #bruce 070525
+    """Given a list of nodes in the same Part, copy them
+    (into their existing assy, or into a new one if given)
+    and return the list of copied nodes, in the same order
+    as their originals (whether or not this agrees with their
+    MT order, i.e. their native order in their Part) -- in fact,
+    with a precise 1-1 correspondence between originals and copies
+    at the same list positions (i.e. no missing copies --
+    use None in their place if necessary).
+       See also copied_nodes_for_DND, which uses the nodes' native order instead.
+    """
+    copies = copied_nodes_for_DND(nodes, assy = assy, _sort = True)
+        # if we decide we need an autogroup_at_top option, we'll have to modify this code
+    if not copies:
+        copies = []
+    assert len(copies) == len(nodes) # should be true even if some nodes were not copyable
+    return copies
+    
 # ==
 
 class Copier: #bruce 050523-050526; might need revision for merging with DND copy
@@ -430,7 +495,7 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
     def whynot(self):
         return self._whynot or "can't copy those items"
 
-    # this makes the actual copy (into a known destination) using the info computed above; there are three variants.
+    # this makes the actual copy (into a known destination) using the info computed above; there are several variants.
 
     def copy_as_list_for_DND(self): #bruce 050527 added this variant and split out the other one
         "Return a list of nodes, or None"
@@ -471,9 +536,10 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
         return (True, res)
 
     def copy_as_list(self, make_partial_groups = True):
-        """[private helper method]
+        """[private helper method, used in the above copy_as_xxx methods]
         Create and return a list of one or more new nodes (not yet placed in any Group)
-        which is a copy of our selected objects,
+        which is a copy of our selected objects
+        (with all ordering in the copy coming from the model tree order of the originals),
         or return None (after history message -- would it be better to let caller do that??)
         if all objects refuse to be copied.
            It's up to caller whether to group these nodes if there is more than one,
@@ -643,6 +709,7 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
                 self.newstuff = save
             else:
                 newstuff = None
+                ## print "not self.make_partial_groups" # fyi: this does happen, for DND of copied nodes onto a node
             if newstuff:
                 # we'll make some sort of Group from it, as a partial copy of orig
                 # (note that orig is a group which was not selected, so is only needed

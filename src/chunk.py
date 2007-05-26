@@ -2211,9 +2211,10 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     
     def copy(self, dad = None, offset = V(0,0,0), cauterize = 1):
         # NOTE: to copy several chunks and not break interchunk bonds, don't use this --
-        # use copied_nodes_for_DND instead (or a utility routine that calls it [nim]).
-        # For now, you have to do a few more things to use its output; see its existing calls
-        # (e.g. in extrudeMode.py) for details. [bruce 070412 comment]
+        # use either copied_nodes_for_DND or copy_nodes_in_order as appropriate
+        # (or other related routines we might add near them in the future),
+        # then do a few more things to fix up their output -- see their existing calls
+        # for details. [bruce 070412/070525 comment]
         #
         #bruce 060308 major rewrite, and no longer permit args to vary from defaults
         """Public method: Copy the molecule to a new molecule.
