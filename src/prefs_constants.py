@@ -193,6 +193,10 @@ mainwindow_geometry_prefs_key_prefix = "main window/geometry" #bruce 051218 move
 captionPrefix_prefs_key = 'A6/Caption Prefix'
 captionSuffix_prefs_key = 'A6/Caption Suffix'
 captionFullPath_prefs_key = 'A6/Caption Full Path'
+useSelectedFont_prefs_key = 'A9/Use Selected Font'
+displayFont_prefs_key = 'A9/Display Font'
+displayFontPointSize_prefs_key = 'A9/Display Font Point Size'
+#colorTheme_prefs_key = 'A9/Color Theme'
 
 # Bug-workaround prefs, Mac-specific
 
@@ -443,6 +447,10 @@ prefs_table = (
     ('', 'string', captionPrefix_prefs_key, "" ),
     ('', 'string', captionSuffix_prefs_key, "*" ),
     ('', 'boolean', captionFullPath_prefs_key, False ),
+    ('', 'boolean', useSelectedFont_prefs_key, False ),
+    ('', 'string', displayFont_prefs_key, "defaultFont"),
+    ('', 'int', displayFontPointSize_prefs_key, -1), # will be reset by the actual default font size.
+    #('', 'string', colorTheme_prefs_key, "defaultColorTheme"), # Gray for A9. Mark 2007-05-27.
     
     # ...
 

@@ -259,6 +259,11 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 
     # This determines the location of "Open Recent Files" menu item in the File Menu. Mark 060807.
     RECENT_FILES_MENU_ITEM = None
+    
+    # The default font for the main window. If I try to set defaultFont using QApplition.font() here,
+    # it returns Helvetica pt12 (?), so setting it below in the constructor is a workaround.
+    # Mark 2007-05-27.
+    defaultFont = None
 
     def __init__(self, parent = None, name = None):
     
@@ -271,6 +276,9 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 
         qt4warning('MainWindow.__init__(self, parent, name, Qt.WDestructiveClose) - what is destructive close?')
         QMainWindow.__init__(self, parent)
+	
+	self.defaultFont = QFont(self.font()) # Makes copy of app's default font.
+		
         self.DefaultSelAction = QAction(self)
         self.LassoSelAction = QAction(self)
         self.RectCornerSelAction = QAction(self)
@@ -301,8 +309,6 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 	self.buildToolsToolBar.hide()
 	self.selectToolBar.hide()
 	self.simulationToolBar.hide()
-	
-                       
 
         self.MoveOptionsGroup = QActionGroup(self)
         self.MoveOptionsGroup.setObjectName("MoveOptionsGroup")
@@ -762,7 +768,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
             self.addPartWindow(self.assy)
         else:
             self.init_part_two()
-    
+        
     def createPopupMenu(self):#Ninad 070328
 	''' Reimplemented createPopPupMenu method that allows 
 	display of custom context menu (toolbars and dockwidgets) 

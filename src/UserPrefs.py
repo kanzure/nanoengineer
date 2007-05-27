@@ -348,6 +348,15 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.connect(self.show_bond_labels_checkbox,SIGNAL("toggled(bool)"),self.change_bond_labels)
         self.connect(self.show_valence_errors_checkbox,SIGNAL("toggled(bool)"),self.change_show_valence_errors)
         
+        # Connections for font widgets (in "Windows" page). Mark 2007-05-27.
+        self.connect(self.selectedFontGroupBox,SIGNAL("toggled(bool)"), self.change_use_selected_font)
+        self.connect(self.fontComboBox,SIGNAL("currentFontChanged (const QFont &)"), self.change_font)
+        self.connect(self.fontSizeSpinBox,SIGNAL("valueChanged(int)"), self.change_fontsize)
+        self.connect(self.makeDefaultFontPushButton,SIGNAL("clicked()"), self.change_selected_font_to_default_font)
+        
+        # Connections for color theme.
+        self.connect(self.colorThemeComboBox,SIGNAL("currentIndexChanged(const QString&)"),self.change_color_theme)
+        
         self.connect(self.undo_stack_memory_limit_spinbox,SIGNAL("valueChanged(int)"),self.change_undo_stack_memory_limit)
         self.connect(self.update_number_spinbox,SIGNAL("valueChanged(int)"),self.update_number_spinbox_valueChanged)
         self.connect(self.watch_min_in_realtime_checkbox,SIGNAL("toggled(bool)"),self.setEnabled)
@@ -1083,6 +1092,10 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.caption_suffix_linedit.setText(env.prefs[captionSuffix_prefs_key])
             ##e someday we should make a 2-way connector function for LineEdits too
         connect_checkbox_with_boolean_pref( self.caption_fullpath_checkbox, captionFullPath_prefs_key )
+        
+        # Update Display Font widgets
+        self.set_font_widgets(setFontFromPrefs=True) # Also sets the current display font.
+        
         return
     
     def _setup_tooltips_page(self): #Ninad 060830
@@ -1981,9 +1994,6 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
     
     ########## End of slot methods for "ToolTips" page widgets ###########
     
-    
-    
-
     ########## Slot methods for "Window" (former name "Caption") page widgets ################
 
     #e there are some new slot methods for this in other places, which should be refiled here. [bruce 050811]
@@ -2023,7 +2033,117 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.current_width_spinbox.setValue(w)
         self.current_height_spinbox.setValue(h)
         self.change_window_size()
+            
+    def change_use_selected_font(self, use_selected_font):
+        """Slot for "Use Selected Font" checkbox on the groupbox.
+        Called when the checkbox is toggled.
+        """
+        env.prefs[useSelectedFont_prefs_key] = use_selected_font
+        self.set_font()
+        
+    def change_font(self, font):
+        """Slot for the Font combobox.
+        Called whenever the font is changed.
+        """
+        env.prefs[displayFont_prefs_key] = str(font.family())
+        self.set_font()
+        
+    def change_fontsize(self, pointsize):
+        """Slot for the Font size spinbox.
+        """
+        env.prefs[displayFontPointSize_prefs_key] = pointsize
+        self.set_font()
     
+    def change_selected_font_to_default_font(self):
+        """Slot for "Make the selected font the default font" button.
+        The default font will be displayed in the Font and Size
+        widgets.
+        """
+        font = self.w.defaultFont
+        env.prefs[displayFont_prefs_key] = str(font.family())
+        env.prefs[displayFontPointSize_prefs_key] = font.pointSize()
+        self.set_font_widgets(setFontFromPrefs=True) # Also sets the current display font.
+        
+        if platform.atom_debug: 
+            print "change_selected_font_to_default_font(): Button clicked. Default font: ", font.family(), ", size=", font.pointSize()        
+        
+    def set_font_widgets(self, setFontFromPrefs=True):
+        """Update font widgets based on font prefs.
+        Unconnects signals from slots, updates widgets, then reconnects slots.
+        
+        Arguments:
+        
+        <setFontFromPrefs> - when True (default), sets the display font (based on font prefs).
+        """
+        
+        if platform.atom_debug: 
+            print "set_font_widgets(): Here!"
+            
+            
+        if env.prefs[displayFont_prefs_key] == "defaultFont":
+	    # Set the font and point size prefs to the application's default font.
+	    # This code only called the first time NE1 is run (or the prefs db does not exist)
+	    font = self.w.defaultFont
+            font_family = str(font.family())
+            font_size = font.pointSize()
+            env.prefs[displayFont_prefs_key] = font_family
+            env.prefs[displayFontPointSize_prefs_key] = font_size
+	    if platform.atom_debug: 
+                print "set_font_widgets(): No prefs db. Using default font: ", font.family(), ", size=", font.pointSize()
+        
+        else:
+	    font_family = env.prefs[displayFont_prefs_key]
+	    font_size = env.prefs[displayFontPointSize_prefs_key]
+	    font = QFont(font_family, font_size)
+	
+        self.disconnect(self.selectedFontGroupBox,SIGNAL("toggled(bool)"), self.change_use_selected_font)
+        self.disconnect(self.fontComboBox,SIGNAL("currentFontChanged (const QFont &)"), self.change_font)
+        self.disconnect(self.fontSizeSpinBox,SIGNAL("valueChanged(int)"), self.change_fontsize)
+        self.disconnect(self.makeDefaultFontPushButton,SIGNAL("clicked()"), self.change_selected_font_to_default_font)
+        
+        self.selectedFontGroupBox.setChecked(env.prefs[useSelectedFont_prefs_key]) # Generates signal!
+        self.fontComboBox.setCurrentFont(font) # Generates signal!
+        self.fontSizeSpinBox.setValue(font_size) # Generates signal!
+        
+        self.connect(self.selectedFontGroupBox,SIGNAL("toggled(bool)"), self.change_use_selected_font)
+        self.connect(self.fontComboBox,SIGNAL("currentFontChanged (const QFont &)"), self.change_font)
+        self.connect(self.fontSizeSpinBox,SIGNAL("valueChanged(int)"), self.change_fontsize)
+        self.connect(self.makeDefaultFontPushButton,SIGNAL("clicked()"), self.change_selected_font_to_default_font)
+        
+        if setFontFromPrefs:
+            self.set_font()
+    
+    def set_font(self):
+        """Set the current display font using the font prefs.
+        """
+                
+        use_selected_font = env.prefs[useSelectedFont_prefs_key]
+        
+        if use_selected_font:
+            font = self.fontComboBox.currentFont()
+            font_family = str(font.family())
+            fontsize = self.fontSizeSpinBox.value()
+            font.setPointSize(fontsize)
+            env.prefs[displayFont_prefs_key] = font_family
+            env.prefs[displayFontPointSize_prefs_key] = fontsize
+            if platform.atom_debug: 
+                print "set_font(): Using selected font: ", font.family(), ", size=", font.pointSize()
+        
+        else: # Use default font
+            font = self.w.defaultFont
+            if platform.atom_debug: 
+                print "set_font(): Using default font: ", font.family(), ", size=", font.pointSize()
+        
+        # Set font
+        self.w.setFont(font)
+    
+    def change_color_theme(self, color_theme):
+        """Slot for Color Theme combobox.
+        Not implemented yet. Mark 2007-05-27.
+        """
+        print "change_color_theme(): Color theme = ", color_theme
+        print "Not implemented yet."
+        
     def set_caption_fullpath(self, val): #bruce 050810 revised this
         # there is now a separate connection which sets the pref, so this is not needed:
         ## self.win.caption_fullpath = val
