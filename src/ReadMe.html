@@ -1,0 +1,602 @@
+<html>
+<head>
+<title>
+Nanorex&trade; NanoEngineer-1&trade; Alpha 9
+</title>
+</head>
+
+<body>
+<h1>Nanorex&trade; NanoEngineer-1&trade; Alpha 9</h1>
+NanoEngineer-1 is an open-source (GPL) 3D multi-scale modeling and simulation program for nano-composites with special support for structural DNA nanotechnology. It features an easy-to-use interactive 3D graphical user interface for designing and modeling large, atomically precise composite systems.
+<p>
+This is NanoEngineer-1 v0.9 (Alpha9) as of June 1, 2007.
+<p>
+Click the following links to learn more about NanoEngineer-1&trade; Alpha 9:
+<ul>
+  <li><a href="#SystemRequirements">System Requirements</a>
+  <li><a href="#InstallationInstructions">Installation Instructions</a>
+  <li><a href="#OfficialPlatforms">Officially Tested Platforms</a>
+  <li><a href="#Extensions">Extensions for NE1</a>
+  <li><a href="#NewFeatures">New Features</a>
+  <li><a href="#KnownBugs">Known Bugs</a>
+  <li><a href="#Copyright">Copyright</a>
+  <li><a href="#NewFeaturesArchives">New Features Archives</a>
+</ul>
+
+<a name="SystemRequirements"></a>
+<h2>System Requirements</h2>
+
+<h3>Linux</h3>
+<ul>
+  <li>1 GHz Intel/AMD processor or equivalent 
+  <li>512 MB RAM
+  <li>50 MB available disk space
+  <li>3D video card
+  <li>32 MB VRAM
+  <li>1024 x 768 screen resolution or higher
+  <li>Default desktop font size: 12pt
+</ul>
+
+<h3>Macintosh</h3>
+<ul>
+  <li>1 GHz PowerPC G4 or Intel processor
+  <li>Mac OS X 10.3.9 and later 
+  <li>512 MB RAM
+  <li>50 MB available disk space
+  <li>3D video card
+  <li>32 MB VRAM
+  <li>1024 x 768 screen resolution or higher
+  <li>Default desktop font size: 12pt
+</ul>
+
+<h3>Windows</h3>
+<ul>
+  <li>1 GHz Intel Pentium M processor or equivalent
+  <li>Windows XP
+  <li>512 MB RAM
+  <li>50 MB available disk space
+  <li>3D video card
+  <li>32 MB VRAM
+  <li>1024 x 768 screen resolution or higher 
+  <li>Default desktop font size: 12pt ('normal' on Windows XP)
+</ul>
+
+<a name="InstallationInstructions"></a>
+<h2>Installation Instructions</h2>
+
+<h3>Linux</h3>
+NE1 Alpha 9 must be compiled from sources for your Linux platform. Download the NE1 A9 tarball <a href="#">NanoEngineer-1-09.src.tar.gz</a> [5.0 Mb] and read the building from sources instructions for your platform at:
+<p>
+<a href="http://www.nanoengineer-1.net/mediawiki/index.php?title=Building_for_developers"> http://www.nanoengineer-1.net/mediawiki/index.php?title=Building_for_developers</a>
+
+<h3>Mac OS X</h3>
+Run the NanoEngineer-1 self-extracting installer <a href="#">NanoEngineer-1-0.9.dmg</a>.
+
+<h3>Windows</h3>
+Run the NanoEngineer-1 self-extracting installer <a href="#">NanoEngineer-1-0.9-w32.exe</a>. 
+<p>
+IMPORTANT NOTE: If you have a previous version of NanoEngineer-1 currently installed (e.g. Alpha 8) and attempt to install NE1 Alpha 9, the installer will prompt you with the following message:
+<p>
+"Set up will create the program shortcuts in the following start menu folder. To continue, click Next. If you would like to select a different folder, click browse" 
+<p>
+The default name it gives is "NanoEngineer-1 v0.8 (Alpha8)". This is a bug in the Windows installer.
+<p>
+TO FIX, TYPE IN "NanoEngineer-1 v0.9 (Alpha9)"
+
+<a name="OfficialPlatforms"></a>
+<h2>Officially Tested Platforms</h2>
+NE1 Alpha 9 has been tested on:
+<ul>
+  <li>Windows XP Professional 2002, Service Pack 2
+  <li>Mac OS X 10.3.9 (Panther) and 10.4.9 (Tiger)
+</ul>
+Limited testing has been done on Mac OS X 10.3 (Panther).
+<p>
+Limited testing has been done on Ubuntu 7.04 (Feisty). Ubuntu Linux is now the official Linux for NE1 testing.
+
+<a name="Extensions"></a>
+<h2>Extensions for NE1</h2>
+NE1 supports a number of free extensions, including:
+<ul>
+  <li>GNUPlot v4.0 is used to plot the results of molecular dynamics simulations using NanoDynamics-1, NE1's own molecular dynamics engine for nano-mechanical simulations. It is already included with NE1 for Windows and Mac. 
+  <li>GAMESS (for Linux or Mac) makes it possible to setup and launch ab initio and DFT computational chemistry simulations of molecular models inside of NE1. 
+  <li>PC GAMESS (Windows only) makes it possible to setup and launch ab initio and DFT computational chemistry simulations of molecular models inside of NE1. 
+  <li>POV-Ray creates high-quality renderings of the current model with a single click of the mouse. 
+  <li>MegaPOV (Mac OS X only) creates high-quality renderings of the current model with a single click of the mouse. POV-Ray is also required. 
+</ul>
+For more details on all extensions and links to the download pages, visit:
+<p>
+<a href="http://www.nanoengineer-1.net/mediawiki/index.php?title=Extensions_for_NE1"> http://www.nanoengineer-1.net/mediawiki/index.php?title=Extensions_for_NE1</a>
+
+<a name="NewFeatures"></a>
+<h2>New Features</h2>
+<pre>
+What is new in NanoEngineer-1 v0.9 (6/1/2007):
+
+1. Completely ported GUI from Qt 3.x to Qt 4.x
+
+   - NanoEngineer-1 Alpha 9 is now GPL'd for all platforms, including Windows.
+
+2. Improved Graphical User Interface, improved ease of use
+
+   - New Property Manager presents users with options for current commands
+   - New Command Manager Toolbar provides easy access to most common commands
+   - Improved selection and highlighting heuristics
+   - Better, more intuitive interactive graphics for translating and rotating
+     selected components
+   - Interactive zooming on cursor focus point
+
+3. Special support for Structural DNA Nanotechnology
+
+   - DNA "reduced model" allows easy design of complex DNA structures
+
+   - Collection of DNA motifs included in part library:
+      - Basic motifs (i.e. holliday junctions, double crossovers, triple
+	    crossovers, etc.)
+      - Star structures
+      - DNA tiles
+      - DNA origami
+</pre>
+See <a href="#NewFeaturesArchives">New Features Archives</a> for information on previous versions.
+
+<a name="KnownBugs"></a>
+<h2>Known Bugs</h2>
+You may access a current copy of NE1 Known Bugs on-line at:
+<p>
+<a href="http://www.nanoengineer-1.net/mediawiki/index.php?title=NE1_Known_Bugs"> http://www.nanoengineer-1.net/mediawiki/index.php?title=NE1_Known_Bugs</a>
+
+<a name="Copyright"></a>
+<h2>Copyright</h2>
+NanoEngineer-1 Copyright 2004-2007 Nanorex, Inc.
+<p>
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+<p>
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+<p>
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+<a name="NewFeaturesArchives"></a>
+<h2>New Features Archives</h2>
+<pre>
+Release Notes for NanoEngineer-1 v0.8 (Alpha 8)
+
+What is new in NanoEngineer-1 v0.8 (7/13/2006):
+
+1. New Structure Generators
+
+1.1 DNA Generator - creates custom DNA structures
+    - B-DNA and Z-DNA
+    - Single or double stranded
+1.2 Enhanced Nanotube Generator
+    - Carbon or Boron Nitride nanotubes
+    - Multi-walled nanotubes
+    - Twisted option
+    - Bend option
+    - Z and XY distortions options
+1.3 Heterojunction 
+    - Generates and connects two nanotubes of arbitrary size.
+    - It uses using a C++ port of CoNTub, an algorithm for connecting two
+	  arbitrary carbon nanotubes.
+1.4 Graphene Generator 
+    - Creates a sheet of graphene given width and height dimensions.
+
+2. POV-Ray Scene and Ray Trace scene
+  - These provide a convenient way to preview the results of a POV-Ray scene
+    rendering in NanoEngineer-1. To use this feature, you should install POV-Ray
+	or MegaPOV and enable it as a plug-in.
+
+3. Support for adding comments to the model
+
+4. New Chunk display
+  - Chunks can be rendered in a new Cylinder display mode. (Experimental
+    feature)
+
+5. Simulator dialog
+  - Options to specify how often to update the screen during the simulation.
+
+6. Adjust All and Adjust Selection 
+  - Quickly adjusts positions of atoms and bonds to make geometry of structures
+    more realistic. 
+
+7. Minimize Energy 
+  - New dialog for providing fine grain control of structure minimizations.
+
+8. Simulator:
+  - Torsion and out-of-plane terms in the simulator. (Although these terms are
+    included, please note that this still has some known bugs and need more
+	work. For example, minimize returning high values for some structures or
+	taking long time to finish)
+
+9. Infer bonds, when reading PDB files that don't have any bonds
+
+10. Build Mode improvements: 
+   - Bond types can be changed using context menu or bond tools, even when this
+     requires changing atom types or removing bondpoints. 
+   - The bond order of a bondpoint can be changed using bond tools. 
+   - Automatic repositioning of bondpoints when dragging connected atoms has
+     been improved
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+What was new in NanoEngineer-1 v0.7 (4/24/2006):
+
+1. Undo/Redo:
+  - NanoEngineer-1 now includes rich Undo/Redo functionality
+  - Automatic checkpointing can be enabled/disabled by selecting 
+    'Edit > Automatic Checkpointing'
+  - 'Edit > Clear Undo Stack' clears all Undo checkpoints to free system memory
+
+2. 'Select Atoms Mode' has been merged with 'Build Mode'
+
+3. Build Mode:
+  - Significantly improved interactive mouse controls for building, selecting, 
+    moving and editing structures and other objects. To learn more about the
+    new mouse controls, see the 'Build Mode' section of the Mouse Control 
+    documentation by selecting 'Help > Mouse Controls...'
+  - Hover highlighting now supports bonds and jigs (not just atoms)
+  - Atoms, bonds and jigs have context menus for common commands
+  - Atom Selection Filter, which filters the selection of one or more atom 
+    types when performing atom selection operations
+  - Transmute atoms
+  - New Library tab in the MMKit allows 3D preview and insertion of parts from
+    the NanoEngineer-1 library
+  - 'Water' selection filter can be enabled/disabled from the dashboard
+    (disabled by default)
+  - Build mode is the new default startup mode
+
+4. On-Line Wiki Help:
+  - Context sensitive help using the F1 key
+  - Users can contribute to and/or edit the On-Line Wiki Help documentation
+
+5. Molecular Dynamic Simulation:
+  - Improved force field. Formal bend parameters have replaced guessed values
+    for all single bond combinations
+  - Warnings emitted when parameters are used that are not determined
+    by quantum calculations
+  - Warnings when bonds exceed reasonable limits during simulation
+  - Watch minimize and MD simulations in real time
+  - Minimize and MD simulations can be stopped at any time, leaving atoms at 
+    their current positions
+  - Improved minimization algorithm
+
+6. View Menu/Toolbar:
+  - 'Set View Normal To' sets the view to a new view based on the normal vector
+    of the current selection
+  - 'Set View Parallel To' sets the view to a new view based on the parallel 
+    vector of the current selection
+  - 'Rotate View 180' rotates the current view 180 degrees around the vertical
+    axis
+  - 'Rotate View +90' rotates the current view 90 degrees around the vertical 
+    axis
+  - 'Rotate View -90' rotates the current view -90 degrees around the vertical
+    axis
+  - 'Save Named View' saves the current view as a custom view in the Model 
+    Tree. Using the context menu of the Named View icon in the Model Tree,
+    the view can be restored
+
+7. Single Walled Carbon Nanotubes:
+   SWCNTs can be added to the model by selecting 'Insert > Nanotube' and 
+   specifying the chirality and length
+
+8. Graphics:
+  - In general, rendering speed and quality are improved
+  - 'View Animation', which animates the model between the current view
+    and the destination view.  This helps maintain model/view orientation
+    when switching to a standard view (i.e. Front, Top, Home, etc.)
+  - 'Help > Graphic Card Info...' displays details about the system's
+    graphics card
+
+9. New Jigs:
+  - 'Measure Distance Jig' displays the distance between the nuclei and the 
+    VdW radii of two atoms
+  - 'Measure Angle' displays the angle made by three atoms
+  - 'Measure Dihedral' displays the dihedral angle of a four atom sequence
+  - 'ESP Image' allows the user to visualize the electrostatic potential 
+    of points on the face of a square 2D surface. Nano-Hive's MPQC ESP Plane 
+    plug-in is used to calculate the electrostatic potential
+  - 'Gridplane' allows the user to insert a 2D square or SiC grid into the
+    part to help measure distances or fuse chunks of SiC
+  - 'Atom Set' allows the user to group and easily select arbitrary sets of 
+    atoms in the part
+
+10. Nano-Hive:
+  - ESP Image plug-in (tested on Windows only)
+
+11. Fuse Chunks Mode:
+  - Allows user to fuse two or more chunks together using one of two methods:
+    1. Make Bonds - bondpoints between chunks will form bonds when they 
+       are near each other
+    2. Fuse Atoms - atoms between chunks will be fused when they overlap 
+       each other
+
+12. Movie Player:
+  - New 'Loop' option on dashboard restarts the movie when it reaches the end
+  - 'POV-Ray Series' supports the 'Skip' value in the dashboard so that the
+    skipped frames are not saved as POV-Ray files
+ 
+13. New Preferences (Edit > Preferences):
+  - Display Compass Labels
+  - View Animation
+    - Animation speed can be changed using a slider control in the 
+      'Edit > Preferences | General' dialog
+    - View Animation can be enabled/disabled
+  - Minimization: Watch in real-time
+  - Bondpoint Highlighting Color
+  - Ball and Stick Atom Scale
+  - Ball and Stick Bond Scale
+  - CPK Atom Scale
+  - Level of Detail
+  - Bond Line Thickness
+  - Startup Mode
+  - Default Mode
+  - Display Mode (for each Mode)
+  - Build Mode Defaults settings, including Autobond, Water, Highlighting,
+    and Select Atoms of Deposited Object
+  - Additional Lighting parameters, including Color, Specular value and light
+    position
+  - Material Specular Properties
+  - Nano-Hive Plug-in
+  - Undo settings, including:
+    - Restore View when Undoing Structural Changes
+    - Automatic Checkpoints (default setting)
+  - Window Position and Size Save button
+
+14. Miscellaneous:
+  - 'Select > Expand Selection' selects any atom that is a neighbor of a 
+    currently selected atom
+  - 'Select > Contract Selection' deselects any atom that is a neighbor of a 
+    non-picked atom or has a bondpoint
+  - 'Modify > Merge' operation extended for atom selection (i.e. Build Mode)
+  - 'File > Recent Files' facilitates opening the most recently used files. 
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+What was new in NanoEngineer-1 v0.0.6 (8/17/2005):
+
+1. Atomic hybridization and higher order bond types:
+  - Support for the following atomic hybrid orbitals:
+     - Carbon: sp3, sp2, sp
+     - Nitrogen: sp3, sp2, sp, graphitic
+     - Oxygen: sp3, sp2
+     - Sulfur: sp3, sp2
+     - Hydrogen: s
+  - Support for the following bond types:
+     - single
+     - double
+     - triple
+     - aromatic
+     - graphitic
+     - carbomeric*
+
+* carbomeric bonds are an order-2.5 bond, sometimes used in carbomers. Alpha 6 
+supports drawing and valence checking of carbomeric bonds, but they are 
+simulated and stored in the mmp file as aromatic bonds.  This means carbomeric
+bonds can't be stored and reloaded from a mmp file, which is a known bug we'll
+fix for Alpha 7.
+
+2. Build Mode:
+  - New Molecular Modeling Kit (MMKit) used for selecting elements and 
+    atomic hybridizations
+  - Bonds are selectable and can be deleted using CTRL+ Left-click (or 
+    CMD + Left-click on MacOS X)
+  - Bonds can be changed using new sub-modes on the dashboard
+  - Clipboard integration with the MMKit for copying and pasting molecules
+  - Keyboard accelerators for element and atomic hybridization selections
+
+3. Select Atoms Mode:
+  - Support for copying/pasting selected atoms
+  - Improved dashboard for selecting (and transmuting) atoms
+  - Selection Filter now works for Select Connected and Select Doubly
+  - Select Connected and Select Doubly have been added to the dashboard
+  - Select Doubly much faster
+
+4. New GAMESS client interface:
+  - Energy calculations
+  - Optimizations
+  - Supports PC GAMESS on Windows
+  - Supports GAMESS-US on Linux/MacOSX
+
+5. Jigs:
+  - Selection of Jigs in the 3D workspace (graphic area)
+  - Copying and pasting of jigs (together with their chunk/atoms)
+  - New model tree context menu item to select all atoms of any Jig or set 
+    of Jigs
+  - New model tree context menu item to disable/enable Jigs, which determines
+    whether the Jig is used during a simulation
+  - New model tree context menu item for Rotary/Linear Motors "Align to Chunk",
+    which relaigns the motor
+    to the first chunk it is attached to
+  - New model tree context menu item for Rotary/Linear Motors "Recenter on 
+    Atoms", which recenters the motor to the atoms it is attached to
+
+6. Molecular Dynamics Simulator:
+  - Revised Simulator Setup dialog
+  - Support for Linear motor
+  - Jigs can be disabled (and enabled) in the model tree via their context menu
+  - MD supported for atomic hybridizations and higher order bonds (see list 
+    above) with the following exceptions:
+     - Still no torsion; this will make systems with double or 
+       aromatic/graphitic bonds act less stiff than they really should.  
+       The parameters for aromatic and graphitic bonds are interpolated rather
+       than measured directly
+     - The simulator does not handle hydrogen bonds or dative bonds
+     - The parameters for stretches with fluorine and bends with boron or 
+       a double bond to nitrogen are estimated rather than computed
+     - The whole set may need an overall correction factor of some kind. The 
+       main variable, absolute energy numbers from Gamess, is self canceling 
+       since we're only using relative energies, and we used the same level 
+       of theory for all the runs. Still there may be some systematic 
+       correction that is needed
+     - A more sophisticated fitting procedure, and support for electrostatics,
+       is in the works for Alpha 7
+
+7. New Preferences dialog (Edit > Preferences):
+  - atom highlight color
+  - free valence color
+  - free valence hotspot color
+  - bond highlight color
+  - bond vanes/ribbons color
+  - bond stretch color
+  - CPK cylinder color
+  - higher order bond display modes: multiple cylinders, vanes, or ribbons
+  - show valence erros on/off
+  - turn on/off bond letters for double, triple, aromatic and graphitic bonds
+  - background color (solid or gradient)
+  - compass location
+  - compass on/off
+  - origin axis on/off
+  - point of view axis on/off
+
+8. Move Chunks:
+  - New dashboard dropbox includes the following options:
+     - Translate
+     - Rotate X (by specified angle "Theta")
+     - Rotate Y (by specified angle "Theta")
+     - Rotate Z (by specified angle "Theta")
+
+9. Movie Player:
+  - Significant speed improvement
+  - Circular arrow on end of rotary motor shaft rotates with motor
+  - New "POV-Ray Series" save option that allows the user to dump the current
+    movie as a series of .pov files (which can then be povrayed by the user
+    and collected into an mpeg offline)
+
+10. Model Tree:
+  - New model tree context menu item "Delete all clipboard items"
+  - New model tree context menu item "Create new empty clipboard item"
+
+11. Opposite View:
+  - New command (View > Opposite View) that flips the current view to the
+    opposite side
+
+12. Align to Common Axis:
+  - Now aligns selected chunks to the first selected chunk's axis (instead
+    of the average axis of all selected chunks)
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+What was new in NanoEngineer-1 v0.0.5 (5/2/2005):
+
+1. Minimize Selection: Will minimize the current selection only.
+2. Cookie Cutter:
+  - Support for Lonsdaleite (hexagonal diamond)
+  - Modify selection curve(s) for any cookie layer
+  - Diamond surface orientation displayed in the status bar
+  - Rotate lattice grid by increments, around the POV (point of view) axis.
+  - Abort/restart the current selection using the Esc key
+  - Cookie layers are displayed in different colors
+  - Option to display selection as spheres, similar to CPK mode, but with 
+    bonds drawn as white lines.
+  - Option to change the grid line color
+  - Option to display the rest of the model
+  - New shape selection options (triangle, rectangle, hexagon, square and 
+    diamond)
+3. Clipboard:
+  - Selected items are now displayed and editable in Graphics Area.
+  - Drag and drop works reliably between the Model Tree and the Clipboard
+4. Move Chunks:
+  - Translate selected chunks by a specified X, Y, Z offset
+  - Move selected chunk(s) to an absolute position
+  - Dashboard options offer constrained rotation and translation along the 
+    X, Y, or Z axis.
+  - Modifier keys activate constrained rotation and translation along the 
+    X (X key), Y (Y key) or Z (Z key) axis.
+  - Modifier keys limit interactive movement to rotation (R key) or 
+    translation (T key)
+5. Fuse Chunks:
+  - New tool for interactively connecting open bonds between two or more chunks
+  - Option to merge connected chunks into a single chunk
+  - Fine control (using modifier keys) of chunk movement while finding and 
+    highlighting bondable pairs of atom between chunks.
+6. Modify > Invert: Inverts the atom positions of the selected chunk(s) around 
+    their center in space
+7. Select Atoms: New Atom Selection Filter available on dashboard
+8. Simulator:
+  - Improvements in minimizer, returning the best position from run
+  - Multiple runs may improve position further
+  - Open bonds are treated as if they were hydrogenated.
+  - More informative history messages for the user after a simulation or 
+    minimization completes.
+9. New Select Menu: Includes all options from the Select Toolbar
+10. Display > Show Invisible Atoms: Resets the display of any invisible atoms 
+    in the selected chunk(s).
+11. Display > Reset Chunk Display: Resets the display of all atoms in the 
+    selected chunk(s).
+12. Plot Tool: Changed GNUplot filename suffix from "-trace.plt" to "-plot.txt"
+13. Removed Element Selector from Modify toolbar.
+14. Added Element Selector to the Build Atoms dashboard.
+15. Lighting Tool: Added Restore Defaults button.
+16. Changed Modify > Weld to Modify > Merge
+17. Hide/Unhide state of Model Tree nodes are saved in the MMP file and 
+    restored when reopening the part.
+18. Open/close state of Model Tree groups are saved in MMP file and restored 
+    when reopening the part.
+19. Jigs:
+  - Jigs can be disabled using the Model Tree context menu, or by
+    dragging them to the Clipboard; disabled jigs remain attached to the
+    same atoms, even when saved to and reloaded from an MMP file, but have
+    no effect on the simulator until they are re-enabled.
+  - Jigs can be located anywhere in the Model Tree, and this location is
+    not altered when saving the MMP file.
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+What was new in v0.0.4 (3/14/2005):
+
+1. Element Selector: 
+  - removed controls for changing element colors.
+  - Refined buttons to be easier to read, especially on MacOSX.
+2. Element Color Settings:
+  - new control panel for changing element colors.
+  - accessed by "Display > Element Color Settings..."
+  - element colors saved to nE-1 preferences database
+  - element colors can be saved to a text file in human readable format
+  - load element colors from a file
+  - can restore default nE-1 element colors
+3. Lighting: New Lighting control panel for changing lighting settings.
+4. Plot Tool: 
+  - new control panel for plotting simulator trace file output using 
+   GNUplot.
+  - buttons on control panel open trace and plot files in a text editor.
+  - plot files can be edited by hand and replotted using "Plot" button 
+5. Simulator trace files now created next to DPB trajectory file, with the name
+   dpb_filename-trace.txt
+6. Simulator: new toolbar/menu contains Simulator, Movie Player and Plot Tool.
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+What was new in v0.0.3 (2/28/2005):
+
+1. Select > Doubly: The cursor displays the "Wait Cursor" (hourglass) while 
+   Select > Doubly is working.
+2. Model Tree: Improved Drag and Drop behavour in the Model Tree widget.
+3. Clipboard: Fixed some bugs related to the Clipboard. More stable now.
+4. Movie Player: Program no longer displays errors when selecting Done 
+   while movie is playing. 
+5. Element Selector: Users can change element colors for all supported 
+   element types. 
+6. Element Selector: Users can load/save custom element colors from/to a file. 
+7. Extrude Tool: The bond-offset spheres are turned off by default. 
+   They can be turned on from the dashboard. 
+8. Extrude Tool: The bond-offset spheres are rendered in a manner to clue 
+   the user on which configurations will produce the most bonds. 
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+What was new in v0.0.2 (2/14/2005):
+
+1. Simulator works on MacOSX.
+2. Fixed bug in cad that limited the simulator to no more than 940 frames
+   on Windows.
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+What was new in v0.0.1 (2/2/2005):
+
+1. Everything
+</pre>
+
+</body>
+</html>
+
