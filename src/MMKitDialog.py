@@ -622,7 +622,7 @@ class Ui_MMKitDialog(object):
         # specifying spaceritems height as self.hybrid_btngrp.height() + 10 ensures that 
         #self.hboxlayout's height is governed by spacerItem3 (which is always visible) 
         
-        spacerItem3 = QtGui.QSpacerItem(20,self.hybrid_btngrp.height() + 10,
+        spacerItem3 = QtGui.QSpacerItem(0,self.hybrid_btngrp.height() + 10,
                                         QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
         
         self.hboxlayout.addItem(spacerItem3)         
