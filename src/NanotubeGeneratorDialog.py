@@ -21,16 +21,16 @@ class NanotubePropMgr(object, PropMgrBaseClass):
     
     # <title> - the title that appears in the property manager header.
     title = "Nanotube"
-    # <name> - the name of this property manager. This will be set to
+    # <propmgr_name> - the name of this property manager. This will be set to
     # the name of the PropMgr (this) object via setObjectName().
-    name = "pm" + title
+    propmgr_name = "pm" + title
     # <iconPath> - full path to PNG file that appears in the header.
     iconPath = "ui/actions/Tools/Build Structures/Nanotube.png"
     
     def __init__(self):
         """Construct the Graphene Property Manager.
         """
-        PropMgrBaseClass.__init__(self, self.name)
+        PropMgrBaseClass.__init__(self, self.propmgr_name)
         self.setPropMgrIcon(self.iconPath)
         self.setPropMgrTitle(self.title)
         self.addGroupBoxes()

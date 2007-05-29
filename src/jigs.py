@@ -35,8 +35,9 @@ from povheader import povpoint #bruce 050413
 from debug import print_compact_stack, print_compact_traceback
 import env #bruce 050901
 
+
 Gno = 0
-def gensym(string):
+def gensym(string): 
     # warning, there is also a function like this in chem.py
     # but with its own global counter!
     """return string appended with a unique number"""
@@ -83,6 +84,7 @@ class Jig(Node):
     
     atoms = None
     cntl = None # see set_cntl method (creation of these deferred until first needed, by bruce 050526)
+    propmgr = None # see set_propmgr method in RotaryMotor class. Mark 2007-05-28.
     
     copyable_attrs = Node.copyable_attrs + ('pickcolor', 'normcolor', 'color')
         # added in some subclasses: 'enable_minimize', 'dampers_enabled'
@@ -926,7 +928,7 @@ class Thermo(Jig_onChunk_by1atom):
 class AtomSet(Jig):
     '''an Atom Set just has a list of atoms that can be easily selected by the user'''
 
-    sym = "Atom Set"
+    sym = "AtomSet" # Was "Atom Set" (removed space). Mark 2007-05-28
     icon_names = ["modeltree/atomset.png", "modeltree/atomset-hide.png"]
     featurename = "Atom Set" #bruce 051203
 
@@ -1025,24 +1027,16 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
             return
             
         # Print warning if over 200 atoms are selected.
+        # The warning should be displayed in a MessageGroupBox. Mark 2007-05-28
         if atom_limit_exceeded_and_confirmed(self.assy.w, len(atoms), limit=200):
             return
         
         from jigs_motors import RotaryMotor
         m = RotaryMotor(self.assy)
-        m.findCenterAndAxis(atoms, glpane) # also puts up dialog
-        if m.cancelled: # user hit Cancel button in Rotary Motory Dialog.
-            #bruce 050415/050701: old code had del(m), perhaps hoping to destroy the jig here,
-            # but in fact that statement would do nothing, so I removed it. But it might be good
-            # to actually destroy the jig object here (for all jigs which can be cancelled, not
-            # only this one), to avoid a memory leak. Presently, jigs don't have a destroy method.
-            env.history.message(cmd + "Cancelled")
-            return
-        self.unpickall_in_GLPane() # [was unpickatoms -- bruce 060721]
+        m.findCenterAndAxis(atoms, glpane) 
+        m.show_propmgr() # put up Rotary Motor Property Manager 
+        #self.unpickall_in_GLPane() # [was unpickatoms -- bruce 060721]
         self.place_new_jig(m)
-        
-        env.history.message(cmd + "Motor created")
-        self.assy.w.win_update()
       
     def makeLinearMotor(self, sightline):
         """Creates a Linear Motor connected to the selected atoms.
@@ -1067,6 +1061,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         from jigs_motors import LinearMotor
         m = LinearMotor(self.assy)
         m.findCenterAndAxis(atoms, glpane)
+        m.edit() # Will be changed to show_propmgr(). Mark 2007-05-28
         if m.cancelled: # user hit Cancel button in Linear Motory Dialog.
             env.history.message(cmd + "Cancelled")
             return

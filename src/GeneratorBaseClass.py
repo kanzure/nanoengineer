@@ -12,7 +12,7 @@ __author__ = "Will"
 import platform
 import env
 from PyQt4.Qt import *
-from chem import gensym
+from jigs import gensym
 from Sponsors import SponsorableMixin
 from HistoryWidget import redmsg, orangemsg, greenmsg, quote_html
 from debug import print_compact_traceback
@@ -321,8 +321,19 @@ class GeneratorBaseClass(SponsorableMixin, PropertyManagerMixin):
                 print 'old structure, parameters same as previous, do nothing'
             return
 
-        self.name = name = gensym(self.prefix)
         # self.name needed for done message
+        if self.create_name_from_prefix:
+            # DNA, Nanotubes and graphene don't have a name yet. Let's create it.
+            name = self.name = gensym(self.prefix)
+            if platform.atom_debug:
+                print "Created name from prefix. Name =", name
+        else:
+            # Jigs like the rotary and linear motors already created their
+            # name, so we need to use it. 
+            name = self.name
+            if platform.atom_debug:
+                print "Used existing (jig) name =", name
+        
         if previewing:
             env.history.message(self.cmd + "Previewing " + name)
         else:

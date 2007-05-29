@@ -40,6 +40,10 @@ class GrapheneGenerator(QDialog, GraphenePropMgr, GeneratorBaseClass):
 
     cmd = greenmsg("Build Graphene: ")
     prefix = 'Graphene-'   # used for gensym
+    # Generators for DNA, nanotubes and graphene have their MT name generated 
+    # (in GeneratorBaseClass) from the prefix.
+    create_name_from_prefix = True 
+    # We now support multiple keywords 
     # We now support multiple keywords in a list or tuple
     # sponsor_keyword = ('Graphenes', 'Carbon')
     sponsor_keyword = 'Graphene'

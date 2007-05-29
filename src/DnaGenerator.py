@@ -296,6 +296,9 @@ class DnaGenerator(QDialog, DnaPropMgr, GeneratorBaseClass):
     cmd = greenmsg("Build DNA: ")
     sponsor_keyword = 'DNA'
     prefix = 'DNA-'   # used for gensym
+    # Generators for DNA, nanotubes and graphene have their MT name generated 
+    # (in GeneratorBaseClass) from the prefix.
+    create_name_from_prefix = True 
     
     # pass window arg to constructor rather than use a global, wware 051103
     def __init__(self, win):

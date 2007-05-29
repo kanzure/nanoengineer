@@ -310,6 +310,9 @@ class NanotubeGenerator(QDialog, NanotubePropMgr, GeneratorBaseClass):
 
     cmd = greenmsg("Build Nanotube: ")
     prefix = 'Nanotube-'   # used for gensym
+    # Generators for DNA, nanotubes and graphene have their MT name generated 
+    # (in GeneratorBaseClass) from the prefix.
+    create_name_from_prefix = True 
     # We now support multiple keywords in a list or tuple
     # sponsor_keyword = ('Nanotubes', 'Carbon')
     sponsor_keyword = 'Nanotubes'

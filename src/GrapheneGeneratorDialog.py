@@ -13,7 +13,6 @@ Mark 2007-05-17: This used to be generated from its .ui file. Now it uses PropMg
 __author__ = "Mark"
 
 import sys
-from PyQt4 import Qt, QtCore, QtGui
 from PyQt4.Qt import *
 from Utility import geticon, getpixmap
 from PropMgrBaseClass import *
@@ -24,16 +23,16 @@ class GraphenePropMgr(object, PropMgrBaseClass):
     
     # <title> - the title that appears in the property manager header.
     title = "Graphene Sheet"
-    # <name> - the name of this property manager. This will be set to
+    # <propmgr_name> - the name of this property manager. This will be set to
     # the name of the PropMgr (this) object via setObjectName().
-    name = "pm" + title
+    propmgr_name = "pm" + title
     # <iconPath> - full path to PNG file that appears in the header.
     iconPath = "ui/actions/Tools/Build Structures/Graphene.png"
     
     def __init__(self):
         """Construct the Graphene Property Manager.
         """
-        PropMgrBaseClass.__init__(self, self.name)
+        PropMgrBaseClass.__init__(self, self.propmgr_name)
         self.setPropMgrIcon(self.iconPath)
         self.setPropMgrTitle(self.title)
         self.addGroupBoxes()
@@ -180,20 +179,32 @@ class GraphenePropMgr(object, PropMgrBaseClass):
         """Load widgets in groubox 1.
         """
         
-        self.strandSeqTextEdit = \
-            PropMgrTextEdit(pmGroupBox, 
-                            label="", 
+        self.lineEdit1 = \
+            PropMgrLineEdit(pmGroupBox, 
+                            label="Name :",
+                            text="RotaryMotor-1",
+                            setAsDefault=True,
+                            spanWidth=False)
+        
+        self.lineEdit2 = \
+            PropMgrLineEdit(pmGroupBox, 
+                            label="Span Width LineEdit :",
+                            text="RotaryMotor-1",
+                            setAsDefault=False,
                             spanWidth=True)
         
-        self.complementPushButton = \
-            PropMgrPushButton(pmGroupBox,
-                              label="",
-                              text="Complement")
-        
-        self.reversePushButton = \
-            PropMgrPushButton(pmGroupBox,
-                              label="",
-                              text="Reverse")
+        self.checkBox1 = \
+            PropMgrCheckBox(pmGroupBox,
+                              label="CheckBox :",
+                              isChecked=True,
+                              setAsDefault=True,
+                              spanWidth=False)
+        self.checkBox2 = \
+            PropMgrCheckBox(pmGroupBox,
+                              label="SpanWidth CheckBox :",
+                              isChecked=False,
+                              setAsDefault=False,
+                              spanWidth=True)
         
     def add_whats_this_text(self):
         """What's This text for some of the widgets in the Property Manager.

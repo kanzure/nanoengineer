@@ -52,7 +52,6 @@ class Motor(Jig):
     def findCenterAndAxis(self, shaft, glpane): #bruce 060120 renamed this from findCenter, replaced los arg with glpane re bug 1344
         self.setAtoms(shaft) #bruce 041105 code cleanup
         self.recompute_center_axis(glpane)
-        self.edit()        
         return
 
     def recompute_center_axis(self, glpane): #bruce 060120 replaced los arg with glpane re bug 1344
@@ -199,7 +198,7 @@ class RotaryMotor(Motor):
        a set of atoms connected to it
        To Be Done -- selecting & manipulation'''
     
-    sym = "Rotary Motor"
+    sym = "RotaryMotor" # Was "Rotary Motor" (removed space). Mark 2007-05-28
     icon_names = ["modeltree/rmotor.png", "modeltree/rmotor-hide.png"]
     featurename = "Rotary Motor" #bruce 051203
 
@@ -229,15 +228,33 @@ class RotaryMotor(Motor):
         self.color = gray # This is the "draw" color.  When selected, this will become highlighted red.
         self.normcolor = gray # This is the normal (unselected) color.
         self.length = 10.0 # default length of Rotary Motor cylinder
-        self.radius = 2.0 # default cylinder radius
-        self.sradius = 0.5 #default spoke radius
+        self.radius = 1.0 # default cylinder radius
+        self.sradius = 0.2 #default spoke radius
         # Should self.cancelled be in RotaryMotorProp.setup? - Mark 050109
         self.cancelled = True # We will assume the user will cancel
 
-    def set_cntl(self): #bruce 050526 split this out of __init__ (in all Jig subclasses)
-        from RotaryMotorProp import RotaryMotorProp
-        self.cntl = RotaryMotorProp(self, self.assy.o)
+    def set_propmgr(self): #bruce 050526 split this out of __init__ (in all Jig subclasses)
+        from RotaryMotorGenerator import RotaryMotorGenerator
+        self.propmgr = RotaryMotorGenerator(self.assy.w, self, self.assy.o)
+        # Changed "cntl" to "propmgr". Mark 2007-05-28.
 
+    def edit(self): # Overrides Jig's edit(). Mark 2007-05-27.
+        if self.propmgr is None:
+            #bruce 050526: had to defer this until first needed, so I can let some jigs temporarily be in a state
+            # where it doesn't work, during copy. (The Stat & Thermo controls need the jig to have an atom during their init.)
+            self.set_propmgr()
+            assert self.propmgr is not None
+        if self is self.assy.o.selobj:
+            self.assy.o.selobj = None ###e shouldn't we use set_selobj instead?? [bruce 060726 question]
+            # If the Properties dialog was selected from the GLPane's context menu, set selobj = None
+            # so that we can see the jig's real color, not the highlighted color.  This is very important
+            # when changing the jig's color from the properties dialog since it will remain highlighted
+            # if we don't do this. mark 060312.
+        self.propmgr.show()
+        
+    def show_propmgr(self): # Mark 2007-05-28
+        self.edit()
+        
     # set the properties for a Rotary Motor read from a (MMP) file
     def setProps(self, name, color, torque, speed, center, axis, length, radius, sradius):
         self.name = name
@@ -487,7 +504,7 @@ class LinearMotor(Motor):
        a set of atoms connected to it
        To Be Done -- selecting & manipulation'''
 
-    sym = "Linear Motor"
+    sym = "LinearMotor" # Was "Linear Motor" (removed space). Mark 2007-05-28
     icon_names = ["modeltree/lmotor.png", "modeltree/lmotor-hide.png"]
     featurename = "Linear Motor" #bruce 051203
 
