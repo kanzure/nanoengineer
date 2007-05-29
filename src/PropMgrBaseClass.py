@@ -41,12 +41,9 @@ __author__ = "Mark"
 from PyQt4.Qt import *
 from Utility import geticon
 from Sponsors import SponsorableMixin
-from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False, Choice
 from Utility import geticon, getpixmap
 from PropMgr_Constants import *
-from widgets import double_fixup
-import os, sys
-
+import os, sys, platform
 
 # Special Qt debugging functions written by Mark. 2007-05-24 ############
 
@@ -74,6 +71,25 @@ def printSizeHints(widget):
     print "SizeHint Width, Height =", sizeHint.width(), sizeHint.height()
 
 # PropMgr helper functions ##########################################
+
+def fitPropMgrToContents(widget):
+    """Sets the width and height of the PropMgr <widget> based on
+    its current contents. It should be called after all the widgets
+    have been added to <widget>.
+    
+    Note: See PropMgrBaseClass.fitContents(). Mark 2007-05-29.
+    """
+    margin = 4 # This may be OS dependent. Mark 2007-05-29
+    # pmDefaultWidth is the width of our container. Subtract 4 pixels
+    # from left and right side so that this propmgr widget fits exactly
+    # inside. Otherwise, we'll get a horizontal scrollbar at the bottom
+    # of the Property Manager. Mark 2007-05-29
+    pmWidth = pmDefaultWidth - (margin * 2) 
+    pmHeight = widget.sizeHint().height()
+    if platform.atom_debug:
+        print "Resizing PropMgr " + widget.objectName() + \
+          " to fit contents. Width, height = ", pmWidth, pmHeight
+    widget.resize(pmWidth, pmHeight)
 
 def getPalette(palette, obj, color):
     """ Given a palette, Qt object and a color, return a new palette.
