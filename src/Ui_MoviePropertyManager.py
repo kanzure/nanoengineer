@@ -119,9 +119,14 @@ class Ui_MoviePropertyManager(object):
                 
         #ninad 0700202 its  important to add this spacerItem in the main vboxlayout to prevent the size adjustments in 
         #the property manager when the group items are hidden 
-        spacerItem4 = QtGui.QSpacerItem(20,5,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
+        spacerItem4 = QtGui.QSpacerItem(20,1,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
         self.vboxlayout.addItem(spacerItem4)
         
+        # This should be called last since it only works if all the widgets
+	# for this Property Manager are added first. Mark 2007-05-29
+        from PropMgrBaseClass import fitPropMgrToContents
+	fitPropMgrToContents(MoviePropertyManager)
+	
     def ui_doneCancelButtonRow(self, MoviePropertyManager):
         #Start Done , Abort, button row        
         hboxlayout_buttonrow = QtGui.QHBoxLayout()

@@ -40,6 +40,8 @@ class Ui_MMKitDialog(object):
         sizePolicy.setHeightForWidth(MMKitDialog.sizePolicy().hasHeightForWidth())
         MMKitDialog.setSizePolicy(sizePolicy)
         #MMKitDialog.setMinimumSize(QtCore.QSize(190,750))
+	
+	
 
         palette = QtGui.QPalette()
         palette.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(0),QtGui.QColor(0,0,0))
@@ -183,13 +185,18 @@ class Ui_MMKitDialog(object):
         
         #ninad 070120 Following spacerItem is important to add in the main vboxlayout to prevent the size adjustments in 
         #the property manager when the group items are hidden 
-        spacerItem4 = QtGui.QSpacerItem(20,5,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
+        spacerItem4 = QtGui.QSpacerItem(20,1,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
         self.vboxlayout.addItem(spacerItem4)
 
         
         self.retranslateUi(MMKitDialog)
         
         QtCore.QMetaObject.connectSlotsByName(MMKitDialog)
+
+	# This should be called last since it only works if all the widgets
+	# for this Property Manager are added first. Mark 2007-05-29
+        from PropMgrBaseClass import fitPropMgrToContents
+	fitPropMgrToContents(MMKitDialog)
     
     def ui_doneCancelButtonRow(self, MMKitDialog):
         #Start Done , Abort, button row

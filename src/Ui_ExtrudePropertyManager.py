@@ -115,11 +115,16 @@ class Ui_ExtrudePropertyManager(object):
         
         #ninad 070120 Following spacerItem is important to add in the main vboxlayout to prevent the size adjustments in 
         #the property manager when the group items are hidden 
-        spacerItem4 = QtGui.QSpacerItem(20,5,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
+        spacerItem4 = QtGui.QSpacerItem(20,1,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
         self.vboxlayout.addItem(spacerItem4)
         
         self.retranslateUi(ExtrudePropertyManager)
         QtCore.QMetaObject.connectSlotsByName(ExtrudePropertyManager)
+        
+        # This should be called last since it only works if all the widgets
+	# for this Property Manager are added first. Mark 2007-05-29
+        from PropMgrBaseClass import fitPropMgrToContents
+	fitPropMgrToContents(ExtrudePropertyManager)
         
     def ui_doneCancelButtonRow(self, ExtrudePropertyManager):
         
