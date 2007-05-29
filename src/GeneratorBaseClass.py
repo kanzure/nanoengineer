@@ -332,9 +332,9 @@ class GeneratorBaseClass(SponsorableMixin, PropertyManagerMixin):
         if platform.atom_debug: print 'build a new structure'
         self.struct = self.build_struct(name, params, -self.win.glpane.pov)
         self.win.assy.addnode(self.struct)
-	# Do this if you want it centered on the previous center.
+        # Do this if you want it centered on the previous center.
         # self.win.glpane.setViewFitToWindow(fast=True)
-	# Do this if you want it centered on the origin.
+        # Do this if you want it centered on the origin.
         self.win.glpane.setViewRecenter(fast=True)
         self.win.win_update() # includes mt_update
 
@@ -361,7 +361,6 @@ class GeneratorBaseClass(SponsorableMixin, PropertyManagerMixin):
         self.win.assy.current_command_info(cmdname = self.cmdname + " (Cancel)") #bruce 060616
         self.remove_struct()
         self._revert_number()
-        ## QDialog.accept(self)
         self.reject() #bruce 060621
         
         #Close Property manager 
