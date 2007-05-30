@@ -8,7 +8,7 @@ $Id$
 
 from PyQt4.Qt import *
 from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False, Choice
-import os
+import os, sys
 
 __author__ = "Mark"
 
@@ -23,7 +23,10 @@ pmHideAllButtons = pmHideDoneButton | pmHideCancelButton | pmHideRestoreDefaults
           pmHidePreviewButton | pmHideWhatsThisButton
 
 # PropMgr Layout constants.
-pmDefaultWidth = 250
+if sys.platform == "darwin":
+    pmDefaultWidth = 300
+else:
+    pmDefaultWidth = 250
 pmMaxWidth = pmDefaultWidth
 pmMinWidth = pmDefaultWidth
 pmGrpBoxLeftColumn = 0
