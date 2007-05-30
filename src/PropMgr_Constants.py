@@ -12,33 +12,42 @@ import os, sys
 
 __author__ = "Mark"
 
-# Hide button flags for top row buttons.
-pmShowAllButtons = 0
-pmHideDoneButton = 1
-pmHideCancelButton = 2
-pmHideRestoreDefaultsButton = 4
-pmHidePreviewButton = 8
-pmHideWhatsThisButton = 16
-pmHideAllButtons = pmHideDoneButton | pmHideCancelButton | pmHideRestoreDefaultsButton | \
-          pmHidePreviewButton | pmHideWhatsThisButton
-
-# PropMgr Layout constants.
+# PropMgr constants (system specific).
 if sys.platform == "darwin":
-    pmDefaultWidth = 300
-else:
-    pmDefaultWidth = 250
-pmMaxWidth = pmDefaultWidth
-pmMinWidth = pmDefaultWidth
+    pmMinWidth = 300 # The min PropMgr width.
+    pmMaxWidth = pmMinWidth # The max PropMgr width.
+    pmDefaultWidth = pmMinWidth # Starting PropMgr width
+    pmHeaderFontPointSize = 20
+elif sys.platform == "win32":
+    pmMinWidth = 230 # The min PropMgr width.
+    pmMaxWidth = pmMinWidth # The max PropMgr width.
+    pmDefaultWidth = pmMinWidth # Starting PropMgr width
+    pmHeaderFontPointSize = 12
+else: #Linux
+    pmMinWidth = 250 # The min PropMgr width.
+    pmMaxWidth = pmMinWidth # The max PropMgr width.
+    pmDefaultWidth = pmMinWidth # Starting PropMgr width
+    pmHeaderFontPointSize = 12
+
+if 0:
+    print "PropMgr width=", pmDefaultWidth
+    print "PropMgr Min width=", pmMinWidth
+    print "PropMgr Max width=", pmMaxWidth
+
+# PropMgr constants.
 pmGrpBoxLeftColumn = 0
-pmGroupBoxSpacing = 5 # 5 pixels between groupboxes.
+pmGroupBoxSpacing = 5 # 5 pixels between groupboxes
 pmMainVboxLayoutMargin = 0 # PropMgr's master VboxLayout margin
 pmMainVboxLayoutSpacing = 0 # PropMgr's master VboxLayout spacing
+
+# Header constants.
+pmHeaderFont = "Sans Serif" # Font type used in PropMgr header.
 pmHeaderFrameMargin = 2 # margin around icon and title.
 pmHeaderFrameSpacing = 5 # space between icon and title.
+
+# Sponsor button constants.
 pmSponsorFrameMargin = 0 # margin around sponsor button.
 pmSponsorFrameSpacing = 0 # has no effect.
-pmTopRowBtnsMargin = 5 # margin around buttons.
-pmTopRowBtnsSpacing = 5 # space between buttons.
 
 # GroupBox Layout constants.
 pmMsgGrpBoxMargin = 0 # margin around yellow text window.
@@ -47,6 +56,20 @@ pmGrpBoxVboxLayoutMargin = 0 # Groupbox VboxLayout margin
 pmGrpBoxVboxLayoutSpacing = 2 # Groupbox VboxLayout spacing
 pmGrpBoxGridLayoutMargin = 2 # Grid contains all widgets in a grpbox
 pmGrpBoxGridLayoutSpacing = 4 # Grid contains all widgets in a grpbox
+
+# TopRowButton constants
+pmTopRowBtnsMargin = 5 # margin around buttons.
+pmTopRowBtnsSpacing = 5 # space between buttons.
+
+# TopRowButton hide button flags for top row buttons.
+pmShowAllButtons = 0
+pmHideDoneButton = 1
+pmHideCancelButton = 2
+pmHideRestoreDefaultsButton = 4
+pmHidePreviewButton = 8
+pmHideWhatsThisButton = 16
+pmHideAllButtons = pmHideDoneButton | pmHideCancelButton | pmHideRestoreDefaultsButton | \
+          pmHidePreviewButton | pmHideWhatsThisButton
 
 # These need to be deleted by me. Mark 2007-05-20
 pmGridLayoutMargin = 2 # Grid contains all widgets in a grpbox (obsolete)
@@ -68,6 +91,8 @@ def getPropMgrImagePath(imageName):
     """Returns the relative path to the icon/image file <imageName>.
     """
     return os.path.join (pmImagePath + imageName)
+
+# PropMgr color theme functions and constants. #########################
 
 COLOR_THEME = "Gray"
 
