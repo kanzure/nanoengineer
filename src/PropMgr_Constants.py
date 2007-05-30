@@ -23,9 +23,9 @@ pmHideAllButtons = pmHideDoneButton | pmHideCancelButton | pmHideRestoreDefaults
           pmHidePreviewButton | pmHideWhatsThisButton
 
 # PropMgr Layout constants.
-pmDefaultWidth = 230
-pmMaxWidth = 230
-pmMinWidth = 230
+pmDefaultWidth = 250
+pmMaxWidth = pmDefaultWidth
+pmMinWidth = pmDefaultWidth
 pmGrpBoxLeftColumn = 0
 pmGroupBoxSpacing = 5 # 5 pixels between groupboxes.
 pmMainVboxLayoutMargin = 0 # PropMgr's master VboxLayout margin
