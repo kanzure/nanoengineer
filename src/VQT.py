@@ -537,11 +537,11 @@ def ptonline(xpt, lpt, ldr):
     return dot(xpt-lpt,ldr)*ldr + lpt
 
 def planeXline(ppt, pv, lpt, lv):
-    """find the intersection of a line (point lpt, vector lv)
-    with a plane (point ppt, normal pv)
-    return None if (almost) parallel
-    (warning to callers: retvals other than None might still be false,
-     e.g. V(0,0,0) -- untested, but likely; so don't use retval as boolean)
+    """Find the intersection of a line (point lpt on line, unit vector lv along line)
+    with a plane (point ppt on plane, unit vector pv perpendicular to plane).
+    Return the intersection point, or None if the line and plane are (almost) parallel.
+       WARNING: don't use a boolean test on the return value, since V(0,0,0) is a real point
+    but has boolean value False. Use "point is not None" instead.
     """
     d=dot(lv,pv)
     if abs(d)<0.000001: return None

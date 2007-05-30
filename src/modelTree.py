@@ -302,7 +302,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
                 print_compact_traceback("error importing prefsTree or making one: ")
         return topnodes
 
-    def get_current_part_topnode(self): #bruce 070509 added this to the API ###doc
+    def get_current_part_topnode(self): #bruce 070509 added this to the API
         return self.win.assy.part.topnode
     
     def node_to_item(self, node):
