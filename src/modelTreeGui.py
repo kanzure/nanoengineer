@@ -1322,6 +1322,9 @@ class ModelTreeGui_common(ModelTreeGui_api): #bruce 070529 split this out of cla
         self.mouse_press_qpoint = QPoint(qp.x(), qp.y()) # used in mouseMoveEvent to see if drag length is long enough
         
         item, rect = self.item_and_rect_at_event_pos(event)
+            # note about coordinates:
+            # in QTreeView implem, I am not sure which coords event and this rect are in, contents or viewport.
+            # in QScrollArea implem, they should be in viewport (once item_and_rect_at_event_pos is bugfixed).
 
         eventInRect = False # might be changed below; says whether event hits rect including icon(??) and name/label
         if item is not None:
@@ -1336,7 +1339,7 @@ class ModelTreeGui_common(ModelTreeGui_api): #bruce 070529 split this out of cla
             if DEBUG2:
                 print "visualRect coords, modified:",rect.left(), rect.right(), rect.top(), rect.bottom()
                 # looks like icon and text, a bit taller than text (guesses)
-            eventInRect = rect.contains(event.pos()) ###REVIEW: will this be correct even if we are scrolled? 
+            eventInRect = rect.contains(event.pos())
             if DEBUG2:
                 print "real item: eventInRect = %r, item = %r, alreadySelected = %r" % \
                       (eventInRect, item, alreadySelected)
@@ -1461,7 +1464,11 @@ class ModelTreeGui_common(ModelTreeGui_api): #bruce 070529 split this out of cla
             updateGui = True
         
         if contextMenu:
-            # note: some of the above selection actions may have also been done.
+            # Note: some of the above selection actions may have also been done.
+            # In the QScrollArea implem, we need to redraw the MT to show them;
+            # in the QTreeView implem, we apparently didn't need to, but it shouldn't hurt.
+            if updateGui:
+                self.mt_update()
             self._renamed_contextMenuEvent(event)
             # Why no updateGui = True here? Because the cmenu commands are supposed to do their own updates as needed.
             # But it probably has little effect now to not do it, because we probably do it anyway
@@ -1488,7 +1495,7 @@ class ModelTreeGui_common(ModelTreeGui_api): #bruce 070529 split this out of cla
             print "begin/end mouseReleaseEvent (almost-noop method)"
         self._ongoing_DND_info = None
 
-    def contentsMousePressEvent(self, event): #bruce 070508 debug code; doesn't seem to be called
+    def contentsMousePressEvent(self, event): #bruce 070508 debug code; doesn't seem to be called (in QTreeView implem anyway)
         if DEBUG3:
             print "calling QTreeView.contentsMousePressEvent"
         res = QTreeView.contentsMousePressEvent(self, event)
@@ -1568,6 +1575,46 @@ class ModelTreeGui_common(ModelTreeGui_api): #bruce 070529 split this out of cla
     # or NE1 will have a Mac-specific delete key bug whenever the MT has the focus. This does not happen now
     # since MWsemantics handles our key presses, and it passes them to GLPane, which has the bugfix for that.
     # See also the comments in filter_key(). [bruce 070517 comment]
+
+    # ==
+    
+    def get_scrollpos(self, msg = ""):
+        "Return the current scrollposition (as x,y, in scrollbar units), and if DEBUG3 also print it using msg."
+        ## res = ( self.horizontalOffset(), self.verticalOffset() )
+            # This is in pixels, and it apparently works, but it's not useful
+            # because setting it (using QWidget.scroll) doesn't work properly and has bad side effects.
+            # So, get it in "scrollbar units" instead, and set it by talking directly to the scrollbars.
+        hsb = self.horizontalScrollBar()
+        x = hsb and hsb.value() or 0
+        vsb = self.verticalScrollBar()
+        y = vsb and vsb.value() or 0
+        res = x,y
+        if DEBUG3:
+            if msg:
+                msg = " (%s)" % (msg,)
+            print "get_scrollpos%s returns %r" % (msg, res,)
+        return res
+
+    def set_scrollpos(self, pos): # used only in QTreeView implem, but should be correct in QScrollArea implem too
+        "Set the scrollposition (as x,y, in scrollbar units), and if DEBUG3 print various warnings if anything looks funny."
+        x, y = pos # this is in scrollbar units, not necessarily pixels
+        hsb = self.horizontalScrollBar()
+        if hsb:
+            hsb.setValue(x) # even if x is 0, since we don't know if the current value is 0
+        else:
+            if x and DEBUG3:
+                print "warning: can't set scrollpos x = %r since no horizontalScrollBar" % (x,)
+        vsb = self.verticalScrollBar()
+        if vsb:
+            vsb.setValue(y)
+        else:
+            if y and DEBUG3:
+                print "warning: can't set scrollpos y = %r since no verticalScrollBar" % (y,)
+        pos1 = self.get_scrollpos("verifying set_scrollpos")
+        if pos != pos1:
+            if DEBUG3:
+                print "warning: tried to set scrollpos to %r, but it's now %r" % (pos,pos1)
+        return
 
     pass
 
@@ -2080,45 +2127,7 @@ class ModelTreeGui(QTreeView, ModelTreeGui_common):
         
         return # from _remake_contents_0
 
-    def get_scrollpos(self, msg = ""):
-        "Return the current scrollposition (as x,y, in scrollbar units), and if DEBUG3 also print it using msg."
-        ## res = ( self.horizontalOffset(), self.verticalOffset() )
-            # This is in pixels, and it apparently works, but it's not useful
-            # because setting it (using QWidget.scroll) doesn't work properly and has bad side effects.
-            # So, get it in "scrollbar units" instead, and set it by talking directly to the scrollbars.
-        hsb = self.horizontalScrollBar()
-        x = hsb and hsb.value() or 0
-        vsb = self.verticalScrollBar()
-        y = vsb and vsb.value() or 0
-        res = x,y
-        if DEBUG3:
-            if msg:
-                msg = " (%s)" % (msg,)
-            print "get_scrollpos%s returns %r" % (msg, res,)
-        return res
-
-    def set_scrollpos(self, pos):
-        "Set the scrollposition (as x,y, in scrollbar units), and if DEBUG3 print various warnings if anything looks funny."
-        x, y = pos # this is in scrollbar units, not necessarily pixels
-        hsb = self.horizontalScrollBar()
-        if hsb:
-            hsb.setValue(x) # even if x is 0, since we don't know if the current value is 0
-        else:
-            if x and DEBUG3:
-                print "warning: can't set scrollpos x = %r since no horizontalScrollBar" % (x,)
-        vsb = self.verticalScrollBar()
-        if vsb:
-            vsb.setValue(y)
-        else:
-            if y and DEBUG3:
-                print "warning: can't set scrollpos y = %r since no verticalScrollBar" % (y,)
-        pos1 = self.get_scrollpos("verifying set_scrollpos")
-        if pos != pos1:
-            if DEBUG3:
-                print "warning: tried to set scrollpos to %r, but it's now %r" % (pos,pos1)
-        return
-
-    def set_scrollbar_valueChanged_enabled( self, enabled): #bruce 070524 experiment
+    def set_scrollbar_valueChanged_enabled( self, enabled): #bruce 070524 experiment; has bad side effects (drawing in wrong coords)
         """Enable or disable the sending of the valueChanged signal (or, of all signals)
         from whichever scrollbars we have (horizontal and/or vertical)
         """
@@ -2176,31 +2185,49 @@ class MT_View(QtGui.QWidget):
         QtGui.QWidget.__init__(self, parent)
         self.palette_widget = palette_widget #e rename?
         self.modeltreegui = modeltreegui
-        self.ne1model = self.modeltreegui.ne1model ###KLUGE? not sure. consider passing this directly?
+        self.ne1model = self.modeltreegui.ne1model ###KLUGE? not sure. consider passing this directly?        
+        self.get_icons()
+        return
+
+    def get_icons(self):
+        from Utility import geticon, getpixmap
+        # STUB - use the ones for groupboxes. Later, copy to new files, then replace with better ones.
+        if 0:
+            self.mac_expanded = geticon("ui/modeltree/mac_expanded_icon.png")
+            self.mac_collapsed = geticon("ui/modeltree/mac_collapsed_icon.png")
+            print "icons: self.mac_collapsed = ",self.mac_collapsed,self.mac_expanded ##
+            # these don't work in drawPixmap (invalid type) and painter doesn't have drawIcon
+        else:
+            self.mac_expanded = getpixmap("ui/modeltree/mac_expanded_icon.png") # 16 x 8 (.width() x .height()), centering looks best
+            self.mac_collapsed = getpixmap("ui/modeltree/mac_collapsed_icon.png") # 16 x 15, centering looks best
+##            print "pixmaps: self.mac_collapsed = ",self.mac_collapsed,self.mac_expanded ##
+##            print "sizes:", self.mac_expanded.width(), self.mac_expanded.height(), # sizes 16 8 
+##            print " and:", self.mac_collapsed.width(), self.mac_collapsed.height(), # and 16 15
+
+##        self.win_expand = geticon("")
+##        self.win_collapsed = geticon("")
         
-##        if 'kluge':
-##            self.image = QtGui.QImage("/Users/bruce/PythonModules/data/crate.bmp")
-##            print "self.image is ",self.image
-
-
-##    def paintEvent(self, e): # svgviewer.py
-##        p = QtGui.QPainter(self)
-##        p.setViewport(0, 0, self.width(), self.height())
-##        self.doc.render(p)
-
+        # Note: we can also try QtGui.QImage and painter.drawImage -- works for crate.bmp and other test images
+        ## painter.drawImage(QtCore.QPoint(0, 0), self.image)
+        return
+    
     def sizeHint(self): # cmts from when in other class
         return QtCore.QSize(500,700  ) ###k should depend on number of exposed items. Bug: treated as strict minimum.
             # will this help? setSizePolicy(QtGui.QSizePolicy.Ignored, QtGui.QSizePolicy.Ignored -- yes
             # but where are the scrollbars?
     
     def paintEvent(self, event):
+        # Note: if this paintEvent was in QAbstractScrollArea, Qt doc for that warns:
+        #   Note: If you open a painter, make sure to open it on the viewport().
+        # But, it's not in that (or its subclass QScrollArea), it's in the widget we're setting in that.
+        # Note: we're painting using contents coords, not viewport coords (and this is working, as expected).
+        # Question: would this change cliprect?
+        ## painter.setViewport(0, 0, self.width(), self.height())
         if self.modeltreegui.MT_debug_prints():
             print 'paint' ## "MT_View paintEvent" # works once we have update (didn't even need sizeHint to be called)
         painter = QtGui.QPainter()
         painter.begin(self)
         try:
-##            painter.drawImage(QtCore.QPoint(0, 0), self.image)
-##            node = env.mainwindow().assy.tree #### generalize to list, get them from self.modeltreegui
             topnodes = self.ne1model.get_topnodes() ###??
             x, y = 20, 0
             for node in topnodes:
@@ -2211,10 +2238,24 @@ class MT_View(QtGui.QWidget):
         return
     
     def paint_subtree(self, node, painter, x, y):
-        "... return the next value of y"
+        """Paint node and its visible subtree (at x,y in painter);
+        return the y value to use for the next lower node.
+        """
         _paintnode(node, painter, x, y, self.palette_widget)
+        # decoration -- STUB -- Mac style for now
+        openable = node.openable()
+        open = node.open and openable
+        if openable:
+            if open:
+                pixmap = self.mac_expanded
+            else:
+                pixmap = self.mac_collapsed
+            w = pixmap.width()
+            h = pixmap.height()
+            painter.drawPixmap(x - 10 - w/2, y + ITEM_HEIGHT/2 - h/2, pixmap) # adjust posn for pixmap size, to center it
+            pass
         y += ITEM_HEIGHT
-        if node.open:###k
+        if open:
             x += 20
             for child in node.members:
                 y = self.paint_subtree(child, painter, x, y)
@@ -2288,13 +2329,33 @@ class new_ModelTreeGui(QScrollArea, ModelTreeGui_common):#bruce 070529 rewrite
         self.view = MT_View( self, self, self) # args are: parent, palette_widget, modeltreegui
         self.setWidget(self.view)
 
+        #e not sure if mt_update would be safe at this point (were cooperating objects fully initialized?)
+
+##        self._debug_scrollbars("init") # they have arbitrary-looking values at this point, later corrected, evidently
+
+        return
+    
+    def _scrollbars(self):
+        hsb = self.horizontalScrollBar()
+        vsb = self.verticalScrollBar()
+        return hsb, vsb
+    
+    def _debug_scrollbars(self, when): # not normally called except when debugging
+        print "debug_scrollbars (%s)" % when
+        hsb, vsb = self._scrollbars() # they are always there, even when not shown, it seems
+##        if hsb:
+##            print "hsb pageStep = %r, singleStep = %r, minimum = %r, maximum = %r" % \
+##                  (hsb.pageStep(), hsb.singleStep(), hsb.minimum(), hsb.maximum())
+        if vsb:
+            print "vsb pageStep = %r, singleStep = %r, minimum = %r, maximum = %r" % \
+                  (vsb.pageStep(), vsb.singleStep(), vsb.minimum(), vsb.maximum())
         return
 
     def nodeItem(self, node):
         return FakeItem(node)
     
     def mt_update(self):
-        #e updateGeometry?
+        "part of the public API"
 
         if self.MT_debug_prints():
             print 'mt_update',time.asctime()
@@ -2309,12 +2370,31 @@ class new_ModelTreeGui(QScrollArea, ModelTreeGui_common):#bruce 070529 rewrite
         if self.MT_debug_prints():
             print "mt_update: total height", height
 
+##        self._debug_scrollbars("mt_update pre-resize")
+
         self.view.resize(500,height)#########k
+        #e updateGeometry? guess: this does that itself. I don't know for sure, but the scrollbars do seem to adjust properly.
+
+##        self._debug_scrollbars("mt_update post-resize")
+
+        hsb, vsb = self._scrollbars()
+        if vsb:
+            vsb.setSingleStep( ITEM_HEIGHT )
+            vsb.setPageStep( vsb.pageStep() / ITEM_HEIGHT * ITEM_HEIGHT )
+                #k Note: It might be enough to do setSingleStep once during init, since the value seems to stick --
+                # but the page step is being quantized, so that has to be redone every time.
+                # NFR: I don't know how to set a "motion quantum" which affects user-set positions too.
+        
+##        self._debug_scrollbars("mt_update post-correct")
         
         self.view.update() # this works
-        self.update() # this stopped working for the contents, but do it anyway to be sure we get the scrollbars (will it be enough?)
+        self.update() # this alone doesn't update the contents, but do it anyway to be sure we get the scrollbars (will it be enough?)
 
+##        self._debug_scrollbars("mt_update post-update")
+        return
+    
     def update_item_tree(self, unpickEverybody = False):
+        "part of the public API"
         self.mt_update()
 
     def paint_item(self, painter, item):
@@ -2332,50 +2412,67 @@ class new_ModelTreeGui(QScrollArea, ModelTreeGui_common):#bruce 070529 rewrite
         ### what coords?
         """
         pos = event.pos()
-            ###REVIEW: will this be correct even if we are scrolled? Old code sometimes did contentsToViewport on this pos...
-            # in fact this will probably be wrong, need correction for scroll offset... we'll see
-        print "pos x = %r, y = %r" % (pos.x(), pos.y())###
-        node, depth, y0 = self.view.look_for_y(pos.y())
+        x, y = pos.x(), pos.y()
+##        print "viewport pos x = %r, y = %r" % (x,y)
+        
+        dx, dy = self.get_scrollpos("item_and_rect_at_event_pos") # in pixels (will that remain true if we scroll by items?)
+
+        cx = x + dx
+        cy = y + dy
+
+        # do item hit test in contents (inner) coords cx, cy, but return item's rect in viewport (outer) coords x, y.
+        # Note: in variable names for x or y coords, we use 'c' to mean "contents coords" (otherwise viewport),
+        # and suffix '0' to mean "coordinate of item reference point (top left of type icon)" (otherwise of mouse event).
+
+        node, depth, cy0 = self.view.look_for_y( cy)
         if node:
             item = self.nodeItem(node)
             if 1:
-                x = depth * 20 + 20 # ok for icon, is that what we want?
-                y = y0
-                w = 100 #### STUB
+                cx0 = depth * 20 + 20 # this is correct if the rect is supposed to be including the type icon -- is it??
+                x0 = cx0 - dx
+                y0 = cy0 - dy
+                w = 500 #### STUB, but good enough for now -- maybe better than being correct re clicks to right of text?? not sure.
+                    # To make it correct, could use the code that makes a temporary QLineEdit, if slow is ok (I think it is)...
+                    # Wait, that code is being used on exactly this value in our caller, so what we set here doesn't matter!
                 h = ITEM_HEIGHT
-                rect = QRect( x, y, w, h)
+                rect = QRect( x0, y0, w, h) # viewport coords
             return item, rect
         else:
             return None, None
         pass
-    
+
+    def set_scrollpos(self, pos): 
+        assert 0, "don't use set_scrollpos in QScrollBar implem without thinking twice!"
+
     pass # end of class new_ModelTreeGui
 
-if 0:  # @@@
-    # or if you don't mind mouse events not being scrolled, openclose decorations not being drawn, and some debug prints
+if debug_pref("MT: new code (next session)?", Choice_boolean_False, non_debug = True, prefs_key = True):
+    # if you don't mind openclose decorations being drawn in Mac style only, no node renaming, and maybe some debug prints
     ModelTreeGui = new_ModelTreeGui
 
-#bugs:
-# - [fixed?]
-#   fails to properly update on loading a new file or selecting a chunk via glpane,
-#   but clicking on a scrollbar fixes that.
-#   - Is mt_update being called? ###
-#   - Is paintEvent being called? (I doubt it)
-# - mouse events totally nim:
-#   openclose, selection, cmenus, editing text, DND [some methods from old code might work in a common superclass]
-# - get_topnodes needed
-# - decorations needed (os-specific debug_pref default)
-# - bg color is wrong
-# - too slow
-#   - set painter state less often? (esp for text)
-#   - profile it?
-#   - see if text or icons are taking the time
-#   - is icon caching helping?
-#   - make an image to keep it in, so it scrolls faster?
-
-# later bugs (some of above are fixed now):
-# - event pos is not scrolled
-# - cmenu fails to do click select behavior in visible way, tho it probably does it internally
+# bugs [070530 2:25pm PT]:
+#
+# - mouse events:
+#   event.pos() wrong when scrolled [fixed]
+#   openclose - done but not drawn ### [fixed, mac style only, imperfect pixmaps, wrong filenames]
+#   selection - some works, rest not tested
+#   cmenus - some work, except bug in selection update when menu is shown, i.e.
+#    it fails to do click select behavior in visible way, when putting up menu, tho it probably does it internally
+#    [fixed, tho update is too slow -- incremental redrawing of changed items (when only selection changes) would be better]
+#   DND - seems to work; not fully tested
+#   renaming - NIM ###
+#
+# - drawing:
+#   - decorations needed (os-specific debug_pref default)
+#   - bg color is wrong
+#   - it's missing the header that says "model tree" -- does it need this?
+#   - too slow
+#     - set painter state less often? (esp for text)
+#     - profile it?
+#     - see if text or icons are taking the time
+#     - is icon caching helping?
+#     - make an image to keep it in, so it scrolls faster?
+#     Maybe enough to just draw only in inval rect.
 
 
 ################ End of implementation #############################
