@@ -19,14 +19,6 @@ class Ui_MovePropertyManager(object):
         self.w = MovePropertyManager.w
         
         MovePropertyManager.setObjectName("MovePropertyManager")
-        MovePropertyManager.resize(QtCore.QSize(QtCore.QRect(0,0,200,320).size()).expandedTo(
-            MovePropertyManager.minimumSizeHint()))    
-        
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(3),QtGui.QSizePolicy.Policy(3))
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(MovePropertyManager.sizePolicy().hasHeightForWidth())
-        MovePropertyManager.setSizePolicy(sizePolicy)
         
         palette = MovePropertyManager.getPropertyManagerPalette()
         MovePropertyManager.setPalette(palette)
@@ -116,9 +108,12 @@ class Ui_MovePropertyManager(object):
                 
         #ninad 0700202 its  important to add this spacerItem in the main vboxlayout to prevent the size adjustments in 
         #the property manager when the group items are hidden 
-        spacerItem4 = QtGui.QSpacerItem(20,1,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
-        self.vboxlayout.addItem(spacerItem4)
-        
+        bottom_spacer = QSpacerItem(10, 1,
+                                    QSizePolicy.Minimum,
+                                    QSizePolicy.MinimumExpanding)
+	
+        self.vboxlayout.addItem(bottom_spacer)
+	        
         # This should be called last since it only works if all the widgets
 	# for this Property Manager are added first. Mark 2007-05-29
         from PropMgrBaseClass import fitPropMgrToContents
@@ -237,6 +232,11 @@ class Ui_MovePropertyManager(object):
         self.vboxlayout.addWidget(self.move_groupBox)
         spacer_move_grpbx = QtGui.QSpacerItem(10,10,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
         self.vboxlayout.addItem(spacer_move_grpbx)
+	
+	# Height is fixed. Mark 2007-05-29.
+	self.move_groupBox.setSizePolicy(
+                QSizePolicy(QSizePolicy.Policy(QSizePolicy.Preferred),
+                            QSizePolicy.Policy(QSizePolicy.Fixed)))
     
     def ui_rotateGroupBox(self, MovePropertyManager):
         #Start Rotate Options        
@@ -293,7 +293,10 @@ class Ui_MovePropertyManager(object):
         #End Rotate Options Groupbox
         self.vboxlayout.addWidget(self.rotate_groupBox)
         
-    
+	# Height is fixed. Mark 2007-05-29.
+	self.rotate_groupBox.setSizePolicy(
+                QSizePolicy(QSizePolicy.Policy(QSizePolicy.Preferred),
+                            QSizePolicy.Policy(QSizePolicy.Fixed)))
     
     def ui_freeDrag_comboItem(self, MovePropertyManager):
         
