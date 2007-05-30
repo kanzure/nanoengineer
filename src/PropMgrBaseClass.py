@@ -266,8 +266,7 @@ class PropMgrBaseClass:
         if 0: # Let's see what minimumSizeHint and sizeHint say.
             printSizeHints(self)
         
-        # The width of propmgr is 230 - (4 x 2) = 222 pixels on Windows.
-        pmWidth = pmDefaultWidth - (4 * 2) # 230 should be global/constant
+        pmWidth = pmDefaultWidth - (4 * 2)
         pmHeight = self.sizeHint().height()
         self.pmHeightComputed = True # See show() for explanation.
         
@@ -279,7 +278,7 @@ class PropMgrBaseClass:
         #    expandedTo(self.minimumSizeHint()))
         
         if 0:
-            print "PropMgr Width, Height =", self.width(), self.height()
+            print "PropMgr.fitContents(): Width, Height =", self.width(), self.height()
         
     def addHeader(self):
         """Creates the Property Manager header, which contains
@@ -732,6 +731,11 @@ class PropMgrGroupBox(QGroupBox, PropMgrWidgetMixin):
                      self.toggleExpandCollapse)
         else:
             self.setTitle(title)
+            
+        # Fixes the height of the groupbox. Very important. Mark 2007-05-29
+        self.setSizePolicy(
+            QSizePolicy(QSizePolicy.Policy(QSizePolicy.Preferred),
+                        QSizePolicy.Policy(QSizePolicy.Fixed)))
     
     def setTitle(self, title):
         """Sets the groupbox title to <title>.
