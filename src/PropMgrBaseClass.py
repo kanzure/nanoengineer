@@ -315,13 +315,14 @@ class PropMgrBaseClass:
 
         # PropMgr heading font (for label).
         font = QFont(self.header_label.font())
-        font.setFamily("Sans Serif")
-        font.setPointSize(12)
+	font.setFamily(pmHeaderFont)
+	font.setPointSize(pmHeaderFontPointSize)
         font.setWeight(75)
         font.setItalic(False)
         font.setUnderline(False)
         font.setStrikeOut(False)
         font.setBold(True)
+	
         self.header_label.setFont(font)
         
         HeaderFrameHLayout.addWidget(self.header_label)
@@ -754,9 +755,7 @@ class PropMgrGroupBox(QGroupBox, PropMgrWidgetMixin):
         """
         # Create QLabel widget.
         self.labelWidget = QLabel()
-        labelAlignment = Qt.AlignLeft | \
-                           Qt.AlignLeading | \
-                           Qt.AlignVCenter # Title is left justified.
+        labelAlignment = pmLabelLeftAlignment
         self.labelWidget.setAlignment(labelAlignment)
         self.labelWidget.setText(title)
         self.VBoxLayout.insertWidget(0, self.labelWidget)
@@ -955,7 +954,7 @@ class PropMgrMessageGroupBox(PropMgrGroupBox):
         
         # wrapWrapMode seems to be set to QTextOption.WrapAnywhere on MacOS,
         # so let's force it here. Mark 2007-05-22.
-        self.MessageTextEdit.setWordWrapMode(QTextOption.WordWrap)
+	self.MessageTextEdit.setWordWrapMode(QTextOption.WordWrap)
         
         parent.MessageTextEdit = self.MessageTextEdit
         
