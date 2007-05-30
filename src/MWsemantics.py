@@ -97,7 +97,7 @@ class PartWindow(QWidget):
 	# GLPane. 
         holder = QWidget(parent)
         holder.setMinimumWidth(pmMinWidth) # Mark 2007-05-24
-	holder.setMaximumWidth(pmMaxWidth) # Always defaults to this width. (no good).
+	holder.setMaximumWidth(pmMaxWidth)
 	self.resize(pmDefaultWidth, holder.sizeHint().height())
         
         sublayout = QVBoxLayout(holder)
@@ -142,8 +142,12 @@ class PartWindow(QWidget):
 	
 	self.propertyManagerScrollArea = QtGui.QScrollArea(self.featureManager)
 	#self.propertyManagerScrollArea.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-	self.propertyManagerScrollArea.setAlignment(Qt.AlignHCenter)
-	self.propertyManagerScrollArea.setWidget(self.propertyManagerTab) 	
+	self.propertyManagerScrollArea.setWidget(self.propertyManagerTab)
+	self.propertyManagerScrollArea.setWidgetResizable(True) # Eureka! 
+	# setWidgetResizable(True) will resize the Property Manager (and its contents)
+	# correctly when the scrollbar appears/disappears. It even accounts correctly for 
+	# collapsed/expanded groupboxes! Mark 2007-05-29
+	
 		
 	self.featureManager.addTab(self.propertyManagerScrollArea, geticon("ui/modeltree/Property_Manager"), "")       
         sublayout.addWidget(self.featureManager)
