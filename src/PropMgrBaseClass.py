@@ -409,7 +409,7 @@ class PropMgrBaseClass:
         TopRowBtnsHLayout.addItem(HSpacer)
 	
         # Set button type.
-	if 0: # Mark 2007-05-30
+	if 1: # Mark 2007-05-30
 	    # Needs to be QToolButton for MacOS. Fine for Windows, too.
 	    buttonType = QToolButton 
 	    # May want to use QToolButton.setAutoRaise(1) below. Mark 2007-05-29
