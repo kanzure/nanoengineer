@@ -9,18 +9,11 @@ from PyQt4.Qt import *
 from Utility import geticon, getpixmap
 from widgets import FloatSpinBox, TogglePrefCheckBox
 from qt4transition import qt4todo
+from PropMgr_Constants import *
 
 class Ui_ExtrudePropertyManager(object):
     def setupUi(self, ExtrudePropertyManager):
         ExtrudePropertyManager.setObjectName("ExtrudePropertyManager")
-        ExtrudePropertyManager.resize(QtCore.QSize(QtCore.QRect(0,0,200,320).size()).expandedTo(ExtrudePropertyManager.minimumSizeHint()))
-
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(3),QtGui.QSizePolicy.Policy(3))
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(ExtrudePropertyManager.sizePolicy().hasHeightForWidth())
-        ExtrudePropertyManager.setSizePolicy(sizePolicy)
-        #ExtrudePropertyManager.setMinimumSize(QtCore.QSize(190,750))
         
         ExtrudePropertyManager.setPalette(self.getPropertyManagerPalette())
         
@@ -115,8 +108,8 @@ class Ui_ExtrudePropertyManager(object):
         
         #ninad 070120 Following spacerItem is important to add in the main vboxlayout to prevent the size adjustments in 
         #the property manager when the group items are hidden 
-        spacerItem4 = QtGui.QSpacerItem(20,1,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
-        self.vboxlayout.addItem(spacerItem4)
+        bottom_spacer = QtGui.QSpacerItem(20,1,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
+        self.vboxlayout.addItem(bottom_spacer)
         
         self.retranslateUi(ExtrudePropertyManager)
         QtCore.QMetaObject.connectSlotsByName(ExtrudePropertyManager)
@@ -207,9 +200,8 @@ class Ui_ExtrudePropertyManager(object):
         self.productSpec_groupBox.setStyleSheet(styleSheet)
     
         self.vboxlayout_grpbox1 = QtGui.QVBoxLayout(self.productSpec_groupBox)
-        self.vboxlayout_grpbox1.setMargin(0)
-        self.vboxlayout_grpbox1.setSpacing(6)
-        self.vboxlayout_grpbox1.setObjectName("vboxlayout_grpbox1")
+	self.vboxlayout_grpbox1.setMargin(pmGrpBoxVboxLayoutMargin)
+        self.vboxlayout_grpbox1.setSpacing(pmGrpBoxVboxLayoutSpacing)
 
         self.productSpec_groupBoxButton = ExtrudePropertyManager.getGroupBoxTitleButton(
             "Product Specifications", self.productSpec_groupBox)
@@ -217,27 +209,28 @@ class Ui_ExtrudePropertyManager(object):
         
         self.productSpec_groupBoxWidget = QtGui.QWidget(
             self.productSpec_groupBox)
-        
-   
-        
+                
         vlo_grpbx_widget = QtGui.QVBoxLayout(
             self.productSpec_groupBoxWidget)
         vlo_grpbx_widget.setMargin(4)
         vlo_grpbx_widget.setSpacing(2)
               
-        ### Start Product Type Combobox 
+        # Start Product Type Combobox 
+	
+	# Create grid layout
+        self.GridLayout = QGridLayout()
+        self.GridLayout.setMargin(pmGridLayoutMargin)
+        self.GridLayout.setSpacing(pmGridLayoutSpacing)
         
-        self.hboxlayout1_grpbox1 = QtGui.QHBoxLayout()
-        self.hboxlayout1_grpbox1.setMargin(4)
-        self.hboxlayout1_grpbox1.setSpacing(4)
-        self.hboxlayout1_grpbox1.setObjectName("hboxlayout1_grpbox1")
-        
+        # Insert grid layout
+	vlo_grpbx_widget.addLayout(self.GridLayout) 
+	
         self.extrude_productType_label = QtGui.QLabel(
             self.productSpec_groupBoxWidget)
-        self.hboxlayout1_grpbox1.addWidget(self.extrude_productType_label)
-        
-        self.spacerItem1= QtGui.QSpacerItem(4,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.hboxlayout1_grpbox1.addItem(self.spacerItem1)
+	self.extrude_productType_label.setAlignment(pmLabelRightAlignment)
+        self.GridLayout.addWidget(self.extrude_productType_label,
+				  0, 0,
+				  1, 1)
           
         self.extrude_productTypeComboBox= QtGui.QComboBox(
             self.productSpec_groupBoxWidget)
@@ -246,44 +239,40 @@ class Ui_ExtrudePropertyManager(object):
         self.extrude_productTypeComboBox.insertItem(1,"ring")        
         self.extrude_productTypeComboBox_ptypes = ["straight rod", "closed ring", "corkscrew"] # names used in the code, same order
         # # # # if you comment out items from combobox, you also have to remove them from this list unless they are at the end!!!
+	
+	self.GridLayout.addWidget(self.extrude_productTypeComboBox,
+				  0, 1,
+				  1, 1)        
         
-        self.hboxlayout1_grpbox1.addWidget(self.extrude_productTypeComboBox)
-                  
-        ### Endt ProductType Combobox 
-        
- 
-        
-        vlo_grpbx_widget.addLayout(self.hboxlayout1_grpbox1)  
-        
-        ###Start Total Number of copies Spinbox (Including Base Unit)
-        
-        self.hboxlayout2_grpbox1 = QtGui.QHBoxLayout()        
-        self.hboxlayout2_grpbox1.setMargin(4)
-        self.hboxlayout2_grpbox1.setSpacing(4)
-        self.hboxlayout2_grpbox1.setObjectName("hboxlayout2_grpbox1")
-        
+        # End ProductType Combobox 
+
+        # Start Total Number of copies Spinbox (Including Base Unit)
+
         self.extrudeSpinBox_n_label = QtGui.QLabel(
             self.productSpec_groupBoxWidget)
-        
-        self.hboxlayout2_grpbox1.addWidget(self.extrudeSpinBox_n_label)
-          
-        self.spacerItem2= QtGui.QSpacerItem(4,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.hboxlayout2_grpbox1.addItem(self.spacerItem2)
+	self.extrudeSpinBox_n_label.setAlignment(pmLabelRightAlignment)
+	self.GridLayout.addWidget(self.extrudeSpinBox_n_label,
+				  1, 0,
+				  1, 1)
                         
         self.extrudeSpinBox_n = QtGui.QSpinBox(self.productSpec_groupBoxWidget)
         self.extrudeSpinBox_n.setObjectName("extrudeSpinBox_n")
         
-        self.hboxlayout2_grpbox1.addWidget(self.extrudeSpinBox_n)        
-        ###End Total Number of copies Spinbox (Including Base Unit)
-        vlo_grpbx_widget.addLayout(self.hboxlayout2_grpbox1) 
+        self.GridLayout.addWidget(self.extrudeSpinBox_n,
+				  1, 1,
+				  1, 1)   
+	    
+        # End Total Number of copies Spinbox (Including Base Unit)
         
         self.vboxlayout_grpbox1.addWidget(self.productSpec_groupBoxWidget)
         
-        # End  Product Specifications Groupbox        
+        # End Product Specifications Groupbox        
         self.vboxlayout.addWidget(self.productSpec_groupBox)
-        spacer_prodspecs_grpbx = QtGui.QSpacerItem(10,10,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        spacer_prodspecs_grpbx = QtGui.QSpacerItem(10,pmGroupBoxSpacing,
+						   QtGui.QSizePolicy.Expanding,
+						   QtGui.QSizePolicy.Fixed)
+	
         self.vboxlayout.addItem(spacer_prodspecs_grpbx)
-        
         
         
     def ui_extrudeDirections_GroupBox(self, ExtrudePropertyManager):
@@ -299,9 +288,8 @@ class Ui_ExtrudePropertyManager(object):
         self.extrudeDirection_groupBox.setStyleSheet(styleSheet)
         
         self.vboxlayout_grpbox2 = QtGui.QVBoxLayout(self.extrudeDirection_groupBox)
-        self.vboxlayout_grpbox2.setMargin(0)
-        self.vboxlayout_grpbox2.setSpacing(6)
-        self.vboxlayout_grpbox2.setObjectName("vboxlayout_grpbox2")
+	self.vboxlayout_grpbox2.setMargin(pmGrpBoxVboxLayoutMargin)
+        self.vboxlayout_grpbox2.setSpacing(pmGrpBoxVboxLayoutSpacing)
         
         self.extrudeDirection_groupBoxButton = ExtrudePropertyManager.getGroupBoxTitleButton(
             "Extrude Direction", self.extrudeDirection_groupBox)
@@ -309,8 +297,10 @@ class Ui_ExtrudePropertyManager(object):
     
         # End extrudeDirection  Groupbox         
         self.vboxlayout.addWidget(self.extrudeDirection_groupBox)
-        spacer_extrudedirection_grpbx = QtGui.QSpacerItem(10,10,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.vboxlayout.addItem(spacer_extrudedirection_grpbx)
+	
+	# Commenting out this spacer since the groupbox isn't implemented. Mark 2007-05-29.
+        #spacer_extrudedirection_grpbx = QtGui.QSpacerItem(10,10,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        #self.vboxlayout.addItem(spacer_extrudedirection_grpbx)
         
         #Hide extrude direction group box until it is implemented - ninad070411
         self.extrudeDirection_groupBox.hide()
@@ -329,9 +319,8 @@ class Ui_ExtrudePropertyManager(object):
         self.advancedOptions_groupBox.setStyleSheet(styleSheet)
         
         self.vboxlayout_grpbox3 = QtGui.QVBoxLayout(self.advancedOptions_groupBox)
-        self.vboxlayout_grpbox3.setMargin(0)
-        self.vboxlayout_grpbox3.setSpacing(6)
-        self.vboxlayout_grpbox3.setObjectName("vboxlayout_grpbox3")
+	self.vboxlayout_grpbox3.setMargin(pmGrpBoxVboxLayoutMargin)
+        self.vboxlayout_grpbox3.setSpacing(pmGrpBoxVboxLayoutSpacing)
 
         self.advancedOptions_groupBoxButton = ExtrudePropertyManager.getGroupBoxTitleButton(
             "Advanced Options", self.advancedOptions_groupBox)        
@@ -521,9 +510,9 @@ class Ui_ExtrudePropertyManager(object):
                                                                 "<font color=\"#FFFFFF\">Extrude </font>", 
                                                                 None, QtGui.QApplication.UnicodeUTF8))
         self.extrude_productType_label.setText(QtGui.QApplication.translate("ExtrudePropertyManager", 
-                                                                            "Type of Final Product:", None, QtGui.QApplication.UnicodeUTF8))
+                                                                            "Final product :", None, QtGui.QApplication.UnicodeUTF8))
         self.extrudeSpinBox_n_label.setText(QtGui.QApplication.translate("ExtrudePropertyManager", 
-                                                                         "Total Number of Copies(N):", None, QtGui.QApplication.UnicodeUTF8))
+                                                                         "Number of copies :", None, QtGui.QApplication.UnicodeUTF8))
         self.x_label.setText(QtGui.QApplication.translate("ExtrudePropertyManager", 
                                                           "X:", None, QtGui.QApplication.UnicodeUTF8))
         self.y_label.setText(QtGui.QApplication.translate("ExtrudePropertyManager", 
