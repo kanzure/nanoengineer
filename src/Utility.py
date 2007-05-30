@@ -46,23 +46,22 @@ _icons = {}
 _iconprefix = os.path.dirname(os.path.abspath(sys.argv[0]))
 _iconprefix = os.sep.join(_iconprefix.split(os.sep)[:-1] + ["src"])
 
-def geticon(name, _iconprefix=_iconprefix):
+def geticon(name, _iconprefix = _iconprefix):
     path = os.path.join(_iconprefix, name)
     icon = QtGui.QIcon(path)
     if icon.isNull():
         print 'geticon - null icon for: ' + path
-    return QtGui.QIcon(path)
+    return icon
 
-def getpixmap(name, _iconprefix=_iconprefix):
+def getpixmap(name, _iconprefix = _iconprefix):
     path = os.path.join(_iconprefix, name)
-    icon = QtGui.QPixmap(path)
-    if icon.isNull():
-        print 'geticon - null icon for: ' + path
-    return QtGui.QPixmap(path)
+    pixmap = QtGui.QPixmap(path)
+    if pixmap.isNull():
+        print 'getpixmap - null pixmap for: ' + path
+    return pixmap
     
-
 def imagename_to_pixmap(imagename): #bruce 050108
-    """Given the basename of a file in our cad/images directory,
+    """Given the basename of a file in our cad/images directory [now cad/src/ui],
     return a QPixmap created from that file. Cache these
     (in our own Python directory, not Qt's QPixmapCache)
     so that at most one QPixmap is made from each file.
@@ -82,7 +81,7 @@ def imagename_to_pixmap(imagename): #bruce 050108
             #  "QPaintDevice: Must construct a QApplication before a QPaintDevice".)
             #
             # We assume sys.argv[0] looks like .../cad/src/xxx.py
-            # and we want .../cad/images.
+            # and we want .../cad/images. [note: this comment is out of date]
             from os.path import dirname, abspath
             cadpath = dirname(dirname(abspath(sys.argv[0]))) # ../cad
             _pixmap_image_path = os.path.join(cadpath, "src/ui/")
