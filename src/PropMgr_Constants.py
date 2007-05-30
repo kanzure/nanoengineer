@@ -34,8 +34,8 @@ pmHeaderFrameMargin = 2 # margin around icon and title.
 pmHeaderFrameSpacing = 5 # space between icon and title.
 pmSponsorFrameMargin = 0 # margin around sponsor button.
 pmSponsorFrameSpacing = 0 # has no effect.
-pmTopRowBtnsMargin = 2 # margin around buttons.
-pmTopRowBtnsSpacing = 2 # space between buttons.
+pmTopRowBtnsMargin = 5 # margin around buttons.
+pmTopRowBtnsSpacing = 5 # space between buttons.
 
 # GroupBox Layout constants.
 pmMsgGrpBoxMargin = 0 # margin around yellow text window.

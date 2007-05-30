@@ -37,6 +37,7 @@ __author__ = "Mark"
 # - Add PropMgrColorChooser
 # - Add PropMgrLabel
 # - Number generators for each generator and jig type.
+# - Fix TopRowButtons - QHBoxLayout unnecessary.
 
 from PyQt4.Qt import *
 from Utility import geticon
@@ -118,9 +119,7 @@ def getWidgetGridLayoutParms(label, row, spanWidth):
         labelRow = row
         labelColumn = 0
         labelSpanCols = 1
-        labelAlignment = Qt.AlignRight | \
-                         Qt.AlignTrailing | \
-                         Qt.AlignVCenter # Label is right justified.
+        labelAlignment = pmLabelRightAlignment
             
         widgetRow = row
         widgetColumn = 1
@@ -134,9 +133,7 @@ def getWidgetGridLayoutParms(label, row, spanWidth):
             labelRow = row
             labelColumn = 0
             labelSpanCols = 2
-            labelAlignment = Qt.AlignLeft | \
-                           Qt.AlignLeading | \
-                           Qt.AlignVCenter # Label is left justified.
+            labelAlignment = pmLabelLeftAlignment
                 
             # Set this widget's row and column attrs.
             widgetRow = row + 1 # Widget is below the label.
@@ -377,7 +374,7 @@ class PropMgrBaseClass:
         # The Top Buttons Row includes the following widgets:
         #
         # - self.pmTopRowBtns (Hbox Layout containing everything:)
-        #   - left spacer (10x10)
+        #   
         #   - frame
         #     - hbox layout "frameHboxLO" (margin=2, spacing=2)
         #     - Done (OK) button
@@ -390,30 +387,40 @@ class PropMgrBaseClass:
         
         # Main "button group" widget (but it is not a QButtonGroup).
         self.pmTopRowBtns = QHBoxLayout()
+	# This QHBoxLayout is (probably) not necessary. Try using just the frame for
+	# the foundation. I think it should work. Mark 2007-05-30
         
-        # Left and right spacers
-        leftSpacer = QSpacerItem(10, 10, 
-                                       QSizePolicy.Expanding, 
-                                       QSizePolicy.Minimum)
-        rightSpacer = QSpacerItem(10, 10, 
-                                        QSizePolicy.Expanding,
-                                        QSizePolicy.Minimum)
+        # Horizontal spacer
+	HSpacer = QSpacerItem(1, 1, 
+				QSizePolicy.Expanding, 
+				QSizePolicy.Minimum)
         
         # Frame containing all the buttons.
         self.TopRowBtnsFrame = QFrame()
                 
-        self.TopRowBtnsFrame.setFrameShape(QFrame.StyledPanel)
-        self.TopRowBtnsFrame.setFrameShadow(QFrame.Raised)
+        self.TopRowBtnsFrame.setFrameShape(QFrame.NoFrame)
+        self.TopRowBtnsFrame.setFrameShadow(QFrame.Plain)
         
         # Create Hbox layout for main frame.
         TopRowBtnsHLayout = QHBoxLayout(self.TopRowBtnsFrame)
         TopRowBtnsHLayout.setMargin(pmTopRowBtnsMargin)
         TopRowBtnsHLayout.setSpacing(pmTopRowBtnsSpacing)
         
+        TopRowBtnsHLayout.addItem(HSpacer)
+	
+        # Set button type.
+	if 0: # Mark 2007-05-30
+	    # Needs to be QToolButton for MacOS. Fine for Windows, too.
+	    buttonType = QToolButton 
+	    # May want to use QToolButton.setAutoRaise(1) below. Mark 2007-05-29
+	else:
+	    buttonType = QPushButton # Do not use.
+	
         # OK (Done) button.
-        self.done_btn = QPushButton(self.TopRowBtnsFrame)
+        self.done_btn = buttonType(self.TopRowBtnsFrame)
         self.done_btn.setIcon(
             geticon("ui/actions/Properties Manager/Done.png"))
+        self.done_btn.setIconSize(QSize(22,22))  
         self.connect(self.done_btn,SIGNAL("clicked()"),
                      self.ok_btn_clicked)
         self.done_btn.setToolTip("Done")
@@ -421,9 +428,10 @@ class PropMgrBaseClass:
         TopRowBtnsHLayout.addWidget(self.done_btn)
         
         # Cancel (Abort) button.
-        self.abort_btn = QPushButton(self.TopRowBtnsFrame)
+        self.abort_btn = buttonType(self.TopRowBtnsFrame)
         self.abort_btn.setIcon(
             geticon("ui/actions/Properties Manager/Abort.png"))
+	self.abort_btn.setIconSize(QSize(22,22))
         self.connect(self.abort_btn,SIGNAL("clicked()"),
                      self.abort_btn_clicked)
         self.abort_btn.setToolTip("Cancel")
@@ -431,18 +439,20 @@ class PropMgrBaseClass:
         TopRowBtnsHLayout.addWidget(self.abort_btn)
         
         # Restore Defaults button.
-        self.restore_defaults_btn = QPushButton(self.TopRowBtnsFrame)
+        self.restore_defaults_btn = buttonType(self.TopRowBtnsFrame)
         self.restore_defaults_btn.setIcon(
             geticon("ui/actions/Properties Manager/Restore.png"))
+	self.restore_defaults_btn.setIconSize(QSize(22,22))
         self.connect(self.restore_defaults_btn,SIGNAL("clicked()"),
                      self.restore_defaults_btn_clicked)
         self.restore_defaults_btn.setToolTip("Restore Defaults")
         TopRowBtnsHLayout.addWidget(self.restore_defaults_btn)
         
         # Preview (glasses) button.
-        self.preview_btn = QPushButton(self.TopRowBtnsFrame)
+        self.preview_btn = buttonType(self.TopRowBtnsFrame)
         self.preview_btn.setIcon(
             geticon("ui/actions/Properties Manager/Preview.png"))
+	self.preview_btn.setIconSize(QSize(22,22))
         self.connect(self.preview_btn,SIGNAL("clicked()"),
                      self.preview_btn_clicked)
         self.preview_btn.setToolTip("Preview")
@@ -450,19 +460,20 @@ class PropMgrBaseClass:
         TopRowBtnsHLayout.addWidget(self.preview_btn)        
         
         # What's This (?) button.
-        self.whatsthis_btn = QPushButton(self.TopRowBtnsFrame)
+        self.whatsthis_btn = buttonType(self.TopRowBtnsFrame)
         self.whatsthis_btn.setIcon(
             geticon("ui/actions/Properties Manager/WhatsThis.png"))
+	self.whatsthis_btn.setIconSize(QSize(22,22))
         self.connect(self.whatsthis_btn,SIGNAL("clicked()"),
                      self.enter_WhatsThisMode)
         self.whatsthis_btn.setToolTip("What\'s This Help")
         
         TopRowBtnsHLayout.addWidget(self.whatsthis_btn)
+	
+	TopRowBtnsHLayout.addItem(HSpacer)
         
         # Create Button Row
-        self.pmTopRowBtns.addItem(leftSpacer)
         self.pmTopRowBtns.addWidget(self.TopRowBtnsFrame)
-        self.pmTopRowBtns.addItem(rightSpacer)
         
         self.VBoxLayout.addLayout(self.pmTopRowBtns)
         
@@ -1084,6 +1095,7 @@ class PropMgrTextEdit(QTextEdit, PropMgrWidgetMixin):
             print "New height=", new_height
         
         # Reset height of PropMgrTextEdit.
+        self.setMinimumSize(QSize(160,new_height)) 
         self.setMaximumHeight(new_height)
         
         # Need to call "fitContents()" here. Need <parent> to do so. 
