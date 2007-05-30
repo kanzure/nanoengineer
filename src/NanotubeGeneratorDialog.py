@@ -168,9 +168,12 @@ class NanotubePropMgr(object, PropMgrBaseClass):
         # "Number of Nanotubes" SpinBox
         self.mwntCountSpinBox = \
             PropMgrSpinBox(pmGroupBox, 
-                            label="Number of Nanotube :", 
+                            label="Number :", 
                             val=1, setAsDefault=True,
-                            min=1, max=10)
+                            min=1, max=10,
+                            suffix=' nanotubes')
+        
+        self.mwntCountSpinBox.setSpecialValueText("SWNT")
             
         # "Spacing" lineedit.
         self.mwntSpacingField = \
