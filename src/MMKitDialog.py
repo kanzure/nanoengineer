@@ -20,6 +20,8 @@ As of 070207 it is still refered as MMKitDialog. Should really be called
 'Build Property Manager' as it also implements old dashboard functionality
 -- ninad 070207
 
+mark 2007-05-29: Fixed sizePolicy for all widgets so everything behaves itself
+                 in a fixed width Property Manager (for Alpha 9).
 """
 
 import sys
@@ -28,20 +30,11 @@ from PyQt4.Qt import *
 from Utility import geticon, getpixmap
 import env
 from prefs_constants import *
+from PropMgr_Constants import *
         
 class Ui_MMKitDialog(object):
     def setupUi(self, MMKitDialog):
         MMKitDialog.setObjectName("MMKitDialog")
-        MMKitDialog.resize(QtCore.QSize(QtCore.QRect(0,0,200,1000).size()).expandedTo(MMKitDialog.minimumSizeHint()))
-        
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(3),QtGui.QSizePolicy.Policy(3))
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(MMKitDialog.sizePolicy().hasHeightForWidth())
-        MMKitDialog.setSizePolicy(sizePolicy)
-        #MMKitDialog.setMinimumSize(QtCore.QSize(190,750))
-	
-	
 
         palette = QtGui.QPalette()
         palette.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(0),QtGui.QColor(0,0,0))
@@ -98,8 +91,8 @@ class Ui_MMKitDialog(object):
         MMKitDialog.setPalette(palette)
 
         self.vboxlayout = QtGui.QVBoxLayout(MMKitDialog)
-        self.vboxlayout.setMargin(0) # was 1. Mark 2007-05-24.
-        self.vboxlayout.setSpacing(0) # was 1. Mark 2007-05-24.
+        self.vboxlayout.setMargin(pmMainVboxLayoutMargin)
+        self.vboxlayout.setSpacing(pmMainVboxLayoutSpacing)
         self.vboxlayout.setObjectName("vboxlayout")
         
         self.heading_frame = QtGui.QFrame(MMKitDialog)
@@ -115,9 +108,9 @@ class Ui_MMKitDialog(object):
         self.heading_frame.setPalette(palette2)
 
         self.hboxlayout_heading = QtGui.QHBoxLayout(self.heading_frame)
-        self.hboxlayout_heading .setMargin(2)
-        self.hboxlayout_heading .setSpacing(5)
-        self.hboxlayout_heading .setObjectName("hboxlayout")
+        self.hboxlayout_heading.setMargin(pmHeaderFrameMargin)
+        self.hboxlayout_heading.setSpacing(pmHeaderFrameSpacing)
+        self.hboxlayout_heading.setObjectName("hboxlayout")
         
         self.heading_pixmap = QtGui.QLabel(self.heading_frame)
         self.heading_pixmap.setPixmap(getpixmap('ui/actions/Tools/Build Structures/Atoms.png'))     
@@ -154,8 +147,8 @@ class Ui_MMKitDialog(object):
         self.sponsor_frame.setObjectName("sponsor_frame")
 
         self.gridlayout_sponsor = QtGui.QGridLayout(self.sponsor_frame)
-        self.gridlayout_sponsor.setMargin(0)
-        self.gridlayout_sponsor.setSpacing(0)
+        self.gridlayout_sponsor.setMargin(pmSponsorFrameMargin)
+        self.gridlayout_sponsor.setSpacing(pmSponsorFrameSpacing)
         self.gridlayout_sponsor.setObjectName("gridlayout")
 
         self.sponsor_btn = QtGui.QPushButton(self.sponsor_frame)
@@ -185,8 +178,8 @@ class Ui_MMKitDialog(object):
         
         #ninad 070120 Following spacerItem is important to add in the main vboxlayout to prevent the size adjustments in 
         #the property manager when the group items are hidden 
-        spacerItem4 = QtGui.QSpacerItem(20,1,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
-        self.vboxlayout.addItem(spacerItem4)
+        bottom_spacer = QtGui.QSpacerItem(20,1,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
+        self.vboxlayout.addItem(bottom_spacer)
 
         
         self.retranslateUi(MMKitDialog)
@@ -197,6 +190,8 @@ class Ui_MMKitDialog(object):
 	# for this Property Manager are added first. Mark 2007-05-29
         from PropMgrBaseClass import fitPropMgrToContents
 	fitPropMgrToContents(MMKitDialog)
+	
+	# End of MMKitDialog ####################################
     
     def ui_doneCancelButtonRow(self, MMKitDialog):
         #Start Done , Abort, button row
@@ -218,8 +213,8 @@ class Ui_MMKitDialog(object):
         self.button_frame.setObjectName("button_frame")
         
         self.hboxlayout_buttonframe = QtGui.QHBoxLayout(self.button_frame)
-        self.hboxlayout_buttonframe.setMargin(2)
-        self.hboxlayout_buttonframe.setSpacing(2)
+        self.hboxlayout_buttonframe.setMargin(pmTopRowBtnsMargin)
+        self.hboxlayout_buttonframe.setSpacing(pmTopRowBtnsSpacing)
         self.hboxlayout_buttonframe.setObjectName("hboxlayout_buttonframe")
                 
         self.done_btn = QtGui.QPushButton(self.button_frame)
@@ -268,8 +263,8 @@ class Ui_MMKitDialog(object):
 	self.bondTools_grpBox.setStyleSheet(styleSheet)
 
 	self.vboxlayout_grpbox1 = QtGui.QVBoxLayout(self.bondTools_grpBox)
-	self.vboxlayout_grpbox1.setMargin(0)
-	self.vboxlayout_grpbox1.setSpacing(0)
+	self.vboxlayout_grpbox1.setMargin(pmGrpBoxVboxLayoutMargin)
+	self.vboxlayout_grpbox1.setSpacing(pmGrpBoxVboxLayoutSpacing)
 	self.vboxlayout_grpbox1.setObjectName("vboxlayout_grpbox1")
 	
 	self.bondTool_groupBoxButton = MMKitDialog.getGroupBoxTitleButton(
@@ -338,10 +333,19 @@ class Ui_MMKitDialog(object):
        
 	self.vboxlayout_grpbox1.addWidget(self.bondToolWidget)
 	
-	#End Atom Bond Tools Groupbox
+	# End Atom Bond Tools Groupbox
 	self.vboxlayout.addWidget(self.bondTools_grpBox)
-	spacer_BondTools_grpbx = QtGui.QSpacerItem(10,10,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+	
+	spacer_BondTools_grpbx = QtGui.QSpacerItem(10, pmGroupBoxSpacing, 
+						   QtGui.QSizePolicy.Fixed,
+						   QtGui.QSizePolicy.Fixed)
+	
 	self.vboxlayout.addItem(spacer_BondTools_grpbx)
+	
+	# Height is fixed. Mark 2007-05-29.
+	self.bondTools_grpBox.setSizePolicy(
+                QSizePolicy(QSizePolicy.Policy(QSizePolicy.Preferred),
+                            QSizePolicy.Policy(QSizePolicy.Fixed)))
     
     def ui_preview_GroupBox(self, MMKitDialog):
         # Start MMKit ThumbView  (Preview) GroupBox        
@@ -358,8 +362,8 @@ class Ui_MMKitDialog(object):
         
         
         self.vboxlayout_grpbox2 = QtGui.QVBoxLayout(self.thumbView_groupBox)
-        self.vboxlayout_grpbox2.setMargin(0)
-        self.vboxlayout_grpbox2.setSpacing(0)
+        self.vboxlayout_grpbox2.setMargin(pmGrpBoxVboxLayoutMargin)
+        self.vboxlayout_grpbox2.setSpacing(pmGrpBoxVboxLayoutSpacing)
         self.vboxlayout_grpbox2.setObjectName("vboxlayout_grpbox2")
 
         self.thumbView_groupBoxButton = MMKitDialog.getGroupBoxTitleButton("Preview", self.thumbView_groupBox)
@@ -382,8 +386,15 @@ class Ui_MMKitDialog(object):
     
         #End  MMKit ThumbView  (Preview) GroupBox 
         self.vboxlayout.addWidget(self.thumbView_groupBox)        
-        spacer_thumbview_grpbx = QtGui.QSpacerItem(10,10,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        spacer_thumbview_grpbx = QtGui.QSpacerItem(10, pmGroupBoxSpacing, 
+						   QtGui.QSizePolicy.Fixed,
+						   QtGui.QSizePolicy.Fixed)
         self.vboxlayout.addItem(spacer_thumbview_grpbx)
+	
+	# Height is fixed. Mark 2007-05-29.
+	self.thumbView_groupBox.setSizePolicy(
+                QSizePolicy(QSizePolicy.Policy(QSizePolicy.Preferred),
+                            QSizePolicy.Policy(QSizePolicy.Fixed)))
     
     def ui_MMKit_GroupBox(self, MMKitDialog):        
         #Start MMKit groupbox (includes atom, clipboard and library tabs)
@@ -398,8 +409,8 @@ class Ui_MMKitDialog(object):
         self.MMKit_groupBox.setStyleSheet(styleSheet)
 
         self.vboxlayout_grpbox3 = QtGui.QVBoxLayout(self.MMKit_groupBox)
-        self.vboxlayout_grpbox3.setMargin(0)
-        self.vboxlayout_grpbox3.setSpacing(0)
+        self.vboxlayout_grpbox3.setMargin(pmGrpBoxVboxLayoutMargin)
+        self.vboxlayout_grpbox3.setSpacing(pmGrpBoxVboxLayoutSpacing)
         self.vboxlayout_grpbox3.setObjectName("vboxlayout_grpbox3")
 
         self.MMKit_groupBoxButton = MMKitDialog.getGroupBoxTitleButton("MMKit", self.MMKit_groupBox)
@@ -408,14 +419,12 @@ class Ui_MMKitDialog(object):
 
         self.mmkit_tab = QtGui.QTabWidget(self.MMKit_groupBox)
         self.mmkit_tab.setEnabled(True)
-        #self.mmkit_tab.setMinimumSize(QtCore.QSize(100, 200))        
-        
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(1),QtGui.QSizePolicy.Policy(1))
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.mmkit_tab.sizePolicy().hasHeightForWidth())
-        self.mmkit_tab.setSizePolicy(sizePolicy)
-        
+	
+	# Height is fixed. Mark 2007-05-29.
+	self.mmkit_tab.setSizePolicy(
+                QSizePolicy(QSizePolicy.Policy(QSizePolicy.Preferred),
+                            QSizePolicy.Policy(QSizePolicy.Fixed)))
+	
         self.mmkit_tab.setObjectName("mmkit_tab")
 
         self.atomsPage = QtGui.QWidget()
@@ -439,6 +448,8 @@ class Ui_MMKitDialog(object):
         self.vboxlayout_atomsPage.setMargin(4)
         self.vboxlayout_atomsPage.setSpacing(2)
 
+	# Element Button GroupBox begins here. #####################
+	
         self.elementButtonGroup = QtGui.QGroupBox(self.frame5)
 
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(3),QtGui.QSizePolicy.Policy(1))
@@ -569,15 +580,21 @@ class Ui_MMKitDialog(object):
         self.gridlayout2.addWidget(self.toolButton36,3,5,1,1)
         
         self.vboxlayout_atomsPage.addWidget(self.elementButtonGroup)
-          
-        spacerItem1 = QtGui.QSpacerItem(20,16,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
-        
+	
+	# Height is fixed. Mark 2007-05-29.
+	self.elementButtonGroup.setSizePolicy(
+                QSizePolicy(QSizePolicy.Policy(QSizePolicy.Preferred),
+                            QSizePolicy.Policy(QSizePolicy.Fixed)))
+	
+	# Elements Button GroupBox ends here. #######################
         
         self.hboxlayout = QtGui.QHBoxLayout()
         self.hboxlayout.setMargin(0)
         self.hboxlayout.setSpacing(6)
         self.hboxlayout.setObjectName("hboxlayout")
 
+	# Hybrid GroupBox begins here ###############################
+	
         self.hybrid_btngrp = QtGui.QGroupBox(self.frame5)
         self.hybrid_btngrp.setObjectName("hybrid_btngrp")
         self.hboxlayout.addWidget(self.hybrid_btngrp)
@@ -611,8 +628,15 @@ class Ui_MMKitDialog(object):
         self.graphitic_btn.setCheckable(True)
         self.graphitic_btn.setObjectName("graphitic_btn")
         self.hboxlayout1.addWidget(self.graphitic_btn)
-
-        spacerItem2 = QtGui.QSpacerItem(16,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+	
+	# Height is fixed. Mark 2007-05-29.
+	self.hybrid_btngrp.setSizePolicy(
+                QSizePolicy(QSizePolicy.Policy(QSizePolicy.Preferred),
+                            QSizePolicy.Policy(QSizePolicy.Fixed)))
+	
+        spacerItem2 = QtGui.QSpacerItem(10, 20, 
+					QtGui.QSizePolicy.Fixed,
+					QtGui.QSizePolicy.Fixed)
         self.hboxlayout1.addItem(spacerItem2)   
         
         #ninad 071017 - specify the height of spacer item in hboxlayout slightly larger than 
@@ -629,6 +653,8 @@ class Ui_MMKitDialog(object):
          
         self.vboxlayout_atomsPage.addLayout(self.hboxlayout)
 
+	# Clipboard page begins here ############################################
+	
         self.clipboardPage = QtGui.QWidget()
         self.clipboardPage.setObjectName("clipboardPage")
 
@@ -639,16 +665,21 @@ class Ui_MMKitDialog(object):
 
         self.chunkListBox = QtGui.QListWidget(self.clipboardPage)
 
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(3),QtGui.QSizePolicy.Policy(1))
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(2)
-        sizePolicy.setHeightForWidth(self.chunkListBox.sizePolicy().hasHeightForWidth())
-        self.chunkListBox.setSizePolicy(sizePolicy)
+        #sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(5),QtGui.QSizePolicy.Policy(1))
+        #sizePolicy.setHorizontalStretch(0)
+        #sizePolicy.setVerticalStretch(2)
+        #sizePolicy.setHeightForWidth(self.chunkListBox.sizePolicy().hasHeightForWidth())
+        #self.chunkListBox.setSizePolicy(sizePolicy)
         self.chunkListBox.setMinimumSize(QtCore.QSize(100,100))
+	
+	# Height is fixed. Mark 2007-05-29.
+	self.chunkListBox.setSizePolicy(
+                QSizePolicy(QSizePolicy.Policy(QSizePolicy.MinimumExpanding),
+                            QSizePolicy.Policy(QSizePolicy.Fixed)))
+	
         self.chunkListBox.setObjectName("chunkListBox")
         self.gridlayout3.addWidget(self.chunkListBox,0,0,1,1)
         self.mmkit_tab.addTab(self.clipboardPage, "")
-        
         
         self.libraryPage = QtGui.QWidget()
         #self.libraryPage = QtGui.QScrollArea()
@@ -656,6 +687,7 @@ class Ui_MMKitDialog(object):
         #self.libraryPage.setWidget(self.libraryPageWidget)
         self.libraryPage.setObjectName("libraryPage")
         self.mmkit_tab.addTab(self.libraryPage, "")
+
         self.vboxlayout_grpbox3.addWidget(self.mmkit_tab)
         
         self.transmuteAtomsAction = QtGui.QWidgetAction(self.w)
@@ -692,13 +724,22 @@ class Ui_MMKitDialog(object):
         
         self.vboxlayout_grpbox3.addWidget(self.transmuteCB)
 	
-	
-            
         #End MMKit groupbox
         self.vboxlayout.addWidget(self.MMKit_groupBox)
         
-        spacer_mmkit_grpbx = QtGui.QSpacerItem(10,10,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.vboxlayout.addItem(spacer_mmkit_grpbx)  
+        spacer_mmkit_grpbx = QtGui.QSpacerItem(10, pmGroupBoxSpacing, 
+						QtGui.QSizePolicy.Fixed,
+						QtGui.QSizePolicy.Fixed)
+	
+        self.vboxlayout.addItem(spacer_mmkit_grpbx)
+	
+	self.MMKit_groupBox.setMinimumWidth(200) # Mark 2007-05-29
+	self.MMKit_groupBox.setMaximumWidth(242)
+	
+	# Height is fixed. Mark 2007-05-29.
+	self.MMKit_groupBox.setSizePolicy(
+                QSizePolicy(QSizePolicy.Policy(QSizePolicy.MinimumExpanding),
+                            QSizePolicy.Policy(QSizePolicy.Fixed)))
     
     def ui_selectionFilter_GroupBox(self, MMKitDialog):
         #Start Selection Filter GroupBox
@@ -713,12 +754,12 @@ class Ui_MMKitDialog(object):
         self.selectionFilter_groupBox.setStyleSheet(styleSheet)
         
         self.hboxlayout_selfilter = QtGui.QHBoxLayout()
-        self.hboxlayout_selfilter.setMargin(0)
+        self.hboxlayout_selfilter.setMargin(pmGrpBoxVboxLayoutMargin)
         self.hboxlayout_selfilter.setSpacing(6)
         self.hboxlayout_selfilter.setObjectName("hboxlayout_selfilter")
         
         self.vboxlayout_selfilter = QtGui.QVBoxLayout(self.selectionFilter_groupBox)
-        self.vboxlayout_selfilter.setMargin(0)
+        self.vboxlayout_selfilter.setMargin(pmGrpBoxVboxLayoutMargin)
         self.vboxlayout_selfilter.setSpacing(6)
         self.vboxlayout_selfilter.setObjectName("vboxlayout_selfilter")
 
@@ -744,8 +785,16 @@ class Ui_MMKitDialog(object):
         #End Selection filter GroupBox
         self.vboxlayout.addWidget(self.selectionFilter_groupBox)
         
-        spacer_selfilter_grpbx = QtGui.QSpacerItem(10,10,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        spacer_selfilter_grpbx = QtGui.QSpacerItem(10, pmGroupBoxSpacing, 
+						   QtGui.QSizePolicy.Fixed,
+						   QtGui.QSizePolicy.Fixed)
+	
         self.vboxlayout.addItem(spacer_selfilter_grpbx)
+	
+	# Height is fixed. Mark 2007-05-29.
+	self.selectionFilter_groupBox.setSizePolicy(
+                QSizePolicy(QSizePolicy.Policy(QSizePolicy.Preferred),
+                            QSizePolicy.Policy(QSizePolicy.Fixed)))
         
     def ui_advancedOps_GroupBox(self, MMKitDialog):
         #Start Advanced Options GroupBox
@@ -760,8 +809,8 @@ class Ui_MMKitDialog(object):
         self.advancedOptions_groupBox.setStyleSheet(styleSheet)
         
         self.vboxlayout_grpbox4 = QtGui.QVBoxLayout(self.advancedOptions_groupBox)
-        self.vboxlayout_grpbox4.setMargin(0)
-        self.vboxlayout_grpbox4.setSpacing(4)
+        self.vboxlayout_grpbox4.setMargin(pmGrpBoxVboxLayoutMargin)
+        self.vboxlayout_grpbox4.setSpacing(pmGrpBoxVboxLayoutSpacing)
         self.vboxlayout_grpbox4.setObjectName("vboxlayout_grpbox4")
 
         self.advancedOptions_groupBoxButton = MMKitDialog.getGroupBoxTitleButton("Advanced Options", 
@@ -783,6 +832,11 @@ class Ui_MMKitDialog(object):
         
         #End Advanced Options GroupBox
         self.vboxlayout.addWidget(self.advancedOptions_groupBox)
+	
+	# Height is fixed. Mark 2007-05-29.
+	self.advancedOptions_groupBox.setSizePolicy(
+                QSizePolicy(QSizePolicy.Policy(QSizePolicy.Preferred),
+                            QSizePolicy.Policy(QSizePolicy.Fixed)))
 
     def retranslateUi(self, MMKitDialog):
         MMKitDialog.setWindowTitle(QtGui.QApplication.translate("MMKitDialog", 
