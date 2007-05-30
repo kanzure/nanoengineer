@@ -401,6 +401,8 @@ class _our_QItemDelegate(QItemDelegate):
         return # from paint
 
     # Methods to support renaming on double click; index tells which item is being renamed
+    # (See also the uses of QLineEdit in the QScrollArea version, below.
+    #  WARNING: they duplicate some of this code.)
 
     def createEditor(self, parent, option, index):
         qle = QLineEdit(parent)
@@ -1276,8 +1278,11 @@ class ModelTreeGui_common(ModelTreeGui_api): #bruce 070529 split this out of cla
         pass
 
     # ==
+
+    _mousepress_info_for_doubleclick = None, None # always a pair; always set; but only matters in QScrollArea implem
     
-    def mousePressEvent(self, event):
+    def mousePressEvent(self, event, _doubleclick = False):
+        "called by Qt on mousePress, or by our own method with private option _doubleclick = True"
 
         ## self.mouse_press_scrollpos = self.get_scrollpos("start of mousePressEvent")
         ###BUG: messes up manual scroll + click elsewhere (causing mt_update) -- this pos rules, discarding the manual scroll.
@@ -1291,6 +1296,11 @@ class ModelTreeGui_common(ModelTreeGui_api): #bruce 070529 split this out of cla
             # and change its behavior? Should I browse the Qt source code for stray scrollToTops etc?
                                         
         self._mousepress_info_for_move = None
+        
+        _prior_mousepress_info_for_doubleclick = self._mousepress_info_for_doubleclick
+        self._mousepress_info_for_doubleclick = None, None
+            # Note: set below; used only when called later with _doubleclick, which is only done
+            # by the QScrollArea implem subclass, not the QTreeView one.
 
         qp = event.globalPos()  # clone the point to keep it constant
         self.mouse_press_button = button = event.button() #bruce 070509
@@ -1348,6 +1358,22 @@ class ModelTreeGui_common(ModelTreeGui_api): #bruce 070529 split this out of cla
             if DEBUG2:
                 print "no item"
             pass
+
+        if _doubleclick:
+            # Either handle a double click (if all is ok for that), or do nothing for this event (return early).
+            # (Question: will there be a mouseRelease event for this??)
+            if eventInRect and not contextMenu \
+               and not (modifiers & Qt.ShiftModifier) and not (modifiers & Qt.ControlModifier):
+                olditem, oldrect_junk = _prior_mousepress_info_for_doubleclick
+                if olditem and (olditem.node is item.node):
+                    self.handle_doubleclick( event, item, rect) # this should do all needed updates
+            return
+                    
+        if eventInRect and not contextMenu \
+           and not (modifiers & Qt.ShiftModifier) and not (modifiers & Qt.ControlModifier):
+            assert item
+            self._mousepress_info_for_doubleclick = (item, rect) # use this only if next call has _doubleclick true
+            
         # if not eventInRect, should also figure out if we are to left or right (maybe; nim),
         # or on openclose decoration (certainly; done now)
         if not eventInRect and item and item.node.openable():
@@ -1355,7 +1381,9 @@ class ModelTreeGui_common(ModelTreeGui_api): #bruce 070529 split this out of cla
             left_delta = rect.left() - event.pos().x()
             if DEBUG2:
                 print "left_delta is %r" % left_delta
-            if 0 < left_delta < 20: # guess; precise value doesn't matter for correctness, only for "feel" of the UI
+            if 0 < left_delta < 20:
+                # guess; precise value doesn't matter for correctness, only for "feel" of the UI
+                # (see also OPENCLOSE_AREA_WIDTH, but that's defined only for one of our two implems)
                 # we presume they're toggling the openclose decoration
                 node = item.node
                 node.open = not node.open
@@ -2179,6 +2207,17 @@ class ModelTreeGui(QTreeView, ModelTreeGui_common):
 
 # newer version of model tree gui which doesn't use QTreeView [bruce 070529]
 
+MT_CONTENT_WIDTH = 500 # fixed content width for now
+
+OPENCLOSE_AREA_WIDTH = 20
+INDENT_OFFSET = 20
+INDENT_0 = 20
+
+MT_CONTENT_TOP_Y = 0
+
+def x_for_indent(n):
+    return INDENT_0 + INDENT_OFFSET * n
+
 class MT_View(QtGui.QWidget):
     "mt contents view"
     def __init__(self, parent, palette_widget, modeltreegui):
@@ -2211,10 +2250,9 @@ class MT_View(QtGui.QWidget):
         ## painter.drawImage(QtCore.QPoint(0, 0), self.image)
         return
     
-    def sizeHint(self): # cmts from when in other class
-        return QtCore.QSize(500,700  ) ###k should depend on number of exposed items. Bug: treated as strict minimum.
-            # will this help? setSizePolicy(QtGui.QSizePolicy.Ignored, QtGui.QSizePolicy.Ignored -- yes
-            # but where are the scrollbars?
+    def sizeHint(self):
+        # Note: this probably has no effect, since it's overridden by a resize in every mt_update.
+        return QtCore.QSize(MT_CONTENT_WIDTH, 700)
     
     def paintEvent(self, event):
         # Note: if this paintEvent was in QAbstractScrollArea, Qt doc for that warns:
@@ -2229,7 +2267,7 @@ class MT_View(QtGui.QWidget):
         painter.begin(self)
         try:
             topnodes = self.ne1model.get_topnodes() ###??
-            x, y = 20, 0
+            x, y = x_for_indent(0), MT_CONTENT_TOP_Y
             for node in topnodes:
                 y = self.paint_subtree(node, painter, x, y)
             pass
@@ -2252,11 +2290,12 @@ class MT_View(QtGui.QWidget):
                 pixmap = self.mac_collapsed
             w = pixmap.width()
             h = pixmap.height()
-            painter.drawPixmap(x - 10 - w/2, y + ITEM_HEIGHT/2 - h/2, pixmap) # adjust posn for pixmap size, to center it
+            painter.drawPixmap(x - (OPENCLOSE_AREA_WIDTH + w)/2, y + (ITEM_HEIGHT - h)/2, pixmap)
+                # this adjusts posn for pixmap size, to center the pixmap
             pass
         y += ITEM_HEIGHT
         if open:
-            x += 20
+            x += INDENT_OFFSET
             for child in node.members:
                 y = self.paint_subtree(child, painter, x, y)
         return y
@@ -2266,8 +2305,8 @@ class MT_View(QtGui.QWidget):
         and return (node, its depth, its y0).
         If no node is under it, return None, None, None.
         """
-        y0 = 0
-        d = 0
+        y0 = MT_CONTENT_TOP_Y
+        d = 0 # indent level
         if y < y0:
             return None, None, None
         for child in self.ne1model.get_topnodes():
@@ -2293,6 +2332,47 @@ class MT_View(QtGui.QWidget):
                 if resnode:
                     return resnode, resdepth, resy0, y0
         return (None, None, None, y0)
+
+    # WARNING: the following methods duplicate some of the code in _our_QItemDelegate in the other MT implem, far above.
+    
+    def createEditor(self, node):
+        "Create and return a QLineEdit child widget to serve as an editor for the given node; initialize its text."
+        parent = self
+        qle = QLineEdit(parent)
+        self.setEditorData(qle, node)
+        return qle
+
+    def setEditorData(self, lineEdit, node):
+        "copy the editable data from node to lineEdit"
+        value = node.name
+        lineEdit.setText(value)
+        return
+
+    def setModelData(self, lineEdit, node):
+        "copy the editable data from lineEdit to node (if permitted); display a statusbar message about the result"
+        # Note: try_rename checks node.rename_enabled()
+        # BUG: try_rename doesn't handle unicode (though it seems to handle some non-ascii chars somehow)
+        ok, text = node.try_rename( lineEdit.text() )
+        # if ok, text is the new text, perhaps modified;
+        # if not ok, text is an error message
+        if ok:
+            self.statusbar_message( "renamed node to [%s]" % text ) ###IMPLEM ##e need quote_html??
+        else:
+            self.statusbar_message( "can't rename node: %s" % text )
+        return
+    
+    def updateEditorGeometry(self, editor, option, index):
+        rect = option.rect
+        rect.setX(rect.x() + _ICONSIZE[0])
+        qfm = QFontMetrics(editor.font())
+        width = qfm.width(editor.text()) + 10
+        width = min(width, rect.width() - _ICONSIZE[0])
+##        parent = self.parent()
+        parent = self
+        width = min(width, parent.width() - 50 - rect.x())
+        rect.setWidth(width)
+        editor.setGeometry(rect)
+        return
         
     pass # end of class MT_View
 
@@ -2372,7 +2452,7 @@ class new_ModelTreeGui(QScrollArea, ModelTreeGui_common):#bruce 070529 rewrite
 
 ##        self._debug_scrollbars("mt_update pre-resize")
 
-        self.view.resize(500,height)#########k
+        self.view.resize(MT_CONTENT_WIDTH, height)
         #e updateGeometry? guess: this does that itself. I don't know for sure, but the scrollbars do seem to adjust properly.
 
 ##        self._debug_scrollbars("mt_update post-resize")
@@ -2428,10 +2508,13 @@ class new_ModelTreeGui(QScrollArea, ModelTreeGui_common):#bruce 070529 rewrite
         if node:
             item = self.nodeItem(node)
             if 1:
-                cx0 = depth * 20 + 20 # this is correct if the rect is supposed to be including the type icon -- is it??
+                cx0 = x_for_indent(depth)
+                    # Note: this is correct if the rect is supposed to be including the type icon -- is it? I think so.
+                    # (This affects whether clicks on type icon can select the node. I think it's good if they can.)
                 x0 = cx0 - dx
                 y0 = cy0 - dy
-                w = 500 #### STUB, but good enough for now -- maybe better than being correct re clicks to right of text?? not sure.
+                w = MT_CONTENT_WIDTH #STUB, but good enough for now --
+                    # maybe better than being correct re clicks to right of text?? not sure.
                     # To make it correct, could use the code that makes a temporary QLineEdit, if slow is ok (I think it is)...
                     # Wait, that code is being used on exactly this value in our caller, so what we set here doesn't matter!
                 h = ITEM_HEIGHT
@@ -2444,6 +2527,12 @@ class new_ModelTreeGui(QScrollArea, ModelTreeGui_common):#bruce 070529 rewrite
     def set_scrollpos(self, pos): 
         assert 0, "don't use set_scrollpos in QScrollBar implem without thinking twice!"
 
+    def mouseDoubleClickEvent(self, event):
+        self.mousePressEvent(event, _doubleclick = True) # this calls the following method in self (sometimes)
+
+    def handle_doubleclick(self, event, item, rect):
+        print "handle_doubleclick", event, item, rect#### this gets called
+    
     pass # end of class new_ModelTreeGui
 
 if debug_pref("MT: new code (next session)?", Choice_boolean_False, non_debug = True, prefs_key = True):
@@ -2473,6 +2562,12 @@ if debug_pref("MT: new code (next session)?", Choice_boolean_False, non_debug = 
 #     - is icon caching helping?
 #     - make an image to keep it in, so it scrolls faster?
 #     Maybe enough to just draw only in inval rect.
+#
+# - other:
+#   - hsb always there
+#   - rename_enabled ignored
+#   - maybe so are some props about DND permitted (not sure)
+
 
 
 ################ End of implementation #############################
