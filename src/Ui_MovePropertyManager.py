@@ -10,8 +10,7 @@ from PyQt4 import QtCore, QtGui
 from PyQt4.Qt import *
 from Utility import geticon, getpixmap
 from qt4transition import qt4todo
-
-
+from PropMgr_Constants import *
 
 class Ui_MovePropertyManager(object):
     def setupUi(self, MovePropertyManager):
@@ -118,58 +117,39 @@ class Ui_MovePropertyManager(object):
 	# for this Property Manager are added first. Mark 2007-05-29
         from PropMgrBaseClass import fitPropMgrToContents
 	fitPropMgrToContents(MovePropertyManager)
-        
+    
     def ui_doneCancelButtonRow(self, MovePropertyManager):
-        #Start Done , Abort, button row        
+        #Start Done , Abort, button row
+        
         hboxlayout_buttonrow = QtGui.QHBoxLayout()
         
-        leftSpacer = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QSizePolicy.Minimum)
-        hboxlayout_buttonrow.addItem(leftSpacer)        
-                        
+        hSpacer = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QSizePolicy.Minimum)
+        hboxlayout_buttonrow.addItem(hSpacer)
+              
         self.button_frame = QtGui.QFrame(MovePropertyManager)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(0),QtGui.QSizePolicy.Policy(0))
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.button_frame.sizePolicy().hasHeightForWidth())
-        self.button_frame.setSizePolicy(sizePolicy)
-        self.button_frame.setFrameShape(QtGui.QFrame.StyledPanel)
-        self.button_frame.setFrameShadow(QtGui.QFrame.Raised)
-        self.button_frame.setObjectName("button_frame")
+
+        self.button_frame.setFrameShape(QtGui.QFrame.NoFrame)
+        self.button_frame.setFrameShadow(QtGui.QFrame.Plain)
         
         self.hboxlayout_buttonframe = QtGui.QHBoxLayout(self.button_frame)
-        self.hboxlayout_buttonframe.setMargin(2)
-        self.hboxlayout_buttonframe.setSpacing(2)
-        self.hboxlayout_buttonframe.setObjectName("hboxlayout_buttonframe")
+        self.hboxlayout_buttonframe.setMargin(pmTopRowBtnsMargin)
+        self.hboxlayout_buttonframe.setSpacing(pmTopRowBtnsSpacing)
                 
-        self.done_btn = QtGui.QPushButton(self.button_frame)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(0),QtGui.QSizePolicy.Policy(0))
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.done_btn.sizePolicy().hasHeightForWidth())
-        self.done_btn.setSizePolicy(sizePolicy)
-
+        self.done_btn = QtGui.QToolButton(self.button_frame)
         self.done_btn.setIcon(geticon("ui/actions/Properties Manager/Done.png"))
-        self.done_btn.setObjectName("done_btn")        
-        
-        self.hboxlayout_buttonframe.addWidget(self.done_btn)        
+	self.done_btn.setIconSize(QSize(22,22))
+        self.hboxlayout_buttonframe.addWidget(self.done_btn)
                 
-        self.whatthis_btn = QtGui.QPushButton(self.button_frame)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(0),QtGui.QSizePolicy.Policy(0))
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.whatthis_btn.sizePolicy().hasHeightForWidth())
-        self.whatthis_btn.setSizePolicy(sizePolicy)
-        self.whatthis_btn.setIcon(geticon("ui/actions/Properties Manager/WhatsThis.png"))
-        self.whatthis_btn.setObjectName("whatthis_btn")
-        self.hboxlayout_buttonframe.addWidget(self.whatthis_btn)
-        
+        self.whatsthis_btn = QtGui.QToolButton(self.button_frame)
+        self.whatsthis_btn.setIcon(geticon("ui/actions/Properties Manager/WhatsThis.png"))
+	self.whatsthis_btn.setIconSize(QSize(22,22))
+        self.hboxlayout_buttonframe.addWidget(self.whatsthis_btn)
+
         hboxlayout_buttonrow.addWidget(self.button_frame)
         
-        rightSpacer = QtGui.QSpacerItem(40, 10, QtGui.QSizePolicy.Expanding, QSizePolicy.Minimum)
-        hboxlayout_buttonrow.addItem(rightSpacer)
-    
-        self.vboxlayout.addLayout(hboxlayout_buttonrow)        
-        #End Done , Abort button row
+        hboxlayout_buttonrow.addItem(hSpacer)
+
+        self.vboxlayout.addLayout(hboxlayout_buttonrow)
         
     def ui_moveGroupBox(self, MovePropertyManager):
         #Start Move Groupbox

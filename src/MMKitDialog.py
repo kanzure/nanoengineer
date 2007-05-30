@@ -197,8 +197,8 @@ class Ui_MMKitDialog(object):
         
         hboxlayout_buttonrow = QtGui.QHBoxLayout()
         
-        leftSpacer = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QSizePolicy.Minimum)
-        hboxlayout_buttonrow.addItem(leftSpacer)
+        hSpacer = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QSizePolicy.Minimum)
+        hboxlayout_buttonrow.addItem(hSpacer)
               
         self.button_frame = QtGui.QFrame(MMKitDialog)
 
@@ -214,17 +214,15 @@ class Ui_MMKitDialog(object):
 	self.done_btn.setIconSize(QSize(22,22))
         self.hboxlayout_buttonframe.addWidget(self.done_btn)
                 
-        self.whatthis_btn = QtGui.QToolButton(self.button_frame)
-        self.whatthis_btn.setIcon(geticon("ui/actions/Properties Manager/WhatsThis.png"))
-	self.whatthis_btn.setIconSize(QSize(22,22))
-        self.hboxlayout_buttonframe.addWidget(self.whatthis_btn)
+        self.whatsthis_btn = QtGui.QToolButton(self.button_frame)
+        self.whatsthis_btn.setIcon(geticon("ui/actions/Properties Manager/WhatsThis.png"))
+	self.whatsthis_btn.setIconSize(QSize(22,22))
+        self.hboxlayout_buttonframe.addWidget(self.whatsthis_btn)
 
         hboxlayout_buttonrow.addWidget(self.button_frame)
         
-        rightSpacer = QtGui.QSpacerItem(40, 10, QtGui.QSizePolicy.Expanding, QSizePolicy.Minimum)
-        hboxlayout_buttonrow.addItem(rightSpacer)
+        hboxlayout_buttonrow.addItem(hSpacer)
     
-        #self.vboxlayout.addWidget(self.button_frame)
         self.vboxlayout.addLayout(hboxlayout_buttonrow)
         
         #End Done , Abort button row

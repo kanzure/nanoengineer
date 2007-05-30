@@ -23,6 +23,7 @@ import sys
 from PyQt4 import QtCore, QtGui
 from PyQt4.Qt import *
 from Utility import geticon, getpixmap
+from PropMgr_Constants import *
 
 __author__ = "Ninad"
 
@@ -141,73 +142,42 @@ class Ui_CookiePropertyManager(object):
 	fitPropMgrToContents(CookiePropertyManager)
         
     def ui_doneCancelButtonRow(self, CookiePropertyManager):
-        
         #Start Done , Abort, button row
         
         hboxlayout_buttonrow = QtGui.QHBoxLayout()
         
-        leftSpacer = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, 
-                                       QSizePolicy.Minimum)
-        hboxlayout_buttonrow.addItem(leftSpacer)
+        hSpacer = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QSizePolicy.Minimum)
+        hboxlayout_buttonrow.addItem(hSpacer)
+              
         self.button_frame = QtGui.QFrame(CookiePropertyManager)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(0),
-                                       QtGui.QSizePolicy.Policy(0))
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(
-            self.button_frame.sizePolicy().hasHeightForWidth())
-        self.button_frame.setSizePolicy(sizePolicy)
-        self.button_frame.setFrameShape(QtGui.QFrame.StyledPanel)
-        self.button_frame.setFrameShadow(QtGui.QFrame.Raised)
-        self.button_frame.setObjectName("button_frame")
+
+        self.button_frame.setFrameShape(QtGui.QFrame.NoFrame)
+        self.button_frame.setFrameShadow(QtGui.QFrame.Plain)
         
         self.hboxlayout_buttonframe = QtGui.QHBoxLayout(self.button_frame)
-        self.hboxlayout_buttonframe.setMargin(2)
-        self.hboxlayout_buttonframe.setSpacing(2)
-        self.hboxlayout_buttonframe.setObjectName("hboxlayout_buttonframe")
+        self.hboxlayout_buttonframe.setMargin(pmTopRowBtnsMargin)
+        self.hboxlayout_buttonframe.setSpacing(pmTopRowBtnsSpacing)
                 
-        self.done_btn = QtGui.QPushButton(self.button_frame)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(0),
-                                       QtGui.QSizePolicy.Policy(0))
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.done_btn.sizePolicy().hasHeightForWidth())
-        self.done_btn.setSizePolicy(sizePolicy)
-
+        self.done_btn = QtGui.QToolButton(self.button_frame)
         self.done_btn.setIcon(geticon("ui/actions/Properties Manager/Done.png"))
-        self.done_btn.setObjectName("done_btn")
-        
+	self.done_btn.setIconSize(QSize(22,22))
         self.hboxlayout_buttonframe.addWidget(self.done_btn)
-        
-        self.abort_btn = QtGui.QPushButton(self.button_frame)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(0),QtGui.QSizePolicy.Policy(0))
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.abort_btn.sizePolicy().hasHeightForWidth())
-        self.abort_btn.setSizePolicy(sizePolicy)
+	
+	self.abort_btn = QtGui.QToolButton(self.button_frame)
         self.abort_btn.setIcon(geticon("ui/actions/Properties Manager/Abort.png"))
-        self.abort_btn.setObjectName("abort_btn")
+	self.abort_btn.setIconSize(QSize(22,22))
         self.hboxlayout_buttonframe.addWidget(self.abort_btn)
-                    
-        
-        self.whatsthis_btn = QtGui.QPushButton(self.button_frame)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(0),QtGui.QSizePolicy.Policy(0))
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.whatsthis_btn.sizePolicy().hasHeightForWidth())
-        self.whatsthis_btn.setSizePolicy(sizePolicy)
+                
+        self.whatsthis_btn = QtGui.QToolButton(self.button_frame)
         self.whatsthis_btn.setIcon(geticon("ui/actions/Properties Manager/WhatsThis.png"))
-        self.whatsthis_btn.setObjectName("whatsthis_btn")
+	self.whatsthis_btn.setIconSize(QSize(22,22))
         self.hboxlayout_buttonframe.addWidget(self.whatsthis_btn)
-        
+
         hboxlayout_buttonrow.addWidget(self.button_frame)
         
-        rightSpacer = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QSizePolicy.Minimum)
-        hboxlayout_buttonrow.addItem(rightSpacer)
-    
-        #self.vboxlayout.addWidget(self.button_frame)
+        hboxlayout_buttonrow.addItem(hSpacer)
+
         self.vboxlayout.addLayout(hboxlayout_buttonrow)
-        #End Done , Abort button row
     
     def ui_cookieSpecsGroupBox(self, CookiePropertyManager):
         

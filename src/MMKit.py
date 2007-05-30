@@ -15,7 +15,7 @@ bruce has fixed some bugs in it.
 '''
 
 from MMKitDialog import *
-from PyQt4.Qt import Qt, QDialog, SIGNAL, QIcon, QVBoxLayout, QStringList, QFileDialog, QDir, QTreeView, QTreeWidgetItem, QAbstractItemDelegate
+from PyQt4.Qt import Qt, QDialog, SIGNAL, QIcon, QVBoxLayout, QStringList, QFileDialog, QDir, QTreeView, QTreeWidgetItem, QAbstractItemDelegate, QWhatsThis
 from ThumbView import MMKitView, ChunkView
 from elements import PeriodicTable
 from constants import diTUBES
@@ -83,6 +83,10 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
 		     self.toggle_advancedOptions_groupBox)
         
         self.connect(self.done_btn,SIGNAL("clicked()"),win.toolsDone)
+	
+	self.connect(self.whatsthis_btn,
+                     SIGNAL("clicked()"),
+                     QWhatsThis.enterWhatsThisMode)
 
         # Make the elements act like a big exclusive radio button.
         self.theElements = QtGui.QButtonGroup()

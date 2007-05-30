@@ -6,7 +6,7 @@ import sys
 from PyQt4 import QtCore, QtGui
 from Ui_ExtrudePropertyManager import Ui_ExtrudePropertyManager
 from PropertyManagerMixin import PropertyManagerMixin
-from PyQt4.Qt import Qt, SIGNAL
+from PyQt4.Qt import Qt, SIGNAL, QWhatsThis
 
 class ExtrudePropertyManager(QtGui.QWidget, PropertyManagerMixin, Ui_ExtrudePropertyManager):
     def __init__(self):
@@ -24,6 +24,9 @@ class ExtrudePropertyManager(QtGui.QWidget, PropertyManagerMixin, Ui_ExtrudeProp
         self.connect(self.advancedOptions_groupBoxButton, SIGNAL("clicked()"),self.toggle_advancedOptions_groupBox)      
         self.connect(self.done_btn,SIGNAL("clicked()"),self.w.toolsDone)
         self.connect(self.abort_btn,SIGNAL("clicked()"),self.w.toolsCancel)
+        self.connect(self.whatsthis_btn,
+                     SIGNAL("clicked()"),
+                     QWhatsThis.enterWhatsThisMode)
         
     def toggle_productSpec_groupBox(self):
         self.toggle_groupbox(self.productSpec_groupBoxButton,
@@ -32,12 +35,6 @@ class ExtrudePropertyManager(QtGui.QWidget, PropertyManagerMixin, Ui_ExtrudeProp
     def toggle_extrudeDirection_groupBox(self):
         self.toggle_groupbox(self.extrudeDirection_groupBoxButton)
     
-
     def toggle_advancedOptions_groupBox(self):
         self.toggle_groupbox(self.advancedOptions_groupBoxButton, 
                              self.advancedOptions_groupBoxWidget)
-        
-        
-        
-        
-    

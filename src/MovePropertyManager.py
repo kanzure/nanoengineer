@@ -14,7 +14,7 @@ import sys
 from PyQt4 import QtCore, QtGui
 from Ui_MovePropertyManager import Ui_MovePropertyManager
 from PropertyManagerMixin import PropertyManagerMixin
-from PyQt4.Qt import Qt, SIGNAL
+from PyQt4.Qt import Qt, SIGNAL, QWhatsThis
 from Utility import geticon, getpixmap
 
 class MovePropertyManager(QtGui.QWidget, PropertyManagerMixin, Ui_MovePropertyManager):
@@ -30,6 +30,9 @@ class MovePropertyManager(QtGui.QWidget, PropertyManagerMixin, Ui_MovePropertyMa
         #connect slots
         self.connect(self.sponsor_btn,SIGNAL("clicked()"),self.sponsor_btn_clicked)
         self.connect(self.done_btn,SIGNAL("clicked()"),self.w.toolsDone)
+        self.connect(self.whatsthis_btn,
+                     SIGNAL("clicked()"),
+                     QWhatsThis.enterWhatsThisMode)
        
         self.connect(self.move_groupBoxButton, SIGNAL("clicked()"),self.activate_moveGroupBox_using_groupButton)            
         self.connect(self.rotate_groupBoxButton, SIGNAL("clicked()"),self.activate_rotateGroupBox_using_groupButton)

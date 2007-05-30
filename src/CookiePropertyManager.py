@@ -6,7 +6,7 @@ import sys
 from PyQt4 import QtCore, QtGui
 from Ui_CookiePropertyManager import Ui_CookiePropertyManager
 from PropertyManagerMixin import PropertyManagerMixin
-from PyQt4.Qt import Qt, SIGNAL
+from PyQt4.Qt import Qt, SIGNAL, QWhatsThis
 
 class CookiePropertyManager(QtGui.QWidget, PropertyManagerMixin, Ui_CookiePropertyManager):
     def __init__(self):
@@ -23,6 +23,9 @@ class CookiePropertyManager(QtGui.QWidget, PropertyManagerMixin, Ui_CookieProper
         self.connect(self.advancedOptions_groupBoxButton, SIGNAL("clicked()"),self.toggle_advancedOptions_groupBox)    
         self.connect(self.done_btn,SIGNAL("clicked()"),self.w.toolsDone)
         self.connect(self.abort_btn,SIGNAL("clicked()"),self.w.toolsCancel)
+        self.connect(self.whatsthis_btn,
+                     SIGNAL("clicked()"),
+                     QWhatsThis.enterWhatsThisMode)
         
                 
     def toggle_cookieSpec_groupBox(self):
