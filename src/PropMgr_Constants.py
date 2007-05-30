@@ -49,6 +49,15 @@ pmGrpBoxGridLayoutSpacing = 4 # Grid contains all widgets in a grpbox
 pmGridLayoutMargin = 2 # Grid contains all widgets in a grpbox (obsolete)
 pmGridLayoutSpacing = 4 # Grid contains all widgets in a grpbox (obsolete)
 
+# Label alignment constants used for layouts.
+pmLabelRightAlignment = Qt.AlignRight | \
+                      Qt.AlignTrailing | \
+                      Qt.AlignVCenter # Label will be right justified.
+
+pmLabelLeftAlignment = Qt.AlignLeft | \
+                      Qt.AlignLeading | \
+                      Qt.AlignVCenter # Label will be left justified.
+
 # Directory containing icons/images for the property manager.
 pmImagePath = "ui/actions/Properties Manager/"
 
