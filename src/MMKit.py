@@ -40,6 +40,8 @@ AtomsPage=0
 ClipboardPage=1
 LibraryPage=2
 
+noblegases = ["He", "Ne", "Ar", "Kr"] # Mark 2007-05-31
+
 # debugging flags -- do not commit with True
 debug_mmkit_events = False
 
@@ -222,14 +224,6 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
 	
 	currentIndex = self.mmkit_tab.currentIndex()
 	atomPageIndex = self.mmkit_tab.indexOf(self.atomsPage)
-
-	"""
-	msg = "Double click in empty space to insert a single " + elm.name + " atom. \
-	Click on an atom's <i>red bondpoint</i> to attach a " + elm.name + " atom to it."
-	
-	self.MsgTextEdit.clear()
-	self.MsgTextEdit.insertHtml(msg)
-	"""
 		
         ##if elm == self.elm and self.currentPageOpen(AtomsPage): return
 	if elm == self.elm and (currentIndex == atomPageIndex) : return
@@ -266,17 +260,20 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
 	"""
 	pageIndex = self.mmkit_tab.currentIndex()
         page = None
+        
         if pageIndex is 0: # atomsPage
-	    msg = "Double click in empty space to insert a single " + self.elm.name + " atom. \
-	    Click on an atom's <i>red bondpoint</i> to attach a " + self.elm.name + " atom to it."
+	    msg = "Double click in empty space to insert a single " + self.elm.name + " atom."
+	    if not self.elm.symbol in noblegases:
+		msg += "Click on an atom's <i>red bondpoint</i> to attach a " + self.elm.name + " atom to it."
+        
         elif pageIndex is 1: # clipboardPage
-	    # Clipboard messages for message box.
 	    pastableItems = self.w.assy.shelf.get_pastable_chunks()
 	    if pastableItems:
 		msg = "Double click in empty space to insert a copy of the selected clipboard item. \
 		Click on a <i>red bondpoint</i> to attach a copy of the selected clipboard item."
 	    else:
 		msg = "There are no items on the clipboard."
+        
         elif pageIndex is 2: # libraryPage
 	    msg = "Double click in empty space to insert a copy of the selected part in the library."
 	
@@ -668,15 +665,7 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
         else:
             return False
            
-    def _libPageView(self, isFile=False):
-	
-	"""
-	#@@@ Part library messages for message box. Mark 2007-05-30
-	msg = "Double click in empty space to insert a copy of the selected part in the library."
-	self.MsgTextEdit.clear()
-	self.MsgTextEdit.insertHtml(msg)
-	"""
-	
+    def _libPageView(self, isFile=False):	
         item = self.dirView.selectedItem()
         if not isFile and not isinstance(item, self.FileItem):
             self.newModel = None
@@ -761,17 +750,6 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
             newModel = self.pastableItems[i]
         self.elemGLPane.updateModel(newModel)
         self.update_clipboard_page_icon()
-	
-	"""
-	#@@@ Clipboard messages for message box. Mark 2007-05-30
-	if self.pastableItems:
-	    msg = "Double click in empty space to insert a copy of the selected clipboard item. \
-	    Click on a <i>red bondpoint</i> to attach a copy of the selected clipboard item."
-	else:
-	    msg = "There are no items on the clipboard."
-	self.MsgTextEdit.clear()
-	self.MsgTextEdit.insertHtml(msg)
-	"""
         
     
     def update_clipboard_page_icon(self):
