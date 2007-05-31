@@ -128,6 +128,10 @@ class modelTree(modelTreeGui.Ne1Model_api):
         self.mt_update()
         return
 
+    def statusbar_message(self, text): #bruce 070531 # note: not presently used; untested
+        self.modelTreeGui.statusbar_message(text)
+        return
+
     def update_select_mode(self): #bruce 050124; should generalize and refile; should be used for more or for all events ###@@@
         #bruce 060403 revised this but didn't update docstring; now it can change from *Chunk modes to Build, only, I think
         """This should be called at the end of event handlers which might have
@@ -286,7 +290,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
             # [not anymore, as of some time before 050417] inserts assy.viewdata.members into assy.tree
         self.tree_node, self.shelf_node = self.assy.tree, self.assy.shelf
         topnodes = [self.assy.tree, self.assy.shelf]
-        if debug_preftree: ###IMPLEM #######@@@@@@@ this is where i am, bruce 050602
+        if debug_preftree: ###IMPLEM # this is where i am, bruce 050602
             try:
                 from Utility import Node
                 ## print "reloading prefsTree"
@@ -305,18 +309,21 @@ class modelTree(modelTreeGui.Ne1Model_api):
     def get_current_part_topnode(self): #bruce 070509 added this to the API
         return self.win.assy.part.topnode
     
-    def node_to_item(self, node):
-        return self.modelTreeGui.item_to_node_dict.get(node, None)
-            #bruce 070503 comment: likely ###BUG, should use node_to_item_dict -- but this is not called anywhere!
-            # (Where was it called in Qt3?)
+##    def node_to_item(self, node):
+##        return self.modelTreeGui.item_to_node_dict.get(node, None)
+##            #bruce 070503 comment: likely ###BUG, should use node_to_item_dict -- but this is not called anywhere!
+##            # (Where was it called in Qt3?)
 
     def open_clipboard(self): #bruce 050108, probably temporary
         ###REVIEW: do we need the effect that's disabled here?
-        if False:
+        if 0:
             # self.toggle_open( self.shelf_item, openflag = True)  # what we did in Qt 3
             # shelf_item should be the item for the self.assy.shelf node
             shelf_item = self.modelTreeGui.item_to_node_dict[self.assy.shelf]
                 #bruce 070503 comment: likely ###BUG, should use node_to_item_dict -- that explains the KeyError...
+                # update, bruce 070531: node_to_item_dict and/or node_to_item are not part of modelTreeGui API
+                # (or at least are no longer part of it if they were) and are not present in the new implem.
+                # They could be added back, but "items" are internal to the MT so that would probably be misguided.
             # typically that gives a KeyError
             self.toggle_open(shelf_item, openflag = True)
             # toggle_open is defined in TreeView.py in the Qt 3 code
@@ -512,6 +519,12 @@ class modelTree(modelTreeGui.Ne1Model_api):
         #ninad 070320 - context menu option to edit color of multiple chunks
         if allstats.nchunks:
             res.append(("Edit Chunk Color...", self.cmEditChunkColor))
+
+        #bruce 070531 - rename node -- temporary workaround for inability to do this in MT, or, maybe we'll like it to stay
+        if len(nodeset) == 1:
+            node = nodeset[0]
+            if node.rename_enabled():
+                res.append(("Rename node...", self.cmRenameNode)) ##k should it be called node or item in this menu text?
 
         # subsection of menu (not a submenu unless they specify one) for node-class-specific menu items, when exactly one node
         if len(nodeset) == 1:
@@ -904,7 +917,15 @@ class modelTree(modelTreeGui.Ne1Model_api):
              self.win.dispObjectColor(currentcolor = m_QColor)
          else:         
              self.win.dispObjectColor()
-        
+
+    def cmRenameNode(self): #bruce 070531
+        """Put up a dialog to let the user rename the selected node. (Only one node for now.)"""
+        nodeset = self.modelTreeGui.topmost_selected_nodes()
+        assert len(nodeset) == 1 # caller guarantees this
+        node = nodeset[0]
+        self.modelTreeGui.rename_node_using_dialog( node) # note: this checks node.rename_enabled() first
+        return
+    
     def cm_disable(self): #bruce 050421
         nodeset = self.modelTreeGui.topmost_selected_nodes()
         assert len(nodeset) == 1 # caller guarantees this

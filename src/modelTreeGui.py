@@ -972,6 +972,8 @@ class ModelTreeGui_common(ModelTreeGui_api): #bruce 070529 split this out of cla
         # or better, the method we're calling should do that for all widgets (or their parts) in a uniform way
         env.history.statusbar_msg( msg)
 
+    statusbar_message = statusbar_msg #bruce 070531; we should rename all methods of that name like this, after A9 goes out
+    
     # == Qt3 code for drag graphic, not yet ported, used only if debug_pref set [copied from Qt3/TreeWidget.py, bruce 070511]
 
     def get_pixmap_for_dragging_nodes_Qt3(self, drag_type, nodes):        
@@ -1644,6 +1646,69 @@ class ModelTreeGui_common(ModelTreeGui_api): #bruce 070529 split this out of cla
                 print "warning: tried to set scrollpos to %r, but it's now %r" % (pos,pos1)
         return
 
+    def rename_node_using_dialog(self, node): #bruce 070531
+        """[newly in public API -- ###doc that. Used by callers in more than one file.]
+        Put up a dialog to let the user rename the given node. (Only one node for now.)
+        Emit an appropriate statusbar message, and do necessary updates if successful.
+        """
+        # Note: see similar code in setModelData in another class.
+        ##e Question: why is renaming the toplevel node not permitted? Because we'll lose the name when opening the file?
+        oldname = node.name
+        ok = node.rename_enabled()
+        # Various things below can set ok to False (if it's not already)
+        # and set text to the reason renaming is not ok (for use in error messages).
+        # Or they can put the new name in text, leave ok True, and do the renaming.
+        if not ok:
+            text = "Renaming this node is not permitted."
+                #e someday we might want to call try_rename on fake text
+                # to get a more specific error message... for now it doesn't have one.
+        else:
+            ok, text = grab_text_line_using_dialog( title = "Rename",
+                                            label = "new name for node [%s]:" % oldname,
+                                            default = oldname )
+        if ok:
+            ok, text = node.try_rename(text)
+        if ok:
+            msg = "Renamed node [%s] to [%s]" % (oldname, text) ##e need quote_html??
+            self.statusbar_message(msg)
+            self.mt_update() #e might be redundant with caller; if so, might be a speed hit
+        else:
+            msg = "Can't rename node [%s]: %s" % (oldname, text) # text is reason why not
+            self.statusbar_message(msg)
+        return
+
+    pass # end of class ModelTreeGui_common
+
+# ==
+
+def grab_text_line_using_dialog( default = "", title = "title", label = "label" ): #bruce 070531 ##e refile this
+    """Use a dialog to get one line of text from the user, with given default (initial) value,
+    dialog window title, and label text inside the dialog. If successful, return (True, text);
+    if not, return (False, "Reason why not"). Returned text is a python string (not unicode).
+    """
+    # WARNING: several routines contain very similar code.
+    # We should combine them into one and refile it into widgets.py or the like.
+    # This one was modified from grab_text_line_using_dialog() (in exprs module)
+    # which was modified from _set_test_from_dialog(),
+    # which was modified from debug_runpycode_from_a_dialog(),
+    # which does the "run py code" debug menu command.
+    from PyQt4.Qt import QInputDialog, QLineEdit
+    parent = None
+    text, ok = QInputDialog.getText(parent, title, label, QLineEdit.Normal, default) # parent arg needed only in Qt4
+    if not ok:
+        reason = "Cancelled"
+    if ok:
+        try:
+            # fyi: type(text) == <class '__main__.qt.QString'>
+            text = str(text) ###BUG: won't work for unicode
+        except:
+            ok = False
+            reason = "Unicode is not yet supported"
+        ## text = text.replace("@@@",'\n')
+    if ok:
+        return True, text
+    else:
+        return False, reason
     pass
 
 # ==
@@ -2426,13 +2491,22 @@ class MT_View(QtGui.QWidget):
         "copy the editable data from lineEdit to node (if permitted); display a statusbar message about the result"
         # Note: try_rename checks node.rename_enabled()
         # BUG: try_rename doesn't handle unicode (though it seems to handle some non-ascii chars somehow)
+        # Note: see similar code in a method in another class in this file.
+        oldname = node.name
         ok, text = node.try_rename( lineEdit.text() )
         # if ok, text is the new text, perhaps modified;
         # if not ok, text is an error message
         if ok:
-            self.statusbar_message( "renamed node to [%s]" % text ) ###IMPLEM ##e need quote_html??
+            msg = "Renamed node [%s] to [%s]" % (oldname, text) ##e need quote_html??
+            self.statusbar_message(msg)
+            ## self.modeltreegui.mt_update() #e might be redundant with caller; if so, might be a speed hit
         else:
-            self.statusbar_message( "can't rename node: %s" % text )
+            msg = "Can't rename node [%s]: %s" % (oldname, text) # text is reason why not
+            self.statusbar_message(msg)
+        return
+
+    def statusbar_message(self, text): #bruce 070531
+        self.modeltreegui.statusbar_message(text)
         return
     
     def updateEditorGeometry(self, editor, option, index):
@@ -2605,7 +2679,11 @@ class new_ModelTreeGui(QScrollArea, ModelTreeGui_common):#bruce 070529 rewrite
         self.mousePressEvent(event, _doubleclick = True) # this calls the following method in self (sometimes)
 
     def handle_doubleclick(self, event, item, rect):
-        print "handle_doubleclick", event, item, rect#### this gets called
+        # print "handle_doubleclick" # this gets called when expected
+        # temporary kluge: use a dialog.
+        node = item.node
+        self.rename_node_using_dialog( node) # note: this checks node.rename_enabled() first
+        return
     
     pass # end of class new_ModelTreeGui
 
