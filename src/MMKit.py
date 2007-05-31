@@ -74,6 +74,8 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
      
         self.connect(self.thumbView_groupBoxButton, SIGNAL("clicked()"),
 		     self.toggle_thumbView_groupBox)
+	self.connect(self.message_groupBoxButton , SIGNAL("clicked()"),
+		     self.toggle_message_groupBox)
         self.connect(self.bondTool_groupBoxButton , SIGNAL("clicked()"),
 		     self.toggle_bondTool_groupBox)
         self.connect(self.MMKit_groupBoxButton, SIGNAL("clicked()"),
@@ -221,6 +223,13 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
 	currentIndex = self.mmkit_tab.currentIndex()
 	atomPageIndex = self.mmkit_tab.indexOf(self.atomsPage)
 
+	"""
+	msg = "Double click in empty space to insert a single " + elm.name + " atom. \
+	Click on an atom's <i>red bondpoint</i> to attach a " + elm.name + " atom to it."
+	
+	self.MsgTextEdit.clear()
+	self.MsgTextEdit.insertHtml(msg)
+	"""
 		
         ##if elm == self.elm and self.currentPageOpen(AtomsPage): return
 	if elm == self.elm and (currentIndex == atomPageIndex) : return
@@ -231,6 +240,8 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
 
         self.color = self.elemTable.getElemColor(elemNum)
         self.elm = self.elemTable.getElement(elemNum)
+	
+	self.update_MMKit_msg()
         
         self.update_hybrid_btngrp()
         
@@ -248,6 +259,34 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
         else:
             self.change2AtomsPage()
         self.tabCurrentChanged()
+	
+    def update_MMKit_msg(self):
+	"""Updates the message box with an informative message based on the current page
+	and current selected atom type.
+	"""
+	pageIndex = self.mmkit_tab.currentIndex()
+        page = None
+        if pageIndex is 0: # atomsPage
+	    msg = "Double click in empty space to insert a single " + self.elm.name + " atom. \
+	    Click on an atom's <i>red bondpoint</i> to attach a " + self.elm.name + " atom to it."
+        elif pageIndex is 1: # clipboardPage
+	    # Clipboard messages for message box.
+	    pastableItems = self.w.assy.shelf.get_pastable_chunks()
+	    if pastableItems:
+		msg = "Double click in empty space to insert a copy of the selected clipboard item. \
+		Click on a <i>red bondpoint</i> to attach a copy of the selected clipboard item."
+	    else:
+		msg = "There are no items on the clipboard."
+        elif pageIndex is 2: # libraryPage
+	    msg = "Double click in empty space to insert a copy of the selected part in the library."
+	
+	# Post message.
+	num_lines = 4
+	margin = 10 # See comments in PropMgrTextEdit._setHeight()
+	new_height = num_lines * self.MsgTextEdit.fontMetrics().lineSpacing() + margin
+	self.MsgTextEdit.setMaximumHeight(new_height)
+	self.MsgTextEdit.clear()
+	self.MsgTextEdit.insertHtml(msg)
     
     #== Atom Selection Filter helper methods
         
@@ -299,6 +338,9 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
         #self.w.depositAtomDashboard.filterlistLE.setText(filtered_syms)
 	self.filterlistLE.setText(filtered_syms)
     
+    def toggle_message_groupBox(self):
+        self.toggle_groupbox(self.message_groupBoxButton, self.MsgTextEdit)
+	
     def toggle_bondTool_groupBox(self):
         self.toggle_groupbox(self.bondTool_groupBoxButton, self.bondToolWidget)
         
@@ -571,6 +613,7 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
             print 'Error: MMKit page unknown: ', page
             
         self.elemGLPane.setFocus()
+	self.update_MMKit_msg()
         
     def chunkChanged(self, item, previous):
         '''Slot method. Called when user changed the selected chunk. '''
@@ -626,6 +669,14 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
             return False
            
     def _libPageView(self, isFile=False):
+	
+	"""
+	#@@@ Part library messages for message box. Mark 2007-05-30
+	msg = "Double click in empty space to insert a copy of the selected part in the library."
+	self.MsgTextEdit.clear()
+	self.MsgTextEdit.insertHtml(msg)
+	"""
+	
         item = self.dirView.selectedItem()
         if not isFile and not isinstance(item, self.FileItem):
             self.newModel = None
@@ -710,6 +761,17 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
             newModel = self.pastableItems[i]
         self.elemGLPane.updateModel(newModel)
         self.update_clipboard_page_icon()
+	
+	"""
+	#@@@ Clipboard messages for message box. Mark 2007-05-30
+	if self.pastableItems:
+	    msg = "Double click in empty space to insert a copy of the selected clipboard item. \
+	    Click on a <i>red bondpoint</i> to attach a copy of the selected clipboard item."
+	else:
+	    msg = "There are no items on the clipboard."
+	self.MsgTextEdit.clear()
+	self.MsgTextEdit.insertHtml(msg)
+	"""
         
     
     def update_clipboard_page_icon(self):

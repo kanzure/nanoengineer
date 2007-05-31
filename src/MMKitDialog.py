@@ -31,6 +31,7 @@ from Utility import geticon, getpixmap
 import env
 from prefs_constants import *
 from PropMgr_Constants import *
+from PropMgrBaseClass import getPalette
         
 class Ui_MMKitDialog(object):
     def setupUi(self, MMKitDialog):
@@ -163,7 +164,9 @@ class Ui_MMKitDialog(object):
         #done cancel rows (groupbox  methods also define spacer items 
         #after the groupbox)
         self.ui_doneCancelButtonRow(MMKitDialog)
-        
+	
+	self.ui_message_GroupBox(MMKitDialog)
+	
         self.ui_bondTools_grpBox(MMKitDialog)
         
         self.ui_preview_GroupBox(MMKitDialog)
@@ -226,6 +229,49 @@ class Ui_MMKitDialog(object):
         self.vboxlayout.addLayout(hboxlayout_buttonrow)
         
         #End Done , Abort button row
+    
+    def ui_message_GroupBox(self, MMKitDialog):
+        #Start Advanced Options GroupBox
+        self.message_groupBox = QtGui.QGroupBox(MMKitDialog)        
+        
+        self.message_groupBox.setAutoFillBackground(True) 
+        palette = MMKitDialog.getGroupBoxPalette()
+        self.message_groupBox.setPalette(palette)
+        
+        styleSheet = MMKitDialog.getGroupBoxStyleSheet()        
+        self.message_groupBox.setStyleSheet(styleSheet)
+        
+        self.vboxlayout_msgbox = QtGui.QVBoxLayout(self.message_groupBox)
+        self.vboxlayout_msgbox.setMargin(pmGrpBoxVboxLayoutMargin)
+        self.vboxlayout_msgbox.setSpacing(pmGrpBoxVboxLayoutSpacing)
+
+        self.message_groupBoxButton = \
+	    MMKitDialog.getGroupBoxTitleButton("Message", self.message_groupBox)
+        
+        self.vboxlayout_msgbox.addWidget(self.message_groupBoxButton)
+
+        # Yellow TextEdit here
+	
+	self.MsgTextEdit = QtGui.QTextEdit(self.message_groupBox)
+        self.MsgTextEdit.setMaximumHeight(80) # 80 pixels height
+        self.MsgTextEdit.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+	
+	msg_palette = getPalette(None,
+                          QPalette.Base,
+                          pmMessageTextEditColor)
+	
+	self.MsgTextEdit.setPalette(msg_palette)
+	self.MsgTextEdit.setReadOnly(True)
+	
+	self.vboxlayout_msgbox.addWidget(self.MsgTextEdit)
+	        
+        # End Message GroupBox
+        self.vboxlayout.addWidget(self.message_groupBox)
+	
+	# Height is fixed. Mark 2007-05-29.
+	self.message_groupBox.setSizePolicy(
+                QSizePolicy(QSizePolicy.Policy(QSizePolicy.Preferred),
+                            QSizePolicy.Policy(QSizePolicy.Fixed)))
     
     def ui_bondTools_grpBox(self, MMKitDialog):
         #Start Atom Bond tools Groupbox
