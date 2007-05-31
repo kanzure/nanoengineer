@@ -308,10 +308,11 @@ class PropMgrBaseClass:
         
         HeaderFrameHLayout.addWidget(self.header_pixmap)
         
-        # PropMgr title label (DNA)
+        # PropMgr title label
         self.header_label = QLabel(self.header_frame)
         header_label_palette = self.getPropMgrTitleLabelPalette()
         self.header_label.setPalette(header_label_palette)
+	self.header_label.setAlignment(pmLabelLeftAlignment)
 
         # PropMgr heading font (for label).
 	self.header_label.setFont(getHeaderFont())

@@ -79,6 +79,7 @@ class Ui_CookiePropertyManager(object):
         
         self.heading_label = QtGui.QLabel(self.heading_frame)
 	self.heading_label.setFont(getHeaderFont())
+	self.heading_label.setAlignment(pmLabelLeftAlignment)
         self.hboxlayout_heading.addWidget(self.heading_label)
         
         self.vboxlayout.addWidget(self.heading_frame)

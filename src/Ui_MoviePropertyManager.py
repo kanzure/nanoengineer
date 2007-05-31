@@ -76,7 +76,8 @@ class Ui_MoviePropertyManager(object):
         self.hboxlayout_heading .addWidget(self.heading_pixmap)
         
         self.heading_label = QtGui.QLabel(self.heading_frame)
-	self.heading_label.setFont(getHeaderFont())
+        self.heading_label.setFont(getHeaderFont())
+        self.heading_label.setAlignment(pmLabelLeftAlignment)
         self.hboxlayout_heading .addWidget(self.heading_label)
         
         self.vboxlayout.addWidget(self.heading_frame)
@@ -102,7 +103,7 @@ class Ui_MoviePropertyManager(object):
         self.ui_doneCancelButtonRow(MoviePropertyManager)
         self.ui_movieControlsGroupBox(MoviePropertyManager) 
         self.ui_movieOptionsGroupBox(MoviePropertyManager)    
-	self.ui_movieFilesGroupBox(MoviePropertyManager) 
+        self.ui_movieFilesGroupBox(MoviePropertyManager) 
             
                 
         #ninad 0700202 its  important to add this spacerItem in the main vboxlayout to prevent the size adjustments in 
@@ -111,9 +112,9 @@ class Ui_MoviePropertyManager(object):
         self.vboxlayout.addItem(spacerItem4)
         
         # This should be called last since it only works if all the widgets
-	# for this Property Manager are added first. Mark 2007-05-29
+        # for this Property Manager are added first. Mark 2007-05-29
         from PropMgrBaseClass import fitPropMgrToContents
-	fitPropMgrToContents(MoviePropertyManager)
+        fitPropMgrToContents(MoviePropertyManager)
     
     def ui_doneCancelButtonRow(self, MoviePropertyManager):
         #Start Done , Abort, button row
@@ -134,17 +135,17 @@ class Ui_MoviePropertyManager(object):
                 
         self.done_btn = QtGui.QToolButton(self.button_frame)
         self.done_btn.setIcon(geticon("ui/actions/Properties Manager/Done.png"))
-	self.done_btn.setIconSize(QSize(22,22))
+        self.done_btn.setIconSize(QSize(22,22))
         self.hboxlayout_buttonframe.addWidget(self.done_btn)
-	
-	self.abort_btn = QtGui.QToolButton(self.button_frame)
+        
+        self.abort_btn = QtGui.QToolButton(self.button_frame)
         self.abort_btn.setIcon(geticon("ui/actions/Properties Manager/Abort.png"))
-	self.abort_btn.setIconSize(QSize(22,22))
+        self.abort_btn.setIconSize(QSize(22,22))
         self.hboxlayout_buttonframe.addWidget(self.abort_btn)
                 
         self.whatsthis_btn = QtGui.QToolButton(self.button_frame)
         self.whatsthis_btn.setIcon(geticon("ui/actions/Properties Manager/WhatsThis.png"))
-	self.whatsthis_btn.setIconSize(QSize(22,22))
+        self.whatsthis_btn.setIconSize(QSize(22,22))
         self.hboxlayout_buttonframe.addWidget(self.whatsthis_btn)
 
         hboxlayout_buttonrow.addWidget(self.button_frame)
@@ -152,9 +153,9 @@ class Ui_MoviePropertyManager(object):
         hboxlayout_buttonrow.addItem(hSpacer)
 
         self.vboxlayout.addLayout(hboxlayout_buttonrow)
-	
+        
     def ui_movieControlsGroupBox(self, MoviePropertyManager):
-	#Start movieControls Groupbox
+        #Start movieControls Groupbox
         self.movieControls_groupBox = QtGui.QGroupBox(MoviePropertyManager)
         self.movieControls_groupBox .setObjectName("movieControls_groupBox")
                
@@ -188,43 +189,43 @@ class Ui_MoviePropertyManager(object):
             self.movieControlsGroupBox_widgetHolder)
         vlo_widgetholder.setMargin(4)
         vlo_widgetholder.setSpacing(6)
-	
-	#Movie Slider
-	self.w.frameNumberSL = QSlider()
-	self.w.frameNumberSL.setMaximum(999999)
-	self.w.frameNumberSL.setOrientation(QtCore.Qt.Horizontal)
-	
-	vlo_widgetholder.addWidget(self.w.frameNumberSL)
-	
-	#Movie Frame Update Label
-	
-	hlo_movieFrameUpdate = QtGui.QHBoxLayout()
-	
-	spacer1_movieUpdateLabelRow = QtGui.QSpacerItem(
+        
+        #Movie Slider
+        self.w.frameNumberSL = QSlider()
+        self.w.frameNumberSL.setMaximum(999999)
+        self.w.frameNumberSL.setOrientation(QtCore.Qt.Horizontal)
+        
+        vlo_widgetholder.addWidget(self.w.frameNumberSL)
+        
+        #Movie Frame Update Label
+        
+        hlo_movieFrameUpdate = QtGui.QHBoxLayout()
+        
+        spacer1_movieUpdateLabelRow = QtGui.QSpacerItem(
             5,
             10,
             QtGui.QSizePolicy.Expanding,
             QtGui.QSizePolicy.Minimum)
-	hlo_movieFrameUpdate.addItem(spacer1_movieUpdateLabelRow)
-	
-	self.w.movieFrameUpdateLabel = QtGui.QLabel("")
-	
-	hlo_movieFrameUpdate.addWidget(self.w.movieFrameUpdateLabel)
-	spacer2_movieUpdateLabelRow = QtGui.QSpacerItem(
+        hlo_movieFrameUpdate.addItem(spacer1_movieUpdateLabelRow)
+        
+        self.w.movieFrameUpdateLabel = QtGui.QLabel("")
+        
+        hlo_movieFrameUpdate.addWidget(self.w.movieFrameUpdateLabel)
+        spacer2_movieUpdateLabelRow = QtGui.QSpacerItem(
             5,
             10,
             QtGui.QSizePolicy.Expanding,
             QtGui.QSizePolicy.Minimum)
-	hlo_movieFrameUpdate.addItem(spacer2_movieUpdateLabelRow)
-	
-	vlo_widgetholder.addLayout(hlo_movieFrameUpdate)
-	
+        hlo_movieFrameUpdate.addItem(spacer2_movieUpdateLabelRow)
+        
+        vlo_widgetholder.addLayout(hlo_movieFrameUpdate)
+        
         #Movie Controls
-       	
+        
         self.movieButtonsToolBar = NE1ToolBar(
             self.movieControlsGroupBox_widgetHolder)
-	     
-	
+             
+        
         movieActionList = [self.w.movieResetAction,
                            self.w.moviePlayRevActiveAction,
                            self.w.moviePlayRevAction,
@@ -235,27 +236,27 @@ class Ui_MoviePropertyManager(object):
                            ]
         
         for action in movieActionList:
-	    self.movieButtonsToolBar.addAction(action)
-        	
-	self.w.moviePlayActiveAction.setVisible(0)
+            self.movieButtonsToolBar.addAction(action)
+                
+        self.w.moviePlayActiveAction.setVisible(0)
         self.w.moviePlayRevActiveAction.setVisible(0)
-		
+                
     
         vlo_widgetholder.addWidget(self.movieButtonsToolBar)
-	
-	self.vboxlayout.addWidget(self.movieControls_groupBox)
-	
-	spacer_movieControls_grpbx = QtGui.QSpacerItem(
+        
+        self.vboxlayout.addWidget(self.movieControls_groupBox)
+        
+        spacer_movieControls_grpbx = QtGui.QSpacerItem(
             10,
             10,
             QtGui.QSizePolicy.Expanding,
             QtGui.QSizePolicy.Minimum)
         
         self.vboxlayout.addItem(spacer_movieControls_grpbx) 
-	
+        
     def ui_movieFilesGroupBox(self, MoviePropertyManager):
-	
-	#Start movieFiles Groupbox
+        
+        #Start movieFiles Groupbox
         self.movieFiles_groupBox = QtGui.QGroupBox(MoviePropertyManager)
         self.movieFiles_groupBox .setObjectName("movieFiles_groupBox")
                
@@ -289,17 +290,17 @@ class Ui_MoviePropertyManager(object):
             self.movieFilesGroupBox_widgetHolder)
         vlo_widgetholder.setMargin(10)
         vlo_widgetholder.setSpacing(6)
-	
+        
 
-	
-	for action in self.w.fileOpenMovieAction, self.w.fileSaveMovieAction:
-	    btn = QtGui.QToolButton()
-	    btn.setDefaultAction(action)
-	    btn.setAutoRaise(True)
-	    btn.setText(action.text())
-	    btn.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
-	    vlo_widgetholder.addWidget(btn)	
-		        
+        
+        for action in self.w.fileOpenMovieAction, self.w.fileSaveMovieAction:
+            btn = QtGui.QToolButton()
+            btn.setDefaultAction(action)
+            btn.setAutoRaise(True)
+            btn.setText(action.text())
+            btn.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+            vlo_widgetholder.addWidget(btn)     
+                        
         #End movieFiles Options
         self.vboxlayout.addWidget(self.movieFiles_groupBox)
         spacer_movieFiles_grpbx = QtGui.QSpacerItem(
@@ -309,8 +310,8 @@ class Ui_MoviePropertyManager(object):
             QtGui.QSizePolicy.Minimum)
         
         self.vboxlayout.addItem(spacer_movieFiles_grpbx)  
-	
-	pass
+        
+        pass
     
     
     def ui_movieOptionsGroupBox(self, MoviePropertyManager):
@@ -348,88 +349,88 @@ class Ui_MoviePropertyManager(object):
             self.movieOptionsGroupBox_widgetHolder)
         vlo_widgetholder.setMargin(4)
         vlo_widgetholder.setSpacing(6)
-	
-	self.w.movieLoop_checkbox = QtGui.QCheckBox("Loop")    
-        self.w.movieLoop_checkbox.setObjectName("movieLoop_checkbox")
-	vlo_widgetholder.addWidget(self.w.movieLoop_checkbox)
-	
-	
-	hlo_frameNumber = QtGui.QHBoxLayout()
-	
-	#@@@ninad20070507 self.w.frameLabel was used by old movie dashboard. 
-	#it's references need to be  removed . Just define it here 
-	#for now to get rid of those errors. Its not used in ui anywhere
-	
-	self.w.frameLabel = QtGui.QLabel()
         
-	
-	self.frameLabel = QtGui.QLabel("Go to:")
-	self.frameLabel.setAlignment(Qt.AlignRight|Qt.AlignCenter)
-	self.frameLabel.setObjectName("frameLabel")
-	hlo_frameNumber.addWidget(self.frameLabel)
+        self.w.movieLoop_checkbox = QtGui.QCheckBox("Loop")    
+        self.w.movieLoop_checkbox.setObjectName("movieLoop_checkbox")
+        vlo_widgetholder.addWidget(self.w.movieLoop_checkbox)
+        
+        
+        hlo_frameNumber = QtGui.QHBoxLayout()
+        
+        #@@@ninad20070507 self.w.frameLabel was used by old movie dashboard. 
+        #it's references need to be  removed . Just define it here 
+        #for now to get rid of those errors. Its not used in ui anywhere
+        
+        self.w.frameLabel = QtGui.QLabel()
+        
+        
+        self.frameLabel = QtGui.QLabel("Go to:")
+        self.frameLabel.setAlignment(Qt.AlignRight|Qt.AlignCenter)
+        self.frameLabel.setObjectName("frameLabel")
+        hlo_frameNumber.addWidget(self.frameLabel)
     
-	self.w.frameNumberSB = QtGui.QSpinBox()
-	
+        self.w.frameNumberSB = QtGui.QSpinBox()
+        
 
-	font = QtGui.QFont(self.w.frameNumberSB.font())
-	font.setFamily("Sans Serif")
-	font.setPointSize(9)
-	font.setWeight(75)
-	font.setItalic(False)
-	font.setUnderline(False)
-	font.setStrikeOut(False)
-	font.setBold(True)
-	self.w.frameNumberSB.setFont(font)
-	self.w.frameNumberSB.setMaximum(999999)
-	self.w.frameNumberSB.setObjectName("frameNumberSB")
-	
-	hlo_frameNumber.addWidget(self.w.frameNumberSB)
-	
-	spacer_frameNumber = QtGui.QSpacerItem(
+        font = QtGui.QFont(self.w.frameNumberSB.font())
+        font.setFamily("Sans Serif")
+        font.setPointSize(9)
+        font.setWeight(75)
+        font.setItalic(False)
+        font.setUnderline(False)
+        font.setStrikeOut(False)
+        font.setBold(True)
+        self.w.frameNumberSB.setFont(font)
+        self.w.frameNumberSB.setMaximum(999999)
+        self.w.frameNumberSB.setObjectName("frameNumberSB")
+        
+        hlo_frameNumber.addWidget(self.w.frameNumberSB)
+        
+        spacer_frameNumber = QtGui.QSpacerItem(
             10,
             10,
             QtGui.QSizePolicy.Expanding,
             QtGui.QSizePolicy.Minimum)
-	
-	hlo_frameNumber.addItem(spacer_frameNumber)
-	
-	vlo_widgetholder.addLayout(hlo_frameNumber)
-	
-	
-	hlo_skip = QtGui.QHBoxLayout()
-	self.w.skipTL = QtGui.QLabel("Skip: ")
-	self.w.skipTL.setAlignment(Qt.AlignRight)
-	self.w.skipTL.setObjectName("skipTL")
-	hlo_skip.addWidget(self.w.skipTL)
-	
-	self.w.skipSB = QtGui.QSpinBox()
-	self.w.skipSB.setObjectName("skipSB")
-	self.w.skipSB.setRange(1,9999)
-	self.w.skipSB.setMaximum(999999)
-	
-	font = QtGui.QFont(self.w.skipSB.font())
-	font.setFamily("Sans Serif")
-	font.setPointSize(9)
-	font.setWeight(75)
-	font.setItalic(False)
-	font.setUnderline(False)
-	font.setStrikeOut(False)
-	font.setBold(True)
-	self.w.skipSB.setFont(font)
-		
-	hlo_skip.addWidget(self.w.skipSB)
-	
-	spacer_skip = QtGui.QSpacerItem(
+        
+        hlo_frameNumber.addItem(spacer_frameNumber)
+        
+        vlo_widgetholder.addLayout(hlo_frameNumber)
+        
+        
+        hlo_skip = QtGui.QHBoxLayout()
+        self.w.skipTL = QtGui.QLabel("Skip: ")
+        self.w.skipTL.setAlignment(Qt.AlignRight)
+        self.w.skipTL.setObjectName("skipTL")
+        hlo_skip.addWidget(self.w.skipTL)
+        
+        self.w.skipSB = QtGui.QSpinBox()
+        self.w.skipSB.setObjectName("skipSB")
+        self.w.skipSB.setRange(1,9999)
+        self.w.skipSB.setMaximum(999999)
+        
+        font = QtGui.QFont(self.w.skipSB.font())
+        font.setFamily("Sans Serif")
+        font.setPointSize(9)
+        font.setWeight(75)
+        font.setItalic(False)
+        font.setUnderline(False)
+        font.setStrikeOut(False)
+        font.setBold(True)
+        self.w.skipSB.setFont(font)
+                
+        hlo_skip.addWidget(self.w.skipSB)
+        
+        spacer_skip = QtGui.QSpacerItem(
             10,
             10,
             QtGui.QSizePolicy.Expanding,
             QtGui.QSizePolicy.Minimum)
-	
-	hlo_skip.addItem(spacer_skip)
-	
-	vlo_widgetholder.addLayout(hlo_skip)
+        
+        hlo_skip.addItem(spacer_skip)
+        
+        vlo_widgetholder.addLayout(hlo_skip)
 
-		        
+                        
         #End movieOptions Options
         self.vboxlayout.addWidget(self.movieOptions_groupBox)
         spacer_movieOptions_grpbx = QtGui.QSpacerItem(
