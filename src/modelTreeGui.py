@@ -2230,24 +2230,53 @@ class MT_View(QtGui.QWidget):
 
     def get_icons(self):
         from Utility import geticon, getpixmap
-        # STUB - use the ones for groupboxes. Later, copy to new files, then replace with better ones.
-        if 0:
-            self.mac_expanded = geticon("ui/modeltree/mac_expanded_icon.png")
-            self.mac_collapsed = geticon("ui/modeltree/mac_collapsed_icon.png")
-            print "icons: self.mac_collapsed = ",self.mac_collapsed,self.mac_expanded ##
-            # these don't work in drawPixmap (invalid type) and painter doesn't have drawIcon
-        else:
-            self.mac_expanded = getpixmap("ui/modeltree/mac_expanded_icon.png") # 16 x 8 (.width() x .height()), centering looks best
-            self.mac_collapsed = getpixmap("ui/modeltree/mac_collapsed_icon.png") # 16 x 15, centering looks best
-##            print "pixmaps: self.mac_collapsed = ",self.mac_collapsed,self.mac_expanded ##
-##            print "sizes:", self.mac_expanded.width(), self.mac_expanded.height(), # sizes 16 8 
-##            print " and:", self.mac_collapsed.width(), self.mac_collapsed.height(), # and 16 15
-
-##        self.win_expand = geticon("")
-##        self.win_collapsed = geticon("")
-        
-        # Note: we can also try QtGui.QImage and painter.drawImage -- works for crate.bmp and other test images
+        # note: geticon calls QIcon, but painter has no drawIcon, and drawPixmap doesn't accept them,
+        # so here we use getpixmap which calls QPixmap. We could also try QImage and painter.drawImage
+        # (known to work for crate.bmp and other test images, but presumably slower).
         ## painter.drawImage(QtCore.QPoint(0, 0), self.image)
+
+        if 0:
+            # these are the pixmaps meant for groupbox buttons on the Mac; they're workable here:        
+            self.mac_collapsed = getpixmap("ui/modeltree/mac_collapsed_icon.png") # 16 x 15, centering looks best
+            self.mac_expanded = getpixmap("ui/modeltree/mac_expanded_icon.png") # 16 x 8 (.width() x .height()), centering looks best
+            # (The Windows groupbox icons, win_expand_icon.png and win_collapse_icon.png, are not useful in an MT.)
+##            print "size:", self.mac_expanded.width(), self.mac_expanded.height(), # size 16 8
+        
+        # As of 070530 9pm the following are renamed copies of the Mac groupbox icons above,
+        # and are the same on Mac and Windows, but we should replace them with imitations of
+        # the standard ones for those platforms.
+        # We load them all here, since a debug_pref can switch between Mac and Win styles at runtime.
+        # The comments describe their conventional appearance (NIM for Win style) and its interpretation.
+        self.mac_collapsed = getpixmap("ui/modeltree/mac_collapsed_mtnode.png") # triangle pointing right (indicates "collapsed")
+        self.mac_expanded =  getpixmap("ui/modeltree/mac_expanded_mtnode.png") # triangle pointing down (indicates "expanded")
+        self.win_collapsed = getpixmap("ui/modeltree/win_collapsed_mtnode.png") # plus in a box (indicates "expand action")
+        self.win_expanded =  getpixmap("ui/modeltree/win_expanded_mtnode.png") # minus in a box (indicates "collapse action")
+        # Default MT style depends on platform, but user can change it at runtime
+        # to the same set of possibilities on all platforms. For now this uses debug_prefs.
+        if sys.platform == 'darwin':
+            # Macintosh
+            self._icon_style_choice = Choice(['mac', 'win'])
+            self._openclose_lines_choice = Choice_boolean_False
+        else:
+            # Windows or Linux
+            self._icon_style_choice = Choice(['win', 'mac'])
+            self._openclose_lines_choice = Choice_boolean_True
+        return
+
+    def _setup_openclose_style(self):
+        "[private] As an optimization, choose the openclose icons (etc) just once before drawing."
+        
+        style = debug_pref("MT: openclose icon style", self._icon_style_choice,
+                           non_debug = True, prefs_key = "A9/MT openclose icon style")
+        if style == 'mac':
+            self.collapsed_mtnode_icon = self.mac_collapsed
+            self.expanded_mtnode_icon = self.mac_expanded
+        else:
+            self.collapsed_mtnode_icon = self.win_collapsed
+            self.expanded_mtnode_icon = self.win_expanded
+
+        self.draw_openclose_lines = debug_pref("MT: openclose lines", self._openclose_lines_choice,
+                           non_debug = True, prefs_key = "A9/MT openclose lines")
         return
     
     def sizeHint(self):
@@ -2262,11 +2291,12 @@ class MT_View(QtGui.QWidget):
         # Question: would this change cliprect?
         ## painter.setViewport(0, 0, self.width(), self.height())
         if self.modeltreegui.MT_debug_prints():
-            print 'paint' ## "MT_View paintEvent" # works once we have update (didn't even need sizeHint to be called)
+            print 'paint' # note: this worked once we called update (it didn't require sizeHint to be defined)
+        self._setup_openclose_style()
         painter = QtGui.QPainter()
         painter.begin(self)
         try:
-            topnodes = self.ne1model.get_topnodes() ###??
+            topnodes = self.ne1model.get_topnodes()
             x, y = x_for_indent(0), MT_CONTENT_TOP_Y
             for node in topnodes:
                 y = self.paint_subtree(node, painter, x, y)
@@ -2275,19 +2305,59 @@ class MT_View(QtGui.QWidget):
             painter.end()
         return
     
-    def paint_subtree(self, node, painter, x, y):
+    def paint_subtree(self, node, painter, x, y, line_to_pos = None, last_child = True):
         """Paint node and its visible subtree (at x,y in painter);
         return the y value to use for the next lower node.
+           If this is a child node, the y position to which an "openclose line"
+        (in case we're drawing them) needs to be drawn up to (from the center
+         of our openclose icon) is passed in line_to_pos as an int; otherwise
+        line_to_pos is None. Also, if last_child is False, we draw the openclose
+        line (if we're drawing them) a bit lower down as well, so we can draw it
+        before our openclose icon so as not to obscure it. Warning: those optional
+        args are sometimes passed positionally.
         """
-        _paintnode(node, painter, x, y, self.palette_widget)
-        # decoration -- STUB -- Mac style for now
         openable = node.openable()
         open = node.open and openable
+        if open:
+            members = node.members
+        else:
+            members = ()
+        # openclose line
+        draw_openclose_lines = self.draw_openclose_lines
+        next_line_to_pos = y + ITEM_HEIGHT # easiest to do this all the time
+        if draw_openclose_lines:
+            # draw them first (including the start of one going down, if needed), so they won't obscure icons.
+            # In this section we draw the ones that go through (under) the center of our own openclose icon.
+            doanything = (line_to_pos is not None) or members
+            if doanything:
+                # compute openclose area center:
+                lx1 = x - OPENCLOSE_AREA_WIDTH / 2
+                ly1 = y + ITEM_HEIGHT / 2
+                painter.save() # otherwise we mess up the node text color -- I guess _paintnode is not self-contained re that
+                painter.setPen(QColor(Qt.gray)) # width 0, solid line
+            if line_to_pos is not None:
+                # vertical line
+                if last_child:
+                    painter.drawLine(lx1, line_to_pos, lx1, ly1 )
+                else:
+                    painter.drawLine(lx1, line_to_pos, lx1, y + ITEM_HEIGHT ) # this goes a bit lower down;
+                        # the knowledge of how much lower down is also known to the caller
+                        # (i.e. this recursive function, in members loop below)
+                # horizontal line
+                painter.drawLine(lx1, ly1, x + _ICONSIZE[0]/2, ly1)
+            if members:
+                painter.drawLine(lx1 + INDENT_OFFSET, ly1,
+                                 lx1 + INDENT_OFFSET, next_line_to_pos)
+            if doanything:
+                painter.restore()
+        # node type icon and node name text (possibly looking selected and/or disabled)
+        _paintnode(node, painter, x, y, self.palette_widget)
+        # openclose decoration -- uses style set up by _setup_openclose_style for Mac or Win
         if openable:
             if open:
-                pixmap = self.mac_expanded
+                pixmap = self.expanded_mtnode_icon
             else:
-                pixmap = self.mac_collapsed
+                pixmap = self.collapsed_mtnode_icon
             w = pixmap.width()
             h = pixmap.height()
             painter.drawPixmap(x - (OPENCLOSE_AREA_WIDTH + w)/2, y + (ITEM_HEIGHT - h)/2, pixmap)
@@ -2296,8 +2366,12 @@ class MT_View(QtGui.QWidget):
         y += ITEM_HEIGHT
         if open:
             x += INDENT_OFFSET
-            for child in node.members:
-                y = self.paint_subtree(child, painter, x, y)
+            for child in members:
+                its_last_child = (child is members[-1]) # wrong if children can occur twice in members
+                y0 = y
+                y = self.paint_subtree(child, painter, x, y, next_line_to_pos, its_last_child)
+                # following only matters if not its_last_child
+                next_line_to_pos = y0 + ITEM_HEIGHT
         return y
 
     def look_for_y(self, y):
