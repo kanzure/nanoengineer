@@ -14,7 +14,7 @@ from PyQt4.QtGui import *
 from PyQt4.Qt import *
 from Utility import geticon, getpixmap
 from Ui_MovePropertyManager import Ui_MovePropertyManager
-
+from PropMgr_Constants import *
 
 class Ui_FusePropertyManager(Ui_MovePropertyManager):
     def setupUi(self, FusePropertyManager):
@@ -75,20 +75,8 @@ class Ui_FusePropertyManager(Ui_MovePropertyManager):
         self.hboxlayout_heading .addWidget(self.heading_pixmap)
         
         self.heading_label = QtGui.QLabel(self.heading_frame)
-
-        font = QtGui.QFont(self.heading_label.font())
-        font.setFamily("Sans Serif")
-        font.setPointSize(12)
-        font.setWeight(100)
-        font.setItalic(False)
-        font.setUnderline(False)
-        font.setStrikeOut(False)
-        font.setBold(True)
-        self.heading_label.setFont(font)
-        self.heading_label.setObjectName("heading_label")
-        
-        
-        self.hboxlayout_heading .addWidget(self.heading_label)
+	self.heading_label.setFont(getHeaderFont())
+        self.hboxlayout_heading.addWidget(self.heading_label)
         
         self.vboxlayout.addWidget(self.heading_frame)
 

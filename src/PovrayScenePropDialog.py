@@ -11,6 +11,7 @@
 import sys
 from PyQt4 import QtCore, QtGui
 from Utility import geticon
+from PropMgr_Constants import *
 
 class Ui_PovrayScenePropDialog(object):
     def setupUi(self, PovrayScenePropDialog):
@@ -45,17 +46,7 @@ class Ui_PovrayScenePropDialog(object):
         self.hboxlayout.addWidget(self.heading_pixmap)
 
         self.heading_label = QtGui.QLabel(self.heading_frame)
-
-        font = QtGui.QFont(self.heading_label.font())
-        font.setFamily("Sans Serif")
-        font.setPointSize(12)
-        font.setWeight(75)
-        font.setItalic(False)
-        font.setUnderline(False)
-        font.setStrikeOut(False)
-        font.setBold(True)
-        self.heading_label.setFont(font)
-        self.heading_label.setObjectName("heading_label")
+        self.heading_label.setFont(getHeaderFont())
         self.hboxlayout.addWidget(self.heading_label)
         self.vboxlayout.addWidget(self.heading_frame)
 

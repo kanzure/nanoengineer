@@ -314,17 +314,7 @@ class PropMgrBaseClass:
         self.header_label.setPalette(header_label_palette)
 
         # PropMgr heading font (for label).
-        font = QFont(self.header_label.font())
-	font.setFamily(pmHeaderFont)
-	font.setPointSize(pmHeaderFontPointSize)
-        font.setWeight(75)
-        font.setItalic(False)
-        font.setUnderline(False)
-        font.setStrikeOut(False)
-        font.setBold(True)
-	
-        self.header_label.setFont(font)
-        
+	self.header_label.setFont(getHeaderFont())
         HeaderFrameHLayout.addWidget(self.header_label)
         
         self.VBoxLayout.addWidget(self.header_frame)

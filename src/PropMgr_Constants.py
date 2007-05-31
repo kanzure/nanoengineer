@@ -17,17 +17,23 @@ if sys.platform == "darwin":
     pmMinWidth = 300 # The min PropMgr width.
     pmMaxWidth = pmMinWidth # The max PropMgr width.
     pmDefaultWidth = pmMinWidth # Starting PropMgr width
+    pmHeaderFont = "Sans Serif" # Font type used in PropMgr header.
     pmHeaderFontPointSize = 20
+    pmHeaderFontBold = True
 elif sys.platform == "win32":
     pmMinWidth = 230 # The min PropMgr width.
     pmMaxWidth = pmMinWidth # The max PropMgr width.
     pmDefaultWidth = pmMinWidth # Starting PropMgr width
+    pmHeaderFont = "Sans Serif" # Font type used in PropMgr header.
     pmHeaderFontPointSize = 12
+    pmHeaderFontBold = True
 else: #Linux
     pmMinWidth = 250 # The min PropMgr width.
     pmMaxWidth = pmMinWidth # The max PropMgr width.
     pmDefaultWidth = pmMinWidth # Starting PropMgr width
+    pmHeaderFont = "Sans Serif" # Font type used in PropMgr header.
     pmHeaderFontPointSize = 12
+    pmHeaderFontBold = True
 
 if 0:
     print "PropMgr width=", pmDefaultWidth
@@ -41,7 +47,6 @@ pmMainVboxLayoutMargin = 0 # PropMgr's master VboxLayout margin
 pmMainVboxLayoutSpacing = 0 # PropMgr's master VboxLayout spacing
 
 # Header constants.
-pmHeaderFont = "Sans Serif" # Font type used in PropMgr header.
 pmHeaderFrameMargin = 2 # margin around icon and title.
 pmHeaderFrameSpacing = 5 # space between icon and title.
 
@@ -110,6 +115,15 @@ def getPropMgrImagePath(imageName):
     """Returns the relative path to the icon/image file <imageName>.
     """
     return os.path.join (pmImagePath + imageName)
+
+def getHeaderFont():
+    """Returns the QFont used for all PropMgr headers.
+    """
+    font = QFont()
+    font.setFamily(pmHeaderFont)
+    font.setPointSize(pmHeaderFontPointSize)
+    font.setBold(pmHeaderFontBold)
+    return font
 
 # PropMgr color theme functions and constants. #########################
 
