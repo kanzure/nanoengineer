@@ -84,6 +84,13 @@ pmLabelLeftAlignment = Qt.AlignLeft | \
                       Qt.AlignLeading | \
                       Qt.AlignVCenter # Label will be left justified.
 
+# MMKit element button constants
+pmMMKitButtonWidth = pmMMKitButtonHeight = 32
+pmMMKitButtonFont = "Sans Serif"
+pmMMKitButtonFontPointSize = 10
+
+pmMMKitPageMargin = 2 # Used by Atoms, Clipboard and (Part) Library.
+
 # Directory containing icons/images for the property manager.
 pmImagePath = "ui/actions/Properties Manager/"
 

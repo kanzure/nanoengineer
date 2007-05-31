@@ -32,6 +32,7 @@ from debug import print_compact_traceback
 from qt4transition import *
 from Sponsors import SponsorableMixin
 from PropertyManagerMixin import PropertyManagerMixin
+from PropMgr_Constants import pmMMKitPageMargin
 #from GeneratorBaseClass import GroupButtonMixin
 
 # PageId constants for mmkit_tab
@@ -451,6 +452,7 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
             self.setup_S_hybrid_buttons()
         else:
             self.hybrid_btngrp.hide()
+	    self.atomic_hybrids_label.hide() # Mark 2007-05-30
             #self.hboxlayout.insertItem(0, self.spacerItem_hybrid_btngrp)
             self.elemGLPane.changeHybridType(None)
             return
@@ -463,6 +465,9 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
         self.theHybridizations.button(buttonIndex).setChecked(True)
         self.set_hybrid_type(buttonIndex)
         self.hybrid_btngrp.show()
+	# Added Atomic Hybrids label. Mark 2007-05-30
+	self.atomic_hybrids_label.setText("Atomic Hybrids for " + elem.name + " :")
+	self.atomic_hybrids_label.show()
 
 
     def setup_C_hybrid_buttons(self):
@@ -850,7 +855,7 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
         ##self.dirView.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
 
         libraryPageLayout = QVBoxLayout(self.libraryPage)
-        libraryPageLayout.setMargin(4)
+        libraryPageLayout.setMargin(pmMMKitPageMargin) # Was 4. Mark 2007-05-30
         libraryPageLayout.setSpacing(2)
         libraryPageLayout.addWidget(self.dirView)
             

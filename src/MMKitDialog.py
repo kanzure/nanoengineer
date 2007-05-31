@@ -423,7 +423,7 @@ class Ui_MMKitDialog(object):
         self.frame5.setObjectName("frame5")
         
         self.vboxlayout_atomsPage = QtGui.QVBoxLayout(self.frame5)
-        self.vboxlayout_atomsPage.setMargin(4)
+        self.vboxlayout_atomsPage.setMargin(pmMMKitPageMargin) # Was 4. Mark 2007-05-30
         self.vboxlayout_atomsPage.setSpacing(2)
 
 	# Element Button GroupBox begins here. #####################
@@ -439,121 +439,172 @@ class Ui_MMKitDialog(object):
         self.elementButtonGroup.setObjectName("elementButtonGroup")
 
         self.gridlayout2 = QtGui.QGridLayout(self.elementButtonGroup)
-        self.gridlayout2.setMargin(0)
+        self.gridlayout2.setMargin(1) # Was 0. Mark 2007-05-30
         self.gridlayout2.setSpacing(0)
         self.gridlayout2.setObjectName("gridlayout2")
+	
+	# Font for toolbuttons.
+        font = QFont(self.frame5.font())
+	font.setFamily(pmMMKitButtonFont)
+	font.setPointSize(pmMMKitButtonFontPointSize)
+        #font.setWeight(75)
+        font.setItalic(False)
+        font.setUnderline(False)
+        font.setStrikeOut(False)
+        font.setBold(False)
+	
+        # All this would be much nicer in a for loop. 
+	# Later, when time permits. Mark 2007-05-30.
 
         self.toolButton1 = QtGui.QToolButton(self.elementButtonGroup)
-        self.toolButton1.setMinimumSize(QtCore.QSize(26,26))
+        self.toolButton1.setMinimumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
+	self.toolButton1.setMaximumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
         self.toolButton1.setCheckable(True)
+	self.toolButton1.setFont(font)
         self.toolButton1.setObjectName("toolButton1")
         self.gridlayout2.addWidget(self.toolButton1,0,4,1,1)
 
         self.toolButton2 = QtGui.QToolButton(self.elementButtonGroup)
-        self.toolButton2.setMinimumSize(QtCore.QSize(26,26))
+        self.toolButton2.setMinimumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
+	self.toolButton2.setMaximumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
         self.toolButton2.setCheckable(True)
+	self.toolButton2.setFont(font)
         self.toolButton2.setObjectName("toolButton2")
         self.gridlayout2.addWidget(self.toolButton2,0,5,1,1)
 
         self.toolButton6 = QtGui.QToolButton(self.elementButtonGroup)
-        self.toolButton6.setMinimumSize(QtCore.QSize(26,26))
+        self.toolButton6.setMinimumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
+	self.toolButton6.setMaximumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
         self.toolButton6.setCheckable(True)
+	self.toolButton6.setFont(font)
         self.toolButton6.setObjectName("toolButton6")
         self.gridlayout2.addWidget(self.toolButton6,1,1,1,1)
 
         self.toolButton7 = QtGui.QToolButton(self.elementButtonGroup)
-        self.toolButton7.setMinimumSize(QtCore.QSize(26,26))
+        self.toolButton7.setMinimumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
+	self.toolButton7.setMaximumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
         self.toolButton7.setCheckable(True)
+	self.toolButton7.setFont(font)
         self.toolButton7.setObjectName("toolButton7")
         self.gridlayout2.addWidget(self.toolButton7,1,2,1,1)
 
         self.toolButton8 = QtGui.QToolButton(self.elementButtonGroup)
-        self.toolButton8.setMinimumSize(QtCore.QSize(26,26))
+        self.toolButton8.setMinimumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
+	self.toolButton8.setMaximumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
         self.toolButton8.setCheckable(True)
+	self.toolButton8.setFont(font)
         self.toolButton8.setObjectName("toolButton8")
         self.gridlayout2.addWidget(self.toolButton8,1,3,1,1)
 
         self.toolButton10 = QtGui.QToolButton(self.elementButtonGroup)
-        self.toolButton10.setMinimumSize(QtCore.QSize(26,26))
+        self.toolButton10.setMinimumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
+	self.toolButton10.setMaximumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
         self.toolButton10.setCheckable(True)
+	self.toolButton10.setFont(font)
         self.toolButton10.setObjectName("toolButton10")
         self.gridlayout2.addWidget(self.toolButton10,1,5,1,1)
 
         self.toolButton9 = QtGui.QToolButton(self.elementButtonGroup)
-        self.toolButton9.setMinimumSize(QtCore.QSize(26,26))
+        self.toolButton9.setMinimumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
+	self.toolButton9.setMaximumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
         self.toolButton9.setCheckable(True)
+	self.toolButton9.setFont(font)
         self.toolButton9.setObjectName("toolButton9")
         self.gridlayout2.addWidget(self.toolButton9,1,4,1,1)
 
         self.toolButton13 = QtGui.QToolButton(self.elementButtonGroup)
-        self.toolButton13.setMinimumSize(QtCore.QSize(26,26))
+        self.toolButton13.setMinimumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
+	self.toolButton13.setMaximumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
         self.toolButton13.setCheckable(True)
+	self.toolButton13.setFont(font)
         self.toolButton13.setObjectName("toolButton13")
         self.gridlayout2.addWidget(self.toolButton13,2,0,1,1)
 
         self.toolButton17 = QtGui.QToolButton(self.elementButtonGroup)
-        self.toolButton17.setMinimumSize(QtCore.QSize(26,26))
+        self.toolButton17.setMinimumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
+	self.toolButton17.setMaximumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
         self.toolButton17.setCheckable(True)
+	self.toolButton17.setFont(font)
         self.toolButton17.setObjectName("toolButton17")
         self.gridlayout2.addWidget(self.toolButton17,2,4,1,1)
 
         self.toolButton5 = QtGui.QToolButton(self.elementButtonGroup)
-        self.toolButton5.setMinimumSize(QtCore.QSize(26,26))
+        self.toolButton5.setMinimumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
+	self.toolButton5.setMaximumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
         self.toolButton5.setCheckable(True)
+	self.toolButton5.setFont(font)
         self.toolButton5.setObjectName("toolButton5")
         self.gridlayout2.addWidget(self.toolButton5,1,0,1,1)
 
         self.toolButton10_2 = QtGui.QToolButton(self.elementButtonGroup)
-        self.toolButton10_2.setMinimumSize(QtCore.QSize(26,26))
+        self.toolButton10_2.setMinimumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
+	self.toolButton10_2.setMaximumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
         self.toolButton10_2.setCheckable(True)
+	self.toolButton10_2.setFont(font)
         self.toolButton10_2.setObjectName("toolButton10_2")
         self.gridlayout2.addWidget(self.toolButton10_2,2,5,1,1)
 
         self.toolButton15 = QtGui.QToolButton(self.elementButtonGroup)
-        self.toolButton15.setMinimumSize(QtCore.QSize(26,26))
+        self.toolButton15.setMinimumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
+	self.toolButton15.setMaximumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
         self.toolButton15.setCheckable(True)
+	self.toolButton15.setFont(font)
         self.toolButton15.setObjectName("toolButton15")
         self.gridlayout2.addWidget(self.toolButton15,2,2,1,1)
 
         self.toolButton16 = QtGui.QToolButton(self.elementButtonGroup)
-        self.toolButton16.setMinimumSize(QtCore.QSize(26,26))
+        self.toolButton16.setMinimumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
+	self.toolButton16.setMaximumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
         self.toolButton16.setCheckable(True)
+	self.toolButton16.setFont(font)
         self.toolButton16.setObjectName("toolButton16")
         self.gridlayout2.addWidget(self.toolButton16,2,3,1,1)
 
         self.toolButton14 = QtGui.QToolButton(self.elementButtonGroup)
-        self.toolButton14.setMinimumSize(QtCore.QSize(26,26))
+        self.toolButton14.setMinimumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
+	self.toolButton14.setMaximumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
         self.toolButton14.setCheckable(True)
+	self.toolButton14.setFont(font)
         self.toolButton14.setObjectName("toolButton14")
         self.gridlayout2.addWidget(self.toolButton14,2,1,1,1)
 
         self.toolButton33 = QtGui.QToolButton(self.elementButtonGroup)
-        self.toolButton33.setMinimumSize(QtCore.QSize(26,26))
+        self.toolButton33.setMinimumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
+	self.toolButton33.setMaximumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
         self.toolButton33.setCheckable(True)
+	self.toolButton33.setFont(font)
         self.toolButton33.setObjectName("toolButton33")
         self.gridlayout2.addWidget(self.toolButton33,3,2,1,1)
 
         self.toolButton34 = QtGui.QToolButton(self.elementButtonGroup)
-        self.toolButton34.setMinimumSize(QtCore.QSize(26,26))
+        self.toolButton34.setMinimumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
+	self.toolButton34.setMaximumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
         self.toolButton34.setCheckable(True)
+	self.toolButton34.setFont(font)
         self.toolButton34.setObjectName("toolButton34")
         self.gridlayout2.addWidget(self.toolButton34,3,3,1,1)
 
         self.toolButton35 = QtGui.QToolButton(self.elementButtonGroup)
-        self.toolButton35.setMinimumSize(QtCore.QSize(26,26))
+        self.toolButton35.setMinimumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
+	self.toolButton35.setMaximumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
         self.toolButton35.setCheckable(True)
+	self.toolButton35.setFont(font)
         self.toolButton35.setObjectName("toolButton35")
         self.gridlayout2.addWidget(self.toolButton35,3,4,1,1)
 
         self.toolButton32 = QtGui.QToolButton(self.elementButtonGroup)
-        self.toolButton32.setMinimumSize(QtCore.QSize(26,26))
+        self.toolButton32.setMinimumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
+	self.toolButton32.setMaximumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
         self.toolButton32.setCheckable(True)
+	self.toolButton32.setFont(font)
         self.toolButton32.setObjectName("toolButton32")
         self.gridlayout2.addWidget(self.toolButton32,3,1,1,1)
 
         self.toolButton36 = QtGui.QToolButton(self.elementButtonGroup)
-        self.toolButton36.setMinimumSize(QtCore.QSize(26,26))
+        self.toolButton36.setMinimumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
+	self.toolButton36.setMaximumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
         self.toolButton36.setCheckable(True)
+	self.toolButton36.setFont(font)
         self.toolButton36.setObjectName("toolButton36")
         self.gridlayout2.addWidget(self.toolButton36,3,5,1,1)
         
@@ -564,6 +615,11 @@ class Ui_MMKitDialog(object):
                 QSizePolicy(QSizePolicy.Policy(QSizePolicy.Preferred),
                             QSizePolicy.Policy(QSizePolicy.Fixed)))
 	
+	# Atomic Hybrid label
+	self.atomic_hybrids_label = QtGui.QLabel(self.frame5)
+	self.atomic_hybrids_label.setText("Atomic Hybrids :")
+	self.vboxlayout_atomsPage.addWidget(self.atomic_hybrids_label)
+	    
 	# Elements Button GroupBox ends here. #######################
         
         self.hboxlayout = QtGui.QHBoxLayout()
@@ -577,35 +633,40 @@ class Ui_MMKitDialog(object):
         self.hybrid_btngrp.setObjectName("hybrid_btngrp")
         self.hboxlayout.addWidget(self.hybrid_btngrp)
         
-
         self.hboxlayout1 = QtGui.QHBoxLayout(self.hybrid_btngrp)
         self.hboxlayout1.setMargin(2)
         self.hboxlayout1.setSpacing(0)
         self.hboxlayout1.setObjectName("hboxlayout1")
 
         self.sp3_btn = QtGui.QToolButton(self.hybrid_btngrp)
-        self.sp3_btn.setMinimumSize(QtCore.QSize(30,30))
+        self.sp3_btn.setMinimumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
+	self.sp3_btn.setMaximumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
         self.sp3_btn.setCheckable(True)
         self.sp3_btn.setObjectName("sp3_btn")
         self.hboxlayout1.addWidget(self.sp3_btn)
 
         self.sp2_btn = QtGui.QToolButton(self.hybrid_btngrp)
-        self.sp2_btn.setMinimumSize(QtCore.QSize(30,30))
+        self.sp2_btn.setMinimumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
+	self.sp2_btn.setMaximumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
         self.sp2_btn.setCheckable(True)
         self.sp2_btn.setObjectName("sp2_btn")
         self.hboxlayout1.addWidget(self.sp2_btn)
 
         self.sp_btn = QtGui.QToolButton(self.hybrid_btngrp)
-        self.sp_btn.setMinimumSize(QtCore.QSize(30,30))
+        self.sp_btn.setMinimumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
+	self.sp_btn.setMaximumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
         self.sp_btn.setCheckable(True)
         self.sp_btn.setObjectName("sp_btn")
         self.hboxlayout1.addWidget(self.sp_btn)
 
         self.graphitic_btn = QtGui.QToolButton(self.hybrid_btngrp)
-        self.graphitic_btn.setMinimumSize(QtCore.QSize(30,30))
+        self.graphitic_btn.setMinimumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
+	self.graphitic_btn.setMaximumSize(QtCore.QSize(pmMMKitButtonWidth,pmMMKitButtonHeight))
         self.graphitic_btn.setCheckable(True)
         self.graphitic_btn.setObjectName("graphitic_btn")
         self.hboxlayout1.addWidget(self.graphitic_btn)
+	
+	self.hboxlayout1.addStretch(0)
 	
 	# Height is fixed. Mark 2007-05-29.
 	self.hybrid_btngrp.setSizePolicy(
@@ -615,21 +676,14 @@ class Ui_MMKitDialog(object):
         spacerItem2 = QtGui.QSpacerItem(10, 20, 
 					QtGui.QSizePolicy.Fixed,
 					QtGui.QSizePolicy.Fixed)
-        self.hboxlayout1.addItem(spacerItem2)   
-        
-        #ninad 071017 - specify the height of spacer item in hboxlayout slightly larger than 
-        #the hboxlayout1 which contains hybrid button group. 
-        #This is needed to fix (or woraround) an annoying bug when the hybrid button group is hidden.
-        #(that bug is: when hybrid btns are hidden, the element button group size changes) 
-        # specifying spaceritems height as self.hybrid_btngrp.height() + 10 ensures that 
-        #self.hboxlayout's height is governed by spacerItem3 (which is always visible) 
-        
-        spacerItem3 = QtGui.QSpacerItem(0,self.hybrid_btngrp.height() + 10,
-                                        QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        
-        self.hboxlayout.addItem(spacerItem3)         
+        self.hboxlayout1.addItem(spacerItem2)       
          
         self.vboxlayout_atomsPage.addLayout(self.hboxlayout)
+	
+	# Mark. 2007-05-30
+	bottom_vspacer = QtGui.QSpacerItem(10,1,QtGui.QSizePolicy.Fixed,QtGui.QSizePolicy.Expanding)
+	
+	self.vboxlayout_atomsPage.addItem(bottom_vspacer)
 
 	# Clipboard page begins here ############################################
 	
@@ -637,7 +691,7 @@ class Ui_MMKitDialog(object):
         self.clipboardPage.setObjectName("clipboardPage")
 
         self.gridlayout3 = QtGui.QGridLayout(self.clipboardPage)
-        self.gridlayout3.setMargin(4)
+        self.gridlayout3.setMargin(pmMMKitPageMargin) # Was 4. Mark 2007-05-30
         self.gridlayout3.setSpacing(2)
         self.gridlayout3.setObjectName("gridlayout3")
 
