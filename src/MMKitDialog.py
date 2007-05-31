@@ -493,12 +493,12 @@ class Ui_MMKitDialog(object):
         font = QFont(self.frame5.font())
 	font.setFamily(pmMMKitButtonFont)
 	font.setPointSize(pmMMKitButtonFontPointSize)
+	font.setBold(pmMMKitButtonFontBold)
         #font.setWeight(75)
-        font.setItalic(False)
-        font.setUnderline(False)
-        font.setStrikeOut(False)
-        font.setBold(False)
-	
+        #font.setItalic(False)
+        #font.setUnderline(False)
+        #font.setStrikeOut(False)
+        
         # All this would be much nicer in a for loop. 
 	# Later, when time permits. Mark 2007-05-30.
 

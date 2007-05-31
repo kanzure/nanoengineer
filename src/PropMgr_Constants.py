@@ -85,9 +85,21 @@ pmLabelLeftAlignment = Qt.AlignLeft | \
                       Qt.AlignVCenter # Label will be left justified.
 
 # MMKit element button constants
-pmMMKitButtonWidth = pmMMKitButtonHeight = 32
-pmMMKitButtonFont = "Sans Serif"
-pmMMKitButtonFontPointSize = 10
+
+if sys.platform == "darwin":
+    pmMMKitButtonHeight = 32
+    pmMMKitButtonWidth = int((pmMinWidth - 38)/6) # 43 for A9. Mark 2007-05-21
+    pmMMKitButtonFont = "Sans Serif"
+    pmMMKitButtonFontPointSize = 18
+    pmMMKitButtonFontBold = False
+else: # Windows and Linux
+    pmMMKitButtonHeight = 32
+    pmMMKitButtonWidth = int((pmMinWidth - 38)/6) # 32 for A9. Mark 2007-05-21
+    pmMMKitButtonFont = "Sans Serif"
+    pmMMKitButtonFontPointSize = 12
+    pmMMKitButtonFontBold = True
+    
+# print "MMKit button width: ", pmMMKitButtonWidth
 
 pmMMKitPageMargin = 2 # Used by Atoms, Clipboard and (Part) Library.
 
