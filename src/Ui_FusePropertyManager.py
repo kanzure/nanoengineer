@@ -158,7 +158,7 @@ class Ui_FusePropertyManager(Ui_MovePropertyManager):
         vlo_widgetHolder.addWidget(self.fuse_mode_combox)
         
         self.goPB = QPushButton("Make Bonds",self.fuseOptions_widgetHolder)
-        self.goPB.setMaximumWidth(80)
+	self.goPB.setAutoDefault(False)
         vlo_widgetHolder.addWidget(self.goPB)
         
         self.mergeCB = QCheckBox("Merge chunks", self.fuseOptions_widgetHolder)
