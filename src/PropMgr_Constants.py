@@ -17,21 +17,21 @@ if sys.platform == "darwin":
     pmMinWidth = 300 # The min PropMgr width.
     pmMaxWidth = pmMinWidth # The max PropMgr width.
     pmDefaultWidth = pmMinWidth # Starting PropMgr width
-    pmHeaderFont = "Sans Serif" # Font type used in PropMgr header.
+    pmHeaderFont = "Arial" # Font type used in PropMgr header.
     pmHeaderFontPointSize = 20
     pmHeaderFontBold = True
 elif sys.platform == "win32":
     pmMinWidth = 230 # The min PropMgr width.
     pmMaxWidth = pmMinWidth # The max PropMgr width.
     pmDefaultWidth = pmMinWidth # Starting PropMgr width
-    pmHeaderFont = "Sans Serif" # Font type used in PropMgr header.
+    pmHeaderFont = "Arial" # Font type used in PropMgr header.
     pmHeaderFontPointSize = 12
     pmHeaderFontBold = True
 else: #Linux
     pmMinWidth = 250 # The min PropMgr width.
     pmMaxWidth = pmMinWidth # The max PropMgr width.
     pmDefaultWidth = pmMinWidth # Starting PropMgr width
-    pmHeaderFont = "Sans Serif" # Font type used in PropMgr header.
+    pmHeaderFont = "Arial" # Font type used in PropMgr header.
     pmHeaderFontPointSize = 12
     pmHeaderFontBold = True
 
@@ -73,35 +73,33 @@ pmHideCancelButton = 2
 pmHideRestoreDefaultsButton = 4
 pmHidePreviewButton = 8
 pmHideWhatsThisButton = 16
-pmHideAllButtons = pmHideDoneButton | pmHideCancelButton | pmHideRestoreDefaultsButton | \
-          pmHidePreviewButton | pmHideWhatsThisButton
+pmHideAllButtons = pmHideDoneButton | \
+                   pmHideCancelButton | \
+                   pmHideRestoreDefaultsButton | \
+                   pmHidePreviewButton | \
+                   pmHideWhatsThisButton
 
 # These need to be deleted by me. Mark 2007-05-20
 pmGridLayoutMargin = 2 # Grid contains all widgets in a grpbox (obsolete)
 pmGridLayoutSpacing = 4 # Grid contains all widgets in a grpbox (obsolete)
 
 # Label alignment constants used for layouts.
-pmLabelRightAlignment = Qt.AlignRight | \
-                      Qt.AlignTrailing | \
-                      Qt.AlignVCenter # Label will be right justified.
-
-pmLabelLeftAlignment = Qt.AlignLeft | \
-                      Qt.AlignLeading | \
-                      Qt.AlignVCenter # Label will be left justified.
+pmLabelRightAlignment = Qt.AlignRight | Qt.AlignVCenter
+pmLabelLeftAlignment = Qt.AlignLeft | Qt.AlignVCenter
 
 # MMKit element button constants
 
 if sys.platform == "darwin":
     pmMMKitButtonHeight = 32
     pmMMKitButtonWidth = int((pmMinWidth - 38)/6) # 43 for A9. Mark 2007-05-21
-    pmMMKitButtonFont = "Sans Serif"
+    pmMMKitButtonFont = "Arial"
     pmMMKitButtonFontPointSize = 18
     pmMMKitButtonFontBold = False
 else: # Windows and Linux
     pmMMKitButtonHeight = 32
     pmMMKitButtonWidth = int((pmMinWidth - 38)/6) # 32 for A9. Mark 2007-05-21
-    pmMMKitButtonFont = "Sans Serif"
-    pmMMKitButtonFontPointSize = 12
+    pmMMKitButtonFont = "Arial"
+    pmMMKitButtonFontPointSize = 10
     pmMMKitButtonFontBold = True
     
 # print "MMKit button width: ", pmMMKitButtonWidth
