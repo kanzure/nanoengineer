@@ -1034,6 +1034,7 @@ class PropMgrTextEdit(QTextEdit, PropMgrWidgetMixin):
             self.setPalette(self.getMessageTextEditPalette())
             self.setReadOnly(True)
             self.setObjectName("MessageTextEdit")
+	    self.labelWidget = None # Never has one. Mark 2007-05-31
             parent.widgets.append(self)
             parent.num_rows += 1
         else:
