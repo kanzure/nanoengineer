@@ -704,7 +704,7 @@ class _QtTreeModel(QAbstractItemModel): # see also _QtTreeModel_NEW variant, whi
 # ==
 
 # experimental new version of that, works totally differently (lazily, incrementally, keeps items more private)
-# [bruce 070523-25; unfinished, not yet usable, tho a live debug_pref tries to use it]
+# [bruce 070523-25; unfinished, not yet usable, tho a live debug_pref tries to use it; ABANDONED as of 070530 and will be removed]
 
 class _QtTreeModel_NEW( _QtTreeModel):
     def __init__(self, root_Item):
@@ -838,22 +838,29 @@ class ModelTreeGui_common(ModelTreeGui_api): #bruce 070529 split this out of cla
         self.setAcceptDrops(True)
         if DEBUG0:
             self._verify_api_compliance()
-        
-        self.debug_pref_use_fancy_DND_graphic() # make sure this is visible from the start in the debug_prefs menu
 
-        # and same with these -- even though some only matter for one or the other implementation [###fix that]
-        # (WARNING (kluge): duplicated code, defaults are set here):
-        debug_pref("MT debug: setDirtyRegion", Choice(["large","small","none"]), non_debug = True, prefs_key = True)
-        debug_pref("MT debug: updateGeometry", Choice_boolean_True, non_debug = True, prefs_key = True)
-        debug_pref("MT debug: scrollToBottom", Choice_boolean_True, non_debug = True, prefs_key = True)
-        debug_pref("MT debug: set_scrollpos",  Choice_boolean_True, non_debug = True, prefs_key = True)
-        debug_pref("MT debug: show after replace", Choice_boolean_True, non_debug = True, prefs_key = True)
-        debug_pref("MT debug: debug prints",               Choice_boolean_False, non_debug = True, prefs_key = True)
-        debug_pref("MT debug: disable replace_items",      Choice_boolean_False, non_debug = True, prefs_key = True)
-        debug_pref("MT debug: disable _remake_contents_0", Choice_boolean_False, non_debug = True, prefs_key = True)
-        debug_pref("MT debug: disable scrollBar.valueChanged()", Choice_boolean_False, non_debug = True, prefs_key = True)
-        debug_pref("MT debug: incremental update_item_tree?",    Choice_boolean_False, non_debug = True, prefs_key = True)
+        # Make sure certain debug_prefs are visible from the start, in the debug_prefs menu --
+        # but only the ones that matter for the MT implem we're using in this session.
+        # WARNING (kluge): the defaults and other options are duplicated code, but are only honored in these calls
+        # (since these calls happen first).
 
+        # these are used in both MT implems:
+        self.debug_pref_use_fancy_DND_graphic()
+        self.MT_debug_prints()
+
+        if debug_pref_use_old_MT_code():
+            # these are only used in ModelTreeGui_QTreeView -- in a cleanup we could do this in its init method, not here:
+            debug_pref("MT debug: setDirtyRegion", Choice(["large","small","none"]), non_debug = True, prefs_key = True)
+            debug_pref("MT debug: updateGeometry", Choice_boolean_True, non_debug = True, prefs_key = True)
+            debug_pref("MT debug: scrollToBottom", Choice_boolean_True, non_debug = True, prefs_key = True)
+            debug_pref("MT debug: set_scrollpos",  Choice_boolean_True, non_debug = True, prefs_key = True)
+            debug_pref("MT debug: show after replace", Choice_boolean_True, non_debug = True, prefs_key = True)
+            debug_pref("MT debug: disable replace_items",      Choice_boolean_False, non_debug = True, prefs_key = True)
+            debug_pref("MT debug: disable _remake_contents_0", Choice_boolean_False, non_debug = True, prefs_key = True)
+            debug_pref("MT debug: disable scrollBar.valueChanged()", Choice_boolean_False, non_debug = True, prefs_key = True)
+            debug_pref("MT debug: incremental update_item_tree?",    Choice_boolean_False, non_debug = True, prefs_key = True)
+        return
+    
     def topmost_selected_nodes(self): #bruce 070529 moved method body into self.ne1model
         """Return a list of nodes whose corresponding items are currently selected,
         but not including any children of selected nodes.
@@ -861,7 +868,7 @@ class ModelTreeGui_common(ModelTreeGui_api): #bruce 070529 split this out of cla
         return self.ne1model.topmost_selected_nodes()
 
     def MT_debug_prints(self):
-        return debug_pref("MT debug: debug prints", Choice_boolean_False, non_debug = True, prefs_key = True)
+        return debug_pref("MT debug: debug prints", Choice_boolean_False, prefs_key = True)
     
     def display_prefs_for_node(self, node):
         """For doc, see the global function of the same name."""
@@ -1713,7 +1720,7 @@ def grab_text_line_using_dialog( default = "", title = "title", label = "label" 
 
 # ==
 
-class ModelTreeGui(QTreeView, ModelTreeGui_common):
+class ModelTreeGui_QTreeView(QTreeView, ModelTreeGui_common):
     """The old version of our model tree GUI based on QTreeView.
     As of 070529, used by default, but has various unfixable bugs.
     Will be removed when the newer one (not based on QTreeView) works well enough.
@@ -2266,7 +2273,7 @@ class ModelTreeGui(QTreeView, ModelTreeGui_common):
 ##        #bruce 070507 use setExpanded -- can't do it here, since index is not yet set; done by caller
         return item
 
-    pass # end of class ModelTreeGui
+    pass # end of class ModelTreeGui_QTreeView
 
 # ==
 
@@ -2331,7 +2338,7 @@ class MT_View(QtGui.QWidget):
     def _setup_openclose_style(self):
         "[private] As an optimization, choose the openclose icons (etc) just once before drawing."
         
-        style = debug_pref("MT: openclose icon style", self._icon_style_choice,
+        style = debug_pref("Model Tree: openclose icon style", self._icon_style_choice,
                            non_debug = True, prefs_key = "A9/MT openclose icon style")
         if style == 'mac':
             self.collapsed_mtnode_icon = self.mac_collapsed
@@ -2340,7 +2347,7 @@ class MT_View(QtGui.QWidget):
             self.collapsed_mtnode_icon = self.win_collapsed
             self.expanded_mtnode_icon = self.win_expanded
 
-        self.draw_openclose_lines = debug_pref("MT: openclose lines", self._openclose_lines_choice,
+        self.draw_openclose_lines = debug_pref("Model Tree: openclose lines", self._openclose_lines_choice,
                            non_debug = True, prefs_key = "A9/MT openclose lines")
         return
     
@@ -2533,7 +2540,7 @@ class FakeItem:
         return ITEM_HEIGHT ##k
     pass
 
-class new_ModelTreeGui(QScrollArea, ModelTreeGui_common):#bruce 070529 rewrite
+class ModelTreeGui(QScrollArea, ModelTreeGui_common):#bruce 070529-30 rewrite of some of class ModelTreeGui_QTreeView
     
     def __init__(self, win, name, ne1model, parent = None):
         ## print "what are these args?", win, name, ne1model, parent
@@ -2673,40 +2680,43 @@ class new_ModelTreeGui(QScrollArea, ModelTreeGui_common):#bruce 070529 rewrite
         pass
 
     def set_scrollpos(self, pos): 
-        assert 0, "don't use set_scrollpos in QScrollBar implem without thinking twice!"
+        assert 0, "don't use set_scrollpos in this QScrollArea-using subclass, without thinking twice!"
 
     def mouseDoubleClickEvent(self, event):
         self.mousePressEvent(event, _doubleclick = True) # this calls the following method in self (sometimes)
 
     def handle_doubleclick(self, event, item, rect):
         # print "handle_doubleclick" # this gets called when expected
-        # temporary kluge: use a dialog.
+        # temporary kluge, 070531, to be released for A9: use a dialog.
+        # (Later we'll try using an in-place QLineEdit; some stub code for that is elsewhere in this file.)
         node = item.node
         self.rename_node_using_dialog( node) # note: this checks node.rename_enabled() first
         return
     
-    pass # end of class new_ModelTreeGui
+    pass # end of class ModelTreeGui
 
-if debug_pref("MT: new code (next session)?", Choice_boolean_False, non_debug = True, prefs_key = True):
-    # if you don't mind openclose decorations being drawn in Mac style only, no node renaming, and maybe some debug prints
-    ModelTreeGui = new_ModelTreeGui
+def debug_pref_use_old_MT_code(): #bruce 070531 split out, removed non_debug = True, changed name/sense/key/default
+    return debug_pref("MT: use old QTreeView code (next session)?", Choice_boolean_False, prefs_key = True)
 
-# bugs [070530 2:25pm PT]:
+if debug_pref_use_old_MT_code():
+    ModelTreeGui = ModelTreeGui_QTreeView
+
+# bugs in new class ModelTreeGui based on QScrollArea [070531 2pm PT]:
 #
 # - mouse events:
-#   event.pos() wrong when scrolled [fixed]
-#   openclose - done but not drawn ### [fixed, mac style only, imperfect pixmaps, wrong filenames]
+#   openclose - works now
 #   selection - some works, rest not tested
-#   cmenus - some work, except bug in selection update when menu is shown, i.e.
+#   cmenus - some work, except bug [fixed now] in selection update when menu is shown, i.e.
 #    it fails to do click select behavior in visible way, when putting up menu, tho it probably does it internally
 #    [fixed, tho update is too slow -- incremental redrawing of changed items (when only selection changes) would be better]
 #   DND - seems to work; not fully tested
-#   renaming - NIM ###
+#   renaming - in place is NIM; using dialog works now
+#   key events: arrow keys should move the selectedness up and down in the nodes, but now they move the scrollbar.
 #
 # - drawing:
-#   - decorations needed (os-specific debug_pref default)
-#   - bg color is wrong
-#   - it's missing the header that says "model tree" -- does it need this?
+#   - decoration icons need improvement
+#   - bg color is wrong (or, need transparent icons)
+#   - it's missing the header that says "model tree" -- we decided that's a feature, not a bug
 #   - too slow
 #     - set painter state less often? (esp for text)
 #     - profile it?
@@ -2716,9 +2726,16 @@ if debug_pref("MT: new code (next session)?", Choice_boolean_False, non_debug = 
 #     Maybe enough to just draw only in inval rect.
 #
 # - other:
-#   - hsb always there
-#   - rename_enabled ignored
-#   - maybe so are some props about DND permitted (not sure)
+#   - hsb always there, fixed content width
+#   - rename_enabled ignored -- probably fixed
+#   - maybe so are some properties about DND being permitted (not sure)
+#
+# - highly desired NFRs for A10:
+#   - cross-highlighting with GLPane
+#   - DND:
+#     - autoscrolling during DND
+#     - drop on group puts node before other members
+#     - drop-point highlighting, between nodes
 
 
 
