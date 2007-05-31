@@ -772,6 +772,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
             self.addPartWindow(self.assy)
         else:
             self.init_part_two()
+        return # from MWsemantics.__init__
         
     def createPopupMenu(self):#Ninad 070328
 	''' Reimplemented createPopPupMenu method that allows 
@@ -1019,7 +1020,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         # Anything which depends on this window's geometry (which is not yet set at this point)
         # should be done in the _init_after_geometry_is_set method below, not here. [bruce guess 060104]
 
-        return # from MWsemantics.__init__
+        return # from init_part_two
 
     def activePartWindow(self):
         return self._activepw
@@ -1036,7 +1037,8 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 
     def _init_after_geometry_is_set(self): #bruce 060104 renamed this from startRun and replaced its docstring.
         """Do whatever initialization of self needs to wait until its geometry has been set.
-        [Should be called only once, after geometry is set; can be called before self is shown.]
+        [Should be called only once, after geometry is set; can be called before self is shown.
+         As of 070531, this is called directly from main.py, after our __init__ but before we're first shown.]
         """
         # older docstring:
         # After the main window(its size and location) has been setup, begin to run the program from this method. 
