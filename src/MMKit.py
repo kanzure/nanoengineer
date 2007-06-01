@@ -281,6 +281,8 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
 		msg = "Double click in empty space to insert a copy of the selected part in the library."
 	
 	else: # Bonds Tool is selected (MMKit groupbox is hidden).
+	    if not hasattr(self, 'bondclick_v6'): # Mark 2007-06-01
+		return
 	    if self.bondclick_v6:
                 name = btype_from_v6(self.bondclick_v6)
 		msg = "Click bonds or bondpoints to make them %s bonds." % name # name is 'single' etc

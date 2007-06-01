@@ -2285,6 +2285,10 @@ class depositMode(selectAtomsMode, MMKit):
         # unpressable.
         #
         self.w.update_depositState_buttons()
+	
+	# This fixes a bug when returning from Bonds Tool and the tab was not "Atoms".
+	self.tabCurrentChanged() # Mark 2007-06-01
+	
         self.UpdateDashboard() #bruce 050121 added this
 
     bondclick_v6 = None
