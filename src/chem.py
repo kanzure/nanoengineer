@@ -526,8 +526,10 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 # since this menu item won't usually be the one chosen,
                 # and it can find the selatoms again.
                 #
-                # higher-level entry for Pl, first [bruce 070522]: ### DISABLED
-                if 0 and fromSymbol == 'Pl' and doall and len(selatoms) == 2:
+                # higher-level entry for Pl, first [bruce 070522, 070601]:
+                test_crossovers = debug_pref("Make Crossovers can appear in cmenu",
+                                             Choice_boolean_False, non_debug = True, prefs_key = True)
+                if test_crossovers and fromSymbol == 'Pl' and doall and len(selatoms) == 2:
                     import crossovers
                     try:
                         reload(crossovers)##### REMOVE WHEN DEVEL IS DONE, for debug only, fails in release building

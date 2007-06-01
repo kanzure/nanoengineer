@@ -74,7 +74,7 @@ def crossover_menu_spec(atom, selatoms):
     
     return res
 
-def make_crossover_ok(twoPls):
+def make_crossover_ok(twoPls): ##### NEED TO MAKE THIS A RECOGNIZER so it can easily be told to print why it's not saying it's ok.
     Pl1, Pl2 = twoPls
     if Pl1.in_only_one_helix and Pl2.in_only_one_helix:
         involved1, involved2 = map( lambda pl: pl.involved_atoms_for_make_crossover, twoPls)
@@ -98,6 +98,11 @@ def sets_overlap(set1, set2): #e could be varargs, report whether there's any ov
 
 # ==
 
+class RecognizerError(Exception): #k superclass?
+    pass # for now
+
+DEBUG_RecognizerError = True # for now; turn off before real use, will be verbose when no errors ####
+
 class StaticRecognizer:
     """Superclass for pattern and local-structure recognizer classes
     which don't need to invalidate/update their computed attrs as the
@@ -115,7 +120,8 @@ class StaticRecognizer:
     (aka computed) attrs should no longer be used after input changes.
     (This limitation is why we are called StaticRecognizer rather than Recognizer.)
     """
-    _r_safe = False # subclass should redefine this if they want all their compute methods to stop propogating all exceptions
+    _r_safe = False # subclass should redefine this if they want all their compute methods to stop propogating *all* exceptions
+        # (I think that should be rare, but I don't know yet for sure. It does not affect RecognizerError.)
     def __getattr__(self, attr):
         if attr.startswith('__') or attr.startswith('_C_'):
             raise AttributeError, attr # must be fast
@@ -123,9 +129,17 @@ class StaticRecognizer:
         method = getattr(self, methodname) # compute method
         try:
             answer = method() # WARNING: Answer must be returned, not setattr'd by this method! Error in this is detected below.
-##        except SomeNewException: # for locally reporting errors -- our own methods raise this (how can we tell it's ours??)
-##            print "should record error somewhere"###
-##            answer = None
+        except RecognizerError, e:
+            # An exception for use by compute methods, locally reporting errors.
+            # When our own methods raise this, we [nim, but needed soon] add basic info like "self" and the attr;
+            # when its gets passed on from other methods (does that ever happen?? maybe if they are not _r_safe???),
+            # we might someday add some self-related info so it contains its own sort of traceback
+            # of the objects and attrs involved in it.
+            # FOR NOW, we just treat it as normal, and record the default value;
+            # someday we'll record the exception message but for now there is no way of asking for it anyway.
+            if DEBUG_RecognizerError:
+                print e
+            answer = None
         except: # any other exception
             ##e not sure if we should suppress, reraise now only, reraise every time;
             # maybe let this be declared per attr or per class? "safe" attrs or classes would never propogate exceptions in themselves
@@ -135,7 +149,7 @@ class StaticRecognizer:
                 print "should record error somewhere"###
                 answer = None
             else:
-                print "fyi: reraising an error from %s.%s" % (self.__class__.__name__, methodname)###
+                print "fyi, error: reraising an exception from %s.%s" % (self.__class__.__name__, methodname)###
                 raise
         # we have the answer
         answer # (make sure we actually have it)
@@ -161,7 +175,6 @@ class Base_recognizer(StaticRecognizer):
     but only the use of fallback values for computed attrs, and/or the setting of an error flag,
     and (in the future) the tracking of errors and warnings into the dynenv.
     """
-    self._r_safe = True ###### should this affect RecognizerError or is that exception always safe? fix docstring below for this...
     def __init__(self, atom):
         self.atom = atom
         assert atom.element.symbol in ('Ss','Sj')
@@ -174,9 +187,10 @@ class Base_recognizer(StaticRecognizer):
 ##        self.axis_atom
 ##        pass
     def _C_axis_atom(self):
-        """compute self.axis_atom as our sole Ax neighbor;
+        """[compute method for self.axis_atom]
+        Return our sole Ax neighbor;
         on error or if our valence is wrong, raise RecognizerError
-        (which means the value will be None, since self._r_safe is True).
+        (which means the computed value will be None).
         """
         nn = self.atom.neighbors()
         if not len(nn) == 3:
@@ -185,9 +199,13 @@ class Base_recognizer(StaticRecognizer):
         if not len(axes) == 1:
             raise RecognizerError("%s should have exactly one Ax neighbor" % self.atom)
         return axes[0]
-    def _C_ok(self):
-        "Are we a fully legitimate base?"
-        return self.axis_atom is not None #k is that all?
+    def _C_in_helix(self):
+        """[compute method for self.in_helix]
+        Are we resident in a helix? (Interpreted as: do we have an Ax atom --
+        the other base on the same Ax (presumably on the other backbone strand)
+        is not looked for and might be missing.)
+        """
+        return self.axis_atom is not None
     pass
 
 
@@ -199,13 +217,12 @@ def bases_are_stacked(bases):
     for b in bases:
         assert isinstance(b, Base_recognizer)
     for b in bases:
-        if not b.ok:
-            ## would I prefer saying b.ok() like i typed at first? ok is misnamed anyway #### FIX, in docstrings too
+        if not b.in_helix:
             return False
     b1, b2 = bases
     return bonded_atoms(b1.axis_atom, b2.axis_atom)#k bonded_atoms
         ##### should b1.axis_atom raise exc if it's not an atom? depends on whether it's strict... can _strict_axis_atom say that?
-        # note that having it be None *also* raises one -- just a less clear one... now moot due to b.ok above.
+        # note that having it be None *also* raises one -- just a less clear one... now moot due to b.in_helix above.
 
 
 class Pl_recognizer(StaticRecognizer):
@@ -214,27 +231,23 @@ class Pl_recognizer(StaticRecognizer):
     def __init__(self, atom):
         self.atom = atom
         assert atom.element.symbol == 'Pl'
-##    def _C_base1(self):
-##        return self.bases[0]
-##    def _C_base2(self):
-##        return self.bases[1]
     def _C_unordered_bases(self):
         """[compute method for self.unordered_bases]
         Require self.atom to have exactly two neighbors, and for them to be Ss or Sj.
-        Then return those atoms, wrapped in Base_recognizer objects (which may or may not be .ok).
+        Then return those atoms, wrapped in Base_recognizer objects (which may or may not be .in_helix).
            Note that the bases are arbitrarily ordered; see also _C_ordered_bases.
         """
         nn = self.atom.neighbors()
         if not len(nn) == 2:
-            raise XX("Pl should have exactly two neighbor atoms")
+            raise RecognizerError("Pl should have exactly two neighbor atoms")
         for n1 in nn:
             if not n1.element.symbol in ('Ss','Sj'):
-                raise XX("Pl neighbor %s should be Ss or Sj" % n1)
+                raise RecognizerError("Pl neighbor %s should be Ss or Sj" % n1)
         bases = map(Base_recognizer, nn) # should always succeed
         return bases
     def _C_ordered_bases(self):
         """[compute method for self.ordered_bases]
-        Return our two bases (as Base_recognizer objects, which may or may not be .ok),
+        Return our two bases (as Base_recognizer objects, which may or may not be .in_helix),
         in an order consistent with backbone bond direction,
         which we require to be locally defined in a consistent way.
         """
@@ -243,12 +256,20 @@ class Pl_recognizer(StaticRecognizer):
         # reverse bases if bond directions go backwards, or complain if not defined or not consistent
         # (Note: the following code is mostly generic for pairs of directional bonds,
         #  so we might package it up into a utility function someday.)
+
+        # BTW, in the future we should improve this as follows:
+        # - find directional-bond strands in both directions, including at least one bond not altered
+        #   when making/unmaking a crossover, and ending on the first bond with direction defined,
+        #   or when you have to end due to error (too far away to stop us) or end of strand.
+        # - require that this gave you a direction and was not inconsistent.
+        # - when making the crossover later, actually set all those directions you passed over
+        #   (not just those of your new bonds).
         dir1 = bond_direction(nn[0], self.atom) # -1 or 0 or 1
         dir2 = bond_direction(self.atom, nn[1]) ###IMPLEM bond_direction function -- it asserts atoms are bonded
         dirprod = dir1 * dir2
         if dirprod < 0:
             # both directions are set, and they're inconsistent
-            raise XX("inconsistent bond directions")
+            raise RecognizerError("inconsistent bond directions")
                 # including self.atom in the message would be redundant -- compute method glue will annotate with self ###DOIT
         elif dirprod > 0:
             # both directions are set, consistently
@@ -261,7 +282,7 @@ class Pl_recognizer(StaticRecognizer):
                 bases.reverse()
             elif dir == 0:
                 # both directions are unset
-                raise XX("backbone bond direction is locally undefined")
+                raise RecognizerError("backbone bond direction is locally undefined")
                     ###REVIEW: this should not prevent offering "Make Crossover", only doing it successfully.
         return bases
     def _C_in_crossover(self):
@@ -274,7 +295,7 @@ class Pl_recognizer(StaticRecognizer):
         (And return that helix? No -- we don't yet have anything to represent it with.
          Maybe return the involved atoms? For that, see _C_involved_atoms_for_create_crossover.)
         """
-        return bases_are_stacked(self.bases)
+        return bases_are_stacked(self.unordered_bases)
     def _C_involved_atoms_for_make_crossover(self):
         """[compute method for self.involved_atoms_for_make_crossover]
         Compute a set of atoms directly involved in using self to make a new crossover.
@@ -283,7 +304,7 @@ class Pl_recognizer(StaticRecognizer):
            Require that these atoms are each in one helix.
         """
         if not self.in_only_one_helix:
-            raise XX("Pl atom must be in_only_one_helix")
+            raise RecognizerError("Pl atom must be in_only_one_helix")
         res = {}
         def include(atom):
             res[atom] = atom
@@ -293,7 +314,7 @@ class Pl_recognizer(StaticRecognizer):
             assert b.axis_atom is not None # otherwise not self.in_only_one_helix
             include(b.axis_atom)
         if not len(res) == 5: # can this ever fail do to a structural error?? actually it can -- Ax atoms can be the same
-            raise XX("structural error (two bases on one Pl and one Ax??)")
+            raise RecognizerError("structural error (two bases on one Pl and one Ax??)")
         return res
     pass # Pl_recognizer
 
@@ -328,13 +349,13 @@ def make_or_unmake_crossover(twoPls, make = True):
     # Or maybe better to give history error message when the command is chosen, saying you need to set them (or repair them) first...
     # Then we have to move the new/moved Pl atoms into a good position...
 
-    # Note: Pl.bases are sorted by bond direction, to make this easier...
+    # Note: Pl.ordered_bases are ordered by bond direction, to make this easier...
     # but if we want to patch up the directions in the end, do we need to care exactly which ones were defined?
     # or only "per Pl"? hmm... ###e
 
     Pl1, Pl2 = twoPls
-    a,b = Pl1.bases
-    d,c = Pl2.bases
+    a,b = Pl1.ordered_bases
+    d,c = Pl2.ordered_bases
     Pl_atoms = Pl1.atom, Pl2.atom
 
     for pl in Pl_atoms:
