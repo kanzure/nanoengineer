@@ -192,7 +192,7 @@ class MeasureDistance(MeasurementJig):
     '''
     
     sym = "Distance"
-    icon_names = ["modeltree/measuredistance.png", "modeltree/measuredistance-hide.png"]
+    icon_names = ["modeltree/Measure_Distance.png", "modeltree/Measure_Distance-hide.png"]
     featurename = "Measure Distance Jig" # added, wware 20051202
 
     def constrainedPosition(self):
@@ -262,7 +262,7 @@ class MeasureAngle(MeasurementJig):
     '''A Measure Angle jig has three atoms.'''
     
     sym = "Angle"
-    icon_names = ["modeltree/measureangle.png", "modeltree/measureangle-hide.png"]
+    icon_names = ["modeltree/Measure_Angle.png", "modeltree/Measure_Angle-hide.png"]
     featurename = "Measure Angle Jig" # added, wware 20051202
 
     def constrainedPosition(self):
@@ -324,7 +324,7 @@ class MeasureDihedral(MeasurementJig):
     '''A Measure Dihedral jig has four atoms.'''
     
     sym = "Dihedral"
-    icon_names = ["modeltree/measuredihedral.png", "modeltree/measuredihedral-hide.png"]
+    icon_names = ["modeltree/Measure_Dihedral.png", "modeltree/Measure_Dihedral-hide.png"]
     featurename = "Measure Dihedral Jig" # added, wware 20051202
 
     def constrainedPosition(self):
