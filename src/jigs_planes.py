@@ -195,7 +195,7 @@ class GridPlane(RectGadget):
     copyable_attrs = RectGadget.copyable_attrs + ('line_type', 'grid_type', 'x_spacing', 'y_spacing') + own_mutable_attrs
     
     sym = "Grid Plane"
-    icon_names = ["modeltree/gridplane.png", "modeltree/gridplane-hide.png"] # Added gridplane icons.  Mark 050915.
+    icon_names = ["modeltree/Grid_Plane.png", "modeltree/Grid_Plane-hide.png"] # Added gridplane icons.  Mark 050915.
     mmp_record_name = "gridplane"
     featurename = "Grid Plane" #bruce 051203
     
@@ -321,7 +321,7 @@ class ESPImage(RectGadget):
         # (not sure adding 'multiplicity' is correct)
     
     sym = "ESP Image"
-    icon_names = ["modeltree/espimage.png", "modeltree/espimage-hide.png"]
+    icon_names = ["modeltree/ESP_Image.png", "modeltree/ESP_Image-hide.png"]
     mmp_record_name = "espimage"
     featurename = "ESP Image" #Renamed from ESP Window. mark 060108
     
