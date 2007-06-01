@@ -19,7 +19,7 @@ from chunk import molecule
 from bonds import bond_copied_atoms
 import platform # for atom_debug
 from debug import print_compact_stack
-from chem import gensym # Mark 2007-05-28
+from jigs import gensym
 from ops_select import selection_from_part
 import env #bruce 050901
 from constants import noop

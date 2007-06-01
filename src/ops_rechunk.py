@@ -15,7 +15,7 @@ bruce 050913 used env.history in some places.
 from HistoryWidget import greenmsg, redmsg
 from platform import fix_plurals
 from chunk import molecule
-from chem import gensym # Mark 2007-05-28
+from jigs import gensym
 import env
 
 class ops_rechunk_Mixin:
