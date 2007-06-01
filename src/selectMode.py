@@ -1496,42 +1496,101 @@ class selectMode(basicMode):
 
     #Reference Geometry handler helper methods
     #@@ This and jig helper methods need to be combined. -- ninad 20070516
-    def geometryLeftDown(self, geom, event):
+    def geometryLeftDown(self, geom, event):    
         self.jigLeftDown(geom, event)
     
     def geometryLeftUp(self, geom, event):
         self.jigLeftUp(geom, event)
-        
     
-    #@@@EXPERIMENTAL -- ninad 20070518
-    def handleLeftDown(self, hdl, event):
-        self.cursor_over_when_LMB_pressed = 'Handle'
-        self.currentHandleObject = hdl
-        # Move section
-        farQ_junk, self.handle_MovePt = self.dragstart_using_GL_DEPTH(event)
-        # Used in leftDrag() to compute move offset during drag op.
-        self.handle_StartPt = self.handle_MovePt 
-        self.handleSetUp(hdl)
-        pass
-    
-    def handleLeftDrag(self, hdl, event):
-        handle_NewPt = self.dragto( self.handle_MovePt, event)
+    def geometryLeftDrag(self, geom, event):
+        geometry_NewPt = self.dragto( self.jig_MovePt, event)
         # Print status bar msg indicating the current move offset.
         if 1:
-            self.moveOffset = handle_NewPt - self.handle_StartPt
+            self.moveOffset = geometry_NewPt - self.jig_StartPt
             msg = "Offset: [X: %.2f] [Y: %.2f] [Z: %.2f]" % (self.moveOffset[0], self.moveOffset[1], self.moveOffset[2])
             env.history.statusbar_msg(msg)
 
-        offset = handle_NewPt - self.handle_MovePt
+        offset = geometry_NewPt - self.jig_MovePt 
         
-        hdl.parent.resizeGeometry(hdl, offset)
-                        
-        self.handle_MovePt = handle_NewPt
+        geom.move(offset)
+                  
+        self.jig_MovePt = geometry_NewPt
         
         self.current_obj_clicked = False 
         self.o.gl_update()
         pass
+                
     
+    #@@@EXPERIMENTAL -- ninad 20070518
+    def handleLeftDown(self, hdl, event):
+        #First compute the intersection point of the mouseray with the plane 
+        #This will be our first self.handle_MovePt upon left down. 
+        #This value is further used in handleLeftDrag. -- Ninad 20070531 
+        
+        p1, p2 = self.o.mousepoints(event)
+        linePoint = p2
+        lineVector = norm(p2-p1)
+        planeNorm = hdl.parent.getaxis()
+        planePoint = hdl.parent.center    
+        intersection = planeXline(planePoint, planeNorm, linePoint, lineVector)
+        if intersection is None:
+            intersection =  ptonline(planePoint, linePoint, lineVector)
+            
+        self.handle_MovePt = intersection 
+        self.handleSetUp(hdl)
+            
+    
+    def handleLeftDrag(self, hdl, event):
+        #NOTE: mouseray contains all the points 
+        #that a 'mouseray' will travel , between points p1 and p2 .  
+        # The intersection of mouseray with the Plane (this was suggested 
+        #by Bruce in an email) is our new handle point.
+        #obtained in left drag. This handle_NewPt and self.handle_MovePt (which
+        #was originally computed in handleLeftDown are used to find the two vectors 
+        #starting from the plane center each and having end points as the above 
+        #two points respt.  -- Ninad 20070531
+        
+        p1, p2 = self.o.mousepoints(event)
+        linePoint = p2
+        lineVector = norm(p2-p1)
+        planeAxis = hdl.parent.getaxis()
+        planeNorm = norm(planeAxis)
+        planePoint = hdl.parent.center    
+        intersection = planeXline(planePoint, planeNorm, linePoint, lineVector)
+        if intersection is None:
+            intersection =  ptonline(planePoint, linePoint, lineVector)
+            
+        handle_NewPt = intersection
+            
+        vec_v1 = V(self.handle_MovePt[0] - hdl.parent.center[0],
+                   self.handle_MovePt[1] - hdl.parent.center[1],
+                   self.handle_MovePt[2] - hdl.parent.center[2])
+    
+        vec_v2 = V(handle_NewPt[0] - hdl.parent.center[0],
+                   handle_NewPt[1] - hdl.parent.center[1],
+                   handle_NewPt[2] - hdl.parent.center[2])                       
+        
+        #Orthogonal projection of Vector V2 over V1
+        #@@@ need to document this further. 
+        #@@@BUG:  end point vec_v1 is not on an axis vector (
+        #i.e. x or y or z) but is 'close to an axis vector' 
+        #This could be the problem with the jumpy resizing. (Center not being 
+        #accurately offsetted)This needs further work. 
+        #For Alpha9 committing whatever is available. 
+        #Resizing basically works but is buggy and accurate control 
+        #is not acheived.  -- Ninad 20070531
+        
+        
+           
+        vec_P = vec_v1* (dot(vec_v2, vec_v1)/dot(vec_v1,vec_v1))
+        
+        hdl.parent.resizeGeometry(hdl, vec_P, vec_v1) 
+        
+        self.handle_MovePt = handle_NewPt
+        self.current_obj_clicked = False
+        self.o.gl_update()
+           
+        
     def handleLeftUp(self, hdl, event):
         pass
     
@@ -1539,10 +1598,7 @@ class selectMode(basicMode):
         self.objectSetup(hdl)
         pass
     
-
-        
-#== Jig event handler helper methods
-    
+#== Jig event handler helper methods   
     
 
     def jigLeftDown(self, j, event):

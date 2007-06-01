@@ -32,9 +32,6 @@ from chunk import molecule
 import env
 from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False, Choice
 from selectMode import *
-from ReferenceGeometry import ReferenceGeometry
-#@@ to be modified to: from handles import Handle -- ninad20070518
-from Plane import Handle 
 
 class selectMolsMode(selectMode):
     "Select Chunks mode"
@@ -434,12 +431,6 @@ class selectMolsMode(selectMode):
         elif isinstance(obj, Jig): # Cursor over a jig.
             self.jigLeftDown(obj, event)
         
-        elif isinstance(obj, ReferenceGeometry):
-            self.geometryLeftDown(obj, event)
-        
-        elif isinstance(obj, Handle):
-            self.handleLeftDown(obj, event)
-
         else: # Cursor is over something else other than an atom, singlet or bond. 
             # The program never executes lines in this else statement since
             # get_obj_under_cursor() only returns atoms, singlets or bonds.
@@ -460,13 +451,31 @@ class selectMolsMode(selectMode):
         the end user is the pressed Move components action icon. 
         (which is intentional) """
         
+        #Copying some drag_handler checker code from selectAtomsMode (with some 
+        # modifications)the comment below bu bruce070322 is just copied over 
+        #as it is useful information --  Ninad20070601
+        
         if self.cursor_over_when_LMB_pressed == 'Empty Space': 
-            self.continue_selection_curve(event)             
+            if self.drag_handler is not None:
+##                print "possible bug (fyi): self.drag_handler is not None, but cursor_over_when_LMB_pressed == 'Empty Space'", \
+##                      self.drag_handler #bruce 060728
+                # bruce 070322: this is permitted now, and we let the drag_handler handle it (for testmode & exprs module)...
+                # however, I don't think this new feature will be made use of yet, since testmode will instead sometimes
+                # override get_obj_under_cursor to make it return a background object rather than None,
+                # so this code will not set cursor_over_when_LMB_pressed to 'Empty Space'.
+                self.dragHandlerDrag(self.drag_handler, event) # does updates if needed
+            else:
+                self.continue_selection_curve(event)             
             return
-        if self.cursor_over_when_LMB_pressed == 'Handle':
-            self.handleLeftDrag(self.currentHandleObject,event)
-            return
-                        
+        
+        if self.drag_handler is not None:
+            movables = self.o.assy.getSelectedMovables()
+            if movables:
+                if self.drag_handler not in movables:
+                    #bruce 060728
+                    self.dragHandlerDrag(self.drag_handler, event) # does updates if needed
+                    return
+                                
         if self.o.assy.getSelectedMovables():
             bool_goBackToMode = True
             self.o.setMode('MODIFY')  
@@ -536,13 +545,7 @@ class selectMolsMode(selectMode):
             
         elif isinstance(obj, Jig): # Jig
             self.jigLeftUp(obj, event)
-        
-        elif isinstance(obj, ReferenceGeometry): #Geometry
-            self.geometryLeftUp(obj, event)
-        
-        elif isinstance(obj, Handle):
-            self.handleLeftUp(obj, event)
-        
+                
         else:
             pass
         
@@ -555,7 +558,6 @@ class selectMolsMode(selectMode):
         
         if self.mouse_exceeded_distance(event, 1):
             return
-        
         self.update_selobj(event) #ninad 20070214 to permit chunk highlighting
         return
     
@@ -585,10 +587,6 @@ class selectMolsMode(selectMode):
             return yellow
         elif isinstance(selobj, Bond):
             return yellow 
-        elif isinstance(selobj, ReferenceGeometry):
-            return yellow
-        elif isinstance(selobj, Handle):
-            return orange
         elif isinstance(selobj, Jig): #bruce 050729 bugfix (for some bugs caused by Huaicai's jig-selection code)
             if not self.o.jigSelectionEnabled: #mark 060312.
                 # jigSelectionEnabled set from GLPane context menu.
@@ -610,6 +608,7 @@ class selectMolsMode(selectMode):
                 # [bruce 060722 new feature; revised comment 060726]
                 method = getattr(selobj, 'highlight_color_for_modkeys', None)
                 if method:
+                    clr = method(self.o.modkeys)
                     return method(self.o.modkeys)
                         # Note: this API might be revised; it only really makes sense if the mode created the selobj to fit its
                         # current way of using modkeys, perhaps including not only its code but its active-tool state.
@@ -738,7 +737,7 @@ class selectMolsMode(selectMode):
             glpane.gl_update()
         else:
             # it's known (to be a specific object or None)
-            if new_selobj is not orig_selobj:
+            if new_selobj is not orig_selobj:                
                 # this is the right test even if one or both of those is None.
                 # (Note that we never figure out a specific new_selobj, above,
                 #  except when it's None, but that might change someday

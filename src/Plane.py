@@ -7,16 +7,15 @@ from ReferenceGeometry import ReferenceGeometry
 from shape import fill
 from drawer import drawLineLoop, drawPlane
 from constants import black, gray, orange, yellow, darkgreen
-from VQT import V,Q, cross, dot, A
+from VQT import V,Q, cross, dot, A, planeXline, vlen
 from OpenGL.GL import *
-from math import pi
+from math import pi, atan, cos, sin
 from debug import print_compact_traceback
 import env
 from OpenGL.GLU import gluProject, gluUnProject
 
-#draw handle inside or outside of push-pop matrix that draws the Plane geometry
-#default is True (handle drawn inside) 
-DEBUG_DRAW_HANDLE_INSIDE = False
+#Required for class Handle --
+from exprs.Highlightable import DragHandler
 
 class Plane(ReferenceGeometry):    
     sym = "Plane"    
@@ -38,8 +37,8 @@ class Plane(ReferenceGeometry):
         
         self.opacity = 0.3
         
-        self.handles = []        
-        
+        self.handles = []   
+                      
         #This is used to notify drawing code if it's just for picking purpose
         #copied from jig_planes.ESPImage
         self.pickCheckOnly=False 
@@ -47,12 +46,12 @@ class Plane(ReferenceGeometry):
         if not READ_FROM_MMP:
             self.__init_quat_center(lst)
     
-    def __getattr__(self, name): # in class RectGadget
+    def __getattr__(self, name):
         if name == 'planeNorm':
             return self.quat.rot(V(0.0, 0.0, 1.0))
         else:
             raise AttributeError, 'Plane has no "%s"' % name 
-        
+          
     
     def draw(self, glpane, dispdef):
         try:
@@ -66,7 +65,6 @@ class Plane(ReferenceGeometry):
                    
     def _draw_geometry(self, glpane, color, highlighted=False):
         '''Draw a Plane.'''
-        
         # Reference planes don't support textures so set this property to False 
         # in the drawer.drawPlane method        
         textureReady = False
@@ -74,37 +72,37 @@ class Plane(ReferenceGeometry):
 
         glTranslatef( self.center[0], self.center[1], self.center[2])
         q = self.quat
-    
-        glRotatef( q.angle*180.0/pi, q.x, q.y, q.z)
-
+            
+        glRotatef( q.angle*180.0/pi, q.x, q.y, q.z)   
+      
         hw = self.width/2.0; hh = self.height/2.0
         
         bottom_left = V(- hw,- hh, 0.0)                       
         bottom_right = V(+ hw,- hh, 0.0)        
         top_right = V(+ hw, + hh, 0.0)
         top_left = V(- hw, + hh, 0.0)
-        
-        
+                
         corners_pos = [bottom_left, bottom_right, 
                        top_right, top_left]          
-                
-                
+                                
         drawPlane(self.fill_color, 
                   self.width, 
                   self.height, 
                   textureReady,
                   self.opacity, 
                   SOLID=True, 
+                  
                   pickCheckOnly=self.pickCheckOnly)
         
         if self.picked:
             drawLineLoop(self.color, corners_pos)  
-            #See comment near line 138 below -- Ninad 20070525 
-            if DEBUG_DRAW_HANDLE_INSIDE:
-                self._draw_handles(corners_pos)               
+            if highlighted:
+                drawLineLoop(color, corners_pos, width=2)            
+                pass
+            self._draw_handles(corners_pos)               
         else:
             if highlighted:
-                drawLineLoop(yellow, corners_pos, width=2)
+                drawLineLoop(color, corners_pos, width=2)
             else:  
                 #Following draws the border of the plane in orange color 
                 #for it's front side (side that was in front 
@@ -112,62 +110,10 @@ class Plane(ReferenceGeometry):
                 if dot(self.getaxis(), glpane.lineOfSight) < 0:
                     bordercolor = gray #backside
                 else:
-                    bordercolor = color #frontside
+                    bordercolor = orange #frontside
                 drawLineLoop(bordercolor, corners_pos)                  
         glPopMatrix()
-        if not DEBUG_DRAW_HANDLE_INSIDE:            
-            #We need to compute the corner positions to draw 
-            #the handles. The list 'corners_pos' can't be used for this 
-            #purpose as it computes the corners in a translation matrix 
-            #whose center is always at the center of the geometry. 
-            # Then why not use the above translation matrix for handles?
-            #-- we can't do this because then the handles are not drawn parallel
-            #to the screen in some orientations (i.e. user doesn't see them as 
-            #squares in some orientations) -- ninad 20070518
-          
-            bottom_left = V(self.center[0] - hw,
-                            self.center[1] - hh,
-                            self.center[2])
-            bottom_right = V(self.center[0] + hw,
-                            self.center[1] - hh,
-                            self.center[2])
-            
-            top_right = V(self.center[0] + hw,
-                            self.center[1] + hh,
-                            self.center[2])
-            top_left = V(self.center[0] - hw,
-                            self.center[1] + hh,
-                            self.center[2])
-            
         
-            cornerHandleCenters =  [bottom_left,bottom_right,
-                                    top_right,top_left]       
-                          
-            # Draw the handles when selected. 
-            if self.picked:
-                #[A] Following line draws the handles outside of the 
-                # push-pop matrix that draws the plane. But this is wrong. 
-                # it works only in front plane. When plane is created in other
-                #orientations, the handle geometry is still created in front plane. 
-                # This is happening because the 'cornerHandleCenters' computation
-                #done above is not correct. 
-                #[B] If called inside of the push-pop matrix that does the plane
-                #drawing, it uses the correct handle centers, but then there
-                #is a problem in correct computation of quaternion that draws the 
-                #Handle geometry. The handle geometry should always be drawn 
-                #parallel to the screen. 
-                #This is not (yet) acheived by doing [B] described above. Need 
-                #some more work.  -- Ninad 20070525
-                self._draw_handles(cornerHandleCenters)
-              
-                if highlighted:
-                    glPushMatrix()
-                    glTranslatef( self.center[0], self.center[1], self.center[2])
-                    q = self.quat
-                    glRotatef( q.angle*180.0/pi, q.x, q.y, q.z)
-                    drawLineLoop(yellow, corners_pos, width=2)
-                    glPopMatrix()        
-           
         return
            
     def __init_quat_center(self, lst = None):
@@ -258,9 +204,9 @@ class Plane(ReferenceGeometry):
                 #handleIndex = 4, 5, 6, 7 -->
                 #-->midBottom, midRight, midTop, midLeft Handles respt.
                 if hdlIndex == 5 or hdlIndex == 7: 
-                    handle.setType('X-Handle')
+                    handle.setType('Width-Handle')
                 elif hdlIndex == 4 or hdlIndex == 6:
-                    handle.setType('Y-Handle')
+                    handle.setType('Height-Handle')
                 else:
                     handle.setType('Corner')
                 
@@ -272,39 +218,55 @@ class Plane(ReferenceGeometry):
         
         ##self.move(handleOffset/2.0) 
         self.center += handleOffset/2.0
-      
-    def resizeGeometry(self, movedHandle, offset):
+    
+    def resizeGeometry(self, movedHandle, vec_P, vec_v1): 
+        #@TODO:need to revise this.
+        #@BUG: vec_v1 computed in handleLeftDrag needs to be be Handle Center
+        #projected on the parent Plane . 
+        #At present I'm unable to compute that. handel.center returns , for example
+        # (-X, 0, 0) for the mid-west handle even when the handle is created in left view. 
+        #In the above case , the real point on the parent plane 
+        #(with center at 0, 0,0) should be (0, 0, -8) since you are in left view. 
+        #vec_v1 returns a vector between the mouse hitpoint on the handle 
+        #and plane center. But since it doesn't have accurate coordinates 
+        #as the handle center the resizing is not smooth and plane 
+        #'moves' after resize(which shouldn't happen)  -- Ninad 20070601
+    
+        totalOffset = vec_P - vec_v1
+                
+        if 0: #For debug
+            print "***vec_P = ", vec_P
+            print "***length of vec_P = ", vlen(vec_P)
+            print "*** vec_v1 = ", vec_v1
+            print "***length of vec_v1 = ", vlen(vec_v1)
+            print "*** totalOffset vector =", totalOffset
+            print "*** length of totalOffset = ", vlen(totalOffset)
+            print "*** Original Width = ", self.width
         
-        handleOffset = offset
-                            
-        new_center = self.center + handleOffset/2.0
-        moved_handle_center = movedHandle.center + handleOffset
-        
-        if movedHandle.getType() == 'X-Handle':
-            hw = abs(new_center[0] - moved_handle_center[0])
-            self.setWidth(hw*2.0) 
-            xOffset = handleOffset
-            xOffset[1] -= handleOffset[1]
-            xOffset[2] -= handleOffset[2]
-            self.recomputeCenter(xOffset)
-        elif movedHandle.getType() == 'Y-Handle':
-            hh = abs(new_center[1] - moved_handle_center[1]) 
-            self.setHeight(hh*2.0)
-            yOffset = handleOffset
-            yOffset[0] -= handleOffset[0]
-            yOffset[2] -= handleOffset[2]
-            self.recomputeCenter(yOffset)
+        if vlen(vec_P) > vlen(vec_v1):
+            new_dimension = 2*vlen(vec_v1) + vlen(totalOffset)
+        else:
+            new_dimension = 2*vlen(vec_v1) - vlen(totalOffset)
+                
+        if movedHandle.getType() == 'Width-Handle' :  
+            new_w = new_dimension                    
+            self.setWidth(new_w)
+        elif movedHandle.getType() == 'Height-Handle' :
+            new_h = new_dimension
+            self.setHeight(new_h)
         elif movedHandle.getType() == 'Corner':
-            hw = abs(new_center[0] - moved_handle_center[0])
-            hh = abs(new_center[1] - moved_handle_center[1]) 
-            self.setWidth(hw*2.0)
-            self.setHeight(hh*2.0)
-            cornerOffset = handleOffset
-            cornerOffset[2] -= handleOffset[2]
-            self.recomputeCenter(cornerOffset)
-  
+            wh = 0.5*self.getWidth()
+            hh = 0.5*self.getHeight()
+            theta = atan(hh/wh)
+            new_w = (new_dimension)*cos(theta)
+            new_h = (new_dimension)*sin(theta)
+            self.setWidth(new_w)
+            self.setHeight(new_h)            
         
-class Handle:
+        self.recomputeCenter(totalOffset)
+    
+                      
+class Handle(DragHandler):
     '''@@@EXPERIMENTAL -- ninad 20070517 
     - unreleated with things in handles.py
     - soon it will be moved to handles.py (with added docstrings)-ninad20070521'''
@@ -341,17 +303,10 @@ class Handle:
         if hCenter:
             if self.center != hCenter:
                 self.center = hCenter    
-        
-        if not DEBUG_DRAW_HANDLE_INSIDE:
-            #Always draw the handle geometry facing the line of sight. So that 
-            #the handles are visible in any orientation of the plane.
-            handleNorm = self.glpane.lineOfSight 
-            #@@@ ninad20070523 bug when the plane is created after rotating the glpane          
-            self.quat = Q(V(0.0, 0.0, 1.0), handleNorm)
-        
+               
         #Use glpane's scale for drawing the handle. This makes sure that
         # the handle is non-zoomable. 
-        side = self.glpane.scale*0.05                
+        side = self.glpane.scale*0.018                
         glPushMatrix()           
             
         
@@ -360,17 +315,14 @@ class Handle:
                      self.center[1], 
                      self.center[2])   
         
-        if DEBUG_DRAW_HANDLE_INSIDE:
-            #Bruce suggested undoing the glpane.quat rotation and plane quat rotation 
-            #before drawing the handle geometry. -- ninad 20070525
-            parent_q = self.parent.quat        
-            glpane_q = self.glpane.quat 
-            glRotatef(-parent_q.angle*180.0/pi, parent_q.x, parent_q.y, parent_q.z)          
-            glRotatef(-glpane_q.angle*180.0/pi, glpane_q.x, glpane_q.y, glpane_q.z)        
-        else:
-            q = self.quat     
-            glRotatef(q.angle*180.0/pi, q.x, q.y, q.z)
-                
+        
+        #Bruce suggested undoing the glpane.quat rotation and plane quat rotation 
+        #before drawing the handle geometry. -- ninad 20070525
+        parent_q = self.parent.quat        
+        glpane_q = self.glpane.quat 
+        glRotatef(-parent_q.angle*180.0/pi, parent_q.x, parent_q.y, parent_q.z)          
+        glRotatef(-glpane_q.angle*180.0/pi, glpane_q.x, glpane_q.y, glpane_q.z)        
+       
         drawPlane(darkgreen, 
               side, 
               side, 
@@ -393,17 +345,15 @@ class Handle:
         glPopMatrix()
         
     def draw_in_abs_coords(self, glpane, color):
-        ''' Draw the handle as a highlighted object'''
-        if DEBUG_DRAW_HANDLE_INSIDE:            
-            q = self.parent.quat  
-            glPushMatrix()
-            glTranslatef( self.parent.center[0],
-                          self.parent.center[1], 
-                          self.parent.center[2])
-            glRotatef( q.angle*180.0/pi, q.x, q.y, q.z)            
+        ''' Draw the handle as a highlighted object'''          
+        q = self.parent.quat  
+        glPushMatrix()
+        glTranslatef( self.parent.center[0],
+                      self.parent.center[1], 
+                      self.parent.center[2])
+        glRotatef( q.angle*180.0/pi, q.x, q.y, q.z)            
         self._draw(highlighted = True)
-        if DEBUG_DRAW_HANDLE_INSIDE:   
-            glPopMatrix()
+        glPopMatrix()
         
     def move(self, offset):
         '''Move the handle by <offset>, which is a 'V' object.'''
@@ -411,7 +361,7 @@ class Handle:
     
     def setType(self, handleType):
         ''' @param: handleType: returns the '''
-        assert handleType in [ 'X-Handle' , 'Y-Handle' , 'Corner']
+        assert handleType in [ 'Width-Handle' , 'Height-Handle' , 'Corner']
         self.type = handleType
        
         
@@ -420,3 +370,72 @@ class Handle:
         or a corner handle '''
         assert self.type is not None
         return self.type
+        
+    ###============== selobj interface ===============###
+     
+    #Methods for selobj interface  . Note that draw_in_abs_coords method is 
+    #already defined above. All of the following is NIY  -- Ninad 20070522
+    
+    #@TODO Need some documentation. Basically it implements the selobj 
+    #interface mentioned in exprs.Highlightable.py
+    
+    def leftClick(self, point, event, mode):
+        mode.handleLeftDown(self, event)
+        mode.update_selobj(event)
+        return self               
+
+    def mouseover_statusbar_message(self):
+        msg1 = "Parent:"
+        msg2 = str(self.parent.name)
+        msg3 = " Type: "
+        msg4 = self.getType()
+        return msg1 + msg2 + msg3 + msg4
+        
+    def highlight_color_for_modkeys(self, modkeys):
+        return orange
+    # copying Bruce's code from class Highligtable with some mods.Need to see        
+    # if sleobj_still_ok method is needed. OK for now --Ninad 20070531
+    def selobj_still_ok(self):
+        res = self.__class__ is ReferenceGeometry 
+        if res:
+            our_selobj = self
+            glname = self.glname
+            owner = env.obj_with_glselect_name.get(glname, None)
+            if owner is not our_selobj:
+                res = False
+                # owner might be None, in theory, but is probably a replacement of self at same ipath
+                # do debug prints
+                print "%r no longer owns glname %r, instead %r does" % (self, glname, owner) # [perhaps never seen as of 061121]
+                our_ipath = self.ipath
+                owner_ipath = getattr(owner, 'ipath', '<missing>')
+                if our_ipath != owner_ipath:
+                    # [perhaps never seen as of 061121]
+                    print "WARNING: ipath for that glname also changed, from %r to %r" % (our_ipath, owner_ipath)
+                pass
+            pass
+            # MORE IS PROBABLY NEEDED HERE: that check above is about whether this selobj got replaced locally;
+            # the comments in the calling code are about whether it's no longer being drawn in the current frame;
+            # I think both issues are valid and need addressing in this code or it'll probably cause bugs. [061120 comment] ###BUG
+        import env
+        if not res and env.debug():
+            print "debug: selobj_still_ok is false for %r" % self ###@@@
+        return res # I forgot this line, and it took me a couple hours to debug that problem! Ugh.
+            # Caller now prints a warning if it's None. 
+    
+    ###=========== Drag Handler interface =============###
+    #@TODO Need some documentation. Basically it implements the drag handler 
+    #interface described in exprs.Highlightable.py
+    
+    def handles_updates(self): 
+        return True
+            
+    def DraggedOn(self, event, mode): 
+        mode.handleLeftDrag(self, event)
+        mode.update_selobj(event)
+        return
+    
+    def ReleasedOn(self, selobj, event, mode): 
+        pass
+                
+    
+    

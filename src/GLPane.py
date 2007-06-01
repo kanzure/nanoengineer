@@ -50,8 +50,6 @@ from panMode import panMode
 from rotateMode import rotateMode
 from modes import modeMixin
 
-from ReferenceGeometry import ReferenceGeometry
-
 import operator
 import struct
 ##bruce 050413 removed: from povheader import povheader, povpoint
@@ -2361,7 +2359,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         self.glselect_dict.clear()
             # this will be filled iff we do a gl_select draw,
             # then used only in the same paintGL call to alert some objects they might be the one
-
+	
+	
         if self.selobj is not None: #bruce 050702 part of fixing bug 716 (and possibly 715-5, though that's untested)
             try:
                 # this 'try' might not be needed once the following method is fully implemented,
@@ -2417,6 +2416,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
             # it passes the hit test and add it to glselect_dict -- and, make sure to give it "first dibs" for being
             # the next selobj. I'll implement some of this now (untested when no stencil buffer) but not yet all. [bruce 050612]
             obj = self.selobj
+	    
             if obj is not None:
                 self.glselect_dict[id(obj)] = obj
                     ###k unneeded, if the func that looks at this dict always tries selobj first
@@ -2588,13 +2588,12 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
                     #  though it can't be tested yet since it has no known effect on current code, only on future code.]
 		#ninad 070214 to permit chunk highlighting
 		if self.mode.modename is selectMolsMode.modename:
-			self.drawHighlightedChunk(self.selobj, hicolor) 			
-			if isinstance(self.selobj, Jig):
+			self.drawHighlightedChunk(self.selobj, hicolor)
+			if not (isinstance(self.selobj, Atom) \
+			or isinstance(self.selobj, Bond)):
 				self.selobj.draw_in_abs_coords(self, hicolor or black)
-			elif isinstance(self.selobj, ReferenceGeometry):
-				self.selobj.draw_in_abs_coords(self, hicolor or black)
-			elif isinstance(self.selobj, Handle):
-				self.selobj.draw_in_abs_coords(self, hicolor or black)		
+				pass
+				
 		else:			
 			self.selobj.draw_in_abs_coords(self, hicolor or black)
                             ###@@@ test having color writing disabled here -- does stencil write still happen??
@@ -2707,6 +2706,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
                         print_compact_traceback(msg + ': ')
             else:
                 msg = " "
+		
             env.history.statusbar_msg(msg)
         self.selobj = selobj
         #e notify some observers?
@@ -2841,6 +2841,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         #bruce 050822 new feature: objects which had no highlight color should not be allowed in self.selobj
         # (to make sure they can't be operated on without user intending this),
         # though they should still obscure other objects.
+	
         if newpicked is not None:
             hicolor = self.selobj_hicolor( newpicked)
             if hicolor is None:

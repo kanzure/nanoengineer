@@ -4,11 +4,10 @@ $Id$
 """
 
 from Utility import Node
-from constants import darkgreen, orange
+from constants import darkgreen, orange, yellow, white
 from Utility import imagename_to_pixmap
 import env
-
-##from exprs.Highlightable import DragHandler
+from exprs.Highlightable import DragHandler
 
 Gno = 0
 def gensym(string):
@@ -20,7 +19,7 @@ def gensym(string):
     return string + str(Gno)
 
 
-class ReferenceGeometry(Node):
+class ReferenceGeometry(Node, DragHandler):
     sym = "Geometry" # affects name-making code in __init__
     pickcolor = darkgreen 
     mmp_record_name = "#" # if not redefined, this means it's just a comment in an mmp file
@@ -28,18 +27,12 @@ class ReferenceGeometry(Node):
     #color = normcolor = (0.5, 0.5, 0.5)
     color = normcolor = orange
 
-    atoms = None
+    atoms = []
     points = None
-    
-    #Handles for resizing the geometry (shown only when the geometry is selected)
-    #Subclasses should define this as a List object containing 
-    #the center point of each handle (each center point is a vector). 
-    #See _draw_handles method in subclasses
     handles = None
-    
-    
+       
     copyable_attrs = Node.copyable_attrs + ('pickcolor', 'normcolor', 'color')
-    
+        
     def __init__(self, win):  
         self.win = win
         Node.__init__(self, win.assy, gensym("%s-" % self.sym))        
@@ -53,8 +46,7 @@ class ReferenceGeometry(Node):
         ''' The main code that draws the geometry. 
         Subclasses should override this method.'''
         pass
-        
-    
+            
     def draw(self, glpane):
         try:
             glPushName(self.glname)
@@ -64,11 +56,11 @@ class ReferenceGeometry(Node):
             print_compact_traceback("ignoring exception when drawing Plane %r: " % self)
         else:
             glPopName()
-            
+                
     def draw_in_abs_coords(self, glpane, color):
-        '''Draws the reference geometry with highlighting.'''
-        self._draw_geometry(glpane, color, highlighted = True)    
-    
+        '''Draws the reference geometry with highlighting.'''       
+        self._draw_geometry(glpane, color, highlighted = True)   
+                   
     def node_icon(self, display_prefs):
         '''A subclasse should override this if it needs to 
         choose its icons differently'''
@@ -91,19 +83,24 @@ class ReferenceGeometry(Node):
     def rot(self, quat):
         pass
     
-    """
-    #Methods for selobj interface  . Note that dear_in_abs_coords method is 
+    ###============== selobj interface ===============###
+     
+    #Methods for selobj interface  . Note that draw_in_abs_coords method is 
     #already defined above. All of the following is NIY  -- Ninad 20070522
     
-    def leftClick(self, point, event, mode):
+    def leftClick(self, point, event, mode):       
+        mode.geometryLeftDown(self, event)
+        mode.update_selobj(event)
         return self
-            
+                    
     def mouseover_statusbar_message(self):
-        pass
+        return "%r" % (self,)
+        
+    def highlight_color_for_modkeys(self, modkeys):
+        return yellow
     
-    def highlight_color_for_modkeys(self):
-        return green
-            
+    # copying Bruce's code from class Highligtable with some mods.Need to see        
+    # if sleobj_still_ok method is needed. OK for now --Ninad 20070601        
     def selobj_still_ok(self):
         res = self.__class__ is ReferenceGeometry 
         if res:
@@ -129,11 +126,18 @@ class ReferenceGeometry(Node):
         if not res and env.debug():
             print "debug: selobj_still_ok is false for %r" % self ###@@@
         return res # I forgot this line, and it took me a couple hours to debug that problem! Ugh.
-            # Caller now prints a warning if it's None.
+            # Caller now prints a warning if it's None. 
     
-    """
-    
+    ###=========== Drag Handler interface =============###
+    def handles_updates(self): #k guessing this one might be needed
+        return True
             
-      
-
+    def DraggedOn(self, event, mode):        
+        self._update_altkey()
+        mode.geometryLeftDrag(self, event)
+        mode.update_selobj(event)
+        return
     
+    def ReleasedOn(self, selobj, event, mode): 
+        pass
+                
