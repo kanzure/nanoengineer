@@ -199,7 +199,7 @@ class RotaryMotor(Motor):
        To Be Done -- selecting & manipulation'''
     
     sym = "RotaryMotor" # Was "Rotary Motor" (removed space). Mark 2007-05-28
-    icon_names = ["modeltree/rmotor.png", "modeltree/rmotor-hide.png"]
+    icon_names = ["modeltree/Rotary_Motor.png", "modeltree/Rotary_Motor-hide.png"]
     featurename = "Rotary Motor" #bruce 051203
 
     _initial_posns = None #bruce 060310 added default values for _initial_* and added them to copyable_attrs, to fix bug 1656
