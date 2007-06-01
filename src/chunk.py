@@ -328,21 +328,21 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     # bruce 041202/050109 revised the icon code; see longer comment about
     # Jig.init_icons for explanation; this might be moved into class Node later
     mticon_names = [
-	"moldefault.png",
-	"molinvisible.png",
-	"molvdw.png",
-	"mollines.png",
-	"molcpk.png",
-	"moltubes.png",
-        "molcylinder.png" ]
+	"Default.png",
+	"Invisible.png",
+	"CPK.png",
+	"Lines.png",
+	"Ball_and_Stick.png",
+	"Tubes.png",
+        "Cylinder.png" ]
     hideicon_names = [
-        "moldefault-hide.png",
-        "molinvisible-hide.png",
-        "molvdw-hide.png",
-        "mollines-hide.png",
-        "molcpk-hide.png",
-        "moltubes-hide.png",
-        "molcylinder-hide.png" ]
+        "Default-hide.png",
+        "Invisible-hide.png",
+        "CPK-hide.png",
+        "Lines-hide.png",
+        "Ball_and_Stick-hide.png",
+        "Tubes-hide.png",
+        "Cylinder-hide.png" ]
     mticon = []
     hideicon = []
     def init_icons(self):
