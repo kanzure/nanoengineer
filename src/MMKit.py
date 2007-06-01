@@ -170,9 +170,7 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
             atoms_ic = imagename_to_icon("actions/Properties Manager/MMKit.png")
             self.mmkit_tab.setTabIcon(self.mmkit_tab.indexOf(self.atomsPage), QIcon(atoms_ic))
         
-            clipboard_ic = imagename_to_icon("actions/Properties Manager/clipboard-empty.png")
-            self.mmkit_tab.setTabIcon(self.mmkit_tab.indexOf(self.clipboardPage), QIcon(clipboard_ic))
-            # (modified in another method below)
+	    self.update_clipboard_page_icon() # Loads proper icon for clibpoard tab. Mark 2007-06-01
         
             library_ic = imagename_to_icon("actions/Properties Manager/library.png")
             self.mmkit_tab.setTabIcon(self.mmkit_tab.indexOf(self.libraryPage), QIcon(library_ic))
@@ -753,7 +751,8 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
         
     
     def update_clipboard_page_icon(self):
-        '''Updates the Clipboard page (tab) icon with a full or empty clipboard icon.
+        '''Updates the Clipboard page (tab) icon with a full or empty clipboard icon
+	based on whether there is anything on the clipboard (pasteables).
         '''
         if not self.icon_tabs:
             # Work around for bug 1659. mark 060310 [revised by bruce 060313]
