@@ -846,19 +846,30 @@ def createWhatsThis(self):
 
         # Delete Bonds
 
-        modifyDeleteBondsActionText = "<u><b>Delete Bonds</b></u><br>"\
+        modifyDeleteBondsActionText = "<u><b>Cut Bonds</b></u><br>"\
                        "<p><img source=\"ui/actions/Tools/Build Tools/Delete_Bonds.png\"><br> "\
                        "Delete all bonds between selected and unselected atoms or chunks.</p>"
 
         self.modifyDeleteBondsAction.setWhatsThis(modifyDeleteBondsActionText )  
         
-        # Separate
+        # Separate/New Chunk
 
         modifySeparateActionText = "<u><b>Separate</b></u><br>"\
                        "<p><img source=\"ui/actions/Tools/Build Tools/Separate.png\"><br> "\
-                       "Creates a new chunk from the currently selected atoms.</p>"
+                       "Creates a new chunk(s) from the currently selected atoms. "\
+                        "If the selected atoms belong to different chunks, multiple new "\
+                        "chunks are created.</p>"
 
         self.modifySeparateAction.setWhatsThis(modifySeparateActionText )  
+        
+        # New Chunk
+        
+        makeChunkFromAtomsActionText = "<u><b>New Chunk</b></u><br>"\
+            "<p><img source=\"ui/actions/Tools/Build Tools/New_Chunk.png\"><br>  "\
+            "Creates a new chunk from the currently selected atoms. "\
+            "All atoms end up in a single chunk.</p>"
+        
+        self.makeChunkFromAtomsAction.setWhatsThis(makeChunkFromAtomsActionText ) 
         
         # Merge Chunks
 
