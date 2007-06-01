@@ -51,7 +51,7 @@ class DnaPropMgr(object, PropMgrBaseClass):
         preview the structure. Click <b>Done</b> to insert it into the model."
         
         # This causes the "Message" box to be displayed as well.
-        self.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=False)
+        self.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=True)
         
     def addGroupBoxes(self):
         """Add the 3 groupboxes for the DNA Property Manager.

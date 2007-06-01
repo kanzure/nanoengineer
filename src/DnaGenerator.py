@@ -385,6 +385,14 @@ class DnaGenerator(QDialog, DnaPropMgr, GeneratorBaseClass):
 
         dna.double = doubleStrand
         self.dna = dna  # needed for done msg
+        
+        if len(seq) < 1: # Mark 2007-06-01
+            msg = redmsg("You must enter a strand sequence to preview/insert DNA")
+            self.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=False)
+            env.history.message(msg)
+            self.dna = None
+            return None
+            
         if len(seq) > 30:
             env.history.message(self.cmd + "This may take a moment...")
         grp = Group(self.name, self.win.assy,
@@ -453,7 +461,10 @@ class DnaGenerator(QDialog, DnaPropMgr, GeneratorBaseClass):
                 pass
             else:
                 raise UserError('Bogus DNA base: ' + ch + ' (should be C, G, A, T, or N)')
-        assert len(seq) > 0, 'Please enter a valid sequence'
+        
+        # Marked for removal. Mark 2007-06-01
+        #@assert len(seq) > 0, 'Please enter a valid sequence'
+            
         if reverse:
             seq = list(seq)
             seq.reverse()
@@ -645,9 +656,14 @@ class DnaGenerator(QDialog, DnaPropMgr, GeneratorBaseClass):
 
     def done_msg(self):
         dna = self.dna
+        
+        if not dna: # Mark 2007-06-01
+            return "No DNA added."
+        
         if dna.double:
             dbl = "double "
         else:
             dbl = ""
         return "Done creating a %sstrand of %s." % (dbl, dna.geometry)
+    
 
