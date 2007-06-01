@@ -756,7 +756,7 @@ class Ui_MMKitDialog(object):
         self.vboxlayout_grpbox3.addWidget(self.mmkit_tab)
         
         self.transmuteAtomsAction = QtGui.QWidgetAction(self.w)
-	self.transmuteAtomsAction.setText("Transmute")
+	self.transmuteAtomsAction.setText("Transmute Atoms")
 	self.transmuteAtomsAction.setIcon(geticon(
 	    'ui/actions/Toolbars/Smart/Transmute_Atoms'))	
 	self.transmuteAtomsAction.setCheckable(False)
@@ -898,15 +898,11 @@ class Ui_MMKitDialog(object):
                                                                 "MMKit", None, QtGui.QApplication.UnicodeUTF8))
         MMKitDialog.setWindowIcon(QtGui.QIcon("ui/border/MMKit"))
 	
-        MMKitDialog.setToolTip(QtGui.QApplication.translate(
-	    "MMKitDialog","Molecular Modeling Kit", 
-	    None, QtGui.QApplication.UnicodeUTF8))
-	
         self.heading_label.setText(QtGui.QApplication.translate(
 	    "MMKitDialog", "<font color=\"#FFFFFF\">Build Atoms </font>",
 	    None, QtGui.QApplication.UnicodeUTF8))
 	
-        self.elementFrame.setToolTip(QtGui.QApplication.translate("MMKitDialog", "3D thumbnail view", None, QtGui.QApplication.UnicodeUTF8))
+        self.elementFrame.setToolTip(QtGui.QApplication.translate("MMKitDialog", "Preview window of active object.", None, QtGui.QApplication.UnicodeUTF8))
         self.toolButton1.setToolTip(QtGui.QApplication.translate("MMKitDialog", "Hydrogen", None, QtGui.QApplication.UnicodeUTF8))
         self.toolButton1.setText(QtGui.QApplication.translate("MMKitDialog", "H", None, QtGui.QApplication.UnicodeUTF8))
         self.toolButton1.setShortcut(QtGui.QApplication.translate("MMKitDialog", "H", None, QtGui.QApplication.UnicodeUTF8))

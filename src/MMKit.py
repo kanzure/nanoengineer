@@ -202,8 +202,8 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
         
         self.connect(self.dirView, SIGNAL("selectionChanged(QItemSelection *, QItemSelection *)"), self.partChanged)
 
-        self.setWhatsThis("""Molecular Modeling Kit""")
-        self.elementFrame.setWhatsThis("""3D thumbnail view""")
+        self.add_whats_this_text()
+	
         return # from __init__
 
     # ==
@@ -1022,7 +1022,60 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
             
         self.w.activateWindow() # Fixes bug 1503.  mark 060216.
             # Required to give the keyboard input focus back to self (MainWindow).
-            
+    
+    def add_whats_this_text(self):
+        """What's This text for some of the widgets in the Build > Atoms Property Manager.
+        Many are still missing.
+        """
+	
+	self.message_groupBox.setWhatsThis("""<b>Messages</b>
+        <p>This prompts the user for a requisite operation and/or displays 
+	helpful messages to the user.</p>""")
+	
+        self.elementFrame.setWhatsThis("""<b>Preview Window</b>
+        <p>This displays the active object. It can be inserted by double 
+	clicking in the 3D graphics area.</p>
+	<p>Left click on a red bondpoint to make it a green <i>hotspot</i> 
+	(clipboard and library parts only). The hotspot indicates which 
+	bondpoint should be used to bond the current object when selecting 
+	a bondpoint in the model.</p>
+	<p><u>Mouse Commands Supported</u><br>
+	Left - Select hotspot (clipboard and library parts only)<br> 
+	Middle - Rotate view<br> \
+	Wheel - Zoom in/out \
+	</p>""")
+	
+	self.MMKit_groupBox.setWhatsThis("""<b>Molecular Modeling Kit</b> 
+        <p>A tabular widget for selecting atom types or other structures to insert 
+	into the model.</p>
+	<p><b>Atoms Tab</b> - A select group of atom types options from the periodic 
+	table of elements.</p>
+	<p><b>Clipboard Tab</b> - the list of objects copied on the clipboard (using 
+	the Copy command).</p>
+	<p><b>Library Tab</b> - Accesses the NE1 Part Library. There are hundreds of 
+	structures to choose from.</p>""")
+	
+	self.transmuteBtn.setWhatsThis("""<b>Transmute Atoms</b>
+	<p>When clicked, transmutes selected atoms to the current type displayed
+	in the Preview window.</p>""")
+	
+	self.transmuteCB.setWhatsThis("""<b>Force to keep bonds</b>
+	<p>When checked, all bonds remain in place when atoms are transmuted,
+	even if this will result in unrealistic (chemical) bonds.</p>""")
+	
+	self.selectionFilter_groupBox.setWhatsThis("""<b>Atoms Selection Filter</b>
+	<p>When activated, only atoms listed can be selected.</p>""")
+	
+	self.advancedOptions_groupBox.setWhatsThis("""<b>Advanced Options</b>
+	<p><b>Autobond</b> - when checked, the atom being inserted or attached to another 
+	atom will autobond to other bondpoints of other candidate atoms automatically.</p>
+	<p><b>Highlighting</b> - Turns on/off hover highlighting.</p>
+	<p><b>Water</b>- Adds a tranparent plane normal to the screen through 0,0,0. Anything 
+	behind the water plane can not be selected.</p>""")
+	
+	self.transmuteAtomsAction.setWhatsThis("""<b>Transmute Atoms</b>
+	<p>When clicked, transmutes selected atoms to the current type displayed
+	in the Preview window.</p>""")
         
     pass # end of class MMKit
 
