@@ -505,7 +505,7 @@ class LinearMotor(Motor):
        To Be Done -- selecting & manipulation'''
 
     sym = "LinearMotor" # Was "Linear Motor" (removed space). Mark 2007-05-28
-    icon_names = ["modeltree/lmotor.png", "modeltree/lmotor-hide.png"]
+    icon_names = ["modeltree/Linear_Motor.png", "modeltree/Linear_Motor-hide.png"]
     featurename = "Linear Motor" #bruce 051203
 
     copyable_attrs = Motor.copyable_attrs + ('force', 'stiffness', 'length', 'width', 'sradius', 'center', 'axis', \

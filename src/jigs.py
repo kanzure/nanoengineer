@@ -812,7 +812,7 @@ class Stat( Jig_onChunk_by1atom ):
     '''
     #bruce 050210 for Alpha-2: fix bug in Stat record reported by Josh to ne1-users    
     sym = "Stat"
-    icon_names = ["modeltree/stat.png", "modeltree/stat-hide.png"]
+    icon_names = ["modeltree/Thermostat.png", "modeltree/Thermostat-hide.png"]
     featurename = "Thermostat" #bruce 051203
 
     copyable_attrs = Jig_onChunk_by1atom.copyable_attrs + ('temp',)
@@ -876,7 +876,7 @@ class Thermo(Jig_onChunk_by1atom):
     '''
     #bruce 050210 for Alpha-2: fixed same bug as in Stat.
     sym = "Thermo"
-    icon_names = ["modeltree/thermo.png", "modeltree/thermo-hide.png"]
+    icon_names = ["modeltree/Thermometer.png", "modeltree/Thermometer-hide.png"]
     featurename = "Thermometer" #bruce 051203
 
     # creates a thermometer for a specific atom. "list" contains only one atom.
@@ -929,7 +929,7 @@ class AtomSet(Jig):
     '''an Atom Set just has a list of atoms that can be easily selected by the user'''
 
     sym = "AtomSet" # Was "Atom Set" (removed space). Mark 2007-05-28
-    icon_names = ["modeltree/atomset.png", "modeltree/atomset-hide.png"]
+    icon_names = ["modeltree/Atom_Set.png", "modeltree/Atom_Set-hide.png"]
     featurename = "Atom Set" #bruce 051203
 
     # create a blank AtomSet with the given list of atoms
