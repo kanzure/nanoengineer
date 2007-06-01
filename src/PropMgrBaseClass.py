@@ -219,12 +219,12 @@ class PropMgrBaseClass:
             printSizePolicy(self.MessageTextEdit)
         
     def show(self):
-        """Show the Graphene Sheet Property Manager.
+        """Show the Property Manager.
         """
         self.setSponsor()
         if not self.pw or self:            
             self.pw = self.win.activePartWindow()       #@@@ ninad061206  
-            self.pw.updatePropertyManagerTab(self)
+            self.pw.updatePropertyManagerTab(self) # Redundant code. Fix after A9. Mark 2007-06-01
             self.pw.featureManager.setCurrentIndex(self.pw.featureManager.indexOf(self))
         else:
             self.pw.updatePropertyManagerTab(self)
@@ -236,6 +236,9 @@ class PropMgrBaseClass:
             # collapsed groupbox. When the user expands the collapsed groupbox,
             # widgets are "crushed" in all expanded groupboxes. Mark 2007-05-24
             self.fitContents() # pmHeightComputed set to True in fitContents().
+        
+        # Show the default message whenever we open the Property Manager.
+        self.MessageGroupBox.MessageTextEdit.restoreDefault()
             
     def fitContents(self):
         """Sets the final width and height of the PropMgr based on the
@@ -312,10 +315,10 @@ class PropMgrBaseClass:
         self.header_label = QLabel(self.header_frame)
         header_label_palette = self.getPropMgrTitleLabelPalette()
         self.header_label.setPalette(header_label_palette)
-	self.header_label.setAlignment(pmLabelLeftAlignment)
+        self.header_label.setAlignment(pmLabelLeftAlignment)
 
         # PropMgr heading font (for label).
-	self.header_label.setFont(getHeaderFont())
+        self.header_label.setFont(getHeaderFont())
         HeaderFrameHLayout.addWidget(self.header_label)
         
         self.VBoxLayout.addWidget(self.header_frame)
@@ -357,6 +360,16 @@ class PropMgrBaseClass:
         
         self.VBoxLayout.addWidget(self.sponsor_frame)
         
+        self.setWhatsThis("""<b>Sponsor Button</b>
+            <p>When clicked, this sponsor logo will display a short 
+            description about a NanoEngineer-1 sponsor. This can 
+            be an official sponsor or credit given to a contributor 
+            that has helped code part or all of this command. 
+            A link is provided in the description to learn more 
+            about this sponsor.</p>""")
+        
+        self.setToolTip("NanoEngineer-1 Sponsor Button")
+        
         return
 
     def addTopRowBtns(self, showFlags=None):
@@ -379,13 +392,13 @@ class PropMgrBaseClass:
         
         # Main "button group" widget (but it is not a QButtonGroup).
         self.pmTopRowBtns = QHBoxLayout()
-	# This QHBoxLayout is (probably) not necessary. Try using just the frame for
-	# the foundation. I think it should work. Mark 2007-05-30
+        # This QHBoxLayout is (probably) not necessary. Try using just the frame for
+        # the foundation. I think it should work. Mark 2007-05-30
         
         # Horizontal spacer
-	HSpacer = QSpacerItem(1, 1, 
-				QSizePolicy.Expanding, 
-				QSizePolicy.Minimum)
+        HSpacer = QSpacerItem(1, 1, 
+                                QSizePolicy.Expanding, 
+                                QSizePolicy.Minimum)
         
         # Frame containing all the buttons.
         self.TopRowBtnsFrame = QFrame()
@@ -399,15 +412,15 @@ class PropMgrBaseClass:
         TopRowBtnsHLayout.setSpacing(pmTopRowBtnsSpacing)
         
         TopRowBtnsHLayout.addItem(HSpacer)
-	
+        
         # Set button type.
-	if 1: # Mark 2007-05-30
-	    # Needs to be QToolButton for MacOS. Fine for Windows, too.
-	    buttonType = QToolButton 
-	    # May want to use QToolButton.setAutoRaise(1) below. Mark 2007-05-29
-	else:
-	    buttonType = QPushButton # Do not use.
-	
+        if 1: # Mark 2007-05-30
+            # Needs to be QToolButton for MacOS. Fine for Windows, too.
+            buttonType = QToolButton 
+            # May want to use QToolButton.setAutoRaise(1) below. Mark 2007-05-29
+        else:
+            buttonType = QPushButton # Do not use.
+        
         # OK (Done) button.
         self.done_btn = buttonType(self.TopRowBtnsFrame)
         self.done_btn.setIcon(
@@ -423,7 +436,7 @@ class PropMgrBaseClass:
         self.abort_btn = buttonType(self.TopRowBtnsFrame)
         self.abort_btn.setIcon(
             geticon("ui/actions/Properties Manager/Abort.png"))
-	self.abort_btn.setIconSize(QSize(22,22))
+        self.abort_btn.setIconSize(QSize(22,22))
         self.connect(self.abort_btn,SIGNAL("clicked()"),
                      self.abort_btn_clicked)
         self.abort_btn.setToolTip("Cancel")
@@ -434,7 +447,7 @@ class PropMgrBaseClass:
         self.restore_defaults_btn = buttonType(self.TopRowBtnsFrame)
         self.restore_defaults_btn.setIcon(
             geticon("ui/actions/Properties Manager/Restore.png"))
-	self.restore_defaults_btn.setIconSize(QSize(22,22))
+        self.restore_defaults_btn.setIconSize(QSize(22,22))
         self.connect(self.restore_defaults_btn,SIGNAL("clicked()"),
                      self.restore_defaults_btn_clicked)
         self.restore_defaults_btn.setToolTip("Restore Defaults")
@@ -444,7 +457,7 @@ class PropMgrBaseClass:
         self.preview_btn = buttonType(self.TopRowBtnsFrame)
         self.preview_btn.setIcon(
             geticon("ui/actions/Properties Manager/Preview.png"))
-	self.preview_btn.setIconSize(QSize(22,22))
+        self.preview_btn.setIconSize(QSize(22,22))
         self.connect(self.preview_btn,SIGNAL("clicked()"),
                      self.preview_btn_clicked)
         self.preview_btn.setToolTip("Preview")
@@ -455,14 +468,14 @@ class PropMgrBaseClass:
         self.whatsthis_btn = buttonType(self.TopRowBtnsFrame)
         self.whatsthis_btn.setIcon(
             geticon("ui/actions/Properties Manager/WhatsThis.png"))
-	self.whatsthis_btn.setIconSize(QSize(22,22))
+        self.whatsthis_btn.setIconSize(QSize(22,22))
         self.connect(self.whatsthis_btn,SIGNAL("clicked()"),
                      self.enter_WhatsThisMode)
         self.whatsthis_btn.setToolTip("What\'s This Help")
         
         TopRowBtnsHLayout.addWidget(self.whatsthis_btn)
-	
-	TopRowBtnsHLayout.addItem(HSpacer)
+        
+        TopRowBtnsHLayout.addItem(HSpacer)
         
         # Create Button Row
         self.pmTopRowBtns.addWidget(self.TopRowBtnsFrame)
@@ -619,7 +632,7 @@ class PropMgrWidgetMixin:
                 
         if isinstance(self, PropMgrTextEdit):
             if self.setAsDefault:
-                self.insertHtml(self.defaultText, True)
+                self.insertHtml(self.defaultText, setAsDefault=True)
         
         if isinstance(self, PropMgrDoubleSpinBox):
             if self.setAsDefault:
@@ -945,7 +958,7 @@ class PropMgrMessageGroupBox(PropMgrGroupBox):
         
         # wrapWrapMode seems to be set to QTextOption.WrapAnywhere on MacOS,
         # so let's force it here. Mark 2007-05-22.
-	self.MessageTextEdit.setWordWrapMode(QTextOption.WordWrap)
+        self.MessageTextEdit.setWordWrapMode(QTextOption.WordWrap)
         
         parent.MessageTextEdit = self.MessageTextEdit
         
@@ -958,18 +971,24 @@ class PropMgrMessageGroupBox(PropMgrGroupBox):
             QSizePolicy(QSizePolicy.Policy(QSizePolicy.Preferred),
                         QSizePolicy.Policy(QSizePolicy.Fixed)))
         
+        self.setWhatsThis("""<b>Messages</b>
+            <p>This prompts the user for a requisite operation and/or displays 
+            helpful messages to the user.</p>""")
+
         # Hide until insertHtmlMessage() loads a message.
         self.hide()
         
-    def insertHtmlMessage(self, text, setAsDefault=False, minLines=0, maxLines=10):
+    def insertHtmlMessage(self, text, setAsDefault=False, minLines=0, maxLines=10, replace=True):
         """Insert <text> (HTML) into the Prop Mgr's message groupbox.
         <minLines> - The minimum number of lines (of text) to display in the TextEdit.
         if 0 (default) the TextEdit will fit to <text>. 
         <maxLines> - The maximum number of lines to display in the TextEdit widget.
+        <replace> should be set to False if you do not wish
+        to replace the current text. It will append <text> instead.
 
-        Shows the message groupbox.
+        Shows the message groupbox if it is hidden.
         """
-        self.MessageTextEdit.insertHtml(text, setAsDefault, minLines=0, maxLines=10)
+        self.MessageTextEdit.insertHtml(text, setAsDefault, minLines=0, maxLines=10, replace=True)
         self.show()
         
 # End of PropMgrMessageGroupBox ############################
@@ -1025,19 +1044,30 @@ class PropMgrTextEdit(QTextEdit, PropMgrWidgetMixin):
             self.setPalette(self.getMessageTextEditPalette())
             self.setReadOnly(True)
             self.setObjectName("MessageTextEdit")
-	    self.labelWidget = None # Never has one. Mark 2007-05-31
+            self.labelWidget = None # Never has one. Mark 2007-05-31
             parent.widgets.append(self)
             parent.num_rows += 1
         else:
             self.addWidgetAndLabelToParent(parent, label, spanWidth)
         
-    def insertHtml(self, text, setAsDefault=False, minLines=4, maxLines=6):
+    def insertHtml(self, text, setAsDefault=False, 
+                   minLines=4, maxLines=6, 
+                   replace=True):
         """Insert <text> (HTML) into the Prop Mgr's message groupbox.
+        <minLines> is the minimum number of lines to
+        display, even if the text takes up fewer lines.
+        <maxLines> is the maximum number of lines to
+        diplay before adding a vertical scrollbar.
+        <replace> should be set to False if you do not wish
+        to replace the current text. It will append <text> instead.
         """
         if setAsDefault:
             self.defaultText = text
             self.setAsDefault = True
     
+        if replace:
+            self.clear()
+            
         QTextEdit.insertHtml(self, text)
         
         self._setHeight(minLines, maxLines)
