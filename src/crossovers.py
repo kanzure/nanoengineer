@@ -6,7 +6,12 @@ $Id$
 """
 __author__ = "bruce"
 
-from constants import noop
+from constants import noop, average_value
+
+from elements import PeriodicTable
+Element_Sj = PeriodicTable.getElement('Sj')
+Element_Ss = PeriodicTable.getElement('Ss')
+
 
 def crossover_menu_spec(atom, selatoms):
     """Make a crossover-related menu_spec list for the two atoms in the
@@ -55,23 +60,24 @@ def crossover_menu_spec(atom, selatoms):
     
     twoPls = map( Pl_recognizer, atoms)
     
-    # maybe add a Create Crossover command
-    if create_crossover_ok(twoPls):
+    # maybe add a "Make Crossover" command #### interior word capitalization?
+    if make_crossover_ok(twoPls):
         Pl1, Pl2 = twoPls
-        text = "Create crossover from %s and %s" % (Pl1.atom, Pl2.atom) #e or pass the Pl_recognizer objects??
-        cmdname = "Create crossover" ###k # for undo
-        command = (lambda twoPls = twoPls: create_crossover(twoPls))
+        text = "Make crossover (%s - %s)" % (Pl1.atom, Pl2.atom) #e or pass the Pl_recognizer objects??
+        cmdname = "Make crossover" ###k for undo -- maybe it figures this out itself due to those parens??
+        command = (lambda twoPls = twoPls: make_crossover(twoPls))
         res.append((text, command)) ###e how to include cmdname?? or kluge this by having text include a prefix-separator?
     
-    ##e also maybe add a command to break an existing crossover -- break_crossover, break_crossover_ok
+    ##e also maybe add a command to break an existing crossover -- break_crossover, break_crossover_ok -
+    # should we call it Break or Unmake or Delete? It leaves the atoms, patches things up... so Unmake seems best... not sure.
     #e maybe package those two related functions up into a class for the potential command -- sort of a twoPl-recognizer, i guess
     
     return res
 
-def create_crossover_ok(twoPls):
+def make_crossover_ok(twoPls):
     Pl1, Pl2 = twoPls
     if Pl1.in_only_one_helix and Pl2.in_only_one_helix:
-        involved1, involved2 = map( involved_atoms_for_create_crossover, twoPls)
+        involved1, involved2 = map( lambda pl: pl.involved_atoms_for_make_crossover, twoPls)
         if not sets_overlap(involved1, involved2):
             return True
     return False
@@ -79,8 +85,9 @@ def create_crossover_ok(twoPls):
 # ==
 
 # set functions; sets must be dicts whose keys and values are the same
+###e get some of these from the Set or set module??
 
-def union(set1, set2): ###e get this from Set or set module??
+def union(set1, set2): 
     res = dict(set1)
     res.update(set2)
     return res
@@ -91,13 +98,52 @@ def sets_overlap(set1, set2): #e could be varargs, report whether there's any ov
 
 # ==
 
-class Recognizer:
-    """Superclass for pattern and local-environment recognizer classes.
+class StaticRecognizer:
+    """Superclass for pattern and local-structure recognizer classes
+    which don't need to invalidate/update their computed attrs as the
+    local structure changes.
+
     Features include:
-    - Support _C_attr compute methods, but catch exceptions and "tame" them as error reports,
+    - Support _C_attr compute methods, but optionally catch exceptions and "tame" them as error reports,
     and in some cases (declared?) as default values (e.g. False for booleans).
+
+    Missing features include:
+    - We don't track changes in inputs, and behavior of computed attrs after such changes
+    depends on history of prior attr accesses (of them or any intermediate attrs they depend on,
+    including internal accesses by other compute methods) -- in practice that means it's undefined
+    whether we get old or new answers then (or a mixture of the two), and *that* means our derived
+    (aka computed) attrs should no longer be used after input changes.
+    (This limitation is why we are called StaticRecognizer rather than Recognizer.)
     """
-    pass
+    _r_safe = False # subclass should redefine this if they want all their compute methods to stop propogating all exceptions
+    def __getattr__(self, attr):
+        if attr.startswith('__') or attr.startswith('_C_'):
+            raise AttributeError, attr # must be fast
+        methodname = '_C_' + attr
+        method = getattr(self, methodname) # compute method
+        try:
+            answer = method() # WARNING: Answer must be returned, not setattr'd by this method! Error in this is detected below.
+##        except SomeNewException: # for locally reporting errors -- our own methods raise this (how can we tell it's ours??)
+##            print "should record error somewhere"###
+##            answer = None
+        except: # any other exception
+            ##e not sure if we should suppress, reraise now only, reraise every time;
+            # maybe let this be declared per attr or per class? "safe" attrs or classes would never propogate exceptions in themselves
+            # (but what about exceptions coming from other things they try to use? maybe those should be wrapped into a safe form?
+            #  no, if they say "the buck stops here" that better include errors from things they use, too.)
+            if self._r_safe:
+                print "should record error somewhere"###
+                answer = None
+            else:
+                print "fyi: reraising an error from %s.%s" % (self.__class__.__name__, methodname)###
+                raise
+        # we have the answer
+        answer # (make sure we actually have it)
+        assert not self.__dict__.has_key(attr), \
+               "Bug: %s.%s set %r itself -- should only return it" % (self.__class__.__name__, methodname, attr)
+        setattr(self, attr, answer)
+        return answer
+    pass # end of class StaticRecognizer
 
 
 def element_matcher(sym):
@@ -106,115 +152,171 @@ def element_matcher(sym):
     return func
 
 
-class Base_recognizer(Recognizer):
-    """Recognizer for a base of pseudo-DNA (represented by its Ss or Sj atom).
+class Base_recognizer(StaticRecognizer):
+    """StaticRecognizer for a base of pseudo-DNA (represented by its Ss or Sj atom).
+       WARNING: it's an error to call this on any other kind of atom, and the constructor raises an exception if you do.
+       Note: it's *not* an error to call it on a legal kind of atom, regardless of that atom's surroundings.
+    Any structural errors detected around that atom (or on it, e.g. its valence)
+    should not cause exceptions from the constructor or from any attr accesses,
+    but only the use of fallback values for computed attrs, and/or the setting of an error flag,
+    and (in the future) the tracking of errors and warnings into the dynenv.
     """
+    self._r_safe = True ###### should this affect RecognizerError or is that exception always safe? fix docstring below for this...
     def __init__(self, atom):
         self.atom = atom
         assert atom.element.symbol in ('Ss','Sj')
-            #e other possibilities for init args might be added later (we might become a polymorphic constructor)
-        self.check()
-    def check(self):
-        "make sure self counts as a legitimate base"
-            #e if not, does constructor fail, or construct an obj that knows it's wrong?
-            # (Maybe require __init__ flag to do the latter?)
-        self.axis_atom
-        pass
+            #e other possibilities for init args might be added later (we might become a polymorphic constructor).
+##        self.check()
+##    def check(self):
+##        "make sure self counts as a legitimate base"
+##            #e if not, does constructor fail, or construct an obj that knows it's wrong?
+##            # (Maybe require __init__ flag to do the latter?)
+##        self.axis_atom
+##        pass
     def _C_axis_atom(self):
+        """compute self.axis_atom as our sole Ax neighbor;
+        on error or if our valence is wrong, raise RecognizerError
+        (which means the value will be None, since self._r_safe is True).
+        """
         nn = self.atom.neighbors()
-        assert len(nn) == 2, "%s should have exactly three neighbor atoms" % self.atom
+        if not len(nn) == 3:
+            raise RecognizerError("%s should have exactly three neighbor atoms" % self.atom)
         axes = filter( element_matcher('Ax'), nn)
-        assert len(axes) == 1, "%s should have exactly one Ax neighbor" % self.atom
+        if not len(axes) == 1:
+            raise RecognizerError("%s should have exactly one Ax neighbor" % self.atom)
         return axes[0]
+    def _C_ok(self):
+        "Are we a fully legitimate base?"
+        return self.axis_atom is not None #k is that all?
     pass
 
 
 def bases_are_stacked(bases):
-    """Say whether two base objects are stacked (one to the other).
+    """Say whether two Base_recognizers' bases are in helices, and stacked (one to the other).
     For now, this means they have Ax (axis) pseudoatoms which are directly bonded.
-    Exceptions are possible if the bases are not fully legitimate themselves.
     """
     assert len(bases) == 2
     for b in bases:
         assert isinstance(b, Base_recognizer)
+    for b in bases:
+        if not b.ok:
+            ## would I prefer saying b.ok() like i typed at first? ok is misnamed anyway #### FIX, in docstrings too
+            return False
     b1, b2 = bases
     return bonded_atoms(b1.axis_atom, b2.axis_atom)#k bonded_atoms
+        ##### should b1.axis_atom raise exc if it's not an atom? depends on whether it's strict... can _strict_axis_atom say that?
+        # note that having it be None *also* raises one -- just a less clear one... now moot due to b.ok above.
 
 
-class Pl_recognizer(Recognizer):
-    """Recognizer for surroundings of a Pl atom in pseudo-DNA.
+class Pl_recognizer(StaticRecognizer):
+    """StaticRecognizer for surroundings of a Pl atom in pseudo-DNA.
     """
     def __init__(self, atom):
         self.atom = atom
         assert atom.element.symbol == 'Pl'
-    def _C_base1(self):
-        return self.bases[0]
-    def _C_base2(self):
-        return self.bases[1]
-    def _C_bases(self):
-        """Require self.atom to have exactly two neighbors, and for them to be Ss or Sj.
-        Then return those atoms, recognized as representing bases.
-        If backbone bond directions are defined and consistent, order the bases in the same direction.
+##    def _C_base1(self):
+##        return self.bases[0]
+##    def _C_base2(self):
+##        return self.bases[1]
+    def _C_unordered_bases(self):
+        """[compute method for self.unordered_bases]
+        Require self.atom to have exactly two neighbors, and for them to be Ss or Sj.
+        Then return those atoms, wrapped in Base_recognizer objects (which may or may not be .ok).
+           Note that the bases are arbitrarily ordered; see also _C_ordered_bases.
         """
         nn = self.atom.neighbors()
-        assert len(nn) == 2, "Pl should have exactly two neighbor atoms"
+        if not len(nn) == 2:
+            raise XX("Pl should have exactly two neighbor atoms")
         for n1 in nn:
-            assert n1.element.symbol in ('Ss','Sj'), "Pl neighbor %s should be Ss or Sj" % n1
-        # reverse nn if bond directions go backwards
-        # the following code is generic for pairs of directional bonds, so we might package it up into a utility function
+            if not n1.element.symbol in ('Ss','Sj'):
+                raise XX("Pl neighbor %s should be Ss or Sj" % n1)
+        bases = map(Base_recognizer, nn) # should always succeed
+        return bases
+    def _C_ordered_bases(self):
+        """[compute method for self.ordered_bases]
+        Return our two bases (as Base_recognizer objects, which may or may not be .ok),
+        in an order consistent with backbone bond direction,
+        which we require to be locally defined in a consistent way.
+        """
+        bases = list(self.unordered_bases) # we might destructively reverse this later, before returning it
+        nn = bases[0].atom, bases[1].atom
+        # reverse bases if bond directions go backwards, or complain if not defined or not consistent
+        # (Note: the following code is mostly generic for pairs of directional bonds,
+        #  so we might package it up into a utility function someday.)
         dir1 = bond_direction(nn[0], self.atom) # -1 or 0 or 1
-        dir2 = bond_direction(self.atom, nn[1]) ###IMPLEM bond_direction function
+        dir2 = bond_direction(self.atom, nn[1]) ###IMPLEM bond_direction function -- it asserts atoms are bonded
         dirprod = dir1 * dir2
         if dirprod < 0:
             # both directions are set, and they're inconsistent
-            assert "inconsistent bond directions at %s" % self.atom
+            raise XX("inconsistent bond directions")
+                # including self.atom in the message would be redundant -- compute method glue will annotate with self ###DOIT
         elif dirprod > 0:
-            # both are set, consistently
+            # both directions are set, consistently
             if dir1 < 0:
-                nn.reverse()
-        else:
-            # at most one is set (need a warning if one is set and one not? or, if neither is set?)
+                bases.reverse()
+        else: # dirprod == 0
+            # at most one direction is set (need a warning if one is set and one not? assume not, for now)
             dir = dir1 + dir2
             if dir < 0:
-                nn.reverse()
-            # else if dir == 0, directions are unset -- worry about this later -- or maybe have error message right here?? ####REVIEW
-            ###e but maybe store the facts here to save time later? or return them, ie compute bases and direction at same time?
-        bases = map(Base_recognizer, nn) # this might fail, if they don't both look like valid bases (given their surroundings)
+                bases.reverse()
+            elif dir == 0:
+                # both directions are unset
+                raise XX("backbone bond direction is locally undefined")
+                    ###REVIEW: this should not prevent offering "Make Crossover", only doing it successfully.
         return bases
     def _C_in_crossover(self):
         "Say whether we bridge bases in different double helices"
+        # hmm, that's not enough to "be in a crossover"! but it's necessary. rename? just let caller use not thing.in_only_one_helix?
         nim
     def _C_in_only_one_helix(self):
-        """Say whether we're in one helix.
-        (And return it? No -- we don't yet have anything to represent it with.
+        """[compute method for self.in_only_one_helix]
+        Say whether we're in one helix.
+        (And return that helix? No -- we don't yet have anything to represent it with.
          Maybe return the involved atoms? For that, see _C_involved_atoms_for_create_crossover.)
         """
         return bases_are_stacked(self.bases)
-    def _C_involved_atoms_for_create_crossover(self):
-        """Compute a set of atoms directly involved in using self to create a crossover.
-        Two Pl atoms will only be allowed to create one if their sets of involved atoms
-        don't overlap.
+    def _C_involved_atoms_for_make_crossover(self):
+        """[compute method for self.involved_atoms_for_make_crossover]
+        Compute a set of atoms directly involved in using self to make a new crossover.
+        Two Pl atoms will only be allowed to be in a newly made crossover
+        if (among other things) their sets of involved atoms don't overlap.
+           Require that these atoms are each in one helix.
         """
-        assert self.in_only_one_helix
+        if not self.in_only_one_helix:
+            raise XX("Pl atom must be in_only_one_helix")
         res = {}
         def include(atom):
             res[atom] = atom
         include(self.atom)
-        for b in self.bases:
+        for b in self.unordered_bases:
             include(b.atom)
+            assert b.axis_atom is not None # otherwise not self.in_only_one_helix
             include(b.axis_atom)
-        assert len(res) == 5
+        if not len(res) == 5: # can this ever fail do to a structural error?? actually it can -- Ax atoms can be the same
+            raise XX("structural error (two bases on one Pl and one Ax??)")
         return res
     pass # Pl_recognizer
 
-def create_crossover(twoPls):
+def unmake_crossover(twoPls):### NOT YET CALLED
     assert len(twoPls) == 2
     for pl in twoPls:
         assert isinstance(pl, Pl_recognizer)
-    assert create_crossover_ok(twoPls)
+    assert unmake_crossover_ok(twoPls) ###IMPLEM
+    
+    make_or_unmake_crossover(twoPls, make = False)
+    return
 
-    # now do it!
-    print "should create crossover from", twoPls
+def make_crossover(twoPls):
+    assert len(twoPls) == 2
+    for pl in twoPls:
+        assert isinstance(pl, Pl_recognizer)
+    assert make_crossover_ok(twoPls)
+    
+    make_or_unmake_crossover(twoPls, make = True)
+    return
+
+def make_or_unmake_crossover(twoPls, make = True):
+    "Make or Unmake (according to make option) a crossover, given Pl_recognizers for its two Pl atoms."
 
     # What we are doing is recognizing one local structure and replacing it with another
     # made from the same atoms. It'd sure be easier if I could do the manipulation in an mmp file,
@@ -233,23 +335,49 @@ def create_crossover(twoPls):
     Pl1, Pl2 = twoPls
     a,b = Pl1.bases
     d,c = Pl2.bases
-    for pl in twoPls:
+    Pl_atoms = Pl1.atom, Pl2.atom
+
+    for pl in Pl_atoms:
         for bond in pl.bonds[:]:
             bond.bust()
-    # make a-Pl1-c bonds -- using Pl1 or Pl2 here is an arbitrary choice
+
+    # transmute base sugars to Sj or Ss as appropriate
+    want = make and Element_Sj or Element_Ss
+    for obj in (a,b,c,d):
+        obj.atom.Transmute(want)
+
+    # make a-Pl1-c bonds, etc -- using Pl1 or Pl2 first is an arbitrary choice (either way, Make then Unmake is a noop ###k)
     for obj1, obj2 in [(a, Pl1), (Pl1, c), (d, Pl2), (Pl2, b)]:
         bond_atoms(obj1.atom, obj2.atom)
-            # and set direction = 1 if enough older directions were defined;
+        nim ######and set direction = 1 if enough older directions were defined;
             #e maybe stop earlier and complain if they were not?
-    for pl in twoPls:
-        print "should move pl.atom into the right position"
-            # how? local minimize? is it fast enough? or just guess a pos, leave them selected, let user do local min?
+            #e or better, just infer these dirs from their surroundings if those are (and were) consistent, warn if not.
+
+    # WARNING: after that rebonding, don't use our Pl_recognizers in ways that depend on Pl bonding,
+    # since it's not well defined whether they think about the old or new bonding to
+    # give their answers.
+    del Pl1, Pl2, twoPls
+
+    # move Pl atoms into better positions
+    # (someday, consider using local minimize; for now, just place them directly between their new neighbor atoms,
+    #  hopefully we leave them selected so user can easily do their own local minimize.)
+    for pl in Pl_atoms:
+        pl.setposn( average_value( map( lambda neighbor: neighbor.posn , pl.neighbors() ))) ###k .posn ###k average_value correct 
     
-    return
+    return # from make_or_unmake_crossover
 
     
 ### BUGS:
+
 # - recognizer compute methods should probably have their own error exception class rather than using assert
+
+# WARNING: in this code, the recognizers don't notice changes in mutable input structures,
+# such as transmutes or even bonding changes. But they compute derived attributes lazily
+# using current (not cached on __init__) values of their input attrs.
+#
+# That means that the values of their derived attributes, after a mutable
+# change in an input structure, depends on whether those attrs (or intermediate attrs
+# used to compute them) were also computed before the input change.
 
 
 # obs cmt?:
