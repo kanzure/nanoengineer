@@ -167,14 +167,14 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
             self.mmkit_tab.setTabLabel (self.libraryPage, 'Lib')
         else:
             # Add icons to MMKit's tabs. mark 060223.
-            atoms_ic = imagename_to_icon("modeltree/atoms.png")
+            atoms_ic = imagename_to_icon("actions/Properties Manager/MMKit.png")
             self.mmkit_tab.setTabIcon(self.mmkit_tab.indexOf(self.atomsPage), QIcon(atoms_ic))
         
-            clipboard_ic = imagename_to_icon("modeltree/clipboard-empty.png")
+            clipboard_ic = imagename_to_icon("actions/Properties Manager/clipboard-empty.png")
             self.mmkit_tab.setTabIcon(self.mmkit_tab.indexOf(self.clipboardPage), QIcon(clipboard_ic))
             # (modified in another method below)
         
-            library_ic = imagename_to_icon("modeltree/library.png")
+            library_ic = imagename_to_icon("actions/Properties Manager/library.png")
             self.mmkit_tab.setTabIcon(self.mmkit_tab.indexOf(self.libraryPage), QIcon(library_ic))
         
         # Tab tooltips. mark 060326
