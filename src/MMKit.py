@@ -760,9 +760,9 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
             return
             
         if self.w.assy.shelf.get_pastable_chunks():
-            clipboard_ic = imagename_to_icon("modeltree/clipboard-full.png")
+            clipboard_ic = imagename_to_icon("actions/Properties Manager/clipboard-full.png")
         else:
-            clipboard_ic = imagename_to_icon("modeltree/clipboard-empty.png")
+            clipboard_ic = imagename_to_icon("actions/Properties Manager/clipboard-empty.png")
         
         self.mmkit_tab.setTabIcon(self.mmkit_tab.indexOf(self.clipboardPage), QIcon(clipboard_ic))
 
