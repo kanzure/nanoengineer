@@ -33,6 +33,7 @@ from qt4transition import *
 from Sponsors import SponsorableMixin
 from PropertyManagerMixin import PropertyManagerMixin
 from PropMgr_Constants import pmMMKitPageMargin
+from bond_constants import btype_from_v6
 #from GeneratorBaseClass import GroupButtonMixin
 
 # PageId constants for mmkit_tab
@@ -232,9 +233,7 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
 
         self.color = self.elemTable.getElemColor(elemNum)
         self.elm = self.elemTable.getElement(elemNum)
-	
-	self.update_MMKit_msg()
-        
+	        
         self.update_hybrid_btngrp()
         
         self.elemGLPane.resetView()
@@ -252,29 +251,40 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
             self.change2AtomsPage()
         self.tabCurrentChanged()
 	
+	self.update_MMKit_msg() # Mark 2007-06-01
+	
     def update_MMKit_msg(self):
 	"""Updates the message box with an informative message based on the current page
 	and current selected atom type.
 	"""
-	pageIndex = self.mmkit_tab.currentIndex()
-        page = None
-        
-        if pageIndex is 0: # atomsPage
-	    msg = "Double click in empty space to insert a single " + self.elm.name + " atom."
-	    if not self.elm.symbol in noblegases:
-		msg += "Click on an atom's <i>red bondpoint</i> to attach a " + self.elm.name + " atom to it."
-        
-        elif pageIndex is 1: # clipboardPage
-	    pastableItems = self.w.assy.shelf.get_pastable_chunks()
-	    if pastableItems:
-		msg = "Double click in empty space to insert a copy of the selected clipboard item. \
-		Click on a <i>red bondpoint</i> to attach a copy of the selected clipboard item."
-	    else:
-		msg = "There are no items on the clipboard."
-        
-        elif pageIndex is 2: # libraryPage
-	    msg = "Double click in empty space to insert a copy of the selected part in the library."
 	
+	msg = ""
+	
+	if self.MMKit_groupBox.isVisible():
+	    pageIndex = self.mmkit_tab.currentIndex()
+	    page = None
+	    
+	    if pageIndex is 0: # atomsPage
+		msg = "Double click in empty space to insert a single " + self.elm.name + " atom."
+		if not self.elm.symbol in noblegases:
+		    msg += "Click on an atom's <i>red bondpoint</i> to attach a " + self.elm.name + " atom to it."
+        
+	    elif pageIndex is 1: # clipboardPage
+		pastableItems = self.w.assy.shelf.get_pastable_chunks()
+		if pastableItems:
+		    msg = "Double click in empty space to insert a copy of the selected clipboard item. \
+		    Click on a <i>red bondpoint</i> to attach a copy of the selected clipboard item."
+		else:
+		    msg = "There are no items on the clipboard."
+        
+	    elif pageIndex is 2: # libraryPage
+		msg = "Double click in empty space to insert a copy of the selected part in the library."
+	
+	else: # Bonds Tool is selected (MMKit groupbox is hidden).
+	    if self.bondclick_v6:
+                name = btype_from_v6(self.bondclick_v6)
+		msg = "Click bonds or bondpoints to make them %s bonds." % name # name is 'single' etc
+	    
 	# Post message.
 	num_lines = 4
 	margin = 10 # See comments in PropMgrTextEdit._setHeight()

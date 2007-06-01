@@ -31,6 +31,7 @@ from qt4transition import *
 
 from bonds import bond_atoms, bond_at_singlets
 from bond_constants import V_SINGLE
+from PropMgr_Constants import pmGroupBoxSpacing
 from PropertyManagerMixin import PropertyManagerMixin
 from MMKit import MMKit
 
@@ -470,6 +471,8 @@ class depositMode(selectAtomsMode, MMKit):
         #self.w.dashboardHolder.setWidget(self.w.depositAtomDashboard)
 	
         self.dont_update_gui = False
+	
+	self.update_MMKit_msg()
    
         return # the caller will now call update_gui(); we rely on that [bruce 050122]  
     
@@ -757,17 +760,21 @@ class depositMode(selectAtomsMode, MMKit):
 	hide only the Atoms Tools groupbox in the Build chunks Property manager
 	and show all others the others.'''
 	
+	self.bondTools_grpBox.bottom_spacer.changeSize(0,0)
 	self.bondTools_grpBox.hide()
 	
 	for grpbox in self.thumbView_groupBox,	\
 	self.MMKit_groupBox,\
 	self.selectionFilter_groupBox:
-	    grpbox.show()  
+	    grpbox.show()
+	    grpbox.bottom_spacer.changeSize(10,pmGroupBoxSpacing) # Spacer has no show() method. Mark 2007-06-01
 	
 	self.pw.propertyManagerScrollArea.ensureWidgetVisible(
 	    self.heading_label)
 	
 	self.setAtom()
+	
+	self.update_MMKit_msg()
 		
     def activateBondsTool(self):
 	''' Activate the bond tool of the build chunks mode 
@@ -780,14 +787,17 @@ class depositMode(selectAtomsMode, MMKit):
 	for grpbox in self.thumbView_groupBox,	\
 	self.MMKit_groupBox,\
 	self.selectionFilter_groupBox:
-	    grpbox.hide()  
+	    grpbox.hide()
+	    grpbox.bottom_spacer.changeSize(0,0) # Spacer has no hide() method. Mark 2007-06-01
 	
+	self.bondTools_grpBox.bottom_spacer.changeSize(10,pmGroupBoxSpacing)
 	self.bondTools_grpBox.show()
 	
 	self.pw.propertyManagerScrollArea.ensureWidgetVisible(
 	    self.heading_label)
+	
+	self.update_MMKit_msg()
 		   
-
     def update_bond_buttons(self): #bruce 050728 (should this be used more widely?); revised 050831
         "make the dashboard one-click-bond-changer state buttons match whatever is stored in self.bondclick_v6"
 	
@@ -2295,7 +2305,6 @@ class depositMode(selectAtomsMode, MMKit):
 	    self.setBonda(state)
 	elif action == self.bondgAction:
 	    self.setBondg(state)
-	    
     
     def setBond1(self, state):
         "Slot for Bond Tool Single button."
@@ -2329,6 +2338,7 @@ class depositMode(selectAtomsMode, MMKit):
             if self.bondclick_v6:
                 name = btype_from_v6(self.bondclick_v6)
                 env.history.statusbar_msg("click bonds to make them %s" % name) # name is 'single' etc
+		self.update_MMKit_msg() # Mark 2007-06-01
             else:
                 # this never happens (as explained above)
                 #####@@@@@ see also setAtom, which runs when Atom Tool is clicked (ideally this might run as well, but it doesn't)

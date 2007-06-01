@@ -156,14 +156,19 @@ class Ui_MMKitDialog(object):
         self.ui_doneCancelButtonRow(MMKitDialog)
 	
 	self.ui_message_GroupBox(MMKitDialog)
+	self.addBottomSpacer(self.message_groupBox)
 	
         self.ui_bondTools_grpBox(MMKitDialog)
+	self.addBottomSpacer(self.bondTools_grpBox)
         
         self.ui_preview_GroupBox(MMKitDialog)
+	self.addBottomSpacer(self.thumbView_groupBox)
         
         self.ui_MMKit_GroupBox(MMKitDialog)
+	self.addBottomSpacer(self.MMKit_groupBox)
         
         self.ui_selectionFilter_GroupBox(MMKitDialog)
+	self.addBottomSpacer(self.selectionFilter_groupBox)
         
         self.ui_advancedOps_GroupBox(MMKitDialog)
                                 
@@ -184,6 +189,13 @@ class Ui_MMKitDialog(object):
 	fitPropMgrToContents(MMKitDialog)
 	
 	# End of MMKitDialog ####################################
+    
+    def addBottomSpacer(self, parent):
+	parent.bottom_spacer = QtGui.QSpacerItem(10, pmGroupBoxSpacing, 
+						   QtGui.QSizePolicy.Fixed,
+						   QtGui.QSizePolicy.Fixed)
+	
+	self.vboxlayout.addItem(parent.bottom_spacer)
     
     def ui_doneCancelButtonRow(self, MMKitDialog):
         #Start Done , Abort, button row
@@ -350,12 +362,6 @@ class Ui_MMKitDialog(object):
 	# End Atom Bond Tools Groupbox
 	self.vboxlayout.addWidget(self.bondTools_grpBox)
 	
-	spacer_BondTools_grpbx = QtGui.QSpacerItem(10, pmGroupBoxSpacing, 
-						   QtGui.QSizePolicy.Fixed,
-						   QtGui.QSizePolicy.Fixed)
-	
-	self.vboxlayout.addItem(spacer_BondTools_grpbx)
-	
 	# Height is fixed. Mark 2007-05-29.
 	self.bondTools_grpBox.setSizePolicy(
                 QSizePolicy(QSizePolicy.Policy(QSizePolicy.Preferred),
@@ -399,11 +405,7 @@ class Ui_MMKitDialog(object):
         self.vboxlayout_grpbox2.addWidget(self.elementFrame)   
     
         #End  MMKit ThumbView  (Preview) GroupBox 
-        self.vboxlayout.addWidget(self.thumbView_groupBox)        
-        spacer_thumbview_grpbx = QtGui.QSpacerItem(10, pmGroupBoxSpacing, 
-						   QtGui.QSizePolicy.Fixed,
-						   QtGui.QSizePolicy.Fixed)
-        self.vboxlayout.addItem(spacer_thumbview_grpbx)
+        self.vboxlayout.addWidget(self.thumbView_groupBox)     
 	
 	# Height is fixed. Mark 2007-05-29.
 	self.thumbView_groupBox.setSizePolicy(
@@ -789,12 +791,6 @@ class Ui_MMKitDialog(object):
 	
         #End MMKit groupbox
         self.vboxlayout.addWidget(self.MMKit_groupBox)
-        
-        spacer_mmkit_grpbx = QtGui.QSpacerItem(10, pmGroupBoxSpacing, 
-						QtGui.QSizePolicy.Fixed,
-						QtGui.QSizePolicy.Fixed)
-	
-        self.vboxlayout.addItem(spacer_mmkit_grpbx)
 	
 	# This line is important. Without it, the MMKit groupbox is
 	# too wide by default and causes a horizontal scrollbar 
@@ -849,12 +845,6 @@ class Ui_MMKitDialog(object):
         self.vboxlayout_selfilter.addWidget(self.filterlistLE)        
         #End Selection filter GroupBox
         self.vboxlayout.addWidget(self.selectionFilter_groupBox)
-        
-        spacer_selfilter_grpbx = QtGui.QSpacerItem(10, pmGroupBoxSpacing, 
-						   QtGui.QSizePolicy.Fixed,
-						   QtGui.QSizePolicy.Fixed)
-	
-        self.vboxlayout.addItem(spacer_selfilter_grpbx)
 	
 	# Height is fixed. Mark 2007-05-29.
 	self.selectionFilter_groupBox.setSizePolicy(
