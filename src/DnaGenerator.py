@@ -34,24 +34,19 @@ Right now [070518] we just permit N, out of those.
 
 __author__ = "Will"
 
-import sys
-import os
-import env
-import re
-from math import atan2, sin, cos, pi
-from PyQt4 import QtCore
-from PyQt4.Qt import QWhatsThis, QDialog, QWidget, SIGNAL, QTextCursor
+from PyQt4.Qt import QDialog
 from DnaGeneratorDialog import DnaPropMgr
+from GeneratorBaseClass import GeneratorBaseClass, PluginBug, UserError
+from math import atan2, sin, cos, pi
 from chem import Atom
 from Utility import Group
 from HistoryWidget import redmsg, orangemsg, greenmsg
 from VQT import A, V, dot, vlen
 from bonds import inferBonds, bond_atoms
 from files_mmp import _readmmp
-from GeneratorBaseClass import GeneratorBaseClass, PluginBug, UserError
 from fusechunksMode import fusechunksBase
 from platform import find_plugin_dir
-import random
+import sys, os, env, re, random
 
 atompat = re.compile("atom (\d+) \((\d+)\) \((-?\d+), (-?\d+), (-?\d+)\)")
 numberPattern = re.compile(r"^\s*(\d+)\s*$")

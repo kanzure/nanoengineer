@@ -13,7 +13,6 @@ Mark 2007-05-14: Organized code, added docstrings and renamed variables to make
 """
 
 import sys
-from PyQt4 import QtCore, QtGui
 from PyQt4.Qt import *
 from Utility import geticon, getpixmap
 from PropMgrBaseClass import *
