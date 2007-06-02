@@ -180,6 +180,10 @@ def setupUi(win):
     win.dispSurfaceAction.setIcon(geticon("ui/actions/View/Display/Surface"))
     win.dispSurfaceAction.setObjectName("dispSurfaceAction")
     
+    win.viewQuteMolAction = QtGui.QAction(MainWindow)
+    win.viewQuteMolAction.setIcon(geticon("ui/actions/View/Display/QuteMol"))
+    win.viewQuteMolAction.setObjectName("viewQuteMolAction")
+    
     win.viewRaytraceSceneAction = QtGui.QAction(MainWindow)
     win.viewRaytraceSceneAction.setIcon(geticon("ui/actions/View/Display/Raytrace_Scene"))
     win.viewRaytraceSceneAction.setObjectName("viewRaytraceSceneAction")
@@ -222,10 +226,14 @@ def setupUi(win):
     win.Modify.addAction(win.viewZoomAboutScreenCenterAction)
     win.Modify.addAction(win.zoomToolAction)        
     win.Modify.addAction(win.setViewRecenterAction)
-    win.Modify.addSeparator()
+    
+    win.Modify.addSeparator() # ----
+    
     win.Modify.addAction(win.rotateToolAction)    
-    win.Modify.addAction(win.panToolAction)        
-    win.Modify.addSeparator()
+    win.Modify.addAction(win.panToolAction) 
+    
+    win.Modify.addSeparator() # ----
+    
     win.Modify.addAction(win.setViewHomeAction)
     win.Modify.addAction(win.setViewHomeToCurrentAction)
     win.Modify.addAction(win.saveNamedViewAction)
@@ -239,9 +247,15 @@ def setupUi(win):
     win.displayMenu.addAction(win.dispHybridAction)
     win.displayMenu.addAction(win.dispCylinderAction)
     win.displayMenu.addAction(win.dispSurfaceAction)
-    win.displayMenu.addSeparator()
+    
+    win.displayMenu.addSeparator() # ----
+    
     win.displayMenu.addAction(MainWindow.setViewPerspecAction)
-    win.displayMenu.addAction(MainWindow.setViewOrthoAction)        
+    win.displayMenu.addAction(MainWindow.setViewOrthoAction)
+    
+    win.displayMenu.addSeparator() # ----
+    
+    win.displayMenu.addAction(win.viewQuteMolAction)
     win.displayMenu.addAction(win.viewRaytraceSceneAction)
     
         

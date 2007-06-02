@@ -375,8 +375,25 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
             self.standardViews_btn.showMenu()
 
     
+    def viewQuteMol(self): # Mark 2007-06-02
+        """Slot for 'View > QuteMol'.
+        Opens the QuteMol rendering program and loads a copy of the current model.
+        
+        Method:
+        
+        1. Checks that the QuteMol plug-in is enabled (i.e. QuteMol is installed)
+        2. Write a PDB file of the current model.
+        3. Write an atom attributes table text file containing atom radii and color information.
+        4. Invoke QuteMol with the PDB file as an argument. 
+        
+        """    
+        cmd = greenmsg("QuteMol : ")
+        
+        msg = "Not implemented yet."
+        env.history.message(cmd + msg)        
+        
     def viewRaytraceScene(self):
-        """Slot for 'View > Raytrace Scene'.
+        """Slot for 'View > POV-Ray'.
         Raytraces the current scene. This version does not add a POV-Ray Scene node to the model tree.
         This is preferred since it allows the user to preview POV-Ray renderings without having to save
         the current part and/or delete unwanted nodes from the model tree. If the user wants to add the 

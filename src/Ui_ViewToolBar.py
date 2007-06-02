@@ -59,13 +59,14 @@ def setupUi(win):
             win.viewToolBar .addAction(win.viewRotatePlus90Action)
             win.viewToolBar.addAction(win.viewRotateMinus90Action)
             
-            win.viewToolBar.addSeparator()
+            win.viewToolBar.addSeparator() # ----
+            
             win.viewToolBar.addAction(win.viewOrientationAction)
             win.viewToolBar.addAction(win.saveNamedViewAction)
             win.viewToolBar.addAction(win.viewNormalToAction)
             win.viewToolBar.addAction(win.viewParallelToAction)
             
-            win.viewToolBar.addSeparator()
+            win.viewToolBar.addSeparator() # ----
                       
             win.viewToolBar.addAction(win.dispDefaultAction)
             win.viewToolBar.addAction(win.dispInvisAction)
@@ -75,6 +76,10 @@ def setupUi(win):
             win.viewToolBar.addAction(win.dispCPKAction)
             win.viewToolBar.addAction(win.dispCylinderAction)
             win.viewToolBar.addAction(win.dispSurfaceAction)
+            
+            win.viewToolBar.addSeparator() # ----
+            
+            win.viewToolBar.addAction(win.viewQuteMolAction)
             win.viewToolBar.addAction(win.viewRaytraceSceneAction) 
             
 

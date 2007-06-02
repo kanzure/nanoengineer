@@ -53,15 +53,12 @@ def createWhatsThis(self):
         #
         
         # Open File
-
-          
         fileOpenText = "<u><b>Open File</b></u>    (Ctrl + O)<br> "\
                         "<p><img source=\"ui/actions/File/Open.png\"><br> "\
                        "Opens a new file."\
                        "</p>"
 
         self.fileOpenAction.setWhatsThis( fileOpenText )
-        
         # Import File
         
         fileImportText = "<u><b>Import File</b></u><br>"\
@@ -423,15 +420,28 @@ def createWhatsThis(self):
 
         self.viewRotateMinus90Action.setWhatsThis( viewRotateMinus90ActionText )
         
-        # Raytrace Scene
+        # QuteMol
         
-        viewRaytraceSceneActionText = "<u><b>Raytrace Scene</b></u><br>"\
-                       "<p><img source=\"ui/actions/View/Display/Raytrace_Scene.png\"><br> "\
-                       "Raytrace the current scene using POV-Ray. This provides a convenient way to preview "\
-                       "the results of a POV-Ray scene rendering."\
-                       "</p>" \
-                       "POV-Ray must be installed for this feature to work. POV-Ray can be downloaded from http://www.povray.org" \
-                       "</p>"
+        viewQuteMolActionText = \
+                "<u><b>QuteMol</b></u><br>"\
+                "<p><img source=\"ui/actions/View/Display/QuteMol.png\"><br> "\
+                "Starts QuteMol and loads a PDB file of the current model."\
+                "</p>" \
+                "QuteMol must be installed and enabled as a plug-in from  "\
+                "<b>Preferences > Plug-ins</b> for this feature to work." \
+                "</p>"
+
+        self.viewQuteMolAction.setWhatsThis( viewQuteMolActionText )
+        
+        # POV-Ray (was Raytrace Scene)
+        
+        viewRaytraceSceneActionText = "<u><b>POV-Ray</b></u><br>"\
+                "<p><img source=\"ui/actions/View/Display/Raytrace_Scene.png\"><br> "\
+                "Raytrace the current scene using POV-Ray. "\
+                "</p>" \
+                "POV-Ray must be installed and enabled as a plug-in from  "\
+                "<b>Preferences > Plug-ins</b> for this feature to work." \
+                "</p>"
 
         self.viewRaytraceSceneAction.setWhatsThis( viewRaytraceSceneActionText )
         

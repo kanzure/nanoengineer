@@ -558,7 +558,8 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.connect(self.zoomToolAction,SIGNAL("toggled(bool)"),self.zoomTool)
 	self.connect(self.viewZoomAboutScreenCenterAction,SIGNAL("toggled(bool)"),
 		     self.changeZoomBehavior)
-        self.connect(self.viewRaytraceSceneAction,SIGNAL("triggered()"),self.viewRaytraceScene)
+        self.connect(self.viewQuteMolAction,SIGNAL("triggered()"),self.viewQuteMol)
+	self.connect(self.viewRaytraceSceneAction,SIGNAL("triggered()"),self.viewRaytraceScene)
         self.connect(self.insertPovraySceneAction,SIGNAL("triggered()"),self.insertPovrayScene)
         self.connect(self.dispSurfaceAction,SIGNAL("triggered()"),self.dispSurface)
         self.connect(self.dispCylinderAction,SIGNAL("triggered()"),self.dispCylinder)
