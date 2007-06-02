@@ -230,16 +230,16 @@ class PovrayScene(SimpleCopyMixin, Node):
         If tmpscene is False, the INI and pov files are written to the 'POV-Ray Scene Files' directory.
         If tmpscene is True, the INI and pov files are written to a temporary directory (~/Nanorex/POV-Ray).
         Callers should set <tmpscene> = True when they want to render the scene but don't need to 
-        save the files and create a POV-Ray Scene node in the MT (i.e. 'View > Raytrace Scene').
+        save the files and create a POV-Ray Scene node in the MT (i.e. 'View > POV-Ray').
         The caller is responsible for adding the POV-Ray Scene node (self) to the model tree, if desired.
         Prints any necessary error messages to history; returns nothing.
         """
         #bruce 060710 corrected inaccuracies in docstring
-        cmd = greenmsg("Raytrace Scene: ")
+        cmd = greenmsg("POV-Ray: ")
         if env.debug():
             #bruce 060707 (after Windows A8, before Linux/Mac A8)
             # compromise with what's best, so it can be ok for A8 even if only on some platforms
-            env.history.message(_graymsg("Raytrace Scene: "))
+            env.history.message(_graymsg("POV-Ray: "))
             env.history.h_update()
             env.history.widget.update() ###@@@ will this help? is it safe? should h_update do it?
         
