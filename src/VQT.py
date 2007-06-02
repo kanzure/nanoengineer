@@ -17,6 +17,7 @@ $Id$
 __author__ = "Josh"
 
 import math, types
+# warning: some names imported by the following 'import *'s are used in other modules which import * from this module
 from math import *
 from Numeric import *
 from LinearAlgebra import *
