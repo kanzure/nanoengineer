@@ -43,7 +43,9 @@ class GraphenePropMgr(object, PropMgrBaseClass):
         preview the structure. Click <b>Done</b> to insert it into the model."
         
         # This causes the "Message" box to be displayed as well.
-        self.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=False)
+        # setAsDefault=True causes this message to be reset whenever
+        # this PropMgr is (re)displayed via show(). Mark 2007-06-01.
+        self.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=True)
         
     def addGroupBoxes(self):
         """Add the 1 groupbox for the Graphene Property Manager.
