@@ -422,10 +422,42 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
 	#bruce question 051212: why doesn't this prevent bug 1204 in use of lighting directions on startup?
 	    
 	self.dynamicToolTip = DynamicTip(self)
-            
+	
+	self.add_whats_this_text()
         
         return # from GLPane.__init__ 
     
+    def add_whats_this_text(self):
+        """Adds What's This description to this glpane.
+	"""
+	# We must do this here (and not in whatsthis.py) because in the future
+	# there will be multiple part windows, each with its own glpane.
+	# Problem - I don't believe this text is processed by fix_whatsthis_text_and_links()
+	# in whatsthis.py. Discuss this with Bruce. Mark 2007-06-01
+	
+	if sys.platform == "darwin":
+	    ctrl_or_cmd = "Cmd"
+	else:
+	    ctrl_or_cmd = "Ctrl"
+
+        glpaneText = \
+		   "<u><b>3D Graphics Area</b></u><br> "\
+		   "<br>This is where the action is."\
+		   "<p><b>Mouse Button Commands :</b><br> "\
+		   "<br> "\
+		   "<b>Left Mouse Button (LMB)</b> - Select<br> "\
+		   "<b>LMB + Shift</b> - add to current selection <br> "\
+		   "<b>LMB + " + ctrl_or_cmd + "</b> - remove from current selection <br> "\
+		   "<b>LMB + Shift + " + ctrl_or_cmd + "</b> - delete highlighted object <br> "\
+		   "<br> "\
+		   "<b>Middle Mouse Button (MMB)</b> - Rotate view <br> "\
+		   "<b>MMB + Shift</b> - Pan view <br> "\
+		   "<b>MMB + " + ctrl_or_cmd + "</b> - Rotate view around POV Axis <br> "\
+		   "<br> "\
+		   "<b>Right Mouse Button (RMB)</b> - Display context-sensitive menus "\
+		   "</p>"
+
+        self.setWhatsThis(glpaneText)
 	        
     #== Background color helper methods. Moved here from basicMode (modes.py). Mark 060814.
     
