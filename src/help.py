@@ -39,6 +39,9 @@ class Help(QWidget, Ui_HelpDialog):
         1 = Keyboard Shortcuts
         '''
         self.help_tab.setCurrentIndex(pagenum) # Sends signal to setup_current_page()
+        
+        # To make sure the Help dialog is displayed on top, we hide, then show it.
+        self.hide() # Mark 2007-06-01
         self.show() # Non-modal 
         return
 
