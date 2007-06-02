@@ -527,14 +527,14 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 # and it can find the selatoms again.
                 #
                 # higher-level entry for Pl, first [bruce 070522, 070601]:
-                test_crossovers = debug_pref("Make Crossovers can appear in cmenu",
-                                             Choice_boolean_False, non_debug = True, prefs_key = True)
+                test_crossovers = debug_pref("Offer Make Crossovers when permitted",
+                                             Choice_boolean_True, non_debug = True, prefs_key = True)
                 if test_crossovers and fromSymbol == 'Pl' and doall and len(selatoms) == 2:
-                    import crossovers
-                    try:
-                        reload(crossovers)##### REMOVE WHEN DEVEL IS DONE, for debug only, fails in release building
-                    except:
-                        print "can't reload crossovers"######
+##                    import crossovers
+##                    try:
+##                        reload(crossovers)##### REMOVE WHEN DEVEL IS DONE, for debug only, fails in release building
+##                    except:
+##                        print "can't reload crossovers"######
                     from crossovers import crossover_menu_spec
                     ms1 = crossover_menu_spec(self, selatoms)
                     if ms1:
@@ -685,10 +685,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
 
     def posn(self):
         """Return the absolute position of the atom in space.
-        Public method, should be ok to call for any atom at any time.
-        Private implementation note (fyi): this info is sometimes stored
-        in the atom, and sometimes in its molecule.
-        
+        [Public method; should be ok to call for any atom at any time.]
         """
         #bruce 041104,041112 revised docstring
         #bruce 041130 made this return copies of its data, using unary '+',
@@ -1735,7 +1732,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         bond_copied_atoms(na, x, origbond, origatom) # same properties as origbond... sensible in all cases?? ##k
         return
         
-    def unbond(self, b):
+    def unbond(self, b, make_bondpoint = True):
         """Private method (for use mainly by bonds); remove bond b from self and
         usually replace it with a singlet (which is returned). Details:
            Remove bond b from self (error if b not in self.bonds).
@@ -1744,9 +1741,10 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         thus no need to invalidate the bond b itself -- caller must do whatever
         inval of bond b is needed (which is nothing, if it will be destroyed).
            Then replace bond b in self.bonds with a new bond to a new singlet,
-        unless self or the old neighbor atom is a singlet. Return the new
-        singlet, or None if one was not created. Do all necessary invalidations
-        of molecules, and self._changed_structure(), BUT NOT OF b (see above). 
+        unless self or the old neighbor atom is a singlet, or unless make_bondpoint
+        is false. Return the new singlet, or None if one was not created.
+        Do all necessary invalidations of Chunks, and self._changed_structure(),
+        BUT NOT OF b (see above). 
            If self is a singlet, kill it (singlets must always have one bond).
            As of 041109, this is called from atom.kill of the other atom,
         and from bond.bust, and [added by bruce 041109] from bond.rebond.
@@ -1781,6 +1779,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 print "fyi: bug: unbond on a singlet %r finds unexpected bonds left over in it, %r" % (self,self.bonds)
                 # don't kill it, in this case [bruce 041115; I don't know if this ever happens]
             return None
+        if not make_bondpoint:
+            return None #bruce 070601 new feature
         at2 = b.other(self)
         if at2.element is Singlet:
             return None

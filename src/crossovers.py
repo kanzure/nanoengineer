@@ -6,7 +6,23 @@ $Id$
 """
 __author__ = "bruce"
 
+### TODO:
+##    change cmd name to interior caps
+##    it's really more like Situational Perceiver...
+##     say so in cmt...
+##    btw we do want one for "any two Pl" to perceive whether to offer make or break of the crossover...
+##
+##    rename RecognizerError -- but to what? it's not even an error, more like "this attr is not well defined" or so...
+##
+##    define some nim functions like bonded_atoms line 233 or whatever
+##     (or find correct func -- i bet it is just the wrong name)
+
+
 from constants import noop, average_value
+from bonds import atoms_are_bonded, find_bond, bond_atoms, V_SINGLE, bond_atoms_faster, bond_direction
+from HistoryWidget import redmsg, greenmsg, orangemsg, quote_html
+from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True, Choice
+import env
 
 from elements import PeriodicTable
 Element_Sj = PeriodicTable.getElement('Sj')
@@ -60,17 +76,26 @@ def crossover_menu_spec(atom, selatoms):
     
     twoPls = map( Pl_recognizer, atoms)
     
-    # maybe add a "Make Crossover" command #### interior word capitalization?
+    # maybe add a "Make Crossover" command
     if make_crossover_ok(twoPls):
         Pl1, Pl2 = twoPls
-        text = "Make crossover (%s - %s)" % (Pl1.atom, Pl2.atom) #e or pass the Pl_recognizer objects??
-        cmdname = "Make crossover" ###k for undo -- maybe it figures this out itself due to those parens??
+        text = "Make Crossover (%s - %s)" % (Pl1.atom, Pl2.atom) #e or print the Pl_recognizer objects in the menu text??
+        cmdname = "Make Crossover" ###k for undo -- maybe it figures this out itself due to those parens?? evidently not.
         command = (lambda twoPls = twoPls: make_crossover(twoPls))
         res.append((text, command)) ###e how to include cmdname?? or kluge this by having text include a prefix-separator?
+
+    #e maybe package up those two related functions (make_crossover and make_crossover_ok)
+    # into a class for the potential command -- sort of a twoPl-recognizer, i guess
     
-    ##e also maybe add a command to break an existing crossover -- break_crossover, break_crossover_ok -
-    # should we call it Break or Unmake or Delete? It leaves the atoms, patches things up... so Unmake seems best... not sure.
-    #e maybe package those two related functions up into a class for the potential command -- sort of a twoPl-recognizer, i guess
+    # maybe add an "Unmake Crossover" command
+        # should we call this Break or Unmake or Delete? It leaves the atoms, patches things up... reverses effect of Make...
+        # so Unmake seems best... not sure.
+    if unmake_crossover_ok(twoPls):
+        Pl1, Pl2 = twoPls
+        text = "Unmake Crossover (%s - %s)" % (Pl1.atom, Pl2.atom)
+        cmdname = "Unmake Crossover"
+        command = (lambda twoPls = twoPls: unmake_crossover(twoPls))
+        res.append((text, command))
     
     return res
 
@@ -81,6 +106,12 @@ def make_crossover_ok(twoPls): ##### NEED TO MAKE THIS A RECOGNIZER so it can ea
         if not sets_overlap(involved1, involved2):
             return True
     return False
+
+def unmake_crossover_ok(twoPls): ###STUB
+    when = debug_pref("Offer Unmake Crossover...",
+                      Choice(["never", "always (even when incorrect)"]),
+                      non_debug = True, prefs_key = True )
+    return when != 'never'
 
 # ==
 
@@ -213,16 +244,18 @@ def bases_are_stacked(bases):
     """Say whether two Base_recognizers' bases are in helices, and stacked (one to the other).
     For now, this means they have Ax (axis) pseudoatoms which are directly bonded.
     """
-    assert len(bases) == 2
+    try:
+        len(bases)
+    except:
+        print "following exception concerns bases == %r" % (bases,)
+    assert len(bases) == 2, "bases == %r should be a sequence of length 2" % (bases,)
     for b in bases:
         assert isinstance(b, Base_recognizer)
     for b in bases:
         if not b.in_helix:
             return False
     b1, b2 = bases
-    return bonded_atoms(b1.axis_atom, b2.axis_atom)#k bonded_atoms
-        ##### should b1.axis_atom raise exc if it's not an atom? depends on whether it's strict... can _strict_axis_atom say that?
-        # note that having it be None *also* raises one -- just a less clear one... now moot due to b.in_helix above.
+    return atoms_are_bonded(b1.axis_atom, b2.axis_atom)
 
 
 class Pl_recognizer(StaticRecognizer):
@@ -236,6 +269,8 @@ class Pl_recognizer(StaticRecognizer):
         Require self.atom to have exactly two neighbors, and for them to be Ss or Sj.
         Then return those atoms, wrapped in Base_recognizer objects (which may or may not be .in_helix).
            Note that the bases are arbitrarily ordered; see also _C_ordered_bases.
+           WARNING: value will be None (not a sequence) if a RecognizerError was raised.
+        [###REVIEW: should we pass through that exception, instead, for this attr? Or assign a different error value?]
         """
         nn = self.atom.neighbors()
         if not len(nn) == 2:
@@ -250,7 +285,10 @@ class Pl_recognizer(StaticRecognizer):
         Return our two bases (as Base_recognizer objects, which may or may not be .in_helix),
         in an order consistent with backbone bond direction,
         which we require to be locally defined in a consistent way.
+           WARNING: value will be None (not a sequence) if a RecognizerError was raised.
         """
+        if self.unordered_bases is None:
+            raise RecognizerError("doesn't have two bases")
         bases = list(self.unordered_bases) # we might destructively reverse this later, before returning it
         nn = bases[0].atom, bases[1].atom
         # reverse bases if bond directions go backwards, or complain if not defined or not consistent
@@ -265,7 +303,7 @@ class Pl_recognizer(StaticRecognizer):
         # - when making the crossover later, actually set all those directions you passed over
         #   (not just those of your new bonds).
         dir1 = bond_direction(nn[0], self.atom) # -1 or 0 or 1
-        dir2 = bond_direction(self.atom, nn[1]) ###IMPLEM bond_direction function -- it asserts atoms are bonded
+        dir2 = bond_direction(self.atom, nn[1])
         dirprod = dir1 * dir2
         if dirprod < 0:
             # both directions are set, and they're inconsistent
@@ -295,7 +333,9 @@ class Pl_recognizer(StaticRecognizer):
         (And return that helix? No -- we don't yet have anything to represent it with.
          Maybe return the involved atoms? For that, see _C_involved_atoms_for_create_crossover.)
         """
-        return bases_are_stacked(self.unordered_bases)
+        ###REVIEW: is it good for self.unordered_bases to be None (not a sequence) on certain kinds of error?
+        # And, when that happens, is it right for this to return False (not True, not an exception)?
+        return self.unordered_bases is not None and bases_are_stacked(self.unordered_bases)
     def _C_involved_atoms_for_make_crossover(self):
         """[compute method for self.involved_atoms_for_make_crossover]
         Compute a set of atoms directly involved in using self to make a new crossover.
@@ -324,7 +364,7 @@ def unmake_crossover(twoPls):### NOT YET CALLED
         assert isinstance(pl, Pl_recognizer)
     assert unmake_crossover_ok(twoPls) ###IMPLEM
     
-    make_or_unmake_crossover(twoPls, make = False)
+    make_or_unmake_crossover(twoPls, make = False, cmdname = "Unmake Crossover")
     return
 
 def make_crossover(twoPls):
@@ -333,10 +373,10 @@ def make_crossover(twoPls):
         assert isinstance(pl, Pl_recognizer)
     assert make_crossover_ok(twoPls)
     
-    make_or_unmake_crossover(twoPls, make = True)
+    make_or_unmake_crossover(twoPls, make = True, cmdname = "Make Crossover")
     return
 
-def make_or_unmake_crossover(twoPls, make = True):
+def make_or_unmake_crossover(twoPls, make = True, cmdname = None):
     "Make or Unmake (according to make option) a crossover, given Pl_recognizers for its two Pl atoms."
 
     # What we are doing is recognizing one local structure and replacing it with another
@@ -353,41 +393,69 @@ def make_or_unmake_crossover(twoPls, make = True):
     # but if we want to patch up the directions in the end, do we need to care exactly which ones were defined?
     # or only "per Pl"? hmm... ###e
 
+    assert cmdname
+    
+    for pl in twoPls:
+        if pl.ordered_bases is None:
+            ###BUG: this could have various causes, not only the one reported below! Somehow we need access to the
+            # message supplied to the RecognizerError, for use here.
+            ###REVIEW: Does that mean it should pass through compute methods (probably in a controlled way)
+            # rather than making computed values None?
+            # Or, should the value not be None, but a "frozen" examinable and reraisable version of the error exception??
+            msg = "%s: Error: bond direction is locally undefined or inconsistent around %s" % (cmdname, pl.atom) ###UNTESTED
+            env.history.message( redmsg( quote_html( msg)))
+            return
+    
     Pl1, Pl2 = twoPls
     a,b = Pl1.ordered_bases
-    d,c = Pl2.ordered_bases
+    d,c = Pl2.ordered_bases # note: we use d,c rather than c,d so that the atom arrangement is as shown in the diagram below.
+    #
+    # Note: the geometric arrangement is initially:
+    #
+    # c <-- Pl2 <-- d
+    #
+    # a --> Pl1 --> b
+    #
     Pl_atoms = Pl1.atom, Pl2.atom
 
     for pl in Pl_atoms:
         for bond in pl.bonds[:]:
-            bond.bust()
-
-    # transmute base sugars to Sj or Ss as appropriate
-    want = make and Element_Sj or Element_Ss
-    for obj in (a,b,c,d):
-        obj.atom.Transmute(want)
+            bond.bust(make_bondpoints = False)
 
     # make a-Pl1-c bonds, etc -- using Pl1 or Pl2 first is an arbitrary choice (either way, Make then Unmake is a noop ###k)
     for obj1, obj2 in [(a, Pl1), (Pl1, c), (d, Pl2), (Pl2, b)]:
-        bond_atoms(obj1.atom, obj2.atom)
-        nim ######and set direction = 1 if enough older directions were defined;
-            #e maybe stop earlier and complain if they were not?
-            #e or better, just infer these dirs from their surroundings if those are (and were) consistent, warn if not.
+        assert not atoms_are_bonded(obj1.atom, obj2.atom) ###e we should make bond_atoms do this itself, or maybe tolerate it (or does it?)
+        bond = bond_atoms_faster(obj1.atom, obj2.atom, V_SINGLE)
+            # WARNING: bond_atoms without the 3rd arg doesn't remove the extra singlets from the broken bonds above.
+            # Even with it, it doesn't seem to remove enough of them... so I'm using make_bondpoints = False in bust, above.
+            # But even that fails, so I'm reverting here to bond_atoms_faster. But even that fails -- maybe Transmute is adding them?
+            # Just do it after this instead of before... that worked. Note that the extras were on Pl and/or Sj in different cases
+            # I tried.
+        bond.set_bond_direction_from(obj1.atom, 1)
 
     # WARNING: after that rebonding, don't use our Pl_recognizers in ways that depend on Pl bonding,
     # since it's not well defined whether they think about the old or new bonding to
     # give their answers.
     del Pl1, Pl2, twoPls
 
+    # transmute base sugars to Sj or Ss as appropriate
+    want = make and Element_Sj or Element_Ss
+    for obj in (a,b,c,d):
+        obj.atom.Transmute(want) # Note: we do this after the bond making/breaking so it doesn't add singlets which mess us up
+
     # move Pl atoms into better positions
     # (someday, consider using local minimize; for now, just place them directly between their new neighbor atoms,
     #  hopefully we leave them selected so user can easily do their own local minimize.)
     for pl in Pl_atoms:
-        pl.setposn( average_value( map( lambda neighbor: neighbor.posn , pl.neighbors() ))) ###k .posn ###k average_value correct 
+        pl.setposn( average_value( map( lambda neighbor: neighbor.posn() , pl.neighbors() ))) ###k average_value correct 
+
+    env.history.message( greenmsg( quote_html( cmdname + ": " + "Done (%s and %s)" % tuple(Pl_atoms) )))
+
+    ###e need anything like assy.changed()?
     
     return # from make_or_unmake_crossover
 
-    
+
 ### BUGS:
 
 # - recognizer compute methods should probably have their own error exception class rather than using assert

@@ -71,6 +71,7 @@ import env
 from state_utils import StateMixin #bruce 060223
 from changes import register_changedict, register_class_changedicts
 from debug_prefs import debug_pref, Choice_boolean_False #bruce 060307
+from HistoryWidget import redmsg, quote_html #bruce 070601
 
 # Linus Pauling
 # http://www.pubmedcentral.gov/articlerender.fcgi?artid=220148
@@ -100,6 +101,9 @@ def bonded(a1, a2): #bruce 041119 #e optimized by bruce 050502 (this indirectly 
     "are these atoms (or singlets) already directly bonded?"
     ## return a2 in a1.neighbors()
     return not not find_bond(a1, a2)
+
+atoms_are_bonded = bonded # this is a better name (given that it only works for atoms, not e.g. for chunks) --
+    # we should replace the old name with it sometime #bruce 070601
 
 def find_bond(a1, a2): #bruce 050502; there might be an existing function in some other file, to merge this with
     "If a1 and a2 are bonded, return their Bond object; if not, return None."
@@ -216,6 +220,7 @@ def bond_atoms_oldversion(a1,a2): #bruce 050502 renamed this from bond_atoms; it
 
 def bond_atoms_faster(at1, at2, v6): #bruce 050513; docstring corrected 050706
     """Bond two atoms, which must not be already bonded (this might not be checked).
+    Doesn't remove singlets. [###k should verify that by a test]
     Return the new bond object (which is given the valence v6, which must be specified).
     """
     b = Bond(at1, at2, v6) # (this does all necessary invals, including _changed_structure on atoms, and asserts at1 is not at2)
@@ -264,12 +269,16 @@ def bonds_mmprecord( valence, atomcodes ):
     return recname + " " + " ".join(atomcodes)
 
 def bond_atoms(a1, a2, vnew = None, s1 = None, s2 = None, no_corrections = False):
-    """Bond atoms a1 and a2 by making a new bond of valence vnew (which must be one
+    """WARNING: If vnew is not provided, this function behaves differently and is
+    much less safe for general use (details below).
+    
+       Behavior when vnew is provided:
+    Bond atoms a1 and a2 by making a new bond of valence vnew (which must be one
     of the constants in chem.BOND_VALENCES, not a numerically expressed valence;
-    for effect of not providing vnew, see below).
-    The new bond is returned. If for some reason it can't be made, None is returned
+    for the effect of not providing vnew, see below).
+       The new bond is returned. If for some reason it can't be made, None is returned
     (but if that can happen, we should revise the API so an error message can be returned).
-    Error if these two atoms are already bonded.
+       Error if these two atoms are already bonded. [Question: is this detected? ###k]
        If provided, s1 and s2 are the existing singlets on a1 and a2 (respectively)
     whose valence should be reduced (or eliminated, in which case they are deleted)
     to provide valence for the new bond. (If they don't have enough, other adjustments
@@ -283,7 +292,8 @@ def bond_atoms(a1, a2, vnew = None, s1 = None, s2 = None, no_corrections = False
     limit itself to tracking valence errors or setting related flags (this is undecided).
     (This might be useful for code which builds new atoms rather than modifying
     existing ones, such as when reading mmp files or copying existing atoms.)
-       vnew should always be provided (to get the behavior documented here).
+
+       Behavior when vnew is not provided (less safe in general):
     For backwards compatibility, when vnew is not provided, this function calls the
     old code [pre-higher-valence-bonds, pre-050502] which acts roughly as if
     vnew = V_SINGLE, s1 = s2 = None, no_corrections = True, except that it returns
@@ -322,6 +332,15 @@ def bond_atoms(a1, a2, vnew = None, s1 = None, s2 = None, no_corrections = False
 def bond_v6(bond):
     "Return bond.v6. Useful in map, filter, etc."
     return bond.v6
+
+def bond_direction(atom1, atom2): #bruce 070601
+    """The atoms must be bonded (assertion failure if not);
+    return the bond_direction (-1, 0, or 1)
+    of their bond (in the given order of atoms).
+    """
+    bond = find_bond(atom1, atom2)
+    assert bond, "the atoms %s and %s must be bonded" % (atom1, atom2)
+    return bond.bond_direction_from(atom1)
 
 # This is an order(N) operation that produces a function which gets a
 # list of potential neighbors in order(1) time. This is handy for
@@ -1192,11 +1211,12 @@ class Bond(BondBase, StateMixin):
         pass
 
     # "break" is a python keyword
-    def bust(self):
+    def bust(self, make_bondpoints = True): #bruce 070601 added make_bondpoints feature (was effectively always True before)
         """Destroy this bond, modifying the bonded atoms as needed
-        (by adding singlets in place of this bond -- they might overlap!),
+        (by adding singlets in place of this bond, in most cases (unless make_bondpoints is false) --
+         note that the newly added singlets might overlap in space!),
         and invalidating the bonded molecules as needed.
-        Return the added singlets as a 2-tuple.
+           Return the added singlets as a 2-tuple.
         (This method is named 'bust' since 'break' is a python keyword.)
         If either atom is a singlet, kill that atom.
         (Note: as of 041115 bust is never called with either atom a singlet.
@@ -1208,8 +1228,8 @@ class Bond(BondBase, StateMixin):
         # and since not doing that would be bad, I added a note about that
         # to the docstring.
         self._clear_bond_direction() #bruce 070415
-        x1 = self.atom1.unbond(self) # does all needed invals
-        x2 = self.atom2.unbond(self)
+        x1 = self.atom1.unbond(self, make_bondpoint = make_bondpoints) # does all needed invals
+        x2 = self.atom2.unbond(self, make_bondpoint = make_bondpoints)
         ###e do we want to also change our atoms and key to None, for safety?
         ###e check all callers and decide -- in case some callers reuse the bond or for some reason still need its atoms
         return x1, x2 # retval is new feature, bruce 041222
@@ -1301,9 +1321,26 @@ class Bond(BondBase, StateMixin):
             # to just return "self is ob". ####@@@@ [bruce 051018]
             # [as of bruce 060406, i never saw this, but today's changes to undo could bring it on,
             #  so i'll leave it in (msg and implem) for A7.]
-            print_compact_stack( "possible bug: different bond objects equal: %r == %r: " % (self,ob) )
+            # update, bruce 070601: this does sometimes happen, for unknown reasons, but probably repeatably.
+            # At least one bug report mention it. It has no known harmful effects (and by now I forget whether
+            # it's predicted to have any -- the comment above suggests it's not, it just means a certain optimization
+            # in __eq__ would be an illegal change). When it does happen it may not be an error (but this is not yet
+            # known) -- it may involve some comparison by undo of old and new bonds between the same atoms
+            # (a speculation; but the tracebacks seem to always mention undo, and the atoms in the bonds seem to be the same).
+            # So -- I'll print a much worse message if the atoms differ, and if not only print it when ATOM_DEBUG.
+            if (self.atom1 is ob.atom1 and self.atom2 is ob.atom2) or \
+               (self.atom1 is ob.atom2 and self.atom2 is ob.atom1):
+                # atoms same -- probably not a bug at all
+                if platform.atom_debug:
+                    print_compact_stack( "debug: fyi: different bond objects (on same atoms) equal: %r == %r: " % (self,ob) )
+            else:
+                # different atoms -- VERY bad (not known to ever happen, but I tested this error-reporting code anyway)
+                msg = "BUG: different bond objects, between different atoms, compare equal: %r == %r" % (self,ob)
+                print_compact_stack(msg + ": ")
+                env.history.message(redmsg(quote_html(msg)))
         else:
             if 0 and platform.atom_debug: #bruce 051216; disabled it since immediately found a call (using Build mode)
+                #bruce 070601 comment: I suspect this happens when asking "bond in atom.bonds" when making a new bond.
                 print_compact_stack( "atom_debug: deprecated Bond.__eq__ was called on %r and %r: " % (self,ob) )
         return ob.key == self.key
 
