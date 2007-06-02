@@ -562,7 +562,8 @@ class SimRunner:
 		else:
 		    electrostaticFlag = self.getElectrostaticPrefValueForMinimize()
 		    
-		electrostaticArg.append(str(electrostaticFlag))		    
+##		electrostaticArg.append(str(electrostaticFlag))
+		electrostaticArg += str(electrostaticFlag) #bruce 070601 bugfix
 		
                 # [bruce 05040 infers:] mflag true means minimize; -m tells this to the sim.
                 # (mflag has two true flavors, 1 and 2, for the two possible output filetypes for Minimize.)
@@ -577,7 +578,8 @@ class SimRunner:
 		
 		electrostaticArg = '--enable-electrostatic='		
 		electrostaticFlag = self.getElectrostaticPrefValueForDynamics()
-		electrostaticArg.append(str(electrostaticFlag))	
+##		electrostaticArg.append(str(electrostaticFlag))
+		electrostaticArg += str(electrostaticFlag) #bruce 070601 bugfix
 		
                 args = [program, 
                             '-f' + str(movie.totalFramesRequested), #SIMOPT
@@ -818,6 +820,9 @@ class SimRunner:
                 QObject.connect(simProcess, SIGNAL("readyReadStdout()"), blabout)
                 QObject.connect(simProcess, SIGNAL("readyReadStderr()"), blaberr)
             simProcess.setArguments(arguments)
+                ###BUG: the above line may have never been ported to Qt4; for me it's saying AttributeError: setArguments.
+                # (One way to make it happen is to remove sim.so but leave the simulator executable accessible.)
+                # [bruce 070601 comment]
             if self._movie.watch_motion:
                 env.history.message(orangemsg("(watch motion in real time is only implemented for pyrex interface to simulator)"))
                 # note: we have no plans to change that; instead, the pyrex interface will become the usual one
