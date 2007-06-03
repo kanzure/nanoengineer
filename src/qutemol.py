@@ -18,7 +18,6 @@ from PyQt4.Qt import QString, QStringList, QProcess, QMessageBox
 from debug import print_compact_traceback
 
 # To do list: Mark 2007-06-02
-# - write_atomstable()
 # - writepdb() should write ATOM records for bondpoints.
 
 # General plug-in helper functions. These should be put into Plugins.py. Mark 2007-06-02.
@@ -182,7 +181,7 @@ def launch_qutemol(pdb_file):
         args = [pdb_file]
         if exit:
             args += [exit]
-        if 1 or env.debug():
+        if env.debug():
             print "debug: Launching", plugin_name, \
                   "\n  working directory=",workdir,"\n  program_path=", program_path,  "\n  args are %r" % (args,)
         
@@ -225,7 +224,6 @@ def launch_qutemol(pdb_file):
     return 0, plugin_name + " launched." # from launch_qutemol
 
 
-
 def write_atomstable(filename):
     """Write the atoms table text file for QuteMol to use.
     <filename> - the atoms table text filename.
@@ -243,17 +241,24 @@ def write_atomstable(filename):
     except:
         print "Exception occurred to open file %s to write: " % filename
         return None
-   
-    f.write("# NanoEngineer-1.com Atoms Table, Version 2007-06-02\n")
-    f.write("# File format: Symbol Number CovalentRadius Red Green Blue \n")
+    
+    # Header updated. Mark 2007-06-03
+    f.write("# NanoEngineer-1.com Atoms Table, Version 2007-06-03\n")
+    f.write("# File format:\n")
+    f.write("# Symbol Number CovalentRadius Red Green Blue \n")
+    
+    from prefs_constants import cpkScaleFactor_prefs_key
+    cpk_sf = env.prefs[cpkScaleFactor_prefs_key] # Mark 2007-06-03
     
     for eleNum, elm in elemTable.items():
         col = elm.color
         r = int(col[0] * 255 + 0.5)
         g = int(col[1] * 255 + 0.5)
         b = int(col[2] * 255 + 0.5)
-        f.write(str(elm.symbol) + "  " + str(eleNum) + "  " + str(elm.rvdw) + "  " \
-                + str(r) + "  " + str(g) + "  " + str(b) + "\n")
+	
+	f.write('%2s  %3d  %3.3f  %3d  %3d  %3d\n' % \
+	    (elm.symbol, eleNum, elm.rvdw * cpk_sf, r, g, b)
+	    )
     
     f.close()
 
