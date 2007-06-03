@@ -245,7 +245,7 @@ def write_atomstable(filename):
     # Header updated. Mark 2007-06-03
     f.write("# NanoEngineer-1.com Atoms Table, Version 2007-06-03\n")
     f.write("# File format:\n")
-    f.write("# Symbol Number CovalentRadius Red Green Blue \n")
+    f.write("# Symbol Number ScaledVDWradius Red Green Blue \n")
     
     from prefs_constants import cpkScaleFactor_prefs_key
     cpk_sf = env.prefs[cpkScaleFactor_prefs_key] # Mark 2007-06-03
@@ -259,6 +259,11 @@ def write_atomstable(filename):
 	f.write('%2s  %3d  %3.3f  %3d  %3d  %3d\n' % \
 	    (elm.symbol, eleNum, elm.rvdw * cpk_sf, r, g, b)
 	    )
+	
+    f.write("# All radii here were calculated using a scaling factor.\n")
+    f.write("# CPK Scale Factor: %2.3f\n" % cpk_sf)
+    f.write("# To computer the original VDW radii, use the formula:\n")
+    f.write("# Original VDW radius = Scaled VDW radius / CPK Scale Factor\n")
     
     f.close()
 
