@@ -380,6 +380,13 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             b.setup_invalidate()
             b.invalidate_bonded_mols()
         self.molecule.invalidate_attr('singlets')
+        self.molecule.invalidate_attr('externs') #bruce 070602: fix Undo bug after Make Crossover (crossovers.py) --
+            # the bug was that bonds being (supposedly) deleted during this undo state-mashing would remain in mol.externs
+            # and continue to get drawn. I don't know why it didn't happen if bonds were also created on the same atoms
+            # (or perhaps on any atoms in the same chunk), but presumably that happened to invalidate externs in some other way.
+            # As for why the bug went uncaught until now, maybe no other operation creates external bonds without also
+            # deleting bonds on the same atoms (which evidently prevents the bug, as mentioned). For details of what was
+            # tried and how it affected what happened, see crossovers.py cvs history circa now.
         self._changed_structure()
         self.changed()
         posn = self.posn()
@@ -532,9 +539,9 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 if test_crossovers and fromSymbol == 'Pl' and doall and len(selatoms) == 2:
 ##                    import crossovers
 ##                    try:
-##                        reload(crossovers)##### REMOVE WHEN DEVEL IS DONE, for debug only, fails in release building
+##                        reload(crossovers)### REMOVE WHEN DEVEL IS DONE; for debug only; will fail in a built release
 ##                    except:
-##                        print "can't reload crossovers"######
+##                        print "can't reload crossovers"
                     from crossovers import crossover_menu_spec
                     ms1 = crossover_menu_spec(self, selatoms)
                     if ms1:
@@ -843,6 +850,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         element-dependent one. No longer treats glpane.selatom specially
         (caller can draw selatom separately, on top of the regular atom).
            Also draws picked-atom wireframe, but doesn't draw any bonds.
+        [Caller must draw bonds separately.]
            Return value gives the display mode we used (our own or inherited).
         """
         assert not self.__killed
@@ -1080,15 +1088,15 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         return res
     
     def bad(self): #bruce 041217 experiment; note: some of this is inlined into self.getinfo()
-        "is this atom breaking any rules?"
+        "is this atom breaking any rules? [note: this is used to change the color of the atom.picked wireframe]"
         if self.element is Singlet:
             # should be correct, but this case won't be used as of 041217 [probably no longer needed even if used -- 050511]
             numbonds = 1
         else:
             numbonds = self.atomtype.numbonds
-        return numbonds != len(self.bonds) ####@@@@ doesn't check bond valence at all... should it??
+        return numbonds != len(self.bonds) ##REVIEW: this doesn't check bond valence at all... should it??
 
-    def bad_valence(self): #bruce 050806; should review uses (or inlinings) of self.bad() to see if they need this too ####@@@@
+    def bad_valence(self): #bruce 050806; should review uses (or inlinings) of self.bad() to see if they need this too ##REVIEW
         "is this atom's valence clearly wrong, considering valences presently assigned to its bonds?"
         # WARNING: keep the code of self.bad_valence() and self.bad_valence_explanation() in sync! 
         #e we might optimize this by memoizing it (in a public attribute), and letting changes to any bond invalidate it.
@@ -1780,7 +1788,14 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 # don't kill it, in this case [bruce 041115; I don't know if this ever happens]
             return None
         if not make_bondpoint:
-            return None #bruce 070601 new feature
+            #bruce 070601 new feature
+            # WARNING: I'm not 100% sure this does sufficient invals;
+            # if not, could that possibly relate to the Undo bug in the
+            # initial implem of Make Crossover in crossovers.py?
+            # That bug still exists even if we avoid remaking the same bond we broke,
+            # but we're still using make_bondpoint = false on the ones we do break...
+            # update 070602: that bug is fixed now, even when we still use this option.
+            return None
         at2 = b.other(self)
         if at2.element is Singlet:
             return None

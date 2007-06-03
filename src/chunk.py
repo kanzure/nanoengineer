@@ -1056,6 +1056,9 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         bondcolor = self.color
         ColorSorter.start() # grantham 20051205
         for bon in self.externs:
+            # note: external bonds are drawn twice (possibly in different display modes or bondcolors).
+##            if 'DEBUG_070602':
+##                bon._check_assertions("drawing externs of %r" % self)
             bon.draw(glpane, disp, bondcolor, drawLevel)
         ColorSorter.finish() # grantham 20051205
         return # from molecule.draw()

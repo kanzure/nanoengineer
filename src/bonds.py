@@ -1349,6 +1349,16 @@ class Bond(BondBase, StateMixin):
         # on 060228 i confirmed this is needed by test (otherwise != doesn't call __eq__)
         return not self.__eq__(ob)
 
+##    def _check_assertions(self, whocalls = ""): #bruce for DEBUG_070602; WARNING: slow even when all is ok; only for debugging
+##        if whocalls:
+##            prefix = "bug (%s)" % whocalls
+##        else:
+##            prefix = "bug"
+##        for atom in (self.atom1, self.atom2):
+##            if self not in atom.bonds:
+##                print "%s: %r not in %r.bonds" % (prefix, self, atom)
+##        return
+        
     def draw(self, glpane, dispdef, col, level, highlighted = False, bool_fullBondLength = False): #bruce 050727 moving implem to separate file
         """Draw the bond. Note that for external bonds, this is called twice,
         once for each bonded molecule (in arbitrary order)

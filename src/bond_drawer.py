@@ -247,6 +247,13 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, povfile = None,
     
     color1 = col or atom1.drawing_color()
     color2 = col or atom2.drawing_color()
+##    if 'DEBUG_070602':
+##        # indicate bugs in atom.bonds by orange color
+##        #e maybe we should leave this code in permanently?? only if mouseover msg explains the color.
+##        if self not in self.atom1.bonds:
+##            color1 = orange 
+##        if self not in self.atom2.bonds:
+##            color2 = orange
     bondcolor = col or None ## if None, we look up the value when it's used [bruce 050805]
    
     v1 = atom1.display != diINVISIBLE

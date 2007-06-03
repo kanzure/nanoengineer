@@ -416,22 +416,105 @@ def make_or_unmake_crossover(twoPls, make = True, cmdname = None):
     #
     # a --> Pl1 --> b
     #
+    # and it ends up being (where dot means arrowhead, to show bond direction):
+    #
+    # c        d
+    #  .      /
+    #   \    .
+    #  Pl1  Pl2
+    #   .    \
+    #  /      .
+    # a        b
+    #
     Pl_atoms = Pl1.atom, Pl2.atom
 
-    for pl in Pl_atoms:
-        for bond in pl.bonds[:]:
-            bond.bust(make_bondpoints = False)
+    if 1 or debug_pref("Make Crossover: trigger Undo bug", Choice_boolean_False, prefs_key = True):
+        ## print "Use the original code to break and remake all 4 bonds"
+        #
+        # Use the original code to break and remake all 4 bonds -- this encounters a bug in Undo
+        # if you try to Undo or Redo the result. Guess: Undo gets confused if you break one bond
+        # and then make a new bond between the same two atoms, in the same undoable operation.
 
-    # make a-Pl1-c bonds, etc -- using Pl1 or Pl2 first is an arbitrary choice (either way, Make then Unmake is a noop ###k)
-    for obj1, obj2 in [(a, Pl1), (Pl1, c), (d, Pl2), (Pl2, b)]:
-        assert not atoms_are_bonded(obj1.atom, obj2.atom) ###e we should make bond_atoms do this itself, or maybe tolerate it (or does it?)
-        bond = bond_atoms_faster(obj1.atom, obj2.atom, V_SINGLE)
-            # WARNING: bond_atoms without the 3rd arg doesn't remove the extra singlets from the broken bonds above.
-            # Even with it, it doesn't seem to remove enough of them... so I'm using make_bondpoints = False in bust, above.
-            # But even that fails, so I'm reverting here to bond_atoms_faster. But even that fails -- maybe Transmute is adding them?
-            # Just do it after this instead of before... that worked. Note that the extras were on Pl and/or Sj in different cases
-            # I tried.
-        bond.set_bond_direction_from(obj1.atom, 1)
+        # update 070602 8:30pm PT: the bug is fixed now, in chem.py (see comments there marked 070602),
+        # for both the latest code below and this original code (but still using an extra transmute kluge below).
+        # After I commit the fix plus all this debug code, I'll clean it up and recommit the cleanest/safest version only.
+        for pl in Pl_atoms:
+            for bond in pl.bonds[:]:
+                bond.bust(make_bondpoints = False)
+
+        # make a-Pl1-c bonds, etc -- using Pl1 or Pl2 first is an arbitrary choice (either way, Make then Unmake is a noop ###k)
+        for obj1, obj2 in [(a, Pl1), (Pl1, c), (d, Pl2), (Pl2, b)]:
+            assert not atoms_are_bonded(obj1.atom, obj2.atom) ###e we should make bond_atoms do this itself, or maybe tolerate it (or does it?)
+            bond = bond_atoms_faster(obj1.atom, obj2.atom, V_SINGLE)
+                # WARNING: bond_atoms without the 3rd arg doesn't remove the extra singlets from the broken bonds above.
+                # Even with it, it doesn't seem to remove enough of them... so I'm using make_bondpoints = False in bust, above.
+                # But even that fails, so I'm reverting here to bond_atoms_faster. But even that fails -- maybe Transmute is adding them?
+                # Just do it after this instead of before... that worked. Note that the extras were on Pl and/or Sj in different cases
+                # I tried.
+            bond.set_bond_direction_from(obj1.atom, 1)
+    elif 0:
+        # Use different code to try to work around the (putative) Undo bug mentioned above --
+        # reuse the same bonds between a --> Pl1 and Pl2 <-- d rather than breaking them and making equivalent ones.
+        # (But do still set their direction, in case it was not set before -- possible, if some but not all directions
+        #  were set in the part of a strand whose directions we look at.)
+        # BUT IT DOESN'T WORK!
+        # [bruce 070602]
+
+        # break the bonds we no longer want
+        for obj1, obj2 in [(Pl1, b), (Pl2, c)]:
+            bond = find_bond(obj1.atom, obj2.atom)
+            bond.bust(make_bondpoints = False)
+        # make the bonds we want and didn't already have 
+        for obj1, obj2 in [(Pl1, c), (Pl2, b)]:
+            bond_atoms_faster(obj1.atom, obj2.atom, V_SINGLE)
+        # set directions of all 4 bonds
+        for obj1, obj2 in [(a, Pl1), (Pl1, c), (d, Pl2), (Pl2, b)]:
+            bond = find_bond(obj1.atom, obj2.atom)
+            bond.set_bond_direction_from(obj1.atom, 1)
+    else:
+        # try something else... this time make and kill singlets... still doesn't work.
+        # then try bond_atoms with V_SINGLE - still no.
+        # then try bond_atoms_oldversion (ie leave out vnew) since it has more invals - still no.
+        # then try not doing transmute or set_dir in case it's involved --- this exposes a bug - x2 not killed,
+        #   transmute did it i guess -- but undo works this time!
+        # try explicit x2.kill, still no transmute or set_dir -- but now the undo bug is back!!!
+        # So the bug has something to do with the lack of intermediate singlets?? if they're killed later we're ok!
+        # WHER I AM:
+        # - try killing x1, x2 down below, before transmute
+        # - try leaving them for transmute to kill -- DOING THIS NOW #####
+        #       (before transmute back on, 4 extra x, undo works) (with transmute on, -- only kills 2 x's, undo still works)...###
+        # - print the internal undo diffs??
+        # - full invals on all atoms and bonds involved??
+        # - is the bug in the mashng og diff r state back into the model? evidence:
+        #   - missing valence error indicators #####
+        #   - previously seen bond drawing bugs
+        #   - undo does set assy modified back to no
+        #   ddebug this by watching it to that mashingfor these bnds
+        
+        
+        
+        # break the bonds we no longer want; kluge: save singlets to kill later, after making other bonds
+        kill_later = []
+        for obj1, obj2 in [(Pl1, b), (Pl2, c)]:
+            bond = find_bond(obj1.atom, obj2.atom)
+            ## obj1._crossovers__singlet_KLUGE__ =
+            x1, x2 = bond.bust()
+            assert x1.is_singlet()
+##            x1.kill() # on a Pl - try this now 325p -- can't do it, triggers undo bug -- is it the one left over? yes... zap it later
+            assert x2.is_singlet()
+##            x2.kill()
+            kill_later.append(x1)
+            kill_later.append(x2)
+        # make the bonds we want and didn't already have 
+        for obj1, obj2 in [(Pl1, c), (Pl2, b)]:
+            ## bond_atoms_faster(obj1.atom, obj2.atom, V_SINGLE) ### These bonds fail to be deleted when we Undo. Do we need an inval?
+            bond_atoms(obj1.atom, obj2.atom)
+##        # set directions of all 4 bonds
+##        for obj1, obj2 in [(a, Pl1), (Pl1, c), (d, Pl2), (Pl2, b)]:
+##            bond = find_bond(obj1.atom, obj2.atom)
+##            bond.set_bond_direction_from(obj1.atom, 1)
+##        for x in kill_later:
+##            x.kill() ### 328p no, this triggers the undo bug again
 
     # WARNING: after that rebonding, don't use our Pl_recognizers in ways that depend on Pl bonding,
     # since it's not well defined whether they think about the old or new bonding to
@@ -443,6 +526,16 @@ def make_or_unmake_crossover(twoPls, make = True, cmdname = None):
     for obj in (a,b,c,d):
         obj.atom.Transmute(want) # Note: we do this after the bond making/breaking so it doesn't add singlets which mess us up
 
+##    for x in kill_later: # some already dead, should be ok
+##        x.kill() ### 329p try here... no, this also triggers the bug.
+
+##    # 330p try this kluge: transmute the pls to their own elts... no, the bug is still there, as if any means of zapping the singlets
+##    # is what makes the bug show up, which does suggest a state mashing bug or undo diffing bug.
+    for pl in Pl_atoms:
+        pl.Transmute(pl.element)
+    # 332p HOW ARE atom.bonds lists diffed? could they seem the same but not be? i don't really see how....
+    # ok, time to debug those missing valence indicators, etc.
+    
     # move Pl atoms into better positions
     # (someday, consider using local minimize; for now, just place them directly between their new neighbor atoms,
     #  hopefully we leave them selected so user can easily do their own local minimize.)
@@ -454,7 +547,6 @@ def make_or_unmake_crossover(twoPls, make = True, cmdname = None):
     ###e need anything like assy.changed()?
     
     return # from make_or_unmake_crossover
-
 
 ### BUGS:
 
