@@ -3,20 +3,17 @@
 crossovers.py -- support for DNA crossovers, modelled at various levels
 
 $Id$
+
+Includes Make Crossover and Unmake Crossover Pl-atom-pair context menu commands.
 """
+
 __author__ = "bruce"
 
-### TODO:
-##    change cmd name to interior caps
-##    it's really more like Situational Perceiver...
-##     say so in cmt...
-##    btw we do want one for "any two Pl" to perceive whether to offer make or break of the crossover...
-##
-##    rename RecognizerError -- but to what? it's not even an error, more like "this attr is not well defined" or so...
-##
-##    define some nim functions like bonded_atoms line 233 or whatever
-##     (or find correct func -- i bet it is just the wrong name)
-
+###BUGS:
+# - Unmake Crossover needs to be offered when correct to do so, not otherwise
+# - Pl position is wrong after either op, esp. Unmake
+# - Undo and Feature Help cmdnames are wrong (not working)
+# - Should Unmake be renamed to Remove?
 
 from constants import noop, average_value
 from bonds import atoms_are_bonded, find_bond, bond_atoms, V_SINGLE, bond_atoms_faster, bond_direction
@@ -65,14 +62,9 @@ def crossover_menu_spec(atom, selatoms):
     # when the pseudo-dna spelling checker is added, and/or take advantage of the persistent recognizers
     # which that will make use of (rather than creating new recognizer objects for each cmenu request, like we'll do now).
     
-##    res = [("crossover stub", noop, 'disabled'),
-##            ("crossover stub 2", noop,)
-##           ] ###STUB for testing
-##    return res
-
     res = []
 
-    ###e need to protect against exceptions while considering adding each item
+    ##e need to protect against exceptions while considering adding each item
     
     twoPls = map( Pl_recognizer, atoms)
     
@@ -132,7 +124,7 @@ def sets_overlap(set1, set2): #e could be varargs, report whether there's any ov
 class RecognizerError(Exception): #k superclass?
     pass # for now
 
-DEBUG_RecognizerError = True # for now; turn off before real use, will be verbose when no errors ####
+DEBUG_RecognizerError = True # for now; maybe turn off before release -- might be verbose when no errors (not sure)
 
 class StaticRecognizer:
     """Superclass for pattern and local-structure recognizer classes
@@ -210,13 +202,7 @@ class Base_recognizer(StaticRecognizer):
         self.atom = atom
         assert atom.element.symbol in ('Ss','Sj')
             #e other possibilities for init args might be added later (we might become a polymorphic constructor).
-##        self.check()
-##    def check(self):
-##        "make sure self counts as a legitimate base"
-##            #e if not, does constructor fail, or construct an obj that knows it's wrong?
-##            # (Maybe require __init__ flag to do the latter?)
-##        self.axis_atom
-##        pass
+        return
     def _C_axis_atom(self):
         """[compute method for self.axis_atom]
         Return our sole Ax neighbor;
@@ -358,11 +344,13 @@ class Pl_recognizer(StaticRecognizer):
         return res
     pass # Pl_recognizer
 
-def unmake_crossover(twoPls):### NOT YET CALLED
+# ==
+
+def unmake_crossover(twoPls):
     assert len(twoPls) == 2
     for pl in twoPls:
         assert isinstance(pl, Pl_recognizer)
-    assert unmake_crossover_ok(twoPls) ###IMPLEM
+    assert unmake_crossover_ok(twoPls)
     
     make_or_unmake_crossover(twoPls, make = False, cmdname = "Unmake Crossover")
     return
@@ -391,7 +379,7 @@ def make_or_unmake_crossover(twoPls, make = True, cmdname = None):
 
     # Note: Pl.ordered_bases are ordered by bond direction, to make this easier...
     # but if we want to patch up the directions in the end, do we need to care exactly which ones were defined?
-    # or only "per Pl"? hmm... ###e
+    # or only "per-Pl"? hmm... it's per-Pl for now
 
     assert cmdname
     
@@ -409,14 +397,14 @@ def make_or_unmake_crossover(twoPls, make = True, cmdname = None):
     Pl1, Pl2 = twoPls
     a,b = Pl1.ordered_bases
     d,c = Pl2.ordered_bases # note: we use d,c rather than c,d so that the atom arrangement is as shown in the diagram below.
-    #
+    
     # Note: the geometric arrangement is initially:
     #
     # c <-- Pl2 <-- d
     #
     # a --> Pl1 --> b
     #
-    # and it ends up being (where dot means arrowhead, to show bond direction):
+    # and it ends up being (where dots indicate arrowheads, to show bond direction):
     #
     # c        d
     #  .      /
@@ -426,131 +414,58 @@ def make_or_unmake_crossover(twoPls, make = True, cmdname = None):
     #  /      .
     # a        b
     #
+    # Note: Pl1 stays attached to a, and Pl2 to d. Which two opposite bonds to preserve like that
+    # is an arbitrary choice -- as long as Make and Unmake make the same choice about that,
+    # they'll reverse each other's effects precisely (assuming the sugars were initially correct as Ss or Sj).
+
+    # break the bonds we no longer want
+    for obj1, obj2 in [(Pl1, b), (Pl2, c)]:
+        bond = find_bond(obj1.atom, obj2.atom)
+        bond.bust(make_bondpoints = False)
+    
+    # make the bonds we want and didn't already have 
+    for obj1, obj2 in [(Pl1, c), (Pl2, b)]:
+        assert not atoms_are_bonded(obj1.atom, obj2.atom)
+            ###e we should make bond_atoms do this assert itself, or maybe tolerate it (or does it already??)
+        bond_atoms_faster(obj1.atom, obj2.atom, V_SINGLE)
+    
+    # set directions of all 4 bonds (even the preserved ones -- it's possible they were not set before,
+    #  if some but not all bonds had directions set in the part of a strand whose directions we look at.)
+    for obj1, obj2 in [(a, Pl1), (Pl1, c), (d, Pl2), (Pl2, b)]:
+        bond = find_bond(obj1.atom, obj2.atom)
+        bond.set_bond_direction_from(obj1.atom, 1)
+
+    # WARNING: after that bond rearrangement, don't use our Pl_recognizers in ways that depend on Pl bonding,
+    # since it's not well defined whether they think about the old or new bonding to give their answers.    
     Pl_atoms = Pl1.atom, Pl2.atom
-
-    if 1 or debug_pref("Make Crossover: trigger Undo bug", Choice_boolean_False, prefs_key = True):
-        ## print "Use the original code to break and remake all 4 bonds"
-        #
-        # Use the original code to break and remake all 4 bonds -- this encounters a bug in Undo
-        # if you try to Undo or Redo the result. Guess: Undo gets confused if you break one bond
-        # and then make a new bond between the same two atoms, in the same undoable operation.
-
-        # update 070602 8:30pm PT: the bug is fixed now, in chem.py (see comments there marked 070602),
-        # for both the latest code below and this original code (but still using an extra transmute kluge below).
-        # After I commit the fix plus all this debug code, I'll clean it up and recommit the cleanest/safest version only.
-        for pl in Pl_atoms:
-            for bond in pl.bonds[:]:
-                bond.bust(make_bondpoints = False)
-
-        # make a-Pl1-c bonds, etc -- using Pl1 or Pl2 first is an arbitrary choice (either way, Make then Unmake is a noop ###k)
-        for obj1, obj2 in [(a, Pl1), (Pl1, c), (d, Pl2), (Pl2, b)]:
-            assert not atoms_are_bonded(obj1.atom, obj2.atom) ###e we should make bond_atoms do this itself, or maybe tolerate it (or does it?)
-            bond = bond_atoms_faster(obj1.atom, obj2.atom, V_SINGLE)
-                # WARNING: bond_atoms without the 3rd arg doesn't remove the extra singlets from the broken bonds above.
-                # Even with it, it doesn't seem to remove enough of them... so I'm using make_bondpoints = False in bust, above.
-                # But even that fails, so I'm reverting here to bond_atoms_faster. But even that fails -- maybe Transmute is adding them?
-                # Just do it after this instead of before... that worked. Note that the extras were on Pl and/or Sj in different cases
-                # I tried.
-            bond.set_bond_direction_from(obj1.atom, 1)
-    elif 0:
-        # Use different code to try to work around the (putative) Undo bug mentioned above --
-        # reuse the same bonds between a --> Pl1 and Pl2 <-- d rather than breaking them and making equivalent ones.
-        # (But do still set their direction, in case it was not set before -- possible, if some but not all directions
-        #  were set in the part of a strand whose directions we look at.)
-        # BUT IT DOESN'T WORK!
-        # [bruce 070602]
-
-        # break the bonds we no longer want
-        for obj1, obj2 in [(Pl1, b), (Pl2, c)]:
-            bond = find_bond(obj1.atom, obj2.atom)
-            bond.bust(make_bondpoints = False)
-        # make the bonds we want and didn't already have 
-        for obj1, obj2 in [(Pl1, c), (Pl2, b)]:
-            bond_atoms_faster(obj1.atom, obj2.atom, V_SINGLE)
-        # set directions of all 4 bonds
-        for obj1, obj2 in [(a, Pl1), (Pl1, c), (d, Pl2), (Pl2, b)]:
-            bond = find_bond(obj1.atom, obj2.atom)
-            bond.set_bond_direction_from(obj1.atom, 1)
-    else:
-        # try something else... this time make and kill singlets... still doesn't work.
-        # then try bond_atoms with V_SINGLE - still no.
-        # then try bond_atoms_oldversion (ie leave out vnew) since it has more invals - still no.
-        # then try not doing transmute or set_dir in case it's involved --- this exposes a bug - x2 not killed,
-        #   transmute did it i guess -- but undo works this time!
-        # try explicit x2.kill, still no transmute or set_dir -- but now the undo bug is back!!!
-        # So the bug has something to do with the lack of intermediate singlets?? if they're killed later we're ok!
-        # WHER I AM:
-        # - try killing x1, x2 down below, before transmute
-        # - try leaving them for transmute to kill -- DOING THIS NOW #####
-        #       (before transmute back on, 4 extra x, undo works) (with transmute on, -- only kills 2 x's, undo still works)...###
-        # - print the internal undo diffs??
-        # - full invals on all atoms and bonds involved??
-        # - is the bug in the mashng og diff r state back into the model? evidence:
-        #   - missing valence error indicators #####
-        #   - previously seen bond drawing bugs
-        #   - undo does set assy modified back to no
-        #   ddebug this by watching it to that mashingfor these bnds
-        
-        
-        
-        # break the bonds we no longer want; kluge: save singlets to kill later, after making other bonds
-        kill_later = []
-        for obj1, obj2 in [(Pl1, b), (Pl2, c)]:
-            bond = find_bond(obj1.atom, obj2.atom)
-            ## obj1._crossovers__singlet_KLUGE__ =
-            x1, x2 = bond.bust()
-            assert x1.is_singlet()
-##            x1.kill() # on a Pl - try this now 325p -- can't do it, triggers undo bug -- is it the one left over? yes... zap it later
-            assert x2.is_singlet()
-##            x2.kill()
-            kill_later.append(x1)
-            kill_later.append(x2)
-        # make the bonds we want and didn't already have 
-        for obj1, obj2 in [(Pl1, c), (Pl2, b)]:
-            ## bond_atoms_faster(obj1.atom, obj2.atom, V_SINGLE) ### These bonds fail to be deleted when we Undo. Do we need an inval?
-            bond_atoms(obj1.atom, obj2.atom)
-##        # set directions of all 4 bonds
-##        for obj1, obj2 in [(a, Pl1), (Pl1, c), (d, Pl2), (Pl2, b)]:
-##            bond = find_bond(obj1.atom, obj2.atom)
-##            bond.set_bond_direction_from(obj1.atom, 1)
-##        for x in kill_later:
-##            x.kill() ### 328p no, this triggers the undo bug again
-
-    # WARNING: after that rebonding, don't use our Pl_recognizers in ways that depend on Pl bonding,
-    # since it's not well defined whether they think about the old or new bonding to
-    # give their answers.
     del Pl1, Pl2, twoPls
 
     # transmute base sugars to Sj or Ss as appropriate
     want = make and Element_Sj or Element_Ss
     for obj in (a,b,c,d):
-        obj.atom.Transmute(want) # Note: we do this after the bond making/breaking so it doesn't add singlets which mess us up
+        obj.atom.Transmute(want)
+        # Note: we do this after the bond making/breaking so it doesn't add singlets which mess us up.
 
-##    for x in kill_later: # some already dead, should be ok
-##        x.kill() ### 329p try here... no, this also triggers the bug.
-
-##    # 330p try this kluge: transmute the pls to their own elts... no, the bug is still there, as if any means of zapping the singlets
-##    # is what makes the bug show up, which does suggest a state mashing bug or undo diffing bug.
-    for pl in Pl_atoms:
-        pl.Transmute(pl.element)
-    # 332p HOW ARE atom.bonds lists diffed? could they seem the same but not be? i don't really see how....
-    # ok, time to debug those missing valence indicators, etc.
-    
     # move Pl atoms into better positions
     # (someday, consider using local minimize; for now, just place them directly between their new neighbor atoms,
     #  hopefully we leave them selected so user can easily do their own local minimize.)
     for pl in Pl_atoms:
-        pl.setposn( average_value( map( lambda neighbor: neighbor.posn() , pl.neighbors() ))) ###k average_value correct 
+        pl.setposn( average_value( map( lambda neighbor: neighbor.posn() , pl.neighbors() )))
 
-    env.history.message( greenmsg( quote_html( cmdname + ": " + "Done (%s and %s)" % tuple(Pl_atoms) )))
+    env.history.message( greenmsg( cmdname + ": ") + quote_html("(%s - %s)" % tuple(Pl_atoms)))
 
-    ###e need anything like assy.changed()?
+    #e need assy.changed()? evidently not.
     
     return # from make_or_unmake_crossover
 
-### BUGS:
+# ==
 
-# - recognizer compute methods should probably have their own error exception class rather than using assert
+### TODO, someday:
+# - rename Recognizer? it's really more like Situational Perceiver...
+#    
+# - btw we do want one for "any two Pl" to perceive whether to offer make or break of the crossover...
+#
+# -  rename RecognizerError -- but to what? it's not even an error, more like "this attr is not well defined" or so...
 
 # WARNING: in this code, the recognizers don't notice changes in mutable input structures,
 # such as transmutes or even bonding changes. But they compute derived attributes lazily
@@ -561,14 +476,8 @@ def make_or_unmake_crossover(twoPls, make = True, cmdname = None):
 # used to compute them) were also computed before the input change.
 
 
-# obs cmt?:
+# old design comments:
 
-##    base1
-##    base2
-##    axis1
-##    axis2
-##    bridging = axis1 and axis2 and (axis1 != axis2) #### reexpress as legitimate formula ### WRONG, axis is not an object
-        # and even if it was, it's bridging if it connects two diff places on one axis!
     # think in terms of 3 base relations: paired base, stacked base, backbone-bonded base. two directions for some, one for other.
     # so, find bases, then look at them for patterns.
     # for phosphate find two bases (ie sugars), know they're backbone-bound, see if stacked or not (in right direction?)

@@ -534,9 +534,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 # and it can find the selatoms again.
                 #
                 # higher-level entry for Pl, first [bruce 070522, 070601]:
-                test_crossovers = debug_pref("Offer Make Crossovers when permitted",
-                                             Choice_boolean_True, non_debug = True, prefs_key = True)
-                if test_crossovers and fromSymbol == 'Pl' and doall and len(selatoms) == 2:
+                if fromSymbol == 'Pl' and doall and len(selatoms) == 2:
 ##                    import crossovers
 ##                    try:
 ##                        reload(crossovers)### REMOVE WHEN DEVEL IS DONE; for debug only; will fail in a built release
@@ -1789,12 +1787,11 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             return None
         if not make_bondpoint:
             #bruce 070601 new feature
-            # WARNING: I'm not 100% sure this does sufficient invals;
-            # if not, could that possibly relate to the Undo bug in the
-            # initial implem of Make Crossover in crossovers.py?
-            # That bug still exists even if we avoid remaking the same bond we broke,
-            # but we're still using make_bondpoint = false on the ones we do break...
-            # update 070602: that bug is fixed now, even when we still use this option.
+            # WARNING [mild; updated 070602]: I'm not 100% sure this does sufficient invals.
+            # I added it for Make Crossover and wondered if it caused the Undo bug
+            # triggered by that, but that bug turned out to have a different cause,
+            # and this option is still used in that command without triggering that bug.
+            # So it can be presumed safe for now.
             return None
         at2 = b.other(self)
         if at2.element is Singlet:
