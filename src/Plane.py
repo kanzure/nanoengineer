@@ -1,9 +1,21 @@
 # Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-$Id$
+@author: Ninad,
+@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+@version:$Id$
+
+History:
+ninad 20070621: Created.
+ninad 20070701: Implemented DragHandler and selobj interface for the 
+class Handles. (and for ReferenceGeoemtry which is a superclass of Plane)
+ninad 20070703: Implemented Plane Property Manager
+
+@NOTES:This file is subjected to major changes. Work needs to be done on 
+resizeGeometry code. Many other improvements planned- Ninad 070103
+
 """
 
-from ReferenceGeometry import ReferenceGeometry 
+
 from shape import fill
 from drawer import drawLineLoop, drawPlane
 from constants import black, gray, orange, yellow, darkgreen
@@ -13,23 +25,42 @@ from math import pi, atan, cos, sin
 from debug import print_compact_traceback
 import env
 from OpenGL.GLU import gluProject, gluUnProject
+from HistoryWidget import greenmsg, redmsg
+from Numeric import add
+
+from PyQt4.QtGui import QDialog
+from PlanePropertyManager import PlanePropMgr
+from ReferenceGeometry import ReferenceGeometry 
+
 
 #Required for class Handle --
 from DragHandler import DragHandler_API
 
-class Plane(ReferenceGeometry):    
+class Plane(QDialog, PlanePropMgr, ReferenceGeometry):
+    cmd = greenmsg("Plane: ")
     sym = "Plane"    
     is_movable = True 
     mutable_attrs = ('center', 'quat')
     icon_names = ["modeltree/plane.png", "modeltree/plane-hide.png"]
-    
+    sponsor_keyword = 'Plane'    
     copyable_attrs = ReferenceGeometry.copyable_attrs + mutable_attrs
+    cmdname = 'Plane'
     
     def __init__(self, win, lst = None, READ_FROM_MMP = False):
         ''' 
         @param: win: MainWindow object
         @param: lst: List of atoms or points'''
-        ReferenceGeometry.__init__(self, win)        
+        
+        self.w = self.win = win
+        QDialog.__init__(self, win)
+        PlanePropMgr.__init__(self)        
+        ReferenceGeometry.__init__(self, win) 
+        
+        if self.win.assy.o.mode.modename != 'SELECTMOLS':            
+            self.modePropertyManager = self.win.assy.o.mode
+        self.show_propMgr()
+        self.preview_btn_clicked()
+        
         self.width = 16
         self.height = 16                    
         self.normcolor = black
@@ -38,9 +69,17 @@ class Plane(ReferenceGeometry):
         self.opacity = 0.3
         
         self.handles = []   
-                      
+        
+        #@@@This is needed to avoid  'hidden' attribute conflict. 
+        #Plane class inherits PropMgrWidgetMixin.hidden instead of
+        #Node.hidden i.e. ReferenceGeometry.hidden. This was causing a bug
+        #where the plane was shown hidden after hitting done or cancel. 
+        # may be PropMgrWidgetMixin.hidden  be renamed to PropMgrWidgetMixin.widgethidden 
+        #-- ninad 20070703
+        self.hidden = ReferenceGeometry.hidden
+        
         #This is used to notify drawing code if it's just for picking purpose
-        #copied from jig_planes.ESPImage
+        #copied from jig_planes.ESPImage 
         self.pickCheckOnly=False 
         
         if not READ_FROM_MMP:
@@ -51,6 +90,30 @@ class Plane(ReferenceGeometry):
             return self.quat.rot(V(0.0, 0.0, 1.0))
         else:
             raise AttributeError, 'Plane has no "%s"' % name 
+    
+    
+    ##=========== Structure Generator like interface TO BE REVISED======##
+    def gather_parameters(self):
+        """Return all the parameters from the Property Manager.
+        """
+        height = self.heightDblSpinBox.value()
+        width = self.widthDblSpinBox.value()
+        
+        return (height, width)
+    
+    def build_struct(self, name, params):
+        """Build a Plane from the parameters in the Property Manager.
+        """
+        width, height = params
+        self.width = width        
+        self.height = height   
+        
+        self.changePlanePlacement(self.planePlacementActionGrp.checkedAction())
+        self.win.win_update() # Update model tree
+        self.win.assy.changed()
+        
+        return self
+    ##=====================================##
           
     
     def draw(self, glpane, dispdef):
@@ -254,7 +317,7 @@ class Plane(ReferenceGeometry):
         elif movedHandle.getType() == 'Height-Handle' :
             new_h = new_dimension
             self.setHeight(new_h)
-        elif movedHandle.getType() == 'Corner':
+        elif movedHandle.getType() == 'Corner':            
             wh = 0.5*self.getWidth()
             hh = 0.5*self.getHeight()
             theta = atan(hh/wh)
@@ -264,6 +327,51 @@ class Plane(ReferenceGeometry):
             self.setHeight(new_h)            
         
         self.recomputeCenter(totalOffset)
+        #update the width,height spinboxes(may be more in future)--Ninad20070601
+        self.update_spinboxes()
+    
+    def edit(self):
+        ''' Overrided node.edit and shows the property manager'''
+        self.show_propMgr()
+        
+    def changePlanePlacement(self, action):
+        ''' Slot to Change the placement of the plane depending upon the 
+        action checked in the Placement Groupbox of Plane PM'''
+        cmd = self.cmd
+        if action:
+            if action == self.parallelToScreenAction:
+                msg = "Plane will be created parellel to the screen. \
+                Hit Preview button to see the new Plane placement"
+                self.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=False)
+                self._setup_quat_center()
+            elif action == self.throughSelectedAtomsAction:
+                msg = "Plane will pass through 3 or more selected atoms.\
+                Select atoms and hit 'Preview' to see new Plane placement"
+                self.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=False)
+                atmList = self.win.assy.selatoms_list()         
+                if not atmList:
+                    msg = redmsg("Select 3 or more atoms to create a Plane.")
+                    env.history.message(cmd + msg)
+                    return
+                
+                # Make sure more than three atoms are selected.
+                if len(atmList) < 3: 
+                    msg = redmsg("Select 3 or more atoms to create a Plane.")
+                    env.history.message(cmd + msg)
+                    return
+                self._setup_quat_center(lst = atmList)
+            
+    def _setup_quat_center(self, lst = None):
+        if lst:    
+            self.atomPos =[]
+            for a in lst:
+                self.atomPos += [a.posn()]    
+            planeNorm = self._getPlaneOrientation(self.atomPos)
+            self.center = add.reduce(self.atomPos)/len(self.atomPos)
+        else:            
+            planeNorm = self.glpane.lineOfSight
+            self.center = [0.0,0.0,0.0]        
+        self.quat = Q(V(0.0, 0.0, 1.0), planeNorm)
     
                       
 class Handle(DragHandler_API):
@@ -424,7 +532,7 @@ class Handle(DragHandler_API):
     
     ###=========== Drag Handler interface =============###
     #@TODO Need some documentation. Basically it implements the drag handler 
-    #interface described in exprs.Highlightable.py
+    #interface described in DragHandler.py See also exprs.Highlightable.py
     
     def handles_updates(self): 
         return True
@@ -436,6 +544,7 @@ class Handle(DragHandler_API):
     
     def ReleasedOn(self, selobj, event, mode): 
         pass
+    
                 
     
     

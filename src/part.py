@@ -774,7 +774,10 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
     def createPlane(self):
         #Insert Reference Geometry 
 	from Plane import Plane
-	plane = Plane(self.w)	
+	plane = Plane(self.w)
+	##self.place_new_geometry(plane)
+    
+    def place_new_geometry(self, plane):
         self.ensure_toplevel_group()
         self.addnode(plane)
         from node_indices import fix_one_or_complain
@@ -784,8 +787,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             env.history.message( redmsg( "Internal error making new geometry: " + msg))
         fix_one_or_complain( plane, self.topnode, errfunc)
         self.assy.changed()
-        self.w.win_update() 
-     
+        self.w.win_update()      
         
 
     def place_new_jig(self, jig): #bruce 050415, split from all jig makers, extended, bugfixed

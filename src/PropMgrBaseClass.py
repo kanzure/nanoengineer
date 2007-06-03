@@ -18,6 +18,8 @@ mark 2007-05-23: New PropMgrBaseClass with support for the following PropMgr
                  - PropMgrTextEdit (subclass of Qt's QTextEdit widget)
 mark 2007-05-25: Added PropMgrPushButton
 mark 2007-05-28: Added PropMgrLineEdit, PropMgrCheckBox and PropMgrListWidget
+ninad 2007-01-03: Added PropMgrToolButton
+
 """
 
 __author__ = "Mark"
@@ -1587,3 +1589,62 @@ class PropMgrListWidget(QListWidget, PropMgrWidgetMixin):
         self.addWidgetAndLabelToParent(parent, label, spanWidth)
 
 # End of PropMgrListWidget ############################
+
+class PropMgrToolButton(QToolButton, PropMgrWidgetMixin):
+    """PropMgr ToolButton class.
+    """
+    # Set to True to always hide this widget, even when groupbox is expanded.
+    hidden = False
+    # Set setAsDefault to False if "Restore Defaults" should not 
+    # reset this widget's text.
+    setAsDefault = True
+    # <defaultText> - default text when "Restore Default" is clicked
+    defaultText = ""
+    
+    def __init__(self, parent, label='', 
+                 labelPlacement = 'left',
+                 icon = None,
+                 toolButtonStyle= 'iconOnly',
+                 text='', 
+                 setAsDefault=True,
+                 spanWidth=False):
+        """
+        Appends a QToolButton widget to <parent>, a property manager groupbox.
+        
+        Arguments:
+        
+        <parent> - a property manager groupbox (PropMgrGroupBox).
+        <label> - label that appears at a position specified by <labelPlacement> 
+        relative to the Toolbutton
+        <labelPlacement> - Placement of the <label> relative to ToolButton.
+        (left, right, top, bottom)
+        <icon> icon for the toolbutton
+        <toolButtonStyle> 
+        <text> - text displayed on the ToolButton.
+        <setAsDefault> - if True, will restore <text> as the ToolButton's text
+                         when the "Restore Defaults" button is clicked.
+        <spanWidth> - if True, the ToolButton and its label will span the width
+                      of its groupbox. Its label will appear directly above
+                      the ComboBox (unless the label is empty) left justified.
+        """
+                
+        if not parent:
+            return
+        
+        QToolButton.__init__(self)
+        
+        self.setObjectName(parent.objectName() + 
+                           "/pmToolButton" + 
+                           str(parent.num_groupboxes) +
+                           "/'" + label + "'")
+        
+        # Set text
+        self.setText(text)
+        
+        # Set default text
+        self.defaultText=text
+        self.setAsDefault = setAsDefault
+        
+        self.addWidgetAndLabelToParent(parent, label, spanWidth)
+
+# End of PropMgrToolButton ############################

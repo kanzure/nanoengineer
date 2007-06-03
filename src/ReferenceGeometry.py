@@ -1,25 +1,42 @@
 # Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-$Id$
+@author: Ninad,
+@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+@version: $Id$
+
+History:
+ninad 20070521 : Created
+ninad 20070701: Implemented DragHandler and selobj interface for the 
+class Handles. (and for ReferenceGeoemtry which is a superclass of Plane)
+@NOTES:This file is subjected to major changes.
+
 """
+__author__ = "Ninad"
+
 
 from Utility import Node
 from constants import darkgreen, orange, yellow, white
 from Utility import imagename_to_pixmap
 import env
+import platform
+
 from DragHandler import DragHandler_API
+
 
 Gno = 0
 def gensym(string):
     # warning, there are also functions like this in chem.py and jigs.py
     # but with its own global counter!
-    """Return string appended with a unique number"""
+    '''Return string appended with a unique number'''
     global Gno
     Gno += 1
     return string + str(Gno)
 
 
 class ReferenceGeometry(Node, DragHandler_API):
+    ''' Superclass for various reference geometries. 
+    Example or reference geometries: Plane, Point, Line'''
+    
     sym = "Geometry" # affects name-making code in __init__
     pickcolor = darkgreen 
     mmp_record_name = "#" # if not redefined, this means it's just a comment in an mmp file
@@ -30,7 +47,7 @@ class ReferenceGeometry(Node, DragHandler_API):
     atoms = []
     points = None
     handles = None
-       
+          
     copyable_attrs = Node.copyable_attrs + ('pickcolor', 'normcolor', 'color')
         
     def __init__(self, win):  
@@ -38,6 +55,11 @@ class ReferenceGeometry(Node, DragHandler_API):
         Node.__init__(self, win.assy, gensym("%s-" % self.sym))        
         self.glname = env.alloc_my_glselect_name( self) 
         self.glpane = self.assy.o
+        
+        self.pw = None
+        self.modePropertyManager = None
+        self.struct = None
+        self.previousParams = None
                         
     def _draw(self, glpane, dispdef):
         self._draw_geometry(glpane, self.color)        
@@ -133,11 +155,122 @@ class ReferenceGeometry(Node, DragHandler_API):
         return True
             
     def DraggedOn(self, event, mode):        
-        self._update_altkey()
         mode.geometryLeftDrag(self, event)
         mode.update_selobj(event)
         return
     
     def ReleasedOn(self, selobj, event, mode): 
         pass
+  
+    ##======common methods for Property Managers=====###
+    #@NOTE: This copies some methods from GeneratorBaseClass
+    #first I intended to inherit ReferenceGeometry from that class but 
+    #had weired problems in importing it. Something to do with 
+    #QPaindevice/ QApplication /QPixmap. NE1 didn't start de to that error
+    #Therefore, implemented and modified the following methods. OK for Alpha9 
+    #and maybe later -- Ninad 20070703
+    
+    def abort_btn_clicked(self):
+        self.cancel_btn_clicked()
+        pass
+    def restore_defaults_btn_clicked(self):
+        pass
+    
+    def enter_WhatsThisMode(self):
+        pass
+    
+    def ok_btn_clicked(self):
+        'Slot for the OK button'
+        if platform.atom_debug: print 'ok button clicked'
+        self._ok_or_preview(doneMsg=True)   
+        self.accept() #bruce 060621
+        self.struct = None
+        self.closePropertyManager() 
+        # the following reopens the property manager of the mode after 
+        #when the PM of the reference geometry is closed. -- Ninad 20070103
+        if self.modePropertyManager:
+            self.openPropertyManager(self.modePropertyManager)
+        return
+    
+    def cancel_btn_clicked(self):
+        'Slot for the Cancel button'
+        if platform.atom_debug: print 'cancel button clicked'
+        self.win.assy.current_command_info(cmdname = self.cmdname + " (Cancel)") 
+        self.remove_struct()
+        self._revert_number()
+        self.reject() #bruce 060621
+        self.closePropertyManager()   
+        if self.modePropertyManager:
+            self.openPropertyManager(self.modePropertyManager)
+        return
+    
+    def preview_btn_clicked(self):
+        if platform.atom_debug: print 'preview button clicked'
+        self._ok_or_preview(previewing=True)
+    
+    
+    def _ok_or_preview(self, doneMsg=False, previewing=False):
+        self.win.assy.current_command_info(cmdname = self.cmdname) 
+        self._build_struct(previewing=previewing)
+        if doneMsg:
+            env.history.message(self.cmd + self.done_msg())
+        
+        self.win.win_update()
+    
+    def _build_struct(self, previewing=False):
+        if platform.atom_debug:
+            print '_build_struct'
+            
+        params = self.gather_parameters()
+
+        if self.struct == None:
+            if platform.atom_debug:
+                print 'no old structure, we are making a new structure'
+            self._Gno = Gno
+        elif params != self.previousParams:
+            if platform.atom_debug:
+                print 'parameters have changed, update existing structure'
+            self._revert_number()
+            # fall through, using old name
+        else:
+            if platform.atom_debug:
+                print 'old structure, parameters same as previous, do nothing'
+            return
+
+        name = self.name
+        if platform.atom_debug:
+            print "Used existing name =", name
+        
+        if previewing:
+            env.history.message(self.cmd + "Previewing " + name)
+        else:
+            env.history.message(self.cmd + "Creating " + name)
+        self.remove_struct()
+        self.previousParams = params
+        if platform.atom_debug: print 'build a new structure'
+        self.struct = self.build_struct(name, params)
+        self.win.assy.place_new_geometry(self.struct)                
                 
+    def _revert_number(self):
+        import Utility
+        if hasattr(self, '_Gno'):
+            Gno = self._Gno
+        if hasattr(self, '_ViewNum'):
+            Utility.ViewNum = self._ViewNum
+    
+    def remove_struct(self):
+        if platform.atom_debug: print 'Should we remove an existing structure?'
+        if self.struct != None:
+            if platform.atom_debug: print 'Yes, remove it'
+            self.struct.kill()
+            self.struct = None
+            self.win.win_update() # includes mt_update
+        else:
+            if platform.atom_debug: print 'No structure to remove'
+    
+    def done_msg(self):
+        '''Tell what message to print when the geometry has been
+        built. This may be overloaded in the specific generator.
+        '''
+        return "%s created." % self.name
+    
