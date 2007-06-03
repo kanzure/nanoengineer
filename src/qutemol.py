@@ -224,16 +224,39 @@ def launch_qutemol(pdb_file):
             
     return 0, plugin_name + " launched." # from launch_qutemol
 
-def write_atomstable(part, filename):
+
+
+def write_atomstable(filename):
     """Write the atoms table text file for QuteMol to use.
     <filename> - the atoms table text filename.
-    
-    The atoms table contains the following information:
-    - atom name (symbol)
-    - covalent radius
-    - atom color (of the current element colors)
+    Write element colors (sym, num, rvdw, r, g, b) into a text file.
+    Each element is on a new line.  A line starting '#' is a comment line.
+    <filename>: atoms table filename
     """
-    print "write_atomstable() not implemented yet. Atoms Table filename:", filename
+    assert type(filename) == type(" ")
+    
+    from elements import PeriodicTable
+    elemTable = PeriodicTable.getAllElements()
+    
+    try:
+        f = open(filename, "w")
+    except:
+        print "Exception occurred to open file %s to write: " % filename
+        return None
+   
+    f.write("# NanoEngineer-1.com Atoms Table, Version 2007-06-02\n")
+    f.write("# File format: Symbol Number CovalentRadius Red Green Blue \n")
+    
+    for eleNum, elm in elemTable.items():
+        col = elm.color
+        r = int(col[0] * 255 + 0.5)
+        g = int(col[1] * 255 + 0.5)
+        b = int(col[2] * 255 + 0.5)
+        f.write(str(elm.symbol) + "  " + str(eleNum) + "  " + str(elm.rvdw) + "  " \
+                + str(r) + "  " + str(g) + "  " + str(b) + "\n")
+    
+    f.close()
+
     return 
 
 def write_qutemol_files(part):
@@ -272,6 +295,6 @@ def write_qutemol_files(part):
     # Write PDB and Atoms Table files.
     from files_pdb import writepdb
     writepdb(part, qutemol_pdb_file) # Always overwrites existing file.
-    write_atomstable(part, atomstable_basename) # NIY
+    write_atomstable(atomstable_file)
     
     return qutemol_pdb_file
