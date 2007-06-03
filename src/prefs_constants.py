@@ -167,6 +167,8 @@ material_specular_brightness_prefs_key = 'A7/Material Specular Brightness'
 wiki_help_prefix_prefs_key = 'A7/Wiki Help Prefix'
 
 # Plug-ins prefs [added by mark 050918]
+qutemol_path_prefs_key = 'A9/QuteMol Path'
+qutemol_enabled_prefs_key = 'A9/QuteMol Enabled'
 nanohive_path_prefs_key = 'A7/Nano-Hive Executable Path'
 nanohive_enabled_prefs_key = 'A7/Nano-Hive Enabled'
 povray_path_prefs_key = 'A8/POV-Ray Executable Path'
@@ -421,6 +423,8 @@ prefs_table = (
 
     # Plug-ins preferences [added to this table by mark 050919]
     
+    ('qutemol_exe_path', 'string', qutemol_path_prefs_key, "" ),
+    ('qutemol_enabled', 'boolean', qutemol_enabled_prefs_key, False ),
     ('nanohive_exe_path', 'string', nanohive_path_prefs_key, "" ),
     ('nanohive_enabled', 'boolean', nanohive_enabled_prefs_key, False ),
     ('povray_exe_path', 'string', povray_path_prefs_key, "" ),

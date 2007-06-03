@@ -20,7 +20,7 @@ from VQT import *
 from math import *
 from PyQt4.Qt import Qt, QString
 from ViewOrientationWindow import ViewOrientationWindow
-
+from qutemol import launch_qutemol, write_qutemol_files
 
 import preferences
 import env
@@ -381,16 +381,26 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
         
         Method:
         
-        1. Checks that the QuteMol plug-in is enabled (i.e. QuteMol is installed)
-        2. Write a PDB file of the current model.
-        3. Write an atom attributes table text file containing atom radii and color information.
-        4. Invoke QuteMol with the PDB file as an argument. 
+        1. Write a PDB file of the current part.
+        2. Write an atom attributes table text file containing atom radii and color information.
+        3. Launches QuteMol (with the PDB file as an argument). 
         
         """    
         cmd = greenmsg("QuteMol : ")
-        
-        msg = "Not implemented yet."
-        env.history.message(cmd + msg)        
+	
+        # Write temp PDB file of current part.
+        pdb_file = write_qutemol_files(self.assy)  
+	
+	if pdb_file:
+	    # Launch QuteMol. It will verify the plugin.
+	    errorcode, msg = launch_qutemol(pdb_file) 
+	    # errorcode is ignored. 
+	else:
+	    # No pdb file was written because there 
+	    # were no atoms in the current part.
+	    msg = "No atoms in the current part."
+	
+	env.history.message(cmd + msg)
         
     def viewRaytraceScene(self):
         """Slot for 'View > POV-Ray'.

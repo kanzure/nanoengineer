@@ -332,6 +332,8 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.connect(self.ms_shininess_slider,SIGNAL("sliderReleased()"),self.change_material_shininess_stop)
         self.connect(self.ms_shininess_slider,SIGNAL("sliderPressed()"),self.change_material_shininess_start)
         self.connect(self.ms_shininess_slider,SIGNAL("valueChanged(int)"),self.change_material_shininess)
+	self.connect(self.qutemol_checkbox,SIGNAL("toggled(bool)"),self.enable_qutemol)
+        self.connect(self.qutemol_choose_btn,SIGNAL("clicked()"),self.set_qutemol_path)
         self.connect(self.nanohive_checkbox,SIGNAL("toggled(bool)"),self.enable_nanohive)
         self.connect(self.nanohive_choose_btn,SIGNAL("clicked()"),self.set_nanohive_path)
         self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
@@ -544,12 +546,19 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.buildmode_select_atoms_checkbox.setWhatsThis("""<p><b>Select Atoms of Deposited Object</b></p>
         When depositing atoms, clipboard chunks or library parts, their atoms will automatically be selected.""")
         self.buildmode_highlighting_checkbox.setWhatsThis("""Build mode's default setting for Highlighting at startup (enabled/disabled)""")
+        
         self.povray_checkbox.setWhatsThis("""This enables POV-Ray as a plug-in. POV-Ray is a free raytracing program available from http://www.povray.org/. POV-Ray must be installed on your computer before you can enable the POV-Ray plug-in.""")
         self.povray_lbl.setWhatsThis("""This enables POV-Ray as a plug-in. POV-Ray is a free raytracing program available from http://www.povray.org/. POV-Ray must be installed on your computer before you can enable the POV-Ray plug-in.""")
+	
+	self.qutemol_lbl.setWhatsThis("""This enables QuteMol as a plug-in. QuteMol is available for download from http://qutemol.sourceforge.net/. QuteMol must be installed on your computer before you can enable this plug-in.""")
+        self.qutemol_checkbox.setWhatsThis("""This enables QuteMol as a plug-in. QuteMol is available for download from http://qutemol.sourceforge.net/. QuteMol must be installed on your computer before you can enable the this plug-in.""")
+	
         self.nanohive_lbl.setWhatsThis("""This enables Nano-Hive as a plug-in. Nano-Hive is available for download from  http://www.nano-hive.com/. Nano-Hive must be installed on your computer before you can enable the Nano-Hive plug-in.""")
         self.nanohive_checkbox.setWhatsThis("""This enables Nano-Hive as a plug-in. Nano-Hive is available for download from http://www.nano-hive.com/. Nano-Hive must be installed on your computer before you can enable the Nano-Hive plug-in.""")
+        
         self.povray_path_linedit.setWhatsThis("""The full path to the POV-Ray executable file.""")
-        self.nanohive_path_linedit.setWhatsThis("""The full path to the Nano-Hive executable file.""")
+        self.qutemol_path_linedit.setWhatsThis("""The full path to the QuteMol executable file.""")
+	self.nanohive_path_linedit.setWhatsThis("""The full path to the Nano-Hive executable file.""")
         self.gamess_lbl.setWhatsThis("""<p>This enables PC-GAMESS (Windows) or GAMESS (Linux or MacOS) as a plug-in. </p>
         <p>For Windows users, PC-GAMESS is available for download from http://classic.chem.msu.su/gran/gamess/.
         PC-GAMESS must be installed on your computer before you can enable the PC-GAMESS plug-in.</p>
@@ -567,6 +576,8 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         GAMESS is available for download from http://www.msg.ameslab.gov/GAMESS/GAMESS.html. GAMESS must be installed on your computer before you can enable the GAMESS plug-in.</p>""")
         self.povdir_linedit.setWhatsThis("""Specify a directory for where to find POV-Ray or MegaPOV include
         files such as transforms.inc.""")
+	self.qutemol_choose_btn.setWhatsThis("""This opens up a file chooser dialog so that you can specify the
+        location of the QuteMol executable.""")
         self.nanohive_choose_btn.setWhatsThis("""This opens up a file chooser dialog so that you can specify the
         location of the Nano-Hive executable.""")
         self.povray_choose_btn.setWhatsThis("""This opens up a file chooser dialog so that you can specify the
@@ -755,6 +766,10 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         else:
             self.gamess_lbl.setText("GAMESS :")
 
+	# QuteMol executable path.
+        self.qutemol_checkbox.setChecked(env.prefs[qutemol_enabled_prefs_key])
+        self.qutemol_path_linedit.setText(env.prefs[qutemol_path_prefs_key])
+	
         # Nano-Hive executable path.
         self.nanohive_checkbox.setChecked(env.prefs[nanohive_enabled_prefs_key])
         self.nanohive_path_linedit.setText(env.prefs[nanohive_path_prefs_key])
@@ -1786,6 +1801,17 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
             env.prefs[gmspath_prefs_key] = ''
             env.prefs[gamess_enabled_prefs_key] = False
 
+    # QuteMol slots #######################################
+    
+    def set_qutemol_path(self):
+        '''Slot for QuteMol path "Choose" button.
+        '''
+
+        qp = get_filename_and_save_in_prefs(self, nanohive_path_prefs_key, 'Choose QuteMol Executable')
+        
+        if nh:
+            self.quotemol_path_linedit.setText(qp)
+	    
     def set_nanohive_path(self):
         '''Slot for Nano-Hive path "Choose" button.
         '''
@@ -1794,6 +1820,33 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         
         if nh:
             self.nanohive_path_linedit.setText(nh)
+    
+    def enable_qutemol(self, enable=True):
+        '''QuteMol is enabled when enable=True.
+        QuteMol is disabled when enable=False.
+        '''
+        if enable:
+            self.qutemol_path_linedit.setEnabled(1)
+            self.qutemol_choose_btn.setEnabled(1)
+            env.prefs[qutemol_enabled_prefs_key] = True
+            
+            # Sets the qutemol (executable) path to the standard location, if it exists.
+            if not env.prefs[qutemol_path_prefs_key]:
+                env.prefs[qutemol_path_prefs_key] = get_default_plugin_path( \
+                    "C:\\Program Files\\VCG\\QuteMol\\qutemol.exe", \
+                    "/usr/local/bin/qutemol", \
+                    "/usr/local/bin/qutemol")
+            
+            self.qutemol_path_linedit.setText(env.prefs[qutemol_path_prefs_key])
+            
+        else:
+            self.qutemol_path_linedit.setEnabled(0)
+            self.qutemol_choose_btn.setEnabled(0)
+            self.qutemol_path_linedit.setText("")
+            env.prefs[qutemol_path_prefs_key] = ''
+            env.prefs[qutemol_enabled_prefs_key] = False
+	    
+    # NanoHive-1 slots #####################################
             
     def enable_nanohive(self, enable=True):
         '''Enable/disables Nano-Hive plug-in when enable=True/False.
