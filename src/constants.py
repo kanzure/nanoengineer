@@ -17,6 +17,7 @@ DIAMOND_BOND_LENGTH = 1.544
     # > The accepted bond length for diamond is 1.544 ("Interatomic  
     # > Distances,' The Chemical Society, London, 1958, p.M102)....
 
+# note: these Button constants might be no longer used [bruce 070601 comment]
 leftButton = 1
 rightButton = 2
 # in Qt/Mac, control key with left mouse button simulates right mouse button.
@@ -65,6 +66,16 @@ def genKey(start = 1): #bruce 050922 moved this here from chem.py and Utility.py
         yield i
         i += 1
     pass
+
+def average_value(seq, default = 0.0): #bruce 070412; renamed and moved from selectMode.py to constants.py 070601
+    """Return the numerical average value of seq (a Python sequence or equivalent),
+    or (by default) 0.0 if seq is empty.
+       Note: Numeric contains a function named average, which is why we don't use that name.
+    """
+    #e should typetest seq if we can do so efficiently
+    if not seq:
+        return default
+    return sum(seq) / len(seq) # WARNING: this uses <built-in function sum>, not Numeric.sum.
 
 # display modes:
 ## These are arranged in order of increasing thickness of the bond representation. They are indices of dispNames and dispLabel.

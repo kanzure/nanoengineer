@@ -29,12 +29,7 @@ from chunk import molecule
 import env
 from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False, Choice
 from Plane import Handle
-
-def average(seq, default = 0.0): #bruce 070412 #e refile or find elsewhere
-    "return the numerical average value of seq, or default if seq is empty"
-    if not seq:
-        return default
-    return sum(seq) / len(seq)
+from constants import average_value
 
 debug_update_selobj_calls = False # do not commit with true
 
@@ -1684,7 +1679,7 @@ class selectMode(basicMode):
         for j in self.dragjigs:
             if self.smooth_reshaping_drag:
                 # figure out a modified offset by averaging the offset-ratio for this jig's atoms
-                ratio = average(map(self.offset_ratio, j.atoms), default = 1.0)
+                ratio = average_value(map(self.offset_ratio, j.atoms), default = 1.0)
                 offset = offset * ratio # not *=, since it's a mutable Numeric array!
             j.move(offset)
 
