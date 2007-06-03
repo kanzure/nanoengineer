@@ -7,7 +7,7 @@ from Utility import Node
 from constants import darkgreen, orange, yellow, white
 from Utility import imagename_to_pixmap
 import env
-from exprs.Highlightable import DragHandler
+from DragHandler import DragHandler_API
 
 Gno = 0
 def gensym(string):
@@ -19,7 +19,7 @@ def gensym(string):
     return string + str(Gno)
 
 
-class ReferenceGeometry(Node, DragHandler):
+class ReferenceGeometry(Node, DragHandler_API):
     sym = "Geometry" # affects name-making code in __init__
     pickcolor = darkgreen 
     mmp_record_name = "#" # if not redefined, this means it's just a comment in an mmp file

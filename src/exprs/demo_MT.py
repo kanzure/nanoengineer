@@ -223,7 +223,7 @@ class ModelTreeNodeInterface(Interface):
 
 # some existing interfaces we might like to clean up and formalize:
 # - "selobj interface" (from GLPane to a hover-highlighted object; provided by Highlightable)
-# - "DragHandler interface (from selectMode to an object that handles its own mouse clicks/drags; provided by Highlightable)
+# - "DragHandler interface (from selectMode to an object that handles its own mouse clicks/drags; see class DragHandler_API)
 #
 # some new interfaces we'd like:
 # - many of the types used in Arg(type, x) are really interfaces, e.g. ModelObject

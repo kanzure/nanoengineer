@@ -153,7 +153,7 @@ class testmode(super):
             # This works: it's a highlightable or a _background_object if we double-clicked on one,
             # and otherwise false (presumably None).
             # So when it's there, let's pass this event to it for handling, and not to the superclass.
-            # (Note: most of the DragHandler interface is implemented in selectMode,
+            # (Note: most of the DragHandler interface is implemented in selectMode (see also DragHandler.py),
             #  but this new method in it ('leftDouble') is implemented only in testmode.)
             method = getattr( self.drag_handler, 'leftDouble', None)
             if method is not None:
@@ -263,7 +263,7 @@ class testmode(super):
     #   But for capturing these middle
     # methods (i.e. Alt/Option button) for the "New motion UI", it's tougher -- we want to use
     # selectMode's ability to count a tiny drag as not a drag, to dispatch on selobj type
-    # (Atom, Bond, Jig, DragHandler), and maybe more, so we need to turn these into left methods here,
+    # (Atom, Bond, Jig, DragHandler_API), and maybe more, so we need to turn these into left methods here,
     # but we need to add something like glpane.altkey to not forget they were really middle,
     # and then we need to modify selectMode to not think they are really left if this would mess it up
     # (which may only matter for Atom Bond Jig being visible in testmode) -- only for DragHandler would

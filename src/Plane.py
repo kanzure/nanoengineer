@@ -15,7 +15,7 @@ import env
 from OpenGL.GLU import gluProject, gluUnProject
 
 #Required for class Handle --
-from exprs.Highlightable import DragHandler
+from DragHandler import DragHandler_API
 
 class Plane(ReferenceGeometry):    
     sym = "Plane"    
@@ -266,9 +266,9 @@ class Plane(ReferenceGeometry):
         self.recomputeCenter(totalOffset)
     
                       
-class Handle(DragHandler):
+class Handle(DragHandler_API):
     '''@@@EXPERIMENTAL -- ninad 20070517 
-    - unreleated with things in handles.py
+    - unrelated with things in handles.py
     - soon it will be moved to handles.py (with added docstrings)-ninad20070521'''
     def __init__(self, parent, glpane, handleCenter):
         self.parent = parent

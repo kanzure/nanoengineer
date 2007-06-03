@@ -42,31 +42,10 @@ def print_Expr(*args, **kws): ##e rename to include Action in the name?? #e refi
 # highlight_color_for_modkeys
 # selobj_still_ok, maybe more
 
-# == drag handler interface
+# ==
 
-# Note: class DragHandler (like some other things defined in this file)
-# is also defined in cad/src/testdraw.py, and used there,
-# but having this duplicate def should not cause interference.
-##e Nonetheless, when things are stable enough, we should clean up and only one of them should remain.
-
-class DragHandler: # implemented in selectMode.py; see leftClick, needed to use this, in this file and in selectMode.py
-    "document the drag_handler interface, and provide default method implems" # example subclass: class Highlightable
-    ### how does this relate to the selobj interface? often the same object, but different API;
-    # drag_handlers are retvals from a selobj method
-    def handles_updates(self):
-        """Return True if you will do mt and glpane updates as needed,
-        False if you want client mode to guess when to do them for you
-        (it will probably guess: do both, on mouse down, drag, up;
-         but do neither, on baremotion == move, except when selobj changes)
-        """
-        return False # otherwise subclass is likely to forget to do them
-    def DraggedOn(self, event, mode): ### might need better args (the mouseray, as two points? offset? or just ask mode  #e rename
-        pass
-    def ReleasedOn(self, selobj, event, mode): ### will need better args #e rename
-        pass
-    def leftDouble(self, event, mode):#070324 added this method to the interface (note: the call is implemented only in testmode)
-        pass
-    pass
+from DragHandler import DragHandler_API
+    #bruce 070602 moved this from exprs/Highlightable.py to DragHandler.py, and renamed it
 
 # ==
 
@@ -483,14 +462,14 @@ class SavedCoordsys(_CoordsysHolder): #070317
 
 printdraw = False # debug flag [same name as one in cad/src/testdraw.py]
 
-class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler): #070317 split out superclass _CoordsysHolder
+class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API): #070317 split out superclass _CoordsysHolder
     #e rename to Button? make variant called Draggable?
     """Highlightable(plain, highlighted = None, pressed_in = None, pressed_out = None)
     [###WRONG, those are not named options -- fix docstring, or change them to options??]
     renders as plain (and delegates most things to it), but on mouseover, as plain plus highlight [#k or just highlight??]
     [and has more, so as to be Button #doc #e rename #e split out draggable of some sort]
     """
-    # WARNING: the abstract methods in superclass DragHandler will be inherited (if not overridden),
+    # WARNING: the abstract methods in superclass DragHandler_API will be inherited (if not overridden),
     # even if they are defined in the delegate. [in theory; unconfirmed.] This is good in this case. [061127 comment]
     
     #060722;
