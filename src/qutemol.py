@@ -243,7 +243,7 @@ def write_atomstable(filename):
         return None
     
     # Header updated. Mark 2007-06-03
-    f.write("# NanoEngineer-1.com Atoms Table, Version 2007-06-03\n")
+    f.write("# NanoEngineer-1.net Atoms Table, Version 2007-06-03\n")
     f.write("# File format:\n")
     f.write("# Symbol Number ScaledVDWradius Red Green Blue \n")
     
