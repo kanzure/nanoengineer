@@ -219,7 +219,8 @@ def post_main_show( win): # bruce 050902 added this
     return
 
 def _initialize_plugin_generators(): #bruce 060621
-    import CoNTubGenerator
+    pass
+    #import CoNTubGenerator
         # note: this adds the Insert -> Heterojunction menu item.
         # kluge (sorry): as of 060621, it adds it at a hardcoded menu index.
 
