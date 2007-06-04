@@ -112,15 +112,6 @@ remap_atom_dispdefs = {} # some dispdef values should be replaced with others in
 
 BALL_vs_CPK = 0.25 # ratio of default diBALL radius to default diTrueCPK radius [renamed from CPKvdW by bruce 060607]
 
-Gno = 0
-def gensym(string):
-    # warning, there is also a function like this in jigs.py
-    # but with its own global counter!
-    """return string appended with a unique number"""
-    global Gno
-    Gno += 1
-    return string + str(Gno)
-
 atKey = genKey(start = 1) # generator for atom.key attribute.
     # As of bruce 050228, we now make use of the fact that this produces keys
     # which sort in the same order as atoms are created (e.g. the order they're

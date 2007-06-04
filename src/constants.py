@@ -67,6 +67,30 @@ def genKey(start = 1): #bruce 050922 moved this here from chem.py and Utility.py
         i += 1
     pass
 
+_gensym_counters = {}
+
+def gensym(prefix): #bruce 070603 rewrite, improved functionality (replaces three separate similar definitions)
+    """Return prefix with a number appended, where the number is 1 more
+    than the last time we were called for the same prefix, or 1 the first time
+    we see that prefix. Note that this means we maintain an independent counter
+    for each different prefix we're ever called with.
+       In order to ensure that every name we ever return is unique (in spite of our
+    independent counters reusing the same values for different prefixes), we append
+    '-' to prefix if it ends with a digit already, before looking up and appending
+    the counter for that prefix.
+       (The prefix is typically related to a Node classname, but can be more or less
+    specialized, e.g. when making chunks of certain kinds (like DNA) or copying nodes
+    or library parts.)
+    """
+    assert type(prefix) in (type(""), type(u""))
+    if prefix and prefix[-1].isdigit():
+        # This special behavior guarantees that every name we return is unique.
+        # As of bruce 070603, I think it never happens, based on our existing calls.
+        prefix = prefix + '-' 
+    new_value = _gensym_counters.get(prefix, 0) + 1
+    _gensym_counters[prefix] = new_value
+    return prefix + str(new_value)
+    
 def average_value(seq, default = 0.0): #bruce 070412; renamed and moved from selectMode.py to constants.py 070601
     """Return the numerical average value of seq (a Python sequence or equivalent),
     or (by default) 0.0 if seq is empty.

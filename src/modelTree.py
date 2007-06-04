@@ -34,7 +34,7 @@ might therefore be:
 
 from chunk import molecule
 from jigs import Jig
-from chem import gensym
+from constants import gensym
 import platform # for atom_debug
 from platform import fix_plurals #bruce 070503 Qt4
 from HistoryWidget import redmsg, greenmsg, orangemsg # not all used, that's ok

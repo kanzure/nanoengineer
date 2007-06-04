@@ -91,6 +91,7 @@ import env
 from state_utils import StateMixin #bruce 060223
 from debug import print_compact_stack
 from undo_archive import register_class_nickname
+from constants import gensym
 
 
 debug_assy_changes = 0 #bruce 050429

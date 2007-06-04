@@ -639,7 +639,7 @@ class DnaGenerator(QDialog, DnaPropMgr, GeneratorBaseClass):
             return
         
         from chunk import molecule
-        from chem import gensym    
+        from constants import gensym    
         numol = molecule(self.win.assy, gensym("Chunk"))
         for a in atmList:            
             # leave the moved atoms picked, so still visible

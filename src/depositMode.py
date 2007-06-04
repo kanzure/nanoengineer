@@ -1415,8 +1415,8 @@ class depositMode(selectAtomsMode, MMKit):
                     # kluge, for the sake of 3 current partlib files, and files saved only once by users (due to NE1 bug in save)
                     dirjunk, base = os.path.split(newPart.name)
                     basename, extjunk = os.path.splitext(base)
-                from chunk import gensym
-                newnode.name = gensym( basename + " " ) # ok? 
+                from constants import gensym
+                newnode.name = gensym( basename + " " ) # name library part based on basename recorded in its mmp file's top node
                 newnode.move(moveOffset) #k not sure this method is correctly implemented for measurement jigs, named views
                 assy.addnode(newnode)
                 stuff.append(newnode)

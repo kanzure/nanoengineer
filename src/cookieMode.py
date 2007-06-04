@@ -13,6 +13,7 @@ from modes import *
 from CookieCtrlPanel import CookieCtrlPanel
 import env
 from qt4transition import *
+from constants import gensym
 
 class cookieMode(basicMode):
 

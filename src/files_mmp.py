@@ -137,6 +137,7 @@ from HistoryWidget import redmsg
 from elements import PeriodicTable
 import env #bruce 050901
 from chunk import molecule #bruce 060224
+from constants import gensym
 
 # == patterns for reading mmp files
 
@@ -218,9 +219,9 @@ mdihedralpat = re.compile("mdihedral " + nameRgbFontnameFontsize +
 
 
 def getname(str, default):
-    x= nampat.search(str)
+    x = nampat.search(str)
     if x: return x.group(1)
-    return gensym(default)
+    return gensym(default) # used only for mmp records which don't contain valid names [bruce 070603 guess]
 
 # == reading mmp files
 

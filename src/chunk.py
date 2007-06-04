@@ -63,6 +63,7 @@ import drawer #bruce 051126
 from undo_archive import register_class_nickname
 from state_utils import copy_val, same_vals #bruce 060308
 from displaymodes import get_display_mode_handler
+from constants import gensym
 
 _inval_all_bonds_counter = 1 #bruce 050516
 
@@ -2778,7 +2779,8 @@ def mol_copy_name(name): # bruce 041124
         # name must look like xxx-copy<n>
         name = "-copy".join(parts[:-1]) # this is the xxx part
             # (fyi: it doesn't contain '-copy' unless original name contained it twice)
-    return gensym(name + "-copy") # we assume this adds a number to the end
+    return gensym(name + "-copy") # (in mol_copy_name)
+        # note: we assume this adds a number to the end
 
 # == Numeric.array utilities [bruce 041207/041213]
 

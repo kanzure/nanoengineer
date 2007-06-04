@@ -16,21 +16,12 @@ __author__ = "Ninad"
 
 from Utility import Node
 from constants import darkgreen, orange, yellow, white
+from constants import gensym
 from Utility import imagename_to_pixmap
 import env
 import platform
 
 from DragHandler import DragHandler_API
-
-
-Gno = 0
-def gensym(string):
-    # warning, there are also functions like this in chem.py and jigs.py
-    # but with its own global counter!
-    '''Return string appended with a unique number'''
-    global Gno
-    Gno += 1
-    return string + str(Gno)
 
 
 class ReferenceGeometry(Node, DragHandler_API):

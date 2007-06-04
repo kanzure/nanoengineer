@@ -15,7 +15,7 @@ bruce 050913 used env.history in some places.
 from HistoryWidget import greenmsg, redmsg
 from platform import fix_plurals
 from chunk import molecule
-from jigs import gensym
+from constants import gensym
 import env
 
 class ops_rechunk_Mixin:
@@ -75,7 +75,7 @@ class ops_rechunk_Mixin:
             pass 
         numolist=[]
         for mol in self.molecules[:]: # new mols are added during the loop!
-            numol = molecule(self.assy, gensym(mol.name + "-frag"))
+            numol = molecule(self.assy, gensym(mol.name + "-frag")) # (in modifySeparate)
             for a in mol.atoms.values():
                 if a.picked:
                     # leave the moved atoms picked, so still visible

@@ -19,7 +19,7 @@ from chunk import molecule
 from bonds import bond_copied_atoms
 import platform # for atom_debug
 from debug import print_compact_stack
-from jigs import gensym
+from constants import gensym
 from ops_select import selection_from_part
 import env #bruce 050901
 from constants import noop
@@ -55,7 +55,7 @@ class ops_copy_Mixin:
                 # WARNING [bruce 060307]: when we implement this, it might remove all atoms and
                 # (for a clipboard part containing only chunks) reset self.topnode to None,
                 # as happened in delete_sel with bug 1466 (see 'mark 060307' comment there).
-            new = Group(gensym("Copy"), self.assy, None)
+            new = Group(gensym("Copy"), self.assy, None) # (in cut_sel)
                 # bruce 050201 comment: this group is usually, but not always, used only for its members list
             if self.immortal() and self.topnode.picked:
                 ###@@@ design note: this is an issue for the partgroup but not for clips... what's the story?
@@ -74,7 +74,7 @@ class ops_copy_Mixin:
                 self.topnode.apply2picked(lambda(x): x.moveto(new))
                 use = new
                 use.name = self.topnode.name # not copying any other properties of the Group (if it has any)
-                new = Group(gensym("Copy"), self.assy, None)
+                new = Group(gensym("Copy"), self.assy, None) # (in cut_sel)
                 new.addchild(use)
             else:
                 self.topnode.apply2picked(lambda(x): x.moveto(new))

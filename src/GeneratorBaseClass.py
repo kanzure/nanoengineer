@@ -12,7 +12,7 @@ __author__ = "Will"
 import platform
 import env
 from PyQt4.Qt import *
-from jigs import gensym
+from constants import gensym
 from Sponsors import SponsorableMixin
 from HistoryWidget import redmsg, orangemsg, greenmsg, quote_html
 from debug import print_compact_traceback
@@ -295,9 +295,13 @@ class GeneratorBaseClass(SponsorableMixin, PropertyManagerMixin):
         return "%s created." % self.name
 
     def _revert_number(self):
-        import chem, Utility
-        if hasattr(self, '_Gno'):
-            chem.Gno = self._Gno
+#bruce 070603: removing the Gno part of revert_number, since it won't work properly with the new gensym.
+# If we still need this side effect, we'll have to implement it differently.
+# Note that the only other reference to _Gno is a few lines below, where it's set in _build_struct (also removed now).
+##        import chem
+##        if hasattr(self, '_Gno'):
+##            chem.Gno = self._Gno
+        import Utility
         if hasattr(self, '_ViewNum'):
             Utility.ViewNum = self._ViewNum
 
@@ -306,11 +310,13 @@ class GeneratorBaseClass(SponsorableMixin, PropertyManagerMixin):
             print '_build_struct'
         params = self.gather_parameters()
 
-        import chem, Utility
+        import Utility
         if self.struct == None:
             if platform.atom_debug:
                 print 'no old structure, we are making a new structure'
-            self._Gno = chem.Gno
+#bruce 070603: removing the Gno part -- for details see similar comment above
+##            import chem
+##            self._Gno = chem.Gno
         elif params != self.previousParams:
             if platform.atom_debug:
                 print 'parameters have changed, update existing structure'
@@ -324,7 +330,7 @@ class GeneratorBaseClass(SponsorableMixin, PropertyManagerMixin):
         # self.name needed for done message
         if self.create_name_from_prefix:
             # DNA, Nanotubes and graphene don't have a name yet. Let's create it.
-            name = self.name = gensym(self.prefix)
+            name = self.name = gensym(self.prefix) # (in _build_struct)
             if platform.atom_debug:
                 print "Created name from prefix. Name =", name
         else:
