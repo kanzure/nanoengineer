@@ -17,8 +17,8 @@ from prefs_constants import qutemol_enabled_prefs_key, qutemol_path_prefs_key
 from PyQt4.Qt import QString, QStringList, QProcess, QMessageBox
 from debug import print_compact_traceback
 
-# To do list: Mark 2007-06-02
-# - writepdb() should write ATOM records for bondpoints.
+# To do list: Mark 2007-06-03
+# - Move plug-in routines to Plugins.py.
 
 # General plug-in helper functions. These should be put into Plugins.py. Mark 2007-06-02.
 # I just tried to do this, but there was some type of import error due to 
@@ -152,7 +152,10 @@ def verify_plugin_using_version_flag(plugin_path, version_flag, vstring):
         return 1
     else:
         return 0 # Match found.
-    
+
+# Everything above this line should be moved to Plugins.py (or another file).
+# Mark 2007-06-03
+
 def launch_qutemol(pdb_file):
     """Try to launch QuteMol and load <pdb_file>.
        Returns (errorcode, errortext), where errorcode is one of the following: ###k
@@ -160,13 +163,9 @@ def launch_qutemol(pdb_file):
         8 = QuteMol failed for an unknown reason.
     """
     
-    exit = ""
     plugin_name = "QuteMol"
     plugin_prefs_keys = (qutemol_enabled_prefs_key, qutemol_path_prefs_key)
-    
-    #program_nickname = "QuteMol"
-    #program = env.prefs[qutemol_path_prefs_key]
-    
+        
     ask_for_help = True # give user the chance to fix problems in the prefs dialog
     errorcode, errortext_or_path = check_plugin_prefs(plugin_name, plugin_prefs_keys, ask_for_help)
     if errorcode:
@@ -179,10 +178,8 @@ def launch_qutemol(pdb_file):
     # Start QuteMol.
     try:
         args = [pdb_file]
-        if exit:
-            args += [exit]
         if env.debug():
-            print "debug: Launching", plugin_name, \
+            print "Debug: Launching", plugin_name, \
                   "\n  working directory=",workdir,"\n  program_path=", program_path,  "\n  args are %r" % (args,)
         
         arguments = QStringList()
@@ -224,12 +221,12 @@ def launch_qutemol(pdb_file):
     return 0, plugin_name + " launched." # from launch_qutemol
 
 
-def write_atomstable(filename):
-    """Write the atoms table text file for QuteMol to use.
-    <filename> - the atoms table text filename.
-    Write element colors (sym, num, rvdw, r, g, b) into a text file.
-    Each element is on a new line.  A line starting '#' is a comment line.
-    <filename>: atoms table filename
+def write_art_file(filename):
+    """Writes the Atom Rendering Table (ART) file, which contains all
+    the atom rendering properties needed by QuteMol.
+    Each atom is on a separate line.
+    Lines starting with '#' are comment lines.
+    <filename> - ART filename
     """
     assert type(filename) == type(" ")
     
@@ -242,10 +239,13 @@ def write_atomstable(filename):
         print "Exception occurred to open file %s to write: " % filename
         return None
     
-    # Header updated. Mark 2007-06-03
-    f.write("# NanoEngineer-1.net Atoms Table, Version 2007-06-03\n")
-    f.write("# File format:\n")
-    f.write("# Symbol Number ScaledVDWradius Red Green Blue \n")
+    # QuteMol can use line 1 to validate the file format.
+    # Added @ to help make it clear that line 1 is special.
+    f.write("#@ NanoEngineer-1 Atom Rendering Table, file format version 2007-06-03\n")
+    # Lines after line 1 are only comments.
+    f.write("#\n# File format:\n#\n")
+    f.write("# Atom   NE1    Render\n")
+    f.write("# Symbol Number Radius Red Green Blue\n")
     
     from prefs_constants import cpkScaleFactor_prefs_key
     cpk_sf = env.prefs[cpkScaleFactor_prefs_key] # Mark 2007-06-03
@@ -259,21 +259,21 @@ def write_atomstable(filename):
 	f.write('%2s  %3d  %3.3f  %3d  %3d  %3d\n' % \
 	    (elm.symbol, eleNum, elm.rvdw * cpk_sf, r, g, b)
 	    )
-	
-    f.write("# All radii here were calculated using a scaling factor.\n")
-    f.write("# CPK Scale Factor: %2.3f\n" % cpk_sf)
-    f.write("# To computer the original VDW radii, use the formula:\n")
-    f.write("# Original VDW radius = Scaled VDW radius / CPK Scale Factor\n")
+    
+    f.write("# All radii here were calculated using a CPK scaling factor\n"\
+	    "# that can be modified by the user in \"Preference | Atoms\".\n"\
+	    "# CPK Scale Factor: %2.3f\n"\
+            "# To computer the original VDW radii, use the formula:\n"\
+	    "# VDW Radius = Render Radius / CPK Scale Factor\n"\
+	     % cpk_sf)
     
     f.close()
 
     return 
 
 def write_qutemol_files(part):
-    '''Writes a copy of <part> to a temp pdb in the Nanorex temp directory.
-    Also writes an atoms attribute files to the Nanorex temp directory.
-    (The atoms attribute file is not implemented yet.)
-    
+    '''Writes a PDB of the current <part> and an ART file to the Nanorex temp directory.
+    ART = Atom Rendering Table
     Returns the name of the temp pdb file, or None if no atoms are in <part>.
     '''
     
@@ -294,17 +294,17 @@ def write_qutemol_files(part):
 	return None
     
     pdb_basename = "qutemol.pdb"
-    atomstable_basename = "atomstable.txt"
+    art_basename = "art.txt" # ART = Atom Rendering Table
     
-    # Make tmp_inputfile filename (i.e. ~/Nanorex/temp/jigname_parms_info.inp)
+    # Make full pathnames for PDB and ART files (in ~/Nanorex/temp/)
     from platform import find_or_make_Nanorex_subdir
     tmpdir = find_or_make_Nanorex_subdir('temp')
     qutemol_pdb_file = os.path.join(tmpdir, pdb_basename)
-    atomstable_file = os.path.join(tmpdir, atomstable_basename)
+    art_file = os.path.join(tmpdir, art_basename)
         
-    # Write PDB and Atoms Table files.
+    # Write PDB and ART files.
     from files_pdb import writepdb
-    writepdb(part, qutemol_pdb_file) # Always overwrites existing file.
-    write_atomstable(atomstable_file)
+    writepdb(part, qutemol_pdb_file)
+    write_art_file(art_file)
     
     return qutemol_pdb_file
