@@ -20,7 +20,6 @@ from constants import gensym
 from Utility import imagename_to_pixmap
 import env
 import platform
-
 from DragHandler import DragHandler_API
 
 
@@ -107,7 +106,7 @@ class ReferenceGeometry(Node, DragHandler_API):
         return self
                     
     def mouseover_statusbar_message(self):
-        return "%r" % (self,)
+        return str(self.name)
         
     def highlight_color_for_modkeys(self, modkeys):
         return yellow
@@ -213,11 +212,10 @@ class ReferenceGeometry(Node, DragHandler_API):
             print '_build_struct'
             
         params = self.gather_parameters()
-
+        
         if self.struct == None:
             if platform.atom_debug:
                 print 'no old structure, we are making a new structure'
-            self._Gno = Gno
         elif params != self.previousParams:
             if platform.atom_debug:
                 print 'parameters have changed, update existing structure'

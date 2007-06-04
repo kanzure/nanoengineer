@@ -56,8 +56,10 @@ class Plane(QDialog, PlanePropMgr, ReferenceGeometry):
         PlanePropMgr.__init__(self)        
         ReferenceGeometry.__init__(self, win) 
         
-        if self.win.assy.o.mode.modename != 'SELECTMOLS':            
+        if self.win.assy.o.mode.modename in \
+           ['DEPOSIT', 'MODIFY', 'FUSE', 'MOVIE']:
             self.modePropertyManager = self.win.assy.o.mode
+            
         self.show_propMgr()
         self.preview_btn_clicked()
         
@@ -107,7 +109,6 @@ class Plane(QDialog, PlanePropMgr, ReferenceGeometry):
         width, height = params
         self.width = width        
         self.height = height   
-        
         self.changePlanePlacement(self.planePlacementActionGrp.checkedAction())
         self.win.win_update() # Update model tree
         self.win.assy.changed()
@@ -367,6 +368,8 @@ class Plane(QDialog, PlanePropMgr, ReferenceGeometry):
             for a in lst:
                 self.atomPos += [a.posn()]    
             planeNorm = self._getPlaneOrientation(self.atomPos)
+            if dot(planeNorm, self.glpane.lineOfSight) < 0:
+                planeNorm = - planeNorm                
             self.center = add.reduce(self.atomPos)/len(self.atomPos)
         else:            
             planeNorm = self.glpane.lineOfSight
