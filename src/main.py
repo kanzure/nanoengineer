@@ -49,7 +49,6 @@ by someone accidentally running "import main" (which is wrong but causes no harm
 __author__ = "Josh"
 
 import sys, os, time
-from Sponsors import PermissionDialog
 
 print
 print "starting NanoEngineer-1 in [%s]," % os.getcwd(), time.asctime() #bruce 070429
@@ -88,13 +87,11 @@ if __name__ == '__main__':
 
 
 
-from PyQt4.Qt import QApplication, QSplashScreen, SIGNAL ## bruce 050902 removed QRect, QDesktopWidget
+from PyQt4.Qt import QApplication, QSplashScreen ## bruce 050902 removed QRect, QDesktopWidget
 
 ## from constants import *
     #bruce 050902 removing import of constants since I doubt it's still needed here.
     # This might conceivably cause bugs, but it's unlikely.
-
-from MWsemantics import MWsemantics # (this might have side effects other than defining things)
 
 if __name__ == '__main__':
     # [see comment above about why there are two occurrences of this statement]
@@ -104,7 +101,6 @@ if __name__ == '__main__':
     
     QApplication.setColorSpec(QApplication.CustomColor)
     app = QApplication(sys.argv)
-    app.connect(app, SIGNAL("lastWindowClosed ()"), app.quit)
     
     # If the splash image is found in cad/images, put up a splashscreen. 
     # If you don't want the splashscreen, just rename the splash image.
@@ -120,6 +116,11 @@ if __name__ == '__main__':
     else:
         print "note: splash.png was not found"
  
+    from PyQt4.Qt import SIGNAL
+    app.connect(app, SIGNAL("lastWindowClosed ()"), app.quit)
+
+    from MWsemantics import MWsemantics # (this might have side effects other than defining things)
+
     from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
     ##########################################################################################################
     #
@@ -155,6 +156,7 @@ if __name__ == '__main__':
     foo.show() # show the main window
 
     if sys.platform != 'darwin': #bruce 070515 add condition to disable this on Mac, until Brian fixes the hang on Mac
+        from Sponsors import PermissionDialog
 ##        print "start sponsors startup code"
         # Show the dialog that asks permission to download the sponsor logos, then
         # launch it as a thread to download and process the logos.
