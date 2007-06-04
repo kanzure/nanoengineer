@@ -1829,13 +1829,8 @@ class simSetup_CommandRun(CommandRun):
                 estr = hhmmss_str(duration)
                 msg = "Total time to create movie file: " + estr + ", Seconds/frame = " + spf
                 env.history.message(self.cmdname + ": " + msg) 
-            msg = "Movie written to [" + movie.filename + "]."\
-                        "To play movie, click on the <b>Movie Player</b> <img source=\"movieicon\"> icon " \
-                        "and press Play on the Movie Mode dashboard." #bruce 050510 added note about Play button.
-            # This makes a copy of the movie tool icon to put in the HistoryWidget.
-            #e (Is there a way to make that act like a button, so clicking on it in history plays that movie?
-            #   If so, make sure it plays the correct one even if new ones have been made since then!)
-            #QMimeSourceFactory.defaultFactory().setPixmap( "movieicon",  self.win.simMoviePlayerAction.iconSet().pixmap() )
+            msg = "Movie written to [" + movie.filename + "]." \
+		"<br>To play the movie, select <b>Simulation > Play Movie</b>"
             env.history.message(self.cmdname + ": " + msg)
 	    self.win.simSetupAction.setChecked(0)
             self.win.simMoviePlayerAction.setEnabled(1) # Enable "Movie Player"
