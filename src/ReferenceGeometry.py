@@ -6,11 +6,28 @@
 
 History:
 ninad 20070521 : Created
+
 ninad 20070701: Implemented DragHandler and selobj interface for the 
 class Handles. (and for ReferenceGeoemtry which is a superclass of Plane)
-@NOTES:This file is subjected to major changes.
 
+ninad 20070704: Changed the superclass from Node to Jig based on a discussion 
+with Bruce. This allows us to use code for jig selection deletion in some select 
+modes. (note that it continues to use drag handler, selobj interfaces.). 
+This might CHANGE in future.  After making jig a superclass of ReferenceGeometry
+some methods in this file have become overdefined. This needs cleanup
 """
+
+#@NOTE:This file is subjected to major changes.
+
+#@TODO: Ninad20070604 :
+#- Needs documentation and code cleanup / organization post Alpha-9.
+#--Examples: code not reused -- It uses and modifies methods in 
+#GeneratorBaseClass instead of inheriting it. Better to make changes in 
+#GeneratorBase class. -- see another note in this file for reason why I did 
+#this for A9.
+#-After making jig a superclass of ReferenceGeometry
+#some methods in this file have become overdefined. This needs cleanup.
+
 __author__ = "Ninad"
 
 
@@ -21,9 +38,10 @@ from Utility import imagename_to_pixmap
 import env
 import platform
 from DragHandler import DragHandler_API
+from jigs import Jig
 
 
-class ReferenceGeometry(Node, DragHandler_API):
+class ReferenceGeometry(Jig, DragHandler_API):
     ''' Superclass for various reference geometries. 
     Example or reference geometries: Plane, Point, Line'''
     
@@ -37,12 +55,13 @@ class ReferenceGeometry(Node, DragHandler_API):
     atoms = []
     points = None
     handles = None
-          
+    
     copyable_attrs = Node.copyable_attrs + ('pickcolor', 'normcolor', 'color')
         
     def __init__(self, win):  
         self.win = win
-        Node.__init__(self, win.assy, gensym("%s-" % self.sym))        
+        #Node.__init__(self, win.assy, gensym("%s-" % self.sym))        
+        Jig.__init__(self, win.assy, self.atoms)        
         self.glname = env.alloc_my_glselect_name( self) 
         self.glpane = self.assy.o
         
@@ -50,6 +69,14 @@ class ReferenceGeometry(Node, DragHandler_API):
         self.modePropertyManager = None
         self.struct = None
         self.previousParams = None
+        self.existingStructForEditing = False
+        self.old_props = None
+        
+    
+    def needs_atoms_to_survive(self): 
+        '''Overrided method inherited from Jig. This is used to tell 
+        if the jig can be copied even it doesn't have atoms.'''
+        return False
                         
     def _draw(self, glpane, dispdef):
         self._draw_geometry(glpane, self.color)        
@@ -94,6 +121,19 @@ class ReferenceGeometry(Node, DragHandler_API):
 
     def rot(self, quat):
         pass
+    
+    ##===============copy methods ==================###
+    def copy_full_in_mapping(self, mapping): #bruce 070430 revised to honor mapping.assy
+        clas = self.__class__
+        new = clas(mapping.assy.w, []) # don't pass any atoms yet (maybe not all of them are yet copied)
+            # [Note: as of about 050526, passing atomlist of [] is permitted for motors, but they assert it's [].
+            #  Before that, they didn't even accept the arg.]
+        # Now, how to copy all the desired state? We could wait til fixup stage, then use mmp write/read methods!
+        # But I'd rather do this cleanly and have the mmp methods use these, instead...
+        # by declaring copyable attrs, or so.
+        new._orig = self
+        new._mapping = mapping
+        return new
     
     ###============== selobj interface ===============###
      
@@ -172,12 +212,17 @@ class ReferenceGeometry(Node, DragHandler_API):
     def ok_btn_clicked(self):
         'Slot for the OK button'
         if platform.atom_debug: print 'ok button clicked'
+                    
         self._ok_or_preview(doneMsg=True)   
         self.accept() #bruce 060621
         self.struct = None
         self.closePropertyManager() 
         # the following reopens the property manager of the mode after 
         #when the PM of the reference geometry is closed. -- Ninad 20070103
+        
+        if self.win.assy.o.mode.modename in \
+           ['DEPOSIT', 'MODIFY', 'FUSE', 'MOVIE']:
+            self.modePropertyManager = self.win.assy.o.mode
         if self.modePropertyManager:
             self.openPropertyManager(self.modePropertyManager)
         return
@@ -185,11 +230,23 @@ class ReferenceGeometry(Node, DragHandler_API):
     def cancel_btn_clicked(self):
         'Slot for the Cancel button'
         if platform.atom_debug: print 'cancel button clicked'
-        self.win.assy.current_command_info(cmdname = self.cmdname + " (Cancel)") 
-        self.remove_struct()
+        self.win.assy.current_command_info(cmdname = self.cmdname + " (Cancel)")
+           
+        if self.existingStructForEditing: 
+            if self.old_props:
+                self.setProps(self.old_props)
+                self.glpane.gl_update() 
+                
+        else:
+            self.remove_struct()            
         self._revert_number()
-        self.reject() #bruce 060621
-        self.closePropertyManager()   
+        self.reject() 
+        self.closePropertyManager()
+        
+        if self.win.assy.o.mode.modename in \
+           ['DEPOSIT', 'MODIFY', 'FUSE', 'MOVIE']:
+            self.modePropertyManager = self.win.assy.o.mode
+            
         if self.modePropertyManager:
             self.openPropertyManager(self.modePropertyManager)
         return

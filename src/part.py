@@ -775,7 +775,8 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         #Insert Reference Geometry 
 	from Plane import Plane
 	plane = Plane(self.w)
-	##self.place_new_geometry(plane)
+	plane.show_propMgr()
+	plane.preview_btn_clicked()
     
     def place_new_geometry(self, plane):
         self.ensure_toplevel_group()

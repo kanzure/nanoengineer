@@ -139,6 +139,8 @@ import env #bruce 050901
 from chunk import molecule #bruce 060224
 from constants import gensym
 
+from Plane import Plane
+
 # == patterns for reading mmp files
 
 #bruce 050414 comment: these pat constants are not presently used in any other files.
@@ -171,6 +173,11 @@ new_lmotpat = re.compile("lmotor \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (
 #Grid Plane record format:
 #gridplane (name) (r, g, b) width height (cx, cy, cz) (w, x, y, z) grid_type line_type x_space y_space (gr, gg, gb) 
 gridplane_pat = re.compile("gridplane \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) (\d+) (\d+) (-?\d+\.\d+) (-?\d+\.\d+) \((\d+), (\d+), (\d+)\)")
+
+#Plane record format:
+#plane (name) (r, g, b) width height (cx, cy, cz) (w, x, y, z)
+plane_pat = re.compile("plane \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\)")
+
 
 # ESP Image record format:
 # espimage (name) (r, g, b) width height resolution (cx, cy, cz) (w, x, y, z) trans (fr, fg, fb) show_bbox win_offset edge_offset 
@@ -516,6 +523,26 @@ class _readmmp_state:
         gridPlane.setProps(name, border_color, width, height, center, quat, grid_type, \
                            line_type, x_space, y_space, grid_color)
         self.addmember(gridPlane)
+    
+    #Read mmp record for a Reference Plane
+    def _read_plane(self, card):
+        ''' Read the MMP record for a Referece Plane  as:
+            plane (name) (r, g, b) width height (cx, cy, cz) (w, x, y, z) 
+        '''
+        m = plane_pat.match(card)
+        name = m.group(1)
+        name = self.decode_name(name)
+        #border_color = color of the border for front side of the reference plane. 
+        #user can't set it for now. -- ninad 20070104
+        border_color = map(lambda (x): int(x)/255.0, [m.group(2),m.group(3),m.group(4)])
+        width = float(m.group(5)); height = float(m.group(6)); 
+        center = A(map(float, [m.group(7), m.group(8), m.group(9)]))
+        quat = A(map(float, [m.group(10), m.group(11), m.group(12), m.group(13)]))
+               
+        plane = Plane(self.assy.w, READ_FROM_MMP=True)
+        props = (name, border_color, width, height, center, quat)
+        plane.setProps(props)
+        self.addmember(plane)
 
     # Read the MMP record for a Atom Set as:
     # atomset (name) atom1 atom2 ... atom_n {no limit}

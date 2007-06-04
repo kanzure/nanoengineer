@@ -472,9 +472,12 @@ class selectMolsMode(selectMode):
             movables = self.o.assy.getSelectedMovables()
             if movables:
                 if self.drag_handler not in movables:
-                    #bruce 060728
-                    self.dragHandlerDrag(self.drag_handler, event) # does updates if needed
+                    self.dragHandlerDrag(self.drag_handler, event) 
                     return
+                elif len(movables)== 1:
+                    self.dragHandlerDrag(self.drag_handler, event)
+                    return                    
+                
                                 
         if self.o.assy.getSelectedMovables():
             bool_goBackToMode = True

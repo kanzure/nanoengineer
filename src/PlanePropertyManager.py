@@ -63,12 +63,13 @@ class PlanePropMgr(object,PropMgrBaseClass, PropertyManagerMixin):
                                            titleButton=True)
         self.loadGroupBox1(self.pmGroupBox1)
         
+        self.addGroupBoxSpacer()
+        
         self.pmGroupBox2 = PropMgrGroupBox(self, 
                                            title="Placement",
                                            titleButton=True)
         self.loadGroupBox2(self.pmGroupBox2)        
                  
-        self.addGroupBoxSpacer()
      
               
     def loadGroupBox1(self, pmGroupBox):

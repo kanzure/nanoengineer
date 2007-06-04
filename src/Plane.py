@@ -10,8 +10,14 @@ ninad 20070701: Implemented DragHandler and selobj interface for the
 class Handles. (and for ReferenceGeoemtry which is a superclass of Plane)
 ninad 20070703: Implemented Plane Property Manager
 
-@NOTES:This file is subjected to major changes. Work needs to be done on 
-resizeGeometry code. Many other improvements planned- Ninad 070103
+@NOTE:This file is subjected to major changes. 
+@TODO: 
+-Work needs to be done on resizeGeometry code. 
+Many other improvements planned- Ninad 070603
+- Needs documentation and code cleanup / organization post Alpha-9.
+--Ninad20070604
+
+
 
 """
 
@@ -45,7 +51,8 @@ class Plane(QDialog, PlanePropMgr, ReferenceGeometry):
     sponsor_keyword = 'Plane'    
     copyable_attrs = ReferenceGeometry.copyable_attrs + mutable_attrs
     cmdname = 'Plane'
-    
+    mmp_record_name = "plane"
+        
     def __init__(self, win, lst = None, READ_FROM_MMP = False):
         ''' 
         @param: win: MainWindow object
@@ -59,15 +66,8 @@ class Plane(QDialog, PlanePropMgr, ReferenceGeometry):
         if self.win.assy.o.mode.modename in \
            ['DEPOSIT', 'MODIFY', 'FUSE', 'MOVIE']:
             self.modePropertyManager = self.win.assy.o.mode
-            
-        self.show_propMgr()
-        self.preview_btn_clicked()
         
-        self.width = 16
-        self.height = 16                    
-        self.normcolor = black
-        self.fill_color = gray
-        
+        self.fill_color = gray        
         self.opacity = 0.3
         
         self.handles = []   
@@ -85,6 +85,9 @@ class Plane(QDialog, PlanePropMgr, ReferenceGeometry):
         self.pickCheckOnly=False 
         
         if not READ_FROM_MMP:
+            self.width = 16
+            self.height = 16                    
+            self.normcolor = black
             self.__init_quat_center(lst)
     
     def __getattr__(self, name):
@@ -92,6 +95,50 @@ class Plane(QDialog, PlanePropMgr, ReferenceGeometry):
             return self.quat.rot(V(0.0, 0.0, 1.0))
         else:
             raise AttributeError, 'Plane has no "%s"' % name 
+            
+    def setProps(self,props):
+        ''' Set the Plane properties. It is Called while reading a MMP 
+        file record.'''
+        name, border_color, width, height, center, wxyz = props
+        self.name = name
+        self.color = self.normcolor = border_color
+        self.width = width
+        self.height = height
+        self.center = center 
+        self.quat = Q(wxyz[0], wxyz[1], wxyz[2], wxyz[3])
+        
+    
+    def getProps(self):
+        '''Return the current properties of the Plane'''
+        #Used in preview method If an existing structure is changed, 
+        #and user hits preview and then hits Cancel then it restores the 
+        #old properties of the plane returned by this function. 
+        props = (self.name, self.color, self.width, self.height,
+             self.center, self.quat)
+        return props
+    
+    def mmp_record_jigspecific_midpart(self):
+        '''Return a string of format: width height (cx, cy, cz) (w, x, y, z)'''
+        #This value is used in method mmp_record  of class Jig
+        dataline = "%.2f %.2f (%f, %f, %f) (%f, %f, %f, %f) " % \
+           (self.width, self.height, self.center[0], self.center[1], self.center[2], 
+            self.quat.w, self.quat.x, self.quat.y, self.quat.z)
+        return " " + dataline
+    
+    def _mmp_record_last_part(self, mapping):
+        ''' Return a fake string 'type-geometry' as the last entry 
+        for the mmp record. This part of mmp record is NOT used so far 
+        for ReferenceGeometry Objects'''
+        #This is needed as ReferenceGeometry is a subclass of Jig 
+        #(instead of Node) , Returning string 'geometry' overcomes 
+        #the problem faced due to a kludge in method mmp_record 
+        #(see file jigs.py)That kludge makes it not write the 
+        #proper mmp record. if last part is an empty string (?) --ninad 20070604
+        
+        return "type-geometry"
+    
+           
+        
     
     
     ##=========== Structure Generator like interface TO BE REVISED======##
@@ -101,23 +148,25 @@ class Plane(QDialog, PlanePropMgr, ReferenceGeometry):
         height = self.heightDblSpinBox.value()
         width = self.widthDblSpinBox.value()
         atmList = self.win.assy.selatoms_list()
-        return (height, width, atmList)
+        self.changePlanePlacement(self.planePlacementActionGrp.checkedAction())
+        ctr = self.center        
+        return (width, height, ctr, atmList)
     
     def build_struct(self, name, params):
         """Build a Plane from the parameters in the Property Manager.
         """
-        width, height, atmList_junk = params
+        width, height, center_junk, atmList_junk = params
         self.width = width        
         self.height = height   
-        self.changePlanePlacement(self.planePlacementActionGrp.checkedAction())
         self.win.win_update() # Update model tree
-        self.win.assy.changed()
-        
+        self.win.assy.changed()        
         return self
     ##=====================================##
           
     
     def draw(self, glpane, dispdef):
+        if self.hidden:
+            return
         try:
             glPushName(self.glname)
             self._draw(glpane, dispdef)
@@ -333,8 +382,19 @@ class Plane(QDialog, PlanePropMgr, ReferenceGeometry):
     
     def edit(self):
         ''' Overrided node.edit and shows the property manager'''
+        self.existingStructForEditing = True
+        self.update_spinboxes()
+        self.old_props = self.getProps()
         self.show_propMgr()
-        
+        #@@@@ kludge! This is needed to avoid  'hidden' attribute conflict. 
+        #Plane class inherits PropMgrWidgetMixin.hidden instead of
+        #Node.hidden i.e. ReferenceGeometry.hidden. This was causing a bug
+        #where the plane was shown hidden after hitting done or cancel. 
+        # may be PropMgrWidgetMixin.hidden  be renamed to
+        #PropMgrWidgetMixin.widgethidden -- ninad 20070604
+        self.hidden = ReferenceGeometry.hidden
+       
+                
     def changePlanePlacement(self, action):
         ''' Slot to Change the placement of the plane depending upon the 
         action checked in the Placement Groupbox of Plane PM'''
@@ -549,5 +609,3 @@ class Handle(DragHandler_API):
         pass
     
                 
-    
-    
