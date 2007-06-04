@@ -98,7 +98,7 @@ except ImportError:
 # ==
 
 def bonded(a1, a2): #bruce 041119 #e optimized by bruce 050502 (this indirectly added "assert a1 != a2")
-    "are these atoms (or singlets) already directly bonded?"
+    "are these atoms (or singlets) already directly bonded? [AssertionError if they are the same atom.]"
     ## return a2 in a1.neighbors()
     return not not find_bond(a1, a2)
 
@@ -106,7 +106,7 @@ atoms_are_bonded = bonded # this is a better name (given that it only works for 
     # we should replace the old name with it sometime #bruce 070601
 
 def find_bond(a1, a2): #bruce 050502; there might be an existing function in some other file, to merge this with
-    "If a1 and a2 are bonded, return their Bond object; if not, return None."
+    "If a1 and a2 are bonded, return their Bond object; if not, return None. [AssertionError if they are the same atom.]"
     assert a1 is not a2
     for bond in a1.bonds:
         if bond.atom1 is a2 or bond.atom2 is a2:
