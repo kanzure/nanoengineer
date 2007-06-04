@@ -1346,6 +1346,7 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.bg1_color_frame.setPalette(plt)
         
         self.glpane.setBackgroundGradient(False) # This also stores the pref in the db.
+        self.glpane.setBackgroundColor(self.glpane.backgroundColor)
     
     def bg_gradient_setup(self):
         '''Setup the Modes page for the background gradient fill type.
