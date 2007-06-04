@@ -100,13 +100,13 @@ class Plane(QDialog, PlanePropMgr, ReferenceGeometry):
         """
         height = self.heightDblSpinBox.value()
         width = self.widthDblSpinBox.value()
-        
-        return (height, width)
+        atmList = self.win.assy.selatoms_list()
+        return (height, width, atmList)
     
     def build_struct(self, name, params):
         """Build a Plane from the parameters in the Property Manager.
         """
-        width, height = params
+        width, height, atmList_junk = params
         self.width = width        
         self.height = height   
         self.changePlanePlacement(self.planePlacementActionGrp.checkedAction())
