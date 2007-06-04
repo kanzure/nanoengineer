@@ -2271,6 +2271,7 @@ class Csys(SimpleCopyMixin, Node):
     """
     
     sym = "View"
+    featurename = "Named View" #bruce 070604 added this
 
     copyable_attrs = Node.copyable_attrs + ('scale', 'pov', 'zoomFactor', 'quat') #bruce 060523
         # (note: for copy, this is redundant with _um_initargs (that's ok),
