@@ -4,16 +4,15 @@ crossovers.py -- support for DNA crossovers, modelled at various levels
 
 $Id$
 
-Includes Make Crossover and Unmake Crossover Pl-atom-pair context menu commands.
+Includes Make Crossover and Remove Crossover Pl-atom-pair context menu commands.
 """
 
 __author__ = "bruce"
 
 ###BUGS:
-# - Unmake Crossover needs to be offered when correct to do so, not otherwise
-# - Pl position is wrong after either op, esp. Unmake
+# - Remove Crossover needs to be offered when correct to do so, not otherwise
+# - Pl position is wrong after either op, esp. Remove
 # - Undo and Feature Help cmdnames are wrong (not working)
-# - Should Unmake be renamed to Remove?
 
 from constants import noop, average_value
 from bonds import atoms_are_bonded, find_bond, bond_atoms, V_SINGLE, bond_atoms_faster, bond_direction
@@ -67,43 +66,91 @@ def crossover_menu_spec(atom, selatoms):
     ##e need to protect against exceptions while considering adding each item
     
     twoPls = map( Pl_recognizer, atoms)
-    
-    # maybe add a "Make Crossover" command
-    if make_crossover_ok(twoPls):
-        Pl1, Pl2 = twoPls
-        text = "Make Crossover (%s - %s)" % (Pl1.atom, Pl2.atom) #e or print the Pl_recognizer objects in the menu text??
-        cmdname = "Make Crossover" ###k for undo -- maybe it figures this out itself due to those parens?? evidently not.
-        command = (lambda twoPls = twoPls: make_crossover(twoPls))
-        res.append((text, command)) ###e how to include cmdname?? or kluge this by having text include a prefix-separator?
+    Pl1, Pl2 = twoPls
 
-    #e maybe package up those two related functions (make_crossover and make_crossover_ok)
-    # into a class for the potential command -- sort of a twoPl-recognizer, i guess
+    # Both Make and Remove Crossover need the strand directions to be well-defined,
+    # so if they're not, just insert a warning and not the specific commands.
+    # (This also simplifies the code for deciding whether to offer Remove Crossover.)
+
+    if not Pl1.strand_direction_well_defined or not Pl2.strand_direction_well_defined: ###IMPLEM
+        
+        text = "(strand directions not well-defined)" #e shorten? mention which atom? do it for single selected atom? say how not?
+        item = (text, noop, 'disabled')
+        res.append(item)
+
+    else:
     
-    # maybe add an "Unmake Crossover" command
-        # should we call this Break or Unmake or Delete? It leaves the atoms, patches things up... reverses effect of Make...
-        # so Unmake seems best... not sure.
-    if unmake_crossover_ok(twoPls):
-        Pl1, Pl2 = twoPls
-        text = "Unmake Crossover (%s - %s)" % (Pl1.atom, Pl2.atom)
-        cmdname = "Unmake Crossover"
-        command = (lambda twoPls = twoPls: unmake_crossover(twoPls))
-        res.append((text, command))
+        # maybe add a "Make Crossover" command
+        if make_crossover_ok(twoPls):
+            text = "Make Crossover (%s - %s)" % (Pl1.atom, Pl2.atom) #e or print the Pl_recognizer objects in the menu text??
+            cmdname = "Make Crossover" ###k for undo -- maybe it figures this out itself due to those parens?? evidently not.
+            command = (lambda twoPls = twoPls: make_crossover(twoPls))
+            res.append((text, command)) ###e how to include cmdname?? or kluge this by having text include a prefix-separator?
+
+        #e maybe package up those two related functions (make_crossover and make_crossover_ok)
+        # into a class for the potential command -- sort of a twoPl-recognizer, i guess
+        
+        # maybe add a "Remove Crossover" command
+            # should we call this Break or Unmake or Delete? It leaves the atoms, patches things up... reverses effect of Make...
+            # so Unmake seems best of those, but Remove seems better than any of them.
+        if remove_crossover_ok(twoPls):
+            text = "Remove Crossover (%s - %s)" % (Pl1.atom, Pl2.atom)
+            cmdname = "Remove Crossover"
+            command = (lambda twoPls = twoPls: remove_crossover(twoPls))
+            res.append((text, command))
+
+        # it should never happen that both are ok at once!
+        if len(res) > 1:
+            print "bug: both Make Crossover and %s are being offered" % text #kluge to ref text to include atom names
+
+        pass
     
     return res
 
 def make_crossover_ok(twoPls): ##### NEED TO MAKE THIS A RECOGNIZER so it can easily be told to print why it's not saying it's ok.
+    "figure out whether to offer Make Crossover, assuming bond directions are well-defined"
+
     Pl1, Pl2 = twoPls
-    if Pl1.in_only_one_helix and Pl2.in_only_one_helix:
+    
+    ## if Pl1.in_only_one_helix and Pl2.in_only_one_helix: not enough -- need to make sure the other 4 pairings are not stacked.
+
+    a,b = Pl1.ordered_bases
+    d,c = Pl2.ordered_bases # note: we use d,c rather than c,d so that the atom arrangement is as shown in the diagram far below.
+
+    if bases_are_stacked((a, b)) and bases_are_stacked((c, d)) \
+       and not bases_are_stacked((a, d)) and not bases_are_stacked((b, c)) \
+       and not bases_are_stacked((a, c)) and not bases_are_stacked((b, d)):
+
         involved1, involved2 = map( lambda pl: pl.involved_atoms_for_make_crossover, twoPls)
         if not sets_overlap(involved1, involved2):
             return True
-    return False
+    return False # from make_crossover_ok
 
-def unmake_crossover_ok(twoPls): ###STUB
-    when = debug_pref("Offer Unmake Crossover...",
-                      Choice(["never", "always (even when incorrect)"]),
-                      non_debug = True, prefs_key = True )
-    return when != 'never'
+def remove_crossover_ok(twoPls):
+    "figure out whether to offer Remove Crossover, assuming bond directions are well-defined"
+    
+##    when = debug_pref("Offer Remove Crossover...",
+##                      Choice(["never", "always (even when incorrect)"]),
+##                      non_debug = True, prefs_key = '_debug_pref_key:Offer Unmake Crossover...' )
+##    offer = ( when != 'never' )
+##    if not offer:
+##        return False
+
+    Pl1, Pl2 = twoPls
+
+    a,b = Pl1.ordered_bases
+    d,c = Pl2.ordered_bases
+
+    # WARNING: this is different than the similar-looking condition in make_crossover_ok.
+    if bases_are_stacked((a, c)) and bases_are_stacked((b, d)) \
+       and not bases_are_stacked((a, d)) and not bases_are_stacked((b, c)) \
+       and not bases_are_stacked((a, b)) and not bases_are_stacked((d, c)):
+        
+        involved1, involved2 = map( lambda pl: pl.involved_atoms_for_remove_crossover, twoPls)
+        if not sets_overlap(involved1, involved2):
+            return True
+    
+    return False # from remove_crossover_ok
 
 # ==
 
@@ -228,7 +275,14 @@ class Base_recognizer(StaticRecognizer):
 
 def bases_are_stacked(bases):
     """Say whether two Base_recognizers' bases are in helices, and stacked (one to the other).
-    For now, this means they have Ax (axis) pseudoatoms which are directly bonded.
+    For now, this means they have Ax (axis) pseudoatoms which are directly bonded (but not the same atom).
+       WARNING: This is not a sufficient condition, since it doesn't say whether they're on the same "side" of the helix!
+    Unfortunately that is not easy to tell (or even define, in the present model)
+    since it does not necessarily mean the same strand (in the case of a crossover at that point).
+    I [bruce 070604] think there is no local definition of this property which handles that case.
+    I'm not sure whether this leads to any problems with when to offer Make or Remove Crossover --
+    maybe the overall conditions end up being sufficient; this needs review.
+    Also, I'm not yet sure how big a deficiency it is in our model. 
     """
     try:
         len(bases)
@@ -238,10 +292,10 @@ def bases_are_stacked(bases):
     for b in bases:
         assert isinstance(b, Base_recognizer)
     for b in bases:
-        if not b.in_helix:
+        if not b.in_helix: # i.e. b.axis_atom is not None
             return False
     b1, b2 = bases
-    return atoms_are_bonded(b1.axis_atom, b2.axis_atom)
+    return b1.axis_atom is not b2.axis_atom and atoms_are_bonded(b1.axis_atom, b2.axis_atom)
 
 
 class Pl_recognizer(StaticRecognizer):
@@ -309,10 +363,15 @@ class Pl_recognizer(StaticRecognizer):
                 raise RecognizerError("backbone bond direction is locally undefined")
                     ###REVIEW: this should not prevent offering "Make Crossover", only doing it successfully.
         return bases
-    def _C_in_crossover(self):
-        "Say whether we bridge bases in different double helices"
-        # hmm, that's not enough to "be in a crossover"! but it's necessary. rename? just let caller use not thing.in_only_one_helix?
-        nim
+    def _C_strand_direction_well_defined(self):
+        """[compute method for self.strand_direction_well_defined]
+        xxx
+        """
+        return self.ordered_bases is not None
+##    def _C_in_crossover(self):
+##        "Say whether we bridge bases in different double helices"
+##        # hmm, that's not enough to "be in a crossover"! but it's necessary. rename? just let caller use not thing.in_only_one_helix?
+##        nim
     def _C_in_only_one_helix(self):
         """[compute method for self.in_only_one_helix]
         Say whether we're in one helix.
@@ -331,28 +390,41 @@ class Pl_recognizer(StaticRecognizer):
         """
         if not self.in_only_one_helix:
             raise RecognizerError("Pl atom must be in_only_one_helix")
+        res = self._involved_atoms_for_make_or_remove_crossover
+        if not len(res) == 5: # can this ever fail do to a structural error?? actually it can -- Ax atoms can be the same
+            raise RecognizerError("structural error (two bases on one Pl and one Ax??)")
+        return res
+    def _C_involved_atoms_for_remove_crossover(self): #bruce 070604
+        "#doc"
+        # seems like we need to check some of what the other method checks, like len 5 -- not sure -- guess yes for now
+        res = self._involved_atoms_for_make_or_remove_crossover
+        if not len(res) == 5:
+            raise RecognizerError("structural error (two bases on one Pl and one Ax? missing Ax?)")
+        return res
+    def _C__involved_atoms_for_make_or_remove_crossover(self):
+        "[private: compute method for private attr, self._involved_atoms_for_make_or_remove_crossover]"
+        # KLUGE: the answer happens to be the same for both ops. This might change in the future if they check more
+        # of the nearby bases (not sure).
         res = {}
         def include(atom):
             res[atom] = atom
         include(self.atom)
         for b in self.unordered_bases:
             include(b.atom)
-            assert b.axis_atom is not None # otherwise not self.in_only_one_helix
-            include(b.axis_atom)
-        if not len(res) == 5: # can this ever fail do to a structural error?? actually it can -- Ax atoms can be the same
-            raise RecognizerError("structural error (two bases on one Pl and one Ax??)")
+            if b.axis_atom is not None: # otherwise not self.in_only_one_helix, but for _remove_ case we don't know that
+                include(b.axis_atom)
         return res
     pass # Pl_recognizer
 
 # ==
 
-def unmake_crossover(twoPls):
+def remove_crossover(twoPls):
     assert len(twoPls) == 2
     for pl in twoPls:
         assert isinstance(pl, Pl_recognizer)
-    assert unmake_crossover_ok(twoPls)
+    assert remove_crossover_ok(twoPls)
     
-    make_or_unmake_crossover(twoPls, make = False, cmdname = "Unmake Crossover")
+    make_or_remove_crossover(twoPls, make = False, cmdname = "Remove Crossover")
     return
 
 def make_crossover(twoPls):
@@ -361,11 +433,11 @@ def make_crossover(twoPls):
         assert isinstance(pl, Pl_recognizer)
     assert make_crossover_ok(twoPls)
     
-    make_or_unmake_crossover(twoPls, make = True, cmdname = "Make Crossover")
+    make_or_remove_crossover(twoPls, make = True, cmdname = "Make Crossover")
     return
 
-def make_or_unmake_crossover(twoPls, make = True, cmdname = None):
-    "Make or Unmake (according to make option) a crossover, given Pl_recognizers for its two Pl atoms."
+def make_or_remove_crossover(twoPls, make = True, cmdname = None):
+    "Make or Remove (according to make option) a crossover, given Pl_recognizers for its two Pl atoms."
 
     # What we are doing is recognizing one local structure and replacing it with another
     # made from the same atoms. It'd sure be easier if I could do the manipulation in an mmp file,
@@ -384,13 +456,14 @@ def make_or_unmake_crossover(twoPls, make = True, cmdname = None):
     assert cmdname
     
     for pl in twoPls:
-        if pl.ordered_bases is None:
+        if pl.ordered_bases is None: # should no longer be possible -- now checked before menu commands are offered [bruce 070604]
             ###BUG: this could have various causes, not only the one reported below! Somehow we need access to the
             # message supplied to the RecognizerError, for use here.
             ###REVIEW: Does that mean it should pass through compute methods (probably in a controlled way)
             # rather than making computed values None?
             # Or, should the value not be None, but a "frozen" examinable and reraisable version of the error exception??
             msg = "%s: Error: bond direction is locally undefined or inconsistent around %s" % (cmdname, pl.atom) ###UNTESTED
+            print "should no longer be possible:", msg #bruce 070604
             env.history.message( redmsg( quote_html( msg)))
             return
     
@@ -398,7 +471,7 @@ def make_or_unmake_crossover(twoPls, make = True, cmdname = None):
     a,b = Pl1.ordered_bases
     d,c = Pl2.ordered_bases # note: we use d,c rather than c,d so that the atom arrangement is as shown in the diagram below.
     
-    # Note: the geometric arrangement is initially:
+    # Note: for either the Make or Remove operation, the geometric arrangement is initially:
     #
     # c <-- Pl2 <-- d
     #
@@ -415,7 +488,7 @@ def make_or_unmake_crossover(twoPls, make = True, cmdname = None):
     # a        b
     #
     # Note: Pl1 stays attached to a, and Pl2 to d. Which two opposite bonds to preserve like that
-    # is an arbitrary choice -- as long as Make and Unmake make the same choice about that,
+    # is an arbitrary choice -- as long as Make and Remove make the same choice about that,
     # they'll reverse each other's effects precisely (assuming the sugars were initially correct as Ss or Sj).
 
     # break the bonds we no longer want
@@ -456,7 +529,7 @@ def make_or_unmake_crossover(twoPls, make = True, cmdname = None):
 
     #e need assy.changed()? evidently not.
     
-    return # from make_or_unmake_crossover
+    return # from make_or_remove_crossover
 
 # ==
 
