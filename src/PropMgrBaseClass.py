@@ -980,17 +980,22 @@ class PropMgrMessageGroupBox(PropMgrGroupBox):
         # Hide until insertHtmlMessage() loads a message.
         self.hide()
         
-    def insertHtmlMessage(self, text, setAsDefault=False, minLines=0, maxLines=10, replace=True):
+    def insertHtmlMessage(self, text, setAsDefault=False, 
+                          minLines=4, maxLines=10, 
+                          replace=True):
         """Insert <text> (HTML) into the Prop Mgr's message groupbox.
         <minLines> - The minimum number of lines (of text) to display in the TextEdit.
-        if 0 (default) the TextEdit will fit to <text>. 
+        if <minLines>=0 the TextEdit will fit its own height to fit <text>. The
+        default height is 4 (lines of text).
         <maxLines> - The maximum number of lines to display in the TextEdit widget.
         <replace> should be set to False if you do not wish
         to replace the current text. It will append <text> instead.
 
         Shows the message groupbox if it is hidden.
         """
-        self.MessageTextEdit.insertHtml(text, setAsDefault, minLines=0, maxLines=10, replace=True)
+        self.MessageTextEdit.insertHtml(text, setAsDefault, 
+                                        minLines=4, maxLines=10, 
+                                        replace=True)
         self.show()
         
 # End of PropMgrMessageGroupBox ############################
@@ -1057,7 +1062,8 @@ class PropMgrTextEdit(QTextEdit, PropMgrWidgetMixin):
                    replace=True):
         """Insert <text> (HTML) into the Prop Mgr's message groupbox.
         <minLines> is the minimum number of lines to
-        display, even if the text takes up fewer lines.
+        display, even if the text takes up fewer lines. The default
+        number of lines is 4.
         <maxLines> is the maximum number of lines to
         diplay before adding a vertical scrollbar.
         <replace> should be set to False if you do not wish
@@ -1070,9 +1076,9 @@ class PropMgrTextEdit(QTextEdit, PropMgrWidgetMixin):
         if replace:
             self.clear()
             
-        QTextEdit.insertHtml(self, text)
-        
         self._setHeight(minLines, maxLines)
+        
+        QTextEdit.insertHtml(self, text)
         
     def _setHeight(self, minLines=4, maxLines=8):
         """Set the height just high enough to display
@@ -1111,19 +1117,17 @@ class PropMgrTextEdit(QTextEdit, PropMgrWidgetMixin):
         if 0: # Debugging code for me. Mark 2007-05-24
             print "--------------------------------"
             print "Widget name =", self.objectName()
+            print "minLines =", minLines
+            print "maxLines =", maxLines
+            print "num_lines=", num_lines
+            print "New height=", new_height
             print "text =", text   
             print "Text width=", text_width
             print "current_width (of PropMgrTextEdit)=", current_width
-            print "num_lines=", num_lines
-            print "New height=", new_height
         
         # Reset height of PropMgrTextEdit.
         self.setMinimumSize(QSize(160,new_height)) 
         self.setMaximumHeight(new_height)
-        
-        # Need to call "fitContents()" here. Need <parent> to do so. 
-        # Not critical now, but will be when we have a rich message
-        # system implemented for NE1. Mark 2007-05-24.
         
     def getMessageTextEditPalette(self):
         """ Returns a (yellow) palette a message TextEdit.
