@@ -219,6 +219,8 @@ def post_main_show( win): # bruce 050902 added this
     return
 
 def _initialize_plugin_generators(): #bruce 060621
+    # The CoNTub generator isn't working - commented out until it's fixed.
+    # Brian Helfrich, 2007/06/04
     pass
     #import CoNTubGenerator
         # note: this adds the Insert -> Heterojunction menu item.
