@@ -18,7 +18,8 @@ mark 2007-05-23: New PropMgrBaseClass with support for the following PropMgr
                  - PropMgrTextEdit (subclass of Qt's QTextEdit widget)
 mark 2007-05-25: Added PropMgrPushButton
 mark 2007-05-28: Added PropMgrLineEdit, PropMgrCheckBox and PropMgrListWidget
-ninad 2007-01-03: Added PropMgrToolButton
+ninad 2007-06-03: Added PropMgrToolButton
+ninad 2007-06-05: Added PropMgrRadioButton
 
 """
 
@@ -1621,9 +1622,9 @@ class PropMgrToolButton(QToolButton, PropMgrWidgetMixin):
         <label> - label that appears at a position specified by <labelPlacement> 
         relative to the Toolbutton
         <labelPlacement> - Placement of the <label> relative to ToolButton.
-        (left, right, top, bottom)
+        (left, right, top, bottom) --- NOT IMPLEMENTED YET
         <icon> icon for the toolbutton
-        <toolButtonStyle> 
+        <toolButtonStyle> NOT IMPLEMENTED YET
         <text> - text displayed on the ToolButton.
         <setAsDefault> - if True, will restore <text> as the ToolButton's text
                          when the "Restore Defaults" button is clicked.
@@ -1652,3 +1653,53 @@ class PropMgrToolButton(QToolButton, PropMgrWidgetMixin):
         self.addWidgetAndLabelToParent(parent, label, spanWidth)
 
 # End of PropMgrToolButton ############################
+
+class PropMgrRadioButton(QRadioButton, PropMgrWidgetMixin):
+    """PropMgr RadioButton class.
+    """
+    # Set to True to always hide this widget, even when groupbox is expanded.
+    hidden = False
+    # Set setAsDefault to False if "Restore Defaults" should not 
+    # reset this widget's text.
+    setAsDefault = True
+    # <defaultText> - default text when "Restore Default" is clicked
+    defaultText = ""
+    
+    def __init__(self, parent, 
+                 text='', 
+                 setAsDefault=True,
+                 spanWidth=True):
+        """
+        Appends a QRadioButton widget to <parent>, a property manager groupbox.
+        
+        Arguments:
+        
+        <parent> - a property manager groupbox (PropMgrGroupBox).
+        <text> - text displayed on the RadioButton.
+        <setAsDefault> - if True, will restore <text> as the RadioButton's text
+                         when the "Restore Defaults" button is clicked.
+        <spanWidth> - if True, the RadioButton will span the width
+                      of its groupbox. 
+        """
+                
+        if not parent:
+            return
+        
+        QRadioButton.__init__(self)
+        
+        label = ''
+        self.setObjectName(parent.objectName()+ 
+                           "/pmRadioButton" + 
+                           str(parent.num_groupboxes) +
+                           "/'" + label + "'")
+        
+        self.setText(text)
+        # Set default text
+        self.defaultText=text
+        self.setAsDefault = setAsDefault
+        
+        self.setCheckable(True)
+        
+        self.addWidgetAndLabelToParent(parent, label, spanWidth)
+
+# End of PropMgrRadioButton ############################

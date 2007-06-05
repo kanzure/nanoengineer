@@ -34,7 +34,6 @@ __author__ = "Ninad"
 from Utility import Node
 from constants import darkgreen, orange, yellow, white
 from constants import gensym
-from Utility import imagename_to_pixmap
 import env
 import platform
 from DragHandler import DragHandler_API
@@ -51,7 +50,7 @@ class ReferenceGeometry(Jig, DragHandler_API):
     featurename = "" 
     #color = normcolor = (0.5, 0.5, 0.5)
     color = normcolor = orange
-
+    
     atoms = []
     points = None
     handles = None
@@ -99,12 +98,8 @@ class ReferenceGeometry(Jig, DragHandler_API):
     def draw_in_abs_coords(self, glpane, color):
         '''Draws the reference geometry with highlighting.'''       
         self._draw_geometry(glpane, color, highlighted = True)   
-                   
-    def node_icon(self, display_prefs):
-        '''A subclasse should override this if it needs to 
-        choose its icons differently'''
-        return imagename_to_pixmap( self.icon_names[self.hidden] )
-    
+        
+                               
     def pick(self): 
         """Select the reference geometry"""
         if not self.picked: 

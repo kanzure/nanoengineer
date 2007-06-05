@@ -14,7 +14,7 @@ __author__ = "Ninad"
 import sys
 from PyQt4.Qt import *
 from PyQt4 import QtGui
-from PyQt4.QtGui import QAction
+from PyQt4.QtGui import QAction, QButtonGroup, QRadioButton, QAbstractButton
 from Utility import geticon, getpixmap
 from PropMgrBaseClass import *
 from PropMgr_Constants import *
@@ -102,7 +102,35 @@ class PlanePropMgr(object,PropMgrBaseClass, PropertyManagerMixin):
                      self.change_plane_size)
     
     def loadGroupBox2(self, pmGroupBox):
-        """Load widgets in groubox 2.
+        '''Load widgets in groubox 2'''
+        # Default Projection Groupbox in General tab (as of 070430)
+        self.planePlacement_btngrp = QButtonGroup()
+        self.planePlacement_btngrp.setExclusive(True)
+        
+        self.parallelToScreen_btn = PropMgrRadioButton(
+            pmGroupBox, text = "Parallel to Screen" )        
+        self.throughSelectedAtoms_btn = PropMgrRadioButton(
+            pmGroupBox, text = "Through Selected Atoms" )
+        
+        objId = 0
+        for obj in [self.parallelToScreen_btn,self.throughSelectedAtoms_btn]:           
+            self.planePlacement_btngrp.addButton(obj)
+            self.planePlacement_btngrp.setId(obj, objId)
+            objId +=1 
+        
+        if self.planePlacement_btngrp.checkedId() == -1:
+            self.parallelToScreen_btn.setChecked(True)
+        
+        self.connect(self.planePlacement_btngrp,
+                     SIGNAL("buttonClicked(int)"),
+                     self.changePlanePlacement)
+    
+    def loadGroupBox2_ORIG_WITH_TOOLBUTTONS(self, pmGroupBox):
+        """
+        loadGroupBox2_ORIG_WITH_TOOLBUTTONS : This uses QActionGroup and
+        QToolbuttons to define the varios Plane placement options. We may want 
+        to implement this in future instead of radio buttons so keeping this code
+        This function is not called. -- ninad 20070604
         """ 
         self.planePlacementActionGrp = QtGui.QActionGroup(self.win)         
         self.parallelToScreenAction = QtGui.QAction(pmGroupBox)

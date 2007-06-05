@@ -21,20 +21,21 @@ Many other improvements planned- Ninad 070603
 
 """
 
-
-from shape import fill
-from drawer import drawLineLoop, drawPlane
-from constants import black, gray, orange, yellow, darkgreen
-from VQT import V,Q, cross, dot, A, planeXline, vlen
 from OpenGL.GL import *
-from math import pi, atan, cos, sin
-from debug import print_compact_traceback
-import env
 from OpenGL.GLU import gluProject, gluUnProject
-from HistoryWidget import greenmsg, redmsg
+from math import pi, atan, cos, sin
 from Numeric import add
 
 from PyQt4.QtGui import QDialog
+
+from VQT import V,Q, cross, dot, A, planeXline, vlen
+from debug import print_compact_traceback
+import env
+from shape import fill
+from drawer import drawLineLoop, drawPlane
+from constants import black, gray, orange, yellow, darkgreen
+from HistoryWidget import greenmsg, redmsg
+
 from PlanePropertyManager import PlanePropMgr
 from ReferenceGeometry import ReferenceGeometry 
 
@@ -42,7 +43,7 @@ from ReferenceGeometry import ReferenceGeometry
 #Required for class Handle --
 from DragHandler import DragHandler_API
 
-class Plane(QDialog, PlanePropMgr, ReferenceGeometry):
+class Plane(QDialog, PlanePropMgr,ReferenceGeometry):
     cmd = greenmsg("Plane: ")
     sym = "Plane"    
     is_movable = True 
@@ -59,9 +60,10 @@ class Plane(QDialog, PlanePropMgr, ReferenceGeometry):
         @param: lst: List of atoms or points'''
         
         self.w = self.win = win
+                
         QDialog.__init__(self, win)
         PlanePropMgr.__init__(self)        
-        ReferenceGeometry.__init__(self, win) 
+        ReferenceGeometry.__init__(self, win)         
         
         if self.win.assy.o.mode.modename in \
            ['DEPOSIT', 'MODIFY', 'FUSE', 'MOVIE']:
@@ -95,7 +97,8 @@ class Plane(QDialog, PlanePropMgr, ReferenceGeometry):
             return self.quat.rot(V(0.0, 0.0, 1.0))
         else:
             raise AttributeError, 'Plane has no "%s"' % name 
-            
+    
+                
     def setProps(self,props):
         ''' Set the Plane properties. It is Called while reading a MMP 
         file record.'''
@@ -137,9 +140,6 @@ class Plane(QDialog, PlanePropMgr, ReferenceGeometry):
         
         return "type-geometry"
     
-           
-        
-    
     
     ##=========== Structure Generator like interface TO BE REVISED======##
     def gather_parameters(self):
@@ -148,7 +148,7 @@ class Plane(QDialog, PlanePropMgr, ReferenceGeometry):
         height = self.heightDblSpinBox.value()
         width = self.widthDblSpinBox.value()
         atmList = self.win.assy.selatoms_list()
-        self.changePlanePlacement(self.planePlacementActionGrp.checkedAction())
+        self.changePlanePlacement(self.planePlacement_btngrp.checkedId())
         ctr = self.center        
         return (width, height, ctr, atmList)
     
@@ -384,7 +384,7 @@ class Plane(QDialog, PlanePropMgr, ReferenceGeometry):
         ''' Overrided node.edit and shows the property manager'''
         self.existingStructForEditing = True
         self.update_spinboxes()
-        self.old_props = self.getProps()
+        self.old_props = self.getProps()        
         self.show_propMgr()
         #@@@@ kludge! This is needed to avoid  'hidden' attribute conflict. 
         #Plane class inherits PropMgrWidgetMixin.hidden instead of
@@ -392,35 +392,33 @@ class Plane(QDialog, PlanePropMgr, ReferenceGeometry):
         #where the plane was shown hidden after hitting done or cancel. 
         # may be PropMgrWidgetMixin.hidden  be renamed to
         #PropMgrWidgetMixin.widgethidden -- ninad 20070604
-        self.hidden = ReferenceGeometry.hidden
-       
+        self.hidden = ReferenceGeometry.hidden        
                 
-    def changePlanePlacement(self, action):
+    def changePlanePlacement(self, btn_id ):
         ''' Slot to Change the placement of the plane depending upon the 
         action checked in the Placement Groupbox of Plane PM'''
-        cmd = self.cmd
-        if action:
-            if action == self.parallelToScreenAction:
-                msg = "Plane will be created parellel to the screen. \
-                Hit Preview button to see the new Plane placement"
-                self.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=False)
-                self._setup_quat_center()
-            elif action == self.throughSelectedAtomsAction:
-                msg = "Plane will pass through 3 or more selected atoms.\
-                Select atoms and hit 'Preview' to see new Plane placement"
-                self.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=False)
-                atmList = self.win.assy.selatoms_list()         
-                if not atmList:
-                    msg = redmsg("Select 3 or more atoms to create a Plane.")
-                    env.history.message(cmd + msg)
-                    return
-                
-                # Make sure more than three atoms are selected.
-                if len(atmList) < 3: 
-                    msg = redmsg("Select 3 or more atoms to create a Plane.")
-                    env.history.message(cmd + msg)
-                    return
-                self._setup_quat_center(lst = atmList)
+        cmd = self.cmd        
+        if btn_id == 0:
+            msg = "Plane will be created parellel to the screen. \
+            Hit Preview button to see the new Plane placement"
+            self.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=False)
+            self._setup_quat_center()
+        elif btn_id == 1:
+            msg = "Plane will pass through 3 or more selected atoms.\
+            Select atoms and hit 'Preview' to see new Plane placement"
+            self.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=False)
+            atmList = self.win.assy.selatoms_list()         
+            if not atmList:
+                msg = redmsg("Select 3 or more atoms to create a Plane.")
+                env.history.message(cmd + msg)
+                return
+            
+            # Make sure more than three atoms are selected.
+            if len(atmList) < 3: 
+                msg = redmsg("Select 3 or more atoms to create a Plane.")
+                env.history.message(cmd + msg)
+                return
+            self._setup_quat_center(lst = atmList)
             
     def _setup_quat_center(self, lst = None):
         if lst:    
