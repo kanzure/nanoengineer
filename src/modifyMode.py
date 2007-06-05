@@ -371,6 +371,9 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
                 elif self.moveOption == 'TRANSZ': 
                     ma = V(0,0,1) # Z Axis
                     self.axis = 'Z'
+                elif self.moveOption == 'ROT_TRANS_ALONG_AXIS':
+                    self.leftADown(event)
+                    return
                 else: print "modifyMode: Error - unknown moveOption value =", self.moveOption
                 
                 ma = norm(V(dot(ma,self.o.right),dot(ma,self.o.up)))
@@ -394,6 +397,10 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
                 elif self.rotateOption == 'ROTATEZ': 
                     ma = V(0,0,1) # Z Axis
                     self.axis = 'Z'
+                elif self.rotateOption == 'ROT_TRANS_ALONG_AXIS':
+                    self.leftADown(event)
+                    return
+                    
                 else: print "modifyMode: Error - unknown rotateOption value =", self.rotateOption
 
                 ma = norm(V(dot(ma,self.o.right),dot(ma,self.o.up)))
@@ -447,6 +454,12 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
         # obvious reason is leftDown() is not called before the leftDrag()
         #& Not sure this is true anymore with the new cursor/modkey API.  mark 060301.
         
+        #@@@TODO: leftDrag and leftDown methods need code cleanup. 
+        #perhaps a new class for 'rotate components' ? that will help reduce
+        #lots of if-else checks below. Also, hopefully, the new 
+        #DrahHandler_API will be applied to to atoms, jigs, bonds someday. 
+        #that will help to get rid of the 'psudoMoveMode conditions. 
+        #[--Ninad 20070605 commented]
         
         if not self.picking: return
         
@@ -459,6 +472,21 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
                     # this might be obsolete, since leftADrag now tries to handle this (untested) [bruce 070605 comment]
                     print "Key A pressed after Left Down. controlled translation will not be performed"
                     pass
+            if self.w.rotateComponentsAction.isChecked():
+                if self.rotateOption == 'ROT_TRANS_ALONG_AXIS':
+                    try:
+                        self.leftADrag(event)
+                        return
+                    except:
+                        print " error doing leftADrag"
+            elif self.w.toolsMoveMoleculeAction.isChecked():
+                if self.moveOption == 'ROT_TRANS_ALONG_AXIS':
+                    try:
+                        self.leftADrag(event)
+                        return
+                    except:
+                        print " error doing leftADrag"
+                    
         
         #Ninad 070314: Following ensures that you are in Move mode 
         #(and not pseudo move mode) and returns from left drag if 
@@ -761,13 +789,12 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
         """ Set up for sliding and/or rotating the selected chunk(s) 
         along/around its own axis when left mouse and key 'A' is pressed.
         """
+
         self._leftADown = True
         self._leftADown_rotateAsUnit = self.rotateAsUnitCB.isChecked()
         movables = self.o.assy.getSelectedMovables()
         self._leftADown_movables = movables
-        if not movables:
-            self.leftAError("(nothing movable is selected)")
-            return
+        
         
         self.o.SaveMouse(event)
 
@@ -793,7 +820,7 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
             # The pathological case of zero ma is probably possible, but should be rare;
             # consequences not reviewed; so statusbar message and refusal seems safest:
             self.leftAError("(axes can't be averaged, doing nothing)")
-            return
+            ##return
             
         ma = norm(V(dot(ma,self.o.right),dot(ma,self.o.up)))
         self.Zmat = A([ma,[-ma[1],ma[0]]])
@@ -807,6 +834,32 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
             print self._leftADown_indiv_axes
             print movables
             print self.Zmat
+        
+        obj = self.get_obj_under_cursor(event)
+        
+        if obj is None: # Cursor over empty space.
+            self.emptySpaceLeftDown(event)
+            return
+            
+        if isinstance(obj, Atom) and obj.is_singlet(): # Cursor over a singlet
+            self.singletLeftDown(obj, event)
+                # no win_update() needed. It's the responsibility of singletLeftDown to do it if needed.
+            return                
+        elif isinstance(obj, Atom) and not obj.is_singlet(): # Cursor over a real atom
+            self.atomLeftDown(obj, event)
+        elif isinstance(obj, Bond) and not obj.is_open_bond(): # Cursor over a bond.
+            self.bondLeftDown(obj, event)
+        elif isinstance(obj, Jig): # Cursor over a jig.
+            self.jigLeftDown(obj, event)
+        else: # Cursor is over something else other than an atom, singlet or bond. 
+            # The program never executes lines in this else statement since
+            # get_obj_under_cursor() only returns atoms, singlets or bonds.
+            # [perhaps no longer true, if it ever was -- bruce 060725]
+            pass
+        
+        if not movables:
+            self.leftAError("(nothing movable is selected)")
+            return
 
         return # from leftADown
     
@@ -1030,8 +1083,11 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
             self.moveOption = 'TRANSY'
         elif action == self.w.transZAction:
             self.moveOption = 'TRANSZ'
+        elif action == self.w.rotTransAlongAxisAction_1:
+            self.moveOption = 'ROT_TRANS_ALONG_AXIS' 
         else:
             self.moveOption = 'MOVEDEFAULT'
+            
             
     def changeRotateOption(self, action):
         '''Change the rotate action
@@ -1048,6 +1104,13 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
             self.rotateOption = 'ROTATEZ'
             self.rotateAsUnitCB.hide()
             self.toggleRotationDeltaLabels(show = True)
+        elif action == self.w.rotTransAlongAxisAction_2:
+            #do not use the isConstrainedDrag.. flag. Causing bugs and 
+            #am in a rush (need this new option for today's release) 
+            #-- ninad20070605
+            ##self.isConstrainedDragAlongAxis = True
+            self.rotateOption = 'ROT_TRANS_ALONG_AXIS' 
+            pass
         else:
             self.rotateOption = 'ROTATEDEFAULT'        
             #Hides all the rotation delta labels when  

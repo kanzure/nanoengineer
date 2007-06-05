@@ -335,6 +335,11 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.transZAction.setObjectName("transZAction")
         self.transZAction.setCheckable(True)
         self.transZAction.setIcon(geticon("ui/actions/Properties Manager/TranslateZ"))
+	#@@@ kludge for A9 I am in a rush. needs cleanup. -- ninad20070605 
+	self.rotTransAlongAxisAction_1 = QAction(self.MoveOptionsGroup)
+	self.rotTransAlongAxisAction_1.setCheckable(True)
+	self.rotTransAlongAxisAction_1.setIcon(geticon(
+	    "ui/actions/Properties Manager/translate+rotate-A"))
 	
 	#Free Drag rotate action group (rotate components groupbox)
 	self.rotateOptionsGroup = QActionGroup(self)
@@ -359,6 +364,12 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.rotZAction.setObjectName("rotZAction")
         self.rotZAction.setCheckable(True)
         self.rotZAction.setIcon(geticon("ui/actions/Properties Manager/RotateZ"))
+	
+	#@@@ kludge for A9 I am in a rush. needs cleanup. -- ninad20070605 
+	self.rotTransAlongAxisAction_2 = QAction(self.rotateOptionsGroup)
+	self.rotTransAlongAxisAction_2.setCheckable(True)
+	self.rotTransAlongAxisAction_2.setIcon(geticon(
+	    "ui/actions/Properties Manager/translate+rotate-A"))
 	        
         	
         self.moveDeltaPlusAction = QAction(self)

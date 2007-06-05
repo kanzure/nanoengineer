@@ -292,8 +292,13 @@ class Ui_MovePropertyManager(object):
         self.transZButton = QtGui.QToolButton(self.freeDragWidget)
         self.transZButton.setDefaultAction(self.w.transZAction)
         self.transZButton.setIcon(geticon("ui/actions/Properties Manager/TranslateZ"))
+	
+	self.rotTransAlongAxisButton_1 = QtGui.QToolButton(self.freeDragWidget)
+        self.rotTransAlongAxisButton_1.setDefaultAction(self.w.rotTransAlongAxisAction_1)
+        self.rotTransAlongAxisButton_1.setIcon(geticon("ui/actions/Properties Manager/translate+rotate-A"))
 
-        for btn in self.moveFreeButton, self.transXButton, self.transYButton, self.transZButton:
+        for btn in self.moveFreeButton, self.transXButton, self.transYButton, self.transZButton,\
+	    self.rotTransAlongAxisButton_1:
             btn.setMinimumSize(QtCore.QSize(24,24))        
             btn.setMinimumSize(QtCore.QSize(24,24))        
             btn.setIconSize(QtCore.QSize(24,24))  
@@ -476,8 +481,12 @@ class Ui_MovePropertyManager(object):
         self.rotateZButton = QtGui.QToolButton(self.freeDragRotateWidget)
         self.rotateZButton.setDefaultAction(self.w.rotZAction)
         self.rotateZButton.setIcon(geticon("ui/actions/Properties Manager/RotateZ"))
-
-        for btn in self.rotateFreeButton, self.rotateXButton, self.rotateYButton, self.rotateZButton:
+	
+	self.rotTransAlongAxisButton_2 = QtGui.QToolButton(self.freeDragRotateWidget)
+        self.rotTransAlongAxisButton_2.setDefaultAction(self.w.rotTransAlongAxisAction_2)
+        self.rotTransAlongAxisButton_2.setIcon(geticon("ui/actions/Properties Manager/translate+rotate-A"))
+	
+        for btn in self.rotateFreeButton, self.rotateXButton,self.rotateYButton,self.rotateZButton,self.rotTransAlongAxisButton_2:
             btn.setMinimumSize(QtCore.QSize(24,24))            
             btn.setIconSize(QtCore.QSize(24,24))  
             btn.setAutoRaise(True)
