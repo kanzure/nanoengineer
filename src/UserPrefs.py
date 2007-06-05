@@ -1808,10 +1808,10 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         '''Slot for QuteMol path "Choose" button.
         '''
 
-        qp = get_filename_and_save_in_prefs(self, nanohive_path_prefs_key, 'Choose QuteMol Executable')
+        qp = get_filename_and_save_in_prefs(self, qutemol_path_prefs_key, 'Choose QuteMol Executable')
         
-        if nh:
-            self.quotemol_path_linedit.setText(qp)
+        if qp:
+            self.qutemol_path_linedit.setText(qp)
 	    
     def set_nanohive_path(self):
         '''Slot for Nano-Hive path "Choose" button.
