@@ -293,14 +293,21 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.CircleSelAction = QAction(self)
         self.HexagonSelAction = QAction(self)
 
-                	
+        self.orthoPerpActionGroup = QtGui.QActionGroup(self)  
+	self.orthoPerpActionGroup.setExclusive(True)
+	
         self.setViewPerspecAction = QAction(self)
 	self.setViewPerspecAction.setText(QtGui.QApplication.translate("MainWindow", "Perspective",
                                                   None, QtGui.QApplication.UnicodeUTF8))
+	self.setViewPerspecAction.setCheckable(True)
 	
         self.setViewOrthoAction = QAction(self)
 	self.setViewOrthoAction.setText(QtGui.QApplication.translate("MainWindow", "Orthographic",
                                                   None, QtGui.QApplication.UnicodeUTF8))
+	self.setViewOrthoAction.setCheckable(True)
+		
+	self.orthoPerpActionGroup.addAction(self.setViewPerspecAction)
+	self.orthoPerpActionGroup.addAction(self.setViewOrthoAction)
 	
 
         self.toolsSelectAtomsAction = QAction(self)

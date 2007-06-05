@@ -733,11 +733,11 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         # because self.ortho and the toggle state of the corresponding action may 
         # not be in sync at startup time. This fixes bug #996.
         # Mark 050924.
-	qt4todo('setViewOrthoAction, setViewPerspecAction??')
-        #if projection:
-        #    self.win.setViewOrthoAction.setChecked(1)
-        #else:
-        #    self.win.setViewPerspecAction.setChecked(1)
+	
+        if projection:
+            self.win.setViewOrthoAction.setChecked(1)
+        else:
+            self.win.setViewPerspecAction.setChecked(1)
         
         if self.ortho == projection:
             return
