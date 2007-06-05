@@ -47,11 +47,10 @@ def setupUi(win):
     win.referenceGeometryMenu = win.Insert.addMenu("Reference Geometry")
     
     #Add Actions
-    if debug_pref("Show new Insert > Reference Plane option", 
-                      Choice_boolean_False,
-                      prefs_key=True):
-        win.referenceGeometryMenu.addAction(win.referencePlaneAction)
-        
+    ##if debug_pref("Show new Insert > Reference Plane option", 
+                      ##Choice_boolean_False,
+                      ##prefs_key=True):
+    win.referenceGeometryMenu.addAction(win.referencePlaneAction)        
     win.referenceGeometryMenu.addAction(win.jigsGridPlaneAction)
     win.Insert.addAction(win.jigsAtomSetAction)
     win.Insert.addSeparator()
