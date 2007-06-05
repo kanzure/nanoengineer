@@ -488,7 +488,9 @@ class fusechunksMode(modifyMode, fusechunksBase, FusePropertyManager):
         """Move the selected object(s).
         Overrides modifymode.LeftDown
         """
-        
+        self.clear_leftA_variables() #bruce 070605 added this (guess at what's needed)
+        env.history.statusbar_msg("") #bruce 070605
+
         if self.isConstrainedDragAlongAxis:
             self.leftADown(event)
             return
@@ -606,7 +608,6 @@ class fusechunksMode(modifyMode, fusechunksBase, FusePropertyManager):
         - or slide and rotate along the an axis
         Overrides modifyMode.leftDrag
         """
-
         
         if not self.picking: return
         
@@ -615,9 +616,12 @@ class fusechunksMode(modifyMode, fusechunksBase, FusePropertyManager):
         if self.isConstrainedDragAlongAxis:
             try:
                 self.leftADrag(event)
+                    ### WARNING: this call has not been reviewed in detail since I rewrote that method
+                    # and leftADown in modifyMode thismorning. I did try to adapt self.leftDown to this
+                    # but it's untested. [bruce 070605]
                 return
             except:
-                print "Key A presssed after Left Down. controlled translation will not be performed"
+                print "Key A pressed after Left Down. controlled translation will not be performed"
                 pass
         
         if self.w.rotateFreeAction.isChecked():

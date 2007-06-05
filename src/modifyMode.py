@@ -163,7 +163,9 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
         self.o.assy.selectChunksWithSelAtoms()
         self.dragdist = 0.0
         self.setGoBackToMode(False, 'MODIFY')
-        
+        self.clear_leftA_variables() #bruce 070605 precaution
+        return
+    
     # (see basicMode.Done.__doc__ for the ones we don't override here [bruce 040923])
 
     def init_gui(self):
@@ -304,7 +306,9 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
     def leftDown(self, event):
         """Move the selected object(s).
         """
-        
+        self.clear_leftA_variables() #bruce 070605 added this (guess at what's needed)
+        env.history.statusbar_msg("")
+
         # If keyboard key 'A' is pressed, set it up for constrained translation
         #and rotation along the axis and return. 
         if not self.isGoBackToMode():  
@@ -452,7 +456,8 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
                     self.leftADrag(event)
                     return
                 except:
-                    print "Key A presssed after Left Down. controlled translation will not be performed"
+                    # this might be obsolete, since leftADrag now tries to handle this (untested) [bruce 070605 comment]
+                    print "Key A pressed after Left Down. controlled translation will not be performed"
                     pass
         
         #Ninad 070314: Following ensures that you are in Move mode 
@@ -729,23 +734,82 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
         else:
             self.EndPick(event, SUBTRACT_FROM_SELECTION)
     
-        
+
+    def clear_leftA_variables(self): # bruce 070605 #####@@@@CALL ME  #k should it clear sbar too?
+        # Clear variables that only leftADown can set. This needs to be done for every mousedown and mouseup ###DOIT.
+        # (more precisely for any call of Down that if A is then pressed might start calling leftADrag ####)
+        # Then, if they're not properly set during leftADrag, it will show a statusbar error and do nothing.
+        # This should fix bugs caused by 'A' keypress during drag or 'A' keypress not noticed by NE1 (in wrong widget or app).
+        # [bruce 070605 bugfix; also added all these variables]
+        self._leftADown = False # whether we're doing a leftA-style drag at all
+        self._leftADown_rotateAsUnit = None
+        self._leftADown_movables = None # list of movables for leftADrag
+            # WARNING: some code (rotsel calls) assumes this is also the movable selected objects
+        self._leftADown_indiv_axes = None
+        self._leftADown_averaged_axis = None
+        self._leftADown_error = False # whether an error should cause subsequent leftADrags to be noops
+        self._leftADown_dragcounter = 0
+        self._leftADown_total_dx_dy = V(0.0, 0.0)
+        return
+
+    def leftAError(self, msg):
+        env.history.statusbar_msg( msg) #bruce 070605
+        self._leftADown_error = True # prevent more from happening in leftADrag
+        return
+
     def leftADown(self, event):
         """ Set up for sliding and/or rotating the selected chunk(s) 
         along/around its own axis when left mouse and key 'A' is pressed.
-        """            
+        """
+        self._leftADown = True
+        self._leftADown_rotateAsUnit = self.rotateAsUnitCB.isChecked()
         movables = self.o.assy.getSelectedMovables()
-        if not movables: return
+        self._leftADown_movables = movables
+        if not movables:
+            self.leftAError("(nothing movable is selected)")
+            return
         
         self.o.SaveMouse(event)
-        ma = V(0,0,0)
+
+        #bruce 070605 questions (about code that was here before I did anything to it today):
+        # - how are self.Zmat, self.picking, self.dragdist used during leftADrag?
+        # - Why is the axis recomputed in each leftADrag? I think that's a bug, for "rotate as a unit", since it varies!
+        #   And it's slow, either way, since it should not vary (once bugs are fixed) but .getaxis will always have to recompute it.
+        #   So I'll change this to compute the axes or axis only once, here in leftADown, and use it in each leftADrag.
+        # - Why is the "averaged axis" computed here at all, when not "rotate as a unit"?
+        
+        ma = V(0,0,0) # accumulate "average axis" (only works well if all axes similar in direction, except perhaps for sign)
+        self._leftADown_indiv_axes = [] #bruce 070605 optim
         for mol in movables:
-            ma += mol.getaxis()
+            axis = mol.getaxis()
+            if dot(ma, axis) < 0.0: #bruce 070605 bugfix, in case axis happens to point the opposite way as ma
+                axis = - axis
+            self._leftADown_indiv_axes.append(axis) # not sure it's best to put sign-corrected axes here, but I'm guessing it is
+            ma += axis
+
+        self._leftADown_averaged_axis = norm(ma) #bruce 070605 optim/bugfix
+        
+        if vlen(self._leftADown_averaged_axis) < 0.5: # ma was too small
+            # The pathological case of zero ma is probably possible, but should be rare;
+            # consequences not reviewed; so statusbar message and refusal seems safest:
+            self.leftAError("(axes can't be averaged, doing nothing)")
+            return
+            
         ma = norm(V(dot(ma,self.o.right),dot(ma,self.o.up)))
         self.Zmat = A([ma,[-ma[1],ma[0]]])
         self.picking = True
         self.dragdist = 0.0
-       
+
+        self._leftADown_total_dx_dy = V(0.0, 0.0)
+
+        if 0: # looks ok; axis for 3-strand n=10 DNA is reasonably close to axis of Axis strand [bruce 070605]
+            print "\nleftADown gets",self._leftADown_averaged_axis
+            print self._leftADown_indiv_axes
+            print movables
+            print self.Zmat
+
+        return # from leftADown
+    
     def leftADrag(self, event):
         """Move selected chunk(s) along its axis (mouse goes up or down)
            and rotate around its axis (left-right) while left dragging
@@ -754,39 +818,61 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
             
         ##See comments of leftDrag()--Huaicai 3/23/05
         if not self.picking: return
+
+        if self._leftADown_error:
+            return
+
+        if not self._leftADown:
+            self.leftAError("(doing nothing -- 'A' pressed after drag already started)")
+            return
         
-        movables = self.o.assy.getSelectedMovables()
-        if not movables: return
+        movables = self._leftADown_movables
+        assert movables # otherwise error flag was set during leftADown [bruce 070605]
+
+        self._leftADown_dragcounter += 1
+        counter = self._leftADown_dragcounter # mainly useful for debugging
         
-        w=self.o.width+0.0
-        h=self.o.height+0.0
+        w = self.o.width + 0.0
+        h = self.o.height + 0.0
         deltaMouse = V(event.pos().x() - self.o.MousePos[0],
                        self.o.MousePos[1] - event.pos().y())
         a =  dot(self.Zmat, deltaMouse)
         dx,dy =  a * V(self.o.scale/(h*0.5), 2*pi/w)
         
-        if not self.rotateAsUnitCB.isChecked():
-            for mol in movables:
-                ma = mol.getaxis()
+        self._leftADown_total_dx_dy += V(dx,dy)
+        tot_dx, tot_dy = self._leftADown_total_dx_dy
+
+        ## env.history.statusbar_msg("(%d) incremental motion: %f; rotation: %f" % (counter, dx, dy)) # counter useful for debug
+        
+        env.history.statusbar_msg("this 'A'-drag: translation: %f; rotation: %f" % (tot_dx, tot_dy))
+            #bruce 070605; format might need cleanup
+        
+        if not self._leftADown_rotateAsUnit:
+            # move/rotate individually ###UNTESTED since rewrite [bruce 070605]
+            for mol, ma in zip(movables, self._leftADown_indiv_axes):
                 mol.move(dx*ma)
                 mol.rot(Q(ma,-dy))            
-        else: 
+        else:
+            # move/rotate selection as a unit
+            
             #find out resultant axis, translate and rotate the selected
             #movables along this axis (for rotate use rotsel)-- ninad 20070605
-            resAxis = movables[0].getaxis()
-            for mol in movables[1:]:
-                ma = mol.getaxis()
-                resAxis += ma  
-            for mol in movables:                                
-                mol.move(dx*norm(resAxis))
+            # (modified/optimized by bruce 070605)
+            resAxis = self._leftADown_averaged_axis
+            for mol in movables:
+                mol.move(dx*resAxis)
                 
-            self.o.assy.rotsel(Q(norm(resAxis),-dy))
+            self.o.assy.rotsel(Q(resAxis,-dy)) # this assumes movables are exactly the selected movable objects (as they are)
+                # [could this be slow, or could something in here have a memory leak?? (maybe redrawing selected chunks?)
+                #  interaction is way too slow, and uneven, and I hear swapping in the bg.
+                #  Aha, I bet it's all those Undo checkpoints, which we should not be collecting during drags at all!!
+                #  --bruce 070605 Q]
         
-        self.dragdist += vlen(deltaMouse)
+        self.dragdist += vlen(deltaMouse) #k needed?? [bruce 070605 comment]
         self.o.SaveMouse(event)
         self.o.assy.changed() #ninad060924 fixed bug 2278
         self.o.gl_update()
-        
+        return
     
     def leftShiftUp(self, event):
         if self.o.modkeys == 'Shift+Control':
