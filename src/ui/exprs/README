@@ -1,23 +1,17 @@
 $Id$
 
  Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
-
-* * * * 
-* WARNING: this directory is no longer used automatically by the exprs package.
-* It's superceded by cad/src/ui/exprs.
-* * * * 
-
 NOTE: image files (like the ones in this directory)
 need to be committed as binary files, like this:
 
   % cvs add -kb binary.png
   % cvs commit -m "new image of an elephant" binary.png
 
-Sources of these images (relevant for copyright, if we ever distribute them):
+Sources of these images (relevant for inferring copyright):
 
 courier-128.png - derived by bruce from screenshot of IDLE (Python IDE) on Mac,
 using courier font from Tk library on Mac (should be ok since font pixmaps
-themselves are not copyrightable); hereby placed into the public domain, 
+themselves are not copyrightable, AFAIK); hereby placed into the public domain, 
 by bruce 061125
 
 blueflake.jpg - derived by bruce [as IMG_1613-p1.jpg] from a personally taken
@@ -27,6 +21,8 @@ domain, by bruce 061125
 redblue-34x66.jpg - trivial; saved from NE1
 
 mac_checkbox_off.jpg, mac_checkbox_on.jpg -- screenshots of NE1 prefs (Qt3) on Mac OS X 10.3.9
-  [I don't know if that means any Qt or Mac copyrights apply to those]
+
+These are classified into subdirectories based on their intended use
+in the cad/src/exprs package or its client code.
 
 # end

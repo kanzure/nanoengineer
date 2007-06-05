@@ -25,8 +25,10 @@ the "annoyers" list below to leave out the toolbars you want to have remain.)
 
 WARNING: some of the code in here might not be needed;
 conversely, some of it might depend on code or data files bruce has at home.
-Much of it depends on the "cad/src/exprs" module, and some of that depends
-on the "cad/src/experimental/textures" directory.
+Much of it depends on the "cad/src/exprs" module, and some of that used to depend
+on the "cad/src/experimental/textures" directory. As of 070604 that's being changed
+to depend on a new subdirectory of cad/src/ui named exprs (so it will be supported
+in built releases).
 """
 
 __author__ = "bruce"

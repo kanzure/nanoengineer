@@ -180,6 +180,8 @@ texture_holder_for_filename = MemoDict(_texture_holder)
 
 # ==
 
+DEBUG_IMAGE_SEARCH = False
+
 def canon_image_filename( filename):
     """Figure out (or guess) the right absolute pathname for loading the given image file into OpenGL.
     WARNING: the answer depends on what files are found on your disk, so it might differ for different users!
@@ -194,10 +196,49 @@ def canon_image_filename( filename):
         #  a different pathname with one more component; but an env var RESOURCEPATH (sp?) should also
         #  be available (only in a release and only on Mac), and might make more sense to use then. #e]
     cad = os.path.dirname( cad_src)
-    path = [ #e could precompute; doesn't matter much
-        thisdir,
-        os.path.join( cad_src, "experimental/textures"), # [not yet supported by autoBuild.py; also hardcoded in testdraw.py]
-        os.path.join( cad, "images"), #e still correct?? [not correct in Qt4]
+
+    # image file path extensively revised 070604, mainly so testmode can work in a built release package
+    from Utility import image_directory
+    from platform import path_of_Nanorex_subdir
+
+    # main exprs-package image directory
+    cad_src_ui_exprs = os.path.join( image_directory(), "ui/exprs") # not necessarily really in cad/src (in a built release)
+
+    # list of dirs in which to search for filename (#e could precompute; doesn't matter much)
+    path = [
+        # first, search in a user-controlled dir, so they can override UI image files
+        # (if those are accessed using the exprs module).
+        path_of_Nanorex_subdir("UI"),
+
+        # next, let the code specify the name exactly, relative to cad_src_ui_exprs
+        cad_src_ui_exprs,
+
+        # next, to support older code in this exprs package,
+        # let it leave out the subdir component if it's one of these:
+        os.path.join( cad_src_ui_exprs, "text" ),
+        os.path.join( cad_src_ui_exprs, "widgets" ),
+        os.path.join( cad_src_ui_exprs, "textures" ),
+        os.path.join( cad_src_ui_exprs, "test" ),
+
+        # next, permit access to anything in image_directory()
+        # using the same relative path (starting with "ui/")
+        # as typical code in cad/src does (e.g. when calling geticon)
+        # (this means we could rewrite geticon to call this routine,
+        #  if we wanted it to be user-overridable someday #e)
+        image_directory(),
+
+        # for experimental things, let developers refer to things in cad/src/experimental --
+        # I guess they can do that using the image_directory() entry (which for developers is .../cad/src)
+        # by using filenames starting with "experimental", which is not a big restriction
+        # given that we're not doing this early enough to override built-in images
+        # (so, no path entry needed for that)
+
+        # we no longer support the old experimental/textures directory
+##        os.path.join( cad_src, "experimental/textures"), # [not supported by autoBuild.py, and never will be]
+
+        # but we do still support the obsolete cad/images dir, since some test code uses it
+        # and it was still present in cvs (I think -- at least it's in my checkouts) as of 070604.
+        os.path.join( cad, "images"),
     ]
     tries = map( lambda dir: os.path.join(dir, filename), path)
     lastresort = testdraw.courierfile
@@ -211,7 +252,11 @@ def canon_image_filename( filename):
                 print "bug: image file %r not found, using last-resort image file %r" % (orig_filename, lastresort) ###
         filename = os.path.abspath(os.path.normpath(filename)) # faster to do this on demand
         if os.path.isfile(filename):
+            if DEBUG_IMAGE_SEARCH:
+                print "                found:",filename
             return filename
+        if DEBUG_IMAGE_SEARCH:
+            print "didn't find:", filename
     assert 0, "lastresort file %r should always be present" % os.path.abspath(os.path.normpath(lastresort))
     pass # end of canon_image_filename
 

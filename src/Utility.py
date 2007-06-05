@@ -46,6 +46,16 @@ _icons = {}
 _iconprefix = os.path.dirname(os.path.abspath(sys.argv[0]))
 _iconprefix = os.sep.join(_iconprefix.split(os.sep)[:-1] + ["src"])
 
+def image_directory(): #bruce 070604
+    """Return the full pathname of the directory in which the image files
+    (mostly icons) with names like ui/<subdir>/<file> exist.
+       Note: As of 070604, for developers this path ends with cad/src
+    and is also the main source directory, but in built releases it
+    might be something different and might be platform-dependent or even
+    build-system-dependent.
+    """
+    return _iconprefix
+
 def geticon(name, _iconprefix = _iconprefix):
     path = os.path.join(_iconprefix, name)
     icon = QtGui.QIcon(path)
@@ -59,7 +69,7 @@ def getpixmap(name, _iconprefix = _iconprefix):
     if pixmap.isNull():
         print 'getpixmap - null pixmap for: ' + path
     return pixmap
-    
+
 def imagename_to_pixmap(imagename): #bruce 050108
     """Given the basename of a file in our cad/images directory [now cad/src/ui],
     return a QPixmap created from that file. Cache these
