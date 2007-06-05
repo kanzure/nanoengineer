@@ -82,7 +82,7 @@ class Pref: #e might be merged with the DataType (aka PrefDataType) objects
             from state_utils import same_vals #bruce 070228 [recursive import if done at toplevel; seems to work ok here...]
             if self.print_changes and not same_vals(self.value, self._dfltval): #bruce 070228 new feature for debug_pref
                 # note: we use same_vals to avoid bugs in case of tuples or lists of Numeric arrays
-                msg = "Warning: %s (default %r) starts out %r %s" % \
+                msg = "Note: %s (default %r) starts out %r %s" % \
                       (self, self._dfltval, self.value, self.starts_out_from_where)
                 print msg
                 env.history.message(msg, quote_html = True, color = 'orange')
