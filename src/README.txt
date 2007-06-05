@@ -6,7 +6,7 @@ NanoEngineer-1 Alpha 9 README
 
 == Version/Info ==
 
-This is NanoEngineer-1 v0.9 (Alpha9) as of June 1, 2007.
+This is NanoEngineer-1 v0.9 (Alpha9) as of June 5, 2007.
 
 == System Requirements ==
 
@@ -71,21 +71,23 @@ NE1 Alpha 9 has been tested on:
 
 Limited testing has been done on Mac OS X 10.3 (Panther).
 
-Limited testing has been done on Ubuntu 7.04 (Feisty). Ubuntu Linux is now the official Lunix for NE1 testing.
+Limited testing has been done on Ubuntu 7.04 (Feisty). Ubuntu Linux is now the official Lunix platform for NE1 testing.
 
 == Extensions for NE1 ==
 
-NE1 supports a number of free extensions, including:
+NE1 supports a number of free 3rd party extensions (AKA plug-ins), including:
 
-* GNUPlot v4.0 is used to plot the results of molecular dynamics simulations using NanoDynamics-1, NE1's own molecular dynamics engine for nano-mechanical simulations. It is already included with NE1 for Windows and Mac. 
+* GAMESS (for Linux or Mac) makes it possible to setup and launch ab initio and DFT computational chemistry simulations of molecular models inside of NE1.
 
-* GAMESS (for Linux or Mac) makes it possible to setup and launch ab initio and DFT computational chemistry simulations of molecular models inside of NE1. 
+* GNUPlot v4.0 is used to plot the results of molecular dynamics simulations using NanoDynamics-1, NE1's own molecular dynamics engine for nano-mechanical simulations. It is already included with NE1 for Windows and Mac.
 
-* PC GAMESS (Windows only) makes it possible to setup and launch ab initio and DFT computational chemistry simulations of molecular models inside of NE1. 
+* MegaPOV (Mac OS X only) creates high-quality renderings of the current model with a single click of the mouse. POV-Ray is also required.
 
-* POV-Ray creates high-quality renderings of the current model with a single click of the mouse. 
+* PC GAMESS (Windows only) makes it possible to setup and launch ab initio and DFT computational chemistry simulations of molecular models inside of NE1.
 
-* MegaPOV (Mac OS X only) creates high-quality renderings of the current model with a single click of the mouse. POV-Ray is also required. 
+* POV-Ray is a free and very popular raytracing program that creates high-quality renderings of the current model with a single click of the mouse.
+
+* QuteMol is a high-quality molecular visualization system that can be "launched and loaded" from NE1. Very cool!
 
 For more details on all extensions and links to the download pages, visit:
 
@@ -102,6 +104,12 @@ http://www.nanoengineer-1.net/mediawiki/index.php?title=Release_Notes_for_NE1
 You may access a current copy of NE1 Known Bugs on-line at:
 
 http://www.nanoengineer-1.net/mediawiki/index.php?title=NE1_Known_Bugs
+
+== README.txt On-line ==
+
+The latest version of this file is available here:
+
+http://www.nanoengineer-1.net/mediawiki/index.php?title=Alpha_9_README
 
 == Copyright ==
 
