@@ -16,6 +16,7 @@ import env, os, sys
 from prefs_constants import qutemol_enabled_prefs_key, qutemol_path_prefs_key
 from PyQt4.Qt import QString, QStringList, QProcess, QMessageBox
 from debug import print_compact_traceback
+from debug_prefs import debug_pref, Choice_boolean_True
 
 # To do list: Mark 2007-06-03
 # - Move plug-in routines to Plugins.py.
@@ -156,11 +157,15 @@ def verify_plugin_using_version_flag(plugin_path, version_flag, vstring):
 # Everything above this line should be moved to Plugins.py (or another file).
 # Mark 2007-06-03
 
-def launch_qutemol(pdb_file):
+def launch_qutemol(pdb_file, art_file):
     """Try to launch QuteMol and load <pdb_file>.
-       Returns (errorcode, errortext), where errorcode is one of the following: ###k
-        0 = successful
-        8 = QuteMol failed for an unknown reason.
+    <art_file> is the ART file pathname, supplied as a command line 
+    argument to QuteMol. Only QuteMol version 0.4.1 or later can read the
+    ART file.
+    
+    Returns (errorcode, errortext), where errorcode is one of the following: ###k
+    0 = successful
+    8 = QuteMol failed for an unknown reason.
     """
     
     plugin_name = "QuteMol"
@@ -175,9 +180,18 @@ def launch_qutemol(pdb_file):
     
     workdir, junk_exe = os.path.split(program_path)
     
+    # This provides a way to tell NE1 which version of QuteMol is installed.
+    if debug_pref("QuteMol 0.4.1 or later", Choice_boolean_True, prefs_key=True):
+	version = "0.4.1"
+    else:
+	version = "0.4.0"
+    
     # Start QuteMol.
     try:
-        args = [pdb_file]
+	if version == "0.4.1":
+	    args = [pdb_file, "-a", art_file]
+	else:
+	    args = [pdb_file]
         if env.debug():
             print "Debug: Launching", plugin_name, \
                   "\n  working directory=",workdir,"\n  program_path=", program_path,  "\n  args are %r" % (args,)
@@ -241,11 +255,11 @@ def write_art_file(filename):
     
     # QuteMol can use line 1 to validate the file format.
     # Added @ to help make it clear that line 1 is special.
-    f.write("#@ NanoEngineer-1 Atom Rendering Table, file format version 2007-06-03\n")
+    f.write("#@ NanoEngineer-1 Atom Rendering Table, file format version 2007-06-04\n")
     # Lines after line 1 are only comments.
     f.write("#\n# File format:\n#\n")
-    f.write("# Atom   NE1    Render\n")
-    f.write("# Symbol Number Radius Red Green Blue\n")
+    f.write("# Atom   NE1    Render Covlnt\n")
+    f.write("# Symbol Number Radius Radius Red Green Blue\n")
     
     from prefs_constants import cpkScaleFactor_prefs_key
     cpk_sf = env.prefs[cpkScaleFactor_prefs_key] # Mark 2007-06-03
@@ -256,11 +270,11 @@ def write_art_file(filename):
         g = int(col[1] * 255 + 0.5)
         b = int(col[2] * 255 + 0.5)
 	
-	f.write('%2s  %3d  %3.3f  %3d  %3d  %3d\n' % \
-	    (elm.symbol, eleNum, elm.rvdw * cpk_sf, r, g, b)
+	f.write('%2s  %3d  %3.3f  %3.3f  %3d  %3d  %3d\n' % \
+	    (elm.symbol, eleNum, elm.rvdw * cpk_sf, elm.atomtypes[0].rcovalent, r, g, b)
 	    )
     
-    f.write("# All radii here were calculated using a CPK scaling factor\n"\
+    f.write("# All Render Radii were calculated using a CPK scaling factor\n"\
 	    "# that can be modified by the user in \"Preference | Atoms\".\n"\
 	    "# CPK Scale Factor: %2.3f\n"\
             "# To computer the original VDW radii, use the formula:\n"\
@@ -307,4 +321,4 @@ def write_qutemol_files(part):
     writepdb(part, qutemol_pdb_file)
     write_art_file(art_file)
     
-    return qutemol_pdb_file
+    return qutemol_pdb_file, art_file
