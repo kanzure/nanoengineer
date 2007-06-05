@@ -1002,7 +1002,8 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
     and new methods in the specific Jig subclasses.
     """
 
-    def makeRotaryMotor(self, sightline):
+    # Alpha 10 version of makeRotaryMotor(). Didn't make Alpha 9. Mark 2007-06-04
+    def makeRotaryMotor_A10(self, sightline):
         """Creates a Rotary Motor connected to the selected atoms.
         """
 
@@ -1029,6 +1030,45 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         m.show_propmgr() # put up Rotary Motor Property Manager 
         #self.unpickall_in_GLPane() # [was unpickatoms -- bruce 060721]
         self.place_new_jig(m)
+        
+        return # End of makeRotaryMotor_A10()
+        
+    def makeRotaryMotor(self, sightline):
+        """Creates a Rotary Motor connected to the selected atoms.
+        """
+
+        del sightline
+        glpane = self.assy.o #e this should be an argument. to be fixed soon. [bruce 060120]
+        "glpane is used for its point-of-view attributes" #e and after A7 a new "view object" should be passed instead.
+                
+        cmd = greenmsg("Rotary Motor: ")
+
+        atoms = self.assy.selatoms_list() #bruce 051031 change
+        
+        if len(atoms) < 2: # wware 051216, bug 1114, need >= 2 atoms for rotary motor
+            env.history.message(cmd + redmsg("You must select at least two atoms to create a Rotary Motor."))
+            return
+            
+        # Print warning if over 200 atoms are selected.
+        if atom_limit_exceeded_and_confirmed(self.assy.w, len(atoms), limit=200):
+            return
+        
+        from jigs_motors import RotaryMotor
+        m = RotaryMotor(self.assy)
+        m.findCenterAndAxis(atoms, glpane) # also puts up dialog
+        m.edit() # Will be changed to show_propmgr(). Mark 2007-06-04
+        if m.cancelled: # user hit Cancel button in Rotary Motory Dialog.
+            #bruce 050415/050701: old code had del(m), perhaps hoping to destroy the jig here,
+            # but in fact that statement would do nothing, so I removed it. But it might be good
+            # to actually destroy the jig object here (for all jigs which can be cancelled, not
+            # only this one), to avoid a memory leak. Presently, jigs don't have a destroy method.
+            env.history.message(cmd + "Cancelled")
+            return
+        self.unpickall_in_GLPane() # [was unpickatoms -- bruce 060721]
+        self.place_new_jig(m)
+        
+        env.history.message(cmd + "Motor created")
+        self.assy.w.win_update()
       
     def makeLinearMotor(self, sightline):
         """Creates a Linear Motor connected to the selected atoms.

@@ -232,13 +232,15 @@ class RotaryMotor(Motor):
         self.sradius = 0.2 #default spoke radius
         # Should self.cancelled be in RotaryMotorProp.setup? - Mark 050109
         self.cancelled = True # We will assume the user will cancel
-
-    def set_propmgr(self): #bruce 050526 split this out of __init__ (in all Jig subclasses)
+    
+    # This section to be resurrected during Alpha 10. SAVE! Mark 2007-06-04. #############
+    
+    def set_propmgr_A10(self): #bruce 050526 split this out of __init__ (in all Jig subclasses)
         from RotaryMotorGenerator import RotaryMotorGenerator
         self.propmgr = RotaryMotorGenerator(self.assy.w, self, self.assy.o)
         # Changed "cntl" to "propmgr". Mark 2007-05-28.
 
-    def edit(self): # Overrides Jig's edit(). Mark 2007-05-27.
+    def edit_A10(self): # Overrides Jig's edit(). Mark 2007-05-27.
         if self.propmgr is None:
             #bruce 050526: had to defer this until first needed, so I can let some jigs temporarily be in a state
             # where it doesn't work, during copy. (The Stat & Thermo controls need the jig to have an atom during their init.)
@@ -252,8 +254,14 @@ class RotaryMotor(Motor):
             # if we don't do this. mark 060312.
         self.propmgr.show()
         
-    def show_propmgr(self): # Mark 2007-05-28
+    def show_propmgr_A10(self): # Mark 2007-05-28
         self.edit()
+        
+    # End of Alpha 10 section. Mark 2007-06-04. #############
+    
+    def set_cntl(self): #bruce 050526 split this out of __init__ (in all Jig subclasses)
+        from RotaryMotorProp import RotaryMotorProp
+        self.cntl = RotaryMotorProp(self, self.assy.o)
         
     # set the properties for a Rotary Motor read from a (MMP) file
     def setProps(self, name, color, torque, speed, center, axis, length, radius, sradius):
