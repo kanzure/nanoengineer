@@ -67,7 +67,19 @@ def genKey(start = 1): #bruce 050922 moved this here from chem.py and Utility.py
         i += 1
     pass
 
-_gensym_counters = {}
+_gensym_counters = {} #bruce 070603; has last-used value for each fixed prefix (default 0)
+
+def _fix_gensym_prefix(prefix): #bruce 070604
+    "[private helper function for gensym and relatives]"
+    assert type(prefix) in (type(""), type(u""))
+    if prefix and prefix[-1].isdigit():
+        # This special behavior guarantees that every name gensym returns is unique.
+        # As of bruce 070603, I think it never happens, based on the existing calls of gensym.
+        # Note: someday we might change the added char to ' ' if prefix contains ' ',
+        # and/or also do this if prefix ends with a letter (so most gensym callers
+        # can rely on this rule rather than adding '-' themselves).
+        prefix = prefix + '-' 
+    return prefix
 
 def gensym(prefix): #bruce 070603 rewrite, improved functionality (replaces three separate similar definitions)
     """Return prefix with a number appended, where the number is 1 more
@@ -82,15 +94,25 @@ def gensym(prefix): #bruce 070603 rewrite, improved functionality (replaces thre
     specialized, e.g. when making chunks of certain kinds (like DNA) or copying nodes
     or library parts.)
     """
-    assert type(prefix) in (type(""), type(u""))
-    if prefix and prefix[-1].isdigit():
-        # This special behavior guarantees that every name we return is unique.
-        # As of bruce 070603, I think it never happens, based on our existing calls.
-        prefix = prefix + '-' 
+    prefix = _fix_gensym_prefix(prefix)
     new_value = _gensym_counters.get(prefix, 0) + 1
     _gensym_counters[prefix] = new_value
     return prefix + str(new_value)
-    
+
+def permit_gensym_to_reuse_name(prefix, name): #bruce 070604
+    """This gives gensym permission to reuse the given name which it returned based on the given prefix,
+    if it can do this and still follow its other policies. It is not obligated to do this.
+    """
+    prefix = _fix_gensym_prefix(prefix)
+    last_used_value = _gensym_counters.get(prefix, 0)
+    last_used_name = prefix + str(last_used_value)
+    if name == last_used_name:
+        # this is the only case in which we can safely do anything.
+        corrected_last_used_value = last_used_value - 1
+        assert corrected_last_used_value >= 0 # can't happen if called on names actually returned from gensym
+        _gensym_counters[prefix] = corrected_last_used_value
+    return
+
 def average_value(seq, default = 0.0): #bruce 070412; renamed and moved from selectMode.py to constants.py 070601
     """Return the numerical average value of seq (a Python sequence or equivalent),
     or (by default) 0.0 if seq is empty.

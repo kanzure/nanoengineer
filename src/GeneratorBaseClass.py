@@ -12,7 +12,7 @@ __author__ = "Will"
 import platform
 import env
 from PyQt4.Qt import *
-from constants import gensym
+from constants import gensym, permit_gensym_to_reuse_name
 from Sponsors import SponsorableMixin
 from HistoryWidget import redmsg, orangemsg, greenmsg, quote_html
 from debug import print_compact_traceback
@@ -225,6 +225,7 @@ class GeneratorBaseClass(SponsorableMixin, PropertyManagerMixin):
     def ok_btn_clicked(self):
         'Slot for the OK button'
         if platform.atom_debug: print 'ok button clicked'
+        self._gensym_data_for_reusing_name = None # make sure gensym-assigned name won't be reused next time
         self._ok_or_preview(doneMsg=True)
         self.change_random_seed() # for next time
         if not self.pluginException:
@@ -294,20 +295,22 @@ class GeneratorBaseClass(SponsorableMixin, PropertyManagerMixin):
         '''
         return "%s created." % self.name
 
+    _gensym_data_for_reusing_name = None
+    
     def _revert_number(self):
-#bruce 070603: removing the Gno part of revert_number, since it won't work properly with the new gensym.
-# If we still need this side effect, we'll have to implement it differently.
-# Note that the only other reference to _Gno is a few lines below, where it's set in _build_struct (also removed now).
-##        import chem
-##        if hasattr(self, '_Gno'):
-##            chem.Gno = self._Gno
-
-##        import Utility
-##        if hasattr(self, '_ViewNum'):
-##            Utility.ViewNum = self._ViewNum
-
-        ###e new implem of resetting gensym counter will go here, soon
-
+        #bruce 070603-04: removing the Gno & ViewNum parts of revert_number,
+        # since they won't work properly with the new gensym.
+        # Instead, we do it differently now.
+        #    Note: this only helps classes which set self.create_name_from_prefix
+        # to cause our default _build_struct to set the private attr we use here,
+        # self._gensym_data_for_reusing_name, or which set it themselves in the
+        # same way (when they call gensym).
+        if self._gensym_data_for_reusing_name:
+            prefix, name = self._gensym_data_for_reusing_name
+                # this came from our own call of gensym, or from a caller's if it decides
+                # to set that attr itself when it calls gensym itself.
+            permit_gensym_to_reuse_name(prefix, name)
+        self._gensym_data_for_reusing_name = None
         return
 
     def _build_struct(self, previewing=False):
@@ -315,11 +318,10 @@ class GeneratorBaseClass(SponsorableMixin, PropertyManagerMixin):
             print '_build_struct'
         params = self.gather_parameters()
 
-        import Utility
         if self.struct == None:
             if platform.atom_debug:
                 print 'no old structure, we are making a new structure'
-#bruce 070603: removing the Gno part -- for details see similar comment above
+#bruce 070603: removing the Gno part; replaced with setting self._gensym_data_for_reusing_name, below
 ##            import chem
 ##            self._Gno = chem.Gno
         elif params != self.previousParams:
@@ -334,13 +336,15 @@ class GeneratorBaseClass(SponsorableMixin, PropertyManagerMixin):
 
         # self.name needed for done message
         if self.create_name_from_prefix:
-            # DNA, Nanotubes and graphene don't have a name yet. Let's create it.
+            # DNA, Nanotubes and Graphene don't have a name yet. Let's create it.
             name = self.name = gensym(self.prefix) # (in _build_struct)
+            self._gensym_data_for_reusing_name = (self.prefix, name) #bruce 070604 new feature
             if platform.atom_debug:
                 print "Created name from prefix. Name =", name
         else:
             # Jigs like the rotary and linear motors already created their
-            # name, so we need to use it. 
+            # name, so we need to use it.
+            self._gensym_data_for_reusing_name = None # (can't reuse name in this case -- not sure what prefix it was made with)
             name = self.name
             if platform.atom_debug:
                 print "Used existing (jig) name =", name
