@@ -59,7 +59,7 @@ much later: see also non-cvs notes (files & paper) of 070105
 from basic import *
 from basic import _self, _my, _this
 
-from Utility import SimpleCopyMixin, Node, imagename_to_pixmap, genViewNum
+from Utility import SimpleCopyMixin, Node, imagename_to_pixmap
 from state_utils import copy_val, S_DATA #e put copy_val in basic? #k where is S_DATA really?
 
 import Rect
