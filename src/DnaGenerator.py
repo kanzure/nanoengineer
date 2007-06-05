@@ -245,7 +245,22 @@ class B_Dna_BasePseudoAtoms(B_Dna):
                 assert len(atom.bonds) == 1
                 atom.bonds[0].set_bond_direction_from(atom, -1, propogate = True)
         else:
-            raise PluginBug("error in setting strand bond direction; not set");
+            #bruce 070604 mitigate bug in above code when number of bases == 1
+            # by not raising an exception when it fails.
+
+            env.history.message( orangemsg( "Warning: strand not terminated, bond direction not set (too short)"))
+                
+            # Note: It turns out this bug is caused by a bug in the rest of the generator
+            # (which I didn't try to diagnose) -- for number of bases == 1 it doesn't terminate the strands,
+            # so the above code can't find the termination atoms (which is how it figures out
+            # what to do without depending on intimate knowledge of the base mmp file contents).
+
+            # print "baseList = %r, its len = %r, atoms in [0] = %r" % (baseList, len(baseList), atoms)
+            ## baseList = [<molecule 'unknown' (11 atoms) at 0xb3d6f58>],
+            ## its len = 1, atoms in [0] = [Ax1, X2, X3, Ss4, Pl5, X6, X7, Ss8, Pl9, X10, X11]
+            
+            # It would be a mistake to fix this here (by giving it that intimate knowledge) --
+            # instead we need to find and fix the bug in the rest of generator when number of bases == 1.
         return
     pass
 
