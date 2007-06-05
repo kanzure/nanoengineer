@@ -1,5 +1,6 @@
 #!/bin/sh
 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 # A little utility for figuring out what order python files are
 # loaded.  Run this on all .py files you're interested in.
 #

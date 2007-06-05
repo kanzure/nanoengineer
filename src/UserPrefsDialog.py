@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 # Form implementation generated from reading ui file 'UserPrefsDialog.ui'
 #
 # Created: Sat Jun 02 17:46:57 2007
