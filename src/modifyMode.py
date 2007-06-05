@@ -764,10 +764,23 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
                        self.o.MousePos[1] - event.pos().y())
         a =  dot(self.Zmat, deltaMouse)
         dx,dy =  a * V(self.o.scale/(h*0.5), 2*pi/w)
-        for mol in movables:
-            ma = mol.getaxis()
-            mol.move(dx*ma)
-            mol.rot(Q(ma,-dy))
+        
+        if not self.rotateAsUnitCB.isChecked():
+            for mol in movables:
+                ma = mol.getaxis()
+                mol.move(dx*ma)
+                mol.rot(Q(ma,-dy))            
+        else: 
+            #find out resultant axis, translate and rotate the selected
+            #movables along this axis (for rotate use rotsel)-- ninad 20070605
+            resAxis = movables[0].getaxis()
+            for mol in movables[1:]:
+                ma = mol.getaxis()
+                resAxis += ma  
+            for mol in movables:                                
+                mol.move(dx*norm(resAxis))
+                
+            self.o.assy.rotsel(Q(norm(resAxis),-dy))
         
         self.dragdist += vlen(deltaMouse)
         self.o.SaveMouse(event)
