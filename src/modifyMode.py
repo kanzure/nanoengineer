@@ -795,51 +795,11 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
         movables = self.o.assy.getSelectedMovables()
         self._leftADown_movables = movables
         
-        
-        self.o.SaveMouse(event)
-
-        #bruce 070605 questions (about code that was here before I did anything to it today):
-        # - how are self.Zmat, self.picking, self.dragdist used during leftADrag?
-        # - Why is the axis recomputed in each leftADrag? I think that's a bug, for "rotate as a unit", since it varies!
-        #   And it's slow, either way, since it should not vary (once bugs are fixed) but .getaxis will always have to recompute it.
-        #   So I'll change this to compute the axes or axis only once, here in leftADown, and use it in each leftADrag.
-        # - Why is the "averaged axis" computed here at all, when not "rotate as a unit"?
-        
-        ma = V(0,0,0) # accumulate "average axis" (only works well if all axes similar in direction, except perhaps for sign)
-        self._leftADown_indiv_axes = [] #bruce 070605 optim
-        for mol in movables:
-            axis = mol.getaxis()
-            if dot(ma, axis) < 0.0: #bruce 070605 bugfix, in case axis happens to point the opposite way as ma
-                axis = - axis
-            self._leftADown_indiv_axes.append(axis) # not sure it's best to put sign-corrected axes here, but I'm guessing it is
-            ma += axis
-
-        self._leftADown_averaged_axis = norm(ma) #bruce 070605 optim/bugfix
-        
-        if vlen(self._leftADown_averaged_axis) < 0.5: # ma was too small
-            # The pathological case of zero ma is probably possible, but should be rare;
-            # consequences not reviewed; so statusbar message and refusal seems safest:
-            self.leftAError("(axes can't be averaged, doing nothing)")
-            ##return
-            
-        ma = norm(V(dot(ma,self.o.right),dot(ma,self.o.up)))
-        self.Zmat = A([ma,[-ma[1],ma[0]]])
-        self.picking = True
-        self.dragdist = 0.0
-
-        self._leftADown_total_dx_dy = V(0.0, 0.0)
-
-        if 0: # looks ok; axis for 3-strand n=10 DNA is reasonably close to axis of Axis strand [bruce 070605]
-            print "\nleftADown gets",self._leftADown_averaged_axis
-            print self._leftADown_indiv_axes
-            print movables
-            print self.Zmat
-        
         obj = self.get_obj_under_cursor(event)
         
         if obj is None: # Cursor over empty space.
             self.emptySpaceLeftDown(event)
-            return
+            ##return
             
         if isinstance(obj, Atom) and obj.is_singlet(): # Cursor over a singlet
             self.singletLeftDown(obj, event)
@@ -860,7 +820,47 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
         if not movables:
             self.leftAError("(nothing movable is selected)")
             return
+                    
+        self.o.SaveMouse(event)
 
+        #bruce 070605 questions (about code that was here before I did anything to it today):
+        # - how are self.Zmat, self.picking, self.dragdist used during leftADrag?
+        # - Why is the axis recomputed in each leftADrag? I think that's a bug, for "rotate as a unit", since it varies!
+        #   And it's slow, either way, since it should not vary (once bugs are fixed) but .getaxis will always have to recompute it.
+        #   So I'll change this to compute the axes or axis only once, here in leftADown, and use it in each leftADrag.
+        # - Why is the "averaged axis" computed here at all, when not "rotate as a unit"?
+        
+        ma = V(0,0,0) # accumulate "average axis" (only works well if all axes similar in direction, except perhaps for sign)
+        self._leftADown_indiv_axes = [] #bruce 070605 optim
+        for mol in movables:
+            axis = mol.getaxis()
+            if dot(ma, axis) < 0.0: #bruce 070605 bugfix, in case axis happens to point the opposite way as ma
+                axis = - axis
+            self._leftADown_indiv_axes.append(axis) # not sure it's best to put sign-corrected axes here, but I'm guessing it is
+            ma += axis
+
+        self._leftADown_averaged_axis = norm(ma) #bruce 070605 optim/bugfix
+        
+               
+        if vlen(self._leftADown_averaged_axis) < 0.5: # ma was too small
+            # The pathological case of zero ma is probably possible, but should be rare;
+            # consequences not reviewed; so statusbar message and refusal seems safest:
+            self.leftAError("(axes can't be averaged, doing nothing)")
+            return
+            
+        ma = norm(V(dot(ma,self.o.right),dot(ma,self.o.up)))
+        self.Zmat = A([ma,[-ma[1],ma[0]]])
+        self.picking = True
+        self.dragdist = 0.0
+
+        self._leftADown_total_dx_dy = V(0.0, 0.0)
+
+        if 0: # looks ok; axis for 3-strand n=10 DNA is reasonably close to axis of Axis strand [bruce 070605]
+            print "\nleftADown gets",self._leftADown_averaged_axis
+            print self._leftADown_indiv_axes
+            print movables
+            print self.Zmat
+                
         return # from leftADown
     
     def leftADrag(self, event):
