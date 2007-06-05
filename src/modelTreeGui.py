@@ -2560,9 +2560,16 @@ class ModelTreeGui(QScrollArea, ModelTreeGui_common):#bruce 070529-30 rewrite of
         # this has to be done after QScrollArea.__init__, since it assumes QWidget init has occurred
         ModelTreeGui_common.__init__(self, win, ne1model) ## mouse and DND methods -- better off in view widget or here??
             # will this intercept events meant for the scrollbars themselves??? need to use the contents event methods?
-
+        
         self.view = MT_View( self, self, self) # args are: parent, palette_widget, modeltreegui
         self.setWidget(self.view)
+        
+        # Model Tree background color. Mark 2007-06-04
+        from prefs_constants import mtColor_prefs_key # In case we want to make it a user pref.
+        from widgets import RGBf_to_QColor
+        mtColor = RGBf_to_QColor(env.prefs[mtColor_prefs_key]) 
+        from PropMgrBaseClass import getPalette
+        self.setPalette(getPalette(None, QPalette.Window, mtColor))
 
         #e not sure if mt_update would be safe at this point (were cooperating objects fully initialized?)
 
