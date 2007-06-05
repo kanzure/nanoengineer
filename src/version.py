@@ -52,7 +52,7 @@ class Version:
     def __repr__(self):
         major = self.__shared_state["major"]
         minor = self.__shared_state["minor"]
-        str = "v%d.%d" % (major, minor)
+        str = "%d.%d" % (major, minor)
         if self.__shared_state.has_key("tiny"):
             teensy = self.__shared_state["tiny"]
             str += ".%d" % teensy

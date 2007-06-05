@@ -6,7 +6,7 @@ NanoEngineer-1 Alpha 9 README
 
 == Version/Info ==
 
-This is NanoEngineer-1 v0.9 (Alpha9) as of June 5, 2007.
+This is NanoEngineer-1 0.9.0 (Alpha 9) as of June 5, 2007.
 
 == System Requirements ==
 
@@ -61,13 +61,13 @@ IMPORTANT NOTE: If you have a previous version of NanoEngineer-1 currently insta
 
 The default name it gives is "NanoEngineer-1 v0.8 (Alpha8)". This is a bug in the Windows installer.
 
-TO FIX, TYPE IN "NanoEngineer-1 v0.9 (Alpha9)"
+TO FIX, TYPE IN "NanoEngineer-1 0.9.0 (Alpha 9)"
 
 == Officially tested platforms ==
 
 NE1 Alpha 9 has been tested on: 
 * Windows XP Professional 2002, Service Pack 2
-* Mac OS X 10.4 (Tiger)
+* Mac OS X 10.3.9 (Panther) and 10.4.9 (Tiger)
 
 Limited testing has been done on Mac OS X 10.3 (Panther).
 
