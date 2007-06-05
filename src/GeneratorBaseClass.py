@@ -301,9 +301,14 @@ class GeneratorBaseClass(SponsorableMixin, PropertyManagerMixin):
 ##        import chem
 ##        if hasattr(self, '_Gno'):
 ##            chem.Gno = self._Gno
-        import Utility
-        if hasattr(self, '_ViewNum'):
-            Utility.ViewNum = self._ViewNum
+
+##        import Utility
+##        if hasattr(self, '_ViewNum'):
+##            Utility.ViewNum = self._ViewNum
+
+        ###e new implem of resetting gensym counter will go here, soon
+
+        return
 
     def _build_struct(self, previewing=False):
         if platform.atom_debug:

@@ -10,7 +10,8 @@ mark 060530 - Comment class moved here from Utility.py.
 
 """
 
-from Utility import SimpleCopyMixin, Node, imagename_to_pixmap, genViewNum
+from Utility import SimpleCopyMixin, Node, imagename_to_pixmap
+from constants import gensym
 
 class Comment(SimpleCopyMixin, Node):
     """A Comment stores a comment in the MMP file, accessible from the Model Tree as a node.
@@ -30,7 +31,7 @@ class Comment(SimpleCopyMixin, Node):
     def __init__(self, assy, name, text=''):
         self.const_pixmap = imagename_to_pixmap("modeltree/comment.png")
         if not name:
-            name = genViewNum("%s-" % self.sym)
+            name = gensym("%s-" % self.sym) #bruce 070604 genViewNum -> gensym [##e can we someday teach superclass to do this?]
         Node.__init__(self, assy, name)
         self.lines = [] # this makes set_text changed() test legal (result of test doesn't matter)
         self.set_text(text)

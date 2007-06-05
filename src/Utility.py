@@ -23,7 +23,7 @@ from GroupProp import *
 from debug import print_compact_stack, print_compact_traceback
 import platform
 import env #bruce 050901
-from constants import genKey
+from constants import genKey, gensym
 from state_utils import copy_val, StateMixin #bruce 060223
 
 debug_undoable_attrs = False
@@ -2255,13 +2255,6 @@ class SimpleCopyMixin(Node):
 
     pass # end of class SimpleCopyMixin
 
-
-ViewNum = 0
-def genViewNum(string):
-    """return string appended with a unique view number"""
-    global ViewNum
-    ViewNum += 1
-    return string + str(ViewNum)
     
 class Csys(SimpleCopyMixin, Node):
     """The Csys is used to store all the parameters needed to save and restore a view.
@@ -2286,7 +2279,8 @@ class Csys(SimpleCopyMixin, Node):
         if name:
             Node.__init__(self, assy, name)
         else:
-            Node.__init__(self, assy, genViewNum("%s-" % self.sym))
+            Node.__init__(self, assy, gensym("%s-" % self.sym))
+                #bruce 070604 genViewNum -> gensym [##e can we someday teach superclass to do this?]
         self.scale = scale
         assert type(pov) is type(V(1, 0, 0))
         self.pov = V(pov[0], pov[1], pov[2])
