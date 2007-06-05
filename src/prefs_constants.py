@@ -198,6 +198,7 @@ captionFullPath_prefs_key = 'A6/Caption Full Path'
 useSelectedFont_prefs_key = 'A9/Use Selected Font'
 displayFont_prefs_key = 'A9/Display Font'
 displayFontPointSize_prefs_key = 'A9/Display Font Point Size'
+mtColor_prefs_key = 'A9/Model Tree Background Color' # Not yet in Preferences. Mark 2007-06-04
 #colorTheme_prefs_key = 'A9/Color Theme'
 
 # Bug-workaround prefs, Mac-specific
@@ -454,6 +455,7 @@ prefs_table = (
     ('', 'boolean', useSelectedFont_prefs_key, False ),
     ('', 'string', displayFont_prefs_key, "defaultFont"),
     ('', 'int', displayFontPointSize_prefs_key, -1), # will be reset by the actual default font size.
+    ("", 'color', mtColor_prefs_key, white ), # Model Tree bg color. Mark 2007-06-04
     #('', 'string', colorTheme_prefs_key, "defaultColorTheme"), # Gray for A9. Mark 2007-05-27.
     
     # ...
