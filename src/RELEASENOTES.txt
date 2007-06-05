@@ -2,7 +2,7 @@
 
 Release Notes for NanoEngineer-1 v0.9 (Alpha 9)
 
-What is new in NanoEngineer-1 v0.9 (6/1/2007):
+What is new in NanoEngineer-1 v0.9 (6/5/2007):
 
 1. Completely ported GUI from Qt 3.x to Qt 4.x
 
@@ -18,13 +18,21 @@ What is new in NanoEngineer-1 v0.9 (6/1/2007):
 
 3. Special support for Structural DNA Nanotechnology
 
-   - DNA "reduced model" allows easy design of complex DNA structures
+   - DNA "reduced model" provides for streamlined design of complex DNA structures
+   
+   - NanoDynamics-1 PAM-5 force field supports geometry optimization of DNA reduced model structures
 
+   - "Make Crossover" command for quickly and easily creating DNA motifs with double crossovers.
+   
    - Collection of DNA motifs included in part library:
       - Basic motifs (i.e. holliday junctions, double crossovers, triple crossovers, etc.)
       - Star structures
       - DNA tiles
       - DNA origami
+
+4. New Reference Plane entity via "Insert > Reference Geometry > Plane".
+
+5. QuteMol plug-in can be "launched and loaded" from NE1.
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
