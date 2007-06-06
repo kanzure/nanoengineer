@@ -60,12 +60,9 @@ def setupUi(win):
     win.jigsESPImageAction.setIcon(geticon("ui/actions/Simulation/ESP_Image"))
     win.jigsESPImageAction.setObjectName("jigsESPImageAction")
     
-    win.simulationMenu.addAction(win.simSetupAction)
-    win.simulationMenu.addAction(win.jigsESPImageAction)
-    win.simulationMenu.addAction(win.jigsGamessAction)
-    
-    win.simulationMenu.addAction(MainWindow.simMoviePlayerAction)
-    win.simulationMenu.addAction(win.simPlotToolAction)
+    win.simulationMenu.addAction(win.simSetupAction) # "Run Dynamics"
+    win.simulationMenu.addAction(MainWindow.simMoviePlayerAction) # "Play Movie"
+    win.simulationMenu.addAction(win.simPlotToolAction) # "Make Graphs"
     win.simulationMenu.addSeparator()
     win.simulationMenu.addAction(win.jigsMotorAction)
     win.simulationMenu.addAction(win.jigsLinearMotorAction)
@@ -79,26 +76,33 @@ def setupUi(win):
     win.simulationMeasurementsMenu.addAction(win.jigsDistanceAction)
     win.simulationMeasurementsMenu.addAction(win.jigsAngleAction)
     win.simulationMeasurementsMenu.addAction(win.jigsDihedralAction)
-        
-
+    win.simulationMenu.addSeparator()
+    win.simulationMenu.addAction(win.jigsGamessAction) # GAMESS
+    win.simulationMenu.addAction(win.jigsESPImageAction) # ESP Image
+    
 def retranslateUi(win):
     win.simulationMenu.setTitle(QtGui.QApplication.translate("MainWindow", "Simulation", None, QtGui.QApplication.UnicodeUTF8))
     win.simSetupAction.setText(QtGui.QApplication.translate("MainWindow", " Run Dynamics...", None, QtGui.QApplication.UnicodeUTF8))
     win.simSetupAction.setIconText(QtGui.QApplication.translate("MainWindow", "Run Dynamics", None, QtGui.QApplication.UnicodeUTF8))
-    win.simSetupAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Run Dynamics Setup Dialog",
+    win.simSetupAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Run Dynamics",
                                                                None, QtGui.QApplication.UnicodeUTF8))
     win.simMoviePlayerAction.setText(QtGui.QApplication.translate("MainWindow", "Play Movie",None, QtGui.QApplication.UnicodeUTF8))
     win.simMoviePlayerAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Play Movie",None, QtGui.QApplication.UnicodeUTF8))    
-    win.simPlotToolAction.setText(QtGui.QApplication.translate("MainWindow", "Make Graphs...", None, QtGui.QApplication.UnicodeUTF8))
-    win.simPlotToolAction.setIconText(QtGui.QApplication.translate("MainWindow", "Make Graphs", None, QtGui.QApplication.UnicodeUTF8))
+    win.simPlotToolAction.setText(QtGui.QApplication.translate("MainWindow", "Graphs...", None, QtGui.QApplication.UnicodeUTF8))
+    win.simPlotToolAction.setIconText(QtGui.QApplication.translate("MainWindow", "Graphs", None, QtGui.QApplication.UnicodeUTF8))
     
     win.jigsESPImageAction.setText(QtGui.QApplication.translate("MainWindow", "ESP Image", None, QtGui.QApplication.UnicodeUTF8))
     win.jigsESPImageAction.setIconText(QtGui.QApplication.translate("MainWindow", "ESP Image", None, QtGui.QApplication.UnicodeUTF8))
-                   
+    
+    if sys.platform == "win32":
+        gms_str = "PC GAMESS"
+    else:
+        gms_str = "GAMESS"
+        
     win.jigsGamessAction.setText(QtGui.QApplication.translate(
-        "MainWindow", "GAMESS", None, QtGui.QApplication.UnicodeUTF8))
+        "MainWindow", gms_str, None, QtGui.QApplication.UnicodeUTF8))
     win.jigsGamessAction.setIconText(QtGui.QApplication.translate(
-        "MainWindow", "GAMESS ", None, QtGui.QApplication.UnicodeUTF8))
+        "MainWindow", gms_str, None, QtGui.QApplication.UnicodeUTF8))
     
     #Simulation Jigs 
     win.jigsLinearMotorAction.setText(QtGui.QApplication.translate("MainWindow", "&Linear Motor", None, QtGui.QApplication.UnicodeUTF8))
