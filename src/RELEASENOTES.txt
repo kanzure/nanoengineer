@@ -2,7 +2,7 @@
 
 Release Notes for NanoEngineer-1 v0.9 (Alpha 9)
 
-What is new in NanoEngineer-1 v0.9 (6/5/2007):
+What is new in NanoEngineer-1 v0.9 (6/6/2007):
 
 1. Completely ported GUI from Qt 3.x to Qt 4.x
 

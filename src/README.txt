@@ -6,7 +6,7 @@ NanoEngineer-1 Alpha 9 README
 
 == Version/Info ==
 
-This is NanoEngineer-1 0.9.0 (Alpha 9) as of June 5, 2007.
+This is NanoEngineer-1 0.9.0 (Alpha 9) as of June 6, 2007.
 
 == System Requirements ==
 
