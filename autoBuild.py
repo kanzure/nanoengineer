@@ -466,6 +466,8 @@ class NanoBuildWin32(NanoBuildBase):
         copy('win32/cygwin1.dll', self.binPath)
         copy('win32/cygz.dll', self.binPath)
         copy('win32/cyginchi-0.dll', self.binPath)
+        copy('win32/babel.exe', self.binPath)
+        copy('win32/cygopenbabel-1.dll', self.binPath)
 	#
         copy('win32/uninst.ico', self.buildSourcePath)
         copy('win32/setup.py', os.path.join(self.atomPath,'cad/src'))
@@ -473,7 +475,7 @@ class NanoBuildWin32(NanoBuildBase):
         copy(os.path.join(self.atomPath,'cad/src/KnownBugs.htm'), self.buildSourcePath)
         copy(os.path.join(self.atomPath,'cad/src/README.txt'), self.rootPath)
         copy(os.path.join(self.atomPath,'cad/src/LICENSE-Win32'), self.rootPath)
-
+       
     def removeGPLFiles(self):
         """Remove non gpl files (Windows only)"""
         if self.Qt4_flag:
@@ -544,9 +546,9 @@ class NanoBuildWin32(NanoBuildBase):
         # with "%s.exe" % self.startup_python_basename (or perhaps just with "main.exe" if there is no need
         # to build for Windows from old sources). I am also not sure what else (outside of this file)
         # needs to have 'atom' replaced by 'main', for Windows release building. [bruce 070502]
-        isf.write(('Name: "{group}\\%s"; Filename: "{app}\\program\\atom.exe"; ' +
+        isf.write(('Name: "{group}\\%s"; Filename: "{app}\\program\\main.exe"; ' +
                    'WorkingDir: "{app}\\program"; IconFilename: "{app}\\nanorex_48x.ico"\n') % appName)
-        isf.write(('Name: "{userdesktop}\\%s"; Filename: "{app}\\program\\atom.exe"; ' +
+        isf.write(('Name: "{userdesktop}\\%s"; Filename: "{app}\\program\\main.exe"; ' +
                    'WorkingDir: "{app}\\program"; IconFilename: "{app}\\nanorex_48x.ico"\n') % appName)
         isf.write('Name: "{group}\\Uninstall %s"; Filename: "{uninstallexe}"\n' % appName)
         isf.write("\n[Languages]\n")
