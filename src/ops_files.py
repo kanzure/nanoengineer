@@ -451,6 +451,14 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             outf.write("\n")
             outf.close()
         
+        # Need to set these environment variables on MacOSX so that babel can
+        # find its libraries. Brian Helfrich 2007/06/05
+        if sys.platform == 'darwin':
+            babelLibPath = os.path.normpath(filePath + '/../Frameworks')
+            os.environ['DYLD_LIBRARY_PATH'] = babelLibPath
+            babelLibPath = babelLibPath + '/openbabel'
+            os.environ['BABEL_LIBDIR'] = babelLibPath
+
         proc = QProcess()
         proc.start(program, arguments) # Mark 2007-06-05
 
