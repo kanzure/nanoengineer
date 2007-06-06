@@ -574,7 +574,7 @@ def _is_mutable_helper(val): #060303
         return
     elif typ is InstanceType:
         # another special case
-        if hasattr(obj, '_s_deepcopy'):
+        if hasattr(val, '_s_deepcopy'):
             raise _IsMutable
         return
     else:
