@@ -109,13 +109,14 @@ class Slab:
 
 
 def fill(mat,p,dir):
-    """ Fill a curve drawn in matrix mat in 1's on 0's with 1's.
+    """ Fill a curve drawn in matrix mat, as 1's over a background of 0's, with 1's.
     p is V(i,j) of a point to fill from. dir is 1 or -1 for the
-    standard recursive fill algorithm. 
-    Huaicai: This function is used to fill the area between the rectangle bounding box and the boundary
+    standard recursive fill algorithm.
+       Here is an explanation of how this is used and how it works then, by Huaicai:
+    This function is used to fill the area between the rectangle bounding box and the boundary
     of the curve with 1's. The bounding box is extended by (lower left corner -2, right top corner + 2). 
     The curve boundary is filled with 1's. So mat[1,:] = 0, mat[-1,:]=0, mat[:, 1]=0;
-    mat[:, -1]=0, which mean the area is connected. If we start from mat[1,1], dir =1, then we scan the 
+    mat[:, -1]=0, which means the area is connected. If we start from mat[1,1], dir =1, then we scan the 
     first line from left to right. If it's 0, fill it as 1 until we touch 1. For each element in the line, we also 
     check it's neighbor above and below. For the neighbor elements, if the neighbor touches 1 but 
     previous neighbor is 0, then scan the neighbor line in the reverse order. I think this algorithm is better
@@ -142,7 +143,7 @@ def fill(mat,p,dir):
         else: dn = 1
         p += od
     fill(mat, p-od+o1, -dir)
-    fill(mat, p-od-o1, -dir)
+    fill(mat, p-od-o1, -dir) # note: we have (probably) seen recursion limit errors from this line. [bruce 070605 comment]
 
 
 #bruce 041214 made a common superclass for curve and rectangle classes,

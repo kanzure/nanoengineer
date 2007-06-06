@@ -212,17 +212,36 @@ def wrap_callable_for_undo(func, cmdname = "menu command"): #bruce 060324
     #  when returning lambdas out of the defining scope of local variables they reference)
     return lambda _g1_ = None, _g2_ = None, _g3_ = None, func = func, cmdname = cmdname: do_callable_for_undo(func, cmdname)
 
-def makemenu_helper(widget, menu_spec, menu=None):
-    """make and return a reusable popup menu from menu_spec,
-    which gives pairs of command names and callables,
-    or None for a separator.
-    New feature [bruce 041010]:
-    the "callable" can instead be a QMenu object,
-    or [bruce 041103] a list
-    (indicating a menu spec like our 'menu_spec' argument),
-    to be used as a submenu.
+def makemenu_helper(widget, menu_spec, menu = None):
+    """Make and return a reusable or one-time-use (at caller's option)
+    popup menu whose structure is specified by menu_spec,
+    which is a list of menu item specifiers, each of which is either None
+    (for a separator) or a tuple of the form (menu text, callable or submenu,
+    option1, option2, ...) with 0 or more options (described below).
+       A submenu can be either another menu_spec list, or a QMenu object
+    (but in the latter case the menu text is ignored -- maybe it comes
+    from that QMenu object somehow -- not sure if this was different in Qt3).
+    In either case it is the 2nd menu-item-tuple element, in place of the callable.
+       Otherwise the callable must satisfy the python 'callable' predicate,
+    and is executed if the menu item is chosen, wrapped inside another function
+    which handles Undo checkpointing and Undo-command-name setting.
+       The options in a menu item tuple can be zero or more (in any order,
+    duplicates allowed) of the following:
+    'disabled' -- the menu item should be disabled;
+    'checked' -- the menu item will be checked;
+    None -- this option is legal but ignored (but the callable must still satisfy
+    the python predicate "callable"; constants.noop might be useful for that case).
+       The Qt3 version also supported tuple-options consisting of one of the words
+    'iconset' and 'whatsThis' followed by an appropriate argument, but those have
+    not yet been ported to Qt4 (except possibly for disabled menu items -- UNTESTED).
+       Unrecognized options may or may not generate warnings, and are otherwise ignored.
+    [###FIX that -- they always ought to print a warning to developers. Note that right
+    now they do iff 'disabled' is one of the options and ATOM_DEBUG is set.]
        The 'widget' argument should be the Qt widget
     which is using this function to put up a menu.
+       If the menu argument is provided, it should be a QMenu
+    to which we'll add items; otherwise we create our own QMenu
+    and add items to it.
     """
     from debug import print_compact_traceback
     import types
@@ -250,7 +269,7 @@ def makemenu_helper(widget, menu_spec, menu=None):
                     # (similar code might work for QAction case too, not sure)
             elif m and isinstance(m[1], types.ListType): #bruce 041103 added this case
                 submenu = QMenu(menutext, menu)
-                submenu = makemenu_helper(widget, m[1], submenu) # [used to call widget.makemenu]
+                submenu = makemenu_helper(widget, m[1], submenu) # [this used to call widget.makemenu]
                 menu.addMenu(submenu)
             elif m:
                 assert callable(m[1]), \
@@ -293,7 +312,9 @@ def makemenu_helper(widget, menu_spec, menu=None):
     return menu # from makemenu_helper
 
 def insert_command_into_menu(menu, menutext, command, options = (), position = -1, raw_command = False, undo_cmdname = None): 
-    """Insert a new item into menu (a QMenu), whose menutext, command, and options are as given,
+    """[This was part of makemenu_helper in the Qt3 version; in Qt4 it's only used for the disabled case,
+     presumably for some good reason but not one which has been documented.]
+    Insert a new item into menu (a QMenu), whose menutext, command, and options are as given,
     with undo_cmdname defaulting to menutext (used only if raw_command is false), 
     where options is a list or tuple in the same form as used in "menu_spec" lists
     such as are passed to makemenu_helper (which this function helps implement).
