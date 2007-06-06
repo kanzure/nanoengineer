@@ -21,7 +21,7 @@ if sys.platform == "darwin":
     pmHeaderFontPointSize = 20
     pmHeaderFontBold = True
 elif sys.platform == "win32":
-    pmMinWidth = 230 # The min PropMgr width.
+    pmMinWidth = 240 # The min PropMgr width.
     pmMaxWidth = pmMinWidth # The max PropMgr width.
     pmDefaultWidth = pmMinWidth # Starting PropMgr width
     pmHeaderFont = "Arial" # Font type used in PropMgr header.
