@@ -1,7 +1,4 @@
 
-
- Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
-
 NanoEngineer-1 Alpha 9 README
 
 == Version/Info ==
