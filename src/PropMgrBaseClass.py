@@ -26,20 +26,20 @@ ninad 2007-06-05: Added PropMgrRadioButton
 __author__ = "Mark"
 
 # Mark's To Do List (by order of priority):
-#
-# - Support resizing (pmWidth range 200-400)
-# - Test PropMgr layout/resizing on a 1024 x 768 monitor.
-# - Make fitContents() "smarter". See docstring.
-# - Resize width of PropMgr automatically when scrollbar appears to make
-#   extra room for it.
-# - Add color theme user pref in Preferences dialog. (nice to have)
+# - Finish support for Restore Defaults:
+#    - PropMgrComboBox.setItems() and PropMgrComboBox.setCurrentIndex()
+#    - PropMgrComboBox.setText()
+# - Add groupbox spacerItems to PropMgrGroupBox and remove from generators.
+# - Support horizontal resizing using splitter (elsewhere, 
+#   like MWsemantics.py)
+# - Add color theme user pref in Preferences dialog. (minor)
 # - Set title button color via style sheet (see getTitleButtonStyleSheet)
-# - "range" attr (str) that can be included in What's This text.
+# - "range" attr (str) that can be included in What's This text. (minor)
 # - override setObjectName() in PropMgrWidgetMixin class to create 
 #   standard names.
 # - Add PropMgrColorChooser
 # - Add PropMgrLabel
-# - Number generators for each generator and jig type.
+# - Add PropMgrGroupAction (needed by PlanePropertyManager)
 # - Fix TopRowButtons - QHBoxLayout unnecessary.
 
 from PyQt4.Qt import *
@@ -48,6 +48,7 @@ from Sponsors import SponsorableMixin
 from Utility import geticon, getpixmap
 from PropMgr_Constants import *
 import os, sys, platform
+from debug import print_compact_traceback
 
 # Special Qt debugging functions written by Mark. 2007-05-24 ############
 
@@ -666,10 +667,14 @@ class PropMgrWidgetMixin:
                 
         if isinstance(self, PropMgrListWidget):
             if self.setAsDefault:
+                self.insertItems(0, self.defaultItems)
+                self.setCurrentRow(self.defaultRow)
+                '''
                 self.clear()
                 for choice in self.defaultChoices:
                     self.addItem(choice)
                 self.setCurrentRow(self.defaultRow)
+                '''
             
 # End of PropMgrWidgetMixin ############################
        
@@ -1201,17 +1206,24 @@ class PropMgrDoubleSpinBox(QDoubleSpinBox, PropMgrWidgetMixin):
         self.setRange(min, max)
         self.setSingleStep(singleStep)
         self.setDecimals(decimals)
-        self.setValue(val) # This must come after setDecimals().
         
-        # Set default value
-        self.defaultValue=val
-        self.setAsDefault = setAsDefault
+        self.setValue(val) # This must come after setDecimals().
         
         # Add suffix if supplied.
         if suffix:
             self.setSuffix(suffix)
         
         self.addWidgetAndLabelToParent(parent, label, spanWidth)
+        
+    def setValue(self, val, setAsDefault=True):
+        """Set value of widget to <val>. If <setAsDefault> is True, 
+        <val> becomes the default value for this widget so that
+        "Restore Defaults" will reset this widget to <val>.
+        """
+        if setAsDefault:
+            self.setAsDefault=True
+            self.defaultValue=val
+        QDoubleSpinBox.setValue(self, val)
 
 # End of PropMgrDoubleSpinBox ############################
 
@@ -1281,7 +1293,17 @@ class PropMgrSpinBox(QSpinBox, PropMgrWidgetMixin):
             self.setSuffix(suffix)
             
         self.addWidgetAndLabelToParent(parent, label, spanWidth)
-
+    
+    def setValue(self, val, setAsDefault=True):
+        """Set value of widget to <val>. If <setAsDefault> is True, 
+        <val> becomes the default value for this widget so that
+        "Restore Defaults" will reset this widget to <val>.
+        """
+        if setAsDefault:
+            self.setAsDefault=True
+            self.defaultValue=val
+        QSpinBox.setValue(self, val)
+        
 # End of PropMgrSpinBox ############################
 
 class PropMgrComboBox(QComboBox, PropMgrWidgetMixin):
@@ -1481,7 +1503,9 @@ class PropMgrCheckBox(QCheckBox, PropMgrWidgetMixin):
         
         <parent> - a property manager groupbox (PropMgrGroupBox).
         <label> - label that appears to the left of (or above) the widget.
-        <isChecked> - checked = True, uncheck = False.
+        <isChecked> - can be True, False, or one of the Qt ToggleStates
+                      True = checked
+                      False = unchecked
         <setAsDefault> - if True, will restore <val>
                          when the "Restore Defaults" button is clicked.
         <spanWidth> - if True, the widget and its label will span the width
@@ -1499,27 +1523,34 @@ class PropMgrCheckBox(QCheckBox, PropMgrWidgetMixin):
         if not parent:
             return
         
-        QLineEdit.__init__(self)
+        QCheckBox.__init__(self)
         
         self.setObjectName(parent.objectName() + 
                            "/pmCheckBox" + 
                            str(parent.num_groupboxes) +
                            "/'" + label + "'")
-        
-        # Set state based on <isChecked>.
-        if isChecked:
-            state = Qt.Checked
-        else:
-            state = Qt.Unchecked
-            
-        # Set state
-        self.setCheckState(state)
-        
-        # Set default value
-        self.defaultState=state
-        self.setAsDefault=setAsDefault
-            
+   
+        self.setCheckState(isChecked, setAsDefault)
         self.addWidgetAndLabelToParent(parent, label, spanWidth)
+        
+    def setCheckState(self, state, setAsDefault=True):
+        """Set state of widget to <state>. If <setAsDefault> is True, 
+        <state> becomes the default state for this widget so that
+        "Restore Defaults" will reset this widget to <state>.
+        <state> can be True, False, or one of the Qt ToggleStates
+        True = checked
+        False = unchecked
+        """
+        
+        # Set <state> to the appropriate Qt.ToggleState if True or False.
+        if state is True:  state = Qt.Checked
+        if state is False: state = Qt.Unchecked
+            
+        if setAsDefault:
+            self.setAsDefault=setAsDefault
+            self.defaultState=state
+        
+        QCheckBox.setCheckState(self, state)
 
 # End of PropMgrCheckBox ############################
 
@@ -1533,11 +1564,11 @@ class PropMgrListWidget(QListWidget, PropMgrWidgetMixin):
     setAsDefault = True
     # <defaultRow> - default row when "Restore Defaults" is clicked
     defaultRow = 0
-    # <defaultChoices> - default choices when "Restore Defaults" is clicked.
-    defaultChoices = []
+    # <defaultItems> - list of items when "Restore Defaults" is clicked.
+    defaultItems = []
     
     def __init__(self, parent, label='', 
-                 choices=[], row=0, setAsDefault=True,
+                 items=[], row=0, setAsDefault=True,
                  numRows=6, spanWidth=False):
         """
         Appends a QListWidget widget to <parent>, a property manager groupbox.
@@ -1546,21 +1577,21 @@ class PropMgrListWidget(QListWidget, PropMgrWidgetMixin):
         
         <parent> - a property manager groupbox (PropMgrGroupBox).
         <label> - label that appears to the left of (or above) the ComboBox.
-        <choices> - list of choices (strings) in the widget.
+        <items> - list of items (strings) to be inserted in the widget.
         <row> - current row. (0=first item)
         <setAsDefault> - if True, will restore <idx> as the current index
                          when the "Restore Defaults" button is clicked.
-        <numRows> - the number of rows to display. If the number of choices is 
+        <numRows> - the number of rows to display. If <items> is 
                  greater than <numRows>, a scrollbar will be displayed.
-        <spanWidth> - if True, the ComboBox and its label will span the width
+        <spanWidth> - if True, the widget and its label will span the width
                       of its groupbox. Its label will appear directly above
-                      the ComboBox (unless the label is empty) left justified.
+                      the widget (unless the label is empty) left justified.
         """
         
         if 0: # Debugging code
-            print "PropMgrComboBox.__init__():"
+            print "PropMgrListWidget.__init__():"
             print "  label=",label
-            print "  choices =", choices
+            print "  items =", items
             print "  row =",row
             print "  setAsDefault =", setAsDefault
             print "  numRows =",numRows
@@ -1577,14 +1608,14 @@ class PropMgrListWidget(QListWidget, PropMgrWidgetMixin):
                            "/'" + label + "'")
                
         # Load QComboBox widget choices and set initial choice (index).
-        for choice in choices:
-            self.addItem(choice)
-        self.setCurrentRow(row)
+        #for choice in choices:
+        #    self.addItem(choice)
+            
+        self.insertItems(0, items, setAsDefault)
+        self.setCurrentRow(row, setAsDefault)
         
-        # Set default index
-        self.defaultRow=row
-        self.defaultChoices=choices
-        self.setAsDefault = setAsDefault
+        # Need setChoices() method 
+        #self.defaultChoices=choices
         
         # Set height
         margin = self.fontMetrics().leading() * 2 # Mark 2007-05-28
@@ -1592,6 +1623,38 @@ class PropMgrListWidget(QListWidget, PropMgrWidgetMixin):
         self.setMaximumHeight(height)
         
         self.addWidgetAndLabelToParent(parent, label, spanWidth)
+        
+    def insertItems(self, row, items, setAsDefault=True):
+        """Insert items of widget starting at <row>. 
+        If <setAsDefault> is True, <items> become the default list of
+        items for this widget. "Restore Defaults" will reset 
+        the list of items to <items>.
+        
+        Note: <items> will always replace the list of current items
+        in the widget. <row> is ignored. This is considered a bug. Mark 2007-06-04
+        """
+        
+        if row <> 0:
+            msg = "PropMgrListWidget.insertItems(): <row> must be zero. See docstring for details:"
+            print_compact_traceback(msg)
+            return
+            
+        if setAsDefault:
+            self.setAsDefault = setAsDefault
+            self.defaultItems=items
+        
+        self.clear()
+        QListWidget.insertItems(self, row, items)
+        
+    def setCurrentRow(self, row, setAsDefault=True):
+        """Set current row of widget to <row>. If <setAsDefault> is True, 
+        <row> becomes the default row for this widget so that
+        "Restore Defaults" will reset this widget to <row>.
+        """
+        if setAsDefault:
+            self.setAsDefault = setAsDefault
+            self.defaultRow=row
+        QListWidget.setCurrentRow(self, row)
 
 # End of PropMgrListWidget ############################
 
