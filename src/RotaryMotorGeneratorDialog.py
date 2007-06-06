@@ -12,7 +12,10 @@ Mark 2007-05-28: Implemented Rotary Motor using new PropMgrBaseClass.
 __author__ = "Mark"
 
 # To do list:
-# - Sort out <name> b/w jigs.py, this file and GeneratorBaseClass.py.
+# - Fix major bug Keith discovered
+# - View should not change when adding a motor.
+# - Fix "Restore Defaults" 
+# - Adding rotary motor should work if a chunk is selected.
 # - Prompt user to select atoms via Property Manager messagebox.
 # - Update "Selected Atoms" groupbox as atoms are selected/unselected.
 # - When implemented, add new PropMgrColorChooser.
@@ -50,14 +53,33 @@ class RotaryMotorPropMgr(object, PropMgrBaseClass):
         self.addBottomSpacer() 
         self.add_whats_this_text()
         
-        #msg = "Edit the Rotary Motor parameters and click <b>Done</b> \
-        #    to save."
+        # Include something about Restore Defaults when working. Mark 2007-06-04
+        msg = "Edit the Rotary Motor parameters and click <b>Done</b> \
+            to save."
         
         # This causes the "Message" box to be displayed as well.
-        #self.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=False)
+        # setAsDefault=True causes this message to be reset whenever
+        # this PropMgr is (re)displayed via show(). Mark 2007-06-01.
+        self.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=True)
         
         # Hide preview button.
-        self.hideTopRowButtons(pmHidePreviewButton)  
+        self.hideTopRowButtons(pmHidePreviewButton)
+        
+    def show(self):
+        print "SHOW!"
+        
+        # Save the jig's attributes in case of Cancel.
+        self.jig_attrs = self.jig.copyable_attrs_dict() # Save the jig's attributes in case of Cancel.
+        
+        if 1:
+            print "---------------------------------------\nHave jig_attrs!"
+        
+        if 1:
+            self.setValuesForGroupBox1(self.pmGroupBox1)
+            self.setValuesForGroupBox2(self.pmGroupBox2)
+            self.setValuesForGroupBox3(self.pmGroupBox3)
+        
+        PropMgrBaseClass.show(self)
     
     def addGroupBoxes(self):
         """Add the 3 groupboxes for the Rotary Motor Property Manager.
@@ -200,24 +222,67 @@ class RotaryMotorPropMgr(object, PropMgrBaseClass):
     def loadGroupBox3(self, pmGroupBox):
         """Load widgets in groubox 3.
         """
-        from bond_constants import describe_atom_and_atomtype
         
-        selectedAtoms = [] 
+        '''
+        selectedAtomNames = []
         
         # Create a list of the selected atoms (descriptions).
+        from bond_constants import describe_atom_and_atomtype
         for a in self.jig.atoms:
-            sa = describe_atom_and_atomtype(a)
-            selectedAtoms.append(sa)
+            san = describe_atom_and_atomtype(a)
+            selectedAtomNames.append(san)
             
         self.selectedAtomsListWidget = \
             PropMgrListWidget(pmGroupBox, 
                                 label="Atoms :", 
-                                choices=selectedAtoms,
+                                items=selectedAtomNames,
                                 row=0, 
-                                setAsDefault=False,
-                                numRows=4,
+                                setAsDefault=True,
+                                numRows=6,
                                 spanWidth=False)
+            '''
+            
+        self.selectedAtomsListWidget = \
+            PropMgrListWidget(pmGroupBox, 
+                                label="Atoms :",
+                                numRows=6)
         
+        # Keep to discuss with Bruce. Mark 2007-06-04
+        #self.selectedAtomsListWidget.atoms = self.jig.atoms[:]    
+    
+    def setValuesForGroupBox1(self, pmGroupBox):
+        """Set values for widgets in groubox 1 each time the 
+        Property Manager is displayed.
+        """
+        self.torqueDblSpinBox.setValue(self.jig.torque)
+        self.initialSpeedDblSpinBox.setValue(self.jig.initial_speed)
+        self.finalSpeedDblSpinBox.setValue(self.jig.speed)
+        self.dampersCheckBox.setCheckState(self.jig.dampers_enabled)
+        self.enableMinimizeCheckBox.setCheckState(self.jig.enable_minimize)
+        
+    def setValuesForGroupBox2(self, pmGroupBox):
+        """Set values for widgets in groubox 2 each time the 
+        Property Manager is displayed.
+        """
+        self.motorLengthDblSpinBox.setValue(self.jig.length)
+        self.motorRadiusDblSpinBox.setValue(self.jig.radius)
+        self.spokeRadiusDblSpinBox.setValue(self.jig.sradius)
+        
+    def setValuesForGroupBox3(self, pmGroupBox):
+        """Set values for widgets in groubox 3 each time the 
+        Property Manager is displayed.
+        """
+        
+        selectedAtomNames = []
+        
+        # Create a list of the selected atoms (descriptions).
+        from bond_constants import describe_atom_and_atomtype
+        for a in self.jig.atoms:
+            san = describe_atom_and_atomtype(a)
+            selectedAtomNames.append(san)
+            
+        self.selectedAtomsListWidget.insertItems(0, selectedAtomNames, setAsDefault=True)
+    
     def add_whats_this_text(self):
         """What's This text for some of the widgets in the Property Manager.
         """
@@ -279,3 +344,11 @@ class RotaryMotorPropMgr(object, PropMgrBaseClass):
         """
         self.jig.reverse_direction()
         self.glpane.gl_update()
+        
+    def abort_button_clicked(self):
+        """Slot for the 'Cancel' button. #@ NEVER CALLED!
+        """
+        print "\n\nABORT Clicked!" #@
+        self.jig.attr_update(self.jig_attrs) # Restore attributes of the jig.
+        self.glpane.gl_update()
+        GeneratorBaseClass.abort_button_clicked(self)
