@@ -6,16 +6,18 @@
 
 History:
 ninad 20070621: Created.
-ninad 20070701: Implemented DragHandler and selobj interface for the 
+ninad 20070601: Implemented DragHandler and selobj interface for the 
 class Handles. (and for ReferenceGeoemtry which is a superclass of Plane)
-ninad 20070703: Implemented Plane Property Manager
+ninad 20070603: Implemented Plane Property Manager
+ninad 20070606: slightly cleaned up the code-- Plane class now inherits only
+ReferenceGeometry and uses PlaneGenerator object for PropertyManager work.
 
 @NOTE:This file is subjected to major changes. 
 @TODO: 
 -Work needs to be done on resizeGeometry code. 
 Many other improvements planned- Ninad 070603
-- Needs documentation and code cleanup / organization post Alpha-9.
---Ninad20070604
+- Needs documentation and code cleanup /organization post Alpha9.--ninad20070604 
+
 
 
 
@@ -43,8 +45,8 @@ from ReferenceGeometry import ReferenceGeometry
 #Required for class Handle --
 from DragHandler import DragHandler_API
 
-class Plane(QDialog, PlanePropMgr,ReferenceGeometry):
-    cmd = greenmsg("Plane: ")
+class Plane(ReferenceGeometry):
+    
     sym = "Plane"    
     is_movable = True 
     mutable_attrs = ('center', 'quat')
@@ -60,9 +62,7 @@ class Plane(QDialog, PlanePropMgr,ReferenceGeometry):
         @param: lst: List of atoms or points'''
         
         self.w = self.win = win
-                
-        QDialog.__init__(self, win)
-        PlanePropMgr.__init__(self)        
+                      
         ReferenceGeometry.__init__(self, win)         
         
         if self.win.assy.o.mode.modename in \
@@ -73,24 +73,22 @@ class Plane(QDialog, PlanePropMgr,ReferenceGeometry):
         self.opacity = 0.3
         
         self.handles = []   
-        
-        #@@@This is needed to avoid  'hidden' attribute conflict. 
-        #Plane class inherits PropMgrWidgetMixin.hidden instead of
-        #Node.hidden i.e. ReferenceGeometry.hidden. This was causing a bug
-        #where the plane was shown hidden after hitting done or cancel. 
-        # may be PropMgrWidgetMixin.hidden  be renamed to PropMgrWidgetMixin.widgethidden 
-        #-- ninad 20070703
-        self.hidden = ReferenceGeometry.hidden
-        
+                
         #This is used to notify drawing code if it's just for picking purpose
         #copied from jig_planes.ESPImage 
         self.pickCheckOnly=False 
         
+        from PlaneGenerator import PlaneGenerator
+        self.propMgr = PlaneGenerator(self.win, self)
+                   
+        
         if not READ_FROM_MMP:
-            self.width = 16
-            self.height = 16                    
+            self.width = 12
+            self.height = 12                    
             self.normcolor = black
-            self.__init_quat_center(lst)
+            self.__init_quat_center(lst)            
+            self.propMgr.show_propMgr()
+            self.propMgr.preview_btn_clicked()
     
     def __getattr__(self, name):
         if name == 'planeNorm':
@@ -140,30 +138,7 @@ class Plane(QDialog, PlanePropMgr,ReferenceGeometry):
         
         return "type-geometry"
     
-    
-    ##=========== Structure Generator like interface TO BE REVISED======##
-    def gather_parameters(self):
-        """Return all the parameters from the Property Manager.
-        """
-        height = self.heightDblSpinBox.value()
-        width = self.widthDblSpinBox.value()
-        atmList = self.win.assy.selatoms_list()
-        self.changePlanePlacement(self.planePlacement_btngrp.checkedId())
-        ctr = self.center        
-        return (width, height, ctr, atmList)
-    
-    def build_struct(self, name, params):
-        """Build a Plane from the parameters in the Property Manager.
-        """
-        width, height, center_junk, atmList_junk = params
-        self.width = width        
-        self.height = height   
-        self.win.win_update() # Update model tree
-        self.win.assy.changed()        
-        return self
-    ##=====================================##
-          
-    
+        
     def draw(self, glpane, dispdef):
         if self.hidden:
             return
@@ -378,35 +353,31 @@ class Plane(QDialog, PlanePropMgr,ReferenceGeometry):
         
         self.recomputeCenter(totalOffset)
         #update the width,height spinboxes(may be more in future)--Ninad20070601
-        self.update_spinboxes()
+        self.propMgr.update_spinboxes()
     
     def edit(self):
         ''' Overrided node.edit and shows the property manager'''
-        self.existingStructForEditing = True
-        self.update_spinboxes()
-        self.old_props = self.getProps()        
-        self.show_propMgr()
-        #@@@@ kludge! This is needed to avoid  'hidden' attribute conflict. 
-        #Plane class inherits PropMgrWidgetMixin.hidden instead of
-        #Node.hidden i.e. ReferenceGeometry.hidden. This was causing a bug
-        #where the plane was shown hidden after hitting done or cancel. 
-        # may be PropMgrWidgetMixin.hidden  be renamed to
-        #PropMgrWidgetMixin.widgethidden -- ninad 20070604
-        self.hidden = ReferenceGeometry.hidden        
+        self.propMgr.existingStructForEditing = True    
+        ##self.propMgr.update_spinboxes()
+        self.propMgr.old_props = self.getProps()
+        self.propMgr.show_propMgr()       
                 
     def changePlanePlacement(self, btn_id ):
         ''' Slot to Change the placement of the plane depending upon the 
         action checked in the Placement Groupbox of Plane PM'''
-        cmd = self.cmd        
+        cmd = self.propMgr.cmd        
         if btn_id == 0:
-            msg = "Plane will be created parellel to the screen. \
-            Hit Preview button to see the new Plane placement"
-            self.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=False)
+            msg = "Plane will be created parallel to the screen. \
+            NOTE: In Alpha9, the default center of the plane is (0,0,0).\
+            This value is set during plane creation or when 'Preview' button \
+            is clicked."
+            self.propMgr.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=False)
             self._setup_quat_center()
+            self.glpane.gl_update()
         elif btn_id == 1:
             msg = "Plane will pass through 3 or more selected atoms.\
-            Select atoms and hit 'Preview' to see new Plane placement"
-            self.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=False)
+            Select atoms and hit 'Preview' to see the new Plane placement"
+            self.propMgr.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=False)
             atmList = self.win.assy.selatoms_list()         
             if not atmList:
                 msg = redmsg("Select 3 or more atoms to create a Plane.")
@@ -419,6 +390,7 @@ class Plane(QDialog, PlanePropMgr,ReferenceGeometry):
                 env.history.message(cmd + msg)
                 return
             self._setup_quat_center(lst = atmList)
+            self.glpane.gl_update()
             
     def _setup_quat_center(self, lst = None):
         if lst:    

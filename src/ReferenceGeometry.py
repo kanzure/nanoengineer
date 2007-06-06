@@ -7,24 +7,23 @@
 History:
 ninad 20070521 : Created
 
-ninad 20070701: Implemented DragHandler and selobj interface for the 
+ninad 20070601: Implemented DragHandler and selobj interface for the 
 class Handles. (and for ReferenceGeoemtry which is a superclass of Plane)
 
-ninad 20070704: Changed the superclass from Node to Jig based on a discussion 
+ninad 20070604: Changed the superclass from Node to Jig based on a discussion 
 with Bruce. This allows us to use code for jig selection deletion in some select 
 modes. (note that it continues to use drag handler, selobj interfaces.). 
 This might CHANGE in future.  After making jig a superclass of ReferenceGeometry
 some methods in this file have become overdefined. This needs cleanup
+
+ninad 20070606: Created a GeometryGeneratorBaseClass (temporary work for Alpha9, 
+to be revised) . In Alpha9 this class is inherited by PlaneGenerator class 
 """
 
 #@NOTE:This file is subjected to major changes.
 
 #@TODO: Ninad20070604 :
 #- Needs documentation and code cleanup / organization post Alpha-9.
-#--Examples: code not reused -- It uses and modifies methods in 
-#GeneratorBaseClass instead of inheriting it. Better to make changes in 
-#GeneratorBase class. -- see another note in this file for reason why I did 
-#this for A9.
 #-After making jig a superclass of ReferenceGeometry
 #some methods in this file have become overdefined. This needs cleanup.
 
@@ -63,14 +62,7 @@ class ReferenceGeometry(Jig, DragHandler_API):
         Jig.__init__(self, win.assy, self.atoms)        
         self.glname = env.alloc_my_glselect_name( self) 
         self.glpane = self.assy.o
-        
-        self.pw = None
-        self.modePropertyManager = None
-        self.struct = None
-        self.previousParams = None
-        self.existingStructForEditing = False
-        self.old_props = None
-        
+                
     
     def needs_atoms_to_survive(self): 
         '''Overrided method inherited from Jig. This is used to tell 
@@ -186,6 +178,29 @@ class ReferenceGeometry(Jig, DragHandler_API):
     
     def ReleasedOn(self, selobj, event, mode): 
         pass
+    
+#####=============TEMPORARY GeometryGeneratorBaseClass=========###
+#@@TODO: This is a temporary class for Alpha9. It should be modified
+#or deleted during post A9 development (when we revise GeneratorBaseClass)
+#This is very much like GeneratorBaseClass but has a few modifications
+#for use in PlaneGenerator.  At present, PlaneGenerator inherits this
+#class. -- Ninad 20070606 
+
+
+from Sponsors import SponsorableMixin
+from PropertyManagerMixin import PropertyManagerMixin
+
+class GeometryGeneratorBaseClass(SponsorableMixin, PropertyManagerMixin):
+    ''' Geometry Generator base class . This is a temporary class for Alpha9. 
+    It should be modified   or deleted during post A9 development 
+    (when we revise GeneratorBaseClass)  This is very much like 
+    GeneratorBaseClass but has a few modifications
+    for use in PlaneGenerator.  At present, PlaneGenerator inherits this
+     '''
+    # see definition details in GeneratorBaseClass
+    cmd = "" 
+    cmdname = "" 
+
   
     ##======common methods for Property Managers=====###
     #@NOTE: This copies some methods from GeneratorBaseClass
@@ -193,7 +208,38 @@ class ReferenceGeometry(Jig, DragHandler_API):
     #had weired problems in importing it. Something to do with 
     #QPaindevice/ QApplication /QPixmap. NE1 didn't start de to that error
     #Therefore, implemented and modified the following methods. OK for Alpha9 
-    #and maybe later -- Ninad 20070703
+    #and maybe later -- Ninad 20070603
+    
+     # pass window arg to constructor rather than use a global, wware 051103
+    def __init__(self, win):
+        self.win = win
+        self.pw = None # pw = part window. Its subclasses will create their partwindow objects (and destroy them after Done)
+        self.modePropertyManager = None
+        self.struct = None
+        self.previousParams = None
+        self.existingStructForEditing = False
+        self.old_props = None
+        
+        if 1:
+            #bruce 060616 added the following kluge to make sure both cmdname and cmd are set properly.
+            if not self.cmdname and not self.cmd:
+                self.cmdname = "Generate something"
+            if self.cmd and not self.cmdname:
+                # deprecated but common, as of 060616
+                self.cmdname = self.cmd # fallback
+                try:
+                    cmdname = self.cmd.split('>')[1]
+                    cmdname = cmdname.split('<')[0]
+                    cmdname = cmdname.split(':')[0]
+                    self.cmdname = cmdname
+                except:
+                    if platform.atom_debug:
+                        print "fyi: %r guessed wrong about format of self.cmd == %r" % (self, self.cmd,)
+                    pass
+            elif self.cmdname and not self.cmd:
+                # this is intended to be the usual situation, but isn't yet, as of 060616
+                self.cmd = greenmsg(self.cmdname + ": ")
+        return
     
     def abort_btn_clicked(self):
         self.cancel_btn_clicked()
@@ -212,12 +258,15 @@ class ReferenceGeometry(Jig, DragHandler_API):
         self.accept() #bruce 060621
         self.struct = None
         self.closePropertyManager() 
-        # the following reopens the property manager of the mode after 
-        #when the PM of the reference geometry is closed. -- Ninad 20070103
         
+        # The following reopens the property manager of the mode after 
+        #when the PM of the reference geometry is closed. -- Ninad 20070603        
         if self.win.assy.o.mode.modename in \
            ['DEPOSIT', 'MODIFY', 'FUSE', 'MOVIE']:
             self.modePropertyManager = self.win.assy.o.mode
+        else:
+            self.modePropertyManager = None
+        
         if self.modePropertyManager:
             self.openPropertyManager(self.modePropertyManager)
         return
@@ -229,8 +278,8 @@ class ReferenceGeometry(Jig, DragHandler_API):
            
         if self.existingStructForEditing: 
             if self.old_props:
-                self.setProps(self.old_props)
-                self.glpane.gl_update() 
+                self.geometry.setProps(self.old_props)
+                self.geometry.glpane.gl_update() 
                 
         else:
             self.remove_struct()            
@@ -241,6 +290,8 @@ class ReferenceGeometry(Jig, DragHandler_API):
         if self.win.assy.o.mode.modename in \
            ['DEPOSIT', 'MODIFY', 'FUSE', 'MOVIE']:
             self.modePropertyManager = self.win.assy.o.mode
+        else:
+            self.modePropertyManager = None
             
         if self.modePropertyManager:
             self.openPropertyManager(self.modePropertyManager)
@@ -290,12 +341,28 @@ class ReferenceGeometry(Jig, DragHandler_API):
         self.previousParams = params
         if platform.atom_debug: print 'build a new structure'
         self.struct = self.build_struct(name, params)
-        self.win.assy.place_new_geometry(self.struct)                
+        self.win.assy.place_new_geometry(self.struct)  
+        #@ not needed?? - ninad 20070606
+        self.win.assy.changed()
+        self.win.win_update()
                 
-    def _revert_number(self):
+    def _revert_number_ORIG(self):
         import Utility
         if hasattr(self, '_Gno'):
             Gno = self._Gno
+        if hasattr(self, '_ViewNum'):
+            Utility.ViewNum = self._ViewNum
+    
+    def _revert_number(self):
+        #bruce 070603: removing the Gno part of revert_number, 
+        #since it won't work properly with the new gensym.
+        # If we still need this side effect, we'll have to implement it differently.
+        # Note that the only other reference to _Gno is a few lines below,
+        #where it's set in _build_struct (also removed now).
+        ##        import chem
+        ##        if hasattr(self, '_Gno'):
+        ##            chem.Gno = self._Gno
+        import Utility
         if hasattr(self, '_ViewNum'):
             Utility.ViewNum = self._ViewNum
     

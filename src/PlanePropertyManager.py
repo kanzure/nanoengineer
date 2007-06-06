@@ -6,7 +6,7 @@
 @version:$Id$
 
 History:
-ninad 20070702: Created.
+ninad 20070602: Created.
 
 """
 __author__ = "Ninad"
@@ -21,7 +21,7 @@ from PropMgr_Constants import *
 from PropertyManagerMixin import PropertyManagerMixin
 
 
-class PlanePropMgr(object,PropMgrBaseClass, PropertyManagerMixin):
+class PlanePropMgr(object,PropMgrBaseClass):
     ''' UI and slot methods for Plane Property manager'''
     
     # <title> - the title that appears in the property manager header.
@@ -32,9 +32,10 @@ class PlanePropMgr(object,PropMgrBaseClass, PropertyManagerMixin):
     # <iconPath> - full path to PNG file that appears in the header.
     iconPath = "ui/actions/Insert/Reference Geometry/Plane.png"
     
-    def __init__(self):
+    def __init__(self, plane):
         """Construct the Plane Property Manager.
         """
+        self.geometry = plane
         PropMgrBaseClass.__init__(self, self.propmgr_name)
         self.setPropMgrIcon(self.iconPath)
         self.setPropMgrTitle(self.title)
@@ -52,7 +53,9 @@ class PlanePropMgr(object,PropMgrBaseClass, PropertyManagerMixin):
         #signal is not emitted after calling spinbox.setValue.
         self.resized_from_glpane = False
         
+        #Hide Preview and Restore defaults button for Alpha9
         self.hideTopRowButtons(pmHideRestoreDefaultsButton)
+      
         
     def addGroupBoxes(self):
         """Add the 1 groupbox for the Graphene Property Manager.
@@ -123,7 +126,7 @@ class PlanePropMgr(object,PropMgrBaseClass, PropertyManagerMixin):
         
         self.connect(self.planePlacement_btngrp,
                      SIGNAL("buttonClicked(int)"),
-                     self.changePlanePlacement)
+                     self.geometry.changePlanePlacement)
     
     def loadGroupBox2_ORIG_WITH_TOOLBUTTONS(self, pmGroupBox):
         """
@@ -167,15 +170,16 @@ class PlanePropMgr(object,PropMgrBaseClass, PropertyManagerMixin):
     
     def show_propMgr(self):
         ''' Show the Property manager'''
+        self.update_spinboxes()
         self.show()
     
     def change_plane_size(self, gl_update=True):
         '''Slot method to change the Plane's width and height'''
         if not self.resized_from_glpane:
-            self.width = self.widthDblSpinBox.value()# motor length
-            self.height = self.heightDblSpinBox.value() # motor radius
+            self.geometry.width = self.widthDblSpinBox.value()# motor length
+            self.geometry.height = self.heightDblSpinBox.value() # motor radius
         if gl_update:
-            self.glpane.gl_update()
+            self.geometry.glpane.gl_update()
     
     def update_spinboxes(self):
         '''update the width and height spinboxes(may be some more valued in future)
@@ -184,6 +188,6 @@ class PlanePropMgr(object,PropMgrBaseClass, PropertyManagerMixin):
         #signal is not emitted after calling spinbox.setValue. 
         # This flag is used in change_plane_size method.-- Ninad 20070601
         self.resized_from_glpane = True
-        self.heightDblSpinBox.setValue(self.height)
-        self.widthDblSpinBox.setValue(self.width)
+        self.heightDblSpinBox.setValue(self.geometry.height)
+        self.widthDblSpinBox.setValue(self.geometry.width)
         self.resized_from_glpane = False    
