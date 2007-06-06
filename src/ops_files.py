@@ -18,7 +18,7 @@ bruce 050913 used env.history in some places.
 mark 060730 removed unsupported slot method fileNew(); refined and added missing docstrings
 """
 
-from PyQt4.Qt import QFileDialog, QMessageBox, QString, qApp, QSettings
+from PyQt4.Qt import QFileDialog, QMessageBox, QString, qApp, QSettings, QStringList, QProcess
 from assembly import assembly
 import os, shutil
 import platform
@@ -90,7 +90,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             "All Files (*.*);;"\
             "Molecular Machine Part (*.mmp);;"\
             "Accelrys/MSI Biosym/Insight II CAR (*.car);;"\
-            "Alchemy (*.alc, *.mol);;"\
+            "Alchemy (*.alc);;"\
             "Amber Prep (*.prep);;"\
             "Ball and Stick (*.bs);;"\
             "Cacao Cartesian (*.caccrt);;"\
@@ -143,83 +143,94 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             "XYZ cartesian coordinates (*.xyz);;"\
             "YASARA.org YOB (*.yob)"
         
-        """fn = QFileDialog.getOpenFileName(self.currentWorkingDirectory,
-                formats,
-                self,
-                "Import File dialog",
-                "Select file to Import" )"""
-        
-        fn = QFileDialog.getOpenFileName(self, 
+        import_filename = QFileDialog.getOpenFileName(self, 
                                  "Select a file to import", 
                                  self.currentWorkingDirectory, 
                                  formats
                                  ) 
         
-    
-                
-        if not fn:
+        if not import_filename:
              env.history.message(cmd + "Cancelled")
              return
         
-        if fn:
-            fn = str(fn)
-            if not os.path.exists(fn):
+        if import_filename:
+            import_filename = str(import_filename)
+            if not os.path.exists(import_filename):
                 #bruce 050415: I think this should never happen;
                 # in case it does, I added a history message (to existing if/return code).
-                env.history.message( redmsg( "File not found: [ " + fn+ " ]") )
+                env.history.message( cmd + redmsg( "File not found: [ " + import_filename + " ]") )
                 return
 
             # Anything that isn't an MMP file, we will import with Open Babel.
             # Its coverage of MMP files is imperfect so it makes mistakes, but
             # it would be good to use it enough to find those mistakes.
 
-            if fn[-3:] == "mmp":
+            if import_filename[-3:] == "mmp":
                 try:
-                    insertmmp(self.assy, fn)
+                    insertmmp(self.assy, import_filename)
                 except:
-                    print_compact_traceback( "MWsemantics.py: fileInsert(): error inserting MMP file [%s]: " % fn )
-                    env.history.message( redmsg( "Internal error while inserting MMP file: [ " + fn+" ]") )
+                    print_compact_traceback( "MWsemantics.py: fileInsert(): error inserting MMP file [%s]: " % import_filename )
+                    env.history.message( cmd + redmsg( "Internal error while inserting MMP file: [ " + import_filename +" ]") )
                 else:
                     self.assy.changed() # The file and the part are not the same.
-                    env.history.message( cmd + "MMP file inserted: [ " + os.path.normpath(fn) + " ]" ) # fix bug 453 item. ninad060721
+                    env.history.message( cmd + "MMP file inserted: [ " + os.path.normpath(import_filename) + " ]" ) # fix bug 453 item. ninad060721
 
-#           elif fn[-3:] in ["pdb","PDB"]:
+# Is Open Babel better than our own? Someone should test it someday.
+# Mark 2007-06-05      
+#           elif import_filename[-3:] in ["pdb","PDB"]:
 #               try:
-#                   insertpdb(self.assy, fn)
+#                   insertpdb(self.assy, import_filename)
 #               except:
-#                   print_compact_traceback( "MWsemantics.py: fileInsert(): error inserting PDB file [%s]: " % fn )
-#                   env.history.message( redmsg( "Internal error while inserting PDB file: [ " + fn + " ]") )
+#                   print_compact_traceback( "MWsemantics.py: fileInsert(): error inserting PDB file [%s]: " % import_filename )
+#                   env.history.message( redmsg( "Internal error while inserting PDB file: [ " + import_filename + " ]") )
 #               else:
 #                   self.assy.changed() # The file and the part are not the same.
-#                   env.history.message( cmd + "PDB file inserted: [ " + os.path.normpath(fn) + " ]" )
+#                   env.history.message( cmd + "PDB file inserted: [ " + os.path.normpath(import_filename) + " ]" )
 
-            else:
-                dir, fil, ext = fileparse(fn)
+            else: # All other filetypes, which will be translated to MMP and inserted into the part.
+                dir, fil, ext = fileparse(import_filename)
                 tmpdir = platform.find_or_make_Nanorex_subdir('temp')
                 mmpfile = os.path.join(tmpdir, fil + ".mmp")
-                result = self.runBabel(fn, mmpfile)
+                result = self.launch_ne1_openbabel(in_format=ext[1:], infile=import_filename, 
+                                                   out_format="mmp", outfile=mmpfile)
                 if result:
                     insertmmp(self.assy, mmpfile)
                     # Theoretically, we have successfully imported the file at this point.
                     # But there might be a warning from insertmmp.
+                    
+                    # We'll assume it went well. Mark 2007-06-05
+                    msg = cmd + "File imported: [ " + os.path.normpath(import_filename) + " ]"
+                    env.history.message(msg)
+
                 else:
-                    print 'Problem:', fn, '->', mmpfile
-                    env.history.message(redmsg("File translation failed."))
+                    print 'NE1 babel had problem converting ', import_filename, '->', mmpfile
+                    env.history.message(cmd + redmsg("File translation failed."))
+            
             self.glpane.scale = self.assy.bbox.scale()
             self.glpane.gl_update()
             self.mt.mt_update()
             
+            #@ Bad idea. Maybe we should have "LastImportDirectory" and "LastExportDirectory" 
+            #@  prefs stored in the prefs db. Marked for removal. Mark 2007-06-05
             # Update the current working directory (CWD).
-            dir, fil = os.path.split(fn)
-            self.setCurrentWorkingDirectory(dir)
+            #dir, fil = os.path.split(import_filename)
+            #self.setCurrentWorkingDirectory(dir)
             
-    def fileExport(self): # Code copied from fileInsert() slot method. Mark 060731. 
+    def fileExport(self): # Fixed up by Mark. 2007-06-05
         """Slot method for 'File > Export'.
+        Exported files contain all atoms, including invisible and hidden atoms.
+        This is considered a bug.
         """
+        
+        # To Do: Mark 2007-06-05
+        #
+        # - Export only visible atoms, etc.
+
         if platform.atom_debug:
             from debug import linenum
             linenum()
             print 'start fileExport()'
+            
         cmd = greenmsg("Export File: ")
         
         # This format list generated from the Open Babel wiki page: 
@@ -302,99 +313,135 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             "YASARA.org YOB format (*.yob);;"\
             "ZINDO input format (*.zin);;"
 
-            ## Don't use OpenBabel for MDL, otherwise it would look like this
+        export_filename = \
+            QFileDialog.getSaveFileName(self, 
+                                        "Export File", 
+                                        self.currentWorkingDirectory, 
+                                        formats,
+                                        sfilter
+                                        )
 
-        
-        fn = QFileDialog.getSaveFileName(self, 
-                                         "Export File", 
-                                         self.currentWorkingDirectory, 
-                                         formats,
-                                         sfilter
-                                         ) #@@@ ninad061009  Not sure how to set "Select file to Export" as default selected 
-                                            #filter option in qt4
-
-        if not fn:
+        if not export_filename:
             env.history.message(cmd + "Cancelled")
             if platform.atom_debug:
                 linenum()
-                print 'fileExport cancelled because fn is no good'
+                print 'fileExport cancelled because user cancelled'
             return
-        fn = str(fn)
+        export_filename = str(export_filename)
 
         sext = re.compile('.*\(\*(.+)\)').search(str(sfilter))
         assert sext is not None
         sext = sext.group(1)
-        if not fn.endswith(sext):
-            fn += sext
+        if not export_filename.endswith(sext):
+            export_filename += sext
 
         if platform.atom_debug:
             linenum()
-            print 'fn', repr(fn)
+            print 'export_filename', repr(export_filename)
 
-        dir, fil, ext = fileparse(fn)
+        dir, fil, ext = fileparse(export_filename)
         if ext == ".mmp":
-            self.save_mmp_file(fn, brag=True)
+            self.save_mmp_file(export_filename, brag=True)
         else:
-            # Anything that isn't an MMP file, we will export with Open Babel.
+            # Anything that isn't an MMP file we will export with Open Babel.
             # Its coverage of MMP files is imperfect so it makes mistakes, but
             # it would be good to use it enough to find those mistakes.
-            import time
-            dir, fil, ext = fileparse(fn)
+            dir, fil, ext = fileparse(export_filename)
             if platform.atom_debug:
                 linenum()
-                print 'dir, fil, ext', repr(dir), repr(fil), repr(ext)
+                print 'dir, fil, ext :', repr(dir), repr(fil), repr(ext)
+            
             tmpdir = platform.find_or_make_Nanorex_subdir('temp')
-            mmpfile = os.path.join(tmpdir, fil + ".mmp")
+            tmp_mmp_filename = os.path.join(tmpdir, fil + ".mmp")
+            
             if platform.atom_debug:
                 linenum()
-                print 'tmpdir, mmpfile', repr(tmpdir), repr(mmpfile)
-            self.saveFile(mmpfile, brag=False)
-            result = self.runBabel(mmpfile, fn)
-            if result and os.path.exists(fn):
+                print 'tmp_mmp_filename :', repr(tmp_mmp_filename)
+                
+            # We simply want to save a copy of the MMP file, not its Part Files, too.
+            # savePartFiles=False does this. Mark 2007-06-05
+            self.saveFile(tmp_mmp_filename, brag=False, savePartFiles=False)
+            
+            result = self.launch_ne1_openbabel(in_format="mmp", infile=tmp_mmp_filename, 
+                                               out_format=sext[1:], outfile=export_filename)
+            
+            if result and os.path.exists(export_filename):
                 if platform.atom_debug:
                     linenum()
                     print 'file translation OK'
-                env.history.message( "File exported: [ " + fn + " ]" )
+                env.history.message( cmd + "File exported: [ " + export_filename + " ]" )
             else:
                 if platform.atom_debug:
                     linenum()
                     print 'file translation failed'
-                print 'Problem:', mmpfile, '->', fn
-                env.history.message(redmsg("File translation failed."))
+                print 'Problem translating ', tmp_mmp_filename, '->', export_filename
+                env.history.message(cmd + redmsg("File translation failed."))
 
         self.glpane.scale = self.assy.bbox.scale()
         self.glpane.gl_update()
         self.mt.mt_update()
 
-        # Update the current working directory (CWD).
-        dir, fil = os.path.split(fn)
-        if platform.atom_debug:
-            linenum()
-            print 'fileExport changing working directory to %s' % repr(dir)
-        self.setCurrentWorkingDirectory(dir)
         if platform.atom_debug:
             linenum()
             print 'finish fileExport()'
 
-    def runBabel(self, infile, outfile):
-        if platform.atom_debug:
-            print 'start runBabel(%s, %s)' % (repr(infile), repr(outfile))
-        import time
-        from PyQt4.Qt import QStringList, QProcess
-        arguments = QStringList()
-        if sys.platform == 'win32':
-            program = 'babel.exe'
+    def launch_ne1_openbabel(self, in_format, infile, out_format, outfile):
+        """Runs NE1's own version of Open Babel for translating to/from MMP and
+        many chemistry file formats. It will not work with other versions of
+        Open Babel since they to not support MMP file format (yet).
+        
+        <in_format> - the chemistry format of the input file, specified by the
+                      file format extension.
+        <infile> is the input file.
+        <out_format> - the chemistry format of the output file, specified by the
+                      file format extension.
+        <outfile> is the converted file.
+        
+        Example: babel -immp methane.mmp -oxyz methane.xyz
+        """
+
+        # filePath = the current directory NE-1 is running from.
+        filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
+        
+        # "program" is the full path to *NE1's own* Open Babel executable.
+        if sys.platform == 'win32': 
+            program = os.path.normpath(filePath + '/../bin/babel.exe')
         else:
-            program = 'babel'
+            program = os.path.normpath(filePath + '/../bin/babel')
+            
+        if not os.path.exists(program):
+            print "Babel program not found here: ", program
+            return 1
+        
+        # Will (Ware) had this debug arg for our version of Open Babel, but
+        # I've no idea if it works now or what it does. Mark 2007-06-05.
+        if platform.atom_debug:
+            debugvar = 'WWARE_DEBUG=1'
+            print 'debugvar =', debugvar
+        else:
+            debugvar = None
+        
+        if platform.atom_debug:
+            print "program =", program
+            
+        infile = os.path.normpath(infile)
+        outfile = os.path.normpath(outfile)
+        
+        in_format = "-i"+in_format
+        out_format = "-o"+out_format
+            
+        arguments = QStringList()
         i = 0
-        for arg in [program, infile, outfile]:
+        for arg in [in_format, infile, out_format, outfile, debugvar]:
+            if not arg: continue # For debugvar.
             if platform.atom_debug:
-                print 'argument', i, repr(arg)
+                print 'argument', i, " :", repr(arg)
             i += 1
             arguments.append(arg)
-        proc = QProcess()
+                    
+        # Looks like Will's special debugging code. Mark 2007-06-05
         if debug_babel:
-            # wware 060906  Create a shell script to re-run OpenBabel
+            # wware 060906  Create a shell script to re-run Open Babel
             outf = open("rerunbabel.sh", "w")
             # On the Mac, "-f" prevents running .bashrc
             # On Linux it disables filename wildcards (harmless)
@@ -403,36 +450,28 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 outf.write(str(a) + " \\\n")
             outf.write("\n")
             outf.close()
-        proc.setArguments(arguments)
-        text = [ None ]
-        if platform.atom_debug:
-            debugvar = QStringList()
-            debugvar.append('WWARE_DEBUG=1')
-            print 'debugvar', str(debugvar)
-            proc.start(debugvar)
-        else:
-            proc.start()
-        while 1:
-            if proc.isRunning():
-                if platform.atom_debug:
-                    print "still running"
-                    time.sleep(1)
-                else:
-                    time.sleep(0.1)
-            else:
-                break
+        
+        proc = QProcess()
+        proc.start(program, arguments) # Mark 2007-06-05
+
+        if not proc.waitForFinished (100000): 
+            # Wait for 100000 milliseconds (100 seconds)
+            # If not done by then, return an error.
+            return 1
+    
         exitStatus = proc.exitStatus()
-        stderr = str(proc.readStderr())[:-1]
+        stderr = str(proc.readAllStandardError())[:-1]
         if platform.atom_debug:
             print 'exit status', exitStatus
             print 'stderr says', stderr
-            print 'finish runBabel(%s, %s)' % (repr(infile), repr(outfile))
+            print 'finish launch_ne1_openbabel(%s, %s)' % (repr(infile), repr(outfile))
         stderr = stderr.split(os.linesep)[-1]
         return exitStatus == 0 and stderr == "1 molecule converted"
 
     def fileInsert(self):
         """Slot method for 'File > Insert'.
         """
+        
         env.history.message(greenmsg("Insert File:"))
         
         formats = \
@@ -762,15 +801,19 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         killfunc()
         return
 
-    def saveFile(self, safile, brag=True):
+    def saveFile(self, safile, brag=True, savePartFiles=True):
         """Save the current model. <safile> is the filename to save the part under.
+        <savePartFiles> : True (default) means save any part files if this MMP file has a
+                          Part Files directory.
+                          False means just save the MMP file and don't worry about 
+                          saving the Part Files directory, too.
         """
         
         dir, fil, ext = fileparse(safile)
             #e only ext needed in most cases here, could replace with os.path.split [bruce 050907 comment]
                     
         if ext == ".mmp" : # Write MMP file.
-            self.save_mmp_file(safile, brag=brag)
+            self.save_mmp_file(safile, brag=brag, savePartFiles=savePartFiles)
             self.setCurrentWorkingDirectory() # Update the CWD.
 
         elif ext == ".pdb": # Write PDB file.
@@ -856,7 +899,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 env.history.message( "%s file saved: " % type + safile )
         return
 
-    def save_mmp_file(self, safile, brag=True):
+    def save_mmp_file(self, safile, brag=True, savePartFiles=True):
         # bruce 050907 split this out of saveFile; maybe some of it should be moved back into caller ###@@@untested
         """Save the current part as a MMP file under the name <safile>.
         If we are saving a part (assy) that already exists and it has an (old) Part Files directory, 
@@ -883,6 +926,14 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 # (#e In principle we could try just moving it first, and only if that fails, try removing and then moving.)
 
             os.rename( tmpname, safile) # Move tmp file to saved filename.
+            
+            if not savePartFiles:
+                # Sometimes, we just want to save the MMP file and not worry about
+                # any of the part's Part Files. For example, Open Babel just needs to
+                # save a copy of the current MMP file in a temp directory for
+                # translation purposes (see fileExport() and fileImport()). 
+                # Mark 2007-06-05
+                return
             
             errorcode, oldPartFilesDir = self.assy.find_or_make_part_files_directory(make = False) # Mark 060703.
             
@@ -947,7 +998,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             if os.path.isdir(newPartFilesDir):
                 if "need permission":
                     # ... confirm overwrite of the existing file. [code copied from another method above]
-                    ret = QMessageBox.warning( self, self.name(), ###k what is self.name()?
+                    ret = QMessageBox.warning( self, "Warning!", ###k what is self.name()?
                         "The Part Files directory for the copied mmp file,\n[" + newPartFilesDir + "], already exists.\n"\
                         "Do you want to overwrite this directory, or skip copying the Part Files from the old mmp file?\n"\
                         "(If you skip copying them now, you can rename this directory and copy them using your OS;\n"\
