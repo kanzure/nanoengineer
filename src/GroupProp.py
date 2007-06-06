@@ -9,6 +9,7 @@ from PyQt4.Qt import *
 from GroupPropDialog import *
 from VQT import V
 from qt4transition import *
+import sys
 
 class Statistics:
     def __init__(self, group):
@@ -45,7 +46,10 @@ class Statistics:
         statsView.addItem(item)
         
         item = QListWidgetItem()
-        item.setText("Gamess:" + str(self.ngamess))
+        if sys.platform == "win32":
+            item.setText("PC GAMESS:" + str(self.ngamess))
+        else:
+            item.setText("GAMESS:" + str(self.ngamess))
         statsView.addItem(item)
                 
         item = QListWidgetItem()

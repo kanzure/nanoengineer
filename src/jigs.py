@@ -1108,7 +1108,12 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         """
         # [mark 2007-05-07 modified docstring]
         
-        cmd = greenmsg("Gamess: ")
+        if sys.platform == "win32":
+            gms_str = "PC GAMESS"
+        else:
+            gms_str = "GAMESS"
+            
+        cmd = greenmsg(gms_str + ": ")
         
         atoms = []
         
@@ -1117,7 +1122,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         
         if not atoms:
             env.history.message(cmd + redmsg(
-                "At least one atom must be selected to create a GAMESS Jig."))
+                "At least one atom must be selected to create a " + gms_str + " jig."))
             return
         
         # Make sure that no more than 200 atoms are selected.
@@ -1128,8 +1133,8 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         
         # Bug 742.    Mark 050731.
         if nsa > 50:
-            ret = QMessageBox.warning( self.assy.w, "Large GAMESS Jig",
-                "GAMESS Jigs with more than 50 atoms may take an\n"
+            ret = QMessageBox.warning( self.assy.w, "Too many atoms?",
+                gms_str + " jigs with more than 50 atoms may take an\n"
                 "excessively long time to compute (days or weeks).\n"
                 "Are you sure you want to continue?",
                 "&Continue", "Cancel", "",
@@ -1149,7 +1154,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         self.unpickall_in_GLPane() # [was unpickatoms -- bruce 060721]
         self.place_new_jig(m)
         
-        env.history.message(cmd + "GAMESS Jig created")
+        env.history.message(cmd + gms_str + " jig created")
         self.assy.w.win_update()
         
     def makeAnchor(self):

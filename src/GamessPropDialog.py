@@ -222,7 +222,7 @@ class Ui_GamessPropDialog(object):
 
         self.whats_this_btn = QtGui.QToolButton(GamessPropDialog)
         self.whats_this_btn.setMinimumSize(QtCore.QSize(30,27))
-        self.whats_this_btn.setIcon(QtGui.QIcon("../../../../:icons/GamessPropDialog_image1"))
+        self.whats_this_btn.setIcon(QtGui.QIcon("ui/actions/Properties Manager/WhatsThis.png"))
         self.whats_this_btn.setObjectName("whats_this_btn")
         self.gridlayout.addWidget(self.whats_this_btn,5,0,1,1)
 
@@ -439,17 +439,23 @@ class Ui_GamessPropDialog(object):
         QtCore.QMetaObject.connectSlotsByName(GamessPropDialog)
 
     def retranslateUi(self, GamessPropDialog):
-        GamessPropDialog.setWindowTitle(QtGui.QApplication.translate("GamessPropDialog", "GAMESS Properties", None, QtGui.QApplication.UnicodeUTF8))
+        
+        if sys.platform == "win32":
+            gms_str = "PC GAMESS"
+        else:
+            gms_str = "GAMESS"
+        
+        GamessPropDialog.setWindowTitle(QtGui.QApplication.translate("GamessPropDialog", gms_str + " Properties", None, QtGui.QApplication.UnicodeUTF8))
         self.runtyp_combox.setToolTip(QtGui.QApplication.translate("GamessPropDialog", "\"Energy\" = Energy Minina, \"Optimization\" = Equilibrium Geometry", None, QtGui.QApplication.UnicodeUTF8))
         self.runtyp_combox.addItem(QtGui.QApplication.translate("GamessPropDialog", "Energy", None, QtGui.QApplication.UnicodeUTF8))
         self.runtyp_combox.addItem(QtGui.QApplication.translate("GamessPropDialog", "Optimization", None, QtGui.QApplication.UnicodeUTF8))
-        self.choose_color_btn.setToolTip(QtGui.QApplication.translate("GamessPropDialog", "Change the GAMESS jig color", None, QtGui.QApplication.UnicodeUTF8))
+        self.choose_color_btn.setToolTip(QtGui.QApplication.translate("GamessPropDialog", "Change the "+gms_str+" jig color", None, QtGui.QApplication.UnicodeUTF8))
         self.choose_color_btn.setText(QtGui.QApplication.translate("GamessPropDialog", "Choose...", None, QtGui.QApplication.UnicodeUTF8))
         self.psetslbl_2_2.setText(QtGui.QApplication.translate("GamessPropDialog", "Name :", None, QtGui.QApplication.UnicodeUTF8))
         self.textLabel1_2_3.setText(QtGui.QApplication.translate("GamessPropDialog", "Calculate :", None, QtGui.QApplication.UnicodeUTF8))
         self.textLabel1_3.setText(QtGui.QApplication.translate("GamessPropDialog", "Description :", None, QtGui.QApplication.UnicodeUTF8))
         self.textLabel1_3_2.setText(QtGui.QApplication.translate("GamessPropDialog", "Color :", None, QtGui.QApplication.UnicodeUTF8))
-        self.name_linedit.setToolTip(QtGui.QApplication.translate("GamessPropDialog", "Name of the GAMESS jig", None, QtGui.QApplication.UnicodeUTF8))
+        self.name_linedit.setToolTip(QtGui.QApplication.translate("GamessPropDialog", "Name of the "+gms_str+" jig", None, QtGui.QApplication.UnicodeUTF8))
         self.comment_linedit.setToolTip(QtGui.QApplication.translate("GamessPropDialog", "Description, also placed in the $DATA section of the INP file", None, QtGui.QApplication.UnicodeUTF8))
         self.scftyp_grpbox.setTitle(QtGui.QApplication.translate("GamessPropDialog", "Electronic Structure Properties", None, QtGui.QApplication.UnicodeUTF8))
         self.rhf_radiobtn.setToolTip(QtGui.QApplication.translate("GamessPropDialog", "Restricted Hartree-Fock", None, QtGui.QApplication.UnicodeUTF8))
@@ -477,11 +483,11 @@ class Ui_GamessPropDialog(object):
         self.dirscf_checkbox.setText(QtGui.QApplication.translate("GamessPropDialog", "DirectSCF", None, QtGui.QApplication.UnicodeUTF8))
         self.edit_input_file_cbox.setToolTip(QtGui.QApplication.translate("GamessPropDialog", "Opens INP file in an editor", None, QtGui.QApplication.UnicodeUTF8))
         self.edit_input_file_cbox.setText(QtGui.QApplication.translate("GamessPropDialog", "Open Input File in text editor", None, QtGui.QApplication.UnicodeUTF8))
-        self.run_job_btn.setToolTip(QtGui.QApplication.translate("GamessPropDialog", "Save GAMESS parameters and launch job", None, QtGui.QApplication.UnicodeUTF8))
+        self.run_job_btn.setToolTip(QtGui.QApplication.translate("GamessPropDialog", "Save "+gms_str+" parameters and launch job", None, QtGui.QApplication.UnicodeUTF8))
         self.run_job_btn.setText(QtGui.QApplication.translate("GamessPropDialog", "Save and Run", None, QtGui.QApplication.UnicodeUTF8))
         self.cancel_btn.setToolTip(QtGui.QApplication.translate("GamessPropDialog", "Cancel", None, QtGui.QApplication.UnicodeUTF8))
         self.cancel_btn.setText(QtGui.QApplication.translate("GamessPropDialog", "Cancel", None, QtGui.QApplication.UnicodeUTF8))
-        self.save_btn.setToolTip(QtGui.QApplication.translate("GamessPropDialog", "Save GAMESS parameters and generates the INP file", None, QtGui.QApplication.UnicodeUTF8))
+        self.save_btn.setToolTip(QtGui.QApplication.translate("GamessPropDialog", "Save "+gms_str+" parameters and generates the INP file", None, QtGui.QApplication.UnicodeUTF8))
         self.save_btn.setText(QtGui.QApplication.translate("GamessPropDialog", "Save", None, QtGui.QApplication.UnicodeUTF8))
         self.whats_this_btn.setToolTip(QtGui.QApplication.translate("GamessPropDialog", "What\'s This Help Utility", None, QtGui.QApplication.UnicodeUTF8))
         self.groupBox3.setTitle(QtGui.QApplication.translate("GamessPropDialog", "Convergence Criteria", None, QtGui.QApplication.UnicodeUTF8))
