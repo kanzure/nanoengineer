@@ -2204,6 +2204,17 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
     def keyReleaseEvent(self, e):
         self.glpane.keyReleaseEvent(e)
 
+    def wheelEvent(self, event): #bruce 070607 fix bug xxx [just reported, has no bug number yet]
+        ## print "mwsem ignoring wheelEvent",event
+        # Note: this gets called by wheel events with mouse inside history widget,
+        # whenever it has reached its scrolling limit. Defining it here prevents the bug
+        # of Qt passing it on to GLPane (maybe only happens if GLPane was last-clicked widget),
+        # causing unintended mousewheel zoom. Apparently just catching this and returning is
+        # enough -- it's not necessary to also call event.ignore(). Guess: this method's default
+        # implem passes it either to "central widget" (just guessing that's the GLPane) or to
+        # the last widget we clicked on (or more likely, the one with the keyfocus).
+        return
+    
     ##############################################################
     # Some future slot functions for the UI                      #
     ##############################################################
