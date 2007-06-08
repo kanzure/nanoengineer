@@ -580,7 +580,7 @@ class PluginlikeGenerator:
                 break
         for atm in thing.atoms.values():
             if atm.element.symbol == 'C' and len(atm.realNeighbors()) == 2:
-                atm.set_atomtype('sp2', always_remake_singlets=True)
+                atm.set_atomtype('sp2', always_remake_bondpoints = True)
         # problem: for some kinds of errors, the only indication is that we're inserting a 0-atom mol, not a many-atom mol. hmm.
         ####@@@@
         return thing # doesn't actually insert it, GBC does that

@@ -185,7 +185,7 @@ def add_endcap(mol, length, radius, bondlength):
     def cleanupSinglets(atm):
         for s in atm.singNeighbors():
             s.kill()
-        atm.make_enough_singlets()
+        atm.make_enough_bondpoints()
     def addCarbons(chopSpace, R=radius):
         # a buckyball has no more than about 6*r**2 atoms, r in angstroms
         # each cap is ideally a half-buckyball

@@ -293,7 +293,7 @@ class BuckyBall:
         for atm in atoms:
             for s in atm.singNeighbors():
                 s.kill()
-            atm.make_enough_singlets()
+            atm.make_enough_bondpoints()
 
 #############################
 

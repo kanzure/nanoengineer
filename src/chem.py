@@ -659,7 +659,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         ###e need any more invals or updates for this method?? ###@@@
         return
         
-    def set_atomtype(self, atomtype, always_remake_singlets = False):
+    def set_atomtype(self, atomtype, always_remake_bondpoints = False): #bruce 070608 renamed option, was always_remake_singlets
         """[public method; not super-fast]
         Set this atom's atomtype as requested, and do all necessary invalidations or updates,
         including remaking our singlets as appropriate, and [###@@@ NIM] invalidating or updating bond valences.
@@ -669,12 +669,12 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         we never change self.element (for that, see mvElement).
            Special case: if new atomtype would be same as existing one (and that is already set), do nothing
         (rather than killing and remaking singlets, or even correcting their positions),
-        unless always_remake_singlets is true. [not sure if this will be used in atomtype-setting menu-cmds ###@@@]
+        unless always_remake_bondpoints is true. [not sure if this will be used in atomtype-setting menu-cmds ###@@@]
         """
         # Note: mvElement sets self.atomtype directly; if it called this method, we'd have infrecur!
         atomtype = self.element.find_atomtype( atomtype) # handles all forms of the request; exception if none matches
         assert atomtype.element is self.element # [redundant with find_atomtype] #e or transmute if not??
-        if always_remake_singlets or (self.atomtype_iff_set() is not atomtype):
+        if always_remake_bondpoints or (self.atomtype_iff_set() is not atomtype):
             self.direct_Transmute( atomtype.element, atomtype ) ###@@@ not all its needed invals/updates are implemented yet
             # note: self.atomtype = atomtype is done in direct_Transmute when it calls mvElement
         return
@@ -2265,7 +2265,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             # but in the long run we need a more principled way to decide whether to remake singlets or change atomtype
             # when they don't agree:
             if len(self.bonds) != self.atomtype.numbonds:
-                self.remake_singlets()
+                self.remake_bondpoints()
         elif 0 and platform.atom_debug:
             print "atom_debug: update_valence thinks it doesn't need to update it for", self
         return
@@ -2503,7 +2503,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         for atm in self.singNeighbors():
             atm.kill() # (since atm is a singlet, this kill doesn't replace it with a singlet)
         self.mvElement(elt, atomtype)
-        self.make_enough_singlets()
+        self.make_enough_bondpoints()
         return # from direct_Transmute
 
     def reposition_baggage(self, baggage = None, planned_atom_nupos = None): #bruce 060629 for bondpoint problem
@@ -2526,24 +2526,29 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             pass
         return
     
-    def remake_singlets(self): #bruce 050511
+    def remake_bondpoints(self): #bruce 050511; added docstring and renamed (remake_singlets -> remake_bondpoints), 070608
+        """[Public method, does all needed invalidations]
+        Destroy this real atom's existing bondpoints (if any);
+        then call make_enough_bondpoints to add the right number
+        of new ones in the best positions.
+        """
         for atm in self.singNeighbors():
-            atm.kill() # (since atm is a singlet, this kill doesn't replace it with a singlet)
-        self.make_enough_singlets()
-        return # from remake_singlets
-
-    def remake_baggage(self): #bruce 051209 -- pseudocode ###@@@
+            atm.kill() # (since atm is a singlet (aka bondpoint), this kill doesn't replace it with a singlet)
+        self.make_enough_bondpoints()
+        return # from remake_bondpoints
+    
+    def remake_baggage_UNFINISHED(self): #bruce 051209 -- pseudocode; has sample calls, desirable but commented out, since it's unfinished ###@@@
         bn = self.baggageNeighbors()
         for atm in bn:
             if not atm.is_singlet():
                 pass ###e record element and position
                 atm.mvElement(Singlet) ####k ??? #####@@@@@ kluge to kill it w/o replacing w/ singlet; better to just tell kill that
             atm.kill() # (since atm is a singlet, this kill doesn't replace it with a singlet)
-        self.make_enough_singlets() ###e might pass old posns to ask this to imitate them if it can
+        self.make_enough_bondpoints() ###e might pass old posns to ask this to imitate them if it can
         pass ###e now transmute the elts back to what they were, if you can, based on nearness
         return # from remake_baggage
 
-    def make_enough_singlets(self): #bruce 050510 extending this to use atomtypes; all subrs still need to set singlet valence ####@@@@
+    def make_enough_bondpoints(self): #bruce 070608 renamed (make_enough_singlets -> make_enough_bondpoints)
         """[Public method, does all needed invalidations:]
         Add 0 or more singlets to this real atom, until it has as many bonds
         as its element and atom type prefers (but at most 4, since we use special-case
@@ -2551,6 +2556,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         relative to existing bonds (if any) (which are not changed, whether
         they are real or open bonds).
         """
+        #bruce 050510 extending this to use atomtypes; all subrs still need to set singlet valence ####@@@@
         if len(self.bonds) >= self.atomtype.numbonds:
             return # don't want any more bonds
         # number of existing bonds tells how to position new open bonds
@@ -2684,7 +2690,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         return
         
     def make_singlets_when_2_bonds(self): #bruce 050511 updating this (and sister methods) for atom types
-        """[private method for make_enough_singlets:]
+        """[private method for make_enough_bondpoints:]
         Given an atom with exactly 2 real bonds (and no singlets),
         see if it wants more bonds (due to its atom type),
         and make extra singlets if so, [###@@@ with what valence?]

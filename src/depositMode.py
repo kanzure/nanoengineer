@@ -2640,7 +2640,7 @@ class depositMode(selectAtomsMode, MMKit):
                         # - ideally we'd reposition H's too (i.e. call remake_baggage below)
                 else:
                     text = 'Add bondpoints' # this text is only used if it doesn't have enough
-                self.Menu_spec.append(( text, selatom.remake_singlets )) #e should finish and use remake_baggage (and baggageNeighbors)
+                self.Menu_spec.append(( text, selatom.remake_bondpoints )) #e should finish and use remake_baggage (and baggageNeighbors)
         
         # selobj-specific menu items.  This is duplicated in selectMode.makeMenus().
         # [bruce 060405 added try/except, and generalized this from Jig-specific to selobj-specific items,

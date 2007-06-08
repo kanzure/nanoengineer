@@ -144,7 +144,7 @@ class AtomTypeDepositionTool(DepositionTool):
         # singlets for n >= 3 and numbonds > 4. They might add some, tho.)
         # Note: new_bonded_n uses len(pl) as its n. As of 050901 this might differ from the variable n.
         atm = self.new_bonded_n( pl)
-        atm.make_enough_singlets() # (tries its best, but doesn't always make enough)
+        atm.make_enough_bondpoints() # (tries its best, but doesn't always make enough)
         desc = "%r (in %r)" % (atm, atm.molecule.name)
         #e what if caller renames atm.molecule??
         if n > 1: #e really: if n > (number of singlets clicked on at once)

@@ -1278,7 +1278,7 @@ class Bond(BondBase, StateMixin):
             #  not to zap a singlet already bonded to new.
         # Invalidate molecules (of both our atoms) as needed, due to our existence
         self.invalidate_bonded_mols()
-        #bruce 050728: this is needed so depositmode (in atom.make_enough_singlets)
+        #bruce 050728: this is needed so depositmode (in atom.make_enough_bondpoints)
         # can depend on bond.get_pi_info() being up to date:
         if self.pi_bond_obj is not None:
             self.pi_bond_obj.destroy() ###e someday this might be more incremental if that obj provides a method for it;

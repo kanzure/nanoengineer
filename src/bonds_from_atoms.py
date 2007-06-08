@@ -402,7 +402,7 @@ def remake_bonds_in_selection( selection ):
     n_bonds_made = make_bonds(atmlist)
         #e it would be nice to figure out how many of these are the same as the ones we destroyed, etc
     for atm in atmlist:
-        atm.remake_singlets()
+        atm.remake_bondpoints()
     env.history.message(
         "on %d selected atoms, replaced %d old bond(s) with %d new (or same) bond(s); changed %d atomtype(s) to default" %
         (n_atoms, n_bonds_destroyed, n_bonds_made, n_atomtypes_changed)
