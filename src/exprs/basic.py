@@ -137,7 +137,7 @@ def reload_once(module):
             if not seen_before(msg):
                 print msg
         if 1:
-            printfyi( "DISABLED FOR DEBUG: reload_once(%r)" % module.__name__ )
+            printfyi( "fyi: exprs modules won't be reloaded during this session" )
             return
     from testdraw import vv
     reload_once_per_event(module, always_print = True, never_again = False, counter = vv.reload_counter, check_modtime = True)
