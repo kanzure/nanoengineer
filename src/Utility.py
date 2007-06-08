@@ -1061,10 +1061,14 @@ class Node( StateMixin):
         """
         return False # conservative answer
 
-    def confers_properties_on(self, atom): #bruce 050524; docstring revised 050704
+    def confers_properties_on(self, atom): #bruce 050524; docstring revised 050704, 070608
         """Does this Jig (or any node of a type that might appear in atom.jigs)
         confer a property on atom, so that it should be partly copied, if possible
         (by self.copy_partial_in_mapping) when atom is?
+           Note: only Anchor overrides this (as of 070608), and the only new kinds
+        of Nodes that might need to override it would be Jigs designed to alter the
+        rendering or simulation properties of all their atoms, as a substitute for
+        directly storing those properties on the atoms. If in doubt, don't override it.
         """
         return False # default value for most jigs and (for now) all other Nodes
         
