@@ -31,9 +31,9 @@ from Utility import *
 from StatProp import *
 from ThermoProp import *
 from HistoryWidget import redmsg, greenmsg, orangemsg
-from povheader import povpoint #bruce 050413
+from povheader import povpoint
 from debug import print_compact_stack, print_compact_traceback
-import env #bruce 050901
+import env
 from constants import gensym
 
 
@@ -315,7 +315,7 @@ class Jig(Node):
         return
 
     def anchors_atom(self, atm): #bruce 050321, renamed 050404
-        "does this jig hold this atom fixed in space? [should be overridden by subclasses as needed]"
+        "does this jig hold this atom fixed in space? [should be overridden by subclasses as needed, but only Anchor needs to]"
         return False # for most jigs
 
     def node_must_follow_what_nodes(self): #bruce 050422 made Node and Jig implems of this from function of same name
@@ -905,7 +905,6 @@ class Thermo(Jig_onChunk_by1atom):
         + "<br>" + str(attachedChunkInfo)
 
     def getstatistics(self, stats):
-        #bruce 050210 fixed this as requested by Mark
         stats.nthermos += len(self.atoms)
 
     mmp_record_name = "thermo"
@@ -982,21 +981,9 @@ class AtomSet(Jig):
 #        mmprectype_name_color = "%s (%s) " % (self.mmp_record_name, name)
 #        return mmprectype_name_color
 
-    def anchors_atom(self, atm):
-        "does this jig hold this atom fixed in space? [overrides Jig method]"
-        return False # Not sure this method is needed.  Ask Bruce.  Mark 050925.
-
-    def confers_properties_on(self, atom): # Atom Set method
-        """[overrides Node method]
-        Should this jig be partly copied (even if not selected)
-        when this atom is individually selected and copied?
-        (It's ok to assume without checking that atom is one of this jig's atoms.)
-        """
-        return False # Need to ask Bruce about this, too.  Mark 050925.
-    
     pass # end of class AtomSet
 
-class jigmakers_Mixin: #bruce 050507 moved these here from part.py
+class jigmakers_Mixin:
     """Provide Jig-making methods to class Part.
     These should be refactored into some common code
     and new methods in the specific Jig subclasses.
@@ -1013,7 +1000,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
                 
         cmd = greenmsg("Rotary Motor: ")
 
-        atoms = self.assy.selatoms_list() #bruce 051031 change
+        atoms = self.assy.selatoms_list()
         
         if len(atoms) < 2: # wware 051216, bug 1114, need >= 2 atoms for rotary motor
             env.history.message(cmd + redmsg("You must select at least two atoms to create a Rotary Motor."))
@@ -1028,7 +1015,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         m = RotaryMotor(self.assy)
         m.findCenterAndAxis(atoms, glpane) 
         m.show_propmgr() # put up Rotary Motor Property Manager 
-        #self.unpickall_in_GLPane() # [was unpickatoms -- bruce 060721]
+        #self.unpickall_in_GLPane()
         self.place_new_jig(m)
         
         return # End of makeRotaryMotor_A10()
@@ -1043,7 +1030,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
                 
         cmd = greenmsg("Rotary Motor: ")
 
-        atoms = self.assy.selatoms_list() #bruce 051031 change
+        atoms = self.assy.selatoms_list()
         
         if len(atoms) < 2: # wware 051216, bug 1114, need >= 2 atoms for rotary motor
             env.history.message(cmd + redmsg("You must select at least two atoms to create a Rotary Motor."))
@@ -1058,13 +1045,14 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         m.findCenterAndAxis(atoms, glpane) # also puts up dialog
         m.edit() # Will be changed to show_propmgr(). Mark 2007-06-04
         if m.cancelled: # user hit Cancel button in Rotary Motory Dialog.
-            #bruce 050415/050701: old code had del(m), perhaps hoping to destroy the jig here,
-            # but in fact that statement would do nothing, so I removed it. But it might be good
-            # to actually destroy the jig object here (for all jigs which can be cancelled, not
-            # only this one), to avoid a memory leak. Presently, jigs don't have a destroy method.
+            #bruce comment 050415/050701, revised 070608: It might be good
+            # to destroy the jig object here (for all jigs whose creation
+            # can be cancelled, not only this one), to avoid a memory leak.
+            # Presently, jigs don't have a destroy method, so this is not
+            # practical. (Nor is it our worst memory leak, by far.)
             env.history.message(cmd + "Cancelled")
             return
-        self.unpickall_in_GLPane() # [was unpickatoms -- bruce 060721]
+        self.unpickall_in_GLPane()
         self.place_new_jig(m)
         
         env.history.message(cmd + "Motor created")
@@ -1080,7 +1068,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         
         cmd = greenmsg("Linear Motor: ")
         
-        atoms = self.assy.selatoms_list() #bruce 051031 change
+        atoms = self.assy.selatoms_list()
 
         if not atoms:
             env.history.message(cmd + redmsg("At least one atom must be selected to create a Linear Motor."))
@@ -1097,7 +1085,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         if m.cancelled: # user hit Cancel button in Linear Motory Dialog.
             env.history.message(cmd + "Cancelled")
             return
-        self.unpickall_in_GLPane() # [was unpickatoms -- bruce 060721]
+        self.unpickall_in_GLPane()
         self.place_new_jig(m)
         
         env.history.message(cmd + "Motor created")
@@ -1148,10 +1136,9 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         m.edit() #bruce 050701 split edit method out of the constructor,
             # so the dialog doesn't show up when the jig is read from an mmp file
         if m.cancelled: # User hit 'Cancel' button in the jig dialog.
-            #bruce 050701 comment: I haven't reviewed this for correctness since the above change.
             env.history.message(cmd + "Cancelled")
             return
-        self.unpickall_in_GLPane() # [was unpickatoms -- bruce 060721]
+        self.unpickall_in_GLPane()
         self.place_new_jig(m)
         
         env.history.message(cmd + gms_str + " jig created")
@@ -1159,13 +1146,10 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         
     def makeAnchor(self):
         """Anchors the selected atoms so that they will not move during a minimization or simulation run.
-        """
-        # [bruce 050210 modified docstring]
-        # [mark 051104 modified docstring]
-        
+        """        
         cmd = greenmsg("Anchor: ")
 
-        atoms = self.assy.selatoms_list() #bruce 051031 change
+        atoms = self.assy.selatoms_list()
         
         if not atoms:
             env.history.message(cmd + redmsg("You must select at least one atom to create an Anchor."))
@@ -1176,7 +1160,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
             return
 
         m = Anchor(self.assy, atoms)
-        self.unpickall_in_GLPane() # [was unpickatoms -- bruce 060721]
+        self.unpickall_in_GLPane()
         self.place_new_jig(m)
         
         env.history.message(cmd + "Anchor created")
@@ -1187,7 +1171,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         """
         cmd = greenmsg("Thermostat: ")
 
-        atoms = self.assy.selatoms_list() #bruce 051031 change
+        atoms = self.assy.selatoms_list()
         
         if not atoms:
             msg = redmsg("You must select an atom on the molecule you want to associate with a Thermostat.")
@@ -1200,7 +1184,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
             env.history.message(cmd + msg)
             return
         m = Stat(self.assy, atoms)
-        self.unpickall_in_GLPane() # [was unpickatoms -- bruce 060721]
+        self.unpickall_in_GLPane()
         self.place_new_jig(m)
         
         env.history.message(cmd + "Thermostat created")
@@ -1212,7 +1196,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         
         cmd = greenmsg("Thermometer: ")
 
-        atoms = self.assy.selatoms_list() #bruce 051031 change
+        atoms = self.assy.selatoms_list()
         
         if not atoms:
             msg = redmsg("You must select an atom on the molecule you want to associate with a Thermometer.")
@@ -1226,7 +1210,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
             return
         
         m = Thermo(self.assy, atoms)
-        self.unpickall_in_GLPane() # [was unpickatoms -- bruce 060721]
+        self.unpickall_in_GLPane()
         self.place_new_jig(m)
         
         env.history.message(cmd + "Thermometer created")
@@ -1236,7 +1220,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
     def makeGridPlane(self):
         cmd = greenmsg("Grid Plane: ")
 
-        atoms = self.assy.selatoms_list() #bruce 051031 change
+        atoms = self.assy.selatoms_list()
         
         if not atoms:
             msg = redmsg("You must select 3 or more atoms to create a Grid Plane.")
@@ -1253,11 +1237,10 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         m = GridPlane(self.assy, atoms)
         m.edit()
         if m.cancelled: # User hit 'Cancel' button in the jig dialog.
-            #bruce 050701 comment: I haven't reviewed this for correctness since the above change.
             env.history.message(cmd + "Cancelled")
             return 
         
-        self.unpickall_in_GLPane() # [was unpickatoms -- bruce 060721]
+        self.unpickall_in_GLPane()
         self.place_new_jig(m)
         
         #After placing the jig, remove the atom list from the jig.
@@ -1270,7 +1253,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
     def makeESPImage(self):
         cmd = greenmsg("ESP Image: ")
 
-        atoms = self.assy.selatoms_list() #bruce 051031 change
+        atoms = self.assy.selatoms_list()
 
         if len(atoms) < 3:
             msg = redmsg("You must select at least 3 atoms to create an ESP Image.")
@@ -1284,7 +1267,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
             env.history.message(cmd + "Cancelled")
             return 
         
-        self.unpickall_in_GLPane() # [was unpickatoms -- bruce 060721]
+        self.unpickall_in_GLPane()
         self.place_new_jig(m)
         
         #After placing the jig, remove the atom list from the jig.
@@ -1297,7 +1280,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
     def makeAtomSet(self):
         cmd = greenmsg("Atom Set: ")
 
-        atoms = self.assy.selatoms_list() #bruce 051031 change
+        atoms = self.assy.selatoms_list()
 
         if not atoms:
             env.history.message(cmd + redmsg("You must select at least one atom to create an Atom Set."))
@@ -1322,7 +1305,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         
         cmd = greenmsg("Measure Distance Jig: ")
 
-        atoms = self.assy.selatoms_list() #bruce 051031 change
+        atoms = self.assy.selatoms_list()
 
         if len(atoms) != 2:
             msg = redmsg("You must select 2 atoms to create a Distance jig.")
@@ -1331,21 +1314,19 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         
         from jigs_measurements import MeasureDistance
         d = MeasureDistance(self.assy, atoms)
-        self.unpickall_in_GLPane() # [was unpickatoms -- bruce 060721]
+        self.unpickall_in_GLPane()
         self.place_new_jig(d)
         
         env.history.message(cmd + "Measure Distance jig created")
         self.assy.w.win_update()
 
 
-    def makeMeasureAngle(self): # Not implemented yet.  Mark 051030.
+    def makeMeasureAngle(self):
         """Creates a Measure Angle jig connected to three selected atoms.
-        """
-	# not disabled any more.  wware 051031
-        
+        """        
         cmd = greenmsg("Measure Angle Jig: ")
 
-        atoms = self.assy.selatoms_list() #bruce 051031 change
+        atoms = self.assy.selatoms_list()
 
         if len(atoms) != 3:
             msg = redmsg("You must select 3 atoms to create an Angle jig.")
@@ -1354,18 +1335,18 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         
         from jigs_measurements import MeasureAngle
         d = MeasureAngle(self.assy, atoms)
-        self.unpickall_in_GLPane() # [was unpickatoms -- bruce 060721]
+        self.unpickall_in_GLPane()
         self.place_new_jig(d)
         
         env.history.message(cmd + "Measure Angle jig created")
         self.assy.w.win_update()
 
-    def makeMeasureDihedral(self): # Not implemented yet.  Mark 051030.
+    def makeMeasureDihedral(self):
         """Creates a Measure Dihedral jig connected to three selected atoms.
         """
         cmd = greenmsg("Measure Dihedral Jig: ")
 
-        atoms = self.assy.selatoms_list() #bruce 051031 change
+        atoms = self.assy.selatoms_list()
 
         if len(atoms) != 4:
             msg = redmsg("You must select 4 atoms to create a Dihedral jig.")
@@ -1374,7 +1355,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         
         from jigs_measurements import MeasureDihedral
         d = MeasureDihedral(self.assy, atoms)
-        self.unpickall_in_GLPane() # [was unpickatoms -- bruce 060721]
+        self.unpickall_in_GLPane()
         self.place_new_jig(d)
         
         env.history.message(cmd + "Measure Dihedral jig created")
@@ -1394,7 +1375,6 @@ def atom_limit_exceeded_and_confirmed(parent, natoms, limit=200):
     if natoms < limit:
         return False # Atom limit not exceeded.
 
-    # Is this warning message OK? Ask Bruce and Ninad what they think.  Mark 051122.
     wmsg = "Warning: Creating a jig with " + str(natoms) \
         + " atoms may degrade performance.\nDo you still want to add the jig?"
     
