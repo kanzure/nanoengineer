@@ -1962,11 +1962,6 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         '''
         self.commentcntl.setup()
 
-    #### Movie Player Dashboard Slots ############
-
-    #bruce 050413 moved code for movie player dashboard slots into movieMode.py
-    
-
     ###################################
     # Slots for future tools
     ###################################
@@ -2006,19 +2001,19 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
     #######################################
     # Element Selector Slots
     #######################################
-    def modifySetElement(self):
-        '''Creates the Element Selector for Select Atoms mode.
-        '''
-        global elementSelectorWin
-        #Huaicai 2/24/05: Create a new element selector window each time,  
-        #so it will be easier to always start from the same states.
-        # Make sure only a single element window is shown
-        if elementSelectorWin and elementSelectorWin.isVisible():
-            return 
-        
-        elementSelectorWin = elementSelector(self)
-        elementSelectorWin.update_dialog(self.Element)
-        elementSelectorWin.show()
+##    def modifySetElement(self):
+##        '''Creates the Element Selector for Select Atoms mode.
+##        '''
+##        global elementSelectorWin
+##        #Huaicai 2/24/05: Create a new element selector window each time,  
+##        #so it will be easier to always start from the same states.
+##        # Make sure only a single element window is shown
+##        if elementSelectorWin and elementSelectorWin.isVisible():
+##            return 
+##        
+##        elementSelectorWin = elementSelector(self)
+##        elementSelectorWin.update_dialog(self.Element)
+##        elementSelectorWin.show()
     
     def update_depositState_buttons(self): #bruce 051230 moved this from depositMode to MWsemantics and removed the argument.
         '''Update the Build dashboard 'depositState' buttons based on self.depositState.
@@ -2066,21 +2061,22 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         MMKitWin.update_dialog(self.Element)	
         return MMKitWin
         
-    def hide_MMKit_during_open_or_save_on_MacOS(self): # added to fix bug 1744. mark 060324
-        '''Returns True if the current platform is MacOS and the MMKit is shown.  
-        Returns False if the current platform is not MacOS or if the MMKit is not shown.
-        If the current platform is MacOS, the MMKit will be hidden if it is open and showing.
-        '''
-        if sys.platform == 'darwin':
-            global MMKitWin
-            if MMKitWin and MMKitWin.isVisible():
-                MMKitWin.hide()
-                return True
-        return False
+##    def hide_MMKit_during_open_or_save_on_MacOS(self): # added to fix bug 1744. mark 060324
+##        '''Returns True if the current platform is MacOS and the MMKit is shown.  
+##        Returns False if the current platform is not MacOS or if the MMKit is not shown.
+##        If the current platform is MacOS, the MMKit will be hidden if it is open and showing.
+##        '''
+##        if sys.platform == 'darwin':
+##            global MMKitWin
+##            if MMKitWin and MMKitWin.isVisible():
+##                MMKitWin.hide()
+##                return True
+##        return False
 
     def deleteMMKit(self):
         '''Deletes the MMKit.
         '''
+        ##bruce 070608 question: is this still needed? (It does have calls that look active, but it seems weird for MMkit a PM.)
         global MMKitWin
         if MMKitWin:
             MMKitWin.close()  # wware 060406 bug 1263 - don't leave MMKit open after exiting program
@@ -2234,17 +2230,17 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
     def validateThickness(self, s):
         if self.vd.validate( s, 0 )[0] != 2: self.ccLayerThicknessLineEdit.setText(s[:-1])
 
-    ####### Movie Player slots ######################################
-
-    # This is a temporary home for a single slot. This will need to be moved to
-    # movieMode when I decide to create do_what_MainWindowUI_should_do().
-    # NFR requested by Damian. Mark 060927.
-
-    def updateSkipSuffix(self, val): # mark 060927 wrote this & bruce split it into two functions.
-        """Update the suffix of the skip spinbox on the Movie Player dashboard"""
-        from platform import th_st_nd_rd
-        suffix = "%s frame" % th_st_nd_rd(val)
-        self.skipSB.setSuffix(suffix)
+##    ####### Movie Player slots ######################################
+##
+##    # This is a temporary home for a single slot. This will need to be moved to
+##    # movieMode when I decide to create do_what_MainWindowUI_should_do().
+##    # NFR requested by Damian. Mark 060927.
+##
+##    def updateSkipSuffix(self, val): # mark 060927 wrote this & bruce split it into two functions.
+##        """Update the suffix of the skip spinbox on the Movie Player dashboard"""
+##        from platform import th_st_nd_rd
+##        suffix = "%s frame" % th_st_nd_rd(val)
+##        self.skipSB.setSuffix(suffix)
 
 #######  Load IconSets #########################################
     def load_icons_to_iconsets(self):
@@ -2367,16 +2363,16 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
     def update_mainwindow_caption_properly(self, junk = None): #bruce 050810 added this
         self.update_mainwindow_caption(self.assy.has_changed())
 
-    def update_mainwindow_caption(self, Changed=False): #by mark; bruce 050810 revised this in several ways, fixed bug 785
+    def update_mainwindow_caption(self, changed = False): #by mark; bruce 050810 revised this in several ways, fixed bug 785
         '''Update the caption at the top of the of the main window. 
         Example:  "NanoEngineer-1 - [partname.mmp]"
-        Changed=True will add the prefix and suffix to the caption denoting the part has been changed.
+        changed = True will add the prefix and suffix to the caption denoting the part has been changed.
         '''
         caption_prefix = env.prefs[captionPrefix_prefs_key]
         caption_suffix = env.prefs[captionSuffix_prefs_key]
         caption_fullpath = env.prefs[captionFullPath_prefs_key]
         
-        if Changed:
+        if changed:
             prefix = caption_prefix
             suffix = caption_suffix
         else:
