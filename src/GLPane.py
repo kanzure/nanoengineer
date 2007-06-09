@@ -10,7 +10,6 @@ $Id$
 bruce 050913 used env.history in some places.
 """
 
-## bruce 050408 removed several "import *" below
 from PyQt4.Qt import Qt, QFont, QWidget, QMessageBox, QTimer, QToolTip, QRect, QString
 from PyQt4.Qt import QGLWidget
 from OpenGL.GL import *

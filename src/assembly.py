@@ -1005,7 +1005,7 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
         if debug_assy_changes:
             print_compact_stack( "debug_assy_changes: %r: reset_changed: " % self )
         self._modified = 0
-        #e should this call self.w.update_mainwindow_caption(Changed = False),
+        #e should this call self.w.update_mainwindow_caption(changed = False),
         # or fulfill a subs to do that?? [bruce question 060123]
 
         self._change_counter_when_reset_changed = self._model_change_counter #bruce 060125 (eve) revised this; related to bugs 1387, 1388??
