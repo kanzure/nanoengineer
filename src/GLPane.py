@@ -3175,8 +3175,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
             # (but this is apparently still failing to let the testmode item work in a built release -- I don't know why ###FIX)
             print "enter_custom_mode specialcase for testmode" #e remove this print, when it works in a built release
             import testmode
-            reload(testmode)
+            ## reload(testmode) # This reload is part of what prevented this case from working in A9 [bruce 070611]
             from testmode import testmode as _modeclass
+            print "enter_custom_mode specialcase -- import succeeded"
         else:
             dir, file = os.path.split(fn)
             base, ext = os.path.splitext(file)

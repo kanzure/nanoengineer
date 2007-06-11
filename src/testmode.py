@@ -116,7 +116,12 @@ class testmode(super):
 
     def reload(self):
         import testdraw
-        reload(testdraw)
+        #bruce 070611 bugfix for release builds: add try/except
+        try:
+            reload(testdraw)
+        except ImportError:
+            pass # print "testdraw reload ImportError, ignoring"
+        return
         
     def leftDown(self, event):
         import testdraw
