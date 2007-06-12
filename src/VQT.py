@@ -549,7 +549,7 @@ def planeXline(ppt, pv, lpt, lv):
     return lpt+lv*(dot(ppt-lpt,pv)/d)
 
 def cat(a,b):
-    """concatenate two arrays (the NumPy version is a mess)
+    """concatenate two arrays (the Numeric Python version is a mess)
     """
     #bruce comment 050518: these boolean tests look like bugs!
     # I bet they should be testing the number of entries being 0, or so.

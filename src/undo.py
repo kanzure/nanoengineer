@@ -159,6 +159,8 @@ def savebtypes( part, filename):
                     res.append(b.v6) # a small int
         env.history.message( "%d btype ints, first few are %r" % (len(res), res[:5] ) )
         thing = array(res, UnsignedInt8) # tell it to use a smaller type; see numpy.pdf page 14 on typecodes.
+            # update, bruce 070612: we still use Numeric Python (not numarray or numpy). I am not sure what URL
+            # is referred to by "numpy.pdf" above, but it is probably (and should be) about Numeric Python.
         save_obj(thing, filename)
     call_func_with_timing_histmsg( doit)
     return

@@ -693,7 +693,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         self._recompute_average_position() # sets self.average_position from self.atpos
         self.basecenter = + self.average_position # not an invalidatable attribute
             # unary '+' prevents mods to basecenter from affecting average_position;
-            # it might not be needed (that depends on numarray += semantics).
+            # it might not be needed (that depends on Numeric.array += semantics).
         # Note: basecenter is arbitrary, but should be somewhere near the atoms...
         # except see set_basecenter_and_quat, used in extrudeMode -- it may be that it's not really arbitrary
         # due to kluges in how that's used [still active as of 070411].
@@ -1516,7 +1516,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return
     
     def base_to_abs(self, anything): # bruce 041115
-        """map anything (which is accepted by quat.rot() and numarray.__add__)
+        """map anything (which is accepted by quat.rot() and Numeric.array's '+' method)
         from molecule-relative coords to absolute coords;
         guaranteed to never recompute basepos/atpos or modify the mol-relative
         coordinate system it uses. Inverse of abs_to_base.
@@ -1524,8 +1524,8 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return self.basecenter + self.quat.rot( anything)
 
     def abs_to_base(self, anything): # bruce 041201
-        """map anything (which is accepted by quat.unrot() and
-        numarray.__sub__ (#k??)) from absolute coords to mol-relative coords;
+        """map anything (which is accepted by quat.unrot() and Numeric.array's '-' method)
+        from absolute coords to mol-relative coords;
         guaranteed to never recompute basepos/atpos or modify the mol-relative
         coordinate system it uses. Inverse of base_to_abs.
         """
