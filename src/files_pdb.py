@@ -151,9 +151,30 @@ def insertpdb(assy,filename):
 #  and made it not write useless 1-atom CONECT records, and include each bond
 #  in just one CONECT record instead of two.]
 
-def writepdb(part, filename): #bruce 050927 replaced arg assy with part, added docstring
-    "write the given part into a new PDB file with the given name"
+# PDB exclude flags, used by writepdb() and its callers. 
+# Ask Bruce what "constants" file these should be moved to.
+# Mark 2007-06-11
+writeAllAtoms = 0
+excludeSinglets = 1
+excludeHiddenAtoms = 2 # excludes both hidden and invisible atoms.
+excludePAM5Atoms = 4
+
+def writepdb(part, filename, excludeFlags=excludeSinglets|excludeHiddenAtoms):
+    """Write <part> into a new PDB file <filename>.
     
+    <part> - the part.
+    
+    <filename> - the fullpath of the PDB file. 
+                 We don't care if it has the .pdb extension or not.
+    
+    <excludeFlags> used to exclude certain atoms from being written, where:
+    
+        writeAllAtoms = 0 (even writes hidden and invisble atoms)
+        excludeSinglets = 1 (excludes bondpoints)
+        excludeHiddenAtoms = 2 (excludes both hidden and invisible atoms)
+        excludePAM5Atoms = 4 (excludes PAM-5 pseudo atoms)
+    """
+
     # PDB File Format available at http://www.rcsb.org/pdb/static.do?p=file_formats/pdb/index.html
     
     f = open(filename, "w") # doesn't yet detect errors in opening file [bruce 050927 comment]
@@ -177,7 +198,18 @@ def writepdb(part, filename): #bruce 050927 replaced arg assy with part, added d
         # - if the current file is a PDB and has hidden atoms/chunks, warn user before quitting NE1 (suggest saving as MMP).
         # - do not support native PDB. Open PDBs as MMPs; only allow export of PDB.
         # Fixes bug 2329. Mark 070423
-        return atm.element == Singlet or not atm.visible() or atm.molecule.hidden
+        
+        if excludeFlags & excludeSinglets:
+            if atm.element == Singlet: 
+                return True # Exclude
+        if excludeFlags & excludeHiddenAtoms:
+            if not atm.visible() or atm.molecule.hidden:
+                return True # Exclude
+        if excludeFlags & excludePAM5Atoms:
+            # PAM5 atoms begin at 200.
+            if atm.element.eltnum >= 200:
+                return True # Exclude
+        return False # Don't exclude.
 
     excluded = 0
     molnum=1
