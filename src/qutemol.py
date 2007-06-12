@@ -315,10 +315,14 @@ def write_qutemol_files(part):
     tmpdir = find_or_make_Nanorex_subdir('temp')
     qutemol_pdb_file = os.path.join(tmpdir, pdb_basename)
     art_file = os.path.join(tmpdir, art_basename)
-        
+    
+    # Move to central place. See writepdb() docstring. Mark 2007-06-11
+    excludeHiddenAtoms = 2
+    
     # Write PDB and ART files.
     from files_pdb import writepdb
-    writepdb(part, qutemol_pdb_file)
+    # Bondpoints are written to file. Mark 2007-06-11
+    writepdb(part, qutemol_pdb_file, excludeFlags=excludeHiddenAtoms)
     write_art_file(art_file)
     
     return qutemol_pdb_file, art_file
