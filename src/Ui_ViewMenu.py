@@ -11,6 +11,14 @@ from qt4transition import *
 import Ui_ViewOrientation
 from Utility import geticon
 
+#Hybrid display is an experimental work. Its action and others need to be 
+#removed. For now, I am just removing it using the following flag as I have 
+#unrelated modifications in other files that need to be changed in order to remove
+#this option completely. I will do it after commiting those changes. For now
+#this flag is good enough -- ninad 20070612
+
+SHOW_HYBRID_DISPLAY_MENU = 0
+
 def setupUi(win):    
     
 
@@ -244,7 +252,9 @@ def setupUi(win):
     win.displayMenu.addAction(win.dispTubesAction)
     win.displayMenu.addAction(win.dispBallAction)
     win.displayMenu.addAction(win.dispCPKAction)
-    win.displayMenu.addAction(win.dispHybridAction)
+    if SHOW_HYBRID_DISPLAY_MENU:
+        win.displayMenu.addAction(win.dispHybridAction)
+    
     win.displayMenu.addAction(win.dispCylinderAction)
     win.displayMenu.addAction(win.dispSurfaceAction)
     
