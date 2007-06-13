@@ -13,7 +13,7 @@ bruce 050902 made this by moving some code out of main.py,
 and adding some stub functions which will be filled in later.
 """
 
-import sys, os
+import sys, os, platform
 
 def before_most_imports( main_globals ):
     """Do things that should be done before anything that might possibly have side effects.
@@ -212,11 +212,23 @@ def _initialize_custom_display_modes(win):
     win.dispSurfaceAction.setVisible(enable_SurfaceChunks)
     return
 
+
 def post_main_show( win): # bruce 050902 added this
     "Do whatever should be done after the main window is shown, but before the Qt event loop is started."
     ####e rebuild pyx modules if necessary and safe -- but only for developers, not end-users
     _initialize_plugin_generators()
-    return
+    
+    # Atom Generator debug pref. Mark and Jeff. 2007-06-13
+    from debug_prefs import debug_pref, Choice_boolean_False
+    if debug_pref("Atom Generator Enabled (next session)", Choice_boolean_False, prefs_key=True):
+        if platform.atom_debug:
+            print "Atom Generator enabled"
+        win.insertAtomAction.setVisible(True)
+    else:
+        if platform.atom_debug:
+            print "Atom Generator disabled"
+        win.insertAtomAction.setVisible(False)
+            
 
 def _initialize_plugin_generators(): #bruce 060621
     # The CoNTub generator isn't working - commented out until it's fixed.

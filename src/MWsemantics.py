@@ -455,6 +455,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.connect(self.insertCommentAction,SIGNAL("triggered()"),self.insertComment)
         self.connect(self.insertNanotubeAction,SIGNAL("triggered()"),self.insertNanotube)
         self.connect(self.insertGrapheneAction,SIGNAL("triggered()"),self.insertGraphene)
+	
         self.connect(self.jigsAnchorAction,SIGNAL("triggered()"),self.makeAnchor)
         self.connect(self.jigsAngleAction,SIGNAL("triggered()"),self.makeMeasureAngle)
         self.connect(self.jigsAtomSetAction,SIGNAL("triggered()"),self.makeAtomSet)
@@ -598,6 +599,10 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.connect(self.modifyMirrorAction,SIGNAL("triggered()"),self.modifyMirror)
         self.connect(self.setViewZoomtoSelectionAction,SIGNAL("triggered()"),self.setViewZoomToSelection)
 
+	# Atom Generator example for developers. Mark and Jeff. 2007-06-13
+	#@ Jeff - add a link to the public wiki page when ready. Mark 2007-06-13.
+	self.connect(self.insertAtomAction,SIGNAL("triggered()"),self.insertAtom)
+	
         # mark 060105 commented out self.make_buttons_not_in_UI_file()
         # Now done below: _StatusBar.do_what_MainWindowUI_should_do(self)
         #self.make_buttons_not_in_UI_file()
@@ -926,8 +931,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         # Create the Help dialog. Mark 050812
         from help import Help
         self.help = Help()
-
-        # Create the Nanotube generator dialog.  Fixes bug 1091. Mark 060112.
+	
         from GrapheneGenerator import GrapheneGenerator
         self.graphenecntl = GrapheneGenerator(self)
         from NanotubeGenerator import NanotubeGenerator
@@ -942,6 +946,10 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         from MinimizeEnergyProp import MinimizeEnergyProp
         self.minimize_energy = MinimizeEnergyProp(self)
 	
+	# Atom Generator example for developers. Mark and Jeff. 2007-06-13
+	#@ Jeff - add a link to the public wiki page when ready. Mark 2007-06-13.
+	from AtomGenerator import AtomGenerator
+	self.atomcntl = AtomGenerator(self)
         
         if not debug_pref("Multipane GUI", Choice_boolean_False):
             # do here to avoid a circular dependency
@@ -1949,6 +1957,11 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
     # Insert Menu/Toolbar Slots
     ###################################
         
+    def insertAtom(self):
+	if self.glpane.mode.modename != 'SELECTMOLS':
+	    self.glpane.setMode('SELECTMOLS')
+        self.atomcntl.show()
+	
     def insertGraphene(self):
 	if self.glpane.mode.modename != 'SELECTMOLS':
 	    self.glpane.setMode('SELECTMOLS')
