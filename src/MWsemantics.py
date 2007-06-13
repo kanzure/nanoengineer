@@ -196,7 +196,17 @@ class PartWindow(QWidget):
 	
 	if self.propertyManagerScrollArea.widget():
 	    #The following is necessary to get rid of those c object deleted errors (and the resulting bugs)
-	    lastwidgetobject = self.propertyManagerScrollArea.takeWidget()  
+	    lastwidgetobject = self.propertyManagerScrollArea.takeWidget() 
+	    if lastwidgetobject:
+		try:
+		    lastwidgetobject.update_props_if_needed_before_closing()
+		except:
+		    if platform.atom_debug:
+			msg1 = "Last PropMgr doesn't have method updatePropsBeforeClosing."
+			msg2 =  " That is OK (for now,only implemented in GeometryGenerators)"
+			msg3 = "Ignoring Exception"
+			print_compact_traceback(msg1 + msg2 + msg3)
+					    
 	    lastwidgetobject.hide() # @ ninad 061212 perhaps hiding the widget is not needed
 	       
 	self.featureManager.removeTab(self.featureManager.indexOf(self.propertyManagerScrollArea))
@@ -423,7 +433,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.connect(self.editUndoAction,SIGNAL("triggered()"),self.editUndo)
         #self.connect(self.fileClearAction,SIGNAL("triggered()"),self.fileClear)
         self.connect(self.fileCloseAction,SIGNAL("triggered()"),self.fileClose)
-        self.connect(self.fileExitAction,SIGNAL("triggered()"),self.close)
+        self.connect(self.fileExitAction,SIGNAL("triggered()"), self.close)
         #self.connect(self.fileImageAction,SIGNAL("triggered()"),self.fileImage)
         self.connect(self.fileInsertAction,SIGNAL("triggered()"),self.fileInsert)
         self.connect(self.fileOpenAction,SIGNAL("triggered()"),self.fileOpen)

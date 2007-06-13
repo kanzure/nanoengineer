@@ -113,10 +113,16 @@ class PlanePropMgr(object,PropMgrBaseClass):
         self.parallelToScreen_btn = PropMgrRadioButton(
             pmGroupBox, text = "Parallel to Screen" )        
         self.throughSelectedAtoms_btn = PropMgrRadioButton(
-            pmGroupBox, text = "Through Selected Atoms" )
+            pmGroupBox, text = "Through Selected Atoms" )        
+        self.offsetToPlane_btn = PropMgrRadioButton(
+            pmGroupBox, text = "Offset to a Plane" )        
+
         
         objId = 0
-        for obj in [self.parallelToScreen_btn,self.throughSelectedAtoms_btn]:           
+        for obj in [self.parallelToScreen_btn,\
+                    self.throughSelectedAtoms_btn,\
+                    self.offsetToPlane_btn]: 
+            
             self.planePlacement_btngrp.addButton(obj)
             self.planePlacement_btngrp.setId(obj, objId)
             objId +=1 
@@ -171,7 +177,9 @@ class PlanePropMgr(object,PropMgrBaseClass):
     def show_propMgr(self):
         ''' Show the Property manager'''
         self.update_spinboxes()
-        self.show()
+        self.show()   
+        self.geometry.updateCosmeticProps(previewing = True)
+                
     
     def change_plane_size(self, gl_update=True):
         '''Slot method to change the Plane's width and height'''
@@ -182,7 +190,8 @@ class PlanePropMgr(object,PropMgrBaseClass):
             self.geometry.glpane.gl_update()
     
     def update_spinboxes(self):
-        '''update the width and height spinboxes(may be some more valued in future)
+        '''Update the width and height spinboxes(may be some more valued in future)
+        Update it *without* generating the valueChanged() signal of the spinbox.
         ''' 
         #self.resized_from_glpane flag makes sure that the spinbox.valuChanged()
         #signal is not emitted after calling spinbox.setValue. 

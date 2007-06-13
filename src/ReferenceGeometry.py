@@ -31,7 +31,7 @@ __author__ = "Ninad"
 
 
 from Utility import Node
-from constants import darkgreen, orange, yellow, white
+from constants import darkgreen, orange, yellow, white, gray
 from constants import gensym
 import env
 import platform
@@ -45,11 +45,12 @@ class ReferenceGeometry(Jig, DragHandler_API):
     
     sym = "Geometry" # affects name-making code in __init__
     pickcolor = darkgreen 
-    mmp_record_name = "#" # if not redefined, this means it's just a comment in an mmp file
+    # if not redefined, this means it's just a comment in an mmp file
+    mmp_record_name = "#" 
     featurename = "" 
-    #color = normcolor = (0.5, 0.5, 0.5)
+        
     color = normcolor = orange
-    
+  
     atoms = []
     points = None
     handles = None
@@ -62,8 +63,15 @@ class ReferenceGeometry(Jig, DragHandler_API):
         Jig.__init__(self, win.assy, self.atoms)        
         self.glname = env.alloc_my_glselect_name( self) 
         self.glpane = self.assy.o
-                
-    
+        #@@Geometry object with a visible direction arrow 
+        #(at present used in Plane only) This saves the last geometry object
+        #for which the Direction arrow was drawn
+        #(that decides the direction of a plane offset to the object)
+        #The program needs to skip the arrow drawing (which is done inside the 
+        # objects _draw_geometry method) when prop manager is closed or when the 
+        #Offset option is no more requested.  -- ninad 20070612           
+        self.offsetParentGeometry = None
+                    
     def needs_atoms_to_survive(self): 
         '''Overrided method inherited from Jig. This is used to tell 
         if the jig can be copied even it doesn't have atoms.'''
@@ -83,7 +91,8 @@ class ReferenceGeometry(Jig, DragHandler_API):
             self._draw(glpane, dispdef)
         except:
             glPopName()
-            print_compact_traceback("ignoring exception when drawing Plane %r: " % self)
+            print_compact_traceback("ignoring exception when drawing Plane %r: "\
+                                    % self)
         else:
             glPopName()
                 
@@ -104,20 +113,20 @@ class ReferenceGeometry(Jig, DragHandler_API):
         """Unselect the reference geometry"""
         if self.picked:
             Node.unpick(self) 
-            self.color = self.normcolor # see also a copy method which has to use the same statement to compensate for this kluge
+            # see also a copy method which has to use the same statement to 
+            #compensate for this kluge
+            self.color = self.normcolor 
 
     def rot(self, quat):
         pass
     
     ##===============copy methods ==================###
-    def copy_full_in_mapping(self, mapping): #bruce 070430 revised to honor mapping.assy
+    #Reimplementing Jig.copy_full_in_mapping. Keeping an old comment by Bruce
+    #-- commented niand 20070613
+    def copy_full_in_mapping(self, mapping): 
+        #bruce 070430 revised to honor mapping.assy
         clas = self.__class__
-        new = clas(mapping.assy.w, []) # don't pass any atoms yet (maybe not all of them are yet copied)
-            # [Note: as of about 050526, passing atomlist of [] is permitted for motors, but they assert it's [].
-            #  Before that, they didn't even accept the arg.]
-        # Now, how to copy all the desired state? We could wait til fixup stage, then use mmp write/read methods!
-        # But I'd rather do this cleanly and have the mmp methods use these, instead...
-        # by declaring copyable attrs, or so.
+        new = clas(mapping.assy.w, [])        
         new._orig = self
         new._mapping = mapping
         return new
@@ -213,7 +222,15 @@ class GeometryGeneratorBaseClass(SponsorableMixin, PropertyManagerMixin):
      # pass window arg to constructor rather than use a global, wware 051103
     def __init__(self, win):
         self.win = win
-        self.pw = None # pw = part window. Its subclasses will create their partwindow objects (and destroy them after Done)
+        #pw = part window. 
+        #Its subclasses will create their partwindow objects 
+        #(and destroy them after Done) -- @@ not be a good idea if we have
+        #multiple partwindow support? (i.e. when win object is replaced(?) by 
+        #partwindow object for each partwindow).  But this works fine.
+        #..same guess -- because opening multiple windows is not supported
+        #When we begin supporting that, lots of things will change and this might
+        #be one of them .--- ninad 20070613
+        self.pw = None
         self.modePropertyManager = None
         self.struct = None
         self.previousParams = None
@@ -221,7 +238,8 @@ class GeometryGeneratorBaseClass(SponsorableMixin, PropertyManagerMixin):
         self.old_props = None
         
         if 1:
-            #bruce 060616 added the following kluge to make sure both cmdname and cmd are set properly.
+            #bruce 060616 added the following kluge to make sure both cmdname 
+            #and cmd are set properly.
             if not self.cmdname and not self.cmd:
                 self.cmdname = "Generate something"
             if self.cmd and not self.cmdname:
@@ -234,10 +252,12 @@ class GeometryGeneratorBaseClass(SponsorableMixin, PropertyManagerMixin):
                     self.cmdname = cmdname
                 except:
                     if platform.atom_debug:
-                        print "fyi: %r guessed wrong about format of self.cmd == %r" % (self, self.cmd,)
+                        print "fyi: %r guessed wrong \
+                        about format of self.cmd == %r" % (self, self.cmd,)
                     pass
             elif self.cmdname and not self.cmd:
-                # this is intended to be the usual situation, but isn't yet, as of 060616
+                # this is intended to be the usual situation, but isn't yet, 
+                #as of 060616
                 self.cmd = greenmsg(self.cmdname + ": ")
         return
     
@@ -327,6 +347,8 @@ class GeometryGeneratorBaseClass(SponsorableMixin, PropertyManagerMixin):
         else:
             if platform.atom_debug:
                 print 'old structure, parameters same as previous, do nothing'
+            if not previewing:
+                self.struct.updateCosmeticProps()
             return
 
         name = self.name
@@ -341,8 +363,10 @@ class GeometryGeneratorBaseClass(SponsorableMixin, PropertyManagerMixin):
         self.previousParams = params
         if platform.atom_debug: print 'build a new structure'
         self.struct = self.build_struct(name, params)
+        if not previewing:
+            self.struct.updateCosmeticProps()
         self.win.assy.place_new_geometry(self.struct)  
-        #@ not needed?? - ninad 20070606
+        #@ following not needed?? - ninad 20070606
         self.win.assy.changed()
         self.win.win_update()
                 
@@ -356,9 +380,9 @@ class GeometryGeneratorBaseClass(SponsorableMixin, PropertyManagerMixin):
     def _revert_number(self):
         #bruce 070603: removing the Gno part of revert_number, 
         #since it won't work properly with the new gensym.
-        # If we still need this side effect, we'll have to implement it differently.
-        # Note that the only other reference to _Gno is a few lines below,
-        #where it's set in _build_struct (also removed now).
+        # If we still need this side effect, we'll have to implement it
+        #differently.Note that the only other reference to _Gno is a few lines 
+        #below, where it's set in _build_struct (also removed now).
         ##        import chem
         ##        if hasattr(self, '_Gno'):
         ##            chem.Gno = self._Gno

@@ -1906,6 +1906,44 @@ def drawOriginAsSmallAxis(n, point, dashEnabled = False):
     #end draw solid arrow heads  for  X , Y and Z axes
     return
 
+def drawDirectionArrow(color, tailPoint, arrowBasePoint, 
+			    scale, flipDirection = False):
+	'''Draw a directional arrow staring at <tailPoint>
+	with an endpoint decided by the vector between 
+	<arrowBasePoint> and <tailPoint> and the glpane scale <scale>
+	'''
+	
+	vec = arrowBasePoint - tailPoint
+	vec = scale*0.07*vec
+	radius = vlen(vec)*0.07
+	arrowBase =  radius*2.0
+	arrowHeight =  arrowBase*2.0
+	axis = norm(vec)
+	
+	scaledBasePoint = tailPoint + vlen(vec)*axis
+	
+	drawcylinder(color, tailPoint, scaledBasePoint, radius, capped = True)
+		
+	#start draw solid arrow heads
+	glPushMatrix() 
+	glDisable(GL_CULL_FACE)
+	glColor3fv(color)
+	glTranslatef(scaledBasePoint[0],scaledBasePoint[1], scaledBasePoint[2])
+	
+	if flipDirection:
+		glRotatef(0,0.0,1.0,0.0)
+	else:
+		glRotatef(180,0.0,1.0,0.0)
+			
+    
+	glePolyCone([[0, 0, -1], 
+		     [0, 0, 0], 
+		     [0, 0, arrowHeight], 
+		     [0, 0, arrowHeight+1]], 
+		     None, 
+		     [arrowBase, arrowBase, 0, 0])
+    
+	glPopMatrix()
 
 
 def findCell(pt, latticeType):

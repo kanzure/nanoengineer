@@ -21,6 +21,8 @@ from PyQt4.Qt import QDialog
 from PlanePropertyManager import PlanePropMgr
 from ReferenceGeometry import GeometryGeneratorBaseClass
 
+from debug import print_compact_traceback
+
 class PlaneGenerator(QDialog, PlanePropMgr, GeometryGeneratorBaseClass):
     ''' PlaneGenerator creates the PropertyManager object for Reference Plane.'''
     
@@ -71,4 +73,30 @@ class PlaneGenerator(QDialog, PlanePropMgr, GeometryGeneratorBaseClass):
         self.geometry.win.assy.changed()        
         return self.geometry
     ##=====================================##
+    
+    #Following method should become a part of GeometryGeneratorBase Class. 
+    #Not making one as GeometryGenerator class may go away and replaced by another one. 
+    #So easier to copy this method after it is done. -- ninad20070608
+    def update_props_if_needed_before_closing(self):
+        '''This updates some cosmetic properties of the Plane (geometry object)
+        before closing the Property Manager. (exiting 'Preview' )'''
         
+        ##Example: Plane Property manager is open and user is 'previewing' the 
+        ##plane. Now user clicks on the Build Atoms  button to enter that mode. 
+        ##This calls the openPropertyManager method which replaces the current 
+        ##PM with the Build Atoms PM.  Thus,it permanently adds the Plane that was
+        ##being previewed (good or bad -- implementation decision ..OK for now), 
+        ##When the plane is 'finalized' it needs to change some of its 
+        ##cosmetic properties such as fill color, border color etc so that the 
+        ##user will notice that its not being 'previewed' . This function
+        ##changes those properties. -- ninad 20070613 
+        
+        #called in updatePropertyManager in MWsemeantics.py -- (Partwindow class)
+        
+        self.geometry.updateCosmeticProps()
+        
+        #Don't draw the direction arrow when the object is finalized. 
+        if self.geometry.offsetParentGeometry:
+            self.geometry.offsetParentGeometry.directionArrow.setDrawRequested(False)
+        
+    

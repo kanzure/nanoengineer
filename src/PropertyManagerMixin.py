@@ -24,6 +24,8 @@ from Sponsors import SponsorableMixin
 from qt4transition import lineage
 from Utility import geticon, getpixmap
 from PropMgr_Constants import *
+from debug import print_compact_traceback
+import platform
        
 # Currently used by:
 # - Build > Atoms (depositMode/MMKit)
@@ -54,6 +56,18 @@ class PropertyManagerMixin(SponsorableMixin):
         if not self.pw:
             self.pw = self.w.activePartWindow() 
         self.pw.featureManager.setCurrentIndex(0)
+        
+        try:
+            pmWidget = self.pw.propertyManagerScrollArea.widget()
+            pmWidget.update_props_if_needed_before_closing()
+        except:
+            if platform.atom_debug:
+                msg1 = "Last PropMgr doesn't have method updatePropsBeforeClosing."
+                msg2 =  " That is OK (for now,only implemented in GeometryGenerators)"
+                msg3 = "Ignoring Exception"
+                print_compact_traceback(msg1 + msg2 + msg3)
+            pass
+        
         self.pw.featureManager.removeTab(self.pw.featureManager.indexOf(self.pw.propertyManagerScrollArea))            
         if self.pw.propertyManagerTab:
             self.pw.propertyManagerTab = None
