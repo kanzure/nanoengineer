@@ -1926,7 +1926,6 @@ def drawDirectionArrow(color, tailPoint, arrowBasePoint,
 		
 	#start draw solid arrow heads
 	glPushMatrix() 
-	glDisable(GL_CULL_FACE)
 	glColor3fv(color)
 	glTranslatef(scaledBasePoint[0],scaledBasePoint[1], scaledBasePoint[2])
 	
