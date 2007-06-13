@@ -410,7 +410,9 @@ class Plane(ReferenceGeometry):
             NOTE: In Alpha9, the default center of the plane is (0,0,0).\
             This value is set during plane creation or when <b>Preview</b> button \
             is clicked."
-            self.propMgr.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=False)
+            self.propMgr.MessageGroupBox.insertHtmlMessage(msg,
+                                                           setAsDefault=False,
+                                                           minLines=5)
             self._setup_quat_center()
             self.glpane.gl_update()
         elif btn_id == 1:
@@ -443,7 +445,9 @@ class Plane(ReferenceGeometry):
         will pass through those atoms. Select atoms and hit <b>Preview</b> to see \
         the new Plane placement"
         
-        self.propMgr.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=False)
+        self.propMgr.MessageGroupBox.insertHtmlMessage(msg, 
+                                                       setAsDefault=False,
+                                                       minLines=5)
         atmList = self.win.assy.selatoms_list()         
         if not atmList:
             msg = redmsg("Select 3 or more atoms to create a Plane.")
@@ -465,7 +469,9 @@ class Plane(ReferenceGeometry):
             Select an existing plane and hit <b>Preview</b>.\
             You can click on the direction arrow to reverse its \
             direction."
-        self.propMgr.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=False)
+        self.propMgr.MessageGroupBox.insertHtmlMessage(msg, 
+                                                       setAsDefault=False,
+                                                       minLines=5)
         jigList = self.win.assy.getSelectedJigs()
         if jigList:
             planeList = []

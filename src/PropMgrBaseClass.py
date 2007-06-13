@@ -1000,7 +1000,7 @@ class PropMgrMessageGroupBox(PropMgrGroupBox):
         Shows the message groupbox if it is hidden.
         """
         self.MessageTextEdit.insertHtml(text, setAsDefault, 
-                                        minLines=4, maxLines=10, 
+                                        minLines=minLines, maxLines=maxLines, 
                                         replace=True)
         self.show()
         
@@ -1081,7 +1081,7 @@ class PropMgrTextEdit(QTextEdit, PropMgrWidgetMixin):
     
         if replace:
             self.clear()
-            
+        
         self._setHeight(minLines, maxLines)
         
         QTextEdit.insertHtml(self, text)
@@ -1115,7 +1115,7 @@ class PropMgrTextEdit(QTextEdit, PropMgrWidgetMixin):
                 
         else:
             num_lines = max(num_lines, minLines)
-            
+
         #margin = self.fontMetrics().leading() * 2 # leading() returned 0. Mark 2007-05-28
         margin = 10 # Based on trial and error. Maybe it is pm?Spacing=5 (*2)? Mark 2007-05-28
         new_height = num_lines * self.fontMetrics().lineSpacing() + margin
