@@ -67,7 +67,7 @@ class AtomGenerator( QDialog, AtomPropMgr, GeneratorBaseClass ):
         
         mol = molecule(self.win.assy, name)
         atm = Atom(element, V(x, y, z), mol)
-        atm.make_enough_singlets()
+        atm.make_enough_bondpoints()
 
         return mol
 
