@@ -1415,6 +1415,9 @@ class MT_View(QtGui.QWidget):
         self.get_icons()
         return
 
+    def mt_update(self):
+        self.modeltreegui.mt_update()
+    
     def get_icons(self):
         from Utility import geticon, getpixmap
         # note: geticon calls QIcon, but painter has no drawIcon, and drawPixmap doesn't accept them,
@@ -1454,7 +1457,8 @@ class MT_View(QtGui.QWidget):
         "[private] As an optimization, choose the openclose icons (etc) just once before drawing."
         
         style = debug_pref("Model Tree: openclose icon style", self._icon_style_choice,
-                           non_debug = True, prefs_key = "A9/MT openclose icon style")
+                           non_debug = True, prefs_key = "A9/MT openclose icon style",
+                           call_with_new_value = (lambda val: self.mt_update()) )
         if style == 'mac':
             self.collapsed_mtnode_icon = self.mac_collapsed
             self.expanded_mtnode_icon = self.mac_expanded
@@ -1463,7 +1467,8 @@ class MT_View(QtGui.QWidget):
             self.expanded_mtnode_icon = self.win_expanded
 
         self.draw_openclose_lines = debug_pref("Model Tree: openclose lines", self._openclose_lines_choice,
-                           non_debug = True, prefs_key = "A9/MT openclose lines")
+                           non_debug = True, prefs_key = "A9/MT openclose lines",
+                           call_with_new_value = (lambda val: self.mt_update()) )
         return
     
     def sizeHint(self):

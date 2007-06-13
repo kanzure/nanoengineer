@@ -16,16 +16,19 @@ __author__ = "bruce" # 050614
 from constants import noop
 from constants import black, white, red, green, blue, gray, orange, yellow, magenta, pink
 from qt4transition import *
-
+    # note: qt4transition imports debug_pref from this module, which is one reason this module can't import
+    # print_compact_traceback at toplevel. This should be fixed; it should be ok for this
+    # module to import from debug. (There may be other reasons it can't in the current code.)
+    # [bruce 070613 comment]
 import env
-# see below for import preferences at runtime; we can't import it here due to errors caused by recursive import
+# see below for "import preferences" at runtime; we can't import it here due to errors caused by recursive import
 
 _NOT_PASSED = [] # private object for use as keyword arg default [bruce 070110, part of fixing bug of None as Choice value]
     # (note, the same global name is used for different objects in preferences.py and debug_prefs.py)
 
 debug_prefs = {} # maps names of debug prefs to "pref objects"
 
-def debug_pref(name, dtype, **options ): #bruce 050725 revised this; bruce 060124 added **options
+def debug_pref(name, dtype, **options ): #bruce 070613 added call_with_new_value
     """Public function for declaring and registering a debug pref and querying its value.
        Example call: chem.py rev 1.151 (might not  be present in later versions).
        Details: If debug_prefs[name] is known (so far in this session),
@@ -40,11 +43,21 @@ def debug_pref(name, dtype, **options ): #bruce 050725 revised this; bruce 06012
     The prefs_key option can be True (meaning use the name as the key, after a hardcoded prefix),
     or a string (the actual prefs key).
        If non_debug option is true, pref is available even to users who don't set ATOM-DEBUG.
+       If call_with_new_value is passed (as a named argument -- no positional call is supported),
+    and is not None, it will be called with the new value whenever the value is changed from the
+    debug menu. It will NOT be called immediately with the current value, since some debug prefs
+    are called extremely often, and since the caller can easily do this if desired. If this option
+    was passed before (for the same debug_pref), the old function will be discarded and not called again.
+       WARNING: the call_with_new_value function is only called for changes caused by use of the debug menu;
+    it probably should also be called for prefs db changes done by other means, but that's not yet
+    implemented. (It will be easy to add when it's needed.)
     """
+    call_with_new_value = options.pop('call_with_new_value', None)
     try:
         dp = debug_prefs[name]
     except KeyError:
         debug_prefs[name] = dp = DebugPref(name, dtype, **options)
+    dp.set_call_with_new_value_function(call_with_new_value)
     return dp.current_value()
 
 def debug_pref_object(name): #bruce 060213 experiment
@@ -89,9 +102,35 @@ class Pref: #e might be merged with the DataType (aka PrefDataType) objects
                     # warning: this can happen too early for showing text in history
                     # (which is one reason we always print it to console first)
         self.non_debug = non_debug # show up in debug_prefs submenu even when ATOM-DEBUG is not set?
-        self.subscribers = []
+        self.subscribers = [] # note: these are only called for value changes due to debug menu
         for sub in subs:
             self.subscribe_to_changes(sub)
+        self.subscribe_to_changes( self._fulfill_call_with_new_value )
+            # note: creates reference cycle (harmless, since we're never destroyed)
+        return
+    __call_with_new_value_function = None
+    def set_call_with_new_value_function(self, func):
+        """Save func as our new "call with new value" function. If not None,
+        it will be called whenever our value changes due to use of the debug menu.
+        (In the future we may extend this to also call it if the value changes by other means.)
+        It will be discarded if this method is called again (to set a new such function or None).
+        """
+        self.__call_with_new_value_function = func
+        ## don't do this: self._fulfill_call_with_new_value()
+        return
+    def _fulfill_call_with_new_value(self):
+        from debug import print_compact_traceback # do locally to avoid recursive import problem
+        func = self.__call_with_new_value_function
+        if func is not None:
+            val = self.current_value()
+            try:
+                func(val)
+            except:
+                print_compact_traceback("exception ignored in %s's call_with_new_value function (%r): " % (self, func) )
+                # (but don't remove func, even though this print might be verbose)
+                # Note: if there are bugs where func becomes invalid after a relatively rare change
+                # (like after a new file is loaded), we might need to make this a history error and make it non-verbose.
+            pass
         return
     def subscribe_to_changes(self, func): #bruce 060216, untested, maybe not yet called, but intended to remain as a feature ###@@@
         """Call func with no arguments after every change to our value from the debug menu,
@@ -133,7 +172,8 @@ class Pref: #e might be merged with the DataType (aka PrefDataType) objects
                 msg = "changed %s to %r%s" % (self, newval, extra) # shorter version (uses %s) for history [bruce 060126]
                 env.history.message(msg, quote_html = True, color = 'gray') #bruce 060126 new feature
             for sub in self.subscribers[:]:
-                #bruce 060213 new feature
+                #bruce 060213 new feature; as of 070613 this also supports the call_with_new_value feature
+                from debug import print_compact_traceback # do locally to avoid recursive import problem
                 try:
                     unsub = sub()
                 except:
