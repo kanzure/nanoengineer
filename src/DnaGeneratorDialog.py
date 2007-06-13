@@ -37,7 +37,7 @@ class DnaPropMgr(object, PropMgrBaseClass):
     valid_base_letters = "NATCG"
     
     def __init__(self):
-        """Construct the Graphene Property Manager.
+        """Construct the Property Manager.
         """
         PropMgrBaseClass.__init__(self, self.propmgr_name)
         self.setPropMgrIcon(self.iconPath)
