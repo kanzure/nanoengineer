@@ -26,7 +26,7 @@ Jeff 2007-05-30: Based on Will Ware's GrapheneGenerator.py
 
 __author__ = "Jeff"
 
-import platform
+import platform, env
 from chem import molecule, Atom
 from VQT import V
 import string
@@ -36,6 +36,17 @@ from HistoryWidget import greenmsg
 from PyQt4.Qt import QDialog
 from AtomGeneratorDialog import AtomPropMgr
 from GeneratorBaseClass import GeneratorBaseClass
+
+def enableAtomGenerator(enable):
+    """Enables/disables the Atom Generator by hiding or showing it.
+    This is normally done by the user via the debugging menu.
+    <enable> - boolean, where:
+      True = show Atom Generator button/menu item
+      False = hide Atom Generator button/menu item
+    """
+    win = env.mainwindow()
+    print "updateAtomGenerator(): enable=", enable
+    win.insertAtomAction.setVisible(enable)
 
 # AtomPropMgr must come BEFORE GeneratorBaseClass in this list.
 class AtomGenerator( QDialog, AtomPropMgr, GeneratorBaseClass ):

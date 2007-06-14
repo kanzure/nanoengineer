@@ -220,14 +220,12 @@ def post_main_show( win): # bruce 050902 added this
     
     # Atom Generator debug pref. Mark and Jeff. 2007-06-13
     from debug_prefs import debug_pref, Choice_boolean_False
-    if debug_pref("Atom Generator Enabled (next session)", Choice_boolean_False, prefs_key=True):
-        if platform.atom_debug:
-            print "Atom Generator enabled"
-        win.insertAtomAction.setVisible(True)
-    else:
-        if platform.atom_debug:
-            print "Atom Generator disabled"
-        win.insertAtomAction.setVisible(False)
+    from AtomGenerator import enableAtomGenerator
+    _atomGeneratorIsEnabled = debug_pref("Atom Generator Enabled (next session)", Choice_boolean_False, 
+                                       non_debug = True, prefs_key = "A9/Atom Generator Visible",
+                                       call_with_new_value = (enableAtomGenerator(False)) )
+    
+    enableAtomGenerator(_atomGeneratorIsEnabled)
 
     #bruce 070613 code under development (maybe not yet committed)
     if debug_pref("test_commands enabled (next session)", Choice_boolean_False, prefs_key = True):
