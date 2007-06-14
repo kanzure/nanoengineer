@@ -221,9 +221,9 @@ def post_main_show( win): # bruce 050902 added this
     # Atom Generator debug pref. Mark and Jeff. 2007-06-13
     from debug_prefs import debug_pref, Choice_boolean_False
     from AtomGenerator import enableAtomGenerator
-    _atomGeneratorIsEnabled = debug_pref("Atom Generator Enabled (next session)", Choice_boolean_False, 
+    _atomGeneratorIsEnabled = debug_pref("Atom Generator example code: enabled?", Choice_boolean_False, 
                                        non_debug = True, prefs_key = "A9/Atom Generator Visible",
-                                       call_with_new_value = (enableAtomGenerator(False)) )
+                                       call_with_new_value = enableAtomGenerator )
     
     enableAtomGenerator(_atomGeneratorIsEnabled)
 
