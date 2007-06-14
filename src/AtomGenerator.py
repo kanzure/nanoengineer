@@ -45,7 +45,6 @@ def enableAtomGenerator(enable):
       False = hide Atom Generator button/menu item
     """
     win = env.mainwindow()
-    print "updateAtomGenerator(): enable=", enable
     win.insertAtomAction.setVisible(enable)
 
 # AtomPropMgr must come BEFORE GeneratorBaseClass in this list.
