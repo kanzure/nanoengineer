@@ -195,7 +195,6 @@ class basicMode(anyMode):
         return ''
     
     def __init__(self, glpane):
-        
         """This is called at least once, per type of mode (i.e. per
            specific basicMode subclass), per glpane instance, but can
            be called more often; in fact, it's called once per new
@@ -204,7 +203,7 @@ class basicMode(anyMode):
            in that glpane.
         """
         
-        self.pw = None # pw = part window)
+        self.pw = None # pw = part window
         
         # init or verify modename and msg_modename
         name = self.modename
@@ -236,29 +235,32 @@ class basicMode(anyMode):
             if not same_method( getattr(self,attr) , getattr(basicMode,attr) ):
                 print "fyi (for developers): subclass %s overrides basicMode.%s; this is deprecated after mode changes of 040924." % \
                       (self.__class__.__name__, attr)
+
         # other inits
-        self.o = glpane
-        self.w = glpane.win
-        self.init_prefs()
+        self.glpane = glpane #bruce 070613 added this
+        self.o = glpane # deprecated, but often used... new code should use self.glpane instead [bruce 070613]
+
+        win = glpane.win
+        self.win = win #bruce 070613 added this
+        self.w = win # deprecated, but often used... new code should use self.win instead [bruce 070613]
+        
+        ## self.init_prefs() # no longer needed --
+        # Between Alpha 1-8, each mode had its own background color and display mode.
+        # For Alpha 9, background color and display mode attrs were moved to the GLPane class where they
+        # are global for all modes.
         
         # store ourselves in our glpane's mode table, modetab
+        ###REVIEW whether this is used for anything except changing to new mode by name [bruce 070613 comment]
         self.o.modetab[self.modename] = self
-        
             # bruce comment 040922: current code can overwrite a prior
             # instance of same mode, when setassy called, eg for file
             # open; this might (or might not) cause some bugs; i
             # should fix this but didn't yet do so as of 040923
+            ###REVIEW whether this is still an issue, or newly one [bruce 070613 comment]
 
         self.setup_menus_in_init()
 
-    def init_prefs(self):
-        """Initialize mode attrs that should to be set from the prefs db.
-        
-        Between Alpha 1-8, each modes had its own background color and display mode.
-        After Alpha 9, background color and display mode attrs were moved to the GLPane class where they
-        are global for all modes.
-        """
-        return
+        return # from basicMode.__init__
     
     def set_cmdname(self, name): # mark 060220.
         '''Helper method for setting the cmdname to be used by Undo/Redo.
