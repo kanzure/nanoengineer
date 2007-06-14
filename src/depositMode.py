@@ -1,14 +1,8 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-depositMode.py -- Build mode.
+depositMode.py -- Build Atoms mode.
 
 $Id$
-
-
-- bruce 050513 optims: using 'is' and 'is not' rather than '==', '!='
-  for atoms, elements, atomtypes, in several places (not all commented individually); 050513
-
-- bruce 050913 used env.history in some places.
 """
 __author__ = "Mark" 
     # Josh was the original author, but this has been largely rewritten by Mark. mark 060214.
@@ -328,7 +322,7 @@ def update_hybridComboBox(win, text = None): #bruce 050606
 
 class depositMode(selectAtomsMode, MMKit):
     """ This class is used to manually add atoms to create any structure.
-       Users know it as "Build mode".
+       Users know it as "Build Atoms".
     """
     
     # class constants

@@ -1,5 +1,5 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
+"""
 MMKit.py
 
 $Id$
@@ -8,11 +8,10 @@ History:
 
 Created by Huaicai.
 
-bruce 050913 used env.history in some places.
+Modified by several developers since then.
 
-bruce has fixed some bugs in it.
-
-'''
+At some point, class MMKit became a mixin class for class depositMode.
+"""
 
 from MMKitDialog import *
 from PyQt4.Qt import Qt, QDialog, SIGNAL, QIcon, QVBoxLayout, QStringList, QFileDialog, QDir, QTreeView, QTreeWidgetItem, QAbstractItemDelegate, QWhatsThis
@@ -47,6 +46,8 @@ noblegases = ["He", "Ne", "Ar", "Kr"] # Mark 2007-05-31
 debug_mmkit_events = False
 
 class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
+    """Provide the MMKit PM for Build Atoms mode. (This is a mixin class for class depositMode.)
+    """
     bond_id2name =['sp3', 'sp2', 'sp', 'sp2(graphitic)']
     sponsor_keyword = 'Build'
     
