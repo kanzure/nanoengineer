@@ -162,6 +162,8 @@ class PropMgrBaseClass:
     
     widgets = [] # All widgets in the PropMgr dialog
     num_groupboxes = 0 # Number of groupboxes in PropMgr.
+    lastGroupBox = None # The last groupbox in this PropMgr 
+                        # (i.e. the most recent GroupBox added).
     pmHeightComputed = False # See show() for explaination.
     
     def __init__(self, name):
@@ -521,26 +523,6 @@ class PropMgrBaseClass:
         if hideFlags & pmHideWhatsThisButton: self.whatsthis_btn.hide()
         else: self.whatsthis_btn.show()
         
-    def addGroupBoxSpacer(self):
-        """Add vertical groupbox spacer. 
-        """
-        groupbox_spacer = QSpacerItem(10,pmGroupBoxSpacing,
-                                           QSizePolicy.Fixed,
-                                           QSizePolicy.Fixed)
-        
-        self.VBoxLayout.addItem(groupbox_spacer) # Add spacer
-    
-    def addBottomSpacer(self):
-        """Add spacer at the very bottom of the PropMgr. 
-        It is needed to assist proper collasping/expanding of groupboxes.
-        """
-        spacer_height = 1
-        bottom_spacer = QSpacerItem(10, spacer_height,
-                                    QSizePolicy.Minimum,
-                                    QSizePolicy.MinimumExpanding)
-        
-        self.VBoxLayout.addItem(bottom_spacer) # Add spacer to bottom
-        
     def restore_defaults_btn_clicked(self):
         """Slot for "Restore Defaults" button in the Property Manager.
         """        
@@ -595,6 +577,13 @@ class PropMgrWidgetMixin:
         QWidget.hide(self) # Hide self.
         if self.labelWidget:# Hide self's label if it has one.
             self.labelWidget.hide() 
+	    
+	if isinstance(self, PropMgrGroupBox):
+	    # Change the spacer height to zero to "hide" it unless
+	    # self is the last GroupBox in the Property Manager.
+	    # if not self.parent.lastGroupBox is self and \
+	    if self.VSpacerWidget:
+		self.VSpacerWidget.changeSize(10, 0)
             
     def show(self):
         """Show this widget and its label.
@@ -603,6 +592,11 @@ class PropMgrWidgetMixin:
         QWidget.show(self) # Show self.
         if self.labelWidget:# Show self's label if it has one.
             self.labelWidget.show() 
+	    
+	if isinstance(self, PropMgrGroupBox):
+	    # Reset the height of the VSpacerWidget, if this groupbox has one.
+	    if self.VSpacerWidget:
+		self.VSpacerWidget.changeSize(10, self.VSpacerWidget.defaultHeight)
         
     def collapse(self):
         """Hides this widget (and its label) when the groupbox is collapsed.
@@ -618,7 +612,7 @@ class PropMgrWidgetMixin:
         if self.hidden: return
         QWidget.show(self) # Show self.
         if self.labelWidget:# Show self's label if it has one.
-            self.labelWidget.show()
+            self.labelWidget.show() 
             
     def restoreDefault(self):
         """Restores the default value this widget.
@@ -688,6 +682,8 @@ class PropMgrGroupBox(QGroupBox, PropMgrWidgetMixin):
     widgets = [] # All widgets in the groupbox (except the title button).
     num_rows = 0 # Number of rows in this groupbox.
     num_groupboxes = 0 # Number of groupboxes in this groupbox.
+    lastGroupBox = None # The last groupbox in this GroupBox 
+                        # (i.e. the most recent GroupBox added).
     setAsDefault = True # If set to False, no widgets in this groupbox will be
                         # reset to their default value when the Restore Defaults 
                         # button is clicked, regardless thier own <setAsDefault> value.
@@ -760,7 +756,49 @@ class PropMgrGroupBox(QGroupBox, PropMgrWidgetMixin):
         self.setSizePolicy(
             QSizePolicy(QSizePolicy.Policy(QSizePolicy.Preferred),
                         QSizePolicy.Policy(QSizePolicy.Fixed)))
-    
+	
+	self.addBottomSpacer()
+	
+    def addBottomSpacer(self):
+	"""Add a vertical spacer below this groupbox <self>.
+	Assume <self> is going to be the last groupbox in this PropMgr, so set
+	its spacer's vertical sizePolicy to MinimumExpanding. We then set the 
+	vertical sizePolicy of the last groupbox's spacer to Fixed and set its
+	height to pmGroupBoxSpacing.
+	"""
+	# Spacers are only added to groupboxes in the PropMgr, not
+	# nested groupboxes.
+	if not isinstance(self.parent, PropMgrBaseClass):
+	    self.VSpacerWidget = None
+	    return
+	
+	if self.parent.lastGroupBox:
+	    # lastGroupBox is no longer the last one. <self> will be the
+	    # lastGroupBox, so we must change the VSpacerWidget height 
+	    # and sizePolicy of lastGroupBox to be a fixed
+	    # spacer between it and <self>.
+	    defaultHeight = pmGroupBoxSpacing
+	    self.parent.lastGroupBox.VSpacerWidget.changeSize(
+		10, defaultHeight, 
+		QSizePolicy.Fixed,
+		QSizePolicy.Fixed)
+	    self.parent.lastGroupBox.VSpacerWidget.defaultHeight = defaultHeight
+	    
+	# Add a 1 pixel high, MinimumExpanding VSpacer below this GroupBox.
+	# This keeps the PropMgr layout squeezed together as groupboxes 
+	# are expanded, collapsed, hidden and shown again.
+	defaultHeight = 1
+	self.VSpacerWidget = QSpacerItem(10, defaultHeight, 
+					QSizePolicy.Fixed,
+					QSizePolicy.MinimumExpanding)
+	
+	self.VSpacerWidget.defaultHeight = defaultHeight
+	
+	self.parent.VBoxLayout.addItem(self.VSpacerWidget)
+	
+	# This groupbox is now the last one in the PropMgr.
+	self.parent.lastGroupBox = self
+	
     def setTitle(self, title):
         """Sets the groupbox title to <title>.
         This overrides QGroupBox's setTitle() method.
@@ -1132,7 +1170,7 @@ class PropMgrTextEdit(QTextEdit, PropMgrWidgetMixin):
             print "current_width (of PropMgrTextEdit)=", current_width
         
         # Reset height of PropMgrTextEdit.
-        self.setMinimumSize(QSize(160,new_height)) 
+        self.setMinimumSize(QSize(pmMinWidth * 0.5, new_height))
         self.setMaximumHeight(new_height)
         
     def getMessageTextEditPalette(self):

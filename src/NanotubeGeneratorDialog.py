@@ -34,7 +34,6 @@ class NanotubePropMgr(object, PropMgrBaseClass):
         self.setPropMgrIcon(self.iconPath)
         self.setPropMgrTitle(self.title)
         self.addGroupBoxes()
-        self.addBottomSpacer() 
         self.add_whats_this_text()
         
         msg = "Edit the Nanotube parameters and select <b>Preview</b> to \
@@ -48,19 +47,16 @@ class NanotubePropMgr(object, PropMgrBaseClass):
     def addGroupBoxes(self):
         """Add the 3 groupboxes for the Nanotube Property Manager.
         """
-        self.addGroupBoxSpacer()
         self.pmGroupBox1 = PropMgrGroupBox(self, 
                                            title="Nanotube Parameters",
                                            titleButton=True)
         self.loadGroupBox1(self.pmGroupBox1)
         
-        self.addGroupBoxSpacer()
         self.pmGroupBox2 = PropMgrGroupBox(self, 
                                            title="Nanotube Distortion",
                                            titleButton=True)
         self.loadGroupBox2(self.pmGroupBox2)
         
-        self.addGroupBoxSpacer()
         self.pmGroupBox3 = PropMgrGroupBox(self, 
                                            title="Multi-Walled Nanotubes",
                                            titleButton=True)

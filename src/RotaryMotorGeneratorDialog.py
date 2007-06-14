@@ -50,7 +50,6 @@ class RotaryMotorPropMgr(object, PropMgrBaseClass):
         self.setPropMgrIcon(self.iconPath)
         self.setPropMgrTitle(self.title)
         self.addGroupBoxes()
-        self.addBottomSpacer() 
         self.add_whats_this_text()
         
         # Include something about Restore Defaults when working. Mark 2007-06-04
@@ -84,19 +83,16 @@ class RotaryMotorPropMgr(object, PropMgrBaseClass):
     def addGroupBoxes(self):
         """Add the 3 groupboxes for the Rotary Motor Property Manager.
         """
-        self.addGroupBoxSpacer()
         self.pmGroupBox1 = PropMgrGroupBox(self, 
                                            title="Rotary Motor Parameters",
                                            titleButton=True)
         self.loadGroupBox1(self.pmGroupBox1)
         
-        self.addGroupBoxSpacer()
         self.pmGroupBox2 = PropMgrGroupBox(self, 
                                            title="Motor Size and Color",
                                            titleButton=True)
         self.loadGroupBox2(self.pmGroupBox2)
         
-        self.addGroupBoxSpacer()
         self.pmGroupBox3 = PropMgrGroupBox(self, 
                                            title="Selected Atoms",
                                            titleButton=True)

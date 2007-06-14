@@ -43,7 +43,6 @@ class DnaPropMgr(object, PropMgrBaseClass):
         self.setPropMgrIcon(self.iconPath)
         self.setPropMgrTitle(self.title)
         self.addGroupBoxes()
-        self.addBottomSpacer() 
         self.add_whats_this_text()
         
         msg = "Edit the DNA parameters and select <b>Preview</b> to \
@@ -57,19 +56,16 @@ class DnaPropMgr(object, PropMgrBaseClass):
     def addGroupBoxes(self):
         """Add the 3 groupboxes for the DNA Property Manager.
         """
-        self.addGroupBoxSpacer()
         self.pmGroupBox1 = PropMgrGroupBox(self, 
                                            title="Strand Sequence",
                                            titleButton=True)
         self.loadGroupBox1(self.pmGroupBox1)
         
-        self.addGroupBoxSpacer()
         self.pmGroupBox2 = PropMgrGroupBox(self, 
                                            title="Representation",
                                            titleButton=True)
         self.loadGroupBox2(self.pmGroupBox2)
         
-        self.addGroupBoxSpacer()
         self.pmGroupBox3 = PropMgrGroupBox(self, 
                                            title="DNA Form",
                                            titleButton=True)

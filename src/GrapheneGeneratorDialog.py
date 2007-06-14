@@ -35,8 +35,7 @@ class GraphenePropMgr(object, PropMgrBaseClass):
         PropMgrBaseClass.__init__(self, self.propmgr_name)
         self.setPropMgrIcon(self.iconPath)
         self.setPropMgrTitle(self.title)
-        self.addGroupBoxes()
-        self.addBottomSpacer() 
+        self.addGroupBoxes() 
         self.add_whats_this_text()
         
         msg = "Edit the Graphene sheet parameters and select <b>Preview</b> to \
@@ -50,24 +49,21 @@ class GraphenePropMgr(object, PropMgrBaseClass):
     def addGroupBoxes(self):
         """Add the 1 groupbox for the Graphene Property Manager.
         """
-        self.addGroupBoxSpacer()
         self.pmGroupBox1 = PropMgrGroupBox(self, 
                                            title="Graphene Parameters",
                                            titleButton=True)
         self.loadGroupBox1(self.pmGroupBox1)
         
-        AddTestGroupBox = False # For testing. Mark 2007-05-24
+        AddTestGroupBoxes = False # For testing. Mark 2007-05-24
         
-        if not AddTestGroupBox: # Add test widgets to their own groupbox.
+        if not AddTestGroupBoxes: # Add test widgets to their own groupbox.
             return
         
-        self.addGroupBoxSpacer()
         self.testGroupBox1 = PropMgrGroupBox(self, 
                                            title="Test Widgets1",
                                            titleButton=True)
         self.loadTestWidgets1(self.testGroupBox1)
         
-        self.addGroupBoxSpacer()
         self.testGroupBox2 = PropMgrGroupBox(self, 
                                            title="Test Widgets2",
                                            titleButton=True)
@@ -118,7 +114,6 @@ class GraphenePropMgr(object, PropMgrBaseClass):
         # for testing purposes. For now, I just add them to the end of the
         # Graphene Sheet property manager. Mark 2007-05-22
         
-        
         self.spinBox = PropMgrSpinBox(pmGroupBox, 
                                       label="Spinbox :", 
                                       val=5, setAsDefault=True,
@@ -151,16 +146,29 @@ class GraphenePropMgr(object, PropMgrBaseClass):
                                         label="TextEdit :", 
                                         spanWidth=False)
         
+        
         self.spanTextEdit = PropMgrTextEdit(pmGroupBox, 
                                         label="", 
                                         spanWidth=True)
-            
+        
+        
         self.groupBox = PropMgrGroupBox(pmGroupBox, 
                                         title="Group Box Title",
                                         titleButton=False)
             
         self.comboBox2= \
                 PropMgrComboBox(self.groupBox,
+                                label="Choices :", 
+                                choices=choices, 
+                                idx=2, setAsDefault=True,
+                                spanWidth=False)
+        
+        self.groupBox2 = PropMgrGroupBox(pmGroupBox, 
+                                        title="Group Box Title",
+                                        titleButton=False)
+            
+        self.comboBox3= \
+                PropMgrComboBox(self.groupBox2,
                                 label="Choices :", 
                                 choices=choices, 
                                 idx=2, setAsDefault=True,

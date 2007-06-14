@@ -40,7 +40,6 @@ class PlanePropMgr(object,PropMgrBaseClass):
         self.setPropMgrIcon(self.iconPath)
         self.setPropMgrTitle(self.title)
         self.addGroupBoxes()
-        self.addBottomSpacer() 
         self.add_whats_this_text()
         
         msg = "Insert a Plane parallel to the screen. Note: This feature is \
@@ -60,20 +59,16 @@ class PlanePropMgr(object,PropMgrBaseClass):
     def addGroupBoxes(self):
         """Add the 1 groupbox for the Graphene Property Manager.
         """
-        self.addGroupBoxSpacer()
         self.pmGroupBox1 = PropMgrGroupBox(self, 
                                            title="Parameters",
                                            titleButton=True)
         self.loadGroupBox1(self.pmGroupBox1)
         
-        self.addGroupBoxSpacer()
-        
         self.pmGroupBox2 = PropMgrGroupBox(self, 
                                            title="Placement",
                                            titleButton=True)
         self.loadGroupBox2(self.pmGroupBox2)        
-                 
-     
+
               
     def loadGroupBox1(self, pmGroupBox):
         """Load widgets in groubox 1.
