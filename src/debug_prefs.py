@@ -486,7 +486,7 @@ def modify_iconset_On_states( iconset, color = white, checkmark = False, use_col
     """
     from PyQt4.Qt import QIcon, QPixmap
     if True:
-        print 'in debug_prefs.modify_iconset_On_states : implement modify_iconset_On_states for Qt 4'
+        ## print 'in debug_prefs.modify_iconset_On_states : implement modify_iconset_On_states for Qt 4'
         return
     for size in [QIcon.Small, QIcon.Large]: # Small, Large = 1,2
         for mode in [QIcon.Normal]: # Normal = 0; might also need Active for when mouse over item; don't yet need Disabled
