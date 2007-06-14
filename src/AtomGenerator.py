@@ -1,5 +1,21 @@
 # Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
+An example of a structure generator class meant 
+to be a template for developers.
+
+The AtomGenerator class is an example of how structure generator is
+implemented for NanoEngineer-1.  The key points of interest are the 
+methods:  __init__, gatherParameter and buildStruct.  
+They all **must always** be overriden when a new structure generator 
+class is defined.
+
+The class variables cmd, prefix and sponsor_keyword should be changed 
+to fit the new structure generator's role.
+
+@author: Jeff Birac
+@copyright: Copyright (c) 2007 Nanorex, Inc.  All rights reserved.
+@version: 0.1
+
 AtomGenerator.py
 
 $Id$
@@ -11,8 +27,6 @@ Jeff 2007-05-30: Based on Will Ware's GrapheneGenerator.py
 __author__ = "Jeff"
 
 import platform
-#from math import atan2, sin, cos, pi
-#import assembly, chem, bonds, Utility
 from chem import molecule, Atom
 from VQT import V
 import string
@@ -28,16 +42,17 @@ class AtomGenerator( QDialog, AtomPropMgr, GeneratorBaseClass ):
     """The Atom Generator class.
     """
 
-    cmd = greenmsg("Build Atom: ")
-    prefix = 'Atom-'   # used for gensym
+    cmd     =  greenmsg("Build Atom: ")
+    prefix  =  'Atom-'   # used for gensym
 
     # Generators for DNA, nanotubes and graphene have their MT name generated 
     # (in GeneratorBaseClass) from the prefix.
-    create_name_from_prefix = True 
+    create_name_from_prefix  =  True 
+
     # We now support multiple keywords 
     # We now support multiple keywords in a list or tuple
     # sponsor_keyword = ('Graphenes', 'Carbon')
-    sponsor_keyword = 'Atom'
+    sponsor_keyword  =  'Atom'
 
     # pass window arg to constructor rather than use a global.
     def __init__( self, win ):
@@ -50,24 +65,25 @@ class AtomGenerator( QDialog, AtomPropMgr, GeneratorBaseClass ):
     # any necessary helper functions
 
     def gather_parameters( self ):
-        """Return all the parameters from the Property Manager.
+        """Return a tuple of all the parameters from the Property Manager.
         """
         x  =  self.xCoordinateField.value()
         y  =  self.yCoordinateField.value()
         z  =  self.zCoordinateField.value()
-        element = str(self.elementComboBox.currentText()) # chemical symbol
         
-        return ( x, y, z, element )
+        # Get the chemical symbol.
+        outElement  =  str(self.elementComboBox.currentText())
 
-    def build_struct( self, name, params, position ):
-        """Build an Atom (as a chunk) from the 
-           parameters in the Property Manager.
+        return ( x, y, z, outElement )
+
+    def build_struct( self, inName, inParams, inPosition ):
+        """Build an Atom (as a chunk) according to the given parameters.
         """
-        x, y, z, element  =  params
-        
-        mol = molecule(self.win.assy, name)
-        atm = Atom(element, V(x, y, z), mol)
-        atm.make_enough_bondpoints()
+        x, y, z, theElement  =  inParams
 
-        return mol
+        # Create new molecule (chunk) to contain the atom.
+        outMolecule  =  molecule( self.win.assy, self.name )
+        theAtom      =  Atom( theElement, V(x, y, z), outMolecule)
+        theAtom.make_enough_bondpoints()
 
+        return outMolecule
