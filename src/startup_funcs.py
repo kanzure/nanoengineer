@@ -228,7 +228,10 @@ def post_main_show( win): # bruce 050902 added this
         if platform.atom_debug:
             print "Atom Generator disabled"
         win.insertAtomAction.setVisible(False)
-            
+
+    #bruce 070613 code under development (maybe not yet committed)
+    if debug_pref("test_commands enabled (next session)", Choice_boolean_False, prefs_key = True):
+        import test_commands
 
 def _initialize_plugin_generators(): #bruce 060621
     # The CoNTub generator isn't working - commented out until it's fixed.
