@@ -580,7 +580,6 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.connect(self.toolsMoveMoleculeAction,SIGNAL("triggered()"),self.toolsMoveMolecule)
 	self.connect(self.rotateComponentsAction,SIGNAL("triggered()"),self.toolsRotateComponents)
 	
-        ###self.connect(self.toolsRevolveAction,SIGNAL("triggered()"),self.toolsRevolve)
         self.connect(self.toolsSelectAtomsAction,SIGNAL("triggered()"),self.toolsSelectAtoms)
         self.connect(self.toolsSelectMoleculesAction,SIGNAL("triggered()"),self.toolsSelectMolecules)
         self.connect(self.toolsStartOverAction,SIGNAL("triggered()"),self.toolsStartOver)
@@ -1989,10 +1988,6 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
     # Slots for future tools
     ###################################
     
-    # get into Revolve mode [bruce 041015]
-    def toolsRevolve(self):
-        self.glpane.setMode('REVOLVE')
-        
     # Mirror Tool
     def toolsMirror(self):
         env.history.message(redmsg("Mirror Tool: Not implemented yet."))
@@ -2283,8 +2278,6 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         # [bruce 050408 comment: this list should be recoded somehow so that it
         #  lists what to show, not what to hide. ##e]
         self.cookieCutterDashboard.hide()
-        #self.extrudeDashboard.hide()
-	#self.revolveDashboard.hide()
         self.depositAtomDashboard.hide()
         self.selectMolDashboard.hide()
         self.selectAtomsDashboard.hide()
@@ -2297,21 +2290,20 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.cookieSelectDashboard.hide()
 	
 	##Huaicai 12/08/04, remove unnecessary toolbars from context menu
-        objList = self.findChildren(QToolBar)
-        for obj in objList:
-            # [bruce 050408 comment: this is bad style; the default should be setAppropriate False
-            #  (to keep most dashboard names out of the context menu in the toolbar area),
-            #  and we should list here the few we want to include in that menu (setAppropriate True),
-            #  not the many we want to exclude (which is also a list that changes more often). ##e]
-	    """
-            if obj in [self.moviePlayerDashboard, self.moveChunksDashboard,
-                self.cookieCutterDashboard, self.depositAtomDashboard, self.extrudeDashboard,
-                self.selectAtomsDashboard, self.selectMolDashboard, self.zoomDashboard,
-                self.panDashboard, self.rotateDashboard, self.fuseChunksDashboard,
-                self.cookieSelectDashboard]:
-                    obj.setHidden(True)"""
-
-
+        # [not yet ported to Qt4]
+        ##objList = self.findChildren(QToolBar)
+        ##for obj in objList:
+        ##    # [bruce 050408 comment: this is bad style; the default should be setAppropriate False
+        ##    #  (to keep most dashboard names out of the context menu in the toolbar area),
+        ##    #  and we should list here the few we want to include in that menu (setAppropriate True),
+        ##    #  not the many we want to exclude (which is also a list that changes more often). ##e]
+        ##    if obj in [self.moviePlayerDashboard, self.moveChunksDashboard,
+        ##        self.cookieCutterDashboard, self.depositAtomDashboard, self.extrudeDashboard,
+        ##        self.selectAtomsDashboard, self.selectMolDashboard, self.zoomDashboard,
+        ##        self.panDashboard, self.rotateDashboard, self.fuseChunksDashboard,
+        ##        self.cookieSelectDashboard]:
+        ##            obj.setHidden(True)
+        return
             
     def enableViews(self, enableFlag=True):
         '''Disables/enables view actions on toolbar and menu.

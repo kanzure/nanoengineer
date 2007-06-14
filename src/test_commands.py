@@ -77,10 +77,19 @@ def enter_ExampleCommand1_doit(glpane):
 
 register_debug_menu_command( "ExampleCommand1", enter_ExampleCommand1 )
 
-def enter_DEPOSIT(glpane): # see if PM (MMKit) gets put up by this mode or by some action -- this works, it must be self-contained (good)
-    glpane.mode.Done(new_mode = 'DEPOSIT')
-    print "did enter_DEPOSIT"
-    
-register_debug_menu_command( "Enter depositMode", enter_DEPOSIT )
+def register_all_entermode_commands(glpane):
+    for name in glpane.modetab.keys():
+        def func(glp, name = name):
+            glp.mode.Done(new_mode = name)
+            print "did Enter %s" % name
+            return
+        register_debug_menu_command( "Enter %s" % name, func )
+    return
 
+if 1:
+    import env
+    win = env.mainwindow()
+    glpane = win.glpane
+    register_all_entermode_commands(glpane)
+    
 # end

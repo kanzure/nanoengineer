@@ -108,8 +108,13 @@ class movieMode(basicMode,MoviePropertyManager):
         self.o.assy.permit_pick_atoms()
 
     def _exitMode(self, new_mode = None):
+        # note: this definition generates the debug print
+        ## fyi (for developers): subclass movieMode overrides basicMode._exitMode; this is deprecated after mode changes of 040924.
+        # because it's an API violation to override this method; what should be done instead is to do this in one of the other cleanup
+        # functions documented in modes.py. Sometime that doc should be clarified and this method should be redone properly.
+        # [bruce 070613 comment]
         movie = self.o.assy.current_movie
-        if movie.currentFrame is not 0:
+        if movie and movie.currentFrame is not 0:
             mrd = MovieRewindDialog(movie)
             mrd.exec_()
         basicMode._exitMode(self, new_mode)

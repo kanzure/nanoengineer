@@ -172,7 +172,8 @@ class MovePropertyManager(QtGui.QWidget, PropertyManagerMixin, Ui_MovePropertyMa
         self.setLastCheckedRotateAction(lastCheckedRotateAction)     
         
         #Disconnect checked action in Rotate Components groupbox
-        self.w.rotateOptionsGroup.checkedAction().setChecked(False)
+        if self.w.rotateOptionsGroup.checkedAction(): #bruce 070613 added condition
+            self.w.rotateOptionsGroup.checkedAction().setChecked(False)
         
     def deactivate_moveGroupBox(self):
         """ Hide the items in the groupbox, Also 

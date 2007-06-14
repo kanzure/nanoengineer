@@ -25,16 +25,16 @@ from debug_prefs import debug_pref, Choice, Choice_boolean_False, Choice_boolean
 
 from handles import *
 from debug import print_compact_traceback
-from qt4transition import qt4todo
+##from qt4transition import qt4todo
 import math #k needed?
 from bonds import bond_at_singlets #k needed?
 import platform
-from widgets import FloatSpinBox, TogglePrefCheckBox, QVBox, QHBox
+##from widgets import FloatSpinBox, TogglePrefCheckBox, QVBox, QHBox
 
 from VQT import check_floats_near, check_posns_near, check_quats_near
     #bruce 050518 moved those defs out of this file
     
-from PropertyManagerMixin import PropertyManagerMixin 
+##from PropertyManagerMixin import PropertyManagerMixin 
 from ExtrudePropertyManager import ExtrudePropertyManager
 
 import env
@@ -46,7 +46,7 @@ import env
 #The old code (which implemented Extrude Dashboard is tagged as :
 # 'TAG before_extrudeMode_propmgr_migration_ninad070110'
 
-show_revolve_ui_features = 1 # for now
+##show_revolve_ui_features = 1 # for now
 
 ##class BendData:
 ##    """instances hold sets of attributes related to a single "bend value" (inter-unit rotation-quat, etc).
@@ -59,192 +59,20 @@ show_revolve_ui_features = 1 # for now
 
 MAX_NCOPIES = 360 # max number of extrude-unit copies. Should this be larger? Motivation is to avoid "hangs from slowness".
 
-def translate(x):
-    import PyQt4.QtGui
-    return QtGui.QApplication.translate("extrudeMode", x,
-                                        None, QtGui.QApplication.UnicodeUTF8)
+##def translate(x):
+##    import PyQt4.QtGui
+##    return QtGui.QApplication.translate("extrudeMode", x,
+##                                        None, QtGui.QApplication.UnicodeUTF8)
 
-# bruce 040920: until MainWindow.ui does the following, I'll do it manually:
-# (FYI: I will remove this, and the call to this, after MainWindowUI does the same stuff.
-#  But first I will be editing this function a lot to get the dashboard contents that I need.)
-def do_what_MainWindowUI_should_do(self):
-    "self should be the main MWSemantics object -- at the moment this is a function, not a method"
+### bruce 040920: until MainWindow.ui does the following, I'll do it manually:
+### (FYI: I will remove this, and the call to this, after MainWindowUI does the same stuff.
+###  But first I will be editing this function a lot to get the dashboard contents that I need.)
+##def do_what_MainWindowUI_should_do(self):
+##    "self should be the main MWSemantics object -- at the moment this is a function, not a method"
+##    assert 0 # no longer used in Qt4, replaced with ExtrudePropertyManager [code removed by bruce 070613]
 
-    ### for now we must set up dashboards for both extrude and revolve. at first they are just the same one.
-    # and when we show it we should patch the label...
+###REVIEW: are the following several UI helper functions still used? [bruce 070613 question]
 
-    from PyQt4.Qt import SIGNAL, QToolBar, QLabel, QLineEdit, QSpinBox
-
-    # 2. make a toolbar to be our dashboard, similar to the cookieCutterToolbar
-    # (based on the code for cookieCutterToolbar in MainWindowUI)
-
-    self.extrudeDashboard = QtGui.QToolBar(self)
-    ## self.extrudeToolbar = self.extrudeDashboard # bruce 041007 so I don't have to rename this in MWsemantics.py yet
-
-    self.revolveDashboard = self.extrudeDashboard
-    ### for now, let them be the same... should be ok unless we show new before hiding old
-
-    self.extrudeDashboard.setGeometry(QRect(0,0,515,29)) ### will probably be wrong once we modify the contents
-    # self.extrudeDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
-
-    self.textLabel_extrude_toolbar = QLabel(self.extrudeDashboard)
-    # note: the string in the next line used to be "Extrude Mode", in two places in the file
-    self.textLabel_extrude_toolbar.setText(translate("extrude or revolve 1")) # see note below about __tr
-
-    self.extrudeDashboard.addSeparator()
-
-    # make it convenient to revise nested vbox, hbox structures for the UI
-    from widgets import widget_filler
-    wf = widget_filler( self.extrudeDashboard, label_prefix = "extrude_label_", textfilter = translate )
-    parent_now = wf.parent
-    begin = wf.begin
-    end = wf.end
-    insertlabel = wf.label
-    
-    self.extrudeSpinBox_circle_n = None # if not set later
-    
-    if show_revolve_ui_features:
-        w = self
-        w.extrude_productTypeComboBox = QComboBox(parent_now()) ###k what is '0'?
-        w.extrude_productTypeComboBox.clear() #k needed??
-        w.extrude_productTypeComboBox.insertItem(0,"rod") # these names are seen by user but not by our code
-        w.extrude_productTypeComboBox.insertItem(1,"ring")
-        ## w.extrude_productTypeComboBox.insertItem("screw") ### remove this one, doesn't work yet
-        #e add twist? (twisted rod)
-        w.extrude_productTypeComboBox_ptypes = ["straight rod", "closed ring", "corkscrew"] # names used in the code, same order
-         # # # # if you comment out items from combobox, you also have to remove them from this list unless they are at the end!!!
-
-        if begin(QVBox):
-            if begin(QHBox):
-                insertlabel(" N ")
-                #self.extrudeSpinBox_n = QSpinBox(parent_now(), "extrudeSpinBox_n") # dup code to below
-                self.extrudeSpinBox_n = QSpinBox(parent_now()) # dup code to below
-            end()
-##            if begin(QHBox):
-##                insertlabel("(m)")
-##                self.extrudeSpinBox_circle_n = QSpinBox(parent_now(), "extrudeSpinBox_circle_n") # really for revolve
-##            end()
-        end()
-    else:
-        insertlabel(" N ")
-        self.extrudeSpinBox_n = QSpinBox(parent_now(), "extrudeSpinBox_n") # dup code to above
-        self.extrudeSpinBox_circle_n = None
-    #
-    
-    self.extrudeSpinBox_n.setRange(1,MAX_NCOPIES)
-    
-    self.extrudeDashboard.addSeparator()
-
-    if begin(QVBox):
-        if begin(QHBox):
-            insertlabel(" X ") # number of spaces is intentionally different on different labels
-            self.extrudeSpinBox_x = FloatSpinBox(parent_now(), "extrudeSpinBox_x")
-        end()
-        if begin(QHBox):
-            insertlabel(" Z ")
-            self.extrudeSpinBox_z = FloatSpinBox(parent_now(), "extrudeSpinBox_z")
-        end()
-    end()
-    if begin(QVBox):
-        if begin(QHBox):
-            insertlabel("      Y ")
-            self.extrudeSpinBox_y = FloatSpinBox(parent_now(), "extrudeSpinBox_y")
-        end()
-        if begin(QHBox):
-            insertlabel(" Length ") # units?
-            self.extrudeSpinBox_length = FloatSpinBox(parent_now(), "extrudeSpinBox_length", for_a_length = 1)
-        end()
-    end()
-
-    self.extrudeDashboard.addSeparator()
-
-    # == prefs things, don't work on reload if at end, don't know why
-
-    print "does extrudeMode.do_what_MainWindowUI_should_do run in Qt4 branch?"
-        #bruce 070411 - no, and adding _FAKE to an attrname below caused no harm, either,
-        # verifying that this code is no longer active in the Qt4 branch.
-
-    if begin(QVBox):
-        if begin(QHBox):
-            insertlabel("Show: ")
-            # these have keyword args of sense (dflt True), in case you
-            # rename them in a way which inverts meaning of True/False,
-            # and default, to specify the initial value of the program
-            # value (not nec. that of the checkbox, if sense = False!).
-            self.extrudePref1 = TogglePrefCheckBox("Whole Model", parent_now(), "extrudePref1",
-                                                   default = False, attr = 'show_whole_model', repaintQ = True )
-            self.extrudePref2 = TogglePrefCheckBox("Bond-offset Spheres", parent_now(), "extrudePref2",
-                                                   default = False,  attr = 'show_bond_offsets', repaintQ = True )
-                #bruce 050218 don't show bond-offset spheres by default
-        end()
-        if begin(QHBox):
-            insertlabel("When Done: ")
-            # these only affect what we do at the end -- no repaint needed.
-            # History: when there were only two "when done" prefs, the names were "make bonds", "join into one part".
-            # Other names tried and rejected (and the reasons):
-            # - "bonds" (unclear), "make bonds" (good), "bond parts" (good);
-            # - "merge parts" (unclear, but might be ok),
-            #   "single part" (sounds like "set ncopies = 1"), "one part" (same), "all one part" (good? maybe unclear);
-            #   "join parts" (sounds like "bond");
-            # - "ring" (unclear), "make ring" (might be ok), "bend into ring" (too long?).
-            self.extrudePref3 = TogglePrefCheckBox("Make Bonds", parent_now(), "extrudePref3", attr = 'whendone_make_bonds')
-            self.extrudePref4 = TogglePrefCheckBox("Merge Copies", parent_now(), "extrudePref4", attr = 'whendone_all_one_part_FAKE',
-                                                   default = False)
-                #fixed bug 513 items 2, 3ninad060724
-                #bruce 070410 renamed "Merge Chunks" to "Merge Copies" and changed default = False, after discussion with Mark;
-                # these changes in Qt3 may need to be manually merged into Qt4 (since Qt3 dashboard is replaced with Qt4 PM)
-        end()
-    end()
-
-#e smaller font? how?
-#e tooltips?
-        
-    self.extrudeDashboard.addSeparator()
-
-    if begin(QVBox):
-        global lambda_tol_nbonds
-        lbl = insertlabel(lambda_tol_nbonds(1.0,-1)) # text changed later
-        self.extrudeBondCriterionLabel = lbl
-        self.extrudeBondCriterionLabel_lambda_tol_nbonds = lambda_tol_nbonds
-        self.extrudeBondCriterionSlider_dflt = dflt = 100
-        # int minValue, int maxValue, int pageStep, int value, orientation, parent, name:
-        #self.extrudeBondCriterionSlider = QSlider(0,300,5,dflt,Qt.Horizontal,parent_now()) # 100 = the built-in criterion
-        qt4todo('what to do with constructor args for QSlider?')
-        self.extrudeBondCriterionSlider = QSlider(parent_now())
-    end()
-    ##lbl = insertlabel("<nnn>") # display of number of bonds, not editable
-    ##self.extrudeBondCriterion_ResLabel = lbl
-
-    self.extrudeDashboard.addSeparator()
-    
-    # == dashboard tools shared with other modes [did not test removing these wrt missing things at end bug, since exc caused]
-    self.extrudeDashboard.addAction(self.toolsBackUpAction)
-    self.extrudeDashboard.addAction(self.toolsStartOverAction)
-    self.extrudeDashboard.addAction(self.toolsDoneAction)
-    self.extrudeDashboard.addAction(self.toolsCancelAction)
-
-    # note: python name-mangling would turn __tr, within class MainWindow, into _MainWindow__tr (I think... seems to be right)
-    self.extrudeDashboard.setWindowTitle(translate("extrude or revolve 2"))
-
-    # stuff *after* the dashboard... make it on the right? prefs settings. experimental.
-    # QCheckBox::QCheckBox ( const QString & text, QWidget * parent, const char * name = 0 )
-
-    ##print "extrude debug: do_what_MainWindowUI_should_do 3"
-
-    # slider (& all else) failed to appear when it was created here, don't know why
-    
-    # fyi: caller hides the toolbar, we don't need to
-
-    reinit_extrude_controls(self) # moved to end, will that fix the reload issues??
-    
-    return
-
-def patch_modename_labels(win, modename):
-    "call with Extrude or Revolve" # "Extrude Mode" was wider than I liked... space is tight
-    self = win
-    self.textLabel_extrude_toolbar.setText(translate(modename)) # i think this is the visible one...
-    self.extrudeDashboard.setWindowTitle(translate(modename)) # not sure whether this ever shows up
-    
 def lambda_tol_nbonds(tol, nbonds):
     if nbonds == -1:
         nbonds_str = "?"
@@ -1187,15 +1015,10 @@ class extrudeMode(basicMode, ExtrudePropertyManager):
         self.w.disable_QActions_for_extrudeMode(True)
                 
         if self.is_revolve:
-            self.w.toolsRevolveAction.setChecked(1)
-            qt4todo('self.w.dashboardHolder.setWidget(self.w.revolveDashboard)')
-            qt4todo('self.w.revolveDashboard.show()')
-            qt4todo('patch_modename_labels(self.w, "Revolve")')
+            assert 0 #bruce 070613
+##            self.w.toolsRevolveAction.setChecked(1)
         else:
             self.w.toolsExtrudeAction.setChecked(1) # make the Extrude tool icon look pressed (and the others not)
-            qt4todo('self.w.dashboardHolder.setWidget(self.w.extrudeDashboard)')
-            qt4todo('self.w.extrudeDashboard.show()')
-            qt4todo('patch_modename_labels(self.w, "Extrude")')
 
         # Disable Undo/Redo actions, and undo checkpoints, during this mode (they *must* be reenabled in restore_gui).
         # We do this last, so as not to do it if there are exceptions in the rest of the method,
@@ -1445,11 +1268,6 @@ class extrudeMode(basicMode, ExtrudePropertyManager):
         # Re-enable QAction items
         # [bruce 060414 moved this earlier in the method]
         self.w.disable_QActions_for_extrudeMode(False)
-
-        if self.is_revolve:
-            qt4todo('self.w.revolveDashboard.hide()')
-        else:
-            qt4todo('self.w.extrudeDashboard.hide()')
 
         self.connect_or_disconnect_signals(False) #bruce 060412, hoping it helps with bug 1750
         
@@ -1869,7 +1687,7 @@ class extrudeMode(basicMode, ExtrudePropertyManager):
         to use it, so no need to restart Atom. Might not always work.
         [But it did work at least once!]
         """
-        global extrudeMode, revolveMode
+        global extrudeMode
         print "extrude_reload: here goes...."
         try:
             self.extrudeSpinBox_n.setValue(1)
@@ -1881,7 +1699,7 @@ class extrudeMode(basicMode, ExtrudePropertyManager):
             self.restore_gui()
         except:
             print_compact_traceback("exc in self.restore_gui(), ignored: ")
-        for clas in [extrudeMode, revolveMode]:
+        for clas in [extrudeMode]:
             try:
                 self.o.mode_classes.remove(clas) # was: self.__class__
             except ValueError:
@@ -1890,14 +1708,13 @@ class extrudeMode(basicMode, ExtrudePropertyManager):
         reload(handles)
         import extrudeMode as _exm
         reload(_exm)
-        from extrudeMode import extrudeMode, revolveMode, do_what_MainWindowUI_should_do
-        try:
-            do_what_MainWindowUI_should_do(self.w) # remake interface (dashboard), in case it's different [041014]
-        except:
-            print_compact_traceback("exc in new do_what_MainWindowUI_should_do(), ignored: ")
+        from extrudeMode import extrudeMode
+##        try:
+##            do_what_MainWindowUI_should_do(self.w) # remake interface (dashboard), in case it's different [041014]
+##        except:
+##            print_compact_traceback("exc in new do_what_MainWindowUI_should_do(), ignored: ")
         ## self.o.modetab['EXTRUDE'] = extrudeMode
         self.o.mode_classes.append(extrudeMode)
-        self.o.mode_classes.append(revolveMode)
         print "about to reinit modes"
         self.o._reinit_modes() # leaves mode as nullmode as of 050911
         self.o.start_using_mode( '$DEFAULT_MODE' )
@@ -2321,15 +2138,14 @@ class fake_copied_mol( virtual_group_of_Chunks): #e rename? 'extrude_unit_copy_h
 
 # ==
 
-class revolveMode(extrudeMode):
-    "revolve, a slightly different version of Extrude, someday with a different dashboard"
-
-    # class constants
-    modename = 'REVOLVE'
-    msg_modename = "revolve mode" #e need to fix up anything else?
-    default_mode_status_text = "Mode: Revolve"
-    is_revolve = 1
-
-    pass
+##class revolveMode(extrudeMode):
+##    "revolve, a slightly different version of Extrude, someday with a different dashboard"
+##
+##    # class constants
+##    modename = 'REVOLVE'
+##    msg_modename = "revolve mode" #e need to fix up anything else?
+##    default_mode_status_text = "Mode: Revolve"
+##    is_revolve = 1
+##    pass
 
 # end
