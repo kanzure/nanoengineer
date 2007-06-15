@@ -192,10 +192,14 @@ violet = (0.6, 0.1, 0.9) # Will change this to purple later.  Mark 050730
 purple = violet #bruce 061016, just so this color name is defined -- if you have better rgb values, feel free to modify it
 pink = (0.8, 0.4, 0.4) #bruce 050610 darkened this and called it 'pink'; old value was (1.0, 0.5, 0.5), called LEDon
 
-lightblue = ave_colors(0.03, white, blue) #ninad060922 using it while drawing origin axis
+#ninad20060922 using it while drawing origin axis
+lightblue = ave_colors(0.03, white, blue) 
 
-lightblue = ave_colors(0.03, white, blue) #ninad060922 using it while drawing origin axis
-
+# Following color is used to draw the back side of a reference plane. 
+#Better call it brownish yellow or greenish brown?? lets just call it brown 
+#(or suggest better name by looking at it. ) - ninad 20070615
+brown = ave_colors(0.5, black, yellow) 
+                         
 bluesky = (0.9, 0.9, 0.9), (0.9, 0.9, 0.9), (0.33, 0.73, 1.0), (0.33, 0.73, 1.0) # GLPane "Blue Sky" gradient
 
 ###bruce 061016 removed these, changed remaining uses of LEDon to pink:

@@ -36,7 +36,7 @@ from debug import print_compact_traceback
 import env
 from shape import fill
 from drawer import drawLineLoop, drawPlane, drawline, drawcylinder, drawDirectionArrow
-from constants import black, gray, orange, yellow, darkgreen
+from constants import black, gray, orange, yellow, darkgreen, brown
 from HistoryWidget import greenmsg, redmsg
 
 from PlanePropertyManager import PlanePropMgr
@@ -187,9 +187,15 @@ class Plane(ReferenceGeometry):
         top_left = V(- hw, + hh, 0.0)
                 
         corners_pos = [bottom_left, bottom_right, 
-                       top_right, top_left]          
+                       top_right, top_left]   
+        
+        if dot(self.getaxis(), glpane.lineOfSight) < 0:
+            fill_color = brown #backside
+        else:
+            fill_color = self.fill_color
+            
                                 
-        drawPlane(self.fill_color, 
+        drawPlane(fill_color, 
                   self.width, 
                   self.height, 
                   textureReady,
@@ -212,7 +218,7 @@ class Plane(ReferenceGeometry):
                 #for it's front side (side that was in front 
                 #when the plane was created and a gray border for the back side. 
                 if dot(self.getaxis(), glpane.lineOfSight) < 0:
-                    bordercolor = gray #backside
+                    bordercolor = brown #backside
                 else:
                     bordercolor = self.border_color #frontside
                 drawLineLoop(bordercolor, corners_pos)   
