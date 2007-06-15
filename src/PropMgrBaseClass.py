@@ -375,8 +375,12 @@ class PropMgrBaseClass:
         SponsorFrameGrid.addWidget(self.sponsor_btn,0,0,1,1)
         
         self.VBoxLayout.addWidget(self.sponsor_frame)
+
+        button_whatsthis_widget = self.sponsor_btn
+            #bruce 070615 bugfix -- put tooltip & whatsthis on self.sponsor_btn, not self.
+            # [self.sponsor_frame might be another possible place to put them.]
         
-        self.setWhatsThis("""<b>Sponsor Button</b>
+        button_whatsthis_widget.setWhatsThis("""<b>Sponsor Button</b>
             <p>When clicked, this sponsor logo will display a short 
             description about a NanoEngineer-1 sponsor. This can 
             be an official sponsor or credit given to a contributor 
@@ -384,7 +388,7 @@ class PropMgrBaseClass:
             A link is provided in the description to learn more 
             about this sponsor.</p>""")
         
-        self.setToolTip("NanoEngineer-1 Sponsor Button")
+        button_whatsthis_widget.setToolTip("NanoEngineer-1 Sponsor Button")
         
         return
 
