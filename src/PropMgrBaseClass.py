@@ -160,8 +160,12 @@ def getWidgetGridLayoutParms(label, row, spanWidth):
 class PropMgrBaseClass:
     """Property Manager base class.
     [To make a PM class from this mixin-superclass, subclass it to customize
-    the widget set and add behavior, and inherit QDialog (before this class).
-    Technically, this is not a base class but a mixin class.]
+    the widget set and add behavior, and inherit QDialog (before this class)
+    and PropertyManagerMixin (after it). You must also provide certain methods
+    provided by GeneratorBaseClass (by inheriting it -- not sure if order matters --
+    or by defining them yourself), including ok_btn_clicked.
+     This set of requirements may be cleaned up.]
+    [Note: Technically, this is not a "base class" but a "mixin class".]
     """
     
     widgets = [] # All widgets in the PropMgr dialog
@@ -177,6 +181,8 @@ class PropMgrBaseClass:
         
         # Main pallete for PropMgr.
         propmgr_palette = self.getPropertyManagerPalette()
+            ###WARNING: as of 070615 this method getPropertyManagerPalette is only
+            # defined in PropertyManagerMixin. [bruce 070615 comment]
         self.setPalette(propmgr_palette)
         
         # Main vertical layout for PropMgr.
