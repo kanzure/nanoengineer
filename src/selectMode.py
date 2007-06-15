@@ -1504,19 +1504,15 @@ class selectMode(basicMode):
             self.moveOffset = geometry_NewPt - self.jig_StartPt
             msg = "Offset: [X: %.2f] [Y: %.2f] [Z: %.2f]" % (self.moveOffset[0], self.moveOffset[1], self.moveOffset[2])
             env.history.statusbar_msg(msg)
-
-        offset = geometry_NewPt - self.jig_MovePt 
-        
-        geom.move(offset)
-                  
-        self.jig_MovePt = geometry_NewPt
-        
+            
+        offset = geometry_NewPt - self.jig_MovePt         
+        geom.move(offset)                  
+        self.jig_MovePt = geometry_NewPt        
         self.current_obj_clicked = False 
         self.o.gl_update()
         pass
                 
     
-    #@@@EXPERIMENTAL -- ninad 20070518
     def handleLeftDown(self, hdl, event):
         #First compute the intersection point of the mouseray with the plane 
         #This will be our first self.handle_MovePt upon left down. 
@@ -1530,62 +1526,58 @@ class selectMode(basicMode):
         intersection = planeXline(planePoint, planeNorm, linePoint, lineVector)
         if intersection is None:
             intersection =  ptonline(planePoint, linePoint, lineVector)
-            
+        
+        handlePoint = hdl.center
+        handleNorm = hdl.glpane.lineOfSight
+        hdl_intersect = planeXline(handlePoint, handleNorm, linePoint, lineVector)
         self.handle_MovePt = intersection 
         self.handleSetUp(hdl)
-            
-    
+                
     def handleLeftDrag(self, hdl, event):
         #NOTE: mouseray contains all the points 
         #that a 'mouseray' will travel , between points p1 and p2 .  
         # The intersection of mouseray with the Plane (this was suggested 
         #by Bruce in an email) is our new handle point.
-        #obtained in left drag. This handle_NewPt and self.handle_MovePt (which
-        #was originally computed in handleLeftDown are used to find the two vectors 
-        #starting from the plane center each and having end points as the above 
-        #two points respt.  -- Ninad 20070531
+        #obtained in left drag. 
+        #The first vector (vec_v1) is the vector obtained by using 
+        #plane.quat.rot(handle center)        
+        #The handle_NewPt is used to find the second vector
+        #between the plane center and this point. 
+        # -- Ninad 20070531, (updated 20070615)
         
         p1, p2 = self.o.mousepoints(event)
         linePoint = p2
         lineVector = norm(p2-p1)
         planeAxis = hdl.parent.getaxis()
         planeNorm = norm(planeAxis)
-        planePoint = hdl.parent.center    
+        planePoint = hdl.parent.center   
+        #Find out intersection of the mouseray with the plane. 
         intersection = planeXline(planePoint, planeNorm, linePoint, lineVector)
         if intersection is None:
             intersection =  ptonline(planePoint, linePoint, lineVector)
             
         handle_NewPt = intersection
-            
-        vec_v1 = V(self.handle_MovePt[0] - hdl.parent.center[0],
-                   self.handle_MovePt[1] - hdl.parent.center[1],
-                   self.handle_MovePt[2] - hdl.parent.center[2])
+        
+        #ninad 20070615 : Fixed the resize geometry bug 2438. Thanks to Bruce 
+        #for help with the formula that finds the right vector! (vec_v1)
+        vec_v1 = hdl.parent.quat.rot(hdl.center) 
     
         vec_v2 = V(handle_NewPt[0] - hdl.parent.center[0],
                    handle_NewPt[1] - hdl.parent.center[1],
                    handle_NewPt[2] - hdl.parent.center[2])                       
         
-        #Orthogonal projection of Vector V2 over V1
+        #Orthogonal projection of Vector V2 over V1 call it vec_P. 
+        #See Plane.resizeGeometry  for further details -- ninad 20070615
         #@@@ need to document this further. 
-        #@@@BUG:  end point vec_v1 is not on an axis vector (
-        #i.e. x or y or z) but is 'close to an axis vector' 
-        #This could be the problem with the jumpy resizing. (Center not being 
-        #accurately offsetted)This needs further work. 
-        #For Alpha9 committing whatever is available. 
-        #Resizing basically works but is buggy and accurate control 
-        #is not acheived.  -- Ninad 20070531
-        
-        
-           
+
         vec_P = vec_v1* (dot(vec_v2, vec_v1)/dot(vec_v1,vec_v1))
         
         hdl.parent.resizeGeometry(hdl, vec_P, vec_v1) 
-        
+                
         self.handle_MovePt = handle_NewPt
         self.current_obj_clicked = False
         self.o.gl_update()
-           
-        
+                   
     def handleLeftUp(self, hdl, event):
         pass
     

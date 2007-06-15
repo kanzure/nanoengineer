@@ -11,23 +11,25 @@ class Handles. (and for ReferenceGeoemtry which is a superclass of Plane)
 ninad 20070603: Implemented Plane Property Manager
 ninad 20070606: slightly cleaned up the code-- Plane class now inherits only
 ReferenceGeometry and uses PlaneGenerator object for PropertyManager work.
-ninad 20070612: Created new class 'DirectionArrow' to support the implementation of 
-'offset plane'
+ninad 20070612: Created new class 'DirectionArrow' to support the implementation 
+of 'offset plane'
 
 @NOTE:This file is subjected to major changes. 
 @TODO: 
--Work needs to be done on resizeGeometry code. 
-Many other improvements planned- Ninad 070603
-- Needs documentation and code cleanup /organization post Alpha9.--ninad20070604 
+1) Many other improvements planned- Ninad 070603
+- Needs documentation and code cleanup /organization post Alpha9.--ninad20070604
+(added some documentation on 20070615. More to do.)
+2) Need to split out Handle and DirectionArrow classes out of these file
+
 
 """
+
+__author__ = "Ninad"
 
 from OpenGL.GL import *
 from OpenGL.GLU import gluProject, gluUnProject
 from math import pi, atan, cos, sin
 from Numeric import add
-
-from PyQt4.QtGui import QDialog
 
 from VQT import V,Q, cross, dot, A, planeXline, vlen, norm
 from debug import print_compact_traceback
@@ -45,6 +47,8 @@ from ReferenceGeometry import ReferenceGeometry
 from DragHandler import DragHandler_API
 
 class Plane(ReferenceGeometry):
+    ''' Creates a Reference Plane specified by the option 
+    in the Plane Property Manager.'''
     
     sym = "Plane"    
     is_movable = True 
@@ -162,32 +166,7 @@ class Plane(ReferenceGeometry):
            (self.width, self.height, self.center[0], self.center[1], self.center[2], 
             self.quat.w, self.quat.x, self.quat.y, self.quat.z)
         return " " + dataline
-    
-    def _mmp_record_last_part(self, mapping):
-        ''' Return a fake string 'type-geometry' as the last entry 
-        for the mmp record. This part of mmp record is NOT used so far 
-        for ReferenceGeometry Objects'''
-        #This is needed as ReferenceGeometry is a subclass of Jig 
-        #(instead of Node) , Returning string 'geometry' overcomes 
-        #the problem faced due to a kludge in method mmp_record 
-        #(see file jigs.py)That kludge makes it not write the 
-        #proper mmp record. if last part is an empty string (?) --ninad 20070604
-        
-        return "type-geometry"
-    
-        
-    def draw(self, glpane, dispdef):
-        if self.hidden:
-            return
-        try:
-            glPushName(self.glname)
-            self._draw(glpane, dispdef)
-        except:
-            glPopName()
-            print_compact_traceback("ignoring exception when drawing Plane %r: " % self)
-        else:
-            glPopName()
-                   
+                       
     def _draw_geometry(self, glpane, color, highlighted=False):
         '''Draw a Plane.'''
         # Reference planes don't support textures so set this property to False 
@@ -301,7 +280,7 @@ class Plane(ReferenceGeometry):
         of each side of the plane. The handles will be displayed only when the 
         geometry is selected
         @param: cornerPoints : List of corner points. The handles will be
-        drawn at these corners PLUS in the middle of each side of tthe Plane'''
+        drawn at these corners PLUS in the middle of each side of the Plane'''
         
         handleCenters = list(cornerPoints)
        
@@ -311,11 +290,10 @@ class Plane(ReferenceGeometry):
         midRt = (handleCenters[1] + handleCenters[2])/2
         midTop = (handleCenters[2] + handleCenters[3])/2
         midLft = (handleCenters[3] + handleCenters[0])/2
-        
-       
+                
         for midpt in [midBtm,midRt,midTop, midLft]:
             handleCenters.append(midpt)
-        
+                
         if len(self.handles)==8:   
             assert len(self.handles) == len(handleCenters)
             i = 0
@@ -325,6 +303,7 @@ class Plane(ReferenceGeometry):
             hdlIndex = 0
             for hCenter in handleCenters: 
                 handle = Handle(self, self.glpane, hCenter)
+                
                 handle.draw() 
                 if handle not in self.handles:
                     self.handles.append(handle)
@@ -349,36 +328,38 @@ class Plane(ReferenceGeometry):
         self.center += handleOffset/2.0
     
     def resizeGeometry(self, movedHandle, vec_P, vec_v1): 
-        #@TODO:need to revise this.
-        #@BUG: vec_v1 computed in handleLeftDrag needs to be be Handle Center
-        #projected on the parent Plane . 
-        #At present I'm unable to compute that. handel.center returns , for example
-        # (-X, 0, 0) for the mid-west handle even when the handle is created in left view. 
-        #In the above case , the real point on the parent plane 
-        #(with center at 0, 0,0) should be (0, 0, -8) since you are in left view. 
-        #vec_v1 returns a vector between the mouse hitpoint on the handle 
-        #and plane center. But since it doesn't have accurate coordinates 
-        #as the handle center the resizing is not smooth and plane 
-        #'moves' after resize(which shouldn't happen)  -- Ninad 20070601
-    
-        totalOffset = vec_P - vec_v1
-                
-        if 0: #For debug
-            print "***vec_P = ", vec_P
-            print "***length of vec_P = ", vlen(vec_P)
-            print "*** vec_v1 = ", vec_v1
-            print "***length of vec_v1 = ", vlen(vec_v1)
-            print "*** totalOffset vector =", totalOffset
-            print "*** length of totalOffset = ", vlen(totalOffset)
-            print "*** Original Width = ", self.width
+        ''' Resizes the width or height or both depending upon 
+        the handle type'''        
+        #The folllowing puts 'stoppers' so that if the mouse goes beyond the
+        #opposite face while dragging, the plane resizing is stopped.
+        #This fixes bug 2447. (It still has a bug where fast mouse movements 
+        #make resizing stop early (need a bug report) ..minor bug , workaround is to 
+        #do the mousemotion slowly. -- ninad 20070615 
+        if dot(vec_v1, vec_P)< 0:
+            return          
+        #ninad 20070515: vec_P is the orthogonal projection of vec_v2 over vec_v1 
+        #(see selectMode.handleLeftDrag for definition of vec_v2). 
+        #The total handle movement is by the following offset. So, for instance
+        #the fragged handle was a 'Width-Handle' , the original width of the 
+        #plane is changed by the vlen(totalOffset). Since we want to keep the 
+        #opposite side of the plane fixed during resizing, we need to offset the 
+        #plane center , along the direction of the following totalOffsetVector
+        #(Remember that the totalOffsetVector is along vec_v1. 
+        #i.e. the angle is either 0 or 180), and , by a distance equal to 
+        #half the length of the totalOffset. Before moving the center 
+        #by this amount we need to recompute the new width or height 
+        #or both of the plane because those new values will be used in 
+        #the Plane drawing code     
         
+        totalOffset = vec_P - vec_v1    
+          
         if vlen(vec_P) > vlen(vec_v1):
             new_dimension = 2*vlen(vec_v1) + vlen(totalOffset)
         else:
             new_dimension = 2*vlen(vec_v1) - vlen(totalOffset)
-                
-        if movedHandle.getType() == 'Width-Handle' :  
-            new_w = new_dimension                    
+                        
+        if movedHandle.getType() == 'Width-Handle' : 
+            new_w = new_dimension  
             self.setWidth(new_w)
         elif movedHandle.getType() == 'Height-Handle' :
             new_h = new_dimension
@@ -391,7 +372,7 @@ class Plane(ReferenceGeometry):
             new_h = (new_dimension)*sin(theta)
             self.setWidth(new_w)
             self.setHeight(new_h)            
-        
+            
         self.recomputeCenter(totalOffset)
         #update the width,height spinboxes(may be more in future)--Ninad20070601
         self.propMgr.update_spinboxes()
@@ -551,21 +532,20 @@ class Handle(DragHandler_API):
         #Use glpane's scale for drawing the handle. This makes sure that
         # the handle is non-zoomable. 
         side = self.glpane.scale*0.018                
-        glPushMatrix()           
-            
+        glPushMatrix() 
+                   
         
         #Translate to the center of the handle
         glTranslatef(self.center[0], 
                      self.center[1], 
-                     self.center[2])   
-        
-        
+                     self.center[2])  
+                        
         #Bruce suggested undoing the glpane.quat rotation and plane quat rotation 
         #before drawing the handle geometry. -- ninad 20070525
         parent_q = self.parent.quat        
         glpane_q = self.glpane.quat 
         glRotatef(-parent_q.angle*180.0/pi, parent_q.x, parent_q.y, parent_q.z)          
-        glRotatef(-glpane_q.angle*180.0/pi, glpane_q.x, glpane_q.y, glpane_q.z)        
+        glRotatef(-glpane_q.angle*180.0/pi, glpane_q.x, glpane_q.y, glpane_q.z) 
        
         drawPlane(darkgreen, 
               side, 

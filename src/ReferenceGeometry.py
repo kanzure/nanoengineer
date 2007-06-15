@@ -37,6 +37,7 @@ import env
 import platform
 from DragHandler import DragHandler_API
 from jigs import Jig
+from OpenGL.GL import *
 
 
 class ReferenceGeometry(Jig, DragHandler_API):
@@ -76,6 +77,18 @@ class ReferenceGeometry(Jig, DragHandler_API):
         '''Overrided method inherited from Jig. This is used to tell 
         if the jig can be copied even it doesn't have atoms.'''
         return False
+    
+    def _mmp_record_last_part(self, mapping):
+        ''' Return a fake string 'type-geometry' as the last entry 
+        for the mmp record. This part of mmp record is NOT used so far 
+        for ReferenceGeometry Objects'''
+        #This is needed as ReferenceGeometry is a subclass of Jig 
+        #(instead of Node) , Returning string 'geometry' overcomes 
+        #the problem faced due to a kludge in method mmp_record 
+        #(see file jigs.py)That kludge makes it not write the 
+        #proper mmp record. if last part is an empty string (?) --ninad 20070604
+        
+        return "type-geometry"
                         
     def _draw(self, glpane, dispdef):
         self._draw_geometry(glpane, self.color)        
@@ -85,7 +98,9 @@ class ReferenceGeometry(Jig, DragHandler_API):
         Subclasses should override this method.'''
         pass
             
-    def draw(self, glpane):
+    def draw(self, glpane, dispdef):
+        if self.hidden:
+            return
         try:
             glPushName(self.glname)
             self._draw(glpane, dispdef)
