@@ -983,25 +983,28 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
         if self.currentPageOpen(LibraryPage):
             self.setup_current_page(self.atomsPage)
                   
-        
-    num_polish = 0
-    
-    def polish(self):
-        '''This slot is called after a widget has been fully created and before it is shown the very first time.
-        Polishing is useful for final initialization which depends on having an instantiated widget. 
-        This is something a constructor cannot guarantee since the initialization of the subclasses might not be finished.
-        After this function, the widget has a proper font and palette and QApplication.polish() has been called.
-        Remember to call QDialog's implementation when reimplementing this function.
-        '''
-        QDialog.polish(self) # call QDialog's polish() implementation
-        self.num_polish += 1
-        #&print "num_polish =", self.num_polish
-        if self.num_polish < 2:
-            # polish() is called twice; not sure why.  
-            # Call move_to_best_location() only after the second polish signal since 
-            # get_location() can only get self.frameGeometry() after that.
-            return
-        self.move_to_best_location(True)
+
+#bruce 070615 commented out the following since I think it's obsolete:
+# (evidence: no other mentions of 'polish' or 'move_to_best_location' in our code,
+#  and MMKit is no longer a movable dialog)
+##    num_polish = 0
+##    
+##    def polish(self):
+##        '''This slot is called after a widget has been fully created and before it is shown the very first time.
+##        Polishing is useful for final initialization which depends on having an instantiated widget. 
+##        This is something a constructor cannot guarantee since the initialization of the subclasses might not be finished.
+##        After this function, the widget has a proper font and palette and QApplication.polish() has been called.
+##        Remember to call QDialog's implementation when reimplementing this function.
+##        '''
+##        QDialog.polish(self) # call QDialog's polish() implementation
+##        self.num_polish += 1
+##        #&print "num_polish =", self.num_polish
+##        if self.num_polish < 2:
+##            # polish() is called twice; not sure why.  
+##            # Call move_to_best_location() only after the second polish signal since 
+##            # get_location() can only get self.frameGeometry() after that.
+##            return
+##        self.move_to_best_location(True)
         
         
     def show(self):
