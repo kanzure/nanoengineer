@@ -537,11 +537,17 @@ class hacked_connect_method_installer: #e could be refactored into hacked-method
                 # should never happen unless there's a disconnect with no prior connect
                 slotmap = sender.__slotmap = {}
             key = (signal, slotboundmethod)
-            lis = slotmap[key] # fails only if there's a disconnect with no prior connect
-            newmethod = lis.pop() # should never fail, due to deleting empty lists (below)
-            if not lis:
-                del slotmap[key] # not really needed but seems better for avoiding memory leaks
-            newargs = sender, signal, newmethod
+            try:
+                lis = slotmap[key] # fails only if there's a disconnect with no prior connect
+            except KeyError:
+                # this case added by bruce 070615
+                print "likely bug: disconnect with no prior connect", key #e need better info?
+                newargs = args # still call disconnect -- ok?? I guess so -- it returns False, but no other apparent problem.
+            else:
+                newmethod = lis.pop() # should never fail, due to deleting empty lists (below)
+                if not lis:
+                    del slotmap[key] # not really needed but seems better for avoiding memory leaks
+                newargs = sender, signal, newmethod
         res = origmethod(*newargs) # pass on any exceptions
         if res is not True: ##k
             print "likely bug: disconnect retval is not True:", res
