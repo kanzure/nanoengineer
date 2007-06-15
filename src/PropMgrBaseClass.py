@@ -158,7 +158,11 @@ def getWidgetGridLayoutParms(label, row, spanWidth):
 # End of getWidgetGridLayoutParms ####################################
 
 class PropMgrBaseClass:
-    '''Property Manager base class'''
+    """Property Manager base class.
+    [To make a PM class from this mixin-superclass, subclass it to customize
+    the widget set and add behavior, and inherit QDialog (before this class).
+    Technically, this is not a base class but a mixin class.]
+    """
     
     widgets = [] # All widgets in the PropMgr dialog
     num_groupboxes = 0 # Number of groupboxes in PropMgr.
