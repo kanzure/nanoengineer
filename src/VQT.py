@@ -76,8 +76,16 @@ def angleBetween(vec1, vec2):
     lensq2 = dot(vec2, vec2)
     if lensq2 < TEENY:
         return 0.0
-    vec1 /= lensq1 ** .5
-    vec2 /= lensq2 ** .5
+    
+    #Replaced earlier formula "vec1 /= lensq1 ** .5" to fix the 
+    #following bug:  
+    #The above formula was modifying the arguments using the /= statement. 
+    #Numeric.array objects (V objects) are mutable, and op= operators modify 
+    #them so replacing  [--ninad 20070614 comments, based on an email 
+    #conversation with Bruce where he noticed the real problem.] 
+    
+    vec1 = vec1 / lensq1 ** .5
+    vec2 = vec2 / lensq2 ** .5
     # The case of nearly-equal vectors will be covered by the >= 1.0 clause.
     #diff = vec1 - vec2
     #if dot(diff, diff) < TEENY:
