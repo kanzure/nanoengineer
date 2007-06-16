@@ -1,16 +1,18 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 PropertyManagerMixin.py
 @author: Ninad
 @version: $Id$
-@copyright: 2006-2007 Nanorex, Inc.  All rights reserved.
+@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 ninad20061215: created this mixin class to provide helper methods in various 
 Property managers 
 ninad20070206: added many new methods to help prop manager ui generation.
 
-mark 2007-05-17: added the new property manager base class PropMgrBaseClass.
+mark 2007-05-17: added the new property manager base class PropMgrBaseClass. [now in its own file]
+
+bruce 2007-06-15: partly cleaned up inheritance (by splitting out PropertyManager_common).
 
 """
 
@@ -18,52 +20,14 @@ __author__ = "Ninad"
 
 from PyQt4.Qt import *
 from PyQt4 import Qt, QtCore, QtGui
-from Utility import geticon
-from PyQt4.QtGui import *
+##from PyQt4.QtGui import *
 from Sponsors import SponsorableMixin
-from qt4transition import lineage
+##from qt4transition import lineage
 from Utility import geticon, getpixmap
 from PropMgr_Constants import *
 from debug import print_compact_traceback
 import platform
-
-class PropertyManager_common: #bruce 070615 split this out of PropertyManagerMixin
-    """Methods common to PropertyManagerMixin and PropMgrBaseClass.
-    """
-    def getPropertyManagerPalette(self):
-        """ Return a palette for the property manager.
-        """
-        # in future we might want to set different palette colors for prop managers. 
-        return self.getPalette(None,
-                               QtGui.QPalette.ColorRole(10),
-                               pmColor)
-    
-    def getPropMgrTitleFramePalette(self): # note: used only by PropMgrBaseClass as of 070615
-        """ Return a palette for Property Manager title frame. 
-        """
-        #bgrole(10) is 'Windows'
-        return self.getPalette(None,
-                               QtGui.QPalette.ColorRole(10),
-                               pmTitleFrameColor)
-    
-    def getPropMgrTitleLabelPalette(self): # note: used only by PropMgrBaseClass as of 070615
-        """ Return a palette for Property Manager title label. 
-        """
-        return self.getPalette(None,
-                               QtGui.QPalette.WindowText,
-                               pmTitleLabelColor)
-        
-    def getPalette(self, palette, obj, color): ###### check whether redundant in PropMgrBaseClass but i think not
-        """ Given a palette, Qt object and a color, return a new palette.
-        If palette is None, create and return a new palette.
-        """
-        #bruce 070615 replaced with call to another (preexisting) function which has same name and identical code.
-        from PropMgrBaseClass import getPalette # might cause recursive import problem if done at toplevel
-        return getPalette(palette, obj, color) 
-
-    ###e move more methods here?
-    
-    pass # end of class PropertyManager_common
+from PropMgrBaseClass import PropertyManager_common
 
 # ==
 
@@ -74,17 +38,15 @@ class PropertyManager_common: #bruce 070615 split this out of PropertyManagerMix
 # - Tools > Fuse (fuseMode)
 # - Tools > Move (modifyMode)
 # - Simulator > Play Movie (movieMode)
-# - GeneratorBaseClass [### will be changed soon]
+# - GeneratorBaseClass [not anymore! 070615]
 #
 # Once all these have been migrated to the new PropMgrBaseClass,
 # this class can be removed permanently. Mark 2007-05-25
-# [But first we need to wean PropMgrBaseClass off of depending on many of
-#  this class's methods. Plan: make it inherit PropertyManager_common instead. bruce 070615]
 
 class PropertyManagerMixin(PropertyManager_common, SponsorableMixin):
-    """Mixin class that provides methods common to various property managers""" #e but soon, not to PropMgrBaseClass
+    """Mixin class that provides methods common to various property managers (but not to PropMgrBaseClass)"""
         
-    def openPropertyManager(self, tab): # note: not used by PropMgrBaseClass as of 070615
+    def openPropertyManager(self, tab):
         #tab = property manager widget
         self.pw = self.w.activePartWindow()         
         self.pw.updatePropertyManagerTab(tab)
@@ -94,7 +56,7 @@ class PropertyManagerMixin(PropertyManager_common, SponsorableMixin):
             print "tab has no attribute 'setSponsor()'  ignoring."
         self.pw.featureManager.setCurrentIndex(self.pw.featureManager.indexOf(tab))
      
-    def closePropertyManager(self): # note: not used by PropMgrBaseClass as of 070615
+    def closePropertyManager(self):
         if not self.pw:
             self.pw = self.w.activePartWindow() 
         self.pw.featureManager.setCurrentIndex(0)
@@ -114,7 +76,7 @@ class PropertyManagerMixin(PropertyManager_common, SponsorableMixin):
         if self.pw.propertyManagerTab:
             self.pw.propertyManagerTab = None
             
-    def toggle_groupbox(self, button, *things): # note: not used by PropMgrBaseClass as of 070615
+    def toggle_groupbox(self, button, *things):
         """This is intended to be part of the slot method for clicking on an open/close icon
         of a dialog GroupBox. The arguments should be the button (whose icon will be altered here)
         and the child widgets in the groupbox whose visibility should be toggled.
@@ -147,7 +109,7 @@ class PropertyManagerMixin(PropertyManager_common, SponsorableMixin):
                                QtGui.QPalette.Base,
                                pmMessageTextEditColor)
                                
-    def getGroupBoxPalette(self): # note: not used by PropMgrBaseClass as of 070615
+    def getGroupBoxPalette(self):
         """ Return a palette for Property Manager groupboxes. 
         This distinguishes the groupboxes in a property manager.
         The color is slightly darker than the property manager background.
@@ -157,14 +119,14 @@ class PropertyManagerMixin(PropertyManager_common, SponsorableMixin):
                                QtGui.QPalette.ColorRole(10),
                                pmGrpBoxColor)
     
-    def getGroupBoxButtonPalette(self): ###### only used locally, decide later
+    def getGroupBoxButtonPalette(self):
         """ Return a palette for the groupbox Title button. 
         """
         return self.getPalette(None,
                                QtGui.QPalette.Button, 
                                pmGrpBoxButtonColor)
     
-    def getGroupBoxCheckBoxPalette(self):###### only used locally and in mmkit, decide later
+    def getGroupBoxCheckBoxPalette(self):
         """ Returns the background color for the checkbox of any groupbox 
         in a Property Manager. The color is slightly darker than the 
         background palette of the groupbox.
@@ -177,7 +139,7 @@ class PropertyManagerMixin(PropertyManager_common, SponsorableMixin):
                                QtGui.QPalette.Button, 
                                pmCheckBoxButtonColor)
     
-    def getGroupBoxStyleSheet(self): # note: not used by PropMgrBaseClass as of 070615
+    def getGroupBoxStyleSheet(self):
         """Return the style sheet for a groupbox. Example border style, border 
         width etc. The background color for a  groupbox is set separately"""
         
@@ -193,7 +155,7 @@ class PropertyManagerMixin(PropertyManager_common, SponsorableMixin):
         
         return styleSheet
     
-    def getGroupBoxTitleButton(self, name, parent = None, bool_expand = True): #Ninad 070206 # note: not used by PropMgrBaseClass as of 070615
+    def getGroupBoxTitleButton(self, name, parent = None, bool_expand = True): #Ninad 070206
         """ Return the groupbox title pushbutton. The pushbutton is customized 
         such that  it appears as a title bar to the user. If the user clicks on 
         this 'titlebar' it sends appropriate signals to open or close the
@@ -225,7 +187,7 @@ class PropertyManagerMixin(PropertyManager_common, SponsorableMixin):
         
         return button    
     
-    def getGroupBoxButtonStyleSheet(self, bool_expand = True): # note: probably not used by PropMgrBaseClass as of 070615
+    def getGroupBoxButtonStyleSheet(self, bool_expand = True):
         """ Returns the syle sheet for a groupbox title button (or checkbox)
         of a property manager. Returns a string. 
         bool_expand' = boolean .. NE1 uses a different background image in the 
@@ -308,8 +270,8 @@ class PropertyManagerMixin(PropertyManager_common, SponsorableMixin):
         
         return styleSheet
     
-    def hideGroupBox(self, groupBoxButton, groupBoxWidget): # note: not used in PropMgrBaseClass as of 070615
-        # Hide a groupbox (this is not the same as 'toggle' groupbox)        
+    def hideGroupBox(self, groupBoxButton, groupBoxWidget):
+        """Hide a groupbox (this is not the same as 'toggle' groupbox)"""
                  
         groupBoxWidget.hide()               
         
@@ -319,8 +281,8 @@ class PropertyManagerMixin(PropertyManager_common, SponsorableMixin):
         groupBoxButton.setPalette(palette)
         groupBoxButton.setIcon(geticon("ui/actions/Properties Manager/GHOST_ICON"))
             
-    def showGroupBox(self, groupBoxButton, groupBoxWidget): # note: not used in PropMgrBaseClass as of 070615
-        # Show a groupbox (this is not the same as 'toggle' groupbox)        
+    def showGroupBox(self, groupBoxButton, groupBoxWidget):
+        """Show a groupbox (this is not the same as 'toggle' groupbox)"""
         
         if not groupBoxWidget.isVisible():               
             groupBoxWidget.show()               

@@ -17,10 +17,9 @@ from Sponsors import SponsorableMixin
 from HistoryWidget import redmsg, orangemsg, greenmsg, quote_html
 from debug import print_compact_traceback
 from qt4transition import *
-from PropertyManagerMixin import PropertyManagerMixin
 import EpydocTest
 
-# note: these arrow data strings are only used by class GroupButtonMixin.
+# note: these arrow data strings are only used by class GroupButtonMixin, which doesn't belong in this file.
 _up_arrow_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d\x49\x48\x44\x52" \
     "\x00\x00\x00\x10\x00\x00\x00\x10\x08\x02\x00\x00\x00\x90\x91\x68" \
@@ -144,7 +143,7 @@ class UserError(Exception):
         else:
             Exception.__init__(self)
 
-class GeneratorBaseClass(SponsorableMixin, PropertyManagerMixin):
+class GeneratorBaseClass(SponsorableMixin): #bruce 070615 removed PropertyManagerMixin. I'm also suspicious of SponsorableMixin belonging here.
     """There is some logic associated with Preview/OK/Abort that's
     complicated enough to put it in one place, so that individual
     generators can focus on what they need to do. As much as possible,
@@ -172,6 +171,7 @@ class GeneratorBaseClass(SponsorableMixin, PropertyManagerMixin):
     def __init__(self, win):
         self.win = win
         self.pw = None # pw = part window. Its subclasses will create their partwindow objects (and destroy them after Done)
+            ###REVIEW: this (assignment or use of self.pw) does not belong in this class [bruce 070615 comment]
             
         self.struct = None
         self.previousParams = None
@@ -221,8 +221,7 @@ class GeneratorBaseClass(SponsorableMixin, PropertyManagerMixin):
             if platform.atom_debug: print 'No structure to remove'
 
     def restore_defaults_btn_clicked(self):
-        """Slot for the Restore Defaults button.
-        """
+        """Slot for the Restore Defaults button."""
         if platform.atom_debug: print 'restore defaults button clicked'
         
     def preview_btn_clicked(self):
@@ -231,18 +230,19 @@ class GeneratorBaseClass(SponsorableMixin, PropertyManagerMixin):
         self._ok_or_preview(previewing=True)
     
     def ok_btn_clicked(self):
-        'Slot for the OK button'
+        """Slot for the OK button"""
         if platform.atom_debug: print 'ok button clicked'
         self._gensym_data_for_reusing_name = None # make sure gensym-assigned name won't be reused next time
-        self._ok_or_preview(doneMsg=True)
+        self._ok_or_preview(doneMsg = True)
         self.change_random_seed() # for next time
         if not self.pluginException:
             # if there was a (UserError, CadBug, PluginBug) then behave
             # like preview button - do not close the dialog
+            ###REVIEW whether that's a good idea in case of bugs [bruce 070615 comment]
             self.accept() #bruce 060621
         self.struct = None
         
-        #Close Property manager 
+        # Close property manager ###REVIEW: this does not belong in this class [bruce 070615 comment]
         if self.pw:
             self.pw.featureManager.setCurrentIndex(0)
             self.pw.featureManager.removeTab(self.pw.featureManager.indexOf(self))                 
@@ -271,11 +271,11 @@ class GeneratorBaseClass(SponsorableMixin, PropertyManagerMixin):
         self.pluginException = True
         return
     
-    def _ok_or_preview(self, doneMsg=False, previewing=False):
+    def _ok_or_preview(self, doneMsg = False, previewing = False):
         QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
         self.win.assy.current_command_info(cmdname = self.cmdname) #bruce 060616
         def thunk():
-            self._build_struct(previewing=previewing)
+            self._build_struct(previewing = previewing)
             if doneMsg:
                 env.history.message(self.cmd + self.done_msg())
         self.handlePluginExceptions(thunk)
@@ -321,7 +321,7 @@ class GeneratorBaseClass(SponsorableMixin, PropertyManagerMixin):
         self._gensym_data_for_reusing_name = None
         return
 
-    def _build_struct(self, previewing=False):
+    def _build_struct(self, previewing = False):
         if platform.atom_debug:
             print '_build_struct'
         params = self.gather_parameters()
@@ -329,9 +329,6 @@ class GeneratorBaseClass(SponsorableMixin, PropertyManagerMixin):
         if self.struct == None:
             if platform.atom_debug:
                 print 'no old structure, we are making a new structure'
-#bruce 070603: removing the Gno part; replaced with setting self._gensym_data_for_reusing_name, below
-##            import chem
-##            self._Gno = chem.Gno
         elif params != self.previousParams:
             if platform.atom_debug:
                 print 'parameters have changed, update existing structure'
@@ -350,8 +347,7 @@ class GeneratorBaseClass(SponsorableMixin, PropertyManagerMixin):
             if platform.atom_debug:
                 print "Created name from prefix. Name =", name
         else:
-            # Jigs like the rotary and linear motors already created their
-            # name, so we need to use it.
+            # Jigs like the rotary and linear motors already created their name, so we need to use it.
             self._gensym_data_for_reusing_name = None # (can't reuse name in this case -- not sure what prefix it was made with)
             name = self.name
             if platform.atom_debug:
@@ -363,41 +359,41 @@ class GeneratorBaseClass(SponsorableMixin, PropertyManagerMixin):
             env.history.message(self.cmd + "Creating " + name)
         self.remove_struct()
         self.previousParams = params
-        if platform.atom_debug: print 'build a new structure'
+        if platform.atom_debug: print "build a new structure"
         self.struct = self.build_struct(name, params, -self.win.glpane.pov)
         self.win.assy.addnode(self.struct)
         # Do this if you want it centered on the previous center.
-        # self.win.glpane.setViewFitToWindow(fast=True)
+        # self.win.glpane.setViewFitToWindow(fast = True)
         # Do this if you want it centered on the origin.
-        self.win.glpane.setViewRecenter(fast=True)
+        self.win.glpane.setViewRecenter(fast = True)
         self.win.win_update() # includes mt_update
 
     def enter_WhatsThisMode(self):
-        'Slot for the What\'s This button'
+        "Slot for the What's This button"
         QWhatsThis.enterWhatsThisMode()
 
     def whatsthis_btn_clicked(self):
-        'Slot for the What\'s This button'
+        "Slot for the What's This button"
         QWhatsThis.enterWhatsThisMode()
     
     def done_btn_clicked(self):
-        'Slot for the Done button'
-        if platform.atom_debug: print 'done button clicked'
+        "Slot for the Done button"
+        if platform.atom_debug: print "done button clicked"
         self.ok_btn_clicked()
 
     def abort_btn_clicked(self):
-        'Slot for the Abort button'
+        "Slot for the Abort button"
         self.cancel_btn_clicked()
 
     def cancel_btn_clicked(self):
-        'Slot for the Cancel button'
-        if platform.atom_debug: print 'cancel button clicked'
+        "Slot for the Cancel button"
+        if platform.atom_debug: print "cancel button clicked"
         self.win.assy.current_command_info(cmdname = self.cmdname + " (Cancel)") #bruce 060616
         self.remove_struct()
         self._revert_number()
         self.reject() #bruce 060621
         
-        #Close Property manager 
+        # Close property manager ###REVIEW: this does not belong in this class [bruce 070615 comment]
         if self.pw:
             self.pw.featureManager.setCurrentIndex(0)
             self.pw.featureManager.removeTab(self.pw.featureManager.indexOf(self.pw.propertyManagerScrollArea)) 
@@ -405,7 +401,7 @@ class GeneratorBaseClass(SponsorableMixin, PropertyManagerMixin):
             
         return
 
-    def close(self, e=None):
+    def close(self, e = None):
         """When the user closes the dialog by clicking the 'X' button
         on the dialog title bar, do whatever the cancel button does.
         """
@@ -420,7 +416,7 @@ class GeneratorBaseClass(SponsorableMixin, PropertyManagerMixin):
                 # defined in this file (and should be reported as an error in history -- if this happens
                 # we need to fix this code to do that, maybe like _ok_or_preview does), or is a bug.
                 # Not printing anything here would always hide important info, whether errors or bugs.
-                print_compact_traceback("bug in cancel_btn_clicked or in not reporting an error it detected: ")
+                print_compact_traceback("bug in cancel_btn_clicked, or in not reporting an error it detected: ")
             return False
         
     pass # end of class GeneratorBaseClass

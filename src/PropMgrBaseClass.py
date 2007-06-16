@@ -20,6 +20,7 @@ mark 2007-05-25: Added PropMgrPushButton
 mark 2007-05-28: Added PropMgrLineEdit, PropMgrCheckBox and PropMgrListWidget
 ninad 2007-06-03: Added PropMgrToolButton
 ninad 2007-06-05: Added PropMgrRadioButton
+bruce 2007-06-15: partly cleaned up inheritance. 
 
 """
 
@@ -43,8 +44,7 @@ __author__ = "Mark"
 # - Fix TopRowButtons - QHBoxLayout unnecessary.
 
 from PyQt4.Qt import *
-from Utility import geticon
-from Sponsors import SponsorableMixin
+## from Sponsors import SponsorableMixin
 from Utility import geticon, getpixmap
 from PropMgr_Constants import *
 import os, sys, platform
@@ -157,13 +157,52 @@ def getWidgetGridLayoutParms(label, row, spanWidth):
 
 # End of getWidgetGridLayoutParms ####################################
 
-class PropMgrBaseClass:
+class PropertyManager_common: #bruce 070615 split this out of class PropertyManagerMixin
+    """Methods common to PropertyManagerMixin and PropMgrBaseClass.
+    """
+    def getPropertyManagerPalette(self):
+        """ Return a palette for the property manager.
+        """
+        # in future we might want to set different palette colors for prop managers. 
+        return self.getPalette(None,
+                               QPalette.ColorRole(10),
+                               pmColor)
+    
+    def getPropMgrTitleFramePalette(self): # note: used only by PropMgrBaseClass as of 070615
+        """ Return a palette for Property Manager title frame. 
+        """
+        #bgrole(10) is 'Windows'
+        return self.getPalette(None,
+                               QPalette.ColorRole(10),
+                               pmTitleFrameColor)
+    
+    def getPropMgrTitleLabelPalette(self): # note: used only by PropMgrBaseClass as of 070615
+        """ Return a palette for Property Manager title label. 
+        """
+        return self.getPalette(None,
+                               QPalette.WindowText,
+                               pmTitleLabelColor)
+        
+    def getPalette(self, palette, obj, color): #k maybe only used by methods in this class (not sure) [bruce 070615]
+        """ Given a palette, Qt object [actually a ColorRole] and a color, return a new palette.
+        If palette is None, create and return a new palette.
+        """
+        #bruce 070615 replaced with call to another (preexisting) function which has same name and identical code.
+        return getPalette(palette, obj, color) 
+
+    ###e move more methods here?
+    
+    pass # end of class PropertyManager_common
+
+# ==
+
+class PropMgrBaseClass(PropertyManager_common): #bruce 070615 inherit PropertyManager_common, so GBC doesn't need to for our sake
     """Property Manager base class.
     [To make a PM class from this mixin-superclass, subclass it to customize
-    the widget set and add behavior, and inherit QDialog (before this class)
-    and PropertyManagerMixin (after it). You must also provide certain methods
-    provided by GeneratorBaseClass (by inheriting it -- not sure if order matters --
-    or by defining them yourself), including ok_btn_clicked.
+    the widget set and add behavior, and inherit QDialog (before this class).
+    You must also provide certain methods provided by GeneratorBaseClass
+    (either by inheriting it -- not sure if superclass order matters for that --
+     or by defining them yourself), including ok_btn_clicked and several others.
      This set of requirements may be cleaned up.]
     [Note: Technically, this is not a "base class" but a "mixin class".]
     """
@@ -181,8 +220,6 @@ class PropMgrBaseClass:
         
         # Main pallete for PropMgr.
         propmgr_palette = self.getPropertyManagerPalette()
-            ###WARNING: as of 070615 this method getPropertyManagerPalette is only
-            # defined in PropertyManagerMixin. [bruce 070615 comment]
         self.setPalette(propmgr_palette)
         
         # Main vertical layout for PropMgr.
@@ -685,7 +722,7 @@ class PropMgrWidgetMixin:
                 '''
             
 # End of PropMgrWidgetMixin ############################
-       
+
 class PropMgrGroupBox(QGroupBox, PropMgrWidgetMixin):
     """Group Box class for Property Manager group boxes.
     """
@@ -954,7 +991,7 @@ class PropMgrGroupBox(QGroupBox, PropMgrWidgetMixin):
             print "Groupbox has no widgets. Clicking on groupbox button has no effect"
     
     # GroupBox palette and stylesheet methods. ##############################3
-        
+    
     def getPalette(self):
         """ Return a palette for this groupbox. 
         The color should be slightly darker (or lighter) than the property manager background.
