@@ -38,11 +38,13 @@ import platform
 #
 # Once all these have been migrated to the new PropMgrBaseClass,
 # this class can be removed permanently. Mark 2007-05-25
+# [But first we need to wean PropMgrBaseClass off of depending on many of
+#  this class's methods. bruce 070615]
 
 class PropertyManagerMixin(SponsorableMixin):
     '''Mixin class that provides methods common to various property managers''' 
         
-    def openPropertyManager(self, tab):
+    def openPropertyManager(self, tab): # note: not used by PropMgrBaseClass as of 070615
         #tab = property manager widget
         self.pw = self.w.activePartWindow()         
         self.pw.updatePropertyManagerTab(tab)
@@ -52,7 +54,7 @@ class PropertyManagerMixin(SponsorableMixin):
             print "tab has no attribute 'setSponsor()'  ignoring."
         self.pw.featureManager.setCurrentIndex(self.pw.featureManager.indexOf(tab))
      
-    def closePropertyManager(self):
+    def closePropertyManager(self): # note: not used by PropMgrBaseClass as of 070615
         if not self.pw:
             self.pw = self.w.activePartWindow() 
         self.pw.featureManager.setCurrentIndex(0)
@@ -72,7 +74,7 @@ class PropertyManagerMixin(SponsorableMixin):
         if self.pw.propertyManagerTab:
             self.pw.propertyManagerTab = None
             
-    def toggle_groupbox(self, button, *things):
+    def toggle_groupbox(self, button, *things): # note: not used by PropMgrBaseClass as of 070615
         """This is intended to be part of the slot method for clicking on an open/close icon
         of a dialog GroupBox. The arguments should be the button (whose icon will be altered here)
         and the child widgets in the groupbox whose visibility should be toggled.
@@ -106,7 +108,7 @@ class PropertyManagerMixin(SponsorableMixin):
                                QtGui.QPalette.ColorRole(10),
                                pmColor)
     
-    def getPropMgrTitleFramePalette(self):
+    def getPropMgrTitleFramePalette(self): # note: used only by PropMgrBaseClass as of 070615
         """ Return a palette for Property Manager title frame. 
         """
         #bgrole(10) is 'Windows'
@@ -114,21 +116,21 @@ class PropertyManagerMixin(SponsorableMixin):
                                QtGui.QPalette.ColorRole(10),
                                pmTitleFrameColor)
     
-    def getPropMgrTitleLabelPalette(self):
+    def getPropMgrTitleLabelPalette(self): # note: used only by PropMgrBaseClass as of 070615
         """ Return a palette for Property Manager title label. 
         """
         return self.getPalette(None,
                                QtGui.QPalette.WindowText,
                                pmTitleLabelColor)
     
-    def getMsgGroupBoxPalette(self):
+    def getMsgGroupBoxPalette(self): # note: not used by anything as of 070615
         """ Return a palette for Property Manager message groupboxes.
         """
         return self.getPalette(None,
                                QtGui.QPalette.Base,
                                pmMessageTextEditColor)
                                
-    def getGroupBoxPalette(self):
+    def getGroupBoxPalette(self): # note: not used by PropMgrBaseClass as of 070615
         """ Return a palette for Property Manager groupboxes. 
         This distinguishes the groupboxes in a property manager.
         The color is slightly darker than the property manager background.
@@ -138,7 +140,7 @@ class PropertyManagerMixin(SponsorableMixin):
                                QtGui.QPalette.ColorRole(10),
                                pmGrpBoxColor)
     
-    def getGroupBoxButtonPalette(self):
+    def getGroupBoxButtonPalette(self): 
         """ Return a palette for the groupbox Title button. 
         """
         return self.getPalette(None,
@@ -162,18 +164,11 @@ class PropertyManagerMixin(SponsorableMixin):
         """ Given a palette, Qt object and a color, return a new palette.
         If palette is None, create and return a new palette.
         """
-        
-        if palette:
-            pass # Make sure palette is QPalette.
-        else:
-            palette = QtGui.QPalette()
-            
-        palette.setColor(QtGui.QPalette.Active, obj, color)
-        palette.setColor(QtGui.QPalette.Inactive, obj, color)
-        palette.setColor(QtGui.QPalette.Disabled, obj, color)
-        return palette
+        #bruce 070615 replaced with call to another (preexisting) function which has same name and identical code.
+        from PropMgrBaseClass import getPalette # might cause recursive import problem if done at toplevel
+        return getPalette(palette, obj, color) 
     
-    def getGroupBoxStyleSheet(self):
+    def getGroupBoxStyleSheet(self): # note: not used by PropMgrBaseClass as of 070615
         """Return the style sheet for a groupbox. Example border style, border 
         width etc. The background color for a  groupbox is set separately"""
         
@@ -189,7 +184,7 @@ class PropertyManagerMixin(SponsorableMixin):
         
         return styleSheet
     
-    def getGroupBoxTitleButton(self, name, parent =None, bool_expand = True): #Ninad 070206
+    def getGroupBoxTitleButton(self, name, parent = None, bool_expand = True): #Ninad 070206 # note: not used by PropMgrBaseClass as of 070615
         """ Return the groupbox title pushbutton. The pushbutton is customized 
         such that  it appears as a title bar to the user. If the user clicks on 
         this 'titlebar' it sends appropriate signals to open or close the
@@ -221,7 +216,7 @@ class PropertyManagerMixin(SponsorableMixin):
         
         return button    
     
-    def getGroupBoxButtonStyleSheet(self, bool_expand =True):
+    def getGroupBoxButtonStyleSheet(self, bool_expand = True): # note: probably not used by PropMgrBaseClass as of 070615
         """ Returns the syle sheet for a groupbox title button (or checkbox)
         of a property manager. Returns a string. 
         bool_expand' = boolean .. NE1 uses a different background image in the 
@@ -258,7 +253,7 @@ class PropertyManagerMixin(SponsorableMixin):
             
         return styleSheet
     
-    def getGroupBoxTitleCheckBox(self, name, parent =None, bool_expand = True):#Ninad 070207
+    def getGroupBoxTitleCheckBox(self, name, parent = None, bool_expand = True):#Ninad 070207 # note: used only in MMKitDialog as of 070615
         """ Return the groupbox title checkbox . The checkbox is customized such that 
         it appears as a title bar to the user. If the user clicks on this 'titlebar' it sends 
         appropriate signals to open or close the groupboxes (and also to check or uncheck the box.)
@@ -279,9 +274,8 @@ class PropertyManagerMixin(SponsorableMixin):
         checkbox.setText(name)
         
         return checkbox
-    
        
-    def getGroupBoxCheckBoxStyleSheet(self, bool_expand =True):
+    def getGroupBoxCheckBoxStyleSheet(self, bool_expand = True): # note: used only in MMKitDialog and MMKit as of 070615
         """ Returns the syle sheet for a groupbox checkbox of a property manager
         Returns a string. 
         bool_expand' = boolean .. NE1 uses a different background image in the button's 
@@ -305,8 +299,8 @@ class PropertyManagerMixin(SponsorableMixin):
         
         return styleSheet
     
-    def hideGroupBox(self, groupBoxButton, groupBoxWidget):
-        # Hide a groupbox (this is not the same a 'toggle' groupbox)        
+    def hideGroupBox(self, groupBoxButton, groupBoxWidget): # note: not used in PropMgrBaseClass as of 070615
+        # Hide a groupbox (this is not the same as 'toggle' groupbox)        
                  
         groupBoxWidget.hide()               
         
@@ -316,7 +310,7 @@ class PropertyManagerMixin(SponsorableMixin):
         groupBoxButton.setPalette(palette)
         groupBoxButton.setIcon(geticon("ui/actions/Properties Manager/GHOST_ICON"))
             
-    def showGroupBox(self, groupBoxButton, groupBoxWidget):
+    def showGroupBox(self, groupBoxButton, groupBoxWidget): # note: not used in PropMgrBaseClass as of 070615
         # Show a groupbox (this is not the same as 'toggle' groupbox)        
         
         if not groupBoxWidget.isVisible():               
@@ -327,3 +321,7 @@ class PropertyManagerMixin(SponsorableMixin):
             palette = self.getGroupBoxButtonPalette()
             groupBoxButton.setPalette(palette)
             groupBoxButton.setIcon(geticon("ui/actions/Properties Manager/GHOST_ICON"))
+
+    pass # end of class PropertyManagerMixin
+
+# end
