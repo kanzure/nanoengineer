@@ -79,7 +79,7 @@ class ExampleCommand1(selectAtomsMode):
 from PyQt4.Qt import QDialog
 from PropMgrBaseClass import PropMgrBaseClass
 
-class ExampleCommand1_PM(QDialog, PropMgrBaseClass, PropertyManagerMixin): # all these are needed now except maybe object #k
+class ExampleCommand1_PM(QDialog, PropMgrBaseClass, PropertyManagerMixin): # all these supers are needed now ('object' is evidently not needed)
     """Property Manager for Example Command 1"""
     # contains some code copied from AtomGeneratorDialog.py
 
@@ -100,7 +100,7 @@ class ExampleCommand1_PM(QDialog, PropMgrBaseClass, PropertyManagerMixin): # all
     _sCoordinateUnits      =  _sCoordinateUnit + 's'
     _sElementSymbolList    =  ["H","O","C","S"]
 
-    # bruce added these to make it work w/o GBC
+    # bruce added these to make it work w/o GBC. (Why doesn't it need one for restore defaults?)
     def ok_btn_clicked(self):
         print "ok_btn_clicked", self
         pass
