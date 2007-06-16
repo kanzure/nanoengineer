@@ -387,29 +387,9 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
         
     def toggle_advancedOptions_groupBox(self):
         self.toggle_groupbox(self.advancedOptions_groupBoxButton, self.autobondCB, self.waterCB, self.highlightingCB)
-    
-    def toggle_groupbox(self, button, *things):
-        """This is intended to be part of the slot method for clicking on an open/close icon
-        of a dialog GroupBox. The arguments should be the button (whose icon will be altered here)
-        and the child widgets in the groupbox whose visibility should be toggled.
-        """
-        if things[0].isVisible():
-            styleSheet = self.getGroupBoxButtonStyleSheet(bool_expand = False)            
-            button.setStyleSheet(styleSheet)      
-            palette = self.getGroupBoxButtonPalette()
-            button.setPalette(palette)
-            button.setIcon(geticon("ui/actions/Properties Manager/GHOST_ICON"))
-            for thing in things:
-                thing.hide()
-        else:
-            styleSheet = self.getGroupBoxButtonStyleSheet(bool_expand = True)
-            button.setStyleSheet(styleSheet)             
-            palette = self.getGroupBoxButtonPalette()
-            button.setPalette(palette)
-            button.setIcon(geticon("ui/actions/Properties Manager/GHOST_ICON"))
-            for thing in things:
-                thing.show()
-                        
+
+    #bruce 070615 removed 'def toggle_groupbox', since our mixin superclass PropertyManagerMixin
+    # provides an identical-enough version.
 
     def tabCurrentChanged(self):
         pageIndex = self.mmkit_tab.currentIndex()
