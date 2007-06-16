@@ -202,7 +202,8 @@ class PropMgrBaseClass(PropertyManager_common): #bruce 070615 inherit PropertyMa
     the widget set and add behavior, and inherit QDialog (before this class).
     You must also provide certain methods provided by GeneratorBaseClass
     (either by inheriting it -- not sure if superclass order matters for that --
-     or by defining them yourself), including ok_btn_clicked and several others.
+     or by defining them yourself), including ok_btn_clicked and several others,
+     including at least some defined by SponsorableMixin (open_sponsor_homepage, setSponsor).
      This set of requirements may be cleaned up.]
     [Note: Technically, this is not a "base class" but a "mixin class".]
     """

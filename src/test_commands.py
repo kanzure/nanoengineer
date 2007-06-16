@@ -39,7 +39,6 @@ from modes import basicMode
 from selectAtomsMode import selectAtomsMode
 
 from PropMgrBaseClass import PropMgrBaseClass, PropMgrGroupBox, PropMgrComboBox, PropMgrDoubleSpinBox
-from PropertyManagerMixin import PropertyManagerMixin
 
 from debug import register_debug_menu_command
 
@@ -79,12 +78,12 @@ class ExampleCommand1(selectAtomsMode):
 from PyQt4.Qt import QDialog
 from PropMgrBaseClass import PropMgrBaseClass
 
-class ExampleCommand1_PM(QDialog, PropMgrBaseClass, PropertyManagerMixin): # all these supers are needed now ('object' is evidently not needed)
+class ExampleCommand1_PM(QDialog, PropMgrBaseClass): # these supers are needed (but 'object' is evidently not needed)
     """Property Manager for Example Command 1"""
     # contains some code copied from AtomGeneratorDialog.py
 
     # <title> - the title that appears in the property manager header.
-    title = "Example Command 1"
+    title = "Example Command 17"
     # <propmgr_name> - the name of this property manager. This will be set to
     # the name of the PropMgr (this) object via setObjectName(). ###k used only for debugging??
     propmgr_name = "pm" + title
@@ -112,6 +111,13 @@ class ExampleCommand1_PM(QDialog, PropMgrBaseClass, PropertyManagerMixin): # all
         pass
     def enter_WhatsThisMode(self):
         print "enter_WhatsThisMode", self
+        pass
+    # should get these from SponsorableMixin, or (probably better) teach PropMgrBaseClass to get them from there:
+    def open_sponsor_homepage(self):
+        print "open_sponsor_homepage", self
+        pass
+    def setSponsor(self):
+        print "setSponsor", self
         pass
     
     def __init__(self, win):
