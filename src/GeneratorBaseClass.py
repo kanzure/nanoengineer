@@ -20,7 +20,7 @@ from qt4transition import *
 from PropertyManagerMixin import PropertyManagerMixin
 import EpydocTest
 
-
+# note: these arrow data strings are only used by class GroupButtonMixin.
 _up_arrow_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d\x49\x48\x44\x52" \
     "\x00\x00\x00\x10\x00\x00\x00\x10\x08\x02\x00\x00\x00\x90\x91\x68" \
@@ -69,12 +69,17 @@ _down_arrow_data = \
     "\x1f\xfe\x72\xad\x6f\xd8\xd4\x50\x37\x09\xb5\x93\x63\x00\x00\x00" \
     "\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
 
-class GroupButtonMixin:
-    """Mixin class for providing the method toggle_groupbox,
+class GroupButtonMixin: 
+    """Mixin class for providing the method toggle_groupbox_in_dialogs,
     suitable as part of a slot method for toggling the state of a dialog GroupBox.
     (Current implementation uses open/close icons which look good on Linux and
      Windows but don't look good on the Mac.)
+       [DEPRECATED. New code should avoid using this, and should instead
+    use the groupboxes provided by PropMgrBaseClass if possible.]
     """
+    # Note: this is only used by a couple of non-generator dialogs,
+    # so it (and the strings _up_arrow_data and _down_arrow_data which nothing else uses)
+    # should be moved into some other file. [bruce 070615 comment]
     if (EpydocTest.documenting()):
         _up_arrow = "QPixmap()"
         _down_arrow = "QPixmap()"
@@ -97,7 +102,10 @@ class GroupButtonMixin:
             button.setIcon(QIcon(self._up_arrow))
             for thing in things:
                 thing.show()
+        return
+    pass # end of class GroupButtonMixin
 
+# ==
 
 class AbstractMethod(Exception):
     def __init__(self):
