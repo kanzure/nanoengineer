@@ -26,23 +26,63 @@ from Utility import geticon, getpixmap
 from PropMgr_Constants import *
 from debug import print_compact_traceback
 import platform
-       
-# Currently used by:
+
+class PropertyManager_common: #bruce 070615 split this out of PropertyManagerMixin
+    """Methods common to PropertyManagerMixin and PropMgrBaseClass.
+    """
+    def getPropertyManagerPalette(self):
+        """ Return a palette for the property manager.
+        """
+        # in future we might want to set different palette colors for prop managers. 
+        return self.getPalette(None,
+                               QtGui.QPalette.ColorRole(10),
+                               pmColor)
+    
+    def getPropMgrTitleFramePalette(self): # note: used only by PropMgrBaseClass as of 070615
+        """ Return a palette for Property Manager title frame. 
+        """
+        #bgrole(10) is 'Windows'
+        return self.getPalette(None,
+                               QtGui.QPalette.ColorRole(10),
+                               pmTitleFrameColor)
+    
+    def getPropMgrTitleLabelPalette(self): # note: used only by PropMgrBaseClass as of 070615
+        """ Return a palette for Property Manager title label. 
+        """
+        return self.getPalette(None,
+                               QtGui.QPalette.WindowText,
+                               pmTitleLabelColor)
+        
+    def getPalette(self, palette, obj, color): ###### check whether redundant in PropMgrBaseClass but i think not
+        """ Given a palette, Qt object and a color, return a new palette.
+        If palette is None, create and return a new palette.
+        """
+        #bruce 070615 replaced with call to another (preexisting) function which has same name and identical code.
+        from PropMgrBaseClass import getPalette # might cause recursive import problem if done at toplevel
+        return getPalette(palette, obj, color) 
+
+    ###e move more methods here?
+    
+    pass # end of class PropertyManager_common
+
+# ==
+
+# Class PropertyManagerMixin is currently [when?] used by:
 # - Build > Atoms (depositMode/MMKit)
 # - Build > Crystal (cookieCutter)
 # - Tools > Extrude (extrudeMode)
 # - Tools > Fuse (fuseMode)
 # - Tools > Move (modifyMode)
 # - Simulator > Play Movie (movieMode)
-# - GeneratorBaseClass
+# - GeneratorBaseClass [### will be changed soon]
 #
 # Once all these have been migrated to the new PropMgrBaseClass,
 # this class can be removed permanently. Mark 2007-05-25
 # [But first we need to wean PropMgrBaseClass off of depending on many of
-#  this class's methods. bruce 070615]
+#  this class's methods. Plan: make it inherit PropertyManager_common instead. bruce 070615]
 
-class PropertyManagerMixin(SponsorableMixin):
-    '''Mixin class that provides methods common to various property managers''' 
+class PropertyManagerMixin(PropertyManager_common, SponsorableMixin):
+    """Mixin class that provides methods common to various property managers""" #e but soon, not to PropMgrBaseClass
         
     def openPropertyManager(self, tab): # note: not used by PropMgrBaseClass as of 070615
         #tab = property manager widget
@@ -96,33 +136,10 @@ class PropertyManagerMixin(SponsorableMixin):
                 button.setIcon(geticon("ui/actions/Properties Manager/GHOST_ICON"))
                 for thing in things:
                     thing.show()
-                    
         else:
-            print "Groupbox has no widgets. Clicking on groupbox button has no effect"
-    
-    def getPropertyManagerPalette(self):
-        """ Return a palette for the property manager.
-        """
-        # in future we might want to set different palette colors for prop managers. 
-        return self.getPalette(None,
-                               QtGui.QPalette.ColorRole(10),
-                               pmColor)
-    
-    def getPropMgrTitleFramePalette(self): # note: used only by PropMgrBaseClass as of 070615
-        """ Return a palette for Property Manager title frame. 
-        """
-        #bgrole(10) is 'Windows'
-        return self.getPalette(None,
-                               QtGui.QPalette.ColorRole(10),
-                               pmTitleFrameColor)
-    
-    def getPropMgrTitleLabelPalette(self): # note: used only by PropMgrBaseClass as of 070615
-        """ Return a palette for Property Manager title label. 
-        """
-        return self.getPalette(None,
-                               QtGui.QPalette.WindowText,
-                               pmTitleLabelColor)
-    
+            print "Groupbox has no widgets. Clicking on groupbox button has no effect."
+        return
+
     def getMsgGroupBoxPalette(self): # note: not used by anything as of 070615
         """ Return a palette for Property Manager message groupboxes.
         """
@@ -140,14 +157,14 @@ class PropertyManagerMixin(SponsorableMixin):
                                QtGui.QPalette.ColorRole(10),
                                pmGrpBoxColor)
     
-    def getGroupBoxButtonPalette(self): 
+    def getGroupBoxButtonPalette(self): ###### only used locally, decide later
         """ Return a palette for the groupbox Title button. 
         """
         return self.getPalette(None,
                                QtGui.QPalette.Button, 
                                pmGrpBoxButtonColor)
     
-    def getGroupBoxCheckBoxPalette(self):
+    def getGroupBoxCheckBoxPalette(self):###### only used locally and in mmkit, decide later
         """ Returns the background color for the checkbox of any groupbox 
         in a Property Manager. The color is slightly darker than the 
         background palette of the groupbox.
@@ -159,14 +176,6 @@ class PropertyManagerMixin(SponsorableMixin):
         return self.getPalette(palette,
                                QtGui.QPalette.Button, 
                                pmCheckBoxButtonColor)
-    
-    def getPalette(self, palette, obj, color):
-        """ Given a palette, Qt object and a color, return a new palette.
-        If palette is None, create and return a new palette.
-        """
-        #bruce 070615 replaced with call to another (preexisting) function which has same name and identical code.
-        from PropMgrBaseClass import getPalette # might cause recursive import problem if done at toplevel
-        return getPalette(palette, obj, color) 
     
     def getGroupBoxStyleSheet(self): # note: not used by PropMgrBaseClass as of 070615
         """Return the style sheet for a groupbox. Example border style, border 
