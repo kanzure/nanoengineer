@@ -34,6 +34,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  * of a test suite as an argument will only run that test suite.
  */
 int main(int argc, char* argv[]) {
+	
+	// Check that we're being run from the correct directory
+	FILE* handle = fopen("Testing/bad-hdf5-file/sim_results.h5", "r");
+	if (handle == 0) {
+ 	   printf("\n\nERROR: Run CppUnit from the HDF5_SimResults/src/ directory.\n");
+	   exit(1);
+	}
+	fclose(handle);
+	
+	// Delete any existing sim_results.h5 file
+	remove("Testing/sim_results.h5");
+
 
 	// Create the event manager and test controller
 	CPPUNIT_NS::TestResult controller;
