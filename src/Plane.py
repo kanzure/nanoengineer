@@ -619,7 +619,7 @@ class Handle(DragHandler_API):
         return orange
     # copying Bruce's code from class Highligtable with some mods.Need to see        
     # if sleobj_still_ok method is needed. OK for now --Ninad 20070531
-    def selobj_still_ok(self):
+    def selobj_still_ok(self, glpane):
         res = self.__class__ is ReferenceGeometry 
         if res:
             our_selobj = self
@@ -640,7 +640,6 @@ class Handle(DragHandler_API):
             # MORE IS PROBABLY NEEDED HERE: that check above is about whether this selobj got replaced locally;
             # the comments in the calling code are about whether it's no longer being drawn in the current frame;
             # I think both issues are valid and need addressing in this code or it'll probably cause bugs. [061120 comment] ###BUG
-        import env
         if not res and env.debug():
             print "debug: selobj_still_ok is false for %r" % self ###@@@
         return res # I forgot this line, and it took me a couple hours to debug that problem! Ugh.
@@ -800,7 +799,7 @@ class DirectionArrow(DragHandler_API):
     
     # copying Bruce's code from class Highligtable with some mods.Need to see        
     # if sleobj_still_ok method is needed. OK for now --Ninad 20070531
-    def selobj_still_ok(self):
+    def selobj_still_ok(self, glpane):
         res = self.__class__ is DirectionArrow
         if res:
             our_selobj = self
@@ -821,7 +820,6 @@ class DirectionArrow(DragHandler_API):
             # MORE IS PROBABLY NEEDED HERE: that check above is about whether this selobj got replaced locally;
             # the comments in the calling code are about whether it's no longer being drawn in the current frame;
             # I think both issues are valid and need addressing in this code or it'll probably cause bugs. [061120 comment] ###BUG
-        import env
         if not res and env.debug():
             print "debug: selobj_still_ok is false for %r" % self ###@@@
         return res # I forgot this line, and it took me a couple hours to debug that problem! Ugh.

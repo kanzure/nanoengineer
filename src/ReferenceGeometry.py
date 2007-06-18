@@ -164,7 +164,7 @@ class ReferenceGeometry(Jig, DragHandler_API):
     
     # copying Bruce's code from class Highligtable with some mods.Need to see        
     # if sleobj_still_ok method is needed. OK for now --Ninad 20070601        
-    def selobj_still_ok(self):
+    def selobj_still_ok(self, glpane):
         res = self.__class__ is ReferenceGeometry 
         if res:
             our_selobj = self
