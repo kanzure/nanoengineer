@@ -27,6 +27,9 @@ namespace ne1 {
 
 
 /* CLASS: FrameSetInfo */
+/**
+ * Used internally to HDF5_SimResults.
+ */
 class FrameSetInfo {
 	public:
 		FrameSetInfo() {
@@ -51,11 +54,12 @@ class FrameSetInfo {
 };
 	
 
-/* CLASS: HDF5_SimResults
- *
+/* CLASS: HDF5_SimResults */
+/**
  * HDF5 implementation of SimResultsDataStore.
  *
  * Hierarchy:
+ \code
 	/
 		Name, Description, Notes - attributes
 	
@@ -85,6 +89,7 @@ class FrameSetInfo {
 					AtomPositions, AtomVelocities - dataset
 					Bonds - dataset
 					Measurements - dataset
+\endcode
  */
 class HDF5_SimResults : public SimResultsDataStore {
 	public:

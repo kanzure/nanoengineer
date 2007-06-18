@@ -17,8 +17,8 @@
 namespace ne1 {
 
 
-/* STRUCT: SimResultsBond
- *
+/* STRUCT: SimResultsBond */
+/**
  * A chemical bond. See SimResultsDataStore for context.
  */
 typedef struct SimResultsBond {
@@ -27,8 +27,8 @@ typedef struct SimResultsBond {
 } SimResultsBond;
 
 
-/* CLASS: SimResultsDataStore
- *
+/* CLASS: SimResultsDataStore */
+/**
  * Encapsulates a simulation results data store.
  *
  * <b>Atom Records Alignment</b>
