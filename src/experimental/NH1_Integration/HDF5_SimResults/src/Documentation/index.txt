@@ -1,0 +1,39 @@
+/*! \mainpage
+
+\section introduction Introduction
+HDF5_SimResults is an HDF5 implementation of the SimResultsDataStore API. A SimResultsDataStore stores all the data associated with a molecular simulation.
+
+See discussion of the SimResultsDataStore requirements and HDF5 implementation here: <a href="http://www.nanoengineer-1.net/mediawiki/index.php?title=NH1/NE1_Integration#Simulation_Results">NH1/NE1 Integration: Simulation Results</a>
+
+Direct any questions or comments to helfrich at nanorex.com.
+
+\section installation Installation
+\subsection requirements Requirements
+The HDF5 library is needed to build HDF5_SimResults library, specifically, HDF5-1.6.5. Get it here: <a href="http://hdf.ncsa.uiuc.edu/HDF5/release/obtain5.html">HDF5 Software</a>
+
+<b>Note: Building HDF5 with MinGW</b>
+Necessary for Dev-C++ users:
+\li Remove tools/ and test/ directories from SUBDIRS in Makefile.in
+\li Remove H5FDstream.* from src/Makefile.in
+\li ./configure --disable-stream-vfd; make; make install
+\li Download the "Binary Utilities" for Windows from the HDF5 Software page to get them.
+
+Optionally, the CppUnit library is required to run the HDF5_SimResults unit tests, specifically, CppUnit-1.10.2. get it here: <a href="http://sourceforge.net/project/showfiles.php?group_id=11795&package_id=11019">CppUnit Software</a>.
+
+\subsection building Building
+Be sure to add the HDF5 (and optionally CppUnit) include/ and lib/ directories to your IDE as applicable.
+
+\subsubsection dev-cpp Dev-C++
+\li <tt>src/Dev-C++/HDF5_SimResults.dev</tt> builds <tt>src/Dev-C++/libHDF5_SimResults.a</tt>.
+\li <tt>src/Dev-C++/CppUnit.dev</tt> builds <tt>src/Dev-C++/CppUnit.exe</tt>. 
+\subsubsection ms-vcpp VC++
+\li <tt>src/VC++/HDF5_SimResults.dsw</tt> builds <tt>src/VC++/Debug|Release/HDF5_SimResults.lib</tt>
+
+\subsubsection xcode Xcode
+\li <tt>src/Xcode/HDF5_SimResults.xcodeproj builds <tt>src/Xcode/build/Release/libHDF5_SimResults.a</tt> and <tt>src/Xcode/build/Release/CppUnit</tt>
+
+\section notes Notes
+\li When linking the HDF5_SimResults library with your own code, put the -lhdf5 \b after the -lHDF5_SimResults
+\li The CppUnit(.exe) binary needs to be run from the src/ directory.
+
+ */
