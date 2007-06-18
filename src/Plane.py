@@ -100,7 +100,7 @@ class Plane(ReferenceGeometry):
             self.width = 12
             self.height = 12                    
             self.normcolor = black
-            self.__init_quat_center(lst)            
+            self._setup_quat_center(lst)         
             self.propMgr.show_propMgr()
             self.propMgr.preview_btn_clicked()
         
@@ -229,19 +229,8 @@ class Plane(ReferenceGeometry):
         glPopMatrix()
         
         return
+                                 
            
-    def __init_quat_center(self, lst = None):
-        if lst:    
-            self.atomPos =[]
-            for a in lst:
-                self.atomPos += [a.posn()]    
-            planeNorm = self._getPlaneOrientation(self.atomPos)
-            self.center = add.reduce(self.atomPos)/len(self.atomPos)
-        else:            
-            planeNorm = self.glpane.lineOfSight
-            self.center = [0.0,0.0,0.0]        
-        self.quat = Q(V(0.0, 0.0, 1.0), planeNorm)
-    
     def setWidth(self, newwidth):
         self.width = newwidth
     
@@ -417,11 +406,16 @@ class Plane(ReferenceGeometry):
             if dot(planeNorm, self.glpane.lineOfSight) < 0:
                 planeNorm = - planeNorm                
             self.center = add.reduce(self.atomPos)/len(self.atomPos)
-        else:            
-            planeNorm = self.glpane.lineOfSight
-            self.center = [0.0,0.0,0.0]        
-        self.quat = Q(V(0.0, 0.0, 1.0), planeNorm)                    
-    
+            self.quat = Q(V(0.0, 0.0, 1.0), planeNorm) 
+        else:       
+            self.center = [0.0,0.0,0.0] 
+            #Following makes sure that Plane edges are parallel to
+            #the 3D workspace borders. Fixes bug 2448
+            x, y ,z = self.glpane.right, self.glpane.up, self.glpane.out
+            self.quat = Q(x,y,z) 
+            self.quat += Q(self.glpane.right, pi)
+                        
+               
     def _createPlaneThroughAtoms(self):
         '''Create a Plane with center same as the common center of 
         three or more selected atoms'''
