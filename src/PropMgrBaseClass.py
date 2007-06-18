@@ -539,8 +539,32 @@ class PropMgrBaseClass(PropertyManager_common): #bruce 070615 inherit PropertyMa
         self.pmTopRowBtns.addWidget(self.TopRowBtnsFrame)
         
         self.VBoxLayout.addLayout(self.pmTopRowBtns)
-        
-        return
+	
+	# Add What's This for buttons.
+	
+        self.done_btn.setWhatsThis("""<b>Done</b>
+            <p><img source=\"ui/actions/Properties Manager/Done.png\"><br>
+	    Complets and/or exits current command.</p>""")
+	
+	self.abort_btn.setWhatsThis("""<b>Cancel</b>
+            <p><img source=\"ui/actions/Properties Manager/Abort.png\"><br>
+	    Cancels current command.</p>""")
+	
+	self.restore_defaults_btn.setWhatsThis("""<b>Restore Defaults</b>
+	    <p><img source=\"ui/actions/Properties Manager/Restore.png\"><br>
+            Restores the defaut values of the Property Manager.</p>""")
+	
+	self.preview_btn.setWhatsThis("""<b>Preview</b>
+	    <p><img source=\"ui/actions/Properties Manager/Preview.png\"><br>
+            Preview the structure based on current Property Manager values.</p>""")
+
+	self.whatsthis_btn.setWhatsThis("""<b>What's This</b> 
+	    <p><img source=\"ui/actions/Properties Manager/WhatsThis.png\"><br>
+	    Click this option to invoke a small question mark that is attached to the mouse pointer. 
+	    Click on a feature which you would like more information about. 
+	    A popup box appears with information about the feature.</p>""")
+	
+	return
 
     def hideTopRowButtons(self, hideFlags=None):
         """Hide one or more top row buttons using <hideFlags>.
