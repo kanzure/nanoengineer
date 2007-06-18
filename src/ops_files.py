@@ -1076,6 +1076,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         If user cancels, or anything else means we should not actually close and exit,
         return False; otherwise return True.
         """
+                
         # wware 060406 bug 1263 - signal the simulator that we are exiting
         from runSim import SimRunner
         if not self.assy.has_changed():
@@ -1101,6 +1102,13 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                     return False
             elif rc == 1: # Discard
                 SimRunner.PREPARE_TO_CLOSE = True
+                
+                #@@ ninad 20070618 : This makes sure that after File > discard, 
+                #the warning dialog is emitted only once. But this is only a 
+                #partial fix for bug 2444. Committing this code for Bruce who 
+                #is going to investigate it further.
+                self.assy.ok_to_discard_modified = True
+                
                 return True
             else: # Cancel
                 return False
@@ -1109,14 +1117,21 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
     def closeEvent(self,ce): #bruce 050907 split this into two methods, revised docstring
         """slot method, called via File > Exit or clicking X titlebar button"""
         #bruce 090507 comment: this slot method should be moved back to MWsemantics.py.
-        shouldEventBeAccepted = self.prepareToClose()
-        if shouldEventBeAccepted:
-            self.cleanUpBeforeExiting() #bruce 060127 added this re bug 1412 (defined in MWsemantics)
-            ce.accept()
-        else:
-            ce.ignore()
-            env.history.message("Cancelled exit.") # bruce 050907 added this message
-        return
+        
+        #@@ ninad 20070618 : This makes sure that after File > Discard, 
+        #the warning dialog is emitted only once. But this is only a 
+        #partial fix for bug 2444 (assy.ok_to_discard_modified)
+        #Committing this code for Bruce who is going to investigate it further.
+        
+        if not self.assy.ok_to_discard_modified:
+            shouldEventBeAccepted = self.prepareToClose()
+            if shouldEventBeAccepted:
+                self.cleanUpBeforeExiting() #bruce 060127 added this re bug 1412 (defined in MWsemantics)
+                ce.accept()
+            else:
+                ce.ignore()
+                env.history.message("Cancelled exit.") # bruce 050907 added this message
+            return
 
     def fileClose(self):
         """Slot method for 'File > Close'.
