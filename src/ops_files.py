@@ -1162,7 +1162,26 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 self.assy.clear_undo_stack() #bruce 060126, maybe not needed, or might fix an unreported bug related to 1398
                 self.win_update()
         return
+
+    def fileSetWorkDir(self):
+        """Slot for 'File > Set Working Directory', which prompts the user to select a
+        new NE1 working directory via a directory chooser dialog.
+        
+        Note: This is no longer used as of Alpha 9. Mark 2007-06-18.
+        """
+
+        env.history.message(greenmsg("Set Working Directory:"))
     
+        workdir = env.prefs[workingDirectory_prefs_key]
+        wdstr = "Current Working Directory - [" + workdir  + "]"
+        workdir = QFileDialog.getExistingDirectory( self, wdstr, workdir )
+        
+        if not workdir:
+            env.history.message("Cancelled.")
+            return
+        
+        self.setCurrentWorkingDirectory(workdir)
+        
     def setCurrentWorkingDirectory(self, dir=None): # Mark 060729.
         """Sets the current working directory (CWD) to <dir>. If <dir> is None, the CWD is set
         to the directory of the current assy filename (i.e. the directory of the current part). 
@@ -1173,38 +1192,26 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         
         if os.path.isdir(dir):
             self.currentWorkingDirectory = dir
+            self.setWorkDir(dir)
         else:
             self.currentWorkingDirectory =  getDefaultWorkingDirectory()
             
         #print "setCurrentWorkingDirectory(): dir=",dir
-
-    def fileSetWorkDir(self):
-        """Slot for 'File > Set Working Directory', which sets the working directory preference.
-        If there is no open part, the CWD will be changed to the directory chosen by the user.
-        """
-
-        env.history.message(greenmsg("Set Working Directory:"))
-    
-        wd = env.prefs[workingDirectory_prefs_key]
-        wdstr = "Current Working Directory - [" + wd  + "]"
-        #wd = QFileDialog.getExistingDirectory( wd, self, "get existing directory", wdstr, 1 )
-        wd = QFileDialog.getExistingDirectory( self, wdstr, wd )
         
-        if not wd:
-            env.history.message("Cancelled.")
+    def setWorkDir(self, workdir=None):
+        """Sets the working directory in the preferences db to <workdir>.
+        If <workdir> is None, there is no change to the working directory.
+        """
+        
+        if not workdir:
             return
         
-        wd = str(wd)
-        if os.path.isdir(wd):
-            wd = os.path.normpath(wd)
-            env.prefs[workingDirectory_prefs_key] = wd # Change pref in prefs db.
-            
-            # Set the CWD to the Working Directory. Mark 060730.
-            self.setCurrentWorkingDirectory(wd)
-            
-            env.history.message( "Working Directory set to " + wd )
+        workdir = str(workdir)
+        if os.path.isdir(workdir):
+            workdir = os.path.normpath(workdir)
+            env.prefs[workingDirectory_prefs_key] = workdir # Change pref in prefs db.            
         else:
-            msg = "[" + dir + "] is not a directory. Working directory was not changed."
+            msg = "[" + workdir + "] is not a directory. Working directory was not changed."
             env.history.message( redmsg(msg))
         return
                 
