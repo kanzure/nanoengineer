@@ -16,7 +16,7 @@ from HistoryWidget import greenmsg
 from widgets import double_fixup
 import env, os
 from HistoryWidget import redmsg, orangemsg, greenmsg
-from GeneratorBaseClass import GroupButtonMixin
+from GroupButtonMixin import GroupButtonMixin
 from Sponsors import SponsorableMixin
 
 class PovraySceneProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_PovrayScenePropDialog):

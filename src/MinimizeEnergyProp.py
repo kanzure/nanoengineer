@@ -13,7 +13,7 @@ __author__ = "Mark"
 from PyQt4.Qt import *
 from HistoryWidget import greenmsg, redmsg, orangemsg, _graymsg, quote_html
 from MinimizeEnergyPropDialog import Ui_MinimizeEnergyPropDialog
-from GeneratorBaseClass import GroupButtonMixin
+from GroupButtonMixin import GroupButtonMixin
 from Sponsors import SponsorableMixin
 from qt4transition import *
 from Utility import geticon

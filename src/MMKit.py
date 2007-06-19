@@ -33,7 +33,6 @@ from Sponsors import SponsorableMixin
 from PropertyManagerMixin import PropertyManagerMixin
 from PropMgr_Constants import pmMMKitPageMargin
 from bond_constants import btype_from_v6
-#from GeneratorBaseClass import GroupButtonMixin
 
 # PageId constants for mmkit_tab
 AtomsPage=0
