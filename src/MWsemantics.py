@@ -1088,19 +1088,70 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         undo.just_before_mainwindow_init_returns() # (this is now misnamed, now that it's not part of __init__)
         return
 
+    __did_cleanUpBeforeExiting = False #bruce 070618
+    
     def cleanUpBeforeExiting(self): #bruce 060127 added this re bug 1412 (Python crashes on exit, newly common)
+        """NE1 is going to exit. (The user has already been given the chance to save current files
+        if they are modified, and (whether or not they were saved) has approved the exit.)
+           Perform whatever internal side effects are desirable to make the exit safe and efficient,
+        and/or to implement features which save other info (e.g. preferences) upon exiting.
+           This should be safe to call more than once, even though doing so is a bug.
+        """
+
+        # We do most things in their own try/except clauses, so if they fail,
+        # we'll still do the other actions [bruce 070618 change].
+        # But we always print something if they fail.
+
+        if self.__did_cleanUpBeforeExiting:
+            # This makes sure it's safe to call this method more than once.
+            # (By itself, this fixes the exception in bug 2444 but not the double dialogs from it.
+            #  The real fix for bug 2444 is elsewhere, and means this is no longer called more than once,
+            #  but I'll leave this in for robustness.) [bruce 070618]
+            return
+        
+        self.__did_cleanUpBeforeExiting = True
+
+        msg = "exception (ignored) in cleanUpBeforeExiting: "
+        
+        try:
+            # wware 060406 bug 1263 - signal the simulator that we are exiting
+            # (bruce 070618 moved this here from 3 places in prepareToCloseAndExit.)
+            from runSim import SimRunner
+            SimRunner.PREPARE_TO_CLOSE = True
+        except:
+            print_compact_traceback( msg )
+        
         try:
             env.history.message(greenmsg("Exiting program."))
+        except:
+            print_compact_traceback( msg )
+
+        try:
             if env.prefs[rememberWinPosSize_prefs_key]: # Fixes bug 1249-2. Mark 060518.
                 self.uprefs.save_current_win_pos_and_size()
-            ## this seems to take too long, and is probably not needed: self.__clear()
+        except:
+            print_compact_traceback( msg )
+
+        ## self.__clear() # (this seems to take too long, and is probably not needed)
+
+        try:
             self.deleteMMKit()  # wware 060406 bug 1263 - don't leave MMKit open after exiting program
-	    self.deleteOrientationWindow() # ninad 061121- perhaps its unnecessary
+                # [is this still needed?? bruce 070618 Q]
+        except:
+            print_compact_traceback( msg )
+
+        try:
+	    self.deleteOrientationWindow() # ninad 061121- perhaps it's unnecessary
+        except:
+            print_compact_traceback( msg )
+
+        try:
             self.assy.deinit()
                 # in particular, stop trying to update Undo/Redo actions all the time
                 # (which might cause crashes once their associated widgets are deallocated)
         except:
-            print_compact_traceback( "exception (ignored) in cleanUpBeforeExiting: " )
+            print_compact_traceback( msg )
+        
         return
     
     def postinit_item(self, item): #bruce 050504

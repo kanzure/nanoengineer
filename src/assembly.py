@@ -162,14 +162,6 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
         # [bruce 050429 revised that behavior and this comment, re bug 413]
         self._modified = 1 
         
-        #@@ ninad 20070618 This flag  returns True if 
-        #'user already told us not to worry about 
-        #discarding this if it's modified,'. So Save-Discard-cancel dialog 
-        #won't be shown again -- This is a workaround for two warning bug 2444
-        # : This is only a partial, fix for bug 2444 
-        #Committing this code for Bruce who is going to investigate it further
-        self.ok_to_discard_modified = False
-        
         # the MWsemantics displaying this assembly (or None, when called from ThumbView)
         self.w = win
         # self.mt = win.modelTreeView [or win.mt, probably the same thing, not 100% clear -- bruce 070503 comment]

@@ -21,6 +21,7 @@ mark 060730 removed unsupported slot method fileNew(); refined and added missing
 from PyQt4.Qt import QFileDialog, QMessageBox, QString, qApp, QSettings, QStringList, QProcess
 from assembly import assembly
 import os, shutil
+import time
 import platform
 from qt4transition import *
 
@@ -1071,67 +1072,106 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             # [note, before this routine was split out, the mt_update happened after the history message printed by our callers]
         return
         
-    def prepareToClose(self): #bruce 050907 split this out of MWsemantics.closeEvent method, added docstring
-        """Prepare to close the main window and exit (e.g. ask user whether to save file if necessary).
-        If user cancels, or anything else means we should not actually close and exit,
-        return False; otherwise return True.
-        """
-                
-        # wware 060406 bug 1263 - signal the simulator that we are exiting
-        from runSim import SimRunner
+    def prepareToCloseAndExit(self): #bruce 070618 revised/renamed #e SHOULD RENAME to not imply side effects other than file save
+        """The user has asked NE1 to close the main window and exit; if any files are modified,
+        ask the user whether to save them, discard them, or cancel the exit.
+           If the user wants any files saved, save them. (In the future there might be more than one
+        open file, and this would take care of them all, even though some but not all might get saved.)
+           If the user still wants NE1 to exit, return True; otherwise (if user cancels exit at any
+        time during this, using some dialog's Cancel button), return False.
+           Perform no exit-related side effects other than possibly saving modified files.
+        If such are needed, the caller should do them afterwards (see cleanUpBeforeExiting in current code)
+        or before (not implemented as of 070618 in current code).
+        """ 
         if not self.assy.has_changed():
-            SimRunner.PREPARE_TO_CLOSE = True
             return True
-        else:
-            rc = QMessageBox.warning( self, "Warning!",
-                "The part contains unsaved changes.\n"
-                "Do you want to save the changes before exiting?",
-                "&Save", "&Discard", "Cancel",
-                0,      # Enter == button 0
-                2 )     # Escape == button 2
-
-            if rc == 0:
-                # Save
-                isFileSaved = self.fileSave() # Save clicked or Alt+S pressed or Enter pressed.
+        
+        rc = QMessageBox.warning( self, "Warning!",
+            "The part contains unsaved changes.\n"
+            "Do you want to save the changes before exiting?",
+            "&Save", "&Discard", "Cancel",
+            0,      # Enter == button 0
+            2 )     # Escape == button 2
+        print "fyi: dialog choice =", ["Save", "Discard", "Cancel"][rc] # leave this in until changes fully tested [bruce 070618]
+        
+        if rc == 0: # Save (save file and exit)
+            isFileSaved = self.fileSave()
+            if isFileSaved:
+                return True
+            else:
                 ##Huaicai 1/6/05: While in the "Save File" dialog, if user chooses
                 ## "Cancel", the "Exit" action should be ignored. bug 300
-                if isFileSaved:
-                    SimRunner.PREPARE_TO_CLOSE = True
-                    return True
-                else:
-                    return False
-            elif rc == 1: # Discard
-                SimRunner.PREPARE_TO_CLOSE = True
-                
-                #@@ ninad 20070618 : This makes sure that after File > discard, 
-                #the warning dialog is emitted only once. But this is only a 
-                #partial fix for bug 2444. Committing this code for Bruce who 
-                #is going to investigate it further.
-                self.assy.ok_to_discard_modified = True
-                
-                return True
-            else: # Cancel
                 return False
+        
+        elif rc == 1: # Discard (discard file and exit)
+            return True
+        
+        else: # Cancel (cancel exit, and don't save file)
+            return False
         pass
-            
-    def closeEvent(self,ce): #bruce 050907 split this into two methods, revised docstring
-        """slot method, called via File > Exit or clicking X titlebar button"""
-        #bruce 090507 comment: this slot method should be moved back to MWsemantics.py.
+
+    __last_closeEvent_cancel_done_time = 0.0 #bruce 070618 for bug 2444
+    __exiting = False #bruce 070618 for bug 2444
+    
+    def closeEvent(self, ce):
+        """slot method for closing main window (and exiting NE1), called via File > Exit or clicking X titlebar button"""
+
+        # Note about bug 2444 and its fix here:
+        #
+        # For unknown reasons, Qt can send us two successive closeEvents.
+        # This is part of the cause of bug 2444 (two successive dialogs asking user whether to save changes).
+        # The two events are not distinguishable in any way we [Bruce & Ninad] know of (stacktrace, value of ce.spontaneous()).
+        # But there is no documented way to be sure they are the same (their id is the same, but that doesn't mean much,
+        # since it's often true even for different events of the same type; QCloseEvent has no documented
+        # serial number or time; they are evidently different PyQt objects, since a Python attribute saved
+        # in the first one (by debug code tried here) is no longer present in the second one).
+        #
+        # But, there is no correct bugfix except to detect whether they're the same, because:
+        # - if the user cancels an exit, then exits again (without doing anything in between),
+        #   they *should* get another save-changes dialog;
+        # - the cause of getting two events per close is not known, so it might go away,
+        #   so (in trying to handle that case) we can't just assume the next close event
+        #   should be discarded.
+        #
+        # So all that's left is guessing whether they're the same, based on intervening time.
+        # (This means comparing end time of handling one event with start time of handling the next one,
+        #  since getting the cancel from the user can take an arbitrarily long time.)
+        # (Of course if the user doesn't cancel, so we're really exiting, then we know they have to be the same.)
+        #
+        # But even once we detect the duplicate, we have to handle it differently depending on whether we're exiting.
+        # (Note: during development, a bug caused us to call neither ce.accept() nor ce.ignore() on the 2nd event,
+        #  which in some cases aborted the app with "Modules/gcmodule.c:231: failed assertion `gc->gc.gc_refs != 0'".)
+
+        now = time.time()
+##        print "self.__exiting =", self.__exiting, ", now =", now, ", last done time =", self.__last_closeEvent_cancel_done_time
         
-        #@@ ninad 20070618 : This makes sure that after File > Discard, 
-        #the warning dialog is emitted only once. But this is only a 
-        #partial fix for bug 2444 (assy.ok_to_discard_modified)
-        #Committing this code for Bruce who is going to investigate it further.
-        
-        if not self.assy.ok_to_discard_modified:
-            shouldEventBeAccepted = self.prepareToClose()
-            if shouldEventBeAccepted:
-                self.cleanUpBeforeExiting() #bruce 060127 added this re bug 1412 (defined in MWsemantics)
-                ce.accept()
-            else:
-                ce.ignore()
-                env.history.message("Cancelled exit.") # bruce 050907 added this message
-            return
+        if self.__exiting or (now - self.__last_closeEvent_cancel_done_time <= 0.5):
+            # (I set the threshhold at 0.5 since the measured time difference was up to 0.12 during tests.)
+            # Assume this is a second copy of the same event (see long comment above).
+            # To fix bug 2444, don't do the same side effects for this event,
+            # but accept or ignore it the same as for the first one (based on self.__exiting).
+            duplicate = True
+            shouldExit = self.__exiting # from prior event
+            print "fyi: ignoring duplicate closeEvent (exiting = %r)" % shouldExit
+                # leave this print statement in place until changes fully tested [bruce 070618]
+        else:
+            # normal case
+            duplicate = False
+            shouldExit = self.prepareToCloseAndExit() # puts up dialog if file might need saving
+
+        if shouldExit:
+            self.__exiting = True
+            if not duplicate:
+                print "exiting" # leave this in until changes fully tested [bruce 070618]
+                self.cleanUpBeforeExiting()
+            ce.accept()
+        else:
+            ce.ignore()
+            if not duplicate:
+                env.history.message("Cancelled exit.")
+            self.__last_closeEvent_cancel_done_time = time.time() # note: not the same value as the time.time() call above
+##            print "done time =",self.__last_closeEvent_cancel_done_time
+        return
 
     def fileClose(self):
         """Slot method for 'File > Close'.
