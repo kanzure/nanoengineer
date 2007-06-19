@@ -450,6 +450,7 @@ class selectAtomsMode(selectMode):
         pass # end of selobj_highlight_color
             
     def update_selobj(self, event): #bruce 050610
+                ###WARNING: method duplicated in selectAtomsMode, but they have not been co-maintained. [bruce 070618 comment]
         """Keep glpane.selobj up-to-date, as object under mouse, or None
         (whether or not that kind of object should get highlighted).
            Return True if selobj is already updated when we return, or False if that will not happen until the next paintGL.
@@ -588,7 +589,7 @@ class selectAtomsMode(selectMode):
         ## self.update_selatom(event, msg_about_click = True)
         return not new_selobj_unknown # from update_selobj
 
-    def update_selatom(self, event, singOnly = False, msg_about_click = False, resort_to_prior = True): 
+    def update_selatom(self, event, singOnly = False, msg_about_click = False, resort_to_prior = True):
         '''Keep selatom up-to-date, as atom under mouse based on <event>; 
         When <singOnly> is True, only keep singlets up-to-date. [not sure what that phrase means -- bruce 060726]
         When <msg_about_click> is True, print a message on the statusbar about the LMB press.

@@ -624,10 +624,8 @@ class selectMolsMode(selectMode):
             print "unexpected selobj class in mode.selobj_highlight_color:", selobj
             return black ## bruce 060726 blue -> black so the fact that it's an error is more obvious
         pass # end of selobj_highlight_color   
-    
-            
-            
-    def update_selobj(self, event): #bruce 050610
+                
+    def update_selobj(self, event): ###WARNING: this duplicates the same method in selectAtomsMode but has not been co-maintained. [bruce 070618 comment]
         """Keep glpane.selobj up-to-date, as object under mouse, or None
         (whether or not that kind of object should get highlighted).
            Return True if selobj is already updated when we return, or False if that will not happen until the next paintGL.
