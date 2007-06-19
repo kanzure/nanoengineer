@@ -35,6 +35,10 @@ from PropMgrBaseClass import getPalette
         
 class Ui_MMKitDialog(object):
     def setupUi(self, MMKitDialog):
+        # Note: MMKitDialog (which as a local variable should not be named with an initial capital)
+        # is an object of class MMKit, which inherits from PropertyManagerMixin,
+        # and some methods from PropertyManagerMixin are used on it herein,
+        # for example, inside self.ui_message_GroupBox(). [bruce 070618 comment]
         MMKitDialog.setObjectName("MMKitDialog")
 
         palette = QtGui.QPalette()
