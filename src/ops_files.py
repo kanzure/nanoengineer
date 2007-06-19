@@ -714,6 +714,10 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 #&&& dir, fil = "./", self.assy.name
                 ext = ".mmp"
                 sdir = self.currentWorkingDirectory # Make sure the file chooser dialog opens to the CWD. Mark 060730.
+                    ###REVIEW: shouldn't this be a reference to env.prefs[...] for that dir? [bruce 070619 comment]
+                sdir = os.path.join(sdir, "Untitled" ) #bruce 070619 fix bug 2379 where filename field
+                    # is blank rather than Untitled, and doesn't have key focus
+                    # (should also include ext if we change the bug 225 workaround above, but a test shows it's still needed)
         else:
             env.history.message( "Save Ignored: Part is currently empty." )
             return None
@@ -737,20 +741,30 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                     "JPEG (*.jpg);;"\
                     "Portable Network Graphics (*.png)"
 
-        
-               
-        fn = QFileDialog.getSaveFileName(self, 
-                                         "Save As", 
-                                         sdir, 
-                                         formats, 
-                                         sfilter)
+        options = QFileDialog.DontConfirmOverwrite # this fixes bug 2380 [bruce 070619]
+            # Note: we can't fix that bug by removing our own confirmation (later in this function) instead,
+            # since the Qt confirmation doesn't happen if the file extension is implicit,
+            # as it is by default due to the workaround for bug 225 (above) in which sdir doesn't contain ext.
 
+        # debug_prefs for experimentation with dialog style [bruce 070619]
+        if sys.platform == 'darwin' and debug_pref("File Save As: DontUseSheet", Choice_boolean_False, prefs_key = True):
+            options |= QFileDialog.DontUseSheet # probably faster -- try it and see
+        if debug_pref("File Save As: DontUseNativeDialog", Choice_boolean_False, prefs_key = True):
+            options |= QFileDialog.DontUseNativeDialog
+        
+        fn = QFileDialog.getSaveFileName(self, # parent
+                                         "Save As", # caption
+                                         sdir, # dir (should include basename too, if one should be initially in the dialog)
+                                         formats, # filter
+                                         sfilter, # selectedFilter
+                                         QFileDialog.DontConfirmOverwrite # options
+                                         )
         if fn:
             fn = str(fn)
             # figure out name of new file, safile [bruce question: when and why can this differ from fn?]
             dir, fil, ext2 = fileparse(fn)
             del fn #bruce 050927
-            ext =str(sfilter[-5:-1]) # Get "ext" from the sfilter. It *can* be different from "ext2"!!! - Mark
+            ext = str(sfilter[-5:-1]) # Get "ext" from the sfilter. It *can* be different from "ext2"!!! - Mark
             safile = dir + fil + ext # full path of "Save As" filename
 
             # ask user before overwriting an existing file (other than this part's main file)
