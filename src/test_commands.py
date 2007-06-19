@@ -39,11 +39,12 @@ from modes import basicMode
 from selectAtomsMode import selectAtomsMode
 
 from PropMgrBaseClass import PropMgrBaseClass, PropMgrGroupBox, PropMgrComboBox, PropMgrDoubleSpinBox
+from GeneratorBaseClass import GeneratorBaseClass
 
 from debug import register_debug_menu_command
 
 from GLPane import GLPane # maybe for an isinstance assertion only
-
+import time
 
 class ExampleCommand1(selectAtomsMode):
     """Example command, which uses behavior similar to selectAtomsMode. [Which in future may inherit class Command.]
@@ -51,7 +52,7 @@ class ExampleCommand1(selectAtomsMode):
     modename = 'ExampleCommand1-modename' # internal #e fix init code in basicMode to get it from classname?
     default_mode_status_text = "ExampleCommand1"
     #e define msg_modename, or fix init code in basicMode to get it from default_mode_status_text or classname or...
-    # note: that init code won't even run now, since superclas defs it i think -- actually, not sure abt that, probably it doesn;t
+    # note: that init code won't even run now, since superclas defs it i think -- actually, not sure abt that, probably it doesn't
 
     def init_gui(self):
         print "init_gui in", self ####
@@ -73,22 +74,35 @@ class ExampleCommand1(selectAtomsMode):
     
     pass # end of class ExampleCommand1
 
+
+class ExampleCommand2(selectAtomsMode):
+    "same but use GBC"
+    modename = 'ExampleCommand2-modename'
+    default_mode_status_text = "ExampleCommand2"
+
+    def init_gui(self):
+        print "init_gui in", self ####
+
+        win = self.win
+        self.__PM = pm = ExampleCommand2_PM(win)
+        pm.show()
+        selectAtomsMode.init_gui(self)
+        return
+
+    def restore_gui(self):
+        print "restore_gui in", self ####
+
+        self.__PM.hide()
+        selectAtomsMode.restore_gui(self)
+        return
+    
+    pass # end of class ExampleCommand2
+
 # ==
 
-from PyQt4.Qt import QDialog
-from PropMgrBaseClass import PropMgrBaseClass
-
-class ExampleCommand1_PM(QDialog, PropMgrBaseClass): # these supers are needed (but 'object' is evidently not needed)
-    """Property Manager for Example Command 1"""
+class _eg_pm_widgets:
+    "[private] some PM widgets common to several examples here"
     # contains some code copied from AtomGeneratorDialog.py
-
-    # <title> - the title that appears in the property manager header.
-    title = "Example Command 17"
-    # <propmgr_name> - the name of this property manager. This will be set to
-    # the name of the PropMgr (this) object via setObjectName(). ###k used only for debugging??
-    propmgr_name = "pm" + title
-    # <iconPath> - full path to PNG file that appears in the header.
-    iconPath = "ui/actions/Toolbars/Smart/Deposit_Atoms.png" ###e REVISE
 
     #k all needed?
     _sMinCoordinateValue   = -30.0
@@ -99,46 +113,18 @@ class ExampleCommand1_PM(QDialog, PropMgrBaseClass): # these supers are needed (
     _sCoordinateUnits      =  _sCoordinateUnit + 's'
     _sElementSymbolList    =  ["H","O","C","S"]
 
-    # bruce added these to make it work w/o GBC. (Why doesn't it need one for restore defaults?)
-    def ok_btn_clicked(self):
-        print "ok_btn_clicked", self
-        pass
-    def abort_btn_clicked(self):
-        print "abort_btn_clicked", self
-        pass
-    def preview_btn_clicked(self):
-        print "preview_btn_clicked", self
-        pass
-    def enter_WhatsThisMode(self):
-        print "enter_WhatsThisMode", self
-        pass
-    # should get these from SponsorableMixin, or (probably better) teach PropMgrBaseClass to get them from there:
-    def open_sponsor_homepage(self):
-        print "open_sponsor_homepage", self
-        pass
-    def setSponsor(self):
-        print "setSponsor", self
-        pass
-    
-    def __init__(self, win):
-        print "creating", self ####
-
-        QDialog.__init__(self, win) #bruce added this, otherwise "underlying C++ object deleted" or so
-        PropMgrBaseClass.__init__( self, self.propmgr_name )
-        if 1: # bruce added these, otherwise various AttributeErrors
-            self.win = win # needed in PropMgrBaseClass.show
-            self.pw = win.activePartWindow() # same
+    def _eg_init_stuff(self):
         self.setPropMgrIcon( self.iconPath )
         self.setPropMgrTitle( self.title )
         self.addGroupBoxes()
         self.add_whats_this_text()
 
-        import time
+        
         msg = "Example command created at %s" % time.asctime()
         
         # This causes the "Message" box to be displayed as well.
         self.MessageGroupBox.insertHtmlMessage( msg, setAsDefault = False )
-        
+
     def addGroupBoxes(self):
         """Add the groupboxes for this Property Manager."""
 
@@ -184,8 +170,107 @@ class ExampleCommand1_PM(QDialog, PropMgrBaseClass): # these supers are needed (
                                            + self._sCoordinateUnits
                                            + ") of the Atom in "
                                            + self._sCoordinateUnits + '.')
+    pass # end of class _eg_pm_widgets
 
+# ==
+
+from PyQt4.Qt import QDialog
+from PropMgrBaseClass import PropMgrBaseClass
+
+class ExampleCommand1_PM( _eg_pm_widgets, QDialog, PropMgrBaseClass): # these supers are needed (but 'object' is evidently not needed)
+    """Property Manager for Example Command 1 -- simplest that doesn't use GBC; buttons are noops"""
+    
+    # <title> - the title that appears in the property manager header.
+    title = "Example Command 1"
+    # <propmgr_name> - the name of this property manager. This will be set to
+    # the name of the PropMgr (this) object via setObjectName(). ###k used only for debugging??
+    propmgr_name = "pm" + title
+    # <iconPath> - full path to PNG file that appears in the header.
+    iconPath = "ui/actions/Toolbars/Smart/Deposit_Atoms.png" ###e REVISE
+
+    # bruce added these to make it work w/o GBC.
+    # (It doesn't need restore_defaults_btn_clicked because PropMgrBaseClass defines that itself.
+    #  So does GBC, but to a noop method. So GBC better be inherited *after* PropMgrBaseClass!)
+    def ok_btn_clicked(self):
+        print "ok_btn_clicked", self
+        pass
+    def abort_btn_clicked(self):
+        print "abort_btn_clicked", self
+        pass
+    def preview_btn_clicked(self):
+        print "preview_btn_clicked", self
+        pass
+    def enter_WhatsThisMode(self):
+        print "enter_WhatsThisMode", self
+        pass
+    # should get these from SponsorableMixin, or (probably better) teach PropMgrBaseClass to get them from there:
+    def open_sponsor_homepage(self):
+        print "open_sponsor_homepage", self
+        pass
+    def setSponsor(self):
+        print "setSponsor", self
+        pass
+    
+    def __init__(self, win):
+        print "creating", self ####
+
+        QDialog.__init__(self, win)
+        PropMgrBaseClass.__init__( self, self.propmgr_name )
+        if 1: # bruce added these, otherwise various AttributeErrors
+            self.win = win # needed in PropMgrBaseClass.show
+            self.pw = win.activePartWindow() # same
+
+        self._eg_init_stuff()
+        return
+    
     pass # end of class ExampleCommand1_PM
+
+class ExampleCommand2_PM( _eg_pm_widgets, QDialog, PropMgrBaseClass, GeneratorBaseClass): # it's simpler if you use GBC
+    """Property Manager for Example Command 2 -- simplest that uses GBC; generates a comment (ignores widget values)"""
+    
+    title = "Example Command 2"
+    propmgr_name = "pm" + title
+    iconPath = "ui/actions/Toolbars/Smart/Deposit_Atoms.png" #e REVISE
+
+    # need these, at least to use Done:
+##    create_name_from_prefix = True ##e we ought to give this a default value in GBC
+    prefix = "Thing2" # for names created by GBC [required when create_name_from_prefix is true (not sure about otherwise)]
+    cmdname = "Generate a Thing2" # Undo/history cmdname used by GBC [optional, but affects history messages]
+    
+    def __init__(self, win):
+        print "creating", self ####
+
+        QDialog.__init__(self, win)
+        PropMgrBaseClass.__init__( self, self.propmgr_name )
+        GeneratorBaseClass.__init__( self, win)
+        
+        self._eg_init_stuff()
+        return
+
+    def gather_parameters(self): ###REVIEW: the exception from this gets printed but not as a traceback... 
+        return (1,2) ###e not yet grabbed from the widgets
+
+    def build_struct(self, name, params, position):
+        """ ... The return value should be the new structure, i.e. some flavor of a Node,
+        which has not yet been added to the model. ...
+           By convention ... the new node's name should be set to self.name,
+        which the caller will have set to self.prefix appended with a serial number.
+        """
+        print "build_struct(", self, name, params, position, ")"###
+        assert self.name == name # true by test and by examining GBC code
+        # ignoring params and position for now
+        assy = self.win.assy
+        from Comment import Comment
+        return Comment(assy, name, "comment created at " + time.asctime())
+
+    #e bugs that remain:
+    # - widget values not used for creating the thing
+    # - preview for comment is not visible except in MT tab or history
+    # - restore defaults does nothing useful
+    # - whats this button does nothing
+    # - when we leave this PM, the PM tab remains, tho it's empty
+    
+    pass # end of class ExampleCommand2_PM
 
 
 # == generic example or debug/devel code below here
@@ -216,7 +301,7 @@ def start_cmdrun( cmdrun):
         # problem: Enter is only meant to be called internally by glue code in modeMixin.
         # solution: use a new method, maybe Start. note, it's not guaranteed to change to it immediately! it's like Done (newmode arg).
 
-def enter_ExampleCommand1(widget):
+def enter_example_command(widget, example_command_classname):
     assert isinstance(widget, GLPane)
     glpane = widget
     if 1 and 'reload before use (this module only)': ###during devel only
@@ -233,17 +318,20 @@ def enter_ExampleCommand1(widget):
                 # wrong: uses old classes from glpane
         import test_commands
         reload(test_commands)
-        from test_commands import enter_ExampleCommand1_doit
-    enter_ExampleCommand1_doit(glpane)
+        from test_commands import enter_example_command_doit
+    enter_example_command_doit(glpane, example_command_classname)
     return
 
-def enter_ExampleCommand1_doit(glpane):
-    ExampleCommand1.modename += 'x' # kluge to defeat userSetMode comparison of modename -- not sure if it works or if it's needed
-    cmdrun = construct_cmdrun(ExampleCommand1, glpane)
+def enter_example_command_doit(glpane, example_command_classname):
+    example_command_class = globals()[example_command_classname]
+    example_command_class.modename += 'x' # kluge to defeat userSetMode comparison of modename -- not sure if it works or if it's needed
+    cmdrun = construct_cmdrun(example_command_class, glpane)
     start_cmdrun(cmdrun)
     return
 
-register_debug_menu_command( "ExampleCommand1", enter_ExampleCommand1 )
+for classname in ["ExampleCommand1", "ExampleCommand2"]:
+    cmdname = classname # for now
+    register_debug_menu_command( cmdname, (lambda widget, classname = classname: enter_example_command(widget, classname)) )
 
 def register_all_entermode_commands(glpane):
     for name in glpane.modetab.keys():
