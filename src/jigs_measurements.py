@@ -135,7 +135,7 @@ class MeasurementJig(Jig):
         if self.picked:
             # move the text to the lower left corner, and make it big
             drawtext(text, color, self.assy.o.selectedJigTextPosition(),
-                     3 * self.font_size)
+                     3 * self.font_size, self.assy.o)
         else:
             pos1 = self.atoms[0].posn()
             pos2 = self.atoms[-1].posn()
