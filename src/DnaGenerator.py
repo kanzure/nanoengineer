@@ -44,7 +44,7 @@ Jeff 2007-06-13
 __author__ = "Will"
 
 from PyQt4.Qt import QDialog
-from DnaGeneratorDialog import DnaPropMgr
+from DnaGeneratorDialog import DnaPropertyManager
 from GeneratorBaseClass import GeneratorBaseClass, PluginBug, UserError
 from Utility import Group
 from HistoryWidget import redmsg, orangemsg, greenmsg
@@ -59,8 +59,8 @@ import sys, os, env, re, random
 
 ############################################################################
 
-# DnaPropMgr must come BEFORE GeneratorBaseClass in this list
-class DnaGenerator(QDialog, DnaPropMgr, GeneratorBaseClass):
+# DnaPropertyManager must come BEFORE GeneratorBaseClass in this list
+class DnaGenerator(QDialog, DnaPropertyManager, GeneratorBaseClass):
 
     cmd              =  greenmsg("Build DNA: ")
     sponsor_keyword  =  'DNA'
@@ -73,7 +73,7 @@ class DnaGenerator(QDialog, DnaPropMgr, GeneratorBaseClass):
     # pass window arg to constructor rather than use a global, wware 051103
     def __init__(self, win):
         QDialog.__init__(self, win)
-        DnaPropMgr.__init__(self)
+        DnaPropertyManager.__init__(self)
         GeneratorBaseClass.__init__(self, win)
         self._random_data = []
     
