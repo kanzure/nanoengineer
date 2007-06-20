@@ -97,6 +97,7 @@ class OneTimeSubsList: #bruce 050804; as of 061022, looks ok for use in new expr
     def _list_of_subs(self): #bruce 070109
         "For debugging: return a newly made list of our subscriptions (not removing duplicates), without changing or fulfilling them."
         res = []
+        subs = self._subs
         for sublis in subs.itervalues():
             res.extend(sublis)
         return res

@@ -376,7 +376,7 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
             nq.setangle(n*self.angle)
             return nq
         else:
-            raise MulQuat
+            raise ValueError, "can't multiply %r by %r" % (self, n) #bruce 070619 revised this (untested)
 
     def __imul__(self, n):
         #bruce 051107 bugfix (untested): replace arg q2 with n, since body used n (old code must have never been tested either)
@@ -385,7 +385,7 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
             self.__reset()
             return self
         else:
-            raise MulQuat
+            raise ValueError, "can't multiply %r by %r" % (self, n) #bruce 070619 revised this (untested)
 
     def __div__(self, q2):
         "Return this quat divided by a number, or (untested, might not work) another quat."

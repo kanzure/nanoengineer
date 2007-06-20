@@ -1,5 +1,5 @@
 # Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
+"""
 undo_archive.py
 
 Collect and organize a set of checkpoints of model state and diffs between them,
@@ -10,7 +10,7 @@ $Id$
 [060223: out of date status info from this docstring was mostly moved to undo_archive-doc.text,
  not in cvs; can clean up and commit later #e]
 
-'''
+"""
 __author__ = 'bruce'
 
 import time, os
@@ -1968,7 +1968,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
 
     def _n_stored_vals(self): #060309, unfinished, CALL IT as primitive ram estimate #e add args for variants of what it measures ####@@@@
         res = 0
-        for oplist in stored_ops.itervalues():
+        for oplist in self.stored_ops.itervalues():
             for op in oplist:
                 res += op._n_stored_vals() ###IMPLEM
         return res

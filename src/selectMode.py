@@ -1419,7 +1419,7 @@ class selectMode(basicMode):
     def singletSetup(self, s):
         pass
         
-    def singletDrag(self, event):
+    def singletDrag(self, s, event):
         pass
         
     def singletLeftUp(self, s, event):
