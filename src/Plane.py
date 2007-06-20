@@ -53,7 +53,7 @@ class Plane(ReferenceGeometry):
     sym = "Plane"    
     is_movable = True 
     mutable_attrs = ('center', 'quat')
-    icon_names = ["modeltree/plane.png", "modeltree/plane-hide.png"]
+    icon_names = ["modeltree/Plane.png", "modeltree/Plane-hide.png"]
     sponsor_keyword = 'Plane'    
     copyable_attrs = ReferenceGeometry.copyable_attrs + mutable_attrs
     cmdname = 'Plane'
@@ -114,8 +114,7 @@ class Plane(ReferenceGeometry):
             return self.quat.rot(V(0.0, 0.0, 1.0))
         else:
             raise AttributeError, 'Plane has no "%s"' % name 
-        
-                
+              
     def setProps(self,props):
         ''' Set the Plane properties. It is Called while reading a MMP 
         file record.'''
