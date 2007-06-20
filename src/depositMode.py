@@ -2387,9 +2387,12 @@ class depositMode(selectAtomsMode, MMKit):
         elm = PeriodicTable.getElement(self.w.Element)
         atomtype = None
         if len(elm.atomtypes) > 1: 
-            try: 
-                hybname = self.w.hybridComboBox.currentText()
-                atype = elm.find_atomtype(hybname)
+            try:
+		# Obtain the hybrid index from the hybrid button group, not
+		# the obsolete hybrid combobox. Fixes bug 2304. Mark 2007-06-20
+                hybrid_id = self.theHybridizations.checkedId()
+                hybrid_name = self.bond_id2name[hybrid_id]
+                atype = elm.find_atomtype(hybrid_name)
                 if atype is not None:
                     atomtype = atype
             except:
