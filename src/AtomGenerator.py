@@ -26,7 +26,7 @@ Jeff 2007-05-30: Based on Will Ware's GrapheneGenerator.py
 
 __author__ = "Jeff"
 
-import platform
+import platform, env
 from chem import molecule, Atom
 from VQT import V
 import string
