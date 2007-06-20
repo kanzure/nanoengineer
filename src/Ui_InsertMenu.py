@@ -43,6 +43,11 @@ def setupUi(win):
         "ui/actions/Insert/Reference Geometry/Plane"))
     win.referencePlaneAction.setObjectName("referencePlaneAction")
     
+    win.referenceLineAction = QtGui.QAction(MainWindow)
+    win.referenceLineAction.setIcon(geticon(
+        "ui/actions/Insert/Reference Geometry/Plane"))
+    win.referenceLineAction.setObjectName("referenceLineAction")
+    
         
     win.referenceGeometryMenu = win.Insert.addMenu("Reference Geometry")
     
@@ -52,13 +57,18 @@ def setupUi(win):
                       ##prefs_key=True):
     win.referenceGeometryMenu.addAction(win.referencePlaneAction)        
     win.referenceGeometryMenu.addAction(win.jigsGridPlaneAction)
+    win.referenceGeometryMenu.addAction(win.referenceLineAction)    
     win.Insert.addAction(win.jigsAtomSetAction)
     win.Insert.addSeparator()
     win.Insert.addAction(win.fileInsertAction)
     win.Insert.addSeparator()    
     win.Insert.addAction(win.insertCommentAction)
-    win.Insert.addSeparator()
-    win.Insert.addAction(win.insertPovraySceneAction) 
+    #Commenting out the following to 'fix' bug 2455
+    #(we decided to remove this from the UI for alpha9.1 Only commenting it out 
+    #so that it can be reimplemented in future if we decide to do so. (and 
+    #thus it won't be 'forgotton' completely) -- ninad 20070619
+    ##win.Insert.addSeparator()
+    ##win.Insert.addAction(win.insertPovraySceneAction) 
     
     
 def retranslateUi(win):
