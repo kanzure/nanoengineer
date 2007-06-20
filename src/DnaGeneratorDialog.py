@@ -19,6 +19,9 @@ Jeff 2007-06-13:
 update duplex length)
 - Revamped approach to sequence checking and editing.
 
+Jeff 2007-06-19:
+- Renamed class DnaPropMgr to DnaPropertyManager
+
 To do:
 - Provide better indication of where the Sequence textedit's insertion 
 point is, even when the textedit is not targeted for keyboard input.
@@ -40,7 +43,7 @@ ATOMISTIC_MODEL  =  1
 BDNA             =  0
 ZDNA             =  1
 
-class DnaPropMgr( object, PropMgrBaseClass, DebugMenuMixin ):
+class DnaPropertyManager( object, PropMgrBaseClass, DebugMenuMixin ):
     
     # <title> - the title that appears in the property manager header.
     title = "DNA"
