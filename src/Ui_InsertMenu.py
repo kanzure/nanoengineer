@@ -42,22 +42,14 @@ def setupUi(win):
     win.referencePlaneAction.setIcon(geticon(
         "ui/actions/Insert/Reference Geometry/Plane"))
     win.referencePlaneAction.setObjectName("referencePlaneAction")
-    
-    win.referenceLineAction = QtGui.QAction(MainWindow)
-    win.referenceLineAction.setIcon(geticon(
-        "ui/actions/Insert/Reference Geometry/Plane"))
-    win.referenceLineAction.setObjectName("referenceLineAction")
-    
-        
+            
     win.referenceGeometryMenu = win.Insert.addMenu("Reference Geometry")
     
     #Add Actions
-    ##if debug_pref("Show new Insert > Reference Plane option", 
-                      ##Choice_boolean_False,
-                      ##prefs_key=True):
+    
     win.referenceGeometryMenu.addAction(win.referencePlaneAction)        
     win.referenceGeometryMenu.addAction(win.jigsGridPlaneAction)
-    win.referenceGeometryMenu.addAction(win.referenceLineAction)    
+        
     win.Insert.addAction(win.jigsAtomSetAction)
     win.Insert.addSeparator()
     win.Insert.addAction(win.fileInsertAction)
