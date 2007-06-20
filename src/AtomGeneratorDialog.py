@@ -57,7 +57,7 @@ from PropMgrBaseClass import *
 from PropMgr_Constants import *
 from bonds import CC_GRAPHITIC_BONDLENGTH
 
-class AtomPropMgr(object, PropMgrBaseClass):
+class AtomPropertyManager(object, PropMgrBaseClass):
     """ Implements user interface to specify properties of an atom """
 
     # <title> - the title that appears in the property manager header.
