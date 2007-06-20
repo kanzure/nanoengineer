@@ -70,7 +70,7 @@ class PovrayScene(SimpleCopyMixin, Node):
             # doesn't exist, since this would be an invalid name. Mark 060702.
             name = generate_povrayscene_name(assy, self.sym, self.extension)
             
-        self.const_icon = imagename_to_pixmap("modeltree/povrayscene.png")
+        self.const_pixmap = imagename_to_pixmap("modeltree/povrayscene.png")
             # note: this might be changed later; this value is not always correct; that may be a bug when this node is copied.
             # [bruce 060620 comment]
             
@@ -157,9 +157,9 @@ class PovrayScene(SimpleCopyMixin, Node):
             found = not filename or os.path.exists(filename)
         # otherwise found should have been passed as True or False
         if found:
-            self.const_icon = imagename_to_pixmap("modeltree/povrayscene.png")
+            self.const_pixmap = imagename_to_pixmap("modeltree/povrayscene.png")
         else:
-            self.const_icon = imagename_to_pixmap("modeltree/povrayscene-notfound.png")
+            self.const_pixmap = imagename_to_pixmap("modeltree/povrayscene-notfound.png")
             if print_missing_file:
                 msg = redmsg("POV-Ray Scene file [" + filename + "] does not exist.") #e some callers would prefer orangemsg, cmd, etc.
                 env.history.message(msg)
