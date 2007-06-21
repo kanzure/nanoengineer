@@ -1218,13 +1218,20 @@ class depositMode(selectAtomsMode, MMKit):
         return
 
     def pastable_atomtype(self): #bruce 050511 ###@@@ use more?
-        "return the current pastable atomtype"
+        """Return the current pastable atomtype.
+
+        Note: This appears to be very similar (if not completely redundant) to 
+        get_atomtype_from_MMKit() in this file. 
+	"""
         #e we might extend this to remember a current atomtype per element... not sure if useful
         current_element = self.pastable_element()
         if len(current_element.atomtypes) > 1: #bruce 050606
             try: 
-                hybname = self.w.hybridComboBox.currentText()
-                atype = current_element.find_atomtype(hybname)
+                # Obtain the hybrid index from the hybrid button group, not
+		# the obsolete hybrid combobox. Fixes bug 2456. Mark 2007-06-20
+                hybrid_id = self.theHybridizations.checkedId()
+                hybrid_name = self.bond_id2name[hybrid_id]
+                atype = current_element.find_atomtype(hybrid_name)
                 if atype is not None:
                     self._pastable_atomtype = atype
             except:
@@ -2375,15 +2382,15 @@ class depositMode(selectAtomsMode, MMKit):
         env.history.message(msg)
         self.o.gl_update()
 	
-            
-            
+
     #== Transmute helper methods
     
     def get_atomtype_from_MMKit(self):
-        '''Return the current atomtype selected in the MMKit.
-        Note: While this does actually return the atomtype based on what is selected in
-        the MMKit, the hybrid is determined by hybridComboBox (hidden).
-        '''
+	"""Return the current atomtype selected in the MMKit.
+	
+	Note: This appears to be very similar (if not completely redundant) to 
+	pastable_atomtype() in this file. 
+	"""
         elm = PeriodicTable.getElement(self.w.Element)
         atomtype = None
         if len(elm.atomtypes) > 1: 
