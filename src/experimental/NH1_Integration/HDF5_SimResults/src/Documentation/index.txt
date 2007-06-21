@@ -5,6 +5,8 @@ HDF5_SimResults is an HDF5 implementation of the SimResultsDataStore API. A SimR
 
 See discussion of the SimResultsDataStore requirements and HDF5 implementation here: <a href="http://www.nanoengineer-1.net/mediawiki/index.php?title=NH1/NE1_Integration#Simulation_Results">NH1/NE1 Integration: Simulation Results</a>
 
+The code is provided under the GNU GPL license.
+
 Direct any questions or comments to helfrich at nanorex.com.
 
 \section installation Installation
@@ -30,10 +32,159 @@ Be sure to add the HDF5 (and optionally CppUnit) include/ and lib/ directories t
 \li <tt>src/VC++/HDF5_SimResults.dsw</tt> builds <tt>src/VC++/Debug|Release/HDF5_SimResults.lib</tt>
 
 \subsubsection xcode Xcode
-\li <tt>src/Xcode/HDF5_SimResults.xcodeproj builds <tt>src/Xcode/build/Release/libHDF5_SimResults.a</tt> and <tt>src/Xcode/build/Release/CppUnit</tt>
+\li <tt>src/Xcode/HDF5_SimResults.xcodeproj</tt> builds <tt>src/Xcode/build/Release/libHDF5_SimResults.a</tt> and <tt>src/Xcode/build/Release/CppUnit</tt>
 
 \section notes Notes
 \li When linking the HDF5_SimResults library with your own code, put the -lhdf5 \b after the -lHDF5_SimResults
 \li The CppUnit(.exe) binary needs to be run from the src/ directory.
+
+\section examples Examples
+In the examples/ directory are three example datastores containing the trajectories for DNA structures undergoing energy minimization. Their exact structure can be inspected with the h5dump program (included with HDF5.)
+
+The example datastores can also be played with bin/HK_Simulation.exe:
+\li Run the HK_Simulation.exe program
+\li Choose File | Open simulation...
+\li From the "To play simulation results" section of the Open Simulation dialog, click the Browse button and choose one of the em/ directories under one of the example directories
+\li Click the play icon in the Visualization section of the HK_Simulation program
+
+The following is the function from the HK_Simulation sourcecode that populates the data structures used to draw each frame with data from the HDF5_SimResults datastore.
+
+\code
+/* FUNCTION: render */
+wxUint32 VisualizationCanvas::render(ne1::HDF5_SimResults* hdf5_SimResults,
+                                     const wxUint32& frameIndex,
+                                     bool justFrameCount) {
+    int status, frameCount;
+    std::string message;
+
+    hdf5_SimResults->synchronize();
+
+    // Setup atom arrays (once), assumes the number of atoms in the system is
+    // constant.
+    static bool InitializeAtoms = true;
+    if (InitializeAtoms) {
+        hdf5_SimResults->getFrameAtomIdsCount("frame-set-1", atomIdCount);
+        if (atomIdCount > 0) {
+            xCoords = (float*)malloc(atomIdCount*sizeof(float));
+            yCoords = (float*)malloc(atomIdCount*sizeof(float));
+            zCoords = (float*)malloc(atomIdCount*sizeof(float));
+            atomicNumbers = (int*)malloc(atomIdCount*sizeof(int));
+            InitializeAtoms = false;
+        }
+    }
+
+    // Check bond counts and memory allocation.
+    // Note: The zero in the following makes assumptions that need to be
+    // generalized later. Plus, this assumes that bonds never change.
+    static bool InitializeBonds = true;
+    if (InitializeBonds) {
+        hdf5_SimResults->getFrameBondsCount("frame-set-1", 0, bondIdCount);
+        if (bondIdCount > 0) {
+            aIds = (int*)malloc(bondIdCount*sizeof(int));
+            bIds = (int*)malloc(bondIdCount*sizeof(int));
+            InitializeBonds = false;
+        }
+    }
+
+    // Get time dimension count
+    hdf5_SimResults->getFrameCount("frame-set-1", frameCount);
+    if ((frameIndex < frameCount) && !justFrameCount) {
+
+        // Atoms
+        //
+        float* positions = (float*)malloc(atomIdCount*3*sizeof(float));
+        status =
+            hdf5_SimResults->getFrameAtomPositions("frame-set-1",
+                                                   frameIndex, atomIdCount,
+                                                   positions, message);
+
+        // Collect the atom positions. Center the molecule and assign atomic
+        // numbers the first time it is displayed.
+        static bool InitializeMolecule = true;
+        static float xShift = 0.0, yShift = 0.0, zShift = 0.0;
+        float maxX, minX, maxY, minY, maxZ, minZ;
+        for (wxUint32 atomIdIndex = 0;
+             atomIdIndex < atomIdCount;
+             atomIdIndex++) {
+            xCoords[atomIdIndex] = positions[atomIdIndex*3 + 0] * 10 + xShift;
+            yCoords[atomIdIndex] = positions[atomIdIndex*3 + 1] * 10 + yShift;
+            zCoords[atomIdIndex] = positions[atomIdIndex*3 + 2] * 10 + zShift;
+            if (InitializeMolecule) {
+                if (atomIdIndex == 0) {
+                    maxX = minX = xCoords[atomIdIndex];
+                    maxY = minY = yCoords[atomIdIndex];
+                    maxZ = minZ = zCoords[atomIdIndex];
+
+                } else {
+                    if (xCoords[atomIdIndex] > maxX)
+                        maxX = xCoords[atomIdIndex];
+                    else if (xCoords[atomIdIndex] < minX)
+                        minX = xCoords[atomIdIndex];
+                    if (yCoords[atomIdIndex] > maxY)
+                        maxY = yCoords[atomIdIndex];
+                    else if (yCoords[atomIdIndex] < minY)
+                        minY = yCoords[atomIdIndex];
+                    if (zCoords[atomIdIndex] > maxZ)
+                        maxZ = zCoords[atomIdIndex];
+                    else if (zCoords[atomIdIndex] < minZ)
+                        minZ = zCoords[atomIdIndex];
+                }
+            }
+        }
+        free(positions);
+        if (InitializeMolecule) {
+            xShift = (minX + maxX) / -2.0;
+            yShift = (minY + maxY) / -2.0;
+            zShift = (minZ + maxZ) / -2.0;
+
+            // Determine initial zoom
+            float maxVector = maxX - minX;
+            if (maxY - minY > maxVector) maxVector = maxY - minY;
+            if (maxZ - minZ > maxVector) maxVector = maxZ - minZ;
+            zoom = maxVector * -1.28;
+
+            unsigned int* _atomicNumbers =
+                (unsigned int*)malloc(atomIdCount*3*sizeof(unsigned int));
+            status =
+                hdf5_SimResults->getFrameAtomicNumbers("frame-set-1",
+                                                       _atomicNumbers, message);
+            for (wxUint32 atomIdIndex = 0;
+                 atomIdIndex < atomIdCount;
+                 atomIdIndex++) {
+                xCoords[atomIdIndex] += xShift;
+                yCoords[atomIdIndex] += yShift;
+                zCoords[atomIdIndex] += zShift;
+                atomicNumbers[atomIdIndex] = _atomicNumbers[atomIdIndex];
+            }
+            free(_atomicNumbers);
+            InitializeMolecule = false;
+        }
+
+        // Bonds
+        //
+        static bool InitializeBonds2 = true;
+        if (InitializeBonds2) {
+            ne1::SimResultsBond* bonds =
+                (ne1::SimResultsBond*)malloc
+                    (bondIdCount*sizeof(ne1::SimResultsBond));
+            status =
+                hdf5_SimResults->getFrameBonds("frame-set-1", 0,
+                                               bonds, message);
+            for (wxUint32 bondIdIndex = 0;
+                 bondIdIndex < bondIdCount;
+                 bondIdIndex++) {
+                aIds[bondIdIndex] = bonds[bondIdIndex].atomId_1;
+                bIds[bondIdIndex] = bonds[bondIdIndex].atomId_2;
+            }
+            free(bonds);
+            InitializeBonds2 = false;
+        }
+
+        // Redraw scene
+        Refresh(FALSE);
+    }
+    return frameCount;
+}
+\endcode
 
  */
