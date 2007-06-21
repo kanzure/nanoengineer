@@ -20,14 +20,64 @@ __author__ = "Ninad"
 
 from PyQt4.Qt import *
 from PyQt4 import Qt, QtCore, QtGui
-##from PyQt4.QtGui import *
 from Sponsors import SponsorableMixin
-##from qt4transition import lineage
 from Utility import geticon, getpixmap
 from PropMgr_Constants import *
 from debug import print_compact_traceback
 import platform
-from PropMgrBaseClass import PropertyManager_common
+from PropMgrBaseClass import PropertyManager_common, getPalette
+
+def ui_MsgGroupBox(win, dialog):
+    """Creates a Message GroupBox for the following Property Managers
+    (which are still not using the PropMgrBaseClass):
+    - Build Atoms (MMKitDialog.py)
+    
+    These are still left to do by Mark:
+    - Build Crystal
+    - Extrude
+    - Move
+    - Fuse Chunks
+    """
+    win.message_groupBox = QtGui.QGroupBox(dialog)        
+        
+    win.message_groupBox.setAutoFillBackground(True) 
+    palette = dialog.getGroupBoxPalette()
+    win.message_groupBox.setPalette(palette)
+        
+    styleSheet = dialog.getGroupBoxStyleSheet()        
+    win.message_groupBox.setStyleSheet(styleSheet)
+        
+    win.vboxlayout_msgbox = QtGui.QVBoxLayout(win.message_groupBox)
+    win.vboxlayout_msgbox.setMargin(pmGrpBoxVboxLayoutMargin)
+    win.vboxlayout_msgbox.setSpacing(pmGrpBoxVboxLayoutSpacing)
+
+    win.message_groupBoxButton = \
+        dialog.getGroupBoxTitleButton("Message", win.message_groupBox)
+        
+    win.vboxlayout_msgbox.addWidget(win.message_groupBoxButton)
+
+    # Yellow TextEdit here
+
+    win.MsgTextEdit = QtGui.QTextEdit(win.message_groupBox)
+    win.MsgTextEdit.setMaximumHeight(80) # 80 pixels height
+    win.MsgTextEdit.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+
+    msg_palette = getPalette(None,
+                            QPalette.Base,
+                            pmMessageTextEditColor)
+
+    win.MsgTextEdit.setPalette(msg_palette)
+    win.MsgTextEdit.setReadOnly(True)
+
+    win.vboxlayout_msgbox.addWidget(win.MsgTextEdit)
+
+    # End Message GroupBox
+    win.vboxlayout.addWidget(win.message_groupBox)
+
+    # Height is fixed. Mark 2007-05-29.
+    win.message_groupBox.setSizePolicy(
+            QSizePolicy(QSizePolicy.Policy(QSizePolicy.Preferred),
+                        QSizePolicy.Policy(QSizePolicy.Fixed)))
 
 # ==
 
