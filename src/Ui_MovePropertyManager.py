@@ -88,24 +88,17 @@ class Ui_MovePropertyManager(object):
         self.vboxlayout.addWidget(self.sponsor_frame)
         
         self.ui_doneCancelButtonRow(MovePropertyManager)
-        
-        self.ui_moveGroupBox(MovePropertyManager)
-        
-        self.ui_rotateGroupBox(MovePropertyManager)                            
-            
-                
-        #ninad 0700202 its  important to add this spacerItem in the main vboxlayout to prevent the size adjustments in 
-        #the property manager when the group items are hidden 
-        bottom_spacer = QSpacerItem(10, 1,
-                                    QSizePolicy.Minimum,
-                                    QSizePolicy.MinimumExpanding)
 	
-        self.vboxlayout.addItem(bottom_spacer)
-	        
-        # This should be called last since it only works if all the widgets
-	# for this Property Manager are added first. Mark 2007-05-29
-        from PropMgrBaseClass import fitPropMgrToContents
-	fitPropMgrToContents(MovePropertyManager)
+	from PropertyManagerMixin import MessageGroupBox, addBottomSpacer
+	self.MessageGroupBox = MessageGroupBox(self, title="Message")
+	self.vboxlayout.addWidget(self.MessageGroupBox)
+	addBottomSpacer(self.MessageGroupBox, self.vboxlayout)
+        
+        self.ui_move_groupBox(MovePropertyManager)
+	addBottomSpacer(self.move_groupBox, self.vboxlayout)
+        
+        self.ui_rotate_groupBox(MovePropertyManager)   
+	addBottomSpacer(self.rotate_groupBox, self.vboxlayout, last=True)
     
     def ui_doneCancelButtonRow(self, MovePropertyManager):
         #Start Done , Abort, button row
@@ -140,7 +133,7 @@ class Ui_MovePropertyManager(object):
 
         self.vboxlayout.addLayout(hboxlayout_buttonrow)
         
-    def ui_moveGroupBox(self, MovePropertyManager):
+    def ui_move_groupBox(self, MovePropertyManager):
         #Start Move Groupbox
         self.move_groupBox = QtGui.QGroupBox(MovePropertyManager)
         self.move_groupBox .setObjectName("move_groupBox")
@@ -199,15 +192,13 @@ class Ui_MovePropertyManager(object):
         
         #End Move Options
         self.vboxlayout.addWidget(self.move_groupBox)
-        spacer_move_grpbx = QtGui.QSpacerItem(10,10,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.vboxlayout.addItem(spacer_move_grpbx)
 	
 	# Height is fixed. Mark 2007-05-29.
 	self.move_groupBox.setSizePolicy(
                 QSizePolicy(QSizePolicy.Policy(QSizePolicy.Preferred),
                             QSizePolicy.Policy(QSizePolicy.Fixed)))
     
-    def ui_rotateGroupBox(self, MovePropertyManager):
+    def ui_rotate_groupBox(self, MovePropertyManager):
         #Start Rotate Options        
         self.rotate_groupBox = QtGui.QGroupBox(MovePropertyManager)
         self.rotate_groupBox .setObjectName("rotate_groupBox")    

@@ -89,26 +89,26 @@ class Ui_ExtrudePropertyManager(object):
         #after the groupbox)
         
         self.ui_doneCancelButtonRow(ExtrudePropertyManager)
+	
+	from PropertyManagerMixin import MessageGroupBox, addBottomSpacer
+	self.MessageGroupBox = MessageGroupBox(self, title="Message")
+	self.vboxlayout.addWidget(self.MessageGroupBox)
+	addBottomSpacer(self.MessageGroupBox, self.vboxlayout)
         
-        self.ui_productSpecs_GroupBox(ExtrudePropertyManager)
+        self.ui_productSpec_groupBox(ExtrudePropertyManager)
+	addBottomSpacer(self.productSpec_groupBox, self.vboxlayout)
         
-        self.ui_extrudeDirections_GroupBox(ExtrudePropertyManager)
+        self.ui_extrudeDirection_groupBox(ExtrudePropertyManager)
+	# Don't add the spacer since the extrude direction groupbox is
+	# currently hidden (but we still need to create it above).
+	# addBottomSpacer(self.extrudeDirection_groupBox, self.vboxlayout)
         
-        self.ui_advancedOps_GroupBox(ExtrudePropertyManager)
-        
-        #ninad 070120 Following spacerItem is important to add in the main vboxlayout to prevent the size adjustments in 
-        #the property manager when the group items are hidden 
-        bottom_spacer = QtGui.QSpacerItem(20,1,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
-        self.vboxlayout.addItem(bottom_spacer)
+        self.ui_advancedOptions_groupBox(ExtrudePropertyManager)
+	addBottomSpacer(self.advancedOptions_groupBox, self.vboxlayout, last=True)
         
         self.retranslateUi(ExtrudePropertyManager)
         QtCore.QMetaObject.connectSlotsByName(ExtrudePropertyManager)
-        
-        # This should be called last since it only works if all the widgets
-	# for this Property Manager are added first. Mark 2007-05-29
-        from PropMgrBaseClass import fitPropMgrToContents
-	fitPropMgrToContents(ExtrudePropertyManager)
-        
+	
     def ui_doneCancelButtonRow(self, ExtrudePropertyManager):
         #Start Done, Abort, button row
         
@@ -147,7 +147,7 @@ class Ui_ExtrudePropertyManager(object):
 
         self.vboxlayout.addLayout(hboxlayout_buttonrow)
     
-    def ui_productSpecs_GroupBox(self, ExtrudePropertyManager):
+    def ui_productSpec_groupBox(self, ExtrudePropertyManager):
         # Start Product Specifications Groupbox
         self.productSpec_groupBox = QtGui.QGroupBox(ExtrudePropertyManager)
         self.productSpec_groupBox.setObjectName("productSpec_groupBox")
@@ -228,14 +228,9 @@ class Ui_ExtrudePropertyManager(object):
         
         # End Product Specifications Groupbox        
         self.vboxlayout.addWidget(self.productSpec_groupBox)
-        spacer_prodspecs_grpbx = QtGui.QSpacerItem(10,pmGroupBoxSpacing,
-						   QtGui.QSizePolicy.Expanding,
-						   QtGui.QSizePolicy.Fixed)
-	
-        self.vboxlayout.addItem(spacer_prodspecs_grpbx)
         
         
-    def ui_extrudeDirections_GroupBox(self, ExtrudePropertyManager):
+    def ui_extrudeDirection_groupBox(self, ExtrudePropertyManager):
         #Start extrudeDirection groupbox
         self.extrudeDirection_groupBox = QtGui.QGroupBox(ExtrudePropertyManager)
         self.extrudeDirection_groupBox.setObjectName("extrudeDirection_groupBox")
@@ -266,7 +261,7 @@ class Ui_ExtrudePropertyManager(object):
         self.extrudeDirection_groupBox.hide()
 
         
-    def ui_advancedOps_GroupBox(self, ExtrudePropertyManager):
+    def ui_advancedOptions_groupBox(self, ExtrudePropertyManager):
         #Start AdvancedOptions Groupbox
         self.advancedOptions_groupBox = QtGui.QGroupBox(ExtrudePropertyManager)
         self.advancedOptions_groupBox .setObjectName("advancedOptions_groupBox")
@@ -459,8 +454,6 @@ class Ui_ExtrudePropertyManager(object):
         
         #End Advanced Options
         self.vboxlayout.addWidget(self.advancedOptions_groupBox)
-        spacer_advancedops_grpbx = QtGui.QSpacerItem(10,10,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.vboxlayout.addItem(spacer_advancedops_grpbx)
         
 
     def retranslateUi(self, ExtrudePropertyManager):

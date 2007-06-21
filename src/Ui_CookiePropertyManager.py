@@ -24,6 +24,7 @@ from PyQt4 import QtCore, QtGui
 from PyQt4.Qt import *
 from Utility import geticon, getpixmap
 from PropMgr_Constants import *
+from PropertyManagerMixin import addBottomSpacer
 
 __author__ = "Ninad"
 
@@ -105,31 +106,28 @@ class Ui_CookiePropertyManager(object):
         # ninad 070221 Call methods that define different groupboxes and 
         #done cancel rows (groupbox  methods also define spacer items 
         #after the groupbox)
-        
         self.ui_doneCancelButtonRow(CookiePropertyManager)
+	
+	from PropertyManagerMixin import MessageGroupBox, addBottomSpacer
+	self.MessageGroupBox = MessageGroupBox(self, title="Message")
+	self.vboxlayout.addWidget(self.MessageGroupBox)
+	addBottomSpacer(self.MessageGroupBox, self.vboxlayout)
         
-        self.ui_cookieSpecsGroupBox(CookiePropertyManager)
+        self.ui_cookieSpec_groupBox(CookiePropertyManager)
+	addBottomSpacer(self.cookieSpec_groupBox, self.vboxlayout)
         
-        self.ui_layerPropsGroupBox(CookiePropertyManager)
-        
-        self.ui_displayOpsGroupBox(CookiePropertyManager)
-        
-        self.ui_advanceOpsGroupBox(CookiePropertyManager)
-                
-                
-        #ninad 070120 Following spacerItem is important to add in the main vboxlayout to prevent the size adjustments in 
-        #the property manager when the group items are hidden 
-        spacerItem4 = QtGui.QSpacerItem(20,1,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
-        self.vboxlayout.addItem(spacerItem4)
+        self.ui_layerProperties_groupBox(CookiePropertyManager)
+        addBottomSpacer(self.layerProperties_groupBox, self.vboxlayout)
+	
+        self.ui_displayOptions_groupBox(CookiePropertyManager)
+        addBottomSpacer(self.displayOptions_groupBox, self.vboxlayout)
+	
+        self.ui_advancedOptions_groupBox(CookiePropertyManager)
+	addBottomSpacer(self.advancedOptions_groupBox, self.vboxlayout, last=True)
         
         self.retranslateUi(CookiePropertyManager)
         QtCore.QMetaObject.connectSlotsByName(CookiePropertyManager)
-        
-        # This should be called last since it only works if all the widgets
-	# for this Property Manager are added first. Mark 2007-05-29
-        from PropMgrBaseClass import fitPropMgrToContents
-	fitPropMgrToContents(CookiePropertyManager)
-        
+    
     def ui_doneCancelButtonRow(self, CookiePropertyManager):
         #Start Done , Abort, button row
         
@@ -168,7 +166,7 @@ class Ui_CookiePropertyManager(object):
 
         self.vboxlayout.addLayout(hboxlayout_buttonrow)
     
-    def ui_cookieSpecsGroupBox(self, CookiePropertyManager):
+    def ui_cookieSpec_groupBox(self, CookiePropertyManager):
         
         # Start Cookie Specifications Groupbox
         self.cookieSpec_groupBox = QtGui.QGroupBox(CookiePropertyManager)
@@ -298,10 +296,8 @@ class Ui_CookiePropertyManager(object):
         
         # End Cookie Specifications Groupbox
         self.vboxlayout.addWidget(self.cookieSpec_groupBox)
-        spacer_cookiespecs_grpbx = QtGui.QSpacerItem(10,10,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.vboxlayout.addItem(spacer_cookiespecs_grpbx)
     
-    def ui_layerPropsGroupBox(self, CookiePropertyManager):
+    def ui_layerProperties_groupBox(self, CookiePropertyManager):
         
         #Start Layer Properties Groupbox
         self.layerProperties_groupBox = QtGui.QGroupBox(CookiePropertyManager)
@@ -382,10 +378,8 @@ class Ui_CookiePropertyManager(object):
         
         #End Layer Properties Groupbox
         self.vboxlayout.addWidget(self.layerProperties_groupBox)
-        spacer_layerprops_grpbx = QtGui.QSpacerItem(10,10,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.vboxlayout.addItem(spacer_layerprops_grpbx)
         
-    def ui_displayOpsGroupBox(self, CookiePropertyManager):
+    def ui_displayOptions_groupBox(self, CookiePropertyManager):
         #Start Display Options Groupbox
         
         self.displayOptions_groupBox = QtGui.QGroupBox(CookiePropertyManager)
@@ -435,10 +429,8 @@ class Ui_CookiePropertyManager(object):
         
         #End Display Options Groupbox
         self.vboxlayout.addWidget(self.displayOptions_groupBox)
-        spacer_displayops_grpbx = QtGui.QSpacerItem(10,10,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.vboxlayout.addItem(spacer_displayops_grpbx)
         
-    def ui_advanceOpsGroupBox(self, CookiePropertyManager):
+    def ui_advancedOptions_groupBox(self, CookiePropertyManager):
         #Start AdvancedOptions Groupbox
         self.advancedOptions_groupBox = QtGui.QGroupBox(CookiePropertyManager)
         self.advancedOptions_groupBox .setObjectName("advancedOptions_groupBox")
@@ -470,8 +462,6 @@ class Ui_CookiePropertyManager(object):
     
         #End Advanced Options
         self.vboxlayout.addWidget(self.advancedOptions_groupBox)
-        spacer_advancedops_grpbx = QtGui.QSpacerItem(10,10,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.vboxlayout.addItem(spacer_advancedops_grpbx)
         
 
     def retranslateUi(self, CookiePropertyManager):

@@ -26,7 +26,6 @@ from qt4transition import *
 from bonds import bond_atoms, bond_at_singlets
 from bond_constants import V_SINGLE
 from PropMgr_Constants import pmGroupBoxSpacing
-from PropertyManagerMixin import PropertyManagerMixin
 from MMKit import MMKit
 
 import env
@@ -466,7 +465,7 @@ class depositMode(selectAtomsMode, MMKit):
 	
         self.dont_update_gui = False
 	
-	self.update_MMKit_msg()
+	self.updateBuildAtomsMessage()
    
         return # the caller will now call update_gui(); we rely on that [bruce 050122]  
     
@@ -768,7 +767,7 @@ class depositMode(selectAtomsMode, MMKit):
 	
 	self.setAtom()
 	
-	self.update_MMKit_msg()
+	self.updateBuildAtomsMessage()
 		
     def activateBondsTool(self):
 	''' Activate the bond tool of the build chunks mode 
@@ -790,7 +789,7 @@ class depositMode(selectAtomsMode, MMKit):
 	self.pw.propertyManagerScrollArea.ensureWidgetVisible(
 	    self.heading_label)
 	
-	self.update_MMKit_msg()
+	self.updateBuildAtomsMessage()
 		   
     def update_bond_buttons(self): #bruce 050728 (should this be used more widely?); revised 050831
         "make the dashboard one-click-bond-changer state buttons match whatever is stored in self.bondclick_v6"
@@ -2343,7 +2342,7 @@ class depositMode(selectAtomsMode, MMKit):
             if self.bondclick_v6:
                 name = btype_from_v6(self.bondclick_v6)
                 env.history.statusbar_msg("click bonds to make them %s" % name) # name is 'single' etc
-		self.update_MMKit_msg() # Mark 2007-06-01
+		self.updateBuildAtomsMessage() # Mark 2007-06-01
             else:
                 # this never happens (as explained above)
                 #####@@@@@ see also setAtom, which runs when Atom Tool is clicked (ideally this might run as well, but it doesn't)

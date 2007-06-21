@@ -10,7 +10,7 @@ from PyQt4.Qt import *
 from Utility import geticon, imagename_to_pixmap, getpixmap
 from NE1ToolBar import NE1ToolBar
 from PropMgr_Constants import *
-
+from PropertyManagerMixin import addBottomSpacer
 
 #Note: Ui_MoviePlayerManager uses some Mainwindow widgets and actions 
 #(This is because Movie PM uses most methods originally created for movie 
@@ -101,20 +101,20 @@ class Ui_MoviePropertyManager(object):
         self.vboxlayout.addWidget(self.sponsor_frame)
         
         self.ui_doneCancelButtonRow(MoviePropertyManager)
-        self.ui_movieControlsGroupBox(MoviePropertyManager) 
-        self.ui_movieOptionsGroupBox(MoviePropertyManager)    
-        self.ui_movieFilesGroupBox(MoviePropertyManager) 
-            
-                
-        #ninad 0700202 its  important to add this spacerItem in the main vboxlayout to prevent the size adjustments in 
-        #the property manager when the group items are hidden 
-        spacerItem4 = QtGui.QSpacerItem(20,1,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
-        self.vboxlayout.addItem(spacerItem4)
         
-        # This should be called last since it only works if all the widgets
-        # for this Property Manager are added first. Mark 2007-05-29
-        from PropMgrBaseClass import fitPropMgrToContents
-        fitPropMgrToContents(MoviePropertyManager)
+        from PropertyManagerMixin import MessageGroupBox
+	self.message_groupBox = MessageGroupBox(self, title="Message")
+	self.vboxlayout.addWidget(self.message_groupBox)
+	addBottomSpacer(self.message_groupBox, self.vboxlayout)
+        
+        self.ui_movieControls_groupBox(MoviePropertyManager)
+	addBottomSpacer(self.movieControls_groupBox, self.vboxlayout)
+        
+        self.ui_movieOptions_groupBox(MoviePropertyManager)
+	addBottomSpacer(self.movieOptions_groupBox, self.vboxlayout)
+        
+        self.ui_movieFiles_groupBox(MoviePropertyManager)
+	addBottomSpacer(self.movieFiles_groupBox, self.vboxlayout, last=True)
     
     def ui_doneCancelButtonRow(self, MoviePropertyManager):
         #Start Done , Abort, button row
@@ -154,7 +154,7 @@ class Ui_MoviePropertyManager(object):
 
         self.vboxlayout.addLayout(hboxlayout_buttonrow)
         
-    def ui_movieControlsGroupBox(self, MoviePropertyManager):
+    def ui_movieControls_groupBox(self, MoviePropertyManager):
         #Start movieControls Groupbox
         self.movieControls_groupBox = QtGui.QGroupBox(MoviePropertyManager)
         self.movieControls_groupBox .setObjectName("movieControls_groupBox")
@@ -246,15 +246,7 @@ class Ui_MoviePropertyManager(object):
         
         self.vboxlayout.addWidget(self.movieControls_groupBox)
         
-        spacer_movieControls_grpbx = QtGui.QSpacerItem(
-            10,
-            10,
-            QtGui.QSizePolicy.Expanding,
-            QtGui.QSizePolicy.Minimum)
-        
-        self.vboxlayout.addItem(spacer_movieControls_grpbx) 
-        
-    def ui_movieFilesGroupBox(self, MoviePropertyManager):
+    def ui_movieFiles_groupBox(self, MoviePropertyManager):
         
         #Start movieFiles Groupbox
         self.movieFiles_groupBox = QtGui.QGroupBox(MoviePropertyManager)
@@ -303,18 +295,11 @@ class Ui_MoviePropertyManager(object):
                         
         #End movieFiles Options
         self.vboxlayout.addWidget(self.movieFiles_groupBox)
-        spacer_movieFiles_grpbx = QtGui.QSpacerItem(
-            10,
-            10,
-            QtGui.QSizePolicy.Expanding,
-            QtGui.QSizePolicy.Minimum)
-        
-        self.vboxlayout.addItem(spacer_movieFiles_grpbx)  
         
         pass
     
     
-    def ui_movieOptionsGroupBox(self, MoviePropertyManager):
+    def ui_movieOptions_groupBox(self, MoviePropertyManager):
         #Start movieOptions Groupbox
         self.movieOptions_groupBox = QtGui.QGroupBox(MoviePropertyManager)
         self.movieOptions_groupBox .setObjectName("movieOptions_groupBox")
@@ -432,14 +417,7 @@ class Ui_MoviePropertyManager(object):
 
                         
         #End movieOptions Options
-        self.vboxlayout.addWidget(self.movieOptions_groupBox)
-        spacer_movieOptions_grpbx = QtGui.QSpacerItem(
-            10,
-            10,
-            QtGui.QSizePolicy.Expanding,
-            QtGui.QSizePolicy.Minimum)
-        
-        self.vboxlayout.addItem(spacer_movieOptions_grpbx)       
+        self.vboxlayout.addWidget(self.movieOptions_groupBox)     
     
         
     def retranslateUi(self, MoviePropertyManager):

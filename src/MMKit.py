@@ -77,8 +77,6 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
      
         self.connect(self.thumbView_groupBoxButton, SIGNAL("clicked()"),
 		     self.toggle_thumbView_groupBox)
-	self.connect(self.message_groupBoxButton , SIGNAL("clicked()"),
-		     self.toggle_message_groupBox)
         self.connect(self.bondTool_groupBoxButton , SIGNAL("clicked()"),
 		     self.toggle_bondTool_groupBox)
         self.connect(self.MMKitGrpBox_TitleButton, SIGNAL("clicked()"),
@@ -251,9 +249,9 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
             self.change2AtomsPage()
         self.tabCurrentChanged()
 	
-	self.update_MMKit_msg() # Mark 2007-06-01
+	self.updateBuildAtomsMessage() # Mark 2007-06-01
 	
-    def update_MMKit_msg(self):
+    def updateBuildAtomsMessage(self):
 	"""Updates the message box with an informative message based on the current page
 	and current selected atom type.
 	"""
@@ -288,12 +286,7 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
 		msg = "Click bonds or bondpoints to make them %s bonds." % name # name is 'single' etc
 	    
 	# Post message.
-	num_lines = 4
-	margin = 10 # See comments in PropMgrTextEdit._setHeight()
-	new_height = num_lines * self.MsgTextEdit.fontMetrics().lineSpacing() + margin
-	self.MsgTextEdit.setMaximumHeight(new_height)
-	self.MsgTextEdit.clear()
-	self.MsgTextEdit.insertHtml(msg)
+	self.MessageGroupBox.insertHtmlMessage(msg)
     
     #== Atom Selection Filter helper methods
         
@@ -344,9 +337,6 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
             filtered_syms += e.symbol
         #self.w.depositAtomDashboard.filterlistLE.setText(filtered_syms)
 	self.filterlistLE.setText(filtered_syms)
-    
-    def toggle_message_groupBox(self):
-        self.toggle_groupbox(self.message_groupBoxButton, self.MsgTextEdit)
 	
     def toggle_bondTool_groupBox(self):
         self.toggle_groupbox(self.bondTool_groupBoxButton, self.bondToolWidget)
@@ -639,7 +629,7 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
             print 'Error: MMKit page unknown: ', page
             
         self.elemGLPane.setFocus()
-	self.update_MMKit_msg()
+	self.updateBuildAtomsMessage()
         
     def chunkChanged(self, item, previous):
         '''Slot method. Called when user changed the selected chunk. '''
@@ -1049,10 +1039,6 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
         """What's This text for some of the widgets in the Build > Atoms Property Manager.
         Many are still missing.
         """
-	
-	self.message_groupBox.setWhatsThis("""<b>Messages</b>
-        <p>This prompts the user for a requisite operation and/or displays 
-	helpful messages to the user.</p>""")
 	
         self.elementFrame.setWhatsThis("""<b>Preview Window</b>
         <p>This displays the active object. It can be inserted by double 

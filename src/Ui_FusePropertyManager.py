@@ -100,22 +100,22 @@ class Ui_FusePropertyManager(Ui_MovePropertyManager):
         self.vboxlayout.addWidget(self.sponsor_frame)
         
         self.ui_doneCancelButtonRow(FusePropertyManager)
-        self.ui_fuseOptionsGroupBox(FusePropertyManager)
-        self.ui_moveGroupBox(FusePropertyManager)
-        self.ui_rotateGroupBox(FusePropertyManager)
-                        
-        #ninad 0700202 its  important to add this spacerItem in the main vboxlayout to prevent the size adjustments in 
-        #the property manager when the group items are hidden 
-        spacerItem4 = QtGui.QSpacerItem(20,1,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
-        self.vboxlayout.addItem(spacerItem4)
-        
-        # This should be called last since it only works if all the widgets
-	# for this Property Manager are added first. Mark 2007-05-29
-        from PropMgrBaseClass import fitPropMgrToContents
-	fitPropMgrToContents(FusePropertyManager)
-        
+	
+	from PropertyManagerMixin import MessageGroupBox, addBottomSpacer
+	self.MessageGroupBox = MessageGroupBox(self, title="Message")
+	self.vboxlayout.addWidget(self.MessageGroupBox)
+	addBottomSpacer(self.MessageGroupBox, self.vboxlayout)
+	
+        self.ui_fuseOptions_groupBox(FusePropertyManager)
+	addBottomSpacer(self.fuseOptions_groupBox, self.vboxlayout)
+	
+        self.ui_move_groupBox(FusePropertyManager)
+	addBottomSpacer(self.move_groupBox, self.vboxlayout)
+	
+        self.ui_rotate_groupBox(FusePropertyManager)
+	addBottomSpacer(self.rotate_groupBox, self.vboxlayout, last=True)
             
-    def ui_fuseOptionsGroupBox(self, FusePropertyManager):
+    def ui_fuseOptions_groupBox(self, FusePropertyManager):
         #Start Rotate Options        
         self.fuseOptions_groupBox = QtGui.QGroupBox(FusePropertyManager)
         self.fuseOptions_groupBox.setObjectName("fuseOptions_groupBox")    

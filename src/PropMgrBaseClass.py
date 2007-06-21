@@ -26,22 +26,22 @@ bruce 2007-06-15: partly cleaned up inheritance.
 
 __author__ = "Mark"
 
-# Mark's To Do List (by order of priority):
+# Mark's To Do List (by order of priority): updated 2007-06-21
+# - Add new "parentPropMgr" attr for all widget classes. (important)
+# - Support horizontal resizing using splitter (A9.1 backlog item)
 # - Finish support for Restore Defaults:
 #    - PropMgrComboBox.setItems() and PropMgrComboBox.setCurrentIndex()
 #    - PropMgrComboBox.setText()
-# - Add groupbox spacerItems to PropMgrGroupBox and remove from generators.
-# - Support horizontal resizing using splitter (elsewhere, 
-#   like MWsemantics.py)
 # - Add color theme user pref in Preferences dialog. (minor)
 # - Set title button color via style sheet (see getTitleButtonStyleSheet)
 # - "range" attr (str) that can be included in What's This text. (minor)
 # - override setObjectName() in PropMgrWidgetMixin class to create 
 #   standard names.
-# - Add PropMgrColorChooser
-# - Add PropMgrLabel
-# - Add PropMgrGroupAction (needed by PlanePropertyManager)
-# - Fix TopRowButtons - QHBoxLayout unnecessary.
+# - Add important PropMgr widget classes:
+#   - PropMgrMMKit (needed by BuildAtomsPropertyManager, a future PropMgr)
+#   - PropMgrColorChooser
+#   - PropMgrLabel
+#   - PropMgrGroupAction (needed by PlanePropertyManager)
 
 from PyQt4.Qt import *
 ## from Sponsors import SponsorableMixin
@@ -76,25 +76,6 @@ def printSizeHints(widget):
     print "SizeHint Width, Height =", sizeHint.width(), sizeHint.height()
 
 # PropMgr helper functions ##########################################
-
-def fitPropMgrToContents(widget):
-    """Sets the width and height of the PropMgr <widget> based on
-    its current contents. It should be called after all the widgets
-    have been added to <widget>.
-    
-    Note: See PropMgrBaseClass.fitContents(). Mark 2007-05-29.
-    """
-    margin = 4 # This may be OS dependent. Mark 2007-05-29
-    # pmDefaultWidth is the width of our container. Subtract 4 pixels
-    # from left and right side so that this propmgr widget fits exactly
-    # inside. Otherwise, we'll get a horizontal scrollbar at the bottom
-    # of the Property Manager. Mark 2007-05-29
-    pmWidth = pmDefaultWidth - (margin * 2) 
-    pmHeight = widget.sizeHint().height()
-    if platform.atom_debug:
-        print "Resizing PropMgr " + widget.objectName() + \
-          " to fit contents. Width, height = ", pmWidth, pmHeight
-    widget.resize(pmWidth, pmHeight)
 
 def getPalette(palette, obj, color):
     """ Given a palette, Qt object and a color, return a new palette.
@@ -182,6 +163,29 @@ class PropertyManager_common: #bruce 070615 split this out of class PropertyMana
         return self.getPalette(None,
                                QPalette.WindowText,
                                pmTitleLabelColor)
+    
+    def getPropMgrGroupBoxPalette(self): # note: used only by MessageGroupBox as of 070621
+        """ Return a palette for Property Manager groupbox. 
+        """
+        return self.getPalette(None,
+                               QPalette.ColorRole(10),
+                               pmGrpBoxColor)
+    
+    def getTitleButtonPalette(self): # note: used only by MessageGroupBox as of 070621
+        """ Return a palette for a GroupBox title button. 
+        """
+        return self.getPalette(None, 
+			       QPalette.Button, 
+			       pmGrpBoxButtonColor)
+    
+    
+    def getMessageTextEditPalette(self): # note: used only by MessageGroupBox as of 070621
+        """ Return a palette for a MessageGroupBox TextEdit (yellow). 
+        """
+        return self.getPalette(None, 
+			       QPalette.Base,
+                               pmMessageTextEditColor)
+
         
     def getPalette(self, palette, obj, color): #k maybe only used by methods in this class (not sure) [bruce 070615]
         """ Given a palette, Qt object [actually a ColorRole] and a color, return a new palette.
@@ -1003,15 +1007,7 @@ class PropMgrGroupBox(QGroupBox, PropMgrWidgetMixin):
                     geticon("ui/actions/Properties Manager/GHOST_ICON"))
                 for widget in self.widgets:
                     widget.expand()
-                self.expanded = True
-            
-            # This doesn't work because the bottom spacer in the layout expands
-            # when a groupbox is collapsed. When I have time, I'll modify fitContents()
-            # to address this by deleting the bottom spacer, computing height and adding
-            # it again. I'm optimistic that this will work.
-            # Mark 2007-05-23
-            #self.parent.fitContents()
-                
+                self.expanded = True         
         else:
             print "Groupbox has no widgets. Clicking on groupbox button has no effect"
     
@@ -1120,7 +1116,7 @@ class PropMgrMessageGroupBox(PropMgrGroupBox):
         
 # End of PropMgrMessageGroupBox ############################
 
-class PropMgrTextEdit(QTextEdit, PropMgrWidgetMixin):
+class PropMgrTextEdit(QTextEdit, PropMgrWidgetMixin, PropertyManager_common):
     """PropMgr TextEdit class, for groupboxes (PropMgrGroupBox) only.
     """
     # Set to True to always hide this widget, even when groupbox is expanded.
@@ -1168,6 +1164,8 @@ class PropMgrTextEdit(QTextEdit, PropMgrWidgetMixin):
         if isinstance(parent, PropMgrMessageGroupBox):
             # Add to parent's VBoxLayout if <parent> is a MessageGroupBox.
             parent.VBoxLayout.addWidget(self)
+	    # We should be calling the propmgr's getMessageTextEditPalette() method,
+	    # but that will take some extra work which I will do soon. Mark 2007-06-21
             self.setPalette(self.getMessageTextEditPalette())
             self.setReadOnly(True)
             self.setObjectName("MessageTextEdit")
@@ -1248,13 +1246,6 @@ class PropMgrTextEdit(QTextEdit, PropMgrWidgetMixin):
         # Reset height of PropMgrTextEdit.
         self.setMinimumSize(QSize(pmMinWidth * 0.5, new_height))
         self.setMaximumHeight(new_height)
-        
-    def getMessageTextEditPalette(self):
-        """ Returns a (yellow) palette a message TextEdit.
-        """
-        return getPalette(None,
-                          QPalette.Base,
-                          pmMessageTextEditColor)
 
 # End of PropMgrTextEdit ############################
 

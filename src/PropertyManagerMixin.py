@@ -25,60 +25,287 @@ from Utility import geticon, getpixmap
 from PropMgr_Constants import *
 from debug import print_compact_traceback
 import platform
-from PropMgrBaseClass import PropertyManager_common, getPalette
+from PropMgrBaseClass import PropertyManager_common
 
-def ui_MsgGroupBox(win, dialog):
-    """Creates a Message GroupBox for the following Property Managers
+class MessageGroupBox(QGroupBox, PropertyManager_common):
+    """Creates a Message group box. 
+    This class is used by the following Property Managers
     (which are still not using the PropMgrBaseClass):
-    - Build Atoms (MMKitDialog.py)
-    
-    These are still left to do by Mark:
+    - Build Atoms
     - Build Crystal
     - Extrude
     - Move
+    - Movie Player
     - Fuse Chunks
+    
+    Note: This class is temporary. It will be removed after the
+    PropMgrs in this list are converted to the PropMgrBaseClass.
+    Mark 2007-06-21
     """
-    win.message_groupBox = QtGui.QGroupBox(dialog)        
+    
+    expanded = True # Set to False when groupbox is collapsed.
+    
+    def __init__(self, parent, title=''):
         
-    win.message_groupBox.setAutoFillBackground(True) 
-    palette = dialog.getGroupBoxPalette()
-    win.message_groupBox.setPalette(palette)
+        QGroupBox.__init__(self)
         
-    styleSheet = dialog.getGroupBoxStyleSheet()        
-    win.message_groupBox.setStyleSheet(styleSheet)
+        self.setAutoFillBackground(True) 
+        self.setPalette(self.getPropMgrGroupBoxPalette())
+        self.setStyleSheet(self.getStyleSheet())
         
-    win.vboxlayout_msgbox = QtGui.QVBoxLayout(win.message_groupBox)
-    win.vboxlayout_msgbox.setMargin(pmGrpBoxVboxLayoutMargin)
-    win.vboxlayout_msgbox.setSpacing(pmGrpBoxVboxLayoutSpacing)
-
-    win.message_groupBoxButton = \
-        dialog.getGroupBoxTitleButton("Message", win.message_groupBox)
+        # Create vertical box layout
+        self.VBoxLayout = QVBoxLayout(self)
+        self.VBoxLayout.setMargin(pmMsgGrpBoxMargin)
+        self.VBoxLayout.setSpacing(pmMsgGrpBoxSpacing)
         
-    win.vboxlayout_msgbox.addWidget(win.message_groupBoxButton)
+        # Add title button to GroupBox
+        self.titleButton = self.getTitleButton(title, self)
+        self.VBoxLayout.addWidget(self.titleButton)
+        self.connect(self.titleButton,SIGNAL("clicked()"),
+                     self.toggleExpandCollapse)
+        
+        # Yellow MessageTextEdit
+        self.MessageTextEdit = QtGui.QTextEdit(self)
+        self.MessageTextEdit.setMaximumHeight(80) # 80 pixels height
+        self.MessageTextEdit.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.VBoxLayout.addWidget(self.MessageTextEdit)
 
-    # Yellow TextEdit here
+        msg_palette = self.getMessageTextEditPalette()
 
-    win.MsgTextEdit = QtGui.QTextEdit(win.message_groupBox)
-    win.MsgTextEdit.setMaximumHeight(80) # 80 pixels height
-    win.MsgTextEdit.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-
-    msg_palette = getPalette(None,
-                            QPalette.Base,
-                            pmMessageTextEditColor)
-
-    win.MsgTextEdit.setPalette(msg_palette)
-    win.MsgTextEdit.setReadOnly(True)
-
-    win.vboxlayout_msgbox.addWidget(win.MsgTextEdit)
-
-    # End Message GroupBox
-    win.vboxlayout.addWidget(win.message_groupBox)
-
-    # Height is fixed. Mark 2007-05-29.
-    win.message_groupBox.setSizePolicy(
+        self.MessageTextEdit.setPalette(msg_palette)
+        self.MessageTextEdit.setReadOnly(True)
+        
+        # wrapWrapMode seems to be set to QTextOption.WrapAnywhere on MacOS,
+        # so let's force it here. Mark 2007-05-22.
+        self.MessageTextEdit.setWordWrapMode(QTextOption.WordWrap)
+        
+        # These two policies very important. Mark 2007-05-22
+        self.setSizePolicy(
             QSizePolicy(QSizePolicy.Policy(QSizePolicy.Preferred),
                         QSizePolicy.Policy(QSizePolicy.Fixed)))
+        
+        self.MessageTextEdit.setSizePolicy(
+            QSizePolicy(QSizePolicy.Policy(QSizePolicy.Preferred),
+                        QSizePolicy.Policy(QSizePolicy.Fixed)))
+        
+        self.setWhatsThis("""<b>Messages</b>
+            <p>This prompts the user for a requisite operation and/or displays 
+            helpful messages to the user.</p>""")
+        
+        parent.MessageTextEdit = self.MessageTextEdit
+	
+	self.hide()
+        
+    def getTitleButton(self, title, parent=None, showExpanded=True): #Ninad 070206
+        """ Return the groupbox title pushbutton. The pushbutton is customized 
+        such that  it appears as a title bar to the user. If the user clicks on 
+        this 'titlebar' it sends appropriate signals to open or close the
+        groupboxes   'name = string -- title of the groupbox 
+        'showExpanded' = boolean .. NE1 uses a different background 
+        image in the button's  Style Sheet depending on the bool. 
+        (i.e. if showExpanded = True it uses a opened group image  '^')
+        See also: getGroupBoxTitleCheckBox , getGroupBoxButtonStyleSheet  methods
+        """
+        
+        button  = QPushButton(title, parent)
+        button.setFlat(False)
+        button.setAutoFillBackground(True)
 
+	button.setStyleSheet(self.getTitleButtonStyleSheet(showExpanded))
+	button.setPalette(self.getTitleButtonPalette())
+	
+        #ninad 070221 set a non existant 'Ghost Icon' for this button
+        #By setting such an icon, the button text left aligns! 
+        #(which what we want :-) )
+        #So this might be a bug in Qt4.2.  If we don't use the following kludge, 
+        #there is no way to left align the push button text but to subclass it. 
+        #(could mean a lot of work for such a minor thing)  So OK for now 
+        
+        button.setIcon(geticon("ui/actions/Properties Manager/GHOST_ICON"))
+        
+        return button
+    
+    def getTitleButtonStyleSheet(self, showExpanded=True):
+        """Returns the style sheet for a groupbox title button (or checkbox).
+        If <showExpanded> is True, the style sheet includes an expanded icon.
+        If <showExpanded> is False, the style sheet includes a collapsed icon.
+        """
+        
+        # Need to move border color and text color to top (make global constants).
+        if showExpanded:        
+            styleSheet = "QPushButton {border-style:outset;\
+            border-width: 2px;\
+            border-color: " + pmGrpBoxButtonBorderColor + ";\
+            border-radius:2px;\
+            font:bold 12px 'Arial'; \
+            color: " + pmGrpBoxButtonTextColor + ";\
+            min-width:10em;\
+            background-image: url(" + pmGrpBoxExpandedImage + ");\
+            background-position: right;\
+            background-repeat: no-repeat;\
+            }"       
+        else:
+            
+            styleSheet = "QPushButton {border-style:outset;\
+            border-width: 2px;\
+            border-color: " + pmGrpBoxButtonBorderColor + ";\
+            border-radius:2px;\
+            font: bold 12px 'Arial'; \
+            color: " + pmGrpBoxButtonTextColor + ";\
+            min-width:10em;\
+            background-image: url(" + pmGrpBoxCollapsedImage + ");\
+            background-position: right;\
+            background-repeat: no-repeat;\
+            }"
+            
+        return styleSheet
+    
+    def toggleExpandCollapse(self):
+        """Slot method for the title button to expand/collapse the groupbox.
+        """
+        if self.expanded: # Collapse groupbox by hiding ahe yellow TextEdit.
+            # The styleSheet contains the expand/collapse icon.
+            styleSheet = self.getTitleButtonStyleSheet(showExpanded = False)
+            self.titleButton.setStyleSheet(styleSheet)
+            # Why do we have to keep resetting the palette?
+            # Does assigning a new styleSheet reset the button's palette?
+            # If yes, we should add the button's color to the styleSheet.
+            # Mark 2007-05-20
+            self.titleButton.setPalette(self.getTitleButtonPalette())
+            self.titleButton.setIcon(
+                    geticon("ui/actions/Properties Manager/GHOST_ICON"))
+            self.MessageTextEdit.hide()
+            self.expanded = False 
+        else: # Expand groupbox by showing the yellow TextEdit.
+            # The styleSheet contains the expand/collapse icon.
+            styleSheet = self.getTitleButtonStyleSheet(showExpanded = True)
+            self.titleButton.setStyleSheet(styleSheet)
+            # Why do we have to keep resetting the palette?
+            # Does assigning a new styleSheet reset the button's palette?
+            # If yes, we should add the button's color to the styleSheet.
+            # Mark 2007-05-20
+            self.titleButton.setPalette(self.getTitleButtonPalette())
+            self.titleButton.setIcon(
+                    geticon("ui/actions/Properties Manager/GHOST_ICON"))
+            self.MessageTextEdit.show()
+            self.expanded = True
+    
+    def getStyleSheet(self):
+        """Return the style sheet for a groupbox. This sets the following 
+        properties only:
+         - border style
+         - border width
+         - border color
+         - border radius (on corners)
+        The background color for a groupbox is set using getPalette()."""
+        
+        styleSheet = "QGroupBox {border-style:solid;\
+        border-width: 1px;\
+        border-color: " + pmGrpBoxBorderColor + ";\
+        border-radius: 0px;\
+        min-width: 10em; }" 
+        
+        ## For Groupboxs' Pushbutton : 
+        ##Other options not used : font:bold 10px;  
+        
+        return styleSheet
+    
+    def insertHtmlMessage(self, text, 
+                          minLines=4, maxLines=10, 
+                          replace=True):
+        """Insert <text> (HTML) into the message groupbox.
+        <minLines> - The minimum number of lines (of text) to display in the TextEdit.
+        if <minLines>=0 the TextEdit will fit its own height to fit <text>. The
+        default height is 4 (lines of text).
+        <maxLines> - The maximum number of lines to display in the TextEdit widget.
+        <replace> should be set to False if you do not wish
+        to replace the current text. It will append <text> instead.
+
+        Shows the message groupbox if it is hidden.
+        """
+        if replace:
+            self.MessageTextEdit.clear()
+	    
+	if text:
+	    self._setHeight(minLines, maxLines)
+	    QTextEdit.insertHtml(self.MessageTextEdit, text)
+	    self.show()
+	else:
+	    # Hide the message groupbox if it contains no text.
+	    self.hide()
+	
+    def _setHeight(self, minLines=4, maxLines=8):
+        """Set the height just high enough to display
+        the current text without a vertical scrollbar.
+        <minLines> is the minimum number of lines to
+        display, even if the text takes up fewer lines.
+        <maxLines> is the maximum number of lines to
+        diplay before adding a vertical scrollbar.
+        """
+        
+        if minLines == 0:
+            fitToHeight=True
+        else:
+            fitToHeight=False
+        
+        # Current width of PropMgrTextEdit widget.
+        current_width = self.MessageTextEdit.sizeHint().width()
+        
+        # Probably including Html tags.
+        text = self.MessageTextEdit.toPlainText()
+        text_width = self.MessageTextEdit.fontMetrics().width(text)
+        
+        num_lines = text_width/current_width + 1
+            # + 1 may create an extra (empty) line on rare occasions.
+                        
+        if fitToHeight:
+            num_lines = min(num_lines, maxLines)
+                
+        else:
+            num_lines = max(num_lines, minLines)
+
+        #margin = self.fontMetrics().leading() * 2 # leading() returned 0. Mark 2007-05-28
+        margin = 10 # Based on trial and error. Maybe it is pm?Spacing=5 (*2)? Mark 2007-05-28
+        new_height = num_lines * self.MessageTextEdit.fontMetrics().lineSpacing() + margin
+        
+        if 0: # Debugging code for me. Mark 2007-05-24
+            print "--------------------------------"
+            print "Widget name =", self.objectName()
+            print "minLines =", minLines
+            print "maxLines =", maxLines
+            print "num_lines=", num_lines
+            print "New height=", new_height
+            print "text =", text   
+            print "Text width=", text_width
+            print "current_width (of PropMgrTextEdit)=", current_width
+        
+        # Reset height of PropMgrTextEdit.
+        self.MessageTextEdit.setMinimumSize(QSize(pmMinWidth * 0.5, new_height))
+        self.MessageTextEdit.setMaximumHeight(new_height)
+    
+    # End of messageGroupBox class. ###################
+    
+def addBottomSpacer(parent, vlayout, last=False):
+    """Adds a vertical spacer to the bottom of <parent>, a group box.
+    <vlayout> is the VBoxLayout of the Property Manager.
+    <last> - Set to True if <parent> is the last (bottom) groupbox in 
+    the Property Manager.
+    
+    Note: There is a copy of this in every
+    """
+    if last:
+	parent.bottom_spacer = \
+	    QtGui.QSpacerItem(10, 0, \
+			    QtGui.QSizePolicy.Fixed, \
+			    QtGui.QSizePolicy.Expanding)
+    else:
+	parent.bottom_spacer = \
+	    QtGui.QSpacerItem(10, pmGroupBoxSpacing, \
+			    QtGui.QSizePolicy.Fixed, \
+			    QtGui.QSizePolicy.Fixed)
+	
+    vlayout.addItem(parent.bottom_spacer)
+    
 # ==
 
 # Class PropertyManagerMixin is currently [when?] used by:

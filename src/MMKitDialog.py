@@ -32,6 +32,7 @@ import env
 from prefs_constants import *
 from PropMgr_Constants import *
 from PropMgrBaseClass import getPalette
+from PropertyManagerMixin import addBottomSpacer
         
 class Ui_MMKitDialog(object):
     def setupUi(self, MMKitDialog):
@@ -159,48 +160,33 @@ class Ui_MMKitDialog(object):
         #after the groupbox)
         self.ui_doneCancelButtonRow(MMKitDialog)
 	
-	from PropertyManagerMixin import ui_MsgGroupBox
-	ui_MsgGroupBox(self, MMKitDialog)
-	self.addBottomSpacer(self.message_groupBox)
+	from PropertyManagerMixin import MessageGroupBox
+	self.MessageGroupBox = MessageGroupBox(self, title="Message")
+	self.vboxlayout.addWidget(self.MessageGroupBox)
+	addBottomSpacer(self.MessageGroupBox, self.vboxlayout)
 	
         self.ui_bondTools_grpBox(MMKitDialog)
-	self.addBottomSpacer(self.bondTools_grpBox)
+	addBottomSpacer(self.bondTools_grpBox, self.vboxlayout)
         
         self.ui_preview_GroupBox(MMKitDialog)
-	self.addBottomSpacer(self.thumbView_groupBox)
+	addBottomSpacer(self.thumbView_groupBox, self.vboxlayout)
         
         self.ui_MMKit_GroupBox(MMKitDialog)
-	self.addBottomSpacer(self.MMKit_groupBox)
+	addBottomSpacer(self.MMKit_groupBox, self.vboxlayout)
         
         self.ui_selectionFilter_GroupBox(MMKitDialog)
-	self.addBottomSpacer(self.selectionFilter_groupBox)
+	addBottomSpacer(self.selectionFilter_groupBox, self.vboxlayout)
         
-        self.ui_advancedOps_GroupBox(MMKitDialog)
+        self.ui_advancedOptions_groupBox(MMKitDialog)
+	addBottomSpacer(self.advancedOptions_groupBox, self.vboxlayout, last=True)
                                 
         ######################################################.
-        
-        #ninad 070120 Following spacerItem is important to add in the main vboxlayout to prevent the size adjustments in 
-        #the property manager when the group items are hidden 
-        bottom_spacer = QtGui.QSpacerItem(20,1,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
-        self.vboxlayout.addItem(bottom_spacer)
 
         self.retranslateUi(MMKitDialog)
         
         QtCore.QMetaObject.connectSlotsByName(MMKitDialog)
-
-	# This should be called last since it only works if all the widgets
-	# for this Property Manager are added first. Mark 2007-05-29
-        from PropMgrBaseClass import fitPropMgrToContents
-	fitPropMgrToContents(MMKitDialog)
 	
 	# End of MMKitDialog ####################################
-    
-    def addBottomSpacer(self, parent):
-	parent.bottom_spacer = QtGui.QSpacerItem(10, pmGroupBoxSpacing, 
-						   QtGui.QSizePolicy.Fixed,
-						   QtGui.QSizePolicy.Fixed)
-	
-	self.vboxlayout.addItem(parent.bottom_spacer)
     
     def ui_doneCancelButtonRow(self, MMKitDialog):
         #Start Done , Abort, button row
@@ -236,49 +222,6 @@ class Ui_MMKitDialog(object):
         self.vboxlayout.addLayout(hboxlayout_buttonrow)
         
         #End Done , Abort button row
-    
-    def ui_message_GroupBox_OBS(self, MMKitDialog):
-        #Start Advanced Options GroupBox
-        self.message_groupBox = QtGui.QGroupBox(MMKitDialog)        
-        
-        self.message_groupBox.setAutoFillBackground(True) 
-        palette = MMKitDialog.getGroupBoxPalette()
-        self.message_groupBox.setPalette(palette)
-        
-        styleSheet = MMKitDialog.getGroupBoxStyleSheet()        
-        self.message_groupBox.setStyleSheet(styleSheet)
-        
-        self.vboxlayout_msgbox = QtGui.QVBoxLayout(self.message_groupBox)
-        self.vboxlayout_msgbox.setMargin(pmGrpBoxVboxLayoutMargin)
-        self.vboxlayout_msgbox.setSpacing(pmGrpBoxVboxLayoutSpacing)
-
-        self.message_groupBoxButton = \
-	    MMKitDialog.getGroupBoxTitleButton("Message", self.message_groupBox)
-        
-        self.vboxlayout_msgbox.addWidget(self.message_groupBoxButton)
-
-        # Yellow TextEdit here
-	
-	self.MsgTextEdit = QtGui.QTextEdit(self.message_groupBox)
-        self.MsgTextEdit.setMaximumHeight(80) # 80 pixels height
-        self.MsgTextEdit.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-	
-	msg_palette = getPalette(None,
-                          QPalette.Base,
-                          pmMessageTextEditColor)
-	
-	self.MsgTextEdit.setPalette(msg_palette)
-	self.MsgTextEdit.setReadOnly(True)
-	
-	self.vboxlayout_msgbox.addWidget(self.MsgTextEdit)
-	        
-        # End Message GroupBox
-        self.vboxlayout.addWidget(self.message_groupBox)
-	
-	# Height is fixed. Mark 2007-05-29.
-	self.message_groupBox.setSizePolicy(
-                QSizePolicy(QSizePolicy.Policy(QSizePolicy.Preferred),
-                            QSizePolicy.Policy(QSizePolicy.Fixed)))
     
     def ui_bondTools_grpBox(self, MMKitDialog):
         #Start Atom Bond tools Groupbox
@@ -857,7 +800,7 @@ class Ui_MMKitDialog(object):
                 QSizePolicy(QSizePolicy.Policy(QSizePolicy.Preferred),
                             QSizePolicy.Policy(QSizePolicy.Fixed)))
         
-    def ui_advancedOps_GroupBox(self, MMKitDialog):
+    def ui_advancedOptions_groupBox(self, MMKitDialog):
         #Start Advanced Options GroupBox
         self.advancedOptions_groupBox = QtGui.QGroupBox(MMKitDialog)        
         self.advancedOptions_groupBox.setObjectName("advancedOptions_groupBox")
