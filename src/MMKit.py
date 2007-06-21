@@ -81,7 +81,7 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
 		     self.toggle_message_groupBox)
         self.connect(self.bondTool_groupBoxButton , SIGNAL("clicked()"),
 		     self.toggle_bondTool_groupBox)
-        self.connect(self.MMKit_groupBoxButton, SIGNAL("clicked()"),
+        self.connect(self.MMKitGrpBox_TitleButton, SIGNAL("clicked()"),
 		     self.toggle_MMKit_groupBox)
         self.connect(self.filterCB, SIGNAL("stateChanged(int)"),
 		     self.toggle_selectionFilter_groupBox)
@@ -355,7 +355,7 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
         self.toggle_groupbox(self.thumbView_groupBoxButton, self.elementFrame)
         
     def toggle_MMKit_groupBox(self):
-        self.toggle_groupbox(self.MMKit_groupBoxButton, self.mmkit_tab, self.transmuteBtn, self.transmuteCB)
+        self.toggle_groupbox(self.MMKitGrpBox_TitleButton, self.mmkit_tab, self.transmuteBtn, self.transmuteCB)
         
     def toggle_selectionFilter_groupBox(self, state):
         """ Toggles the groupbox item display depending on checked state of the selection filter checkbox """
@@ -480,9 +480,7 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
         elif elem.name == 'Sulfur':
             self.setup_S_hybrid_buttons()
         else:
-            self.hybrid_btngrp.hide()
-	    self.atomic_hybrids_label.hide() # Mark 2007-05-30
-            #self.hboxlayout.insertItem(0, self.spacerItem_hybrid_btngrp)
+	    self.hide_hybrid_btngrp()
             self.elemGLPane.changeHybridType(None)
             return
         
@@ -493,18 +491,52 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
         self.elemGLPane.refreshDisplay(self.elm, self.displayMode)
         self.theHybridizations.button(buttonIndex).setChecked(True)
         self.set_hybrid_type(buttonIndex)
-        self.hybrid_btngrp.show()
 	# Added Atomic Hybrids label. Mark 2007-05-30
 	self.atomic_hybrids_label.setText("Atomic Hybrids for " + elem.name + " :")
-	self.atomic_hybrids_label.show()
+	self.show_hybrid_btngrp()
+	
+    def show_hybrid_btngrp(self): # Mark 2007-06-20
+	'''Show the hybrid button group and label above it.
+	This is a companion method to hide_hybrid_btngrp().
+	It includes workarounds for Qt layout issues that crop up
+	when hiding/showing the hybrid button groupbox using Qt's
+	hide() and show() methods. See bug 2407 for more information.
+	'''
+	if 1:
+	    self.hybrid_btngrp.show()
+	else:
+	    self.hybrid_btngrp.show()
+	    self.atomic_hybrids_label.show()
 
+    def hide_hybrid_btngrp(self): # Mark 2007-06-20
+	'''Hide the hybrid button group and label above it.
+	This is a companion method to show_hybrid_btngrp().
+	It includes workarounds for Qt layout issues that crop up
+	when hiding/showing the hybrid button groupbox using Qt's
+	hide() and show() methods. See bug 2407 for more information.
+	'''
+	if 1:
+	    # This way of hiding confuses the layout manager, so I had
+	    # do create special spacers and set sizepolicies just to make
+	    # this work.
+	    self.hybrid_btngrp.hide()
+	    # I had to do this instead of use hide() since hide() 
+	    # confuses the layout manager in special situations, like
+	    # that described in bug 2407. Mark 2007-06-20
+	    self.atomic_hybrids_label.setText(" ") 
+	else:
+	    # Alternate way of hiding. Hide all contents and the QButtonGroupbox
+	    # border, but there is no way to hide the border.
+	    self.sp3_btn.hide()
+	    self.sp2_btn.hide()
+	    self.sp_btn.hide()
+	    self.graphitic_btn.hide()
+	    self.atomic_hybrids_label.hide()
 
     def setup_C_hybrid_buttons(self):
         '''Displays the Carbon hybrid buttons.
         '''
-        
         self.theElements.button(self.w.Element).setChecked(True)
-        self.hybrid_btngrp.show()
         self.sp3_btn.setIcon(imagename_to_icon('modeltree/C_sp3.png'))
         self.sp3_btn.show()
         self.sp2_btn.setIcon(imagename_to_icon('modeltree/C_sp2.png'))
@@ -512,8 +544,6 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
         self.sp_btn.setIcon(imagename_to_icon('modeltree/C_sp.png'))
         self.sp_btn.show()
         self.graphitic_btn.hide()
-        
-    
         
     def setup_N_hybrid_buttons(self):
         '''Displays the Nitrogen hybrid buttons.
@@ -576,6 +606,9 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
             self.elemGLPane.refreshDisplay(self.elm, self.displayMode)
             self.browseButton.hide()
 	    self.defaultPartLibButton.hide()
+	    self.atomsPageSpacer.changeSize(0,5,
+                QtGui.QSizePolicy.Expanding,
+                QtGui.QSizePolicy.Minimum)
         
         elif page == self.clipboardPage: # Clipboard page
             self.w.depositState = 'Clipboard'
@@ -584,6 +617,9 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
             self._clipboardPageView()
             self.browseButton.hide()
 	    self.defaultPartLibButton.hide()
+	    self.atomsPageSpacer.changeSize(0,5,
+                QtGui.QSizePolicy.Expanding,
+                QtGui.QSizePolicy.Minimum)
             
         elif page == self.libraryPage: # Library page
             if self.rootDir:
@@ -591,6 +627,9 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
                 self._libPageView()
             self.browseButton.show()
 	    self.defaultPartLibButton.show()
+	    self.atomsPageSpacer.changeSize(0,5,
+                QtGui.QSizePolicy.Minimum,
+                QtGui.QSizePolicy.Minimum)
             
             #Turn off both paste and deposit buttons, so when in library page and user choose 'set hotspot and copy'
             #it will change to paste page, also, when no chunk selected, a history message shows instead of depositing an atom.
