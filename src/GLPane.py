@@ -589,19 +589,21 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         ##e should previous self.assy be destroyed, or at least made to no longer point to self? [bruce 051227 question]
         assy.o = self ###@@@ should only the part know the glpane?? or, only the mode itself? [bruce 050418 comment]
         self.assy = assy
-        try:
-            mainpart = assy.tree.part
-            assert mainpart
-        except:
-            # I hope this never happens... but I don't know; if it does, reorder things?? [bruce 050418 comment]
-            # [bruce 050428: I've never seen it that I noticed...]
-            if platform.atom_debug:
-                print "atom_debug: no mainpart yet in setAssy (ok during init); using a fake one"
-            mainpart = Part(self) #bruce 050418 -- might be common during init; use this just for its lastCsys
-            self._setInitialViewFromPart( mainpart)
-        else:
-            # [bruce 050428: this apparently always happens]
-            self.set_part( mainpart)
+        mainpart = assy.tree.part
+        assert mainpart
+            # This assert was added by bruce 050418, in a try/except which tried to patch things up if it failed.
+            # No one has reported it ever failing, so hopefully it never does, but it depends on the order
+            # in which global objects (glpane, assy) are set up during startup or when opening a new file,
+            # so it might happen someday. It turns out the patchup code was wrong (or became wrong later),
+            # as noticed by PyChecker (the Part args are wrong), so I removed it [bruce 070621].
+            # If we ever need it back, this is what it was (below);
+            # it looks like it could be replaced by just initializing our viewpoint to default;
+            # it was meant to run instead of the set_part after it (but that is probably safe with mainpart of None, anyway):
+            ##if platform.atom_debug:
+            ##    print "atom_debug: no mainpart yet in setAssy (ok during init); using a fake one"
+            ##mainpart = Part(self) # use this just for its lastCsys
+            ##self._setInitialViewFromPart( mainpart)        
+        self.set_part( mainpart)
         
         # defined in modeMixin [bruce 040922]; requires self.assy
         self._reinit_modes() # leaves mode as nullmode as of 050911
