@@ -68,7 +68,7 @@ def get_nh_home_ORIG():
     # The home directory is retreived by stripping off the last two directories
     # from the Nano-Hive executable path, which is 
     # C:\Program Files\Nano-Hive
-    if os.platform == 'win32':
+    if sys.platform == 'win32':
         head, tail = os.path.split(nanohive_exe)
         head, tail = os.path.split(head)
         nh_home, tail = os.path.split(head)
