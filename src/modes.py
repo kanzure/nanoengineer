@@ -427,7 +427,7 @@ class basicMode(anyMode):
         during a drag, even if the drag goes off the overlay widget, but it is
         changed during bareMotion if the mouse goes on or off of one. But that
         policy is the caller's business, not self's.
-           [Subclasses should override this if they show extra or nostandard
+           [Subclasses should override this if they show extra or nonstandard
         overlay widgets, but as of the initial implem (070405), that's not likely
         to be needed.]
         """

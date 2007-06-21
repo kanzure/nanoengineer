@@ -1357,7 +1357,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
             if when == 'press' or (when == 'move' and not self.in_drag):
                 wX = event.pos().x()
                 wY = self.height - event.pos().y()
-                new_mouse_event_handler = self.mode.mouse_event_handler_for_event_position( wX, wY) ####IMPLEM in basicMode etc
+                new_mouse_event_handler = self.mode.mouse_event_handler_for_event_position( wX, wY)
                 if new_mouse_event_handler is not self.mouse_event_handler:
                     #e maybe tell the old one it's no longer active (i.e. give it a "leave event" if when == 'move')
                     # and/or tell the new one it is (i.e. give it an "enter event" if when == 'move') -- not needed for now
