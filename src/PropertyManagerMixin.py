@@ -48,7 +48,9 @@ class MessageGroupBox(QGroupBox, PropertyManager_common):
     def __init__(self, parent, title=''):
         
         QGroupBox.__init__(self)
-        
+	if parent:
+	    self.setParent(parent) #Fixed bug 2465 -- ninad 20070622
+	    
         self.setAutoFillBackground(True) 
         self.setPalette(self.getPropMgrGroupBoxPalette())
         self.setStyleSheet(self.getStyleSheet())
