@@ -1017,8 +1017,6 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             # WARNING: this cone would obscure the wirespheres, except for special cases in self.draw_wirespheres().
             # If you make the cone bigger you might need to change that code too.
 
-            drawsphere(color, pos, drawrad, level) #KLUGE (harmless) to set color and also to verify cone encloses sphere
-
             drawsphere(color, pos, drawrad, 0) #KLUGE (harmless but slow) to set color and also to verify cone encloses sphere
 
             from drawer import glePolyCone
