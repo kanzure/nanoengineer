@@ -11,14 +11,19 @@ $Id$
 from OpenGL.GL import *
 from OpenGL.GLU import *
 try:
-        from OpenGL.GLE import glePolyCone, gleGetNumSides, gleSetNumSides
+    from OpenGL.GLE import glePolyCone, gleGetNumSides, gleSetNumSides
 except:
-        print "GLE module can't be imported. Now trying _GLE"
-        from OpenGL._GLE import glePolyCone, gleGetNumSides, gleSetNumSides
+    print "GLE module can't be imported. Now trying _GLE"
+    from OpenGL._GLE import glePolyCone, gleGetNumSides, gleSetNumSides
 
-# Check if the gleGet/SetNumSides function is working on this install and if
-# not, alias it to an effective no-op.
+# Check if the gleGet/SetNumSides function is working on this install, and if
+# not, alias it to an effective no-op. Checking method is as recommended in
+# an OpenGL exception reported by Brian [070622]:
+#   OpenGL.error.NullFunctionError: Attempt to call an
+#   undefined function gleGetNumSides, check for
+#   bool(gleGetNumSides) before calling
 if not bool(gleGetNumSides):
+    print "fyi: gleGetNumSides not supported in this PyOpenGL installation"
     gleGetNumSides = int
     gleSetNumSides = int
                                 
