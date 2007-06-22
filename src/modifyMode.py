@@ -173,6 +173,9 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
         MovePropertyManager.__init__(self)
                 
         self.openPropertyManager(self) # ninad 061227 see PropertymanagerMixin
+	
+    
+	self.updateCommandManager(bool_entering = True)
     
         
         # connect signals (these all need to be disconnected in restore_gui)
@@ -210,14 +213,89 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
         change_connect(self.w.rotateThetaMinusAction, SIGNAL("activated()"), self.moveThetaMinus)
         change_connect(self.w.movetype_combox, SIGNAL("activated(const QString&)"), self.setup_movetype)
         
+        change_connect(self.exitMoveAction, SIGNAL("triggered()"), 
+		       self.w.toolsDone)
         
     def restore_gui(self):
         # disconnect signals which were connected in init_gui [bruce 050728]
-        self.closePropertyManager()
+	self.updateCommandManager(bool_entering = False)
+        self.closePropertyManager()	
         self.w.toolsMoveMoleculeAction.setChecked(False) # toggle on the Move Chunks icon
         self.w.rotateComponentsAction.setChecked(False)
         self.connect_or_disconnect_signals(False)
         self.w.moveChunksDashboard.hide()
+	       
+    
+    def getFlyoutActionList(self): #Ninad 20070618
+	""" Returns a tuple that contains mode spcific actionlists in the 
+	added in the flyout toolbar of the mode. 
+	CommandManager._createFlyoutToolBar method calls this 
+	@return: params: A tuple that contains 3 lists: 
+	(subControlAreaActionList, commandActionLists, allActionsList)"""	
+		
+	#'allActionsList' returns all actions in the flyout toolbar 
+	#including the subcontrolArea actions
+	allActionsList = []
+	
+	#Action List for  subcontrol Area buttons. 
+	#In this mode, there is really no subcontrol area. 
+	#We will treat subcontrol area same as 'command area' 
+	#(subcontrol area buttons will have an empty list as their command area 
+	#list). We will set  the Comamnd Area palette background color to the
+	#subcontrol area.
+	
+	subControlAreaActionList =[] 
+		
+	self.exitMoveAction = QtGui.QWidgetAction(self.w)
+	self.exitMoveAction.setText("Exit Move")
+	self.exitMoveAction.setCheckable(True)
+	self.exitMoveAction.setChecked(True)
+	self.exitMoveAction.setIcon(geticon("ui/actions/Toolbars/Smart/Exit"))
+	subControlAreaActionList.append(self.exitMoveAction)
+	
+	separator = QtGui.QAction(self.w)
+	separator.setSeparator(True)
+	subControlAreaActionList.append(separator) 
+	
+	subControlAreaActionList.append(self.w.toolsMoveMoleculeAction)
+	subControlAreaActionList.append(self.w.rotateComponentsAction)
+	subControlAreaActionList.append(self.w.modifyAlignCommonAxisAction)
+		
+	allActionsList.extend(subControlAreaActionList)
+	
+	#Empty actionlist for the 'Command Area'
+	commandActionLists = [] 
+	
+	#Append empty 'lists' in 'commandActionLists equal to the 
+	#number of actions in subControlArea 
+	for i in range(len(subControlAreaActionList)):
+	    lst = []
+	    commandActionLists.append(lst)
+	    	
+	params = (subControlAreaActionList, commandActionLists, allActionsList)
+	
+	return params
+	
+    
+    def updateCommandManager(self, bool_entering = True):#Ninad 20070618
+	''' Update the command manager '''
+	if bool_entering:
+	    try:
+		action = self.w.toolsMoveRotateActionGroup.checkedAction()
+	    except:
+		print_compact_traceback("bug: no move action checked?")
+		action = None
+	else: 
+	    action = None
+	
+	# object that needs its own flyout toolbar. In this case it is just 
+	#the mode itself. 
+	obj = self  
+	    	    
+	self.w.commandManager.updateCommandManager(action,
+						   obj, 
+						   entering =bool_entering)
+    
         
     def keyPress(self,key):           
         basicMode.keyPress(self, key)

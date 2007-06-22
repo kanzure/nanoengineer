@@ -16,16 +16,19 @@ __author__ = "Ninad"
 from PyQt4.Qt import *
 from PyQt4 import QtGui
 from Utility import geticon
+##from PyQt4.QtGui import QPalette, QWidget, QHBoxLayout, QButtonGroup
 from PyQt4.QtGui import *
 from wiki_help import QToolBar_WikiHelp
+from CmdMgr_Constants import cmdMgrCntrlAreaBtnColor,\
+     cmdMgrSubCntrlAreaBtnColor,\
+     cmdMgrCmdAreaBtnColor
 
 
 class Ui_CommandManager:
     """ This provides most of the User Interface for the command manager toolbar. 
     Called in CommandManager class"""
     
-    def setupUi(self):
-	
+    def setupUi(self):	
 	self.cmdManager = QWidget()
 	#ninad 070123 : Its important to set the Vertical size policy of the cmd manager widget. 
 	#otherwise the flyout QToolbar messes up the layout (makes the command manager twice as big) 
@@ -40,17 +43,8 @@ class Ui_CommandManager:
 	self.cmdManagerControlArea = QToolBar_WikiHelp(self.cmdManager)	    	    
 	self.cmdManagerControlArea.setAutoFillBackground(True)
 		
-	palette = QtGui.QPalette()	    
-	#Define the color role. Make sure to apply color to QPalette.Button instead of QPalette.Window 
-	#as it is a QToolBar. 	
-	palette.setColor(QtGui.QPalette.Active,QtGui.QPalette.Button,
-			 QtGui.QColor(204,204,255))	  
-	palette.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.Button,
-			 QtGui.QColor(204,204,255))	    
-	palette.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.Button,
-			 QtGui.QColor(204,204,255))
-	
-	self.cmdManagerControlArea.setPalette(palette)
+	self.ctrlAreaPalette = self.getCmdMgrCtrlAreaPalette()	
+	self.cmdManagerControlArea.setPalette(self.ctrlAreaPalette)
 		
 	self.cmdManagerControlArea.setMinimumHeight(55)
 	self.cmdManagerControlArea.setMinimumWidth(310)
@@ -72,7 +66,7 @@ class Ui_CommandManager:
 	    btn.setIconSize(QSize(22,22))
 	    btn.setText(name)
 	    btn.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-	    btn.setPalette(palette)
+	    btn.setPalette(self.ctrlAreaPalette)
 	    self.cmdButtonGroup.addButton(btn, btn_index)
 	    btn_index +=1	    
 	    self.cmdManagerControlArea.layout().addWidget(btn)
@@ -90,17 +84,8 @@ class Ui_CommandManager:
 	self.flyoutToolBar.addSeparator()
 	self.flyoutToolBar.setAutoFillBackground(True)
 	
-	flyoutPalette = QtGui.QPalette()	    
-	#Define the color role. Make sure to apply color to QPalette.Button 
-	#instead of QPalette.Window  as it is a QToolBar. 	
-	flyoutPalette .setColor(QtGui.QPalette.Active,QtGui.QPalette.Button,
-			 QtGui.QColor(230,230,230))	  
-	flyoutPalette .setColor(QtGui.QPalette.Inactive,QtGui.QPalette.Button,
-			 QtGui.QColor(204,204,255))	    
-	flyoutPalette .setColor(QtGui.QPalette.Disabled,QtGui.QPalette.Button,
-			 QtGui.QColor(204,204,255))
-	
-	self.flyoutToolBar.setPalette(flyoutPalette)
+	self.commandAreaPalette = self.getCmdMgrCommandAreaPalette()
+	self.flyoutToolBar.setPalette(self.commandAreaPalette)
 	
 	layout_cmd_mgr.addWidget(self.flyoutToolBar)   
 	
@@ -178,8 +163,7 @@ class Ui_CommandManager:
 			    text = self.wrapToolButtonText(action.text())			
 			    if text:	
 				action.setText(text)	
-				
-			   
+					   
 			
 						
     def truncateText(self, text, length=12, truncateSymbol='...'):
@@ -223,8 +207,49 @@ class Ui_CommandManager:
 	    return text2
 	        
 	return None
+    
+    ##==================================================================##
+    #color palettes (UI stuff) for different command manager areas
+   
+    def getCmdMgrCtrlAreaPalette(self): 
+        """ Return a palette for Command Manager control area 
+	(Palette for Tool Buttons in command manager control area)
+        """
+        return self.getPalette(None,
+                               QPalette.Button,
+			       cmdMgrCntrlAreaBtnColor
+                               )
+    
+    def getCmdMgrSubCtrlAreaPalette(self):
+	""" Return a palette for Command Manager sub control area 
+	(Palette for Tool Buttons in command manager sub control area)
+        """
+	#Define the color role. Make sure to apply color to QPalette.Button 
+	#instead of QPalette.Window as it is a QToolBar. - ninad 20070619
 	
-			
-    def retranslateUi(self):
-	pass
-        
+	return self.getPalette(None,
+                               QPalette.Button,
+			       cmdMgrSubCntrlAreaBtnColor
+                               )
+    
+    def getCmdMgrCommandAreaPalette(self):
+	""" Return a palette for Command Manager 'Commands area'(flyout toolbar)
+	(Palette for Tool Buttons in command manager command area)
+        """
+	return self.getPalette(None,
+                               QPalette.Button,
+			       cmdMgrCmdAreaBtnColor
+                               )
+    
+    def getPalette(self, palette, obj, color): 
+        """ Given a palette, Qt object [actually a ColorRole] and a color, 
+	return a new palette.If palette is None, create and return a new palette.
+        """
+	#Similar function is defined globally in file PropMgrBaseClass.py
+	#(better to move that in to a new file that has qt helper methods 
+	#like this?) import it for now in this file -- ninad 20070619
+	
+	import PropMgrBaseClass
+	
+	return PropMgrBaseClass.getPalette(palette, obj, color)
+    ##==================================================================##

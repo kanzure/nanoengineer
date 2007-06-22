@@ -1,22 +1,29 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 CommandManager.py
 @author: Ninad
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  All rights reserved.
+@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 
 History: 
-ninad 070109: created this in QT4 branch and subsequently modified it.
-ninad 070125: moved ui generation code to a new file Ui_CommandManager
-ninad070403: implemented 'Subcontrol Area'  in the command manager, related 
-changes and added/modified several docstrings  
+ninad 20070109: created this in QT4 branch and subsequently modified it.
+ninad 20070125: moved ui generation code to a new file Ui_CommandManager
+ninad 20070403: implemented 'Subcontrol Area'  in the command manager, related 
+	     changes (mainly revised _updateFlyoutToolBar,_setFlyoutDictionary) 
+	     and added/modified several docstrings  
+ninad 20070623:Moved _createFlyoutToolbar from modes to here and related changes
 """
 
 __author__ = "Ninad"
 
 from PyQt4.Qt import SIGNAL
 from Ui_CommandManager import Ui_CommandManager
-from PyQt4 import QtGui
+from PyQt4 import QtGui, Qt
+from PyQt4.QtGui import *
+from debug import print_compact_traceback
+import platform
+
+
 
 class CommandManager(Ui_CommandManager):
     '''Command Manager is the big toolbar at the top of the 3D graphics area and 
@@ -83,8 +90,8 @@ class CommandManager(Ui_CommandManager):
 			flyoutDictionary = self._getFlyoutDictonary()
 			
 			if not flyoutDictionary:
-			    print "bug: Flyout toolbar not created as flyout \
-			    dictionary doesn't exist"
+			    print_compact_traceback("bug: Flyout toolbar not \
+			    created as flyoutDictionary doesn't exist")
 			    return
 			#Dictonary object randomly orders key:value pairs. 
 			#The following ensures that the keys 
@@ -125,8 +132,9 @@ class CommandManager(Ui_CommandManager):
 		    self._setControlButtonMenu_in_flyoutToolbar(
 			self.cmdButtonGroup.checkedId())
 	    except:
-		"command button doesn't have a menu' No actions added \
-		to the flyout toolbar"
+		print_compact_traceback(
+		    "command button doesn't have a menu' No actions added \
+		     to the flyout toolbar")
 		return
     
     	    
@@ -138,16 +146,17 @@ class CommandManager(Ui_CommandManager):
 	    if a.__class__.__name__ is QtGui.QWidgetAction.__name__:
 		text = self.truncateText(a.text())	
 		a.defaultWidget().setText(text)
-	
-    def updateCommandManager(self, action,  dictionary = {}, entering=True): #Ninad 070125
+		    
+    def updateCommandManager(self, action, obj, entering=True): #Ninad 070125
         """ Update the command manager (i.e. show the appropriate toolbar) 
 	depending upon, the command button pressed . 
 	It calls a privet method that updates the SubcontrolArea and flyout 
 	toolbar based on the ControlAra button checked and also based on the 
 	SubcontrolArea button checked. 
+	@return:obj: Object that requests its own Command Manager flyout toolbar
         """	
-	if entering:	    	      
-	    self._setFlyoutDictionary(dictionary)	    
+	if entering:    
+	    self._createFlyoutToolBar(obj)	    
 	    self.in_a_mode = entering
 	    self.currentAction = action
 	    self._updateFlyoutToolBar(in_a_mode = self.in_a_mode)
@@ -155,6 +164,92 @@ class CommandManager(Ui_CommandManager):
 	    self.in_a_mode = False
 	    self._updateFlyoutToolBar(self.cmdButtonGroup.checkedId(), 
 				      in_a_mode = self.in_a_mode )
+    
+    def _createFlyoutDictionary(self,params):
+	''' Create the dictonary objet with subcontrol area actions as its 'keys'
+	and corresponding command actions as the key 'values'. 
+	@param: params: A tuple that contains 3 lists: 
+	(subControlAreaActionList, commandActionLists, allActionsList)
+	@return: flyoutDictionary (dictionary object)'''
+	
+	subControlAreaActionList, commandActionLists, allActionsList = params
+	#The subcontrol area button and its command list form a 'key:value pair
+	#in a python dictionary object
+	flyoutDictionary = {}
+	
+	counter = 0
+	for k in subControlAreaActionList:
+	    # counter is used to sort the keys in the order in which they 
+	    #were added
+	    key = (counter, k) 
+	    flyoutDictionary[key] = commandActionLists[counter]
+	    #Also add command actions to the 'allActionsList'
+	    allActionsList.extend(commandActionLists[counter]) 
+	    counter +=1
+	
+	return flyoutDictionary
+	
+	    
+    def _createFlyoutToolBar(self, obj):
+	'''Creates the flyout tool bar in the Command Manager '''
+	
+	#This was earlier defined in each mode needing a flyout toolbar
+
+	params = obj.getFlyoutActionList()
+	subControlAreaActionList, commandActionLists, allActionsList = params
+	
+	flyoutDictionary = self._createFlyoutDictionary(params)	
+	
+	#Following counts the total number of actions in the 'command area'
+	# if this is zero, that means our subcontrol area itself is a command 
+	#area, In this case, no special rendering is needed for this subcontrol
+	#area, and so its buttons are rendered as if they were command area 
+	#buttons (but internally its still the 'subcontrol area'.--ninad20070622
+	cmdActionCount = 0
+	for l in commandActionLists:
+	    cmdActionCount += len(l)	
+		    	
+	for action in allActionsList:	    
+	    if action.__class__.__name__ is QtGui.QWidgetAction.__name__:    
+		btn = QToolButton()
+		btn.setToolButtonStyle(Qt.Qt.ToolButtonTextUnderIcon)	
+		btn.setFixedWidth(62)
+		btn.setMinimumHeight(55)		
+	
+		#ninad 070125: make sure to a) define *default action* of button  
+		#to action and b) *default widget* of *action* to 'button' 
+		#(a) ensures button has got action's signals, icon, text and 
+		#other properties
+		#(b) ensures action has got button's geometry	    
+		btn.setDefaultAction(action)
+		action.setDefaultWidget(btn)	
+		#@@@ ninad070125 The following function 
+		#adds a newline character after each word in toolbutton text. 
+		#but the changes are reflected only on 'mode' toolbuttons 
+		#on the flyout toolbar (i.e.only Checkable buttons..don't know why)
+		#Disabling its use for now. 
+		debug_wrapText = False
+		
+		if debug_wrapText:
+		    text = self.wrapToolButtonText(action.text())		
+		    if text:	
+			action.setText(text)	
+		#Set a different color palette for the 'SubControl' buttons in 
+		#the command manager. 
+		if [key for (counter, key) in flyoutDictionary.keys() 
+		    if key is action]:
+		    btn.setAutoFillBackground(True)	
+		    
+		    if cmdActionCount > 0:
+			subControlPalette = self.getCmdMgrSubCtrlAreaPalette()
+			btn.setPalette(subControlPalette)	
+		    else:
+			cmdPalette = self.getCmdMgrCommandAreaPalette()
+			btn.setPalette(cmdPalette)		    
+		    							
+	self._setFlyoutDictionary(flyoutDictionary)
+	pass
+    
 	    	    
     def _showFlyoutToolBar(self, bool):
 	""" Hide or show flyout toolbar depending upon what is requested. 
@@ -168,7 +263,7 @@ class CommandManager(Ui_CommandManager):
 	    self.cmdManager.layout().addItem(self.spacerItem)
 	    
     def _setFlyoutDictionary(self, dictionary):
-	''' set the flyout dictonary that stores subcontrol area buttons in the 
+	''' set the flyout dictionary that stores subcontrol area buttons in the 
 	flyout toolbar as the keys and their corresponding command buttons 
 	as values
 	@param dictionary: dictionary object. 
@@ -194,6 +289,7 @@ class CommandManager(Ui_CommandManager):
 	else:
 	    print "fyi: flyoutDictionary doesn't exist. Returning None" 
 	    return self.flyoutDictionary
+        
     
     def getOrderedKeyList(self, dictionary):
 	''' Orders the keys of a dictionary and returns it as a list. 
@@ -206,6 +302,6 @@ class CommandManager(Ui_CommandManager):
 	keyList = dictionary.keys()
 	keyList.sort()
 	return [keys for (counter, keys) in keyList]
-	
+    
 	
     

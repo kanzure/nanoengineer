@@ -122,7 +122,9 @@ class movieMode(basicMode,MoviePropertyManager):
     def init_gui(self):
         
         MoviePropertyManager.__init__(self)
-        
+	
+	self.updateCommandManager(bool_entering = True)
+	        
         self.openPropertyManager(self) # ninad 061227 see PropertymanagerMixin
         
 
@@ -171,6 +173,68 @@ class movieMode(basicMode,MoviePropertyManager):
         
         self.w.connect(self.w.frameNumberSL,SIGNAL("valueChanged(int)"),self.w.movieSlider)
         self.w.connect(self.w.frameNumberSB,SIGNAL("valueChanged(int)"),self.w.moviePlayFrame)
+	
+	self.w.connect(self.exitMovieAction, SIGNAL("triggered()"), 
+		       self.w.toolsDone)
+    
+    def getFlyoutActionList(self): #Ninad 20070618
+	""" returns custom actionlist that will be used in a specific mode 
+	or editing a feature etc Example: while in movie mode, 
+	the _createFlyoutToolBar method calls
+	this """	
+	
+	
+	#'allActionsList' returns all actions in the flyout toolbar 
+	#including the subcontrolArea actions
+	allActionsList = []
+	
+	#Action List for  subcontrol Area buttons. 
+	#In this mode there is really no subcontrol area. 
+	#We will treat subcontrol area same as 'command area' 
+	#(subcontrol area buttons will have an empty list as their command area 
+	#list). We will set  the Comamnd Area palette background color to the
+	#subcontrol area.
+	
+	subControlAreaActionList =[] 
+		
+	self.exitMovieAction = QtGui.QWidgetAction(self.w)
+	self.exitMovieAction.setText("Exit Movie")
+	self.exitMovieAction.setCheckable(True)
+	self.exitMovieAction.setChecked(True)
+	self.exitMovieAction.setIcon(geticon("ui/actions/Toolbars/Smart/Exit"))
+	subControlAreaActionList.append(self.exitMovieAction)
+	
+	separator = QtGui.QAction(self.w)
+	separator.setSeparator(True)
+	subControlAreaActionList.append(separator) 
+	
+	subControlAreaActionList.append(self.w.simPlotToolAction)
+			
+	allActionsList.extend(subControlAreaActionList)
+	
+	#Empty actionlist for the 'Command Area'
+	commandActionLists = [] 
+	
+	#Append empty 'lists' in 'commandActionLists equal to the 
+	#number of actions in subControlArea 
+	for i in range(len(subControlAreaActionList)):
+	    lst = []
+	    commandActionLists.append(lst)
+	    	
+	params = (subControlAreaActionList, commandActionLists, allActionsList)
+	
+	return params
+    
+    def updateCommandManager(self, bool_entering = True):#Ninad 20070618
+	''' Update the command manager '''	
+	# object that needs its own flyout toolbar. In this case it is just 
+	#the mode itself. 
+	
+	action = self.w.simMoviePlayerAction
+	obj = self  	    	    
+	self.w.commandManager.updateCommandManager(action,
+						   obj, 
+						   entering =bool_entering)
 
     def _controls(self, On = True): #bruce 050427
         _controls( self.w, On)
@@ -231,6 +295,7 @@ class movieMode(basicMode,MoviePropertyManager):
             #  without this the cmdname is "Done")
 
         self.w.moviePlayerDashboard.hide()
+	self.updateCommandManager(bool_entering = False)
         self.w.disable_QActions_for_movieMode(False)
         return
 

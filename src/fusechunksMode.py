@@ -343,6 +343,8 @@ class fusechunksMode(modifyMode, fusechunksBase, FusePropertyManager):
             # syncs the dashboard and glpane (and does a gl_update).
         
         self.w.toolsFuseChunksAction.setChecked(1) # toggle on the Fuse Chunks icon
+        
+        self.updateCommandManager(bool_entering = True)
                 
         # connect signals (these all need to be disconnected in restore_gui) [mark 050901]
         self.connect_or_disconnect_signals(True)
@@ -358,6 +360,7 @@ class fusechunksMode(modifyMode, fusechunksBase, FusePropertyManager):
             self.rotateOption = 'ROTATEDEFAULT'
 
     def restore_gui(self):
+	self.updateCommandManager(bool_entering = False)
         self.closePropertyManager()
         self.connect_or_disconnect_signals(False)
         self.w.toolsFuseChunksAction.setChecked(False)
@@ -395,8 +398,68 @@ class fusechunksMode(modifyMode, fusechunksBase, FusePropertyManager):
         change_connect(self.w.movetype_combox, 
                        SIGNAL("activated(const QString&)"), 
                        self.setup_movetype)
+	
+	change_connect(self.exitFuseAction, SIGNAL("triggered()"), 
+		       self.w.toolsDone)
         
         return
+    
+    def getFlyoutActionList(self): #Ninad 20070618
+	""" Returns a tuple that contains mode spcific actionlists in the 
+	added in the flyout toolbar of the mode. 
+	CommandManager._createFlyoutToolBar method calls this 
+	@return: params: A tuple that contains 3 lists: 
+	(subControlAreaActionList, commandActionLists, allActionsList)"""	
+		
+	#'allActionsList' returns all actions in the flyout toolbar 
+	#including the subcontrolArea actions
+	allActionsList = []
+	
+	#Action List for  subcontrol Area buttons. 
+	#In this mode, there is really no subcontrol area. 
+	#We will treat subcontrol area same as 'command area' 
+	#(subcontrol area buttons will have an empty list as their command area 
+	#list). We will set  the Comamnd Area palette background color to the
+	#subcontrol area.
+	
+	subControlAreaActionList =[] 
+		
+	self.exitFuseAction = QtGui.QWidgetAction(self.w)
+	self.exitFuseAction.setText("Exit Fuse")
+	self.exitFuseAction.setCheckable(True)
+	self.exitFuseAction.setChecked(True)
+	self.exitFuseAction.setIcon(geticon("ui/actions/Toolbars/Smart/Exit"))
+	subControlAreaActionList.append(self.exitFuseAction)
+	
+	separator = QtGui.QAction(self.w)
+	separator.setSeparator(True)
+	subControlAreaActionList.append(separator) 
+			
+	allActionsList.extend(subControlAreaActionList)
+	
+	#Empty actionlist for the 'Command Area'
+	commandActionLists = [] 
+	
+	#Append empty 'lists' in 'commandActionLists equal to the 
+	#number of actions in subControlArea 
+	for i in range(len(subControlAreaActionList)):
+	    lst = []
+	    commandActionLists.append(lst)
+	    	
+	params = (subControlAreaActionList, commandActionLists, allActionsList)
+	
+	return params
+    
+    def updateCommandManager(self, bool_entering = True):#Ninad 20070618
+	''' Update the command manager '''	
+	# object that needs its own flyout toolbar. In this case it is just 
+	#the mode itself. 
+	
+	action = self.w.toolsFuseChunksAction
+	obj = self  	    	    
+	self.w.commandManager.updateCommandManager(action,
+						   obj, 
+						   entering =bool_entering)
         
     def tolerance_changed(self, val):
         '''Slot for tolerance slider.

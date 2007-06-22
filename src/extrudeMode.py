@@ -253,7 +253,8 @@ class extrudeMode(basicMode, ExtrudePropertyManager):
         change_connect(self.extrudeSpinBox_y,SIGNAL("valueChanged(double)"),self.spinbox_value_changed)
         change_connect(self.extrudeSpinBox_z,SIGNAL("valueChanged(double)"),self.spinbox_value_changed)
         change_connect(self.extrudeSpinBox_length,SIGNAL("valueChanged(double)"),self.length_value_changed)
-                
+        change_connect(self.exitExtrudeAction, SIGNAL("triggered()"), 
+		       self.w.toolsDone)        
 
         for toggle in self.extrude_pref_toggles:
             change_connect(toggle, SIGNAL("stateChanged(int)"), self.toggle_value_changed)
@@ -439,6 +440,8 @@ class extrudeMode(basicMode, ExtrudePropertyManager):
 
         #e is this obs? or just nim?? [041017 night]
         self.recompute_for_new_bend() # ... and whatever depends on the bend from each repunit to the next (varies only in Revolve)
+	
+	self.updateCommandManager(bool_entering = True) #ninad20070622
 
         ## self.connect_controls()
         self.connect_or_disconnect_signals(True)
@@ -452,8 +455,66 @@ class extrudeMode(basicMode, ExtrudePropertyManager):
             print_compact_traceback(msg + ": ")
             self.status_msg("%s refused: %s" % (self.msg_modename, msg,))
             return 1
-
+	
         return # from Enter
+    
+    def getFlyoutActionList(self): #Ninad 20070622
+	""" Returns a tuple that contains mode spcific actionlists in the 
+	added in the flyout toolbar of the mode. 
+	CommandManager._createFlyoutToolBar method calls this 
+	@return: params: A tuple that contains 3 lists: 
+	(subControlAreaActionList, commandActionLists, allActionsList)"""	
+		
+	#'allActionsList' returns all actions in the flyout toolbar 
+	#including the subcontrolArea actions
+	allActionsList = []
+	
+	#Action List for  subcontrol Area buttons. 
+	#In this mode, there is really no subcontrol area. 
+	#We will treat subcontrol area same as 'command area' 
+	#(subcontrol area buttons will have an empty list as their command area 
+	#list). We will set  the Comamnd Area palette background color to the
+	#subcontrol area.
+	
+	subControlAreaActionList =[] 
+		
+	self.exitExtrudeAction = QtGui.QWidgetAction(self.w)
+	self.exitExtrudeAction.setText("Exit Extrude")
+	self.exitExtrudeAction.setCheckable(True)
+	self.exitExtrudeAction.setChecked(True)
+	self.exitExtrudeAction.setIcon(geticon("ui/actions/Toolbars/Smart/Exit"))
+	subControlAreaActionList.append(self.exitExtrudeAction)
+	
+	separator = QtGui.QAction(self.w)
+	separator.setSeparator(True)
+	subControlAreaActionList.append(separator) 
+			
+	allActionsList.extend(subControlAreaActionList)
+	
+	#Empty actionlist for the 'Command Area'
+	commandActionLists = [] 
+	
+	#Append empty 'lists' in 'commandActionLists equal to the 
+	#number of actions in subControlArea 
+	for i in range(len(subControlAreaActionList)):
+	    lst = []
+	    commandActionLists.append(lst)
+	    	
+	params = (subControlAreaActionList, commandActionLists, allActionsList)
+	
+	return params
+    
+    def updateCommandManager(self, bool_entering = True):#Ninad 20070622
+	''' Update the command manager '''	
+	# object that needs its own flyout toolbar. In this case it is just 
+	#the mode itself. 
+	
+	action = self.w.toolsFuseChunksAction
+	obj = self  	    	    
+	self.w.commandManager.updateCommandManager(action,
+						   obj, 
+						   entering =bool_entering)
+	
     
     singlet_color = {} # we also do this in clear()
     def colorfunc(self, atom): # uses a hack in chem.py atom.draw to use mol._colorfunc
@@ -1013,7 +1074,8 @@ class extrudeMode(basicMode, ExtrudePropertyManager):
         
         # Disable some QActions that will conflict with this mode.
         self.w.disable_QActions_for_extrudeMode(True)
-                
+	
+	                
         if self.is_revolve:
             assert 0 #bruce 070613
 ##            self.w.toolsRevolveAction.setChecked(1)
@@ -1268,7 +1330,10 @@ class extrudeMode(basicMode, ExtrudePropertyManager):
         # Re-enable QAction items
         # [bruce 060414 moved this earlier in the method]
         self.w.disable_QActions_for_extrudeMode(False)
-
+	
+	
+	self.updateCommandManager(bool_entering = False)
+	
         self.connect_or_disconnect_signals(False) #bruce 060412, hoping it helps with bug 1750
         
         self.w.toolsExtrudeAction.setChecked(False) #Toggle Extrude icon

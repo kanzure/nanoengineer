@@ -26,105 +26,100 @@ class CookieCtrlPanel(CookiePropertyManager):
     def __init__(self, parent):
         """<parent> is the main window  for the program"""
         self.w = parent
-	
-	#Create the Flyout toolbar in the Command manager 
-	self._createFlyoutToolBar()
-                               
+	                               
         self.pw = None # pw is active part window
-        	
+	
+       	self._init_flyoutActions()
         CookiePropertyManager.__init__(self)
         self._makeConnections()
 
-        
-    def _createFlyoutToolBar(self):
-        """Creates the flyout tool bar in the command manager for Cookie mode"""
-	   		
-	btn_index= 0
-	
+    def _init_flyoutActions(self):
+	''' Define flyout toolbar actions for this mode'''
 	#Create an action group and add all the cookie selection shape buttons to it
 	self.cookieSelectionGroup = QActionGroup(self.w)
 	
-	actionlist, flyoutDictionary = self.getFlyoutActionList()
+	#Action List for  subcontrol Area buttons. 
+	#In cookie cutter, there is really no subcontrol area. 
+	#We will treat subcontrol area same as 'command area' 
+	#(subcontrol area buttons will have an empty list as their command area 
+	#list). We will set  the Comamnd Area palette background color to the
+	#subcontrol area. This list will be used in getFlyoutActionList
 	
-	#Control button color palette for the Exit Chunk button in the 
-	#flyout toolbar
-	controlPalette = QtGui.QPalette() 
-	controlPalette.setColor(QtGui.QPalette.Active,
-				   QtGui.QPalette.Button,
-				   QtGui.QColor(204,204,255)) 
-	controlPalette.setColor(QtGui.QPalette.Inactive,
-				   QtGui.QPalette.Button,
-				   QtGui.QColor(204,204,255)) 
-	controlPalette.setColor(QtGui.QPalette.Disabled,
-				   QtGui.QPalette.Button,
-				   QtGui.QColor(204,204,255)) 
-	
-	#Set a different color palette for the 'SubControl' buttons in the 
-	#command manager. For Cookie cutter , use the 'Command Area' palette
-	
-	subControlPalette = QtGui.QPalette() 
-	subControlPalette.setColor(QtGui.QPalette.Active,
-				   QtGui.QPalette.Button,
-				   QtGui.QColor(230, 230, 230)) 
-	subControlPalette.setColor(QtGui.QPalette.Inactive,
-				   QtGui.QPalette.Button,
-				   QtGui.QColor(230, 230, 230)) 
-	subControlPalette.setColor(QtGui.QPalette.Disabled,
-				   QtGui.QPalette.Button,
-				   QtGui.QColor(230, 230, 230)) 
-	
-	for action in actionlist:	    
-	    if action.__class__.__name__ is QtGui.QWidgetAction.__name__:
-		if action is not self.exitCrystalAction:	
-		    action.setCheckable(True)
-		    self.cookieSelectionGroup.addAction(action)
-		btn = QToolButton()
-		btn.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)	
-		btn.setFixedWidth(62)
-		btn.setMinimumHeight(55)		
+	self.subControlAreaActionList =[] 
 		
+	self.exitCrystalAction = QtGui.QWidgetAction(self.w)
+	self.exitCrystalAction.setText("Exit Crystal")
+	self.exitCrystalAction.setCheckable(True)
+	self.exitCrystalAction.setChecked(True)
+	self.exitCrystalAction.setIcon(geticon('ui/actions/Toolbars/Smart/Exit'))
+	self.subControlAreaActionList.append(self.exitCrystalAction)
+	
+	separator = QtGui.QAction(self.w)
+	separator.setSeparator(True)
+	self.subControlAreaActionList.append(separator) 
+	
+	self.DefaultSelAction = QWidgetAction(self.w)
+	self.DefaultSelAction.setObjectName("DEFAULT")
+	self.DefaultSelAction.setText("Default")	
+	self.subControlAreaActionList.append(self.DefaultSelAction)
+	
+	self.CircleSelAction = QWidgetAction(self.w)	
+	self.CircleSelAction.setObjectName("CIRCLE")
+	self.CircleSelAction.setText("Circle")	
+	self.subControlAreaActionList.append(self.CircleSelAction)
+	
+	self.RectCtrSelAction = QWidgetAction(self.w)	
+	self.RectCtrSelAction.setObjectName("RECTANGLE")
+	self.RectCtrSelAction.setText("RectCenter")
+	self.subControlAreaActionList.append(self.RectCtrSelAction)
+		
+	self.HexagonSelAction = QWidgetAction(self.w)
+	self.HexagonSelAction.setObjectName("HEXAGON")
+	self.HexagonSelAction.setText("Hexagon")
+	self.subControlAreaActionList.append(self.HexagonSelAction)
+	
+	self.TriangleSelAction = QWidgetAction(self.w)
+	self.TriangleSelAction.setObjectName("TRIANGLE")
+	self.TriangleSelAction.setText("Triangle")
+	self.subControlAreaActionList.append(self.TriangleSelAction)
+	
+	self.RectCornerSelAction = QWidgetAction(self.w)
+	self.RectCornerSelAction.setObjectName("RECT_CORNER")
+	self.RectCornerSelAction.setText("RectCorners")
+	self.subControlAreaActionList.append(self.RectCornerSelAction)
+	
+	self.LassoSelAction = QWidgetAction(self.w)	
+	self.LassoSelAction.setObjectName("LASSO")
+	self.LassoSelAction.setText("Lasso")
+	self.subControlAreaActionList.append(self.LassoSelAction)
+	
+	self.DiamondSelAction = QWidgetAction(self.w)
+	self.DiamondSelAction.setObjectName("DIAMOND")
+	self.DiamondSelAction.setText("Diamond")
+	self.subControlAreaActionList.append(self.DiamondSelAction)
+	
+	self.SquareSelAction = QWidgetAction(self.w)
+	self.SquareSelAction.setObjectName("SQUARE")
+	self.SquareSelAction.setText("Square")
+	self.subControlAreaActionList.append(self.SquareSelAction)
+	
+	for action in self.subControlAreaActionList[1:]:
+	    if action.__class__.__name__ is QtGui.QWidgetAction.__name__:		
+		action.setCheckable(True)
+		self.cookieSelectionGroup.addAction(action)
 		iconpath = "ui/actions/Toolbars/Smart/" + str(action.text())
 		action.setIcon(geticon(iconpath))
-		#ninad 070125: make sure to a) define *default action* of button to 
-		#action and b) *default widget* of *action* to 'button' 
-		#(a) ensures button has got action's signals, icon,  text and other properties
-		#(b) ensures action has got button's geometry	    
-		btn.setDefaultAction(action)
-		action.setDefaultWidget(btn)		
-		#@@@ ninad070125 The following function 
-		#adds a newline character after each word in toolbutton text. 
-		#but the changes are reflected only on 'mode' toolbuttons 
-		#on the flyout toolbar (i.e. only Checkable buttons... don't know why)
-		#Disabling its use for now. 
-		debug_wrapText = False
-		
-		if debug_wrapText:
-		    text = self.w.commandManager.wrapToolButtonText(action.text())			
-		    if text:	
-			action.setText(text)	
-		#Set a different color palette for the 'SubControl' buttons in 
-		#the command manager. 
-		if [key for (counter, key) in flyoutDictionary.keys() 
-		    if key is action]:
-		    btn.setAutoFillBackground(True)
-		    btn.setPalette(subControlPalette)	
-		
-		#Set control button color palette for the Exit Chunk button in 
-		#the flyout toolbar
-		if action is self.exitCrystalAction:
-		    btn.setAutoFillBackground(True)
-		    btn.setPalette(controlPalette)	
-		    action.setIcon(geticon('ui/actions/Toolbars/Smart/Exit'))
-			
-	    if not self.cookieSelectionGroup.checkedAction():
-		self.DefaultSelAction.setChecked(True)
-		
-	    self.flyoutDictionary = flyoutDictionary
 	
+	if not self.cookieSelectionGroup.checkedAction():
+		self.DefaultSelAction.setChecked(True)
+
+	     		           	
     def getFlyoutActionList(self):
-	""" returns custom actionlist that will be used in a specific mode or editing a feature etc
-	Example: while in cookie cutter mode, the _createFlyoutToolBar method calls
-	this """	
+	""" Returns a tuple that contains mode spcific actionlists in the 
+	added in the flyout toolbar of the mode. 
+	CommandManager._createFlyoutToolBar method calls this 
+	@return: params: A tuple that contains 3 lists: 
+	(subControlAreaActionList, commandActionLists, allActionsList)"""	
 	
 	#'allActionsList' returns all actions in the flyout toolbar 
 	#including the subcontrolArea actions
@@ -136,63 +131,8 @@ class CookieCtrlPanel(CookiePropertyManager):
 	#(subcontrol area buttons will have an empty list as their command area 
 	#list). We will set  the Comamnd Area palette background color to the
 	#subcontrol area.
-	
-	subControlAreaActionList =[] 
 		
-	self.exitCrystalAction = QtGui.QWidgetAction(self.w)
-	self.exitCrystalAction.setText("Exit Crystal")
-	self.exitCrystalAction.setCheckable(True)
-	self.exitCrystalAction.setChecked(True)
-	subControlAreaActionList.append(self.exitCrystalAction)
-	
-	separator = QtGui.QAction(self.w)
-	separator.setSeparator(True)
-	subControlAreaActionList.append(separator) 
-	
-	self.DefaultSelAction = QWidgetAction(self.w)
-	self.DefaultSelAction.setObjectName("DEFAULT")
-	self.DefaultSelAction.setText("Default")	
-	subControlAreaActionList.append(self.DefaultSelAction)
-	
-	self.CircleSelAction = QWidgetAction(self.w)	
-	self.CircleSelAction.setObjectName("CIRCLE")
-	self.CircleSelAction.setText("Circle")	
-	subControlAreaActionList.append(self.CircleSelAction)
-	
-	self.RectCtrSelAction = QWidgetAction(self.w)	
-	self.RectCtrSelAction.setObjectName("RECTANGLE")
-	self.RectCtrSelAction.setText("RectCenter")
-	subControlAreaActionList.append(self.RectCtrSelAction)
-		
-	self.HexagonSelAction = QWidgetAction(self.w)
-	self.HexagonSelAction.setObjectName("HEXAGON")
-	self.HexagonSelAction.setText("Hexagon")
-	subControlAreaActionList.append(self.HexagonSelAction)
-	
-	self.TriangleSelAction = QWidgetAction(self.w)
-	self.TriangleSelAction.setObjectName("TRIANGLE")
-	self.TriangleSelAction.setText("Triangle")
-	subControlAreaActionList.append(self.TriangleSelAction)
-	
-	self.RectCornerSelAction = QWidgetAction(self.w)
-	self.RectCornerSelAction.setObjectName("RECT_CORNER")
-	self.RectCornerSelAction.setText("RectCorners")
-	subControlAreaActionList.append(self.RectCornerSelAction)
-	
-	self.LassoSelAction = QWidgetAction(self.w)	
-	self.LassoSelAction.setObjectName("LASSO")
-	self.LassoSelAction.setText("Lasso")
-	subControlAreaActionList.append(self.LassoSelAction)
-	
-	self.DiamondSelAction = QWidgetAction(self.w)
-	self.DiamondSelAction.setObjectName("DIAMOND")
-	self.DiamondSelAction.setText("Diamond")
-	subControlAreaActionList.append(self.DiamondSelAction)
-	
-	self.SquareSelAction = QWidgetAction(self.w)
-	self.SquareSelAction.setObjectName("SQUARE")
-	self.SquareSelAction.setText("Square")
-	subControlAreaActionList.append(self.SquareSelAction)
+	subControlAreaActionList = self.subControlAreaActionList
 	
 	allActionsList.extend(subControlAreaActionList)
 	
@@ -218,16 +158,27 @@ class CookieCtrlPanel(CookiePropertyManager):
 	    #Also add command actions to the 'allActionsList'
 	    allActionsList.extend(commandActionLists[counter]) 
 	    counter +=1
-		
-	return allActionsList, flyoutDictionary
+			
+	params = (subControlAreaActionList, commandActionLists, allActionsList)
+	
+	return params
+    
     
     def updateCommandManager(self, bool_entering = True):
-	''' Update the command manager '''
-	
-	self.w.commandManager.updateCommandManager(self.w.toolsCookieCutAction,
-						   self.flyoutDictionary, 
+	''' Update the Command Manager '''
+	if bool_entering:
+	    action = self.w.toolsCookieCutAction	
+	else:
+	    action = None
+	# object that needs its own flyout toolbar. In this case it is just 
+	#the mode itself. 
+	obj = self  
+	    	    
+	self.w.commandManager.updateCommandManager(action,
+						   obj, 
 						   entering =bool_entering)
-	                
+    
+    	                
     def _makeConnections(self):
         """Connect signal to slots """
         self.connect(self.latticeCBox, SIGNAL("activated ( int )"), self.changeLatticeType)  
@@ -249,11 +200,15 @@ class CookieCtrlPanel(CookiePropertyManager):
         self.connect(self.fullModelCheckBox, SIGNAL("toggled(bool)"),self.toggleFullModel)
         self.connect(self.snapGridCheckBox, SIGNAL("toggled(bool)"), self.setGridSnap)
             
-        self.connect(self.dispModeCBox, SIGNAL("activated(const QString &)"), self.changeDispMode)
-  
-        self.connect(self.cookieSelectionGroup, SIGNAL("triggered(QAction *)"),self.changeSelectionShape)
+        self.connect(self.dispModeCBox, SIGNAL("activated(const QString &)"), 
+		     self.changeDispMode)
 	
-	self.connect(self.exitCrystalAction, SIGNAL("triggered()"), self.w.toolsDone)
+	self.connect(self.cookieSelectionGroup, SIGNAL("triggered(QAction *)"),
+		     self.changeSelectionShape)
+	
+	self.connect(self.exitCrystalAction, SIGNAL("triggered()"), 
+		     self.w.toolsDone) 
+  
        
     def _setAutoShapeAcclKeys(self, on):
         """If <on>, then set the acceleration keys for autoshape selection in this mode, otherwise, like when exit. set it to empty. """

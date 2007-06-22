@@ -354,7 +354,7 @@ class depositMode(selectAtomsMode, MMKit):
 	#Following Actions are added in the Flyout toolbar. 
 	#Defining them outside that method as those are being used
 	#by the subclasses of deposit mode (testmode.py as of 070410) -- ninad
-	
+		
 	self.depositAtomsAction = QtGui.QWidgetAction(self.w)
 	self.depositAtomsAction.setText("Atoms Tool")
 	self.depositAtomsAction.setIcon(geticon(
@@ -425,18 +425,23 @@ class depositMode(selectAtomsMode, MMKit):
 	
 	self.filterCB.setChecked(0)
 	
-	
-	self._createFlyoutToolBar()	
-	
+	#Defining some actions added in the flyout toolbar. These were originally
+	#defined in _createFlyoutToolbar method. I moved this method to 
+	#CommandManager class and defined these actions in updateCommandManager 
+	#method of depositmode. But this didn't work so defining the methods 
+	#before calling updateCommandManager. I want to resolve this 
+	#but is a low priority. -- Ninad 20070622
+	self._init_flyoutActions()
 	self.updateCommandManager(bool_entering = True)    
 	 
-	 #Open the Build Chunks Property Manager
+	#Open the Build Chunks Property Manager
 	self.openPropertyManager(self)
 	
 	if self.depositAtomsAction.isChecked():
 	    self.activateAtomsTool()
 	elif self.transmuteBondsAction.isChecked():
 	    self.activateBondsTool()
+	   
     	
 	self.w.dashboardHolder.hide() #@@ ninad 070104  Once all the dashboards become Property Managers,
         #the w.dashBoardHolder (dockwidget) will be removed completely. So this is a temporary code. (see also restoreGui)
@@ -460,7 +465,8 @@ class depositMode(selectAtomsMode, MMKit):
         self.elemGLPane.setBackgroundColor(self.o.backgroundColor, self.o.backgroundGradient)
 	
 	# connect signals (these all need to be disconnectedfilterCB in restore_gui) [bruce 050728 revised this]
-        self.connect_or_disconnect_signals(True)        
+        self.connect_or_disconnect_signals(True)      
+	
         #self.w.dashboardHolder.setWidget(self.w.depositAtomDashboard)
 	
         self.dont_update_gui = False
@@ -477,6 +483,21 @@ class depositMode(selectAtomsMode, MMKit):
 	self.w.insertGrapheneAction.setEnabled(bool)
 	self.w.toolsCookieCutAction.setEnabled(bool)
 	#@@This should also contain HeteroJunctionAction. (in general Plugin actions)
+    
+    def _init_flyoutActions(self):
+	''' Define flyout toolbar actions for this mode'''
+	self.exitBuildAction = QtGui.QWidgetAction(self.w)
+	self.exitBuildAction.setText("Exit Atoms")
+	self.exitBuildAction.setIcon(geticon('ui/actions/Toolbars/Smart/Exit'))
+	self.exitBuildAction.setCheckable(True)
+	self.exitBuildAction.setChecked(True)	
+	
+	self.subControlActionGroup = QtGui.QActionGroup(self.w)
+	self.subControlActionGroup.setExclusive(True)	
+	self.subControlActionGroup.addAction(self.depositAtomsAction)	
+	##self.subControlActionGroup.addAction(self.transmuteAtomsAction)
+	self.subControlActionGroup.addAction(self.transmuteBondsAction)
+	    
 
     def connect_or_disconnect_signals(self, connect): #bruce 050728
         if connect:
@@ -538,94 +559,13 @@ class depositMode(selectAtomsMode, MMKit):
 	                        
         return
     
-    def _createFlyoutToolBar(self): #Ninad 070126
-	""" Adds custom actions to the flyout toolbar of this mode. 
-	This doesn't literally 'creates' flyoutToolbar instance
-	but returns a list of buttons to the 'updateCommandManager method"""
-	
-	actionlist, flyoutDictionary = self.getFlyoutActionList()
-	
-	#Control button color palette for the Exit Chunk button in the 
-	#flyout toolbar
-	controlPalette = QtGui.QPalette() 
-	controlPalette.setColor(QtGui.QPalette.Active,
-				   QtGui.QPalette.Button,
-				   QtGui.QColor(204,204,255)) 
-	controlPalette.setColor(QtGui.QPalette.Inactive,
-				   QtGui.QPalette.Button,
-				   QtGui.QColor(204,204,255)) 
-	controlPalette.setColor(QtGui.QPalette.Disabled,
-				   QtGui.QPalette.Button,
-				   QtGui.QColor(204,204,255)) 
-	
-	#Set a different color palette for the 'SubControl' buttons in the 
-	#command manager. 
-	subControlPalette = QtGui.QPalette() 
-	subControlPalette.setColor(QtGui.QPalette.Active,
-				   QtGui.QPalette.Button,
-				   QtGui.QColor(190,210,190)) 
-	subControlPalette.setColor(QtGui.QPalette.Inactive,
-				   QtGui.QPalette.Button,
-				   QtGui.QColor(190,210,190)) 
-	subControlPalette.setColor(QtGui.QPalette.Disabled,
-				   QtGui.QPalette.Button,
-				   QtGui.QColor(190,210,190)) 
-	
-	
-	# following needs to be a separate callable method -ninad070126
-	for action in actionlist:	    
-	    if action.__class__.__name__ is QtGui.QWidgetAction.__name__:
-		btn = QToolButton()
-		btn.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)	
-		btn.setFixedWidth(65)
-		btn.setMinimumHeight(55)				
-		#ninad 070125: make sure to a) define *default action* 
-		#of button to action and b) *default widget* of *action* 
-		#to 'button' 
-		#(a) ensures button has got action's signals, icon,  text and 
-		#other properties
-		#(b) ensures action has got button's geometry	    
-		btn.setDefaultAction(action)
-		action.setDefaultWidget(btn)
-		
-		#ninad 070201 temporary solution -- truncate the toolbutton 
-		#text if too long. 
-		
-		text = self.w.commandManager.truncateText(action.text())
-		btn.setText(text)
-		
-		#@@@ ninad070125 The following function 
-		#adds a newline character after each word in toolbutton text. 
-		#but the changes are reflected only on 'mode' toolbuttons 
-		#on the flyout toolbar (i.e.only Checkable buttons.Don't know why)
-		#Disabling its use for now. 
-		debug_wrapText = False
-		
-		if debug_wrapText:
-		    text = self.w.commandManager.wrapToolButtonText(action.text())
-		    if text:	
-			action.setText(text)	
-		
-		#Set a different color palette for the 'SubControl' buttons in 
-		#the command manager. 
-		if [key for (counter, key) in flyoutDictionary.keys() 
-		    if key is action]:
-		    btn.setAutoFillBackground(True)
-		    btn.setPalette(subControlPalette)	
-		
-		#Set control button color palette for the Exit Chunk button in 
-		#the flyout toolbar
-		if action is self.exitBuildAction:
-		    btn.setAutoFillBackground(True)
-		    btn.setPalette(controlPalette)		    
-			    
-	self.flyoutDictionary = flyoutDictionary			
-	
+    
     def getFlyoutActionList(self): #Ninad 070126
-	""" returns custom actionlist that will be used in a specific mode or 
-	editing a feature etc 	Example: while in Build molecules mode, 
-	the _createFlyoutToolBar method calls this. 
-	It also returns the 'subcontrolAreaActionList'  """	
+	""" Returns a tuple that contains mode spcific actionlists in the 
+	added in the flyout toolbar of the mode. 
+	CommandManager._createFlyoutToolBar method calls this 
+	@return: params: A tuple that contains 3 lists: 
+	(subControlAreaActionList, commandActionLists, allActionsList)"""
 	
 	#ninad070330 This implementation may change in future. 
 	
@@ -637,24 +577,7 @@ class depositMode(selectAtomsMode, MMKit):
 	#buttons in the toolbar
 	subControlAreaActionList =[] 
 	
-			
-	self.exitBuildAction = QtGui.QWidgetAction(self.w)
-	self.exitBuildAction.setText("Exit Atoms")
-	self.exitBuildAction.setIcon(geticon('ui/actions/Toolbars/Smart/Exit'))
-	self.exitBuildAction.setCheckable(True)
-	self.exitBuildAction.setChecked(True)
 		
-	self.subControlActionGroup = QtGui.QActionGroup(self.w)
-	self.subControlActionGroup.setExclusive(True)	
-	
-	
-	
-	
-	
-	self.subControlActionGroup.addAction(self.depositAtomsAction)	
-	##self.subControlActionGroup.addAction(self.transmuteAtomsAction)
-	self.subControlActionGroup.addAction(self.transmuteBondsAction)
-	
 	#Append subcontrol area actions to  subControlAreaActionList
 	#The 'Exit button' althought in the subcontrol area, would 
 	#look as if its in the Control area because of the different color palette 
@@ -701,12 +624,13 @@ class depositMode(selectAtomsMode, MMKit):
 	depositAtomsCmdLst.append(self.w.modifyPassivateAction)
 	separatorAfterPassivate = QtGui.QAction(self.w)
 	separatorAfterPassivate.setSeparator(True)
-	depositAtomsCmdLst.append(separatorAfterPassivate) 
+	depositAtomsCmdLst.append(separatorAfterPassivate)
 	depositAtomsCmdLst.append(self.transmuteAtomsAction)	
 	separatorAfterTransmute = QtGui.QAction(self.w)
 	separatorAfterTransmute.setSeparator(True)
 	depositAtomsCmdLst.append(separatorAfterTransmute)
-	depositAtomsCmdLst.append(self.w.modifyDeleteBondsAction)
+	#Cut bonds is now in Bonds Tool, to fix bug 2425 - ninad20070622
+	##depositAtomsCmdLst.append(self.w.modifyDeleteBondsAction)
 	depositAtomsCmdLst.append(self.w.modifySeparateAction)
 	depositAtomsCmdLst.append(self.w.makeChunkFromAtomsAction)
 			
@@ -723,29 +647,20 @@ class depositMode(selectAtomsMode, MMKit):
 	bondsToolCmdLst.append(self.bond3Action)
 	bondsToolCmdLst.append(self.bondaAction)
 	bondsToolCmdLst.append(self.bondgAction)
+	bondsToolCmdLst.append(self.w.modifyDeleteBondsAction)
 	commandActionLists[3].extend(bondsToolCmdLst)
+		    	    
+	params = (subControlAreaActionList, commandActionLists, allActionsList)
 	
-	#The subcontrol area button and its command list form a 'key:value pair
-	#in a python dictionary object
-	flyoutDictionary = {}
-	
-	counter = 0
-	for k in subControlAreaActionList:
-	    # counter is used to sort the keys in the order in which they 
-	    #were added
-	    key = (counter, k) 
-	    flyoutDictionary[key] = commandActionLists[counter]
-	    #Also add command actions to the 'allActionsList'
-	    allActionsList.extend(commandActionLists[counter]) 
-	    counter +=1
-	    	    
-	return allActionsList, flyoutDictionary
+	return params
+    
     
     def updateCommandManager(self, bool_entering = True):
 	''' Update the command manager '''
-	
+		
+	obj = self
 	self.w.commandManager.updateCommandManager(self.w.toolsDepositAtomAction,
-						   self.flyoutDictionary, 
+						   obj, 
 						   entering =bool_entering)
     
     def activateAtomsTool(self):
