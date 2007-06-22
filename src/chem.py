@@ -1018,17 +1018,20 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             # If you make the cone bigger you might need to change that code too.
 
             drawsphere(color, pos, drawrad, level) #KLUGE (harmless) to set color and also to verify cone encloses sphere
-            try:
-                from OpenGL.GLE import glePolyCone
-            except:
-                print "GLE module can't be imported. Now trying _GLE"
-                from OpenGL._GLE import glePolyCone
 
             drawsphere(color, pos, drawrad, 0) #KLUGE (harmless but slow) to set color and also to verify cone encloses sphere
 
-            glePolyCone([pos - 2 * axis, pos - axis, pos + 3 * axis, pos + 4 * axis], # point array (2 end points not drawn)
-                        None, # color array (None means use current color)
-                        [drawrad * 2, drawrad * 2, 0, 0] # radius array
+            from drawer import glePolyCone
+            glePolyCone([[pos[0] - 2 * axis[0], pos[1] - 2 * axis[1],
+                          pos[2] - 2 * axis[2]],
+                         [pos[0] - axis[0], pos[1] - axis[1], pos[2] - axis[2]],
+                         [pos[0] + 3 * axis[0], pos[1] + 3 * axis[1],
+                          pos[2] + 3 * axis[2]],
+                         [pos[0] + 4 * axis[0], pos[1] + 4 * axis[1],
+                          pos[2] + 4 * axis[2]]], # Point array (the two end
+                                                  # points not drawn)
+                        None, # Color array (None means use current color)
+                        [drawrad * 2, drawrad * 2, 0, 0] # Radius array
                        )
         else:
             if style:

@@ -526,9 +526,17 @@ def draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highli
             axis = a2pos - a1pos
             drawrad = sigmabond_cyl_radius
             drawsphere(color, pos + 0.8 * axis, drawrad * 0.1, 1) ###KLUGE to set color
-            glePolyCone([pos + 0.5 * axis, pos + 0.6 * axis, pos + 1.0 * axis, pos + 1.1 * axis], # point array (2 end points not drawn)
-                        None, # color array (None means use current color)
-                        [drawrad * 2, drawrad * 2, 0, 0] # radius array
+            glePolyCone([[pos[0] + 0.5 * axis[0], pos[1] + 0.5 * axis[1],
+                          pos[2] + 0.5 * axis[2]],
+                         [pos[0] + 0.6 * axis[0], pos[1] + 0.6 * axis[1],
+                          pos[2] + 0.6 * axis[2]],
+                         [pos[0] + 1.0 * axis[0], pos[1] + 1.0 * axis[1],
+                          pos[2] + 1.0 * axis[2]],
+                         [pos[0] + 1.1 * axis[0], pos[1] + 1.1 * axis[1],
+                          pos[2] + 1.1 * axis[2]]], # Point array (the two end
+                                                    # points not drawn)
+                        None, # Color array (None means use current the color)
+                        [drawrad * 2, drawrad * 2, 0, 0] # Radius array
                        )
         pass
 
