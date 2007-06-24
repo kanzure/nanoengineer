@@ -1900,7 +1900,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
     # get into Move Chunks (or Translate Components) mode        
     def toolsMoveMolecule(self):
 	if self.glpane.mode.modename == 'MODIFY':
-	    self.glpane.mode.activate_moveGroupBox()		
+	    self.glpane.mode.activate_translateGroupBox()		
 	else:
 	    self.glpane.setMode('MODIFY')
 	

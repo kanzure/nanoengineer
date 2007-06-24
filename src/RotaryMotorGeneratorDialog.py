@@ -62,7 +62,7 @@ class RotaryMotorPropMgr(object, PropMgrBaseClass):
         self.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=True)
         
         # Hide preview button.
-        self.hideTopRowButtons(pmHidePreviewButton)
+        self.hideTopRowButtons(pmPreviewButton)
         
     def show(self):
         print "SHOW!"

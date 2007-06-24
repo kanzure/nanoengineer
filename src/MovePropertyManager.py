@@ -14,49 +14,74 @@ import sys
 from PyQt4 import QtCore, QtGui
 from Ui_MovePropertyManager import Ui_MovePropertyManager
 from PropertyManagerMixin import PropertyManagerMixin
-from PyQt4.Qt import Qt, SIGNAL, QWhatsThis
+from PyQt4.Qt import Qt, SIGNAL
 from Utility import geticon, getpixmap
 
-class MovePropertyManager(QtGui.QWidget, PropertyManagerMixin, Ui_MovePropertyManager):
+TRANSLATE=1
+ROTATE=2
+
+class MovePropertyManager(QtGui.QWidget, 
+                          PropertyManagerMixin, 
+                          Ui_MovePropertyManager):
+    
+    # The current move mode (either TRANSLATE or ROTATE).
+    _currentMoveMode = TRANSLATE 
+    
     def __init__(self):
         QtGui.QWidget.__init__(self)
         
         self.setupUi(self)
-        self.retranslateUi(self)   
+        self.retranslateUi(self)
         
         self.lastCheckedRotateAction = None 
         self.lastCheckedMoveAction = None
-                
-        #connect slots
-        self.connect(self.sponsor_btn,SIGNAL("clicked()"),self.sponsor_btn_clicked)
-        self.connect(self.done_btn,SIGNAL("clicked()"),self.w.toolsDone)
-        self.connect(self.whatsthis_btn,
-                     SIGNAL("clicked()"),
-                     QWhatsThis.enterWhatsThisMode)
-       
-        self.connect(self.move_groupBoxButton, SIGNAL("clicked()"),self.activate_moveGroupBox_using_groupButton)            
-        self.connect(self.rotate_groupBoxButton, SIGNAL("clicked()"),self.activate_rotateGroupBox_using_groupButton)
         
-        self.connect(self.movetype_combox, SIGNAL("currentIndexChanged(int)"), self.updateMoveGroupBoxItems)
-        self.connect(self.rotatetype_combox, SIGNAL("currentIndexChanged(int)"), self.updateRotateGroupBoxItems)
+        self.connect(self.sponsor_btn,
+                     SIGNAL("clicked()"),
+                     self.sponsor_btn_clicked)
+       
+        self.connect(self.translate_groupBoxButton, 
+                     SIGNAL("clicked()"),
+                     self.activate_translateGroupBox_using_groupButton)            
+        self.connect(self.rotate_groupBoxButton, 
+                     SIGNAL("clicked()"),
+                     self.activate_rotateGroupBox_using_groupButton)
+        
+        self.connect(self.movetype_combox, 
+                     SIGNAL("currentIndexChanged(int)"), 
+                     self.updateMoveGroupBoxItems)
+        self.connect(self.rotatetype_combox, 
+                     SIGNAL("currentIndexChanged(int)"), 
+                     self.updateRotateGroupBoxItems)
+        
+        self.updateMessage()
+        
+        self.add_whats_this_text()
     
-    def activate_moveGroupBox_using_groupButton(self):
+    def activate_translateGroupBox_using_groupButton(self):
         """Show contents of this groupbox, deactivae the other groupbox. 
-        Also check the action that was checked when this groupbox  was active last
-        time. (if applicable). This method is called only when move groupbox button 
-        is clicked. See also activate_moveGroupBox method. 
+        Also check the action that was checked when this groupbox  was active
+        last time. (if applicable). This method is called only when move 
+        groupbox button is clicked. See also activate_translateGroupBox 
+        method.
         """
         
-        self.toggle_moveGroupBox()
+        self._currentMoveMode = TRANSLATE
+        self.updateMessage()
+                
+        self.toggle_translateGroupBox()
         
         if not self.w.toolsMoveMoleculeAction.isChecked():
             self.w.toolsMoveMoleculeAction.setChecked(True)
             self.o.setCursor(self.w.MolSelTransCursor)
             
-            self.heading_pixmap.setPixmap(getpixmap('ui/actions/Properties Manager/Translate_Components.png'))
-            self.heading_label.setText(QtGui.QApplication.translate("MovePropertyManager", 
-                                                                "<font color=\"#FFFFFF\">Translate</font>", 
-                                                                None, QtGui.QApplication.UnicodeUTF8))  
+            self.heading_pixmap.setPixmap(
+                getpixmap('ui/actions/Properties Manager/Translate_Components.png'))
+            self.heading_label.setText(
+                QtGui.QApplication.translate("MovePropertyManager", 
+                                    "<font color=\"#FFFFFF\">Translate</font>",
+                                    None, 
+                                    QtGui.QApplication.UnicodeUTF8))  
             
             self.deactivate_rotateGroupBox()
             
@@ -77,6 +102,8 @@ class MovePropertyManager(QtGui.QWidget, PropertyManagerMixin, Ui_MovePropertyMa
         time. (if applicable). This method is called only when rotate groupbox button 
         is clicked. See also activate_rotateGroupBox method. 
         """
+        self._currentMoveMode = ROTATE
+        self.updateMessage()
         
         self.toggle_rotateGroupBox()
         
@@ -88,7 +115,7 @@ class MovePropertyManager(QtGui.QWidget, PropertyManagerMixin, Ui_MovePropertyMa
                                                                 "<font color=\"#FFFFFF\">Rotate</font>", 
                                                                 None, QtGui.QApplication.UnicodeUTF8))        
             
-            self.deactivate_moveGroupBox()
+            self.deactivate_translateGroupBox()
         
             #This is the action that was checked the last time when this 
             #groupbox was active. 
@@ -100,14 +127,18 @@ class MovePropertyManager(QtGui.QWidget, PropertyManagerMixin, Ui_MovePropertyMa
                 actionToCheck = self.w.rotateFreeAction
                 actionToCheck.setChecked(True)
                     
-    def activate_moveGroupBox(self):
+    def activate_translateGroupBox(self):
         """Show contents of this groupbox, deactivae the other groupbox. 
         Also check the action that was checked when this groupbox  was active last
         time. (if applicable) This action is called when toolsMoveMoleculeAction
         is checked from the toolbar or command manager. 
-        see also: activate_moveGroupBox_using_groupButton
+        see also: activate_translateGroupBox_using_groupButton
         """
-        self.toggle_moveGroupBox()
+        
+        self._currentMoveMode = TRANSLATE
+        self.updateMessage()
+                
+        self.toggle_translateGroupBox()
         self.o.setCursor(self.w.MolSelTransCursor)
         
         self.heading_pixmap.setPixmap(getpixmap('ui/actions/Properties Manager/Translate_Components.png'))        
@@ -135,6 +166,9 @@ class MovePropertyManager(QtGui.QWidget, PropertyManagerMixin, Ui_MovePropertyMa
         see also: activate_rotateGroupBox_using_groupButton
         """
         
+        self._currentMoveMode = ROTATE
+        self.updateMessage()
+        
         self.toggle_rotateGroupBox()
         self.o.setCursor(self.w.MolSelRotCursor)
         
@@ -143,7 +177,7 @@ class MovePropertyManager(QtGui.QWidget, PropertyManagerMixin, Ui_MovePropertyMa
                                                                 "<font color=\"#FFFFFF\">Rotate</font>", 
                                                                 None, QtGui.QApplication.UnicodeUTF8))    
         
-        self.deactivate_moveGroupBox()           
+        self.deactivate_translateGroupBox()           
     
         #This is the action that was checked the last time when this 
         #groupbox was active. 
@@ -175,14 +209,14 @@ class MovePropertyManager(QtGui.QWidget, PropertyManagerMixin, Ui_MovePropertyMa
         if self.w.rotateOptionsGroup.checkedAction(): #bruce 070613 added condition
             self.w.rotateOptionsGroup.checkedAction().setChecked(False)
         
-    def deactivate_moveGroupBox(self):
+    def deactivate_translateGroupBox(self):
         """ Hide the items in the groupbox, Also 
         store the current checked action which will be checked again 
         when user activates this groupbox again. After storing 
         the checked action, uncheck it (so that other active groupbox 
         action can operate easily). """
         
-        self.hideGroupBox(self.move_groupBoxButton, self.moveGroupBox_widgetHolder) 
+        self.hideGroupBox(self.translate_groupBoxButton, self.translateGroupBox_widgetHolder) 
         
         #Store the last checked action of the groupbox you are about to close
         #(in this case Move Groupbox is the groupbox that will be deactivated and 
@@ -193,14 +227,14 @@ class MovePropertyManager(QtGui.QWidget, PropertyManagerMixin, Ui_MovePropertyMa
         #Disconnect checked action in Move groupbox
         self.w.MoveOptionsGroup.checkedAction().setChecked(False)        
  
-    def toggle_moveGroupBox(self):
+    def toggle_translateGroupBox(self):
         """ Toggles the item display in the parent groupbox of the button and 
        hides the other groupbox also disconnecting the actions in the other groupbox
        Example: If user clicks on Move groupbox button, it will toggle the display of the groupbox, 
        connect its actions and Hide the other groupbox i.e. Rotate Compomnents groupbox and also 
        disconnect actions inside it"""
         
-        self.toggle_groupbox(self.move_groupBoxButton, self.moveGroupBox_widgetHolder)              
+        self.toggle_groupbox(self.translate_groupBoxButton, self.translateGroupBox_widgetHolder)              
         
     def updateMoveGroupBoxItems(self, id):
         """Update the items displayed in the move groupbox based on 
@@ -267,5 +301,108 @@ class MovePropertyManager(QtGui.QWidget, PropertyManagerMixin, Ui_MovePropertyMa
         else:
             return None
         
-               
+    def updateMessage(self): # Mark 2007-06-23
+        """Updates the message box with an informative message.
+        """
         
+        from ops_select import objectSelected
+        if objectSelected(self.o.assy):
+            msg = ""
+        else:
+            msg = "Click on an object to select it."
+        
+        if self._currentMoveMode == TRANSLATE:
+            msg += "Translate the current selection by holding down the \
+                left mouse button (<b>LMB</b>) and dragging the cursor. \
+                Translation options are availabe below."
+        else:
+            msg += "Rotate the current selection by holding down the \
+                left mouse button (<b>LMB</b>) and dragging the cursor. \
+                Rotate options are availabe below."
+
+        self.MessageGroupBox.insertHtmlMessage( msg, setAsDefault  =  True )
+        
+    def add_whats_this_text( self ):
+        """What's This text for some of the widgets in the 
+        Move Property Manager.
+        """
+        
+        # Translate group box widgets
+        self.movetype_combox.setWhatsThis(
+            """<b>Translation Options</b>
+            <p>This menu provides different options for translating the
+            current selection where:</p>
+            <p>
+            <b>Free Drag</b>: translate the selection by dragging the mouse
+            while holding down the left mouse button (LMB).<br>
+            <b>By Delta XYZ</b>: tranlate by a specified offset.<br>
+            <b>To XYZ Position</b>: move the selection to a specified XYZ
+            coordinate. The <i>centroid</i> of the selection is used for
+            this operation.
+            </p>""")
+        
+        self.moveFreeButton.setWhatsThis(
+            """<b>Unconstrained Translation</b>
+            <p>Translates the selection freely within the plane of the screen.
+            </p>""")
+        
+        self.transXButton.setWhatsThis(
+            """<b>X Translation</b>
+            <p>Constrains translation of the selection to the X axis.
+            </p>""")
+        
+        self.transYButton.setWhatsThis(
+            """<b>Y Translation</b>
+            <p>Constrains translation of the selection to the Y axis.
+            </p>""")
+        
+        self.transZButton.setWhatsThis(
+            """<b>Z Translation</b>
+            <p>Constrains translation of the selection to the Z axis.
+            </p>""")
+        
+        self.rotTransAlongAxisButton_1.setWhatsThis(
+            """<b>Axial Translation/Rotation</b>
+            <p>Constrains both translation and rotation of the selection along
+            the central axis of the selected object(s). This is especially
+            useful for translating and rotating DNA duplexes along their
+            own axis.
+            </p>""")
+        
+        # Rotate group box widgets
+        
+        self.rotateFreeButton.setWhatsThis(
+            """<b>Unconstrained Rotation</b>
+            <p>Rotates the selection freely about its centroid.
+            </p>""")
+        
+        self.rotateXButton.setWhatsThis(
+            """<b>X Rotation</b>
+            <p>Constrains rotation of the selection to the X axis.
+            </p>""")
+        
+        self.rotateYButton.setWhatsThis(
+            """<b>Y Rotation</b>
+            <p>Constrains rotation of the selection to the Y axis.
+            </p>""")
+        
+        self.rotateZButton.setWhatsThis(
+            """<b>Z Rotation</b>
+            <p>Constrains rotation of the selection to the Z axis.
+            </p>""")
+        
+        self.rotTransAlongAxisButton_2.setWhatsThis(
+            """<b>Axial Translation/Rotation</b>
+            <p>Constrains both translation and rotation of the selection along
+            the central axis of the selected object(s). This is especially
+            useful for translating and rotating DNA duplexes along their
+            own axis.
+            </p>""")
+        
+        self.rotateAsUnitCB.setWhatsThis(
+            """<b>Rotate as unit</b>
+            <p>When <b>checked</b>, the selection is rotated as a unit about its
+            collective centroid.<br>
+            When <b>uncheck</b>, the selected objects are rotated about their own
+            individual centroids.
+            </p>""")

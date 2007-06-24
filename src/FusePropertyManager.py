@@ -19,7 +19,8 @@ from Ui_FusePropertyManager import Ui_FusePropertyManager
 from PyQt4.Qt import Qt, SIGNAL
 from Utility import geticon
 
-class FusePropertyManager(QtGui.QWidget, PropertyManagerMixin,
+class FusePropertyManager(QtGui.QWidget, 
+                          PropertyManagerMixin,
                           Ui_FusePropertyManager):
     def __init__(self):
         QtGui.QWidget.__init__(self)
@@ -32,8 +33,8 @@ class FusePropertyManager(QtGui.QWidget, PropertyManagerMixin,
         self.isMoveGroupBoxActive = True
         self.o.setCursor(self.w.MolSelTransCursor)
         
-        self.showGroupBox(self.move_groupBoxButton, 
-                          self.moveGroupBox_widgetHolder)        
+        self.showGroupBox(self.translate_groupBoxButton, 
+                          self.translateGroupBox_widgetHolder)        
         self.hideGroupBox(self.rotate_groupBoxButton, 
                           self.rotateGroupBox_widgetHolder)
         
@@ -41,17 +42,20 @@ class FusePropertyManager(QtGui.QWidget, PropertyManagerMixin,
         self.lastCheckedMoveAction = None
         
         #connect slots
-        self.connect(self.sponsor_btn,SIGNAL("clicked()"),self.sponsor_btn_clicked)
-        self.connect(self.done_btn,SIGNAL("clicked()"),self.w.toolsDone)
+        self.connect(self.sponsor_btn,
+                     SIGNAL("clicked()"),
+                     self.sponsor_btn_clicked)
         
-        self.connect(self.move_groupBoxButton, SIGNAL("clicked()"),
-                     self.activate_moveGroupBox_in_fuse_PM)            
-        self.connect(self.rotate_groupBoxButton, SIGNAL("clicked()"),
-                self.activate_rotateGroupBox_in_fuse_PM)
+        self.connect(self.translate_groupBoxButton, 
+                     SIGNAL("clicked()"),
+                     self.activate_translateGroupBox_in_fuse_PM)            
+        self.connect(self.rotate_groupBoxButton, 
+                     SIGNAL("clicked()"),
+                     self.activate_rotateGroupBox_in_fuse_PM)
         
-        self.connect(self.fuseOptions_groupBoxButton, SIGNAL("clicked()"),
+        self.connect(self.fuseOptions_groupBoxButton, 
+                     SIGNAL("clicked()"),
                      self.toggle_fuseOptionsGroupBox)
-        
         
         try:
             self.connect(self.movetype_combox, SIGNAL("currentIndexChanged(int)"), 
@@ -65,11 +69,11 @@ class FusePropertyManager(QtGui.QWidget, PropertyManagerMixin,
             return            
         
         
-    def activate_moveGroupBox_in_fuse_PM(self):
+    def activate_translateGroupBox_in_fuse_PM(self):
         """Show contents of translate groupbox, deactivae the rotate groupbox. 
         Also check the action that was checked when this groupbox  was active last
         time. (if applicable). This method is called only when move groupbox button 
-        is clicked. See also activate_moveGroupBox_in_fuse_PM method . 
+        is clicked. See also activate_translateGroupBox_in_fuse_PM method . 
         """
         
         #@@Note: FusePropertyManager doesn't inherit MovePropertyManager. 
@@ -81,7 +85,7 @@ class FusePropertyManager(QtGui.QWidget, PropertyManagerMixin,
         #partially help identify the problem (if it ever arises) -- ninad070425
         
         try:
-            self.toggle_moveGroupBox()
+            self.toggle_translateGroupBox()
             self.o.setCursor(self.w.MolSelTransCursor)
             self.deactivate_rotateGroupBox()
         except:
@@ -123,7 +127,7 @@ class FusePropertyManager(QtGui.QWidget, PropertyManagerMixin,
         try:
             self.toggle_rotateGroupBox()
             self.o.setCursor(self.w.MolSelRotCursor)
-            self.deactivate_moveGroupBox()
+            self.deactivate_translateGroupBox()
         except:
             print "Bug: methods defined in Move Property manager methods\
             not accessible in fuse property manager. Likely to cause other bugs\

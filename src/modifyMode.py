@@ -213,9 +213,6 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
         change_connect(self.w.rotateThetaMinusAction, SIGNAL("activated()"), self.moveThetaMinus)
         change_connect(self.w.movetype_combox, SIGNAL("activated(const QString&)"), self.setup_movetype)
         
-        change_connect(self.exitMoveAction, SIGNAL("triggered()"), 
-		       self.w.toolsDone)
-        
     def restore_gui(self):
         # disconnect signals which were connected in init_gui [bruce 050728]
 	self.updateCommandManager(bool_entering = False)
@@ -224,7 +221,7 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
         self.w.rotateComponentsAction.setChecked(False)
         self.connect_or_disconnect_signals(False)
         self.w.moveChunksDashboard.hide()
-	       
+
     
     def getFlyoutActionList(self): #Ninad 20070618
 	""" Returns a tuple that contains mode spcific actionlists in the 

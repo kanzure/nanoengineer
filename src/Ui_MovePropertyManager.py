@@ -10,6 +10,7 @@ from PyQt4 import QtCore, QtGui
 from PyQt4.Qt import *
 from Utility import geticon, getpixmap
 from qt4transition import qt4todo
+from PropertyManagerMixin import pmAddTopRowButtons, pmMessageGroupBox, pmAddBottomSpacer
 from PropMgr_Constants import *
 
 class Ui_MovePropertyManager(object):
@@ -22,11 +23,11 @@ class Ui_MovePropertyManager(object):
         palette = MovePropertyManager.getPropertyManagerPalette()
         MovePropertyManager.setPalette(palette)
         
-        self.vboxlayout = QtGui.QVBoxLayout(MovePropertyManager)
-        self.vboxlayout.setMargin(0) # was 1. Mark 2007-05-24.
-        self.vboxlayout.setSpacing(0) # was 1. Mark 2007-05-24.
-        self.vboxlayout.setSizeConstraint(QLayout.SetMinimumSize)
-        self.vboxlayout.setObjectName("vboxlayout")
+        self.pmVBoxLayout = QtGui.QVBoxLayout(MovePropertyManager)
+        self.pmVBoxLayout.setMargin(0) # was 1. Mark 2007-05-24.
+        self.pmVBoxLayout.setSpacing(0) # was 1. Mark 2007-05-24.
+        self.pmVBoxLayout.setSizeConstraint(QLayout.SetMinimumSize)
+        self.pmVBoxLayout.setObjectName("pmVBoxLayout")
         
         self.heading_frame = QtGui.QFrame(MovePropertyManager)
         self.heading_frame.setFrameShape(QtGui.QFrame.NoFrame)
@@ -67,7 +68,7 @@ class Ui_MovePropertyManager(object):
 	self.heading_label.setAlignment(pmLabelLeftAlignment)
         self.hboxlayout_heading .addWidget(self.heading_label)
         
-        self.vboxlayout.addWidget(self.heading_frame)
+        self.pmVBoxLayout.addWidget(self.heading_frame)
 
         self.sponsor_frame = QtGui.QFrame(MovePropertyManager)
         self.sponsor_frame.setFrameShape(QtGui.QFrame.NoFrame)
@@ -85,97 +86,64 @@ class Ui_MovePropertyManager(object):
         self.sponsor_btn.setObjectName("sponsor_btn")
         self.gridlayout_sponsor.addWidget(self.sponsor_btn,0,0,1,1)
         
-        self.vboxlayout.addWidget(self.sponsor_frame)
+        self.pmVBoxLayout.addWidget(self.sponsor_frame)
         
-        self.ui_doneCancelButtonRow(MovePropertyManager)
+	pmAddTopRowButtons(MovePropertyManager, 
+			   showFlags = pmDoneButton | pmWhatsThisButton)
 	
-	from PropertyManagerMixin import MessageGroupBox, addBottomSpacer
-	self.MessageGroupBox = MessageGroupBox(self, title="Message")
-	self.vboxlayout.addWidget(self.MessageGroupBox)
-	addBottomSpacer(self.MessageGroupBox, self.vboxlayout)
+	self.MessageGroupBox = pmMessageGroupBox(self, title="Message")
+	self.pmVBoxLayout.addWidget(self.MessageGroupBox)
+	pmAddBottomSpacer(self.MessageGroupBox, self.pmVBoxLayout)
         
-        self.ui_move_groupBox(MovePropertyManager)
-	addBottomSpacer(self.move_groupBox, self.vboxlayout)
+        self.ui_translate_groupBox(MovePropertyManager)
+	pmAddBottomSpacer(self.translate_groupBox, self.pmVBoxLayout)
         
         self.ui_rotate_groupBox(MovePropertyManager)   
-	addBottomSpacer(self.rotate_groupBox, self.vboxlayout, last=True)
-    
-    def ui_doneCancelButtonRow(self, MovePropertyManager):
-        #Start Done , Abort, button row
+	pmAddBottomSpacer(self.rotate_groupBox, self.pmVBoxLayout, last=True)
         
-        hboxlayout_buttonrow = QtGui.QHBoxLayout()
-        
-        hSpacer = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QSizePolicy.Minimum)
-        hboxlayout_buttonrow.addItem(hSpacer)
-              
-        self.button_frame = QtGui.QFrame(MovePropertyManager)
-
-        self.button_frame.setFrameShape(QtGui.QFrame.NoFrame)
-        self.button_frame.setFrameShadow(QtGui.QFrame.Plain)
-        
-        self.hboxlayout_buttonframe = QtGui.QHBoxLayout(self.button_frame)
-        self.hboxlayout_buttonframe.setMargin(pmTopRowBtnsMargin)
-        self.hboxlayout_buttonframe.setSpacing(pmTopRowBtnsSpacing)
-                
-        self.done_btn = QtGui.QToolButton(self.button_frame)
-        self.done_btn.setIcon(geticon("ui/actions/Properties Manager/Done.png"))
-	self.done_btn.setIconSize(QSize(22,22))
-        self.hboxlayout_buttonframe.addWidget(self.done_btn)
-                
-        self.whatsthis_btn = QtGui.QToolButton(self.button_frame)
-        self.whatsthis_btn.setIcon(geticon("ui/actions/Properties Manager/WhatsThis.png"))
-	self.whatsthis_btn.setIconSize(QSize(22,22))
-        self.hboxlayout_buttonframe.addWidget(self.whatsthis_btn)
-
-        hboxlayout_buttonrow.addWidget(self.button_frame)
-        
-        hboxlayout_buttonrow.addItem(hSpacer)
-
-        self.vboxlayout.addLayout(hboxlayout_buttonrow)
-        
-    def ui_move_groupBox(self, MovePropertyManager):
+    def ui_translate_groupBox(self, MovePropertyManager):
         #Start Move Groupbox
-        self.move_groupBox = QtGui.QGroupBox(MovePropertyManager)
-        self.move_groupBox .setObjectName("move_groupBox")
+        self.translate_groupBox = QtGui.QGroupBox(MovePropertyManager)
+        self.translate_groupBox .setObjectName("translate_groupBox")
                
-        self.move_groupBox.setAutoFillBackground(True)
+        self.translate_groupBox.setAutoFillBackground(True)
         palette = MovePropertyManager.getGroupBoxPalette()
-        self.move_groupBox.setPalette(palette)
+        self.translate_groupBox.setPalette(palette)
         
         styleSheet = MovePropertyManager.getGroupBoxStyleSheet()        
-        self.move_groupBox.setStyleSheet(styleSheet)
+        self.translate_groupBox.setStyleSheet(styleSheet)
         
-        self.vboxlayout_move_grpbox = QtGui.QVBoxLayout(self.move_groupBox)
+        self.vboxlayout_move_grpbox = QtGui.QVBoxLayout(self.translate_groupBox)
         self.vboxlayout_move_grpbox.setMargin(0)
         self.vboxlayout_move_grpbox.setSpacing(6)
         self.vboxlayout_move_grpbox.setObjectName("vboxlayout_move_grpbox") 
         
         if self.w.toolsMoveMoleculeAction.isChecked():
-            self.move_groupBoxButton= MovePropertyManager.getGroupBoxTitleButton(
-            "Translate", self.move_groupBox)
+            self.translate_groupBoxButton= MovePropertyManager.getGroupBoxTitleButton(
+            "Translate", self.translate_groupBox)
         else:
-            self.move_groupBoxButton= MovePropertyManager.getGroupBoxTitleButton(
-            "Translate", self.move_groupBox, bool_expand = False)
+            self.translate_groupBoxButton= MovePropertyManager.getGroupBoxTitleButton(
+            "Translate", self.translate_groupBox, bool_expand = False)
             
         
-        self.move_groupBoxButton.setShortcut('T')
-        self.vboxlayout_move_grpbox.addWidget(self.move_groupBoxButton) 
+        self.translate_groupBoxButton.setShortcut('T')
+        self.vboxlayout_move_grpbox.addWidget(self.translate_groupBoxButton) 
         
         
-        self.moveGroupBox_widgetHolder = QtGui.QWidget(self.move_groupBox)
-        self.vboxlayout_move_grpbox.addWidget(self.moveGroupBox_widgetHolder)
+        self.translateGroupBox_widgetHolder = QtGui.QWidget(self.translate_groupBox)
+        self.vboxlayout_move_grpbox.addWidget(self.translateGroupBox_widgetHolder)
         
         if self.w.toolsMoveMoleculeAction.isChecked():
             self.w.moveFreeAction.setChecked(True)
-            self.moveGroupBox_widgetHolder.show()
+            self.translateGroupBox_widgetHolder.show()
         else:
-            self.moveGroupBox_widgetHolder.hide()
+            self.translateGroupBox_widgetHolder.hide()
         
-        self.vboxlo_moveWidgetHolder = QtGui.QVBoxLayout(self.moveGroupBox_widgetHolder)
+        self.vboxlo_moveWidgetHolder = QtGui.QVBoxLayout(self.translateGroupBox_widgetHolder)
         self.vboxlo_moveWidgetHolder.setMargin(4)
         self.vboxlo_moveWidgetHolder.setSpacing(6)
                
-        self.movetype_combox = QtGui.QComboBox(self.moveGroupBox_widgetHolder)
+        self.movetype_combox = QtGui.QComboBox(self.translateGroupBox_widgetHolder)
         self.movetype_combox.addItem("Free Drag")
         self.movetype_combox.addItem("By Delta XYZ")
         self.movetype_combox.addItem("To XYZ Position")
@@ -191,10 +159,10 @@ class Ui_MovePropertyManager(object):
         self.ui_toXYZPosition_comboItem(MovePropertyManager)
         
         #End Move Options
-        self.vboxlayout.addWidget(self.move_groupBox)
+        self.pmVBoxLayout.addWidget(self.translate_groupBox)
 	
 	# Height is fixed. Mark 2007-05-29.
-	self.move_groupBox.setSizePolicy(
+	self.translate_groupBox.setSizePolicy(
                 QSizePolicy(QSizePolicy.Policy(QSizePolicy.Preferred),
                             QSizePolicy.Policy(QSizePolicy.Fixed)))
     
@@ -251,7 +219,7 @@ class Ui_MovePropertyManager(object):
         self.ui_rotateBySpecifiedAngle_comboItem(MovePropertyManager)
            
         #End Rotate Options Groupbox
-        self.vboxlayout.addWidget(self.rotate_groupBox)
+        self.pmVBoxLayout.addWidget(self.rotate_groupBox)
         
 	# Height is fixed. Mark 2007-05-29.
 	self.rotate_groupBox.setSizePolicy(
@@ -260,7 +228,7 @@ class Ui_MovePropertyManager(object):
     
     def ui_freeDrag_comboItem(self, MovePropertyManager):
         
-        self.freeDragWidget = QtGui.QWidget(self.moveGroupBox_widgetHolder)
+        self.freeDragWidget = QtGui.QWidget(self.translateGroupBox_widgetHolder)
         
         hlo = QtGui.QHBoxLayout(self.freeDragWidget)
         hlo.setSpacing(2)
@@ -304,7 +272,7 @@ class Ui_MovePropertyManager(object):
     
     def ui_byDeltaXYZ_comboItem(self, MovePropertyManager):
         """Widget to show when 'By Delta XYZ Position' item  in the combobox is selected"""
-        self.byDeltaXYZWidget = QtGui.QWidget(self.moveGroupBox_widgetHolder)
+        self.byDeltaXYZWidget = QtGui.QWidget(self.translateGroupBox_widgetHolder)
         lo = QtGui.QVBoxLayout(self.byDeltaXYZWidget)
         lo.setSpacing(2)
         
@@ -327,17 +295,17 @@ class Ui_MovePropertyManager(object):
         hlayout_z.addWidget(self.dz_label)
         
         self.moveDeltaXSpinBox = QtGui.QDoubleSpinBox(self.byDeltaXYZWidget)
-        self.moveDeltaXSpinBox.setSuffix(" A")
+        self.moveDeltaXSpinBox.setSuffix(" Angstroms")
         hlayout_x.addWidget(self.moveDeltaXSpinBox)
         spacer_x = QtGui.QSpacerItem(20,5,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
         hlayout_x.addItem(spacer_x)
         self.moveDeltaYSpinBox = QtGui.QDoubleSpinBox(self.byDeltaXYZWidget)
-        self.moveDeltaYSpinBox.setSuffix(" A")
+        self.moveDeltaYSpinBox.setSuffix(" Angstroms")
         hlayout_y.addWidget(self.moveDeltaYSpinBox)
         spacer_y = QtGui.QSpacerItem(20,5,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
         hlayout_y.addItem(spacer_y)
         self.moveDeltaZSpinBox = QtGui.QDoubleSpinBox(self.byDeltaXYZWidget)
-        self.moveDeltaZSpinBox.setSuffix(" A")
+        self.moveDeltaZSpinBox.setSuffix(" Angstroms")
         hlayout_z.addWidget(self.moveDeltaZSpinBox)
         spacer_z = QtGui.QSpacerItem(20,5,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
         hlayout_z.addItem(spacer_z)
@@ -384,7 +352,7 @@ class Ui_MovePropertyManager(object):
     
     def ui_toXYZPosition_comboItem(self, MovePropertyManager):
         """Widget to show when 'To XYZ Position' item in the combobox is selected."""
-        self.toXYZPositionWidget = QtGui.QWidget(self.moveGroupBox_widgetHolder)
+        self.toXYZPositionWidget = QtGui.QWidget(self.translateGroupBox_widgetHolder)
         lo = QtGui.QVBoxLayout(self.toXYZPositionWidget)
         lo.setSpacing(2)
         
@@ -407,17 +375,17 @@ class Ui_MovePropertyManager(object):
         hlayout_z.addWidget(self.z_label)
         
         self.moveXSpinBox = QtGui.QDoubleSpinBox(self.toXYZPositionWidget)
-        self.moveXSpinBox.setSuffix(" A")
+        self.moveXSpinBox.setSuffix(" Angstroms")
         hlayout_x.addWidget(self.moveXSpinBox)
         spacer_x = QtGui.QSpacerItem(20,5,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
         hlayout_x.addItem(spacer_x)
         self.moveYSpinBox = QtGui.QDoubleSpinBox(self.toXYZPositionWidget)
-        self.moveYSpinBox.setSuffix(" A")
+        self.moveYSpinBox.setSuffix(" Angstroms")
         hlayout_y.addWidget(self.moveYSpinBox)
         spacer_y = QtGui.QSpacerItem(20,5,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
         hlayout_y.addItem(spacer_y)
         self.moveZSpinBox = QtGui.QDoubleSpinBox(self.toXYZPositionWidget)
-        self.moveZSpinBox.setSuffix(" A")
+        self.moveZSpinBox.setSuffix(" Angstroms")
         hlayout_z.addWidget(self.moveZSpinBox)
         spacer_z = QtGui.QSpacerItem(20,5,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
         hlayout_z.addItem(spacer_z)
@@ -658,4 +626,4 @@ class Ui_MovePropertyManager(object):
                                                                         None, QtGui.QApplication.UnicodeUTF8))
         self.heading_label.setText(QtGui.QApplication.translate("MovePropertyManager", 
                                                                 "<font color=\"#FFFFFF\">Translate </font>", 
-                                                                None, QtGui.QApplication.UnicodeUTF8))        
+                                                                None, QtGui.QApplication.UnicodeUTF8))

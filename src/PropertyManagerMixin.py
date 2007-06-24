@@ -27,7 +27,178 @@ from debug import print_compact_traceback
 import platform
 from PropMgrBaseClass import PropertyManager_common
 
-class MessageGroupBox(QGroupBox, PropertyManager_common):
+def pmAddTopRowButtons(parent, showFlags=pmAllButtons):
+    """Creates the OK, Cancel, Preview, and What's This 
+    buttons row at the top of the Property Manager <parent>.
+    <showFlags> is an enum that can be used to show only certain 
+    Property Manager buttons, where:
+    
+    pmDoneButton = 1
+    pmCancelButton = 2
+    pmRestoreDefaultsButton = 4
+    pmPreviewButton = 8
+    pmWhatsThisButton = 16
+    pmAllButtons = 31
+    
+    These flags are defined in PropMgr_Constants.py.
+    
+    This subroutine is used by the following Property Managers
+    (which are still not using the PropMgrBaseClass):
+    - Build Atoms
+    - Build Crystal
+    - Extrude
+    - Move
+    - Movie Player
+    - Fuse Chunks
+    
+    Note: This subrouting is temporary. It will be removed after the
+    PropMgrs in this list are converted to the PropMgrBaseClass.
+    Mark 2007-06-24
+    """
+    # The Top Buttons Row includes the following widgets:
+    #
+    # - parent.pmTopRowBtns (Hbox Layout containing everything:)
+    #   
+    #   - frame
+    #     - hbox layout "frameHboxLO" (margin=2, spacing=2)
+    #     - Done (OK) button
+    #     - Abort (Cancel) button
+    #     - Restore Defaults button
+    #     - Preview button
+    #     - What's This button
+    #   - right spacer (10x10)
+        
+    # Main "button group" widget (but it is not a QButtonGroup).
+    parent.pmTopRowBtns = QHBoxLayout()
+    
+    # Horizontal spacer
+    HSpacer = QSpacerItem(1, 1, 
+			QSizePolicy.Expanding, 
+			QSizePolicy.Minimum)
+    
+    # Frame containing all the buttons.
+    parent.TopRowBtnsFrame = QFrame()
+
+    parent.TopRowBtnsFrame.setFrameShape(QFrame.NoFrame)
+    parent.TopRowBtnsFrame.setFrameShadow(QFrame.Plain)
+    
+    # Create Hbox layout for main frame.
+    TopRowBtnsHLayout = QHBoxLayout(parent.TopRowBtnsFrame)
+    TopRowBtnsHLayout.setMargin(pmTopRowBtnsMargin)
+    TopRowBtnsHLayout.setSpacing(pmTopRowBtnsSpacing)
+    
+    TopRowBtnsHLayout.addItem(HSpacer)
+    
+    # Set button type.
+    buttonType = QToolButton 
+    # May want to use QToolButton.setAutoRaise(1) below. Mark 2007-05-29
+
+    # OK (Done) button.
+    parent.done_btn = buttonType(parent.TopRowBtnsFrame)
+    parent.done_btn.setIcon(
+	geticon("ui/actions/Properties Manager/Done.png"))
+    parent.done_btn.setIconSize(QSize(22,22))  
+    parent.connect(parent.done_btn,
+		   SIGNAL("clicked()"),
+		   parent.ok_btn_clicked)
+    parent.done_btn.setToolTip("Done")
+        
+    TopRowBtnsHLayout.addWidget(parent.done_btn)
+        
+    # Cancel (Abort) button.
+    parent.abort_btn = buttonType(parent.TopRowBtnsFrame)
+    parent.abort_btn.setIcon(
+	geticon("ui/actions/Properties Manager/Abort.png"))
+    parent.abort_btn.setIconSize(QSize(22,22))
+    parent.connect(parent.abort_btn,
+		   SIGNAL("clicked()"),
+		   parent.abort_btn_clicked)
+    parent.abort_btn.setToolTip("Cancel")
+        
+    TopRowBtnsHLayout.addWidget(parent.abort_btn)
+        
+    # Restore Defaults button.
+    parent.restore_defaults_btn = buttonType(parent.TopRowBtnsFrame)
+    parent.restore_defaults_btn.setIcon(
+	geticon("ui/actions/Properties Manager/Restore.png"))
+    parent.restore_defaults_btn.setIconSize(QSize(22,22))
+    parent.connect(parent.restore_defaults_btn,
+		   SIGNAL("clicked()"),
+		   parent.restore_defaults_btn_clicked)
+    parent.restore_defaults_btn.setToolTip("Restore Defaults")
+    TopRowBtnsHLayout.addWidget(parent.restore_defaults_btn)
+        
+    # Preview (glasses) button.
+    parent.preview_btn = buttonType(parent.TopRowBtnsFrame)
+    parent.preview_btn.setIcon(
+	geticon("ui/actions/Properties Manager/Preview.png"))
+    parent.preview_btn.setIconSize(QSize(22,22))
+    parent.connect(parent.preview_btn,
+		   SIGNAL("clicked()"),
+		   parent.preview_btn_clicked)
+    parent.preview_btn.setToolTip("Preview")
+        
+    TopRowBtnsHLayout.addWidget(parent.preview_btn)        
+        
+    # What's This (?) button.
+    parent.whatsthis_btn = buttonType(parent.TopRowBtnsFrame)
+    parent.whatsthis_btn.setIcon(
+	geticon("ui/actions/Properties Manager/WhatsThis.png"))
+    parent.whatsthis_btn.setIconSize(QSize(22,22))
+    parent.connect(parent.whatsthis_btn,
+		   SIGNAL("clicked()"),
+		   QWhatsThis.enterWhatsThisMode)
+    parent.whatsthis_btn.setToolTip("What\'s This Help")
+        
+    TopRowBtnsHLayout.addWidget(parent.whatsthis_btn)
+        
+    TopRowBtnsHLayout.addItem(HSpacer)
+        
+    # Create Button Row
+    parent.pmTopRowBtns.addWidget(parent.TopRowBtnsFrame)
+        
+    parent.pmVBoxLayout.addLayout(parent.pmTopRowBtns)
+	
+    # Add What's This for buttons.
+	
+    parent.done_btn.setWhatsThis("""<b>Done</b>
+	<p><img source=\"ui/actions/Properties Manager/Done.png\"><br>
+	Completes and/or exits the current command.</p>""")
+	
+    parent.abort_btn.setWhatsThis("""<b>Cancel</b>
+	<p><img source=\"ui/actions/Properties Manager/Abort.png\"><br>
+	Cancels the current command.</p>""")
+	
+    parent.restore_defaults_btn.setWhatsThis("""<b>Restore Defaults</b>
+	<p><img source=\"ui/actions/Properties Manager/Restore.png\"><br>
+	Restores the defaut values of the Property Manager.</p>""")
+	
+    parent.preview_btn.setWhatsThis("""<b>Preview</b>
+	<p><img source=\"ui/actions/Properties Manager/Preview.png\"><br>
+	Preview the structure based on current Property Manager settings.</p>""")
+
+    parent.whatsthis_btn.setWhatsThis("""<b>What's This</b> 
+	<p><img source=\"ui/actions/Properties Manager/WhatsThis.png\"><br>
+	Click this option to invoke a small question mark that is attached to the mouse pointer, 
+	then click on an object which you would like more information about. 
+	A pop-up box appears with information about the object you selected.</p>""")
+    
+    # Hide the buttons that shouldn't be displayed base on <showFlags>.
+
+    if not showFlags & pmDoneButton:
+	parent.done_btn.hide()
+    if not showFlags & pmCancelButton:
+	parent.abort_btn.hide()
+    if not showFlags & pmRestoreDefaultsButton:
+	parent.restore_defaults_btn.hide()
+    if not showFlags & pmPreviewButton:
+	parent.preview_btn.hide()
+    if not showFlags & pmWhatsThisButton:
+	parent.whatsthis_btn.hide()
+	
+    return    
+    
+class pmMessageGroupBox(QGroupBox, PropertyManager_common):
     """Creates a Message group box. 
     This class is used by the following Property Managers
     (which are still not using the PropMgrBaseClass):
@@ -44,8 +215,15 @@ class MessageGroupBox(QGroupBox, PropertyManager_common):
     """
     
     expanded = True # Set to False when groupbox is collapsed.
+    defaultText = "" 
+    # The default text that is displayed whenever the Property Manager is displayed.
+    setAsDefault = True
+    # Checked to determine if <defaultText> should be restored whenever the
+    # Property Manager is displayed.
     
-    def __init__(self, parent, title=''):
+    def __init__(self, 
+		 parent, 
+		 title = ''):
         
         QGroupBox.__init__(self)
 	if parent:
@@ -212,7 +390,7 @@ class MessageGroupBox(QGroupBox, PropertyManager_common):
         
         return styleSheet
     
-    def insertHtmlMessage(self, text, 
+    def insertHtmlMessage(self, text, setAsDefault=True,
                           minLines=4, maxLines=10, 
                           replace=True):
         """Insert <text> (HTML) into the message groupbox.
@@ -225,6 +403,10 @@ class MessageGroupBox(QGroupBox, PropertyManager_common):
 
         Shows the message groupbox if it is hidden.
         """
+	if setAsDefault:
+            self.defaultText = text
+            self.setAsDefault = True
+	    
         if replace:
             self.MessageTextEdit.clear()
 	    
@@ -287,7 +469,7 @@ class MessageGroupBox(QGroupBox, PropertyManager_common):
     
     # End of messageGroupBox class. ###################
     
-def addBottomSpacer(parent, vlayout, last=False):
+def pmAddBottomSpacer(parent, vlayout, last=False):
     """Adds a vertical spacer to the bottom of <parent>, a group box.
     <vlayout> is the VBoxLayout of the Property Manager.
     <last> - Set to True if <parent> is the last (bottom) groupbox in 
@@ -571,6 +753,20 @@ class PropertyManagerMixin(PropertyManager_common, SponsorableMixin):
             palette = self.getGroupBoxButtonPalette()
             groupBoxButton.setPalette(palette)
             groupBoxButton.setIcon(geticon("ui/actions/Properties Manager/GHOST_ICON"))
+	    
+    def ok_btn_clicked(self):
+        self.w.toolsDone()
+	pass
+    
+    def abort_btn_clicked(self):
+	self.w.toolsCancel()
+        pass
+    
+    def restore_defaults_btn_clicked(self):
+        pass
+    
+    def preview_btn_clicked(self):
+        pass
 
     pass # end of class PropertyManagerMixin
 

@@ -53,7 +53,7 @@ class PlanePropMgr(object,PropMgrBaseClass):
         self.resized_from_glpane = False
         
         #Hide Preview and Restore defaults button for Alpha9
-        self.hideTopRowButtons(pmHideRestoreDefaultsButton)
+        self.hideTopRowButtons(pmRestoreDefaultsButton)
       
         
     def addGroupBoxes(self):

@@ -67,17 +67,17 @@ pmTopRowBtnsMargin = 5 # margin around buttons.
 pmTopRowBtnsSpacing = 5 # space between buttons.
 
 # TopRowButton hide button flags for top row buttons.
-pmShowAllButtons = 0
-pmHideDoneButton = 1
-pmHideCancelButton = 2
-pmHideRestoreDefaultsButton = 4
-pmHidePreviewButton = 8
-pmHideWhatsThisButton = 16
-pmHideAllButtons = pmHideDoneButton | \
-                   pmHideCancelButton | \
-                   pmHideRestoreDefaultsButton | \
-                   pmHidePreviewButton | \
-                   pmHideWhatsThisButton
+pmDoneButton = 1
+pmCancelButton = 2
+pmRestoreDefaultsButton = 4
+pmPreviewButton = 8
+pmWhatsThisButton = 16
+pmAllButtons = \
+            pmDoneButton | \
+            pmCancelButton | \
+            pmRestoreDefaultsButton | \
+            pmPreviewButton | \
+            pmWhatsThisButton
 
 # These need to be deleted by me. Mark 2007-05-20
 pmGridLayoutMargin = 2 # Grid contains all widgets in a grpbox (obsolete)

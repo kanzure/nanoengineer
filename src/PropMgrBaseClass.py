@@ -570,37 +570,36 @@ class PropMgrBaseClass(PropertyManager_common): #bruce 070615 inherit PropertyMa
 	
 	return
 
-    def hideTopRowButtons(self, hideFlags=None):
-        """Hide one or more top row buttons using <hideFlags>.
-        Hide button flags not set will cause the button to be shown,
+    def hideTopRowButtons(self, pmButtonFlags=None):
+        """Hide one or more top row buttons using <pmButtonFlags>.
+        Button flags not set will cause the button to be shown
         if currently hidden.
         
-        The hide button flags are:
-            pmShowAllButtons = 0
-            pmHideDoneButton = 1
-            pmHideCancelButton = 2
-            pmHideRestoreDefaultsButton = 4
-            pmHidePreviewButton = 8
-            pmHideWhatsThisButton = 16
-            pmHideAllButtons = 31
+        The button flags are:
+            pmDoneButton = 1
+            pmCancelButton = 2
+            pmRestoreDefaultsButton = 4
+            pmPreviewButton = 8
+            pmWhatsThisButton = 16
+            pmAllButtons = 31
             
         These flags are defined in PropMgr_Constants.py.
         """
         
-        if hideFlags & pmHideDoneButton: self.done_btn.hide()
+        if pmButtonFlags & pmDoneButton: self.done_btn.hide()
         else: self.done_btn.show()
             
-        if hideFlags & pmHideCancelButton: self.abort_btn.hide()
+        if pmButtonFlags & pmCancelButton: self.abort_btn.hide()
         else: self.abort_btn.show()
             
-        if hideFlags & pmHideRestoreDefaultsButton: 
+        if pmButtonFlags & pmRestoreDefaultsButton: 
             self.restore_defaults_btn.hide()
         else: self.restore_defaults_btn.show()
             
-        if hideFlags & pmHidePreviewButton: self.preview_btn.hide()
+        if pmButtonFlags & pmPreviewButton: self.preview_btn.hide()
         else: self.preview_btn.show()
             
-        if hideFlags & pmHideWhatsThisButton: self.whatsthis_btn.hide()
+        if pmButtonFlags & pmWhatsThisButton: self.whatsthis_btn.hide()
         else: self.whatsthis_btn.show()
         
     def restore_defaults_btn_clicked(self):
@@ -710,7 +709,9 @@ class PropMgrWidgetMixin:
                 
         if isinstance(self, PropMgrTextEdit):
             if self.setAsDefault:
-                self.insertHtml(self.defaultText, setAsDefault=True)
+                self.insertHtml(self.defaultText, 
+				setAsDefault = True,
+				replace = True)
         
         if isinstance(self, PropMgrDoubleSpinBox):
             if self.setAsDefault:
@@ -1192,6 +1193,9 @@ class PropMgrTextEdit(QTextEdit, PropMgrWidgetMixin, PropertyManager_common):
             self.setAsDefault = True
     
         if replace:
+	    # clear() will cause the QTextCursor disappear.
+	    # Need to investigate another way to clear the text.
+	    # Mark 2007-06-24
             self.clear()
         
         self._setHeight(minLines, maxLines)

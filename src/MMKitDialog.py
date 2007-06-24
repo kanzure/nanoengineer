@@ -30,9 +30,8 @@ from PyQt4.Qt import *
 from Utility import geticon, getpixmap
 import env
 from prefs_constants import *
+from PropertyManagerMixin import pmAddTopRowButtons, pmMessageGroupBox, pmAddBottomSpacer
 from PropMgr_Constants import *
-from PropMgrBaseClass import getPalette
-from PropertyManagerMixin import addBottomSpacer
         
 class Ui_MMKitDialog(object):
     def setupUi(self, MMKitDialog):
@@ -96,10 +95,10 @@ class Ui_MMKitDialog(object):
         palette.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(16),QtGui.QColor(232,232,232))
         MMKitDialog.setPalette(palette)
 
-        self.vboxlayout = QtGui.QVBoxLayout(MMKitDialog)
-        self.vboxlayout.setMargin(pmMainVboxLayoutMargin)
-        self.vboxlayout.setSpacing(pmMainVboxLayoutSpacing)
-        self.vboxlayout.setObjectName("vboxlayout")
+        self.pmVBoxLayout = QtGui.QVBoxLayout(MMKitDialog)
+        self.pmVBoxLayout.setMargin(pmMainVboxLayoutMargin)
+        self.pmVBoxLayout.setSpacing(pmMainVboxLayoutSpacing)
+        self.pmVBoxLayout.setObjectName("pmVBoxLayout")
         
         self.heading_frame = QtGui.QFrame(MMKitDialog)
         self.heading_frame.setFrameShape(QtGui.QFrame.NoFrame)
@@ -135,7 +134,7 @@ class Ui_MMKitDialog(object):
 	self.heading_label.setAlignment(pmLabelLeftAlignment)
         self.hboxlayout_heading .addWidget(self.heading_label)
         
-        self.vboxlayout.addWidget(self.heading_frame)
+        self.pmVBoxLayout.addWidget(self.heading_frame)
 
         self.sponsor_frame = QtGui.QFrame(MMKitDialog)
         self.sponsor_frame.setFrameShape(QtGui.QFrame.NoFrame)
@@ -153,32 +152,29 @@ class Ui_MMKitDialog(object):
         self.sponsor_btn.setObjectName("sponsor_btn")
         self.gridlayout_sponsor.addWidget(self.sponsor_btn,0,0,1,1)
         
-        self.vboxlayout.addWidget(self.sponsor_frame)
+        self.pmVBoxLayout.addWidget(self.sponsor_frame)
         
-        # ninad 070221 Call methods that define different groupboxes and 
-        #done cancel rows (groupbox  methods also define spacer items 
-        #after the groupbox)
-        self.ui_doneCancelButtonRow(MMKitDialog)
+	pmAddTopRowButtons(MMKitDialog, 
+			   showFlags = pmDoneButton | pmWhatsThisButton)
 	
-	from PropertyManagerMixin import MessageGroupBox
-	self.MessageGroupBox = MessageGroupBox(self, title="Message")
-	self.vboxlayout.addWidget(self.MessageGroupBox)
-	addBottomSpacer(self.MessageGroupBox, self.vboxlayout)
+	self.MessageGroupBox = pmMessageGroupBox(self, title="Message")
+	self.pmVBoxLayout.addWidget(self.MessageGroupBox)
+	pmAddBottomSpacer(self.MessageGroupBox, self.pmVBoxLayout)
 	
         self.ui_bondTools_grpBox(MMKitDialog)
-	addBottomSpacer(self.bondTools_grpBox, self.vboxlayout)
+	pmAddBottomSpacer(self.bondTools_grpBox, self.pmVBoxLayout)
         
         self.ui_preview_GroupBox(MMKitDialog)
-	addBottomSpacer(self.thumbView_groupBox, self.vboxlayout)
+	pmAddBottomSpacer(self.thumbView_groupBox, self.pmVBoxLayout)
         
         self.ui_MMKit_GroupBox(MMKitDialog)
-	addBottomSpacer(self.MMKit_groupBox, self.vboxlayout)
+	pmAddBottomSpacer(self.MMKit_groupBox, self.pmVBoxLayout)
         
         self.ui_selectionFilter_GroupBox(MMKitDialog)
-	addBottomSpacer(self.selectionFilter_groupBox, self.vboxlayout)
+	pmAddBottomSpacer(self.selectionFilter_groupBox, self.pmVBoxLayout)
         
         self.ui_advancedOptions_groupBox(MMKitDialog)
-	addBottomSpacer(self.advancedOptions_groupBox, self.vboxlayout, last=True)
+	pmAddBottomSpacer(self.advancedOptions_groupBox, self.pmVBoxLayout, last=True)
                                 
         ######################################################.
 
@@ -187,41 +183,6 @@ class Ui_MMKitDialog(object):
         QtCore.QMetaObject.connectSlotsByName(MMKitDialog)
 	
 	# End of MMKitDialog ####################################
-    
-    def ui_doneCancelButtonRow(self, MMKitDialog):
-        #Start Done , Abort, button row
-        
-        hboxlayout_buttonrow = QtGui.QHBoxLayout()
-        
-        hSpacer = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QSizePolicy.Minimum)
-        hboxlayout_buttonrow.addItem(hSpacer)
-              
-        self.button_frame = QtGui.QFrame(MMKitDialog)
-
-        self.button_frame.setFrameShape(QtGui.QFrame.NoFrame)
-        self.button_frame.setFrameShadow(QtGui.QFrame.Plain)
-        
-        self.hboxlayout_buttonframe = QtGui.QHBoxLayout(self.button_frame)
-        self.hboxlayout_buttonframe.setMargin(pmTopRowBtnsMargin)
-        self.hboxlayout_buttonframe.setSpacing(pmTopRowBtnsSpacing)
-                
-        self.done_btn = QtGui.QToolButton(self.button_frame)
-        self.done_btn.setIcon(geticon("ui/actions/Properties Manager/Done.png"))
-	self.done_btn.setIconSize(QSize(22,22))
-        self.hboxlayout_buttonframe.addWidget(self.done_btn)
-                
-        self.whatsthis_btn = QtGui.QToolButton(self.button_frame)
-        self.whatsthis_btn.setIcon(geticon("ui/actions/Properties Manager/WhatsThis.png"))
-	self.whatsthis_btn.setIconSize(QSize(22,22))
-        self.hboxlayout_buttonframe.addWidget(self.whatsthis_btn)
-
-        hboxlayout_buttonrow.addWidget(self.button_frame)
-        
-        hboxlayout_buttonrow.addItem(hSpacer)
-    
-        self.vboxlayout.addLayout(hboxlayout_buttonrow)
-        
-        #End Done , Abort button row
     
     def ui_bondTools_grpBox(self, MMKitDialog):
         #Start Atom Bond tools Groupbox
@@ -308,7 +269,7 @@ class Ui_MMKitDialog(object):
 	self.vboxlayout_grpbox1.addWidget(self.bondToolWidget)
 	
 	# End Atom Bond Tools Groupbox
-	self.vboxlayout.addWidget(self.bondTools_grpBox)
+	self.pmVBoxLayout.addWidget(self.bondTools_grpBox)
 	
 	# Height is fixed. Mark 2007-05-29.
 	self.bondTools_grpBox.setSizePolicy(
@@ -353,7 +314,7 @@ class Ui_MMKitDialog(object):
         self.vboxlayout_grpbox2.addWidget(self.elementFrame)   
     
         #End  MMKit ThumbView  (Preview) GroupBox 
-        self.vboxlayout.addWidget(self.thumbView_groupBox)     
+        self.pmVBoxLayout.addWidget(self.thumbView_groupBox)     
 	
 	# Height is fixed. Mark 2007-05-29.
 	self.thumbView_groupBox.setSizePolicy(
@@ -739,7 +700,7 @@ class Ui_MMKitDialog(object):
         self.MMKitGrpBox_VBoxLayout.addWidget(self.transmuteCB)
 	
         #End MMKit groupbox
-        self.vboxlayout.addWidget(self.MMKit_groupBox)
+        self.pmVBoxLayout.addWidget(self.MMKit_groupBox)
 	
 	# This line is important. Without it, the MMKit groupbox is
 	# too wide by default and causes a horizontal scrollbar 
@@ -793,7 +754,7 @@ class Ui_MMKitDialog(object):
             
         self.vboxlayout_selfilter.addWidget(self.filterlistLE)        
         #End Selection filter GroupBox
-        self.vboxlayout.addWidget(self.selectionFilter_groupBox)
+        self.pmVBoxLayout.addWidget(self.selectionFilter_groupBox)
 	
 	# Height is fixed. Mark 2007-05-29.
 	self.selectionFilter_groupBox.setSizePolicy(
@@ -835,7 +796,7 @@ class Ui_MMKitDialog(object):
         self.vboxlayout_grpbox4.addWidget(self.waterCB)
         
         #End Advanced Options GroupBox
-        self.vboxlayout.addWidget(self.advancedOptions_groupBox)
+        self.pmVBoxLayout.addWidget(self.advancedOptions_groupBox)
 	
 	# Height is fixed. Mark 2007-05-29.
 	self.advancedOptions_groupBox.setSizePolicy(

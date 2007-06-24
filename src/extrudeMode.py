@@ -459,7 +459,7 @@ class extrudeMode(basicMode, ExtrudePropertyManager):
         return # from Enter
     
     def getFlyoutActionList(self): #Ninad 20070622
-	""" Returns a tuple that contains mode spcific actionlists in the 
+	""" Returns a tuple that contains mode specific actionlists in the 
 	added in the flyout toolbar of the mode. 
 	CommandManager._createFlyoutToolBar method calls this 
 	@return: params: A tuple that contains 3 lists: 

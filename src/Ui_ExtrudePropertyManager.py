@@ -9,6 +9,7 @@ from PyQt4.Qt import *
 from Utility import geticon, getpixmap
 from widgets import FloatSpinBox, TogglePrefCheckBox
 from qt4transition import qt4todo
+from PropertyManagerMixin import pmAddTopRowButtons, pmMessageGroupBox, pmAddBottomSpacer
 from PropMgr_Constants import *
 
 class Ui_ExtrudePropertyManager(object):
@@ -17,11 +18,11 @@ class Ui_ExtrudePropertyManager(object):
         
         ExtrudePropertyManager.setPalette(self.getPropertyManagerPalette())
         
-        self.vboxlayout = QtGui.QVBoxLayout(ExtrudePropertyManager)
-        self.vboxlayout.setMargin(0) # was 1. Mark 2007-05-24.
-        self.vboxlayout.setSpacing(0) # was 1. Mark 2007-05-24.
-        self.vboxlayout.setObjectName("vboxlayout")
-        self.vboxlayout.setSizeConstraint(QLayout.SetMinimumSize)
+        self.pmVBoxLayout = QtGui.QVBoxLayout(ExtrudePropertyManager)
+        self.pmVBoxLayout.setMargin(0) # was 1. Mark 2007-05-24.
+        self.pmVBoxLayout.setSpacing(0) # was 1. Mark 2007-05-24.
+        self.pmVBoxLayout.setObjectName("pmVBoxLayout")
+        self.pmVBoxLayout.setSizeConstraint(QLayout.SetMinimumSize)
         
         self.heading_frame = QtGui.QFrame(ExtrudePropertyManager)
         self.heading_frame.setFrameShape(QtGui.QFrame.NoFrame)
@@ -64,7 +65,7 @@ class Ui_ExtrudePropertyManager(object):
 	self.heading_label.setAlignment(pmLabelLeftAlignment)
         self.hboxlayout_heading.addWidget(self.heading_label)
         
-        self.vboxlayout.addWidget(self.heading_frame)
+        self.pmVBoxLayout.addWidget(self.heading_frame)
 
         self.sponsor_frame = QtGui.QFrame(ExtrudePropertyManager)
         self.sponsor_frame.setFrameShape(QtGui.QFrame.NoFrame)
@@ -82,70 +83,35 @@ class Ui_ExtrudePropertyManager(object):
         self.sponsor_btn.setObjectName("sponsor_btn")
         self.gridlayout_sponsor.addWidget(self.sponsor_btn,0,0,1,1)
         
-        self.vboxlayout.addWidget(self.sponsor_frame)
+        self.pmVBoxLayout.addWidget(self.sponsor_frame)
                         
         # ninad 070221 Call methods that define different groupboxes and 
         #done cancel rows (groupbox  methods also define spacer items 
         #after the groupbox)
         
-        self.ui_doneCancelButtonRow(ExtrudePropertyManager)
+        pmAddTopRowButtons(ExtrudePropertyManager, 
+			   showFlags = 
+			   pmDoneButton | 
+			   pmCancelButton | 
+			   pmWhatsThisButton)
 	
-	from PropertyManagerMixin import MessageGroupBox, addBottomSpacer
-	self.MessageGroupBox = MessageGroupBox(self, title="Message")
-	self.vboxlayout.addWidget(self.MessageGroupBox)
-	addBottomSpacer(self.MessageGroupBox, self.vboxlayout)
+	self.MessageGroupBox = pmMessageGroupBox(self, title="Message")
+	self.pmVBoxLayout.addWidget(self.MessageGroupBox)
+	pmAddBottomSpacer(self.MessageGroupBox, self.pmVBoxLayout)
         
         self.ui_productSpec_groupBox(ExtrudePropertyManager)
-	addBottomSpacer(self.productSpec_groupBox, self.vboxlayout)
+	pmAddBottomSpacer(self.productSpec_groupBox, self.pmVBoxLayout)
         
         self.ui_extrudeDirection_groupBox(ExtrudePropertyManager)
 	# Don't add the spacer since the extrude direction groupbox is
 	# currently hidden (but we still need to create it above).
-	# addBottomSpacer(self.extrudeDirection_groupBox, self.vboxlayout)
+	# pmAddBottomSpacer(self.extrudeDirection_groupBox, self.pmVBoxLayout)
         
         self.ui_advancedOptions_groupBox(ExtrudePropertyManager)
-	addBottomSpacer(self.advancedOptions_groupBox, self.vboxlayout, last=True)
+	pmAddBottomSpacer(self.advancedOptions_groupBox, self.pmVBoxLayout, last=True)
         
         self.retranslateUi(ExtrudePropertyManager)
         QtCore.QMetaObject.connectSlotsByName(ExtrudePropertyManager)
-	
-    def ui_doneCancelButtonRow(self, ExtrudePropertyManager):
-        #Start Done, Abort, button row
-        
-        hboxlayout_buttonrow = QtGui.QHBoxLayout()
-        
-        hSpacer = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QSizePolicy.Minimum)
-        hboxlayout_buttonrow.addItem(hSpacer)
-              
-        self.button_frame = QtGui.QFrame(ExtrudePropertyManager)
-
-        self.button_frame.setFrameShape(QtGui.QFrame.NoFrame)
-        self.button_frame.setFrameShadow(QtGui.QFrame.Plain)
-        
-        self.hboxlayout_buttonframe = QtGui.QHBoxLayout(self.button_frame)
-        self.hboxlayout_buttonframe.setMargin(pmTopRowBtnsMargin)
-        self.hboxlayout_buttonframe.setSpacing(pmTopRowBtnsSpacing)
-                
-        self.done_btn = QtGui.QToolButton(self.button_frame)
-        self.done_btn.setIcon(geticon("ui/actions/Properties Manager/Done.png"))
-	self.done_btn.setIconSize(QSize(22,22))
-        self.hboxlayout_buttonframe.addWidget(self.done_btn)
-	
-	self.abort_btn = QtGui.QToolButton(self.button_frame)
-        self.abort_btn.setIcon(geticon("ui/actions/Properties Manager/Abort.png"))
-	self.abort_btn.setIconSize(QSize(22,22))
-        self.hboxlayout_buttonframe.addWidget(self.abort_btn)
-                
-        self.whatsthis_btn = QtGui.QToolButton(self.button_frame)
-        self.whatsthis_btn.setIcon(geticon("ui/actions/Properties Manager/WhatsThis.png"))
-	self.whatsthis_btn.setIconSize(QSize(22,22))
-        self.hboxlayout_buttonframe.addWidget(self.whatsthis_btn)
-
-        hboxlayout_buttonrow.addWidget(self.button_frame)
-        
-        hboxlayout_buttonrow.addItem(hSpacer)
-
-        self.vboxlayout.addLayout(hboxlayout_buttonrow)
     
     def ui_productSpec_groupBox(self, ExtrudePropertyManager):
         # Start Product Specifications Groupbox
@@ -227,7 +193,7 @@ class Ui_ExtrudePropertyManager(object):
         self.vboxlayout_grpbox1.addWidget(self.productSpec_groupBoxWidget)
         
         # End Product Specifications Groupbox        
-        self.vboxlayout.addWidget(self.productSpec_groupBox)
+        self.pmVBoxLayout.addWidget(self.productSpec_groupBox)
         
         
     def ui_extrudeDirection_groupBox(self, ExtrudePropertyManager):
@@ -251,11 +217,11 @@ class Ui_ExtrudePropertyManager(object):
         self.vboxlayout_grpbox2.addWidget(self.extrudeDirection_groupBoxButton)
     
         # End extrudeDirection  Groupbox         
-        self.vboxlayout.addWidget(self.extrudeDirection_groupBox)
+        self.pmVBoxLayout.addWidget(self.extrudeDirection_groupBox)
 	
 	# Commenting out this spacer since the groupbox isn't implemented. Mark 2007-05-29.
         #spacer_extrudedirection_grpbx = QtGui.QSpacerItem(10,10,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        #self.vboxlayout.addItem(spacer_extrudedirection_grpbx)
+        #self.pmVBoxLayout.addItem(spacer_extrudedirection_grpbx)
         
         #Hide extrude direction group box until it is implemented - ninad070411
         self.extrudeDirection_groupBox.hide()
@@ -453,7 +419,7 @@ class Ui_ExtrudePropertyManager(object):
         self.vboxlayout_grpbox3.addWidget(self.advancedOptions_groupBoxWidget)
         
         #End Advanced Options
-        self.vboxlayout.addWidget(self.advancedOptions_groupBox)
+        self.pmVBoxLayout.addWidget(self.advancedOptions_groupBox)
         
 
     def retranslateUi(self, ExtrudePropertyManager):

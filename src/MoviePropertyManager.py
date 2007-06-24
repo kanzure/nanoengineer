@@ -16,10 +16,8 @@ import sys
 from PyQt4 import QtCore, QtGui
 from Ui_MoviePropertyManager import Ui_MoviePropertyManager
 from PropertyManagerMixin import PropertyManagerMixin
-from PyQt4.Qt import Qt, SIGNAL, QWhatsThis
+from PyQt4.Qt import Qt, SIGNAL
 from Utility import geticon
-
-
 
 class MoviePropertyManager(QtGui.QWidget, 
                           PropertyManagerMixin, 
@@ -34,24 +32,21 @@ class MoviePropertyManager(QtGui.QWidget,
         self.lastCheckedMoveAction = None
                 
         #connect slots
-        self.connect(self.sponsor_btn,SIGNAL("clicked()"),self.sponsor_btn_clicked)
-        self.connect(self.done_btn,SIGNAL("clicked()"),self.w.toolsDone)
-        self.connect(self.abort_btn,SIGNAL("clicked()"),self.w.toolsCancel)
-        self.connect(self.whatsthis_btn,
+        self.connect(self.sponsor_btn,
                      SIGNAL("clicked()"),
-                     QWhatsThis.enterWhatsThisMode)
+                     self.sponsor_btn_clicked)
         
-        self.connect(self.movieOptions_groupBoxButton, SIGNAL("clicked()"),
+        self.connect(self.movieOptions_groupBoxButton, 
+                     SIGNAL("clicked()"),
                      self.toggle_movieOptionsGroupBox)
         
-        self.connect(self.movieControls_groupBoxButton, SIGNAL("clicked()"),
+        self.connect(self.movieControls_groupBoxButton, 
+                     SIGNAL("clicked()"),
                      self.toggle_movieControlsGroupBox)  
         
-        self.connect(self.movieFiles_groupBoxButton, SIGNAL("clicked()"),
+        self.connect(self.movieFiles_groupBoxButton, 
+                     SIGNAL("clicked()"),
                      self.toggle_movieFilesGroupBox)  
-        
-        
-        
         
     def toggle_movieOptionsGroupBox(self):
         """ Toggles the item display in the parent groupbox of the button and 

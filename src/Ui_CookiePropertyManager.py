@@ -24,7 +24,7 @@ from PyQt4 import QtCore, QtGui
 from PyQt4.Qt import *
 from Utility import geticon, getpixmap
 from PropMgr_Constants import *
-from PropertyManagerMixin import addBottomSpacer
+from PropertyManagerMixin import pmAddTopRowButtons, pmMessageGroupBox, pmAddBottomSpacer
 
 __author__ = "Ninad"
 
@@ -42,11 +42,11 @@ class Ui_CookiePropertyManager(object):
         palette = CookiePropertyManager.getPropertyManagerPalette()
         CookiePropertyManager.setPalette(palette)
         
-        self.vboxlayout = QtGui.QVBoxLayout(CookiePropertyManager)
-        self.vboxlayout.setMargin(0)
-        self.vboxlayout.setSpacing(0)
-        self.vboxlayout.setSizeConstraint(QLayout.SetMinimumSize)
-        self.vboxlayout.setObjectName("vboxlayout")
+        self.pmVBoxLayout = QtGui.QVBoxLayout(CookiePropertyManager)
+        self.pmVBoxLayout.setMargin(0)
+        self.pmVBoxLayout.setSpacing(0)
+        self.pmVBoxLayout.setSizeConstraint(QLayout.SetMinimumSize)
+        self.pmVBoxLayout.setObjectName("pmVBoxLayout")
         
         self.heading_frame = QtGui.QFrame(CookiePropertyManager)
         self.heading_frame.setFrameShape(QtGui.QFrame.NoFrame)
@@ -83,7 +83,7 @@ class Ui_CookiePropertyManager(object):
 	self.heading_label.setAlignment(pmLabelLeftAlignment)
         self.hboxlayout_heading.addWidget(self.heading_label)
         
-        self.vboxlayout.addWidget(self.heading_frame)
+        self.pmVBoxLayout.addWidget(self.heading_frame)
 
         self.sponsor_frame = QtGui.QFrame(CookiePropertyManager)
         self.sponsor_frame.setFrameShape(QtGui.QFrame.NoFrame)
@@ -101,70 +101,32 @@ class Ui_CookiePropertyManager(object):
         self.sponsor_btn.setObjectName("sponsor_btn")
         self.gridlayout_sponsor.addWidget(self.sponsor_btn,0,0,1,1)
         
-        self.vboxlayout.addWidget(self.sponsor_frame)
+        self.pmVBoxLayout.addWidget(self.sponsor_frame)
         
-        # ninad 070221 Call methods that define different groupboxes and 
-        #done cancel rows (groupbox  methods also define spacer items 
-        #after the groupbox)
-        self.ui_doneCancelButtonRow(CookiePropertyManager)
+	pmAddTopRowButtons(CookiePropertyManager, 
+			   showFlags = 
+			   pmDoneButton | 
+			   pmCancelButton | 
+			   pmWhatsThisButton)
 	
-	from PropertyManagerMixin import MessageGroupBox, addBottomSpacer
-	self.MessageGroupBox = MessageGroupBox(self, title="Message")
-	self.vboxlayout.addWidget(self.MessageGroupBox)
-	addBottomSpacer(self.MessageGroupBox, self.vboxlayout)
+	self.MessageGroupBox = pmMessageGroupBox(self, title="Message")
+	self.pmVBoxLayout.addWidget(self.MessageGroupBox)
+	pmAddBottomSpacer(self.MessageGroupBox, self.pmVBoxLayout)
         
         self.ui_cookieSpec_groupBox(CookiePropertyManager)
-	addBottomSpacer(self.cookieSpec_groupBox, self.vboxlayout)
+	pmAddBottomSpacer(self.cookieSpec_groupBox, self.pmVBoxLayout)
         
         self.ui_layerProperties_groupBox(CookiePropertyManager)
-        addBottomSpacer(self.layerProperties_groupBox, self.vboxlayout)
+        pmAddBottomSpacer(self.layerProperties_groupBox, self.pmVBoxLayout)
 	
         self.ui_displayOptions_groupBox(CookiePropertyManager)
-        addBottomSpacer(self.displayOptions_groupBox, self.vboxlayout)
+        pmAddBottomSpacer(self.displayOptions_groupBox, self.pmVBoxLayout)
 	
         self.ui_advancedOptions_groupBox(CookiePropertyManager)
-	addBottomSpacer(self.advancedOptions_groupBox, self.vboxlayout, last=True)
+	pmAddBottomSpacer(self.advancedOptions_groupBox, self.pmVBoxLayout, last=True)
         
         self.retranslateUi(CookiePropertyManager)
         QtCore.QMetaObject.connectSlotsByName(CookiePropertyManager)
-    
-    def ui_doneCancelButtonRow(self, CookiePropertyManager):
-        #Start Done , Abort, button row
-        
-        hboxlayout_buttonrow = QtGui.QHBoxLayout()
-        
-        hSpacer = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QSizePolicy.Minimum)
-        hboxlayout_buttonrow.addItem(hSpacer)
-              
-        self.button_frame = QtGui.QFrame(CookiePropertyManager)
-
-        self.button_frame.setFrameShape(QtGui.QFrame.NoFrame)
-        self.button_frame.setFrameShadow(QtGui.QFrame.Plain)
-        
-        self.hboxlayout_buttonframe = QtGui.QHBoxLayout(self.button_frame)
-        self.hboxlayout_buttonframe.setMargin(pmTopRowBtnsMargin)
-        self.hboxlayout_buttonframe.setSpacing(pmTopRowBtnsSpacing)
-                
-        self.done_btn = QtGui.QToolButton(self.button_frame)
-        self.done_btn.setIcon(geticon("ui/actions/Properties Manager/Done.png"))
-	self.done_btn.setIconSize(QSize(22,22))
-        self.hboxlayout_buttonframe.addWidget(self.done_btn)
-	
-	self.abort_btn = QtGui.QToolButton(self.button_frame)
-        self.abort_btn.setIcon(geticon("ui/actions/Properties Manager/Abort.png"))
-	self.abort_btn.setIconSize(QSize(22,22))
-        self.hboxlayout_buttonframe.addWidget(self.abort_btn)
-                
-        self.whatsthis_btn = QtGui.QToolButton(self.button_frame)
-        self.whatsthis_btn.setIcon(geticon("ui/actions/Properties Manager/WhatsThis.png"))
-	self.whatsthis_btn.setIconSize(QSize(22,22))
-        self.hboxlayout_buttonframe.addWidget(self.whatsthis_btn)
-
-        hboxlayout_buttonrow.addWidget(self.button_frame)
-        
-        hboxlayout_buttonrow.addItem(hSpacer)
-
-        self.vboxlayout.addLayout(hboxlayout_buttonrow)
     
     def ui_cookieSpec_groupBox(self, CookiePropertyManager):
         
@@ -295,7 +257,7 @@ class Ui_CookiePropertyManager(object):
         self.vboxlayout_grpbox1.addLayout(self.hboxlayout4_grpbox1)
         
         # End Cookie Specifications Groupbox
-        self.vboxlayout.addWidget(self.cookieSpec_groupBox)
+        self.pmVBoxLayout.addWidget(self.cookieSpec_groupBox)
     
     def ui_layerProperties_groupBox(self, CookiePropertyManager):
         
@@ -377,7 +339,7 @@ class Ui_CookiePropertyManager(object):
         self.vboxlayout_layergrpbox.addLayout(self.hboxlayout4_layergrpbox) 
         
         #End Layer Properties Groupbox
-        self.vboxlayout.addWidget(self.layerProperties_groupBox)
+        self.pmVBoxLayout.addWidget(self.layerProperties_groupBox)
         
     def ui_displayOptions_groupBox(self, CookiePropertyManager):
         #Start Display Options Groupbox
@@ -428,7 +390,7 @@ class Ui_CookiePropertyManager(object):
         self.vboxlayout_grpbox2.addWidget(self.fullModelCheckBox)                 
         
         #End Display Options Groupbox
-        self.vboxlayout.addWidget(self.displayOptions_groupBox)
+        self.pmVBoxLayout.addWidget(self.displayOptions_groupBox)
         
     def ui_advancedOptions_groupBox(self, CookiePropertyManager):
         #Start AdvancedOptions Groupbox
@@ -461,7 +423,7 @@ class Ui_CookiePropertyManager(object):
         self.vboxlayout_grpbox3.addWidget(self.freeViewCheckBox)
     
         #End Advanced Options
-        self.vboxlayout.addWidget(self.advancedOptions_groupBox)
+        self.pmVBoxLayout.addWidget(self.advancedOptions_groupBox)
         
 
     def retranslateUi(self, CookiePropertyManager):

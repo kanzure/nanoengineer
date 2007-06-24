@@ -14,6 +14,7 @@ from PyQt4.QtGui import *
 from PyQt4.Qt import *
 from Utility import geticon, getpixmap
 from Ui_MovePropertyManager import Ui_MovePropertyManager
+from PropertyManagerMixin import pmAddTopRowButtons, pmMessageGroupBox, pmAddBottomSpacer
 from PropMgr_Constants import *
 
 class Ui_FusePropertyManager(Ui_MovePropertyManager):
@@ -34,11 +35,11 @@ class Ui_FusePropertyManager(Ui_MovePropertyManager):
         palette = FusePropertyManager.getPropertyManagerPalette()
         FusePropertyManager.setPalette(palette)
         
-        self.vboxlayout = QtGui.QVBoxLayout(FusePropertyManager)
-        self.vboxlayout.setMargin(0) # was 1. Mark 2007-05-24.
-        self.vboxlayout.setSpacing(0) # was 1. Mark 2007-05-24.
-        self.vboxlayout.setSizeConstraint(QLayout.SetMinimumSize)
-        self.vboxlayout.setObjectName("vboxlayout")
+        self.pmVBoxLayout = QtGui.QVBoxLayout(FusePropertyManager)
+        self.pmVBoxLayout.setMargin(0) # was 1. Mark 2007-05-24.
+        self.pmVBoxLayout.setSpacing(0) # was 1. Mark 2007-05-24.
+        self.pmVBoxLayout.setSizeConstraint(QLayout.SetMinimumSize)
+        self.pmVBoxLayout.setObjectName("pmVBoxLayout")
         
         self.heading_frame = QtGui.QFrame(FusePropertyManager)
         self.heading_frame.setFrameShape(QtGui.QFrame.NoFrame)
@@ -79,7 +80,7 @@ class Ui_FusePropertyManager(Ui_MovePropertyManager):
 	self.heading_label.setAlignment(pmLabelLeftAlignment)
         self.hboxlayout_heading.addWidget(self.heading_label)
         
-        self.vboxlayout.addWidget(self.heading_frame)
+        self.pmVBoxLayout.addWidget(self.heading_frame)
 
         self.sponsor_frame = QtGui.QFrame(FusePropertyManager)
         self.sponsor_frame.setFrameShape(QtGui.QFrame.NoFrame)
@@ -97,23 +98,23 @@ class Ui_FusePropertyManager(Ui_MovePropertyManager):
         self.sponsor_btn.setObjectName("sponsor_btn")
         self.gridlayout_sponsor.addWidget(self.sponsor_btn,0,0,1,1)
         
-        self.vboxlayout.addWidget(self.sponsor_frame)
+        self.pmVBoxLayout.addWidget(self.sponsor_frame)
         
-        self.ui_doneCancelButtonRow(FusePropertyManager)
+        pmAddTopRowButtons(FusePropertyManager, 
+			   showFlags = pmDoneButton | pmWhatsThisButton)
 	
-	from PropertyManagerMixin import MessageGroupBox, addBottomSpacer
-	self.MessageGroupBox = MessageGroupBox(self, title="Message")
-	self.vboxlayout.addWidget(self.MessageGroupBox)
-	addBottomSpacer(self.MessageGroupBox, self.vboxlayout)
+	self.MessageGroupBox = pmMessageGroupBox(self, title="Message")
+	self.pmVBoxLayout.addWidget(self.MessageGroupBox)
+	pmAddBottomSpacer(self.MessageGroupBox, self.pmVBoxLayout)
 	
         self.ui_fuseOptions_groupBox(FusePropertyManager)
-	addBottomSpacer(self.fuseOptions_groupBox, self.vboxlayout)
+	pmAddBottomSpacer(self.fuseOptions_groupBox, self.pmVBoxLayout)
 	
-        self.ui_move_groupBox(FusePropertyManager)
-	addBottomSpacer(self.move_groupBox, self.vboxlayout)
+        self.ui_translate_groupBox(FusePropertyManager)
+	pmAddBottomSpacer(self.translate_groupBox, self.pmVBoxLayout)
 	
         self.ui_rotate_groupBox(FusePropertyManager)
-	addBottomSpacer(self.rotate_groupBox, self.vboxlayout, last=True)
+	pmAddBottomSpacer(self.rotate_groupBox, self.pmVBoxLayout, last=True)
             
     def ui_fuseOptions_groupBox(self, FusePropertyManager):
         #Start Rotate Options        
@@ -169,12 +170,12 @@ class Ui_FusePropertyManager(Ui_MovePropertyManager):
         vlo_widgetHolder.addWidget(self.toleranceLB)
         
         vlo_fuseOptions_groupBox.addWidget(self.fuseOptions_widgetHolder)
-        self.vboxlayout.addWidget(self.fuseOptions_groupBox)
+        self.pmVBoxLayout.addWidget(self.fuseOptions_groupBox)
         
         spacer_fuseops_grpbx = QtGui.QSpacerItem(
             10,10,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
         
-        self.vboxlayout.addItem(spacer_fuseops_grpbx)
+        self.pmVBoxLayout.addItem(spacer_fuseops_grpbx)
         
                   
             

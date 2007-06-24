@@ -10,7 +10,7 @@ from PyQt4.Qt import *
 from Utility import geticon, imagename_to_pixmap, getpixmap
 from NE1ToolBar import NE1ToolBar
 from PropMgr_Constants import *
-from PropertyManagerMixin import addBottomSpacer
+from PropertyManagerMixin import pmAddTopRowButtons, pmMessageGroupBox, pmAddBottomSpacer
 
 #Note: Ui_MoviePlayerManager uses some Mainwindow widgets and actions 
 #(This is because Movie PM uses most methods originally created for movie 
@@ -35,11 +35,11 @@ class Ui_MoviePropertyManager(object):
         palette = MoviePropertyManager.getPropertyManagerPalette()
         MoviePropertyManager.setPalette(palette)
         
-        self.vboxlayout = QtGui.QVBoxLayout(MoviePropertyManager)
-        self.vboxlayout.setMargin(0) # was 1. Mark 2007-05-24.
-        self.vboxlayout.setSpacing(0) # was 1. Mark 2007-05-24.
-        self.vboxlayout.setSizeConstraint(QLayout.SetMinimumSize)
-        self.vboxlayout.setObjectName("vboxlayout")
+        self.pmVBoxLayout = QtGui.QVBoxLayout(MoviePropertyManager)
+        self.pmVBoxLayout.setMargin(0) # was 1. Mark 2007-05-24.
+        self.pmVBoxLayout.setSpacing(0) # was 1. Mark 2007-05-24.
+        self.pmVBoxLayout.setSizeConstraint(QLayout.SetMinimumSize)
+        self.pmVBoxLayout.setObjectName("pmVBoxLayout")
         
         self.heading_frame = QtGui.QFrame(MoviePropertyManager)
         self.heading_frame.setFrameShape(QtGui.QFrame.NoFrame)
@@ -80,7 +80,7 @@ class Ui_MoviePropertyManager(object):
         self.heading_label.setAlignment(pmLabelLeftAlignment)
         self.hboxlayout_heading .addWidget(self.heading_label)
         
-        self.vboxlayout.addWidget(self.heading_frame)
+        self.pmVBoxLayout.addWidget(self.heading_frame)
 
         self.sponsor_frame = QtGui.QFrame(MoviePropertyManager)
         self.sponsor_frame.setFrameShape(QtGui.QFrame.NoFrame)
@@ -98,62 +98,27 @@ class Ui_MoviePropertyManager(object):
         self.sponsor_btn.setObjectName("sponsor_btn")
         self.gridlayout_sponsor.addWidget(self.sponsor_btn,0,0,1,1)
         
-        self.vboxlayout.addWidget(self.sponsor_frame)
+        self.pmVBoxLayout.addWidget(self.sponsor_frame)
         
-        self.ui_doneCancelButtonRow(MoviePropertyManager)
+        pmAddTopRowButtons(MoviePropertyManager, 
+			   showFlags = 
+			   pmDoneButton | 
+			   pmCancelButton | 
+			   pmWhatsThisButton)
         
-        from PropertyManagerMixin import MessageGroupBox
-	self.message_groupBox = MessageGroupBox(self, title="Message")
-	self.vboxlayout.addWidget(self.message_groupBox)
-	addBottomSpacer(self.message_groupBox, self.vboxlayout)
+	self.message_groupBox = pmMessageGroupBox(self, title="Message")
+	self.pmVBoxLayout.addWidget(self.message_groupBox)
+	pmAddBottomSpacer(self.message_groupBox, self.pmVBoxLayout)
         
         self.ui_movieControls_groupBox(MoviePropertyManager)
-	addBottomSpacer(self.movieControls_groupBox, self.vboxlayout)
+	pmAddBottomSpacer(self.movieControls_groupBox, self.pmVBoxLayout)
         
         self.ui_movieOptions_groupBox(MoviePropertyManager)
-	addBottomSpacer(self.movieOptions_groupBox, self.vboxlayout)
+	pmAddBottomSpacer(self.movieOptions_groupBox, self.pmVBoxLayout)
         
         self.ui_movieFiles_groupBox(MoviePropertyManager)
-	addBottomSpacer(self.movieFiles_groupBox, self.vboxlayout, last=True)
+	pmAddBottomSpacer(self.movieFiles_groupBox, self.pmVBoxLayout, last=True)
     
-    def ui_doneCancelButtonRow(self, MoviePropertyManager):
-        #Start Done , Abort, button row
-        
-        hboxlayout_buttonrow = QtGui.QHBoxLayout()
-        
-        hSpacer = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QSizePolicy.Minimum)
-        hboxlayout_buttonrow.addItem(hSpacer)
-              
-        self.button_frame = QtGui.QFrame(MoviePropertyManager)
-
-        self.button_frame.setFrameShape(QtGui.QFrame.NoFrame)
-        self.button_frame.setFrameShadow(QtGui.QFrame.Plain)
-        
-        self.hboxlayout_buttonframe = QtGui.QHBoxLayout(self.button_frame)
-        self.hboxlayout_buttonframe.setMargin(pmTopRowBtnsMargin)
-        self.hboxlayout_buttonframe.setSpacing(pmTopRowBtnsSpacing)
-                
-        self.done_btn = QtGui.QToolButton(self.button_frame)
-        self.done_btn.setIcon(geticon("ui/actions/Properties Manager/Done.png"))
-        self.done_btn.setIconSize(QSize(22,22))
-        self.hboxlayout_buttonframe.addWidget(self.done_btn)
-        
-        self.abort_btn = QtGui.QToolButton(self.button_frame)
-        self.abort_btn.setIcon(geticon("ui/actions/Properties Manager/Abort.png"))
-        self.abort_btn.setIconSize(QSize(22,22))
-        self.hboxlayout_buttonframe.addWidget(self.abort_btn)
-                
-        self.whatsthis_btn = QtGui.QToolButton(self.button_frame)
-        self.whatsthis_btn.setIcon(geticon("ui/actions/Properties Manager/WhatsThis.png"))
-        self.whatsthis_btn.setIconSize(QSize(22,22))
-        self.hboxlayout_buttonframe.addWidget(self.whatsthis_btn)
-
-        hboxlayout_buttonrow.addWidget(self.button_frame)
-        
-        hboxlayout_buttonrow.addItem(hSpacer)
-
-        self.vboxlayout.addLayout(hboxlayout_buttonrow)
-        
     def ui_movieControls_groupBox(self, MoviePropertyManager):
         #Start movieControls Groupbox
         self.movieControls_groupBox = QtGui.QGroupBox(MoviePropertyManager)
@@ -244,7 +209,7 @@ class Ui_MoviePropertyManager(object):
     
         vlo_widgetholder.addWidget(self.movieButtonsToolBar)
         
-        self.vboxlayout.addWidget(self.movieControls_groupBox)
+        self.pmVBoxLayout.addWidget(self.movieControls_groupBox)
         
     def ui_movieFiles_groupBox(self, MoviePropertyManager):
         
@@ -294,7 +259,7 @@ class Ui_MoviePropertyManager(object):
             vlo_widgetholder.addWidget(btn)     
                         
         #End movieFiles Options
-        self.vboxlayout.addWidget(self.movieFiles_groupBox)
+        self.pmVBoxLayout.addWidget(self.movieFiles_groupBox)
         
         pass
     
@@ -417,7 +382,7 @@ class Ui_MoviePropertyManager(object):
 
                         
         #End movieOptions Options
-        self.vboxlayout.addWidget(self.movieOptions_groupBox)     
+        self.pmVBoxLayout.addWidget(self.movieOptions_groupBox)     
     
         
     def retranslateUi(self, MoviePropertyManager):
