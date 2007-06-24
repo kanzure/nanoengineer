@@ -19,11 +19,11 @@ def setupUi(win):
     ###Build Structures Menu start###
     win.toolsDepositAtomAction = QtGui.QWidgetAction(MainWindow)
     win.toolsDepositAtomAction.setCheckable(1) # make the build button checkable
-    win.toolsDepositAtomAction.setIcon(geticon("ui/actions/Tools/Build Structures/Atoms"))
+    win.toolsDepositAtomAction.setIcon(geticon("ui/actions/Tools/Build Structures/Build Atoms"))
     
     win.toolsCookieCutAction = QtGui.QWidgetAction(MainWindow)
     win.toolsCookieCutAction.setCheckable(1) # make the cookie cutter button checkable
-    win.toolsCookieCutAction.setIcon(geticon("ui/actions/Tools/Build Structures/Cookie_Cutter"))
+    win.toolsCookieCutAction.setIcon(geticon("ui/actions/Tools/Build Structures/Build Crystal"))
         
     win.insertGrapheneAction = QtGui.QWidgetAction(MainWindow)
     win.insertGrapheneAction.setIcon(geticon("ui/actions/Tools/Build Structures/Graphene"))
