@@ -15,27 +15,32 @@ __author__  = "Ninad"
 import sys
 from PyQt4 import QtCore, QtGui
 from Ui_MoviePropertyManager import Ui_MoviePropertyManager
-from PropertyManagerMixin import PropertyManagerMixin
+from PropertyManagerMixin import PropertyManagerMixin, pmSetPropMgrIcon, pmSetPropMgrTitle
 from PyQt4.Qt import Qt, SIGNAL
 from Utility import geticon
 
 class MoviePropertyManager(QtGui.QWidget, 
                           PropertyManagerMixin, 
                           Ui_MoviePropertyManager):
+    
+    # The title(s) that appears in the property manager header.
+    title = "Play Movie"
+    # The full path to PNG file(s) that appears in the header.
+    iconPath = "ui/actions/Simulation/Play_Movie.png"
+    
     def __init__(self):
         QtGui.QWidget.__init__(self)
         
         self.setupUi(self)
-        self.retranslateUi(self)   
         
         self.lastCheckedRotateAction = None 
-        self.lastCheckedMoveAction = None
-                
-        #connect slots
-        self.connect(self.sponsor_btn,
-                     SIGNAL("clicked()"),
-                     self.sponsor_btn_clicked)
+        self.lastCheckedTranslateAction = None
         
+        # Update the title and icon for "Translate" (the default move mode).
+	pmSetPropMgrIcon( self, self.iconPath )
+	pmSetPropMgrTitle( self, self.title )
+                
+        #connect slots        
         self.connect(self.movieOptions_groupBoxButton, 
                      SIGNAL("clicked()"),
                      self.toggle_movieOptionsGroupBox)

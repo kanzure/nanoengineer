@@ -24,84 +24,18 @@ from PyQt4 import QtCore, QtGui
 from PyQt4.Qt import *
 from Utility import geticon, getpixmap
 from PropMgr_Constants import *
-from PropertyManagerMixin import pmAddTopRowButtons, pmMessageGroupBox, pmAddBottomSpacer
+from PropertyManagerMixin import pmVBoxLayout, pmAddHeader, pmAddSponsorButton, \
+     pmAddTopRowButtons, pmMessageGroupBox, pmAddBottomSpacer
 
 __author__ = "Ninad"
 
 class Ui_CookiePropertyManager(object):
     def setupUi(self, CookiePropertyManager):
         CookiePropertyManager.setObjectName("CookiePropertyManager")
-        CookiePropertyManager.resize(QtCore.QSize(QtCore.QRect(0,0,200,320).size()).expandedTo(CookiePropertyManager.minimumSizeHint()))
-        
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(3),QtGui.QSizePolicy.Policy(3))
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(CookiePropertyManager.sizePolicy().hasHeightForWidth())
-        CookiePropertyManager.setSizePolicy(sizePolicy)
-        
-        palette = CookiePropertyManager.getPropertyManagerPalette()
-        CookiePropertyManager.setPalette(palette)
-        
-        self.pmVBoxLayout = QtGui.QVBoxLayout(CookiePropertyManager)
-        self.pmVBoxLayout.setMargin(0)
-        self.pmVBoxLayout.setSpacing(0)
-        self.pmVBoxLayout.setSizeConstraint(QLayout.SetMinimumSize)
-        self.pmVBoxLayout.setObjectName("pmVBoxLayout")
-        
-        self.heading_frame = QtGui.QFrame(CookiePropertyManager)
-        self.heading_frame.setFrameShape(QtGui.QFrame.NoFrame)
-        self.heading_frame.setFrameShadow(QtGui.QFrame.Plain)
-        self.heading_frame.setObjectName("heading_frame")
-        
-        palette2 = QtGui.QPalette()
-        palette2.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(10),QtGui.QColor(120,120,120)) #bgrole(10) is 'Windows'
-        palette2.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(10),QtGui.QColor(120,120,120)) #bgrole(10) is 'Windows'
-        palette2.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(10),QtGui.QColor(120,120,120)) #bgrole(10) is 'Windows'
-        self.heading_frame.setAutoFillBackground(True)
-        self.heading_frame.setPalette(palette2)
-
-        self.hboxlayout_heading = QtGui.QHBoxLayout(self.heading_frame)
-        self.hboxlayout_heading .setMargin(2)
-        self.hboxlayout_heading .setSpacing(5)
-        self.hboxlayout_heading .setObjectName("hboxlayout")
-
-        self.heading_pixmap = QtGui.QLabel(self.heading_frame)
-        self.heading_pixmap.setPixmap(getpixmap('ui/actions/Tools/Build Structures/Cookie_Cutter'))     
-        
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(0),QtGui.QSizePolicy.Policy(0))
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.heading_pixmap.sizePolicy().hasHeightForWidth())
-        self.heading_pixmap.setSizePolicy(sizePolicy)
-        #self.heading_pixmap.setScaledContents(True)
-        self.heading_pixmap.setObjectName("heading_pixmap")
-        
-        self.hboxlayout_heading.addWidget(self.heading_pixmap)
-        
-        self.heading_label = QtGui.QLabel(self.heading_frame)
-	self.heading_label.setFont(getHeaderFont())
-	self.heading_label.setAlignment(pmLabelLeftAlignment)
-        self.hboxlayout_heading.addWidget(self.heading_label)
-        
-        self.pmVBoxLayout.addWidget(self.heading_frame)
-
-        self.sponsor_frame = QtGui.QFrame(CookiePropertyManager)
-        self.sponsor_frame.setFrameShape(QtGui.QFrame.NoFrame)
-        self.sponsor_frame.setFrameShadow(QtGui.QFrame.Plain)
-        self.sponsor_frame.setObjectName("sponsor_frame")
-
-        self.gridlayout_sponsor = QtGui.QGridLayout(self.sponsor_frame)
-        self.gridlayout_sponsor.setMargin(0)
-        self.gridlayout_sponsor.setSpacing(0)
-        self.gridlayout_sponsor.setObjectName("gridlayout")
-
-        self.sponsor_btn = QtGui.QPushButton(self.sponsor_frame)
-        self.sponsor_btn.setAutoDefault(False)
-        self.sponsor_btn.setFlat(True)
-        self.sponsor_btn.setObjectName("sponsor_btn")
-        self.gridlayout_sponsor.addWidget(self.sponsor_btn,0,0,1,1)
-        
-        self.pmVBoxLayout.addWidget(self.sponsor_frame)
+	
+	pmVBoxLayout(CookiePropertyManager)
+        pmAddHeader(CookiePropertyManager)
+	pmAddSponsorButton(CookiePropertyManager)
         
 	pmAddTopRowButtons(CookiePropertyManager, 
 			   showFlags = 
@@ -432,12 +366,7 @@ class Ui_CookiePropertyManager(object):
             "CookiePropertyManager", 
             None,
             QtGui.QApplication.UnicodeUTF8))
-        
-        self.heading_label.setText(QtGui.QApplication.translate(
-            "CookiePropertyManager",
-            "<font color=\"#FFFFFF\">Build Crystal </font>", 
-            None, 
-            QtGui.QApplication.UnicodeUTF8))
+    
         self.gridOrientation_label.setText(QtGui.QApplication.translate(
             "CookiePropertyManager", 
             "Grid Orientation", 

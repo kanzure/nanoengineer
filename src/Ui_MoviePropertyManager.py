@@ -9,8 +9,9 @@ from PyQt4 import QtCore, QtGui
 from PyQt4.Qt import *
 from Utility import geticon, imagename_to_pixmap, getpixmap
 from NE1ToolBar import NE1ToolBar
+from PropertyManagerMixin import pmVBoxLayout, pmAddHeader, pmAddSponsorButton, \
+     pmAddTopRowButtons, pmMessageGroupBox, pmAddBottomSpacer
 from PropMgr_Constants import *
-from PropertyManagerMixin import pmAddTopRowButtons, pmMessageGroupBox, pmAddBottomSpacer
 
 #Note: Ui_MoviePlayerManager uses some Mainwindow widgets and actions 
 #(This is because Movie PM uses most methods originally created for movie 
@@ -23,83 +24,11 @@ class Ui_MoviePropertyManager(object):
         self.w = MoviePropertyManager.w
         
         MoviePropertyManager.setObjectName("MoviePropertyManager")
-        MoviePropertyManager.resize(QtCore.QSize(QtCore.QRect(0,0,200,320).size()).expandedTo(
-            MoviePropertyManager.minimumSizeHint()))    
         
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(3),QtGui.QSizePolicy.Policy(3))
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(MoviePropertyManager.sizePolicy().hasHeightForWidth())
-        MoviePropertyManager.setSizePolicy(sizePolicy)
-        
-        palette = MoviePropertyManager.getPropertyManagerPalette()
-        MoviePropertyManager.setPalette(palette)
-        
-        self.pmVBoxLayout = QtGui.QVBoxLayout(MoviePropertyManager)
-        self.pmVBoxLayout.setMargin(0) # was 1. Mark 2007-05-24.
-        self.pmVBoxLayout.setSpacing(0) # was 1. Mark 2007-05-24.
-        self.pmVBoxLayout.setSizeConstraint(QLayout.SetMinimumSize)
-        self.pmVBoxLayout.setObjectName("pmVBoxLayout")
-        
-        self.heading_frame = QtGui.QFrame(MoviePropertyManager)
-        self.heading_frame.setFrameShape(QtGui.QFrame.NoFrame)
-        self.heading_frame.setFrameShadow(QtGui.QFrame.Plain)
-        self.heading_frame.setObjectName("heading_frame")
-        
-        palette2 = QtGui.QPalette()
-        palette2.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(10),
-                          QtGui.QColor(120,120,120)) #bgrole(10) is 'Windows'
-        palette2.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(10),
-                          QtGui.QColor(120,120,120)) #bgrole(10) is 'Windows'
-        palette2.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(10),
-                          QtGui.QColor(120,120,120)) #bgrole(10) is 'Windows'
-        self.heading_frame.setAutoFillBackground(True)
-        self.heading_frame.setPalette(palette2)
-
-        self.hboxlayout_heading = QtGui.QHBoxLayout(self.heading_frame)
-        self.hboxlayout_heading .setMargin(2)
-        self.hboxlayout_heading .setSpacing(5)
-        self.hboxlayout_heading .setObjectName("hboxlayout")
-
-
-        self.heading_pixmap = QtGui.QLabel(self.heading_frame)
-        self.heading_pixmap.setPixmap(getpixmap('ui/actions/Simulation/Play_Movie.png'))
-        
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(0),QtGui.QSizePolicy.Policy(0))
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.heading_pixmap.sizePolicy().hasHeightForWidth())
-        self.heading_pixmap.setSizePolicy(sizePolicy)
-        #self.heading_pixmap.setScaledContents(True)
-        self.heading_pixmap.setObjectName("heading_pixmap")
-        
-        self.hboxlayout_heading .addWidget(self.heading_pixmap)
-        
-        self.heading_label = QtGui.QLabel(self.heading_frame)
-        self.heading_label.setFont(getHeaderFont())
-        self.heading_label.setAlignment(pmLabelLeftAlignment)
-        self.hboxlayout_heading .addWidget(self.heading_label)
-        
-        self.pmVBoxLayout.addWidget(self.heading_frame)
-
-        self.sponsor_frame = QtGui.QFrame(MoviePropertyManager)
-        self.sponsor_frame.setFrameShape(QtGui.QFrame.NoFrame)
-        self.sponsor_frame.setFrameShadow(QtGui.QFrame.Plain)
-        self.sponsor_frame.setObjectName("sponsor_frame")
-
-        self.gridlayout_sponsor = QtGui.QGridLayout(self.sponsor_frame)
-        self.gridlayout_sponsor.setMargin(0)
-        self.gridlayout_sponsor.setSpacing(0)
-        self.gridlayout_sponsor.setObjectName("gridlayout")
-
-        self.sponsor_btn = QtGui.QPushButton(self.sponsor_frame)
-        self.sponsor_btn.setAutoDefault(False)
-        self.sponsor_btn.setFlat(True)
-        self.sponsor_btn.setObjectName("sponsor_btn")
-        self.gridlayout_sponsor.addWidget(self.sponsor_btn,0,0,1,1)
-        
-        self.pmVBoxLayout.addWidget(self.sponsor_frame)
-        
+        pmVBoxLayout(MoviePropertyManager)
+        pmAddHeader(MoviePropertyManager)
+	pmAddSponsorButton(MoviePropertyManager)
+	
         pmAddTopRowButtons(MoviePropertyManager, 
 			   showFlags = 
 			   pmDoneButton | 
@@ -383,13 +312,5 @@ class Ui_MoviePropertyManager(object):
                         
         #End movieOptions Options
         self.pmVBoxLayout.addWidget(self.movieOptions_groupBox)     
-    
-        
-    def retranslateUi(self, MoviePropertyManager):
-        MoviePropertyManager.setWindowTitle(QtGui.QApplication.translate("MoviePropertyManager", 
-                                                                        "MoviePropertyManager",
-                                                                        None, QtGui.QApplication.UnicodeUTF8))
-        self.heading_label.setText(QtGui.QApplication.translate("MoviePropertyManager", 
-                                                                "<font color=\"#FFFFFF\">Movie</font>", 
-                                                                None, QtGui.QApplication.UnicodeUTF8))
+
         

@@ -30,7 +30,8 @@ from PyQt4.Qt import *
 from Utility import geticon, getpixmap
 import env
 from prefs_constants import *
-from PropertyManagerMixin import pmAddTopRowButtons, pmMessageGroupBox, pmAddBottomSpacer
+from PropertyManagerMixin import pmVBoxLayout, pmAddHeader, pmAddSponsorButton, \
+     pmAddTopRowButtons, pmMessageGroupBox, pmAddBottomSpacer
 from PropMgr_Constants import *
         
 class Ui_MMKitDialog(object):
@@ -41,119 +42,9 @@ class Ui_MMKitDialog(object):
         # for example, inside self.ui_message_GroupBox(). [bruce 070618 comment]
         MMKitDialog.setObjectName("MMKitDialog")
 
-        palette = QtGui.QPalette()
-        palette.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(0),QtGui.QColor(0,0,0))
-        palette.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(1),QtGui.QColor(230,231,230))
-        palette.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(2),QtGui.QColor(255,255,255))
-        palette.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(3),QtGui.QColor(242,243,242))
-        palette.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(4),QtGui.QColor(115,115,115))
-        palette.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(5),QtGui.QColor(153,154,153))
-        palette.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(6),QtGui.QColor(0,0,0))
-        palette.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(7),QtGui.QColor(255,255,255))
-        palette.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(8),QtGui.QColor(0,0,0))
-        palette.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(9),QtGui.QColor(255,255,255))
-        palette.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(10),QtGui.QColor(230,231,230))
-        palette.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(11),QtGui.QColor(0,0,0))
-        palette.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(12),QtGui.QColor(0,0,128))
-        palette.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(13),QtGui.QColor(255,255,255))
-        palette.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(14),QtGui.QColor(0,0,0))
-        palette.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(15),QtGui.QColor(0,0,0))
-        palette.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(16),QtGui.QColor(232,232,232))
-        palette.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(0),QtGui.QColor(0,0,0))
-        palette.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(1),QtGui.QColor(230,231,230))
-        palette.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(2),QtGui.QColor(255,255,255))
-        palette.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(3),QtGui.QColor(255,255,255))
-        palette.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(4),QtGui.QColor(115,115,115))
-        palette.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(5),QtGui.QColor(153,154,153))
-        palette.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(6),QtGui.QColor(0,0,0))
-        palette.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(7),QtGui.QColor(255,255,255))
-        palette.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(8),QtGui.QColor(0,0,0))
-        palette.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(9),QtGui.QColor(255,255,255))
-        palette.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(10),QtGui.QColor(230,231,230))
-        palette.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(11),QtGui.QColor(0,0,0))
-        palette.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(12),QtGui.QColor(0,0,128))
-        palette.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(13),QtGui.QColor(255,255,255))
-        palette.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(14),QtGui.QColor(0,0,255))
-        palette.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(15),QtGui.QColor(255,0,255))
-        palette.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(16),QtGui.QColor(232,232,232))
-        palette.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(0),QtGui.QColor(128,128,128))
-        palette.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(1),QtGui.QColor(230,231,230))
-        palette.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(2),QtGui.QColor(255,255,255))
-        palette.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(3),QtGui.QColor(255,255,255))
-        palette.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(4),QtGui.QColor(115,115,115))
-        palette.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(5),QtGui.QColor(153,154,153))
-        palette.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(6),QtGui.QColor(128,128,128))
-        palette.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(7),QtGui.QColor(255,255,255))
-        palette.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(8),QtGui.QColor(128,128,128))
-        palette.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(9),QtGui.QColor(255,255,255))
-        palette.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(10),QtGui.QColor(230,231,230))
-        palette.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(11),QtGui.QColor(0,0,0))
-        palette.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(12),QtGui.QColor(0,0,128))
-        palette.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(13),QtGui.QColor(255,255,255))
-        palette.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(14),QtGui.QColor(0,0,255))
-        palette.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(15),QtGui.QColor(255,0,255))
-        palette.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(16),QtGui.QColor(232,232,232))
-        MMKitDialog.setPalette(palette)
-
-        self.pmVBoxLayout = QtGui.QVBoxLayout(MMKitDialog)
-        self.pmVBoxLayout.setMargin(pmMainVboxLayoutMargin)
-        self.pmVBoxLayout.setSpacing(pmMainVboxLayoutSpacing)
-        self.pmVBoxLayout.setObjectName("pmVBoxLayout")
-        
-        self.heading_frame = QtGui.QFrame(MMKitDialog)
-        self.heading_frame.setFrameShape(QtGui.QFrame.NoFrame)
-        self.heading_frame.setFrameShadow(QtGui.QFrame.Plain)
-        self.heading_frame.setObjectName("heading_frame")
-        
-        palette2 = QtGui.QPalette()
-        palette2.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(10),QtGui.QColor(120,120,120)) #bgrole(10) is 'Windows'
-        palette2.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(10),QtGui.QColor(120,120,120)) #bgrole(10) is 'Windows'
-        palette2.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(10),QtGui.QColor(120,120,120)) #bgrole(10) is 'Windows'
-        self.heading_frame.setAutoFillBackground(True)
-        self.heading_frame.setPalette(palette2)
-
-        self.hboxlayout_heading = QtGui.QHBoxLayout(self.heading_frame)
-        self.hboxlayout_heading.setMargin(pmHeaderFrameMargin)
-        self.hboxlayout_heading.setSpacing(pmHeaderFrameSpacing)
-        self.hboxlayout_heading.setObjectName("hboxlayout")
-        
-        self.heading_pixmap = QtGui.QLabel(self.heading_frame)
-        self.heading_pixmap.setPixmap(getpixmap('ui/actions/Tools/Build Structures/Atoms.png'))     
-        
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(0),QtGui.QSizePolicy.Policy(0))
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.heading_pixmap.sizePolicy().hasHeightForWidth())
-        self.heading_pixmap.setSizePolicy(sizePolicy)
-        #self.heading_pixmap.setScaledContents(True)
-        self.heading_pixmap.setObjectName("heading_pixmap")
-        self.hboxlayout_heading .addWidget(self.heading_pixmap)
-        
-        self.heading_label = QtGui.QLabel(self.heading_frame)
-        self.heading_label.setFont(getHeaderFont())
-	self.heading_label.setAlignment(pmLabelLeftAlignment)
-        self.hboxlayout_heading .addWidget(self.heading_label)
-        
-        self.pmVBoxLayout.addWidget(self.heading_frame)
-
-        self.sponsor_frame = QtGui.QFrame(MMKitDialog)
-        self.sponsor_frame.setFrameShape(QtGui.QFrame.NoFrame)
-        self.sponsor_frame.setFrameShadow(QtGui.QFrame.Plain)
-        self.sponsor_frame.setObjectName("sponsor_frame")
-
-        self.gridlayout_sponsor = QtGui.QGridLayout(self.sponsor_frame)
-        self.gridlayout_sponsor.setMargin(pmSponsorFrameMargin)
-        self.gridlayout_sponsor.setSpacing(pmSponsorFrameSpacing)
-        self.gridlayout_sponsor.setObjectName("gridlayout")
-
-        self.sponsor_btn = QtGui.QPushButton(self.sponsor_frame)
-        self.sponsor_btn.setAutoDefault(False)
-        self.sponsor_btn.setFlat(True)
-        self.sponsor_btn.setObjectName("sponsor_btn")
-        self.gridlayout_sponsor.addWidget(self.sponsor_btn,0,0,1,1)
-        
-        self.pmVBoxLayout.addWidget(self.sponsor_frame)
-        
+	pmVBoxLayout(MMKitDialog)
+        pmAddHeader(MMKitDialog)
+	pmAddSponsorButton(MMKitDialog)
 	pmAddTopRowButtons(MMKitDialog, 
 			   showFlags = pmDoneButton | pmWhatsThisButton)
 	
@@ -807,10 +698,6 @@ class Ui_MMKitDialog(object):
         MMKitDialog.setWindowTitle(QtGui.QApplication.translate("MMKitDialog", 
                                                                 "MMKit", None, QtGui.QApplication.UnicodeUTF8))
         MMKitDialog.setWindowIcon(QtGui.QIcon("ui/border/MMKit"))
-	
-        self.heading_label.setText(QtGui.QApplication.translate(
-	    "MMKitDialog", "<font color=\"#FFFFFF\">Build Atoms </font>",
-	    None, QtGui.QApplication.UnicodeUTF8))
 	
         self.elementFrame.setToolTip(QtGui.QApplication.translate("MMKitDialog", "Preview window of active object.", None, QtGui.QApplication.UnicodeUTF8))
         self.toolButton1.setToolTip(QtGui.QApplication.translate("MMKitDialog", "Hydrogen", None, QtGui.QApplication.UnicodeUTF8))

@@ -27,9 +27,98 @@ from debug import print_compact_traceback
 import platform
 from PropMgrBaseClass import PropertyManager_common
 
-def pmAddTopRowButtons(parent, showFlags=pmAllButtons):
+def pmVBoxLayout(propMgr):
+    """Create the master vertical box layout for <propMgr>.
+    """
+    propMgr.pmVBoxLayout = QtGui.QVBoxLayout(propMgr)
+    propMgr.pmVBoxLayout.setMargin(pmMainVboxLayoutMargin)
+    propMgr.pmVBoxLayout.setSpacing(pmMainVboxLayoutSpacing)
+    propMgr.pmVBoxLayout.setObjectName("pmVBoxLayout")
+    
+def pmSetPropMgrTitle(propMgr, title):
+    """Set the Propery Manager header title to string <title>.
+    """
+    propMgr.header_label.setText(title)
+        
+def pmSetPropMgrIcon(propMgr, png_path):
+    """Set the Propery Manager icon in the header.
+    <png_path> is the relative path to the PNG file.
+    """
+    propMgr.header_pixmap.setPixmap(getpixmap(png_path))
+    
+    #@ self.heading_pixmap = QtGui.QLabel(self.heading_frame)
+    #@ self.heading_pixmap.setPixmap(getpixmap('ui/actions/Tools/Build Structures/Atoms.png'))  
+	
+def pmAddHeader(propMgr):
+    """Creates the Property Manager header, which contains
+    a pixmap and white text label.
+    """
+    
+    # Heading frame (dark gray), which contains 
+    # a pixmap and (white) heading text.
+    propMgr.header_frame = QFrame(propMgr)
+    propMgr.header_frame.setFrameShape(QFrame.NoFrame)
+    propMgr.header_frame.setFrameShadow(QFrame.Plain)
+    
+    header_frame_palette = propMgr.getPropMgrTitleFramePalette()
+    propMgr.header_frame.setPalette(header_frame_palette)
+    propMgr.header_frame.setAutoFillBackground(True)
+
+    # HBox layout for heading frame, containing the pixmap
+    # and label (title).
+    HeaderFrameHLayout = QHBoxLayout(propMgr.header_frame)
+    HeaderFrameHLayout.setMargin(pmHeaderFrameMargin) # 2 pixels around edges.
+    HeaderFrameHLayout.setSpacing(pmHeaderFrameSpacing) # 5 pixel between pixmap and label.
+
+    # PropMgr icon. Set image by calling setPropMgrIcon() at any time.
+    propMgr.header_pixmap = QLabel(propMgr.header_frame)
+    propMgr.header_pixmap.setSizePolicy(
+        QSizePolicy(QSizePolicy.Policy(QSizePolicy.Fixed),
+                          QSizePolicy.Policy(QSizePolicy.Fixed)))
+        
+    propMgr.header_pixmap.setScaledContents(True)
+    
+    HeaderFrameHLayout.addWidget(propMgr.header_pixmap)
+    
+    # PropMgr title label
+    propMgr.header_label = QLabel(propMgr.header_frame)
+    header_label_palette = propMgr.getPropMgrTitleLabelPalette()
+    propMgr.header_label.setPalette(header_label_palette)
+    propMgr.header_label.setAlignment(pmLabelLeftAlignment)
+
+    # PropMgr heading font (for label).
+    propMgr.header_label.setFont(getHeaderFont())
+    HeaderFrameHLayout.addWidget(propMgr.header_label)
+    
+    propMgr.pmVBoxLayout.addWidget(propMgr.header_frame)
+
+def pmAddSponsorButton(propMgr):
+    """Creates the sponsor button for <propMgr>.
+    """
+    propMgr.sponsor_frame = QtGui.QFrame(propMgr)
+    propMgr.sponsor_frame.setFrameShape(QtGui.QFrame.NoFrame)
+    propMgr.sponsor_frame.setFrameShadow(QtGui.QFrame.Plain)
+    propMgr.sponsor_frame.setObjectName("sponsor_frame")
+
+    propMgr.gridlayout_sponsor = QtGui.QGridLayout(propMgr.sponsor_frame)
+    propMgr.gridlayout_sponsor.setMargin(pmSponsorFrameMargin)
+    propMgr.gridlayout_sponsor.setSpacing(pmSponsorFrameSpacing)
+
+    propMgr.sponsor_btn = QtGui.QPushButton(propMgr.sponsor_frame)
+    propMgr.sponsor_btn.setAutoDefault(False)
+    propMgr.sponsor_btn.setFlat(True)
+    propMgr.sponsor_btn.setObjectName("sponsor_btn")
+    propMgr.gridlayout_sponsor.addWidget(propMgr.sponsor_btn,0,0,1,1)
+    
+    propMgr.connect(propMgr.sponsor_btn,
+		    SIGNAL("clicked()"),
+		    propMgr.sponsor_btn_clicked)
+    
+    propMgr.pmVBoxLayout.addWidget(propMgr.sponsor_frame)
+
+def pmAddTopRowButtons(propMgr, showFlags=pmAllButtons):
     """Creates the OK, Cancel, Preview, and What's This 
-    buttons row at the top of the Property Manager <parent>.
+    buttons row at the top of the Property Manager <propMgr>.
     <showFlags> is an enum that can be used to show only certain 
     Property Manager buttons, where:
     
@@ -57,7 +146,7 @@ def pmAddTopRowButtons(parent, showFlags=pmAllButtons):
     """
     # The Top Buttons Row includes the following widgets:
     #
-    # - parent.pmTopRowBtns (Hbox Layout containing everything:)
+    # - propMgr.pmTopRowBtns (Hbox Layout containing everything:)
     #   
     #   - frame
     #     - hbox layout "frameHboxLO" (margin=2, spacing=2)
@@ -69,7 +158,7 @@ def pmAddTopRowButtons(parent, showFlags=pmAllButtons):
     #   - right spacer (10x10)
         
     # Main "button group" widget (but it is not a QButtonGroup).
-    parent.pmTopRowBtns = QHBoxLayout()
+    propMgr.pmTopRowBtns = QHBoxLayout()
     
     # Horizontal spacer
     HSpacer = QSpacerItem(1, 1, 
@@ -77,13 +166,13 @@ def pmAddTopRowButtons(parent, showFlags=pmAllButtons):
 			QSizePolicy.Minimum)
     
     # Frame containing all the buttons.
-    parent.TopRowBtnsFrame = QFrame()
+    propMgr.TopRowBtnsFrame = QFrame()
 
-    parent.TopRowBtnsFrame.setFrameShape(QFrame.NoFrame)
-    parent.TopRowBtnsFrame.setFrameShadow(QFrame.Plain)
+    propMgr.TopRowBtnsFrame.setFrameShape(QFrame.NoFrame)
+    propMgr.TopRowBtnsFrame.setFrameShadow(QFrame.Plain)
     
     # Create Hbox layout for main frame.
-    TopRowBtnsHLayout = QHBoxLayout(parent.TopRowBtnsFrame)
+    TopRowBtnsHLayout = QHBoxLayout(propMgr.TopRowBtnsFrame)
     TopRowBtnsHLayout.setMargin(pmTopRowBtnsMargin)
     TopRowBtnsHLayout.setSpacing(pmTopRowBtnsSpacing)
     
@@ -94,90 +183,90 @@ def pmAddTopRowButtons(parent, showFlags=pmAllButtons):
     # May want to use QToolButton.setAutoRaise(1) below. Mark 2007-05-29
 
     # OK (Done) button.
-    parent.done_btn = buttonType(parent.TopRowBtnsFrame)
-    parent.done_btn.setIcon(
+    propMgr.done_btn = buttonType(propMgr.TopRowBtnsFrame)
+    propMgr.done_btn.setIcon(
 	geticon("ui/actions/Properties Manager/Done.png"))
-    parent.done_btn.setIconSize(QSize(22,22))  
-    parent.connect(parent.done_btn,
+    propMgr.done_btn.setIconSize(QSize(22,22))  
+    propMgr.connect(propMgr.done_btn,
 		   SIGNAL("clicked()"),
-		   parent.ok_btn_clicked)
-    parent.done_btn.setToolTip("Done")
+		   propMgr.ok_btn_clicked)
+    propMgr.done_btn.setToolTip("Done")
         
-    TopRowBtnsHLayout.addWidget(parent.done_btn)
+    TopRowBtnsHLayout.addWidget(propMgr.done_btn)
         
     # Cancel (Abort) button.
-    parent.abort_btn = buttonType(parent.TopRowBtnsFrame)
-    parent.abort_btn.setIcon(
+    propMgr.abort_btn = buttonType(propMgr.TopRowBtnsFrame)
+    propMgr.abort_btn.setIcon(
 	geticon("ui/actions/Properties Manager/Abort.png"))
-    parent.abort_btn.setIconSize(QSize(22,22))
-    parent.connect(parent.abort_btn,
+    propMgr.abort_btn.setIconSize(QSize(22,22))
+    propMgr.connect(propMgr.abort_btn,
 		   SIGNAL("clicked()"),
-		   parent.abort_btn_clicked)
-    parent.abort_btn.setToolTip("Cancel")
+		   propMgr.abort_btn_clicked)
+    propMgr.abort_btn.setToolTip("Cancel")
         
-    TopRowBtnsHLayout.addWidget(parent.abort_btn)
+    TopRowBtnsHLayout.addWidget(propMgr.abort_btn)
         
     # Restore Defaults button.
-    parent.restore_defaults_btn = buttonType(parent.TopRowBtnsFrame)
-    parent.restore_defaults_btn.setIcon(
+    propMgr.restore_defaults_btn = buttonType(propMgr.TopRowBtnsFrame)
+    propMgr.restore_defaults_btn.setIcon(
 	geticon("ui/actions/Properties Manager/Restore.png"))
-    parent.restore_defaults_btn.setIconSize(QSize(22,22))
-    parent.connect(parent.restore_defaults_btn,
+    propMgr.restore_defaults_btn.setIconSize(QSize(22,22))
+    propMgr.connect(propMgr.restore_defaults_btn,
 		   SIGNAL("clicked()"),
-		   parent.restore_defaults_btn_clicked)
-    parent.restore_defaults_btn.setToolTip("Restore Defaults")
-    TopRowBtnsHLayout.addWidget(parent.restore_defaults_btn)
+		   propMgr.restore_defaults_btn_clicked)
+    propMgr.restore_defaults_btn.setToolTip("Restore Defaults")
+    TopRowBtnsHLayout.addWidget(propMgr.restore_defaults_btn)
         
     # Preview (glasses) button.
-    parent.preview_btn = buttonType(parent.TopRowBtnsFrame)
-    parent.preview_btn.setIcon(
+    propMgr.preview_btn = buttonType(propMgr.TopRowBtnsFrame)
+    propMgr.preview_btn.setIcon(
 	geticon("ui/actions/Properties Manager/Preview.png"))
-    parent.preview_btn.setIconSize(QSize(22,22))
-    parent.connect(parent.preview_btn,
+    propMgr.preview_btn.setIconSize(QSize(22,22))
+    propMgr.connect(propMgr.preview_btn,
 		   SIGNAL("clicked()"),
-		   parent.preview_btn_clicked)
-    parent.preview_btn.setToolTip("Preview")
+		   propMgr.preview_btn_clicked)
+    propMgr.preview_btn.setToolTip("Preview")
         
-    TopRowBtnsHLayout.addWidget(parent.preview_btn)        
+    TopRowBtnsHLayout.addWidget(propMgr.preview_btn)        
         
     # What's This (?) button.
-    parent.whatsthis_btn = buttonType(parent.TopRowBtnsFrame)
-    parent.whatsthis_btn.setIcon(
+    propMgr.whatsthis_btn = buttonType(propMgr.TopRowBtnsFrame)
+    propMgr.whatsthis_btn.setIcon(
 	geticon("ui/actions/Properties Manager/WhatsThis.png"))
-    parent.whatsthis_btn.setIconSize(QSize(22,22))
-    parent.connect(parent.whatsthis_btn,
+    propMgr.whatsthis_btn.setIconSize(QSize(22,22))
+    propMgr.connect(propMgr.whatsthis_btn,
 		   SIGNAL("clicked()"),
 		   QWhatsThis.enterWhatsThisMode)
-    parent.whatsthis_btn.setToolTip("What\'s This Help")
+    propMgr.whatsthis_btn.setToolTip("What\'s This Help")
         
-    TopRowBtnsHLayout.addWidget(parent.whatsthis_btn)
+    TopRowBtnsHLayout.addWidget(propMgr.whatsthis_btn)
         
     TopRowBtnsHLayout.addItem(HSpacer)
         
     # Create Button Row
-    parent.pmTopRowBtns.addWidget(parent.TopRowBtnsFrame)
+    propMgr.pmTopRowBtns.addWidget(propMgr.TopRowBtnsFrame)
         
-    parent.pmVBoxLayout.addLayout(parent.pmTopRowBtns)
+    propMgr.pmVBoxLayout.addLayout(propMgr.pmTopRowBtns)
 	
     # Add What's This for buttons.
 	
-    parent.done_btn.setWhatsThis("""<b>Done</b>
+    propMgr.done_btn.setWhatsThis("""<b>Done</b>
 	<p><img source=\"ui/actions/Properties Manager/Done.png\"><br>
 	Completes and/or exits the current command.</p>""")
 	
-    parent.abort_btn.setWhatsThis("""<b>Cancel</b>
+    propMgr.abort_btn.setWhatsThis("""<b>Cancel</b>
 	<p><img source=\"ui/actions/Properties Manager/Abort.png\"><br>
 	Cancels the current command.</p>""")
 	
-    parent.restore_defaults_btn.setWhatsThis("""<b>Restore Defaults</b>
+    propMgr.restore_defaults_btn.setWhatsThis("""<b>Restore Defaults</b>
 	<p><img source=\"ui/actions/Properties Manager/Restore.png\"><br>
 	Restores the defaut values of the Property Manager.</p>""")
 	
-    parent.preview_btn.setWhatsThis("""<b>Preview</b>
+    propMgr.preview_btn.setWhatsThis("""<b>Preview</b>
 	<p><img source=\"ui/actions/Properties Manager/Preview.png\"><br>
 	Preview the structure based on current Property Manager settings.</p>""")
 
-    parent.whatsthis_btn.setWhatsThis("""<b>What's This</b> 
+    propMgr.whatsthis_btn.setWhatsThis("""<b>What's This</b> 
 	<p><img source=\"ui/actions/Properties Manager/WhatsThis.png\"><br>
 	Click this option to invoke a small question mark that is attached to the mouse pointer, 
 	then click on an object which you would like more information about. 
@@ -186,15 +275,15 @@ def pmAddTopRowButtons(parent, showFlags=pmAllButtons):
     # Hide the buttons that shouldn't be displayed base on <showFlags>.
 
     if not showFlags & pmDoneButton:
-	parent.done_btn.hide()
+	propMgr.done_btn.hide()
     if not showFlags & pmCancelButton:
-	parent.abort_btn.hide()
+	propMgr.abort_btn.hide()
     if not showFlags & pmRestoreDefaultsButton:
-	parent.restore_defaults_btn.hide()
+	propMgr.restore_defaults_btn.hide()
     if not showFlags & pmPreviewButton:
-	parent.preview_btn.hide()
+	propMgr.preview_btn.hide()
     if not showFlags & pmWhatsThisButton:
-	parent.whatsthis_btn.hide()
+	propMgr.whatsthis_btn.hide()
 	
     return    
     
@@ -499,7 +588,6 @@ def pmAddBottomSpacer(parent, vlayout, last=False):
 # - Tools > Fuse (fuseMode)
 # - Tools > Move (modifyMode)
 # - Simulator > Play Movie (movieMode)
-# - GeneratorBaseClass [not anymore! 070615]
 #
 # Once all these have been migrated to the new PropMgrBaseClass,
 # this class can be removed permanently. Mark 2007-05-25
@@ -685,7 +773,7 @@ class PropertyManagerMixin(PropertyManager_common, SponsorableMixin):
             
         return styleSheet
     
-    def getGroupBoxTitleCheckBox(self, name, parent = None, bool_expand = True):#Ninad 070207 # note: used only in MMKitDialog as of 070615
+    def getGroupBoxTitleCheckBox(self, name, parent = None, bool_expand = True):#Ninad 070207
         """ Return the groupbox title checkbox . The checkbox is customized such that 
         it appears as a title bar to the user. If the user clicks on this 'titlebar' it sends 
         appropriate signals to open or close the groupboxes (and also to check or uncheck the box.)
@@ -707,7 +795,7 @@ class PropertyManagerMixin(PropertyManager_common, SponsorableMixin):
         
         return checkbox
        
-    def getGroupBoxCheckBoxStyleSheet(self, bool_expand = True): # note: used only in MMKitDialog and MMKit as of 070615
+    def getGroupBoxCheckBoxStyleSheet(self, bool_expand = True):
         """ Returns the syle sheet for a groupbox checkbox of a property manager
         Returns a string. 
         bool_expand' = boolean .. NE1 uses a different background image in the button's 

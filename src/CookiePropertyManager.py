@@ -5,20 +5,29 @@ $Id$
 import sys
 from PyQt4 import QtCore, QtGui
 from Ui_CookiePropertyManager import Ui_CookiePropertyManager
-from PropertyManagerMixin import PropertyManagerMixin
+from PropertyManagerMixin import PropertyManagerMixin, pmSetPropMgrIcon, pmSetPropMgrTitle
 from PyQt4.Qt import Qt, SIGNAL
 
-class CookiePropertyManager(QtGui.QWidget, PropertyManagerMixin, Ui_CookiePropertyManager):
+class CookiePropertyManager(QtGui.QWidget, 
+                            PropertyManagerMixin, 
+                            Ui_CookiePropertyManager):
+    
+    # <title> - the title that appears in the property manager header.
+    title = "Build Cystal"
+    # <iconPath> - full path to PNG file that appears in the header.
+    iconPath = "ui/actions/Tools/Build Structures/Build Crystal.png"
+    
     def __init__(self):
         QtGui.QWidget.__init__(self)
         
         self.setupUi(self)
         self.retranslateUi(self)
         
-        #connect slots
-        self.connect(self.sponsor_btn,
-                     SIGNAL("clicked()"),
-                     self.sponsor_btn_clicked)
+        # setupUi() did not add the icon or title. We do that here.
+	pmSetPropMgrIcon( self, self.iconPath )
+        pmSetPropMgrTitle( self, self.title )
+        
+        # Connect widget signals to slots
         self.connect(self.cookieSpec_groupBoxButton, 
                      SIGNAL("clicked()"),
                      self.toggle_cookieSpec_groupBox)      

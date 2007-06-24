@@ -30,7 +30,7 @@ import platform
 from debug import print_compact_traceback
 from qt4transition import *
 from Sponsors import SponsorableMixin
-from PropertyManagerMixin import PropertyManagerMixin
+from PropertyManagerMixin import PropertyManagerMixin, pmSetPropMgrIcon, pmSetPropMgrTitle
 from PropMgr_Constants import pmMMKitPageMargin
 from bond_constants import btype_from_v6
 
@@ -44,9 +44,17 @@ noblegases = ["He", "Ne", "Ar", "Kr"] # Mark 2007-05-31
 # debugging flags -- do not commit with True
 debug_mmkit_events = False
 
-class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
+class MMKit(QDialog, 
+	    Ui_MMKitDialog, 
+	    PropertyManagerMixin, 
+	    SponsorableMixin):
     """Provide the MMKit PM for Build Atoms mode. (This is a mixin class for class depositMode.)
     """
+    # <title> - the title that appears in the property manager header.
+    title = "Build Atoms"
+    # <iconPath> - full path to PNG file that appears in the header.
+    iconPath = "ui/actions/Tools/Build Structures/Build Atoms.png"
+    
     bond_id2name =['sp3', 'sp2', 'sp', 'sp2(graphitic)']
     sponsor_keyword = 'Build'
     
@@ -57,19 +65,28 @@ class MMKit(QDialog, Ui_MMKitDialog, PropertyManagerMixin, SponsorableMixin):
         self.o = self.w.glpane
 	
         self.setupUi(self)
+	
+	# setupUi() did not add the icon or title. We do that here.
+	pmSetPropMgrIcon( self, self.iconPath )
+        pmSetPropMgrTitle( self, self.title )
         
         #self.connect(self.hybrid_btngrp,SIGNAL("buttonClicked(int)"),self.set_hybrid_type)
         
         self.pw = None # pw = partwindow
 
-        self.connect(self.mmkit_tab,SIGNAL("currentChanged(int)"),self.tabCurrentChanged)
+        self.connect(self.mmkit_tab,
+		     SIGNAL("currentChanged(int)"),
+		     self.tabCurrentChanged)
 
         self.connect(self.chunkListBox,
                      SIGNAL("currentItemChanged(QListWidgetItem*,QListWidgetItem*)"),
                      self.chunkChanged)
-        self.connect(self.browseButton,SIGNAL("clicked(bool)"),self.browseDirectories)
+        self.connect(self.browseButton,
+		     SIGNAL("clicked(bool)"),
+		     self.browseDirectories)
 	self.connect(self.defaultPartLibButton,
-		     SIGNAL("clicked(bool)"),self.useDefaultPartLibDirectory)
+		     SIGNAL("clicked(bool)"),
+		     self.useDefaultPartLibDirectory)
 	
         #self.connect(self.elementButtonGroup,SIGNAL("buttonClicked(int)"),self.setElementInfo)
         

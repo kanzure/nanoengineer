@@ -678,7 +678,7 @@ class depositMode(selectAtomsMode, MMKit):
 	    grpbox.bottom_spacer.changeSize(10,pmGroupBoxSpacing) # Spacer has no show() method. Mark 2007-06-01
 	
 	self.pw.propertyManagerScrollArea.ensureWidgetVisible(
-	    self.heading_label)
+	    self.header_label)
 	
 	self.setAtom()
 	
@@ -702,7 +702,7 @@ class depositMode(selectAtomsMode, MMKit):
 	self.bondTools_grpBox.show()
 	
 	self.pw.propertyManagerScrollArea.ensureWidgetVisible(
-	    self.heading_label)
+	    self.header_label)
 	
 	self.updateBuildAtomsMessage()
 		   

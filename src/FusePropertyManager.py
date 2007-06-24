@@ -14,7 +14,7 @@ __author__  = "Ninad"
 
 import sys
 from PyQt4 import QtCore, QtGui
-from PropertyManagerMixin import PropertyManagerMixin
+from PropertyManagerMixin import PropertyManagerMixin, pmSetPropMgrIcon, pmSetPropMgrTitle
 from Ui_FusePropertyManager import Ui_FusePropertyManager
 from PyQt4.Qt import Qt, SIGNAL
 from Utility import geticon
@@ -22,11 +22,20 @@ from Utility import geticon
 class FusePropertyManager(QtGui.QWidget, 
                           PropertyManagerMixin,
                           Ui_FusePropertyManager):
+    
+    # <title> - the title that appears in the property manager header.
+    title = "Fuse Chunks"
+    # <iconPath> - full path to PNG file that appears in the header.
+    iconPath = "ui/actions/Tools/Build Tools/Fuse_Chunks.png"
+    
     def __init__(self):
         QtGui.QWidget.__init__(self)
                                 
         self.setupUi(self)
-        self.retranslateUi(self)     
+        
+        # setupUi() did not add the icon or title. We do that here.
+	pmSetPropMgrIcon( self, self.iconPath )
+        pmSetPropMgrTitle( self, self.title )
         
         #At startup Move groupbox is active by default 
         #the following variable sets this flag (used in fusechunksMode.leftDrag)
@@ -39,7 +48,7 @@ class FusePropertyManager(QtGui.QWidget,
                           self.rotateGroupBox_widgetHolder)
         
         self.lastCheckedRotateAction = None 
-        self.lastCheckedMoveAction = None
+        self.lastCheckedTranslateAction = None
         
         #connect slots
         self.connect(self.sponsor_btn,

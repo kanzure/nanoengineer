@@ -13,7 +13,7 @@ __author__  = "Ninad"
 import sys
 from PyQt4 import QtCore, QtGui
 from Ui_MovePropertyManager import Ui_MovePropertyManager
-from PropertyManagerMixin import PropertyManagerMixin
+from PropertyManagerMixin import PropertyManagerMixin, pmSetPropMgrIcon, pmSetPropMgrTitle
 from PyQt4.Qt import Qt, SIGNAL
 from Utility import geticon, getpixmap
 
@@ -24,6 +24,14 @@ class MovePropertyManager(QtGui.QWidget,
                           PropertyManagerMixin, 
                           Ui_MovePropertyManager):
     
+    # The title(s) that appears in the property manager header.
+    translateTitle = "Translate"
+    rotateTitle = "Rotate"
+
+    # The full path to PNG file(s) that appears in the header.
+    translateIconPath = "ui/actions/Properties Manager/Translate_Components.png"
+    rotateIconPath = "ui/actions/Properties Manager/Rotate_Components.png"
+
     # The current move mode (either TRANSLATE or ROTATE).
     _currentMoveMode = TRANSLATE 
     
@@ -31,15 +39,14 @@ class MovePropertyManager(QtGui.QWidget,
         QtGui.QWidget.__init__(self)
         
         self.setupUi(self)
-        self.retranslateUi(self)
+	
+	# Update the title and icon for "Translate" (the default move mode).
+	pmSetPropMgrIcon( self, self.translateIconPath )
+	pmSetPropMgrTitle( self, self.translateTitle )
         
         self.lastCheckedRotateAction = None 
-        self.lastCheckedMoveAction = None
-        
-        self.connect(self.sponsor_btn,
-                     SIGNAL("clicked()"),
-                     self.sponsor_btn_clicked)
-       
+        self.lastCheckedTranslateAction = None
+               
         self.connect(self.translate_groupBoxButton, 
                      SIGNAL("clicked()"),
                      self.activate_translateGroupBox_using_groupButton)            
@@ -75,13 +82,9 @@ class MovePropertyManager(QtGui.QWidget,
             self.w.toolsMoveMoleculeAction.setChecked(True)
             self.o.setCursor(self.w.MolSelTransCursor)
             
-            self.heading_pixmap.setPixmap(
-                getpixmap('ui/actions/Properties Manager/Translate_Components.png'))
-            self.heading_label.setText(
-                QtGui.QApplication.translate("MovePropertyManager", 
-                                    "<font color=\"#FFFFFF\">Translate</font>",
-                                    None, 
-                                    QtGui.QApplication.UnicodeUTF8))  
+            # Update the title and icon.
+	    pmSetPropMgrIcon( self, self.translateIconPath )
+	    pmSetPropMgrTitle( self, self.translateTitle )
             
             self.deactivate_rotateGroupBox()
             
@@ -110,11 +113,11 @@ class MovePropertyManager(QtGui.QWidget,
         if not self.w.rotateComponentsAction.isChecked():            
             self.w.rotateComponentsAction.setChecked(True)           
             self.o.setCursor(self.w.MolSelRotCursor)
-            self.heading_pixmap.setPixmap(getpixmap('ui/actions/Properties Manager/Rotate_Components.png'))
-            self.heading_label.setText(QtGui.QApplication.translate("MovePropertyManager", 
-                                                                "<font color=\"#FFFFFF\">Rotate</font>", 
-                                                                None, QtGui.QApplication.UnicodeUTF8))        
-            
+
+            # Update the title and icon.
+	    pmSetPropMgrIcon( self, self.rotateIconPath )
+	    pmSetPropMgrTitle( self, self.rotateTitle )
+	    
             self.deactivate_translateGroupBox()
         
             #This is the action that was checked the last time when this 
@@ -141,11 +144,10 @@ class MovePropertyManager(QtGui.QWidget,
         self.toggle_translateGroupBox()
         self.o.setCursor(self.w.MolSelTransCursor)
         
-        self.heading_pixmap.setPixmap(getpixmap('ui/actions/Properties Manager/Translate_Components.png'))        
-        self.heading_label.setText(QtGui.QApplication.translate("MovePropertyManager", 
-                                                                "<font color=\"#FFFFFF\">Translate</font>", 
-                                                                None, QtGui.QApplication.UnicodeUTF8))  
-            
+	# Update the title and icon.
+	pmSetPropMgrIcon( self, self.translateIconPath )
+	pmSetPropMgrTitle( self, self.translateTitle )
+	
         self.deactivate_rotateGroupBox()    
         
         #This is the action that was checked the last time when this 
@@ -171,12 +173,11 @@ class MovePropertyManager(QtGui.QWidget,
         
         self.toggle_rotateGroupBox()
         self.o.setCursor(self.w.MolSelRotCursor)
-        
-        self.heading_pixmap.setPixmap(getpixmap('ui/actions/Properties Manager/Rotate_Components.png'))        
-        self.heading_label.setText(QtGui.QApplication.translate("MovePropertyManager", 
-                                                                "<font color=\"#FFFFFF\">Rotate</font>", 
-                                                                None, QtGui.QApplication.UnicodeUTF8))    
-        
+
+        # Update the title and icon.
+	pmSetPropMgrIcon( self, self.rotateIconPath )
+	pmSetPropMgrTitle( self, self.rotateTitle )
+	
         self.deactivate_translateGroupBox()           
     
         #This is the action that was checked the last time when this 
@@ -221,8 +222,8 @@ class MovePropertyManager(QtGui.QWidget,
         #Store the last checked action of the groupbox you are about to close
         #(in this case Move Groupbox is the groupbox that will be deactivated and 
         #'Rotate groupbox will be activated (opened) ) 
-        lastCheckedMoveAction = self.w.MoveOptionsGroup.checkedAction()        
-        self.setLastCheckedMoveAction(lastCheckedMoveAction)        
+        lastCheckedTranslateAction = self.w.MoveOptionsGroup.checkedAction()        
+        self.setLastCheckedMoveAction(lastCheckedTranslateAction)        
         
         #Disconnect checked action in Move groupbox
         self.w.MoveOptionsGroup.checkedAction().setChecked(False)        
@@ -285,7 +286,7 @@ class MovePropertyManager(QtGui.QWidget,
         """" Sets the  'last checked action value' Program remembers the last checked action 
         in a groupbox (either Translate components or rotate components) . When that groupbox 
         is displayed, it checkes this last action again (see get method)"""
-        self.lastCheckedMoveAction = lastCheckedAction
+        self.lastCheckedTranslateAction = lastCheckedAction
     
     def getLastCheckedRotateAction(self):
         """returns the last checked action in a groupbox."""
@@ -296,8 +297,8 @@ class MovePropertyManager(QtGui.QWidget,
         
     def getLastCheckedMoveAction(self):
         """returns the last checked action in a groupbox."""
-        if self.lastCheckedMoveAction:
-            return self.lastCheckedMoveAction
+        if self.lastCheckedTranslateAction:
+            return self.lastCheckedTranslateAction
         else:
             return None
         

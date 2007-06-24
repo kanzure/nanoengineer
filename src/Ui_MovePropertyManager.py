@@ -10,7 +10,8 @@ from PyQt4 import QtCore, QtGui
 from PyQt4.Qt import *
 from Utility import geticon, getpixmap
 from qt4transition import qt4todo
-from PropertyManagerMixin import pmAddTopRowButtons, pmMessageGroupBox, pmAddBottomSpacer
+from PropertyManagerMixin import pmVBoxLayout, pmAddHeader, pmAddSponsorButton, \
+     pmAddTopRowButtons, pmMessageGroupBox, pmAddBottomSpacer
 from PropMgr_Constants import *
 
 class Ui_MovePropertyManager(object):
@@ -20,74 +21,9 @@ class Ui_MovePropertyManager(object):
         
         MovePropertyManager.setObjectName("MovePropertyManager")
         
-        palette = MovePropertyManager.getPropertyManagerPalette()
-        MovePropertyManager.setPalette(palette)
-        
-        self.pmVBoxLayout = QtGui.QVBoxLayout(MovePropertyManager)
-        self.pmVBoxLayout.setMargin(0) # was 1. Mark 2007-05-24.
-        self.pmVBoxLayout.setSpacing(0) # was 1. Mark 2007-05-24.
-        self.pmVBoxLayout.setSizeConstraint(QLayout.SetMinimumSize)
-        self.pmVBoxLayout.setObjectName("pmVBoxLayout")
-        
-        self.heading_frame = QtGui.QFrame(MovePropertyManager)
-        self.heading_frame.setFrameShape(QtGui.QFrame.NoFrame)
-        self.heading_frame.setFrameShadow(QtGui.QFrame.Plain)
-        self.heading_frame.setObjectName("heading_frame")
-        
-        palette2 = QtGui.QPalette()
-        palette2.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(10),
-                          QtGui.QColor(120,120,120)) #bgrole(10) is 'Windows'
-        palette2.setColor(QtGui.QPalette.Inactive,QtGui.QPalette.ColorRole(10),
-                          QtGui.QColor(120,120,120)) #bgrole(10) is 'Windows'
-        palette2.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ColorRole(10),
-                          QtGui.QColor(120,120,120)) #bgrole(10) is 'Windows'
-        self.heading_frame.setAutoFillBackground(True)
-        self.heading_frame.setPalette(palette2)
-
-        self.hboxlayout_heading = QtGui.QHBoxLayout(self.heading_frame)
-        self.hboxlayout_heading.setMargin(2)
-        self.hboxlayout_heading.setSpacing(5)
-        self.hboxlayout_heading.setObjectName("hboxlayout")
-
-
-        self.heading_pixmap = QtGui.QLabel(self.heading_frame)
-        self.heading_pixmap.setPixmap(getpixmap('ui/actions/Toolbars/Smart/Move.png'))
-        
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(0),QtGui.QSizePolicy.Policy(0))
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.heading_pixmap.sizePolicy().hasHeightForWidth())
-        self.heading_pixmap.setSizePolicy(sizePolicy)
-        #self.heading_pixmap.setScaledContents(True)
-        self.heading_pixmap.setObjectName("heading_pixmap")
-        
-        self.hboxlayout_heading .addWidget(self.heading_pixmap)
-        
-        self.heading_label = QtGui.QLabel(self.heading_frame)
-	self.heading_label.setFont(getHeaderFont())
-	self.heading_label.setAlignment(pmLabelLeftAlignment)
-        self.hboxlayout_heading .addWidget(self.heading_label)
-        
-        self.pmVBoxLayout.addWidget(self.heading_frame)
-
-        self.sponsor_frame = QtGui.QFrame(MovePropertyManager)
-        self.sponsor_frame.setFrameShape(QtGui.QFrame.NoFrame)
-        self.sponsor_frame.setFrameShadow(QtGui.QFrame.Plain)
-        self.sponsor_frame.setObjectName("sponsor_frame")
-
-        self.gridlayout_sponsor = QtGui.QGridLayout(self.sponsor_frame)
-        self.gridlayout_sponsor.setMargin(0)
-        self.gridlayout_sponsor.setSpacing(0)
-        self.gridlayout_sponsor.setObjectName("gridlayout")
-
-        self.sponsor_btn = QtGui.QPushButton(self.sponsor_frame)
-        self.sponsor_btn.setAutoDefault(False)
-        self.sponsor_btn.setFlat(True)
-        self.sponsor_btn.setObjectName("sponsor_btn")
-        self.gridlayout_sponsor.addWidget(self.sponsor_btn,0,0,1,1)
-        
-        self.pmVBoxLayout.addWidget(self.sponsor_frame)
-        
+        pmVBoxLayout(MovePropertyManager)
+        pmAddHeader(MovePropertyManager)
+	pmAddSponsorButton(MovePropertyManager)
 	pmAddTopRowButtons(MovePropertyManager, 
 			   showFlags = pmDoneButton | pmWhatsThisButton)
 	
@@ -617,13 +553,4 @@ class Ui_MovePropertyManager(object):
         
         vlo.addLayout(hlo3)                
         self.rotateBySpecifiedAngleWidget.hide()
-        self.vboxlo_rotateWidgetHolder.addWidget(self.rotateBySpecifiedAngleWidget)        
-        
-        
-    def retranslateUi(self, MovePropertyManager):
-        MovePropertyManager.setWindowTitle(QtGui.QApplication.translate("MovePropertyManager", 
-                                                                        "MovePropertyManager",
-                                                                        None, QtGui.QApplication.UnicodeUTF8))
-        self.heading_label.setText(QtGui.QApplication.translate("MovePropertyManager", 
-                                                                "<font color=\"#FFFFFF\">Translate </font>", 
-                                                                None, QtGui.QApplication.UnicodeUTF8))
+        self.vboxlo_rotateWidgetHolder.addWidget(self.rotateBySpecifiedAngleWidget)
