@@ -22,6 +22,38 @@ from debug import print_compact_traceback #bruce 051129
 import platform #bruce 051129
 from platform import fix_plurals #bruce 051129
 
+# Object flags, used by objectSelected() and its callers. 
+ATOMS = 1
+CHUNKS = 2
+JIGS = 4
+ALLOBJECTS = ATOMS | CHUNKS | JIGS
+
+def objectSelected(part, objectFlags=ALLOBJECTS): # Mark 2007-06-24
+    '''Returns True if anything is selected (i.e. atoms, chunks or jigs).
+    Returns False if nothing is selected.
+    
+    <objectFlags> is an enum used to test for specific object types, where:
+    
+        ATOMS = 1
+        CHUNKS = 2
+        JIGS = 4
+        ALLOBJECT = ATOMS | CHUNKS | JIGS
+    '''
+    
+    if objectFlags & ATOMS:
+        if part.selatoms_list():
+            return True
+    
+    if objectFlags & CHUNKS:
+        if part.selmols:
+            return True
+    
+    if objectFlags & JIGS:
+        if part.getSelectedJigs():
+            return True
+
+    return False
+
 class ops_select_Mixin:
     "Mixin class for providing these methods to class Part"
 
