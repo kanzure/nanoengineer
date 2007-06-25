@@ -5,6 +5,7 @@ modifyMode.py
 $Id$
 
 bruce 050913 used env.history in some places.
+
 """
 
 from selectMode import *
@@ -174,10 +175,8 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
                 
         self.openPropertyManager(self) # ninad 061227 see PropertymanagerMixin
 	
-    
 	self.updateCommandManager(bool_entering = True)
     
-        
         # connect signals (these all need to be disconnected in restore_gui)
                 
         self.connect_or_disconnect_signals(True)
@@ -212,6 +211,8 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
         change_connect(self.w.rotateThetaPlusAction, SIGNAL("activated()"), self.moveThetaPlus)
         change_connect(self.w.rotateThetaMinusAction, SIGNAL("activated()"), self.moveThetaMinus)
         change_connect(self.w.movetype_combox, SIGNAL("activated(const QString&)"), self.setup_movetype)
+	change_connect(self.exitMoveAction, SIGNAL("triggered()"), 	 
+	                        self.w.toolsDone)
         
     def restore_gui(self):
         # disconnect signals which were connected in init_gui [bruce 050728]
@@ -401,8 +402,7 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
             #move free drag setup etc and call them here and in leftDrag.
             if self.w.rotateFreeAction.isChecked():
                 self.leftCntlDown(event)
-    
-            
+		    
         self.reset_drag_vars()
         
         self.LMB_press_event = QMouseEvent(event) # Make a copy of this event and save it. 
@@ -539,6 +539,9 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
         if not self.picking: return
         
         if not self.isGoBackToMode():  
+	    if self.cursor_over_when_LMB_pressed == 'Empty Space':            
+                self.continue_selection_curve(event)             
+		return
             if self.isConstrainedDragAlongAxis:
                 try:
                     self.leftADrag(event)
@@ -749,7 +752,9 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
             modeToReturn = self.goBackToMode()
             self.o.setMode(modeToReturn)            
         else:
-            if self.dragdist < 2:
+	    if self.cursor_over_when_LMB_pressed == 'Empty Space': #@@ needed?
+		self.emptySpaceLeftUp(event)
+            elif self.dragdist < 2:
                 selectMolsMode.leftUp(self,event)
            
         #ninad 070212 This is necessary to make sure that program remains in the Move mode when 
@@ -789,12 +794,13 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
         """Setup a trackball action on the selected chunk(s).
         """
         if not self.o.assy.getSelectedMovables(): return
-        
+	
+	    
         #If its pseudo move mode only permit free move(translate) drag
         if self.isGoBackToMode():
             self.w.rotateComponentsAction.setChecked(True)
             self.w.rotateFreeAction.setChecked(True)
-        
+
         self.o.SaveMouse(event)
         self.o.trackball.start(self.o.MousePos[0],self.o.MousePos[1])
         self.picking = True
@@ -804,9 +810,11 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
     def leftCntlDrag(self, event):
         """Do an incremental trackball action on all selected chunks(s).
         """
+		
         ##See comments of leftDrag()--Huaicai 3/23/05
         if not self.picking: return
-                
+	
+		    
         if not self.o.assy.getSelectedMovables(): return
         
         w=self.o.width+0.0
@@ -1003,6 +1011,9 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
         return
     
     def leftShiftUp(self, event):
+	if self.cursor_over_when_LMB_pressed == 'Empty Space':
+            self.emptySpaceLeftUp(event)
+            return
         if self.o.modkeys == 'Shift+Control':
             self.end_selection_curve(event)
             return
