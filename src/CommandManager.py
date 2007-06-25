@@ -213,7 +213,7 @@ class CommandManager(Ui_CommandManager):
 	    if action.__class__.__name__ is QtGui.QWidgetAction.__name__:    
 		btn = QToolButton()
 		btn.setToolButtonStyle(Qt.Qt.ToolButtonTextUnderIcon)	
-		btn.setFixedWidth(62)
+		btn.setFixedWidth(68)
 		btn.setMinimumHeight(55)		
 	
 		#ninad 070125: make sure to a) define *default action* of button  
@@ -223,6 +223,16 @@ class CommandManager(Ui_CommandManager):
 		#(b) ensures action has got button's geometry	    
 		btn.setDefaultAction(action)
 		action.setDefaultWidget(btn)	
+		
+		# I forgot to add the following lines (that truncate the text),
+		# while transfering this method from
+		# mode to here... fixes bug 2471 - ninad 20070625
+		
+		#ninad 070201 temporary solution -- truncate the toolbutton 	 
+		#text if too long. 
+		text = self.truncateText(action.text()) 	 
+		btn.setText(text)
+			 
 		#@@@ ninad070125 The following function 
 		#adds a newline character after each word in toolbutton text. 
 		#but the changes are reflected only on 'mode' toolbuttons 
