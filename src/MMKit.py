@@ -89,8 +89,6 @@ class MMKit(QDialog,
 		     self.useDefaultPartLibDirectory)
 	
         #self.connect(self.elementButtonGroup,SIGNAL("buttonClicked(int)"),self.setElementInfo)
-        
-        self.connect(self.sponsor_btn,SIGNAL("clicked()"),self.sponsor_btn_clicked)
      
         self.connect(self.thumbView_groupBoxButton, SIGNAL("clicked()"),
 		     self.toggle_thumbView_groupBox)
@@ -102,12 +100,6 @@ class MMKit(QDialog,
 		     self.toggle_selectionFilter_groupBox)
         self.connect(self.advancedOptions_groupBoxButton, SIGNAL("clicked()"), 
 		     self.toggle_advancedOptions_groupBox)
-        
-        self.connect(self.done_btn,SIGNAL("clicked()"),win.toolsDone)
-	
-	self.connect(self.whatsthis_btn,
-                     SIGNAL("clicked()"),
-                     QWhatsThis.enterWhatsThisMode)
 
         # Make the elements act like a big exclusive radio button.
         self.theElements = QtGui.QButtonGroup()
