@@ -280,7 +280,7 @@ class MMKit(QDialog,
 	    page = None
 	    
 	    if pageIndex is 0: # atomsPage
-		msg = "Double click in empty space to insert a single " + self.elm.name + " atom."
+		msg = "Double click in empty space to insert a single " + self.elm.name + " atom. "
 		if not self.elm.symbol in noblegases:
 		    msg += "Click on an atom's <i>red bondpoint</i> to attach a " + self.elm.name + " atom to it."
         
