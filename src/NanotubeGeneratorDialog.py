@@ -8,6 +8,8 @@ Mark 2007-05-18: Implemented Nanotube generator dialog using PropMgrBaseClass.
 """
 
 import sys
+import math
+
 from PyQt4 import QtCore, QtGui
 from PyQt4.Qt import *
 from Utility import geticon, getpixmap
@@ -35,14 +37,28 @@ class NanotubePropMgr(object, PropMgrBaseClass):
         self.setPropMgrTitle(self.title)
         self.addGroupBoxes()
         self.add_whats_this_text()
+        self.updateMessageGroupBox()
         
-        msg = "Edit the Nanotube parameters and select <b>Preview</b> to \
+    def updateMessageGroupBox(self):
+        msg = ""
+
+        # A (4, 4) tube is stable, but a (3, 3) has not been seen in
+        # isolation.  Circumference of a (4, 4) tube is about 6.93.
+        xOffset = self.n + self.m * math.cos(math.pi/3.0)
+        yOffset = self.m * math.sin(math.pi/3.0)
+        circumference = math.sqrt(xOffset * xOffset + yOffset * yOffset)
+        if (circumference < 6.5):
+            msg = "Warning: Small diameter nanotubes may be unstable, \
+            and may give unexpected results when minimized.<p>"
+
+        msg = msg + "Edit the Nanotube parameters and select <b>Preview</b> to \
         preview the structure. Click <b>Done</b> to insert it into the model."
         
         # This causes the "Message" box to be displayed as well.
         # setAsDefault=True causes this message to be reset whenever
         # this PropMgr is (re)displayed via show(). Mark 2007-06-01.
         self.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=True)
+
         
     def addGroupBoxes(self):
         """Add the 3 groupboxes for the Nanotube Property Manager.
@@ -272,6 +288,7 @@ class NanotubePropMgr(object, PropMgrBaseClass):
         self.chiralityNSpinBox.setValue(n)
         self.chiralityMSpinBox.setValue(m)
         self.m, self.n = m, n
+        self.updateMessageGroupBox()
 
     def nt_type_changed(self, idx):
         """Slot for Nanotube Type combobox.
