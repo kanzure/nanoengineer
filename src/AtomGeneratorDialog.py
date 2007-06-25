@@ -112,45 +112,43 @@ class AtomPropertyManager(object, PropMgrBaseClass):
                  self.yCoordinateField.value, 
                  self.zCoordinateField.value )
 
-    def getMinCoordinateValue():
+    def getMinCoordinateValue(self):
         """
         Get the minimum value allowed in the coordinate spin boxes 
         of the Atom Generator property manager.
         """
-        return _sMinCoordinateValue
+        return self.sel_sMinCoordinateValue
     
-    def getMaxCoordinateValue():
+    def getMaxCoordinateValue(self):
         """
         Get the maximum value allowed in the coordinate 
         spin boxes of the Atom Generator property manager.
         """
-        return _sMaxCoordinateValue
+        return self._sMaxCoordinateValue
 
-    def getStepCoordinateValue():
+    def getStepCoordinateValue(self):
         """
         Get the value by which a coordinate increases/decreases 
         when the user clicks an arrow of a coordinate spin box 
         in the Atom Generator property manager.
         """
-        return _sStepCoordinateValue
+        return self._sStepCoordinateValue
 
-    def getCoordinateDecimals():
+    def getCoordinateDecimals(self):
         """
         Get the number of decimal places given for a value in a 
         coordinate spin box in the Atom Generator property manager.
         """
-        return _sStepCoordinateValue
+        return self._sStepCoordinateValue
 
-    def getCoordinateUnit():
+    def getCoordinateUnit(self):
         """
         Get the unit (of measure) for the coordinates of the 
         generated atom's position.
         """
-        return _sCoordinateUnit
+        return self._sCoordinateUnit
     
-    def setCartesianCoordinates( inX,
-                                 inY,
-                                 inZ ):
+    def setCartesianCoordinates( self, inX, inY, inZ ):
         """
         Set the cartesian coordinates for the position of the atom
         specified in the coordinate spin boxes of the Atom Generator
@@ -161,42 +159,42 @@ class AtomPropertyManager(object, PropMgrBaseClass):
         self.yCoordinateField.value  =  inY
         self.zCoordinateField.value  =  inZ
 
-    def setMinCoordinateValue( inMin ):
+    def setMinCoordinateValue( self, inMin ):
         """
         Set the minimum value allowed in the coordinate spin boxes 
         of the Atom Generator property manager.
         """
-        _sMinCoordinateValue  =  inMin
+        self._sMinCoordinateValue  =  inMin
     
-    def setMaxCoordinateValue( inMax ):
+    def setMaxCoordinateValue( self, inMax ):
         """
         Set the maximum value allowed in the coordinate 
         spin boxes of the Atom Generator property manager.
         """
-        _sMaxCoordinateValue  =  inMax
+        self._sMaxCoordinateValue  =  inMax
 
-    def setStepCoordinateValue( inStep ):
+    def setStepCoordinateValue( self, inStep ):
         """
         Set the value by which a coordinate increases/decreases 
         when the user clicks an arrow of a coordinate spin box 
         in the Atom Generator property manager.
         """
-        _sStepCoordinateValue  =  inStep
+        self._sStepCoordinateValue  =  inStep
 
-    def setCoordinateDecimals( inDecimals ):
+    def setCoordinateDecimals( self, inDecimals ):
         """
         Set the number of decimal places given for a value in a 
         coordinate spin box in the Atom Generator property manager.
         """
-        _sStepCoordinateValue  =  inDecimals
+        self._sStepCoordinateValue  =  inDecimals
 
-    def setCoordinateUnit( inUnit ):
+    def setCoordinateUnit( self, inUnit ):
         """
         Set the unit(s) (of measure) for the coordinates of the 
         generated atom's position.
         """
-        _sCoordinateUnit   =  inUnit
-        _sCoordinateUnits  =  inUnit + 's'
+        self._sCoordinateUnit   =  inUnit
+        self._sCoordinateUnits  =  inUnit + 's'
     
     def addGroupBoxes(self):
         """
