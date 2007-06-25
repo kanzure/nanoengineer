@@ -18,6 +18,7 @@ from platform import fix_plurals
 from VQT import V, norm, Q, vlen, orthodist
 import env
 from math import pi
+from debug import print_compact_traceback
 
 
 class ops_motion_Mixin:
@@ -129,16 +130,21 @@ class ops_motion_Mixin:
             self.topnode.unpick_top() #ninad060814 this is necessary to fix a bug. Otherwise program will crash if you try to mirror
                                                     #when the top node of the part (main part of clipboard) is selected
         
-        jigs = self.assy.getSelectedJigs()
-        jigCounter = self.getQualifiedMirrorJigs(jigs) # ninad060814 - check if Grid Plane is selected. If it does , check how many!
+        mirrorJigs = self.getQualifiedMirrorJigs()
+        
+        jigCounter = len(mirrorJigs)
                 
         if jigCounter < 1:
-            msg = redmsg("No mirror plane selected. Please select a Grid Plane first.")
-            instruction = "  (If it doesn't exists, create it using <b>Insert > Reference Geometry > Grid Plane</b> )"
+            msg1 = "No mirror plane selected."
+            msg2 = " Please select a Reference Plane or a Grid Plane first."
+            msg = redmsg(msg1+msg2)
+            instr1 = "(If it doesn't exist, create it using"
+            instr2 = "<b>Insert > Reference Geometry menu </b> )"
+            instruction = instr1 + instr2
             env.history.message(cmd + msg  + instruction)
             return 
         elif jigCounter >1:
-            msg = redmsg("More than one Grid Plane selected. Please select only one Grid Plane and try again")
+            msg = redmsg("More than one plane selected. Please select only one plane and try again")
             env.history.message(cmd + msg ) 
             return 
         else:
@@ -146,11 +152,11 @@ class ops_motion_Mixin:
                 mirrorChunk = m.copy(None) #ninad060812 make a copy of the selection first
                 self.o.assy.addmol(mirrorChunk)
                 mirrorChunk.stretch(-1.0)
-                self.mirrorAxis = jigs[0].getaxis() # ninad060812 Get the axis vector of the Grid Plane. Then you need to 
+                self.mirrorAxis = mirrorJigs[0].getaxis() # ninad060812 Get the axis vector of the Grid Plane. Then you need to 
                                                                    #rotate the inverted chunk by pi around this axis vector 
                 mirrorChunk.rot(Q(self.mirrorAxis, pi)) 
     
-                self.mirrorDistance, self.wid = orthodist(m.center, self.mirrorAxis, jigs[0].center) # ninad060813 This gives an orthogonal distance between the chunk center and mirror plane.
+                self.mirrorDistance, self.wid = orthodist(m.center, self.mirrorAxis, mirrorJigs[0].center) # ninad060813 This gives an orthogonal distance between the chunk center and mirror plane.
                 mirrorChunk.move(2*(self.mirrorDistance)*self.mirrorAxis)# @@@@ ninad060813 This moves the mirrror chunk on the other side of the mirror plane. It surely moves the chunk along the axis of the mirror plane but I am still unsure if this *always* moves the chunk on the other side of the mirror. Probably the 'orthodist' function has helped me here??  Need to discuss this.
                                                                                                                         
             self.w.win_update()  # update GLPane as well as MT
@@ -159,18 +165,68 @@ class ops_motion_Mixin:
             env.history.message( cmd + info)
             env.end_op(mc) 
         
-    def getQualifiedMirrorJigs(self, jigs):
-        "Returns the jig names which can be used a  reference plane in Mirror Feature. Also returns how many such jigs are selected"
-        #I am planning to extend this method for ESP images also. - ninad060814
-        jigCounter = 0
+    def getQualifiedMirrorJigs(self):
+        '''Returns a list of objects that can be used as a   
+        reference in Mirror Feature. (referece plane and grid planes are valid 
+        objects). Only the first object in this list is used for mirror. 
+        See Mirror method for details'''
+        
+        jigs = self.assy.getSelectedJigs()
+        mirrorJigs = []
+
         for j in jigs:
-            if j.mmp_record_name is "gridplane":
-                jigCounter = jigCounter + 1
-        return jigCounter # if its 0 then no grid plane is selected.  If its >1 more than 1 grid planes are selected
+            if j.mmp_record_name is "gridplane" or j.mmp_record_name is "plane":
+                mirrorJigs.append(j)
+                
+        return mirrorJigs
     
-    def align(self):
+    def align_NEW(self):
+        '''Align the axes of the selected movables to the axis of the movable
+        that is placed at the highest order in the Model Tree'''
+        
+        #@@This is not called yet.
+        #method *always* uses the MT order to align chunks or jigs   
+        #This supports jigs (including reference planes) but it has following
+        #bug -- It always uses the selected movable that is placed highest
+        #in the Model Tree, as the reference axis for alignment. (Instead 
+        #it should align to the 'first selected movable' 
+        #(this doesn't happen (or very rarely happens) in old align method where
+        #'selmols' is used.) 
+
         cmd = greenmsg("Align to Common Axis: ")
         
+        movables = self.assy.getSelectedMovables()
+        for m in movables:
+            print "movable =", m.name
+        numMovables = len(movables)
+        if len(movables) < 2:
+            msg = redmsg("Need two or more selected chunks to align")
+            env.history.message(cmd + msg)
+            return
+        self.changed()
+        try:
+            firstAxis = movables[0].getaxis()
+            from chunk import molecule
+            from jigs import Jig
+            for m in movables[1:]:             
+                m.rot(Q(m.getaxis(),firstAxis))                
+            self.o.gl_update()
+        except:
+            print_compact_traceback ("bug: selected movable object doesn't have an \
+            axis")
+            msg = redmsg("bug: selected movable object doesn't have an axis")
+            env.history.message(cmd + msg)
+            return
+        self.o.gl_update()
+        
+        info = fix_plurals( "Aligned %d item(s)" % (len(movables) - 1) ) \
+            + " to axis of %s" % movables[0].name
+        env.history.message( cmd + info)
+            
+    
+    def align(self):
+        cmd = greenmsg("Align to Common Axis: ")     
+ 
         if len(self.selmols) < 2:
             msg = redmsg("Need two or more selected chunks to align")
             env.history.message(cmd + msg)
