@@ -46,7 +46,8 @@ class Ui_ExtrudePropertyManager(object):
         QtCore.QMetaObject.connectSlotsByName(ExtrudePropertyManager)
     
     def ui_productSpec_groupBox(self, ExtrudePropertyManager):
-        # Start Product Specifications Groupbox
+	"""Creates the "Product Specifications" groupbox.
+	"""
         self.productSpec_groupBox = QtGui.QGroupBox(ExtrudePropertyManager)
         self.productSpec_groupBox.setObjectName("productSpec_groupBox")
         
@@ -129,6 +130,9 @@ class Ui_ExtrudePropertyManager(object):
         
         
     def ui_extrudeDirection_groupBox(self, ExtrudePropertyManager):
+	"""Creates the "Extrude Direction" groupbox. This is not shown.
+	It is created, but hidden (below).
+	"""
         #Start extrudeDirection groupbox
         self.extrudeDirection_groupBox = QtGui.QGroupBox(ExtrudePropertyManager)
         self.extrudeDirection_groupBox.setObjectName("extrudeDirection_groupBox")
@@ -160,7 +164,8 @@ class Ui_ExtrudePropertyManager(object):
 
         
     def ui_advancedOptions_groupBox(self, ExtrudePropertyManager):
-        #Start AdvancedOptions Groupbox
+	"""Creates the "Advanced Options" groupbox.
+	"""
         self.advancedOptions_groupBox = QtGui.QGroupBox(ExtrudePropertyManager)
         self.advancedOptions_groupBox .setObjectName("advancedOptions_groupBox")
         
@@ -189,11 +194,11 @@ class Ui_ExtrudePropertyManager(object):
         vlo_grpbx_widget.setSpacing(4)
         
         self.extrudePref1 = TogglePrefCheckBox(
-            "Show Whole Model", 
+            "Show Entire Model", 
             self.advancedOptions_groupBoxWidget,
             "extrudePref1", 
             default = False,
-            attr = 'show_whole_model',
+            attr = 'show_entire_model',
             repaintQ = True )
         
         vlo_grpbx_widget.addWidget(self.extrudePref1)        
@@ -372,21 +377,21 @@ class Ui_ExtrudePropertyManager(object):
 					QtGui.QApplication.UnicodeUTF8))
         self.x_label.setText(
 	    QtGui.QApplication.translate("ExtrudePropertyManager", 
-					"X:", 
+					"X Offset :", 
 					None, 
 					QtGui.QApplication.UnicodeUTF8))
         self.y_label.setText(
 	    QtGui.QApplication.translate("ExtrudePropertyManager", 
-					"Y:", 
+					"Y Offset :", 
 					None, 
 					QtGui.QApplication.UnicodeUTF8))
         self.z_label.setText(
 	    QtGui.QApplication.translate("ExtrudePropertyManager", 
-					"Z:", 
+					"Z Offset :", 
 					None, 
 					QtGui.QApplication.UnicodeUTF8))
         self.length_label.setText(
 	    QtGui.QApplication.translate("ExtrudePropertyManager", 
-					"Length:", 
+					"Total Offset :", 
 					None, 
 					QtGui.QApplication.UnicodeUTF8))

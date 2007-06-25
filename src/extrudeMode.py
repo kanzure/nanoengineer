@@ -100,7 +100,6 @@ def reinit_extrude_controls(win, glpane = None, length = None, attr_target = Non
     dflt_ncopies = self.extrudeSpinBox_n_dflt_per_ptype[0] #e 0 -> a named constant, it's also used far below
     
     self.extrudeSpinBox_n.setValue(dflt_ncopies)
-
     
     if self.extrudeSpinBox_circle_n:
         self.extrudeSpinBox_circle_n.setValue(0) #e for true Revolve the initial value would be small but positive...\
@@ -142,6 +141,9 @@ def reinit_extrude_controls(win, glpane = None, length = None, attr_target = Non
     ### bug: at least after the reload menu item, reentering mode did not reinit slider to 100%. don\'t know why.\
 
     self.extrude_productTypeComboBox.setCurrentIndex(0)
+    
+    self.updateMessage()
+    
     return
 
 def set_bond_tolerance_and_number_display(win, tol, nbonds = -1): #e -1 indicates not yet known ###e '?' would look nicer
@@ -284,6 +286,7 @@ class extrudeMode(basicMode, ExtrudePropertyManager):
             self.update_from_controls()
             ## not yet effective, even if we did it: self.recompute_bonds()
             self.repaint_if_needed() #k not needed since done at end of update_from_controls
+	    self.updateMessage()
         return
     
     bond_tolerance = -1.0 # this initial value can't agree with value computed from slider
@@ -568,6 +571,7 @@ class extrudeMode(basicMode, ExtrudePropertyManager):
             #e probably that won't happen unless we do something here to
             # generate an event.... probably doesn't matter anyway,
             #e unless code to adjust to one more or less copy is way to slow.
+	self.updateMessage()
 
     def length_value_changed(self, val):
         "call this when the length spinbox changes"
@@ -1419,6 +1423,8 @@ class extrudeMode(basicMode, ExtrudePropertyManager):
             return handle
         # nothing touched... need to warn?
         if not touchable_molecules:
+	    msg = redmsg("Dragging of repeat units not yet implemented for <b>Ring</b> product type.")
+	    self.MessageGroupBox.insertHtmlMessage( msg, setAsDefault  =  False )
             self.status_msg("(dragging of repeat units not yet implemented for product type %r; sorry)" % self.product_type)
         return None
 
@@ -1595,7 +1601,7 @@ class extrudeMode(basicMode, ExtrudePropertyManager):
     def draw_model(self): #bruce 050218 split this out
         try:
             basicMode.Draw(self) # draw axes, if displayed
-            if self.show_whole_model:
+            if self.show_entire_model:
                 self.o.assy.draw(self.o)
             else:
                 for mol in self.molcopies:
@@ -1704,7 +1710,7 @@ class extrudeMode(basicMode, ExtrudePropertyManager):
     def Draw_after_highlighting(self): 
         """Only draw those translucent parts of the whole model when we are requested to draw the whole model
         """
-        if self.show_whole_model:
+        if self.show_entire_model:
             basicMode.Draw_after_highlighting(self)
         return
 
