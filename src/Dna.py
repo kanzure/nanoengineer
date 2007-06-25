@@ -27,6 +27,7 @@ from chem           import Atom
 from bonds          import inferBonds, bond_atoms
 from fusechunksMode import fusechunksBase
 from HistoryWidget  import orangemsg
+from Utility        import Group
 
 import sys, os, env, re, random
 
