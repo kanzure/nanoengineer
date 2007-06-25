@@ -110,20 +110,25 @@ class PlanePropMgr(object,PropMgrBaseClass):
         self.throughSelectedAtoms_btn = PropMgrRadioButton(
             pmGroupBox, text = "Through Selected Atoms" )        
         self.offsetToPlane_btn = PropMgrRadioButton(
-            pmGroupBox, text = "Offset to a Plane" )        
+            pmGroupBox, text = "Offset to a Plane" )
+        self.customPlacement_btn = PropMgrRadioButton(
+            pmGroupBox, text = "Custom" )  
 
         
         objId = 0
         for obj in [self.parallelToScreen_btn,\
                     self.throughSelectedAtoms_btn,\
-                    self.offsetToPlane_btn]: 
+                    self.offsetToPlane_btn, \
+                    self.customPlacement_btn]: 
             
             self.planePlacement_btngrp.addButton(obj)
             self.planePlacement_btngrp.setId(obj, objId)
             objId +=1 
-        
+            
+        #'Custom' plane placement. Do nothing. Fixes bug 2439
+        #(was really a Ui issue)
         if self.planePlacement_btngrp.checkedId() == -1:
-            self.parallelToScreen_btn.setChecked(True)
+            self.customPlacement_btn.setChecked(True)
         
         self.connect(self.planePlacement_btngrp,
                      SIGNAL("buttonClicked(int)"),

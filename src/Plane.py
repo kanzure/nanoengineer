@@ -70,7 +70,7 @@ class Plane(ReferenceGeometry):
     def __init__(self, win, lst = None, READ_FROM_MMP = False):
         ''' 
         @param: win: MainWindow object
-        @param: lst: List of atoms or points'''
+        @param: lst: List of atoms'''
         
         self.w = self.win = win
                       
@@ -79,7 +79,7 @@ class Plane(ReferenceGeometry):
         if self.win.assy.o.mode.modename in \
            ['DEPOSIT', 'MODIFY', 'FUSE', 'MOVIE']:
             self.modePropertyManager = self.win.assy.o.mode
-        
+                    
        
         self.fill_color = self.default_fill_color
         self.border_color = self.default_border_color  
@@ -394,6 +394,9 @@ class Plane(ReferenceGeometry):
             self._createPlaneThroughAtoms()
         elif btn_id == 2:
             self._createOffsetPlane()
+        elif btn_id == 3:
+            #'Custom' plane placement. Do nothing. Fixes bug 2439
+            pass
             
             
     def _setup_quat_center(self, lst = None):
