@@ -439,7 +439,7 @@ class Ui_MovePropertyManager(object):
         rotdelta_z_lo = QtGui.QHBoxLayout()
         rotdelta_z_lo.setSpacing(2)
         
-        self.lbl_z = QtGui.QLabel("Delta Theta Z : ", self.freeDragRotateWidget) 
+        self.lbl_z = QtGui.QLabel("Delta Theta Z: ", self.freeDragRotateWidget) 
         rotdelta_z_lo.addWidget(self.lbl_z)        
         self.deltaThetaZ_lbl = QtGui.QLabel("  0.00", self.freeDragRotateWidget)
         rotdelta_z_lo.addWidget(self.deltaThetaZ_lbl)        
@@ -477,7 +477,7 @@ class Ui_MovePropertyManager(object):
         hlo.setMargin(0)
         
         self.rotateAroundAxis_label = QtGui.QLabel(self.rotateBySpecifiedAngleWidget)
-        self.rotateAroundAxis_label.setText("Rotate Around: ")       
+        self.rotateAroundAxis_label.setText("Rotate About: ")       
         hlo.addWidget(self.rotateAroundAxis_label)
         
         self.rotateAroundAxisButtonGroup = QtGui.QButtonGroup()
