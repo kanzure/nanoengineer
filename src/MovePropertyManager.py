@@ -328,16 +328,20 @@ class MovePropertyManager(QtGui.QWidget,
         Move Property Manager.
         """
         
-        # Translate group box widgets
+        # Translate group box widgets ################################
+	
         self.movetype_combox.setWhatsThis(
             """<b>Translation Options</b>
             <p>This menu provides different options for translating the
             current selection where:</p>
             <p>
-            <b>Free Drag</b>: translate the selection by dragging the mouse
-            while holding down the left mouse button (LMB).<br>
-            <b>By Delta XYZ</b>: tranlate by a specified offset.<br>
-            <b>To XYZ Position</b>: move the selection to a specified XYZ
+            <b>Free Drag</b>: translates the selection by dragging the mouse
+            while holding down the left mouse button (LMB).</p>
+            <p>
+	    <b>By Delta XYZ</b>: tranlates the selection by a specified 
+	    offset.</p>
+            <p>
+	    <b>To XYZ Position</b>: moves the selection to an absolute XYZ
             coordinate. The <i>centroid</i> of the selection is used for
             this operation.
             </p>""")
@@ -369,8 +373,91 @@ class MovePropertyManager(QtGui.QWidget,
             useful for translating and rotating DNA duplexes along their
             own axis.
             </p>""")
-        
-        # Rotate group box widgets
+	
+	# By Delta XYZ widgets
+	
+        self.moveDeltaXSpinBox.setWhatsThis(
+	    """<b>Delta X</b>
+            <p>The X offset distance the selection is moved when 
+	    clicking the +/- Delta buttons.
+            </p>""")
+	
+	self.moveDeltaYSpinBox.setWhatsThis(
+	    """<b>Delta Y</b>
+            <p>The Y offset distance the selection is moved when 
+	    clicking the +/- Delta buttons.
+            </p>""")
+	
+	self.moveDeltaXSpinBox.setWhatsThis(
+	    """<b>Delta Z</b>
+            <p>The Z offset distance the selection is moved when 
+	    clicking the +/- Delta buttons.
+            </p>""")
+	
+	self.moveDeltaPlusButton.setWhatsThis(
+	    """<b>Delta +</b>
+            <p>Moves the current selection by an offset
+	    specified by the Delta X, Y and Z spinboxes.
+            </p>""")
+	
+	self.moveDeltaPlusButton.setToolTip(
+	    "Move selection by + (plus) delta XYZ")
+	
+	self.moveDeltaMinusButton.setWhatsThis(
+	    """<b>Delta -</b>
+            <p>Moves the current selection by an offset opposite of that 
+	    specified by the Delta X, Y and Z spinboxes.
+            </p>""")
+	
+	self.moveDeltaPlusButton.setToolTip(
+	    "Move selection by - (minus) delta XYZ")
+	
+	# To XYZ Position widgets
+	
+	self.moveXSpinBox.setWhatsThis(
+	    """<b>X</b>
+            <p>The X coordinate the selection is moved when 
+	    clicking the +/- Delta buttons.
+            </p>""")
+	
+	self.moveYSpinBox.setWhatsThis(
+	    """<b>Y</b>
+            <p>The Y coordinate the selection is moved when 
+	    clicking the +/- Delta buttons.
+            </p>""")
+	
+	self.moveZSpinBox.setWhatsThis(
+	    """<b>Z</b>
+            <p>The Z coordinate the selection is moved when 
+	    clicking the <b>Move to Absolute Position</b> button.
+            </p>""")
+	
+	self.moveAbsoluteButton.setWhatsThis(
+	    """<b>Move to Absolute Position</b>
+            <p>Moves the current selection to the position
+	    specified by the X, Y and Z spinboxes. The selection's centroid
+	    is used compute how the selection is moved.
+            </p>""")
+	
+	self.moveAbsoluteButton.setToolTip(
+	    "Move selection to absolute XYZ position")
+	
+	
+        # Rotate group box widgets ############################
+	
+	self.rotatetype_combox.setWhatsThis(
+            """<b>Rotate Options</b>
+            <p>This menu provides different options for rotating the
+            current selection where:</p>
+            <p>
+            <b>Free Drag</b>: rotates the selection by dragging the mouse
+            while holding down the left mouse button (LMB).</p>
+            <p>
+	    <b>By Specified Angle</b>: rotates the selection by a specified 
+	    angle.
+            </p>""")
+	
+	# Free Drag widgets.
         
         self.rotateFreeButton.setWhatsThis(
             """<b>Unconstrained Rotation</b>
@@ -404,6 +491,54 @@ class MovePropertyManager(QtGui.QWidget,
             """<b>Rotate as unit</b>
             <p>When <b>checked</b>, the selection is rotated as a unit about its
             collective centroid.<br>
-            When <b>uncheck</b>, the selected objects are rotated about their own
+            When <b>unchecked</b>, the selected objects are rotated about their own
             individual centroids.
             </p>""")
+	
+	# By Specified Angle widgets
+	
+	self.rotateByThetaXButton.setWhatsThis(
+	    """<b>Rotate about X axis</b>
+	    <p>Constrains rotation about the X axis.
+	    </p>""")
+	
+	self.rotateByThetaXButton.setToolTip(
+	    "Rotate about X axis")
+	
+	self.rotateByThetaYButton.setWhatsThis(
+	    """<b>Rotate about Y axis</b>
+	    <p>Constrains rotation about the Y axis.
+	    </p>""")
+	
+	self.rotateByThetaYButton.setToolTip(
+	    "Rotate about Y axis")
+	
+	self.rotateByThetaZButton.setWhatsThis(
+	    """<b>Rotate about Z axis</b>
+	    <p>Constrains rotation about the Z axis.
+	    </p>""")
+	
+	self.rotateByThetaZButton.setToolTip(
+	    "Rotate about Z axis")
+	
+	self.rotateThetaSpinBox.setWhatsThis(
+	    """<b>Rotation angle</b>
+	    <p>Specifies the angle of rotation.
+	    </p>""")
+	
+	self.rotateThetaSpinBox.setToolTip(
+	    "Angle of rotation")
+	
+	# These next two aren't working. 
+	# I don't understand why not. Mark 2007-06-25.
+	self.rotateThetaPlusButton.setWhatsThis(
+	    """<b>Rotate</b>
+	    <p>Rotates the selection by the specified angle.
+	    </p>""")
+	
+	self.rotateThetaMinusButton.setWhatsThis(
+	    """<b>Rotate (minus)</b>
+	    <p>Rotates the selection by the specified angle 
+	    (in the opposite direction).
+	    </p>""")
+	    
