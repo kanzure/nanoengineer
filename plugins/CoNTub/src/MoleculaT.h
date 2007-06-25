@@ -50,12 +50,17 @@ class MoleculaT: public MoleculaB
     //ESTA ES LA AARIABLE EMTRE = Y ! QUE DICE SI EL ALGORITMO ES
     // TOTALMENTE RELAJADO (1)(SIGUIENDO PARAMETROS DE VECINO)
     // o estricto (0) (SIGUENDO conectividad TRIGONAL)
-    String MoleculaT::exploraanillo (int atocentro);
+
+    // This is declared inside an #if 0 in MoleculaT.cpp, and generates an error here.
+    // src/MoleculaT.h:53: error: extra qualification ‘MoleculaT::’ on member ‘exploraanillo’
+    //String MoleculaT::exploraanillo (int atocentro);
+
     //OJO, esta distancia media no incluye el enlace priemro, ani[1],ani[2], porque es el que va a ser sustituido
     double dmedia (anillo ani);
     std::ostream& mmp (std::ostream& ost, int index);
     std::ostream& mmp (std::ostream& ost, String inf, int index);
-    void MoleculaT::mmp (char *filename, int index);
+    //void MoleculaT::mmp (char *filename, int index);
+    void mmp (char *filename, int index);
 };
 
 #endif
