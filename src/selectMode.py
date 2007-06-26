@@ -479,6 +479,8 @@ class selectMode(basicMode):
         self.selCurve_PrevPt = selCurve_pt
         
         self.o.gl_update()
+            # REVIEW (possible optim): can gl_update_highlight be extended to cover this? [bruce 070626]
+        return
         
     def end_selection_curve(self, event):
         """Close the selection curve and do the selection.
@@ -548,6 +550,8 @@ class selectMode(basicMode):
             #  so you can see it at the same time as the selection it caused.)
 
         self.w.win_update()
+            # REVIEW (possible optim): can we make gl_update_highlight (or something like it) cover this?
+            # Note that both the curve itself, and what's selected, are changing. [bruce 070626]
         
 #== End of Selection Curve helper methods
 
@@ -1413,7 +1417,7 @@ class selectMode(basicMode):
     def singletLeftDown(self, s, event):
         self.cursor_over_when_LMB_pressed = 'Empty Space'
         self.select_2d_region(event)
-        self.o.gl_update()
+        self.o.gl_update() # REVIEW (possible optim): can gl_update_highlight be extended to cover this? [bruce 070626]
         return
     
     def singletSetup(self, s):
@@ -1440,6 +1444,7 @@ class selectMode(basicMode):
         self.objectSetup(drag_handler) #bruce 060728
         if not drag_handler.handles_updates():
             self.w.win_update()
+                # REVIEW (possible optim): can we (or some client code) make gl_update_highlight cover this? [bruce 070626]
         return
     
     def dragHandlerDrag(self, drag_handler, event):
@@ -1478,6 +1483,7 @@ class selectMode(basicMode):
                 retval = method(self.o.selobj, event, self)
                     #bruce 061120 changed args from (selobj, self) to (selobj, event, self) [where self is the mode object]
                 self.w.win_update() ##k not always needed, might be redundant, should let the handler decide ####@@@@
+                    # REVIEW (possible optim): can we make gl_update_highlight cover this? [bruce 070626]
                 # lots of other stuff done by other leftUp methods here? #####@@@@@
             pass
         except:

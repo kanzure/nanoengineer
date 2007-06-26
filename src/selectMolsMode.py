@@ -439,10 +439,8 @@ class selectMolsMode(selectMode):
 
         self.w.win_update() #k (is this always desirable? note, a few cases above return early just so they can skip it.)
         return # from selectMolsMode.leftDown
+
     
-          
-                
-                
     def leftDrag(self, event):
         """ Overrides leftdrag method of select Mode. While left dragging
         if any movable object is selected, it enters 'move mode' called 'pseudo 
@@ -735,7 +733,7 @@ class selectMolsMode(selectMode):
             #  avoid a logic bug in this code, experienced often in testmode due to its slow redraw]
             if hasattr(glpane.mode, 'UNKNOWN_SELOBJ'):
                 glpane.selobj = getattr(glpane.mode, 'UNKNOWN_SELOBJ')
-            glpane.gl_update()
+            glpane.gl_update_for_glselect()
         else:
             # it's known (to be a specific object or None)
             if new_selobj is not orig_selobj:                
@@ -749,7 +747,7 @@ class selectMolsMode(selectMode):
                     # Probably it's better for paintGL to report it, so it doesn't happen too often or too soon!
                     # And in the glselect_wanted case, that's the only choice, so we needed code for that anyway.
                     # Conclusion: no external setter func is required; maybe glpane has an internal one and tracks prior value.
-                glpane.gl_update() # this might or might not highlight that selobj ###e need to tell it how to decide??
+                glpane.gl_update_highlight() # this might or might not highlight that selobj ###e need to tell it how to decide??
         #####@@@@@ we'll need to do this in a callback when selobj is set:
         ## self.update_selatom(event, msg_about_click = True)
         return not new_selobj_unknown # from update_selobj
@@ -809,7 +807,8 @@ class selectMolsMode(selectMode):
         return obj
        
     
-    def update_selatom(self, event, singOnly = False, msg_about_click = False, resort_to_prior = True): 
+    def update_selatom(self, event, singOnly = False, msg_about_click = False, resort_to_prior = True):
+        ### WARNING: this method is defined in two places, with mostly duplicated code. [bruce 070626 comment]
         '''Keep selatom up-to-date, as atom under mouse based on <event>; 
         When <singOnly> is True, only keep singlets up-to-date. [not sure what that phrase means -- bruce 060726]
         When <msg_about_click> is True, print a message on the statusbar about the LMB press.
@@ -861,7 +860,7 @@ class selectMolsMode(selectMode):
             env.history.statusbar_msg( msg)
         if glpane.selatom is not oldselatom:
             # update display (probably redundant with side effect of update_selobj; ok if it is, and I'm not sure it always is #k)
-            glpane.gl_update() # draws selatom too, since its chunk is not hidden [comment might be obs, as of 050610]
+            glpane.gl_update_highlight() # draws selatom too, since its chunk is not hidden [comment might be obs, as of 050610]
         
         return # from update_selatom
     

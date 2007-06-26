@@ -768,6 +768,14 @@ class MMKitView(ThumbView):
         self.updateGL() #k guess at correct/safe thing to do
         return
 
+    def gl_update_highlight(self): #bruce 070626 precaution (not sure if any code will call this)
+        self.gl_update()
+        return
+
+    def gl_update_for_glselect(self): #bruce 070626 precaution (not sure if any code will call this)
+        self.gl_update()
+        return
+    
     def updateModel(self, newObj):
         '''Set new chunk or assembly for display'''
         if debug_thumbview:

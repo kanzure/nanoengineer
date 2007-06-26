@@ -1960,6 +1960,7 @@ class depositMode(selectAtomsMode, MMKit):
                     b = s1.bonds[0]
                     self.bond_change_type(b, allow_remake_bondpoints = False) # does set_cmdname
                     self.o.gl_update() # (probably good for highlighting, even if bond_change_type refused)
+                        # REVIEW (possible optim): can we use gl_update_highlight when only highlighting was changed? [bruce 070626]
                 else:
                     # ...deposit an object (atom, chunk or library part) from MMKit on the singlet <s1>.
                     if self.mouse_within_stickiness_limit(event, DRAG_STICKINESS_LIMIT): # Fixes bug 1448. mark 060301.
@@ -1974,6 +1975,7 @@ class depositMode(selectAtomsMode, MMKit):
                 self.o.gl_update()
         else: # cursor on empty space
             self.o.gl_update() # get rid of white rubber band line.
+            # REVIEW (possible optim): can we make gl_update_highlight cover this? [bruce 070626]
             
         self.only_highlight_singlets = False
         
@@ -2294,7 +2296,7 @@ class depositMode(selectAtomsMode, MMKit):
             self.water_enabled = False
             msg = "Water surface disabled."
         env.history.message(msg)
-        self.o.gl_update()
+        self.o.gl_update() # REVIEW (possible optim): can we make gl_update_highlight cover this? [bruce 070626]
 	
 
     #== Transmute helper methods
@@ -2622,6 +2624,8 @@ class depositMode(selectAtomsMode, MMKit):
             selatom.molecule.set_hotspot( selatom) ###e add history message??
             self.o.set_selobj(None)  #bruce 050614-b: fix bug703-related older bug (need to move mouse to see new-hotspot color)
             self.o.gl_update() #bruce 050614-a: fix bug 703 (also required having hotspot-drawing code in chunk.py ignore selatom)
+                # REVIEW (possible optim): can gl_update_highlight cover this? It doesn't now cover chunk.selatom drawing,
+                # but (1) it could be made to do so, and (2) we're not always drawing chunk.selatom anyway. [bruce 070626]
         ###e also set this as the pastable??
         return        
         
