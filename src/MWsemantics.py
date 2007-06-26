@@ -469,7 +469,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 	
 	self.connect(self.referencePlaneAction,SIGNAL("triggered()"),
 		     self.createPlane)
-	
+		
         #self.connect(self.jigsHandleAction,SIGNAL("triggered()"),self.makeHandle)
         #self.connect(self.jigsHeatsinkAction,SIGNAL("triggered()"),self.makeHeatsink)
         self.connect(self.jigsLinearMotorAction,SIGNAL("triggered()"),self.makeLinearMotor)
@@ -656,8 +656,11 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         #bruce 050429: as part of fixing bug 413, it's now required to call
         # self.assy.reset_changed() sometime in this method; it's called below.
         
+        #@@temporary fix for bug 2428
+        self.updatePlayMovieAction()
+	
         # Set the caption to the name of the current (default) part - Mark [2004-10-11]
-        self.update_mainwindow_caption()
+        self.update_mainwindow_caption()	    
         
         # hsplitter and vsplitter reimplemented. mark 060222.
         # Create the horizontal-splitter between the model tree (left) and the glpane 
@@ -1699,7 +1702,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 	
     def createPlane(self):
 	self.assy.createPlane()	
-        
+	        
     def makeGridPlane(self):
         self.assy.makeGridPlane()
 
@@ -2423,6 +2426,37 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.zoomToolAction.setEnabled(disable) # "Zoom Tool" [#k]
         self.panToolAction.setEnabled(disable) # "Pan Tool" [#k]
         self.rotateToolAction.setEnabled(disable) # "Rotate Tool" [#k]
+	
+    def updatePlayMovieAction(self):
+	''' Enables of disables 'Play movie' button in the UI. 
+	This action is enabled if there is a movie file with the same name as 
+	the opened file'''
+	
+	#@@@ This is a temporary fix for bug 2428. 
+	#See bug report for issues ninad 20070626
+	errorcode, partFilesDir = self.assy.get_part_files_directory() 
+            	
+	if errorcode:
+	    partFilesDir = None 
+	
+	if partFilesDir:	    
+	    dir, fil = os.path.split(self.assy.filename)
+            fil, ext = os.path.splitext(fil)
+	    mfile = os.path.join(partFilesDir, fil + '.dpb')	
+	    
+	    try:
+		if os.path.exists(mfile):
+		    self.simMoviePlayerAction.setEnabled(True)
+		else:
+		    self.simMoviePlayerAction.setEnabled(False)
+	    except:
+		print_compact_traceback("bug: assembly doesn't have a current_movie?")
+		self.simMoviePlayerAction.setEnabled(True)
+	else:
+	    self.simMoviePlayerAction.setEnabled(False)
+	    
+	
+	
 
 # == Caption methods
 

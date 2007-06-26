@@ -649,13 +649,16 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 fix_assy_and_glpane_views_after_readmmp( self.assy, self.glpane)
             else: ###PDB or other file format        
                 self.setViewFitToWindow()
+            
+            #@@ temporary fix for bug 2428
+            self.updatePlayMovieAction()
 
             self.assy.clear_undo_stack() #bruce 060126, fix bug 1398
 
             self.glpane.gl_update_duration(new_part=True) #mark 060116.
             
             self.mt.mt_update()
-        
+	    
         self.setCurrentWorkingDirectory()
         
         return
@@ -1214,6 +1217,9 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 self.glpane.start_using_mode( '$STARTUP_MODE') #bruce 050911: File->Clear sets same mode as app startup does
                 self.assy.reset_changed() #bruce 050429, part of fixing bug 413
                 self.assy.clear_undo_stack() #bruce 060126, maybe not needed, or might fix an unreported bug related to 1398
+                
+                #@@ temporary fix for bug 2428
+                self.updatePlayMovieAction()
                 self.win_update()
         return
 
