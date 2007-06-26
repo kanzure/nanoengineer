@@ -140,6 +140,10 @@ diSURFACE = 7
 # note: the following lists can be extended later at runtime. [as of bruce 060607]
 dispNames = ["def", "inv", "vdw", "lin", "cpk", "tub"]
     # these dispNames can't be easily revised, since they are used in mmp files; cpk and vdw are misleading as of 060307.
+
+# Mark 2007-06-25
+properDisplayNames = ["def", "inv", "cpk", "lin", "bas", "tub"]
+
 #dispLabel = ["Default", "Invisible", "VdW", "Lines", "CPK", "Tubes"]
 dispLabel = ["Default", "Invisible", "CPK", "Lines", "Ball and Stick", "Tubes"]
 # Changed "CPK" => "Ball and Stick" and "VdW" => "CPK".  mark 060307.
@@ -147,7 +151,8 @@ dispLabel = ["Default", "Invisible", "CPK", "Lines", "Ball and Stick", "Tubes"]
 # display mode for new glpanes (#e should be a user preference) [bruce 041129]
 default_display_mode = diTUBES # Now in user prefs db, set in GLPane.__init__ [Mark 050715]
 
-TubeRadius = 0.3
+TubeRadius = 0.3 # (i.e. "TubesSigmaBondRadius")
+diBALL_SigmaBondRadius = 0.1
 
 # ave_colors() logically belongs in some "color utilities file",
 # but is here so it is defined early enough for use in computing default values
