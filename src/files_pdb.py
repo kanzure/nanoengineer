@@ -159,13 +159,16 @@ EXCLUDEBONDPOINTS = 1
 EXCLUDEHIDDENATOMS = 2 # excludes both hidden and invisible atoms.
 EXCLUDEPAM5ATOMS = 4
 
-def writepdb(part, filename, excludeFlags=EXCLUDEBONDPOINTS|EXCLUDEHIDDENATOMS):
+def writepdb(part, filename, mode='w', excludeFlags=EXCLUDEBONDPOINTS|EXCLUDEHIDDENATOMS):
     """Write <part> into a new PDB file <filename>.
     
     <part> - the part.
     
     <filename> - the fullpath of the PDB file. 
                  We don't care if it has the .pdb extension or not.
+                 
+    <mode> - 'w' for writing (the default)
+             'a' for appending
     
     <excludeFlags> used to exclude certain atoms from being written, where:
     
@@ -177,7 +180,10 @@ def writepdb(part, filename, excludeFlags=EXCLUDEBONDPOINTS|EXCLUDEHIDDENATOMS):
 
     # PDB File Format available at http://www.rcsb.org/pdb/static.do?p=file_formats/pdb/index.html
     
-    f = open(filename, "w") # doesn't yet detect errors in opening file [bruce 050927 comment]
+    if mode != 'a': # Precaution. Mark 2007-06-25
+        mode = 'w'
+    
+    f = open(filename, mode) # doesn't yet detect errors in opening file [bruce 050927 comment]
     
     # Atom object's key is the key, the atomIndex is the value  
     atomsTable = {}
