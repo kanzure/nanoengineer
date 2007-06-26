@@ -382,9 +382,9 @@ class Plane(ReferenceGeometry):
         action checked in the Placement Groupbox of Plane PM'''       
         if btn_id == 0:
             msg = "Create a Plane parallel to the screen. \
-            NOTE: In Alpha9, the default center of the plane is (0,0,0).\
-            This value is set during plane creation or when <b>Preview</b> button \
-            is clicked."
+            NOTE: With <b>Parallel to Screen</b> plane placement option, the center \
+            of the plane is always (0,0,0). This value is set during plane \
+            creation or when the <b>Preview</b> button is clicked."
             self.propMgr.MessageGroupBox.insertHtmlMessage(msg,
                                                            setAsDefault=False,
                                                            minLines=5)
@@ -395,7 +395,14 @@ class Plane(ReferenceGeometry):
         elif btn_id == 2:
             self._createOffsetPlane()
         elif btn_id == 3:
-            #'Custom' plane placement. Do nothing. Fixes bug 2439
+            #'Custom' plane placement. Do nothing (only update message box)
+            # Fixes bug 2439
+            msg = "Create a plane with a <b>Custom</b> plane placement. During \
+            its creation, the plane is placed parallel to the screen, with \
+            center at (0, 0, 0). User can then modify the plane placement."
+            self.propMgr.MessageGroupBox.insertHtmlMessage(msg,
+                                                           setAsDefault=False,
+                                                           minLines=5)
             pass
             
             
@@ -424,9 +431,9 @@ class Plane(ReferenceGeometry):
         
         cmd = self.propMgr.cmd 
         msg = "Create a Plane with center coinciding with the common center \
-        of 3 or more selected atoms. If exactly 3 atoms are selected, the Plane \
-        will pass through those atoms. Select atoms and hit <b>Preview</b> to see \
-        the new Plane placement"
+        of <b> 3 or more selected atoms </b>. If exactly 3 atoms are selected, \
+        the Plane will pass through those atoms. Select atoms and hit \
+        <b>Preview</b> to see the new Plane placement"
         
         self.propMgr.MessageGroupBox.insertHtmlMessage(msg, 
                                                        setAsDefault=False,
@@ -447,11 +454,10 @@ class Plane(ReferenceGeometry):
     def _createOffsetPlane(self):
         ''' Create a plane offset to a selected plane'''
         cmd = self.propMgr.cmd 
-        msg = "Create a Plane,offset to the selected plane,\
+        msg = "Create a Plane,at an <b> offset</b> to the selected plane,\
             in the direction indicated by the direction arrow. \
             Select an existing plane and hit <b>Preview</b>.\
-            You can click on the direction arrow to reverse its \
-            direction."
+            You can click on the direction arrow to reverse its direction."
         self.propMgr.MessageGroupBox.insertHtmlMessage(msg, 
                                                        setAsDefault=False,
                                                        minLines=5)
