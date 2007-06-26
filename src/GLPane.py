@@ -1402,7 +1402,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
                 if self.modkeys == 'Shift+Control' or oldmodkeys == 'Shift+Control':
                     # If something is highlighted under the cursor and we just pressed or released 
                     # "Shift+Control", repaint to update its correct highlight color.
-                    self.gl_update()
+                    self.gl_update_highlight()
         
         return
 
@@ -1725,7 +1725,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         # If an object is "hover highlighted", unhighlight it when leaving the GLpane.
         if self.selobj is not None:
             self.selobj = None
-            self.gl_update()
+            self.gl_update_highlight()
         
         # Kill timer when the cursor leaves the GLpane. It is (re)started in enterEvent() above.
         if self.highlightTimer:
@@ -2022,6 +2022,25 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
             # very soon after the current event handler returns
         return
 
+    def gl_update_highlight(self): #bruce 070626
+        """External code should call this when it thinks the hover-highlighting in self
+        needs redrawing (but when it doesn't need to report any other need for redrawing).
+           This is an optimization, since if there is no other reason to redraw,
+        the highlighting alone may be redrawn faster by using a saved color/depth image of
+        everything except highlighting, rather than by redrawing everything else.
+        [That optim is NIM as of 070626.]
+        """
+        self.gl_update() # stub for now
+        return
+
+    def gl_update_for_glselect(self): #bruce 070626
+        """External code should call this instead of gl_update when the only reason
+        it would have called that is to make us notice self.glselect_wanted and use it to
+        update self.selobj. [That optim is NIM as of 070626.]
+        """
+        self.gl_update() # stub for now
+        return
+    
     # default values for instance variables related to glSelectBuffer feature [bruce 050608]
     ## glselect = 0 # whether we're inside a glSelectBuffer call (not presently needed)
     glselect_wanted = 0 # whether the next paintGL should start with a glSelectBuffer call [bruce 050608]
@@ -2181,10 +2200,66 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
             drawer.disable_fog()
 
         glFlush()
+        
         ##self.swapBuffers()  ##This is a redundant call, Huaicai 2/8/05
         
         return # from most_of_paintGL
 
+    _conf_corner_bg_image_data = None
+    
+    def grab_conf_corner_bg_image(self): #bruce 070626
+        """Grab an image of the top right corner, for use in confirmation corner
+        optimizations which redraw it without redrawing everything.
+        """
+        width = self.width
+        height = self.height
+        subwidth = min(width, 100)
+        subheight = min(height, 100)
+        gl_format, gl_type = GL_RGB, GL_UNSIGNED_BYTE # these seem to be enough; GL_RGBA, GL_FLOAT also work but look the same
+        image = glReadPixels( width - subwidth, height - subheight, subwidth, subheight, gl_format, gl_type)
+        if type(image) is not type("") and not env.seen_before("conf_corner_bg_image of unexpected type"):
+            print "fyi: grabbed conf_corner_bg_image of unexpected type %r:" % ( type(image), )
+        
+        self._conf_corner_bg_image_data = (subwidth, subheight, width, height, gl_format, gl_type, image)
+        
+            # Note: the following alternative form probably grabs a Numeric array, but I'm not sure
+            # our current PyOpenGL (in release builds) supports those, so for now I'll stick with strings, as above.
+            ## image2 = glReadPixelsf( width - subwidth, height - subheight, subwidth, subheight, GL_RGB)
+            ## print "grabbed image2 (type %r):" % ( type(image2), ) # <type 'array'>
+        
+        return
+
+    def draw_conf_corner_bg_image(self, pos = None): #bruce 070626 (pos argument is just for development & debugging)
+        """Redraw the previously grabbed conf_corner_bg_image,
+        in the same place from which it was grabbed,
+        or in the specified place (lower left corner of pos, in OpenGL window coords).
+        Note: this modifies the OpenGL raster position.
+        """
+        if not self._conf_corner_bg_image_data:
+            print "self._conf_corner_bg_image_data not yet assigned"
+        else:
+            subwidth, subheight, width, height, gl_format, gl_type, image = self._conf_corner_bg_image_data
+            if width != self.width or height != self.height:
+                # I don't know if this can ever happen
+                print "can't draw self._conf_corner_bg_image_data -- glpane got resized" ####
+            else:
+                if pos is None:
+                    pos = (width - subwidth, height - subheight)
+                x, y = pos
+
+                glDisable(GL_DEPTH_TEST)
+                
+                depth = 0.0 # this should not matter, though it may affect the raster position (not sure if that's 3d)
+                    ### REVIEW: this needs testing in perspective view!
+                x1, y1, z1junk = gluUnProject(x, y, depth)
+                glRasterPos2f(x1, y1)
+                
+                glDrawPixels(subwidth, subheight, gl_format, gl_type, image)
+
+                glEnable(GL_DEPTH_TEST)
+            pass
+        return
+    
     def _restore_modelview_stack_depth(self): #bruce 050608 split this out
         "restore GL_MODELVIEW_STACK_DEPTH to 1, if necessary"
         #bruce 040923: I'd like to reset the OpenGL state
@@ -2679,15 +2754,25 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         if env.prefs[displayCompass_prefs_key]:
             self.drawcompass(aspect) #bruce 050608 moved this here, and rewrote it to behave then [#k needs drawing_phase?? bruce 070124]
 
-        #ninad060921 The following draws a dotted origin axis if the correct preferece is checked. 
-        #The GL_DEPTH_TEST is disabled while drawing this so that if axis is below a model, 
-        #it will just draw it as dotted line (Remember that we are drawing 2 origins superimposed over each other
-        #the dotted will be displayed only when the solid origin is obsucured by a model in front of it. 
+        #ninad060921 The following draws a dotted origin axis if the correct preference is checked. 
+        # The GL_DEPTH_TEST is disabled while drawing this so that if axis is below a model, 
+        # it will just draw it as dotted line. (Remember that we are drawing 2 origins superimposed over each other;
+        # the dotted form will be visible only when the solid form is obscured by a model in front of it.)
         if env.prefs[displayOriginAxis_prefs_key]:
             if env.prefs[displayOriginAsSmallAxis_prefs_key]:
                 drawer.drawOriginAsSmallAxis(self.scale, (0.0,0.0,0.0), dashEnabled = True)
             else:
                 drawer.drawaxes(self.scale, (0.0,0.0,0.0), coloraxes=True, dashEnabled = True)
+        
+        self.grab_conf_corner_bg_image() #bruce 070626 (needs to be done before draw_overlay)
+
+        from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
+
+        if debug_pref("Conf corner test: redraw at lower left", Choice_boolean_False, non_debug = True, prefs_key = True):
+            self.draw_conf_corner_bg_image((0,0))
+
+        if debug_pref("Conf corner test: redraw in-place", Choice_boolean_True, non_debug = True, prefs_key = True): ### TEMPORARY
+            self.draw_conf_corner_bg_image()
 
         self.drawing_phase = 'overlay'
 	try:
@@ -2719,6 +2804,10 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
     
     def set_selobj(self, selobj, why = "why?"):
         if selobj is not self.selobj:
+            # Note: we don't call gl_update_highlight here, so the caller needs to
+            # if there will be a net change of selobj. I don't know if we should call it here --
+            # if any callers call this twice with no net change (i.e. use this to set selobj to None
+            # and then back to what it was), it would be bad to call it here. [bruce 070626 comment]
             if debug_set_selobj:
                 print_compact_stack("debug_set_selobj: %r -> %r: " % (self.selobj, selobj))
             #bruce 050702 partly address bug 715-3 (the presently-broken Build mode statusbar messages).
@@ -2744,65 +2833,65 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         self.selobj = selobj
         #e notify some observers?
         return
-
    
     def drawHighlightedChunk(self, selobj, hicolor): #Ninad 070214 
-	    """
-	    Highlight the whole chunk to which 'selobj' belongs to, using the 'hicolor'
-	    selobj = highlighted object 
-	    hicolor = highlight color
-	    """
-	    #Note: This method is called in GLPane.standard_repaint_0 -- ninad 070214
-	    
-	    #Note: bool_fullBondLength represent whether full bond length to be drawn
-	    #it is used only in select Chunks mode while highlighting the whole chunk and when
-	    #the atom display is Tubes display -- ninad 070214
-	    
-	    bool_fullBondLength = True
-	    
-	    if isinstance(selobj, molecule):
-		    chunk = selobj
-		    for hiatom in chunk.atoms.itervalues():
-			    hiatom.draw_in_abs_coords(self, hicolor or black, 
-						      useSmallAtomRadius = True)
-			    for hibond in hiatom.bonds:
-				    hibond.draw_in_abs_coords(self, hicolor or black,
-							      bool_fullBondLength)
-	
-	    if isinstance(selobj, Atom):
-		chunk = selobj.molecule
-		for hiatom in chunk.atoms.itervalues():
-		    hiatom.draw_in_abs_coords(self, hicolor or black, 
-					      useSmallAtomRadius = True)
-		    for hibond in hiatom.bonds:
-			    hibond.draw_in_abs_coords(self, hicolor or black,
-						      bool_fullBondLength)
-	    elif isinstance(self.selobj, Bond):	    
-		hiatom1 = self.selobj.atom1
-		hiatom2 = self.selobj.atom2			
-		chunk1 = hiatom1.molecule
-		chunk2 = hiatom2.molecule
-		
-		if chunk1 is chunk2:
-			for hiatom in chunk1.atoms.itervalues():
-				hiatom.draw_in_abs_coords(self, hicolor or black, 
-							  useSmallAtomRadius = True)
-				for hibond in hiatom.bonds:
-					hibond.draw_in_abs_coords(self, hicolor or black, 
-								  bool_fullBondLength)
-		else:
-			for hiatom in chunk1.atoms.itervalues():
-				hiatom.draw_in_abs_coords(self, hicolor or black,
-							  useSmallAtomRadius = True)
-				for hibond in hiatom.bonds:
-					hibond.draw_in_abs_coords(self, hicolor or black,
-								  bool_fullBondLength)
-			for hiatom in chunk2.atoms.itervalues():
-				hiatom.draw_in_abs_coords(self, orange or black,
-							  useSmallAtomRadius = True)
-				for hibond in hiatom.bonds:
-					hibond.draw_in_abs_coords(self, orange or black,
-								  bool_fullBondLength)
+        """
+        Highlight the whole chunk to which 'selobj' belongs to, using the 'hicolor'
+        selobj = highlighted object 
+        hicolor = highlight color
+        """
+        #Note: This method is called in GLPane.standard_repaint_0 -- ninad 070214
+        
+        #Note: bool_fullBondLength represent whether full bond length to be drawn
+        #it is used only in select Chunks mode while highlighting the whole chunk and when
+        #the atom display is Tubes display -- ninad 070214
+        
+        bool_fullBondLength = True
+        
+        if isinstance(selobj, molecule):
+            chunk = selobj
+            for hiatom in chunk.atoms.itervalues():
+                hiatom.draw_in_abs_coords(self, hicolor or black, 
+                                          useSmallAtomRadius = True)
+                for hibond in hiatom.bonds:
+                    hibond.draw_in_abs_coords(self, hicolor or black,
+                                              bool_fullBondLength)
+    
+        if isinstance(selobj, Atom):
+            chunk = selobj.molecule
+            for hiatom in chunk.atoms.itervalues():
+                hiatom.draw_in_abs_coords(self, hicolor or black, 
+                                          useSmallAtomRadius = True)
+                for hibond in hiatom.bonds:
+                    hibond.draw_in_abs_coords(self, hicolor or black,
+                                              bool_fullBondLength)
+        elif isinstance(self.selobj, Bond):	    
+            hiatom1 = self.selobj.atom1
+            hiatom2 = self.selobj.atom2			
+            chunk1 = hiatom1.molecule
+            chunk2 = hiatom2.molecule
+            
+            if chunk1 is chunk2:
+                for hiatom in chunk1.atoms.itervalues():
+                    hiatom.draw_in_abs_coords(self, hicolor or black, 
+                                              useSmallAtomRadius = True)
+                    for hibond in hiatom.bonds:
+                        hibond.draw_in_abs_coords(self, hicolor or black, 
+                                                  bool_fullBondLength)
+            else:
+                for hiatom in chunk1.atoms.itervalues():
+                    hiatom.draw_in_abs_coords(self, hicolor or black,
+                                              useSmallAtomRadius = True)
+                    for hibond in hiatom.bonds:
+                        hibond.draw_in_abs_coords(self, hicolor or black,
+                                                  bool_fullBondLength)
+                for hiatom in chunk2.atoms.itervalues():
+                    hiatom.draw_in_abs_coords(self, orange or black,
+                                              useSmallAtomRadius = True)
+                    for hibond in hiatom.bonds:
+                        hibond.draw_in_abs_coords(self, orange or black,
+                                                  bool_fullBondLength)
+        return
 
     def preDraw_glselect_dict(self): #bruce 050609
         # We need to draw glselect_dict objects separately, so their drawing code runs now rather than in the past
