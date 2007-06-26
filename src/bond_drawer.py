@@ -41,13 +41,6 @@ from ThumbView import MMKitView
 
 import env
 
-diBALL_SigmaBondRadius = 0.1 #bruce 050719
-    #bruce 060607 renamed CPKSigmaBondRadius -> diBALL_SigmaBondRadius
-    ###e should make this a named constant in constants.py (or bond_constants.py?),
-    # like TubeRadius (i.e. "TubesSigmaBondRadius")
-
-
-
 # ==
 
 # To modularize drawing, I'll pass in a drawing place which has methods like drawcylinder,
