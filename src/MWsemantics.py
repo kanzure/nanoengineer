@@ -2450,7 +2450,8 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 		else:
 		    self.simMoviePlayerAction.setEnabled(False)
 	    except:
-		print_compact_traceback("bug: assembly doesn't have a current_movie?")
+		print_compact_traceback("bug: error enabling/disabling \
+		movie player button")
 		self.simMoviePlayerAction.setEnabled(True)
 	else:
 	    self.simMoviePlayerAction.setEnabled(False)
