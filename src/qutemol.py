@@ -17,6 +17,7 @@ from prefs_constants import qutemol_enabled_prefs_key, qutemol_path_prefs_key
 from PyQt4.Qt import QString, QStringList, QProcess, QMessageBox
 from debug import print_compact_traceback
 from debug_prefs import debug_pref, Choice_boolean_True
+from constants import properDisplayNames, TubeRadius, diBALL_SigmaBondRadius
 
 # To do list: Mark 2007-06-03
 # - Move plug-in routines to Plugins.py.
@@ -285,6 +286,82 @@ def write_art_file(filename):
 
     return 
 
+def write_qutemol_pdb_file(part, filename):
+    """Writes an NE1-QuteMol PDB file of <part> to <filename>. 
+    """
+    
+    f = open(filename, "w")
+    
+    from prefs_constants import backgroundGradient_prefs_key, \
+                                backgroundColor_prefs_key, \
+				diBALL_BondCylinderRadius_prefs_key
+    
+    skyBlue = env.prefs[ backgroundGradient_prefs_key ]
+	
+    bgcolor = env.prefs[ backgroundColor_prefs_key ]
+    r = int (bgcolor[0]*255 + 0.5)
+    g = int (bgcolor[1]*255 + 0.5)
+    b = int (bgcolor[2]*255 + 0.5)
+    
+    TubBond1Radius = TubeRadius
+    BASBond1Radius = diBALL_SigmaBondRadius * env.prefs[diBALL_BondCylinderRadius_prefs_key]
+    
+    # Write the QuteMol REMARKS "header".
+    # See the following wiki page for more information about
+    # the format of all NE1-QuteMol REMARK records:
+    # http://www.nanoengineer-1.net/mediawiki/index.php?title=NE1-QuteMol_PDB_REMARK_record_format
+
+    f.write("REMARK   1 @ NanoEngineer-1/QuteMol PDB File Format\n")
+    f.write("REMARK   2 @ Version 2007-07-01 required; 2007-07-01 preferred\n")
+    f.write("REMARK   3 Csys=%1.6f %1.6f %1.6f %1.6f\n" 
+	    % (part.o.quat.w, part.o.quat.x, part.o.quat.y, part.o.quat.z))
+    f.write("REMARK   4 Scale=%4.6f\n" 
+	    % part.o.scale)
+    f.write("REMARK   5 POV=%6.6f %6.6f %6.6f\n" 
+	    % (part.o.pov[0], part.o.pov[1], part.o.pov[2]))
+    f.write("REMARK   6 Zoom=%6.6f\n" 
+	    % part.o.zoomFactor)
+    if skyBlue:
+	f.write("REMARK   7 BGColor=SkyBlue\n")
+    else:
+	f.write("REMARK   7 BGColor=%3d,%3d,%3d\n" 
+	    % (r, g, b))
+    f.write("REMARK   8 LaunchDisplay=%s\n" 
+	    % properDisplayNames[part.o.displayMode])
+    f.write("REMARK   9 TubBond1Radius=%1.3f Angstroms\n" 
+	    % TubBond1Radius)
+    f.write("REMARK  10 BASBond1Radius=%1.3f Angstroms\n"
+	    % BASBond1Radius)
+
+    # Now write the REMARK records for each chunk (MOL) in the part.
+    
+    molNum = 1
+    remarkIndex = 20
+    
+    for mol in part.molecules:        
+        f.write("REMARK %3d MOL%s " % (remarkIndex, molNum))
+        f.write("Display=%s " % properDisplayNames[mol.display])
+	if mol.color:
+	    r = int (mol.color[0]*255 + 0.5)
+	    g = int (mol.color[1]*255 + 0.5)
+	    b = int (mol.color[2]*255 + 0.5)
+	    f.write("Color=%3d,%3d,%3d " % (r, g, b))
+	f.write("Name=\"%s\"\n" % mol.name)
+	
+        molNum+=1
+        remarkIndex += 1
+	
+	if remarkIndex > 999:
+	    remarkIndex = 20
+	
+    f.close()
+    
+    # Write the "body" of PDB file.
+    from files_pdb import writepdb, EXCLUDEHIDDENATOMS
+    # Bondpoints are written to file. Mark 2007-06-11
+    writepdb(part, filename, mode='a', excludeFlags=EXCLUDEHIDDENATOMS)
+    
+    
 def write_qutemol_files(part):
     '''Writes a PDB of the current <part> and an ART file to the Nanorex temp directory.
     ART = Atom Rendering Table
@@ -317,9 +394,7 @@ def write_qutemol_files(part):
     art_file = os.path.join(tmpdir, art_basename)
     
     # Write PDB and ART files.
-    from files_pdb import writepdb, EXCLUDEHIDDENATOMS
-    # Bondpoints are written to file. Mark 2007-06-11
-    writepdb(part, qutemol_pdb_file, excludeFlags=EXCLUDEHIDDENATOMS)
+    write_qutemol_pdb_file(part, qutemol_pdb_file)
     write_art_file(art_file)
     
     return qutemol_pdb_file, art_file
