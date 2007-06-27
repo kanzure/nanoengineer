@@ -127,6 +127,8 @@ class Ui_CommandManager:
 		btn.setPopupMode(QToolButton.MenuButtonPopup)
 	    if str(btn.objectName()) == 'Simulation':
 		btn.setMenu(self.win.simulationMenu)
+		if self.win.simPlotToolAction in btn.menu().actions():
+		    btn.menu().removeAction(self.win.simPlotToolAction)
 		btn.setPopupMode(QToolButton.MenuButtonPopup)	
 		
 	#ninad 070125 Following creates Toolbuttons for flyout toolbars and
