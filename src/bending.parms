@@ -1734,3 +1734,7 @@ Si-Si-P theta0=2.0258086259 Ktheta=0.482464139753 CenterHybridization=sp3
 Si-Si-S theta0=1.8800957661 Ktheta=0.599002858033 CenterHybridization=sp3 
 Si-Si-Se theta0=1.8927521136 Ktheta=0.500915569778 CenterHybridization=sp3 
 Si-Si-Si theta0=1.9982258299 Ktheta=0.436439156125 CenterHybridization=sp3 
+C@C@C theta0=2.0943951 Ktheta=2.23792624 CenterHybridization=sp2
+C@C#C theta0=2.0943951 Ktheta=2.23792624 CenterHybridization=sp2
+C#C#C theta0=2.0943951 Ktheta=2.23792624 CenterHybridization=sp2
+

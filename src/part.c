@@ -405,16 +405,28 @@ makeTorsion(struct part *p, int index, struct bond *center, struct bond *b1, str
     t->a1 = b1->a1 == t->aa ? b1->a2 : b1->a1;
     t->a2 = b2->a1 == t->ab ? b2->a2 : b2->a1;
 
-    // Barrior to rotation of a simple alkene is about 265 kJ/mol, but
-    // can be on the order of 50 kJ/mol for "captodative ethylenes",
-    // where the charge density on the carbons involved in the double
-    // bond has been significantly altered.
-    // [[Advanced Organic Chemistry, Jerry March, Fourth Edition,
-    // Chapter 4, p.129.]]
-    // A is in aJ/rad^2, but rotational barrior is 2A
-    // 2.65e5 J/mol == 4.4e-19 J/bond
-    // A = 2.2e-19 or 0.22 aJ
-    t->A = 0.22; // XXX need to get actual value from real parameters
+    // These numbers are based on a torsion around a Carbon-Carbon bond.
+    switch (center->order) {
+    case '2':
+        // Barrior to rotation of a simple alkene is about 265 kJ/mol, but
+        // can be on the order of 50 kJ/mol for "captodative ethylenes",
+        // where the charge density on the carbons involved in the double
+        // bond has been significantly altered.
+        // [[Advanced Organic Chemistry, Jerry March, Fourth Edition,
+        // Chapter 4, p.129.]]
+        // A is in aJ/rad^2, but rotational barrior is 2A
+        // 2.65e5 J/mol == 4.4e-19 J/bond
+        // A = 2.2e-19 or 0.22 aJ
+        t->A = 0.22; // XXX need to get actual value from real parameters
+        break;
+    case 'a':
+    case 'g':
+        // Damian has calculated the following for a small graphitic system
+        t->A = 0.37013376;
+        break;
+    default:
+        t->A = 0;
+    }
 }
 
 // This is called for every double bond in the cumulene chain.  On
