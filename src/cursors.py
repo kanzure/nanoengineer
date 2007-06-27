@@ -13,34 +13,51 @@ from PyQt4.Qt import QCursor, QBitmap
 import os, sys
         
 def loadCursors(w):
-    '''This routine is called once to load all the custom cursors needed by the program.
-    To add a new cursor, two BMP files are placed in the cad/images directory:
+    """This routine is called once to load all the custom cursors needed by the program.
+    To add a new cursor, two BMP files are placed in the cad/src/ui/cursors directory
+    (or in another directory in cad/src/ui):
         <cursor_name>.bmp - the cursor bitmap file 
         <cursor_name>-bm.bmp - the cursor's bitmask file 
     Then you simply add a single line of code below to load the custom cursor.
     <w> is the main window (parent) object for all custom cursors.
-    '''
+    """
     
     filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
 
     def loadCursor(cursor_name, hot_x, hot_y):
-        '''Returns a cursor built from two BMP files located in the cad/images directory:
+        """Returns a cursor built from two BMP files located (by default)
+        in the cad/src/ui/cursors directory:
             <cursor_name>.bmp - the cursor bitmap file 
             <cursor_name>-bm.bmp - the cursor's bitmask file 
         
         <hot_x> and <hot_y> define the cursor's hotspot.
+
+        If the cursor_name starts with ui/, then it is relative to cad/src,
+        thus permitting some cursors to live in other directories besides cad/src/ui/cursors.
+        """
         
-        I would like move all the custom cursor files an exclusive directory (i.e. cad/ui/cursors)
-        and then read that directory at startup to create the cursors from the files.
-        I'd also like to change the cursor filename format to the following:
-            <cursor_name>_bitmap.bmp - the cursor bitmap file 
-            <cursor_name>_bitmask.bmp - the cursor's bitmask file 
-        The existence of these two files would automatically create the cursor w.<cursor_name>
-        I need to discuss this with Bruce more, especially since I don't know how to
-        create the cursor_name from the filename. Mark 060428.
-        '''
-        cursor_bitmap = filePath + "/../src/ui/cursors/" + cursor_name + ".bmp"
-        cursor_bitmsk = filePath + "/../src/ui/cursors/" + cursor_name + "-bm.bmp"
+        # I would like move all the custom cursor files an exclusive directory (i.e. cad/ui/cursors)
+        # and then read that directory at startup to create the cursors from the files.
+        # I'd also like to change the cursor filename format to the following:
+        #     <cursor_name>_bitmap.bmp - the cursor bitmap file 
+        #     <cursor_name>_bitmask.bmp - the cursor's bitmask file 
+        # The existence of these two files would automatically create the cursor w.<cursor_name>
+        # I need to discuss this with Bruce more, especially since I don't know how to
+        # create the cursor_name from the filename. Mark 060428.
+        #
+        # [bruce 070626 comment on that proposal: I think it's better to define the set of cursor names
+        #  in the python code, like we do now, for several reasons: so it's possible to find them by searching the code,
+        #  and so you don't have to worry that the filesystem state (which might differ from what it is in cvs)
+        #  can create arbitrarily-named attributes in the main window object, and to simplify life for code analysis tools.]
+
+        if cursor_name.startswith("ui/"):
+            #bruce 070626 new feature, needed for ui/confcorner cursors
+            dirpath = filePath + "/../src/"
+        else:
+            dirpath = filePath + "/../src/ui/cursors/"
+        
+        cursor_bitmap = dirpath + cursor_name + ".bmp"
+        cursor_bitmsk = dirpath + cursor_name + "-bm.bmp"
         
         if os.path.exists(cursor_bitmap) and os.path.exists(cursor_bitmsk):
             cursor = QCursor(
@@ -126,5 +143,9 @@ def loadCursors(w):
     w.RotateZCursor = loadCursor("RotateZCursor", 0, 0)
     w.ZoomPOVCursor = loadCursor("ZoomPOVCursor", -1, -1)
     w.SelectWaitCursor = loadCursor("SelectWaitCursor", 0, 0)
+
+    # Confirmation corner cursors [loaded by bruce 070626 from files committed by mark]
+    w._confcorner_OKCursor = loadCursor("ui/confcorner/OKCursor", 0, 0) ### REVIEW hotspot guesses
+    w._confcorner_CancelCursor = loadCursor("ui/confcorner/CancelCursor", 0, 0)
 
     return # from loadCursors
