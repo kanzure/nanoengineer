@@ -73,7 +73,11 @@ def setupUi(win):
     win.simulationMenu.addAction(win.jigsAnchorAction)
     win.simulationMenu.addAction(win.jigsStatAction)
     win.simulationMenu.addSeparator()
-    win.simulationMeasurementsMenu = win.simulationMenu.addMenu("Measurements")   
+    
+        
+    win.simulationMeasurementsMenu = win.simulationMenu.addMenu("Measurements")  
+    win.simulationMeasurementsMenu.setIcon(geticon(
+        "ui/actions/Toolbars/Smart/Dimension"))  
     win.simulationMeasurementsMenu.addAction(win.jigsThermoAction)
     #@@@ Following menu items (dimensions) are also provided in Tools > Dimensions. 
     #Need reconsideration. OK for now -- ninad061107
@@ -81,6 +85,7 @@ def setupUi(win):
     win.simulationMeasurementsMenu.addAction(win.jigsAngleAction)
     win.simulationMeasurementsMenu.addAction(win.jigsDihedralAction)
     win.simulationMenu.addSeparator()
+    
     win.simulationMenu.addAction(win.jigsGamessAction) # GAMESS
     win.simulationMenu.addAction(win.jigsESPImageAction) # ESP Image
     
