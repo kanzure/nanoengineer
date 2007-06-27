@@ -110,10 +110,29 @@ class Plane(ReferenceGeometry):
                                                  self.getaxis())
     
     def __getattr__(self, name):
+        if name == 'bbox':
+            return self.__computeBBox()
         if name == 'planeNorm':
             return self.quat.rot(V(0.0, 0.0, 1.0))
         else:
             raise AttributeError, 'Plane has no "%s"' % name 
+    
+    def __computeBBox(self):
+        '''Compute current bounding box. '''
+        
+        #The move absolute method moveAbsolute in modifyMode relies on a 
+        #'bbox' attribute for the movables. This attribute is really useless 
+        #for Planes otherwise. Instead of modifying that method ,adding the 
+        #attribute bbox here to fix BUG 2473 -- ninad 20070627. 
+        
+        from shape import BBox
+        
+        hw = self.width/2.0; hh = self.height/2.0
+        corners_pos = [V(-hw, hh, 0.0), V(-hw, -hh, 0.0), V(hw, -hh, 0.0), V(hw, hh, 0.0)]
+        abs_pos = []
+        for pos in corners_pos:
+            abs_pos += [self.quat.rot(pos) + self.center]        
+        return BBox(abs_pos)
               
     def setProps(self,props):
         ''' Set the Plane properties. It is Called while reading a MMP 
