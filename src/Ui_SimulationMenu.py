@@ -7,6 +7,7 @@ from PyQt4 import QtCore, QtGui
 from PyQt4.Qt import Qt
 from qt4transition import *
 from Utility import geticon
+from debug import print_compact_traceback
 
 def setupUi(win):
     
@@ -23,7 +24,8 @@ def setupUi(win):
     win.simSetupAction.setObjectName("simSetupAction")
     
     win.simMoviePlayerAction = QtGui.QWidgetAction(MainWindow)
-    win.simMoviePlayerAction.setCheckable(1)
+           
+            
     win.simMoviePlayerAction.setIcon(geticon("ui/actions/Simulation/Play_Movie"))
     
     win.simPlotToolAction = QtGui.QWidgetAction(MainWindow)
@@ -62,7 +64,9 @@ def setupUi(win):
     
     win.simulationMenu.addAction(win.simSetupAction) # "Run Dynamics"
     win.simulationMenu.addAction(MainWindow.simMoviePlayerAction) # "Play Movie"
-    win.simulationMenu.addAction(win.simPlotToolAction) # "Make Graphs"
+    #Removed from simulation menu and command manager per conversation with Mark. 
+    #This option is available in Movie flyout toolbar only. -- ninad 20070627
+    ##win.simulationMenu.addAction(win.simPlotToolAction) # "Make Graphs"
     win.simulationMenu.addSeparator()
     win.simulationMenu.addAction(win.jigsMotorAction)
     win.simulationMenu.addAction(win.jigsLinearMotorAction)
