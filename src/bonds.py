@@ -56,9 +56,6 @@ import struct
 from math import floor
 from debug import print_compact_stack, compact_stack, print_compact_traceback
 
-import platform # for atom_debug; note that uses of atom_debug should all grab it
-  # from platform.atom_debug since it can be changed at runtime
-
 from elements import *
 
 from chem import singlet_atom, stringVec, atom, atKey
@@ -72,6 +69,9 @@ from state_utils import StateMixin #bruce 060223
 from changes import register_changedict, register_class_changedicts
 from debug_prefs import debug_pref, Choice_boolean_False #bruce 060307
 from HistoryWidget import redmsg, quote_html #bruce 070601
+
+import platform # for atom_debug; note that uses of atom_debug should all grab it
+  # from platform.atom_debug since it can be changed at runtime
 
 # Linus Pauling
 # http://www.pubmedcentral.gov/articlerender.fcgi?artid=220148

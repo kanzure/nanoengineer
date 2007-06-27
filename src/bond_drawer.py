@@ -40,6 +40,7 @@ from PyQt4.Qt import QFont, QString, QColor ###k
 from ThumbView import MMKitView
 
 import env
+import platform
 
 # ==
 

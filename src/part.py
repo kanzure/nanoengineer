@@ -54,12 +54,15 @@ from assembly import SELWHAT_CHUNKS, SELWHAT_ATOMS
 import env #bruce 050901
 from state_utils import StateMixin #bruce 060223
 
+import platform
+
 from ops_atoms     import ops_atoms_Mixin
 from ops_connected import ops_connected_Mixin
 from ops_copy      import ops_copy_Mixin
 from ops_motion    import ops_motion_Mixin
 from ops_rechunk   import ops_rechunk_Mixin
 from ops_select    import ops_select_Mixin
+
 
 # number of atoms for detail level 0
 HUGE_MODEL = 40000

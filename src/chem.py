@@ -83,10 +83,12 @@ except ImportError:
 from HistoryWidget import orangemsg
 from debug import print_compact_stack, print_compact_traceback, compact_stack
 
+from elements import *
+
 import platform # for atom_debug; note that uses of atom_debug should all grab it
   # from platform.atom_debug since it can be changed at runtime
 
-from elements import *
+
 
 import env
 from state_utils import StateMixin #bruce 060223

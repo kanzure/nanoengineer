@@ -13,7 +13,7 @@ import drawer
 from constants import *
 from assembly import assembly 
 import env
-
+import platform
 # debugging flags -- do not commit with True
 debug_thumbview = False
 
