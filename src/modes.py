@@ -1516,7 +1516,8 @@ class basicMode(anyMode):
         
         handler = self.o.mouse_event_handler # [bruce 070405]
         if handler is not None:
-            handler.update_cursor(self)
+            wX, wY = self.o._last_event_wXwY #bruce 070626
+            handler.update_cursor(self, (wX, wY))
             return
         
         if self.o.button is None:

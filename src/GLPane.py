@@ -1309,6 +1309,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         # [bruce 070405, new feature for confirmation corner support, and for any other overlay widgets which are handled
         #  mostly independently of the current mode -- and in particular which are not allowed to depend on the recent APIs
         #  added to selectMode, and/or which might need to be active even if current mode is doing xor-mode OpenGL drawing.]
+
+    _last_event_wXwY = (-1,-1) #bruce 070626
     
     def fix_event(self, event, when, target): #bruce 060220 added support for self.modkeys
         """[For most documentation, see fix_event_helper. Argument <when> is one of 'press', 'release', or 'move'.
@@ -1334,6 +1336,10 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         # in that case, we're not changing it, so (as a kluge) we can ignore that issue
         # and do it all later.
 
+        wX = event.pos().x()
+        wY = self.height - event.pos().y()
+        self._last_event_wXwY = wX, wY #bruce 070626 for use by mouse_event_handler (needed for confcorner)
+
         if when == 'release':
             self.in_drag = False
             self.button = None
@@ -1357,12 +1363,11 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
                 # Note: if two mouse buttons were pressed at the same time (I think -- bruce 070328), we leave self.button unchanged.
 
             if when == 'press' or (when == 'move' and not self.in_drag):
-                wX = event.pos().x()
-                wY = self.height - event.pos().y()
                 new_mouse_event_handler = self.mode.mouse_event_handler_for_event_position( wX, wY)
                 if new_mouse_event_handler is not self.mouse_event_handler:
                     #e maybe tell the old one it's no longer active (i.e. give it a "leave event" if when == 'move')
                     # and/or tell the new one it is (i.e. give it an "enter event" if when == 'move') -- not needed for now
+                    #e maybe do an incremental gl_update?
                     self.mouse_event_handler = new_mouse_event_handler
                     self.mode.update_cursor()
                 pass
