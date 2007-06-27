@@ -90,6 +90,7 @@ def loadCursors(w):
     w.BondToolCursor.append(loadCursor("Bond3ToolCursor", 0, 0))
     w.BondToolCursor.append(loadCursor("BondAToolCursor", 0, 0))
     w.BondToolCursor.append(loadCursor("BondGToolCursor", 0, 0))
+    w.BondToolCursor.append(loadCursor("CutBondCursor", 0, 0))    
         
     # Build mode - Bond Tool cursors with Shift modkey pressed
     w.BondToolAddCursor = []

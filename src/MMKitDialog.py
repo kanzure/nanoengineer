@@ -146,8 +146,14 @@ class Ui_MMKitDialog(object):
 	self.bondgAction = QtGui.QWidgetAction(MMKitDialog.w)  
 	self.bondgAction.setText("Graphitic")
 	self.bondgAction.setIcon(geticon("ui/dashboard/bondg.png"))
+	
+	self.cutBondsAction = QtGui.QWidgetAction(MMKitDialog.w)  
+	self.cutBondsAction.setText("Cut Bonds")
+	self.cutBondsAction.setIcon(geticon("ui/actions/Tools/Build Tools/Cut_Bonds"))
+	
 
-	for action in self.bond1Action, self.bond2Action, self.bond3Action,self.bondaAction, self.bondgAction:
+	for action in self.bond1Action, self.bond2Action, self.bond3Action, \
+	    self.bondaAction, self.bondgAction, self.cutBondsAction:
 	    
 	    btn = QtGui.QToolButton()
 	    btn.setDefaultAction(action)       

@@ -264,7 +264,6 @@ class MMKit(QDialog,
 	"""Updates the message box with an informative message based on the current page
 	and current selected atom type.
 	"""
-	
 	msg = ""
 	
 	if self.MMKit_groupBox.isVisible():
@@ -288,6 +287,12 @@ class MMKit(QDialog,
 		msg = "Double click in empty space to insert a copy of the selected part in the library."
 	
 	else: # Bonds Tool is selected (MMKit groupbox is hidden).
+	    if self.cutBondsAction.isChecked():
+		msg = "<b> Cut Bonds </b> tool is active. \
+		Click on bonds in order to delete them."
+		self.MessageGroupBox.insertHtmlMessage(msg)
+		return
+		
 	    if not hasattr(self, 'bondclick_v6'): # Mark 2007-06-01
 		return
 	    if self.bondclick_v6:

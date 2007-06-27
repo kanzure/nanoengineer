@@ -629,8 +629,7 @@ class depositMode(selectAtomsMode, MMKit):
 	separatorAfterTransmute = QtGui.QAction(self.w)
 	separatorAfterTransmute.setSeparator(True)
 	depositAtomsCmdLst.append(separatorAfterTransmute)
-	#Cut bonds is now in Bonds Tool, to fix bug 2425 - ninad20070622
-	##depositAtomsCmdLst.append(self.w.modifyDeleteBondsAction)
+	depositAtomsCmdLst.append(self.w.modifyDeleteBondsAction)
 	depositAtomsCmdLst.append(self.w.modifySeparateAction)
 	depositAtomsCmdLst.append(self.w.makeChunkFromAtomsAction)
 			
@@ -647,7 +646,7 @@ class depositMode(selectAtomsMode, MMKit):
 	bondsToolCmdLst.append(self.bond3Action)
 	bondsToolCmdLst.append(self.bondaAction)
 	bondsToolCmdLst.append(self.bondgAction)
-	bondsToolCmdLst.append(self.w.modifyDeleteBondsAction)
+	bondsToolCmdLst.append(self.cutBondsAction)
 	commandActionLists[3].extend(bondsToolCmdLst)
 		    	    
 	params = (subControlAreaActionList, commandActionLists, allActionsList)
@@ -982,6 +981,7 @@ class depositMode(selectAtomsMode, MMKit):
 	elif self.bond3Action.isChecked(): cursor_id = 3
 	elif self.bondaAction.isChecked(): cursor_id = 4
 	elif self.bondgAction.isChecked(): cursor_id = 5
+	elif self.cutBondsAction.isChecked(): cursor_id = 6
 	else: cursor_id = 0	 
 	
         if self.o.modkeys is None:	       
@@ -1504,6 +1504,12 @@ class depositMode(selectAtomsMode, MMKit):
 	    #Also note that , it may even be called by a different name instead of MMKit (e.g. BuildPropertyManager which might
 	    #be called as self.pw.blahblah where self.pw = active part window. This comment is subjected to revision - Ninad 061214
 	    
+	    #Following fixes bug 2425 (implements single click bond deletion 
+	    #in Build Atoms. -- ninad 20070626
+		if self.cutBondsAction.isChecked():
+		    self.bond_delete(event)
+		    self.o.gl_update()
+		    return
             #&if not self.w.depositAtomDashboard.buildBtn.isChecked() and not self.w.depositAtomDashboard.atomBtn.isChecked():
             #& Reinstate in A8.  mark 060301.
                 self.bond_change_type(b, allow_remake_bondpoints = True)
@@ -2226,7 +2232,10 @@ class depositMode(selectAtomsMode, MMKit):
 	    self.setBonda(state)
 	elif action == self.bondgAction:
 	    self.setBondg(state)
-    
+	elif action == self.cutBondsAction:
+	    self.update_cursor()
+	    self.updateBuildAtomsMessage()
+	    
     def setBond1(self, state):
         "Slot for Bond Tool Single button."
 	self.setBond(V_SINGLE, state)
@@ -2244,8 +2253,10 @@ class depositMode(selectAtomsMode, MMKit):
 	self.setBond(V_AROMATIC, state)
 
     def setBondg(self, state): #mark 050831
-        "Slot for Bond Tool Graphitic dashboard button."
+        "Slot for Bond Tool Graphitic button."
 	self.setBond(V_GRAPHITE, state)
+    
+	
         
     def setBond(self, v6, state, button = None):
         "#doc; v6 might be None, I guess, though this is not yet used"
