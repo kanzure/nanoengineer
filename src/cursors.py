@@ -9,9 +9,9 @@ mark 060427 - loadCursors() moved from MWsemantics.py.
 
 __author__ = "Mark" 
 
-from PyQt4.Qt import QCursor, QBitmap
+from PyQt4.Qt import QCursor, QBitmap, Qt
 import os, sys
-        
+
 def loadCursors(w):
     """This routine is called once to load all the custom cursors needed by the program.
     To add a new cursor, two BMP files are placed in the cad/src/ui/cursors directory
@@ -144,9 +144,10 @@ def loadCursors(w):
     w.RotateZCursor = loadCursor("RotateZCursor", 0, 0)
     w.ZoomPOVCursor = loadCursor("ZoomPOVCursor", -1, -1)
     w.SelectWaitCursor = loadCursor("SelectWaitCursor", 0, 0)
+    w.ArrowCursor = QCursor(Qt.ArrowCursor) #bruce 070627
 
     # Confirmation corner cursors [loaded by bruce 070626 from files committed by mark]
-    w._confcorner_OKCursor = loadCursor("ui/confcorner/OKCursor", 0, 0) ### REVIEW hotspot guesses
+    w._confcorner_OKCursor = loadCursor("ui/confcorner/OKCursor", 0, 0)
     w._confcorner_CancelCursor = loadCursor("ui/confcorner/CancelCursor", 0, 0)
 
     return # from loadCursors

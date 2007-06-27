@@ -36,7 +36,7 @@ class MouseEventHandler_API: #e refile #e put implems in subclass #e some method
         to give it the right cursor for being over self
         at position <wpos> (in OpenGL window coords).
         """
-        ###e probably needs more args (like mouse posn, mod keys, etc),
+        ###e may need more args (like mod keys, etc),
         # or official access to more info (like glpane.button),
         # to choose the cursor
     def want_event_position(self, wX, wY):
@@ -67,9 +67,16 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
                 cursor = win._confcorner_OKCursor
             else:
                 cursor = win._confcorner_CancelCursor
+            self.glpane.setCursor(cursor)
         else:
-            cursor = win.RotateCursor ###WRONG 
-        self.glpane.setCursor(cursor)
+            # This only happens during a drag, when we're still the event handler but don't want this position.
+            # (After some logic bug fixes above it will also happen whenever we're not over our last-pressed button.)
+            # We want to set a cursor which indicates that we'll do nothing.
+            # Modes won't tell us that cursor, but they'll set it as a side effect of mode.update_cursor_for_no_MB().
+            # Actually, they may set the wrong cursor then (e.g. cookieMode, which looks at glpane.modkeys, but if we're
+            # here with modkeys we're going to ignore them). If that proves to be misleading, we'll revise this.
+            self.glpane.setCursor(win.ArrowCursor) # in case the following method does nothing (can happen)
+            mode.update_cursor_for_no_MB() # _no_MB is correct, even though a button is presumably pressed.
         return
     def want_event_position(self, wX, wY):
         """Return False if we don't want it, and a true button-region-code if we do.
