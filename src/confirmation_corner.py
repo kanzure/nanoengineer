@@ -4,6 +4,19 @@ confirmation_corner.py -- helpers for modes with a confirmation corner
 (or other overlay widgets).
 
 $Id$
+
+Note: confirmation corners make use of two methods added to the "mode API"
+(the one used by GLPane to interface to glpane.mode for mouse and drawing)
+for their sake, currently [070627] defined only in basicMode: draw_overlay
+and mouse_event_handler_for_event_position. These are general enough to
+handle all kinds of overlays, in principle, but the current implem and
+some API details may be just barely general enough for the confirmation
+corner.
+
+Those method implems assume that mode subclasses override want_confirmation_corner_type
+to return the kind of confirmation corner they want at a given moment.
+
+
 """
 
 #### UNFINISHED
@@ -15,9 +28,12 @@ from exprs.Highlightable import Highlightable
 from exprs.images import Image
 from exprs.Overlay import Overlay
 
-# button region codes (must be true values)
-OK = 'OK'
-CANCEL = 'CANCEL'
+from debug import print_compact_traceback, print_compact_stack
+
+# button region codes (must all be true values;
+# these are used as indices in various dicts or functions,
+# and are used as components of cctypes like 'Done+Cancel')
+BUTTON_CODES = ('Done', 'Cancel')
 
 class MouseEventHandler_API: #e refile #e put implems in subclass #e some methods may need mode and/or glpane arg...
     """API (and default method implems) for the MouseEventHandler interface
@@ -51,60 +67,221 @@ class MouseEventHandler_API: #e refile #e put implems in subclass #e some method
         ""
     pass
 
-class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can be returned from find_or_make for testing...
+class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can be returned from find_or_make
     "###doc"
+    
+    # initial values of state variables, etc
+    last_button_position = False # False or an element of BUTTON_CODES
+    pressed_button = False # False or an element of BUTTON_CODES; only valid when self.glpane.in_drag (nonsense otherwise)
+
+    cctype = -1 # intentionally illegal value, different from any real value
+    
     def __init__(self, glpane):
         self.glpane = glpane
+    
+    def _advise_find_args(self, cctype, mode):
+        """private; can be called as often as every time this is drawn;
+        cctype can be None or one of a few string constants
+        """
+        self.mode = mode # used to find buttons for doing actions; not cross-checked with passed or found modes...
+        if self.cctype != cctype:
+            # note: no point in updating drawing here if cctype changes,
+            # since we're only called within glpane calling mode.draw_overlay.
+            ## self.update_drawing()
+            self.cctype = cctype
+            if cctype:
+                self.button_codes = cctype.split('+')
+                assert len(self.button_codes) in (1,2)
+                for bc in self.button_codes:
+                    assert bc in BUTTON_CODES
+            else:
+                self.button_codes = []
+        return
+
+    # == event position (internal and _API methods), and other methods ###DESCRIBE
+    
+    def want_event_position(self, wX, wY):
+        """MouseEventHandler_API method:
+        Return False if we don't want to be the handler for this event and immediately after it;
+        return a true button-region-code if we do.
+           Note: Only called externally when mouse is pressed (glpane.in_drag will already be set then),
+        or moves when not pressed (glpane.in_drag will be unset); deprecated for internal calls.
+        The current implem does not depend on only being called at those times, AFAIK.
+        """
+        return self.button_region_for_event_position(wX, wY)
+    
+    def button_region_for_event_position(self, wX, wY):
+        """Return False if wX, wY is not over self, or a button-region-code
+        (whose boolean value is true; an element of BUTTON_CODES) if it is,
+        which says which button region of self it's over (regardless of pressed state of self).
+        """
+        # correct implem, but button-region size & shape is hardcoded
+        dx = self.glpane.width - wX
+        dy = self.glpane.height - wY
+        if dx + dy <= 100:
+            # this event is over the CC triangular region; which of our buttons is it over?
+            if len(self.button_codes) == 2:
+                if -dy >= -dx: # note: not the same as wY >= wX if glpane is not square!
+                    return self.button_codes[0] # top half of corner triangle; usually 'Done'
+                else:
+                    return self.button_codes[1] # right half of corner triangle; usually 'Cancel'
+            elif len(self.button_codes) == 1:
+                return self.button_codes[0]
+            else:
+                return False # can this ever happen? I don't know, but if it does, it should work.
+        return False
+    
+    def draw(self): ####STUB
+        """MouseEventHandler_API method: draw self. Assume background is already correct
+        (so our implem can be the same, whether the incremental drawing optim for the rest
+        of the GLPane content is operative or not).
+        """
+        print "draw CC for cctype %r and state %r, %r" % (self.cctype, self.pressed_button, self.last_button_position) #### ok?
+        return
+    
     def update_cursor(self, mode, wpos):
-         ###stub for testing
+        "MouseEventHandler_API method; change cursor based on current state and event position"
         assert self.glpane is mode.o
         win = mode.w # for access to cursors
         wX, wY = wpos
-        want = self.want_event_position(wX, wY)
-        ###e WRONG -- should notice if we're in_drag, let each half behave like a button then...
-        if want:
-            if want == OK:
+        bc = self.button_region_for_event_position(wX, wY)
+        # figure out want_cursor (False or a button code; in future there may be other codes for modified cursors)
+        if not self.pressed_button:
+            # mouse is not down; cursor reflects where we are at the moment (False or a button code)
+            want_cursor = bc 
+        else:
+            # a button is pressed; cursor reflects whether this button will act or not
+            # (based on whether we're over it now or not)
+            # (for now, if the button will act, the cursor does not look any different
+            #  than if we're hovering over the button, but revising that would be easy)
+            if self.pressed_button == bc:
+                want_cursor = bc
+            else:
+                want_cursor = False
+        # show the cursor indicated by want_cursor
+        if want_cursor:
+            assert want_cursor in BUTTON_CODES
+            if want_cursor == 'Done':
                 cursor = win._confcorner_OKCursor
             else:
                 cursor = win._confcorner_CancelCursor
             self.glpane.setCursor(cursor)
         else:
-            # This only happens during a drag, when we're still the event handler but don't want this position.
-            # (After some logic bug fixes above it will also happen whenever we're not over our last-pressed button.)
             # We want to set a cursor which indicates that we'll do nothing.
             # Modes won't tell us that cursor, but they'll set it as a side effect of mode.update_cursor_for_no_MB().
             # Actually, they may set the wrong cursor then (e.g. cookieMode, which looks at glpane.modkeys, but if we're
             # here with modkeys we're going to ignore them). If that proves to be misleading, we'll revise this.
             self.glpane.setCursor(win.ArrowCursor) # in case the following method does nothing (can happen)
-            mode.update_cursor_for_no_MB() # _no_MB is correct, even though a button is presumably pressed.
+            try:
+                mode.update_cursor_for_no_MB() # _no_MB is correct, even though a button is presumably pressed.
+            except:
+                print_compact_traceback("bug: exception (ignored) in %r.update_cursor_for_no_MB(): " % (mode,) )
+                pass
         return
-    def want_event_position(self, wX, wY):
-        """Return False if we don't want it, and a true button-region-code if we do.
-        WARNING: that code does not yet notice whether we're a 1-button or 2-button corner;
-        it pretends we're a 2-button corner.
-        """
-        # correct (for 2-button case), but image size & shape is hardcoded
-        dx = self.glpane.width - wX
-        dy = self.glpane.height - wY
-        if dx + dy <= 100:
-            if -dy >= -dx: # note: not the same as wY >= wX if glpane is not square!
-                return OK
-            else:
-                return CANCEL
-        return False
-    def draw(self):
-        pass ###stub
+
+    # == mouse event handling (part of the _API)
+    
+    def mousePressEvent(self, event):
+        print "meh press"####
+        wX, wY = wpos = self.glpane._last_event_wXwY
+        bc = self.button_region_for_event_position(wX, wY)
+        self.last_button_position = bc # this is for knowing when our appearance might change
+        self.pressed_button = bc # this and glpane.in_drag serve as our state variables
+        if not bc:
+            print "bug: not bc in meh.mousePressEvent" # should never happen; if it does, do nothing
+        else:
+            self.update_drawing()
+        return
+
     def mouseMoveEvent(self, event): ###e should we get but & mod as new args, or from glpane attrs set by fix_event??
         wX, wY = wpos = self.glpane._last_event_wXwY # or we could get these from event
-        want = self.want_event_position(wX, wY)
-        #e should test if want or other state has changed
+        bc = self.button_region_for_event_position(wX, wY)
+        if self.last_button_position != bc:
+            self.last_button_position = bc
+            self.update_drawing()
+            self.do_update_cursor()
+        return
+
+    def mouseReleaseEvent(self, event):
+        print "meh rel" #####@@@
+        wX, wY = self.glpane._last_event_wXwY
+        bc = self.button_region_for_event_position(wX, wY)
+        if self.last_button_position != bc:
+            print "unexpected: self.last_button_position != bc in meh.mouseReleaseEvent (should be harmless)" ###
+        self.last_button_position = bc
+        if self.pressed_button and self.pressed_button == bc:
+            #e in future: if action might take time, maybe change drawing appearance to indicate we're "doing it"
+            self.do_action(bc)###IMPLEM
+        self.pressed_button = False
+        self.update_drawing() # might be redundant with do_action (which may need to update even more, I don't know for sure)
+            # Note: this might not be needed if no action happens -- depends on nature of highlighting;
+            # note that you can press one button and release over the other, and then the other might need to highlight
+            # if it has mouseover highlighting (tho in current design, it doesn't).
+        self.do_update_cursor()
+        return
+
+    # == internal update methods
+    
+    def do_update_cursor(self):
+        "internal helper for calling our external API method update_cursor with the right arguments"
+        wpos = self.glpane._last_event_wXwY
         mode = self.glpane.mode # kluge, not sure if always correct
         self.update_cursor( mode, wpos)
-    pass
+        return
+    
+    def update_drawing(self):
+        ### TODO: figure out if our appearance has changed, and do nothing if not (important optim)
+        # (be careful about whether we're the last CC to be drawn, if there's more than one and they get switched around!
+        #  we might need those events about enter/leave that the glpane doesn't yet send us; or some about changing the cc) ###
+        self.glpane.gl_update() # this should work, but NEEDS OPTIM to be incremental ### TODO
 
-def interpret_cctype(cctype, mode): # not used, unless perhaps via cc_scratch.py
-    "return None or an expr, ..."
-    return Rect(green) ###STUB
+    # == internal action methods
+
+    def do_action(self, buttoncode):
+        "do the action corresponding to buttoncode (protected from exceptions)"
+        #e in future: statusbar message?
+        print "do_action", buttoncode #####
+
+        ###REVIEW: maybe all the following should be a mode method?
+        # Note: it will all get revised and cleaned up once we have a command stack
+        # and we can just tell the top command to do Done or Cancel.
+        
+        done_button, cancel_button = self.mode._KLUGE_visible_PM_buttons()
+            # each one is either None, or a QToolButton (a true value) currently displayed on the current PM
+        if buttoncode == 'Done':
+            button = done_button
+        else:
+            button = cancel_button
+        if not button:
+            print "bug (ignored): %r trying to do action for nonexistent %r button" % (self, buttoncode) #e more info?
+        else:
+            try:
+                print "\nabout to click %r button == %r" % (buttoncode, button) ###
+                button.click()
+                    # This should make the button emit the clicked signal -- not sure if it will also emit
+                    # the pressed and released signals. The Qt doc (for QAbstractButton.click) just says
+                    # "All the usual signals associated with a click are emitted as appropriate."
+                    # Our code mostly connects to clicked, but for a few buttons (not the ones we have here, I think)
+                    # connects to pressed or released. Search for those words used in a SIGNAL macro to find them.
+                    
+                # Assume the click handler did whatever updates were required,
+                # as it would need to do if the user pressed the button directly,
+                # so no updates are needed here. That's good, because only the event handler
+                # knows if some are not needed (as an optimization).
+                print "did the click" ###
+            except:
+                print_compact_traceback("bug: exception (ignored) when using %r button == %r: " % (buttoncode, button,) )
+                pass
+            pass
+        return
+    
+    pass # end of class cc_MouseEventHandler
+
+# ==
+
+##def interpret_cctype(cctype, mode): # not used, unless perhaps via cc_scratch.py
+##    "return None or an expr, ..."
+##    return Rect(green) ###STUB
 
 def find_or_make(cctype, mode):
     "Return a confirmation corner instance for mode, of the given cctype. [Called from basicMode.draw_overlay]"
@@ -113,7 +290,9 @@ def find_or_make(cctype, mode):
         mode._confirmation_corner__cached_meh
     except AttributeError:
         mode._confirmation_corner__cached_meh = cc_MouseEventHandler(mode.o)
-    return mode._confirmation_corner__cached_meh
-    # see exprs/cc_scratch.py
+    res = mode._confirmation_corner__cached_meh
+    res._advise_find_args(cctype, mode) # in case it wants to store these (especially since it's shared for different values of them)
+    return res
+    # see also exprs/cc_scratch.py
 
 # end

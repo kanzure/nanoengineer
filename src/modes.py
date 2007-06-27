@@ -379,20 +379,99 @@ class basicMode(anyMode):
 
     # ==
 
-    # confirmation corner methods [bruce 070405-070409]
-    
+    # confirmation corner methods [bruce 070405-070409, 070627]
+
+    # Note: if we extend the conf. corner to "generators" in the short term,
+    # before the "command stack" is implemented, some of the following methods
+    # may be revised to delegate to the "current generator" or its PM.
+    # If so, when doing this, note that many modes currently act as their own PM widget.
+
+    def _KLUGE_current_PM(self): #bruce 070627
+        "private, and a kluge; see KLUGE_current_PropertyManager docstring for more info"
+        pw = self.w.activePartWindow()
+        if not pw:
+            # I don't know if pw can be None
+            print "fyi: _KLUGE_current_PM sees pw of None" ###
+            return None
+        try:
+            res = pw.KLUGE_current_PropertyManager()
+            # print "debug note: _KLUGE_current_PM returns %r" % (res,)
+            return res
+        except:
+            # I don't know if this can happen
+            print_compact_traceback("ignoring exception in %r.KLUGE_current_PropertyManager(): " % (pw,))
+            return None
+        pass
+
+    def _KLUGE_visible_PM_buttons(self): #bruce 070627
+        """private (but ok for use by self._ccinstance), and a kluge:
+        return the Done and Cancel QToolButtons of the current PM,
+        if they are visible, or None for each one that is not visible.
+           Used both for deciding what CC buttons to show, and for acting on the buttons
+        (assuming they are QToolButtons).
+        """
+        pm = self._KLUGE_current_PM()
+        if not pm:
+            return None, None # no CC if no PM is visible
+        def examine(buttonname):
+            try:
+                button = getattr(pm, buttonname)
+                assert button
+                assert isinstance(button, QToolButton)
+                vis = button.isVisible()
+                if vis:
+                    res = button
+                else:
+                    res = None
+            except:
+                print_compact_traceback("ignoring exception (%r): " % buttonname)
+                res = None
+            return res
+        return ( examine('done_btn'), examine('abort_btn') )
+
     def want_confirmation_corner_type(self):
         """Subclasses should return the type of confirmation corner they currently want,
         typically computed from their current state. The return value can be one of the
-        strings XXX, or None, or a suitable expr [see confirmation_corner.py for related info].
+        strings 'Done+Cancel' or 'Done' or 'Cancel', or None (for no conf. corner).
+        Later we may add another possible value, 'Exit'.
+        [See confirmation_corner.py for related info.]
         [Many subclasses will need to override this; we might also revise the default
-         to be computed in a typically correct manner, e.g. by using hasNontrivialState(sp?).]
+         to be computed in a more often correct manner.]
         """
-        return 'Done+Cancel' # default, mainly useful for testing
+        # What we do:
+        # find the current PM (self or an active generator, at the moment -- very klugy),
+        # and ask which of these buttons are visible (rather than using self.haveNontrivialState()):
+        #   pm.done_btn.isVisible()
+        #   pm.abort_btn.isVisible().
+        ### TODO (in other code): also see if they can be used to perform the actions. They are QToolButtons.
+        from debug_prefs import debug_pref, Choice_boolean_False
+        if debug_pref("Conf corner test: use haveNontrivialState", Choice_boolean_False, prefs_key = True):
+            # old code, works, but not correct for default mode or when generators active
+            if self.haveNontrivialState():
+                return 'Done+Cancel'
+            else:
+                # when would we just return 'Cancel'? only for a generator?
+                return 'Done' # in future this will sometimes or always be 'Exit'
+        else:
+            done_button_vis, cancel_button_vis = self._KLUGE_visible_PM_buttons()
+                # each one is either None, or a QToolButton (a true value) currently displayed on the current PM
 
+            res = []
+            if done_button_vis:
+                res.append('Done')
+            if cancel_button_vis:
+                res.append('Cancel')
+            if not res:
+                res = None
+            else:
+                res = '+'.join(res)
+            # print "want cc got", res
+            return res
+        pass
+            
     _ccinstance = None
     
-    def draw_overlay(self): #bruce 070405
+    def draw_overlay(self): #bruce 070405; ### TODO: make sure this gets called whenever the cctype might change
         "called from GLPane with drawing coordsys XXX [part of GLPane's drawing interface to modes]"
         from debug_prefs import debug_pref, Choice_boolean_False
         if not debug_pref("enable confirmation_corner stub code?", Choice_boolean_False, prefs_key = True):
@@ -402,10 +481,15 @@ class basicMode(anyMode):
         import confirmation_corner
         cctype = self.want_confirmation_corner_type()
         self._ccinstance = confirmation_corner.find_or_make(cctype, self)
-            # might use an instance cached in self (in an attr private to that helper function)
-            # self._ccinstance might be None
+            # Notes:
+            # - we might use an instance cached in self (in an attr private to that helper function);
+            # - this might be as specific as both args passed above, or as shared as one instance
+            #   for the entire app -- that's up to it;
+            # - if one instance is shared for multiple cctypes, it might store the cctype passed above
+            #   as a side effect of find_or_make;
+            # - self._ccinstance might be None.
         if self._ccinstance is not None:
-            # it's an expr instance we want to draw, and to keep around for queries
+            # it's an instance we want to draw, and to keep around for mouse event handling
             self._ccinstance.draw()
         return
 

@@ -168,6 +168,28 @@ class PartWindow(QWidget):
 				   
 	self.featureManager.setCurrentIndex(self.featureManager.indexOf(self.propertyManagerScrollArea))
 	
+    def KLUGE_current_PropertyManager(self): #bruce 070627
+        """Return the current Property Manager widget (whether or not its tab is showing),
+        or None if there is not one.
+           WARNING: This method's existence (not only its implementation) is a kluge,
+        since the right way to access that would be by asking the "command stack";
+        but that's not yet implemented, so this is the best we can do for now.
+        Also, it would be better to get the top command and talk to it, not its PM
+        (a QWidget). Also, whatever calls this will be making assumptions about that PM
+        which are really only the command's business. So in short, every call of this is
+        in need of cleanup once we have a working "command stack". (That's true of many
+        things related to PMs, not only this method.)
+           WARNING: The return values are (presumably) widgets, but they can also be mode objects
+        and generator objects, due to excessive use of multiple inheritance in the current PM code.
+        So be careful what you do with them -- they might have lots of extra methods/attrs,
+        and setting your own attrs in them might mess things up.
+        """
+        res = self.propertyManagerScrollArea.widget()
+        if hasattr(res, 'done_btn'):
+            return res
+        # not sure what widget this is otherwise, but it is one (rather than None) for the default mode,
+        # at least on startup, so just return None in this case
+        return None
 
     def dismiss(self):
         self.parent.removePartWindow(self)
