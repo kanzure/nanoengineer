@@ -25,6 +25,7 @@ from PyQt4 import QtCore
 from GLPane import GLPane 
 from assembly import assembly 
 from drawer import get_gl_info_string ## grantham 20051201
+from Ui_PartWindow import PartWindow, GridPosition
 import os, sys
 import help
 from math import ceil
@@ -34,7 +35,6 @@ from qt4transition import *
 from Utility import geticon
 
 from constants import *
-from PropMgr_Constants import pmDefaultWidth, pmMaxWidth, pmMinWidth
 from elementColors import elementColors 
 from elementSelector import elementSelector 
 from MMKit import MMKit
@@ -76,187 +76,6 @@ for i,elno in zip(range(len(eCCBtab1)), eCCBtab1):
     eCCBtab2[elno] = i
 
 recentfiles_use_QSettings = True #bruce 050919 debug flag (replacing use of __debug__) ###@@@
-
-########################################################################
-
-class PartWindow(QWidget):
-    def __init__(self, assy, parent):
-        QWidget.__init__(self, parent)
-        self.parent = parent
-        self.setWindowTitle("My Part Window")
-	self.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
-	
-        _layout = QtGui.QHBoxLayout(self)
-        layout = QSplitter(Qt.Horizontal)
-        layout.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        _layout.addWidget(layout)
-
-        #########################
-
-	# <holder> - the area to the left of the vertical splitter, next to the
-	# GLPane. 
-        holder = QWidget(parent)
-        holder.setMinimumWidth(pmMinWidth) # Mark 2007-05-24
-	holder.setMaximumWidth(pmMaxWidth)
-	self.resize(pmDefaultWidth, holder.sizeHint().height())
-        
-        sublayout = QVBoxLayout(holder)
-        sublayout.setMargin(0)
-        sublayout.setSpacing(0)
-        
-	layout.addWidget(holder)
-	
-        ###
-
-        self.featureManager = QtGui.QTabWidget()
-        self.featureManager.setCurrentIndex(0)
-	self.featureManager.setAutoFillBackground(True)	
-	
-	from widgets import RGBf_to_QColor
-		
-	palette = QtGui.QPalette()
-	#bgrole(10) is 'Window'
-        palette.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(10),QtGui.QColor(230,231,230))
-	##following won't give a gradient background ( we set it for glpane using paintGL.) . Need to make backgrounds of glpane and 
-	## feature manager identical. 
-	##palette.setColor(QtGui.QPalette.Active,QtGui.QPalette.ColorRole(10), RGBf_to_QColor(self.glpane.backgroundColor))
-	self.featureManager.setPalette(palette)
-	
-	#self.featureManager.setMinimumSize(0,0)
-        self.featureManager.setMinimumWidth(pmMinWidth) # Mark 2007-05-24
-	self.featureManager.setMaximumWidth(pmMaxWidth) # Mark 2007-05-24
-	self.resize(pmDefaultWidth, holder.sizeHint().height())
-	#ninad 070102 Setting the size policy as 'Ignored' makes the default MT widget width to 0
-	#so commenting out the following for now
-	
-	#self.featureManager.setSizePolicy(QSizePolicy.Ignored,QSizePolicy.Ignored)
-					
-        self.modelTreeTab = QtGui.QWidget()
-        self.featureManager.addTab(self.modelTreeTab,geticon("ui/modeltree/Model_Tree"), "") 
-	
-        modelTreeTabLayout = QtGui.QVBoxLayout(self.modelTreeTab)
-        modelTreeTabLayout.setMargin(0)
-        modelTreeTabLayout.setSpacing(0)
-			
-        self.propertyManagerTab = QtGui.QWidget()
-	
-	self.propertyManagerScrollArea = QtGui.QScrollArea(self.featureManager)
-	#self.propertyManagerScrollArea.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-	self.propertyManagerScrollArea.setWidget(self.propertyManagerTab)
-	self.propertyManagerScrollArea.setWidgetResizable(True) # Eureka! 
-	# setWidgetResizable(True) will resize the Property Manager (and its contents)
-	# correctly when the scrollbar appears/disappears. It even accounts correctly for 
-	# collapsed/expanded groupboxes! Mark 2007-05-29
-	
-		
-	self.featureManager.addTab(self.propertyManagerScrollArea, geticon("ui/modeltree/Property_Manager"), "")       
-        sublayout.addWidget(self.featureManager)
-
-        ###
-
-        self.modelTree = modelTree(self.modelTreeTab, parent)
-        modelTreeTabLayout.addWidget(self.modelTree.modelTreeGui)
-
-	vlayout = QSplitter(Qt.Vertical, layout)
-        self.glpane = GLPane(assy, self, 'glpane name', parent)		    	
-	qt4warnDestruction(self.glpane, 'GLPane of PartWindow')
-        vlayout.addWidget(self.glpane)
-	
-		
-	from HistoryWidget import HistoryWidget
-	
-        histfile = platform.make_history_filename() #@@@ ninad 061213 This is likely a new bug for multipane concept 
-	#as each file in a session will have its own history widget
-	qt4todo('histfile = platform.make_history_filename()')
-	
-        #bruce 050913 renamed self.history to self.history_object, and deprecated direct access
-        # to self.history; code should use env.history to emit messages, self.history_widget
-        # to see the history widget, or self.history_object to see its owning object per se
-        # rather than as a place to emit messages (this is rarely needed).
-        self.history_object = HistoryWidget(self, filename = histfile, mkdirs = 1)
-            # this is not a Qt widget, but its owner;
-            # use self.history_widget for Qt calls that need the widget itself.
-        self.history_widget = self.history_object.widget
-	self.history_widget.setSizePolicy(QSizePolicy.Ignored,QSizePolicy.Ignored)
-	
-            #bruce 050913, in case future code splits history widget (as main window subwidget)
-            # from history message recipient (the global object env.history).
-        
-        env.history = self.history_object #bruce 050727, revised 050913
-	
-	vlayout.addWidget(self.history_widget)
-	
-	layout.addWidget(vlayout)
-
-    def setRowCol(self, row, col):
-        self.row, self.col = row, col
-	
-    def updatePropertyManagerTab(self, tab): #Ninad 061207
-	"Update the Properties Manager tab with 'tab' "
-	
-	if self.propertyManagerScrollArea.widget():
-	    #The following is necessary to get rid of those c object deleted errors (and the resulting bugs)
-	    lastwidgetobject = self.propertyManagerScrollArea.takeWidget() 
-	    if lastwidgetobject:
-		try:
-		    lastwidgetobject.update_props_if_needed_before_closing()
-		except:
-		    if platform.atom_debug:
-			msg1 = "Last PropMgr doesn't have method updatePropsBeforeClosing."
-			msg2 =  " That is OK (for now,only implemented in GeometryGenerators)"
-			msg3 = "Ignoring Exception"
-			print_compact_traceback(msg1 + msg2 + msg3)
-					    
-	    lastwidgetobject.hide() # @ ninad 061212 perhaps hiding the widget is not needed
-	       
-	self.featureManager.removeTab(self.featureManager.indexOf(self.propertyManagerScrollArea))
-
-	
-	#Set the PropertyManager tab scroll area to the appropriate widget .at
-	self.propertyManagerScrollArea.setWidget(tab)
-		
-	self.featureManager.addTab(self.propertyManagerScrollArea, 
-				   geticon("ui/modeltree/Property_Manager"), "")
-				   
-	self.featureManager.setCurrentIndex(self.featureManager.indexOf(self.propertyManagerScrollArea))
-	
-
-    def dismiss(self):
-        self.parent.removePartWindow(self)
-
-class GridPosition:
-    def __init__(self):
-        self.row, self.col = 0, 0
-        self.availableSlots = [ ]
-        self.takenSlots = { }
-
-    def next(self, widget):
-        if len(self.availableSlots) > 0:
-            row, col = self.availableSlots.pop(0)
-        else:
-            row, col = self.row, self.col
-            if row == col:
-                # when on the diagonal, start a new self.column
-                self.row = 0
-                self.col = col + 1
-            elif row < col:
-                # continue moving down the right edge until we're about
-                # to hit the diagonal, then start a new bottom self.row
-                if row == col - 1:
-                    self.row = row + 1
-                    self.col = 0
-                else:
-                    self.row = row + 1
-            else:
-                # move right along the bottom edge til you hit the diagonal
-                self.col = col + 1
-        self.takenSlots[widget] = (row, col)
-        return row, col
-
-    def removeWidget(self, widget):
-        rc = self.takenSlots[widget]
-        self.availableSlots.append(rc)
-        del self.takenSlots[widget]
 
 ########################################################################
 
