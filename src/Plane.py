@@ -26,7 +26,8 @@ of 'offset plane'
 
 __author__ = "Ninad"
 
-from OpenGL.GL import *
+from OpenGL.GL import glPushMatrix, glPopMatrix, glTranslatef, glRotatef, \
+     glPushName, glPopName
 from OpenGL.GLU import gluProject, gluUnProject
 from math import pi, atan, cos, sin
 from Numeric import add

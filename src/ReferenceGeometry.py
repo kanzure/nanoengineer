@@ -30,14 +30,13 @@ to be revised) . In Alpha9 this class is inherited by PlaneGenerator class
 __author__ = "Ninad"
 
 
+from OpenGL.GL import glPushName, glPopName
 from Utility import Node
-from constants import darkgreen, orange, yellow, white, gray
-from constants import gensym
+from constants import darkgreen, orange, yellow, white, gray, gensym
 import env
 import platform
 from DragHandler import DragHandler_API
 from jigs import Jig
-from OpenGL.GL import *
 
 
 class ReferenceGeometry(Jig, DragHandler_API):
