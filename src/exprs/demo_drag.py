@@ -229,6 +229,7 @@ WithViewerFunc = Stub # see rules.py, to which I moved the more expansive stub o
 # 070223 new hack
 
 from OpenGL.GL import *
+import platform
 
 ##class polyline_handle(DelegatingInstanceOrExpr):
 ##    delegate = Draggable(Rect(0.3,green))

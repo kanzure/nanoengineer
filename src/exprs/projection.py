@@ -12,6 +12,7 @@ from prefs_constants import UPPER_RIGHT, UPPER_LEFT, LOWER_LEFT, LOWER_RIGHT # n
 
 from OpenGL.GL import *
 from OpenGL.GLU import gluPickMatrix, gluUnProject
+import platform
 
 class DrawInCorner_projection(DelegatingInstanceOrExpr):
     """DEPRECATED for general use -- use DrawInCorner instead.

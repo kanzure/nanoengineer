@@ -87,6 +87,7 @@ from Overlay import Overlay
 
 from OpenGL.GL import * #e move what needs this into draw_utils
 import drawer
+import platform
 
 # needed for code modified from demo_drag: not sure it's all still needed #k
 

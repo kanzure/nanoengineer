@@ -20,7 +20,7 @@ from OpenGL.GL import *
 ##D2X = V(1.0, 0.0)
 ##D2Y = V(0.0, 1.0)
 
-
+import platform
 # == new LL drawing helpers
 
 def draw_textured_rect(origin, dx, dy, tex_origin, tex_dx, tex_dy):

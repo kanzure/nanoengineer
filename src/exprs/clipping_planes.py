@@ -9,6 +9,8 @@ from basic import *
 
 from OpenGL.GL import *
 
+import platform
+
 def clip_below_y0(y0): #070322 #e refile #e someday make it return a smarter object (ClippingPlane) than just a 4-tuple or Numeric array
     "return a 4-coefficient OpenGL clipping plane (red book p.144) which displays the half-space defined by y >= y0."
     # Return V(A,B,C,D) where Ax + By + Cz + D >= 0 defines the visible volume.

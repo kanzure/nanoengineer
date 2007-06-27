@@ -24,6 +24,8 @@ from OpenGL.GL import *
 
 from OpenGL.GLU import gluProject, gluUnProject
 
+import platform
+
 # modified from testdraw.printfunc:
 def print_Expr(*args, **kws): ##e rename to include Action in the name?? #e refile
     "#doc"

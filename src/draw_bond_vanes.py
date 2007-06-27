@@ -21,6 +21,7 @@ from math import ceil
 
 from OpenGL.GL import *
 import drawer #bruce 051215
+import platform
 
 MAXTWIST = 5 * pi / 180 # permissible twist of one vane segment (5 degrees -- just a guess)
 

@@ -45,7 +45,7 @@ from prefs_constants import material_specular_highlights_prefs_key, \
         material_specular_brightness_prefs_key #mark 051205. names revised
 import debug #bruce 051212, for debug.print_compact_traceback
 
-
+import platform
 
 # ColorSorter control
 allow_color_sorting = allow_color_sorting_default = False #bruce 060323 changed this to False for A7 release

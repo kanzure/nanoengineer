@@ -24,6 +24,7 @@ from test import * # get lazy for now
 from demo_drag import Vertex, kluge_dragtool_state_prefs_key, DZFUZZ
 
 from OpenGL.GL import * #e could be relegated to separate drawing code class, if we wanted...
+import platform
 
 from command_registry import auto_register
 

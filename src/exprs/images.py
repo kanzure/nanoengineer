@@ -59,6 +59,7 @@ import testdraw
 from OpenGL.GL import *
 from OpenGL.GLU import gluProject
 
+import platform
 debug_glGenTextures = True #070308 #####
 
 class _texture_holder(object):
