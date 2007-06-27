@@ -129,23 +129,23 @@ class Ui_MMKitDialog(object):
 		
 	self.bond1Action = QtGui.QWidgetAction(MMKitDialog.w)  
 	self.bond1Action.setText("Single")
-	self.bond1Action.setIcon(geticon("ui/dashboard/bond1.png"))
+	self.bond1Action.setIcon(geticon("ui/actions/Toolbars/Smart/bond1.png"))
     
 	self.bond2Action = QtGui.QWidgetAction(MMKitDialog.w)  
 	self.bond2Action.setText("Double")
-	self.bond2Action.setIcon(geticon("ui/dashboard/bond2.png"))
+	self.bond2Action.setIcon(geticon("ui/actions/Toolbars/Smart/bond2.png"))
 	
 	self.bond3Action = QtGui.QWidgetAction(MMKitDialog.w)  
 	self.bond3Action.setText("Triple")
-	self.bond3Action.setIcon(geticon("ui/dashboard/bond3.png"))
+	self.bond3Action.setIcon(geticon("ui/actions/Toolbars/Smart/bond3.png"))
 	
 	self.bondaAction = QtGui.QWidgetAction(MMKitDialog.w)  
 	self.bondaAction.setText("Aromatic")
-	self.bondaAction.setIcon(geticon("ui/dashboard/bonda.png"))
+	self.bondaAction.setIcon(geticon("ui/actions/Toolbars/Smart/bonda.png"))
 	
 	self.bondgAction = QtGui.QWidgetAction(MMKitDialog.w)  
 	self.bondgAction.setText("Graphitic")
-	self.bondgAction.setIcon(geticon("ui/dashboard/bondg.png"))
+	self.bondgAction.setIcon(geticon("ui/actions/Toolbars/Smart/bondg.png"))
 	
 	self.cutBondsAction = QtGui.QWidgetAction(MMKitDialog.w)  
 	self.cutBondsAction.setText("Cut Bonds")
