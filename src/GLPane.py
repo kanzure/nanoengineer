@@ -2240,22 +2240,48 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         else:
             subwidth, subheight, width, height, gl_format, gl_type, image = self._conf_corner_bg_image_data
             if width != self.width or height != self.height:
-                # I don't know if this can ever happen
-                print "can't draw self._conf_corner_bg_image_data -- glpane got resized" ####
+                # I don't know if this can ever happen; if it can, caller might need
+                # to detect this itself and do a full redraw.
+                # (Or we might make this method return a boolean to indicate it.)
+                print "can't draw self._conf_corner_bg_image_data -- glpane got resized" ###
             else:
                 if pos is None:
                     pos = (width - subwidth, height - subheight)
                 x, y = pos
 
-                glDisable(GL_DEPTH_TEST)
-                
-                depth = 0.0 # this should not matter, though it may affect the raster position (not sure if that's 3d)
-                    ### REVIEW: this needs testing in perspective view!
-                x1, y1, z1junk = gluUnProject(x, y, depth)
-                glRasterPos2f(x1, y1)
-                
-                glDrawPixels(subwidth, subheight, gl_format, gl_type, image)
+                # If x or y is exactly 0, then numerical roundoff errors can make the raster position invalid.
+                # Using 0.1 instead apparently fixes it, and causes no noticable image quality effect.
+                # (Presumably they get rounded to integer window positions after the view volume clipping,
+                #  though some effects I saw implied that they don't get rounded, so maybe 0.1 is close enough to 0.0.)
+                # This only matters when GLPane size is 100x100 or less,
+                # or when drawing this in lower left corner for debugging,
+                # so we don't have to worry about whether it's perfect.
+                # (The known perfect fix is to initialize both matrices, but we don't want to bother,
+                #  or to worry about exceeding the projection matrix stack depth.)
+                x = max(x, 0.1)
+                y = max(y, 0.1)
 
+                depth = 0.1 # this should not matter, as long as it's within the viewing volume
+                x1, y1, z1 = gluUnProject(x, y, depth)
+                glRasterPos3f(x1, y1, z1) # z1 does matter (when in perspective view), since this is a 3d position
+                    # Note: using glWindowPos would be simpler and better, but it's not defined
+                    # by the PyOpenGL I'm using. [bruce iMac G5 070626]
+
+                if not glGetBooleanv(GL_CURRENT_RASTER_POSITION_VALID):
+                    # This was happening when we used x,y = exact 0,
+                    # and was causing the image to not get drawn sometimes (when mousewheel zoom was used).
+                    # It can still happen for extreme values of mousewheel zoom (close to the ones
+                    # which cause OpenGL exceptions), mostly only when pos = (0,0) but not entirely.
+                    # Sometimes the actual drawing positions can get messed up then, too.
+                    # This doesn't matter much, but indicates that reiniting the matrices would be
+                    # a better solution if we could be sure the projection stack depth was sufficient
+                    # (or if we reset the standard projection when done, rather than using push/pop).
+                    print "bug: not glGetBooleanv(GL_CURRENT_RASTER_POSITION_VALID); pos =", pos
+
+                glDisable(GL_DEPTH_TEST) # otherwise it can be obscured by prior drawing into depth buffer
+                # Note: doing more disables would speed up glDrawPixels,
+                # but that doesn't matter unless we do it many times per frame.
+                glDrawPixels(subwidth, subheight, gl_format, gl_type, image)
                 glEnable(GL_DEPTH_TEST)
             pass
         return
@@ -2762,8 +2788,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
             if env.prefs[displayOriginAsSmallAxis_prefs_key]:
                 drawer.drawOriginAsSmallAxis(self.scale, (0.0,0.0,0.0), dashEnabled = True)
             else:
-                drawer.drawaxes(self.scale, (0.0,0.0,0.0), coloraxes=True, dashEnabled = True)
-        
+                drawer.drawaxes(self.scale, (0.0,0.0,0.0), coloraxes = True, dashEnabled = True)
+
         self.grab_conf_corner_bg_image() #bruce 070626 (needs to be done before draw_overlay)
 
         from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
