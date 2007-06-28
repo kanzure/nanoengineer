@@ -2045,6 +2045,20 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         """
         self.gl_update() # stub for now
         return
+
+    def gl_update_confcorner(self): #bruce 070627
+        """External code should call this when it thinks the confirmation corner may need
+        redrawing (but when it doesn't need to report any other need for redrawing).
+           This is an optimization, since if there is no other reason to redraw,
+        the confirmation corner alone may be redrawn faster by using a saved color image of
+        the portion of the screen it covers (not including the CC overlay itself),
+        rather than by redrawing everything.
+        [That optim is NIM as of 070627 and A9.1. Its OpenGL code would make use of the
+         conf_corner_bg_image code in this class. Deciding when to do it vs full update
+         is the harder part.]
+        """
+        self.gl_update() # stub for now
+        return
     
     # default values for instance variables related to glSelectBuffer feature [bruce 050608]
     ## glselect = 0 # whether we're inside a glSelectBuffer call (not presently needed)
@@ -2795,14 +2809,18 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
             else:
                 drawer.drawaxes(self.scale, (0.0,0.0,0.0), coloraxes = True, dashEnabled = True)
 
-        self.grab_conf_corner_bg_image() #bruce 070626 (needs to be done before draw_overlay)
-
         from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
 
-        if debug_pref("Conf corner test: redraw at lower left", Choice_boolean_False, non_debug = True, prefs_key = True):
+        ccdp1 = debug_pref("Conf corner test: redraw at lower left", Choice_boolean_False, prefs_key = True)
+        ccdp2 = debug_pref("Conf corner test: redraw in-place", Choice_boolean_False, prefs_key = True) # default changed, same prefs_key
+
+        if ccdp1 or ccdp2:
+            self.grab_conf_corner_bg_image() #bruce 070626 (needs to be done before draw_overlay)
+
+        if ccdp1:
             self.draw_conf_corner_bg_image((0,0))
 
-        if debug_pref("Conf corner test: redraw in-place", Choice_boolean_True, non_debug = True, prefs_key = True): ### TEMPORARY
+        if ccdp2:
             self.draw_conf_corner_bg_image()
 
         self.drawing_phase = 'overlay'

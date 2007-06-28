@@ -471,11 +471,11 @@ class basicMode(anyMode):
             
     _ccinstance = None
     
-    def draw_overlay(self): #bruce 070405; ### TODO: make sure this gets called whenever the cctype might change
-        "called from GLPane with drawing coordsys XXX [part of GLPane's drawing interface to modes]"
-        from debug_prefs import debug_pref, Choice_boolean_False
-        if not debug_pref("enable confirmation_corner stub code?", Choice_boolean_False, prefs_key = True):
-            ###DISABLED by default for initial commit, so NE1 needn't import exprs module code by default until it needs to...
+    def draw_overlay(self): #bruce 070405, revised 070627
+        "called from GLPane with same drawing coordsys as for model [part of GLPane's drawing interface to modes]"
+        # conf corner is enabled by default for A9.1 (070627); requires exprs module and Python Imaging Library
+        from debug_prefs import debug_pref, Choice_boolean_True
+        if not debug_pref("Enable confirmation corner?", Choice_boolean_True, prefs_key = True):
             return 
         # figure out what kind of confirmation corner we want, and draw it
         import confirmation_corner

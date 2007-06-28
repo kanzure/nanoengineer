@@ -112,7 +112,7 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
             self.preload(imagename) # to avoid slowness when each image is first used in real life
         return
 
-    def preload(imagename):
+    def preload(self, imagename):
         self.expr_instance_for_imagename(imagename)
         return
 
@@ -175,7 +175,7 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
                 return False # can this ever happen? I don't know, but if it does, it should work.
         return False
     
-    def draw(self): ####UNTESTED
+    def draw(self):
         """MouseEventHandler_API method: draw self. Assume background is already correct
         (so our implem can be the same, whether the incremental drawing optim for the rest
         of the GLPane content is operative or not).
@@ -190,7 +190,10 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
         # using Image's shape option and Overlay, so its two buttons are independent
         # (as is done in some of the tests in exprs/test.py).
 
-        if self.button_codes == ['Cancel']:
+        if self.button_codes == []:
+            # the easy case
+            return
+        elif self.button_codes == ['Cancel']:
             if self.pressed_button == 'Cancel':
                 imagename = "BigCancel_pressed.png"
             else:
@@ -312,7 +315,7 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
         ### TODO: figure out if our appearance has changed, and do nothing if not (important optim)
         # (be careful about whether we're the last CC to be drawn, if there's more than one and they get switched around!
         #  we might need those events about enter/leave that the glpane doesn't yet send us; or some about changing the cc) ###
-        self.glpane.gl_update() # this should work, but NEEDS OPTIM to be incremental ### TODO
+        self.glpane.gl_update_confcorner() # note: as of 070627 this is the same as gl_update -- NEEDS OPTIM to be incremental
 
     # == internal action methods
 

@@ -19,7 +19,8 @@ from modelTree import modelTree
 from qt4transition import qt4warnDestruction, qt4todo
 import platform, env
 from PropMgrBaseClass import printSizePolicy, printSizeHints, getPalette
-	
+from debug import print_compact_traceback #bruce 070627 bugfix
+
 class PartWindow(QWidget):
     """A part window composed of the model tree/property manager (tabs)
     on the left (referred to as the "left channel") and the glpane
@@ -195,6 +196,8 @@ class PartWindow(QWidget):
 	
     def updatePropertyManagerTab(self, tab): #Ninad 061207
 	"Update the Properties Manager tab with 'tab' "
+
+	self.parent.glpane.gl_update_confcorner() #bruce 070627, since PM affects confcorner appearance
 	
 	if self.propertyManagerScrollArea.widget():
 	    #The following is necessary to get rid of those c object deleted errors (and the resulting bugs)
