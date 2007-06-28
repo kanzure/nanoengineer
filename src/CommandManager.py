@@ -143,16 +143,18 @@ class CommandManager(Ui_CommandManager):
 	menu = self.cmdButtonGroup.button(id).menu()
 	for a in menu.actions():
 	    if a.__class__.__name__ is QtGui.QWidgetAction.__name__:
-		btn = QToolButton()
-		btn.setToolButtonStyle(Qt.Qt.ToolButtonTextUnderIcon)	
-		btn.setMinimumWidth(75)
-		btn.setMaximumWidth(75)
-		btn.setMinimumHeight(62)	
-		    
-		btn.setDefaultAction(a)
-		a.setDefaultWidget(btn)
-		text = self.truncateText(a.text())	
-		a.defaultWidget().setText(text)
+		#@@To fix bug 2478 added this visibility condition. 
+		if a.isVisible():
+		    btn = QToolButton()
+		    btn.setToolButtonStyle(Qt.Qt.ToolButtonTextUnderIcon)	
+		    btn.setMinimumWidth(75)
+		    btn.setMaximumWidth(75)
+		    btn.setMinimumHeight(62)	
+			
+		    btn.setDefaultAction(a)
+		    a.setDefaultWidget(btn)
+		    text = self.truncateText(a.text())	
+		    a.defaultWidget().setText(text)
 		
 	self.flyoutToolBar.addActions(menu.actions())
 		    
