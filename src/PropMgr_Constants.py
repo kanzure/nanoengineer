@@ -15,21 +15,21 @@ __author__ = "Mark"
 # PropMgr constants (system specific).
 if sys.platform == "darwin":
     pmMinWidth = 300 # The min PropMgr width.
-    pmMaxWidth = pmMinWidth # The max PropMgr width.
+    pmMaxWidth = 450 # The max PropMgr width.
     pmDefaultWidth = pmMinWidth # Starting PropMgr width
     pmHeaderFont = "Arial" # Font type used in PropMgr header.
     pmHeaderFontPointSize = 20
     pmHeaderFontBold = True
 elif sys.platform == "win32":
     pmMinWidth = 240 # The min PropMgr width.
-    pmMaxWidth = pmMinWidth # The max PropMgr width.
+    pmMaxWidth = 400 # The max PropMgr width.
     pmDefaultWidth = pmMinWidth # Starting PropMgr width
     pmHeaderFont = "Arial" # Font type used in PropMgr header.
     pmHeaderFontPointSize = 12
     pmHeaderFontBold = True
 else: #Linux
     pmMinWidth = 250 # The min PropMgr width.
-    pmMaxWidth = pmMinWidth # The max PropMgr width.
+    pmMaxWidth = 400 # The max PropMgr width.
     pmDefaultWidth = pmMinWidth # Starting PropMgr width
     pmHeaderFont = "Arial" # Font type used in PropMgr header.
     pmHeaderFontPointSize = 12

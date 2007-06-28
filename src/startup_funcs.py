@@ -230,6 +230,42 @@ def post_main_show( win): # bruce 050902 added this
     #bruce 070613 code under development (maybe not yet committed)
     if debug_pref("test_commands enabled (next session)", Choice_boolean_False, prefs_key = True):
         import test_commands
+    
+    # The code below sets the position of the splitter bw the MT and graphics area
+    # so that the starting widith of the property manager is "pmDefaultWidth" pixels
+    # wide. This code fixes bug 2424.
+    #
+    # Bug 2424 was difficult to fix for many reasons:
+    #
+    # - QSplitter.sizes() does not return valid values until the main window
+    #   is displayed. Specifically, the value of the second index (the glpane
+    #   width) is always zero until the main window is displayed. I suspect 
+    #   that the initial size of the glpane (in its constructor) is not set
+    #   (or set to 0) and may be contributing to the confusion. This is only
+    #   a theory.
+    #
+    # - QSplitter.setSizes() only works if width1 (the PropMgr width) and
+    #   width2 (the glpane width) equal a "magic combined width". See 
+    #   more about this in the Method description below.
+    #
+    # - Qt's QSplitter.moveSplitter() function doesn't work.
+    #   
+    # Method for bug fix:
+    #
+    # I get the widths of the MT/PropMgr and glpane using wHSplitter.sizes().
+    # These (2) widths add up and equal a "magic value". You can only feed
+    # pwHSplitter.setSizes() two values that add up to the "magic value".
+    # Since we want the default width of the PropMgr to be <pmDefaultWidth>,
+    # I compute the new glpane width = magic_combined_width - pmDefaultWidth.
+    # Note: the resize is visible at startup.
+    #
+    # This fixes bug 2424. Mark 2007-06-27.
+    pw = win.activePartWindow()
+    from PropMgr_Constants import pmDefaultWidth
+    w1, w2 = pw.pwHSplitter.sizes()
+    magic_combined_width = w1 + w2
+    new_glpane_width = magic_combined_width - pmDefaultWidth
+    pw.pwHSplitter.setSizes([pmDefaultWidth, new_glpane_width])
 
 def _initialize_plugin_generators(): #bruce 060621
     # The CoNTub generator isn't working - commented out until it's fixed.
