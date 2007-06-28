@@ -46,7 +46,7 @@ class Ui_CommandManager:
 	self.ctrlAreaPalette = self.getCmdMgrCtrlAreaPalette()	
 	self.cmdManagerControlArea.setPalette(self.ctrlAreaPalette)
 		
-	self.cmdManagerControlArea.setMinimumHeight(55)
+	self.cmdManagerControlArea.setMinimumHeight(62)
 	self.cmdManagerControlArea.setMinimumWidth(310)
 	self.cmdManagerControlArea.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)	
     
@@ -56,8 +56,9 @@ class Ui_CommandManager:
 	for name in ('Build','Tools', 'Move','Simulation'):
 	    btn = QToolButton(self.cmdManagerControlArea)	    
 	    btn.setObjectName(name)
-	    btn.setFixedWidth(65)
-	    btn.setMinimumHeight(55)
+	    btn.setMinimumWidth(75)
+	    btn.setMaximumWidth(75)
+	    btn.setMinimumHeight(62)
 	    btn.setAutoRaise(True)
 	    btn.setCheckable(True)
 	    btn.setAutoExclusive(True)
@@ -139,8 +140,9 @@ class Ui_CommandManager:
 		    if action.__class__.__name__ is QtGui.QWidgetAction.__name__:
 			btn = QToolButton()
 			btn.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)	
-			btn.setFixedWidth(65)
-			btn.setMinimumHeight(55)					    
+			btn.setMinimumWidth(68)
+			btn.setMaximumWidth(68)
+			btn.setMinimumHeight(62)					    
 			#ninad 070125: make sure to a) define *default action* of button to 
 			#action and b) *default widget* of *action* to 'button' 
 			#(a) ensures button has got action's signals, icon,  text and other properties

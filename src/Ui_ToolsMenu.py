@@ -156,7 +156,7 @@ def retranslateUi(win):
     
     win.toolsFuseChunksAction.setText(QtGui.QApplication.translate(
         "MainWindow", 
-        "Fuse Chunks",
+        "Fuse",
         None, 
         QtGui.QApplication.UnicodeUTF8))
     

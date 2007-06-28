@@ -141,11 +141,20 @@ class CommandManager(Ui_CommandManager):
     def _setControlButtonMenu_in_flyoutToolbar(self, id):
 	self.flyoutToolBar.clear()
 	menu = self.cmdButtonGroup.button(id).menu()
-	self.flyoutToolBar.addActions(menu.actions())
 	for a in menu.actions():
 	    if a.__class__.__name__ is QtGui.QWidgetAction.__name__:
+		btn = QToolButton()
+		btn.setToolButtonStyle(Qt.Qt.ToolButtonTextUnderIcon)	
+		btn.setMinimumWidth(75)
+		btn.setMaximumWidth(75)
+		btn.setMinimumHeight(62)	
+		    
+		btn.setDefaultAction(a)
+		a.setDefaultWidget(btn)
 		text = self.truncateText(a.text())	
 		a.defaultWidget().setText(text)
+		
+	self.flyoutToolBar.addActions(menu.actions())
 		    
     def updateCommandManager(self, action, obj, entering=True): #Ninad 070125
         """ Update the command manager (i.e. show the appropriate toolbar) 
@@ -213,8 +222,9 @@ class CommandManager(Ui_CommandManager):
 	    if action.__class__.__name__ is QtGui.QWidgetAction.__name__:    
 		btn = QToolButton()
 		btn.setToolButtonStyle(Qt.Qt.ToolButtonTextUnderIcon)	
-		btn.setFixedWidth(68)
-		btn.setMinimumHeight(55)		
+		btn.setMinimumWidth(75)
+		btn.setMaximumWidth(75)
+		btn.setMinimumHeight(62)		
 	
 		#ninad 070125: make sure to a) define *default action* of button  
 		#to action and b) *default widget* of *action* to 'button' 
