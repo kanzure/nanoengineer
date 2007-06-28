@@ -63,6 +63,8 @@ import changes
 
 from basic import *
 
+import platform
+
 MemoDict # comes from py_utils via basic; very simple, safe for use in ExprsMeta [061024]
 
 class LvalError_ValueIsUnset(AttributeError): #061117 1030p not yet raised or caught in all places where it ought to be #####e

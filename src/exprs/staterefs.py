@@ -20,6 +20,7 @@ from basic import *
 from basic import _self
     #k [digr: is there a reload bug caused by things we get from basic import *, since we don't reload basic??]
 
+import platform
 # ==
 
 class LocalVariable_StateRef(InstanceOrExpr): # guess, 061130

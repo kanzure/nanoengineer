@@ -16,6 +16,8 @@ import lvals
 reload_once(lvals)
 from lvals import LvalDict2, LvalForState, LvalError_ValueIsUnset
 
+import platform
+
 # ==
 
 def StatePlace(kind, ipath_expr = _self.ipath, tracked = True): # revised 061117
