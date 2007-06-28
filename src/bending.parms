@@ -1737,4 +1737,9 @@ Si-Si-Si theta0=1.9982258299 Ktheta=0.436439156125 CenterHybridization=sp3
 C@C@C theta0=2.0943951 Ktheta=2.23792624 CenterHybridization=sp2
 C@C#C theta0=2.0943951 Ktheta=2.23792624 CenterHybridization=sp2
 C#C#C theta0=2.0943951 Ktheta=2.23792624 CenterHybridization=sp2
-
+H-C@C theta0=2.095267765 Ktheta=1.081569144 CenterHybridization=sp2
+H-C#C theta0=2.095267765 Ktheta=1.081569144 CenterHybridization=sp2
+H@C@C theta0=2.095267765 Ktheta=1.081569144 CenterHybridization=sp2
+H#C@C theta0=2.095267765 Ktheta=1.081569144 CenterHybridization=sp2
+H@C#C theta0=2.095267765 Ktheta=1.081569144 CenterHybridization=sp2
+H#C#C theta0=2.095267765 Ktheta=1.081569144 CenterHybridization=sp2
