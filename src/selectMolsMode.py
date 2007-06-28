@@ -95,9 +95,11 @@ class selectMolsMode(selectMode):
         '''Update the cursor for 'Select Chunks' mode (selectMolsMode).
         '''
         
-        #print "selectMolsMode.update_cursor_for_no_MB(): button=",self.o.button
+        # print "selectMolsMode.update_cursor_for_no_MB(): button=",self.o.button,"modkeys=",self.o.modkeys
         
         if self.o.modkeys is None:
+##            print "seeing modkeys is None",self.w.MolSelCursor #bruce 070628
+##            self.o.gl_update()  #bruce 070628, didn't help
             self.o.setCursor(self.w.MolSelCursor)
         elif self.o.modkeys == 'Shift':
             self.o.setCursor(self.w.MolSelAddCursor)

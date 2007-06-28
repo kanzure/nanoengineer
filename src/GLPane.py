@@ -918,13 +918,14 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
     
     # == "callback methods" from modeMixin:
 
+##    def setCursor(self, cursor):# bruce 070628 for debug only
+##        print_compact_stack( "glpane setcursor to %r: " % cursor )
+##        return QGLWidget.setCursor(self, cursor)
+    
     def update_after_new_mode(self):
         """do whatever updates are needed after self.mode might have changed
         (ok if this is called more than needed, except it might be slower)
         """
-        self.mouse_event_handler = None
-            #e maybe tell the old mouse_event_handler it's no longer active
-            # (i.e. give it a "leave event" if when == 'move') -- not needed for now [bruce 070405]
         if self.selatom is not None: #bruce 050612 precaution (scheme could probably be cleaned up #e)
             if platform.atom_debug:
                 print "atom_debug: update_after_new_mode storing None over self.selatom", self.selatom
@@ -933,6 +934,13 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
             if platform.atom_debug:
                 print "atom_debug: update_after_new_mode storing None over self.selobj", self.selobj
             self.set_selobj(None)
+
+        self.set_mouse_event_handler(None) #bruce 070628 part of fixing bug 2476 (leftover CC Done cursor)
+        self.mode.update_cursor() # do this always (since set_mouse_event_handler only does it if the handler changed) [bruce 070628]
+            # note: the above updates are a good idea, but they don't help with generators,
+            # thus the need for other parts of that bugfix, and given those, I don't know if this is needed,
+            # but it seems a good precaution even if not. [bruce 070628]
+            
         #bruce 050408: change widget's erase color (seen only if it's resized,
         # and only briefly -- unrelated to OpenGL clearColor) to current mode's
         # background color; this fixes the bug in which the glpane or its edges
@@ -1363,13 +1371,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
                 # Note: if two mouse buttons were pressed at the same time (I think -- bruce 070328), we leave self.button unchanged.
 
             if when == 'press' or (when == 'move' and not self.in_drag):
-                new_mouse_event_handler = self.mode.mouse_event_handler_for_event_position( wX, wY)
-                if new_mouse_event_handler is not self.mouse_event_handler:
-                    #e maybe tell the old one it's no longer active (i.e. give it a "leave event" if when == 'move')
-                    # and/or tell the new one it is (i.e. give it an "enter event" if when == 'move') -- not needed for now
-                    #e maybe do an incremental gl_update?
-                    self.mouse_event_handler = new_mouse_event_handler
-                    self.mode.update_cursor()
+                new_meh = self.mode.mouse_event_handler_for_event_position( wX, wY)
+                self.set_mouse_event_handler( new_meh) # includes update_cursor if handler is different
                 pass
 
         self.update_modkeys(mod)
@@ -1377,6 +1380,22 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
             # since retval is what came from fix_event
         return but, mod
 
+    def set_mouse_event_handler(self, mouse_event_handler): #bruce 070628 (related to fixing bug 2476 (leftover CC Done cursor))
+        """[semi-private]
+        Set self.mouse_event_handler (to a handler meeting the MouseEventHandler_API, or to None)
+        and do some related updates.
+        """
+        if self.mouse_event_handler is not mouse_event_handler:
+            self.mouse_event_handler = mouse_event_handler
+            self.mode.update_cursor()
+            #e more updates?
+            # - maybe tell the old mouse_event_handler it's no longer active
+            #   (i.e. give it a "leave event" if when == 'move')
+            #   and/or tell the new one it is (i.e. give it an "enter event" if when == 'move') --
+            #   not needed for now [bruce 070405]
+            # - maybe do an incremental gl_update, i.e. gl_update_confcorner?
+        return
+        
     def update_modkeys(self, mod):
         """Call this whenever you have some modifier key flags from an event (as returned from fix_event,
         or found directly on the event as stateAfter in events not passed to fix_event).

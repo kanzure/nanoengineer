@@ -1594,11 +1594,18 @@ class basicMode(anyMode):
         return
         
     def update_cursor(self): # mark 060227
-        '''Update the cursor based on the current mouse button and mod keys pressed.
-        '''
-        #print "basicMode.update_cursor(): button=",self.o.button,", modkey=",self.o.modkeys
+        """Update the cursor based on the current mouse button and mod keys pressed.
+        """
+        # print "basicMode.update_cursor(): button = %s, modkeys = %s, mode = %r, handler = %r" % \
+        #     ( self.o.button, self.o.modkeys, self, self.o.mouse_event_handler )
         
         handler = self.o.mouse_event_handler # [bruce 070405]
+            # Note: use of this attr here is a sign that this method really belongs in class GLPane,
+            # and the glpane should decide whether to pass this update call to that attr's value or to the mode.
+            # Or, better, maybe the mouse_event_handler should be temporarily on top of the command stack,
+            # overriding the mode below it for some purposes.
+            # [bruce 070628 comment]
+        
         if handler is not None:
             wX, wY = self.o._last_event_wXwY #bruce 070626
             handler.update_cursor(self, (wX, wY))

@@ -299,16 +299,22 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
             # Note: this might not be needed if no action happens -- depends on nature of highlighting;
             # note that you can press one button and release over the other, and then the other might need to highlight
             # if it has mouseover highlighting (tho in current design, it doesn't).
-        self.do_update_cursor()
+        self.do_update_cursor() # probably not needed (but should be ok as a precaution)
         return
 
     # == internal update methods
     
-    def do_update_cursor(self):
-        "internal helper for calling our external API method update_cursor with the right arguments"
-        wpos = self.glpane._last_event_wXwY
-        mode = self.glpane.mode # kluge, not sure if always correct
-        self.update_cursor( mode, wpos)
+    def do_update_cursor(self): ### TODO: REVISE DOCSTRING; it's unclear after recent changes [bruce 070628]
+        """internal helper for calling our external API method update_cursor with the right arguments --
+        but only if we're still responsible for the cursor according to the GLPane --
+        otherwise, call the one that is!
+        """
+        self.glpane.mode.update_cursor()
+            #bruce 070628 revised this as part of fixing bug 2476 (leftover CC Done cursor).
+            # Before, it called our own update_cursor, effectively assuming we're still active,
+            # wrong after a release and button action. Now, this is redundant in that case, but
+            # should be harmless; it might still be needed in the move case (though probably self
+            # is always active then).
         return
     
     def update_drawing(self):
@@ -356,6 +362,10 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
             except:
                 print_compact_traceback("bug: exception (ignored) when using %r button == %r: " % (buttoncode, button,) )
                 pass
+            # we did the action; now (at least for Done or Cancel), we should inactivate self as mouse_event_handler
+            # and then do update_cursor, which the following does (part of fixing bug 2476 (leftover CC Done cursor))
+            # [bruce 070628]
+            self.glpane.set_mouse_event_handler(None)
             pass
         return
     
