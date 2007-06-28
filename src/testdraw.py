@@ -77,6 +77,7 @@ __author__ = "bruce"
 from testmode import *
 from debug import print_compact_traceback
 import env
+import platform
 
 ### a lot of the following constants are probably obs here, redundant with ones now defined in exprs module [070408 comment]
 
@@ -138,7 +139,8 @@ except:
 
 # ==
 
-print "\n%d reloads" % vv.reload_counter
+if platform.atom_debug:
+    print "\ntestdraw: %d reloads" % vv.reload_counter
 
 def end_of_Enter(glpane):
     # called by testmode.Enter after it does everything else including super Enter; was never called before 070103

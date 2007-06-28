@@ -130,6 +130,10 @@ def reload_once(module):
     in the exprs package can always "import basic;reload(basic)" first, and if they do, all modules within
     exprs can just start with "from basic import *". But for clarity, some of them call reload_once on basic too.
     """
+    import __main__
+    if __main__._end_user: #070627 precaution; should improve by making this only affect default value of a debug_pref ###TODO
+        return
+    
     if not ENABLE_RELOAD:
         def printfyi(msg): # WARNING: dup code, inlining py_utils version since not yet imported
             msg = "fyi (printonce): " + msg
@@ -137,7 +141,7 @@ def reload_once(module):
             if not seen_before(msg):
                 print msg
         if 1:
-            printfyi( "fyi: exprs modules won't be reloaded during this session" )
+            ## printfyi( "exprs modules won't be reloaded during this session" ) # 070627 removed this
             return
     from testdraw import vv
     reload_once_per_event(module, always_print = True, never_again = False, counter = vv.reload_counter, check_modtime = True)

@@ -19,6 +19,7 @@ reload_once(draw_utils)
 from draw_utils import *
 
 from OpenGL.GLU import *
+import platform
 
 class Rect(Widget2D): # finally working as of 061106
     """Rect(width, height, color) renders as a filled x/y-aligned rectangle
@@ -43,7 +44,8 @@ class Rect(Widget2D): # finally working as of 061106
         printnim("make sure it complains about bright and width here")
         btop = height
     else:
-        printfyi("not yet trying to trigger the error warning for 'bright = width'") # (since it's nim, even as of 061114 i think)
+        if platform.atom_debug:
+            printfyi("not yet trying to trigger the error warning for 'bright = width'") # (since it's nim, even as of 061114 i think)
         bright = _self.width
         btop = _self.height
     # bbottom and bleft are not needed (same as the defaults in Widget2D), except that we use them in the formula for center;
