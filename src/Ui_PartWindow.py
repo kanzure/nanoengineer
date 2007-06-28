@@ -10,7 +10,8 @@ History:
   Mark 2007-06-27
 """
 
-from PyQt4.Qt import *
+from PyQt4.Qt import Qt, QWidget, QHBoxLayout, QVBoxLayout, QSplitter, \
+     QTabWidget, QScrollArea, QSizePolicy
 from GLPane import GLPane
 from PropMgr_Constants import pmDefaultWidth, pmMaxWidth, pmMinWidth
 from Utility import geticon
@@ -18,26 +19,12 @@ from modelTree import modelTree
 from qt4transition import qt4warnDestruction, qt4todo
 import platform, env
 from PropMgrBaseClass import printSizePolicy, printSizeHints, getPalette
-
-def setWidgetWidthAndSizePolicy(widget, name):
-    """Used to set the width and sizePolicy of left channel widgets.
-    I'm using this to help resolve bug 2424:
-    "Allow resizing of splitter between Property Manager and Graphics window."
-    -- Mark
-    """
-    widget.setSizePolicy(
-	QSizePolicy(QSizePolicy.Policy(QSizePolicy.Minimum),
-		    QSizePolicy.Policy(QSizePolicy.Expanding)))
-			    
-    widget.resize(pmDefaultWidth, widget.sizeHint().height())
-    
-    widget.setObjectName(name)
 	
 class PartWindow(QWidget):
     """A part window composed of the model tree/property manager (tabs)
     on the left (referred to as the "left channel") and the glpane
     (with a history widget below) on the right. A resizable splitter 
-    separates the left channel and the graphics area.
+    separates the left channel and the 3D graphics area.
     """
     widgets = [] # For debugging purposes.
     
@@ -45,10 +32,9 @@ class PartWindow(QWidget):
         QWidget.__init__(self, parent)
         self.parent = parent
         self.setWindowTitle("My Part Window")
-	self.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
 	
 	# The main layout for the part window is an HBoxLayout <pwHBoxLayout>.
-        pwHBoxLayout = QHBoxLayout(self)
+	pwHBoxLayout = QHBoxLayout(self)
 	pwHBoxLayout.setMargin(3) # Makes a difference; I like 3. -- Mark
         pwHBoxLayout.setSpacing(0)
 	
@@ -59,7 +45,7 @@ class PartWindow(QWidget):
 	# - <pwVSplitter> (QSplitter)
 	
         self.pwHSplitter = pwHSplitter = QSplitter(Qt.Horizontal)
-        pwHSplitter.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
+	pwHSplitter.setObjectName("main splitter")
 	pwHSplitter.setHandleWidth(3) # The splitter handle is 3 pixels wide.
         pwHBoxLayout.addWidget(pwHSplitter)
 	
@@ -72,8 +58,12 @@ class PartWindow(QWidget):
 	#       - <propertyManagerTab> (QWidget)
 	
         leftChannelWidget = QWidget(parent)
-        leftChannelWidget.setMinimumWidth(pmMinWidth) # Mark 2007-05-24
+	leftChannelWidget.setObjectName("leftChannelWidget")
+        leftChannelWidget.setMinimumWidth(pmMinWidth)
 	leftChannelWidget.setMaximumWidth(pmMaxWidth)
+	leftChannelWidget.setSizePolicy(
+	    QSizePolicy(QSizePolicy.Policy(QSizePolicy.Fixed),
+			QSizePolicy.Policy(QSizePolicy.Expanding)))
         
         # This layout will contain only the featureManager (done below).
         leftChannelVBoxLayout = QVBoxLayout(leftChannelWidget)
@@ -89,12 +79,14 @@ class PartWindow(QWidget):
 	# I'll rename this later since this isn't a good name. It is also
 	# used in other files. --Mark
         self.featureManager = QTabWidget()
+	self.featureManager.setObjectName("featureManager")
         self.featureManager.setCurrentIndex(0)
 	self.featureManager.setAutoFillBackground(True)
 	
 	# Create the model tree "tab" widget. It will contain the MT GUI widget.
 	# Set the tab icon, too.
         self.modelTreeTab = QWidget()
+	self.modelTreeTab.setObjectName("modelTreeTab")
         self.featureManager.addTab(self.modelTreeTab,
 				   geticon("ui/modeltree/Model_Tree"), "") 
 	
@@ -104,14 +96,17 @@ class PartWindow(QWidget):
 	
 	# Create the model tree (GUI) and add it to the tab layout.
         self.modelTree = modelTree(self.modelTreeTab, parent)
+	self.modelTree.modelTreeGui.setObjectName("modelTreeGui")
         modelTreeTabLayout.addWidget(self.modelTree.modelTreeGui)
 	
 	# Create the property manager "tab" widget. It will contain the PropMgr
 	# scroll area, which will contain the property manager and all its 
 	# widgets.
         self.propertyManagerTab = QWidget()
+	self.propertyManagerTab.setObjectName("propertyManagerTab")
 	
 	self.propertyManagerScrollArea = QScrollArea(self.featureManager)
+	self.propertyManagerScrollArea.setObjectName("propertyManagerScrollArea")
 	self.propertyManagerScrollArea.setWidget(self.propertyManagerTab)
 	self.propertyManagerScrollArea.setWidgetResizable(True) 
 	# Eureka! 
@@ -133,13 +128,14 @@ class PartWindow(QWidget):
 	# - <glpane> (GLPane)
 	# - <history_object> (HistoryWIdget)
 	
-	pwVSplitter = QSplitter(Qt.Vertical, pwHSplitter)
+	self.pwVSplitter = pwVSplitter = QSplitter(Qt.Vertical, pwHSplitter)
+	pwVSplitter.setObjectName("pwVSplitter")
 	
 	# Create the glpane and make it a child of the (vertical) splitter.
         self.glpane = GLPane(assy, self, 'glpane name', parent)
 	qt4warnDestruction(self.glpane, 'GLPane of PartWindow')
         pwVSplitter.addWidget(self.glpane)
-		
+			
 	from HistoryWidget import HistoryWidget
 	
         histfile = platform.make_history_filename() #@@@ ninad 061213 This is likely a new bug for multipane concept 
@@ -165,17 +161,15 @@ class PartWindow(QWidget):
 	
 	pwHSplitter.addWidget(pwVSplitter)
 	
-	pwHSplitter.moveSplitter(pmDefaultWidth, 0)
-	
 	if 0: #@ Debugging code related to bug 2424. Mark 2007-06-27.
-	    setWidgetWidthAndSizePolicy(self.featureManager, "featureManager")
+	    self.widgets.append(self.pwHSplitter)
+	    self.widgets.append(leftChannelWidget)
 	    self.widgets.append(self.featureManager)
-	    
-	    setWidgetWidthAndSizePolicy(self.modelTreeTab, "modelTreeTab")
 	    self.widgets.append(self.modelTreeTab)
-	    
-	    setWidgetWidthAndSizePolicy(self.propertyManagerTab, "propertyManagerTab")
+	    self.widgets.append(self.modelTree.modelTreeGui)
+	    self.widgets.append(self.propertyManagerScrollArea)
 	    self.widgets.append(self.propertyManagerTab)
+	    self.widgets.append(self.pwVSplitter)
 	    
 	    print "PartWindow.__init__() ============================================"
 	    self.printSizeInfo()
@@ -183,7 +177,18 @@ class PartWindow(QWidget):
 	    # The following call to the QSplitter.sizes() function returns zero for 
 	    # the width of the glpane. I consider this "our bug". It should be looked
 	    # into at later time. Mark 2007-06-27.
-	    print "HSPLITTER SIZES: ", pwHSplitter.sizes()
+	    print "MAIN HSPLITTER SIZES: ", pwHSplitter.sizes()
+	    
+    def printSizeInfo(self):
+	"""Used to print the sizeHints and sizePolicy of left channel widgets.
+	I'm using this to help resolve bug 2424:
+	"Allow resizing of splitter between Property Manager and Graphics window."
+	-- Mark
+	"""
+	for widget in self.widgets:
+	    printSizePolicy(widget)
+	    #printSizeHints(widget)
+	    #print "\n"
 
     def setRowCol(self, row, col):
         self.row, self.col = row, col
@@ -242,17 +247,6 @@ class PartWindow(QWidget):
     def dismiss(self):
         self.parent.removePartWindow(self)
 	
-    def printSizeInfo(self):
-	"""Used to print the sizeHints and sizePolicy of left channel widgets.
-	I'm using this to help resolve bug 2424:
-	"Allow resizing of splitter between Property Manager and Graphics window."
-	-- Mark
-	"""
-	for widget in self.widgets:
-	    print "\n"
-	    printSizePolicy(widget)
-	    printSizeHints(widget)
-
 class GridPosition:
     def __init__(self):
         self.row, self.col = 0, 0
