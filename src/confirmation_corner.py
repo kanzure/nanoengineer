@@ -23,17 +23,14 @@ to return the kind of confirmation corner they want at a given moment.
 
 __author__ = "bruce"
 
-## from exprs.basic import *
+import os
 
-# some of these exprs imports may be not needed:
-
-from exprs.Highlightable import Highlightable
+from exprs.basic import PIXELS
 from exprs.images import Image
-from exprs.Overlay import Overlay
 from exprs.instance_helpers import get_glpane_InstanceHolder
 
-from exprs.Rect import Rect #k only for testing
-from constants import green #k only for testing
+from exprs.Rect import Rect # needed for Image size option, not just for testing
+from constants import green # only for testing
 
 from exprs.projection import DrawInCorner_projection, DrawInCorner
 from prefs_constants import UPPER_RIGHT
@@ -45,7 +42,9 @@ from debug import print_compact_traceback, print_compact_stack
 # and are used as components of cctypes like 'Done+Cancel')
 BUTTON_CODES = ('Done', 'Cancel')
 
-class MouseEventHandler_API: #e refile #e put implems in subclass #e some methods may need mode and/or glpane arg...
+# ==
+
+class MouseEventHandler_API: #e refile #e some methods may need mode and/or glpane arg...
     """API (and default method implems) for the MouseEventHandler interface
     (for objects used as glpane.mouse_event_handler) [abstract class]
     """
@@ -77,22 +76,53 @@ class MouseEventHandler_API: #e refile #e put implems in subclass #e some method
         ""
     pass
 
-def expr_for_imagename(imagename):
-    ###stub, ignores imagename for now
-    return DrawInCorner(corner = UPPER_RIGHT)( Rect(1, 1.5, green) )
+# ==
+
+trans_image = Image(convert = 'RGBA', decal = False, blend = True,
+                    # don't need (I think): alpha_test = False, shape = 'upper-right-half' 
+                    clamp = True, # this removes the artifacts that show the edges of the whole square of the image file
+                    ideal_width = 100, ideal_height = 100, size = Rect(100*PIXELS))
+
+def expr_for_imagename(imagename): ### WARNING: this is not optimized -- it recomputes and discards this expr on every access!
+    if '/' not in imagename:
+        imagename = os.path.join( "ui/confcorner", imagename)
+    image_expr = trans_image( imagename )
+    return DrawInCorner(corner = UPPER_RIGHT)( image_expr )
+
+IMAGENAMES = """BigCancel.png
+BigCancel_pressed.png
+BigOK.png
+BigOK_pressed.png
+Cancel_pressed.png
+OK_Cancel.png
+OK_pressed.png""".split()
 
 class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can be returned from find_or_make
     "###doc"
     
     # initial values of state variables, etc
     last_button_position = False # False or an element of BUTTON_CODES
-    pressed_button = False # False or an element of BUTTON_CODES; only valid when self.glpane.in_drag (nonsense otherwise)
+    pressed_button = False # False or an element of BUTTON_CODES; valid regardless of self.glpane.in_drag
 
     cctype = -1 # intentionally illegal value, different from any real value
     
     def __init__(self, glpane):
         self.glpane = glpane
-    
+        for imagename in IMAGENAMES:
+            self.preload(imagename) # to avoid slowness when each image is first used in real life
+        return
+
+    def preload(imagename):
+        self.expr_instance_for_imagename(imagename)
+        return
+
+    def expr_instance_for_imagename(self, imagename):
+        ih = get_glpane_InstanceHolder(self.glpane)
+        index = imagename # might have to be more unique if we start sharing this InstanceHolder with anything else
+        expr = expr_for_imagename(imagename)
+        expr_instance = ih.Instance( expr, index, skip_expr_compare = True)
+        return expr_instance
+
     def _advise_find_args(self, cctype, mode):
         """private; can be called as often as every time this is drawn;
         cctype can be None or one of a few string constants
@@ -112,7 +142,7 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
                 self.button_codes = []
         return
 
-    # == event position (internal and _API methods), and other methods ###DESCRIBE
+    # == event position (internal and _API methods), and other methods ###DESCRIBE better
     
     def want_event_position(self, wX, wY):
         """MouseEventHandler_API method:
@@ -145,22 +175,46 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
                 return False # can this ever happen? I don't know, but if it does, it should work.
         return False
     
-    def draw(self): ####STUB
+    def draw(self): ####UNTESTED
         """MouseEventHandler_API method: draw self. Assume background is already correct
         (so our implem can be the same, whether the incremental drawing optim for the rest
         of the GLPane content is operative or not).
         """
-        # print "draw CC for cctype %r and state %r, %r" % (self.cctype, self.pressed_button, self.last_button_position) #### ok?
+        # print "draw CC for cctype %r and state %r, %r" % (self.cctype, self.pressed_button, self.last_button_position)
 
-        ih = get_glpane_InstanceHolder(self.glpane)
+        # figure out what image expr to draw
 
-        index = 'stub' ### stub
+        # NOTE: this is currently not nearly as general as the rest of our logic,
+        # regarding what values of self.button_codes are supported.
+        # If we need it to be more general, we can split the expr into two triangular pieces,
+        # using Image's shape option and Overlay, so its two buttons are independent
+        # (as is done in some of the tests in exprs/test.py).
 
-        expr = expr_for_imagename('stub')
-        
-        image = ih.Instance( expr, index, skip_expr_compare = True)
+        if self.button_codes == ['Cancel']:
+            if self.pressed_button == 'Cancel':
+                imagename = "BigCancel_pressed.png"
+            else:
+                imagename = "BigCancel.png"
+        elif self.button_codes == ['Done']:
+            if self.pressed_button == 'Done':
+                imagename = "BigOK_pressed.png"
+            else:
+                imagename = "BigOK.png"
+        elif self.button_codes == ['Done', 'Cancel']:
+            if self.pressed_button == 'Done':
+                imagename = "OK_pressed.png"
+            elif self.pressed_button == 'Cancel':
+                imagename = "Cancel_pressed.png"
+            else:
+                imagename = "OK_Cancel.png"
+        else:
+            assert 0, "unsupported list of buttoncodes: %r" % (self.button_codes,)
 
-        image.draw() ###k where? what coordsys? i bet this draws at origin... of model space!!
+        expr_instance = self.expr_instance_for_imagename(imagename)
+
+            ### REVIEW: worry about value of PIXELS vs perspective? worry about depth writes?
+    
+        expr_instance.draw() # Note: this draws expr_instance in the same coordsys used for drawing the model.
         
         return
     
