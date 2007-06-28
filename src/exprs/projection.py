@@ -14,6 +14,12 @@ from OpenGL.GL import *
 from OpenGL.GLU import gluPickMatrix, gluUnProject
 import platform
 
+try:
+    from OpenGL.GL import glScale
+except:
+    # The installed version of OpenGL requires argument-typed glScale calls.
+    glScale = glScalef
+
 class DrawInCorner_projection(DelegatingInstanceOrExpr):
     """DEPRECATED for general use -- use DrawInCorner instead.
     This is a variant of DrawInCorner which works by changing the projection matrix,
