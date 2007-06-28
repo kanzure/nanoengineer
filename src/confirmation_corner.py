@@ -24,9 +24,19 @@ to return the kind of confirmation corner they want at a given moment.
 __author__ = "bruce"
 
 ## from exprs.basic import *
+
+# some of these exprs imports may be not needed:
+
 from exprs.Highlightable import Highlightable
 from exprs.images import Image
 from exprs.Overlay import Overlay
+from exprs.instance_helpers import get_glpane_InstanceHolder
+
+from exprs.Rect import Rect #k only for testing
+from constants import green #k only for testing
+
+from exprs.projection import DrawInCorner_projection, DrawInCorner
+from prefs_constants import UPPER_RIGHT
 
 from debug import print_compact_traceback, print_compact_stack
 
@@ -66,6 +76,10 @@ class MouseEventHandler_API: #e refile #e put implems in subclass #e some method
     def draw(self):
         ""
     pass
+
+def expr_for_imagename(imagename):
+    ###stub, ignores imagename for now
+    return DrawInCorner(corner = UPPER_RIGHT)( Rect(1, 1.5, green) )
 
 class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can be returned from find_or_make
     "###doc"
@@ -136,7 +150,18 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
         (so our implem can be the same, whether the incremental drawing optim for the rest
         of the GLPane content is operative or not).
         """
-        print "draw CC for cctype %r and state %r, %r" % (self.cctype, self.pressed_button, self.last_button_position) #### ok?
+        # print "draw CC for cctype %r and state %r, %r" % (self.cctype, self.pressed_button, self.last_button_position) #### ok?
+
+        ih = get_glpane_InstanceHolder(self.glpane)
+
+        index = 'stub' ### stub
+
+        expr = expr_for_imagename('stub')
+        
+        image = ih.Instance( expr, index, skip_expr_compare = True)
+
+        image.draw() ###k where? what coordsys? i bet this draws at origin... of model space!!
+        
         return
     
     def update_cursor(self, mode, wpos):
@@ -182,7 +207,7 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
     # == mouse event handling (part of the _API)
     
     def mousePressEvent(self, event):
-        print "meh press"####
+        # print "meh press"
         wX, wY = wpos = self.glpane._last_event_wXwY
         bc = self.button_region_for_event_position(wX, wY)
         self.last_button_position = bc # this is for knowing when our appearance might change
@@ -203,7 +228,7 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
         return
 
     def mouseReleaseEvent(self, event):
-        print "meh rel" #####@@@
+        # print "meh rel"
         wX, wY = self.glpane._last_event_wXwY
         bc = self.button_region_for_event_position(wX, wY)
         if self.last_button_position != bc:
@@ -211,7 +236,7 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
         self.last_button_position = bc
         if self.pressed_button and self.pressed_button == bc:
             #e in future: if action might take time, maybe change drawing appearance to indicate we're "doing it"
-            self.do_action(bc)###IMPLEM
+            self.do_action(bc)
         self.pressed_button = False
         self.update_drawing() # might be redundant with do_action (which may need to update even more, I don't know for sure)
             # Note: this might not be needed if no action happens -- depends on nature of highlighting;
@@ -240,7 +265,8 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
     def do_action(self, buttoncode):
         "do the action corresponding to buttoncode (protected from exceptions)"
         #e in future: statusbar message?
-        print "do_action", buttoncode #####
+
+        # print "do_action", buttoncode
 
         ###REVIEW: maybe all the following should be a mode method?
         # Note: it will all get revised and cleaned up once we have a command stack
@@ -256,7 +282,7 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
             print "bug (ignored): %r trying to do action for nonexistent %r button" % (self, buttoncode) #e more info?
         else:
             try:
-                print "\nabout to click %r button == %r" % (buttoncode, button) ###
+                # print "\nabout to click %r button == %r" % (buttoncode, button)
                 button.click()
                     # This should make the button emit the clicked signal -- not sure if it will also emit
                     # the pressed and released signals. The Qt doc (for QAbstractButton.click) just says
@@ -268,7 +294,8 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
                 # as it would need to do if the user pressed the button directly,
                 # so no updates are needed here. That's good, because only the event handler
                 # knows if some are not needed (as an optimization).
-                print "did the click" ###
+                
+                # print "did the click"
             except:
                 print_compact_traceback("bug: exception (ignored) when using %r button == %r: " % (buttoncode, button,) )
                 pass

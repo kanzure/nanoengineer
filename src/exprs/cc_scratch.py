@@ -64,7 +64,7 @@ class cc_memoizer(InstanceOrExpr):
 
 def kluge_get_glpane_cc_memoizer(glpane): #070414 ###@@@ CALL ME
     "Find or make a central place to store cached CC Instances."
-    place = kluge_get_glpane_InstanceHolder(glpane)
+    place = get_glpane_InstanceHolder(glpane)
     return place.Instance(cc_memoizer(), 'kluge_get_glpane_cc_memoizer', skip_expr_compare = True)
 
 

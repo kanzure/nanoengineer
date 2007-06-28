@@ -19,7 +19,7 @@ from lvals import LvalDict1 # only needed by obs code
 
 import widget_env
 reload_once(widget_env)
-from widget_env import thisname_of_class #e refile import?? or make it an env method??
+from widget_env import thisname_of_class, widget_env #e refile import?? or make it an env method??
 
 kluge070119 = True # this is permanent for now, but don't clean up the associated code yet, since it'll soon be replaced
     # by a better centralized instantiator. [070120]
@@ -1085,7 +1085,7 @@ class InstanceHolder: #070414
         return self._thing.Instance(expr, index, **kws)
     pass
 
-def kluge_get_glpane_InstanceHolder(glpane): #070414
+def get_glpane_InstanceHolder(glpane): #070414
     "Find or make a central place to store cached expr Instances associated with a given glpane."
     try:
         place = glpane._exprs__InstanceHolder
