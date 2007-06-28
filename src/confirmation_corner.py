@@ -79,7 +79,10 @@ class MouseEventHandler_API: #e refile #e some methods may need mode and/or glpa
 # ==
 
 trans_image = Image(convert = 'RGBA', decal = False, blend = True,
-                    # don't need (I think): alpha_test = False, shape = 'upper-right-half' 
+                    # don't need (I think): alpha_test = False
+                    shape = 'upper-right-half', #bruce 070628 maybe this will fix bug 2474 (which I can't see on Mac);
+                        # note that it has a visible effect on Mac (makes the intended darker edge of the buttons less thick),
+                        # but this seems ok.
                     clamp = True, # this removes the artifacts that show the edges of the whole square of the image file
                     ideal_width = 100, ideal_height = 100, size = Rect(100*PIXELS))
 

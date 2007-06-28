@@ -446,6 +446,10 @@ class Image(Widget2D):
                     shape = ((0,0), (1,1), (0,1))
                 elif shape == 'lower-right-half':
                     shape = ((0,0), (1,0), (1,1))
+                elif shape == 'upper-right-half': #070628
+                    shape = ((0,1), (1,0), (1,1))
+                elif shape == 'lower-left-half': #070628; untested
+                    shape = ((0,0), (1,0), (0,1))
                 else:
                     assert 0, "in %r, don't know this shape name: %r" % (self, shape)
             # otherwise assume it might be the right form to pass directly
