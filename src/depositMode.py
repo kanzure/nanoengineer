@@ -19,7 +19,7 @@ import platform
 from debug import print_compact_traceback
 from qt4transition import qt4todo
 from elements import PeriodicTable
-from Utility import imagename_to_pixmap
+from Utility import imagename_to_pixmap, geticon
 from HistoryWidget import orangemsg, redmsg, greenmsg, quote_html
 from qt4transition import *
 
@@ -121,7 +121,7 @@ def do_what_MainWindowUI_should_do(w):
     w.depositAtomDashboard.pasteBtn = QToolButton()
     bg1.addButton(w.depositAtomDashboard.pasteBtn)
     w.depositAtomDashboard.addWidget(w.depositAtomDashboard.pasteBtn)
-    w.depositAtomDashboard.pasteBtn.setIcon(QIcon(imagename_to_pixmap('dashboard/paste1.png')))
+    w.depositAtomDashboard.pasteBtn.setIcon(geticon('ui/modeltree/paste1.png'))
     w.depositAtomDashboard.pasteBtn.setCheckable(1)
     w.depositAtomDashboard.pasteBtn.setAutoRaise(1)
     w.depositAtomDashboard.pasteBtn.setToolTip(qApp.translate("MainWindow","Paste", None))
@@ -129,7 +129,7 @@ def do_what_MainWindowUI_should_do(w):
     w.depositAtomDashboard.depositBtn = QToolButton()
     bg1.addButton(w.depositAtomDashboard.depositBtn)
     w.depositAtomDashboard.addWidget(w.depositAtomDashboard.depositBtn)
-    w.depositAtomDashboard.depositBtn.setIcon(QIcon(imagename_to_pixmap('dashboard/deposit.png')))
+    w.depositAtomDashboard.depositBtn.setIcon(geticon('ui/actions/Toolbars/Smart/Deposit_Atoms.png'))
     w.depositAtomDashboard.depositBtn.setCheckable(1)
     w.depositAtomDashboard.depositBtn.setAutoRaise(1)
     w.depositAtomDashboard.depositBtn.setToolTip(qApp.translate("MainWindow","Deposit", None))
@@ -160,7 +160,7 @@ def do_what_MainWindowUI_should_do(w):
     w.depositAtomDashboard.buildBtn = QToolButton()
     bg2.addButton(w.depositAtomDashboard.buildBtn)
     w.depositAtomDashboard.addWidget(w.depositAtomDashboard.buildBtn)
-    w.depositAtomDashboard.buildBtn.setIcon(QIcon(imagename_to_pixmap('dashboard/buildmode.png')))
+    w.depositAtomDashboard.buildBtn.setIcon(geticon('ui/actions/Toolbars/Smart/Build.png'))
     w.depositAtomDashboard.buildBtn.setCheckable(1)
     w.depositAtomDashboard.buildBtn.setAutoRaise(1)
     w.depositAtomDashboard.buildBtn.setToolTip(qApp.translate("MainWindow","Atom Tool", None))
@@ -170,7 +170,7 @@ def do_what_MainWindowUI_should_do(w):
     w.depositAtomDashboard.bond1Btn = QToolButton()
     bg2.addButton(w.depositAtomDashboard.bond1Btn)
     w.depositAtomDashboard.addWidget(w.depositAtomDashboard.bond1Btn)
-    w.depositAtomDashboard.bond1Btn.setIcon(QIcon(imagename_to_pixmap('dashboard/bond1.png')))
+    w.depositAtomDashboard.bond1Btn.setIcon(geticon('ui/actions/Toolbars/Smart/bond1.png'))
     w.depositAtomDashboard.bond1Btn.setCheckable(1)
     w.depositAtomDashboard.bond1Btn.setAutoRaise(1)
     w.depositAtomDashboard.bond1Btn.setToolTip(qApp.translate("MainWindow","Single Bond Tool", None))
@@ -178,7 +178,7 @@ def do_what_MainWindowUI_should_do(w):
     w.depositAtomDashboard.bond2Btn = QToolButton()
     bg2.addButton(w.depositAtomDashboard.bond2Btn)
     w.depositAtomDashboard.addWidget(w.depositAtomDashboard.bond2Btn)
-    w.depositAtomDashboard.bond2Btn.setIcon(QIcon(imagename_to_pixmap('dashboard/bond2.png')))
+    w.depositAtomDashboard.bond2Btn.setIcon(geticon('ui/actions/Toolbars/Smart/bond2.png'))
     w.depositAtomDashboard.bond2Btn.setCheckable(1)
     w.depositAtomDashboard.bond2Btn.setAutoRaise(1)
     w.depositAtomDashboard.bond2Btn.setToolTip(qApp.translate("MainWindow","Double Bond Tool", None))
@@ -186,7 +186,7 @@ def do_what_MainWindowUI_should_do(w):
     w.depositAtomDashboard.bond3Btn = QToolButton()
     bg2.addButton(w.depositAtomDashboard.bond3Btn)
     w.depositAtomDashboard.addWidget(w.depositAtomDashboard.bond3Btn)
-    w.depositAtomDashboard.bond3Btn.setIcon(QIcon(imagename_to_pixmap('dashboard/bond3.png')))
+    w.depositAtomDashboard.bond3Btn.setIcon(geticon('ui/actions/Toolbars/Smart/bond3.png'))
     w.depositAtomDashboard.bond3Btn.setCheckable(1)
     w.depositAtomDashboard.bond3Btn.setAutoRaise(1)
     w.depositAtomDashboard.bond3Btn.setToolTip(qApp.translate("MainWindow","Triple Bond Tool", None))
@@ -194,7 +194,7 @@ def do_what_MainWindowUI_should_do(w):
     w.depositAtomDashboard.bondaBtn = QToolButton()
     bg2.addButton(w.depositAtomDashboard.bondaBtn)
     w.depositAtomDashboard.addWidget(w.depositAtomDashboard.bondaBtn)
-    w.depositAtomDashboard.bondaBtn.setIcon(QIcon(imagename_to_pixmap('dashboard/bonda.png')))
+    w.depositAtomDashboard.bondaBtn.setIcon(geticon('ui/actions/Toolbars/Smart/bonda.png'))
     w.depositAtomDashboard.bondaBtn.setCheckable(1)
     w.depositAtomDashboard.bondaBtn.setAutoRaise(1)
     w.depositAtomDashboard.bondaBtn.setToolTip(qApp.translate("MainWindow","Aromatic Bond Tool", None))
@@ -202,7 +202,7 @@ def do_what_MainWindowUI_should_do(w):
     w.depositAtomDashboard.bondgBtn = QToolButton()
     bg2.addButton(w.depositAtomDashboard.bondgBtn)
     w.depositAtomDashboard.addWidget(w.depositAtomDashboard.bondgBtn)
-    w.depositAtomDashboard.bondgBtn.setIcon(QIcon(imagename_to_pixmap('dashboard/bondg.png')))
+    w.depositAtomDashboard.bondgBtn.setIcon(geticon('ui/actions/Toolbars/Smart/bondg.png'))
     w.depositAtomDashboard.bondgBtn.setCheckable(1)
     w.depositAtomDashboard.bondgBtn.setAutoRaise(1)
     w.depositAtomDashboard.bondgBtn.setToolTip(qApp.translate("MainWindow","Graphitic Bond Tool", None))
