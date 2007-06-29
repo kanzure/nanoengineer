@@ -7,7 +7,9 @@ Nanorex&trade; NanoEngineer-1&trade; Alpha 9
 </head>
 
 <body>
-<h1>Nanorex&trade; NanoEngineer-1&trade; Alpha 9</h1>
+<h1>Nanorex<sup><sub><sup>&trade;</sup></sub></sup>
+NanoEngineer-1<sup><sub><sup>&trade;</sup></sub></sup>
+Alpha 9</h1>
 NanoEngineer-1 is an open-source (GPL) 3D multi-scale modeling and simulation program for nano-composites with special support for structural DNA nanotechnology. It features an easy-to-use interactive 3D graphical user interface for designing and modeling large, atomically precise composite systems.
 <p>
 This is NanoEngineer-1 0.9.1 (Alpha 9) as of July 1, 2007.
@@ -107,6 +109,47 @@ For more details on all extensions and links to the download pages, visit:
 <pre>
 What is new in NanoEngineer-1 0.9.1 (7/01/2007):
 
+1. UI Improvements
+
+  - New <a href="http://www.nanoengineer-1.net/mediawiki/index.php?title=Confirmation_Corner">Confirmation Corner</a> 
+  - Command Manager includes custom flyout toolbars for all commands 
+  - Property Manager includes helpful messages for <b>Plane</b>, <b>Build Atoms</b>, <b>Extrude</b> and <b>Translate/Rotate</b> commands
+  -<b>Build Atoms</b> includes the new <b>Cut Bonds</b> bond tool for deleting bonds between two atoms
+  - Splitter between the left channel (i.e. the Model Tree/Property Manager) and the 3D graphics window can be resized
+
+2. DNA Generator
+
+  - Specify DNA duplex by length (in Angstroms)
+  - Fixed some bugs involving the Strand Sequence text edit widget (in the Property Manager)
+
+3. <a href="http://qutemol.sourceforge.net/">QuteMol</a>
+
+  - NE1 writes and QuteMol (0.4.1) reads and renders bondpoints 
+  - NE1 now writes the PDB REMARK records needed for QuteMol (a future version) to render: 
+    - Initial view orientation 
+    - Background color 
+    - Launch display style (launch = "synchronize with NE1 at startup") 
+    - Launch tubes/licorice cylinder "thickness" 
+    - Launch ball and stick cylinder "thickness" 
+    - Chunks' display style and color 
+
+4. Reference Plane (<b>Insert > Reference Geometry > Plane</b>)
+
+  - New option <b>Offset to a Plane</b> creates a new plane from an offset to an existing plane
+  - Edges are aligned with the screen when <b>Parallel to Screen</b> option is selected
+  - Works with <b>Mirror</b> command
+  - Works for all <b>Translate</b> commands (i.e. <b>To XYZ Position</b>)
+  - Preview improvements
+  - Many resizing bugs fixed
+ 
+
+5. Other notable bug fixes:
+
+  - The current working directory is set to the last directory in which a file was opened or saved. This is persistent between seesions
+  - The graphitic Nitrogen atomic hybrid can be deposited and transmutes correctly
+  - <b>Simulation > Play Movie</b> is enabled only when there is a valid movie
+  - Fixed some button text overlapping and layout problems in <b>Build Atoms</b> Property Manager
+
 </pre>
 See <a href="#NewFeaturesArchives">New Features Archives</a> for information on previous versions.
 
@@ -133,7 +176,7 @@ What is new in NanoEngineer-1 v0.9 (6/1/2007):
 
 1. Completely ported GUI from Qt 3.x to Qt 4.x
 
-   - NanoEngineer-1 Alpha 9 is now GPL'd for all platforms, including Windows.
+   - NanoEngineer-1 Alpha 9 is now GPL'd for all platforms, including Windows
 
 2. Improved Graphical User Interface, improved ease of use
 
