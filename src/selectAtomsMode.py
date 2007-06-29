@@ -225,8 +225,6 @@ class selectAtomsMode(selectMode):
         change_connect(self.w.elemFilterComboBox,
                         SIGNAL("activated(int)"), self.set_selection_filter)
 
-    def set_selection_filter(self, enabled):
-        pass #bruce 070613 added this default implem to fix bugs revealed by test_commands.py
 
     def restore_gui(self):
         # disconnect signals which were connected in init_gui [bruce 050728]
