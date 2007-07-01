@@ -1,6 +1,0 @@
- Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
-NanoEngineer-1 v0.9 (Alpha 9). Release Date: June 6, 2007 
-
-For a list of known bugs, check the NanoEngineer-1 Known Bugs wiki page at:
-
-http://www.nanoengineer-1.net/mediawiki/index.php?title=NE1_Known_Bugs
