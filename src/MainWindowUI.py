@@ -7,10 +7,8 @@ $Id$
 
 
 
-import sys
 from PyQt4 import QtCore, QtGui
 from PyQt4.Qt import Qt
-from qt4transition import *
 
 import Ui_FileMenu
 import Ui_EditMenu

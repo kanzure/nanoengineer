@@ -132,8 +132,19 @@ if __name__ == '__main__':
     #debug_pref("Multipane GUI", Choice_boolean_False)
     #
     ##########################################################################################################
+
+    # These should move to a generic initialization function when there
+    # are more of them.  Are they in the right place?  Probably should be
+    # called before any assembly objects are created.
+    import assembly
+    assembly.assembly.initialize()
+    import GroupButtonMixin
+    GroupButtonMixin.GroupButtonMixin.initialize()
     
     foo = MWsemantics() # This does a lot of initialization (in MainWindow.__init__)
+
+    import CoNTubGenerator
+    CoNTubGenerator.initialize()
 
     try:
         # do this, if user asked us to by defining it in .atom-debug-rc

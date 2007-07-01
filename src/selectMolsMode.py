@@ -24,14 +24,37 @@ but not changing how old dragging code works.]
 - Ninad 070216 split this out of selectMode.py 
 """
 
+from OpenGL.GL import GL_STENCIL_INDEX
+from OpenGL.GL import glReadPixelsi
+from OpenGL.GL import GL_DEPTH_COMPONENT
+from OpenGL.GL import glReadPixelsf
 
+from PyQt4.Qt import QMouseEvent
 
-from modes import *
+import env
+
+from modes import basicMode
+from bonds import Bond
+from chem import Atom
+from jigs import Jig
+from selectMode import selectMode
+from selectMode import DRAG_STICKINESS_LIMIT
+from selectMode import debug_update_selobj_calls
+from elements import Singlet
 from HistoryWidget import orangemsg
 from chunk import molecule
-import env
+
+from debug import print_compact_stack
+from debug import print_compact_traceback
 from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False, Choice
-from selectMode import *
+
+from constants import yellow
+from constants import darkred
+from constants import black
+from constants import GL_FAR_Z
+from prefs_constants import bondHighlightColor_prefs_key
+
+from qt4transition import qt4info
 
 class selectMolsMode(selectMode):
     "Select Chunks mode"

@@ -24,15 +24,50 @@ mark 2007-05-29: Fixed sizePolicy for all widgets so everything behaves itself
                  in a fixed width Property Manager (for Alpha 9).
 """
 
-import sys
 from PyQt4 import QtCore, QtGui
-from PyQt4.Qt import *
+from PyQt4.Qt import QSize
+from PyQt4.Qt import Qt
+from PyQt4.Qt import QPalette
+from PyQt4.Qt import QSizePolicy
+from PyQt4.Qt import QFont
+from PyQt4.Qt import QLineEdit
+
 from Utility import geticon, getpixmap
 import env
-from prefs_constants import *
-from PropertyManagerMixin import pmVBoxLayout, pmAddHeader, pmAddSponsorButton, \
-     pmAddTopRowButtons, pmMessageGroupBox, pmAddBottomSpacer
-from PropMgr_Constants import *
+from PropMgrBaseClass import getPalette
+
+from PropertyManagerMixin import pmVBoxLayout
+from PropertyManagerMixin import pmAddHeader
+from PropertyManagerMixin import pmAddSponsorButton
+from PropertyManagerMixin import pmAddTopRowButtons
+from PropertyManagerMixin import pmMessageGroupBox
+from PropertyManagerMixin import pmAddBottomSpacer
+
+from PropMgr_Constants import pmDoneButton
+from PropMgr_Constants import pmWhatsThisButton
+from PropMgr_Constants import pmMainVboxLayoutMargin
+from PropMgr_Constants import pmMainVboxLayoutSpacing
+from PropMgr_Constants import pmHeaderFrameMargin
+from PropMgr_Constants import pmHeaderFrameSpacing
+from PropMgr_Constants import getHeaderFont
+from PropMgr_Constants import pmLabelLeftAlignment
+from PropMgr_Constants import pmSponsorFrameMargin
+from PropMgr_Constants import pmSponsorFrameSpacing
+from PropMgr_Constants import pmGroupBoxSpacing
+from PropMgr_Constants import pmTopRowBtnsMargin
+from PropMgr_Constants import pmTopRowBtnsSpacing
+from PropMgr_Constants import pmMessageTextEditColor
+from PropMgr_Constants import pmGrpBoxVboxLayoutMargin
+from PropMgr_Constants import pmGrpBoxVboxLayoutSpacing
+from PropMgr_Constants import pmMMKitPageMargin
+from PropMgr_Constants import pmMMKitButtonFont
+from PropMgr_Constants import pmMMKitButtonFontPointSize
+from PropMgr_Constants import pmMMKitButtonFontBold
+from PropMgr_Constants import pmMMKitButtonHeight
+from PropMgr_Constants import pmMMKitButtonWidth
+from prefs_constants import buildModeAutobondEnabled_prefs_key
+from prefs_constants import buildModeHighlightingEnabled_prefs_key
+from prefs_constants import buildModeWaterEnabled_prefs_key
         
 class Ui_MMKitDialog(object):
     def setupUi(self, MMKitDialog):

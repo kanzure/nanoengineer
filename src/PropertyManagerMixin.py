@@ -18,14 +18,66 @@ bruce 2007-06-15: partly cleaned up inheritance (by splitting out PropertyManage
 
 __author__ = "Ninad"
 
-from PyQt4.Qt import *
-from PyQt4 import Qt, QtCore, QtGui
-from Sponsors import SponsorableMixin
-from Utility import geticon, getpixmap
-from PropMgr_Constants import *
-from debug import print_compact_traceback
+from PyQt4 import QtCore, QtGui
+from PyQt4.Qt import Qt
+from PyQt4.Qt import QPalette
+from PyQt4.Qt import QSizePolicy
+from PyQt4.Qt import QGroupBox
+from PyQt4.Qt import QFrame
+from PyQt4.Qt import QHBoxLayout
+from PyQt4.Qt import QLabel
+from PyQt4.Qt import SIGNAL
+from PyQt4.Qt import QSpacerItem
+from PyQt4.Qt import QToolButton
+from PyQt4.Qt import QSize
+from PyQt4.Qt import QWhatsThis
+from PyQt4.Qt import QVBoxLayout
+from PyQt4.Qt import QTextOption
+from PyQt4.Qt import QPushButton
+from PyQt4.Qt import QTextEdit
+
 import platform
-from PropMgrBaseClass import PropertyManager_common
+from Utility import geticon
+from Utility import geticon, getpixmap
+from Sponsors import SponsorableMixin
+from qt4transition import lineage
+from debug import print_compact_traceback
+from PropMgrBaseClass import PropertyManager_common, getPalette
+from PropMgr_Constants import pmColor
+from PropMgr_Constants import pmAllButtons
+from PropMgr_Constants import pmTitleFrameColor
+from PropMgr_Constants import pmTitleLabelColor
+from PropMgr_Constants import pmMessageTextEditColor
+from PropMgr_Constants import pmGrpBoxColor
+from PropMgr_Constants import pmGrpBoxButtonColor
+from PropMgr_Constants import pmCheckBoxTextColor
+from PropMgr_Constants import pmCheckBoxButtonColor
+from PropMgr_Constants import pmGrpBoxBorderColor
+from PropMgr_Constants import pmGrpBoxButtonBorderColor
+from PropMgr_Constants import pmGrpBoxButtonTextColor
+from PropMgr_Constants import pmGrpBoxExpandedImage
+from PropMgr_Constants import pmGrpBoxCollapsedImage
+from PropMgr_Constants import pmGrpBoxVboxLayoutMargin
+from PropMgr_Constants import pmGrpBoxVboxLayoutSpacing
+from PropMgr_Constants import pmMainVboxLayoutMargin
+from PropMgr_Constants import pmMainVboxLayoutSpacing
+from PropMgr_Constants import pmHeaderFrameMargin
+from PropMgr_Constants import pmHeaderFrameSpacing
+from PropMgr_Constants import pmLabelLeftAlignment
+from PropMgr_Constants import getHeaderFont
+from PropMgr_Constants import pmSponsorFrameMargin
+from PropMgr_Constants import pmSponsorFrameSpacing
+from PropMgr_Constants import pmTopRowBtnsMargin
+from PropMgr_Constants import pmTopRowBtnsSpacing
+from PropMgr_Constants import pmDoneButton
+from PropMgr_Constants import pmCancelButton
+from PropMgr_Constants import pmRestoreDefaultsButton
+from PropMgr_Constants import pmPreviewButton
+from PropMgr_Constants import pmWhatsThisButton
+from PropMgr_Constants import pmMsgGrpBoxMargin
+from PropMgr_Constants import pmMsgGrpBoxSpacing
+from PropMgr_Constants import pmMinWidth
+from PropMgr_Constants import pmGroupBoxSpacing
 
 def pmVBoxLayout(propMgr):
     """Create the master vertical box layout for <propMgr>.
@@ -582,6 +634,7 @@ def pmAddBottomSpacer(parent, vlayout, last=False):
 # ==
 
 # Class PropertyManagerMixin is currently [when?] used by:
+#
 # - Build > Atoms (depositMode/MMKit)
 # - Build > Crystal (cookieCutter)
 # - Tools > Extrude (extrudeMode)

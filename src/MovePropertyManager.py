@@ -10,7 +10,6 @@ Move and Rotate Property managers
 """
 __author__  = "Ninad"
 
-import sys
 from PyQt4 import QtCore, QtGui
 from Ui_MovePropertyManager import Ui_MovePropertyManager
 from PropertyManagerMixin import PropertyManagerMixin, pmSetPropMgrIcon, pmSetPropMgrTitle

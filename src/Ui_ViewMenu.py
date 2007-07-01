@@ -3,12 +3,9 @@
 $Id$
 """
 
-import sys
 from PyQt4 import QtCore, QtGui
 from PyQt4.Qt import Qt
-from qt4transition import *
 
-import Ui_ViewOrientation
 from Utility import geticon
 
 #Hybrid display is an experimental work. Its action and others need to be 

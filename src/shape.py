@@ -8,18 +8,32 @@ $Id$
 """
 __author__ = "Josh"
 
-from Numeric import array, zeros, logical_or
+from Numeric import array, zeros, logical_or, add, subtract, sqrt, maximum, minimum, ceil, dot, floor
 
-from VQT import *
+from VQT import cat, A, norm, vlen, V
 from OpenGL.GL import glNewList, glEndList, glCallList, glGenLists
 from OpenGL.GL import GL_COMPILE_AND_EXECUTE
 
-from drawer import *
-from constants import *
+from drawer import drawwirebox
+from drawer import drawrectangle
+from drawer import drawCircle
+from drawer import genDiam
+from drawer import drawcylinder
+from drawer import drawsphere
+from drawer import drawline
+from drawer import ColorSorter
+
+from constants import black
+from constants import get_selCurve_color
+from constants import DELETE_SELECTION
+from constants import SUBTRACT_FROM_SELECTION
+from constants import OUTSIDE_SUBTRACT_FROM_SELECTION
+from constants import ADD_TO_SELECTION
+from constants import START_NEW_SELECTION
+from constants import white
 
 from debug import print_compact_traceback
 import platform 
-
 
 class BBox:
     """ implement a bounding box in 3-space

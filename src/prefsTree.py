@@ -17,7 +17,7 @@ bruce 050901, 050913 used env.history in some places.
 __author__ = "bruce"
 
 from Utility import Node, Group
-import time, sys, os
+import os
 from part import Part
 from constants import noop, dispLabel, default_display_mode
 import env

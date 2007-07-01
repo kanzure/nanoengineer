@@ -9,14 +9,22 @@ $Id$
 Note: Till Alpha8, this mode was called Cookie Cutter mode. In Alpha9 
 it has been renamed to 'Build Crystal' mode. -- ninad 20070511
 """
-from PyQt4.Qt import *
+
 from PyQt4 import QtGui
-from Utility import imagename_to_pixmap
-from constants import dispLabel
-from qt4transition import *
+from PyQt4.Qt import Qt
+from PyQt4.Qt import QActionGroup
+from PyQt4.Qt import QToolButton
+from PyQt4.Qt import QWidgetAction
+from PyQt4.Qt import SIGNAL
+from PyQt4.Qt import QString
+from PyQt4.Qt import QColor
+from PyQt4.Qt import QColorDialog
+
 from PropertyManagerMixin import PropertyManagerMixin
 from CookiePropertyManager import CookiePropertyManager
 from Utility import geticon
+from Utility import imagename_to_pixmap
+from constants import dispLabel
 
 
 class CookieCtrlPanel(CookiePropertyManager):

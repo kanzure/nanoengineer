@@ -12,9 +12,17 @@ wware 060324 - created this file
 __author__ = "Will"
 
 import math
-from VQT import *
-from drawer import *
-from debug import *
+import types
+import Numeric
+from Numeric import dot
+
+from OpenGL.GL import glVertex
+
+import platform
+from VQT import cross
+from VQT import vlen
+from VQT import norm
+from drawer import drawline
 from Utility import Node
 
 """
@@ -452,19 +460,19 @@ class CylindricalCoordinates:
         z = dot(d, self.zn)
         d = d - z * self.zn
         r = vlen(d)
-        theta = arctan2(dot(d, self.v), dot(d, self.u))
+        theta = Numeric.arctan2(dot(d, self.v), dot(d, self.u))
         return Numeric.array((r, theta, z), 'd')
     def xyz(self, rtz):
         r, t, z = rtz
-        du = (r * cos(t)) * self.u
-        dv = (r * sin(t)) * self.v
+        du = (r * math.cos(t)) * self.u
+        dv = (r * math.sin(t)) * self.v
         dz = z * self.z
         return self.p0 + du + dv + dz
     def drawLine(self, color, rtz1, rtz2, width=1):
         drawline(color, self.xyz(rtz1), self.xyz(rtz2), width=width)
     def drawArc(self, color, r, theta1, theta2, z,
-                width=1, angleIncrement = pi / 50):
-        n = int(fabs(theta2 - theta1) / angleIncrement + 1)
+                width=1, angleIncrement = math.pi / 50):
+        n = int(math.fabs(theta2 - theta1) / angleIncrement + 1)
         step = (1.0 * theta2 - theta1) / n
         for i in range(n):
             t = theta1 + step

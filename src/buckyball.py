@@ -38,7 +38,8 @@ __author__ = "Will"
 
 from math import sin, cos, pi, floor
 from VQT import V, vlen
-from bonds import NeighborhoodGenerator, bond_atoms, V_GRAPHITE, CC_GRAPHITIC_BONDLENGTH
+from bonds import NeighborhoodGenerator, bond_atoms, CC_GRAPHITIC_BONDLENGTH
+from bond_constants import V_GRAPHITE
 from chem import Atom
 
 class BuckyBall:

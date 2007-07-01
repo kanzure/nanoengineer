@@ -10,38 +10,108 @@ $Id$
 bruce 050913 used env.history in some places.
 """
 
+import math
+import os
+import sys
+import time
+
+from PyQt4.Qt import QGLFormat
+from PyQt4.Qt import QPalette
+from PyQt4.Qt import QColor
+from PyQt4.Qt import QEvent
+from PyQt4.Qt import QMouseEvent
+from PyQt4.Qt import QHelpEvent
+from PyQt4.Qt import QPoint
+
 from PyQt4.Qt import Qt, QFont, QWidget, QMessageBox, QTimer, QToolTip, QRect, QString
 from PyQt4.Qt import QGLWidget
-from OpenGL.GL import *
-from OpenGL.GLU import *
+
+from OpenGL.GL import GL_LESS
+from OpenGL.GL import glGenLists
+from OpenGL.GL import glNewList
+from OpenGL.GL import glEndList
+from OpenGL.GL import glCallList
+from OpenGL.GL import glDepthFunc
+from OpenGL.GL import GL_STENCIL_BITS
+from OpenGL.GL import GL_NORMALIZE
+from OpenGL.GL import GL_PROJECTION
+from OpenGL.GL import GL_SMOOTH
+from OpenGL.GL import glShadeModel
+from OpenGL.GL import GL_DEPTH_TEST
+from OpenGL.GL import glEnable
+from OpenGL.GL import GL_CULL_FACE
+from OpenGL.GL import glLoadIdentity
+from OpenGL.GL import GL_DEPTH_COMPONENT
+from OpenGL.GL import glReadPixelsf
+from OpenGL.GL import GL_LEQUAL
+from OpenGL.GL import GL_MODELVIEW_STACK_DEPTH
+from OpenGL.GL import glGetInteger
+from OpenGL.GL import glClearColor
+from OpenGL.GL import GL_COLOR_BUFFER_BIT
+from OpenGL.GL import GL_STENCIL_BUFFER_BIT
+from OpenGL.GL import glSelectBuffer
+from OpenGL.GL import GL_SELECT
+from OpenGL.GL import glRenderMode
+from OpenGL.GL import glInitNames
+from OpenGL.GL import glFlush
+from OpenGL.GL import GL_RENDER
+from OpenGL.GL import glDepthMask
+from OpenGL.GL import GL_ALWAYS
+from OpenGL.GL import glStencilFunc
+from OpenGL.GL import GL_KEEP
+from OpenGL.GL import GL_REPLACE
+from OpenGL.GL import glStencilOp
+from OpenGL.GL import GL_STENCIL_TEST
+from OpenGL.GL import glPushMatrix
+from OpenGL.GL import glTranslatef
+from OpenGL.GL import glDisable
+from OpenGL.GL import glPopMatrix
+from OpenGL.GL import GL_MODELVIEW
+from OpenGL.GL import glMatrixMode
+from OpenGL.GL import GL_FALSE
+from OpenGL.GL import glColorMask
+from OpenGL.GL import GL_DEPTH_BUFFER_BIT
+from OpenGL.GL import glClear
+from OpenGL.GL import GL_TRUE
+from OpenGL.GL import GL_VIEWPORT
+from OpenGL.GL import glGetIntegerv
+from OpenGL.GL import glFrustum
+from OpenGL.GL import glOrtho
+from OpenGL.GL import glRotatef
+from OpenGL.GL import GL_COLOR_MATERIAL
+from OpenGL.GL import GL_FILL
+from OpenGL.GL import GL_FRONT_AND_BACK
+from OpenGL.GL import glPolygonMode
+from OpenGL.GL import GL_AMBIENT_AND_DIFFUSE
+from OpenGL.GL import glColorMaterial
+from OpenGL.GL import GL_LIGHTING
+from OpenGL.GL import glViewport
+from OpenGL.GL import GL_RGB
+from OpenGL.GL import GL_UNSIGNED_BYTE
+from OpenGL.GL import glReadPixels
+from OpenGL.GL import glRasterPos3f
+from OpenGL.GL import GL_CURRENT_RASTER_POSITION_VALID
+from OpenGL.GL import glGetBooleanv
+from OpenGL.GL import glDrawPixels
+
+from OpenGL.GLU import gluUnProject, gluPickMatrix
 
 try:
-        from OpenGL.GLE import *
+        from OpenGL.GLE import glePolyCone
 except:
         print "GLE module can't be imported. Now trying _GLE"
-        from OpenGL._GLE import *
+        from OpenGL._GLE import glePolyCone
 
-import math
-from LinearAlgebra import *
-from commands import *
-
-from qt4transition import *
-
-import os,sys
-import time
-from VQT import *
+from VQT import V, Q, A, Trackball, norm, vlen
+from Numeric import dot
 import drawer
-from shape import *
-import re
-from constants import *
 
 from modifyMode import modifyMode
 from cookieMode import cookieMode 
 from extrudeMode import extrudeMode
 from fusechunksMode import fusechunksMode
-from selectMode import *
-from selectMolsMode import *
-from selectAtomsMode import *
+from selectMolsMode import selectMolsMode
+from selectAtomsMode import selectAtomsMode
 from depositMode import depositMode
 from movieMode import movieMode
 from zoomMode import zoomMode
@@ -49,27 +119,61 @@ from panMode import panMode
 from rotateMode import rotateMode
 from modes import modeMixin
 
-import operator
-import struct
-##bruce 050413 removed: from povheader import povheader, povpoint
-
-from fileIO import * #bruce 050414 comment: this might no longer be needed;
-    # at least most symbols defined in fileIO (now moved to files_mmp)
-    # don't occur in GLPane; but I didn't check for the few that are still
-    # defined in fileIO.
 from HistoryWidget import greenmsg, redmsg
 from platform import fix_event_helper
-import platform # for platform.atom_debug
+import platform
 from widgets import makemenu_helper
-from debug import DebugMenuMixin, print_compact_traceback
+from debug import DebugMenuMixin, print_compact_traceback, print_compact_stack
 import preferences
-from prefs_constants import glpane_lights_prefs_key #bruce 051206
 import env
 from changes import SubUsageTrackingMixin
 
 from DynamicTip import DynamicTip #ninad060818 moved class DynamicTip to a new file
 
 from state_utils import transclose #bruce 070110
+
+from prefs_constants import glpane_lights_prefs_key
+from prefs_constants import compassPosition_prefs_key
+from prefs_constants import defaultProjection_prefs_key
+from prefs_constants import defaultDisplayMode_prefs_key
+from prefs_constants import backgroundColor_prefs_key
+from prefs_constants import backgroundGradient_prefs_key
+from prefs_constants import animateStandardViews_prefs_key
+from prefs_constants import animateMaximumTime_prefs_key
+from prefs_constants import light1Color_prefs_key
+from prefs_constants import light2Color_prefs_key
+from prefs_constants import light3Color_prefs_key
+from prefs_constants import displayCompass_prefs_key
+from prefs_constants import displayOriginAxis_prefs_key
+from prefs_constants import displayOriginAsSmallAxis_prefs_key
+from prefs_constants import UPPER_RIGHT
+from prefs_constants import UPPER_LEFT
+from prefs_constants import LOWER_LEFT
+from prefs_constants import displayCompassLabels_prefs_key
+
+from constants import diINVISIBLE
+from constants import diDEFAULT
+from constants import dispLabel
+from constants import GL_FAR_Z
+from constants import bluesky
+from constants import black
+from constants import orange
+from constants import white
+
+from part import Part
+from jigs import Jig
+from HistoryWidget import orangemsg
+from shape import BBox
+from qt4transition import qt4todo
+from platform import wrap_key_event
+from chunk import molecule
+from chem import Atom
+from bonds import Bond
+from debug_prefs import Choice
+from debug_prefs import Choice_boolean_False
+from debug_prefs import debug_pref
+
+
 
 debug_lighting = False #bruce 050418
 
@@ -81,13 +185,13 @@ paneno = 0
 
 ## normalGridLines = (0.0, 0.0, 0.6) # bruce 050410 removed this, and related code
 
-pi2 = pi/2.0
-pi3 = pi/3.0
-pi4 = pi/4.0
-xquats = [Q(1,0,0,0), Q(V(0,0,1),pi2), Q(V(0,0,1),pi), Q(V(0,0,1),-pi2),
+pi2 = math.pi/2.0
+pi3 = math.pi/3.0
+pi4 = math.pi/4.0
+xquats = [Q(1,0,0,0), Q(V(0,0,1),pi2), Q(V(0,0,1),math.pi), Q(V(0,0,1),-pi2),
           Q(V(0,0,1),pi4), Q(V(0,0,1),3*pi4),
           Q(V(0,0,1),-pi4), Q(V(0,0,1),-3*pi4)]
-pquats = [Q(1,0,0,0), Q(V(0,1,0),pi2), Q(V(0,1,0),pi), Q(V(0,1,0),-pi2), 
+pquats = [Q(1,0,0,0), Q(V(0,1,0),pi2), Q(V(0,1,0),math.pi), Q(V(0,1,0),-pi2), 
           Q(V(1,0,0),pi2), Q(V(1,0,0),-pi2)]
 
 quats100 = []
@@ -109,7 +213,7 @@ for q in pquats:
         quats110 += [(q+q1, 1)]
 
 cq = Q(V(1,0,0),0.615479708)
-xquats = [Q(1,0,0,0), Q(V(0,0,1),pi3), Q(V(0,0,1),2*pi3), Q(V(0,0,1),pi),
+xquats = [Q(1,0,0,0), Q(V(0,0,1),pi3), Q(V(0,0,1),2*pi3), Q(V(0,0,1),math.pi),
           Q(V(0,0,1),-pi3), Q(V(0,0,1),-2*pi3)]
 pquats = [Q(V(0,1,0),pi4), Q(V(0,1,0),3*pi4),
           Q(V(0,1,0),-pi4), Q(V(0,1,0),-3*pi4)]
@@ -175,7 +279,6 @@ class GLPane_mixin_for_DisplistChunk(object): #bruce 070110 moved this here from
             # (Did I mean to put this into some other method? or into only certain uses of this method??
             # For now, do an info print, in case sometimes this does indicate an error, and since it's useful
             # for analyzing whether nested displists are behaving as expected. [bruce 070203]
-        from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
         if self.compiling_displist and debug_pref("GLPane: print nested displist compiles?", Choice_boolean_False, prefs_key = True):
             print "debug: fyi: displist %r is compiling a call to displist %r" % (self.compiling_displist, listname)
         assert listname # redundant with following?
@@ -839,7 +942,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
             return
         
         # Compute the rotation angle (in degrees) b/w the current and destination view.
-        rot_angle = deltaq.angle * 180/pi # rotation delta (in degrees)
+        rot_angle = deltaq.angle * 180/math.pi # rotation delta (in degrees)
         if rot_angle > 180:
             rot_angle = 360 - rot_angle # go the short way
         
@@ -1506,7 +1609,6 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
     def makeCurrent(self):
         QGLWidget.makeCurrent(self)
         # also tell the MainWindow that my PartWindow is the active one
-        from debug_prefs import debug_pref, Choice_boolean_False
         if debug_pref("Multipane GUI", Choice_boolean_False):
             pw = self.partWindow
             pw.parent._activepw = pw
@@ -1719,7 +1821,6 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
     highlightTimer = None #bruce 070110 (was not needed before)
 
     def _timer_debug_pref(self): #bruce 070110 split this out and revised it
-        from debug_prefs import debug_pref, Choice
         res = debug_pref("glpane timer interval", Choice([100, 0, 5000, None]), non_debug = True, prefs_key = True)
         if res is not None and type(res) is not type(1):
             # support prefs values stored by future versions (or by a brief bug workaround which stored "None")
@@ -2115,7 +2216,6 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         
         if not self.redrawGL: return
 
-        from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
         if debug_pref("GLPane: skip redraws requested only by Qt?", Choice_boolean_False, prefs_key = True):
             # (and print '#' for each skipped redraw)
             #
@@ -2197,7 +2297,6 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         self._restore_modelview_stack_depth() #bruce 050608 moved this here (was after _setup_lighting ###k verify that)
 
         # 20060224 Added fog_test_enable debug pref, can take out if fog is implemented fully. [bruce 061208 moved this down a bit]
-        from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
         fog_test_enable = debug_pref("Use test fog?", Choice_boolean_False, non_debug = True)
             #e should remove non_debug = True before release!
 
@@ -3107,7 +3206,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
             # clipping planes, etc, like we do now for right, up, etc. ###e
 
         q = self.quat 
-        glRotatef( q.angle*180.0/pi, q.x, q.y, q.z) # rotate those coords by the trackball quat
+        glRotatef( q.angle*180.0/math.pi, q.x, q.y, q.z) # rotate those coords by the trackball quat
         glTranslatef( self.pov[0], self.pov[1], self.pov[2]) # and translate them by -cov, to bring cov (center of view) to origin
         return
 
@@ -3173,7 +3272,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         
         	    
         q = self.quat
-        glRotatef(q.angle*180.0/pi, q.x, q.y, q.z)
+        glRotatef(q.angle*180.0/math.pi, q.x, q.y, q.z)
         glEnable(GL_COLOR_MATERIAL)
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
         glDisable(GL_CULL_FACE)

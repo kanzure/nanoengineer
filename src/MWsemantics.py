@@ -19,26 +19,41 @@ split up the class MWsemantics (as for cookieMode), not just the file.]
 [some of that splitup has been done, now, by Ninad in the Qt4 branch]
 """
 
-from PyQt4.Qt import QMainWindow, QFrame, SIGNAL, QFileDialog
+from qt4transition import qt4warnDestruction
+from qt4transition import qt4todo
+from qt4transition import qt4warning
+
+from PyQt4 import QtGui
+
+from PyQt4.Qt import Qt
+from PyQt4.Qt import QSizePolicy
+from PyQt4.Qt import QFont
+from PyQt4.Qt import QAction
+from PyQt4.Qt import QActionGroup
+from PyQt4.Qt import QVBoxLayout
+from PyQt4.Qt import QGridLayout
+from PyQt4.Qt import QMenu
+from PyQt4.Qt import QIcon
+from PyQt4.Qt import QToolBar
+
+from PyQt4.Qt import QMainWindow, QFrame, SIGNAL, QFileDialog, QWidget
 from PyQt4.Qt import QCursor, QBitmap, QLabel, QSplitter, QMessageBox, QString, QColorDialog, QColor
 from PyQt4 import QtCore
 from GLPane import GLPane 
+from elements import PeriodicTable
 from assembly import assembly 
 from drawer import get_gl_info_string ## grantham 20051201
 from Ui_PartWindow import PartWindow, GridPosition
 import os, sys
-import help
 from math import ceil
 from modelTree import modelTree 
 import platform
-from qt4transition import *
 from Utility import geticon
 
-from constants import *
+from PropMgr_Constants import pmDefaultWidth, pmMaxWidth, pmMinWidth
 from elementColors import elementColors 
 from elementSelector import elementSelector 
 from MMKit import MMKit
-from fileIO import * # this might be needed for some of the many other modules it imports; who knows? [bruce 050418 comment]
 from Sponsors import PermissionDialog
 from debug_prefs import debug_pref, Choice_boolean_False
 
@@ -61,7 +76,26 @@ from ops_view import viewSlotsMixin
 from changes import register_postinit_object
 import preferences
 import env 
-import undo 
+import undo
+
+from prefs_constants import nanohive_enabled_prefs_key
+from prefs_constants import gamess_enabled_prefs_key
+from prefs_constants import zoomAboutScreenCenter_prefs_key
+from prefs_constants import workingDirectory_prefs_key
+from prefs_constants import getDefaultWorkingDirectory
+from prefs_constants import rememberWinPosSize_prefs_key
+from prefs_constants import captionPrefix_prefs_key
+from prefs_constants import captionSuffix_prefs_key
+from prefs_constants import captionFullPath_prefs_key
+
+from constants import diTrueCPK
+from constants import diTUBES
+from constants import diBALL
+from constants import diLINES
+from constants import diCYLINDER
+from constants import diSURFACE
+from constants import diINVISIBLE
+from constants import diDEFAULT
 
 elementSelectorWin = None
 elementColorsWin = None

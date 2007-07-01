@@ -7,9 +7,124 @@ OpenGL drawing utilities.
 $Id$
 
 """
+    
+import os
+import sys
 
-from OpenGL.GL import *
-from OpenGL.GLU import *
+# the imports from math vs. Numeric are as discovered in existing code
+# as of 2007/06/25.  It's not clear why acos is coming from math...
+from math import acos, floor, ceil
+
+import Numeric
+from Numeric import sin, cos, sqrt, pi
+
+from OpenGL.GL import GL_AMBIENT
+from OpenGL.GL import GL_AMBIENT_AND_DIFFUSE
+from OpenGL.GL import glAreTexturesResident
+from OpenGL.GL import GL_BACK
+from OpenGL.GL import glBegin
+from OpenGL.GL import glBindTexture
+from OpenGL.GL import GL_BLEND
+from OpenGL.GL import glBlendFunc
+from OpenGL.GL import glCallList
+from OpenGL.GL import glClipPlane
+from OpenGL.GL import GL_CLIP_PLANE0
+from OpenGL.GL import GL_CLIP_PLANE1
+from OpenGL.GL import GL_CLIP_PLANE2
+from OpenGL.GL import GL_CLIP_PLANE3
+from OpenGL.GL import glColor3f
+from OpenGL.GL import glColor3fv
+from OpenGL.GL import glColor4fv
+from OpenGL.GL import GL_COMPILE
+from OpenGL.GL import GL_CONSTANT_ATTENUATION
+from OpenGL.GL import GL_CULL_FACE
+from OpenGL.GL import glDeleteTextures
+from OpenGL.GL import glDepthMask
+from OpenGL.GL import GL_DEPTH_TEST
+from OpenGL.GL import GL_DIFFUSE
+from OpenGL.GL import glDisable
+from OpenGL.GL import glDisableClientState
+from OpenGL.GL import glDrawElements
+from OpenGL.GL import glEnable
+from OpenGL.GL import glEnableClientState
+from OpenGL.GL import glEnd
+from OpenGL.GL import glEndList
+from OpenGL.GL import GL_EXTENSIONS
+from OpenGL.GL import GL_FALSE
+from OpenGL.GL import GL_FILL
+from OpenGL.GL import glFinish
+from OpenGL.GL import GL_FLOAT
+from OpenGL.GL import glFog
+from OpenGL.GL import GL_FOG
+from OpenGL.GL import GL_FOG_COLOR
+from OpenGL.GL import GL_FOG_END
+from OpenGL.GL import GL_FOG_MODE
+from OpenGL.GL import GL_FOG_START
+from OpenGL.GL import GL_FRONT
+from OpenGL.GL import GL_FRONT_AND_BACK
+from OpenGL.GL import glGenLists
+from OpenGL.GL import glGenTextures
+from OpenGL.GL import glGetString
+from OpenGL.GL import GL_LIGHT0
+from OpenGL.GL import GL_LIGHT1
+from OpenGL.GL import GL_LIGHT2
+from OpenGL.GL import glLightf
+from OpenGL.GL import glLightfv
+from OpenGL.GL import GL_LIGHTING
+from OpenGL.GL import GL_LINE
+from OpenGL.GL import GL_LINEAR
+from OpenGL.GL import GL_LINE_LOOP
+from OpenGL.GL import GL_LINES
+from OpenGL.GL import GL_LINE_SMOOTH
+from OpenGL.GL import glLineStipple
+from OpenGL.GL import GL_LINE_STIPPLE
+from OpenGL.GL import GL_LINE_STRIP
+from OpenGL.GL import glLineWidth
+from OpenGL.GL import glLoadIdentity
+from OpenGL.GL import glMaterialf
+from OpenGL.GL import glMaterialfv
+from OpenGL.GL import glMatrixMode
+from OpenGL.GL import GL_MODELVIEW
+from OpenGL.GL import glNewList
+from OpenGL.GL import glNormal3fv
+from OpenGL.GL import GL_ONE_MINUS_SRC_ALPHA
+from OpenGL.GL import GL_POLYGON
+from OpenGL.GL import glPolygonMode
+from OpenGL.GL import glPopMatrix
+from OpenGL.GL import glPopName
+from OpenGL.GL import GL_POSITION
+from OpenGL.GL import glPushMatrix
+from OpenGL.GL import glPushName
+from OpenGL.GL import GL_QUADS
+from OpenGL.GL import GL_QUAD_STRIP
+from OpenGL.GL import GL_RENDERER
+from OpenGL.GL import GL_RGBA
+from OpenGL.GL import glRotate
+from OpenGL.GL import glRotatef
+from OpenGL.GL import glScalef
+from OpenGL.GL import GL_SHININESS
+from OpenGL.GL import GL_SPECULAR
+from OpenGL.GL import GL_SRC_ALPHA
+from OpenGL.GL import glTexCoord2f
+from OpenGL.GL import glTexCoord2fv
+from OpenGL.GL import GL_TEXTURE_2D
+from OpenGL.GL import glTranslate
+from OpenGL.GL import glTranslatef
+from OpenGL.GL import GL_TRIANGLES
+from OpenGL.GL import GL_TRIANGLE_STRIP
+from OpenGL.GL import GL_TRUE
+from OpenGL.GL import GL_UNSIGNED_BYTE
+from OpenGL.GL import GL_VENDOR
+from OpenGL.GL import GL_VERSION
+from OpenGL.GL import glVertex
+from OpenGL.GL import glVertex2f
+from OpenGL.GL import glVertex3f
+from OpenGL.GL import glVertex3fv
+from OpenGL.GL import GL_VERTEX_ARRAY
+from OpenGL.GL import glVertexPointer
+
+from OpenGL.GLU import gluBuild2DMipmaps
+
 try:
     from OpenGL.GLE import glePolyCone, gleGetNumSides, gleSetNumSides
 except:
@@ -32,20 +147,20 @@ try:
 except:
     # The installed version of OpenGL requires argument-typed glScale calls.
     glScale = glScalef
-    
-import math
-import os
-import sys
-from VQT import *
-from constants import DIAMOND_BOND_LENGTH, white
+
+from VQT import norm, vlen, V, Q, A
 import env #bruce 051126
-from prefs_constants import material_specular_highlights_prefs_key, \
-        material_specular_shininess_prefs_key, \
-        material_specular_finish_prefs_key, \
-        material_specular_brightness_prefs_key #mark 051205. names revised
+
+from constants import DIAMOND_BOND_LENGTH, white
+from prefs_constants import material_specular_highlights_prefs_key
+from prefs_constants import material_specular_shininess_prefs_key
+from prefs_constants import material_specular_finish_prefs_key
+from prefs_constants import material_specular_brightness_prefs_key
+
 import debug #bruce 051212, for debug.print_compact_traceback
 
 import platform
+import EndUser
 
 # ColorSorter control
 allow_color_sorting = allow_color_sorting_default = False #bruce 060323 changed this to False for A7 release
@@ -65,15 +180,7 @@ try:
     quux_module_import_succeeded = True
     if "experimental" in os.path.dirname(sys.modules['quux'].__file__):
         # should never happen for end users, but if it does we want to print the warning
-        import __main__ #bruce 060323 
-        try:
-            end_user = __main__._end_user
-        except:
-            # this might be normal, depending on order of imports when we start
-            if env.debug():
-                print "debug: drawer's __main__._end_user didn't work"
-            end_user = False # actually it's not known, but in case it's really false we don't want the following warning
-        if env.debug() or end_user: #bruce 060323 added conditions (should never happen for end users)
+        if env.debug() or not EndUser.enableDeveloperFeatures():
             print "debug: fyi: Using experimental version of C rendering code:", sys.modules['quux'].__file__
 except:
     use_c_renderer = False
@@ -601,7 +708,7 @@ def drawcylinder_worker(params):
     else:
         glRotate(angle, axis[1], -axis[0], 0.0)
   
-    glScale(radius,radius,dot(vec,vec)**.5)
+    glScale(radius,radius,Numeric.dot(vec,vec)**.5)
     glCallList(CylList)
     if capped: glCallList(CapList)
 
@@ -1194,7 +1301,7 @@ def _makeLonsCell():
 #              0          sic_uLen     2*sic_uLen    3*sic_uLen
 #
 sic_uLen = 1.8   # Si-C bond length (I think)
-sic_yU = sic_uLen * sqrt(3) / 2
+sic_yU = sic_uLen * sqrt(3.0) / 2
 sic_vpdat = [[0.0 * sic_uLen, 1.0 * sic_yU, 0.0],
              [1.5 * sic_uLen, 0.0 * sic_yU, 0.0],
              [1.0 * sic_uLen, 1.0 * sic_yU, 0.0],
@@ -1203,6 +1310,7 @@ sic_vpdat = [[0.0 * sic_uLen, 1.0 * sic_yU, 0.0],
              [3.0 * sic_uLen, 1.0 * sic_yU, 0.0],
              [2.5 * sic_uLen, 0.0 * sic_yU, 0.0]]
 
+wiresphere1list = None
 
 def setup(): #bruce 060613 added docstring, cleaned up display list name allocation
     """Set up the usual constant display lists in the current OpenGL context.
@@ -1567,7 +1675,7 @@ def drawRotateSign(color, pos1, pos2, radius, rotation = 0.0):
     else:
         glRotate(angle, axis[1], -axis[0], 0.0)
     glRotate(rotation, 0.0, 0.0, 1.0) #bruce 050518
-    glScale(radius,radius,dot(vec,vec)**.5)
+    glScale(radius,radius,Numeric.dot(vec,vec)**.5)
 
     glLineWidth(2.0)
     glDisable(GL_LIGHTING)
@@ -2080,8 +2188,8 @@ def drawGrid(scale, center, latticeType):
 def drawrectangle(pt1, pt2, rt, up, color):
     glColor3f(color[0], color[1], color[2])
     glDisable(GL_LIGHTING)
-    c2 = pt1 + rt*dot(rt,pt2-pt1)
-    c3 = pt1 + up*dot(up,pt2-pt1)
+    c2 = pt1 + rt*Numeric.dot(rt,pt2-pt1)
+    c3 = pt1 + up*Numeric.dot(up,pt2-pt1)
     glBegin(GL_LINE_LOOP)
     glVertex(pt1[0],pt1[1],pt1[2])
     glVertex(c2[0],c2[1],c2[2])

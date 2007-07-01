@@ -15,7 +15,10 @@ bruce 050913 used env.history in some places.
 """
 
 from HistoryWidget import greenmsg, redmsg
-from assembly import SELWHAT_CHUNKS, SELWHAT_ATOMS
+
+# ops_atoms, part, and assembly form an import loop
+#import assembly
+
 from platform import fix_plurals
 from elements import Singlet
 import env
@@ -110,12 +113,13 @@ class ops_atoms_Mixin:
             msg = redmsg("Nothing selected")
             env.history.message(cmd + msg)
             return
-            
-        if self.selwhat == SELWHAT_CHUNKS:
+
+        import assembly
+        if self.selwhat == assembly.SELWHAT_CHUNKS:
             for m in self.selmols:
                 m.Passivate(True) # arg True makes it work on all atoms in m
         else:
-            assert self.selwhat == SELWHAT_ATOMS
+            assert self.selwhat == assembly.SELWHAT_ATOMS
             for m in self.molecules:
                 m.Passivate() # lack of arg makes it work on only selected atoms
                 # (maybe it could just iterate over selatoms... #e)

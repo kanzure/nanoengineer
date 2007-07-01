@@ -11,7 +11,8 @@
 import sys
 from PyQt4 import QtCore, QtGui
 from Utility import geticon
-from PropMgr_Constants import *
+from PropMgr_Constants import getHeaderFont
+from PropMgr_Constants import pmLabelLeftAlignment
 
 class Ui_PovrayScenePropDialog(object):
     def setupUi(self, PovrayScenePropDialog):

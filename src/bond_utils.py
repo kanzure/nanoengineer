@@ -17,11 +17,14 @@ __author__ = "bruce"
 
 from VQT import Q
 from constants import noop
-from bond_constants import *
 import env
 from HistoryWidget import greenmsg, redmsg, orangemsg
 from debug import print_compact_stack
 from bonds import Bond
+from bond_constants import bonded_atoms_summary
+from bond_constants import btype_from_v6
+from bond_constants import v6_from_btype
+from bond_constants import bond_left_atom
 
 def intersect_sequences(s1, s2):
     "Return the intersection of two sequences. If they are sorted in a compatible way, so will be the result."

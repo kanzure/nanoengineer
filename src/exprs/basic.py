@@ -36,12 +36,13 @@ $Id$
 
 import sys, os
 import time # questionable, but try it
+from Numeric import dot
 
 sys.setrecursionlimit(650) # 5000 is set in startup_funcs.py; this will ease debugging, but REMOVE WHEN DEVEL IS DONE [061121]
 
 # == imports from cad/src
 
-from VQT import V, A, Q, norm, vlen, dot, cross
+from VQT import V, A, Q, norm, vlen, cross
 from math import sqrt #070225
 from math import pi, sin, cos #070130
 
@@ -49,6 +50,7 @@ from state_utils import transclose, same_vals
 ## not yet needed: from state_utils import _UNSET_ # warning: not included in "import *"
 
 import platform # so all our code can refer to platform.atom_debug #e someday this should be renamed throughout NE1 (app.debug?)
+import EndUser
 
 from constants import noop # def noop(*args,**kws): pass
 
@@ -130,8 +132,7 @@ def reload_once(module):
     in the exprs package can always "import basic;reload(basic)" first, and if they do, all modules within
     exprs can just start with "from basic import *". But for clarity, some of them call reload_once on basic too.
     """
-    import __main__
-    if __main__._end_user: #070627 precaution; should improve by making this only affect default value of a debug_pref ###TODO
+    if (not EndUser.enableDeveloperFeatures()): #070627 precaution; should improve by making this only affect default value of a debug_pref ###TODO
         return
     
     if not ENABLE_RELOAD:

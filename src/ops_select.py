@@ -12,11 +12,11 @@ bruce 050507 made this by collecting appropriate methods from class Part.
 bruce 050913 used env.history in some places.
 """
 
-from assembly import SELWHAT_CHUNKS, SELWHAT_ATOMS
+from constants import SELWHAT_CHUNKS, SELWHAT_ATOMS
 from elements import Singlet
-from VQT import V, A, norm, cross, transpose, dot
+from VQT import V, A, norm, cross
+from Numeric import dot, transpose
 import env
-from constants import *
 from HistoryWidget import redmsg, greenmsg, orangemsg
 from debug import print_compact_traceback #bruce 051129
 import platform #bruce 051129

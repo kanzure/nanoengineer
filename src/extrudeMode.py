@@ -20,24 +20,59 @@ __author__ = "bruce"
 
 extrude_loop_debug = 0 # do not commit with 1, change back to 0
 
-from modes import *
+import math
+from Numeric import dot
+
+from OpenGL.GL import GL_CW
+from OpenGL.GL import glFrontFace
+from OpenGL.GL import GL_CCW
+from OpenGL.GL import GL_LIGHTING
+from OpenGL.GL import GL_BLEND
+from OpenGL.GL import GL_ONE_MINUS_SRC_ALPHA
+from OpenGL.GL import GL_SRC_ALPHA
+from OpenGL.GL import glBlendFunc
+from OpenGL.GL import glDepthMask
+from OpenGL.GL import GL_FALSE
+from OpenGL.GL import glColorMask
+from OpenGL.GL import glEnable
+from OpenGL.GL import GL_TRUE
+from OpenGL.GL import glDisable
+
+from PyQt4 import QtGui
+from PyQt4.Qt import Qt
+from PyQt4.Qt import QRect
+from PyQt4.Qt import QComboBox
+from PyQt4.Qt import QSlider
+from PyQt4.Qt import SIGNAL
+from PyQt4.Qt import QCursor
+
 from debug_prefs import debug_pref, Choice, Choice_boolean_False, Choice_boolean_True
 
-from handles import *
+from modes import basicMode
 from debug import print_compact_traceback
-##from qt4transition import qt4todo
-import math #k needed?
-from bonds import bond_at_singlets #k needed?
-import platform
-##from widgets import FloatSpinBox, TogglePrefCheckBox, QVBox, QHBox
+from bonds import bond_at_singlets
+from widgets import FloatSpinBox, TogglePrefCheckBox, QVBox, QHBox
+from Utility import geticon
+from HistoryWidget import redmsg
 
 from VQT import check_floats_near, check_posns_near, check_quats_near
-    #bruce 050518 moved those defs out of this file
+from VQT import V, Q, norm, vlen, cross
     
-##from PropertyManagerMixin import PropertyManagerMixin 
 from ExtrudePropertyManager import ExtrudePropertyManager
+from drawer import drawline
+from chem import singlet_atom
+from chunk import Chunk
 
+from handles import repunitHandleSet
+from handles import niceoffsetsHandleSet
+from handles import draggableHandle_HandleSet
+from constants import blue
+from constants import green
+from constants import get_selCurve_color
+
+import platform
 import env
+from qt4transition import qt4todo
 
 
 #@@@ ninad070110 -- As of today, most of the qt4todo calls in this file is the
@@ -635,13 +670,13 @@ class extrudeMode(basicMode, ExtrudePropertyManager):
             # but doesn't change whether bonds are correct.
             
             # now all our quats (relative to basemol.quat) are around axis. Note: axis might be backwards, need to test this. ##k
-            quatii_rel = Q(axis, 2 * pi * ii / cn)
+            quatii_rel = Q(axis, 2 * math.pi * ii / cn)
             if "try2 bugfix": ###@@@ why? could just be convention for theta the reverse of my guess
                 quatii_rel = quatii_rel * -1.0 #k would -1 work too?
             #e possible optim: above stuff (in ring case) is independent of basemol. Some stuff, above and below, is indep of ii.
             quatii = basemol.quat + quatii_rel # (i think) this doesn't depend on where we are around the circle!
             towards_center = cross(offset,axis) # these are perp, axis is unit, so only cn is needed to make this correct length
-            neg_radius_vec = towards_center * cn / (2 * pi)
+            neg_radius_vec = towards_center * cn / (2 * math.pi)
             c_center = basemol.center + neg_radius_vec # circle center
             self.circle_center = c_center # be able to draw the axis
             self.axis_dir = axis

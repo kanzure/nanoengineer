@@ -5,8 +5,8 @@ PartProp.py
 $Id$
 """
 
-from PyQt4.Qt import *
-from PartPropDialog import *
+from PyQt4.Qt import QDialog, SIGNAL
+from PartPropDialog import Ui_PartPropDialog
 
 class PartProp(QDialog, Ui_PartPropDialog):
     def __init__(self, assy):

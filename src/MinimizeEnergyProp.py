@@ -10,12 +10,17 @@ mark 060705 - Created for Alpha 8 NFR: "Simulator > Minimize Energy".
 '''
 __author__ = "Mark"
 
-from PyQt4.Qt import *
+from PyQt4.Qt import QDialog
+from PyQt4.Qt import QButtonGroup
+from PyQt4.Qt import QAbstractButton
+from PyQt4.Qt import SIGNAL
+from PyQt4.Qt import QWhatsThis
+from PyQt4.Qt import QDoubleValidator
+
 from HistoryWidget import greenmsg, redmsg, orangemsg, _graymsg, quote_html
 from MinimizeEnergyPropDialog import Ui_MinimizeEnergyPropDialog
 from GroupButtonMixin import GroupButtonMixin
 from Sponsors import SponsorableMixin
-from qt4transition import *
 from Utility import geticon
 
 from prefs_constants import Minimize_watchRealtimeMinimization_prefs_key
@@ -29,7 +34,6 @@ from debug import print_compact_traceback
 import env, platform
 from UserPrefs import get_pref_or_optval
 from widgets import double_fixup
-import preferences
 from debug_prefs import debug_pref, Choice_boolean_False
 from prefs_widgets import connect_checkbox_with_boolean_pref
 

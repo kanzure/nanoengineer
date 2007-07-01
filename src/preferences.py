@@ -44,7 +44,7 @@ BUT WE SHOULD LOOK INTO THE LICENSE TO MAKE SURE IT'S OK!
 
 __author__ = "Bruce"
 
-import os, sys, time
+import os, time
 import platform
 
 from changes import UsageTracker #bruce 050804 ###k recursive import issues??

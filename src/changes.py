@@ -20,7 +20,7 @@ bruce 061022 soon some of this will be used in the new exprs module. Later it wi
 """
 __author__ = "Bruce"
 
-import os, sys, time #k needed?
+import sys
 from debug import print_compact_traceback, print_compact_stack
 import env
 from constants import noop

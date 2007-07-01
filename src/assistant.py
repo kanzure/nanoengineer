@@ -5,9 +5,16 @@ assistant.py
 $Id$
 """
 
-import sys, string
-from PyQt4.Qt import *
-from os import *
+import sys
+import os
+
+from PyQt4.Qt import QWidget
+from PyQt4.Qt import QAssistantClient
+from PyQt4.Qt import QApplication
+from PyQt4.Qt import QStringList
+from PyQt4.Qt import QObject
+from PyQt4.Qt import SIGNAL
+from PyQt4.Qt import SLOT
 
 class AssistantWindow(QWidget):
     def __init__(self,home_,_path,parent=None,name=None,fl=0):
@@ -42,7 +49,7 @@ def findIndexFile():
     # and it's ok if it's extended to put error messages in a dialog
     # even though the callers also print something then.
     try:
-        nedirenv = environ['NE1DIR']
+        nedirenv = os.environ['NE1DIR']
         #e now make it an absolute pathname??
     except:
         # bruce 041105 bugfix -- should not need NE1DIR if user does not

@@ -17,7 +17,7 @@ __author__ = "bruce"
 
 from PyQt4.Qt import QIcon, SIGNAL
 from PyQt4 import QtGui
-from qt4transition import *
+from qt4transition import qt4todo
 
 import env
 

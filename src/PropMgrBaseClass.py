@@ -43,12 +43,79 @@ __author__ = "Mark"
 #   - PropMgrLabel
 #   - PropMgrGroupAction (needed by PlanePropertyManager)
 
-from PyQt4.Qt import *
-## from Sponsors import SponsorableMixin
+import os
+
+from PyQt4 import QtCore
+
+from PyQt4.Qt import Qt
+from PyQt4.Qt import QGroupBox
+from PyQt4.Qt import QTextEdit
+from PyQt4.Qt import QDoubleSpinBox
+from PyQt4.Qt import QSpinBox
+from PyQt4.Qt import QComboBox
+from PyQt4.Qt import QPushButton
+from PyQt4.Qt import QLineEdit
+from PyQt4.Qt import QCheckBox
+from PyQt4.Qt import QListWidget
+from PyQt4.Qt import QToolButton
+from PyQt4.Qt import QPalette
+from PyQt4.Qt import QFrame
+from PyQt4.Qt import QHBoxLayout
+from PyQt4.Qt import QSpacerItem
+from PyQt4.Qt import QLabel
+from PyQt4.Qt import QWidget
+from PyQt4.Qt import QVBoxLayout
+from PyQt4.Qt import QGridLayout
+from PyQt4.Qt import SIGNAL
+from PyQt4.Qt import QTextOption
+from PyQt4.Qt import QSizePolicy
+from PyQt4.Qt import QSize
+from PyQt4.Qt import QRadioButton
+
+import platform
+
+from Utility import geticon
 from Utility import geticon, getpixmap
-from PropMgr_Constants import *
-import os, sys, platform
 from debug import print_compact_traceback
+
+from PropMgr_Constants import pmColor
+from PropMgr_Constants import pmTitleFrameColor
+from PropMgr_Constants import pmTitleLabelColor
+from PropMgr_Constants import pmMinWidth
+from PropMgr_Constants import pmDefaultWidth
+from PropMgr_Constants import pmLabelRightAlignment
+from PropMgr_Constants import pmLabelLeftAlignment
+from PropMgr_Constants import pmMainVboxLayoutMargin
+from PropMgr_Constants import pmMainVboxLayoutSpacing
+from PropMgr_Constants import pmHeaderFrameMargin
+from PropMgr_Constants import pmHeaderFrameSpacing
+from PropMgr_Constants import getHeaderFont
+from PropMgr_Constants import pmSponsorFrameMargin
+from PropMgr_Constants import pmSponsorFrameSpacing
+from PropMgr_Constants import pmTopRowBtnsMargin
+from PropMgr_Constants import pmTopRowBtnsSpacing
+from PropMgr_Constants import pmGroupBoxSpacing
+from PropMgr_Constants import pmGrpBoxVboxLayoutMargin
+from PropMgr_Constants import pmGrpBoxVboxLayoutSpacing
+from PropMgr_Constants import pmGridLayoutMargin
+from PropMgr_Constants import pmGridLayoutSpacing
+from PropMgr_Constants import pmGrpBoxButtonColor
+from PropMgr_Constants import pmGrpBoxButtonBorderColor
+from PropMgr_Constants import pmGrpBoxButtonTextColor
+from PropMgr_Constants import pmGrpBoxExpandedImage
+from PropMgr_Constants import pmGrpBoxCollapsedImage
+from PropMgr_Constants import pmGrpBoxGridLayoutMargin
+from PropMgr_Constants import pmGrpBoxGridLayoutSpacing
+from PropMgr_Constants import pmGrpBoxColor
+from PropMgr_Constants import pmGrpBoxBorderColor
+from PropMgr_Constants import pmMsgGrpBoxMargin
+from PropMgr_Constants import pmMsgGrpBoxSpacing
+from PropMgr_Constants import pmMessageTextEditColor
+from PropMgr_Constants import pmDoneButton
+from PropMgr_Constants import pmCancelButton
+from PropMgr_Constants import pmRestoreDefaultsButton
+from PropMgr_Constants import pmPreviewButton
+from PropMgr_Constants import pmWhatsThisButton
 
 # Special Qt debugging functions written by Mark. 2007-05-24 ############
 
@@ -1626,7 +1693,7 @@ class PropMgrCheckBox(QCheckBox, PropMgrWidgetMixin):
     # Set setAsDefault to False if "Restore Defaults" should not 
     # reset this widget's value to val.
     setAsDefault = True
-    defaultState = Qt.Unchecked  # Default state of CheckBox. Qt.Checked is checked.
+    defaultState = QtCore.Qt.Unchecked  # Default state of CheckBox. Qt.Checked is checked.
     
     def __init__(self, parent, label='', 
                  isChecked=False, setAsDefault=True,

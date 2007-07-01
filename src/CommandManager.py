@@ -16,12 +16,13 @@ ninad 20070623:Moved _createFlyoutToolbar from modes to here and related changes
 
 __author__ = "Ninad"
 
+from PyQt4 import QtGui
+from PyQt4.Qt import Qt
 from PyQt4.Qt import SIGNAL
+from PyQt4.Qt import QToolButton
+
 from Ui_CommandManager import Ui_CommandManager
-from PyQt4 import QtGui, Qt
-from PyQt4.QtGui import *
 from debug import print_compact_traceback
-import platform
 
 
 
@@ -146,7 +147,7 @@ class CommandManager(Ui_CommandManager):
 		#@@To fix bug 2478 added this visibility condition. 
 		if a.isVisible():
 		    btn = QToolButton()
-		    btn.setToolButtonStyle(Qt.Qt.ToolButtonTextUnderIcon)	
+		    btn.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)	
 		    btn.setMinimumWidth(75)
 		    btn.setMaximumWidth(75)
 		    btn.setMinimumHeight(62)	
@@ -223,7 +224,7 @@ class CommandManager(Ui_CommandManager):
 	for action in allActionsList:	    
 	    if action.__class__.__name__ is QtGui.QWidgetAction.__name__:    
 		btn = QToolButton()
-		btn.setToolButtonStyle(Qt.Qt.ToolButtonTextUnderIcon)	
+		btn.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)	
 		btn.setMinimumWidth(75)
 		btn.setMaximumWidth(75)
 		btn.setMinimumHeight(62)		

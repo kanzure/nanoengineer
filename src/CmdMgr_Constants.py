@@ -12,7 +12,7 @@ ninad 20070622 Created this file that defines various constants (e.g. color)
 
 __author__ = "Ninad"
 
-from PyQt4.QtGui import QColor
+from PyQt4.Qt import QColor
 
 # Colors for Command Manager Control Areas
 cmdMgrCntrlAreaBtnColor = QColor(204,204,255)

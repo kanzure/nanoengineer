@@ -20,11 +20,18 @@ __author__ = "Mark"
 # - Update "Selected Atoms" groupbox as atoms are selected/unselected.
 # - When implemented, add new PropMgrColorChooser.
 
-import sys
-from PyQt4.Qt import *
+from PyQt4.Qt import QColorDialog
+from PyQt4.Qt import SIGNAL
+
+from GeneratorBaseClass import GeneratorBaseClass
 from Utility import geticon, getpixmap
-from PropMgrBaseClass import *
-from PropMgr_Constants import *
+from PropMgrBaseClass import PropMgrBaseClass
+from PropMgrBaseClass import PropMgrGroupBox
+from PropMgrBaseClass import PropMgrDoubleSpinBox
+from PropMgrBaseClass import PropMgrCheckBox
+from PropMgrBaseClass import PropMgrPushButton
+from PropMgrBaseClass import PropMgrListWidget
+from PropMgr_Constants import pmPreviewButton
 from widgets import RGBf_to_QColor, QColor_to_RGBf, get_widget_with_color_palette
 from bonds import CC_GRAPHITIC_BONDLENGTH
 
@@ -327,7 +334,7 @@ class RotaryMotorPropMgr(object, PropMgrBaseClass):
             self.glpane.gl_update()
             
     def change_motor_size(self, gl_update=True):
-        '''Slot method to change the jig's length, radius and/or spoke radius.'''
+        """Slot method to change the jig's length, radius and/or spoke radius."""
         self.jig.length = self.motorLengthDblSpinBox.value()# motor length
         self.jig.radius = self.motorRadiusDblSpinBox.value() # motor radius
         self.jig.sradius = self.spokeRadiusDblSpinBox.value() # spoke radius

@@ -37,25 +37,32 @@ on __xxx__ attrs in python objects.
 bruce 050901 used env.history in some places.
 """
 
-###e imports -- many of these are probably not needed [bruce 050507 removed some of them]
-from Numeric import *
-from VQT import *
-from string import *
-from OpenGL.GL import *
-from OpenGL.GLU import *
-from chem import *
-from movie import *
-from jigs import * # maybe only needs jigmakers_Mixin
-from Utility import *
+from OpenGL.GL import GL_LIGHTING
+from OpenGL.GL import glDisable
+from OpenGL.GL import GL_DEPTH_TEST
+from OpenGL.GL import glPushMatrix
+from OpenGL.GL import glPopMatrix
+from OpenGL.GL import glEnable
 
-from HistoryWidget import greenmsg, redmsg
-from inval import InvalMixin
-from assembly import SELWHAT_CHUNKS, SELWHAT_ATOMS
-import env #bruce 050901
-from state_utils import StateMixin #bruce 060223
+from PyQt4.Qt import Qt
+from PyQt4.Qt import QFont, QString
 
+from Utility import Node
+from Utility import Group
+from Utility import Csys
+from VQT import V
+from debug import print_compact_traceback, print_compact_stack
 import platform
 
+from HistoryWidget import greenmsg, redmsg
+from shape import BBox
+from chunk import molecule
+
+import env #bruce 050901
+
+from inval import InvalMixin
+from state_utils import StateMixin #bruce 060223
+from jigs import jigmakers_Mixin
 from ops_atoms     import ops_atoms_Mixin
 from ops_connected import ops_connected_Mixin
 from ops_copy      import ops_copy_Mixin
@@ -63,6 +70,10 @@ from ops_motion    import ops_motion_Mixin
 from ops_rechunk   import ops_rechunk_Mixin
 from ops_select    import ops_select_Mixin
 
+from constants import diDEFAULT
+from constants import SELWHAT_CHUNKS, SELWHAT_ATOMS
+from state_constants import S_REF, S_DATA, S_PARENT, S_CHILD
+from prefs_constants import levelOfDetail_prefs_key
 
 # number of atoms for detail level 0
 HUGE_MODEL = 40000

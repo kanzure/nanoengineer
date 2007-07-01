@@ -19,7 +19,8 @@ __author__ = ['Mark', 'Bruce']
 
 ### do no imports that would not be ok for constants.py to do! ###
 
-from constants import *
+from constants import yellow, pink, red, black, magenta, blue, gray, white, green
+from constants import ave_colors, diTUBES
 
 # ==
 

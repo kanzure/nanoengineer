@@ -22,20 +22,46 @@ bruce circa 050518 made rmotor arrow rotate along with the atoms.
 
 mark 051104 Changed named of Ground jig to Anchor.
 """
+import sys
 
-from VQT import *
-from shape import *
-from chem import *
+from OpenGL.GL import glLineStipple
+from OpenGL.GL import GL_LINE_STIPPLE
+from OpenGL.GL import glEnable
+from OpenGL.GL import GL_FRONT
+from OpenGL.GL import GL_LINE
+from OpenGL.GL import glPolygonMode
+from OpenGL.GL import GL_BACK
+from OpenGL.GL import GL_LIGHTING
+from OpenGL.GL import glDisable
+from OpenGL.GL import GL_CULL_FACE
+from OpenGL.GL import glPushName
+from OpenGL.GL import glPopName
+from OpenGL.GL import GL_FILL
+
+from PyQt4.Qt import QMessageBox
+
 from chem import _changed_structure_Atoms # needed whenever we change an atom's .jigs list
-from Utility import *
-from StatProp import *
-from ThermoProp import *
+
+import platform
+
+from Utility import Node
+from Utility import imagename_to_pixmap
+from VQT import A
+from StatProp import StatProp
+from ThermoProp import ThermoProp
+
 from HistoryWidget import redmsg, greenmsg, orangemsg
 from povheader import povpoint
 from debug import print_compact_stack, print_compact_traceback
 import env
-from constants import gensym
+from drawer import drawwirecube
 
+from constants import gensym
+from constants import darkgreen
+from constants import blue
+from constants import darkred
+from constants import black
+from state_constants import S_REFS
 
 class Jig(Node):
     "abstract superclass for all jigs"

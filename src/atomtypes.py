@@ -29,7 +29,7 @@ from HistoryWidget import redmsg, orangemsg
 import platform
 import env
 
-from bond_constants import *
+from bond_constants import V_SINGLE, V_DOUBLE, V_TRIPLE, V_AROMATIC, V_GRAPHITE, V_CARBOMERIC
 
 class AtomType:
     """An atom type includes an element and its bonding pattern (and maybe more) --

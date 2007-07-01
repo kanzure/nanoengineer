@@ -5,8 +5,11 @@ StatProp.py
 $Id$
 """
 
-from PyQt4.Qt import *
-from StatPropDialog import *
+from PyQt4 import QtGui
+from PyQt4.Qt import QDialog
+from PyQt4.Qt import SIGNAL
+from PyQt4.Qt import QColorDialog
+from StatPropDialog import Ui_StatPropDialog
 from widgets import RGBf_to_QColor, QColor_to_RGBf,get_widget_with_color_palette
 
 class StatProp(QDialog, Ui_StatPropDialog):

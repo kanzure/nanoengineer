@@ -736,7 +736,8 @@ class tuple_Expr(OpExpr): #k not well reviewed, re how it should be used, esp. i
     pass
 
 # same as in basic.py:
-from VQT import V, A, Q, norm, vlen, dot
+from Numeric import dot
+from VQT import V, A, Q, norm, vlen
 from math import pi, sin, cos
 
 class V_expr(OpExpr):

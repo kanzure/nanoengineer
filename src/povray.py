@@ -14,12 +14,20 @@ direct include_dir prefs setting for Mac A8
 '''
 __author__ = "Mark"
 
-from constants import *
-import preferences, env
 import os, sys
-from HistoryWidget import redmsg, orangemsg, greenmsg, _graymsg
+
 from PyQt4.Qt import QApplication, QCursor, Qt, QStringList, QProcess, QDir, QMessageBox
+
+import env
+from HistoryWidget import redmsg, orangemsg, greenmsg, _graymsg
 from debug import print_compact_traceback
+
+from prefs_constants import megapov_enabled_prefs_key
+from prefs_constants import megapov_path_prefs_key
+from prefs_constants import povray_enabled_prefs_key
+from prefs_constants import povray_path_prefs_key
+from prefs_constants import povdir_enabled_prefs_key
+from prefs_constants import povdir_path_prefs_key
 
 def _dialog_to_offer_prefs_fixup(win, caption, text, macwarning_ok): #bruce 060710
     "Offer the user a chance to fix a problem. Return 0 if they accept (after letting them try), 1 if they decline."

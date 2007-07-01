@@ -19,17 +19,21 @@ Z_Dna abd Z_Dna_BasePseudoAtoms from Will Ware's DNAGenerator.py.
 """
 
 
+import os, re
+
 from math           import atan2, sin, cos, pi
+from Numeric        import dot
+
+import env
 from platform       import find_plugin_dir
 from files_mmp      import _readmmp
-from VQT            import A, V, dot, vlen
+from VQT            import A, V, vlen
 from chem           import Atom
 from bonds          import inferBonds, bond_atoms
 from fusechunksMode import fusechunksBase
-from HistoryWidget  import orangemsg
-from Utility        import Group
-
-import sys, os, env, re, random
+from HistoryWidget import orangemsg
+from GeneratorBaseClass import PluginBug
+from Utility import Group
 
 atompat = re.compile("atom (\d+) \((\d+)\) \((-?\d+), (-?\d+), (-?\d+)\)")
 numberPattern = re.compile(r"^\s*(\d+)\s*$")

@@ -32,15 +32,27 @@ might therefore be:
 - modelTree.py (customized for showing an NE1 "model tree" per se).
 """
 
-from chunk import molecule
-from jigs import Jig
-from constants import gensym
+from PyQt4 import QtCore
+
+import env
 import platform # for atom_debug
 from platform import fix_plurals #bruce 070503 Qt4
-from HistoryWidget import redmsg, greenmsg, orangemsg # not all used, that's ok
-import env
-from Utility import *
 import modelTreeGui   # ModelTreeGui, Ne1Model_api
+
+from chunk import molecule
+from jigs import Jig
+from HistoryWidget import redmsg, greenmsg, orangemsg # not all used, that's ok
+from Utility import Group
+from Utility import kluge_patch_assy_toplevel_groups
+from debug import print_compact_traceback
+
+from constants import gensym
+from constants import SELWHAT_ATOMS
+from constants import SELWHAT_CHUNKS
+from constants import SELWHAT_NAMES
+from constants import noop
+
+from qt4transition import qt4here
 
 debug_preftree = 0 # bruce 050602 experiment; requires new (not yet committed) file when enabled #####@@@@@ DO NOT COMMIT with 1
 

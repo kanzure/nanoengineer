@@ -27,6 +27,10 @@ import os
 
 from exprs.basic import PIXELS
 from exprs.images import Image
+from exprs.Overlay import Overlay
+from exprs.Rect import Rect
+
+from constants import green
 from exprs.instance_helpers import get_glpane_InstanceHolder
 
 from exprs.Rect import Rect # needed for Image size option, not just for testing

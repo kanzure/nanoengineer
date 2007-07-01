@@ -10,8 +10,8 @@ History:
   Mark 2007-06-27
 """
 
-from PyQt4.Qt import Qt, QWidget, QHBoxLayout, QVBoxLayout, QSplitter, \
-     QTabWidget, QScrollArea, QSizePolicy
+from PyQt4.Qt import Qt, QWidget, QHBoxLayout, QVBoxLayout, QSplitter
+from PyQt4.Qt import QTabWidget, QScrollArea, QSizePolicy
 from GLPane import GLPane
 from PropMgr_Constants import pmDefaultWidth, pmMaxWidth, pmMinWidth
 from Utility import geticon

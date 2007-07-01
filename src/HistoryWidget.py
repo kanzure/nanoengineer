@@ -22,16 +22,20 @@ $Id$
 '''
 __author__ = "bruce"
 
-from PyQt4.Qt import *
-from PyQt4 import QtCore, QtGui
 import sys, os, time
+
+from PyQt4 import QtCore, QtGui
+from PyQt4.Qt import Qt
+from PyQt4.Qt import QTextEdit, QTextOption
+
 import platform # for atom_debug, and more
 from debug import DebugMenuMixin
 from qt4transition import qt4todo
-from constants import *
-import preferences
 import env #bruce 050810
 
+from prefs_constants import historyMsgTimestamp_prefs_key
+from prefs_constants import historyMsgSerialNumber_prefs_key
+from prefs_constants import historyHeight_prefs_key
 
 # [formatters by Mark; moved into this file by bruce 050107;
 #  at some point these might be renamed based on what kinds of messages

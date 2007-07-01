@@ -22,14 +22,62 @@ but not changing how old dragging code works.]
 
 - Ninad 070216 moved selectAtomsMode and selectMolsMode out of selectMode.py 
 """
+import sys
+import os
+import Numeric
+from Numeric import dot
 
-from modes import *
+from PyQt4.Qt import QLabel
+from PyQt4.Qt import QComboBox
+from PyQt4.Qt import SIGNAL
+from PyQt4.Qt import QSize
+from PyQt4.Qt import QPushButton
+from PyQt4.Qt import QCheckBox
+
+from OpenGL.GL import GL_PROJECTION
+from OpenGL.GL import glMatrixMode
+from OpenGL.GL import glSelectBuffer
+from OpenGL.GL import GL_SELECT
+from OpenGL.GL import glRenderMode
+from OpenGL.GL import glInitNames
+from OpenGL.GL import GL_MODELVIEW
+from OpenGL.GL import GL_CLIP_PLANE0
+from OpenGL.GL import glClipPlane
+from OpenGL.GL import glEnable
+from OpenGL.GL import glDisable
+from OpenGL.GL import GL_RENDER
+from OpenGL.GL import glFlush
+from OpenGL.GL import glPushMatrix
+from OpenGL.GL import glTranslate
+from OpenGL.GL import glPopMatrix
+
+from OpenGL.GLU import gluUnProject
+
+from modes import basicMode
 from HistoryWidget import orangemsg
 from chunk import molecule
 import env
 from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False, Choice
 from Plane import Handle
 from constants import average_value
+from constants import SELSHAPE_RECT
+
+from VQT import V, Q, A, norm, planeXline, ptonline, vlen
+
+from constants import SELSHAPE_LASSO
+from constants import SUBTRACT_FROM_SELECTION
+from constants import ADD_TO_SELECTION
+from constants import START_NEW_SELECTION
+from constants import DELETE_SELECTION
+from shape import SelectionShape
+from bonds import Bond
+from debug import print_compact_traceback
+from debug import print_compact_stack
+
+from jigs import Jig
+from HistoryWidget import redmsg
+import platform
+
 
 debug_update_selobj_calls = False # do not commit with true
 
@@ -1219,7 +1267,6 @@ class selectMode(basicMode):
         '''
         apos1 = a.posn()
         if apos1 - apos0:
-            from debug_prefs import debug_pref, Choice_boolean_True
             if debug_pref("show drag coords continuously", #bruce 060316 made this optional, to see if it causes lagging drags of C
                           Choice_boolean_True, non_debug = True, # non_debug needed for testing, for now
                           prefs_key = "A7/Show Continuous Drag Coordinates"):
@@ -1934,7 +1981,6 @@ class selectMode(basicMode):
             # Set to 2 to see the Large-Bearing model, but this is most effective if
             #  the Large-Bearing has already been loaded normally into rotate mode
             #bruce 060209 set this from a debug_pref menu item, not a hardcoded flag
-            from debug_prefs import debug_pref, Choice
             TEST_PYREX_OPENGL = debug_pref("TEST_PYREX_OPENGL", Choice([0,1,2]))
             # uncomment this line to set it in the old way:
             ## TEST_PYREX_OPENGL = 1
@@ -1946,7 +1992,7 @@ class selectMode(basicMode):
                 if binPath not in sys.path:
                     sys.path.append(binPath)
                 import quux
-                if "experimental" in dirname(sys.modules['quux'].__file__):
+                if "experimental" in os.path.dirname(sys.modules['quux'].__file__):
                     print "WARNING: Using experimental version of quux module"
                 # quux.test()
                 quux.shapeRendererInit()

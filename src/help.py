@@ -11,10 +11,13 @@ Rewritten by Mark as a mininal help facility for Alpha 6.
 __author__ = "Josh"
 
 
-from PyQt4.Qt import *
+import os, sys
+
+from PyQt4.Qt import QWidget
+from PyQt4.Qt import SIGNAL
+
 from HelpDialog import Ui_HelpDialog
 from Utility import geticon
-import os, sys
 
 class Help(QWidget, Ui_HelpDialog):
     '''The Help dialog used for mouse controls and keyboard shortcuts
@@ -87,4 +90,4 @@ class Help(QWidget, Ui_HelpDialog):
         elif pagenumber is 1:
             self._setup_keyboard_shortcuts_page()
         else:
-            print 'Error: Help page unknown: ', pagename
+            print 'Error: Help page unknown: ', pagenumber

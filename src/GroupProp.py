@@ -5,11 +5,11 @@ GroupProp.py
 $Id$
 """
 
-from PyQt4.Qt import *
-from GroupPropDialog import *
-from VQT import V
-from qt4transition import *
 import sys
+
+from PyQt4.Qt import QDialog, QListWidgetItem, SIGNAL
+from GroupPropDialog import Ui_GroupPropDialog
+from VQT import V
 
 class Statistics:
     def __init__(self, group):

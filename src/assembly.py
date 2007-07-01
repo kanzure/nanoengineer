@@ -66,47 +66,35 @@ bruce 050913 used env.history in some places.
 # Also, several functions will be moved between files after that first commit
 # but have been kept in the same place before then for the benefit of viewcvs diff.
 
-from Numeric import *
-from VQT import *
-from string import *
-import re
-from OpenGL.GL import *
-from OpenGL.GLU import *
-from struct import unpack
-from qt4transition import *
+import os
 
-from chem import *
-    # is this still needed? Yes, not by this file but by selectMode needing Atom. That should be fixed so this can be removed.
-    # (I'm sure it's not all -- a lot of modes depend on "from modes import *" for all their importing needs.)
-    # [bruce 060224]
+from Utility import Group, node_name, kluge_patch_assy_toplevel_groups
+from debug import print_compact_traceback
+from prefs_constants import workingDirectory_prefs_key
 
-from movie import *
-from jigs import *
-from jig_Gamess import *
-from Utility import *
 from HistoryWidget import greenmsg, redmsg, orangemsg
-from platform import fix_plurals
 import platform
 import env
-from state_utils import StateMixin #bruce 060223
+from state_utils import StateMixin
 from debug import print_compact_stack
-from undo_archive import register_class_nickname
-from constants import gensym
+import undo_archive
+
+from constants import gensym, SELWHAT_CHUNKS, SELWHAT_ATOMS
+from state_constants import S_CHILD, S_DATA, S_REF
+
+import part
 
 
 debug_assy_changes = 0 #bruce 050429
 
 if 1: #bruce 060124 debug code; safe but dispensable ######@@@@@@
-    import undo_archive
     debug_assy_changes = debug_assy_changes or undo_archive.debug_undo2
-
-from part import Part # (this must come after the SELWHAT constants, in constants.py)
 
 assy_number = 0 # count assembly objects [bruce 050429]
 
 _assy_owning_win = None #bruce 060122; assumes there's only one main window; probably needs cleanup
 
-register_class_nickname("Assembly", "assembly") # for use in Undo attr-dependency decls
+undo_archive.register_class_nickname("Assembly", "assembly") # for use in Undo attr-dependency decls
 
 class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for this (below), which should become the preferred name
     """#doc
@@ -239,7 +227,6 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
         self._last_set_selwhat = self.selwhat
         
         #bruce 050131 for Alpha:
-        from Utility import kluge_patch_assy_toplevel_groups
         kluge_patch_assy_toplevel_groups( self)
         self.update_parts() #bruce 050309 for assy/part split
 
@@ -419,10 +406,9 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
            Implem note: we don't ask the nodes themselves for the partclass,
         since it might depend on their position in the MT rather than on the nodetype.
         """
-        from part import MainPart, ClipboardItemPart
-        res = [(self.tree, MainPart)]
+        res = [(self.tree, part.MainPart)]
         for node in self.shelf.members:
-            res.append(( node, ClipboardItemPart ))
+            res.append(( node, part.ClipboardItemPart ))
         if self.prefs_node is not None:
             from prefsTree import MainPrefsGroupPart # this file might not be committed if this case doesn't run
             res.append(( self.prefs_node, MainPrefsGroupPart ))
@@ -775,23 +761,26 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
         return # from current_selgroup_changed
 
     # == general attribute code
-    
-    # attrnames to delegate to the current part
-    # (ideally for writing as well as reading, until all using-code is upgraded) ###@@@ use __setattr__ ?? etc??
-    part_attrs = ['molecules','selmols','selatoms','homeCsys','lastCsys']
-    ##part_methods = ['selectAll','selectNone','selectInvert']###etc... the callable attrs of part class??
-    part_methods = filter( lambda attr:
-                             not attr.startswith('_')
-                             and callable(getattr(Part,attr)), # note: this tries to get self.part before it's ready...
-                          dir(Part) ) #approximation!
-    #####@@@@@ for both of the following:
-    part_attrs_temporary = ['bbox','center','drawLevel'] # temp because caller should say assy.part or be inside self.part
-    part_attrs_review = ['ppa2','ppa3','ppm']
+    def initialize():
+        # attrnames to delegate to the current part
+        # (ideally for writing as well as reading, until all using-code is upgraded) ###@@@ use __setattr__ ?? etc??
+        assembly.part_attrs = ['molecules','selmols','selatoms','homeCsys','lastCsys']
+            ##part_methods = ['selectAll','selectNone','selectInvert']###etc... the callable attrs of part class??
+        assembly.part_methods = filter( lambda attr:
+                                        not attr.startswith('_')
+                                        and callable(getattr(part.Part,attr)), # note: this tries to get self.part before it's ready...
+                                        dir(part.Part) ) #approximation!
+        #####@@@@@ for both of the following:
+        assembly.part_attrs_temporary = ['bbox','center','drawLevel'] # temp because caller should say assy.part or be inside self.part
+        assembly.part_attrs_review = ['ppa2','ppa3','ppm']
         ###@@@ bruce 050325 removed 'alist', now all legit uses of that are directly on Part or Movie
         ### similarly removed 'temperature' (now on assy like it was),'waals' (never used)
         #e in future, we'll split out our own methods for some of these, incl .changed
         #e and for others we'll edit our own methods' code to not call them on self but on self.assy (incl selwhat)
-    part_attrs_all = part_attrs + part_attrs_temporary + part_attrs_review
+        assembly.part_attrs_all = assembly.part_attrs + assembly.part_attrs_temporary + assembly.part_attrs_review
+
+    # can we use the decorator @staticmethod instead?
+    initialize = staticmethod(initialize)
     
     def __getattr__(self, attr): # in class assembly
         if attr.startswith('_'): # common case, be fast
@@ -1100,8 +1089,7 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
 ##        return assy_become_state(self, state, archive) # this subroutine will probably become a method of class assembly
 
     def clear(self): #bruce 060117 kluge [will it still be needed?]
-        from undo_archive import assy_clear
-        return assy_clear(self) # this subroutine will probably become a method of class assembly
+        return undo_archive.assy_clear(self) # this subroutine will probably become a method of class assembly
 
     def editUndo(self):
         if self.undo_manager:
@@ -1185,8 +1173,7 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
         if self.filename:
             # The current file has been saved, so it is OK to make the Part Files directory.
             path_wo_ext, ext = os.path.splitext(self.filename)
-            from platform import find_or_make_any_directory
-            return find_or_make_any_directory(path_wo_ext + " Files", make = make)
+            return platform.find_or_make_any_directory(path_wo_ext + " Files", make = make)
         else:
             if make:
                 # Cannot make the Part Files directory until the current file is saved. Return error.
@@ -1207,8 +1194,7 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
             return errorcode, dir_or_errortext
         
         povfiles_dir  = os.path.join(dir_or_errortext, "POV-Ray Scene Files")
-        from platform import find_or_make_any_directory
-        return find_or_make_any_directory(povfiles_dir, make = make)
+        return platform.find_or_make_any_directory(povfiles_dir, make = make)
     
     pass # end of class assembly
 

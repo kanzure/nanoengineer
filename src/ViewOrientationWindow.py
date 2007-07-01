@@ -5,15 +5,10 @@
 
 __author__ = "Ninad"
 
-import sys
-
 from PyQt4 import QtCore, QtGui 
 from PyQt4.Qt import Qt, SIGNAL, QMainWindow, QDockWidget
 
-from qt4transition import *
-from constants import *
 from Ui_ViewOrientation import Ui_ViewOrientation
-import Utility
 from Utility import geticon
 
 class ViewOrientationWindow(QDockWidget, Ui_ViewOrientation):
@@ -170,7 +165,7 @@ class ViewOrientationWindow(QDockWidget, Ui_ViewOrientation):
         else:
             self.pinOrientationWindowToolButton.setIcon(geticon("ui/dialogs/unpinned")) 
             
-    def getLastNamedViewList(list):
+    def getLastNamedViewList(self, list):
         self.lastNamedViewList = list
         return self.lastNamedViewList
     

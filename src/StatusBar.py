@@ -13,10 +13,12 @@ __author__ = "Mark"
 
 import os, time
 from PyQt4.Qt import QProgressBar, QFrame, QToolButton, QIcon, QLabel, SIGNAL, QMessageBox
+import platform
 from platform import hhmmss_str #bruce 060106 moved that function there
 import env
 from HistoryWidget import redmsg #bruce 060208 fix bug in traceback printing re bug 1263 (doesn't fix 1263 itself)
 from qt4transition import qt4todo, lineage
+from debug import print_compact_traceback
 
 def do_what_MainWindowUI_should_do(win):
     """Create some widgets inside the Qt-supplied statusbar, self.statusBar()."""

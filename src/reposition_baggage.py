@@ -6,14 +6,19 @@ $Id$
 '''
 __author__ = 'bruce'
 
-from chem import *
+import math
+
+import platform
+from VQT import V, norm, cross, vlen
+from bonds import find_bond
+from bond_constants import V_SINGLE
 
 from geometry import arbitrary_perpendicular
 
 debugprints = False
 
 # geometry of a tetrahedron (for finding sp3 bonding positions)
-coef1, coef2 = norm( V( 1, sqrt(2) ) )
+coef1, coef2 = norm( V( 1, math.sqrt(2) ) )
 coef1 = - coef1
 
 def reposition_baggage_0(self, baggage = None, planned_atom_nupos = None): #bruce 060629 for bondpoint problem

@@ -7,28 +7,88 @@ $Id$
 __author__ = "Mark" 
     # Josh was the original author, but this has been largely rewritten by Mark. mark 060214.
 
-from Numeric import *
-from selectMode import *
-from selectMolsMode import *
-from selectAtomsMode import *
-from VQT import *
-from chem import *
-import drawer
-from constants import elemKeyTab, GL_FAR_Z
-import platform
-from debug import print_compact_traceback
-from qt4transition import qt4todo
-from elements import PeriodicTable
-from Utility import imagename_to_pixmap, geticon
-from HistoryWidget import orangemsg, redmsg, greenmsg, quote_html
-from qt4transition import *
+import os
+import math # only for pi
+from Numeric import dot
 
-from bonds import bond_atoms, bond_at_singlets
-from bond_constants import V_SINGLE
-from PropMgr_Constants import pmGroupBoxSpacing
-from MMKit import MMKit
+from OpenGL.GL import GL_FALSE
+from OpenGL.GL import glDepthMask
+from OpenGL.GL import GL_TRUE
+from OpenGL.GL import GL_LIGHTING
+from OpenGL.GL import glColor4fv
+from OpenGL.GL import GL_BLEND
+from OpenGL.GL import GL_ONE_MINUS_SRC_ALPHA
+from OpenGL.GL import GL_SRC_ALPHA
+from OpenGL.GL import glBlendFunc
+from OpenGL.GL import glTranslatef
+from OpenGL.GL import glRotatef
+from OpenGL.GL import GL_QUADS
+from OpenGL.GL import glBegin
+from OpenGL.GL import glVertex
+from OpenGL.GL import glEnd
+from OpenGL.GL import glDisable
+from OpenGL.GL import glEnable
+from OpenGL.GL import glPushMatrix
+from OpenGL.GL import glPopMatrix
+
+from OpenGL.GLU import gluUnProject
+
+from PyQt4 import QtGui
+from PyQt4.Qt import Qt
+from PyQt4.Qt import QButtonGroup
+from PyQt4.Qt import QToolButton
+from PyQt4.Qt import QIcon
+from PyQt4.Qt import qApp
+from PyQt4.Qt import QLineEdit
+from PyQt4.Qt import QLabel
+from PyQt4.Qt import QComboBox
+from PyQt4.Qt import QSize
+from PyQt4.Qt import SIGNAL
+from PyQt4.Qt import QCheckBox
+from PyQt4.Qt import QPushButton
 
 import env
+import drawer
+import platform
+from chunk import molecule
+from chem import Atom
+from selectMode import DRAG_STICKINESS_LIMIT
+from elements import Singlet
+from chem import oneUnbonded
+from VQT import Q, A, norm, twistor
+from platform import fix_plurals
+from drawer import drawline
+from selectAtomsMode import selectAtomsMode
+from elements import PeriodicTable
+from Utility import geticon
+from Utility import Group
+from Utility import Node
+from HistoryWidget import orangemsg, redmsg, greenmsg, quote_html
+from bonds import bond_atoms, bond_at_singlets
+from bond_constants import V_SINGLE
+from PropertyManagerMixin import PropertyManagerMixin
+from MMKit import MMKit
+
+from debug import print_compact_stack
+from debug import print_compact_traceback
+
+from constants import elemKeyTab, GL_FAR_Z
+from constants import get_selCurve_color
+from constants import diINVISIBLE
+from constants import diTUBES
+from bond_constants import btype_from_v6
+from bond_constants import V_DOUBLE
+from bond_constants import V_GRAPHITE
+from bond_constants import V_TRIPLE
+from bond_constants import V_AROMATIC
+from prefs_constants import buildModeSelectAtomsOfDepositedObjEnabled_prefs_key
+from prefs_constants import buildModeAutobondEnabled_prefs_key
+from prefs_constants import buildModeWaterEnabled_prefs_key
+from prefs_constants import buildModeHighlightingEnabled_prefs_key
+from PropMgr_Constants import pmGroupBoxSpacing
+
+from qt4transition import qt4todo
+
 
 #bruce 050121 split out hotspot helper functions, for slightly more general use
 
@@ -2401,7 +2461,7 @@ class depositMode(selectAtomsMode, MMKit):
         glPushMatrix()
         q = self.o.quat
         glTranslatef(-self.o.pov[0], -self.o.pov[1], -self.o.pov[2])
-        glRotatef(- q.angle*180.0/pi, q.x, q.y, q.z)
+        glRotatef(- q.angle*180.0/math.pi, q.x, q.y, q.z)
 
 ##        # The following is wrong for wide windows (bug 264).
 ##	# To fix it requires looking at how scale is set (differently

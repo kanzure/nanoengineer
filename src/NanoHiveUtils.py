@@ -14,7 +14,7 @@ __author__ = "Brian"
 
 import env, os, sys, time
 from platform import find_or_make_Nanorex_subdir
-from constants import nanohive_path_prefs_key, nanohive_enabled_prefs_key
+from prefs_constants import nanohive_path_prefs_key, nanohive_enabled_prefs_key
 from PyQt4.Qt import Qt, QApplication, QCursor
 
 def get_nh_simspec_filename(basename):
@@ -51,10 +51,10 @@ def get_nh_mmp_filename(basename):
         return None
 
 def get_nh_espimage_filename(assy, jigname):
-    '''Returns the filename of the ESP Image's png given assy and ESP Image's jigname,
+    """Returns the filename of the ESP Image's png given assy and ESP Image's jigname,
     to be stored in the ESP Image's MMP info record.
     The filename format is "assyname-jigname.png"
-    '''
+    """
     cwd = os.path.join(assy.get_cwd(), assy.name + "-" + jigname + ".png")
     return os.path.normpath(cwd)
         
@@ -97,7 +97,7 @@ def get_nh_config_filename():
     return fn
 
 def run_nh_simulation(assy, sim_id, sim_parms, sims_to_run, results_to_save):
-    '''Run a Nano-Hive simulation on the part (assy).  Only the MPQC_ESP plug-in
+    """Run a Nano-Hive simulation on the part (assy).  Only the MPQC_ESP plug-in
     used for creating an ESP Image file is supported in A7.
     
     sim_id is the simulation id of the simulation.  It is used to construct the 
@@ -123,7 +123,7 @@ def run_nh_simulation(assy, sim_id, sim_parms, sims_to_run, results_to_save):
         6 = "load" command failed
         7 = "run" command failed
         8 = Simulation aborted
-    '''
+    """
     
     if not sims_to_run:
         return # No simulations to run in the list.

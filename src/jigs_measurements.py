@@ -22,16 +22,24 @@ acceptable when the time comes for sim support.
 
 """
 
-from VQT import *
-from shape import *
-from chem import *
-from Utility import *
+import sys
+import Numeric
+from Numeric import dot
+
+import env
+
+from VQT import V, norm, cross, vlen, angleBetween
+from Utility import Node
 from HistoryWidget import redmsg, greenmsg, orangemsg
 from povheader import povpoint #bruce 050413
 from debug import print_compact_stack, print_compact_traceback
-import env #bruce 050901
 from jigs import Jig
 from dimensions import drawLinearDimension, drawAngleDimension, drawDihedralDimension
+from drawer import drawtext
+
+from constants import black
+from prefs_constants import dynamicToolTipAtomDistancePrecision_prefs_key
+from prefs_constants import dynamicToolTipBendAnglePrecision_prefs_key
 
 def _constrainHandleToAngle(pos, p0, p1, p2):
     """This works in two steps.

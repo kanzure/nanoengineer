@@ -10,10 +10,13 @@ History: Original code from GroundProps.py and cleaned up by Mark.
 
 __author__ = "Mark"
 
-from PyQt4.Qt import *
-from JigPropDialog import *
+from PyQt4 import QtGui
+from PyQt4.Qt import QDialog
+from PyQt4.Qt import SIGNAL
+from PyQt4.Qt import QColorDialog
+
+from JigPropDialog import Ui_JigPropDialog
 from widgets import RGBf_to_QColor, QColor_to_RGBf, get_widget_with_color_palette
-import string
 
 # This Jig Property dialog and its slot methods can be used for any simple jig
 # that has only a name and a color attribute changable by the user.  It is currently

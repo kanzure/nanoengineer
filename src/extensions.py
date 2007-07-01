@@ -30,14 +30,12 @@ __author__ = 'bruce'
 
 have_pyrex_test = False
 
-import platform
 debug_pyrex_test = 0 ## was platform.atom_debug, changed to 0 for A7 release by bruce 060419
 
 import env
 from debug import register_debug_menu_command, call_func_with_timing_histmsg, print_compact_traceback
 
 try:
-    import pyrex_test
     from pyrex_test import nbonds
     #e verify it's up-to-date? (could ask it for version and compare to a hardcoded version number in this file...)
     #e run a self-test and/or run our own test on it?

@@ -6,7 +6,11 @@ $Id$
 '''
 __author__ = "Mark"
 
-from LightingToolDialog import *
+from PyQt4.Qt import QWidget
+from PyQt4.Qt import SIGNAL
+from PyQt4.Qt import QDialog
+
+from LightingToolDialog import Ui_LightingToolDialog
 
 class LightingTool(QWidget, Ui_LightingToolDialog):
     def __init__(self, glpane):

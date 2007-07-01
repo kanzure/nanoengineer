@@ -29,14 +29,19 @@ to be revised) . In Alpha9 this class is inherited by PlaneGenerator class
 
 __author__ = "Ninad"
 
+from OpenGL.GL import glPushName
+from OpenGL.GL import glPopName
 
 from OpenGL.GL import glPushName, glPopName
 from Utility import Node
-from constants import darkgreen, orange, yellow, white, gray, gensym
+from jigs import Jig
+from constants import darkgreen, orange, yellow, white, gray
+from constants import gensym
 import env
 import platform
 from DragHandler import DragHandler_API
-from jigs import Jig
+from HistoryWidget import greenmsg
+from debug import print_compact_traceback
 
 
 class ReferenceGeometry(Jig, DragHandler_API):
@@ -184,7 +189,6 @@ class ReferenceGeometry(Jig, DragHandler_API):
             # MORE IS PROBABLY NEEDED HERE: that check above is about whether this selobj got replaced locally;
             # the comments in the calling code are about whether it's no longer being drawn in the current frame;
             # I think both issues are valid and need addressing in this code or it'll probably cause bugs. [061120 comment] ###BUG
-        import env
         if not res and env.debug():
             print "debug: selobj_still_ok is false for %r" % self ###@@@
         return res # I forgot this line, and it took me a couple hours to debug that problem! Ugh.

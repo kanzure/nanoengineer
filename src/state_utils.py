@@ -9,8 +9,8 @@ $Id$
 '''
 __author__ = 'bruce'
 
-from state_constants import *
-import types
+from state_constants import S_DATA, S_CHILD, S_CHILDREN, S_REF, S_REFS, S_PARENT, S_PARENTS, S_CHILDREN_NOT_DATA
+#import types
 from types import InstanceType # use this form in inner loops
 import env
 from debug import print_compact_stack

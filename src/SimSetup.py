@@ -19,17 +19,23 @@ but has all different code than before.)
 '''
 __author__ = "Mark"
 
-from SimSetupDialog import *
 import os
-from movie import Movie
-from PyQt4.Qt import *
-from debug import print_compact_traceback
+
+from PyQt4.Qt import QDialog
+from PyQt4.Qt import QButtonGroup
+from PyQt4.Qt import QAbstractButton
+from PyQt4.Qt import SIGNAL
+
 import env
+
+from SimSetupDialog import Ui_SimSetupDialog
+from movie import Movie
+from debug import print_compact_traceback
 from prefs_widgets import connect_checkbox_with_boolean_pref
 from prefs_constants import Potential_energy_tracefile_prefs_key
 from prefs_constants import electrostaticsForDnaDuringDynamics_prefs_key
-from qt4transition import *
 from debug_prefs import debug_pref, Choice_boolean_False
+from qt4transition import qt4todo
 
 # class FakeMovie:
 #

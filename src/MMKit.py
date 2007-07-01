@@ -13,8 +13,14 @@ Modified by several developers since then.
 At some point, class MMKit became a mixin class for class depositMode.
 """
 
-from MMKitDialog import *
-from PyQt4.Qt import Qt, QDialog, SIGNAL, QIcon, QVBoxLayout, QStringList, QFileDialog, QDir, QTreeView, QTreeWidgetItem, QAbstractItemDelegate, QWhatsThis
+import os, sys
+
+from PyQt4 import QtGui
+from PyQt4.Qt import Qt
+from PyQt4.Qt import QDialog, SIGNAL, QIcon, QVBoxLayout, QStringList, QFileDialog
+from PyQt4.Qt import QDir, QTreeView, QTreeWidgetItem, QAbstractItemDelegate, QWhatsThis
+
+from MMKitDialog import Ui_MMKitDialog
 from ThumbView import MMKitView, ChunkView
 from elements import PeriodicTable
 from constants import diTUBES
@@ -24,11 +30,9 @@ from Utility import imagename_to_icon, geticon
 from assembly import assembly
 from files_mmp import readmmp
 from part import Part
-import os, sys
 import env
 import platform
 from debug import print_compact_traceback
-from qt4transition import *
 from Sponsors import SponsorableMixin
 from PropertyManagerMixin import PropertyManagerMixin, pmSetPropMgrIcon, pmSetPropMgrTitle
 from PropMgr_Constants import pmMMKitPageMargin

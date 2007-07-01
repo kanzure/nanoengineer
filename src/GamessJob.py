@@ -7,19 +7,34 @@ $Id$
 __author__ = "Mark"
 
 import os, sys, time, re
-from Numeric import *
-from VQT import *
+
+from PyQt4.Qt import QDialog
+from PyQt4.Qt import QProcess
+from PyQt4.Qt import QStringList
+from PyQt4.Qt import QProgressDialog
+from PyQt4.Qt import QProgressBar
+from PyQt4.Qt import QMessageBox
+from PyQt4.Qt import QVBoxLayout
+from PyQt4.Qt import QLabel
+from PyQt4.Qt import QPushButton
+from PyQt4.Qt import QSize
+from PyQt4.Qt import SIGNAL
+from PyQt4.Qt import QTimer
+from PyQt4.Qt import SLOT
+from PyQt4.Qt import QThread
+from PyQt4.Qt import QMutex
+
 from SimJob import SimJob
 from SimServer import SimServer
 from GamessProp import GamessProp
 from HistoryWidget import redmsg
 from files_gms import writegms_inpfile, writegms_batfile
-from PyQt4.Qt import * 
 import preferences
-from constants import *
 import env
 from Utility import geticon
 
+from prefs_constants import gmspath_prefs_key
+from prefs_constants import gamess_enabled_prefs_key
 
 failpat = re.compile("-ABNORMALLY-")
 irecpat = re.compile(" (\w+) +\d+\.\d* +([\d\.E+-]+) +([\d\.E+-]+) +([\d\.E+-]+)")

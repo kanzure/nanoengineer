@@ -21,14 +21,18 @@ History:
 # For now it ignores existing atomtypes and creates new bonds appropriate for sp3
 # perhaps plus some extra too-long bonds at the end, if permitted by valence.
 
-from VQT import vlen, pi
-from bonds import bonded, bond_atoms_faster, V_SINGLE, NeighborhoodGenerator
+import math
+
+from VQT import vlen
+import env
+from bonds import bonded, bond_atoms_faster, NeighborhoodGenerator
+from bond_constants import V_SINGLE
 from chem import atom_angle_radians
 from bond_constants import bond_params # 
 
 # constants; angles are in radians
 
-degrees = pi / 180
+degrees = math.pi / 180
 
 TARGET_ANGLE = 114 * degrees  #e this will probably need to be generalized for non-sp3 atoms
 MIN_BOND_ANGLE = 30 * degrees # accepts moderately distorted three-membered rings
@@ -360,10 +364,6 @@ def make_bonds(atmlist, bondtyp=V_SINGLE):
 
 # ==
 
-# I'm not sure what Bruce intended here, this looks like the closest existing thing.  -Will 060613
-#import env
-#from env import register_command ###IMPLEM and maybe move
-import debug
 from debug import register_debug_menu_command
 
 def remake_bonds_in_selection( selection ):

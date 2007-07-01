@@ -13,15 +13,23 @@ to this file.
 
 __author__ = "Ninad"
 
-from PyQt4.Qt import *
 from PyQt4 import QtGui
+from PyQt4.Qt import QWidget
+from PyQt4.Qt import QSizePolicy
+from PyQt4.Qt import QHBoxLayout
+from PyQt4.Qt import QButtonGroup
+from PyQt4.Qt import QToolButton
+from PyQt4.Qt import QSize
+from PyQt4.Qt import Qt
+from PyQt4.Qt import QSpacerItem
+from PyQt4.Qt import QString
+from PyQt4.Qt import QPalette
+
 from Utility import geticon
-##from PyQt4.QtGui import QPalette, QWidget, QHBoxLayout, QButtonGroup
-from PyQt4.QtGui import *
 from wiki_help import QToolBar_WikiHelp
-from CmdMgr_Constants import cmdMgrCntrlAreaBtnColor,\
-     cmdMgrSubCntrlAreaBtnColor,\
-     cmdMgrCmdAreaBtnColor
+from CmdMgr_Constants import cmdMgrCntrlAreaBtnColor
+from CmdMgr_Constants import cmdMgrSubCntrlAreaBtnColor
+from CmdMgr_Constants import cmdMgrCmdAreaBtnColor
 
 
 class Ui_CommandManager:

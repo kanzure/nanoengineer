@@ -10,14 +10,19 @@ Created by Mark.
 '''
 __author__ = "Mark"
 
-from PyQt4.Qt import *
+import os
+
+from PyQt4.Qt import QWidget
+from PyQt4.Qt import SIGNAL
+from PyQt4.Qt import QDialog
+from PyQt4.Qt import QString
+
+import env
+
 from NanoHiveDialog import Ui_NanoHiveDialog
 from HistoryWidget import redmsg, greenmsg, orangemsg
-import env, os
-from constants import *
 from jigs_planes import ESPImage
-from files_nh import *
-from NanoHiveUtils import *
+from NanoHiveUtils import run_nh_simulation
 
 debug_nanohive = 0 # DO NOT COMMIT with 1
     #bruce 051115: renamed debug_sim -> debug_nanohive, to avoid confusion between this variable (apparently never used)

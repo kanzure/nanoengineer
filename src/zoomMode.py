@@ -7,7 +7,26 @@ $Id$
 """
 __author__ = "Mark"
 
-from modes import *
+from Numeric import dot
+
+from OpenGL.GL import GL_DEPTH_TEST
+from OpenGL.GL import glDisable
+from OpenGL.GL import GL_LIGHTING
+from OpenGL.GL import glColor3d
+from OpenGL.GL import GL_COLOR_LOGIC_OP
+from OpenGL.GL import glEnable
+from OpenGL.GL import GL_XOR
+from OpenGL.GL import glLogicOp
+from OpenGL.GL import glFlush
+from OpenGL.GL import GL_DEPTH_COMPONENT
+from OpenGL.GL import glReadPixelsf
+from OpenGL.GLU import gluUnProject
+
+from PyQt4.Qt import Qt
+
+from VQT import V, A
+import drawer
+from modes import basicMode
 from constants import GL_FAR_Z
 
 

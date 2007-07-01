@@ -13,9 +13,9 @@ __author__ = "Will"
 
 import os
 import sys
-import types
 import xml.dom.minidom
-import EpydocTest
+
+import Initialize
 
 # This is just a convenience function to see what's in the
 # metadata file, and how to navigate it.
@@ -105,10 +105,15 @@ class Plugin:
         print cmd
         os.system(cmd)
 
+# as of 2007/06/19, this code isn't used, and doesn't work becuase it
+# depends on the current working directory being set properly, and it
+# isn't.
 _plugindir = '../plugins/'
 _plugins = [ ]
 
-if (not EpydocTest.documenting()):
+def initialize():
+    if (Initialize.startInitialization(__name__)):
+        return
     for d in os.listdir(_plugindir):
         if d != 'CVS':
             path = os.path.join(_plugindir, d)
@@ -117,3 +122,4 @@ if (not EpydocTest.documenting()):
                 _plugins.append(p)
                 p.makeClean()
                 p.make()
+    Initialize.endInitialization(__name__)

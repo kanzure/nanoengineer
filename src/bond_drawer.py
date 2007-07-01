@@ -13,34 +13,66 @@ higher-order bonds.
 
 __author__ = "Josh"
 
-
-from VQT import *
-
-from constants import * # note: this doesn't import _default_toolong_hicolor due to its initial '_'
-from prefs_constants import _default_toolong_hicolor ## not yet in prefs db
-
-import platform
-from debug import print_compact_stack, print_compact_traceback
-from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
-
-from OpenGL.GL import *
-from OpenGL.GLU import *
-
-from drawer import *
-
-from povheader import povpoint #bruce 050413
-
-from chem import stringVec
-
-from bond_constants import *
-
-from elements import Singlet
+from OpenGL.GL import glPushName
+from OpenGL.GL import glPopName
+from OpenGL.GL import GL_LIGHTING
+from OpenGL.GL import glDisable
+from OpenGL.GL import glEnable
+try:
+    from OpenGL.GLE import glePolyCone
+except:
+    from OpenGL._GLE import glePolyCone
 
 from PyQt4.Qt import QFont, QString, QColor ###k
-from ThumbView import MMKitView
+
+from VQT import V
+from VQT import norm
+from drawer import ColorSorter
+from drawer import drawline
+from drawer import drawcylinder
+from drawer import drawsphere
 
 import env
 import platform
+
+from povheader import povpoint #bruce 050413
+from chem import stringVec
+from elements import Singlet
+from ThumbView import MMKitView
+
+from debug import print_compact_stack, print_compact_traceback
+from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
+
+from constants import diDEFAULT
+from constants import diLINES
+from constants import diBALL
+from constants import diTUBES
+from constants import TubeRadius
+from constants import diINVISIBLE
+from constants import diBALL_SigmaBondRadius
+from constants import ave_colors
+from constants import green
+from constants import yellow
+from constants import red
+from constants import blue
+from constants import black
+from constants import white
+from bond_constants import V_SINGLE
+from bond_constants import V_DOUBLE
+from bond_constants import V_TRIPLE
+from bond_constants import bond_letter_from_v6
+from bond_constants import V_AROMATIC
+from bond_constants import V_GRAPHITE
+from bond_constants import V_CARBOMERIC
+from prefs_constants import _default_toolong_hicolor ## not yet in prefs db
+from prefs_constants import diBALL_BondCylinderRadius_prefs_key
+from prefs_constants import pibondLetters_prefs_key
+from prefs_constants import pibondStyle_prefs_key
+from prefs_constants import arrowsOnBackBones_prefs_key
+from prefs_constants import showBondStretchIndicators_prefs_key
+from prefs_constants import linesDisplayModeThickness_prefs_key
+from prefs_constants import bondStretchColor_prefs_key
+from prefs_constants import diBALL_bondcolor_prefs_key
 
 # ==
 
@@ -107,7 +139,7 @@ class writepov_to_file:
         self.tube3(pos1, pos2, color, radius)
     def drawsphere(self, color, pos, radius): # arg order compatible with drawer.drawsphere, except no detailLevel; not yet called or tested [060622]
         ###k not compared with other calls of atom macro, or tested; kluge that it uses atom macro, since not all spheres are atoms
-        self.file.write( "atom(" + str(pos) + ", " + str(rad) + ", " + stringVec(col) + ")\n")
+        self.file.write( "atom(" + str(pos) + ", " + str(radius) + ", " + stringVec(color) + ")\n")
     pass
 
 # ==
@@ -511,7 +543,6 @@ def draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highli
             color = red
         else:
             color = color2
-        from drawer import glePolyCone
         if direction == 0:
             pass # print "draw a confused/unknown direction somehow" # two orange arrows? no arrow?
         else:            

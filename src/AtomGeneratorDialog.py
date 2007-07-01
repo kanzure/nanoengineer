@@ -50,12 +50,12 @@ History:
         
 __author__ = "Jeff"
 
-import sys
-from PyQt4.Qt import *
 from Utility import geticon, getpixmap
-from PropMgrBaseClass import *
-from PropMgr_Constants import *
 from bonds import CC_GRAPHITIC_BONDLENGTH
+from PropMgrBaseClass import PropMgrBaseClass
+from PropMgrBaseClass import PropMgrGroupBox
+from PropMgrBaseClass import PropMgrComboBox
+from PropMgrBaseClass import PropMgrDoubleSpinBox
 
 class AtomPropertyManager(object, PropMgrBaseClass):
     """ Implements user interface to specify properties of an atom """

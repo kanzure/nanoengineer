@@ -6,7 +6,9 @@ $Id$
 """
 __author__ = "Mark"
 
-from modes import *
+from PyQt4.Qt import Qt
+
+from modes import basicMode
 
 class panMode(basicMode):
 

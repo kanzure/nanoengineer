@@ -11,14 +11,21 @@ ninad 20070602: Created.
 """
 __author__ = "Ninad"
 
-import sys
-from PyQt4.Qt import *
-from PyQt4 import QtGui
-from PyQt4.QtGui import QAction, QButtonGroup, QRadioButton, QAbstractButton
+
+from PyQt4.Qt import SIGNAL
+from PyQt4.Qt import QAction
+from PyQt4.Qt import QActionGroup
+from PyQt4.Qt import QButtonGroup
+
 from Utility import geticon, getpixmap
-from PropMgrBaseClass import *
-from PropMgr_Constants import *
+from PropMgrBaseClass import PropMgrBaseClass
 from PropertyManagerMixin import PropertyManagerMixin
+
+from PropMgrBaseClass import PropMgrGroupBox
+from PropMgrBaseClass import PropMgrDoubleSpinBox
+from PropMgrBaseClass import PropMgrToolButton
+from PropMgrBaseClass import PropMgrRadioButton
+from PropMgr_Constants import pmRestoreDefaultsButton
 
 
 class PlanePropMgr(object,PropMgrBaseClass):
@@ -141,10 +148,10 @@ class PlanePropMgr(object,PropMgrBaseClass):
         to implement this in future instead of radio buttons so keeping this code
         This function is not called. -- ninad 20070604
         """ 
-        self.planePlacementActionGrp = QtGui.QActionGroup(self.win)         
-        self.parallelToScreenAction = QtGui.QAction(pmGroupBox)
+        self.planePlacementActionGrp = QActionGroup(self.win)         
+        self.parallelToScreenAction = QAction(pmGroupBox)
         self.parallelToScreenAction.setText("Parallel to Screen")                
-        self.throughSelectedAtomsAction = QtGui.QAction(pmGroupBox)
+        self.throughSelectedAtomsAction = QAction(pmGroupBox)
         self.throughSelectedAtomsAction.setText("Through Selected Atoms")
         
         for act in self.parallelToScreenAction, self.throughSelectedAtomsAction:
@@ -182,7 +189,7 @@ class PlanePropMgr(object,PropMgrBaseClass):
                 
     
     def change_plane_size(self, gl_update=True):
-        '''Slot method to change the Plane's width and height'''
+        """Slot method to change the Plane's width and height"""
         if not self.resized_from_glpane:
             self.geometry.width = self.widthDblSpinBox.value()# motor length
             self.geometry.height = self.heightDblSpinBox.value() # motor radius
@@ -199,4 +206,4 @@ class PlanePropMgr(object,PropMgrBaseClass):
         self.resized_from_glpane = True
         self.heightDblSpinBox.setValue(self.geometry.height)
         self.widthDblSpinBox.setValue(self.geometry.width)
-        self.resized_from_glpane = False    
+        self.resized_from_glpane = False

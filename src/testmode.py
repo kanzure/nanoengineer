@@ -33,16 +33,19 @@ in built releases).
 
 __author__ = "bruce"
 
-from modes import *
-from debug import print_compact_traceback, register_debug_menu_command
 import time, math
 
-from state_utils import copy_val
+from OpenGL.GL import GL_LEQUAL
 
-from selectMode import *
-from selectMolsMode import *
-from selectAtomsMode import *
+from VQT import V, Q
+from state_utils import copy_val
 from depositMode import depositMode
+
+from debug import print_compact_traceback, register_debug_menu_command
+from debug_prefs import Choice_boolean_True
+from debug_prefs import Choice_boolean_False
+from debug_prefs import debug_pref
+
 
 annoyers = ['editToolbar', 'fileToolbar', 'helpToolbar', 'modifyToolbar',
             'molecularDispToolbar', 'selectToolbar', 'simToolbar',

@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 VQT.py 
 
@@ -16,16 +16,13 @@ $Id$
 
 __author__ = "Josh"
 
-import math, types
-# warning: some names imported by the following 'import *'s are used in other modules which import * from this module
-from math import *
-from Numeric import *
-from LinearAlgebra import *
+import math
 import platform
 from debug import print_compact_traceback #bruce 060228
-from prefs_constants import * #ninad060906 
 import env #ninad 060906
-from qt4transition import *
+
+import Numeric
+import prefs_constants
 
 debug_quats = 1 #bruce 050518; I'll leave this turned on in the main sources for awhile
 
@@ -33,8 +30,8 @@ intType = type(2)
 floType = type(2.0)
 numTypes = [intType, floType]
 
-def V(*v): return array(v, Float)
-def A(a):  return array(a, Float)
+def V(*v): return Numeric.array(v, Numeric.Float)
+def A(a):  return Numeric.array(a, Numeric.Float)
 
 def cross(v1, v2):
     #bruce 050518 comment: for int vectors, this presumably gives an int vector result
@@ -48,7 +45,7 @@ def vlen(v1):
     #bruce 050518 question: is vlen correct for int vectors, not only float ones?
     # In theory it should be, since sqrt works for int args and always gives float answers.
     # And is it correct for Numeric arrays of vectors? I don't know; norm is definitely not.
-    return dot(v1, v1) ** 0.5
+    return Numeric.dot(v1, v1) ** 0.5
 
 def norm(v1):
     #bruce 050518 questions:
@@ -58,7 +55,7 @@ def norm(v1):
     # No... clearly the "if" makes the same choice for all of them, but even ignoring that,
     # it gives an alignment exception for any vector-array rather than working at all.
     # I don't know how hard that would be to fix.
-    lng = dot(v1, v1) ** 0.5
+    lng = Numeric.dot(v1, v1) ** 0.5
     if lng:
         return v1 / lng
         # bruce 041012 optimized this by using lng instead of
@@ -70,10 +67,10 @@ def norm(v1):
 # cases where numerical anomalies could pop up
 def angleBetween(vec1, vec2):
     TEENY = 1.0e-10
-    lensq1 = dot(vec1, vec1)
+    lensq1 = Numeric.dot(vec1, vec1)
     if lensq1 < TEENY:
         return 0.0
-    lensq2 = dot(vec2, vec2)
+    lensq2 = Numeric.dot(vec2, vec2)
     if lensq2 < TEENY:
         return 0.0
     
@@ -90,12 +87,11 @@ def angleBetween(vec1, vec2):
     #diff = vec1 - vec2
     #if dot(diff, diff) < TEENY:
     #    return 0.0
-    dprod = dot(vec1, vec2)
+    dprod = Numeric.dot(vec1, vec2)
     if dprod >= 1.0:
         return 0.0
     if dprod <= -1.0:
         return 180.0
-    import math
     return (180/math.pi) * math.acos(dprod)
 
 # p1 and p2 are points, v1 is a direction vector from p1.
@@ -104,7 +100,7 @@ def angleBetween(vec1, vec2):
 #  distance from p2 to the p1-v1 line.
 # v1 should be a unit vector.
 def orthodist(p1, v1, p2):
-    dist = dot(v1, p2-p1)
+    dist = Numeric.dot(v1, p2-p1)
     wid = vlen(p1+dist*v1-p2)
     return (dist, wid)
 
@@ -181,8 +177,8 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
             
         elif type(y) in numTypes:
             # axis vector and angle [used often]
-            v = (x / vlen(x)) * sin(y*0.5)
-            self.vec = V(cos(y*0.5), v[0], v[1], v[2])
+            v = (x / vlen(x)) * Numeric.sin(y*0.5)
+            self.vec = V(Numeric.cos(y*0.5), v[0], v[1], v[2])
             
         elif y is not None:
             # rotation between 2 vectors [used often]
@@ -196,9 +192,9 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
             # I didn't fix that problem.
             x = norm(x)
             y = norm(y)
-            dotxy = dot(x, y)
+            dotxy = Numeric.dot(x, y)
             v = cross(x, y)
-            vl = dot(v, v) ** .5
+            vl = Numeric.dot(v, v) ** .5
             if vl<0.000001:
                 # x,y are very close, or very close to opposite, or one of them is zero
                 if dotxy < 0:
@@ -221,10 +217,10 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
             else:
                 # old code's method is numerically unstable if abs(dotxy) is close to 1. I didn't fix this.
                 # I also didn't review this code (unchanged from old code) for correctness. [bruce 050730]
-                theta = acos(min(1.0,max(-1.0,dotxy)))
-                if dot(y, cross(x, v)) > 0.0:
-                    theta = 2.0 * pi - theta
-                w=cos(theta*0.5)
+                theta = math.acos(min(1.0,max(-1.0,dotxy)))
+                if Numeric.dot(y, cross(x, v)) > 0.0:
+                    theta = 2.0 * math.pi - theta
+                w=Numeric.cos(theta*0.5)
                 s=((1-w**2)**.5)/vl
                 self.vec=V(w, v[0]*s, v[1]*s, v[2]*s)
             pass
@@ -254,7 +250,7 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
         elif attr in ('z', 'k'):
             return self.vec[3]
         elif attr == 'angle':
-            if -1.0<self.vec[0]<1.0: return 2.0*acos(self.vec[0])
+            if -1.0<self.vec[0]<1.0: return 2.0*math.acos(self.vec[0])
             else: return 0.0
         elif attr == 'axis':
             return V(self.vec[1], self.vec[2], self.vec[3])
@@ -271,7 +267,7 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
             #  This will optimize it too (avoiding 42 __getattr__ calls!).
             # ]
             w, x, y, z = self.vec
-            self.__dict__['matrix'] = mat = array([\
+            self.__dict__['matrix'] = mat = Numeric.array([\
                     [1.0 - 2.0*(y**2 + z**2),
                      2.0*(x*y + z*w),
                      2.0*(z*x - y*w)],
@@ -311,9 +307,9 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
         """Set the quaternion's rotation to theta (destructive modification).
         (In the same direction as before.)
         """
-        theta = remainder(theta/2.0, pi)
-        self.vec[1:] = norm(self.vec[1:]) * sin(theta)
-        self.vec[0] = cos(theta)
+        theta = Numeric.remainder(theta/2.0, math.pi)
+        self.vec[1:] = norm(self.vec[1:]) * Numeric.sin(theta)
+        self.vec[0] = Numeric.cos(theta)
         self.__reset()
         return self
 
@@ -362,7 +358,7 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
         return self + (-q1)
 
     def __isub__(self, q1):
-        return __iadd__(self, -q1)
+        return self.__iadd__(-q1)
 
     def __mul__(self, n):
         """multiplication by a scalar, i.e. Q1 * 1.3, defined so that
@@ -403,8 +399,8 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
         return 'Q(%g, %g, %g, %g)' % (self.w, self.x, self.y, self.z)
 
     def __str__(self):
-        a= "<q:%6.2f @ " % (2.0*acos(self.w)*180/pi)
-        l = sqrt(self.x**2 + self.y**2 + self.z**2)
+        a= "<q:%6.2f @ " % (2.0*math.acos(self.w)*180/math.pi)
+        l = Numeric.sqrt(self.x**2 + self.y**2 + self.z**2)
         if l:
             z=V(self.x, self.y, self.z)/l
             a += "[%4.3f, %4.3f, %4.3f] " % (z[0], z[1], z[2])
@@ -424,7 +420,7 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
     def normalize(self):
         w=self.vec[0]
         v=V(self.vec[1],self.vec[2],self.vec[3])
-        length = dot(v, v) ** .5
+        length = Numeric.dot(v, v) ** .5
         if length:
             s=((1.0-w**2)**.5)/length
             self.vec = V(w, v[0]*s, v[1]*s, v[2]*s)
@@ -432,7 +428,7 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
         return self
 
     def unrot(self,v):
-        return matrixmultiply(self.matrix,v)
+        return Numeric.matrixmultiply(self.matrix,v)
 
     def vunrot(self,v):
         # for use with row vectors
@@ -440,10 +436,10 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
         #  the comment about 'matrix' in __getattr__ (also old and by Josh)
         #  that it's the transpose of the normal form so it can be used for row vectors.
         #  See the other comment for more info.]
-        return matrixmultiply(v,transpose(self.matrix))
+        return Numeric.matrixmultiply(v,Numeric.transpose(self.matrix))
 
     def rot(self,v):
-        return matrixmultiply(v,self.matrix)
+        return Numeric.matrixmultiply(v,self.matrix)
 
     pass # end of class Q
 
@@ -458,17 +454,17 @@ def twistor_angle(axis, pt1, pt2): #bruce 050724 split this out of twistor()
     q = Q(axis, V(0,0,1))
     pt1 = q.rot(pt1)
     pt2 = q.rot(pt2)
-    a1 = atan2(pt1[1],pt1[0])
-    a2 = atan2(pt2[1],pt2[0])
+    a1 = math.atan2(pt1[1],pt1[0])
+    a2 = math.atan2(pt2[1],pt2[0])
     theta = a2-a1
     return theta
 
 # project a point from a tangent plane onto a unit sphere
 def proj2sphere(x, y):
     d = (x*x + y*y) ** .5
-    theta = pi * 0.5 * d
-    s = sin(theta)
-    if d > 0.0001: return V(s*x/d, s*y/d, cos(theta))
+    theta = math.pi * 0.5 * d
+    s = Numeric.sin(theta)
+    if d > 0.0001: return V(s*x/d, s*y/d, Numeric.cos(theta))
     else: return V(0.0, 0.0, 1.0)
 
 class Trackball:
@@ -505,7 +501,7 @@ class Trackball:
         
         # ninad060906 initializing the factor 'mouse speed during rotation' here instead of init 
         #so that it will come to effect  immediately
-        self.mouseSpeedDuringRotation = env.prefs[mouseSpeedDuringRotation_prefs_key] 
+        self.mouseSpeedDuringRotation = env.prefs[prefs_constants.mouseSpeedDuringRotation_prefs_key] 
         
         self.oldmouse = proj2sphere( (px - self.w2)*self.scale*self.mouseSpeedDuringRotation,
                                      (self.h2 - py)*self.scale*self.mouseSpeedDuringRotation )
@@ -543,7 +539,7 @@ def ptonline(xpt, lpt, ldr):
     nearest to point xpt
     """
     ldr = norm(ldr)
-    return dot(xpt-lpt,ldr)*ldr + lpt
+    return Numeric.dot(xpt-lpt,ldr)*ldr + lpt
 
 def planeXline(ppt, pv, lpt, lv):
     """Find the intersection of a line (point lpt on line, unit vector lv along line)
@@ -552,9 +548,9 @@ def planeXline(ppt, pv, lpt, lv):
        WARNING: don't use a boolean test on the return value, since V(0,0,0) is a real point
     but has boolean value False. Use "point is not None" instead.
     """
-    d=dot(lv,pv)
+    d=Numeric.dot(lv,pv)
     if abs(d)<0.000001: return None
-    return lpt+lv*(dot(ppt-lpt,pv)/d)
+    return lpt+lv*(Numeric.dot(ppt-lpt,pv)/d)
 
 def cat(a,b):
     """concatenate two arrays (the Numeric Python version is a mess)
@@ -570,16 +566,16 @@ def cat(a,b):
         if (debug_quats or platform.atom_debug):
             print "debug_quats: cat(a,b) with false b -- is it right?",b
         return a
-    r1 = shape(a)
-    r2 = shape(b)
-    if len(r1) == len(r2): return concatenate((a,b))
+    r1 = Numeric.shape(a)
+    r2 = Numeric.shape(b)
+    if len(r1) == len(r2): return Numeric.concatenate((a,b))
     if len(r1)<len(r2):
-        return concatenate((reshape(a,(1,)+r1), b))
-    else: return concatenate((a,reshape(b,(1,)+r2)))
+        return Numeric.concatenate((Numeric.reshape(a,(1,)+r1), b))
+    else: return Numeric.concatenate((a,Numeric.reshape(b,(1,)+r2)))
 
 def Veq(v1, v2):
     "tells if v1 is all equal to v2"
-    return logical_and.reduce(v1==v2)
+    return Numeric.logical_and.reduce(v1==v2)
     #bruce comment 050518: I guess that not (v1 != v2) would also work (and be slightly faster)
     # (in principle it would work, based on my current understanding of Numeric...)
 
@@ -633,4 +629,3 @@ if __name__ == '__main__':
     print "tests done"
     
 # end
-

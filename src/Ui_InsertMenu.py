@@ -3,10 +3,8 @@
 $Id$
 """
 
-import sys
 from PyQt4 import QtCore, QtGui
 from PyQt4.Qt import Qt
-from qt4transition import *
 from Utility import geticon
 from debug_prefs import debug_pref, Choice_boolean_False
 

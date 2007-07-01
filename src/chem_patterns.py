@@ -16,6 +16,7 @@ Todo later:
 __author__ = "bruce"
 
 import env, platform
+import debug
 
 cmdname = "Select Bad Atoms"
 
@@ -38,7 +39,6 @@ def compile_patterns():
 def select_bad_atoms_cmd(widget): #bruce 060615 demo of simple "spelling checker" with hardcoded rules
     """Out of the selected atoms or chunks, select the atoms which have "bad spelling"."""
     from HistoryWidget import orangemsg, redmsg, greenmsg
-    from platform import fix_plurals
     greencmd = greenmsg("%s: " % cmdname)
     orangecmd = orangemsg("%s: " % cmdname) # used when bad atoms are found, even though no error occurred in the command itself
     win = env.mainwindow()
@@ -102,15 +102,14 @@ def select_bad_atoms_cmd(widget): #bruce 060615 demo of simple "spelling checker
     for a in bad_atoms.itervalues():
         a.pick()
         reallypicked += (not not a.picked) # check for selection filter effect
-    env.history.message(orangecmd + fix_plurals(
+    env.history.message(orangecmd + platform.fix_plurals(
                         "%s %s %d bad atom(s), in %d bad pattern(s)." % \
                         (checked_in_what, contained, len(bad_atoms), len(bad_triples)) ))
     if reallypicked < len(bad_atoms):
-        env.history.message( orangemsg("Warning: ") + fix_plurals(
+        env.history.message( orangemsg("Warning: ") + platform.fix_plurals(
                              "%d bad atom(s) were/was not selected due to the selection filter." % \
                              (len(bad_atoms) - reallypicked) ))
     win.mt.update_select_mode()
     return
 
-from debug import register_debug_menu_command
-register_debug_menu_command("%s" % cmdname, select_bad_atoms_cmd)
+debug.register_debug_menu_command("%s" % cmdname, select_bad_atoms_cmd)

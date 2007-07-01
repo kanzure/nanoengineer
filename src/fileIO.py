@@ -22,17 +22,20 @@ functionality from MWsemantics.py.
 # in this module will be these imports -- perhaps still in use, as
 # explained above.
 
-from Numeric import *
-from VQT import *
-from string import * # this might no longer be needed [bruce 050414 comment]
-import re
-from chem import * # needed for atom, bond_atoms, maybe not anything else [bruce 050414 guess]
-from jigs import *
-from Utility import *
+import math
+
+import env
+from VQT import V, Q, A, vlen
 from povheader import povheader, povpoint
-from mdldata import *
+from mdldata import mdlheader
+from mdldata import mdlfooter
 from HistoryWidget import redmsg
 from elements import PeriodicTable
+
+from constants import diINVISIBLE
+from prefs_constants import PERSPECTIVE
+from prefs_constants import material_specular_highlights_prefs_key
+from prefs_constants import material_specular_finish_prefs_key
 
 # ==
 
@@ -56,7 +59,7 @@ def writepovfile(part, glpane, filename): #bruce 050927 replaced assy argument w
     up = V(0.0, zfactor, 0.0)
     right = V( aspect * zfactor, 0.0, 0.0) ##1.33  
     import math
-    angle = 2.0*atan2(aspect, cdist)*180.0/math.pi
+    angle = 2.0*math.atan2(aspect, cdist)*180.0/math.pi
     
     f.write("// Recommended window size: width=%d, height=%d \n"%(glpane.width, glpane.height))
     f.write("// Suggested command line switches: +A +W%d +H%d\n\n"%(glpane.width, glpane.height))
@@ -85,7 +88,7 @@ def writepovfile(part, glpane, filename): #bruce 050927 replaced assy argument w
         if not vlen(V(dt.x, dt.y, dt.z)):
             # This addresses a problem in POV-Ray when dt=0,0,0 for Axis_Rotate_Trans. mark 051111.
             dt.x = .00001  
-        degY = dt.angle*180.0/pi
+        degY = dt.angle*180.0/math.pi
         f.write("sky_sphere {\n" +
         "    pigment {\n" +
         "      gradient y\n" +

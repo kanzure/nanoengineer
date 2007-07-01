@@ -12,7 +12,6 @@ ninad070425 :1) Moved Fuse dashboard to Property manager
 """
 __author__  = "Ninad"
 
-import sys
 from PyQt4 import QtCore, QtGui
 from PropertyManagerMixin import PropertyManagerMixin, pmSetPropMgrIcon, pmSetPropMgrTitle
 from Ui_FusePropertyManager import Ui_FusePropertyManager

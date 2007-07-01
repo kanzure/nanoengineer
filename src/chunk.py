@@ -47,8 +47,34 @@ __author__ = "Josh"
 # and everything from it is imported into some other modules.
 # [bruce comment 050502] ###@@@
 
-from chem import *
-from chem import _changed_parent_Atoms # needed whenever we change an atom's .molecule
+import math # only used for pi, everything else is from Numeric
+
+import Numeric
+from Numeric import array
+from Numeric import add
+from Numeric import dot
+from Numeric import PyObject
+from Numeric import argsort
+from Numeric import compress
+from Numeric import take
+from Numeric import argmax
+
+from OpenGL.GL import glGenLists
+from OpenGL.GL import glPushMatrix
+from OpenGL.GL import glTranslatef
+from OpenGL.GL import glRotatef
+from OpenGL.GL import glPopMatrix
+from OpenGL.GL import glCallList
+from OpenGL.GL import GL_COMPILE_AND_EXECUTE
+from OpenGL.GL import glNewList
+from OpenGL.GL import glEndList
+
+# chunk and chem form a two element import cycle
+import chem
+
+from VQT import V, Q, A, vlen
+
+from Utility import Node
 
 from debug import print_compact_stack, print_compact_traceback, safe_repr # safe_repr uses revised by bruce 070131
 
@@ -63,7 +89,33 @@ import drawer #bruce 051126
 from undo_archive import register_class_nickname
 from state_utils import copy_val, same_vals #bruce 060308
 from displaymodes import get_display_mode_handler
-from constants import gensym
+from constants import gensym, genKey
+from constants import diDEFAULT
+
+from state_constants import S_REF, S_CHILDREN_NOT_DATA
+
+import platform
+
+from Utility import imagename_to_pixmap
+
+# bonds, chem, and chunk form an import cycle
+import bonds
+
+from elements import Singlet
+
+from shape import BBox
+from drawer import ColorSorter
+from drawer import drawlinelist
+from constants import PickedColor
+from constants import darkgreen
+from constants import diBALL
+from constants import diLINES
+from constants import diTUBES
+from constants import diINVISIBLE
+from elements import PeriodicTable
+from ChunkProp import ChunkProp
+
+
 
 _inval_all_bonds_counter = 1 #bruce 050516
 
@@ -380,7 +432,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         since the specific molecule asked to do this need not be either atom's
         molecule, and is not used in the method at all.)
         """
-        bond_atoms(at1, at2) #bruce 041109 split out separate function to do it
+        bonds.bond_atoms(at1, at2) #bruce 041109 split out separate function to do it
         ## old code assumed both atoms were in this molecule; often not true!
         ## self.havelist = 0
         return
@@ -412,7 +464,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # make atom know molecule
         assert atm.molecule is None or atm.molecule is _nullMol
         atm.molecule = self
-        _changed_parent_Atoms[atm.key] = atm #bruce 060322
+        chem._changed_parent_Atoms[atm.key] = atm #bruce 060322
         atm.index = -1 # illegal value
         # make molecule have atom
         self.atoms[atm.key] = atm
@@ -425,7 +477,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         (it can do invalidate_atom_lists once, for many calls of this)
         """
         atm.molecule = self
-        _changed_parent_Atoms[atm.key] = atm #bruce 060322
+        chem._changed_parent_Atoms[atm.key] = atm #bruce 060322
         self.atoms[atm.key] = atm
         return
     
@@ -453,7 +505,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             # this newer method might or might not have that problem
             _nullMol = _make_nullMol()
         atm.molecule = _nullMol # not a real mol; absorbs invals without harm
-        _changed_parent_Atoms[atm.key] = atm #bruce 060322
+        chem._changed_parent_Atoms[atm.key] = atm #bruce 060322
         # (note, we *don't* add atm to _nullMol.atoms, or do invals on it here;
         #  see comment about _nullMol where it's defined)
 
@@ -853,7 +905,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         origin = self.basecenter
         glTranslatef(origin[0], origin[1], origin[2])
         q = self.quat
-        glRotatef(q.angle*180.0/pi, q.x, q.y, q.z)
+        glRotatef(q.angle*180.0/math.pi, q.x, q.y, q.z)
 
     def popMatrix(self): #bruce 050609
         "Undo the effect of self.pushMatrix()."
@@ -934,7 +986,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             origin = self.basecenter
             glTranslatef(origin[0], origin[1], origin[2])
             q = self.quat
-            glRotatef(q.angle*180.0/pi, q.x, q.y, q.z)
+            glRotatef(q.angle*180.0/math.pi, q.x, q.y, q.z)
 
             disp = self.get_dispdef(glpane) #bruce 041109 split into separate method
             # disp is passed to two methods below... but if we use a cached display
@@ -1926,7 +1978,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # atom half-thicknesses at places they're hit
         r_xy_2_p1 = take( r_xy_2, p1inds)
         radii_2_p1 = take( radii_2, p1inds)
-        thicks_p1 = sqrt( radii_2_p1 - r_xy_2_p1 )
+        thicks_p1 = Numeric.sqrt( radii_2_p1 - r_xy_2_p1 )
         # now front surfaces are at vp1z + thicks_p1, backs at vp1z - thicks_p1
 
         fronts = vp1z + thicks_p1 # arbitrary order (same as vp1)
@@ -1970,7 +2022,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                     r_xy_2_0 = r_xy_2[ind]
                     radii_2_0 = rad2
                     if r_xy_2_0 <= radii_2_0:
-                        thick_0 = sqrt( radii_2_0 - r_xy_2_0 )
+                        thick_0 = Numeric.sqrt( radii_2_0 - r_xy_2_0 )
                         zz = v[ind][2] + thick_0
                         if zz < near_cutoff:
                             pairs.append( (zz,ind) )
@@ -2000,7 +2052,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # and it is, by atom.setDisplay calling changeapp(1) on its chunk.
         disp = self.get_dispdef() ##e should caller pass this instead?
         eltprefs = PeriodicTable.rvdw_change_counter # (color changes don't matter for this, unlike for havelist)
-        radiusprefs = Atom.selradius_prefs_values() #bruce 060317 -- include this in the tuple below, to fix bug 1639
+        radiusprefs = chem.Atom.selradius_prefs_values() #bruce 060317 -- include this in the tuple below, to fix bug 1639
         if self.haveradii != (disp, eltprefs, radiusprefs): # value must agree with set, below
             # don't have them, or have them for wrong display mode, or for wrong element-radius prefs            
             try:
@@ -2042,7 +2094,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         v = singlpos - point
         try:
             #bruce 051129 add try/except and printout to help debug bug 829
-            r = sqrt(v[:,0]**2 + v[:,1]**2 + v[:,2]**2) # this line had OverflowError in bug 829
+            r = Numeric.sqrt(v[:,0]**2 + v[:,1]**2 + v[:,2]**2) # this line had OverflowError in bug 829
             p= r<=radius
             i=argsort(compress(p,r))
             return take(compress(p,self.singlets),i)
@@ -2309,7 +2361,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                     copied_hotspot = self.singlets[0]
             for a,b in extern_atoms_bonds:
                 # compare to code in Bond.unbond():
-                x = atom('X', b.ubp(a) + offset, numol)
+                x = chem.atom('X', b.ubp(a) + offset, numol)
                 na = ndix[a.key]
                 #bruce 050715 bugfix: also copy the bond-type (two places in this routine)
                 ## numol.bond(na, x)
@@ -2414,7 +2466,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             # should be a method in atom:
             atm.index = -1
             atm.molecule = self
-            _changed_parent_Atoms[atm.key] = atm #bruce 060322
+            chem._changed_parent_Atoms[atm.key] = atm #bruce 060322
             #bruce 050516: changing atm.molecule is now enough in itself
             # to invalidate atm's bonds, since their validity now depends on
             # a counter stored in (and unique to) atm.molecule having
@@ -2560,7 +2612,7 @@ class BorrowerChunk(Chunk):
             harmedmols[id(mol)] = mol
             # inline part of mol.delatom(atom):
             #e do this later: mol.invalidate_atom_lists()
-            _changed_parent_Atoms[key] = atom
+            chem._changed_parent_Atoms[key] = atom
             del mol.atoms[key] # callers can check for KeyError, always an error
             # don't do this (but i don't think it prevents all harm from stealing all mol's atoms):
             ## if not mol.atoms:
@@ -2609,7 +2661,7 @@ class BorrowerChunk(Chunk):
         #e this has bugs if we added atoms to self -- that's not supported (#e could override addatom to support it)
         origmols = self.origmols
         for key, atom in self.atoms.iteritems():
-            _changed_parent_Atoms[key] = atom
+            chem._changed_parent_Atoms[key] = atom
             origmol = origmols[key]
             atom.molecule = origmol
             atom.index = -1 # illegal value

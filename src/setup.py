@@ -37,17 +37,16 @@ This is based on the Pyrex example file Pyrex-0.9.3/Demos/Setup.py.
 __author__ = 'bruce'
 
 import sys
-print "running cad/src/setup.py, sys.argv is %r" % (sys.argv,) # ['setup.py', 'build_ext', '--inplace']
+from distutils.core import setup
+from distutils.extension import Extension
+
+if (__name__ == '__main__'):
+    print "running cad/src/setup.py, sys.argv is %r" % (sys.argv,) # ['setup.py', 'build_ext', '--inplace']
     # note: this is NOT the same setup.py that is run during Mac release building
     # by autoBuild.py. That one lives in Distribution or Distribution/tmp,
     # whereever you run autoBuild from. (I don't know if other platforms ever run setup.py then.)
     # [bruce 070427 comment]
 
-from distutils.core import setup
-from distutils.extension import Extension
-import EpydocTest
-
-if (not EpydocTest.documenting()):
     try:
         from Pyrex.Distutils import build_ext
     except:

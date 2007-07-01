@@ -22,8 +22,17 @@ whose copyright notice reads as follows:
 """
 
 import sys
-from PyQt4.Qt import *
-from qt4transition import *
+
+from PyQt4.Qt import QTreeWidgetItem
+from PyQt4.Qt import QTreeWidget
+from PyQt4.Qt import QListView
+from PyQt4.Qt import QIcon
+from PyQt4.Qt import QPixmap
+from PyQt4.Qt import QSize
+from PyQt4.Qt import QDir
+from PyQt4.Qt import QApplication
+
+from qt4transition import qt4todo
 
 folder_closed_image =[
     "16 16 9 1",

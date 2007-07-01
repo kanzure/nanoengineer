@@ -6,12 +6,29 @@ $Id$
 
 import sys
 from PyQt4 import QtCore, QtGui
-from PyQt4.Qt import *
+from PyQt4.Qt import QLayout
+from PyQt4.Qt import QSizePolicy
+from PyQt4.Qt import QSize
+from PyQt4.Qt import QSlider
+from PyQt4.Qt import Qt
+
 from Utility import geticon, imagename_to_pixmap, getpixmap
 from NE1ToolBar import NE1ToolBar
-from PropertyManagerMixin import pmVBoxLayout, pmAddHeader, pmAddSponsorButton, \
-     pmAddTopRowButtons, pmMessageGroupBox, pmAddBottomSpacer
-from PropMgr_Constants import *
+
+from PropertyManagerMixin import pmVBoxLayout
+from PropertyManagerMixin import pmAddHeader
+from PropertyManagerMixin import pmAddSponsorButton
+from PropertyManagerMixin import pmAddTopRowButtons
+from PropertyManagerMixin import pmMessageGroupBox
+from PropertyManagerMixin import pmAddBottomSpacer
+
+from PropMgr_Constants import getHeaderFont
+from PropMgr_Constants import pmLabelLeftAlignment
+from PropMgr_Constants import pmTopRowBtnsMargin
+from PropMgr_Constants import pmTopRowBtnsSpacing
+from PropMgr_Constants import pmCancelButton
+from PropMgr_Constants import pmDoneButton
+from PropMgr_Constants import pmWhatsThisButton
 
 #Note: Ui_MoviePlayerManager uses some Mainwindow widgets and actions 
 #(This is because Movie PM uses most methods originally created for movie 
@@ -312,5 +329,3 @@ class Ui_MoviePropertyManager(object):
                         
         #End movieOptions Options
         self.pmVBoxLayout.addWidget(self.movieOptions_groupBox)     
-
-        

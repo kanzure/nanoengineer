@@ -8,22 +8,38 @@ $Id$
 '''
 __author__ = 'bruce'
 
+import math
+from Numeric import dot
 
-from VQT import V, dot, cross, vlen, norm
-from VQT import pi, acos
-import platform
-from debug import print_compact_traceback, print_compact_stack
+from OpenGL.GL import GL_CULL_FACE
+from OpenGL.GL import glDisable
+from OpenGL.GL import GL_LIGHT_MODEL_TWO_SIDE
+from OpenGL.GL import GL_TRUE
+from OpenGL.GL import glLightModelfv
+from OpenGL.GL import GL_TRIANGLE_STRIP
+from OpenGL.GL import glBegin
+from OpenGL.GL import glNormal3fv
+from OpenGL.GL import glVertex3fv
+from OpenGL.GL import glEnd
+from OpenGL.GL import GL_QUADS
+from OpenGL.GL import GL_LIGHTING
+from OpenGL.GL import GL_LINES
+from OpenGL.GL import glColor3fv
+from OpenGL.GL import GL_LINE_STRIP
+from OpenGL.GL import glEnable
+from OpenGL.GL import GL_FALSE
+
+from VQT import V, cross, vlen, norm
+
 import env
-from prefs_constants import pibondStyle_prefs_key
+import drawer
+
+from debug import print_compact_traceback, print_compact_stack
 
 from constants import TubeRadius, blue, gray, black, white
-from math import ceil
+from prefs_constants import pibondStyle_prefs_key
 
-from OpenGL.GL import *
-import drawer #bruce 051215
-import platform
-
-MAXTWIST = 5 * pi / 180 # permissible twist of one vane segment (5 degrees -- just a guess)
+MAXTWIST = 5 * math.pi / 180 # permissible twist of one vane segment (5 degrees -- just a guess)
 
 def draw_bond_vanes(bond, glpane, sigmabond_cyl_radius, col):
     """Given a bond with some pi orbital occupancy (i.e. not a single bond),
@@ -69,13 +85,13 @@ def draw_vane( bond, a1p, a2p, ord_pi, rad, col ):
             d12 = 0.0
         if d12 > 1.0:
             d12 = 1.0
-        twist = acos(d12) # in radians
+        twist = math.acos(d12) # in radians
             # this is numerically inaccurate (since d12 is) near d12 == 1.0, but that's ok,
             # since it's only compared to threshholds (by ceil()) which correspond to d12 values not near 1.0.
             # (#e btw, we could optim the common case (ntwists == 1) by inverting this comparison to get
             #  the equivalent threshhold for d12.)
         maxtwist = MAXTWIST # debug_pref doesn't yet have a PrefsType for this
-        ntwists = max(1, int( ceil( twist / maxtwist ) )) # number of segments needed, to limit each segment's twist to MAXTWIST
+        ntwists = max(1, int( math.ceil( twist / maxtwist ) )) # number of segments needed, to limit each segment's twist to MAXTWIST
     if col:
         color = col
     else:

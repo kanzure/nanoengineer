@@ -40,8 +40,37 @@ removed includes the classes:
 """
 
 import sys
-from PyQt4 import *
-from PyQt4.Qt import *
+
+from PyQt4 import QtGui
+from PyQt4 import QtCore
+from PyQt4.Qt import QItemDelegate
+from PyQt4.Qt import QAbstractItemModel
+from PyQt4.Qt import Qt
+from PyQt4.Qt import QTreeView
+from PyQt4.Qt import QScrollArea
+from PyQt4.Qt import QGroupBox
+from PyQt4.Qt import QMainWindow
+from PyQt4.Qt import QSize
+from PyQt4.Qt import QIcon
+from PyQt4.Qt import QVariant
+from PyQt4.Qt import QModelIndex
+from PyQt4.Qt import QDrag
+from PyQt4.Qt import QMimeData
+from PyQt4.Qt import QPoint
+from PyQt4.Qt import QPixmap
+from PyQt4.Qt import QPainter
+from PyQt4.Qt import QFontMetrics
+from PyQt4.Qt import QLineEdit
+from PyQt4.Qt import QRegion
+from PyQt4.Qt import QColor
+from PyQt4.Qt import QRect
+from PyQt4.Qt import QVBoxLayout
+from PyQt4.Qt import QHBoxLayout
+from PyQt4.Qt import QPushButton
+from PyQt4.Qt import SIGNAL
+from PyQt4.Qt import QApplication
+from PyQt4.Qt import QPalette
+
 from assembly import assembly
 from Utility import Group, Node
 from debug import print_compact_traceback, print_compact_stack

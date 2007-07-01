@@ -9,13 +9,45 @@ bruce 050913 used env.history in some places.
 
 __author__ = "Mark"
 
-from modifyMode import *
+import math
+from Numeric import dot, sign
+
+from PyQt4.Qt import Qt
+from PyQt4.Qt import QLabel
+from PyQt4.Qt import QComboBox
+from PyQt4.Qt import QPushButton
+from PyQt4.Qt import QCheckBox
+from PyQt4.Qt import QSlider
+from PyQt4.Qt import SIGNAL
+from PyQt4.Qt import QMouseEvent
+from PyQt4.Qt import QWidgetAction
+from PyQt4.Qt import QAction
+
+import env
+
+from modes import basicMode
+from VQT import V, Q, A, norm, vlen
+from chem import Atom
+from bonds import Bond
+from jigs import Jig
+from selectMolsMode import selectMolsMode
+from drawer import drawline
+from elements import Singlet
+from modifyMode import modifyMode
 from extrudeMode import mergeable_singlets_Q_and_offset
 from bonds import bond_at_singlets
 from HistoryWidget import redmsg, orangemsg
 from platform import fix_plurals
-import env
 from FusePropertyManager import FusePropertyManager
+from Utility import geticon
+
+from constants import SUBTRACT_FROM_SELECTION
+from constants import get_selCurve_color
+from constants import green
+from constants import magenta
+from constants import blue
+from constants import darkred
+from constants import diINVISIBLE
 
 MAKEBONDS = 'Make Bonds Between Chunks'
 FUSEATOMS = 'Fuse Overlapping Atoms'
@@ -424,14 +456,14 @@ class fusechunksMode(modifyMode, fusechunksBase, FusePropertyManager):
 	
 	subControlAreaActionList =[] 
 		
-	self.exitFuseAction = QtGui.QWidgetAction(self.w)
+	self.exitFuseAction = QWidgetAction(self.w)
 	self.exitFuseAction.setText("Exit Fuse")
 	self.exitFuseAction.setCheckable(True)
 	self.exitFuseAction.setChecked(True)
 	self.exitFuseAction.setIcon(geticon("ui/actions/Toolbars/Smart/Exit"))
 	subControlAreaActionList.append(self.exitFuseAction)
 	
-	separator = QtGui.QAction(self.w)
+	separator = QAction(self.w)
 	separator.setSeparator(True)
 	subControlAreaActionList.append(separator) 
 			
@@ -719,7 +751,7 @@ class fusechunksMode(modifyMode, fusechunksBase, FusePropertyManager):
                 deltaMouse = V(event.pos().x() - self.o.MousePos[0],
                            self.o.MousePos[1] - event.pos().y())
                 a =  dot(self.Zmat, deltaMouse)
-                dx,dy =  a * V(self.o.scale/(h*0.5), 2*pi/w)
+                dx,dy =  a * V(self.o.scale/(h*0.5), 2*math.pi/w)
                 if self.moveOption == 'TRANSX' :     ma = V(1,0,0) # X Axis
                 elif self.moveOption == 'TRANSY' :  ma = V(0,1,0) # Y Axis
                 elif self.moveOption == 'TRANSZ' :  ma = V(0,0,1) # Z Axis
@@ -737,7 +769,7 @@ class fusechunksMode(modifyMode, fusechunksBase, FusePropertyManager):
             deltaMouse = V(event.pos().x() - self.o.MousePos[0],
                        self.o.MousePos[1] - event.pos().y())
             a =  dot(self.Zmat, deltaMouse)
-            dx,dy =  a * V(self.o.scale/(h*0.5), 2*pi/w)
+            dx,dy =  a * V(self.o.scale/(h*0.5), 2*math.pi/w)
 
             if self.rotateOption == 'ROTATEX' :     ma = V(1,0,0) # X Axis
             elif self.rotateOption == 'ROTATEY' :  ma = V(0,1,0) # Y Axis
@@ -746,7 +778,7 @@ class fusechunksMode(modifyMode, fusechunksBase, FusePropertyManager):
                 print "modifyMode.leftDrag: Error - unknown rotateOption value =", self.rotateOption                
                 return                
             qrot = Q(ma,-dy) # Quat for rotation delta.
-            self.rotDelta += qrot.angle *180.0/pi * sign(dy) # Increment rotation delta (and convert to degrees)
+            self.rotDelta += qrot.angle *180.0/math.pi * sign(dy) # Increment rotation delta (and convert to degrees)
             
             self.updateRotationDeltaLabels(self.rotateOption, self.rotDelta)
             self.o.assy.rotsel(qrot) 

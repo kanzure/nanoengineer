@@ -12,7 +12,6 @@ ninad20070507 : Converted movie dashboard into movie Property manager
 """
 __author__  = "Ninad"
 
-import sys
 from PyQt4 import QtCore, QtGui
 from Ui_MoviePropertyManager import Ui_MoviePropertyManager
 from PropertyManagerMixin import PropertyManagerMixin, pmSetPropMgrIcon, pmSetPropMgrTitle

@@ -10,9 +10,28 @@ $Id$
 '''
 __author__ = "bruce"
 
-from PyQt4.Qt import *
 from PyQt4 import QtGui
-from qt4transition import *
+from PyQt4.Qt import QGroupBox, QSpinBox, QCheckBox, QDialog
+from PyQt4.Qt import QVBoxLayout
+from PyQt4.Qt import QHBoxLayout
+from PyQt4.Qt import QLabel
+from PyQt4.Qt import QMenu
+from PyQt4.Qt import QAction
+from PyQt4.Qt import SIGNAL
+from PyQt4.Qt import QPixmap
+from PyQt4.Qt import QIcon
+from PyQt4.Qt import QString
+from PyQt4.Qt import QValidator
+from PyQt4.Qt import QColor
+from PyQt4.Qt import QTextEdit
+from PyQt4.Qt import QPushButton
+from PyQt4.Qt import QSize
+from PyQt4.Qt import QMessageBox
+
+
+from qt4transition import qt4warning, qt4todo
+
+import platform
 
 # These don't exist in Qt4 but we can make begin(QVBox) and
 # begin(QHBox) act the same as before.

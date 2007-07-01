@@ -10,7 +10,8 @@ $Id$
 __author__ = "bruce"
 
 
-from tokenize import * # including generate_tokens, and tok_name
+from tokenize import generate_tokens
+from tokenize import tok_name
 import sys
 
 # == basic general parser

@@ -11,18 +11,18 @@ for notes about what's going on here.
 __author__ = "Will"
 
 from math import atan2, sin, cos, pi, asin
-import assembly, chem, bonds, Utility
-#from PyQt4.Qt import Qt, SIGNAL, QDialog, QApplication, QCursor, QDialog, \
-#     QDoubleValidator, QIntValidator, QValidator, QWhatsThis
-#from PyQt4 import QtGui
-from VQT import dot, vlen, cross, norm
-import env, platform, random, string
-#from widgets import double_fixup
+from Numeric import dot
+
+import chem, bonds, Utility
+from VQT import vlen, cross, norm
+import env, platform, random
 from debug import Stopwatch, objectBrowse
 from Utility import Group
-from chem import molecule, Atom
+from chem import Atom
+from chunk import molecule
 from elements import PeriodicTable
-from bonds import bonded, bond_atoms, V_GRAPHITE, NeighborhoodGenerator
+from bonds import bonded, bond_atoms, NeighborhoodGenerator
+from bond_constants import V_GRAPHITE, V_SINGLE
 from bonds_from_atoms import make_bonds
 from buckyball import BuckyBall
 
@@ -153,9 +153,9 @@ class Chirality:
                         atm2 = dict2[(n2, m2)]
                         if not bonds.bonded(atm, atm2):
                             if bn_members:
-                                bonds.bond_atoms(atm, atm2, bonds.V_SINGLE)
+                                bonds.bond_atoms(atm, atm2, V_SINGLE)
                             else:
-                                bonds.bond_atoms(atm, atm2, bonds.V_GRAPHITE)
+                                bonds.bond_atoms(atm, atm2, V_GRAPHITE)
                     except KeyError:
                         pass
 

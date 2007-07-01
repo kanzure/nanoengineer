@@ -70,14 +70,59 @@ shrinks when it gets nonparallel, but that's a bug, not a form of billboarding.
     or maybe string keys.
     Possible convention (not thought through): the ids usable as attrs are the ones whose chars work in a py identifier.
 - more todos findable by searching for "todo", "Drawable", and (older ones) "next up", "wishlist", and (implicit ones) "kluge".
+'
 '''
 
 __author__ = "bruce"
 
-from testmode import *
-from debug import print_compact_traceback
+import os
+import time
+from Numeric import dot
+
+from OpenGL.GL import glPushMatrix
+from OpenGL.GL import glPopMatrix
+from OpenGL.GL import glTranslate
+from OpenGL.GL import glTranslatef
+from OpenGL.GL import glGenTextures
+from OpenGL.GL import GL_TEXTURE_2D
+from OpenGL.GL import glBindTexture
+from OpenGL.GL import GL_UNPACK_ALIGNMENT
+from OpenGL.GL import glPixelStorei
+from OpenGL.GL import GL_RGBA
+from OpenGL.GL import GL_UNSIGNED_BYTE
+from OpenGL.GL import glTexImage2D
+from OpenGL.GL import GL_CLAMP
+from OpenGL.GL import GL_TEXTURE_WRAP_S
+from OpenGL.GL import glTexParameterf
+from OpenGL.GL import GL_TEXTURE_WRAP_T
+from OpenGL.GL import GL_REPEAT
+from OpenGL.GL import GL_LINEAR
+from OpenGL.GL import GL_TEXTURE_MAG_FILTER
+from OpenGL.GL import GL_LINEAR_MIPMAP_LINEAR
+from OpenGL.GL import GL_TEXTURE_MIN_FILTER
+from OpenGL.GL import GL_NEAREST
+from OpenGL.GL import GL_DECAL
+from OpenGL.GL import GL_TEXTURE_ENV
+from OpenGL.GL import GL_TEXTURE_ENV_MODE
+from OpenGL.GL import glTexEnvf
+
+from OpenGL.GLU import gluProject
+from OpenGL.GLU import gluUnProject
+from OpenGL.GLU import gluBuild2DMipmaps
+
 import env
 import platform
+
+from VQT import V, A, vlen
+from debug import print_compact_traceback
+from debug_prefs import Choice_boolean_False
+from debug_prefs import debug_pref
+
+from constants import ave_colors
+from constants import blue
+from constants import white
+from constants import green
+from constants import red
 
 ### a lot of the following constants are probably obs here, redundant with ones now defined in exprs module [070408 comment]
 
@@ -95,7 +140,6 @@ D2Y = V(0.0, 1.0)
 
 class attrholder: pass
 
-from constants import ave_colors # (weight, color1, color2) # weight is of color1 i think
 lightblue = ave_colors( 0.2, blue, white)
 lightgreen = ave_colors( 0.2, green, white)
 halfblue = ave_colors( 0.5, blue, white)

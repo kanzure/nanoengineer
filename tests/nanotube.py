@@ -1,4 +1,4 @@
-#!/usr/bin/python
+ #!/usr/bin/python
 
 # Copyright 2005, 2007 Nanorex, Inc.  See LICENSE file for details. 
 """Nanotube generation tool for nanoENGINEER-1
@@ -17,7 +17,7 @@ hydrogens at the ends.
 
 import sys
 import string
-from math import *
+import math
 
 sqrt3 = 3 ** 0.5
 
@@ -41,19 +41,19 @@ class Chirality:
         self.n, self.m = n, m
         x = (n + 0.5 * m) * sqrt3
         y = 1.5 * m
-        angle = atan2(y, x)
+        angle = math.atan2(y, x)
         twoPiRoverA = (x**2 + y**2) ** .5
-        AoverR = (2 * pi) / twoPiRoverA
-        self.__cos = cos(angle)
-        self.__sin = sin(angle)
+        AoverR = (2 * math.pi) / twoPiRoverA
+        self.__cos = math.cos(angle)
+        self.__sin = math.sin(angle)
         # time to get the constants
         s, t = self.x1y1(0,0)
         u, v = self.x1y1(1./3, 1./3)
         w, x = self.x1y1(0,1)
         F = (t - v)**2
-        G = 2 * (1 - cos(AoverR * (s - u)))
+        G = 2 * (1 - math.cos(AoverR * (s - u)))
         H = (v - x)**2
-        J = 2 * (1 - cos(AoverR * (u - w)))
+        J = 2 * (1 - math.cos(AoverR * (u - w)))
         L = self.BONDLENGTH
         denom = F * J - G * H
         self.R = (L**2 * (F - H) / denom) ** .5
@@ -88,8 +88,8 @@ class Chirality:
         x1, y1 = self.x1y1(n, m)
         x2, y2 = self.A * x1, self.B * y1
         R = self.R
-        x3 = R * sin(x2/R)
-        z3 = R * cos(x2/R)
+        x3 = R * math.sin(x2/R)
+        z3 = R * math.cos(x2/R)
         return (x3, y2, z3)
 
 class Molecule:
@@ -200,28 +200,29 @@ end molecular machine part Untitled
         return (mindist, maxdist)
 
 
-if len(sys.argv) < 4:
-    sys.stderr.write(__doc__)
-    sys.exit(1)
+if (__name__ == '__main__'):
+    if len(sys.argv) < 4:
+        sys.stderr.write(__doc__)
+        sys.exit(1)
 
-n = string.atoi(sys.argv[1])
-m = string.atoi(sys.argv[2])
-length = string.atof(sys.argv[3])
+    n = string.atoi(sys.argv[1])
+    m = string.atoi(sys.argv[2])
+    length = string.atof(sys.argv[3])
 
-chirality = Chirality(n,m)
+    chirality = Chirality(n,m)
 
-M = Molecule()
+    M = Molecule()
 
-for n in range(chirality.n):
-    mmin, mmax = chirality.mlimits(-.5 * length, .5 * length, n)
-    for m in range(mmin-1, mmax+1):
-        x, y, z = chirality.xyz(n, m)
-        if -.5 * length <= y <= .5 * length:
-            M.add("C", x, y, z)
-        x, y, z = chirality.xyz(n+1./3, m+1./3)
-        if -.5 * length <= y <= .5 * length:
-            M.add("C", x, y, z)
-M.makeBonds(Chirality.BONDLENGTH * 1.2)
-M.passivate()
+    for n in range(chirality.n):
+        mmin, mmax = chirality.mlimits(-.5 * length, .5 * length, n)
+        for m in range(mmin-1, mmax+1):
+            x, y, z = chirality.xyz(n, m)
+            if -.5 * length <= y <= .5 * length:
+                M.add("C", x, y, z)
+            x, y, z = chirality.xyz(n+1./3, m+1./3)
+            if -.5 * length <= y <= .5 * length:
+                M.add("C", x, y, z)
+    M.makeBonds(Chirality.BONDLENGTH * 1.2)
+    M.passivate()
 
-M.mmp()
+    M.mmp()

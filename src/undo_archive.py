@@ -13,7 +13,7 @@ $Id$
 """
 __author__ = 'bruce'
 
-import time, os
+import time
 import platform
 from debug import print_compact_traceback, print_compact_stack, safe_repr
 from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True

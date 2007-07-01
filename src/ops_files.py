@@ -18,24 +18,40 @@ bruce 050913 used env.history in some places.
 mark 060730 removed unsupported slot method fileNew(); refined and added missing docstrings
 """
 
-from PyQt4.Qt import QFileDialog, QMessageBox, QString, qApp, QSettings, QStringList, QProcess
-from assembly import assembly
-import os, shutil
+import re
+import sys
+import os
+import shutil
 import time
-import platform
-from qt4transition import *
 
-from fileIO import * # this might be needed for some of the many other modules it imports; who knows? [bruce 050418 comment]
-    # (and it's certainly needed for the functions it defines, e.g. writepovfile.)
+from PyQt4 import QtGui
+from PyQt4.Qt import Qt
+from PyQt4.Qt import QFileDialog, QMessageBox, QString, qApp, QSettings
+from PyQt4.Qt import QApplication
+from PyQt4.Qt import QCursor
+from PyQt4.Qt import QVariant
+from PyQt4.Qt import QMenu
+from PyQt4.Qt import SIGNAL
+from PyQt4.Qt import QProcess
+
+import env
+import preferences
+import platform
+
+from assembly import assembly
 from files_pdb import readpdb, insertpdb, writepdb
 from files_gms import readgms, insertgms
 from files_mmp import readmmp, insertmmp, fix_assy_and_glpane_views_after_readmmp
 from debug import print_compact_traceback
-
+from fileIO import writepovfile
+from fileIO import writemdlfile
 from HistoryWidget import greenmsg, redmsg, orangemsg, _graymsg
 
-import preferences
-import env
+from prefs_constants import getDefaultWorkingDirectory
+from prefs_constants import workingDirectory_prefs_key
+
+from debug_prefs import Choice_boolean_False
+from debug_prefs import debug_pref
 
 debug_babel = False   # DO NOT COMMIT with True
 

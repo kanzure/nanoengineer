@@ -8,18 +8,48 @@ Created by Mark.
 """
 __author__ = "Mark"
 
+import sys
+
 from jigs import Jig
 from drawer import drawwirecube, drawLineCube
-from GamessProp import *
-from GamessJob import *
 from povheader import povpoint # Fix for bug 692 Mark 050628
 from SimServer import SimServer
 from files_gms import get_energy_from_gms_outfile, get_atompos_from_gms_outfile
 from HistoryWidget import redmsg, greenmsg
 import env
-from HistoryWidget import redmsg #bruce 050913 precaution -- probably covered by some "import *" above, but good to do explicitly
+from HistoryWidget import redmsg
 from chem import move_alist_and_snuggle
 import state_utils #bruce 060306
+from debug import print_compact_traceback
+
+from GamessJob import GamessJob
+from GamessProp import scftyp
+from GamessProp import ecm
+from GamessProp import pcgms_dfttyp_items
+from GamessProp import gms_dfttyp_items
+from GamessProp import runtyp
+from GamessProp import mplevl
+from GamessProp import inttyp
+from GamessProp import pcgms_gridsize
+from GamessProp import tf
+from GamessProp import conv
+from GamessProp import ncore
+from GamessProp import gms_gridsize
+from GamessProp import opttol
+from GamessProp import gbasis
+from GamessProp import contrl
+from GamessProp import scf
+from GamessProp import system
+from GamessProp import mp2
+from GamessProp import dft
+from GamessProp import guess
+from GamessProp import statpt
+from GamessProp import basis
+from GamessProp import ui
+
+import platform
+
+from constants import magenta
 
 # == GAMESS
 

@@ -14,7 +14,7 @@ __author__ = "Mark"
 
 import os, re, time
 from chunk import molecule
-from chem import atom, bond_atoms
+from chem import atom
 from string import capitalize
 from elements import PeriodicTable, Singlet
 from platform import fix_plurals, get_gms_name

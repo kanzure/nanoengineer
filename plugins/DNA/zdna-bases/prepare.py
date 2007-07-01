@@ -1,10 +1,10 @@
 #!/usr/bin/python
 
 # Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
-import os, sys, string
-from math import *
+import sys
+import string
 
-sys.path.append("/home/wware/polosims/cad/src")
+sys.path.append("../../../src")
 
 from VQT import A, V, vlen
 
@@ -364,36 +364,37 @@ end molecular machine part %(groupname)s
 
 ########################################
 
-g = Strand('strund1.mmp')
-g.assignBases()
-g.baseSort()
+if (__name__ == '__main__'):
+    g = Strand('strund1.mmp')
+    g.assignBases()
+    g.baseSort()
 
-if True:
-    specs = [
-        (0, 'cytosine', 'cytosine-inner.mmp'),
-        (1, 'guanine', 'guanine-outer.mmp'),
-        (3, 'adenine', 'adenine-outer.mmp'),
-        (4, 'adenine', 'adenine-inner.mmp'),
-        (6, 'thymine', 'thymine-inner.mmp'),
-        (7, 'thymine', 'thymine-outer.mmp'),
-        (9, 'cytosine', 'cytosine-outer.mmp'),
-        (10, 'guanine', 'guanine-inner.mmp'),
-        ]
-    k = [ 0 ]
-    def tfm0(v, k=k):
-        k[0] = 0
-        return V(v[0], v[1], v[2] - 20.2)
-    def tfm(v, k=k):
-        angle = pi / 6
-        x, y, z = tuple(v)
-        c, s = cos(angle), sin(angle)
-        x, y = c * x + s * y, -s * x + c * y
-        if (k[0] & 1) == 0:
-            zdiff = 1.67
-        else:
-            zdiff = 5.76
-        k[0] += 1
-        return V(x, y, z + zdiff)
-    g.writeManyMmps(specs, tfm0, tfm)
-else:
-    g.writeMmp('groups.mmp', None)
+    if True:
+        specs = [
+            (0, 'cytosine', 'cytosine-inner.mmp'),
+            (1, 'guanine', 'guanine-outer.mmp'),
+            (3, 'adenine', 'adenine-outer.mmp'),
+            (4, 'adenine', 'adenine-inner.mmp'),
+            (6, 'thymine', 'thymine-inner.mmp'),
+            (7, 'thymine', 'thymine-outer.mmp'),
+            (9, 'cytosine', 'cytosine-outer.mmp'),
+            (10, 'guanine', 'guanine-inner.mmp'),
+            ]
+        k = [ 0 ]
+        def tfm0(v, k=k):
+            k[0] = 0
+            return V(v[0], v[1], v[2] - 20.2)
+        def tfm(v, k=k):
+            angle = pi / 6
+            x, y, z = tuple(v)
+            c, s = cos(angle), sin(angle)
+            x, y = c * x + s * y, -s * x + c * y
+            if (k[0] & 1) == 0:
+                zdiff = 1.67
+            else:
+                zdiff = 5.76
+            k[0] += 1
+            return V(x, y, z + zdiff)
+        g.writeManyMmps(specs, tfm0, tfm)
+    else:
+        g.writeMmp('groups.mmp', None)

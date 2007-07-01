@@ -7,8 +7,16 @@ $Id$
 
 bruce 050913 used env.history in some places.
 '''
-from ElementColorsDialog import *
-from PyQt4.Qt import *
+
+from PyQt4.Qt import QDialog
+from PyQt4.Qt import SIGNAL
+from PyQt4.Qt import QVBoxLayout
+from PyQt4.Qt import QFileDialog
+from PyQt4.Qt import QMessageBox
+from PyQt4.Qt import QApplication
+from PyQt4.Qt import QGLFormat
+
+from ElementColorsDialog import Ui_ElementColorsDialog
 from elements import PeriodicTable 
 from constants import diTrueCPK, diBALL, diTUBES 
 from ThumbView import ElementView

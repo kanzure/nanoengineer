@@ -25,14 +25,45 @@ but not changing how old dragging code works.]
 
 """
 
+from OpenGL.GL import GL_STENCIL_INDEX
+from OpenGL.GL import glReadPixelsi
+from OpenGL.GL import GL_DEPTH_COMPONENT
+from OpenGL.GL import glReadPixelsf
 
-from modes import *
+from OpenGL.GLU import gluProject
+
+from PyQt4.Qt import Qt
+from PyQt4.Qt import QMouseEvent
+from PyQt4.Qt import SIGNAL
+
+import env
+
+from VQT import V
+from chem import Atom
+from jigs import Jig
+from bonds import Bond
+from debug import print_compact_traceback
+from modes import basicMode
+from Utility import Group
 from HistoryWidget import orangemsg
 from chunk import molecule
-import env
-from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False, Choice
-from selectMode import *
+from elements import Singlet
+from elements import PeriodicTable
+from selectMode import selectMode
+from selectMode import debug_update_selobj_calls
+from selectMode import set_DRAG_STICKINESS_LIMIT_from_pref
+from selectMode import DRAG_STICKINESS_LIMIT
 
+from debug import print_compact_stack
+from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False, Choice
+
+from constants import GL_FAR_Z
+from constants import darkred
+from constants import black
+from constants import elemKeyTab
+from prefs_constants import bondHighlightColor_prefs_key
+from prefs_constants import bondpointHighlightColor_prefs_key
+from prefs_constants import atomHighlightColor_prefs_key
 
 class selectAtomsMode(selectMode):
     modename = 'SELECTATOMS'

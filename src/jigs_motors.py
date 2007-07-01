@@ -10,16 +10,34 @@ History:
 
 """
 
-from VQT import *
-from shape import *
-from chem import *
-from Utility import *
+# imports from math vs. Numeric as discovered from running code on 2007/06/25.
+from math import asin, atan2
+
+from Numeric import pi
+from Numeric import sqrt
+from Numeric import dot
+from Numeric import argmax
+from Numeric import reshape
+
+from OpenGL.GL import glPushMatrix
+from OpenGL.GL import glTranslatef
+from OpenGL.GL import glRotatef
+from OpenGL.GL import glPopMatrix
+
+import env
+from VQT import V, Q, A, norm, cross, vlen
+from drawer import drawcylinder
+from drawer import drawRotateSign
+from drawer import drawbrick
+from drawer import drawLinearSign
+
+from HistoryWidget import orangemsg
 from HistoryWidget import redmsg, greenmsg
 from povheader import povpoint #bruce 050413
 from debug import print_compact_stack, print_compact_traceback
-import env #bruce 050901
 from jigs import Jig
-import math
+
+from constants import gray
 
 # == Motors
 

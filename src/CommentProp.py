@@ -18,7 +18,7 @@ from CommentPropDialog import Ui_CommentPropDialog
 import time
 import env
 from HistoryWidget import redmsg, orangemsg, greenmsg, quote_html
-from qt4transition import *
+from qt4transition import qt4todo
 from debug import print_compact_traceback
 
 cmd = greenmsg("Insert Comment: ")

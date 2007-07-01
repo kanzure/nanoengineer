@@ -7,8 +7,11 @@ $Id$
 __author__ = "Mark"
 
 import os
+
+from PyQt4.Qt import QWidget
+from PyQt4.Qt import SIGNAL
+
 from HistoryWidget import redmsg
-from PyQt4.Qt import * 
 
 def touch_job_id_status_file(job_id, Status='Queued'):
     '''Creates the status file for a given job provided the job_id and status.

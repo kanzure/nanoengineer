@@ -6,9 +6,13 @@ $Id$
 
 """
 
-from PyQt4.Qt import *
-from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False, Choice
 import os, sys
+
+from PyQt4.Qt import Qt
+from PyQt4.Qt import QColor
+from PyQt4.Qt import QFont
+
+from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False, Choice
 
 __author__ = "Mark"
 

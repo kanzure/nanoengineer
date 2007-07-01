@@ -15,11 +15,12 @@ __author__ = "bruce" # 050614
 
 from constants import noop
 from constants import black, white, red, green, blue, gray, orange, yellow, magenta, pink
-from qt4transition import *
+
     # note: qt4transition imports debug_pref from this module, which is one reason this module can't import
     # print_compact_traceback at toplevel. This should be fixed; it should be ok for this
     # module to import from debug. (There may be other reasons it can't in the current code.)
     # [bruce 070613 comment]
+
 import env
 # see below for "import preferences" at runtime; we can't import it here due to errors caused by recursive import
 
@@ -154,6 +155,7 @@ class Pref: #e might be merged with the DataType (aka PrefDataType) objects
         how to do this depends on datatype (#e and someday on other prefs!)
         """
         def newval_receiver_func(newval):
+            from debug import print_compact_traceback # do locally to avoid recursive import problem
             assert self.dtype.legal_value(newval), "illegal value for %r: %r" % (self, newval)
                 ###e change to ask dtype, since most of them won't have a list of values!!! this method is specific to Choice.
             if self.current_value() == newval: #bruce 060126; revised 060209 to use self.current_value() rather than self.value

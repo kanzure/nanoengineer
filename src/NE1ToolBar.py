@@ -12,9 +12,11 @@ File created on 20070507. There could be more than one NE1Toolbar classes
 """
 __author__  = "Ninad"
 
-from PyQt4.QtGui import *
-from PyQt4.Qt import *
-import sys
+from PyQt4.Qt import QToolBar
+from PyQt4.Qt import QPainter
+from PyQt4.Qt import QStyleOptionToolBar
+from PyQt4.Qt import QPalette
+from PyQt4.Qt import QStyle
 
 
 class NE1ToolBar(QToolBar):

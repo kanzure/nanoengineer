@@ -9,12 +9,13 @@ __author__ = "Mark"
 
 import os, time
 
-from PyQt4.Qt import qApp, QMessageBox, QDialog
+from PyQt4.Qt import qApp, QMessageBox, QDialog, SIGNAL
 from ProgressBarDialog import Ui_ProgressBarDialog
     #bruce 050415 removed "import *" from both of those
 
 from platform import hhmmss_str #bruce 060106 moved that function there
 import env #bruce 060103
+from qt4transition import qt4todo
 
 class ProgressBar( QDialog, Ui_ProgressBarDialog ):
     def __init__(self):

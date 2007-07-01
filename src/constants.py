@@ -291,13 +291,9 @@ def get_selCurve_color_ORIG(selSense, bgcolor=white):
 #bruce 060220 add some possible values for _s_attr_xxx attribute declarations (needed by Undo)
 # (defining these in constants.py might be temporary)
 
-from state_constants import *
-
 # ==
 
 # Keys for user preferences for A6 [moved into prefs_constants.py by Bruce 050805]
-
-from prefs_constants import * #e when it's practical after A6, this import should be removed
 
 # The far clipping plane normalized z value, actually it's a little closer than the actual far clipping 
 # plane to the eye. This is used to draw the blue sky backround polygon, and also used to check if user

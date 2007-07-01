@@ -23,7 +23,7 @@ Bruce 050510 made some changes for "atomtypes" with their own bonding patterns.
 """
 __author__ = "Josh"
 
-from VQT import *
+from VQT import V, A, norm
 from preferences import prefs_context
 from atomtypes import AtomType
 from constants import DIAMOND_BOND_LENGTH

@@ -1,10 +1,10 @@
 #!/usr/bin/python
 
 # Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
-import os, sys, string
-from math import *
+import sys
+import string
 
-sys.path.append("/home/wware/polosims/cad/src")
+sys.path.append("../../../src")
 
 from VQT import A, V, vlen
 
@@ -365,7 +365,7 @@ end molecular machine part %(groupname)s
 
 ########################################
 
-if True:
+if (__name__ == '__main__'):
     g = Strand('strund1.mmp')
     specs = [
         (0, 'guanine', 'guanine.mmp'),
@@ -382,5 +382,3 @@ if True:
         x, y = c * x + s * y, -s * x + c * y
         return V(x, y, z + 3.391)
     g.writeManyMmps(specs, tfm0, tfm)
-else:
-    writeMmp('groups.mmp')

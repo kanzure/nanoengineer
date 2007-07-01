@@ -7,7 +7,7 @@ $Id$
 __author__ = "Huaicai"
 
 from ServerManagerDialog import Ui_ServerManagerDialog
-from PyQt4.Qt import QDialog, QStringList, SIGNAL
+from PyQt4.Qt import QDialog, QStringList, SIGNAL, QMessageBox
 from SimServer import SimServer
 import os
 import cPickle as pickle

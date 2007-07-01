@@ -28,13 +28,26 @@ point is, even when the textedit is not targeted for keyboard input.
 
 """
 
-import sys
-from PyQt4.Qt          import *
-from Utility           import geticon, getpixmap
-from PropMgrBaseClass  import *
-from PropMgr_Constants import *
-from Dna               import *
-from HistoryWidget     import *
+from PyQt4.Qt import SIGNAL
+from PyQt4.Qt import QTextCursor
+
+import env
+from Dna import A_Dna
+from Dna import B_Dna
+from Dna import Z_Dna
+from HistoryWidget import redmsg
+from HistoryWidget import greenmsg
+from HistoryWidget import orangemsg
+
+from Utility import geticon, getpixmap
+from PropMgrBaseClass import PropMgrBaseClass
+from PropMgrBaseClass import PropMgrGroupBox
+from PropMgrBaseClass import PropMgrTextEdit
+from PropMgrBaseClass import PropMgrSpinBox
+from PropMgrBaseClass import PropMgrComboBox
+from PropMgrBaseClass import PropMgrPushButton
+from PropMgrBaseClass import PropMgrDoubleSpinBox
+from debug import DebugMenuMixin
 
 # DNA model type variables
 #  (indices for model... and conformation... combo boxes).
@@ -256,7 +269,7 @@ class DnaPropertyManager( object, PropMgrBaseClass, DebugMenuMixin ):
     def conformationComboBox_changed( self, inIndex ):
         """Slot for the Conformation combobox.
         """
-        if DGDdebug: env.history.message( greenmsg(  "conformationComboBox_changed: Begin" ) )
+        if self.DGDdebug: env.history.message( greenmsg(  "conformationComboBox_changed: Begin" ) )
 
         self.basesPerTurnComboBox.clear()
         conformation  =  self.conformationComboBox.currentText()
@@ -280,24 +293,24 @@ class DnaPropertyManager( object, PropMgrBaseClass, DebugMenuMixin ):
             pass
         
         else:
-            if DGDdebug: env.history.message( redmsg(  ("conformationComboBox_changed():    Error - unknown DNA conformation. Index = "+ idx) ))
+            if self.DGDdebug: env.history.message( redmsg(  ("conformationComboBox_changed():    Error - unknown DNA conformation. Index = "+ inIndex) ))
             #return
 
         self.duplexLengthSpinBox.setSingleStep(
                 self.getDuplexRise(conformation) )
 
-        if DGDdebug: env.history.message( greenmsg( "conformationComboBox_changed: End" ) )
+        if self.DGDdebug: env.history.message( greenmsg( "conformationComboBox_changed: End" ) )
 
     # GroupBox2 slots (and other methods) supporting the Representation groupbox.
         
     def modelComboBox_changed( self, inIndex ):
         """Slot for the Model combobox.
         """
-        if DGDdebug: env.history.message( greenmsg( "modelComboBox_changed: Begin" ))
+        if self.DGDdebug: env.history.message( greenmsg( "modelComboBox_changed: Begin" ))
 
         conformation  =  modelChoices[ inIndex ]
         
-        if DGDdebug: env.history.message( greenmsg( "modelComboBox_changed:    Disconnect conformationComboBox" ))
+        if self.DGDdebug: env.history.message( greenmsg( "modelComboBox_changed:    Disconnect conformationComboBox" ))
         self.disconnect( self.conformationComboBox,
                          SIGNAL("currentIndexChanged(int)"),
                          self.conformationComboBox_changed )
@@ -345,14 +358,14 @@ class DnaPropertyManager( object, PropMgrBaseClass, DebugMenuMixin ):
             pass
         
         else:
-            if DGDdebug: env.history.message( redmsg( ("modelComboBox_changed():    Error - unknown model representation. Index = "+ idx)))
+            if self.DGDdebug: env.history.message( redmsg( ("modelComboBox_changed():    Error - unknown model representation. Index = "+ inIndex)))
         
-        if DGDdebug: env.history.message( greenmsg( "modelComboBox_changed:    Reconnect conformationComboBox" ))
+        if self.DGDdebug: env.history.message( greenmsg( "modelComboBox_changed:    Reconnect conformationComboBox" ))
         self.connect( self.conformationComboBox,
                       SIGNAL("currentIndexChanged(int)"),
                       self.conformationComboBox_changed)
 
-        if DGDdebug: env.history.message( greenmsg( "modelComboBox_changed: End"))
+        if self.DGDdebug: env.history.message( greenmsg( "modelComboBox_changed: End"))
     
     # GroupBox3 slots (and other methods) supporting the Strand Sequence groupbox.
     
@@ -430,7 +443,7 @@ class DnaPropertyManager( object, PropMgrBaseClass, DebugMenuMixin ):
         lengthChange  =  inStrandLength - self.getSequenceLength()
 
         if inStrandLength < 0: 
-            if DGDdebug: env.history.message( orangemsg( ("strandLengthChanged:    Illegal strandlength="+str(inStrandLength))))
+            if self.DGDdebug: env.history.message( orangemsg( ("strandLengthChanged:    Illegal strandlength="+str(inStrandLength))))
             env.history.message( orangemsg( "strandLengthChanged: End"))
             return # Should never happen.
         
@@ -533,8 +546,8 @@ class DnaPropertyManager( object, PropMgrBaseClass, DebugMenuMixin ):
                     if self.DGDdebug: 
                         env.history.message( 
                                 redmsg( "sequenceChanged:   Illegal Sequence character ("\
-                                        +theSequence[theBasePosition] \
-                                        +" at "+str(theBasePosition)+')'))
+                                        +theSequence[basePosition] \
+                                        +" at "+str(basePosition)+')'))
             
             # Insert verified sequence and restore cursor position.
             if self.DGDdebug: env.history.message( greenmsg( "sequenceChanged:    Inserting refined sequence") )

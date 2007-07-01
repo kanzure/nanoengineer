@@ -12,16 +12,30 @@ $Id$
 
 
 """
-from PyQt4.Qt import QToolTip, QRect
+
+import math
 import time
+
+from PyQt4.Qt import QToolTip, QRect
+
 import env
-import preferences
-from prefs_constants import dynamicToolTipWakeUpDelay_prefs_key
-from selectMode import *
-from selectMolsMode import *
-from selectAtomsMode import *
-from math import *
+from chem import atom
+from elements import Singlet
+from bonds import Bond
+from jigs import Jig
+from VQT import vlen
 from platform import fix_plurals
+
+from prefs_constants import dynamicToolTipWakeUpDelay_prefs_key
+from prefs_constants import dynamicToolTipAtomDistancePrecision_prefs_key
+from prefs_constants import dynamicToolTipBendAnglePrecision_prefs_key
+from prefs_constants import dynamicToolTipTorsionAnglePrecision_prefs_key
+from prefs_constants import dynamicToolTipAtomChunkInfo_prefs_key
+from prefs_constants import dynamicToolTipBondChunkInfo_prefs_key
+from prefs_constants import dynamicToolTipAtomPosition_prefs_key
+from prefs_constants import dynamicToolTipAtomDistanceDeltas_prefs_key
+from prefs_constants import dynamicToolTipBondLength_prefs_key
+from prefs_constants import dynamicToolTipAtomMass_prefs_key
 
 
 
@@ -315,7 +329,7 @@ class DynamicTip: # Mark and Ninad 060817.
                 return False
         
         if lastSelAtom and secondLastSelAtom:
-            angle = atom_angle_radians( glpane.selobj, lastSelAtom,secondLastSelAtom ) * 180/pi
+            angle = atom_angle_radians( glpane.selobj, lastSelAtom,secondLastSelAtom ) * 180/math.pi
             roundedAngle = str(round(angle,bendAngPrecision))
             angleStr = fix_plurals("<font color=\"#0000FF\">Angle %s-%s-%s:</font> %s degree(s)"
             %(glpane.selobj, lastSelAtom,secondLastSelAtom,roundedAngle))

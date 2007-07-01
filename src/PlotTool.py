@@ -12,10 +12,13 @@ to trace file format.
 '''
 __author__ = "Mark"
 
-from PlotToolDialog import *
-from PyQt4.Qt import *
-import time
 import sys, os, string
+
+from PyQt4.Qt import QWidget
+from PyQt4.Qt import SIGNAL
+from PyQt4.Qt import QStringList
+
+from PlotToolDialog import Ui_PlotToolDialog
 from HistoryWidget import redmsg, greenmsg, orangemsg
 from movie import find_saved_movie
 from platform import open_file_in_editor
@@ -249,7 +252,7 @@ class PlotTool(QWidget, Ui_PlotToolDialog):
         
         # Make sure plotfile exists
         if not os.path.exists(plotfile):
-            msg = redmsg("Plotfile [" + program + "] is missing.  Plot aborted.")
+            msg = redmsg("Plotfile [" + plotfile + "] is missing.  Plot aborted.")
             env.history.message(cmd + msg)
             return
             

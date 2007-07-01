@@ -14,17 +14,19 @@ but the basic structure of Nodes and Groups has not been changed.
 """
 __author__ = "Josh"
 
-from VQT import *
-from shape import *
-from PyQt4.Qt import QPixmap
 import sys, os
-from PartProp import *
-from GroupProp import *
 from debug import print_compact_stack, print_compact_traceback
 import platform
 import env #bruce 050901
 from constants import genKey, gensym
 from state_utils import copy_val, StateMixin #bruce 060223
+
+from state_constants import S_PARENT, S_DATA, S_CHILD, S_CHILDREN
+
+from PyQt4 import QtGui
+from GroupProp import GroupProp
+from VQT import V, Q
+from PartProp import PartProp
 
 debug_undoable_attrs = False
 
@@ -101,7 +103,7 @@ def imagename_to_pixmap(imagename): #bruce 050108
             print 'pixmap does not exist: ' + pixmappath
             import traceback
             traceback.print_stack(file=sys.stdout)
-        pixmap = QPixmap(pixmappath)
+        pixmap = QtGui.QPixmap(pixmappath)
             # missing file prints a warning but doesn't cause an exception,
             # just makes a null pixmap [confirmed by mark 060202]
         _pixmaps[imagename] = pixmap
@@ -137,7 +139,7 @@ def imagename_to_icon(imagename): #bruce 050108
         iconpath = os.path.join( _pixmap_image_path, imagename)
         if not os.path.exists(iconpath):
             print 'icon does not exist: ' + iconpath
-        icon = QIcon(iconpath)
+        icon = QtGui.QIcon(iconpath)
             # missing file prints a warning but doesn't cause an exception,
             # just makes a null icon [confirmed by mark 060202]
         _icons[imagename] = icon
@@ -723,14 +725,15 @@ class Node( StateMixin):
         """
         return hasattr(self, 'addchild') # i.e. whether it's a Group!
 
-    def drop_under(self, drag_type, nodes, after = None): #e move to Group, implem subrs, use ###@@@
-        "#doc"
-        if drag_type == 'copy':
-            nodes = copy_nodes(nodes) # make a homeless copy of the set (someday preserving inter-node bonds, etc)
-                ###@@@ see ops_copy for newer ways to do this...
-        for node in nodes:
-            self.addchildren(nodes, after = after) ###@@@ IMPLEM (and make it not matter if they are homeless? for addchild)
-        return
+# this routine is never used, and copy_nodes is never defined
+#    def drop_under(self, drag_type, nodes, after = None): #e move to Group, implem subrs, use ###@@@
+#        "#doc"
+#        if drag_type == 'copy':
+#            nodes = copy_nodes(nodes) # make a homeless copy of the set (someday preserving inter-node bonds, etc)
+#                ###@@@ see ops_copy for newer ways to do this...
+#        for node in nodes:
+#            self.addchildren(nodes, after = after) ###@@@ IMPLEM (and make it not matter if they are homeless? for addchild)
+#        return
 
     def node_icon(self, display_prefs):
         """#doc this - should return a cached icon
@@ -2500,7 +2503,7 @@ class ClipboardShelfGroup(Group):
             res = imagename_to_pixmap("modeltree/clipboard-empty.png")
         # kluge: guess: makes paste tool look enabled or disabled
         ###@@@ clean this up somehow?? believe it or not, it might actually be ok...
-        self.assy.w.editPasteAction.setIcon(QIcon(kluge_pixmap))
+        self.assy.w.editPasteAction.setIcon(QtGui.QIcon(kluge_pixmap))
         return res
     def edit(self):
         return "The Clipboard does not yet provide a property-editing dialog."

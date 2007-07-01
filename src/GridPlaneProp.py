@@ -5,8 +5,12 @@ GridPlaneProp.py
 $Id$
 """
 
-from PyQt4.Qt import *
-from GridPlanePropDialog import *
+from PyQt4.Qt import QDialog
+from PyQt4.Qt import QWidget
+from PyQt4.Qt import SIGNAL
+from PyQt4.Qt import QColorDialog
+
+from GridPlanePropDialog import Ui_GridPlanePropDialog
 from widgets import RGBf_to_QColor, QColor_to_RGBf, get_widget_with_color_palette
 
 class GridPlaneProp(QDialog, Ui_GridPlanePropDialog):

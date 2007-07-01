@@ -5,9 +5,8 @@ import sys
 
 from distutils.core import setup
 from distutils.extension import Extension
-import EpydocTest
 
-if (not EpydocTest.documenting()):
+if (__name__ == '__main__'):
 
     try:
         from Pyrex.Distutils import build_ext
@@ -19,11 +18,11 @@ if (not EpydocTest.documenting()):
         print " since the import should have worked.)"
         sys.exit(1)
 
-# Hack to prevent -O2/-O3 problems on the Mac
-#if sys.platform == "darwin":
-#    extra_compile_args = [ "-DDISTUTILS", "-O" ]
+    # Hack to prevent -O2/-O3 problems on the Mac
+    #if sys.platform == "darwin":
+    #    extra_compile_args = [ "-DDISTUTILS", "-O" ]
 
-# Maybe put in some "-O" stuff later
+    # Maybe put in some "-O" stuff later
     extra_compile_args = [ "-DDISTUTILS", "-Wall", "-g" ]
 
     setup(name = 'Simulator',

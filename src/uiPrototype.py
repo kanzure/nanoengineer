@@ -52,8 +52,22 @@ program has, starting with \"File\" and \"Edit\"...
 in many situations, though in practice some will be grayed out, depending
 on which workspace is active.</p>"""
 
-from PyQt4.Qt import *
 from PyQt4 import QtCore, QtGui
+from PyQt4.Qt import QWidget
+from PyQt4.Qt import QGLWidget
+from PyQt4.Qt import QDialog
+from PyQt4.Qt import QMainWindow
+from PyQt4.Qt import QSizePolicy
+from PyQt4.Qt import QIcon
+from PyQt4.Qt import QGLFormat
+from PyQt4.Qt import QVBoxLayout
+from PyQt4.Qt import QTextEdit
+from PyQt4.Qt import QTextOption
+from PyQt4.Qt import QPushButton
+from PyQt4.Qt import SIGNAL
+from PyQt4.Qt import QTimer
+from PyQt4.Qt import QHBoxLayout
+from PyQt4.Qt import QGridLayout
 
 import modelTreeGui
 

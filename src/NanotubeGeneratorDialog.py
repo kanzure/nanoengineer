@@ -7,15 +7,19 @@ History:
 Mark 2007-05-18: Implemented Nanotube generator dialog using PropMgrBaseClass.
 """
 
-import sys
 import math
 
 from PyQt4 import QtCore, QtGui
-from PyQt4.Qt import *
+from PyQt4.Qt import SIGNAL
+
 from Utility import geticon, getpixmap
-from PropMgrBaseClass import *
-from PropMgr_Constants import *
+from PropMgrBaseClass import PropMgrBaseClass
+from PropMgrBaseClass import PropMgrGroupBox
+from PropMgrBaseClass import PropMgrComboBox
+from PropMgrBaseClass import PropMgrDoubleSpinBox
+from PropMgrBaseClass import PropMgrSpinBox
 from bonds import CC_GRAPHITIC_BONDLENGTH, BN_GRAPHITIC_BONDLENGTH
+from debug import print_compact_traceback
 
 ntBondLengths = [CC_GRAPHITIC_BONDLENGTH, BN_GRAPHITIC_BONDLENGTH]
 

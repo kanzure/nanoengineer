@@ -15,7 +15,8 @@ __author__ = "bruce"
 # - Undo and Feature Help cmdnames are wrong (not working)
 
 from constants import noop, average_value
-from bonds import atoms_are_bonded, find_bond, bond_atoms, V_SINGLE, bond_atoms_faster, bond_direction
+from bonds import atoms_are_bonded, find_bond, bond_atoms, bond_atoms_faster, bond_direction
+from bond_constants import V_SINGLE
 from HistoryWidget import redmsg, greenmsg, orangemsg, quote_html
 from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True, Choice
 import env

@@ -13,7 +13,6 @@ its uses should be replaced by making its callers use PropMgrBaseClass.
 
 __author__ = "Will"
 
-import EpydocTest
 from PyQt4.Qt import QPixmap, QIcon
 
 _up_arrow_data = \
@@ -75,14 +74,12 @@ class GroupButtonMixin:
     # Note: this is only used by a couple of non-generator dialogs,
     # so it (and the strings _up_arrow_data and _down_arrow_data which nothing else uses)
     # should be moved into some other file. [bruce 070615 comment]
-    if (EpydocTest.documenting()):
-        _up_arrow = "QPixmap()"
-        _down_arrow = "QPixmap()"
-    else:
+    def initialize():
         _up_arrow = QPixmap()
         _up_arrow.loadFromData(_up_arrow_data)
         _down_arrow = QPixmap()
         _down_arrow.loadFromData(_down_arrow_data)
+    initialize = staticmethod(initialize)
     
     def toggle_groupbox_in_dialogs(self, button, *things):
         """This is intended to be part of the slot method for clicking on an open/close icon

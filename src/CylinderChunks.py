@@ -1,5 +1,5 @@
 # Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
+"""
 CylinderChunks.py -- define a new whole-chunk display mode,
 which shows a chunk as a single opaque bounding cylinder of the chunk's color.
 
@@ -7,18 +7,21 @@ $Id$
 
 This is mainly intended as an example of how to use class ChunkDisplayMode,
 though it might be useful as a fast-rendering display mode too.
-'''
+"""
 
 __author__ = 'bruce'
 
+from Numeric import dot, argmax, argmin, sqrt
+
+import env
 import drawer
 import geometry
-from VQT import * # includes Numeric Python functions, like argmax and argmin
+from VQT import V, norm
 from debug import print_compact_traceback
 from displaymodes import ChunkDisplayMode
-import env
 from constants import ave_colors
 from prefs_constants import atomHighlightColor_prefs_key
+
 chunkHighlightColor_prefs_key = atomHighlightColor_prefs_key # initial kluge
 
 class CylinderChunks(ChunkDisplayMode):

@@ -3,7 +3,12 @@
 
 $Id$
 """
-from debug_prefs import debug_pref, Choice_boolean_False
+import sys
+import traceback
+import types
+
+import debug_prefs
+import debug
 
 __already = { }
 
@@ -11,7 +16,6 @@ def __linenum(always=False):
     try:
         raise Exception
     except:
-        import sys
         tb = sys.exc_info()[2]
         f = tb.tb_frame
         f = f.f_back
@@ -29,7 +33,6 @@ def __linenum(always=False):
 
 def qt4here(msg=None, show_traceback=False):
     if show_traceback:
-        import sys, traceback
         traceback.print_stack(None, None, sys.stdout)
         if msg is not None:
             print 'Qt 4 HERE: ' + msg
@@ -44,15 +47,15 @@ def qt4overhaul(msg):
         print 'Qt 4 MAJOR CONCEPTUAL OVERHAUL: ' + msg
 
 def qt4message(msg, always=False):
-    if debug_pref("Enable QT4 TODO messages", 
-                      Choice_boolean_False,
+    if debug_prefs.debug_pref("Enable QT4 TODO messages", 
+                      debug_prefs.Choice_boolean_False,
                       prefs_key=True): 
         if __linenum(always):
             print 'Qt 4 MESSAGE: ' + msg
 
 def qt4todo(msg):
-    if debug_pref("Enable QT4 TODO messages", 
-                      Choice_boolean_False,
+    if debug_prefs.debug_pref("Enable QT4 TODO messages", 
+                      debug_prefs.Choice_boolean_False,
                       prefs_key=True):      
         if __linenum():
             print 'Qt 4 TODO: ' + msg
@@ -64,8 +67,8 @@ def multipane_todo(msg):
         print 'Multipane TODO: ' + msg
 
 def qt4warning(msg):
-    if debug_pref("Enable QT4 WARNING messages", 
-                      Choice_boolean_False,
+    if debug_prefs.debug_pref("Enable QT4 WARNING messages", 
+                      debug_prefs.Choice_boolean_False,
                       prefs_key=True):
         if __linenum():
             print 'Qt 4 WARNING: ' + msg
@@ -77,14 +80,12 @@ def qt4skipit(msg):
 
 __nomsg = '128931789ksadjfqwhrhlv128947890127408'
 def qt4die(msg=__nomsg, browse=False):
-    import sys, traceback, types
     traceback.print_stack(file=sys.stdout)
     if msg == __nomsg:
         print 'Qt 4 DIE'
     elif browse:
-        from debug import objectBrowse
         print 'Qt 4 DIE:', msg
-        objectBrowse(msg, maxdepth=1)
+        debug.objectBrowse(msg, maxdepth=1)
     else:
         if type(msg) is not types.StringType:
             msg = repr(msg)
@@ -96,7 +97,6 @@ def qt4exception(msg):
     raise Exception('Qt 4: ' + msg)
 
 def qt4info(msg, name=None, maxdepth=1, browse=False):
-    import sys
     __linenum(always=True)
     if type(msg) is type('abc'):
         print 'Qt 4 INFO:', repr(msg)
@@ -105,26 +105,23 @@ def qt4info(msg, name=None, maxdepth=1, browse=False):
         if name is not None: print name,
         print repr(msg)
         if browse:
-            from debug import objectBrowse
-            objectBrowse(msg, maxdepth=maxdepth, outf=sys.stdout)
+            debug.objectBrowse(msg, maxdepth=maxdepth, outf=sys.stdout)
 
 def qt4warnDestruction(obj, name=''):
     message = '* * * * '
     try:
         raise Exception
     except:
-        import sys
         f = sys.exc_info()[2].tb_frame
         f = f.f_back
         message += f.f_code.co_filename + (':%d' % f.f_lineno)
     if name:
         message += ' ' + name
-    if debug_pref("Enable QT4 WARNING messages", 
-                      Choice_boolean_False,
+    if debug_prefs.debug_pref("Enable QT4 WARNING messages", 
+                      debug_prefs.Choice_boolean_False,
                       prefs_key=True):
         print 'Setting up destruction warning', message
     def destruction(ignore, message=message):
-        import sys
         print 'OBJECT DESTROYED (exiting)', message #bruce 070521 revised message
         sys.exit(1)
     from PyQt4.Qt import QObject, SIGNAL
@@ -143,7 +140,6 @@ def findDefiningClass(cls_or_method, method_name=None):
     >>> print findDefiningClass(x.foo)
     __main__.BaseClass
     """
-    import types
     if method_name is not None:
         if type(cls_or_method) is not types.ClassType:
             cls_or_method = cls_or_method.__class__
@@ -176,7 +172,6 @@ def lineage(widget, die=True, depth=0):
         def destruction(ignore, die=die, message=repr(widget)+" was just destroyed"):
             qt4here(message, show_traceback=True)
             if die:
-                import sys
                 sys.exit(1)
         QObject.connect(widget, SIGNAL("destroyed(QObject *)"), destruction)
         lineage(widget.parent(), die, depth+1)

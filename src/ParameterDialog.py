@@ -19,13 +19,41 @@ __author__ = "bruce"
 # Actually they won't be...
 
 
-from PyQt4.Qt import *
+from PyQt4 import QtGui
+from PyQt4.Qt import Qt
+from PyQt4.Qt import QDialog
+from PyQt4.Qt import QFrame
+from PyQt4.Qt import QTextEdit
+from PyQt4.Qt import QPixmap
+from PyQt4.Qt import QVBoxLayout
+from PyQt4.Qt import QColor
+from PyQt4.Qt import QHBoxLayout
+from PyQt4.Qt import QLabel
+from PyQt4.Qt import QSizePolicy
+from PyQt4.Qt import QFont
+from PyQt4.Qt import QPushButton
+from PyQt4.Qt import QSpacerItem
+from PyQt4.Qt import QToolButton
+from PyQt4.Qt import QIcon
+from PyQt4.Qt import QGroupBox
+from PyQt4.Qt import QSize
+from PyQt4.Qt import QGridLayout
+from PyQt4.Qt import QComboBox
+from PyQt4.Qt import QLineEdit
+from PyQt4.Qt import QSpinBox
+from PyQt4.Qt import QString
+from PyQt4.Qt import QToolTip
+from PyQt4.Qt import QApplication
+from PyQt4.Qt import SIGNAL
+from PyQt4.Qt import SLOT
 
 from generator_button_images import image0_data,  image1_data,  image2_data,  image3_data,  image4_data,  image5_data,  image6_data,  image7_data
 
 from widget_controllers import CollapsibleGroupController_Qt, FloatLineeditController_Qt #e might be gotten from env instead...
 
 from debug import print_compact_traceback
+
+from qt4transition import qt4todo
 
 import env # for env.debug(); warning: some methods have a local variable which overrides this
 
@@ -525,7 +553,8 @@ def get_description(filename):
     
     file = open(filename, 'rU')
 
-    from parse_utils import generate_tokens, parse_top, Whole
+    from tokenize import generate_tokens
+    from parse_utils import parse_top, Whole
 
     gentok = generate_tokens(file.readline)
 
@@ -549,37 +578,36 @@ def get_description(filename):
 
 # == TEST CODE, though some might become real
 
-import time, sys, os
-
-class NTdialog(parameter_dialog_or_frame, QDialog): # in real life this will be something which delegates to controller methods
-    def __init__(self, parent = None, desc = None):
-        parameter_dialog_or_frame.__init__(self, parent, desc) # sets self.desc (buttons might want to use it)
-    def do_sponsor_btn(self):
-        print "do_sponsor_btn: nim"
-    def do_done_btn(self):
-        print "do_done_btn: nim"
-    def do_abort_btn(self):
-        print "do_abort_btn: nim"
-    def do_preview_btn(self):
-        print "do_preview_btn: nim"
-    def do_whatsthis_btn(self):
-        print "do_whatsthis_btn: nim"
-    def do_cancel_btn(self):
-        print "do_cancel_btn: nim"
-    def do_ok_btn(self):
-        print "do_ok_btn: printing param values"
-        getters = self.param_getters.items()
-        getters.sort()
-        for paramname, getter in getters:
-            try:
-               print "param %s = %r" % (paramname, getter())
-            except:
-                print_compact_traceback("exception trying to get param %s: " % (paramname,))
-        print
-    pass
-
 if __name__ == '__main__': # this has the parsing calls
     
+    class NTdialog(parameter_dialog_or_frame, QDialog): # in real life this will be something which delegates to controller methods
+        def __init__(self, parent = None, desc = None):
+            parameter_dialog_or_frame.__init__(self, parent, desc) # sets self.desc (buttons might want to use it)
+        def do_sponsor_btn(self):
+            print "do_sponsor_btn: nim"
+        def do_done_btn(self):
+            print "do_done_btn: nim"
+        def do_abort_btn(self):
+            print "do_abort_btn: nim"
+        def do_preview_btn(self):
+            print "do_preview_btn: nim"
+        def do_whatsthis_btn(self):
+            print "do_whatsthis_btn: nim"
+        def do_cancel_btn(self):
+            print "do_cancel_btn: nim"
+        def do_ok_btn(self):
+            print "do_ok_btn: printing param values"
+            getters = self.param_getters.items()
+            getters.sort()
+            for paramname, getter in getters:
+                try:
+                    print "param %s = %r" % (paramname, getter())
+                except:
+                    print_compact_traceback("exception trying to get param %s: " % (paramname,))
+            print
+        pass
+
+    import sys
     a = QApplication(sys.argv)
         
     ## filename = "testui.txt"

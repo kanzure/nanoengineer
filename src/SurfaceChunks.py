@@ -10,17 +10,21 @@ See also CylinderChunks.py for comparison.
 
 __author__ = 'bruce'
 
+from Numeric import sqrt, pi, sin, cos
+import types
+
+from PyQt4.Qt import QApplication, Qt, QCursor
+
+import env
 import drawer
-import geometry
-from VQT import * # includes Numeric Python functions, like argmax and argmin
+from VQT import V, cross
+from HistoryWidget import redmsg, orangemsg, greenmsg
 from debug import print_compact_traceback
 from displaymodes import ChunkDisplayMode
-import env
+
 from constants import ave_colors
 from constants import diTrueCPK
 from prefs_constants import atomHighlightColor_prefs_key
-from PyQt4.Qt import QApplication, Qt, QCursor
-from HistoryWidget import redmsg, orangemsg, greenmsg
 
 _psurface_ok = False
 try:
@@ -175,7 +179,7 @@ class Triple:
 
     def Len(self):
         """vector length"""
-        return math.sqrt(self.Len2())
+        return sqrt(self.Len2())
     
     def Normalize(self):
         """normalizes vector to unit length"""
@@ -370,7 +374,7 @@ class Surface:
 
     def CalculateTorus(self, a, b, u, v):
         """calculate point on torus"""
-	pi2 = 2 * 3.1415926535897932 
+	pi2 = 2 * pi
 	#transformation function - torus
 	cf = cos(pi2*u)
 	sf = sin(pi2*u)

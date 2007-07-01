@@ -292,9 +292,9 @@ def write_qutemol_pdb_file(part, filename):
     
     f = open(filename, "w")
     
-    from prefs_constants import backgroundGradient_prefs_key, \
-                                backgroundColor_prefs_key, \
-				diBALL_BondCylinderRadius_prefs_key
+    from prefs_constants import backgroundGradient_prefs_key
+    from prefs_constants import backgroundColor_prefs_key
+    from prefs_constants import diBALL_BondCylinderRadius_prefs_key
     
     skyBlue = env.prefs[ backgroundGradient_prefs_key ]
 	

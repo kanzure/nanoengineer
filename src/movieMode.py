@@ -20,22 +20,28 @@ ninad20070507: moved Movie Player dashboard to Movie Property Manager.
 
 __author__ = "Mark"
 
-from modes import *
-from HistoryWidget import redmsg, orangemsg
+import os
 
-from MoviePropertyManager import MoviePropertyManager
+from PyQt4.Qt import Qt
+from PyQt4.Qt import QDialog, QGridLayout, QPushButton, QTextBrowser, SIGNAL, QCursor
+from PyQt4.Qt import QFileDialog, QMessageBox, QString, QWidgetAction, QAction
 
-from PyQt4.Qt import QFileDialog, QMessageBox, QString
-from qt4transition import *
 import env
 
+from movie import find_saved_movie
+from runSim import writemovie
+from modes import basicMode
+from HistoryWidget import greenmsg
+from HistoryWidget import redmsg, orangemsg
+from MoviePropertyManager import MoviePropertyManager
+from Utility import geticon
+
+from prefs_constants import workingDirectory_prefs_key
 
 auto_play = False # whether to automatically start playing the movie when you enter the mode
     # bruce 050510 disabling automatic play per Mark urgent request (this is also a bug or NFR in bugzilla).
     # Not sure whether this will need to be added back under certain conditions,
     # therefore I'm adding this flag, so it's easy to review all the places that might need changing.
-
-from PyQt4.Qt import QDialog, QGridLayout, QPushButton, QTextBrowser
 
 class MovieRewindDialog(QDialog):
 
@@ -197,14 +203,14 @@ class movieMode(basicMode,MoviePropertyManager):
 	
 	subControlAreaActionList =[] 
 		
-	self.exitMovieAction = QtGui.QWidgetAction(self.w)
+	self.exitMovieAction = QWidgetAction(self.w)
 	self.exitMovieAction.setText("Exit Movie")
 	self.exitMovieAction.setCheckable(True)
 	self.exitMovieAction.setChecked(True)
 	self.exitMovieAction.setIcon(geticon("ui/actions/Toolbars/Smart/Exit"))
 	subControlAreaActionList.append(self.exitMovieAction)
 	
-	separator = QtGui.QAction(self.w)
+	separator = QAction(self.w)
 	separator.setSeparator(True)
 	subControlAreaActionList.append(separator) 
 	

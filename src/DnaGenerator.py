@@ -43,19 +43,29 @@ Jeff 2007-06-13
 
 __author__ = "Will"
 
+import os
+import random
+
 from PyQt4.Qt import QDialog
+
+import env
 from DnaGeneratorDialog import DnaPropertyManager
 from GeneratorBaseClass import GeneratorBaseClass, PluginBug, UserError
 from Utility import Group
 from HistoryWidget import redmsg, orangemsg, greenmsg
-from Dna import Dna, \
-                A_Dna, A_Dna_BasePseudoAtoms, \
-                B_Dna, B_Dna_BasePseudoAtoms, \
-                Z_Dna, Z_Dna_BasePseudoAtoms, \
-                DEBUG, DEBUG_SEQUENCE, \
-                basepath, basepath_ok
+from VQT import A, V, vlen
+from Numeric import dot
+from bonds import inferBonds, bond_atoms
+from files_mmp import _readmmp
+from fusechunksMode import fusechunksBase
+from platform import find_plugin_dir
 
-import sys, os, env, re, random
+from Dna import Dna
+from Dna import A_Dna, A_Dna_BasePseudoAtoms
+from Dna import B_Dna, B_Dna_BasePseudoAtoms
+from Dna import Z_Dna, Z_Dna_BasePseudoAtoms
+from Dna import DEBUG, DEBUG_SEQUENCE
+from Dna import basepath, basepath_ok
 
 ############################################################################
 

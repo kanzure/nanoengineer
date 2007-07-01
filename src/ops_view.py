@@ -14,16 +14,17 @@ mark 060120 split this out of MWsemantics.py.
 
 '''
 
-from HistoryWidget import greenmsg, redmsg, orangemsg
-from constants import *
-from VQT import *
-from math import *
+import math
+from Numeric import dot
 from PyQt4.Qt import Qt, QString
+
+import env
+from VQT import V, Q, A, norm, vlen
+from HistoryWidget import greenmsg, redmsg, orangemsg
 from ViewOrientationWindow import ViewOrientationWindow
 from qutemol import launch_qutemol, write_qutemol_files
-
-import preferences
-import env
+from prefs_constants import ORTHOGRAPHIC
+from prefs_constants import PERSPECTIVE
 
 class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
     "Mixin class to provide view-related methods for class MWsemantics. Has slot methods and their helper methods."
@@ -271,33 +272,33 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
         cmd = greenmsg("Opposite View: ")
         info = 'Current view opposite to the previous view'
         env.history.message(cmd + info)
-        self.glpane.rotateView(self.glpane.quat + Q(V(0,1,0), pi))
+        self.glpane.rotateView(self.glpane.quat + Q(V(0,1,0), math.pi))
   
     def viewRotatePlus90(self): # Added by Mark. 051013.
         '''Increment the current view by 90 degrees around the vertical axis. '''
         cmd = greenmsg("Rotate View +90 : ")
         info = 'View incremented by 90 degrees'
         env.history.message(cmd + info)
-        self.glpane.rotateView(self.glpane.quat + Q(V(0,1,0), pi/2))
+        self.glpane.rotateView(self.glpane.quat + Q(V(0,1,0), math.pi/2))
         
     def viewRotateMinus90(self): # Added by Mark. 051013.
         '''Decrement the current view by 90 degrees around the vertical axis. '''
         cmd = greenmsg("Rotate View -90 : ")
         info = 'View decremented by 90 degrees'
         env.history.message(cmd + info)
-        self.glpane.rotateView(self.glpane.quat + Q(V(0,1,0), -pi/2))
+        self.glpane.rotateView(self.glpane.quat + Q(V(0,1,0), -math.pi/2))
 
     def viewBack(self):
         cmd = greenmsg("Back View: ")
         info = 'Current view is Back View'
         env.history.message(cmd + info)
-        self.glpane.rotateView(Q(V(0,1,0),pi))
+        self.glpane.rotateView(Q(V(0,1,0),math.pi))
 
     def viewBottom(self):
         cmd = greenmsg("Bottom View: ")
         info = 'Current view is Bottom View'
         env.history.message(cmd + info)
-        self.glpane.rotateView(Q(V(1,0,0),-pi/2))
+        self.glpane.rotateView(Q(V(1,0,0),-math.pi/2))
 
     def viewFront(self):
         cmd = greenmsg("Front View: ")
@@ -309,20 +310,20 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
         cmd = greenmsg("Left View: ")
         info = 'Current view is Left View'
         env.history.message(cmd + info)
-        self.glpane.rotateView(Q(V(0,1,0),pi/2))
+        self.glpane.rotateView(Q(V(0,1,0),math.pi/2))
 
     def viewRight(self):
         cmd = greenmsg("Right View: ")
         info = 'Current view is Right View'
         env.history.message(cmd + info)
-        self.glpane.rotateView(Q(V(0,1,0),-pi/2))
+        self.glpane.rotateView(Q(V(0,1,0),-math.pi/2))
 
     def viewTop(self):
         cmd = greenmsg("Top View: ")
         info = 'Current view is Top View'
         env.history.message(cmd + info)
 
-        self.glpane.rotateView(Q(V(1,0,0),pi/2))
+        self.glpane.rotateView(Q(V(1,0,0),math.pi/2))
 
     def viewIsometric(self):
         "This sets the view to isometric. For isometric view, it needs"\
@@ -331,8 +332,8 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
         cmd = greenmsg("Isometric View: ")
         info = 'Current view is Isometric View'
         env.history.message(cmd + info)
-        self.quatX = Q(V(1,0,0), asin(tan(pi/6)))
-        self.quatY = Q(V(0,1,0), -pi/4)
+        self.quatX = Q(V(1,0,0), math.asin(math.tan(math.pi/6)))
+        self.quatY = Q(V(0,1,0), -math.pi/4)
         self.glpane.rotateView(self.quatY+self.quatX) #If you put quatX first, it won't give isometric view ninad060810
         
     def saveNamedView(self):

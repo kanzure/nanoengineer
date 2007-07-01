@@ -10,7 +10,10 @@ Created by Mark.
 '''
 __author__ = "Mark"
 
-from NanoHiveUtils import *
+from NanoHiveUtils import get_nh_simspec_filename
+from NanoHiveUtils import get_nh_workflow_filename
+from NanoHiveUtils import get_nh_mmp_filename
+from NanoHiveUtils import get_nh_home
 
 def write_nh_simspec_file(sim_name, sim_parms, sims_to_run, results_to_save, output_dir):
     '''Writes the Nano-Hive Sim specification file, which is an XML file that describes the

@@ -8,14 +8,38 @@ bruce 050913 used env.history in some places.
 
 """
 
-from selectMode import *
-from selectMolsMode import *
-from selectAtomsMode import *
+import math
+from Numeric import dot, sign
+
+from PyQt4 import QtGui
+from PyQt4.Qt import Qt
+from PyQt4.Qt import QComboBox
+from PyQt4.Qt import QLabel
+from PyQt4.Qt import QCheckBox
+from PyQt4.Qt import SIGNAL
+from PyQt4.Qt import QMouseEvent
+
+from selectMode import selectMode
+from selectMolsMode import selectMolsMode
+from selectAtomsMode import selectAtomsMode
 from widgets import FloatSpinBox
 from HistoryWidget import redmsg
 import env
-from qt4transition import *
 from MovePropertyManager import MovePropertyManager
+from chem import Atom
+from bonds import Bond
+from jigs import Jig
+from modes import basicMode
+from Utility import geticon
+
+from debug import print_compact_traceback
+
+from constants import START_NEW_SELECTION
+from constants import DELETE_SELECTION
+from constants import SUBTRACT_FROM_SELECTION
+from constants import ADD_TO_SELECTION
+
+from VQT import V, Q, A, norm, vlen
 
 def do_what_MainWindowUI_should_do(w):
     'Populate the Move Chunks dashboard'
@@ -614,7 +638,7 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
                 deltaMouse = V(event.pos().x() - self.o.MousePos[0],
                            self.o.MousePos[1] - event.pos().y())
                 a =  dot(self.Zmat, deltaMouse)
-                dx,dy =  a * V(self.o.scale/(h*0.5), 2*pi/w)
+                dx,dy =  a * V(self.o.scale/(h*0.5), 2*math.pi/w)
                 if self.moveOption == 'TRANSX' :     ma = V(1,0,0) # X Axis
                 elif self.moveOption == 'TRANSY' :  ma = V(0,1,0) # Y Axis
                 elif self.moveOption == 'TRANSZ' :  ma = V(0,0,1) # Z Axis
@@ -632,7 +656,7 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
             deltaMouse = V(event.pos().x() - self.o.MousePos[0],
                        self.o.MousePos[1] - event.pos().y())
             a =  dot(self.Zmat, deltaMouse)
-            dx,dy =  a * V(self.o.scale/(h*0.5), 2*pi/w)
+            dx,dy =  a * V(self.o.scale/(h*0.5), 2*math.pi/w)
 
             if self.rotateOption == 'ROTATEX' :     ma = V(1,0,0) # X Axis
             elif self.rotateOption == 'ROTATEY' :  ma = V(0,1,0) # Y Axis
@@ -641,7 +665,7 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
                 print "modifyMode.leftDrag: Error - unknown rotateOption value =", self.rotateOption                
                 return                
             qrot = Q(ma,-dy) # Quat for rotation delta.
-            self.rotDelta += qrot.angle *180.0/pi * sign(dy) # Increment rotation delta (and convert to degrees)
+            self.rotDelta += qrot.angle *180.0/math.pi * sign(dy) # Increment rotation delta (and convert to degrees)
             
             self.updateRotationDeltaLabels(self.rotateOption, self.rotDelta)
             self.o.assy.rotsel(qrot) 
@@ -973,7 +997,7 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
         deltaMouse = V(event.pos().x() - self.o.MousePos[0],
                        self.o.MousePos[1] - event.pos().y())
         a =  dot(self.Zmat, deltaMouse)
-        dx,dy =  a * V(self.o.scale/(h*0.5), 2*pi/w)
+        dx,dy =  a * V(self.o.scale/(h*0.5), 2*math.pi/w)
         
         self._leftADown_total_dx_dy += V(dx,dy)
         tot_dx, tot_dy = self._leftADown_total_dx_dy
@@ -1100,7 +1124,7 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
         #I agree with this. In fact if I enter angle of  1 degree, it multiplies it by 100!
         #May be it was necessary in Qt3 branch. I am modifying this formula 
         #to remove this  multiplication factor of 100 as its giving wrong results
-        dy =  (pi / 180.0) * theta  # Convert to radians
+        dy =  (math.pi / 180.0) * theta  # Convert to radians
         qrot = Q(ma,dy) # Quat for rotation delta.
         
         if self.rotateAsUnitCB.isChecked():

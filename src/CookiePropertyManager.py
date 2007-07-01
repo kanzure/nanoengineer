@@ -2,7 +2,7 @@
 """
 $Id$
 """
-import sys
+
 from PyQt4 import QtCore, QtGui
 from Ui_CookiePropertyManager import Ui_CookiePropertyManager
 from PropertyManagerMixin import PropertyManagerMixin, pmSetPropMgrIcon, pmSetPropMgrTitle

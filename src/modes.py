@@ -65,33 +65,66 @@ as well look at them all.
 # import what they need directly, and then define __all__ =
 # ['basicMode', 'modeMixin'] here. ##e
 
-from PyQt4.Qt import *
-from PyQt4.Qt import *
-from OpenGL.GL import *
-from OpenGL.GLU import *
+import math # just for pi
+import sys
+from Numeric import exp
+from Numeric import dot
 
-try:
-        from OpenGL.GLE import *
-except:
-        print "GLE module can't be imported. Now trying _GLE"
-        from OpenGL._GLE import *
+from PyQt4.Qt import Qt
+from PyQt4.Qt import QMenu, QCursor, QToolButton
 
-import math
+from OpenGL.GL import GL_FALSE
+from OpenGL.GL import glColorMask
+from OpenGL.GL import GL_DEPTH_COMPONENT
+from OpenGL.GL import glReadPixelsf
+from OpenGL.GL import GL_TRUE
+from OpenGL.GL import GL_PROJECTION
+from OpenGL.GL import glMatrixMode
+from OpenGL.GL import glPushMatrix
+from OpenGL.GL import glSelectBuffer
+from OpenGL.GL import GL_SELECT
+from OpenGL.GL import glRenderMode
+from OpenGL.GL import glInitNames
+from OpenGL.GL import GL_MODELVIEW
+from OpenGL.GL import GL_CLIP_PLANE0
+from OpenGL.GL import glClipPlane
+from OpenGL.GL import glEnable
+from OpenGL.GL import glDisable
+from OpenGL.GL import glPopMatrix
+from OpenGL.GL import GL_RENDER
+from OpenGL.GL import glFlush
 
-import os,sys
-from VQT import *
+from OpenGL.GLU import gluUnProject
+
+from VQT import V, Q, A, vlen, norm, planeXline, ptonline
 import drawer
-from shape import *
-from assembly import *
-import re
-from constants import *
+
 from debug import print_compact_traceback
 
-from platform import *
-import platform # not redundant with "from platform import *" -- we need both
-import preferences
-import env #bruce 050911
-from state_utils import StateMixin #bruce 060223
+import platform
+from platform import shift_name
+from platform import control_name
+from platform import context_menu_prefix
+
+import env
+from state_utils import StateMixin
+
+from constants import noop
+from constants import get_selCurve_color
+from constants import SELSHAPE_RECT
+from constants import SUBTRACT_FROM_SELECTION
+from constants import ADD_TO_SELECTION
+from prefs_constants import zoomAboutScreenCenter_prefs_key
+from prefs_constants import displayOriginAxis_prefs_key
+from prefs_constants import displayOriginAsSmallAxis_prefs_key
+from prefs_constants import displayPOVAxis_prefs_key
+
+from Utility import Group
+from chem import Atom
+from bonds import Bond
+from Utility import Node
+from jigs import Jig
+
 
 class anyMode( StateMixin): #bruce 060223 renamed mixin class
     "abstract superclass for all mode objects"
@@ -1294,7 +1327,7 @@ class basicMode(anyMode):
         self.o.pov = self.Zpov
 
         w=self.o.width+0.0
-        self.o.quat = self.Zq + Q(V(0,0,1),2*pi*dx/w)
+        self.o.quat = self.Zq + Q(V(0,0,1),2*math.pi*dx/w)
  
         self.o.gl_update()
         
@@ -1349,7 +1382,7 @@ class basicMode(anyMode):
                 self.ZRot = 0
         if self.ZRot:
             w=self.o.width+0.0
-            self.o.quat = self.Zq + Q(V(0,0,1),2*pi*dx/w)
+            self.o.quat = self.Zq + Q(V(0,0,1),2*math.pi*dx/w)
         else:
             h=self.o.height+0.0
             self.o.pov = self.Zpov-self.o.out*(2.0*dy/h)*self.o.scale

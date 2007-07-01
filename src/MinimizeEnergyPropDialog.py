@@ -10,7 +10,8 @@
 
 import sys
 from PyQt4 import QtCore, QtGui
-from PropMgr_Constants import *
+from PropMgr_Constants import getHeaderFont
+from PropMgr_Constants import pmLabelLeftAlignment
 
 class Ui_MinimizeEnergyPropDialog(object):
     def setupUi(self, MinimizeEnergyPropDialog):

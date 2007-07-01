@@ -31,19 +31,27 @@ import re
 import socket
 import string
 import threading
-import time
 import types
 import urllib
 import platform
 from xml.dom.minidom import parseString
+
+from PyQt4.Qt import QDialog
+from PyQt4.Qt import QImage
+from PyQt4.Qt import QPixmap
+from PyQt4.Qt import QSize
+from PyQt4.Qt import QIcon
+from PyQt4.Qt import QGridLayout
+from PyQt4.Qt import QTextBrowser
+from PyQt4.Qt import QPushButton
+from PyQt4.Qt import SIGNAL
+
 from wiki_help import WikiHelpBrowser
 from debug import print_compact_stack, print_compact_traceback
 from qt4transition import qt4todo
-from PyQt4.Qt import *
-from prefs_constants import \
-    sponsor_download_permission_prefs_key,  \
-    sponsor_permanent_permission_prefs_key, \
-    sponsor_md5_mismatch_flag_key
+from prefs_constants import sponsor_download_permission_prefs_key
+from prefs_constants import sponsor_permanent_permission_prefs_key
+from prefs_constants import sponsor_md5_mismatch_flag_key
 from HistoryWidget import redmsg, orangemsg, greenmsg
 from Utility import geticon
 

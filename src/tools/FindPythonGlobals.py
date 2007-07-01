@@ -49,6 +49,7 @@ s_fileName = ""
 """File currently being parsed."""
 
 traverseTheseTokens = [
+    symbol.encoding_decl,
     symbol.file_input,
     symbol.stmt,
     symbol.simple_stmt,
@@ -193,7 +194,10 @@ def parsePythonFile(filename):
         codeString = codeString + '\n'
 #    print "file: %s" % codeString
     file.close()
-    ast = parser.suite(codeString)
+    try:
+        ast = parser.suite(codeString)
+    except SyntaxError:
+        return
     parseTree = parser.ast2list(ast)
     if (verbose):
         printParseTree(parseTree, "")
@@ -201,4 +205,5 @@ def parsePythonFile(filename):
     
 if (__name__ == '__main__'):
     for s_fileName in sys.argv[1:]:
+#        print >>sys.stderr, "processing " + s_fileName
         parsePythonFile(s_fileName)

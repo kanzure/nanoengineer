@@ -8,10 +8,17 @@ Owned by bruce for use in extrude... might not remain a separate file, we'll see
 Needs cleanup.
 """
 
-from modes import * # this has a lot of stuff, e.g. VQT
+from Numeric import sqrt
 
-from constants import ave_colors #bruce 050805 moved that function from here to there
-    #k this import might not be needed
+from VQT import V
+from VQT import vlen
+from VQT import norm
+from VQT import orthodist
+import drawer
+
+from constants import ave_colors
+from constants import magenta
+from constants import blue
 
 class handleWithHandleSet:
     "used to wrap handles returned from a handleset, so they can use its methods"

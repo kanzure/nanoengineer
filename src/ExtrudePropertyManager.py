@@ -2,7 +2,7 @@
 """
 $Id$
 """
-import sys
+
 from PyQt4 import QtCore, QtGui
 from Ui_ExtrudePropertyManager import Ui_ExtrudePropertyManager
 from PropertyManagerMixin import PropertyManagerMixin, pmSetPropMgrIcon, pmSetPropMgrTitle

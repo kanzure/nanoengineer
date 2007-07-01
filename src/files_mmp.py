@@ -119,25 +119,44 @@ new file, which is initially in the same directory as this file.]
 MMP_FORMAT_VERSION_TO_WRITE = '050920 required; 070415 preferred'
 #bruce modified this to indicate required & ideal reader versions... see general notes above.
 
-from Numeric import *
-from VQT import *
-from string import * # this might no longer be needed [bruce 050414 comment]
 import re
-from chem import * # needed for atom, bond_atoms, maybe not anything else [bruce 050414 guess]
-from jigs import *
-from jigs_planes import *
-from jigs_motors import *
-from jigs_measurements import *
-from Utility import *
-from PovrayScene import *
+
+import env
+import platform
+
+from chem import atom
+from jigs import AtomSet
+from jigs import Anchor
+from jigs import Stat
+from jigs import Thermo
+from jigs_motors import RotaryMotor
+from jigs_motors import LinearMotor
+from jigs_planes import GridPlane
+from jigs_planes import ESPImage
+from jigs_measurements import MeasureAngle
+from jigs_measurements import MeasureDihedral
+from VQT import V, Q, A
+from PovrayScene import PovrayScene
 from Comment import Comment
-from povheader import povheader, povpoint # this might no longer be needed [bruce 050414 comment]
-from mdldata import * # this might no longer be needed [bruce 050414 comment]
 from HistoryWidget import redmsg
 from elements import PeriodicTable
-import env #bruce 050901
+from bonds import bond_atoms
+from bonds import find_bond
 from chunk import molecule #bruce 060224
+from Utility import Node
+from Utility import Group
+from Utility import Csys
+
+from debug import print_compact_traceback
+
 from constants import gensym
+from constants import dispNames
+from bond_constants import V_SINGLE
+from bond_constants import V_DOUBLE
+from bond_constants import V_TRIPLE
+from bond_constants import V_AROMATIC
+from bond_constants import V_GRAPHITE
+from bond_constants import V_CARBOMERIC
 
 from Plane import Plane
 
@@ -1010,7 +1029,7 @@ class mmp_interp: #bruce 050217; revised docstrings 050422
         except:
             # several kinds of exception are possible here, which are not errors
             if platform.atom_debug:
-                print "atom_debug: fyi: some info record wants an int val but got this non-int (not an error)" % (val,)
+                print "atom_debug: fyi: some info record wants an int val but got this non-int (not an error): " + repr(val)
                 # btw, the reason it's not an error is that the mmp file format might be extended to permit it, in that info record.
             return None
         pass
@@ -1022,7 +1041,7 @@ class mmp_interp: #bruce 050217; revised docstrings 050422
         if val in ['1','yes','true']:
             return True
         if platform.atom_debug:
-            print "atom_debug: fyi: some info record wants a boolean val but got this instead (not an error)" % (val,)
+            print "atom_debug: fyi: some info record wants a boolean val but got this instead (not an error): " + repr(val)
         return None
     pass
 

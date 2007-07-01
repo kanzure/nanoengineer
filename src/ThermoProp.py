@@ -5,8 +5,11 @@ ThermoProp.py
 $Id$
 """
 
-from PyQt4.Qt import *
-from ThermoPropDialog import *
+from PyQt4 import QtGui
+from PyQt4.Qt import QDialog
+from PyQt4.Qt import SIGNAL
+from PyQt4.Qt import QColorDialog
+from ThermoPropDialog import Ui_ThermoPropDialog
 from widgets import RGBf_to_QColor, QColor_to_RGBf,get_widget_with_color_palette
 
 class ThermoProp(QDialog, Ui_ThermoPropDialog):

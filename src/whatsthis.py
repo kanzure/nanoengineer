@@ -28,7 +28,13 @@ A8 to find all the whats-this text specified in UI files, and move it
 into whatsthis.py (or maybe in some cases other Python source files).
 """
 
-from PyQt4.Qt import *
+from PyQt4.Qt import qApp
+from PyQt4.Qt import QAction
+from PyQt4.Qt import QWidget
+from PyQt4.Qt import QMenu
+from PyQt4.Qt import QMenuBar
+from PyQt4.Qt import QWhatsThis
+
 from qt4transition import qt4todo, qt4warning
 
 #bruce 051227-29 code for putting hyperlinks into most WhatsThis texts

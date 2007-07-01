@@ -26,18 +26,28 @@ of 'offset plane'
 
 __author__ = "Ninad"
 
-from OpenGL.GL import glPushMatrix, glPopMatrix, glTranslatef, glRotatef, \
-     glPushName, glPopName
-from OpenGL.GLU import gluProject, gluUnProject
 from math import pi, atan, cos, sin
-from Numeric import add
+from Numeric import add, dot
 
-from VQT import V,Q, cross, dot, A, planeXline, vlen, norm
+from OpenGL.GL import glPushName
+from OpenGL.GL import glPopName
+from OpenGL.GL import glPushMatrix
+from OpenGL.GL import glTranslatef
+from OpenGL.GL import glRotatef
+from OpenGL.GL import glPopMatrix
+from OpenGL.GLU import gluProject, gluUnProject
+
+from PyQt4.Qt import QDialog
+
+from shape import fill
+from drawer import drawLineLoop, drawPlane
+from drawer import drawDirectionArrow
+from constants import black, gray, orange, yellow, darkgreen, brown
+from VQT import V,Q, cross, A, planeXline, vlen, norm
+
 from debug import print_compact_traceback
 import env
-from shape import fill
-from drawer import drawLineLoop, drawPlane, drawline, drawcylinder, drawDirectionArrow
-from constants import black, gray, orange, yellow, darkgreen, brown
+
 from HistoryWidget import greenmsg, redmsg
 
 from PlanePropertyManager import PlanePropMgr
@@ -288,7 +298,7 @@ class Plane(ReferenceGeometry):
         return cross(v1, v2)
     
     def _draw_handles(self, cornerPoints):
-        '''' Draw the handles that permit the geometry resizing. 
+        ''' Draw the handles that permit the geometry resizing. 
         Example: For a plane, there will be 8 small squares along the 
         border...4 at plane corners and remaining in the middle 
         of each side of the plane. The handles will be displayed only when the 
@@ -708,12 +718,12 @@ class DirectionArrow(DragHandler_API):
         self.drawRequested = False
     
     def setDrawRequested(self, bool_request = False):
-        '''Sets the draw request for drawing the direction arrow. 
+        """Sets the draw request for drawing the direction arrow. 
         This class's draw method is called in the parent class's draw method
         This functions sets the flag that decides whether to draw direction arrow
         (the flag  value is returned using isDrawRequested method.
         @param: bool_request: Default is False. (request to draw direction arrow)
-        '''
+        """
         self.drawRequested = bool_request
     
     def isDrawRequested(self): 
@@ -722,8 +732,8 @@ class DirectionArrow(DragHandler_API):
         return self.drawRequested 
              
     def draw(self):
-        ''' Draw the direction arrow. (This method is called inside of the 
-        parent object's drawing code.'''
+        """ Draw the direction arrow. (This method is called inside of the 
+        parent object's drawing code."""
         try:
             glPushName(self.glname)
             if self.flipDirection:

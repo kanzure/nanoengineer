@@ -26,14 +26,15 @@ Jeff 2007-05-30: Based on Will Ware's GrapheneGenerator.py
 
 __author__ = "Jeff"
 
+from PyQt4.Qt import QDialog
+
 import platform, env
-from chem import molecule, Atom
+from chem import Atom
+from chunk import molecule
 from VQT import V
-import string
 from elements import PeriodicTable
 from HistoryWidget import greenmsg
 
-from PyQt4.Qt import QDialog
 from AtomGeneratorDialog import AtomPropertyManager
 from GeneratorBaseClass import GeneratorBaseClass
 

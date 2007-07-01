@@ -1,5 +1,5 @@
 # Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
+"""
 extended_ops.py
 
 Coordination and UI framework for extended operations that might be requested in parallel,
@@ -18,7 +18,7 @@ History:
 
 bruce 060104 needed this for Minimize realtime's abort button.
 
-'''
+"""
 __author__ = 'bruce'
 
 ###e WRONG NAMES of classes and methods, will be changed

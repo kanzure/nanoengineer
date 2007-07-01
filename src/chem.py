@@ -37,30 +37,58 @@ History:
 """
 __author__ = "Josh"
 
-# some of these imports might not be needed here in chem.py;
-# it's not easy to clean this up, since this file imports everything from chunk.py and bond.py
-# at the end (as of 050502), and a lot of other code imports everything from this file.
-# [bruce comment 050502] ###@@@
+import math
 
-from VQT import *
-from LinearAlgebra import *
-import string
-import re
-from OpenGL.GL import *
-from OpenGL.GLU import *
+from Numeric import dot
+from OpenGL.GL import glPushName
+from OpenGL.GL import glPopName
 
-from drawer import *
-from shape import *
+from drawer import ColorSorter
+from drawer import drawcylinder
+from drawer import drawsphere
+from drawer import drawwiresphere
+from elements import DIRECTIONAL_BOND_ELEMENTS
+from elements import Singlet
+from elements import Hydrogen
+from elements import PeriodicTable
 
-from constants import *
-from bond_constants import V_SINGLE
-from PyQt4.Qt import *
-from Utility import *
-from ChunkProp import * # Renamed MoleculeProp to ChunkProp.  Mark 050929
+# bonds.py and chem.py form a two element import cycle, which could
+# ordinarily be broken by saying "import bonds" here, but there are
+# classes here which use bonds as an instance variable.
+import bonds as bondsImportKluge
+
+# chunk and chem form a two element import cycle.
+# bonds, chem, and chunk form an import cycle.
+import chunk
+
+from VQT import V, Q, A, norm, cross, twistor, vlen, orthodist
+
 from mdldata import marks, links, filler
 from povheader import povpoint #bruce 050413
 from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True, Choice
 from changes import register_changedict, register_class_changedicts
+
+from constants import genKey
+from constants import diDEFAULT
+from constants import default_display_mode
+from constants import TubeRadius
+from constants import diBALL
+from constants import diTrueCPK
+from constants import diTUBES
+from constants import diINVISIBLE
+from constants import pink
+from constants import ErrorPickedColor
+from constants import PickedColor
+from bond_constants import V_SINGLE
+from bond_constants import describe_atom_and_atomtype
+from bond_constants import min_max_valences_from_v6
+from bond_constants import valence_to_v6
+from prefs_constants import arrowsOnFivePrimeEnds_prefs_key
+from prefs_constants import arrowsOnThreePrimeEnds_prefs_key
+from prefs_constants import showValenceErrors_prefs_key
+from prefs_constants import cpkScaleFactor_prefs_key
+from prefs_constants import diBALL_AtomRadius_prefs_key
+from state_constants import S_CHILDREN, S_PARENT, S_DATA, S_CACHE
 
 try:
     if not debug_pref('Enable pyrex atoms next time', Choice_boolean_False, prefs_key=True):
@@ -81,32 +109,17 @@ except ImportError:
             raise AttributeError, attr
 
 from HistoryWidget import orangemsg
+import debug
 from debug import print_compact_stack, print_compact_traceback, compact_stack
-
-from elements import *
 
 import platform # for atom_debug; note that uses of atom_debug should all grab it
   # from platform.atom_debug since it can be changed at runtime
-
-
 
 import env
 from state_utils import StateMixin #bruce 060223
 from undo_archive import register_undo_updater
 
 debug_1779 = False # do not commit with True, but leave the related code in for now [bruce 060414]
-
-## from chunk import *
-# -- done at end of file,
-# until other code that now imports its symbols from this module
-# has been updated to import from chunk directly.
-# [-- bruce 041110, upon moving class molecule from this file into chunk.py]
-
-## from bonds import *
-# -- done at end of file,
-# until other code that now imports its symbols from this module
-# has been updated to import from bonds directly.
-# [-- bruce 050502, upon moving class Bond (etc) from this file into bonds.py]
 
 # ==
 
@@ -145,9 +158,8 @@ def _undo_update_Atom_jigs(archive, assy):
         # was unique by again incrementing it after the kill call returns within the same code that had initiated the prekill.
         import Utility
         Utility._will_kill_count += 1
-    from chunk import Chunk # not at toplevel, to avoid recursive import
     from jigs import Jig
-    mols = assy.allNodes(Chunk) # note: this covers all Parts, whereas assy.molecules only covers the current Part.
+    mols = assy.allNodes(chunk.Chunk) # note: this covers all Parts, whereas assy.molecules only covers the current Part.
     jigs = assy.allNodes(Jig)
     for m in mols:
         for a in m.atoms.itervalues():
@@ -1435,10 +1447,9 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                     bonds_with_direction.append(b)
         bondrecords = bldict.items()
         bondrecords.sort() # by valence
-        from bonds import bonds_mmprecord # avoid recursive import problem by doing this at runtime
         for valence, atomcodes in bondrecords:
             assert len(atomcodes) > 0
-            mapping.write( bonds_mmprecord( valence, atomcodes ) + "\n")
+            mapping.write( bondsImportKluge.bonds_mmprecord( valence, atomcodes ) + "\n")
         for bond in bonds_with_direction:
             mapping.write( bond.mmprecord_bond_direction(self, mapping) + "\n") #bruce 070415
         return
@@ -1572,7 +1583,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                     # (to reduce severity of undiagnosed bug 361).
                     #bruce 050906 splitting angle computation into separate function.
                     ###e its inaccuracy for angles near 0 and 180 degrees should be fixed!
-                    ang = atom_angle_radians( self, self.molecule.assy.ppa2, self.molecule.assy.ppa3 ) * 180/pi
+                    ang = atom_angle_radians( self, self.molecule.assy.ppa2, self.molecule.assy.ppa3 ) * 180/math.pi
                     ainfo += (" Angle for %s-%s-%s is %.2f degrees." %\
                         (self, self.molecule.assy.ppa2, self.molecule.assy.ppa3, ang))
                 except:
@@ -1728,8 +1739,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         numol = self.molecule
         x = atom('X', b.ubp(a), numol) ###k verify atom.__init__ makes copy of posn, not stores original (tho orig ok if never mods it)
         na = self ## na = ndix[a.key]
-        from bonds import bond_copied_atoms # can't do at start of module -- recursive import
-        bond_copied_atoms(na, x, origbond, origatom) # same properties as origbond... sensible in all cases?? ##k
+        bondsImportKluge.bond_copied_atoms(na, x, origbond, origatom) # same properties as origbond... sensible in all cases?? ##k
         return
         
     def unbond(self, b, make_bondpoint = True):
@@ -1802,8 +1812,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             print "debug_1779: atom.unbond on %r is making X" % self
         x = atom('X', b.ubp(self), self.molecule) # invals mol as needed
         #bruce 050727 new feature: copy the bond type from the old bond (being broken) to the new open bond that replaces it
-        from bonds import bond_copied_atoms # can't do at start of module -- recursive import
-        bond_copied_atoms( self, x, b, self)
+        bondsImportKluge.bond_copied_atoms( self, x, b, self)
         ## self.molecule.bond(self, x) # invals mol as needed
         return x # new feature, bruce 041222
 
@@ -1941,7 +1950,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             better_alive_answer = mol is not None and self.key in mol.atoms and mol is not _nullMol ##e and mol is not killed???
             if (not not better_alive_answer) != (not self.__killed):
                 if platform.atom_debug(): #060414 re bug 1779, but it never printed for it (worth keeping in for other bugs)
-                    print "debug: better_alive_answer is %r but (not self.__killed) is %r" % (better_answer , not self.__killed)
+                    print "debug: better_alive_answer is %r but (not self.__killed) is %r" % (better_alive_answer , not self.__killed)
         return self.__killed
     
     def killed_with_debug_checks(self): # renamed by bruce 050702; was called killed(); by bruce 041029
@@ -2591,7 +2600,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             mol = self.molecule
             for dp in atype.bondvectors:
                 x = atom('X', pos+r*dp, mol)
-                bond_atoms(self,x) ###@@@ set valence? or update it later?
+                bondsImportKluge.bond_atoms(self,x) ###@@@ set valence? or update it later?
         return
     
     def make_singlets_when_1_bond(self): # by josh, with some comments and mods by bruce
@@ -2673,7 +2682,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 if atype.spX < 3 and a1.atomtype.spX < 3: # for now, same behavior for sp2 or sp atoms [revised 050630]
                     pass # no extra spin
                 else:
-                    spin = spin + Q(r, pi/3.0) # 60 degrees of extra spin
+                    spin = spin + Q(r, math.pi/3.0) # 60 degrees of extra spin
             else: spin = Q(1,0,0,0)
             mol = self.molecule
             if 1: # see comment below
@@ -2689,7 +2698,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 q = rq + q - rq + spin * spinsign
                 xpos = pos + q.rot(r)
                 x = atom('X', xpos, mol)
-                bond_atoms(self,x)
+                bondsImportKluge.bond_atoms(self,x)
         return
         
     def make_singlets_when_2_bonds(self): #bruce 050511 updating this (and sister methods) for atom types
@@ -2722,7 +2731,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         for q in atype.quats[1:]:
             q = rq + q - rq + tw
             x = atom('X', pos+q.rot(r), mol)
-            bond_atoms(self,x)
+            bondsImportKluge.bond_atoms(self,x)
         return
 
     def make_singlets_when_3_bonds(self):
@@ -2755,7 +2764,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             opos = pos + atype.rcovalent*dir
             mol = self.molecule
             x = atom('X', opos, mol)
-            bond_atoms(self,x)
+            bondsImportKluge.bond_atoms(self,x)
         return
 
     pass # end of class Atom
@@ -2776,7 +2785,7 @@ def oneUnbonded(elem, assy, pos, atomtype = None): #bruce 050510 added atomtype 
     """
     # bruce 041215 moved this from chunk.py to chem.py, and split part of it
     # into the new atom method make_singlets_when_no_bonds, to help fix bug 131.
-    mol = molecule(assy, 'bug') # name is reset below!
+    mol = chunk.molecule(assy, 'bug') # name is reset below!
     atm = atom(elem.symbol, pos, mol)
     # bruce 041124 revised name of new mol, was gensym('Chunk.');
     # no need for gensym since atom key makes the name unique, e.g. C1.
@@ -2813,7 +2822,7 @@ def atom_angle_radians(atom1, atom2, atom3):
         dotprod = 1.0
     elif dotprod < -1.0:
         dotprod = -1.0
-    ang = acos(dotprod)
+    ang = math.acos(dotprod)
     return ang
 
 # ==
@@ -2847,19 +2856,6 @@ def move_alist_and_snuggle(alist, newPositions):
 
 # ==
 
-# class Bond (etc) used to be defined here, but now it's in bonds.py. [bruce 050502]
-
-from bonds import *  # only for the sake of other files which still import bond-related symbols from this file
-
-# ==
-
-# class molecule used to be defined here, but now it's in chunk.py. [bruce 041118]
-
-# for the sake of other files which still look for class molecule in this file,
-# we'll import it here (this might not work if done at the top of this file):
-
-from chunk import *
-
 #Huaicai 10/04/05 
 def getMultiplicity(objList):
     '''@objList A list of Atom/Chunk objects
@@ -2869,7 +2865,7 @@ def getMultiplicity(objList):
     for m in objList:
         if isinstance(m, Atom):
             numElectrons += m.element.eltnum
-        elif isinstance(m, molecule):
+        elif isinstance(m, chunk.molecule):
                 for a in m.atoms.itervalues():
                     numElectrons += a.element.eltnum
     

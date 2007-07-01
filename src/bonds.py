@@ -36,42 +36,38 @@ __author__ = "Josh"
 
 debug_1951 = False # DO NOT COMMIT with True
 
-from VQT import *
-from LinearAlgebra import *
-import string
-import re
-from OpenGL.GL import *
-from OpenGL.GLU import *
+import struct
+from Numeric import floor
 
-from drawer import *
-from shape import *
+from VQT import Q, vlen, norm
 
-from constants import *
-from PyQt4.Qt import *
-from Utility import *
-from ChunkProp import * # Renamed MoleculeProp to ChunkProp.  Mark 050929
 from mdldata import marks, links, filler
 
-import struct
-from math import floor
 from debug import print_compact_stack, compact_stack, print_compact_traceback
 
-from elements import *
+import platform # for atom_debug; note that uses of atom_debug should all grab it
+  # from platform.atom_debug since it can be changed at runtime
 
-from chem import singlet_atom, stringVec, atom, atKey
-    # I don't know if class atom is needed here, it's just a precaution [bruce 050502]
+from elements import DIRECTIONAL_BOND_ELEMENTS, Singlet
 
-from bond_constants import *
+# bonds, chem, and chunk form an import loop
+import chem
 
-from elements import Singlet
+from bond_constants import V_SINGLE
+from bond_constants import BOND_VALENCES
+from bond_constants import BOND_MMPRECORDS
+from bond_constants import BOND_VALENCES_HIGHEST_FIRST
+from bond_constants import bond_params
+from bond_constants import bonded_atoms_summary
+from bond_constants import bond_type_names
+
 import env
 from state_utils import StateMixin #bruce 060223
 from changes import register_changedict, register_class_changedicts
 from debug_prefs import debug_pref, Choice_boolean_False #bruce 060307
 from HistoryWidget import redmsg, quote_html #bruce 070601
 
-import platform # for atom_debug; note that uses of atom_debug should all grab it
-  # from platform.atom_debug since it can be changed at runtime
+from state_constants import S_CACHE, S_DATA, S_PARENT
 
 # Linus Pauling
 # http://www.pubmedcentral.gov/articlerender.fcgi?artid=220148
@@ -783,7 +779,6 @@ class Bond(BondBase, StateMixin):
         '''returns the atom center distance between the atoms connected by the highlighted bond.
         Note that this does *not* return the covalent bondlength'''
         ###WARNING: this method does not use self, and appears to assume glpane.selobj can stand in for self.  [bruce 070414 comment]
-        from VQT import vlen
 
         a1 = glpane.selobj.atom1
         a2 = glpane.selobj.atom2
@@ -1619,8 +1614,8 @@ class bonder_at_singlets:
             return do_error("not both singlets", "not a singlet: %r" % s1)
         if not s2.is_singlet():
             return do_error("not both singlets", "not a singlet: %r" % s2)
-        a1 = self.a1 = singlet_atom(s1)
-        a2 = self.a2 = singlet_atom(s2)
+        a1 = self.a1 = chem.singlet_atom(s1)
+        a2 = self.a2 = chem.singlet_atom(s2)
         if s1 is s2: #bruce 041119
             return do_error("can't bond a singlet to itself",
               "asked to bond atom %r to itself,\n"

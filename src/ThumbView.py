@@ -5,15 +5,75 @@ ThumbView.py
 $Id$
 '''
 
-from PyQt4.Qt import *
-from OpenGL.GL import *
-from OpenGL.GLU import *
-from VQT import *
+import math
+from Numeric import dot
+
+from OpenGL.GL import GL_NORMALIZE
+from OpenGL.GL import GL_SMOOTH
+from OpenGL.GL import glShadeModel
+from OpenGL.GL import GL_DEPTH_TEST
+from OpenGL.GL import glEnable
+from OpenGL.GL import GL_CULL_FACE
+from OpenGL.GL import GL_MODELVIEW
+from OpenGL.GL import glMatrixMode
+from OpenGL.GL import glLoadIdentity
+from OpenGL.GL import glViewport
+from OpenGL.GL import GL_VIEWPORT
+from OpenGL.GL import glGetIntegerv
+from OpenGL.GL import glOrtho
+from OpenGL.GL import glFrustum
+from OpenGL.GL import glClearColor
+from OpenGL.GL import GL_COLOR_BUFFER_BIT
+from OpenGL.GL import GL_DEPTH_BUFFER_BIT
+from OpenGL.GL import glClear
+from OpenGL.GL import glTranslatef
+from OpenGL.GL import glRotatef
+from OpenGL.GL import GL_STENCIL_INDEX
+from OpenGL.GL import glReadPixelsi
+from OpenGL.GL import GL_DEPTH_COMPONENT
+from OpenGL.GL import glReadPixelsf
+from OpenGL.GL import glPushMatrix
+from OpenGL.GL import glSelectBuffer
+from OpenGL.GL import GL_SELECT
+from OpenGL.GL import glRenderMode
+from OpenGL.GL import glInitNames
+from OpenGL.GL import GL_CLIP_PLANE0
+from OpenGL.GL import glClipPlane
+from OpenGL.GL import GL_RENDER
+from OpenGL.GL import glFlush
+from OpenGL.GL import GL_STENCIL_BUFFER_BIT
+from OpenGL.GL import GL_FALSE
+from OpenGL.GL import GL_ALWAYS
+from OpenGL.GL import glStencilFunc
+from OpenGL.GL import GL_REPLACE
+from OpenGL.GL import GL_TRUE
+from OpenGL.GL import glDepthMask
+from OpenGL.GL import GL_KEEP
+from OpenGL.GL import glStencilOp
+from OpenGL.GL import GL_STENCIL_TEST
+from OpenGL.GL import glDisable
+from OpenGL.GL import GL_PROJECTION
+from OpenGL.GL import glPopMatrix
+
+from OpenGL.GLU import gluPickMatrix, gluUnProject
+
+from PyQt4.Qt import Qt
+from PyQt4.Qt import QGLWidget
+
+from VQT import V, Q, A, Trackball
 import drawer
-from constants import *
 from assembly import assembly 
 import env
 import platform
+
+from debug import print_compact_traceback
+
+from constants import diTrueCPK
+from constants import gray
+from constants import bluesky
+from constants import GL_FAR_Z
+from prefs_constants import bondpointHighlightColor_prefs_key
+
 # debugging flags -- do not commit with True
 debug_thumbview = False
 
@@ -209,7 +269,7 @@ class ThumbView(QGLWidget):
        
         q = self.quat
         
-        glRotatef(q.angle*180.0/pi, q.x, q.y, q.z)
+        glRotatef(q.angle*180.0/math.pi, q.x, q.y, q.z)
         glTranslatef(self.pov[0], self.pov[1], self.pov[2])
         
         self.drawModel()
@@ -550,7 +610,8 @@ class ThumbView(QGLWidget):
     
 # ==
 
-from chem import atom, Singlet
+from chem import atom
+from elements import Singlet
 from chunk import molecule
 
 class ElementView(ThumbView):

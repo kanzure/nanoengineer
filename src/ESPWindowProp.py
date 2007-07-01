@@ -5,11 +5,14 @@ ESPWindowPropDialog
 $Id$
 """
 
-from PyQt4.Qt import *
-from ESPWindowPropDialog import *
-from widgets import RGBf_to_QColor, QColor_to_RGBf,get_widget_with_color_palette
-import copy
+from PyQt4.Qt import QWidget
+from PyQt4.Qt import SIGNAL
+from PyQt4.Qt import QColorDialog
+from PyQt4.Qt import QDialog
 
+from ESPWindowPropDialog import Ui_ESPWindowPropDialog
+
+from widgets import RGBf_to_QColor, QColor_to_RGBf,get_widget_with_color_palette
 
 class ESPWindowProp(QWidget, Ui_ESPWindowPropDialog):
     def __init__(self, esp_window, glpane):

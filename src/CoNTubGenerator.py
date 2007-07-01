@@ -21,18 +21,17 @@ reload(CoNTubGenerator)
 
 __author__ = "bruce"
 
-#k not all imports needed?
+import os, sys, time
+
 import env
+import Initialize
 from HistoryWidget import redmsg, orangemsg, greenmsg, quote_html
-##from widgets import double_fixup
-##from Utility import Group
 from ParameterDialog import ParameterDialog, ParameterPane
 from GeneratorController import GeneratorController
 from GeneratorBaseClass import UserError, PluginBug, CadBug
 from debug import print_compact_traceback, objectBrowse
-import os, sys, time
 from platform import find_or_make_any_directory, tempfiles_dir, find_plugin_dir
-import EpydocTest
+import EndUser
 
 debug_install = False
 
@@ -292,8 +291,7 @@ class PluginlikeGenerator:
         # (Someday, when remaking it, copy its window geometry from the old one. Then put that code into the MMKit too. ###e)        
         # For others, only make it the first time.
 
-        import __main__
-        if (not __main__._end_user or env.debug()) and self.dialog:
+        if (EndUser.enableDeveloperFeatures() or env.debug()) and self.dialog:
             # For developers, remake the dialog if its description file changed (by zapping the old dialog here).
             zapit = False
             modtime = os.stat(self.param_desc_path).st_mtime
@@ -631,7 +629,11 @@ class HeterojunctionGenerator(PluginlikeGenerator):
     
     pass # end of class HeterojunctionGenerator
 
-if (not EpydocTest.documenting()):
+def initialize():
+    # must be called after mainwindow exists
+    if (Initialize.startInitialization(__name__)):
+        return
     PluginlikeGenerator.register(HeterojunctionGenerator)
+    Initialize.endInitialization(__name__)
 
 # end

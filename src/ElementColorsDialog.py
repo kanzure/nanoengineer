@@ -10,7 +10,6 @@
 
 import sys
 from PyQt4 import QtCore, QtGui
-from qt4transition import *
 
 class Ui_ElementColorsDialog(object):
     def setupUi(self, ElementColorsDialog):

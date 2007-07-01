@@ -9,11 +9,54 @@ bruce 050913 used env.history in some places.
 Note: Till Alpha8, this mode was called Cookie Cutter mode. In Alpha9 
 it has been renamed to 'Build Crystal' mode. -- ninad 20070511
 """
-from modes import *
-from CookieCtrlPanel import CookieCtrlPanel
+
+import math # only for pi
+from Numeric import size, dot, sqrt, floor
+
+from OpenGL.GL import GL_COLOR_LOGIC_OP
+from OpenGL.GL import GL_DEPTH_TEST
+from OpenGL.GL import GL_XOR
+from OpenGL.GL import glLogicOp
+from OpenGL.GL import glTranslatef
+from OpenGL.GL import glRotatef
+from OpenGL.GL import GL_CLIP_PLANE1
+from OpenGL.GL import glColor3fv
+from OpenGL.GL import glDisable
+from OpenGL.GL import glEnable
+from OpenGL.GL import glFlush
+from OpenGL.GL import glPushMatrix
+from OpenGL.GL import GL_CLIP_PLANE0
+from OpenGL.GL import glClipPlane
+from OpenGL.GL import glPopMatrix
+
+from PyQt4.Qt import Qt
+from PyQt4.Qt import QCursor
+
 import env
-from qt4transition import *
+from VQT import V, Q, A, norm, vlen
+from modes import basicMode
+from CookieCtrlPanel import CookieCtrlPanel
+from HistoryWidget import orangemsg
+from HistoryWidget import redmsg
+from shape import CookieShape
+from shape import Slab
+import drawer
+from drawer import DiGridSp
+from drawer import genDiam
+from chunk import molecule
+from chem import atom
+
 from constants import gensym
+from constants import diTUBES
+from constants import SELSHAPE_LASSO
+from constants import START_NEW_SELECTION
+from constants import white
+from constants import ADD_TO_SELECTION
+from constants import SUBTRACT_FROM_SELECTION
+from constants import SELSHAPE_RECT
+from constants import get_selCurve_color
+
+
 
 class cookieMode(basicMode):
 
@@ -646,7 +689,7 @@ class cookieMode(basicMode):
             elif self.selectionShape == 'TRIANGLE': sides = 3
             elif self.selectionShape == 'SQUARE': sides = 4
             
-            hQ = Q(self.o.out, 2.0*pi/sides)
+            hQ = Q(self.o.out, 2.0*math.pi/sides)
             pp = []
             pp += [p1]
             for ii in range(1, sides):
@@ -698,7 +741,7 @@ class cookieMode(basicMode):
         """Construct a center based equilateral polygon to draw. 
         <Param> sides: the number of sides for the polygon
         <Param> pts: (the center and a corner point) """
-        hQ = Q(self.o.out, 2.0*pi/sides)
+        hQ = Q(self.o.out, 2.0*math.pi/sides)
         pt = pts[2] - pts[0]
         pp = []
         pp += [pts[2]]
@@ -845,7 +888,7 @@ class cookieMode(basicMode):
         glPushMatrix()
         q = self.o.quat
         glTranslatef(-self.o.pov[0], -self.o.pov[1], -self.o.pov[2])
-        glRotatef(- q.angle*180.0/pi, q.x, q.y, q.z)
+        glRotatef(- q.angle*180.0/math.pi, q.x, q.y, q.z)
         glClipPlane(GL_CLIP_PLANE0, (0.0, 0.0, 1.0, 6.0))
         glClipPlane(GL_CLIP_PLANE1, (0.0, 0.0, -1.0, 0.1))
         glEnable(GL_CLIP_PLANE0)

@@ -5,9 +5,12 @@ elementSelector.py
 $Id$
 '''
 
-from ElementSelectorDialog import *
 from PyQt4.Qt import QDialog
-from elementColors import ElementView
+from PyQt4.Qt import SIGNAL
+from PyQt4.Qt import QVBoxLayout
+
+from ElementSelectorDialog import Ui_ElementSelectorDialog
+from ThumbView import ElementView
 from elements import PeriodicTable
 from constants import diTUBES
 

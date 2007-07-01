@@ -15,8 +15,7 @@ __author__ = "bruce" # and others
 
 import sys, os, time
 from PyQt4.Qt import Qt, QDesktopWidget, QRect
-from constants import * # e.g. for Qt.LeftButton
-from qt4transition import *
+import qt4transition
 import env
 
 # == constants (or variables settable by a debugger) read by code in other modules
@@ -140,7 +139,7 @@ def middle_button_prefix():
 # [moved here from GLPane.py -- bruce 050112]
 
 def fix_event_helper(self, event, when, target = None): #bruce 050913 new API; should merge them, use target, doc this one
-    qt4todo('reconcile state and stateAfter')
+    qt4transition.qt4todo('reconcile state and stateAfter')
         # fyi: for info about event methods button and buttons (related to state and stateAfter in Qt3) see
         # http://www.riverbankcomputing.com/Docs/PyQt4/html/qmouseevent.html#button
         # [bruce 070328]
@@ -488,7 +487,7 @@ def find_plugin_dir(plugin_name):
             return False, "error: can't find built-in plugins directory [%s] (or it's not a directory)" % (appdir,)
         path = os.path.join(appdir, plugin_name)
         if os.path.isdir(path):
-            qt4message(path)
+            qt4transition.qt4message(path)
             return True, path
         return False, "can't find plugin %r" % (plugin_name,)
     except:

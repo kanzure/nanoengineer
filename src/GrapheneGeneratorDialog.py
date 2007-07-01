@@ -12,12 +12,17 @@ Mark 2007-05-17: This used to be generated from its .ui file. Now it uses PropMg
         
 __author__ = "Mark"
 
-import sys
-from PyQt4.Qt import *
 from Utility import geticon, getpixmap
-from PropMgrBaseClass import *
-from PropMgr_Constants import *
 from bonds import CC_GRAPHITIC_BONDLENGTH
+from PropMgrBaseClass import PropMgrBaseClass
+from PropMgrBaseClass import PropMgrGroupBox
+from PropMgrBaseClass import PropMgrDoubleSpinBox
+from PropMgrBaseClass import PropMgrComboBox
+from PropMgrBaseClass import PropMgrSpinBox
+from PropMgrBaseClass import PropMgrTextEdit
+from PropMgrBaseClass import PropMgrPushButton
+from PropMgrBaseClass import PropMgrLineEdit
+from PropMgrBaseClass import PropMgrCheckBox
 
 class GraphenePropMgr(object, PropMgrBaseClass):
     

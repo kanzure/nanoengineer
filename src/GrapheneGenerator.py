@@ -11,19 +11,22 @@ Mark 2007-05-17: Implemented PropMgrBaseClass.
 
 __author__ = "Will"
 
-import platform
 from math import atan2, sin, cos, pi
-import assembly, chem, bonds, Utility
-from chem import molecule, Atom
+from Numeric import dot
+
+from PyQt4.Qt import QDialog
+
+import platform
+import chem, bonds, Utility
+from chem import Atom
+from chunk import molecule
 import env
-from VQT import dot
-import string
 from debug import Stopwatch, objectBrowse
 from Utility import Group
 from elements import PeriodicTable
 from HistoryWidget import greenmsg
+import bond_constants
 
-from PyQt4.Qt import QDialog
 from GrapheneGeneratorDialog import GraphenePropMgr
 from GeneratorBaseClass import GeneratorBaseClass
 
@@ -109,9 +112,9 @@ class GrapheneGenerator(QDialog, GraphenePropMgr, GeneratorBaseClass):
                     atm = add("C", x + x1 * bond_length, y + y1 * bond_length)
                     lst.append(atm)
                 bond_dict[(i, j)] = lst
-                bonds.bond_atoms(lst[0], lst[1], bonds.V_GRAPHITE)
-                bonds.bond_atoms(lst[1], lst[2], bonds.V_GRAPHITE)
-                bonds.bond_atoms(lst[2], lst[3], bonds.V_GRAPHITE)
+                bonds.bond_atoms(lst[0], lst[1], bond_constants.V_GRAPHITE)
+                bonds.bond_atoms(lst[1], lst[2], bond_constants.V_GRAPHITE)
+                bonds.bond_atoms(lst[2], lst[3], bond_constants.V_GRAPHITE)
                 i += 1
                 x += 3 * bond_length
             j += 1
@@ -122,14 +125,14 @@ class GrapheneGenerator(QDialog, GraphenePropMgr, GeneratorBaseClass):
             for j in range(jmax - 1):
                 lst1 = bond_dict[(i, j)]
                 lst2 = bond_dict[(i, j+1)]
-                bonds.bond_atoms(lst1[0], lst2[1], bonds.V_GRAPHITE)
-                bonds.bond_atoms(lst1[3], lst2[2], bonds.V_GRAPHITE)
+                bonds.bond_atoms(lst1[0], lst2[1], bond_constants.V_GRAPHITE)
+                bonds.bond_atoms(lst1[3], lst2[2], bond_constants.V_GRAPHITE)
                 
         for i in range(imax - 1):
             for j in range(jmax):
                 lst1 = bond_dict[(i, j)]
                 lst2 = bond_dict[(i+1, j)]
-                bonds.bond_atoms(lst1[3], lst2[0], bonds.V_GRAPHITE)
+                bonds.bond_atoms(lst1[3], lst2[0], bond_constants.V_GRAPHITE)
 
         # trim to dimensions
         atoms = mol.atoms

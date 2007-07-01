@@ -13,9 +13,24 @@ bruce 050913 used env.history in some places.
 '''
 __author__ = "Mark"
 
+import sys, os
+
+from PyQt4.Qt import QDialog
+from PyQt4.Qt import QButtonGroup
+from PyQt4.Qt import QAbstractButton
+from PyQt4.Qt import SIGNAL
+from PyQt4.Qt import QMessageBox
+from PyQt4.Qt import QColorDialog
+
 import env
+
+from GamessPropDialog import Ui_GamessPropDialog
+from ServerManager import ServerManager
+from HistoryWidget import redmsg
+from files_gms import insertgms
+from debug import print_compact_traceback
+from widgets import RGBf_to_QColor, QColor_to_RGBf, get_widget_with_color_palette
 from qt4transition import qt4todo
-# many more imports lower down
 
 
 # Ask Bruce where all this should ultimately live.
@@ -219,15 +234,6 @@ gbasis='AM1 NGAUSS=0 NDFUNC=0 NPFUNC=0 NFFUNC=0 DIFFSP=.F. DIFFS=.F.', \
     'N311 NGAUSS=6 NDFUNC=1 NPFUNC=1 NFFUNC=0 DIFFSP=.T. DIFFS=.F.', \
     'N311 NGAUSS=6 NDFUNC=1 NPFUNC=0 NFFUNC=0 DIFFSP=.T. DIFFS=.T.', \
     'N311 NGAUSS=6 NDFUNC=1 NPFUNC=1 NFFUNC=0 DIFFSP=.T. DIFFS=.T.'
-
-from PyQt4.Qt import *
-import sys, os, time
-from GamessPropDialog import *
-from ServerManager import ServerManager
-from HistoryWidget import redmsg
-from files_gms import insertgms
-from debug import print_compact_traceback
-from widgets import RGBf_to_QColor, QColor_to_RGBf, get_widget_with_color_palette
 
         
 class GamessProp(QDialog, Ui_GamessPropDialog):

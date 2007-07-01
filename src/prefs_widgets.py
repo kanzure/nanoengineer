@@ -21,7 +21,7 @@ from changes import Formula
 from widgets import RGBf_to_QColor
 from PyQt4.Qt import QColorDialog
 from PyQt4.Qt import SIGNAL
-from PyQt4.QtGui import QPalette
+from PyQt4.Qt import QPalette
 
 def colorpref_edit_dialog( parent, prefs_key, caption = "choose"): #bruce 050805; revised 070425 in Qt4 branch
     #bruce 050805: heavily modified this from some slot methods in UserPrefs.py.

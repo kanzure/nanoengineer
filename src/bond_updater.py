@@ -1,5 +1,5 @@
 # Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
+"""
 bond_updater.py
 
 [unfinished]
@@ -19,15 +19,19 @@ and to notice graphite.
 History:
 
 bruce 050627 started this as part of supporting higher-order bonds.
-'''
+"""
 
 __author__ = 'bruce'
 
 
-import platform
 from debug import print_compact_traceback, print_compact_stack
 
-from bond_constants import *
+from bond_constants import V_SINGLE
+from bond_constants import V_DOUBLE
+from bond_constants import V_AROMATIC
+from bond_constants import V_GRAPHITE
+from bond_constants import V_TRIPLE
+from bond_constants import V_CARBOMERIC
 
 
 def update_bonds_after_each_event( _changed_structure_atoms):
@@ -157,7 +161,7 @@ def best_corrected_v6(bond):
     for v6 in lis:
         if v6 == V_SINGLE or atype1.permits_v6(v6) and atype2.permits_v6(v6):
             return v6
-    assert 0, "no legal replacement for v6 = %r in %r" % (v6,self)
+    assert 0, "no legal replacement for v6 = %r in %r" % (v6,bond)
     return V_SINGLE
 
 # map a now-illegal v6 to the list of replacements to try (legal ones only, of course; in the order of preference given by the list)

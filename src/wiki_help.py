@@ -28,11 +28,25 @@ bruce 051201 made new source file for it, extended it to other kinds of objects 
 __author__ = ["Will", "Bruce"]
 
 from PyQt4 import QtGui
-from PyQt4.Qt import *
+from PyQt4.Qt import QToolBar
+from PyQt4.Qt import QDialog
+from PyQt4.Qt import QTextBrowser
+
+from PyQt4.Qt import QWhatsThisClickedEvent
+from PyQt4.Qt import QGridLayout
+from PyQt4.Qt import QPushButton
+from PyQt4.Qt import QSizePolicy
+from PyQt4.Qt import QSpacerItem
+from PyQt4.Qt import QSize
+from PyQt4.Qt import QApplication
+from PyQt4.Qt import SIGNAL
+from PyQt4.Qt import SLOT
+
 import env
 import webbrowser
 from debug import print_compact_traceback
 from HistoryWidget import redmsg
+from qt4transition import qt4todo
 
 def webbrowser_open(url):
     if len(webbrowser._tryorder) == 0:

@@ -10,16 +10,70 @@ History:
 
 """
 
-from VQT import *
-from shape import *
-from chem import *
-from Utility import *
+import os
+import math
+from Numeric import size, add
+
+from OpenGL.GL import glPushMatrix
+from OpenGL.GL import glTranslatef
+from OpenGL.GL import glRotatef
+from OpenGL.GL import glPopMatrix
+from OpenGL.GL import GL_CLAMP
+from OpenGL.GL import GL_TEXTURE_WRAP_S
+from OpenGL.GL import glTexParameterf
+from OpenGL.GL import GL_TEXTURE_WRAP_T
+from OpenGL.GL import GL_REPEAT
+from OpenGL.GL import GL_LINEAR
+from OpenGL.GL import GL_TEXTURE_MAG_FILTER
+from OpenGL.GL import GL_LINEAR_MIPMAP_LINEAR
+from OpenGL.GL import GL_TEXTURE_MIN_FILTER
+from OpenGL.GL import GL_NEAREST
+from OpenGL.GL import GL_DECAL
+from OpenGL.GL import GL_TEXTURE_ENV
+from OpenGL.GL import GL_TEXTURE_ENV_MODE
+from OpenGL.GL import glTexEnvf
+from OpenGL.GL import glGenTextures
+from OpenGL.GL import GL_TEXTURE_2D
+from OpenGL.GL import glBindTexture
+from OpenGL.GL import GL_UNPACK_ALIGNMENT
+from OpenGL.GL import glPixelStorei
+from OpenGL.GL import GL_RGBA
+from OpenGL.GL import GL_UNSIGNED_BYTE
+from OpenGL.GL import glTexImage2D
+from OpenGL.GLU import gluBuild2DMipmaps
+
+from PyQt4.Qt import QMessageBox
+from PyQt4.Qt import QFileDialog
+
+import env
+import platform
+
+from chunk import molecule
+from drawer import drawPlane
+from drawer import drawwirecube
+from drawer import drawLineLoop
+from drawer import drawGPGrid
+from drawer import drawSiCGrid
+
+from VQT import V, Q, A, cross
+from povheader import povpoint
+from shape import SelectionShape
+from shape import Slab
+from constants import SUBTRACT_FROM_SELECTION
+
 from HistoryWidget import redmsg, greenmsg
 from debug import print_compact_stack, print_compact_traceback
 from debug_prefs import debug_pref, Choice_boolean_False
-import env
 from jigs import Jig
 from ImageUtils import nEImageOps
+
+from constants import black
+from constants import gray
+from constants import ave_colors
+from constants import green
+from constants import START_NEW_SELECTION
+from prefs_constants import SQUARE_GRID
+from prefs_constants import SOLID_LINE
 
 # == RectGadget
 
@@ -247,7 +301,7 @@ class GridPlane(RectGadget):
 
         glTranslatef( self.center[0], self.center[1], self.center[2])
         q = self.quat
-        glRotatef( q.angle*180.0/pi, q.x, q.y, q.z)
+        glRotatef( q.angle*180.0/math.pi, q.x, q.y, q.z)
 
         hw = self.width/2.0; hh = self.height/2.0
         corners_pos = [V(-hw, hh, 0.0), V(-hw, -hh, 0.0), V(hw, -hh, 0.0), V(hw, hh, 0.0)]
@@ -543,7 +597,7 @@ class ESPImage(RectGadget):
 
         glTranslatef( self.center[0], self.center[1], self.center[2])
         q = self.quat
-        glRotatef( q.angle*180.0/pi, q.x, q.y, q.z) 
+        glRotatef( q.angle*180.0/math.pi, q.x, q.y, q.z) 
 
         #bruce 060207 extensively revised texture code re fixing bug 1059
         if self.tex_name is not None and self.image_obj: # self.image_obj condition is needed, for clear_esp_image() to work

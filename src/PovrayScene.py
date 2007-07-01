@@ -12,12 +12,20 @@ mark 060601 - Created.
 
 __author__ = "Mark"
 
+import os, sys
+from PyQt4.Qt import QDialog
+from PyQt4.Qt import QPixmap
+from PyQt4.Qt import QLabel
+from PyQt4.Qt import QRect
+from PyQt4.Qt import QSize
+from PyQt4.Qt import QApplication
+
+import env
 from Utility import SimpleCopyMixin, Node, imagename_to_pixmap
 from povray import decode_povray_prefs, write_povray_ini_file, launch_povray_or_megapov
 from fileIO import writepovfile
-from PyQt4.Qt import *
 from HistoryWidget import redmsg, orangemsg, greenmsg, _graymsg
-import env, os, sys
+import platform
 from platform import find_or_make_any_directory, find_or_make_Nanorex_subdir
 from debug import print_compact_traceback
 

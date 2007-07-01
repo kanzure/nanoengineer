@@ -13,12 +13,23 @@ and 050810 to fix bugs 785 (partly in MWsemantics.py) and 881 for Alpha6.
 """
 __author__ = "Mark"
 
-from PyQt4.Qt import *
+import os, sys
+
 from PyQt4 import QtCore, QtGui
+from PyQt4.Qt import QDialog
+from PyQt4.Qt import QFileDialog
+from PyQt4.Qt import QMessageBox
+from PyQt4.Qt import QButtonGroup
+from PyQt4.Qt import QAbstractButton
+from PyQt4.Qt import QDoubleValidator
+from PyQt4.Qt import SIGNAL
+from PyQt4.Qt import QPalette
+from PyQt4.Qt import QColorDialog
+from PyQt4.Qt import QString
+from PyQt4.Qt import QFont
+
 from UserPrefsDialog import Ui_UserPrefsDialog
 import preferences
-import os, sys
-from constants import *
 from debug import print_compact_traceback
 import env
 from widgets import RGBf_to_QColor, QColor_to_RGBf
@@ -26,8 +37,93 @@ from widgets import double_fixup
 from prefs_widgets import connect_colorpref_to_colorframe, connect_checkbox_with_boolean_pref
 import platform
 from povray import get_default_plugin_path
-from qt4transition import *
 from Utility import geticon
+
+from prefs_constants import displayCompass_prefs_key
+from prefs_constants import displayCompassLabels_prefs_key
+from prefs_constants import displayPOVAxis_prefs_key
+from prefs_constants import animateStandardViews_prefs_key
+from prefs_constants import Adjust_watchRealtimeMinimization_prefs_key
+from prefs_constants import electrostaticsForDnaDuringAdjust_prefs_key
+from prefs_constants import Adjust_cutoverRMS_prefs_key
+from prefs_constants import qutemol_enabled_prefs_key
+from prefs_constants import qutemol_path_prefs_key
+from prefs_constants import nanohive_enabled_prefs_key
+from prefs_constants import nanohive_path_prefs_key
+from prefs_constants import povray_enabled_prefs_key
+from prefs_constants import povray_path_prefs_key
+from prefs_constants import megapov_enabled_prefs_key
+from prefs_constants import megapov_path_prefs_key
+from prefs_constants import povdir_enabled_prefs_key
+from prefs_constants import gamess_enabled_prefs_key
+from prefs_constants import gmspath_prefs_key
+from prefs_constants import defaultDisplayMode_prefs_key
+from prefs_constants import buildModeAutobondEnabled_prefs_key
+from prefs_constants import buildModeWaterEnabled_prefs_key
+from prefs_constants import buildModeHighlightingEnabled_prefs_key
+from prefs_constants import buildModeSelectAtomsOfDepositedObjEnabled_prefs_key
+from prefs_constants import light1Color_prefs_key
+from prefs_constants import light2Color_prefs_key
+from prefs_constants import light3Color_prefs_key
+from prefs_constants import atomHighlightColor_prefs_key
+from prefs_constants import bondpointHighlightColor_prefs_key
+from prefs_constants import levelOfDetail_prefs_key
+from prefs_constants import diBALL_AtomRadius_prefs_key
+from prefs_constants import cpkScaleFactor_prefs_key
+from prefs_constants import showBondStretchIndicators_prefs_key
+from prefs_constants import arrowsOnBackBones_prefs_key
+from prefs_constants import arrowsOnThreePrimeEnds_prefs_key
+from prefs_constants import arrowsOnFivePrimeEnds_prefs_key
+from prefs_constants import showValenceErrors_prefs_key
+from prefs_constants import undoRestoreView_prefs_key
+from prefs_constants import undoAutomaticCheckpoints_prefs_key
+from prefs_constants import undoStackMemoryLimit_prefs_key
+from prefs_constants import historyMsgSerialNumber_prefs_key
+from prefs_constants import historyMsgTimestamp_prefs_key
+from prefs_constants import historyHeight_prefs_key
+from prefs_constants import rememberWinPosSize_prefs_key
+from prefs_constants import captionFullPath_prefs_key
+from prefs_constants import dynamicToolTipAtomChunkInfo_prefs_key
+from prefs_constants import dynamicToolTipAtomMass_prefs_key
+from prefs_constants import dynamicToolTipAtomPosition_prefs_key
+from prefs_constants import dynamicToolTipAtomDistanceDeltas_prefs_key
+from prefs_constants import dynamicToolTipBondLength_prefs_key
+from prefs_constants import dynamicToolTipBondChunkInfo_prefs_key
+from prefs_constants import dynamicToolTipAtomDistancePrecision_prefs_key
+from prefs_constants import captionPrefix_prefs_key
+from prefs_constants import captionSuffix_prefs_key
+from prefs_constants import compassPosition_prefs_key
+from prefs_constants import defaultProjection_prefs_key
+from prefs_constants import displayOriginAsSmallAxis_prefs_key
+from prefs_constants import displayOriginAxis_prefs_key
+from prefs_constants import animateMaximumTime_prefs_key
+from prefs_constants import mouseSpeedDuringRotation_prefs_key
+from prefs_constants import Adjust_endRMS_prefs_key
+from prefs_constants import Adjust_endMax_prefs_key
+from prefs_constants import Adjust_cutoverMax_prefs_key
+from prefs_constants import zoomAboutScreenCenter_prefs_key
+from prefs_constants import sponsor_permanent_permission_prefs_key
+from prefs_constants import sponsor_download_permission_prefs_key
+from prefs_constants import bondpointHotspotColor_prefs_key
+from prefs_constants import diBALL_bondcolor_prefs_key
+from prefs_constants import bondHighlightColor_prefs_key
+from prefs_constants import bondStretchColor_prefs_key
+from prefs_constants import bondVaneColor_prefs_key
+from prefs_constants import pibondStyle_prefs_key
+from prefs_constants import pibondLetters_prefs_key
+from prefs_constants import linesDisplayModeThickness_prefs_key
+from prefs_constants import diBALL_BondCylinderRadius_prefs_key
+from prefs_constants import startupMode_prefs_key
+from prefs_constants import defaultMode_prefs_key
+from prefs_constants import material_specular_highlights_prefs_key
+from prefs_constants import material_specular_shininess_prefs_key
+from prefs_constants import material_specular_brightness_prefs_key
+from prefs_constants import material_specular_finish_prefs_key
+from prefs_constants import povdir_path_prefs_key
+from prefs_constants import dynamicToolTipBendAnglePrecision_prefs_key
+from prefs_constants import displayFontPointSize_prefs_key
+from prefs_constants import useSelectedFont_prefs_key
+from prefs_constants import displayFont_prefs_key
 
 debug_sliders = False # Do not commit as True
 

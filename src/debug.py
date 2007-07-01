@@ -28,14 +28,12 @@ Created by bruce.
 bruce 050913 used env.history in some places.
 """
 
-import sys, os, time, types
+import sys, os, time, types, traceback
 from constants import debugModifiers, noop
 from prefs_constants import QToolButton_MacOSX_Tiger_workaround_prefs_key, mainwindow_geometry_prefs_key_prefix
 import env
 import platform
-from qt4transition import *
-
-from debug_prefs import debug_prefs_menuspec # bruce 050614
+import debug_prefs
 
 # note: some debug features run user-supplied code in this module's
 # global namespace (on platforms where this is permitted by our licenses).
@@ -52,7 +50,6 @@ class APIViolation(Exception):
 
 _default_x = object()
 def print_verbose_traceback(x=_default_x):
-    import sys, traceback
     traceback.print_stack(file=sys.stdout)
     if x is not _default_x:
         print x
@@ -370,12 +367,11 @@ class Stopwatch:
 
 def time_taken(func): #bruce 051202 moved this here from undo.py
     "call func and measure how long this takes. return a triple (real-time-taken, cpu-time-taken, result-of-func)."
-    from time import time, clock
-    t1c = clock()
-    t1t = time()
+    t1c = time.clock()
+    t1t = time.time()
     res = func()
-    t2c = clock()
-    t2t = time()
+    t2c = time.clock()
+    t2t = time.time()
     return (t2t - t1t, t2c - t1c, res)
 
 def call_func_with_timing_histmsg( func): #bruce 051202 moved this here from undo.py
@@ -583,7 +579,6 @@ def debug_run_command(command, source = "user debug input"): #bruce 040913-16 in
     print msg
     try:
         # include in history file, so one can search old history files for useful things to execute [bruce 060409]
-        import env
         from HistoryWidget import _graymsg, quote_html
         env.history.message( _graymsg( quote_html( msg)))
     except:
@@ -968,7 +963,6 @@ class DebugMenuMixin:
                 ('speed-test py code', self._debug_timepycode), #bruce 051117; include this even if not platform.atom_debug
             ] )
         #bruce 050416: use a "checkmark item" now that we're remaking this menu dynamically:
-        import platform
         if platform.atom_debug:
             res.extend( [
                 ('ATOM_DEBUG', self._debug_disable_atom_debug, 'checked' ),
@@ -991,7 +985,7 @@ class DebugMenuMixin:
         
         #bruce 060124 changes: always call debug_prefs_menuspec, but pass platform.atom_debug to filter the prefs,
         # and change API to return a list of menu items (perhaps empty) rather than exactly one
-        res.extend( debug_prefs_menuspec( platform.atom_debug ) ) #bruce 050614 (submenu)
+        res.extend( debug_prefs.debug_prefs_menuspec( platform.atom_debug ) ) #bruce 050614 (submenu)
 
         if 1: #bruce 050823
             some = registered_commands_menuspec( self)
@@ -1021,16 +1015,14 @@ class DebugMenuMixin:
         return res
 
     def _debug_save_window_layout(self): # [see also UserPrefs.save_current_win_pos_and_size, new as of 051218]
-        from platform import save_window_pos_size
         win = self._debug_win
         keyprefix = mainwindow_geometry_prefs_key_prefix
-        save_window_pos_size( win, keyprefix)
+        platform.save_window_pos_size( win, keyprefix)
 
     def _debug_load_window_layout(self): # [similar code is in pre_main_show in startup_funcs.py, new as of 051218]
-        from platform import load_window_pos_size
         win = self._debug_win
         keyprefix = mainwindow_geometry_prefs_key_prefix
-        load_window_pos_size( win, keyprefix)
+        platform.load_window_pos_size( win, keyprefix)
 
     def _debug_update_parts(self):
         win = self._debug_win
@@ -1081,7 +1073,6 @@ class DebugMenuMixin:
         if ok:
             self.setFont(newfont)
             try:
-                import platform
                 if platform.atom_debug:
                     print "atom_debug: new font.toString():", newfont.toString()
             except:
@@ -1089,11 +1080,9 @@ class DebugMenuMixin:
         return
     
     def _debug_enable_atom_debug(self):
-        import platform
         platform.atom_debug = 1
     
     def _debug_disable_atom_debug(self):
-        import platform
         platform.atom_debug = 0
     
     def debug_event(self, event, funcname, permit_debug_menu_popup = 0): #bruce 040916
@@ -1277,7 +1266,6 @@ def reload_once_per_event(module, always_print = False, never_again = True, coun
     ATOM_DEBUG is set, so it might be better to revise the defaults to make them more convenient for developers.
     See cad/src/exprs/basic.py for an example of a call optimized for developers.
     """
-    import platform
     if not platform.atom_debug:
         return
     if type(module) == type(""):
@@ -1366,18 +1354,5 @@ def reload_once_per_event(module, always_print = False, never_again = True, coun
     return
 
 # ==
-
-#bruce 050823 - this is a convenient place to import some Undo experimental code --
-# though it's not a sensible permanent place for that ####@@@@
-
-import undo
-
-#bruce 051202 - same for extensions.py (which tests Pyrex code, for now; later handles all our custom extension modules)
-
-import extensions
-
-# don't add custom display mode imports here -- add them to _initialize_custom_display_modes() in startup_funcs.py. [bruce 060609]
-
-import chem_patterns
 
 # end

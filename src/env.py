@@ -196,7 +196,6 @@ def call_qApp_processEvents(*args): #bruce 050908
 
 # most imports should occur here
 
-from constants import *
 import platform
 
 class pre_init_fake_history_widget: #bruce 050901 moved this here from MWsemantics.py

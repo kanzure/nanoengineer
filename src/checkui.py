@@ -8,9 +8,9 @@ $Id$
 """
 
 import sys
-from commands import *
+from commands import getoutput
 import re
-from StringIO import *
+from StringIO import StringIO
 
 isdef = re.compile("\s*def (\w*)\(self,?\W*([^)]*)\):")
 

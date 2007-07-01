@@ -9,16 +9,23 @@ $Id$
 
 __author__ = "Will"
 
-import platform
+
+from PyQt4.Qt import Qt
+from PyQt4.Qt import QPixmap
+from PyQt4.Qt import QIcon
+from PyQt4.Qt import QApplication
+from PyQt4.Qt import QCursor
+from PyQt4.Qt import QWhatsThis
+
 import env
-from PyQt4.Qt import *
-from constants import gensym, permit_gensym_to_reuse_name
+import platform
+
 from Sponsors import SponsorableMixin
+from PropertyManagerMixin import PropertyManagerMixin
 from HistoryWidget import redmsg, orangemsg, greenmsg, quote_html
 from debug import print_compact_traceback
-from qt4transition import *
-import EpydocTest
-
+from constants import gensym
+from constants import permit_gensym_to_reuse_name
 
 class AbstractMethod(Exception):
     def __init__(self):

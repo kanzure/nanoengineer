@@ -17,8 +17,13 @@ __author__ = "Josh"
 #  into their positions, generate history warnings, make up default axes based on the screen direction,
 #  etc -- not the code in this file, which should remain purely geometric.)
 
+import math
+from Numeric import transpose, minimum, maximum, remainder, size, add
+from Numeric import Float, zeros, multiply, sign, dot
+from LinearAlgebra import solve_linear_equations, eigenvectors
+
 import platform # for atom_debug
-from VQT import *
+from VQT import V, A, cat, norm, cross, X_AXIS, Y_AXIS
 
 def selection_polyhedron(basepos, borderwidth = 1.8):
     """Given basepos (a Numeric array of 3d positions), compute and return (as a list of vertices, each pair being an edge to draw)
@@ -51,8 +56,8 @@ def selection_polyhedron(basepos, borderwidth = 1.8):
 # == helper definitions for selection_polyhedron [moved here from drawer.py by bruce 060119]
 
 # mat mult by rowvector list and max/min reduce to find extrema
-D = sqrt(2.0)/2.0
-T = sqrt(3.0)/3.0
+D = math.sqrt(2.0)/2.0
+T = math.sqrt(3.0)/3.0
 #              0  1  2  3   4  5   6   7   8  9  10  11  12
 #             13 14 15 16  17 18  19  20  21 22  23  24  25
 polyXmat = A([[1, 0, 0, D,  D, D,  D,  0,  0, T,  T,  T,  T],

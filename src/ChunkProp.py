@@ -10,11 +10,11 @@ History: Original code from MoleculeProps.py and cleaned up by Mark.
 
 __author__ = "Mark"
 
-from PyQt4.Qt import *
-from constants import *
-from ChunkPropDialog import *
+from PyQt4 import QtGui
+from PyQt4.Qt import QDialog, SIGNAL, QColorDialog
+
+from ChunkPropDialog import Ui_ChunkPropDialog
 from widgets import RGBf_to_QColor, QColor_to_RGBf
-from qt4transition import *
 
 class ChunkProp(QDialog, Ui_ChunkPropDialog):
     def __init__(self, chunk):

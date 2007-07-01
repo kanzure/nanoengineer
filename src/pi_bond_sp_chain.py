@@ -24,11 +24,19 @@ is to help change those directions in an organized way.)
 
 __author__ = 'bruce'
 
+import math
+from Numeric import dot
 
-from jigs import Jig
-from VQT import V, A, dot, cross, vlen, norm, twistor_angle, pi
-from bond_constants import *
 import platform
+from jigs import Jig
+from VQT import V, Q, A, cross, vlen, norm, twistor_angle
+from bonds import grow_bond_chain
+from bond_constants import V_SINGLE
+from bond_constants import V_DOUBLE
+from bond_constants import V_TRIPLE
+from bond_constants import V_AROMATIC
+from bond_constants import V_GRAPHITE
+from bond_constants import V_CARBOMERIC
 from debug import print_compact_traceback, print_compact_stack
 
 DFLT_OUT = V(0.0, -0.6, 0.8) # these are rotated from standard out = V(0,0,1), up = V(0,1,0) but still orthonormal
@@ -281,7 +289,7 @@ class PiBondSpChain(PerceivedStructureType):
             ###e ideally we'd now enforce qq turning axes[0] into axes[i], to compensate for cumulative small errors [nim]
             if self.adjacent_double_bonds( i, i+1 ):
                 axis = axes[i+1]
-                theta = pi / 2 # 90 degrees
+                theta = math.pi / 2 # 90 degrees
                 qq += Q(axis, theta)
             quats_cum.append(qq)
         assert len(quats_cum) == len(bonds)
@@ -292,7 +300,7 @@ class PiBondSpChain(PerceivedStructureType):
             # (but we won't add these quats to our lists)
             self.ringquat_incr = Q( axes[-1], axes[0] )
             if self.adjacent_double_bonds( -1, 0 ):
-                self.ringquat_incr += Q(axes[0], pi / 2)
+                self.ringquat_incr += Q(axes[0], math.pi / 2)
             ## self.ringquat_cum = self.chain_quat_cum + self.ringquat_incr #k probably not used
         # now we know total twist, so we can use code similar to   pi_vectors   function to decide what to do at the ends.
         # BTW all this only mattered if we weren't alternating single-triple bonds... ideally we'd rule that out first.
@@ -398,10 +406,10 @@ class PiBondSpChain(PerceivedStructureType):
             # [it's actually +- 2pi, twice what it would need to be in general],
             # so we need to coerce it into the range we want, +- pi/2 (90 degrees); here too we use the fact
             # that in this case, a twist of pi (180 degrees) is the same as 0 twist.
-        while total_twist > pi/2:
-            total_twist -= pi
-        while total_twist <= - pi/2:
-            total_twist += pi
+        while total_twist > math.pi/2:
+            total_twist -= math.pi
+        while total_twist <= - math.pi/2:
+            total_twist += math.pi
         self.twist = total_twist / len(bonds)
         return
 
