@@ -98,7 +98,11 @@ NE1 supports a number of free extensions, including:
   <li>PC GAMESS (Windows only) makes it possible to setup and launch ab initio and DFT computational chemistry simulations of molecular models inside of NE1. 
   <li>POV-Ray creates high-quality renderings of the current model with a single click of the mouse. 
   <li>MegaPOV (Mac OS X only) creates high-quality renderings of the current model with a single click of the mouse. POV-Ray is also required. 
-  <li>QuteMol is a high-quality molecular visualization system that can be "launched and loaded" from NE1. Very cool! -=-=- PUT HARDWARE WARNING HERE -=-=-
+  <li>QuteMol is a high-quality molecular visualization system that can be "launched and loaded" from NE1. Very cool! Be warned, however, that QuteMol demands high-end graphics hardware, or it could hang your computer.
+  <ul>
+    <li>QuteMol runs well on the "Pro" series of Mac products, ie, Macbook Pro and Mac Pro
+	<li>Otherwise, check <a href="http://www.delphi3d.net/hardware/extsupport.php?extension=GL_EXT_framebuffer_object">this list</a> of supported graphics cards and drivers.
+  </ul>
 </ul>
 For more details on all extensions and links to the download pages, visit:
 <p>
@@ -113,30 +117,46 @@ What is new in NanoEngineer-1 0.9.1 (7/01/2007):
 
   - New <a href="http://www.nanoengineer-1.net/mediawiki/index.php?title=Confirmation_Corner">Confirmation Corner</a> 
   - Command Manager includes custom flyout toolbars for all commands 
-  - Property Manager includes helpful messages for <b>Plane</b>, <b>Build Atoms</b>, <b>Extrude</b> and <b>Translate/Rotate</b> commands
-  -<b>Build Atoms</b> includes the new <b>Cut Bonds</b> bond tool for deleting bonds between two atoms
-  - Splitter between the left channel (i.e. the Model Tree/Property Manager) and the 3D graphics window can be resized
+  - Property Manager includes helpful messages for <b>Plane</b>, <b>Build
+    Atoms</b>, <b>Extrude</b> and <b>Translate/Rotate</b> commands
+  - <b>Build Atoms</b> includes the new <b>Cut Bonds</b> bond tool for deleting
+    bonds between two atoms
+  - Splitter between the left channel (i.e. the Model Tree/Property Manager) and
+    the 3D graphics window can be resized
 
 2. DNA Generator
 
   - Specify DNA duplex by length (in Angstroms)
-  - Fixed some bugs involving the Strand Sequence text edit widget (in the Property Manager)
+  - Fixed some bugs involving the Strand Sequence text edit widget (in the
+    Property Manager)
 
 3. <a href="http://qutemol.sourceforge.net/">QuteMol</a>
 
   - NE1 writes and QuteMol (0.4.1) reads and renders bondpoints 
-  - NE1 now writes the PDB REMARK records needed for QuteMol (a future version) to render: 
+  - NE1 now writes the PDB REMARK records needed for QuteMol (a future version)
+    to render: 
     - Initial view orientation 
     - Background color 
     - Launch display style (launch = "synchronize with NE1 at startup") 
     - Launch tubes/licorice cylinder "thickness" 
     - Launch ball and stick cylinder "thickness" 
-    - Chunks' display style and color 
+    - Chunks' display style and color
+	
+  Be warned, however, that QuteMol demands high-end graphics hardware. Also:
+    - QuteMol runs well on the "Pro" series of Mac products, (i.e. Macbook Pro
+      and Mac Pro), but it can hang other Macs (i.e. MacMini, MacBook, and some
+      other PowerPC based Macs). QuteMol has not been known to hang
+      Windows-based computers.
+    - Check <a href="http://www.delphi3d.net/hardware/extsupport.php?extension=GL_EXT_framebuffer_object">this list</a> of supported graphics cards and drivers.
+    - If your computer includes a graphics card on this list but still isn't
+      rendering properly, then be sure to update your graphics card driver.
 
 4. Reference Plane (<b>Insert > Reference Geometry > Plane</b>)
 
-  - New option <b>Offset to a Plane</b> creates a new plane from an offset to an existing plane
-  - Edges are aligned with the screen when <b>Parallel to Screen</b> option is selected
+  - New option <b>Offset to a Plane</b> creates a new plane from an offset to an
+    existing plane
+  - Edges are aligned with the screen when <b>Parallel to Screen</b> option is
+    selected
   - Works with <b>Mirror</b> command
   - Works for all <b>Translate</b> commands (i.e. <b>To XYZ Position</b>)
   - Preview improvements
@@ -145,10 +165,13 @@ What is new in NanoEngineer-1 0.9.1 (7/01/2007):
 
 5. Other notable bug fixes:
 
-  - The current working directory is set to the last directory in which a file was opened or saved. This is persistent between seesions
-  - The graphitic Nitrogen atomic hybrid can be deposited and transmutes correctly
+  - The current working directory is set to the last directory in which a file
+    was opened or saved. This is persistent between seesions
+  - The graphitic Nitrogen atomic hybrid can be deposited and transmutes
+    correctly
   - <b>Simulation > Play Movie</b> is enabled only when there is a valid movie
-  - Fixed some button text overlapping and layout problems in <b>Build Atoms</b> Property Manager
+  - Fixed some button text overlapping and layout problems in <b>Build Atoms</b>
+    Property Manager
 
 </pre>
 See <a href="#NewFeaturesArchives">New Features Archives</a> for information on previous versions.
