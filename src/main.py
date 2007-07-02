@@ -51,7 +51,7 @@ __author__ = "Josh"
 import sys, os, time
 
 print
-print "starting NanoEngineer-1 in [%s]," % os.getcwd(), time.asctime() #bruce 070429
+print "starting NanoEngineer-1 in [%s]," % os.getcwd(), time.asctime()
 
 #bruce 061222: define global flags (available to other modules via import __main__) that indicate
 # whether we're in the Qt3 or Qt4 version of NE1. This works by hardcoding the flags differently
@@ -60,20 +60,25 @@ USING_Qt3 = False
 USING_Qt4 = True
 
 if __name__ != '__main__':
-    #bruce 050902 added this warning
     print
     print "Warning: main.py should not be imported except as the __main__ module."
     print " (It is now being imported under the name %r.\n" \
           "  This is a bug, but should cause no direct harm.)" % (__name__,)
     print
 
-import startup_funcs # this has no side effects, it only defines a few functions
-    # bruce 050902 moved some code from this file into new module startup_funcs
+### NOTE: this is where I will soon make two changes:
+# 1. insert a test for whether this user is running an installed NE1,
+#    but wants it to find most of its python code from a different directory
+#    (presumably a developer checkout of cad/src)
+# 2. move the rest of this file (after that test) into a new file, main_startup.py
+# -bruce 070702
 
-# all other imports should be added lower down
+import startup_funcs # this has no side effects, it only defines a few functions
+
+# NOTE: all other imports should be added after the following 'if' statement.
 
 if __name__ == '__main__':
-    # This condition surrounds most code in this file, but it occurs twice,
+    # Note: This condition surrounds most code in this file, but it occurs twice,
     # so that the first occurrence can come before most of the imports,
     # while letting most imports occur at the top level of the file.
     # [bruce 050902 comment about older situation]
@@ -83,15 +88,11 @@ if __name__ == '__main__':
     startup_funcs.before_most_imports( main_globals )
         # "Do things that should be done before anything that might possibly have side effects."
 
-# most imports in this file should be done here, or inside functions in startup_funcs
+# ==
 
+# NOTE: most imports in this file should be done here, or inside functions in startup_funcs.py.
 
-
-from PyQt4.Qt import QApplication, QSplashScreen ## bruce 050902 removed QRect, QDesktopWidget
-
-## from constants import *
-    #bruce 050902 removing import of constants since I doubt it's still needed here.
-    # This might conceivably cause bugs, but it's unlikely.
+from PyQt4.Qt import QApplication, QSplashScreen
 
 if __name__ == '__main__':
     # [see comment above about why there are two occurrences of this statement]
@@ -136,6 +137,7 @@ if __name__ == '__main__':
     # These should move to a generic initialization function when there
     # are more of them.  Are they in the right place?  Probably should be
     # called before any assembly objects are created.
+    # [added by ericm 20070701, along with "remove import star", just after NE1 A9.1 release]
     import assembly
     assembly.assembly.initialize()
     import GroupButtonMixin
@@ -196,7 +198,7 @@ if __name__ == '__main__':
     else:
         meth()
 
-    startup_funcs.post_main_show(foo) # bruce 050902 added this
+    startup_funcs.post_main_show(foo)
 
     # If the user's .atom-debug-rc specifies PROFILE_WITH_HOTSHOT=True, use hotshot, otherwise
     # fall back to vanilla Python profiler.
