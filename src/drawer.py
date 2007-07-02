@@ -54,7 +54,6 @@ from OpenGL.GL import GL_FALSE
 from OpenGL.GL import GL_FILL
 from OpenGL.GL import glFinish
 from OpenGL.GL import GL_FLOAT
-from OpenGL.GL import glFog
 from OpenGL.GL import GL_FOG
 from OpenGL.GL import GL_FOG_COLOR
 from OpenGL.GL import GL_FOG_END
@@ -101,7 +100,6 @@ from OpenGL.GL import GL_RENDERER
 from OpenGL.GL import GL_RGBA
 from OpenGL.GL import glRotate
 from OpenGL.GL import glRotatef
-from OpenGL.GL import glScalef
 from OpenGL.GL import GL_SHININESS
 from OpenGL.GL import GL_SPECULAR
 from OpenGL.GL import GL_SRC_ALPHA
@@ -146,7 +144,13 @@ try:
     from OpenGL.GL import glScale
 except:
     # The installed version of OpenGL requires argument-typed glScale calls.
-    glScale = glScalef
+    from OpenGL.GL import glScalef as glScale
+	
+try:
+    from OpenGL.GL import glFog
+except:
+    # The installed version of OpenGL requires argument-typed glFog calls.
+    from OpenGL.GL import glFogf as glFog	
 
 from VQT import norm, vlen, V, Q, A
 import env #bruce 051126
