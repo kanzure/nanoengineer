@@ -27,6 +27,7 @@ def setupUi(win):
     ###Submenus of View Menu Start###
     win.displayMenu = win.viewMenu.addMenu("Display")      
     win.Modify = win.viewMenu.addMenu("Modify")
+    win.viewMenu.addSeparator()
     
     ###Submenus of View Menu End###
         

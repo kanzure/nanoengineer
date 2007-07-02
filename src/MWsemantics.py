@@ -177,13 +177,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.simMoviePlayerAction = QAction(self)
         self.setupUi(self)	 
 	
-	#hide these toolbars by default @@@ ninad070330. 
-        #This(display and position of toolbars) needs to be a preference sooner. 
-	self.buildStructuresToolBar.hide()
-	self.buildToolsToolBar.hide()
-	self.selectToolBar.hide()
-	self.simulationToolBar.hide()
-
+	
         self.MoveOptionsGroup = QActionGroup(self)
         self.MoveOptionsGroup.setObjectName("MoveOptionsGroup")
 	self.MoveOptionsGroup.setExclusive(True)
@@ -455,6 +449,24 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 	#@ Jeff - add a link to the public wiki page when ready. Mark 2007-06-13.
 	self.connect(self.insertAtomAction,SIGNAL("triggered()"),self.insertAtom)
 	
+	
+	from prefs_constants import toolbar_state_prefs_key
+	#This fixes bug 2482 
+	if not env.prefs[toolbar_state_prefs_key] == 'defaultToolbarState':
+	    toolBarState = QtCore.QByteArray(env.prefs[toolbar_state_prefs_key])
+	    self.restoreState(toolBarState)
+	else:
+	    #hide these toolbars by default 
+	    self.buildStructuresToolBar.hide()
+	    self.buildToolsToolBar.hide()
+	    self.selectToolBar.hide()
+	    self.simulationToolBar.hide()
+	
+	#Add Toolbar menu item to the View Menu. 
+	toolbarMenu = self.createPopupMenu()
+	toolbarMenu.setTitle('Toolbars')
+	self.viewMenu.addMenu(toolbarMenu)
+	    
         # mark 060105 commented out self.make_buttons_not_in_UI_file()
         # Now done below: _StatusBar.do_what_MainWindowUI_should_do(self)
         #self.make_buttons_not_in_UI_file()
@@ -1982,7 +1994,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 	#ninad070412 disabled the following action. bondToolButtons attribute doesn't
 	#exist in ne1qt4
         ##QObject.connect(MMKitWin.bondToolButtons, SIGNAL("buttonClicked(QAbstractButton *)"), bondtool_button_clicked)
-        
+       
         MMKitWin.update_dialog(self.Element)	
         return MMKitWin
         
@@ -2196,20 +2208,6 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.fuseChunksDashboard.hide()
         self.cookieSelectDashboard.hide()
 	
-	##Huaicai 12/08/04, remove unnecessary toolbars from context menu
-        # [not yet ported to Qt4]
-        ##objList = self.findChildren(QToolBar)
-        ##for obj in objList:
-        ##    # [bruce 050408 comment: this is bad style; the default should be setAppropriate False
-        ##    #  (to keep most dashboard names out of the context menu in the toolbar area),
-        ##    #  and we should list here the few we want to include in that menu (setAppropriate True),
-        ##    #  not the many we want to exclude (which is also a list that changes more often). ##e]
-        ##    if obj in [self.moviePlayerDashboard, self.moveChunksDashboard,
-        ##        self.cookieCutterDashboard, self.depositAtomDashboard, self.extrudeDashboard,
-        ##        self.selectAtomsDashboard, self.selectMolDashboard, self.zoomDashboard,
-        ##        self.panDashboard, self.rotateDashboard, self.fuseChunksDashboard,
-        ##        self.cookieSelectDashboard]:
-        ##            obj.setHidden(True)
         return
             
     def enableViews(self, enableFlag=True):

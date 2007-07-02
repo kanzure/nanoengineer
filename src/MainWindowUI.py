@@ -120,9 +120,9 @@ class Ui_MainWindow(object):
         self.textLabel1_3.setObjectName("textLabel1_3")
 
         self.dashboardHolder = QtGui.QDockWidget(MainWindow)
+        self.dashboardHolder.setObjectName('dashboardholder')
         self.dashboardHolder.setFeatures(QtGui.QDockWidget.DockWidgetMovable)
         MainWindow.addDockWidget(Qt.BottomDockWidgetArea, self.dashboardHolder)
-        
         self.depositAtomDashboard = QtGui.QToolBar(MainWindow)
         
         self.depositAtomDashboard.setEnabled(True)
@@ -165,16 +165,13 @@ class Ui_MainWindow(object):
         Ui_BuildStructuresToolBar.setupUi(self)
         Ui_SelectToolBar.setupUi(self)
         Ui_SimulationToolBar.setupUi(self)
-         
                     
         self.animatorMenu = QtGui.QMenu(self.MenuBar)
         self.animatorMenu.setObjectName("Animator")
         
         self.windowMenu = QtGui.QMenu(self.MenuBar)
-        self.windowMenu.setObjectName("Window")
-        
+        self.windowMenu.setObjectName("Window")   
 
-        
         
               
         ###Following will become outdated for Alpha9 Start#####

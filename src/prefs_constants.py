@@ -200,6 +200,7 @@ useSelectedFont_prefs_key = 'A9/Use Selected Font'
 displayFont_prefs_key = 'A9/Display Font'
 displayFontPointSize_prefs_key = 'A9/Display Font Point Size'
 mtColor_prefs_key = 'A9/Model Tree Background Color' # Not yet in Preferences. Mark 2007-06-04
+toolbar_state_prefs_key = 'A10/ Toolbar State '
 #colorTheme_prefs_key = 'A9/Color Theme'
 
 # Bug-workaround prefs, Mac-specific
@@ -458,7 +459,8 @@ prefs_table = (
     ('', 'int', displayFontPointSize_prefs_key, -1), # will be reset by the actual default font size.
     ("", 'color', mtColor_prefs_key, white ), # Model Tree bg color. Mark 2007-06-04
     #('', 'string', colorTheme_prefs_key, "defaultColorTheme"), # Gray for A9. Mark 2007-05-27.
-    
+    #Following saves the toolbar and dockwidget positions between NE1 sessions
+    ('toolbar_state', 'string' , toolbar_state_prefs_key, 'defaultToolbarState'),
     # ...
 
     ('', 'boolean', QToolButton_MacOSX_Tiger_workaround_prefs_key, False ), #bruce 050810

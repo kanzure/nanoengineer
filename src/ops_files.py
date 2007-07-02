@@ -1197,6 +1197,12 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             if not duplicate:
                 print "exiting" # leave this in until changes fully tested [bruce 070618]
                 self.cleanUpBeforeExiting()
+	    from prefs_constants import toolbar_state_prefs_key
+	    #Should the following(saving toolbar/ dockwidget positions) be done
+	    #in 'cleanupBeforeExiting? I think thats not good as it is not a 
+	    #'clean up'. Adding it below for now -- ninad 20070702
+            toolbarState = self.assy.w.saveState()
+	    env.prefs[toolbar_state_prefs_key] = str(toolbarState)
             ce.accept()
         else:
             ce.ignore()
