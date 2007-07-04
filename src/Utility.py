@@ -711,8 +711,12 @@ class Node( StateMixin):
         self.assy.update_parts() #e could be optimized to scan only what's needed (same for most other calls of update_parts)
         return res
 
-    #bruce 050203: these drop_unders were not used for Alpha-1 -- no time to support dropping into gaps.
-    # (they are not yet fully implemented, either.)
+    # Note: the methods drop_under_ok and drop_under are never called
+    # (and drop_under is not fully implemented, as its comments indicate),
+    # but they should be kept around -- they are a partly-done implementation
+    # of a Node API extension to support Model Tree DND to points between nodes
+    # (as opposed to DND to points on top of single nodes, which is all the MT
+    #  can do now). [bruce 050203/070703]
 
     def drop_under_ok(self, drag_type, nodes, after = None): ###@@@ honor it!
         """Say whether it's ok to drag these nodes (using drag_type)
@@ -725,15 +729,15 @@ class Node( StateMixin):
         """
         return hasattr(self, 'addchild') # i.e. whether it's a Group!
 
-# this routine is never used, and copy_nodes is never defined
-#    def drop_under(self, drag_type, nodes, after = None): #e move to Group, implem subrs, use ###@@@
-#        "#doc"
-#        if drag_type == 'copy':
-#            nodes = copy_nodes(nodes) # make a homeless copy of the set (someday preserving inter-node bonds, etc)
-#                ###@@@ see ops_copy for newer ways to do this...
-#        for node in nodes:
-#            self.addchildren(nodes, after = after) ###@@@ IMPLEM (and make it not matter if they are homeless? for addchild)
-#        return
+    # See comment above for status of unused method 'drop_under', which should be kept around. [bruce 070703]
+    def drop_under(self, drag_type, nodes, after = None): #e move to Group, implem subrs, use ###@@@
+        "#doc"
+        if drag_type == 'copy':
+            from ops_copy import copy_nodes_in_order # might be recursive if done at toplevel
+            nodes = copy_nodes_in_order(nodes) # make a homeless copy of the set (someday preserving inter-node bonds, etc)
+        for node in nodes:
+            self.addchildren(nodes, after = after) ###@@@ IMPLEM (and make it not matter if they are homeless? for addchild)
+        return
 
     def node_icon(self, display_prefs):
         """#doc this - should return a cached icon
