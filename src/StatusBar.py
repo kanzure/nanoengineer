@@ -60,17 +60,6 @@ def do_what_MainWindowUI_should_do(win):
     win.modebarLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
     win.statusBar().addPermanentWidget(win.modebarLabel)
 
-    # == following code is unused as of 060106 -- might become real soon, don't know yet;
-    # please don't remove it without asking me [bruce 060106]
-##    if 0: #######@@@@@@@ DISABLED FOR SAFE COMMIT OF UNFINISHED CODE [bruce 060104]        
-##        # Taken from MWsemantics.make_buttons_not_in_UI_file().  
-##        # Changed occurances of self.simAbortAction to win.simAbortButton
-##        # mark 060105
-##        from extended_ops import ExtendedOpStack
-##        win.stack_of_extended_ops = ExtendedOpStack(win, [win.simAbortButton])
-##            #e in present implem this knows a lot about win.simAbortAction; needs cleanup
-##        win.stack_of_extended_ops.update_UI()
-
     win._duration = 0 # Seconds that the progress bar takes to complete
         # [bruce 050415 comment: 'duration' is a public attribute, used by external code
         #  after the progress bar is hidden and the launch method has returned.]
