@@ -40,6 +40,12 @@ def setupUi(win):
     win.referencePlaneAction.setIcon(geticon(
         "ui/actions/Insert/Reference Geometry/Plane"))
     win.referencePlaneAction.setObjectName("referencePlaneAction")
+    
+    win.referenceLineAction = QtGui.QAction(MainWindow)
+    win.referenceLineAction.setIcon(geticon(
+        "ui/actions/Insert/Reference Geometry/Plane"))
+    win.referenceLineAction.setObjectName("referenceLineAction")
+    win.referenceLineAction.setText("Line...")
             
     win.referenceGeometryMenu = win.Insert.addMenu("Reference Geometry")
     
@@ -47,6 +53,10 @@ def setupUi(win):
     
     win.referenceGeometryMenu.addAction(win.referencePlaneAction)        
     win.referenceGeometryMenu.addAction(win.jigsGridPlaneAction)
+    if debug_pref("Show Insert > Line option",
+                  Choice_boolean_False,
+                  prefs_key=True):
+        win.referenceGeometryMenu.addAction(win.referenceLineAction)  
         
     win.Insert.addAction(win.jigsAtomSetAction)
     win.Insert.addSeparator()
@@ -101,4 +111,6 @@ def retranslateUi(win):
     win.referencePlaneAction.setIconText(QtGui.QApplication.translate(
         "MainWindow", "Plane...", 
         None, QtGui.QApplication.UnicodeUTF8))
+    
+
                

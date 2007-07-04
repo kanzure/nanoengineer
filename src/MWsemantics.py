@@ -316,6 +316,8 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 	
 	self.connect(self.referencePlaneAction,SIGNAL("triggered()"),
 		     self.createPlane)
+	self.connect(self.referenceLineAction,SIGNAL("triggered()"),
+		     self.createLine)
 		
         #self.connect(self.jigsHandleAction,SIGNAL("triggered()"),self.makeHandle)
         #self.connect(self.jigsHeatsinkAction,SIGNAL("triggered()"),self.makeHeatsink)
@@ -1525,9 +1527,12 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 	
     def createPlane(self):
 	self.assy.createPlane()	
-	        
+    	        
     def makeGridPlane(self):
         self.assy.makeGridPlane()
+    
+    def createLine(self):
+	self.assy.createLine()
 
     def makeESPImage(self):
         self.assy.makeESPImage()
