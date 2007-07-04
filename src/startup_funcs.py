@@ -73,7 +73,7 @@ def before_most_imports( main_globals ):
     # (the __main__ script) into a higher directory than the compiled python files.
     # But developers running from cvs leave them all in cad/src.
     # So we compare the directories.
-    endUser = True
+    endUser = True # conservative initial assumption (might be changed below)
     import __main__
     ourdir = None # hack for print statement test in except clause
         # this is still being imported, but we only need its __file__ attribute, which should be already defined [but see below]
@@ -86,7 +86,7 @@ def before_most_imports( main_globals ):
         ourdir,  filejunk = os.path.split( __file__ )
         maindir, filejunk = os.path.split( __main__.__file__ )
     except:
-        # unfortunately it's not ok to print the exception or any error message, in case this guess is correct...
+        # unfortunately it's not ok to print the exception or any error message, in case endUser = True is correct...
         # but maybe I can get away with printing something cryptic (since our code is known to print things sometimes anyway)?
         # And I can make it depend on whether ourdir was set, so we have a chance of finding out whether this module defined __file__.
         # [bruce 051006]
