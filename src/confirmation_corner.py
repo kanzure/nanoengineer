@@ -27,14 +27,12 @@ import os
 
 from exprs.basic import PIXELS
 from exprs.images import Image
-from exprs.Overlay import Overlay
-from exprs.Rect import Rect
+##from exprs.Overlay import Overlay
 
-from constants import green
 from exprs.instance_helpers import get_glpane_InstanceHolder
 
 from exprs.Rect import Rect # needed for Image size option, not just for testing
-from constants import green # only for testing
+##from constants import green # only for testing
 
 from exprs.projection import DrawInCorner_projection, DrawInCorner
 from prefs_constants import UPPER_RIGHT
