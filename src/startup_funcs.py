@@ -107,14 +107,20 @@ def before_most_imports( main_globals ):
         guess2 = not os.path.exists( os.path.join( ourdir, __name__ + ".py" ))
 
         endUser = guess1 or guess2
-        if guess1 != guess2:
-            print "Warning: two methods of guessing whether we're being run by an end-user disagreed (%r and %r)." % (guess1, guess2)
-            print "To be safe, assuming we are (disabling some developer-only features)."
-            print "If this ever happens, it's a bug, and the methods need to be updated."
-            if guess1:
-                print "(debug info: guess1 is true because %r != %r)" % (maindir, ourdir)
-                    #bruce 050908 to debug Linux bug in guess1 reported by Ninad (it's True (i.e. wrong) when he runs nE-1 from source)
-            print
+        if __main__._USE_ALTERNATE_CAD_SRC_PATH:
+            # special case when using ALTERNATE_CAD_SRC_PATH feature
+            # (which can cause these guesses to differ or be incorrect):
+            # assume anyone using it is a developer [bruce 070704]
+            endUser = False
+        else:
+            if guess1 != guess2:
+                print "Warning: two methods of guessing whether we're being run by an end-user disagreed (%r and %r)." % (guess1, guess2)
+                print "To be safe, assuming we are (disabling some developer-only features)."
+                print "If this ever happens, it's a bug, and the methods need to be updated."
+                if guess1:
+                    print "(debug info: guess1 is true because %r != %r)" % (maindir, ourdir)
+                        #bruce 050908 to debug Linux bug in guess1 reported by Ninad (it's True (i.e. wrong) when he runs nE-1 from source)
+                print
         pass
 
     EndUser.setDeveloperFeatures(not endUser)

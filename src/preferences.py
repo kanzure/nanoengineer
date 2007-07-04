@@ -151,7 +151,7 @@ Usage by client code (for now -- this might change!):
 # be better at concurrent access, and/or permit longer keys and (especially)
 # values than other db packages.)
 
-# But, we'll run without it, but use a different
+# But, we'll run without it if necessary, but when we do, we'll use a different
 # shelf name, in case the binary formats are incompatible. (Not a perfect solution,
 # since there's no guarantee the db format without bsddb is always the same...
 # but I don't know a good-enough way to find out which db module shelve is actually using.)
@@ -161,10 +161,18 @@ try:
 except:
     dbname = "somedb"
     print """\
+
 Warning: import bsddb failed; using some other db format for preferences file;
  giving it a different name in case that uses an incompatible binary format;
- this means, when you upgrade to bsddb, you'll lose your preferences.
-"""
+ this means, when you upgrade to bsddb, you'll lose your preferences."""
+    import __main__
+    if __main__._USE_ALTERNATE_CAD_SRC_PATH:
+        # [bruce 070704]
+        print "(Note: as of 070704 this is a common side-effect of using the"
+        print "ALTERNATE_CAD_SRC_PATH feature, since the built release has a"
+        print "patch to use bsddb3 which is not present in cvs code."
+        print "This situation will probably be fixed soon.)"
+    print
 else:
     dbname = "bsddb"
 
