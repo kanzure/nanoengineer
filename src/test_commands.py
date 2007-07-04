@@ -94,12 +94,9 @@ class ExampleCommand1(_BUGFIXED_selectAtomsMode):
         selectAtomsMode.restore_gui(self) # this apparently worked even when it called init_gui by mistake!!
         return
 
-    def ok_btn_clicked(self):
-        print "ok_btn_clicked; nim in", self
+    # note: ok_btn_clicked, etc, must be defined in our PM class below,
+    # not in this class.
 
-    def abort_btn_clicked(self):
-        print "abort_btn_clicked; nim in", self
-    
     pass # end of class ExampleCommand1
 
 
@@ -220,10 +217,10 @@ class ExampleCommand1_PM( _eg_pm_widgets, QDialog, PropMgrBaseClass): # these su
     # (It doesn't need restore_defaults_btn_clicked because PropMgrBaseClass defines that itself.
     #  So does GBC, but to a noop method. So GBC better be inherited *after* PropMgrBaseClass!)
     def ok_btn_clicked(self):
-        print "ok_btn_clicked", self
+        print "ok_btn_clicked, nim in", self
         pass
     def abort_btn_clicked(self):
-        print "abort_btn_clicked", self
+        print "abort_btn_clicked, nim in", self
         pass
     def preview_btn_clicked(self):
         print "preview_btn_clicked", self
