@@ -6,6 +6,15 @@ test_commands.py -- try out using mode classes as command classes for a command 
  
 $Id$
 
+How to run these test commands:
+
+- set the debug_pref "test_commands enabled (next session)"
+
+- quit and rerun NE1
+
+- the debug menu's submenu "other" should contain new menu commands
+defined in this file, such as ExampleCommand1.
+
 
 Misc bugs:
 
@@ -46,7 +55,20 @@ from debug import register_debug_menu_command
 from GLPane import GLPane # maybe for an isinstance assertion only
 import time
 
-class ExampleCommand1(selectAtomsMode):
+class _BUGFIXED_selectAtomsMode(selectAtomsMode):
+    def set_selection_filter(self, enabled):
+        # This is needed here for now, since it can't be added directly to selectAtomsMode
+        # (where it logically belongs, since it's a selectAtomsMode method that tries to use it),
+        # due to problems caused by misguided multiple inheritance in selectAtomsMode.
+        # [Adding it here 070704 makes this example command work again, after we broke it knowingly
+        #  in the A9.1 release, in order to fix selection filter bugs caused by adding this method
+        #  to selectAtomsMode itself. It overrode the same method in a mixin class, that ought to be
+        #  used to construct a separate object rather than being a mixin class of a subclass of
+        #  selectAtomsMode.]
+        pass
+    pass
+    
+class ExampleCommand1(_BUGFIXED_selectAtomsMode):
     """Example command, which uses behavior similar to selectAtomsMode. [Which in future may inherit class Command.]
     """
     modename = 'ExampleCommand1-modename' # internal #e fix init code in basicMode to get it from classname?
@@ -71,11 +93,17 @@ class ExampleCommand1(selectAtomsMode):
             ##e should find existing code for doing that and make a common routine in the featureManager to do it (if not one already)
         selectAtomsMode.restore_gui(self) # this apparently worked even when it called init_gui by mistake!!
         return
+
+    def ok_btn_clicked(self):
+        print "ok_btn_clicked; nim in", self
+
+    def abort_btn_clicked(self):
+        print "abort_btn_clicked; nim in", self
     
     pass # end of class ExampleCommand1
 
 
-class ExampleCommand2(selectAtomsMode):
+class ExampleCommand2(_BUGFIXED_selectAtomsMode):
     "same but use GBC"
     modename = 'ExampleCommand2-modename'
     default_mode_status_text = "ExampleCommand2"
