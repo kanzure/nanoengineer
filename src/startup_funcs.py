@@ -19,7 +19,7 @@ import EndUser
 
 def before_most_imports( main_globals ):
     """Do things that should be done before anything that might possibly have side effects.
-    main_globals should be the value of globals() in the __main__ module (our caller, main.py).
+    main_globals should be the value of globals() in the __main__ module.
     """
 
     # user-specific debug code to be run before any other imports [bruce 040903]
