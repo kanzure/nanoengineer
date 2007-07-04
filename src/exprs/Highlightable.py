@@ -238,15 +238,20 @@ class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 07031
                 # text searches for this print statement might find it more easily if we add this text to the comment:
                 # "saved modelview_matrix is None, not using it" [bait for a text search -- the real print statement has %s in it]
             return
-        try:
-            matrix.shape != (4,4)
-        except:
-            #e print exception type? more than one type is possible in theory
-            print "not using wrong type of %s, which is %r" % (name, matrix)
-            return
-        if matrix.shape != (4,4):
-            print "not using misshappen %s, which is %r" % (name, matrix)
-            return
+        # I would like a matrix typecheck here, but the type depends on the PyOpenGL implementation
+        # so I don't know how to do it correctly in all cases. The following code is what worked
+        # in an older PyOpenGL, but the AttributeError inside it shows what happened in a newer one,
+        # i.e. in the Mac "Gold" PyOpenGL for A9.1. [bruce 070703]
+        ##try:
+        ##    matrix.shape != (4,4)
+        ##except:
+        ##    print_compact_traceback("bug in matrix.shape check: ")
+        ##        ## AttributeError: 'c_double_Array_4_Array_4' object has no attribute 'shape'
+        ##    print "not using wrong type of %s, which is %r" % (name, matrix)
+        ##    return
+        ##if matrix.shape != (4,4):
+        ##    print "not using misshappen %s, which is %r" % (name, matrix)
+        ##    return
         glLoadMatrixd(matrix) # crashes Python if matrix has wrong type or shape, it seems [guess for now]
         return
         

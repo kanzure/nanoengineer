@@ -109,7 +109,9 @@ def draw_filled_rect_frame(origin, dx, dy, thickness, color):
     "draw something that looks like a picture frame of a single filled color."
     tx = thickness * norm(dx)
     ty = thickness * norm(dy)
-    glColor3fv(color)
+    ## glColor3fv(color) ### this has an exception (wants 3 elts, gets 4) in Mac A9.1-rc1
+    # (i.e. in the Mac "Gold" PyOpenGL for A9.1), so instead, do the following: [bruce 070703]
+    glColor3fv(color[:3])
     glDisable(GL_LIGHTING)
     glBegin(GL_QUAD_STRIP)
     glVertex3fv(origin)
