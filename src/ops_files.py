@@ -1198,11 +1198,18 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 print "exiting" # leave this in until changes fully tested [bruce 070618]
                 self.cleanUpBeforeExiting()
 	    from prefs_constants import toolbar_state_prefs_key
-	    #Should the following(saving toolbar/ dockwidget positions) be done
-	    #in 'cleanupBeforeExiting? I think thats not good as it is not a 
-	    #'clean up'. Adding it below for now -- ninad 20070702
-            toolbarState = self.assy.w.saveState()
-	    env.prefs[toolbar_state_prefs_key] = str(toolbarState)
+	    #Not doing the following in 'cleanupBeforeExiting? 
+	    #as it is not a 'clean up'. Adding it below for now --ninad 20070702
+	    
+	    #Note: saveState() is QMainWindow.saveState(). It saves the 
+	    #current state of this mainwindow's toolbars and dockwidgets
+	    #The 'objectName' property is used to identify each QToolBar 
+	    #and QDockWidget. 
+	    #QByteArray QMainWindow::saveState ( int version = 0 ) const
+	    
+            toolbarState_QByteArray = self.assy.w.saveState()
+	    
+	    env.prefs[toolbar_state_prefs_key] = str(toolbarState_QByteArray)
             ce.accept()
         else:
             ce.ignore()

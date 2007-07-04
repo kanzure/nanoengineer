@@ -463,6 +463,10 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 	    self.simulationToolBar.hide()
 	
 	#Add Toolbar menu item to the View Menu. 
+	#Adding menuitems to View menu is done in Ui_ViewMenu but adding the 
+	#toolbar menu is done here as it uses 'createPopupMenu' to retrieve 
+	#toolbar information. Note: Toolbars are declared after declaring menus as
+	#some of them use menu items (action list) . 
 	toolbarMenu = self.createPopupMenu()
 	toolbarMenu.setTitle('Toolbars')
 	self.viewMenu.addMenu(toolbarMenu)
