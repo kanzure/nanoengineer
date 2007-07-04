@@ -1817,16 +1817,12 @@ def _set_test_from_dialog( ): # see also grab_text_using_dialog in another file
     title = "title"
     label = "testexpr_xxx, or any 1-line expr\n(or use @@@ to fake \\n for more lines)"
         ## not applicable i think: \n(or use execfile)
-    import __main__
-    if __main__.USING_Qt4:
-        # Qt4 version [070329; same code in Qt3 and Qt4 branches; similar code in another exprs-module file]
-        from PyQt4.Qt import QInputDialog
-        parent = None
-        text, ok = QInputDialog.getText(parent, title, label) # parent arg needed only in Qt4
-    else:
-        # Qt3 version
-        from qt import QInputDialog
-        text, ok = QInputDialog.getText(title, label)
+    
+    # Qt4 version [070329; similar code in another exprs-module file]
+    from PyQt4.Qt import QInputDialog
+    parent = None
+    text, ok = QInputDialog.getText(parent, title, label) # parent arg needed only in Qt4
+    
     if ok:
         # fyi: type(text) == <class '__main__.qt.QString'>
         command = str(text)

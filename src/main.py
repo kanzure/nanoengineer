@@ -59,14 +59,6 @@ import sys, os, time
 print
 print "starting NanoEngineer-1 in [%s]," % os.getcwd(), time.asctime()
 
-#bruce 061222: define global flags (available to other modules via import __main__) that indicate
-# whether we're in the Qt3 or Qt4 version of NE1. This works by hardcoding the flags differently
-# in the MAIN and wware_qt4_20060919 cvs branches. Here, we set them for Qt4:
-# [note, 070704: these flags will be removed soon, now that Qt3 is no longer supported.
-#  But for the moment they need to remain in main.py, when it's split into two files.]
-USING_Qt3 = False
-USING_Qt4 = True
-
 if __name__ != '__main__':
     print
     print "Warning: main.py should not be imported except as the __main__ module."

@@ -244,8 +244,8 @@ class testmode(super):
                 try:
                     tb = getattr(win, tbname)
                 except AttributeError: # someone might rename one of them
-                    import __main__
-                    if __main__.USING_Qt3: # most of them are not defined in Qt4 so don't bother printing this then [bruce 070123]
+                    ## import __main__
+                    if 0: ## __main__.USING_Qt3: # most of them are not defined in Qt4 so don't bother printing this then [bruce 070123]
                         print "testmode: fyi: toolbar missing: %s" % tbname # someone might rename one of them
                 else:
                     if tb.isVisible(): # someone might make one not visible by default
