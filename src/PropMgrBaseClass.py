@@ -1697,7 +1697,7 @@ class PropMgrCheckBox(QCheckBox, PropMgrWidgetMixin):
     
     def __init__(self, parent, label='', 
                  isChecked=False, setAsDefault=True,
-                 spanWidth=False):
+                 spanWidth=False, checkBoxText =''):
         """
         Appends a QCheckBox widget to <parent>, a property manager groupbox.
         
@@ -1713,6 +1713,8 @@ class PropMgrCheckBox(QCheckBox, PropMgrWidgetMixin):
         <spanWidth> - if True, the widget and its label will span the width
                       of its groupbox. Its label will appear directly above
                       the widget (unless the label is empty) left justified.
+	<checkBoxText> - Text for the checkbox itself. It always appears on the 
+	                 right hand side of the checkbox 
         """
         
         if 0: # Debugging code
@@ -1733,6 +1735,7 @@ class PropMgrCheckBox(QCheckBox, PropMgrWidgetMixin):
                            "/'" + label + "'")
    
         self.setCheckState(isChecked, setAsDefault)
+	self.setText(checkBoxText)
         self.addWidgetAndLabelToParent(parent, label, spanWidth)
         
     def setCheckState(self, state, setAsDefault=True):

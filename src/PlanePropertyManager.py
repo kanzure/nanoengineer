@@ -25,7 +25,9 @@ from PropMgrBaseClass import PropMgrGroupBox
 from PropMgrBaseClass import PropMgrDoubleSpinBox
 from PropMgrBaseClass import PropMgrToolButton
 from PropMgrBaseClass import PropMgrRadioButton
+from PropMgrBaseClass import PropMgrCheckBox
 from PropMgr_Constants import pmRestoreDefaultsButton
+
 
 
 class PlanePropMgr(object,PropMgrBaseClass):
@@ -81,19 +83,6 @@ class PlanePropMgr(object,PropMgrBaseClass):
         """Load widgets in groubox 1.
         """
         
-        self.heightDblSpinBox = \
-            PropMgrDoubleSpinBox(pmGroupBox, 
-                                label="Height :", 
-                                val=10.0, setAsDefault=True,
-                                min=1.0, max=200.0, 
-                                singleStep=1.0, decimals=1, 
-                                suffix=' Angstroms')
-        
-        self.connect(self.heightDblSpinBox, 
-                     SIGNAL("valueChanged(double)"), 
-                     self.change_plane_size)
-        
-        
         self.widthDblSpinBox = \
             PropMgrDoubleSpinBox(pmGroupBox,
                                 label="Width :", 
@@ -104,7 +93,46 @@ class PlanePropMgr(object,PropMgrBaseClass):
         
         self.connect(self.widthDblSpinBox, 
                      SIGNAL("valueChanged(double)"), 
-                     self.change_plane_size)
+                     self.change_plane_width)
+                
+        self.heightDblSpinBox = \
+            PropMgrDoubleSpinBox(pmGroupBox, 
+                                label="Height :", 
+                                val=10.0, setAsDefault=True,
+                                min=1.0, max=200.0, 
+                                singleStep=1.0, decimals=1, 
+                                suffix=' Angstroms')
+        
+        self.connect(self.heightDblSpinBox, 
+                     SIGNAL("valueChanged(double)"), 
+                     self.change_plane_height)
+            
+        self.aspectRatioCheckBox = PropMgrCheckBox(pmGroupBox,
+                              isChecked=False,
+                              spanWidth=False,
+                              checkBoxText = 'Maintain Aspect Ratio of:',
+                              )
+        
+        self.connect(self.aspectRatioCheckBox,
+                     SIGNAL("stateChanged(int)"),
+                     self.toggle_state_aspectRatioSpinBox)
+
+        
+        self.aspectRatioSpinBox = \
+        PropMgrDoubleSpinBox( pmGroupBox,
+                                  label         =  "",
+                                  val           =  1,
+                                  setAsDefault  =  True,
+                                  min           =  0.1,
+                                  max           =  100,
+                                  singleStep    =  1,
+                                  decimals      =  1,
+                                  suffix        =  ' : 1')   
+            
+        if self.aspectRatioCheckBox.isChecked():
+            self.aspectRatioSpinBox.setEnabled(True)
+        else:
+            self.aspectRatioSpinBox.setEnabled(False)
     
     def loadGroupBox2(self, pmGroupBox):
         '''Load widgets in groubox 2'''
@@ -187,12 +215,27 @@ class PlanePropMgr(object,PropMgrBaseClass):
         self.show()   
         self.geometry.updateCosmeticProps(previewing = True)
                 
+    def change_plane_width(self):
+        if self.aspectRatioCheckBox.isChecked():
+            self.geometry.width = self.widthDblSpinBox.value()
+            self.geometry.height = self.geometry.width/self.aspectRatioSpinBox.value()   
+            self.update_spinboxes()
+        else:
+            self.change_plane_size()
     
+    def change_plane_height(self, gl_update=True):
+        if self.aspectRatioCheckBox.isChecked():
+            self.geometry.height = self.heightDblSpinBox.value() 
+            self.geometry.width = self.geometry.height*self.aspectRatioSpinBox.value()
+            self.update_spinboxes()
+        else:
+            self.change_plane_size()
+        
     def change_plane_size(self, gl_update=True):
         """Slot method to change the Plane's width and height"""
         if not self.resized_from_glpane:
-            self.geometry.width = self.widthDblSpinBox.value()# motor length
-            self.geometry.height = self.heightDblSpinBox.value() # motor radius
+            self.geometry.width = self.widthDblSpinBox.value()
+            self.geometry.height = self.heightDblSpinBox.value() 
         if gl_update:
             self.geometry.glpane.gl_update()
     
@@ -206,4 +249,9 @@ class PlanePropMgr(object,PropMgrBaseClass):
         self.resized_from_glpane = True
         self.heightDblSpinBox.setValue(self.geometry.height)
         self.widthDblSpinBox.setValue(self.geometry.width)
+        self.geometry.glpane.gl_update()
         self.resized_from_glpane = False
+    
+    def toggle_state_aspectRatioSpinBox(self, val):
+        self.aspectRatioSpinBox.setEnabled(val)
+        
