@@ -14,15 +14,26 @@
       Initialize.endInitialization(__name__)
 
   This will prevent the initialization code from being run more than
-  once.  Circular dependancies among initialization functions are also
+  once.  Circular dependencies among initialization functions are also
   detected.  To break such loops, you can try dividing a single
-  initialization function in to early and late parts.  If you do this,
+  initialization function into early and late parts.  If you do this,
   pass the same identifing string as the 'extra' argument to each of
-  startInitialization and endInitialization.
+  startInitialization and endInitialization. [QUESTION: do you mean
+  the same string in a single initialize function, but different
+  strings in each initialize function, or the same string in both
+  initialize functions? Guess: the former. [bruce 070702]]
 
   If you wish your initialization code to be rerun, you can call
   forgetInitialization, which will cause startInitialization with the
   same arguments to return False on its next call.
+
+  Note that nothing in this module calls initialization functions in
+  the first place, or helps determine when to call them. You must add
+  at least one call to each one to an appropriate place in the code,
+  and you are on your own to make sure it is called before its side
+  effects were first needed, but not too early to work or be legal.
+  (One way is to call it before every attempt to rely on its side
+  effects, but this might be inefficient.)
   
   @author: Eric Messick
   @version: $Id$
