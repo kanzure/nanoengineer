@@ -21,6 +21,16 @@ bruce 060104 needed this for Minimize realtime's abort button.
 """
 __author__ = 'bruce'
 
+### WARNING: This module is not yet used
+# (except in some partly finished, commented out code in other files).
+# And it's probably unfinished.
+# So I will cvs remove it (and the commented out code that calls it) after this commit.
+# But it was a good idea, and something like it is needed someday.
+# It went unfinished only because we ran out of time before a release (circa 060106).
+# [bruce 070703]
+
+
+
 ###e WRONG NAMES of classes and methods, will be changed
 
 
