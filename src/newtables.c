@@ -222,6 +222,7 @@ addInitialBendData(double kb, double theta0, int quality, char *bendName)
   bend = newBendData(bendName, kb*1e6, theta0, quality);
   old = hashtable_put(bendDataHashtable, bendName, bend);
   if (old != NULL) {
+    fprintf(stderr, "duplicate bend entry: %s\n", bendName);
     free(old->bendName);
     free(old);
   }
@@ -684,34 +685,34 @@ initializeStaticBondTable(void)
   setElement(54,  0, 5, "Xe", "Xenon",     134.429,  1.9,  -1.00, 0,   0, 0);
 
 
-  setElement(200, 0, 0, "Ax", "DNA-Pseudo-Axis",           167.0,  0.0,   0.0,  4,  100,  0);
-  setElement(201, 0, 0, "Ss", "DNA-Pseudo-Sugar",          167.0,  0.0,   0.0,  3,  170,  0);
-  setElement(202, 0, 0, "Pl", "DNA-Pseudo-Phosphate",      167.0,  3.6,  10.0,  2,  170, -1);
-  setElement(203, 0, 0, "Sj", "DNA-Pseudo-Sugar-Junction", 167.0,  0.0,  10.0,  3,  170,  0);
-  setElement(204, 0, 0, "Ae", "DNA-Pseudo-Axis-End",       167.0,  0.0,   0.0,  1,  100,  0);
-  setElement(205, 0, 0, "Pe", "DNA-Pseudo-Phosphate-End",  167.0,  3.6,  10.0,  1,  170, -2);
-  setElement(206, 0, 0, "Sh", "DNA-Pseudo-Sugar-End",      167.0,  0.0,   0.0,  1,  170,  0);
-  setElement(207, 0, 0, "Hp", "DNA-Pseudo-Hairpin",        167.0,  0.0,   0.0,  2,  100,  0);
+  setElement(200, 0, 0, "Ax", "DNA-Pseudo-Axis",           167.0,  0.0,   0.0,  4,  100,  0); // 700
+  setElement(201, 0, 0, "Ss", "DNA-Pseudo-Sugar",          167.0,  0.0,   0.0,  3,  170,  0); // 800
+  setElement(202, 0, 0, "Pl", "DNA-Pseudo-Phosphate",      167.0,  3.6,   0.3,  2,  170, -1); // 900
+  setElement(203, 0, 0, "Sj", "DNA-Pseudo-Sugar-Junction", 167.0,  0.0,   0.0,  3,  170,  0); // 810
+  setElement(204, 0, 0, "Ae", "DNA-Pseudo-Axis-End",       167.0,  0.0,   0.0,  1,  100,  0); // 701
+  setElement(205, 0, 0, "Pe", "DNA-Pseudo-Phosphate-End",  167.0,  3.6,   0.3,  1,  170, -2); // 901
+  setElement(206, 0, 0, "Sh", "DNA-Pseudo-Sugar-End",      167.0,  0.0,   0.0,  1,  170,  0); // 902
+  setElement(207, 0, 0, "Hp", "DNA-Pseudo-Hairpin",        167.0,  0.0,   0.0,  2,  100,  0); // 820
 
 #include "bonds.gen"
 
   //                      ks     r0      de    beta    inflectionR qual quad bondName
 
-  addInitialBondStretch( 4.00, 318.00, 1.0000,  -1,        -1,      9,   1,  "Ax-1-Ax");
-  addInitialBondStretch(50.00, 676.00, 1.0000,  -1,        -1,      9,   1,  "Ax-1-Ss");
-  addInitialBondStretch(50.00, 676.00, 1.0000,  -1,        -1,      9,   1,  "Ax-1-Sj");
-  addInitialBondStretch( 4.00, 364.00, 1.0000,  -1,        -1,      9,   1,  "Ss-1-Pl");
-  addInitialBondStretch( 4.00, 400.00, 1.0000,  -1,        -1,      9,   1,  "Pl-1-Sj");
-  addInitialBondStretch( 4.00, 180.00, 1.0000,  -1,        -1,      9,   1,  "H-1-Ax");
-  addInitialBondStretch( 4.00, 200.00, 1.0000,  -1,        -1,      9,   1,  "H-1-Ss");
-  addInitialBondStretch( 4.00, 200.00, 1.0000,  -1,        -1,      9,   1,  "H-1-Pl");
-  addInitialBondStretch( 4.00, 180.00, 1.0000,  -1,        -1,      9,   1,  "Ax-1-Ae");
-  addInitialBondStretch( 4.00, 200.00, 1.0000,  -1,        -1,      9,   1,  "Ss-1-Sh");
-  addInitialBondStretch( 4.00, 364.00, 1.0000,  -1,        -1,      9,   1,  "Ss-1-Pe");
-  addInitialBondStretch( 4.00, 357.00, 1.0000,  -1,        -1,      9,   1,  "Pl-1-Hp");
-  addInitialBondStretch( 4.00, 357.00, 1.0000,  -1,        -1,      9,   1,  "Pe-1-Hp");
-  addInitialBondStretch( 4.00, 200.00, 1.0000,  -1,        -1,      9,   1,  "Sh-1-Hp");
-  addInitialBondStretch( 4.00, 200.00, 1.0000,  -1,        -1,      9,   1,  "H-1-Hp");
+  addInitialBondStretch( 4.00, 318.00, 1.0000,  -1,        -1,      9,   1,  "Ax-1-Ax"); // 700-700
+  addInitialBondStretch(50.00, 676.00, 1.0000,  -1,        -1,      9,   1,  "Ax-1-Ss"); // 700-800
+  addInitialBondStretch(50.00, 676.00, 1.0000,  -1,        -1,      9,   1,  "Ax-1-Sj"); // 700-810
+  addInitialBondStretch( 4.00, 364.00, 1.0000,  -1,        -1,      9,   1,  "Ss-1-Pl"); // 800-900
+  addInitialBondStretch( 4.00, 400.00, 1.0000,  -1,        -1,      9,   1,  "Pl-1-Sj"); // 900-810
+  addInitialBondStretch( 4.00, 180.00, 1.0000,  -1,        -1,      9,   1,  "H-1-Ax");  // 701-700
+  addInitialBondStretch( 4.00, 364.00, 1.0000,  -1,        -1,      9,   1,  "H-1-Ss");  // 901-800
+  addInitialBondStretch( 4.00, 200.00, 1.0000,  -1,        -1,      9,   1,  "H-1-Pl");  // 902-900
+  addInitialBondStretch( 4.00, 180.00, 1.0000,  -1,        -1,      9,   1,  "Ax-1-Ae"); // 700-701
+  addInitialBondStretch( 4.00, 200.00, 1.0000,  -1,        -1,      9,   1,  "Ss-1-Sh"); // 800-902
+  addInitialBondStretch( 4.00, 364.00, 1.0000,  -1,        -1,      9,   1,  "Ss-1-Pe"); // 800-901
+  addInitialBondStretch( 4.00, 357.00, 1.0000,  -1,        -1,      9,   1,  "Pl-1-Hp"); // 900-820
+  addInitialBondStretch( 4.00, 357.00, 1.0000,  -1,        -1,      9,   1,  "Pe-1-Hp"); // 901-820
+  addInitialBondStretch( 4.00, 200.00, 1.0000,  -1,        -1,      9,   1,  "Sh-1-Hp"); // 902-820
+  addInitialBondStretch( 4.00, 200.00, 1.0000,  -1,        -1,      9,   1,  "H-1-Hp");  // 902-820
 
   
   addDeTableEntry("H-1-N",  0.75);
@@ -729,71 +730,68 @@ initializeStaticBondTable(void)
   //                ktheta         theta0        qual  bondName
 
   // 180 degree along Axis
-  addInitialBendData(0.18,         3.14159265359,  9,  "Ax-1-Ax.sp3-1-Ax");
-  addInitialBendData(0.18,         3.14159265359,  9,  "H-1-Ax.sp3-1-Ax");
-  addInitialBendData(0.18,         3.14159265359,  9,  "H-1-Ax.sp3-1-Ae");
-  addInitialBendData(0.18,         3.14159265359,  9,  "Ax-1-Ax.sp3-1-Ae");
-  addInitialBendData(0.18,         3.14159265359,  9,  "Ae-1-Ax.sp3-1-Ae");
+  addInitialBendData(0.18,         3.14159265359,  9,  "Ax-1-Ax.sp3-1-Ax");   // 700-700-700
+  addInitialBendData(0.18,         3.14159265359,  9,  "Ax-1-Ax.sp3-1-Ae");   // 700-700-701
+  addInitialBendData(0.18,         3.14159265359,  9,  "Ae-1-Ax.sp3-1-Ae");   // 701-700-701
 
   // 90 degree Axis to Sugar
-  addInitialBendData(1.0,          1.57079632679,  9,  "Ax-1-Ax.sp3-1-Ss");
-  addInitialBendData(1.0,          1.57079632679,  9,  "Ax-1-Ax.sp3-1-Sj");
-  addInitialBendData(1.0,          1.57079632679,  9,  "H-1-Ax.sp3-1-Ss");
-  addInitialBendData(1.0,          1.57079632679,  9,  "Ss-1-Ax.sp3-1-Ae");
-  addInitialBendData(1.0,          1.57079632679,  9,  "H-1-Ax.sp3-1-Ax");
-  addInitialBendData(1.0,          1.57079632679,  9,  "H-1-Ax.sp3-1-Ae");
-  addInitialBendData(1.0,          1.57079632679,  9,  "H-1-Ax.sp3-1-H");
+  addInitialBendData(1.0,          1.57079632679,  9,  "Ax-1-Ax.sp3-1-Ss");   // 700-700-800
+  addInitialBendData(1.0,          1.57079632679,  9,  "Ax-1-Ax.sp3-1-Sj");   // 700-700-810
+  addInitialBendData(1.0,          1.57079632679,  9,  "Ss-1-Ax.sp3-1-Ae");   // 800-700-701
+  addInitialBendData(1.0,          1.57079632679,  9,  "H-1-Ax.sp3-1-Ax");    // 800-700-700
+  addInitialBendData(1.0,          1.57079632679,  9,  "H-1-Ax.sp3-1-Ae");    // 800-700-701
+  addInitialBendData(1.0,          1.57079632679,  9,  "H-1-Ax.sp3-1-H");     // ?
 
   // 133 degree minor groove
-  addInitialBendData(1.0,          2.3212879025,   9,  "Ss-1-Ax.sp3-1-Ss");
-  addInitialBendData(1.0,          2.3212879025,   9,  "Ss-1-Ax.sp3-1-Sj");
-  addInitialBendData(1.0,          2.3212879025,   9,  "Sj-1-Ax.sp3-1-Sj");
-  addInitialBendData(1.0,          2.3212879025,   9,  "H-1-Ax.sp3-1-Ss");
-  addInitialBendData(1.0,          2.3212879025,   9,  "H-1-Ax.sp3-1-Sj");
+  addInitialBendData(1.0,          2.3212879025,   9,  "Ss-1-Ax.sp3-1-Ss");   // 800-700-800
+  addInitialBendData(1.0,          2.3212879025,   9,  "Ss-1-Ax.sp3-1-Sj");   // 800-700-810
+  addInitialBendData(1.0,          2.3212879025,   9,  "Sj-1-Ax.sp3-1-Sj");   // 810-700-810
+  addInitialBendData(1.0,          2.3212879025,   9,  "H-1-Ax.sp3-1-Ss");    // 800-700-800
+  addInitialBendData(1.0,          2.3212879025,   9,  "H-1-Ax.sp3-1-Sj");    // 800-700-800
 
   // 121 degree Axis Sugar Phosphate
-  addInitialBendData(0.04,         2.1118483925,   9,  "Ax-1-Ss.sp3-1-Pl");
-  addInitialBendData(0.04,         2.1118483925,   9,  "Ax-1-Ss.sp3-1-Pe");
-  addInitialBendData(0.04,         2.1118483925,   9,  "Ax-1-Ss.sp3-1-Sh");
-  addInitialBendData(0.04,         2.1118483925,   9,  "H-1-Ss.sp3-1-Ax");
+  addInitialBendData(0.04,         2.1118483925,   9,  "Ax-1-Ss.sp3-1-Pl");   // 700-800-900
+  addInitialBendData(0.04,         2.1118483925,   9,  "Ax-1-Ss.sp3-1-Pe");   // 700-800-901
+  addInitialBendData(0.04,         2.1118483925,   9,  "Ax-1-Ss.sp3-1-Sh");   // 700-800-902
+  addInitialBendData(0.04,         2.1118483925,   9,  "H-1-Ss.sp3-1-Ax");    // 900-800-700
 
   // 127 degree Phosphate Sugar Phosphate
-  addInitialBendData(0.04,         2.2165681475,   9,  "Pl-1-Ss.sp3-1-Pl");
-  addInitialBendData(0.04,         2.2165681475,   9,  "Pl-1-Ss.sp3-1-Pe");
-  addInitialBendData(0.04,         2.2165681475,   9,  "Pl-1-Ss.sp3-1-Sh");
-  addInitialBendData(0.04,         2.2165681475,   9,  "Pe-1-Ss.sp3-1-Pe");
-  addInitialBendData(0.04,         2.2165681475,   9,  "Pe-1-Ss.sp3-1-Sh");
-  addInitialBendData(0.04,         2.2165681475,   9,  "Sh-1-Ss.sp3-1-Sh");
-  addInitialBendData(0.04,         2.2165681475,   9,  "H-1-Ss.sp3-1-Pl");
-  addInitialBendData(0.04,         2.2165681475,   9,  "H-1-Ss.sp3-1-Pe");
-  addInitialBendData(0.04,         2.2165681475,   9,  "H-1-Ss.sp3-1-Sh");
-  addInitialBendData(0.04,         2.2165681475,   9,  "H-1-Ss.sp3-1-H");
+  addInitialBendData(0.04,         2.2165681475,   9,  "Pl-1-Ss.sp3-1-Pl");   // 900-800-900
+  addInitialBendData(0.04,         2.2165681475,   9,  "Pl-1-Ss.sp3-1-Pe");   // 900-800-901
+  addInitialBendData(0.04,         2.2165681475,   9,  "Pl-1-Ss.sp3-1-Sh");   // 900-800-902
+  addInitialBendData(0.04,         2.2165681475,   9,  "Pe-1-Ss.sp3-1-Pe");   // 901-800-901
+  addInitialBendData(0.04,         2.2165681475,   9,  "Pe-1-Ss.sp3-1-Sh");   // 901-800-902
+  addInitialBendData(0.04,         2.2165681475,   9,  "Sh-1-Ss.sp3-1-Sh");   // 902-800-902
+  addInitialBendData(0.04,         2.2165681475,   9,  "H-1-Ss.sp3-1-Pl");    // 900-800-900
+  addInitialBendData(0.04,         2.2165681475,   9,  "H-1-Ss.sp3-1-Pe");    // 900-800-901
+  addInitialBendData(0.04,         2.2165681475,   9,  "H-1-Ss.sp3-1-Sh");    // 900-800-902
+  addInitialBendData(0.04,         2.2165681475,   9,  "H-1-Ss.sp3-1-H");     // 900-800-900
 
   // 127 degree Phosphate Hairpin Phosphate
-  addInitialBendData(0.04,         2.2165681475,   9,  "Pl-1-Hp.sp3-1-Pl");
-  addInitialBendData(0.04,         2.2165681475,   9,  "Pl-1-Hp.sp3-1-Pe");
-  addInitialBendData(0.04,         2.2165681475,   9,  "Pl-1-Hp.sp3-1-Sh");
-  addInitialBendData(0.04,         2.2165681475,   9,  "Pe-1-Hp.sp3-1-Pe");
-  addInitialBendData(0.04,         2.2165681475,   9,  "Pe-1-Hp.sp3-1-Sh");
-  addInitialBendData(0.04,         2.2165681475,   9,  "Sh-1-Hp.sp3-1-Sh");
-  addInitialBendData(0.04,         2.2165681475,   9,  "H-1-Hp.sp3-1-Pl");
-  addInitialBendData(0.04,         2.2165681475,   9,  "H-1-Hp.sp3-1-Pe");
-  addInitialBendData(0.04,         2.2165681475,   9,  "H-1-Hp.sp3-1-Sh");
-  addInitialBendData(0.04,         2.2165681475,   9,  "H-1-Hp.sp3-1-H");
+  addInitialBendData(0.04,         2.2165681475,   9,  "Pl-1-Hp.sp3-1-Pl");   // 900-820-900
+  addInitialBendData(0.04,         2.2165681475,   9,  "Pl-1-Hp.sp3-1-Pe");   // 900-820-901
+  addInitialBendData(0.04,         2.2165681475,   9,  "Pl-1-Hp.sp3-1-Sh");   // 900-820-902
+  addInitialBendData(0.04,         2.2165681475,   9,  "Pe-1-Hp.sp3-1-Pe");   // 901-820-901
+  addInitialBendData(0.04,         2.2165681475,   9,  "Pe-1-Hp.sp3-1-Sh");   // 901-820-902
+  addInitialBendData(0.04,         2.2165681475,   9,  "Sh-1-Hp.sp3-1-Sh");   // 902-820-902
+  addInitialBendData(0.04,         2.2165681475,   9,  "H-1-Hp.sp3-1-Pl");    // 900-820-900
+  addInitialBendData(0.04,         2.2165681475,   9,  "H-1-Hp.sp3-1-Pe");    // 900-820-901
+  addInitialBendData(0.04,         2.2165681475,   9,  "H-1-Hp.sp3-1-Sh");    // 900-820-902
+  addInitialBendData(0.04,         2.2165681475,   9,  "H-1-Hp.sp3-1-H");     // 900-820-900
 
   // 115 degree Axis JunctionSugar Phosphate
-  addInitialBendData(0.04,         2.0071286375,   9,  "Ax-1-Sj.sp3-1-Pl");
-  addInitialBendData(0.04,         2.0071286375,   9,  "Ax-1-Sj.sp3-1-Pe");
-  addInitialBendData(0.04,         2.0071286375,   9,  "Ax-1-Sj.sp3-1-Sh");
-  addInitialBendData(0.04,         2.0071286375,   9,  "H-1-Sj.sp3-1-Ax");
+  addInitialBendData(0.04,         2.0071286375,   9,  "Ax-1-Sj.sp3-1-Pl");   // 700-810-900
+  addInitialBendData(0.04,         2.0071286375,   9,  "Ax-1-Sj.sp3-1-Pe");   // 700-810-901
+  addInitialBendData(0.04,         2.0071286375,   9,  "Ax-1-Sj.sp3-1-Sh");   // 700-810-902
+  addInitialBendData(0.04,         2.0071286375,   9,  "H-1-Sj.sp3-1-Ax");    // 900-810-700
 
   // 110 degree Phosphate JunctionSugar Phosphate
-  addInitialBendData(0.04,         1.919862175,    9,  "Pl-1-Sj.sp3-1-Pl");
-  addInitialBendData(0.04,         1.919862175,    9,  "Pl-1-Sj.sp3-1-Pe");
-  addInitialBendData(0.04,         1.919862175,    9,  "H-1-Sj.sp3-1-Pl");
-  addInitialBendData(0.04,         1.919862175,    9,  "H-1-Sj.sp3-1-H");
-  addInitialBendData(0.04,         1.919862175,    9,  "H-1-Sj.sp3-1-Pe");
-  addInitialBendData(0.04,         1.919862175,    9,  "Pe-1-Sj.sp3-1-Pe");
+  addInitialBendData(0.04,         1.919862175,    9,  "Pl-1-Sj.sp3-1-Pl");   // 900-810-900
+  addInitialBendData(0.04,         1.919862175,    9,  "Pl-1-Sj.sp3-1-Pe");   // 900-810-901
+  addInitialBendData(0.04,         1.919862175,    9,  "H-1-Sj.sp3-1-Pl");    // 900-810-900
+  addInitialBendData(0.04,         1.919862175,    9,  "H-1-Sj.sp3-1-H");     // 900-810-900
+  addInitialBendData(0.04,         1.919862175,    9,  "H-1-Sj.sp3-1-Pe");    // 900-810-901
+  addInitialBendData(0.04,         1.919862175,    9,  "Pe-1-Sj.sp3-1-Pe");   // 901-810-901
 
   // 127 degree Phosphate JunctionSugar end
   addInitialBendData(0.04,         2.2165681475,   9,  "Pl-1-Sj.sp3-1-Sh");
@@ -824,9 +822,9 @@ initializeStaticBondTable(void)
 
   //                        name       rvdW evdW  start  end
 
-  addVanDerWaalsInteraction("Pl-v-Pl", 7.2, 10.0, 100.0, 7.2);
-  addVanDerWaalsInteraction("Pl-v-Pe", 7.2, 10.0, 100.0, 7.2);
-  addVanDerWaalsInteraction("Pe-v-Pe", 7.2, 10.0, 100.0, 7.2);
+  addVanDerWaalsInteraction("Pl-v-Pl", 7.2, 0.3, 100.0, 7.2);
+  addVanDerWaalsInteraction("Pl-v-Pe", 7.2, 0.3, 100.0, 7.2);
+  addVanDerWaalsInteraction("Pe-v-Pe", 7.2, 0.3, 100.0, 7.2);
 }
 
 static const char bends_rcsid[] = RCSID_BENDS_H;
