@@ -50,11 +50,11 @@ DEBUG_SEQUENCE  =  False
 
 class Dna:
 
-    basesDict  =  { 'N':{'Name':'undefined', 'Complement':'N'},
-                    'A':{'Name':'Adenine',   'Complement':'T'},
+    basesDict  =  { 'A':{'Name':'Adenine',   'Complement':'T'},
                     'C':{'Name':'Cytosine',  'Complement':'G'},
                     'G':{'Name':'Guanine',   'Complement':'C'},
-                    'T':{'Name':'Thymine',   'Complement':'A'} }
+                    'T':{'Name':'Thymine',   'Complement':'A'},
+                    'N':{'Name':'undefined', 'Complement':'N'} }
 
     def getBaseSpacing( self ):
         return float( self.BASE_SPACING )
