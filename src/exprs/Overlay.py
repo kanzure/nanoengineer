@@ -52,7 +52,7 @@ class Overlay(InstanceOrExpr, DelegatingMixin):
     def draw(self):
         if self.env.glpane.current_glDepthFunc == GL_LESS: #070117; note: assumes displists are compiled & used in the same state!
             args = self.args[::-1]
-            printfyi("Overlay in reverse order (should not normally happen after 070117")
+            printfyi("Overlay in reverse order (need to override standard_glDepthFunc in your new mode??)")
         else: # GL_LEQUAL
             args = self.args
         for a in args:
