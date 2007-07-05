@@ -43,22 +43,24 @@ Jeff 2007-06-13
 
 __author__ = "Will"
 
+import env
 import os
 import random
 
 from PyQt4.Qt import QDialog
 
-import env
 from DnaGeneratorDialog import DnaPropertyManager
 from GeneratorBaseClass import GeneratorBaseClass, PluginBug, UserError
-from Utility import Group
-from HistoryWidget import redmsg, orangemsg, greenmsg
-from VQT import A, V, vlen
-from Numeric import dot
-from bonds import inferBonds, bond_atoms
-from files_mmp import _readmmp
-from fusechunksMode import fusechunksBase
-from platform import find_plugin_dir
+from Utility            import Group
+from HistoryWidget      import redmsg, orangemsg, greenmsg
+from VQT                import A, V, vlen
+from Numeric            import dot
+from bonds              import inferBonds, bond_atoms
+from chunk              import molecule
+from constants          import gensym    
+from files_mmp          import _readmmp
+from fusechunksMode     import fusechunksBase
+from platform           import find_plugin_dir
 
 from Dna import Dna
 from Dna import A_Dna, A_Dna_BasePseudoAtoms
@@ -147,6 +149,40 @@ class DnaGenerator(QDialog, DnaPropertyManager, GeneratorBaseClass):
             raise PluginBug("Z-DNA not implemented for 'Reduced model' representation.  Use B-DNA.")
         return (seq, dnatype, double, basesPerTurn, representation, chunkOption)
     
+    def checkParameters( self, inParams ):
+        """Verify that the strand sequence 
+        contains no unknown/invalid bases."""
+        theSequence, isValid  =  self._get_sequence()
+        
+        return isValid
+    
+    def correctParameters( self, inParams):
+        """Alert the user that the entered sequence is invalid. Give them
+        some options for how to correct the sequence."""
+        theDialog  =  Ui_InvalidSequenceDialog()
+        theDialog.setupUi()
+        #ret = QMessageBox.warning ( QWidget * parent,
+                                     #const QString & title,
+                                     #const QString & text,
+                                     #StandardButtons buttons = Ok,
+                                     #StandardButton defaultButton = NoButton )
+        #ret = QMessageBox.warning( None, "Invalid Sequence",
+            #"Please confirm you want to cancel the current opertion.\n",
+            #"Confirm",
+            #"Cancel",
+            #"",
+            #1,  # The "default" button, when user presses Enter or Return (1
+#= Cancel)
+            #1)  # Escape (1= Cancel)
+
+        #if ret==0: # Confirmed
+            #print "CONFIRMED"
+            #return True
+        #else:
+            #"CANCELLED"
+            #return False
+        return inParams
+    
     def build_struct(self, name, params, position):
         # No error checking in build_struct, do all your error
         # checking in gather_parameters
@@ -212,8 +248,11 @@ class DnaGenerator(QDialog, DnaPropertyManager, GeneratorBaseClass):
             grp.kill()
             raise
 
-    def _get_sequence(self, reverse = False, complement = False, resolve_random = False,
-                     cdict = {'C':'G', 'G':'C', 'A':'T', 'T':'A', 'N':'N'}):
+    def _get_sequence( self, 
+                       reverse = False, 
+                       complement = False, 
+                       resolve_random = False, 
+                       cdict = {} ):
         """Return a tuple (seq, allKnown) 
         where seq is a string in which each letter describes one base of the 
         sequence currently described by the UI, as modified by the passed 
@@ -229,47 +268,53 @@ class DnaGenerator(QDialog, DnaPropertyManager, GeneratorBaseClass):
         (Ideally it would preserve whitespace and capitalization when used 
         that way, but it doesn't.)
         """
+        cdict  =  Dna.basesDict
         seq = ''
         allKnown = True
         # The current base sequence (or number of bases) in the PropMgr. Mark [070405]
         # (Note: I think this code implies that it can no longer be a number of bases. [bruce 070518 comment])
-        pm_seq = str(self.strandSeqTextEdit.toPlainText()).upper()
+        pm_seq = str(self.getPlainSequence(inOmitSymbols = False)) # :jbirac: 20070629
         #print "pm_seq =", pm_seq
         #match = numberPattern.match(pm_seq)
         #if (match):
         #    return(match.group(1), False)
         for ch in pm_seq:
-            if ch in 'CGATN':
+            if ch in cdict.keys():  #'CGATN':
+                properties = cdict[ch]
                 if ch == 'N': ###e soon: or any other letter indicating a random base
                     if resolve_random: #bruce 070518 new feature
                         i = len(seq)
                         data = self._random_data_for_index(i) # a random int in range(12), in a lazily extended cache
-                        ch = 'ACTG'[data%4]
+                        ch = list(cdict)[data%4]  # modulus must agree with number of valid entries in cdict.
                     else:
                         allKnown = False
                 if complement:
-                    ch = cdict[ch]
-                seq += ch
-            elif ch in '\ \t\r\n':
+                    try:
+                        ch = properties['Complement']
+                    except (KeyError):
+                        ch = 'N'
+                        raise KeyError("DNA dictionary entry must include a 'Complement' key.")
+            elif ch in self.validSymbols: #'\ \t\r\n':
                 pass
             else:
-                raise UserError('Bogus DNA base: ' + ch + ' (should be C, G, A, T, or N)')
-        
+                raise UserError('Bogus DNA base: ' + ch + ' (should be ' + str(cdict.keys()) + ')')
+                allKnown  =  False
+
+            seq += ch
+
         # Marked for removal. Mark 2007-06-01
         #@assert len(seq) > 0, 'Please enter a valid sequence'
-            
+
         if reverse:
             seq = list(seq)
             seq.reverse()
             seq = ''.join(seq)
         return (seq, allKnown)
-    
+
     def _makeSingleChunkDna(self, grp, seq, representation, 
                             bool_doubleStrand):
         """Combine both strands into a single chunk.
         """
-        
-        from chunk import molecule
         
         self._makeSingleChunkStrands(grp,seq,representation, bool_doubleStrand)
         
@@ -436,8 +481,6 @@ class DnaGenerator(QDialog, DnaPropertyManager, GeneratorBaseClass):
             print "bug in creating chunks from the given atom list"
             return
         
-        from chunk import molecule
-        from constants import gensym    
         numol = molecule(self.win.assy, gensym("Chunk"))
         for a in atmList:            
             # leave the moved atoms picked, so still visible
