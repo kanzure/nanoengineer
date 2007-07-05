@@ -15,11 +15,7 @@ corner.
 
 Those method implems assume that mode subclasses override want_confirmation_corner_type
 to return the kind of confirmation corner they want at a given moment.
-
-
 """
-
-#### UNFINISHED
 
 __author__ = "bruce"
 
