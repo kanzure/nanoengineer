@@ -99,9 +99,9 @@ class ExampleCommand1(_BUGFIXED_selectAtomsMode):
 
     pass # end of class ExampleCommand1
 
-
 class ExampleCommand2(_BUGFIXED_selectAtomsMode):
     "same but use GBC"
+
     modename = 'ExampleCommand2-modename'
     default_mode_status_text = "ExampleCommand2"
 
@@ -122,6 +122,62 @@ class ExampleCommand2(_BUGFIXED_selectAtomsMode):
         return
     
     pass # end of class ExampleCommand2
+
+# ==
+
+# these imports are not needed in a minimal example like ExampleCommand2
+from OpenGL.GL import GL_LEQUAL
+from drawer import drawline
+from constants import red, green
+from VQT import V
+##from exprs.basic import PIXELS
+##from exprs.images import Image
+##from exprs.Overlay import Overlay
+from exprs.instance_helpers import get_glpane_InstanceHolder
+from exprs.Rect import Rect # needed for Image size option and/or for testing
+from exprs.Boxed import Boxed, DraggablyBoxed
+
+class ExampleCommand2E(ExampleCommand2, object):
+    "add things not needed in a minimal example, to try them out (uses same PM as ExampleCommand2)"
+    # Note: object superclass is only needed to permit super(ExampleCommand2E, self) to work.
+    # object superclass should not come first, or it overrides __new__
+    # (maybe could fix using def __init__ -- not tried, since object coming last works ok)
+
+    modename = 'ExampleCommand2E-modename'
+    default_mode_status_text = "ExampleCommand2E"
+
+    standard_glDepthFunc = GL_LEQUAL # overrides default value of GL_LESS from GLPane
+        # note: this is to prevent this warning:
+        ## fyi (printonce): Overlay in reverse order (need to override standard_glDepthFunc in your new mode??)
+        # but we should probably make it the default for all modes soon.
+
+    def __init__(self, glpane):
+        "create an expr instance, to draw in addition to the model"
+        super(ExampleCommand2E, self).__init__(glpane)
+        expr1 = Rect(4,1,green)
+        expr2 = DraggablyBoxed(expr1, resizable = True)
+
+        # note: this code is similar to expr_instance_for_imagename in confirmation_corner.py
+        ih = get_glpane_InstanceHolder(glpane)
+        expr = expr2
+        index = (id(self),) # WARNING: needs to be unique, we're sharing this InstanceHolder with everything else in NE1
+        self._expr_instance = ih.Instance( expr, index, skip_expr_compare = True)
+
+        return
+        
+    def Draw(self):
+        "do some custom drawing (in the model's abs coordsys) after drawing the model"
+        #print "start ExampleCommand2E Draw"
+        glpane = self.o
+        super(ExampleCommand2E, self).Draw()
+        from drawer import drawline
+        from constants import red
+        from VQT import V
+        drawline(red, V(1,0,1), V(1,1,1), width = 2)
+        self._expr_instance.draw()
+        #print "end ExampleCommand2E Draw"
+    
+    pass # end of class ExampleCommand2E
 
 # ==
 
@@ -354,7 +410,7 @@ def enter_example_command_doit(glpane, example_command_classname):
     start_cmdrun(cmdrun)
     return
 
-for classname in ["ExampleCommand1", "ExampleCommand2"]:
+for classname in ["ExampleCommand1", "ExampleCommand2", "ExampleCommand2E"]:
     cmdname = classname # for now
     register_debug_menu_command( cmdname, (lambda widget, classname = classname: enter_example_command(widget, classname)) )
 
