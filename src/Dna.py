@@ -21,19 +21,19 @@ Z_Dna abd Z_Dna_BasePseudoAtoms from Will Ware's DNAGenerator.py.
 
 import os, re
 
-from math           import atan2, sin, cos, pi
-from Numeric        import dot
+from math               import atan2, sin, cos, pi
+from Numeric            import dot
 
 import env
-from platform       import find_plugin_dir
-from files_mmp      import _readmmp
-from VQT            import A, V, vlen
-from chem           import Atom
-from bonds          import inferBonds, bond_atoms
-from fusechunksMode import fusechunksBase
-from HistoryWidget import orangemsg
+from platform           import find_plugin_dir
+from files_mmp          import _readmmp
+from VQT                import A, V, vlen
+from chem               import Atom
+from bonds              import inferBonds, bond_atoms
+from fusechunksMode     import fusechunksBase
+from HistoryWidget      import orangemsg
 from GeneratorBaseClass import PluginBug
-from Utility import Group
+from Utility            import Group
 
 atompat = re.compile("atom (\d+) \((\d+)\) \((-?\d+), (-?\d+), (-?\d+)\)")
 numberPattern = re.compile(r"^\s*(\d+)\s*$")
@@ -49,6 +49,12 @@ DEBUG = False
 DEBUG_SEQUENCE  =  False
 
 class Dna:
+
+    basesDict  =  { 'N':{'Name':'undefined', 'Complement':'N'},
+                    'A':{'Name':'Adenine',   'Complement':'T'},
+                    'C':{'Name':'Cytosine',  'Complement':'G'},
+                    'G':{'Name':'Guanine',   'Complement':'C'},
+                    'T':{'Name':'Thymine',   'Complement':'A'} }
 
     def getBaseSpacing( self ):
         return float( self.BASE_SPACING )
