@@ -97,6 +97,24 @@ def selobj_for_glname(glname):#e use above? nah, it also has to store into here
 
 # ==
 
+def copy_pyopengl_matrix( matrix): #bruce 070704
+    try:
+        # this works when it's a Numeric array (as it is in some Mac PyOpenGLs)
+        return + matrix  #k let's hope this is a deep copy!
+    except TypeError:
+        # this happens when it's a 'c_double_Array_4_Array_4' object (some sort of ctypes array, I assume)
+        # which is what Mac Gold PyOpenGL returns for matrices. My initial web research reveals clues
+        # about copying this into a Numeric array, but not yet a good method, nor a way to copy it into
+        # another object of the same type, which is what's needed here.
+##        print "following exception was in copy_pyopengl_matrix( %r):" % (matrix,)
+##        raise
+        #
+        # Hmm, something on the web says "Since the ctype does support slicing", so I'll try that:
+        return matrix[:] # works! (### REVIEW: Would it work for a Numeric array too? If so, should just use it always.)
+    pass
+
+# ==
+
 debug_saved_coords = False #070317
 
 class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 070317
@@ -239,6 +257,7 @@ class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 07031
                 # "saved modelview_matrix is None, not using it" [bait for a text search -- the real print statement has %s in it]
             return
         # I would like a matrix typecheck here, but the type depends on the PyOpenGL implementation
+        # (for more info see the comments in the new function copy_pyopengl_matrix),
         # so I don't know how to do it correctly in all cases. The following code is what worked
         # in an older PyOpenGL, but the AttributeError inside it shows what happened in a newer one,
         # i.e. in the Mac "Gold" PyOpenGL for A9.1. [bruce 070703]
@@ -447,9 +466,9 @@ class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 07031
         projection_matrix = other.per_frame_state.saved_projection_matrix
         modelview_matrix = other.per_frame_state.saved_modelview_matrix
         if projection_matrix is not None:
-            projection_matrix = + projection_matrix
+            projection_matrix = copy_pyopengl_matrix( projection_matrix)
         if modelview_matrix is not None:
-            modelview_matrix = + modelview_matrix #k let's hope this is a deep copy!
+            modelview_matrix = copy_pyopengl_matrix( modelview_matrix)
         self.per_frame_state.saved_projection_matrix = projection_matrix
         self.per_frame_state.saved_modelview_matrix = modelview_matrix
 
