@@ -351,9 +351,57 @@ class Plane(ReferenceGeometry):
         ##self.move(handleOffset/2.0) 
         self.center += handleOffset/2.0
     
-    def resizeGeometry(self, movedHandle, vec_P, vec_v1): 
+    def getHandlePoint(self, hdl, event):
+                
+        #First compute the intersection point of the mouseray with the plane 
+        #This will be our first self.handle_MovePt upon left down. 
+        #This value is further used in handleLeftDrag. -- Ninad 20070531
+        p1, p2 = self.glpane.mousepoints(event)
+        linePoint = p2
+        lineVector = norm(p2-p1)
+        planeAxis = self.getaxis()
+        planeNorm = norm(planeAxis)
+        planePoint = self.center   
+        #Find out intersection of the mouseray with the plane. 
+        intersection = planeXline(planePoint, planeNorm, linePoint, lineVector)
+        if intersection is None:
+            intersection =  ptonline(planePoint, linePoint, lineVector)
+            
+        handlePoint = intersection
+        
+        return handlePoint
+    
+    def resizeGeometry(self, movedHandle, event):
         ''' Resizes the width or height or both depending upon 
-        the handle type'''        
+        the handle type''' 
+        
+        #NOTE: mouseray contains all the points 
+        #that a 'mouseray' will travel , between points p1 and p2 .  
+        # The intersection of mouseray with the Plane (this was suggested 
+        #by Bruce in an email) is our new handle point.
+        #obtained in left drag. 
+        #The first vector (vec_v1) is the vector obtained by using 
+        #plane.quat.rot(handle center)        
+        #The handle_NewPt is used to find the second vector
+        #between the plane center and this point. 
+        # -- Ninad 20070531, (updated 20070615)
+        
+        handle_NewPt = self.getHandlePoint(movedHandle, event)   
+        
+        #ninad 20070615 : Fixed the resize geometry bug 2438. Thanks to Bruce 
+        #for help with the formula that finds the right vector! (vec_v1)
+        vec_v1 = self.quat.rot(movedHandle.center) 
+    
+        vec_v2 = V(handle_NewPt[0] - self.center[0],
+                   handle_NewPt[1] - self.center[1],
+                   handle_NewPt[2] - self.center[2])                       
+        
+        #Orthogonal projection of Vector V2 over V1 call it vec_P. 
+        #See Plane.resizeGeometry  for further details -- ninad 20070615
+        #@@@ need to document this further. 
+
+        vec_P = vec_v1* (dot(vec_v2, vec_v1)/dot(vec_v1,vec_v1))
+        
         #The folllowing puts 'stoppers' so that if the mouse goes beyond the
         #opposite face while dragging, the plane resizing is stopped.
         #This fixes bug 2447. (It still has a bug where fast mouse movements 
@@ -400,7 +448,11 @@ class Plane(ReferenceGeometry):
         self.recomputeCenter(totalOffset)
         #update the width,height spinboxes(may be more in future)--Ninad20070601
         self.propMgr.update_spinboxes()
+        
+        
+        pass
     
+        
     def edit(self):
         ''' Overrided node.edit and shows the property manager'''
         self.propMgr.existingStructForEditing = True    
@@ -566,12 +618,12 @@ class Handle(DragHandler_API):
         if hCenter:
             if self.center != hCenter:
                 self.center = hCenter    
-               
+                   
         #Use glpane's scale for drawing the handle. This makes sure that
         # the handle is non-zoomable. 
         side = self.glpane.scale*0.018                
         glPushMatrix() 
-                   
+        
         
         #Translate to the center of the handle
         glTranslatef(self.center[0], 
@@ -580,9 +632,13 @@ class Handle(DragHandler_API):
                         
         #Bruce suggested undoing the glpane.quat rotation and plane quat rotation 
         #before drawing the handle geometry. -- ninad 20070525
-        parent_q = self.parent.quat        
-        glpane_q = self.glpane.quat 
-        glRotatef(-parent_q.angle*180.0/pi, parent_q.x, parent_q.y, parent_q.z)          
+        
+        parent_q = self.parent.quat 
+        
+        if parent_q:
+            glRotatef(-parent_q.angle*180.0/pi, parent_q.x, parent_q.y, parent_q.z)
+            
+        glpane_q = self.glpane.quat
         glRotatef(-glpane_q.angle*180.0/pi, glpane_q.x, glpane_q.y, glpane_q.z) 
        
         drawPlane(darkgreen, 
@@ -610,10 +666,12 @@ class Handle(DragHandler_API):
         ''' Draw the handle as a highlighted object'''          
         q = self.parent.quat  
         glPushMatrix()
-        glTranslatef( self.parent.center[0],
-                      self.parent.center[1], 
-                      self.parent.center[2])
-        glRotatef( q.angle*180.0/pi, q.x, q.y, q.z)            
+        if self.parent.center:
+            glTranslatef( self.parent.center[0],
+                          self.parent.center[1], 
+                          self.parent.center[2])
+        if q:
+            glRotatef( q.angle*180.0/pi, q.x, q.y, q.z)            
         self._draw(highlighted = True)
         glPopMatrix()
         

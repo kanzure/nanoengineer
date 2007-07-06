@@ -1566,71 +1566,17 @@ class selectMode(basicMode):
         pass
                 
     
-    def handleLeftDown(self, hdl, event):
-        #First compute the intersection point of the mouseray with the plane 
-        #This will be our first self.handle_MovePt upon left down. 
-        #This value is further used in handleLeftDrag. -- Ninad 20070531 
-        
-        p1, p2 = self.o.mousepoints(event)
-        linePoint = p2
-        lineVector = norm(p2-p1)
-        planeNorm = hdl.parent.getaxis()
-        planePoint = hdl.parent.center    
-        intersection = planeXline(planePoint, planeNorm, linePoint, lineVector)
-        if intersection is None:
-            intersection =  ptonline(planePoint, linePoint, lineVector)
-        
-        handlePoint = hdl.center
-        handleNorm = hdl.glpane.lineOfSight
-        hdl_intersect = planeXline(handlePoint, handleNorm, linePoint, lineVector)
-        self.handle_MovePt = intersection 
+    def handleLeftDown(self, hdl, event): 
+        self.handle_MovePt = hdl.parent.getHandlePoint(hdl, event)
         self.handleSetUp(hdl)
-                
-    def handleLeftDrag(self, hdl, event):
-        #NOTE: mouseray contains all the points 
-        #that a 'mouseray' will travel , between points p1 and p2 .  
-        # The intersection of mouseray with the Plane (this was suggested 
-        #by Bruce in an email) is our new handle point.
-        #obtained in left drag. 
-        #The first vector (vec_v1) is the vector obtained by using 
-        #plane.quat.rot(handle center)        
-        #The handle_NewPt is used to find the second vector
-        #between the plane center and this point. 
-        # -- Ninad 20070531, (updated 20070615)
-        
-        p1, p2 = self.o.mousepoints(event)
-        linePoint = p2
-        lineVector = norm(p2-p1)
-        planeAxis = hdl.parent.getaxis()
-        planeNorm = norm(planeAxis)
-        planePoint = hdl.parent.center   
-        #Find out intersection of the mouseray with the plane. 
-        intersection = planeXline(planePoint, planeNorm, linePoint, lineVector)
-        if intersection is None:
-            intersection =  ptonline(planePoint, linePoint, lineVector)
-            
-        handle_NewPt = intersection
-        
-        #ninad 20070615 : Fixed the resize geometry bug 2438. Thanks to Bruce 
-        #for help with the formula that finds the right vector! (vec_v1)
-        vec_v1 = hdl.parent.quat.rot(hdl.center) 
     
-        vec_v2 = V(handle_NewPt[0] - hdl.parent.center[0],
-                   handle_NewPt[1] - hdl.parent.center[1],
-                   handle_NewPt[2] - hdl.parent.center[2])                       
-        
-        #Orthogonal projection of Vector V2 over V1 call it vec_P. 
-        #See Plane.resizeGeometry  for further details -- ninad 20070615
-        #@@@ need to document this further. 
-
-        vec_P = vec_v1* (dot(vec_v2, vec_v1)/dot(vec_v1,vec_v1))
-        
-        hdl.parent.resizeGeometry(hdl, vec_P, vec_v1) 
-                
+    def handleLeftDrag(self, hdl, event):        
+        hdl.parent.resizeGeometry(hdl, event)
+        handle_NewPt = hdl.parent.getHandlePoint(hdl, event)
         self.handle_MovePt = handle_NewPt
         self.current_obj_clicked = False
         self.o.gl_update()
-                   
+                           
     def handleLeftUp(self, hdl, event):
         pass
     
