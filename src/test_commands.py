@@ -18,19 +18,26 @@ defined in this file, such as ExampleCommand1.
 
 Misc bugs:
 
-- [fixed] leaving this mode, at least for Build Atoms or itself, has weird exception in disconnecting signals, not yet understood
-  (as if one was not connected when we entered, which i guess is possible, but if so, why only us?)
-  
-- userSetMode compares modename, does nothing if same -- will this break immediate reuse of this command if i changed the code?
-  ### don't know
+- when exiting ExampleCommand2E (using GBC and its own graphics), the graphics remain, because the mode remains.
+  A mode calls Done when it leaves but a generator doesn't, so these leave themselves behind as the mode.
+  Can they safely call Done?
+  And in what method should they do it? A button click, or some exit method inside GBC?
 
-- PM is not removed when entering testmode
+- when exiting EC2E, the PM does disappear, so the conf corner should -- and it does, but not right away,
+  so I think we're missing a gl_update. Maybe the existing PM-changing methods need to provide one for the CC
+  (gl_update_confcorner or so)?
+  
+- PM is not removed when entering testmode [probably a special case of the above]
+
+[status: exit code added to EC! and works; not yet to EC2] ####
+  
 
 Cosmetic bugs:
 
 - closing groupboxes makes them flash
 
 - [fixed] tooltip for sponsor button appears everywhere in the PM, even in its bg (annoying) [fixed in PMBC]
+
 
 TODO:
 
@@ -80,7 +87,7 @@ class ExampleCommand1(_BUGFIXED_selectAtomsMode):
         print "init_gui in", self ####
 
         win = self.win
-        self.__PM = pm = ExampleCommand1_PM(win)
+        self.__PM = pm = ExampleCommand1_PM(win, commandrun = self)
         pm.show()
         selectAtomsMode.init_gui(self) # this fixed the "disconnect without connect" bug
             #k will we need to do this first not last? or not do all of it? seems ok so far.
@@ -109,7 +116,7 @@ class ExampleCommand2(_BUGFIXED_selectAtomsMode):
         print "init_gui in", self ####
 
         win = self.win
-        self.__PM = pm = ExampleCommand2_PM(win)
+        self.__PM = pm = ExampleCommand2_PM(win, commandrun = self)
         pm.show()
         selectAtomsMode.init_gui(self)
         return
@@ -136,6 +143,13 @@ from VQT import V
 from exprs.instance_helpers import get_glpane_InstanceHolder
 from exprs.Rect import Rect # needed for Image size option and/or for testing
 from exprs.Boxed import Boxed, DraggablyBoxed
+from exprs.basic import InstanceMacro, State
+
+from exprs.TextRect import TextRect#k
+class TextState(InstanceMacro):#e rename?
+    text = State(str, "initial text", doc = "text")#k
+    _value = TextRect(text) #k value #e need size?s
+    pass
 
 class ExampleCommand2E(ExampleCommand2, object):
     "add things not needed in a minimal example, to try them out (uses same PM as ExampleCommand2)"
@@ -154,8 +168,13 @@ class ExampleCommand2E(ExampleCommand2, object):
     def __init__(self, glpane):
         "create an expr instance, to draw in addition to the model"
         super(ExampleCommand2E, self).__init__(glpane)
-        expr1 = Rect(4,1,green)
+        ## expr1 = Rect(4,1,green)
+        expr1 = TextState()
         expr2 = DraggablyBoxed(expr1, resizable = True)
+            ###BUG: resizing is projecting mouseray in the wrong way, when plane is tilted!
+            # I vaguely recall that the Boxed resizable option was only coded for use in 2D widgets,
+            # whereas some other constrained drag code is correct for 3D but not yet directly usable in Boxed.
+            # So this is just an example interactive expr, not the best way to do resizing in 3D. (Though it could be fixed.)
 
         # note: this code is similar to expr_instance_for_imagename in confirmation_corner.py
         ih = get_glpane_InstanceHolder(glpane)
@@ -273,10 +292,15 @@ class ExampleCommand1_PM( _eg_pm_widgets, QDialog, PropMgrBaseClass): # these su
     # (It doesn't need restore_defaults_btn_clicked because PropMgrBaseClass defines that itself.
     #  So does GBC, but to a noop method. So GBC better be inherited *after* PropMgrBaseClass!)
     def ok_btn_clicked(self):
-        print "ok_btn_clicked, nim in", self
+        print "ok_btn_clicked, nim except for Done in", self
+##        ## probably wrong: self.parent.Done() ###k both parent and Done
+##        print "parent is",self.parent ## parent is <built-in method parent of ExampleCommand1_PM object at 0x203774b0>
+##            # parent is a *method*?? does it come from Qt?? (QDialog?) but it's *also* a propmgr attr, or propmgr widget attr...
+        self.commandrun.Done() ###k both commandrun and Done
         pass
     def abort_btn_clicked(self):
-        print "abort_btn_clicked, nim in", self
+        print "abort_btn_clicked, nim except for Done in", self
+        self.commandrun.Done() ###k both commandrun and Done
         pass
     def preview_btn_clicked(self):
         print "preview_btn_clicked", self
@@ -292,8 +316,9 @@ class ExampleCommand1_PM( _eg_pm_widgets, QDialog, PropMgrBaseClass): # these su
         print "setSponsor", self
         pass
     
-    def __init__(self, win):
+    def __init__(self, win, commandrun = None):
         print "creating", self ####
+        self.commandrun = commandrun
 
         QDialog.__init__(self, win)
         PropMgrBaseClass.__init__( self, self.propmgr_name )
@@ -318,8 +343,9 @@ class ExampleCommand2_PM( _eg_pm_widgets, QDialog, PropMgrBaseClass, GeneratorBa
     prefix = "Thing2" # for names created by GBC [required when create_name_from_prefix is true (not sure about otherwise)]
     cmdname = "Generate a Thing2" # Undo/history cmdname used by GBC [optional, but affects history messages]
     
-    def __init__(self, win):
+    def __init__(self, win, commandrun = None):
         print "creating", self ####
+        self.commandrun = commandrun
 
         QDialog.__init__(self, win)
         PropMgrBaseClass.__init__( self, self.propmgr_name )
@@ -350,7 +376,18 @@ class ExampleCommand2_PM( _eg_pm_widgets, QDialog, PropMgrBaseClass, GeneratorBa
     # - restore defaults does nothing useful
     # - whats this button does nothing
     # - when we leave this PM, the PM tab remains, tho it's empty
-    
+
+    def ok_btn_clicked(self):
+        print "ok_btn_clicked, doing super then Done (kluge)", self
+        GeneratorBaseClass.ok_btn_clicked(self)
+        self.commandrun.Done() ###k both commandrun and Done -- and, kluge, instead GBC should call a done method in self.commandrun
+        pass
+    def abort_btn_clicked(self):
+        print "abort_btn_clicked, doing super then Done (kluge)", self
+        GeneratorBaseClass.abort_btn_clicked(self)
+        self.commandrun.Done()
+        pass
+
     pass # end of class ExampleCommand2_PM
 
 
@@ -405,7 +442,8 @@ def enter_example_command(widget, example_command_classname):
 
 def enter_example_command_doit(glpane, example_command_classname):
     example_command_class = globals()[example_command_classname]
-    example_command_class.modename += 'x' # kluge to defeat userSetMode comparison of modename -- not sure if it works or if it's needed
+    example_command_class.modename += 'x'
+        # kluge to defeat userSetMode comparison of modename -- not sure if it works; pretty sure it's needed for now
     cmdrun = construct_cmdrun(example_command_class, glpane)
     start_cmdrun(cmdrun)
     return

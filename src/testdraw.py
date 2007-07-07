@@ -305,6 +305,7 @@ def _bind_courier_font_texture(): # kluge 061125 so exprs/images.py won't mess u
     including that exprs/images.py doesn't change most GL params,
     bind the texture containing the courierfile font
     """
+    ensure_courierfile_loaded() #bruce 070706 bugfix for when drawfont2 is used outside of testmode
     # optimized part of inlined setup_to_draw_texture_name
     glBindTexture(GL_TEXTURE_2D, vv.tex_name)
     ##e note: this will need extension once images.py can change more params,
@@ -491,6 +492,10 @@ def drawfont2(glpane, msg = None, charwidth = None, charheight = None, testpatte
     def gg(i,j):
         return ORIGIN + j * char_dx * DX + (i + 1) * char_dy * DY, charwidth1 * DX, charheight1 * DY
     # now draw them
+
+    # see if this import removes a pychecker warning [tho a clearer cleanup would be better] [bruce 070706]
+    global draw_utils
+    from exprs import draw_utils # for draw_textured_rect
 
     if 1: #### for n in range(65): # simulate the delay of doing a whole page of chars
       # note, this is significantly slow even if we just draw 5x as many chars!
