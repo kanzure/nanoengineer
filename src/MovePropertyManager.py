@@ -33,7 +33,7 @@ class MovePropertyManager(QtGui.QWidget,
 
     # The current move mode (either TRANSLATE or ROTATE).
     _currentMoveMode = TRANSLATE 
-    
+        
     def __init__(self):
         QtGui.QWidget.__init__(self)
         
@@ -60,6 +60,7 @@ class MovePropertyManager(QtGui.QWidget,
                      SIGNAL("currentIndexChanged(int)"), 
                      self.updateRotateGroupBoxItems)
         
+        
         self.updateMessage()
         
         self.add_whats_this_text()
@@ -85,18 +86,23 @@ class MovePropertyManager(QtGui.QWidget,
 	    pmSetPropMgrIcon( self, self.translateIconPath )
 	    pmSetPropMgrTitle( self, self.translateTitle )
             
-            self.deactivate_rotateGroupBox()
-            
-            #This is the action that was checked the last time when this 
-            #groupbox was active. 
-            actionToCheck = self.getLastCheckedMoveAction()             
+            self.deactivate_rotateGroupBox()          
+	    
+	    actionToCheck = self.getTranslateActionToCheck()
               
             if actionToCheck:
                 actionToCheck.setChecked(True) 
             else:
                 actionToCheck = self.w.moveFreeAction
                 actionToCheck.setChecked(True)
-            
+	    #@@ the following method is in modifyMode. Needs cleanup
+	    #each mode should make its propMgr object (cleanup proces)
+	    #In that case , the following will become, for example, 
+	    #self.parent.changeMoveOption Or the changeMoveOption methode 
+	    #itself can be moved in this class (at present a bit of work 
+	    #because of other things that depend on it. -- ninad 20070605
+	    self.changeMoveOption(actionToCheck)
+	    
     
     def activate_rotateGroupBox_using_groupButton(self):
         """Show contents of this groupbox, deactivae the other groupbox. 
@@ -119,15 +125,24 @@ class MovePropertyManager(QtGui.QWidget,
 	    
             self.deactivate_translateGroupBox()
         
-            #This is the action that was checked the last time when this 
-            #groupbox was active. 
-            actionToCheck = self.getLastCheckedRotateAction()
-                      
-            if actionToCheck:
+	    #Following implements NFR bug 2485.
+	    #Earlier, it used to remember the last checked action 
+	    #so this wasn't necessary	    
+	    actionToCheck = self.getRotateActionToCheck()
+	    				    
+            if actionToCheck:		
                 actionToCheck.setChecked(True) 
             else:
                 actionToCheck = self.w.rotateFreeAction
                 actionToCheck.setChecked(True)
+	    #@@ the following method is in movodifyMode. Needs cleanup
+	    #each mode should make its propMgr object (cleanup proces)
+	    #In that case , the follwing will become, for example, 
+	    #self.parent.changeRotateOption Or the changeRotateOption methode 
+	    #itself can be moved in this class (at present a bit of work 
+	    #because of other things that depend on it. -- ninad 20070605
+	    self.changeRotateOption(actionToCheck)
+	
                     
     def activate_translateGroupBox(self):
         """Show contents of this groupbox, deactivae the other groupbox. 
@@ -149,15 +164,24 @@ class MovePropertyManager(QtGui.QWidget,
 	
         self.deactivate_rotateGroupBox()    
         
-        #This is the action that was checked the last time when this 
-        #groupbox was active. 
-        actionToCheck = self.getLastCheckedMoveAction()             
-          
+        #Following implements NFR bug 2485.
+	#Earlier, it used to remember the last checked action 
+	#so this wasn't necessary
+	actionToCheck = self.getTranslateActionToCheck()
+	
         if actionToCheck:
             actionToCheck.setChecked(True) 
         else:
             actionToCheck = self.w.moveFreeAction
             actionToCheck.setChecked(True)
+	    
+	#@@ the following method is in modifyMode. Needs cleanup
+	#each mode should make its propMgr object (cleanup proces)
+	#In that case , the following will become, for example, 
+	#self.parent.changeMoveOption Or the changeMoveOption methode 
+	#itself can be moved in this class (at present a bit of work 
+	#because of other things that depend on it. -- ninad 20070605
+	self.changeMoveOption(actionToCheck)
             
     def activate_rotateGroupBox(self):
         """Show contents of this groupbox, deactivae the other groupbox. 
@@ -178,16 +202,22 @@ class MovePropertyManager(QtGui.QWidget,
 	pmSetPropMgrTitle( self, self.rotateTitle )
 	
         self.deactivate_translateGroupBox()           
-    
-        #This is the action that was checked the last time when this 
-        #groupbox was active. 
-        actionToCheck = self.getLastCheckedRotateAction()
-                  
+    	
+        actionToCheck = self.getRotateActionToCheck() 
+	
         if actionToCheck:
             actionToCheck.setChecked(True) 
         else:
             actionToCheck = self.w.rotateFreeAction
             actionToCheck.setChecked(True)
+	
+	#@@ the following method is in movodifyMode. Needs cleanup
+	#each mode should make its propMgr object (cleanup proces)
+	#In that case , the follwing will become, for example, 
+	#self.parent.changeRotateOption Or the changeRotateOption methode 
+	#itself can be moved in this class (at present a bit of work 
+	#because of other things that depend on it. -- ninad 20070605
+	self.changeRotateOption(actionToCheck)
         
                                
     def deactivate_rotateGroupBox(self):
@@ -300,6 +330,51 @@ class MovePropertyManager(QtGui.QWidget,
             return self.lastCheckedTranslateAction
         else:
             return None
+    
+    def getRotateActionToCheck(self):
+	''' Decide which rotate group box action to check 
+	based on the last action that was checked in *translate* 
+	groupbox
+	@return <actionToCheck>:rotate action to be checked when rotate groupbox 
+	is active (and when free drag rotate is chosen from the combo box)'''
+	lastMoveAction =  self.getLastCheckedMoveAction()
+	actionToCheck = None
+	if lastMoveAction:
+	    if lastMoveAction == self.w.transXAction:
+		actionToCheck = self.w.rotXAction
+	    elif lastMoveAction == self.w.transYAction:
+		actionToCheck = self.w.rotYAction
+	    elif lastMoveAction == self.w.transZAction:
+		actionToCheck = self.w.rotZAction	
+	    elif lastMoveAction == self.w.moveFreeAction:
+		actionToCheck = self.w.rotateFreeAction
+	    elif lastMoveAction == self.w.rotTransAlongAxisAction_1:
+		actionToCheck = self.w.rotTransAlongAxisAction_2
+	
+	return actionToCheck
+    
+    def getTranslateActionToCheck(self):
+	''' Decide which translate group box action to check 
+	based on the last action that was checked in *rotate* groupbox.
+	@return <actionToCheck>:translate action to be checked when translate 
+	grpbx is active (and when free drag translate is chosen from the combo 
+	box)'''
+	
+	lastRotateAction =  self.getLastCheckedRotateAction()
+	actionToCheck = None
+	if lastRotateAction:
+	    if lastRotateAction == self.w.rotXAction:
+		actionToCheck = self.w.transXAction
+	    elif lastRotateAction == self.w.rotYAction:
+		actionToCheck = self.w.transYAction
+	    elif lastRotateAction == self.w.rotZAction:
+		actionToCheck = self.w.transZAction
+	    elif lastRotateAction == self.w.rotateFreeAction:
+		actionToCheck = self.w.moveFreeAction
+	    elif lastRotateAction == self.w.rotTransAlongAxisAction_2:
+		actionToCheck = self.w.rotTransAlongAxisAction_1
+	
+	return actionToCheck
         
     def updateMessage(self): # Mark 2007-06-23
         """Updates the message box with an informative message.

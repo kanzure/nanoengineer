@@ -523,9 +523,7 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
                 return
             
             if isinstance(obj, Atom) and obj.is_singlet(): # Cursor over a singlet
-                self.singletLeftDown(obj, event)
-                    # no win_update() needed. It's the responsibility of singletLeftDown to do it if needed.
-                return                
+                self.singletLeftDown(obj, event)              
             elif isinstance(obj, Atom) and not obj.is_singlet(): # Cursor over a real atom
                 self.atomLeftDown(obj, event)
             elif isinstance(obj, Bond) and not obj.is_open_bond(): # Cursor over a bond.
@@ -581,6 +579,7 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
                         return
                     except:
                         print " error doing leftADrag"
+			return
             elif self.w.toolsMoveMoleculeAction.isChecked():
                 if self.moveOption == 'ROT_TRANS_ALONG_AXIS':
                     try:
@@ -656,7 +655,7 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
             deltaMouse = V(event.pos().x() - self.o.MousePos[0],
                        self.o.MousePos[1] - event.pos().y())
             a =  dot(self.Zmat, deltaMouse)
-            dx,dy =  a * V(self.o.scale/(h*0.5), 2*math.pi/w)
+            dx,dy =  a * V(self.o.scale/(h*0.5), 2*math.pi/w)    
 
             if self.rotateOption == 'ROTATEX' :     ma = V(1,0,0) # X Axis
             elif self.rotateOption == 'ROTATEY' :  ma = V(0,1,0) # Y Axis
@@ -909,9 +908,7 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
             ##return
             
         if isinstance(obj, Atom) and obj.is_singlet(): # Cursor over a singlet
-            self.singletLeftDown(obj, event)
-                # no win_update() needed. It's the responsibility of singletLeftDown to do it if needed.
-            return                
+            self.singletLeftDown(obj, event)               
         elif isinstance(obj, Atom) and not obj.is_singlet(): # Cursor over a real atom
             self.atomLeftDown(obj, event)
         elif isinstance(obj, Bond) and not obj.is_open_bond(): # Cursor over a bond.
@@ -975,7 +972,7 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
            and rotate around its axis (left-right) while left dragging
            the selection with keyboard key 'A' pressed
         """
-            
+	            
         ##See comments of leftDrag()--Huaicai 3/23/05
         if not self.picking: return
 
