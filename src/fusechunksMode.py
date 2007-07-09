@@ -636,7 +636,10 @@ class fusechunksMode(modifyMode, fusechunksBase, FusePropertyManager):
                 elif self.moveOption == 'TRANSZ': 
                     ma = V(0,0,1) # Z Axis
                     self.axis = 'Z'
-                else: print "modifyMode: Error - unknown moveOption value =", self.moveOption
+		elif self.moveOption == 'ROT_TRANS_ALONG_AXIS':
+                    self.leftADown(event)
+		    return
+                else: print "fuseMode error: unknown moveOption value:", self.moveOption
                 
                 ma = norm(V(dot(ma,self.o.right),dot(ma,self.o.up)))
                 # When in the front view, right = 1,0,0 and up = 0,1,0, so ma will be computed as 0,0.
@@ -657,6 +660,9 @@ class fusechunksMode(modifyMode, fusechunksBase, FusePropertyManager):
                 elif self.rotateOption == 'ROTATEZ': 
                     ma = V(0,0,1) # Z Axis
                     self.axis = 'Z'
+		elif self.rotateOption == 'ROT_TRANS_ALONG_AXIS':
+                    self.leftADown(event)
+		    return
                 else: print "modifyMode: Error - unknown rotateOption value =", self.rotateOption
 
                 ma = norm(V(dot(ma,self.o.right),dot(ma,self.o.up)))
@@ -726,7 +732,15 @@ class fusechunksMode(modifyMode, fusechunksBase, FusePropertyManager):
         # Fixes bugs 583 and 674 along with change in keyRelease.  Mark 050623
         if self.movingPoint is None: self.leftDown(event) # Fix per Bruce's email.  Mark 050704
         
+        		    
         if self.isMoveGroupBoxActive:
+	    if (self.moveOption == 'ROT_TRANS_ALONG_AXIS'):	    
+		try:
+		    self.leftADrag(event)
+		    return
+		except:
+		    print " error doing leftADrag"
+		    return
             # Move section
             if self.moveOption == 'MOVEDEFAULT':
                 deltaMouse = V(event.pos().x() - self.o.MousePos[0],
@@ -746,6 +760,7 @@ class fusechunksMode(modifyMode, fusechunksBase, FusePropertyManager):
             
             # Translate section
             else:
+		
                 w=self.o.width+0.0
                 h=self.o.height+0.0
                 deltaMouse = V(event.pos().x() - self.o.MousePos[0],
@@ -756,14 +771,21 @@ class fusechunksMode(modifyMode, fusechunksBase, FusePropertyManager):
                 elif self.moveOption == 'TRANSY' :  ma = V(0,1,0) # Y Axis
                 elif self.moveOption == 'TRANSZ' :  ma = V(0,0,1) # Z Axis
                 else: 
-                    print "modifyMode.leftDrag: Error - unknown moveOption value =",
-                    self.moveOption                
+                    print "fuseMode.leftDrag: Error - unknown moveOption value =",self.moveOption                
                     return       
                 self.transDelta += dx # Increment translation delta                   
                 self.o.assy.movesel(dx*ma) 
                 
-        else:
-            #Rotate section      
+        else:	    
+            #Rotate section     
+	    if (self.rotateOption == 'ROT_TRANS_ALONG_AXIS'):	    
+		try:
+		    self.leftADrag(event)
+		    return
+		except:
+		    print " error doing leftADrag"
+		    return
+		
             w=self.o.width+0.0
             h=self.o.height+0.0
             deltaMouse = V(event.pos().x() - self.o.MousePos[0],

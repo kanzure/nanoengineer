@@ -102,17 +102,15 @@ class FusePropertyManager(QtGui.QWidget,
             Returning"
             return
                 
-        
-        #This is the action that was checked the last time when this 
-        #groupbox was active. (note: its defined in MovceProperty Manager)
-        
-        actionToCheck = self.getLastCheckedMoveAction()             
-          
+        actionToCheck = self.getTranslateActionToCheck()
+                     
         if actionToCheck:
             actionToCheck.setChecked(True) 
         else:
             actionToCheck = self.w.moveFreeAction
             actionToCheck.setChecked(True)
+	
+	self.changeMoveOption(actionToCheck)
         
         self.isMoveGroupBoxActive = True
     
@@ -142,17 +140,18 @@ class FusePropertyManager(QtGui.QWidget,
             Returning"
             return
         
-        #This is the action that was checked the last time when this 
-        #groupbox was active. 
-        actionToCheck = self.getLastCheckedRotateAction()
+        actionToCheck = self.getRotateActionToCheck()
                   
         if actionToCheck:
             actionToCheck.setChecked(True) 
         else:
             actionToCheck = self.w.rotateFreeAction
             actionToCheck.setChecked(True)
+	    
+	self.changeRotateOption(actionToCheck)
         
         self.isMoveGroupBoxActive = False
+	
         
     def toggle_fuseOptionsGroupBox(self):
         '''Toggles the item display in the parent groupbox of the button'''
