@@ -379,7 +379,7 @@ def update_hybridComboBox(win, text = None): #bruce 050606
     return
 
 
-class depositMode(selectAtomsMode, MMKit):
+class depositMode(selectAtomsMode):
     """ This class is used to manually add atoms to create any structure.
        Users know it as "Build Atoms".
     """
@@ -394,9 +394,7 @@ class depositMode(selectAtomsMode, MMKit):
     def __init__(self, glpane):
 		
         selectAtomsMode.__init__(self, glpane)
-		
-	self.pw = None  # make it None in init method of each mode. 
-		
+				
         self.pastables_list = [] #k not needed here?
         self.water_enabled = env.prefs[buildModeWaterEnabled_prefs_key] # mark 060203.
             # if True, only atoms and bonds above the water surface can be 
@@ -411,32 +409,8 @@ class depositMode(selectAtomsMode, MMKit):
     
     def Enter(self):
 	
-	#Following Actions are added in the Flyout toolbar. 
-	#Defining them outside that method as those are being used
-	#by the subclasses of deposit mode (testmode.py as of 070410) -- ninad
-		
-	self.depositAtomsAction = QtGui.QWidgetAction(self.w)
-	self.depositAtomsAction.setText("Atoms Tool")
-	self.depositAtomsAction.setIcon(geticon(
-	    'ui/actions/Toolbars/Smart/Deposit_Atoms'))
-	self.depositAtomsAction.setCheckable(True)
-	self.depositAtomsAction.setChecked(True)
-	
-		
-	self.transmuteBondsAction = QtGui.QWidgetAction(self.w)
-	self.transmuteBondsAction.setText("Bonds Tool")
-	self.transmuteBondsAction.setIcon(geticon(
-	    'ui/actions/Toolbars/Smart/Transmute_Bonds'))
-	self.transmuteBondsAction.setCheckable(True)
-	
-	#Initialize MMKit  Eariler this was initialized 
-	#*after calling selectAtomsMode.Enter due to a dependency on selection 
-	#filter methods. - not require anymore. -- ninad070411
-	#Now it is defined before selectMode.Enter for update cursor related 
-	#methods which needs actions that are defined in MMKit. 
-	
-	MMKit.__init__(self, self.w)
-	
+	self._init_flyoutActions()
+			
         selectAtomsMode.Enter(self) # this calls self.reset_drag_vars(), which itself calls the super version
 	
         #self.o.assy.permit_pick_atoms() #bruce 050517 revised API of this call
@@ -472,30 +446,13 @@ class depositMode(selectAtomsMode, MMKit):
             #  methods is badly in need of documentation, if not cleanup...
             #  [says bruce 050121, who is to blame for this])
 	
-    	
-	self.update_dialog(self.w.Element)
-		
-	#Ninad 061226 moved the following from selectAtomsMode.Enter to here .
-	#(MMKit was moved to Property manager
-	#and so the following was needed to instantiate MMKit before 
-	#calling this function)
-	self.set_selection_filter(0) # disable selection filter 
-	
-	#(sets current item to "All Elements").  mark 060301.
-	
-	self.filterCB.setChecked(0)
-	
-	#Defining some actions added in the flyout toolbar. These were originally
-	#defined in _createFlyoutToolbar method. I moved this method to 
-	#CommandManager class and defined these actions in updateCommandManager 
-	#method of depositmode. But this didn't work so defining the methods 
-	#before calling updateCommandManager. I want to resolve this 
-	#but is a low priority. -- Ninad 20070622
-	self._init_flyoutActions()
-	self.updateCommandManager(bool_entering = True)    
 	 
-	#Open the Build Chunks Property Manager
-	self.openPropertyManager(self)
+	
+	#Create this mode's PropMgr object. (an instance of MMKit) 
+	self.propMgr = MMKit(self,self.w)		
+	self.propMgr.show_propMgr()
+	
+	self.updateCommandManager(bool_entering = True)
 	
 	if self.depositAtomsAction.isChecked():
 	    self.activateAtomsTool()
@@ -516,13 +473,12 @@ class depositMode(selectAtomsMode, MMKit):
 	
         self.update_bond_buttons()
         
-        # Do these before connecting signals or we'll get history msgs.  Part of fix for bug 1620. mark 060322
-        self.highlightingCB.setChecked(self.hover_highlighting_enabled)
-        self.waterCB.setChecked(self.water_enabled)
-                
+	#@@ Is the following comment still valid? May not be. I tried disabling
+	#it and saw no bug. But not sure which bug it is refering to.
+	#keeping this code as is for now -- ninad 20070717 
         # This is a workaround for a bug caused by the way in which the MMKit is created.
         # This should be fixed when the MMKit code gets cleaned up.  Mark 051216.
-        self.elemGLPane.setBackgroundColor(self.o.backgroundColor, self.o.backgroundGradient)
+        self.propMgr.elemGLPane.setBackgroundColor(self.o.backgroundColor, self.o.backgroundGradient)
 	
 	# connect signals (these all need to be disconnectedfilterCB in restore_gui) [bruce 050728 revised this]
         self.connect_or_disconnect_signals(True)      
@@ -531,7 +487,7 @@ class depositMode(selectAtomsMode, MMKit):
 	
         self.dont_update_gui = False
 	
-	self.updateBuildAtomsMessage()
+	self.propMgr.updateBuildAtomsMessage()
    
         return # the caller will now call update_gui(); we rely on that [bruce 050122]  
     
@@ -545,18 +501,68 @@ class depositMode(selectAtomsMode, MMKit):
 	#@@This should also contain HeteroJunctionAction. (in general Plugin actions)
     
     def _init_flyoutActions(self):
-	''' Define flyout toolbar actions for this mode'''
+	"""Define flyout toolbar actions for this mode."""
+	#@NOTE: In Build mode, some of the actions defined in this method are also 
+	#used in Build Atoms PM. (e.g. bond actions) So probably better to rename 
+	#it as _init_modeActions. Not doing that change in mmkit code cleanup 
+	#commit(other modes still implement a method by same name)-ninad20070717
+		
 	self.exitBuildAction = QtGui.QWidgetAction(self.w)
 	self.exitBuildAction.setText("Exit Atoms")
 	self.exitBuildAction.setIcon(geticon('ui/actions/Toolbars/Smart/Exit'))
 	self.exitBuildAction.setCheckable(True)
 	self.exitBuildAction.setChecked(True)	
 	
+	#Following Actions are added in the Flyout toolbar. 
+	#Defining them outside that method as those are being used
+	#by the subclasses of deposit mode (testmode.py as of 070410) -- ninad
+		
+	self.depositAtomsAction = QtGui.QWidgetAction(self.w)
+	self.depositAtomsAction.setText("Atoms Tool")
+	self.depositAtomsAction.setIcon(geticon(
+	    'ui/actions/Toolbars/Smart/Deposit_Atoms'))
+	self.depositAtomsAction.setCheckable(True)
+	self.depositAtomsAction.setChecked(True)
+	
+		
+	self.transmuteBondsAction = QtGui.QWidgetAction(self.w)
+	self.transmuteBondsAction.setText("Bonds Tool")
+	self.transmuteBondsAction.setIcon(geticon(
+	    'ui/actions/Toolbars/Smart/Transmute_Bonds'))
+	self.transmuteBondsAction.setCheckable(True)
+	
 	self.subControlActionGroup = QtGui.QActionGroup(self.w)
 	self.subControlActionGroup.setExclusive(True)	
 	self.subControlActionGroup.addAction(self.depositAtomsAction)	
-	##self.subControlActionGroup.addAction(self.transmuteAtomsAction)
+	##self.subControlActionGroup.addAction(self.propMgr.transmuteAtomsAction)
 	self.subControlActionGroup.addAction(self.transmuteBondsAction)
+	
+	self.bondToolsActionGroup = QtGui.QActionGroup(self.w)
+	self.bondToolsActionGroup.setExclusive(True)
+		
+	self.bond1Action = QtGui.QWidgetAction(self.w)  
+	self.bond1Action.setText("Single")
+	self.bond1Action.setIcon(geticon("ui/actions/Toolbars/Smart/bond1.png"))
+    
+	self.bond2Action = QtGui.QWidgetAction(self.w)  
+	self.bond2Action.setText("Double")
+	self.bond2Action.setIcon(geticon("ui/actions/Toolbars/Smart/bond2.png"))
+	
+	self.bond3Action = QtGui.QWidgetAction(self.w)  
+	self.bond3Action.setText("Triple")
+	self.bond3Action.setIcon(geticon("ui/actions/Toolbars/Smart/bond3.png"))
+	
+	self.bondaAction = QtGui.QWidgetAction(self.w)  
+	self.bondaAction.setText("Aromatic")
+	self.bondaAction.setIcon(geticon("ui/actions/Toolbars/Smart/bonda.png"))
+	
+	self.bondgAction = QtGui.QWidgetAction(self.w)  
+	self.bondgAction.setText("Graphitic")
+	self.bondgAction.setIcon(geticon("ui/actions/Toolbars/Smart/bondg.png"))
+	
+	self.cutBondsAction = QtGui.QWidgetAction(self.w)  
+	self.cutBondsAction.setText("Cut Bonds")
+	self.cutBondsAction.setIcon(geticon("ui/actions/Tools/Build Tools/Cut_Bonds"))
 	    
 
     def connect_or_disconnect_signals(self, connect): #bruce 050728
@@ -587,14 +593,14 @@ class depositMode(selectAtomsMode, MMKit):
 		       SIGNAL("triggered(QAction *)"), self.changeBondTool)
 		
 	
-        change_connect(self.transmuteAtomsAction,
+        change_connect(self.propMgr.transmuteAtomsAction,
                         SIGNAL("triggered()"),self.transmutePressed)
         
         # Slots for the Water and Highlight checkboxes. mark 060202.    
-        change_connect(self.waterCB,
+        change_connect(self.propMgr.waterCB,
                         SIGNAL("toggled(bool)"),self.setWater)
 	
-        change_connect(self.highlightingCB,
+        change_connect(self.propMgr.highlightingCB,
                         SIGNAL("toggled(bool)"),self.set_hoverHighlighting)
 	
                 
@@ -619,7 +625,12 @@ class depositMode(selectAtomsMode, MMKit):
 	                        
         return
     
-    
+    def set_selection_filter(self, enabled):
+	''' Set/ Unset selection filter. 
+	@param: enabled: boolean that decides whether to turn 
+	selection filter on or off. '''
+	self.propMgr.set_selection_filter(enabled) 
+	    
     def getFlyoutActionList(self): #Ninad 070126
 	""" Returns a tuple that contains mode spcific actionlists in the 
 	added in the flyout toolbar of the mode. 
@@ -648,7 +659,7 @@ class depositMode(selectAtomsMode, MMKit):
 	subControlAreaActionList.append(separator1) 
 	
 	subControlAreaActionList.append(self.depositAtomsAction)	
-	##subControlAreaActionList.append(self.transmuteAtomsAction)
+	##subControlAreaActionList.append(self.propMgr.transmuteAtomsAction)
 	subControlAreaActionList.append(self.transmuteBondsAction)	
 	separator = QtGui.QAction(self.w)
 	separator.setSeparator(True)
@@ -685,7 +696,7 @@ class depositMode(selectAtomsMode, MMKit):
 	separatorAfterPassivate = QtGui.QAction(self.w)
 	separatorAfterPassivate.setSeparator(True)
 	depositAtomsCmdLst.append(separatorAfterPassivate)
-	depositAtomsCmdLst.append(self.transmuteAtomsAction)	
+	depositAtomsCmdLst.append(self.propMgr.transmuteAtomsAction)	
 	separatorAfterTransmute = QtGui.QAction(self.w)
 	separatorAfterTransmute.setSeparator(True)
 	depositAtomsCmdLst.append(separatorAfterTransmute)
@@ -727,21 +738,21 @@ class depositMode(selectAtomsMode, MMKit):
 	hide only the Atoms Tools groupbox in the Build chunks Property manager
 	and show all others the others.'''
 	
-	self.bondTools_grpBox.bottom_spacer.changeSize(0,0)
-	self.bondTools_grpBox.hide()
+	self.propMgr.bondTools_grpBox.bottom_spacer.changeSize(0,0)
+	self.propMgr.bondTools_grpBox.hide()
 	
-	for grpbox in self.thumbView_groupBox,	\
-	self.MMKit_groupBox,\
-	self.selectionFilter_groupBox:
+	for grpbox in self.propMgr.thumbView_groupBox,	\
+	self.propMgr.MMKit_groupBox,\
+	self.propMgr.selectionFilter_groupBox:
 	    grpbox.show()
 	    grpbox.bottom_spacer.changeSize(10,pmGroupBoxSpacing) # Spacer has no show() method. Mark 2007-06-01
 	
-	self.pw.propertyManagerScrollArea.ensureWidgetVisible(
-	    self.header_label)
+	self.propMgr.pw.propertyManagerScrollArea.ensureWidgetVisible(
+	    self.propMgr.header_label)
 	
 	self.setAtom()
 	
-	self.updateBuildAtomsMessage()
+	self.propMgr.updateBuildAtomsMessage()
 		
     def activateBondsTool(self):
 	''' Activate the bond tool of the build chunks mode 
@@ -751,19 +762,19 @@ class depositMode(selectAtomsMode, MMKit):
 	self.bond1Action.setChecked(True)
 	self.changeBondTool(self.bond1Action)
 			
-	for grpbox in self.thumbView_groupBox,	\
-	self.MMKit_groupBox,\
-	self.selectionFilter_groupBox:
+	for grpbox in self.propMgr.thumbView_groupBox,	\
+	self.propMgr.MMKit_groupBox,\
+	self.propMgr.selectionFilter_groupBox:
 	    grpbox.hide()
 	    grpbox.bottom_spacer.changeSize(0,0) # Spacer has no hide() method. Mark 2007-06-01
 	
-	self.bondTools_grpBox.bottom_spacer.changeSize(10,pmGroupBoxSpacing)
-	self.bondTools_grpBox.show()
+	self.propMgr.bondTools_grpBox.bottom_spacer.changeSize(10,pmGroupBoxSpacing)
+	self.propMgr.bondTools_grpBox.show()
 	
-	self.pw.propertyManagerScrollArea.ensureWidgetVisible(
-	    self.header_label)
+	self.propMgr.pw.propertyManagerScrollArea.ensureWidgetVisible(
+	    self.propMgr.header_label)
 	
-	self.updateBuildAtomsMessage()
+	self.propMgr.updateBuildAtomsMessage()
 		   
     def update_bond_buttons(self): #bruce 050728 (should this be used more widely?); revised 050831
         "make the dashboard one-click-bond-changer state buttons match whatever is stored in self.bondclick_v6"
@@ -772,7 +783,7 @@ class depositMode(selectAtomsMode, MMKit):
 	# In A8, self.bond1Btn was self.w.depositAtomDashboard.build1Btn and like that. Since the dashboard will be moved to 
 	#Property Manager, gradually, all self.w.depositAtomDashboard calls will be changed to sel.MMKit calls. 
 	#Also note that , it may even be called by a different name instead of MMKit (e.g. BuildPropertyManager which might
-	 #be called as self.pw.blahblah where self.pw = active part window. This comment is subjected to revision - Ninad 061214
+	 #be called as self.propMgr.pw.blahblah where self.propMgr.pw = active part window. This comment is subjected to revision - Ninad 061214
 	self.bond1Action.setChecked( self.bondclick_v6 == V_SINGLE)
         self.bond2Action.setChecked( self.bondclick_v6 == V_DOUBLE)
         self.bond3Action.setChecked( self.bondclick_v6 == V_TRIPLE)
@@ -914,7 +925,7 @@ class depositMode(selectAtomsMode, MMKit):
             ## call this from update_gui (called by UpdateDashboard) instead,
             ## so it will happen the first time we're setting it up, too:
             ## self.resubscribe_to_clipboard_members_changed()
-            self.update_clipboard_items() # Fixes bugs 1569, 1570, 1572 and 1573. mark 060306.
+            self.propMgr.update_clipboard_items() # Fixes bugs 1569, 1570, 1572 and 1573. mark 060306.
                 # Note and bugfix, bruce 060412: doing this now was also causing traceback bugs 1726, 1629,
                 # and the traceback part of bug 1677, and some related (perhaps unreported) bugs.
                 # The problem was that this is called during pasteBond's addmol (due to its addchild), before it's finished,
@@ -980,7 +991,7 @@ class depositMode(selectAtomsMode, MMKit):
 	
 	self.updateCommandManager(bool_entering = False)      
         
-        self.closePropertyManager()
+        self.propMgr.closePropertyManager()
 		
 # Now uses superclass method selectAtomsMode.restore_patches(). mark 060207.
 #    def restore_patches(self):
@@ -1019,7 +1030,7 @@ class depositMode(selectAtomsMode, MMKit):
         if key == Qt.Key_Escape:
             if not self.depositAtomsAction.isChecked() or self.w.selection_filter_enabled:
                 # Uncheck (disable) the Atom Selection Filter and activate the Atom Tool.
-                self.filterCB.setChecked(0) # generates signal.
+                self.propMgr.filterCB.setChecked(0) # generates signal.
                 self.depositAtomsAction.setChecked(1)
                 return
         
@@ -1203,8 +1214,8 @@ class depositMode(selectAtomsMode, MMKit):
             try: 
                 # Obtain the hybrid index from the hybrid button group, not
 		# the obsolete hybrid combobox. Fixes bug 2456. Mark 2007-06-20
-                hybrid_id = self.theHybridizations.checkedId()
-                hybrid_name = self.bond_id2name[hybrid_id]
+                hybrid_id = self.propMgr.theHybridizations.checkedId()
+                hybrid_name = self.propMgr.bond_id2name[hybrid_id]
                 atype = current_element.find_atomtype(hybrid_name)
                 if atype is not None:
                     self._pastable_atomtype = atype
@@ -1538,7 +1549,7 @@ class depositMode(selectAtomsMode, MMKit):
 	# In A8, self.depositAtomsAction was self.w.depositAtomDashboard.buildBtn. Since the dashboard will be moved to 
 	    #Property Manager, gradually, all self.w.depositAtomDashboard calls will be changed to sel.MMKit calls. 
 	    #Also note that , it may even be called by a different name instead of MMKit (e.g. BuildPropertyManager which might
-	    #be called as self.pw.blahblah where self.pw = active part window. This comment is subjected to revision - Ninad 061214
+	    #be called as self.propMgr.pw.blahblah where self.propMgr.pw = active part window. This comment is subjected to revision - Ninad 061214
 	#ninad 070205: self.buildBtn is now replaced with self.depositAtomsAction
 	return not self.depositAtomsAction.isChecked()
     
@@ -1562,7 +1573,7 @@ class depositMode(selectAtomsMode, MMKit):
 	    # In A8, self.depositAtomsAction was self.w.depositAtomDashboard.buildBtn. Since the dashboard will be moved to 
 	    #Property Manager, gradually, all self.w.depositAtomDashboard calls will be changed to sel.MMKit calls. 
 	    #Also note that , it may even be called by a different name instead of MMKit (e.g. BuildPropertyManager which might
-	    #be called as self.pw.blahblah where self.pw = active part window. This comment is subjected to revision - Ninad 061214
+	    #be called as self.propMgr.pw.blahblah where self.propMgr.pw = active part window. This comment is subjected to revision - Ninad 061214
 	    
 	    #Following fixes bug 2425 (implements single click bond deletion 
 	    #in Build Atoms. -- ninad 20070626
@@ -1688,7 +1699,7 @@ class depositMode(selectAtomsMode, MMKit):
         Otherwise, deposit the part at the position 'atom_or_pos'.
         Return (deposited_stuff, status_msg_text), whether or not deposition was successful.
         ''' 
-        newPart, hotSpot = self.getPastablePart()
+        newPart, hotSpot = self.propMgr.getPastablePart()
         
         if not newPart: # Make sure a part is selected in the MMKit Library.
             # Whenever the MMKit is closed with the 'Library' page open,
@@ -1783,7 +1794,7 @@ class depositMode(selectAtomsMode, MMKit):
                     reload(build_utils)
                 from build_utils import AtomTypeDepositionTool
                 deptool = AtomTypeDepositionTool( atype)
-                autobond = self.autobondCB.isChecked() #bruce 050831
+                autobond = self.propMgr.autobondCB.isChecked() #bruce 050831
                 a1, desc = deptool.attach_to(a, autobond = autobond)
                         #e this might need to take over the generation of the following status msg...
                 ## a1, desc = self.attach(el, a)
@@ -2270,7 +2281,7 @@ class depositMode(selectAtomsMode, MMKit):
         self.w.update_depositState_buttons()
 	
 	# This fixes a bug when returning from Bonds Tool and the tab was not "Atoms".
-	self.tabCurrentChanged() # Mark 2007-06-01
+	self.propMgr.tabCurrentChanged() # Mark 2007-06-01
 	
         self.UpdateDashboard() #bruce 050121 added this
 
@@ -2294,7 +2305,7 @@ class depositMode(selectAtomsMode, MMKit):
 	    self.setBondg(state)
 	elif action == self.cutBondsAction:
 	    self.update_cursor()
-	    self.updateBuildAtomsMessage()
+	    self.propMgr.updateBuildAtomsMessage()
 	    
     def setBond1(self, state):
         "Slot for Bond Tool Single button."
@@ -2330,7 +2341,7 @@ class depositMode(selectAtomsMode, MMKit):
             if self.bondclick_v6:
                 name = btype_from_v6(self.bondclick_v6)
                 env.history.statusbar_msg("click bonds to make them %s" % name) # name is 'single' etc
-		self.updateBuildAtomsMessage() # Mark 2007-06-01
+		self.propMgr.updateBuildAtomsMessage() # Mark 2007-06-01
             else:
                 # this never happens (as explained above)
                 #####@@@@@ see also setAtom, which runs when Atom Tool is clicked (ideally this might run as well, but it doesn't)
@@ -2384,8 +2395,8 @@ class depositMode(selectAtomsMode, MMKit):
             try:
 		# Obtain the hybrid index from the hybrid button group, not
 		# the obsolete hybrid combobox. Fixes bug 2304. Mark 2007-06-20
-                hybrid_id = self.theHybridizations.checkedId()
-                hybrid_name = self.bond_id2name[hybrid_id]
+                hybrid_id = self.propMgr.theHybridizations.checkedId()
+                hybrid_name = self.propMgr.bond_id2name[hybrid_id]
                 atype = elm.find_atomtype(hybrid_name)
                 if atype is not None:
                     atomtype = atype
@@ -2400,7 +2411,7 @@ class depositMode(selectAtomsMode, MMKit):
         
     def transmutePressed(self):
         '''Slot for "Transmute" button. '''
-        force = self.transmuteCB.isChecked()
+        force = self.propMgr.transmuteCB.isChecked()
         atomType = self.get_atomtype_from_MMKit()
         self.w.assy.modifyTransmute(self.w.Element, force = force, atomType=atomType)
         
@@ -2444,7 +2455,7 @@ class depositMode(selectAtomsMode, MMKit):
         """Draw the water's surface -- a sketch plane to indicate where the new atoms will sit by default,
         which also prevents (some kinds of) selection of objects behind it.
         """
-        if not self.waterCB.isChecked():
+        if not self.propMgr.waterCB.isChecked():
             return
             
         glDisable(GL_LIGHTING)
@@ -2756,7 +2767,7 @@ class depositMode(selectAtomsMode, MMKit):
 	    
 	    #Open the clipboard page (for set hotspot and copy operation performed 
 	    #on a bond point in the main part (while in deposit mode)
-	    self.change2ClipboardPage()
+	    self.propMgr.change2ClipboardPage()
 	   	            
         return
 

@@ -6,19 +6,14 @@ $Id$
 
 History: 
 
-Originally created by Mark and Huaicai using Qt3 designer
+-Originally created by Mark and Huaicai using Qt3 designer
 Till Alpha8,  MMKit existed  as a Dialog. 
+-October 2006 Will ported MMKitDialog from Qt3 to Qt4 
+-October 2006 onwards Ninad integrated Build Dashboard and MMKitDialog 
+and converted it into a 'Property Manager' with further enhancements. 
 
-In October 2006 Will ported MMKitDialog to NE1 on Qt4 
-
-October 2006 onwards Ninad integrated Build Dashboard and MMKitDialog 
-and converted it into a 'Property Manager' 
-
-ninad070207 made enhancements to this Build Property Manager
-
-As of 070207 it is still refered as MMKitDialog. Should really be called
-'Build Property Manager' as it also implements old dashboard functionality
--- ninad 070207
+As of 20070717 it is still refered as MMKitDialog. Should really be called
+'Build Atoms Property Manager' -- ninad 20070717
 
 mark 2007-05-29: Fixed sizePolicy for all widgets so everything behaves itself
                  in a fixed width Property Manager (for Alpha 9).
@@ -134,68 +129,24 @@ class Ui_MMKitDialog(object):
 	
 	self.vboxlayout_grpbox1.addWidget(self.bondTool_groupBoxButton)
 	
-	#Atom and bond Tools action
-	#Following Actions are added in the Flyout toolbar. 
-	#Defining them outside that method as those are being used
-	#by the subclasses of deposit mode (testmode.py as of 070410) -- ninad
-	
-	self.depositAtomsAction = QtGui.QWidgetAction(self.w)
-	self.depositAtomsAction.setText("Atoms Tool")
-	self.depositAtomsAction.setIcon(geticon(
-	    'ui/actions/Toolbars/Smart/Deposit_Atoms'))
-	self.depositAtomsAction.setCheckable(True)
-	self.depositAtomsAction.setChecked(True)
-	
-		
-	self.transmuteBondsAction = QtGui.QWidgetAction(self.w)
-	self.transmuteBondsAction.setText("Bonds Tool")
-	self.transmuteBondsAction.setIcon(geticon(
-	    'ui/actions/Toolbars/Smart/Transmute_Bonds'))
-	self.transmuteBondsAction.setCheckable(True)
-		
+				
 	self.bondToolWidget = QtGui.QWidget(self.bondTools_grpBox)	
 	
 	hlo_bondtool = QtGui.QHBoxLayout(self.bondToolWidget)
 	hlo_bondtool.setMargin(2)
 	hlo_bondtool.setSpacing(2)
-    
-	self.bondToolsActionGroup = QtGui.QActionGroup(MMKitDialog.w)
-	self.bondToolsActionGroup.setExclusive(True)
-		
-	self.bond1Action = QtGui.QWidgetAction(MMKitDialog.w)  
-	self.bond1Action.setText("Single")
-	self.bond1Action.setIcon(geticon("ui/actions/Toolbars/Smart/bond1.png"))
-    
-	self.bond2Action = QtGui.QWidgetAction(MMKitDialog.w)  
-	self.bond2Action.setText("Double")
-	self.bond2Action.setIcon(geticon("ui/actions/Toolbars/Smart/bond2.png"))
-	
-	self.bond3Action = QtGui.QWidgetAction(MMKitDialog.w)  
-	self.bond3Action.setText("Triple")
-	self.bond3Action.setIcon(geticon("ui/actions/Toolbars/Smart/bond3.png"))
-	
-	self.bondaAction = QtGui.QWidgetAction(MMKitDialog.w)  
-	self.bondaAction.setText("Aromatic")
-	self.bondaAction.setIcon(geticon("ui/actions/Toolbars/Smart/bonda.png"))
-	
-	self.bondgAction = QtGui.QWidgetAction(MMKitDialog.w)  
-	self.bondgAction.setText("Graphitic")
-	self.bondgAction.setIcon(geticon("ui/actions/Toolbars/Smart/bondg.png"))
-	
-	self.cutBondsAction = QtGui.QWidgetAction(MMKitDialog.w)  
-	self.cutBondsAction.setText("Cut Bonds")
-	self.cutBondsAction.setIcon(geticon("ui/actions/Tools/Build Tools/Cut_Bonds"))
-	
+    	
 
-	for action in self.bond1Action, self.bond2Action, self.bond3Action, \
-	    self.bondaAction, self.bondgAction, self.cutBondsAction:
+	for action in self.parent.bond1Action, self.parent.bond2Action, \
+	    self.parent.bond3Action, self.parent.bondaAction, \
+	    self.parent.bondgAction, self.parent.cutBondsAction:
 	    
 	    btn = QtGui.QToolButton()
 	    btn.setDefaultAction(action)       
 	    btn.setIconSize(QtCore.QSize(22,22))
 	    btn.setAutoRaise(1)        
 	    action.setCheckable(True)	
-	    self.bondToolsActionGroup.addAction(action)
+	    self.parent.bondToolsActionGroup.addAction(action)
 	    hlo_bondtool.addWidget(btn)
        
 	self.vboxlayout_grpbox1.addWidget(self.bondToolWidget)

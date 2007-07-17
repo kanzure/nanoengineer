@@ -10,7 +10,9 @@ Created by Huaicai.
 
 Modified by several developers since then.
 
-At some point, class MMKit became a mixin class for class depositMode.
+ninad 20070716: Code cleanup to make mmkit a propMgr object in deposit mode
+instead of being inherited by that mode.
+
 """
 
 import os, sys
@@ -52,7 +54,8 @@ class MMKit(QDialog,
 	    Ui_MMKitDialog, 
 	    PropertyManagerMixin, 
 	    SponsorableMixin):
-    """Provide the MMKit PM for Build Atoms mode. (This is a mixin class for class depositMode.)
+    """
+    Provide the MMKit PM for Build Atoms mode.
     """
     # <title> - the title that appears in the property manager header.
     title = "Build Atoms"
@@ -62,11 +65,16 @@ class MMKit(QDialog,
     bond_id2name =['sp3', 'sp2', 'sp', 'sp2(graphitic)']
     sponsor_keyword = 'Build'
     
-    def __init__(self, win):
+    def __init__(self, parent, win):
         QDialog.__init__(self, win, Qt.Dialog)# Qt.WStyle_Customize | Qt.WStyle_Tool | Qt.WStyle_Title | Qt.WStyle_NoBorder)
 	
 	self.w = win
         self.o = self.w.glpane
+	
+	#@NOTE: As of 20070717, MMKit supports only depositMode as its parent
+	#(and perhaps subclasses of depositMode ..but such a class that also
+	#uses MMKit is NIY so it is unconfirmed)  -- ninad
+	self.parent = parent
 	
         self.setupUi(self)
 	
@@ -224,12 +232,31 @@ class MMKit(QDialog,
         
     __needs_update_clipboard_items = False
         # (there could be other flags like this for other kinds of updates we might need)
+	
+    
+    def show_propMgr(self):
+        """
+	Show the Build Property Manager.
+	"""
+	#@NOTE: The build property manager files are still refered as MMKit and
+	#MMKitDialog. This will change in the near future. -- ninad 20070717
+	
+	self.update_dialog(self.parent.w.Element)		
+	self.parent.set_selection_filter(False) # disable selection filter 		
+	self.openPropertyManager(self)
+	
+	#Following is an old comment, was originally in depositMode.init_gui: 
+	#Do these before connecting signals or we'll get history msgs.  
+	#Part of fix for bug 1620. mark 060322
+	self.highlightingCB.setChecked(self.parent.hover_highlighting_enabled)
+        self.waterCB.setChecked(self.parent.water_enabled)
+	    
     
     def update_dialog(self, elemNum):
         """Called when the current element has been changed.
            Update non user interactive controls display for current selected 
            element: element label info and element graphics info """
-        
+	        
         elm = self.elemTable.getElement(elemNum)
 	
 	currentIndex = self.mmkit_tab.currentIndex()
@@ -291,7 +318,7 @@ class MMKit(QDialog,
 		msg = "Double click in empty space to insert a copy of the selected part in the library."
 	
 	else: # Bonds Tool is selected (MMKit groupbox is hidden).
-	    if self.cutBondsAction.isChecked():
+	    if self.parent.cutBondsAction.isChecked():
 		msg = "<b> Cut Bonds </b> tool is active. \
 		Click on bonds in order to delete them."
 		self.MessageGroupBox.insertHtmlMessage(msg)
@@ -326,6 +353,7 @@ class MMKit(QDialog,
         ##self.update_selection_filter_list_widget()
 	self.update_selection_filter_list()
 	self.filterlistLE.setEnabled(enabled)
+	self.filterCB.setChecked(enabled)
         self.o.mode.update_cursor()
     
     def update_selection_filter_list(self):

@@ -255,7 +255,12 @@ class selectAtomsMode(selectMode):
                         SIGNAL("clicked()"),self.transmutePressed)
         change_connect(self.w.elemFilterComboBox,
                         SIGNAL("activated(int)"), self.set_selection_filter)
-
+    
+    def set_selection_filter(self, enabled):
+	''' Set/ Unset selection filter. Subclasses should override this
+	@param: enabled: boolean that decides whether to turn 
+	selection filter on or off. '''
+	pass 
 
     def restore_gui(self):
         # disconnect signals which were connected in init_gui [bruce 050728]
