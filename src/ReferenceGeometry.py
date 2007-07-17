@@ -300,8 +300,10 @@ class GeometryGeneratorBaseClass(SponsorableMixin, PropertyManagerMixin):
         # The following reopens the property manager of the mode after 
         #when the PM of the reference geometry is closed. -- Ninad 20070603        
         if self.win.assy.o.mode.modename in \
-           ['DEPOSIT', 'MODIFY', 'FUSE', 'MOVIE']:
+           ['MODIFY', 'FUSE', 'MOVIE']:
             self.modePropertyManager = self.win.assy.o.mode
+        elif self.win.assy.o.mode.modename == 'DEPOSIT':
+            self.modePropertyManager = self.win.assy.o.mode.propMgr
         else:
             self.modePropertyManager = None
         
@@ -326,8 +328,10 @@ class GeometryGeneratorBaseClass(SponsorableMixin, PropertyManagerMixin):
         self.closePropertyManager()
         
         if self.win.assy.o.mode.modename in \
-           ['DEPOSIT', 'MODIFY', 'FUSE', 'MOVIE']:
+           ['MODIFY', 'FUSE', 'MOVIE']:
             self.modePropertyManager = self.win.assy.o.mode
+        elif self.win.assy.o.mode.modename == 'DEPOSIT':
+            self.modePropertyManager = self.win.assy.o.mode.propMgr
         else:
             self.modePropertyManager = None
             
