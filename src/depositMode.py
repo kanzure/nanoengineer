@@ -2451,11 +2451,11 @@ class depositMode(selectAtomsMode):
         glDepthMask(GL_TRUE)
         return
         
-    def surface(self): #bruce 050610 revised docstring
+    def surface(self):
         """Draw the water's surface -- a sketch plane to indicate where the new atoms will sit by default,
         which also prevents (some kinds of) selection of objects behind it.
         """
-        if not self.propMgr.waterCB.isChecked():
+        if not self.water_enabled:
             return
             
         glDisable(GL_LIGHTING)
