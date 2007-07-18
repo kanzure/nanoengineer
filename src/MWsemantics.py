@@ -1215,7 +1215,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 	    if self.glpane.mode.modename != "DEPOSIT":
 		self.glpane.setMode('DEPOSIT')
 		
-	    self.glpane.mode.change2ClipboardPage() # Fixed bug 1230.  Mark 051219.
+	    self.glpane.mode.propMgr.change2ClipboardPage() # Fixed bug 1230.  Mark 051219.
             
     # editDelete
     def killDo(self):
