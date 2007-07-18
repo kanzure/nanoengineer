@@ -681,17 +681,20 @@ class MMKit(QDialog,
         '''Slot method. Called when user changed the selected chunk. '''
 
         itemId = self.chunkListBox.row(item)
-        newChunk = self.pastableItems[itemId]
-                
-        #self.w.pasteComboBox.setCurrentIndex(itemId)
-        #buildModeObj = self.w.glpane.modetab['DEPOSIT']
-        #assert buildModeObj
-        #buildModeObj.setPaste()
-        
-        ##Compared to the above way, I think this way is better. Modules are more uncoupled.
-        self.w.pasteComboBox.setCurrentIndex(itemId) # Fixes bug 1754. mark 060325
-       
-        self.elemGLPane.updateModel(newChunk)
+	
+	if itemId != -1:
+	
+	    newChunk = self.pastableItems[itemId]
+		    
+	    #self.w.pasteComboBox.setCurrentIndex(itemId)
+	    #buildModeObj = self.w.glpane.modetab['DEPOSIT']
+	    #assert buildModeObj
+	    #buildModeObj.setPaste()
+	    
+	    ##Compared to the above way, I think this way is better. Modules are more uncoupled.
+	    self.w.pasteComboBox.setCurrentIndex(itemId) # Fixes bug 1754. mark 060325
+	   
+	    self.elemGLPane.updateModel(newChunk)
         
     
     def __really_update_clipboard_items(self): #bruce 060412 renamed this from update_clipboard_items to __really_update_clipboard_items
