@@ -1286,14 +1286,25 @@ class PropMgrTextEdit(QTextEdit, PropMgrWidgetMixin, PropertyManager_common):
             self.setAsDefault = True
     
         if replace:
-	    # clear() will cause the QTextCursor disappear.
-	    # Need to investigate another way to clear the text.
-	    # Mark 2007-06-24
-            self.clear()
-        
-        self._setHeight(minLines, maxLines)
+	    # Replace the text by selecting effectively all text and
+	    # insert the new text 'over' it (overwrite). :jbirac: 20070629
+	    cursor  =  self.textCursor()
+	    cursor.setPosition( 0, 
+				QTextCursor.MoveAnchor )
+	    cursor.setPosition( len(self.toPlainText()), 
+				QTextCursor.KeepAnchor )
+	    self.setTextCursor( cursor )
         
         QTextEdit.insertHtml(self, text)
+
+	if replace:
+	    # Restore the previous cursor position/selection and mode.
+	    cursor.setPosition( len(self.toPlainText()), 
+				QTextCursor.MoveAnchor )
+	    self.setTextCursor( cursor )
+	    
+	self._setHeight(minLines, maxLines)
+        
         
     def _setHeight(self, minLines=4, maxLines=8):
         """Set the height just high enough to display
