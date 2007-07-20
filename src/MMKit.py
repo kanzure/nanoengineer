@@ -65,7 +65,7 @@ class MMKit(QDialog,
     bond_id2name =['sp3', 'sp2', 'sp', 'sp2(graphitic)']
     sponsor_keyword = 'Build'
     
-    def __init__(self, parent, win):
+    def __init__(self, parentMode, win):
         QDialog.__init__(self, win, Qt.Dialog)# Qt.WStyle_Customize | Qt.WStyle_Tool | Qt.WStyle_Title | Qt.WStyle_NoBorder)
 	
 	self.w = win
@@ -74,7 +74,7 @@ class MMKit(QDialog,
 	#@NOTE: As of 20070717, MMKit supports only depositMode as its parent
 	#(and perhaps subclasses of depositMode ..but such a class that also
 	#uses MMKit is NIY so it is unconfirmed)  -- ninad
-	self.parent = parent
+	self.parentMode = parentMode
 	
         self.setupUi(self)
 	
@@ -241,15 +241,15 @@ class MMKit(QDialog,
 	#@NOTE: The build property manager files are still refered as MMKit and
 	#MMKitDialog. This will change in the near future. -- ninad 20070717
 	
-	self.update_dialog(self.parent.w.Element)		
-	self.parent.set_selection_filter(False) # disable selection filter 		
+	self.update_dialog(self.parentMode.w.Element)		
+	self.parentMode.set_selection_filter(False) # disable selection filter 		
 	self.openPropertyManager(self)
 	
 	#Following is an old comment, was originally in depositMode.init_gui: 
 	#Do these before connecting signals or we'll get history msgs.  
 	#Part of fix for bug 1620. mark 060322
-	self.highlightingCB.setChecked(self.parent.hover_highlighting_enabled)
-        self.waterCB.setChecked(self.parent.water_enabled)
+	self.highlightingCB.setChecked(self.parentMode.hover_highlighting_enabled)
+        self.waterCB.setChecked(self.parentMode.water_enabled)
 	    
     
     def update_dialog(self, elemNum):
@@ -318,7 +318,7 @@ class MMKit(QDialog,
 		msg = "Double click in empty space to insert a copy of the selected part in the library."
 	
 	else: # Bonds Tool is selected (MMKit groupbox is hidden).
-	    if self.parent.cutBondsAction.isChecked():
+	    if self.parentMode.cutBondsAction.isChecked():
 		msg = "<b> Cut Bonds </b> tool is active. \
 		Click on bonds in order to delete them."
 		self.MessageGroupBox.insertHtmlMessage(msg)

@@ -137,16 +137,16 @@ class Ui_MMKitDialog(object):
 	hlo_bondtool.setSpacing(2)
     	
 
-	for action in self.parent.bond1Action, self.parent.bond2Action, \
-	    self.parent.bond3Action, self.parent.bondaAction, \
-	    self.parent.bondgAction, self.parent.cutBondsAction:
+	for action in self.parentMode.bond1Action, self.parentMode.bond2Action, \
+	    self.parentMode.bond3Action, self.parentMode.bondaAction, \
+	    self.parentMode.bondgAction, self.parentMode.cutBondsAction:
 	    
 	    btn = QtGui.QToolButton()
 	    btn.setDefaultAction(action)       
 	    btn.setIconSize(QtCore.QSize(22,22))
 	    btn.setAutoRaise(1)        
 	    action.setCheckable(True)	
-	    self.parent.bondToolsActionGroup.addAction(action)
+	    self.parentMode.bondToolsActionGroup.addAction(action)
 	    hlo_bondtool.addWidget(btn)
        
 	self.vboxlayout_grpbox1.addWidget(self.bondToolWidget)
