@@ -34,9 +34,14 @@ class MovePropertyManager(QtGui.QWidget,
     # The current move mode (either TRANSLATE or ROTATE).
     _currentMoveMode = TRANSLATE 
         
-    def __init__(self):
+    def __init__(self, parentMode):
         QtGui.QWidget.__init__(self)
-        
+     
+        self.parentMode = parentMode
+	self.w = self.parentMode.w
+	self.o = self.parentMode.o
+	self.pw = None # pw = partwindow
+	
         self.setupUi(self)
 	
 	# Update the title and icon for "Translate" (the default move mode).
@@ -64,6 +69,12 @@ class MovePropertyManager(QtGui.QWidget,
         self.updateMessage()
         
         self.add_whats_this_text()
+    
+    def show_propMgr(self):
+	"""
+	Show Move Property Manager
+	"""
+	self.openPropertyManager(self)
     
     def activate_translateGroupBox_using_groupButton(self):
         """Show contents of this groupbox, deactivae the other groupbox. 
@@ -95,13 +106,8 @@ class MovePropertyManager(QtGui.QWidget,
             else:
                 actionToCheck = self.w.moveFreeAction
                 actionToCheck.setChecked(True)
-	    #@@ the following method is in modifyMode. Needs cleanup
-	    #each mode should make its propMgr object (cleanup proces)
-	    #In that case , the following will become, for example, 
-	    #self.parent.changeMoveOption Or the changeMoveOption methode 
-	    #itself can be moved in this class (at present a bit of work 
-	    #because of other things that depend on it. -- ninad 20070605
-	    self.changeMoveOption(actionToCheck)
+	    
+	    self.parentMode.changeMoveOption(actionToCheck)
 	    
     
     def activate_rotateGroupBox_using_groupButton(self):
@@ -135,13 +141,8 @@ class MovePropertyManager(QtGui.QWidget,
             else:
                 actionToCheck = self.w.rotateFreeAction
                 actionToCheck.setChecked(True)
-	    #@@ the following method is in movodifyMode. Needs cleanup
-	    #each mode should make its propMgr object (cleanup proces)
-	    #In that case , the follwing will become, for example, 
-	    #self.parent.changeRotateOption Or the changeRotateOption methode 
-	    #itself can be moved in this class (at present a bit of work 
-	    #because of other things that depend on it. -- ninad 20070605
-	    self.changeRotateOption(actionToCheck)
+	    
+	    self.parentMode.changeRotateOption(actionToCheck)
 	
                     
     def activate_translateGroupBox(self):
@@ -174,14 +175,8 @@ class MovePropertyManager(QtGui.QWidget,
         else:
             actionToCheck = self.w.moveFreeAction
             actionToCheck.setChecked(True)
-	    
-	#@@ the following method is in modifyMode. Needs cleanup
-	#each mode should make its propMgr object (cleanup proces)
-	#In that case , the following will become, for example, 
-	#self.parent.changeMoveOption Or the changeMoveOption methode 
-	#itself can be moved in this class (at present a bit of work 
-	#because of other things that depend on it. -- ninad 20070605
-	self.changeMoveOption(actionToCheck)
+	
+	self.parentMode.changeMoveOption(actionToCheck)
             
     def activate_rotateGroupBox(self):
         """Show contents of this groupbox, deactivae the other groupbox. 
@@ -211,13 +206,7 @@ class MovePropertyManager(QtGui.QWidget,
             actionToCheck = self.w.rotateFreeAction
             actionToCheck.setChecked(True)
 	
-	#@@ the following method is in movodifyMode. Needs cleanup
-	#each mode should make its propMgr object (cleanup proces)
-	#In that case , the follwing will become, for example, 
-	#self.parent.changeRotateOption Or the changeRotateOption methode 
-	#itself can be moved in this class (at present a bit of work 
-	#because of other things that depend on it. -- ninad 20070605
-	self.changeRotateOption(actionToCheck)
+	self.parentMode.changeRotateOption(actionToCheck)
         
                                
     def deactivate_rotateGroupBox(self):
@@ -375,9 +364,142 @@ class MovePropertyManager(QtGui.QWidget,
 		actionToCheck = self.w.rotTransAlongAxisAction_1
 	
 	return actionToCheck
+    
+    def updateRotationDeltaLabels(self, rotateOption, rotationDelta):
+        """ 
+	Updates the Rotation Delta labels in the Rotate combobox  while rotating
+        the selection around an axis
+	"""
+        
+        if rotateOption == 'ROTATEX':
+            listx = [self.lbl_x, self. deltaThetaX_lbl, 
+                     self.degree_lbl_x]
+            
+            listyz = [self.deltaThetaY_lbl, self.deltaThetaZ_lbl, 
+                      self.lbl_y, self.lbl_z, self.degree_lbl_y,
+                      self.degree_lbl_z]            
+            for lbl in listx:
+                lbl.show()
+                font = QtGui.QFont(lbl.font())
+                font.setBold(True)
+                lbl.setFont(font)
+            self.deltaThetaX_lbl.setText(str(round(self.parentMode.rotDelta, 2)))
+            for lbl in listyz:
+                font = QtGui.QFont(lbl.font())
+                font.setBold(False)
+                lbl.setFont(font)
+                lbl.show()
+        elif rotateOption == 'ROTATEY':
+            listy = [self.lbl_y, self. deltaThetaY_lbl, self.degree_lbl_y]
+            listxz =[self.deltaThetaX_lbl, self.deltaThetaZ_lbl, 
+                     self.lbl_x, self.lbl_z, self.degree_lbl_x, 
+                     self.degree_lbl_z]
+            for lbl in listy :
+                font = QtGui.QFont(lbl.font())
+                font.setBold(True)
+                lbl.setFont(font)        
+                lbl.show()
+            self.deltaThetaY_lbl.setText(str(round(self.parentMode.rotDelta, 2)))
+            for lbl in listxz:
+                font = QtGui.QFont(lbl.font())
+                font.setBold(False)
+                lbl.setFont(font)
+                lbl.show()
+        elif rotateOption == 'ROTATEZ':
+            listz = [self.lbl_z, self. deltaThetaZ_lbl, self.degree_lbl_z]
+            listxy =  [ self.deltaThetaX_lbl, self.deltaThetaY_lbl, 
+                        self.lbl_x, self.lbl_y, self.degree_lbl_x,
+                        self.degree_lbl_y]
+            for lbl in listz:
+                font = QtGui.QFont(lbl.font())
+                font.setBold(True)
+                lbl.setFont(font)
+                lbl.show()
+            self.deltaThetaZ_lbl.setText(str(round(self.parentMode.rotDelta, 2)))
+            for lbl in listxy:
+                font = QtGui.QFont(lbl.font())
+                font.setBold(False)
+                lbl.setFont(font)   
+                lbl.show()
+        else:
+            print "MovePropertyManager.updateRotationDeltaLabels: Error - unknown rotateOption value =", self.rotateOption
+    
+    def toggleRotationDeltaLabels(self, show=False):
+        """ 
+	Hide all the rotation delta labels when  
+        rotateFreeDragAction is checked 
+	"""
+        lst = [self.lbl_y, self.lbl_z, self.lbl_x,
+                   self.deltaThetaX_lbl, 
+                   self.deltaThetaY_lbl, 
+                   self.deltaThetaZ_lbl,
+                   self.degree_lbl_x,
+                   self.degree_lbl_y,
+                   self.degree_lbl_z
+                   ]
+        if not show:            
+            for lbl in lst:
+                lbl.hide()    
+        else:
+            for lbl in lst:
+                lbl.show()
+    
+    def set_move_xyz(self,x,y,z):
+	"""
+	Set values of X, Y and Z coordinates in the Move Property Manager.
+	@param x: X coordinate of the common center of the selected objects
+	@param y: Y coordinate of the common center of the selected objects
+	@param z: Z coordinate of the common center of the selected objects
+	"""
+	self.moveXSpinBox.setValue(x)
+	self.moveYSpinBox.setValue(y)
+	self.moveZSpinBox.setValue(z)
+
+    def get_move_xyz(self):
+	"""
+	Returns X, Y and Z values in the Move Property Manager. 
+	@return : tuple (x, y, z) 
+	"""
+    
+	x = self.moveXSpinBox.value()
+	y = self.moveYSpinBox.value()
+	z = self.moveZSpinBox.value()
+	
+	return (x,y,z)   
+	
+    def set_move_delta_xyz(self,delX, delY, delZ):
+	"""
+	Sets the values for 'move by distance delta' spinboxes 
+	These are the values by which the selection will be translated 
+	along the specified axes.
+	@param delX: Delta X value 
+	@param delY: Delta Y value
+	@param delZ: Delta Z value
+	
+	"""
+	self.moveDeltaXSpinBox.setValue(delX)
+	self.moveDeltaYSpinBox.setValue(delY)
+	self.moveDeltaZSpinBox.setValue(delZ)
+    
+    def get_move_delta_xyz(self, Plus = True):
+	"""
+	Returns the values for 'move by distance delta' spinboxes 
+	@param Plus : Boolean that decides the sign of the return values. 
+	(True returns positive values)
+	@return : A tuple containing delta X, delta Y and delta Z values
+	"""
+     
+	delX = self.moveDeltaXSpinBox.value()
+	delY = self.moveDeltaYSpinBox.value()
+	delZ = self.moveDeltaZSpinBox.value()
+	
+	if Plus: return (delX,delY,delZ) # Plus
+	else: return (-delX, -delY, -delZ) # Minus
+	
         
     def updateMessage(self): # Mark 2007-06-23
-        """Updates the message box with an informative message.
+        """
+	Updates the message box with an informative message.
         """
         
         from ops_select import objectSelected

@@ -111,48 +111,9 @@ def do_what_MainWindowUI_should_do(w):
     w.moveChunksDashboard.addSeparator()
     
     w.moveChunksDashboard.addAction(w.toolsDoneAction)
-
-def set_move_xyz(obj,x,y,z):
-    '''Set values of X, Y and Z in the dashboard.
-    '''
-    self = obj
-    self.moveXSpinBox.setValue(x)
-    self.moveYSpinBox.setValue(y)
-    self.moveZSpinBox.setValue(z)
-
-def get_move_xyz(obj):
-    '''Returns X, Y and Z values in the dashboard based on Plus.
-    If Plus is True, returns x, y, z
-    If Plus is False, returns -x, -y, -z
-    '''
-    self = obj
-
-    x = self.moveXSpinBox.value()
-    y = self.moveYSpinBox.value()
-    z = self.moveZSpinBox.value()
-    
-    return (x,y,z)   
-    
-def set_move_delta_xyz(obj, delX, delY, delZ):
-    """sets the values for 'move by distance delta' spinboxes """
-    self = obj
-    self.moveDeltaXSpinBox.setValue(delX)
-    self.moveDeltaYSpinBox.setValue(delY)
-    self.moveDeltaZSpinBox.setValue(delZ)
-
-def get_move_delta_xyz(obj, Plus =True):
-    """Returns the values for 'move by distance delta' spinboxes """
-    
-    self = obj
-    delX = self.moveDeltaXSpinBox.value()
-    delY = self.moveDeltaYSpinBox.value()
-    delZ = self.moveDeltaZSpinBox.value()
-    
-    if Plus: return (delX,delY,delZ) # Plus
-    else: return (-delX, -delY, -delZ) # Minus
     
     
-class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from basicMode to selectMolsMode.  mark 060301.
+class modifyMode(selectMolsMode): # changed superclass from basicMode to selectMolsMode.  mark 060301.
     "[bruce comment 040923:] a transient mode entered from selectMode in response to certain mouse events"
 
     # class constants
@@ -169,10 +130,12 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
     RotationOnly = False
     TranslationOnly = False
     
+    propMgr = None
+    
     # no __init__ method needed
 
     def Enter(self):
-        
+	
         #Initialize the flag for Constrained translation and rotation
         #along the axis of the chunk to False. This flag is set 
         #to True whenever keyboard key 'A' is pressed 
@@ -188,17 +151,15 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
         self.o.assy.selectChunksWithSelAtoms()
         self.dragdist = 0.0
         self.setGoBackToMode(False, 'MODIFY')
-        self.clear_leftA_variables() #bruce 070605 precaution
+	self.clear_leftA_variables() #bruce 070605 precaution
+	
         return
     
     # (see basicMode.Done.__doc__ for the ones we don't override here [bruce 040923])
 
-    def init_gui(self):
-        
-        MovePropertyManager.__init__(self)
-                
-        self.openPropertyManager(self) # ninad 061227 see PropertymanagerMixin
-	
+    def init_gui(self):	
+        self.propMgr = MovePropertyManager(self)	
+	self.propMgr.show_propMgr()                	
 	self.updateCommandManager(bool_entering = True)
     
         # connect signals (these all need to be disconnected in restore_gui)
@@ -209,8 +170,8 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
         
         self.w.moveChunksDashboard.show() # show the Move Molecules dashboard
         
-        set_move_xyz(self, 0, 0, 0) # Init X, Y, and Z to zero
-        set_move_delta_xyz(self, 0,0,0) # Init DelX,DelY, DelZ to zero
+        self.propMgr.set_move_xyz(0, 0, 0) # Init X, Y, and Z to zero
+        self.propMgr.set_move_delta_xyz(0,0,0) # Init DelX,DelY, DelZ to zero
         self.w.moveThetaSpinBox.setValue(0) # Init Theta spinbox to zero
         self.setup_movetype(self.w.movetype_combox.currentText())
 
@@ -241,12 +202,13 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
     def restore_gui(self):
         # disconnect signals which were connected in init_gui [bruce 050728]
 	self.updateCommandManager(bool_entering = False)
-        self.closePropertyManager()	
+	if self.propMgr:
+	    self.propMgr.closePropertyManager()	
         self.w.toolsMoveMoleculeAction.setChecked(False) # toggle on the Move Chunks icon
         self.w.rotateComponentsAction.setChecked(False)
         self.connect_or_disconnect_signals(False)
         self.w.moveChunksDashboard.hide()
-
+	
     
     def getFlyoutActionList(self): #Ninad 20070618
 	""" Returns a tuple that contains mode spcific actionlists in the 
@@ -541,10 +503,17 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
         # end of Rotate section
         
     def leftDrag(self, event):
-        """Move the selected object(s):
+        """
+	Move the selected object(s):
         - in the plane of the screen following the mouse, 
         - or slide and rotate along the an axis
+	
+	@param event: The mouls left drag event. 
+	@note : This method is partially duplicated (free drag translate code)
+	in selectMolsMode.pseudoMoveModeLeftDrag  
         """
+	
+	    
         #Huaicai 3/23/05: This following line will fix bugs like 460. But
         #the root of the serials of bugs including a lot of cursor bugs is
         # the mouse event processing function. For bug 460, the 
@@ -594,10 +563,10 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
         #'free' drag option in the combobox is not set.
         if not self.isGoBackToMode():       
             if self.w.toolsMoveMoleculeAction.isChecked():
-                if self.movetype_combox.currentText() != "Free Drag":
+                if self.propMgr.movetype_combox.currentText() != "Free Drag":
                     return
             elif self.w.rotateComponentsAction.isChecked():
-                if self.rotatetype_combox.currentText() != "Free Drag":
+                if self.propMgr.rotatetype_combox.currentText() != "Free Drag":
                     return                
             #Ninad 070308 for 'rotate components mode, left drag = old ctrl + left drag
             if self.w.rotateComponentsAction.isChecked():
@@ -666,7 +635,7 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
             qrot = Q(ma,-dy) # Quat for rotation delta.
             self.rotDelta += qrot.angle *180.0/math.pi * sign(dy) # Increment rotation delta (and convert to degrees)
             
-            self.updateRotationDeltaLabels(self.rotateOption, self.rotDelta)
+            self.propMgr.updateRotationDeltaLabels(self.rotateOption, self.rotDelta)
             self.o.assy.rotsel(qrot) 
             
             #End of Rotate Section
@@ -684,65 +653,6 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
         
     # end of leftDrag    
     
-    def updateRotationDeltaLabels(self, rotateOption, rotationDelta):
-        """ Updates the Rotation Delta labels in the Rotate combobox  while rotating
-        the selection aroung an axis"""
-        ##self.rotationAngleDeltas_lbl.show()
-        
-        if rotateOption == 'ROTATEX':
-            listx = [self.lbl_x, self. deltaThetaX_lbl, 
-                     self.degree_lbl_x]
-            
-            listyz = [self.deltaThetaY_lbl, self.deltaThetaZ_lbl, 
-                      self.lbl_y, self.lbl_z, self.degree_lbl_y,
-                      self.degree_lbl_z]            
-            for lbl in listx:
-                lbl.show()
-                font = QtGui.QFont(lbl.font())
-                font.setBold(True)
-                lbl.setFont(font)
-            self.deltaThetaX_lbl.setText(str(round(self.rotDelta, 2)))
-            for lbl in listyz:
-                font = QtGui.QFont(lbl.font())
-                font.setBold(False)
-                lbl.setFont(font)
-                lbl.show()
-        elif rotateOption == 'ROTATEY':
-            listy = [self.lbl_y, self. deltaThetaY_lbl, self.degree_lbl_y]
-            listxz =[self.deltaThetaX_lbl, self.deltaThetaZ_lbl, 
-                     self.lbl_x, self.lbl_z, self.degree_lbl_x, 
-                     self.degree_lbl_z]
-            for lbl in listy :
-                font = QtGui.QFont(lbl.font())
-                font.setBold(True)
-                lbl.setFont(font)        
-                lbl.show()
-            self.deltaThetaY_lbl.setText(str(round(self.rotDelta, 2)))
-            for lbl in listxz:
-                font = QtGui.QFont(lbl.font())
-                font.setBold(False)
-                lbl.setFont(font)
-                lbl.show()
-        elif rotateOption == 'ROTATEZ':
-            listz = [self.lbl_z, self. deltaThetaZ_lbl, self.degree_lbl_z]
-            listxy =  [ self.deltaThetaX_lbl, self.deltaThetaY_lbl, 
-                        self.lbl_x, self.lbl_y, self.degree_lbl_x,
-                        self.degree_lbl_y]
-            for lbl in listz:
-                font = QtGui.QFont(lbl.font())
-                font.setBold(True)
-                lbl.setFont(font)
-                lbl.show()
-            self.deltaThetaZ_lbl.setText(str(round(self.rotDelta, 2)))
-            for lbl in listxy:
-                font = QtGui.QFont(lbl.font())
-                font.setBold(False)
-                lbl.setFont(font)   
-                lbl.show()
-        else:
-            print "modifyMode.updateRotationDeltaLabels: Error - unknown rotateOption value =", self.rotateOption
-                
-          
     #Ninad 070212 : Flags that set which mode to return after left mouse dragging (left down) is finished. 
     #This is used in 'psudo -move mode' which is accessed from the Select chunks mode. 
     def setGoBackToMode(self, bool = False, modeToReturn = 'MODIFY'):
@@ -816,11 +726,12 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
     def leftCntlDown(self, event):
         """Setup a trackball action on the selected chunk(s).
         """
+	
         if not self.o.assy.getSelectedMovables(): return
 	
-	    
+   
         #If its pseudo move mode only permit free move(translate) drag
-        if self.isGoBackToMode():
+        if self.isGoBackToMode():	   
             self.w.rotateComponentsAction.setChecked(True)
             self.w.rotateFreeAction.setChecked(True)
 
@@ -828,12 +739,11 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
         self.o.trackball.start(self.o.MousePos[0],self.o.MousePos[1])
         self.picking = True
         self.dragdist = 0.0
-
+	
    
     def leftCntlDrag(self, event):
         """Do an incremental trackball action on all selected chunks(s).
         """
-		
         ##See comments of leftDrag()--Huaicai 3/23/05
         if not self.picking: return
 	
@@ -849,7 +759,7 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
         q = self.o.trackball.update(self.o.MousePos[0],self.o.MousePos[1],
                                     self.o.quat)
     
-        if self.rotateAsUnitCB.isChecked():
+        if self.propMgr.rotateAsUnitCB.isChecked():
             self.o.assy.rotsel(q) # Rotate the selection as a unit.
         else:
             for mol in self.o.assy.selmols: # Rotate each chunk individually.
@@ -897,7 +807,7 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
         """
 
         self._leftADown = True
-        self._leftADown_rotateAsUnit = self.rotateAsUnitCB.isChecked()
+        self._leftADown_rotateAsUnit = self.propMgr.rotateAsUnitCB.isChecked()
         movables = self.o.assy.getSelectedMovables()
         self._leftADown_movables = movables
         
@@ -1076,26 +986,26 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
 
     def moveThetaPlus(self):
         "Rotate the selected chunk(s) by theta (plus)"
-        button= self.rotateAroundAxisButtonGroup.checkedButton()
+        button= self.propMgr.rotateAroundAxisButtonGroup.checkedButton()
         if button:
             rotype = button.objectName()
         else:
             env.history.message(redmsg("Rotate By Specified Angle: Please press the button \
             corresponding to the axis of rotation"))
             return
-        theta = self.rotateThetaSpinBox.value()
+        theta = self.propMgr.rotateThetaSpinBox.value()
         self.moveTheta( rotype, theta)
         
     def moveThetaMinus(self):
         "Rotate the selected chunk(s) by theta (minus)"
-        button= self.rotateAroundAxisButtonGroup.checkedButton()
+        button= self.propMgr.rotateAroundAxisButtonGroup.checkedButton()
         if button:
             rotype = button.objectName()
         else:
             env.history.message(redmsg("Rotate By Specified Angle: Please press the button \
             corresponding to the axis of rotation"))
             return
-        theta = self.rotateThetaSpinBox.value() * -1.0
+        theta = self.propMgr.rotateThetaSpinBox.value() * -1.0
         self.moveTheta( rotype, theta)
         
     def moveTheta(self, rotype, theta):
@@ -1124,7 +1034,7 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
         dy =  (math.pi / 180.0) * theta  # Convert to radians
         qrot = Q(ma,dy) # Quat for rotation delta.
         
-        if self.rotateAsUnitCB.isChecked():
+        if self.propMgr.rotateAsUnitCB.isChecked():
             self.o.assy.rotsel(qrot) # Rotate the selection as a unit.
         else:
             for mol in self.o.assy.selmols: # Rotate each chunk individually.
@@ -1137,7 +1047,7 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
         if not self.o.assy.getSelectedMovables(): 
             env.history.message(redmsg("No chunks or movable jigs selected."))
             return
-        offset = get_move_delta_xyz(self)
+        offset = self.propMgr.get_move_delta_xyz()
         self.o.assy.movesel(offset)
         self.o.gl_update()
 
@@ -1147,7 +1057,7 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
             env.history.message(redmsg("No chunks or movable jigs selected."))
             return
         
-        offset = get_move_delta_xyz(self, Plus=False)
+        offset = self.propMgr.get_move_delta_xyz(Plus=False)
         self.o.assy.movesel(offset)
         self.o.gl_update()
 
@@ -1168,7 +1078,7 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
                 bbox.merge(m.bbox)
         pt1 = bbox.center() # pt1 = center point for bbox of selected chunk(s).
        
-        pt2 = get_move_xyz(self) # pt2 = X, Y, Z values from dashboard.
+        pt2 = self.propMgr.get_move_xyz() # pt2 = X, Y, Z values from dashboard.
         offset = pt2 - pt1 # Compute offset for movesel.
         
         self.o.assy.movesel(offset) # Move the selected chunk(s)/jig(s).
@@ -1201,16 +1111,16 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
         '''   
         if action == self.w.rotXAction:
             self.rotateOption = 'ROTATEX'
-            self.rotateAsUnitCB.hide()
-            self.toggleRotationDeltaLabels(show = True)
+            self.propMgr.rotateAsUnitCB.hide()
+            self.propMgr.toggleRotationDeltaLabels(show = True)
         elif action == self.w.rotYAction:
             self.rotateOption = 'ROTATEY'
-            self.rotateAsUnitCB.hide()
-            self.toggleRotationDeltaLabels(show = True)
+            self.propMgr.rotateAsUnitCB.hide()
+            self.propMgr.toggleRotationDeltaLabels(show = True)
         elif action == self.w.rotZAction:
             self.rotateOption = 'ROTATEZ'
-            self.rotateAsUnitCB.hide()
-            self.toggleRotationDeltaLabels(show = True)
+            self.propMgr.rotateAsUnitCB.hide()
+            self.propMgr.toggleRotationDeltaLabels(show = True)
         elif action == self.w.rotTransAlongAxisAction_2:
             #do not use the isConstrainedDrag.. flag. Causing bugs and 
             #am in a rush (need this new option for today's release) 
@@ -1222,26 +1132,8 @@ class modifyMode(selectMolsMode, MovePropertyManager): # changed superclass from
             self.rotateOption = 'ROTATEDEFAULT'        
             #Hides all the rotation delta labels when  
             #rotateFreeDragAction is checked
-            self.toggleRotationDeltaLabels(show = False)
-            self.rotateAsUnitCB.show()
-    
-    def toggleRotationDeltaLabels(self, show=False):
-        """ Hide all the rotation delta labels when  
-        rotateFreeDragAction is checked """
-        lst = [self.lbl_y, self.lbl_z, self.lbl_x,
-                   self.deltaThetaX_lbl, 
-                   self.deltaThetaY_lbl, 
-                   self.deltaThetaZ_lbl,
-                   self.degree_lbl_x,
-                   self.degree_lbl_y,
-                   self.degree_lbl_z
-                   ]
-        if not show:            
-            for lbl in lst:
-                lbl.hide()    
-        else:
-            for lbl in lst:
-                lbl.show()    
+            self.propMgr.toggleRotationDeltaLabels(show = False)
+            self.propMgr.rotateAsUnitCB.show()   
             
             
 

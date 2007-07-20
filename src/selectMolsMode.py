@@ -53,7 +53,7 @@ from constants import darkred
 from constants import black
 from constants import GL_FAR_Z
 from prefs_constants import bondHighlightColor_prefs_key
-
+from VQT import V, vlen
 from qt4transition import qt4info
 
 class selectMolsMode(selectMode):
@@ -68,35 +68,26 @@ class selectMolsMode(selectMode):
                     
     def init_gui(self):
         selectMode.init_gui(self)
-        #ninad 070929 Don't draw done cancel buttons in 'default mode' 
-        #(which is proposed to be select chunks mode always in A9)
         self.w.toolsSelectMoleculesAction.setChecked(1) # toggle on the "Select Chunks" tools icon
         self.w.dashboardHolder.hide()
         #self.w.dashboardHolder.setWidget(self.w.selectMolDashboard)
         #self.w.selectMolDashboard.show()
-    
+       
     def restore_gui(self):
         self.w.toolsSelectMoleculesAction.setChecked(0) # toggle on the "Select Chunks" tools icon
         #self.w.selectMolDashboard.hide()
         
     def leftDouble(self, event):
-        '''Switch to Build chunks mode'''
-        #@@ninad070329  Till Alpha8, it used to Switch to Move Chunks Mode. 
-        # for Alpha9, (pr pre Alpha9), it will enter Deposit mode 
-        #this implementation might change in future.  We may decide to do nothing instead
-        
-        #@@@ninad 070329: Doubleclick in select mode changes to build mode but 
-        #prints the following traceback : that needs to be fixed:
-        #"exception in mode's mouseReleaseEvent handler (bug, ignored): exceptions.AttributeError: LMB_press_event
-        #[GLPane.py:1515] [selectAtomsMode.py:721]"
-        
-        #### Current plans are to merge Select Chunks and Move Chunks modes in A8.
-        ###self.o.setMode('MODIFY')
-        
+        """
+	Switch to Build Atoms modewhen user double clicks on an object
+	@note: pre Alpha9, it used to enter Move mode upon double clicking. 
+	Since Alpha9, it enters Deposit mode if you double click on an object
+	"""
+	
         #@@@ ninad20070510 - based on discussion with Mark, don't enter deposit
         #mode when cursor is on empty space. (Otherwise, i.e. when its over an 
         #object, enter deposit mode.        
-        #Following needs to bechange after implementation of objects like 
+        #Following needs to be changed after implementation of objects like 
         #points, lines etc , which don't need deposit mode. 
         
         if self.cursor_over_when_LMB_pressed != 'Empty Space':
@@ -375,7 +366,7 @@ class selectMolsMode(selectMode):
     
     def leftCntlDown(self, event):
         '''Event handler for Control+LMB press.'''
-        self.leftDown(event)
+        self.leftDown(event)           
     
     def leftDown(self, event):
         '''Event handler for all LMB press events.'''
@@ -396,7 +387,9 @@ class selectMolsMode(selectMode):
             # Used in mouse_within_stickiness_limit (called by leftDrag() and other methods).
             # We don't bother to vertically flip y using self.height (as mousepoints does),
             # since this is only used for drag distance within single drags.
-            
+        
+        self.pseudoMoveModeLeftDown(event) 
+    	
         obj = self.get_obj_under_cursor(event)
             # If highlighting is turned on, get_obj_under_cursor() returns atoms, singlets, bonds, jigs,
             # or anything that can be highlighted and end up in glpane.selobj. [bruce revised this comment, 060725]
@@ -464,15 +457,24 @@ class selectMolsMode(selectMode):
 
         self.w.win_update() #k (is this always desirable? note, a few cases above return early just so they can skip it.)
         return # from selectMolsMode.leftDown
-
     
+        
     def leftDrag(self, event):
-        """ Overrides leftdrag method of select Mode. While left dragging
-        if any movable object is selected, it enters 'move mode' called 'pseudo 
-        move mode' for convenience. After releasing left mouse button 
-        it returns to select chunks mode. The only observable effect for
-        the end user is the pressed Move components action icon. 
-        (which is intentional) """
+        """ 
+	Overrides leftdrag method of selectMode.
+	A) If the mouse cursor was on Empty space during left down, it draws 
+	a selection curve 
+	B) If it was on an object, it translates translates the selection 
+	(free drag translate).This is called 'pseudo move mode' for convenience. 
+	Note that NE1 still remains in the selectMolsMode while doing this. 
+	It calls separate method for objects that implement drag handler API 
+	
+	@param  event: mouse left drag event
+	@see : selectMode.leftDrag
+	@see : selectMolsMode.pseudoMoveModeLeftDown
+	@see : selectMolsMode.pseudoMoveModeLeftDrag
+	
+	"""
         
         #Copying some drag_handler checker code from selectAtomsMode (with some 
         # modifications)the comment below bu bruce070322 is just copied over 
@@ -501,51 +503,98 @@ class selectMolsMode(selectMode):
                     self.dragHandlerDrag(self.drag_handler, event)
                     return                    
                 
-                                
         if self.o.assy.getSelectedMovables():
-            bool_goBackToMode = True
-            self.o.setMode('MODIFY')  
-            #@@ ninad 070302 Close the property manager. 
-            #This works ok even for huge objects (i.e. there is no
-            #'flashing' effect because property manager in move mode is initialized
-            #in init_gui method instead of mode.enter
-            # I wanted to set a flag here and use it in move mode's init_gui. 
-            #but it didn't work. So trying this alternative. 
-            self.o.mode.closePropertyManager()
-            self.o.mode.setGoBackToMode(True, 'SELECTMOLS')             
-            self.o.mode.leftDown(event)
-        else:
-            self.continue_selection_curve(event)      
+	    #Free Drag Translate the selected (movable) objects.
+	    self.pseudoMoveModeLeftDrag(event)
+	else:
+            self.continue_selection_curve(event) 
+	
+    
+    def pseudoMoveModeLeftDown(self, event):
+	"""
+	Initialize variables required for translating the selection during
+	leftDrag method (pseudoMoveModeLeftDrag) . 
+	@param event: Mouse left down event	
+	@see : self.leftDown
+	"""
+        #pseudo move mode related initialization STARTS
+	self.o.SaveMouse(event)
+        self.picking = True
+        self.dragdist = 0.0
+        self.transDelta = 0 # X, Y or Z deltas for translate.
+        self.moveOffset = [0.0, 0.0, 0.0] # X, Y and Z offset for move.
+        
+        farQ_junk, self.movingPoint = self.dragstart_using_GL_DEPTH( event)
+        self.startpt = self.movingPoint # Used in leftDrag() to compute move offset during drag op.
+	#pseudo move mode related initialization ENDS 
+        return
+        
+    def pseudoMoveModeLeftDrag(self, event):
+        """
+	Translate the selected object(s) in the plane of the screen 
+	following the mouse. This is a free drag translate.
+	
+        @param  event: mouse left drag event. 
+	@see: self.leftDrag
+	@see: modifyMode.leftDrag
+	@note : This method uses some duplicate code (free drag translate code)
+	from modifyMode.leftDrag 
+        """
+      
+        if not self.picking: return
+        
+        if not self.o.assy.getSelectedMovables(): return
+        
+        if self.movingPoint is None: 
+	    self.leftDown(event)         
+        
+	#Turn Off hover highlighting while translating the selection
+	#This will be turned ON again in leftUp method. 
+        self.hover_highlighting_enabled = False  
+	
+	# Move section
+	deltaMouse = V(event.pos().x() - self.o.MousePos[0],
+		   self.o.MousePos[1] - event.pos().y(), 0.0)
+
+	point = self.dragto( self.movingPoint, event) #bruce 060316 replaced old code with dragto (equivalent)
+    
+	# Print status bar msg indicating the current translation delta.	
+	self.moveOffset = point - self.startpt # Fixed bug 929.  mark 060111
+	msg = "Offset: [X: %.2f] [Y: %.2f] [Z: %.2f]" % (self.moveOffset[0],
+							 self.moveOffset[1], 
+							 self.moveOffset[2])
+	env.history.statusbar_msg(msg)
+
+	self.o.assy.movesel(point - self.movingPoint)
+	self.movingPoint = point    
+        self.dragdist += vlen(deltaMouse)
+        self.o.SaveMouse(event)
+        self.o.gl_update()
+
     
     def leftCntlDrag(self, event):
-        """ Overrides leftdrag method of select Mode. While left dragging
-        if any movable object is selected, it enters 'move mode' called 'pseudo 
-        move mode' for convenience. After releasing left mouse button 
-        it returns to select chunks mode. The only observable effect for
-        the end user is the pressed Move components action icon. 
-        (which is intentional) """
-        isCursorOnAnObject = self.o.selobj
+        """ 
+        Overrides leftCntlDrag method (event handler) of selectMode.
+        Control(Cmd on Mac) key + left drag draws a seletion rectangle or lasso 
+        When LMB is released, it deselects chunks inside the selection curve
+        @param  event: mouse event associated with control(cmd on Mac)+ leftDrag 
+        @see         : selectMode.leftCntlDrag
+        """
         
-        if self.o.assy.getSelectedMovables():
-            bool_goBackToMode = True
-            self.o.setMode('MODIFY')  
-            #@@ ninad 070302 Close the property manager. 
-            #This works ok even for huge objects (i.e. there is no
-            #'flashing' effect because property manager in move mode is initialized
-            #in init_gui method instead of mode.enter
-            # I wanted to set a flag here and use it in move mode's init_gui. 
-            #but it didn't work. So trying this alternative. 
-            self.o.mode.closePropertyManager()
-            self.o.mode.setGoBackToMode(True, 'SELECTMOLS')             
-            self.o.mode.leftCntlDown(event)
-        else:
-            self.continue_selection_curve(event)  
+        self.continue_selection_curve(event)
         
             
     def leftUp(self, event):
         '''Event handler for all LMB release events.'''
         env.history.flush_saved_transients() # flush any transient message it saved up
-         
+	
+	#Enable the highlighting which might be turned off during left drag 
+	#@warning: When we add the chunk highlighting to the preferences, 
+	#the following shuold set the user preferences value instead of 
+	#setting this to 'True' -- ninad 20070720
+	if not self.hover_highlighting_enabled:
+	    self.hover_highlighting_enabled = True
+	    
         if self.cursor_over_when_LMB_pressed == 'Empty Space':
             self.emptySpaceLeftUp(event)
             return
@@ -575,6 +624,7 @@ class selectMolsMode(selectMode):
         else:
             pass
         
+        self.w.win_update()
         return # from selectMolsMode.leftUp
             
     def bareMotion(self, event): 
