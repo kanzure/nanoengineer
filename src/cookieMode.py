@@ -105,7 +105,7 @@ class cookieMode(basicMode):
         """The initial function is called only once for the whole program """
         basicMode.__init__(self, glpane)
         
-        self.ctrlPanel = CookieCtrlPanel(self.w)
+        self.propMgr = CookieCtrlPanel(self.w)
     
     def Enter(self): 
         basicMode.Enter(self)
@@ -127,17 +127,17 @@ class cookieMode(basicMode):
 
         ##Every time enters into this mode, we need to set this to False
         self.freeView = False
-        self.ctrlPanel.freeViewCheckBox.setChecked(self.freeView)
+        self.propMgr.freeViewCheckBox.setChecked(self.freeView)
         
         self.gridShow = True
-        self.ctrlPanel.gridLineCheckBox.setChecked(self.gridShow)
+        self.propMgr.gridLineCheckBox.setChecked(self.gridShow)
         
         self.gridSnap = False
-        self.ctrlPanel.snapGridCheckBox.setChecked(self.gridSnap)
+        self.propMgr.snapGridCheckBox.setChecked(self.gridSnap)
         
-        self.showFullModel = self.ctrlPanel.fullModelCheckBox.isChecked()
-        self.cookieDisplayMode = str(self.ctrlPanel.dispModeCBox.currentText())
-        self.latticeType = self.LATTICE_TYPES[self.ctrlPanel.latticeCBox.currentIndex()]
+        self.showFullModel = self.propMgr.fullModelCheckBox.isChecked()
+        self.cookieDisplayMode = str(self.propMgr.dispModeCBox.currentText())
+        self.latticeType = self.LATTICE_TYPES[self.propMgr.latticeCBox.currentIndex()]
         
         self.layers = [] ## Stores 'surface origin' for each layer
         self.layers += [V(self.o.pov[0], self.o.pov[1], self.o.pov[2])]
@@ -154,14 +154,14 @@ class cookieMode(basicMode):
        
         #Show the flyout toolbar
         
-        #self.w.commandManager.updateCommandManager(self.ctrlPanel.btn_list, entering =True)        
+        #self.w.commandManager.updateCommandManager(self.propMgr.btn_list, entering =True)        
         
-        self.selectionShape = self.ctrlPanel.getSelectionShape()
+        self.selectionShape = self.propMgr.getSelectionShape()
         
     
     def init_gui(self):
         """GUI items need initialization every time."""
-        self.ctrlPanel.initGui()
+        self.propMgr.initGui()
         
         #This can't be done in the above call. During this time, 
         # the ctrlPanel can't find the cookieMode, the nullMode
@@ -169,7 +169,7 @@ class cookieMode(basicMode):
         # generally speaking, I think the code structure for mode 
         # operations like enter/init/cancel, etc, are kind of confusing.
         # The code readability is also not very good. --Huaicai
-        self.setThickness(self.ctrlPanel.layerCellsSpinBox.value()) 
+        self.setThickness(self.propMgr.layerCellsSpinBox.value()) 
 
         # I don't know if this is better to do here or just before setThickness (or if it matters): ####@@@@
         # Disable Undo/Redo actions, and undo checkpoints, during this mode (they *must* be reenabled in restore_gui).
@@ -196,7 +196,7 @@ class cookieMode(basicMode):
             # (somewhat of a kluge, and whether this is the best place to do it is unknown;
             #  without this the cmdname is "Done")
 
-        self.ctrlPanel.restoreGui()
+        self.propMgr.restoreGui()
                 
         if not self.savedOrtho:
             self.w.setViewPerspecAction.setChecked(True)
@@ -227,11 +227,11 @@ class cookieMode(basicMode):
             self.w.setViewPerspecAction.setEnabled(True)
             
             #Disable controls to change layer.
-            self.ctrlPanel.currentLayerCBox.setEnabled(False)
-            self.isAddLayerEnabled = self.ctrlPanel.addLayerButton.isEnabled ()
-            self.ctrlPanel.addLayerButton.setEnabled(False)
+            self.propMgr.currentLayerCBox.setEnabled(False)
+            self.isAddLayerEnabled = self.propMgr.addLayerButton.isEnabled ()
+            self.propMgr.addLayerButton.setEnabled(False)
             
-            self.ctrlPanel.enableViewChanges(True)
+            self.propMgr.enableViewChanges(True)
             
             if self.drawingCookieSelCurve: #Cancel any unfinished cookie drawing
                 self._afterCookieSelection()
@@ -244,10 +244,10 @@ class cookieMode(basicMode):
             self.w.setViewPerspecAction.setEnabled(False)
             
             #Restore controls to change layer/add layer
-            self.ctrlPanel.currentLayerCBox.setEnabled(True)
-            self.ctrlPanel.addLayerButton.setEnabled(self.isAddLayerEnabled)
+            self.propMgr.currentLayerCBox.setEnabled(True)
+            self.propMgr.addLayerButton.setEnabled(self.isAddLayerEnabled)
             
-            self.ctrlPanel.enableViewChanges(False)
+            self.propMgr.enableViewChanges(False)
             
             self.o.ortho = True
             if self.o.shape:
@@ -516,7 +516,7 @@ class cookieMode(basicMode):
                     if self.selectionShape == 'RECT_CORNER':    
                             self.defaultSelShape = SELSHAPE_RECT
                     #Disable view changes when begin curve drawing 
-                    self.ctrlPanel.enableViewChanges(False)
+                    self.propMgr.enableViewChanges(False)
                 else: #The end click release
                     self.o.selArea_List[-1] = selCurve_AreaPt
                     if self.defaultSelShape == SELSHAPE_RECT:
@@ -531,7 +531,7 @@ class cookieMode(basicMode):
                     self.Rubber = True
                     self.rubberWithoutMoving = True
                     #Disable view changes when begin curve drawing        
-                    self.ctrlPanel.enableViewChanges(False)
+                    self.propMgr.enableViewChanges(False)
             else: #This means single click/release without dragging for Lasso
                 self.selCurve_List = []
                 self.o.selArea_List = []
@@ -639,8 +639,8 @@ class cookieMode(basicMode):
         # bruce 041213 comment: shape might already exist, from prior drags
         if not self.o.shape:
             self.o.shape=CookieShape(self.o.right, self.o.up, self.o.lineOfSight, self.cookieDisplayMode, self.latticeType)
-            self.ctrlPanel.latticeCBox.setEnabled(False) 
-            self.ctrlPanel.enableViewChanges(False)
+            self.propMgr.latticeCBox.setEnabled(False) 
+            self.propMgr.enableViewChanges(False)
             
         # took out kill-all-previous-curves code -- Josh
         if self.defaultSelShape == SELSHAPE_RECT:
@@ -652,7 +652,7 @@ class cookieMode(basicMode):
                                   self.currentLayer, Slab(-self.o.pov, self.o.out, self.thickness))
         
         if self.currentLayer < (self.MAX_LAYERS - 1) and self.currentLayer == len(self.layers) - 1:
-            self.ctrlPanel.addLayerButton.setEnabled(True) 
+            self.propMgr.addLayerButton.setEnabled(True) 
         self._afterCookieSelection()
   
   
@@ -661,8 +661,8 @@ class cookieMode(basicMode):
          cookie. """
         if not self.o.shape:
                 self.o.shape=CookieShape(self.o.right, self.o.up, self.o.lineOfSight, self.cookieDisplayMode, self.latticeType)
-                self.ctrlPanel.latticeCBox.setEnabled(False)
-                self.ctrlPanel.enableViewChanges(False)
+                self.propMgr.latticeCBox.setEnabled(False)
+                self.propMgr.enableViewChanges(False)
                  
         p1 = self.o.selArea_List[1]
         p0 = self.o.selArea_List[0]
@@ -703,7 +703,7 @@ class cookieMode(basicMode):
             self.o.shape.pickCircle(self.o.selArea_List, -self.o.pov, self.selSense, self.currentLayer, Slab(-self.o.pov, self.o.out, self.thickness))
         
         if self.currentLayer < (self.MAX_LAYERS - 1) and self.currentLayer == len(self.layers) - 1:
-                self.ctrlPanel.addLayerButton.setEnabled(True)
+                self.propMgr.addLayerButton.setEnabled(True)
         self._afterCookieSelection()                          
     
         
@@ -947,7 +947,7 @@ class cookieMode(basicMode):
         self.o.pov = V(pov[0], pov[1], pov[2])
         
         maxCells = self._findMaxNoLattCell(self.currentLayer)
-        self.ctrlPanel.layerCellsSpinBox.setMaximum(maxCells)
+        self.propMgr.layerCellsSpinBox.setMaximum(maxCells)
        
         ##Cancel any selection if any.
         if self.drawingCookieSelCurve:
@@ -971,15 +971,15 @@ class cookieMode(basicMode):
         can be one of values(0, 1, 2) representing 100, 110, 111 surface respectively. """
         
         self.whichsurf = num
-        self.setThickness(self.ctrlPanel.layerCellsSpinBox.value())
-        button = self.ctrlPanel.orientButtonGroup.button(self.whichsurf)
+        self.setThickness(self.propMgr.layerCellsSpinBox.value())
+        button = self.propMgr.orientButtonGroup.button(self.whichsurf)
         button.setChecked(True)     
         self.w.dispbarLabel.setText(button.toolTip()) 
 
     def setThickness(self, num):
         self.thickness = num*DiGridSp*sqrt(self.whichsurf+1)
         s = "%3.4f" % (self.thickness)
-        self.ctrlPanel.layerThicknessLineEdit.setText(s)
+        self.propMgr.layerThicknessLineEdit.setText(s)
    
     def toggleFullModel(self, showFullModel):
         """Turn on/off full model """
@@ -989,7 +989,7 @@ class cookieMode(basicMode):
     def _cancelSelection(self):
         """Cancel selection before it's finished """
         self._afterCookieSelection()
-        if not self.o.shape: self.ctrlPanel.enableViewChanges(True)
+        if not self.o.shape: self.propMgr.enableViewChanges(True)
         
     
     def changeLatticeType(self, lType):
