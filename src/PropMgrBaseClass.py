@@ -71,6 +71,7 @@ from PyQt4.Qt import QTextOption
 from PyQt4.Qt import QSizePolicy
 from PyQt4.Qt import QSize
 from PyQt4.Qt import QRadioButton
+from PyQt4.Qt import QTextCursor
 
 import platform
 
