@@ -322,7 +322,7 @@ class fusechunksBase:
     
 
 
-class fusechunksMode(modifyMode, fusechunksBase, FusePropertyManager):
+class fusechunksMode(modifyMode, fusechunksBase):
     '''Allows user to move chunks and fuse them to other chunks in the part.
     Two fuse methods are supported:
         1. Make Bonds - bondpoints between chunks will form bonds when they are near each other.
@@ -357,20 +357,18 @@ class fusechunksMode(modifyMode, fusechunksBase, FusePropertyManager):
         # before repainting the GLPane. When False, 'recompute_fusables' is reset to True in Draw(), 
         # so it is the responsibility of the caller to Draw() (i.e. win_update() or gl_update()) to reset it to 
         # False before each redraw if desired. For more info, see comments in Draw().
+    
+    propMgr = None
 
     def Enter(self):
         modifyMode.Enter(self)
-        self.recompute_fusables = True
-        ##self.change_fuse_mode(self.w.fuse_mode_combox.currentText()) 
-            # This maintains state of fuse mode when leaving/reentering mode, and
-            # syncs the dashboard and glpane (and does a gl_update).
-            
+        self.recompute_fusables = True		
+	            
     def init_gui(self):
+	self.propMgr = FusePropertyManager(self)
+	self.propMgr.show_propMgr()               
                 
-        FusePropertyManager.__init__(self) 
-        self.openPropertyManager(self)
-        
-        self.change_fuse_mode(self.fuse_mode_combox.currentText()) 
+        self.change_fuse_mode(self.propMgr.fuse_mode_combox.currentText()) 
             # This maintains state of fuse mode when leaving/reentering mode, and
             # syncs the dashboard and glpane (and does a gl_update).
         
@@ -384,7 +382,7 @@ class fusechunksMode(modifyMode, fusechunksBase, FusePropertyManager):
         if self.o.assy.selmols:
             self.something_was_picked = True
        
-        if self.isMoveGroupBoxActive:
+        if self.propMgr.isMoveGroupBoxActive:
             self.w.moveFreeAction.setChecked(True) # toggle on the Move Free action on the dashboard
             self.moveOption = 'MOVEDEFAULT'
         else:
@@ -393,7 +391,7 @@ class fusechunksMode(modifyMode, fusechunksBase, FusePropertyManager):
 
     def restore_gui(self):
 	self.updateCommandManager(bool_entering = False)
-        self.closePropertyManager()
+        self.propMgr.closePropertyManager()
         self.connect_or_disconnect_signals(False)
         self.w.toolsFuseChunksAction.setChecked(False)
         
@@ -403,17 +401,17 @@ class fusechunksMode(modifyMode, fusechunksBase, FusePropertyManager):
         else:
             change_connect = self.w.disconnect
             
-        change_connect(self.goPB,SIGNAL("clicked()"),self.fuse_something)
-        change_connect(self.toleranceSL,SIGNAL("valueChanged(int)"),
-                       self.tolerance_changed)
-        
+        change_connect(self.propMgr.goPB,SIGNAL("clicked()"),self.fuse_something)
+        change_connect(self.propMgr.toleranceSL,SIGNAL("valueChanged(int)"),
+                       self.tolerance_changed)        
         
         change_connect(self.w.MoveOptionsGroup, 
-                       SIGNAL("triggered(QAction *)"), self.changeMoveOption)
+                       SIGNAL("triggered(QAction *)"), 
+		       self.changeMoveOption)
         change_connect(self.w.rotateOptionsGroup, 
                        SIGNAL("triggered(QAction *)"), self.changeRotateOption)
         
-        change_connect(self.fuse_mode_combox, 
+        change_connect(self.propMgr.fuse_mode_combox, 
                        SIGNAL("activated(const QString&)"), 
                        self.change_fuse_mode)
         
@@ -511,7 +509,7 @@ class fusechunksMode(modifyMode, fusechunksBase, FusePropertyManager):
             tol_str = fusechunks_lambda_tol_nbonds(self.tol, 0, 0, 0) # 0 bonds
         else:
             tol_str = fusechunks_lambda_tol_natoms(self.tol, 0) # 0 overlapping atoms
-        self.toleranceLB.setText(tol_str) 
+        self.propMgr.toleranceLB.setText(tol_str) 
     
     def find_fusables(self):
         'Finds bondable pairs or overlapping atoms, based on the Fuse Action combo box'
@@ -525,8 +523,8 @@ class fusechunksMode(modifyMode, fusechunksBase, FusePropertyManager):
         if self.fuse_mode == fuse_mode:
             return # The mode did not change.  Don't do anything.
         self.fuse_mode = str(fuse_mode) # Must cast here.
-        if fuse_mode == str(MAKEBONDS): self.goPB.setText('Make Bonds')
-        else: self.goPB.setText('Fuse Atoms') 
+        if fuse_mode == str(MAKEBONDS): self.propMgr.goPB.setText('Make Bonds')
+        else: self.propMgr.goPB.setText('Fuse Atoms') 
         self.o.gl_update() # the Draw() method will update based on the current combo box item.
 
     def Backup(self):
@@ -625,7 +623,7 @@ class fusechunksMode(modifyMode, fusechunksBase, FusePropertyManager):
         # end of Move section
            
         # Translate section     
-        if self.isMoveGroupBoxActive:            
+        if self.propMgr.isMoveGroupBoxActive:            
             if self.moveOption != 'MOVEDEFAULT':
                 if self.moveOption == 'TRANSX': 
                     ma = V(1,0,0) # X Axis
@@ -733,7 +731,7 @@ class fusechunksMode(modifyMode, fusechunksBase, FusePropertyManager):
         if self.movingPoint is None: self.leftDown(event) # Fix per Bruce's email.  Mark 050704
         
         		    
-        if self.isMoveGroupBoxActive:
+        if self.propMgr.isMoveGroupBoxActive:
 	    if (self.moveOption == 'ROT_TRANS_ALONG_AXIS'):	    
 		try:
 		    self.leftADrag(event)
@@ -802,7 +800,8 @@ class fusechunksMode(modifyMode, fusechunksBase, FusePropertyManager):
             qrot = Q(ma,-dy) # Quat for rotation delta.
             self.rotDelta += qrot.angle *180.0/math.pi * sign(dy) # Increment rotation delta (and convert to degrees)
             
-            self.updateRotationDeltaLabels(self.rotateOption, self.rotDelta)
+            self.propMgr.updateRotationDeltaLabels(self.rotateOption, 
+						   self.rotDelta)
             self.o.assy.rotsel(qrot) 
             
             #End of Rotate Section
@@ -925,7 +924,7 @@ class fusechunksMode(modifyMode, fusechunksBase, FusePropertyManager):
         to bond with any other bondpoints in a list of chunks.  Hidden chunks are skipped.
         '''
         tol_str = fusechunksBase.find_bondable_pairs(self, chunk_list, None)
-        self.toleranceLB.setText(tol_str)
+        self.propMgr.toleranceLB.setText(tol_str)
 
     def fuse_something(self):
         '''Slot for 'Make Bonds/Fuse Atoms' button.
@@ -944,7 +943,7 @@ class fusechunksMode(modifyMode, fusechunksBase, FusePropertyManager):
         
     def _make_bonds_2(self):
         # Merge the chunks if the "merge chunks" checkbox is checked
-        if self.mergeCB.isChecked() and self.bondable_pairs_atoms:
+        if self.propMgr.mergeCB.isChecked() and self.bondable_pairs_atoms:
             for a1, a2 in self.bondable_pairs_atoms:
                 # Ignore a1, they are atoms from the selected chunk(s)
                 # It is possible that a2 is an atom from a selected chunk, so check it
@@ -1028,7 +1027,7 @@ class fusechunksMode(modifyMode, fusechunksBase, FusePropertyManager):
         # Update tolerance label and status bar msgs.
         natoms = len(self.overlapping_atoms)
         tol_str = fusechunks_lambda_tol_natoms(self.tol, natoms)
-        self.toleranceLB.setText(tol_str)
+        self.propMgr.toleranceLB.setText(tol_str)
         
 
     def fuse_atoms(self):
@@ -1053,7 +1052,7 @@ class fusechunksMode(modifyMode, fusechunksBase, FusePropertyManager):
 #        print "Fused chunks list:", fused_chunks
         
         # Merge the chunks if the "merge chunks" checkbox is checked
-        if self.mergeCB.isChecked() and self.overlapping_atoms:
+        if self.propMgr.mergeCB.isChecked() and self.overlapping_atoms:
             # This will bond and merge the selected chunks only with
             # chunks that had overlapping atoms.
             #& This has bugs when the bonds don't line up nicely between overlapping atoms in the selected chunk

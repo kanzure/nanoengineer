@@ -43,15 +43,25 @@ class MovePropertyManager(QtGui.QWidget,
 	self.pw = None # pw = partwindow
 	
         self.setupUi(self)
-	
 	# Update the title and icon for "Translate" (the default move mode).
 	pmSetPropMgrIcon( self, self.translateIconPath )
 	pmSetPropMgrTitle( self, self.translateTitle )
         
         self.lastCheckedRotateAction = None 
         self.lastCheckedTranslateAction = None
-               
-        self.connect(self.translate_groupBoxButton, 
+                     
+        self.makeConnections()
+	
+        self.updateMessage()
+        
+        self.add_whats_this_text()
+    
+    def makeConnections(self):
+	"""
+	Connect the slots. Subclasses should override this method. 
+	Example: see FusePropertyManager.makeConnection
+	"""
+	self.connect(self.translate_groupBoxButton, 
                      SIGNAL("clicked()"),
                      self.activate_translateGroupBox_using_groupButton)            
         self.connect(self.rotate_groupBoxButton, 
@@ -64,11 +74,8 @@ class MovePropertyManager(QtGui.QWidget,
         self.connect(self.rotatetype_combox, 
                      SIGNAL("currentIndexChanged(int)"), 
                      self.updateRotateGroupBoxItems)
-        
-        
-        self.updateMessage()
-        
-        self.add_whats_this_text()
+	
+	
     
     def show_propMgr(self):
 	"""
@@ -83,7 +90,6 @@ class MovePropertyManager(QtGui.QWidget,
         groupbox button is clicked. See also activate_translateGroupBox 
         method.
         """
-        
         self._currentMoveMode = TRANSLATE
         self.updateMessage()
                 

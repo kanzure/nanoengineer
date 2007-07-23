@@ -18,7 +18,6 @@ from PyQt4.Qt import QSlider
 from PyQt4.Qt import Qt
 
 from Utility import geticon, getpixmap
-from Ui_MovePropertyManager import Ui_MovePropertyManager
 
 from PropertyManagerMixin import pmVBoxLayout
 from PropertyManagerMixin import pmAddHeader
@@ -32,89 +31,100 @@ from PropMgr_Constants import pmLabelLeftAlignment
 from PropMgr_Constants import pmDoneButton
 from PropMgr_Constants import pmWhatsThisButton
 
-class Ui_FusePropertyManager(Ui_MovePropertyManager):
-    def setupUi(self, FusePropertyManager):
-        
-        self.w = FusePropertyManager.w
-        FusePropertyManager.setObjectName("FusePropertyManager")
-	
-	pmVBoxLayout(FusePropertyManager)
-        pmAddHeader(FusePropertyManager)
-	pmAddSponsorButton(FusePropertyManager)
-        
-        pmAddTopRowButtons(FusePropertyManager, 
+class Ui_FusePropertyManager(object):
+    def setupUi(self, fusePropMgrObject):
+        fusePropMgr = fusePropMgrObject
+        fusePropMgr.setObjectName("fusePropMgr")
+	pmVBoxLayout(fusePropMgr)	
+        pmAddHeader(fusePropMgr)
+	pmAddSponsorButton(fusePropMgr)        
+        pmAddTopRowButtons(fusePropMgr, 
 			   showFlags = pmDoneButton | pmWhatsThisButton)
 	
-	self.MessageGroupBox = pmMessageGroupBox(self, title="Message")
-	self.pmVBoxLayout.addWidget(self.MessageGroupBox)
-	pmAddBottomSpacer(self.MessageGroupBox, self.pmVBoxLayout)
+	fusePropMgr.MessageGroupBox = pmMessageGroupBox(fusePropMgr,
+							title = "Message",
+							)
+	fusePropMgr.pmVBoxLayout.addWidget(fusePropMgr.MessageGroupBox)
+	pmAddBottomSpacer(fusePropMgr.MessageGroupBox, fusePropMgr.pmVBoxLayout)
 	
-        self.ui_fuseOptions_groupBox(FusePropertyManager)
-	pmAddBottomSpacer(self.fuseOptions_groupBox, self.pmVBoxLayout)
+        self.ui_fuseOptions_groupBox(fusePropMgr)
+	pmAddBottomSpacer(fusePropMgr.fuseOptions_groupBox, 
+			  fusePropMgr.pmVBoxLayout)
 	
-        self.ui_translate_groupBox(FusePropertyManager)
-	pmAddBottomSpacer(self.translate_groupBox, self.pmVBoxLayout)
+        fusePropMgr.ui_translate_groupBox(fusePropMgr)
+	pmAddBottomSpacer(fusePropMgr.translate_groupBox, 
+			  fusePropMgr.pmVBoxLayout)
 	
-        self.ui_rotate_groupBox(FusePropertyManager)
-	pmAddBottomSpacer(self.rotate_groupBox, self.pmVBoxLayout, last=True)
+        fusePropMgr.ui_rotate_groupBox(fusePropMgr)
+	pmAddBottomSpacer(fusePropMgr.rotate_groupBox, 
+			  fusePropMgr.pmVBoxLayout, 
+			  last=True)
             
-    def ui_fuseOptions_groupBox(self, FusePropertyManager):
-        #Start Rotate Options        
-        self.fuseOptions_groupBox = QtGui.QGroupBox(FusePropertyManager)
-        self.fuseOptions_groupBox.setObjectName("fuseOptions_groupBox")    
+    def ui_fuseOptions_groupBox(self, fusePropMgrObject):
+	
+	#Start Fuse Options  
+	fusePropMgr = fusePropMgrObject              
+        fusePropMgr.fuseOptions_groupBox = QtGui.QGroupBox(fusePropMgr)
+        fusePropMgr.fuseOptions_groupBox.setObjectName("fuseOptions_groupBox")    
         
-        self.fuseOptions_groupBox.setAutoFillBackground(True)
-        palette = FusePropertyManager.getGroupBoxPalette()
-        self.fuseOptions_groupBox.setPalette(palette)
+        fusePropMgr.fuseOptions_groupBox.setAutoFillBackground(True)
+        palette = fusePropMgr.getGroupBoxPalette()
+        fusePropMgr.fuseOptions_groupBox.setPalette(palette)
         
-        styleSheet = FusePropertyManager.getGroupBoxStyleSheet()        
-        self.fuseOptions_groupBox.setStyleSheet(styleSheet)
+        styleSheet = fusePropMgr.getGroupBoxStyleSheet()        
+        fusePropMgr.fuseOptions_groupBox.setStyleSheet(styleSheet)
         
-        vlo_fuseOptions_groupBox = QtGui.QVBoxLayout(self.fuseOptions_groupBox)
+        vlo_fuseOptions_groupBox = QtGui.QVBoxLayout(
+	    fusePropMgr.fuseOptions_groupBox)
         vlo_fuseOptions_groupBox.setMargin(0)
         vlo_fuseOptions_groupBox.setSpacing(6)
               
-        self.fuseOptions_groupBoxButton = FusePropertyManager.getGroupBoxTitleButton(
-            "Fuse Options", self.fuseOptions_groupBox)        
-        vlo_fuseOptions_groupBox.addWidget(self.fuseOptions_groupBoxButton)
+        fusePropMgr.fuseOptions_groupBoxButton = \
+		   fusePropMgr.getGroupBoxTitleButton(
+		       "Fuse Options", 
+		       fusePropMgr.fuseOptions_groupBox)  
+	
+        vlo_fuseOptions_groupBox.addWidget(
+	    fusePropMgr.fuseOptions_groupBoxButton)
         
-        self.fuseOptions_widgetHolder = QtGui.QWidget(self.fuseOptions_groupBox)
+        fusePropMgr.fuseOptions_widgetHolder = QtGui.QWidget(
+	    fusePropMgr.fuseOptions_groupBox)
                 
-        vlo_widgetHolder = QtGui.QVBoxLayout(self.fuseOptions_widgetHolder)
+        vlo_widgetHolder = QtGui.QVBoxLayout(
+	    fusePropMgr.fuseOptions_widgetHolder)
         vlo_widgetHolder.setMargin(2)
         vlo_widgetHolder.setSpacing(6)    
         
-        self.fuse_mode_combox = QComboBox(self.fuseOptions_widgetHolder)
-        self.fuse_mode_combox.insertItem(0,'Make Bonds Between Chunks') 
-        self.fuse_mode_combox.insertItem(1,'Fuse Overlapping Atoms')
-        vlo_widgetHolder.addWidget(self.fuse_mode_combox)
+        fusePropMgr.fuse_mode_combox = QComboBox(
+	    fusePropMgr.fuseOptions_widgetHolder)
+        fusePropMgr.fuse_mode_combox.insertItem(0,'Make Bonds Between Chunks') 
+        fusePropMgr.fuse_mode_combox.insertItem(1,'Fuse Overlapping Atoms')
+        vlo_widgetHolder.addWidget(fusePropMgr.fuse_mode_combox)
         
-        self.goPB = QPushButton("Make Bonds",self.fuseOptions_widgetHolder)
-	self.goPB.setAutoDefault(False)
-        vlo_widgetHolder.addWidget(self.goPB)
+        fusePropMgr.goPB = QPushButton("Make Bonds",
+				       fusePropMgr.fuseOptions_widgetHolder)
+	fusePropMgr.goPB.setAutoDefault(False)
+        vlo_widgetHolder.addWidget(fusePropMgr.goPB)
         
-        self.mergeCB = QCheckBox("Merge chunks", self.fuseOptions_widgetHolder)
-        self.mergeCB.setChecked(True)
-        vlo_widgetHolder.addWidget(self.mergeCB)
+        fusePropMgr.mergeCB = QCheckBox("Merge chunks", 
+					fusePropMgr.fuseOptions_widgetHolder)
+        fusePropMgr.mergeCB.setChecked(True)
+        vlo_widgetHolder.addWidget(fusePropMgr.mergeCB)
         
-        self.tolLB = QLabel()
-        self.tolLB.setText(" Tolerance:")
-        vlo_widgetHolder.addWidget(self.tolLB)
+        fusePropMgr.tolLB = QLabel()
+        fusePropMgr.tolLB.setText(" Tolerance:")
+        vlo_widgetHolder.addWidget(fusePropMgr.tolLB)
     
-        self.toleranceSL = QSlider(Qt.Horizontal)
-        ##self.toleranceSL.setMaximumWidth(150)
-        self.toleranceSL.setValue(100)
-        self.toleranceSL.setRange(0, 300)
-        vlo_widgetHolder.addWidget(self.toleranceSL)
+        fusePropMgr.toleranceSL = QSlider(Qt.Horizontal)
+        ##fusePropMgr.toleranceSL.setMaximumWidth(150)
+        fusePropMgr.toleranceSL.setValue(100)
+        fusePropMgr.toleranceSL.setRange(0, 300)
+        vlo_widgetHolder.addWidget(fusePropMgr.toleranceSL)
         
-        self.toleranceLB = QLabel()
-        self.toleranceLB.setText("100% => 0 bondable pairs")
-        vlo_widgetHolder.addWidget(self.toleranceLB)
+        fusePropMgr.toleranceLB = QLabel()
+        fusePropMgr.toleranceLB.setText("100% => 0 bondable pairs")
+        vlo_widgetHolder.addWidget(fusePropMgr.toleranceLB)
         
-        vlo_fuseOptions_groupBox.addWidget(self.fuseOptions_widgetHolder)
-        self.pmVBoxLayout.addWidget(self.fuseOptions_groupBox)
+        vlo_fuseOptions_groupBox.addWidget(fusePropMgr.fuseOptions_widgetHolder)
+        fusePropMgr.pmVBoxLayout.addWidget(fusePropMgr.fuseOptions_groupBox)
         
-        spacer_fuseops_grpbx = QtGui.QSpacerItem(
-            10,10,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        
-        self.pmVBoxLayout.addItem(spacer_fuseops_grpbx)
