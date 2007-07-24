@@ -24,6 +24,7 @@ from PyQt4.Qt import QWidgetAction
 from PyQt4.Qt import QAction
 
 import env
+import changes
 
 from modes import basicMode
 from VQT import V, Q, A, norm, vlen
@@ -366,6 +367,8 @@ class fusechunksMode(modifyMode, fusechunksBase):
 	            
     def init_gui(self):
 	self.propMgr = FusePropertyManager(self)
+	#@bug BUG: following is a workaround for bug 2494
+	changes.keep_forever(self.propMgr)
 	self.propMgr.show_propMgr()               
                 
         self.change_fuse_mode(self.propMgr.fuse_mode_combox.currentText()) 
@@ -391,9 +394,9 @@ class fusechunksMode(modifyMode, fusechunksBase):
 
     def restore_gui(self):
 	self.updateCommandManager(bool_entering = False)
-        self.propMgr.closePropertyManager()
         self.connect_or_disconnect_signals(False)
         self.w.toolsFuseChunksAction.setChecked(False)
+	self.propMgr.closePropertyManager()
         
     def connect_or_disconnect_signals(self, connect): #copied from depositMode.py. mark 050901
         if connect:
@@ -431,6 +434,9 @@ class fusechunksMode(modifyMode, fusechunksBase):
 	
 	change_connect(self.exitFuseAction, SIGNAL("triggered()"), 
 		       self.w.toolsDone)
+	
+	#Connect or disconnect signals in property manager
+	self.propMgr.connect_or_disconnect_signals(connect)
         
         return
     
@@ -723,9 +729,10 @@ class fusechunksMode(modifyMode, fusechunksBase):
                 print "Key A pressed after Left Down. controlled translation will not be performed"
                 pass
         
-        if self.w.rotateFreeAction.isChecked():
-            self.leftCntlDrag(event)
-            return
+        if not self.propMgr.isMoveGroupBoxActive: #Fixes bug 2493
+	    if self.w.rotateFreeAction.isChecked():
+		self.leftCntlDrag(event)
+		return
         
         # Fixes bugs 583 and 674 along with change in keyRelease.  Mark 050623
         if self.movingPoint is None: self.leftDown(event) # Fix per Bruce's email.  Mark 050704

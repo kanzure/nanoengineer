@@ -43,7 +43,6 @@ class FusePropertyManager(MovePropertyManager):
 	
 	self.parentMode = parentMode
         MovePropertyManager.__init__(self, self.parentMode)
-               
         # setupUi() did not add the icon or title. We do that here.
 	pmSetPropMgrIcon( self, self.iconPath )
         pmSetPropMgrTitle( self, self.title )
@@ -53,48 +52,49 @@ class FusePropertyManager(MovePropertyManager):
         self.isMoveGroupBoxActive = True
         self.o.setCursor(self.w.MolSelTransCursor)
         
+        
         self.showGroupBox(self.translate_groupBoxButton, 
                           self.translateGroupBox_widgetHolder)        
         self.hideGroupBox(self.rotate_groupBoxButton, 
-                          self.rotateGroupBox_widgetHolder)
-        
-        self.lastCheckedRotateAction = None 
-        self.lastCheckedTranslateAction = None
-                  
-	
-    def makeConnections(self):
+                          self.rotateGroupBox_widgetHolder) 
+    
+    def connect_or_disconnect_signals(self, connect):
 	"""
 	Connect the slots in Fuse Property Manager. 
-	Overrides MovePropertyManager.makeConnections
-	@see: MovePropertyManager.makeConnections.
-    
+	@see: fusechunksMode.connect_or_disconnect_signals.
 	"""
+	if connect:
+            change_connect = self.w.connect
+        else:
+            change_connect = self.w.disconnect
+	
 	#connect slots
-        self.connect(self.sponsor_btn,
+        change_connect(self.sponsor_btn,
                      SIGNAL("clicked()"),
                      self.sponsor_btn_clicked)
         
-        self.connect(self.translate_groupBoxButton, 
+        change_connect(self.translate_groupBoxButton, 
                      SIGNAL("clicked()"),
                      self.activate_translateGroupBox_in_fuse_PM)   
 	
-        self.connect(self.rotate_groupBoxButton, 
+        change_connect(self.rotate_groupBoxButton, 
                      SIGNAL("clicked()"),
                      self.activate_rotateGroupBox_in_fuse_PM)
 	
-	self.connect(self.fuseOptions_groupBoxButton, 
+	change_connect(self.fuseOptions_groupBoxButton, 
                      SIGNAL("clicked()"),
                      self.toggle_fuseOptionsGroupBox)
         
         
-	self.connect(self.movetype_combox, 
+	change_connect(self.movetype_combox, 
 		     SIGNAL("currentIndexChanged(int)"), 
 		     self.updateMoveGroupBoxItems)
 	
-	self.connect(self.rotatetype_combox, 
+	change_connect(self.rotatetype_combox, 
 		     SIGNAL("currentIndexChanged(int)"), 
 		     self.updateRotateGroupBoxItems)
-        
+	
+    
         
     def activate_translateGroupBox_in_fuse_PM(self):
         """Show contents of translate groupbox, deactivae the rotate groupbox. 
