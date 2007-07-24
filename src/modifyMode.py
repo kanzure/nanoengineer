@@ -19,6 +19,8 @@ from PyQt4.Qt import QCheckBox
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QMouseEvent
 
+import changes
+
 from selectMode import selectMode
 from selectMolsMode import selectMolsMode
 from selectAtomsMode import selectAtomsMode
@@ -131,6 +133,7 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
     TranslationOnly = False
     
     propMgr = None
+    pw = None
     
     # no __init__ method needed
 
@@ -152,18 +155,22 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         self.dragdist = 0.0
         self.setGoBackToMode(False, 'MODIFY')
 	self.clear_leftA_variables() #bruce 070605 precaution
+	changes.keep_me_for_a_while(self.propMgr, flush = True)
 	
         return
     
     # (see basicMode.Done.__doc__ for the ones we don't override here [bruce 040923])
 
     def init_gui(self):	
-        self.propMgr = MovePropertyManager(self)	
+	
+        self.propMgr = MovePropertyManager(self)
+	#@bug BUG: following is a workaround for bug 2494
+	changes.keep_forever(self.propMgr)
+	
 	self.propMgr.show_propMgr()                	
 	self.updateCommandManager(bool_entering = True)
     
-        # connect signals (these all need to be disconnected in restore_gui)
-                
+        # connect signals (these all need to be disconnected in restore_gui)                
         self.connect_or_disconnect_signals(True)
         
         self.w.dashboardHolder.setWidget(self.w.moveChunksDashboard)
@@ -198,16 +205,17 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         change_connect(self.w.movetype_combox, SIGNAL("activated(const QString&)"), self.setup_movetype)
 	change_connect(self.exitMoveAction, SIGNAL("triggered()"), 	 
 	                        self.w.toolsDone)
+	self.propMgr.connect_or_disconnect_signals(connect)
         
     def restore_gui(self):
         # disconnect signals which were connected in init_gui [bruce 050728]
 	self.updateCommandManager(bool_entering = False)
-	if self.propMgr:
-	    self.propMgr.closePropertyManager()	
         self.w.toolsMoveMoleculeAction.setChecked(False) # toggle on the Move Chunks icon
         self.w.rotateComponentsAction.setChecked(False)
         self.connect_or_disconnect_signals(False)
         self.w.moveChunksDashboard.hide()
+	if self.propMgr:
+	    self.propMgr.closePropertyManager()
 	
     
     def getFlyoutActionList(self): #Ninad 20070618

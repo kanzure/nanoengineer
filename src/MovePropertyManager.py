@@ -40,41 +40,45 @@ class MovePropertyManager(QtGui.QWidget,
         self.parentMode = parentMode
 	self.w = self.parentMode.w
 	self.o = self.parentMode.o
-	self.pw = None # pw = partwindow
+	self.pw = self.parentMode.pw
 	
-        self.setupUi(self)
+        self.setupUi(self)	
 	# Update the title and icon for "Translate" (the default move mode).
 	pmSetPropMgrIcon( self, self.translateIconPath )
 	pmSetPropMgrTitle( self, self.translateTitle )
         
         self.lastCheckedRotateAction = None 
         self.lastCheckedTranslateAction = None
-                     
-        self.makeConnections()
-	
+          
         self.updateMessage()
         
         self.add_whats_this_text()
     
-    def makeConnections(self):
+    def connect_or_disconnect_signals(self, connect):
 	"""
-	Connect the slots. Subclasses should override this method. 
-	Example: see FusePropertyManager.makeConnection
+	Connect the slots in Move Property Manager. 
+	@see: modifyMode.connect_or_disconnect_signals.
 	"""
-	self.connect(self.translate_groupBoxButton, 
+	if connect:
+            change_connect = self.w.connect
+        else:
+            change_connect = self.w.disconnect
+	    
+	change_connect(self.translate_groupBoxButton, 
                      SIGNAL("clicked()"),
-                     self.activate_translateGroupBox_using_groupButton)            
-        self.connect(self.rotate_groupBoxButton, 
+                     self.activate_translateGroupBox_using_groupButton)  
+	
+        change_connect(self.rotate_groupBoxButton, 
                      SIGNAL("clicked()"),
                      self.activate_rotateGroupBox_using_groupButton)
         
-        self.connect(self.movetype_combox, 
+        change_connect(self.movetype_combox, 
                      SIGNAL("currentIndexChanged(int)"), 
                      self.updateMoveGroupBoxItems)
-        self.connect(self.rotatetype_combox, 
+	
+        change_connect(self.rotatetype_combox, 
                      SIGNAL("currentIndexChanged(int)"), 
                      self.updateRotateGroupBoxItems)
-	
 	
     
     def show_propMgr(self):
