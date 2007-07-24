@@ -400,6 +400,11 @@ class extrudeMode(basicMode, ExtrudePropertyManager):
 
         ExtrudePropertyManager.__init__(self)
         
+        #This mode still uses self as its own PM; will be changed
+	#Following should be replaced when the mode starts using an 
+	#independent propMgr object.
+        self.propMgr = self 
+	
         #Following updates the bond tolerence lbl in Extrude Property manager
         # defining it here for now (instead of Ui_ExtrudePropertyManager
         #as a lot of related code is defined here that uses this global var. -- ninad 070131

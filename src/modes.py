@@ -174,6 +174,12 @@ class nullMode(anyMode):
     msg_modename = 'nullMode'
         # this will be overwritten when modes are changing [bruce 050106]
     # needs no __init__ method; constructor takes no arguments
+    
+    #Mode's property manager. Subclasses should initialize the propMgr object 
+    #if they need one. 
+    
+    propMgr = None
+    
     def noop_method(self, *args, **kws):
         if platform.atom_debug:
             print "fyi: atom_debug: nullMode noop method called -- probably ok; ignored"
