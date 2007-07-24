@@ -27,6 +27,7 @@ from PyQt4.Qt import QDialog, QGridLayout, QPushButton, QTextBrowser, SIGNAL, QC
 from PyQt4.Qt import QFileDialog, QMessageBox, QString, QWidgetAction, QAction
 
 import env
+import changes
 
 from movie import find_saved_movie
 from runSim import writemovie
@@ -86,7 +87,7 @@ class MovieRewindDialog(QDialog):
 
 ###doc
 
-class movieMode(basicMode,MoviePropertyManager):
+class movieMode(basicMode):
     """ This class is used to play movie files.
        Users know it as "Movie mode".
        When entered, it might start playing a recently-made movie,
@@ -127,12 +128,12 @@ class movieMode(basicMode,MoviePropertyManager):
 
     def init_gui(self):
         
-        MoviePropertyManager.__init__(self)
+        self.propMgr = MoviePropertyManager(self)
+	#@bug BUG: following is a workaround for bug 2494
+	changes.keep_forever(self.propMgr)
+	self.propMgr.show_propMgr()
 	
 	self.updateCommandManager(bool_entering = True)
-	        
-        self.openPropertyManager(self) # ninad 061227 see PropertymanagerMixin
-        
 
         self.w.simMoviePlayerAction.setChecked(1) # toggle on the Movie Player icon+
       
@@ -284,7 +285,7 @@ class movieMode(basicMode,MoviePropertyManager):
     def restore_gui(self):
         "[#doc]"
         
-        self.closePropertyManager()
+        self.propMgr.closePropertyManager()
         
         # Reenable Undo/Redo actions, and undo checkpoints (disabled in init_gui);
         # do it first to protect it from exceptions in the rest of this method

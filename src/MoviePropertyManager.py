@@ -27,9 +27,12 @@ class MoviePropertyManager(QtGui.QWidget,
     # The full path to PNG file(s) that appears in the header.
     iconPath = "ui/actions/Simulation/Play_Movie.png"
     
-    def __init__(self):
+    def __init__(self, parentMode):
+	
+	self.parentMode = parentMode
+	self.w = self.parentMode.w
+	
         QtGui.QWidget.__init__(self)
-        
         self.setupUi(self)
         
         self.lastCheckedRotateAction = None 
@@ -51,7 +54,14 @@ class MoviePropertyManager(QtGui.QWidget,
         self.connect(self.movieFiles_groupBoxButton, 
                      SIGNAL("clicked()"),
                      self.toggle_movieFilesGroupBox)  
-        
+    
+    def show_propMgr(self):
+	"""
+	Show the Movie Property Manager
+	"""
+	self.openPropertyManager(self) # ninad 061227 see PropertyManagerMixin
+	
+	
     def toggle_movieOptionsGroupBox(self):
         """ Toggles the item display in the parent groupbox of the button and 
        hides the other groupbox also disconnecting the actions in the other 
