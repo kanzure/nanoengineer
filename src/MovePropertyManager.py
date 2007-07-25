@@ -80,6 +80,35 @@ class MovePropertyManager(QtGui.QWidget,
                      SIGNAL("currentIndexChanged(int)"), 
                      self.updateRotateGroupBoxItems)
 	
+        change_connect(self.w.MoveOptionsGroup, 
+		       SIGNAL("triggered(QAction *)"), 
+		       self.changeMoveOption)
+	
+        change_connect(self.w.rotateOptionsGroup, 
+		       SIGNAL("triggered(QAction *)"), 
+		       self.changeRotateOption)
+        
+        change_connect(self.w.moveDeltaPlusAction, 
+		       SIGNAL("activated()"), 
+		       self.parentMode.moveDeltaPlus)
+	
+        change_connect(self.w.moveDeltaMinusAction, 
+		       SIGNAL("activated()"), 
+		       self.parentMode.moveDeltaMinus)
+	
+        change_connect(self.w.moveAbsoluteAction, 
+		       SIGNAL("activated()"), 
+		       self.parentMode.moveAbsolute)
+	
+        change_connect(self.w.rotateThetaPlusAction, 
+		       SIGNAL("activated()"), 
+		       self.parentMode.moveThetaPlus)
+	
+        change_connect(self.w.rotateThetaMinusAction, 
+		       SIGNAL("activated()"), 
+		       self.parentMode.moveThetaMinus)
+	
+        	
     
     def show_propMgr(self):
 	"""
@@ -117,7 +146,7 @@ class MovePropertyManager(QtGui.QWidget,
                 actionToCheck = self.w.moveFreeAction
                 actionToCheck.setChecked(True)
 	    
-	    self.parentMode.changeMoveOption(actionToCheck)
+	    self.changeMoveOption(actionToCheck)
 	    
     
     def activate_rotateGroupBox_using_groupButton(self):
@@ -152,7 +181,7 @@ class MovePropertyManager(QtGui.QWidget,
                 actionToCheck = self.w.rotateFreeAction
                 actionToCheck.setChecked(True)
 	    
-	    self.parentMode.changeRotateOption(actionToCheck)
+	    self.changeRotateOption(actionToCheck)
 	
                     
     def activate_translateGroupBox(self):
@@ -186,7 +215,7 @@ class MovePropertyManager(QtGui.QWidget,
             actionToCheck = self.w.moveFreeAction
             actionToCheck.setChecked(True)
 	
-	self.parentMode.changeMoveOption(actionToCheck)
+	self.changeMoveOption(actionToCheck)
             
     def activate_rotateGroupBox(self):
         """Show contents of this groupbox, deactivae the other groupbox. 
@@ -216,7 +245,7 @@ class MovePropertyManager(QtGui.QWidget,
             actionToCheck = self.w.rotateFreeAction
             actionToCheck.setChecked(True)
 	
-	self.parentMode.changeRotateOption(actionToCheck)
+	self.changeRotateOption(actionToCheck)
         
                                
     def deactivate_rotateGroupBox(self):
@@ -453,6 +482,62 @@ class MovePropertyManager(QtGui.QWidget,
         else:
             for lbl in lst:
                 lbl.show()
+		
+    def changeMoveOption(self, action):
+        """
+	Change the translate option. 
+	
+	@param action: QAction that decides the type of translate operation 
+	to be set.
+        """
+        if action == self.w.transXAction:
+            moveOption = 'TRANSX'
+        elif action == self.w.transYAction:
+            moveOption = 'TRANSY'
+        elif action == self.w.transZAction:
+            moveOption = 'TRANSZ'
+        elif action == self.w.rotTransAlongAxisAction_1:
+            moveOption = 'ROT_TRANS_ALONG_AXIS' 
+        else:
+            moveOption = 'MOVEDEFAULT'
+	
+	self.parentMode.moveOption = moveOption
+            
+            
+    def changeRotateOption(self, action):
+        """
+	Change the rotate option. 
+	
+	@param action: QAction that decides the type of rotate operation 
+	to be set.
+        """  
+        if action == self.w.rotXAction:
+            rotateOption = 'ROTATEX'
+            self.rotateAsUnitCB.hide()
+            self.toggleRotationDeltaLabels(show = True)
+        elif action == self.w.rotYAction:
+            rotateOption = 'ROTATEY'
+            self.rotateAsUnitCB.hide()
+            self.toggleRotationDeltaLabels(show = True)
+        elif action == self.w.rotZAction:
+            rotateOption = 'ROTATEZ'
+            self.rotateAsUnitCB.hide()
+            self.toggleRotationDeltaLabels(show = True)
+        elif action == self.w.rotTransAlongAxisAction_2:
+            #do not use the isConstrainedDrag.. flag. Causing bugs and 
+            #am in a rush (need this new option for today's release) 
+            #-- ninad20070605
+            ##self.isConstrainedDragAlongAxis = True
+            rotateOption = 'ROT_TRANS_ALONG_AXIS' 
+            pass
+        else:
+            rotateOption = 'ROTATEDEFAULT'        
+            #Hides all the rotation delta labels when  
+            #rotateFreeDragAction is checked
+            self.toggleRotationDeltaLabels(show = False)
+            self.rotateAsUnitCB.show() 
+	
+	self.parentMode.rotateOption = rotateOption
     
     def set_move_xyz(self,x,y,z):
 	"""

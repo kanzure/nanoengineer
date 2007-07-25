@@ -490,15 +490,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         # mark 050711: Added Select Atoms dashboard.
         import selectMode as _selectMode
         _selectMode.do_what_MainWindowUI_should_do(self)
-        
-        # mark 050411: Added Move Mode dashboard.
-        import modifyMode as _modifyMode
-        _modifyMode.do_what_MainWindowUI_should_do(self)
-        
-        # mark 050428: Added Fuse Chunk dashboard.
-        import fusechunksMode as _fusechunksMode
-        _fusechunksMode.do_what_MainWindowUI_should_do(self)
-        
+               
                
         # Load additional icons to QAction iconsets.
         # self.load_icons_to_iconsets() # Uncomment this line to test if Redo button has custom icon when disabled. mark 060427

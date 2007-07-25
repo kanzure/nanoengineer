@@ -53,68 +53,6 @@ from constants import diINVISIBLE
 MAKEBONDS = 'Make Bonds Between Chunks'
 FUSEATOMS = 'Fuse Overlapping Atoms'
 
-def do_what_MainWindowUI_should_do(w):
-    'Populate the Fuse Chunks dashboard'
-    
-    w.fuseChunksDashboard.clear()
-
-    #w.textLabel1_3.setText(" Fuse Chunks ")
-    w.fuseChunksDashboard.addWidget(w.textLabel1_3)
-    
-    w.fuseChunksDashboard.addSeparator()
-
-    # moveFreeAction, transXAction, transYAction, and transZAction are shared with modifyMode.
-    w.fuseChunksDashboard.addAction(w.moveFreeAction)
-    
-    w.fuseChunksDashboard.addSeparator()
-    
-    w.fuseChunksDashboard.addAction(w.transXAction)
-    w.fuseChunksDashboard.addAction(w.transYAction)
-    w.fuseChunksDashboard.addAction(w.transZAction)
-    
-    w.fuseChunksDashboard.addSeparator()
-    
-    w.fuseActionLabel = QLabel()
-    w.fuseActionLabel.setText(" Fuse Mode : ")
-    w.fuseChunksDashboard.addWidget(w.fuseActionLabel)
-    
-    w.fuse_mode_combox = QComboBox()
-    w.fuseChunksDashboard.addWidget(w.fuse_mode_combox)
-    
-    w.goPB = QPushButton("Make Bonds", w.fuseChunksDashboard)
-    w.fuseChunksDashboard.addWidget(w.goPB)
-    
-    w.mergeCB = QCheckBox("Merge chunks", w.fuseChunksDashboard)
-    w.mergeCB.setChecked(True)
-    w.fuseChunksDashboard.addWidget(w.mergeCB)
-    
-    w.fuseChunksDashboard.addSeparator()
-    
-    w.tolLB = QLabel()
-    w.tolLB.setText(" Tolerance: ")
-    w.fuseChunksDashboard.addWidget(w.tolLB)
-    #w.toleranceSL = QSlider(0,300,5,100,Qt.Horizontal,w.fuseChunksDashboard)
-    w.toleranceSL = QSlider(Qt.Horizontal)
-    w.toleranceSL.setMaximumWidth(100)
-    w.toleranceSL.setValue(100)
-    w.toleranceSL.setRange(0, 300)
-    w.fuseChunksDashboard.addWidget(w.toleranceSL)
-    w.toleranceLB = QLabel()
-    w.toleranceLB.setText("100% => 0 bondable pairs")
-    w.fuseChunksDashboard.addWidget(w.toleranceLB)
-    
-    w.fuseChunksDashboard.addSeparator()
-    
-    w.fuseChunksDashboard.addAction(w.toolsBackUpAction)
-    w.fuseChunksDashboard.addAction(w.toolsDoneAction)
-    
-    w.fuseChunksDashboard.setWindowTitle("Fuse Chunks") #Toolbar tooltip label - no good for Qt 4
-    w.fuse_mode_combox.clear()
-    # these are identified by both their *position* and not their text
-    w.fuse_mode_combox.insertItem(0,MAKEBONDS) 
-    w.fuse_mode_combox.insertItem(1,FUSEATOMS) 
-    
-
 def fusechunks_lambda_tol_nbonds(tol, nbonds, mbonds, bondable_pairs):
     '''Returns the bondable pairs tolerance string for the tolerance slider.
     '''
@@ -338,7 +276,8 @@ class fusechunksMode(modifyMode, fusechunksBase):
     something_was_picked = False
         # 'something_was_picked' is a special boolean flag needed by Draw() to determine when 
         # the state has changed from something selected to nothing selected.  It is used to 
-        # properly update the tolerance label on the dashboard when all chunks are unselected.
+        # properly update the tolerance label in the Property Manager
+	#when all chunks are unselected.
     
     bondable_pairs = [] # List of bondable singlets
     ways_of_bonding = {} # Number of bonds each singlet found
@@ -373,7 +312,7 @@ class fusechunksMode(modifyMode, fusechunksBase):
                 
         self.change_fuse_mode(self.propMgr.fuse_mode_combox.currentText()) 
             # This maintains state of fuse mode when leaving/reentering mode, and
-            # syncs the dashboard and glpane (and does a gl_update).
+            # syncs the PM and glpane (and does a gl_update).
         
         self.w.toolsFuseChunksAction.setChecked(1) # toggle on the Fuse Chunks icon
         
@@ -386,7 +325,8 @@ class fusechunksMode(modifyMode, fusechunksBase):
             self.something_was_picked = True
        
         if self.propMgr.isMoveGroupBoxActive:
-            self.w.moveFreeAction.setChecked(True) # toggle on the Move Free action on the dashboard
+	    # toggle on the Move Free action in the Property Manager
+            self.w.moveFreeAction.setChecked(True) 
             self.moveOption = 'MOVEDEFAULT'
         else:
             self.w.rotateFreeAction.setChecked(True)
@@ -403,36 +343,8 @@ class fusechunksMode(modifyMode, fusechunksBase):
             change_connect = self.w.connect
         else:
             change_connect = self.w.disconnect
-            
-        change_connect(self.propMgr.goPB,SIGNAL("clicked()"),self.fuse_something)
-        change_connect(self.propMgr.toleranceSL,SIGNAL("valueChanged(int)"),
-                       self.tolerance_changed)        
-        
-        change_connect(self.w.MoveOptionsGroup, 
-                       SIGNAL("triggered(QAction *)"), 
-		       self.changeMoveOption)
-        change_connect(self.w.rotateOptionsGroup, 
-                       SIGNAL("triggered(QAction *)"), self.changeRotateOption)
-        
-        change_connect(self.propMgr.fuse_mode_combox, 
-                       SIGNAL("activated(const QString&)"), 
-                       self.change_fuse_mode)
-        
-        change_connect(self.w.moveDeltaPlusAction, SIGNAL("activated()"), 
-                       self.moveDeltaPlus)
-        change_connect(self.w.moveDeltaMinusAction, SIGNAL("activated()"), 
-                       self.moveDeltaMinus)
-        change_connect(self.w.moveAbsoluteAction, SIGNAL("activated()"), 
-                       self.moveAbsolute)
-        change_connect(self.w.rotateThetaPlusAction, SIGNAL("activated()"),
-                       self.moveThetaPlus)        
-        change_connect(self.w.rotateThetaMinusAction, SIGNAL("activated()"),                        
-                       self.moveThetaMinus)
-        change_connect(self.w.movetype_combox, 
-                       SIGNAL("activated(const QString&)"), 
-                       self.setup_movetype)
-	
-	change_connect(self.exitFuseAction, SIGNAL("triggered()"), 
+	    
+        change_connect(self.exitFuseAction, SIGNAL("triggered()"), 
 		       self.w.toolsDone)
 	
 	#Connect or disconnect signals in property manager

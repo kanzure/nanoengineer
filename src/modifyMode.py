@@ -43,78 +43,7 @@ from constants import ADD_TO_SELECTION
 
 from VQT import V, Q, A, norm, vlen
 
-def do_what_MainWindowUI_should_do(w):
-    'Populate the Move Chunks dashboard'
-    
-    w.moveChunksDashboard.clear()
-    
-    w.moveChunksDashboard.addWidget(w.textLabel1)
 
-    w.moveChunksDashboard.addAction(w.moveFreeAction)
-    
-    w.moveChunksDashboard.addSeparator()
-    
-    w.moveChunksDashboard.addAction(w.transXAction)
-    w.moveChunksDashboard.addAction(w.transYAction)
-    w.moveChunksDashboard.addAction(w.transZAction)
-    
-    w.moveChunksDashboard.addSeparator()
-    
-    w.movetype_combox = QComboBox()
-    w.moveChunksDashboard.addWidget(w.movetype_combox)
-    w.movetype_combox.insertItem(0,'Translate')
-    w.movetype_combox.insertItem(1,'Rotate X')
-    w.movetype_combox.insertItem(2,'Rotate Y')
-    w.movetype_combox.insertItem(3,'Rotate Z')
-    
-    w.moveXLabel = QLabel()
-    w.moveXLabel.setText(" X ")
-    w.moveChunksDashboard.addWidget(w.moveXLabel)
-    w.moveXSpinBox = FloatSpinBox(w.moveChunksDashboard, "moveXSpinBox")
-    w.moveXSpinBox.setSuffix(" A")
-    w.moveXSpinBox.setToolTip('Delta X (Angstroms)')
-    w.moveChunksDashboard.addWidget(w.moveXSpinBox)
-    w.moveYLabel = QLabel()
-    w.moveYLabel.setText(" Y ")
-    w.moveChunksDashboard.addWidget(w.moveYLabel)
-    w.moveYSpinBox = FloatSpinBox(w.moveChunksDashboard, "moveYSpinBox")
-    w.moveYSpinBox.setSuffix(" A")
-    w.moveYSpinBox.setToolTip('Delta Y (Angstroms)')
-    w.moveChunksDashboard.addWidget(w.moveYSpinBox)
-    w.moveZLabel = QLabel()
-    w.moveZLabel.setText(" Z ")
-    w.moveChunksDashboard.addWidget(w.moveZLabel)
-    w.moveZSpinBox = FloatSpinBox(w.moveChunksDashboard, "moveZSpinBox")
-    w.moveZSpinBox.setSuffix(" A")
-    w.moveZSpinBox.setToolTip('Delta Z (Angstroms)')
-    w.moveChunksDashboard.addWidget(w.moveZSpinBox)
-    w.moveThetaLabel = QLabel()
-    w.moveThetaLabel.setText(" Theta ")
-    w.moveChunksDashboard.addWidget(w.moveThetaLabel)
-    w.moveThetaSpinBox = FloatSpinBox(w.moveChunksDashboard, "moveThetaSpinBox")
-    w.moveThetaSpinBox.setToolTip('Rotation (Degrees)')
-    w.moveThetaSpinBox.setRange(-36000,36000) # Actually -360 to 360
-    w.moveChunksDashboard.addWidget(w.moveThetaSpinBox)
-    
-    w.moveChunksDashboard.addAction(w.moveDeltaPlusAction)
-    w.moveChunksDashboard.addAction(w.moveDeltaMinusAction)
-    w.moveChunksDashboard.addAction(w.moveAbsoluteAction)
-    w.moveChunksDashboard.addAction(w.rotateThetaPlusAction)
-    w.moveChunksDashboard.addAction(w.rotateThetaMinusAction)
-    
-    w.moveChunksDashboard.addSeparator()
-    
-    # I needed this for nanocar animation. Mark 060524.
-    w.moveChunksDashboard.rotateAsUnitCB = QCheckBox("Rotate as unit", w.moveChunksDashboard)
-    w.moveChunksDashboard.rotateAsUnitCB.setChecked(1)
-    w.moveChunksDashboard.rotateAsUnitCB.setToolTip('Rotate selection as a unit')
-    w.moveChunksDashboard.addWidget(w.moveChunksDashboard.rotateAsUnitCB)
-    
-    w.moveChunksDashboard.addSeparator()
-    
-    w.moveChunksDashboard.addAction(w.toolsDoneAction)
-    
-    
 class modifyMode(selectMolsMode): # changed superclass from basicMode to selectMolsMode.  mark 060301.
     "[bruce comment 040923:] a transient mode entered from selectMode in response to certain mouse events"
 
@@ -155,7 +84,6 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         self.dragdist = 0.0
         self.setGoBackToMode(False, 'MODIFY')
 	self.clear_leftA_variables() #bruce 070605 precaution
-		
         return
     
     # (see basicMode.Done.__doc__ for the ones we don't override here [bruce 040923])
@@ -165,25 +93,17 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         self.propMgr = MovePropertyManager(self)
 	#@bug BUG: following is a workaround for bug 2494
 	changes.keep_forever(self.propMgr)
-	
+		
 	self.propMgr.show_propMgr()                	
 	self.updateCommandManager(bool_entering = True)
     
         # connect signals (these all need to be disconnected in restore_gui)                
         self.connect_or_disconnect_signals(True)
-        
-        self.w.dashboardHolder.setWidget(self.w.moveChunksDashboard)
-        
-        self.w.moveChunksDashboard.show() # show the Move Molecules dashboard
-        
+                        
         self.propMgr.set_move_xyz(0, 0, 0) # Init X, Y, and Z to zero
         self.propMgr.set_move_delta_xyz(0,0,0) # Init DelX,DelY, DelZ to zero
-        self.w.moveThetaSpinBox.setValue(0) # Init Theta spinbox to zero
-        self.setup_movetype(self.w.movetype_combox.currentText())
 
-        # Always reset the dashboard icon to "Move Free" when entering MODIFY mode.
-        # Mark 050410
-        #self.w.moveFreeAction.setChecked(1) # toggle on the Move Free action on the dashboard
+       
         self.moveOption = 'MOVEDEFAULT'
         self.rotateOption = 'ROTATEDEFAULT'
     
@@ -192,18 +112,10 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
             change_connect = self.w.connect
         else:
             change_connect = self.w.disconnect
-        #change_connect(self.w.MoveOptionsGroup, SIGNAL("selected(QAction *)"), self.changeMoveOption)
-        change_connect(self.w.MoveOptionsGroup, SIGNAL("triggered(QAction *)"), self.changeMoveOption)
-        change_connect(self.w.rotateOptionsGroup, SIGNAL("triggered(QAction *)"), self.changeRotateOption)
         
-        change_connect(self.w.moveDeltaPlusAction, SIGNAL("activated()"), self.moveDeltaPlus)
-        change_connect(self.w.moveDeltaMinusAction, SIGNAL("activated()"), self.moveDeltaMinus)
-        change_connect(self.w.moveAbsoluteAction, SIGNAL("activated()"), self.moveAbsolute)
-        change_connect(self.w.rotateThetaPlusAction, SIGNAL("activated()"), self.moveThetaPlus)
-        change_connect(self.w.rotateThetaMinusAction, SIGNAL("activated()"), self.moveThetaMinus)
-        change_connect(self.w.movetype_combox, SIGNAL("activated(const QString&)"), self.setup_movetype)
 	change_connect(self.exitMoveAction, SIGNAL("triggered()"), 	 
 	                        self.w.toolsDone)
+	
 	self.propMgr.connect_or_disconnect_signals(connect)
         
     def restore_gui(self):
@@ -212,8 +124,8 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         self.w.toolsMoveMoleculeAction.setChecked(False) # toggle on the Move Chunks icon
         self.w.rotateComponentsAction.setChecked(False)
         self.connect_or_disconnect_signals(False)
-        self.w.moveChunksDashboard.hide()
-	if self.propMgr:
+        
+	if self.propMgr:	    
 	    self.propMgr.closePropertyManager()
 	
     
@@ -968,28 +880,6 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         ##self.o.setMode('SELECTMOLS') # Fixes bug 1182. mark 060301.
         return
 
-    def setup_movetype(self, movetype):
-
-        # Very mysterious: if movetype (a QString) is "Rotate X" or
-        # "Rotate Y" or "Rotate Z", then it takes two tries for the
-        # visibility changes to take effect. Why is that??? - wware
-        # 20061214
-        translate = (movetype == 'Translate')
-            
-        self.w.moveXLabel.setVisible(translate)
-        self.w.moveXSpinBox.setVisible(translate)
-        self.w.moveYLabel.setVisible(translate)
-        self.w.moveYSpinBox.setVisible(translate)
-        self.w.moveZLabel.setVisible(translate)
-        self.w.moveZSpinBox.setVisible(translate)
-        self.w.moveThetaLabel.setVisible(not translate)
-        self.w.moveThetaSpinBox.setVisible(not translate)
-
-        self.w.moveDeltaPlusAction.setVisible(translate)
-        self.w.moveDeltaMinusAction.setVisible(translate)
-        self.w.moveAbsoluteAction.setVisible(translate)
-        self.w.rotateThetaPlusAction.setVisible(not translate)
-        self.w.rotateThetaMinusAction.setVisible(not translate)
 
     def moveThetaPlus(self):
         "Rotate the selected chunk(s) by theta (plus)"
@@ -1085,7 +975,7 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
                 bbox.merge(m.bbox)
         pt1 = bbox.center() # pt1 = center point for bbox of selected chunk(s).
        
-        pt2 = self.propMgr.get_move_xyz() # pt2 = X, Y, Z values from dashboard.
+        pt2 = self.propMgr.get_move_xyz() # pt2 = X, Y, Z values from PM
         offset = pt2 - pt1 # Compute offset for movesel.
         
         self.o.assy.movesel(offset) # Move the selected chunk(s)/jig(s).
@@ -1097,51 +987,7 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
             msg = "Selected chunks/jigs moved by offset [X: %.2f] [Y: %.2f] [Z: %.2f]" % (offset[0], offset[1], offset[2])
         env.history.message(msg)
         self.o.gl_update()
-        
-    def changeMoveOption(self, action):
-        '''Slot for Move Chunks dashboard\'s Move Options
-        '''        
-        if action == self.w.transXAction:
-            self.moveOption = 'TRANSX'
-        elif action == self.w.transYAction:
-            self.moveOption = 'TRANSY'
-        elif action == self.w.transZAction:
-            self.moveOption = 'TRANSZ'
-        elif action == self.w.rotTransAlongAxisAction_1:
-            self.moveOption = 'ROT_TRANS_ALONG_AXIS' 
-        else:
-            self.moveOption = 'MOVEDEFAULT'
-            
-            
-    def changeRotateOption(self, action):
-        '''Change the rotate action
-        '''   
-        if action == self.w.rotXAction:
-            self.rotateOption = 'ROTATEX'
-            self.propMgr.rotateAsUnitCB.hide()
-            self.propMgr.toggleRotationDeltaLabels(show = True)
-        elif action == self.w.rotYAction:
-            self.rotateOption = 'ROTATEY'
-            self.propMgr.rotateAsUnitCB.hide()
-            self.propMgr.toggleRotationDeltaLabels(show = True)
-        elif action == self.w.rotZAction:
-            self.rotateOption = 'ROTATEZ'
-            self.propMgr.rotateAsUnitCB.hide()
-            self.propMgr.toggleRotationDeltaLabels(show = True)
-        elif action == self.w.rotTransAlongAxisAction_2:
-            #do not use the isConstrainedDrag.. flag. Causing bugs and 
-            #am in a rush (need this new option for today's release) 
-            #-- ninad20070605
-            ##self.isConstrainedDragAlongAxis = True
-            self.rotateOption = 'ROT_TRANS_ALONG_AXIS' 
-            pass
-        else:
-            self.rotateOption = 'ROTATEDEFAULT'        
-            #Hides all the rotation delta labels when  
-            #rotateFreeDragAction is checked
-            self.propMgr.toggleRotationDeltaLabels(show = False)
-            self.propMgr.rotateAsUnitCB.show()   
-            
+                   
             
 
     def skip(self):

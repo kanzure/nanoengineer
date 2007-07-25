@@ -69,6 +69,47 @@ class FusePropertyManager(MovePropertyManager):
             change_connect = self.w.disconnect
 	
 	#connect slots
+	
+	change_connect(self.goPB,
+		       SIGNAL("clicked()"),
+		       self.parentMode.fuse_something)
+	
+        change_connect(self.toleranceSL,
+		       SIGNAL("valueChanged(int)"),
+                       self.parentMode.tolerance_changed)        
+        
+        change_connect(self.fuse_mode_combox, 
+                       SIGNAL("activated(const QString&)"), 
+                       self.parentMode.change_fuse_mode)
+        
+        change_connect(self.w.moveDeltaPlusAction, 
+		       SIGNAL("activated()"), 
+                       self.parentMode.moveDeltaPlus)
+	
+        change_connect(self.w.moveDeltaMinusAction, 
+		       SIGNAL("activated()"), 
+                       self.parentMode.moveDeltaMinus)
+	
+        change_connect(self.w.moveAbsoluteAction, 
+		       SIGNAL("activated()"), 
+                       self.parentMode.moveAbsolute)
+	
+        change_connect(self.w.rotateThetaPlusAction, 
+		       SIGNAL("activated()"),
+                       self.parentMode.moveThetaPlus)        
+	
+        change_connect(self.w.rotateThetaMinusAction, 
+		       SIGNAL("activated()"),                        
+                       self.parentMode.moveThetaMinus)
+        
+	change_connect(self.w.MoveOptionsGroup, 
+                       SIGNAL("triggered(QAction *)"), 
+		       self.changeMoveOption)
+	
+        change_connect(self.w.rotateOptionsGroup, 
+                       SIGNAL("triggered(QAction *)"), 
+		       self.changeRotateOption)
+	
         change_connect(self.sponsor_btn,
                      SIGNAL("clicked()"),
                      self.sponsor_btn_clicked)
@@ -115,7 +156,7 @@ class FusePropertyManager(MovePropertyManager):
             actionToCheck = self.w.moveFreeAction
             actionToCheck.setChecked(True)
 	
-	self.parentMode.changeMoveOption(actionToCheck)
+	self.changeMoveOption(actionToCheck)
         
         self.isMoveGroupBoxActive = True
     
@@ -139,7 +180,7 @@ class FusePropertyManager(MovePropertyManager):
             actionToCheck = self.w.rotateFreeAction
             actionToCheck.setChecked(True)
 	    
-	self.parentMode.changeRotateOption(actionToCheck)
+	self.changeRotateOption(actionToCheck)
         
         self.isMoveGroupBoxActive = False
 	
