@@ -32,6 +32,8 @@ Misc bugs [this list might be out of date]:
 
 [status: exit code added to EC1 and works; not yet to EC2] ####
   
+- [bug noticed 070725]: PM is removed, but its tab remains open, when exiting ExampleCommand1
+(true both before and after conversion to use PM_Dialog instead of PropMgrBaseClass)
 
 Cosmetic bugs:
 
@@ -62,7 +64,7 @@ from debug import register_debug_menu_command
 from GLPane import GLPane # maybe only needed for an isinstance assertion
 
 class _BUGFIXED_selectAtomsMode(selectAtomsMode):
-    def set_selection_filter(self, enabled):
+    def set_selection_filter(self, enabled): ###@@@ IS THIS STILL NEEDED? #k
         # This is needed here for now, since it can't be added directly to selectAtomsMode
         # (where it logically belongs, since it's a selectAtomsMode method that tries to use it),
         # due to problems caused by misguided multiple inheritance in selectAtomsMode.
@@ -158,7 +160,7 @@ class ExampleCommand2E(ExampleCommand2, object):
 
     modename = 'ExampleCommand2E-modename'
     default_mode_status_text = "ExampleCommand2E"
-    PM_class = ExampleCommand2E_PM
+    PM_class = ExampleCommand2E_PM ### NOT YET USED
 
     standard_glDepthFunc = GL_LEQUAL # overrides default value of GL_LESS from GLPane
         # note: this is to prevent this warning:
@@ -241,6 +243,8 @@ def enter_example_command(widget, example_command_classname):
             glpane.mode = glpane.nullmode = modes.nullMode()
             glpane._reinit_modes() # try to avoid problems with changing to other modes later, caused by those reloads
                 # wrong: uses old classes from glpane
+        import test_command_PMs
+        reload(test_command_PMs)
         import test_commands
         reload(test_commands)
         from test_commands import enter_example_command_doit
