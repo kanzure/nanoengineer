@@ -14,32 +14,31 @@ __author__ = "Mark"
 
 from Utility import geticon, getpixmap
 from bonds import CC_GRAPHITIC_BONDLENGTH
-from PropMgrBaseClass import PropMgrBaseClass
-from PropMgrBaseClass import PropMgrGroupBox
-from PropMgrBaseClass import PropMgrDoubleSpinBox
-from PropMgrBaseClass import PropMgrComboBox
-from PropMgrBaseClass import PropMgrSpinBox
-from PropMgrBaseClass import PropMgrTextEdit
-from PropMgrBaseClass import PropMgrPushButton
-from PropMgrBaseClass import PropMgrLineEdit
-from PropMgrBaseClass import PropMgrCheckBox
 
-class GraphenePropMgr(object, PropMgrBaseClass):
+from PM.PM_Dialog        import PM_Dialog
+from PM.PM_GroupBox      import PM_GroupBox
+from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
+from PM.PM_ComboBox      import PM_ComboBox
+from PM.PM_SpinBox       import PM_SpinBox
+from PM.PM_TextEdit      import PM_TextEdit
+from PM.PM_PushButton    import PM_PushButton
+from PM.PM_LineEdit      import PM_LineEdit
+from PM.PM_CheckBox      import PM_CheckBox
+
+class GrapheneGeneratorDialog(PM_Dialog):
     
     # <title> - the title that appears in the property manager header.
     title = "Graphene Sheet"
     # <propmgr_name> - the name of this property manager. This will be set to
     # the name of the PropMgr (this) object via setObjectName().
-    propmgr_name = "pm" + title
+    pmName = title
     # <iconPath> - full path to PNG file that appears in the header.
     iconPath = "ui/actions/Tools/Build Structures/Graphene.png"
     
     def __init__(self):
         """Construct the Graphene Property Manager.
         """
-        PropMgrBaseClass.__init__(self, self.propmgr_name)
-        self.setPropMgrIcon(self.iconPath)
-        self.setPropMgrTitle(self.title)
+        PM_Dialog.__init__( self, self.pmName, self.iconPath, self.title )
         self.addGroupBoxes() 
         self.add_whats_this_text()
         
@@ -52,11 +51,14 @@ class GraphenePropMgr(object, PropMgrBaseClass):
         self.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=True)
         
     def addGroupBoxes(self):
-        """Add the 1 groupbox for the Graphene Property Manager.
         """
-        self.pmGroupBox1 = PropMgrGroupBox(self, 
-                                           title="Graphene Parameters",
-                                           titleButton=True)
+        Add the groupbox for the Graphene Property Manager.
+        """
+        self.pmGroupBox1 = \
+            PM_GroupBox( self, 
+                         title          = "Graphene Parameters",
+                         addTitleButton = True )
+        
         self.loadGroupBox1(self.pmGroupBox1)
         
         AddTestGroupBoxes = False # For testing. Mark 2007-05-24
@@ -64,54 +66,71 @@ class GraphenePropMgr(object, PropMgrBaseClass):
         if not AddTestGroupBoxes: # Add test widgets to their own groupbox.
             return
         
-        self.testGroupBox1 = PropMgrGroupBox(self, 
-                                           title="Test Widgets1",
-                                           titleButton=True)
+        self.testGroupBox1 = \
+            PM_GroupBox( self, 
+                         title          = "Test Widgets1",
+                         addTitleButton = True )
+        
         self.loadTestWidgets1(self.testGroupBox1)
         
-        self.testGroupBox2 = PropMgrGroupBox(self, 
-                                           title="Test Widgets2",
-                                           titleButton=True)
+        self.testGroupBox2 = \
+            PM_GroupBox( self, 
+                         title          = "Test Widgets2",
+                         addTitleButton = True )
+        
         self.loadTestWidgets2(self.testGroupBox2)
               
     def loadGroupBox1(self, pmGroupBox):
-        """Load widgets in groubox 1.
+        """
+        Load widgets in groubox 1.
         """
         
         self.heightField = \
-            PropMgrDoubleSpinBox(pmGroupBox, 
-                                label="Height :", 
-                                val=20.0, setAsDefault=True,
-                                min=1.0, max=50.0, 
-                                singleStep=1.0, decimals=1, 
-                                suffix=' Angstroms')
+            PM_DoubleSpinBox( pmGroupBox, 
+                              label        = "Height :", 
+                              value        = 20.0, 
+                              setAsDefault = True,
+                              minimum      = 1.0, 
+                              maximum      = 50.0, 
+                              singleStep   = 1.0, 
+                              decimals     = 1, 
+                              suffix       = ' Angstroms' )
         
         self.widthField = \
-            PropMgrDoubleSpinBox(pmGroupBox,
-                                label="Width :", 
-                                val=20.0, setAsDefault=True,
-                                min=1.0, max=50.0, 
-                                singleStep=1.0, decimals=1, 
-                                suffix=' Angstroms')
+            PM_DoubleSpinBox( pmGroupBox,
+                              label        = "Width :", 
+                              value        = 20.0, 
+                              setAsDefault = True,
+                              minimum      = 1.0, 
+                              maximum      = 50.0, 
+                              singleStep   = 1.0, 
+                              decimals     = 1, 
+                              suffix       = ' Angstroms')
         
         self.bondLengthField = \
-            PropMgrDoubleSpinBox(pmGroupBox,
-                                label="Bond Length :", 
-                                val=CC_GRAPHITIC_BONDLENGTH, setAsDefault=True,
-                                min=1.0, max=3.0, 
-                                singleStep=0.1, decimals=3, 
-                                suffix=' Angstroms')
+            PM_DoubleSpinBox( pmGroupBox,
+                              label        = "Bond Length :", 
+                              value        = CC_GRAPHITIC_BONDLENGTH, 
+                              setAsDefault = True,
+                              minimum      = 1.0, 
+                              maximum      = 3.0, 
+                              singleStep   = 0.1, 
+                              decimals     = 3, 
+                              suffix       = ' Angstroms')
         
         endingChoices = ["None", "Hydrogen", "Nitrogen"]
+        
         self.endingsComboBox= \
-            PropMgrComboBox(pmGroupBox,
-                            label="Endings :", 
-                            choices=endingChoices, 
-                            idx=0, setAsDefault=True,
-                            spanWidth=False)
+            PM_ComboBox( pmGroupBox,
+                         label        = "Endings :", 
+                         choices      = endingChoices, 
+                         index        = 0, 
+                         setAsDefault = True,
+                         spanWidth    = False )
         
     def loadTestWidgets1(self, pmGroupBox):
-        """Adds widgets to <pmGroupBox>.
+        """
+        Adds widgets to <pmGroupBox>.
         Used for testing purposes. Mark 2007-05-24
         """
         
@@ -119,110 +138,127 @@ class GraphenePropMgr(object, PropMgrBaseClass):
         # for testing purposes. For now, I just add them to the end of the
         # Graphene Sheet property manager. Mark 2007-05-22
         
-        self.spinBox = PropMgrSpinBox(pmGroupBox, 
-                                      label="Spinbox :", 
-                                      val=5, setAsDefault=True,
-                                      min=2, max=10, 
-                                      suffix=' things',
-                                      spanWidth=True)
+        self.spinBox = \
+            PM_SpinBox( pmGroupBox, 
+                            label        = "Spinbox :", 
+                            value        = 5, 
+                            setAsDefault = True,
+                            minimum      = 2, 
+                            maximum      = 10, 
+                            suffix       = ' things',
+                            spanWidth    = True )
             
         self.doubleSpinBox = \
-                PropMgrDoubleSpinBox(pmGroupBox, 
-                                    #label="Spanning DoubleSpinBox :",
-                                    label="", # No label
-                                    val=5.0, setAsDefault=True,
-                                    min=1.0, max=10.0, 
-                                    singleStep=1.0, decimals=1, 
-                                    suffix=' Suffix',
-                                    spanWidth=True)
+                PM_DoubleSpinBox( pmGroupBox, 
+                                  #label="Spanning DoubleSpinBox :",
+                                  label        = "", # No label
+                                  value        = 5.0, 
+                                  setAsDefault = True,
+                                  minimum      = 1.0, 
+                                  maximum      = 10.0, 
+                                  singleStep   = 1.0, 
+                                  decimals     = 1, 
+                                  suffix       = ' Suffix',
+                                  spanWidth    = True )
             
         # Add a prefix example.
         self.doubleSpinBox.setPrefix("Prefix ")
             
-        choices = ["First", "Second", "Third (Default)", "Forth"]
+        choices = [ "First", "Second", "Third (Default)", "Forth" ]
+        
         self.comboBox= \
-                PropMgrComboBox(pmGroupBox,
-                                label='Choices : ', 
-                                choices=choices, 
-                                idx=2, setAsDefault=True,
-                                spanWidth=True)
+            PM_ComboBox( pmGroupBox,
+                         label        = 'Choices : ', 
+                         choices      = choices, 
+                         index        = 2, 
+                         setAsDefault = True,
+                         spanWidth    = True )
         
-        self.textEdit = PropMgrTextEdit(pmGroupBox, 
-                                        label="TextEdit :", 
-                                        spanWidth=False)
-        
-        
-        self.spanTextEdit = PropMgrTextEdit(pmGroupBox, 
-                                        label="", 
-                                        spanWidth=True)
+        self.textEdit = \
+            PM_TextEdit( pmGroupBox, 
+                         label     = "TextEdit :", 
+                         spanWidth = False )
         
         
-        self.groupBox = PropMgrGroupBox(pmGroupBox, 
-                                        title="Group Box Title",
-                                        titleButton=False)
+        self.spanTextEdit = \
+            PM_TextEdit( pmGroupBox, 
+                         label     = "", 
+                         spanWidth = True )
+        
+        
+        self.groupBox = \
+            PM_GroupBox( pmGroupBox, 
+                         title          = "Group Box Title",
+                         addTitleButton = False )
             
         self.comboBox2= \
-                PropMgrComboBox(self.groupBox,
-                                label="Choices :", 
-                                choices=choices, 
-                                idx=2, setAsDefault=True,
-                                spanWidth=False)
+            PM_ComboBox( self.groupBox,
+                         label        = "Choices :", 
+                         choices      = choices, 
+                         index        = 2, 
+                         setAsDefault = True,
+                         spanWidth    = False )
         
-        self.groupBox2 = PropMgrGroupBox(pmGroupBox, 
-                                        title="Group Box Title",
-                                        titleButton=False)
+        self.groupBox2 = \
+            PM_GroupBox( pmGroupBox, 
+                         title          = "Group Box Title",
+                         addTitleButton = False)
             
         self.comboBox3= \
-                PropMgrComboBox(self.groupBox2,
-                                label="Choices :", 
-                                choices=choices, 
-                                idx=2, setAsDefault=True,
-                                spanWidth=False)
+            PM_ComboBox( self.groupBox2,
+                         label        = "Choices :", 
+                         choices      = choices, 
+                         index        = 2, 
+                         setAsDefault = True,
+                         spanWidth    = False)
         
         self.pushButton1 = \
-            PropMgrPushButton(pmGroupBox,
-                              label="",
-                              text="PushButton1")
+            PM_PushButton( pmGroupBox,
+                           label = "",
+                           text  = "PushButton1")
         
         self.pushButton2 = \
-            PropMgrPushButton(pmGroupBox,
-                              label="",
-                              text="PushButton2",
-                              spanWidth=True)
+            PM_PushButton( pmGroupBox,
+                           label     = "",
+                           text      = "PushButton2",
+                           spanWidth = True )
     
     def loadTestWidgets2(self, pmGroupBox):
-        """Load widgets in groubox 1.
+        """
+        Load widgets in groubox 1.
         """
         
         self.lineEdit1 = \
-            PropMgrLineEdit(pmGroupBox, 
-                            label="Name :",
-                            text="RotaryMotor-1",
-                            setAsDefault=True,
-                            spanWidth=False)
+            PM_LineEdit( pmGroupBox, 
+                         label        = "Name :",
+                         text         = "RotaryMotor-1",
+                         setAsDefault = True,
+                         spanWidth    = False)
         
         self.lineEdit2 = \
-            PropMgrLineEdit(pmGroupBox, 
-                            label="Span Width LineEdit :",
-                            text="RotaryMotor-1",
-                            setAsDefault=False,
-                            spanWidth=True)
+            PM_LineEdit( pmGroupBox, 
+                         label        = "Span Width LineEdit :",
+                         text         = "RotaryMotor-1",
+                         setAsDefault = False,
+                         spanWidth    = True)
         
         self.checkBox1 = \
-            PropMgrCheckBox(pmGroupBox,
-                              label="CheckBox :",
-                              isChecked=True,
-                              setAsDefault=True,
-                              spanWidth=False)
+            PM_CheckBox( pmGroupBox,
+                         label        = "CheckBox :",
+                         isChecked    = True,
+                         setAsDefault = True,
+                         spanWidth    = False )
+        
         self.checkBox2 = \
-            PropMgrCheckBox(pmGroupBox,
-                              label="SpanWidth CheckBox :",
-                              isChecked=False,
-                              setAsDefault=False,
-                              spanWidth=True)
+            PM_CheckBox( pmGroupBox,
+                         label        = "SpanWidth CheckBox :",
+                         isChecked    = False,
+                         setAsDefault = False,
+                         spanWidth    = True )
         
     def add_whats_this_text(self):
-        """What's This text for some of the widgets in the Property Manager.
+        """
+        What's This text for some of the widgets in the Property Manager.
         """
         
         self.heightField.setWhatsThis("""<b>Height</b>

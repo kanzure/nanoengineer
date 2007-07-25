@@ -27,9 +27,8 @@ from elements import PeriodicTable
 from HistoryWidget import greenmsg
 import bond_constants
 
-from GrapheneGeneratorDialog import GraphenePropMgr
+from GrapheneGeneratorDialog import GrapheneGeneratorDialog
 from GeneratorBaseClass import GeneratorBaseClass
-
 
 sqrt3 = 3 ** 0.5
 quartet = ((0, sqrt3 / 2), (0.5, 0), (1.5, 0), (2, sqrt3 / 2))
@@ -37,7 +36,7 @@ quartet = ((0, sqrt3 / 2), (0.5, 0), (1.5, 0), (2, sqrt3 / 2))
 TOROIDAL = False   # Just for Will
 
 # GraphenePropMgr must come BEFORE GeneratorBaseClass in this list.
-class GrapheneGenerator(QDialog, GraphenePropMgr, GeneratorBaseClass):
+class GrapheneGenerator( GrapheneGeneratorDialog, GeneratorBaseClass):
     """The Graphene Sheet Generator class.
     """
 
@@ -53,8 +52,7 @@ class GrapheneGenerator(QDialog, GraphenePropMgr, GeneratorBaseClass):
 
     # pass window arg to constructor rather than use a global, wware 051103
     def __init__(self, win):
-        QDialog.__init__(self, win)
-        GraphenePropMgr.__init__(self)
+        GrapheneGeneratorDialog.__init__(self)
         GeneratorBaseClass.__init__(self, win)
 
     ###################################################
