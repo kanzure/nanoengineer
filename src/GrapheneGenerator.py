@@ -7,14 +7,13 @@ $Id$
 History:
 
 Mark 2007-05-17: Implemented PropMgrBaseClass.
+Mark 2007-07-24: GrapheneGeneratorDialog now uses new PM module.
 """
 
 __author__ = "Will"
 
 from math import atan2, sin, cos, pi
 from Numeric import dot
-
-from PyQt4.Qt import QDialog
 
 import platform
 import chem, bonds, Utility
@@ -35,9 +34,9 @@ quartet = ((0, sqrt3 / 2), (0.5, 0), (1.5, 0), (2, sqrt3 / 2))
 
 TOROIDAL = False   # Just for Will
 
-# GraphenePropMgr must come BEFORE GeneratorBaseClass in this list.
 class GrapheneGenerator( GrapheneGeneratorDialog, GeneratorBaseClass):
-    """The Graphene Sheet Generator class.
+    """
+    The Graphene Sheet Generator class for the "Build Graphene (Sheet)" command.
     """
 
     cmd = greenmsg("Build Graphene: ")

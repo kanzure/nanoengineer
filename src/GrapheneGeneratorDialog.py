@@ -7,6 +7,7 @@ History:
 
 Mark 2007-05-17: This used to be generated from its .ui file. Now it uses PropMgrBaseClass
   to construct its property manager dialog.
+Mark 2007-07-24: GrapheneGeneratorDialog now uses new PM module.
 
 """
         
@@ -26,17 +27,21 @@ from PM.PM_LineEdit      import PM_LineEdit
 from PM.PM_CheckBox      import PM_CheckBox
 
 class GrapheneGeneratorDialog(PM_Dialog):
-    
-    # <title> - the title that appears in the property manager header.
+    """
+    The GrapheneGeneratorDialog class provides a Property Manager dialog for the
+    "Build Graphene (Sheet)" command.
+    """
+    # The title that appears in the property manager header.
     title = "Graphene Sheet"
-    # <propmgr_name> - the name of this property manager. This will be set to
-    # the name of the PropMgr (this) object via setObjectName().
+    # The name of this property manager. This will be set to
+    # the name of the PM_Dialog object via setObjectName().
     pmName = title
-    # <iconPath> - full path to PNG file that appears in the header.
+    # The relative path to PNG file that appears in the header.
     iconPath = "ui/actions/Tools/Build Structures/Graphene.png"
     
     def __init__(self):
-        """Construct the Graphene Property Manager.
+        """
+        Construct the "Build Graphene" Property Manager.
         """
         PM_Dialog.__init__( self, self.pmName, self.iconPath, self.title )
         self.addGroupBoxes() 
@@ -52,7 +57,7 @@ class GrapheneGeneratorDialog(PM_Dialog):
         
     def addGroupBoxes(self):
         """
-        Add the groupbox for the Graphene Property Manager.
+        Add the group boxes to the Graphene Property Manager dialog.
         """
         self.pmGroupBox1 = \
             PM_GroupBox( self, 
