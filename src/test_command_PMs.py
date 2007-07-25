@@ -6,16 +6,33 @@ See that file for more info.
 $Id$
 """
 
-from PropMgrBaseClass import PropMgrBaseClass, PropMgrGroupBox, PropMgrComboBox, PropMgrDoubleSpinBox
-from PyQt4.Qt import QDialog
+##from PropMgrBaseClass import PropMgrBaseClass, PropMgrGroupBox, PropMgrComboBox, PropMgrDoubleSpinBox
+##from PyQt4.Qt import QDialog
+
+from PM.PM_Dialog        import PM_Dialog
+from PM.PM_GroupBox      import PM_GroupBox
+from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
+from PM.PM_ComboBox      import PM_ComboBox
+from PM.PM_SpinBox       import PM_SpinBox
+from PM.PM_TextEdit      import PM_TextEdit
+from PM.PM_PushButton    import PM_PushButton
+from PM.PM_LineEdit      import PM_LineEdit
+from PM.PM_CheckBox      import PM_CheckBox
+from PM.PM_RadioButton   import PM_RadioButton
 
 from GeneratorBaseClass import GeneratorBaseClass
 
 import time
 
-class _eg_pm_widgets:
-    "[private] some PM widgets common to several examples here"
-    # contains some code copied from AtomGeneratorDialog.py
+class PM_Dialog_with_example_widgets( PM_Dialog):
+    "[private] PM_Dialog with some PM widgets common to several examples here"
+    # NOTE: contains some code copied (and perhaps modified) from AtomGeneratorDialog.py
+
+    # these class constants should be defined by each specific PM subclass
+    # (we don't define them here, since we want errors to occur if you don't override them)
+    #   title = "title"
+    #   pmName = "pm" + title
+    #   iconPath = "path-to-some-icon.png"
 
     #k all needed?
     _sMinCoordinateValue   = -30.0
@@ -26,54 +43,57 @@ class _eg_pm_widgets:
     _sCoordinateUnits      =  _sCoordinateUnit + 's'
     _sElementSymbolList    =  ["H","O","C","S"]
 
-    def _eg_init_stuff(self):
-        self.setPropMgrIcon( self.iconPath )
-        self.setPropMgrTitle( self.title )
+    def __init__(self):
+##    def _eg_init_stuff(self): @@@
+        PM_Dialog.__init__( self, self.pmName, self.iconPath, self.title )
         self.addGroupBoxes()
         self.add_whats_this_text()
-
         
         msg = "Example command created at %s" % time.asctime()
         
         # This causes the "Message" box to be displayed as well.
         self.MessageGroupBox.insertHtmlMessage( msg, setAsDefault = False )
+        return
 
     def addGroupBoxes(self):
         """Add the groupboxes for this Property Manager."""
 
-        self.pmGroupBox1  =  PropMgrGroupBox(
-                                    self, 
-                                    title        =  "Atom Parameters",
-                                    titleButton  =  True )
+        self.pmGroupBox1 = \
+            PM_GroupBox( self, 
+                         title           =  "Atom Parameters",
+                         addTitleButton  =  True )
 
         self.loadGroupBox1(self.pmGroupBox1)
-               
+        return
+    
     def loadGroupBox1(self, inPmGroupBox):
-        """Load widgets into groupbox 1."""
+        """
+        Load widgets into groupbox 1.
+        """
 
         # User input to specify what type of element/atom to generate
         elementComboBoxItems  =  self._sElementSymbolList
         self.elementComboBox  =  \
-            PropMgrComboBox( inPmGroupBox,
-                             label         =  "Elements :",
-                             choices       =  elementComboBoxItems,
-                             idx           =  0,
-                             setAsDefault  =  True,
-                             spanWidth     =  False )
+            PM_ComboBox( inPmGroupBox,
+                         label         =  "Elements :",
+                         choices       =  elementComboBoxItems,
+                         index         =  0,
+                         setAsDefault  =  True,
+                         spanWidth     =  False )
         
         # User input to specify x-coordinate 
         # of the generated atom's position.
         self.xCoordinateField  =  \
-            PropMgrDoubleSpinBox(
-                            inPmGroupBox,
-                            label         =  "x :",
-                            val           =  0.0,
-                            setAsDefault  =  True,
-                            min           =  self._sMinCoordinateValue,
-                            max           =  self._sMaxCoordinateValue,
-                            singleStep    =  self._sStepCoordinateValue,
-                            decimals      =  self._sCoordinateDecimals,
-                            suffix        =  ' ' + self._sCoordinateUnits )
+            PM_DoubleSpinBox( inPmGroupBox,
+                              label         =  "x :",
+                              value         =  0.0,
+                              setAsDefault  =  True,
+                              minimum       =  self._sMinCoordinateValue,
+                              maximum       =  self._sMaxCoordinateValue,
+                              singleStep    =  self._sStepCoordinateValue,
+                              decimals      =  self._sCoordinateDecimals,
+                              suffix        =  ' ' + self._sCoordinateUnits )
+        return
         
     def add_whats_this_text(self):
         """What's This text for some of the widgets in the Property Manager."""
@@ -83,18 +103,18 @@ class _eg_pm_widgets:
                                            + self._sCoordinateUnits
                                            + ") of the Atom in "
                                            + self._sCoordinateUnits + '.')
-    pass # end of class _eg_pm_widgets
+    pass # end of class PM_Dialog_with_example_widgets
 
 # ==
 
-class ExampleCommand1_PM( _eg_pm_widgets, QDialog, PropMgrBaseClass): # these supers are needed (but 'object' is evidently not needed)
+class ExampleCommand1_PM( PM_Dialog_with_example_widgets): # these supers are needed (but 'object' is evidently not needed)
     """Property Manager for Example Command 1 -- simplest that doesn't use GBC; buttons are noops"""
     
     # <title> - the title that appears in the property manager header.
     title = "Example Command 1"
-    # <propmgr_name> - the name of this property manager. This will be set to
+    # <pmName> - the name of this property manager. This will be set to
     # the name of the PropMgr (this) object via setObjectName(). ###k used only for debugging??
-    propmgr_name = "pm" + title
+    pmName = "pm" + title
     # <iconPath> - full path to PNG file that appears in the header.
     iconPath = "ui/actions/Toolbars/Smart/Deposit_Atoms.png" ###e REVISE
 
@@ -130,22 +150,19 @@ class ExampleCommand1_PM( _eg_pm_widgets, QDialog, PropMgrBaseClass): # these su
         print "creating", self ####
         self.commandrun = commandrun
 
-        QDialog.__init__(self, win)
-        PropMgrBaseClass.__init__( self, self.propmgr_name )
+        PM_Dialog_with_example_widgets.__init__( self ) ## ok before the next lne? @@@
         if 1: # bruce added these, otherwise various AttributeErrors
             self.win = win # needed in PropMgrBaseClass.show
             self.pw = win.activePartWindow() # same
-
-        self._eg_init_stuff()
         return
     
     pass # end of class ExampleCommand1_PM
 
-class ExampleCommand2_PM( _eg_pm_widgets, QDialog, PropMgrBaseClass, GeneratorBaseClass): # it's simpler if you use GBC
+class ExampleCommand2_PM( PM_Dialog_with_example_widgets, GeneratorBaseClass):
     """Property Manager for Example Command 2 -- simplest that uses GBC; generates a comment (ignores widget values)"""
     
     title = "Example Command 2"
-    propmgr_name = "pm" + title
+    pmName = "pm" + title
     iconPath = "ui/actions/Toolbars/Smart/Deposit_Atoms.png" #e REVISE
 
     # need these, at least to use Done:
@@ -157,11 +174,8 @@ class ExampleCommand2_PM( _eg_pm_widgets, QDialog, PropMgrBaseClass, GeneratorBa
         print "creating", self ####
         self.commandrun = commandrun
 
-        QDialog.__init__(self, win)
-        PropMgrBaseClass.__init__( self, self.propmgr_name )
-        GeneratorBaseClass.__init__( self, win)
-        
-        self._eg_init_stuff()
+        PM_Dialog_with_example_widgets.__init__( self )
+        GeneratorBaseClass.__init__( self, win)        
         return
 
     def gather_parameters(self): ###REVIEW: the exception from this gets printed but not as a traceback... 
