@@ -1,12 +1,12 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 extrudeMode.py
-
 Extrude mode, including its internal "rod" and "ring" modes.
 Unfinished [as of 050518], especially ring mode.
 
-$Id$
-
+@author: bruce
+@version: $Id$
+@copyright: Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History: by bruce, 040924/041011/041015... 050107...
 
@@ -15,6 +15,9 @@ bruce 050913 used env.history in some places.
 ninad 070110: retired extrude dashboard  (in Qt4 branch). It was 
 replaced with its 'Property Manager' (see Ui_ExtrudePropertyManager, 
 ExtrudePropertyManager) 
+
+ninad 20070725: code cleanup to create a propMgr object for extrude mode. 
+Moved many ui helper methods to class ExtrudePropertyManager .
 """
 __author__ = "bruce"
 
@@ -72,14 +75,7 @@ from constants import get_selCurve_color
 
 import platform
 import env
-from qt4transition import qt4todo
-
-
-#@@@ ninad070110 -- As of today, most of the qt4todo calls in this file is the
-#old commented out code. It has been replaced by the new code. (There might be some exceptions) 
-#The qt4todo calls should be removed once Extrude Property manager becomes safe and well tested. 
-#The old code (which implemented Extrude Dashboard is tagged as :
-# 'TAG before_extrudeMode_propmgr_migration_ninad070110'
+import changes
 
 ##show_revolve_ui_features = 1 # for now
 
@@ -106,18 +102,7 @@ MAX_NCOPIES = 360 # max number of extrude-unit copies. Should this be larger? Mo
 ##    "self should be the main MWSemantics object -- at the moment this is a function, not a method"
 ##    assert 0 # no longer used in Qt4, replaced with ExtrudePropertyManager [code removed by bruce 070613]
 
-###REVIEW: are the following several UI helper functions still used? [bruce 070613 question]
 
-def lambda_tol_nbonds(tol, nbonds):
-    if nbonds == -1:
-        nbonds_str = "?"
-    else:
-        nbonds_str = "%d" % (nbonds,)
-    tol_str = ("      %d" % int(tol*100.0))[-3:]
-    # fixed-width (3 digits) but using initial spaces
-    # (doesn't have all of desired effect, due to non-fixed-width font)
-    tol_str = tol_str + "%"
-    return "Tolerance: %s => %s bonds" % (tol_str,nbonds_str)
 
 def reinit_extrude_controls(win, glpane = None, length = None, attr_target = None):
     "reinitialize the extrude controls; used whenever we enter the mode; win should be the main window (MWSemantics object)"
@@ -134,10 +119,10 @@ def reinit_extrude_controls(win, glpane = None, length = None, attr_target = Non
         ## in fact we can't use it while the bugs in changing N after going to a ring, remain...
     dflt_ncopies = self.extrudeSpinBox_n_dflt_per_ptype[0] #e 0 -> a named constant, it's also used far below
     
-    self.extrudeSpinBox_n.setValue(dflt_ncopies)
+    self.propMgr.extrudeSpinBox_n.setValue(dflt_ncopies)
     
-    if self.extrudeSpinBox_circle_n:
-        self.extrudeSpinBox_circle_n.setValue(0) #e for true Revolve the initial value would be small but positive...\
+    if self.propMgr.extrudeSpinBox_circle_n:
+        self.propMgr.extrudeSpinBox_circle_n.setValue(0) #e for true Revolve the initial value would be small but positive...\
         
     x,y,z = 5,5,5 # default dir in modelspace, to be used as a last resort
     if glpane:
@@ -157,10 +142,13 @@ def reinit_extrude_controls(win, glpane = None, length = None, attr_target = Non
         ll = math.sqrt(x*x + y*y + z*z) # should always be positive, due to above code
         rr = float(length) / ll
         x,y,z = (x * rr, y * rr, z * rr)
-    set_extrude_controls_xyz(self, (x,y,z))
+    self.propMgr.set_extrude_controls_xyz((x,y,z))
 
-    self.extrude_pref_toggles = [self.extrudePref1, self.extrudePref2, self.extrudePref3, self.extrudePref4,
-                                 self.extrudePrefMergeSelection]
+    self.extrude_pref_toggles = [self.propMgr.extrudePref1, 
+				 self.propMgr.extrudePref2, 
+				 self.propMgr.extrudePref3, 
+				 self.propMgr.extrudePref4,
+                                 self.propMgr.extrudePrefMergeSelection]
     for toggle in self.extrude_pref_toggles:
         if attr_target and toggle.attr: # do this first, so the attrs needed by the slot functions are there
             setattr(attr_target, toggle.attr, toggle.default) # this is the only place I initialize those attrs!
@@ -170,94 +158,22 @@ def reinit_extrude_controls(win, glpane = None, length = None, attr_target = Non
 
  
     #e bonding-slider, and its label, showing tolerance, and # of bonds we wouldd make at current offset\
-    tol = self.extrudeBondCriterionSlider_dflt / 100.0
-    set_bond_tolerance_and_number_display( self, tol)
-    set_bond_tolerance_slider( self, tol)
+    tol = self.propMgr.extrudeBondCriterionSlider_dflt / 100.0
+    self.propMgr.set_bond_tolerance_and_number_display(tol)
+    self.propMgr.set_bond_tolerance_slider(tol)
     ### bug: at least after the reload menu item, reentering mode did not reinit slider to 100%. don\'t know why.\
 
-    self.extrude_productTypeComboBox.setCurrentIndex(0)
+    self.propMgr.extrude_productTypeComboBox.setCurrentIndex(0)
     
     self.updateMessage()
     
     return
 
-def set_bond_tolerance_and_number_display(win, tol, nbonds = -1): #e -1 indicates not yet known ###e '?' would look nicer
-    self = win
-    lambda_tol_nbonds = self.extrudeBondCriterionLabel_lambda_tol_nbonds
-    self.extrudeBondCriterionLabel.setText(lambda_tol_nbonds(tol,nbonds))
-    
-def set_bond_tolerance_slider(win, tol):
-    self = win
-    self.extrudeBondCriterionSlider.setValue(int(tol * 100)) # this will send signals!
-    
-def get_bond_tolerance_slider_val(win):
-    self = win
-    ival = self.extrudeBondCriterionSlider.value()
-    return ival / 100.0
-    
-def set_extrude_controls_xyz_nolength(win, (x,y,z) ):
-    self = win
-    self.extrudeSpinBox_x.setValue(x)
-    self.extrudeSpinBox_y.setValue(y)
-    self.extrudeSpinBox_z.setValue(z)
 
-def set_extrude_controls_xyz(win, (x,y,z) ):
-    set_extrude_controls_xyz_nolength( win, (x,y,z) )
-    update_length_control_from_xyz(win)
-
-def get_extrude_controls_xyz(win):
-    self = win
-    x = self.extrudeSpinBox_x.value()
-    y = self.extrudeSpinBox_y.value()
-    z = self.extrudeSpinBox_z.value()
-    return (x,y,z)
-
-suppress_valuechanged = 0
-
-def call_while_suppressing_valuechanged(func):
-    global suppress_valuechanged
-    old_suppress_valuechanged = suppress_valuechanged
-    suppress_valuechanged = 1
-    try:
-        res = func()
-    finally:
-        suppress_valuechanged = old_suppress_valuechanged
-    return res
-
-def update_length_control_from_xyz(win):
-    x,y,z = get_extrude_controls_xyz(win)
-    ll = math.sqrt(x*x + y*y + z*z)
-    if ll < 0.1: # prevent ZeroDivisionError
-        set_controls_minimal(win)
-        return
-    self = win
-    call_while_suppressing_valuechanged( lambda: self.extrudeSpinBox_length.setValue(ll) )
     
-def update_xyz_controls_from_length(win):
-    x,y,z = get_extrude_controls_xyz(win)
-    ll = math.sqrt(x*x + y*y + z*z)
-    if ll < 0.1: # prevent ZeroDivisionError
-        set_controls_minimal(win)
-        return
-    self = win
-    length = self.extrudeSpinBox_length.value()
-    rr = float(length) / ll
-    call_while_suppressing_valuechanged( lambda: set_extrude_controls_xyz_nolength( self, (x * rr, y * rr, z * rr) ) )
-    
-    
-def set_controls_minimal(win): #e would be better to try harder to preserve xyz ratio
-    ll = 0.1 # kluge, but prevents ZeroDivisionError
-    x = y = 0.0
-    z = ll
-    self = win
-    call_while_suppressing_valuechanged( lambda: set_extrude_controls_xyz_nolength( self, (x, y, z) ) )
-    call_while_suppressing_valuechanged( lambda: self.extrudeSpinBox_length.setValue(ll) )
-    ### obs comment?: this is not working as I expected, but it does seem to prevent that
-    # ZeroDivisionError after user sets xyz each to 0 by typing in them
-
 # ==
 
-class extrudeMode(basicMode, ExtrudePropertyManager):
+class extrudeMode(basicMode):
 
     # class constants
     is_revolve = 0
@@ -285,33 +201,23 @@ class extrudeMode(basicMode, ExtrudePropertyManager):
             change_connect = self.w.disconnect
             # this is new as of bruce 060412; called from restore_gui; might help with bug 1750
         
-        change_connect(self.extrudeSpinBox_n,SIGNAL("valueChanged(int)"),self.spinbox_value_changed)
-        change_connect(self.extrudeSpinBox_x,SIGNAL("valueChanged(double)"),self.spinbox_value_changed)
-        change_connect(self.extrudeSpinBox_y,SIGNAL("valueChanged(double)"),self.spinbox_value_changed)
-        change_connect(self.extrudeSpinBox_z,SIGNAL("valueChanged(double)"),self.spinbox_value_changed)
-        change_connect(self.extrudeSpinBox_length,SIGNAL("valueChanged(double)"),self.length_value_changed)
+        
         change_connect(self.exitExtrudeAction, SIGNAL("triggered()"), 
 		       self.w.toolsDone)        
 
         for toggle in self.extrude_pref_toggles:
             change_connect(toggle, SIGNAL("stateChanged(int)"), self.toggle_value_changed)
-        
-        slider = self.extrudeBondCriterionSlider
-        
-        change_connect(slider, SIGNAL("valueChanged(int)"), self.slider_value_changed)
-
-        if self.extrudeSpinBox_circle_n and self.is_revolve: ###k??            
-            change_connect(self.extrudeSpinBox_circle_n,SIGNAL("valueChanged(int)"),self.circle_n_value_changed)
-
-        change_connect(self.extrude_productTypeComboBox,SIGNAL("activated(int)"), self.ptype_value_changed)
-        
+                
+        #connect  or disconnect the signals in the propMgr.
+        self.propMgr.connect_or_disconnect_signals(connect)
+	
         return
 
     def ptype_value_changed(self, val):
         if not self.now_using_this_mode_object():
             return
         old = self.product_type
-        new = self.extrude_productTypeComboBox_ptypes[val]
+        new = self.propMgr.extrude_productTypeComboBox_ptypes[val]
         
         if new != old:
             # print "product_type = %r" % (new,)
@@ -331,7 +237,7 @@ class extrudeMode(basicMode, ExtrudePropertyManager):
         if not self.now_using_this_mode_object():
             return
         old = self.bond_tolerance
-        new = get_bond_tolerance_slider_val(self)
+        new = self.propMgr.get_bond_tolerance_slider_val()
         if new != old:
             self.needs_repaint = 1 # almost certain, from bond-offset spheres and/or bondable singlet colors
             self.bond_tolerance = new
@@ -343,9 +249,9 @@ class extrudeMode(basicMode, ExtrudePropertyManager):
                 print "must be too early to patch self.nice_offsets_handleset -- could be a problem, it will miss this event" ###@@@
             else:
                 hset.radius_multiplier = self.bond_tolerance
-                
-            set_bond_tolerance_and_number_display(self, self.bond_tolerance) # number of resulting bonds not yet known, will be set later
-            #set_bond_tolerance_and_number_display(self.w, self.bond_tolerance) # number of resulting bonds not yet known, will be set later
+		
+            # number of resulting bonds not yet known, will be set later    
+            self.propMgr.set_bond_tolerance_and_number_display(self.bond_tolerance) 
             self.recompute_bonds() # re-updates set_bond_tolerance_and_number_display when done
             self.repaint_if_needed() ##e merge with self.update_offset_bonds_display, call that instead?? no need for now.
         return
@@ -398,20 +304,10 @@ class extrudeMode(basicMode, ExtrudePropertyManager):
         self.initial_down = self.o.down
         self.initial_out = self.o.out
 
-        ExtrudePropertyManager.__init__(self)
-        
-        #This mode still uses self as its own PM; will be changed
-	#Following should be replaced when the mode starts using an 
-	#independent propMgr object.
-        self.propMgr = self 
-	
-        #Following updates the bond tolerence lbl in Extrude Property manager
-        # defining it here for now (instead of Ui_ExtrudePropertyManager
-        #as a lot of related code is defined here that uses this global var. -- ninad 070131
-        global lambda_tol_nbonds
-        self.extrudeBondCriterionLabel_lambda_tol_nbonds = lambda_tol_nbonds
-        self.openPropertyManager(self)                
-        
+        self.propMgr = ExtrudePropertyManager(self)
+	#@bug BUG: following is a workaround for bug 2494
+	changes.keep_forever(self.propMgr)        	
+                
         initial_length = debug_pref("Extrude: initial offset length (A)", Choice([3.0, 7.0, 15.0, 30.0], default_value = 7.0),
                                     prefs_key = True, non_debug = True) #bruce 070410
         reinit_extrude_controls(self, self.o, length = initial_length, attr_target = self)
@@ -485,8 +381,6 @@ class extrudeMode(basicMode, ExtrudePropertyManager):
         self.recompute_for_new_bend() # ... and whatever depends on the bend from each repunit to the next (varies only in Revolve)
 	
 	self.updateCommandManager(bool_entering = True) #ninad20070622
-
-        ## self.connect_controls()
         self.connect_or_disconnect_signals(True)
         ## i think this is safer *after* the first update_from_controls, not before it...
         # but i won't risk changing it right now (since tonight's bugfixes might go into josh's demo). [041017 night]
@@ -500,6 +394,12 @@ class extrudeMode(basicMode, ExtrudePropertyManager):
             return 1
 	
         return # from Enter
+    
+    def updateMessage(self):
+	"""
+	Update the message box win property manager with an informative message.
+        """
+	self.propMgr.updateMessage()
     
     def getFlyoutActionList(self): #Ninad 20070622
 	""" Returns a tuple that contains mode specific actionlists in the 
@@ -575,13 +475,12 @@ class extrudeMode(basicMode, ExtrudePropertyManager):
         # even if that changes, this routine looks harmless if update_from_controls is written to grab value
         # from spinbox directly, as long as update_from_controls overwrites self.circle_n again before anything can use it.
         val = "arg not used"
-        global suppress_valuechanged
-        if suppress_valuechanged:
+        if self.propMgr.suppress_valuechanged:
             return
         if not self.now_using_this_mode_object():
             return
         assert self.is_revolve ###k for now
-        spinbox = self.extrudeSpinBox_circle_n
+        spinbox = self.propMgr.extrudeSpinBox_circle_n
         if not spinbox:
             #k should never happen??
             return #k?
@@ -597,14 +496,14 @@ class extrudeMode(basicMode, ExtrudePropertyManager):
 
     def spinbox_value_changed(self, val):
         "call this when any extrude spinbox value changed, except length."
-        global suppress_valuechanged
-        if suppress_valuechanged:
+        
+        if self.propMgr.suppress_valuechanged:
             return
         if not self.now_using_this_mode_object():
             #e we should be even more sure to disconnect the connections causing this to be called
             ##print "fyi: not now_using_this_mode_object" # this happens when you leave and reenter mode... need to break qt connections
             return
-        update_length_control_from_xyz(self)
+        self.propMgr.update_length_control_from_xyz()
         self.update_from_controls()
             # use now-current value, not the one passed
             # (hoping something collapsed multiple signals into one event...)
@@ -615,13 +514,12 @@ class extrudeMode(basicMode, ExtrudePropertyManager):
 
     def length_value_changed(self, val):
         "call this when the length spinbox changes"
-        global suppress_valuechanged
-        if suppress_valuechanged:
+        if self.propMgr.suppress_valuechanged:
             return
         if not self.now_using_this_mode_object():
             ##print "fyi: not now_using_this_mode_object"
             return
-        update_xyz_controls_from_length(self)
+        self.propMgr.update_xyz_controls_from_length()
         self.update_from_controls()
 
     should_update_model_tree = 0 # avoid doing this when we don't need to (like during a drag)
@@ -715,13 +613,13 @@ class extrudeMode(basicMode, ExtrudePropertyManager):
         self.asserts()
         
         # get control values
-        want_n = self.extrudeSpinBox_n.value()
+        want_n = self.propMgr.extrudeSpinBox_n.value()
 
         our_dashboard_has_extrudeSpinBox_circle_n = 0 # for now; later this is a class constant, until we split the dashboards
         
         
-        if self.extrudeSpinBox_circle_n and our_dashboard_has_extrudeSpinBox_circle_n:
-            want_cn = self.extrudeSpinBox_circle_n.value()
+        if self.propMgr.extrudeSpinBox_circle_n and our_dashboard_has_extrudeSpinBox_circle_n:
+            want_cn = self.propMgr.extrudeSpinBox_circle_n.value()
             #k redundant with the slot function for this?? yes, that will go away, see its comments [041017 night].\
         else:
             want_cn = 0
@@ -758,7 +656,7 @@ class extrudeMode(basicMode, ExtrudePropertyManager):
         # and do all update from this routine (maybe even do that part now).
         # + check product_type or ptype compares.
 
-        (want_x, want_y, want_z) = get_extrude_controls_xyz(self)
+        (want_x, want_y, want_z) = self.propMgr.get_extrude_controls_xyz()
         
 
         offset_wanted = V(want_x, want_y, want_z) # (what are the offset units btw? i guess angstroms, but verify #k)
@@ -1085,7 +983,9 @@ class extrudeMode(basicMode, ExtrudePropertyManager):
                 ###e now how do we make that effect the look of the base and rep units? patch atom.draw?
                 # but as we draw the atom, do we look up its key? is that the same in the mol.copy??
         nbonds = len(hh)
-        set_bond_tolerance_and_number_display(self, self.bond_tolerance, nbonds)
+        self.propMgr.set_bond_tolerance_and_number_display(
+	    self.bond_tolerance, nbonds)
+	
         ###e ideally we'd color the word "bonds" funny, or so, to indicate that offset_for_bonds != offset or that ptype isn't rod...
         #e repaint, or let caller do that (perhaps aftermore changes)? latter - only repaint at end of highest event funcs.
         return
@@ -1113,6 +1013,8 @@ class extrudeMode(basicMode, ExtrudePropertyManager):
     # == this belongs higher up...
     
     def init_gui(self):
+	
+	self.propMgr.show_propMgr()
         ##print "hi my msg_modename is",self.msg_modename
         self.o.setCursor(QCursor(Qt.ArrowCursor)) #bruce 041011 copying a change from cookieMode, choice of cursor not reviewed ###
         
@@ -1353,7 +1255,7 @@ class extrudeMode(basicMode, ExtrudePropertyManager):
         return None
         
     def StateCancel(self): # [bruce 050228 revised/commented this to fix bug 314]
-        self.extrudeSpinBox_n.setValue(1) #e should probably do this in our subroutine instead of here        
+        self.propMgr.extrudeSpinBox_n.setValue(1) #e should probably do this in our subroutine instead of here        
         self.update_from_controls()
         #e could also change back to rod mode, but if that is needed we'll make the subroutine do it
         return self._stateDoneOrCancel( cancelling = 1) # closest we can come to cancelling
@@ -1382,7 +1284,7 @@ class extrudeMode(basicMode, ExtrudePropertyManager):
         
         self.w.toolsExtrudeAction.setChecked(False) #Toggle Extrude icon
         
-        self.closePropertyManager()
+        self.propMgr.closePropertyManager()
         
         return
 
@@ -1464,7 +1366,7 @@ class extrudeMode(basicMode, ExtrudePropertyManager):
         # nothing touched... need to warn?
         if not touchable_molecules:
 	    msg = redmsg("Dragging of repeat units not yet implemented for <b>Ring</b> product type.")
-	    self.MessageGroupBox.insertHtmlMessage( msg, setAsDefault  =  False )
+	    self.propMgr.MessageGroupBox.insertHtmlMessage( msg, setAsDefault  =  False )
             self.status_msg("(dragging of repeat units not yet implemented for product type %r; sorry)" % self.product_type)
         return None
 
@@ -1523,7 +1425,8 @@ class extrudeMode(basicMode, ExtrudePropertyManager):
     def force_offset_and_update(self, offset):
         "change the controls to reflect offset, then update from the controls"
         x,y,z = offset
-        call_while_suppressing_valuechanged( lambda: set_extrude_controls_xyz( self, (x, y, z) ) )
+        self.propMgr.call_while_suppressing_valuechanged( 
+	    lambda: self.propMgr.set_extrude_controls_xyz( (x, y, z) ) )
         
         #e worry about too-low resolution of those spinbox numbers? at least not in self.dragged_offset...
         #e status bar msg? no, caller can do it if they want to.
@@ -1801,7 +1704,7 @@ class extrudeMode(basicMode, ExtrudePropertyManager):
         global extrudeMode
         print "extrude_reload: here goes...."
         try:
-            self.extrudeSpinBox_n.setValue(1)
+            self.propMgr.extrudeSpinBox_n.setValue(1)
             self.update_from_controls()
             print "reset ncopies to 1, to avoid dialog from Abandon, and ease next use of the mode"
         except:
