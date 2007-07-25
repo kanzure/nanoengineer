@@ -139,6 +139,10 @@ class anyMode( StateMixin): #bruce 060223 renamed mixin class
     modename = "(bug: missing modename 1)" 
     # name of mode to be shown to users, as a phrase, e.g. 'sketch mode'
     msg_modename = "(bug: unknown mode)"
+    
+    #Mode's property manager. Subclasses should initialize the propMgr object 
+    #if they need one.     
+    propMgr = None
 
     def get_mode_status_text(self):
         return "(bug: mode status text)"
@@ -175,10 +179,6 @@ class nullMode(anyMode):
         # this will be overwritten when modes are changing [bruce 050106]
     # needs no __init__ method; constructor takes no arguments
     
-    #Mode's property manager. Subclasses should initialize the propMgr object 
-    #if they need one. 
-    
-    propMgr = None
     
     def noop_method(self, *args, **kws):
         if platform.atom_debug:
