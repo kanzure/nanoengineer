@@ -4,7 +4,7 @@ NanotubeGenerator.py
 
 $Id$
 
-See http://www.nanoengineer-1.net/mediawiki/index.php?title=Nanotube_generator_dialog
+@see http://www.nanoengineer-1.net/mediawiki/index.php?title=Nanotube_generator_dialog
 for notes about what's going on here.
 """
 
@@ -81,7 +81,7 @@ class Chirality:
         z3 = y2
         return (x3, y3, z3)
 
-    def populate(self, mol, length, bn_members=False):
+    def populate(self, mol, length, bn_members = False):
 
         def add(element, x, y, z, atomtype='sp2'):
             atm = Atom(element, chem.V(x, y, z), mol)
@@ -164,7 +164,7 @@ class Chirality:
 
 from debug import linenum
 
-def add_endcap(mol, length, radius, bondlength):
+def addEndcap(mol, length, radius, bondlength):
     sphere_center = chem.V(0, length / 2, 0)
     def walk_great_circle(P, Q, D, R=radius):
         """Given two points P and Q on or near the surface of the
@@ -298,14 +298,13 @@ def add_endcap(mol, length, radius, bondlength):
 
 #################################################################
 
-from PyQt4.Qt import QDialog
-from NanotubeGeneratorDialog import NanotubePropMgr
+from NanotubeGeneratorDialog import NanotubeGeneratorDialog
 from GeneratorBaseClass import GeneratorBaseClass
 from HistoryWidget import redmsg, orangemsg, greenmsg
 
-# NanotubePropMgr must come BEFORE GeneratorBaseClass in this list
-class NanotubeGenerator(QDialog, NanotubePropMgr, GeneratorBaseClass):
-    """The Nanotube Generator class.
+class NanotubeGenerator(NanotubeGeneratorDialog, GeneratorBaseClass):
+    """
+    The Nanotube Generator class for the "Build Nanotube" command.
     """
 
     cmd = greenmsg("Build Nanotube: ")
@@ -319,8 +318,7 @@ class NanotubeGenerator(QDialog, NanotubePropMgr, GeneratorBaseClass):
     
     # pass window arg to constructor rather than use a global, wware 051103
     def __init__(self, win):
-        QDialog.__init__(self, win)
-        NanotubePropMgr.__init__(self)
+        NanotubeGeneratorDialog.__init__(self)
         GeneratorBaseClass.__init__(self, win)
 
     ###################################################
@@ -328,7 +326,8 @@ class NanotubeGenerator(QDialog, NanotubePropMgr, GeneratorBaseClass):
     # any necessary helper functions
 
     def gather_parameters(self):
-        """Return all the parameters from the Property Manager.
+        """
+        Return all the parameters from the Property Manager dialog.
         """
         
         n = self.chiralityNSpinBox.value()
@@ -352,7 +351,8 @@ class NanotubeGenerator(QDialog, NanotubePropMgr, GeneratorBaseClass):
                 twist, bend, members, endings, numwalls, spacing)
 
     def build_struct(self, name, params, position, mol=None, createPrinted=False):
-        """Build a nanotube from the parameters in the Property Manger.
+        """
+        Build a nanotube from the parameters in the Property Manger dialog.
         """
         
         length, n, m, bond_length, zdist, xydist, \
@@ -440,7 +440,7 @@ class NanotubeGenerator(QDialog, NanotubePropMgr, GeneratorBaseClass):
         # if we're not picky about endings, we don't need to trim carbons
         if endings == "Capped":
             # buckyball endcaps
-            add_endcap(mol, length, self.chirality.R)
+            addEndcap(mol, length, self.chirality.R)
         if endings == "Hydrogen":
             # hydrogen terminations
             for atm in atoms.values():
