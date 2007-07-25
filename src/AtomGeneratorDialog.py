@@ -65,18 +65,17 @@ from PM.PM_TextEdit      import PM_TextEdit
 from PM.PM_PushButton    import PM_PushButton
 from PM.PM_LineEdit      import PM_LineEdit
 from PM.PM_CheckBox      import PM_CheckBox
-from PM.PM_ButtonGroup   import PM_ButtonGroup
 from PM.PM_RadioButton   import PM_RadioButton
 
 class AtomPropertyManager(PM_Dialog):
     """ Implements user interface to specify properties of an atom """
 
-    # <title> - the title that appears in the property manager header.
+    # The title that appears in the property manager header.
     title = "Atom Generator"
-    # <pmName> - the name of this property manager. This will be set to
-    # the name of the PropMgr (this) object via setObjectName().
+    # The name of this property manager. This will be set to
+    # the name of the PM_Dialog object via setObjectName().
     pmName = title
-    # <iconPath> - full path to PNG file that appears in the header.
+    # The relative path to PNG file that appears in the header.
     iconPath = "ui/actions/Toolbars/Smart/Deposit_Atoms.png"
 
     # Jeff 20070530:
