@@ -26,8 +26,6 @@ Jeff 2007-05-30: Based on Will Ware's GrapheneGenerator.py
 
 __author__ = "Jeff"
 
-from PyQt4.Qt import QDialog
-
 import platform, env
 from chem import Atom
 from chunk import molecule
@@ -49,7 +47,7 @@ def enableAtomGenerator(enable):
     win.insertAtomAction.setVisible(enable)
 
 # AtomPropertyManager must come BEFORE GeneratorBaseClass in this list.
-class AtomGenerator( QDialog, AtomPropertyManager, GeneratorBaseClass ):
+class AtomGenerator( AtomPropertyManager, GeneratorBaseClass ):
     """The Atom Generator class.
     """
 
@@ -67,7 +65,6 @@ class AtomGenerator( QDialog, AtomPropertyManager, GeneratorBaseClass ):
 
     # pass window arg to constructor rather than use a global.
     def __init__( self, win ):
-        QDialog.__init__(self, win)
         AtomPropertyManager.__init__(self)
         GeneratorBaseClass.__init__(self, win)
 
