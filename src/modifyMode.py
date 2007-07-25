@@ -155,8 +155,7 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         self.dragdist = 0.0
         self.setGoBackToMode(False, 'MODIFY')
 	self.clear_leftA_variables() #bruce 070605 precaution
-	changes.keep_me_for_a_while(self.propMgr, flush = True)
-	
+		
         return
     
     # (see basicMode.Done.__doc__ for the ones we don't override here [bruce 040923])
