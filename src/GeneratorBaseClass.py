@@ -29,6 +29,15 @@ Needs refactoring so that:
   insofar as a command needs a topic classification (e.g. sponsor keywords)
   which influences the choice of sponsor)
 
+After discussion during a code review on 070724, it became clear that GBC needs
+to be split into two classes, "generator command" and "generator PM", with much
+of the "generator PM" part then getting merged into PropMgrBaseClass (or its
+successor, PM_Dialog). These will have new names (not containing "BaseClass",
+which is redundant). Tentative new names: GeneratorCommand, GeneratorPM.
+The GeneratorPM class will contain the generator-specific parts of the button
+click slots; the button-click method herein need to be split into their PM
+and command-logic parts, when they're split between these classes.
+
 Also needs generalization in several ways (mentioned but not fully explained):
 
 - extend API with subclasses to permit better error handling
@@ -64,8 +73,11 @@ from constants import permit_gensym_to_reuse_name
 
 # == private definitions
 
-# REVIEW: AbstractMethod should either be renamed to look private, or be moved
-# to a more general place and used more widely. [bruce 070719 comment]
+# REVIEW: AbstractMethod should either be renamed to look private, or
+# (preferably) moved to a more general place and used more widely
+# (but ideally merged with the other 2 or 3 variants of this idea,
+#  including the exception built into Python for this purpose).
+# [070724 code review]
 
 class AbstractMethod(Exception):
     def __init__(self):
@@ -73,9 +85,14 @@ class AbstractMethod(Exception):
 
 # == public exception classes for use by our client subclasses
 
-# REVIEW: I think these would benefit from being renamed with a GBC_ prefix,
+# REVIEW: These might benefit from being renamed with a Generator_ prefix,
 # unless we decide they're more general and can be used in any Command,
 # in which case they should be moved, and some other prefix would be better.
+# They should also be taught to help print messages about themselves, so that
+# handlePluginExceptions doesn't need to catch each one individually. This
+# should be revisited after our overall error handling code is revised.
+# [070724 code review]
+#
 # REVIEW: I suspect these exceptions are not handled in the best way, and in
 # particular, I am not sure it's useful to have a CadBug exception class,
 # given that any unexpected exception (of any class) also counts as a "bug
@@ -159,7 +176,10 @@ class GeneratorBaseClass(SponsorableMixin):
         # WARNING: subclasses often set cmd to greenmsg(self.cmdname + ": "),
         # from which we have to klugily deduce self.cmdname! Ugh.
     cmdname = "" # subclasses should set this to their (undecorated) command
-        # name, for use by Undo and history.
+        # name, for use by Undo and history. WARNING (KLUGE): The way Undo uses
+        # this name [as of 070724] is by parsing the history message. That
+        # should be cleaned up, and this attribute should be renamed to indicate
+        # that it's part of an Undo-related interface.
     create_name_from_prefix = True # whether we'll create self.name from
         # self.prefix (by appending a serial number)
     
@@ -217,27 +237,51 @@ class GeneratorBaseClass(SponsorableMixin):
         raise AbstractMethod()
 
     def remove_struct(self):
-        if platform.atom_debug: print 'Should we remove an existing structure?'
+        ### NEEDS DOCSTRING
+        ### REVIEW: rename to indicate it's private?
         if self.struct != None:
-            if platform.atom_debug: print 'Yes, remove it'
             self.struct.kill()
+                # BUG: Ninad suspects this (or a similar line) might be
+                # implicated in bug 2045. [070724 code review]
             self.struct = None
             self.win.win_update() # includes mt_update
-        else:
-            if platform.atom_debug: print 'No structure to remove'
+        return
 
+    # Note: when we split this class, the following methods will be moved into
+    # GeneratorPM and/or PM_Dialog (or discarded if they are already overridden
+    # correctly by PM_Dialog):
+    # - all xxx_btn_clicked methods (also to be renamed, btn -> button)
+    # - enter_WhatsThisMode
+    # - close
+    # [070724 code review]
+    
     def restore_defaults_btn_clicked(self):
         """Slot for the Restore Defaults button."""
-        if platform.atom_debug: print 'restore defaults button clicked'
+        ### TODO: docstring needs to say under what conditions this should be
+        # overridden.
+        ### WARNING: Mark says this is never called in practice, since it's
+        # overridden by the same method in PropMgrBaseClass, and that this
+        # implementation is incorrect and can be discarded when we refactor
+        # this class.
+        # [070724 code review]
+        if platform.atom_debug:
+            print 'restore defaults button clicked'
         
-    def preview_btn_clicked(self):
-        if platform.atom_debug: print 'preview button clicked'
+    def preview_btn_clicked(self): ### NEEDS DOCSTRING
+        if platform.atom_debug:
+            print 'preview button clicked'
         self.change_random_seed()
         self._ok_or_preview(previewing=True)
     
     def ok_btn_clicked(self):
         """Slot for the OK button."""
-        if platform.atom_debug: print 'ok button clicked'
+        ### NEEDS RENAMING, ok -> done -- or merging with existing
+        # done_btn_clicked method, below!
+        ### WARNING: Mark says PropMgrBaseClass depends on its subclasses
+        # inheriting this method. This should be fixed when we refactor.
+        # [070724 code review]
+        if platform.atom_debug:
+            print 'ok button clicked'
         self._gensym_data_for_reusing_name = None # make sure gensym-assigned
             # name won't be reused next time
         self._ok_or_preview(doneMsg = True)
@@ -246,7 +290,9 @@ class GeneratorBaseClass(SponsorableMixin):
             # if there was a (UserError, CadBug, PluginBug) then behave
             # like preview button - do not close the dialog
             ###REVIEW whether that's a good idea in case of bugs
-            # [bruce 070615 comment]
+            # (see also the comments about return value of self.close(),
+            #  which will be moved to GeneratorPM when we refactor)
+            # [bruce 070615 comment & 070724 code review]
             self.accept()
         self.struct = None
         
@@ -261,29 +307,36 @@ class GeneratorBaseClass(SponsorableMixin):
                     
         return
 
-    def handlePluginExceptions(self, thunk):
+    def handlePluginExceptions(self, thunk): ### NEEDS DOCSTRING
+        ### RENAME thunk -> runnable? aCallable?
+        ### TODO: teach the exceptions caught here to know how to make these
+        # messages in a uniform way, to simplify this code.
+        # [070724 code review]
         self.pluginException = False
         try:
             return thunk()
         except CadBug, e:
-            explan = "Bug in the CAD system"
+            reason = "Bug in the CAD system"
         except PluginBug, e:
-            explan = "Bug in the plug-in"
+            reason = "Bug in the plug-in"
         except UserError, e:
-            explan = "User error"
+            reason = "User error"
         except Exception, e:
             #bruce 070518 revised the message in this case,
             # and revised subsequent code to set self.pluginException
             # even in this case (since I am interpreting it as a bug)
-            explan = "Exception" #TODO: should improve, include exception name
-        print_compact_traceback(explan + ": ")
-        env.history.message(redmsg(explan + ": " +
+            reason = "Exception" #TODO: should improve, include exception name
+        print_compact_traceback(reason + ": ")
+        env.history.message(redmsg(reason + ": " +
                                    quote_html(" - ".join(map(str, e.args))) ))
         self.remove_struct()
         self.pluginException = True
         return
     
     def _ok_or_preview(self, doneMsg = False, previewing = False):
+        ### NEEDS DOCSTRING (and possible renaming)
+        ### REVIEW how to split this between GeneratorCommand and GeneratorPM
+        # [070724 code review]
         QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
         self.win.assy.current_command_info(cmdname = self.cmdname)
         def thunk():
@@ -291,7 +344,7 @@ class GeneratorBaseClass(SponsorableMixin):
             if doneMsg:
                 env.history.message(self.cmd + self.done_msg())
         self.handlePluginExceptions(thunk)
-        QApplication.restoreOverrideCursor() # Restore the cursor
+        QApplication.restoreOverrideCursor()
         self.win.win_update()
 
     def change_random_seed(self): #bruce 070518 added this to API
@@ -306,9 +359,17 @@ class GeneratorBaseClass(SponsorableMixin):
     def gather_parameters(self):
         """
         Return a tuple of the current parameters. This is an
-        abstract method and must be overloaded in the specific
-        generator. This method must validate the parameters, or
+        abstract method which must be overloaded in the specific
+        generator. Each subclass (specific generator) determines
+        how many parameters are contained in this tuple, and in
+        what order. The superclass code assumes only that the
+        param tuple can be correctly compared by equality.
+           This method must validate the parameters, and
         raise an exception if they are invalid.
+           BUG [as of 070724]: if this tuple contains any Numeric Python arrays,
+        the current implementation of the calling code will compare it
+        incorrectly (since those don't implement Python '==' correctly).
+        This should be fixed by changing the caller to use same_vals.
         """
         raise AbstractMethod()
 
@@ -322,18 +383,15 @@ class GeneratorBaseClass(SponsorableMixin):
     _gensym_data_for_reusing_name = None
     
     def _revert_number(self):
-        ###TODO: this method needs a docstring. Once a good one is added,
-        # the historical comments here should be removed. (They are probably
-        # not very useful except to their author, but they might help their
-        # author create a correct docstring.) [bruce 070723 comment]
-        # 
-        #bruce 070603-04: removing the Gno & ViewNum parts of revert_number,
-        # since they won't work properly with the new gensym.
-        # Instead, we do it differently now.
-        #   Note: this only helps classes which set self.create_name_from_prefix
-        # to cause our default _build_struct to set the private attr we use
-        # here, self._gensym_data_for_reusing_name, or which set it themselves
-        # in the same way (when they call gensym).
+        """
+        Private method. Called internally when we discard the current structure
+        and want to permit a number which was appended to its name to be reused.
+           WARNING: the current implementation only works for classes which set
+        self.create_name_from_prefix
+        to cause our default _build_struct to set the private attr we use
+        here, self._gensym_data_for_reusing_name, or which set it themselves
+        in the same way (when they call gensym).
+        """
         if self._gensym_data_for_reusing_name:
             prefix, name = self._gensym_data_for_reusing_name
                 # this came from our own call of gensym, or from a caller's if
@@ -344,21 +402,23 @@ class GeneratorBaseClass(SponsorableMixin):
         return
 
     def _build_struct(self, previewing = False):
-        if platform.atom_debug:
-            print '_build_struct'
+        """Private method. Called internally to build the structure
+        by calling the (generator-specific) method build_struct
+        (if needed) and processing its return value.
+        """
         params = self.gather_parameters()
 
         if self.struct == None:
-            if platform.atom_debug:
-                print 'no old structure, we are making a new structure'
+            # no old structure, we are making a new structure
+            # (fall through)
+            pass
         elif params != self.previousParams:
-            if platform.atom_debug:
-                print 'parameters have changed, update existing structure'
+            # parameters have changed, update existing structure
             self._revert_number()
-            # fall through, using old name
+            # (fall through, using old name)
+            pass
         else:
-            if platform.atom_debug:
-                print 'old structure, parameters same as previous, do nothing'
+            # old structure, parameters same as previous, do nothing
             return
 
         # self.name needed for done message
@@ -367,9 +427,6 @@ class GeneratorBaseClass(SponsorableMixin):
             # it.
             name = self.name = gensym(self.prefix) # (in _build_struct)
             self._gensym_data_for_reusing_name = (self.prefix, name)
-                #bruce 070604 new feature
-            if platform.atom_debug:
-                print "Created name from prefix. Name =", name
         else:
             # Jigs like the rotary and linear motors already created their name,
             # so we need to use it.
@@ -377,8 +434,6 @@ class GeneratorBaseClass(SponsorableMixin):
                 # (can't reuse name in this case -- not sure what prefix it was
                 #  made with)
             name = self.name
-            if platform.atom_debug:
-                print "Used existing (jig) name =", name
         
         if previewing:
             env.history.message(self.cmd + "Previewing " + name)
@@ -386,7 +441,6 @@ class GeneratorBaseClass(SponsorableMixin):
             env.history.message(self.cmd + "Creating " + name)
         self.remove_struct()
         self.previousParams = params
-        if platform.atom_debug: print "build a new structure"
         self.struct = self.build_struct(name, params, -self.win.glpane.pov)
         self.win.assy.addnode(self.struct)
         # Do this if you want it centered on the previous center.
@@ -394,6 +448,8 @@ class GeneratorBaseClass(SponsorableMixin):
         # Do this if you want it centered on the origin.
         self.win.glpane.setViewRecenter(fast = True)
         self.win.win_update() # includes mt_update
+
+        return
 
     def enter_WhatsThisMode(self):
         "Slot for the What's This button"
@@ -405,7 +461,8 @@ class GeneratorBaseClass(SponsorableMixin):
     
     def done_btn_clicked(self):
         "Slot for the Done button"
-        if platform.atom_debug: print "done button clicked"
+        if platform.atom_debug:
+            print "done button clicked"
         self.ok_btn_clicked()
 
     def abort_btn_clicked(self):
@@ -414,7 +471,8 @@ class GeneratorBaseClass(SponsorableMixin):
 
     def cancel_btn_clicked(self):
         "Slot for the Cancel button"
-        if platform.atom_debug: print "cancel button clicked"
+        if platform.atom_debug:
+            print "cancel button clicked"
         self.win.assy.current_command_info(cmdname = self.cmdname + " (Cancel)")
         self.remove_struct()
         self._revert_number()
@@ -438,7 +496,9 @@ class GeneratorBaseClass(SponsorableMixin):
         """
         # Note: Qt wants the return value of .close to be of the correct type,
         # apparently boolean; it may mean whether to really close (just a guess)
-        # [bruce 060719 comment]
+        # (or it may mean whether Qt needs to process the same event further,
+        #  instead)
+        # [bruce 060719 comment, updated after 070724 code review]
         try:
             self.cancel_btn_clicked()
             return True
