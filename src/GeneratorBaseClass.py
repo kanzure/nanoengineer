@@ -105,7 +105,7 @@ class CadBug(Exception):
     code which is a bug in the cad, a report of an error in the
     plugin, or a report of a user error.
     """
-    def __init__(self, arg=None):
+    def __init__(self, arg = None):
         if arg is not None:
             Exception.__init__(self, arg)
         else:
@@ -117,7 +117,7 @@ class PluginBug(Exception):
     code which is a bug in the cad, a report of an error in the
     plugin, or a report of a user error.
     """
-    def __init__(self, arg=None):
+    def __init__(self, arg = None):
         if arg is not None:
             Exception.__init__(self, arg)
         else:
@@ -129,7 +129,7 @@ class UserError(Exception):
     code which is a bug in the cad, a report of an error in the
     plugin, or a report of a user error.
     """
-    def __init__(self, arg=None):
+    def __init__(self, arg = None):
         if arg is not None:
             Exception.__init__(self, arg)
         else:
@@ -176,10 +176,15 @@ class GeneratorBaseClass(SponsorableMixin):
         # WARNING: subclasses often set cmd to greenmsg(self.cmdname + ": "),
         # from which we have to klugily deduce self.cmdname! Ugh.
     cmdname = "" # subclasses should set this to their (undecorated) command
-        # name, for use by Undo and history. WARNING (KLUGE): The way Undo uses
-        # this name [as of 070724] is by parsing the history message. That
-        # should be cleaned up, and this attribute should be renamed to indicate
-        # that it's part of an Undo-related interface.
+        # name, for use by Undo and history. (Note: this name is passed to Undo
+        # by calls from some methods here to assy.current_command_info.)
+        # TODO: this attribute should be renamed to indicate that it's part of
+        # a specific interface. (Right now it's a standard attribute name
+        # used by convention in many files, and that renaming should be done
+        # consistently to all of them at once if possible. Note that it is
+        # used for several purposes (with more planned in the future), not
+        # only for Undo. Note that a "command metadata interface" might
+        # someday include other attributes besides the name.)
     create_name_from_prefix = True # whether we'll create self.name from
         # self.prefix (by appending a serial number)
     
@@ -221,24 +226,44 @@ class GeneratorBaseClass(SponsorableMixin):
     
     def build_struct(self, name, params, position):
         """
-        Build the structure (model object) in question. This is an abstract
-        method and must be overloaded in the specific generator.
-           The arguments include the parameter tuple returned from
-        self.gather_parameters(). The return value should be the new structure,
+        Build the structure (model object) which this generator is supposed
+        to generate. This is an abstract method and must be overloaded in
+        the specific generator.
+
+        @param name: The name which should be given to the toplevel Node of the
+                     generated structure. The name is also passed in self.name.
+                     (TODO: remove one of those two ways of passing that info.)
+                     The caller will emit history messages which assume this
+                     name is used. If self.create_name_from_prefix is true,
+                     the caller will have set this name to self.prefix appended
+                     with a serial number.
+        @type  name: str
+
+        @param params: The parameter tuple returned from
+                       self.gather_parameters(). For more info,
+                       see docstring of gather_parameters in this class. 
+        @type  params: tuple
+
+        @param position: The position in 3d model space at which to create
+                         the generated structure. (The precise way this is used,
+                         if at all, depends on the specific generator.)
+        @type  position: position
+
+        (WARNING: I am guessing the standard type names for tuple and position.)
+
+           The return value should be the new structure,
         i.e. some flavor of a Node, which has not yet been added to the model.
         Its structure should depend only on the values of the passed params,
         since if the user asks to build twice, this method may not be called if
         the params have not changed.
-           By convention (and to fit with history messages emitted from this
-        class), the new node's name should be set to name (or to self.name,
-        always equal to name), which (if self.create_name_from_prefix is true)
-        the caller will have set to self.prefix appended with a serial number.
         """
         raise AbstractMethod()
 
     def remove_struct(self):
-        ### NEEDS DOCSTRING
-        ### REVIEW: rename to indicate it's private?
+        """
+        Private method. Remove the generated structure, if one has been built.
+        """
+        ### TODO: rename to indicate it's private.
         if self.struct != None:
             self.struct.kill()
                 # BUG: Ninad suspects this (or a similar line) might be
@@ -267,18 +292,22 @@ class GeneratorBaseClass(SponsorableMixin):
         if platform.atom_debug:
             print 'restore defaults button clicked'
         
-    def preview_btn_clicked(self): ### NEEDS DOCSTRING
+    def preview_btn_clicked(self):
+        """Slot for the Preview button."""
         if platform.atom_debug:
             print 'preview button clicked'
         self.change_random_seed()
-        self._ok_or_preview(previewing=True)
+        self._ok_or_preview(previewing = True)
     
     def ok_btn_clicked(self):
         """Slot for the OK button."""
         ### NEEDS RENAMING, ok -> done -- or merging with existing
-        # done_btn_clicked method, below!
+        # done_btn_clicked method, below! The existence of both those methods
+        # makes me wonder whether this one is documented correctly as being
+        # the slot [bruce 070725 comment].
         ### WARNING: Mark says PropMgrBaseClass depends on its subclasses
         # inheriting this method. This should be fixed when we refactor.
+        # (Maybe this is true for some other _btn_clicked methods as well.)
         # [070724 code review]
         if platform.atom_debug:
             print 'ok button clicked'
@@ -307,14 +336,25 @@ class GeneratorBaseClass(SponsorableMixin):
                     
         return
 
-    def handlePluginExceptions(self, thunk): ### NEEDS DOCSTRING
-        ### RENAME thunk -> runnable? aCallable?
+    def handlePluginExceptions(self, aCallable):
+        """
+        Execute aCallable, catching exceptions and handling them
+        as appropriate.
+
+        @param aCallable: any Python callable object, which when
+                          called with no arguments implements some
+                          operation within a generator.
+        @type  aCallable: callable
+
+        (WARNING: I am guessing the standard type name for a callable.)
+        """
+        # [bruce 070725 renamed thunk -> aCallable after code review]
         ### TODO: teach the exceptions caught here to know how to make these
         # messages in a uniform way, to simplify this code.
         # [070724 code review]
         self.pluginException = False
         try:
-            return thunk()
+            return aCallable()
         except CadBug, e:
             reason = "Bug in the CAD system"
         except PluginBug, e:
@@ -334,16 +374,20 @@ class GeneratorBaseClass(SponsorableMixin):
         return
     
     def _ok_or_preview(self, doneMsg = False, previewing = False):
-        ### NEEDS DOCSTRING (and possible renaming)
-        ### REVIEW how to split this between GeneratorCommand and GeneratorPM
+        """
+        Private method. Do the Done or Preview operation (and set the
+        Qt wait cursor while doing it), according to flags.
+        """
+        ### REVIEW how to split this between GeneratorCommand and GeneratorPM,
+        # and how to rename it then
         # [070724 code review]
         QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
         self.win.assy.current_command_info(cmdname = self.cmdname)
-        def thunk():
+        def aCallable():
             self._build_struct(previewing = previewing)
             if doneMsg:
                 env.history.message(self.cmd + self.done_msg())
-        self.handlePluginExceptions(thunk)
+        self.handlePluginExceptions(aCallable)
         QApplication.restoreOverrideCursor()
         self.win.win_update()
 
