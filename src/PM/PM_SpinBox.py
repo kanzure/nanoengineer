@@ -13,6 +13,7 @@ and renamed it PM_SpinBox.
 """
 
 from PyQt4.Qt import QSpinBox
+from PyQt4.Qt import QWidget
 
 from PM_WidgetMixin import PM_WidgetMixin
 
