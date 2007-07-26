@@ -242,7 +242,8 @@ class Ui_ExtrudePropertyManager(object):
             "extrudePref2", default = False,  
             attr = 'show_bond_offsets', 
             repaintQ = True )
-        
+	
+        vlo_grpbx_widget.addWidget(self.extrudePref2)
         
         self.extrudeBondCriterionLabel = QLabel("")
         #self.extrudeBondCriterionLabel_lambda_tol_nbonds = lambda_tol_nbonds
