@@ -74,15 +74,10 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         #while in Translate/Rotate mode. See methods keyPress, keyRelease, 
         #leftDown, Drag and leftADown, Drag for details. 
         self.isConstrainedDragAlongAxis = False
-
-        #ninad 070212. modifyMode is a subclass of selMols mode. 
-        #Using the following instead of basicMode.Enter(self)
-        #It is also useful in setting a proper flag when move mode is 
-        #used as a 'pseudo mode' in Select chunks mode.          
+	
         selectMolsMode.Enter(self) 
         self.o.assy.selectChunksWithSelAtoms()
         self.dragdist = 0.0
-        self.setGoBackToMode(False, 'MODIFY')
 	self.clear_leftA_variables() #bruce 070605 precaution
         return
     
@@ -123,8 +118,7 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
 	self.updateCommandManager(bool_entering = False)
         self.w.toolsMoveMoleculeAction.setChecked(False) # toggle on the Move Chunks icon
         self.w.rotateComponentsAction.setChecked(False)
-        self.connect_or_disconnect_signals(False)
-        
+        self.connect_or_disconnect_signals(False)        
 	if self.propMgr:	    
 	    self.propMgr.closePropertyManager()
 	
@@ -201,31 +195,30 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
     
         
     def keyPress(self,key):           
-        basicMode.keyPress(self, key)
-        
+        basicMode.keyPress(self, key)        
         # For these key presses, we toggle the Action item, which will send 
         # an event to changeMoveMode, where the business is done.
         # Mark 050410
         if self.w.toolsMoveMoleculeAction.isChecked():  
             if key == Qt.Key_X:
                 self.w.transXAction.setChecked(1) # toggle on the Translate X action item
-                self.changeMoveOption(self.w.transXAction)
+                self.propMgr.changeMoveOption(self.w.transXAction)
             elif key == Qt.Key_Y:
                 self.w.transYAction.setChecked(1) # toggle on the Translate Y action item
-                self.changeMoveOption(self.w.transYAction)
+                self.propMgr.changeMoveOption(self.w.transYAction)
             elif key == Qt.Key_Z:
                 self.w.transZAction.setChecked(1) # toggle on the Translate Z action item
-                self.changeMoveOption(self.w.transZAction)
+                self.propMgr.changeMoveOption(self.w.transZAction)
         elif self.w.rotateComponentsAction.isChecked():
             if key == Qt.Key_X:
                 self.w.rotXAction.setChecked(1) # toggle on the Rotate X action item
-                self.changeRotateOption(self.w.rotXAction)
+                self.propMgr.changeRotateOption(self.w.rotXAction)
             elif key == Qt.Key_Y:
                 self.w.rotYAction.setChecked(1) # toggle on the Rotate Y action item
-                self.changeRotateOption(self.w.rotYAction)
+                self.propMgr.changeRotateOption(self.w.rotYAction)
             elif key == Qt.Key_Z:
                 self.w.rotZAction.setChecked(1) # toggle on the Rotate Z action item
-                self.changeRotateOption(self.w.rotZAction)
+                self.propMgr.changeRotateOption(self.w.rotZAction)
         
         #If Key 'A' is pressed, set the flag for Constrained trasnlation and rotation
         #along the axis of the chunk to True
@@ -244,7 +237,7 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
     
         if key == Qt.Key_X or key == Qt.Key_Y or key == Qt.Key_Z:
             self.w.moveFreeAction.setChecked(1) # toggle on the Move Chunks icon
-            self.changeMoveOption(self.w.moveFreeAction)
+            self.propMgr.changeMoveOption(self.w.moveFreeAction)
             self.movingPoint = None # Fixes bugs 583 and 674 along with change in leftDrag().  Mark 050623
         elif key == Qt.Key_R:
             self.RotationOnly = False # Unconstrain translation.
@@ -292,22 +285,16 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
 
         # If keyboard key 'A' is pressed, set it up for constrained translation
         #and rotation along the axis and return. 
-        if not self.isGoBackToMode():  
-            if self.isConstrainedDragAlongAxis:
-                self.leftADown(event)
-                return
+	if self.isConstrainedDragAlongAxis:
+	    self.leftADown(event)
+	    return
         
-        #If its pseudo move mode only permit free move(translate) drag
-        if self.isGoBackToMode():
-            self.w.toolsMoveMoleculeAction.setChecked(True)
-            self.w.moveFreeAction.setChecked(True)            
-        else:
-            #Ninad 070308 for 'rotate components mode, left down = old ctrl + left down
-            #@@@ this will be revised. I am planning to write methods such as 'rotateFree drag setup, 
-            #move free drag setup etc and call them here and in leftDrag.
-            if self.w.rotateFreeAction.isChecked():
-                self.leftCntlDown(event)
-		    
+	#Ninad 070308 for 'rotate components mode, left down = old ctrl + left down
+	#@@@ this will be revised. I am planning to write methods such as 'rotateFree drag setup, 
+	#move free drag setup etc and call them here and in leftDrag.
+	if self.w.rotateFreeAction.isChecked():
+	    self.leftCntlDown(event)
+	    		    
         self.reset_drag_vars()
         
         self.LMB_press_event = QMouseEvent(event) # Make a copy of this event and save it. 
@@ -391,33 +378,32 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
                 if ma[0] == 0.0 and ma[1] == 0.0: ma = [-1.0, 0.0] 
                 self.Zmat = A([ma,[-ma[1],ma[0]]])
                 
-        
-        if not self.isGoBackToMode():                            
-            #Permit movable object picking upon left down.             
-            obj = self.get_obj_under_cursor(event)
-            # If highlighting is turned on, get_obj_under_cursor() returns atoms, singlets, bonds, jigs,
-            # or anything that can be highlighted and end up in glpane.selobj. [bruce revised this comment, 060725]
-                # If highlighting is turned off, get_obj_under_cursor() returns atoms and singlets (not bonds or jigs).
-                # [not sure if that's still true -- probably not. bruce 060725 addendum]
-            if obj is None: # Cursor over empty space.
-                self.emptySpaceLeftDown(event)
-                return
-            
-            if isinstance(obj, Atom) and obj.is_singlet(): # Cursor over a singlet
-                self.singletLeftDown(obj, event)              
-            elif isinstance(obj, Atom) and not obj.is_singlet(): # Cursor over a real atom
-                self.atomLeftDown(obj, event)
-            elif isinstance(obj, Bond) and not obj.is_open_bond(): # Cursor over a bond.
-                self.bondLeftDown(obj, event)
-            elif isinstance(obj, Jig): # Cursor over a jig.
-                self.jigLeftDown(obj, event)
-            else: # Cursor is over something else other than an atom, singlet or bond. 
-                # The program never executes lines in this else statement since
-                # get_obj_under_cursor() only returns atoms, singlets or bonds.
-                # [perhaps no longer true, if it ever was -- bruce 060725]
-                pass
-            
-            self.w.win_update()
+                               
+	#Permit movable object picking upon left down.             
+	obj = self.get_obj_under_cursor(event)
+	# If highlighting is turned on, get_obj_under_cursor() returns atoms, singlets, bonds, jigs,
+	# or anything that can be highlighted and end up in glpane.selobj. [bruce revised this comment, 060725]
+	    # If highlighting is turned off, get_obj_under_cursor() returns atoms and singlets (not bonds or jigs).
+	    # [not sure if that's still true -- probably not. bruce 060725 addendum]
+	if obj is None: # Cursor over empty space.
+	    self.emptySpaceLeftDown(event)
+	    return
+	
+	if isinstance(obj, Atom) and obj.is_singlet(): # Cursor over a singlet
+	    self.singletLeftDown(obj, event)              
+	elif isinstance(obj, Atom) and not obj.is_singlet(): # Cursor over a real atom
+	    self.atomLeftDown(obj, event)
+	elif isinstance(obj, Bond) and not obj.is_open_bond(): # Cursor over a bond.
+	    self.bondLeftDown(obj, event)
+	elif isinstance(obj, Jig): # Cursor over a jig.
+	    self.jigLeftDown(obj, event)
+	else: # Cursor is over something else other than an atom, singlet or bond. 
+	    # The program never executes lines in this else statement since
+	    # get_obj_under_cursor() only returns atoms, singlets or bonds.
+	    # [perhaps no longer true, if it ever was -- bruce 060725]
+	    pass
+	
+	self.w.win_update()
 
         # end of Rotate section
         
@@ -441,57 +427,50 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         
         #@@@TODO: leftDrag and leftDown methods need code cleanup. 
         #perhaps a new class for 'rotate components' ? that will help reduce
-        #lots of if-else checks below. Also, hopefully, the new 
-        #DrahHandler_API will be applied to to atoms, jigs, bonds someday. 
-        #that will help to get rid of the 'psudoMoveMode conditions. 
+        #lots of if-else checks below.   
         #[--Ninad 20070605 commented]
         
         if not self.picking: return
-        
-        if not self.isGoBackToMode():  
-	    if self.cursor_over_when_LMB_pressed == 'Empty Space':            
-                self.continue_selection_curve(event)             
+ 
+	if self.cursor_over_when_LMB_pressed == 'Empty Space':            
+	    self.continue_selection_curve(event)             
+	    return
+	if self.isConstrainedDragAlongAxis:
+	    try:
+		self.leftADrag(event)
 		return
-            if self.isConstrainedDragAlongAxis:
-                try:
-                    self.leftADrag(event)
-                    return
-                except:
-                    # this might be obsolete, since leftADrag now tries to handle this (untested) [bruce 070605 comment]
-                    print "Key A pressed after Left Down. controlled translation will not be performed"
-                    pass
-            if self.w.rotateComponentsAction.isChecked():
-                if self.rotateOption == 'ROT_TRANS_ALONG_AXIS':
-                    try:
-                        self.leftADrag(event)
-                        return
-                    except:
-                        print " error doing leftADrag"
-			return
-            elif self.w.toolsMoveMoleculeAction.isChecked():
-                if self.moveOption == 'ROT_TRANS_ALONG_AXIS':
-                    try:
-                        self.leftADrag(event)
-                        return
-                    except:
-                        print " error doing leftADrag"
+	    except:
+		# this might be obsolete, since leftADrag now tries to handle this (untested) [bruce 070605 comment]
+		print "Key A pressed after Left Down. controlled translation will not be performed"
+		pass
+	if self.w.rotateComponentsAction.isChecked():
+	    if self.rotateOption == 'ROT_TRANS_ALONG_AXIS':
+		try:
+		    self.leftADrag(event)
+		    return
+		except:
+		    print " error doing leftADrag"
+		    return
+	elif self.w.toolsMoveMoleculeAction.isChecked():
+	    if self.moveOption == 'ROT_TRANS_ALONG_AXIS':
+		try:
+		    self.leftADrag(event)
+		    return
+		except:
+		    print " error doing leftADrag"
                     
-        
-        #Ninad 070314: Following ensures that you are in Move mode 
-        #(and not pseudo move mode) and returns from left drag if 
-        #'free' drag option in the combobox is not set.
-        if not self.isGoBackToMode():       
-            if self.w.toolsMoveMoleculeAction.isChecked():
-                if self.propMgr.movetype_combox.currentText() != "Free Drag":
-                    return
-            elif self.w.rotateComponentsAction.isChecked():
-                if self.propMgr.rotatetype_combox.currentText() != "Free Drag":
-                    return                
-            #Ninad 070308 for 'rotate components mode, left drag = old ctrl + left drag
-            if self.w.rotateComponentsAction.isChecked():
-                if self.w.rotateFreeAction.isChecked():      
-                    self.leftCntlDrag(event)
-                    return
+             
+	if self.w.toolsMoveMoleculeAction.isChecked():
+	    if self.propMgr.movetype_combox.currentText() != "Free Drag":
+		return
+	elif self.w.rotateComponentsAction.isChecked():
+	    if self.propMgr.rotatetype_combox.currentText() != "Free Drag":
+		return                
+	#Ninad 070308 for 'rotate components mode, left drag = old ctrl + left drag
+	if self.w.rotateComponentsAction.isChecked():
+	    if self.w.rotateFreeAction.isChecked():      
+		self.leftCntlDrag(event)
+		return
 
         if not self.o.assy.getSelectedMovables(): return
         
@@ -572,48 +551,15 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         
     # end of leftDrag    
     
-    #Ninad 070212 : Flags that set which mode to return after left mouse dragging (left down) is finished. 
-    #This is used in 'psudo -move mode' which is accessed from the Select chunks mode. 
-    def setGoBackToMode(self, bool = False, modeToReturn = 'MODIFY'):
-        """ Sets the flag go back to mode. Move mode acts like a pesudo mode while in 
-        Select chunks mode. (it is activated only during left drag (leftDown) in select mode and then 
-        user returns to the select chunks mode upon mouse release"""
-        self.bool_goBackToMode = bool
-        self.modeToReturn = modeToReturn
-    
-    def isGoBackToMode(self):
-        """ Returns True if Go back to mode is requested. Move mode acts like a pesudo mode while in 
-        Select chunks mode. (it is activated only during left drag in select mode and then 
-        user returns to the select chunks mode upon mouse release"""
-        return self.bool_goBackToMode
-    
-    def goBackToMode(self, modeToReturn = 'MODIFY'):
-        """ Returns the mode to go back to. The default value is Move mode (i.e. it stays in move mode) 
-        Move mode acts like a pesudo mode while in 
-        Select chunks mode. (it is activated only during left drag in select mode and then 
-        user returns to the select chunks mode upon mouse release"""        
-        return self.modeToReturn
-    
+      
     def leftUp(self, event):  
         '''Overrides leftdrag method of selectMolsMode'''        
-        #Ninad 070212: Flags that set which mode to return after left mouse dragging (left down) is finished.
-        # Example: SelectMols Mode's leftDrag event calls modifyMode's leftDown Event and sets proper 
-        #flags before so that when the left mouse button is released, program returns to the select mols mode. 
-        #Thus  we can make use of the free drag functionality while in select chunks mode.    
-        if self.isGoBackToMode():
-            modeToReturn = self.goBackToMode()
-            self.o.setMode(modeToReturn)            
-        else:
-	    if self.cursor_over_when_LMB_pressed == 'Empty Space': #@@ needed?
-		self.emptySpaceLeftUp(event)
-            elif self.dragdist < 2:
-                selectMolsMode.leftUp(self,event)
-           
-        #ninad 070212 This is necessary to make sure that program remains in the Move mode when 
-        #user is in that mode 
-        self.setGoBackToMode(False, 'MODIFY')
         
-       
+	if self.cursor_over_when_LMB_pressed == 'Empty Space': #@@ needed?
+	    self.emptySpaceLeftUp(event)
+	elif self.dragdist < 2:
+	    selectMolsMode.leftUp(self,event)
+                  
     def EndPick(self, event, selSense):
         """Pick if click
         """
@@ -647,13 +593,6 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         """
 	
         if not self.o.assy.getSelectedMovables(): return
-	
-   
-        #If its pseudo move mode only permit free move(translate) drag
-        if self.isGoBackToMode():	   
-            self.w.rotateComponentsAction.setChecked(True)
-            self.w.rotateFreeAction.setChecked(True)
-
         self.o.SaveMouse(event)
         self.o.trackball.start(self.o.MousePos[0],self.o.MousePos[1])
         self.picking = True
@@ -686,16 +625,8 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
 
         self.o.gl_update()
 
-    def leftCntlUp(self, event):
-        #Ninad 070322: Flags that set which mode to return after Control left mouse dragging  is finished.
-        # Example: SelectMols Mode's leftCntlDrag event calls modifyMode's leftCntlDown Event and sets proper 
-        #flags before so that when the left+ cntl  mouse buttons are  released, program returns to the select mols mode. 
-        #Thus  we can make use of the 'free rotate drag' functionality while in select chunks mode.    
-        if self.isGoBackToMode():
-            modeToReturn = self.goBackToMode()
-            self.o.setMode(modeToReturn)         
-        else:
-            self.EndPick(event, SUBTRACT_FROM_SELECTION)
+    def leftCntlUp(self, event):     
+	self.EndPick(event, SUBTRACT_FROM_SELECTION)
     
 
     def clear_leftA_variables(self): # bruce 070605 #####@@@@CALL ME  #k should it clear sbar too?
