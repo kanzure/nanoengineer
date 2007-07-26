@@ -75,6 +75,8 @@ from constants import SELWHAT_CHUNKS, SELWHAT_ATOMS
 from state_constants import S_REF, S_DATA, S_PARENT, S_CHILD
 from prefs_constants import levelOfDetail_prefs_key
 
+from Line  import Line
+
 # number of atoms for detail level 0
 HUGE_MODEL = 40000
 # number of atoms for detail level 1
@@ -786,9 +788,20 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
     # ==
     
     def createPlane(self):
-        #Insert Reference Geometry 
+        #Insert a plane
 	from Plane import Plane	
 	plane = Plane(self.w)
+	
+    def createLine(self):
+	"""
+	Create a line passing through the center of the selected atoms. 
+	TODO: This feature is available only as a debug option as of 20070726. 
+	The line generation options will be heavily revised after Command
+	Sequencer implementation. 
+	"""
+        #Insert a line 
+	lst = self.getOnlyAtomsSelectedByUser()
+	line = Line(self.w, lst = lst)
 		    
     def place_new_geometry(self, plane):
         self.ensure_toplevel_group()

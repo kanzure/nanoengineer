@@ -1782,6 +1782,18 @@ def drawline(color, pos1, pos2, dashEnabled = False, width = 1):
     glEnable(GL_LIGHTING)
     return
 
+def drawPolyLine(color, points):
+    '''Draws a poly line passing through the given list of points'''
+    glDisable(GL_LIGHTING)
+    glColor3fv(color)
+    glBegin(GL_LINE_STRIP)
+    for v in points:
+	glVertex3fv(v)
+    glEnd()
+   
+    glEnable(GL_LIGHTING)
+    return
+
 def drawLineCube(color, pos, radius):
     vtIndices = [0,1,2,3, 0,4,5,1, 5,4,7,6, 6,7,3,2]
     glEnableClientState(GL_VERTEX_ARRAY)
@@ -2265,6 +2277,7 @@ def drawLineLoop(color,lines, width = 1):
     if width!=1:
 	glLineWidth(1)
     return
+
     
 def drawlinelist(color,lines):
     glDisable(GL_LIGHTING)
@@ -2275,6 +2288,9 @@ def drawlinelist(color,lines):
     glEnd()
     glEnable(GL_LIGHTING)
     return
+
+
+		
 
 cubeLines = A([[-1,-1,-1], [-1,-1, 1],
                [-1, 1,-1], [-1, 1, 1],
