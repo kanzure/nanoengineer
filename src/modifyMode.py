@@ -278,8 +278,19 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         return
            
     def leftDown(self, event):
-        """Move the selected object(s).
         """
+	Handle left down event. Preparation for dragging and/or selection
+	@param event: The mouse left down event.
+	@type  event: QMouseEvent instance
+	@see: self.leftDownForTranslatation
+	@see: self.leftDownForRotation
+        """
+	#The following variable stores a string. It is used in leftDrag related 
+	#methods to handle cases where the user may do a keypress *while* left 
+	#dragging, which would change the move type. This variable is assigned a 
+	#string value.See self.leftDownForTranslatation for an example. 
+	self.leftDownType = None
+	
         self.clear_leftA_variables() #bruce 070605 added this (guess at what's needed)
         env.history.statusbar_msg("")
 
@@ -288,13 +299,7 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
 	if self.isConstrainedDragAlongAxis:
 	    self.leftADown(event)
 	    return
-        
-	#Ninad 070308 for 'rotate components mode, left down = old ctrl + left down
-	#@@@ this will be revised. I am planning to write methods such as 'rotateFree drag setup, 
-	#move free drag setup etc and call them here and in leftDrag.
-	if self.w.rotateFreeAction.isChecked():
-	    self.leftCntlDown(event)
-	    		    
+        		    		    
         self.reset_drag_vars()
         
         self.LMB_press_event = QMouseEvent(event) # Make a copy of this event and save it. 
@@ -303,254 +308,377 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         # leftDrag) if we simply set self.LMB_press_event = event.  mark 060220
         
         self.LMB_press_pt_xy = (event.pos().x(), event.pos().y())
-            # <LMB_press_pt_xy> is the position of the mouse in window coordinates when the LMB was pressed.
-            # Used in mouse_within_stickiness_limit (called by leftDrag() and other methods).
-            # We don't bother to vertically flip y using self.height (as mousepoints does),
-            # since this is only used for drag distance within single drags.
-       
-##        from constants import GL_FAR_Z
-
-        self.o.SaveMouse(event)
+	# <LMB_press_pt_xy> is the position of the mouse in window coordinates when the LMB was pressed.
+	# Used in mouse_within_stickiness_limit (called by leftDrag() and other methods).
+	# We don't bother to vertically flip y using self.height (as mousepoints does),
+	# since this is only used for drag distance within single drags.
+	    	
+	if self.propMgr.isTranslateGroupBoxActive:
+	    self.leftDownForTranslation(event)
+	    return	    
+	else:
+	    self.leftDownForRotation(event)
+	    return
+	        
+    def leftDownForRotation(self, event):	
+	""" 
+	Handle left down event. Preparation for rotation and/or selection
+	@param event: The mouse left down event.
+	@type  event: QMouseEvent instance
+	@see: self.leftDown
+	@see: self.leftDragRotation
+	
+	"""
+	
+	self.o.SaveMouse(event)
+        self.picking = True
+        self.dragdist = 0.0	
+	# delta for constrained rotations.
+	self.rotDelta = 0 
+		
+	if self.rotateOption == 'ROTATEDEFAULT':
+	    self.o.trackball.start(self.o.MousePos[0],self.o.MousePos[1])
+	else:
+	    if self.rotateOption == 'ROTATEX': 
+		ma = V(1,0,0) # X Axis
+		self.axis = 'X'
+	    elif self.rotateOption == 'ROTATEY': 
+		ma = V(0,1,0) # Y Axis
+		self.axis = 'Y'
+	    elif self.rotateOption == 'ROTATEZ': 
+		ma = V(0,0,1) # Z Axis
+		self.axis = 'Z'
+	    elif self.rotateOption == 'ROT_TRANS_ALONG_AXIS':
+		self.leftADown(event)
+		return
+		
+	    else: 
+		print "modifyMode: Error - unknown rotateOption value =", \
+		      self.rotateOption
+		return
+	    
+	    ma = norm(V(dot(ma,self.o.right),dot(ma,self.o.up)))
+	    # When in the front view, right = 1,0,0 and up = 0,1,0, so ma will 
+	    # be computed as 0,0.This creates a special case problem when the 
+	    # user wants to constrain rotation around the Z axis because Zmat 
+	    # will be zero.  So we have to test for this case (ma = 0,0) and
+	    # fix ma to -1,0.  This was needed to fix bug 537.  Mark 050420
+	    if ma[0] == 0.0 and ma[1] == 0.0: 
+		ma = [-1.0, 0.0] 
+	    self.Zmat = A([ma,[-ma[1],ma[0]]])
+		
+	#Permit movable object picking upon left down.             
+	#@see : related comment in self.leftDownForTranslation
+	obj = self.get_obj_under_cursor(event)
+	
+	if obj is None: # Cursor over empty space.
+	    self.emptySpaceLeftDown(event)
+	    return	
+	
+	self.doObjectSpecificLeftDown(obj, event)
+	
+	self.leftDownType = 'ROTATE'
+	
+	self.w.win_update()
+	return
+    
+    def leftDownForTranslation(self, event):
+	""" 
+	Handle left down event. Preparation for translation and/or selection
+	@param event: The mouse left down event.
+	@type  event: QMouseEvent instance
+	@see: self.leftDown
+	@see: self.leftDragTranslation
+	
+	"""
+	self.o.SaveMouse(event)
         self.picking = True
         self.dragdist = 0.0
-        self.transDelta = 0 # X, Y or Z deltas for translate.
-        self.rotDelta = 0 # delta for constrained rotations.
-        self.moveOffset = [0.0, 0.0, 0.0] # X, Y and Z offset for move.
-        
-        # This needs to be refactored further into move and translate methods. mark 060301.
-        
-        # Move section
-        farQ_junk, self.movingPoint = self.dragstart_using_GL_DEPTH( event)
-            #bruce 060316 replaced equivalent old code with this new method
-        self.startpt = self.movingPoint # Used in leftDrag() to compute move offset during drag op.
-        
-        # end of Move section
-           
+        self.transDelta = 0 # X, Y or Z deltas for translate.        
+        self.moveOffset = [0.0, 0.0, 0.0] # X, Y and Z offset for move.        
+       
+        farQ_junk, self.movingPoint = self.dragstart_using_GL_DEPTH( event)	
+	# Following is in leftDrag() to compute move offset during drag op.
+        self.startpt = self.movingPoint 
+                
         # Translate section     
-        if self.w.toolsMoveMoleculeAction.isChecked():            
-            if self.moveOption != 'MOVEDEFAULT':
-                if self.moveOption == 'TRANSX': 
-                    ma = V(1,0,0) # X Axis
-                    self.axis = 'X'
-                elif self.moveOption == 'TRANSY': 
-                    ma = V(0,1,0) # Y Axis
-                    self.axis = 'Y'
-                elif self.moveOption == 'TRANSZ': 
-                    ma = V(0,0,1) # Z Axis
-                    self.axis = 'Z'
-                elif self.moveOption == 'ROT_TRANS_ALONG_AXIS':
-                    self.leftADown(event)
-                    return
-                else: print "modifyMode: Error - unknown moveOption value =", self.moveOption
-                
-                ma = norm(V(dot(ma,self.o.right),dot(ma,self.o.up)))
-                # When in the front view, right = 1,0,0 and up = 0,1,0, so ma will be computed as 0,0.
-                # This creates a special case problem when the user wants to constrain rotation around
-                # the Z axis because Zmat will be zero.  So we have to test for this case (ma = 0,0) and
-                # fix ma to -1,0.  This was needed to fix bug 537.  Mark 050420
-                if ma[0] == 0.0 and ma[1] == 0.0: ma = [-1.0, 0.0] 
-                self.Zmat = A([ma,[-ma[1],ma[0]]])
-                
-                # end of Translate section
-                
-        if self.w.rotateComponentsAction.isChecked():
-            if self.rotateOption != 'ROTATEDEFAULT':
-                if self.rotateOption == 'ROTATEX': 
-                    ma = V(1,0,0) # X Axis
-                    self.axis = 'X'
-                elif self.rotateOption == 'ROTATEY': 
-                    ma = V(0,1,0) # Y Axis
-                    self.axis = 'Y'
-                elif self.rotateOption == 'ROTATEZ': 
-                    ma = V(0,0,1) # Z Axis
-                    self.axis = 'Z'
-                elif self.rotateOption == 'ROT_TRANS_ALONG_AXIS':
-                    self.leftADown(event)
-                    return
                     
-                else: print "modifyMode: Error - unknown rotateOption value =", self.rotateOption
-
-                ma = norm(V(dot(ma,self.o.right),dot(ma,self.o.up)))
-                # When in the front view, right = 1,0,0 and up = 0,1,0, so ma will be computed as 0,0.
-                # This creates a special case problem when the user wants to constrain rotation around
-                # the Z axis because Zmat will be zero.  So we have to test for this case (ma = 0,0) and
-                # fix ma to -1,0.  This was needed to fix bug 537.  Mark 050420
-                if ma[0] == 0.0 and ma[1] == 0.0: ma = [-1.0, 0.0] 
-                self.Zmat = A([ma,[-ma[1],ma[0]]])
-                
+	if self.moveOption != 'MOVEDEFAULT':
+	    if self.moveOption == 'TRANSX': 
+		ma = V(1,0,0) # X Axis
+		self.axis = 'X'
+	    elif self.moveOption == 'TRANSY': 
+		ma = V(0,1,0) # Y Axis
+		self.axis = 'Y'
+	    elif self.moveOption == 'TRANSZ': 
+		ma = V(0,0,1) # Z Axis
+		self.axis = 'Z'
+	    elif self.moveOption == 'ROT_TRANS_ALONG_AXIS':
+		self.leftADown(event)
+		return
+	    else: print "modifyMode: Error - unknown moveOption value =", self.moveOption
+	    
+	    ma = norm(V(dot(ma,self.o.right),dot(ma,self.o.up)))
+	    # When in the front view, right = 1,0,0 and up = 0,1,0, so ma will be computed as 0,0.
+	    # This creates a special case problem when the user wants to constrain rotation around
+	    # the Z axis because Zmat will be zero.  So we have to test for this case (ma = 0,0) and
+	    # fix ma to -1,0.  This was needed to fix bug 537.  Mark 050420
+	    if ma[0] == 0.0 and ma[1] == 0.0: ma = [-1.0, 0.0] 
+	    self.Zmat = A([ma,[-ma[1],ma[0]]])
+	    
+	    # end of Translate section
+                    
                                
 	#Permit movable object picking upon left down.             
 	obj = self.get_obj_under_cursor(event)
-	# If highlighting is turned on, get_obj_under_cursor() returns atoms, singlets, bonds, jigs,
-	# or anything that can be highlighted and end up in glpane.selobj. [bruce revised this comment, 060725]
-	    # If highlighting is turned off, get_obj_under_cursor() returns atoms and singlets (not bonds or jigs).
-	    # [not sure if that's still true -- probably not. bruce 060725 addendum]
+	# If highlighting is turned on, get_obj_under_cursor() returns atoms, 
+	# singlets, bonds, jigs,
+	# or anything that can be highlighted and end up in glpane.selobj. 
+	# [bruce revised this comment, 060725]If highlighting is turned off, 
+	# get_obj_under_cursor() returns atoms and singlets (not bonds or jigs).
+	# [not sure if that's still true -- probably not. bruce 060725 addendum]
 	if obj is None: # Cursor over empty space.
 	    self.emptySpaceLeftDown(event)
 	    return
 	
-	if isinstance(obj, Atom) and obj.is_singlet(): # Cursor over a singlet
-	    self.singletLeftDown(obj, event)              
-	elif isinstance(obj, Atom) and not obj.is_singlet(): # Cursor over a real atom
-	    self.atomLeftDown(obj, event)
-	elif isinstance(obj, Bond) and not obj.is_open_bond(): # Cursor over a bond.
-	    self.bondLeftDown(obj, event)
-	elif isinstance(obj, Jig): # Cursor over a jig.
-	    self.jigLeftDown(obj, event)
-	else: # Cursor is over something else other than an atom, singlet or bond. 
-	    # The program never executes lines in this else statement since
-	    # get_obj_under_cursor() only returns atoms, singlets or bonds.
-	    # [perhaps no longer true, if it ever was -- bruce 060725]
-	    pass
+	self.doObjectSpecificLeftDown(obj, event)
+	
+	self.leftDownType = 'TRANSLATE'
 	
 	self.w.win_update()
-
-        # end of Rotate section
+	return
+    
+    def doObjectSpecificLeftDown(self, object, event):
+	"""
+	Call objectLeftDown methods depending on the object instance. 
+	@param object: object under consideration
+	@type  object: instance 
+	@param event: Left down mouse event 
+	@type  event: QMouseEvent instance
+	"""
+	obj = object 
+	
+	if isinstance(obj, Atom) and obj.is_singlet(): 
+            self.singletLeftDown(obj, event)# Cursor over a singlet               
+        elif isinstance(obj, Atom) and not obj.is_singlet(): 
+            self.atomLeftDown(obj, event)   # Cursor over a real atom
+        elif isinstance(obj, Bond) and not obj.is_open_bond(): 
+            self.bondLeftDown(obj, event)   #Cursor over a bond.
+        elif isinstance(obj, Jig): 
+            self.jigLeftDown(obj, event)    #Cursor over a jig.
+        else: 
+	    # Cursor is over something else other than an atom, singlet or bond. 
+            # The program never executes lines in this else statement since
+            # get_obj_under_cursor() only returns atoms, singlets or bonds.
+            # [perhaps no longer true, if it ever was -- bruce 060725]
+            pass
         
     def leftDrag(self, event):
         """
-	Move the selected object(s):
+	Translate or Rotate the selected object(s):
         - in the plane of the screen following the mouse, 
         - or slide and rotate along the an axis
 	
-	@param event: The mouls left drag event. 
-	@note : This method is partially duplicated (free drag translate code)
-	in selectMolsMode.pseudoMoveModeLeftDrag  
+	@param event: The mouse left drag event. 
+	@type  event: QMouseEvent instance
+	@see : self.leftDragTranslation
+	@see : self.leftDragRotation
         """
+		    
+        if not self.picking:
+	    return
 	
-	    
-        #Huaicai 3/23/05: This following line will fix bugs like 460. But
-        #the root of the serials of bugs including a lot of cursor bugs is
-        # the mouse event processing function. For bug 460, the 
-        # obvious reason is leftDown() is not called before the leftDrag()
-        #& Not sure this is true anymore with the new cursor/modkey API.  mark 060301.
-        
-        #@@@TODO: leftDrag and leftDown methods need code cleanup. 
-        #perhaps a new class for 'rotate components' ? that will help reduce
-        #lots of if-else checks below.   
-        #[--Ninad 20070605 commented]
-        
-        if not self.picking: return
+	if not self.o.assy.getSelectedMovables():
+	    return
  
 	if self.cursor_over_when_LMB_pressed == 'Empty Space':            
 	    self.continue_selection_curve(event)             
 	    return
+	
 	if self.isConstrainedDragAlongAxis:
 	    try:
 		self.leftADrag(event)
 		return
 	    except:
-		# this might be obsolete, since leftADrag now tries to handle this (untested) [bruce 070605 comment]
+		# this might be obsolete, since leftADrag now tries to handle 
+		#this (untested) [bruce 070605 comment]
 		print "Key A pressed after Left Down. controlled translation will not be performed"
 		pass
-	if self.w.rotateComponentsAction.isChecked():
-	    if self.rotateOption == 'ROT_TRANS_ALONG_AXIS':
+	
+	if self.propMgr.isTranslateGroupBoxActive:
+	    if self.leftDownType in ['TRANSLATE', 'A_TRANSLATE']:
 		try:
-		    self.leftADrag(event)
+		    self.leftDragTranslation(event)
+		    return
+		except:		    
+		    msg1 = "Error occured in modifyMode.leftDragTranslation."
+		    msg2 = "Possibly due to a key press that activated. "
+		    msg3 = "Rotate groupbox. Aborting drag operation"
+		    print_compact_traceback(msg1 + msg2 + msg3)
+		    return
+		
+	else:
+	    if self.leftDownType in ['ROTATE', 'A_ROTATE']:
+		try:
+		    self.leftDragRotation(event)  
 		    return
 		except:
-		    print " error doing leftADrag"
-		    return
-	elif self.w.toolsMoveMoleculeAction.isChecked():
-	    if self.moveOption == 'ROT_TRANS_ALONG_AXIS':
-		try:
-		    self.leftADrag(event)
-		    return
-		except:
-		    print " error doing leftADrag"
-                    
-             
-	if self.w.toolsMoveMoleculeAction.isChecked():
-	    if self.propMgr.movetype_combox.currentText() != "Free Drag":
-		return
-	elif self.w.rotateComponentsAction.isChecked():
-	    if self.propMgr.rotatetype_combox.currentText() != "Free Drag":
-		return                
-	#Ninad 070308 for 'rotate components mode, left drag = old ctrl + left drag
-	if self.w.rotateComponentsAction.isChecked():
-	    if self.w.rotateFreeAction.isChecked():      
-		self.leftCntlDrag(event)
-		return
-
-        if not self.o.assy.getSelectedMovables(): return
-        
-        
-        # Fixes bugs 583 and 674 along with change in keyRelease.  Mark 050623
-        if self.movingPoint is None: self.leftDown(event) # Fix per Bruce's email.  Mark 050704
-        
-                    
-        if self.w.toolsMoveMoleculeAction.isChecked():            
-            # Move section
-            if self.moveOption == 'MOVEDEFAULT':
-                deltaMouse = V(event.pos().x() - self.o.MousePos[0],
-                           self.o.MousePos[1] - event.pos().y(), 0.0)
+		    msg1 = "Error occured in modifyMode.leftDragRotation."
+		    msg2 = "Possibly due to a key press that activated. "
+		    msg3 = "Translate groupbox. Aborting drag operation"
+		    print_compact_traceback(msg1 + msg2 + msg3)
+		    return   
+                               
+    # end of leftDrag    
     
-                point = self.dragto( self.movingPoint, event) #bruce 060316 replaced old code with dragto (equivalent)
-            
-                # Print status bar msg indicating the current move delta.
-                if 1:
-                    self.moveOffset = point - self.startpt # Fixed bug 929.  mark 060111
-                    msg = "Offset: [X: %.2f] [Y: %.2f] [Z: %.2f]" % (self.moveOffset[0], self.moveOffset[1], self.moveOffset[2])
-                    env.history.statusbar_msg(msg)
-    
-                self.o.assy.movesel(point - self.movingPoint)
-                self.movingPoint = point    
-                # end of Move section
-            
-            # Translate section
-            else:
-                w=self.o.width+0.0
-                h=self.o.height+0.0
-                deltaMouse = V(event.pos().x() - self.o.MousePos[0],
-                           self.o.MousePos[1] - event.pos().y())
-                a =  dot(self.Zmat, deltaMouse)
-                dx,dy =  a * V(self.o.scale/(h*0.5), 2*math.pi/w)
-                if self.moveOption == 'TRANSX' :     ma = V(1,0,0) # X Axis
-                elif self.moveOption == 'TRANSY' :  ma = V(0,1,0) # Y Axis
-                elif self.moveOption == 'TRANSZ' :  ma = V(0,0,1) # Z Axis
-                else: 
-                    print "modifyMode.leftDrag: Error - unknown moveOption value =", self.moveOption                
-                    return
-       
-                self.transDelta += dx # Increment translation delta                   
-                self.o.assy.movesel(dx*ma) 
-                
-        if self.w.rotateComponentsAction.isChecked():
-            #Rotate section      
-            w=self.o.width+0.0
-            h=self.o.height+0.0
-            deltaMouse = V(event.pos().x() - self.o.MousePos[0],
-                       self.o.MousePos[1] - event.pos().y())
-            a =  dot(self.Zmat, deltaMouse)
-            dx,dy =  a * V(self.o.scale/(h*0.5), 2*math.pi/w)    
-
-            if self.rotateOption == 'ROTATEX' :     ma = V(1,0,0) # X Axis
-            elif self.rotateOption == 'ROTATEY' :  ma = V(0,1,0) # Y Axis
-            elif self.rotateOption == 'ROTATEZ' :  ma = V(0,0,1) # Z Axis
-            else: 
-                print "modifyMode.leftDrag: Error - unknown rotateOption value =", self.rotateOption                
-                return                
-            qrot = Q(ma,-dy) # Quat for rotation delta.
-            self.rotDelta += qrot.angle *180.0/math.pi * sign(dy) # Increment rotation delta (and convert to degrees)
-            
-            self.propMgr.updateRotationDeltaLabels(self.rotateOption, self.rotDelta)
-            self.o.assy.rotsel(qrot) 
-            
-            #End of Rotate Section
-            
-        # Print status bar msg indicating the current translation and rotation delta.
+    def leftDragTranslation(self, event):
+	"""
+	Translate the selected object(s):
+        - in the plane of the screen following the mouse, 
+        - or slide and rotate along the an axis
+	
+	@param event: The mouse left drag event. 
+	@note : This method is partially duplicated (free drag translate code)
+	in selectMolsMode.pseudoMoveModeLeftDrag 
+	@see : self.leftDrag
+	"""
+	#TODO: Further cleanup of this method and also for
+	# selectMolsMode.pseudoMoveModeLeftDrag. Need to move some common code
+	#in this method to self.leftDrag. Lower priority -- ninad 20070727
+	
+	if self.propMgr.movetype_combox.currentText() != "Free Drag":
+	    return
+	     
+	# Fixes bugs 583 and 674 along with change in keyRelease.  Mark 050623
+	# Fix per Bruce's email.  Mark 050704
+        if self.movingPoint is None: self.leftDown(event) 
+                       
+	
+	if self.moveOption == 'ROT_TRANS_ALONG_AXIS':
+	    try:
+		self.leftADrag(event)
+	    except:
+		print_compact_traceback(" error doing leftADrag")		
+	    return	
+	# Move section
+	if self.moveOption == 'MOVEDEFAULT':	    
+	    deltaMouse = V(event.pos().x() - self.o.MousePos[0],
+		       self.o.MousePos[1] - event.pos().y(), 0.0)
+	    
+	    #bruce 060316 replaced old code with dragto (equivalent)
+	    point = self.dragto( self.movingPoint, event) 
+	    # Print status bar msg indicating the current move delta.
+	    self.moveOffset = point - self.startpt # Fixed bug 929.  mark 060111
+	    msg = "Offset: [X: %.2f] [Y: %.2f] [Z: %.2f]" % (self.moveOffset[0], 
+							     self.moveOffset[1], 
+							     self.moveOffset[2])
+	    
+	    env.history.statusbar_msg(msg)
+	    self.o.assy.movesel(point - self.movingPoint)
+	    self.movingPoint = point    
+	    # end of Move section
+	
+	# Translate section
+	else:
+	    w=self.o.width+0.0
+	    h=self.o.height+0.0
+	    deltaMouse = V(event.pos().x() - self.o.MousePos[0],
+		       self.o.MousePos[1] - event.pos().y())
+	    a =  dot(self.Zmat, deltaMouse)
+	    dx,dy =  a * V(self.o.scale/(h*0.5), 2*math.pi/w)
+	    if self.moveOption == 'TRANSX':
+		ma = V(1,0,0) # X Axis
+	    elif self.moveOption == 'TRANSY':
+		ma = V(0,1,0) # Y Axis
+	    elif self.moveOption == 'TRANSZ':
+		ma = V(0,0,1) # Z Axis
+	    else: 
+		print "modifyMode.leftDrag Error: unknown moveOption value:", \
+		self.moveOption                
+		return
+   
+	    self.transDelta += dx # Increment translation delta                   
+	    self.o.assy.movesel(dx*ma)
+	    
+	# Print status bar msg indicating the current translation delta
         if self.o.assy.selmols:
-            msg = "%s delta: [%.2f Angstroms] [%.2f Degrees]" % (self.axis, self.transDelta, self.rotDelta)
+	    msg = "%s delta: [%.2f Angstroms] [0 Degrees]" % (self.axis, 
+							      self.transDelta)
             env.history.statusbar_msg(msg)
-            
 
-        # common finished code
+	# common finished code
         self.dragdist += vlen(deltaMouse)
         self.o.SaveMouse(event)
         self.o.gl_update()
-        
-    # end of leftDrag    
+	
+	return
     
+    def leftDragRotation(self, event):
+	"""
+	Rotate the selected object(s) or slide and rotate along the an axis
+	
+	@param event: The mouse left drag event.
+	@type  event: QMouseEvent object
+	@see : self.leftDrag
+	"""
+	if self.propMgr.rotatetype_combox.currentText() != "Free Drag":
+	    return
+		
+	if self.w.rotateFreeAction.isChecked():
+	    self.leftCntlDrag(event)
+	    return 
+	
+	if self.rotateOption == 'ROT_TRANS_ALONG_AXIS':
+	    try:
+		self.leftADrag(event)
+	    except:
+		print_compact_traceback(" error doing leftADrag")
+	    
+	    return
+	
+	#Rotate section      
+	w=self.o.width+0.0
+	h=self.o.height+0.0
+	
+	deltaMouse = V(event.pos().x() - self.o.MousePos[0],
+		   self.o.MousePos[1] - event.pos().y())
+	
+	a =  dot(self.Zmat, deltaMouse)
+	dx,dy =  a * V(self.o.scale/(h*0.5), 2*math.pi/w) 
+
+	if self.rotateOption == 'ROTATEX':
+	    ma = V(1,0,0) # X Axis
+	elif self.rotateOption == 'ROTATEY':
+	    ma = V(0,1,0) # Y Axis
+	elif self.rotateOption == 'ROTATEZ':
+	    ma = V(0,0,1) # Z Axis
+	else: 
+	    print "modifyMode.leftDrag Error: unknown rotateOption value:",\
+		  self.rotateOption   
+	    return             
+	
+	qrot = Q(ma,-dy) # Quat for rotation delta.
+	# Increment rotation delta (and convert to degrees)
+	self.rotDelta += qrot.angle *180.0/math.pi * sign(dy) 
+	
+	self.propMgr.updateRotationDeltaLabels(self.rotateOption, 
+					       self.rotDelta)
+	self.o.assy.rotsel(qrot) 
+	
+	# Print status bar msg indicating the current rotation delta.
+        if self.o.assy.selmols:
+            msg = "%s delta: [0 Angstroms] [%.2f Degrees]" % (self.axis, 
+							      self.rotDelta)
+            env.history.statusbar_msg(msg)
+	
+	# common finished code
+        self.dragdist += vlen(deltaMouse)
+        self.o.SaveMouse(event)
+        self.o.gl_update()
+	
+	#End of Rotate Section
+	
+	return    
       
     def leftUp(self, event):  
         '''Overrides leftdrag method of selectMolsMode'''        
@@ -597,14 +725,13 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         self.o.trackball.start(self.o.MousePos[0],self.o.MousePos[1])
         self.picking = True
         self.dragdist = 0.0
-	
+		
    
     def leftCntlDrag(self, event):
         """Do an incremental trackball action on all selected chunks(s).
         """
         ##See comments of leftDrag()--Huaicai 3/23/05
         if not self.picking: return
-	
 		    
         if not self.o.assy.getSelectedMovables(): return
         
@@ -658,29 +785,19 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
 
         self._leftADown = True
         self._leftADown_rotateAsUnit = self.propMgr.rotateAsUnitCB.isChecked()
-        movables = self.o.assy.getSelectedMovables()
-        self._leftADown_movables = movables
+        
         
         obj = self.get_obj_under_cursor(event)
         
         if obj is None: # Cursor over empty space.
             self.emptySpaceLeftDown(event)
-            ##return
-            
-        if isinstance(obj, Atom) and obj.is_singlet(): # Cursor over a singlet
-            self.singletLeftDown(obj, event)               
-        elif isinstance(obj, Atom) and not obj.is_singlet(): # Cursor over a real atom
-            self.atomLeftDown(obj, event)
-        elif isinstance(obj, Bond) and not obj.is_open_bond(): # Cursor over a bond.
-            self.bondLeftDown(obj, event)
-        elif isinstance(obj, Jig): # Cursor over a jig.
-            self.jigLeftDown(obj, event)
-        else: # Cursor is over something else other than an atom, singlet or bond. 
-            # The program never executes lines in this else statement since
-            # get_obj_under_cursor() only returns atoms, singlets or bonds.
-            # [perhaps no longer true, if it ever was -- bruce 060725]
-            pass
+            return
         
+	self.doObjectSpecificLeftDown(obj, event)
+	
+	movables = self.o.assy.getSelectedMovables()
+        self._leftADown_movables = movables
+	        
         if not movables:
             self.leftAError("(nothing movable is selected)")
             return
@@ -724,7 +841,11 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
             print self._leftADown_indiv_axes
             print movables
             print self.Zmat
-                
+        
+        if self.propMgr.isTranslateGroupBoxActive:
+	    self.leftDownType = 'A_TRANSLATE'
+	else:
+	    self.leftDownType = 'A_ROTATE'
         return # from leftADown
     
     def leftADrag(self, event):
@@ -753,6 +874,7 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         h = self.o.height + 0.0
         deltaMouse = V(event.pos().x() - self.o.MousePos[0],
                        self.o.MousePos[1] - event.pos().y())
+	
         a =  dot(self.Zmat, deltaMouse)
         dx,dy =  a * V(self.o.scale/(h*0.5), 2*math.pi/w)
         
