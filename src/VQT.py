@@ -487,9 +487,9 @@ class Trackball:
         self.oldmouse = None
             # note: oldmouse and newmouse are not mouse positions; they come out of proj2sphere.
             # I think they're related to a non-incremental trackball goal; not sure yet. [bruce 060514 comment]
-        self.mouseSpeedDuringRotation = env.prefs[
-            prefs_constants.mouseSpeedDuringRotation_prefs_key] 
-            
+        self.mouseSpeedDuringRotation = None
+        
+        
     def rescale(self, wide, high):
         """This should be called when the trackball's window or pane has been resized
         to the given values (window width and height in pixels).
