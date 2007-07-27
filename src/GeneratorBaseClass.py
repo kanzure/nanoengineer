@@ -18,16 +18,17 @@ TODO (as of 070719):
 
 Needs refactoring so that:
 
-- a generator is a Command, but is never the same object
-  as a PropertyManager (PM) -- at the moment, all GBC subclasses are also their
-  own PMs except some experimental ones in test_commands.py. Our plans for the
-  Command Sequencer and associated Command objects require this refactoring.
-  (After this refactoring, GBC will be the base class for generator *commands*,
-  not for generator *dialogs*.)
+ - a generator is a Command, but is never the same object as a
+   PropertyManager (PM) -- at the moment, all GBC subclasses are also
+   their own PMs except some experimental ones in
+   test_commands.py. Our plans for the Command Sequencer and
+   associated Command objects require this refactoring.  (After this
+   refactoring, GBC will be the base class for generator *commands*,
+   not for generator *dialogs*.)
 
-- no sponsor code appears here (it's an aspect of a PM, not of a Command, except
-  insofar as a command needs a topic classification (e.g. sponsor keywords)
-  which influences the choice of sponsor)
+ - no sponsor code appears here (it's an aspect of a PM, not of a
+   Command, except insofar as a command needs a topic classification
+   (e.g. sponsor keywords) which influences the choice of sponsor)
 
 After discussion during a code review on 070724, it became clear that GBC needs
 to be split into two classes, "generator command" and "generator PM", with much
@@ -40,9 +41,9 @@ and command-logic parts, when they're split between these classes.
 
 Also needs generalization in several ways (mentioned but not fully explained):
 
-- extend API with subclasses to permit better error handling
+ - extend API with subclasses to permit better error handling
 
-- extend API with subclasses to permit modifying an existing structure
+ - extend API with subclasses to permit modifying an existing structure
 
   - permitting use for Edit Properties
 
@@ -142,29 +143,34 @@ class GeneratorBaseClass(SponsorableMixin):
     # generators have to inherit it
     """
     Superclass for generator commands.
-       TODO: needs refactoring and generalization as described in module
+
+    TODO: needs refactoring and generalization as described in module
     docstring. In particular, it should not inherit from SponsorableMixin, and
     subclasses should not be required to inherit from QDialog, though both of
     those are the case at present [070719].
-       Background: There is some logic associated with Preview/OK/Abort for any
+
+    Background: There is some logic associated with Preview/OK/Abort for any
     structure generator command that's complicated enough to put in one place,
     so that individual generators can focus on building a structure, rather than
     on the generic logic of a generator or its GUI.
-       Note: this superclass sets and maintains some attributes in self,
+
+    Note: this superclass sets and maintains some attributes in self,
     including win, struct, previousParams, and name.
-       Here are the things a subclass needs to do, to be usable with this
+
+    Here are the things a subclass needs to do, to be usable with this
     superclass [as of 060621]:
-    - have self.sponsor_btn, a Qt button of a suitable class.
-    - bind or delegate button clicks from a generator dialog's standard buttons
+     - have self.sponsor_btn, a Qt button of a suitable class.
+     - bind or delegate button clicks from a generator dialog's standard buttons
       to all our xxx_btn_clicked methods (not sure about sponsor_btn). ###VERIFY
-    - implement the abstract methods (see their docstrings herein for what they
+     - implement the abstract methods (see their docstrings herein for what they
       need to do):
-      - gather_parameters
-      - build_struct
-    - provide self.prefix, apparently used to construct node names (or, override
+       - gather_parameters
+       - build_struct
+     - provide self.prefix, apparently used to construct node names (or, override
       self._create_new_name())
-    - either inherit from QDialog, or provide methods accept and reject which
+     - either inherit from QDialog, or provide methods accept and reject which
       have the same effect on the actual dialog.
+
     [As of bruce 070719 I am not sure if not inheriting QDialog is possible.]
     There are some other methods here that merit mentioning: 
     enter_WhatsThisMode, whatsthis_btn_clicked, done_btn_clicked,
@@ -230,6 +236,9 @@ class GeneratorBaseClass(SponsorableMixin):
         to generate. This is an abstract method and must be overloaded in
         the specific generator.
 
+        (WARNING: I am guessing the standard type names for tuple and
+        position.)
+
         @param name: The name which should be given to the toplevel Node of the
                      generated structure. The name is also passed in self.name.
                      (TODO: remove one of those two ways of passing that info.)
@@ -244,18 +253,18 @@ class GeneratorBaseClass(SponsorableMixin):
                        see docstring of gather_parameters in this class. 
         @type  params: tuple
 
-        @param position: The position in 3d model space at which to create
-                         the generated structure. (The precise way this is used,
-                         if at all, depends on the specific generator.)
-        @type  position: position
+        @param position: The position in 3d model space at which to
+                         create the generated structure. (The precise
+                         way this is used, if at all, depends on the
+                         specific generator.)
+        @type position:  position
 
-        (WARNING: I am guessing the standard type names for tuple and position.)
-
-           The return value should be the new structure,
-        i.e. some flavor of a Node, which has not yet been added to the model.
-        Its structure should depend only on the values of the passed params,
-        since if the user asks to build twice, this method may not be called if
-        the params have not changed.
+        @return: The new structure, i.e. some flavor of a Node, which
+                 has not yet been added to the model.  Its structure
+                 should depend only on the values of the passed
+                 params, since if the user asks to build twice, this
+                 method may not be called if the params have not
+                 changed.
         """
         raise AbstractMethod()
 
@@ -341,12 +350,12 @@ class GeneratorBaseClass(SponsorableMixin):
         Execute aCallable, catching exceptions and handling them
         as appropriate.
 
+        (WARNING: I am guessing the standard type name for a callable.)
+
         @param aCallable: any Python callable object, which when
                           called with no arguments implements some
                           operation within a generator.
         @type  aCallable: callable
-
-        (WARNING: I am guessing the standard type name for a callable.)
         """
         # [bruce 070725 renamed thunk -> aCallable after code review]
         ### TODO: teach the exceptions caught here to know how to make these
@@ -408,9 +417,11 @@ class GeneratorBaseClass(SponsorableMixin):
         how many parameters are contained in this tuple, and in
         what order. The superclass code assumes only that the
         param tuple can be correctly compared by equality.
-           This method must validate the parameters, and
+
+        This method must validate the parameters, and
         raise an exception if they are invalid.
-           BUG [as of 070724]: if this tuple contains any Numeric Python arrays,
+
+        BUG [as of 070724]: if this tuple contains any Numeric Python arrays,
         the current implementation of the calling code will compare it
         incorrectly (since those don't implement Python '==' correctly).
         This should be fixed by changing the caller to use same_vals.
@@ -430,7 +441,8 @@ class GeneratorBaseClass(SponsorableMixin):
         """
         Private method. Called internally when we discard the current structure
         and want to permit a number which was appended to its name to be reused.
-           WARNING: the current implementation only works for classes which set
+
+        WARNING: the current implementation only works for classes which set
         self.create_name_from_prefix
         to cause our default _build_struct to set the private attr we use
         here, self._gensym_data_for_reusing_name, or which set it themselves
