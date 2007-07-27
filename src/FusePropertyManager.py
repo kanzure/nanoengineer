@@ -49,7 +49,9 @@ class FusePropertyManager(MovePropertyManager):
         
         #At startup Move groupbox is active by default 
         #the following variable sets this flag (used in fusechunksMode.leftDrag)
-        self.isMoveGroupBoxActive = True
+	#overrides MovePropertyManager.isTranslateGroupBoxActive
+        self.isTranslateGroupBoxActive = True
+	
         self.o.setCursor(self.w.MolSelTransCursor)
         
         
@@ -158,7 +160,7 @@ class FusePropertyManager(MovePropertyManager):
 	
 	self.changeMoveOption(actionToCheck)
         
-        self.isMoveGroupBoxActive = True
+        self.isTranslateGroupBoxActive = True
     
     def activate_rotateGroupBox_in_fuse_PM(self):
         """Show contents of rotate groupbox (in fuse PM), deactivae the 
@@ -182,7 +184,7 @@ class FusePropertyManager(MovePropertyManager):
 	    
 	self.changeRotateOption(actionToCheck)
         
-        self.isMoveGroupBoxActive = False
+        self.isTranslateGroupBoxActive = False
 	
         
     def toggle_fuseOptionsGroupBox(self):

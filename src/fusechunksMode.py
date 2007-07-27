@@ -324,7 +324,7 @@ class fusechunksMode(modifyMode, fusechunksBase):
         if self.o.assy.selmols:
             self.something_was_picked = True
        
-        if self.propMgr.isMoveGroupBoxActive:
+        if self.propMgr.isTranslateGroupBoxActive:
 	    # toggle on the Move Free action in the Property Manager
             self.w.moveFreeAction.setChecked(True) 
             self.moveOption = 'MOVEDEFAULT'
@@ -494,132 +494,6 @@ class fusechunksMode(modifyMode, fusechunksBase):
         basicMode.Wheel(self, event)
         self.recompute_fusables = False
     
-
-    def leftDown(self, event):        
-        """Move the selected object(s).
-        Overrides modifymode.LeftDown
-        """
-        self.clear_leftA_variables() #bruce 070605 added this (guess at what's needed)
-        env.history.statusbar_msg("") #bruce 070605
-
-        if self.isConstrainedDragAlongAxis:
-            self.leftADown(event)
-            return
-       
-        if self.w.rotateFreeAction.isChecked():
-            self.leftCntlDown(event)
-        
-        self.reset_drag_vars()
-        
-        self.LMB_press_event = QMouseEvent(event) # Make a copy of this event and save it. 
-        # We will need it later if we change our mind and start selecting a 2D region in leftDrag().
-        # Copying the event in this way is necessary because Qt will overwrite <event> later (in 
-        # leftDrag) if we simply set self.LMB_press_event = event.  mark 060220
-        
-        self.LMB_press_pt_xy = (event.pos().x(), event.pos().y())
-            # <LMB_press_pt_xy> is the position of the mouse in window coordinates when the LMB was pressed.
-            # Used in mouse_within_stickiness_limit (called by leftDrag() and other methods).
-            # We don't bother to vertically flip y using self.height (as mousepoints does),
-            # since this is only used for drag distance within single drags.
-       
-##        from constants import GL_FAR_Z
-
-        self.o.SaveMouse(event)
-        self.picking = True
-        self.dragdist = 0.0
-        self.transDelta = 0 # X, Y or Z deltas for translate.
-        self.rotDelta = 0 # delta for constrained rotations.
-        self.moveOffset = [0.0, 0.0, 0.0] # X, Y and Z offset for move.
-        
-        # This needs to be refactored further into move and translate methods. mark 060301.
-        
-        # Move section
-        farQ_junk, self.movingPoint = self.dragstart_using_GL_DEPTH( event)
-            #bruce 060316 replaced equivalent old code with this new method
-        self.startpt = self.movingPoint # Used in leftDrag() to compute move offset during drag op.
-        
-        # end of Move section
-           
-        # Translate section     
-        if self.propMgr.isMoveGroupBoxActive:            
-            if self.moveOption != 'MOVEDEFAULT':
-                if self.moveOption == 'TRANSX': 
-                    ma = V(1,0,0) # X Axis
-                    self.axis = 'X'
-                elif self.moveOption == 'TRANSY': 
-                    ma = V(0,1,0) # Y Axis
-                    self.axis = 'Y'
-                elif self.moveOption == 'TRANSZ': 
-                    ma = V(0,0,1) # Z Axis
-                    self.axis = 'Z'
-		elif self.moveOption == 'ROT_TRANS_ALONG_AXIS':
-                    self.leftADown(event)
-		    return
-                else: print "fuseMode error: unknown moveOption value:", self.moveOption
-                
-                ma = norm(V(dot(ma,self.o.right),dot(ma,self.o.up)))
-                # When in the front view, right = 1,0,0 and up = 0,1,0, so ma will be computed as 0,0.
-                # This creates a special case problem when the user wants to constrain rotation around
-                # the Z axis because Zmat will be zero.  So we have to test for this case (ma = 0,0) and
-                # fix ma to -1,0.  This was needed to fix bug 537.  Mark 050420
-                if ma[0] == 0.0 and ma[1] == 0.0: ma = [-1.0, 0.0] 
-                self.Zmat = A([ma,[-ma[1],ma[0]]])                
-                # end of Translate section                
-        else:
-            if self.rotateOption != 'ROTATEDEFAULT':
-                if self.rotateOption == 'ROTATEX': 
-                    ma = V(1,0,0) # X Axis
-                    self.axis = 'X'
-                elif self.rotateOption == 'ROTATEY': 
-                    ma = V(0,1,0) # Y Axis
-                    self.axis = 'Y'
-                elif self.rotateOption == 'ROTATEZ': 
-                    ma = V(0,0,1) # Z Axis
-                    self.axis = 'Z'
-		elif self.rotateOption == 'ROT_TRANS_ALONG_AXIS':
-                    self.leftADown(event)
-		    return
-                else: print "modifyMode: Error - unknown rotateOption value =", self.rotateOption
-
-                ma = norm(V(dot(ma,self.o.right),dot(ma,self.o.up)))
-                # When in the front view, right = 1,0,0 and up = 0,1,0, so ma will be computed as 0,0.
-                # This creates a special case problem when the user wants to constrain rotation around
-                # the Z axis because Zmat will be zero.  So we have to test for this case (ma = 0,0) and
-                # fix ma to -1,0.  This was needed to fix bug 537.  Mark 050420
-                if ma[0] == 0.0 and ma[1] == 0.0: ma = [-1.0, 0.0] 
-                self.Zmat = A([ma,[-ma[1],ma[0]]])
-                       
-                                    
-        #Permit movable object picking upon left down.             
-        obj = self.get_obj_under_cursor(event)
-        # If highlighting is turned on, get_obj_under_cursor() returns atoms, singlets, bonds, jigs,
-        # or anything that can be highlighted and end up in glpane.selobj. [bruce revised this comment, 060725]
-            # If highlighting is turned off, get_obj_under_cursor() returns atoms and singlets (not bonds or jigs).
-            # [not sure if that's still true -- probably not. bruce 060725 addendum]
-        if obj is None: # Cursor over empty space.
-            self.emptySpaceLeftDown(event)
-            return
-        
-        if isinstance(obj, Atom) and obj.is_singlet(): # Cursor over a singlet
-            self.singletLeftDown(obj, event)
-                # no win_update() needed. It's the responsibility of singletLeftDown to do it if needed.
-            return                
-        elif isinstance(obj, Atom) and not obj.is_singlet(): # Cursor over a real atom
-            self.atomLeftDown(obj, event)
-        elif isinstance(obj, Bond) and not obj.is_open_bond(): # Cursor over a bond.
-            self.bondLeftDown(obj, event)
-        elif isinstance(obj, Jig): # Cursor over a jig.
-            self.jigLeftDown(obj, event)
-        else: # Cursor is over something else other than an atom, singlet or bond. 
-            # The program never executes lines in this else statement since
-            # get_obj_under_cursor() only returns atoms, singlets or bonds.
-            # [perhaps no longer true, if it ever was -- bruce 060725]
-            pass
-        
-        self.w.win_update()
-            
-       
-    def leftDrag(self, event):
         """Move the selected object(s):
         - in the plane of the screen following the mouse, 
         - or slide and rotate along the an axis
@@ -641,7 +515,7 @@ class fusechunksMode(modifyMode, fusechunksBase):
                 print "Key A pressed after Left Down. controlled translation will not be performed"
                 pass
         
-        if not self.propMgr.isMoveGroupBoxActive: #Fixes bug 2493
+        if not self.propMgr.isTranslateGroupBoxActive: #Fixes bug 2493
 	    if self.w.rotateFreeAction.isChecked():
 		self.leftCntlDrag(event)
 		return
@@ -650,7 +524,7 @@ class fusechunksMode(modifyMode, fusechunksBase):
         if self.movingPoint is None: self.leftDown(event) # Fix per Bruce's email.  Mark 050704
         
         		    
-        if self.propMgr.isMoveGroupBoxActive:
+        if self.propMgr.isTranslateGroupBoxActive:
 	    if (self.moveOption == 'ROT_TRANS_ALONG_AXIS'):	    
 		try:
 		    self.leftADrag(event)
