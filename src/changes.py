@@ -953,13 +953,13 @@ def _op_tracker_stack_changed( tracker, infodict ): #bruce 050908 for Undo
             except:
                 print_compact_traceback("bug in some element of env.command_segment_subscribers: ")
                 #e discard it?? nah. (we'd do so by unsub = True)
-                ''' note: during Quit, we got this, when we tried to update the menu items no longer present (enable a QAction);
+                """ note: during Quit, we got this, when we tried to update the menu items no longer present (enable a QAction);
                 this could be related to the crashes on Quit reported recently;
                 so we should try to get the assy to unsubscribe (clear and deinit) when we're about to quit. [bruce 060127]
                   bug in some element of env.command_segment_subscribers: exceptions.RuntimeError:
                   underlying C/C++ object has been deleted
                   [changes.py:607] [undo_manager.py:115] [undo_manager.py:154] [undo_manager.py:128] [undo_manager.py:238]
-                '''
+                """
             if unsub:
                 try:
                     env.command_segment_subscribers.remove(sub)

@@ -147,3 +147,10 @@ potential sources listed.
 When everything above has been fixed, the import statements should
 accurately reflect the import dependencies between all modules.  At
 this point, it's time to try graphing that structure.
+
+$ tools/PackageDependency.py `cat allpyfiles` > depend.dot
+
+This spits out three lists of packages to stderr.  Cut and paste the
+lists into the PackageDependency source file at the named locations
+and repeat until nothing is printed.  This process prunes the
+dependency tree so only cycles remain.
