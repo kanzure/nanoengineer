@@ -63,77 +63,56 @@ from debug import register_debug_menu_command
 
 from GLPane import GLPane # maybe only needed for an isinstance assertion
 
-class _BUGFIXED_selectAtomsMode(selectAtomsMode):
-    def set_selection_filter(self, enabled): ###@@@ IS THIS STILL NEEDED? #k
-        # This is needed here for now, since it can't be added directly to selectAtomsMode
-        # (where it logically belongs, since it's a selectAtomsMode method that tries to use it),
-        # due to problems caused by misguided multiple inheritance in selectAtomsMode.
-        # [Adding it here 070704 makes this example command work again, after we broke it knowingly
-        #  in the A9.1 release, in order to fix selection filter bugs caused by adding this method
-        #  to selectAtomsMode itself. It overrode the same method in a mixin class, that ought to be
-        #  used to construct a separate object rather than being a mixin class of a subclass of
-        #  selectAtomsMode.]
-        pass
-    pass
-    
-class ExampleCommand1(_BUGFIXED_selectAtomsMode):
-    """Example command, which uses behavior similar to selectAtomsMode. [Which in future may inherit class Command.]
+class ExampleCommand(selectAtomsMode):
     """
-    modename = 'ExampleCommand1-modename' # internal #e fix init code in basicMode to get it from classname?
-    default_mode_status_text = "ExampleCommand1"
-    #e define msg_modename, or fix init code in basicMode to get it from default_mode_status_text or classname or...
-    # note: that init code won't even run now, since superclas defs it i think -- actually, not sure abt that, probably it doesn't
-
+    Abstract superclass for the example commands in this file.
+    Specific command subclasses need to define the following class constants:
+    modename, default_mode_status_text, and PM_class.
+    Some of them also need to override mode methods, such as Draw.
+    """
     def init_gui(self):
-        print "init_gui in", self ####
-
+        print "init_gui in", self ###
         win = self.win
-        self.__PM = pm = ExampleCommand1_PM(win, commandrun = self)
+        self.__PM = pm = self.PM_class(win, commandrun = self)
         pm.show()
         selectAtomsMode.init_gui(self) # this fixed the "disconnect without connect" bug
             #k will we need to do this first not last? or not do all of it? seems ok so far.
         return
 
     def restore_gui(self):
-        print "restore_gui in", self ####
-
+        print "restore_gui in", self ###
         self.__PM.hide() # this works (PM area becomes blank), but doesn't remove the PM tab or change to the MT tab
             ##e should find existing code for doing that and make a common routine in the featureManager to do it (if not one already)
         selectAtomsMode.restore_gui(self) # this apparently worked even when it called init_gui by mistake!!
         return
+    
+    pass
 
-    # note: ok_btn_clicked, etc, must be defined in our PM class below,
+class ExampleCommand1(ExampleCommand):
+    """Example command, which uses behavior similar to selectAtomsMode. [Which in future may inherit class Command.]
+    """
+    modename = 'ExampleCommand1-modename' # internal #e fix init code in basicMode to get it from classname?
+    default_mode_status_text = "ExampleCommand1"
+    #e define msg_modename, or fix init code in basicMode to get it from default_mode_status_text or classname or...
+    # note: that init code won't even run now, since superclas defs it i think -- actually, not sure abt that, probably it doesn't
+    PM_class = ExampleCommand1_PM
+    
+    # note: ok_btn_clicked, etc, must be defined in our PM class (elsewhere),
     # not in this class.
 
-    pass # end of class ExampleCommand1
+    pass
 
-class ExampleCommand2(_BUGFIXED_selectAtomsMode):
-    "same but use GBC"
-
+class ExampleCommand2(ExampleCommand):
+    """same, but use GBC (in our PM)"""
     modename = 'ExampleCommand2-modename'
     default_mode_status_text = "ExampleCommand2"
-
-    def init_gui(self):
-        print "init_gui in", self ####
-
-        win = self.win
-        self.__PM = pm = ExampleCommand2_PM(win, commandrun = self)
-        pm.show()
-        selectAtomsMode.init_gui(self)
-        return
-
-    def restore_gui(self):
-        print "restore_gui in", self ####
-
-        self.__PM.hide()
-        selectAtomsMode.restore_gui(self)
-        return
-    
-    pass # end of class ExampleCommand2
+    PM_class = ExampleCommand2_PM
+    pass
 
 # ==
 
-# these imports are not needed in a minimal example like ExampleCommand2
+# these imports are not needed in a minimal example like ExampleCommand2;
+# to make that clear, we put them down here instead of at the top of the file
 from OpenGL.GL import GL_LEQUAL
 from drawer import drawline
 from constants import red, green
@@ -160,7 +139,7 @@ class ExampleCommand2E(ExampleCommand2, object):
 
     modename = 'ExampleCommand2E-modename'
     default_mode_status_text = "ExampleCommand2E"
-    PM_class = ExampleCommand2E_PM ### NOT YET USED
+    PM_class = ExampleCommand2E_PM
 
     standard_glDepthFunc = GL_LEQUAL # overrides default value of GL_LESS from GLPane
         # note: this is to prevent this warning:
