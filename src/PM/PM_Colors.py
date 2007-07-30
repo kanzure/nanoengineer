@@ -17,6 +17,7 @@ mark 2007-07-22: Created initially for PM_Dialog as part of the code cleanup
 import os
 
 from PyQt4.Qt import QColor
+from PyQt4.Qt import QPalette
 
 from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False, Choice
 
@@ -31,6 +32,34 @@ def getIconPath(iconName):
     @type  iconName: str 
     """
     return os.path.join (PM_ICON_DIR + iconName)
+
+def getPalette( palette, colorRole, color ):
+    """
+    Assigns a color (based on color role) to palette and returns it.
+    The color/color role is assigned to all color groups.
+            
+    @param palette: A palette. If palette is None, we create and return a new palette.
+    @type  palette: QPalette
+    
+    @param colorRole: the Qt ColorRole
+    @type  colorRole: Qt.ColorRole
+    
+    @param color: color
+    @type  color: QColor
+    
+    @return: Returns the updated palette, or a new palette if none was supplied.
+    @rtype : QPalette
+    
+    @see QPalette.setColor()
+    """
+    if palette:
+        pass # Make sure palette is QPalette.
+    else:
+        palette = QPalette()
+            
+    palette.setColor(colorRole, color)
+    
+    return palette
 
 COLOR_THEME = "Gray"
 

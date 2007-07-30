@@ -8,64 +8,93 @@ PM_TextEdit.py
 
 History:
 
-mark 2007-07-22: Split PropMgrTextEdit out of PropMgrBaseClass.py into this file
-                 and renamed it PM_TextEdit.
+mark 2007-07-22: Split PropMgrTextEdit out of PropMgrBaseClass.py into this
+file and renamed it PM_TextEdit.
 """
 
 from PM_Constants import pmMinWidth
+
+from PM_Colors    import getPalette
 from PM_Colors    import pmMessageBoxColor
 
 from PyQt4.Qt import Qt
+from PyQt4.Qt import QLabel
 from PyQt4.Qt import QSize
 from PyQt4.Qt import QSizePolicy
 from PyQt4.Qt import QTextCursor
 from PyQt4.Qt import QTextEdit
 from PyQt4.Qt import QPalette
+from PyQt4.Qt import QWidget
 
-from PM_WidgetMixin import PM_WidgetMixin
-
-class PM_TextEdit( QTextEdit, PM_WidgetMixin ):
+class PM_TextEdit( QTextEdit ):
     """
     The PM_TextEdit widget provides a QTextEdit with a 
     QLabel for a Property Manager groupbox.
+    
+    @cvar defaultText: The default text of the textedit.
+    @type defaultText: str
+    
+    @cvar setAsDefault: Determines whether to reset the value of the
+                        textedit to I{defaultText} when the user clicks
+                        the "Restore Defaults" button.
+    @type setAsDefault: bool
+    
+    @cvar hidden: Hide flag.
+    @type hidden: bool
+    
+    @cvar labelWidget: The Qt label widget of this textedit.
+    @type labelWidget: U{B{QLabel}<http://doc.trolltech.com/4/qlabel.html>}
     """
     
-    defaultText = '' # Default text.
+    defaultText  = ""
+    setAsDefault = True
+    hidden       = False
+    labelWidget  = None
     
     def __init__( self, 
                   parentWidget, 
-                  label     = '', 
-                  spanWidth = False ):
+                  label       = '', 
+                  labelColumn = 0,
+                  spanWidth   = False ):
         """
-        Appends a QTextEdit widget (with a QLabel widget) to <parentWidget>, 
-        a property manager groupbox.
+        Appends a QTextEdit (Qt) widget to the bottom of I{parentWidget}, 
+        a Property Manager group box.
         
         The QTextEdit is empty (has no text) by default. Use insertHtml() 
         to insert HTML text into the TextEdit.        
         
-        Arguments:
-        
-        @param parentWidget: the parent groupbox containing this widget.
+        @param parentWidget: the parent group box containing this widget.
         @type  parentWidget: PM_GroupBox
         
-        @param label: label that appears to the left (or above) of the TextEdit.
+        @param label: The label that appears to the left of (or above) the 
+                      spin box. To suppress the label, set I{label} to an 
+                      empty string.
         @type  label: str
         
-        @param spanWidth: if True, the widget and its label will span the width
-                      of the group box. Its label will appear directly above
-                      the widget (unless the label is empty) and is left justified.
+        @param spanWidth: If True, the spin box and its label will span the width
+                          of the group box. The label will appear directly above
+                          the spin box and is left justified. 
         @type  spanWidth: bool
         
+        @see: U{B{QTextEdit}<http://doc.trolltech.com/4/qtextedit.html>}
         """
         
         if 0: # Debugging code
             print "QTextEdit.__init__():"
-            print "  label=", label
-            print "  spanWidth=",spanWidth
+            print "  label       =", label
+            print "  labelColumn =", labelColumn
+            print "  spanWidth   =", spanWidth
         
         QTextEdit.__init__(self)
         
         self.parentWidget = parentWidget
+        self.label        = label
+        self.labelColumn  = labelColumn
+        self.spanWidth    = spanWidth
+        
+        if label: # Create this widget's QLabel.
+            self.labelWidget = QLabel()
+            self.labelWidget.setText(label)
         
         self._setHeight() # Default height is 4 lines high.
         
@@ -78,16 +107,17 @@ class PM_TextEdit( QTextEdit, PM_WidgetMixin ):
         if isinstance(parentWidget, PM_MessageGroupBox):
             # Add to parentWidget's VBoxLayout if <parentWidget> is a MessageGroupBox.
             parentWidget.VBoxLayout.addWidget(self)
-            # We should be calling the propmgr's getMessageTextEditPalette() method,
+            # We should be calling the PM's getMessageTextEditPalette() method,
             # but that will take some extra work which I will do soon. Mark 2007-06-21
-            self.setPalette(self._getPalette())
+            self.setPalette(getPalette( None, 
+                                        QPalette.Base,
+                                        pmMessageBoxColor))
             self.setReadOnly(True)
-            self.labelWidget = None # Never has one. Mark 2007-05-31
+            #@self.labelWidget = None # Never has one. Mark 2007-05-31
             parentWidget._widgetList.append(self)
             parentWidget._rowCount += 1
-            self.setName()
         else:
-            self.addWidgetAndLabelToParent(parentWidget, label, spanWidth)
+            parentWidget.addPmWidget(self)
         
     def insertHtml( self, 
                     text, 
@@ -189,13 +219,52 @@ class PM_TextEdit( QTextEdit, PM_WidgetMixin ):
             self.insertHtml(self.defaultText, 
                             setAsDefault = True,
                             replace = True)
+    
+    def collapse( self ):
+        """
+        Hides the tool button and its label (if it has one) when its group box 
+        is collapsed.
+        """
+        QWidget.hide(self) 
+        if self.labelWidget :
+            self.labelWidget.hide()
+        
+    def expand( self ):
+        """
+        Displays the tool button and its label (if it has one) when its group 
+        box is expanded, unless the tool button was "permanently" hidden via
+        L{hide()}. In that case, the tool button will remain hidden until 
+        L{show()} is called.
+        """
+        if self.hidden: return
+        QWidget.show(self)
+        if self.labelWidget:
+            self.labelWidget.show()
+        
+    def hide( self ):
+        """
+        Hides the tool button and its label (if it has one). If hidden, the 
+        tool button will not be displayed when its group box is expanded.
+        Call L{show()} to unhide the tool button.
+        
+        @see: L{show}
+        """
+        self.hidden = True
+        QWidget.hide(self)
+        if self.labelWidget: 
+            self.labelWidget.hide()
             
-    def _getPalette( self ):
+    def show( self ):
         """
-        Return a palette with a yellow base. 
+        Unhide the tool button and its label (if it has one). The tool button
+        will remain (temporarily) hidden if its group box is collapsed, 
+        but will be displayed again when the group box is expanded.
+        
+        @see: L{hide}
         """
-        return self.getPalette(None, 
-                               QPalette.Base,
-                               pmMessageBoxColor)
+        self.hidden = False
+        QWidget.show(self)
+        if self.labelWidget: 
+            self.labelWidget.show()
 
 # End of PM_TextEdit ############################

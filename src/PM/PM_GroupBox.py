@@ -8,14 +8,15 @@ PM_GroupBox.py
 
 History:
 
-mark 2007-07-22: Split PropMgrGroupBox out of PropMgrBaseClass.py into this file
-                 and renamed it PM_GroupBox.
+mark 2007-07-22: Split PropMgrGroupBox out of PropMgrBaseClass.py into this 
+file and renamed it PM_GroupBox.
 """
 
 import platform
 
 from debug import print_compact_traceback
 
+from PM_Colors import getPalette
 from PM_Colors import pmGrpBoxButtonBorderColor
 from PM_Colors import pmGrpBoxButtonTextColor
 from PM_Colors import pmGrpBoxExpandedIconPath
@@ -33,8 +34,10 @@ from PM_Constants import pmGrpBoxGridLayoutSpacing
 from PM_Constants import pmGridLayoutMargin
 from PM_Constants import pmGridLayoutSpacing
 
-from PM_Constants import pmLabelLeftAlignment
+from PM_Constants import pmLeftAlignment, pmRightAlignment
+from PM_Constants import pmLeftColumn, pmRightColumn
 
+from PyQt4.Qt import Qt
 from PyQt4.Qt import QGroupBox
 from PyQt4.Qt import QGridLayout
 from PyQt4.Qt import QLabel
@@ -43,32 +46,59 @@ from PyQt4.Qt import QPalette
 from PyQt4.Qt import QSizePolicy
 from PyQt4.Qt import QSpacerItem
 from PyQt4.Qt import QVBoxLayout
+from PyQt4.Qt import QWidget
 from PyQt4.Qt import SIGNAL
-
-from PM_WidgetMixin import PM_WidgetMixin
-from PropMgrBaseClass import getPalette
 
 from Utility import geticon
 
-class PM_GroupBox( QGroupBox, PM_WidgetMixin ):
+class PM_GroupBox( QGroupBox ):
     """
     The PM_GroupBox widget provides a group box container with a 
     collapse/expand button and a title. All PM widgets must be inside
     of a PM_GroupBox.
-    """
-    # Set to True to always hide this widget, even when groupbox is expanded.
-    hidden       = False
-    labelWidget  = None # The QLabel containing this widget's label.
-    setAsDefault = True # If set to False, no widgets in this groupbox will be
-                        # reset to their default value when the Restore Defaults 
-                        # button is clicked, regardless thier own <setAsDefault> value.
-    expanded     = True # Set to False when group box is collapsed.
     
-    _widgetList    = [] # All widgets in this groupbox (except the title button).
-    _rowCount      = 0  # Number of rows in this groupbox.
-    _groupBoxCount = 0  # Number of groupboxes in this group box.
-    _lastGroupBox  = None # The last group box in this group box 
-                          # (i.e. the most recent PM_GroupBox added).
+    @cvar defaultValue: The default value of the group box.
+    @type defaultValue: float
+    
+    @cvar setAsDefault: Determines whether to reset the value of all
+                        widgets in the group box when the user clicks
+                        the "Restore Defaults" button. If set to False,
+                        no widgets will be reset regardless thier own 
+                        I{setAsDefault} value.
+    @type setAsDefault: bool
+    
+    @cvar hidden: Hide flag.
+    @type hidden: bool
+    
+    @cvar labelWidget: The Qt label widget of this group box.
+    @type labelWidget: U{B{QLabel}<http://doc.trolltech.com/4/qlabel.html>}
+    
+    @cvar expanded: Expanded flag.
+    @type expanded: bool
+    
+    @cvar _widgetList: List of widgets in the group box (except the title button).
+    @type _widgetList: list
+    
+    @cvar _rowCount: Number of rows in the group box.
+    @type _rowCount: int
+    
+    @cvar _groupBoxCount: Number of group boxes in this group box.
+    @type _groupBoxCount: int
+    
+    @cvar _lastGroupBox: The last group box in this group box (i.e. the
+                         most recent PM group box added).
+    @type _lastGroupBox: PM_GroupBox
+    """
+    
+    setAsDefault = True
+    hidden       = False
+    labelWidget  = None
+    expanded     = True
+    
+    _widgetList    = []
+    _rowCount      = 0
+    _groupBoxCount = 0
+    _lastGroupBox  = None
     
     def __init__( self, 
                   parentWidget, 
@@ -101,6 +131,7 @@ class PM_GroupBox( QGroupBox, PM_WidgetMixin ):
                 button is clicked, regardless thier own <setAsDefault> value.
         @type  setAsDefault: bool
         
+        @see: U{B{QGroupBox}<http://doc.trolltech.com/4/qgroupbox.html>}
         """
       
         QGroupBox.__init__(self)
@@ -151,8 +182,6 @@ class PM_GroupBox( QGroupBox, PM_WidgetMixin ):
                         QSizePolicy.Policy(QSizePolicy.Fixed)))
         
         self._addBottomSpacer()
-        
-        self.setName()
         
     def _addBottomSpacer( self ):
         """
@@ -213,10 +242,187 @@ class PM_GroupBox( QGroupBox, PM_WidgetMixin ):
         """
         # Create QLabel widget.
         self.labelWidget = QLabel()
-        labelAlignment = pmLabelLeftAlignment
+        labelAlignment = pmLeftAlignment
         self.labelWidget.setAlignment(labelAlignment)
         self.labelWidget.setText(title)
         self.VBoxLayout.insertWidget(0, self.labelWidget)
+        
+    def getPmWidgetPlacementParameters( self, pmWidget ):
+        """
+        Returns all the layout parameters needed to place 
+        a PM_Widget in the group box grid layout.
+        """
+        
+        label       = pmWidget.label
+        labelColumn = pmWidget.labelColumn
+        spanWidth   = pmWidget.spanWidth
+        row         = self._rowCount
+        
+        if not spanWidth: 
+            # This widget and its label are on the same row
+            labelRow       = row
+            labelSpanCols  = 1
+            labelAlignment = pmRightAlignment
+            # Set the widget's row and column parameters.
+            widgetRow      = row
+            widgetColumn   = 1
+            widgetSpanCols = 1
+            widgetAlignment = pmLeftAlignment
+            rowIncrement   = 1
+            
+            if labelColumn == 1:
+                widgetColumn   = 0
+                labelAlignment = pmLeftAlignment
+                widgetAlignment = pmRightAlignment
+            
+        else: 
+            # This widget spans the full width of the groupbox           
+            if label: 
+                # The label and widget are on separate rows.
+                    
+                # Set the label's row, column and alignment.
+                labelRow       = row
+                labelColumn    = 0
+                labelSpanCols  = 2
+                    
+                # Set this widget's row and column parameters.
+                widgetRow      = row + 1 # Widget is below the label.
+                widgetColumn   = 0
+                widgetSpanCols = 2
+                
+                rowIncrement   = 2
+            else:  # No label. Just the widget.
+                labelRow       = 0
+                labelColumn    = 0
+                labelSpanCols  = 0
+
+                # Set the widget's row and column parameters.
+                widgetRow      = row
+                widgetColumn   = 0
+                widgetSpanCols = 2
+                rowIncrement   = 1
+                
+            labelAlignment = pmLeftAlignment
+            widgetAlignment = pmLeftAlignment
+                
+        return widgetRow, \
+               widgetColumn, \
+               widgetSpanCols, \
+               widgetAlignment, \
+               rowIncrement, \
+               labelRow, \
+               labelColumn, \
+               labelSpanCols, \
+               labelAlignment
+    
+    def addPmWidget( self, pmWidget ):
+        """
+        Add a PM widget and its label to this group box.
+        
+        @param pmWidget: The PM widget to add.
+        @type  pmWidget: PM_Widget
+        """
+        
+        # Gather all the widget and label layout parameters.
+        widgetRow, \
+        widgetColumn, \
+        widgetSpanCols, \
+        widgetAlignment, \
+        rowIncrement, \
+        labelRow, \
+        labelColumn, \
+        labelSpanCols, \
+        labelAlignment = \
+            self.getPmWidgetPlacementParameters(pmWidget)
+        
+        if pmWidget.labelWidget:            
+            self.GridLayout.addWidget( pmWidget.labelWidget,
+                                       labelRow, 
+                                       labelColumn,
+                                       1, 
+                                       labelSpanCols,
+                                       labelAlignment )
+        
+        # The following is a workaround for a Qt bug. If addWidth()'s 
+        # <alignment> argument is not supplied, the widget spans the full 
+        # column width of the grid cell containing it. If <alignment> 
+        # is supplied, this desired behavior is lost an there is no 
+        # value that can be supplied to maintain the behavior (0 doesn't 
+        # work). The workaround is to call addWidget() without the <alignment>
+        # argument. Mark 2007-07-27.
+        if widgetAlignment == pmLeftAlignment:
+            self.GridLayout.addWidget( pmWidget,
+                                       widgetRow, 
+                                       widgetColumn,
+                                       1, 
+                                       widgetSpanCols ) 
+                                       # aligment = 0 doesn't work.
+        else:
+            self.GridLayout.addWidget( pmWidget,
+                                       widgetRow, 
+                                       widgetColumn,
+                                       1, 
+                                       widgetSpanCols, 
+                                       widgetAlignment )
+        
+        self._widgetList.append(pmWidget)
+        
+        self._rowCount += rowIncrement
+    
+    def collapse( self ):
+        """
+        Hides the group box when its parent group box 
+        is collapsed.
+        """
+        QWidget.hide(self) # Hide self.
+        if self.labelWidget :# Hide self's label if it has one.
+            self.labelWidget.hide()
+        
+    def expand( self ):
+        """
+        Displays the group box when its parent group box
+        is expanded, unless the group box was "permanently" hidden via
+        L{hide()}. In that case, the group box will remain hidden until 
+        L{show()} is called.
+        """
+        if self.hidden: return
+        QWidget.show(self)
+        if self.labelWidget:
+            self.labelWidget.show()
+            
+    def hide( self ):
+        """
+        Hides the group box . If hidden, the group box will not be 
+        displayed when its parent group box is expanded.
+        Call L{show()} to unhide the group box.
+        
+        @see: L{show}
+        """
+        self.hidden = True
+        QWidget.hide(self)
+        if self.labelWidget:
+            self.labelWidget.hide() 
+        
+        # Change the spacer height to zero to "hide" it unless
+        # self is the last GroupBox in the Property Manager.
+        if self.VSpacerWidget:
+            self.VSpacerWidget.changeSize(10, 0)
+            
+    def show( self ):
+        """
+        Unhide the group box. The group box will remain (temporarily) hidden
+        if its parent group box is collapsed, but will be displayed again when
+        the group box is expanded.
+        
+        @see: L{hide}
+        """
+        self.hidden = False
+        QWidget.show(self)
+        if self.labelWidget:
+            self.labelWidget.show() 
+            
+        if self.VSpacerWidget:
+            self.VSpacerWidget.changeSize(10, self.VSpacerWidget.defaultHeight)
 
     # Title Button Methods #####################################
     
@@ -324,6 +530,7 @@ class PM_GroupBox( QGroupBox, PM_WidgetMixin ):
                 self.titleButton.setIcon(
                     geticon("ui/actions/Properties Manager/GHOST_ICON"))
                 for widget in self._widgetList:
+                    print widget.objectName()
                     widget.collapse()
                 self.expanded = False 
             else: # Expand groupbox by showing all widgets in groupbox.

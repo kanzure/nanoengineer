@@ -8,8 +8,8 @@ PM_Dialog.py
 
 History:
 
-mark 2007-07-22: Split PropMgrBaseClass out of PropMgrBaseClass.py into this file
-                 and renamed it PM_Dialog.
+mark 2007-07-22: Split PropMgrBaseClass out of PropMgrBaseClass.py into this 
+file and renamed it PM_Dialog.
 """
 
 from debug import print_compact_traceback
@@ -37,7 +37,7 @@ from PM_Constants import pmGrpBoxVboxLayoutMargin
 from PM_Constants import pmGrpBoxVboxLayoutSpacing
 from PM_Constants import pmGridLayoutMargin
 from PM_Constants import pmGridLayoutSpacing
-from PM_Constants import pmLabelLeftAlignment
+from PM_Constants import pmLeftAlignment
 
 from PM_Constants import pmAllButtons
 from PM_Constants import pmDoneButton
@@ -192,7 +192,7 @@ class PM_Dialog( QDialog ):
         self.headerTitle = QLabel(self.headerFrame)
         headerTitlePalette = self._getHeaderTitlePalette()
         self.headerTitle.setPalette(headerTitlePalette)
-        self.headerTitle.setAlignment(pmLabelLeftAlignment)
+        self.headerTitle.setAlignment(pmLeftAlignment)
 
         # Assign header title font.
         self.headerTitle.setFont(self._getHeaderFont())

@@ -9,26 +9,46 @@ PM_ComboBox.py
 History:
 
 mark 2007-07-22: Split PropMgrComboBox out of PropMgrBaseClass.py into this file
-                 and renamed it PM_ComboBox.
+and renamed it PM_ComboBox.
 """
 
 from PyQt4.Qt import QComboBox
-from PM_WidgetMixin import PM_WidgetMixin
+from PyQt4.Qt import QLabel
+from PyQt4.Qt import QWidget
 
-class PM_ComboBox( QComboBox, PM_WidgetMixin ):
+class PM_ComboBox( QComboBox ):
     """
     The PM_ComboBox widget provides a QComboBox with a 
-    QLabel for a Property Manager groupbox.
+    QLabel for a Property Manager group box.
+    
+    @cvar defaultChoices: The default choices of the combobox.
+    @type defaultChoices: list
+                          
+    @cvar defaultIndex: The default index of the combobox.
+    @type defaultIndex: int
+    
+    @cvar setAsDefault: Determines whether to reset the choices to 
+                        I{defaultChoices} and currentIndex to I{defaultIndex}
+                        when the user clicks the "Restore Defaults" button.
+    @type setAsDefault: bool
+    
+    @cvar hidden: Hide flag.
+    @type hidden: bool
+    
+    @cvar labelWidget: The Qt label widget of this combobox.
+    @type labelWidget: U{B{QLabel}<http://doc.trolltech.com/4/qlabel.html>}
     """
     
-    # The default index when "Restore Defaults" is clicked
-    defaultIndex = 0
-    # The default choices when "Restore Defaults" is clicked.
+    defaultIndex   = 0
     defaultChoices = []
+    setAsDefault   = True
+    hidden         = False
+    labelWidget    = None    
     
     def __init__( self, 
                   parentWidget, 
                   label        = '', 
+                  labelColumn  = 0,
                   choices      = [],
                   index        = 0, 
                   setAsDefault = True,
@@ -45,6 +65,12 @@ class PM_ComboBox( QComboBox, PM_WidgetMixin ):
         @param label: label that appears to the left of (or above) this PM widget.
         @type  label: str
         
+        @param labelColumn: The column number of the label in the group box
+                            grid layout. The only valid values are 0 (left 
+                            column) and 1 (right column). The default is 0 
+                            (left column).
+        @type  labelColumn: int
+                
         @param choices: list of combo box choices (strings).
         @type  choices: list
         
@@ -59,6 +85,8 @@ class PM_ComboBox( QComboBox, PM_WidgetMixin ):
                       of the group box. Its label will appear directly above
                       the widget (unless the label is empty) and is left justified.
         @type  spanWidth: bool (default False)
+        
+        @see: U{B{QComboBox}<http://doc.trolltech.com/4/qcombobox.html>}
         """
         
         if 0: # Debugging code
@@ -72,6 +100,14 @@ class PM_ComboBox( QComboBox, PM_WidgetMixin ):
         QComboBox.__init__(self)
         
         self.parentWidget = parentWidget
+        self.label        = label
+        self.labelColumn  = labelColumn
+        self.setAsDefault = setAsDefault
+        self.spanWidth    = spanWidth
+        
+        if label: # Create this widget's QLabel.
+            self.labelWidget = QLabel()
+            self.labelWidget.setText(label)
                        
         # Load QComboBox widget choices and set initial choice (index).
         for choice in choices:
@@ -83,7 +119,7 @@ class PM_ComboBox( QComboBox, PM_WidgetMixin ):
         self.defaultChoices=choices
         self.setAsDefault = setAsDefault
         
-        self.addWidgetAndLabelToParent(parentWidget, label, spanWidth)
+        parentWidget.addPmWidget(self)
             
     def restoreDefault( self ):
         """
@@ -94,5 +130,52 @@ class PM_ComboBox( QComboBox, PM_WidgetMixin ):
             for choice in self.defaultChoices:
                 self.addItem(choice)
             self.setCurrentIndex(self.defaultIndex)
+            
+    def collapse( self ):
+        """
+        Hides the combobox and its label (if it has one) when its group box 
+        is collapsed.
+        """
+        QWidget.hide(self) 
+        if self.labelWidget :
+            self.labelWidget.hide()
+        
+    def expand( self ):
+        """
+        Displays the combobox and its label (if it has one) when its group 
+        box is expanded, unless the combobox was "permanently" hidden via
+        L{hide()}. In that case, the combobox will remain hidden until 
+        L{show()} is called.
+        """
+        if self.hidden: return
+        QWidget.show(self)
+        if self.labelWidget:
+            self.labelWidget.show()
+        
+    def hide( self ):
+        """
+        Hides the combobox and its label (if it has one). If hidden, the 
+        combobox will not be displayed when its group box is expanded.
+        Call L{show()} to unhide the combobox.
+        
+        @see: L{show}
+        """
+        self.hidden = True
+        QWidget.hide(self)
+        if self.labelWidget: 
+            self.labelWidget.hide()
+            
+    def show( self ):
+        """
+        Unhide the combobox and its label (if it has one). The combobox
+        will remain (temporarily) hidden if its group box is collapsed, 
+        but will be displayed again when the group box is expanded.
+        
+        @see: L{hide}
+        """
+        self.hidden = False
+        QWidget.show(self)
+        if self.labelWidget: 
+            self.labelWidget.show()
 
 # End of PM_ComboBox ############################

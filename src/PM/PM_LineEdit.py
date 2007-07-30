@@ -8,62 +8,102 @@ PM_LineEdit.py
 
 History:
 
-mark 2007-07-22: Split PropMgrLineEdit out of PropMgrBaseClass.py into this file
-                 and renamed it PM_LineEdit.
+mark 2007-07-22: Split PropMgrLineEdit out of PropMgrBaseClass.py into this 
+file and renamed it PM_LineEdit.
 """
 
+from PyQt4.Qt import QLabel
 from PyQt4.Qt import QLineEdit
+from PyQt4.Qt import QWidget
 
-from PM_WidgetMixin import PM_WidgetMixin
-
-class PM_LineEdit( QLineEdit, PM_WidgetMixin ):
+class PM_LineEdit( QLineEdit ):
     """
     The PM_LineEdit widget provides a QLineEdit with a QLabel for a 
     Property Manager group box.
+    
+    @cvar defaultText: The default text of the lineedit.
+    @type defaultText: str
+    
+    @cvar setAsDefault: Determines whether to reset the value of the
+                        lineedit to I{defaultText} when the user clicks
+                        the "Restore Defaults" button.
+    @type setAsDefault: bool
+    
+    @cvar hidden: Hide flag.
+    @type hidden: bool
+    
+    @cvar labelWidget: The Qt label widget of this lineedit.
+    @type labelWidget: U{B{QLabel}<http://doc.trolltech.com/4/qlabel.html>}
     """
     
-    defaultText = "" # Default value of lineedit
+    defaultText = ""
+    setAsDefault = True
+    hidden       = False
+    labelWidget  = None
     
     def __init__( self, 
                   parentWidget, 
                   label        = '', 
+                  labelColumn  = 0,
                   text         = '', 
                   setAsDefault = True,
                   spanWidth    = False ):
         """
         Appends a QLineEdit widget to <parentWidget>, a property manager group box.
         
-        Arguments:
-        
         @param parentWidget: the parent group box containing this widget.
         @type  parentWidget: PM_GroupBox
         
-        @param label: label that appears to the left of (or above) the widget.
+        @param label: The label that appears to the left or right of the 
+                      checkbox. 
+                      
+                      If spanWidth is True, the label will be displayed on
+                      its own row directly above the checkbox.
+                      
+                      To suppress the label, set I{label} to an 
+                      empty string.
         @type  label: str
+        
+        @param labelColumn: The column number of the label in the group box
+                            grid layout. The only valid values are 0 (left 
+                            column) and 1 (right column). The default is 0 
+                            (left column).
+        @type  labelColumn: int
         
         @param text: initial value of LineEdit widget.
         @type  text: str
         
         @param setAsDefault: if True, will restore <val> when the
                     "Restore Defaults" button is clicked.
-        @type  spanWidth: bool
+        @type  setAsDefault: bool
         
         @param spanWidth: if True, the widget and its label will span the width
                       of the group box. Its label will appear directly above
                       the widget (unless the label is empty) and is left justified.
         @type  spanWidth: bool
+        
+        @see: U{B{QLineEdit}<http://doc.trolltech.com/4/qlineedit.html>}
         """
         
         if 0: # Debugging code
             print "PM_LineEdit.__init__():"
-            print "  label = ", label
-            print "  text = ", text
+            print "  label        = ", label
+            print "  labelColumn  = ", label
+            print "  text         = ", text
             print "  setAsDefault = ", setAsDefaultfix
-            print "  spanWidth = ", spanWidth
+            print "  spanWidth    = ", spanWidth
                 
         QLineEdit.__init__(self)
         
         self.parentWidget = parentWidget
+        self.label        = label
+        self.labelColumn  = labelColumn
+        self.setAsDefault = setAsDefault
+        self.spanWidth    = spanWidth
+        
+        if label: # Create this widget's QLabel.
+            self.labelWidget = QLabel()
+            self.labelWidget.setText(label)
                 
         # Set QLineEdit text
         self.setText(text)
@@ -72,7 +112,7 @@ class PM_LineEdit( QLineEdit, PM_WidgetMixin ):
         self.defaultText=text
         self.setAsDefault = setAsDefault
             
-        self.addWidgetAndLabelToParent(parentWidget, label, spanWidth)
+        parentWidget.addPmWidget(self)
         
     def restoreDefault( self ):
         """
@@ -80,5 +120,52 @@ class PM_LineEdit( QLineEdit, PM_WidgetMixin ):
         """
         if self.setAsDefault:
             self.setText(self.defaultText)
-
+            
+    def collapse( self ):
+        """
+        Hides the lineedit and its label (if it has one) when its group box 
+        is collapsed.
+        """
+        QWidget.hide(self) 
+        if self.labelWidget :
+            self.labelWidget.hide()
+        
+    def expand( self ):
+        """
+        Displays the lineedit and its label (if it has one) when its group 
+        box is expanded, unless the lineedit was "permanently" hidden via
+        L{hide()}. In that case, the lineedit will remain hidden until 
+        L{show()} is called.
+        """
+        if self.hidden: return
+        QWidget.show(self)
+        if self.labelWidget:
+            self.labelWidget.show()
+        
+    def hide( self ):
+        """
+        Hides the lineedit and its label (if it has one). If hidden, the 
+        lineedit will not be displayed when its group box is expanded.
+        Call L{show()} to unhide the lineedit.
+        
+        @see: L{show}
+        """
+        self.hidden = True
+        QWidget.hide(self)
+        if self.labelWidget: 
+            self.labelWidget.hide()
+            
+    def show( self ):
+        """
+        Unhide the lineedit and its label (if it has one). The lineedit
+        will remain (temporarily) hidden if its group box is collapsed, 
+        but will be displayed again when the group box is expanded.
+        
+        @see: L{hide}
+        """
+        self.hidden = False
+        QWidget.show(self)
+        if self.labelWidget: 
+            self.labelWidget.show()
+            
 # End of PM_LineEdit ############################

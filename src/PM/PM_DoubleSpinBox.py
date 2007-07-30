@@ -13,11 +13,10 @@ and renamed it PM_DoubleSpinBox.
 """
 
 from PyQt4.Qt import QDoubleSpinBox
+from PyQt4.Qt import QLabel
 from PyQt4.Qt import QWidget
 
-from PM_WidgetMixin import PM_WidgetMixin
-
-class PM_DoubleSpinBox( QDoubleSpinBox, PM_WidgetMixin ):
+class PM_DoubleSpinBox( QDoubleSpinBox ):
     """
     The PM_DoubleSpinBox widget provides a QDoubleSpinBox (with an 
     optional label) for a Property Manager group box.
@@ -69,13 +68,31 @@ class PM_DoubleSpinBox( QDoubleSpinBox, PM_WidgetMixin ):
     for how to do this with PM_DoubleSpinBox.
     
     @see: U{B{QDoubleSpinBox}<http://doc.trolltech.com/4/qdoublespinbox.html>}
+        
+    @cvar defaultValue: The default value of the spin box.
+    @type defaultValue: float
+    
+    @cvar setAsDefault: Determines whether to reset the value of the
+                        spin box to I{defaultValue} when the user clicks
+                        the "Restore Defaults" button.
+    @type setAsDefault: bool
+    
+    @cvar hidden: Hide flag.
+    @type hidden: bool
+    
+    @cvar labelWidget: The Qt label widget of this spin box.
+    @type labelWidget: U{B{QLabel}<http://doc.trolltech.com/4/qlabel.html>}
     """
     
-    defaultValue = 0.0 # Default value of the spin box.
+    defaultValue = 0.0
+    setAsDefault = True
+    hidden       = False
+    labelWidget  = None
     
     def __init__( self, 
                   parentWidget, 
                   label        = '', 
+                  labelColumn  = 0,
                   value        = 0.0, 
                   setAsDefault = True,
                   minimum      = 0.0, 
@@ -88,13 +105,23 @@ class PM_DoubleSpinBox( QDoubleSpinBox, PM_WidgetMixin ):
         Appends a QDoubleSpinBox (Qt) widget to the bottom of I{parentWidget}, 
         a Property Manager group box.
         
-        @param parentWidget: the parent group box containing this widget.
+        @param parentWidget: The parent group box containing this widget.
         @type  parentWidget: PM_GroupBox
         
-        @param label: The label that appears to the left of (or above) the 
-                      spin box. To suppress the label, set I{label} to an 
-                      empty string.
+        @param label: The label that appears to the left or right of the 
+                      spin box. 
+                      
+                      If spanWidth is True, the label will be displayed on
+                      its own row directly above the spin box.
+                      
+                      To suppress the label, set I{label} to an empty string.
         @type  label: str
+        
+        @param labelColumn: The column number of the label in the group box
+                            grid layout. The only valid values are 0 (left 
+                            column) and 1 (right column). The default is 0 
+                            (left column).
+        @type  labelColumn: int
         
         @param value: The initial value of the spin box.
         @type  value: float
@@ -137,6 +164,7 @@ class PM_DoubleSpinBox( QDoubleSpinBox, PM_WidgetMixin ):
         if 0: # Debugging code
             print "PropMgrSpinBox.__init__():"
             print "  label        = ", label
+            print "  labelColumn  = ", labelColumn
             print "  value        = ", value
             print "  setAsDefault = ", setAsDefault
             print "  minimum      = ", minimum
@@ -152,6 +180,14 @@ class PM_DoubleSpinBox( QDoubleSpinBox, PM_WidgetMixin ):
         QDoubleSpinBox.__init__(self)
         
         self.parentWidget = parentWidget
+        self.label        = label
+        self.labelColumn  = labelColumn
+        self.setAsDefault = setAsDefault
+        self.spanWidth    = spanWidth
+        
+        if label: # Create this widget's QLabel.
+            self.labelWidget = QLabel()
+            self.labelWidget.setText(label)
                         
         # Set QDoubleSpinBox minimum, maximum, singleStep, decimals, then value
         self.setRange(minimum, maximum)
@@ -167,39 +203,7 @@ class PM_DoubleSpinBox( QDoubleSpinBox, PM_WidgetMixin ):
         if suffix:
             self.setSuffix(suffix)
         
-        self.addWidgetAndLabelToParent(parentWidget, label, spanWidth)
-        
-    def collapse( self ):
-        """
-        Hides the spin box (and its label) when its group box is collapsed.
-        """
-        QWidget.hide(self) # Hide self.
-        if self.labelWidget :# Hide self's label if it has one.
-            self.labelWidget.hide()
-        
-    def expand( self ):
-        """
-        Shows the spin box (and its label) when its group box is expanded,
-        unless the spin box was hidden via L{hide()}.
-        """
-        if self.hidden: return
-        QWidget.show(self) # Show self.
-        if self.labelWidget: # Show self's label if it has text.
-            self.labelWidget.show()
-        
-    def hide( self ):
-        """
-        Hide the spin box (and its label). If hidden, the spin box
-        will not be displayed when its group box is expanded.
-        Call L{show()} to unhide the spin box (and its label).
-        
-        @see: L{show()}
-        """
-        self.hidden = True
-        QWidget.hide(self) # Hide the spin box.
-        if self.labelWidget: 
-            # Hide the spin box's label.
-            self.labelWidget.hide() 
+        parentWidget.addPmWidget(self)
                     
     def restoreDefault( self ):
         """
@@ -244,16 +248,51 @@ class PM_DoubleSpinBox( QDoubleSpinBox, PM_WidgetMixin ):
             self.setDefaultValue(value)
         QDoubleSpinBox.setValue(self, value)
         
+    def collapse( self ):
+        """
+        Hides the spin box and its label (if it has one) when its group box 
+        is collapsed.
+        """
+        QWidget.hide(self) 
+        if self.labelWidget :
+            self.labelWidget.hide()
+        
+    def expand( self ):
+        """
+        Displays the spin box and its label (if it has one) when its group 
+        box is expanded, unless the spin box was "permanently" hidden via
+        L{hide()}. In that case, the spin box will remain hidden until 
+        L{show()} is called.
+        """
+        if self.hidden: return
+        QWidget.show(self)
+        if self.labelWidget:
+            self.labelWidget.show()
+        
+    def hide( self ):
+        """
+        Hides the spin box and its label (if it has one). If hidden, the 
+        spin box will not be displayed when its group box is expanded.
+        Call L{show()} to unhide the spin box.
+        
+        @see: L{show}
+        """
+        self.hidden = True
+        QWidget.hide(self)
+        if self.labelWidget: 
+            self.labelWidget.hide()
+            
     def show( self ):
         """
-        Show the spin box (and its label if it has text).
+        Unhide the spin box and its label (if it has one). The spin box
+        will remain (temporarily) hidden if its group box is collapsed, 
+        but will be displayed again when the group box is expanded.
         
-        @see: L{hide()}
+        @see: L{hide}
         """
         self.hidden = False
-        QWidget.show(self) # Show the spin box.
+        QWidget.show(self)
         if self.labelWidget: 
-            # Show the spin box's label if it has text.
             self.labelWidget.show()
         
     # End of PM_DoubleSpinBox ########################################

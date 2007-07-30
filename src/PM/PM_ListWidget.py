@@ -8,42 +8,74 @@ PM_ListWidget.py
 
 History:
 
-mark 2007-07-22: Split PropMgrListWidget out of PropMgrBaseClass.py into this file
-                 and renamed it PM_ListWidget.
+mark 2007-07-22: Split PropMgrListWidget out of PropMgrBaseClass.py into this 
+file and renamed it PM_ListWidget.
 """
 
+from PyQt4.Qt import QLabel
 from PyQt4.Qt import QListWidget
+from PyQt4.Qt import QWidget
 
-from PM_WidgetMixin import PM_WidgetMixin
-
-class PM_ListWidget( QListWidget, PM_WidgetMixin ):
+class PM_ListWidget( QListWidget ):
     """
-    PropMgr ListWidget class, for groupboxes (PropMgrGroupBox) only.
+    The PM_ListWidget widget provides a QListWidget with a 
+    QLabel for a Property Manager group box.
+    
+    @cvar defaultItems: The default list of items in the list widget.
+    @type defaultItems: list
+                          
+    @cvar defaultRow: The default row of the list widget.
+    @type defaultRow: int
+    
+    @cvar setAsDefault: Determines whether to reset the choices to 
+                        I{defaultItems} and current row to I{defaultRow}
+                        when the user clicks the "Restore Defaults" button.
+    @type setAsDefault: bool
+    
+    @cvar hidden: Hide flag.
+    @type hidden: bool
+    
+    @cvar labelWidget: The Qt label widget of this list widget.
+    @type labelWidget: U{B{QLabel}<http://doc.trolltech.com/4/qlabel.html>}
     """
     
-    # The default row when "Restore Defaults" is clicked
-    defaultRow = 0
-    # The list of items when "Restore Defaults" is clicked.
+    defaultRow   = 0
     defaultItems = []
+    setAsDefault = True
+    hidden       = False
+    labelWidget  = None
     
     def __init__( self, 
                   parentWidget, 
                   label        = '', 
+                  labelColumn  = 0,
                   items        = [], 
                   row          = 0, 
                   setAsDefault = True,
                   numRows      = 6, 
                   spanWidth    = False ):
-        """
-        Appends a QListWidget widget to <parentWidget>, a property manager groupbox.
+        """     
+        Appends a QListWidget (Qt) widget to the bottom of I{parentWidget}, 
+        a Property Manager group box.
         
-        Arguments:
-        
-        @param parentWidget: the parent group box containing this widget.
+        @param parentWidget: The parent group box containing this widget.
         @type  parentWidget: PM_GroupBox
         
-        @param label: the label of this widget.
+        @param label: The label that appears to the left or right of the 
+                      checkbox. 
+                      
+                      If spanWidth is True, the label will be displayed on
+                      its own row directly above the list widget.
+                      
+                      To suppress the label, set I{label} to an 
+                      empty string.
         @type  label: str
+        
+        @param labelColumn: The column number of the label in the group box
+                            grid layout. The only valid values are 0 (left 
+                            column) and 1 (right column). The default is 0 
+                            (left column).
+        @type  labelColumn: int
         
         @param items: list of items (strings) to be inserted in the widget.
         @type  items: list
@@ -64,37 +96,44 @@ class PM_ListWidget( QListWidget, PM_WidgetMixin ):
                       the widget (unless the label is empty) and is left justified.
         @type  spanWidth: bool
         
+        @see: U{B{QListWidget}<http://doc.trolltech.com/4/qlistwidget.html>}
         """
         
         if 0: # Debugging code
             print "PM_ListWidget.__init__():"
-            print "  label = ",label
-            print "  items = ", items
-            print "  row = ",row
+            print "  label        = ", label
+            print "  labelColumn  = ", labelColumn
+            print "  items        = ", items
+            print "  row          = ", row
             print "  setAsDefault = ", setAsDefault
-            print "  numRows = ",numRows
-            print "  spanWidth = ", spanWidth
+            print "  numRows      = ", numRows
+            print "  spanWidth    = ", spanWidth
                 
         QListWidget.__init__(self)
         
         self.parentWidget = parentWidget
+        self.label        = label
+        self.labelColumn  = labelColumn
+        self.setAsDefault = setAsDefault
+        self.spanWidth    = spanWidth
+        
+        if label: # Create this widget's QLabel.
+            self.labelWidget = QLabel()
+            self.labelWidget.setText(label)
                
-        # Load QComboBox widget choices and set initial choice (index).
-        #for choice in choices:
-        #    self.addItem(choice)
-            
+        # Load QComboBox widget choice items and set initial choice (index).           
         self.insertItems(0, items, setAsDefault)
         self.setCurrentRow(row, setAsDefault)
         
         # Need setChoices() method 
         #self.defaultChoices=choices
         
-        # Set height
+        # Set height of list widget.
         margin = self.fontMetrics().leading() * 2 # Mark 2007-05-28
         height = numRows * self.fontMetrics().lineSpacing() + margin
         self.setMaximumHeight(height)
         
-        self.addWidgetAndLabelToParent(parentWidget, label, spanWidth)
+        parentWidget.addPmWidget(self)
         
     def insertItems( self, row, items, setAsDefault = True ):
         """
@@ -143,5 +182,52 @@ class PM_ListWidget( QListWidget, PM_WidgetMixin ):
                 self.addItem(choice)
             self.setCurrentRow(self.defaultRow)
             '''
+            
+    def collapse( self ):
+        """
+        Hides the list widget and its label (if it has one) when its group box 
+        is collapsed.
+        """
+        QWidget.hide(self) 
+        if self.labelWidget :
+            self.labelWidget.hide()
+        
+    def expand( self ):
+        """
+        Displays the list widget and its label (if it has one) when its group 
+        box is expanded, unless the list widget was "permanently" hidden via
+        L{hide()}. In that case, the list widget will remain hidden until 
+        L{show()} is called.
+        """
+        if self.hidden: return
+        QWidget.show(self)
+        if self.labelWidget:
+            self.labelWidget.show()
+        
+    def hide( self ):
+        """
+        Hides the list widget and its label (if it has one). If hidden, the 
+        list widget will not be displayed when its group box is expanded.
+        Call L{show()} to unhide the list widget.
+        
+        @see: L{show}
+        """
+        self.hidden = True
+        QWidget.hide(self)
+        if self.labelWidget: 
+            self.labelWidget.hide()
+            
+    def show( self ):
+        """
+        Unhide the list widget and its label (if it has one). The list widget
+        will remain (temporarily) hidden if its group box is collapsed, 
+        but will be displayed again when the group box is expanded.
+        
+        @see: L{hide}
+        """
+        self.hidden = False
+        QWidget.show(self)
+        if self.labelWidget: 
+            self.labelWidget.show()
 
 # End of PM_ListWidget ############################

@@ -145,11 +145,17 @@ PM_GRIDLAYOUT_MARGIN  = 2
 pmGridLayoutSpacing   = 4
 PM_GRIDLAYOUT_SPACING = 4
 
-# Label alignment constants used for layouts.
-pmLabelRightAlignment    = Qt.AlignRight | Qt.AlignVCenter
+# PM Label alignment constants used for layouts.
+pmRightAlignment    = Qt.AlignRight | Qt.AlignVCenter
 PM_LABEL_RIGHT_ALIGNMENT = Qt.AlignRight | Qt.AlignVCenter
-pmLabelLeftAlignment     = Qt.AlignLeft  | Qt.AlignVCenter
+pmLeftAlignment     = Qt.AlignLeft  | Qt.AlignVCenter
 PM_LABEL_LEFT_ALIGNMENT  = Qt.AlignLeft  | Qt.AlignVCenter
+
+# The side (column) of a PM group box.
+pmLeftColumn    = 0
+PM_LEFT_COLUMN  = 0
+pmRightColumn   = 1
+PM_RIGHT_COLUMN = 1
 
 # MMKit element button constants
 

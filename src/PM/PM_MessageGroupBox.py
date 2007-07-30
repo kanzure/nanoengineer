@@ -12,7 +12,7 @@ collapse/expand button and a title.
 History:
 
 mark 2007-07-22: Split PropMgrMessageGroupBox out of PropMgrBaseClass.py 
-                 into this file and renamed it PM_MessageGroupBox.
+into this file and renamed it PM_MessageGroupBox.
 """
 
 from PM_Constants import pmMsgGrpBoxMargin
@@ -23,17 +23,16 @@ from PyQt4.Qt import QSizePolicy
 
 from PM_GroupBox    import PM_GroupBox
 from PM_TextEdit    import PM_TextEdit
-from PM_WidgetMixin import PM_WidgetMixin
 
-class PM_MessageGroupBox( PM_GroupBox, PM_WidgetMixin ):
+class PM_MessageGroupBox( PM_GroupBox ):
     """
     The PM_MessageGroupBox widget provides a message box with a 
     collapse/expand button and a title.
     """
 
-    expanded      = True # Set to False when groupbox is collapsed.
-    _widgetList   = []   # All widgets in the groupbox (except the title button).
-    _rowCount     = 0    # Number of rows in the groupbox.
+    #@ expanded      = True
+    #@ _widgetList   = []
+    #@ _rowCount     = 0
     
     def __init__( self, 
                   parentWidget, 
@@ -47,9 +46,10 @@ class PM_MessageGroupBox( PM_GroupBox, PM_WidgetMixin ):
         @param title: the title on the collapse button
         @type  title: str
         """
+        
         PM_GroupBox.__init__(self, parentWidget, title, addTitleButton = True)
                 
-        self._widgetList = []
+        #@ self._widgetList = []
         
         self.VBoxLayout.setMargin(pmMsgGrpBoxMargin)
         self.VBoxLayout.setSpacing(pmMsgGrpBoxSpacing)
