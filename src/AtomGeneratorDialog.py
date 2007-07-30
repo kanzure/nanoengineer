@@ -56,6 +56,8 @@ __author__ = "Jeff"
 from Utility import geticon, getpixmap
 from bonds import CC_GRAPHITIC_BONDLENGTH
 
+from PyQt4.Qt import Qt
+
 from PM.PM_Dialog        import PM_Dialog
 from PM.PM_GroupBox      import PM_GroupBox
 from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
@@ -215,15 +217,16 @@ class AtomPropertyManager(PM_Dialog):
                          addTitleButton  =  True )
 
         self.loadGroupBox1(self.pmGroupBox1)
-        
+        """
         self.radioButtonGroupBox = \
             PM_GroupBox( self, 
                          title           =  "PM_RadioButtons",
                          addTitleButton  =  True )
         
         self.loadRadioButtonGroupBox(self.radioButtonGroupBox)
+        """
         
-        AddTestGroupBoxes = False # For testing. Mark 2007-05-24
+        AddTestGroupBoxes = True # For testing. Mark 2007-05-24
         
         if not AddTestGroupBoxes: # Add test widgets to their own groupbox.
             return
@@ -235,12 +238,12 @@ class AtomPropertyManager(PM_Dialog):
         
         self.loadTestWidgets1(self.testGroupBox1)
         
-        self.testGroupBox2 = \
+        self.pmLineEditGroupBox = \
             PM_GroupBox( self, 
-                         title          = "Test Widgets2",
+                         title          = "PM_LineEdit Widgets",
                          addTitleButton = True )
         
-        self.loadTestWidgets2(self.testGroupBox2)
+        self.loadLineEditGroupBox(self.pmLineEditGroupBox)
                
     def loadGroupBox1(self, inPmGroupBox):
         """
@@ -251,7 +254,7 @@ class AtomPropertyManager(PM_Dialog):
         elementComboBoxItems  =  self._sElementSymbolList
         self.elementComboBox  =  \
             PM_ComboBox( inPmGroupBox,
-                         label         =  "Elements :",
+                         label         =  "Elements:",
                          choices       =  elementComboBoxItems,
                          index         =  0,
                          setAsDefault  =  True,
@@ -261,7 +264,7 @@ class AtomPropertyManager(PM_Dialog):
         # of the generated atom's position.
         self.xCoordinateField  =  \
             PM_DoubleSpinBox( inPmGroupBox,
-                              label         =  "x :",
+                              label         =  "x:",
                               value         =  0.0,
                               setAsDefault  =  True,
                               minimum       =  self._sMinCoordinateValue,
@@ -274,7 +277,7 @@ class AtomPropertyManager(PM_Dialog):
         # of the generated atom's position.
         self.yCoordinateField  =  \
             PM_DoubleSpinBox( inPmGroupBox,
-                              label         =  "y :",
+                              label         =  "y:",
                               value         =  0.0,
                               setAsDefault  =  True,
                               minimum       =  self._sMinCoordinateValue,
@@ -287,7 +290,7 @@ class AtomPropertyManager(PM_Dialog):
         # of the generated atom's position.
         self.zCoordinateField = \
             PM_DoubleSpinBox( inPmGroupBox,
-                              label         =  "z :",
+                              label         =  "z:",
                               value         =  0.0,
                               setAsDefault  =  True,
                               minimum       =  self._sMinCoordinateValue,
@@ -334,7 +337,7 @@ class AtomPropertyManager(PM_Dialog):
         
         self.spinBox = \
             PM_SpinBox( inPmGroupBox, 
-                        label        = "Spinbox :", 
+                        label        = "Spinbox:", 
                         value        = 5, 
                         setAsDefault = True,
                         minimum      = 2, 
@@ -360,9 +363,27 @@ class AtomPropertyManager(PM_Dialog):
             
         choices = [ "First", "Second", "Third (Default)", "Forth" ]
         
-        self.comboBox= \
+        self.comboBox1= \
             PM_ComboBox( inPmGroupBox,
-                         label        = 'Choices : ', 
+                         label        = 'Choices: ', 
+                         choices      = choices, 
+                         index        = 2, 
+                         setAsDefault = True,
+                         spanWidth    = False )
+        
+        self.comboBox2= \
+            PM_ComboBox( inPmGroupBox,
+                         label        = ' :Choices', 
+                         labelColumn  = 1,
+                         choices      = choices, 
+                         index        = 2, 
+                         setAsDefault = True,
+                         spanWidth    = False )
+        
+        self.comboBox3= \
+            PM_ComboBox( inPmGroupBox,
+                         label        = ' Choices (SpanWidth = True):', 
+                         labelColumn  = 1,
                          choices      = choices, 
                          index        = 2, 
                          setAsDefault = True,
@@ -370,7 +391,7 @@ class AtomPropertyManager(PM_Dialog):
         
         self.textEdit = \
             PM_TextEdit( inPmGroupBox, 
-                         label     = "TextEdit :", 
+                         label     = "TextEdit:", 
                          spanWidth = False )
         
         
@@ -387,7 +408,7 @@ class AtomPropertyManager(PM_Dialog):
             
         self.comboBox2= \
             PM_ComboBox( self.groupBox,
-                         label        = "Choices :", 
+                         label        = "Choices:", 
                          choices      = choices, 
                          index        = 2, 
                          setAsDefault = True,
@@ -400,7 +421,7 @@ class AtomPropertyManager(PM_Dialog):
             
         self.comboBox3= \
             PM_ComboBox( self.groupBox2,
-                         label        = "Choices :", 
+                         label        = "Choices:", 
                          choices      = choices, 
                          index        = 2, 
                          setAsDefault = True,
@@ -417,33 +438,63 @@ class AtomPropertyManager(PM_Dialog):
                            text      = "PushButton2",
                            spanWidth = True )
     
-    def loadTestWidgets2(self, inPmGroupBox):
+    def loadLineEditGroupBox(self, inPmGroupBox):
         """
-        Load widgets in groubox 1.
+        Load PM_LineEdit test widgets in group box.
         """
         
         self.lineEdit1 = \
             PM_LineEdit( inPmGroupBox, 
-                         label        = "Name :",
+                         label        = "Name:",
                          text         = "RotaryMotor-1",
                          setAsDefault = True,
                          spanWidth    = False)
         
         self.lineEdit2 = \
             PM_LineEdit( inPmGroupBox, 
-                         label        = "Span Width LineEdit :",
+                         label        = ":Name",
+                         labelColumn  = 1,
+                         text         = "RotaryMotor-1",
+                         setAsDefault = True,
+                         spanWidth    = False)
+        
+        self.lineEdit3 = \
+            PM_LineEdit( inPmGroupBox, 
+                         label        = "LineEdit (spanWidth = True):",
                          text         = "RotaryMotor-1",
                          setAsDefault = False,
                          spanWidth    = True)
+
+    def loadCheckBoxGroupBox(self, inPmGroupBox):
+        """
+        Load PM_CheckBox test widgets in group box.
+        """
+        self.checkBoxGroupBox = \
+            PM_GroupBox( inPmGroupBox, 
+                         title          = "<b> PM_CheckBox examples</b>",
+                         addTitleButton = False )
         
         self.checkBox1 = \
-            PM_CheckBox( inPmGroupBox,
-                         label        = "CheckBox :",
+            PM_CheckBox( self.checkBoxGroupBox,
+                         label        = "Label on left:",
+                         labelColumn  = 0,
+                         state        = Qt.Checked,
+                         setAsDefault = True,
                          spanWidth    = False )
         
         self.checkBox2 = \
-            PM_CheckBox( inPmGroupBox,
-                         label        = "SpanWidth CheckBox :",
+            PM_CheckBox( self.checkBoxGroupBox,
+                         label        = ": Label on right",
+                         labelColumn  = 1,
+                         state        = Qt.Checked,
+                         setAsDefault = True,
+                         spanWidth    = False )
+        
+        self.checkBox3 = \
+            PM_CheckBox( self.checkBoxGroupBox,
+                         label        = "CheckBox (spanWidth = True):",
+                         state        = Qt.Unchecked,
+                         setAsDefault = False,
                          spanWidth    = True )
     
     def loadRadioButtonGroupBox(self, inPmGroupBox):
