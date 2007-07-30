@@ -13,6 +13,7 @@ file and renamed it PM_RadioButton.
 """
 
 from PyQt4.Qt import QRadioButton
+from PyQt4.Qt import QLabel
 
 class PM_RadioButton( QRadioButton ):
     """
@@ -25,10 +26,10 @@ class PM_RadioButton( QRadioButton ):
     def __init__( self, 
                   parentWidget, 
                   label        = '', 
-                  labelColumn  = 0,
+                  labelColumn  = 1,
                   isChecked    = False,
                   setAsDefault = True,
-                  spanWidth    = True ):
+                  spanWidth    = False ):
         """
         Appends a QRadioButton widget to <parentWidget>, a property manager group box.
         
