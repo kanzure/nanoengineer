@@ -439,15 +439,11 @@ class AtomPropertyManager(PM_Dialog):
         self.checkBox1 = \
             PM_CheckBox( inPmGroupBox,
                          label        = "CheckBox :",
-                         isChecked    = True,
-                         setAsDefault = True,
                          spanWidth    = False )
         
         self.checkBox2 = \
             PM_CheckBox( inPmGroupBox,
                          label        = "SpanWidth CheckBox :",
-                         isChecked    = False,
-                         setAsDefault = False,
                          spanWidth    = True )
     
     def loadRadioButtonGroupBox(self, inPmGroupBox):
@@ -460,16 +456,20 @@ class AtomPropertyManager(PM_Dialog):
         
         self.radioButton1 = \
             PM_RadioButton( inPmGroupBox, 
-                            text = "Display PM_CheckBox group box" )
+                            label     = "Display PM_CheckBox group box",
+                            spanWidth =  False)
         
         self.radioButton2 = \
             PM_RadioButton( inPmGroupBox, 
-                            text = "Display PM_ComboBox group box" )
+                            label     = "Display PM_ComboBox group box",
+                            spanWidth =  False)
         
         self.radioButton3 = \
             PM_RadioButton( inPmGroupBox,
-                            text = "Display PM_DoubleSpinBox group box" )
+                            label     = "Display PM_DoubleSpinBox group box",
+                            spanWidth =  False)
         
         self.radioButton4 = \
             PM_RadioButton( inPmGroupBox, 
-                            text = "Display PM_PushButton group box" )  
+                            label     = "Display PM_PushButton group box",
+                            spanWidth =  False)  
