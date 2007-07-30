@@ -199,7 +199,8 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         # For these key presses, we toggle the Action item, which will send 
         # an event to changeMoveMode, where the business is done.
         # Mark 050410
-        if self.w.toolsMoveMoleculeAction.isChecked():  
+
+	if self.propMgr.isTranslateGroupBoxActive:
             if key == Qt.Key_X:
                 self.w.transXAction.setChecked(1) # toggle on the Translate X action item
                 self.propMgr.changeMoveOption(self.w.transXAction)
@@ -209,7 +210,7 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
             elif key == Qt.Key_Z:
                 self.w.transZAction.setChecked(1) # toggle on the Translate Z action item
                 self.propMgr.changeMoveOption(self.w.transZAction)
-        elif self.w.rotateComponentsAction.isChecked():
+	else:
             if key == Qt.Key_X:
                 self.w.rotXAction.setChecked(1) # toggle on the Rotate X action item
                 self.propMgr.changeRotateOption(self.w.rotXAction)
