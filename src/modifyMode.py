@@ -20,13 +20,15 @@ from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QMouseEvent
 
 import changes
+import platform
+import env
 
 from selectMode import selectMode
 from selectMolsMode import selectMolsMode
 from selectAtomsMode import selectAtomsMode
 from widgets import FloatSpinBox
 from HistoryWidget import redmsg
-import env
+
 from MovePropertyManager import MovePropertyManager
 from chem import Atom
 from bonds import Bond
@@ -202,14 +204,21 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
 
 	if self.propMgr.isTranslateGroupBoxActive:
             if key == Qt.Key_X:
-                self.w.transXAction.setChecked(1) # toggle on the Translate X action item
+		# toggle on the Translate X action item
+                self.w.transXAction.setChecked(1) 
                 self.propMgr.changeMoveOption(self.w.transXAction)
             elif key == Qt.Key_Y:
-                self.w.transYAction.setChecked(1) # toggle on the Translate Y action item
+		# toggle on the Translate Y action item
+                self.w.transYAction.setChecked(1) 
                 self.propMgr.changeMoveOption(self.w.transYAction)
             elif key == Qt.Key_Z:
-                self.w.transZAction.setChecked(1) # toggle on the Translate Z action item
+		# toggle on the Translate Z action item
+                self.w.transZAction.setChecked(1) 
                 self.propMgr.changeMoveOption(self.w.transZAction)
+	    elif key == Qt.Key_A:
+		# toggle on the Trans-Rotate A action item
+                self.w.rotTransAlongAxisAction_1.setChecked(1) 
+                self.propMgr.changeMoveOption(self.w.rotTransAlongAxisAction_1)
 	else:
             if key == Qt.Key_X:
                 self.w.rotXAction.setChecked(1) # toggle on the Rotate X action item
@@ -220,6 +229,10 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
             elif key == Qt.Key_Z:
                 self.w.rotZAction.setChecked(1) # toggle on the Rotate Z action item
                 self.propMgr.changeRotateOption(self.w.rotZAction)
+	    elif key == Qt.Key_A:
+		# toggle on the Trans-Rotate A action item
+                self.w.rotTransAlongAxisAction_2.setChecked(1)
+		self.propMgr.changeRotateOption(self.w.rotTransAlongAxisAction_2)
         
         #If Key 'A' is pressed, set the flag for Constrained trasnlation and rotation
         #along the axis of the chunk to True
@@ -233,10 +246,9 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
             
                 
     def keyRelease(self,key):
-        basicMode.keyRelease(self, key)
-        
+        basicMode.keyRelease(self, key)        
     
-        if key == Qt.Key_X or key == Qt.Key_Y or key == Qt.Key_Z:
+        if key in [Qt.Key_X, Qt.Key_Y, Qt.Key_Z, Qt.Key_A]:
             self.w.moveFreeAction.setChecked(1) # toggle on the Move Chunks icon
             self.propMgr.changeMoveOption(self.w.moveFreeAction)
             self.movingPoint = None # Fixes bugs 583 and 674 along with change in leftDrag().  Mark 050623
@@ -511,24 +523,32 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
 		try:
 		    self.leftDragTranslation(event)
 		    return
-		except:		    
-		    msg1 = "Error occured in modifyMode.leftDragTranslation."
-		    msg2 = "Possibly due to a key press that activated. "
-		    msg3 = "Rotate groupbox. Aborting drag operation"
-		    print_compact_traceback(msg1 + msg2 + msg3)
-		    return
-		
+		except:	   
+		    msg1 = "Controlled translation not allowed. "
+		    msg2 = "Key must be pressed before starting the drag"
+		    env.history.statusbar_msg(msg1 + msg2)
+		    if platform.atom_debug:
+			msg3 = "Error occured in modifyMode.leftDragTranslation."
+			msg4 = "Possibly due to a key press that activated. "
+			msg5 = "Rotate groupbox. Aborting drag operation"
+			print_compact_traceback(msg3 + msg4 + msg5)
+		    pass
+		    		
 	else:
 	    if self.leftDownType in ['ROTATE', 'A_ROTATE']:
 		try:
 		    self.leftDragRotation(event)  
 		    return
 		except:
-		    msg1 = "Error occured in modifyMode.leftDragRotation."
-		    msg2 = "Possibly due to a key press that activated. "
-		    msg3 = "Translate groupbox. Aborting drag operation"
-		    print_compact_traceback(msg1 + msg2 + msg3)
-		    return   
+		    msg1 = "Controlled rotation not allowed. "
+		    msg2 = "Key must be pressed before starting the drag"
+		    env.history.statusbar_msg(msg1 + msg2)
+		    if platform.atom_debug:
+			msg3 = "Error occured in modifyMode.leftDragRotation."
+			msg4 = "Possibly due to a key press that activated. "
+			msg5 = "Translate groupbox. Aborting drag operation"
+			print_compact_traceback(msg3 + msg4 + msg5)
+		    pass 
                                
     # end of leftDrag    
     
@@ -598,7 +618,7 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
 		self.moveOption                
 		return
    
-	    self.transDelta += dx # Increment translation delta                   
+	    self.transDelta += dx # Increment translation delta  
 	    self.o.assy.movesel(dx*ma)
 	    
 	# Print status bar msg indicating the current translation delta
