@@ -14,6 +14,7 @@ file and renamed it PM_RadioButton.
 
 from PyQt4.Qt import QRadioButton
 from PyQt4.Qt import QLabel
+from PyQt4.Qt import QWidget
 
 class PM_RadioButton( QRadioButton ):
     """
@@ -22,6 +23,7 @@ class PM_RadioButton( QRadioButton ):
     """
 
     defaultIsChecked = False
+    hidden       = False    
     
     def __init__( self, 
                   parentWidget, 

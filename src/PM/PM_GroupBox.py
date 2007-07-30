@@ -530,7 +530,10 @@ class PM_GroupBox( QGroupBox ):
                 self.titleButton.setIcon(
                     geticon("ui/actions/Properties Manager/GHOST_ICON"))
                 for widget in self._widgetList:
-                    print widget.objectName()
+                    if platform.atom_debug:
+                        if widget.objectName():
+                            print "widget name = ", widget.objectName()
+                    
                     widget.collapse()
                 self.expanded = False 
             else: # Expand groupbox by showing all widgets in groupbox.
