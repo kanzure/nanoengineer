@@ -9,15 +9,16 @@ PM_WidgetMixin.py
 History:
 
 mark 2007-07-23: Split PropMgrWidgetMixin out of PropMgrBaseClass.py into this file
-                 and renamed it PM_WidgetMixin.
+and renamed it PM_WidgetMixin.
+mark 2007-07-29: Deprecated. No longer used in the PM module.
 """
 
 from PyQt4.Qt import QLabel
 from PyQt4.Qt import QPalette
 from PyQt4.Qt import QWidget
 
-from PM_Constants import pmLabelLeftAlignment
-from PM_Constants import pmLabelRightAlignment
+from PM_Constants import pmLeftAlignment
+from PM_Constants import pmRightAlignment
 
 class PM_WidgetMixin:
     """
@@ -45,7 +46,7 @@ class PM_WidgetMixin:
             labelRow = row
             labelColumn = 0
             labelSpanCols = 1
-            labelAlignment = pmLabelRightAlignment
+            labelAlignment = pmRightAlignment
                 
             widgetRow = row
             widgetColumn = 1
@@ -59,7 +60,7 @@ class PM_WidgetMixin:
                 labelRow = row
                 labelColumn = 0
                 labelSpanCols = 2
-                labelAlignment = pmLabelLeftAlignment
+                labelAlignment = pmLeftAlignment
                     
                 # Set this widget's row and column attrs.
                 widgetRow = row + 1 # Widget is below the label.
@@ -163,7 +164,7 @@ class PM_WidgetMixin:
         @return: Returns the updated palette, or a new palette if none was supplied.
         @rtype : QPalette
         
-        @see QPalette.setColor()
+        @see: QPalette.setColor()
         """
         if palette:
             pass # Make sure palette is QPalette.
