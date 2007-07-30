@@ -17,27 +17,25 @@ from PyQt4.Qt import QAction
 from PyQt4.Qt import QActionGroup
 from PyQt4.Qt import QButtonGroup
 
-from Utility import geticon, getpixmap
-from PropMgrBaseClass import PropMgrBaseClass
-from PropertyManagerMixin import PropertyManagerMixin
-
-from PropMgrBaseClass import PropMgrGroupBox
-from PropMgrBaseClass import PropMgrDoubleSpinBox
-from PropMgrBaseClass import PropMgrToolButton
-from PropMgrBaseClass import PropMgrRadioButton
-from PropMgrBaseClass import PropMgrCheckBox
-from PropMgr_Constants import pmRestoreDefaultsButton
-
+from PM.PM_Dialog        import PM_Dialog
+from PM.PM_GroupBox      import PM_GroupBox
+from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
+from PM.PM_ComboBox      import PM_ComboBox
+from PM.PM_SpinBox       import PM_SpinBox
+from PM.PM_PushButton    import PM_PushButton
+from PM.PM_CheckBox      import PM_CheckBox
+from PM.PM_RadioButton   import PM_RadioButton
+from PM.PM_Constants     import pmRestoreDefaultsButton
 
 
-class PlanePropMgr(object,PropMgrBaseClass):
+class PlanePropertyManager(PM_Dialog):
     ''' UI and slot methods for Plane Property manager'''
     
     # <title> - the title that appears in the property manager header.
     title = "Plane"
-    # <propmgr_name> - the name of this property manager. This will be set to
+    # <pmName> - the name of this property manager. This will be set to
     # the name of the PropMgr (this) object via setObjectName().
-    propmgr_name = "pm" + title
+    pmName = "pm" + title
     # <iconPath> - full path to PNG file that appears in the header.
     iconPath = "ui/actions/Insert/Reference Geometry/Plane.png"
     
@@ -45,9 +43,7 @@ class PlanePropMgr(object,PropMgrBaseClass):
         """Construct the Plane Property Manager.
         """
         self.geometry = plane
-        PropMgrBaseClass.__init__(self, self.propmgr_name)
-        self.setPropMgrIcon(self.iconPath)
-        self.setPropMgrTitle(self.title)
+        PM_Dialog.__init__( self, self.pmName, self.iconPath, self.title )       
         self.addGroupBoxes()
         self.add_whats_this_text()
         
@@ -68,14 +64,16 @@ class PlanePropMgr(object,PropMgrBaseClass):
     def addGroupBoxes(self):
         """Add the 1 groupbox for the Graphene Property Manager.
         """
-        self.pmGroupBox1 = PropMgrGroupBox(self, 
-                                           title="Parameters",
-                                           titleButton=True)
+        self.pmGroupBox1 = PM_GroupBox(self, 
+                                       title="Parameters",
+                                       addTitleButton=True)
+        
         self.loadGroupBox1(self.pmGroupBox1)
         
-        self.pmGroupBox2 = PropMgrGroupBox(self, 
-                                           title="Placement",
-                                           titleButton=True)
+        self.pmGroupBox2 = PM_GroupBox(self,
+                                       title="Placement",
+                                       addTitleButton=True)
+        
         self.loadGroupBox2(self.pmGroupBox2)        
 
               
@@ -84,34 +82,41 @@ class PlanePropMgr(object,PropMgrBaseClass):
         """
         
         self.widthDblSpinBox = \
-            PropMgrDoubleSpinBox(pmGroupBox,
-                                label="Width :", 
-                                val=10.0, setAsDefault=True,
-                                min=1.0, max=200.0, 
-                                singleStep=1.0, decimals=1, 
-                                suffix=' Angstroms')
+            PM_DoubleSpinBox(pmGroupBox,
+                       label        = "Width :",
+                       value        = 10.0, 
+                       setAsDefault = True,
+                       minimum      = 1.0, 
+                       maximum      = 200.0,
+                       singleStep   = 1.0, 
+                       decimals     = 1, 
+                       suffix       = ' Angstroms')
         
         self.connect(self.widthDblSpinBox, 
                      SIGNAL("valueChanged(double)"), 
                      self.change_plane_width)
                 
         self.heightDblSpinBox = \
-            PropMgrDoubleSpinBox(pmGroupBox, 
-                                label="Height :", 
-                                val=10.0, setAsDefault=True,
-                                min=1.0, max=200.0, 
-                                singleStep=1.0, decimals=1, 
-                                suffix=' Angstroms')
+            PM_DoubleSpinBox(pmGroupBox, 
+                             label ="Height :",
+                             value        = 10.0, 
+                             setAsDefault = True,
+                             minimum      = 1.0, 
+                             maximum      = 200.0,
+                             singleStep   = 1.0, 
+                             decimals     = 1, 
+                             suffix       = ' Angstroms')
         
         self.connect(self.heightDblSpinBox, 
                      SIGNAL("valueChanged(double)"), 
                      self.change_plane_height)
             
-        self.aspectRatioCheckBox = PropMgrCheckBox(pmGroupBox,
-                              isChecked=False,
-                              spanWidth=False,
-                              checkBoxText = 'Maintain Aspect Ratio of:',
-                              )
+        self.aspectRatioCheckBox = \
+            PM_CheckBox(pmGroupBox,
+                        label       = 'Maintain Aspect Ratio of:' ,
+                        labelColumn = 1,
+                        spanWidth   = False
+                        )
         
         self.connect(self.aspectRatioCheckBox,
                      SIGNAL("stateChanged(int)"),
@@ -119,15 +124,15 @@ class PlanePropMgr(object,PropMgrBaseClass):
 
         
         self.aspectRatioSpinBox = \
-        PropMgrDoubleSpinBox( pmGroupBox,
-                                  label         =  "",
-                                  val           =  1,
-                                  setAsDefault  =  True,
-                                  min           =  0.1,
-                                  max           =  100,
-                                  singleStep    =  1,
-                                  decimals      =  1,
-                                  suffix        =  ' : 1')   
+            PM_DoubleSpinBox( pmGroupBox,
+                              label         =  "",
+                              value           =  1,
+                              setAsDefault  =  True,
+                              minimum       =  0.1,
+                              maximum       =  100,
+                              singleStep    =  1,
+                              decimals      =  1,
+                              suffix        =  ' : 1')   
             
         if self.aspectRatioCheckBox.isChecked():
             self.aspectRatioSpinBox.setEnabled(True)
@@ -140,14 +145,14 @@ class PlanePropMgr(object,PropMgrBaseClass):
         self.planePlacement_btngrp = QButtonGroup()
         self.planePlacement_btngrp.setExclusive(True)
         
-        self.parallelToScreen_btn = PropMgrRadioButton(
-            pmGroupBox, text = "Parallel to Screen" )        
-        self.throughSelectedAtoms_btn = PropMgrRadioButton(
-            pmGroupBox, text = "Through Selected Atoms" )        
-        self.offsetToPlane_btn = PropMgrRadioButton(
-            pmGroupBox, text = "Offset to a Plane" )
-        self.customPlacement_btn = PropMgrRadioButton(
-            pmGroupBox, text = "Custom" )  
+        self.parallelToScreen_btn = PM_RadioButton(
+            pmGroupBox, label = "Parallel to Screen" )        
+        self.throughSelectedAtoms_btn = PM_RadioButton(
+            pmGroupBox, label = "Through Selected Atoms" )        
+        self.offsetToPlane_btn = PM_RadioButton(
+            pmGroupBox, label = "Offset to a Plane" )
+        self.customPlacement_btn = PM_RadioButton(
+            pmGroupBox, label = "Custom" )  
 
         
         objId = 0

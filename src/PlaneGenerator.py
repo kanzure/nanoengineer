@@ -18,17 +18,17 @@ ninad 20070606: Created.
 from HistoryWidget import greenmsg
 
 from PyQt4.Qt import QDialog
-from PlanePropertyManager import PlanePropMgr
+from PlanePropertyManager import PlanePropertyManager
 from ReferenceGeometry import GeometryGeneratorBaseClass
 
 from debug import print_compact_traceback
 
-class PlaneGenerator(QDialog, PlanePropMgr, GeometryGeneratorBaseClass):
+class PlaneGenerator(PlanePropertyManager, GeometryGeneratorBaseClass):
     ''' PlaneGenerator creates the PropertyManager object for Reference Plane.'''
     
     #@NOTE: Reference Plane defines  PlaneGenerator object as 'self.propMgr'. 
     #need to be renamed??
-    #@NOTE: self.geometry : is the Plane object (defined in PlanePropMgr)
+    #@NOTE: self.geometry : is the Plane object (defined in PlanePropertyManager)
     #comment ninad 20070606
     
     cmd = greenmsg("Plane: ")
@@ -45,9 +45,7 @@ class PlaneGenerator(QDialog, PlanePropMgr, GeometryGeneratorBaseClass):
         
         self.name = plane.name # Adopt the plane's name as our name.
         self.w = self.win = win
-        
-        QDialog.__init__(self, win)
-        PlanePropMgr.__init__(self, plane)
+        PlanePropertyManager.__init__(self, plane)
         GeometryGeneratorBaseClass.__init__(self, win)
         
 

@@ -50,7 +50,7 @@ import env
 
 from HistoryWidget import greenmsg, redmsg
 
-from PlanePropertyManager import PlanePropMgr
+from PlanePropertyManager import PlanePropertyManager
 from ReferenceGeometry import ReferenceGeometry 
 
 
