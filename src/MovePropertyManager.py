@@ -49,17 +49,7 @@ class MovePropertyManager(QtGui.QWidget,
         
         self.lastCheckedRotateAction = None 
         self.lastCheckedTranslateAction = None
-	
-	
-	#following should be cleaned up in future, when the Move PropManager
-	#starts using new PM_Dialog. The init method should really call 
-	#activate_translate groupbox where the following flag will be set. 
-	#-- ninad20070727
-	if self.w.toolsMoveMoleculeAction.isChecked():
-            self.isTranslateGroupBoxActive = True            
-        else:
-            self.isTranslateGroupBoxActive = False
-	              
+			              
         self.updateMessage()
         
         self.add_whats_this_text()
@@ -298,7 +288,8 @@ class MovePropertyManager(QtGui.QWidget,
         self.setLastCheckedMoveAction(lastCheckedTranslateAction)        
         
         #Disconnect checked action in Move groupbox
-        self.w.MoveOptionsGroup.checkedAction().setChecked(False) 
+	if self.w.MoveOptionsGroup.checkedAction():
+	    self.w.MoveOptionsGroup.checkedAction().setChecked(False) 
 	
 	self.isTranslateGroupBoxActive = False
  

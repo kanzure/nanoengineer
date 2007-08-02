@@ -1726,6 +1726,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 	    self.glpane.mode.propMgr.activate_translateGroupBox()		
 	else:
 	    self.glpane.setMode('MODIFY')
+	    self.glpane.mode.propMgr.activate_translateGroupBox()
 	
     #Rotate Components mode. 
     def toolsRotateComponents(self):
@@ -1733,6 +1734,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 	    self.glpane.mode.propMgr.activate_rotateGroupBox()
 	else:
 	    self.glpane.setMode('MODIFY')
+	    self.glpane.mode.propMgr.activate_rotateGroupBox()
 	    
 	    
 	

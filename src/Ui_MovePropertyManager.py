@@ -70,12 +70,13 @@ class Ui_MovePropertyManager(object):
         self.vboxlayout_move_grpbox.setSpacing(6)
         self.vboxlayout_move_grpbox.setObjectName("vboxlayout_move_grpbox") 
         
-        if self.w.toolsMoveMoleculeAction.isChecked():
-            self.translate_groupBoxButton= MovePropertyManager.getGroupBoxTitleButton(
-            "Translate", self.translate_groupBox)
-        else:
-            self.translate_groupBoxButton= MovePropertyManager.getGroupBoxTitleButton(
-            "Translate", self.translate_groupBox, bool_expand = False)
+        
+	if self.w.toolsMoveMoleculeAction.isChecked():
+	    self.translate_groupBoxButton= MovePropertyManager.getGroupBoxTitleButton(
+	    "Translate", self.translate_groupBox)
+	else:
+	    self.translate_groupBoxButton= MovePropertyManager.getGroupBoxTitleButton(
+	    "Translate", self.translate_groupBox, bool_expand = False)
             
         
         self.translate_groupBoxButton.setShortcut('T')
@@ -84,12 +85,11 @@ class Ui_MovePropertyManager(object):
         
         self.translateGroupBox_widgetHolder = QtGui.QWidget(self.translate_groupBox)
         self.vboxlayout_move_grpbox.addWidget(self.translateGroupBox_widgetHolder)
-        
-        if self.w.toolsMoveMoleculeAction.isChecked():
-            self.w.moveFreeAction.setChecked(True)
-            self.translateGroupBox_widgetHolder.show()
-        else:
-            self.translateGroupBox_widgetHolder.hide()
+	
+	#The groupbox contents are hidden to begin with. The caller calls 
+	#activate_translateGroupBox which toggles its hidden state and the 
+	#groupbox contents are shown.
+	self.translateGroupBox_widgetHolder.hide()
         
         self.vboxlo_moveWidgetHolder = QtGui.QVBoxLayout(self.translateGroupBox_widgetHolder)
         self.vboxlo_moveWidgetHolder.setMargin(4)
@@ -135,25 +135,25 @@ class Ui_MovePropertyManager(object):
         self.vboxlayout_rotate_groupBox.setSpacing(6)
         self.vboxlayout_rotate_groupBox.setObjectName("vboxlayout_rotate_groupBox") 
         
-        if self.w.rotateComponentsAction.isChecked():
-            self.rotate_groupBoxButton =MovePropertyManager.getGroupBoxTitleButton(
-            "Rotate", self.rotate_groupBox)
-        else:
-            self.rotate_groupBoxButton =MovePropertyManager.getGroupBoxTitleButton(
-                "Rotate", self.rotate_groupBox,bool_expand = False)
+        
+	if self.w.rotateComponentsAction.isChecked():
+	    self.rotate_groupBoxButton =MovePropertyManager.getGroupBoxTitleButton(
+	    "Rotate", self.rotate_groupBox)
+	else:
+	    self.rotate_groupBoxButton =MovePropertyManager.getGroupBoxTitleButton(
+		"Rotate", self.rotate_groupBox,bool_expand = False)
         
         self.rotate_groupBoxButton.setShortcut('R')
         self.vboxlayout_rotate_groupBox.addWidget(self.rotate_groupBoxButton) 
         
         self.rotateGroupBox_widgetHolder = QtGui.QWidget(self.rotate_groupBox)
         self.vboxlayout_rotate_groupBox.addWidget(self.rotateGroupBox_widgetHolder)
-        
-        if self.w.rotateComponentsAction.isChecked():
-            self.w.rotateFreeAction.setChecked(True)
-            self.rotateGroupBox_widgetHolder.show()
-        else:
-            self.rotateGroupBox_widgetHolder.hide() 
-                    
+	
+	#The groupbox contents are hidden to begin with. The caller calls 
+	#activate_rotateGroupBox which toggles its hidden state and the 
+	#groupbox contents are shown.
+	self.rotateGroupBox_widgetHolder.hide()
+                           
         self.vboxlo_rotateWidgetHolder = QtGui.QVBoxLayout(self.rotateGroupBox_widgetHolder)
      
         self.vboxlo_rotateWidgetHolder.setMargin(4)
