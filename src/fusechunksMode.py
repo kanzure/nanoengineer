@@ -493,32 +493,14 @@ class fusechunksMode(modifyMode, fusechunksBase):
         '''
         basicMode.Wheel(self, event)
         self.recompute_fusables = False
-    
-        
+            
     def leftUp(self, event):  
         '''Overrides leftup method of modifyMode'''        
         if self.dragdist < 2:
             selectMolsMode.leftUp(self,event)
         # end of leftUp
-    
-           
-    def leftCntlDown(self, event):
-        """Setup a trackball action on the selected chunk(s).
-        """
-        if not self.o.assy.getSelectedMovables(): return
-        
-        self.o.SaveMouse(event)
-        self.o.trackball.start(self.o.MousePos[0],self.o.MousePos[1])
-        self.picking = True
-        self.dragdist = 0.0
-
-
-
-    def leftCntlUp(self, event):
-        ''' Overrides modifyMode.leftCntlUp'''  
-        
-        self.EndPick(event, SUBTRACT_FROM_SELECTION)
-        
+               
+          
 
     def Draw(self):
         '''Draw bondable pairs or overlapping atoms.
