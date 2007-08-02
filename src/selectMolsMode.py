@@ -364,9 +364,6 @@ class selectMolsMode(selectMode):
         '''Event handler for Shift+LMB press.'''
         self.leftDown(event)
     
-    def leftCntlDown(self, event):
-        '''Event handler for Control+LMB press.'''
-        self.leftDown(event)           
     
     def leftDown(self, event):
         '''Event handler for all LMB press events.'''
@@ -490,7 +487,15 @@ class selectMolsMode(selectMode):
                 # so this code will not set cursor_over_when_LMB_pressed to 'Empty Space'.
                 self.dragHandlerDrag(self.drag_handler, event) # does updates if needed
             else:
-                self.continue_selection_curve(event)             
+                self.emptySpaceLeftDrag(event)            
+            return
+	
+	if self.o.modkeys is not None:
+            # If a drag event has happened after the cursor was over an atom and a modkey is pressed,
+            # do a 2D region selection as if the atom were absent.
+            # [let this happen even for drag_handlers -- bruce 060728]
+            self.emptySpaceLeftDown(self.LMB_press_event)
+            #bruce 060721 question: why don't we also do emptySpaceLeftDrag at this point?
             return
         
         if self.drag_handler is not None:
@@ -571,18 +576,7 @@ class selectMolsMode(selectMode):
         self.o.SaveMouse(event)
         self.o.gl_update()
 
-    
-    def leftCntlDrag(self, event):
-        """ 
-        Overrides leftCntlDrag method (event handler) of selectMode.
-        Control(Cmd on Mac) key + left drag draws a seletion rectangle or lasso 
-        When LMB is released, it deselects chunks inside the selection curve
-        @param  event: mouse event associated with control(cmd on Mac)+ leftDrag 
-        @see         : selectMode.leftCntlDrag
-        """
-        
-        self.continue_selection_curve(event)
-        
+            
             
     def leftUp(self, event):
         '''Event handler for all LMB release events.'''

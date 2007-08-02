@@ -314,7 +314,7 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
 	    return
         		    		    
         self.reset_drag_vars()
-        
+	        
         self.LMB_press_event = QMouseEvent(event) # Make a copy of this event and save it. 
         # We will need it later if we change our mind and start selecting a 2D region in leftDrag().
         # Copying the event in this way is necessary because Qt will overwrite <event> later (in 
@@ -327,11 +327,28 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
 	# since this is only used for drag distance within single drags.
 	    	
 	if self.propMgr.isTranslateGroupBoxActive:
-	    self.leftDownForTranslation(event)
-	    return	    
+	    self.leftDownForTranslation(event)	    
 	else:
 	    self.leftDownForRotation(event)
-	    return
+	
+	#Permit movable object picking upon left down.             
+	
+	obj = self.get_obj_under_cursor(event)
+	# If highlighting is turned on, get_obj_under_cursor() returns atoms, 
+	# singlets, bonds, jigs,
+	# or anything that can be highlighted and end up in glpane.selobj. 
+	# [bruce revised this comment, 060725]If highlighting is turned off, 
+	# get_obj_under_cursor() returns atoms and singlets (not bonds or jigs).
+	# [not sure if that's still true -- probably not. bruce 060725 addendum]
+	if obj is None: # Cursor over empty space.
+	    self.emptySpaceLeftDown(event)
+	    return	
+	
+	self.doObjectSpecificLeftDown(obj, event)
+	
+	self.w.win_update()
+	return
+	
 	        
     def leftDownForRotation(self, event):	
 	""" 
@@ -379,20 +396,9 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
 	    if ma[0] == 0.0 and ma[1] == 0.0: 
 		ma = [-1.0, 0.0] 
 	    self.Zmat = A([ma,[-ma[1],ma[0]]])
-		
-	#Permit movable object picking upon left down.             
-	#@see : related comment in self.leftDownForTranslation
-	obj = self.get_obj_under_cursor(event)
-	
-	if obj is None: # Cursor over empty space.
-	    self.emptySpaceLeftDown(event)
-	    return	
-	
-	self.doObjectSpecificLeftDown(obj, event)
-	
+			
 	self.leftDownType = 'ROTATE'
 	
-	self.w.win_update()
 	return
     
     def leftDownForTranslation(self, event):
@@ -440,25 +446,9 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
 	    self.Zmat = A([ma,[-ma[1],ma[0]]])
 	    
 	    # end of Translate section
-                    
-                               
-	#Permit movable object picking upon left down.             
-	obj = self.get_obj_under_cursor(event)
-	# If highlighting is turned on, get_obj_under_cursor() returns atoms, 
-	# singlets, bonds, jigs,
-	# or anything that can be highlighted and end up in glpane.selobj. 
-	# [bruce revised this comment, 060725]If highlighting is turned off, 
-	# get_obj_under_cursor() returns atoms and singlets (not bonds or jigs).
-	# [not sure if that's still true -- probably not. bruce 060725 addendum]
-	if obj is None: # Cursor over empty space.
-	    self.emptySpaceLeftDown(event)
-	    return
-	
-	self.doObjectSpecificLeftDown(obj, event)
-	
+                               	
 	self.leftDownType = 'TRANSLATE'
 	
-	self.w.win_update()
 	return
     
     def doObjectSpecificLeftDown(self, object, event):
@@ -497,15 +487,22 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
 	@see : self.leftDragTranslation
 	@see : self.leftDragRotation
         """
-		    
-        if not self.picking:
+		            
+ 
+	if self.cursor_over_when_LMB_pressed == 'Empty Space':            
+	    ##self.continue_selection_curve(event)             
+	    self.emptySpaceLeftDrag(event)
+	    return
+	
+	if self.o.modkeys is not None:
+            #@see : comment related to this condition in selectMolsMode.leftDrag
+            self.emptySpaceLeftDown(self.LMB_press_event)
+            return
+	
+	if not self.picking:
 	    return
 	
 	if not self.o.assy.getSelectedMovables():
-	    return
- 
-	if self.cursor_over_when_LMB_pressed == 'Empty Space':            
-	    self.continue_selection_curve(event)             
 	    return
 	
 	if self.isConstrainedDragAlongAxis:
@@ -646,7 +643,8 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
 	    return
 		
 	if self.w.rotateFreeAction.isChecked():
-	    self.leftCntlDrag(event)
+	    ##self.leftCntlDrag(event)
+	    self.leftDragFreeRotation(event)
 	    return 
 	
 	if self.rotateOption == 'ROT_TRANS_ALONG_AXIS':
@@ -700,6 +698,36 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
 	#End of Rotate Section
 	
 	return    
+    
+    def leftDragFreeRotation(self, event):
+        """
+	Does an incremental trackball action (free drag rotation)on all selected 
+	movables. 
+		
+	@param event: The mouse left drag event. 
+	@type  event: QMouseEvent instance
+	@see : self.leftDragRotation
+		
+        """
+        #Note: In Alpha 9.1 and before, this operation was done by leftCntlDrag
+	#Now, leftCntlDrag is used for 'subtract from selection' which is 
+	#consistent with the default mode (selectMols mode)- ninad 20070802
+        w=self.o.width+0.0
+        h=self.o.height+0.0
+        deltaMouse = V(event.pos().x() - self.o.MousePos[0],
+                       self.o.MousePos[1] - event.pos().y(), 0.0)
+        self.dragdist += vlen(deltaMouse)
+        self.o.SaveMouse(event)
+        q = self.o.trackball.update(self.o.MousePos[0],self.o.MousePos[1],
+                                    self.o.quat)
+    
+        if self.propMgr.rotateAsUnitCB.isChecked():
+            self.o.assy.rotsel(q) # Rotate the selection as a unit.
+        else:
+            for mol in self.o.assy.selmols: # Rotate each chunk individually.
+                mol.rot(q)
+
+        self.o.gl_update()
       
     def leftUp(self, event):  
         '''Overrides leftdrag method of selectMolsMode'''        
@@ -736,47 +764,8 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
                     self.o.assy.delete_at_event(event)
                 
             self.w.win_update()
-     
-    def leftCntlDown(self, event):
-        """Setup a trackball action on the selected chunk(s).
-        """
-	
-        if not self.o.assy.getSelectedMovables(): return
-        self.o.SaveMouse(event)
-        self.o.trackball.start(self.o.MousePos[0],self.o.MousePos[1])
-        self.picking = True
-        self.dragdist = 0.0
-		
-   
-    def leftCntlDrag(self, event):
-        """Do an incremental trackball action on all selected chunks(s).
-        """
-        ##See comments of leftDrag()--Huaicai 3/23/05
-        if not self.picking: return
-		    
-        if not self.o.assy.getSelectedMovables(): return
-        
-        w=self.o.width+0.0
-        h=self.o.height+0.0
-        deltaMouse = V(event.pos().x() - self.o.MousePos[0],
-                       self.o.MousePos[1] - event.pos().y(), 0.0)
-        self.dragdist += vlen(deltaMouse)
-        self.o.SaveMouse(event)
-        q = self.o.trackball.update(self.o.MousePos[0],self.o.MousePos[1],
-                                    self.o.quat)
+
     
-        if self.propMgr.rotateAsUnitCB.isChecked():
-            self.o.assy.rotsel(q) # Rotate the selection as a unit.
-        else:
-            for mol in self.o.assy.selmols: # Rotate each chunk individually.
-                mol.rot(q)
-
-        self.o.gl_update()
-
-    def leftCntlUp(self, event):     
-	self.EndPick(event, SUBTRACT_FROM_SELECTION)
-    
-
     def clear_leftA_variables(self): # bruce 070605 #####@@@@CALL ME  #k should it clear sbar too?
         # Clear variables that only leftADown can set. This needs to be done for every mousedown and mouseup ###DOIT.
         # (more precisely for any call of Down that if A is then pressed might start calling leftADrag ####)
