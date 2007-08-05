@@ -54,20 +54,21 @@ History:
 __author__ = "Jeff"
 
 from Utility import geticon, getpixmap
-from bonds import CC_GRAPHITIC_BONDLENGTH
 
-from PyQt4.Qt import Qt
+from PyQt4.Qt import Qt, SIGNAL
 
-from PM.PM_Dialog        import PM_Dialog
-from PM.PM_GroupBox      import PM_GroupBox
-from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
-from PM.PM_ComboBox      import PM_ComboBox
-from PM.PM_SpinBox       import PM_SpinBox
-from PM.PM_TextEdit      import PM_TextEdit
-from PM.PM_PushButton    import PM_PushButton
-from PM.PM_LineEdit      import PM_LineEdit
-from PM.PM_CheckBox      import PM_CheckBox
-from PM.PM_RadioButton   import PM_RadioButton
+from PM.PM_Dialog          import PM_Dialog
+from PM.PM_GroupBox        import PM_GroupBox
+from PM.PM_DoubleSpinBox   import PM_DoubleSpinBox
+from PM.PM_ComboBox        import PM_ComboBox
+from PM.PM_SpinBox         import PM_SpinBox
+from PM.PM_TextEdit        import PM_TextEdit
+from PM.PM_PushButton      import PM_PushButton
+from PM.PM_LineEdit        import PM_LineEdit
+from PM.PM_CheckBox        import PM_CheckBox
+from PM.PM_RadioButton     import PM_RadioButton
+
+from PM.PM_ElementChooser     import PM_ElementChooser
 
 class AtomPropertyManager(PM_Dialog):
     """ Implements user interface to specify properties of an atom """
@@ -96,10 +97,10 @@ class AtomPropertyManager(PM_Dialog):
     _sCoordinateDecimals   =  4
     _sCoordinateUnit       =  'Angstrom'
     _sCoordinateUnits      =  _sCoordinateUnit + 's'
-    _sElementSymbolList    =  ["H","O","C","S"]
 
     def __init__(self):
-        """Construct the Atom Property Manager.
+        """
+        Construct the Atom Property Manager.
         """
         PM_Dialog.__init__( self, self.pmName, self.iconPath, self.title )
         self.addGroupBoxes()
@@ -213,52 +214,50 @@ class AtomPropertyManager(PM_Dialog):
 
         self.pmGroupBox1 = \
             PM_GroupBox( self, 
-                         title           =  "Atom Parameters",
-                         addTitleButton  =  True )
+                         title =  "Atom Position" )
 
         self.loadGroupBox1(self.pmGroupBox1)
-        """
-        self.radioButtonGroupBox = \
-            PM_GroupBox( self, 
-                         title           =  "PM_RadioButtons",
-                         addTitleButton  =  True )
         
-        self.loadRadioButtonGroupBox(self.radioButtonGroupBox)
-        """
+        self.pmElementChooser =  PM_ElementChooser(self)
         
-        AddTestGroupBoxes = True # For testing. Mark 2007-05-24
+        AddTestGroupBoxes = False # For testing. Mark 2007-05-24
         
         if not AddTestGroupBoxes: # Add test widgets to their own groupbox.
             return
         
+        """
         self.testGroupBox1 = \
             PM_GroupBox( self, 
-                         title          = "Test Widgets1",
-                         addTitleButton = True )
+                         title = "Test Widgets1" )
         
         self.loadTestWidgets1(self.testGroupBox1)
         
         self.pmLineEditGroupBox = \
             PM_GroupBox( self, 
-                         title          = "PM_LineEdit Widgets",
-                         addTitleButton = True )
+                         title = "PM_LineEdit Widgets" )
         
         self.loadLineEditGroupBox(self.pmLineEditGroupBox)
+        """
+        
+        """
+        self.radioButtonGroupBox = \
+            PM_GroupBox( self, 
+                         title =  "PM_RadioButtons" )
+        
+        self.loadRadioButtonGroupBox(self.radioButtonGroupBox)
+        
+        
+        self.pmToolButtonGroupBox = \
+            PM_GroupBox( self, 
+                         title = "MMKit Widget" )
+                         
+        self.loadToolButtonGroupBox(self.pmToolButtonGroupBox)
+        """
                
     def loadGroupBox1(self, inPmGroupBox):
         """
         Load widgets into groupbox 1.
         """
-
-        # User input to specify what type of element/atom to generate
-        elementComboBoxItems  =  self._sElementSymbolList
-        self.elementComboBox  =  \
-            PM_ComboBox( inPmGroupBox,
-                         label         =  "Elements:",
-                         choices       =  elementComboBoxItems,
-                         index         =  0,
-                         setAsDefault  =  True,
-                         spanWidth     =  False )
         
         # User input to specify x-coordinate 
         # of the generated atom's position.
@@ -403,8 +402,7 @@ class AtomPropertyManager(PM_Dialog):
         
         self.groupBox = \
             PM_GroupBox( inPmGroupBox, 
-                         title          = "Group Box Title",
-                         addTitleButton = False )
+                         title          = "Group Box Title" )
             
         self.comboBox2= \
             PM_ComboBox( self.groupBox,
@@ -416,8 +414,7 @@ class AtomPropertyManager(PM_Dialog):
         
         self.groupBox2 = \
             PM_GroupBox( inPmGroupBox, 
-                         title          = "Group Box Title",
-                         addTitleButton = False )
+                         title          = "Group Box Title" )
             
         self.comboBox3= \
             PM_ComboBox( self.groupBox2,
@@ -471,8 +468,7 @@ class AtomPropertyManager(PM_Dialog):
         """
         self.checkBoxGroupBox = \
             PM_GroupBox( inPmGroupBox, 
-                         title          = "<b> PM_CheckBox examples</b>",
-                         addTitleButton = False )
+                         title          = "<b> PM_CheckBox examples</b>" )
         
         self.checkBox1 = \
             PM_CheckBox( self.checkBoxGroupBox,
@@ -523,4 +519,4 @@ class AtomPropertyManager(PM_Dialog):
         self.radioButton4 = \
             PM_RadioButton( inPmGroupBox, 
                             label     = "Display PM_PushButton group box",
-                            spanWidth =  False)  
+                            spanWidth =  False)

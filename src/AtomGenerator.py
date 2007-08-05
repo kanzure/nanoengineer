@@ -37,7 +37,8 @@ from AtomGeneratorDialog import AtomPropertyManager
 from GeneratorBaseClass import GeneratorBaseClass
 
 def enableAtomGenerator(enable):
-    """Enables/disables the Atom Generator by hiding or showing it.
+    """
+    Enables/disables the Atom Generator by hiding or showing it.
     This is normally done by the user via the debugging menu.
     <enable> - boolean, where:
       True = show Atom Generator button/menu item
@@ -48,7 +49,8 @@ def enableAtomGenerator(enable):
 
 # AtomPropertyManager must come BEFORE GeneratorBaseClass in this list.
 class AtomGenerator( AtomPropertyManager, GeneratorBaseClass ):
-    """The Atom Generator class.
+    """
+    The Atom Generator class.
     """
 
     cmd     =  greenmsg("Build Atom: ")
@@ -73,25 +75,29 @@ class AtomGenerator( AtomPropertyManager, GeneratorBaseClass ):
     # any necessary helper functions
 
     def gather_parameters( self ):
-        """Return a tuple of all the parameters from the Property Manager.
+        """
+        Return a tuple of all the parameters from the Property Manager.
         """
         x  =  self.xCoordinateField.value()
         y  =  self.yCoordinateField.value()
         z  =  self.zCoordinateField.value()
         
-        # Get the chemical symbol.
-        outElement  =  str(self.elementComboBox.currentText())
-
-        return ( x, y, z, outElement )
+        # Get the chemical symbol and atom type.
+        outElement, outAtomType  =  \
+            self.pmElementChooser.getElementSymbolAndAtomType()
+        
+        return ( x, y, z, outElement, outAtomType )
 
     def build_struct( self, inName, inParams, inPosition ):
-        """Build an Atom (as a chunk) according to the given parameters.
         """
-        x, y, z, theElement  =  inParams
+        Build an Atom (as a chunk) according to the given parameters.
+        """
+        x, y, z, theElement, theAtomType  =  inParams
 
         # Create new molecule (chunk) to contain the atom.
         outMolecule  =  molecule( self.win.assy, self.name )
-        theAtom      =  Atom( theElement, V(x, y, z), outMolecule)
+        theAtom      =  Atom( theElement, V(x, y, z), outMolecule )
+        theAtom.set_atomtype( theAtomType )
         theAtom.make_enough_bondpoints()
 
         return outMolecule

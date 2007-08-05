@@ -73,18 +73,15 @@ class NanotubeGeneratorDialog(PM_Dialog):
         """
         self.pmGroupBox1 = \
             PM_GroupBox( self, 
-                         title          = "Nanotube Parameters",
-                         addTitleButton = True )
+                         title          = "Nanotube Parameters" )
                 
         self.pmGroupBox2 = \
             PM_GroupBox( self, 
-                         title          = "Nanotube Distortion",
-                         addTitleButton = True )
+                         title          = "Nanotube Distortion" )
                 
         self.pmGroupBox3 = \
             PM_GroupBox( self, 
-                         title          = "Multi-Walled Nanotubes",
-                         addTitleButton = True )
+                         title          = "Multi-Walled Nanotubes" )
 
         # Add group box widgets.
         self.loadGroupBox1(self.pmGroupBox1)

@@ -64,15 +64,11 @@ class PlanePropertyManager(PM_Dialog):
     def addGroupBoxes(self):
         """Add the 1 groupbox for the Graphene Property Manager.
         """
-        self.pmGroupBox1 = PM_GroupBox(self, 
-                                       title="Parameters",
-                                       addTitleButton=True)
+        self.pmGroupBox1 = PM_GroupBox(self, title = "Parameters")
         
         self.loadGroupBox1(self.pmGroupBox1)
         
-        self.pmGroupBox2 = PM_GroupBox(self,
-                                       title="Placement",
-                                       addTitleButton=True)
+        self.pmGroupBox2 = PM_GroupBox(self, title = "Placement")
         
         self.loadGroupBox2(self.pmGroupBox2)        
 
@@ -83,14 +79,14 @@ class PlanePropertyManager(PM_Dialog):
         
         self.widthDblSpinBox = \
             PM_DoubleSpinBox(pmGroupBox,
-                       label        = "Width :",
-                       value        = 10.0, 
-                       setAsDefault = True,
-                       minimum      = 1.0, 
-                       maximum      = 200.0,
-                       singleStep   = 1.0, 
-                       decimals     = 1, 
-                       suffix       = ' Angstroms')
+                             label        = "Width :",
+                             value        = 10.0, 
+                             setAsDefault = True,
+                             minimum      = 1.0, 
+                             maximum      = 200.0,
+                             singleStep   = 1.0, 
+                             decimals     = 1, 
+                             suffix       = ' Angstroms')
         
         self.connect(self.widthDblSpinBox, 
                      SIGNAL("valueChanged(double)"), 
@@ -126,11 +122,11 @@ class PlanePropertyManager(PM_Dialog):
         self.aspectRatioSpinBox = \
             PM_DoubleSpinBox( pmGroupBox,
                               label         =  "",
-                              value           =  1,
+                              value         =  1.0,
                               setAsDefault  =  True,
                               minimum       =  0.1,
-                              maximum       =  100,
-                              singleStep    =  1,
+                              maximum       =  10.0,
+                              singleStep    =  0.1,
                               decimals      =  1,
                               suffix        =  ' : 1')   
             
@@ -145,14 +141,14 @@ class PlanePropertyManager(PM_Dialog):
         self.planePlacement_btngrp = QButtonGroup()
         self.planePlacement_btngrp.setExclusive(True)
         
-        self.parallelToScreen_btn = PM_RadioButton(
-            pmGroupBox, label = "Parallel to Screen" )        
-        self.throughSelectedAtoms_btn = PM_RadioButton(
-            pmGroupBox, label = "Through Selected Atoms" )        
-        self.offsetToPlane_btn = PM_RadioButton(
-            pmGroupBox, label = "Offset to a Plane" )
-        self.customPlacement_btn = PM_RadioButton(
-            pmGroupBox, label = "Custom" )  
+        self.parallelToScreen_btn = \
+            PM_RadioButton(pmGroupBox, label = "Parallel to Screen" )
+        self.throughSelectedAtoms_btn = \
+            PM_RadioButton(pmGroupBox, label = "Through Selected Atoms" )        
+        self.offsetToPlane_btn = \
+            PM_RadioButton(pmGroupBox, label = "Offset to a Plane" )
+        self.customPlacement_btn = \
+            PM_RadioButton(pmGroupBox, label = "Custom" )  
 
         
         objId = 0
