@@ -21,8 +21,39 @@ from PM_Constants import pmLeftColumn, pmRightColumn
 
 class PM_CheckBox( QCheckBox ):
     """
-    The PM_CheckBox widget provides a QCheckBox with a 
-    QLabel for a Property Manager group box.
+    The PM_CheckBox widget provides a checkbox with a text label for a Property
+    Manager group box. The text label can be positioned on the left or 
+    right side of the checkbox.
+    
+    A PM_CheckBox is an option button that can be switched on (checked) or 
+    off (unchecked). Checkboxes are typically used to represent features in 
+    an application that can be enabled or disabled without affecting others, 
+    but different types of behavior can be implemented.
+    
+    A U{B{QButtonGroup}<http://doc.trolltech.com/4/qbuttongroup.html>} 
+    can be used to group check buttons visually.
+    
+    Whenever a checkbox is checked or cleared it emits the signal 
+    stateChanged(). Connect to this signal if you want to trigger an action 
+    each time the checkbox changes state. You can use isChecked() to query 
+    whether or not a checkbox is checked.
+    
+    In addition to the usual checked and unchecked states, PM_CheckBox 
+    optionally provides a third state to indicate "no change". This is useful 
+    whenever you need to give the user the option of neither checking nor 
+    unchecking a checkbox. If you need this third state, enable it with 
+    setTristate(), and use checkState() to query the current toggle state.
+    
+    Just like PM_PushButton, a checkbox displays text, and optionally a 
+    small icon. The icon is set with setIcon(). The text can be set in the 
+    constructor or with setText(). A shortcut key can be specified by preceding
+    the preferred character with an ampersand. For example:
+    
+    checkbox = PM_CheckBox("C&ase sensitive")
+ 
+    In this example the shortcut is B{Alt+A}. See the  
+    U{B{QShortcut}<http://doc.trolltech.com/4/qshortcut.html>} documentation 
+    for details (to display an actual ampersand, use '&&').
     
     @cvar defaultState: The default state of the checkbox.
     @type defaultState: U{B{Qt.CheckState}<http://doc.trolltech.com/4/
@@ -33,25 +64,22 @@ class PM_CheckBox( QCheckBox ):
                         the "Restore Defaults" button.
     @type setAsDefault: bool
     
-    @cvar hidden: Hide flag.
-    @type hidden: bool
-    
     @cvar labelWidget: The Qt label widget of this checkbox.
     @type labelWidget: U{B{QLabel}<http://doc.trolltech.com/4/qlabel.html>}
     """
     
     defaultState = Qt.Unchecked  
     setAsDefault = True
-    hidden       = False
     labelWidget  = None
     
-    def __init__( self, 
-                  parentWidget, 
-                  label        = '', 
-                  labelColumn  = 0,
-                  state        = Qt.Unchecked, 
-                  setAsDefault = True,
-                  spanWidth    = False):
+    def __init__(self, 
+                 parentWidget, 
+                 label        = '', 
+                 labelColumn  = 0,
+                 state        = Qt.Unchecked, 
+                 setAsDefault = True,
+                 spanWidth    = False
+                 ):
         """
         Appends a QCheckBox (Qt) widget to the bottom of I{parentWidget}, 
         a Property Manager group box.
@@ -119,7 +147,7 @@ class PM_CheckBox( QCheckBox ):
         
         parentWidget.addPmWidget(self)
         
-    def setCheckState( self, state, setAsDefault = True ):
+    def setCheckState(self, state, setAsDefault = True):
         """
         Sets the check box's check state to I{state}.
         
@@ -133,61 +161,35 @@ class PM_CheckBox( QCheckBox ):
         """
                   
         if setAsDefault:
-            self.setAsDefault=setAsDefault
-            self.defaultState=state
+            self.setAsDefault = setAsDefault
+            self.defaultState = state
         
         QCheckBox.setCheckState(self, state)
         
-    def restoreDefault( self ):
+    def restoreDefault(self):
         """
         Restores the default value.
         """
         if self.setAsDefault:
             self.setCheckState(self.defaultState)
-            
-    def collapse( self ):
-        """
-        Hides the checkbox and its label (if it has one) when its group box 
-        is collapsed.
-        """
-        QWidget.hide(self) 
-        if self.labelWidget :
-            self.labelWidget.hide()
         
-    def expand( self ):
+    def hide(self):
         """
-        Displays the checkbox and its label (if it has one) when its group 
-        box is expanded, unless the checkbox was "permanently" hidden via
-        L{hide()}. In that case, the checkbox will remain hidden until 
-        L{show()} is called.
-        """
-        if self.hidden: return
-        QWidget.show(self)
-        if self.labelWidget:
-            self.labelWidget.show()
-        
-    def hide( self ):
-        """
-        Hides the checkbox and its label (if it has one). If hidden, the 
-        checkbox will not be displayed when its group box is expanded.
+        Hides the checkbox and its label (if it has one).
         Call L{show()} to unhide the checkbox.
         
         @see: L{show}
         """
-        self.hidden = True
         QWidget.hide(self)
         if self.labelWidget: 
             self.labelWidget.hide()
             
-    def show( self ):
+    def show(self):
         """
-        Unhide the checkbox and its label (if it has one). The checkbox
-        will remain (temporarily) hidden if its group box is collapsed, 
-        but will be displayed again when the group box is expanded.
+        Unhides the checkbox and its label (if it has one).
         
         @see: L{hide}
         """
-        self.hidden = False
         QWidget.show(self)
         if self.labelWidget: 
             self.labelWidget.show()

@@ -38,24 +38,21 @@ class PM_TextEdit( QTextEdit ):
                         textedit to I{defaultText} when the user clicks
                         the "Restore Defaults" button.
     @type setAsDefault: bool
-    
-    @cvar hidden: Hide flag.
-    @type hidden: bool
-    
+
     @cvar labelWidget: The Qt label widget of this textedit.
     @type labelWidget: U{B{QLabel}<http://doc.trolltech.com/4/qlabel.html>}
     """
     
     defaultText  = ""
     setAsDefault = True
-    hidden       = False
     labelWidget  = None
     
-    def __init__( self, 
-                  parentWidget, 
-                  label       = '', 
-                  labelColumn = 0,
-                  spanWidth   = False ):
+    def __init__(self, 
+                 parentWidget, 
+                 label       = '', 
+                 labelColumn = 0,
+                 spanWidth   = False
+                 ):
         """
         Appends a QTextEdit (Qt) widget to the bottom of I{parentWidget}, 
         a Property Manager group box.
@@ -105,8 +102,8 @@ class PM_TextEdit( QTextEdit ):
         
         from PM_MessageGroupBox import PM_MessageGroupBox
         if isinstance(parentWidget, PM_MessageGroupBox):
-            # Add to parentWidget's VBoxLayout if <parentWidget> is a MessageGroupBox.
-            parentWidget.VBoxLayout.addWidget(self)
+            # Add to parentWidget's vBoxLayout if <parentWidget> is a MessageGroupBox.
+            parentWidget.vBoxLayout.addWidget(self)
             # We should be calling the PM's getMessageTextEditPalette() method,
             # but that will take some extra work which I will do soon. Mark 2007-06-21
             self.setPalette(getPalette( None, 
@@ -119,12 +116,13 @@ class PM_TextEdit( QTextEdit ):
         else:
             parentWidget.addPmWidget(self)
         
-    def insertHtml( self, 
-                    text, 
-                    setAsDefault = False, 
-                    minLines     = 4, 
-                    maxLines     = 6, 
-                    replace      = True ):
+    def insertHtml(self, 
+                   text, 
+                   setAsDefault = False, 
+                   minLines     = 4, 
+                   maxLines     = 6, 
+                   replace      = True
+                   ):
         """
         Insert <text> (HTML) into the Prop Mgr's message groupbox.
         <minLines> is the minimum number of lines to
@@ -211,7 +209,7 @@ class PM_TextEdit( QTextEdit ):
         self.setMinimumSize(QSize(pmMinWidth * 0.5, new_height))
         self.setMaximumHeight(new_height)
     
-    def restoreDefault( self ):
+    def restoreDefault(self):
         """
         Restores the default value.
         """
@@ -219,50 +217,23 @@ class PM_TextEdit( QTextEdit ):
             self.insertHtml(self.defaultText, 
                             setAsDefault = True,
                             replace = True)
-    
-    def collapse( self ):
-        """
-        Hides the tool button and its label (if it has one) when its group box 
-        is collapsed.
-        """
-        QWidget.hide(self) 
-        if self.labelWidget :
-            self.labelWidget.hide()
         
-    def expand( self ):
+    def hide(self):
         """
-        Displays the tool button and its label (if it has one) when its group 
-        box is expanded, unless the tool button was "permanently" hidden via
-        L{hide()}. In that case, the tool button will remain hidden until 
-        L{show()} is called.
-        """
-        if self.hidden: return
-        QWidget.show(self)
-        if self.labelWidget:
-            self.labelWidget.show()
-        
-    def hide( self ):
-        """
-        Hides the tool button and its label (if it has one). If hidden, the 
-        tool button will not be displayed when its group box is expanded.
-        Call L{show()} to unhide the tool button.
+        Hides the tool button and its label (if it has one).
         
         @see: L{show}
         """
-        self.hidden = True
         QWidget.hide(self)
         if self.labelWidget: 
             self.labelWidget.hide()
             
-    def show( self ):
+    def show(self):
         """
-        Unhide the tool button and its label (if it has one). The tool button
-        will remain (temporarily) hidden if its group box is collapsed, 
-        but will be displayed again when the group box is expanded.
+        Unhides the tool button and its label (if it has one).
         
         @see: L{hide}
         """
-        self.hidden = False
         QWidget.show(self)
         if self.labelWidget: 
             self.labelWidget.show()

@@ -20,6 +20,7 @@ class PM_ToolButton( QToolButton ):
     """
     The PM_ToolButton widget provides a QToolButton with a 
     QLabel for a Property Manager group box.
+    
     @cvar defaultText: The default text of the tool button.
     @type defaultText: str
     
@@ -27,26 +28,24 @@ class PM_ToolButton( QToolButton ):
                         tool button to I{defaultText} when the user clicks
                         the "Restore Defaults" button.
     @type setAsDefault: bool
-    
-    @cvar hidden: Hide flag.
-    @type hidden: bool
-    
+
     @cvar labelWidget: The Qt label widget of this tool button.
     @type labelWidget: U{B{QLabel}<http://doc.trolltech.com/4/qlabel.html>}
     """
     
     defaultText = ""
     setAsDefault = True
-    hidden       = False
     labelWidget  = None
     
-    def __init__( self, 
-                  parentWidget, 
-                  label        = '', 
-                  labelColumn  = 0,
-                  text         = '', 
-                  setAsDefault = True,
-                  spanWidth    = False ):
+    def __init__(self, 
+                 parentWidget, 
+                 label        = '', 
+                 labelColumn  = 0,
+                 text         = '', 
+                 iconPath     = '',
+                 setAsDefault = True,
+                 spanWidth    = False 
+                 ):
         """
         Appends a QToolButton (Qt) widget to the bottom of I{parentWidget}, 
         a Property Manager group box.
@@ -73,16 +72,19 @@ class PM_ToolButton( QToolButton ):
         @param text: The button's text.
         @type  text: str
         
-        @param setAsDefault: if True, will restore <text> as the button's text
+        @param iconPath: The relative path to the button's icon.
+        @type  iconPath: str
+        
+        @param setAsDefault: If True, will restore <text> as the button's text
                          when the "Restore Defaults" button is clicked.
         @type  setAsDefault: bool
         
-        @param spanWidth: if True, the widget and its label will span the width
+        @param spanWidth: If True, the widget and its label will span the width
                       of the group box. Its label will appear directly above
                       the widget (unless the label is empty) and is left justified.
         @type  spanWidth: bool
         
-        @see: U{B{QToolButton}<http://doc.trolltech.com/4/qpushbutton.html>}
+        @see: U{B{QToolButton}<http://doc.trolltech.com/4/qtoolbutton.html>}
         """
         
         if 0: # Debugging code
@@ -90,6 +92,7 @@ class PM_ToolButton( QToolButton ):
             print "  label        = ",label
             print "  labelColumn  = ",label
             print "  text         = ", text
+            print "  iconPath     = ", iconPath
             print "  setAsDefault = ", setAsDefault
             print "  spanWidth    = ", spanWidth
         
@@ -108,62 +111,40 @@ class PM_ToolButton( QToolButton ):
         # Set text
         self.setText(text)
         
+        # Set icon
+        if os.path.exists(iconPath):
+                self.setIcon(geticon(iconPath))
+                self.setIconSize(QSize(22,22))
+        
         # Set default text
         self.defaultText=text
         self.setAsDefault = setAsDefault
         
         parentWidget.addPmWidget(self)
         
-    def restoreDefault( self ):
+    def restoreDefault(self):
         """
         Restores the default value.
         """
         if self.setAsDefault:
             self.setText(self.defaultText)
-            
-    def collapse( self ):
-        """
-        Hides the tool button and its label (if it has one) when its group box 
-        is collapsed.
-        """
-        QWidget.hide(self) 
-        if self.labelWidget :
-            self.labelWidget.hide()
         
-    def expand( self ):
+    def hide(self):
         """
-        Displays the tool button and its label (if it has one) when its group 
-        box is expanded, unless the tool button was "permanently" hidden via
-        L{hide()}. In that case, the tool button will remain hidden until 
-        L{show()} is called.
-        """
-        if self.hidden: return
-        QWidget.show(self)
-        if self.labelWidget:
-            self.labelWidget.show()
-        
-    def hide( self ):
-        """
-        Hides the tool button and its label (if it has one). If hidden, the 
-        tool button will not be displayed when its group box is expanded.
-        Call L{show()} to unhide the tool button.
+        Hides the tool button and its label (if it has one).
         
         @see: L{show}
         """
-        self.hidden = True
         QWidget.hide(self)
         if self.labelWidget: 
             self.labelWidget.hide()
             
-    def show( self ):
+    def show(self):
         """
-        Unhide the tool button and its label (if it has one). The tool button
-        will remain (temporarily) hidden if its group box is collapsed, 
-        but will be displayed again when the group box is expanded.
+        Unhides the tool button and its label (if it has one).
         
         @see: L{hide}
         """
-        self.hidden = False
         QWidget.show(self)
         if self.labelWidget: 
             self.labelWidget.show()

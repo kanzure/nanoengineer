@@ -88,10 +88,11 @@ class PM_Dialog( QDialog ):
     _lastGroupBox = None # The last PM_GroupBox in this PM dialog. 
                         # (i.e. the most recent PM_GroupBox added).
     
-    def __init__( self, 
-                  name,
-                  iconPath = "",
-                  title    = "" ):
+    def __init__(self, 
+                 name,
+                 iconPath = "",
+                 title    = ""
+                 ):
         """
         Property Manager constructor.
         
@@ -116,16 +117,16 @@ class PM_Dialog( QDialog ):
         self.setPalette(QPalette(pmColor))
         
         # Main vertical layout for PropMgr.
-        self.VBoxLayout = QVBoxLayout(self)
-        self.VBoxLayout.setMargin(pmMainVboxLayoutMargin)
-        self.VBoxLayout.setSpacing(pmMainVboxLayoutSpacing)
+        self.vBoxLayout = QVBoxLayout(self)
+        self.vBoxLayout.setMargin(pmMainVboxLayoutMargin)
+        self.vBoxLayout.setSpacing(pmMainVboxLayoutSpacing)
 
         # Add PropMgr's header, sponsor button, top row buttons and (hidden) message group box.
         self._createHeader(iconPath, title)
         self._createSponsorButton()
         self._createTopRowBtns() # Create top buttons row
         
-        self.MessageGroupBox = PM_MessageGroupBox(self, "Message")
+        self.MessageGroupBox = PM_MessageGroupBox(self)
         
         if 0: # For me. Mark 2007-05-17.
             self._debugSizePolicy() 
@@ -135,7 +136,7 @@ class PM_Dialog( QDialog ):
         # Mark 2007-05-17.
         #QMetaObject.connectSlotsByName(self)
             
-    def show( self ):
+    def show(self):
         """
         Show this Property Manager.
         """
@@ -150,7 +151,7 @@ class PM_Dialog( QDialog ):
         # Show the default message whenever we open the Property Manager.
         self.MessageGroupBox.MessageTextEdit.restoreDefault()
     
-    def _createHeader( self, iconPath, title ):
+    def _createHeader(self, iconPath, title):
         """
         Creates the Property Manager header, which contains an icon
         (a QLabel with a pixmap) and white text (a QLabel with text).
@@ -198,13 +199,13 @@ class PM_Dialog( QDialog ):
         self.headerTitle.setFont(self._getHeaderFont())
         HeaderFrameHLayout.addWidget(self.headerTitle)
         
-        self.VBoxLayout.addWidget(self.headerFrame)
+        self.vBoxLayout.addWidget(self.headerFrame)
         
         # Set header icon and title text.
         self.setHeaderIcon(iconPath)
         self.setHeaderTitle(title)
         
-    def _getHeaderFont( self ):
+    def _getHeaderFont(self):
         """
         Returns the QFont used for all PropMgr headers.
         
@@ -217,7 +218,7 @@ class PM_Dialog( QDialog ):
         font.setBold(pmHeaderFontBold)
         return font
         
-    def setHeaderTitle( self, title ):
+    def setHeaderTitle(self, title):
         """
         Set the Propery Manager header title to string <title>.
         
@@ -227,7 +228,7 @@ class PM_Dialog( QDialog ):
         self.headerTitleText = title
         self.headerTitle.setText(title)
     
-    def setHeaderIcon( self, iconPath ):
+    def setHeaderIcon(self, iconPath):
         """
         Set the Propery Manager header icon.
         
@@ -240,7 +241,7 @@ class PM_Dialog( QDialog ):
         
         self.headerIcon.setPixmap(getpixmap(iconPath))
         
-    def _createSponsorButton( self ):
+    def _createSponsorButton(self):
         """
         Creates the Property Manager sponsor button, which contains
         a QPushButton inside of a QGridLayout inside of a QFrame.
@@ -265,7 +266,7 @@ class PM_Dialog( QDialog ):
         
         SponsorFrameGrid.addWidget(self.sponsor_btn,0,0,1,1)
         
-        self.VBoxLayout.addWidget(self.sponsor_frame)
+        self.vBoxLayout.addWidget(self.sponsor_frame)
 
         button_whatsthis_widget = self.sponsor_btn
             #bruce 070615 bugfix -- put tooltip & whatsthis on self.sponsor_btn, not self.
@@ -283,7 +284,7 @@ class PM_Dialog( QDialog ):
         
         return
 
-    def _createTopRowBtns( self ):
+    def _createTopRowBtns(self):
         """
         Creates the Done, Cancel, Preview, Restore Defaults and What's This 
         buttons row at the top of the Property Manager.
@@ -388,7 +389,7 @@ class PM_Dialog( QDialog ):
         # Create Button Row
         self.pmTopRowBtns.addWidget(self.topRowBtnsFrame)
         
-        self.VBoxLayout.addLayout(self.pmTopRowBtns)
+        self.vBoxLayout.addLayout(self.pmTopRowBtns)
         
         # Add What's This for buttons.
         
@@ -416,7 +417,7 @@ class PM_Dialog( QDialog ):
         
         return
 
-    def hideTopRowButtons( self, pmButtonFlags = None ):
+    def hideTopRowButtons(self, pmButtonFlags = None):
         """
         Hides one or more top row buttons using <pmButtonFlags>.
         Button flags not set will cause the button to be shown
@@ -459,7 +460,7 @@ class PM_Dialog( QDialog ):
         else: 
             self.whatsthis_btn.show()
         
-    def showTopRowButtons( self, pmButtonFlags = pmAllButtons ):
+    def showTopRowButtons(self, pmButtonFlags = pmAllButtons):
         """
         Shows one or more top row buttons using <pmButtonFlags>.
         Button flags not set will cause the button to be hidden
@@ -481,7 +482,7 @@ class PM_Dialog( QDialog ):
         
     
         
-    def _getHeaderTitlePalette( self ):
+    def _getHeaderTitlePalette(self):
         """
         Return a palette for header title (text) label. 
         """
@@ -489,19 +490,19 @@ class PM_Dialog( QDialog ):
         palette.setColor(QPalette.WindowText, pmHeaderTitleColor)
         return palette
         
-    def doneButtonClicked( self ):
+    def doneButtonClicked(self):
         """
         Slot for the What's This button.
         """
         self.ok_btn_clicked()
     
-    def cancelButtonClicked( self ):
+    def cancelButtonClicked(self):
         """
         Slot for the What's This button.
         """
         self.cancel_btn_clicked()
     
-    def restoreDefaultsButtonClicked( self ):
+    def restoreDefaultsButtonClicked(self):
         """
         Slot for "Restore Defaults" button in the Property Manager.
         It is called each time the button is clicked.
@@ -510,19 +511,19 @@ class PM_Dialog( QDialog ):
             if isinstance(widget, PM_GroupBox):
                 widget.restoreDefault()
                 
-    def restore_defaults_btn_clicked_DEP( self ):
+    def restore_defaults_btn_clicked_DEP(self):
         """
         @depreciated: Use restoreDefaultsButtonClicked() instead.
         """
         self.restoreDefaultsButtonClicked()
          
-    def previewButtonClicked( self ):
+    def previewButtonClicked(self):
         """
         Slot for the What's This button.
         """
         self.preview_btn_clicked()
         
-    def whatsThisButtonClicked( self ):
+    def whatsThisButtonClicked(self):
         """
         Slot for the What's This button.
         """
@@ -531,7 +532,7 @@ class PM_Dialog( QDialog ):
         
     # PropMgr debugging methods ###########################################
     
-    def _debugSizePolicy( self ): 
+    def _debugSizePolicy(self): 
         """
         This should split out of this class and made into a general widget 
         debugging function.

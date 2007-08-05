@@ -67,9 +67,6 @@ class PM_GroupBox( QGroupBox ):
                         I{setAsDefault} value.
     @type setAsDefault: bool
     
-    @cvar hidden: Hide flag.
-    @type hidden: bool
-    
     @cvar labelWidget: The Qt label widget of this group box.
     @type labelWidget: U{B{QLabel}<http://doc.trolltech.com/4/qlabel.html>}
     
@@ -91,7 +88,6 @@ class PM_GroupBox( QGroupBox ):
     """
     
     setAsDefault = True
-    hidden       = False
     labelWidget  = None
     expanded     = True
     
@@ -100,11 +96,11 @@ class PM_GroupBox( QGroupBox ):
     _groupBoxCount = 0
     _lastGroupBox  = None
     
-    def __init__( self, 
-                  parentWidget, 
-                  title          = '', 
-                  addTitleButton = False, 
-                  setAsDefault   = True ):
+    def __init__(self, 
+                 parentWidget, 
+                 title          = '', 
+                 setAsDefault   = True
+                 ):
         """
         PM_GroupBox constructor.
         
@@ -117,14 +113,6 @@ class PM_GroupBox( QGroupBox ):
         
         @param title: the title on the group box button
         @type  title: str
-        
-        @param addTitleButton: if True, a titleButton is added to the
-                top of the GroupBox with the label <title>. The titleButton
-                is used to collapse and expand the GroupBox.
-                If False, no titleButton is added. <title> will be used as 
-                the GroupBox title and the GroupBox will not be 
-                collapsable/expandable.
-        @type  addTitleButton: bool
         
         @param setAsDefault: if False, no widgets in this groupbox will have thier
                 default values restored when the Restore Defaults 
@@ -145,7 +133,7 @@ class PM_GroupBox( QGroupBox ):
         # Calling addWidget() here is important. If done at the end,
         # the title button does not get assigned its palette for some 
         # unknown reason. Mark 2007-05-20.
-        parentWidget.VBoxLayout.addWidget(self) # Add self to PropMgr's VBoxLayout
+        parentWidget.vBoxLayout.addWidget(self) # Add self to PropMgr's vBoxLayout
         
         self._widgetList = []
         parentWidget._widgetList.append(self)
@@ -154,36 +142,51 @@ class PM_GroupBox( QGroupBox ):
         self.setPalette(self._getPalette())
         self.setStyleSheet(self._getStyleSheet())
         
+        # EXPERIMENTAL: Create vertical box layout
+        self._vBoxLayout = QVBoxLayout(self)
+        self._vBoxLayout.setMargin(0)
+        self._vBoxLayout.setSpacing(0)
+        
+        # EXPERIMENTAL: 
+        self._containerWidget = QWidget()
+        self._vBoxLayout.insertWidget(0, self._containerWidget)
+        
         # Create vertical box layout
-        self.VBoxLayout = QVBoxLayout(self)
-        self.VBoxLayout.setMargin(pmGrpBoxVboxLayoutMargin)
-        self.VBoxLayout.setSpacing(pmGrpBoxVboxLayoutSpacing)
+        self.vBoxLayout = QVBoxLayout(self._containerWidget)
+        #@ORIG self.vBoxLayout = QVBoxLayout()
+        self.vBoxLayout.setMargin(pmGrpBoxVboxLayoutMargin)
+        self.vBoxLayout.setSpacing(pmGrpBoxVboxLayoutSpacing)
+        
+        # EXPERIMENTAL: Insert vBoxLayout in _vBoxLayout
+        #@ORIG self._vBoxLayout.addLayout(self.vBoxLayout)
         
         # Create grid layout
-        self.GridLayout = QGridLayout()
-        self.GridLayout.setMargin(pmGridLayoutMargin)
-        self.GridLayout.setSpacing(pmGridLayoutSpacing)
+        self.gridLayout = QGridLayout()
+        self.gridLayout.setMargin(pmGridLayoutMargin)
+        self.gridLayout.setSpacing(pmGridLayoutSpacing)
+
+        # Insert grid layout in its own vBoxLayout
+        self.vBoxLayout.addLayout(self.gridLayout)
         
-        # Insert grid layout in its own VBoxLayout
-        self.VBoxLayout.addLayout(self.GridLayout)
-        
-        if addTitleButton: # Add title button to GroupBox
+        # Add title button (or just a title if the parent is not a PM_Dialog).
+        if isinstance(parentWidget, PM_GroupBox):
+            self.setTitle(title)
+        else: # Parent is a PM_Dialog, so add a title button.
             self.titleButton = self._getTitleButton(self, title)
-            self.VBoxLayout.insertWidget(0, self.titleButton)
+            self._vBoxLayout.insertWidget(0, self.titleButton)
             self.connect( self.titleButton, 
                           SIGNAL("clicked()"),
                           self.toggleExpandCollapse)
-        else:
-            self.setTitle(title)
             
-        # Fixes the height of the groupbox. Very important. Mark 2007-05-29
+        
+        # Fixes the height of the group box. Very important. Mark 2007-05-29
         self.setSizePolicy(
             QSizePolicy(QSizePolicy.Policy(QSizePolicy.Preferred),
                         QSizePolicy.Policy(QSizePolicy.Fixed)))
         
         self._addBottomSpacer()
         
-    def _addBottomSpacer( self ):
+    def _addBottomSpacer(self):
         """
         Add a vertical spacer below this groupbox <self>.
         Assume <self> is going to be the last groupbox in this PropMgr, so set
@@ -210,9 +213,9 @@ class PM_GroupBox( QGroupBox ):
                 QSizePolicy.Fixed)
             self.parentWidget._lastGroupBox.VSpacerWidget.defaultHeight = defaultHeight
             
-        # Add a 1 pixel high, MinimumExpanding VSpacer below this GroupBox.
-        # This keeps the PropMgr layout squeezed together as groupboxes 
-        # are expanded, collapsed, hidden and shown again.
+        # Add a 1 pixel high, MinimumExpanding VSpacer below this group box.
+        # This keeps all group boxes in the PM layout squeezed together as 
+        # group boxes  are expanded, collapsed, hidden and shown again.
         defaultHeight = 1
         self.VSpacerWidget = QSpacerItem(10, defaultHeight, 
                                         QSizePolicy.Fixed,
@@ -220,34 +223,39 @@ class PM_GroupBox( QGroupBox ):
         
         self.VSpacerWidget.defaultHeight = defaultHeight
         
-        self.parentWidget.VBoxLayout.addItem(self.VSpacerWidget)
+        self.parentWidget.vBoxLayout.addItem(self.VSpacerWidget)
         
         # This groupbox is now the last one in the PropMgr.
         self.parentWidget._lastGroupBox = self
         
-    def restoreDefault ( self ):
+    def restoreDefault (self):
         """
-        Restores the default values for all widgets in this groupbox.
+        Restores the default values for all widgets in this group box.
         """
         for widget in self._widgetList:
             if platform.atom_debug:
                 print "PM_GroupBox.restoreDefault(): widget =", widget.objectName()
             widget.restoreDefault()
         
-    def setTitle( self, 
-                  title ):
+    def setTitle(self, title):
         """
         Sets the groupbox title to <title>.
         This overrides QGroupBox's setTitle() method.
         """
-        # Create QLabel widget.
-        self.labelWidget = QLabel()
-        labelAlignment = pmLeftAlignment
-        self.labelWidget.setAlignment(labelAlignment)
-        self.labelWidget.setText(title)
-        self.VBoxLayout.insertWidget(0, self.labelWidget)
         
-    def getPmWidgetPlacementParameters( self, pmWidget ):
+        if not title:
+            return
+        
+        # Create QLabel widget.
+        if not self.labelWidget:
+            self.labelWidget = QLabel()
+            self.vBoxLayout.insertWidget(0, self.labelWidget)
+            labelAlignment = pmLeftAlignment
+            self.labelWidget.setAlignment(labelAlignment)
+            
+        self.labelWidget.setText(title)
+        
+    def getPmWidgetPlacementParameters(self, pmWidget):
         """
         Returns all the layout parameters needed to place 
         a PM_Widget in the group box grid layout.
@@ -315,7 +323,7 @@ class PM_GroupBox( QGroupBox ):
                labelSpanCols, \
                labelAlignment
     
-    def addPmWidget( self, pmWidget ):
+    def addPmWidget(self, pmWidget):
         """
         Add a PM widget and its label to this group box.
         
@@ -336,7 +344,7 @@ class PM_GroupBox( QGroupBox ):
             self.getPmWidgetPlacementParameters(pmWidget)
         
         if pmWidget.labelWidget:            
-            self.GridLayout.addWidget( pmWidget.labelWidget,
+            self.gridLayout.addWidget( pmWidget.labelWidget,
                                        labelRow, 
                                        labelColumn,
                                        1, 
@@ -351,14 +359,14 @@ class PM_GroupBox( QGroupBox ):
         # work). The workaround is to call addWidget() without the <alignment>
         # argument. Mark 2007-07-27.
         if widgetAlignment == pmLeftAlignment:
-            self.GridLayout.addWidget( pmWidget,
+            self.gridLayout.addWidget( pmWidget,
                                        widgetRow, 
                                        widgetColumn,
                                        1, 
                                        widgetSpanCols ) 
                                        # aligment = 0 doesn't work.
         else:
-            self.GridLayout.addWidget( pmWidget,
+            self.gridLayout.addWidget( pmWidget,
                                        widgetRow, 
                                        widgetColumn,
                                        1, 
@@ -368,37 +376,13 @@ class PM_GroupBox( QGroupBox ):
         self._widgetList.append(pmWidget)
         
         self._rowCount += rowIncrement
-    
-    def collapse( self ):
-        """
-        Hides the group box when its parent group box 
-        is collapsed.
-        """
-        QWidget.hide(self) # Hide self.
-        if self.labelWidget :# Hide self's label if it has one.
-            self.labelWidget.hide()
-        
-    def expand( self ):
-        """
-        Displays the group box when its parent group box
-        is expanded, unless the group box was "permanently" hidden via
-        L{hide()}. In that case, the group box will remain hidden until 
-        L{show()} is called.
-        """
-        if self.hidden: return
-        QWidget.show(self)
-        if self.labelWidget:
-            self.labelWidget.show()
             
-    def hide( self ):
+    def hide(self):
         """
-        Hides the group box . If hidden, the group box will not be 
-        displayed when its parent group box is expanded.
-        Call L{show()} to unhide the group box.
+        Hides the group box .
         
         @see: L{show}
         """
-        self.hidden = True
         QWidget.hide(self)
         if self.labelWidget:
             self.labelWidget.hide() 
@@ -408,15 +392,12 @@ class PM_GroupBox( QGroupBox ):
         if self.VSpacerWidget:
             self.VSpacerWidget.changeSize(10, 0)
             
-    def show( self ):
+    def show(self):
         """
-        Unhide the group box. The group box will remain (temporarily) hidden
-        if its parent group box is collapsed, but will be displayed again when
-        the group box is expanded.
+        Unhides the group box.
         
         @see: L{hide}
         """
-        self.hidden = False
         QWidget.show(self)
         if self.labelWidget:
             self.labelWidget.show() 
@@ -426,10 +407,10 @@ class PM_GroupBox( QGroupBox ):
 
     # Title Button Methods #####################################
     
-    def _getTitleButton( self, 
-                         parentWidget = None,
-                         title        = '', 
-                         showExpanded = True ):
+    def _getTitleButton(self, 
+                        parentWidget = None,
+                        title        = '', 
+                        showExpanded = True ):
         """
         Return the group box title push button. The push button is customized 
         such that it appears as a title bar at the top of the group box. 
@@ -446,6 +427,9 @@ class PM_GroupBox( QGroupBox ):
                              displayed on the title button
                              
         @see: _getTitleButtonStyleSheet ()
+        
+        @Note: Including a title button should only be legal if the parentWidget
+               is a PM_Dialog.
         """
         
         button  = QPushButton(title, parentWidget)
@@ -468,14 +452,14 @@ class PM_GroupBox( QGroupBox ):
         
         return button
     
-    def _getTitleButtonPalette( self ):
+    def _getTitleButtonPalette(self):
         """
         Return a palette for the title button. 
         """
         return getPalette(None, QPalette.Button, pmGrpBoxButtonColor)
     
     
-    def _getTitleButtonStyleSheet( self, showExpanded = True ):
+    def _getTitleButtonStyleSheet(self, showExpanded = True):
         """
         Returns the style sheet for a groupbox title button (or checkbox).
         If <showExpanded> is True, the style sheet includes an expanded icon.
@@ -510,15 +494,17 @@ class PM_GroupBox( QGroupBox ):
             }"
             
         return styleSheet
-    
-    def toggleExpandCollapse( self ):
+            
+    def toggleExpandCollapse(self):
         """
-        Slot method for the title button to expand/collapse the groupbox.
+        Slot method for the title button to expand/collapse the group box.
         """
         if self._widgetList:
-            if self.expanded: # Collapse groupbox by hiding all widgets in groupbox.
-                self.GridLayout.setMargin(0)
-                self.GridLayout.setSpacing(0)
+            if self.expanded:
+                self.vBoxLayout.setMargin(0)
+                self.vBoxLayout.setSpacing(0)
+                self.gridLayout.setMargin(0)
+                self.gridLayout.setSpacing(0)
                 # The styleSheet contains the expand/collapse.
                 styleSheet = self._getTitleButtonStyleSheet(showExpanded = False)
                 self.titleButton.setStyleSheet(styleSheet)
@@ -529,12 +515,7 @@ class PM_GroupBox( QGroupBox ):
                 self.titleButton.setPalette(self._getTitleButtonPalette())
                 self.titleButton.setIcon(
                     geticon("ui/actions/Properties Manager/GHOST_ICON"))
-                for widget in self._widgetList:
-                    if platform.atom_debug:
-                        if widget.objectName():
-                            print "widget name = ", widget.objectName()
-                    
-                    widget.collapse()
+                self._containerWidget.hide()
                 self.expanded = False 
             else: # Expand groupbox by showing all widgets in groupbox.
                 from PM_MessageGroupBox import PM_MessageGroupBox
@@ -543,11 +524,14 @@ class PM_GroupBox( QGroupBox ):
                     # title button and the MessageTextEdit widget.
                     # Extra code unnecessary, but more readable. 
                     # Mark 2007-05-21
-                    self.GridLayout.setMargin(0)
-                    self.GridLayout.setSpacing(0)
+                    self.gridLayout.setMargin(0)
+                    self.gridLayout.setSpacing(0)
                 else:
-                    self.GridLayout.setMargin(pmGrpBoxGridLayoutMargin)
-                    self.GridLayout.setSpacing(pmGrpBoxGridLayoutSpacing)
+                    self.vBoxLayout.setMargin(pmGrpBoxVboxLayoutMargin)
+                    self.vBoxLayout.setSpacing(pmGrpBoxVboxLayoutSpacing)
+                    self.gridLayout.setMargin(pmGrpBoxGridLayoutMargin)
+                    self.gridLayout.setSpacing(pmGrpBoxGridLayoutSpacing)
+                    
                 # The styleSheet contains the expand/collapse.
                 styleSheet = self._getTitleButtonStyleSheet(showExpanded = True)
                 self.titleButton.setStyleSheet(styleSheet)
@@ -558,22 +542,22 @@ class PM_GroupBox( QGroupBox ):
                 self.titleButton.setPalette(self._getTitleButtonPalette())
                 self.titleButton.setIcon(
                     geticon("ui/actions/Properties Manager/GHOST_ICON"))
-                for widget in self._widgetList:
-                    widget.expand()
+                self._containerWidget.show()
                 self.expanded = True         
         else:
-            print "Groupbox has no widgets. Clicking on groupbox button has no effect"
+            print "Clicking on the group box button has no effect \
+                   since it has no widgets."
     
     # GroupBox palette and stylesheet methods. ##############################3
     
-    def _getPalette( self ):
+    def _getPalette(self):
         """
         Return a palette for this groupbox. 
         The color should be slightly darker (or lighter) than the property manager background.
         """
         return getPalette( None, QPalette.Window, pmGrpBoxColor )
     
-    def _getStyleSheet( self ):
+    def _getStyleSheet(self):
         """
         Return the style sheet for the groupbox. This sets the following 
         properties only:

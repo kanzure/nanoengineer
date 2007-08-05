@@ -29,25 +29,22 @@ class PM_PushButton( QPushButton ):
                         the "Restore Defaults" button.
     @type setAsDefault: bool
     
-    @cvar hidden: Hide flag.
-    @type hidden: bool
-    
     @cvar labelWidget: The Qt label widget of this push button.
     @type labelWidget: U{B{QLabel}<http://doc.trolltech.com/4/qlabel.html>}
     """
     
     defaultText = ""
     setAsDefault = True
-    hidden       = False
     labelWidget  = None
     
-    def __init__( self, 
-                  parentWidget, 
-                  label        = '', 
-                  labelColumn  = 0,
-                  text         = '', 
-                  setAsDefault = True,
-                  spanWidth    = False ):
+    def __init__(self, 
+                 parentWidget, 
+                 label        = '', 
+                 labelColumn  = 0,
+                 text         = '', 
+                 setAsDefault = True,
+                 spanWidth    = False 
+                 ):
         """
         Appends a QPushButton (Qt) widget to the bottom of I{parentWidget}, 
         a Property Manager group box.
@@ -115,56 +112,29 @@ class PM_PushButton( QPushButton ):
         
         parentWidget.addPmWidget(self)
         
-    def restoreDefault( self ):
+    def restoreDefault(self):
         """
         Restores the default value.
         """
         if self.setAsDefault:
             self.setText(self.defaultText)
-            
-    def collapse( self ):
-        """
-        Hides the push button and its label (if it has one) when its group box 
-        is collapsed.
-        """
-        QWidget.hide(self) 
-        if self.labelWidget :
-            self.labelWidget.hide()
         
-    def expand( self ):
+    def hide(self):
         """
-        Displays the push button and its label (if it has one) when its group 
-        box is expanded, unless the push button was "permanently" hidden via
-        L{hide()}. In that case, the push button will remain hidden until 
-        L{show()} is called.
-        """
-        if self.hidden: return
-        QWidget.show(self)
-        if self.labelWidget:
-            self.labelWidget.show()
-        
-    def hide( self ):
-        """
-        Hides the push button and its label (if it has one). If hidden, the 
-        push button will not be displayed when its group box is expanded.
-        Call L{show()} to unhide the push button.
+        Hides the push button and its label (if it has one).
         
         @see: L{show}
         """
-        self.hidden = True
         QWidget.hide(self)
         if self.labelWidget: 
             self.labelWidget.hide()
             
-    def show( self ):
+    def show(self):
         """
-        Unhide the push button and its label (if it has one). The push button
-        will remain (temporarily) hidden if its group box is collapsed, 
-        but will be displayed again when the group box is expanded.
+        Unhides the push button and its label (if it has one).
         
         @see: L{hide}
         """
-        self.hidden = False
         QWidget.show(self)
         if self.labelWidget: 
             self.labelWidget.show()

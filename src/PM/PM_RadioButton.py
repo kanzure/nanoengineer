@@ -22,16 +22,16 @@ class PM_RadioButton( QRadioButton ):
     Property Manager group box.
     """
 
-    defaultIsChecked = False
-    hidden       = False    
+    defaultIsChecked = False 
     
-    def __init__( self, 
-                  parentWidget, 
-                  label        = '', 
-                  labelColumn  = 1,
-                  isChecked    = False,
-                  setAsDefault = True,
-                  spanWidth    = False ):
+    def __init__(self, 
+                 parentWidget, 
+                 label        = '', 
+                 labelColumn  = 1,
+                 isChecked    = False,
+                 setAsDefault = True,
+                 spanWidth    = False 
+                 ):
         """
         Appends a QRadioButton widget to <parentWidget>, a property manager group box.
         
@@ -96,7 +96,7 @@ class PM_RadioButton( QRadioButton ):
         
         parentWidget.addPmWidget(self)
         
-    def restoreDefault( self ):
+    def restoreDefault(self):
         """
         Restores the default value.
         
@@ -104,49 +104,22 @@ class PM_RadioButton( QRadioButton ):
         """
         print "PM_RadioButton.restoreDefault(): Not implemented yet."
         
-    def collapse( self ):
+    def hide(self):
         """
-        Hides the radio button and its label (if it has one) when its group box 
-        is collapsed.
-        """
-        QWidget.hide(self) 
-        if self.labelWidget :
-            self.labelWidget.hide()
-        
-    def expand( self ):
-        """
-        Displays the radio button and its label (if it has one) when its group 
-        box is expanded, unless the radio button was "permanently" hidden via
-        L{hide()}. In that case, the radio button will remain hidden until 
-        L{show()} is called.
-        """
-        if self.hidden: return
-        QWidget.show(self)
-        if self.labelWidget:
-            self.labelWidget.show()
-        
-    def hide( self ):
-        """
-        Hides the radio button and its label (if it has one). If hidden, the 
-        radio button will not be displayed when its group box is expanded.
-        Call L{show()} to unhide the radio button.
+        Hides the radio button and its label (if it has one).
         
         @see: L{show}
         """
-        self.hidden = True
         QWidget.hide(self)
         if self.labelWidget: 
             self.labelWidget.hide()
             
-    def show( self ):
+    def show(self):
         """
-        Unhide the radio button and its label (if it has one). The radio button
-        will remain (temporarily) hidden if its group box is collapsed, 
-        but will be displayed again when the group box is expanded.
+        Unhides the radio button and its label (if it has one).
         
         @see: L{hide}
         """
-        self.hidden = False
         QWidget.show(self)
         if self.labelWidget: 
             self.labelWidget.show()

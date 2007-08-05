@@ -94,12 +94,8 @@ pmSponsorFrameSpacing    = 0 # has no effect.
 PM_SPONSOR_FRAME_SPACING = 0 # has no effect.
 
 # GroupBox Layout constants.
-pmMsgGrpBoxMargin              = 0 # margin around yellow text window.
-PM_MESSAGEGROUPBOX_MARGIN      = 0 # margin around yellow text window.
-pmMsgGrpBoxSpacing             = 0 # has no effect.
-PM_MESSAGEGROUPBOX_SPACING     = 0 # has no effect.
-pmGrpBoxVboxLayoutMargin       = 0 # Groupbox VboxLayout margin
-PM_GROUPBOX_VBOXLAYOUT_MARGIN  = 0 # Groupbox VboxLayout margin
+pmGrpBoxVboxLayoutMargin       = 2 # Groupbox VboxLayout margin
+PM_GROUPBOX_VBOXLAYOUT_MARGIN  = 2 # Groupbox VboxLayout margin
 pmGrpBoxVboxLayoutSpacing      = 2 # Groupbox VboxLayout spacing
 PM_GROUPBOX_VBOXLAYOUT_SPACING = 2 # Groupbox VboxLayout spacing
 pmGrpBoxGridLayoutMargin       = 2 # Grid contains all widgets in a grpbox

@@ -29,9 +29,6 @@ class PM_LineEdit( QLineEdit ):
                         the "Restore Defaults" button.
     @type setAsDefault: bool
     
-    @cvar hidden: Hide flag.
-    @type hidden: bool
-    
     @cvar labelWidget: The Qt label widget of this lineedit.
     @type labelWidget: U{B{QLabel}<http://doc.trolltech.com/4/qlabel.html>}
     """
@@ -41,13 +38,14 @@ class PM_LineEdit( QLineEdit ):
     hidden       = False
     labelWidget  = None
     
-    def __init__( self, 
-                  parentWidget, 
-                  label        = '', 
-                  labelColumn  = 0,
-                  text         = '', 
-                  setAsDefault = True,
-                  spanWidth    = False ):
+    def __init__(self, 
+                 parentWidget, 
+                 label        = '', 
+                 labelColumn  = 0,
+                 text         = '', 
+                 setAsDefault = True,
+                 spanWidth    = False
+                 ):
         """
         Appends a QLineEdit widget to <parentWidget>, a property manager group box.
         
@@ -114,56 +112,29 @@ class PM_LineEdit( QLineEdit ):
             
         parentWidget.addPmWidget(self)
         
-    def restoreDefault( self ):
+    def restoreDefault(self):
         """
         Restores the default value.
         """
         if self.setAsDefault:
             self.setText(self.defaultText)
-            
-    def collapse( self ):
-        """
-        Hides the lineedit and its label (if it has one) when its group box 
-        is collapsed.
-        """
-        QWidget.hide(self) 
-        if self.labelWidget :
-            self.labelWidget.hide()
         
-    def expand( self ):
+    def hide(self):
         """
-        Displays the lineedit and its label (if it has one) when its group 
-        box is expanded, unless the lineedit was "permanently" hidden via
-        L{hide()}. In that case, the lineedit will remain hidden until 
-        L{show()} is called.
-        """
-        if self.hidden: return
-        QWidget.show(self)
-        if self.labelWidget:
-            self.labelWidget.show()
-        
-    def hide( self ):
-        """
-        Hides the lineedit and its label (if it has one). If hidden, the 
-        lineedit will not be displayed when its group box is expanded.
-        Call L{show()} to unhide the lineedit.
+        Hides the lineedit and its label (if it has one).
         
         @see: L{show}
         """
-        self.hidden = True
         QWidget.hide(self)
         if self.labelWidget: 
             self.labelWidget.hide()
             
-    def show( self ):
+    def show(self):
         """
-        Unhide the lineedit and its label (if it has one). The lineedit
-        will remain (temporarily) hidden if its group box is collapsed, 
-        but will be displayed again when the group box is expanded.
+        Unhides the lineedit and its label (if it has one).
         
         @see: L{hide}
         """
-        self.hidden = False
         QWidget.show(self)
         if self.labelWidget: 
             self.labelWidget.show()

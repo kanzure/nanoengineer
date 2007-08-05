@@ -15,9 +15,6 @@ mark 2007-07-22: Split PropMgrMessageGroupBox out of PropMgrBaseClass.py
 into this file and renamed it PM_MessageGroupBox.
 """
 
-from PM_Constants import pmMsgGrpBoxMargin
-from PM_Constants import pmMsgGrpBoxSpacing
-
 from PyQt4.Qt import QTextOption
 from PyQt4.Qt import QSizePolicy
 
@@ -29,33 +26,28 @@ class PM_MessageGroupBox( PM_GroupBox ):
     The PM_MessageGroupBox widget provides a message box with a 
     collapse/expand button and a title.
     """
-
-    #@ expanded      = True
-    #@ _widgetList   = []
-    #@ _rowCount     = 0
     
-    def __init__( self, 
-                  parentWidget, 
-                  title ):
+    def __init__(self, 
+                 parentWidget, 
+                 title = "Message"
+                 ):
         """
         PM_MessageGroupBox constructor.
         
         @param parentWidget: the PM_Dialog containing this message groupbox.
         @type  parentWidget: PM_Dialog
         
-        @param title: the title on the collapse button
+        @param title: The title on the collapse button
         @type  title: str
         """
         
-        PM_GroupBox.__init__(self, parentWidget, title, addTitleButton = True)
-                
-        #@ self._widgetList = []
+        PM_GroupBox.__init__(self, parentWidget, title)
         
-        self.VBoxLayout.setMargin(pmMsgGrpBoxMargin)
-        self.VBoxLayout.setSpacing(pmMsgGrpBoxSpacing)
+        self.vBoxLayout.setMargin(0)
+        self.vBoxLayout.setSpacing(0)
         
-        self.GridLayout.setMargin(0)
-        self.GridLayout.setSpacing(0)
+        self.gridLayout.setMargin(0)
+        self.gridLayout.setSpacing(0)
         
         self.MessageTextEdit = PM_TextEdit(self, label='', spanWidth=True)
         
@@ -81,12 +73,12 @@ class PM_MessageGroupBox( PM_GroupBox ):
         # Hide until insertHtmlMessage() loads a message.
         self.hide()
         
-    def insertHtmlMessage( self, 
-                           text, 
-                           setAsDefault = False, 
-                           minLines     = 4, 
-                           maxLines     = 10, 
-                           replace      = True ):
+    def insertHtmlMessage(self, 
+                          text, 
+                          setAsDefault = False, 
+                          minLines     = 4, 
+                          maxLines     = 10, 
+                          replace      = True ):
         """
         Insert text (HTML) into the message box. Displays the message box if it is hidden.
         
