@@ -61,29 +61,9 @@ class GrapheneGeneratorDialog(PM_Dialog):
         """
         self.pmGroupBox1 = \
             PM_GroupBox( self, 
-                         title          = "Graphene Parameters",
-                         addTitleButton = True )
+                         title = "Graphene Parameters" )
         
         self.loadGroupBox1(self.pmGroupBox1)
-        
-        AddTestGroupBoxes = False # For testing. Mark 2007-05-24
-        
-        if not AddTestGroupBoxes: # Add test widgets to their own groupbox.
-            return
-        
-        self.testGroupBox1 = \
-            PM_GroupBox( self, 
-                         title          = "Test Widgets1",
-                         addTitleButton = True )
-        
-        self.loadTestWidgets1(self.testGroupBox1)
-        
-        self.testGroupBox2 = \
-            PM_GroupBox( self, 
-                         title          = "Test Widgets2",
-                         addTitleButton = True )
-        
-        self.loadTestWidgets2(self.testGroupBox2)
               
     def loadGroupBox1(self, pmGroupBox):
         """
@@ -132,134 +112,6 @@ class GrapheneGeneratorDialog(PM_Dialog):
                          index        = 0, 
                          setAsDefault = True,
                          spanWidth    = False )
-        
-    def loadTestWidgets1(self, pmGroupBox):
-        """
-        Adds widgets to <pmGroupBox>.
-        Used for testing purposes. Mark 2007-05-24
-        """
-        
-        # I intend to create a special PropMgr to display all widget types
-        # for testing purposes. For now, I just add them to the end of the
-        # Graphene Sheet property manager. Mark 2007-05-22
-        
-        self.spinBox = \
-            PM_SpinBox( pmGroupBox, 
-                            label        = "Spinbox :", 
-                            value        = 5, 
-                            setAsDefault = True,
-                            minimum      = 2, 
-                            maximum      = 10, 
-                            suffix       = ' things',
-                            spanWidth    = True )
-            
-        self.doubleSpinBox = \
-                PM_DoubleSpinBox( pmGroupBox, 
-                                  #label="Spanning DoubleSpinBox :",
-                                  label        = "", # No label
-                                  value        = 5.0, 
-                                  setAsDefault = True,
-                                  minimum      = 1.0, 
-                                  maximum      = 10.0, 
-                                  singleStep   = 1.0, 
-                                  decimals     = 1, 
-                                  suffix       = ' Suffix',
-                                  spanWidth    = True )
-            
-        # Add a prefix example.
-        self.doubleSpinBox.setPrefix("Prefix ")
-            
-        choices = [ "First", "Second", "Third (Default)", "Forth" ]
-        
-        self.comboBox= \
-            PM_ComboBox( pmGroupBox,
-                         label        = 'Choices : ', 
-                         choices      = choices, 
-                         index        = 2, 
-                         setAsDefault = True,
-                         spanWidth    = True )
-        
-        self.textEdit = \
-            PM_TextEdit( pmGroupBox, 
-                         label     = "TextEdit :", 
-                         spanWidth = False )
-        
-        
-        self.spanTextEdit = \
-            PM_TextEdit( pmGroupBox, 
-                         label     = "", 
-                         spanWidth = True )
-        
-        
-        self.groupBox = \
-            PM_GroupBox( pmGroupBox, 
-                         title          = "Group Box Title",
-                         addTitleButton = False )
-            
-        self.comboBox2= \
-            PM_ComboBox( self.groupBox,
-                         label        = "Choices :", 
-                         choices      = choices, 
-                         index        = 2, 
-                         setAsDefault = True,
-                         spanWidth    = False )
-        
-        self.groupBox2 = \
-            PM_GroupBox( pmGroupBox, 
-                         title          = "Group Box Title",
-                         addTitleButton = False)
-            
-        self.comboBox3= \
-            PM_ComboBox( self.groupBox2,
-                         label        = "Choices :", 
-                         choices      = choices, 
-                         index        = 2, 
-                         setAsDefault = True,
-                         spanWidth    = False)
-        
-        self.pushButton1 = \
-            PM_PushButton( pmGroupBox,
-                           label = "",
-                           text  = "PushButton1")
-        
-        self.pushButton2 = \
-            PM_PushButton( pmGroupBox,
-                           label     = "",
-                           text      = "PushButton2",
-                           spanWidth = True )
-    
-    def loadTestWidgets2(self, pmGroupBox):
-        """
-        Load widgets in groubox 1.
-        """
-        
-        self.lineEdit1 = \
-            PM_LineEdit( pmGroupBox, 
-                         label        = "Name :",
-                         text         = "RotaryMotor-1",
-                         setAsDefault = True,
-                         spanWidth    = False)
-        
-        self.lineEdit2 = \
-            PM_LineEdit( pmGroupBox, 
-                         label        = "Span Width LineEdit :",
-                         text         = "RotaryMotor-1",
-                         setAsDefault = False,
-                         spanWidth    = True)
-        
-        self.checkBox1 = \
-            PM_CheckBox( pmGroupBox,
-                         label        = "CheckBox :",
-                         isChecked    = True,
-                         setAsDefault = True,
-                         spanWidth    = False )
-        
-        self.checkBox2 = \
-            PM_CheckBox( pmGroupBox,
-                         label        = "SpanWidth CheckBox :",
-                         isChecked    = False,
-                         setAsDefault = False,
-                         spanWidth    = True )
         
     def add_whats_this_text(self):
         """
