@@ -5,6 +5,7 @@ $Id$
 History:
 
 Mark 2007-05-18: Implemented Nanotube generator dialog using PropMgrBaseClass.
+Mark 2007-08-06: Renamed NanotubeGeneratorDialog to NanotubeGeneratorPropertyManager.
 """
 
 import math
@@ -25,10 +26,10 @@ from debug import print_compact_traceback
 
 ntBondLengths = [CC_GRAPHITIC_BONDLENGTH, BN_GRAPHITIC_BONDLENGTH]
 
-class NanotubeGeneratorDialog(PM_Dialog):
+class NanotubeGeneratorPropertyManager(PM_Dialog):
     """
-    The GrapheneGeneratorDialog class provides a Property Manager dialog for the
-    "Build Graphene (Sheet)" command.
+    The NanotubeGeneratorPropertyManager class provides a Property Manager 
+    for the "Build > Nanotube" command.
     """
     # The title that appears in the property manager header.
     title = "Nanotube"
