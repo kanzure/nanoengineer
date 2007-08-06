@@ -7,7 +7,8 @@ $Id$
 History:
 
 Mark 2007-05-17: Implemented PropMgrBaseClass.
-Mark 2007-07-24: GrapheneGeneratorDialog now uses new PM module.
+Mark 2007-07-24: Now uses new PM module.
+Mark 2007-08-06: Renamed GrapheneGeneratorDialog to GrapheneGeneratorPropertyManager.
 """
 
 __author__ = "Will"
@@ -26,7 +27,7 @@ from elements import PeriodicTable
 from HistoryWidget import greenmsg
 import bond_constants
 
-from GrapheneGeneratorDialog import GrapheneGeneratorDialog
+from GrapheneGeneratorPropertyManager import GrapheneGeneratorPropertyManager
 from GeneratorBaseClass import GeneratorBaseClass
 
 sqrt3 = 3 ** 0.5
@@ -34,7 +35,7 @@ quartet = ((0, sqrt3 / 2), (0.5, 0), (1.5, 0), (2, sqrt3 / 2))
 
 TOROIDAL = False   # Just for Will
 
-class GrapheneGenerator( GrapheneGeneratorDialog, GeneratorBaseClass):
+class GrapheneGenerator( GrapheneGeneratorPropertyManager, GeneratorBaseClass):
     """
     The Graphene Sheet Generator class for the "Build Graphene (Sheet)" command.
     """
@@ -51,7 +52,7 @@ class GrapheneGenerator( GrapheneGeneratorDialog, GeneratorBaseClass):
 
     # pass window arg to constructor rather than use a global, wware 051103
     def __init__(self, win):
-        GrapheneGeneratorDialog.__init__(self)
+        GrapheneGeneratorPropertyManager.__init__(self)
         GeneratorBaseClass.__init__(self, win)
 
     ###################################################
