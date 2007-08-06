@@ -298,13 +298,13 @@ def addEndcap(mol, length, radius, bondlength):
 
 #################################################################
 
-from NanotubeGeneratorDialog import NanotubeGeneratorDialog
+from NanotubeGeneratorPropertyManager import NanotubeGeneratorPropertyManager
 from GeneratorBaseClass import GeneratorBaseClass
 from HistoryWidget import redmsg, orangemsg, greenmsg
 
-class NanotubeGenerator(NanotubeGeneratorDialog, GeneratorBaseClass):
+class NanotubeGenerator(NanotubeGeneratorPropertyManager, GeneratorBaseClass):
     """
-    The Nanotube Generator class for the "Build Nanotube" command.
+    The Nanotube Generator class for the "Build > Nanotube" command.
     """
 
     cmd = greenmsg("Build Nanotube: ")
@@ -318,7 +318,7 @@ class NanotubeGenerator(NanotubeGeneratorDialog, GeneratorBaseClass):
     
     # pass window arg to constructor rather than use a global, wware 051103
     def __init__(self, win):
-        NanotubeGeneratorDialog.__init__(self)
+        NanotubeGeneratorPropertyManager.__init__(self)
         GeneratorBaseClass.__init__(self, win)
 
     ###################################################
