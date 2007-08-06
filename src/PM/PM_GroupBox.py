@@ -54,11 +54,12 @@ from Utility import geticon
 class PM_GroupBox( QGroupBox ):
     """
     The PM_GroupBox widget provides a group box container with a 
-    collapse/expand button and a title. All PM widgets must be inside
-    of a PM_GroupBox.
+    collapse/expand button and a title button.
     
-    @cvar defaultValue: The default value of the group box.
-    @type defaultValue: float
+    PM group boxes can be nested by supplying an existing PM_GroupBox as the 
+    parentWidget of a new PM_GroupBox (as an argument to its constructor).
+    If the parentWidget is a PM_GroupBox, no title button will be created
+    for the new group box.
     
     @cvar setAsDefault: Determines whether to reset the value of all
                         widgets in the group box when the user clicks
@@ -102,21 +103,25 @@ class PM_GroupBox( QGroupBox ):
                  setAsDefault   = True
                  ):
         """
-        PM_GroupBox constructor.
+        Appends a PM_GroupBox widget to I{parentWidget}, a L{PM_Dialog} or a 
+        L{PM_GroupBox}.
         
-        Appends a QGroupBox widget to <parentWidget>, a PM_Dialog or a PM_GroupBox.
+        If I{parentWidget} is a L{PM_Dialog}, the group box will have a title 
+        button at the top for collapsing and expanding the group box. If 
+        I{parentWidget} is a PM_GroupBox, the title will simply be a text 
+        label at the top of the group box.
         
-        Arguments:
+        @param parentWidget: The parent dialog or group box containing this
+                             widget.
+        @type  parentWidget: L{PM_Dialog} or L{PM_GroupBox}
         
-        @param parentWidget: the parent dialog or group box containing this widget.
-        @type  parentWidget: PM_Dialog or PM_GroupBox
-        
-        @param title: the title on the group box button
+        @param title: The title (button) text. If empty, no title is added.
         @type  title: str
         
-        @param setAsDefault: if False, no widgets in this groupbox will have thier
-                default values restored when the Restore Defaults 
-                button is clicked, regardless thier own <setAsDefault> value.
+        @param setAsDefault: If False, no widgets in this group box will have 
+                             thier default values restored when the B{Restore 
+                             Defaults} button is clicked, regardless thier own 
+                             I{setAsDefault} value.
         @type  setAsDefault: bool
         
         @see: U{B{QGroupBox}<http://doc.trolltech.com/4/qgroupbox.html>}
@@ -142,23 +147,24 @@ class PM_GroupBox( QGroupBox ):
         self.setPalette(self._getPalette())
         self.setStyleSheet(self._getStyleSheet())
         
-        # EXPERIMENTAL: Create vertical box layout
+        # Create vertical box layout which will contain two widgets:
+        # - the group box title button (or title) on row 0.
+        # - the container widget for all PM widgets on row 1.
         self._vBoxLayout = QVBoxLayout(self)
         self._vBoxLayout.setMargin(0)
         self._vBoxLayout.setSpacing(0)
         
-        # EXPERIMENTAL: 
+        # _containerWidget contains all PM widgets in this group box.
+        # Its sole purpose is to easily support the collapsing and
+        # expanding of a group box by calling this widget's hide()
+        # and show() methods.
         self._containerWidget = QWidget()
         self._vBoxLayout.insertWidget(0, self._containerWidget)
         
         # Create vertical box layout
         self.vBoxLayout = QVBoxLayout(self._containerWidget)
-        #@ORIG self.vBoxLayout = QVBoxLayout()
         self.vBoxLayout.setMargin(pmGrpBoxVboxLayoutMargin)
         self.vBoxLayout.setSpacing(pmGrpBoxVboxLayoutSpacing)
-        
-        # EXPERIMENTAL: Insert vBoxLayout in _vBoxLayout
-        #@ORIG self._vBoxLayout.addLayout(self.vBoxLayout)
         
         # Create grid layout
         self.gridLayout = QGridLayout()
@@ -178,7 +184,6 @@ class PM_GroupBox( QGroupBox ):
                           SIGNAL("clicked()"),
                           self.toggleExpandCollapse)
             
-        
         # Fixes the height of the group box. Very important. Mark 2007-05-29
         self.setSizePolicy(
             QSizePolicy(QSizePolicy.Policy(QSizePolicy.Preferred),
@@ -331,7 +336,7 @@ class PM_GroupBox( QGroupBox ):
         @type  pmWidget: PM_Widget
         """
         
-        # Gather all the widget and label layout parameters.
+        # Get all the widget and label layout parameters.
         widgetRow, \
         widgetColumn, \
         widgetSpanCols, \
@@ -354,7 +359,7 @@ class PM_GroupBox( QGroupBox ):
         # The following is a workaround for a Qt bug. If addWidth()'s 
         # <alignment> argument is not supplied, the widget spans the full 
         # column width of the grid cell containing it. If <alignment> 
-        # is supplied, this desired behavior is lost an there is no 
+        # is supplied, this desired behavior is lost and there is no 
         # value that can be supplied to maintain the behavior (0 doesn't 
         # work). The workaround is to call addWidget() without the <alignment>
         # argument. Mark 2007-07-27.
@@ -376,7 +381,32 @@ class PM_GroupBox( QGroupBox ):
         self._widgetList.append(pmWidget)
         
         self._rowCount += rowIncrement
-            
+        
+    def addQtWidget(self, qtWidget, column, spanWidth):
+        """
+        Add a Qt widget to this group box.
+        
+        @param qtWidget: The Qt widget to add.
+        @type  qtWidget: QWidget
+        
+        @warning: this method has not been tested yet.
+        """
+        # Set the widget's row and column parameters.
+        widgetRow      = self._rowCount
+        widgetColumn   = column
+        if spanWidth:
+            widgetSpanCols = 2
+        else:
+            widgetSpanCols = 1
+        
+        self.gridLayout.addWidget( qtWidget,
+                                   widgetRow, 
+                                   widgetColumn,
+                                   1, 
+                                   widgetSpanCols )
+        
+        self._rowCount += 1
+
     def hide(self):
         """
         Hides the group box .
