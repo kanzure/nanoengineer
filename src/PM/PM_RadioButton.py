@@ -13,7 +13,6 @@ file and renamed it PM_RadioButton.
 """
 
 from PyQt4.Qt import QRadioButton
-from PyQt4.Qt import QLabel
 from PyQt4.Qt import QWidget
 
 class PM_RadioButton( QRadioButton ):
@@ -22,17 +21,19 @@ class PM_RadioButton( QRadioButton ):
     Property Manager group box.
     """
 
-    defaultIsChecked = False 
-    labelWidget  = None
-    label        = ""
-    labelColumn  = 0
-    spanWidth    = False
+    defaultIsChecked = False
+    setAsDefault = False
+    
+    labelWidget  = None  # Needed for PM_GroupBox.addPmWidget().
+    label        = ""    # Needed for PM_GroupBox.addPmWidget().
+    labelColumn  = 0     # Needed for PM_GroupBox.addPmWidget().
+    spanWidth    = False # Needed for PM_GroupBox.addPmWidget().
     
     def __init__(self, 
                  parentWidget, 
                  text         = '', 
                  isChecked    = False,
-                 setAsDefault = True,
+                 setAsDefault = False
                  ):
         """
         Appends a QRadioButton widget to <parentWidget>, a property manager 
@@ -55,12 +56,7 @@ class PM_RadioButton( QRadioButton ):
                              "Restore Defaults" button is clicked.
         @type  setAsDefault: bool
         
-        @param spanWidth: If True, the radio button and its label will span the width
-                          of the group box. The label will appear directly above
-                          the radio button and is left aligned. 
-        @type  spanWidth: bool
-        
-        @see: U{B{QCheckBox}<http://doc.trolltech.com/4/qradiobutton.html>}
+        @see: U{B{QRadioButton}<http://doc.trolltech.com/4/qradiobutton.html>}
         
         """
         
@@ -81,30 +77,9 @@ class PM_RadioButton( QRadioButton ):
         
     def restoreDefault(self):
         """
-        Restores the default value.
-        
-        @warning: not implemented yet
+        Restores the default check state.
         """
-        print "PM_RadioButton.restoreDefault(): Not implemented yet."
-        
-    def hide(self):
-        """
-        Hides the radio button and its label (if it has one).
-        
-        @see: L{show}
-        """
-        QWidget.hide(self)
-        if self.labelWidget: 
-            self.labelWidget.hide()
-            
-    def show(self):
-        """
-        Unhides the radio button and its label (if it has one).
-        
-        @see: L{hide}
-        """
-        QWidget.show(self)
-        if self.labelWidget: 
-            self.labelWidget.show()
+        if self.setAsDefault:
+            self.setChecked(self.defaultIsChecked)
 
 # End of PM_RadioButton ############################
