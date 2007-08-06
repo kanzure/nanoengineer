@@ -24,6 +24,7 @@ from chunk       import BorrowerChunk
 from chunk       import molecule
 from jigs        import Jig
 from jigs_motors import Motor
+from jigs_planes import ESPImage
 from Utility     import Group
 
 
@@ -204,9 +205,13 @@ class ops_motion_Mixin:
         j = jigToMirror
         # ninad060813 This gives an orthogonal distance between the chunk 
         # center and mirror plane.
-        self.mirrorDistance, self.wid = orthodist(j.center, self.mirrorAxis, 
-                                                  self.mirrorJigs[0].center) 
         
+        #Fixed bug 2503. 
+        if not (isinstance(j, Motor) or isinstance(j, ESPImage)):
+            return
+        
+        self.mirrorDistance, self.wid = orthodist(j.center, self.mirrorAxis, 
+                                                  self.mirrorJigs[0].center)         
         j.move(2*(self.mirrorDistance)*self.mirrorAxis)
         
         j.rot(Q(self.mirrorAxis, pi))
