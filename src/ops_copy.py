@@ -187,6 +187,57 @@ class ops_copy_Mixin:
             #  Probably that's no longer true, but it needs to be checked before this is changed. [050526])
         self.w.win_update()
         return
+    
+    def copy_sel_in_same_part(self, use_selatoms = True): 
+        """
+        Copies the selected object in the same part.
+        @param  use_selatoms: If true, it uses the selected atoms in the GLPane 
+                for copying. 
+        @type   use_selatoms: boolean
+        @return copiedObject: Object copied and added to the same part
+                (e.g. Group, chunk, jig) 
+                
+        Uses: Used in mirror operation.
+        """
+        #NOTE: This uses most of the code in copy_sel. 
+        
+        # 1. what objects is user asking to copy?        
+        part = self
+        sel = selection_from_part(part, use_selatoms = use_selatoms)
+        # 2. prep this for copy by including other required objects, context, etc...
+        # (eg a new group to include it all, new chunks for bare atoms)
+        # and emit message about what we're about to do
+        if platform.atom_debug: #bruce 050811 fixed this for A6 (it was a non-debug reload)
+            print "atom_debug: fyi: importing or reloading ops_copy from itself"
+            import ops_copy as hmm
+            reload(hmm)
+        from ops_copy import Copier # use latest code for that class, even if not for this mixin method!
+        copier = Copier(sel) #e sel.copier()?
+        copier.prep_for_copy_to_shelf()
+        if copier.objectsCopied == 0:  # wware 20051128, bug 1118, no error msg if already given
+            return
+        if copier.ok():
+            desc = copier.describe_objects_for_history() # e.g. "5 items" ### not sure this is worth it if we have a results msg
+            if desc:
+                text = "Mirror %s" % desc
+            else:
+                text = "Mirror"
+            env.history.message(text)
+        else:
+            whynot = copier.whynot()
+            env.history.message(cmd + redmsg(whynot))
+            return
+        # 3. do it
+        copiedObject = copier.copy_as_node_for_shelf()
+        self.assy.addnode(copiedObject)
+        # 4. clean up
+        self.assy.update_parts()
+            # overkill! should just apply to the new shelf items. [050308] ###@@@
+            # (It might not be that simple -- at one point we needed to scan anything they were jig-connected to as well.
+            #  Probably that's no longer true, but it needs to be checked before this is changed. [050526])
+        self.w.win_update()
+        
+        return copiedObject
 
     def part_for_save_selection(self):
         #bruce 050925; this helper method is defined here since it's very related to copy_sel ###k does it need self?

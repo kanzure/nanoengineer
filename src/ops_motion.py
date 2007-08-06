@@ -20,6 +20,12 @@ import env
 from math import pi
 from debug import print_compact_traceback
 
+from chunk       import BorrowerChunk
+from chunk       import molecule
+from jigs        import Jig
+from jigs_motors import Motor
+from Utility     import Group
+
 
 class ops_motion_Mixin:
     "Mixin class for providing these methods to class Part"
@@ -103,9 +109,121 @@ class ops_motion_Mixin:
         info = fix_plurals( "Inverted %d chunk(s)" % len(self.selmols))
         env.history.message( cmd + info)
         env.end_op(mc) #e try/finally?
-        
+    
     #Mirror the selected chunks 
     def Mirror(self):
+        "Mirror the selected chunk(s) about a selected grid plane."
+      
+        mc = env.begin_op("Mirror")
+        cmd = greenmsg("Mirror: ")
+        #ninad060814 this is necessary to fix a bug. Otherwise program will 
+        #crash if you try to mirror when the top node of the part 
+        #(main part of clipboard) is selected
+        
+        if self.topnode.picked:
+            self.topnode.unpick_top()                                                  
+        
+        self.mirrorJigs = self.getQualifiedMirrorJigs()
+               
+        jigCounter = len(self.mirrorJigs)        
+                        
+        if jigCounter < 1:
+            msg1 = "No mirror plane selected."
+            msg2 = " Please select a Reference Plane or a Grid Plane first."
+            msg = redmsg(msg1+msg2)
+            instr1 = "(If it doesn't exist, create it using"
+            instr2 = "<b>Insert > Reference Geometry menu </b> )"
+            instruction = instr1 + instr2
+            env.history.message(cmd + msg  + instruction)
+            return 
+        elif jigCounter >1:
+            msg = redmsg("More than one plane selected. Please select only one plane and try again")
+            env.history.message(cmd + msg ) 
+            return 
+        
+        for j in self.mirrorJigs:
+            j.unpick()
+            
+        copiedObject = self.o.assy.part.copy_sel_in_same_part()
+        
+        # ninad060812 Get the axis vector of the Grid Plane. Then you need to 
+        #rotate the inverted chunk by pi around this axis vector
+        self.mirrorAxis = self.mirrorJigs[0].getaxis()  
+        
+        if isinstance(copiedObject, molecule):
+            copiedObject.name = copiedObject.name + "-Mirror"
+            self._mirrorChunk(copiedObject)            
+            return        
+        elif isinstance(copiedObject, Group):
+            copiedObject.name = "Mirrored Items"
+            def mirrorChild(obj):
+                if isinstance(obj, molecule):
+                    self._mirrorChunk(obj)
+                elif isinstance(obj, Jig):
+                    self._mirrorJig(obj)
+                                                           
+            copiedObject.apply2all(mirrorChild)
+            return
+                                
+                
+    def _mirrorChunk(self, chunkToMirror):
+        """
+        Converts the given chunk into its own mirror. Uses a BorrowerChunk object
+        to do this mirror operation. 
+        @param chunkToMirror: The chunk that needs to be converted into its own
+               mirror chunk. 
+        @type  chunkToMirror: instance of class molecule
+        @see:  self.Mirror
+        @see:  chunk.BorrowerChunk
+        """
+        m = chunkToMirror
+        # ninad060813 Following gives an orthogonal distance between the 
+        #chunk center and mirror plane.
+        self.mirrorDistance, self.wid = orthodist(m.center, 
+                                                  self.mirrorAxis, 
+                                                  self.mirrorJigs[0].center) 
+        # @@@@ ninad060813 This moves the mirror chunk on the other side of 
+        # the mirror plane. It surely moves the chunk along the axis of the 
+        # mirror plane but I am still unsure if this *always* moves the 
+        # chunk on the other side of the mirror. 
+        #Probably the 'orthodist' function has helped me here?? 
+        m.move(2*(self.mirrorDistance)*self.mirrorAxis)
+        
+        borrowedAtomList = []
+        borrowedAtomList.extend(m.atoms.values())
+        atomset = dict([(a.key, a) for a in borrowedAtomList]) 
+        bc = BorrowerChunk(self.o.assy, atomset)
+        bc.stretch(-1.0)
+        bc.rot(Q(self.mirrorAxis, pi))
+        bc.demolish()
+        
+    def _mirrorJig(self, jigToMirror):
+        """
+        Converts the given jig into its own mirror. If the jig is a motor, 
+        it also reverses its direction.
+        @param jigToMirror: The jig that needs to be converted into its own
+               mirror jig. 
+        @type  jigToMirror: instance of class Jig
+        @see:  self.Mirror
+        """
+        
+        j = jigToMirror
+        # ninad060813 This gives an orthogonal distance between the chunk 
+        # center and mirror plane.
+        self.mirrorDistance, self.wid = orthodist(j.center, self.mirrorAxis, 
+                                                  self.mirrorJigs[0].center) 
+        
+        j.move(2*(self.mirrorDistance)*self.mirrorAxis)
+        
+        j.rot(Q(self.mirrorAxis, pi))
+        
+        #Reverse the direction of Linear and Rotary motor for correct 
+        #mirror operation
+        if isinstance(j, Motor):
+            j.reverse_direction()
+            
+    #Mirror the selected chunks 
+    def MirrorORIG(self):
         "Mirror the selected chunk(s) about a selected grid plane."
         #ninad060812--: As of 060812 (11 PM EST) it creates mirror chunks about a selected grid plane/(or jig with 0 atoms)
         #This has some known bugs. listed below ninad060812: 
@@ -251,9 +369,8 @@ class ops_motion_Mixin:
 
         cmd = greenmsg("Align to Plane:")
         
-        jigs = self.assy.getSelectedJigs()
-        referencePlaneList = self.getQualifiedReferencePlanes(jigs)
-        jigCounter = len(referencePlaneList) # as of 060904 qualified ref plane is grid plane jig. Other option is to use ESP image
+        referencePlaneList = self.getQualifiedReferencePlanes()
+        jigCounter = len(referencePlaneList) 
         
         self.changed()
         
@@ -262,8 +379,8 @@ class ops_motion_Mixin:
         
             
         if jigCounter < 1:
-            msg = redmsg("No reference plane selected. Please select a Grid Plane first.")
-            instruction = "  (If it doesn't exists, create one using <b>Jigs > Grid Plane</b> )"
+            msg = redmsg("Please select a plane first.")
+            instruction = "  (If it doesn't exist, create one using <b>Insert > Reference Geometry</b> menu )"
             env.history.message(cmd + msg  + instruction)
             return 
 
