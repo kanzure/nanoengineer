@@ -18,22 +18,25 @@ from PyQt4.Qt import QWidget
 
 class PM_RadioButton( QRadioButton ):
     """
-    The PM_RadioButton widget provides a QRadioButton with a QLabel for a 
+    The PM_RadioButton widget provides a radio button for a 
     Property Manager group box.
     """
 
     defaultIsChecked = False 
+    labelWidget  = None
+    label        = ""
+    labelColumn  = 0
+    spanWidth    = False
     
     def __init__(self, 
                  parentWidget, 
-                 label        = '', 
-                 labelColumn  = 1,
+                 text         = '', 
                  isChecked    = False,
                  setAsDefault = True,
-                 spanWidth    = False 
                  ):
         """
-        Appends a QRadioButton widget to <parentWidget>, a property manager group box.
+        Appends a QRadioButton widget to <parentWidget>, a property manager 
+        group box.
         
         Appends a QCheckBox (Qt) widget to the bottom of I{parentWidget}, 
         a Property Manager group box.
@@ -41,21 +44,8 @@ class PM_RadioButton( QRadioButton ):
         @param parentWidget: The parent group box containing this widget.
         @type  parentWidget: PM_GroupBox
         
-        @param label: The label that appears to the left or right of the 
-                      radio button. 
-                      
-                      If spanWidth is True, the label will be displayed on
-                      its own row directly above the radio button.
-                      
-                      To suppress the label, set I{label} to an 
-                      empty string.
-        @type  label: str
-        
-        @param labelColumn: The column number of the label in the group box
-                            grid layout. The only valid values are 0 (left 
-                            column) and 1 (right column). The default is 0 
-                            (left column).
-        @type  labelColumn: int
+        @param text: The text that appears to the right of the radio button. 
+        @type  text: str
         
         @param isChecked: Set's the radio button's check state. The default is
                           True.
@@ -77,16 +67,9 @@ class PM_RadioButton( QRadioButton ):
         QRadioButton.__init__(self)
         
         self.parentWidget = parentWidget
-        self.label        = label
-        self.labelColumn  = labelColumn
         self.setAsDefault = setAsDefault
-        self.spanWidth    = spanWidth
         
-        if label: # Create this widget's QLabel.
-            self.labelWidget = QLabel()
-            self.labelWidget.setText(label)
-        
-        self.setText("")
+        self.setText(text)
         
         self.setCheckable(True)
         self.setChecked(isChecked)
