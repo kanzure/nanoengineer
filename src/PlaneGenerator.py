@@ -57,7 +57,7 @@ class PlaneGenerator(PlanePropertyManager, GeometryGeneratorBaseClass):
         height = self.heightDblSpinBox.value()
         width = self.widthDblSpinBox.value()
         atmList = self.win.assy.selatoms_list()
-        self.geometry.changePlanePlacement(self.planePlacement_btngrp.checkedId())
+        self.geometry.changePlanePlacement(self.pmPlacementOptions.checkedId())
         ctr = self.geometry.center        
         return (width, height, ctr, atmList)
     

@@ -11,7 +11,6 @@ ninad 20070602: Created.
 """
 __author__ = "Ninad"
 
-
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QAction
 from PyQt4.Qt import QActionGroup
@@ -25,27 +24,40 @@ from PM.PM_SpinBox       import PM_SpinBox
 from PM.PM_PushButton    import PM_PushButton
 from PM.PM_CheckBox      import PM_CheckBox
 from PM.PM_RadioButton   import PM_RadioButton
+from PM.PM_RadioButtonList import PM_RadioButtonList
+
 from PM.PM_Constants     import pmRestoreDefaultsButton
 
-
-class PlanePropertyManager(PM_Dialog):
-    ''' UI and slot methods for Plane Property manager'''
+# Placement Options radio button list to create radio button list.
+# Format: buttonId, buttonText, tooltip
+PLACEMENT_OPTIONS_BUTTON_LIST = [ \
+    ( 0,  "Parallel to screen",    "Parallel to screen"      ),
+    ( 1, "Through selected atoms", "Through selected atoms"  ),
+    ( 2,  "Offset to a plane",     "Offset to a plane"       ),
+    ( 3,  "Custom",                "Custom"                  )
+]
     
-    # <title> - the title that appears in the property manager header.
+class PlanePropertyManager(PM_Dialog):
+    """
+    UI and slot methods for Plane Property Manager.
+    """
+    
+    # The title that appears in the Property Manager header.
     title = "Plane"
-    # <pmName> - the name of this property manager. This will be set to
-    # the name of the PropMgr (this) object via setObjectName().
-    pmName = "pm" + title
-    # <iconPath> - full path to PNG file that appears in the header.
+    # The name of this Property Manager. This will be set to
+    # the name of the PM_Dialog object via setObjectName().
+    pmName = title
+    # The relative path to the PNG file that appears in the header
     iconPath = "ui/actions/Insert/Reference Geometry/Plane.png"
     
     def __init__(self, plane):
-        """Construct the Plane Property Manager.
+        """
+        Construct the Plane Property Manager.
         """
         self.geometry = plane
         PM_Dialog.__init__( self, self.pmName, self.iconPath, self.title )       
         self.addGroupBoxes()
-        self.add_whats_this_text()
+        self.addWhatsThisText()
         
         msg = "Insert a Plane parallel to the screen. Note: This feature is \
         experimental for Alpha9 and has known bugs"
@@ -60,21 +72,29 @@ class PlanePropertyManager(PM_Dialog):
         #Hide Preview and Restore defaults button for Alpha9
         self.hideTopRowButtons(pmRestoreDefaultsButton)
       
-        
     def addGroupBoxes(self):
-        """Add the 1 groupbox for the Graphene Property Manager.
+        """
+        Add the 1 groupbox for the Graphene Property Manager.
         """
         self.pmGroupBox1 = PM_GroupBox(self, title = "Parameters")
-        
         self.loadGroupBox1(self.pmGroupBox1)
         
-        self.pmGroupBox2 = PM_GroupBox(self, title = "Placement")
+        self.pmPlacementOptions = \
+            PM_RadioButtonList( self,
+                                title      = "Placement Options", 
+                                buttonList = PLACEMENT_OPTIONS_BUTTON_LIST,
+                                checkedId  = 3 )
         
-        self.loadGroupBox2(self.pmGroupBox2)        
-
+        self.connect(self.pmPlacementOptions.buttonGroup,
+                     SIGNAL("buttonClicked(int)"),
+                     self.geometry.changePlanePlacement)
+        
+        #@self.pmGroupBox2 = PM_GroupBox(self, title = "Placement Options")
+        #@self.loadGroupBox2(self.pmGroupBox2)
               
     def loadGroupBox1(self, pmGroupBox):
-        """Load widgets in groubox 1.
+        """
+        Load widgets in group box 1.
         """
         
         self.widthDblSpinBox = \
@@ -135,22 +155,25 @@ class PlanePropertyManager(PM_Dialog):
         else:
             self.aspectRatioSpinBox.setEnabled(False)
     
-    def loadGroupBox2(self, pmGroupBox):
-        '''Load widgets in groubox 2'''
+    def loadGroupBox2_DEPRECATED(self, pmGroupBox):
+        """
+        Load widgets in groubox 2.
+        
+        @deprecated. Now uses new PM_RadioButtonList widget class.
+        """
         # Default Projection Groupbox in General tab (as of 070430)
         self.planePlacement_btngrp = QButtonGroup()
         self.planePlacement_btngrp.setExclusive(True)
         
         self.parallelToScreen_btn = \
-            PM_RadioButton(pmGroupBox, label = "Parallel to Screen" )
+            PM_RadioButton(pmGroupBox, text = "Parallel to Screen" )
         self.throughSelectedAtoms_btn = \
-            PM_RadioButton(pmGroupBox, label = "Through Selected Atoms" )        
+            PM_RadioButton(pmGroupBox, text = "Through Selected Atoms" )        
         self.offsetToPlane_btn = \
-            PM_RadioButton(pmGroupBox, label = "Offset to a Plane" )
+            PM_RadioButton(pmGroupBox, text = "Offset to a Plane" )
         self.customPlacement_btn = \
-            PM_RadioButton(pmGroupBox, label = "Custom" )  
+            PM_RadioButton(pmGroupBox, text = "Custom" )  
 
-        
         objId = 0
         for obj in [self.parallelToScreen_btn,\
                     self.throughSelectedAtoms_btn,\
@@ -195,11 +218,12 @@ class PlanePropertyManager(PM_Dialog):
         self.parallelToScreenAction.setChecked(True)
         
         self.connect(self.planePlacementActionGrp,
-                     SIGNAL("triggered(QAction *)"), 
-                    self.changePlanePlacement)
+                    SIGNAL("triggered(QAction *)"), 
+                    self.geometry.changePlanePlacement)
                 
-    def add_whats_this_text(self):
-        """What's This text for some of the widgets in the Property Manager.
+    def addWhatsThisText(self):
+        """
+        Add "What's This" text for all widgets in this Property Manager.
         """    
         self.heightDblSpinBox.setWhatsThis("""<b>Height</b>
         <p>The height of the Plane in angstroms.
@@ -211,7 +235,9 @@ class PlanePropertyManager(PM_Dialog):
         pass
     
     def show_propMgr(self):
-        ''' Show the Property manager'''
+        """
+        Show the Property Manager.
+        """
         self.update_spinboxes()
         self.show()   
         self.geometry.updateCosmeticProps(previewing = True)
@@ -233,7 +259,9 @@ class PlanePropertyManager(PM_Dialog):
             self.change_plane_size()
         
     def change_plane_size(self, gl_update=True):
-        """Slot method to change the Plane's width and height"""
+        """
+        Slot method to change the Plane's width and height.
+        """
         if not self.resized_from_glpane:
             self.geometry.width = self.widthDblSpinBox.value()
             self.geometry.height = self.heightDblSpinBox.value() 
@@ -241,9 +269,10 @@ class PlanePropertyManager(PM_Dialog):
             self.geometry.glpane.gl_update()
     
     def update_spinboxes(self):
-        '''Update the width and height spinboxes(may be some more valued in future)
+        """
+        Update the width and height spinboxes(may be some more valued in future)
         Update it *without* generating the valueChanged() signal of the spinbox.
-        ''' 
+        """
         #self.resized_from_glpane flag makes sure that the spinbox.valuChanged()
         #signal is not emitted after calling spinbox.setValue. 
         # This flag is used in change_plane_size method.-- Ninad 20070601
