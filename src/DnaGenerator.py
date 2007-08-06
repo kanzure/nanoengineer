@@ -142,11 +142,15 @@ class DnaGenerator(QDialog, DnaPropertyManager, GeneratorBaseClass):
 
         (seq, allKnown) = self._get_sequence( resolve_random = resolve_random)
 
+        if allKnown == False:
+            seq  =  self.convertUnrecognized(seq)
+
         if (representation == 'Atom' and not allKnown):
             raise UserError("Cannot use unknown bases (N) in Atomistic representation") # needs rewording (see above)
 
         if (representation == 'BasePseudoAtom' and dnatype == 'Z-DNA'):
             raise PluginBug("Z-DNA not implemented for 'Reduced model' representation.  Use B-DNA.")
+
         return (seq, dnatype, double, basesPerTurn, representation, chunkOption)
     
     def checkParameters( self, inParams ):
@@ -159,28 +163,15 @@ class DnaGenerator(QDialog, DnaPropertyManager, GeneratorBaseClass):
     def correctParameters( self, inParams):
         """Alert the user that the entered sequence is invalid. Give them
         some options for how to correct the sequence."""
-        theDialog  =  Ui_InvalidSequenceDialog()
-        theDialog.setupUi()
-        #ret = QMessageBox.warning ( QWidget * parent,
-                                     #const QString & title,
-                                     #const QString & text,
-                                     #StandardButtons buttons = Ok,
-                                     #StandardButton defaultButton = NoButton )
-        #ret = QMessageBox.warning( None, "Invalid Sequence",
-            #"Please confirm you want to cancel the current opertion.\n",
-            #"Confirm",
-            #"Cancel",
-            #"",
-            #1,  # The "default" button, when user presses Enter or Return (1
-#= Cancel)
-            #1)  # Escape (1= Cancel)
+        #theDialog  =  Ui_InvalidSequenceDialog()
+        
+        #optionsButtonGroup  =  theDialog.findChild( 'buttonbox_options' )
+        #result  =  theDialog.exec()
+        #choice  =  optionsButtonGroup.checkedid()
+        
+        if result == QDialog.Accepted:
+            print 'choice: ', choice
 
-        #if ret==0: # Confirmed
-            #print "CONFIRMED"
-            #return True
-        #else:
-            #"CANCELLED"
-            #return False
         return inParams
     
     def build_struct(self, name, params, position):
@@ -267,13 +258,15 @@ class DnaGenerator(QDialog, DnaPropertyManager, GeneratorBaseClass):
         UI, for implementing the reverse and complement buttons.  
         (Ideally it would preserve whitespace and capitalization when used 
         that way, but it doesn't.)
+           All punctuation/symbols are purged from the sequence, and any
+        bogus/unknown bases are substituted as 'N' (unknown).
         """
         cdict  =  Dna.basesDict
         seq = ''
         allKnown = True
         # The current base sequence (or number of bases) in the PropMgr. Mark [070405]
         # (Note: I think this code implies that it can no longer be a number of bases. [bruce 070518 comment])
-        pm_seq = str(self.getPlainSequence(inOmitSymbols = False)) # :jbirac: 20070629
+        pm_seq  =  str(self.getPlainSequence(inOmitSymbols = True)) # :jbirac: 20070629
         #print "pm_seq =", pm_seq
         #match = numberPattern.match(pm_seq)
         #if (match):
@@ -283,9 +276,9 @@ class DnaGenerator(QDialog, DnaPropertyManager, GeneratorBaseClass):
                 properties = cdict[ch]
                 if ch == 'N': ###e soon: or any other letter indicating a random base
                     if resolve_random: #bruce 070518 new feature
-                        i = len(seq)
+                        i    = len(seq)
                         data = self._random_data_for_index(i) # a random int in range(12), in a lazily extended cache
-                        ch = list(cdict)[data%4]  # modulus must agree with number of valid entries in cdict.
+                        ch   = list(cdict)[data%4]  # modulus must agree with number of valid entries in cdict.
                     else:
                         allKnown = False
                 if complement:
@@ -295,9 +288,10 @@ class DnaGenerator(QDialog, DnaPropertyManager, GeneratorBaseClass):
                         ch = 'N'
                         raise KeyError("DNA dictionary entry must include a 'Complement' key.")
             elif ch in self.validSymbols: #'\ \t\r\n':
-                pass
+                ch  =  ''
             else:
-                raise UserError('Bogus DNA base: ' + ch + ' (should be ' + str(cdict.keys()) + ')')
+                #raise UserError('Bogus DNA base: ' + ch + ' (should be ' + str(cdict.keys()) + ')')
+                ch        =  'N'                
                 allKnown  =  False
 
             seq += ch
