@@ -168,13 +168,12 @@ class ops_motion_Mixin:
                 
     def _mirrorChunk(self, chunkToMirror):
         """
-        Converts the given chunk into its own mirror. Uses a BorrowerChunk object
-        to do this mirror operation. 
+        Converts the given chunk into its own mirror. 
+        
         @param chunkToMirror: The chunk that needs to be converted into its own
                mirror chunk. 
         @type  chunkToMirror: instance of class molecule
         @see:  self.Mirror
-        @see:  chunk.BorrowerChunk
         """
         m = chunkToMirror
         # ninad060813 Following gives an orthogonal distance between the 
@@ -189,14 +188,9 @@ class ops_motion_Mixin:
         #Probably the 'orthodist' function has helped me here?? 
         m.move(2*(self.mirrorDistance)*self.mirrorAxis)
         
-        borrowedAtomList = []
-        borrowedAtomList.extend(m.atoms.values())
-        atomset = dict([(a.key, a) for a in borrowedAtomList]) 
-        bc = BorrowerChunk(self.o.assy, atomset)
-        bc.stretch(-1.0)
-        bc.rot(Q(self.mirrorAxis, pi))
-        bc.demolish()
-        
+        m.stretch(-1.0)
+        m.rot(Q(self.mirrorAxis, pi))
+                
     def _mirrorJig(self, jigToMirror):
         """
         Converts the given jig into its own mirror. If the jig is a motor, 
