@@ -36,9 +36,9 @@ mixed-base code letters:
 Right now [070518] we just permit N, out of those.
 
 History:
-Jeff 2007-06-13
-- Moved Dna class (and subclasses) to file Dna.py.
 
+Jeff 2007-06-13:
+- Moved Dna class (and subclasses) to file Dna.py.
 """
 
 __author__ = "Will"
@@ -47,20 +47,16 @@ import env
 import os
 import random
 
-from PyQt4.Qt import QDialog
-
-from DnaGeneratorDialog import DnaPropertyManager
-from GeneratorBaseClass import GeneratorBaseClass, PluginBug, UserError
-from Utility            import Group
-from HistoryWidget      import redmsg, orangemsg, greenmsg
-from VQT                import A, V, vlen
-from Numeric            import dot
-from bonds              import inferBonds, bond_atoms
-from chunk              import molecule
-from constants          import gensym    
-from files_mmp          import _readmmp
-from fusechunksMode     import fusechunksBase
-from platform           import find_plugin_dir
+from Utility        import Group
+from HistoryWidget  import redmsg, orangemsg, greenmsg
+from VQT            import A, V, vlen
+from Numeric        import dot
+from bonds          import inferBonds, bond_atoms
+from chunk          import molecule
+from constants      import gensym    
+from files_mmp      import _readmmp
+from fusechunksMode import fusechunksBase
+from platform       import find_plugin_dir
 
 from Dna import Dna
 from Dna import A_Dna, A_Dna_BasePseudoAtoms
@@ -69,10 +65,13 @@ from Dna import Z_Dna, Z_Dna_BasePseudoAtoms
 from Dna import DEBUG, DEBUG_SEQUENCE
 from Dna import basepath, basepath_ok
 
+from GeneratorBaseClass          import GeneratorBaseClass, PluginBug, UserError
+from DnaGeneratorPropertyManager import DnaGeneratorPropertyManager
+
 ############################################################################
 
-# DnaPropertyManager must come BEFORE GeneratorBaseClass in this list
-class DnaGenerator(QDialog, DnaPropertyManager, GeneratorBaseClass):
+# DnaGeneratorPropertyManager must come BEFORE GeneratorBaseClass in this list
+class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
 
     cmd              =  greenmsg("Build DNA: ")
     sponsor_keyword  =  'DNA'
@@ -84,8 +83,7 @@ class DnaGenerator(QDialog, DnaPropertyManager, GeneratorBaseClass):
     
     # pass window arg to constructor rather than use a global, wware 051103
     def __init__(self, win):
-        QDialog.__init__(self, win)
-        DnaPropertyManager.__init__(self)
+        DnaGeneratorPropertyManager.__init__(self)
         GeneratorBaseClass.__init__(self, win)
         self._random_data = []
     
