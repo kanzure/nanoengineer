@@ -65,7 +65,9 @@ from PyQt4.Qt import QWhatsThis
 from PM_GroupBox         import PM_GroupBox
 from PM_MessageGroupBox  import PM_MessageGroupBox
 
-class PM_Dialog( QDialog ):
+from Sponsors import SponsorableMixin
+
+class PM_Dialog( QDialog, SponsorableMixin ):
     """
     The PM_Dialog class is the base class for Property Manager dialogs.
     
