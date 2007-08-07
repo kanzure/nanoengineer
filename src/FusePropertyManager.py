@@ -46,19 +46,10 @@ class FusePropertyManager(MovePropertyManager):
         # setupUi() did not add the icon or title. We do that here.
 	pmSetPropMgrIcon( self, self.iconPath )
         pmSetPropMgrTitle( self, self.title )
-        
-        #At startup Move groupbox is active by default 
-        #the following variable sets this flag (used in fusechunksMode.leftDrag)
-	#overrides MovePropertyManager.isTranslateGroupBoxActive
-        self.isTranslateGroupBoxActive = True
 	
-        self.o.setCursor(self.w.MolSelTransCursor)
+	self.activate_translateGroupBox_in_fuse_PM()
         
-        
-        self.showGroupBox(self.translate_groupBoxButton, 
-                          self.translateGroupBox_widgetHolder)        
-        self.hideGroupBox(self.rotate_groupBoxButton, 
-                          self.rotateGroupBox_widgetHolder) 
+     
     
     def connect_or_disconnect_signals(self, connect):
 	"""
@@ -147,7 +138,6 @@ class FusePropertyManager(MovePropertyManager):
         """
                       
 	self.toggle_translateGroupBox()
-	self.o.setCursor(self.w.MolSelTransCursor)
 	self.deactivate_rotateGroupBox()
        
         actionToCheck = self.getTranslateActionToCheck()
@@ -161,6 +151,7 @@ class FusePropertyManager(MovePropertyManager):
 	self.changeMoveOption(actionToCheck)
         
         self.isTranslateGroupBoxActive = True
+	self.parentMode.update_cursor()
     
     def activate_rotateGroupBox_in_fuse_PM(self):
         """Show contents of rotate groupbox (in fuse PM), deactivae the 
@@ -171,8 +162,8 @@ class FusePropertyManager(MovePropertyManager):
         """
      
 	self.toggle_rotateGroupBox()
-	self.o.setCursor(self.w.MolSelRotCursor)
 	self.deactivate_translateGroupBox()
+	
                 
         actionToCheck = self.getRotateActionToCheck()
                   
@@ -185,6 +176,7 @@ class FusePropertyManager(MovePropertyManager):
 	self.changeRotateOption(actionToCheck)
         
         self.isTranslateGroupBoxActive = False
+	self.parentMode.update_cursor()
 	
         
     def toggle_fuseOptionsGroupBox(self):

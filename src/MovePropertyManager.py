@@ -49,6 +49,7 @@ class MovePropertyManager(QtGui.QWidget,
         
         self.lastCheckedRotateAction = None 
         self.lastCheckedTranslateAction = None
+	self.isTranslateGroupBoxActive = None
 			              
         self.updateMessage()
         
@@ -132,8 +133,7 @@ class MovePropertyManager(QtGui.QWidget,
         
         if not self.w.toolsMoveMoleculeAction.isChecked():
             self.w.toolsMoveMoleculeAction.setChecked(True)
-            self.o.setCursor(self.w.MolSelTransCursor)
-            
+                       
             # Update the title and icon.
 	    pmSetPropMgrIcon( self, self.translateIconPath )
 	    pmSetPropMgrTitle( self, self.translateTitle )
@@ -150,6 +150,8 @@ class MovePropertyManager(QtGui.QWidget,
 	    
 	    self.changeMoveOption(actionToCheck)
 	    
+	    self.parentMode.update_cursor()
+	    
     
     def activate_rotateGroupBox_using_groupButton(self):
         """Show contents of this groupbox, deactivae the other groupbox. 
@@ -164,7 +166,6 @@ class MovePropertyManager(QtGui.QWidget,
         
         if not self.w.rotateComponentsAction.isChecked():            
             self.w.rotateComponentsAction.setChecked(True)           
-            self.o.setCursor(self.w.MolSelRotCursor)
 
             # Update the title and icon.
 	    pmSetPropMgrIcon( self, self.rotateIconPath )
@@ -184,6 +185,7 @@ class MovePropertyManager(QtGui.QWidget,
                 actionToCheck.setChecked(True)
 	    
 	    self.changeRotateOption(actionToCheck)
+	    self.parentMode.update_cursor()
 	
                     
     def activate_translateGroupBox(self):
@@ -201,8 +203,7 @@ class MovePropertyManager(QtGui.QWidget,
         self.updateMessage()
                 
         self.toggle_translateGroupBox()
-        self.o.setCursor(self.w.MolSelTransCursor)
-        
+                
 	# Update the title and icon.
 	pmSetPropMgrIcon( self, self.translateIconPath )
 	pmSetPropMgrTitle( self, self.translateTitle )
@@ -221,6 +222,7 @@ class MovePropertyManager(QtGui.QWidget,
             actionToCheck.setChecked(True)
 	
 	self.changeMoveOption(actionToCheck)
+	self.parentMode.update_cursor()
             
     def activate_rotateGroupBox(self):
         """Show contents of this groupbox, deactivae the other groupbox. 
@@ -234,8 +236,7 @@ class MovePropertyManager(QtGui.QWidget,
         self.updateMessage()
         
         self.toggle_rotateGroupBox()
-        self.o.setCursor(self.w.MolSelRotCursor)
-
+        
         # Update the title and icon.
 	pmSetPropMgrIcon( self, self.rotateIconPath )
 	pmSetPropMgrTitle( self, self.rotateTitle )
@@ -251,6 +252,7 @@ class MovePropertyManager(QtGui.QWidget,
             actionToCheck.setChecked(True)
 	
 	self.changeRotateOption(actionToCheck)
+	self.parentMode.update_cursor()
         
                                
     def deactivate_rotateGroupBox(self):

@@ -265,21 +265,29 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
     def update_cursor_for_no_MB(self):
         '''Update the cursor for 'Move Chunks' mode.
         '''
+	
+	#No need to proceed further if the propMgr is not initialized. 
+	#The cursor to set will be decided by the active groupbox in the
+	#property manager. 
+	
+	if self.propMgr is None:
+	    return
+
         if self.o.modkeys is None:
             if self.isConstrainedDragAlongAxis:
                 self.o.setCursor(self.w.MolSelAxisRotTransCursor)
             else:
-                if self.w.toolsMoveMoleculeAction.isChecked():
-                    self.o.setCursor(self.w.MolSelTransCursor)
-                else:
-                    self.o.setCursor(self.w.MolSelRotCursor)
+		if self.propMgr.isTranslateGroupBoxActive:
+		    self.o.setCursor(self.w.MolSelTransCursor)
+		else:
+		    self.o.setCursor(self.w.MolSelRotCursor)		    
         elif self.o.modkeys == 'Shift':
-            if self.w.toolsMoveMoleculeAction.isChecked():
+            if self.propMgr.isTranslateGroupBoxActive:
                 self.o.setCursor(self.w.MolSelTransAddCursor)
             else:
                 self.o.setCursor(self.w.MolSelRotAddCursor)
         elif self.o.modkeys == 'Control':
-            if self.w.toolsMoveMoleculeAction.isChecked():
+            if self.propMgr.isTranslateGroupBoxActive:
                 self.o.setCursor(self.w.MolSelTransSubCursor)
             else:
                 self.o.setCursor(self.w.MolSelRotSubCursor)  
