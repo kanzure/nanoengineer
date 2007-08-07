@@ -61,7 +61,8 @@ class PM_Dialog_with_example_widgets( PM_Dialog):
         self.pmGroupBox1 = \
             PM_GroupBox( self, 
                          title           =  "Atom Parameters",
-                         addTitleButton  =  True )
+##                         addTitleButton  =  True
+                         )
 
         self.loadGroupBox1(self.pmGroupBox1)
         return
