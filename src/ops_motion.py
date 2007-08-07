@@ -20,7 +20,6 @@ import env
 from math import pi
 from debug import print_compact_traceback
 
-from chunk       import BorrowerChunk
 from chunk       import molecule
 from jigs        import Jig
 from jigs_motors import Motor
@@ -114,8 +113,6 @@ class ops_motion_Mixin:
     #Mirror the selected chunks 
     def Mirror(self):
         "Mirror the selected chunk(s) about a selected grid plane."
-      
-        mc = env.begin_op("Mirror")
         cmd = greenmsg("Mirror: ")
         #ninad060814 this is necessary to fix a bug. Otherwise program will 
         #crash if you try to mirror when the top node of the part 
@@ -221,67 +218,7 @@ class ops_motion_Mixin:
         if isinstance(j, Motor):
             j.reverse_direction()
             
-    #Mirror the selected chunks 
-    def MirrorORIG(self):
-        "Mirror the selected chunk(s) about a selected grid plane."
-        #ninad060812--: As of 060812 (11 PM EST) it creates mirror chunks about a selected grid plane/(or jig with 0 atoms)
-        #This has some known bugs. listed below ninad060812: 
-        #What it does:
-            #- Mirrors selected chunks about a selected Grid plane. (Moves the mirrored copies on the other side of the mirror).
-        # Known Bugs and NIYs for which I(ninad) need help---
-            #2. When the selected chunks have interchunk bonds, and you hit mirror, it breaks the interchunk bond while doing mirror 
-            #operation. (Suggestion: It should treat connected chunks as a single entity while doing mirror op..but once the operation is
-            # over, it should separate them like the original chunks)
-            #6. Untested on very large objects. Hopefully  it will take the same amount of time as that of the copy op.
             
-        mc = env.begin_op("Mirror")
-        cmd = greenmsg("Mirror: ")
-        
-        if not self.selmols:
-            msg = redmsg("No chunks selected to mirror")
-            env.history.message(cmd + msg)
-            return
-        #self.changed() # well assembly is not changed here - ninad060814
-        
-        if self.topnode.picked:
-            self.topnode.unpick_top() #ninad060814 this is necessary to fix a bug. Otherwise program will crash if you try to mirror
-                                                    #when the top node of the part (main part of clipboard) is selected
-        
-        mirrorJigs = self.getQualifiedMirrorJigs()
-        
-        jigCounter = len(mirrorJigs)
-                
-        if jigCounter < 1:
-            msg1 = "No mirror plane selected."
-            msg2 = " Please select a Reference Plane or a Grid Plane first."
-            msg = redmsg(msg1+msg2)
-            instr1 = "(If it doesn't exist, create it using"
-            instr2 = "<b>Insert > Reference Geometry menu </b> )"
-            instruction = instr1 + instr2
-            env.history.message(cmd + msg  + instruction)
-            return 
-        elif jigCounter >1:
-            msg = redmsg("More than one plane selected. Please select only one plane and try again")
-            env.history.message(cmd + msg ) 
-            return 
-        else:
-            for m in self.selmols:
-                mirrorChunk = m.copy(None) #ninad060812 make a copy of the selection first
-                self.o.assy.addmol(mirrorChunk)
-                mirrorChunk.stretch(-1.0)
-                self.mirrorAxis = mirrorJigs[0].getaxis() # ninad060812 Get the axis vector of the Grid Plane. Then you need to 
-                                                                   #rotate the inverted chunk by pi around this axis vector 
-                mirrorChunk.rot(Q(self.mirrorAxis, pi)) 
-    
-                self.mirrorDistance, self.wid = orthodist(m.center, self.mirrorAxis, mirrorJigs[0].center) # ninad060813 This gives an orthogonal distance between the chunk center and mirror plane.
-                mirrorChunk.move(2*(self.mirrorDistance)*self.mirrorAxis)# @@@@ ninad060813 This moves the mirrror chunk on the other side of the mirror plane. It surely moves the chunk along the axis of the mirror plane but I am still unsure if this *always* moves the chunk on the other side of the mirror. Probably the 'orthodist' function has helped me here??  Need to discuss this.
-                                                                                                                        
-            self.w.win_update()  # update GLPane as well as MT
-            
-            info = fix_plurals( "Mirrored  %d chunk(s)" % len(self.selmols))
-            env.history.message( cmd + info)
-            env.end_op(mc) 
-        
     def getQualifiedMirrorJigs(self):
         '''Returns a list of objects that can be used as a   
         reference in Mirror Feature. (referece plane and grid planes are valid 
