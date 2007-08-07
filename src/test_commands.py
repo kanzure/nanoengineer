@@ -50,11 +50,15 @@ When cleaning up PropMgrBaseClass etc, note some other things Mark wants to work
 
 - port more modes over to PropMgrBaseClass, e.g. extrudeMode
 
-- split some PMs/modes into more than one smaller PM (especially MMKit)
+- split some PMs/modes into more than one smaller PM (especially MMKit). 
+  Note: See PM_ElementSelector.py. Mark 2007-08-07.
 
 """
 
-from test_command_PMs import ExampleCommand1_PM, ExampleCommand2_PM, ExampleCommand2E_PM
+from test_command_PMs import ExampleCommand1_PM
+from test_command_PMs import ExampleCommand2_PM
+from test_command_PMs import ExampleCommand2E_PM
+from test_command_PMs import PMWidgetsTest_PM
 
 ## from modes import basicMode
 from selectAtomsMode import selectAtomsMode
@@ -89,7 +93,9 @@ class ExampleCommand(selectAtomsMode):
     pass
 
 class ExampleCommand1(ExampleCommand):
-    """Example command, which uses behavior similar to selectAtomsMode. [Which in future may inherit class Command.]
+    """
+    Example command, which uses behavior similar to selectAtomsMode. 
+    [Which in future may inherit class Command.]
     """
     modename = 'ExampleCommand1-modename' # internal #e fix init code in basicMode to get it from classname?
     default_mode_status_text = "ExampleCommand1"
@@ -103,7 +109,9 @@ class ExampleCommand1(ExampleCommand):
     pass
 
 class ExampleCommand2(ExampleCommand):
-    """same, but use GBC (in our PM)"""
+    """
+    Same, but use GBC (in our PM).
+    """
     modename = 'ExampleCommand2-modename'
     default_mode_status_text = "ExampleCommand2"
     PM_class = ExampleCommand2_PM
@@ -132,7 +140,10 @@ class TextState(InstanceMacro):#e rename?
     pass
 
 class ExampleCommand2E(ExampleCommand2, object):
-    "add things not needed in a minimal example, to try them out (uses same PM as ExampleCommand2)"
+    """
+    Add things not needed in a minimal example, to try them out
+    (uses same PM as ExampleCommand2).
+    """
     # Note: object superclass is only needed to permit super(ExampleCommand2E, self) to work.
     # object superclass should not come first, or it overrides __new__
     # (maybe could fix using def __init__ -- not tried, since object coming last works ok)
@@ -166,7 +177,9 @@ class ExampleCommand2E(ExampleCommand2, object):
         return
         
     def Draw(self):
-        "do some custom drawing (in the model's abs coordsys) after drawing the model"
+        """
+        Do some custom drawing (in the model's abs coordsys) after drawing the model.
+        """
         #print "start ExampleCommand2E Draw"
         glpane = self.o
         super(ExampleCommand2E, self).Draw()
@@ -178,6 +191,17 @@ class ExampleCommand2E(ExampleCommand2, object):
         #print "end ExampleCommand2E Draw"
     
     pass # end of class ExampleCommand2E
+
+class PMWidgetsTest(ExampleCommand):
+    """
+    Used to test new PM widgets.
+    
+    @see: PMWidgetsTest_PM in test_command_PMs.py.
+    """
+    modename = 'PMWidgetsTest-modename'
+    default_mode_status_text = "PMWidgetsTest"
+    PM_class = PMWidgetsTest_PM
+    pass
 
 # == generic example or debug/devel code below here
 
@@ -238,7 +262,7 @@ def enter_example_command_doit(glpane, example_command_classname):
     start_cmdrun(cmdrun)
     return
 
-for classname in ["ExampleCommand1", "ExampleCommand2", "ExampleCommand2E"]:
+for classname in ["ExampleCommand1", "ExampleCommand2", "ExampleCommand2E", "PMWidgetsTest"]:
     cmdname = classname # for now
     register_debug_menu_command( cmdname, (lambda widget, classname = classname: enter_example_command(widget, classname)) )
 
