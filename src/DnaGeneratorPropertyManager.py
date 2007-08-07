@@ -730,24 +730,16 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
         self.setSequence( outSequence )
         return outSequence
 
-    def convertUnrecognized( self,
-                             inSequence   =  None, 
-                             inSelection  =  None ):
+    def convertUnrecognized( self, inSequence = None ):
         """
         Substitutes an 'N' for any unrecognized/invalid characters 
         (alphanumeric or symbolic) in the sequence
         
         @param inSequence: The strand sequence.
         @type  inSequence: str
-        
-        @param inSelection:
-        @type  inSelection:
-        
+
         @return: The new sequence.
-        @rtype:  QString
-        
-        @note: inSelection is not used.
-        @warning: this may have issues since it appears to return a str (not QString).
+        @rtype:  str
         """
         if inSequence == None:
             outSequence  =  self.sequenceTextEdit.toPlainText()
@@ -756,9 +748,10 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
 
         theString = ''
         for theBase in Dna.basesDict:
-            theString  =  theString + theBase #@
+            theString += theBase
         theString  =  '[^' + str( QRegExp.escape(theString) ) + ']'
         outSequence.replace( QRegExp(theString), 'N' )
+        outSequence = str(outSequence)
         return outSequence
 
     def getPlainSequence( self, inOmitSymbols = False ):
@@ -920,11 +913,12 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
 
         self.sequenceTextEdit.insertHtml( inSequence )
 
-        cursor.setPosition( selectionStart, 
-                            QTextCursor.MoveAnchor )
-        cursor.setPosition( selectionEnd, 
-                             QTextCursor.KeepAnchor )
-        self.sequenceTextEdit.setTextCursor( cursor )
+        if inRestoreCursor:
+            cursor.setPosition( selectionStart, 
+                                QTextCursor.MoveAnchor )
+            cursor.setPosition( selectionEnd, 
+                                 QTextCursor.KeepAnchor )
+            self.sequenceTextEdit.setTextCursor( cursor )
         return
     
     def getSequenceLength( self ):
@@ -967,7 +961,7 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
         @type  inIndex: int
         """
         self.actionsComboBox.setCurrentIndex( 0 )
-        return self.invokeAction( inMenuEntry )
+        return self.invokeAction( inIndex )
 
     def invokeAction( self, inActionName ):
         """
