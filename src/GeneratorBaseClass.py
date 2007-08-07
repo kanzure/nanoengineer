@@ -54,10 +54,7 @@ Also needs generalization in several ways (mentioned but not fully explained):
 
 __author__ = "Will"
 
-
 from PyQt4.Qt import Qt
-from PyQt4.Qt import QPixmap
-from PyQt4.Qt import QIcon
 from PyQt4.Qt import QApplication
 from PyQt4.Qt import QCursor
 from PyQt4.Qt import QWhatsThis
@@ -65,8 +62,6 @@ from PyQt4.Qt import QWhatsThis
 import env
 import platform
 
-from Sponsors import SponsorableMixin
-from PropertyManagerMixin import PropertyManagerMixin
 from HistoryWidget import redmsg, orangemsg, greenmsg, quote_html
 from debug import print_compact_traceback
 from constants import gensym
@@ -138,7 +133,7 @@ class UserError(Exception):
 
 # ==
 
-class GeneratorBaseClass(SponsorableMixin):
+class GeneratorBaseClass:
     ### REVIEW: docstring needs reorganization, and clarification re whether all
     # generators have to inherit it
     """
@@ -506,14 +501,6 @@ class GeneratorBaseClass(SponsorableMixin):
         self.win.win_update() # includes mt_update
 
         return
-
-    def enter_WhatsThisMode(self):
-        "Slot for the What's This button"
-        QWhatsThis.enterWhatsThisMode()
-
-    def whatsthis_btn_clicked(self):
-        "Slot for the What's This button"
-        QWhatsThis.enterWhatsThisMode()
     
     def done_btn_clicked(self):
         "Slot for the Done button"
