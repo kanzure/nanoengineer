@@ -67,12 +67,15 @@ class PM_GroupBox( QGroupBox ):
                         no widgets will be reset regardless thier own 
                         I{setAsDefault} value.
     @type setAsDefault: bool
-    
+       
     @cvar labelWidget: The Qt label widget of this group box.
     @type labelWidget: U{B{QLabel}<http://doc.trolltech.com/4/qlabel.html>}
     
     @cvar expanded: Expanded flag.
     @type expanded: bool
+    
+    @cvar _title: The group box title.
+    @type _title: str
     
     @cvar _widgetList: List of widgets in the group box (except the title button).
     @type _widgetList: list
@@ -92,6 +95,7 @@ class PM_GroupBox( QGroupBox ):
     labelWidget  = None
     expanded     = True
     
+    _title         = ""
     _widgetList    = []
     _rowCount      = 0
     _groupBoxCount = 0
@@ -132,7 +136,8 @@ class PM_GroupBox( QGroupBox ):
         self.parentWidget = parentWidget
         parentWidget._groupBoxCount += 1
         _groupBoxCount = 0
-                
+    
+        self._title = title
         self.setAsDefault = setAsDefault
         
         # Calling addWidget() here is important. If done at the end,
@@ -203,32 +208,32 @@ class PM_GroupBox( QGroupBox ):
         # nested groupboxes.
         from PM_Dialog import PM_Dialog
         if not isinstance(self.parentWidget, PM_Dialog):
-            self.VSpacerWidget = None
+            self.verticalSpacer = None
             return
         
         if self.parentWidget._lastGroupBox:
             # _lastGroupBox is no longer the last one. <self> will be the
-            # _lastGroupBox, so we must change the VSpacerWidget height 
+            # _lastGroupBox, so we must change the verticalSpacer height 
             # and sizePolicy of _lastGroupBox to be a fixed
             # spacer between it and <self>.
             defaultHeight = pmGroupBoxSpacing
-            self.parentWidget._lastGroupBox.VSpacerWidget.changeSize(
+            self.parentWidget._lastGroupBox.verticalSpacer.changeSize(
                 10, defaultHeight, 
                 QSizePolicy.Fixed,
                 QSizePolicy.Fixed)
-            self.parentWidget._lastGroupBox.VSpacerWidget.defaultHeight = defaultHeight
+            self.parentWidget._lastGroupBox.verticalSpacer.defaultHeight = defaultHeight
             
         # Add a 1 pixel high, MinimumExpanding VSpacer below this group box.
         # This keeps all group boxes in the PM layout squeezed together as 
         # group boxes  are expanded, collapsed, hidden and shown again.
         defaultHeight = 1
-        self.VSpacerWidget = QSpacerItem(10, defaultHeight, 
+        self.verticalSpacer = QSpacerItem(10, defaultHeight, 
                                         QSizePolicy.Fixed,
                                         QSizePolicy.MinimumExpanding)
         
-        self.VSpacerWidget.defaultHeight = defaultHeight
+        self.verticalSpacer.defaultHeight = defaultHeight
         
-        self.parentWidget.vBoxLayout.addItem(self.VSpacerWidget)
+        self.parentWidget.vBoxLayout.addItem(self.verticalSpacer)
         
         # This groupbox is now the last one in the PropMgr.
         self.parentWidget._lastGroupBox = self
@@ -241,11 +246,24 @@ class PM_GroupBox( QGroupBox ):
             if platform.atom_debug:
                 print "PM_GroupBox.restoreDefault(): widget =", widget.objectName()
             widget.restoreDefault()
+    
+    def getTitle(self):
+        """
+        Returns the group box title.
         
+        @return: the group box title.
+        @rtype:  str
+        """
+        return self._title
+    
     def setTitle(self, title):
         """
         Sets the groupbox title to <title>.
-        This overrides QGroupBox's setTitle() method.
+        
+        @param title: The group box title.
+        @type  title: str
+        
+        @attention: This overrides QGroupBox's setTitle() method.
         """
         
         if not title:
@@ -257,7 +275,8 @@ class PM_GroupBox( QGroupBox ):
             self.vBoxLayout.insertWidget(0, self.labelWidget)
             labelAlignment = pmLeftAlignment
             self.labelWidget.setAlignment(labelAlignment)
-            
+        
+        self._title = title
         self.labelWidget.setText(title)
         
     def getPmWidgetPlacementParameters(self, pmWidget):
@@ -419,8 +438,11 @@ class PM_GroupBox( QGroupBox ):
         
         # Change the spacer height to zero to "hide" it unless
         # self is the last GroupBox in the Property Manager.
-        if self.VSpacerWidget:
-            self.VSpacerWidget.changeSize(10, 0)
+        if self.parentWidget._lastGroupBox is self:
+            return
+        
+        if self.verticalSpacer:
+            self.verticalSpacer.changeSize(10, 0)
             
     def show(self):
         """
@@ -431,9 +453,12 @@ class PM_GroupBox( QGroupBox ):
         QWidget.show(self)
         if self.labelWidget:
             self.labelWidget.show() 
-            
-        if self.VSpacerWidget:
-            self.VSpacerWidget.changeSize(10, self.VSpacerWidget.defaultHeight)
+        
+        if self.parentWidget._lastGroupBox is self:
+            return
+        
+        if self.verticalSpacer:
+            self.verticalSpacer.changeSize(10, self.verticalSpacer.defaultHeight)
 
     # Title Button Methods #####################################
     
