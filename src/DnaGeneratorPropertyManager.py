@@ -912,11 +912,11 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
             inSequence  =  self.stylizeSequence( inSequence )
 
         self.sequenceTextEdit.insertHtml( inSequence )
-
+        
         if inRestoreCursor:
-            cursor.setPosition( selectionStart, 
+            cursor.setPosition( min(selectionStart, self.getSequenceLength()), 
                                 QTextCursor.MoveAnchor )
-            cursor.setPosition( selectionEnd, 
+            cursor.setPosition( min(selectionEnd, self.getSequenceLength()), 
                                  QTextCursor.KeepAnchor )
             self.sequenceTextEdit.setTextCursor( cursor )
         return
