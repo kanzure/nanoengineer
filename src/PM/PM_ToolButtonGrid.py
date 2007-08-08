@@ -96,32 +96,41 @@ class PM_ToolButtonGrid( PM_GroupBox ):
         
         self.parentWidget = parentWidget
         self.buttonList   = buttonList
-        
+                
         if setAsDefault:
             self.setDefaultCheckedId(checkedId)
     
-        # Font for tool buttons.
-        buttonFont = QFont(self.font())
-        buttonFont.setFamily(BUTTON_FONT)
-        buttonFont.setPointSize(BUTTON_FONT_POINT_SIZE)
-        buttonFont.setBold(BUTTON_FONT_BOLD)
         
-        buttonSize = QSize(BUTTON_WIDTH, BUTTON_HEIGHT) #@ FOR TEST ONLY
+        self.loadToolButtons()
         
+        self._widgetList.append(self)
+        
+        self._rowCount += 1
+    
+    def loadToolButtons(self):
+        """
+        Load the grid layout with tool buttons.
+        
+        """
+                       
         self.buttonsById   = {}
         self.buttonsByText = {}
             
         # Load grid layout with tool buttons. (Original)
-        for buttonInfo in buttonList:
-            buttonId       = buttonInfo[0]
-            buttonText     = buttonInfo[1]
-            buttonIconPath = buttonInfo[2]
-            column         = buttonInfo[3]
-            row            = buttonInfo[4]
-            buttonToolTip  = buttonInfo[5]
+        for buttonInfo in self.buttonList:  
+            buttonFont = self.getButtonFont()            
+            buttonSize = QSize(BUTTON_WIDTH, BUTTON_HEIGHT) #@ FOR TEST ONLY
+            buttonInfoList = self.getButtonInfoList(buttonInfo)
+            
+            buttonId       = buttonInfoList[0]
+            buttonText     = buttonInfoList[1]
+            buttonIconPath = buttonInfoList[2]
+            column         = buttonInfoList[3]
+            row            = buttonInfoList[4]
+            buttonToolTip  = buttonInfoList[5] 
+            
             
             button = QToolButton(self)
-            
             button.setText(buttonText)
             if os.path.exists(buttonIconPath):
                 button.setIcon(geticon(buttonIconPath))
@@ -129,10 +138,13 @@ class PM_ToolButtonGrid( PM_GroupBox ):
             button.setToolTip(buttonToolTip)
             button.setFixedSize(buttonSize) #@ Currently fixed to 32 x 32.
             button.setCheckable(True)
-            if checkedId == buttonId:
+            button.setAutoRaise(True)
+            if self.checkedId() == buttonId:
                 button.setChecked(True)
             button.setFont(buttonFont)
             self.buttonGroup.addButton(button, buttonId)
+            
+            #add button to the layout
             self.gridLayout.addWidget( button,
                                        row,
                                        column,
@@ -141,11 +153,35 @@ class PM_ToolButtonGrid( PM_GroupBox ):
             
             self.buttonsById[buttonId]    = button
             self.buttonsByText[buttonText] = button
+
+    def getButtonFont(self):
+        """
+        Returns the font for the tool buttons in the grid
+        """
+        # Font for tool buttons.
+        buttonFont = QFont(self.font())
+        buttonFont.setFamily(BUTTON_FONT)
+        buttonFont.setPointSize(BUTTON_FONT_POINT_SIZE)
+        buttonFont.setBold(BUTTON_FONT_BOLD)
+        return buttonFont
+    
+    def getButtonInfoList(self, buttonInfo):
+        """
+        Returns the button information provided by the user. 
+        Subclasses should override this method if they need to provide 
+        custom information (e.g. a fixed value for row) .
+        @param  buttonInfo: list containing the button information
+        @type   buttonInfo: list
+        @return buttonInfoList: list containing the button information. 
+                This can be same as I{buttonInfo} or can be modified further.
+        @rtype  buttonInfoList: list
+        @see:   PM_ToolButtonRow.getButtonInfoList
+        
+        """
+        
+        buttonInfoList = buttonInfo                
+        return buttonInfoList
             
-        self._widgetList.append(self)
-        
-        self._rowCount += 1
-        
     def restoreDefault(self):
         """
         Restores the default checkedId.
