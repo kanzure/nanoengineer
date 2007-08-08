@@ -46,9 +46,9 @@ class PM_ListWidget( QListWidget ):
                  label        = '', 
                  labelColumn  = 0,
                  items        = [], 
-                 row          = 0, 
+                 defaultRow   = 0, 
                  setAsDefault = True,
-                 numRows      = 6, 
+                 heightByRows = 6, 
                  spanWidth    = False
                  ):
         """     
@@ -77,20 +77,19 @@ class PM_ListWidget( QListWidget ):
         @param items: list of items (strings) to be inserted in the widget.
         @type  items: list
         
-        @param row: current row. (0=first item)
-        @type  row: int
+        @param defaultRow: The default row (item) selected, where 0 is the first row.
+        @type  defaultRow: int
         
-        @param setAsDefault: if True, will restore <idx> as the current index
+        @param setAsDefault: If True, will restore <idx> as the current index
                          when the "Restore Defaults" button is clicked.
         @type  setAsDefault: bool
         
-        @param numRows: the number of rows to display. If <items> is 
-                 greater than <numRows>, a scrollbar will be displayed.
-        @type  numRows: int
+        @param heightByRows: The height of the list widget.
+        @type  heightByRows: int
         
-        @param spanWidth: if True, the widget and its label will span the width
-                      of the group box. Its label will appear directly above
-                      the widget (unless the label is empty) and is left justified.
+        @param spanWidth: If True, the widget and its label will span the width
+                          of the group box. Its label will appear directly above
+                          the widget (unless the label is empty) and is left justified.
         @type  spanWidth: bool
         
         @see: U{B{QListWidget}<http://doc.trolltech.com/4/qlistwidget.html>}
@@ -101,9 +100,9 @@ class PM_ListWidget( QListWidget ):
             print "  label        = ", label
             print "  labelColumn  = ", labelColumn
             print "  items        = ", items
-            print "  row          = ", row
+            print "  defaultRow   = ", defaultRow
             print "  setAsDefault = ", setAsDefault
-            print "  numRows      = ", numRows
+            print "  heightByRows = ", heightByRows
             print "  spanWidth    = ", spanWidth
                 
         QListWidget.__init__(self)
@@ -120,14 +119,11 @@ class PM_ListWidget( QListWidget ):
                
         # Load QComboBox widget choice items and set initial choice (index).           
         self.insertItems(0, items, setAsDefault)
-        self.setCurrentRow(row, setAsDefault)
-        
-        # Need setChoices() method 
-        #self.defaultChoices=choices
-        
+        self.setCurrentRow(defaultRow, setAsDefault)
+                
         # Set height of list widget.
         margin = self.fontMetrics().leading() * 2 # Mark 2007-05-28
-        height = numRows * self.fontMetrics().lineSpacing() + margin
+        height = heightByRows * self.fontMetrics().lineSpacing() + margin
         self.setMaximumHeight(height)
         
         parentWidget.addPmWidget(self)
@@ -155,15 +151,19 @@ class PM_ListWidget( QListWidget ):
         self.clear()
         QListWidget.insertItems(self, row, items)
         
-    def setCurrentRow(self, row, setAsDefault = True):
+    def setCurrentRow(self, row, setAsDefault = False ):
         """
-        Set current row of widget to <row>. If <setAsDefault> is True, 
-        <row> becomes the default row for this widget so that
-        "Restore Defaults" will reset this widget to <row>.
+        Select new row. 
+        
+        @param row: The new row to select.
+        @type  row: int
+        
+        @param setAsDefault: If True, I{row} becomes the default row when
+                             "Restore Defaults" is clicked.
         """
         if setAsDefault:
             self.setAsDefault = setAsDefault
-            self.defaultRow=row
+            self.defaultRow   = row
         QListWidget.setCurrentRow(self, row)
         
     def restoreDefault(self):
