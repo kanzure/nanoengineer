@@ -11,6 +11,7 @@ History:
 mark 2007-07-22: Split PropMgrToolButton out of PropMgrBaseClass.py into this
 file and renamed it PM_ToolButton.
 """
+import os
 
 from PyQt4.Qt import QLabel
 from PyQt4.Qt import QToolButton
@@ -89,8 +90,8 @@ class PM_ToolButton( QToolButton ):
         
         if 0: # Debugging code
             print "PM_ToolButton.__init__():"
-            print "  label        = ",label
-            print "  labelColumn  = ",label
+            print "  label        = ", label
+            print "  labelColumn  = ", labelColumn
             print "  text         = ", text
             print "  iconPath     = ", iconPath
             print "  setAsDefault = ", setAsDefault

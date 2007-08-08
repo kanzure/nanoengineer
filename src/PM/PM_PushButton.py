@@ -85,8 +85,8 @@ class PM_PushButton( QPushButton ):
         
         if 0: # Debugging code
             print "PM_PushButton.__init__():"
-            print "  label        = ",label
-            print "  labelColumn  = ",label
+            print "  label        = ", label
+            print "  labelColumn  = ", labelColumn
             print "  text         = ", text
             print "  setAsDefault = ", setAsDefault
             print "  spanWidth    = ", spanWidth
