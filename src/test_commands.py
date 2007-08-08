@@ -60,6 +60,8 @@ from test_command_PMs import ExampleCommand2_PM
 from test_command_PMs import ExampleCommand2E_PM
 from test_command_PMs import PMWidgetsTest_PM
 
+from PM.PM_WidgetsDemoPropertyManager import PM_WidgetsDemoPropertyManager
+
 ## from modes import basicMode
 from selectAtomsMode import selectAtomsMode
 
@@ -192,15 +194,15 @@ class ExampleCommand2E(ExampleCommand2, object):
     
     pass # end of class ExampleCommand2E
 
-class PMWidgetsTest(ExampleCommand):
+class PM_WidgetDemo(ExampleCommand):
     """
-    Used to test new PM widgets.
+    Used to demo all the PM widgets.
     
-    @see: PMWidgetsTest_PM in test_command_PMs.py.
+    @see: PM_WidgetsDemoPropertyManager in PM_WidgetsDemoPropertyManager.py.
     """
-    modename = 'PMWidgetsTest-modename'
-    default_mode_status_text = "PMWidgetsTest"
-    PM_class = PMWidgetsTest_PM
+    modename = 'PM_WidgetDemo-modename'
+    default_mode_status_text = "PM_Widgets Demo"
+    PM_class = PM_WidgetsDemoPropertyManager
     pass
 
 # == generic example or debug/devel code below here
@@ -262,7 +264,7 @@ def enter_example_command_doit(glpane, example_command_classname):
     start_cmdrun(cmdrun)
     return
 
-for classname in ["ExampleCommand1", "ExampleCommand2", "ExampleCommand2E", "PMWidgetsTest"]:
+for classname in ["ExampleCommand1", "ExampleCommand2", "ExampleCommand2E", "PM_WidgetDemo"]:
     cmdname = classname # for now
     register_debug_menu_command( cmdname, (lambda widget, classname = classname: enter_example_command(widget, classname)) )
 

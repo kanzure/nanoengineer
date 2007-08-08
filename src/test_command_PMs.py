@@ -48,8 +48,8 @@ class PM_Dialog_with_example_widgets( PM_Dialog):
     def __init__(self):
 ##    def _eg_init_stuff(self): @@@
         PM_Dialog.__init__( self, self.pmName, self.iconPath, self.title )
-        self.addGroupBoxes()
-        self.add_whats_this_text()
+        self._addGroupBoxes()
+        self._addWhatsThisText()
         
         msg = "Example command created at %s" % time.asctime()
         
@@ -57,21 +57,17 @@ class PM_Dialog_with_example_widgets( PM_Dialog):
         self.MessageGroupBox.insertHtmlMessage( msg, setAsDefault = False )
         return
 
-    def addGroupBoxes(self):
-        """Add the groupboxes for this Property Manager."""
-
-        self.pmGroupBox1 = \
-            PM_GroupBox( self, 
-                         title           =  "Atom Parameters",
-##                         addTitleButton  =  True
-                         )
-
-        self.loadGroupBox1(self.pmGroupBox1)
+    def _addGroupBoxes(self):
+        """
+        Add group boxes to this Property Manager.
+        """
+        self.pmGroupBox1 = PM_GroupBox( self, title =  "Atom Parameters" )
+        self._loadGroupBox1(self.pmGroupBox1)
         return
     
-    def loadGroupBox1(self, inPmGroupBox):
+    def _loadGroupBox1(self, inPmGroupBox):
         """
-        Load widgets into groupbox 1.
+        Load widgets into group box 1.
         """
 
         # User input to specify what type of element/atom to generate
@@ -98,8 +94,10 @@ class PM_Dialog_with_example_widgets( PM_Dialog):
                               suffix        =  ' ' + self._sCoordinateUnits )
         return
         
-    def add_whats_this_text(self):
-        """What's This text for some of the widgets in the Property Manager."""
+    def _addWhatsThisText(self):
+        """
+        What's This text for some of the widgets in the Property Manager.
+        """
         
         self.xCoordinateField.setWhatsThis("<b>x</b><p>: The x-coordinate (up to </p>"
                                            + str( self._sMaxCoordinateValue )
