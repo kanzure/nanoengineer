@@ -11,7 +11,7 @@ History:
 Bruce 050805 started this module.
 """
 
-__author__ = ['Bruce']
+__author__ = "Bruce"
 
 import env # for env.prefs
 from debug import print_compact_traceback

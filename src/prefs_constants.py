@@ -15,7 +15,7 @@ in UserPrefs.py, into constants.py.
 Bruce 050805 moved those into this new file, and added more.
 
 '''
-__author__ = ['Mark', 'Bruce']
+__author__ = "Mark, Bruce"
 
 ### do no imports that would not be ok for constants.py to do! ###
 

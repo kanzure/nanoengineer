@@ -25,7 +25,7 @@ bruce 051130 revised it
 
 bruce 051201 made new source file for it, extended it to other kinds of objects (so far, some Node subclasses)
 """
-__author__ = ["Will", "Bruce"]
+__author__ = "Will, Bruce"
 
 from PyQt4 import QtGui
 from PyQt4.Qt import QToolBar

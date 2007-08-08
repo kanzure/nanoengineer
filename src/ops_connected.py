@@ -15,7 +15,7 @@ bruce 050629 code cleanup.
 bruce 050913 used env.history in some places.
 """
 
-__author__ = ["Josh", "bruce"]
+__author__ = "Josh, Bruce"
 
 from HistoryWidget import greenmsg, redmsg
 import env
