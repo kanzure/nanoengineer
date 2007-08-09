@@ -30,6 +30,7 @@ page_head("");
 </table>
 
 <p>
+<img align="right" src="Engineer-X-Man-Logo.png">
 Welcome to the Nanorex Software-Engineering Mechanisms Robot (SEMBot).
 <p>
 SEMBot files are checked in under /cad/src/tools/SEMBot/ and are updated before each run.
@@ -46,7 +47,6 @@ SEMBot files are checked in under /cad/src/tools/SEMBot/ and are updated before 
 
 </pre>
 
-<img align="right" src="Engineer-X-Man-Logo.png">
 <a name="epydoc"></a>
 <table class="summary" border="1" cellpadding="3"
        cellspacing="0" width="500" bgcolor="white">
