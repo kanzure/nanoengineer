@@ -156,7 +156,10 @@ class PM_ToolButtonGrid( PM_GroupBox ):
 
     def getButtonFont(self):
         """
-        Returns the font for the tool buttons in the grid
+        Returns the font for the tool buttons in the grid.
+        
+        return: Button font.
+        rtype:  U{B{QFont}<http://doc.trolltech.com/4/qfont.html>}
         """
         # Font for tool buttons.
         buttonFont = QFont(self.font())
@@ -168,15 +171,16 @@ class PM_ToolButtonGrid( PM_GroupBox ):
     def getButtonInfoList(self, buttonInfo):
         """
         Returns the button information provided by the user. 
+        
         Subclasses should override this method if they need to provide 
-        custom information (e.g. a fixed value for row) .
+        custom information (e.g. a fixed value for row).
+        
         @param  buttonInfo: list containing the button information
         @type   buttonInfo: list
-        @return buttonInfoList: list containing the button information. 
-                This can be same as I{buttonInfo} or can be modified further.
-        @rtype  buttonInfoList: list
-        @see:   PM_ToolButtonRow.getButtonInfoList
         
+        @return: A list containing the button information. 
+                 This can be same as I{buttonInfo} or can be modified further.
+        @rtype:  list
         """
         
         buttonInfoList = buttonInfo                
@@ -221,6 +225,11 @@ class PM_ToolButtonGrid( PM_GroupBox ):
     def getButtonByText(self, text):
         """
         Returns the button with its current text set to I{text}.
+        
+        return: The button, or B{None} if no button was found.
+        rtype:  U{B{QToolButton}<http://doc.trolltech.com/4/qtoolbutton.html>}
+        
+        @note: If multiple buttons have the same text, only the last one is returned.
         """
         if self.buttonsByText.has_key(text):
             return self.buttonsByText[text]
@@ -230,6 +239,9 @@ class PM_ToolButtonGrid( PM_GroupBox ):
     def getButtonById(self, buttonId):
         """
         Returns the button with the button id of I{buttonId}.
+        
+        return: The button, or B{None} if no button was found.
+        rtype:  U{B{QToolButton}<http://doc.trolltech.com/4/qtoolbutton.html>}
         """
         if self.buttonsById.has_key(buttonId):
             return self.buttonsById[buttonId]

@@ -49,11 +49,11 @@ class PM_ToolButtonRow( PM_ToolButtonGrid ):
                            info list contains the following five items:
                            (notice that this list doesn't contain the 'row' as an
                            item like in PM_ToolButtonGrid. 
-                           1). Button Id (int), 
-                           2). Button text (str),
-                           3). Button icon path (str),
-                           4). Column (int)
-                           5). Button tool tip (str).
+                            1. Button Id (int), 
+                            2. Button text (str),
+                            3. Button icon path (str),
+                            4. Column (int)
+                            5. Button tool tip (str).
         @type  buttonList: list
         """
         
@@ -69,14 +69,16 @@ class PM_ToolButtonRow( PM_ToolButtonGrid ):
         """
         Returns the button information provided by the user. 
         Overrides the PM_ToolButtonRow.getButtonInfoList
-        custom information (e.g. a fixed value for row) .
+        custom information (e.g. a fixed value for row).
+        
         @param  buttonInfo: list containing the button information
         @type   buttonInfo: list
-        @return buttonInfoList: list containing the button information. 
-                This can be same as I{buttonInfo} or can be modified further.
-        @rtype  buttonInfoList: list
-        @see:   PM_ToolButtonGrid.getButtonInfoList (overrides this method)
         
+        @return: The button information. 
+                 This can be same as I{buttonInfo} or can be modified further.
+        @rtype:  list
+        
+        @see:   L{PM_ToolButtonGrid.getButtonInfoList} (overrides this method)
         """
                 
         buttonId       = buttonInfo[0]
@@ -99,13 +101,15 @@ class PM_ToolButtonRow( PM_ToolButtonGrid ):
          - border width
          - border color
          - border radius (on corners)
-        @see: PM_GroupBox._getStyleSheet (overrided here)
+         
+        @see: L{PM_GroupBox._getStyleSheet} (overrided here)
         """
         
-        styleSheet = "QGroupBox {border-style:hidden;\
-        border-width: 0px;\
-        border-color: "";\
-        border-radius: 0px;\
-        min-width: 10em; }" 
+        styleSheet = \
+                   "QGroupBox {border-style:hidden; \
+                    border-width: 0px; \
+                    border-color: ""; \
+                    border-radius: 0px; \
+                    min-width: 10em; }" 
    
         return styleSheet

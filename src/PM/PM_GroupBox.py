@@ -198,10 +198,11 @@ class PM_GroupBox( QGroupBox ):
         
     def _addBottomSpacer(self):
         """
-        Add a vertical spacer below this groupbox <self>.
-        Assume <self> is going to be the last groupbox in this PropMgr, so set
+        Add a vertical spacer below this group box.
+        
+        Method: Assume this is going to be the last group box in the PM, so set
         its spacer's vertical sizePolicy to MinimumExpanding. We then set the 
-        vertical sizePolicy of the last groupbox's spacer to Fixed and set its
+        vertical sizePolicy of the last group box's spacer to Fixed and set its
         height to pmGroupBoxSpacing.
         """
         # Spacers are only added to groupboxes in the PropMgr, not
@@ -251,7 +252,7 @@ class PM_GroupBox( QGroupBox ):
         """
         Returns the group box title.
         
-        @return: the group box title.
+        @return: The group box title.
         @rtype:  str
         """
         return self._title
@@ -283,6 +284,9 @@ class PM_GroupBox( QGroupBox ):
         """
         Returns all the layout parameters needed to place 
         a PM_Widget in the group box grid layout.
+        
+        @param pmWidget: The PM widget.
+        @type  pmWidget: PM_Widget
         """
         
         label       = pmWidget.label
@@ -472,16 +476,17 @@ class PM_GroupBox( QGroupBox ):
         If the user clicks on this 'title bar' it sends a signal to open or close
         the group box.
         
-        @param parentWidget: the parent dialog or group box containing this widget.
+        @param parentWidget: The parent dialog or group box containing this widget.
         @type  parentWidget: PM_Dialog or PM_GroupBox
         
-        @param title: the title on the button
+        @param title: The button title.
         @type  title: str 
         
-        @param showExpanded: determines whether the expand or collapse image is 
-                             displayed on the title button
+        @param showExpanded: dDetermines whether the expand or collapse image is 
+                             displayed on the title button.
+        @type  showExpanded: bool
                              
-        @see: _getTitleButtonStyleSheet ()
+        @see: L{_getTitleButtonStyleSheet()}
         
         @Note: Including a title button should only be legal if the parentWidget
                is a PM_Dialog.
@@ -516,9 +521,14 @@ class PM_GroupBox( QGroupBox ):
     
     def _getTitleButtonStyleSheet(self, showExpanded = True):
         """
-        Returns the style sheet for a groupbox title button (or checkbox).
-        If <showExpanded> is True, the style sheet includes an expanded icon.
-        If <showExpanded> is False, the style sheet includes a collapsed icon.
+        Returns the style sheet for a group box title button (or checkbox).
+        
+        @param showExpanded: Determines whether to include an expand or
+                             collapse icon.
+        @type  showExpanded: bool
+        
+        @return: The title button style sheet.
+        @rtype:  str
         """
         
         # Need to move border color and text color to top (make global constants).
@@ -603,12 +613,15 @@ class PM_GroupBox( QGroupBox ):
             print "Clicking on the group box button has no effect \
                    since it has no widgets."
     
-    # GroupBox palette and stylesheet methods. ##############################3
+    # GroupBox palette and stylesheet methods. ##############################
     
     def _getPalette(self):
         """
-        Return a palette for this groupbox. 
-        The color should be slightly darker (or lighter) than the property manager background.
+        Return a palette for this group box. The color should be slightly 
+        darker (or lighter) than the property manager background.
+        
+        @return: The group box palette.
+        @rtype:  U{B{QPalette}<http://doc.trolltech.com/4/qpalette.html>}
         """
         return getPalette( None, QPalette.Window, pmGrpBoxColor )
     
@@ -620,13 +633,19 @@ class PM_GroupBox( QGroupBox ):
          - border width
          - border color
          - border radius (on corners)
-        The background color for a groupbox is set using getPalette()."""
+        The background color for a groupbox is set using getPalette().
         
-        styleSheet = "QGroupBox {border-style:solid;\
-        border-width: 1px;\
-        border-color: " + pmGrpBoxBorderColor + ";\
-        border-radius: 0px;\
-        min-width: 10em; }" 
+        @return: The group box style sheet.
+        @rtype:  str
+        
+        """
+        
+        styleSheet = \
+                   "QGroupBox {border-style:solid;\
+                   border-width: 1px;\
+                   border-color: " + pmGrpBoxBorderColor + ";\
+                   border-radius: 0px;\
+                   min-width: 10em; }" 
         
         ## For Groupboxs' Pushbutton : 
         ##Other options not used : font:bold 10px;  

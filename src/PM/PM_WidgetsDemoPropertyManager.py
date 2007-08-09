@@ -35,7 +35,7 @@ OPTIONS_BUTTON_LIST = [ \
     ( 3, "Option 4", "Tooltip text for option 4")
 ]
 
-# Tool button list to create PM_ToolButtonGroup.
+# Tool button list to create a PM_ToolButtonGrid.
 # Format: 
 # - buttonId, buttonText, iconPath, column, row, tooltipText
 TOOL_BUTTON_LIST = [ \
