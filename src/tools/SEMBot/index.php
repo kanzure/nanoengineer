@@ -31,6 +31,21 @@ page_head("");
 
 <p>
 Welcome to the Nanorex Software-Engineering Mechanisms Robot (SEMBot).
+<p>
+SEMBot files are checked in under /cad/src/tools/SEMBot/ and are updated before each run.
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="500" bgcolor="white">
+  <tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">Log</span></td>
+    <td class="summary">
+      <span class="summary-name"><a href="http://www.nanohive-1.org/Engineering/SEMBot.log">SEMBot.log</a></span></td>
+  </tr>
+</table>
+<pre>
+
+</pre>
+
 <img align="right" src="Engineer-X-Man-Logo.png">
 <a name="epydoc"></a>
 <table class="summary" border="1" cellpadding="3"
@@ -43,7 +58,7 @@ Welcome to the Nanorex Software-Engineering Mechanisms Robot (SEMBot).
   <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">Summary</span></td>
-    <td class="summary">This mechanism updates a local copy of the NE1 codebase, then runs <a href="http://epydoc.sourceforge.net/">Epydoc</a> on it to generate formatted API documentation.</td>
+    <td class="summary">This mechanism updates a local copy of the NE1 codebase, then runs <a href="http://epydoc.sourceforge.net/">Epydoc</a> on it to generate formatted <a href="NE1_Documentation">NE1 API documentation</a>.</td>
   </tr>
 
   <tr>
@@ -81,7 +96,11 @@ Welcome to the Nanorex Software-Engineering Mechanisms Robot (SEMBot).
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">Notes</span></td>
     <td class="summary">
-      To add images to your Epydoc documentation, use the following format: <tt>IMAGE(<i>URL</i>)</tt> which gets transcribed as <tt>&lt;img src="<i>URL</i>"&gt;</tt></td>
+      The Epydoc configuration file is checked in as /cad/src/epydoc.config and is updated before each Epydoc run.
+      <p>
+      To add images to your Epydoc documentation, use the following format: <tt>IMAGE(<i>URL</i>)</tt> which gets transcribed as <tt>&lt;img src="<i>URL</i>"&gt;</tt>
+      <p>
+      Epydoc chokes on <tt>__author__ = ['Mark', 'Bruce']</tt> so please use <tt>__author__ = "Mark, Bruce"</tt> instead.</td>
   </tr>
 </table>
 
