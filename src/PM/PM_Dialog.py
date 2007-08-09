@@ -130,9 +130,6 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         
         self.MessageGroupBox = PM_MessageGroupBox(self)
         
-        if 0: # For me. Mark 2007-05-17.
-            self._debugSizePolicy() 
-        
         # Keep the line below around; it might be useful.
         # I may want to use it now that I understand it.
         # Mark 2007-05-17.
@@ -290,7 +287,6 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         """
         Creates the Done, Cancel, Preview, Restore Defaults and What's This 
         buttons row at the top of the Property Manager.
-        
         """        
         
         # Main "button group" widget (but it is not a QButtonGroup).
@@ -348,7 +344,7 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         
         topRowBtnsHLayout.addWidget(self.cancel_btn)
         
-        #@ abort_btn depreciated. We still need it because 
+        #@ abort_btn depreciated. We still need it because modes use it. 
         self.abort_btn = self.cancel_btn
         
         # Restore Defaults button.
@@ -427,12 +423,12 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         
         @param pmButtonFlags: this enumerator describes the which buttons to hide, where:
         
-            pmDoneButton            =  1
-            pmCancelButton          =  2
-            pmRestoreDefaultsButton =  4
-            pmPreviewButton         =  8
-            pmWhatsThisButton       = 16
-            pmAllButtons            = 31
+            - pmDoneButton            =  1
+            - pmCancelButton          =  2
+            - pmRestoreDefaultsButton =  4
+            - pmPreviewButton         =  8
+            - pmWhatsThisButton       = 16
+            - pmAllButtons            = 31
             
         @type  pmButtonFlags: int
         """
@@ -470,19 +466,17 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         
         @param pmButtonFlags: this enumerator describes which buttons to display, where:
         
-            pmDoneButton            =  1
-            pmCancelButton          =  2
-            pmRestoreDefaultsButton =  4
-            pmPreviewButton         =  8
-            pmWhatsThisButton       = 16
-            pmAllButtons            = 31
+            - pmDoneButton            =  1
+            - pmCancelButton          =  2
+            - pmRestoreDefaultsButton =  4
+            - pmPreviewButton         =  8
+            - pmWhatsThisButton       = 16
+            - pmAllButtons            = 31
             
         @type  pmButtonFlags: int
         """
         
         self.hideTopRowButtons(pmButtonFlags ^ pmAllButtons)
-        
-    
         
     def _getHeaderTitlePalette(self):
         """
@@ -512,13 +506,7 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         for widget in self._widgetList:
             if isinstance(widget, PM_GroupBox):
                 widget.restoreDefault()
-                
-    def restore_defaults_btn_clicked_DEP(self):
-        """
-        @depreciated: Use restoreDefaultsButtonClicked() instead.
-        """
-        self.restoreDefaultsButtonClicked()
-         
+                         
     def previewButtonClicked(self):
         """
         Slot for the What's This button.
@@ -530,41 +518,5 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         Slot for the What's This button.
         """
         QWhatsThis.enterWhatsThisMode()
-        
-        
-    # PropMgr debugging methods ###########################################
-    
-    def _debugSizePolicy(self): 
-        """
-        This should split out of this class and made into a general widget 
-        debugging function.
-        
-        Special method for debugging sizePolicy.
-        Without this, I couldn't figure out how to make groupboxes
-        (and their widgets) behave themselves when collapsing and
-        expanding them. I needed to experiment with different sizePolicies,
-        especially TextEdits and GroupBoxes, to get everything working
-        just right. Their layouts can be slippery. Mark 2007-05-22
-        """
-    
-        if 0: # Override PropMgr sizePolicy.
-            self.setSizePolicy(
-                QSizePolicy(QSizePolicy.Policy(QSizePolicy.Preferred),
-                            QSizePolicy.Policy(QSizePolicy.Minimum)))
-        
-        if 0: # Override MessageGroupBox sizePolicy.
-            self.MessageGroupBox.setSizePolicy(
-                QSizePolicy(QSizePolicy.Policy(QSizePolicy.Preferred),
-                            QSizePolicy.Policy(QSizePolicy.Fixed)))
-        
-        if 0: # Override MessageTextEdit sizePolicy.
-            self.MessageTextEdit.setSizePolicy(
-                QSizePolicy(QSizePolicy.Policy(QSizePolicy.Preferred),
-                            QSizePolicy.Policy(QSizePolicy.Fixed)))
-
-        if 1: # Print the current sizePolicies.
-            printSizePolicy(self)
-            printSizePolicy(self.MessageGroupBox)
-            printSizePolicy(self.MessageTextEdit)
                 
 # End of PropMgrBaseClass ############################
