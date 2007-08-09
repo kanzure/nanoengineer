@@ -425,25 +425,29 @@ _defaultSponsor = Sponsor('Nanorex', fixHtml(_nanorexText), _defsp_imgfile)
 ###############################################
 
 class SponsorableMixin:
-    """To use this mixin class, instances of a main class which
+    """
+    To use this mixin class, instances of a main class which
     inherits it should provide:
-    - an attribute sponsor_keyword, which can be None, or a keyword
-      string, or a list or tuple of sponsor keyword strings.
-    - an attribute sponsor_btn, which must be a QPushButton object
-      whose pixmap will be replaced with a sponsor logo during this
-      mixin's __init__ or setSponsor methods. This button must
-      already exist when our __init__ method is called.
+    
+        - an attribute sponsor_keyword, which can be None, or a keyword
+          string, or a list or tuple of sponsor keyword strings.
+        - an attribute sponsor_btn, which must be a QPushButton object
+          whose pixmap will be replaced with a sponsor logo during this
+          mixin's __init__ or setSponsor methods. This button must
+          already exist when our __init__ method is called.
+    
     This mixin class then provides:
-    - an __init__ method (which should only be called when the above
-      attributes are ready)
-    - a setSponsor method which may be called at any time after that,
-      to change sponsors (might be useful whether or not
-      sponsor_keyword has changed, since sponsors are sometimes chosen
-      at random based on it, and the info used to choose them might
-      have been updated)
-    - an action method meant to be used by the caller as Qt slot
-      methods, which can be named either 'sponsor_btn_clicked' or
-      'open_sponsor_homepage'."""
+        - an __init__ method (which should only be called when the above
+          attributes are ready)
+        - a setSponsor method which may be called at any time after that,
+          to change sponsors (might be useful whether or not
+          sponsor_keyword has changed, since sponsors are sometimes chosen
+          at random based on it, and the info used to choose them might
+          have been updated)
+        - an action method meant to be used by the caller as Qt slot
+          methods, which can be named either 'sponsor_btn_clicked' or
+          'open_sponsor_homepage'.
+      """
     sponsor_keyword = None
 
     def __init__(self):
