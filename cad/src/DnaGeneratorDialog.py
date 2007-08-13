@@ -75,7 +75,7 @@ class DnaPropertyManager( object, PropMgrBaseClass, DebugMenuMixin ):
 
     # <propmgr_name> - the name of this property manager. This will be set 
     # to the name of the PropMgr (this) object via setObjectName().
-    propmgr_name  =  "pm" + title
+    propmgr_name  = title
 
     # <iconPath> - full path to PNG file that appears in the header.
     iconPath  =  "ui/actions/Tools/Build Structures/DNA.png"
