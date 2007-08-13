@@ -39,8 +39,9 @@ DnaGeneratorPropertyManager.
 #    - try using a blinking vertical bar via HTML to represent the cursor
 # 3) <DONE> Spinboxes should change the length from the end only of the strand, 
 #    regardless of the current cursor position or selection.
-# 4) Fix "isdigit()" bug.
-# 5) Fully implement sequence processing methods (and their args).
+# 4) Fully implement sequence processing methods (and their args).
+# 5) Actions (reverse, complement, etc in _getSequence() should not pruge
+#    unrecognized characters.
 
 import env
 
@@ -316,7 +317,28 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
         <p>DNA strands can be single or double.</p>""")
         
         self.sequenceTextEdit.setWhatsThis("""<b>Strand Sequence</b>
-        <p>Type in the strand sequence you want to generate here (5' => 3')
+        <p>Type in the strand sequence you want to generate here (5' => 3')<br>
+        <br>
+        Recognized base letters:<br>
+        <br>
+        A = Adenosine<br>
+        C = Cytosine<br> 
+        G = Guanosine<br>
+        T = Thymidine<br>
+        N = aNy base<br>
+        <br>
+        Other base letters (to currently recognized):<br>
+        <br>
+        B = C,G, or T<br>
+        D = A,G, or T<br>
+        H = A,C, or T<br>
+        V = A,C, or G<br>
+        R = A or G (puRine)<br>
+        Y = C or T (pYrimidine)<br>
+        K = G or T (Keto)<br>
+        M = A or C (aMino)<br>
+        S = G or C (Strong -3H bonds)<br>
+        W = A or T (Weak - 2H bonds)<br>
         </p>""")
         
         self.actionsComboBox.setWhatsThis("""<b>Action</b>
@@ -356,6 +378,7 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
         
         elif inIndex == -1: 
             # Caused by clear(). This is tolerable for now. Mark 2007-05-24.
+            conformation = "B-DNA" # Workaround for "Restore Defaults".
             pass
         
         else:
@@ -398,12 +421,12 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
         self.strandTypeComboBox.clear() # Generates signal!
         
         if conformation == self._modeltype_Reduced:
-            self.newBaseChoiceComboBox.addItem("N (undefined)")
-            self.newBaseChoiceComboBox.addItem("A")
-            self.newBaseChoiceComboBox.addItem("T")  
-            self.newBaseChoiceComboBox.addItem("C")
-            self.newBaseChoiceComboBox.addItem("G") 
-            
+            self.newBaseChoiceComboBox.addItem("N (aNy base)")
+            self.newBaseChoiceComboBox.addItem("A (Adenine)" )
+            self.newBaseChoiceComboBox.addItem("C (Cytosine)")
+            self.newBaseChoiceComboBox.addItem("G (Guanine)" ) 
+            self.newBaseChoiceComboBox.addItem("T (Thymine)" )
+
             #self.valid_base_letters = "NATCG"
             
             self.conformationComboBox.addItem("B-DNA")
@@ -469,7 +492,7 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
         elif inConformation == 'Z-DNA':
             theDna  =  Z_Dna()
             
-        return theDna.getBaseSpacing()
+        return theDna.getBaseRise()
 
     def synchronizeLengths( self ):
         """
@@ -986,7 +1009,7 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
         Complements the current sequence.
         """
         def thunk():
-            (seq, allKnown) = self._get_sequence( complement  =  True,
+            (seq, allKnown) = self._getSequence( complement  =  True,
                                                   reverse     =  True )
                 #bruce 070518 added reverse=True, since complementing a 
                 # sequence is usually understood to include reversing the 
@@ -1000,7 +1023,7 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
         Reverse the current sequence.
         """
         def thunk():
-            (seq, allKnown) = self._get_sequence( reverse  =  True )
+            (seq, allKnown) = self._getSequence( reverse  =  True )
             self.setSequence( seq ) #, inStylize  =  False )
             #self.sequenceChanged()
         self.handlePluginExceptions( thunk )

@@ -12,19 +12,26 @@ $Id$
 
 History:
 Jeff 2007-06-13 (created)
-- Transfered class Dna, A_Dna, A_Dna_BasePseudoAtoms, B_Dna, B_Dna_BasePseudoAtoms, 
-Z_Dna abd Z_Dna_BasePseudoAtoms from Will Ware's DNAGenerator.py.
-- Added accessor methods getBaseSpacing/setBaseSpacing
+- Transfered class Dna, A_Dna, A_Dna_PAM5, B_Dna, B_Dna_PAM5, 
+Z_Dna abd Z_Dna_PAM5 from Will Ware's DNAGenerator.py.
+- Added accessor methods getBaseRise/setBaseRise
 
 """
 
-
-import os, re
-
-from math               import atan2, sin, cos, pi
-from Numeric            import dot
+# To do:
+#
+# 1) Atomistic and PAM-5 generated models should have exact orientation
+# (i.e. rotational origin).
 
 import env
+import os
+import re
+
+from math    import atan2, sin, cos, pi
+from Numeric import dot
+
+from debug import print_compact_traceback
+
 from platform           import find_plugin_dir
 from files_mmp          import _readmmp
 from VQT                import A, V, vlen
@@ -48,41 +55,133 @@ END2 = ']'
 DEBUG = False
 DEBUG_SEQUENCE  =  False
 
-class Dna:
+RIGHT_HANDED = -1
+LEFT_HANDED  =  1
 
+class Dna:
+    """
+    Dna base class. It is inherited by B_Dna and Z_Dna subclasses.
+    
+    @ivar baseRise: The rise (spacing) between base-pairs along the helical
+                    (Z) axis.
+    @type baseRise: float
+    
+    @ivar handedness: Right-handed (B and A forms) or left-handed (Z form).
+    @type handedness: int
+    
+    @ivar doubleStrand: Double (True) or single (False).
+    @type doubleStrand: bool
+    
+    @ivar representation: The model representation, where:
+                          - "Atom" = atomistic model
+                          - "PAM5" = PAM-5 reduced model.
+    @type representation: str
+    
+    @ivar sequence: The sequence of strand A.
+    @type sequence: str
+    
+    @ivar sequenceA: The sequence of strand A.
+    @type sequenceA: str
+    
+    @ivar sequenceB: The sequence of strand B.
+    @type sequenceB: str
+    """
     basesDict  =  { 'A':{'Name':'Adenine',   'Complement':'T'},
                     'C':{'Name':'Cytosine',  'Complement':'G'},
                     'G':{'Name':'Guanine',   'Complement':'C'},
                     'T':{'Name':'Thymine',   'Complement':'A'},
-                    'N':{'Name':'undefined', 'Complement':'N'} }
-
-    def getBaseSpacing( self ):
-        return float( self.BASE_SPACING )
+                    'N':{'Name':'aNy base',  'Complement':'N'} }
     
-    def setBaseSpacing( self, inBaseSpacing ):
-        self.BASE_SPACING  =  inBaseSpacing
+    baseRise       = 0.0
+    handedness     = None
+    doubleStrand   = True
+    representation = ""
+    sequence       = ""
+    sequenceA      = sequence
 
-    def make(self, assy, grp, sequence, doubleStrand, basesPerTurn, position,
-             basenameA={'C': 'cytosine',
-                        'G': 'guanine',
-                        'A': 'adenine',
-                        'T': 'thymine',
-                        'N': 'unknown',
-                        END1: 'end1',
-                        END2: 'end2'},
-             basenameB={'G': 'cytosine',
-                        'C': 'guanine',
-                        'T': 'adenine',
-                        'A': 'thymine',
-                        'N': 'unknown',
-                        END1: 'end1',
-                        END2: 'end2'}):
-        baseList = [ ]
+    def getBaseRise( self ):
+        """
+        Get the base rise (spacing) between base-pairs.
+        """
+        return float( self.baseRise )
+    
+    def setBaseRise( self, inBaseRise ):
+        """
+        Set the base rise (spacing) between base-pairs.
+        
+        @param inBaseRise: The base rise in Angstroms.
+        @type  inBaseRise: float
+        """
+        self.baseRise  =  inBaseRise
+
+    def make(self,
+             assy,
+             grp,
+             basesPerTurn,
+             position,
+             basenameA = { 'C': 'cytosine',
+                           'G': 'guanine',
+                           'A': 'adenine',
+                           'T': 'thymine',
+                           'N': 'unknown',
+                          END1: 'end1',
+                          END2: 'end2'},
+             basenameB = { 'G': 'cytosine',
+                           'C': 'guanine',
+                           'T': 'adenine',
+                           'A': 'thymine',
+                           'N': 'unknown',
+                          END1: 'end1',
+                          END2: 'end2'}
+             ):
+        """
+        Make a strand of DNA.
+        
+        @param assy: The assembly (part).
+        @type  assy: L{assembly}
+        
+        @param grp: The group node to contain the DNA.
+        @type  grp: L{Group}
+        
+        @param basesPerTurn: The number of bases per helical turn.
+        @type  basesPerTurn: float
+        
+        @param position: The position in 3d model space at which to
+                         create the DNA strand. This is always 0, 0, 0.
+        @type position:  position
+        
+        @param basenameA: A dictionary of legal (supported) bases in strand A.
+        @type  basenameA: dict
+        
+        @param basenameB: A dictionary of legal (supported) bases in strand B.
+                          Strand B is always complementary to strand A.
+        @type  basenameB: dict
+        """
+        
+        sequence = self.sequence
+        baseList = []
+        
         if DEBUG_SEQUENCE:
-            print "making", sequence
-        def insertmmp(filename, subgroup, tfm, position=position):
+            print "Making", sequence
+            
+        def insertmmp(filename, subgroup, tfm, position = position):
+            """
+            Read the mmp file containing the atoms for a nucleic acid base.
+            
+            @param filename: The mmp filename.
+            @type  filename: str
+            
+            @param subgroup:
+            @type  subgroup: L{Group}
+            
+            @param tfm: Transformation matrix applied to all new base atoms.
+            @type  tfm: V
+            
+            @param position:
+            @type  position:
+            """
             try:
-                grouplist  = _readmmp(assy, filename, isInsert=True)
+                grouplist = _readmmp(assy, filename, isInsert = True)
             except IOError:
                 raise PluginBug("Cannot read file: " + filename)
             if not grouplist:
@@ -99,16 +198,32 @@ class Dna:
                 
             shelf.kill()
 
-        def rotateTranslate(v, theta, z):
+        def rotateTranslateXYZ(inXYZ, theta, z):
+            """
+            Returns the new XYZ coordinate rotated by I{theta} and 
+            translated by I{z}.
+            
+            @param inXYZ: The original XYZ coordinate.
+            @type  inXYZ: V
+            
+            @param theta: The base twist angle.
+            @type  theta: float
+            
+            @param z: The base rise.
+            @type  z: float
+            
+            @return: The new XYZ coordinate.
+            @rtype:  V
+            """
             c, s = cos(theta), sin(theta)
-            x = c * v[0] + s * v[1]
-            y = -s * v[0] + c * v[1]
-            return V(x, y, v[2] + z)
+            x = c * inXYZ[0] + s * inXYZ[1]
+            y = -s * inXYZ[0] + c * inXYZ[1]
+            return V(x, y, inXYZ[2] + z)
 
-        # Calculate the twist per base in radians
+        # Calculate the twist per base in radians.
         twistPerBase = (self.handedness * 2 * pi) / basesPerTurn
         
-        if doubleStrand:
+        if self.doubleStrand:
             subgroup = Group("strand 1", grp.assy, None)
             grp.addchild(subgroup)
         else:
@@ -118,110 +233,194 @@ class Dna:
         if (sequence.isdigit()):
             baseCount = int(sequence)
             sequence = baseCount * "N"
-        sequence = self.addEndCaps(sequence)
+            
+        sequence = self._addEndCaps(sequence)
         theta = 0.0
-        z = 0.5 * self.BASE_SPACING * (len(sequence) - 1)
+        z = 0.5 * self.baseRise * (len(sequence) - 1)
+        
+        # Create strand A.
         for i in range(len(sequence)):
             basefile, zoffset, thetaOffset = \
-                      self.strandAinfo(basenameA[sequence[i]], i)
-            def tfm(v, theta=theta+thetaOffset, z1=z+zoffset):
-                return rotateTranslate(v, theta, z1)
-            if DEBUG: print basefile
+                self._strandAinfo(basenameA[sequence[i]], i)
+            def tfm(v, theta = theta + thetaOffset, z1 = z + zoffset):
+                return rotateTranslateXYZ(v, theta, z1)
+            if DEBUG: 
+                print basefile
             insertmmp(basefile, subgroup, tfm)
             theta -= twistPerBase
-            z -= self.BASE_SPACING
+            z     -= self.baseRise
         
-        if doubleStrand:
+        # Create strand B.
+        if self.doubleStrand:
             subgroup = Group("strand 2", grp.assy, None)
             subgroup.open = False
             grp.addchild(subgroup)
+            
             theta = 0.0
-            z = 0.5 * self.BASE_SPACING * (len(sequence) - 1)
+            z     = 0.5 * self.baseRise * (len(sequence) - 1)
+            
             for i in range(len(sequence)):
                 # The 3'-to-5' direction is reversed for strand B.
                 basefile, zoffset, thetaOffset = \
-                          self.strandBinfo(basenameB[sequence[i]], i)
-                def tfm(v, theta=theta+thetaOffset, z1=z+zoffset):
+                    self._strandBinfo(basenameB[sequence[i]], i)
+                def tfm(v, theta = theta + thetaOffset, z1 = z + zoffset):
                     # Flip theta, flip z
                     # Cheesy hack: flip theta by reversing the sign of y,
                     # since theta = atan2(y,x)
-                    return rotateTranslate(V(v[0], -v[1], -v[2]), theta, z1)
+                    return rotateTranslateXYZ(V(v[0], -v[1], -v[2]), theta, z1)
                 if DEBUG: print basefile
                 insertmmp(basefile, subgroup, tfm)
                 theta -= twistPerBase
-                z -= self.BASE_SPACING
+                z     -= self.baseRise
 
-        # fuse the bases together into continuous strands
+        # Fuse the bases together into continuous strands.
         fcb = fusechunksBase()
         fcb.tol = 1.5
         for i in range(len(baseList) - 1):
-            fcb.find_bondable_pairs([baseList[i]], [baseList[i+1]])
+            fcb.find_bondable_pairs([baseList[i]], [baseList[i + 1]])
             fcb.make_bonds(assy)
         
-        from debug import print_compact_traceback
         try:
-            self.postprocess(baseList)
+            self._postProcess(baseList)
         except:
             if env.debug():
-                print_compact_traceback("debug: exception in %r.postprocess(baseList = %r) (reraising): " % (self, baseList,))
+                print_compact_traceback("debug: exception in %r._postProcess(baseList = %r) (reraising): " % (self, baseList,))
             raise
         return
 
-    def addEndCaps(self, sequence):
+    def _addEndCaps(self, sequence):
         return sequence
 
-    def postprocess(self, baseList):
+    def _postProcess(self, baseList):
         return
     pass
 
 class A_Dna(Dna):
-    """The geometry for A-DNA is very twisty and funky. I'd probably need to
-    take a few days to research it. It's not a simple helix (like B) or an
-    alternating helix (like Z).
     """
-    geometry = "A-DNA"
-    BASE_SPACING = 0    # WRONG
-    handedness = -1     # right-handed
+    Provides an atomistic model of the A form of DNA.
     
-    def strandAinfo(self, sequence, i):
+    The geometry for A-DNA is very twisty and funky. We need to to research 
+    the A form since it's not a simple helix (like B) or an alternating helix 
+    (like Z).
+    
+    @attention: This class is not implemented yet.
+    """
+    geometry   = "A-DNA"
+    baseRise   = 3.391 # WRONG
+    handedness = RIGHT_HANDED
+    
+    def _strandAinfo(self, sequence, index):
+        """
+        Raise exception since A-DNA is not support. 
+        """
         raise PluginBug("A-DNA is not yet implemented -- please try B- or Z-DNA");
-    def strandBinfo(self, sequence, i):
+    
+    def _strandBinfo(self, sequence, index):
+        """
+        Raise exception since A-DNA is not support. 
+        """
         raise PluginBug("A-DNA is not yet implemented -- please try B- or Z-DNA");
 
-class A_Dna_BasePseudoAtoms(A_Dna):
+class A_Dna_PAM5(A_Dna):
+    """
+    Provides a PAM-5 reduced model of the B form of DNA.
+    
+    @attention: This class is not implemented yet.
+    """
     pass
 
 class B_Dna(Dna):
-    geometry = "B-DNA"
-    BASE_SPACING = 3.391    # angstroms
-    handedness = -1         # right-handed
+    """
+    Provides an atomistic model of the B form of DNA.
+    """
+    
+    geometry   = "B-DNA"
+    baseRise   = 3.391        # Angstroms
+    handedness = RIGHT_HANDED
 
-    def baseFileName(self, basename):
-        return os.path.join(basepath, 'bdna-bases', '%s.mmp' % basename)
+    def _baseFileName(self, basename):
+        """
+        Returns the full pathname to the mmp file containing the atoms 
+        of a nucleic acid base (B form).
+        
+        @param basename: The basename of the mmp file (i.e. "adenine", 
+                         "cytosine", "guanine", "thymine" or "unknown").
+        @type  basename: str
+        
+        @return: The full pathname to the mmp file.
+        @rtype:  str
+        """
+        return os.path.join(basepath, 
+                            'bdna-bases', '%s.mmp' % basename)
 
-    def strandAinfo(self, basename, i):
+    def _strandAinfo(self, basename, index):
+        """
+        Returns parameters needed to add a base to strand A.
+        
+        @param basename: The basename of the mmp file (i.e. "adenine", 
+                         "cytosine", "guanine", "thymine" or "unknown").
+        @type  basename: str
+        
+        @param index: Index in base sequence. This is unused.
+        @type  index: int
+        """
         zoffset = 0.0
         thetaOffset = 0.0
-        basefile = self.baseFileName(basename)
+        basefile = self._baseFileName(basename)
         return (basefile, zoffset, thetaOffset)
 
-    def strandBinfo(self, basename, i):
+    def _strandBinfo(self, basename, index):
+        """
+        Returns parameters needed to add a base to strand B.
+        
+        @param basename: The basename of the mmp file (i.e. "adenine", 
+                         "cytosine", "guanine", "thymine" or "unknown").
+        @type  basename: str
+        
+        @param index: Index in base sequence. This is unused.
+        @type  index: int
+        """
         zoffset = 0.0
         thetaOffset = 210 * (pi / 180)
-        basefile = self.baseFileName(basename)
+        basefile = self._baseFileName(basename)
         return (basefile, zoffset, thetaOffset)
 
-class B_Dna_BasePseudoAtoms(B_Dna):
-    BASE_SPACING = 3.18 # angstroms
-    handedness = -1     # right-handed
+class B_Dna_PAM5(B_Dna):
+    """
+    Provides a PAM-5 reduced model of the B form of DNA.
+    """
     
-    def baseFileName(self, basename):
-        return os.path.join(basepath, 'bdna-pseudo-bases', '%s.mmp' % basename)
-    def addEndCaps(self, sequence):
+    baseRise   = 3.18         # Angstroms
+    handedness = RIGHT_HANDED
+    
+    def _baseFileName(self, basename):
+        """
+        Returns the full pathname to the mmp file containing the PAM-5 
+        pseudo-atoms of a nucleic acid base.
+        
+        @param basename: The basename of the mmp file (i.e. "adenine", 
+                         "cytosine", "guanine", "thymine" or "unknown").
+        @type  basename: str
+        
+        @return: The full pathname to the mmp file.
+        @rtype:  str
+        """
+        return os.path.join(basepath, 
+                            'bdna-pseudo-bases', '%s.mmp' % basename)
+    
+    def _addEndCaps(self, sequence):
+        """
+        Add end cap characters to I{sequence}.
+        
+        @param sequence: The DNA sequence of strand A.
+        @type  sequence: str
+        """
         if (len(sequence) > 1):
-            return END1 + sequence[1:-1] + END2 #bruce 070518 replaced end-codes 'Y' and 'Z' with END1 and END2
+            return END1 + sequence[1:-1] + END2 
+            #bruce 070518 replaced end-codes 'Y' and 'Z' with END1 and END2
         return sequence
-    def postprocess(self, baseList): # bruce 070414
+    
+    def _postProcess(self, baseList): # bruce 070414
         # Figure out how to set bond direction on the backbone bonds of these strands.
         # This implem depends on the specifics of how the end-representations are terminated.
         # If that's changed, it might stop working or it might start giving wrong results.
@@ -264,35 +463,80 @@ class B_Dna_BasePseudoAtoms(B_Dna):
     pass
 
 class Z_Dna(Dna):
-    geometry = "Z-DNA"
-    BASE_SPACING = 3.715    # in angstroms
-    handedness = 1          # left-handed
+    """
+    Provides an atomistic model of the Z form of DNA.
+    """
+    
+    geometry   = "Z-DNA"
+    baseRise   = 3.715        # Angstroms
+    handedness = LEFT_HANDED
 
-    def baseFileName(self, basename, suffix):
-        return os.path.join(basepath, 'zdna-bases', '%s-%s.mmp' % (basename, suffix))
+    def _baseFileName(self, basename, suffix):
+        """
+        Returns the full pathname to the mmp file containing the atoms 
+        of a nucleic acid base (Z form).
+        
+        @param basename: The basename of the mmp file (i.e. "adenine", 
+                         "cytosine", "guanine", "thymine" or "unknown").
+        @type  basename: str
+        
+        @param suffix: Determines whether the "inner" or "outer" version of the
+                       base is used.
+        @type  suffix: str
+        
+        @return: The full pathname to the mmp file.
+        @rtype:  str
+        """
+        return os.path.join(basepath, 
+                            'zdna-bases', '%s-%s.mmp' % (basename, suffix))
 
-    def strandAinfo(self, basename, i):
-        if (i & 1) != 0:
+    def _strandAinfo(self, basename, index):
+        """
+        Returns parameters needed to add a base to strand A.
+        
+        @param basename: The basename of the mmp file (i.e. "adenine", 
+                         "cytosine", "guanine", "thymine" or "unknown").
+        @type  basename: str
+        
+        @param index: Index in base sequence.
+        @type  index: int
+        """
+        if (index & 1) != 0:
             suffix = 'outer'
             zoffset = 2.045
         else:
             suffix = 'inner'
             zoffset = 0.0
         thetaOffset = 0.0
-        basefile = self.baseFileName(basename, suffix)
+        basefile = self._baseFileName(basename, suffix)
         return (basefile, zoffset, thetaOffset)
 
-    def strandBinfo(self, basename, i):
-        if (i & 1) != 0:
+    def _strandBinfo(self, basename, index):
+        """
+        Returns parameters needed to add a base to strand B.
+        
+        @param basename: The basename of the mmp file (i.e. "adenine", 
+                         "cytosine", "guanine", "thymine" or "unknown").
+        @type  basename: str
+        
+        @param index: Index in base sequence. This is unused.
+        @type  index: int
+        """
+        if (index & 1) != 0:
             suffix = 'inner'
             zoffset = -0.055
         else:
             suffix = 'outer'
             zoffset = -2.1
         thetaOffset = 0.5 * pi
-        basefile = self.baseFileName(basename, suffix)
+        basefile = self._baseFileName(basename, suffix)
         return (basefile, zoffset, thetaOffset)
 
-class Z_Dna_BasePseudoAtoms(Z_Dna):
-    def baseFileName(self, basename, suffix):
-        return os.path.join(basepath, 'zdna-pseudo-bases', '%s-%s.mmp' % (basename, suffix))
+class Z_Dna_PAM5(Z_Dna):
+    """
+    Provides a PAM-5 reduced model of the Z form of DNA.
+    
+    @attention: This class is not implemented yet.
+    """
+    pass
+    

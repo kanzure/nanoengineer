@@ -17,10 +17,10 @@ mixed-base code letters:
 
     The standard IUB codes for degenerate bases are:
 
-    A = Adenosine;
+    A = Adenine;
     C = Cytosine; 
-    G = Guanosine;
-    T = Thymidine;
+    G = Guanine;
+    T = Thymine;
     B = C,G, or T;
     D = A,G, or T; 
     H = A,C, or T;
@@ -59,9 +59,9 @@ from fusechunksMode import fusechunksBase
 from platform       import find_plugin_dir
 
 from Dna import Dna
-from Dna import A_Dna, A_Dna_BasePseudoAtoms
-from Dna import B_Dna, B_Dna_BasePseudoAtoms
-from Dna import Z_Dna, Z_Dna_BasePseudoAtoms
+from Dna import A_Dna, A_Dna_PAM5
+from Dna import B_Dna, B_Dna_PAM5
+from Dna import Z_Dna, Z_Dna_PAM5
 from Dna import DEBUG, DEBUG_SEQUENCE
 from Dna import basepath, basepath_ok
 
@@ -102,33 +102,44 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
         return self._random_data[inIndex]
 
     def gather_parameters(self):
+        """
+        Return the parameters from the property manager UI.
+        
+        @return: All the parameters:
+                 - dnaSequence
+                 - dnaType
+                 - strandType
+                 - basesPerTurn
+                 - dnaModel
+                 - chunkOption
+        @rtype:  tuple
+        """
         if not basepath_ok:
             raise PluginBug("The cad/plugins/DNA directory is missing.")
-        dnatype = str(self.conformationComboBox.currentText())
-        if dnatype == 'A-DNA':
+        dnaType = str(self.conformationComboBox.currentText())
+        if dnaType == 'A-DNA':
             raise PluginBug("""A-DNA is not yet implemented -- please try 
             B- or Z-DNA""");
-        assert dnatype in ('B-DNA', 'Z-DNA')
+        assert dnaType in ('B-DNA', 'Z-DNA')
 
+        strandType  =  str( self.strandTypeComboBox.currentText() )
 
-        double  =  str( self.strandTypeComboBox.currentText() )
-
-        # Get bases per turn
+        # Get bases per turn.
         basesPerTurnString = str(self.basesPerTurnComboBox.currentText())
         basesPerTurn = float(basesPerTurnString)
-        if (basesPerTurn < 1) | (basesPerTurn > 100):
-            basesPerTurn = 10.5
         
-        representation = str(self.modelComboBox.currentText())
-        if (representation == 'Reduced'):
-            representation = 'BasePseudoAtom'
+        dnaModel = str(self.modelComboBox.currentText())
+        
+        if (dnaModel == 'Reduced'):
+            dnaModel = 'PAM5'
             chunkOption = str(self.createComboBox.currentText())
             resolve_random = False
                 # Later this flag may depend on a new checkbox in that case;
                 # for now it doesn't matter, since sequence info is 
                 # discarded for reduced bases anyway.
-        if (representation == 'Atomistic'):
-            representation = 'Atom'
+                
+        if (dnaModel == 'Atomistic'):
+            dnaModel = 'Atom'
             chunkOption = str(self.createComboBox.currentText())
             resolve_random = True
                 # If this flag was not set, for atomistic case, random base 
@@ -136,31 +147,40 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
                 # message needs rewording for that... for now, it can't 
                 # happen.
             
-        assert representation in ('Atom', 'BasePseudoAtom')
+        assert dnaModel in ('Atom', 'PAM5')
 
-        (seq, allKnown) = self._get_sequence( resolve_random = resolve_random)
+        (dnaSequence, allKnown) = self._getSequence( resolve_random = resolve_random)
 
         if allKnown == False:
-            seq  =  self.convertUnrecognized(seq)
+            dnaSequence  =  self.convertUnrecognized(dnaSequence)
 
-        if (representation == 'Atom' and not allKnown):
-            raise UserError("Cannot use unknown bases (N) in Atomistic representation") # needs rewording (see above)
+        if (dnaModel == 'Atom' and not allKnown):
+            raise UserError("Cannot use unknown bases (N) in Atomistic model") # needs rewording (see above)
 
-        if (representation == 'BasePseudoAtom' and dnatype == 'Z-DNA'):
-            raise PluginBug("Z-DNA not implemented for 'Reduced model' representation.  Use B-DNA.")
+        if (dnaModel == 'PAM5' and dnaType == 'Z-DNA'):
+            raise PluginBug("Z-DNA not implemented for 'PAM-5 reduced model'. Use B-DNA.")
 
-        return (seq, dnatype, double, basesPerTurn, representation, chunkOption)
+        return (dnaSequence, 
+                dnaType,
+                strandType,
+                basesPerTurn,
+                dnaModel,
+                chunkOption)
     
     def checkParameters( self, inParams ):
-        """Verify that the strand sequence 
-        contains no unknown/invalid bases."""
-        theSequence, isValid  =  self._get_sequence()
+        """
+        Verify that the strand sequence 
+        contains no unknown/invalid bases.
+        """
+        theSequence, isValid  =  self._getSequence()
         
         return isValid
     
     def correctParameters( self, inParams):
-        """Alert the user that the entered sequence is invalid. Give them
-        some options for how to correct the sequence."""
+        """
+        Alert the user that the entered sequence is invalid. Give them
+        some options for how to correct the sequence.
+        """
         #theDialog  =  Ui_InvalidSequenceDialog()
         
         #optionsButtonGroup  =  theDialog.findChild( 'buttonbox_options' )
@@ -173,62 +193,85 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
         return inParams
     
     def build_struct(self, name, params, position):
+        """
+        Build the DNA helix based on parameters in the UI.
+        
+        @param name: The name to assign the node in the model tree.
+        @type  name: str
+        
+        @param params: The list of parameters gathered from the PM.
+        @type  params: tuple
+        
+        @param position: The position in 3d model space at which to
+                         create the DNA strand. This is always 0, 0, 0.
+        @type position:  position
+        """
         # No error checking in build_struct, do all your error
         # checking in gather_parameters
-        seq, dnatype, double, basesPerTurn, representation, chunkOption = params
-
-        # Instantiate the DNA subclass 
-        # (based on representation and conformation)
-        if (representation == 'Atom'):
-            doubleStrand = (double == 'Double')
-            if dnatype == 'A-DNA':
-                dna = A_Dna()
-            elif dnatype == 'B-DNA':
-                dna = B_Dna()
-            elif dnatype == 'Z-DNA':
-                dna = Z_Dna()
-
-        elif (representation == 'BasePseudoAtom'):
-            doubleStrand = False # a single pseudo strand creates two strands
-            if dnatype == 'A-DNA':
-                dna = A_Dna_BasePseudoAtoms()
-            elif dnatype == 'B-DNA':
-                dna = B_Dna_BasePseudoAtoms()
-            elif dnatype == 'Z-DNA':
-                dna = Z_Dna_BasePseudoAtoms()
-
-        dna.double = doubleStrand
-        self.dna = dna  # needed for done msg
+        theSequence, dnaType, strandType, basesPerTurn, dnaModel, chunkOption = params
         
-        if len(seq) < 1: # Mark 2007-06-01
+        if len(theSequence) < 1: # Mark 2007-06-01
             msg = redmsg("You must enter a strand sequence to preview/insert DNA")
             self.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=False)
             env.history.message(msg)
             self.dna = None
             return None
             
-        if len(seq) > 30:
+        if (dnaModel == 'Atom') & (len(theSequence) > 30):
+            # This message should appear in the PM message box, but it needs to be
+            # flushed (reset) after the DNA is created.
             env.history.message(self.cmd + "This may take a moment...")
+            
+        # Instantiate the DNA subclass 
+        # (based on dnaModel and conformation)
+        if (dnaModel == 'Atom'):
+            doubleStrand = (strandType == 'Double')
+            if dnaType == 'A-DNA':
+                dna = A_Dna()
+            elif dnaType == 'B-DNA':
+                dna = B_Dna()
+            elif dnaType == 'Z-DNA':
+                dna = Z_Dna()
 
+        elif (dnaModel == 'PAM5'):
+            doubleStrand = False # a single pseudo strand creates two strands.
+            if dnaType == 'A-DNA':
+                dna = A_Dna_PAM5()
+            elif dnaType == 'B-DNA':
+                dna = B_Dna_PAM5()
+            elif dnaType == 'Z-DNA':
+                dna = Z_Dna_PAM5()
+
+        # Set critical dna instance variables.
+        dna.doubleStrand = doubleStrand
+        dna.sequence     = theSequence
+        
+        self.dna = dna  # needed for done msg
+        
         # Create node in model tree.        
-        grp = Group(self.name, self.win.assy,
+        grp = Group(self.name, 
+                    self.win.assy,
                     self.win.assy.part.topnode)
         try:
-            dna.make(self.win.assy, grp, seq, doubleStrand, basesPerTurn,
-                     position)
+            dna.make(self.win.assy, grp, basesPerTurn, position)
             
             if self.createComboBox.currentText() == 'Strand chunks':
-                if representation == 'Atom':
-                    nodeForMT = self._makeSingleChunkStrands(grp,seq,representation,
-                                             doubleStrand)
+                if dnaModel == 'Atom':
+                    nodeForMT = self._makeSingleChunkStrands(grp,
+                                                             theSequence,
+                                                             dnaModel,
+                                                             doubleStrand)
                     return nodeForMT
-                elif representation == 'BasePseudoAtom':
-                    nodeForMT = self._makeStrandAndAxisDna(grp,representation)
+                
+                elif dnaModel == 'PAM5':
+                    nodeForMT = self._makePAM5StrandAndAxisChunks(grp, dnaModel)
                     return nodeForMT
                     
             elif self.createComboBox.currentText()=='Single chunk':
-                nodeForMT = self._makeSingleChunkDna(grp,seq,representation,
-                                         doubleStrand)                
+                nodeForMT = self._makeSingleChunkDna(grp, 
+                                                     theSequence, 
+                                                     dnaModel,
+                                                     doubleStrand)                
                 return nodeForMT
             
             return grp
@@ -237,32 +280,52 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
             grp.kill()
             raise
 
-    def _get_sequence( self, 
+    def _getSequence( self, 
                        reverse = False, 
                        complement = False, 
                        resolve_random = False, 
                        cdict = {} ):
-        """Return a tuple (seq, allKnown) 
-        where seq is a string in which each letter describes one base of the 
-        sequence currently described by the UI, as modified by the passed 
-        reverse, complement, and resolve_random flags, and allKnown is a 
-        boolean which says whether every base in the return value has a 
-        known identity.
-           This method is not fully private. It's used repeatedly to get the 
+        """
+        Get the current sequence from the Property Manager.
+        
+        This method is not fully private. It's used repeatedly to get the 
         same sequence when making the DNA (which means its return value 
         should be deterministic, even when making sequences with randomly 
-        chosen bases [nim]), and it's also called from class DnaPropMgr 
-        (in DnaGeneratorDialog.py) to return data to be stored back into the 
-        UI, for implementing the reverse and complement buttons.  
+        chosen bases [nim]), and it's also called from class 
+        DnaGeneratorPropertyManager to return data to be stored back into the 
+        Property Manager, for implementing the reverse and complement actions.
         (Ideally it would preserve whitespace and capitalization when used 
         that way, but it doesn't.)
-           All punctuation/symbols are purged from the sequence, and any
-        bogus/unknown bases are substituted as 'N' (unknown).
+        
+        @param reverse: If true, returns the reverse sequence.
+        @type  reverse: bool
+        
+        @param complement: If true, returns the complement sequence.
+        @type  complement: bool
+        
+        @param resolve_random:
+        @type  resolve_random: True
+        
+        @param cdict:
+        @type  cdict: dictionary
+        
+        @return: (sequence, allKnown) where I{sequence} is a string in which 
+                 each letter describes one base of the sequence currently
+                 described by the UI, as modified by the passed reverse, 
+                 complement, and resolve_random flags, and I{allKnown} is a 
+                 boolean which says whether every base in the return value 
+                 has a known identity.
+        @rtype:  tuple
+        
+        @note: All punctuation/symbols are purged from the sequence and
+               any bogus/unknown bases are substituted as 'N' (unknown).
         """
-        cdict  =  Dna.basesDict
-        seq = ''
+        
+        cdict    =  Dna.basesDict
+        sequence = ''
         allKnown = True
-        # The current base sequence (or number of bases) in the PropMgr. Mark [070405]
+        
+        # The current sequence (or number of bases) in the PropMgr. Mark [070405]
         # (Note: I think this code implies that it can no longer be a number of bases. [bruce 070518 comment])
         pm_seq  =  str(self.getPlainSequence(inOmitSymbols = True)) # :jbirac: 20070629
         #print "pm_seq =", pm_seq
@@ -274,7 +337,7 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
                 properties = cdict[ch]
                 if ch == 'N': ###e soon: or any other letter indicating a random base
                     if resolve_random: #bruce 070518 new feature
-                        i    = len(seq)
+                        i    = len(sequence)
                         data = self._random_data_for_index(i) # a random int in range(12), in a lazily extended cache
                         ch   = list(cdict)[data%4]  # modulus must agree with number of valid entries in cdict.
                     else:
@@ -292,23 +355,35 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
                 ch        =  'N'                
                 allKnown  =  False
 
-            seq += ch
+            sequence += ch
 
-        # Marked for removal. Mark 2007-06-01
-        #@assert len(seq) > 0, 'Please enter a valid sequence'
+        if reverse: 
+            sequence = self.reverseSequence(sequence)
+        
+        return (sequence, allKnown)
+    
+    def reverseSequence(self, inSequence):
+        """
+        Reverses the order of the DNA sequence I{inSequence}.
+        
+        @param inSequence: DNA sequence.
+        @type  inSequence: str
+        
+        @return: The reversed sequence.
+        @rtype:  str
+        """
+        outSequence = list(inSequence)
+        outSequence.reverse()
+        outSequence = ''.join(outSequence)
+        return outSequence
 
-        if reverse:
-            seq = list(seq)
-            seq.reverse()
-            seq = ''.join(seq)
-        return (seq, allKnown)
-
-    def _makeSingleChunkDna(self, grp, seq, representation, 
-                            bool_doubleStrand):
-        """Combine both strands into a single chunk.
+    def _makeSingleChunkDna(self, grp, sequence, dnaModel, 
+                            doubleStrand):
+        """
+        Combine both strands into a single chunk.
         """
         
-        self._makeSingleChunkStrands(grp,seq,representation, bool_doubleStrand)
+        self._makeSingleChunkStrands(grp, sequence, dnaModel, doubleStrand)
         
         if not isinstance(grp.members[0], molecule):
             env.history.message(redmsg(
@@ -327,27 +402,25 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
         grp.ungroup()
         
         return nodeForMT
-    
        
-    def _makeSingleChunkStrands(self,grp,seq,representation, bool_doubleStrand):
-        """Combine all bases of a single strand into a single chunk.
+    def _makeSingleChunkStrands(self, grp, sequence, dnaModel, doubleStrand):
         """
-
-        from chunk import molecule
+        Combine all bases of a single strand into a single chunk.
+        """
                    
-        if bool_doubleStrand:
+        if doubleStrand:
             counter = 0
             for subgrp in grp.members:
-                if isinstance(subgrp,Group):
-                    #This is for a double stranded dna
+                if isinstance(subgrp, Group):
+                    # This is for a double stranded DNA.
                     mol = subgrp.members[0]
                     for m in subgrp.members[1:]:                           
                         mol.merge(m)
                     mol.name = self._renameSingleChunkStrands(counter)
-                    #ungroup
+                    # Ungroup.
                     subgrp.ungroup()
                 else:
-                    print "bug in merging DNA strand bases into a single chunk" 
+                    print "Bug in merging DNA strand bases into a single chunk." 
                     return None
                 
                 counter +=1
@@ -370,43 +443,48 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
         
         return grp
     
-    
-    def _renameSingleChunkStrands(self,strandCounter, singleStrand = False):
-        """Rename the strand as 'strand-n:first four characters of its
+    def _renameSingleChunkStrands(self, strandCounter, singleStrand = False):
+        """
+        Rename the strand as 'strand-n:first four characters of its
         base sequence. 
         Example: strand1: ATGC
+        
         @return: strandName: returns the strand name string.
         """
         
         if strandCounter == 0:
-            (seq, allKnown) = self._get_sequence()
+            (sequence, allKnown) = self._getSequence()
         else:
-            (seq, allKnown) = self._get_sequence(complement=True)
+            (sequence, allKnown) = self._getSequence(complement=True)
         
         if singleStrand:
-            strandName = 'strand:' + seq[0:4]
+            strandName = 'strand:' + sequence[0:4]
         else:            
-            strandName = 'strand-' + str(strandCounter +1) + ':' + seq[0:4]
+            strandName = 'strand-' + str(strandCounter +1) + ':' + sequence[0:4]
         
-        if len(seq) > 4:
+        if len(sequence) > 4:
             strandName = strandName + '...'
                           
         return strandName
     
-    def _makeStrandAndAxisDna(self, grp,representation):
-        """Create Chunks for individual strands and a chunk for the axis 
-        in Pseudo-atom Dna representation.
+    def _makePAM5StrandAndAxisChunks(self, grp, dnaModel):
+        """
+        Creates 2 strand and 1 axis chunk for PAM-5 model.
+        
+        @param grp:
+        @type  grp: Group
+        
+        @param dnaModel: DNA model representation (i.e. "Atom" or "PAM5").
+        @type  dnaModel: str
         """
         
-        #ninad070426: Implementation Notes: 
-        # It takes one chunk from the supplied group
-        # scans through the atoms of the chunk. If it finds a 'Sugar' or an 
+        # ninad070426: Implementation Notes: 
+        # It takes one chunk from the supplied group and
+        # scans through the atoms of that chunk. If it finds a 'Sugar' or an 
         # 'Axis' element, it makes new chunk for set of atoms 'really connected'
-        #to that 'Sugar element' or 'Axis Element' Thus we get three chunks. 
+        # to that 'Sugar element' or 'Axis Element'. Thus we get three chunks. 
         # This may be optimized in future. Ok for now. 
-        
-        from chunk import molecule
-        
+                
         mol = grp.members[0]
         
         if not isinstance(mol, molecule):
@@ -440,16 +518,16 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
                        atm.element.symbol in strand_sugar_elements:                        
                         tempList.append(atm)
                         atomList = self.win.assy.getConnectedAtoms(tempList)
-                        numol = self._makeChunkFromAtomList(atomList)
+                        newChunk = self._makeChunkFromAtomList(atomList)
                         tempList = []     
                         
                         if atm.element.symbol in axis_elements:
-                            numol.name = 'Axis'
+                            newChunk.name = 'Axis'
                         elif atm.element.symbol in strand_sugar_elements:
-                            numol.name = 'Strand-' + str(strandNumber)
+                            newChunk.name = 'Strand-' + str(strandNumber)
                             strandNumber +=1
                             
-                        grp.addmember(numol)
+                        grp.addmember(newChunk)
                         chunkCounter +=1
                         
                 if chunkCounter >3:
@@ -460,24 +538,30 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
                 
                 return grp
              
-    def _makeChunkFromAtomList(self, atmList):
-        """Creates a new chunk from the given atom list
-        @return : numol:created molecule
-        @params : atmList: List of atoms from which to create the chunk.
+    def _makeChunkFromAtomList(self, atomList):
+        """
+        Creates a new chunk from the given atom list.
+        
+        @param atomList: List of atoms from which to create the chunk.
+        @type  atomList: list
+        
+        @return: The new chunk.
+        @rtype:  L{molecule}
+        
         """
         
-        #ninad070426 : this may be moved to ops_rechunk.py
+        # ninad070426 : this may be moved to ops_rechunk.py
         
-        #see also: ops_rechunk.makeChunkFromAtoms
-        if not atmList:
+        # see also: ops_rechunk.makeChunkFromAtoms
+        if not atomList:
             print "bug in creating chunks from the given atom list"
             return
         
-        numol = molecule(self.win.assy, gensym("Chunk"))
-        for a in atmList:            
+        newChuck = molecule(self.win.assy, gensym("Chunk"))
+        for a in atomList:            
             # leave the moved atoms picked, so still visible
-            a.hopmol(numol)
-        return numol   
+            a.hopmol(newChunk)
+        return newChunk   
                                
     ###################################################
     # The done message
@@ -488,7 +572,7 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
         if not dna: # Mark 2007-06-01
             return "No DNA added."
         
-        if dna.double:
+        if dna.doubleStrand:
             dbl = "double "
         else:
             dbl = ""
