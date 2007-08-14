@@ -22,29 +22,30 @@ from PM.PM_ToolButtonGrid import PM_ToolButtonGrid
 # - buttonId (element number), 
 # - buttonText (element symbol), 
 # - iconPath
+# - tooltip (element name)
 # - column
 # - row
-# - tooltip (element name)
+
 ELEMENTS_BUTTON_LIST = [ \
-    ( 1,  "H", "", 4, 0, "Hydrogen"   ),
-    ( 2, "He", "", 5, 0, "Helium"     ),
-    ( 5,  "B", "", 0, 1, "Boron"      ),
-    ( 6,  "C", "", 1, 1, "Carbon"     ),
-    ( 7,  "N", "", 2, 1, "Nitrogen"   ),
-    ( 8,  "O", "", 3, 1, "Oxygen"     ),
-    ( 9,  "F", "", 4, 1, "Fluorine"   ),
-    (10, "Ne", "", 5, 1, "Neon"       ),
-    (13, "Al", "", 0, 2, "Aluminum"   ),
-    (14, "Si", "", 1, 2, "Silicon"    ),
-    (15,  "P", "", 2, 2, "Phosphorus" ),
-    (16,  "S", "", 3, 2, "Sulfur"     ),
-    (17, "Cl", "", 4, 2, "Chlorine"   ),
-    (18, "Ar", "", 5, 2, "Argon"      ),
-    (32, "Ge", "", 1, 3, "Germanium"  ),
-    (33, "As", "", 2, 3, "Arsenic"    ),
-    (34, "Se", "", 3, 3, "Selenium"   ),
-    (35, "Br", "", 4, 3, "Bromine"    ),
-    (36, "Kr", "", 5, 3, "Krypton"    )
+    ( "ToolButton", 1,  "H", "", "Hydrogen",   4, 0   ),
+    ( "ToolButton", 2, "He", "", "Helium",     5, 0   ),
+    ( "ToolButton", 5,  "B", "", "Boron",      0, 1   ),
+    ( "ToolButton", 6,  "C", "", "Carbon",     1, 1   ),
+    ( "ToolButton", 7,  "N", "", "Nitrogen",   2, 1   ),
+    ( "ToolButton", 8,  "O", "", "Oxygen",     3, 1   ),
+    ( "ToolButton", 9,  "F", "", "Fluorine",   4, 1   ),
+    ( "ToolButton", 10, "Ne", "", "Neon",       5, 1   ),
+    ( "ToolButton", 13, "Al", "", "Aluminum",   0, 2   ),
+    ( "ToolButton", 14, "Si", "", "Silicon",    1, 2   ),
+    ( "ToolButton", 15,  "P", "", "Phosphorus", 2, 2   ),
+    ( "ToolButton", 16,  "S", "", "Sulfur",     3, 2   ),
+    ( "ToolButton", 17, "Cl", "", "Chlorine",   4, 2   ),
+    ( "ToolButton", 18, "Ar", "", "Argon",      5, 2   ),
+    ( "ToolButton", 32, "Ge", "", "Germanium",  1, 3   ),
+    ( "ToolButton", 33, "As", "", "Arsenic",    2, 3   ),
+    ( "ToolButton", 34, "Se", "", "Selenium",   3, 3   ),
+    ( "ToolButton", 35, "Br", "", "Bromine" ,   4, 3   ),
+    ( "ToolButton", 36, "Kr", "", "Krypton",    5, 3   )
 ]
 
 ELEMENT_ATOM_TYPES = { \
@@ -61,14 +62,16 @@ ATOM_TYPES = ("sp3", "sp2", "sp", "sp2(graphitic)")
 # - buttonId (hybrid number)
 # - buttonText (hybrid symbol)
 # - iconPath
+# - tooltip (full hybrid name)
 # - column
 # - row
-# - tooltip (full hybrid name)
+
 ATOM_TYPES_BUTTON_LIST = [ \
-    (0, "sp3", "", 0, 0, "sp3" ),
-    (1, "sp2", "", 1, 0, "sp2" ),
-    (2, "sp",  "", 2, 0, "sp"  ),
-    (3, "sp2(graphitic)", "ui/modeltree/N_graphitic.png", 3, 0, "Graphitic" ) #@ Icon lives in a poorly chosen location.
+    ( "ToolButton", 0, "sp3", "", "sp3", 0, 0 ),
+    ( "ToolButton", 1, "sp2", "", "sp2", 1, 0 ),
+    ( "ToolButton", 2, "sp",  "", "sp",  2, 0 ),
+    ( "ToolButton", 3, "sp2(graphitic)", "ui/modeltree/N_graphitic.png", 
+      "Graphitic", 3, 0 ) #@ Icon lives in a poorly chosen location.
 ]
 
 class PM_ElementChooser( PM_GroupBox ):

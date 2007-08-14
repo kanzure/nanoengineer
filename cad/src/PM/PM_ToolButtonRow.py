@@ -9,10 +9,8 @@ PM_ToolButtonRow.py
 History:
 
 ninad 2007-08-07: Created.
+ninad 2007-08-14: Changes due to the new superclass of PM_ToolButtonGrid. 
 """
-
-import os
-
 
 from PM.PM_ToolButtonGrid import PM_ToolButtonGrid
 
@@ -20,89 +18,128 @@ from PM.PM_ToolButtonGrid import PM_ToolButtonGrid
 class PM_ToolButtonRow( PM_ToolButtonGrid ):
     """
     The PM_ToolButtonRow widget provides a row of tool buttons that function
-    as an I{exclusive button group}.
+    as an I{exclusive button group}. 
     
     @see: B{Ui_MovePropertyManager} for an example of how this is used.
-    
-    @todo: support for adding spacers to the tool button row
+
     """
-    
     def __init__(self, 
                  parentWidget, 
-                 title        = '', 
+                 title        = '',
                  buttonList   = [],
+                 alignment    = None,
+                 label        = '',
                  checkedId    = -1, 
-                 setAsDefault = False
+                 setAsDefault = False,
+                 isAutoRaise  = True
                  ):
         """
         Appends a PM_ToolButtonRow widget to the bottom of I{parentWidget}, 
         the Property Manager dialog or group box.
         
         @param parentWidget: The parent group box containing this widget.
-        @type  parentWidget: PM_GroupBox or PM_Dialog
+        @type  parentWidget: PM_GroupBox
         
         @param title: The group box title.
         @type  title: str
         
         @param buttonList: A list of I{button info lists}. There is one button
                            info list for each button in the grid. The button
-                           info list contains the following five items:
-                           (notice that this list doesn't contain the 'row' as an
-                           item like in PM_ToolButtonGrid. 
-                            1. Button Id (int), 
-                            2. Button text (str),
-                            3. Button icon path (str),
-                            4. Column (int)
-                            5. Button tool tip (str).
+                           info list contains the following items:
+                           (notice that this list doesn't contain the 'row' 
+                           which is seen in B{PM_ToolButtonGrid}.)
+                            1. Button Type - in this case its 'ToolButton'(str),
+                            2. Button Id (int), 
+                            3. Button text (str),
+                            4. Button icon path (str),
+                            5. Button tool tip (str),
+                            6. Column (int).        
         @type  buttonList: list
-        """
         
+        @param alignment:  The alignment of the toolbutton row in the parent 
+                           groupbox. Based on its value,spacer items is added 
+                           to the grid layout of the parent groupbox. 
+        @type  alignment:  str
+        
+        @param label:      The label for the toolbutton row. If present, it is 
+                           added to the same grid layout as the rest of the 
+                           toolbuttons, in column number E{0}.
+        @type  label:      str
+        
+        @param checkedId:  Checked button id in the button group. Default value
+                           is -1 that implies no button is checked. 
+        @type  checkedId:  int
+        
+        @param setAsDefault: If True, sets the I{checkedId} specified by the
+                            user as the  default checked
+        @type  setAsDefault: boolean
+             
+        """
+                                  
         PM_ToolButtonGrid.__init__(self, 
                                    parentWidget, 
                                    title,
                                    buttonList,
+                                   alignment,
+                                   label,
                                    checkedId,
-                                   setAsDefault
-                               )
-                
-    def getButtonInfoList(self, buttonInfo):
+                                   setAsDefault,
+                                   isAutoRaise)
+        
+        #For a toolbutton row, we don't (usually) need  a borders . So set
+        #the style sheet accordingly.
+        parentWidget.setStyleSheet(self._getStyleSheet())
+              
+        
+                                        
+    def getWidgetInfoList(self, buttonInfo):
         """
         Returns the button information provided by the user. 
-        Overrides the PM_ToolButtonRow.getButtonInfoList
-        custom information (e.g. a fixed value for row).
-        
+        Overrides the L{PM_WidgetGrid.getWidgetInfoList}
+        This is used to set custom information (e.g. a fixed value for row) 
+        for the button.
+
         @param  buttonInfo: list containing the button information
         @type   buttonInfo: list
         
-        @return: The button information. 
-                 This can be same as I{buttonInfo} or can be modified further.
+        @return: A list containing the button information. 
+                This can be same as I{buttonInfo} or can be modified further.
         @rtype:  list
         
-        @see:   L{PM_ToolButtonGrid.getButtonInfoList} (overrides this method)
-        """
-                
-        buttonId       = buttonInfo[0]
-        buttonText     = buttonInfo[1]
-        buttonIconPath = buttonInfo[2]
-        column         = buttonInfo[3]
-        row            = 0
-        buttonToolTip  = buttonInfo[4] 
+        @see:   L{PM_WidgetGrid.getWidgetInfoList} (overrides this method)
+
+        """        
         
-        buttonInfoList = [buttonId, buttonText, buttonIconPath,
-                          column, row, buttonToolTip]
+        buttonInfoList = []   
+        buttonType     = buttonInfo[0]
+        buttonId       = buttonInfo[1]
+        buttonText     = buttonInfo[2]
+        buttonIconPath = buttonInfo[3]
+        buttonToolTip  = buttonInfo[4]
+        column         = buttonInfo[5]
+        row            = 0
+                         
+        buttonInfoList = [
+            buttonType,
+            buttonId, 
+            buttonText, 
+            buttonIconPath,
+            buttonToolTip,
+            column,
+            row]
                           
         return buttonInfoList            
         
     def _getStyleSheet(self):
         """
-        Return the style sheet for the groupbox. This sets the following 
+        Return the style sheet for the toolbutton row. This sets the following 
         properties only:
          - border style
          - border width
          - border color
          - border radius (on corners)
          
-        @see: L{PM_GroupBox._getStyleSheet} (overrided here)
+        @see: L{PM_GroupBox._getStyleSheet} (overrides this method)
         """
         
         styleSheet = \
@@ -113,3 +150,4 @@ class PM_ToolButtonRow( PM_ToolButtonGrid ):
                     min-width: 10em; }" 
    
         return styleSheet
+  

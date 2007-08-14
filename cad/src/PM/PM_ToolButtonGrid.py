@@ -9,35 +9,27 @@ PM_ToolButtonGrid.py
 History:
 
 mark 2007-08-02: Created.
+ninad 2007-08-14: New superclass PM_WidgetGrid. Related refactoring and cleanup.
 """
 
 import sys
-import os
-
-from Utility import geticon
 
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QButtonGroup
 from PyQt4.Qt import QFont
-from PyQt4.Qt import QLabel
-from PyQt4.Qt import QSize
-from PyQt4.Qt import QToolButton
-from PyQt4.Qt import QWidget
-from PyQt4.Qt import Qt
 
-from PM.PM_GroupBox import PM_GroupBox
 
-BUTTON_HEIGHT = 32
-BUTTON_WIDTH = 32
+from PM.PM_WidgetGrid import PM_WidgetGrid
+
 BUTTON_FONT = "Arial"
-BUTTON_FONT_BOLD = False
+BUTTON_FONT_BOLD = True
 
 if sys.platform == "darwin":
     BUTTON_FONT_POINT_SIZE = 18
 else: # Windows and Linux
     BUTTON_FONT_POINT_SIZE = 10
 
-class PM_ToolButtonGrid( PM_GroupBox ):
+class PM_ToolButtonGrid( PM_WidgetGrid ):
     """
     The PM_ToolButtonGrid widget provides a grid of tool buttons that function
     as an I{exclusive button group}.
@@ -50,142 +42,126 @@ class PM_ToolButtonGrid( PM_GroupBox ):
     buttonList       = []
     defaultCheckedId = -1    # -1 means no checked Id
     setAsDefault     = True
-    labelWidget      = None
+    
     
     def __init__(self, 
                  parentWidget, 
                  title        = '', 
                  buttonList   = [],
+                 alignment    = None, 
+                 label        = '',
                  checkedId    = -1, 
-                 setAsDefault = False 
+                 setAsDefault = False,   
+                 isAutoRaise  = False
                  ):
         """
         Appends a PM_ToolButtonGrid widget to the bottom of I{parentWidget}, 
-        the Property Manager dialog or group box.
+        the Property Manager Group box.
         
         @param parentWidget: The parent group box containing this widget.
-        @type  parentWidget: PM_GroupBox or PM_Dialog
+        @type  parentWidget: PM_GroupBox
         
         @param title: The group box title.
         @type  title: str
         
         @param buttonList: A list of I{button info lists}. There is one button
                            info list for each button in the grid. The button
-                           info list contains the following six items:
-                           1). Button Id (int), 
-                           2). Button text (str),
-                           3). Button icon path (str),
-                           4). Column (int),
-                           5). Row (int),
-                           6). Button tool tip (str).
+                           info list contains the following items:
+                           1. Button Type - in this case its 'ToolButton'(str),
+                           2. Button Id (int), 
+                           3. Button text (str),
+                           4. Button icon path (str),
+                           5. Button tool tip (str),
+                           6. Column (int), 
+                           7. Row (int).
         @type  buttonList: list
+        
+        @param alignment:  The alignment of the toolbutton row in the parent 
+                           groupbox. Based on its value,spacer items is added 
+                           to the grid layout of the parent groupbox. 
+        @type  alignment:  str
+        
+        @param label:      The label for the toolbutton row. If present, it is 
+                           added to the same grid layout as the rest of the 
+                           toolbuttons, in column number E{0}.
+        @type  label:      str
+        
+        @param checkedId:  Checked button id in the button group. Default value
+                           is -1 that implies no button is checked. 
+        @type  checkedId:  int
+        
+        @param setAsDefault: If True, sets the I{checkedId} specified by the
+                            user as the  default checked
+        @type  setAsDefault: boolean
         """
-        
-        PM_GroupBox.__init__(self, parentWidget, title)
-        
-        # These are needed to properly maintain the height of the grid if 
-        # all buttons in a row are hidden via hide().
-        self.vBoxLayout.setMargin(0)
-        self.vBoxLayout.setSpacing(0)
-        
-        self.gridLayout.setMargin(1)
-        self.gridLayout.setSpacing(0)
-        
+                
         self.buttonGroup = QButtonGroup()
         self.buttonGroup.setExclusive(True)
         
-        self.parentWidget = parentWidget
-        self.buttonList   = buttonList
-                
-        if setAsDefault:
-            self.setDefaultCheckedId(checkedId)
-    
-        
-        self.loadToolButtons()
-        
-        self._widgetList.append(self)
-        
-        self._rowCount += 1
-    
-    def loadToolButtons(self):
-        """
-        Load the grid layout with tool buttons.
-        
-        """
-                       
+        self.isAutoRaise = isAutoRaise              
         self.buttonsById   = {}
         self.buttonsByText = {}
+        
+        if setAsDefault:
+            self.setDefaultCheckedId(checkedId)
+        
+                    
+        PM_WidgetGrid.__init__(self, 
+                               parentWidget , 
+                               title, 
+                               buttonList, 
+                               alignment,
+                               label
+                              ) 
+        
             
-        # Load grid layout with tool buttons. (Original)
-        for buttonInfo in self.buttonList:  
-            buttonFont = self.getButtonFont()            
-            buttonSize = QSize(BUTTON_WIDTH, BUTTON_HEIGHT) #@ FOR TEST ONLY
-            buttonInfoList = self.getButtonInfoList(buttonInfo)
-            
-            buttonId       = buttonInfoList[0]
-            buttonText     = buttonInfoList[1]
-            buttonIconPath = buttonInfoList[2]
-            column         = buttonInfoList[3]
-            row            = buttonInfoList[4]
-            buttonToolTip  = buttonInfoList[5] 
-            
-            
-            button = QToolButton(self)
-            button.setText(buttonText)
-            if os.path.exists(buttonIconPath):
-                button.setIcon(geticon(buttonIconPath))
-                button.setIconSize(QSize(22,22))
-            button.setToolTip(buttonToolTip)
-            button.setFixedSize(buttonSize) #@ Currently fixed to 32 x 32.
-            button.setCheckable(True)
-            button.setAutoRaise(True)
-            if self.checkedId() == buttonId:
-                button.setChecked(True)
-            button.setFont(buttonFont)
-            self.buttonGroup.addButton(button, buttonId)
-            
-            #add button to the layout
-            self.gridLayout.addWidget( button,
-                                       row,
-                                       column,
-                                       1,
-                                       1 )
-            
-            self.buttonsById[buttonId]    = button
-            self.buttonsByText[buttonText] = button
-
+    def _createWidgetUsingParameters(self, widgetParams):
+        """
+        Returns a tool button created using the parameters specified by the user
+        
+        @param widgetParams: A list of label parameters. This is a modified
+                             using the original list returned 
+                             by L{self.getWidgetInfoList}. The modified list
+                             doesn't contain the row and column information.
+        @type  widgetParams: list
+        @see:  L{PM_WidgetGrid._createWidgetUsingParameters} (overrided in this
+               method)
+        @see:  L{PM_WidgetGrid.loadWidgets} which calls this method. 
+        
+        """               
+        buttonFont = self.getButtonFont() 
+        buttonParams = list(widgetParams) 
+        
+        button = self._createToolButton(buttonParams)
+        
+        buttonId = buttonParams[1]     
+        
+        if self.defaultCheckedId == buttonId:
+            button.setChecked(True)
+        button.setFont(buttonFont)
+        button.setAutoRaise(self.isAutoRaise)
+        self.buttonGroup.addButton(button, buttonId)
+        
+        self.buttonsById[buttonId]    = button
+        self.buttonsByText[str(button.text())] = button     
+        
+        return button
+                   
+        
     def getButtonFont(self):
         """
         Returns the font for the tool buttons in the grid.
         
-        return: Button font.
-        rtype:  U{B{QFont}<http://doc.trolltech.com/4/qfont.html>}
+        @return: Button font.
+        @rtype:  U{B{QFont}<http://doc.trolltech.com/4/qfont.html>}
         """
         # Font for tool buttons.
         buttonFont = QFont(self.font())
         buttonFont.setFamily(BUTTON_FONT)
         buttonFont.setPointSize(BUTTON_FONT_POINT_SIZE)
         buttonFont.setBold(BUTTON_FONT_BOLD)
-        return buttonFont
-    
-    def getButtonInfoList(self, buttonInfo):
-        """
-        Returns the button information provided by the user. 
-        
-        Subclasses should override this method if they need to provide 
-        custom information (e.g. a fixed value for row).
-        
-        @param  buttonInfo: list containing the button information
-        @type   buttonInfo: list
-        
-        @return: A list containing the button information. 
-                 This can be same as I{buttonInfo} or can be modified further.
-        @rtype:  list
-        """
-        
-        buttonInfoList = buttonInfo                
-        return buttonInfoList
-            
+        return buttonFont              
+
     def restoreDefault(self):
         """
         Restores the default checkedId.
@@ -211,14 +187,19 @@ class PM_ToolButtonGrid( PM_GroupBox ):
         
     def checkedButton(self):
         """
-        Returns the tool button group's checked button, or 0 if no buttons are
+        Returns the tool button group's checked button, or E{0} if no button is
         checked.
+        @return: Checked tool button or E{0}
+        @rtype:  instance of QToolButton  or int
         """
         return self.buttonGroup.checkedButton()
         
     def checkedId(self):
         """
         Returns the id of the checkedButton(), or -1 if no button is checked.
+        
+        @return: The checked button Id
+        @rtype:  int
         """
         return self.buttonGroup.checkedId()
     
@@ -226,8 +207,8 @@ class PM_ToolButtonGrid( PM_GroupBox ):
         """
         Returns the button with its current text set to I{text}.
         
-        return: The button, or B{None} if no button was found.
-        rtype:  U{B{QToolButton}<http://doc.trolltech.com/4/qtoolbutton.html>}
+        @return: The button, or B{None} if no button was found.
+        @rtype:  U{B{QToolButton}<http://doc.trolltech.com/4/qtoolbutton.html>}
         
         @note: If multiple buttons have the same text, only the last one is returned.
         """
@@ -248,4 +229,6 @@ class PM_ToolButtonGrid( PM_GroupBox ):
         else:
             return None
         
+                
 # End of PM_ToolButtonGrid ############################
+
