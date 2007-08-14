@@ -137,7 +137,7 @@ class PM_Dialog( QDialog, SponsorableMixin ):
             
     def show(self):
         """
-        Show this Property Manager.
+        Shows the Property Manager.
         """
         self.setSponsor()
         
@@ -149,17 +149,70 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         
         # Show the default message whenever we open the Property Manager.
         self.MessageGroupBox.MessageTextEdit.restoreDefault()
-    
+        
+    def open(self, pm):
+        """
+        Closes the current property manager (if any) and opens the 
+        property manager I{pm}.
+        
+        @param pm: The property manager to open.
+        @type  pm: L{PM_Dialog} or QDialog (of legacy PMs)
+        
+        @attention: This method is a temporary workaround for "Insert > Plane".
+                    The current command should always be responsible for 
+                    (re)opening its own PM via self.show().
+                    
+        @see: L{show()}
+        """
+        print "PM_Dialog.open(): Reopening the PM for command:", \
+               self.win.assy.o.mode.modename
+        
+        self.close() # Just in case there is another PM open.
+        self.pw = self.win.activePartWindow()         
+        self.pw.updatePropertyManagerTab(pm)
+        try:
+            pm.setSponsor()
+        except:
+            print """PM_Dialog.open(): pm has no attribute 'setSponsor()'  
+                     ignoring."""
+        self.pw.featureManager.setCurrentIndex(
+            self.pw.featureManager.indexOf(pm))
+        
+    def close(self):
+        """
+        Closes the Property Manager.
+        """
+        if not self.pw:
+            self.pw = self.win.activePartWindow() 
+        self.pw.featureManager.setCurrentIndex(0)
+        
+        try:
+            pmWidget = self.pw.propertyManagerScrollArea.widget()
+            pmWidget.update_props_if_needed_before_closing()
+        except:
+            if platform.atom_debug:
+                msg1 = "Last PropMgr doesn't have method updatePropsBeforeClosing."
+                msg2 = "That is OK (for now,only implemented in GeometryGeneratorBaseClass)"
+                msg3 = "Ignoring Exception"
+                print_compact_traceback(msg1 + msg2 + msg3)
+            pass
+        
+        self.pw.featureManager.removeTab(
+            self.pw.featureManager.indexOf(self.pw.propertyManagerScrollArea))
+        
+        if self.pw.propertyManagerTab:
+            self.pw.propertyManagerTab = None
+        
     def _createHeader(self, iconPath, title):
         """
         Creates the Property Manager header, which contains an icon
         (a QLabel with a pixmap) and white text (a QLabel with text).
         
-        @param iconPath: the relative path for the icon (PNG image) that 
+        @param iconPath: The relative path for the icon (PNG image) that 
                          appears in the header.
         @type  iconPath: str
         
-        @param title: the title that appears in the header.
+        @param title: The title that appears in the header.
         @type  title: str
         """
         
@@ -206,7 +259,7 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         
     def _getHeaderFont(self):
         """
-        Returns the QFont used for all PropMgr headers.
+        Returns the font used for the header.
         
         @return: the header font
         @rtype:  QFont
