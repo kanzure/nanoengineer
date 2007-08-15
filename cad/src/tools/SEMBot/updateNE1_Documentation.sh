@@ -5,16 +5,23 @@
 # Create timestamp
 echo `date +"%a %b %e %T EDT %Y"` > NE1_Docs.timestamp
 
-# Remove file from Epydoc-generated docs
+# Remove files used to check for command successes
+rm -f SVN-D/cad/src/epydoc.config
 rm -f NE1_Documentation/api-objects.txt
 
 # Update codebase
-CVS='cvs -d :pserver:bhelfrich@cvs2.cvsdude.com:/cvs/polosims'
-pushd CVS-D
-${CVS} update -d cad/src
+svn update SVN-D/cad/src
+
+# Check if Epydoc was successfull by checking for the existence of the file we
+# deleted earlier.
+if [ ! -e SVN-D/cad/src/epydoc.config ]; then
+  RESULT="<font color=red>Failed</font>"
+  echo ${RESULT} > NE1_Docs.result
+  exit
+fi
 
 # Run Epydoc
-cd cad/src
+pushd SVN-D/cad/src
 /usr/local/bin/epydoc --config epydoc.config
 popd
 
