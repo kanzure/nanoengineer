@@ -267,7 +267,8 @@ class AtomGeneratorPropertyManager(PM_Dialog):
         # of the generated atom's position.
         self.xCoordinateField  =  \
             PM_DoubleSpinBox( inPmGroupBox,
-                              label         =  "x:",
+                              label         =  \
+                              "ui/actions/Properties Manager/X_Coordinate.png",
                               value         =  0.0,
                               setAsDefault  =  True,
                               minimum       =  self._sMinCoordinateValue,
@@ -280,7 +281,8 @@ class AtomGeneratorPropertyManager(PM_Dialog):
         # of the generated atom's position.
         self.yCoordinateField  =  \
             PM_DoubleSpinBox( inPmGroupBox,
-                              label         =  "y:",
+                              label         =  \
+                              "ui/actions/Properties Manager/Y_Coordinate.png",
                               value         =  0.0,
                               setAsDefault  =  True,
                               minimum       =  self._sMinCoordinateValue,
@@ -293,7 +295,8 @@ class AtomGeneratorPropertyManager(PM_Dialog):
         # of the generated atom's position.
         self.zCoordinateField = \
             PM_DoubleSpinBox( inPmGroupBox,
-                              label         =  "z:",
+                              label         =  \
+                              "ui/actions/Properties Manager/Z_Coordinate.png",
                               value         =  0.0,
                               setAsDefault  =  True,
                               minimum       =  self._sMinCoordinateValue,
