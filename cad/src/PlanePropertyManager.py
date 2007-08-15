@@ -135,10 +135,9 @@ class PlanePropertyManager(PM_Dialog):
             
         self.aspectRatioCheckBox = \
             PM_CheckBox(pmGroupBox,
-                        label       = 'Maintain Aspect Ratio of:' ,
-                        labelColumn = 1,
-                        state       = Qt.Unchecked,
-                        spanWidth   = False
+                        text         = 'Maintain Aspect Ratio of:' ,
+                        widgetColumn = 1,
+                        state        = Qt.Unchecked
                         )
         
         self.connect(self.aspectRatioCheckBox,
