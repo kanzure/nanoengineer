@@ -14,18 +14,12 @@ Mark 2007-08-06: Renamed GrapheneGeneratorDialog to GrapheneGeneratorPropertyMan
         
 __author__ = "Mark"
 
-from Utility import geticon, getpixmap
 from bonds import CC_GRAPHITIC_BONDLENGTH
 
 from PM.PM_Dialog        import PM_Dialog
 from PM.PM_GroupBox      import PM_GroupBox
 from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
 from PM.PM_ComboBox      import PM_ComboBox
-from PM.PM_SpinBox       import PM_SpinBox
-from PM.PM_TextEdit      import PM_TextEdit
-from PM.PM_PushButton    import PM_PushButton
-from PM.PM_LineEdit      import PM_LineEdit
-from PM.PM_CheckBox      import PM_CheckBox
 
 class GrapheneGeneratorPropertyManager(PM_Dialog):
     """
