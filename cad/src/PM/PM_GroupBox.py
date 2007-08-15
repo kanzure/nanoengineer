@@ -13,6 +13,7 @@ file and renamed it PM_GroupBox.
 """
 
 import platform
+import os
 
 from debug import print_compact_traceback
 
@@ -49,7 +50,7 @@ from PyQt4.Qt import QVBoxLayout
 from PyQt4.Qt import QWidget
 from PyQt4.Qt import SIGNAL
 
-from Utility import geticon
+from Utility import geticon, getpixmap
 
 #This import is only used in isinstance check--
 from PM_CheckBox import PM_CheckBox
@@ -328,7 +329,7 @@ class PM_GroupBox( QGroupBox ):
                labelAlignment
         
        
-        label       = pmWidget.label
+        label       = pmWidget.label            
         labelColumn = pmWidget.labelColumn
         spanWidth   = pmWidget.spanWidth
         
@@ -410,7 +411,14 @@ class PM_GroupBox( QGroupBox ):
             self.getPmWidgetPlacementParameters(pmWidget)
         
         
-        if pmWidget.labelWidget:            
+        if pmWidget.labelWidget: 
+            #Create Label as a pixmap (instead of text) if a valid icon path 
+            #is provided
+            labelPath = str(pmWidget.label)
+            if os.path.exists(labelPath):
+                pmWidget.labelWidget.setPixmap(getpixmap(labelPath))
+                pmWidget.labelWidget.setText('')
+                
             self.gridLayout.addWidget( pmWidget.labelWidget,
                                        labelRow, 
                                        labelColumn,
