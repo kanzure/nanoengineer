@@ -51,6 +51,9 @@ from PyQt4.Qt import SIGNAL
 
 from Utility import geticon
 
+#This import is only used in isinstance check--
+from PM_CheckBox import PM_CheckBox
+
 class PM_GroupBox( QGroupBox ):
     """
     The PM_GroupBox widget provides a group box container with a 
@@ -132,7 +135,7 @@ class PM_GroupBox( QGroupBox ):
         """
       
         QGroupBox.__init__(self)
-        
+                
         self.parentWidget = parentWidget
         parentWidget._groupBoxCount += 1
         _groupBoxCount = 0
@@ -175,7 +178,7 @@ class PM_GroupBox( QGroupBox ):
         self.gridLayout = QGridLayout()
         self.gridLayout.setMargin(pmGridLayoutMargin)
         self.gridLayout.setSpacing(pmGridLayoutSpacing)
-
+        
         # Insert grid layout in its own vBoxLayout
         self.vBoxLayout.addLayout(self.gridLayout)
         
@@ -289,10 +292,45 @@ class PM_GroupBox( QGroupBox ):
         @type  pmWidget: PM_Widget
         """
         
+        row = self._rowCount
+        
+        #PM_CheckBox doesn't have a label. So do the following to decide the 
+        #placement of the checkbox. (can be placed either in column 0 or 1 , 
+        #This also needs to be implemented for PM_RadioButton, but at present 
+        #the following code doesn't support PM_RadioButton. 
+        if isinstance(pmWidget, PM_CheckBox):
+            # Set the widget's row and column parameters.
+            widgetRow      = row
+            widgetColumn   = pmWidget.widgetColumn
+            widgetSpanCols = 1
+            widgetAlignment = pmLeftAlignment
+            rowIncrement   = 1
+            #set a virtual label
+            labelRow       = row
+            labelSpanCols  = 1
+            labelAlignment = pmRightAlignment
+                        
+            if widgetColumn == 0:
+                labelColumn   = 1
+                widgetAlignment = pmRightAlignment                                
+            elif widgetColumn == 1:
+                labelColumn   = 0
+                widgetAlignment = pmLeftAlignment
+            
+            return widgetRow, \
+               widgetColumn, \
+               widgetSpanCols, \
+               widgetAlignment, \
+               rowIncrement, \
+               labelRow, \
+               labelColumn, \
+               labelSpanCols, \
+               labelAlignment
+        
+       
         label       = pmWidget.label
         labelColumn = pmWidget.labelColumn
         spanWidth   = pmWidget.spanWidth
-        row         = self._rowCount
         
         if not spanWidth: 
             # This widget and its label are on the same row
@@ -310,12 +348,12 @@ class PM_GroupBox( QGroupBox ):
                 widgetColumn   = 0
                 labelAlignment = pmLeftAlignment
                 widgetAlignment = pmRightAlignment
-            
+                        
         else: 
+                      
             # This widget spans the full width of the groupbox           
             if label: 
                 # The label and widget are on separate rows.
-                    
                 # Set the label's row, column and alignment.
                 labelRow       = row
                 labelColumn    = 0
@@ -371,6 +409,7 @@ class PM_GroupBox( QGroupBox ):
         labelAlignment = \
             self.getPmWidgetPlacementParameters(pmWidget)
         
+        
         if pmWidget.labelWidget:            
             self.gridLayout.addWidget( pmWidget.labelWidget,
                                        labelRow, 
@@ -378,6 +417,7 @@ class PM_GroupBox( QGroupBox ):
                                        1, 
                                        labelSpanCols,
                                        labelAlignment )
+            
         
         # The following is a workaround for a Qt bug. If addWidth()'s 
         # <alignment> argument is not supplied, the widget spans the full 
@@ -386,21 +426,23 @@ class PM_GroupBox( QGroupBox ):
         # value that can be supplied to maintain the behavior (0 doesn't 
         # work). The workaround is to call addWidget() without the <alignment>
         # argument. Mark 2007-07-27.
+
         if widgetAlignment == pmLeftAlignment:
             self.gridLayout.addWidget( pmWidget,
                                        widgetRow, 
                                        widgetColumn,
                                        1, 
-                                       widgetSpanCols ) 
+                                       widgetSpanCols) 
                                        # aligment = 0 doesn't work.
         else:
             self.gridLayout.addWidget( pmWidget,
                                        widgetRow, 
                                        widgetColumn,
                                        1, 
-                                       widgetSpanCols, 
-                                       widgetAlignment )
-        
+                                       widgetSpanCols,
+                                       widgetAlignment
+                                     )
+
         self._widgetList.append(pmWidget)
         
         self._rowCount += rowIncrement

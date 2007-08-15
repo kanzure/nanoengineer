@@ -178,26 +178,26 @@ class PM_WidgetsDemoPropertyManager(PM_Dialog, GeneratorBaseClass):
         
         self.checkBox1 = \
             PM_CheckBox( self.checkBoxGroupBox,
-                         label        = "Label on left:",
-                         labelColumn  = 0,
+                         text         = "Label on left:",
+                         widgetColumn = 1,
                          state        = Qt.Checked,
                          setAsDefault = True,
-                         spanWidth    = False )
+                        )
         
         self.checkBox2 = \
             PM_CheckBox( self.checkBoxGroupBox,
-                         label        = ": Label on right",
-                         labelColumn  = 1,
-                         state        = Qt.Checked,
-                         setAsDefault = True,
-                         spanWidth    = False )
+                         text          = ": Label on right",
+                         widgetColumn  = 1,
+                         state         = Qt.Checked,
+                         setAsDefault  = True,
+                        )
         
         self.checkBox3 = \
             PM_CheckBox( self.checkBoxGroupBox,
-                         label        = "CheckBox (spanWidth = True):",
+                         text         = "CheckBox (spanWidth = True):",
                          state        = Qt.Unchecked,
                          setAsDefault = False,
-                         spanWidth    = True )
+                       )
         
     def _loadPM_ComboBox(self, inPmGroupBox):
         """

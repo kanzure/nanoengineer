@@ -64,21 +64,21 @@ class PM_CheckBox( QCheckBox ):
                         the "Restore Defaults" button.
     @type setAsDefault: bool
     
-    @cvar labelWidget: The Qt label widget of this checkbox.
+    @cvar labelWidget: The Qt label widget of this checkbox. This value is 
+                       set to 'None'
     @type labelWidget: U{B{QLabel}<http://doc.trolltech.com/4/qlabel.html>}
     """
     
     defaultState = Qt.Unchecked  
     setAsDefault = True
-    labelWidget  = None
-    
+    labelWidget = None
+        
     def __init__(self, 
                  parentWidget, 
-                 label        = '', 
-                 labelColumn  = 0,
-                 state        = Qt.Unchecked, 
-                 setAsDefault = True,
-                 spanWidth    = False
+                 text          = '', 
+                 widgetColumn  = 1,
+                 state         = Qt.Unchecked, 
+                 setAsDefault  = True
                  ):
         """
         Appends a QCheckBox (Qt) widget to the bottom of I{parentWidget}, 
@@ -87,21 +87,14 @@ class PM_CheckBox( QCheckBox ):
         @param parentWidget: The parent group box containing this widget.
         @type  parentWidget: PM_GroupBox
         
-        @param label: The label that appears to the left or right of the 
-                      checkbox. 
-                      
-                      If spanWidth is True, the label will be displayed on
-                      its own row directly above the checkbox.
-                      
-                      To suppress the label, set I{label} to an 
-                      empty string.
-        @type  label: str
+        @param text: This property holds the text shown on the checkbox.                     
+        @type  text: str
         
-        @param labelColumn: The column number of the label in the group box
-                            grid layout. The only valid values are 0 (left 
-                            column) and 1 (right column). The default is 0 
-                            (left column).
-        @type  labelColumn: int
+        @param widgetColumn: The column number of the PM_CheckBox widget
+                             in the group box grid layout. The only valid values 
+                             are 0 (left column) and 1 (right column). 
+                             The default is 1 (right column).                             
+        @type  widgetColumn: int
         
         @param state: Set's the check box's check state. The default is
                       Qt.Unchecked (unchecked).
@@ -111,42 +104,21 @@ class PM_CheckBox( QCheckBox ):
         @param setAsDefault: If True, will restore I{state} when the 
                              "Restore Defaults" button is clicked.
         @type  setAsDefault: bool
-        
-        @param spanWidth: If True, the checkbox and its label will span the width
-                          of the group box. The label will appear directly above
-                          the checkbox and is left aligned. 
-        @type  spanWidth: bool
+     
         
         @see: U{B{QCheckBox}<http://doc.trolltech.com/4/qcheckbox.html>}
         """
-        
-        if 0: # Debugging code
-            print "PM_CheckBox.__init__():"
-            print "  label        = ", label
-            print "  labelColumn  = ", labelColumn
-            print "  state        = ", state
-            print "  setAsDefault = ", setAsDefault
-            print "  spanWidth    = ", spanWidth
-                
+                        
         QCheckBox.__init__(self)
-        
-        self.parentWidget = parentWidget
-        self.label        = label
-        self.labelColumn  = labelColumn
+        self.parentWidget = parentWidget        
+        self.setText(text)
+        self.widgetColumn = widgetColumn
         self.setAsDefault = setAsDefault
-        self.spanWidth    = spanWidth
-        
-        if label: # Create this widget's QLabel.
-            self.labelWidget = QLabel()
-            self.labelWidget.setText(label)
-   
-        self.setCheckState(state, setAsDefault)
-        # We use this widget's QLabel to display the label, not the QCheckBox label.
-        # So we premanently "remove" the checkbox text.
-        self.setText("") 
-        
+        self.setCheckState(state, setAsDefault)        
+                 
         parentWidget.addPmWidget(self)
-        
+    
+                
     def setCheckState(self, state, setAsDefault = True):
         """
         Sets the check box's check state to I{state}.
@@ -181,8 +153,7 @@ class PM_CheckBox( QCheckBox ):
         @see: L{show}
         """
         QWidget.hide(self)
-        if self.labelWidget: 
-            self.labelWidget.hide()
+        
             
     def show(self):
         """
@@ -191,7 +162,7 @@ class PM_CheckBox( QCheckBox ):
         @see: L{hide}
         """
         QWidget.show(self)
-        if self.labelWidget: 
-            self.labelWidget.show()
-
+        
+    
+              
 # End of PM_CheckBox ############################
