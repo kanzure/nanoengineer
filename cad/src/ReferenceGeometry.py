@@ -29,36 +29,39 @@ to be revised) . In Alpha9 this class is inherited by PlaneGenerator class
 
 __author__ = "Ninad"
 
+import env
+import platform
+
+from debug import print_compact_traceback
+
+from constants import darkgreen, orange, yellow, white, gray
+from constants import gensym
+
 from OpenGL.GL import glPushName
 from OpenGL.GL import glPopName
 
-from OpenGL.GL import glPushName, glPopName
 from Utility import Node
-from jigs import Jig
-from constants import darkgreen, orange, yellow, white, gray
-from constants import gensym
-import env
-import platform
-from DragHandler import DragHandler_API
-from HistoryWidget import greenmsg
-from debug import print_compact_traceback
+from jigs    import Jig
 
+from DragHandler   import DragHandler_API
+from HistoryWidget import greenmsg
 
 class ReferenceGeometry(Jig, DragHandler_API):
-    ''' Superclass for various reference geometries. 
-    Example or reference geometries: Plane, Point, Line'''
+    """
+    Superclass for various reference geometries. 
+    Example or reference geometries: Plane, Point, Line.
+    """
     
-    sym = "Geometry" # affects name-making code in __init__
-    pickcolor = darkgreen 
+    sym             =  "Geometry" # affects name-making code in __init__
     # if not redefined, this means it's just a comment in an mmp file
     mmp_record_name = "#" 
-    featurename = "" 
-        
-    color = normcolor = orange
-  
-    atoms = []
-    points = None
-    handles = None
+    featurename     =  "" 
+    color           =  orange
+    normcolor       =  color
+    pickcolor       =  darkgreen 
+    atoms           =  []
+    points          =  None
+    handles         =  None
     
     copyable_attrs = Node.copyable_attrs + ('pickcolor', 'normcolor', 'color')
         
@@ -78,14 +81,18 @@ class ReferenceGeometry(Jig, DragHandler_API):
         self.offsetParentGeometry = None
                     
     def needs_atoms_to_survive(self): 
-        '''Overrided method inherited from Jig. This is used to tell 
-        if the jig can be copied even it doesn't have atoms.'''
+        """
+        Overrided method inherited from Jig. This is used to tell 
+        if the jig can be copied even it doesn't have atoms.
+        """
         return False
     
     def _mmp_record_last_part(self, mapping):
-        ''' Return a fake string 'type-geometry' as the last entry 
+        """
+        Return a fake string 'type-geometry' as the last entry 
         for the mmp record. This part of mmp record is NOT used so far 
-        for ReferenceGeometry Objects'''
+        for ReferenceGeometry Objects.
+        """
         #This is needed as ReferenceGeometry is a subclass of Jig 
         #(instead of Node) , Returning string 'geometry' overcomes 
         #the problem faced due to a kludge in method mmp_record 
@@ -97,9 +104,11 @@ class ReferenceGeometry(Jig, DragHandler_API):
     def _draw(self, glpane, dispdef):
         self._draw_geometry(glpane, self.color)        
     
-    def _draw_geometry(self,glpane, color, highlighted =False):
-        ''' The main code that draws the geometry. 
-        Subclasses should override this method.'''
+    def _draw_geometry(self, glpane, color, highlighted = False):
+        """
+        The main code that draws the geometry. 
+        Subclasses should override this method.
+        """
         pass
             
     def draw(self, glpane, dispdef):
@@ -116,12 +125,16 @@ class ReferenceGeometry(Jig, DragHandler_API):
             glPopName()
                 
     def draw_in_abs_coords(self, glpane, color):
-        '''Draws the reference geometry with highlighting.'''       
+        """
+        Draws the reference geometry with highlighting.
+        """       
         self._draw_geometry(glpane, color, highlighted = True)   
         
                                
     def pick(self): 
-        """Select the reference geometry"""
+        """
+        Select the reference geometry.
+        """
         if not self.picked: 
             Node.pick(self)
             self.normcolor = self.color
@@ -129,7 +142,9 @@ class ReferenceGeometry(Jig, DragHandler_API):
         return
 
     def unpick(self):
-        """Unselect the reference geometry"""
+        """
+        Unselect the reference geometry.
+        """
         if self.picked:
             Node.unpick(self) 
             # see also a copy method which has to use the same statement to 
@@ -210,25 +225,21 @@ class ReferenceGeometry(Jig, DragHandler_API):
 #@@TODO: This is a temporary class for Alpha9. It should be modified
 #or deleted during post A9 development (when we revise GeneratorBaseClass)
 #This is very much like GeneratorBaseClass but has a few modifications
-#for use in PlaneGenerator.  At present, PlaneGenerator inherits this
-#class. -- Ninad 20070606 
+#for use in PlaneGenerator.  At present, only PlaneGenerator inherits this
+#class. -- Ninad 2007-06-06
 
-
-from Sponsors import SponsorableMixin
-from PropertyManagerMixin import PropertyManagerMixin
-
-class GeometryGeneratorBaseClass(SponsorableMixin, PropertyManagerMixin):
-    ''' Geometry Generator base class . This is a temporary class for Alpha9. 
+class GeometryGeneratorBaseClass:
+    """
+    Geometry Generator base class . This is a temporary class for Alpha9. 
     It should be modified   or deleted during post A9 development 
     (when we revise GeneratorBaseClass)  This is very much like 
     GeneratorBaseClass but has a few modifications
-    for use in PlaneGenerator.  At present, PlaneGenerator inherits this
-     '''
+    for use in PlaneGenerator.  At present, PlaneGenerator inherits this.
+    """
     # see definition details in GeneratorBaseClass
-    cmd = "" 
-    cmdname = "" 
+    cmd      =  "" 
+    cmdname  =  "" 
 
-  
     ##======common methods for Property Managers=====###
     #@NOTE: This copies some methods from GeneratorBaseClass
     #first I intended to inherit ReferenceGeometry from that class but 
@@ -240,20 +251,20 @@ class GeometryGeneratorBaseClass(SponsorableMixin, PropertyManagerMixin):
      # pass window arg to constructor rather than use a global, wware 051103
     def __init__(self, win):
         self.win = win
-        #pw = part window. 
-        #Its subclasses will create their partwindow objects 
-        #(and destroy them after Done) -- @@ not be a good idea if we have
-        #multiple partwindow support? (i.e. when win object is replaced(?) by 
-        #partwindow object for each partwindow).  But this works fine.
-        #..same guess -- because opening multiple windows is not supported
-        #When we begin supporting that, lots of things will change and this might
-        #be one of them .--- ninad 20070613
-        self.pw = None
-        self.modePropertyManager = None
-        self.struct = None
-        self.previousParams = None
-        self.existingStructForEditing = False
-        self.old_props = None
+        # pw = part window. 
+        # Its subclasses will create their partwindow objects 
+        # (and destroy them after Done) -- @@ not be a good idea if we have
+        # multiple partwindow support? (i.e. when win object is replaced(?) by 
+        # partwindow object for each partwindow).  But this works fine.
+        # ..same guess -- because opening multiple windows is not supported
+        # When we begin supporting that, lots of things will change and this might
+        # be one of them .--- ninad 20070613
+        self.pw                   =  None
+        self.modePropertyManager  =  None
+        self.struct               =  None
+        self.previousParams       =  None
+        self.old_props            =  None
+        self.existingStructForEditing  =  False
         
         if 1:
             #bruce 060616 added the following kluge to make sure both cmdname 
@@ -292,23 +303,28 @@ class GeometryGeneratorBaseClass(SponsorableMixin, PropertyManagerMixin):
         'Slot for the OK button'
         if platform.atom_debug: print 'ok button clicked'
                     
-        self._ok_or_preview(doneMsg=True)   
+        self._ok_or_preview(doneMsg = True)   
         self.accept() #bruce 060621
         self.struct = None
-        self.closePropertyManager() 
+        #@self.closePropertyManager() # Use self.close() instead. Mark 2007-08-15
+        self.close() # Close the property manager.
         
         # The following reopens the property manager of the mode after 
-        #when the PM of the reference geometry is closed. -- Ninad 20070603        
-        #Note: the value of self.modePropertyManager can be None
-        #@see: anyMode.propMgr
+        # when the PM of the reference geometry is closed. -- Ninad 20070603        
+        # Note: the value of self.modePropertyManager can be None
+        # @see: anyMode.propMgr
         self.modePropertyManager = self.win.assy.o.mode.propMgr
                 
         if self.modePropertyManager:
-            self.openPropertyManager(self.modePropertyManager)
+            #@self.openPropertyManager(self.modePropertyManager)
+            # (re)open the PM of the current command (i.e. "Build > Atoms").
+            self.open(self.modePropertyManager)
         return
     
     def cancel_btn_clicked(self):
-        'Slot for the Cancel button'
+        """
+        Slot for the Cancel button.
+        """
         if platform.atom_debug: print 'cancel button clicked'
         self.win.assy.current_command_info(cmdname = self.cmdname + " (Cancel)")
            
@@ -321,32 +337,37 @@ class GeometryGeneratorBaseClass(SponsorableMixin, PropertyManagerMixin):
             self.remove_struct()            
         self._revert_number()
         self.reject() 
-        self.closePropertyManager()
+        #@self.closePropertyManager() # Use self.close() instead. Mark 2007-08-15
+        self.close() # Closes the property manager.
         
-        #The following reopens the property manager of the mode after 
-        #when the PM of the reference geometry is closed.         
-        #Note: the value of self.modePropertyManager can be None
-        #@see: anyMode.propMgr
+        # The following reopens the property manager of the command after
+        # the PM of the reference geometry generator (i.e. Plane) is closed.
+        # Note: the value of self.modePropertyManager can be None.
+        # See anyMode.propMgr
         self.modePropertyManager = self.win.assy.o.mode.propMgr
             
         if self.modePropertyManager:
-            self.openPropertyManager(self.modePropertyManager)
+            #@self.openPropertyManager(self.modePropertyManager)
+            # (re)open the PM of the current command (i.e. "Build > Atoms").
+            self.open(self.modePropertyManager)
         return
     
     def preview_btn_clicked(self):
+        """
+        Slot for the Preview button.
+        """
         if platform.atom_debug: print 'preview button clicked'
-        self._ok_or_preview(previewing=True)
+        self._ok_or_preview(previewing = True)
     
-    
-    def _ok_or_preview(self, doneMsg=False, previewing=False):
+    def _ok_or_preview(self, doneMsg = False, previewing = False):
         self.win.assy.current_command_info(cmdname = self.cmdname) 
-        self._build_struct(previewing=previewing)
+        self._build_struct(previewing = previewing)
         if doneMsg:
             env.history.message(self.cmd + self.done_msg())
         
         self.win.win_update()
     
-    def _build_struct(self, previewing=False):
+    def _build_struct(self, previewing = False):
         if platform.atom_debug:
             print '_build_struct'
             
@@ -417,8 +438,9 @@ class GeometryGeneratorBaseClass(SponsorableMixin, PropertyManagerMixin):
             if platform.atom_debug: print 'No structure to remove'
     
     def done_msg(self):
-        '''Tell what message to print when the geometry has been
-        built. This may be overloaded in the specific generator.
-        '''
+        """
+        Returns the done message. This may be overloaded in the specific 
+        generator.
+        """
         return "%s created." % self.name
     

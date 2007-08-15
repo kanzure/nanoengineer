@@ -14,7 +14,6 @@ ninad 20070606: Created.
 #GeometryGeneratorBaseClass is a temporary implementation (just for A9) see 
 #more notes in ReferenceGeometry.py GeometryGeneratorBaseClass - Ninad 20070606 
 
-
 from HistoryWidget import greenmsg
 
 from PyQt4.Qt import QDialog
@@ -24,12 +23,15 @@ from ReferenceGeometry import GeometryGeneratorBaseClass
 from debug import print_compact_traceback
 
 class PlaneGenerator(PlanePropertyManager, GeometryGeneratorBaseClass):
-    ''' PlaneGenerator creates the PropertyManager object for Reference Plane.'''
+    """
+    The PlaneGenerator class provides a Property Manager and a structure 
+    generator/editor for creating and/or editing a reference Plane.
+    """
     
-    #@NOTE: Reference Plane defines  PlaneGenerator object as 'self.propMgr'. 
-    #need to be renamed??
-    #@NOTE: self.geometry : is the Plane object (defined in PlanePropertyManager)
-    #comment ninad 20070606
+    #@ NOTE: Reference Plane defines PlaneGenerator object as 'self.propMgr'. 
+    # need to be renamed??
+    #@ NOTE: self.geometry is the Plane object (defined in PlanePropertyManager)
+    # comment ninad 20070606
     
     cmd = greenmsg("Plane: ")
     #
@@ -42,31 +44,46 @@ class PlaneGenerator(PlanePropertyManager, GeometryGeneratorBaseClass):
     sponsor_keyword = 'Plane'
     
     def __init__(self, win, plane):
+        """
+        Constructs a Property Manager with a default Plane.
         
+        @param win: The NE1 main window.
+        @type  win: QMainWindow
+        
+        @param plane: The plane.
+        @type  plane: L{Plane}
+        """
         self.name = plane.name # Adopt the plane's name as our name.
-        self.w = self.win = win
+        self.win  = win
+
         PlanePropertyManager.__init__(self, plane)
         GeometryGeneratorBaseClass.__init__(self, win)
-        
-
 
     ##=========== Structure Generator like interface TO BE REVISED======##
     def gather_parameters(self):
-        """Return all the parameters from the Property Manager.
         """
-        height = self.heightDblSpinBox.value()
-        width = self.widthDblSpinBox.value()
-        atmList = self.win.assy.selatoms_list()
+        Return all the parameters from the Plane Property Manager.
+        """
+        height  =  self.heightDblSpinBox.value()
+        width   =  self.widthDblSpinBox.value()
+        atmList =  self.win.assy.selatoms_list()
         self.geometry.changePlanePlacement(self.pmPlacementOptions.checkedId())
-        ctr = self.geometry.center        
+        ctr     =  self.geometry.center        
         return (width, height, ctr, atmList)
     
     def build_struct(self, name, params):
-        """Build a Plane from the parameters in the Property Manager.
+        """
+        Build a Plane using the current parameters in the Property Manager.
+        
+        @param name: The name of the plane.
+        @type  name: str
+        
+        @param params: The plane properties from the PM UI.
+        @type  params: tuple
         """
         width, height, center_junk, atmList_junk = params
-        self.geometry.width = width        
-        self.geometry.height = height   
+        self.geometry.width   =  width        
+        self.geometry.height  =  height   
         self.geometry.win.win_update() # Update model tree
         self.geometry.win.assy.changed()        
         return self.geometry
@@ -76,18 +93,21 @@ class PlaneGenerator(PlanePropertyManager, GeometryGeneratorBaseClass):
     #Not making one as GeometryGenerator class may go away and replaced by another one. 
     #So easier to copy this method after it is done. -- ninad20070608
     def update_props_if_needed_before_closing(self):
-        '''This updates some cosmetic properties of the Plane (geometry object)
-        before closing the Property Manager. (exiting 'Preview' )'''
+        """
+        This updates some cosmetic properties of the Plane (e.g. fill color, 
+        border color, etc.) before closing the Property Manager.
+        """
         
-        ##Example: Plane Property manager is open and user is 'previewing' the 
-        ##plane. Now user clicks on the Build Atoms  button to enter that mode. 
-        ##This calls the openPropertyManager method which replaces the current 
-        ##PM with the Build Atoms PM.  Thus,it permanently adds the Plane that was
-        ##being previewed (good or bad -- implementation decision ..OK for now), 
-        ##When the plane is 'finalized' it needs to change some of its 
-        ##cosmetic properties such as fill color, border color etc so that the 
-        ##user will notice that its not being 'previewed' . This function
-        ##changes those properties. -- ninad 20070613 
+        # Example: The Plane Property Manager is open and the user is 
+        # 'previewing' the plane. Now the user clicks on "Build > Atoms" 
+        # to invoke the next command (without clicking "Done"). 
+        # This calls openPropertyManager() which replaces the current PM 
+        # with the Build Atoms PM.  Thus, it creates and inserts the Plane 
+        # that was being previewed. Before the plane is permanently inserted
+        # into the part, it needs to change some of its cosmetic properties
+        # (e.g. fill color, border color, etc.) which distinguishes it as 
+        # a new plane in the part. This function changes those properties.
+        # ninad 2007-06-13 
         
         #called in updatePropertyManager in MWsemeantics.py -- (Partwindow class)
         
@@ -96,5 +116,3 @@ class PlaneGenerator(PlanePropertyManager, GeometryGeneratorBaseClass):
         #Don't draw the direction arrow when the object is finalized. 
         if self.geometry.offsetParentGeometry:
             self.geometry.offsetParentGeometry.directionArrow.setDrawRequested(False)
-        
-    
