@@ -18,6 +18,7 @@ from PyQt4.Qt import QSpacerItem
 from PyQt4.Qt import QSize
 from PyQt4.Qt import QLabel
 from PyQt4.Qt import QToolButton
+from PyQt4.Qt import QPushButton
 
 from debug    import print_compact_traceback
 from Utility  import geticon
@@ -180,16 +181,15 @@ class PM_WidgetGrid( PM_GroupBox ):
         """        
         widgetParams = list(widgetParams)  
         
-        widgetType = widgetParams[0]
-        
-        if widgetType == "ToolButton":
-            widget = self._createToolButton(params)
-        elif widgetType == "PushButton":
-            widget = self._createPushButton(params)
-        elif widgetType == "Label":
-            widget = self._createLabel(params)
-        elif widgetType == "Spacer":
-            widget = self._createSpacer(params)
+        widgetType = str(widgetParams[0])
+        if widgetType == QToolButton.__name__:
+            widget = self._createToolButton(widgetParams)
+        elif widgetType == QPushButton.__name__:
+            widget = self._createPushButton(widgetParams)
+        elif widgetType == QLabel.__name__:
+            widget = self._createLabel(widgetParams)
+        elif widgetType == QSpacerItem.__name__:
+            widget = self._createSpacer(widgetParams)
         else:
             msg1 = "Error, unknown/unsupported widget type. "
             msg2 = "Widget Grid can not be created"

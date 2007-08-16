@@ -27,25 +27,25 @@ from PM.PM_ToolButtonGrid import PM_ToolButtonGrid
 # - row
 
 ELEMENTS_BUTTON_LIST = [ \
-    ( "ToolButton", 1,  "H", "", "Hydrogen",   4, 0   ),
-    ( "ToolButton", 2, "He", "", "Helium",     5, 0   ),
-    ( "ToolButton", 5,  "B", "", "Boron",      0, 1   ),
-    ( "ToolButton", 6,  "C", "", "Carbon",     1, 1   ),
-    ( "ToolButton", 7,  "N", "", "Nitrogen",   2, 1   ),
-    ( "ToolButton", 8,  "O", "", "Oxygen",     3, 1   ),
-    ( "ToolButton", 9,  "F", "", "Fluorine",   4, 1   ),
-    ( "ToolButton", 10, "Ne", "", "Neon",       5, 1   ),
-    ( "ToolButton", 13, "Al", "", "Aluminum",   0, 2   ),
-    ( "ToolButton", 14, "Si", "", "Silicon",    1, 2   ),
-    ( "ToolButton", 15,  "P", "", "Phosphorus", 2, 2   ),
-    ( "ToolButton", 16,  "S", "", "Sulfur",     3, 2   ),
-    ( "ToolButton", 17, "Cl", "", "Chlorine",   4, 2   ),
-    ( "ToolButton", 18, "Ar", "", "Argon",      5, 2   ),
-    ( "ToolButton", 32, "Ge", "", "Germanium",  1, 3   ),
-    ( "ToolButton", 33, "As", "", "Arsenic",    2, 3   ),
-    ( "ToolButton", 34, "Se", "", "Selenium",   3, 3   ),
-    ( "ToolButton", 35, "Br", "", "Bromine" ,   4, 3   ),
-    ( "ToolButton", 36, "Kr", "", "Krypton",    5, 3   )
+    ( "QToolButton", 1,  "H", "", "Hydrogen",   4, 0   ),
+    ( "QToolButton", 2, "He", "", "Helium",     5, 0   ),
+    ( "QToolButton", 5,  "B", "", "Boron",      0, 1   ),
+    ( "QToolButton", 6,  "C", "", "Carbon",     1, 1   ),
+    ( "QToolButton", 7,  "N", "", "Nitrogen",   2, 1   ),
+    ( "QToolButton", 8,  "O", "", "Oxygen",     3, 1   ),
+    ( "QToolButton", 9,  "F", "", "Fluorine",   4, 1   ),
+    ( "QToolButton", 10, "Ne", "", "Neon",       5, 1   ),
+    ( "QToolButton", 13, "Al", "", "Aluminum",   0, 2   ),
+    ( "QToolButton", 14, "Si", "", "Silicon",    1, 2   ),
+    ( "QToolButton", 15,  "P", "", "Phosphorus", 2, 2   ),
+    ( "QToolButton", 16,  "S", "", "Sulfur",     3, 2   ),
+    ( "QToolButton", 17, "Cl", "", "Chlorine",   4, 2   ),
+    ( "QToolButton", 18, "Ar", "", "Argon",      5, 2   ),
+    ( "QToolButton", 32, "Ge", "", "Germanium",  1, 3   ),
+    ( "QToolButton", 33, "As", "", "Arsenic",    2, 3   ),
+    ( "QToolButton", 34, "Se", "", "Selenium",   3, 3   ),
+    ( "QToolButton", 35, "Br", "", "Bromine" ,   4, 3   ),
+    ( "QToolButton", 36, "Kr", "", "Krypton",    5, 3   )
 ]
 
 ELEMENT_ATOM_TYPES = { \
@@ -67,10 +67,10 @@ ATOM_TYPES = ("sp3", "sp2", "sp", "sp2(graphitic)")
 # - row
 
 ATOM_TYPES_BUTTON_LIST = [ \
-    ( "ToolButton", 0, "sp3", "", "sp3", 0, 0 ),
-    ( "ToolButton", 1, "sp2", "", "sp2", 1, 0 ),
-    ( "ToolButton", 2, "sp",  "", "sp",  2, 0 ),
-    ( "ToolButton", 3, "sp2(graphitic)", "ui/modeltree/N_graphitic.png", 
+    ( "QToolButton", 0, "sp3", "", "sp3", 0, 0 ),
+    ( "QToolButton", 1, "sp2", "", "sp2", 1, 0 ),
+    ( "QToolButton", 2, "sp",  "", "sp",  2, 0 ),
+    ( "QToolButton", 3, "sp2(graphitic)", "ui/modeltree/N_graphitic.png", 
       "Graphitic", 3, 0 ) #@ Icon lives in a poorly chosen location.
 ]
 
