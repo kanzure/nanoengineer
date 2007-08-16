@@ -13,6 +13,7 @@ file and renamed it PM_Dialog.
 """
 
 from debug import print_compact_traceback
+import platform
 
 from Utility import geticon
 from Utility import getpixmap

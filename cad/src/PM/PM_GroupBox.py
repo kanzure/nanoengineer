@@ -108,6 +108,7 @@ class PM_GroupBox( QGroupBox ):
     def __init__(self, 
                  parentWidget, 
                  title          = '', 
+                 connectTitleButton = True,
                  setAsDefault   = True
                  ):
         """
@@ -125,6 +126,16 @@ class PM_GroupBox( QGroupBox ):
         
         @param title: The title (button) text. If empty, no title is added.
         @type  title: str
+        
+        @param connectTitleButton: If True, this class will automatically 
+                      connect the title button of the groupbox to send signal
+                      to expand or collapse the groupbox. Otherwise, the caller
+                      has to connect this signal by itself. See:
+                      B{Ui_MovePropertyManager.addGroupBoxes} and 
+                      B{MovePropertyManager.connect_or_disconnect_signals} for
+                      examples where the client connects this slot. 
+        @type  connectTitleButton: bool
+               
         
         @param setAsDefault: If False, no widgets in this group box will have 
                              thier default values restored when the B{Restore 
@@ -189,9 +200,10 @@ class PM_GroupBox( QGroupBox ):
         else: # Parent is a PM_Dialog, so add a title button.
             self.titleButton = self._getTitleButton(self, title)
             self._vBoxLayout.insertWidget(0, self.titleButton)
-            self.connect( self.titleButton, 
-                          SIGNAL("clicked()"),
-                          self.toggleExpandCollapse)
+            if connectTitleButtonSlot:
+                self.connect( self.titleButton, 
+                              SIGNAL("clicked()"),
+                              self.toggleExpandCollapse)
             
         # Fixes the height of the group box. Very important. Mark 2007-05-29
         self.setSizePolicy(
@@ -411,6 +423,7 @@ class PM_GroupBox( QGroupBox ):
             self.getPmWidgetPlacementParameters(pmWidget)
         
         
+        
         if pmWidget.labelWidget: 
             #Create Label as a pixmap (instead of text) if a valid icon path 
             #is provided
@@ -418,7 +431,7 @@ class PM_GroupBox( QGroupBox ):
             if os.path.exists(labelPath):
                 pmWidget.labelWidget.setPixmap(getpixmap(labelPath))
                 pmWidget.labelWidget.setText('')
-                
+               
             self.gridLayout.addWidget( pmWidget.labelWidget,
                                        labelRow, 
                                        labelColumn,
@@ -479,6 +492,62 @@ class PM_GroupBox( QGroupBox ):
                                    widgetSpanCols )
         
         self._rowCount += 1
+        
+    
+    def collapse(self):
+        """
+        Collapse this group box i.e. hide all its contents and change the look 
+        and feel of the groupbox button. 
+        """
+        self.vBoxLayout.setMargin(0)
+        self.vBoxLayout.setSpacing(0)
+        self.gridLayout.setMargin(0)
+        self.gridLayout.setSpacing(0)
+        # The styleSheet contains the expand/collapse.
+        styleSheet = self._getTitleButtonStyleSheet(showExpanded = False)
+        self.titleButton.setStyleSheet(styleSheet)
+        # Why do we have to keep resetting the palette?
+        # Does assigning a new styleSheet reset the button's palette?
+        # If yes, we should add the button's color to the styleSheet.
+        # Mark 2007-05-20
+        self.titleButton.setPalette(self._getTitleButtonPalette())
+        self.titleButton.setIcon(
+            geticon("ui/actions/Properties Manager/GHOST_ICON"))
+        self._containerWidget.hide()
+        self.expanded = False 
+    
+    def expand(self):
+        """
+        Expand this group box i.e. show all its contents and change the look 
+        and feel of the groupbox button. 
+        """
+        from PM_MessageGroupBox import PM_MessageGroupBox
+        if isinstance(self, PM_MessageGroupBox):
+            # If we don't do this, we get a small space b/w the 
+            # title button and the MessageTextEdit widget.
+            # Extra code unnecessary, but more readable. 
+            # Mark 2007-05-21
+            self.gridLayout.setMargin(0)
+            self.gridLayout.setSpacing(0)
+        else:
+            self.vBoxLayout.setMargin(pmGrpBoxVboxLayoutMargin)
+            self.vBoxLayout.setSpacing(pmGrpBoxVboxLayoutSpacing)
+            self.gridLayout.setMargin(pmGrpBoxGridLayoutMargin)
+            self.gridLayout.setSpacing(pmGrpBoxGridLayoutSpacing)
+            
+        # The styleSheet contains the expand/collapse.
+        styleSheet = self._getTitleButtonStyleSheet(showExpanded = True)
+        self.titleButton.setStyleSheet(styleSheet)
+        # Why do we have to keep resetting the palette?
+        # Does assigning a new styleSheet reset the button's palette?
+        # If yes, we should add the button's color to the styleSheet.
+        # Mark 2007-05-20
+        self.titleButton.setPalette(self._getTitleButtonPalette())
+        self.titleButton.setIcon(
+            geticon("ui/actions/Properties Manager/GHOST_ICON"))
+        self._containerWidget.show()
+        self.expanded = True
+           
 
     def hide(self):
         """
@@ -616,49 +685,9 @@ class PM_GroupBox( QGroupBox ):
         """
         if self._widgetList:
             if self.expanded:
-                self.vBoxLayout.setMargin(0)
-                self.vBoxLayout.setSpacing(0)
-                self.gridLayout.setMargin(0)
-                self.gridLayout.setSpacing(0)
-                # The styleSheet contains the expand/collapse.
-                styleSheet = self._getTitleButtonStyleSheet(showExpanded = False)
-                self.titleButton.setStyleSheet(styleSheet)
-                # Why do we have to keep resetting the palette?
-                # Does assigning a new styleSheet reset the button's palette?
-                # If yes, we should add the button's color to the styleSheet.
-                # Mark 2007-05-20
-                self.titleButton.setPalette(self._getTitleButtonPalette())
-                self.titleButton.setIcon(
-                    geticon("ui/actions/Properties Manager/GHOST_ICON"))
-                self._containerWidget.hide()
-                self.expanded = False 
+                self.collapse()
             else: # Expand groupbox by showing all widgets in groupbox.
-                from PM_MessageGroupBox import PM_MessageGroupBox
-                if isinstance(self, PM_MessageGroupBox):
-                    # If we don't do this, we get a small space b/w the 
-                    # title button and the MessageTextEdit widget.
-                    # Extra code unnecessary, but more readable. 
-                    # Mark 2007-05-21
-                    self.gridLayout.setMargin(0)
-                    self.gridLayout.setSpacing(0)
-                else:
-                    self.vBoxLayout.setMargin(pmGrpBoxVboxLayoutMargin)
-                    self.vBoxLayout.setSpacing(pmGrpBoxVboxLayoutSpacing)
-                    self.gridLayout.setMargin(pmGrpBoxGridLayoutMargin)
-                    self.gridLayout.setSpacing(pmGrpBoxGridLayoutSpacing)
-                    
-                # The styleSheet contains the expand/collapse.
-                styleSheet = self._getTitleButtonStyleSheet(showExpanded = True)
-                self.titleButton.setStyleSheet(styleSheet)
-                # Why do we have to keep resetting the palette?
-                # Does assigning a new styleSheet reset the button's palette?
-                # If yes, we should add the button's color to the styleSheet.
-                # Mark 2007-05-20
-                self.titleButton.setPalette(self._getTitleButtonPalette())
-                self.titleButton.setIcon(
-                    geticon("ui/actions/Properties Manager/GHOST_ICON"))
-                self._containerWidget.show()
-                self.expanded = True         
+                self.expand()         
         else:
             print "Clicking on the group box button has no effect \
                    since it has no widgets."
