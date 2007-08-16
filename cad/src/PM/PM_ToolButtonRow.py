@@ -29,6 +29,8 @@ class PM_ToolButtonRow( PM_ToolButtonGrid ):
                  buttonList   = [],
                  alignment    = None,
                  label        = '',
+                 labelColumn = 0,
+                 spanWidth   = False,
                  checkedId    = -1, 
                  setAsDefault = False,
                  isAutoRaise  = True
@@ -66,6 +68,16 @@ class PM_ToolButtonRow( PM_ToolButtonGrid ):
                            toolbuttons, in column number E{0}.
         @type  label:      str
         
+        @param labelColumn: The column in the parentWidget's grid layout to which
+                            this widget's label will be added. The labelColum
+                            can only be E{0} or E{1}
+        @type  labelColumn: int
+        
+        @param spanWidth: If True, the widget and its label will span the width
+                      of the group box. Its label will appear directly above
+                      the widget (unless the label is empty) and is left justified.
+        @type  spanWidth: bool (default False)
+        
         @param checkedId:  Checked button id in the button group. Default value
                            is -1 that implies no button is checked. 
         @type  checkedId:  int
@@ -74,14 +86,15 @@ class PM_ToolButtonRow( PM_ToolButtonGrid ):
                             user as the  default checked
         @type  setAsDefault: boolean
              
-        """
-                                  
+        """                 
         PM_ToolButtonGrid.__init__(self, 
                                    parentWidget, 
                                    title,
                                    buttonList,
                                    alignment,
                                    label,
+                                   labelColumn,
+                                   spanWidth,
                                    checkedId,
                                    setAsDefault,
                                    isAutoRaise)

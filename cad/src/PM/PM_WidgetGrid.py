@@ -30,17 +30,20 @@ class PM_WidgetGrid( PM_GroupBox ):
     The B{PM_Widgetgrid} provides a convenient way to create different 
     types of widgets (such as ToolButtons, Labels, PushButtons etc) and 
     arrange them in the grid layout of a B{PM_Groupbox} 
-    
+        
     @see: B{Ui_MovePropertyManager} that uses B{PM_ToolButtonRow}, to create 
     custom widgets (toolbuttons) arranged in a grid layout. 
+    
     """
-       
+          
     def __init__(self, 
                  parentWidget,
                  title     = '',
                  widgetList = [],
                  alignment = None,
                  label = '',
+                 labelColumn = 0,
+                 spanWidth   = False                 
                  ):
         
         
@@ -68,16 +71,30 @@ class PM_WidgetGrid( PM_GroupBox ):
                            to the grid layout of the parent groupbox. 
         @type  alignment:  str
         
-        @param label:      The label for the widget row. If present, it is 
-                           added to the same grid layout as the rest of the 
-                           widgets on that row, in column number E{0}.
+        @param label:      The label for the widget row. .
         @type  label:      str
+        
+        @param labelColumn: The column in the parentWidget's grid layout to which
+                            this widget's label will be added. The labelColum
+                            can only be E{0} or E{1}
+        @type  labelColumn: int
+        
+        @param spanWidth: If True, the widget and its label will span the width
+                      of the group box. Its label will appear directly above
+                      the widget (unless the label is empty) and is left justified.
+        @type  spanWidth: bool (default False)
         
        
         """
          
         
         self.label = label
+        self.labelColumn = labelColumn
+        self.spanWidth = spanWidth
+        
+        if label: # Create this widget's QLabel.
+            self.labelWidget = QLabel()
+            self.labelWidget.setText(label)
         
         PM_GroupBox.__init__(self, parentWidget, title)
         
@@ -95,7 +112,6 @@ class PM_WidgetGrid( PM_GroupBox ):
         self.alignment = alignment
         
         self.loadWidgets()
-                 
     
     def loadWidgets(self):
         """
@@ -103,9 +119,7 @@ class PM_WidgetGrid( PM_GroupBox ):
         Then adds this group box to the grid layout of the I{parentWidget}, 
         which is again a B{PM_GroupBox} object.        
         """
-        
-        priviousRow = 0.0999 #initialize with some junk value. 
-                            
+                                   
         for widgetInfo in self.widgetList: 
             widgetInfoList = self.getWidgetInfoList(widgetInfo) 
             widgetParams = list(widgetInfoList[0:-2])
@@ -114,26 +128,8 @@ class PM_WidgetGrid( PM_GroupBox ):
             
             column  = widgetInfoList[-2]
             row     = widgetInfoList[-1]
-                                            
-            #Following adds a label to the current row, in the same grid layout
-            #as the rest of the widgets. If the label is specified, it is added 
-            # to the column 0 of the current row. -- Ninad 20070814
-                        
-            if priviousRow != row and self.label:                
-                label = QLabel(self.parentWidget)
-                label.setText(self.label)                
-                self.gridLayout.addWidget(label, row, 0, 1, 1)
-                previousRow = row                  
-            
-            #Increment the column number by 1 if a label is specified 
-            #@see: B{Ui_MovePropertyManager.rotateAroundAxisButtonRow} as an 
-            #example. In this example, client code specifies the
-            #tool buttons with column number starting at 0 as usual and then 
-            #just specify the label argument. 
-            
-            if self.label:
-                column += 1
-        
+                                                          
+                    
             if widgetOrSpacer.__class__.__name__  ==  QSpacerItem.__name__:
                 self.gridLayout.addItem( widgetOrSpacer,
                                        row,
@@ -145,12 +141,11 @@ class PM_WidgetGrid( PM_GroupBox ):
                                            row,
                                            column,
                                            1,
-                                           1 )
-                
-        #Add the widget i.e., the PM_GroupBox, that contains all the widgets 
-        # the client needs, to the grid layout of the parent groupbox
-        self.addWidgetToParentGridLayout()
+                                           1 )  
         
+         
+        self.parentWidget.addPmWidget(self)
+                        
     def getWidgetInfoList(self, widgetInfo):
         """
         Returns the widget information provided by the user. 
@@ -251,6 +246,9 @@ class PM_WidgetGrid( PM_GroupBox ):
     
     
     # ==== Helper methods to add widgets/ spacers to the Grid Layout =====
+    # NOTE:  Following helper methods ARE NOT used as of 2007-08-16. These will
+    # be deleted or modified when a new HBoxLayout is introduced to the Groupbox
+    #-- Ninad 2007-08-16
     
     def addWidgetToParentGridLayout(self):
         """
