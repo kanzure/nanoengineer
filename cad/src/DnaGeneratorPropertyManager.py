@@ -82,7 +82,7 @@ DEBUG = True
 class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
     """
     The DnaGeneratorPropertyManager class provides a Property Manager 
-    for the "Build > Atom" command.
+    for the "Build > Atoms" command.
     
     @cvar title: The title that appears in the property manager header.
     @type title: str
@@ -242,8 +242,12 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
                          setAsDefault  =  True,
                          spanWidth     =  True )
 
+        # If SIGNAL("activate(const QString&)") is used, we get a TypeError.
+        # This is a bug that needs Bruce. Using currentIndexChanged(int) as
+        # a workaround, but there is still a bug when the "Reverse" action 
+        # is selected. Mark 2007-08-15
         self.connect( self.actionsComboBox,
-                      SIGNAL("activated(QString)"),
+                      SIGNAL("currentIndexChanged(int)"),
                       self.actionsComboBoxChanged )
 
     def _loadGroupBox2( self, pmGroupBox ):
@@ -983,8 +987,19 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
         @param inIndex: The index of the selected action choice.
         @type  inIndex: int
         """
-        self.actionsComboBox.setCurrentIndex( 0 )
-        return self.invokeAction( inIndex )
+        actionName = str(self.actionsComboBox.currentText())
+        
+        self.disconnect( self.actionsComboBox,
+                         SIGNAL("currentIndexChanged(int)"),
+                         self.actionsComboBoxChanged )
+        
+        self.actionsComboBox.setCurrentIndex( 0 ) # Generates signal!
+        
+        self.connect( self.actionsComboBox,
+                      SIGNAL("currentIndexChanged(int)"),
+                      self.actionsComboBoxChanged )
+        
+        return self.invokeAction( actionName )
 
     def invokeAction( self, inActionName ):
         """

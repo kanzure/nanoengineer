@@ -139,7 +139,6 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
                 # discarded for reduced bases anyway.
                 
         if (dnaModel == 'Atomistic'):
-            dnaModel = 'Atom'
             chunkOption = str(self.createComboBox.currentText())
             resolve_random = True
                 # If this flag was not set, for atomistic case, random base 
@@ -147,14 +146,14 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
                 # message needs rewording for that... for now, it can't 
                 # happen.
             
-        assert dnaModel in ('Atom', 'PAM5')
+        assert dnaModel in ('Atomistic', 'PAM5')
 
         (dnaSequence, allKnown) = self._getSequence( resolve_random = resolve_random)
 
         if allKnown == False:
             dnaSequence  =  self.convertUnrecognized(dnaSequence)
 
-        if (dnaModel == 'Atom' and not allKnown):
+        if (dnaModel == 'Atomistic' and not allKnown):
             raise UserError("Cannot use unknown bases (N) in Atomistic model") # needs rewording (see above)
 
         if (dnaModel == 'PAM5' and dnaType == 'Z-DNA'):
@@ -217,14 +216,14 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
             self.dna = None
             return None
             
-        if (dnaModel == 'Atom') & (len(theSequence) > 30):
+        if (dnaModel == 'Atomistic') & (len(theSequence) > 30):
             # This message should appear in the PM message box, but it needs to be
             # flushed (reset) after the DNA is created.
             env.history.message(self.cmd + "This may take a moment...")
             
         # Instantiate the DNA subclass 
         # (based on dnaModel and conformation)
-        if (dnaModel == 'Atom'):
+        if (dnaModel == 'Atomistic'):
             doubleStrand = (strandType == 'Double')
             if dnaType == 'A-DNA':
                 dna = A_Dna()
@@ -245,6 +244,7 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
         # Set critical dna instance variables.
         dna.doubleStrand = doubleStrand
         dna.sequence     = theSequence
+        dna.model        = dnaModel
         
         self.dna = dna  # needed for done msg
         
@@ -256,7 +256,7 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
             dna.make(self.win.assy, grp, basesPerTurn, position)
             
             if self.createComboBox.currentText() == 'Strand chunks':
-                if dnaModel == 'Atom':
+                if dnaModel == 'Atomistic':
                     nodeForMT = self._makeSingleChunkStrands(grp,
                                                              theSequence,
                                                              dnaModel,
@@ -474,7 +474,7 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
         @param grp:
         @type  grp: Group
         
-        @param dnaModel: DNA model representation (i.e. "Atom" or "PAM5").
+        @param dnaModel: DNA model representation (i.e. "Atomistic" or "PAM5").
         @type  dnaModel: str
         """
         

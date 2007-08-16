@@ -72,10 +72,10 @@ class Dna:
     @ivar doubleStrand: Double (True) or single (False).
     @type doubleStrand: bool
     
-    @ivar representation: The model representation, where:
-                          - "Atom" = atomistic model
+    @ivar model: The model representation, where:
+                          - "Atomistic" = atomistic model
                           - "PAM5" = PAM-5 reduced model.
-    @type representation: str
+    @type model: str
     
     @ivar sequence: The sequence of strand A.
     @type sequence: str
@@ -95,7 +95,7 @@ class Dna:
     baseRise       = 0.0
     handedness     = None
     doubleStrand   = True
-    representation = ""
+    model          = ""
     sequence       = ""
     sequenceA      = sequence
 
@@ -223,7 +223,9 @@ class Dna:
         # Calculate the twist per base in radians.
         twistPerBase = (self.handedness * 2 * pi) / basesPerTurn
         
-        if self.doubleStrand:
+        # Create strand 1 group (for strand A) if this is a double strand 
+        # (atomistic only).
+        if (self.model == 'Atomistic') & (self.doubleStrand):
             subgroup = Group("strand 1", grp.assy, None)
             grp.addchild(subgroup)
         else:
@@ -239,7 +241,7 @@ class Dna:
         z = 0.5 * self.baseRise * (len(sequence) - 1)
         
         # Create strand A.
-        for i in range(len(sequence)):
+        for i in range(len(sequence)):  
             basefile, zoffset, thetaOffset = \
                 self._strandAinfo(basenameA[sequence[i]], i)
             def tfm(v, theta = theta + thetaOffset, z1 = z + zoffset):
@@ -250,8 +252,8 @@ class Dna:
             theta -= twistPerBase
             z     -= self.baseRise
         
-        # Create strand B.
-        if self.doubleStrand:
+        # Create strand B (atomistic only).
+        if (self.model == 'Atomistic') & (self.doubleStrand):
             subgroup = Group("strand 2", grp.assy, None)
             subgroup.open = False
             grp.addchild(subgroup)
@@ -364,9 +366,9 @@ class B_Dna(Dna):
         @param index: Index in base sequence. This is unused.
         @type  index: int
         """
-        zoffset = 0.0
-        thetaOffset = 0.0
-        basefile = self._baseFileName(basename)
+        zoffset      =  0.0
+        thetaOffset  =  0.0
+        basefile     =  self._baseFileName(basename)
         return (basefile, zoffset, thetaOffset)
 
     def _strandBinfo(self, basename, index):
@@ -380,9 +382,9 @@ class B_Dna(Dna):
         @param index: Index in base sequence. This is unused.
         @type  index: int
         """
-        zoffset = 0.0
-        thetaOffset = 210 * (pi / 180)
-        basefile = self._baseFileName(basename)
+        zoffset      =  0.0
+        thetaOffset  =  210 * (pi / 180)
+        basefile     =  self._baseFileName(basename)
         return (basefile, zoffset, thetaOffset)
 
 class B_Dna_PAM5(B_Dna):
@@ -408,7 +410,60 @@ class B_Dna_PAM5(B_Dna):
         return os.path.join(basepath, 
                             'bdna-pseudo-bases', '%s.mmp' % basename)
     
-    def _addEndCaps(self, sequence):
+    def _isEnd1(self, index):
+        """
+        Returns True if index is the first base of the sequence.
+        
+        @param index: Index in base sequence.
+        @type  index: int
+        
+        @return: True if index is zero.
+        @rtype : bool
+        """
+        if index == 0:
+            return True
+        else:
+            return False
+        
+    def _isEnd2(self, index):
+        """
+        Returns True if index is the last base of the sequence.
+        
+        @param index: Index in base sequence.
+        @type  index: int
+        
+        @return: True if index is zero.
+        @rtype : bool
+        """
+        if index ==  len(self.sequence) - 1:
+            return True
+        else:
+            return False
+    
+    def _strandAinfo(self, basename, index):
+        """
+        Returns parameters needed to add a base to strand A.
+        
+        @param basename: The basename of the mmp file (i.e. "adenine", 
+                         "cytosine", "guanine", "thymine" or "unknown").
+        @type  basename: str
+        
+        @param index: Index in base sequence.
+        @type  index: int
+        """
+        zoffset      =  0.0
+        thetaOffset  =  0.0
+        
+        if self._isEnd1(index):
+            basename += "-end1"
+        
+        if self._isEnd2(index):
+            basename += "-end2"
+            
+        basefile     =  self._baseFileName(basename)
+        return (basefile, zoffset, thetaOffset)
+    
+    def _addEndCaps_OBS(self, sequence):
         """
         Add end cap characters to I{sequence}.
         
@@ -501,14 +556,17 @@ class Z_Dna(Dna):
         @param index: Index in base sequence.
         @type  index: int
         """
-        if (index & 1) != 0:
-            suffix = 'outer'
-            zoffset = 2.045
-        else:
-            suffix = 'inner'
-            zoffset = 0.0
-        thetaOffset = 0.0
-        basefile = self._baseFileName(basename, suffix)
+        if (index & 1) != 0: 
+            # Index is odd.
+            suffix   =  'outer'
+            zoffset  =  2.045
+        else: 
+            # Index is even.
+            suffix   =  'inner'
+            zoffset  =  0.0
+        
+        thetaOffset  =  0.0
+        basefile     =  self._baseFileName(basename, suffix)
         return (basefile, zoffset, thetaOffset)
 
     def _strandBinfo(self, basename, index):
@@ -523,12 +581,13 @@ class Z_Dna(Dna):
         @type  index: int
         """
         if (index & 1) != 0:
-            suffix = 'inner'
-            zoffset = -0.055
+            suffix   =  'inner'
+            zoffset  =  -0.055
         else:
-            suffix = 'outer'
-            zoffset = -2.1
-        thetaOffset = 0.5 * pi
+            suffix   =  'outer'
+            zoffset  =  -2.1
+            
+        thetaOffset  =  0.5 * pi
         basefile = self._baseFileName(basename, suffix)
         return (basefile, zoffset, thetaOffset)
 

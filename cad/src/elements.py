@@ -75,11 +75,22 @@ class Elem: # bruce 050510 renamed this from 'elem' (not using 'Element' since t
         return
 
     def find_atomtype(self, atomtype_name): #bruce 050511
-        """Given an atomtype name or fullname (or an atomtype object itself)
+        """
+        Given an atomtype name or fullname (or an atomtype object itself)
         for this element, return the atomtype object.
-        Raise an exception (various exception types are possible)
-        if no atomtype for this element matches the name (or equals the passed object).
-        Given None, return this element's default atomtype object.
+        
+        @param atomTypeName: The atomtype name or fullname (or an atomtype 
+                             object itself) for this element. Given None, 
+                             return this element's default atomtype object.
+        @type  atomTypeName: str or L{AtomType}
+        
+        @return: The atomtype object.
+        @rtype:  L{AtomType}
+        
+        @raise: Raise an exception (various exception types are possible)
+                if no atomtype for this element matches the name (or equals
+                the passed object).
+        
         """
         if not atomtype_name: # permit None or "" for now
             return self.atomtypes[0]
@@ -87,7 +98,28 @@ class Elem: # bruce 050510 renamed this from 'elem' (not using 'Element' since t
             if atomtype.name == atomtype_name or atomtype.fullname == atomtype_name or atomtype == atomtype_name:
                 return atomtype # we're not bothering to optimize for atomtype_name being the same obj we return
         assert 0, "%r is not a valid atomtype name or object for %s" % (atomtype_name, self.name)
-
+    
+    def findAtomType(self, atomTypeName):
+        """
+        Given an atomtype name or fullname (or an atomtype object itself)
+        for this element, return the atomtype object.
+        
+        Same as L{find_atomtype()}, provided for convenience.
+        
+        @param atomTypeName: The atomtype name or fullname (or an atomtype 
+                             object itself) for this element. Given None, 
+                             return this element's default atomtype object.
+        @type  atomTypeName: str or L{AtomType}
+        
+        @return: The atomtype object.
+        @rtype:  L{AtomType}
+        
+        @raise: Raise an exception (various exception types are possible)
+                if no atomtype for this element matches the name (or equals 
+                the passed object).
+        """
+        return self.find_atomtype(atomTypeName)
+        
     def __repr__(self):
         return "<Element: " + self.symbol + "(" + self.name + ")>"
 
@@ -333,14 +365,24 @@ to put the C+ value.
                   ("Xe", "Xenon",       54, 134.429,  None),
 
                   # B-DNA pseudo atoms (see also DIRECTIONAL_BOND_ELEMENTS below)
-                  ("Ax", "DNA-Pseudo-Axis", 200, 1.0, [[4, 200, tetra4]]),
-                  ("Ss", "DNA-Pseudo-Sugar", 201, 1.0, [[3, 210, flat]]),
-                  ("Pl", "DNA-Pseudo-Phosphate", 202, 1.0, [[2, 210, tetra2]]),
-                  ("Sj", "DNA-Pseudo-Sugar-Junction", 203, 1.0, [[3, 210, flat]]),
-                  ("Ae", "DNA-Pseudo-Axis-End", 204, 1.0, [[1, 200, None, 'sp']]),
-                  ("Pe", "DNA-Pseudo-Phosphate-End", 205, 1.0, [[1, 210, None, 'sp']]),
-                  ("Sh", "DNA-Pseudo-Sugar-Hydroxyl", 206, 1.0, [[1, 210, None, 'sp']]), #bruce 070415: End->Hydroxyl per ED email
-                  ("Hp", "DNA-Pseudo-Hairpin", 207, 1.0, [[2, 210, tetra2]]),
+                  ("Ax", "PAM5-Axis", 200, 1.0, [[4, 200, tetra4]]),
+                  ("Ss", "PAM5-Sugar", 201, 1.0, [[3, 210, flat, '?'], # We always want to see the base (atom type) letter.
+                                                  [3, 210, flat, 'N'],
+                                                  [3, 210, flat, 'A'],
+                                                  [3, 210, flat, 'C'],
+                                                  [3, 210, flat, 'G'],
+                                                  [3, 210, flat, 'T']]),
+                  ("Pl", "PAM5-Phosphate", 202, 1.0, [[2, 210, tetra2]]),
+                  ("Sj", "PAM5-Sugar-Junction", 203, 1.0, [[3, 210, flat, '?'],
+                                                           [3, 210, flat, 'N'],
+                                                           [3, 210, flat, 'A'],
+                                                           [3, 210, flat, 'C'],
+                                                           [3, 210, flat, 'G'],
+                                                           [3, 210, flat, 'T']]),
+                  ("Ae", "PAM5-Axis-End", 204, 1.0, [[1, 200, None, 'sp']]),
+                  ("Pe", "PAM5-Phosphate-End", 205, 1.0, [[1, 210, None, 'sp']]),
+                  ("Sh", "PAM5-Sugar-Hydroxyl", 206, 1.0, [[1, 210, None, 'sp']]), #bruce 070415: End->Hydroxyl per ED email
+                  ("Hp", "PAM5-Hairpin", 207, 1.0, [[2, 210, tetra2]]),
                 ]
     _periodicTable = {}
     _eltName2Num = {}

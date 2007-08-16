@@ -517,7 +517,9 @@ def make_or_remove_crossover(twoPls, make = True, cmdname = None):
     # transmute base sugars to Sj or Ss as appropriate
     want = make and Element_Sj or Element_Ss
     for obj in (a,b,c,d):
-        obj.atom.Transmute(want)
+        baseLetter = obj.atom.getAtomTypeName()
+        atomType = want.findAtomType(baseLetter)
+        obj.atom.Transmute(want, atomtype = atomType)
         # Note: we do this after the bond making/breaking so it doesn't add singlets which mess us up.
 
     # move Pl atoms into better positions

@@ -674,7 +674,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         return
         
     def set_atomtype(self, atomtype, always_remake_bondpoints = False): #bruce 070608 renamed option, was always_remake_singlets
-        """[public method; not super-fast]
+        """
+        [public method; not super-fast]
         Set this atom's atomtype as requested, and do all necessary invalidations or updates,
         including remaking our singlets as appropriate, and [###@@@ NIM] invalidating or updating bond valences.
            It's ok to pass None (warning: this sets default atomtype even if current one is different!),
@@ -692,6 +693,30 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             self.direct_Transmute( atomtype.element, atomtype ) ###@@@ not all its needed invals/updates are implemented yet
             # note: self.atomtype = atomtype is done in direct_Transmute when it calls mvElement
         return
+    
+    def setAtomType(self, atomtype, always_remake_bondpoints = False):
+        """
+        Same as self.set_atomtype(), provided for convenience.
+        """
+        self.set_atomtype(atomtype, always_remake_bondpoints)
+        
+    def getAtomType(self):
+        """
+        Returns the atomtype.
+        
+        @return: The atomtype.
+        @rtype:  L{AtomType}
+        """
+        return self.atomtype
+    
+    def getAtomTypeName(self):
+        """
+        Returns the name of this atom's atomtype.
+        
+        @return: The atomtype name.
+        @rtype:  str
+        """
+        return self.atomtype.name
 
     def posn(self):
         """Return the absolute position of the atom in space.
