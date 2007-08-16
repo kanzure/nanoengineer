@@ -139,7 +139,8 @@ class PM_ElementChooser( PM_GroupBox ):
                                title        = "",
                                buttonList   = ELEMENTS_BUTTON_LIST,
                                checkedId    = self.element.eltnum,
-                               setAsDefault = True )
+                               setAsDefault = True
+                               )
         
         self.connect( self._elementsButtonGroup.buttonGroup, 
                       SIGNAL("buttonClicked(int)"), 
@@ -152,11 +153,10 @@ class PM_ElementChooser( PM_GroupBox ):
         @param inPmGroupBox: The parent group box to contain the atom type buttons.
         @type  inPmGroupBox: PM_GroupBox
         """
-        
         self._atomTypesButtonGroup = \
             PM_ToolButtonGrid( inPmGroupBox, 
-                               title      = "Atomic hybrids:",
                                buttonList = ATOM_TYPES_BUTTON_LIST,
+                               label      = "Atomic hybrids:",
                                checkedId  = 0,
                                setAsDefault = True )
         

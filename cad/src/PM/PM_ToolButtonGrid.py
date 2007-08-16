@@ -51,7 +51,7 @@ class PM_ToolButtonGrid( PM_WidgetGrid ):
                  alignment    = None, 
                  label        = '',
                  labelColumn = 0,
-                 spanWidth   = False,
+                 spanWidth   = True,
                  checkedId    = -1, 
                  setAsDefault = False,   
                  isAutoRaise  = False

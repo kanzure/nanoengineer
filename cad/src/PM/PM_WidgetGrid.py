@@ -43,7 +43,7 @@ class PM_WidgetGrid( PM_GroupBox ):
                  alignment = None,
                  label = '',
                  labelColumn = 0,
-                 spanWidth   = False                 
+                 spanWidth   = True                 
                  ):
         
         
