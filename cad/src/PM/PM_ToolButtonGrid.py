@@ -54,7 +54,8 @@ class PM_ToolButtonGrid( PM_WidgetGrid ):
                  spanWidth   = True,
                  checkedId    = -1, 
                  setAsDefault = False,   
-                 isAutoRaise  = False
+                 isAutoRaise  = False,
+                 isCheckable  = True
                  ):
         """
         Appends a PM_ToolButtonGrid widget to the bottom of I{parentWidget}, 
@@ -110,7 +111,8 @@ class PM_ToolButtonGrid( PM_WidgetGrid ):
         self.buttonGroup = QButtonGroup()
         self.buttonGroup.setExclusive(True)
         
-        self.isAutoRaise = isAutoRaise              
+        self.isAutoRaise = isAutoRaise    
+        self.isCheckable = isCheckable
         self.buttonsById   = {}
         self.buttonsByText = {}
         
@@ -154,6 +156,7 @@ class PM_ToolButtonGrid( PM_WidgetGrid ):
             button.setChecked(True)
         button.setFont(buttonFont)
         button.setAutoRaise(self.isAutoRaise)
+        button.setCheckable(self.isCheckable)
         self.buttonGroup.addButton(button, buttonId)
         
         self.buttonsById[buttonId]    = button

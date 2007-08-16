@@ -33,7 +33,8 @@ class PM_ToolButtonRow( PM_ToolButtonGrid ):
                  spanWidth   = False,
                  checkedId    = -1, 
                  setAsDefault = False,
-                 isAutoRaise  = True
+                 isAutoRaise  = True,
+                 isCheckable  = True
                  ):
         """
         Appends a PM_ToolButtonRow widget to the bottom of I{parentWidget}, 
@@ -97,7 +98,8 @@ class PM_ToolButtonRow( PM_ToolButtonGrid ):
                                    spanWidth,
                                    checkedId,
                                    setAsDefault,
-                                   isAutoRaise)
+                                   isAutoRaise,
+                                   isCheckable)
         
         #For a toolbutton row, we don't (usually) need  a borders . So set
         #the style sheet accordingly.
