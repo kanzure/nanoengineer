@@ -200,7 +200,7 @@ class PM_GroupBox( QGroupBox ):
         else: # Parent is a PM_Dialog, so add a title button.
             self.titleButton = self._getTitleButton(self, title)
             self._vBoxLayout.insertWidget(0, self.titleButton)
-            if connectTitleButtonSlot:
+            if connectTitleButton:
                 self.connect( self.titleButton, 
                               SIGNAL("clicked()"),
                               self.toggleExpandCollapse)
