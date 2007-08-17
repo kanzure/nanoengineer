@@ -57,6 +57,9 @@ class PM_LabelGrid( PM_WidgetGrid ):
         
         self.isBold = isBold
         
+        #Empty list that will contain all the labels in this widget. 
+        self.labels = []
+        
         PM_WidgetGrid.__init__(self, 
                                parentWidget , 
                                title, 
@@ -81,7 +84,8 @@ class PM_LabelGrid( PM_WidgetGrid ):
         label = self._createLabel(labelParams)                                   
         labelFont = self.getLabelFont(self.isBold)
         label.setFont(labelFont)
-        
+        label.setUpdatesEnabled(True)
+        self.labels.append(label)        
         return label
    
     
@@ -93,4 +97,18 @@ class PM_LabelGrid( PM_WidgetGrid ):
         labelFont = QFont(self.font())
         labelFont.setBold(False)
         return labelFont
- 
+    
+    def setBold(self, isBold = True):
+        """
+        Sets or unsets font of all labels in this widget to bold
+        @param isBold: If true, sets the font of all labels in the widget to 
+                       bold. 
+        @type  isBold: bool
+        @see:  B{MovePropertyManager.updateRotationDeltaLabels} for an example 
+               on how this function is used. 
+        """
+        
+        for label in self.labels:          
+            font = QFont(label.font())
+            font.setBold(isBold)
+            label.setFont(font)
