@@ -58,7 +58,7 @@ When cleaning up PropMgrBaseClass etc, note some other things Mark wants to work
 from test_command_PMs import ExampleCommand1_PM
 from test_command_PMs import ExampleCommand2_PM
 from test_command_PMs import ExampleCommand2E_PM
-from test_command_PMs import PMWidgetsTest_PM
+from test_command_PMs import PMWidgetsTest_PM ### OBSOLETE? if so, remove import and (from other file) original class.
 
 from PM.PM_WidgetsDemoPropertyManager import PM_WidgetsDemoPropertyManager
 
@@ -76,6 +76,8 @@ class ExampleCommand(selectAtomsMode):
     modename, default_mode_status_text, and PM_class.
     Some of them also need to override mode methods, such as Draw.
     """
+    return_to_prior_command = False
+    
     def init_gui(self):
         print "init_gui in", self ###
         win = self.win
@@ -94,6 +96,48 @@ class ExampleCommand(selectAtomsMode):
     
     pass
 
+class Example_TemporaryCommand_useParentPM(ExampleCommand):
+    """
+    A kind of example command which suspends the prior command
+    and returns to it when done, but only works for commands
+    with no PM of their own, which want the parent PM to remain
+    visible (and potentially useable) while they run.
+       Note that in current code, the parent Confirmation Corner
+    remains visible as well. Whether it (and the PM done/cancel
+    buttons) work properly during this time is unknown. ###TEST/REVIEW
+    """
+    # works like panlikeMode I guess -- not yet correct when used together with those!
+    # Need to merge this with panlikeMode, use a class constant instead of modename check,
+    # know when a toggle button is present, etc. ###TODO
+    
+    return_to_prior_command = True # class constant ##### bruce 070813; experiment; API will change a lot
+        # This needs to affect the way we leave the prior command when entering this one --
+        # which means, it needs to affect code that is not inside this command itself.
+    prior_command = None # dflt val of ivar
+    def set_prior_command(self, command):
+        # the ivar we set here has the same purpose as glpane.prevMode in panlikeMode --
+        # but storing it in self is far less bug prone, i hope! Do this in panlikeMode too. ###TODO
+        self.prior_command = command
+        return
+    def Done(self, new_mode = None, **new_mode_options):
+        ### REVIEW whether it's best to override this vs some other mode api method
+        ### also how does it interact with new_mode arg? probably callers of that need to be revised to say what they really mean.
+
+        ###TODO -- revise this per panlikeMode
+        if new_mode is None:
+            print "leaving subcommand %r normally" % self
+            new_mode = self.prior_command
+            if new_mode:
+                new_mode_options['resuming'] = True # passes resuming = True
+                    # note: this is to not call Enter on resumed mode, just init_gui & updaters
+                    ###BUG: if this still calls init_gui that might be called twice -- likely bug.
+                    # Same issue for extrude. ADD CODE to extrude to detect misuse of connect/discon -- a signal overlap counter!
+        else:
+            print "leaving subcommand %r abnormally, going to %r" % (self, new_mode)
+        ExampleCommand.Done(self, new_mode, **new_mode_options)
+        return
+    pass
+    
 class ExampleCommand1(ExampleCommand):
     """
     Example command, which uses behavior similar to selectAtomsMode. 
@@ -102,7 +146,7 @@ class ExampleCommand1(ExampleCommand):
     modename = 'ExampleCommand1-modename' # internal #e fix init code in basicMode to get it from classname?
     default_mode_status_text = "ExampleCommand1"
     #e define msg_modename, or fix init code in basicMode to get it from default_mode_status_text or classname or...
-    # note: that init code won't even run now, since superclas defs it i think -- actually, not sure abt that, probably it doesn't
+    # note: that init code won't even run now, since superclass defs it i think -- actually, not sure abt that, probably it doesn't
     PM_class = ExampleCommand1_PM
     
     # note: ok_btn_clicked, etc, must be defined in our PM class (elsewhere),
@@ -110,13 +154,15 @@ class ExampleCommand1(ExampleCommand):
 
     pass
 
-class ExampleCommand2(ExampleCommand):
+class ExampleCommand2( Example_TemporaryCommand_useParentPM): # WRONG: this has own PM, so it'll mess up parent one.
     """
-    Same, but use GBC (in our PM).
+    Like ExampleCommand1, but use GBC (GeneratorBaseClass).
+    (This difference shows up only in our PM class.)
     """
     modename = 'ExampleCommand2-modename'
     default_mode_status_text = "ExampleCommand2"
     PM_class = ExampleCommand2_PM
+    
     pass
 
 # ==
@@ -143,8 +189,8 @@ class TextState(InstanceMacro):#e rename?
 
 class ExampleCommand2E(ExampleCommand2, object):
     """
-    Add things not needed in a minimal example, to try them out
-    (uses same PM as ExampleCommand2).
+    Add things not needed in a minimal example, to try them out.
+    (Uses a PM which is the same as ExampleCommand2 except for title.)
     """
     # Note: object superclass is only needed to permit super(ExampleCommand2E, self) to work.
     # object superclass should not come first, or it overrides __new__
@@ -194,6 +240,8 @@ class ExampleCommand2E(ExampleCommand2, object):
     
     pass # end of class ExampleCommand2E
 
+# ==
+
 class PM_WidgetDemo(ExampleCommand):
     """
     Used to demo all the PM widgets.
@@ -227,7 +275,17 @@ def construct_cmdrun( cmd_class, glpane):
 def start_cmdrun( cmdrun):
     ## ideally:  cmd.Start() #######
     glpane = cmdrun.glpane
-    glpane.mode.Done(new_mode = cmdrun) # is this what takes the old mode's PM away?
+    if cmdrun.return_to_prior_command:
+        # 070813 new feature, experimental, implem will change; part of Command Sequencer
+        ### probably WRONG; need to analyze what happens in Done to decide how much to do here, and how to protect from exceptions
+        cmdrun.set_prior_command(glpane.mode) ###IMPLEM
+##        glpane.mode.restore_gui() #k guess; should be suspend_gui ####
+##        glpane.mode = cmdrun ### more? call some setter? call update_after_new_mode? ###
+##        cmdrun.init_gui()
+        glpane.mode.Done(new_mode = cmdrun, suspend_old_mode = True)
+        ## glpane.gl_update() # REVIEW: not sure if needed; should be removed if redundant (might be excessive someday)
+    else:
+        glpane.mode.Done(new_mode = cmdrun) # is this what takes the old mode's PM away?
     print "done with start_cmdrun for", cmdrun
         # returns as soon as user is in it, doesn't wait for it to "finish" -- so run is not a good name -- use Enter??
         # problem: Enter is only meant to be called internally by glue code in modeMixin.
@@ -268,19 +326,19 @@ for classname in ["ExampleCommand1", "ExampleCommand2", "ExampleCommand2E", "PM_
     cmdname = classname # for now
     register_debug_menu_command( cmdname, (lambda widget, classname = classname: enter_example_command(widget, classname)) )
 
-def register_all_entermode_commands(glpane):
-    for name in glpane.modetab.keys():
-        def func(glp, name = name):
-            glp.mode.Done(new_mode = name)
-            print "did Enter %s" % name
-            return
-        register_debug_menu_command( "Enter %s" % name, func )
-    return
-
-if 0:
-    import env
-    win = env.mainwindow()
-    glpane = win.glpane
-    register_all_entermode_commands(glpane)
+##def register_all_entermode_commands(glpane):
+##    for name in glpane.modetab.keys():
+##        def func(glp, name = name):
+##            glp.mode.Done(new_mode = name)
+##            print "did Enter %s" % name
+##            return
+##        register_debug_menu_command( "Enter %s" % name, func )
+##    return
+##
+##if 0:
+##    import env
+##    win = env.mainwindow()
+##    glpane = win.glpane
+##    register_all_entermode_commands(glpane)
     
 # end

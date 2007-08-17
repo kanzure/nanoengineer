@@ -122,6 +122,7 @@ class ExampleCommand1_PM( PM_Dialog_with_example_widgets): # these supers are ne
     # bruce added these to make it work w/o GBC.
     # (It doesn't need restore_defaults_btn_clicked because PropMgrBaseClass defines that itself.
     #  So does GBC, but to a noop method. So GBC better be inherited *after* PropMgrBaseClass!)
+    
     def ok_btn_clicked(self):
         print "ok_btn_clicked, nim except for Done in", self
 ##        ## probably wrong: self.parent.Done() ###k both parent and Done
@@ -129,23 +130,28 @@ class ExampleCommand1_PM( PM_Dialog_with_example_widgets): # these supers are ne
 ##            # parent is a *method*?? does it come from Qt?? (QDialog?) but it's *also* a propmgr attr, or propmgr widget attr...
         self.commandrun.Done() ###k both commandrun and Done
         pass
-    def abort_btn_clicked(self):
-        print "abort_btn_clicked, nim except for Done in", self
-        self.commandrun.Done() ###k both commandrun and Done
+    
+    def cancel_btn_clicked(self):
+        #bruce 070814 bugfix -- renamed from abort_btn_clicked; new method name is needed by PM_Dialog.cancelButtonClicked
+        print "cancel_btn_clicked, nim except for Cancel in", self
+        self.commandrun.Cancel()
         pass
+        
     def preview_btn_clicked(self):
         print "preview_btn_clicked", self
         pass
-    def enter_WhatsThisMode(self):
-        print "enter_WhatsThisMode", self
-        pass
-    # should get these from SponsorableMixin, or (probably better) teach PropMgrBaseClass to get them from there:
-    def open_sponsor_homepage(self):
-        print "open_sponsor_homepage", self
-        pass
-    def setSponsor(self):
-        print "setSponsor", self
-        pass
+    
+##    def enter_WhatsThisMode(self):
+##        print "enter_WhatsThisMode", self
+##        pass
+##    # should get these from SponsorableMixin, or (probably better) teach PropMgrBaseClass to get them from there: --
+##    ### REVIEW maybe these are no longer needed now that PM_Dialog has SponsorableMixin
+##    def open_sponsor_homepage(self):
+##        print "open_sponsor_homepage", self
+##        pass
+##    def setSponsor(self):
+##        print "setSponsor", self
+##        pass
     
     def __init__(self, win, commandrun = None):
         print "creating", self ####
@@ -207,9 +213,10 @@ class ExampleCommand2_PM( PM_Dialog_with_example_widgets, GeneratorBaseClass):
         GeneratorBaseClass.ok_btn_clicked(self)
         self.commandrun.Done() ###k both commandrun and Done -- and, kluge, instead GBC should call a done method in self.commandrun
         pass
-    def abort_btn_clicked(self):
-        print "abort_btn_clicked, doing super then Done (kluge)", self
-        GeneratorBaseClass.abort_btn_clicked(self)
+    def cancel_btn_clicked(self):
+        #bruce 070814 bugfix -- renamed from abort_btn_clicked; new method name is needed by PM_Dialog.cancelButtonClicked
+        print "cancel_btn_clicked, doing super then Done (kluge)", self
+        GeneratorBaseClass.cancel_btn_clicked(self)
         self.commandrun.Done()
         pass
 
