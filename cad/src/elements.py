@@ -366,19 +366,9 @@ to put the C+ value.
 
                   # B-DNA pseudo atoms (see also DIRECTIONAL_BOND_ELEMENTS below)
                   ("Ax", "PAM5-Axis", 200, 1.0, [[4, 200, tetra4]]),
-                  ("Ss", "PAM5-Sugar", 201, 1.0, [[3, 210, flat, '?'], # We always want to see the base (atom type) letter.
-                                                  [3, 210, flat, 'N'],
-                                                  [3, 210, flat, 'A'],
-                                                  [3, 210, flat, 'C'],
-                                                  [3, 210, flat, 'G'],
-                                                  [3, 210, flat, 'T']]),
+                  ("Ss", "PAM5-Sugar", 201, 1.0, [[3, 210, flat]]),
                   ("Pl", "PAM5-Phosphate", 202, 1.0, [[2, 210, tetra2]]),
-                  ("Sj", "PAM5-Sugar-Junction", 203, 1.0, [[3, 210, flat, '?'],
-                                                           [3, 210, flat, 'N'],
-                                                           [3, 210, flat, 'A'],
-                                                           [3, 210, flat, 'C'],
-                                                           [3, 210, flat, 'G'],
-                                                           [3, 210, flat, 'T']]),
+                  ("Sj", "PAM5-Sugar-Junction", 203, 1.0, [[3, 210, flat]]),
                   ("Ae", "PAM5-Axis-End", 204, 1.0, [[1, 200, None, 'sp']]),
                   ("Pe", "PAM5-Phosphate-End", 205, 1.0, [[1, 210, None, 'sp']]),
                   ("Sh", "PAM5-Sugar-Hydroxyl", 206, 1.0, [[1, 210, None, 'sp']]), #bruce 070415: End->Hydroxyl per ED email

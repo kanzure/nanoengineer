@@ -71,10 +71,6 @@ class AtomType:
             spX = 2
         elif name.startswith("sp") and (name == "sp" or not name[2].isdigit()):
             spX = 1
-        elif elem.eltnum == 201: # PAM-5 sugar (Ss).
-            spX = 3
-        elif elem.eltnum == 203: # PAM-5 sugar-junction (Sj).
-            spX = 3
         else:
             print "warning: bug: atomtype name in %r does not start with sp, sp2, or sp3; assuming sp3 in bonds code" % self.fullname
             spX = 3
