@@ -570,7 +570,7 @@ class basicMode(anyMode):
 
     # entering this mode
     
-    def _enterMode(self):
+    def _enterMode(self, resuming = False): #bruce 070813 added resuming option, 
         
         """Private method (called only by our glpane) -- immediately
            enter this mode, i.e. prepare it for use, not worrying at
@@ -585,17 +585,25 @@ class basicMode(anyMode):
            
            [by bruce 040922; see head comment of this file for how
            this relates to previous code]
-           
+
+           @param resuming: whether we're resuming this mode (after a completed
+                            subcommand); otherwise we're entering it as if anew.
+                            This is for use by Subcommands resuming their parent
+                            commands.
+           @type resuming: bool
         """
-        refused = self.refuseEnter(warn = 1)
+        if not resuming:
+            refused = self.refuseEnter(warn = 1)
+            if not refused:
+                # do mode-specific entry initialization;
+                # this method is still allowed to refuse, as well
+                refused = self.Enter() 
+                if refused:
+                    print "fyi: late refusal by %r, better if it had been in refuseEnter" % self # (but sometimes it might be necessary)
+        else:
+            refused = False
         if not refused:
-            # do mode-specific entry initialization;
-            # this method is still allowed to refuse, as well
-            refused = self.Enter() 
-            if refused:
-                print "fyi: late refusal by %r, better if it had been in refuseEnter" % self # (but sometimes it might be necessary)
-        if not refused:
-            self.init_gui()
+            self.init_gui() ###FIX: perhaps use resume_gui instead, if resuming -- or pass that option.
             self.update_gui() # see also UpdateDashboard
             self.update_mode_status_text()
         # caller (our glpane) will set its self.mode to point to us,
@@ -742,7 +750,7 @@ class basicMode(anyMode):
 
     # methods for changing to some other mode
     
-    def userSetMode(self, modename):        
+    def userSetMode(self, modename, **options):        
         """User has asked to change to the given modename; we might or
            might not permit this, depending on our own state.  If we
            permit it, do it; if not, show an appropriate error
@@ -762,7 +770,8 @@ class basicMode(anyMode):
                 # now change modes in the normal way
         # bruce 041007 removing code for warning about changes and requiring
         # explicit Done or Cancel if self.haveNontrivialState()
-        self.Done( new_mode = modename)
+        self.Done( modename, **options)
+        return
 
     # methods for leaving this mode (from a dashboard tool or an
     # internal request).
@@ -806,7 +815,7 @@ class basicMode(anyMode):
     #
     # -- bruce 040923
 
-    def Done(self, new_mode = None):
+    def Done(self, new_mode = None, suspend_old_mode = False, **new_mode_options):
         """Done tool in dashboard; also called internally (in
            userSetMode and elsewhere) if user asks to start a new mode
            and current mode decides that's ok, without needing an
@@ -815,12 +824,14 @@ class basicMode(anyMode):
            haveNontrivialState and/or StateDone and/or StateCancel as
            appropriate.
         """
-        if self.haveNontrivialState(): # use this (tho it should be just an optim), to make sure it's not giving false negatives
-            refused = self.StateDone()
-            if refused:
-                # subclass says not to honor the Done request (and it already emitted an appropriate message)
-                return
-        self._exitMode( new_mode = new_mode)
+        if not suspend_old_mode:
+            if self.haveNontrivialState(): # use this (tho it should be just an optim), to make sure it's not giving false negatives
+                refused = self.StateDone()
+                if refused:
+                    # subclass says not to honor the Done request (and it already emitted an appropriate message)
+                    return
+        new_mode_options['suspend_old_mode'] = suspend_old_mode
+        self._exitMode( new_mode, **new_mode_options)
         return
 
     def StateDone(self):
@@ -835,19 +846,21 @@ class basicMode(anyMode):
         assert 0, "bug: mode subclass %r needs custom StateDone method, since its haveNontrivialState() apparently returned True" % \
                self.__class__.__name__
     
-    def Cancel(self, new_mode = None):
+    def Cancel(self, new_mode = None, **new_mode_options):
         """Cancel tool in dashboard; might also be called internally
            (but is not as of 040922, I think).  Change [bruce 040922]:
            Should not be overridden in subclasses; instead they should
            override haveNontrivialState and/or StateDone and/or
            StateCancel as appropriate.
         """
+        ###REVIEW: any need to support suspend_old_mode here? I doubt it...
+        # but maybe complain if it's passed. [bruce 070814]
         if self.haveNontrivialState():
             refused = self.StateCancel()
             if refused:
                 # subclass says not to honor the Cancel request (and it already emitted an appropriate message)
                 return
-        self._exitMode( new_mode = new_mode)
+        self._exitMode( new_mode, **new_mode_options)
 
     def StateCancel(self):
         """Mode objects (e.g. depositMode) which might have
@@ -883,7 +896,7 @@ class basicMode(anyMode):
         """
         return False
     
-    def _exitMode(self, new_mode = None):
+    def _exitMode(self, new_mode = None, suspend_old_mode = False, **new_mode_options):
         """Internal method -- immediately leave this mode, discarding
            any internal state it might have without checking whether
            that's ok (if that check might be needed, we assume it
@@ -893,10 +906,19 @@ class basicMode(anyMode):
            its default mode.  Unlikely to be overridden by subclasses.
            [by bruce 040922]
         """
-        self._cleanup()
+        if not suspend_old_mode:
+            self._cleanup()
         if new_mode is None:
             new_mode = '$DEFAULT_MODE'
-        self.o.start_using_mode(new_mode)
+        self.o.start_using_mode(new_mode, **new_mode_options)
+            ## REVIEW: is suspend_old_mode needed in start_using_mode?
+            # Tentative conclusion: its only effect would be how to fall back
+            # if using the new mode fails -- it would make us fall back to
+            # old mode rather than to default mode. Ideally we'd use a
+            # continuation-like style, wrapping new_mode with a fallback
+            # mode, and pass that as new_mode. So it's not worth fixing this
+            # for now -- save it for when we have a real command-sequencer.
+            # [bruce 070814 comment]
         return
 
     def Abandon(self):
@@ -924,7 +946,7 @@ class basicMode(anyMode):
         # someday call them separately, and also just for code
         # clarity. -- bruce 040923)
         self.o.stop_sending_us_events( self)
-        # stop receiving events from our glpane
+            # stop receiving events from our glpane (i.e. use nullMode)
         self.restore_gui()
         self.w.setFocus() #bruce 041010 bugfix (needed in two places)
             # (I think that was needed to prevent key events from being sent to
@@ -1931,7 +1953,7 @@ class modeMixin:
     def use_nullmode(self):
         self.mode = self.nullmode
         
-    def start_using_mode(self, mode):
+    def start_using_mode(self, mode, resuming = False): #bruce 070813 added resuming option
         """Semi-internal method (meant to be called only from self
            (typically a GLPane) or from one of our mode objects):
            Start using the given mode (name or object), ignoring any prior mode.
@@ -1939,7 +1961,11 @@ class modeMixin:
            (e.g. if it requires certain kinds of selection which are not present),
            it should emit an appropriate message and return True; we'll then
            start using our default mode, or if that fails, some always-safe mode.
+
+           @param resuming: see _enterMode method.
+                  ###TODO: describe it here, and fix rest of docstring re this.
         """
+        # note: resuming option often comes from **new_mode_options in callers
         #bruce 050317: do update_parts to insulate new mode from prior one's bugs
         try:
             self.assy.update_parts()
@@ -1962,7 +1988,8 @@ class modeMixin:
         #   it will accept, and the switch to it, so the prior mode
         #   needn't worry about its state if the new mode won't even
         #   accept.)
-        self.use_nullmode()
+        if not resuming:
+            self.use_nullmode()
             # temporary (prevent bug-risk of reentrant event processing by
             # current mode)
 
@@ -1976,29 +2003,31 @@ class modeMixin:
         for mode in modes:
             # mode can be mode name (perhaps symbolic) or mode object
             try:
+                entering_msg = "entering/resuming some mode" # only used in case of unlikely bugs
                 modename = '???' # in case of exception before (or when) we set it from mode object
                 mode = self._find_mode(mode) # figure out which mode object to use
                     # [#k can this ever fail?? should it know default mode?##]
                 modename = mode.modename # store this now, so we can handle exceptions later or one from this line
                 if id(mode) in map(id, mode_objects):
                     continue
-                self.__Entering_Mode_message( mode)
+                entering_msg = self.__Entering_Mode_message( mode, resuming = resuming) # value saved only for error messages
                     #bruce 050515: moved this "Entering Mode" message to before _enterMode
                     # so it comes before any history messages that emits. If the new mode
                     # refuses (but has no exception), assume it will emit a message about that.
                     #bruce 050106: added this status/history message about new mode...
                     # I'm not sure this is the best place to put it, but it's the best
                     # existing single place I could find.
-                refused = mode._enterMode()
+                refused = mode._enterMode(resuming = resuming)
                     # let the mode get ready for use; it can assume self.mode
                     # will be set to it, but not that it already has been.  It
                     # should emit a message and return True if it wants to
                     # refuse becoming the new mode.
             except:
-                msg = "bug: exception entering mode %r" % (modename,)
+                msg = "bug: exception %s" % (entering_msg,)
                 print_compact_traceback("%s: " % msg)
                 from HistoryWidget import redmsg
                 env.history.message( redmsg( "internal error entering mode, trying default or safe mode" ))
+                    ###TODO: modify message when resuming is true
                     # Emit this whether or not it's too_early!
                     # Assuming not too early, no need to name mode since prior histmsg did so.
                 refused = 1
@@ -2014,8 +2043,11 @@ class modeMixin:
         self.update_after_new_mode()
         return # from start_using_mode
     
-    def __Entering_Mode_message(self, mode): #bruce 050911 split this out of its sole caller
-        msg = "Entering %s" % mode.default_mode_status_text
+    def __Entering_Mode_message(self, mode, resuming = False): #bruce 050911 split this out of its sole caller
+        if resuming:
+            msg = "Resuming %s" % mode.default_mode_status_text
+        else:
+            msg = "Entering %s" % mode.default_mode_status_text
             # semi-kluge, since that text starts with "Mode: ..." by convention;
             # also, not clear if we should use get_mode_status_text instead.
         try: # bruce 050112
@@ -2027,7 +2059,7 @@ class modeMixin:
         if not too_early:
             from HistoryWidget import greenmsg
             env.history.message( greenmsg( msg), norepeat_id = msg )
-        return
+        return msg
     
     def _find_mode(self, modename_or_obj = None): #bruce 050911 and 060403 revised this
         """Internal method: look up the specified internal mode name (e.g. 'MODIFY' for Move mode)
@@ -2069,10 +2101,9 @@ class modeMixin:
 
     # user requests a specific new mode.
 
-    def setMode(self, modename): # in class modeMixin
-        """[bruce comment 040922; functionality majorly revised then
-        too, but conditions when it's called not changed much or at
-        all] This is called (e.g. from methods in MWsemantics.py) when
+    def setMode(self, modename, **options): # in class modeMixin
+        """
+        This is called (e.g. from methods in MWsemantics.py) when
         the user requests a new mode using a button (or perhaps a menu
         item).  It can also be called by specific modes which want to
         change to another mode (true before, not changed now).  Since
@@ -2081,17 +2112,23 @@ class modeMixin:
         just let the current mode handle this, only doing it here if
         the current mode's attempt to handle it has a bug.
         
-        #e Probably the tool icons ought to visually indicate the
-        #current mode, but this doesn't yet seem to be attempted.
+        TODO: Probably the tool icons ought to visually indicate the
+        current mode, but this doesn't yet seem to be attempted.
         When it is, it'll be done in update_after_new_mode().
         
         The modename argument should be the modename as a string,
-        e.g. 'SELECT', 'DEPOSIT', 'COOKIE', or symbolic name, e.g. '$DEFAULT_MODE'.
+        e.g. 'SELECT', 'DEPOSIT', 'COOKIE', or symbolic name,
+        e.g. '$DEFAULT_MODE'.
         """
         # don't try to optimize for already being in the same mode --
         # let individual modes do that if (and how) they wish
         try:
-            self.mode.userSetMode(modename)
+            self.mode.userSetMode(modename, **options)
+
+            # REVIEW: the following update_after_new_mode looks redundant with
+            # the one at the end of start_using_mode, if that one has always
+            # run at this point (which I think, but didn't prove). [bruce 070813 comment]
+            
             # let current mode decide whether/how to do this
             self.update_after_new_mode()
             # might not be needed if mode didn't change -- that's ok
@@ -2118,6 +2155,8 @@ class modeMixin:
                     # (I think that was needed to prevent key events from being sent to
                     #  no-longer-shown mode dashboards. [bruce 041220])
                 self.mode.restore_gui()
+                    ###REVIEW: restore_gui is probably wrong when options caused
+                    # us merely to suspend, not exit, the old mode. [bruce 070814 comment]
             except:
                 print "(...even the old mode's restore_gui method, run by itself, had a bug...)"
             self.start_using_mode( '$DEFAULT_MODE' )

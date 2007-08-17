@@ -76,62 +76,90 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
         self.uprefs.changeZoomBehaviorPreference()  # self.uprefs is a UserPrefs object ninad061003
                 
     def zoomTool(self, val):
-        """Zoom Tool, allowing the user to specify a rectangular area 
+        """
+        Zoom Tool, allowing the user to specify a rectangular area 
         by holding down the left button and dragging the mouse to zoom 
         into a specific area of the model.
         val = True when Zoom tool button was toggled on, False when it
-            it was toggled off.
+        was toggled off.
         """
-
-        # This fixes bug 1081.  mark 060111.
-        if not val: # The Zoom button was toggled off.  Return to 'prevMode'.
-            self.glpane.mode.Done()
-            return
-        
-        self.save_current_mode_attrs()
-        self.glpane.setMode('ZOOM')
-        
-        # This should be placed in zoomMode.Enter or init_gui, but it always appears 
-        # before the green "Entering Mode: Zoom" msg.  So I put it here.  Mark 050130
-        env.history.message("You may hit the Esc key to exit Zoom Tool.")
+        self._zoomPanRotateTool(val, 'ZOOM', "Zoom Tool")
 
     def panTool(self, val):
-        """Pan Tool allows X-Y panning using the left mouse button.
-        val = True when Pan tool button was toggled on, False when it
-            it was toggled off.
         """
-        
-        # This fixes bug 1081.  mark 060111.
-        if not val: # The Pan button was toggled off.  Return to 'prevMode'.
-            self.glpane.mode.Done()
-            return
-            
-        self.save_current_mode_attrs()
-        self.glpane.setMode('PAN')
-        env.history.message("You may hit the Esc key to exit Pan Tool.")
+        Pan Tool allows X-Y panning using the left mouse button.
+        val = True when Pan tool button was toggled on, False when it
+        was toggled off.
+        """
+        self._zoomPanRotateTool(val, 'PAN', "Pan Tool")
 
     def rotateTool(self, val):
-        """Rotate Tool allows free rotation using the left mouse button.
-        val = True when Rotate tool button was toggled on, False when it
-            it was toggled off.
         """
+        Rotate Tool allows free rotation using the left mouse button.
+        val = True when Rotate tool button was toggled on, False when it
+        was toggled off.
+        """
+        self._zoomPanRotateTool(val, 'ROTATE', "Rotate Tool")
+
+    def _zoomPanRotateTool(self, val, modename, user_mode_name):
+        """
+        Common code for Zoom, Pan, and Rotate tools.
+        """
+        mode = self.glpane.mode
+
+        # Note: some logic in here was revised by bruce 070814, especially
+        # for the case when entering one of these temporary modes needs to
+        # autoexit another one. This has allowed these tools to work properly
+        # during Extrude mode (and presumably other modes with internal state).
+        # But all this logic should be replaced by something more principled
+        # and general, using the Command Sequencer, when we have that.
         
         # This fixes bug 1081.  mark 060111.
-        if not val: # The Rotate button was toggled off.  Return to 'prevMode'.
-            self.glpane.mode.Done()
-            return
+        if not val:
+            # The Zoom/Pan/Rotate button was toggled off. We are presumably
+            # in the associated temporary mode, and the user wants us to
+            # exit it. Do so and (according to mode.Done) return to 'prevMode'.
+            if mode.modename not in ['ZOOM', 'PAN', 'ROTATE']:
+                print "bug: _zoomPanRotateTool sees unexpected current mode: %r" % (mode,)
+                # Note: This can happen on nullMode after certain other exceptions occur.
+                # Don't run Done in this case.
+            else:
+                mode.Done()
+                ### REVIEW: Can this ever happen if we just now entered that mode,
+                # due to a programmatic change to that button, e.g. if another one
+                # was pressed? If so, it would cause some bug. [bruce 070814 comment]
+            pass
+        else:
+            # The Zoom/Pan/Rotate button was toggled on. Save 'prevMode' and
+            # enter the desired "subcommand" mode. (Special case needed if we were
+            # already in one of those modes, since we want to use the same prevMode.
+            # Effectively, we want to exit the current mode first (resuming prevMode)
+            # and then enter the new one (saving the same value of prevMode again).
+            # The current method is just to actually exit the current mode first.
+            # This was revised by bruce 070814.)
+
+            # Set glpane.prevMode.
+            # (We never want certain modes (ZOOM, PAN, ROTATE) to be assigned to "prevMode".)
+            if mode.modename in ['ZOOM', 'PAN', 'ROTATE']:
+                # We're already in one of the named modes -- effectively exit it first.
+                # I'm not sure of any better way than to exit it in reality.
+                # (If this toggles off its button and runs this method recursively,
+                #  that will cause bugs. TODO -- detect that, fix it if it happens.)
+                mode.Done()
+                mode = self.glpane.mode
+                assert mode.modename not in ['ZOOM', 'PAN', 'ROTATE']
             
-        self.save_current_mode_attrs()
-        self.glpane.setMode('ROTATE')
-        env.history.message("You may hit the Esc key to exit Rotate Tool.")
+            self.glpane.prevMode = mode # bruce 070813 save mode object, not modename
+            self.glpane.setMode(modename, suspend_old_mode = True)
+
+            # Emit a help message on entering the new temporary mode. Ideally this
+            # should be done in its Enter or init_gui methods, but that made it
+            # appear before the green "Entering Mode: Zoom" msg. So I put it here.
+            # [Mark 050130; comment paraphrased by bruce 070814]
+            env.history.message("You may hit the Esc key to exit %s." % user_mode_name)
+                ###REVIEW: put this in statusbar instead?
+        return
         
-    def save_current_mode_attrs(self):
-        '''Save some current mode attrs before entering Zoom, Pan or Rotate mode.
-        '''
-        # we never want these modes (ZOOM, PAN, ROTATE) to be assigned to "prevMode".
-        if self.glpane.mode.modename not in ['ZOOM', 'PAN', 'ROTATE']:
-            self.glpane.prevMode = self.glpane.mode.modename
-                
     # GLPane.ortho is checked in GLPane.paintGL
     def setViewOrtho(self):
         self.glpane.setViewProjection(ORTHOGRAPHIC)

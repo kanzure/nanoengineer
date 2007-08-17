@@ -22,15 +22,14 @@ from OpenGL.GL import GL_DEPTH_COMPONENT
 from OpenGL.GL import glReadPixelsf
 from OpenGL.GLU import gluUnProject
 
-from PyQt4.Qt import Qt
-
 from VQT import V, A
 import drawer
-from modes import basicMode
 from constants import GL_FAR_Z
 
+from panMode import panlikeMode
+_superclass = panlikeMode
 
-class zoomMode(basicMode):
+class zoomMode(_superclass):
     # class constants
     modename = 'ZOOM'
     default_mode_status_text = "Tool: Zoom" # Changed 'Mode' to 'Tool'. Fixes bug 1298. mark 060323
@@ -38,7 +37,7 @@ class zoomMode(basicMode):
     # methods related to entering this mode
     
     def Enter(self):
-        basicMode.Enter(self)
+        _superclass.Enter(self)
         bg = self.o.backgroundColor
                 
         # rubber window shows as white color normally, but when the
@@ -50,53 +49,31 @@ class zoomMode(basicMode):
         self.glStatesChanged = False
         
         
-    # init_gui handles all the GUI display when entering this mode [mark 041004
+    # init_gui handles all the GUI display when entering this mode [mark 041004]
     def init_gui(self):
         self.w.zoomToolAction.setChecked(1) # toggle on the Zoom Tool icon
         self.o.setCursor(self.w.ZoomCursor)
         self.w.zoomDashboard.show()
             
-# methods related to exiting this mode
-
-    def haveNontrivialState(self):
-        return False
-
-    def StateDone(self):
-        return None
-        
-    # a safe way for now to override Done:
-    ## Huaicai: This method must be called to safely exit this mode    
+    # Huaicai: This method must be called to safely exit this mode    
     def Done(self, new_mode = None):
-        """[overrides basicMode.Done; this is deprecated, so doing it here
-        is a temporary measure for Alpha, to be reviewed by Bruce ASAP after
-        Alpha goes out; see also the removal of Done from weird_to_override
-        in modes.py. [bruce and mark 050130]
-        """
-        ## [bruce's symbol to get him to review it soon: ####@@@@]
-        if new_mode is None:
-            try:
-                m = self.o.prevMode # spelling??
-                new_mode = m
-            except:
-                pass
         
         ## If OpenGL states changed during this mode, we need to restore
-        ## them before exit. Currently, only the leftDown() will change that.
+        ## them before exit. Currently, only leftDown() will change that.
         if self.glStatesChanged:
             self.o.redrawGL = True
             glDisable(GL_COLOR_LOGIC_OP)
             glEnable(GL_LIGHTING)
             glEnable(GL_DEPTH_TEST)
         
-        return basicMode.Done(self, new_mode)
-        
-            
-    # restore_gui handles all the GUI display when leavinging this mode [mark 041004]
+        return _superclass.Done(self, new_mode)
+    
+    # restore_gui handles all the GUI display when leaving this mode [mark 041004]
     def restore_gui(self):
         self.w.zoomToolAction.setChecked(0) # toggle off the Zoom Tool icon
         self.w.zoomDashboard.hide()
 
-    # mouse and key events
+    # mouse events
     def leftDown(self, event):
         """Compute the rubber band window starting point, which
              lies on the near clipping plane, projecting into the same 
@@ -117,7 +94,7 @@ class zoomMode(basicMode):
         glLogicOp(GL_XOR)
         
         self.glStatesChanged = True
-        
+        return
         
     def leftDrag(self, event):
         """Compute the changing rubber band window ending point. Erase    the previous window, draw the new window """
@@ -134,8 +111,8 @@ class zoomMode(basicMode):
         ##draw the new rubber band
         drawer.drawrectangle(self.pStart, self.pPrev, self.o.up, self.o.right, self.rbwcolor)
         glFlush()
-        self.o.swapBuffers() #Update display
-        
+        self.o.swapBuffers() # Update display
+        return
         
     def leftUp(self, event):
         """Erase the final rubber band window and do zoom if user indeed     draws a rubber band window"""
@@ -198,21 +175,14 @@ class zoomMode(basicMode):
         self.o.scale *= zoomFactor
        
         self.Done()
-
-    def keyPress(self,key):
-        # ESC - Exit/cancel zoom mode.
-        if key == Qt.Key_Escape: 
-            self.Done()
-            
-        basicMode.keyPress(self,key) # Fixes bug 1172. mark 060321
-            
+        return
+    
     def Draw(self):
-        basicMode.Draw(self)
-        self.o.assy.draw(self.o)
+        _superclass.Draw(self)
         ##Make sure this is the last scene draw
         #if self.rbw: 
                 #self.RBWdraw() # Draw rubber band window.
-     
+        return
        
     def RBWdraw(self):
         """Draw the rubber-band window. 
@@ -226,3 +196,5 @@ class zoomMode(basicMode):
         self.o.setCursor(self.w.ZoomCursor)
 
     pass # end of class zoomMode
+
+# end
