@@ -19,6 +19,8 @@ from PyQt4.Qt import QWidget
 
 from PM_Constants import pmLeftColumn, pmRightColumn
 
+from prefs_widgets import widget_connectWithState, QCheckBox_ConnectionWithState
+
 class PM_CheckBox( QCheckBox ):
     """
     The PM_CheckBox widget provides a checkbox with a text label for a Property
@@ -119,7 +121,7 @@ class PM_CheckBox( QCheckBox ):
         parentWidget.addPmWidget(self)
     
                 
-    def setCheckState(self, state, setAsDefault = True):
+    def setCheckState(self, state, setAsDefault = False):###bruce 070815 bugfix True -> False
         """
         Sets the check box's check state to I{state}.
         
@@ -144,7 +146,30 @@ class PM_CheckBox( QCheckBox ):
         """
         if self.setAsDefault:
             self.setCheckState(self.defaultState)
-        
+
+    def connectWithState(self, stateref):
+        """
+        Connect self to the state referred to by stateref,
+        so changes to self's value change that state's value
+        and vice versa.
+
+        @param stateref: a reference to state of type boolean,
+                         which meets the state-reference interface StateRef_API.
+        @type stateref: StateRef_API
+        """
+        widget_connectWithState( self, stateref,
+                                 QCheckBox_ConnectionWithState)
+            # note: that class uses setChecked, not setCheckState
+        return
+
+    def setDefaultValue(self, value): #bruce 070815 guess
+        self.setAsDefault = True
+        if value:
+            self.defaultState = Qt.Checked
+        else:
+            self.defaultState = Qt.Unchecked  
+        return
+
     def hide(self):
         """
         Hides the checkbox and its label (if it has one).
@@ -163,6 +188,6 @@ class PM_CheckBox( QCheckBox ):
         """
         QWidget.show(self)
         
-    
+    pass
               
 # End of PM_CheckBox ############################

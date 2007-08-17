@@ -16,6 +16,9 @@ from PyQt4.Qt import QDoubleSpinBox
 from PyQt4.Qt import QLabel
 from PyQt4.Qt import QWidget
 
+from prefs_widgets import widget_connectWithState
+from prefs_widgets import QDoubleSpinBox_ConnectionWithState
+
 class PM_DoubleSpinBox( QDoubleSpinBox ):
     """
     The PM_DoubleSpinBox widget provides a QDoubleSpinBox (with an 
@@ -233,17 +236,36 @@ class PM_DoubleSpinBox( QDoubleSpinBox ):
         @param value: The new spin box value.
         @type  value: float
         
-        @param setAsDefault: Determines if the spin box value is reset when 
-                             the "Restore Defaults" button is clicked. If True,
-                             (the default) I{value} will be used as the reset 
-                             value.
-        @type  setAsDefault: bool
+##        @param setAsDefault: Determines if the spin box value is reset when 
+##                             the "Restore Defaults" button is clicked. If True,
+##                             (the default) I{value} will be used as the reset 
+##                             value.
+##        @type  setAsDefault: bool
         
         @see: L{setDefaultValue}
         """
-        if setAsDefault:
-            self.setDefaultValue(value)
+##        if setAsDefault: ### THIS IS A BUG, if the default value of this option remains True.
+##            # it also looks useless, so i'll zap it. btw that means i could zap the entire method, but i won't yet.
+##            # I verified nothing calls it with changed version... not enough to prove this zapping is ok...
+##            # same issue in PM_SpinBox and PropMgrBaseClass. I've discussed this with Mark & Ninad and they agree
+##            # it should be changed. Ninad, feel free to clean up this method & comment when you see this.
+##            # [bruce 070814]
+##            self.setDefaultValue(value)
         QDoubleSpinBox.setValue(self, value)
+
+    def connectWithState(self, stateref):
+        """
+        Connect self to the state referred to by stateref,
+        so changes to self's value change that state's value
+        and vice versa.
+
+        @param stateref: a reference to state of type double,
+                         which meets the state-reference interface StateRef_API.
+        @type stateref: StateRef_API
+        """
+        widget_connectWithState( self, stateref,
+                                 QDoubleSpinBox_ConnectionWithState)
+        return
         
     def hide( self ):
         """

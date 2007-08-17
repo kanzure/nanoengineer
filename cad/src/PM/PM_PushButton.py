@@ -16,6 +16,9 @@ from PyQt4.Qt import QLabel
 from PyQt4.Qt import QPushButton
 from PyQt4.Qt import QWidget
 
+from prefs_widgets import widget_setAction
+from prefs_widgets import QPushButton_ConnectionWithAction
+
 class PM_PushButton( QPushButton ):
     """
     The PM_PushButton widget provides a QPushButton with a 
@@ -138,5 +141,10 @@ class PM_PushButton( QPushButton ):
         QWidget.show(self)
         if self.labelWidget: 
             self.labelWidget.show()
+
+    def setAction(self, aCallable, cmdname = None):
+        widget_setAction( self, aCallable,
+                          QPushButton_ConnectionWithAction, cmdname = cmdname)
+    pass
 
 # End of PM_PushButton ############################
