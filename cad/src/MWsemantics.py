@@ -2231,9 +2231,18 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         #  and suggest for some others (especially "simulator") that they
         #  auto-exit the mode rather than be disabled,
         #  but I won't revise these for now.]
-        self.zoomToolAction.setEnabled(disable) # "Zoom Tool" [#k]
-        self.panToolAction.setEnabled(disable) # "Pan Tool" [#k]
-        self.rotateToolAction.setEnabled(disable) # "Rotate Tool" [#k]
+        
+        ### Experiment for Extrude -- don't disable zoom/pan/rotate, now that
+        # they're rewritten to work with it. Seems to work in Extrude,
+        # but (### WARNING) also affects movieMode and might be wrong for it
+        # (or might be ok) -- this is untested and unreviewed.
+        # Need to test soon and fix if necessary. [bruce 070813]
+        
+##        self.zoomToolAction.setEnabled(disable) # "Zoom Tool" [#k]
+##        self.panToolAction.setEnabled(disable) # "Pan Tool" [#k]
+##        self.rotateToolAction.setEnabled(disable) # "Rotate Tool" [#k]
+
+        return
 	
     def updatePlayMovieAction(self):
 	''' Enables of disables 'Play movie' button in the UI. 
