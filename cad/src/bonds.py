@@ -1317,7 +1317,7 @@ class Bond(BondBase, StateMixin):
             # [as of bruce 060406, i never saw this, but today's changes to undo could bring it on,
             #  so i'll leave it in (msg and implem) for A7.]
             # update, bruce 070601: this does sometimes happen, for unknown reasons, but probably repeatably.
-            # At least one bug report mention it. It has no known harmful effects (and by now I forget whether
+            # At least one bug report (eg bug 2401) mentions it. It has no known harmful effects (and by now I forget whether
             # it's predicted to have any -- the comment above suggests it's not, it just means a certain optimization
             # in __eq__ would be an illegal change). When it does happen it may not be an error (but this is not yet
             # known) -- it may involve some comparison by undo of old and new bonds between the same atoms
