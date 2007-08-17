@@ -240,8 +240,15 @@ class ClassAttrSpecific_NonDataDescriptor(object):
         # WARNING: similar code to __set__ in a subclass
         self.check(cls) #e remove when works (need to optim)
         if obj is None:
-            print_compact_stack("fyi, __get__ direct from class of attr %r in obj %r: " % (self.attr, self)) ####@@@@ ever happens?
-                # what this is about -- see long comment near printnim in FormulaScanner far below [061101]
+            ## print_compact_stack("fyi, __get__ direct from class of attr %r in obj %r: " % (self.attr, self))
+                # Note: for what this is about, see long comment near printnim in FormulaScanner far below. [061101]
+                #
+                # Update: disabled print, since this now happens routinely in ObjAttr_StateRef
+                # for getting a data_descriptor_Expr_descriptor [bruce 070815]
+                #
+                # Note: this print was also causing tracebacks in pychecker (see EricM email to cad list),
+                # so it's lucky that we no longer need it. But it was legitimate, so that was a pychecker bug
+                # which might bite us in the future. [bruce 070817]
             return self
         assert cls is not None, "I don't know if this ever happens, or what it means if it does, or how to handle it" #k in py docs
             #e remove when works (need to optim)
@@ -558,6 +565,8 @@ class data_descriptor_Expr_descriptor(ClassAttrSpecific_DataDescriptor):
         return self.expr._e_set_for_our_cls(self, instance, val) #e or pass self.attr rather than self?
 ##    def __repr__(self):
 ##        return "<%s at %#x for %r>" % (self.__class__.__name__, id(self), self.attr)
+    def _StateRef__your_attr_in_obj_ref( self, instance): #bruce 070815
+        return self.expr._e_StateRef__your_attr_in_obj_ref( self, instance)
     pass # end of class data_descriptor_Expr_descriptor
 
 # ==

@@ -151,6 +151,7 @@ class _attr_accessor:
     def __repr__(self):#070109
         return "<%s(%s,%s) at %#x>" % (self.__class__.__name__, self.__dict__['__kind'], self.__dict__['__debug_name'] or '', id(self))
     def __get_lval(self, attr):
+        # WARNING: in spite of the very private name, this is accessed externally due to a kluge. [070815]
         table = self.__get_table(attr) # an LvalDict2 object
         ipath = self.__dict__['__ipath']
         dictkey = ipath

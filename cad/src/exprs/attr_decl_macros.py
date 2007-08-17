@@ -383,18 +383,26 @@ class State(data_descriptor_Expr): # note: often referred to as "State macro" ev
 ##    # see also C_rule_for_lval_formula, now obs, meant to be used by that old design for the State macro,
 ##    # but that design doesn't anticipate having an "lval formula",
 ##    # but just has an implicit self-relative object and explicit attrname to refer to.
+
+    # Note: the default value expr is evaluated only just when it's first needed.
+    # Exception to that: if something like ObjAttr_StateRef asks for our lval using
+    # self._e_StateRef__your_attr_in_obj_ref, we evaluate it then,
+    # even though it won't strictly be needed until something asks that stateref for our value
+    # (if it ever does). I don't know if this can cause problems of too-early eval of that default value. ###REVIEW
+    # [bruce 070816 comment]
     
     _e_wants_this_descriptor_wrapper = data_descriptor_Expr_descriptor # defined in ExprsMeta, imported from basic
     _e_descriptor = None
     
     def _e_init(self):
-        def myargs(type, dflt = None): # note: these args are exprs, and already went through canon_expr
+        def myargs(type, dflt = None): # note: these args (not kws) are exprs, and already went through canon_expr
             dflt = dflt ##e stub; see existing stateref code for likely better version to use here
             ##e do we need to de-expr these args?? (especially type)
             ##e dflt is reasonable to be an expr so we'll eval it each time,
             # but do we need code similar to what's in _i_grabarg to do that properly? guess: yes.
             self._e_state_type = type # not _e_type, that has a more general use as of 070215
             self._e_default_val = dflt
+            # note: this does not process _e_kws. self._e_debug was set in OpExpr.__init__.
         myargs(*self._e_args)
         return
     def _e_set_descriptor(self, descriptor):
@@ -408,7 +416,8 @@ class State(data_descriptor_Expr): # note: often referred to as "State macro" ev
             self._e_descriptor = descriptor
         return
     def _e_get_for_our_cls(self, descriptor, instance):
-        # print "_e_get_for_our_cls",(self, descriptor, instance, )
+        if self._e_debug:
+            print "_e_get_for_our_cls",(self, descriptor, instance, )
         if self._e_descriptor is not None:
             assert self._e_descriptor is descriptor, \
                    "different descriptors in get: %r stored, %r stored next" % (self._e_descriptor, descriptor)
@@ -419,10 +428,11 @@ class State(data_descriptor_Expr): # note: often referred to as "State macro" ev
         holder = self._e_attrholder(instance, init_attr = attr) # might need attr for initialization using self._e_default_val
         return getattr(holder, attr)
     def _e_set_for_our_cls(self, descriptor, instance, val):
-        # print "_e_set_for_our_cls",(self, descriptor.attr, instance, val)
+        if self._e_debug:
+            print "_e_set_for_our_cls",(self, descriptor.attr, instance, val)
         if self._e_descriptor is not None:
             assert self._e_descriptor is descriptor, \
-                   "different descriptors in set: %r stored, %r stored next" % (self._e_descriptor, descriptor) # see commment above
+                   "different descriptors in set: %r stored, %r stored next" % (self._e_descriptor, descriptor) # see comment above
         attr = descriptor.attr
         holder = self._e_attrholder(instance) # doesn't need to do any initialization
         return setattr(holder, attr, val)
@@ -442,6 +452,7 @@ class State(data_descriptor_Expr): # note: often referred to as "State macro" ev
                 #k should I just do setattr(res, attr, val), or is there something special and better about this:
                 ## set_default_attrs(res, {attr : val}) ##k arg syntax
                 set_default_attrs(res, **{attr : val})
+                # print_compact_stack( "\ndid set_default_attrs of %r, %r, %r: " % (res,attr,val))
                 val0 = getattr(res, attr)
                 ## assert val is val0,
                 if not (val is val0):
@@ -474,6 +485,32 @@ class State(data_descriptor_Expr): # note: often referred to as "State macro" ev
             ### I SUSPECT this never happens now that formula-scanner is properly called on us, but I'm not sure, so find out.
             ### ALSO we'll now see the predicted above bug from copying the descriptor, when we use subclasses inheriting a State decl.
         return res
+    def _e_StateRef__your_attr_in_obj_ref( self, descriptor, instance):
+        if self._e_debug:
+            print "_e_StateRef__your_attr_in_obj_ref",(self, descriptor, instance)
+            ### TODO (if needed for future debugging):
+            # - also print_compact_stack;
+            # - also set lval._changes__debug_print on this lval.
+        if self._e_descriptor is not None:
+            assert self._e_descriptor is descriptor, \
+                   "different descriptors in _e_StateRef__your_attr_in_obj_ref: %r stored, %r stored next" % \
+                       (self._e_descriptor, descriptor) # see comment above
+        attr = descriptor.attr
+        holder = self._e_attrholder(instance, init_attr = attr) # might need attr for initialization using self._e_default_val
+            # Note: passing init_attr is necessary to prevent a bug, if this is the first access to this lval
+            # before either self._e_get_for_our_cls or self._e_set_for_our_cls.
+            # The symptom of the bug was a mysterious error message,
+            # ... LvalError_ValueIsUnset: access to key '653872' in some lvaldict in
+            #     <_attr_accessor(transient,) at 0x29742eb8>, before that value was set ...
+            # which resulted from set_default_attrs never having been run in self._e_attrholder.
+            # [bruce 070816 note and bugfix]
+        ## print "got this holder, now what?", holder
+        ## return setattr(holder, attr, val)
+        lval = holder._attr_accessor__get_lval(attr) # should work for now..... ##KLUGE to assume what class & use private method
+        # print "got lval: %r\n" % (lval,)
+        # lval._changes__debug_print = True # cause various code that touches this lval to print what it does
+        return lval
+
     pass # end of class State
 
 # note: an old def of State, never working, from 061117, was removed 061203 from cvs rev 1.88 of Exprs.py

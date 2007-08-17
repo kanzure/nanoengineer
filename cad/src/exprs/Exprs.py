@@ -464,6 +464,7 @@ class SymbolicExpr(Expr): # Symbol or OpExpr
     pass
 
 class OpExpr(SymbolicExpr):
+    _e_debug = False #e move to a superclass? [bruce 070816 new feature]
     "Any expression formed by an operation (treated symbolically) between exprs, or exprs and constants"
     def __init__(self, *args, **kws): # arglist would just be "self, *args, doc = None" except that it's invalid syntax
         self._e_args = tuple(map(canon_expr, args)) # tuple is required, so _e_args works directly for a format string of same length
@@ -472,8 +473,13 @@ class OpExpr(SymbolicExpr):
         self.__doc__ = doc #070207 added this keyword arg -- supplied (to a StateAttr stub) but not yet used;
             # not sure it belongs in this class rather than the subclass that needed it (State) ##k
         # don't do this: junk = kws.pop('_KLUGE_fakeoption', None)
+        debug = kws.pop('_e_debug', False)
+        if debug:
+            # activate some debug prints for self (only used by some subclasses)
+            self._e_debug = True
         assert not kws, "unexpected keyword args for %s: %r" % (self.__class__.__name__, kws.keys())
         self._e_init()
+        return
     def _e_init(self):
         assert 0, "subclass of OpExpr must implement _e_init"
     def __repr__(self): # class OpExpr

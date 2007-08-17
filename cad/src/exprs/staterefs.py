@@ -117,13 +117,17 @@ class LocalState(InstanceOrExpr_Stub): #e stub, just reserve the name and let se
     _init_instance = stub # asfail if used
     pass
 
-if 0: # e.g. code, scratch area
+'''
+    # e.g. code, scratch area [bruce 070817 made this a string, since as 'if 0' it was causing
+    # a traceback in pychecker, according to Eric M mail to cad list.]
+    
     LocalState( lambda x = State(int, 1): body(x.value, x.value = 1) ) # note, x.value = 1 is not allowed in a lambda anyway!
 
     # in a class:
     def body(self, x):
         x.value
         x.value = 1
+'''
 
 #e  see also ToggleShow.py
 
