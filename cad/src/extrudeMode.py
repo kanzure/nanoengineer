@@ -52,7 +52,7 @@ from PyQt4.Qt import QCursor
 from debug_prefs import debug_pref, Choice, Choice_boolean_False, Choice_boolean_True
 
 from modes import basicMode
-from debug import print_compact_traceback
+from debug import print_compact_traceback, print_compact_stack
 from bonds import bond_at_singlets
 from widgets import FloatSpinBox, TogglePrefCheckBox, QVBox, QHBox
 from Utility import geticon
@@ -379,19 +379,21 @@ class extrudeMode(basicMode):
 
         #e is this obs? or just nim?? [041017 night]
         self.recompute_for_new_bend() # ... and whatever depends on the bend from each repunit to the next (varies only in Revolve)
-	
-	self.updateCommandManager(bool_entering = True) #ninad20070622
-        self.connect_or_disconnect_signals(True)
-        ## i think this is safer *after* the first update_from_controls, not before it...
-        # but i won't risk changing it right now (since tonight's bugfixes might go into josh's demo). [041017 night]
-        
-        try:
-            self.update_from_controls()
-        except:
-            msg = "in Enter, exception in update_from_controls"
-            print_compact_traceback(msg + ": ")
-            self.status_msg("%s refused: %s" % (self.msg_modename, msg,))
-            return 1
+
+# Note: bruce 070813 moved the following from here into init_gui.
+# This commented out code can be removed from here after Ninad sees it.
+##	self.updateCommandManager(bool_entering = True) #ninad20070622
+##        self.connect_or_disconnect_signals(True)
+##        ## i think this is safer *after* the first update_from_controls, not before it...
+##        # but i won't risk changing it right now (since tonight's bugfixes might go into josh's demo). [041017 night]
+##        
+##        try:
+##            self.update_from_controls()
+##        except:
+##            msg = "in Enter, exception in update_from_controls"
+##            print_compact_traceback(msg + ": ")
+##            self.status_msg("%s refused: %s" % (self.msg_modename, msg,))
+##            return 1
 	
         return # from Enter
     
@@ -1036,7 +1038,13 @@ class extrudeMode(basicMode):
         undo_manager.disable_undo_checkpoints('Extrude')
         undo_manager.disable_UndoRedo('Extrude', "during Extrude")
             # this makes Undo menu commands and tooltips look like "Undo (not permitted during Extrude)" (and similarly for Redo)
-        
+
+	# bruce 070813 moved this here from Enter:
+	self.updateCommandManager(bool_entering = True) #ninad20070622
+        self.connect_or_disconnect_signals(True)
+        ## i think this is safer *after* the first update_from_controls, not before it...
+        # but i won't risk changing it right now (since tonight's bugfixes might go into josh's demo). [041017 night]
+        self.update_from_controls()
         return
 
     # methods related to exiting this mode [bruce 040922 made these from old Done and Flush methods]
@@ -1276,7 +1284,6 @@ class extrudeMode(basicMode):
         # Re-enable QAction items
         # [bruce 060414 moved this earlier in the method]
         self.w.disable_QActions_for_extrudeMode(False)
-	
 	
 	self.updateCommandManager(bool_entering = False)
 	
@@ -1559,6 +1566,7 @@ class extrudeMode(basicMode):
                     self.draw_bond_lines(unit1,unit2)
             except:
                 print_compact_traceback("exception in draw_bond_lines, ignored: ")
+                print_compact_stack("stack from that exception was: ")
         except:
             print_compact_traceback("exception in draw_model, ignored: ")
         return
