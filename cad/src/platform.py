@@ -89,11 +89,26 @@ class _wrapped_KeyEvent: #bruce 070517 renamed this
     def key(self):
         return filter_key( self._qt_event.key() )
     def ascii(self):
-        return filter_key( self._qt_event.ascii() ) #k (does filter_key matter here?)
+        from debug import print_compact_stack
+        try:
+            return filter_key( self._qt_event.ascii() ) #k (does filter_key matter here?)
+        except:
+            print_compact_stack( "bug: event.ascii() not available in Qt4, returning -1: ")
+            return -1 ### BUG: need to fix in some better way [070811]
     def state(self):
-        return self._qt_event.state()
+        from debug import print_compact_stack
+        try:
+            return self._qt_event.state()
+        except:
+            print_compact_stack( "bug: event.state() not available in Qt4, returning -1: ")
+            return -1 ### BUG; need to fix in some better way [070811]
     def stateAfter(self):
-        return self._qt_event.stateAfter()
+        from debug import print_compact_stack
+        try:
+            return self._qt_event.stateAfter()
+        except:
+            print_compact_stack( "bug: event.stateAfter() not available in Qt4, returning -1: ")
+            return -1 ### BUG; need to fix in some better way [070811]
     def isAutoRepeat(self):
         return self._qt_event.isAutoRepeat()
     #e more methods might be needed here
