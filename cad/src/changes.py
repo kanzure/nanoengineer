@@ -78,7 +78,7 @@ class OneTimeSubsList: #bruce 050804; as of 061022, looks ok for use in new expr
             lis = subs.setdefault( id(func), [])
             lis.append(func)
         return #e return a unique "removal code" for this subs?? or None if we just fulfilled it now.
-    def fulfill_all(self):
+    def fulfill_all(self, debug = False):
         """Fulfill all our subscriptions now (and arrange to immediately fulfill any subscriptions that come in later).
         You must only call this once.
         """
@@ -91,7 +91,7 @@ class OneTimeSubsList: #bruce 050804; as of 061022, looks ok for use in new expr
                 # note: fulfilling at most one elt might be acceptable if we redefined API to permit that
                 # (since all elts are identical),
                 # but it wouldn't much simplify the code, since the list length can legally be zero.
-                self._fulfill1(sub1)
+                self._fulfill1(sub1, debug = debug)
             pass
         return
     def _list_of_subs(self): #bruce 070109
@@ -108,20 +108,21 @@ class OneTimeSubsList: #bruce 050804; as of 061022, looks ok for use in new expr
         except AttributeError:
             print "no _subs in %r so nothing to clear in remove_all_subs" % (self,)
         return
-    def _fulfill1(self, sub1):
+    def _fulfill1(self, sub1, debug = False):
         # note: the only use of self is in the debug msg.
         try:
-            if _print_all_subs:
+            if debug or _print_all_subs:
                 print "%r: fulfilling sub1 %r" % (self, sub1)
             sub1() #e would an arg of self be useful?
         except:
             # We have no choice but to ignore the exception, even if it's always a bug (as explained in docstring).
             # The convention should be to make sure sub1 won't raise an exception (to make bugs more noticable),
             # so this is always a likely bug, so we print it; but only when atom_debug, in case it might get printed
-            # a lot in some circumstances.
-            if platform.atom_debug:
-                print_compact_traceback("atom_debug: exception in subs %r ignored by %r: " % (sub1, self) ) #061119 revised wording & arg order   
-                print_compact_stack("atom_debug: here is where that exception occurred: ") #061118
+            # a lot in some circumstances. [revised, see below]
+            if True or debug or platform.atom_debug:
+                #bruce 070816 included True in that condition, to avoid silently discarding exceptions indicating real bugs.
+                print_compact_traceback("bug: exception in subs %r ignored by %r: " % (sub1, self) )
+                print_compact_stack("bug: here is where that exception occurred: ")
         return        
     def remove_subs(self, func): # note: this has never been used as of long before 061022, and looks potentially unsafe (see below)
         """Make sure (one subscribed instance of) func will never be fulfilled.
@@ -184,6 +185,8 @@ class SelfUsageTrackingMixin: #bruce 050804; as of 061022 this is used only in c
         [must be called on every use, not just first one after a change,
          in case env.track points to different objects for different uses]
         """
+        if getattr(self, '_changes__debug_print', False):
+            print_compact_stack( "\n_changes__debug_print: track_use of %r: " % self )
         try:
             subslist = self.__subslist
         except AttributeError:
@@ -207,12 +210,15 @@ class SelfUsageTrackingMixin: #bruce 050804; as of 061022 this is used only in c
         "[also call on invals being propogated -- see class docstring]"
         #e add args? e.g. "why" (for debugging), nature of change (for optims), etc...
         # ... or args about inval vs change-is-done (see comments in class's docstring)
+        debug = getattr(self, '_changes__debug_print', False)
+        if debug:
+            print_compact_stack( "\n_changes__debug_print: track_change of %r: " % self )
         try:
             subslist = self.__subslist
         except AttributeError: # this is common
             return # optimization (there were no uses of the current value, or, they were already invalidated)
         del self.__subslist
-        subslist.fulfill_all()
+        subslist.fulfill_all(debug = debug)
         return
     track_inval = track_change #bruce 061022 added this to API, though I don't know if it ever needs to have a different implem
     pass # end of class SelfUsageTrackingMixin
@@ -387,10 +393,10 @@ class SubUsageTrackingMixin: #bruce 050804; as of 061022 this is used only in cl
             #  (except by code written to use some bad kluge, which might need that kluge).
             #  And it might be legitimate. So don't add a restriction like that.]
         return match_checking_code
-    def end_tracking_usage(self, match_checking_code, invalidator):
+    def end_tracking_usage(self, match_checking_code, invalidator, debug = False):
         "#doc; new feature 070109, mainly for debugging-related uses: returns the usage_tracker_obj"
         obj = usage_tracker.end( match_checking_code)
-        obj.standard_end( invalidator)
+        obj.standard_end( invalidator, debug = debug)
             ##e or we could pass our own invalidator which wraps that one,
             # so it can destroy us, and/or do more invals, like one inside the other mixin class if that exists
         # support after_current_tracked_usage_ends [070108]
@@ -463,7 +469,7 @@ class usage_tracker_obj: #bruce 050804; docstring added 060927
         print "bug: error in usage_tracker_obj:", text #e stub
     def end(self):
         pass # let the caller think about self.data.values() (eg filter or compress them) before subscribing to them
-    def standard_end(self, invalidator):
+    def standard_end(self, invalidator, debug = False):
         "some callers will find this useful to call, shortly after self.end gets called; see the class docstring for more info"
         self.invalidator = invalidator # this will be called only by our own standard_inval
         whatweused = self.whatweused = self.data.values() # this list is saved for use in other methods called later
@@ -472,6 +478,8 @@ class usage_tracker_obj: #bruce 050804; docstring added 060927
             # (this might not be needed if they compare using '==' [###k find out])
             # note: that's a self-referential value, which would cause a memory leak, except that it gets deleted
             # in standard_inval (so it's ok). [060927 comment]
+        if debug:
+            print "changes debug: %r.standard_end subscribing %r to each of %r" % (self, inval, whatweused) #bruce 070816
         for subslist in whatweused:
             subslist.subscribe( inval ) #e could save retvals to help with unsub, if we wanted
         self.data = 222 # make further calls of self.track() illegal [#e do this in self.end()??]
@@ -663,7 +671,7 @@ class Formula( SubUsageTrackingMixin): #bruce 050805 [not related to class Expr 
     """
     """
     killed = False
-    def __init__( self, value_lambda, action = None, not_when_value_same = False ):
+    def __init__( self, value_lambda, action = None, not_when_value_same = False, debug = False ):
         """Create a formula which tracks changes to the value of value_lambda (by tracking what's used to recompute it),
         and when created and after each change occurs, calls action with the new value_lambda return value as sole argument.
            This only works if whatever value_lambda uses, which might change and whose changes should trigger recomputation,
@@ -679,6 +687,7 @@ class Formula( SubUsageTrackingMixin): #bruce 050805 [not related to class Expr 
         (The old return value is not even kept in this object unless not_when_value_same is true.)
         [WARNING: the code for the not_when_value_same = True option is untested as of 060306, since nothing uses it yet.]
         """
+        self.debug = debug #bruce 070816
         self.value_lambda = value_lambda
         self.set_action( action)
         self.not_when_value_same = not_when_value_same
@@ -695,6 +704,13 @@ class Formula( SubUsageTrackingMixin): #bruce 050805 [not related to class Expr 
             action = noop
         self.action = action
     def recompute(self):
+        debug = self.debug
+        print_errors = True or debug or platform.atom_debug
+            #bruce 070816 included True in that condition, since prior code could
+            # silently discard exceptions which indicated real bugs.
+        if debug:
+            print "\n_changes__debug_print: %r.recompute() calling %r" % \
+                  ( self, self.value_lambda )
         error = False
         match_checking_code = self.begin_tracking_usage()
         try:
@@ -702,26 +718,25 @@ class Formula( SubUsageTrackingMixin): #bruce 050805 [not related to class Expr 
         except:
             error = True
             newval = None
-            if platform.atom_debug: #e better to let a debug option control this, and give the place to put msgs
-                print_compact_traceback( "atom_debug: exception in value_lambda %r: " % self.value_lambda )
-        self.end_tracking_usage( match_checking_code, self.need_to_recompute )
+            if print_errors:
+                print_compact_traceback( "bug: exception in %r value_lambda %r: " % (self, self.value_lambda) )
+        self.end_tracking_usage( match_checking_code, self.need_to_recompute, debug = debug )
         if not error and (not self.not_when_value_same or self.first_time or not self.values_same( self.oldval, newval) ):
             # do the action
             try:
                 self.action( newval)
             except:
                 error = True
-                if platform.atom_debug:
-                    print_compact_traceback( "atom_debug: exception in formula action %r: " % self.action )
+                if print_errors:
+                    print_compact_traceback( "bug: exception in %r action %r: " % (self, self.action) )
         self.first_time = False
         if not error and self.not_when_value_same:
             # save self.oldval for the comparison we might need to do next time
             self.oldval = newval
         if error:
             self.destroy()
-            if platform.atom_debug:
-                print_compact_traceback( "atom_debug: destroyed %r due to error: " % self )
-        #e any more??
+            if print_errors:
+                print_compact_stack( "note: destroyed %r due to bug reported above: " % self )
         return
     def need_to_recompute(self):
         if not self.killed:
@@ -1064,7 +1079,6 @@ class changedict_processor: #bruce 060329 moved/modified from chem.py prototype 
         return
     def subscribe(self, key, dictlike):
         "subscribe dictlike (which needs a dict-compatible .update method) to self.changedict [#doc more?]"
-        from debug import print_compact_stack
 ##        print_compact_stack( "db3g sub: %s, subkey %s, dictlike %s" % (self,key,id(dictlike)))
         assert not self.subscribers.has_key(key)
         self.subscribers[key] = dictlike # ok if it overrides some other sub at same key, since we assume caller owns key
