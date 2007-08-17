@@ -38,6 +38,7 @@ History:
 __author__ = "Josh"
 
 import math
+import string
 
 from Numeric import dot
 from OpenGL.GL import glPushName
@@ -80,7 +81,6 @@ from constants import pink
 from constants import ErrorPickedColor
 from constants import PickedColor
 from bond_constants import V_SINGLE
-from bond_constants import describe_atom_and_atomtype
 from bond_constants import min_max_valences_from_v6
 from bond_constants import valence_to_v6
 from prefs_constants import arrowsOnFivePrimeEnds_prefs_key
@@ -132,6 +132,9 @@ atKey = genKey(start = 1) # generator for atom.key attribute.
     # which sort in the same order as atoms are created (e.g. the order they're
     # read from an mmp file), so we now require this in the future even if the
     # key type is changed.
+    
+Element_Sj = PeriodicTable.getElement('Sj')
+Element_Ss = PeriodicTable.getElement('Ss')
 
 ###Huaicai: ... I'll add one more function for transferring
 ### vector to a string, which is mainly used for color vector
@@ -309,6 +312,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         # after making an atom; -1 is also the correct value for an atom in a chunk but not yet indexed therein;
         # in theory the value doesn't matter at all for a chunkless atom, but a removed atom (see Chunk.delatom) will have -1 here,
         # so imitating that seems most correct.
+        
+    ## dnaBaseName -- set when first demanded, or can be explicitly set using setDnaBaseName().
 
     # _s_attr decls for state attributes -- children, parents, refs, bulky data, optional data [bruce 060223]
 
@@ -718,6 +723,40 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         """
         return self.atomtype.name
 
+    def setDnaBaseName(self, dnaBaseName): # Mark 2007-08-16
+        """
+        Set the Dna base name. This is only valid for PAM-5 Ss or Sj
+        atoms.
+        
+        @param dnaBaseName: The DNA base name. This is usually a single letter,
+                            but it can be more. Only letters are valid.
+        @type  dnaBaseName: str
+        
+        @raise: If self is not Sj or Ss, or if dnaBaseName has an invalid character(s).
+        
+        """
+        assert (self.element == Element_Sj) or (self.element == Element_Ss), \
+            "Can only assign dnaBaseNames to Ss or Sj (PAM-5) atoms. \
+            Attempting to assign dnaBaseName %r to element %r." \
+            % (dnaBaseName, self.element.name)
+        
+        # Make sure dnaBaseName has all valid characters.
+        for c in dnaBaseName:
+            if not c in string.letters:
+                assert 0, "%r is not a valid dnaBaseName name." % (dnaBaseName)
+                
+        self.dnaBaseName = dnaBaseName
+        
+    def getDnaBaseName(self):
+        """
+        Returns the value of attr I{dnaBaseName}.
+        
+        @return: The DNA base name, or None if the attr I{dnaBaseName} does 
+                 not exist.
+        @rtype:  str
+        """
+        return self.__dict__.get('dnaBaseName', "")
+        
     def posn(self):
         """Return the absolute position of the atom in space.
         [Public method; should be ok to call for any atom at any time.]
@@ -1198,9 +1237,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
     def deficient_v6(self): #bruce 051215
         return valence_to_v6(self.deficient_valence())
     
-    def mouseover_statusbar_message(self): #bruce 050806
-        from bond_constants import describe_atom_and_atomtype
-        msg = describe_atom_and_atomtype(self)
+    def mouseover_statusbar_message(self):
+        msg = self.getInformationString()
         more = self.bad_valence_explanation()
         if more:
             msg += " (%s)" % more
@@ -1449,6 +1487,10 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         print_fields = (num_str, eltnum,
            int(xyz[0]), int(xyz[1]), int(xyz[2]), disp)
         mapping.write("atom %s (%d) (%d, %d, %d) %s\n" % print_fields)
+        # mark 2007-08-16: write dnaBaseName info record.
+        dnaBaseName = self.getDnaBaseName()
+        if dnaBaseName:
+            mapping.write( "info atom dnaBaseName = %s\n" % dnaBaseName )
         #bruce 050511: also write atomtype if it's not the default
         atype = self.atomtype_iff_set()
         if atype is not None and atype is not self.element.atomtypes[0]:
@@ -1480,7 +1522,12 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         return
 
     def readmmp_info_atom_setitem( self, key, val, interp ): #bruce 050511
-        "For documentation, see docstring of an analogous method, such as readmmp_info_leaf_setitem."
+        """
+        Reads an atom info record from the MMP file.
+        
+        @see: The docstring of an analogous method, such as
+              L{Node.readmmp_info_leaf_setitem()}.
+        """
         if key == ['atomtype']:
             # val should be the name of one of self.element's atomtypes (not an error if unrecognized)
             try:
@@ -1493,6 +1540,15 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             else:
                 self.set_atomtype_but_dont_revise_singlets( atype)
                     # don't add singlets, since this mmp record comes before the bonds, including bonds to singlets
+        
+        elif key == ['dnaBaseName']: # Mark 2007-08-16
+            try:
+                self.setDnaBaseName(val)
+            except:
+                print "Found Atom info record with problem: dnaBaseName = %r, "\
+                       "element = %r (continuing)" % (val, self.element.name)
+                pass
+                 
         else:
             if platform.atom_debug:
                 print "atom_debug: fyi: info atom (in class atom) with unrecognized key %r (not an error)" % (key,)
@@ -1631,13 +1687,31 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         
         return ainfo
     
-    def getToolTipInfo(self, glpane, isAtomPosition, isAtomChunkInfo, isAtomMass, atomDistPrecision):
-        ''' returns atom's basic info string for the dynamic toooltip
-        '''
-        atomStr = describe_atom_and_atomtype(glpane.selobj)
-        elementNameStr = " [" + glpane.selobj.element.name + "]"
+    def getInformationString(self):
+        """
+        If a standard atom, return a string like C26(sp2) with atom name and
+        atom hybridization type, but only include the type if more than one is 
+        possible for the atom's element and the atom's type is not the default 
+        type for that element.
         
-        atomInfoStr = atomStr +  elementNameStr       
+        If a PAM-5 Ss or Sj atom, returns a string like Ss28(A) with atom name
+        and dna base name.
+        """
+        res = str(self)
+        if self.atomtype is not self.element.atomtypes[0]:
+            res += "(%s)" % self.atomtype.name
+        if self.getDnaBaseName():
+            res += "(%s)" % self.dnaBaseName
+        return res
+
+    def getToolTipInfo(self, glpane, isAtomPosition, isAtomChunkInfo, isAtomMass, atomDistPrecision):
+        """
+        Returns atom's basic info string for the dynamic toooltip
+        """
+        atomStr        = glpane.selobj.getInformationString()
+        elementNameStr = " [" + glpane.selobj.element.name + "]"
+
+        atomInfoStr = atomStr + elementNameStr
         
         if isAtomPosition:
             xyz = glpane.selobj.posn()
