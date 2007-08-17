@@ -14,7 +14,7 @@ bond1 1
 atom 3 (0) (0, 0, 1590) def
 bond1 1
 atom 4 (201) (6760, 0, 0) def
-info atom atomtype = G
+info atom dnaBaseName = G
 bond1 1
 atom 5 (202) (8699, 2638, 1590) def
 bond1 4
@@ -23,7 +23,7 @@ bond1 5
 atom 7 (206) (7729, -1319, -795) def
 bond1 4
 atom 8 (201) (-4610, -4943, 0) def
-info atom atomtype = C
+info atom dnaBaseName = C
 bond1 1
 atom 9 (205) (-7863, -4562, -1590) def
 bond1 8
