@@ -172,13 +172,22 @@ def bond_left_atom(bond, quat = Q(1,0,0,0)): #bruce 070415, modified from bonded
     return a1
 
 def describe_atom_and_atomtype(atom): #bruce 050705, revised 050727 #e refile?
-    """Return a string like C26(sp2) with atom name and atom hybridization type,
-    but only include the type if more than one is possible for the atom's element
-    and the atom's type is not the default type for that element.
+    """
+    If a standard atom, return a string like C26(sp2) with atom name and
+    atom hybridization type, but only include the type if more than one is 
+    possible for the atom's element and the atom's type is not the default 
+    type for that element.
+    
+    If a PAM-5 Ss or Sj atom, returns a string like Ss28(A) with atom name
+    and dna base name.
+    
+    @deprecated: Use L{Atom.getInformationString()} instead.
     """
     res = str(atom)
     if atom.atomtype is not atom.element.atomtypes[0]:
         res += "(%s)" % atom.atomtype.name
+    if atom.getDnaBaseName():
+        res += "(%s)" % atom.dnaBaseName
     return res
 
 # ==
