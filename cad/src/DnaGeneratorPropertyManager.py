@@ -77,25 +77,25 @@ BDNA             =  0
 ZDNA             =  1
 
 # Do not commit with DEBUG set to True. Mark 2007-08-07
-DEBUG = True
+DEBUG = False
 
 class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
     """
     The DnaGeneratorPropertyManager class provides a Property Manager 
     for the "Build > Atoms" command.
     
-    @cvar title: The title that appears in the property manager header.
+    @ivar title: The title that appears in the property manager header.
     @type title: str
     
-    @cvar pmName: The name of this property manager. This is used to set
+    @ivar pmName: The name of this property manager. This is used to set
                   the name of the PM_Dialog object via setObjectName().
     @type name: str
     
-    @cvar iconPath: The relative path to the PNG file that contains a
+    @ivar iconPath: The relative path to the PNG file that contains a
                     22 x 22 icon image that appears in the PM header.
     @type iconPath: str
     
-    @cvar validSymbols: Miscellaneous symbols that may appear in the sequence 
+    @ivar validSymbols: Miscellaneous symbols that may appear in the sequence 
                         (but are ignored). The hyphen '-' is a special case
                         that must be dealt with individually; it is not 
                         included because it can confuse regular expressions.
