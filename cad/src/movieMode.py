@@ -114,7 +114,7 @@ class movieMode(basicMode):
         self.o.assy.unpickall_in_GLPane() # was: unpickparts, unpickatoms [bruce 060721]
         self.o.assy.permit_pick_atoms()
 
-    def _exitMode(self, new_mode = None):
+    def _exitMode(self, *args, **kws):
         # note: this definition generates the debug print
         ## fyi (for developers): subclass movieMode overrides basicMode._exitMode; this is deprecated after mode changes of 040924.
         # because it's an API violation to override this method; what should be done instead is to do this in one of the other cleanup
@@ -124,7 +124,7 @@ class movieMode(basicMode):
         if movie and movie.currentFrame is not 0:
             mrd = MovieRewindDialog(movie)
             mrd.exec_()
-        basicMode._exitMode(self, new_mode)
+        basicMode._exitMode(self, *args, **kws)
 
     def init_gui(self):
         
