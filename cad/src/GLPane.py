@@ -23,7 +23,8 @@ from PyQt4.Qt import QMouseEvent
 from PyQt4.Qt import QHelpEvent
 from PyQt4.Qt import QPoint
 
-from PyQt4.Qt import Qt, QFont, QWidget, QMessageBox, QTimer, QToolTip, QRect, QString
+from PyQt4.Qt import Qt, QFont, QMessageBox, QString
+from PyQt4.Qt import SIGNAL, QTimer
 from PyQt4.Qt import QGLWidget
 
 from OpenGL.GL import GL_LESS
@@ -364,7 +365,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         self.win = win
 
         modeMixin._init1(self)
-
+        
         #bruce 050610 set gl format to request stencil buffer
         # (needed for mouseover-highlighting of objects of general shape in depositMode.bareMotion)
         glformat = QGLFormat()
@@ -521,46 +522,56 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         self.setAssy(assy) # leaves self.mode as nullmode, as of 050911
 
         self.loadLighting() #bruce 050311
-	#bruce question 051212: why doesn't this prevent bug 1204 in use of lighting directions on startup?
-	    
-	self.dynamicToolTip = DynamicTip(self)
-	
-	self.add_whats_this_text()
+        #bruce question 051212: why doesn't this prevent bug 1204 in use of lighting directions on startup?
+            
+        self.dynamicToolTip = DynamicTip(self)
+        
+        self.add_whats_this_text()
+        
+        # Triple-click Timer: for the purpose of implementing a triple-click
+        #                     event handler, which is not supported by Qt.
+        #
+        # See: mouseTripleClickEvent()
+        
+        self.tripleClick       =  False
+        self.tripleClickTimer  =  QTimer(self)
+        self.tripleClickTimer.setSingleShot(True)
+        self.connect(self.tripleClickTimer, SIGNAL('timeout()'), self._tripleClickTimeout)
         
         return # from GLPane.__init__ 
     
     def add_whats_this_text(self):
         """Adds What's This description to this glpane.
-	"""
-	# We must do this here (and not in whatsthis.py) because in the future
-	# there will be multiple part windows, each with its own glpane.
-	# Problem - I don't believe this text is processed by fix_whatsthis_text_and_links()
-	# in whatsthis.py. Discuss this with Bruce. Mark 2007-06-01
-	
-	if sys.platform == "darwin":
-	    ctrl_or_cmd = "Cmd"
-	else:
-	    ctrl_or_cmd = "Ctrl"
+        """
+        # We must do this here (and not in whatsthis.py) because in the future
+        # there will be multiple part windows, each with its own glpane.
+        # Problem - I don't believe this text is processed by fix_whatsthis_text_and_links()
+        # in whatsthis.py. Discuss this with Bruce. Mark 2007-06-01
+        
+        if sys.platform == "darwin":
+            ctrl_or_cmd = "Cmd"
+        else:
+            ctrl_or_cmd = "Ctrl"
 
         glpaneText = \
-		   "<u><b>3D Graphics Area</b></u><br> "\
-		   "<br>This is where the action is."\
-		   "<p><b>Mouse Button Commands :</b><br> "\
-		   "<br> "\
-		   "<b>Left Mouse Button (LMB)</b> - Select<br> "\
-		   "<b>LMB + Shift</b> - add to current selection <br> "\
-		   "<b>LMB + " + ctrl_or_cmd + "</b> - remove from current selection <br> "\
-		   "<b>LMB + Shift + " + ctrl_or_cmd + "</b> - delete highlighted object <br> "\
-		   "<br> "\
-		   "<b>Middle Mouse Button (MMB)</b> - Rotate view <br> "\
-		   "<b>MMB + Shift</b> - Pan view <br> "\
-		   "<b>MMB + " + ctrl_or_cmd + "</b> - Rotate view around POV Axis <br> "\
-		   "<br> "\
-		   "<b>Right Mouse Button (RMB)</b> - Display context-sensitive menus "\
-		   "</p>"
+                "<u><b>3D Graphics Area</b></u><br> "\
+                "<br>This is where the action is."\
+                "<p><b>Mouse Button Commands :</b><br> "\
+                "<br> "\
+                "<b>Left Mouse Button (LMB)</b> - Select<br> "\
+                "<b>LMB + Shift</b> - add to current selection <br> "\
+                "<b>LMB + " + ctrl_or_cmd + "</b> - remove from current selection <br> "\
+                "<b>LMB + Shift + " + ctrl_or_cmd + "</b> - delete highlighted object <br> "\
+                "<br> "\
+                "<b>Middle Mouse Button (MMB)</b> - Rotate view <br> "\
+                "<b>MMB + Shift</b> - Pan view <br> "\
+                "<b>MMB + " + ctrl_or_cmd + "</b> - Rotate view around POV Axis <br> "\
+                "<br> "\
+                "<b>Right Mouse Button (RMB)</b> - Display context-sensitive menus "\
+                "</p>"
 
         self.setWhatsThis(glpaneText)
-	        
+                
     #== Background color helper methods. Moved here from basicMode (modes.py). Mark 060814.
     
     def restoreDefaultBackground(self):
@@ -837,7 +848,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         # because self.ortho and the toggle state of the corresponding action may 
         # not be in sync at startup time. This fixes bug #996.
         # Mark 050924.
-	
+        
         if projection:
             self.win.setViewOrthoAction.setChecked(1)
         else:
@@ -1540,7 +1551,57 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
             self.assy.begin_select_cmd()
         return
 
+    def _tripleClickTimeout(self):
+        """
+        [private method]
+        
+        Called whenever the tripleClickTimer expires.
+        """
+        self.tripleClick = False
+     
+    def mouseTripleClickEvent(self, event):
+        """
+        Triple-click event handler for the L{GLPane}.
+        
+        @param event: A Qt mouse event.
+        @type  event: U{B{QMouseEvent}<http://doc.trolltech.com/4/qmouseevent.html>}
+        """
+        # Implementation: We start a <tripleClickTimer> (a single shot timer)
+        # whenever we get a double-click mouse event, but only if there is no 
+        # other active tripleClickTimer.
+        # If we get another mousePressEvent() before <tripleClickTimer> expires,
+        # then we consider that event a triple-click event and mousePressEvent()
+        # sends the event here.
+        #
+        # We then set instance variable <tripleClick> to True and send the 
+        # event to mouseDoubleClickEvent(). After mouseDoubleClickEvent() 
+        # processes the event and returns, we reset <tripleClick> to False.
+        #
+        # Note: This does not fully implement a triple-click event handler
+        # (i.e. include mode.left/middle/rightTriple() methods),
+        # but it does provides the guts for one. I intent to discuss this with
+        # Bruce to see if it would be worth adding these mode methods.
+        # Since we only need this to implement NFR 2516 (i.e. select all 
+        # connected PAM5 atoms when the user triple-clicks a PAM5 atom), 
+        # it isn't necessary.
+        #
+        # See: mouseDoubleClickEvent(), mousePressEvent(), _tripleClickTimeout()
+        
+        #print "Got TRIPLE-CLICK"
+        self.tripleClick = True            
+        self.mouseDoubleClickEvent(event)
+        self.tripleClick = False
+        
     def mouseDoubleClickEvent(self, event):
+        """
+        Double-click event handler for the L{GLPane}.
+        
+        @param event: A Qt mouse event.
+        @type  event: U{B{QMouseEvent}<http://doc.trolltech.com/4/qmouseevent.html>}
+        """
+        if not self.tripleClickTimer.isActive(): # See mouseTripleClickEvent(). 
+            self.tripleClickTimer.start( 200 )   # 200-millisecond singleshot timer.
+        
         # (note: mouseDoubleClickEvent and mousePressEvent share a lot of code)
         self.makeCurrent() #bruce 060129 precaution, presumably needed for same reasons as in mousePressEvent
         self.begin_select_cmd() #bruce 060129 bugfix (needed now that this can select atoms in depositMode)
@@ -1614,9 +1675,18 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
             pw.parent._activepw = pw
     
     def mousePressEvent(self, event):
-        """Dispatches mouse press events depending on shift and
-        control key state.
         """
+        Mouse press event handler for the L{GLPane}. It dispatches mouse press
+        events depending on B{Shift} and B{Control} key state.
+        
+        @param event: A Qt mouse event.
+        @type  event: U{B{QMouseEvent}<http://doc.trolltech.com/4/qmouseevent.html>}
+        """
+        if self.tripleClickTimer.isActive():
+            # This event is a triple-click event.
+            self.mouseTripleClickEvent(event)
+            return
+    
         # (note: mouseDoubleClickEvent and mousePressEvent share a lot of code)
         
         self.makeCurrent()
@@ -1653,7 +1723,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         if handler is not None:
             handler.mousePressEvent(event)
             return
-        
+            
         if but & Qt.LeftButton:
             if mod & Qt.ShiftModifier:
                 self.mode.leftShiftDown(event)
@@ -1683,7 +1753,11 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         return
     
     def mouseReleaseEvent(self, event):
-        """#doc
+        """
+        The mouse release event handler for the L{GLPane}.
+        
+        @param event: A Qt mouse event.
+        @type  event: U{B{QMouseEvent}<http://doc.trolltech.com/4/qmouseevent.html>}
         """
         self.debug_event(event, 'mouseReleaseEvent')
         ## but = event.state()
@@ -1731,8 +1805,12 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
     # == DUPLICATING checkpoint_before_drag and checkpoint_after_drag in TreeWidget.py -- should clean up ####@@@@ [bruce 060328]
 
     def checkpoint_after_drag(self, event): #bruce 060124; split out of caller, 060126 (and called it later, to fix bug 1384)
-        """Do undo_checkpoint_after_command, if a prior press event did an undo_checkpoint_before_command to match.
-        This should only be called *after* calling the mode-specific event handler for this event!
+        """
+        Do undo_checkpoint_after_command(), if a prior press event did an 
+        undo_checkpoint_before_command() to match.
+        
+        @note: This should only be called *after* calling the mode-specific 
+               event handler for this event!
         """
         # (What if there's recursive event processing inside the event handler... when it's entered it'll end us, then begin us...
         #  so an end-checkpoint is still appropriate; not clear it should be passed same begin-retval -- most likely,
@@ -1762,8 +1840,12 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         return
 
     def mouseMoveEvent(self, event):
-        """Dispatches mouse motion events depending on shift and
-        control key state.
+        """
+        Mouse move event handler for the L{GLPane}. It dispatches mouse motion
+        events depending on B{Shift} and B{Control} key state.
+        
+        @param event: A Qt mouse event.
+        @type  event: U{B{QMouseEvent}<http://doc.trolltech.com/4/qmouseevent.html>}
         """
         ## Huaicai 8/4/05. 
         self.makeCurrent()
@@ -1808,6 +1890,12 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         return
 
     def wheelEvent(self, event):
+        """
+        Mouse wheel event handler for the L{GLPane}.
+        
+        @param event: A Qt mouse wheel event.
+        @type  event: U{B{QWheelEvent}<http://doc.trolltech.com/4/qwheelevent.html>}
+        """
         self.debug_event(event, 'wheelEvent')
         if not self.in_drag:
             #but = event.buttons() # I think this event has no stateAfter() [bruce 060220]
@@ -1828,8 +1916,11 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         return res
         
     def enterEvent(self, event): # Mark 060806. [minor revisions by bruce 070110]
-        """Event handler for when the cursor enters the GLPane.
-        <event> is the mouse event after entering the GLpane.
+        """
+        Event handler for when the cursor enters the GLPane.
+        
+        @param event: The mouse event after entering the GLpane.
+        @type  event: U{B{QMouseEvent}<http://doc.trolltech.com/4/qmouseevent.html>}
         """
         choice = self._timer_debug_pref()
         if choice is None:
@@ -1844,8 +1935,11 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         return
     
     def leaveEvent(self, event): # Mark 060806. [minor revisions by bruce 070110]
-        """Event handler for when the cursor leaves the GLPane.
-        <event> is the last mouse event before leaving the GLpane.
+        """
+        Event handler for when the cursor leaves the GLPane.
+        
+        @param event: The last mouse event before leaving the GLpane.
+        @type  event: U{B{QMouseEvent}<http://doc.trolltech.com/4/qmouseevent.html>}
         """
         # If an object is "hover highlighted", unhighlight it when leaving the GLpane.
         if self.selobj is not None:
@@ -1858,16 +1952,22 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         return
     
     def timerEvent(self, e): # Mark 060806.
-        """When the GLpane's timer expires, a signal is generated calling this slot method.
-        The timer is started in enterEvent() and killed in leaveEvent(), so the timer is only
-        active when the cursor is in the GLpane.
+        """
+        When the GLpane's timer expires, a signal is generated calling this
+        slot method. The timer is started in L{enterEvent()} and killed in 
+        L{leaveEvent()}, so the timer is only active when the cursor is in 
+        the GLpane.
         
-        This method is part of a hover highlighting optimization and works in concert with mouse_exceeded_distance(),
-        which is called by bareMotion() in selectMode. It works by creating a 'MouseMove' event using the current 
-        cursor position and sending it to mode.bareMotion() whenever the mouse hasn't moved since the
-        previous timer event.
+        This method is part of a hover highlighting optimization and works in
+        concert with mouse_exceeded_distance(), which is called from
+        L{selectMode.bareMotion()}. It works by creating a 'MouseMove' event
+        using the current cursor position and sending it to 
+        L{mode.bareMotion()} whenever the mouse hasn't moved since the previous
+        timer event.
         
-        For more information, read the docstring for selectMode.mouse_exceeded_distance().
+        @see: L{enterEvent()}, L{leaveEvent()}, 
+              L{selectMode.mouse_exceeded_distance()}, and 
+              L{selectMode.bareMotion()}
         """
         if not self.highlightTimer or (self._timer_debug_pref() is None): #bruce 070110
             if platform.atom_debug:
@@ -1898,9 +1998,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
                 
             self.triggerBareMotionEvent = False
                 
-	    helpEvent = QHelpEvent(QEvent.ToolTip, QPoint(cursorPos), QPoint(cursor.pos()) )
-	    
-	    
+            helpEvent = QHelpEvent(QEvent.ToolTip, QPoint(cursorPos), QPoint(cursor.pos()) )
+            
+            
             if self.dynamicToolTip: # Probably always True. Mark 060818.
                 # The cursor hasn't moved since the last timer event. See if we should display the tooltip now.
                 self.dynamicToolTip.maybeTip(helpEvent) # maybeTip() is responsible for displaying the tooltip.
@@ -1922,7 +2022,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         return A(gluUnProject(5, 5, 0))
 
     def mousepoints(self, event, just_beyond = 0.0):
-        """Returns a pair (tuple) of points (Numeric arrays of x,y,z)
+        """
+        Returns a pair (tuple) of points (Numeric arrays of x,y,z)
         that lie under the mouse pointer at (or just beyond) the near clipping
         plane and in the plane of the center of view. Optional argument
         just_beyond = 0.0 tells how far beyond the near clipping plane
@@ -1949,8 +2050,12 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         ##k need to review whether this is correct for tall aspect ratio GLPane
 
     def SaveMouse(self, event):
-        """Extracts mouse position from event and saves it.
-        (localizes the API-specific code for extracting the info)
+        """
+        Extracts the mouse position from event and saves it in the I{MousePos}
+        property. (localizes the API-specific code for extracting the info)
+        
+        @param event: A Qt mouse event.
+        @type  event: U{B{QMouseEvent}<http://doc.trolltech.com/4/qmouseevent.html>}
         """
         self.MousePos = V(event.pos().x(), event.pos().y())
 
@@ -2630,8 +2735,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         self.glselect_dict.clear()
             # this will be filled iff we do a gl_select draw,
             # then used only in the same paintGL call to alert some objects they might be the one
-	
-	
+        
+        
         if self.selobj is not None: #bruce 050702 part of fixing bug 716 (and possibly 715-5, though that's untested)
             try:
                 # this 'try' might not be needed once the following method is fully implemented,
@@ -2687,7 +2792,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
             # it passes the hit test and add it to glselect_dict -- and, make sure to give it "first dibs" for being
             # the next selobj. I'll implement some of this now (untested when no stencil buffer) but not yet all. [bruce 050612]
             obj = self.selobj
-	    
+            
             if obj is not None:
                 self.glselect_dict[id(obj)] = obj
                     ###k unneeded, if the func that looks at this dict always tries selobj first
@@ -2762,7 +2867,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         # what was just drawn above) for two reasons:
         # - it might be in a display list in non-highlighted form (and if so, the above draw used that form);
         # - we need to draw it into the stencil buffer too, so mode.bareMotion can tell when mouse is still over it.
-        if self.selobj is not None:	
+        if self.selobj is not None:     
             # draw the selobj as highlighted, and make provisions for fast test
             # (by external code) of mouse still being over it (using stencil buffer)
 
@@ -2857,16 +2962,16 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
                     #bruce 070329 moved set of drawing_phase from just after selobj.draw_in_abs_coords to just before it.
                     # [This should fix the Qt4 transition issue which is the subject of reminder bug 2300,
                     #  though it can't be tested yet since it has no known effect on current code, only on future code.]
-		#ninad 070214 to permit chunk highlighting
-		if self.mode.modename is selectMolsMode.modename:
-			self.drawHighlightedChunk(self.selobj, hicolor)
-			if not (isinstance(self.selobj, Atom) \
-			or isinstance(self.selobj, Bond)):
-				self.selobj.draw_in_abs_coords(self, hicolor or black)
-				pass
-				
-		else:			
-			self.selobj.draw_in_abs_coords(self, hicolor or black)
+                #ninad 070214 to permit chunk highlighting
+                if self.mode.modename is selectMolsMode.modename:
+                        self.drawHighlightedChunk(self.selobj, hicolor)
+                        if not (isinstance(self.selobj, Atom) \
+                        or isinstance(self.selobj, Bond)):
+                                self.selobj.draw_in_abs_coords(self, hicolor or black)
+                                pass
+                                
+                else:                   
+                        self.selobj.draw_in_abs_coords(self, hicolor or black)
                             ###@@@ test having color writing disabled here -- does stencil write still happen??
 
             except:
@@ -2942,7 +3047,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
             self.draw_conf_corner_bg_image()
 
         self.drawing_phase = 'overlay'
-	try:
+        try:
             glMatrixMode(GL_MODELVIEW) #k needed?
             self.mode.draw_overlay() #bruce 070405
         except:
@@ -2995,7 +3100,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
                         print_compact_traceback(msg + ': ')
             else:
                 msg = " "
-		
+                
             env.history.statusbar_msg(msg)
         self.selobj = selobj
         #e notify some observers?
@@ -3032,9 +3137,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
                 for hibond in hiatom.bonds:
                     hibond.draw_in_abs_coords(self, hicolor or black,
                                               bool_fullBondLength)
-        elif isinstance(self.selobj, Bond):	    
+        elif isinstance(self.selobj, Bond):         
             hiatom1 = self.selobj.atom1
-            hiatom2 = self.selobj.atom2			
+            hiatom2 = self.selobj.atom2                 
             chunk1 = hiatom1.molecule
             chunk2 = hiatom2.molecule
             
@@ -3130,7 +3235,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         #bruce 050822 new feature: objects which had no highlight color should not be allowed in self.selobj
         # (to make sure they can't be operated on without user intending this),
         # though they should still obscure other objects.
-	
+        
         if newpicked is not None:
             hicolor = self.selobj_hicolor( newpicked)
             if hicolor is None:
@@ -3270,7 +3375,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         else:
             glOrtho(-50*aspect, 3.5*aspect, -4.5, 50.5,  -5, 500) # Lower Right
         
-        	    
+                    
         q = self.quat
         glRotatef(q.angle*180.0/math.pi, q.x, q.y, q.z)
         glEnable(GL_COLOR_MATERIAL)
@@ -3279,28 +3384,28 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE)
         
         #ninad 070122 - parametrized the compass drawing. (also added some doc). 
-	#Also reduced the overall size of the compass. 
-	
-	p1 = -1 # ? start point of arrow cyl? 
-	p2 = 3.25 #end point of the arrow cylinderical portion
-	p3 = 2.5 #arrow head start point
-	p4 = 3.8 # ??? may be used to specify the slant of the arrow head (conical portion).?
-	p5 = 4.5 # cone tip
-	
-	r1 = 0.2 #cylinder radius 
-	r2 =0.2
-	r3 = 0.2
-	r4 = 0.60 #cone base radius
-	
-	glePolyCone([[p1,0,0], [0,0,0], [p2,0,0], [p3,0,0], [p4,0,0], [p5,0,0]],
+        #Also reduced the overall size of the compass. 
+        
+        p1 = -1 # ? start point of arrow cyl? 
+        p2 = 3.25 #end point of the arrow cylinderical portion
+        p3 = 2.5 #arrow head start point
+        p4 = 3.8 # ??? may be used to specify the slant of the arrow head (conical portion).?
+        p5 = 4.5 # cone tip
+        
+        r1 = 0.2 #cylinder radius 
+        r2 =0.2
+        r3 = 0.2
+        r4 = 0.60 #cone base radius
+        
+        glePolyCone([[p1,0,0], [0,0,0], [p2,0,0], [p3,0,0], [p4,0,0], [p5,0,0]],
                     [[0,0,0], [1,0,0], [1,0,0], [.5,0,0], [.5,0,0], [0,0,0]],
                     [r1,r2,r3,r4,0,0])
         
         glePolyCone([[0,p1,0], [0,0,0], [0,p2,0], [0,p3,0], [0,p4,0], [0,p5,0]],
                     [[0,0,0], [0,.9,0], [0,.9,0], [0,.4,0], [0,.4,0], [0,0,0]],
                     [r1,r2,r3,r4,0,0])
-	
-	glePolyCone([[0,0,p1], [0,0,0], [0,0,p2], [0,0,p3], [0,0,p4], [0,0,p5]],
+        
+        glePolyCone([[0,0,p1], [0,0,0], [0,0,p2], [0,0,p3], [0,0,p4], [0,0,p5]],
                     [[0,0,0], [0,0,1], [0,0,1], [0,0,.4], [0,0,.4], [0,0,0]],
                     [r1,r2,r3,r4,0,0])
                     
@@ -3345,7 +3450,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         self.width = width
         self.height = height
            
-	## glViewport(10, 15, (self.width-10)/2, (self.height-15)/3) # (guess: just an example of using a smaller viewport)
+        ## glViewport(10, 15, (self.width-10)/2, (self.height-15)/3) # (guess: just an example of using a smaller viewport)
         glViewport(0, 0, self.width, self.height)
         if not self.initialised:
             self.initialised = 1

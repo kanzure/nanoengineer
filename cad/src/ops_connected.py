@@ -231,6 +231,7 @@ class ops_connected_Mixin:
         [Private option _return_marked just returns the internal marked dictionary
          (including singlets regardless of other options).]
         '''
+            
         marked = {} # maps id(atom) -> atom, for processed atoms
         todo = atomlist # list of atoms we must still mark and explore (recurse on all unmarked neighbors)
         # from elements import Singlet
@@ -246,11 +247,14 @@ class ops_connected_Mixin:
                 for b in atom.bonds:
                     at1, at2 = b.atom1, b.atom2 # simplest to just process both atoms, rather than computing b.other(atom)
                     really_connected = True # will be changed to False for certain bonds below.
-                    if 1:
-                        # new feature -- don't consider pseudoatom strand-axis bonds as really connected
-                        # (initial kluge for trying it out -- needs cleanup, generalization, optim (use element attrs, not lists),
-                        #  control by option of this method, and needs to also affect
-                        #  neighbors_of_last_deleted_atom in selectMode.py ###e) [bruce 070411]
+                    if not self.o.tripleClick:
+                        # New feature:
+                        # Don't consider PAM5 strand-axis bonds as really connected unless
+                        # the user did a triple-click (on a PAM5 atom).
+                        # (initial kluge for trying it out -- needs cleanup, generalization, 
+                        # optim (use element attrs, not lists), control by option
+                        # of this method, and needs to also affect
+                        # neighbors_of_last_deleted_atom() in selectMode.py ###e) [bruce 070411]
                         #
                         ###e really_connected should probably be an attr of each bond,
                         # renamed to b.connected, computed from its elements, via a global helper
