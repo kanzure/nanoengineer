@@ -58,7 +58,6 @@ When cleaning up PropMgrBaseClass etc, note some other things Mark wants to work
 from test_command_PMs import ExampleCommand1_PM
 from test_command_PMs import ExampleCommand2_PM
 from test_command_PMs import ExampleCommand2E_PM
-from test_command_PMs import PMWidgetsTest_PM ### OBSOLETE? if so, remove import and (from other file) original class.
 
 from PM.PM_WidgetsDemoPropertyManager import PM_WidgetsDemoPropertyManager
 
