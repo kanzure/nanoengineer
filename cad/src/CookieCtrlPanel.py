@@ -275,11 +275,11 @@ class CookieCtrlPanel(CookiePropertyManager):
         self.w.viewOrientationAction.setEnabled(0) #Disable Orientation Window
         
 
-         # Disable  these toolbars
+        # Disable these toolbars
         self.w.buildToolsToolBar.setEnabled(False)
         self.w.simulationToolBar.setEnabled(False)
 
-        #Set acclerating keys for auto-selection shape
+        # Set acceleration keys for auto-selection shape
         self._setAutoShapeAcclKeys(True)
 
         self.w.dashboardHolder.setWidget(self.w.cookieCutterDashboard)
@@ -290,7 +290,7 @@ class CookieCtrlPanel(CookiePropertyManager):
         	
 	self.updateCommandManager(bool_entering = False)
 	        
-        self.w.toolsCookieCutAction.setChecked(0) #Toggle cookie cutter icon
+        self.w.toolsCookieCutAction.setChecked(0) # Toggle cookie cutter icon
         
         self.closePropertyManager() 
 
