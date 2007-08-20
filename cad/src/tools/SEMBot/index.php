@@ -17,7 +17,7 @@ page_head("");
         href="NE1_Documentation">NE1 API Docs</a>&nbsp;&nbsp;&nbsp;</th>
 
       <th>&nbsp;&nbsp;&nbsp;<a
-        href="#">QA</a>&nbsp;&nbsp;&nbsp;</th>
+        href="#qa">QA</a>&nbsp;&nbsp;&nbsp;</th>
 
       <th>&nbsp;&nbsp;&nbsp;<a
         href="#">Builds</a>&nbsp;&nbsp;&nbsp;</th>
@@ -32,21 +32,54 @@ page_head("");
 <p>
 <img align="right" src="Engineer-X-Man-Logo.png">
 Welcome to the Nanorex Software-Engineering Mechanisms Robot (SEMBot).
-<p>
-SEMBot files are checked in under /cad/src/tools/SEMBot/ and are updated before each run.
+
+<!-- SEMBot -->
 <table class="summary" border="1" cellpadding="3"
        cellspacing="0" width="500" bgcolor="white">
+  <tr bgcolor="#70b0f0" class="table-header">
+    <td colspan="2" class="table-header">
+    <span class="table-header">SEMBot</span></td>
+  </tr>
+
+  <tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">Summary</span></td>
+    <td class="summary">This mechanism updates a local copy of the NE1 codebase, then automates the execution of the following set of software engineering tools against that codebase.</td>
+  </tr>
+
+  <tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">Last run</span></td>
+    <td class="summary">
+      <span class="summary-name"><?php include 'SEMBot.timestamp'; ?></span> (Run every night.)</td>
+  </tr>
+
+  <tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">Last result</span></td>
+    <td class="summary">
+      <span class="summary-name"><?php include 'SEMBot.result'; ?></span></td>
+  </tr>
+
   <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">Log</span></td>
     <td class="summary">
       <span class="summary-name"><a href="http://www.nanohive-1.org/Engineering/SEMBot.log">SEMBot.log</a></span></td>
   </tr>
-</table>
+
+  <tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">Notes</span></td>
+    <td class="summary">
+      SEMBot files are checked in under /cad/src/tools/SEMBot/ and are updated before each run.</td>
+  </tr>
+	</table>
 <pre>
 
 </pre>
 
+<!-- Epydoc -->
 <a name="epydoc"></a>
 <table class="summary" border="1" cellpadding="3"
        cellspacing="0" width="500" bgcolor="white">
@@ -58,7 +91,7 @@ SEMBot files are checked in under /cad/src/tools/SEMBot/ and are updated before 
   <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">Summary</span></td>
-    <td class="summary">This mechanism updates a local copy of the NE1 codebase, then runs <a href="http://epydoc.sourceforge.net/">Epydoc</a> on it to generate formatted <a href="NE1_Documentation">NE1 API documentation</a>.</td>
+    <td class="summary">This mechanism runs <a href="http://epydoc.sourceforge.net/">Epydoc</a> on the codebase to generate formatted <a href="NE1_Documentation">NE1 API documentation</a>.</td>
   </tr>
 
   <tr>
@@ -82,16 +115,6 @@ SEMBot files are checked in under /cad/src/tools/SEMBot/ and are updated before 
       <span class="summary-name"><a href="http://www.nanohive-1.org/Engineering/NE1_Docs.log">NE1_Docs.log</a></span></td>
   </tr>
 
-<!--
-  <tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">
-        <input type="submit" value="Re-Generate"></span></td>
-    <td class="summary">
-      This will re-run Epydoc to re-generate the API documentation. (Password required.)
-  </tr>
--->
-
   <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">Notes</span></td>
@@ -106,23 +129,25 @@ SEMBot files are checked in under /cad/src/tools/SEMBot/ and are updated before 
 
 <p>
 
+<!-- QA Test Harness -->
 <a name="qa"></a>
 <table class="summary" border="1" cellpadding="3"
        cellspacing="0" width="500" bgcolor="white">
   <tr bgcolor="#70b0f0" class="table-header">
     <td colspan="2" class="table-header">
-    <span class="table-header">QA</span></td>
+    <span class="table-header">QA Test Harness</span></td>
   </tr>
 
   <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">Summary</span></td>
-    <td class="summary">pyUnit, pyChecker, etc.</td>
+    <td class="summary">This mechanism runs Quality Assurance tools such as Pylint, Pychecker, and Pyunit</td>
   </tr>
 </table>
 
 <p>
 
+<!-- Builds -->
 <a name="builds"></a>
 <table class="summary" border="1" cellpadding="3"
        cellspacing="0" width="500" bgcolor="white">

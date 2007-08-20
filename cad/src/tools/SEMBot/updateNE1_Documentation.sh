@@ -6,19 +6,7 @@
 echo `date +"%a %b %e %T EDT %Y"` > NE1_Docs.timestamp
 
 # Remove files used to check for command successes
-rm -f SVN-D/cad/src/epydoc.config
 rm -f NE1_Documentation/api-objects.txt
-
-# Update codebase
-svn update SVN-D/cad/src
-
-# Check if Epydoc was successfull by checking for the existence of the file we
-# deleted earlier.
-if [ ! -e SVN-D/cad/src/epydoc.config ]; then
-  RESULT="<font color=red>Failed</font>"
-  echo ${RESULT} > NE1_Docs.result
-  exit
-fi
 
 # Run Epydoc
 pushd SVN-D/cad/src
