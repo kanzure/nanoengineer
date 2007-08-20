@@ -1955,18 +1955,6 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         MMKitWin.update_dialog(self.Element)	
         return MMKitWin
         
-##    def hide_MMKit_during_open_or_save_on_MacOS(self): # added to fix bug 1744. mark 060324
-##        '''Returns True if the current platform is MacOS and the MMKit is shown.  
-##        Returns False if the current platform is not MacOS or if the MMKit is not shown.
-##        If the current platform is MacOS, the MMKit will be hidden if it is open and showing.
-##        '''
-##        if sys.platform == 'darwin':
-##            global MMKitWin
-##            if MMKitWin and MMKitWin.isVisible():
-##                MMKitWin.hide()
-##                return True
-##        return False
-
     def deleteMMKit(self):
         '''Deletes the MMKit.
         '''
@@ -2077,7 +2065,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 	return self.orientationWindow
     
     def deleteOrientationWindow(self):
-	'''Delete the orientation window when the main window closes'''
+	"""Delete the orientation window when the main window closes"""
 	#ninad 061121 - this is probably unnecessary  
 	if self.orientationWindow:
 	    self.orientationWindow.close()
@@ -2137,11 +2125,11 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 ##        self.skipSB.setSuffix(suffix)
 
 #######  Load IconSets #########################################
-    def load_icons_to_iconsets(self):
-        '''Load additional icons to QAction icon sets that are used in MainWindow toolbars and menus.
-        This is experimental. mark 060427.
-        '''
-    
+    def load_icons_to_iconsets(self): ### REVIEW (Mark): is this still needed? [bruce 070820]
+        """
+        Load additional icons to QAction icon sets that are used in MainWindow
+        toolbars and menus. This is experimental. mark 060427.
+        """
         filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
         small_disabled_on_icon_fname = filePath + "/../images/redoAction_small_disabled_off.png"
         
@@ -2149,6 +2137,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         editRedoIconSet = self.editRedoAction.iconSet()
         editRedoIconSet.setPixmap ( small_disabled_on_icon_fname, QIcon.Small, QIcon.Disabled, QIcon.Off )
         self.editRedoAction.setIcon ( editRedoIconSet )
+        return
     
     def hideDashboards(self):
         # [bruce 050408 comment: this list should be recoded somehow so that it
@@ -2164,12 +2153,12 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.rotateDashboard.hide()
         self.fuseChunksDashboard.hide()
         self.cookieSelectDashboard.hide()
-	
         return
             
-    def enableViews(self, enableFlag=True):
-        '''Disables/enables view actions on toolbar and menu.
-        '''
+    def enableViews(self, enableFlag = True):
+        """
+        Disables/enables view actions on toolbar and menu.
+        """
         self.viewNormalToAction.setEnabled(enableFlag)
         self.viewParallelToAction.setEnabled(enableFlag)
         
@@ -2188,10 +2177,12 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.viewRotate180Action.setEnabled(enableFlag)
         self.viewRotatePlus90Action.setEnabled(enableFlag)
         self.viewRotateMinus90Action.setEnabled(enableFlag)
+        return
     
-    def disable_QActions_for_extrudeMode(self, disableFlag=True):
-        '''Disables action items in the main window for extrudeMode.
-        '''
+    def disable_QActions_for_extrudeMode(self, disableFlag = True):
+        """
+        Disables action items in the main window for extrudeMode.
+        """
         self.disable_QActions_for_movieMode(disableFlag)
         self.modifyHydrogenateAction.setEnabled(not disableFlag) # Fixes bug 1057. mark 060323
         self.modifyDehydrogenateAction.setEnabled(not disableFlag)
@@ -2204,51 +2195,62 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 	self.modifyMirrorAction.setEnabled(not disableFlag)
         self.modifyAlignCommonAxisAction.setEnabled(not disableFlag)
         # All QActions in the Modify menu/toolbar should be disabled, too. mark 060323
+        return
         
-        
-    def disable_QActions_for_sim(self, disableFlag=True):
-        '''Disables actions items in the main window during simulations (and minimize).
-        '''
+    def disable_QActions_for_sim(self, disableFlag = True):
+        """
+        Disables actions items in the main window during simulations (and minimize).
+        """
         self.disable_QActions_for_movieMode(disableFlag)
         self.simMoviePlayerAction.setEnabled(not disableFlag)
+        return
         
-    def disable_QActions_for_movieMode(self, disableFlag=True):
-        '''Disables action items in the main window for movieMode.
-        '''
-        disable = not disableFlag
-        self.modifyAdjustSelAction.setEnabled(disable) # "Adjust Selection"
-        self.modifyAdjustAllAction.setEnabled(disable) # "Adjust All"
-        self.simMinimizeEnergyAction.setEnabled(disable) # Minimize Energy 
-        self.simSetupAction.setEnabled(disable) # "Simulator"
-        self.fileSaveAction.setEnabled(disable) # "File Save"
-        self.fileSaveAsAction.setEnabled(disable) # "File Save As"
-        self.fileOpenAction.setEnabled(disable) # "File Open"
-        self.fileCloseAction.setEnabled(disable) # "File Close"
-        self.fileInsertAction.setEnabled(disable) # "File Insert"
-        self.editDeleteAction.setEnabled(disable) # "Delete"
+    def disable_QActions_for_movieMode(self, disableFlag = True):
+        """
+        Disables action items in the main window for movieMode;
+        also called by disable_QActions_for_extrudeMode
+        and by disable_QActions_for_sim.
+        """
+        enable = not disableFlag
+        self.modifyAdjustSelAction.setEnabled(enable) # "Adjust Selection"
+        self.modifyAdjustAllAction.setEnabled(enable) # "Adjust All"
+        self.simMinimizeEnergyAction.setEnabled(enable) # Minimize Energy 
+        self.simSetupAction.setEnabled(enable) # "Simulator"
+        self.fileSaveAction.setEnabled(enable) # "File Save"
+        self.fileSaveAsAction.setEnabled(enable) # "File Save As"
+        self.fileOpenAction.setEnabled(enable) # "File Open"
+        self.fileCloseAction.setEnabled(enable) # "File Close"
+        self.fileInsertAction.setEnabled(enable) # "File Insert"
+        self.editDeleteAction.setEnabled(enable) # "Delete"
         
-        # [bruce 050426 comment: I'm skeptical of disabling the ones marked #k 
+        # [bruce 050426 comment: I'm skeptical of disabling zoom/pan/rotate,
         #  and suggest for some others (especially "simulator") that they
         #  auto-exit the mode rather than be disabled,
         #  but I won't revise these for now.]
+        #
+        # [update, bruce 070813/070820]
+        # Zoom/pan/rotate are now rewritten to suspend rather than exit
+        # the current mode, so they no longer need disabling in Extrude or
+        # Movie modes. (There is one known minor bug (2517) -- Movie mode
+        # asks whether to rewind (via popup dialog), which is only appropriate
+        # to ask if it's being exited. Fixing this is relevant to the
+        # upcoming "command sequencer".)
+        # This is also called by disable_QActions_for_sim, and whether this
+        # change is safe in that case is not carefully reviewed or tested,
+        # but it seems likely to be ok.
         
-        ### Experiment for Extrude -- don't disable zoom/pan/rotate, now that
-        # they're rewritten to work with it. Seems to work in Extrude,
-        # but (### WARNING) also affects movieMode and might be wrong for it
-        # (or might be ok) -- this is untested and unreviewed.
-        # Need to test soon and fix if necessary. [bruce 070813]
-        
-##        self.zoomToolAction.setEnabled(disable) # "Zoom Tool" [#k]
-##        self.panToolAction.setEnabled(disable) # "Pan Tool" [#k]
-##        self.rotateToolAction.setEnabled(disable) # "Rotate Tool" [#k]
+##        self.zoomToolAction.setEnabled(enable) # "Zoom Tool"
+##        self.panToolAction.setEnabled(enable) # "Pan Tool"
+##        self.rotateToolAction.setEnabled(enable) # "Rotate Tool"
 
         return
 	
     def updatePlayMovieAction(self):
-	''' Enables of disables 'Play movie' button in the UI. 
-	This action is enabled if there is a movie file with the same name as 
-	the opened file'''
-	
+	"""
+	Enables of disables 'Play movie' button in the UI. 
+	This action is enabled if there is a movie file with the same name as
+	the opened file.
+	"""
 	#@@@ This is a temporary fix for bug 2428. 
 	#See bug report for issues ninad 20070626
 	errorcode, partFilesDir = self.assy.get_part_files_directory() 
@@ -2272,9 +2274,8 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 		self.simMoviePlayerAction.setEnabled(True)
 	else:
 	    self.simMoviePlayerAction.setEnabled(False)
-	    
 	
-	
+	return
 
 # == Caption methods
 
@@ -2282,10 +2283,11 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.update_mainwindow_caption(self.assy.has_changed())
 
     def update_mainwindow_caption(self, changed = False): #by mark; bruce 050810 revised this in several ways, fixed bug 785
-        '''Update the caption at the top of the of the main window. 
+        """
+        Update the caption at the top of the of the main window. 
         Example:  "NanoEngineer-1 - [partname.mmp]"
         changed = True will add the prefix and suffix to the caption denoting the part has been changed.
-        '''
+        """
         caption_prefix = env.prefs[captionPrefix_prefs_key]
         caption_suffix = env.prefs[captionSuffix_prefs_key]
         caption_fullpath = env.prefs[captionFullPath_prefs_key]
