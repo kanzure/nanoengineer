@@ -175,83 +175,8 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 
         self.toolsSelectAtomsAction = QAction(self)
         self.simMoviePlayerAction = QAction(self)
-        self.setupUi(self)	 
-	
-	
-        self.MoveOptionsGroup = QActionGroup(self)
-        self.MoveOptionsGroup.setObjectName("MoveOptionsGroup")
-	self.MoveOptionsGroup.setExclusive(True)
-	
-	self.moveFreeAction = QAction(self.MoveOptionsGroup)
-        self.moveFreeAction.setObjectName("moveFreeAction")
-        self.moveFreeAction.setCheckable(True)
-	self.moveFreeAction.setIcon(geticon("ui/actions/Properties Manager/Move_Free"))
-	
-        self.transXAction = QAction(self.MoveOptionsGroup)
-        self.transXAction.setObjectName("transXAction")
-        self.transXAction.setCheckable(True)
-        self.transXAction.setIcon(geticon("ui/actions/Properties Manager/TranslateX"))
-        self.transYAction = QAction(self.MoveOptionsGroup)
-        self.transYAction.setObjectName("transYAction")
-        self.transYAction.setCheckable(True)
-        self.transYAction.setIcon(geticon("ui/actions/Properties Manager/TranslateY"))
-        self.transZAction = QAction(self.MoveOptionsGroup)
-        self.transZAction.setObjectName("transZAction")
-        self.transZAction.setCheckable(True)
-        self.transZAction.setIcon(geticon("ui/actions/Properties Manager/TranslateZ"))
-	#@@@ kludge for A9 I am in a rush. needs cleanup. -- ninad20070605 
-	self.rotTransAlongAxisAction_1 = QAction(self.MoveOptionsGroup)
-	self.rotTransAlongAxisAction_1.setCheckable(True)
-	self.rotTransAlongAxisAction_1.setIcon(geticon(
-	    "ui/actions/Properties Manager/translate+rotate-A"))
-	
-	#Free Drag rotate action group (rotate components groupbox)
-	self.rotateOptionsGroup = QActionGroup(self)
-	self.rotateOptionsGroup.setObjectName("RotateOptionsGroup")
-	self.rotateOptionsGroup.setExclusive(True)
-		
-	#Ninad 070308 added rotate free action (free drag rotate) -- See Move/ Rotate Property manager . 
-        self.rotateFreeAction = QAction(self.rotateOptionsGroup)
-	self.rotateFreeAction.setObjectName("rotateFreeAction")
-	self.rotateFreeAction.setCheckable(True)	
-        self.rotateFreeAction.setIcon(geticon("ui/actions/Properties Manager/Rotate_Free"))
-	
-        self.rotXAction = QAction(self.rotateOptionsGroup)
-        self.rotXAction.setObjectName("rotXAction")
-        self.rotXAction.setCheckable(True)
-        self.rotXAction.setIcon(geticon("ui/actions/Properties Manager/RotateX"))
-        self.rotYAction = QAction(self.rotateOptionsGroup)
-        self.rotYAction.setObjectName("rotYAction")
-        self.rotYAction.setCheckable(True)
-        self.rotYAction.setIcon(geticon("ui/actions/Properties Manager/RotateY"))
-        self.rotZAction = QAction(self.rotateOptionsGroup)
-        self.rotZAction.setObjectName("rotZAction")
-        self.rotZAction.setCheckable(True)
-        self.rotZAction.setIcon(geticon("ui/actions/Properties Manager/RotateZ"))
-	
-	#@@@ kludge for A9 I am in a rush. needs cleanup. -- ninad20070605 
-	self.rotTransAlongAxisAction_2 = QAction(self.rotateOptionsGroup)
-	self.rotTransAlongAxisAction_2.setCheckable(True)
-	self.rotTransAlongAxisAction_2.setIcon(geticon(
-	    "ui/actions/Properties Manager/translate+rotate-A"))
-	        
+        self.setupUi(self)	         
         	
-        self.moveDeltaPlusAction = QAction(self)
-        self.moveDeltaPlusAction.setObjectName("moveDeltaPlusAction")
-        self.moveDeltaPlusAction.setIcon(geticon("ui/actions/Properties Manager/Move_Delta_Plus"))
-        self.moveAbsoluteAction = QAction(self)
-        self.moveAbsoluteAction.setObjectName("moveAbsoluteAction")
-        self.moveAbsoluteAction.setIcon(geticon("ui/actions/Properties Manager/Move_Absolute"))
-        self.moveDeltaMinusAction = QAction(self)
-        self.moveDeltaMinusAction.setObjectName("moveDeltaMinusAction")
-        self.moveDeltaMinusAction.setIcon(geticon("ui/actions/Properties Manager/Move_Delta_Minus"))
-        self.rotateThetaMinusAction = QAction(self)
-        self.rotateThetaMinusAction.setObjectName("rotateThetaMinusAction")
-        self.rotateThetaMinusAction.setIcon(geticon("ui/actions/Properties Manager/Move_Theta_Minus"))
-        self.rotateThetaPlusAction = QAction(self)
-        self.rotateThetaPlusAction.setObjectName("rotateThetaPlusAction")
-        self.rotateThetaPlusAction.setIcon(geticon("ui/actions/Properties Manager/Move_Theta_Plus"))
-
         self.connect(self.dispBGColorAction,SIGNAL("triggered()"),self.dispBGColor)
         self.connect(self.dispBallAction,SIGNAL("triggered()"),self.dispBall)
         self.connect(self.dispDefaultAction,SIGNAL("triggered()"),self.dispDefault)

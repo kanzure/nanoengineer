@@ -91,7 +91,7 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
 	#@bug BUG: following is a workaround for bug 2494
 	changes.keep_forever(self.propMgr)
 		
-	self.propMgr.show_propMgr()                	
+	self.propMgr.show()                	
 	self.updateCommandManager(bool_entering = True)
     
         # connect signals (these all need to be disconnected in restore_gui)                
@@ -122,7 +122,7 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         self.w.rotateComponentsAction.setChecked(False)
         self.connect_or_disconnect_signals(False)        
 	if self.propMgr:	    
-	    self.propMgr.closePropertyManager()
+	    self.propMgr.close()
 	
     
     def getFlyoutActionList(self): #Ninad 20070618
@@ -201,38 +201,9 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         # For these key presses, we toggle the Action item, which will send 
         # an event to changeMoveMode, where the business is done.
         # Mark 050410
-
-	if self.propMgr.isTranslateGroupBoxActive:
-            if key == Qt.Key_X:
-		# toggle on the Translate X action item
-                self.w.transXAction.setChecked(1) 
-                self.propMgr.changeMoveOption(self.w.transXAction)
-            elif key == Qt.Key_Y:
-		# toggle on the Translate Y action item
-                self.w.transYAction.setChecked(1) 
-                self.propMgr.changeMoveOption(self.w.transYAction)
-            elif key == Qt.Key_Z:
-		# toggle on the Translate Z action item
-                self.w.transZAction.setChecked(1) 
-                self.propMgr.changeMoveOption(self.w.transZAction)
-	    elif key == Qt.Key_A:
-		# toggle on the Trans-Rotate A action item
-                self.w.rotTransAlongAxisAction_1.setChecked(1) 
-                self.propMgr.changeMoveOption(self.w.rotTransAlongAxisAction_1)
-	else:
-            if key == Qt.Key_X:
-                self.w.rotXAction.setChecked(1) # toggle on the Rotate X action item
-                self.propMgr.changeRotateOption(self.w.rotXAction)
-            elif key == Qt.Key_Y:
-                self.w.rotYAction.setChecked(1) # toggle on the Rotate Y action item
-                self.propMgr.changeRotateOption(self.w.rotYAction)
-            elif key == Qt.Key_Z:
-                self.w.rotZAction.setChecked(1) # toggle on the Rotate Z action item
-                self.propMgr.changeRotateOption(self.w.rotZAction)
-	    elif key == Qt.Key_A:
-		# toggle on the Trans-Rotate A action item
-                self.w.rotTransAlongAxisAction_2.setChecked(1)
-		self.propMgr.changeRotateOption(self.w.rotTransAlongAxisAction_2)
+	
+	self.propMgr.keyPress(key)
+	
         
         #If Key 'A' is pressed, set the flag for Constrained trasnlation and rotation
         #along the axis of the chunk to True
@@ -249,8 +220,6 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         basicMode.keyRelease(self, key)        
     
         if key in [Qt.Key_X, Qt.Key_Y, Qt.Key_Z, Qt.Key_A]:
-            self.w.moveFreeAction.setChecked(1) # toggle on the Move Chunks icon
-            self.propMgr.changeMoveOption(self.w.moveFreeAction)
             self.movingPoint = None # Fixes bugs 583 and 674 along with change in leftDrag().  Mark 050623
         elif key == Qt.Key_R:
             self.RotationOnly = False # Unconstrain translation.
@@ -572,7 +541,7 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
 	# selectMolsMode.pseudoMoveModeLeftDrag. Need to move some common code
 	#in this method to self.leftDrag. Lower priority -- ninad 20070727
 	
-	if self.propMgr.movetype_combox.currentText() != "Free Drag":
+	if self.propMgr.translateComboBox.currentText() != "Free Drag":
 	    return
 	     
 	# Fixes bugs 583 and 674 along with change in keyRelease.  Mark 050623
@@ -647,10 +616,11 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
 	@type  event: QMouseEvent object
 	@see : self.leftDrag
 	"""
-	if self.propMgr.rotatetype_combox.currentText() != "Free Drag":
+	
+	if self.propMgr.rotateComboBox.currentText() != "Free Drag":
 	    return
-		
-	if self.w.rotateFreeAction.isChecked():
+	
+	if self.rotateOption == 'ROTATEDEFAULT':
 	    ##self.leftCntlDrag(event)
 	    self.leftDragFreeRotation(event)
 	    return 
@@ -952,44 +922,44 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         return
 
 
-    def moveThetaPlus(self):
+    def rotateThetaPlus(self):
         "Rotate the selected chunk(s) by theta (plus)"
-        button= self.propMgr.rotateAroundAxisButtonGroup.checkedButton()
+        button = self.propMgr.rotateAroundAxisButtonRow.checkedButton()
         if button:
-            rotype = button.objectName()
+            rotype = str(button.text())
         else:
             env.history.message(redmsg("Rotate By Specified Angle: Please press the button \
             corresponding to the axis of rotation"))
             return
         theta = self.propMgr.rotateThetaSpinBox.value()
-        self.moveTheta( rotype, theta)
+        self.rotateTheta( rotype, theta)
         
-    def moveThetaMinus(self):
+    def rotateThetaMinus(self):
         "Rotate the selected chunk(s) by theta (minus)"
-        button= self.propMgr.rotateAroundAxisButtonGroup.checkedButton()
+        button = self.propMgr.rotateAroundAxisButtonRow.checkedButton()
         if button:
-            rotype = button.objectName()
+            rotype = str(button.text())
         else:
             env.history.message(redmsg("Rotate By Specified Angle: Please press the button \
             corresponding to the axis of rotation"))
             return
         theta = self.propMgr.rotateThetaSpinBox.value() * -1.0
-        self.moveTheta( rotype, theta)
+        self.rotateTheta( rotype, theta)
         
-    def moveTheta(self, rotype, theta):
+    def rotateTheta(self, rotype, theta):
         "Rotate the selected chunk(s) /jig(s) around the specified axis by theta (degrees)"
         if not self.o.assy.getSelectedMovables(): 
             env.history.message(redmsg("No chunks or movable jigs selected."))
             return
         
-        if rotype == 'Rotate X':
+        if rotype == 'ROTATEX':
             ma = V(1,0,0) # X Axis
-        elif rotype == 'Rotate Y':
+        elif rotype == 'ROTATEY':
             ma = V(0,1,0) # Y Axis
-        elif rotype == 'Rotate Z':
+        elif rotype == 'ROTATEZ':
             ma = V(0,0,1) # Z Axis
         else:
-            print 'modifyMody.moveThetaPlus: Error.  rotype = ', rotype, ', which is undefined.'
+            print 'modifyMody.rotateTheta: Error.  rotype = ', rotype, ', which is undefined.'
             return
 
         # wware 20061214: I don't know where the need arose for this factor of 100,
@@ -1010,7 +980,7 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
     
         self.o.gl_update()
         
-    def moveDeltaPlus(self):
+    def transDeltaPlus(self):
         "Add X, Y, and Z to the selected chunk(s) current position"
         if not self.o.assy.getSelectedMovables(): 
             env.history.message(redmsg("No chunks or movable jigs selected."))
@@ -1019,7 +989,7 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         self.o.assy.movesel(offset)
         self.o.gl_update()
 
-    def moveDeltaMinus(self):
+    def transDeltaMinus(self):
         "Subtract X, Y, and Z from the selected chunk(s) current position"
         if not self.o.assy.getSelectedMovables(): 
             env.history.message(redmsg("No chunks or movable jigs selected."))
