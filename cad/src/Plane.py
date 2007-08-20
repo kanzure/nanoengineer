@@ -5,22 +5,14 @@
 @version:$Id$
 
 History:
-ninad 20070621: Created.
-ninad 20070601: Implemented DragHandler and selobj interface for the 
-class Handles. (and for ReferenceGeoemtry which is a superclass of Plane)
-ninad 20070603: Implemented Plane Property Manager
-ninad 20070606: slightly cleaned up the code-- Plane class now inherits only
-ReferenceGeometry and uses PlaneGenerator object for PropertyManager work.
-ninad 20070612: Created new class 'DirectionArrow' to support the implementation 
-of 'offset plane'
+ninad 2007-06-21: Created.
+ninad 2007-06-01: Implemented DragHandler and selobj interface for classes
+      Handles and ReferenceGeoemtry.
+ninad 2007-06-03: Implemented Plane Property Manager
+ninad 2007-08-20: Moved class DirectionArrow in this file to Directionarrow.py
 
-@NOTE:This file is subjected to major changes. 
-@TODO: 
-1) Many other improvements planned- Ninad 070603
-- Needs documentation and code cleanup /organization post Alpha9.--ninad20070604
-(added some documentation on 20070615. More to do.)
-2) Need to split out Handle and DirectionArrow classes out of these file
-
+TODO:
+- Need to implement some grid plane features. 
 
 """
 
@@ -41,8 +33,7 @@ from PyQt4.Qt import QDialog
 
 from shape import fill
 from drawer import drawLineLoop, drawPlane
-from drawer import drawDirectionArrow
-from constants import black, gray, orange, yellow, darkgreen, brown
+from constants import black, orange, yellow, darkgreen, brown
 from VQT import V,Q, cross, A, planeXline, vlen, norm
 
 from debug import print_compact_traceback
@@ -53,6 +44,7 @@ from HistoryWidget import greenmsg, redmsg
 from PlaneGenerator       import PlaneGenerator
 from PlanePropertyManager import PlanePropertyManager
 from ReferenceGeometry    import ReferenceGeometry 
+from DirectionArrow       import DirectionArrow
 
 
 #Required for class Handle --
@@ -101,12 +93,7 @@ class Plane(ReferenceGeometry):
         
         self.win = win
                       
-        ReferenceGeometry.__init__(self, win)         
-        
-        if self.win.assy.o.mode.modename in \
-           ['DEPOSIT', 'MODIFY', 'FUSE', 'MOVIE']:
-            self.modePropertyManager = self.win.assy.o.mode
-                    
+        ReferenceGeometry.__init__(self, win)                            
        
         self.fill_color     =  self.default_fill_color
         self.border_color   =  self.default_border_color  
@@ -317,7 +304,7 @@ class Plane(ReferenceGeometry):
             else:  
                 #Following draws the border of the plane in orange color 
                 #for it's front side (side that was in front 
-                #when the plane was created and a gray border for the back side. 
+                #when the plane was created and a brown border for the back side. 
                 if dot(self.getaxis(), glpane.lineOfSight) < 0:
                     bordercolor = brown #backside
                 else:
@@ -947,213 +934,3 @@ class Handle(DragHandler_API):
     def ReleasedOn(self, selobj, event, mode): 
         pass
     ###=========== Drag Handler interface Ends =============###
-
-
-class DirectionArrow(DragHandler_API):
-    """
-    The DirectionArrow class provides a 3D direction arrow that can be
-    interacted with in the 3D graphics area. The direction arrow object
-    is created in its parent class. (class corresponding to self.parent)
-    
-    Example: Used to generate a plane offset to the selected plane, 
-             in the direction indicated by the direction arrow.
-             Clicking on the arrow reverses its direction and 
-             thus the direction of the plane placement.
-    """
-    def __init__(self, parent, glpane, tailPoint, defaultDirection):
-        """
-        Creates a direction arrow.
-        
-        @param parent: The parent object.
-        @type  parent:
-        
-        @param glpane: The 3D graphics area object.
-        @type  glpane: L{GLPane}
-        
-        @param tailPoint: The origin of the arrow.
-        @type  tailPoint: V
-        
-        @param defaultDirection: The direction of the arrow.
-        @type  defaultDirection: 
-        """
-        self.parent = parent
-        self.glpane = glpane
-        self.tailPoint = tailPoint  
-        self.direction = defaultDirection        
-        self.glname = env.alloc_my_glselect_name(self)  
-        self.flipDirection = False
-        self.drawRequested = False
-    
-    def setDrawRequested(self, bool_request = False):
-        """Sets the draw request for drawing the direction arrow. 
-        This class's draw method is called in the parent class's draw method
-        This functions sets the flag that decides whether to draw direction arrow
-        (the flag  value is returned using isDrawRequested method.
-        @param: bool_request: Default is False. (request to draw direction arrow)
-        """
-        self.drawRequested = bool_request
-    
-    def isDrawRequested(self): 
-        """ Returns the flag that decides whether to draw the direction arrow. 
-        @return: self.drawRequested (boolean value)"""
-        return self.drawRequested 
-             
-    def draw(self):
-        """ Draw the direction arrow. (This method is called inside of the 
-        parent object's drawing code."""
-        try:
-            glPushName(self.glname)
-            if self.flipDirection:
-                self._draw(flipDirection = self.flipDirection)    
-            else:
-                self._draw()
-        except:
-            glPopName()
-            print_compact_traceback("ignoring exception when drawing handle %r: " % self)
-        else:
-            glPopName()        
-        pass
-    
-    def _draw(self, flipDirection = False, highlighted = False):
-        """ Main drawing code. 
-        @param:flipDirection : Defaule = False. 
-        This flag decides the direction in which the arrow is drawn. 
-        This value is set in the leftClick method
-        @param:highlighted : Default = False. Decids the color of the arrow
-        based on whether it is highlighted"""
-               
-        if highlighted:
-            color = orange
-        else:
-            color = gray
-
-        if flipDirection:
-            #@NOTE: Remember we are drawing the arrow inside of the _draw_geometry 
-            #so its drawing it in the translated coordinate system (translated
-            #at the center of the Plane. So we should do the following. 
-            #(i.e. use V(0,0,1)). This will change if we decide to draw the 
-            #direction arrow outside of the parent object 
-            #requesting this drawing.--ninad 20070612
-            
-            headPoint = self.tailPoint + V(0,0,1) * 2.0
-            ##headPoint = self.tailPoint - 2.0 * norm(self.parent.getaxis())
-        else:            
-            headPoint = self.tailPoint - V(0,0,1) * 2.0
-            ##headPoint = self.tailPoint + 2.0 * self.parent.getaxis()
-          
-       
-        drawDirectionArrow(color, 
-                           self.tailPoint, 
-                           headPoint,
-                           self.glpane.scale,
-                           flipDirection = flipDirection)
- 
-    def draw_in_abs_coords(self, glpane, color):
-        """
-        Draw the handle as a highlighted object.
-        """    
-        q = self.parent.quat  
-        glPushMatrix()
-        glTranslatef( self.parent.center[0],
-                      self.parent.center[1], 
-                      self.parent.center[2])
-        glRotatef( q.angle * ONE_RADIAN, 
-                   q.x,
-                   q.y,
-                   q.z)            
-        if self.flipDirection:            
-            self._draw(flipDirection = self.flipDirection, 
-                       highlighted   = True)    
-        else:
-            self._draw(highlighted   = True)
-        
-        glPopMatrix()
-        
-    ###=========== Drag Handler interface Starts =============###
-    #@TODO Need some documentation. Basically it implements the drag handler 
-    #interface described in DragHandler.py See also exprs.Highlightable.py
-    # -- ninad 20070612
-    def handles_updates(self): 
-        return True
-            
-    def DraggedOn(self, event, mode): 
-        return
-    
-    def ReleasedOn(self, selobj, event, mode): 
-        pass
-    
-    # =========== Drag Handler interface Ends =============
-    
-    # ============== selobj interface Starts ==============
-        
-    #@TODO Need some documentation. Basically it implements the selobj 
-    # interface mentioned in exprs.Highlightable.py -- ninad 2007-06-12
-    
-    def leftClick(self, point, event, mode):
-        """
-        Left clicking on the DirectionArrow flips its direction.
-        
-        @param point: not used for now.
-        @type  point: V
-        
-        @param event: Left down event.
-        @type  event: QEvent
-        
-        @param mode: Current mode program is in.
-        @type  mode: L{anyMode}
-        """
-        self.flipDirection = not self.flipDirection
-        mode.update_selobj(event)
-        mode.o.gl_update()
-        return self               
-
-    def mouseover_statusbar_message(self):
-        """
-        Returns the statusbar message to display when the cursor is over the
-        direction arrow in the 3D graphics area.
-        
-        @return: The statusbar message
-        @rtype:  str
-        """
-        msg1 = "Click on arrow to flip its direction"
-        return msg1 
-        
-    def highlight_color_for_modkeys(self, modkeys):
-        return orange
-    
-    # Copied Bruce's code from class Highlightable with some mods. 
-    # Need to see if selobj_still_ok() is needed. OK for now.
-    # --Ninad 2007-05-31
-    def selobj_still_ok(self, glpane):
-        res = self.__class__ is DirectionArrow
-        if res:
-            our_selobj = self
-            glname     = self.glname
-            owner      = env.obj_with_glselect_name.get(glname, None)
-            if owner is not our_selobj:
-                res = False
-                # owner might be None, in theory, but is probably a 
-                # replacement of self at same ipath. Do debug prints.
-                print "%r no longer owns glname %r, instead %r does" \
-                      % (self, glname, owner) # [perhaps never seen as of 061121]
-                our_ipath   = self.ipath
-                owner_ipath = getattr(owner, 'ipath', '<missing>')
-                if our_ipath != owner_ipath:
-                    # [perhaps never seen as of 061121]
-                    print "WARNING: ipath for that glname also changed, \
-                           from %r to %r" % (our_ipath, owner_ipath)
-                pass
-            pass
-            # MORE IS PROBABLY NEEDED HERE: that check above is about whether 
-            # this selobj got replaced locally; the comments in the calling 
-            # code are about whether it's no longer being drawn in the current
-            # frame; I think both issues are valid and need addressing in this
-            # code or it'll probably cause bugs. [061120 comment] ###BUG
-        if not res and env.debug():
-            print "debug: selobj_still_ok is false for %r" % self ###@@@
-        return res # I forgot this line, and it took me a couple hours to debug that problem! Ugh.
-            # Caller now prints a warning if it's None. 
-        
-        ###============== selobj interface Ends===============###
-               
-    pass
