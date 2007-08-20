@@ -168,8 +168,7 @@ class GeneratorBaseClass:
 
     [As of bruce 070719 I am not sure if not inheriting QDialog is possible.]
     There are some other methods here that merit mentioning: 
-    enter_WhatsThisMode, whatsthis_btn_clicked, done_btn_clicked,
-    abort_btn_clicked, cancel_btn_clicked, close.
+    done_btn_clicked, abort_btn_clicked, cancel_btn_clicked, close.
     """
     # default values of class constants; subclasses should override these as
     # needed
@@ -280,7 +279,6 @@ class GeneratorBaseClass:
     # GeneratorPM and/or PM_Dialog (or discarded if they are already overridden
     # correctly by PM_Dialog):
     # - all xxx_btn_clicked methods (also to be renamed, btn -> button)
-    # - enter_WhatsThisMode
     # - close
     # [070724 code review]
     

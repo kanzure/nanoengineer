@@ -6,8 +6,7 @@ See that file for more info.
 $Id$
 """
 
-##from PropMgrBaseClass import PropMgrBaseClass, PropMgrGroupBox, PropMgrComboBox, PropMgrDoubleSpinBox
-##from PyQt4.Qt import QDialog
+##from PropMgrBaseClass import PropMgrBaseClass
 
 from PyQt4.Qt import SIGNAL
 
@@ -46,7 +45,6 @@ class PM_Dialog_with_example_widgets( PM_Dialog):
     _sElementSymbolList    =  ["H","O","C","S"]
 
     def __init__(self):
-##    def _eg_init_stuff(self): @@@
         PM_Dialog.__init__( self, self.pmName, self.iconPath, self.title )
         self._addGroupBoxes()
         self._addWhatsThisText()
@@ -125,10 +123,7 @@ class ExampleCommand1_PM( PM_Dialog_with_example_widgets): # these supers are ne
     
     def ok_btn_clicked(self):
         print "ok_btn_clicked, nim except for Done in", self
-##        ## probably wrong: self.parent.Done() ###k both parent and Done
-##        print "parent is",self.parent ## parent is <built-in method parent of ExampleCommand1_PM object at 0x203774b0>
-##            # parent is a *method*?? does it come from Qt?? (QDialog?) but it's *also* a propmgr attr, or propmgr widget attr...
-        self.commandrun.Done() ###k both commandrun and Done
+        self.commandrun.Done()
         pass
     
     def cancel_btn_clicked(self):
@@ -140,25 +135,13 @@ class ExampleCommand1_PM( PM_Dialog_with_example_widgets): # these supers are ne
     def preview_btn_clicked(self):
         print "preview_btn_clicked", self
         pass
-    
-##    def enter_WhatsThisMode(self):
-##        print "enter_WhatsThisMode", self
-##        pass
-##    # should get these from SponsorableMixin, or (probably better) teach PropMgrBaseClass to get them from there: --
-##    ### REVIEW maybe these are no longer needed now that PM_Dialog has SponsorableMixin
-##    def open_sponsor_homepage(self):
-##        print "open_sponsor_homepage", self
-##        pass
-##    def setSponsor(self):
-##        print "setSponsor", self
-##        pass
-    
+        
     def __init__(self, win, commandrun = None):
         print "creating", self ####
         self.commandrun = commandrun
 
-        PM_Dialog_with_example_widgets.__init__( self ) ## ok before the next lne? @@@
-        if 1: # bruce added these, otherwise various AttributeErrors
+        PM_Dialog_with_example_widgets.__init__( self ) ## ok before the next line? @@@
+        if 1: # bruce added these, otherwise various AttributeErrors [still true??]
             self.win = win # needed in PropMgrBaseClass.show
             self.pw = win.activePartWindow() # same
         return
@@ -173,7 +156,6 @@ class ExampleCommand2_PM( PM_Dialog_with_example_widgets, GeneratorBaseClass):
     iconPath = "ui/actions/Toolbars/Smart/Deposit_Atoms.png" #e REVISE
 
     # need these, at least to use Done:
-##    create_name_from_prefix = True ##e we ought to give this a default value in GBC
     prefix = "Thing2" # for names created by GBC [required when create_name_from_prefix is true (not sure about otherwise)]
     cmdname = "Generate a Thing2" # Undo/history cmdname used by GBC [optional, but affects history messages]
     

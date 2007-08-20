@@ -441,20 +441,5 @@ def enter_example_command_doit(glpane, example_command_classname):
 for classname in ["ExampleCommand1", "ExampleCommand2", "ExampleCommand2E", "PM_WidgetDemo", "test_connectWithState"]:
     cmdname = classname # for now
     register_debug_menu_command( cmdname, (lambda widget, classname = classname: enter_example_command(widget, classname)) )
-
-##def register_all_entermode_commands(glpane):
-##    for name in glpane.modetab.keys():
-##        def func(glp, name = name):
-##            glp.mode.Done(new_mode = name)
-##            print "did Enter %s" % name
-##            return
-##        register_debug_menu_command( "Enter %s" % name, func )
-##    return
-##
-##if 0:
-##    import env
-##    win = env.mainwindow()
-##    glpane = win.glpane
-##    register_all_entermode_commands(glpane)
     
 # end
