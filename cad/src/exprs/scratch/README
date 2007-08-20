@@ -1,0 +1,5 @@
+These files might become real source files someday,
+but for now are just scratch areas for developing new code
+or ideas for it, and are not necessarily parseable and runnable,
+and should not be loaded into NE1 or processed by any code
+parsing tools such as PyChecker.

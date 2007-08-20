@@ -1,0 +1,6 @@
+These files are bits of code removed from parent directory files
+and desirable to be kept around for the time being for purposes
+of text searching by the developer, but are otherwise not meant
+to be part of NE1. They should not be loaded into NE1 or processed by any code
+parsing tools such as PyChecker.
+They are not necessarily parseable.
