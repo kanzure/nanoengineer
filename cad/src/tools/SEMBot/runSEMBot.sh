@@ -24,3 +24,6 @@ echo ${RESULT} > NE1_Docs.result
 # Run API documentation generation
 ./updateNE1_Documentation.sh &>NE1_Docs.log
 
+# Run Pylint
+./runPylint.sh &> Pylint.log
+
