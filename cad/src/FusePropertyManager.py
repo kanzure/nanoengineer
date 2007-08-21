@@ -22,13 +22,28 @@ applies to other modes and Propert Managers (e.g. Move mode, Build Atoms mode)
 """
 __author__  = "Ninad"
 
+
+
+
 from PyQt4.Qt import SIGNAL
+from PyQt4.Qt import Qt
+from PyQt4.Qt import QAction
+from PyQt4.Qt import QActionGroup
+from PyQt4.Qt import QButtonGroup
+from PyQt4.Qt import QLabel
+from PyQt4.Qt import QSpacerItem
+from PyQt4.Qt import QSizePolicy
 
-from PropertyManagerMixin   import  PropertyManagerMixin
-from PropertyManagerMixin   import  pmSetPropMgrIcon, pmSetPropMgrTitle
-from Ui_FusePropertyManager import  Ui_FusePropertyManager
+from PM.PM_GroupBox        import PM_GroupBox
+from PM.PM_ComboBox        import PM_ComboBox
+from PM.PM_PushButton      import PM_PushButton
+from PM.PM_CheckBox        import PM_CheckBox
+from PM.PM_Slider          import PM_Slider
+
+from PM.PM_Constants       import pmDoneButton
+from PM.PM_Constants       import pmWhatsThisButton
+
 from MovePropertyManager    import  MovePropertyManager
-
 from ops_select             import  objectSelected
 
 
@@ -43,93 +58,62 @@ class FusePropertyManager(MovePropertyManager):
 	
 	self.parentMode = parentMode
         MovePropertyManager.__init__(self, self.parentMode)
-        # setupUi() did not add the icon or title. We do that here.
-	pmSetPropMgrIcon( self, self.iconPath )
-        pmSetPropMgrTitle( self, self.title )
-	
+        	
 	self.activate_translateGroupBox_in_fuse_PM()
-        
-     
     
-    def connect_or_disconnect_signals(self, connect):
+    def _addGroupBoxes(self):
+	
+	self.fuseOptionsGroupBox = PM_GroupBox( self,
+					 title = "Fuse Options")
+	self._loadFuseOptionsGroupBox(self.fuseOptionsGroupBox)
+	
+	MovePropertyManager._addGroupBoxes(self)
+    
+    def _loadFuseOptionsGroupBox(self, inPmGroupBox):
 	"""
-	Connect the slots in Fuse Property Manager. 
-	@see: fusechunksMode.connect_or_disconnect_signals.
+	Load the widgets inside the Fuse Options groupbox.
 	"""
-	if connect:
-            change_connect = self.w.connect
-        else:
-            change_connect = self.w.disconnect
+	fuseChoices = ['Make Bonds Between Chunks', 'Fuse Overlapping Atoms']
 	
-	#connect slots
+	self.fuseComboBox = \
+            PM_ComboBox( inPmGroupBox,
+                         label        = '', 
+                         choices      = fuseChoices, 
+                         index        = 0, 
+                         setAsDefault = False,
+                         spanWidth    = True)
+        
+        self.connect(self.fuseComboBox, 
+                     SIGNAL("activated(const QString&)"), 
+                     self.parentMode.change_fuse_mode)
 	
-	change_connect(self.goPB,
-		       SIGNAL("clicked()"),
-		       self.parentMode.fuse_something)
+	self.fusePushButton = PM_PushButton( inPmGroupBox,
+					     label     = "",
+					     text      = "Make Bonds",
+					     spanWidth = True )
 	
-        change_connect(self.toleranceSL,
+	self.connect( self.fusePushButton,
+		      SIGNAL("clicked()"),
+		      self.parentMode.fuse_something)
+	
+	
+	self.toleranceSlider =  PM_Slider( inPmGroupBox,
+					   currentValue = 100,
+					   minimum      = 0,
+					   maximum      = 300,
+					   label        = \
+					   'Tolerance:100% => 0 bondable pairs'
+					 )
+	self.connect(self.toleranceSlider,
 		       SIGNAL("valueChanged(int)"),
-                       self.parentMode.tolerance_changed)        
-        
-        change_connect(self.fuse_mode_combox, 
-                       SIGNAL("activated(const QString&)"), 
-                       self.parentMode.change_fuse_mode)
-        
-        change_connect(self.w.moveDeltaPlusAction, 
-		       SIGNAL("activated()"), 
-                       self.parentMode.moveDeltaPlus)
+                       self.parentMode.tolerance_changed)
 	
-        change_connect(self.w.moveDeltaMinusAction, 
-		       SIGNAL("activated()"), 
-                       self.parentMode.moveDeltaMinus)
+	self.mergeChunksCheckBox = PM_CheckBox( inPmGroupBox,
+						text         = 'Merge Chunks',
+						widgetColumn = 0,
+						state        = Qt.Checked )
 	
-        change_connect(self.w.moveAbsoluteAction, 
-		       SIGNAL("activated()"), 
-                       self.parentMode.moveAbsolute)
-	
-        change_connect(self.w.rotateThetaPlusAction, 
-		       SIGNAL("activated()"),
-                       self.parentMode.moveThetaPlus)        
-	
-        change_connect(self.w.rotateThetaMinusAction, 
-		       SIGNAL("activated()"),                        
-                       self.parentMode.moveThetaMinus)
-        
-	change_connect(self.w.MoveOptionsGroup, 
-                       SIGNAL("triggered(QAction *)"), 
-		       self.changeMoveOption)
-	
-        change_connect(self.w.rotateOptionsGroup, 
-                       SIGNAL("triggered(QAction *)"), 
-		       self.changeRotateOption)
-	
-        change_connect(self.sponsor_btn,
-                     SIGNAL("clicked()"),
-                     self.sponsor_btn_clicked)
-        
-        change_connect(self.translate_groupBoxButton, 
-                     SIGNAL("clicked()"),
-                     self.activate_translateGroupBox_in_fuse_PM)   
-	
-        change_connect(self.rotate_groupBoxButton, 
-                     SIGNAL("clicked()"),
-                     self.activate_rotateGroupBox_in_fuse_PM)
-	
-	change_connect(self.fuseOptions_groupBoxButton, 
-                     SIGNAL("clicked()"),
-                     self.toggle_fuseOptionsGroupBox)
-        
-        
-	change_connect(self.movetype_combox, 
-		     SIGNAL("currentIndexChanged(int)"), 
-		     self.updateMoveGroupBoxItems)
-	
-	change_connect(self.rotatetype_combox, 
-		     SIGNAL("currentIndexChanged(int)"), 
-		     self.updateRotateGroupBoxItems)
-	
-    
-        
+
     def activate_translateGroupBox_in_fuse_PM(self):
         """Show contents of translate groupbox, deactivae the rotate groupbox. 
         Also check the action that was checked when this groupbox  was active last
@@ -140,15 +124,15 @@ class FusePropertyManager(MovePropertyManager):
 	self.toggle_translateGroupBox()
 	self.deactivate_rotateGroupBox()
        
-        actionToCheck = self.getTranslateActionToCheck()
+        buttonToCheck = self.getTranslateButtonToCheck()
                      
-        if actionToCheck:
-            actionToCheck.setChecked(True) 
+        if buttonToCheck:
+            buttonToCheck.setChecked(True) 
         else:
-            actionToCheck = self.w.moveFreeAction
-            actionToCheck.setChecked(True)
+            buttonToCheck = self.transFreeButton
+            buttonToCheck.setChecked(True)
 	
-	self.changeMoveOption(actionToCheck)
+	self.changeMoveOption(buttonToCheck)
         
         self.isTranslateGroupBoxActive = True
 	self.parentMode.update_cursor()
@@ -165,25 +149,20 @@ class FusePropertyManager(MovePropertyManager):
 	self.deactivate_translateGroupBox()
 	
                 
-        actionToCheck = self.getRotateActionToCheck()
+        buttonToCheck = self.getRotateButtonToCheck()
                   
-        if actionToCheck:
-            actionToCheck.setChecked(True) 
+        if buttonToCheck:
+            buttonToCheck.setChecked(True) 
         else:
-            actionToCheck = self.w.rotateFreeAction
-            actionToCheck.setChecked(True)
+            buttonToCheck = self.rotateFreeButton
+            buttonToCheck.setChecked(True)
 	    
-	self.changeRotateOption(actionToCheck)
+	self.changeRotateOption(buttonToCheck)
         
         self.isTranslateGroupBoxActive = False
 	self.parentMode.update_cursor()
 	
-        
-    def toggle_fuseOptionsGroupBox(self):
-        '''Toggles the item display in the parent groupbox of the button'''
-        
-        self.toggle_groupbox(self.fuseOptions_groupBoxButton,
-                             self.fuseOptions_widgetHolder)  
+         
     
     def show_propMgr(self):
 	"""
@@ -218,7 +197,7 @@ class FusePropertyManager(MovePropertyManager):
 	#to the last line and thus doesn't look good. I think once we migrate to
 	#PropertyManagerBaseClass, this will go away -- ninad 20070723
 	
-	if self.fuse_mode_combox.currentIndex() == 0:
+	if self.fuseComboBox.currentIndex() == 0:
 	    #i.e. 'Make Bonds Between Chunks'
 	    msg = "To <b> make bonds</b> between two or more chunks, \
 	    drag the selected chunk(s) such that their one or more bondpoints \

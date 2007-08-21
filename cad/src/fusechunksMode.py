@@ -68,10 +68,11 @@ def fusechunks_lambda_tol_nbonds(tol, nbonds, mbonds, bondable_pairs):
     else:
         mbonds_str = "(%d  non-bondable) " % (mbonds,)
         
-    tol_str = ("      %d" % int(tol*100.0))[-3:]
+    tol_str = ("%d" % int(tol*100.0))[-3:]
     # fixed-width (3 digits) but using initial spaces
     # (doesn't have all of desired effect, due to non-fixed-width font)
-    tol_str = tol_str + "%"
+    
+    tol_str = "Tolerence:" + tol_str + "%"
     
 #    return "%s => %s/%s bonds" % (tol_str,nbonds_str,mbonds_str)
 #    return "%s => [%s bondable pairs] [%s bonds / %s multibonds] " % (tol_str,bondable_pairs,nbonds_str,mbonds_str)
@@ -308,9 +309,9 @@ class fusechunksMode(modifyMode, fusechunksBase):
 	self.propMgr = FusePropertyManager(self)
 	#@bug BUG: following is a workaround for bug 2494
 	changes.keep_forever(self.propMgr)
-	self.propMgr.show_propMgr()               
+	self.propMgr.show()               
                 
-        self.change_fuse_mode(self.propMgr.fuse_mode_combox.currentText()) 
+        self.change_fuse_mode(self.propMgr.fuseComboBox.currentText()) 
             # This maintains state of fuse mode when leaving/reentering mode, and
             # syncs the PM and glpane (and does a gl_update).
         
@@ -326,17 +327,17 @@ class fusechunksMode(modifyMode, fusechunksBase):
        
         if self.propMgr.isTranslateGroupBoxActive:
 	    # toggle on the Move Free action in the Property Manager
-            self.w.moveFreeAction.setChecked(True) 
+            self.propMgr.transFreeButton.setChecked(True) 
             self.moveOption = 'MOVEDEFAULT'
         else:
-            self.w.rotateFreeAction.setChecked(True)
+            self.propMgr.rotateFreeButton.setChecked(True)
             self.rotateOption = 'ROTATEDEFAULT'
 
     def restore_gui(self):
 	self.updateCommandManager(bool_entering = False)
         self.connect_or_disconnect_signals(False)
         self.w.toolsFuseChunksAction.setChecked(False)
-	self.propMgr.closePropertyManager()
+	self.propMgr.close()
         
     def connect_or_disconnect_signals(self, connect): #copied from depositMode.py. mark 050901
         if connect:
@@ -427,7 +428,9 @@ class fusechunksMode(modifyMode, fusechunksBase):
             tol_str = fusechunks_lambda_tol_nbonds(self.tol, 0, 0, 0) # 0 bonds
         else:
             tol_str = fusechunks_lambda_tol_natoms(self.tol, 0) # 0 overlapping atoms
-        self.propMgr.toleranceLB.setText(tol_str) 
+	
+	tolerenceLabel = tol_str
+        self.propMgr.toleranceSlider.labelWidget.setText(tolerenceLabel) 
     
     def find_fusables(self):
         'Finds bondable pairs or overlapping atoms, based on the Fuse Action combo box'
@@ -441,8 +444,12 @@ class fusechunksMode(modifyMode, fusechunksBase):
         if self.fuse_mode == fuse_mode:
             return # The mode did not change.  Don't do anything.
         self.fuse_mode = str(fuse_mode) # Must cast here.
-        if fuse_mode == str(MAKEBONDS): self.propMgr.goPB.setText('Make Bonds')
-        else: self.propMgr.goPB.setText('Fuse Atoms') 
+	
+        if self.fuse_mode == str(MAKEBONDS): 
+	    self.propMgr.fusePushButton.setText('Make Bonds')
+        else: 
+	    self.propMgr.fusePushButton.setText('Fuse Atoms') 
+	    
         self.o.gl_update() # the Draw() method will update based on the current combo box item.
 
     def Backup(self):
@@ -578,7 +585,8 @@ class fusechunksMode(modifyMode, fusechunksBase):
         to bond with any other bondpoints in a list of chunks.  Hidden chunks are skipped.
         '''
         tol_str = fusechunksBase.find_bondable_pairs(self, chunk_list, None)
-        self.propMgr.toleranceLB.setText(tol_str)
+        tolerenceLabel = tol_str
+        self.propMgr.toleranceSlider.labelWidget.setText(tolerenceLabel) 
 
     def fuse_something(self):
         '''Slot for 'Make Bonds/Fuse Atoms' button.
@@ -597,7 +605,7 @@ class fusechunksMode(modifyMode, fusechunksBase):
         
     def _make_bonds_2(self):
         # Merge the chunks if the "merge chunks" checkbox is checked
-        if self.propMgr.mergeCB.isChecked() and self.bondable_pairs_atoms:
+        if self.propMgr.mergeChunksCheckBox.isChecked() and self.bondable_pairs_atoms:
             for a1, a2 in self.bondable_pairs_atoms:
                 # Ignore a1, they are atoms from the selected chunk(s)
                 # It is possible that a2 is an atom from a selected chunk, so check it
@@ -681,7 +689,8 @@ class fusechunksMode(modifyMode, fusechunksBase):
         # Update tolerance label and status bar msgs.
         natoms = len(self.overlapping_atoms)
         tol_str = fusechunks_lambda_tol_natoms(self.tol, natoms)
-        self.propMgr.toleranceLB.setText(tol_str)
+        tolerenceLabel = tol_str
+        self.propMgr.toleranceSlider.labelWidget.setText(tolerenceLabel) 
         
 
     def fuse_atoms(self):
@@ -706,7 +715,7 @@ class fusechunksMode(modifyMode, fusechunksBase):
 #        print "Fused chunks list:", fused_chunks
         
         # Merge the chunks if the "merge chunks" checkbox is checked
-        if self.propMgr.mergeCB.isChecked() and self.overlapping_atoms:
+        if self.propMgr.mergeChunksCheckBox.isChecked() and self.overlapping_atoms:
             # This will bond and merge the selected chunks only with
             # chunks that had overlapping atoms.
             #& This has bugs when the bonds don't line up nicely between overlapping atoms in the selected chunk
