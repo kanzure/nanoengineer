@@ -428,9 +428,11 @@ class PM_GroupBox( QGroupBox ):
             #Create Label as a pixmap (instead of text) if a valid icon path 
             #is provided
             labelPath = str(pmWidget.label)
-            if os.path.exists(labelPath):
-                pmWidget.labelWidget.setPixmap(getpixmap(labelPath))
-                pmWidget.labelWidget.setText('')
+            if labelPath:
+                labelPixmap = getpixmap(labelPath)
+                if not labelPixmap.isNull():
+                    pmWidget.labelWidget.setPixmap(labelPixmap)
+                    pmWidget.labelWidget.setText('')
                
             self.gridLayout.addWidget( pmWidget.labelWidget,
                                        labelRow, 
@@ -659,7 +661,7 @@ class PM_GroupBox( QGroupBox ):
             font:bold 12px 'Arial'; \
             color: " + pmGrpBoxButtonTextColor + ";\
             min-width:10em;\
-            background-image: url(" + pmGrpBoxExpandedIconPath + ");\
+            background-image: url("+ pmGrpBoxExpandedIconPath + ");\
             background-position: right;\
             background-repeat: no-repeat;\
             }"       
@@ -676,7 +678,6 @@ class PM_GroupBox( QGroupBox ):
             background-position: right;\
             background-repeat: no-repeat;\
             }"
-            
         return styleSheet
             
     def toggleExpandCollapse(self):

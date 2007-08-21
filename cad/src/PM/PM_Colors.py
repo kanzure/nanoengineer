@@ -15,23 +15,51 @@ mark 2007-07-22: Created initially for PM_Dialog as part of the code cleanup
 """
 
 import os
+import sys
 
 from PyQt4.Qt import QColor
 from PyQt4.Qt import QPalette
 
 from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False, Choice
 
+
+_iconPrefix = os.path.dirname(os.path.abspath(sys.argv[0]))
+_iconPrefix = os.sep.join(_iconPrefix.split(os.sep)[:-1] + ["src"])
+
 # Directory containing icons/images for the property manager.
 PM_ICON_DIR = "ui/actions/Properties Manager/"
 
-def getIconPath(iconName):
+def getIconPath(iconName, _iconPrefix = _iconPrefix):
     """
     Returns the relative path to the PM icon/image file <iconName>.
     
     @param iconName: basename of the icon's PNG file
     @type  iconName: str 
+    
+    @param _iconPrefix: The directory path to be prepended to the icon file path
+    @param _iconPrefix: str
     """
-    return os.path.join (PM_ICON_DIR + iconName)
+   
+    iconPath = os.path.join ( _iconPrefix, PM_ICON_DIR)   
+    iconPath = os.path.join( iconPath, iconName)    
+    iconPath = os.path.abspath(iconPath)
+       
+    if not os.path.exists(iconPath):
+        iconPath = ''
+    
+    forwardSlash = "/"
+    
+    #The iconPath is used in L{PM_GroupBox._getTitleButtonStyleSheet}
+    #the style sheet border-image attribute needs a url with only 
+    #forward slashes in the string. This creates problem on windows 
+    #because os.path.abspath returns the path with all backword slashes 
+    #in the path name(os default). the following replaces all backward 
+    #slashes with the forward slashes. Also fixes bug 2509 -- ninad 2007-08-21
+    
+    if sys.platform == 'win32':
+        iconPath = iconPath.replace(os.sep , str(forwardSlash))
+           
+    return str(iconPath)
 
 def getPalette( palette, colorRole, color ):
     """
@@ -130,4 +158,5 @@ else: # Blue Color Theme
 
     # Locations of groupbox opened and closed images.
     pmGrpBoxExpandedIconPath  = getIconPath("GroupBox_Opened_Blue.png")
+    
     pmGrpBoxCollapsedIconPath = getIconPath("GroupBox_Closed_Blue.png")
