@@ -217,10 +217,9 @@ class PM_WidgetGrid( PM_GroupBox ):
         buttonToolTip  = buttonParams[4] 
                 
         button = QToolButton(self)
-        button.setText(buttonText)
-        if os.path.exists(buttonIconPath):
-            button.setIcon(geticon(buttonIconPath))
-            button.setIconSize(QSize(22,22))
+        button.setText(buttonText)        
+        button.setIcon(geticon(buttonIconPath))
+        button.setIconSize(QSize(22,22))
         button.setToolTip(buttonToolTip)
         button.setFixedSize(buttonSize) #@ Currently fixed to 32 x 32.
         button.setCheckable(True)
