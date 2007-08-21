@@ -59,17 +59,61 @@ def image_directory(): #bruce 070604
     return _iconprefix
 
 def geticon(name, _iconprefix = _iconprefix):
-    path = os.path.join(_iconprefix, name)
-    icon = QtGui.QIcon(path)
-    if icon.isNull():
-        print 'geticon - null icon for: ' + path
+    """
+    Return the QIcon for the given image path name. 
+    @param name: The image path name provided by the user. the path should start 
+           with 'ui/' directory inside the src directory.
+    @type  name: str
+    
+    @param _iconPrefix: The directory path to be prepended to the pixmap filepath
+    @param _iconPrefix: str
+    
+    @return: QIcon object for the given image path.
+    @rtype:  QIcon object. 
+    """
+  
+    root, ext = os.path.splitext(name)
+    if not ext:
+        name = name + '.png' 
+    
+    iconPath = os.path.join(_iconprefix, name)
+    iconPath = os.path.normpath(iconPath)          
+    if os.path.exists(iconPath):
+        icon = QtGui.QIcon(iconPath)
+        if icon.isNull():
+            print 'geticon - null icon for: ' + path
+    else:
+        icon = QtGui.QIcon(iconPath)
+            
     return icon
 
 def getpixmap(name, _iconprefix = _iconprefix):
-    path = os.path.join(_iconprefix, name)
-    pixmap = QtGui.QPixmap(path)
-    if pixmap.isNull():
-        print 'getpixmap - null pixmap for: ' + path
+    """
+    Return the QPixmap for the given image path name. 
+    @param name: The image path name provided by the user. the path should start 
+           with 'ui/' directory inside the src directory.
+    @type  name: str
+    
+    @param _iconPrefix: The directory path to be prepended to the pixmap filepath
+    @param _iconPrefix: str
+    
+    @return: QPixmap object for the given image path.
+    @rtype:  QPixmap object.
+    """
+    root, ext = os.path.splitext(name)
+    if not ext:
+        name = name + '.png'
+        
+    pixmapPath = os.path.join(_iconprefix, name)
+    pixmapPath = os.path.normpath(pixmapPath)
+    
+    if os.path.exists(pixmapPath):
+        pixmap = QtGui.QPixmap(pixmapPath)        
+        if pixmap.isNull():
+            print 'getpixmap - null pixmap for: ' + path
+    else:
+        pixmap = QtGui.QPixmap('')
+        
     return pixmap
 
 def imagename_to_pixmap(imagename): #bruce 050108

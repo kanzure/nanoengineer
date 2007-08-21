@@ -49,7 +49,7 @@ def setupUi(win):
     win.editCopyAction.setObjectName("editCopyAction")
 
     win.editPasteAction = QtGui.QAction(MainWindow)
-    win.editPasteAction.setIcon(geticon("ui/actions/Edit/Paste"))
+    win.editPasteAction.setIcon(geticon("ui/actions/Edit/Paste_Off"))
     win.editPasteAction.setObjectName("editPasteAction")
     
     win.editDeleteAction = QtGui.QAction(MainWindow)
