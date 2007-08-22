@@ -53,7 +53,7 @@ load-plugins=
 #enable-msg=
 
 # Disable the message(s) with the given id(s).
-#disable-msg=
+disable-msg=C0103
 
 
 [REPORTS]
@@ -88,7 +88,7 @@ comment=yes
 #enable-report=
 
 # Disable the report(s) with the given id(s).
-#disable-report=
+disable-report=R0801, R0701, R0401, R0101
 
 
 # checks for :

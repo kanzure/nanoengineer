@@ -32,6 +32,9 @@ page_head("");
 <p>
 <img align="right" src="Engineer-X-Man-Logo.png">
 Welcome to the Nanorex Software-Engineering Mechanisms Robot (SEMBot).
+<pre>
+
+</pre>
 
 <!-- SEMBot -->
 <table class="summary" border="1" cellpadding="3"
@@ -74,7 +77,64 @@ Welcome to the Nanorex Software-Engineering Mechanisms Robot (SEMBot).
     <td class="summary">
       SEMBot files are checked in under /cad/src/tools/SEMBot/ and are updated before each run.</td>
   </tr>
-	</table>
+</table>
+<pre>
+
+</pre>
+
+<!-- QA Test Harness -->
+<a name="qa"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="500" bgcolor="white">
+  <tr bgcolor="#70b0f0" class="table-header">
+    <td colspan="2" class="table-header">
+    <span class="table-header">QA Test Harness</span></td>
+  </tr>
+
+  <tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">Summary</span></td>
+    <td class="summary">This mechanism runs the following Quality Assurance tools: <a href="http://www.logilab.org/project/eid/857">Pylint</a>. Coming soon: Pychecker, Pyunit, and more.</td>
+  </tr>
+
+  <tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">Last run</span></td>
+    <td class="summary">
+      <span class="summary-name"><?php include 'QA_TestHarness.timestamp'; ?></span> (Run every night.)</td>
+  </tr>
+
+  <tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">Last results</span></td>
+    <td class="summary">
+      <table border="0" cellpadding="3" cellspacing="0" bgcolor="#e8f0f8">
+        <tr>
+          <td align="right">Harness: </td>
+          <td><span class="summary-name"><?php include 'QA_TestHarness.result'; ?></span></td></tr>
+        <tr>
+          <td align="right">Pylint: </td>
+          <td><span class="summary-name"><?php include 'Pylint.result'; ?>/10.0</span></td>
+          <td><a href="SVN-D/cad/src/pylint_global.0.html">Detail</a></td></tr>
+      </table></td>
+  </tr>
+
+  <tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">Logs</span></td>
+    <td class="summary">
+      <span class="summary-name"><a href="QA_TestHarness.log">QA_TestHarness.log</a><br><a href="Pylint.log">Pylint.log</a></span></td>
+  </tr>
+
+<!--
+  <tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">Notes</span></td>
+    <td class="summary">
+      </td>
+  </tr>
+-->
+</table>
 <pre>
 
 </pre>
@@ -126,26 +186,9 @@ Welcome to the Nanorex Software-Engineering Mechanisms Robot (SEMBot).
       Epydoc chokes on <tt>__author__ = ['Mark', 'Bruce']</tt> so please use <tt>__author__ = "Mark, Bruce"</tt> instead.</td>
   </tr>
 </table>
+<pre>
 
-<p>
-
-<!-- QA Test Harness -->
-<a name="qa"></a>
-<table class="summary" border="1" cellpadding="3"
-       cellspacing="0" width="500" bgcolor="white">
-  <tr bgcolor="#70b0f0" class="table-header">
-    <td colspan="2" class="table-header">
-    <span class="table-header">QA Test Harness</span></td>
-  </tr>
-
-  <tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">Summary</span></td>
-    <td class="summary">This mechanism runs Quality Assurance tools such as Pylint, Pychecker, and Pyunit</td>
-  </tr>
-</table>
-
-<p>
+</pre>
 
 <!-- Builds -->
 <a name="builds"></a>
