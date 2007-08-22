@@ -77,13 +77,23 @@ def geticon(name, _iconprefix = _iconprefix):
         name = name + '.png' 
     
     iconPath = os.path.join(_iconprefix, name)
-    iconPath = os.path.normpath(iconPath)          
-    if os.path.exists(iconPath):
-        icon = QtGui.QIcon(iconPath)
-        if icon.isNull():
-            print 'geticon - null icon for: ' + path
-    else:
-        icon = QtGui.QIcon(iconPath)
+    iconPath = os.path.normpath(iconPath)      
+    
+    if not os.path.exists(iconPath):
+        if platform.atom_debug:
+            print "icon path %s doesn't exist." %(iconPath)
+    
+    #Always set the icon with the 'iconPath'. Don't set it as an empty string 
+    #like done in getPixmap. This is done on purpose. Right now there is an 
+    #apparent bug in Qt in the text alignment for a push button with style sheet. 
+    #@see L{PM_GroupBox._getTitleButton} which sets a non-existant 
+    #'Ghost Icon' for this button using 'geticon method'
+    # By setting such  icon, the button text left aligns! If you create an icon 
+    #with iconPath = empty string (when the user supplied path doesn't exist) 
+    #the text in that title button center aligns. So lets just always use the 
+    #'iconPath' even when the path doesn't exist. -- ninad 2007-08-22
+    
+    icon = QtGui.QIcon(iconPath)
             
     return icon
 
@@ -97,7 +107,7 @@ def getpixmap(name, _iconprefix = _iconprefix):
     @param _iconPrefix: The directory path to be prepended to the pixmap filepath
     @param _iconPrefix: str
     
-    @return: QPixmap object for the given image path.
+    @return: QPixmap object for the given image path. (could return a Null icon)
     @rtype:  QPixmap object.
     """
     root, ext = os.path.splitext(name)
@@ -109,10 +119,16 @@ def getpixmap(name, _iconprefix = _iconprefix):
     
     if os.path.exists(pixmapPath):
         pixmap = QtGui.QPixmap(pixmapPath)        
-        if pixmap.isNull():
-            print 'getpixmap - null pixmap for: ' + path
     else:
+        #return a null pixmap. Client code should do the necessary check 
+        #before setting the icon. 
+        #@see: L{PM_GroupBox.addPmWidget} for an example on how this is done
         pixmap = QtGui.QPixmap('')
+        if platform.atom_debug:
+            #This could be a common case. As the client uses getpixmap function 
+            #to see if a pixmap exists. So if its obsucring other debug messages
+            #,the following print statement can be removed
+            print "pixmap path %s doesn't exist." %(pixmapPath)
         
     return pixmap
 
