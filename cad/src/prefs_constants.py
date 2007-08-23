@@ -120,6 +120,7 @@ diBALL_AtomRadius_prefs_key = 'A7/CPK Atom Radius Percentage' # this is about di
     #bruce 060607 renamed cpkAtomRadius_prefs_key -> diBALL_AtomRadius_prefs_key ###DOIT
 cpkScaleFactor_prefs_key = 'A7/CPK Scale Factor' # this is about diTrueCPK which as of 060307 is called CPK in UI
 levelOfDetail_prefs_key = 'A7/Level Of Detail'
+keepBondsDuringTransmute_prefs_key = 'A9/Keep Bonds During Transmute'
 
 # Bond prefs
 bondHighlightColor_prefs_key = 'A6/Bond Highlight Color'
@@ -363,6 +364,9 @@ prefs_table = (
     ('cpk_scale_factor', 'float', cpkScaleFactor_prefs_key, 0.775), #mark 060307 [about diTrueCPK, called CPK in UI as of now]
     ('display_mode', 'int', defaultDisplayMode_prefs_key, diTUBES), # Changed from diTrueCPK to diTUBES. mark 060218.
     ('level_of_detail', 'int', levelOfDetail_prefs_key, -1), # -1 = Variable . mark & bruce 060215.
+    # Preference to force to keep bonds while transmuting atoms 
+    ('keep_bonds_during_transmute', 'boolean', 
+     keepBondsDuringTransmute_prefs_key, False),
     
     # Bond preferences - colors
     
