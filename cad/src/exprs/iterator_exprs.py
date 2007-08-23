@@ -5,8 +5,13 @@ iterator_exprs.py
 $Id$
 """
 
-from basic import *
-from basic import _app, _self, _my
+from exprs.Exprs import list_Expr, constant_Expr
+from exprs.Exprs import is_expr_Instance
+from exprs.Exprs import is_pure_expr
+from exprs.instance_helpers import DelegatingInstanceOrExpr
+from exprs.attr_decl_macros import ArgExpr, Arg, Option
+from exprs.ExprsConstants import Function
+from exprs.__Symbols__ import _self
 
 class MapListToExpr(DelegatingInstanceOrExpr): #e rename? should this be what map_Expr does, or does that need to be incremental-update?
     # note: this was modified from _MT_try2_kids_helper, which was then rewritten in terms of it.

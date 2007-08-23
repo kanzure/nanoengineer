@@ -16,9 +16,15 @@ see also: class Set, and State macro, in other files
 __all__ = []  # catch import errors after the file split (temporary) 
 
 
-from basic import *
-from basic import _self
-    #k [digr: is there a reload bug caused by things we get from basic import *, since we don't reload basic??]
+from exprs.If_expr import If_kluge
+from exprs.StatePlace import set_default_attrs
+from exprs.instance_helpers import InstanceOrExpr, DelegatingMixin
+from exprs.attr_decl_macros import Arg, ArgOrOption
+from exprs.ExprsConstants import Type
+from exprs.py_utils import printnim, stub
+from exprs.__Symbols__ import Anything
+
+#k [digr: is there a reload bug caused by things we get from basic import *, since we don't reload basic??]
 
 import platform
 # ==

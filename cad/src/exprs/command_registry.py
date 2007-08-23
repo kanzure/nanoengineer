@@ -7,7 +7,7 @@ $Id$
 register the types & commands [stub]
 """
 
-from basic import InstanceOrExpr
+from exprs.instance_helpers import InstanceOrExpr
 
 ###e THIS WILL BE REFACTORED before it is ever used, probably into a plain old dict, fully global for now, for the app object later,
 # (later to be replaced by a kind of dict that can track its changes)

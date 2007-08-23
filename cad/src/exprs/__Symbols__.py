@@ -9,7 +9,7 @@ $Id$
 """
 __author__ = "bruce" # (but I took the idea of FakeModule from Pmw == Python Megawidgets) 
 
-from Exprs import Symbol
+from exprs.Exprs import Symbol
     # no point in supporting reload of that, since this module doesn't support reload
 
 class FakeModule:

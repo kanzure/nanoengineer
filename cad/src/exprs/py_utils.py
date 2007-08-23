@@ -81,6 +81,9 @@ def printfyi(msg, constpart = None):
     printonce("fyi (printonce): " + msg, constpart)
     return
 
+def stub(*args, **kws): #e rename to stubfunc (too hard to search for 'stub', common in comments)
+    assert 0, "stub called"
+
 class MemoDict(dict): #k will inherit from dict work? ###e rename to extensibledict?? -- it doesn't have to memoize exactly...
     """Act like a transparently extensible dict,
     given a way to compute a new element (which we'll memoize) from the dict key;

@@ -6,9 +6,21 @@ $Id$
 
 """
 
-from basic import * # autoreload of basic is done before we're imported
+from OpenGL.GL import GL_TEXTURE_2D
+from OpenGL.GL import glTexCoord2fv
+from OpenGL.GL import glColor4fv
+from OpenGL.GL import GL_QUADS
+from OpenGL.GL import glColor3fv
+from OpenGL.GL import GL_LIGHTING
+from OpenGL.GL import glDisable
+from OpenGL.GL import GL_TRIANGLES
+from OpenGL.GL import glBegin
+from OpenGL.GL import glVertex3fv
+from OpenGL.GL import glEnd
+from OpenGL.GL import glEnable
+from OpenGL.GL import GL_QUAD_STRIP
 
-from OpenGL.GL import *
+from VQT import norm
 
 # moved to draw_utils.py, 070130:
 ##ORIGIN = V(0,0,0)
@@ -20,7 +32,6 @@ from OpenGL.GL import *
 ##D2X = V(1.0, 0.0)
 ##D2Y = V(0.0, 1.0)
 
-import platform
 # == new LL drawing helpers
 
 def draw_textured_rect(origin, dx, dy, tex_origin, tex_dx, tex_dy):

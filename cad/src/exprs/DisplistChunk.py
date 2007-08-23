@@ -44,12 +44,19 @@ just pointers to the draw-method-owning parents in each one, to be stored in the
 
 """
 
-from basic import *
-
 from OpenGL.GL import GL_COMPILE
+
+from debug_prefs import Choice_boolean_False
+from debug_prefs import debug_pref
+from debug import print_compact_traceback
 
 from changes import SelfUsageTrackingMixin # defines track_use, track_inval; maintains a private __subslist on self
 from changes import SubUsageTrackingMixin # defines begin_tracking_usage, end_tracking_usage; doesn't use self
+
+from exprs.attr_decl_macros import Arg, ArgOrOption
+from exprs.instance_helpers import DelegatingInstanceOrExpr
+from exprs.widget2d import Widget
+from exprs.py_utils import printfyi
 
 ##e comment during devel -- see also some comments in lvals-outtakes.py and DisplistChunk-outtakes.py (in cvs, only during devel)
 # (including long docstrings/comments that might be correct, but are unreviewed and partly redundant now)

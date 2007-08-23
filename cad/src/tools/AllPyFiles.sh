@@ -6,4 +6,6 @@ find . -name \*.py -print | sed '
 /canvas-b-3\.py/d
 /TreeView\.py/d
 /TreeWidget\.py/d
+/scratch/d
+/outtakes/d
 ' | sort

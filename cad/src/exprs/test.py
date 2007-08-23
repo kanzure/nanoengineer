@@ -40,6 +40,13 @@ $Id$
 
 # first: Column, Boxed, Rect, If
 
+import os
+import sys
+import time
+
+from OpenGL.GL import glPopMatrix, glPushMatrix # needed in drawtest1_innards
+
+from PyQt4.Qt import QInputDialog
 
 # == imports from parent directory
 
@@ -50,100 +57,102 @@ changes._debug_standard_inval_twice_stack = False
 
 # == local imports with reload
 
-import basic
-basic.reload_once(basic)
-del basic
+from exprs.reload import reload_once
 
-from basic import * # including reload_once, and some stubs
-from basic import _self, _this, _my, _app
+import exprs.Rect
+reload_once(exprs.Rect)
+from exprs.Rect import Rect, RectFrame, IsocelesTriangle, Spacer, Sphere, SpacerFor, PartialDisk
 
-import Rect
-reload_once(Rect)
-from Rect import Rect, RectFrame, IsocelesTriangle, Spacer, Sphere, SpacerFor, PartialDisk
+import exprs.Column
+reload_once(exprs.Column)
+from exprs.Column import SimpleColumn, SimpleRow # no longer includes still-nim Column itself [070129]
 
-import Column
-reload_once(Column)
-from Column import SimpleColumn, SimpleRow # no longer includes still-nim Column itself [070129]
+import exprs.Overlay
+reload_once(exprs.Overlay)
+from exprs.Overlay import Overlay
 
-import Overlay
-reload_once(Overlay)
-from Overlay import Overlay
+import exprs.Boxed
+reload_once(exprs.Boxed)
+from exprs.Boxed import Boxed
 
-import Boxed
-reload_once(Boxed)
-from Boxed import Boxed, DraggablyBoxed
+import exprs.draggable
+reload_once(exprs.draggable)
+from exprs.draggable import DraggablyBoxed
 
-import transforms
-reload_once(transforms)
-from transforms import Translate, Closer
+import exprs.transforms
+reload_once(exprs.transforms)
+from exprs.transforms import Translate, Closer
 
-import Center
-reload_once(Center)
-from Center import * # e.g. Center, TopRight, CenterRight, Right; not yet complete, mostly working (see specific tests) [061211 112p] 
+import exprs.Center
+reload_once(exprs.Center)
 
-import TestIterator
-reload_once(TestIterator)
-from TestIterator import TestIterator, TestIterator_wrong_to_compare
+import exprs.TestIterator
+reload_once(exprs.TestIterator)
+from exprs.TestIterator import TestIterator, TestIterator_wrong_to_compare
 
-import TextRect
-reload_once(TextRect)
-from TextRect import TextRect
+import exprs.TextRect
+reload_once(exprs.TextRect)
+from exprs.TextRect import TextRect
 
-import Highlightable
-reload_once(Highlightable)
-from Highlightable import Highlightable, Button, print_Expr, _setup_UNKNOWN_SELOBJ, BackgroundObject
+import exprs.Highlightable
+reload_once(exprs.Highlightable)
+from exprs.Highlightable import Highlightable, Button, print_Expr, _setup_UNKNOWN_SELOBJ, BackgroundObject
 
-import ToggleShow
-reload_once(ToggleShow)
-from ToggleShow import ToggleShow
+import exprs.ToggleShow
+reload_once(exprs.ToggleShow)
+from exprs.ToggleShow import ToggleShow
 
-import images
-reload_once(images)
-from images import Image, IconImage, NativeImage, PixelGrabber
+import exprs.images
+reload_once(exprs.images)
+from exprs.images import Image, IconImage, NativeImage, PixelGrabber
 
-import controls
-reload_once(controls)
-from controls import ChoiceButton, ChoiceColumn, ChoiceRow, checkbox_v3, checkbox_pref, ActionButton, PrintAction
+import exprs.controls
+reload_once(exprs.controls)
+from exprs.controls import ChoiceButton, ChoiceColumn, ChoiceRow, checkbox_v3, checkbox_pref, ActionButton, PrintAction
     #e rename some of these?
 
-import staterefs
-reload_once(staterefs)
-from staterefs import PrefsKey_StateRef
+import exprs.staterefs
+reload_once(exprs.staterefs)
+from exprs.staterefs import PrefsKey_StateRef
 
-import Set
-reload_once(Set)
-from Set import Set ##e move to basic
+import exprs.Set
+reload_once(exprs.Set)
+from exprs.Set import Set ##e move to basic
 
-import demo_MT
-reload_once(demo_MT)
-from demo_MT import test_drag_pixmap, MT_try2
+import exprs.demo_MT
+reload_once(exprs.demo_MT)
+from exprs.demo_MT import test_drag_pixmap, MT_try2
+
+import exprs.widget2d
+reload_once(exprs.widget2d)
+from exprs.widget2d import Stub
 
 # MT_try1 was moved to this outtakes file 070210; it's still importable from there and works in testexpr_18
 # (verified in test.py cvs rev 1.224), but since it's obs, we'll no longer import it (thus breaking all tests
 # using MT_try1 unless you reenable this import).
-if 0:
-    import demo_MT_try1_obs
-    reload_once(demo_MT_try1_obs)
-    from demo_MT_try1_obs import MT_try1
-else:
-  MT_try1 = Stub
+#if 0:
+#    import exprs.demo_MT_try1_obs
+#    reload_once(exprs.demo_MT_try1_obs)
+#    from exprs.demo_MT_try1_obs import MT_try1
+#else:
+MT_try1 = Stub
 
-import demo_drag
-reload_once(demo_drag)
-from demo_drag import GraphDrawDemo_FixedToolOnArg1, kluge_dragtool_state_checkbox_expr, demo_drag_toolcorner_expr_maker
+import exprs.demo_drag
+reload_once(exprs.demo_drag)
+from exprs.demo_drag import GraphDrawDemo_FixedToolOnArg1, kluge_dragtool_state_checkbox_expr, demo_drag_toolcorner_expr_maker
 
-import projection
-reload_once(projection)
-from projection import DrawInCorner_projection, DrawInCorner
+import exprs.projection
+reload_once(exprs.projection)
+from exprs.projection import DrawInCorner_projection, DrawInCorner
 
-import ModelNode # as of 061215 450p this import fails (no consistent MRO) but causes no other problems
+import exprs.ModelNode # as of 061215 450p this import fails (no consistent MRO) but causes no other problems
     # (it did on try1 but that was after lots of file edits in a running session, and didn't repeat in a new session)
-reload_once(ModelNode)
-from ModelNode import Sphere_ExampleModelNode ###stub or wrong, not yet used [061215]
+reload_once(exprs.ModelNode)
+from exprs.ModelNode import Sphere_ExampleModelNode ###stub or wrong, not yet used [061215]
 
-import DisplistChunk # works 070103, with important caveats re Highlightable (see module docstring)
-reload_once(DisplistChunk)
-from DisplistChunk import DisplistChunk
+import exprs.DisplistChunk # works 070103, with important caveats re Highlightable (see module docstring)
+reload_once(exprs.DisplistChunk)
+from exprs.DisplistChunk import DisplistChunk
 
 ##import demo_polygon # stub 070103
     # commented out 070117 since it's a scratch file with syntax errors
@@ -155,38 +164,58 @@ from DisplistChunk import DisplistChunk
 ##reload_once(lvals)
 ##from lvals import Lval_which_recomputes_every_time ##e and more? refile in basic??
 
-import widget_env
-reload_once(widget_env)
-from widget_env import widget_env
+import exprs.widget_env
+reload_once(exprs.widget_env)
+from exprs.widget_env import widget_env
 
-import debug_exprs
-reload_once(debug_exprs)
-from debug_exprs import DebugPrintAttrs
+import exprs.debug_exprs
+reload_once(exprs.debug_exprs)
+from exprs.debug_exprs import DebugPrintAttrs
 
-import dna_ribbon_view
-reload_once(dna_ribbon_view)
-from dna_ribbon_view import DNA_Cylinder, dna_ribbon_view_toolcorner_expr_maker, World_dna_holder, Cylinder
+import exprs.dna_ribbon_view
+reload_once(exprs.dna_ribbon_view)
+from exprs.dna_ribbon_view import DNA_Cylinder, dna_ribbon_view_toolcorner_expr_maker, World_dna_holder, Cylinder
 
-import draggable
-reload_once(draggable)
-from draggable import DraggableObject
+import exprs.draggable
+reload_once(exprs.draggable)
+from exprs.draggable import DraggableObject
 
-import world
-reload_once(world)
-from world import World
+import exprs.world
+reload_once(exprs.world)
+from exprs.world import World
 
-import demo_polyline
-reload_once(demo_polyline)
+import exprs.demo_polyline
+reload_once(exprs.demo_polyline)
 
-import test_statearray
-reload_once(test_statearray)
-from test_statearray import test_StateArrayRefs, test_StateArrayRefs_2, test_StateArrayRefs_3
+import exprs.test_statearray
+reload_once(exprs.test_statearray)
+from exprs.test_statearray import test_StateArrayRefs, test_StateArrayRefs_2, test_StateArrayRefs_3
+
+from VQT import V
+from state_utils import same_vals
+from constants import purple, white, blue, red, orange, green, gray, pink, yellow, black, ave_colors, noop
+from prefs_constants import displayOriginAxis_prefs_key
+from testdraw import courierfile
+from testdraw import vv
+
+from exprs.Exprs import format_Expr, getattr_Expr, list_Expr, mod_Expr, not_Expr, eval_Expr, call_Expr, is_Expr
+from exprs.Exprs import local_ipath_Expr
+from exprs.If_expr import If_expr, If, If_OpExpr
+from exprs.Center import Left, Center, Right, TopRight, CenterRight, BottomRight, TopLeft, CenterY, BottomLeft
+from exprs.py_utils import printnim, identity
+from exprs.widget2d import Widget2D
+from exprs.instance_helpers import WithAttributes, InstanceMacro, _this, DelegatingInstanceOrExpr
+from exprs.attr_decl_macros import State, Option, Instance, Arg
+from exprs.ExprsConstants import trans_red, PIXELS, lightblue, lightgreen, DX, DZ, nevermind, PM_CORNER
+from exprs.ExprsConstants import WORLD_MT_CORNER
+from exprs.ExprsConstants import DEBUG_CORNER
+from exprs.ExprsConstants import NullIpath
+from exprs.__Symbols__ import _self, _my, _app, Anything
+
 
 ### WARNING: more imports far below! (of files that get lazy and do "from test import *", e.g. demo_ui)
 
 # ==
-
-from OpenGL.GL import glPopMatrix, glPushMatrix # needed in drawtest1_innards
 
 # == make some "persistent state"
 
@@ -419,7 +448,6 @@ testexpr_10d = ToggleShow(ToggleShow( Rect(2,3,yellow) )) # works
 
 # Image
 
-from testdraw import courierfile
 blueflake = "blueflake.jpg"
 
 testexpr_11a = Image(courierfile) # works
@@ -890,7 +918,6 @@ testexpr_16b = SimpleColumn(
     SimpleRow(checkbox_v2(default_value = True)(), TextRect("option 2a",1,10)), # that 2nd () is to tell it "yes, we supplied args"
   ) # works
 
-from prefs_constants import displayOriginAxis_prefs_key
 testexpr_16c = SimpleColumn( # [later: see also kluge_dragtool_state_checkbox_expr, similar to this with different prefs_key]
     SimpleRow(checkbox_v3(PrefsKey_StateRef(displayOriginAxis_prefs_key)), # test: specify external state, eg a prefs variable
               ###e would this look better? checkbox_v3(prefs_key = displayOriginAxis_prefs_key)
@@ -1442,7 +1469,6 @@ testexpr_30i = eval_Expr( call_Expr( lambda world_ui: #070207 -- just like 30h e
 # Then, it remakes the world_ui (desired effect) but also the world itself (undesired effect, makes it lose its objects).
 # Could be fixed by making the world separately; ultimately we want buttons for remaking various obj layers (incl model and ui);
 # for now just live with it, meaning this _30ix is only useful rarely, for debugging.
-from testdraw import vv
 testexpr_30ix = eval_Expr( call_Expr( lambda world_ui: 
                                      Overlay( world_ui,
                                               DrawInCorner(
@@ -1487,9 +1513,9 @@ testexpr_33x = Translate(_testexpr_33(), (2,-2)) # works now
 # 070228
 # How can we get the functions of both _19i and _30i in one integrated setup?
 
-import demo_ui
-reload_once(demo_ui)
-from demo_ui import testexpr_34, testexpr_34a # not *, or it grabs old values of the testexprs it imported earlier from here!
+import exprs.demo_ui
+reload_once(exprs.demo_ui)
+from exprs.demo_ui import testexpr_34, testexpr_34a # not *, or it grabs old values of the testexprs it imported earlier from here!
     # note: this used to define testexpr_19j, testexpr_30j (obs, never worked); now it only defines testexpr_34*
 
 # == StateArrayRefs
@@ -1567,9 +1593,9 @@ testexpr_36f = DraggablyBoxed( Kluge_DrawTheModel( highlightable = False), resiz
     
 # == demo_draw_on_surface.py
 
-import demo_draw_on_surface
-reload_once(demo_draw_on_surface)
-from demo_draw_on_surface import our_testexpr
+import exprs.demo_draw_on_surface
+reload_once(exprs.demo_draw_on_surface)
+from exprs.demo_draw_on_surface import our_testexpr
 
 testexpr_37 = our_testexpr
 
@@ -1819,7 +1845,6 @@ def _set_test_from_dialog( ): # see also grab_text_using_dialog in another file
         ## not applicable i think: \n(or use execfile)
     
     # Qt4 version [070329; similar code in another exprs-module file]
-    from PyQt4.Qt import QInputDialog
     parent = None
     text, ok = QInputDialog.getText(parent, title, label) # parent arg needed only in Qt4
     
@@ -2015,8 +2040,6 @@ def drawtest1_innards(glpane):
     global _kluge_current_testexpr_instance
     _kluge_current_testexpr_instance = inst
     
-    from basic import printnim, printfyi
-
 # no longer needed, 070408
 ##    if 'kluge':
 ##        #### KLUGE: get back to the standard drawing coords
@@ -2079,7 +2102,6 @@ def find_or_make_main_instance(glpane, staterefs, testexpr, testbed): #061120; g
     if not MEMOIZE_MAIN_INSTANCE:
         return make_main_instance(glpane, staterefs, testexpr, testbed)
     global _last_main_instance_data, _last_main_instance
-    from testdraw import vv
     new_data = (glpane, staterefs, testexpr, testbed, MEMOIZE_ACROSS_RELOADS or vv.reload_counter ) # revised as bugfix, 061205
         # note: comparison data doesn't include funcs & classes changed by reload & used to make old inst,
         # including widget_env, Lval classes, etc, so when memoizing, reload won't serve to try new code from those defs

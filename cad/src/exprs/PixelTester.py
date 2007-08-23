@@ -17,7 +17,17 @@ $Id$
 
 #e more imports
 
-from Column import SimpleColumn #e reloadable
+from constants import blue, purple
+
+from exprs.widget2d import Widget2D
+from exprs.Exprs import format_Expr
+from exprs.TextRect import TextRect
+from exprs.Boxed import Boxed
+from exprs.Column import SimpleColumn #e reloadable
+from exprs.images import Image, PixelGrabber
+from exprs.Rect import Spacer
+from exprs.instance_helpers import InstanceOrExpr, DelegatingMixin
+from exprs.attr_decl_macros import Arg
 
 class PixelTester(InstanceOrExpr, DelegatingMixin): # ought to be InstanceMacro but trying this alternate style just to see it
     # args

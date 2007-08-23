@@ -21,30 +21,35 @@ $Id$
 # so I will make them processed by it, by removing the free in _self condition (needed for State too),
 # but I wonder if that will break this, or maybe fix some of its occasional problems...
 
+from exprs.reload import reload_once
 
-from basic import *
-from basic import _self, _this
+import exprs.Highlightable
+reload_once(exprs.Highlightable)
+from exprs.Highlightable import Highlightable
 
-import Highlightable
-reload_once(Highlightable)
-from Highlightable import Highlightable
+import exprs.Rect
+reload_once(exprs.Rect)
+from exprs.Rect import Rect
 
-import Rect
-reload_once(Rect)
-from Rect import Rect
+import exprs.TextRect
+reload_once(exprs.TextRect)
+from exprs.TextRect import TextRect
 
-import TextRect
-reload_once(TextRect)
-from TextRect import TextRect
+import exprs.Column
+reload_once(exprs.Column)
+from exprs.Column import SimpleRow, SimpleColumn
 
-import Column
-reload_once(Column)
-from Column import SimpleRow, SimpleColumn
+import exprs.Overlay
+reload_once(exprs.Overlay)
+from exprs.Overlay import Overlay
 
-import Overlay
-reload_once(Overlay)
-from Overlay import Overlay
-
+from exprs.If_expr import If_kluge
+from exprs.instance_helpers import InstanceMacro, _this
+from exprs.attr_decl_macros import Arg
+from exprs.widget2d import Widget2D
+from exprs.StatePlace import set_default_attrs
+from exprs.py_utils import printnim
+from exprs.__Symbols__ import _self
 
 ## Set - not yet needed
 # [see controls.py [moved to Set.py] for a prototype, 061130, which takes a stateref rather than an lval as arg1 -- might be wrong --

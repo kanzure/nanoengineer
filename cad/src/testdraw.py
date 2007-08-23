@@ -282,7 +282,7 @@ def drawtest0(glpane):
 
 def drawtest1(glpane):
     # main special drawing -- let the exprs module do it
-    reload_basic_and_test()
+    _reload_exprs_test()
     from exprs.test import drawtest1_innards
     drawtest1_innards(glpane)
     return
@@ -313,19 +313,15 @@ def _bind_courier_font_texture(): # kluge 061125 so exprs/images.py won't mess u
     # OTOH it's too expensive to do that all the time (and maybe even this, if same tex already bound -- remains to be seen).
     return
 
-def reload_basic_and_test():
+def _reload_exprs_test():
 ##    global basic, test # those are not needed as global names
     global draw_utils
-    from exprs import basic
-    basic.reload_once(basic) # moved this before import of test [061113 late, when this was just part of drawtest1],
-        # to see if it'll fix my occasional failures to actually reload test,
-        # and/or errors after reload like this one:
-        #   TypeError: super(type, obj): obj must be an instance or subtype of type
+    from exprs.reload import reload_once
     from exprs import test
-    basic.reload_once(test)
+    reload_once(test)
     # draw_utils added 070408
     from exprs import draw_utils # for draw_textured_rect
-    basic.reload_once(draw_utils)
+    reload_once(draw_utils)
     return
 
 # ==

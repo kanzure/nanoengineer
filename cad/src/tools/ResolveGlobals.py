@@ -89,6 +89,7 @@ def toModule(filename):
         filename = filename[2:]
     if (filename.endswith(".py")):
         filename = filename[:-3]
+    filename = filename.replace("/", ".")
     return filename
 
 def resolveSymbol(sym):

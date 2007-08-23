@@ -9,15 +9,32 @@ and moved it into this new file
 
 """
 
-from basic import * ## Expr, ExprsMeta, EVAL_REFORM, reload_once # more?
+from exprs.reload import reload_once
 
-import lvals
-reload_once(lvals)
-from lvals import call_but_discard_tracked_usage
+import exprs.lvals
+reload_once(exprs.lvals)
+from exprs.lvals import call_but_discard_tracked_usage
 
-import widget_env
-reload_once(widget_env)
-from widget_env import thisname_of_class, widget_env # widget_env not used, but keep it for safety since it overrides module name
+import exprs.widget_env
+reload_once(exprs.widget_env)
+from exprs.widget_env import thisname_of_class, widget_env # widget_env not used, but keep it for safety since it overrides module name
+
+from debug import safe_repr
+from debug import print_compact_stack
+
+from exprs.Exprs import Expr
+from exprs.Exprs import is_pure_expr
+from exprs.Exprs import is_constant_for_instantiation
+from exprs.Exprs import is_Expr
+from exprs.Exprs import is_Expr_pyinstance
+from exprs.Exprs import lexenv_Expr
+from exprs.Exprs import tuple_Expr
+from exprs.Exprs import canon_expr
+from exprs.ExprsMeta import ExprsMeta
+from exprs.StatePlace import StatePlace
+from exprs.ExprsConstants import EVAL_REFORM
+from exprs.py_utils import printnim
+from exprs.__Symbols__ import _E_REQUIRED_ARG_
 
 kluge070119 = True # this is permanent for now, but don't clean up the associated code yet, since it'll soon be replaced
     # by a better centralized instantiator. [070120]
@@ -523,7 +540,6 @@ class IorE_guest_mixin(Expr): #bruce 070815 split this out of its InstanceOrExpr
     def _i_grabarg_0( self, attr, argpos, dflt_expr, _arglist = False):
         "[private helper for _i_grabarg] return the pair (external-flag, expr to use for this arg)"
         # i think dflt_expr can be _E_REQUIRED_ARG_, or any (other) expr
-        from __Symbols__ import _E_REQUIRED_ARG_
         if dflt_expr is _E_REQUIRED_ARG_:
             required = True
         else:

@@ -15,9 +15,13 @@ $Id$
 
 # as of 061102 this module is probably reloadable:
 
-from basic import printnim, printfyi, stub # this may be a recursive import (with most things in basic not yet defined)
-from basic import print_compact_stack, print_compact_traceback, same_vals, EVAL_REFORM, intern_ipath, safe_repr
-from basic import debug_pref, Choice_boolean_False, Choice_boolean_True, Choice #070228
+from debug import compact_stack, print_compact_stack, print_compact_traceback, safe_repr
+from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True, Choice
+from state_utils import same_vals
+
+from exprs.py_utils import printnim, printfyi, stub, printonce
+from exprs.intern_ipath import intern_ipath
+
 
 # == utilities #e refile
 
@@ -383,7 +387,6 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
             #k not sure this is defined in all exprs! indeed, not in a Widget2D python instance... ####@@@@
         except AttributeError:
             #####@@@@ warning: following is slow, even when it doesn't print -- NEEDS OPTIM ####@@@@
-            from basic import printonce
             printonce("debug note: _e_free_in is False since no _e_args attr in %r" % self) # print once per self
             return False ###k guess -- correct? #####@@@@@
         for arg in _e_args: 
@@ -393,6 +396,7 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
         return False
     def _e_eval_to_expr(self, env, ipath, expr):#070117, revised 070118 to save ipath
         "#doc"
+        from exprs.ExprsConstants import EVAL_REFORM
         assert EVAL_REFORM # otherwise exprs don't eval to self except some Symbols, and I guess those don't call this tho i forget...#k
         return lexenv_ipath_Expr(env, ipath, expr) # the full ipath might not be needed but might be ok... ###k
     # note: _e_eval is nim in this class -- it must be implemented in subclasses that need it.
@@ -1049,6 +1053,7 @@ class lexenv_Expr(internal_Expr): ##k guess, 061110 late
     def _e_eval_lval(self, env, ipath):
         return self._e_call_with_modified_env(env, ipath, whatever = '_e_eval_lval')
     def _e_make_in(self, env, ipath):
+        from exprs.ExprsConstants import EVAL_REFORM
         assert EVAL_REFORM # since it only happens then
         return self._e_call_with_modified_env(env, ipath, whatever = '_e_make_in')
     pass # end of class lexenv_Expr
@@ -1148,6 +1153,7 @@ class eval_Expr(OpExpr):
     def _e_eval_lval(self, env, ipath):
         return self._e_call_on_argval(env, ipath, whatever = '_e_eval_lval')
     def _e_make_in(self, env, ipath):
+        from exprs.ExprsConstants import EVAL_REFORM
         assert EVAL_REFORM # since it only happens then
         return self._e_call_on_argval(env, ipath, whatever = '_e_make_in')
     pass # end of class eval_Expr
@@ -1176,7 +1182,7 @@ def canon_expr(subexpr):###CALL ME FROM MORE PLACES -- a comment in Column.py sa
                 return constant_Expr(subexpr)
             elif debug_pref("pseudo-customize IorE subclasses?", Choice_boolean_False, prefs_key = True):
                 # turn it into an equivalent safer expr -- but only if it's in IorE
-                from instance_helpers import InstanceOrExpr #k safe??
+                from exprs.instance_helpers import InstanceOrExpr #k safe??
                 if issubclass(subexpr, InstanceOrExpr):
                     res = subexpr( _KLUGE_fakeoption = None )
                     print "canon_expr turning expr class %r into %s" % (subexpr,res) #### remove when thought to be safe? printfyi?
@@ -1292,6 +1298,7 @@ class Symbol(SymbolicExpr):
             # return self (perhaps wrapped), after perhaps printing a warning
             if self is not val:
                 print "warning: %r and %r are two different Symbols with same name, thus equal" % (self,val)
+            from exprs.ExprsConstants import EVAL_REFORM
             if EVAL_REFORM:#070117
                 if not self._e_sym_constant: #070131 added this cond (and attr)
                     print "warning: Symbol(%r) evals to itself [perhaps wrapped by _e_eval_to_expr]" % self._e_name

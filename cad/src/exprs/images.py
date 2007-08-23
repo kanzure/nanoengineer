@@ -29,20 +29,64 @@ To avoid even more confusion, I'll name this module images.py rather than Image.
 (but note, there exists an unrelated directory cad/images).
 """
 
-from basic import * # including ExprsMeta, platform
-from basic import _self
+import os
 
-import draw_utils
-reload_once(draw_utils)
-from draw_utils import draw_textured_rect, draw_textured_rect_subtriangle
+from OpenGL.GL import glGenTextures
+from OpenGL.GL import GL_TEXTURE_2D
+from OpenGL.GL import glBindTexture
+from OpenGL.GL import GL_CLAMP
+from OpenGL.GL import GL_TEXTURE_WRAP_S
+from OpenGL.GL import glTexParameterf
+from OpenGL.GL import GL_TEXTURE_WRAP_T
+from OpenGL.GL import GL_REPEAT
+from OpenGL.GL import GL_LINEAR
+from OpenGL.GL import GL_TEXTURE_MAG_FILTER
+from OpenGL.GL import GL_LINEAR_MIPMAP_LINEAR
+from OpenGL.GL import GL_TEXTURE_MIN_FILTER
+from OpenGL.GL import GL_NEAREST
+from OpenGL.GL import GL_DECAL
+from OpenGL.GL import GL_TEXTURE_ENV
+from OpenGL.GL import GL_TEXTURE_ENV_MODE
+from OpenGL.GL import glTexEnvf
+from OpenGL.GL import GL_REPLACE
+from OpenGL.GL import GL_BLEND
+from OpenGL.GL import glEnable
+from OpenGL.GL import GL_ONE_MINUS_SRC_ALPHA
+from OpenGL.GL import GL_SRC_ALPHA
+from OpenGL.GL import glBlendFunc
+from OpenGL.GL import GL_ALPHA_TEST
+from OpenGL.GL import GL_GREATER
+from OpenGL.GL import glAlphaFunc
+from OpenGL.GL import glDisable
+from OpenGL.GLU import gluProject
 
-import Rect
-reload_once(Rect)
-from Rect import Rect
+from exprs.reload import reload_once
 
-import Center
-reload_once(Center)
-from Center import Center
+import exprs.draw_utils
+reload_once(exprs.draw_utils)
+from exprs.draw_utils import draw_textured_rect, draw_textured_rect_subtriangle
+
+import exprs.Rect
+reload_once(exprs.Rect)
+from exprs.Rect import Rect
+
+import exprs.Center
+reload_once(exprs.Center)
+from exprs.Center import Center
+
+import platform
+
+from VQT import V
+from env import seen_before
+
+from exprs.ExprsMeta import ExprsMeta
+from exprs.Exprs import call_Expr
+from exprs.py_utils import MemoDict
+from exprs.widget2d import Widget2D
+from exprs.attr_decl_macros import Arg, Option, Instance
+from exprs.instance_helpers import DelegatingInstanceOrExpr, InstanceOrExpr, DelegatingMixin
+from exprs.ExprsConstants import Vector, ORIGIN, PIXELS, D2X, D2Y, DX, DY
+from exprs.__Symbols__ import _self, Anything
 
 # ImageUtils.py class nEImageOps -- see following comment
 
@@ -56,10 +100,6 @@ import testdraw
     # when the time comes, the only reliable way to sort out & merge duplicated code (some in other cad/src files too)
     # is to search for all uses of the GL calls being used here.
 
-from OpenGL.GL import *
-from OpenGL.GLU import gluProject
-
-import platform
 debug_glGenTextures = True #070308 #####
 
 class _texture_holder(object):

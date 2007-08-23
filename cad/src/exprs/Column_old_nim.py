@@ -8,11 +8,23 @@ $Id$
 this code is old and nim; implem is obs but intent is not (tho not urgent)
 """
 
-from basic import * # autoreload of basic is done before we're imported
+from exprs.reload import reload_once
 
-import draw_utils
-reload_once(draw_utils)
-from draw_utils import *
+import exprs.draw_utils
+reload_once(exprs.draw_utils)
+
+from exprs.widget2d import Widget2D
+from exprs.instance_helpers import InstanceOrExpr
+from exprs.attr_decl_macros import ArgList
+from exprs.py_utils import printnim
+
+from exprs.lvals import LvalDict1
+from exprs.py_utils import interleave_by_func
+from exprs.Rect import Spacer
+
+# undefined global symbol:  fixed_type_instance
+# undefined global symbol:  ListInstanceType
+# undefined global symbol:  index_path
 
 ##import instance_helpers
 ##reload_once(instance_helpers)

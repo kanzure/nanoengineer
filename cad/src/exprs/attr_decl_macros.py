@@ -8,12 +8,28 @@ $Id$
  split into this file 061203 to ease recursive import issues with State]
 """
 
-from basic import * # recursive import
-from basic import _self
+#from basic import * # recursive import
 
 # Symbols for private or semi-private use
 # (note, other modules that need these also import them directly from __Symbols__)
-from __Symbols__ import _E_ATTR, _E_REQUIRED_ARG_, _E_DFLT_FROM_TYPE_
+from exprs.__Symbols__ import _E_ATTR, _E_REQUIRED_ARG_, _E_DFLT_FROM_TYPE_, _self
+
+from exprs.py_utils import printnim
+from exprs.Exprs import internal_Expr, OpExpr
+from exprs.Exprs import call_Expr
+from exprs.Exprs import eval_to_lval_Expr
+from exprs.Exprs import getattr_Expr
+from exprs.Exprs import hold_Expr
+from exprs.Exprs import tuple_Expr
+from exprs.Exprs import is_pure_expr
+from exprs.Exprs import constant_Expr
+from exprs.Exprs import eval_Expr
+from exprs.Exprs import canon_expr
+from exprs.ExprsMeta import data_descriptor_Expr_descriptor
+from exprs.StatePlace import set_default_attrs
+
+from exprs.ExprsConstants import EVAL_REFORM
+from exprs.__Symbols__ import Anything
 
 # ==
 

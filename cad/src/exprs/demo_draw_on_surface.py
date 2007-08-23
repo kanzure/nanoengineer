@@ -16,17 +16,36 @@ See also:
 
 """
 
-from basic import *
-from basic import _self, _my, _this
+from OpenGL.GL import GL_LINE_LOOP
+from OpenGL.GL import glBegin
+from OpenGL.GL import GL_LINE_STRIP
+from OpenGL.GL import glVertex3fv
+from OpenGL.GL import glEnd
 
-from test import * # get lazy for now
+from constants import yellow, purple, red, noop
 
-from demo_drag import Vertex, kluge_dragtool_state_prefs_key, DZFUZZ
-
-from OpenGL.GL import * #e could be relegated to separate drawing code class, if we wanted...
-import platform
-
-from command_registry import auto_register
+from exprs.Exprs import list_Expr
+from exprs.If_expr import If
+from exprs.Column import SimpleColumn, SimpleRow
+from exprs.Boxed import Boxed
+from exprs.TextRect import TextRect
+from exprs.Rect import Rect
+from exprs.world import World
+from exprs.Highlightable import Highlightable, BackgroundObject
+from exprs.Overlay import Overlay
+from exprs.controls import checkbox_pref, ActionButton
+from exprs.draggable import DraggableObject
+from exprs.projection import DrawInCorner
+from exprs.Center import Left, Top, Center
+from exprs.transforms import Translate
+from exprs.iterator_exprs import MapListToExpr, KLUGE_for_passing_expr_classes_as_functions_to_ArgExpr
+from exprs.demo_drag import Vertex, kluge_dragtool_state_prefs_key, DZFUZZ
+from exprs.command_registry import auto_register
+from exprs.instance_helpers import InstanceOrExpr, DelegatingInstanceOrExpr
+from exprs.attr_decl_macros import State, Arg, Option, ArgOrOption, Instance
+from exprs.ExprsConstants import StubType, Width, Color, Point, PM_CORNER, ORIGIN, DZ
+from exprs.widget2d import Stub
+from exprs.__Symbols__ import _self, Anything
 
 # ==
 

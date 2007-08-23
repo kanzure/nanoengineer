@@ -7,10 +7,16 @@ $Id$
 """
 ###e rename module, to same caps? hmm, maybe just to widget, since it has that class too? or move that class?
 
-from basic import * # autoreload of basic is done before we're imported
-from basic import _self
+from OpenGL.GL import GL_FALSE
+from OpenGL.GL import glColorMask
+from OpenGL.GL import GL_TRUE
+from OpenGL.GL import glPushName
+from OpenGL.GL import glPopName
 
-# ==
+from exprs.instance_helpers import InstanceOrExpr
+from exprs.py_utils import printnim
+from exprs.__Symbols__ import _self
+from exprs.Exprs import V_expr
 
 class Widget(InstanceOrExpr):
     # Widget can also be used as a typename -- ok??
@@ -62,5 +68,11 @@ class _misc_old_code: # not used now, maybe useful someday
         for glname in self.saved_glnames: # wrong order, but only the total number matters
             glPopName()
     pass
+
+
+# lowercase stub doesn't work for the following, since they get called during import, so use uppercase Stub
+
+# need InstanceOrExpr defined for this one:
+Stub = Widget2D # use this for stub InstanceOrExpr subclasses
 
 # end

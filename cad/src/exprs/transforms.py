@@ -16,11 +16,16 @@ see also Rotated and Closer in testdraw1, for sample opengl code, showing how si
 # it doesn't work yet to actually delegate, eg for lbox attrs,
 # so I don't think using an Overlay inside another one would work right now
 
-from basic import *
-from basic import _self
+from math import pi
 
 from OpenGL.GL import glTranslatef, glPushMatrix, glRotatef, glPopMatrix
 
+from exprs.attr_decl_macros import Arg
+from exprs.instance_helpers import InstanceOrExpr, DelegatingMixin, DelegatingInstanceOrExpr
+from exprs.widget2d import Widget
+from exprs.Exprs import call_Expr
+from exprs.ExprsConstants import Vector, Quat, ORIGIN
+from exprs.__Symbols__ import _self
 
 ###e [semiobs cmt:]
 # these vec routines are not best.. what's best is to turn into (not away from) numeric arrays, for their convenience.

@@ -7,32 +7,41 @@ toolbars.py - OpenGL toolbars, basically serving as "working mockups" for Qt too
 $Id$
 """
 
-from basic import *
-from basic import _app, _self, _my
+from exprs.reload import reload_once
 
-import Column
-reload_once(Column)
-from Column import SimpleRow, SimpleColumn
+import exprs.Column
+reload_once(exprs.Column)
+from exprs.Column import SimpleRow, SimpleColumn
 
-import Overlay
-reload_once(Overlay)
-from Overlay import Overlay
+import exprs.Overlay
+reload_once(exprs.Overlay)
+from exprs.Overlay import Overlay
 
-import Highlightable
-reload_once(Highlightable)
-from Highlightable import Highlightable
+import exprs.Highlightable
+reload_once(exprs.Highlightable)
+from exprs.Highlightable import Highlightable
 
-import TextRect
-reload_once(TextRect)
-from TextRect import TextRect
+import exprs.TextRect
+reload_once(exprs.TextRect)
+from exprs.TextRect import TextRect
 
-import Boxed
-reload_once(Boxed)
-from Boxed import Boxed
+import exprs.Boxed
+reload_once(exprs.Boxed)
+from exprs.Boxed import Boxed
 
-import command_registry
-reload_once(command_registry)
-from command_registry import auto_register, find_or_make_global_command_registry, CommandRegistry
+import exprs.command_registry
+reload_once(exprs.command_registry)
+from exprs.command_registry import auto_register, find_or_make_global_command_registry, CommandRegistry
+
+from constants import gray, white, blue, green
+
+from exprs.Exprs import list_Expr, format_Expr
+from exprs.If_expr import If
+from exprs.iterator_exprs import MapListToExpr, KLUGE_for_passing_expr_classes_as_functions_to_ArgExpr
+from exprs.attr_decl_macros import Arg, State
+from exprs.instance_helpers import DelegatingInstanceOrExpr
+from exprs.ExprsConstants import StubType, StateRef
+from exprs.__Symbols__ import _self
 
 class Toolbar(DelegatingInstanceOrExpr):
     pass

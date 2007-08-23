@@ -71,7 +71,8 @@ The likely uses for lexical variables are in user-defined rules, and the hardcod
 
 from idlelib.Delegator import Delegator ###e we should use our own delegation code, since we don't need the key cache so it can be more efficient
 
-from basic import printnim, printfyi
+from exprs.Exprs import canon_expr
+from exprs.py_utils import printnim, printfyi
 
 class widget_env(Delegator):
     "represent an environment for the instantiation and use of widget exprs (with rules and staterefs)"

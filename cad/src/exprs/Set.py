@@ -18,7 +18,10 @@ first implem of SetStateRefValue written in controls.py, moved here 061203, rena
 adding Set with arg1 an lval eg a getattr_Expr, 061204; works in testexpr_16
 """
 
-from basic import * # might be recursive #e
+from exprs.attr_decl_macros import Arg, LvalueArg
+from exprs.instance_helpers import InstanceOrExpr, DelegatingMixin
+from exprs.ExprsConstants import StateRef
+from exprs.__Symbols__ import Anything
 
 class Action(InstanceOrExpr): #061204 ; #e might refile to a new file actions.py
     """#doc; abstract superclass and coercion-type

@@ -11,20 +11,34 @@ History (partial):
 070815 split IorE_guest_mixin superclass out of InstanceOrExpr
 and moved it into a new file
 """
+from exprs.reload import reload_once
 
-from basic import * # autoreload of basic is done before we're imported; this is a recursive import
-from basic import _self # used only in InstanceMacro
-
-import lvals
-reload_once(lvals)
-from lvals import LvalError_ValueIsUnset
+import exprs.lvals
+reload_once(exprs.lvals)
+from exprs.lvals import LvalError_ValueIsUnset
 ## from lvals import LvalDict1 # only needed by obs code
 
-import widget_env
-reload_once(widget_env)
-from widget_env import thisname_of_class, widget_env #e refile import?? or make it an env method??
+import exprs.widget_env
+reload_once(exprs.widget_env)
+from exprs.widget_env import thisname_of_class, widget_env #e refile import?? or make it an env method??
 
-from IorE_guest_mixin import IorE_guest_mixin
+from debug import print_compact_traceback
+from debug import print_compact_stack
+
+from exprs.Exprs import is_pure_expr
+from exprs.Exprs import is_expr_Instance
+from exprs.Exprs import SymbolicExpr, canon_expr
+from exprs.Exprs import expr_is_Instance
+from exprs.Exprs import expr_constant_value
+from exprs.Exprs import is_Expr_pyclass
+from exprs.IorE_guest_mixin import IorE_guest_mixin
+from exprs.StatePlace import StatePlace
+from exprs.attr_decl_macros import Instance, Arg
+from exprs.py_utils import printnim
+from exprs.py_utils import printfyi
+from exprs.ExprsConstants import normalize_color
+from exprs.ExprsConstants import EVAL_REFORM
+from exprs.__Symbols__ import _self
 
 # ==
 

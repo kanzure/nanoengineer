@@ -8,14 +8,18 @@ $Id$
 # (see StateArrayRefs_getitem_as_stateref in test_statearray.py, 070312, and ###BUG comment lower down) --
 # this is now renamed a feature of StateArrayRefs rather than a bug of StateArray.
 
-from basic import *
-from basic import _self
+from exprs.reload import reload_once
 
-from __Symbols__ import _E_ATTR
+import exprs.lvals
+reload_once(exprs.lvals)
+from exprs.lvals import LvalForState, LvalDict2, call_but_discard_tracked_usage
 
-import lvals
-reload_once(lvals)
-from lvals import LvalForState, LvalDict2, call_but_discard_tracked_usage
+from exprs.Exprs import call_Expr
+from exprs.widget2d import Stub
+from exprs.attr_decl_macros import State
+from exprs.ExprsConstants import StubType
+from exprs.__Symbols__ import _self, _E_ATTR
+
 
 # ==
 

@@ -18,11 +18,31 @@ See also:
 
 """
 
-from basic import *
+from exprs.reload import reload_once
 
-import command_registry
-reload_once(command_registry)
-from command_registry import auto_register
+import exprs.command_registry
+reload_once(exprs.command_registry)
+from exprs.command_registry import auto_register
+
+from OpenGL.GL import GL_LIGHTING
+from OpenGL.GL import glDisable
+from OpenGL.GL import glColor3fv
+from OpenGL.GL import glLineStipple
+from OpenGL.GL import GL_LINE_STIPPLE
+from OpenGL.GL import glEnable
+from OpenGL.GL import glLineWidth
+from OpenGL.GL import GL_LINE_LOOP
+from OpenGL.GL import glBegin
+from OpenGL.GL import GL_LINE_STRIP
+from OpenGL.GL import glVertex3fv
+from OpenGL.GL import glEnd
+
+from constants import blue, noop
+
+from exprs.Exprs import list_Expr, call_Expr
+from exprs.instance_helpers import DelegatingInstanceOrExpr, ModelObject
+from exprs.attr_decl_macros import State, Option, Arg
+from exprs.ExprsConstants import StubType, ORIGIN
 
 class CommandWithItsOwnEditMode( DelegatingInstanceOrExpr): #e rename! and inherit from Command or MouseCommand or so...
     "#doc"
@@ -183,9 +203,6 @@ class SketchEntity( ModelObject):#e stub
 # "We will consider several different algorithms for reducing the [set of] points in a polyline
 #  to produce a simplified polyline that approximates the original within a specified tolerance.
 #  Most of these algorithms work in any dimension..."
-
-from OpenGL.GL import *
-import platform
 
 class Polyline(SketchEntity): #e rename -- 2D or general? [see also class polyline3d in demo_draw_on_surface.py]
     #e assume SketchEntity super handles whatever relativity is needed? (even add_point coord transform??)

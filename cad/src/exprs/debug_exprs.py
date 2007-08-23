@@ -5,16 +5,21 @@ $Id$
 
 # == local imports with reload
 
-import basic
-basic.reload_once(basic) # warning: this is only ok (I think) because it's not a recursive import, ie we're not imported by basic
-del basic
+from debug import safe_repr
+from debug import print_compact_stack
 
-from basic import *
-from basic import _self, _this, _my
+from exprs.reload import reload_once
 
-import Exprs
-reload_once(Exprs)
-from Exprs import internal_Expr ###k probably not needed (imported by basic) but needs test
+import exprs.Exprs
+reload_once(exprs.Exprs)
+from exprs.Exprs import internal_Expr ###k probably not needed (imported by basic) but needs test
+
+from exprs.py_utils import printnim
+from exprs.py_utils import printfyi
+from exprs.instance_helpers import DelegatingMixin
+from exprs.attr_decl_macros import Arg
+from exprs.widget2d import Widget
+from exprs.__Symbols__ import Anything
 
 # ==
 

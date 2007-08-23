@@ -8,13 +8,16 @@ $Id$
 note: this used to be part of staterefs.py; split it out on 061203
 """
 
-from basic import * # [likely obs cmt:] all we really need is call_Expr, so far.
-from basic import _self
-    #k [digr: is there a reload bug caused by things we get from basic import *, since we don't reload basic??]
+#k [digr: is there a reload bug caused by things we get from basic import *, since we don't reload basic??]
 
-import lvals
-reload_once(lvals)
-from lvals import LvalDict2, LvalForState, LvalError_ValueIsUnset
+from exprs.__Symbols__ import _self
+from exprs.Exprs import call_Expr
+from exprs.py_utils import attrholder
+from exprs.reload import reload_once
+
+import exprs.lvals
+reload_once(exprs.lvals)
+from exprs.lvals import LvalDict2, LvalForState, LvalError_ValueIsUnset
 
 import platform
 
@@ -194,9 +197,9 @@ def set_default_attrs(obj, **kws): #e if this was general, we could refile into 
     # except that we can probably ignore that issue for now (due to an accident of how current code uses this),
     # since if the attr is unset, it was never yet used, so invalidating it should have no effect.
     if 1:
-        import Exprs
-        reload_once(Exprs)
-        from Exprs import is_pure_expr
+        import exprs.Exprs
+        reload_once(exprs.Exprs)
+        from exprs.Exprs import is_pure_expr
         if is_pure_expr(obj):
             assert 0, "set_default_attrs called on pure_expr %r is almost surely a bug; normally do it in _init_instance" % (obj,)
     import changes

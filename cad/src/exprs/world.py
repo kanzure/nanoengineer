@@ -22,11 +22,14 @@ Note: for our use in dna_ribbon_view.py we said:
 
 """
 
+from exprs.Exprs import getattr_Expr, not_Expr
+from exprs.instance_helpers import InstanceOrExpr
+from exprs.attr_decl_macros import State, Instance
+from exprs.__Symbols__ import Anything, _self
+from exprs.StatePlace import set_default_attrs
+from exprs.py_utils import sorted_by
 
-from basic import *
-from basic import _self, _this, _my
-
-from Highlightable import SavedCoordsys #070401
+from exprs.Highlightable import SavedCoordsys #070401
 
 # I'm not sure whether this unfinished new code should be finished and used -- for now, comment it out [070206]
 #####e redesign and refile this type stuff (it's wrong in basic nature, terminology, rep, version control; undecided re pure exprs)

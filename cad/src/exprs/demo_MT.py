@@ -115,53 +115,65 @@ nfrs:
 
 # == imports [maybe not all needed #k]
 
-from basic import *
-from basic import _self
+from exprs.reload import reload_once
 
-import Highlightable
-reload_once(Highlightable)
-from Highlightable import Highlightable
+import exprs.Highlightable
+reload_once(exprs.Highlightable)
+from exprs.Highlightable import Highlightable
 
-import TextRect
-reload_once(TextRect)
-from TextRect import TextRect
+import exprs.TextRect
+reload_once(exprs.TextRect)
+from exprs.TextRect import TextRect
 
-import Column
-reload_once(Column)
-from Column import SimpleRow, SimpleColumn
+import exprs.Column
+reload_once(exprs.Column)
+from exprs.Column import SimpleRow, SimpleColumn
 
-import Overlay
-reload_once(Overlay)
-from Overlay import Overlay
+import exprs.Overlay
+reload_once(exprs.Overlay)
+from exprs.Overlay import Overlay
 
-import Set
-reload_once(Set)
-from Set import Set ##e move to basic
+import exprs.Set
+reload_once(exprs.Set)
+from exprs.Set import Set ##e move to basic
 
-import Rect
-reload_once(Rect)
-from Rect import Rect, Spacer
+import exprs.Rect
+reload_once(exprs.Rect)
+from exprs.Rect import Rect, Spacer
 
-import images
-reload_once(images)
-from images import IconImage, Image #e and more
+import exprs.images
+reload_once(exprs.images)
+from exprs.images import IconImage, Image #e and more
 
-import Center
-reload_once(Center)
-from Center import CenterY, Center
+import exprs.Center
+reload_once(exprs.Center)
+from exprs.Center import CenterY, Center
 
-import transforms
-reload_once(transforms)
-from transforms import Translate
+import exprs.transforms
+reload_once(exprs.transforms)
+from exprs.transforms import Translate
 
-import projection
-reload_once(projection)
-from projection import DrawInCorner, DrawInCenter #e but what we need is not those, but DrawInAbsCoords or DrawInThingsCoords
+import exprs.projection
+reload_once(exprs.projection)
+from exprs.projection import DrawInCorner, DrawInCenter #e but what we need is not those, but DrawInAbsCoords or DrawInThingsCoords
     # or really, just get the place (or places) a thing will draw in, in local coords (see projection.py for more discussion)
 
-import DisplistChunk # works 070103, with important caveats re Highlightable (see module docstring)
-reload_once(DisplistChunk)
-from DisplistChunk import DisplistChunk
+import exprs.DisplistChunk # works 070103, with important caveats re Highlightable (see module docstring)
+reload_once(exprs.DisplistChunk)
+from exprs.DisplistChunk import DisplistChunk
+
+from constants import blue, green, ave_colors, white
+
+from exprs.Exprs import call_Expr, list_Expr, getattr_Expr, not_Expr, format_Expr
+from exprs.If_expr import If
+from exprs.widget2d import Stub
+from exprs.iterator_exprs import MapListToExpr
+from exprs.iterator_exprs import KLUGE_for_passing_expr_classes_as_functions_to_ArgExpr
+from exprs.attr_decl_macros import Option, State, Arg
+from exprs.instance_helpers import DelegatingInstanceOrExpr, ModelObject, InstanceMacro
+from exprs.ExprsConstants import StubType
+from exprs.py_utils import identity
+from exprs.__Symbols__ import Anything, _self
 
 # ==
 

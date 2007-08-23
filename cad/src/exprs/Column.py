@@ -8,22 +8,26 @@ $Id$
 
 """
 
-from basic import * # autoreload of basic is done before we're imported
-from basic import _self
-
-import draw_utils
-reload_once(draw_utils)
-from draw_utils import * #k needed??
-
-import Rect
-reload_once(Rect)
-from Rect import Spacer
-
-import TextRect
-reload_once(TextRect)
-from TextRect import TextRect
-
 from OpenGL.GL import glPushMatrix, glPopMatrix, glTranslatef ##e revise later into glpane methods or so
+
+from exprs.reload import reload_once
+
+import exprs.draw_utils
+reload_once(exprs.draw_utils)
+
+import exprs.Rect
+reload_once(exprs.Rect)
+from exprs.Rect import Spacer
+
+import exprs.TextRect
+reload_once(exprs.TextRect)
+from exprs.TextRect import TextRect
+
+from exprs.Exprs import call_Expr, not_Expr, or_Expr, and_Expr, list_Expr
+from exprs.attr_decl_macros import ArgList, Option, Arg, Instance
+from exprs.widget2d import Widget2D
+from exprs.ExprsConstants import PIXELS
+from exprs.__Symbols__ import _self
 
 # ==
 

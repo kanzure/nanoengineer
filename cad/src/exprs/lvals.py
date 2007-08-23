@@ -54,18 +54,20 @@ For examples, see the classes herein whose names contain Lval.
 
 # == imports
 
+import sys
+
 # from modules in cad/src
 
 from changes import SelfUsageTrackingMixin, SubUsageTrackingMixin
 import changes
-
-# from this exprs package
-
-from basic import *
+from debug import print_compact_traceback
+from state_utils import same_vals
 
 import platform
 
-MemoDict # comes from py_utils via basic; very simple, safe for use in ExprsMeta [061024]
+from exprs.py_utils import MemoDict, printnim
+
+MemoDict
 
 class LvalError_ValueIsUnset(AttributeError): #061117 1030p not yet raised or caught in all places where it ought to be #####e
     """Exception for an lval whose value was never set (nor was a compute method or initval method set).

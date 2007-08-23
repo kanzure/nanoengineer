@@ -147,15 +147,28 @@ from debug import print_compact_traceback, print_compact_stack
 ###e make reloadable? I'm not sure if *this* module supports reload. ##k
 #e if it does, we should make all but basic reloadable here.
 
-from basic import printnim, printfyi, reload_once # this is a recursive import -- most things in basic are not defined yet
+from exprs.py_utils import printnim, printfyi
+from exprs.reload import reload_once
 
-import lvals
-reload_once(lvals)
-from lvals import Lval, LvalDict2, call_but_discard_tracked_usage
+import exprs.lvals
+reload_once(exprs.lvals)
+from exprs.lvals import Lval, LvalDict2, call_but_discard_tracked_usage
 
-import Exprs
-reload_once(Exprs)
-from Exprs import * # we need a handful of things, but no harm in grabbing them all.
+import exprs.Exprs
+reload_once(exprs.Exprs)
+
+from exprs.Exprs import is_Expr
+from exprs.Exprs import is_pure_expr
+from exprs.Exprs import canon_expr
+from exprs.Exprs import is_Expr_pyinstance
+from exprs.Exprs import getattr_Expr
+from exprs.Exprs import constant_Expr
+from exprs.Exprs import expr_serno
+from exprs.Exprs import expr_is_Instance
+from exprs.Exprs import is_Expr_pyclass
+from exprs.__Symbols__ import _E_ATTR, _self
+
+# undefined symbol: FAKE_ATTRNAME
 
 # ==
 
@@ -750,7 +763,6 @@ is_formula = is_Expr #####e review these -- a lot of them need more cases anyway
 
 def is_attr_equals_self_attr_assignment(attr, val, classname = "?"): #070324 split out this predicate
     "is the assignment attr = val of the exact form attr = _self.attr (for the same attr, ie recursive)?"
-    from __Symbols__ import _self #k can this be at toplevel in the module??
     if isinstance(val, getattr_Expr) \
        and val._e_args[0] is _self \
        and isinstance( val._e_args[1], constant_Expr) \
@@ -1033,7 +1045,6 @@ class FormulaScanner: #061101  ##e should it also add the attr to the arglist of
                 error_if_Arg_or_Option = True #doc ###IMPLEM its effect; is it really just an error about _E_ATTR?? not sure.
             self.seen_order = new_order
             pass
-        from __Symbols__ import _E_ATTR 
         self.replacements[_E_ATTR] = constant_Expr(attr) # this allows formulas created by Option to find out the attr they're on
         printnim("we need some scheme to detect two attrs with the same val, if that val contains an Arg or Option subexpr")
             # once vals are sorted, these are easy to see (they're successive)... we exploit that above, to set error_if_Arg_or_Option
@@ -1056,7 +1067,6 @@ class FormulaScanner: #061101  ##e should it also add the attr to the arglist of
             # maybe not error (tho if smth uses it after this, that might deserve a warning) --
             # in any case, don't replace it with a new replacement
         else:
-            from __Symbols__ import _self 
             self.replacements[formula] = getattr(_self, attr) # this creates a getattr_Expr [#e clearer to just use that directly?]
                 # don't do this before calling self.replacement_subexpr above, or it'll find this replacement immediately!
         return res

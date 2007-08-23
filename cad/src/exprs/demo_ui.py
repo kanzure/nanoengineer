@@ -5,21 +5,37 @@ demo_ui.py - try out a more CAD-like UI organization
 $Id$
 """
 
-from basic import *
-from basic import _app, _self, _my
+from exprs.reload import reload_once
 
-import test
-from test import reload_once
-reload_once(test) # not sure this is needed if we're only imported from test.py
-from test import * # shortcut, since we were moved out of test.py
+#import exprs.test
+#reload_once(exprs.test) # not sure this is needed if we're only imported from test.py
 
-import toolbars
-reload_once(toolbars)
-from toolbars import MainToolbar
+import exprs.toolbars
+reload_once(exprs.toolbars)
+from exprs.toolbars import MainToolbar
 
-import command_registry
-reload_once(command_registry)
-from command_registry import auto_register, find_or_make_global_command_registry, CommandRegistry
+import exprs.command_registry
+reload_once(exprs.command_registry)
+from exprs.command_registry import auto_register, find_or_make_global_command_registry, CommandRegistry
+
+from constants import pink
+from prefs_constants import UPPER_LEFT, UPPER_RIGHT
+
+from exprs.Exprs import list_Expr
+from exprs.If_expr import If
+from exprs.widget2d import Stub
+from exprs.Rect import Rect
+from exprs.TextRect import TextRect
+from exprs.world import World
+from exprs.Overlay import Overlay
+from exprs.Column import SimpleColumn, SimpleRow
+from exprs.projection import DrawInCorner
+from exprs.Center import Top
+from exprs.attr_decl_macros import State, Instance
+from exprs.instance_helpers import DelegatingInstanceOrExpr
+from exprs.__Symbols__ import _self
+
+from exprs.demo_MT import MT_try2
 
 testexpr_34 = Rect(0.7,0.3,pink) # just to make sure the imports from here are working -- replace it with a real test when we have one
 
@@ -50,7 +66,7 @@ class DefaultToolRun(ToolRun):
 # - there is a stack of currently active toolruns, each one the parent of the next
 #   (usual depth one or two, plus an outer constant one with no prop mgr, user-invisible)
 
-from debug_exprs import DebugPrintAttrs ###e move up, or into basic; rename to more memorable name (maybe just Debug?) (add DebugDraw?)
+from exprs.debug_exprs import DebugPrintAttrs ###e move up, or into basic; rename to more memorable name (maybe just Debug?) (add DebugDraw?)
 
 
 #e set up a Sketch tool, which has a main button with a Sketch PM and for now has all the Sketch Entities we know about,

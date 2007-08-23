@@ -78,72 +78,108 @@ for help making the OpenGL do what it used to do, if that's ever needed.)
 
 """
 
-from basic import *
-from basic import _self, _this, _my
+from math import pi
+from Numeric import dot, cos, sin
 
-import Overlay
-reload_once(Overlay)
-from Overlay import Overlay
+from OpenGL.GL import GL_LIGHTING
+from OpenGL.GL import glDisable
+from OpenGL.GL import glColor3fv
+from OpenGL.GL import GL_LINE_STRIP
+from OpenGL.GL import glBegin
+from OpenGL.GL import glVertex3fv
+from OpenGL.GL import glEnd
+from OpenGL.GL import glEnable
+from OpenGL.GL import GL_CULL_FACE
+from OpenGL.GL import GL_LIGHT_MODEL_TWO_SIDE
+from OpenGL.GL import GL_TRUE
+from OpenGL.GL import glLightModelfv
+from OpenGL.GL import GL_QUAD_STRIP
+from OpenGL.GL import glNormal3fv
+from OpenGL.GL import GL_FALSE
 
-from OpenGL.GL import * #e move what needs this into draw_utils
+from exprs.reload import reload_once
+
+import exprs.Overlay
+reload_once(exprs.Overlay)
+from exprs.Overlay import Overlay
+
 import drawer
 import platform
 
 # needed for code modified from demo_drag: not sure it's all still needed #k
 
-import world
-reload_once(world)
-from world import World
+import exprs.world
+reload_once(exprs.world)
+from exprs.world import World
 
-import Rect
-reload_once(Rect)
-from Rect import Rect, RectFrame, IsocelesTriangle, Spacer, Sphere, Line
+import exprs.Rect
+reload_once(exprs.Rect)
+from exprs.Rect import Rect, RectFrame, IsocelesTriangle, Spacer, Sphere, Line
 
-import Column
-reload_once(Column)
-from Column import SimpleColumn, SimpleRow
+import exprs.Column
+reload_once(exprs.Column)
+from exprs.Column import SimpleColumn, SimpleRow
 
-import DisplistChunk # works 070103, with important caveats re Highlightable
-reload_once(DisplistChunk)
-from DisplistChunk import DisplistChunk
+import exprs.DisplistChunk # works 070103, with important caveats re Highlightable
+reload_once(exprs.DisplistChunk)
+from exprs.DisplistChunk import DisplistChunk
 
-import Highlightable
-reload_once(Highlightable)
-from Highlightable import Highlightable
+import exprs.Highlightable
+reload_once(exprs.Highlightable)
+from exprs.Highlightable import Highlightable
 
 #k some of this might also be needed, prob not all:
 
-import transforms
-reload_once(transforms)
-from transforms import Translate
+import exprs.transforms
+reload_once(exprs.transforms)
+from exprs.transforms import Translate
 
-import Center
-reload_once(Center)
-from Center import Center, CenterY
+import exprs.Center
+reload_once(exprs.Center)
+from exprs.Center import Center, CenterY
 
-import TextRect
-reload_once(TextRect)
-from TextRect import TextRect
+import exprs.TextRect
+reload_once(exprs.TextRect)
+from exprs.TextRect import TextRect
 
-import controls
-reload_once(controls)
-from controls import checkbox_pref, ActionButton
+import exprs.controls
+reload_once(exprs.controls)
+from exprs.controls import checkbox_pref, ActionButton
 
-import lvals
-reload_once(lvals)
-from lvals import Lval, LvalDict2, call_but_discard_tracked_usage
+import exprs.lvals
+reload_once(exprs.lvals)
+from exprs.lvals import Lval, LvalDict2, call_but_discard_tracked_usage
 
-import draggable
-reload_once(draggable)
-from draggable import DraggableObject
+import exprs.draggable
+reload_once(exprs.draggable)
+from exprs.draggable import DraggableObject
 
-import projection
-reload_once(projection)
-from projection import DrawInCenter
+import exprs.projection
+reload_once(exprs.projection)
+from exprs.projection import DrawInCenter
 
-import pallettes
-reload_once(pallettes)
-from pallettes import PalletteWell
+import exprs.pallettes
+reload_once(exprs.pallettes)
+from exprs.pallettes import PalletteWell
+
+from VQT import norm
+
+from constants import gray, black, red, blue, purple, white
+from constants import ave_colors, noop
+from constants import green
+from constants import yellow
+
+from exprs.widget2d import Widget, Stub
+from exprs.Exprs import norm_Expr, vlen_Expr, int_Expr, call_Expr, getattr_Expr, format_Expr
+from exprs.Exprs import eq_Expr
+from exprs.If_expr import If
+from exprs.instance_helpers import ModelObject, InstanceMacro, DelegatingInstanceOrExpr
+from exprs.instance_helpers import WithAttributes
+from exprs.attr_decl_macros import Arg, ArgOrOption, Option, State, StateOption, StateArg
+from exprs.ExprsConstants import Width, ORIGIN, DX, DY, DZ, Color, Point, Vector
+from exprs.__Symbols__ import _self
+
+# undefined symbols: object_id, nim, ditto
 
 # temporary kluge: excerpt from cad/src/DnaGenerator.py; this copy used locally for constants [values not reviewed]:
 class B_Dna:

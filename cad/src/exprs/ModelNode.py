@@ -55,20 +55,29 @@ since it is defined to take a snapshot.
 
 much later: see also non-cvs notes (files & paper) of 070105
 """
-
-from basic import *
-from basic import _self, _my, _this
+import time
 
 from Utility import SimpleCopyMixin, Node, imagename_to_pixmap
-from state_utils import copy_val, S_DATA #e put copy_val in basic? #k where is S_DATA really?
+from state_utils import copy_val #e put copy_val in basic?
+from state_constants import S_DATA
 
-import Rect
-reload_once(Rect)
-from Rect import Sphere
+from exprs.reload import reload_once
 
-import lvals
-reload_once(lvals)
-from lvals import RecomputingMemoDict ##, call_but_discard_tracked_usage, LvalError_ValueIsUnset
+import exprs.Rect
+reload_once(exprs.Rect)
+from exprs.Rect import Sphere
+
+import exprs.lvals
+reload_once(exprs.lvals)
+from exprs.lvals import RecomputingMemoDict ##, call_but_discard_tracked_usage, LvalError_ValueIsUnset
+
+import env
+
+from constants import gray
+
+from exprs.instance_helpers import InstanceOrExpr
+from exprs.attr_decl_macros import StateArg, StateArgOrOption, Arg
+from exprs.ExprsConstants import Position, ORIGIN, Width, Color
 
 # ===
 

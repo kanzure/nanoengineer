@@ -104,10 +104,12 @@ instructions for geometric calculations, rather than as ever-present overhead --
 
 """
 
-from basic import *
-from basic import _self
+from Numeric import dot
 
 from VQT import planeXline
+from VQT import norm
+from VQT import cross
+from VQT import vlen
 
 # ==
 

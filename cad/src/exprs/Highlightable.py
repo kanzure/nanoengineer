@@ -17,14 +17,40 @@ a bug in demo_drag.py which is so far only worked around, not really fixed. [070
 
 """
 
-from basic import *
-from basic import _self
-
-from OpenGL.GL import *
-
+from OpenGL.GL import glPushName
+from OpenGL.GL import glPopName
+from OpenGL.GL import GL_PROJECTION_MATRIX
+from OpenGL.GL import glGetDoublev
+from OpenGL.GL import GL_MODELVIEW_MATRIX
+from OpenGL.GL import GL_PROJECTION
+from OpenGL.GL import glMatrixMode
+from OpenGL.GL import glPushMatrix
+from OpenGL.GL import GL_MODELVIEW
+from OpenGL.GL import glLoadMatrixd
+from OpenGL.GL import glPopMatrix
+from OpenGL.GL import GL_LEQUAL
 from OpenGL.GLU import gluProject, gluUnProject
 
 import platform
+
+from VQT import A
+from VQT import vlen
+from VQT import V
+from constants import noop
+from constants import green
+from debug import print_compact_traceback
+
+from exprs.Exprs import or_Expr, canon_expr
+from exprs.Exprs import printfunc
+from exprs.Exprs import is_expr_Instance_or_None
+from exprs.StatePlace import set_default_attrs
+from exprs.attr_decl_macros import Option, ArgOrOption, Arg
+from exprs.instance_helpers import InstanceOrExpr, DelegatingMixin, ModelObject, DelegatingInstanceOrExpr
+from exprs.ExprsConstants import ORIGIN
+from exprs.widget2d import Widget2D
+from exprs.Set import Action
+from exprs.py_utils import printnim
+from exprs.__Symbols__ import _self, Anything
 
 # modified from testdraw.printfunc:
 def print_Expr(*args, **kws): ##e rename to include Action in the name?? #e refile

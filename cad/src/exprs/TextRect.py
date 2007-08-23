@@ -8,13 +8,16 @@ $Id$
 # Note: this uses fixed size for text on screen, regardless of depth -- we'll need to revise this someday. #e
 
 
-from basic import *
-from basic import _self
-
 # Plan: make this just good enough for use as a debugging tool -- e.g. to make instances that show their own ipath.
 # It still uses utility funcs and an assumed-bound-texture from cad/src/drawtest.py.
 
 from OpenGL.GL import glPushMatrix, glPopMatrix #e replace with glpane_proxy attrs
+
+from exprs.attr_decl_macros import Arg, Option
+from exprs.Exprs import min_Expr, call_Expr
+from exprs.widget2d import Widget2D
+from exprs.ExprsConstants import PIXELS
+from exprs.__Symbols__ import _self
 
 class TextRect(Widget2D):
     """TextRect(msg, nlines, ncols) renders as a rect of ncols by nlines chars,

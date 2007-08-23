@@ -8,19 +8,30 @@ $Id$
 # as of 061106 the setup looks obs, but it might as well be revived and tested before Column is worked on much
 # revived 061113, see below
 
-from basic import *
+# just a guess for this symbol, but it isn't defined there:
+#from OpenGL.GL import glTranslate3fv
 
-import Overlay
-reload_once(Overlay)
-from Overlay import Overlay
+from exprs.reload import reload_once
 
-import transforms
-reload_once(transforms)
-from transforms import Translate
+import exprs.Overlay
+reload_once(exprs.Overlay)
+from exprs.Overlay import Overlay
 
-import Column
-reload_once(Column)
-from Column import SimpleRow, SimpleColumn
+import exprs.transforms
+reload_once(exprs.transforms)
+from exprs.transforms import Translate
+
+import exprs.Column
+reload_once(exprs.Column)
+from exprs.Column import SimpleRow, SimpleColumn
+
+from VQT import V
+
+from exprs.Exprs import V_expr
+from exprs.widget2d import Widget2D, Stub, Widget
+from exprs.instance_helpers import InstanceMacro
+from exprs.attr_decl_macros import Arg, ArgExpr, Instance
+from exprs.ExprsConstants import PIXELS
 
 # == obs:
 

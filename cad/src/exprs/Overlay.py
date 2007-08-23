@@ -6,19 +6,23 @@ $Id$
 
 """
 
-from basic import *
-from basic import _self
-
-import TextRect
-reload_once(TextRect)
-from TextRect import TextRect
-
-import Rect
-reload_once(Rect)
-from Rect import Spacer
-
 from OpenGL.GL import GL_LESS
 
+from exprs.reload import reload_once
+
+import exprs.TextRect
+reload_once(exprs.TextRect)
+from exprs.TextRect import TextRect
+
+import exprs.Rect
+reload_once(exprs.Rect)
+from exprs.Rect import Spacer
+
+from exprs.attr_decl_macros import Arg
+from exprs.instance_helpers import InstanceOrExpr, DelegatingMixin
+from exprs.widget2d import Widget2D
+from exprs.Exprs import list_Expr, and_Expr, canon_expr, or_Expr
+from exprs.py_utils import printfyi
 
 class Overlay(InstanceOrExpr, DelegatingMixin):
     "Overlay has the size of its first arg, but draws all its args in the same place, with the same origin."

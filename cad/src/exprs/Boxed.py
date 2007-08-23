@@ -6,37 +6,40 @@ $Id$
 
 """
 
-from basic import *
-from basic import _self, _my
+from constants import white
 
-import Rect
-reload_once(Rect)
-from Rect import Rect, RectFrame
+from exprs.reload import reload_once
 
-import Overlay
-reload_once(Overlay)
-from Overlay import Overlay
+import exprs.Rect
+reload_once(exprs.Rect)
+from exprs.Rect import Rect, RectFrame
 
-import transforms
-reload_once(transforms)
-from transforms import Translate
+import exprs.Overlay
+reload_once(exprs.Overlay)
+from exprs.Overlay import Overlay
 
-import Center
-reload_once(Center)
-from Center import Center, TopLeft
+import exprs.transforms
+reload_once(exprs.transforms)
+from exprs.transforms import Translate
 
-import Highlightable
-reload_once(Highlightable)
-from Highlightable import Highlightable
+import exprs.Center
+reload_once(exprs.Center)
+from exprs.Center import Center, TopLeft
 
-import draggable
-reload_once(draggable)
-from draggable import DraggableObject, SimpleDragBehavior
+import exprs.Highlightable
+reload_once(exprs.Highlightable)
+from exprs.Highlightable import Highlightable
 
-import clipping_planes
-reload_once(clipping_planes)
-from clipping_planes import clip_below_y0, clip_to_right_of_x0, Clipped
+import exprs.clipping_planes
+reload_once(exprs.clipping_planes)
+from exprs.clipping_planes import clip_below_y0, clip_to_right_of_x0, Clipped
 
+from exprs.Exprs import V_expr, neg_Expr
+from exprs.widget2d import Widget2D
+from exprs.instance_helpers import InstanceMacro
+from exprs.attr_decl_macros import Arg, Option, State, Instance
+from exprs.ExprsConstants import Width, PIXELS, Color, Vector, ORIGIN
+from exprs.__Symbols__ import _self
 
 class Boxed(InstanceMacro): # 070316 slightly revised 
     """Boxed(widget) is a boxed version of widget -- it looks like widget, centered inside a rectangular frame.
@@ -82,95 +85,6 @@ class Boxed(InstanceMacro): # 070316 slightly revised
 
 # ==
 
-class DraggablyBoxed(Boxed): # 070316; works 070317 [testexpr_36] before ww,hh State or resizable, and again (_36b) after them
-    # inherit args, options, formulae from Boxed
-    thing = _self.thing ###k WONT WORK unless we kluge ExprsMeta to remove this assignment from the namespace -- which we did.
-        ###e not sure this is best syntax though. attr = _super.attr implies it'd work inside larger formulae, but it can't;
-        # attr = Boxed.attr might be ok, whether it can work is not reviewed; it too might imply what _super does, falsely I think.
-    extra1 = _self.extra1
-    borderthickness = _self.borderthickness
-    rectframe = _self.rectframe # a pure expr
-    # new options
-    resizable = Option(bool, False, doc = "whether to make it resizable at lower right")
-        # works 070317 10pm (testexpr_36b) except for a few ###BUGS [updated info 070318 7pm]:
-        # + [fixed] the wrong corner resizes (top right) (logic bug)
-        # + [fixed] resizer doesn't move (understood -- wrong expr for its posn; commented below)
-        # - negative sizes allowed (missing feature - limit the drag - need new DragBehavior feature)
-        # - no clipping to interior of rectframe (missing feature - draw something clipped)
-        # - perspective view ought to work, but entirely ###UNTESTED.
-        # also, cosmetic bugs:
-        # - resizer doesn't follow mouse in rotated coordsys, even in ortho view (though it's still useable).
-        #   (This is not surprising -- we're using the wrong kind of DragBehavior as a simple kluge.)
-        # - the resizer is ugly, in shape & color.
-    clipped = Option(bool, False, doc = "###doc") #070322 new feature ### make True default after testing?
-    # state
-        # WARNING: due to ipath persistence, if you revise dflt_expr you apparently need to restart ne1 to see the change.
-##    ww = State(Width, thing.width  + 2 * extra1) # replaces non-state formula in superclass -- seems to work
-##    hh = State(Width, thing.height + 2 * extra1)
-##        # now we just need a way to get a stateref to, effectively, the 3-tuple (ww,hh,set-value-discarder) ... instead, use whj:
-    whj = State(Vector, V_expr(thing.width  + 2 * extra1, - thing.height - 2 * extra1, 0)) #e not sure this is sound in rotated coordsys
-    translation = State(Vector, ORIGIN)
-    # override super formulae
-    ww = whj[0] # seems to work
-    hh = neg_Expr(whj[1]) # negative is needed since drag down (negative Y direction) needs to increase height
-        # (guess: neg_Expr wouldn't be needed if we used an appropriate new DragBehavior in resizer,
-        #  rather than our current klugy use of SimpleDragBehavior)
-    # appearance
-    rectframe_h = Instance( Highlightable(
-        ## rectframe(bordercolor=green),####### cust is just to see if it works -- it doesn't, i guess i sort of know why
-        ##bug: __call__ of <getattr_Expr#8243: (S._self, <constant_Expr#8242: 'rectframe'>)> with: () {'bordercolor': (0.0, 1.0, 0.0)}
-        ##AssertionError: getattr exprs are not callable 
-        TopLeft(rectframe),
-        #e different colored hover-highlighted version?? for now, just use sbar_text to know you're there.
-        sbar_text = "draggable box frame", # this disappears on press -- is that intended? ###k
-        behavior = SimpleDragBehavior(
-            # arg1: the highlightable
-            _self.rectframe_h,
-            # arg2: a write-capable reference to _self.translation
-            ## fails - evalled at compile time, not an expr: LvalueFromObjAndAttr( _self, 'translation'),
-                ###BUG: why didn't anything complain when that bug caused the state value to be an add_Expr, not a number-array?
-            call_Expr( LvalueFromObjAndAttr, _self, 'translation'),
-                #e alternate forms for this that we might want to make work:
-                #  - getattr_StateRef(_self, 'translation') # simple def of the above
-                #  - StateRef_for( _self.translation ) # turns any lvalue into a stateref! Name is not good enough, though.
-         )
-     ))
-    resizer = Instance( Highlightable(
-        Center(Rect(extra1, extra1)), #e also try BottomRight
-        highlighted = Center(Rect(extra1, extra1, white)),
-        pressed = _my.highlighted,
-        sbar_text = "resize the box frame",
-        behavior = SimpleDragBehavior( _self.resizer, call_Expr( LvalueFromObjAndAttr, _self, 'whj') )
-     ))
-    ###BUG: in Boxed, rectframe comes first, so lbox attrs are delegated to it. We should do that too --
-    # but right now we draw it later in order to obscure the thing if they overlap. With clipping we won't need that --
-    # but without clipping we will. If the latter still matters, we need a version of Overlay with delegation != drawing order,
-    # or, to delegate appearance and layout to different instances ourselves. (Or just to define new formulae for lbox -- easiest.) #e
-    drawme = Instance( Overlay(
-        If( clipped,
-            Clipped(thing, planes = [call_Expr(clip_to_right_of_x0, - thing.bleft - extra1 + ww - borderthickness ),
-                                         # note: the (- borderthickness) term makes the clipping reach exactly
-                                         # to the inner rectframe edge. Without it, clipping would reach to the outer edge,
-                                         # which for 3d objects inside the frame can cause them to obscure it.
-                                         # (Other interesting values are (- extra1) and (- borderthickness/2.0),
-                                         #  but they both look worse, IMHO.)
-                                     call_Expr(clip_below_y0, thing.btop + extra1 - hh + borderthickness )
-                                    ]),
-            thing,
-         ),
-        Translate( rectframe_h, V_expr( - thing.bleft - extra1, thing.btop + extra1) ),
-        If( resizable,
-            ## Translate( resizer, V_expr( thing.bright + extra1, - thing.bbottom - extra1))
-                ###WRONG - this posn is fixed by thing's lbox dims, not affected by ww, hh;
-                # will the fix be clearer if we use a TopLeft alignment expr?
-                # It'd be hard to use it while maintaining thing's origin for use by external alignment --
-                # but maybe there's no point in doing that.
-            Translate( resizer, V_expr( - thing.bleft - extra1 + ww, thing.btop + extra1 - hh))
-         )
-     ))
-    _value = Translate( drawme, ## DisplistChunk( drawme), ###k this DisplistChunk might break the Highlightable in rectframe_h #####
-                        translation
-                       )
-    pass # end of class DraggablyBoxed
+# DraggablyBoxed moved to draggable to avoid import loop
 
 # end

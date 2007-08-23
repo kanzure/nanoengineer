@@ -9,12 +9,17 @@ might be renamed or merged
 note: transforms.py was split out of here, 061115
 """
 
-from basic import *
-from basic import _self
+from exprs.reload import reload_once
 
-import transforms
-reload_once(transforms)
-from transforms import Translate
+import exprs.transforms
+reload_once(exprs.transforms)
+from exprs.transforms import Translate
+
+from exprs.Exprs import V_expr
+from exprs.attr_decl_macros import Arg
+from exprs.instance_helpers import DelegatingInstanceOrExpr
+from exprs.widget2d import Widget2D
+from exprs.__Symbols__ import _self
 
 # There are 15 non-noop combos of dx & dy formulae, but only 13 have simple names, due to X/Y ambiguity of Center...
 # even so, I spell them out like this, partly since the resulting classes are more efficient

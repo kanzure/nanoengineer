@@ -13,65 +13,82 @@ $Id$
 #e stub, nim; implem requires StateRef, some better type conversion (& filling it out below), Set action, on_press accepting that
 
 #e imports
-from basic import *
-from basic import _self
 
-import Rect
-reload_once(Rect)
-from Rect import Rect, Spacer, SpacerFor
+import time
 
-import Center
-reload_once(Center)
-from Center import Center, CenterY
+from exprs.reload import reload_once
 
-import Column
-reload_once(Column)
-from Column import SimpleColumn, SimpleRow
+import exprs.Rect
+reload_once(exprs.Rect)
+from exprs.Rect import Rect, Spacer, SpacerFor
 
-import Boxed
-reload_once(Boxed)
-from Boxed import Boxed
+import exprs.Center
+reload_once(exprs.Center)
+from exprs.Center import Center, CenterY
 
-import TextRect
-reload_once(TextRect)
-from TextRect import TextRect
+import exprs.Column
+reload_once(exprs.Column)
+from exprs.Column import SimpleColumn, SimpleRow
 
-import Highlightable
-reload_once(Highlightable)
-from Highlightable import Highlightable, print_Expr
+import exprs.Boxed
+reload_once(exprs.Boxed)
+from exprs.Boxed import Boxed
 
-import Overlay
-reload_once(Overlay)
-from Overlay import Overlay
+import exprs.TextRect
+reload_once(exprs.TextRect)
+from exprs.TextRect import TextRect
 
-import images
-reload_once(images)
-from images import Image, IconImage
+import exprs.Highlightable
+reload_once(exprs.Highlightable)
+from exprs.Highlightable import Highlightable, print_Expr
 
-import staterefs
-reload_once(staterefs)
-from staterefs import PrefsKey_StateRef
+import exprs.Overlay
+reload_once(exprs.Overlay)
+from exprs.Overlay import Overlay
 
-import DisplistChunk # works 070103, with important caveats re Highlightable
-reload_once(DisplistChunk)
-from DisplistChunk import DisplistChunk
+import exprs.images
+reload_once(exprs.images)
+from exprs.images import Image, IconImage
 
+import exprs.staterefs
+reload_once(exprs.staterefs)
+from exprs.staterefs import PrefsKey_StateRef
+
+import exprs.DisplistChunk # works 070103, with important caveats re Highlightable
+reload_once(exprs.DisplistChunk)
+from exprs.DisplistChunk import DisplistChunk
+
+from exprs.If_expr import If_kluge
 If = If_kluge # until debugged
 
 # stub types
+from exprs.ExprsConstants import StubType
 stubtype = StubType
 
-import Set
-reload_once(Set)
-from Set import Set, SetStateRefValue ###e move to basic, but maybe only import of Set, not of this semiobs variant [061204 comment]
+import exprs.Set
+reload_once(exprs.Set)
+from exprs.Set import Set, SetStateRefValue ###e move to basic, but maybe only import of Set, not of this semiobs variant [061204 comment]
 
-import staterefs
-reload_once(staterefs)
-from staterefs import LocalVariable_StateRef ###e move to basic, if it doesn't become obs, but it probably will, once State works
+import exprs.staterefs
+reload_once(exprs.staterefs)
+from exprs.staterefs import LocalVariable_StateRef ###e move to basic, if it doesn't become obs, but it probably will, once State works
 
-import debug_exprs
-reload_once(debug_exprs)
-from debug_exprs import debug_evals_of_Expr
+import exprs.debug_exprs
+reload_once(exprs.debug_exprs)
+from exprs.debug_exprs import debug_evals_of_Expr
+
+from constants import gray, blue, yellow, orange
+from debug_prefs import debug_pref
+from debug_prefs import Choice_boolean_False
+
+from exprs.widget2d import Widget2D
+from exprs.Exprs import format_Expr, eq_Expr, not_Expr, call_Expr, or_Expr
+from exprs.instance_helpers import InstanceMacro, InstanceOrExpr
+from exprs.instance_helpers import DelegatingMixin, DelegatingInstanceOrExpr
+from exprs.attr_decl_macros import Arg, Option, ArgOrOption, State, Instance
+from exprs.ExprsConstants import StateRef, lightblue, PIXELS
+from exprs.Set import Action
+from exprs.__Symbols__ import Anything, _self
 
 class ChoiceButton(InstanceMacro):
     """ChoiceButton(choiceval, choiceref, content, background, background_off) [most args optional]

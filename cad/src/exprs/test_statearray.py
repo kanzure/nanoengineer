@@ -7,52 +7,62 @@ $Id$
 also contains test code for constrained dragging.
 """
 
-from basic import *
-from basic import _self
+from exprs.reload import reload_once
 
-import Column
-reload_once(Column)
-from Column import SimpleColumn, SimpleRow
+import exprs.Column
+reload_once(exprs.Column)
+from exprs.Column import SimpleColumn, SimpleRow
 
-import Rect
-reload_once(Rect)
-from Rect import Rect, Line
+import exprs.Rect
+reload_once(exprs.Rect)
+from exprs.Rect import Rect, Line
 
-import Highlightable
-reload_once(Highlightable)
-from Highlightable import Highlightable, SavedCoordsys
+import exprs.Highlightable
+reload_once(exprs.Highlightable)
+from exprs.Highlightable import Highlightable, SavedCoordsys
 
-import Boxed
-reload_once(Boxed)
-from Boxed import Boxed
+import exprs.Boxed
+reload_once(exprs.Boxed)
+from exprs.Boxed import Boxed
 
-import Set
-reload_once(Set)
-from Set import Set ##e move to basic?
+import exprs.Set
+reload_once(exprs.Set)
+from exprs.Set import Set ##e move to basic?
 
-import draggable
-reload_once(draggable)
-from draggable import DraggableObject, DragBehavior
+import exprs.draggable
+reload_once(exprs.draggable)
+from exprs.draggable import DraggableObject, DragBehavior
 
-import images
-reload_once(images)
-from images import Image, IconImage, NativeImage, PixelGrabber
+import exprs.images
+reload_once(exprs.images)
+from exprs.images import Image, IconImage, NativeImage, PixelGrabber
 
-import controls
-reload_once(controls)
-from controls import ActionButton, PrintAction
+import exprs.controls
+reload_once(exprs.controls)
+from exprs.controls import ActionButton, PrintAction
 
-import geometry_exprs
-reload_once(geometry_exprs)
-from geometry_exprs import Ray
+import exprs.geometry_exprs
+reload_once(exprs.geometry_exprs)
+from exprs.geometry_exprs import Ray
 
-import transforms
-reload_once(transforms)
-from transforms import Translate
+import exprs.transforms
+reload_once(exprs.transforms)
+from exprs.transforms import Translate
 
-import Overlay
-reload_once(Overlay)
-from Overlay import Overlay
+import exprs.Overlay
+reload_once(exprs.Overlay)
+from exprs.Overlay import Overlay
+
+from constants import black, pink, white
+
+from exprs.Exprs import call_Expr, tuple_Expr
+from exprs.statearray import StateArrayRefs
+from exprs.iterator_exprs import MapListToExpr, KLUGE_for_passing_expr_classes_as_functions_to_ArgExpr
+from exprs.instance_helpers import DelegatingInstanceOrExpr
+from exprs.attr_decl_macros import Arg, Option, Instance
+from exprs.ExprsConstants import StateRef, Color, ORIGIN, DY, DX, Width, Vector
+from exprs.py_utils import sorted_items
+from exprs.__Symbols__ import _self, Anything
 
 def StateArrayRefs_getitem_as_stateref(statearrayrefs, index): #070313 renamed getitem_stateref to StateArrayRefs_getitem_as_stateref
     "#doc; args are values not exprs in the present form, but maybe can also be exprs someday, returning an expr..."

@@ -6,19 +6,31 @@ $Id$
 
 """
 
-from basic import *
-
-from prefs_constants import UPPER_RIGHT, UPPER_LEFT, LOWER_LEFT, LOWER_RIGHT # note: also in basic.py as of 070302
-
-from OpenGL.GL import *
+from OpenGL.GL import glScalef
+from OpenGL.GL import GL_MODELVIEW
+from OpenGL.GL import glMatrixMode
+from OpenGL.GL import glPushMatrix
+from OpenGL.GL import glLoadIdentity
+from OpenGL.GL import GL_PROJECTION
+from OpenGL.GL import GL_VIEWPORT
+from OpenGL.GL import glGetIntegerv
+from OpenGL.GL import glOrtho
+from OpenGL.GL import glTranslatef
+from OpenGL.GL import glPopMatrix
 from OpenGL.GLU import gluPickMatrix, gluUnProject
-import platform
 
 try:
     from OpenGL.GL import glScale
 except:
     # The installed version of OpenGL requires argument-typed glScale calls.
     glScale = glScalef
+
+from prefs_constants import UPPER_RIGHT, UPPER_LEFT, LOWER_LEFT, LOWER_RIGHT # note: also in basic.py as of 070302
+
+from exprs.attr_decl_macros import Arg, ArgOrOption, Option
+from exprs.instance_helpers import DelegatingInstanceOrExpr
+from exprs.widget2d import Widget2D
+from exprs.ExprsConstants import PIXELS
 
 class DrawInCorner_projection(DelegatingInstanceOrExpr):
     """DEPRECATED for general use -- use DrawInCorner instead.

@@ -11,15 +11,32 @@ These are prototypes with imperfect arg syntaxes.
 
 """
 
-from basic import *
-from basic import _self
+from OpenGL.GL import GL_CULL_FACE
+from OpenGL.GL import glDisable
+from OpenGL.GL import glEnable
+from OpenGL.GLU import gluNewQuadric
+from OpenGL.GLU import GLU_SMOOTH
+from OpenGL.GLU import gluQuadricNormals
+from OpenGL.GLU import gluPartialDisk
 
-import draw_utils
-reload_once(draw_utils)
-from draw_utils import *
-
-from OpenGL.GLU import *
 import platform
+
+from constants import gray, white, black
+
+from exprs.reload import reload_once
+
+import exprs.draw_utils
+reload_once(exprs.draw_utils)
+
+from exprs.widget2d import Widget2D
+from exprs.attr_decl_macros import Arg, ArgOrOption, Option
+from exprs.instance_helpers import InstanceOrExpr, DelegatingMixin
+from exprs.ExprsConstants import Width, Color, Position, ORIGIN, PIXELS, Point, DX, DY
+from exprs.draw_utils import draw_filled_rect
+from exprs.draw_utils import draw_filled_triangle
+from exprs.draw_utils import draw_filled_rect_frame
+from exprs.__Symbols__ import _self
+
 
 class Rect(Widget2D): # finally working as of 061106
     """Rect(width, height, color) renders as a filled x/y-aligned rectangle

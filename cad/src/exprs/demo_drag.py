@@ -28,53 +28,77 @@ See also:
 
 """
 
-from basic import *
-from basic import _self, _this, _my
+from OpenGL.GL import GL_LINE_LOOP
+from OpenGL.GL import glBegin
+from OpenGL.GL import GL_LINE_STRIP
+from OpenGL.GL import glVertex3fv
+from OpenGL.GL import glEnd
 
+from exprs.reload import reload_once
 
-import Overlay
-reload_once(Overlay)
-from Overlay import Overlay
+import exprs.Overlay
+reload_once(exprs.Overlay)
+from exprs.Overlay import Overlay
 
-import transforms
-reload_once(transforms)
-from transforms import Translate
+import exprs.transforms
+reload_once(exprs.transforms)
+from exprs.transforms import Translate
 
-import Rect
-reload_once(Rect)
-from Rect import Rect ##, Sphere
+import exprs.Rect
+reload_once(exprs.Rect)
+from exprs.Rect import Rect ##, Sphere
 
-import Center
-reload_once(Center)
-from Center import Center, CenterY
+import exprs.Center
+reload_once(exprs.Center)
+from exprs.Center import Center, CenterY
 
-import Highlightable
-reload_once(Highlightable)
-from Highlightable import Highlightable, BackgroundObject ##, Button, print_Expr
+import exprs.Highlightable
+reload_once(exprs.Highlightable)
+from exprs.Highlightable import Highlightable, BackgroundObject ##, Button, print_Expr
 
-import TextRect
-reload_once(TextRect)
-from TextRect import TextRect
+import exprs.TextRect
+reload_once(exprs.TextRect)
+from exprs.TextRect import TextRect
 
-import controls
-reload_once(controls)
-from controls import checkbox_pref, ActionButton
+import exprs.controls
+reload_once(exprs.controls)
+from exprs.controls import checkbox_pref, ActionButton
 
-import Column
-reload_once(Column)
-from Column import SimpleColumn, SimpleRow
+import exprs.Column
+reload_once(exprs.Column)
+from exprs.Column import SimpleColumn, SimpleRow
 
-import DisplistChunk # works 070103, with important caveats re Highlightable
-reload_once(DisplistChunk)
-from DisplistChunk import DisplistChunk
+import exprs.DisplistChunk # works 070103, with important caveats re Highlightable
+reload_once(exprs.DisplistChunk)
+from exprs.DisplistChunk import DisplistChunk
 
-import lvals
-reload_once(lvals)
-from lvals import Lval, LvalDict2, call_but_discard_tracked_usage
+import exprs.lvals
+reload_once(exprs.lvals)
+from exprs.lvals import Lval, LvalDict2, call_but_discard_tracked_usage
 
-import world
-reload_once(world)
-from world import World
+import exprs.world
+reload_once(exprs.world)
+from exprs.world import World
+
+from constants import black, noop
+from constants import red
+from constants import blue
+from constants import green
+from constants import white
+from constants import yellow
+
+from exprs.Exprs import list_Expr, eval_Expr, call_Expr
+from exprs.Exprs import mod_Expr
+from exprs.Exprs import tuple_Expr
+from exprs.Exprs import getattr_Expr
+from exprs.If_expr import If
+from exprs.If_expr import If_kluge
+from exprs.widget2d import Stub, Widget2D
+from exprs.instance_helpers import ModelObject, InstanceOrExpr, DelegatingInstanceOrExpr, InstanceMacro, _this
+from exprs.attr_decl_macros import Arg, State, ArgOrOption, Option
+from exprs.ExprsConstants import PIXELS, Position, Color, StubType, ORIGIN, DZ
+from exprs.py_utils import printfyi
+from exprs.__Symbols__ import Anything, _self
 
 # ==
 
@@ -228,7 +252,6 @@ WithViewerFunc = Stub # see rules.py, to which I moved the more expansive stub o
 
 # 070223 new hack
 
-from OpenGL.GL import *
 import platform
 
 ##class polyline_handle(DelegatingInstanceOrExpr):

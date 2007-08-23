@@ -4,12 +4,22 @@ clipping_planes.py -- support OpenGL clipping planes.
 
 $Id$
 """
+from OpenGL.GL import glEnable
+from OpenGL.GL import glClipPlane
+from OpenGL.GL import glDisable
+from OpenGL.GL import GL_CLIP_PLANE1
+from OpenGL.GL import GL_CLIP_PLANE2
+from OpenGL.GL import GL_CLIP_PLANE3
+from OpenGL.GL import GL_CLIP_PLANE4
+from OpenGL.GL import GL_CLIP_PLANE5
 
-from basic import *
+from VQT import V
 
-from OpenGL.GL import *
-
-import platform
+from exprs.Exprs import list_Expr
+from exprs.widget2d import Widget2D
+from exprs.attr_decl_macros import Arg, ArgOrOption
+from exprs.instance_helpers import InstanceOrExpr
+from exprs.__Symbols__ import Anything
 
 def clip_below_y0(y0): #070322 #e refile #e someday make it return a smarter object (ClippingPlane) than just a 4-tuple or Numeric array
     "return a 4-coefficient OpenGL clipping plane (red book p.144) which displays the half-space defined by y >= y0."

@@ -6,24 +6,31 @@ $Id$
 
 """
 
-from basic import *
-from basic import _self
+from exprs.reload import reload_once
 
-import Highlightable
-reload_once(Highlightable)
-from Highlightable import Highlightable
+import exprs.Highlightable
+reload_once(exprs.Highlightable)
+from exprs.Highlightable import Highlightable
 
-import world
-reload_once(world)
-from world import World
+import exprs.world
+reload_once(exprs.world)
+from exprs.world import World
 
-import Boxed
-reload_once(Boxed)
-from Boxed import Boxed
+import exprs.Boxed
+reload_once(exprs.Boxed)
+from exprs.Boxed import Boxed
 
-import draggable
-reload_once(draggable)
-from draggable import DraggableObject
+import exprs.draggable
+reload_once(exprs.draggable)
+from exprs.draggable import DraggableObject
+
+from constants import blue, green
+
+from exprs.Exprs import or_Expr, format_Expr
+from exprs.instance_helpers import DelegatingInstanceOrExpr
+from exprs.attr_decl_macros import ArgExpr, Option, State
+from exprs.ExprsConstants import PIXELS, ORIGIN
+from exprs.__Symbols__ import Anything, _self
 
 class PalletteWell(DelegatingInstanceOrExpr):
     """A place in the UI which can make copies of its expr for dragging to whereever you want [not fully working yet]

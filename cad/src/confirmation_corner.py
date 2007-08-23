@@ -21,7 +21,7 @@ __author__ = "bruce"
 
 import os
 
-from exprs.basic import PIXELS
+from exprs.ExprsConstants import PIXELS
 from exprs.images import Image
 ##from exprs.Overlay import Overlay
 
