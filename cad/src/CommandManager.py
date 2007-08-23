@@ -42,7 +42,7 @@ class CommandManager(Ui_CommandManager):
     
     def __init__(self, win):
 	self.win = win
-	
+	self.flyoutDictionary = None
 	self.setupUi()		
 	self._makeConnections()	
 	
@@ -58,12 +58,12 @@ class CommandManager(Ui_CommandManager):
 	self.win.connect(self.cmdButtonGroup, SIGNAL("buttonClicked(int)"), 
 			 self.controlButtonChecked)  
 	
-    def controlButtonChecked(self, id):
+    def controlButtonChecked(self, btnId):
 	"""Updates the flyout toolbar based on the button checked in the 
 	control area"""	
-	self._updateFlyoutToolBar(id, self.in_a_mode)
+	self._updateFlyoutToolBar(btnId, self.in_a_mode)
    
-    def _updateFlyoutToolBar(self, id =0, in_a_mode = False):
+    def _updateFlyoutToolBar(self, btnId =0, in_a_mode = False):
 	""" Update the Flyout toolbar commands based on the checked button 
 	in the control area and the checked action in the 'subcontrol' area 
 	of the flyout toolbar """
@@ -129,7 +129,7 @@ class CommandManager(Ui_CommandManager):
 	else:	    
 	    self._showFlyoutToolBar(True)
 	    try:	    
-		if self.cmdButtonGroup.button(id).isChecked():
+		if self.cmdButtonGroup.button(btnId).isChecked():
 		    self._setControlButtonMenu_in_flyoutToolbar(
 			self.cmdButtonGroup.checkedId())
 	    except:
@@ -139,9 +139,9 @@ class CommandManager(Ui_CommandManager):
 		return
     
     	    
-    def _setControlButtonMenu_in_flyoutToolbar(self, id):
+    def _setControlButtonMenu_in_flyoutToolbar(self, btnId):
 	self.flyoutToolBar.clear()
-	menu = self.cmdButtonGroup.button(id).menu()
+	menu = self.cmdButtonGroup.button(btnId).menu()
 	for a in menu.actions():
 	    if a.__class__.__name__ is QtGui.QWidgetAction.__name__:
 		#@@To fix bug 2478 added this visibility condition. 

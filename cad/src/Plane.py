@@ -27,22 +27,18 @@ from OpenGL.GL import glPushMatrix
 from OpenGL.GL import glTranslatef
 from OpenGL.GL import glRotatef
 from OpenGL.GL import glPopMatrix
-from OpenGL.GLU import gluProject, gluUnProject
 
-from PyQt4.Qt import QDialog
 
-from shape import fill
 from drawer import drawLineLoop, drawPlane
 from constants import black, orange, yellow, darkgreen, brown
-from VQT import V,Q, cross, A, planeXline, vlen, norm
+from VQT import V, Q, cross, planeXline, vlen, norm
 
 from debug import print_compact_traceback
 import env
 
-from HistoryWidget import greenmsg, redmsg
+from HistoryWidget import redmsg
 
 from PlaneGenerator       import PlaneGenerator
-from PlanePropertyManager import PlanePropertyManager
 from ReferenceGeometry    import ReferenceGeometry 
 from DirectionArrow       import DirectionArrow
 
