@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
-# Form implementation generated from reading ui file 'UserPrefsDialog.ui'
+# Form implementation generated from reading ui file 'C:\Atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Sat Jun 02 17:46:57 2007
-#      by: PyQt4 UI code generator 4.1.1
+# Created: Thu Aug 23 13:53:18 2007
+#      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
 
-import sys
 from PyQt4 import QtCore, QtGui
 
 class Ui_UserPrefsDialog(object):
@@ -478,6 +476,9 @@ class Ui_UserPrefsDialog(object):
         self.gridlayout10.setSpacing(6)
         self.gridlayout10.setObjectName("gridlayout10")
 
+        spacerItem12 = QtGui.QSpacerItem(20,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.gridlayout10.addItem(spacerItem12,0,1,1,1)
+
         self.vboxlayout8 = QtGui.QVBoxLayout()
         self.vboxlayout8.setMargin(0)
         self.vboxlayout8.setSpacing(6)
@@ -496,8 +497,8 @@ class Ui_UserPrefsDialog(object):
         self.hboxlayout9.setSpacing(6)
         self.hboxlayout9.setObjectName("hboxlayout9")
 
-        spacerItem12 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.hboxlayout9.addItem(spacerItem12)
+        spacerItem13 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.hboxlayout9.addItem(spacerItem13)
 
         self.change_element_colors_btn = QtGui.QPushButton(self.atom_colors_grpbox)
         self.change_element_colors_btn.setAutoDefault(False)
@@ -594,8 +595,8 @@ class Ui_UserPrefsDialog(object):
         self.hboxlayout13.setSpacing(6)
         self.hboxlayout13.setObjectName("hboxlayout13")
 
-        spacerItem13 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.hboxlayout13.addItem(spacerItem13)
+        spacerItem14 = QtGui.QSpacerItem(40,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.hboxlayout13.addItem(spacerItem14)
 
         self.reset_atom_colors_btn = QtGui.QPushButton(self.groupBox13)
         self.reset_atom_colors_btn.setAutoDefault(False)
@@ -619,8 +620,8 @@ class Ui_UserPrefsDialog(object):
         self.level_of_detail_combox.setObjectName("level_of_detail_combox")
         self.hboxlayout14.addWidget(self.level_of_detail_combox)
 
-        spacerItem14 = QtGui.QSpacerItem(20,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.hboxlayout14.addItem(spacerItem14)
+        spacerItem15 = QtGui.QSpacerItem(20,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.hboxlayout14.addItem(spacerItem15)
         self.vboxlayout8.addLayout(self.hboxlayout14)
 
         self.hboxlayout15 = QtGui.QHBoxLayout()
@@ -640,8 +641,8 @@ class Ui_UserPrefsDialog(object):
         self.cpk_atom_rad_spinbox.setObjectName("cpk_atom_rad_spinbox")
         self.hboxlayout15.addWidget(self.cpk_atom_rad_spinbox)
 
-        spacerItem15 = QtGui.QSpacerItem(16,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.hboxlayout15.addItem(spacerItem15)
+        spacerItem16 = QtGui.QSpacerItem(16,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        self.hboxlayout15.addItem(spacerItem16)
         self.vboxlayout8.addLayout(self.hboxlayout15)
 
         self.hboxlayout16 = QtGui.QHBoxLayout()
@@ -675,12 +676,13 @@ class Ui_UserPrefsDialog(object):
         self.hboxlayout16.addWidget(self.reset_cpk_scale_factor_btn)
         self.vboxlayout8.addLayout(self.hboxlayout16)
 
-        spacerItem16 = QtGui.QSpacerItem(20,30,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
-        self.vboxlayout8.addItem(spacerItem16)
-        self.gridlayout10.addLayout(self.vboxlayout8,0,0,1,1)
+        self.keepBondsTransmuteCheckBox = QtGui.QCheckBox(self.TabPage)
+        self.keepBondsTransmuteCheckBox.setObjectName("keepBondsTransmuteCheckBox")
+        self.vboxlayout8.addWidget(self.keepBondsTransmuteCheckBox)
 
-        spacerItem17 = QtGui.QSpacerItem(20,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.gridlayout10.addItem(spacerItem17,0,1,1,1)
+        spacerItem17 = QtGui.QSpacerItem(20,30,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
+        self.vboxlayout8.addItem(spacerItem17)
+        self.gridlayout10.addLayout(self.vboxlayout8,0,0,1,1)
         self.prefs_tab.addTab(self.TabPage,"")
 
         self.TabPage1 = QtGui.QWidget()
@@ -1934,7 +1936,7 @@ class Ui_UserPrefsDialog(object):
         self.fontComboBox = QtGui.QFontComboBox(self.selectedFontGroupBox)
         self.fontComboBox.setFontFilters(QtGui.QFontComboBox.AllFonts|QtGui.QFontComboBox.ProportionalFonts|QtGui.QFontComboBox.ScalableFonts)
 
-        font = QtGui.QFont(self.fontComboBox.font())
+        font = QtGui.QFont()
         font.setFamily("Arial")
         self.fontComboBox.setCurrentFont(font)
         self.fontComboBox.setObjectName("fontComboBox")
@@ -2131,7 +2133,7 @@ class Ui_UserPrefsDialog(object):
         self.textLabel1_8_3.setBuddy(self.dynamicToolTipBendAnglePrecision_spinbox)
 
         self.retranslateUi(UserPrefsDialog)
-        self.prefs_tab.setCurrentIndex(5)
+        self.prefs_tab.setCurrentIndex(1)
         self.level_of_detail_combox.setCurrentIndex(2)
         QtCore.QObject.connect(self.ok_btn,QtCore.SIGNAL("clicked()"),UserPrefsDialog.accept)
         QtCore.QObject.connect(self.watch_min_in_realtime_checkbox,QtCore.SIGNAL("toggled(bool)"),self.update_btngrp.setEnabled)
@@ -2345,6 +2347,7 @@ class Ui_UserPrefsDialog(object):
         self.cpk_scale_factor_linedit.setToolTip(QtGui.QApplication.translate("UserPrefsDialog", "Displays the value of the CPK Atom Scale", None, QtGui.QApplication.UnicodeUTF8))
         self.cpk_scale_factor_slider.setToolTip(QtGui.QApplication.translate("UserPrefsDialog", "Changes Atom Scale factor for CPK display mode", None, QtGui.QApplication.UnicodeUTF8))
         self.reset_cpk_scale_factor_btn.setToolTip(QtGui.QApplication.translate("UserPrefsDialog", "Restore default value", None, QtGui.QApplication.UnicodeUTF8))
+        self.keepBondsTransmuteCheckBox.setText(QtGui.QApplication.translate("UserPrefsDialog", "Force to keep bonds during transmute", None, QtGui.QApplication.UnicodeUTF8))
         self.prefs_tab.setTabText(self.prefs_tab.indexOf(self.TabPage), QtGui.QApplication.translate("UserPrefsDialog", "Atoms", None, QtGui.QApplication.UnicodeUTF8))
         self.dna_reduced_model_options_grpbox.setTitle(QtGui.QApplication.translate("UserPrefsDialog", "DNA Reduced Model Options", None, QtGui.QApplication.UnicodeUTF8))
         self.arrowsOnBackBones_checkBox.setText(QtGui.QApplication.translate("UserPrefsDialog", "Show arrows on back bones", None, QtGui.QApplication.UnicodeUTF8))

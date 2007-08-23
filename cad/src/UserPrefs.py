@@ -124,6 +124,7 @@ from prefs_constants import dynamicToolTipBendAnglePrecision_prefs_key
 from prefs_constants import displayFontPointSize_prefs_key
 from prefs_constants import useSelectedFont_prefs_key
 from prefs_constants import displayFont_prefs_key
+from prefs_constants import keepBondsDuringTransmute_prefs_key
 
 debug_sliders = False # Do not commit as True
 
@@ -1065,6 +1066,9 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.connect(self.cpk_scale_factor_slider,SIGNAL("valueChanged(int)"),self.change_cpk_scale_factor)
         self.cpk_scale_factor_linedit.setText(str(cpk_sf))
         
+        connect_checkbox_with_boolean_pref(
+            self.keepBondsTransmuteCheckBox, keepBondsDuringTransmute_prefs_key)
+	
         # I couldn't figure out a way to get a pref's default value without changing its current value.
         # Something like this would be very handy:
         #   default_cpk_sf = env.prefs.get_default_value(cpkScaleFactor_prefs_key)
