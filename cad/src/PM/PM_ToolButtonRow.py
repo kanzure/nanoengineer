@@ -29,8 +29,8 @@ class PM_ToolButtonRow( PM_ToolButtonGrid ):
                  buttonList   = [],
                  alignment    = None,
                  label        = '',
-                 labelColumn = 0,
-                 spanWidth   = False,
+                 labelColumn  = 0,
+                 spanWidth    = False,
                  checkedId    = -1, 
                  setAsDefault = False,
                  isAutoRaise  = True,
@@ -87,7 +87,8 @@ class PM_ToolButtonRow( PM_ToolButtonGrid ):
                             user as the  default checked
         @type  setAsDefault: boolean
              
-        """                 
+        """     
+        
         PM_ToolButtonGrid.__init__(self, 
                                    parentWidget, 
                                    title,
@@ -100,11 +101,7 @@ class PM_ToolButtonRow( PM_ToolButtonGrid ):
                                    setAsDefault,
                                    isAutoRaise,
                                    isCheckable)
-        
-        #For a toolbutton row, we don't (usually) need  a borders . So set
-        #the style sheet accordingly.
-        parentWidget.setStyleSheet(self._getStyleSheet())
-              
+                    
         
                                         
     def getWidgetInfoList(self, buttonInfo):
@@ -156,7 +153,8 @@ class PM_ToolButtonRow( PM_ToolButtonGrid ):
          
         @see: L{PM_GroupBox._getStyleSheet} (overrides this method)
         """
-        
+        #For a toolbutton row, we don't (usually) need  a borders . So set
+        #the style sheet accordingly           
         styleSheet = \
                    "QGroupBox {border-style:hidden; \
                     border-width: 0px; \

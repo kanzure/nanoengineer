@@ -16,6 +16,7 @@ from elements import PeriodicTable
 from PyQt4.Qt import SIGNAL, QSpacerItem, QSizePolicy
 from PM.PM_GroupBox import PM_GroupBox
 from PM.PM_ToolButtonGrid import PM_ToolButtonGrid
+from constants import diTUBES
 
 # Elements button list to create elements tool button group.
 # Format: 
@@ -100,8 +101,9 @@ class PM_ElementChooser( PM_GroupBox ):
     
     def __init__(self, 
                  parentWidget, 
-                 title   = "Element Chooser",
-                 element = "Carbon"
+                 title           = "Element Chooser",
+                 element         = "Carbon",
+                 elementViewer   =  None
                  ):
         """
         Appends a PM_ElementChooser widget to the bottom of I{parentWidget}, 
@@ -122,6 +124,8 @@ class PM_ElementChooser( PM_GroupBox ):
         PM_GroupBox.__init__(self, parentWidget, title)
         
         self.element = self._periodicTable.getElement(element)
+        self.elementViewer = elementViewer
+        self._updateElementViewer()
         self._addElementsGroupBox(self)
         self._addAtomTypesGroupBox(self)
         
@@ -254,6 +258,7 @@ class PM_ElementChooser( PM_GroupBox ):
         """
         self.element = self._periodicTable.getElement(elementNumber)
         self._updateAtomTypesButtons()
+        self._updateElementViewer()
         
     def _setAtomType(self, atomTypeIndex):
         """
@@ -269,4 +274,15 @@ class PM_ElementChooser( PM_GroupBox ):
         @note: Calling this method does not update the atom type buttons.
         """
         self.atomType = ATOM_TYPES[atomTypeIndex]
+        self._updateElementViewer()
+    
+    def _updateElementViewer(self):
+        if not self.elementViewer:
+            return
+        
+        from ThumbView import MMKitView
+        assert isinstance(self.elementViewer, MMKitView)       
+        self.elementViewer.resetView()                
+        self.elementViewer.changeHybridType(self.atomType)        
+        self.elementViewer.refreshDisplay(self.element, diTUBES)
         

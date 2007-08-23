@@ -116,9 +116,17 @@ class PM_CheckBox( QCheckBox ):
         self.setText(text)
         self.widgetColumn = widgetColumn
         self.setAsDefault = setAsDefault
-        self.setCheckState(state, setAsDefault)        
+        if self.setAsDefault:
+            self.setDefaultState(state)
+            
+        self.setCheckState(state)        
                  
         parentWidget.addPmWidget(self)
+    
+    def setDefaultState(self, state):
+        self.setAsDefault = True
+        self.defaultState = state
+        pass
     
                 
     def setCheckState(self, state, setAsDefault = False):###bruce 070815 bugfix True -> False
