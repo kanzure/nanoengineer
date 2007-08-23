@@ -597,7 +597,24 @@ class MovePropertyManager(Ui_MovePropertyManager):
 	
 	if Plus: return (delX,delY,delZ) # Plus
 	else: return (-delX, -delY, -delZ) # Minus
+    
+    def close(self):
+	"""
+	Closes this Property Manager.
+	@see:  L{PM_GroupBox.close()}  (overrides this method) 
+	@Note: Before calling close method of its superclass, it collapses the 
+	translate and rotate groupboxes. This is necessary as it calls the 
+	activate groupbox method which also toggles the current state of the 
+	current groupbox. Earlier, explicitely collapsing groupboxes while 
+	closing the PM was not needed as a new PM object was created each time
+	you enter move mode. (and L{Ui_MovePropertyManager} used to call 
+	collapse method of these groupboxes to acheive the desired effect. 
 	
+	"""
+	
+	self.translateGroupBox.collapse()
+	self.rotateGroupBox.collapse()
+	Ui_MovePropertyManager.close(self)
         
     def updateMessage(self): # Mark 2007-06-23
         """

@@ -33,7 +33,6 @@ from PM.PM_RadioButtonList import PM_RadioButtonList
 from PM.PM_ToolButtonRow   import PM_ToolButtonRow
 from PM.PM_ToolButtonRow   import PM_ToolButtonGrid
 from PM.PM_LabelRow        import PM_LabelRow
-from PM.PM_WidgetRow       import PM_WidgetRow
 
 from PM.PM_Constants       import pmDoneButton
 from PM.PM_Constants       import pmWhatsThisButton
@@ -60,7 +59,7 @@ class Ui_MovePropertyManager(PM_Dialog):
     
     def __init__(self):
 	PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)	
-	self.showTopRowButtons(pmDoneButton)
+	self.showTopRowButtons(pmDoneButton | pmWhatsThisButton)
     
     def _addGroupBoxes(self):
 	"""
@@ -162,7 +161,9 @@ class Ui_MovePropertyManager(PM_Dialog):
 	self.transAlongAxisButton = \
 	    self.freeDragTranslateButtonGroup.getButtonById(5)
 	
-        
+        inPmGroupBox.setStyleSheet(
+	    self.freeDragTranslateButtonGroup._getStyleSheet())
+	
         self.connect( self.freeDragTranslateButtonGroup.buttonGroup, 
                       SIGNAL("buttonClicked(QAbstractButton *)"), 
                       self.changeMoveOption )
@@ -370,6 +371,9 @@ class Ui_MovePropertyManager(PM_Dialog):
 	self.rotateZButton    = self.freeDragRotateButtonGroup.getButtonById(4)
 	self.rotAlongAxisButton = \
 	    self.freeDragRotateButtonGroup.getButtonById(5)
+	
+	inPmGroupBox.setStyleSheet(
+	    self.freeDragRotateButtonGroup._getStyleSheet())
 		
 	X_ROW_LABELS = [("QLabel", "Delta Theta X:", 0),
 			("QLabel", "", 1),

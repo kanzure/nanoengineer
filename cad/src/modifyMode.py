@@ -87,9 +87,10 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
 
     def init_gui(self):	
 	
-        self.propMgr = MovePropertyManager(self)
-	#@bug BUG: following is a workaround for bug 2494
-	changes.keep_forever(self.propMgr)
+	if not self.propMgr:
+	    self.propMgr = MovePropertyManager(self)
+	    #@bug BUG: following is a workaround for bug 2494
+	    changes.keep_forever(self.propMgr)
 		
 	self.propMgr.show()                	
 	self.updateCommandManager(bool_entering = True)
