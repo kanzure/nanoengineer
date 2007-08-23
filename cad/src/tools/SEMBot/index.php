@@ -114,7 +114,7 @@ Welcome to the Nanorex Software-Engineering Mechanisms Robot (SEMBot).
           <td><span class="summary-name"><?php include 'QA_TestHarness.result'; ?></span></td></tr>
         <tr>
           <td align="right">Pylint: </td>
-          <td><span class="summary-name"><?php include 'Pylint.result'; ?>/10.0</span></td>
+          <td><span class="summary-name"><?php include 'Pylint.result'; ?>&nbsp;out of 10.0</span></td>
           <td><a href="SVN-D/cad/src/pylint_global.0.html">Detail</a></td></tr>
       </table></td>
   </tr>
@@ -126,14 +126,12 @@ Welcome to the Nanorex Software-Engineering Mechanisms Robot (SEMBot).
       <span class="summary-name"><a href="QA_TestHarness.log">QA_TestHarness.log</a><br><a href="Pylint.log">Pylint.log</a></span></td>
   </tr>
 
-<!--
   <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">Notes</span></td>
     <td class="summary">
-      </td>
+      Each convention, refactor, warning, and error message code is following by a brief description, but if that is insufficient, you can get a slightly more informative description for it here: <a href="http://www.logilab.org/card/wikiid/pylintfeatures">Pylint man page</a></td>
   </tr>
--->
 </table>
 <pre>
 

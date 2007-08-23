@@ -19,14 +19,27 @@ $M_R_link = "<a href=\"pylint_global.2.html\">M-R</a>";
 $S_X_link = "<a href=\"pylint_global.3.html\">S-X</a>";
 $Y_Z_link = "<a href=\"pylint_global.4.html\">Y-Z</a>";
 
-print "<h3>Pylint Results</h3>\n";
-print "Module Batch<br>\n";
+$exprs_link = "<a href=\"pylint_global.5.html\">exprs</a>";
+$PM_link = "<a href=\"pylint_global.6.html\">PM</a>";
+
+print "<h3>Pylint Results<br>\n";
+print "<font style=\"font-size: small; font-weight: normal\">Back to the <a href=\"/Engineering/\">SEMBot</a></font></h3>\n";
+print "<p>\n";
+print "Module Batches<br>\n";
 switch ($batchNumber) {
   case 0 { print "<b>A-F</b> | $G_L_link | $M_R_link | $S_X_link | $Y_Z_link"; }
   case 1 { print "$A_F_link | <b>G-L</b> | $M_R_link | $S_X_link | $Y_Z_link"; }
   case 2 { print "$A_F_link | $G_L_link | <b>M-R</b> | $S_X_link | $Y_Z_link"; }
   case 3 { print "$A_F_link | $G_L_link | $M_R_link | <b>S-X</b> | $Y_Z_link"; }
   case 4 { print "$A_F_link | $G_L_link | $M_R_link | $S_X_link | <b>Y-Z</b>"; }
+  else   { print "$A_F_link | $G_L_link | $M_R_link | $S_X_link | $Y_Z_link"; }
+}
+print "<p>\n";
+print "Packages<br>\n";
+switch ($batchNumber) {
+  case 5 { print "<b>exprs</b> | $PM_link"; }
+  case 6 { print "$exprs_link | <b>PM</b>"; }
+  else   { print "$exprs_link | $PM_link"; }
 }
 
 print "<pre>\n";

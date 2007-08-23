@@ -16,7 +16,8 @@ for batch in \
   "g*.py G*.py h*.py H*.py i*.py I*.py j*.py J*.py k*.py K*.py l*.py L*.py" \
   "m*.py M*.py n*.py N*.py o*.py O*.py p*.py P*.py q*.py Q*.py r*.py R*.py" \
   "s*.py S*.py t*.py T*.py u*.py U*.py v*.py V*.py w*.py W*.py x*.py X*.py" \
-  "y*.py Y*.py z*.py Z*.py"; do
+  "y*.py Y*.py z*.py Z*.py" \
+  "exprs/*.py" "PM/*.py"; do
   echo Running batch $BATCH_NUMBER
   /usr/local/bin/pylint --rcfile=../../../Pylint.rcfile $batch
 
@@ -27,9 +28,24 @@ for batch in \
 done
 
 # Aggregate code "grades"
-echo "("`cat pylint.0.result`+`cat pylint.1.result`+`cat pylint.2.result`+`cat pylint.3.result`")/4" > tmp.txt;
+echo "scale=3" > tmp.txt
+echo "average=("`cat pylint.0.result`+`cat pylint.1.result`+`cat pylint.2.result`+`cat pylint.3.result`+`cat pylint.5.result`+`cat pylint.6.result`")/6" >> tmp.txt
+echo "if (average > 2.5) {" >> tmp.txt
+echo "  if (average > 5.0) {" >> tmp.txt
+echo "    if (average > 7.5) {" >> tmp.txt
+echo "      ;" >> tmp.txt
+echo "    } else {" >> tmp.txt
+echo "      \"<font style=\"; print \"\q\"; \"color: #ffffff; background: #3ab0b6\"; print \"\q\"; \">&nbsp;\"" >> tmp.txt
+echo "    }" >> tmp.txt
+echo "  } else {" >> tmp.txt
+echo "    \"<font style=\"; print \"\q\"; \"color: #ffffff; background: #fd5053\"; print \"\q\"; \">&nbsp;\"" >> tmp.txt
+echo "  }" >> tmp.txt
+echo "} else {" >> tmp.txt
+echo "  \"<font style=\"; print \"\q\"; \"color: #ffffff; background: #ff0000\"; print \"\q\"; \">&nbsp;\"" >> tmp.txt
+echo "}" >> tmp.txt
+echo "average; \"</font>\"" >> tmp.txt
 echo "quit" >> tmp.txt
-printf "%1.3f" `bc -l -q tmp.txt` > ../../../Pylint.result
+echo `bc -q tmp.txt` > ../../../Pylint.result
 rm pylint.?.result tmp.txt
 
 popd
