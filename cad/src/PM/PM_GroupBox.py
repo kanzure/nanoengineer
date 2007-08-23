@@ -13,9 +13,6 @@ file and renamed it PM_GroupBox.
 """
 
 import platform
-import os
-
-from debug import print_compact_traceback
 
 from PM_Colors import getPalette
 from PM_Colors import pmGrpBoxButtonBorderColor
@@ -36,9 +33,7 @@ from PM_Constants import pmGridLayoutMargin
 from PM_Constants import pmGridLayoutSpacing
 
 from PM_Constants import pmLeftAlignment, pmRightAlignment
-from PM_Constants import pmLeftColumn, pmRightColumn
 
-from PyQt4.Qt import Qt
 from PyQt4.Qt import QGroupBox
 from PyQt4.Qt import QGridLayout
 from PyQt4.Qt import QLabel
@@ -324,11 +319,9 @@ class PM_GroupBox( QGroupBox ):
             labelAlignment = pmRightAlignment
                         
             if widgetColumn == 0:
-                labelColumn   = 1
-                widgetAlignment = pmRightAlignment                                
+                labelColumn   = 1                              
             elif widgetColumn == 1:
                 labelColumn   = 0
-                widgetAlignment = pmLeftAlignment
             
             return widgetRow, \
                widgetColumn, \
