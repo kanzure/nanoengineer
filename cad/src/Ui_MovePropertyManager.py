@@ -14,31 +14,23 @@ __author__ = "Ninad"
 
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import Qt
-from PyQt4.Qt import QAction
-from PyQt4.Qt import QActionGroup
-from PyQt4.Qt import QButtonGroup
-from PyQt4.Qt import QLabel
-from PyQt4.Qt import QSpacerItem
-from PyQt4.Qt import QSizePolicy
 
 from PM.PM_Dialog          import PM_Dialog
 from PM.PM_GroupBox        import PM_GroupBox
 from PM.PM_DoubleSpinBox   import PM_DoubleSpinBox
 from PM.PM_ComboBox        import PM_ComboBox
-from PM.PM_SpinBox         import PM_SpinBox
 from PM.PM_PushButton      import PM_PushButton
 from PM.PM_CheckBox        import PM_CheckBox
 from PM.PM_RadioButton     import PM_RadioButton
-from PM.PM_RadioButtonList import PM_RadioButtonList
 from PM.PM_ToolButtonRow   import PM_ToolButtonRow
-from PM.PM_ToolButtonRow   import PM_ToolButtonGrid
 from PM.PM_LabelRow        import PM_LabelRow
 
 from PM.PM_Constants       import pmDoneButton
 from PM.PM_Constants       import pmWhatsThisButton
 
 
-class Ui_MovePropertyManager(PM_Dialog):
+class Ui_MovePropertyManager( PM_Dialog ):
+    
        
     # The title that appears in the Property Manager header        
     title = "Move"
@@ -58,38 +50,38 @@ class Ui_MovePropertyManager(PM_Dialog):
     rotateIconPath = "ui/actions/Properties Manager/Rotate_Components.png"
     
     def __init__(self):
-	PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)	
-	self.showTopRowButtons(pmDoneButton | pmWhatsThisButton)
+        PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)        
+        self.showTopRowButtons(pmDoneButton | pmWhatsThisButton)
     
     def _addGroupBoxes(self):
-	"""
-	Add groupboxes to the Property Manager dialog. 
-	"""
-	
-	self.translateGroupBox = PM_GroupBox( self, 
-					      title = "Translate",
-					      connectTitleButton = False)
-	self.translateGroupBox.titleButton.setShortcut('T')
-	self._loadTranslateGroupBox(self.translateGroupBox)
-	
-	self.rotateGroupBox = PM_GroupBox( self, 
-					   title = "Rotate",
-				           connectTitleButton = False)
-	self.rotateGroupBox.titleButton.setShortcut('R')
-	self._loadRotateGroupBox(self.rotateGroupBox)
-	
-	self.translateGroupBox.collapse()
-	self.rotateGroupBox.collapse()
-	
-	pass
+        """
+        Add groupboxes to the Property Manager dialog. 
+        """
+        
+        self.translateGroupBox = PM_GroupBox( self, 
+                                              title = "Translate",
+                                              connectTitleButton = False)
+        self.translateGroupBox.titleButton.setShortcut('T')
+        self._loadTranslateGroupBox(self.translateGroupBox)
+        
+        self.rotateGroupBox = PM_GroupBox( self, 
+                                           title = "Rotate",
+                                           connectTitleButton = False)
+        self.rotateGroupBox.titleButton.setShortcut('R')
+        self._loadRotateGroupBox(self.rotateGroupBox)
+        
+        self.translateGroupBox.collapse()
+        self.rotateGroupBox.collapse()
+        
+        pass
     
     # == Begin Translate Group Box =====================
     
     def _loadTranslateGroupBox(self, inPmGroupBox):
         """
         Load widgets in the Translate group box.
-	@param inPmGroupBox: The Translate group box in the PM
-	@type  inPmGroupBox: L{PM_GroupBox}
+        @param inPmGroupBox: The Translate group box in the PM
+        @type  inPmGroupBox: L{PM_GroupBox}
         """
         
         translateChoices = [ "Free Drag", "By Delta XYZ", "To XYZ Position" ]
@@ -119,62 +111,62 @@ class Ui_MovePropertyManager(PM_Dialog):
     
     def _loadFreeDragTranslateGroupBox(self, inPmGroupBox):
         """
-	Load widgets in the Free Drag Translate group box, which is present 
-	within the Translate groupbox.
-	@param inPmGroupBox: The Free Drag Translate group box in the Translate 
-	                     group box. 
-	@type  inPmGroupBox: L{PM_GroupBox}
+        Load widgets in the Free Drag Translate group box, which is present 
+        within the Translate groupbox.
+        @param inPmGroupBox: The Free Drag Translate group box in the Translate 
+                             group box. 
+        @type  inPmGroupBox: L{PM_GroupBox}
         """
-	# Elements button list to create elements tool button group.
-	# Format: 
-	# - buttonId, 
-	# - buttonText , 
-	# - iconPath
-	# - column
-	# - row
-	# - tooltip 
-	BUTTON_LIST = [ 
-	    ( "QToolButton", 1,  "MOVEDEFAULT", 
-	      "ui/actions/Properties Manager/Move_Free.png", "",  0),
-	    ( "QToolButton", 2,  "TRANSX", 
-	      "ui/actions/Properties Manager/TranslateX.png","",  1),
-	    ( "QToolButton", 3,  "TRANSY",  
-	      "ui/actions/Properties Manager/TranslateY.png","", 2),
-	    ( "QToolButton", 4,  "TRANSZ",  
-	      "ui/actions/Properties Manager/TranslateZ.png","", 3),
-	    ( "QToolButton", 5,  "ROT_TRANS_ALONG_AXIS",  
-	      "ui/actions/Properties Manager/translate+rotate-A.png", "", 4 )
-			
-	    ]
-	    
-	self.freeDragTranslateButtonGroup = \
+        # Elements button list to create elements tool button group.
+        # Format: 
+        # - buttonId, 
+        # - buttonText , 
+        # - iconPath
+        # - column
+        # - row
+        # - tooltip 
+        BUTTON_LIST = [ 
+            ( "QToolButton", 1,  "MOVEDEFAULT", 
+              "ui/actions/Properties Manager/Move_Free.png", "",  0),
+            ( "QToolButton", 2,  "TRANSX", 
+              "ui/actions/Properties Manager/TranslateX.png","",  1),
+            ( "QToolButton", 3,  "TRANSY",  
+              "ui/actions/Properties Manager/TranslateY.png","", 2),
+            ( "QToolButton", 4,  "TRANSZ",  
+              "ui/actions/Properties Manager/TranslateZ.png","", 3),
+            ( "QToolButton", 5,  "ROT_TRANS_ALONG_AXIS",  
+              "ui/actions/Properties Manager/translate+rotate-A.png", "", 4 )
+                        
+            ]
+            
+        self.freeDragTranslateButtonGroup = \
             PM_ToolButtonRow( inPmGroupBox, 
                                title        = "",
                                buttonList   = BUTTON_LIST,
                                checkedId    = 1,
                                setAsDefault = True,
-			       )
-	self.transFreeButton =self.freeDragTranslateButtonGroup.getButtonById(1)
-	self.transXButton = self.freeDragTranslateButtonGroup.getButtonById(2)
-	self.transYButton = self.freeDragTranslateButtonGroup.getButtonById(3)
-	self.transZButton = self.freeDragTranslateButtonGroup.getButtonById(4)
-	self.transAlongAxisButton = \
-	    self.freeDragTranslateButtonGroup.getButtonById(5)
-	
+                               )
+        self.transFreeButton =self.freeDragTranslateButtonGroup.getButtonById(1)
+        self.transXButton = self.freeDragTranslateButtonGroup.getButtonById(2)
+        self.transYButton = self.freeDragTranslateButtonGroup.getButtonById(3)
+        self.transZButton = self.freeDragTranslateButtonGroup.getButtonById(4)
+        self.transAlongAxisButton = \
+            self.freeDragTranslateButtonGroup.getButtonById(5)
+        
         inPmGroupBox.setStyleSheet(
-	    self.freeDragTranslateButtonGroup._getStyleSheet())
-	
+            self.freeDragTranslateButtonGroup._getStyleSheet())
+        
         self.connect( self.freeDragTranslateButtonGroup.buttonGroup, 
                       SIGNAL("buttonClicked(QAbstractButton *)"), 
                       self.changeMoveOption )
         
     def _loadByDeltaGroupBox(self, inPmGroupBox):
         """
-	Load widgets in the translate By Delta group box, which is present 
-	within the Translate groupbox.
-	@param inPmGroupBox: The Translate By Delta group box in the translate 
-			     group box. 
-	@type  inPmGroupBox: L{PM_GroupBox}
+        Load widgets in the translate By Delta group box, which is present 
+        within the Translate groupbox.
+        @param inPmGroupBox: The Translate By Delta group box in the translate 
+                             group box. 
+        @type  inPmGroupBox: L{PM_GroupBox}
         """
 
         self.moveDeltaXSpinBox = \
@@ -212,38 +204,38 @@ class Ui_MovePropertyManager(PM_Dialog):
                               decimals     = 1, 
                               suffix       = ' Angstroms',
                               spanWidth    = False )
-	
-	DELTA_BUTTONS = [
-			("QToolButton",1,  "Delta Plus", 
-			 "ui/actions/Properties Manager/Move_Delta_Plus.png", 
-			 "",  0 ),
-	    
-			( "QToolButton", 2,  "Delta Minus",  
-			  "ui/actions/Properties Manager/Move_Delta_Minus.png", 
-			  "", 1 )
-			]
-	
-	self.translateDeltaButtonRow = \
-	    PM_ToolButtonRow( inPmGroupBox, 
-			      title        = "",
-			      buttonList   = DELTA_BUTTONS,
-			      label        = 'Translate:',
-			      isAutoRaise  =  True,
-			      isCheckable  =  False			      
-			    )
-	self.transDeltaPlusButton = \
-	    self.translateDeltaButtonRow.getButtonById(1)
-	self.transDeltaMinusButton = \
-	    self.translateDeltaButtonRow.getButtonById(2)
-	
+        
+        DELTA_BUTTONS = [
+                        ("QToolButton",1,  "Delta Plus", 
+                         "ui/actions/Properties Manager/Move_Delta_Plus.png", 
+                         "",  0 ),
+            
+                        ( "QToolButton", 2,  "Delta Minus",  
+                          "ui/actions/Properties Manager/Move_Delta_Minus.png", 
+                          "", 1 )
+                        ]
+        
+        self.translateDeltaButtonRow = \
+            PM_ToolButtonRow( inPmGroupBox, 
+                              title        = "",
+                              buttonList   = DELTA_BUTTONS,
+                              label        = 'Translate:',
+                              isAutoRaise  =  True,
+                              isCheckable  =  False                           
+                            )
+        self.transDeltaPlusButton = \
+            self.translateDeltaButtonRow.getButtonById(1)
+        self.transDeltaMinusButton = \
+            self.translateDeltaButtonRow.getButtonById(2)
+        
             
     def _loadToPositionGroupBox(self, inPmGroupBox):
         """
-	Load widgets in the Translate To a given Position group box, which is 
-	present within the Translate groupbox.
-	@param inPmGroupBox: Translate To Position group box in the Translate 
-	                     group box.
-	@type  inPmGroupBox: L{PM_GroupBox}
+        Load widgets in the Translate To a given Position group box, which is 
+        present within the Translate groupbox.
+        @param inPmGroupBox: Translate To Position group box in the Translate 
+                             group box.
+        @type  inPmGroupBox: L{PM_GroupBox}
         """
 
         self.moveXSpinBox = \
@@ -292,8 +284,8 @@ class Ui_MovePropertyManager(PM_Dialog):
     def _loadRotateGroupBox(self, inPmGroupBox):
         """
         Load widgets in the Rotate group box, 
-	@param inPmGroupBox: The Rotate GroupBox in the PM
-	@type  inPmGroupBox: L{PM_GroupBox}
+        @param inPmGroupBox: The Rotate GroupBox in the PM
+        @type  inPmGroupBox: L{PM_GroupBox}
         """
         
         rotateChoices = [ "Free Drag", "By Specified Angle"]
@@ -317,133 +309,133 @@ class Ui_MovePropertyManager(PM_Dialog):
         self._loadBySpecifiedAngleGroupBox(self.bySpecifiedAngleGroupBox)
         
         self.updateRotateGroupBoxes(0)    
-	
+        
     def _loadFreeDragRotateGroupBox(self, inPmGroupBox):
         """
-	Load widgets in the Free Drag Rotate group box, which is 
-	present within the Rotate groupbox.
-	@param inPmGroupBox: The Free Drag Rotate group box in the Rotate 
-	                     group box.
-	@type  inPmGroupBox: L{PM_GroupBox}
+        Load widgets in the Free Drag Rotate group box, which is 
+        present within the Rotate groupbox.
+        @param inPmGroupBox: The Free Drag Rotate group box in the Rotate 
+                             group box.
+        @type  inPmGroupBox: L{PM_GroupBox}
         """
-	# Elements button list to create elements tool button group.
-	# Format: 
-	# - buttonId, 
-	# - buttonText , 
-	# - iconPath
-	# - column
-	# - row
-	# - tooltip 
-	BUTTON_LIST = [ 
-	    ( "QToolButton", 1,  "ROTATEDEFAULT", 
-	      "ui/actions/Properties Manager/Rotate_Free.png", "", 0 ),
-	    
-	    ( "QToolButton", 2,  "ROTATEX", 
-	      "ui/actions/Properties Manager/RotateX.png", "",  1 ),
-	    
-	    ( "QToolButton", 3,  "ROTATEY",  
-	      "ui/actions/Properties Manager/RotateY.png", "", 2 ),
-	    
-	    ( "QToolButton", 4,  "ROTATEZ",  
-	      "ui/actions/Properties Manager/RotateZ.png", "", 3 ),
-	    
-	    ( "QToolButton", 5,  "ROT_TRANS_ALONG_AXIS",  
-	      "ui/actions/Properties Manager/translate+rotate-A.png", "", 4 )	    
-			
-	    ]
-	    
-	self.freeDragRotateButtonGroup = \
+        # Elements button list to create elements tool button group.
+        # Format: 
+        # - buttonId, 
+        # - buttonText , 
+        # - iconPath
+        # - column
+        # - row
+        # - tooltip 
+        BUTTON_LIST = [ 
+            ( "QToolButton", 1,  "ROTATEDEFAULT", 
+              "ui/actions/Properties Manager/Rotate_Free.png", "", 0 ),
+            
+            ( "QToolButton", 2,  "ROTATEX", 
+              "ui/actions/Properties Manager/RotateX.png", "",  1 ),
+            
+            ( "QToolButton", 3,  "ROTATEY",  
+              "ui/actions/Properties Manager/RotateY.png", "", 2 ),
+            
+            ( "QToolButton", 4,  "ROTATEZ",  
+              "ui/actions/Properties Manager/RotateZ.png", "", 3 ),
+            
+            ( "QToolButton", 5,  "ROT_TRANS_ALONG_AXIS",  
+              "ui/actions/Properties Manager/translate+rotate-A.png", "", 4 )       
+                        
+            ]
+            
+        self.freeDragRotateButtonGroup = \
             PM_ToolButtonRow( inPmGroupBox, 
                                title        = "",
                                buttonList   = BUTTON_LIST,
-			       spanWidth = True,
+                               spanWidth = True,
                                checkedId    = 1,
                                setAsDefault = True,
-			    )
+                            )
         
         self.connect( self.freeDragRotateButtonGroup.buttonGroup, 
                       SIGNAL("buttonClicked(QAbstractButton *)"), 
                       self.changeRotateOption )
-	
-	self.rotateFreeButton = self.freeDragRotateButtonGroup.getButtonById(1)
-	self.rotateXButton    = self.freeDragRotateButtonGroup.getButtonById(2)
-	self.rotateYButton    = self.freeDragRotateButtonGroup.getButtonById(3)
-	self.rotateZButton    = self.freeDragRotateButtonGroup.getButtonById(4)
-	self.rotAlongAxisButton = \
-	    self.freeDragRotateButtonGroup.getButtonById(5)
-	
-	inPmGroupBox.setStyleSheet(
-	    self.freeDragRotateButtonGroup._getStyleSheet())
-		
-	X_ROW_LABELS = [("QLabel", "Delta Theta X:", 0),
-			("QLabel", "", 1),
-			("QLabel", "0.00", 2),
-			("QLabel", "Degrees", 3)]
-	
-	Y_ROW_LABELS = [("QLabel", "Delta Theta Y:", 0),
-			("QLabel", "", 1),
-			("QLabel", "0.00", 2),
-			("QLabel", "Degrees", 3)]
-	
-	Z_ROW_LABELS = [("QLabel", "Delta Theta Z:", 0),
-			("QLabel", "", 1),
-			("QLabel", "0.00", 2),
-			("QLabel", "Degrees", 3)]
-	
-	self.rotateXLabelRow = PM_LabelRow( inPmGroupBox,
-					    title = "",
-					    labelList = X_ROW_LABELS )	
-	self.deltaThetaX_lbl = self.rotateXLabelRow.labels[2]
-					   
-	self.rotateYLabelRow = PM_LabelRow( inPmGroupBox,
-					    title = "",
-					    labelList = Y_ROW_LABELS )
-	self.deltaThetaY_lbl = self.rotateYLabelRow.labels[2]
-					  
-	self.rotateZLabelRow = PM_LabelRow( inPmGroupBox,
-					    title = "",
-					    labelList = Z_ROW_LABELS )	
-	self.deltaThetaZ_lbl = self.rotateZLabelRow.labels[2]
-	
-	self.rotateAsUnitCB = \
-	    PM_CheckBox( inPmGroupBox,
-			 text         = 'Rotate As a Unit' ,
-			 widgetColumn = 0,
-			 state        = Qt.Unchecked )
-			 
-	    
-	    
+        
+        self.rotateFreeButton = self.freeDragRotateButtonGroup.getButtonById(1)
+        self.rotateXButton    = self.freeDragRotateButtonGroup.getButtonById(2)
+        self.rotateYButton    = self.freeDragRotateButtonGroup.getButtonById(3)
+        self.rotateZButton    = self.freeDragRotateButtonGroup.getButtonById(4)
+        self.rotAlongAxisButton = \
+            self.freeDragRotateButtonGroup.getButtonById(5)
+        
+        inPmGroupBox.setStyleSheet(
+            self.freeDragRotateButtonGroup._getStyleSheet())
+                
+        X_ROW_LABELS = [("QLabel", "Delta Theta X:", 0),
+                        ("QLabel", "", 1),
+                        ("QLabel", "0.00", 2),
+                        ("QLabel", "Degrees", 3)]
+        
+        Y_ROW_LABELS = [("QLabel", "Delta Theta Y:", 0),
+                        ("QLabel", "", 1),
+                        ("QLabel", "0.00", 2),
+                        ("QLabel", "Degrees", 3)]
+        
+        Z_ROW_LABELS = [("QLabel", "Delta Theta Z:", 0),
+                        ("QLabel", "", 1),
+                        ("QLabel", "0.00", 2),
+                        ("QLabel", "Degrees", 3)]
+        
+        self.rotateXLabelRow = PM_LabelRow( inPmGroupBox,
+                                            title = "",
+                                            labelList = X_ROW_LABELS )  
+        self.deltaThetaX_lbl = self.rotateXLabelRow.labels[2]
+                                           
+        self.rotateYLabelRow = PM_LabelRow( inPmGroupBox,
+                                            title = "",
+                                            labelList = Y_ROW_LABELS )
+        self.deltaThetaY_lbl = self.rotateYLabelRow.labels[2]
+                                          
+        self.rotateZLabelRow = PM_LabelRow( inPmGroupBox,
+                                            title = "",
+                                            labelList = Z_ROW_LABELS )  
+        self.deltaThetaZ_lbl = self.rotateZLabelRow.labels[2]
+        
+        self.rotateAsUnitCB = \
+            PM_CheckBox( inPmGroupBox,
+                         text         = 'Rotate As a Unit' ,
+                         widgetColumn = 0,
+                         state        = Qt.Unchecked )
+                         
+            
+            
     def _loadBySpecifiedAngleGroupBox(self, inPmGroupBox):
         """
-	Load widgets in the Rotate By Specified Angle group box, which is 
-	present within the Rotate groupbox.
-	@param inPmGroupBox: Rotate By Specified Angle group box in the Rotate 
-	                     group box.
-	@type  inPmGroupBox: L{PM_GroupBox}
+        Load widgets in the Rotate By Specified Angle group box, which is 
+        present within the Rotate groupbox.
+        @param inPmGroupBox: Rotate By Specified Angle group box in the Rotate 
+                             group box.
+        @type  inPmGroupBox: L{PM_GroupBox}
         """
-	
-	
-	BUTTON_LIST = [ 
-	    ( "QToolButton", 1,  "ROTATEX", 
-	      "ui/actions/Properties Manager/RotateX.png", "",  0 ),
-	    
-	    ( "QToolButton", 2,  "ROTATEY",  
-	      "ui/actions/Properties Manager/RotateY.png", "", 1 ),
-	    
-	    ( "QToolButton", 3,  "ROTATEZ",  
-	      "ui/actions/Properties Manager/RotateZ.png", "", 2 ),
-	    ]
-	
-	self.rotateAroundAxisButtonRow = \
-	    PM_ToolButtonRow( inPmGroupBox, 
-			      title        = "",
-			      buttonList   = BUTTON_LIST,
-			      alignment    = 'Right',
-			      label        = 'Rotate Around:'
-			    )
+        
+        
+        BUTTON_LIST = [ 
+            ( "QToolButton", 1,  "ROTATEX", 
+              "ui/actions/Properties Manager/RotateX.png", "",  0 ),
+            
+            ( "QToolButton", 2,  "ROTATEY",  
+              "ui/actions/Properties Manager/RotateY.png", "", 1 ),
+            
+            ( "QToolButton", 3,  "ROTATEZ",  
+              "ui/actions/Properties Manager/RotateZ.png", "", 2 ),
+            ]
+        
+        self.rotateAroundAxisButtonRow = \
+            PM_ToolButtonRow( inPmGroupBox, 
+                              title        = "",
+                              buttonList   = BUTTON_LIST,
+                              alignment    = 'Right',
+                              label        = 'Rotate Around:'
+                            )
 
-	self.rotateThetaSpinBox = \
-	    PM_DoubleSpinBox(inPmGroupBox,
+        self.rotateThetaSpinBox = \
+            PM_DoubleSpinBox(inPmGroupBox,
                              label        = "Rotate By:",
                              value        = 0.0, 
                              setAsDefault = True,
@@ -452,26 +444,26 @@ class Ui_MovePropertyManager(PM_Dialog):
                              singleStep   = 1.0, 
                              decimals     = 2, 
                              suffix       = ' Degrees')
-	
-	
-	THETA_BUTTONS = [ 
-	    ( "QToolButton", 1,  "Theta Plus", 
-	      "ui/actions/Properties Manager/Move_Theta_Plus.png", "",  0 ),
-	    
-	    ( "QToolButton", 2,  "Theta Minus",  
-	      "ui/actions/Properties Manager/Move_Theta_Minus.png", "", 1 )
-	    ]
-	
-	self.rotateThetaButtonRow = \
-	    PM_ToolButtonRow( inPmGroupBox, 
-			      title        = "",
-			      buttonList   = THETA_BUTTONS,
-			      label        = 'Direction:',
-			      isAutoRaise  =  True,
-			      isCheckable  =  False			      
-			    )
-	self.rotateThetaPlusButton =  self.rotateThetaButtonRow.getButtonById(1)
-	self.rotateThetaMinusButton = self.rotateThetaButtonRow.getButtonById(2)
+        
+        
+        THETA_BUTTONS = [ 
+            ( "QToolButton", 1,  "Theta Plus", 
+              "ui/actions/Properties Manager/Move_Theta_Plus.png", "",  0 ),
+            
+            ( "QToolButton", 2,  "Theta Minus",  
+              "ui/actions/Properties Manager/Move_Theta_Minus.png", "", 1 )
+            ]
+        
+        self.rotateThetaButtonRow = \
+            PM_ToolButtonRow( inPmGroupBox, 
+                              title        = "",
+                              buttonList   = THETA_BUTTONS,
+                              label        = 'Direction:',
+                              isAutoRaise  =  True,
+                              isCheckable  =  False                           
+                            )
+        self.rotateThetaPlusButton =  self.rotateThetaButtonRow.getButtonById(1)
+        self.rotateThetaMinusButton = self.rotateThetaButtonRow.getButtonById(2)
     
     # == End Rotate Group Box =====================
         
@@ -481,9 +473,9 @@ class Ui_MovePropertyManager(PM_Dialog):
         """
         Update the translate group boxes displayed based on the translate
         option selected.
-	@param id: Integer value corresponding to the combobox item in the 
-	           Translate group box. 
-	@type  id: int
+        @param id: Integer value corresponding to the combobox item in the 
+                   Translate group box. 
+        @type  id: int
         """
         if id is 0:
             self.toPositionGroupBox.hide()
@@ -501,26 +493,26 @@ class Ui_MovePropertyManager(PM_Dialog):
             self.toPositionGroupBox.show()
     
     def changeMoveOption(self, button):
-	"""
-	Subclasses should reimplement this method
-	
-	@param button: QToolButton that decides the type of translate operation 
-	to be set.
-	@type  button: QToolButton 
-	               L{http://doc.trolltech.com/4.2/qtoolbutton.html}
-	@see: B{MovePropertyManager.changeMoveOption} which overrides this
-	      method
-	"""
-	pass
+        """
+        Subclasses should reimplement this method
+        
+        @param button: QToolButton that decides the type of translate operation 
+        to be set.
+        @type  button: QToolButton 
+                       L{http://doc.trolltech.com/4.2/qtoolbutton.html}
+        @see: B{MovePropertyManager.changeMoveOption} which overrides this
+              method
+        """
+        pass
     
     # == Slots for Rotate group box
     def updateRotateGroupBoxes(self, id):
         """
         Update the translate group boxes displayed based on the translate
         option selected.
-	@param id: Integer value corresponding to the combobox item in the 
-	           Rotate group box. 
-	@type  id: int
+        @param id: Integer value corresponding to the combobox item in the 
+                   Rotate group box. 
+        @type  id: int
         """
         if id is 0:
             self.bySpecifiedAngleGroupBox.hide()
@@ -529,17 +521,17 @@ class Ui_MovePropertyManager(PM_Dialog):
         if id is 1:
             self.freeDragRotateGroupBox.hide()
             self.bySpecifiedAngleGroupBox.show()
-	    
+            
     def changeRotateOption(self, button):
-	"""
-	Subclasses should reimplement this method. 
-	
-	@param button: QToolButton that decides the type of rotate operation 
-	to be set.
-	@type  button: QToolButton 
-	               L{http://doc.trolltech.com/4.2/qtoolbutton.html}
-	@see: B{MovePropertyManage.changeRotateOption} which overrides this 
-	     method
-	"""
-	pass
-	    
+        """
+        Subclasses should reimplement this method. 
+        
+        @param button: QToolButton that decides the type of rotate operation 
+        to be set.
+        @type  button: QToolButton 
+                       L{http://doc.trolltech.com/4.2/qtoolbutton.html}
+        @see: B{MovePropertyManage.changeRotateOption} which overrides this 
+             method
+        """
+        pass
+            

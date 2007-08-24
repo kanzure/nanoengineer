@@ -25,64 +25,64 @@ class MovePropertyManager(Ui_MovePropertyManager):
     def __init__(self, parentMode):
         Ui_MovePropertyManager.__init__(self)     
         self.parentMode = parentMode
-	self.w = self.parentMode.w
-	self.win = self.parentMode.w
-	self.o = self.parentMode.o
-	self.pw = self.parentMode.pw
-	
-	self._addGroupBoxes()  
+        self.w = self.parentMode.w
+        self.win = self.parentMode.w
+        self.o = self.parentMode.o
+        self.pw = self.parentMode.pw
+        
+        self._addGroupBoxes()  
         self.lastCheckedRotateButton = None 
         self.lastCheckedTranslateButton = None
-	self.isTranslateGroupBoxActive = None		              
+        self.isTranslateGroupBoxActive = None                         
         self.updateMessage()
         
         ##self.add_whats_this_text()
     
     def connect_or_disconnect_signals(self, connect):
-	"""
-	Connect the slots in Move Property Manager. 
-	@see: modifyMode.connect_or_disconnect_signals.
-	"""
-	if connect:
-	    change_connect = self.w.connect
+        """
+        Connect the slots in Move Property Manager. 
+        @see: modifyMode.connect_or_disconnect_signals.
+        """
+        if connect:
+            change_connect = self.w.connect
         else:
             change_connect = self.w.disconnect
-	    
-	change_connect(self.translateGroupBox.titleButton,
-		       SIGNAL("clicked()"),
-		       self.activate_translateGroupBox_using_groupButton)  
-	
+            
+        change_connect(self.translateGroupBox.titleButton,
+                       SIGNAL("clicked()"),
+                       self.activate_translateGroupBox_using_groupButton)  
+        
         change_connect(self.rotateGroupBox.titleButton,
-		       SIGNAL("clicked()"),
+                       SIGNAL("clicked()"),
                        self.activate_rotateGroupBox_using_groupButton)
-	
-	change_connect(self.transDeltaPlusButton, 
-		       SIGNAL("clicked()"), 
-		       self.parentMode.transDeltaPlus)
-	
+        
+        change_connect(self.transDeltaPlusButton, 
+                       SIGNAL("clicked()"), 
+                       self.parentMode.transDeltaPlus)
+        
         change_connect(self.transDeltaMinusButton, 
-		       SIGNAL("clicked()"), 
-		       self.parentMode.transDeltaMinus)
-	
+                       SIGNAL("clicked()"), 
+                       self.parentMode.transDeltaMinus)
+        
         change_connect(self.moveAbsoluteButton, 
-		       SIGNAL("clicked()"), 
-		       self.parentMode.moveAbsolute)
-	
-	change_connect(self.rotateThetaPlusButton, 
-		       SIGNAL("clicked()"), 
-		       self.parentMode.rotateThetaPlus)
-	
+                       SIGNAL("clicked()"), 
+                       self.parentMode.moveAbsolute)
+        
+        change_connect(self.rotateThetaPlusButton, 
+                       SIGNAL("clicked()"), 
+                       self.parentMode.rotateThetaPlus)
+        
         change_connect(self.rotateThetaMinusButton, 
-		       SIGNAL("clicked()"), 
-		       self.parentMode.rotateThetaMinus)
+                       SIGNAL("clicked()"), 
+                       self.parentMode.rotateThetaMinus)
         
     def ok_btn_clicked(self):
-	"""
-	Calls MainWindow.toolsDone to exit the current mode. 
-	@attention: this method needs to be renamed. (this should be done in 
-	PM_Dialog)
-	"""
-	self.w.toolsDone()
+        """
+        Calls MainWindow.toolsDone to exit the current mode. 
+        @attention: this method needs to be renamed. (this should be done in 
+        PM_Dialog)
+        """
+        self.w.toolsDone()
 
     def activate_translateGroupBox_using_groupButton(self):
         """Show contents of this groupbox, deactivae the other groupbox. 
@@ -92,40 +92,41 @@ class MovePropertyManager(Ui_MovePropertyManager):
         method.
         """
         self._currentMoveMode = TRANSLATE
-	
-	self.isTranslateGroupBoxActive = True
-	
+        
+        self.isTranslateGroupBoxActive = True
+        
         self.updateMessage()
         self.toggle_translateGroupBox()
         
         if not self.w.toolsMoveMoleculeAction.isChecked():
             self.w.toolsMoveMoleculeAction.setChecked(True)
-	
+        
             # Update the title and icon.
-	    self.setHeaderIcon(self.translateIconPath)
-	    self.setHeaderTitle(self.translateTitle)
+            self.setHeaderIcon(self.translateIconPath)
+            self.setHeaderTitle(self.translateTitle)
             
             self.deactivate_rotateGroupBox()          
-	    
-	    buttonToCheck = self.getTranslateButtonToCheck()
+            
+            buttonToCheck = self.getTranslateButtonToCheck()
               
             if buttonToCheck:
                 buttonToCheck.setChecked(True) 
             else:
-                buttonToCheck = self.freeDragTranslateButtonGroup.getButtonByText('MOVEDEFAULT')
+                transButtonGroup = self.freeDragTranslateButtonGroup
+                buttonToCheck = transButtonGroup.getButtonByText('MOVEDEFAULT')
                 buttonToCheck.setChecked(True)
-	    
-	    self.changeMoveOption(buttonToCheck)
-	    
-	    self.parentMode.update_cursor()
-	    
+            
+            self.changeMoveOption(buttonToCheck)
+            
+            self.parentMode.update_cursor()
+            
     
     def activate_rotateGroupBox_using_groupButton(self):
         """
-	Show contents of this groupbox, deactivae the other groupbox. 
+        Show contents of this groupbox, deactivae the other groupbox. 
         Also check the button that was checked when this groupbox  was active 
-	last time. (if applicable). This method is called only when rotate 
-	groupbox button is clicked. See also activate_rotateGroupBox method. 
+        last time. (if applicable). This method is called only when rotate 
+        groupbox button is clicked. See also activate_rotateGroupBox method. 
         """
         self._currentMoveMode = ROTATE
         self.updateMessage()
@@ -136,95 +137,96 @@ class MovePropertyManager(Ui_MovePropertyManager):
             self.w.rotateComponentsAction.setChecked(True)           
 
             # Update the title and icon.
-	    self.setHeaderIcon(self.rotateIconPath)
-	    self.setHeaderTitle(self.rotateTitle)
-	   	    
+            self.setHeaderIcon(self.rotateIconPath)
+            self.setHeaderTitle(self.rotateTitle)
+                    
             self.deactivate_translateGroupBox()
         
-	    #Following implements NFR bug 2485.
-	    #Earlier, it used to remember the last checked button 
-	    #so this wasn't necessary	    
-	    buttonToCheck = self.getRotateButtonToCheck()
-	    				    
-            if buttonToCheck:		
+            #Following implements NFR bug 2485.
+            #Earlier, it used to remember the last checked button 
+            #so this wasn't necessary       
+            buttonToCheck = self.getRotateButtonToCheck()
+                                            
+            if buttonToCheck:           
                 buttonToCheck.setChecked(True) 
             else:
-                buttonToCheck = self.freeDragRotateButtonGroup.getButtonByText('ROTATEDEFAULT')
+                rotButtonGroup = self.freeDragRotateButtonGroup
+                buttonToCheck = rotButtonGroup.getButtonByText('ROTATEDEFAULT')
                 buttonToCheck.setChecked(True)
-	    
-	    self.changeRotateOption(buttonToCheck)
-	    self.parentMode.update_cursor()
-	
+            
+            self.changeRotateOption(buttonToCheck)
+            self.parentMode.update_cursor()
+        
                     
     def activate_translateGroupBox(self):
         """Show contents of this groupbox, deactivae the other groupbox. 
         Also check the button that was checked when this groupbox  was active 
-	last time. (if applicable) This button is called when 
-	toolsMoveMoleculeAction is checked from the toolbar or command manager. 
+        last time. (if applicable) This button is called when 
+        toolsMoveMoleculeAction is checked from the toolbar or command manager. 
         see also: activate_translateGroupBox_using_groupButton
         """
         
         self._currentMoveMode = TRANSLATE
-	
-	self.isTranslateGroupBoxActive = True
-	
+        
+        self.isTranslateGroupBoxActive = True
+        
         self.updateMessage()
-	
-	#Update the icon and the title
-	self.setHeaderIcon(self.translateIconPath)
-	self.setHeaderTitle(self.translateTitle)
+        
+        #Update the icon and the title
+        self.setHeaderIcon(self.translateIconPath)
+        self.setHeaderTitle(self.translateTitle)
                 
         self.toggle_translateGroupBox()
-	
-	    
+        
+            
         self.deactivate_rotateGroupBox()    
         
         #Following implements NFR bug 2485.
-	#Earlier, it used to remember the last checked button 
-	#so this wasn't necessary
-	buttonToCheck = self.getTranslateButtonToCheck()
-	
-	
+        #Earlier, it used to remember the last checked button 
+        #so this wasn't necessary
+        buttonToCheck = self.getTranslateButtonToCheck()
+        
+        
         if buttonToCheck:
             buttonToCheck.setChecked(True) 
         else:
-	    buttonGroup = self.freeDragTranslateButtonGroup
-            buttonToCheck = buttonGroup.getButtonByText('MOVEDEFAULT')
+            transButtonGroup = self.freeDragTranslateButtonGroup
+            buttonToCheck = transButtonGroup.getButtonByText('MOVEDEFAULT')
             buttonToCheck.setChecked(True)
-	
-	self.changeMoveOption(buttonToCheck)
-	self.parentMode.update_cursor()
+        
+        self.changeMoveOption(buttonToCheck)
+        self.parentMode.update_cursor()
             
     def activate_rotateGroupBox(self):
         """Show contents of this groupbox, deactivae the other groupbox. 
         Also check the button that was checked when this groupbox  was active 
-	last time. (if applicable). This button is called when 
-	rotateComponentsAction is checked from the toolbar or command manager. 
+        last time. (if applicable). This button is called when 
+        rotateComponentsAction is checked from the toolbar or command manager. 
         @see: L{self.activate_rotateGroupBox_using_groupButton}
         """
         
         self._currentMoveMode = ROTATE
         self.updateMessage()
-	
-	#Update the icon and the title. 
-	self.setHeaderIcon(self.rotateIconPath)
-	self.setHeaderTitle(self.rotateTitle)
+        
+        #Update the icon and the title. 
+        self.setHeaderIcon(self.rotateIconPath)
+        self.setHeaderTitle(self.rotateTitle)
         
         self.toggle_rotateGroupBox()
-        	
+                
         self.deactivate_translateGroupBox()           
-    	
+        
         buttonToCheck = self.getRotateButtonToCheck() 
-	
+        
         if buttonToCheck:
             buttonToCheck.setChecked(True) 
         else:
-	    buttonGroup = self.freeDragRotateButtonGroup
-            buttonToCheck = buttonGroup.getButtonByText('ROTATEDEFAULT')
-	    buttonToCheck.setChecked(True)
-	
-	self.changeRotateOption(buttonToCheck)
-	self.parentMode.update_cursor()
+            rotButtonGroup = self.freeDragRotateButtonGroup
+            buttonToCheck = rotButtonGroup.getButtonByText('ROTATEDEFAULT')
+            buttonToCheck.setChecked(True)
+        
+        self.changeRotateOption(buttonToCheck)
+        self.parentMode.update_cursor()
         
                                
     def deactivate_rotateGroupBox(self):
@@ -243,7 +245,7 @@ class MovePropertyManager(Ui_MovePropertyManager):
         self.setLastCheckedRotateButton(lastCheckedRotateButton)     
         
         #Disconnect checked button in Rotate Components groupbox
-	#bruce 070613 added condition
+        #bruce 070613 added condition
         if self.freeDragRotateButtonGroup.checkedButton(): 
             self.freeDragRotateButtonGroup.checkedButton().setChecked(False)
         
@@ -259,58 +261,58 @@ class MovePropertyManager(Ui_MovePropertyManager):
         #Store the last checked button of the groupbox you are about to close
         #(in this case Move Groupbox is the groupbox that will be deactivated 
         # and 'Rotate groupbox will be activated (opened) ) 
-	buttonGroup = self.freeDragTranslateButtonGroup
+        buttonGroup = self.freeDragTranslateButtonGroup
         lastCheckedTranslateButton = buttonGroup.checkedButton()        
         self.setLastCheckedMoveButton(lastCheckedTranslateButton)        
         
         #Disconnect checked button in Move groupbox
-	if self.freeDragTranslateButtonGroup.checkedButton():
-	    self.freeDragTranslateButtonGroup.checkedButton().setChecked(False) 
-	
-	self.isTranslateGroupBoxActive = False
+        if self.freeDragTranslateButtonGroup.checkedButton():
+            self.freeDragTranslateButtonGroup.checkedButton().setChecked(False) 
+        
+        self.isTranslateGroupBoxActive = False
  
     def toggle_translateGroupBox(self):
-	
+        
         """ 
-	Toggles the item display in the parent groupbox of the button and 
-	hides the other groupbox also disconnecting the actions in the other 
-	groupbox
-	Example: If user clicks on Move groupbox button, it will toggle the 
-	display of the groupbox, connect its actions and Hide the other groupbox 
-	i.e. Rotate Compomnents groupbox and also disconnect actions inside it.
-	"""
+        Toggles the item display in the parent groupbox of the button and 
+        hides the other groupbox also disconnecting the actions in the other 
+        groupbox
+        Example: If user clicks on Move groupbox button, it will toggle the 
+        display of the groupbox, connect its actions and Hide the other groupbox 
+        i.e. Rotate Compomnents groupbox and also disconnect actions inside it.
+        """
        
-	self.translateGroupBox.toggleExpandCollapse()
+        self.translateGroupBox.toggleExpandCollapse()
         
                     
     def toggle_rotateGroupBox(self):
         """ 
-	Toggles the item display in the parent groupbox of the button and 
-	hides the other groupbox also disconnecting the actions in the other 
-	groupbox.
+        Toggles the item display in the parent groupbox of the button and 
+        hides the other groupbox also disconnecting the actions in the other 
+        groupbox.
         Example: If user clicks on Move groupbox button, it will toggle the 
-	display of the groupbox, connect its actions and Hide the other groupbox 
-	i.e. Rotate Compomnents groupbox and also  disconnect actions inside it
+        display of the groupbox, connect its actions and Hide the other groupbox 
+        i.e. Rotate Compomnents groupbox and also  disconnect actions inside it
        """
-	
+        
         self.rotateGroupBox.toggleExpandCollapse()
                         
         
     def setLastCheckedRotateButton(self, lastCheckedButton):
         """" 
-	Sets the  'last checked button value' Program remembers the last checked 
-	button in a groupbox (either Translate or rotate (components)) . 
-	When that groupbox is displayed, it checkes this last button again 
-	(see get method)
-	"""
+        Sets the  'last checked button value' Program remembers the last checked 
+        button in a groupbox (either Translate or rotate (components)) . 
+        When that groupbox is displayed, it checkes this last button again 
+        (see get method)
+        """
         self.lastCheckedRotateButton = lastCheckedButton
         
     def setLastCheckedMoveButton(self, lastCheckedButton):
         """" Sets the  'last checked button value' Program remembers the last 
-	checked button in a groupbox (either Translate components or rotate 
-	components) . When that groupbox is displayed, it checkes this last 
-	button again (see get method)
-	"""
+        checked button in a groupbox (either Translate components or rotate 
+        components) . When that groupbox is displayed, it checkes this last 
+        button again (see get method)
+        """
         self.lastCheckedTranslateButton = lastCheckedButton
     
     def getLastCheckedRotateButton(self):
@@ -328,55 +330,63 @@ class MovePropertyManager(Ui_MovePropertyManager):
             return None
     
     def getRotateButtonToCheck(self):
-	"""
-	Decide which rotate group box button to check 
-	based on the last button that was checked in *translate* 
-	groupbox
-	@return <buttonToCheck>:rotate button to be checked when rotate groupbox 
-	is active (and when free drag rotate is chosen from the combo box)"""
-	lastMoveButton =  self.getLastCheckedMoveButton()
-	
-	rotateButtonToCheck = None
-	
-	if lastMoveButton in \
-	   self.freeDragTranslateButtonGroup.buttonGroup.buttons():
-	    buttonId = self.freeDragTranslateButtonGroup.buttonGroup.id(lastMoveButton)
-	    rotateButtonToCheck = self.freeDragRotateButtonGroup.getButtonById(buttonId)
+        """
+        Decide which rotate group box button to check 
+        based on the last button that was checked in *translate* 
+        groupbox
+        @return <buttonToCheck>:rotate button to be checked when rotate groupbox 
+        is active (and when free drag rotate is chosen from the combo box)"""
+        lastMoveButton =  self.getLastCheckedMoveButton()
+        
+        rotateButtonToCheck = None
+        
+        if lastMoveButton in \
+           self.freeDragTranslateButtonGroup.buttonGroup.buttons():
+            transButtonGroup = self.freeDragTranslateButtonGroup.buttonGroup
+            buttonId = transButtonGroup.id(lastMoveButton)
+            
+            rotButtonGroup = self.freeDragRotateButtonGroup
+            rotateButtonToCheck = rotButtonGroup.getButtonById(buttonId)
     
-	
-	return rotateButtonToCheck
+        
+        return rotateButtonToCheck
     
     def getTranslateButtonToCheck(self):
-	""" Decide which translate group box button to check 
-	based on the last button that was checked in *rotate* groupbox.
-	
-	@return <buttonToCheck>:translate button to be checked when translate 
-	grpbx is active (and when free drag translate is chosen from the combo 
-	box)"""
-	
-	lastRotateButton =  self.getLastCheckedRotateButton()
-	translateButtonToCheck = None
-	if lastRotateButton in self.freeDragRotateButtonGroup.buttonGroup.buttons():
-	    buttonId = self.freeDragRotateButtonGroup.buttonGroup.id(lastRotateButton)
-	    translateButtonToCheck = self.freeDragTranslateButtonGroup.getButtonById(buttonId)
-	
-	
-	return translateButtonToCheck
+        """ Decide which translate group box button to check 
+        based on the last button that was checked in *rotate* groupbox.
+        
+        @return <buttonToCheck>:translate button to be checked when translate 
+        grpbx is active (and when free drag translate is chosen from the combo 
+        box)"""
+        
+        lastRotateButton =  self.getLastCheckedRotateButton()
+        translateButtonToCheck = None
+        
+        if lastRotateButton in \
+           self.freeDragRotateButtonGroup.buttonGroup.buttons():
+            rotButtonGroup = self.freeDragRotateButtonGroup.buttonGroup
+            buttonId = rotButtonGroup.id(lastRotateButton)
+            
+            transButtonGroup = self.freeDragTranslateButtonGroup
+            translateButtonToCheck = transButtonGroup.getButtonById(buttonId)
+        
+        
+        return translateButtonToCheck
     
-    def updateRotationDeltaLabels(self, rotateOption):
+    def updateRotationDeltaLabels(self, rotateOption, rotDelta):
         """ 
-	Updates the Rotation Delta labels in the Rotate combobox  while rotating
+        Updates the Rotation Delta labels in the Rotate combobox  while rotating
         the selection around an axis
-	"""
+        """
         
         if rotateOption == 'ROTATEX':
             listx = [self.rotateXLabelRow]            
-            listyz = [self.rotateYLabelRow, self.rotateZLabelRow]    	    
+            listyz = [self.rotateYLabelRow, self.rotateZLabelRow]           
             for lbl in listx:
                 lbl.setBold(isBold = True)
-		lbl.show()
-	    txt = str(round(self.parentMode.rotDelta, 2))
-	    self.deltaThetaX_lbl.setText(txt)
+                lbl.show()
+            txt = str(round(rotDelta, 2))
+            self.deltaThetaX_lbl.setText(txt)
             for lbl in listyz:
                 lbl.setBold(isBold = False)
                 lbl.show()
@@ -386,8 +396,8 @@ class MovePropertyManager(Ui_MovePropertyManager):
             for lbl in listy :
                 lbl.setBold(True)     
                 lbl.show()
-            txt = str(round(self.parentMode.rotDelta, 2))
-	    self.deltaThetaY_lbl.setText(txt)
+            txt = str(round(rotDelta, 2))
+            self.deltaThetaY_lbl.setText(txt)
             for lbl in listxz:
                 lbl.setBold(False)
                 lbl.show()
@@ -397,23 +407,23 @@ class MovePropertyManager(Ui_MovePropertyManager):
             for lbl in listz:
                 lbl.setBold(True)
                 lbl.show()
-            txt = str(round(self.parentMode.rotDelta, 2))
-	    self.deltaThetaZ_lbl.setText(txt)
+            txt = str(round(rotDelta, 2))
+            self.deltaThetaZ_lbl.setText(txt)
             for lbl in listxy:
                 lbl.setBold(False)   
                 lbl.show()
         else:
             print "MovePropertyManager.updateRotationDeltaLabels:\
-	    Error - unknown rotateOption value =", self.rotateOption
+            Error - unknown rotateOption value :", self.rotateOption
     
     def toggleRotationDeltaLabels(self, show = False):
         """ 
-	Hide all the rotation delta labels when  
+        Hide all the rotation delta labels when  
         rotateFreeDragAction is checked 
-	"""
-	
-	lst = [self.rotateXLabelRow, self.rotateYLabelRow, self.rotateZLabelRow]
-	
+        """
+        
+        lst = [self.rotateXLabelRow, self.rotateYLabelRow, self.rotateZLabelRow]
+        
         if not show:            
             for lbl in lst:
                 lbl.hide()    
@@ -422,179 +432,179 @@ class MovePropertyManager(Ui_MovePropertyManager):
                 lbl.show()
     
     def keyPress(self, key):
-	"""
-	Handles the keypress events specific to the widgets insied this 
-	Property Manager. 
-	@param key: Keyboard key pressed
-	@type  key: enum Qt.Key L{http://doc.trolltech.com/4.2/qt.html#Key-enum}
-	@see: B{modifyMode.keyPress} where this method is called. 
-	"""
-	if self.isTranslateGroupBoxActive:
-	    if key == Qt.Key_F:
-		# toggle on the Translate Free  button
-		self.transFreeButton.setChecked(1) 
+        """
+        Handles the keypress events specific to the widgets insied this 
+        Property Manager. 
+        @param key: Keyboard key pressed
+        @type  key: enum Qt.Key L{http://doc.trolltech.com/4.2/qt.html#Key-enum}
+        @see: B{modifyMode.keyPress} where this method is called. 
+        """
+        if self.isTranslateGroupBoxActive:
+            if key == Qt.Key_F:
+                # toggle on the Translate Free  button
+                self.transFreeButton.setChecked(1) 
                 self.changeMoveOption(self.transFreeButton)
             if key == Qt.Key_X:
-		# toggle on the Translate X  button
-		self.transXButton.setChecked(1) 
+                # toggle on the Translate X  button
+                self.transXButton.setChecked(1) 
                 self.changeMoveOption(self.transXButton)
             elif key == Qt.Key_Y:
-		# toggle on the Translate Y button
+                # toggle on the Translate Y button
                 self.transYButton.setChecked(1) 
                 self.changeMoveOption(self.transYButton)
             elif key == Qt.Key_Z:
-		# toggle on the Translate Z button
+                # toggle on the Translate Z button
                 self.transZButton.setChecked(1) 
                 self.changeMoveOption(self.transZButton)
-	    elif key == Qt.Key_A:
-		# toggle on the Trans-Rotate A button
+            elif key == Qt.Key_A:
+                # toggle on the Trans-Rotate A button
                 self.transAlongAxisButton.setChecked(1) 
                 self.changeMoveOption(self.transAlongAxisButton)
-	else:
-	    if key == Qt.Key_F:
-		# toggle on the Translate Free  button
-		self.rotateFreeButton.setChecked(1) 
+        else:
+            if key == Qt.Key_F:
+                # toggle on the Translate Free  button
+                self.rotateFreeButton.setChecked(1) 
                 self.changeRotateOption(self.rotateFreeButton)
             if key == Qt.Key_X:
-		# toggle on the Rotate X button
+                # toggle on the Rotate X button
                 self.rotateXButton.setChecked(1) 
                 self.changeRotateOption(self.rotateXButton)
             elif key == Qt.Key_Y:
-		# toggle on the Rotate Y button
+                # toggle on the Rotate Y button
                 self.rotateYButton.setChecked(1) 
                 self.changeRotateOption(self.rotateYButton)
             elif key == Qt.Key_Z:
-		# toggle on the Rotate Z button
+                # toggle on the Rotate Z button
                 self.rotateZButton.setChecked(1) 
                 self.changeRotateOption(self.rotateZButton)
-	    elif key == Qt.Key_A:
-		# toggle on the Trans-Rotate A button
+            elif key == Qt.Key_A:
+                # toggle on the Trans-Rotate A button
                 self.rotAlongAxisButton.setChecked(1)
-		self.changeRotateOption(self.rotAlongAxisButton)
-		
+                self.changeRotateOption(self.rotAlongAxisButton)
+                
     def changeMoveOption(self, button):
         """
-	Change the translate option. 
-	
-	@param button: QToolButton that decides the type of translate operation 
-	to be set.
-	@type  button: QToolButton 
-	               L{http://doc.trolltech.com/4.2/qtoolbutton.html}
-	
+        Change the translate option. 
+        
+        @param button: QToolButton that decides the type of translate operation 
+        to be set.
+        @type  button: QToolButton 
+                       L{http://doc.trolltech.com/4.2/qtoolbutton.html}
+        
         """
-		
-	buttonText = str(button.text())
-		
-	assert buttonText in ['TRANSX', 'TRANSY', 'TRANSZ', 
-			      'ROT_TRANS_ALONG_AXIS', 'MOVEDEFAULT' ]
-        	
-	self.parentMode.moveOption = buttonText
+                
+        buttonText = str(button.text())
+                
+        assert buttonText in ['TRANSX', 'TRANSY', 'TRANSZ', 
+                              'ROT_TRANS_ALONG_AXIS', 'MOVEDEFAULT' ]
+                
+        self.parentMode.moveOption = buttonText
             
             
     def changeRotateOption(self, button):
         """
-	Change the rotate option. 
-	
-	@param button: QToolButton that decides the type of rotate operation 
-	to be set.
-	@type  button: QToolButton 
-	               L{http://doc.trolltech.com/4.2/qtoolbutton.html}
+        Change the rotate option. 
+        
+        @param button: QToolButton that decides the type of rotate operation 
+        to be set.
+        @type  button: QToolButton 
+                       L{http://doc.trolltech.com/4.2/qtoolbutton.html}
         """  
-	
-	buttonText = str(button.text())
-		
-	assert buttonText in ['ROTATEX', 'ROTATEY', 'ROTATEZ', 
-			      'ROT_TRANS_ALONG_AXIS', 'ROTATEDEFAULT' ]
-        	
-		
-	if buttonText in ['ROTATEDEFAULT', 'ROT_TRANS_ALONG_AXIS']:
-	    self.toggleRotationDeltaLabels(show = False)
-	else:
-	    self.toggleRotationDeltaLabels(show = True)
-	
-	if buttonText == 'ROTATEDEFAULT':
-	    self.rotateAsUnitCB.show()
-	else:
-	    self.rotateAsUnitCB.hide()
-	
-	self.parentMode.rotateOption = buttonText
-	
+        
+        buttonText = str(button.text())
+                
+        assert buttonText in ['ROTATEX', 'ROTATEY', 'ROTATEZ', 
+                              'ROT_TRANS_ALONG_AXIS', 'ROTATEDEFAULT' ]
+                
+                
+        if buttonText in ['ROTATEDEFAULT', 'ROT_TRANS_ALONG_AXIS']:
+            self.toggleRotationDeltaLabels(show = False)
+        else:
+            self.toggleRotationDeltaLabels(show = True)
+        
+        if buttonText == 'ROTATEDEFAULT':
+            self.rotateAsUnitCB.show()
+        else:
+            self.rotateAsUnitCB.hide()
+        
+        self.parentMode.rotateOption = buttonText
+        
     
     def set_move_xyz(self, x, y, z):
-	"""
-	Set values of X, Y and Z coordinates in the Move Property Manager.
-	@param x: X coordinate of the common center of the selected objects
-	@param y: Y coordinate of the common center of the selected objects
-	@param z: Z coordinate of the common center of the selected objects
-	"""
-	self.moveXSpinBox.setValue(x)
-	self.moveYSpinBox.setValue(y)
-	self.moveZSpinBox.setValue(z)
+        """
+        Set values of X, Y and Z coordinates in the Move Property Manager.
+        @param x: X coordinate of the common center of the selected objects
+        @param y: Y coordinate of the common center of the selected objects
+        @param z: Z coordinate of the common center of the selected objects
+        """
+        self.moveXSpinBox.setValue(x)
+        self.moveYSpinBox.setValue(y)
+        self.moveZSpinBox.setValue(z)
 
     def get_move_xyz(self):
-	"""
-	Returns X, Y and Z values in the Move Property Manager. 
-	@return : tuple (x, y, z) 
-	"""
+        """
+        Returns X, Y and Z values in the Move Property Manager. 
+        @return : tuple (x, y, z) 
+        """
     
-	x = self.moveXSpinBox.value()
-	y = self.moveYSpinBox.value()
-	z = self.moveZSpinBox.value()
-	
-	return (x, y, z)   
-	
+        x = self.moveXSpinBox.value()
+        y = self.moveYSpinBox.value()
+        z = self.moveZSpinBox.value()
+        
+        return (x, y, z)   
+        
     def set_move_delta_xyz(self, delX, delY, delZ):
-	"""
-	Sets the values for 'move by distance delta' spinboxes 
-	These are the values by which the selection will be translated 
-	along the specified axes.
-	@param delX: Delta X value 
-	@param delY: Delta Y value
-	@param delZ: Delta Z value
-	
-	"""
-	self.moveDeltaXSpinBox.setValue(delX)
-	self.moveDeltaYSpinBox.setValue(delY)
-	self.moveDeltaZSpinBox.setValue(delZ)
+        """
+        Sets the values for 'move by distance delta' spinboxes 
+        These are the values by which the selection will be translated 
+        along the specified axes.
+        @param delX: Delta X value 
+        @param delY: Delta Y value
+        @param delZ: Delta Z value
+        
+        """
+        self.moveDeltaXSpinBox.setValue(delX)
+        self.moveDeltaYSpinBox.setValue(delY)
+        self.moveDeltaZSpinBox.setValue(delZ)
     
     def get_move_delta_xyz(self, Plus = True):
-	"""
-	Returns the values for 'move by distance delta' spinboxes 
-	@param Plus : Boolean that decides the sign of the return values. 
-	(True returns positive values)
-	@return : A tuple containing delta X, delta Y and delta Z values
-	"""
+        """
+        Returns the values for 'move by distance delta' spinboxes 
+        @param Plus : Boolean that decides the sign of the return values. 
+        (True returns positive values)
+        @return : A tuple containing delta X, delta Y and delta Z values
+        """
      
-	delX = self.moveDeltaXSpinBox.value()
-	delY = self.moveDeltaYSpinBox.value()
-	delZ = self.moveDeltaZSpinBox.value()
-	
-	if Plus: 
-	    return (delX, delY, delZ) # Plus
-	else: 
-	    return (-delX, -delY, -delZ) # Minus
+        delX = self.moveDeltaXSpinBox.value()
+        delY = self.moveDeltaYSpinBox.value()
+        delZ = self.moveDeltaZSpinBox.value()
+        
+        if Plus: 
+            return (delX, delY, delZ) # Plus
+        else: 
+            return (-delX, -delY, -delZ) # Minus
     
     def close(self):
-	"""
-	Closes this Property Manager.
-	@see:  L{PM_GroupBox.close()}  (overrides this method) 
-	@Note: Before calling close method of its superclass, it collapses the 
-	translate and rotate groupboxes. This is necessary as it calls the 
-	activate groupbox method which also toggles the current state of the 
-	current groupbox. Earlier, explicitely collapsing groupboxes while 
-	closing the PM was not needed as a new PM object was created each time
-	you enter move mode. (and L{Ui_MovePropertyManager} used to call 
-	collapse method of these groupboxes to acheive the desired effect. 
-	
-	"""
-	
-	self.translateGroupBox.collapse()
-	self.rotateGroupBox.collapse()
-	Ui_MovePropertyManager.close(self)
+        """
+        Closes this Property Manager.
+        @see:  L{PM_GroupBox.close()}  (overrides this method) 
+        @Note: Before calling close method of its superclass, it collapses the 
+        translate and rotate groupboxes. This is necessary as it calls the 
+        activate groupbox method which also toggles the current state of the 
+        current groupbox. Earlier, explicitely collapsing groupboxes while 
+        closing the PM was not needed as a new PM object was created each time
+        you enter move mode. (and L{Ui_MovePropertyManager} used to call 
+        collapse method of these groupboxes to acheive the desired effect. 
+        
+        """
+        
+        self.translateGroupBox.collapse()
+        self.rotateGroupBox.collapse()
+        Ui_MovePropertyManager.close(self)
         
     def updateMessage(self): # Mark 2007-06-23
         """
-	Updates the message box with an informative message.
+        Updates the message box with an informative message.
         """
         
         from ops_select import objectSelected
@@ -620,7 +630,7 @@ class MovePropertyManager(Ui_MovePropertyManager):
         """
         
         # Translate group box widgets ################################
-	
+        
         self.movetype_combox.setWhatsThis(
             """<b>Translation Options</b>
             <p>This menu provides different options for translating the
@@ -629,10 +639,10 @@ class MovePropertyManager(Ui_MovePropertyManager):
             <b>Free Drag</b>: translates the selection by dragging the mouse
             while holding down the left mouse button (LMB).</p>
             <p>
-	    <b>By Delta XYZ</b>: tranlates the selection by a specified 
-	    offset.</p>
+            <b>By Delta XYZ</b>: tranlates the selection by a specified 
+            offset.</p>
             <p>
-	    <b>To XYZ Position</b>: moves the selection to an absolute XYZ
+            <b>To XYZ Position</b>: moves the selection to an absolute XYZ
             coordinate. The <i>centroid</i> of the selection is used for
             this operation.
             </p>""")
@@ -664,79 +674,79 @@ class MovePropertyManager(Ui_MovePropertyManager):
             useful for translating and rotating DNA duplexes along their
             own axis.
             </p>""")
-	
-	# By Delta XYZ widgets
-	
+        
+        # By Delta XYZ widgets
+        
         self.moveDeltaXSpinBox.setWhatsThis(
-	    """<b>Delta X</b>
+            """<b>Delta X</b>
             <p>The X offset distance the selection is moved when 
-	    clicking the +/- Delta buttons.
+            clicking the +/- Delta buttons.
             </p>""")
-	
-	self.moveDeltaYSpinBox.setWhatsThis(
-	    """<b>Delta Y</b>
+        
+        self.moveDeltaYSpinBox.setWhatsThis(
+            """<b>Delta Y</b>
             <p>The Y offset distance the selection is moved when 
-	    clicking the +/- Delta buttons.
+            clicking the +/- Delta buttons.
             </p>""")
-	
-	self.moveDeltaXSpinBox.setWhatsThis(
-	    """<b>Delta Z</b>
+        
+        self.moveDeltaXSpinBox.setWhatsThis(
+            """<b>Delta Z</b>
             <p>The Z offset distance the selection is moved when 
-	    clicking the +/- Delta buttons.
+            clicking the +/- Delta buttons.
             </p>""")
-	
-	self.moveDeltaPlusButton.setWhatsThis(
-	    """<b>Delta +</b>
+        
+        self.moveDeltaPlusButton.setWhatsThis(
+            """<b>Delta +</b>
             <p>Moves the current selection by an offset
-	    specified by the Delta X, Y and Z spinboxes.
+            specified by the Delta X, Y and Z spinboxes.
             </p>""")
-	
-	self.moveDeltaPlusButton.setToolTip(
-	    "Move selection by + (plus) delta XYZ")
-	
-	self.moveDeltaMinusButton.setWhatsThis(
-	    """<b>Delta -</b>
+        
+        self.moveDeltaPlusButton.setToolTip(
+            "Move selection by + (plus) delta XYZ")
+        
+        self.moveDeltaMinusButton.setWhatsThis(
+            """<b>Delta -</b>
             <p>Moves the current selection by an offset opposite of that 
-	    specified by the Delta X, Y and Z spinboxes.
+            specified by the Delta X, Y and Z spinboxes.
             </p>""")
-	
-	self.moveDeltaPlusButton.setToolTip(
-	    "Move selection by - (minus) delta XYZ")
-	
-	# To XYZ Position widgets
-	
-	self.moveXSpinBox.setWhatsThis(
-	    """<b>X</b>
+        
+        self.moveDeltaPlusButton.setToolTip(
+            "Move selection by - (minus) delta XYZ")
+        
+        # To XYZ Position widgets
+        
+        self.moveXSpinBox.setWhatsThis(
+            """<b>X</b>
             <p>The X coordinate the selection is moved when 
-	    clicking the +/- Delta buttons.
+            clicking the +/- Delta buttons.
             </p>""")
-	
-	self.moveYSpinBox.setWhatsThis(
-	    """<b>Y</b>
+        
+        self.moveYSpinBox.setWhatsThis(
+            """<b>Y</b>
             <p>The Y coordinate the selection is moved when 
-	    clicking the +/- Delta buttons.
+            clicking the +/- Delta buttons.
             </p>""")
-	
-	self.moveZSpinBox.setWhatsThis(
-	    """<b>Z</b>
+        
+        self.moveZSpinBox.setWhatsThis(
+            """<b>Z</b>
             <p>The Z coordinate the selection is moved when 
-	    clicking the <b>Move to Absolute Position</b> button.
+            clicking the <b>Move to Absolute Position</b> button.
             </p>""")
-	
-	self.moveAbsoluteButton.setWhatsThis(
-	    """<b>Move to Absolute Position</b>
+        
+        self.moveAbsoluteButton.setWhatsThis(
+            """<b>Move to Absolute Position</b>
             <p>Moves the current selection to the position
-	    specified by the X, Y and Z spinboxes. The selection's centroid
-	    is used compute how the selection is moved.
+            specified by the X, Y and Z spinboxes. The selection's centroid
+            is used compute how the selection is moved.
             </p>""")
-	
-	self.moveAbsoluteButton.setToolTip(
-	    "Move selection to absolute XYZ position")
-	
-	
+        
+        self.moveAbsoluteButton.setToolTip(
+            "Move selection to absolute XYZ position")
+        
+        
         # Rotate group box widgets ############################
-	
-	self.rotatetype_combox.setWhatsThis(
+        
+        self.rotatetype_combox.setWhatsThis(
             """<b>Rotate Options</b>
             <p>This menu provides different options for rotating the
             current selection where:</p>
@@ -744,11 +754,11 @@ class MovePropertyManager(Ui_MovePropertyManager):
             <b>Free Drag</b>: rotates the selection by dragging the mouse
             while holding down the left mouse button (LMB).</p>
             <p>
-	    <b>By Specified Angle</b>: rotates the selection by a specified 
-	    angle.
+            <b>By Specified Angle</b>: rotates the selection by a specified 
+            angle.
             </p>""")
-	
-	# Free Drag widgets.
+        
+        # Free Drag widgets.
         
         self.rotateFreeButton.setWhatsThis(
             """<b>Unconstrained Rotation</b>
@@ -782,54 +792,54 @@ class MovePropertyManager(Ui_MovePropertyManager):
             """<b>Rotate as unit</b>
             <p>When <b>checked</b>, the selection is rotated as a unit about its
             collective centroid.<br>
-            When <b>unchecked</b>, the selected objects are rotated about their own
-            individual centroids.
+            When <b>unchecked</b>, the selected objects are rotated about their 
+            own individual centroids.
             </p>""")
-	
-	# By Specified Angle widgets
-	
-	self.rotateByThetaXButton.setWhatsThis(
-	    """<b>Rotate about X axis</b>
-	    <p>Constrains rotation about the X axis.
-	    </p>""")
-	
-	self.rotateByThetaXButton.setToolTip(
-	    "Rotate about X axis")
-	
-	self.rotateByThetaYButton.setWhatsThis(
-	    """<b>Rotate about Y axis</b>
-	    <p>Constrains rotation about the Y axis.
-	    </p>""")
-	
-	self.rotateByThetaYButton.setToolTip(
-	    "Rotate about Y axis")
-	
-	self.rotateByThetaZButton.setWhatsThis(
-	    """<b>Rotate about Z axis</b>
-	    <p>Constrains rotation about the Z axis.
-	    </p>""")
-	
-	self.rotateByThetaZButton.setToolTip(
-	    "Rotate about Z axis")
-	
-	self.rotateThetaSpinBox.setWhatsThis(
-	    """<b>Rotation angle</b>
-	    <p>Specifies the angle of rotation.
-	    </p>""")
-	
-	self.rotateThetaSpinBox.setToolTip(
-	    "Angle of rotation")
-	
-	# These next two aren't working. 
-	# I don't understand why not. Mark 2007-06-25.
-	self.rotateThetaPlusButton.setWhatsThis(
-	    """<b>Rotate</b>
-	    <p>Rotates the selection by the specified angle.
-	    </p>""")
-	
-	self.rotateThetaMinusButton.setWhatsThis(
-	    """<b>Rotate (minus)</b>
-	    <p>Rotates the selection by the specified angle 
-	    (in the opposite direction).
-	    </p>""")
-	    
+        
+        # By Specified Angle widgets
+        
+        self.rotateByThetaXButton.setWhatsThis(
+            """<b>Rotate about X axis</b>
+            <p>Constrains rotation about the X axis.
+            </p>""")
+        
+        self.rotateByThetaXButton.setToolTip(
+            "Rotate about X axis")
+        
+        self.rotateByThetaYButton.setWhatsThis(
+            """<b>Rotate about Y axis</b>
+            <p>Constrains rotation about the Y axis.
+            </p>""")
+        
+        self.rotateByThetaYButton.setToolTip(
+            "Rotate about Y axis")
+        
+        self.rotateByThetaZButton.setWhatsThis(
+            """<b>Rotate about Z axis</b>
+            <p>Constrains rotation about the Z axis.
+            </p>""")
+        
+        self.rotateByThetaZButton.setToolTip(
+            "Rotate about Z axis")
+        
+        self.rotateThetaSpinBox.setWhatsThis(
+            """<b>Rotation angle</b>
+            <p>Specifies the angle of rotation.
+            </p>""")
+        
+        self.rotateThetaSpinBox.setToolTip(
+            "Angle of rotation")
+        
+        # These next two aren't working. 
+        # I don't understand why not. Mark 2007-06-25.
+        self.rotateThetaPlusButton.setWhatsThis(
+            """<b>Rotate</b>
+            <p>Rotates the selection by the specified angle.
+            </p>""")
+        
+        self.rotateThetaMinusButton.setWhatsThis(
+            """<b>Rotate (minus)</b>
+            <p>Rotates the selection by the specified angle 
+            (in the opposite direction).
+            </p>""")
+            
