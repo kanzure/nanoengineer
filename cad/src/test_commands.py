@@ -179,8 +179,9 @@ from exprs.instance_helpers import get_glpane_InstanceHolder
 from exprs.Rect import Rect # needed for Image size option and/or for testing
 from exprs.Boxed import Boxed
 from exprs.draggable import DraggablyBoxed
-from exprs.basic import InstanceMacro, State
 
+from exprs.instance_helpers import InstanceMacro
+from exprs.attr_decl_macros import State
 from exprs.TextRect import TextRect#k
 class TextState(InstanceMacro):#e rename?
     text = State(str, "initial text", doc = "text")#k
