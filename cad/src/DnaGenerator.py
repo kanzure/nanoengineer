@@ -7,39 +7,17 @@ $Id$
 @author: Will Ware
 @copyright: Copyright (c) 2007 Nanorex, Inc.  All rights reserved.
 
-http://en.wikipedia.org/wiki/DNA
-http://en.wikipedia.org/wiki/Image:Dna_pairing_aa.gif
-
-Note: soon we may extend this to permit the following 
-mixed-base code letters:
-
-(reference: http://www.idtdna.com/InstantKB/article.aspx?id=13763 )
-
-    The standard IUB codes for degenerate bases are:
-
-    A = Adenine;
-    C = Cytosine; 
-    G = Guanine;
-    T = Thymine;
-    B = C,G, or T;
-    D = A,G, or T; 
-    H = A,C, or T;
-    V = A,C, or G;
-    R = A or G (puRine);
-    Y = C or T (pYrimidine);
-    K = G or T (Keto);
-    M = A or C (aMino);
-    S = G or C (Strong -3H bonds);
-    W = A or T (Weak - 2H bonds);
-    N = aNy base.
-
-Right now [070518] we just permit N, out of those.
-
 History:
 
 Jeff 2007-06-13:
 - Moved Dna class (and subclasses) to file Dna.py.
+Mark 2007-08-23:
+- Heavily restructured and cleaned up.
 """
+
+# To do:
+# 1) Use endpoint and vector to create an arbitrarily positioned duplex.
+# 2) Remove support for Atomistic DNA models.
 
 __author__ = "Will"
 
@@ -58,12 +36,13 @@ from files_mmp      import _readmmp
 from fusechunksMode import fusechunksBase
 from platform       import find_plugin_dir
 
-from Dna import Dna
-from Dna import A_Dna, A_Dna_PAM5
-from Dna import B_Dna, B_Dna_PAM5
-from Dna import Z_Dna, Z_Dna_PAM5
-from Dna import DEBUG, DEBUG_SEQUENCE
-from Dna import basepath, basepath_ok
+from Dna_Constants  import basesDict
+from Dna            import Dna
+from Dna            import A_Dna, A_Dna_PAM5
+from Dna            import B_Dna, B_Dna_PAM5
+from Dna            import Z_Dna, Z_Dna_PAM5
+from Dna            import DEBUG, DEBUG_SEQUENCE
+from Dna            import basepath, basepath_ok
 
 from GeneratorBaseClass          import GeneratorBaseClass, PluginBug, UserError
 from DnaGeneratorPropertyManager import DnaGeneratorPropertyManager
@@ -108,7 +87,6 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
         @return: All the parameters:
                  - dnaSequence
                  - dnaType
-                 - strandType
                  - basesPerTurn
                  - dnaModel
                  - chunkOption
@@ -121,8 +99,6 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
             raise PluginBug("""A-DNA is not yet implemented -- please try 
             B- or Z-DNA""");
         assert dnaType in ('B-DNA', 'Z-DNA')
-
-        strandType  =  str( self.strandTypeComboBox.currentText() )
 
         # Get bases per turn.
         basesPerTurnString = str(self.basesPerTurnComboBox.currentText())
@@ -150,26 +126,24 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
 
         (dnaSequence, allKnown) = self._getSequence( resolve_random = resolve_random)
 
-        if allKnown == False:
-            dnaSequence  =  self.convertUnrecognized(dnaSequence)
+        atcgnSequence  =  self.convertUnrecognized(dnaSequence)
 
         if (dnaModel == 'Atomistic' and not allKnown):
-            raise UserError("Cannot use unknown bases (N) in Atomistic model") # needs rewording (see above)
+            raise UserError("Must use A,C,G or T only for Atomistic models.") # needs rewording (see above)
 
         if (dnaModel == 'PAM5' and dnaType == 'Z-DNA'):
             raise PluginBug("Z-DNA not implemented for 'PAM-5 reduced model'. Use B-DNA.")
 
         return (dnaSequence, 
+                atcgnSequence,
                 dnaType,
-                strandType,
                 basesPerTurn,
                 dnaModel,
                 chunkOption)
     
     def checkParameters( self, inParams ):
         """
-        Verify that the strand sequence 
-        contains no unknown/invalid bases.
+        Verify that the strand sequence contains no unknown/invalid bases.
         """
         theSequence, isValid  =  self._getSequence()
         
@@ -207,7 +181,12 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
         """
         # No error checking in build_struct, do all your error
         # checking in gather_parameters
-        theSequence, dnaType, strandType, basesPerTurn, dnaModel, chunkOption = params
+        theSequence, \
+        atcgnSequence, \
+        dnaType, \
+        basesPerTurn, \
+        dnaModel, \
+        chunkOption = params
         
         if len(theSequence) < 1: # Mark 2007-06-01
             msg = redmsg("You must enter a strand sequence to preview/insert DNA")
@@ -221,10 +200,11 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
             # flushed (reset) after the DNA is created.
             env.history.message(self.cmd + "This may take a moment...")
             
-        # Instantiate the DNA subclass 
-        # (based on dnaModel and conformation)
+        # Instantiate the DNA subclass (based on dnaModel and conformation).
+        
+        dnaParams = (theSequence, chunkOption, basesPerTurn)
+            
         if (dnaModel == 'Atomistic'):
-            doubleStrand = (strandType == 'Double')
             if dnaType == 'A-DNA':
                 dna = A_Dna()
             elif dnaType == 'B-DNA':
@@ -233,60 +213,56 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
                 dna = Z_Dna()
 
         elif (dnaModel == 'PAM5'):
-            doubleStrand = False # a single pseudo strand creates two strands.
             if dnaType == 'A-DNA':
                 dna = A_Dna_PAM5()
             elif dnaType == 'B-DNA':
                 dna = B_Dna_PAM5()
             elif dnaType == 'Z-DNA':
                 dna = Z_Dna_PAM5()
-
-        # Set critical dna instance variables.
-        dna.doubleStrand = doubleStrand
-        dna.sequence     = theSequence
-        dna.model        = dnaModel
         
         self.dna = dna  # needed for done msg
         
-        # Create node in model tree.        
-        grp = Group(self.name, 
-                    self.win.assy,
-                    self.win.assy.part.topnode)
+        # Create the model tree group node. 
+        rawDnaGroup = Group(self.name, 
+                            self.win.assy,
+                            self.win.assy.part.topnode)
         try:
-            dna.make(self.win.assy, grp, basesPerTurn, position)
+            # Make the DNA duplex. <rawDnaGroup> returns a different 
+            # grouping arrangement for atomistic vs. PAM5. This 'issue'
+            # is resolved when we regroup the atoms into strand chunks
+            # below.
+            dna.make(rawDnaGroup, theSequence, basesPerTurn, position)
             
-            if self.createComboBox.currentText() == 'Strand chunks':
-                if dnaModel == 'Atomistic':
-                    nodeForMT = self._makeSingleChunkStrands(grp,
-                                                             theSequence,
-                                                             dnaModel,
-                                                             doubleStrand)
-                    return nodeForMT
-                
-                elif dnaModel == 'PAM5':
-                    nodeForMT = self._makePAM5StrandAndAxisChunks(grp, dnaModel)
-                    return nodeForMT
-                    
-            elif self.createComboBox.currentText()=='Single chunk':
-                nodeForMT = self._makeSingleChunkDna(grp, 
-                                                     theSequence, 
-                                                     dnaModel,
-                                                     doubleStrand)                
-                return nodeForMT
+            # Now group the DNA atoms based on the grouping option selected
+            # (i.e. "Strand chunks" or "Single Chunk").
+            # Note: We regroup <rawDnaGroup> so that both atomistic and PAM5
+            # end up with atoms organized in a consistent manner (except that
+            # the axis atoms in PAM5 models are placed in their own "Axis" 
+            # group).
+            if dnaModel == 'Atomistic':
+                dnaGroup = self._makeAtomisticSingleChunkStrands(rawDnaGroup)
+            elif dnaModel == 'PAM5':
+                dnaGroup = self._makePAM5StrandAndAxisChunks(rawDnaGroup)
+            else:
+                raise PluginBug("Unknown model: %r" % (dnaModel))
             
-            return grp
+            if chunkOption == 'Single chunk':
+                return self._makeDuplexChunk(dnaGroup)
+            
+            return dnaGroup
         
         except (PluginBug, UserError):
-            grp.kill()
-            raise
+            rawDnaGroup.kill()
+            raise PluginBug("Internal error while trying to create DNA duplex.")
+            return None
 
     def _getSequence( self, 
-                       reverse = False, 
-                       complement = False, 
-                       resolve_random = False, 
-                       cdict = {} ):
+                      reverse = False, 
+                      complement = False, 
+                      resolve_random = False, 
+                      cdict = {} ):
         """
-        Get the current sequence from the Property Manager.
+        Get the current DNA sequence from the Property Manager.
         
         This method is not fully private. It's used repeatedly to get the 
         same sequence when making the DNA (which means its return value 
@@ -321,18 +297,16 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
                any bogus/unknown bases are substituted as 'N' (unknown).
         """
         
-        cdict    =  Dna.basesDict
         sequence = ''
         allKnown = True
         
+        cdict    =  basesDict
+        
         # The current sequence (or number of bases) in the PropMgr. Mark [070405]
         # (Note: I think this code implies that it can no longer be a number of bases. [bruce 070518 comment])
-        pm_seq  =  str(self.getPlainSequence(inOmitSymbols = True)) # :jbirac: 20070629
-        #print "pm_seq =", pm_seq
-        #match = numberPattern.match(pm_seq)
-        #if (match):
-        #    return(match.group(1), False)
-        for ch in pm_seq:
+        currentSequence  =  str(self.getPlainSequence(inOmitSymbols = True)) # :jbirac: 20070629
+
+        for ch in currentSequence:
             if ch in cdict.keys():  #'CGATN':
                 properties = cdict[ch]
                 if ch == 'N': ###e soon: or any other letter indicating a random base
@@ -350,9 +324,7 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
                         raise KeyError("DNA dictionary entry must include a 'Complement' key.")
             elif ch in self.validSymbols: #'\ \t\r\n':
                 ch  =  ''
-            else:
-                #raise UserError('Bogus DNA base: ' + ch + ' (should be ' + str(cdict.keys()) + ')')
-                ch        =  'N'                
+            else:              
                 allKnown  =  False
 
             sequence += ch
@@ -377,105 +349,124 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
         outSequence = ''.join(outSequence)
         return outSequence
 
-    def _makeSingleChunkDna(self, grp, sequence, dnaModel, 
-                            doubleStrand):
+    def _makeDuplexChunk(self, dnaGroup):
         """
-        Combine both strands into a single chunk.
+        Returns a single DNA chunk given a dnaGroup containing multiple strand chunks.
+        
+        @param dnaGroup: The group object containing the DNA strand chunks.
+        @type  dnaGroup: L{Group}
+        
+        @return: The DNA chunk.
+        @rtype:  L{molecule} (i.e. a chunk)
         """
         
-        self._makeSingleChunkStrands(grp, sequence, dnaModel, doubleStrand)
-        
-        if not isinstance(grp.members[0], molecule):
+        if not isinstance(dnaGroup.members[0], molecule):
             env.history.message(redmsg(
                 "Internal error in creating a single chunk DNA"))
             return
         
-        for m in grp.members[1:]:
+        for m in dnaGroup.members[1:]:
             if isinstance(m, molecule):
-                grp.members[0].merge(m)
+                dnaGroup.members[0].merge(m)
                 
-        #rename the merged chunk 
-        grp.members[0].name = grp.name
+        # Rename the merged chunk 
+        dnaGroup.members[0].name = dnaGroup.name
         
-        nodeForMT = grp.members[0]
-        #ungroup
-        grp.ungroup()
+        dnaChunk = dnaGroup.members[0]
+        dnaGroup.ungroup()
         
-        return nodeForMT
+        return dnaChunk
        
-    def _makeSingleChunkStrands(self, grp, sequence, dnaModel, doubleStrand):
+    def _makeAtomisticSingleChunkStrands(self, rawDnaGroup):
         """
-        Combine all bases of a single strand into a single chunk.
+        Returns a group containing the two strand chunks I{StrandA},
+        and I{StrandB} of the current DNA sequence.
+        
+        @param rawDnaGroup: The raw Dna group which contains two groups
+                            "StrandA" and "StrandB". These subgroups contain
+                            the individual base chunks for each strand.
+        @type  rawDnaGroup: L{Group}
+        
+        @return: The merged DNA group that contains the two strand chunks
+                 "StrandA" and "StrandB".
+        @rtype:  L{Group}
         """
-                   
-        if doubleStrand:
-            counter = 0
-            for subgrp in grp.members:
-                if isinstance(subgrp, Group):
-                    # This is for a double stranded DNA.
-                    mol = subgrp.members[0]
-                    for m in subgrp.members[1:]:                           
-                        mol.merge(m)
-                    mol.name = self._renameSingleChunkStrands(counter)
-                    # Ungroup.
-                    subgrp.ungroup()
-                else:
-                    print "Bug in merging DNA strand bases into a single chunk." 
-                    return None
-                
-                counter +=1
-        else:
-            #single stranded DNA
-            mol = grp.members[0]  
-            
-            if not isinstance(mol, molecule):
-                env.history.message(
-                    redmsg("Internal error in creating a single chunk DNA"))
-                return 
-                          
-            for m in grp.members[1:]:
-                if isinstance(m,molecule):
+        
+        counter = 0
+        
+        # Merge all the chunks in the two subgroups of rawDnaGroup into two
+        # strand chunks "StrandA" and "StrandB".
+        for subgroup in rawDnaGroup.members:
+            if isinstance(subgroup, Group):
+                # This is for a double stranded DNA.
+                mol = subgroup.members[0]
+                for m in subgroup.members[1:]:                           
                     mol.merge(m)
+                
+                # Ungroup and rename chunk
+                subgroup.ungroup()
+                mol.name = self._getStrandName(counter)
+            else:
+                print "Bug in merging DNA strand bases into a single chunk." 
+                return None
             
-            counter = 0
-            mol.name = self._renameSingleChunkStrands(
-                        counter,singleStrand = True) 
-        
-        return grp
+            counter +=1
+            
+        return rawDnaGroup
     
-    def _renameSingleChunkStrands(self, strandCounter, singleStrand = False):
+    def _getStrandName(self, strandNumber, numberOfBasesToDisplay = 0):
         """
-        Rename the strand as 'strand-n:first four characters of its
-        base sequence. 
-        Example: strand1: ATGC
+        Returns a strand name given a strand number and the number of base
+        letters to display in the name.
         
-        @return: strandName: returns the strand name string.
+        @param strandNumber: The strand number, where:
+                             - 0 = Strand A
+                             - 1 = Strand B
+                             - 2 = Axis (PAM5 only)
+        @type  strandNumber: int
+        
+        @param numberOfBasesToDisplay: The number of base letters to display
+                                       in the name. The default is 0.
+        @type  numberOfBasesToDisplay: int
+        
+        @return: The strand name. (i.e. "StrandA:ATCG...")
+        @rtype:  str
         """
+        assert (strandNumber >= 0) and (strandNumber <= 2), \
+               "strandNumber is %d. It can only be 0, 1, or 2." % strandNumber
         
-        if strandCounter == 0:
+        if strandNumber == 0:
             (sequence, allKnown) = self._getSequence()
-        else:
+            strandName = 'StrandA'
+        elif strandNumber == 1:
             (sequence, allKnown) = self._getSequence(complement=True)
+            strandName = 'StrandB'
+        else:
+            strandName = "Axis"
+            
+        if numberOfBasesToDisplay: 
+            # Add strand letters to MT node name.
+            numberOfLetters = min(len(sequence), numberOfBasesToDisplay)
+            strandName += ":" + sequence[0:numberOfLetters]
         
-        if singleStrand:
-            strandName = 'strand:' + sequence[0:4]
-        else:            
-            strandName = 'strand-' + str(strandCounter +1) + ':' + sequence[0:4]
-        
-        if len(sequence) > 4:
-            strandName = strandName + '...'
+            if len(sequence) > numberOfBasesToDisplay:
+                # Add "..." if the sequence is longer than <numberOfBasesToDisplay>.
+                strandName += '...'
                           
         return strandName
     
-    def _makePAM5StrandAndAxisChunks(self, grp, dnaModel):
+    def _makePAM5StrandAndAxisChunks(self, rawDnaGroup):
         """
-        Creates 2 strand and 1 axis chunk for PAM-5 model.
+        Returns a group containing the three strand chunks I{StrandA},
+        I{StrandB} and I{Axis} of the current DNA sequence.
         
-        @param grp:
-        @type  grp: Group
+        @param rawDnaGroup: The raw Dna group which contains the 
+                            base-pair chunks representing the sequence.
+        @type  grawDnaGrouprp: L{Group}
         
-        @param dnaModel: DNA model representation (i.e. "Atomistic" or "PAM5").
-        @type  dnaModel: str
+        @return: The new DNA group that contains the three strand chunks
+                 I{StrandA}, I{StrandB} and I{Axis}.
+        @rtype:  L{Group}
         """
         
         # ninad070426: Implementation Notes: 
@@ -485,7 +476,7 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
         # to that 'Sugar element' or 'Axis Element'. Thus we get three chunks. 
         # This may be optimized in future. Ok for now. 
                 
-        mol = grp.members[0]
+        mol = rawDnaGroup.members[0]
         
         if not isinstance(mol, molecule):
                 env.history.message(
@@ -506,37 +497,52 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
         
         #chunkCounter make sures to exit out of this method once all three 
         #chunks are created program 
-        chunkCounter = 0 
-        strandNumber = 1
-        tempList = []
-        for m in grp.members[1:]:
-            ##if chunkCounter > 3:
-                ##return
-            if isinstance(m,molecule):
+        chunkCounter  =   0 
+        strandLetter  =  "A"
+        tempList      =  []
+         
+        for m in rawDnaGroup.members[1:]:
+            if isinstance(m, molecule):
                 for atm in m.atoms.values():  
                     if atm.element.symbol in axis_elements or \
                        atm.element.symbol in strand_sugar_elements:                        
                         tempList.append(atm)
                         atomList = self.win.assy.getConnectedAtoms(tempList)
-                        newChunk = self._makeChunkFromAtomList(atomList)
                         tempList = []     
                         
                         if atm.element.symbol in axis_elements:
-                            newChunk.name = 'Axis'
+                            axisChunk = self._makeChunkFromAtomList(atomList)
+                            axisChunk.name = self._getStrandName(2)
                         elif atm.element.symbol in strand_sugar_elements:
-                            newChunk.name = 'Strand-' + str(strandNumber)
-                            strandNumber +=1
-                            
-                        grp.addmember(newChunk)
+                            if strandLetter == "A":
+                                # We assume that the first sugar atom found is in strand A.
+                                # This is probably a bad assumption. Need a deterministic
+                                # method for correctly naming strand A. Mark 2007-08-19.
+                                strandAChunk = self._makeChunkFromAtomList(atomList)
+                                strandAChunk.name = self._getStrandName(0)
+                                strandLetter = 'B'
+                            elif strandLetter == "B":
+                                strandBChunk = self._makeChunkFromAtomList(atomList)
+                                strandBChunk.name = self._getStrandName(1)
+                            else:
+                                # Not sure what type of error to call it.
+                                # (where is a list to choose from?) --Mark
+                                raise "Error in _makePAM5StrandAndAxisChunks()"
+                        
                         chunkCounter +=1
                         
-                if chunkCounter >3:
+                if chunkCounter > 3:
                     print "Dna Generator: internal error in generating strand-axis chunk dna"
                     return
-                                    
-                self.win.win_update()
+        
+        # Place strand and axis chunks in this order: StrandA, StrandB, Axis.
+        rawDnaGroup.addmember(strandAChunk)
+        rawDnaGroup.addmember(strandBChunk)
+        rawDnaGroup.addmember(axisChunk)
                 
-                return grp
+        self.win.win_update() # Needed?
+                
+        return rawDnaGroup
              
     def _makeChunkFromAtomList(self, atomList):
         """
@@ -557,7 +563,7 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
             print "bug in creating chunks from the given atom list"
             return
         
-        newChuck = molecule(self.win.assy, gensym("Chunk"))
+        newChunk = molecule(self.win.assy, gensym("Chunk"))
         for a in atomList:            
             # leave the moved atoms picked, so still visible
             a.hopmol(newChunk)
@@ -571,11 +577,7 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
         
         if not dna: # Mark 2007-06-01
             return "No DNA added."
-        
-        if dna.doubleStrand:
-            dbl = "double "
-        else:
-            dbl = ""
-        return "Done creating a %sstrand of %s." % (dbl, dna.geometry)
+
+        return "Done creating a strand of %s." % (dna.form)
     
 

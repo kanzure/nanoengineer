@@ -28,27 +28,16 @@ DnaGeneratorPropertyManager.
 """
 
 # To do:
-# 1) <DONE> Replace "Complement" and "Reverse" buttons with an "Actions" combobox.
-#    - Items are "Actions", separator, "Complement" and "Reverse".
-#    - Always revert to "Actions" after user makes any choice.
-#    - Choosing "Actions" does NOT send a signal.
-#    - Maybe an "Apply" button if 
-# 2) <TABLED> Cursor/insertion point visibility:
+# 1) <TABLED> Cursor/insertion point visibility:
 #    - changes to the interior (not end) of the sequence/strand length must 
 #      be changed manually via direct selection and editing.
 #    - try using a blinking vertical bar via HTML to represent the cursor
-# 3) <DONE> Spinboxes should change the length from the end only of the strand, 
-#    regardless of the current cursor position or selection.
-# 4) Fully implement sequence processing methods (and their args).
-# 5) Actions (reverse, complement, etc in _getSequence() should not pruge
+# 2) Actions (reverse, complement, etc in _getSequence() should not purge
 #    unrecognized characters.
 
 import env
 
-from Dna import Dna
-from Dna import A_Dna
-from Dna import B_Dna
-from Dna import Z_Dna
+from Dna_Constants import basesDict, dnaDict
 
 from HistoryWidget import redmsg, greenmsg, orangemsg
 
@@ -198,16 +187,17 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
                       self.strandLengthChanged )                    
         # New Base choices
         newBaseChoices  =  []
-        for theBase in Dna.basesDict.keys():
+        for theBase in basesDict.keys():
             newBaseChoices  =  newBaseChoices \
                             + [ theBase + ' (' \
-                            + Dna.basesDict[theBase]['Name'] + ')' ]
+                            + basesDict[theBase]['Name'] + ')' ]
             
         try:
-            defaultBaseChoice = Dna.basesDict.keys().index('N')
+            defaultBaseChoice = basesDict.keys().index('N')
         except:
             defaultBaseChoice = 0
 
+        """
         self.newBaseChoiceComboBox  = \
             PM_ComboBox( pmGroupBox,
                          label         =  "New Bases Are :", 
@@ -215,6 +205,7 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
                          index         =  defaultBaseChoice,
                          setAsDefault  =  True,
                          spanWidth     =  False )
+                         """
 
         # Strand Sequence
         self.sequenceTextEdit = \
@@ -267,9 +258,13 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
                       SIGNAL("currentIndexChanged(int)"),
                       self.modelComboBoxChanged )
         
-        createChoices        =  ["Single chunk",\
-                                 "Strand chunks",\
-                                 "Base-pair chunks"]
+        # I may decide to reintroduce "base-pair chunks" at a later time.
+        # Please talk to me if you have a strong feeling about including
+        # this. Mark 2007-08-19.
+        createChoices        =  ["Single chunk", \
+                                 "Strand chunks" ]
+                                 #@ "Base-pair chunks"] 
+                                 
         self.createComboBox  = \
             PM_ComboBox( pmGroupBox,
                          label         =  "Create :", 
@@ -293,12 +288,6 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
                       SIGNAL("currentIndexChanged(int)"),
                       self.conformationComboBoxChanged )
         
-        self.strandTypeComboBox  = \
-            PM_ComboBox( pmGroupBox,
-                         label         =  "Strand Type :", 
-                         choices       =  ["Double"],
-                         setAsDefault  =  True)
-        
         self.basesPerTurnComboBox= \
             PM_ComboBox( pmGroupBox,
                          label         =  "Bases Per Turn :", 
@@ -317,9 +306,6 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
         <p>There are three DNA geometries, A-DNA, B-DNA,
         and Z-DNA. Only B-DNA and Z-DNA are currently supported.</p>""")
         
-        self.strandTypeComboBox.setWhatsThis("""<b>Strand Type</b>
-        <p>DNA strands can be single or double.</p>""")
-        
         self.sequenceTextEdit.setWhatsThis("""<b>Strand Sequence</b>
         <p>Type in the strand sequence you want to generate here (5' => 3')<br>
         <br>
@@ -330,8 +316,9 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
         G = Guanosine<br>
         T = Thymidine<br>
         N = aNy base<br>
+        X = Unassigned<br>
         <br>
-        Other base letters (to currently recognized):<br>
+        Other base letters currently recognized:<br>
         <br>
         B = C,G, or T<br>
         D = A,G, or T<br>
@@ -420,29 +407,30 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
                          SIGNAL("currentIndexChanged(int)"),
                          self.conformationComboBoxChanged )
         
-        self.newBaseChoiceComboBox.clear() # Generates signal!
+        #@@@ self.newBaseChoiceComboBox.clear() # Generates signal!
         self.conformationComboBox.clear() # Generates signal!
-        self.strandTypeComboBox.clear() # Generates signal!
         
         if conformation == self._modeltype_Reduced:
+            """
             self.newBaseChoiceComboBox.addItem("N (aNy base)")
             self.newBaseChoiceComboBox.addItem("A (Adenine)" )
             self.newBaseChoiceComboBox.addItem("C (Cytosine)")
             self.newBaseChoiceComboBox.addItem("G (Guanine)" ) 
             self.newBaseChoiceComboBox.addItem("T (Thymine)" )
+            """
 
             #self.valid_base_letters = "NATCG"
             
             self.conformationComboBox.addItem("B-DNA")
             
-            self.strandTypeComboBox.addItem("Double")
-            
         elif conformation == self._modeltype_Atomistic:
+            """
             self.newBaseChoiceComboBox.addItem("N (random)")
             self.newBaseChoiceComboBox.addItem("A")
             self.newBaseChoiceComboBox.addItem("T")  
             self.newBaseChoiceComboBox.addItem("C")
             self.newBaseChoiceComboBox.addItem("G")
+            """
             
         # Removed. :jbirac: 20070630
             #self.valid_base_letters = "NATCG"
@@ -453,9 +441,6 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
             
             self.conformationComboBox.addItem("B-DNA")
             self.conformationComboBox.addItem("Z-DNA")
-            
-            self.strandTypeComboBox.addItem("Double")
-            self.strandTypeComboBox.addItem("Single")
         
         elif inIndex == -1: 
             # Caused by clear(). This is tolerable for now. Mark 2007-05-24.
@@ -488,15 +473,7 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
         @param inConformation: The current conformation.
         @type  inConformation: int
         """
-        
-        if inConformation == 'A-DNA':
-            theDna  =  A_Dna()
-        elif inConformation == 'B-DNA':
-            theDna  =  B_Dna()
-        elif inConformation == 'Z-DNA':
-            theDna  =  Z_Dna()
-            
-        return theDna.getBaseRise()
+        return dnaDict[str(inConformation)]['DuplexRise']
 
     def synchronizeLengths( self ):
         """
@@ -640,7 +617,8 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
                                + str(lengthChange) + ')' )))
 
             # Get current base selected in combobox.
-            chosenBase  =  str(self.newBaseChoiceComboBox.currentText())[0]
+            #@@@ chosenBase  =  str(self.newBaseChoiceComboBox.currentText())[0]
+            chosenBase  =  'X' # Unassigned.
 
             basesToAdd  =  chosenBase * numNewBases
             #self.sequenceTextEdit.insertPlainText( basesToAdd )
@@ -750,7 +728,7 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         outSequence  =  self.sequenceTextEdit.toPlainText()
         theString = ''
-        for theBase in Dna.basesDict:
+        for theBase in basesDict:
             theString  =  theString + theBase
         theString  =  '[^' + str( QRegExp.escape(theString) ) + ']'
         outSequence.remove(QRegExp( theString ))
@@ -774,7 +752,7 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
             outSequence  =  QString( inSequence )
 
         theString = ''
-        for theBase in Dna.basesDict:
+        for theBase in basesDict:
             theString += theBase
         theString  =  '[^' + str( QRegExp.escape(theString) ) + ']'
         outSequence.replace( QRegExp(theString), 'N' )
@@ -840,7 +818,7 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
 
             theSeqChar  =  outSequence[basePosition]
 
-            if ( theSeqChar in Dna.basesDict
+            if ( theSeqChar in basesDict
                  or theSeqChar in self.validSymbols ):
 
                 # Close any preceding invalid sequence segment.
