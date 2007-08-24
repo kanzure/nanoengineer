@@ -177,7 +177,8 @@ from VQT import V
 ##from exprs.Overlay import Overlay
 from exprs.instance_helpers import get_glpane_InstanceHolder
 from exprs.Rect import Rect # needed for Image size option and/or for testing
-from exprs.Boxed import Boxed, DraggablyBoxed
+from exprs.Boxed import Boxed
+from exprs.draggable import DraggablyBoxed
 from exprs.basic import InstanceMacro, State
 
 from exprs.TextRect import TextRect#k
