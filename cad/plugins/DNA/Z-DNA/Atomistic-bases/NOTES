@@ -1,0 +1,64 @@
+
+ Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+-----
+5/11/2007
+NOTE: I've since changed the eight nucleotide files by hand to add an oxygen to
+the 3' carbon (where a bond point used to be), and removed the oxygen from the
+phosphate (where a bond point is now.) This configuration is more standard in
+the world of PDBs, GROMACS, and NAMOT, and is, in fact how the zdna.pdb file is
+set up.
+
+So the prepare.py script is out-of-date and will re-generate the old files if
+run. Note that prepare.py is not typically run, but is documentation about how
+the files where originally generated.
+
+This change does make a chemical difference in that there should be an oxygen
+bonded to the 3' carbon at the top of a 3'-to-5' strand (previously there was
+not.) Technically, when the strands are generated, the oxygen should also be
+hydrogenated *and* there should be no phosphate at the top of the 5'-to-3'
+strand - but this change makes the nucleotides by themselves conform to
+standards at least.
+--Brian.
+-----
+
+
+Here is where I am getting my information from:
+http://chemistry.gsu.edu/glactone/PDB/DNA_RNA/dna.html
+
+Here is how I prepared the bases information for Z-DNA. Something
+along these lines should work for many different kinds of sequence
+generators so this is useful info.
+
+I started with zdna.pdb, a file I found on the Internet. I wanted to
+do three things: separate the two strands, convert from PDB to MMP
+format, and add bonding information which was absent in the zdna.pdb
+file.
+
+Adding the bonding information required putting bond inference into
+the _readpdb function in files_pdb.py, and the actual work is done
+in the inferBonds function in bonds.py. Once this was done, the
+conversion from PDB to MMP was just a matter of importing the PDB
+file into nE-1 and saving it as two MMP files, one for each strand.
+
+I separated the strands by double-clicking on an atom in select atoms
+mode, so that the whole strand got selected by transitivity. Then I
+could delete the selected strand and save the result as my MMP file.
+
+The next step was to group the atoms in strand1.mmp by what base they
+were a member of. I did this grouping by changing the drawing modes
+for the atoms in every other base from default to lines. Using
+strand1.mmp and starting at the 5' end, I did this and saved the
+result as the file strund1.mmp. This part is where human judgement is
+required to decide where to put the divisions between building blocks.
+
+The next step is heavily automated, and is done by the prepare.py
+script. The groups are written out to a series of individual MMP
+files. These files (with names like "cytosine-inner.mmp") are used
+by nE-1's DNA generator to build new structures.
+
+As I write this, there is a remaining flaw in prepare.py. It should
+put bondpoints on the two dangling bonds on each base. For bases in
+the middle of a strand, these bondpoints will be joined with those of
+the adjacent bases. There will be two bondpoints left on the ends,
+and ideally we should attach a hydrogen at the 5' end and a hydroxyl
+at the 3' end.
