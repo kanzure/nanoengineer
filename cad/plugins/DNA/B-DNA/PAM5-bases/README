@@ -1,0 +1,15 @@
+$Id: $
+
+Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+
+These files are used by Dna.py to create PAM-5 DNA structures in the 
+CAD program:
+
+	EndBasePair.mmp
+	MidBasePair.mmp
+	StarBasePair.mmp
+
+Each file contains two "Ss" pseudo atoms named "a" and "b" (via Atom info 
+records) that get assigned their permanent base letter when the DNA structure
+is generated. The "a" atom belongs to strand A and atom "b" is the complement
+of "a" and belongs to strand B.

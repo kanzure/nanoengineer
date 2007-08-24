@@ -1,0 +1,38 @@
+mmpformat 050920 required; 070415 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.302277, 0.140001, 0.414694, -0.846792) (10.389642) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (X)
+info opengroup open = True
+mol (X) def
+atom 1 (200) (0, 0, 0) def
+atom 2 (204) (0, 0, -1590) def
+bond1 1
+atom 3 (201) (6760, 0, 0) def
+info atom dnaBaseName = a
+bond1 1
+atom 4 (205) (8699, 2638, 1590) def
+bond1 3
+bond_direction 4 3
+atom 5 (206) (7729, -1319, -795) def
+bond1 3
+bond_direction 3 5
+atom 6 (201) (-4610, -4943, 0) def
+info atom dnaBaseName = b
+bond1 1
+atom 7 (205) (-7863, -4562, -1590) def
+bond1 6
+bond_direction 7 6
+atom 8 (204) (0, 0, 1800) def
+bond1 1
+atom 9 (206) (-4205, -6679, 890) def
+bond1 6
+egroup (X)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part SingleBasePair
