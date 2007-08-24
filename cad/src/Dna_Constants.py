@@ -20,7 +20,7 @@ basesDict = { 'A':{'Name':'Adenine',    'Complement':'T',  'Basename':'Adenine' 
               'C':{'Name':'Cytosine',   'Complement':'G',  'Basename':'Cytosine'},
               'G':{'Name':'Guanine',    'Complement':'C',  'Basename':'Guanine' },
               'T':{'Name':'Thymine',    'Complement':'A',  'Basename':'Thymine' },
-              'U':{'Name':'Uracil',    ' Complement':'A',  'Basename':'Uracil'  },
+              'U':{'Name':'Uracil',     'Complement':'A',  'Basename':'Uracil'  },
               
               'X':{'Name':'Undefined',  'Complement':'X',  'Basename':''},
               'N':{'Name':'aNy base',   'Complement':'N',  'Basename':'aNy base'},
