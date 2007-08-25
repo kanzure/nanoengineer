@@ -232,7 +232,7 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
             # is resolved when we regroup the atoms into strand chunks
             # below.
             dna.make(rawDnaGroup, theSequence, basesPerTurn, position)
-            
+        
             # Now group the DNA atoms based on the grouping option selected
             # (i.e. "Strand chunks" or "Single Chunk").
             # Note: We regroup <rawDnaGroup> so that both atomistic and PAM5
@@ -245,6 +245,7 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
                 dnaGroup = self._makePAM5StrandAndAxisChunks(rawDnaGroup)
             else:
                 raise PluginBug("Unknown model: %r" % (dnaModel))
+                return None
             
             if chunkOption == 'Single chunk':
                 return self._makeDuplexChunk(dnaGroup)
@@ -320,8 +321,8 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
                     try:
                         ch = properties['Complement']
                     except (KeyError):
+                        raise KeyError("DNA dictionary doesn't have a 'Complement' key for '%r'." % ch)
                         ch = 'N'
-                        raise KeyError("DNA dictionary entry must include a 'Complement' key.")
             elif ch in self.validSymbols: #'\ \t\r\n':
                 ch  =  ''
             else:              
@@ -469,71 +470,48 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
         @rtype:  L{Group}
         """
         
-        # ninad070426: Implementation Notes: 
-        # It takes one chunk from the supplied group and
-        # scans through the atoms of that chunk. If it finds a 'Sugar' or an 
-        # 'Axis' element, it makes new chunk for set of atoms 'really connected'
-        # to that 'Sugar element' or 'Axis Element'. Thus we get three chunks. 
-        # This may be optimized in future. Ok for now. 
-                
-        mol = rawDnaGroup.members[0]
+        startBasePair = rawDnaGroup.members[0]
         
-        if not isinstance(mol, molecule):
-                env.history.message(
-                    redmsg(
-                        "Internal error in creating a chunks for strands and axis"
-                    ))
-                return 
+        if not isinstance(startBasePair, molecule):
+            env.history.message(redmsg(
+                "Internal error in creating a chunks for strands and axis"
+                ))
+            return rawDnaGroup
         
-        axis_elements = ('Ax','Ae')   
+        # <startAtoms> are the PAM5 atoms that start StrandA, StrandB and Axis.
+        # If the sequence is a single base, then we have 2 Pe atoms (one for 
+        # strandA and one for StrandB.
+        (sequence, allKnown) = self._getSequence()
+        if len(sequence) == 1:
+            startAtoms = ("Pe", "Ae")
+        else:
+            startAtoms = ("Pe", "Sh", "Ae")
         
-        #ninad070426: Each strand will have a sugar element. So don't include Phosphates
-        #in this list. This way the program will only stop at a sugar element 
-        #(in the 5 atom psudo atom model), then get the list of 
-        #'really connected atoms'and then create a new chunk from this list, and
-        #assdin it the name (either strand1 or strand2) 
-        
-        strand_sugar_elements = ('Ss','Sj','Sh', 'Hp')
-        
-        #chunkCounter make sures to exit out of this method once all three 
-        #chunks are created program 
-        chunkCounter  =   0 
-        strandLetter  =  "A"
+        Pe_count = 0
         tempList      =  []
-         
-        for m in rawDnaGroup.members[1:]:
-            if isinstance(m, molecule):
-                for atm in m.atoms.values():  
-                    if atm.element.symbol in axis_elements or \
-                       atm.element.symbol in strand_sugar_elements:                        
-                        tempList.append(atm)
-                        atomList = self.win.assy.getConnectedAtoms(tempList)
-                        tempList = []     
-                        
-                        if atm.element.symbol in axis_elements:
-                            axisChunk = self._makeChunkFromAtomList(atomList)
-                            axisChunk.name = self._getStrandName(2)
-                        elif atm.element.symbol in strand_sugar_elements:
-                            if strandLetter == "A":
-                                # We assume that the first sugar atom found is in strand A.
-                                # This is probably a bad assumption. Need a deterministic
-                                # method for correctly naming strand A. Mark 2007-08-19.
-                                strandAChunk = self._makeChunkFromAtomList(atomList)
-                                strandAChunk.name = self._getStrandName(0)
-                                strandLetter = 'B'
-                            elif strandLetter == "B":
-                                strandBChunk = self._makeChunkFromAtomList(atomList)
-                                strandBChunk.name = self._getStrandName(1)
-                            else:
-                                # Not sure what type of error to call it.
-                                # (where is a list to choose from?) --Mark
-                                raise "Error in _makePAM5StrandAndAxisChunks()"
-                        
-                        chunkCounter +=1
-                        
-                if chunkCounter > 3:
-                    print "Dna Generator: internal error in generating strand-axis chunk dna"
-                    return
+        
+        for atm in startBasePair.atoms.values():  
+            if atm.element.symbol in startAtoms:                        
+                tempList.append(atm)
+                atomList = self.win.assy.getConnectedAtoms(tempList)
+                tempList = []
+                if atm.element.symbol == "Pe":
+                    Pe_count += 1
+                    if Pe_count == 1:
+                        strandAChunk = self._makeChunkFromAtomList(atomList)
+                        strandAChunk.name = self._getStrandName(0)
+                        first_Pe_found = True
+                    else: # Pe_count == 2
+                        # Only happens if the user entered a single letter
+                        # for the sequence.
+                        strandBChunk = self._makeChunkFromAtomList(atomList)
+                        strandBChunk.name = self._getStrandName(1)
+                elif atm.element.symbol == "Sh":
+                    strandBChunk = self._makeChunkFromAtomList(atomList)
+                    strandBChunk.name = self._getStrandName(1)
+                elif atm.element.symbol == "Ae":
+                    axisChunk = self._makeChunkFromAtomList(atomList)
+                    axisChunk.name = self._getStrandName(2)
         
         # Place strand and axis chunks in this order: StrandA, StrandB, Axis.
         rawDnaGroup.addmember(strandAChunk)
