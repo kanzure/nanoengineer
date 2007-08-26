@@ -1555,16 +1555,21 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         """
         [private method]
         
-        Called whenever the tripleClickTimer expires.
+        This method is called whenever the tripleClickTimer expires.
         """
-        self.tripleClick = False
+        return
      
     def mouseTripleClickEvent(self, event):
         """
         Triple-click event handler for the L{GLPane}.
         
+        Code can check I{self.tripleClick} to determine if an event is a
+        triple click.
+        
         @param event: A Qt mouse event.
         @type  event: U{B{QMouseEvent}<http://doc.trolltech.com/4/qmouseevent.html>}
+        
+        @see: L{ops_connected_Mixin.getConnectedAtoms()} for an example of use.
         """
         # Implementation: We start a <tripleClickTimer> (a single shot timer)
         # whenever we get a double-click mouse event, but only if there is no 
@@ -1576,6 +1581,10 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         # We then set instance variable <tripleClick> to True and send the 
         # event to mouseDoubleClickEvent(). After mouseDoubleClickEvent() 
         # processes the event and returns, we reset <tripleClick> to False.
+        # Code can check <tripleClick> to determine if an event is a
+        # triple click.
+        #
+        # For an example, see ops_connected_Mixin.getConnectedAtoms()
         #
         # Note: This does not fully implement a triple-click event handler
         # (i.e. include mode.left/middle/rightTriple() methods),
