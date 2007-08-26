@@ -41,7 +41,7 @@ from debug import print_compact_traceback
 
 from platform           import find_plugin_dir
 from files_mmp          import _readmmp
-from VQT                import A, V, vlen
+from VQT                import V
 from chem               import Atom
 from bonds              import inferBonds, bond_atoms
 from fusechunksMode     import fusechunksBase
@@ -49,7 +49,7 @@ from HistoryWidget      import orangemsg
 from GeneratorBaseClass import PluginBug
 from Utility            import Group
 
-from Dna_Constants import basesDict
+from Dna_Constants import basesDict, dnaDict
 from Dna_Constants import PAM5_AtomList # Used only if INSERT_FROM_MMP = False
 
 from chunk         import molecule #@ For insertBaseFromAtomList.
@@ -294,7 +294,7 @@ class Dna:
             theta = 0.0
             z     = 0.5 * self.baseRise * (len(sequence) - 1)
             
-            strandB = self.complementSequence(sequence)
+            strandB = self.getComplementSequence(sequence)
             for i in range(len(sequence)):
                 # The 3'-to-5' direction is reversed for strand B.
                 currentBaseLetter = strandB[i]
@@ -366,7 +366,7 @@ class Dna:
         """
         self.baseRise  =  inBaseRise
         
-    def complementSequence(self, inSequence):
+    def getComplementSequence(self, inSequence):
         """
         Returns the complement DNA sequence.
         
@@ -386,7 +386,7 @@ class Dna:
             outSequence += baseLetter
         return outSequence
         
-    def reverseSequence(self, inSequence):
+    def getReverseSequence(self, inSequence):
         """
         Reverses the order of the DNA sequence I{inSequence}.
         
@@ -431,7 +431,7 @@ class A_Dna(Dna):
     """
     form       =  "A-DNA"
     model      =  "Atomistic"
-    baseRise   =  3.391 # WRONG
+    baseRise   =  dnaDict['A-DNA']['DuplexRise']
     handedness =  RIGHT_HANDED
     
     def _strandAinfo(self, sequence, index):
@@ -460,7 +460,7 @@ class B_Dna(Dna):
     """
     form       =  "B-DNA"
     model      =  "Atomistic"
-    baseRise   =  3.391        # Angstroms
+    baseRise   =  dnaDict['B-DNA']['DuplexRise']
     handedness =  RIGHT_HANDED
     
     def _strandAinfo(self, baseLetter, index):
@@ -500,8 +500,6 @@ class B_Dna_PAM5(B_Dna):
     Provides a PAM-5 reduced model of the B form of DNA.
     """
     model      =  "PAM5"
-    baseRise   =  3.18         # Angstroms
-    handedness =  RIGHT_HANDED
     
     def _isStartPosition(self, index):
         """
@@ -611,8 +609,8 @@ class Z_Dna(Dna):
     
     form       =  "Z-DNA"
     model      =  "Atomistic"
-    baseRise   =  3.715        # Angstroms
-    handedness =  LEFT_HANDED    
+    baseRise   =  dnaDict['Z-DNA']['DuplexRise']
+    handedness =  LEFT_HANDED
 
     def _strandAinfo(self, baseLetter, index):
         """

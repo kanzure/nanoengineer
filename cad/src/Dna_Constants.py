@@ -39,7 +39,7 @@ basesDict = { 'A':{'Name':'Adenine',    'Complement':'T',  'Basename':'Adenine' 
               'W':{'Name':'A or T (Weak - 2H bonds)',    'Complement':'S', 'Basename':''} }
 
 dnaDict = { 'A-DNA':{'DuplexRise':3.391},
-            'B-DNA':{'DuplexRise':3.391},
+            'B-DNA':{'DuplexRise':3.18},
             'Z-DNA':{'DuplexRise':3.715} }
  
 # PAM5_AtomList contains the all PAM-5 base-pair atoms needed to construct any

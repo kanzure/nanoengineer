@@ -146,10 +146,10 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
         self._pmGroupBox1 = PM_GroupBox( self, title = "Strand Sequence" )
         self._loadGroupBox1( self._pmGroupBox1 )
         
-        self._pmGroupBox2 = PM_GroupBox( self, title = "Representation" )
+        self._pmGroupBox2 = PM_GroupBox( self, title = "DNA Parameters" )
         self._loadGroupBox2( self._pmGroupBox2 )
         
-        self._pmGroupBox3 = PM_GroupBox( self, title = "DNA Form" )
+        self._pmGroupBox3 = PM_GroupBox( self, title = "End Points" )
         self._loadGroupBox3( self._pmGroupBox3 )
         
     def _loadGroupBox1(self, pmGroupBox):
@@ -197,16 +197,6 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
         except:
             defaultBaseChoice = 0
 
-        """
-        self.newBaseChoiceComboBox  = \
-            PM_ComboBox( pmGroupBox,
-                         label         =  "New Bases Are :", 
-                         choices       =  newBaseChoices, 
-                         index         =  defaultBaseChoice,
-                         setAsDefault  =  True,
-                         spanWidth     =  False )
-                         """
-
         # Strand Sequence
         self.sequenceTextEdit = \
             PM_TextEdit( pmGroupBox, 
@@ -241,7 +231,7 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
                       SIGNAL("currentIndexChanged(int)"),
                       self.actionsComboBoxChanged )
 
-    def _loadGroupBox2( self, pmGroupBox ):
+    def _loadGroupBox2_OBS( self, pmGroupBox ):
         """
         Load widgets in group box 2.
         """
@@ -273,9 +263,9 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
                          setAsDefault  =  True,
                          spanWidth     =  False )
     
-    def _loadGroupBox3( self, pmGroupBox ):
+    def _loadGroupBox2( self, pmGroupBox ):
         """
-        Load widgets in group box 3.
+        Load widgets in group box 2.
         """
         
         self.conformationComboBox  = \
@@ -293,7 +283,88 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
                          label         =  "Bases Per Turn :", 
                          choices       =  ["10.0", "10.5", "10.67"],
                          setAsDefault  =  True)
+        
+        # I may decide to reintroduce "base-pair chunks" at a later time.
+        # Please talk to me if you have a strong feeling about including
+        # this. Mark 2007-08-19.
+        createChoices        =  ["Single chunk", \
+                                 "Strand chunks" ]
+                                 #@ "Base-pair chunks"] 
+                                 
+        self.createComboBox  = \
+            PM_ComboBox( pmGroupBox,
+                         label         =  "Create :", 
+                         choices       =  createChoices, 
+                         index         =  0,
+                         setAsDefault  =  True,
+                         spanWidth     =  False )
     
+    def _loadGroupBox3(self, pmGroupBox):
+        """
+        Load widgets in group box 3.
+        """
+        # Point 1
+        self.x1SpinBox  =  \
+            PM_DoubleSpinBox( pmGroupBox,
+                              label         =  "X1: ",
+                              value         =  0,
+                              setAsDefault  =  True,
+                              minimum       =  -100.0,
+                              maximum       =   100.0,
+                              decimals      =  3,
+                              suffix        =  ' Angstroms')
+        
+        self.y1SpinBox  =  \
+            PM_DoubleSpinBox( pmGroupBox,
+                              label         =  "Y1: ",
+                              value         =  0,
+                              setAsDefault  =  True,
+                              minimum       =  -100.0,
+                              maximum       =   100.0,
+                              decimals      =  3,
+                              suffix        =  ' Angstroms')
+        
+        self.z1SpinBox  =  \
+            PM_DoubleSpinBox( pmGroupBox,
+                              label         =  "Z1: ",
+                              value         =  0,
+                              setAsDefault  =  True,
+                              minimum       =  -100.0,
+                              maximum       =   100.0,
+                              decimals      =  3,
+                              suffix        =  ' Angstroms')
+        
+        # Point 2
+        self.x2SpinBox  =  \
+            PM_DoubleSpinBox( pmGroupBox,
+                              label         =  "X2: ",
+                              value         =  10.0,
+                              setAsDefault  =  True,
+                              minimum       =  -100.0,
+                              maximum       =   100.0,
+                              decimals      =  3,
+                              suffix        =  ' Angstroms')
+        
+        self.y2SpinBox  =  \
+            PM_DoubleSpinBox( pmGroupBox,
+                              label         =  "Y2: ",
+                              value         =  0,
+                              setAsDefault  =  True,
+                              minimum       =  -100.0,
+                              maximum       =   100.0,
+                              decimals      =  3,
+                              suffix        =  ' Angstroms')
+        
+        self.z2SpinBox  =  \
+            PM_DoubleSpinBox( pmGroupBox,
+                              label         =  "Z2: ",
+                              value         =  0,
+                              setAsDefault  =  True,
+                              minimum       =  -100.0,
+                              maximum       =   100.0,
+                              decimals      =  3,
+                              suffix        =  ' Angstroms')
+        
     def _addWhatsThisText( self ):
         """
         What's This text for some of the widgets in the 
@@ -334,9 +405,6 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
         
         self.actionsComboBox.setWhatsThis("""<b>Action</b>
         <p>Select an action to perform on the sequence.</p>""")
-        
-        self.modelComboBox.setWhatsThis("""<b>Model</b>
-        <p>Determines the type of DNA model that is generated.</p> """)    
         
     def conformationComboBoxChanged( self, inIndex ):
         """
@@ -410,35 +478,10 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
         #@@@ self.newBaseChoiceComboBox.clear() # Generates signal!
         self.conformationComboBox.clear() # Generates signal!
         
-        if conformation == self._modeltype_Reduced:
-            """
-            self.newBaseChoiceComboBox.addItem("N (aNy base)")
-            self.newBaseChoiceComboBox.addItem("A (Adenine)" )
-            self.newBaseChoiceComboBox.addItem("C (Cytosine)")
-            self.newBaseChoiceComboBox.addItem("G (Guanine)" ) 
-            self.newBaseChoiceComboBox.addItem("T (Thymine)" )
-            """
-
-            #self.valid_base_letters = "NATCG"
-            
+        if conformation == self._modeltype_Reduced:            
             self.conformationComboBox.addItem("B-DNA")
             
-        elif conformation == self._modeltype_Atomistic:
-            """
-            self.newBaseChoiceComboBox.addItem("N (random)")
-            self.newBaseChoiceComboBox.addItem("A")
-            self.newBaseChoiceComboBox.addItem("T")  
-            self.newBaseChoiceComboBox.addItem("C")
-            self.newBaseChoiceComboBox.addItem("G")
-            """
-            
-        # Removed. :jbirac: 20070630
-            #self.valid_base_letters = "NATCG"
-                #bruce 070518 added N, meaning a randomly chosen base.
-                # This makes several comments/docstrings in other places 
-                # incorrect (because they were not modular), but I didn't 
-                # fix them.
-            
+        elif conformation == self._modeltype_Atomistic:            
             self.conformationComboBox.addItem("B-DNA")
             self.conformationComboBox.addItem("Z-DNA")
         

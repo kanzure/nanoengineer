@@ -16,7 +16,7 @@ Mark 2007-08-23:
 """
 
 # To do:
-# 1) Use endpoint and vector to create an arbitrarily positioned duplex.
+# 1) Use two endpoints to create an arbitrarily positioned duplex.
 # 2) Remove support for Atomistic DNA models.
 
 __author__ = "Will"
@@ -27,8 +27,9 @@ import random
 
 from Utility        import Group
 from HistoryWidget  import redmsg, orangemsg, greenmsg
-from VQT            import A, V, vlen
+from VQT            import A, Q, V, angleBetween, cross, vlen
 from Numeric        import dot
+from math           import pi
 from bonds          import inferBonds, bond_atoms
 from chunk          import molecule
 from constants      import gensym    
@@ -41,7 +42,7 @@ from Dna            import Dna
 from Dna            import A_Dna, A_Dna_PAM5
 from Dna            import B_Dna, B_Dna_PAM5
 from Dna            import Z_Dna, Z_Dna_PAM5
-from Dna            import DEBUG, DEBUG_SEQUENCE
+from Dna            import DEBUG_SEQUENCE
 from Dna            import basepath, basepath_ok
 
 from GeneratorBaseClass          import GeneratorBaseClass, PluginBug, UserError
@@ -66,9 +67,9 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
         GeneratorBaseClass.__init__(self, win)
         self._random_data = []
     
-    ###################################################
+    # ##################################################
     # How to build this kind of structure, along with
-    # any necessary helper functions
+    # any necessary helper functions.
 
     def change_random_seed(self):
         if DEBUG_SEQUENCE:
@@ -104,10 +105,10 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
         basesPerTurnString = str(self.basesPerTurnComboBox.currentText())
         basesPerTurn = float(basesPerTurnString)
         
-        dnaModel = str(self.modelComboBox.currentText())
+        #@dnaModel = str(self.modelComboBox.currentText())
+        dnaModel = "PAM5"
         
-        if (dnaModel == 'Reduced'):
-            dnaModel = 'PAM5'
+        if (dnaModel == 'PAM5'):
             chunkOption = str(self.createComboBox.currentText())
             resolve_random = False
                 # Later this flag may depend on a new checkbox in that case;
@@ -133,13 +134,22 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
 
         if (dnaModel == 'PAM5' and dnaType == 'Z-DNA'):
             raise PluginBug("Z-DNA not implemented for 'PAM-5 reduced model'. Use B-DNA.")
+        
+        x1 = self.x1SpinBox.value()
+        y1 = self.y1SpinBox.value()
+        z1 = self.z1SpinBox.value()
+        
+        x2 = self.x2SpinBox.value()
+        y2 = self.y2SpinBox.value()
+        z2 = self.z2SpinBox.value()
 
         return (dnaSequence, 
                 atcgnSequence,
                 dnaType,
                 basesPerTurn,
                 dnaModel,
-                chunkOption)
+                chunkOption,
+                x1, y1, z1, x2, y2, z2)
     
     def checkParameters( self, inParams ):
         """
@@ -186,7 +196,8 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
         dnaType, \
         basesPerTurn, \
         dnaModel, \
-        chunkOption = params
+        chunkOption, \
+        x1, y1, z1, x2, y2, z2 = params
         
         if len(theSequence) < 1: # Mark 2007-06-01
             msg = redmsg("You must enter a strand sequence to preview/insert DNA")
@@ -201,8 +212,6 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
             env.history.message(self.cmd + "This may take a moment...")
             
         # Instantiate the DNA subclass (based on dnaModel and conformation).
-        
-        dnaParams = (theSequence, chunkOption, basesPerTurn)
             
         if (dnaModel == 'Atomistic'):
             if dnaType == 'A-DNA':
@@ -232,6 +241,10 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
             # is resolved when we regroup the atoms into strand chunks
             # below.
             dna.make(rawDnaGroup, theSequence, basesPerTurn, position)
+            
+            pt1 = V(x1, y1, z1)
+            pt2 = V(x2, y2, z2)
+            self._orientRawDnaGroup(rawDnaGroup, pt1, pt2)
         
             # Now group the DNA atoms based on the grouping option selected
             # (i.e. "Strand chunks" or "Single Chunk").
@@ -256,7 +269,62 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
             rawDnaGroup.kill()
             raise PluginBug("Internal error while trying to create DNA duplex.")
             return None
+        
+    def _orientRawDnaGroup(self, rawDnaGroup, pt1, pt2):
+        """
+        Orients the raw DNA group based on two endpoints.
+        
+        @param rawDnaGroup: The raw DNA group created by make().
+        @type  rawDnaGroup: L{Group}
+        
+        @param pt1: The first endpoint of the DNA strand.
+        @type  pt1: L{V}
+        
+        @param pt2: The second endpoint of the DNA strand.
+        @type  pt2: L{V}
+        
+        @attention: Only works for PAM5 models.
+        """
+        a = V(0.0, 0.0, -1.0)
+        bLine = pt2 - pt1
+        bLength = vlen(bLine)
+        b = bLine/bLength
+        axis = cross(a, b)
+        theta = angleBetween(a, b)
+        scalar = self.dna.getBaseRise() * self._getSequenceLength() * 0.5
+        rawOffset = b * scalar
+        
+        if 0:
+            print ""
+            print "uVector  a = ", a
+            print "uVector  b = ", b
+            print "cross(a,b) =", axis
+            print "theta      =", theta
+            print "baserise   =", self.dna.getBaseRise()
+            print "seqLength  =", self._getSequenceLength()
+            print "scalar     =", scalar
+            print "rawOffset  =", rawOffset
+        
+        if theta == 0.0 or theta == 180.0:
+            axis = V(0, 1, 0)
+            print "Now cross(a,b) =", axis
+            
+        dy =  (pi / 180.0) * theta  # Convert to radians
+        qrot = Q(axis, dy) # Quat for rotation delta.
+        
+        # Rotate and move the base chunks 
+        for m in rawDnaGroup.members:
+            m.move(qrot.rot(m.center) - m.center + rawOffset + pt1)
+            m.rot(qrot)
 
+    def _getSequenceLength(self):
+        """
+        Returns the number of bases of the current sequence
+        (from the Property Manager).
+        """
+        (sequence, allKnown) = self._getSequence()
+        return len(sequence)
+    
     def _getSequence( self, 
                       reverse = False, 
                       complement = False, 
@@ -331,11 +399,11 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
             sequence += ch
 
         if reverse: 
-            sequence = self.reverseSequence(sequence)
+            sequence = self.getReverseSequence(sequence)
         
         return (sequence, allKnown)
     
-    def reverseSequence(self, inSequence):
+    def getReverseSequence(self, inSequence):
         """
         Reverses the order of the DNA sequence I{inSequence}.
         
@@ -481,8 +549,7 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
         # <startAtoms> are the PAM5 atoms that start StrandA, StrandB and Axis.
         # If the sequence is a single base, then we have 2 Pe atoms (one for 
         # strandA and one for StrandB.
-        (sequence, allKnown) = self._getSequence()
-        if len(sequence) == 1:
+        if self._getSequenceLength() == 1:
             startAtoms = ("Pe", "Ae")
         else:
             startAtoms = ("Pe", "Sh", "Ae")
@@ -546,7 +613,7 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
             # leave the moved atoms picked, so still visible
             a.hopmol(newChunk)
         return newChunk   
-                               
+    
     ###################################################
     # The done message
 
