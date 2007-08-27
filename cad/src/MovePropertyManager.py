@@ -19,6 +19,12 @@ TRANSLATE = 1
 ROTATE = 2
 
 class MovePropertyManager(Ui_MovePropertyManager):
+    """
+    The MovePropertyManager class provides a Property Manager 
+    for the "Move > Translate / Rotate Components  commands. It also 
+    serves as a superclass for FusePropertyManager
+    """
+    
     # The current move mode (either TRANSLATE or ROTATE).
     _currentMoveMode = TRANSLATE 
         
@@ -241,7 +247,7 @@ class MovePropertyManager(Ui_MovePropertyManager):
         #Store the last checked button of the groupbox you are about to close
         #(in this case Rotate Groupbox is the groupbox that will be deactivated 
         #and Move groupbox will be activated (opened) ) 
-        lastCheckedRotateButton = self.freeDragRotateButtonGroup.checkedButton()        
+        lastCheckedRotateButton = self.freeDragRotateButtonGroup.checkedButton()
         self.setLastCheckedRotateButton(lastCheckedRotateButton)     
         
         #Disconnect checked button in Rotate Components groupbox
@@ -392,7 +398,7 @@ class MovePropertyManager(Ui_MovePropertyManager):
                 lbl.show()
         elif rotateOption == 'ROTATEY':
             listy = [self.rotateYLabelRow]
-            listxz =[self.rotateXLabelRow, self.rotateZLabelRow]
+            listxz = [self.rotateXLabelRow, self.rotateZLabelRow]
             for lbl in listy :
                 lbl.setBold(True)     
                 lbl.show()
@@ -436,8 +442,9 @@ class MovePropertyManager(Ui_MovePropertyManager):
         Handles the keypress events specific to the widgets insied this 
         Property Manager. 
         @param key: Keyboard key pressed
-        @type  key: enum Qt.Key L{http://doc.trolltech.com/4.2/qt.html#Key-enum}
-        @see: B{modifyMode.keyPress} where this method is called. 
+        @type  key: enum  U{B{Qt.Key} 
+                    <http://doc.trolltech.com/4.2/qt.html#Key-enum>}
+        @see: L{modifyMode.keyPress} where this method is called. 
         """
         if self.isTranslateGroupBoxActive:
             if key == Qt.Key_F:
@@ -487,9 +494,10 @@ class MovePropertyManager(Ui_MovePropertyManager):
         Change the translate option. 
         
         @param button: QToolButton that decides the type of translate operation 
-        to be set.
+                       to be set.
         @type  button: QToolButton 
-                       L{http://doc.trolltech.com/4.2/qtoolbutton.html}
+                       U{B{QToolButton}
+                       <http://doc.trolltech.com/4.2/qtoolbutton.html>}
         
         """
                 
@@ -506,9 +514,10 @@ class MovePropertyManager(Ui_MovePropertyManager):
         Change the rotate option. 
         
         @param button: QToolButton that decides the type of rotate operation 
-        to be set.
+                       to be set.
         @type  button: QToolButton 
-                       L{http://doc.trolltech.com/4.2/qtoolbutton.html}
+                       U{B{QToolButton}
+                       <http://doc.trolltech.com/4.2/qtoolbutton.html>}
         """  
         
         buttonText = str(button.text())
@@ -616,11 +625,11 @@ class MovePropertyManager(Ui_MovePropertyManager):
         if self._currentMoveMode == TRANSLATE:
             msg += "Translate the current selection by holding down the \
                 left mouse button (<b>LMB</b>) and dragging the cursor. \
-                Translation options are availabe below."
+                Translation options are available below."
         else:
             msg += "Rotate the current selection by holding down the \
                 left mouse button (<b>LMB</b>) and dragging the cursor. \
-                Rotate options are availabe below."
+                Rotate options are available below."
 
         self.MessageGroupBox.insertHtmlMessage( msg, setAsDefault  =  True )
         
