@@ -327,14 +327,8 @@ class GeneratorBaseClass:
             self.accept()
         self.struct = None
         
-        # Close property manager
-        ###REVIEW: I think this does not belong in this class
-        # [bruce 070615 comment]
-        if self.pw:
-            self.pw.featureManager.setCurrentIndex(0)
-            self.pw.featureManager.removeTab(
-                self.pw.featureManager.indexOf(self) )
-            self.pw = None
+        # Close property manager. Fixes bug 2524.
+        self.close()
                     
         return
 
@@ -519,14 +513,8 @@ class GeneratorBaseClass:
         self._revert_number()
         self.reject()
         
-        # Close property manager
-        ###REVIEW: I think this does not belong in this class
-        # [bruce 070615 comment]
-        if self.pw:
-            self.pw.featureManager.setCurrentIndex(0)
-            self.pw.featureManager.removeTab(
-                self.pw.featureManager.indexOf(self.pw.propertyManagerScrollArea) )
-            self.pw = None 
+        # Close property manager. Fixes bug 2524.
+        self.close()
             
         return
 
