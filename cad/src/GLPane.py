@@ -1598,10 +1598,13 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         # See: mouseDoubleClickEvent(), mousePressEvent(), _tripleClickTimeout()
         
         #print "Got TRIPLE-CLICK"
-        self.tripleClick = True            
-        self.mouseDoubleClickEvent(event)
-        self.tripleClick = False
-        
+        self.tripleClick = True
+        try:
+            self.mouseDoubleClickEvent(event)
+        finally:
+            self.tripleClick = False
+        return
+    
     def mouseDoubleClickEvent(self, event):
         """
         Double-click event handler for the L{GLPane}.
