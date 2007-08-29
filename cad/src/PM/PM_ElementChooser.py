@@ -128,6 +128,7 @@ class PM_ElementChooser( PM_GroupBox ):
         self._updateElementViewer()
         self._addElementsGroupBox(self)
         self._addAtomTypesGroupBox(self)
+        self.connect_disconnect_signals(True)
         
     def _addElementsGroupBox(self, inPmGroupBox):
         """
@@ -198,7 +199,7 @@ class PM_ElementChooser( PM_GroupBox ):
                 if atomType == elementAtomTypes[0]:
                     # Select the first atomType button.
                     button.setChecked(True)
-                    self.atomType = atomType
+                    self.atomType = atomType                    
             else:
                 button.hide()
                 
@@ -285,4 +286,15 @@ class PM_ElementChooser( PM_GroupBox ):
         self.elementViewer.resetView()                
         self.elementViewer.changeHybridType(self.atomType)        
         self.elementViewer.refreshDisplay(self.element, diTUBES)
+    
+    def connect_disconnect_signals(self, connect):
+        """
+        """
+        if connect:
+            change_connect = self.connect
+        else:
+            change_connect = self.disconnect
+        
+        
+            
         
