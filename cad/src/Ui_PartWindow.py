@@ -21,6 +21,19 @@ import platform, env
 from PropMgrBaseClass import printSizePolicy, printSizeHints, getPalette
 from debug import print_compact_traceback #bruce 070627 bugfix
 
+class _FeatureManager(QTabWidget): #bruce 070829 made this subclass re bug 2522
+    def KLUGE_setGLPane(self, glpane):
+        self._glpane = glpane
+        return
+    def removeTab(self, index):
+        res = QTabWidget.removeTab(self, index)
+            # note: AFAIK, res is always None
+        if index != -1: # -1 happens!
+            glpane = self._glpane
+            glpane.gl_update_confcorner() # fix bug 2522 (try 2)
+        return res
+    pass
+
 class PartWindow(QWidget):
     """A part window composed of the model tree/property manager (tabs)
     on the left (referred to as the "left channel") and the glpane
@@ -79,7 +92,12 @@ class PartWindow(QWidget):
         # Feature Manager - the QTabWidget that contains the MT and PropMgr.
 	# I'll rename this later since this isn't a good name. It is also
 	# used in other files. --Mark
-        self.featureManager = QTabWidget()
+	#
+	# Note [bruce 070829]: to fix bug 2522 I need to intercept
+	# self.featureManager.removeTab, so I made it a subclass of QTabWidget.
+	# It needs to know the GLPane, but that's not created yet, so we set
+	# it later using KLUGE_setGLPane (below).
+        self.featureManager = _FeatureManager() # a superclass of QTabWidget
 	self.featureManager.setObjectName("featureManager")
         self.featureManager.setCurrentIndex(0)
 	self.featureManager.setAutoFillBackground(True)
@@ -134,6 +152,7 @@ class PartWindow(QWidget):
 	
 	# Create the glpane and make it a child of the (vertical) splitter.
         self.glpane = GLPane(assy, self, 'glpane name', parent)
+        self.featureManager.KLUGE_setGLPane(self.glpane) # help fix bug 2522 [bruce 070829]
 	qt4warnDestruction(self.glpane, 'GLPane of PartWindow')
         pwVSplitter.addWidget(self.glpane)
 			
@@ -250,9 +269,16 @@ class PartWindow(QWidget):
         # there is no longer a tab for the PM. As part of fixing bug 2523
         # we have to avoid returning it in that case. How we do that is a kluge,
         # but hopefully this entire kluge function can be dispensed with soon.
-        # This change also fixes bug 2522.
+        # This change also fixes bug 2522 on the Mac (but not on Windows --
+        # for that, we needed to intercept removeTab in separate code above).
         index = self.featureManager.indexOf(self.propertyManagerScrollArea)
         if index == -1:
+            return None
+        # Due to bugs in other code, sometimes the PM tab is left in place,
+        # though the PM itself is hidden. To avoid finding the PM in that case,
+        # also check whether it's hidden. This will fix the CC part of a new bug
+        # just reported by Keith in email (when hitting Ok in DNA Gen).
+        if res.isHidden():
             return None
         return res
     
