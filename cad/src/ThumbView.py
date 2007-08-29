@@ -8,6 +8,7 @@ $Id$
 import math
 from Numeric import dot
 
+
 from OpenGL.GL import GL_NORMALIZE
 from OpenGL.GL import GL_SMOOTH
 from OpenGL.GL import glShadeModel
@@ -74,6 +75,8 @@ from constants import bluesky
 from constants import GL_FAR_Z
 from prefs_constants import bondpointHighlightColor_prefs_key
 
+from Utility import Group
+
 class ThumbView(QGLWidget):
     """A simple version of OpenGL widget, which can be used to show a simple thumb view of models when loading models or color changing. 
     General rules for multiple QGLWidget uses: make sure the rendering context is current. 
@@ -92,7 +95,18 @@ class ThumbView(QGLWidget):
                 print "Request of display list sharing is failed."
                 return
         else:  
-            QGLWidget.__init__(self, parent, name)  
+            QGLWidget.__init__(self, parent)  
+        
+        self.initialised = False
+        #@@@Add the QGLWidget to the parentwidget's grid layout. This is done 
+        #here for improving the loading speed. Needs further optimization and 
+        #a better place to put this code if possible. -- Ninad 20070827        
+        try:
+            parent.gridLayout.addWidget(self, 0,0,1,1)   
+        except:
+            print_compact_traceback("bug: Preview Pane's parent widget doesn't \
+            have a layout. Preview Pane not added to the layout.")
+            pass
         
         # point of view, and half-height of window in Angstroms
         self.pov = V(0.0, 0.0, 0.0)
@@ -112,7 +126,7 @@ class ThumbView(QGLWidget):
         self.far = 2.0  
         # start in perspective mode
         self.ortho = False #True
-        self.initialised = False
+        
         
         # default color and gradient values.
         self.backgroundColor = gray
@@ -155,6 +169,7 @@ class ThumbView(QGLWidget):
         return
     
     def initializeGL(self):
+                
         self._setup_lighting()
 
         glShadeModel(GL_SMOOTH)
@@ -693,7 +708,7 @@ class MMKitView(ThumbView):
         # (replaces a horribe kluge in old code which broke a fix to that bug)
 
     def __init__(self, parent, name, shareWidget = None):
-        ThumbView.__init__(self, parent, name, shareWidget)
+        ThumbView.__init__(self, parent, name, shareWidget)                
         self.scale = 2.0
         self.pos = V(0.0, 0.0, 0.0)
         self.model = None
@@ -712,11 +727,13 @@ class MMKitView(ThumbView):
         
     def drawModel(self):
         """The method for element drawing """
+        
         if self.model:
-           if isinstance(self.model, molecule):
-               self.model.draw(self, None)
-           else: ## assembly
-               self.model.draw(self)
+            if isinstance(self.model, molecule) or \
+               isinstance(self.model, Group):
+                self.model.draw(self, None)
+            else: ## assembly
+                self.model.draw(self)
 
    
     def refreshDisplay(self, elm, dispMode = diTrueCPK):
@@ -771,7 +788,6 @@ class MMKitView(ThumbView):
         atm.make_singlets_when_no_bonds()
         
         self.elementMode = True
-        
         return mol
     
 
@@ -861,9 +877,21 @@ class MMKitView(ThumbView):
         else: ## assembly
             part = self.model.part
             bbox = part.bbox
-        
         self.scale = bbox.scale() 
-        aspect = float(self.width) / self.height
+       
+        if isinstance(self.width, int):
+            width = self.width 
+        else:
+            width = float(self.width())
+        if isinstance(self.height, int):
+            height = self.height
+        else:
+            height = float(self.height()) 
+            
+        aspect = width / height
+        
+        
+        ##aspect = float(self.width) / self.height
         if aspect < 1.0:
            self.scale /= aspect
         center = bbox.center()
