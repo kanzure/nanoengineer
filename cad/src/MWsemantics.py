@@ -1125,8 +1125,16 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
     def editCopy(self):
         self.assy.copy_sel()
         self.win_update()
-
+    
     def editPaste(self):
+	
+        if self.assy.shelf.members:
+            env.history.message(greenmsg("Paste:"))
+	if self.glpane.mode.modename != "PASTE":
+	    self.glpane.prevMode = self.glpane.mode
+	    self.glpane.setMode('PASTE', suspend_old_mode = True)
+
+    def editPasteORIG(self):
         if self.assy.shelf.members:
             env.history.message(greenmsg("Paste:"))
 	    if self.glpane.mode.modename != "DEPOSIT":

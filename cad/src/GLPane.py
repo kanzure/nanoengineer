@@ -114,6 +114,7 @@ from fusechunksMode import fusechunksMode
 from selectMolsMode import selectMolsMode
 from selectAtomsMode import selectAtomsMode
 from depositMode import depositMode
+from PasteMode   import PasteMode
 from movieMode import movieMode
 from zoomMode import zoomMode
 from panMode import panMode
@@ -356,7 +357,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
     # class constants (needed by modeMixin):
     mode_classes = [selectMolsMode, selectAtomsMode, modifyMode, depositMode,
                     cookieMode, extrudeMode, fusechunksMode,
-                    movieMode, zoomMode, panMode, rotateMode]
+                    movieMode, zoomMode, panMode, rotateMode, PasteMode]
 
     always_draw_hotspot = False #bruce 060627; not really needed, added for compatibility with ThumbView.py
 

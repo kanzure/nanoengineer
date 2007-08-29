@@ -28,6 +28,7 @@ from GroupProp import GroupProp
 from VQT import V, Q
 from PartProp import PartProp
 
+
 debug_undoable_attrs = False
 
 def debug_pref_DND_drop_at_start_of_groups(): # not yet used, but will be
@@ -205,6 +206,80 @@ def imagename_to_icon(imagename): #bruce 050108
         _icons[imagename] = icon
         return icon
     pass
+
+
+#methods originally defined in depositMode.py -- to find pastable chunks
+#NEED CLEANUP ----- ninad 2007-08-29
+
+#bruce 050121 split out hotspot helper functions, for slightly more general use
+
+def is_pastable(obj): #e refile and clean up
+    "whether to include a clipboard object on Build's pastable spinbox"
+    #bruce 050127 make this more liberal, so it includes things which are
+    # not pastable onto singlets but are still pastable into free space
+    # (as it did before my changes of a few days ago)
+    # but always run is_pastable_onto_singlet in case it has a klugy bugfixing side-effect
+    return is_pastable_onto_singlet(obj) or is_pastable_into_free_space(obj)
+
+# these separate is_pastable_xxx functions make a distinction which might not yet be used,
+# but which should be used soon to display these kinds of pastables differently
+# in the model tree and/or spinbox [bruce 050127]:
+
+def is_pastable_into_free_space(obj):#bruce 050127
+    from chunk import molecule
+    return isinstance(obj, molecule) or isinstance(obj, Group)
+
+def is_pastable_onto_singlet(obj): #bruce 050121 (renamed 050127)
+    # this might have a klugy bugfixing side-effect -- not sure
+    ok, spot_or_whynot = find_hotspot_for_pasting(obj)
+    return ok
+
+def find_hotspot_for_pasting(obj):
+    """Return (True, hotspot) or (False, reason),
+    depending on whether obj is pastable in Build mode
+    (i.e. on whether a copy of it can be bonded to an existing singlet).
+    In the two possible return values,
+    hotspot will be one of obj's singlets, to use for pasting it
+    (but the one to actually use is the one in the copy made by pasting),
+    or reason is a string (for use in an error message) explaining why there isn't
+    a findable hotspot. For now, the hotspot can only be found for certain
+    chunks (class molecule), but someday it might be defined for certain
+    groups, as well, or anything else that can be bonded to an existing singlet.
+    """
+    #Note: method modified to support group pasting -- ninad 2007-08-29
+    from chunk import molecule
+    
+    if not (isinstance(obj, molecule) or isinstance(obj, Group)):
+        return False, "only chunks or groups can be pasted" #e for now    
+    if isinstance(obj, molecule):
+	ok, spot_or_whynot = findHotspot(obj)
+	return ok, spot_or_whynot
+    elif isinstance(obj, Group):
+	groupChunks = []
+	def func(node):
+	    if isinstance(node, molecule):
+		groupChunks.append(node)
+		
+	obj.apply2all(func)
+	
+	if len(groupChunks):
+	    for m in groupChunks:		
+		ok, spot_or_whynot = findHotspot(m)
+		if ok:
+		    return ok, spot_or_whynot
+	return False, "no hotspot in group's chunks"
+	
+    
+def findHotspot(obj):
+    from chunk import molecule    
+    if isinstance(obj, molecule):
+	if len(obj.singlets) == 0:
+	    return False, "no bondpoints in %r (only pastable in empty space)" % obj.name
+	elif len(obj.singlets) > 1 and not obj.hotspot:
+	    return False, "%r has %d bondpoints, but none has been set as its hotspot" % (obj.name, len(obj.singlets))
+	else:
+	    return True, obj.hotspot or obj.singlets[0]
+	
 
 # Unique id for all Nodes -- might generalize to other objects too.
 # Unlike python builtin id(node), this one will never be reused when an old node dies.
@@ -2575,19 +2650,15 @@ class ClipboardShelfGroup(Group):
         return False
     def description_for_history(self):
         """[overridden from Group method]"""
-        return "Clipboard"
-    def get_pastable_chunks(self): # mark 060305
-        '''Returns a list of all top-level pastable chunks in the clipboard,
-        excluding chunks that are members of another group.'''
-        pastable_chunks = []
-        from chunk import molecule
-        for m in self.members:
-            if isinstance(m, molecule):
-                pastable_chunks += [m]
-        
-        return pastable_chunks
+        return "Clipboard"    
+    def getPastables(self):
+        """
+        """
+        pastables = []
+        pastables = filter(is_pastable, self.members)
+        return pastables
+            
 
-    pass
 
 class RootGroup(Group):
     """A specialized Group for holding the entire model tree's toplevel nodes,

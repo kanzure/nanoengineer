@@ -1410,13 +1410,6 @@ def create_whats_this_descriptions_for_depositMode(w):
     "Create What's This descriptions for the deposit (Build) mode dashboard widgets."
     
     # Modeling Kit
-
-    mmkitText = "<u><b>Modeling Kit</b></u><br>"\
-                       "<p><img source=\"ui/actions/Properties Manager/MMKit.png\"><br> "\
-                       "Opens the Molecular Modeling Kit (MMKit)."\
-                       "</p>"
-
-    w.modifyMMKitAction.setWhatsThis(mmkitText )
         
     # Deposit (Atom) button
     

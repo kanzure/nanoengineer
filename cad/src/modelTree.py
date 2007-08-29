@@ -339,10 +339,6 @@ class modelTree(modelTreeGui.Ne1Model_api):
             # typically that gives a KeyError
             self.toggle_open(shelf_item, openflag = True)
             # toggle_open is defined in TreeView.py in the Qt 3 code
-        # I want to call the MMKit's change2ClipboardPage method.
-        mmkit = self.win.modifyMMKit()
-        mmkit.update_clipboard_items()
-        mmkit.change2ClipboardPage()
         if False:
             qt4here(show_traceback=True)
             def grep_dash_il(str, substr):
