@@ -224,16 +224,16 @@ class PartWindow(QWidget):
 				   
 	self.featureManager.setCurrentIndex(self.featureManager.indexOf(self.propertyManagerScrollArea))
 	
-    def KLUGE_current_PropertyManager(self): #bruce 070627
-        """Return the current Property Manager widget (whether or not its tab is showing),
-        or None if there is not one.
+    def KLUGE_current_PropertyManager(self): #bruce 070627; revised 070829 as part of fixing bug 2523
+        """Return the current Property Manager widget (whether or not its tab is
+        chosen, but only if it has a tab), or None if there is not one.
            WARNING: This method's existence (not only its implementation) is a kluge,
-        since the right way to access that would be by asking the "command stack";
+        since the right way to access that would be by asking the "command sequencer";
         but that's not yet implemented, so this is the best we can do for now.
         Also, it would be better to get the top command and talk to it, not its PM
         (a QWidget). Also, whatever calls this will be making assumptions about that PM
         which are really only the command's business. So in short, every call of this is
-        in need of cleanup once we have a working "command stack". (That's true of many
+        in need of cleanup once we have a working "command sequencer". (That's true of many
         things related to PMs, not only this method.)
            WARNING: The return values are (presumably) widgets, but they can also be mode objects
         and generator objects, due to excessive use of multiple inheritance in the current PM code.
@@ -241,12 +241,21 @@ class PartWindow(QWidget):
         and setting your own attrs in them might mess things up.
         """
         res = self.propertyManagerScrollArea.widget()
-        if hasattr(res, 'done_btn'):
-            return res
-        # not sure what widget this is otherwise, but it is one (rather than None) for the default mode,
-        # at least on startup, so just return None in this case
-        return None
-
+        if not hasattr(res, 'done_btn'):
+            # not sure what widget this is otherwise, but it is a widget
+            # (not None) for the default mode, at least on startup, so just
+            # return None in this case
+            return None
+        # Sometimes this PM remains present from a prior command, even when
+        # there is no longer a tab for the PM. As part of fixing bug 2523
+        # we have to avoid returning it in that case. How we do that is a kluge,
+        # but hopefully this entire kluge function can be dispensed with soon.
+        # This change also fixes bug 2522.
+        index = self.featureManager.indexOf(self.propertyManagerScrollArea)
+        if index == -1:
+            return None
+        return res
+    
     def dismiss(self):
         self.parent.removePartWindow(self)
 	

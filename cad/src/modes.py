@@ -421,7 +421,7 @@ class basicMode(anyMode):
     # confirmation corner methods [bruce 070405-070409, 070627]
 
     # Note: if we extend the conf. corner to "generators" in the short term,
-    # before the "command stack" is implemented, some of the following methods
+    # before the "command sequencer" is implemented, some of the following methods
     # may be revised to delegate to the "current generator" or its PM.
     # If so, when doing this, note that many modes currently act as their own PM widget.
 
@@ -457,7 +457,9 @@ class basicMode(anyMode):
                 button = getattr(pm, buttonname)
                 assert button
                 assert isinstance(button, QToolButton)
-                vis = button.isVisible()
+                vis = button.isVisibleTo(pm)
+                    # note: we use isVisibleTo(pm) rather than isVisible(),
+                    # as part of fixing bug 2523 [bruce 070829]
                 if vis:
                     res = button
                 else:
@@ -479,10 +481,11 @@ class basicMode(anyMode):
         """
         # What we do:
         # find the current PM (self or an active generator, at the moment -- very klugy),
-        # and ask which of these buttons are visible (rather than using self.haveNontrivialState()):
-        #   pm.done_btn.isVisible()
-        #   pm.abort_btn.isVisible().
-        ### TODO (in other code): also see if they can be used to perform the actions. They are QToolButtons.
+        # and ask which of these buttons are visible to it (rather than using self.haveNontrivialState()):
+        #   pm.done_btn.isVisibleTo(pm)
+        #   pm.abort_btn.isVisibleTo(pm).
+        # WE also use them to perform the actions (they are QToolButtons). KLUGE: we do this in
+        # other code which finds them again redundantly (calling the same kluge helper function).
         from debug_prefs import debug_pref, Choice_boolean_False
         if debug_pref("Conf corner test: use haveNontrivialState", Choice_boolean_False, prefs_key = True):
             # old code, works, but not correct for default mode or when generators active
@@ -1663,8 +1666,8 @@ class basicMode(anyMode):
         handler = self.o.mouse_event_handler # [bruce 070405]
             # Note: use of this attr here is a sign that this method really belongs in class GLPane,
             # and the glpane should decide whether to pass this update call to that attr's value or to the mode.
-            # Or, better, maybe the mouse_event_handler should be temporarily on top of the command stack,
-            # overriding the mode below it for some purposes.
+            # Or, better, maybe the mouse_event_handler should be temporarily on top of the command stack
+            # in the command sequencer, overriding the mode below it for some purposes.
             # [bruce 070628 comment]
         
         if handler is not None:
