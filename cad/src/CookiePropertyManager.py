@@ -13,7 +13,7 @@ class CookiePropertyManager(QtGui.QWidget,
                             Ui_CookiePropertyManager):
     
     # <title> - the title that appears in the property manager header.
-    title = "Build Cystal"
+    title = "Build Crystal"
     # <iconPath> - full path to PNG file that appears in the header.
     iconPath = "ui/actions/Tools/Build Structures/Build Crystal.png"
     
