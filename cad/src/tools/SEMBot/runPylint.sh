@@ -2,22 +2,23 @@
 
 # Usage: ./runPylint.sh &>Pylint.log
 
-# Create timestamp
-echo `date +"%a %b %e %T EDT %Y"` > Pylint.timestamp
-
 # Remove files used to check for command successes
 #rm -f NE1_Documentation/api-objects.txt
 
 # Run Pylint 
 pushd SVN-D/cad/src
 BATCH_NUMBER=0
+# Some files break Pylint, exclude them
+CAPITAL_T_STAR=`ls T*.py|grep -v TreeView.py|grep -v TreeWidget.py`
+PM_STAR=`ls PM/PM_*.py|grep -v PM_CheckBox|grep -v PM_Slider.py`
+# Run in batches
 for batch in \
   "a*.py A*.py b*.py B*.py c*.py C*.py d*.py D*.py e*.py E*.py f*.py F*.py" \
   "g*.py G*.py h*.py H*.py i*.py I*.py j*.py J*.py k*.py K*.py l*.py L*.py" \
   "m*.py M*.py n*.py N*.py o*.py O*.py p*.py P*.py q*.py Q*.py r*.py R*.py" \
-  "s*.py S*.py t*.py T*.py u*.py U*.py v*.py V*.py w*.py W*.py x*.py X*.py" \
+  "s*.py S*.py t*.py $CAPITAL_T_STAR u*.py U*.py v*.py V*.py w*.py W*.py x*.py X*.py" \
   "y*.py Y*.py z*.py Z*.py" \
-  "exprs/*.py" "PM/*.py"; do
+  "exprs/*.py" "$PM_STAR"; do
   echo Running batch $BATCH_NUMBER
   /usr/local/bin/pylint --rcfile=../../../Pylint.rcfile $batch
 

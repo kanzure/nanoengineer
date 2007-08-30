@@ -24,6 +24,15 @@ echo ${RESULT} > NE1_Docs.result
 # Run API documentation generation
 ./updateNE1_Documentation.sh &>NE1_Docs.log
 
+# Create the QA Test Harness timestamp
+echo `date +"%a %b %e %T EDT %Y"` > QA_TestHarness.timestamp
+
 # Run Pylint
 ./runPylint.sh &> Pylint.log
+if [ `grep -c Traceback Pylint.log` != 0 ]; then
+  RESULT="<font color=red>Failed</font>"
+else
+  RESULT=Success
+fi
+echo ${RESULT} > QA_TestHarness.result
 

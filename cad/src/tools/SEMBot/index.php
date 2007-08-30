@@ -123,7 +123,7 @@ Welcome to the Nanorex Software-Engineering Mechanisms Robot (SEMBot).
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">Logs</span></td>
     <td class="summary">
-      <span class="summary-name"><a href="QA_TestHarness.log">QA_TestHarness.log</a><br><a href="Pylint.log">Pylint.log</a></span></td>
+      <span class="summary-name"><!--<a href="QA_TestHarness.log">QA_TestHarness.log</a><br>--><a href="Pylint.log">Pylint.log</a></span></td>
   </tr>
 
   <tr>
