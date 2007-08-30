@@ -21,13 +21,15 @@ corresponding moduleName of "directory.Module".
 
 @author: Eric Messick
 @copyright: Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
-@version: $Id: $
+@version: $Id$
 """
 
 import os
 
 _dirsToExclude = set([
     "experimental",
+    "outtakes",
+    "scratch",
     ])
 """
 Directory names which will be excluded from the search.  These are
