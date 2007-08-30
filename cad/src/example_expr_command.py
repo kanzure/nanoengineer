@@ -1,7 +1,8 @@
 # Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 example_expr_command.py -- example of how to use an interactive graphics
-expr in a command (unfinished, so partly scratch code)
+expr in a command (unfinished, so partly scratch code); command and PM
+are each variants of ExampleCommand2's command and PM classes
  
 $Id$
 
@@ -13,11 +14,14 @@ in which it was called ExampleCommand2E
 
 # == PM class
 
-from test_command_PMs import ExampleCommand2E_PM #### TODO: pull in here
+from test_command_PMs import ExampleCommand2_PM
+
+class ExampleCommand2E_PM( ExampleCommand2_PM ):
+    """Property Manager for Example Command 2E"""
+    title = "Example Command 2E"
+    pass
 
 # == command class
-
-from test_commands import ExampleCommand2
 
 # these imports are not needed in a minimal example like ExampleCommand2:
 
@@ -25,21 +29,20 @@ from OpenGL.GL import GL_LEQUAL
 from drawer import drawline
 from constants import red, green
 from VQT import V
-##from exprs.ExprsConstants import PIXELS
-##from exprs.images import Image
-##from exprs.Overlay import Overlay
 from exprs.instance_helpers import get_glpane_InstanceHolder
-from exprs.Rect import Rect # needed for Image size option and/or for testing
 from exprs.Boxed import Boxed
 from exprs.draggable import DraggablyBoxed
 
 from exprs.instance_helpers import InstanceMacro
 from exprs.attr_decl_macros import State
-from exprs.TextRect import TextRect#k
-class TextState(InstanceMacro):#e rename?
-    text = State(str, "initial text", doc = "text")#k
-    _value = TextRect(text) #k value #e need size?s
+from exprs.TextRect import TextRect
+
+class TextState(InstanceMacro): # rename?
+    text = State(str, "initial text", doc = "text")
+    _value = TextRect(text) # need size?
     pass
+
+from test_commands import ExampleCommand2
 
 class ExampleCommand2E(ExampleCommand2, object):
     """
@@ -62,7 +65,6 @@ class ExampleCommand2E(ExampleCommand2, object):
     def __init__(self, glpane):
         "create an expr instance, to draw in addition to the model"
         super(ExampleCommand2E, self).__init__(glpane)
-        ## expr1 = Rect(4,1,green)
         expr1 = TextState()
         expr2 = DraggablyBoxed(expr1, resizable = True)
             ###BUG: resizing is projecting mouseray in the wrong way, when plane is tilted!

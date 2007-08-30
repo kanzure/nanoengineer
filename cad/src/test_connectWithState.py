@@ -1,22 +1,31 @@
 # Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-test_connectWithState.py -- test the connectWithState features,
-and scratch code for their improvement.
+test_connectWithState.py -- test the connectWithState features.
+Also serves as scratch code for their improvement.
  
 $Id$
 
 History:
 
-070830 bruce split this out of test_commands.py and test_command_PMs.py
+070830 bruce split this out of test_commands.py
 """
 
-# == PM class
+from test_connectWithState_constants import CYLINDER_HEIGHT_PREFS_KEY, CYLINDER_HEIGHT_DEFAULT_VALUE
+from test_connectWithState_constants import cylinder_round_caps
+from test_connectWithState_constants import CYLINDER_VERTICAL_DEFAULT_VALUE
+from test_connectWithState_constants import CYLINDER_WIDTH_DEFAULT_VALUE
+    ### better to define here... ### REVISE
 
-from test_command_PMs import test_connectWithState_PM #### TODO: pull in here
-
-from test_command_PMs import CYLINDER_VERTICAL_DEFAULT_VALUE, CYLINDER_WIDTH_DEFAULT_VALUE
     ### REVISE: the default value should come from the stateref, when using the State macro,
     # so it can be defined only in this file and not needed via globals by the PM
+
+def cylinder_height():
+    import env
+    return env.prefs.get( CYLINDER_HEIGHT_PREFS_KEY, CYLINDER_HEIGHT_DEFAULT_VALUE)
+
+def set_cylinder_height(val):
+    import env
+    env.prefs[CYLINDER_HEIGHT_PREFS_KEY] = val
 
 # REVISE: for prefs state, what is defined in what file?
 # can we make the PM code not even know whether specific state is defined in prefs or in the mode or in a node?
@@ -29,11 +38,13 @@ from test_command_PMs import CYLINDER_VERTICAL_DEFAULT_VALUE, CYLINDER_WIDTH_DEF
 # If there was, the attr names would come from where? (the table in preferences.py i guess)
 # Or, always define them in your own objs as needed using a State-like macro??
 
-from test_command_PMs import CYLINDER_HEIGHT_PREFS_KEY, CYLINDER_HEIGHT_DEFAULT_VALUE
-from test_command_PMs import cylinder_round_caps
-    ### better to define here... ### REVISE
 
-# == command class
+# === PM class
+
+from test_connectWithState_PM import test_connectWithState_PM
+
+
+# === command class
 
 from test_commands import ExampleCommand
 
@@ -53,20 +64,12 @@ from exprs.attr_decl_macros import State
 
 from OpenGL.GL import GL_LEQUAL
 
-def cylinder_height():
-    import env
-    return env.prefs.get( CYLINDER_HEIGHT_PREFS_KEY, CYLINDER_HEIGHT_DEFAULT_VALUE)
-
-def set_cylinder_height(val):
-    import env
-    env.prefs[CYLINDER_HEIGHT_PREFS_KEY] = val
-
 class test_connectWithState(ExampleCommand, IorE_guest_mixin):
     # the following are needed for now in order to use the State macro,
     # along with the IorE_guest_mixin superclass; this will be cleaned up:
     __metaclass__ = ExprsMeta
     transient_state = StatePlace('transient') ###k needed?
-    _e_is_instance = True
+    _e_is_instance = True ### REVIEW: can the superclass define this, since to be a noninstance you need a special subclass?
 
     # class constants needed by mode API for example commands
     modename = 'test_connectWithState-modename'
