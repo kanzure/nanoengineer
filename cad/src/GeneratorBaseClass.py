@@ -137,7 +137,9 @@ class GeneratorBaseClass:
     ### REVIEW: docstring needs reorganization, and clarification re whether all
     # generators have to inherit it
     """
-    Superclass for generator commands.
+    Mixin-superclass for use in the property managers of generator commands.
+    In spite of the class name, this class only works when inherited *after*
+    a property manager class (e.g. PM_Dialog) in a class's list of superclasses.
 
     TODO: needs refactoring and generalization as described in module
     docstring. In particular, it should not inherit from SponsorableMixin, and
@@ -327,7 +329,9 @@ class GeneratorBaseClass:
             self.accept()
         self.struct = None
         
-        # Close property manager. Fixes bug 2524.
+        # Close property manager. Fixes bug 2524. [Mark 070829]
+        # Note: this only works correctly because self.close comes from
+        # a PM class, not from this class. [bruce 070829 comment]
         self.close()
                     
         return
@@ -513,7 +517,9 @@ class GeneratorBaseClass:
         self._revert_number()
         self.reject()
         
-        # Close property manager. Fixes bug 2524.
+        # Close property manager. Fixes bug 2524. [Mark 070829]
+        # Note: this only works correctly because self.close comes from
+        # a PM class, not from this class. [bruce 070829 comment]
         self.close()
             
         return
@@ -523,6 +529,11 @@ class GeneratorBaseClass:
         When the user closes the dialog by clicking the 'X' button
         on the dialog title bar, do whatever the cancel button does.
         """
+        print "\nfyi: GeneratorBaseClass.close(%r) was called" % (e,)
+            # I think this is never called anymore,
+            # and would lead to infinite recursion via cancel_btn_clicked
+            # (causing bugs) if it was. [bruce 070829]
+        
         # Note: Qt wants the return value of .close to be of the correct type,
         # apparently boolean; it may mean whether to really close (just a guess)
         # (or it may mean whether Qt needs to process the same event further,
