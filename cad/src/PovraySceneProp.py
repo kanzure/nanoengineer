@@ -18,6 +18,7 @@ import env, os
 from HistoryWidget import redmsg, orangemsg, greenmsg
 from GroupButtonMixin import GroupButtonMixin
 from Sponsors import SponsorableMixin
+from state_utils import same_vals
 
 class PovraySceneProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_PovrayScenePropDialog):
 
@@ -187,7 +188,7 @@ class PovraySceneProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_PovrayScen
         if self.node_is_new:
             return "%s created." % self.name
         else:
-            if self.previousParams != self.gather_parameters():
+            if not same_vals( self.previousParams, self.gather_parameters()):
                 return "%s updated." % self.name
             else:
                 return "%s unchanged." % self.name

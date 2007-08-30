@@ -46,6 +46,8 @@ from jigs    import Jig
 from DragHandler   import DragHandler_API
 from HistoryWidget import greenmsg
 
+from state_utils import same_vals
+
 class ReferenceGeometry(Jig, DragHandler_API):
     """
     Superclass for various reference geometries. 
@@ -373,10 +375,10 @@ class GeometryGeneratorBaseClass:
             
         params = self.gather_parameters()
         
-        if self.struct == None:
+        if self.struct is None:
             if platform.atom_debug:
                 print 'no old structure, we are making a new structure'
-        elif params != self.previousParams:
+        elif not same_vals( params, self.previousParams):
             if platform.atom_debug:
                 print 'parameters have changed, update existing structure'
             self._revert_number()

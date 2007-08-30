@@ -66,6 +66,7 @@ from HistoryWidget import redmsg, orangemsg, greenmsg, quote_html
 from debug import print_compact_traceback
 from constants import gensym
 from constants import permit_gensym_to_reuse_name
+from state_utils import same_vals
 
 # == private definitions
 
@@ -407,15 +408,10 @@ class GeneratorBaseClass:
         generator. Each subclass (specific generator) determines
         how many parameters are contained in this tuple, and in
         what order. The superclass code assumes only that the
-        param tuple can be correctly compared by equality.
+        param tuple can be correctly compared by same_vals.
 
         This method must validate the parameters, and
         raise an exception if they are invalid.
-
-        BUG [as of 070724]: if this tuple contains any Numeric Python arrays,
-        the current implementation of the calling code will compare it
-        incorrectly (since those don't implement Python '==' correctly).
-        This should be fixed by changing the caller to use same_vals.
         """
         raise AbstractMethod()
 
@@ -455,11 +451,11 @@ class GeneratorBaseClass:
         """
         params = self.gather_parameters()
 
-        if self.struct == None:
+        if self.struct is None:
             # no old structure, we are making a new structure
             # (fall through)
             pass
-        elif params != self.previousParams:
+        elif not same_vals( params, self.previousParams):
             # parameters have changed, update existing structure
             self._revert_number()
             # (fall through, using old name)
@@ -470,13 +466,11 @@ class GeneratorBaseClass:
 
         # self.name needed for done message
         if self.create_name_from_prefix:
-            # DNA, Nanotubes and Graphene don't have a name yet. Let's create
-            # it.
+            # create a new name
             name = self.name = gensym(self.prefix) # (in _build_struct)
             self._gensym_data_for_reusing_name = (self.prefix, name)
         else:
-            # Jigs like the rotary and linear motors already created their name,
-            # so we need to use it.
+            # use externally created name
             self._gensym_data_for_reusing_name = None
                 # (can't reuse name in this case -- not sure what prefix it was
                 #  made with)
