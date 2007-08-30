@@ -16,30 +16,30 @@ History:
 '''
 __author__ = 'mark'
 
-basesDict = { 'A':{'Name':'Adenine',    'Complement':'T',  'Basename':'Adenine' },
-              'C':{'Name':'Cytosine',   'Complement':'G',  'Basename':'Cytosine'},
-              'G':{'Name':'Guanine',    'Complement':'C',  'Basename':'Guanine' },
-              'T':{'Name':'Thymine',    'Complement':'A',  'Basename':'Thymine' },
-              'U':{'Name':'Uracil',     'Complement':'A',  'Basename':'Uracil'  },
+basesDict = { 'A':{'Name':'Adenine',  'Complement':'T', 'Color':'darkorange' },
+              'C':{'Name':'Cytosine', 'Complement':'G', 'Color':'cyan'       },
+              'G':{'Name':'Guanine',  'Complement':'C', 'Color':'green'      },
+              'T':{'Name':'Thymine',  'Complement':'A', 'Color':'teal'       },
+              'U':{'Name':'Uracil',   'Complement':'A', 'Color':'darkblue'   },
               
-              'X':{'Name':'Undefined',  'Complement':'X',  'Basename':''},
-              'N':{'Name':'aNy base',   'Complement':'N',  'Basename':'aNy base'},
+              'X':{'Name':'Undefined', 'Complement':'X', 'Color':'darkred' },
+              'N':{'Name':'aNy base',  'Complement':'N', 'Color':'orchid'  },
               
-              'B':{'Name':'C,G or T',   'Complement':'V',  'Basename':''},
-              'V':{'Name':'A,C or G',   'Complement':'B',  'Basename':''},
-              'D':{'Name':'A,G or T',   'Complement':'H',  'Basename':''},
-              'H':{'Name':'A,C or T',   'Complement':'D',  'Basename':''},
+              'B':{'Name':'C,G or T', 'Complement':'V', 'Color':'dimgrey' },
+              'V':{'Name':'A,C or G', 'Complement':'B', 'Color':'dimgrey' },
+              'D':{'Name':'A,G or T', 'Complement':'H', 'Color':'dimgrey' },
+              'H':{'Name':'A,C or T', 'Complement':'D', 'Color':'dimgrey' },
               
-              'R':{'Name':'A or G (puRine)',     'Complement':'Y',  'Basename':''},
-              'Y':{'Name':'C or T (pYrimidine)', 'Complement':'R',  'Basename':''},
-              'K':{'Name':'G or T (Keto)',       'Complement':'M',  'Basename':''},
-              'M':{'Name':'A or C (aMino)',      'Complement':'K',  'Basename':''},
+              'R':{'Name':'A or G (puRine)',     'Complement':'Y', 'Color':'dimgrey'},
+              'Y':{'Name':'C or T (pYrimidine)', 'Complement':'R', 'Color':'dimgrey'},
+              'K':{'Name':'G or T (Keto)',       'Complement':'M', 'Color':'dimgrey'},
+              'M':{'Name':'A or C (aMino)',      'Complement':'K', 'Color':'dimgrey'},
               
-              'S':{'Name':'G or C (Strong - 3H bonds)',  'Complement':'W', 'Basename':''},
-              'W':{'Name':'A or T (Weak - 2H bonds)',    'Complement':'S', 'Basename':''} }
+              'S':{'Name':'G or C (Strong - 3H bonds)',  'Complement':'W', 'Color':'dimgrey'},
+              'W':{'Name':'A or T (Weak - 2H bonds)',    'Complement':'S', 'Color':'dimgrey'} }
 
 dnaDict = { 'A-DNA':{'DuplexRise':3.391},
-            'B-DNA':{'DuplexRise':3.18},
+            'B-DNA':{'DuplexRise':3.180},
             'Z-DNA':{'DuplexRise':3.715} }
  
 # PAM5_AtomList contains the all PAM-5 base-pair atoms needed to construct any

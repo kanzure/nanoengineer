@@ -325,6 +325,8 @@ class Dna:
             if env.debug():
                 print_compact_traceback("debug: exception in %r._postProcess(baseList = %r) (reraising): " % (self, baseList,))
             raise
+        
+        
         return
 
     def _postProcess(self, baseList):
@@ -475,7 +477,7 @@ class B_Dna(Dna):
         """
         zoffset      =  0.0
         thetaOffset  =  0.0
-        basename     =  basesDict[baseLetter]['Basename']
+        basename     =  basesDict[baseLetter]['Name']
         basefile     =  self._baseFileName(basename)
         return (basefile, zoffset, thetaOffset)
 
@@ -491,7 +493,7 @@ class B_Dna(Dna):
         """
         zoffset      =  0.0
         thetaOffset  =  210 * (pi / 180)
-        basename     =  basesDict[baseLetter]['Basename']
+        basename     =  basesDict[baseLetter]['Name']
         basefile     =  self._baseFileName(basename)
         return (basefile, zoffset, thetaOffset)
 
@@ -624,7 +626,7 @@ class Z_Dna(Dna):
         """
         
         thetaOffset  =  0.0
-        basename  =  basesDict[baseLetter]['Basename']
+        basename  =  basesDict[baseLetter]['Name']
         
         if (index & 1) != 0: 
             # Index is odd.
@@ -650,7 +652,7 @@ class Z_Dna(Dna):
         """
         
         thetaOffset  =  0.5 * pi
-        basename     =  basesDict[baseLetter]['Basename']
+        basename     =  basesDict[baseLetter]['Name']
         
         if (index & 1) != 0:
             basename  +=  '-inner'

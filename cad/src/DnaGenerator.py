@@ -27,7 +27,7 @@ import random
 
 from Utility        import Group
 from HistoryWidget  import redmsg, orangemsg, greenmsg
-from VQT            import A, Q, V, angleBetween, cross, vlen
+from VQT            import A, Q, V, angleBetween, cross, vlen, Veq
 from Numeric        import dot
 from math           import pi
 from bonds          import inferBonds, bond_atoms
@@ -45,7 +45,7 @@ from Dna            import Z_Dna, Z_Dna_PAM5
 from Dna            import DEBUG_SEQUENCE
 from Dna            import basepath, basepath_ok
 
-from GeneratorBaseClass          import GeneratorBaseClass, PluginBug, UserError
+from GeneratorBaseClass import GeneratorBaseClass, CadBug, PluginBug, UserError
 from DnaGeneratorPropertyManager import DnaGeneratorPropertyManager
 
 ############################################################################
@@ -142,6 +142,9 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
         x2 = self.x2SpinBox.value()
         y2 = self.y2SpinBox.value()
         z2 = self.z2SpinBox.value()
+        
+        endpoint1 = V(x1, y1, z1)
+        endpoint2 = V(x2, y2, z2)
 
         return (dnaSequence, 
                 atcgnSequence,
@@ -149,7 +152,8 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
                 basesPerTurn,
                 dnaModel,
                 chunkOption,
-                x1, y1, z1, x2, y2, z2)
+                endpoint1, 
+                endpoint2)
     
     def checkParameters( self, inParams ):
         """
@@ -197,12 +201,18 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
         basesPerTurn, \
         dnaModel, \
         chunkOption, \
-        x1, y1, z1, x2, y2, z2 = params
+        endpoint1, \
+        endpoint2 = params
+        
+        if Veq(endpoint1, endpoint2):
+            # Ask Bruce is there is a better/preferred way of checking this.
+            # Works fine for now.  Mark 2007-08-28
+            raise CadBug("Dna endpoints cannot be the same point.")
+            return
         
         if len(theSequence) < 1: # Mark 2007-06-01
             msg = redmsg("You must enter a strand sequence to preview/insert DNA")
             self.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=False)
-            env.history.message(msg)
             self.dna = None
             return None
             
@@ -210,7 +220,7 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
             # This message should appear in the PM message box, but it needs to be
             # flushed (reset) after the DNA is created.
             env.history.message(self.cmd + "This may take a moment...")
-            
+
         # Instantiate the DNA subclass (based on dnaModel and conformation).
             
         if (dnaModel == 'Atomistic'):
@@ -241,10 +251,8 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
             # is resolved when we regroup the atoms into strand chunks
             # below.
             dna.make(rawDnaGroup, theSequence, basesPerTurn, position)
-            
-            pt1 = V(x1, y1, z1)
-            pt2 = V(x2, y2, z2)
-            self._orientRawDnaGroup(rawDnaGroup, pt1, pt2)
+             
+            self._orientRawDnaGroup(rawDnaGroup, endpoint1, endpoint2)
         
             # Now group the DNA atoms based on the grouping option selected
             # (i.e. "Strand chunks" or "Single Chunk").
@@ -266,6 +274,7 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
             return dnaGroup
         
         except (PluginBug, UserError):
+            # Why do we need UserError here? Mark 2007-08-28
             rawDnaGroup.kill()
             raise PluginBug("Internal error while trying to create DNA duplex.")
             return None
@@ -285,16 +294,22 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
         
         @attention: Only works for PAM5 models.
         """
+        
         a = V(0.0, 0.0, -1.0)
+        # <a> is the unit vector pointing down the center axis of the default
+        # rawDnaGroup structure which is aligned along the Z axis.
         bLine = pt2 - pt1
         bLength = vlen(bLine)
         b = bLine/bLength
+        # <b> is the unit vector parallel to the line (i.e. pt1, pt2).
         axis = cross(a, b)
+        # <axis> is the axis of rotation.
         theta = angleBetween(a, b)
+        # <theta> is the angle (in degress) to rotate about <axis>.
         scalar = self.dna.getBaseRise() * self._getSequenceLength() * 0.5
         rawOffset = b * scalar
         
-        if 0:
+        if 0: # Debugging code.
             print ""
             print "uVector  a = ", a
             print "uVector  b = ", b
@@ -307,12 +322,12 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
         
         if theta == 0.0 or theta == 180.0:
             axis = V(0, 1, 0)
-            print "Now cross(a,b) =", axis
+            # print "Now cross(a,b) =", axis
             
-        dy =  (pi / 180.0) * theta  # Convert to radians
-        qrot = Q(axis, dy) # Quat for rotation delta.
+        rot =  (pi / 180.0) * theta  # Convert to radians
+        qrot = Q(axis, rot) # Quat for rotation delta.
         
-        # Rotate and move the base chunks 
+        # Move and rotate the base chunks into final orientation.
         for m in rawDnaGroup.members:
             m.move(qrot.rot(m.center) - m.center + rawOffset + pt1)
             m.rot(qrot)

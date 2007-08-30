@@ -303,10 +303,15 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         Load widgets in group box 3.
         """
+        
+        self._endPoint1GroupBox = PM_GroupBox( pmGroupBox, title = "Endpoint1" )
+        self._endPoint2GroupBox = PM_GroupBox( pmGroupBox, title = "Endpoint2" )
+        
         # Point 1
         self.x1SpinBox  =  \
-            PM_DoubleSpinBox( pmGroupBox,
-                              label         =  "X1: ",
+            PM_DoubleSpinBox( self._endPoint1GroupBox,
+                              label         =  \
+                              "ui/actions/Properties Manager/X_Coordinate.png",
                               value         =  0,
                               setAsDefault  =  True,
                               minimum       =  -100.0,
@@ -315,8 +320,9 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
                               suffix        =  ' Angstroms')
         
         self.y1SpinBox  =  \
-            PM_DoubleSpinBox( pmGroupBox,
-                              label         =  "Y1: ",
+            PM_DoubleSpinBox( self._endPoint1GroupBox,
+                              label         =  \
+                              "ui/actions/Properties Manager/Y_Coordinate.png",
                               value         =  0,
                               setAsDefault  =  True,
                               minimum       =  -100.0,
@@ -325,8 +331,9 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
                               suffix        =  ' Angstroms')
         
         self.z1SpinBox  =  \
-            PM_DoubleSpinBox( pmGroupBox,
-                              label         =  "Z1: ",
+            PM_DoubleSpinBox( self._endPoint1GroupBox,
+                              label         =  \
+                              "ui/actions/Properties Manager/Z_Coordinate.png",
                               value         =  0,
                               setAsDefault  =  True,
                               minimum       =  -100.0,
@@ -336,8 +343,9 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
         
         # Point 2
         self.x2SpinBox  =  \
-            PM_DoubleSpinBox( pmGroupBox,
-                              label         =  "X2: ",
+            PM_DoubleSpinBox( self._endPoint2GroupBox,
+                              label         =  \
+                              "ui/actions/Properties Manager/X_Coordinate.png",
                               value         =  10.0,
                               setAsDefault  =  True,
                               minimum       =  -100.0,
@@ -346,8 +354,9 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
                               suffix        =  ' Angstroms')
         
         self.y2SpinBox  =  \
-            PM_DoubleSpinBox( pmGroupBox,
-                              label         =  "Y2: ",
+            PM_DoubleSpinBox( self._endPoint2GroupBox,
+                              label         =  \
+                              "ui/actions/Properties Manager/Y_Coordinate.png",
                               value         =  0,
                               setAsDefault  =  True,
                               minimum       =  -100.0,
@@ -356,8 +365,9 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
                               suffix        =  ' Angstroms')
         
         self.z2SpinBox  =  \
-            PM_DoubleSpinBox( pmGroupBox,
-                              label         =  "Z2: ",
+            PM_DoubleSpinBox( self._endPoint2GroupBox,
+                              label         =  \
+                              "ui/actions/Properties Manager/Z_Coordinate.png",
                               value         =  0,
                               setAsDefault  =  True,
                               minimum       =  -100.0,
@@ -684,24 +694,12 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         Update the Strand Length spinbox; always the length of the strand sequence.
         """
-
-        if DEBUG: 
-            env.history.message( 
-                greenmsg( "updateStrandLength(): Begin"))
-
-        if DEBUG: 
-            env.history.message( 
-                greenmsg( ("updateStrandLength(): Disconnect strandLengthSpinBox" )))
             
         self.disconnect( self.strandLengthSpinBox,
                          SIGNAL("valueChanged(int)"),
                          self.strandLengthChanged )  
 
         self.strandLengthSpinBox.setValue( self.getSequenceLength() )
-
-        if DEBUG: 
-            env.history.message( 
-                greenmsg( ("updateStrandLength(): Reconnect strandLengthSpinBox" )))
             
         self.connect( self.strandLengthSpinBox,
                       SIGNAL("valueChanged(int)"),
@@ -851,12 +849,7 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
         # Some characters must be substituted to preserve 
         # whitespace and tags in HTML code.
         substituteDict    =  { ' ':'&#032;', '<':'&lt;', '>':'&gt;' }
-        baseColorsDict    =  { 'A':'darkorange', 
-                               'C':'cyan', 
-                               'G':'green', 
-                               'T':'teal', 
-                               'N':'orchid' }
-
+        
         while basePosition < len(outSequence):
 
             theSeqChar  =  outSequence[basePosition]
@@ -876,9 +869,9 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
                 if theSeqChar != previousChar:
                     # We only need to insert 'color' tags in places where
                     # the adjacent characters are different.
-                    if theSeqChar in baseColorsDict:
+                    if theSeqChar in basesDict:
                         theTag  =  '<font color=' \
-                                + baseColorsDict[ theSeqChar ] \
+                                + basesDict[ theSeqChar ]['Color'] \
                                 + '>'
                     elif not previousChar in self.validSymbols:
                         # The character is a 'valid' symbol to be greyed
