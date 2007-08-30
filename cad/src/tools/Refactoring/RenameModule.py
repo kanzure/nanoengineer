@@ -171,13 +171,19 @@ class _OutputStream(object):
         self._commaTwo = ""
         self._bothSame = (prefixFromImport == prefixOriginalFromImport)
 
-    def collectImportClause(self, clause, originalFrom = False, isEdit = True):
+    def collectImportClause(self, moduleName, asModuleName = "",
+                            originalFrom = False, isEdit = True):
         """
         Handle one import clause.  Set originalFrom if this clause
         should be associated with the original from clause.  Clear
         isEdit if this clause by itself would not result in any change
         to the file.
         """
+        if (asModuleName != "" and moduleName != asModuleName):
+            clause = moduleName + " as " + asModuleName
+        else:
+            clause = moduleName
+        
         if (self._bothSame):
             originalFrom = False
         if (originalFrom):
@@ -329,12 +335,10 @@ def renameModule(oldPackage, oldModule, newPackage, newModule):
 
                                 if (asClause == ""):
                                     # import oldModule
-                                    out.collectImportClause(newPath +
-                                                            " as " + oldModule)
+                                    out.collectImportClause(newPath, oldModule)
                                 else:
                                     # import oldModule as asClause
-                                    out.collectImportClause(newPath +
-                                                            " as " + asClause)
+                                    out.collectImportClause(newPath, asClause)
                             elif (importPath == oldPath):
                                 if (asClause == ""):
                                     # import oldPath
@@ -342,51 +346,32 @@ def renameModule(oldPackage, oldModule, newPackage, newModule):
                                     globalSubstitute = True
                                 else:
                                     # import oldPath as asClause
-                                    out.collectImportClause(newPath +
-                                                            " as " + asClause)
+                                    out.collectImportClause(newPath, asClause)
                             else:
-                                if (asClause == ""):
-                                    # import other
-                                    out.collectImportClause(importPath,
-                                                            originalFrom = True,
-                                                            isEdit = False)
-                                else:
-                                    # import other as asClause
-                                    out.collectImportClause(importPath +
-                                                            " as " + asClause,
-                                                            originalFrom = True,
-                                                            isEdit = False)
+                                # import other (as asClause)
+                                out.collectImportClause(importPath,
+                                                        asClause,
+                                                        originalFrom = True,
+                                                        isEdit = False)
                         elif (gotFrom == "Package"):
                             if (importPath == oldModule):
                                 if (asClause == ""):
                                     # from oldPackage import oldModule
-                                    out.collectImportClause(newModule +
-                                                            " as " + oldModule)
+                                    out.collectImportClause(newModule,
+                                                            oldModule)
                                 else:
                                     # from oldPackage import oldMod as asClause
-                                    out.collectImportClause(newModule +
-                                                            " as " + asClause)
+                                    out.collectImportClause(newModule, asClause)
                             else:
-                                if (asClause == ""):
-                                    # from oldPackage import other
-                                    out.collectImportClause(importPath,
-                                                            originalFrom = True,
-                                                            isEdit = False)
-                                else:
-                                    # from oldPackage import other as asClause
-                                    out.collectImportClause(importPath +
-                                                            " as " + asClause,
-                                                            originalFrom = True,
-                                                            isEdit = False)
+                                # from oldPackage import other (as asClause)
+                                out.collectImportClause(importPath,
+                                                        asClause,
+                                                        originalFrom = True,
+                                                        isEdit = False)
                                 
                         elif (gotFrom == "Path"):
-                            if (asClause == ""):
-                                # from oldPath import symbol
-                                out.collectImportClause(importPath)
-                            else:
-                                # from oldPath import symbol as asClause
-                                out.collectImportClause(importPath +
-                                                        " as " + asClause)
+                            # from oldPath import symbol (as asClause)
+                            out.collectImportClause(importPath, asClause)
 
                         importList = importList[m.end():]
                         if (len(importList) > 0 and importList[0] == ","):
