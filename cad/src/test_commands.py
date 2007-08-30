@@ -14,32 +14,14 @@ How to run these test commands:
 - quit and rerun NE1
 
 - the debug menu's submenu "other" should contain new menu commands
-defined in this file, such as ExampleCommand1.
+defined in this file, such as ExampleCommand1. (Note: not all of them
+are contiguous in that submenu, since the entire submenu is sorted
+alphabetically.)
 
-
-Misc bugs [this list might be out of date]:
-
-- when exiting ExampleCommand2E (using GBC and its own graphics), the graphics remain, because the mode remains.
-  A mode calls Done when it leaves but a generator doesn't, so these leave themselves behind as the mode.
-  Can they safely call Done?
-  And in what method should they do it? A button click, or some exit method inside GBC?
-
-- when exiting EC2E, the PM does disappear, so the conf corner should -- and it does, but not right away,
-  so I think we're missing a gl_update. Maybe the existing PM-changing methods need to provide one for the CC
-  (gl_update_confcorner or so)?
-  
-- PM is not removed when entering testmode [probably a special case of the above]
-
-[status: exit code added to EC1 and works; not yet to EC2] ####
-  
-- [bug noticed 070725]: PM is removed, but its tab remains open, when exiting ExampleCommand1
-(true both before and after conversion to use PM_Dialog instead of PropMgrBaseClass)
 
 Cosmetic bugs:
 
 - closing groupboxes makes them flash
-
-- [fixed] tooltip for sponsor button appears everywhere in the PM, even in its bg (annoying) [fixed in PMBC]
 
 
 TODO:
@@ -52,6 +34,10 @@ When cleaning up PropMgrBaseClass etc, note some other things Mark wants to work
 
 - split some PMs/modes into more than one smaller PM (especially MMKit). 
   Note: See PM_ElementSelector.py. Mark 2007-08-07.
+
+Fix problems with Example_TemporaryCommand_useParentPM (commented where it's used)
+
+Improve connectWithState, as commented near its test code
 
 """
 
@@ -88,8 +74,7 @@ class ExampleCommand(selectAtomsMode):
 
     def restore_gui(self):
         print "restore_gui in", self ###
-        self.__PM.hide() # this works (PM area becomes blank), but doesn't remove the PM tab or change to the MT tab
-            ##e should find existing code for doing that and make a common routine in the featureManager to do it (if not one already)
+        self.__PM.close() # removes PM tab -- better than the prior .hide() call [bruce 070829]
         selectAtomsMode.restore_gui(self) # this apparently worked even when it called init_gui by mistake!!
         return
     
@@ -172,7 +157,7 @@ from OpenGL.GL import GL_LEQUAL
 from drawer import drawline
 from constants import red, green
 from VQT import V
-##from exprs.basic import PIXELS
+##from exprs.ExprsConstants import PIXELS
 ##from exprs.images import Image
 ##from exprs.Overlay import Overlay
 from exprs.instance_helpers import get_glpane_InstanceHolder
