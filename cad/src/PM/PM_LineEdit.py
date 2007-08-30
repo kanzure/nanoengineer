@@ -86,9 +86,9 @@ class PM_LineEdit( QLineEdit ):
         if 0: # Debugging code
             print "PM_LineEdit.__init__():"
             print "  label        = ", label
-            print "  labelColumn  = ", label
+            print "  labelColumn  = ", labelColumn
             print "  text         = ", text
-            print "  setAsDefault = ", setAsDefaultfix
+            print "  setAsDefault = ", setAsDefault
             print "  spanWidth    = ", spanWidth
                 
         QLineEdit.__init__(self)
@@ -107,7 +107,7 @@ class PM_LineEdit( QLineEdit ):
         self.setText(text)
         
         # Set default value
-        self.defaultText=text
+        self.defaultText = text
         self.setAsDefault = setAsDefault
             
         parentWidget.addPmWidget(self)

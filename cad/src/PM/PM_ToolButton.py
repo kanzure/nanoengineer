@@ -16,6 +16,9 @@ import os
 from PyQt4.Qt import QLabel
 from PyQt4.Qt import QToolButton
 from PyQt4.Qt import QWidget
+from PyQt4.Qt import QSize
+
+from Utility  import geticon
 
 class PM_ToolButton( QToolButton ):
     """
@@ -82,7 +85,8 @@ class PM_ToolButton( QToolButton ):
         
         @param spanWidth: If True, the widget and its label will span the width
                       of the group box. Its label will appear directly above
-                      the widget (unless the label is empty) and is left justified.
+                      the widget (unless the label is empty) and is left 
+                      justified.
         @type  spanWidth: bool
         
         @see: U{B{QToolButton}<http://doc.trolltech.com/4/qtoolbutton.html>}
@@ -115,10 +119,10 @@ class PM_ToolButton( QToolButton ):
         # Set icon
         if os.path.exists(iconPath):
                 self.setIcon(geticon(iconPath))
-                self.setIconSize(QSize(22,22))
+                self.setIconSize(QSize(22, 22))
         
         # Set default text
-        self.defaultText=text
+        self.defaultText  = text
         self.setAsDefault = setAsDefault
         
         parentWidget.addPmWidget(self)

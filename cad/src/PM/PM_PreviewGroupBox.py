@@ -15,9 +15,9 @@ History:
 ninad 2007-08-29: Created. 
 """
 
-from PyQt4.Qt    import QSize
-from ThumbView   import MMKitView
-from PM_GroupBox import PM_GroupBox
+from PyQt4.Qt         import QSize
+from ThumbView        import MMKitView
+from PM.PM_GroupBox   import PM_GroupBox
 
 class PM_PreviewGroupBox(PM_GroupBox):
     """
@@ -68,7 +68,7 @@ class PM_PreviewGroupBox(PM_GroupBox):
                         self, 
                         "MMKitView glPane", 
                         self.glpane)
-        self.elementViewer.setMinimumSize(QSize(150,150))
+        self.elementViewer.setMinimumSize(QSize(150, 150))
         
         self.gridLayout.setMargin(0)
         self.gridLayout.setSpacing(0) 

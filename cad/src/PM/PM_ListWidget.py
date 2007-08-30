@@ -16,6 +16,8 @@ from PyQt4.Qt import QLabel
 from PyQt4.Qt import QListWidget
 from PyQt4.Qt import QWidget
 
+from debug     import print_compact_traceback
+
 class PM_ListWidget( QListWidget ):
     """
     The PM_ListWidget widget provides a QListWidget with a 
@@ -77,7 +79,8 @@ class PM_ListWidget( QListWidget ):
         @param items: list of items (strings) to be inserted in the widget.
         @type  items: list
         
-        @param defaultRow: The default row (item) selected, where 0 is the first row.
+        @param defaultRow: The default row (item) selected, where 0 is the first 
+                           row.
         @type  defaultRow: int
         
         @param setAsDefault: If True, will restore <idx> as the current index
@@ -89,7 +92,8 @@ class PM_ListWidget( QListWidget ):
         
         @param spanWidth: If True, the widget and its label will span the width
                           of the group box. Its label will appear directly above
-                          the widget (unless the label is empty) and is left justified.
+                          the widget (unless the label is empty) and is left 
+                          justified.
         @type  spanWidth: bool
         
         @see: U{B{QListWidget}<http://doc.trolltech.com/4/qlistwidget.html>}
@@ -136,17 +140,19 @@ class PM_ListWidget( QListWidget ):
         the list of items to <items>.
         
         Note: <items> will always replace the list of current items
-        in the widget. <row> is ignored. This is considered a bug. Mark 2007-06-04
+        in the widget. <row> is ignored. This is considered a bug.
+        -- Mark 2007-06-04
         """
         
         if row <> 0:
-            msg = "PM_ListWidget.insertItems(): <row> must be zero. See docstring for details:"
+            msg = "PM_ListWidget.insertItems(): <row> must be zero."\
+                "See docstring for details:"
             print_compact_traceback(msg)
             return
             
         if setAsDefault:
             self.setAsDefault = setAsDefault
-            self.defaultItems=items
+            self.defaultItems = items
         
         self.clear()
         QListWidget.insertItems(self, row, items)

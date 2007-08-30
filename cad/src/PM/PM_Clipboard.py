@@ -8,7 +8,7 @@ list is shown by its elementViewer (an instance of L{PM_PreviewGroupBox})
 The object being previewed can then be deposited into the 3D workspace.
      
 @author: Ninad
-@version: $Id:$
+@version: $Id $
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
@@ -19,9 +19,9 @@ ninad 2007-08-29: Created. (Initially to support the clipboard in L{PasteMode})
 from PyQt4.Qt import QListWidget
 from PyQt4.Qt import SIGNAL
 
-from ThumbView   import MMKitView
-from PM_GroupBox import PM_GroupBox
-from constants   import diTUBES
+from ThumbView      import MMKitView
+from PM.PM_GroupBox import PM_GroupBox
+from constants      import diTUBES
 
 class PM_Clipboard(PM_GroupBox):     
     """
@@ -36,8 +36,7 @@ class PM_Clipboard(PM_GroupBox):
                 win   = None,
                 elementViewer = None
                 ):
-        
-         
+                 
         """
         Appends a PM_Clipboard groupbox widget to I{parentWidget},a L{PM_Dialog}
                 
@@ -113,7 +112,9 @@ class PM_Clipboard(PM_GroupBox):
             if i < 0:
                 i = self.w.pasteComboBox.count() - 1
                 
-            self.clipboardListWidget.setCurrentItem(self.clipboardListWidget.item(i))
+            self.clipboardListWidget.setCurrentItem(
+                self.clipboardListWidget.item(i))
+            
             newModel = self.pastableItems[i]
         
         self._updateElementViewer(newModel)
