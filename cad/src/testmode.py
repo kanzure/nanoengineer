@@ -54,10 +54,10 @@ annoyers = ['editToolbar', 'fileToolbar', 'helpToolbar', 'modifyToolbar',
             ## one for modes too -- not sure of its name, but I guess I'll let it keep showing too
             ]
 
-## super = selectAtomsMode
-super = depositMode
+## superclass = selectAtomsMode
+superclass = depositMode
 
-class testmode(super):
+class testmode(superclass):
     # class constants
     backgroundColor = 103/256.0, 124/256.0, 53/256.0
     modename = 'TEST'
@@ -94,7 +94,7 @@ class testmode(super):
             # during the most recent call of testdraw.Draw
         import testdraw
         try:
-            testdraw.Draw(self, self.o, super)
+            testdraw.Draw(self, self.o, superclass)
         except:
             #e history message?
             print_compact_traceback("exception in testdraw.Draw ignored: ")
@@ -108,10 +108,10 @@ class testmode(super):
         Caller will leave glstate in standard form for Draw. Implems are free to turn off depth buffer read or write.
         Warning: anything implems do to depth or stencil buffers will affect the standard selobj-check in bareMotion.
         """
-        ## super.Draw_after_highlighting(self, pickCheckOnly) # let testdraw do this if if wants to
+        ## superclass.Draw_after_highlighting(self, pickCheckOnly) # let testdraw do this if if wants to
         import testdraw
         try:
-            testdraw.Draw_after_highlighting(self, pickCheckOnly, self.o, super)
+            testdraw.Draw_after_highlighting(self, pickCheckOnly, self.o, superclass)
         except:
             #e history message?
             print_compact_traceback("exception in testdraw.Draw_after_highlighting ignored: ")
@@ -129,8 +129,8 @@ class testmode(super):
     def leftDown(self, event):
         import testdraw
         try:
-            testdraw.leftDown(self, event, self.o, super)
-                # note: if super.leftDown and/or gl_update should be called now, this must do it.
+            testdraw.leftDown(self, event, self.o, superclass)
+                # note: if superclass.leftDown and/or gl_update should be called now, this must do it.
                 # note: this might reload testdraw (inside self.emptySpaceLeftDown).
         except:
             #e history message?
@@ -170,7 +170,7 @@ class testmode(super):
                 method(event, self) #e protect from exceptions?
         else:
             print "fyi: testmode passing leftDouble to superclass (since no drag_handler)" ####
-            super.leftDouble(self, event)
+            superclass.leftDouble(self, event)
         return
 
     _background_object = None #070322 new feature: can be set during self.Draw to something to handle clicks on background
@@ -193,7 +193,7 @@ class testmode(super):
         #  there is not yet a good-enough way for hover-highlighting behavior to be different during a drag).
         # For some purposes, overriding the determination of selobj in GLPane would be more useful and more flexible
         # than overriding this method; to affect highlighting behavior, it would be essential. [070323 comment]
-        res = super.get_obj_under_cursor(self, event)
+        res = superclass.get_obj_under_cursor(self, event)
         #e here is where we might let some other mode attr replace or wrap objects in specified classes. [070323 comment]
         if res is None:
             res = self._background_object # usually None, sometimes set during draw to something else [070322]
@@ -211,9 +211,9 @@ class testmode(super):
                                        prefs_key = "A9 devel/testmode/reload on empty space leftDown" ) #070312, also in exprs/test.py
         if emptySpace_reload:
             self.reload()
-        super.emptySpaceLeftDown(self, event) #e does testdraw need to intercept this? no... instead we override get_obj_under_cursor
+        superclass.emptySpaceLeftDown(self, event) #e does testdraw need to intercept this? no... instead we override get_obj_under_cursor
 
-    # let super do these -- no need to define them here and let testdraw intercept them:
+    # let superclass do these -- no need to define them here and let testdraw intercept them:
 ##    def leftDrag(self, event):
 ##        pass
 ##
@@ -228,7 +228,7 @@ class testmode(super):
         self.o.pov = V(0,0,0)
         self.o.quat = Q(1,0,0,0)
 
-        res = super.Enter(self)
+        res = superclass.Enter(self)
         if 1:
             # new 070103; needs reload??
             import testdraw
@@ -305,15 +305,15 @@ class testmode(super):
         self._update_MMB_policy()
         if self._capture_MMB:
             if methodname.endswith('Down'):
-                super.leftDown(self, event) # don't go through self.leftDown for now -- it's only used for reload, gl_update, etc
+                superclass.leftDown(self, event) # don't go through self.leftDown for now -- it's only used for reload, gl_update, etc
             elif methodname.endswith('Drag'):
-                super.leftDrag(self, event)
+                superclass.leftDrag(self, event)
             elif methodname.endswith('Up'):
-                super.leftUp(self, event)
+                superclass.leftUp(self, event)
             else:
                 assert 0, "bad methodname %r" % (methodname,)
         else:
-            method = getattr(super, methodname)
+            method = getattr(superclass, methodname)
             method(self, event)
         return
         
@@ -347,29 +347,22 @@ class testmode(super):
 
     def keyPressEvent(self, event):
         try:
-            ascii = event.ascii()
-        except:
-            # event.ascii() reportedly doesn't work in Qt4 [bruce 070122]
-            ascii = -1
-        try:
             key = event.key()
         except:
             # no one reported a problem with this, but we might as well be paranoid about it [bruce 070122]
             key = -1
-        if ascii == ' ': # doesn't work
-            self._please_exit_loop = True
-        elif key == 32:
+        if key == 32:
             self._please_exit_loop = True
         else:
-            super.keyPressEvent(self, event) #060429 try to get ',' and '.' binding #bruce 070122 basicMode->super
+            superclass.keyPressEvent(self, event) #060429 try to get ',' and '.' binding #bruce 070122 basicMode->superclass
         return
     
     def keyReleaseEvent(self, event):
-        super.keyReleaseEvent(self, event) #bruce 070122 new feature (probably fixes some bugs), and basicMode->super
+        superclass.keyReleaseEvent(self, event) #bruce 070122 new feature (probably fixes some bugs), and basicMode->superclass
 
     def makeMenus(self):
         ### WARNING: this copies and slightly modifies selectMode.makeMenus (not those of our superclass, depositMode!);
-        # with slightly more work, we could instead just decide when to call the super one here
+        # with slightly more work, we could instead just decide when to call the superclass one here
         # vs. when not to, rather than duplicating the menu items it produces.
         # But we can't do that for now, since we want to ditch its general items
         # whenever there is a selobj which defines make_selobj_cmenu_items,
@@ -380,7 +373,8 @@ class testmode(super):
     
         selatom, selobj = self.update_selatom_and_selobj( None)
 
-        # not doing: super.makeMenus(self) # this makes standard items for selobj if it's atom or bond or Highlightable, and a few more
+        # not doing:
+        ## superclass.makeMenus(self) # this makes standard items for selobj if it's atom or bond or Highlightable, and a few more
         
         self.Menu_spec = []
 
