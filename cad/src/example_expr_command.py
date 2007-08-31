@@ -16,9 +16,40 @@ in which it was called ExampleCommand2E
 
 from test_command_PMs import ExampleCommand2_PM
 
+from PM.PM_LineEdit      import PM_LineEdit
+from PM.PM_GroupBox      import PM_GroupBox
+
 class ExampleCommand2E_PM( ExampleCommand2_PM ):
     """Property Manager for Example Command 2E"""
     title = "Example Command 2E"
+    prefix = "Thing2E" # for names created by GBC
+    
+    def _addGroupBoxes(self):
+        """
+        Add group boxes to this Property Manager.
+        """
+        ExampleCommand2_PM._addGroupBoxes(self)
+        
+        self.pmGroupBox2 = PM_GroupBox( self, title =  "group box 2" )
+        self._loadGroupBox2(self.pmGroupBox2)
+        
+        return
+    
+    def _loadGroupBox2(self, groupbox):
+        """
+        Load widgets into group box 2.
+        """
+        self.someLineEdit  =  \
+            PM_LineEdit( groupbox,
+                         label        = "Text:",
+                         text         = "initial text (pm)",
+                         setAsDefault = True,
+                         spanWidth    = False )
+        ### TODO: self.someLineEdit.connectWithState( ... some text state ...)
+        # and then connect the TextState text to the same state
+        # (or just use that state? no, it needs an address outside that complicated expr)
+        return
+
     pass
 
 # == command class
