@@ -122,6 +122,9 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
             if mode.modename not in ['ZOOM', 'PAN', 'ROTATE']:
                 print "bug: _zoomPanRotateTool sees unexpected current mode: %r" % (mode,)
                 # Note: This can happen on nullMode after certain other exceptions occur.
+                # [In fact, it seems to happen whenever we exit zoom/pan/rotate normally...
+                #  that is now bug 2512, and its cause is not known, but it might relate
+                #  to the comment below from 070814 (guess). [bruce 070831 comment]]
                 # Don't run Done in this case.
             else:
                 mode.Done()
