@@ -64,19 +64,36 @@ from exprs.attr_decl_macros import State
 
 from OpenGL.GL import GL_LEQUAL
 
-class test_connectWithState(ExampleCommand, IorE_guest_mixin):
+class State_preMixin( IorE_guest_mixin): #e refile, once cleaned up & bugfixed
+    """Use this as the *first* superclass (thus the _preMixin in the name)
+    in order to permit use of the State macro in the class assignments
+    which set up instance variable defaults in a given class.
+    The glpane must be passed as the first arg to __init__.
+    (TODO: that requirement should be cleaned up.)
+    """
     # the following are needed for now in order to use the State macro,
-    # along with the IorE_guest_mixin superclass; this will be cleaned up:
+    # along with the IorE_guest_mixin superclass; this may be cleaned up:
     __metaclass__ = ExprsMeta
-    transient_state = StatePlace('transient') ###k needed?
-    _e_is_instance = True ### REVIEW: can the superclass define this, since to be a noninstance you need a special subclass?
+    _e_is_instance = True ### REVIEW: can the superclass define this, since to work as a noninstance you need a special subclass?
+    _e_has_args = True # not needed -- only purpose is to remove "w/o a" from repr(self)
+
+    def __init__(self, glpane, *args, **kws):
+        print "State_preMixin.__init__",glpane, args, kws
+        IorE_guest_mixin.__init__(self, glpane)
+        print "will call",super(State_preMixin, self).__init__
+            ## <bound method test_connectWithState.__init__ of <test_connectWithState#4789(i w/o a)>>
+        super(State_preMixin, self).__init__(glpane, *args, **kws)
+            # this is not calling ExampleCommand.__init__ as I hoped it would. I don't know why. ###BUG
+    pass
+
+class test_connectWithState(State_preMixin, ExampleCommand):
 
     # class constants needed by mode API for example commands
     modename = 'test_connectWithState-modename'
     default_mode_status_text = "test_connectWithState"
     PM_class = test_connectWithState_PM
 
-    # this might be needed if we draw any exprs:
+    # this might be needed if we draw any exprs: [TODO: move to basicMode]
     standard_glDepthFunc = GL_LEQUAL
 
     # tracked state -- this initializes specially defined instance variables
@@ -92,11 +109,17 @@ class test_connectWithState(ExampleCommand, IorE_guest_mixin):
     # initial values of instance variables
     propMgr = None
 
+##    def __init__(self, glpane):
+##        super(test_connectWithState, self).__init__(glpane)
+####            # that only calls some mode's init method,
+####            # so (for now) call this separately:
+####        IorE_guest_mixin.__init__(self, glpane)
+##        return
+
     def __init__(self, glpane):
+        # I don't know why this method is needed. ##### REVIEW, FIX (###BUG)
         super(test_connectWithState, self).__init__(glpane)
-            # that only calls some mode's init method,
-            # so (for now) call this separately:
-        IorE_guest_mixin.__init__(self, glpane)
+        ExampleCommand.__init__(self, glpane) # (especially this part)
         return
 
     def Draw(self):
