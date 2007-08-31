@@ -69,3 +69,73 @@ PAM5_AtomList = {'PAM5BasePair':[ ("Pl", V( 8.699,  2.638,  1.590), "a"),
                                   ("Ax", V( 0.0,    0.0,    0.0  ), " "),
                                   ("Ss", V(-4.610, -4.943,  0.0  ), "b"), 
                                   ("Pl", V(-7.863, -4.562, -1.590), "b") ] }
+
+
+# Common DNA helper functions. ######################################
+
+def getComplementSequence(inSequence):
+    """
+    Returns the complement of the DNA sequence I{inSequence}.
+    
+    @param inSequence: The original DNA sequence.
+    @type  inSequence: str
+    
+    @return: The complement DNA sequence.
+    @rtype:  str
+    """
+    assert isinstance(inSequence, str)
+    outSequence = ""
+    for baseLetter in inSequence:
+        if baseLetter not in basesDict.keys():
+            baseLetter = "N"
+        else:
+            baseLetter = basesDict[baseLetter]['Complement']
+        outSequence += baseLetter
+    return outSequence
+    
+def getReverseSequence(inSequence):
+    """
+    Returns the reverse order of the DNA sequence I{inSequence}.
+    
+    @param inSequence: The original DNA sequence.
+    @type  inSequence: str
+    
+    @return: The reversed sequence.
+    @rtype:  str
+    """
+    assert isinstance(inSequence, str)
+    outSequence = list(inSequence)
+    outSequence.reverse()
+    outSequence = ''.join(outSequence)
+    return outSequence
+
+def replaceUnrecognized(inSequence, replaceBase = "N"):
+    """
+    Replaces any unrecognized/invalid characters (alphanumeric or
+    symbolic) from the DNA sequence and replaces them with I{replaceBase}.
+    
+    This can also be used to remove all unrecognized bases by setting
+    I{replaceBase} to an empty string.
+    
+    @param inSequence: The original DNA sequence.
+    @type  inSequence: str
+    
+    @param replaceBase: The base letter to put in place of an unrecognized base.
+                        The default is "N".
+    @type  replaceBase: str
+    
+    @return: The sequence.
+    @rtype:  str
+    """
+    assert isinstance(inSequence, str)
+    assert isinstance(replaceBase, str)
+    
+    outSequence = ""
+    for baseLetter in inSequence:
+        if baseLetter not in basesDict.keys():
+            baseLetter = replaceBase
+        outSequence += baseLetter
+    if 0:
+        print " inSequence:", inSequence
+        print "outSequence:", outSequence
+    return outSequence

@@ -38,6 +38,9 @@ DnaGeneratorPropertyManager.
 import env
 
 from Dna_Constants import basesDict, dnaDict
+from Dna_Constants import getComplementSequence
+from Dna_Constants import getReverseSequence
+from Dna_Constants import replaceUnrecognized
 
 from HistoryWidget import redmsg, greenmsg, orangemsg
 
@@ -149,7 +152,7 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
         self._pmGroupBox2 = PM_GroupBox( self, title = "DNA Parameters" )
         self._loadGroupBox2( self._pmGroupBox2 )
         
-        self._pmGroupBox3 = PM_GroupBox( self, title = "End Points" )
+        self._pmGroupBox3 = PM_GroupBox( self, title = "Endpoints" )
         self._loadGroupBox3( self._pmGroupBox3 )
         
     def _loadGroupBox1(self, pmGroupBox):
@@ -230,38 +233,6 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
         self.connect( self.actionsComboBox,
                       SIGNAL("currentIndexChanged(int)"),
                       self.actionsComboBoxChanged )
-
-    def _loadGroupBox2_OBS( self, pmGroupBox ):
-        """
-        Load widgets in group box 2.
-        """
-        
-        self.modelComboBox  = \
-            PM_ComboBox( pmGroupBox,
-                         label         =  "Model :", 
-                         choices       =  self._modelChoices, 
-                         index         =  0,
-                         setAsDefault  =  True,
-                         spanWidth     =  False )
-        
-        self.connect( self.modelComboBox,
-                      SIGNAL("currentIndexChanged(int)"),
-                      self.modelComboBoxChanged )
-        
-        # I may decide to reintroduce "base-pair chunks" at a later time.
-        # Please talk to me if you have a strong feeling about including
-        # this. Mark 2007-08-19.
-        createChoices        =  ["Single chunk", \
-                                 "Strand chunks" ]
-                                 #@ "Base-pair chunks"] 
-                                 
-        self.createComboBox  = \
-            PM_ComboBox( pmGroupBox,
-                         label         =  "Create :", 
-                         choices       =  createChoices, 
-                         index         =  0,
-                         setAsDefault  =  True,
-                         spanWidth     =  False )
     
     def _loadGroupBox2( self, pmGroupBox ):
         """
@@ -424,14 +395,9 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
         @param inIndex: The new index.
         @type  inIndex: int
         """
-        if DEBUG: 
-            env.history.message( 
-                greenmsg( "conformationComboBoxChanged(): Begin") )
-
         self.basesPerTurnComboBox.clear()
         conformation  =  self.conformationComboBox.currentText()
         
-        #if inIndex == BDNA:
         if conformation == "B-DNA":
             self.basesPerTurnComboBox.insertItem(0, "10.0")
             self.basesPerTurnComboBox.insertItem(1, "10.5")
@@ -441,7 +407,6 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
             #So set the current index to 1
             self.basesPerTurnComboBox.setCurrentIndex(1)
             
-        #if inIndex == ZDNA:
         elif conformation == "Z-DNA":
             self.basesPerTurnComboBox.insertItem(0, "12.0")
         
@@ -451,17 +416,12 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
             pass
         
         else:
-            if DEBUG: env.history.message( redmsg(  ("conformationComboBoxChanged():    Error - unknown DNA conformation. Index = "+ inIndex) ))
-            #return
+            msg = redmsg("conformationComboBoxChanged(): \
+            Error - unknown DNA conformation. Index = "+ inIndex)
+            env.history.message(msg)
 
         self.duplexLengthSpinBox.setSingleStep(
                 self.getDuplexRise(conformation) )
-
-        if DEBUG: 
-            env.history.message( 
-                greenmsg( "conformationComboBoxChanged: End" ) )
-
-    # GroupBox2 slots (and other methods) supporting the Representation groupbox.
         
     def modelComboBoxChanged( self, inIndex ):
         """
@@ -471,21 +431,12 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
         @param inIndex: The new index.
         @type  inIndex: int
         """
-        if DEBUG: 
-            env.history.message( 
-                greenmsg( "modelComboBoxChanged: Begin" ))
-
         conformation  =  self._modelChoices[ inIndex ]
-        
-        if DEBUG: 
-            env.history.message( 
-                greenmsg( "modelComboBoxChanged: Disconnect conformationComboBox" ))
             
         self.disconnect( self.conformationComboBox,
                          SIGNAL("currentIndexChanged(int)"),
                          self.conformationComboBoxChanged )
         
-        #@@@ self.newBaseChoiceComboBox.clear() # Generates signal!
         self.conformationComboBox.clear() # Generates signal!
         
         if conformation == self._modeltype_Reduced:            
@@ -500,21 +451,12 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
             pass
         
         else:
-            if DEBUG: 
-                env.history.message( 
-                    redmsg( ("modelComboBoxChanged(): Error - unknown model representation. Index = "+ inIndex)))
-        
-        if DEBUG: 
-            env.history.message( 
-                greenmsg( "modelComboBoxChanged(): Reconnect conformationComboBox" ))
+            msg = "Error - unknown model representation. Index = " + inIndex
+            env.history.message(redmsg(msg))
             
         self.connect( self.conformationComboBox,
                       SIGNAL("currentIndexChanged(int)"),
                       self.conformationComboBoxChanged)
-
-        if DEBUG: 
-            env.history.message( 
-                greenmsg( "modelComboBoxChanged(): End"))
     
     # GroupBox3 slots (and other methods) supporting the Strand Sequence groupbox.
     
@@ -533,17 +475,8 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
         Guarantees the values of the duplex length and strand length 
         spinboxes agree with the strand sequence (textedit).
         """
-        if DEBUG: 
-            env.history.message( 
-                greenmsg( "synchronizeLengths: Begin"))
-            
         self.updateStrandLength()
-        self.updateDuplexLength()
-        
-        if DEBUG: 
-            env.history.message( 
-                greenmsg( "synchronizeLengths: End"))
-            
+        self.updateDuplexLength()   
         return
     
         # Added :jbirac 20070613:     
@@ -555,26 +488,12 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
         @param inDuplexLength: The duplex length.
         @type  inDuplexLength: float
         """
-        if DEBUG: 
-            env.history.message( 
-                greenmsg( "duplexLengthChanged(): Begin" ))
 
         conformation     =  self.conformationComboBox.currentText()
         duplexRise       =  self.getDuplexRise( conformation )
         newStrandLength  =  inDuplexLength / duplexRise + 0.5
         newStrandLength  =  int( newStrandLength )
-
-        if DEBUG: 
-            env.history.message( 
-                greenmsg( "duplexLengthChanged():    Change strand length (" 
-                          + str(newStrandLength) + ')'))
-
         self.strandLengthChanged( newStrandLength )
-
-        if DEBUG: 
-            env.history.message( 
-                greenmsg( "duplexLengthChanged(): End"))
-
 
     def updateDuplexLength( self ):    # Added :jbirac 20070615:
         """
@@ -583,40 +502,19 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
         method is called by slots of other controls (i.e., this itself
         is not a slot.)
         """
-        if DEBUG: 
-            env.history.message( 
-                greenmsg( "updateDuplexLength(): Begin"))
-
         conformation     =  self.conformationComboBox.currentText()
         newDuplexLength  =  self.getDuplexRise( conformation ) \
                           * self.getSequenceLength()
-    
-        if DEBUG: 
-            env.history.message( 
-                greenmsg( "updateDuplexLength(): newDuplexLength="
-                          + str(newDuplexLength) ))
-
-        if DEBUG: 
-            env.history.message( 
-                greenmsg( "updateDuplexLength(): Disconnect duplexLengthSpinBox"))
 
         self.disconnect( self.duplexLengthSpinBox,
                          SIGNAL("valueChanged(double)"),
                          self.duplexLengthChanged)
 
         self.duplexLengthSpinBox.setValue( newDuplexLength )
- 
-        if DEBUG: 
-            env.history.message( 
-                greenmsg( "updateDuplexLength(): Reconnect duplexLengthSpinBox"))
             
         self.connect( self.duplexLengthSpinBox,
                       SIGNAL("valueChanged(double)"),
                       self.duplexLengthChanged)
-
-        if DEBUG: 
-            env.history.message( 
-                greenmsg( "updateDuplexLength(): End"))
 
     # Renamed from length_changed :jbirac 20070613:
     def strandLengthChanged( self, inStrandLength ):
@@ -627,10 +525,6 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
         @param inStrandLength: The number of bases in the strand sequence.
         @type  inStrandLength: int
         """
-        if DEBUG: 
-            env.history.message( 
-                greenmsg( ("strandLengthChanged(): Begin (inStrandLength="
-                           + str(inStrandLength) + ')') ))
 
         theSequence   =  self.getPlainSequence()
         sequenceLen   =  len( theSequence )
@@ -642,57 +536,38 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
         selectionStart  =  cursor.selectionStart()
         selectionEnd    =  cursor.selectionEnd()
 
-        if inStrandLength < 0: 
-            if DEBUG: 
-                env.history.message( 
-                    orangemsg( ("strandLengthChanged(): Illegal strandlength = "
-                                + str(inStrandLength) )))
-            env.history.message( orangemsg( "strandLengthChanged(): End"))
+        if inStrandLength < 0:
             return # Should never happen.
         
         if lengthChange < 0:
-            if DEBUG: 
-                env.history.message( 
-                    greenmsg( ("strandLengthChanged(): Shorten("
-                               + str(lengthChange) + ')' )))
             # If length is less than the previous length, 
             # simply truncate the current sequence.
-
             theSequence.chop( -lengthChange )
 
         elif lengthChange > 0:
             # If length has increased, add the correct number of base 
             # letters to the current strand sequence.
             numNewBases  =  lengthChange
-            if DEBUG: 
-                env.history.message( 
-                    greenmsg( ("strandLengthChanged(): Lengthen ("
-                               + str(lengthChange) + ')' )))
 
             # Get current base selected in combobox.
-            #@@@ chosenBase  =  str(self.newBaseChoiceComboBox.currentText())[0]
             chosenBase  =  'X' # Unassigned.
 
             basesToAdd  =  chosenBase * numNewBases
-            #self.sequenceTextEdit.insertPlainText( basesToAdd )
             theSequence.append( basesToAdd )
 
-        else:  # :jbirac 20070613:
-            if DEBUG: 
-                env.history.message( 
-                    orangemsg( "strandLengthChanged(): Length has not changed; ignore signal." ))
+        else:
+            env.history.message( 
+                orangemsg( "strandLengthChanged(): Length has not changed." ))
 
         self.setSequence( theSequence )
 
-        if DEBUG: 
-            env.history.message( 
-                greenmsg( "strandLengthChanged(): End"))
         return
 
     # Renamed from updateLength :jbirac 20070613:
     def updateStrandLength( self ):
         """
-        Update the Strand Length spinbox; always the length of the strand sequence.
+        Update the Strand Length spinbox; always the length of the strand 
+        sequence.
         """
             
         self.disconnect( self.strandLengthSpinBox,
@@ -704,10 +579,6 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
         self.connect( self.strandLengthSpinBox,
                       SIGNAL("valueChanged(int)"),
                       self.strandLengthChanged )
-        
-        if DEBUG: 
-            env.history.message( 
-                greenmsg( "updateStrandLength(): End" ))
         return
 
     def sequenceChanged( self ):
@@ -716,89 +587,29 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
         Assumes the sequence changed directly by user's keystroke in the 
         textedit.  Other methods...
         """        
-        if DEBUG: 
-            env.history.message( 
-                greenmsg( "sequenceChanged(): Begin") )
-        
         cursorPosition  =  self.getCursorPosition()
         theSequence     =  self.getPlainSequence()
         
-        # Disconnect while we edit the sequence.
-        if DEBUG: 
-            env.history.message( 
-                greenmsg( "sequenceChanged(): Disconnect sequenceTextEdit" ))
-            
+        # Disconnect while we edit the sequence.            
         self.disconnect( self.sequenceTextEdit,
                          SIGNAL("textChanged()"),
                          self.sequenceChanged )
     
         # How has the text changed?
         if theSequence.length() == 0:  # There is no sequence.
-            if DEBUG: 
-                env.history.message( 
-                    greenmsg( "sequenceChanged(): User deleted all text.") )
             self.updateStrandLength()
             self.updateDuplexLength()
         else:
             # Insert the sequence; it will be "stylized" by setSequence().
-            if DEBUG: 
-                env.history.message( 
-                    greenmsg( "sequenceChanged(): Inserting refined sequence") )
             self.setSequence( theSequence )
         
         # Reconnect to respond when the sequence is changed.
-        if DEBUG: 
-            env.history.message( 
-                greenmsg( "sequenceChanged(): Reconnect sequenceTextEdit") )
-            
         self.connect( self.sequenceTextEdit,
                       SIGNAL("textChanged()"),
                       self.sequenceChanged )
 
         self.synchronizeLengths()
-
-        if DEBUG: 
-            env.history.message( 
-                greenmsg( "sequenceChanged(): End" ) )
         return
-
-    def removeUnrecognized( self ):
-        """
-        Removes any unrecognized/invalid characters (alphanumeric or
-        symbolic) from the sequence.
-        """
-        outSequence  =  self.sequenceTextEdit.toPlainText()
-        theString = ''
-        for theBase in basesDict:
-            theString  =  theString + theBase
-        theString  =  '[^' + str( QRegExp.escape(theString) ) + ']'
-        outSequence.remove(QRegExp( theString ))
-        self.setSequence( outSequence )
-        return outSequence
-
-    def convertUnrecognized( self, inSequence = None ):
-        """
-        Substitutes an 'N' for any unrecognized/invalid characters 
-        (alphanumeric or symbolic) in the sequence
-        
-        @param inSequence: The strand sequence.
-        @type  inSequence: str
-
-        @return: The new sequence.
-        @rtype:  str
-        """
-        if inSequence == None:
-            outSequence  =  self.sequenceTextEdit.toPlainText()
-        else:
-            outSequence  =  QString( inSequence )
-
-        theString = ''
-        for theBase in basesDict:
-            theString += theBase
-        theString  =  '[^' + str( QRegExp.escape(theString) ) + ']'
-        outSequence.replace( QRegExp(theString), 'N' )
-        outSequence = str(outSequence)
-        return outSequence
 
     def getPlainSequence( self, inOmitSymbols = False ):
         """
@@ -986,7 +797,7 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
         """
         cursor  =  self.sequenceTextEdit.textCursor()
 
-        if DEBUG: 
+        if 0: 
             env.history.message( greenmsg( "cursorPosChanged: Selection ("
                                            + str(cursor.selectionStart())
                                            + " thru "
@@ -1001,58 +812,32 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
         @param inIndex: The index of the selected action choice.
         @type  inIndex: int
         """
+        if inIndex == 0: # Very important.
+            return
+        
         actionName = str(self.actionsComboBox.currentText())
-        
-        self.disconnect( self.actionsComboBox,
-                         SIGNAL("currentIndexChanged(int)"),
-                         self.actionsComboBoxChanged )
-        
         self.actionsComboBox.setCurrentIndex( 0 ) # Generates signal!
-        
-        self.connect( self.actionsComboBox,
-                      SIGNAL("currentIndexChanged(int)"),
-                      self.actionsComboBoxChanged )
-        
-        return self.invokeAction( actionName )
+        self.invokeAction( actionName )
+        return 
 
     def invokeAction( self, inActionName ):
         """
         Invokes the action inActionName
         """
+        sequence, allKnown = self._getSequence()
         outResult  =  None
 
         if inActionName == self._action_Complement:
-            outResult  =  self.complementSequence()
+            outResult  =  getComplementSequence(sequence)
         elif inActionName == self._action_Reverse:
-            outResult  =  self.reverseSequence()
+            outResult  =  getReverseSequence(sequence)
         elif inActionName == self._action_ConvertUnrecognized:
-            outResult  =  self.convertUnrecognized()
+            outResult  =  replaceUnrecognized(sequence, replaceBase = 'N')
             self.setSequence( outResult )
         elif inActionName == self._action_RemoveUnrecognized:
-            outResult  =  self.removeUnrecognized()
+            outResult  =  replaceUnrecognized(sequence, replaceBase = '')
 
-        return outResult
+        self.setSequence( outResult )
         
-    def complementSequence( self ):
-        """
-        Complements the current sequence.
-        """
-        def thunk():
-            (seq, allKnown) = self._getSequence( complement  =  True,
-                                                  reverse     =  True )
-                #bruce 070518 added reverse=True, since complementing a 
-                # sequence is usually understood to include reversing the 
-                # base order, due to the strands in B-DNA being antiparallel.
-            self.setSequence( seq ) #, inStylize  =  False )
-            #self.sequenceChanged()
-        self.handlePluginExceptions( thunk )
-
-    def reverseSequence( self ):
-        """
-        Reverse the current sequence.
-        """
-        def thunk():
-            (seq, allKnown) = self._getSequence( reverse  =  True )
-            self.setSequence( seq ) #, inStylize  =  False )
-            #self.sequenceChanged()
-        self.handlePluginExceptions( thunk )
+        return
+    

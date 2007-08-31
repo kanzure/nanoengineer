@@ -37,12 +37,8 @@ from files_mmp      import _readmmp
 from fusechunksMode import fusechunksBase
 from platform       import find_plugin_dir
 
-from Dna_Constants  import basesDict
-from Dna            import Dna
-from Dna            import A_Dna, A_Dna_PAM5
-from Dna            import B_Dna, B_Dna_PAM5
-from Dna            import Z_Dna, Z_Dna_PAM5
-from Dna            import DEBUG_SEQUENCE
+from Dna_Constants  import basesDict, getReverseSequence
+from Dna            import A_Dna_PAM5, B_Dna_PAM5, Z_Dna_PAM5
 from Dna            import basepath, basepath_ok
 
 from GeneratorBaseClass import GeneratorBaseClass, CadBug, PluginBug, UserError
@@ -72,8 +68,8 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
     # any necessary helper functions.
 
     def change_random_seed(self):
-        if DEBUG_SEQUENCE:
-            print "change random seed"
+        if 0:
+            print "change_random_seed() called."
         self._random_data  =  []
 
     def _random_data_for_index(self, inIndex):
@@ -89,51 +85,29 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
                  - dnaSequence
                  - dnaType
                  - basesPerTurn
-                 - dnaModel
                  - chunkOption
         @rtype:  tuple
         """
         if not basepath_ok:
             raise PluginBug("The cad/plugins/DNA directory is missing.")
+        
         dnaType = str(self.conformationComboBox.currentText())
-        if dnaType == 'A-DNA':
-            raise PluginBug("""A-DNA is not yet implemented -- please try 
-            B- or Z-DNA""");
-        assert dnaType in ('B-DNA', 'Z-DNA')
+
+        assert dnaType in ('B-DNA')
 
         # Get bases per turn.
         basesPerTurnString = str(self.basesPerTurnComboBox.currentText())
         basesPerTurn = float(basesPerTurnString)
-        
-        #@dnaModel = str(self.modelComboBox.currentText())
-        dnaModel = "PAM5"
-        
-        if (dnaModel == 'PAM5'):
-            chunkOption = str(self.createComboBox.currentText())
-            resolve_random = False
-                # Later this flag may depend on a new checkbox in that case;
-                # for now it doesn't matter, since sequence info is 
-                # discarded for reduced bases anyway.
+
+        chunkOption = str(self.createComboBox.currentText())
+        resolve_random = False
+            # Later this flag may depend on a new checkbox in that case;
+            # for now it doesn't matter, since sequence info is 
+            # discarded for reduced bases anyway.
                 
-        if (dnaModel == 'Atomistic'):
-            chunkOption = str(self.createComboBox.currentText())
-            resolve_random = True
-                # If this flag was not set, for atomistic case, random base 
-                # letters would cause error message below, but the error 
-                # message needs rewording for that... for now, it can't 
-                # happen.
-            
-        assert dnaModel in ('Atomistic', 'PAM5')
 
-        (dnaSequence, allKnown) = self._getSequence( resolve_random = resolve_random)
-
-        atcgnSequence  =  self.convertUnrecognized(dnaSequence)
-
-        if (dnaModel == 'Atomistic' and not allKnown):
-            raise UserError("Must use A,C,G or T only for Atomistic models.") # needs rewording (see above)
-
-        if (dnaModel == 'PAM5' and dnaType == 'Z-DNA'):
-            raise PluginBug("Z-DNA not implemented for 'PAM-5 reduced model'. Use B-DNA.")
+        (dnaSequence, allKnown) = \
+            self._getSequence( resolve_random = resolve_random)
         
         x1 = self.x1SpinBox.value()
         y1 = self.y1SpinBox.value()
@@ -147,10 +121,8 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
         endpoint2 = V(x2, y2, z2)
 
         return (dnaSequence, 
-                atcgnSequence,
                 dnaType,
                 basesPerTurn,
-                dnaModel,
                 chunkOption,
                 endpoint1, 
                 endpoint2)
@@ -196,48 +168,29 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
         # No error checking in build_struct, do all your error
         # checking in gather_parameters
         theSequence, \
-        atcgnSequence, \
         dnaType, \
         basesPerTurn, \
-        dnaModel, \
         chunkOption, \
         endpoint1, \
         endpoint2 = params
         
         if Veq(endpoint1, endpoint2):
-            # Ask Bruce is there is a better/preferred way of checking this.
-            # Works fine for now.  Mark 2007-08-28
             raise CadBug("Dna endpoints cannot be the same point.")
             return
         
-        if len(theSequence) < 1: # Mark 2007-06-01
-            msg = redmsg("You must enter a strand sequence to preview/insert DNA")
+        if len(theSequence) < 1:
+            msg = redmsg("Enter a strand sequence to preview/insert DNA")
             self.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=False)
-            self.dna = None
             return None
-            
-        if (dnaModel == 'Atomistic') & (len(theSequence) > 30):
-            # This message should appear in the PM message box, but it needs to be
-            # flushed (reset) after the DNA is created.
-            env.history.message(self.cmd + "This may take a moment...")
 
-        # Instantiate the DNA subclass (based on dnaModel and conformation).
-            
-        if (dnaModel == 'Atomistic'):
-            if dnaType == 'A-DNA':
-                dna = A_Dna()
-            elif dnaType == 'B-DNA':
-                dna = B_Dna()
-            elif dnaType == 'Z-DNA':
-                dna = Z_Dna()
-
-        elif (dnaModel == 'PAM5'):
-            if dnaType == 'A-DNA':
-                dna = A_Dna_PAM5()
-            elif dnaType == 'B-DNA':
-                dna = B_Dna_PAM5()
-            elif dnaType == 'Z-DNA':
-                dna = Z_Dna_PAM5()
+        # Only B-DNA is currently supported. Leaving these conditionals
+        # in for future use.
+        if dnaType == 'A-DNA':
+            dna = A_Dna_PAM5()
+        elif dnaType == 'B-DNA':
+            dna = B_Dna_PAM5()
+        elif dnaType == 'Z-DNA':
+            dna = Z_Dna_PAM5()
         
         self.dna = dna  # needed for done msg
         
@@ -250,23 +203,13 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
             # grouping arrangement for atomistic vs. PAM5. This 'issue'
             # is resolved when we regroup the atoms into strand chunks
             # below.
-            dna.make(rawDnaGroup, theSequence, basesPerTurn, position)
+            dna.make(rawDnaGroup, theSequence, basesPerTurn)
              
             self._orientRawDnaGroup(rawDnaGroup, endpoint1, endpoint2)
         
             # Now group the DNA atoms based on the grouping option selected
             # (i.e. "Strand chunks" or "Single Chunk").
-            # Note: We regroup <rawDnaGroup> so that both atomistic and PAM5
-            # end up with atoms organized in a consistent manner (except that
-            # the axis atoms in PAM5 models are placed in their own "Axis" 
-            # group).
-            if dnaModel == 'Atomistic':
-                dnaGroup = self._makeAtomisticSingleChunkStrands(rawDnaGroup)
-            elif dnaModel == 'PAM5':
-                dnaGroup = self._makePAM5StrandAndAxisChunks(rawDnaGroup)
-            else:
-                raise PluginBug("Unknown model: %r" % (dnaModel))
-                return None
+            dnaGroup = self._makePAM5StrandAndAxisChunks(rawDnaGroup)
             
             if chunkOption == 'Single chunk':
                 return self._makeDuplexChunk(dnaGroup)
@@ -306,7 +249,7 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
         # <axis> is the axis of rotation.
         theta = angleBetween(a, b)
         # <theta> is the angle (in degress) to rotate about <axis>.
-        scalar = self.dna.getBaseRise() * self._getSequenceLength() * 0.5
+        scalar = self.dna.getBaseRise() * self.getSequenceLength() * 0.5
         rawOffset = b * scalar
         
         if 0: # Debugging code.
@@ -316,7 +259,7 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
             print "cross(a,b) =", axis
             print "theta      =", theta
             print "baserise   =", self.dna.getBaseRise()
-            print "seqLength  =", self._getSequenceLength()
+            print "seqLength  =", self.getSequenceLength()
             print "scalar     =", scalar
             print "rawOffset  =", rawOffset
         
@@ -332,10 +275,12 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
             m.move(qrot.rot(m.center) - m.center + rawOffset + pt1)
             m.rot(qrot)
 
-    def _getSequenceLength(self):
+    def _getSequenceLength_OBS(self):
         """
         Returns the number of bases of the current sequence
         (from the Property Manager).
+        
+        @note: This is duplicated from DnaGeneratorPropert
         """
         (sequence, allKnown) = self._getSequence()
         return len(sequence)
@@ -386,9 +331,9 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
         
         cdict    =  basesDict
         
-        # The current sequence (or number of bases) in the PropMgr. Mark [070405]
-        # (Note: I think this code implies that it can no longer be a number of bases. [bruce 070518 comment])
-        currentSequence  =  str(self.getPlainSequence(inOmitSymbols = True)) # :jbirac: 20070629
+        # (Note: I think this code implies that it can no longer be a 
+        #        number of bases. [bruce 070518 comment])
+        currentSequence  =  str(self.getPlainSequence(inOmitSymbols = True))
 
         for ch in currentSequence:
             if ch in cdict.keys():  #'CGATN':
@@ -396,15 +341,19 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
                 if ch == 'N': ###e soon: or any other letter indicating a random base
                     if resolve_random: #bruce 070518 new feature
                         i    = len(sequence)
-                        data = self._random_data_for_index(i) # a random int in range(12), in a lazily extended cache
-                        ch   = list(cdict)[data%4]  # modulus must agree with number of valid entries in cdict.
+                        data = self._random_data_for_index(i) 
+                        # a random int in range(12), in a lazily extended cache
+                        ch   = list(cdict)[data%4]  
+                        # modulus must agree with number of valid entries in 
+                        # cdict.
                     else:
                         allKnown = False
                 if complement:
                     try:
                         ch = properties['Complement']
                     except (KeyError):
-                        raise KeyError("DNA dictionary doesn't have a 'Complement' key for '%r'." % ch)
+                        raise KeyError("DNA dictionary doesn't have a \
+                        'Complement' key for '%r'." % ch)
                         ch = 'N'
             elif ch in self.validSymbols: #'\ \t\r\n':
                 ch  =  ''
@@ -414,28 +363,14 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
             sequence += ch
 
         if reverse: 
-            sequence = self.getReverseSequence(sequence)
+            sequence = getReverseSequence(sequence)
         
         return (sequence, allKnown)
     
-    def getReverseSequence(self, inSequence):
-        """
-        Reverses the order of the DNA sequence I{inSequence}.
-        
-        @param inSequence: DNA sequence.
-        @type  inSequence: str
-        
-        @return: The reversed sequence.
-        @rtype:  str
-        """
-        outSequence = list(inSequence)
-        outSequence.reverse()
-        outSequence = ''.join(outSequence)
-        return outSequence
-
     def _makeDuplexChunk(self, dnaGroup):
         """
-        Returns a single DNA chunk given a dnaGroup containing multiple strand chunks.
+        Returns a single DNA chunk given a dnaGroup containing multiple strand
+        chunks.
         
         @param dnaGroup: The group object containing the DNA strand chunks.
         @type  dnaGroup: L{Group}
@@ -460,43 +395,6 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
         dnaGroup.ungroup()
         
         return dnaChunk
-       
-    def _makeAtomisticSingleChunkStrands(self, rawDnaGroup):
-        """
-        Returns a group containing the two strand chunks I{StrandA},
-        and I{StrandB} of the current DNA sequence.
-        
-        @param rawDnaGroup: The raw Dna group which contains two groups
-                            "StrandA" and "StrandB". These subgroups contain
-                            the individual base chunks for each strand.
-        @type  rawDnaGroup: L{Group}
-        
-        @return: The merged DNA group that contains the two strand chunks
-                 "StrandA" and "StrandB".
-        @rtype:  L{Group}
-        """
-        
-        counter = 0
-        
-        # Merge all the chunks in the two subgroups of rawDnaGroup into two
-        # strand chunks "StrandA" and "StrandB".
-        for subgroup in rawDnaGroup.members:
-            if isinstance(subgroup, Group):
-                # This is for a double stranded DNA.
-                mol = subgroup.members[0]
-                for m in subgroup.members[1:]:                           
-                    mol.merge(m)
-                
-                # Ungroup and rename chunk
-                subgroup.ungroup()
-                mol.name = self._getStrandName(counter)
-            else:
-                print "Bug in merging DNA strand bases into a single chunk." 
-                return None
-            
-            counter +=1
-            
-        return rawDnaGroup
     
     def _getStrandName(self, strandNumber, numberOfBasesToDisplay = 0):
         """
@@ -534,7 +432,8 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
             strandName += ":" + sequence[0:numberOfLetters]
         
             if len(sequence) > numberOfBasesToDisplay:
-                # Add "..." if the sequence is longer than <numberOfBasesToDisplay>.
+                # Add "..." if the sequence is longer than
+                # <numberOfBasesToDisplay>.
                 strandName += '...'
                           
         return strandName
@@ -564,7 +463,7 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
         # <startAtoms> are the PAM5 atoms that start StrandA, StrandB and Axis.
         # If the sequence is a single base, then we have 2 Pe atoms (one for 
         # strandA and one for StrandB.
-        if self._getSequenceLength() == 1:
+        if self.getSequenceLength() == 1:
             startAtoms = ("Pe", "Ae")
         else:
             startAtoms = ("Pe", "Sh", "Ae")

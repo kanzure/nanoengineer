@@ -50,7 +50,6 @@ from GeneratorBaseClass import PluginBug
 from Utility            import Group
 
 from Dna_Constants import basesDict, dnaDict
-from Dna_Constants import PAM5_AtomList # Used only if INSERT_FROM_MMP = False
 
 from chunk         import molecule #@ For insertBaseFromAtomList.
 
@@ -63,10 +62,6 @@ if not basepath_ok:
 
 RIGHT_HANDED = -1
 LEFT_HANDED  =  1
-
-DEBUG = False
-DEBUG_SEQUENCE   =  False
-INSERT_FROM_MMP  =  True
 
 class Dna:
     """
@@ -84,38 +79,36 @@ class Dna:
                           - "PAM5" = PAM-5 reduced model.
     @type model: str
     
-    @ivar originalSequence: The original DNA sequence of strand A.
-    @type originalSequence: str
-    
-    @ivar knownSequence: The sequence in which any unrecognized base is converted to 'N'.
-    @type knownSequence: str
+    @ivar sequence: The sequence (of strand A of the duplex).
+    @type sequence: str
     """
         
-    def make(self, group, inSequence, basesPerTurn, position):
+    def make(self, group, inSequence, basesPerTurn, position = V(0, 0, 0)):
         """
-        Makes a PAM5 or atomistic DNA structure.
+        Makes a DNA duplex with the sequence I{inSequence}. 
+        The duplex is oriented with its central axis coincident
+        to the Z axis.
         
         @param assy: The assembly (part).
         @type  assy: L{assembly}
         
-        @param group: The group node object containing the DNA.
+        @param group: The group node object containing the DNA. The caller
+                      is responsible for creating an empty group and passing
+                      it here. When finished, this group will contain the DNA
+                      model.
         @type  group: L{Group}
         
         @param basesPerTurn: The number of bases per helical turn.
         @type  basesPerTurn: float
         
-        @param position: The position in 3d model space at which to
-                         create the DNA strand. This is always 0, 0, 0.
+        @param position: The position in 3d model space at which to create
+                         the DNA strand. This should always be 0, 0, 0.
         @type position:  position
-        """        
-        assy                =  group.assy
-        originalSequence    =  inSequence       
-        self.knownSequence  =  self.removeUnrecognized(originalSequence)
-        sequence            =  self.knownSequence
-        baseList            =  []
+        """
         
-        if DEBUG_SEQUENCE:
-            print "Making", sequence
+        self.sequence  =  inSequence
+        assy           =  group.assy
+        baseList       =  []
         
         def insertBaseFromMmp(filename, subgroup, tfm, position = position):
             """
@@ -160,12 +153,15 @@ class Dna:
                             baseLetter = currentBaseLetter
                         else:
                             try:
-                                baseLetter = basesDict[currentBaseLetter]['Complement']
+                                baseLetter = \
+                                    basesDict[currentBaseLetter]['Complement']
                             except:
-                                # If complement not found, just assign same letter.
+                                # If complement not found, just assign same 
+                                # letter.
                                 baseLetter = currentBaseLetter
-                        if DEBUG_SEQUENCE:
-                            print "Ss(%r) being set to %r." % (atm.dnaBaseName, baseLetter)
+                        if 0:
+                            print "Ss(%r) being set to %r." \
+                                  % (atm.dnaBaseName, baseLetter)
                         atm.setDnaBaseName(baseLetter)
                 
                 member.name = currentBaseLetter
@@ -175,62 +171,6 @@ class Dna:
             # Clean up.
             del viewdata                
             shelf.kill()
-            
-        def insertBaseFromAtomList(subgroup, tfm, position = position):
-            """
-            Inserts a PAM-5 base-pair using a list of PAM-5 atoms.
-            
-            @attention: This is a test to see if creating long PAM-5 
-                        structures is faster this way vs. insertBaseFromMmp().
-                        It is not fully working as of 2007-08-18.
-            """
-            _name = "TESTING"
-            
-            newChunk  =  molecule( assy, _name )
-            
-            lastAtom = None
-            aList = []
-            
-            atomList = PAM5_AtomList['midBasePair']
-            
-            for atom in atomList:
-                
-                symbol   =  atom[0]
-                xyz      =  atom[1]
-                a_or_b   =  atom[2]
-                newAtom  =  Atom( symbol, xyz, newChunk )
-                
-                newAtom._posn = tfm(newAtom._posn) + position
-
-                if lastAtom:
-                    # Order of atoms in list makes difference!
-                    newChunk.bond(newAtom, lastAtom)
-                
-                if symbol == "Ss":
-                    if a_or_b == "a":
-                        baseLetter = currentBaseLetter
-                    else:
-                        try:
-                            baseLetter = basesDict[currentBaseLetter]['Complement']
-                        except:
-                            # If complement not found, just assign same letter.
-                            baseLetter = currentBaseLetter
-                            
-                    newAtom.setDnaBaseName(baseLetter)
-                    if DEBUG_SEQUENCE:
-                        print "Ss(%r) being set to %r." % (newAtom.dnaBaseName, baseLetter)
-                
-                lastAtom = newAtom
-                
-                aList.append(newAtom)
-            
-            for atom in aList:
-                atom.remake_bondpoints()
-                
-            subgroup.addchild(newChunk)
-            baseList.append(newChunk)
-            
-            return
 
         def rotateTranslateXYZ(inXYZ, theta, z):
             """
@@ -254,65 +194,29 @@ class Dna:
             y = -s * inXYZ[0] + c * inXYZ[1]
             return V(x, y, inXYZ[2] + z)
 
-        # Create group for strand A (atomistic mdoel only).
-        if (self.model == 'Atomistic'):
-            subgroup = Group("Strand A", assy, None)
-            group.addchild(subgroup)
-        else:
-            subgroup = group
+        # Begin making DNA.
+        subgroup = group
         subgroup.open = False
         
         # Calculate the twist per base in radians.
         twistPerBase = (self.handedness * 2 * pi) / basesPerTurn
         theta        = 0.0
-        z            = 0.5 * self.baseRise * (len(sequence) - 1)
+        z            = 0.5 * self.baseRise * (len(self.sequence) - 1)
                 
-        # Create strand A.
-        for i in range(len(sequence)):
-            currentBaseLetter = originalSequence[i]
+        # Create PAM5 duplex.
+        for i in range(len(self.sequence)):
+            currentBaseLetter = self.sequence[i]
             basefile, zoffset, thetaOffset = \
                 self._strandAinfo(currentBaseLetter, i)
             def tfm(v, theta = theta + thetaOffset, z1 = z + zoffset):
                 return rotateTranslateXYZ(v, theta, z1)
-            if DEBUG: 
-                print basefile
             
-            if INSERT_FROM_MMP:
-                insertBaseFromMmp(basefile, subgroup, tfm)
-            else:
-                # Warning: Cannot create atomistic DNA structures.
-                insertBaseFromAtomList(subgroup, tfm)
+            insertBaseFromMmp(basefile, subgroup, tfm)
+
             theta -= twistPerBase
             z     -= self.baseRise
-        
-        # Create strand B (atomistic model only).
-        if (self.model == 'Atomistic'):
-            subgroup = Group("Strand B", assy, None)
-            subgroup.open = False
-            group.addchild(subgroup)
-            
-            theta = 0.0
-            z     = 0.5 * self.baseRise * (len(sequence) - 1)
-            
-            strandB = self.getComplementSequence(sequence)
-            for i in range(len(sequence)):
-                # The 3'-to-5' direction is reversed for strand B.
-                currentBaseLetter = strandB[i]
-                basefile, zoffset, thetaOffset = \
-                    self._strandBinfo(currentBaseLetter, i)
-                def tfm(v, theta = theta + thetaOffset, z1 = z + zoffset):
-                    # Flip theta, flip z
-                    # Cheesy hack: flip theta by reversing the sign of y,
-                    # since theta = atan2(y,x)
-                    return rotateTranslateXYZ(V(v[0], -v[1], -v[2]), theta, z1)
-                if DEBUG: 
-                    print basefile
-                insertBaseFromMmp(basefile, subgroup, tfm)
-                theta -= twistPerBase
-                z     -= self.baseRise
 
-        # Fuse the bases together into continuous strands.
-        
+        # Fuse the base chunks together into continuous strands.
         fcb = fusechunksBase()
         fcb.tol = 1.5
         for i in range(len(baseList) - 1):
@@ -323,9 +227,10 @@ class Dna:
             self._postProcess(baseList)
         except:
             if env.debug():
-                print_compact_traceback("debug: exception in %r._postProcess(baseList = %r) (reraising): " % (self, baseList,))
+                print_compact_traceback( 
+                    "debug: exception in %r._postProcess(baseList = %r) \
+                    (reraising): " % (self, baseList,))
             raise
-        
         
         return
 
@@ -367,58 +272,7 @@ class Dna:
         @type  inBaseRise: float
         """
         self.baseRise  =  inBaseRise
-        
-    def getComplementSequence(self, inSequence):
-        """
-        Returns the complement DNA sequence.
-        
-        @param inSequence: The original DNA sequence.
-        @type  inSequence: str
-        
-        @return: The complement DNA sequence.
-        @rtype:  str
-        """
-        assert isinstance(inSequence, str)
-        outSequence = ""
-        for baseLetter in inSequence:
-            if baseLetter not in basesDict.keys():
-                baseLetter = "N"
-            else:
-                baseLetter = basesDict[baseLetter]['Complement']
-            outSequence += baseLetter
-        return outSequence
-        
-    def getReverseSequence(self, inSequence):
-        """
-        Reverses the order of the DNA sequence I{inSequence}.
-        
-        @param inSequence: The original DNA sequence.
-        @type  inSequence: str
-        
-        @return: The reversed sequence.
-        @rtype:  str
-        """
-        assert isinstance(inSequence, str)
-        outSequence = list(inSequence)
-        outSequence.reverse()
-        outSequence = ''.join(outSequence)
-        return outSequence
     
-    def removeUnrecognized(self, inSequence, replaceBase = "N"):
-        """
-        Removes any unrecognized/invalid characters (alphanumeric or
-        symbolic) from the DNA sequence.
-        """
-        assert isinstance(inSequence, str)
-        outSequence = ""
-        for baseLetter in inSequence:
-            if baseLetter not in basesDict.keys():  # 'CGATN'
-                baseLetter = replaceBase
-            outSequence += baseLetter
-        if DEBUG_SEQUENCE:
-            print " inSequence:", inSequence
-            print "outSequence:", outSequence
-        return outSequence
     pass
 
 class A_Dna(Dna):
@@ -436,17 +290,26 @@ class A_Dna(Dna):
     baseRise   =  dnaDict['A-DNA']['DuplexRise']
     handedness =  RIGHT_HANDED
     
-    def _strandAinfo(self, sequence, index):
+    def _strandAinfo(self, baseLetter, index):
         """
         Raise exception since A-DNA is not support. 
         """
-        raise PluginBug("A-DNA is not yet implemented -- please try B- or Z-DNA");
+        raise PluginBug("A-DNA is not yet implemented.")
     
     def _strandBinfo(self, sequence, index):
         """
         Raise exception since A-DNA is not support. 
         """
-        raise PluginBug("A-DNA is not yet implemented -- please try B- or Z-DNA");
+        raise PluginBug("A-DNA is not yet implemented.")
+    pass
+
+class A_Dna_Atomistic(A_Dna):
+    """
+    Provides an atomistic model of the A form of DNA.
+    
+    @attention: This class is not implemented yet.
+    """
+    pass
 
 class A_Dna_PAM5(A_Dna):
     """
@@ -461,9 +324,15 @@ class B_Dna(Dna):
     Provides an atomistic model of the B form of DNA.
     """
     form       =  "B-DNA"
-    model      =  "Atomistic"
     baseRise   =  dnaDict['B-DNA']['DuplexRise']
     handedness =  RIGHT_HANDED
+    pass
+
+class B_Dna_Atomistic(B_Dna):
+    """
+    Provides an atomistic model of the B form of DNA.
+    """
+    model      =  "Atomistic"
     
     def _strandAinfo(self, baseLetter, index):
         """
@@ -496,6 +365,8 @@ class B_Dna(Dna):
         basename     =  basesDict[baseLetter]['Name']
         basefile     =  self._baseFileName(basename)
         return (basefile, zoffset, thetaOffset)
+    
+    pass
 
 class B_Dna_PAM5(B_Dna):
     """
@@ -505,7 +376,7 @@ class B_Dna_PAM5(B_Dna):
     
     def _isStartPosition(self, index):
         """
-        Returns True if index points the first base position (5') of 
+        Returns True if I{index} points the first base position (5') of 
         self's sequence.
         
         @param index: Index in base sequence.
@@ -521,7 +392,7 @@ class B_Dna_PAM5(B_Dna):
         
     def _isEndPosition(self, index):
         """
-        Returns True if index points the last base position (3') of self's 
+        Returns True if I{index} points the last base position (3') of self's 
         sequence.
         
         @param index: Index in base sequence.
@@ -530,7 +401,7 @@ class B_Dna_PAM5(B_Dna):
         @return: True if index is zero.
         @rtype : bool
         """
-        if index ==  len(self.knownSequence) - 1:
+        if index ==  len(self.sequence) - 1:
             return True
         else:
             return False
@@ -555,10 +426,9 @@ class B_Dna_PAM5(B_Dna):
         if self._isEndPosition(index):
             basename = "EndBasePair"
             
-        if len(self.knownSequence) == 1:
+        if len(self.sequence) == 1:
             basename = "SingleBasePair"
             
-        
         basefile     =  self._baseFileName(basename)
         return (basefile, zoffset, thetaOffset)
     
@@ -587,8 +457,9 @@ class B_Dna_PAM5(B_Dna):
         else:
             #bruce 070604 mitigate bug in above code when number of bases == 1
             # by not raising an exception when it fails.
-
-            env.history.message( orangemsg( "Warning: strand not terminated, bond direction not set (too short)"))
+            msg = "Warning: strand not terminated, bond direction not set \
+            (too short)"
+            env.history.message( orangemsg( msg))
                 
             # Note: It turns out this bug is caused by a bug in the rest of the generator
             # (which I didn't try to diagnose) -- for number of bases == 1 it doesn't terminate the strands,
@@ -610,10 +481,17 @@ class Z_Dna(Dna):
     """
     
     form       =  "Z-DNA"
-    model      =  "Atomistic"
     baseRise   =  dnaDict['Z-DNA']['DuplexRise']
     handedness =  LEFT_HANDED
-
+    
+class Z_Dna_PAM5(Z_Dna):
+    """
+    Provides an atomistic model of the Z form of DNA.
+    
+    @attention: This class is not implemented yet.
+    """
+    model      =  "Atomistic"
+    
     def _strandAinfo(self, baseLetter, index):
         """
         Returns parameters needed to add a base to strand A.
