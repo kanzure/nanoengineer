@@ -10,9 +10,8 @@ History:
 
 ninad 2007-08-14: Created. 
 """
-import os
 
-from PyQt4.Qt import QWidget
+
 from PyQt4.Qt import QSizePolicy
 from PyQt4.Qt import QSpacerItem
 from PyQt4.Qt import QSize
@@ -222,7 +221,7 @@ class PM_WidgetGrid( PM_GroupBox ):
             buttonIcon = geticon(buttonIconPath)     
             if not buttonIcon.isNull():       
                 button.setIcon(buttonIcon)
-                button.setIconSize(QSize(22,22))
+                button.setIconSize(QSize(22, 22))
         button.setToolTip(buttonToolTip)
         button.setFixedSize(buttonSize) #@ Currently fixed to 32 x 32.
         button.setCheckable(True)
@@ -265,7 +264,7 @@ class PM_WidgetGrid( PM_GroupBox ):
         
         """
         
-        row = self.parentWidget._rowCount
+        row = self.parentWidget.getRowCount()
         column = 0
                
         #Add Left spacer to the parentWidget's layout
@@ -280,8 +279,8 @@ class PM_WidgetGrid( PM_GroupBox ):
         if self.alignment and self.alignment != 'Right':
             self._addAlignmentSpacer(row, column + 1)
                     
-        #Increment the paren widget's row count 
-        self.parentWidget._rowCount += 1
+        #Increment the parent widget's row count 
+        self.parentWidget.incrementRowCount()
                     
     def _addAlignmentSpacer(self, rowNumber, columnNumber):
         """

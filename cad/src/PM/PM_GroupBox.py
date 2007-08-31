@@ -76,7 +76,8 @@ class PM_GroupBox( QGroupBox ):
     @cvar _title: The group box title.
     @type _title: str
     
-    @cvar _widgetList: List of widgets in the group box (except the title button).
+    @cvar _widgetList: List of widgets in the group box 
+                      (except the title button).
     @type _widgetList: list
     
     @cvar _rowCount: Number of rows in the group box.
@@ -153,7 +154,8 @@ class PM_GroupBox( QGroupBox ):
         # Calling addWidget() here is important. If done at the end,
         # the title button does not get assigned its palette for some 
         # unknown reason. Mark 2007-05-20.
-        parentWidget.vBoxLayout.addWidget(self) # Add self to PropMgr's vBoxLayout
+        # Add self to PropMgr's vBoxLayout
+        parentWidget.vBoxLayout.addWidget(self) 
         
         self._widgetList = []
         parentWidget._widgetList.append(self)
@@ -233,7 +235,8 @@ class PM_GroupBox( QGroupBox ):
                 10, defaultHeight, 
                 QSizePolicy.Fixed,
                 QSizePolicy.Fixed)
-            self.parentWidget._lastGroupBox.verticalSpacer.defaultHeight = defaultHeight
+            self.parentWidget._lastGroupBox.verticalSpacer.defaultHeight = \
+                defaultHeight
             
         # Add a 1 pixel high, MinimumExpanding VSpacer below this group box.
         # This keeps all group boxes in the PM layout squeezed together as 
@@ -256,7 +259,8 @@ class PM_GroupBox( QGroupBox ):
         """
         for widget in self._widgetList:
             if platform.atom_debug:
-                print "PM_GroupBox.restoreDefault(): widget =", widget.objectName()
+                print "PM_GroupBox.restoreDefault(): widget =", \
+                      widget.objectName()
             widget.restoreDefault()
     
     def getTitle(self):
@@ -462,6 +466,23 @@ class PM_GroupBox( QGroupBox ):
         self._widgetList.append(pmWidget)
         
         self._rowCount += rowIncrement
+    
+    def getRowCount(self):
+        """
+        Return the row count of gridlayout of L{PM_Groupbox}
+        
+        @return: The row count of L{self.gridlayout}
+        @rtype: int
+        """
+        return self._rowCount
+    
+    def incrementRowCount(self, increment = 1):
+        """
+        Increment the row count of the gridlayout of L{PM_groupBox}
+        @param increment: The incremental value
+        @type  increment: int
+        """
+        self._rowCount += value
         
     def addQtWidget(self, qtWidget, column, spanWidth):
         """
@@ -576,7 +597,8 @@ class PM_GroupBox( QGroupBox ):
             return
         
         if self.verticalSpacer:
-            self.verticalSpacer.changeSize(10, self.verticalSpacer.defaultHeight)
+            self.verticalSpacer.changeSize(10, 
+                                           self.verticalSpacer.defaultHeight)
 
     # Title Button Methods #####################################
     
@@ -587,10 +609,11 @@ class PM_GroupBox( QGroupBox ):
         """
         Return the group box title push button. The push button is customized 
         such that it appears as a title bar at the top of the group box. 
-        If the user clicks on this 'title bar' it sends a signal to open or close
-        the group box.
+        If the user clicks on this 'title bar' it sends a signal to open or 
+        close the group box.
         
-        @param parentWidget: The parent dialog or group box containing this widget.
+        @param parentWidget: The parent dialog or group box containing this 
+                             widget.
         @type  parentWidget: PM_Dialog or PM_GroupBox
         
         @param title: The button title.
@@ -618,7 +641,7 @@ class PM_GroupBox( QGroupBox ):
         # ninad 070221 set a non-existant 'Ghost Icon' for this button.
         # By setting this icon, the button text left aligns! 
         # (which what we want :-) )
-        # So this might be a bug in Qt4.2.  If we don't use the following kludge, 
+        # So this might be a bug in Qt4.2.  If we don't use the following kludge 
         # there is no way to left align the push button text but to subclass it. 
         # (could means a lot of work for such a minor thing).  So OK for now.
         
@@ -645,7 +668,8 @@ class PM_GroupBox( QGroupBox ):
         @rtype:  str
         """
         
-        # Need to move border color and text color to top (make global constants).
+        # Need to move border color and text color to top 
+        # (make global constants).
         if showExpanded:        
             styleSheet = "QPushButton {border-style:outset;\
             border-width: 2px;\
