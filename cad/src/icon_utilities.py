@@ -30,7 +30,9 @@ _icons = {}
 
 _iconprefix = None
     # This will be set by initialize() to the pathname of the directory that
-    # contains ui/... icon files, for private use. 
+    # contains ui/... icon files, for private use. Note that if the
+    # ALTERNATE_CAD_SRC_PATH feature is being used, this will be set to
+    # a different value than otherwise (new feature, bruce 070831).
 
 def initialize():
     if (Initialize.startInitialization(__name__)):
@@ -40,6 +42,13 @@ def initialize():
     global _iconprefix
     _iconprefix = os.path.dirname(os.path.abspath(sys.argv[0]))
     _iconprefix = os.sep.join(_iconprefix.split(os.sep)[:-1] + ["src"])
+
+    import __main__
+    if __main__._USE_ALTERNATE_CAD_SRC_PATH: #bruce 070831
+        new_iconprefix = __main__._ALTERNATE_CAD_SRC_PATH
+        print "ALTERNATE_CAD_SRC_PATH: setting _iconprefix to %r rather than %r" % \
+              ( new_iconprefix, _iconprefix )
+        _iconprefix = new_iconprefix
 
     Initialize.endInitialization(__name__)
     return

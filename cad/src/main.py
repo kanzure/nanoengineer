@@ -66,7 +66,7 @@ if __name__ != '__main__':
           "  This is a bug, but should cause no direct harm.)" % (__name__,)
     print
 
-# ALTERNATE_CAD_SRC_PATH feature:
+# ALTERNATE_CAD_SRC_PATH feature:  (note, this MUST BE entirely implemented in main.py)
 #
 #   If you are a developer who wants an installed release build of NE1 to load
 # most of its Python code (the code normally located in cad/src in cvs) from
