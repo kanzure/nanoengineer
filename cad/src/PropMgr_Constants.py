@@ -131,7 +131,7 @@ def getHeaderFont():
 
 COLOR_THEME = "Gray"
 
-_colortheme_Choice = Choice(["Gray", "Blue"], default_value = COLOR_THEME)
+_colortheme_Choice = Choice(["Gray", "Blue"], defaultValue = COLOR_THEME)
 
 COLOR_THEME_prefs_key = "A9/Color Theme"
 

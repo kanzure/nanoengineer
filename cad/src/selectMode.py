@@ -93,7 +93,7 @@ DRAG_STICKINESS_LIMIT = 4 # in pixels; reset in each leftDown via a debug_pref
     #& To do: Make it a user pref in the Prefs Dialog.  Also consider a different var/pref
     #& for singlet vs. atom drag stickiness limits. Mark 060213.
 
-_ds_Choice = Choice([0,1,2,3,4,5,6,7,8,9,10], default_value = DRAG_STICKINESS_LIMIT)
+_ds_Choice = Choice([0,1,2,3,4,5,6,7,8,9,10], defaultValue = DRAG_STICKINESS_LIMIT)
 
 DRAG_STICKINESS_LIMIT_prefs_key = "A7/Drag Stickiness Limit"
 

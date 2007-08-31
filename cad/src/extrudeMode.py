@@ -108,7 +108,7 @@ def reinit_extrude_controls(win, glpane = None, length = None, attr_target = Non
     "reinitialize the extrude controls; used whenever we enter the mode; win should be the main window (MWSemantics object)"
     self = win
 
-    dflt_ncopies_rod = debug_pref("Extrude: initial N", Choice([2,3,4,5,6,10,20], default_value = 3),
+    dflt_ncopies_rod = debug_pref("Extrude: initial N", Choice([2,3,4,5,6,10,20], defaultValue = 3),
                                   prefs_key = True, non_debug = True ) #bruce 070410
         # minor bug in that: it happens too early for a history message, so if it has its non-default value
         # when first used, the user doesn't get the usual orange history warning.
@@ -308,7 +308,7 @@ class extrudeMode(basicMode):
 	#@bug BUG: following is a workaround for bug 2494
 	changes.keep_forever(self.propMgr)        	
                 
-        initial_length = debug_pref("Extrude: initial offset length (A)", Choice([3.0, 7.0, 15.0, 30.0], default_value = 7.0),
+        initial_length = debug_pref("Extrude: initial offset length (A)", Choice([3.0, 7.0, 15.0, 30.0], defaultValue = 7.0),
                                     prefs_key = True, non_debug = True) #bruce 070410
         reinit_extrude_controls(self, self.o, length = initial_length, attr_target = self)
 

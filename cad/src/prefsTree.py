@@ -1,5 +1,5 @@
 # Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
+"""
 prefsTree.py
 
 experimental code related to user preferences
@@ -12,7 +12,7 @@ History:
 bruce 050613 started this.
 
 bruce 050901, 050913 used env.history in some places.
-'''
+"""
 
 __author__ = "bruce"
 
@@ -36,7 +36,7 @@ class PrefNode(Node):
 
 class PrefChoiceNode(PrefNode):
     "A PrefNode which lets the user choose one of a small finite set of choices using its cmenu (or maybe in other ways too?)"
-    def __init__(self, assy, name, choices = None, default_name = None, default_value = None, typename = None ):
+    def __init__(self, assy, name, choices = None, default_name = None, defaultValue = None, typename = None ):
         PrefNode.__init__(self, assy, name)
         self.choices = choices or [('No choices!', None)]
         self.choicedict = {}
@@ -45,15 +45,15 @@ class PrefChoiceNode(PrefNode):
             self.choicedict[name] = val
         if default_name is not None:
             self.default_name = default_name
-            self.default_value = self.choicedict[default_name] # it better be in there!
-        elif default_value is not None or None in self.choicedict.values():
+            self.defaultValue = self.choicedict[default_name] # it better be in there!
+        elif defaultValue is not None or None in self.choicedict.values():
             for name, val in self.choices:
-                if val == default_value:
+                if val == defaultValue:
                     self.default_name = name
-                    self.default_value = val
+                    self.defaultValue = val
                     break
         else:
-            self.default_name, self.default_value = self.choices[0]
+            self.default_name, self.defaultValue = self.choices[0]
         return
     def __cmenu_items(self): ###IMPLEM a call of this
         submenu = []
@@ -81,7 +81,7 @@ bool_choice = [ PrefChoiceNode, opts(
 dispmode_choice = [ PrefChoiceNode, opts(
                       typename = "display mode",
                       choices = zip( dispLabel, range(len(dispLabel)) ),
-                      default_value = default_display_mode
+                      defaultValue = default_display_mode
                    )]
 
 # ==

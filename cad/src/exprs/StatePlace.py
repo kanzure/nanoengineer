@@ -176,7 +176,7 @@ class _attr_accessor:
          consisting of the  __getattr__/__setattr__ (and maybe __delattr__?) special methods.
          This method name is not special to Python itself.]
         """
-        self.__get_lval(attr)._set_default_value( default)
+        self.__get_lval(attr)._set_defaultValue( default)
     pass # end of class _attr_accessor
 
 # ==

@@ -1073,6 +1073,10 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         # Something like this would be very handy:
         #   default_cpk_sf = env.prefs.get_default_value(cpkScaleFactor_prefs_key)
         # Talk to Bruce about this. mark 060309.
+        #
+        # (I think there is a way, but I forget the details -- see some
+        #  "restore defaults" code to look for a use of it. -- bruce 070831)
+        
         if cpk_sf == 0.775: # Hardcoded for now.
             # Disable the reset button if the CPK Scale Factor is currently the default value.
             self.reset_cpk_scale_factor_btn.setEnabled(0)

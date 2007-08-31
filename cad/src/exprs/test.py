@@ -901,8 +901,8 @@ testexpr_16a = SimpleColumn(
 
 class checkbox_v2(InstanceMacro):
     # this is now copied into controls.py, but it's probably to be renamed and revised there, so leave this test here
-    default_value = Option(bool, False)
-    var = State(bool, default_value)
+    defaultValue = Option(bool, False)
+    var = State(bool, defaultValue)
         #e need to be able to specify what external state to use, eg a prefs variable
         # (but i don't know if the arg or option decl can be part of the same decl, unless it's renamed, e.g. StateArg)
     _value = Highlightable(
@@ -915,7 +915,7 @@ class checkbox_v2(InstanceMacro):
     pass
 testexpr_16b = SimpleColumn( 
     SimpleRow(checkbox_v2(), TextRect("option 1a",1,10)), #e need to be able to specify specific external state, eg a prefs variable
-    SimpleRow(checkbox_v2(default_value = True)(), TextRect("option 2a",1,10)), # that 2nd () is to tell it "yes, we supplied args"
+    SimpleRow(checkbox_v2(defaultValue = True)(), TextRect("option 2a",1,10)), # that 2nd () is to tell it "yes, we supplied args"
   ) # works
 
 testexpr_16c = SimpleColumn( # [later: see also kluge_dragtool_state_checkbox_expr, similar to this with different prefs_key]

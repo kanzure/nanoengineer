@@ -80,7 +80,7 @@ class Pref: #e might be merged with the DataType (aka PrefDataType) objects
         self.name = name
         assert name and type(name) == type("") #bruce 060124 added assert (don't know if this was already an implicit requirement)
         self.dtype = dtype # a DataType object
-        self.value = self._dfltval = dtype.default_value() # might be changed below  #bruce 070228 added self._dfltval
+        self.value = self._dfltval = dtype.get_defaultValue() # might be changed below  #bruce 070228 added self._dfltval
         if prefs_key: #bruce 060124 new feature
             if prefs_key is True:
                 prefs_key = "_debug_pref_key:" + name #e should prefix depend on release-version??
@@ -257,7 +257,7 @@ class Choice(DataType): #e might be renamed ChoicePrefType, or renamed ChoicePre
     # WARNING: before 070110, there was a bug if None was used as one of the choices, but it should be ok now,
     # except that the "API kluge: curval = None means curval not known, unless None's a legal value"
     # in docstring of self.changer_menu_text has not been reviewed regarding this. ###e [bruce 070110 comment]
-    def __init__(self, values = None, names = None, names_to_values = None, default_value = _NOT_PASSED):
+    def __init__(self, values = None, names = None, names_to_values = None, defaultValue = _NOT_PASSED):
         #e names_to_values should be a dict from names to values; do we union these inits or require no redundant ones? Let's union.
         if values is not None:
             values = list(values) #e need more ways to use the init options
@@ -280,21 +280,26 @@ class Choice(DataType): #e might be renamed ChoicePrefType, or renamed ChoicePre
         self.names = names
         self.values = values
         #e nim: comments
-        self._default_value = self.values[0] # might be changed below
+        self._defaultValue = self.values[0] # might be changed below
         self.values_to_comments = {}
         self.values_to_names = {}
         for name, value in zip(self.names, self.values):
             self.values_to_names[value] = name
-            if default_value is not _NOT_PASSED and default_value == value: # even if default_value is None!
-                # There used to be a bug when None was a legal value but no default_value was passed,
-                # in which this code would change self._default_value to None. I fixed that bug using _NOT_PASSED.
+            if defaultValue is not _NOT_PASSED and defaultValue == value: # even if defaultValue is None!
+                # There used to be a bug when None was a legal value but no defaultValue was passed,
+                # in which this code would change self._defaultValue to None. I fixed that bug using _NOT_PASSED.
                 # This is one of two changes which makes None acceptable as a Choice value.
                 # The other is in preferences.py dated today. [bruce 070110]
-                self._default_value = value
+                self._defaultValue = value
     def name_of_value(self, value):
         return self.values_to_names[value]
-    def default_value(self):
-        return self._default_value
+    def get_defaultValue(self):
+        # WARNING [can be removed soon if nothing goes wrong]:
+        # When I renamed this to make it consistent in capitalization
+        # with similar attributes, I also renamed it to be clearly a get method,
+        # since in most code this name is used for a public attribute instead.
+        # AFAIK it has only two defs and two calls, all in this file. [bruce 070831]
+        return self._defaultValue
     def legal_value(self, value):
         """Is value legal for this type? [Not sure whether this should include "after self.normalize_value" or not] """
         return value in self.values
@@ -304,25 +309,25 @@ class Choice(DataType): #e might be renamed ChoicePrefType, or renamed ChoicePre
         submenu = submenu_from_name_value_pairs( zip(self.names, self.values),
                                                  newval_receiver_func,
                                                  curval = curval,
-                                                 indicate_default_value = True, #bruce 070518 new feature
-                                                 default_value = self._default_value
+                                                 indicate_defaultValue = True, #bruce 070518 new feature
+                                                 defaultValue = self._defaultValue
                                                 )
         #e could add some "dimmed info" and/or menu commands to the end of submenu
         return ( text, submenu )
     pass
 
 Choice_boolean_False = Choice([False, True])
-Choice_boolean_True =  Choice([False, True], default_value = True)
+Choice_boolean_True =  Choice([False, True], defaultValue = True)
 
 def submenu_from_name_value_pairs( nameval_pairs, newval_receiver_func,
                                    curval = None, mitem_value_func = None,
-                                   indicate_default_value = False, default_value = None
+                                   indicate_defaultValue = False, defaultValue = None
                                    ):
     from debug import print_compact_traceback # do locally to avoid recursive import problem
     submenu = []
     for name, value in nameval_pairs:
         text = name
-        if indicate_default_value and value == default_value: #bruce 070518 new feature
+        if indicate_defaultValue and value == defaultValue: #bruce 070518 new feature
             text += " (default)"
         mitem = ( text,
                   lambda event = None, func = newval_receiver_func, val = value: func(val),
@@ -348,10 +353,10 @@ class ColorType(DataType): #e might be renamed ColorPrefType or ColorPref
     (but assume ints in [0,255] are also enough -- perhaps that would be a better internal format #e).
     """
     #e should these classes all be named XxxPrefType or so? Subclasses might specialize in prefs-UI but not datatype per se...
-    def __init__(self, default_value = None):
-        if default_value is None:
-            default_value = (0.5, 0.5, 0.5) # gray
-        self._default_value = self.normalize_value( default_value)
+    def __init__(self, defaultValue = None):
+        if defaultValue is None:
+            defaultValue = (0.5, 0.5, 0.5) # gray
+        self._defaultValue = self.normalize_value( defaultValue)
     def normalize_value(self, value):
         """Turn any standard kind of color value into the kind we use internally -- a 3-tuple of floats from 0.0 to 1.0.
         Return the normalized value.
@@ -383,12 +388,12 @@ class ColorType(DataType): #e might be renamed ColorPrefType or ColorPref
         #e API is getting a bit klugy... we're using a random instance as knowing about the superset of colors,
         # and using its default value as the value here...
         if value is None:
-            value = self.default_value()
+            value = self.get_defaultValue()
         rgb = self.value_as_int_tuple(value)
         from PyQt4.Qt import QColor
         return QColor(rgb[0], rgb[1], rgb[2]) #k guess
-    def default_value(self):
-        return self._default_value
+    def get_defaultValue(self):
+        return self._defaultValue
     def changer_menuspec( self, instance_name, newval_receiver_func, curval = None):
         # in the menu, we'd like to put up a few recent colors, and offer to choose a new one.
         # but in present architecture we have no access to any recent values! Probably this should be passed in.

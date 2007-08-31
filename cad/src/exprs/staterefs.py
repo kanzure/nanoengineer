@@ -36,7 +36,7 @@ class LocalVariable_StateRef(InstanceOrExpr): # guess, 061130
     # or some other arg saying where to store the ref, or in not letting you change how to store it (value encoding),
     # and worst, in whether it's an lval or not -- I think State is an lval (no need for .value) and this is a stateref.
     type = Arg(Type, Anything)
-    default_value = ArgOrOption(Anything, None) ##e default of this should depend on type, in same way it does for Arg or Option
+    defaultValue = ArgOrOption(Anything, None) ##e default of this should depend on type, in same way it does for Arg or Option
         # see comments in  about problems if this is a formula which uses anything usage-tracked -- same probably applies here.
     def get_value(self):
         #e should coerce this to self.type before returning it -- or add glue code wrt actual type, or....
@@ -47,7 +47,7 @@ class LocalVariable_StateRef(InstanceOrExpr): # guess, 061130
     value = property(get_value, set_value)
     def _init_instance(self):
         super(LocalVariable_StateRef, self)._init_instance()
-        set_default_attrs( self.transient_state, value = self.default_value) #e should coerce that to self.type
+        set_default_attrs( self.transient_state, value = self.defaultValue) #e should coerce that to self.type
     pass
 
 class PrefsKey_StateRef(InstanceOrExpr): # guess, 061204
@@ -56,12 +56,12 @@ class PrefsKey_StateRef(InstanceOrExpr): # guess, 061204
     properly usage-tracked in a compatible way with the rest of NE1
     """
     prefs_key = Arg(str) # note: it's probably ok if this is a time-varying formula, tho I don't know why it would be useful.
-    default_value = ArgOrOption(Anything, None) ##e default of this should depend on type, in same way it does for Arg or Option --
+    defaultValue = ArgOrOption(Anything, None) ##e default of this should depend on type, in same way it does for Arg or Option --
         # nonetheless it's so much more common to specify a default value than a type, that I decided to put default value first.
         #
         ##BUG (optimization issue only, and not yet important in practice):
         # [re-noticed 070228 -- also the topic of the printnim and older comment just below!]
-        # this default_value should be evaluated with usage tracking discarded, unless prefs_key changes,
+        # this defaultValue should be evaluated with usage tracking discarded, unless prefs_key changes,
         # in which case it should be reevalled once (doable if its eval pretends to use prefs_key) -- except ideally the value
         # for older prefs_keys being reused again would be cached (eg using MemoDict) (not important in practice).
         # This bug is not yet serious since the actual args so far are constants [as of 070228].
@@ -83,7 +83,7 @@ class PrefsKey_StateRef(InstanceOrExpr): # guess, 061204
         prefs_key = self.prefs_key
         assert type(prefs_key) == type("") #k redundant?
         import env
-        return env.prefs.get( prefs_key, self.default_value ) # note: this computes default_value at least once, even if not needed.
+        return env.prefs.get( prefs_key, self.defaultValue ) # note: this computes defaultValue at least once, even if not needed.
     def set_value(self, val): 
         #e should coerce that to self.type, or add glue code...
         prefs_key = self.prefs_key

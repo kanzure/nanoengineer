@@ -66,10 +66,10 @@ class Sketch3D_Sphere(Sketch3D_entity):
 
 ##from exprs.staterefs import PrefsKey_StateRef
 ##
-##def Preferences_StateRef_double( prefs_key, default_value = 0.0): #UNTESTED
+##def Preferences_StateRef_double( prefs_key, defaultValue = 0.0): #UNTESTED
 ##    ### TODO: cache this instance somehow (based on our args), as we IMPLEM the way to make it -- see test_commands for that
-##    expr = PrefsKey_StateRef( prefs_key, default_value)
-##    return find_or_make_expr_instance( expr, cache_key = ('PrefsState', prefs_key), assert_same = (default_value,) )
+##    expr = PrefsKey_StateRef( prefs_key, defaultValue)
+##    return find_or_make_expr_instance( expr, cache_key = ('PrefsState', prefs_key), assert_same = (defaultValue,) )
 ##
 ##### IMPLEM find_or_make_expr_instance, and make it fast when expr already exists (but do make it check assert_same, for now)
 

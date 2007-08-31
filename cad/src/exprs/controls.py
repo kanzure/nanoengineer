@@ -266,8 +266,8 @@ checkbox_image = IconImage(ideal_width = 25, ideal_height = 21, size = Rect(25 *
 class checkbox_v3(InstanceMacro): ##e rename # note: this can do something checkbox_pref can't yet do -- take an external stateref
     stateref = Arg(StateRef, None) ### default? might not work with a default val yet
         ### IMPLEM: specify what external state to use, eg a prefs variable, PrefsKey_StateRef(displayOriginAxis_prefs_key)
-    default_value = Option(bool, False) ###BUG -- not used! [noticed 061215]
-    ## var = State(bool, default_value)
+    defaultValue = Option(bool, False) ###BUG -- not used! [noticed 061215]
+    ## var = State(bool, defaultValue)
     var = stateref.value
 ##    # print "var = %r" % (var,) # TypeError: 'module' object is not callable - on line that says on_press = Set(var, not_Expr(var) )
 ##        # solved: it's probably from above: import Set; from Set import something else but not Set
