@@ -68,7 +68,7 @@ from files_mmp import readmmp, insertmmp
 from debug import print_compact_traceback
 
 from MainWindowUI import Ui_MainWindow
-from HistoryWidget import greenmsg, redmsg
+from HistoryWidget import greenmsg, redmsg, orangemsg
 
 from movieMode import movieDashboardSlotsMixin
 from ops_files import fileSlotsMixin
@@ -200,6 +200,10 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         #self.connect(self.editFindAction,SIGNAL("triggered()"),self.editFind)
         self.connect(self.editMakeCheckpointAction,SIGNAL("triggered()"),self.editMakeCheckpoint)
         self.connect(self.editPasteAction,SIGNAL("triggered()"),self.editPaste)
+	self.connect(self.pasteFromClipboardAction, 
+		     SIGNAL("triggered()"),
+		     self.editPasteFromClipboard )
+	
         self.connect(self.editPrefsAction,SIGNAL("triggered()"),self.editPrefs)
         self.connect(self.editRedoAction,SIGNAL("triggered()"),self.editRedo)
         self.connect(self.editUndoAction,SIGNAL("triggered()"),self.editUndo)
@@ -1127,20 +1131,39 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.win_update()
     
     def editPaste(self):
+	"""
+	Single shot paste operation accessible using 'Ctrl + V' or Edit > Paste
+	"""
+	if self.assy.shelf.members:
+	    pastables = self.assy.shelf.getPastables()
+	    if not pastables:
+		msg = orangemsg("Nothing to paste.")
+	        env.history.message(msg)
+		return
+	    
+	    recentPastable = pastables[-1]
+	    self.assy.paste(recentPastable)
+	else:
+	    msg = orangemsg("Nothing to paste.")
+	    env.history.message(msg)
 	
-        if self.assy.shelf.members:
-            env.history.message(greenmsg("Paste:"))
-	if self.glpane.mode.modename != "PASTE":
-	    self.glpane.prevMode = self.glpane.mode
-	    self.glpane.setMode('PASTE', suspend_old_mode = True)
-
-    def editPasteORIG(self):
-        if self.assy.shelf.members:
-            env.history.message(greenmsg("Paste:"))
-	    if self.glpane.mode.modename != "DEPOSIT":
-		self.glpane.setMode('DEPOSIT')
-		
-	    self.glpane.mode.propMgr.change2ClipboardPage() # Fixed bug 1230.  Mark 051219.
+    
+    def editPasteFromClipboard(self):
+	if self.assy.shelf.members:	    
+	    pastables = self.assy.shelf.getPastables()
+	    if not pastables:
+		msg = orangemsg("Nothing to paste. Paste mode cancelled.")
+	        env.history.message(msg)
+		return
+	    
+	    if self.glpane.mode.modename != "PASTE":
+		self.glpane.prevMode = self.glpane.mode
+		self.glpane.setMode('PASTE', 
+				    suspend_old_mode = False)
+		return
+	else:
+	    msg = orangemsg("Clipboard is empty. Paste mode cancelled.")
+	    env.history.message(msg)
             
     # editDelete
     def killDo(self):

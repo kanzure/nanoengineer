@@ -11,18 +11,21 @@ bruce 050507 made this by collecting appropriate methods from class Part.
 
 bruce 050901 used env.history in some places.
 """
-
-from HistoryWidget import greenmsg, redmsg
-from platform import fix_plurals
-from Utility import Group
-from chunk import molecule
-from bonds import bond_copied_atoms
 import platform # for atom_debug
-from debug import print_compact_stack
-from constants import gensym
-from ops_select import selection_from_part
-import env #bruce 050901
-from constants import noop
+import env
+
+from debug         import print_compact_stack
+from HistoryWidget import greenmsg, redmsg, orangemsg
+from platform      import fix_plurals
+from Utility       import Group
+from chunk         import molecule
+from bonds         import bond_copied_atoms
+from constants     import gensym
+from ops_select    import selection_from_part
+from constants     import noop
+from VQT           import V, vlen
+from shape         import BBox
+from jigs          import Jig
 
 class ops_copy_Mixin:
     "Mixin class for providing these methods to class Part"
@@ -290,8 +293,191 @@ class ops_copy_Mixin:
         self.w.win_update() # precaution in case of bugs (like side effects on selection) -- if no bugs, should not be needed
         return (savepart, killfunc, desc)
 
-    def paste(self, node):
-        pass # to be implemented
+    def paste(self, pastableNode, mousePosition = None):
+	"""
+	Paste the given item in the 3D workspace. 
+	@param pastableNode: The item to be pasted in the 3D workspace
+	@type  pastableNode: L{Node}
+	
+	@param mousePosition: These is the coordinates during mouse 
+	                          double click. If the node has a center 
+				  it will be moved by the moveOffset (which is 
+				  = L{[mousePosition} - node.center. 
+	@type mousePosition:  Array containing the x, y, z 
+	                          positions on the screen or 'None'
+	"""
+    	
+	pastable = pastableNode	
+	pos = mousePosition
+	moveOffset = V( 0, 0, 0)
+	itemToPaste = None
+	
+        if isinstance(pastable, molecule):
+	    itemToPaste, errorMsg = self._pasteChunk(pastable, pos)	    
+	elif isinstance(pastable, Group):
+	    itemToPaste, errorMsg = self._pasteGroup(pastable, pos)
+	elif isinstance(pastable, Jig):
+	    #NOTE: it never gets in here because an independent jig on the 
+	    #clipboard is not considered 'pastable' . This needs to change 
+	    # so that Planes etc , which are internally 'jigs' can be pasted 
+	    # when they exist as a single node -- ninad 2007-08-31
+	    itemToPaste, errorMsg = self._pasteJig(pastable, pos)
+	else:
+	    errorMsg = redmsg("Internal error pasting clipboard item [%s]") % \
+		pastable.name
+	    	
+	if not pos:
+	    self.assy.unpickall_in_GLPane()
+	    itemToPaste.pick()
+	    self.assy.o.setViewZoomToSelection(fast = True)
+	
+	self.assy.w.win_update()
+	
+	if errorMsg:
+	    msg = errorMsg
+	else:
+	    msg = greenmsg("Pasted copy of clipboard item: [%s] ") % \
+		pastable.name
+	    
+	env.history.message(msg)
+	
+	return itemToPaste, "copy of %r" % pastable.name
+	    
+    def _pasteChunk(self, chunkToPaste, mousePosition = None):
+	"""
+	Paste the given chunk in the 3 D workspace. 
+	@param chunkToPaste: The chunk to be pasted in the 3D workspace
+	@type  chunkToPaste: L{molecule}
+	
+	@param mousePosition: These is the coordinates during mouse double 
+	                      click. 
+	@type mousePosition:  Array containing the x, y, z positions on the 
+	                      screen or 'None'
+	"""
+	assert isinstance(chunkToPaste, molecule)
+	
+	pastable = chunkToPaste
+	pos = mousePosition	
+	newChunk = None
+	errorMsg = None
+	moveOffset = V(0, 0, 0)
+	
+	newChunk = pastable.copy(None)
+	chunkCenter  = newChunk.center
+	
+	if pos:
+	    moveOffset = pos - chunkCenter
+	else:
+	    boundingBox = BBox()
+	    boundingBox.merge(newChunk.bbox)
+	    scale = float(boundingBox.scale() * 0.06)
+	    if scale < 0.001:
+		scale = 0.1		    
+	    moveOffset = scale * self.assy.o.right 
+	    moveOffset += scale * self.assy.o.down	 
+	    
+	newChunk.move(moveOffset)	
+	self.assy.addmol(newChunk)
+	
+	return newChunk, errorMsg
+	
+    def _pasteGroup(self, groupToPaste, mousePosition = None):
+	"""
+	Paste the given group (and all its members) in the 3 D workspace. 
+	@param groupToPaste: The group to be pasted in the 3D workspace
+	@type  groupToPaste: L{Group}
+	
+	@param mousePosition: These is the coordinates during mouse 
+	                          double click. 
+	@type mousePosition:  Array containing the x, y, z 
+	                          positions on the screen or 'None'
+	"""
+	assert isinstance(groupToPaste, Group)
+	
+	pastable = groupToPaste
+	pos = mousePosition	
+	newGroup = None
+	errorMsg = None
+	moveOffset = V(0, 0, 0)
+	
+	assy = self.assy
+	
+	newGroup = Group(pastable.name, assy, None)		
+	nodes = list(pastable.members)             
+	newNodeList = copied_nodes_for_DND(nodes, 
+					autogroup_at_top = False, 
+					assy = assy)
+	
+	if not newNodeList:
+	    errorMsg = orangemsg("Clipboard item is an empty group."\
+			     "Paste cancelled")
+	    return newGroup, errorMsg
+	
+	    
+	chunkList = []
+	for newNode in newNodeList:
+	    if isinstance(newNode, molecule):
+		chunkList.append(newNode)	
+		
+	if chunkList:
+	    boundingBox = BBox()
+	    for m in chunkList:
+		boundingBox.merge(m.bbox)	    
+	    approxCenter = boundingBox.center()	    
+	else:
+	    approxCenter = V(0.01, 0.01, 0.01)
+	
+	if pos:
+	    moveOffset = pos - approxCenter
+	else:  
+	    scale = float(boundingBox.scale() * 0.06)
+	    
+	    if scale < 0.001:
+		scale = 0.1		    
+	    moveOffset  = scale * self.assy.o.right 
+	    moveOffset += scale * self.assy.o.down	
+	
+	for newNode in newNodeList:
+	    newNode.move(moveOffset)
+	    newGroup.addmember(newNode)
+		    
+	assy.addnode(newGroup) 
+	
+	return newGroup, errorMsg
+    
+    def _pasteJig(self, jigToPaste, mousePosition = None):
+	"""
+	Paste the given chunk in the 3 D workspace. 
+	@param jigToPaste: The chunk to be pasted in the 3D workspace
+	@type  jigToPaste: L{Jig}
+	
+	@param mousePosition: These is the coordinates during mouse double 
+	                      click. 
+	@type mousePosition:  Array containing the x, y, z positions on the 
+	                      screen or 'None'
+	"""
+	
+	assert isinstance(groupToPaste, Jig)
+	
+	pastable = jigToPaste
+	pos = mousePosition	
+	newJig = None
+	errorMsg = None
+	moveOffset = V(0, 0, 0)
+	
+	newJig = pastable.copy(None)
+	jigCenter  = newJig.center
+	
+	if pos:
+	    moveOffset = pos - jigCenter
+	else:
+	    moveOffset = 0.2 * self.assy.o.right 
+	    moveOffset += 0.2 * self.assy.o.down	 
+	    
+	newJig.move(moveOffset)	
+	assy.addnode(newJig)
+	
+	return newJig, errorMsg
 
     def kill(self):
         print "bug (worked around): assy.kill called, should use its new name delete_sel" #bruce 050927

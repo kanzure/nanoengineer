@@ -2164,47 +2164,9 @@ class depositMode(selectAtomsMode):
             # And someday the copy operation itself might auto-addmol, for some reason;
             # so to be safe, save pastable here before we change current part at all.
         
-        #bruce 050217 fix_bad_hotspot no longer needed
-        # [#e should we also remove the hotspot copied by mol.copy? I don't think so.]
-##        fix_bad_hotspot(numol) # works around some possible bugs in other code
-        if isinstance(pastable, molecule):
-	    numol = pastable.copy(None)
-	    cursor_spot = numol.center
-	    numol.move(pos - cursor_spot)
-	    if self.pickit():
-		numol.pickatoms()
-		#bruce 060412 worries whether pickatoms is illegal or ineffective (in both pasteBond and pasteFree)
-		# before addmol... for more info see the same comment in pasteBond.
-	    self.o.assy.addmol(numol) 
-	    return numol, "copy of %r" % pastable.name
-	elif isinstance(pastable, Group):
-	    newGroup = self.pasteGroup(pastable, pos)	     
-	    return newGroup, "copy of %r" % newGroup.name
-	
-    def pasteGroup(self, groupToPaste, placementPosition = None):
-	"""
-	"""
-	assert isinstance(groupToPaste, Group)
-	pastable = groupToPaste
-	pos = placementPosition
-	
-	assy = self.o.assy
-	
-	newGroup = Group(pastable.name, assy, None)
-		
-	nodes = list(pastable.members)             
-	newNodeList = copied_nodes_for_DND(nodes, 
-					autogroup_at_top = False, 
-					assy = assy)
-	cursor_spot = V(0.0, 0.0, 0.0)
-	for newNode in newNodeList:
-	    newNode.move(pos - cursor_spot)
-	    newGroup.addmember(newNode)		
-	assy.addnode(newGroup) 
-	
-	return newGroup
-	
-
+        chunk, status = self.o.assy.paste(pastable, pos)
+        return chunk, status
+  
     ## dashboard things
 
     def update_pastable(self): #bruce 050121 split this out of my revised setPaste

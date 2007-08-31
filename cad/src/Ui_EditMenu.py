@@ -52,6 +52,13 @@ def setupUi(win):
     win.editPasteAction.setIcon(geticon("ui/actions/Edit/Paste_Off"))
     win.editPasteAction.setObjectName("editPasteAction")
     
+    win.pasteFromClipboardAction = QtGui.QAction(MainWindow)
+    win.pasteFromClipboardAction.setIcon(geticon(
+        "ui/actions/Properties Manager/clipboard-full"))
+    
+    win.pasteFromClipboardAction.setObjectName("pasteFromClipboardAction")
+    win.pasteFromClipboardAction.setText("Paste from clipboard...")
+    
     win.editDeleteAction = QtGui.QAction(MainWindow)
     win.editDeleteAction.setIcon(geticon("ui/actions/Edit/Delete"))
     win.editDeleteAction.setObjectName("editDeleteAction")
@@ -72,6 +79,7 @@ def setupUi(win):
     win.editMenu.addAction(win.editCutAction)
     win.editMenu.addAction(win.editCopyAction)
     win.editMenu.addAction(win.editPasteAction)
+    win.editMenu.addAction(win.pasteFromClipboardAction)
     win.editMenu.addAction(win.editDeleteAction)
     win.editMenu.addSeparator()
     win.editMenu.addAction(win.dispObjectColorAction)

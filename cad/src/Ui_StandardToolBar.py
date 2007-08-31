@@ -33,7 +33,7 @@ def setupUi(win):
     win.standardToolBar.addAction(win.editRedoAction)
     win.standardToolBar.addAction(win.editCutAction)
     win.standardToolBar.addAction(win.editCopyAction)
-    win.standardToolBar.addAction(win.editPasteAction)
+    win.standardToolBar.addAction(win.pasteFromClipboardAction)
     win.standardToolBar.addAction(win.editDeleteAction)
     win.standardToolBar.addSeparator()
     

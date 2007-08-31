@@ -794,7 +794,11 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
                 if not isinstance(obj, Jig):
                     if obj.display == diINVISIBLE:
                         continue
-                pointList += [obj.center]
+                if isinstance(obj, molecule):
+                    for a in obj.atoms.itervalues():
+                        pointList.append(a.posn())
+                elif isinstance(obj, Jig):
+                    pointList.append(obj.center)
         else:
             if not self.assy.selatoms_list():
                 env.history.message(orangemsg( " Zoom To Selection: No visible atoms , chunks or movable jigs selected"\
