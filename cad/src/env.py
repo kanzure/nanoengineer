@@ -1,5 +1,5 @@
 # Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
+"""
 env.py
 
 A place for global variables treated as "part of the environment".
@@ -55,7 +55,7 @@ bruce 050803 new features to help with graphics updates when preferences are cha
 
 bruce 050913 converted most or all remaining uses of win.history to env.history,
 and officially deprecated win.history.
-'''
+"""
 
 __author__ = 'bruce'
 
@@ -194,10 +194,6 @@ def call_qApp_processEvents(*args): #bruce 050908
     
 # ==
 
-# most imports should occur here
-
-import platform
-
 class pre_init_fake_history_widget: #bruce 050901 moved this here from MWsemantics.py
     too_early = 1
         # defined so insiders can detect that it's too early (using hasattr on history)
@@ -209,6 +205,7 @@ class pre_init_fake_history_widget: #bruce 050901 moved this here from MWsemanti
         win.__init__, before the history widget has been created!
         Someday it might save them up and print them when that becomes possible.
         """
+        import platform
         if platform.atom_debug:
             print "fyi: too early for this status msg:", msg
         pass # too early
