@@ -75,10 +75,21 @@ class test_connectWithState_PM( ExampleCommand1_PM):
         # cylinder width (a double, stored in the command object,
         #  defined there using the State macro -- note, this is not yet a good
         #  enough example for state stored in a Node)
+
+        stateref = ObjAttr_StateRef( self.commandrun, 'cylinderWidth')
+
+        try:
+            # test driven development -- see if this works yet [070831]
+            defaultValue = stateref.defaultValue
+            print "\nfor stateref.defaultValue got %r" % (defaultValue,) ###
+        except:
+            print "\nthis test doesn't work yet: stateref.defaultValue"
+            defaultValue = CYLINDER_WIDTH_DEFAULT_VALUE            
+        
         self.cylinderWidthSpinbox  =  \
             PM_DoubleSpinBox( pmGroupBox,
                               label         =  "cylinder width:",
-                              value         =  CYLINDER_WIDTH_DEFAULT_VALUE,
+                              value         =  defaultValue,
                               setAsDefault  =  True,
                                   ### REVISE: the default value should come from the stateref
                                   # (and so, probably, should min, max, step, units...)
@@ -87,9 +98,7 @@ class test_connectWithState_PM( ExampleCommand1_PM):
                               singleStep    =  0.1,
                               decimals      =  self._sCoordinateDecimals,
                               suffix        =  ' ' + self._sCoordinateUnits )
-        self.cylinderWidthSpinbox.connectWithState(
-            ObjAttr_StateRef( self.commandrun, 'cylinderWidth')
-            )
+        self.cylinderWidthSpinbox.connectWithState( stateref )
 
         # cylinder round caps (boolean, stored as a prefs value)
         self.cylinderRoundCapsCheckbox = PM_CheckBox(pmGroupBox, text = 'round caps on cylinder')

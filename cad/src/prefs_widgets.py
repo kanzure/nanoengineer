@@ -215,6 +215,9 @@ class StateRef_API: ### FILL THIS IN, and rename set_value and get_value methods
     API for references to tracked state.
     """
     # TODO: add support for queryable metainfo about type, whatsthis text, etc.
+    # For example: self.defaultValue could be the default value (a constant value, not an expr,
+    #  though in a *type* it might be an expr),
+    # and maybe some flag tells whether it's really known or just guessed.
     pass
 
 class Preferences_StateRef(StateRef_API): # note: compare to exprs.staterefs.PrefsKey_StateRef.
@@ -223,12 +226,12 @@ class Preferences_StateRef(StateRef_API): # note: compare to exprs.staterefs.Pre
     which represents the preferences value slot with the prefs_key
     and default value passed to our constructor.
     """
-    def __init__(self, prefs_key, default_value = None):
+    def __init__(self, prefs_key, defaultValue = None):
         # TODO: also let a value-filter function be passed, for type checking/fixing.
         self.prefs_key = prefs_key
-        self.default_value = default_value
-        if default_value is not None:
-            env.prefs.get(prefs_key, default_value) # set or check the default_value
+        self.defaultValue = defaultValue
+        if defaultValue is not None:
+            env.prefs.get(prefs_key, defaultValue) # set or check the default value
         return
     def set_value(self, value):
         env.prefs[self.prefs_key] = value
@@ -236,9 +239,9 @@ class Preferences_StateRef(StateRef_API): # note: compare to exprs.staterefs.Pre
         return env.prefs[self.prefs_key]
     pass
 
-def Preferences_StateRef_double( prefs_key, default_value = 0.0):
+def Preferences_StateRef_double( prefs_key, defaultValue = 0.0):
     # TODO: store metainfo about type, etc.
-    return Preferences_StateRef( prefs_key, default_value)
+    return Preferences_StateRef( prefs_key, defaultValue)
 
 
 def ObjAttr_StateRef( obj, attr, *moreattrs): #bruce 070815 experimental; plan: use it with connectWithState for mode tracked attrs

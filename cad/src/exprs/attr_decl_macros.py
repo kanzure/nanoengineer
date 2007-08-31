@@ -393,7 +393,23 @@ class data_descriptor_Expr(OpExpr):
         return "<%s#%d%s: %r>"% (self.__class__.__name__, self._e_serno, self._e_repr_info(), self._e_args,)
     pass
 
-class State(data_descriptor_Expr): # note: often referred to as "State macro" even though we don't presently say "def State"
+class State(data_descriptor_Expr):
+    """
+    """
+    # note: often referred to as "State macro", even though we don't presently say "def State"
+    # (except right here as search engine bait)
+
+    # TODO: big optim: make a variant which just stores the LvalForState object directly in instance.__dict__[attr].
+    # That requires replacing not only self._e_attrholder but its API -- now it returns something whose .attr
+    # should be accessed; instead the callers need rewriting to just find the LvalForState object and use it.
+    # We can then use that variant exclusively unless we want to support old-style reloading in pure exprs tests,
+    # and reloading is disabled anyway, so the old style would probably never be returned to. And then we might not
+    # need ipath -- not sure (not sure if that's the only use, and we'd still need indexes in single exprs I think).
+    # BTW we'd still want State to be turned into a descriptor rather than actually being one,
+    # since (I think) we still need ExprsMeta to do substitutions in the exprs it contains
+    # (for type (someday) and default value).
+    # [bruce 070831 comment]
+    
     # experimental, 061201-04; works (testexpr_16);
 ##    # supercedes the prior State macro in Exprs.py [already removed since obs and unfinished, 061203]
 ##    # see also C_rule_for_lval_formula, now obs, meant to be used by that old design for the State macro,
@@ -407,7 +423,7 @@ class State(data_descriptor_Expr): # note: often referred to as "State macro" ev
     # (if it ever does). I don't know if this can cause problems of too-early eval of that default value. ###REVIEW
     # [bruce 070816 comment]
     
-    _e_wants_this_descriptor_wrapper = data_descriptor_Expr_descriptor # defined in ExprsMeta, imported from basic
+    _e_wants_this_descriptor_wrapper = data_descriptor_Expr_descriptor
     _e_descriptor = None
     
     def _e_init(self):
@@ -420,6 +436,11 @@ class State(data_descriptor_Expr): # note: often referred to as "State macro" ev
             self._e_default_val = dflt
             # note: this does not process _e_kws. self._e_debug was set in OpExpr.__init__.
         myargs(*self._e_args)
+        # 070831 exploring new State keyword args, for metainfo like minimum
+        for kw in self._e_kws.keys():
+            if kw != 'doc':
+                print "\n*** unrecognized State keyword arg: %s" % kw
+            continue
         return
     def _e_set_descriptor(self, descriptor):
         """In general (ie part of API of this method, called by data_descriptor_Expr_descriptor):
@@ -461,7 +482,7 @@ class State(data_descriptor_Expr): # note: often referred to as "State macro" ev
             ####e OPTIM: this hasattr might be slow (or even buggy, tho i think it'll work
             # by raising an exception that's a subclass of AttributeError; the slow part is computing args for that every time)
             if not hasattr(res, attr):
-                # eval the dflt expr here, mcuh like _i_instance does it:
+                # eval the dflt expr here, much like _i_instance does it:
                 val_expr = self._e_default_val
                 index = attr
                 val = instance._i_eval_dfltval_expr(val_expr, index)
