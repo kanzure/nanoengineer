@@ -71,7 +71,7 @@ def dependenciesInFile(fileName):
     fromModuleName = fileNameToModuleName(fileName)
     fromModuleName = fromModuleName.replace("-", "_")
     if (fromModuleName in pruneModules or fromModuleName in unreferencedModules):
-        return
+        return 0
     allProcessedModules.add(fromModuleName)
     f = open(fileName)
     for line in f:
@@ -94,21 +94,38 @@ def dependenciesInFile(fileName):
     importList = list(importSet)
     importList.sort()
     outCount = 0
+    fromModuleNameUnsubstituted = fromModuleName
+    fromModuleName = fromModuleName.replace(".", "_")
+    fromModuleName = fromModuleName.replace("-", "_")
     for toModuleName in importList:
         if (toModuleName in externalModules or toModuleName in pruneModules or toModuleName in unreferencedModules):
             continue
         toModuleName = toModuleName.replace(".", "_")
         toModuleName = toModuleName.replace("-", "_")
+        
         print "    %s -> %s;" % (fromModuleName, toModuleName)
+        if (fromModuleCount.has_key(fromModuleName)):
+            fromModuleCount[fromModuleName] += 1
+        else:
+            fromModuleCount[fromModuleName] = 1
+        if (toModuleCount.has_key(toModuleName)):
+            toModuleCount[toModuleName] += 1
+        else:
+            toModuleCount[toModuleName] = 1
         outCount = outCount + 1
     if (outCount < 2):
-        print >>sys.stderr, '    "%s",' % fromModuleName
+        print >>sys.stderr, '    "%s",' % fromModuleNameUnsubstituted
+        return 1
+    return 0
 
 if (__name__ == '__main__'):
+    fromModuleCount = {}
+    toModuleCount = {}
+    pruneModulesLen = 0
     print "digraph G {"
     print >>sys.stderr, "pruneModules:"
     for sourceFile in sys.argv[1:]:
-        dependenciesInFile(sourceFile)
+        pruneModulesLen += dependenciesInFile(sourceFile)
     print "}"
     unreferencedModulesList = allProcessedModules.difference(referencedModules)
     unrefList = list(unreferencedModulesList)
@@ -125,3 +142,6 @@ if (__name__ == '__main__'):
     print >>sys.stderr, "externalModules:"
     for pkg in extList:
         print >>sys.stderr, '    "%s",' % pkg
+    if (pruneModulesLen == 0 and len(unrefList) == 0 and len(extList) == 0):
+        for key in fromModuleCount.keys():
+            print >>sys.stderr, "%06d %06d %s" % (toModuleCount[key], fromModuleCount[key], key)
