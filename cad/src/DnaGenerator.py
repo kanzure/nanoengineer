@@ -181,10 +181,11 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
         if len(theSequence) < 1:
             msg = redmsg("Enter a strand sequence to preview/insert DNA")
             self.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=False)
+            self.dna = None # Fixes bug 2530. Mark 2007-09-02
             return None
 
         # Only B-DNA is currently supported. Leaving these conditionals
-        # in for future use.
+        # in for future use. Mark 2007-09-02
         if dnaType == 'A-DNA':
             dna = A_Dna_PAM5()
         elif dnaType == 'B-DNA':
@@ -532,11 +533,10 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
     # The done message
 
     def done_msg(self):
-        dna = self.dna
         
-        if not dna: # Mark 2007-06-01
+        if not self.dna: # Mark 2007-06-01
             return "No DNA added."
 
-        return "Done creating a strand of %s." % (dna.form)
+        return "Done creating a strand of %s." % (self.dna.form)
     
 
