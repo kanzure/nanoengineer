@@ -8,7 +8,7 @@ list is shown by its elementViewer (an instance of L{PM_PreviewGroupBox})
 The object being previewed can then be deposited into the 3D workspace.
      
 @author: Ninad
-@version: $Id $
+@version: $Id:$
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
@@ -75,6 +75,7 @@ class PM_Clipboard(PM_GroupBox):
         clipboard items inside this  clipboard  groupbox.
         """
         self.clipboardListWidget = QListWidget(self)
+                
         self.gridLayout.addWidget(self.clipboardListWidget)
         #Append to the widget list. This is important for expand -collapse 
         #functions (of the groupbox) to work properly.
@@ -97,29 +98,34 @@ class PM_Clipboard(PM_GroupBox):
             
     def update(self):
         """
-        Updates the clpiboard items in the L{PM_Clipboard} groupbox. Also 
+        Updates the clipboard items in the L{PM_Clipboard} groupbox. Also 
         updates its element viewer.
         """
         PM_GroupBox.update(self)            
         self.pastableItems = self.w.assy.shelf.getPastables()
+        i = self.clipboardListWidget.currentRow()
         self.clipboardListWidget.clear()
         newModel = None
+        
         if len(self.pastableItems):
             for item in self.pastableItems:
                 self.clipboardListWidget.addItem(item.name)
-            
-            i = self.w.pasteComboBox.currentIndex()
-            if i < 0:
-                i = self.w.pasteComboBox.count() - 1
+                      
+            if i >= self.clipboardListWidget.count():
+                i = self.clipboardListWidget.count() - 1
                 
+            if i < 0:
+                i = 0            
+                            
             self.clipboardListWidget.setCurrentItem(
-                self.clipboardListWidget.item(i))
+                    self.clipboardListWidget.item(i))
+                
             
             newModel = self.pastableItems[i]
         
         self._updateElementViewer(newModel)
                 
-    def clipboardListItemChanged(self, currentItem = None, previousItem = None):        
+    def clipboardListItemChanged(self, currentItem = None, previousItem = None):
         """
         Slot method. Called when user clicks on a different pastable item 
         displayed in this groupbox
@@ -143,7 +149,8 @@ class PM_Clipboard(PM_GroupBox):
             newChunk = self.pastableItems[itemId]
             #TODO: References to w.pasteComboBox need to be removed      
             self.w.pasteComboBox.setCurrentIndex(itemId) 
-           
+            
+            self.clipboardListWidget.setCurrentRow(itemId)
             self._updateElementViewer(newChunk)
  
     
@@ -164,16 +171,16 @@ class PM_Clipboard(PM_GroupBox):
             SIGNAL("currentItemChanged(QListWidgetItem*,QListWidgetItem*)"),
             self.clipboardListItemChanged )
         
-    def currentIndex(self):
+    def currentRow(self):
         """
-        Return the current index of the selected item in this groupbox's 
+        Return the current row of the selected item in this groupbox's 
         listwidget ( L{self.clipboardListWidget} )
-        @return: Current index of the selected pastable item in the 
+        @return: Current Row of the selected pastable item in the 
                  clipboard groupbox.
         @rtype: int
         """
-        currentIndex = self.clipboardListWidget.currentRow()
-        return currentIndex
+        currentRow = self.clipboardListWidget.currentRow()
+        return currentRow
         
     
         
