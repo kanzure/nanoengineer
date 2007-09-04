@@ -1431,11 +1431,13 @@ class depositMode(selectAtomsMode):
             return None
         return self.pastable.part
     
-    def transdeposit_from_MMKit(self, singlet):
-        '''Trans-deposit the current object in the MMKit on all singlets reachable through 
+    def transdepositPreviewedItem(self, singlet):
+        """
+	Trans-deposit the current object in the preview groupbox of the 
+	property manager  on all singlets reachable through 
         any sequence of bonds to the singlet <singlet>.
-        '''
-
+        """
+	
         if not singlet.is_singlet(): 
             return
 
@@ -1763,7 +1765,7 @@ class depositMode(selectAtomsMode):
                 if a1 is not None:
                     if self.pickit(): a1.pick()
                     #self.o.gl_update() #bruce 050510 moved this here from inside what's now deptool
-                        # The only callers, deposit_from_MMKit() and transdeposit_from_MMKit()
+                        # The only callers, deposit_from_MMKit() and transdepositPreviewedItem()
                         # are responsible for calling gl_update()/win_update(). mark 060314.
                     status = "replaced bondpoint on %r with new atom %s at %s" % (a0, desc, self.posn_str(a1))
                     chunk = a1.molecule #bruce 041207
@@ -2503,7 +2505,7 @@ class depositMode(selectAtomsMode):
         
         # Add the trans-deposit menu item.
         if selatom is not None and selatom.is_singlet():
-            self.Menu_spec.append(( 'Trans-deposit from MMKit', lambda dragatom=selatom: self.transdeposit_from_MMKit(dragatom) ))
+            self.Menu_spec.append(( 'Trans-deposit previewed item', lambda dragatom=selatom: self.transdepositPreviewedItem(dragatom) ))
 
         # figure out Select This Chunk item text and whether to include it
         ##e (should we include it for internal bonds, too? not for now, maybe not ever. [bruce 050705])
@@ -2705,7 +2707,15 @@ class depositMode(selectAtomsMode):
             # there in some other way.
             ##self.o.assy.shelf.unpick() # unpicks all shelf items too
             ##new.pick()
-            self.w.depositState = 'Clipboard'
+
+	    #Keep the depositState to 'Atoms'. Earlier the depositState was
+	    #changed to 'Clipboard' because  'Set hotspot and copy' used to 
+	    #open the clipboard tab in the 'MMKit'. This implementation has 
+	    #been replaced with a separate 'Paste Mode' to handle Pasting 
+	    #components. So always keep depositState to Atoms while in 
+	    #depositMode.  (this needs further cleanup) -- ninad 2007-09-04
+	    self.w.depositState = 'Atoms'
+	    
             self.pastable = new # do this again, to influence the following:
             self.UpdateDashboard()
                 # (also called by shelf.addchild(), but only after my home mods
