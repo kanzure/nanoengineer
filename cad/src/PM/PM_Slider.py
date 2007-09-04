@@ -3,7 +3,7 @@
 PM_Slider.py
 
 @author: Ninad
-@version: $Id: $
+@version: $Id $
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:

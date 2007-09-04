@@ -8,7 +8,7 @@ or list provided in the property manager. (The object being previewed can
 then be deposited into the 3D workspace.)
     
 @author: Ninad
-@version: $Id:$
+@version: $Id$
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
