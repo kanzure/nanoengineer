@@ -267,7 +267,7 @@ class PasteMode(depositMode):
         self.pastables_list = filter( is_pastable, members)
         
         try:
-            cx = self.propMgr.clipboardGroupBox.currentIndex()
+            cx = self.propMgr.clipboardGroupBox.currentRow()
             self.pastable = self.pastables_list[cx] 
         except: # various causes, mostly not errors
             self.pastable = None        
