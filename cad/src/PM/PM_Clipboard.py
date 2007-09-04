@@ -146,10 +146,7 @@ class PM_Clipboard(PM_GroupBox):
         
         if itemId != -1:
         
-            newChunk = self.pastableItems[itemId]
-            #TODO: References to w.pasteComboBox need to be removed      
-            self.w.pasteComboBox.setCurrentIndex(itemId) 
-            
+            newChunk = self.pastableItems[itemId]            
             self.clipboardListWidget.setCurrentRow(itemId)
             self._updateElementViewer(newChunk)
  
