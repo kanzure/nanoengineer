@@ -1,5 +1,5 @@
 # Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
+"""
 extensions.py
 
 Someday: handle all our custom extension modules.
@@ -25,12 +25,49 @@ For plans and status related to our use of Pyrex, see:
 
 See README-Pyrex for the list of related files and their roles.
 
-'''
+How to build:
+
+% make pyx
+
+(see also the wiki page listed above)
+
+How to test:
+
+[updated, bruce 070904; tested now and works on my Mac]
+
+optional: in this source file, change debug_pyrex_test to True below.
+But don't commit that change.
+
+In NE1's run py code debug menu item, type "import extensions";
+review the console prints for whether this succeeded;
+then use debug menu -> other -> count bonds.
+If it failed, follow build instructions in README-Pyrex and/or pyrex_text.pyx.
+(I don't know how similar your python environment needs to be to NE1's for that to work.)
+
+Possible errors when you run "import extensions":
+
+ImportError: No module named pyrex_test -- you need to build it, e.g. "make pyx" in cad/src.
+
+Fatal Python error: Interpreter not initialized (version mismatch?) -- this is
+a Mac-specific problem related to the old bug 1724, caused by an interaction
+between an Apple bug, a link error on our part, and having another Python
+installed on your Mac -- typically in /Library/Frameworks. When this happens to
+me, I can fix it by running the shell commands:
+
+% cd /Library/Frameworks/Python.framework/Versions
+% sudo mv 2.3 2.3-DISABLED
+
+and rerunning NE1.
+
+(That problem may occur, and the above fix works for me, whether I run NE1
+directly as a developer or use the (Mac-specific) ALTERNATE_CAD_SRC_PATH
+feature.)
+"""
 __author__ = 'bruce'
 
 have_pyrex_test = False
 
-debug_pyrex_test = 0 ## was platform.atom_debug, changed to 0 for A7 release by bruce 060419
+debug_pyrex_test = False ## was platform.atom_debug, changed to 0 for A7 release by bruce 060419
 
 import env
 from debug import register_debug_menu_command, call_func_with_timing_histmsg, print_compact_traceback
@@ -52,7 +89,7 @@ except:
         pass
     pass
 
-# whether we now have the real nbonds or a stub function, make it available for testing it in a menu.
+# whether we now have the real nbonds or a stub function, make it available for testing in a menu.
 
 def count_bonds_cmd( target):
     win = target.topLevelWidget()

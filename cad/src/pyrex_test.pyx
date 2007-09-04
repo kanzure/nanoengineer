@@ -1,5 +1,5 @@
 # Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
+"""
 pyrex_test.pyx
 
 Experimental Pyrex code, for testing use of Pyrex in nE-1.
@@ -12,7 +12,7 @@ For plans and status related to our use of Pyrex, see:
 
 See README-Pyrex for the list of related files and their roles.
 
-'''
+"""
 __author__ = 'bruce' #k Is this ok in a .pyx file? I don't see why not.
 
 def nbonds(mols):

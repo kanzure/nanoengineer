@@ -1,5 +1,5 @@
 # Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
+"""
 setup.py
 
 Distutils setup file -- tells distutils how to rebuild our custom extension modules.
@@ -33,7 +33,7 @@ See README-Pyrex for the list of related files and their roles.
 
 This is based on the Pyrex example file Pyrex-0.9.3/Demos/Setup.py.
 
-'''
+"""
 __author__ = 'bruce'
 
 import sys
