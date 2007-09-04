@@ -8,7 +8,7 @@ list is shown by its elementViewer (an instance of L{PM_PreviewGroupBox})
 The object being previewed can then be deposited into the 3D workspace.
      
 @author: Ninad
-@version: $Id:$
+@version: $Id$
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
