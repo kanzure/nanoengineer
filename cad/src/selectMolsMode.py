@@ -511,8 +511,6 @@ class selectMolsMode(selectMode):
         if self.o.assy.getSelectedMovables():
 	    #Free Drag Translate the selected (movable) objects.
 	    self.pseudoMoveModeLeftDrag(event)
-	else:
-            self.continue_selection_curve(event) 
 	
     
     def pseudoMoveModeLeftDown(self, event):

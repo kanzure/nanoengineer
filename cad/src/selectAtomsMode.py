@@ -236,12 +236,7 @@ class selectAtomsMode(selectMode):
     def init_gui(self):
         selectMode.init_gui(self)
         self.w.toolsSelectAtomsAction.setChecked(1) # toggle on the "Select Atoms" tools icon
-        # Do this before connecting signals or we'll get a history msg.  Part of fix for bug 1620. mark 060322
-        self.w.selectAtomsDashboard.highlightingCB.setChecked(self.hover_highlighting_enabled)
         self.connect_or_disconnect_signals(True)
-        self.update_hybridComboBox(self.w)
-        self.w.dashboardHolder.setWidget(self.w.selectAtomsDashboard)
-        self.w.selectAtomsDashboard.show()
         
     def connect_or_disconnect_signals(self, connect):
         if connect:
@@ -249,12 +244,6 @@ class selectAtomsMode(selectMode):
         else:
             change_connect = self.w.disconnect
         
-        change_connect(self.w.selectAtomsDashboard.highlightingCB,
-                        SIGNAL("toggled(bool)"),self.set_hoverHighlighting)
-        change_connect(self.w.transmuteButton,
-                        SIGNAL("clicked()"),self.transmutePressed)
-        change_connect(self.w.elemFilterComboBox,
-                        SIGNAL("activated(int)"), self.set_selection_filter)
     
     def set_selection_filter(self, enabled):
 	''' Set/ Unset selection filter. Subclasses should override this
@@ -265,8 +254,6 @@ class selectAtomsMode(selectMode):
     def restore_gui(self):
         # disconnect signals which were connected in init_gui [bruce 050728]
         self.connect_or_disconnect_signals(False)
-        #self.w.disconnect(self.w.transmuteButton, SIGNAL("clicked()"), self.transmutePressed)
-        self.w.selectAtomsDashboard.hide()
             
     def bareMotion(self, event): #bruce 050610 revised this
         """called for motion with no button down
@@ -981,62 +968,12 @@ class selectAtomsMode(selectMode):
             self.jigLeftDouble()
 
 # == end of LMB event handler methods
-        
-    def getDstElement(self):
-        '''Return the destination element user wants to transmute to. '''
-        return self.eCCBtab1[self.w.transmute2ComboBox.currentIndex()] 
-            
-            
-    def getAtomtype(self, elmNo): 
-        '''<Param> elm: the current transmuted to element 'atom number'.
-        return the current pastable atomtype'''
-        elm = PeriodicTable.getElement(elmNo)
-        atomtype = None
-        if len(elm.atomtypes) > 1: 
-            try: 
-                hybname = self.w.atomSelect_hybridComboBox.currentText()
-                atype = elm.find_atomtype(hybname)
-                if atype is not None:
-                    atomtype = atype
-            except:
-                print_compact_traceback("exception (ignored): ") # error, but continue
-            pass
-        if atomtype is not None and atomtype.element is elm:
-            return atomtype
-            
-        # For element that doesn't support hybridization
-        return elm.atomtypes[0]
-            
-    def transmutePressed(self):
-        '''Slot method, called when transmute button was pressed. '''
-        force = self.w.transmuteCheckBox.isChecked()
-            
-        dstElem = self.getDstElement()
-        atomType = self.getAtomtype(dstElem)
-        self.w.assy.modifyTransmute(dstElem, force = force, atomType=atomType)
+                       
                 
     def keyPress(self,key):
         '''keypress event handler for selectAtomsMode.
-        '''
-        from MWsemantics import eCCBtab2
-        
-        if self.o.mode.modename in ['SELECTATOMS']: 
-            # Add mode names above to support atom filtering in subclasses.
-            # Pressing Escape clears the selection filter.
-            if key == Qt.Key_Escape and self.w.elemFilterComboBox.currentIndex():
-                # Clear the selection filter, but not the current selection. Fixes bug 1623. mark 060326
-                self.set_selection_filter(0) # disable selection filter (sets current item to "All Elements").
-                return
-            
+        '''                          
         basicMode.keyPress(self, key)
-
-        if self.o.mode.modename in ['SELECTATOMS']: 
-            # Add mode names above to support atom filtering in subclasses.
-            # Pressing a valid key activates the selection filter and sets the element type.
-            for sym, code, num in elemKeyTab:
-                if key == code:
-                    line = eCCBtab2[num] + 1
-                    self.set_selection_filter(line)
                 
     def keyRelease(self,key):
         '''keyrelease event handler for selectAtomsMode.
@@ -1091,34 +1028,6 @@ class selectAtomsMode(selectMode):
         basicMode.rightCntlDown(self, event)
         self.o.setCursor(self.w.SelectAtomsCursor)
         
-    def update_hybridComboBox(self, win, text = None): 
-        '''Based on the same named function in depositMode.py.
-        Put the names of the current element's hybridization types into win.hybridComboBox; select the specified one if provided'''
-        # I'm not preserving current setting, since when user changes C(sp2) to N, they might not want N(sp2).
-        # It might be best to "intelligently modify it", or at least to preserve it when element doesn't change,
-        # but even the latter is not obvious how to do in this code (right here, we don't know the prior element).
-        #e Actually it'd be easy if I stored the element right here, since this is the only place I set the items --
-        # provided this runs often enough (whenever anything changes the current element), which remains to be seen.
-            
-        elem = PeriodicTable.getElement(self.getDstElement()) 
-        if text is None: 
-            # Preserve current setting (by name) when possible, and when element is unchanged (not sure if that ever happens).
-            # I'm not preserving it when element changes, since when user changes C(sp2) to N, they might not want N(sp2).
-            # [It might be best to "intelligently modify it" (to the most similar type of the new element) in some sense,
-            #  or it might not (too unpredictable); I won't try this for now.]
-            text = str(win.atomSelect_hybridComboBox.currentText() )
-        win.atomSelect_hybridComboBox.clear()
-        atypes = elem.atomtypes
-        if len(atypes) > 1:
-            for atype in atypes:
-                win.atomSelect_hybridComboBox.insertItem( atype.name)
-                if atype.name == text:
-                    win.atomSelect_hybridComboBox.setCurrentIndex( win.atomSelect_hybridComboBox.count() - 1 ) #k sticky as more added?
-            win.atomSelect_hybridComboBox.show()
-        else:
-            win.atomSelect_hybridComboBox.hide()
-        return
-
     def _highlightAtoms(self, grp):
         """Highlight atoms or chunks inside ESPImage jigs."""
         from jigs_planes import ESPImage

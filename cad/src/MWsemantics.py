@@ -53,7 +53,6 @@ from Utility import geticon
 from PropMgr_Constants import pmDefaultWidth, pmMaxWidth, pmMinWidth
 from elementColors import elementColors 
 from elementSelector import elementSelector 
-from MMKit import MMKit
 from Sponsors import PermissionDialog
 from debug_prefs import debug_pref, Choice_boolean_False
 
@@ -99,7 +98,6 @@ from constants import diDEFAULT
 
 elementSelectorWin = None
 elementColorsWin = None
-MMKitWin = None
 
 
 eCCBtab1 = [1,2, 5,6,7,8,9,10, 13,14,15,16,17,18, 32,33,34,35,36, 51,52,53,54]
@@ -266,7 +264,6 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 	
         self.connect(self.modifyAdjustAllAction,SIGNAL("triggered()"),self.modifyAdjustAll)
         self.connect(self.modifyAdjustSelAction,SIGNAL("triggered()"),self.modifyAdjustSel)
-        self.connect(self.modifyMMKitAction,SIGNAL("triggered()"),self.modifyMMKit)
         self.connect(self.modifyPassivateAction,SIGNAL("triggered()"),self.modifyPassivate)
         self.connect(self.modifySeparateAction,SIGNAL("triggered()"),self.modifySeparate)
         self.connect(self.modifyStretchAction,SIGNAL("triggered()"),self.modifyStretch)
@@ -409,15 +406,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         # bruce 050104 moved this here so it can be used earlier
         # (it might need to be moved into main.py at some point)
         self.tmpFilePath = platform.find_or_make_Nanorex_directory()
-
-        
-        import depositMode as _depositMode
-        _depositMode.do_what_MainWindowUI_should_do(self)
-        
-        # mark 050711: Added Select Atoms dashboard.
-        import selectMode as _selectMode
-        _selectMode.do_what_MainWindowUI_should_do(self)
-               
+              
                
         # Load additional icons to QAction iconsets.
         # self.load_icons_to_iconsets() # Uncomment this line to test if Redo button has custom icon when disabled. mark 060427
@@ -927,12 +916,6 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
             print_compact_traceback( msg )
 
         ## self.__clear() # (this seems to take too long, and is probably not needed)
-
-        try:
-            self.deleteMMKit()  # wware 060406 bug 1263 - don't leave MMKit open after exiting program
-                # [is this still needed?? bruce 070618 Q]
-        except:
-            print_compact_traceback( msg )
 
         try:
 	    self.deleteOrientationWindow() # ninad 061121- perhaps it's unnecessary
@@ -1863,103 +1846,20 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 ##        elementSelectorWin = elementSelector(self)
 ##        elementSelectorWin.update_dialog(self.Element)
 ##        elementSelectorWin.show()
-    
-    def update_depositState_buttons(self): #bruce 051230 moved this from depositMode to MWsemantics and removed the argument.
-        '''Update the Build dashboard 'depositState' buttons based on self.depositState.
-        '''
-        depositState = self.depositState
-            # (this is the only correct source of this info, so I made it not an argument;
-            #  if that changes then we can supply an *optional* argument to get this info
-            #  from a nonstandard source [bruce 051230])
-        if depositState == 'Atoms':
-            self.depositAtomDashboard.depositBtn.setChecked(True)
-        elif depositState == 'Clipboard':
-            self.depositAtomDashboard.pasteBtn.setChecked(True)
-        elif depositState == 'Library':
-            self.depositAtomDashboard.depositBtn.setChecked(False)
-            self.depositAtomDashboard.pasteBtn.setChecked(False)
-        else:
-            print "Bug: depositState unknown: ", depositState, ".  depositState buttons unchanged." #bruce 051230 revised text
-        return
-    
-    def modifyMMKit(self):
-        '''Open The Molecular Modeling Kit for Build (DEPOSIT) mode.
-        '''
-        # This should probably be moved elsewhere
-        global MMKitWin
-        if MMKitWin and not MMKitWin.isHidden():
-            return MMKitWin
 
-        # It's very important to add the following condition, so only a single instance
-        # of the MMKit has been created and used. This is to fix bug 934, which is kind
-        # of hard to find. [Huaicai 9/2/05]
-        firstShow = False
-        if not MMKitWin:
-            firstShow = True
-            MMKitWin = MMKit(self)
-
-        self.current_bondtool_button = None
-        def bondtool_button_clicked(button, self=self):
-            self.current_bondtool_button = button
-            self.glpane.mode.update_cursor_for_no_MB_selection_filter_disabled()
-	
-	#ninad070412 disabled the following action. bondToolButtons attribute doesn't
-	#exist in ne1qt4
-        ##QObject.connect(MMKitWin.bondToolButtons, SIGNAL("buttonClicked(QAbstractButton *)"), bondtool_button_clicked)
-       
-        MMKitWin.update_dialog(self.Element)	
-        return MMKitWin
-        
-    def deleteMMKit(self):
-        '''Deletes the MMKit.
-        '''
-        ##bruce 070608 question: is this still needed? (It does have calls that look active, but it seems weird for MMkit a PM.)
-        global MMKitWin
-        if MMKitWin:
-            MMKitWin.close()  # wware 060406 bug 1263 - don't leave MMKit open after exiting program
-            MMKitWin = None
-            self.depositState = 'Atoms' # reset so next time MMKit is created it will open to Atoms page
-
-    def transmuteElementChanged(self, a0):
-        '''Slot method, called when user changes the items in the <Transmute to> comboBox of selectAtom Dashboard.
-           I put it here instead of the more relevant selectMode.py is because selectMode is not of 
-           QObject, so it doesn't support signal/slots. --Huaicai '''
-        self.glpane.mode.update_hybridComboBox(self)
-            
         
     def elemChange(self, a0):
         '''Slot for Element selector combobox in Build mode's dashboard.
         '''
         self.Element = eCCBtab1[a0]
         
-        try: #bruce 050606
-            from depositMode import update_hybridComboBox
-            update_hybridComboBox(self)
-        except:
-            if platform.atom_debug:
-                print_compact_traceback( "atom_debug: ignoring exception from update_hybridComboBox: ")
-            pass # might never fail, not sure...
         
-        #[Huaicai 9/6/05: The element selector feature is obsolete.
-        #global elementSelectorWin
-        #if elementSelectorWin and not elementSelectorWin.isHidden():
-        #   elementSelectorWin.update_dialog(self.Element)     
-        #   elementSelectorWin.show()
-        
-        global MMKitWin
-        if MMKitWin and not MMKitWin.isHidden():
-           self.depositState = 'Atoms'
-           MMKitWin.update_dialog(self.Element)     
-           MMKitWin.show()
-
-
     # this routine sets the displays to reflect elt
     # [bruce 041215: most of this should be made a method in elementSelector.py #e]
     def setElement(self, elt):
         # element specified as element number
         global elementSelectorWin
-        global MMKitWin
-        
+                
         self.Element = elt
         
         pw = self.activePartWindow()
@@ -1975,15 +1875,8 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         #bruce 050706 fix bug 690 by calling the same slot that elemChangeComboBox.setCurrentIndex should have called
         # (not sure in principle that this is always safe or always a complete fix, but it seems to work)
         
-        # Huaicai 8/10/05: remove the synchronization.
-        #self.elemFilterComboBox.setCurrentIndex(line)
-        
         self.elemChange(line) #k arg is a guess, but seems to work
-            # (btw if you use keypress to change to the same element you're in, it *doesn't* reset that element
-            #  to its default atomtype (hybridization combobox in build dashboard);
-            #  this is due to a special case in update_hybridComboBox;
-            #  I'm not sure whether this is good or bad. #k [bruce 050706])
-
+          
         return
     
 
@@ -2098,9 +1991,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         # [bruce 050408 comment: this list should be recoded somehow so that it
         #  lists what to show, not what to hide. ##e]
         self.cookieCutterDashboard.hide()
-        self.depositAtomDashboard.hide()
         self.selectMolDashboard.hide()
-        self.selectAtomsDashboard.hide()
         self.moveChunksDashboard.hide()
         self.moviePlayerDashboard.hide()
         self.zoomDashboard.hide()

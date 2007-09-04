@@ -423,17 +423,17 @@ class ops_copy_Mixin:
 	    boundingBox = BBox()
 	    for m in chunkList:
 		boundingBox.merge(m.bbox)	    
-	    approxCenter = boundingBox.center()	    
+	    approxCenter = boundingBox.center()	 
+	    scale = float(boundingBox.scale() * 0.06)	    
+	    if scale < 0.001:
+		scale = 0.1
 	else:
 	    approxCenter = V(0.01, 0.01, 0.01)
+	    scale = 0.1
 	
 	if pos:
 	    moveOffset = pos - approxCenter
-	else:  
-	    scale = float(boundingBox.scale() * 0.06)
-	    
-	    if scale < 0.001:
-		scale = 0.1		    
+	else:	    		    
 	    moveOffset  = scale * self.assy.o.right 
 	    moveOffset += scale * self.assy.o.down	
 	

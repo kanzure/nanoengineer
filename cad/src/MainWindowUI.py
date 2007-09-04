@@ -46,14 +46,7 @@ class Ui_MainWindow(object):
         ###########################
                #### DASHBOARDS  ####
         ###########################
-        self.selectAtomsDashboard = QtGui.QToolBar(MainWindow)
-
-        self.selectAtomsDashboard.setEnabled(True)
-        self.selectAtomsDashboard.setObjectName("selectAtomsDashboard")
-
-        self.textLabel2_2 = QtGui.QLabel(self.selectAtomsDashboard)
-        self.textLabel2_2.setObjectName("textLabel2_2")
-        MainWindow.addToolBar(Qt.BottomToolBarArea, self.selectAtomsDashboard)
+        
 
         self.cookieCutterDashboard = QtGui.QToolBar(MainWindow)
         self.cookieCutterDashboard.setEnabled(True)
@@ -123,10 +116,7 @@ class Ui_MainWindow(object):
         self.dashboardHolder.setObjectName('dashboardholder')
         self.dashboardHolder.setFeatures(QtGui.QDockWidget.DockWidgetMovable)
         MainWindow.addDockWidget(Qt.BottomDockWidgetArea, self.dashboardHolder)
-        self.depositAtomDashboard = QtGui.QToolBar(MainWindow)
-        
-        self.depositAtomDashboard.setEnabled(True)
-        self.depositAtomDashboard.setObjectName("depositAtomDashboard")
+       
 
         self.cookieSelectDashboard = QtGui.QToolBar(MainWindow)
         self.cookieSelectDashboard.setEnabled(True)
@@ -493,7 +483,6 @@ class Ui_MainWindow(object):
         self.rotateTextLabel.setText(QtGui.QApplication.translate("MainWindow", "Rotate Tool", None, QtGui.QApplication.UnicodeUTF8))
         self.fuseChunksDashboard.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Fuse Chunks", None, QtGui.QApplication.UnicodeUTF8))
         self.textLabel1_3.setText(QtGui.QApplication.translate("MainWindow", "Fuse Chunks", None, QtGui.QApplication.UnicodeUTF8))
-        self.depositAtomDashboard.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Build Dashboard", None, QtGui.QApplication.UnicodeUTF8))
         self.cookieSelectDashboard.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Toolbar", None, QtGui.QApplication.UnicodeUTF8))
                
         

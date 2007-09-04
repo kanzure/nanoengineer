@@ -111,116 +111,6 @@ set_DRAG_STICKINESS_LIMIT_from_pref() # also called in selectAtomsMode.leftDown
 
 ## TEST_PYREX_OPENGL = 0 # bruce 060209 moved this to where it's used (below), and changed it to a debug_pref
 
-def do_what_MainWindowUI_should_do(w):
-    """This creates the Select Atoms (not the Select Chunks) dashboard."""
-     
-    w.selectAtomsDashboard.clear()
-
-    w.depositAtomLabel = QLabel(w.selectAtomsDashboard)
-    w.depositAtomLabel.setText(" Select Atoms ")
-    w.selectAtomsDashboard.addSeparator()
-
-    selectLabel = QLabel()
-    w.selectAtomsDashboard.addWidget(selectLabel)
-    selectLabel.setText("Select: ")
-    
-    w.elemFilterComboBox = QComboBox()
-    w.selectAtomsDashboard.addWidget(w.elemFilterComboBox)
-    
-    #w.selectAtomsDashboard.addAction(w.selectConnectedAction)
-    #w.selectAtomsDashboard.addAction(w.selectDoublyAction)
-        # Removed these now that select connected works on double-click. mark 060220.
-    
-    w.selectAtomsDashboard.addSeparator()
-
-    transmute2Label = QLabel()
-    w.selectAtomsDashboard.addWidget(transmute2Label)
-    transmute2Label.setText("Transmute to: ")
-    w.transmute2ComboBox = QComboBox()
-    w.selectAtomsDashboard.addWidget(w.transmute2ComboBox)
-    w.connect(w.transmute2ComboBox, SIGNAL("activated(int)"), w.transmuteElementChanged)
-
-    w.atomSelect_hybridComboBox = QComboBox()
-    w.selectAtomsDashboard.addWidget(w.atomSelect_hybridComboBox)
-    # Set the width of the hybrid drop box.  Mark 050810.
-    width = w.hybridComboBox.fontMetrics().width(" sp2(graphitic) ")
-    w.atomSelect_hybridComboBox.setMinimumSize ( QSize (width, 0) )
-
-    w.transmuteButton = QPushButton("Transmute", w.selectAtomsDashboard)
-                 
-    w.transmuteCheckBox = QCheckBox(" Force to Keep Bonds", w.selectAtomsDashboard)
-    
-    w.selectAtomsDashboard.addSeparator()
-    w.selectAtomsDashboard.highlightingCB = QCheckBox("Highlighting", w.selectAtomsDashboard)
-
-    w.selectAtomsDashboard.addSeparator()
-    w.selectAtomsDashboard.addAction(w.toolsDoneAction)
-    w.selectAtomsDashboard.setWindowTitle("Select Atoms")
-
-    w.elemFilterComboBox.clear()
-    # WARNING:
-    # these are identified by *position*, not by their text, using corresponding entries in eCCBtab1;
-    # this is done by win.elemChange even though nothing but depositMode calls that;
-    # the current element is stored in win.Element (as an atomic number ###k).
-    # All this needs cleanup so it's safer to modify this and so atomtype can sometimes be included.
-    # Both eCCBtab1 and eCCBtab2 are set up and used in MWsemantics but should be moved here,
-    # or perhaps with some part moved into elements.py if it ought to share code with elementSelector.py
-    # and elementColors.py (though it doesn't now).
-    w.elemFilterComboBox.insertItem(0,"All Elements")
-    w.elemFilterComboBox.insertItem(1,"Hydrogen")
-    w.elemFilterComboBox.insertItem(2,"Helium")
-    w.elemFilterComboBox.insertItem(3,"Boron")
-    w.elemFilterComboBox.insertItem(4,"Carbon") # will change to two entries, Carbon(sp3) and Carbon(sp2) -- no, use separate combobox
-    w.elemFilterComboBox.insertItem(5,"Nitrogen")
-    w.elemFilterComboBox.insertItem(6,"Oxygen")
-    w.elemFilterComboBox.insertItem(7,"Fluorine")
-    w.elemFilterComboBox.insertItem(8,"Neon")
-    w.elemFilterComboBox.insertItem(9,"Aluminum")
-    w.elemFilterComboBox.insertItem(10,"Silicon")
-    w.elemFilterComboBox.insertItem(11,"Phosphorus")
-    w.elemFilterComboBox.insertItem(12,"Sulfur")
-    w.elemFilterComboBox.insertItem(13,"Chlorine")
-    w.elemFilterComboBox.insertItem(14,"Argon")
-    w.elemFilterComboBox.insertItem(15,"Germanium")
-    w.elemFilterComboBox.insertItem(16,"Arsenic")
-    w.elemFilterComboBox.insertItem(17,"Selenium")
-    w.elemFilterComboBox.insertItem(18,"Bromine")
-    w.elemFilterComboBox.insertItem(19,"Krypton")
-    #w.elemFilterComboBox.insertItem("Antimony")
-    #w.elemFilterComboBox.insertItem("Tellurium")
-    #w.elemFilterComboBox.insertItem("Iodine")
-    #w.elemFilterComboBox.insertItem("Xenon")
-    
-    w.transmute2ComboBox.clear()
-    w.transmute2ComboBox.insertItem(0,"Hydrogen")
-    w.transmute2ComboBox.insertItem(1,"Helium")
-    w.transmute2ComboBox.insertItem(2,"Boron")
-    w.transmute2ComboBox.insertItem(3,"Carbon") # will change to two entries, Carbon(sp3) and Carbon(sp2) -- no, use separate combobox
-    w.transmute2ComboBox.insertItem(4,"Nitrogen")
-    w.transmute2ComboBox.insertItem(5,"Oxygen")
-    w.transmute2ComboBox.insertItem(6,"Fluorine")
-    w.transmute2ComboBox.insertItem(7,"Neon")
-    w.transmute2ComboBox.insertItem(8,"Aluminum")
-    w.transmute2ComboBox.insertItem(9,"Silicon")
-    w.transmute2ComboBox.insertItem(10,"Phosphorus")
-    w.transmute2ComboBox.insertItem(11,"Sulfur")
-    w.transmute2ComboBox.insertItem(12,"Chlorine")
-    w.transmute2ComboBox.insertItem(13,"Argon")
-    w.transmute2ComboBox.insertItem(14,"Germanium")
-    w.transmute2ComboBox.insertItem(15,"Arsenic")
-    w.transmute2ComboBox.insertItem(16,"Selenium")
-    w.transmute2ComboBox.insertItem(17,"Bromine")
-    w.transmute2ComboBox.insertItem(18,"Krypton")
-    
-    from whatsthis import create_whats_this_descriptions_for_selectAtomsMode
-    create_whats_this_descriptions_for_selectAtomsMode(w)
-
-    # select chunks dashboard, imported from MainWindowUI.py
-    w.selectMolDashboard.addWidget(w.textLabel1_2)
-    w.selectMolDashboard.addAction(w.nullAction)
-    w.selectMolDashboard.addAction(w.toolsDoneAction)
-
-    return
 
 # ==
 
@@ -1595,10 +1485,10 @@ class selectMode(basicMode):
         if not j.picked and self.o.modkeys == 'Shift':
             j.pick()
         if j.picked:
-            self.cursor_over_when_LMB_pressed = 'Picked Jig'
+            self.cursor_over_when_LMB_pressed = 'Picked Jig'          
         else:
             self.cursor_over_when_LMB_pressed = 'Unpicked Jig'
-            
+
         # Move section
         farQ_junk, self.jig_MovePt = self.dragstart_using_GL_DEPTH( event)
             #bruce 060316 replaced equivalent old code with this new method
@@ -1613,7 +1503,7 @@ class selectMode(basicMode):
         self.jig_StartPt = self.jig_MovePt # Used in leftDrag() to compute move offset during drag op.
         
         self.jigSetup(j)
-        
+
         
     def jigSetup(self, j):
         '''Setup for a click, double-click or drag event for jig <j>.

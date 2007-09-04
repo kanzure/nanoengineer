@@ -1318,7 +1318,6 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         ### Hack by Huaicai 2/1 to fix bug 369
         self.mt.resetAssy_and_clear() 
         
-        self.deleteMMKit() #mark 051215.  Fixes bug 1222 (was bug 961, item #4).
         return
 
     _MWsemantics__clear = __clear #bruce 060127 kluge so it can be called as __clear from inside class MWsemantics itself.

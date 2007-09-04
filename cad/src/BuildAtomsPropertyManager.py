@@ -21,6 +21,7 @@ ninad 2007-08-29: Created to use PM module classes, thus deprecating old
 
 from Ui_BuildAtomsPropertyManager import Ui_BuildAtomsPropertyManager
 from bond_constants               import btype_from_v6
+from elements                     import PeriodicTable
 
 NOBLEGASES = ["He", "Ne", "Ar", "Kr"]
 
@@ -53,6 +54,33 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         PM_Dialog)
         """
         self.w.toolsDone()
+    
+    def update_selection_filter_list(self):
+        '''Adds/removes the element selected in the MMKit to/from Atom Selection Filter
+        based on what modifier key is pressed (if any).
+        '''
+        eltnum = self.elementChooser.getElementNumber()
+        print "*** in update_selection_filter_list, eltnum =", eltnum
+        if self.o.modkeys is None:
+            self.w.filtered_elements = []
+            self.w.filtered_elements.append(PeriodicTable.getElement(eltnum))
+        if self.o.modkeys == 'Shift':
+            if not PeriodicTable.getElement(eltnum) in self.w.filtered_elements[:]:
+                self.w.filtered_elements.append(PeriodicTable.getElement(eltnum))
+        elif self.o.modkeys == 'Control':
+            if PeriodicTable.getElement(eltnum) in self.w.filtered_elements[:]:
+                self.w.filtered_elements.remove(PeriodicTable.getElement(eltnum))
+                
+        self.update_selection_filter_list_widget()
+        
+    def update_selection_filter_list_widget(self):
+        '''Updates the list of elements displayed in the Atom Selection Filter List.
+        '''
+        filtered_syms=''
+        for e in self.w.filtered_elements[:]:
+            if filtered_syms: filtered_syms += ", "
+            filtered_syms += e.symbol
+	##self.filterlistLE.setText(filtered_syms)
                 
     def updateMessage(self):
         """
