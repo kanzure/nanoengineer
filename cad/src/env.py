@@ -59,15 +59,32 @@ and officially deprecated win.history.
 
 __author__ = 'bruce'
 
-def mainwindow(): #bruce 051209
-    """Return the main window object (since there is exactly one, and it contains some global variables).
-    Fails if called before main window is inited (and it and assy point to each other).
+_mainWindow = None
+
+def setMainWindow(window):
     """
-    from MWsemantics import windowList
-    assert len(windowList) == 1 # otherwise we would not know which one was correct to return
-    win = windowList[-1] # assumes only one
-    assert win.assy.w is win # sanity check, and makes sure it's not too early for these things to have been set up
-    return win
+    Set the value which will be returned by env.mainwindow().  Called
+    by MWsemantics on creation of the (currently one and only) main
+    window.
+    """
+    global _mainWindow
+    assert _mainWindow is None, "can only setMainWindow once"
+    assert not window is None
+    _mainWindow = window
+
+def mainwindow(): #bruce 051209
+    """
+    Return the main window object (since there is exactly one, and it
+    contains some global variables).  Fails if called before main
+    window is inited (and it and assy point to each other).
+    """
+
+    # sanity check, and makes sure it's not too early for these things
+    # to have been set up
+    assert not _mainWindow is None, "setMainWindow not called yet"
+    assert _mainWindow.assy.w is _mainWindow 
+
+    return _mainWindow
 
 def debug(): #bruce 060222
     """Should debug checks be run, and debug messages be printed, and debug options offered in menus?

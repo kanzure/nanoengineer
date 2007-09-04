@@ -100,7 +100,6 @@ from constants import diDEFAULT
 elementSelectorWin = None
 elementColorsWin = None
 MMKitWin = None
-windowList = []
 
 
 eCCBtab1 = [1,2, 5,6,7,8,9,10, 13,14,15,16,17,18, 32,33,34,35,36, 51,52,53,54]
@@ -134,7 +133,6 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 
     def __init__(self, parent = None, name = None):
     
-        global windowList
         self._activepw = None
 	
         self.orientationWindow = None
@@ -438,7 +436,8 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         import StatusBar as _StatusBar
         _StatusBar.do_what_MainWindowUI_should_do(self)
 	
-        windowList += [self]
+        env.setMainWindow(self)
+        
         if name == None:
             self.setWindowTitle("NanoEngineer-1") # Mark 11-05-2004
 
