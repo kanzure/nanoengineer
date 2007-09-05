@@ -20,33 +20,35 @@ from constants import diTUBES
 
 # Elements button list to create elements tool button group.
 # Format: 
+# - button type
 # - buttonId (element number), 
 # - buttonText (element symbol), 
 # - iconPath
 # - tooltip (element name)
+# - shortcut
 # - column
 # - row
 
 ELEMENTS_BUTTON_LIST = [ \
-    ( "QToolButton", 1,  "H", "", "Hydrogen",   4, 0   ),
-    ( "QToolButton", 2, "He", "", "Helium",     5, 0   ),
-    ( "QToolButton", 5,  "B", "", "Boron",      0, 1   ),
-    ( "QToolButton", 6,  "C", "", "Carbon",     1, 1   ),
-    ( "QToolButton", 7,  "N", "", "Nitrogen",   2, 1   ),
-    ( "QToolButton", 8,  "O", "", "Oxygen",     3, 1   ),
-    ( "QToolButton", 9,  "F", "", "Fluorine",   4, 1   ),
-    ( "QToolButton", 10, "Ne", "", "Neon",       5, 1   ),
-    ( "QToolButton", 13, "Al", "", "Aluminum",   0, 2   ),
-    ( "QToolButton", 14, "Si", "", "Silicon",    1, 2   ),
-    ( "QToolButton", 15,  "P", "", "Phosphorus", 2, 2   ),
-    ( "QToolButton", 16,  "S", "", "Sulfur",     3, 2   ),
-    ( "QToolButton", 17, "Cl", "", "Chlorine",   4, 2   ),
-    ( "QToolButton", 18, "Ar", "", "Argon",      5, 2   ),
-    ( "QToolButton", 32, "Ge", "", "Germanium",  1, 3   ),
-    ( "QToolButton", 33, "As", "", "Arsenic",    2, 3   ),
-    ( "QToolButton", 34, "Se", "", "Selenium",   3, 3   ),
-    ( "QToolButton", 35, "Br", "", "Bromine" ,   4, 3   ),
-    ( "QToolButton", 36, "Kr", "", "Krypton",    5, 3   )
+    ( "QToolButton", 1,  "H", "", "Hydrogen",  "H", 4, 0   ),
+    ( "QToolButton", 2, "He", "", "Helium",  None,  5, 0   ),
+    ( "QToolButton", 5,  "B", "", "Boron",   "B",   0, 1   ),
+    ( "QToolButton", 6,  "C", "", "Carbon",  "C",   1, 1   ),
+    ( "QToolButton", 7,  "N", "", "Nitrogen", "N",  2, 1   ),
+    ( "QToolButton", 8,  "O", "", "Oxygen",  "O",   3, 1   ),
+    ( "QToolButton", 9,  "F", "", "Fluorine",  "F", 4, 1   ),
+    ( "QToolButton", 10, "Ne", "", "Neon",  None,   5, 1   ),
+    ( "QToolButton", 13, "Al", "", "Aluminum", "A", 0, 2   ),
+    ( "QToolButton", 14, "Si", "", "Silicon",  "Q",  1, 2   ),
+    ( "QToolButton", 15,  "P", "", "Phosphorus", "P", 2, 2   ),
+    ( "QToolButton", 16,  "S", "", "Sulfur",  "S",   3, 2   ),
+    ( "QToolButton", 17, "Cl", "", "Chlorine", "L",  4, 2   ),
+    ( "QToolButton", 18, "Ar", "", "Argon",   None,  5, 2   ),
+    ( "QToolButton", 32, "Ge", "", "Germanium", "G",  1, 3   ),
+    ( "QToolButton", 33, "As", "", "Arsenic",  None,   2, 3   ),
+    ( "QToolButton", 34, "Se", "", "Selenium", None,  3, 3   ),
+    ( "QToolButton", 35, "Br", "", "Bromine" , None,   4, 3   ),
+    ( "QToolButton", 36, "Kr", "", "Krypton",  None,  5, 3   )
 ]
 
 ELEMENT_ATOM_TYPES = { \
@@ -64,15 +66,16 @@ ATOM_TYPES = ("sp3", "sp2", "sp", "sp2(graphitic)")
 # - buttonText (hybrid symbol)
 # - iconPath
 # - tooltip (full hybrid name)
+# - shortcut
 # - column
 # - row
 
 ATOM_TYPES_BUTTON_LIST = [ \
-    ( "QToolButton", 0, "sp3", "", "sp3", 0, 0 ),
-    ( "QToolButton", 1, "sp2", "", "sp2", 1, 0 ),
-    ( "QToolButton", 2, "sp",  "", "sp",  2, 0 ),
+    ( "QToolButton", 0, "sp3", "", "sp3", None, 0, 0 ),
+    ( "QToolButton", 1, "sp2", "", "sp2", None, 1, 0 ),
+    ( "QToolButton", 2, "sp",  "", "sp",  None, 2, 0 ),
     ( "QToolButton", 3, "sp2(graphitic)", "ui/modeltree/N_graphitic.png", 
-      "Graphitic", 3, 0 ) #@ Icon lives in a poorly chosen location.
+      "Graphitic", None, 3, 0 ) #@ Icon lives in a poorly chosen location.
 ]
 
 class PM_ElementChooser( PM_GroupBox ):
@@ -278,6 +281,9 @@ class PM_ElementChooser( PM_GroupBox ):
         self._updateElementViewer()
     
     def _updateElementViewer(self):
+        """
+        Update the view in the element viewer (if present) 
+        """
         if not self.elementViewer:
             return
         
@@ -286,14 +292,7 @@ class PM_ElementChooser( PM_GroupBox ):
         self.elementViewer.resetView()                
         self.elementViewer.changeHybridType(self.atomType)        
         self.elementViewer.refreshDisplay(self.element, diTUBES)
-    
-    def connect_disconnect_signals(self, connect):
-        """
-        """
-        if connect:
-            change_connect = self.connect
-        else:
-            change_connect = self.disconnect
+
         
         
             

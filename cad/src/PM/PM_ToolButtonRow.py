@@ -128,7 +128,8 @@ class PM_ToolButtonRow( PM_ToolButtonGrid ):
         buttonText     = buttonInfo[2]
         buttonIconPath = buttonInfo[3]
         buttonToolTip  = buttonInfo[4]
-        column         = buttonInfo[5]
+        buttonShortcut = buttonInfo[5]
+        column         = buttonInfo[6]
         row            = 0
                          
         buttonInfoList = [
@@ -137,6 +138,7 @@ class PM_ToolButtonRow( PM_ToolButtonGrid ):
             buttonText, 
             buttonIconPath,
             buttonToolTip,
+            buttonShortcut,
             column,
             row]
                           

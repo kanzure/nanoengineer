@@ -14,7 +14,6 @@ ninad 2007-08-14: New superclass PM_WidgetGrid. Related refactoring and cleanup.
 
 import sys
 
-from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QButtonGroup
 from PyQt4.Qt import QFont
 
