@@ -100,7 +100,8 @@ class test_connectWithState(State_preMixin, ExampleCommand):
     # which will track all their uses and changes so that connectWithState
     # works for them:
     cylinderVertical = State(bool, False)
-    cylinderWidth = State(float, 2.0)
+    cylinderWidth = State(float, CYLINDER_WIDTH_DEFAULT_VALUE)
+        # TODO: soon this will be the only use of this constant, so it can be inlined
     cylinderColor = State('color-stub', pink) # type should be Color (nim), but type is not yet used
     
         # note: you can add _e_debug = True to one or more of these State definitions

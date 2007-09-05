@@ -482,10 +482,7 @@ class State(data_descriptor_Expr):
             ####e OPTIM: this hasattr might be slow (or even buggy, tho i think it'll work
             # by raising an exception that's a subclass of AttributeError; the slow part is computing args for that every time)
             if not hasattr(res, attr):
-                # eval the dflt expr here, much like _i_instance does it:
-                val_expr = self._e_default_val
-                index = attr
-                val = instance._i_eval_dfltval_expr(val_expr, index)
+                val = self._e_eval_defaultValue(attr, instance)
                 #k should I just do setattr(res, attr, val), or is there something special and better about this:
                 ## set_default_attrs(res, {attr : val}) ##k arg syntax
                 set_default_attrs(res, **{attr : val})
@@ -496,6 +493,25 @@ class State(data_descriptor_Expr):
                     print "bug: set_default_attrs should have stored %r at %r in %r, but it has %r" % (val, attr, res, val0)
             pass
         return res
+    def _e_eval_defaultValue(self, attr, instance): #070904 split this out
+        # Note [added 070904]: the default value should not depend on the
+        # current values of other State slots (though it can be an expr,
+        # and it's fine if it depends on customized instance parameters).
+        # In current code, I suspect there can be errors (nondeterminisism)
+        # if it does (not sure). This is especially true after today's kluge
+        # (a new call of this helper method), which can evaluate this twice.
+        # See KLUGE 070904 for cleanup suggestions.
+        # Q: Would it be better to change this requirement, to make it say
+        # "it's ok if it tries to depend on the values of other State,
+        # but we eval it with all State slots at their default values
+        # to make sure it's deterministic as used"?
+
+        # eval the dflt expr here, much like _i_instance does it:
+        val_expr = self._e_default_val
+        index = attr
+        val = instance._i_eval_dfltval_expr(val_expr, index)
+        return val
+        
     ## AttributeError: no attr '_e_eval_function' in <class 'exprs.attr_decl_macros.State'>   -- why does someone want to call this??
     # where i am 061203 1023p stopping for night -- wondering that. in testexpr_16.
     #
@@ -546,6 +562,14 @@ class State(data_descriptor_Expr):
         lval = holder._attr_accessor__get_lval(attr) # should work for now..... ##KLUGE to assume what class & use private method
         # print "got lval: %r\n" % (lval,)
         # lval._changes__debug_print = True # cause various code that touches this lval to print what it does
+        if not hasattr(lval, 'defaultValue'):
+            # KLUGE 070904; needs cleanup and optim (can eval dflt val expr twice);
+            # could be cleaned up easily if it turns out set_default_attrs
+            # always calls _set_defaultValue in the lval, since we could make
+            # that method set this attr, and make the call of it depend on it
+            # not being set. Alternatively we could set a function for computing
+            # default val if needed, on the lval itself. ###REVIEW
+            lval.defaultValue = self._e_eval_defaultValue(attr, instance)
         return lval
 
     pass # end of class State

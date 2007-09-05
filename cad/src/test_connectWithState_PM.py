@@ -79,12 +79,13 @@ class test_connectWithState_PM( ExampleCommand1_PM):
         stateref = ObjAttr_StateRef( self.commandrun, 'cylinderWidth')
 
         try:
-            # test driven development -- see if this works yet [070831]
             defaultValue = stateref.defaultValue
-            print "\nfor stateref.defaultValue got %r" % (defaultValue,) ###
+            print "\nfor stateref.defaultValue got %r" % (defaultValue,) # works, 070904
         except:
             print "\nthis test doesn't work yet: stateref.defaultValue"
-            defaultValue = CYLINDER_WIDTH_DEFAULT_VALUE            
+            defaultValue = CYLINDER_WIDTH_DEFAULT_VALUE
+                # TODO: remove this case and any need for this constant here;
+                # same for the other StateRefs
         
         self.cylinderWidthSpinbox  =  \
             PM_DoubleSpinBox( pmGroupBox,

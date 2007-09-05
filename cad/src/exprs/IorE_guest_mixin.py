@@ -609,7 +609,7 @@ class IorE_guest_mixin(Expr): #bruce 070815 split this out of its InstanceOrExpr
         assert descriptor is not None
         ## assert isinstance( descriptor, ClassAttrSpecific_DataDescriptor ) ###k??? in fact assume it is a subclass which can do following:
         ## return None if following method is not there
-        return descriptor._StateRef__your_attr_in_obj_ref( self) ###IMPLEM
+        return descriptor._StateRef__your_attr_in_obj_ref( self)
         
     pass # end of class IorE_guest_mixin
 
