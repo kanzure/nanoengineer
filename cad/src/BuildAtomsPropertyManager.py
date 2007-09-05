@@ -21,7 +21,6 @@ ninad 2007-08-29: Created to use PM module classes, thus deprecating old
 
 from Ui_BuildAtomsPropertyManager import Ui_BuildAtomsPropertyManager
 from bond_constants               import btype_from_v6
-from elements                     import PeriodicTable
 
 NOBLEGASES = ["He", "Ne", "Ar", "Kr"]
 
@@ -77,9 +76,11 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         Updates the list of elements displayed in the Atom Selection Filter 
         List.
         """
-        filtered_syms=''
+        filtered_syms = ''
         for e in self.w.filtered_elements[:]:
-            if filtered_syms: filtered_syms += ", "
+            if filtered_syms: 
+                filtered_syms += ", "
+            
             filtered_syms += e.symbol
         #TODO: Define element filter line edit (self.filterlistLE) in propMgr.
         #The following is disabled for now.
