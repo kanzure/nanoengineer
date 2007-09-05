@@ -225,9 +225,6 @@ class AtomGeneratorPropertyManager(PM_Dialog):
         if not AddTestGroupBoxes: # Add test widgets to their own groupbox.
             return
         
-        self.translateGroupBox = PM_GroupBox( self, title = "Translate" )
-        
-        self.loadTranslateGroupBox(self.translateGroupBox)
         
         """
         self.testGroupBox1 = \
@@ -313,183 +310,29 @@ class AtomGeneratorPropertyManager(PM_Dialog):
         :Jeff 2007-05-30:
         """
         
-        self.xCoordinateField.setWhatsThis("<b>x</b><p>: The x-coordinate (up to </p>" \
+        self.xCoordinateField.setWhatsThis("<b>x</b><p>: The x-coordinate (up "\
+                                           "to </p>" \
                                            + str( self._sMaxCoordinateValue ) \
                                            + self._sCoordinateUnits \
                                            + ") of the Atom in " \
                                            + self._sCoordinateUnits + '.')
         
-        self.yCoordinateField.setWhatsThis("<b>y</b><p>: The y-coordinate (up to </p>"\
+        self.yCoordinateField.setWhatsThis("<b>y</b><p>: The y-coordinate (up" \
+                                           "to </p>"\
                                            + str( self._sMaxCoordinateValue ) \
                                            + self._sCoordinateUnits \
                                            + ") of the Atom in " \
                                            + self._sCoordinateUnits + '.')
         
-        self.zCoordinateField.setWhatsThis("<b>z</b><p>: The z-coordinate (up to </p>" \
+        self.zCoordinateField.setWhatsThis("<b>z</b><p>: The z-coordinate (up" \
+                                           "to </p>" \
                                            + str( self._sMaxCoordinateValue )
                                            + self._sCoordinateUnits \
                                            + ") of the Atom in " 
                                            + self._sCoordinateUnits + '.')
 
-    # == Begin Translate Group Box =====================
+   
     
-    def loadTranslateGroupBox(self, inPmGroupBox):
-        """
-        Populate Translate group box.
-        """
-        
-        translateChoices = [ "Free Drag", "By Delta XYZ", "To XYZ Position" ]
-        
-        self.translateComboBox = \
-            PM_ComboBox( inPmGroupBox,
-                         label        = '', 
-                         choices      = translateChoices, 
-                         index        = 0, 
-                         setAsDefault = False,
-                         spanWidth    = True )
-        
-        self.connect(self.translateComboBox, 
-                     SIGNAL("currentIndexChanged(int)"), 
-                     self.updateTranslateGroupBoxes)
-        
-        self.freeDragGroupBox = PM_GroupBox( inPmGroupBox )
-        self.loadFreeDragGroupBox(self.freeDragGroupBox)
-        
-        self.byDeltaGroupBox = PM_GroupBox( inPmGroupBox )
-        self.loadByDeltaGroupBox(self.byDeltaGroupBox)
-        
-        self.toPositionGroupBox = PM_GroupBox( inPmGroupBox )
-        self.loadToPositionGroupBox(self.toPositionGroupBox)
-        
-        self.updateTranslateGroupBoxes(0)
-    
-    def loadFreeDragGroupBox(self, inPmGroupBox):
-        """
-        """
-        self.freeDragButton = \
-            PM_PushButton( inPmGroupBox,
-                           label = "",
-                           text  = "F" )
-        
-    def loadByDeltaGroupBox(self, inPmGroupBox):
-        """
-        """
-
-        self.deltaXSpinBox = \
-            PM_DoubleSpinBox( inPmGroupBox, 
-                              label        = "X:",
-                              value        = 0.0, 
-                              setAsDefault = True,
-                              minimum      = -100.0, 
-                              maximum      =  100.0, 
-                              singleStep   = 1.0, 
-                              decimals     = 1, 
-                              suffix       = ' Angstroms',
-                              spanWidth    = False )
-        
-        self.deltaYSpinBox = \
-            PM_DoubleSpinBox( inPmGroupBox, 
-                              label        = "Y:",
-                              value        = 0.0, 
-                              setAsDefault = True,
-                              minimum      = -100.0, 
-                              maximum      =  100.0, 
-                              singleStep   = 1.0, 
-                              decimals     = 1, 
-                              suffix       = ' Angstroms',
-                              spanWidth    = False )
-        
-        self.deltaZSpinBox = \
-            PM_DoubleSpinBox( inPmGroupBox, 
-                              label        = "Z:",
-                              value        = 0.0, 
-                              setAsDefault = True,
-                              minimum      = -100.0, 
-                              maximum      =  100.0, 
-                              singleStep   = 1.0, 
-                              decimals     = 1, 
-                              suffix       = ' Angstroms',
-                              spanWidth    = False )
-        
-        self.movePlusDeltaButton = \
-            PM_PushButton( inPmGroupBox,
-                           label = "",
-                           text  = "Move Plus" )
-        
-        self.moveMinusDeltaButton = \
-            PM_PushButton( inPmGroupBox,
-                           label = "",
-                           text  = "Move Minus" )
-    
-    def loadToPositionGroupBox(self, inPmGroupBox):
-        """
-        """
-
-        self.xSpinBox = \
-            PM_DoubleSpinBox( inPmGroupBox, 
-                              label        = "X:",
-                              value        = 0.0, 
-                              setAsDefault = True,
-                              minimum      = -100.0, 
-                              maximum      =  100.0, 
-                              singleStep   = 1.0, 
-                              decimals     = 1, 
-                              suffix       = ' Angstroms',
-                              spanWidth    = False )
-        
-        self.ySpinBox = \
-            PM_DoubleSpinBox( inPmGroupBox, 
-                              label        = "Y:",
-                              value        = 0.0, 
-                              setAsDefault = True,
-                              minimum      = -100.0, 
-                              maximum      =  100.0, 
-                              singleStep   = 1.0, 
-                              decimals     = 1, 
-                              suffix       = ' Angstroms',
-                              spanWidth    = False )
-        
-        self.zSpinBox = \
-            PM_DoubleSpinBox( inPmGroupBox, 
-                              label        = "Z:",
-                              value        = 0.0, 
-                              setAsDefault = True,
-                              minimum      = -100.0, 
-                              maximum      =  100.0, 
-                              singleStep   = 1.0, 
-                              decimals     = 1, 
-                              suffix       = ' Angstroms',
-                              spanWidth    = False )
-        
-        self.moveButton = \
-            PM_PushButton( inPmGroupBox,
-                           label     = "",
-                           text      = "Move Selection",
-                           spanWidth = True )
-        
-    # == Slots for Translate group box
-    
-    def updateTranslateGroupBoxes(self, id):
-        """
-        Update the translate group boxes displayed based on the translate
-        option selected.
-        """
-        if id is 0:
-            self.toPositionGroupBox.hide()
-            self.byDeltaGroupBox.hide()
-            self.freeDragGroupBox.show()
-                               
-        if id is 1:
-            self.freeDragGroupBox.hide()
-            self.toPositionGroupBox.hide()
-            self.byDeltaGroupBox.show()
-                    
-        if id is 2:
-            self.freeDragGroupBox.hide()
-            self.byDeltaGroupBox.hide()
-            self.toPositionGroupBox.show()
-        
-    # == End of Translate Group Box =====================
         
     def loadTestWidgets1(self, inPmGroupBox):
         """
