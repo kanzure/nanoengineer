@@ -131,7 +131,7 @@ class PM_ElementChooser( PM_GroupBox ):
         self._updateElementViewer()
         self._addElementsGroupBox(self)
         self._addAtomTypesGroupBox(self)
-        self.connect_disconnect_signals(True)
+        self.connect_or_disconnect_signals(True)
         
     def _addElementsGroupBox(self, inPmGroupBox):
         """
@@ -294,6 +294,13 @@ class PM_ElementChooser( PM_GroupBox ):
         self.elementViewer.refreshDisplay(self.element, diTUBES)
 
         
-        
-            
+    def connect_or_disconnect_signals(self, isConnect):
+        """
+        Connect or disconnect widget signals sent to their slot methods.
+        @param isConnect: If True the widget will send the signals to the slot 
+                          method. 
+        @type  isConnect: boolean
+        """
+        #Not implemented yet
+        return 
         
