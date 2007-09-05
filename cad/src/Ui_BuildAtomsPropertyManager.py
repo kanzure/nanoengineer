@@ -151,13 +151,21 @@ class Ui_BuildAtomsPropertyManager(PM_Dialog):
         @param inPmGroupBox: The Bond Tools box in the PM
         @type  inPmGroupBox: L{PM_GroupBox}        
         """
+        # Button list to create a toolbutton row.
+        # Format: 
+        # - buttonId, 
+        # - buttonText , 
+        # - iconPath
+        # - tooltip
+        # - shortcut
+        # - column
         BOND_TOOL_BUTTONS = \
-                          [ ( "QToolButton", 0,  "SINGLE",    "", "", 0),
-                            ( "QToolButton", 1,  "DOUBLE",    "", "", 1),
-                            ( "QToolButton", 2,  "TRIPLE",    "", "", 2),
-                            ( "QToolButton", 3,  "AROMATIC",  "", "", 3),
-                            ( "QToolButton", 4,  "GRAPHITIC", "", "", 4),
-                            ( "QToolButton", 5,  "CUTBONDS",  "", "", 5)
+                          [ ( "QToolButton", 0,  "SINGLE",    "", "", None, 0),
+                            ( "QToolButton", 1,  "DOUBLE",    "", "", None, 1),
+                            ( "QToolButton", 2,  "TRIPLE",    "", "", None, 2),
+                            ( "QToolButton", 3,  "AROMATIC",  "", "", None, 3),
+                            ( "QToolButton", 4,  "GRAPHITIC", "", "", None, 4),
+                            ( "QToolButton", 5,  "CUTBONDS",  "", "", None, 5)
                           ]
                         
             

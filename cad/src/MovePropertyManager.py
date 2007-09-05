@@ -436,59 +436,7 @@ class MovePropertyManager(Ui_MovePropertyManager):
         else:
             for lbl in lst:
                 lbl.show()
-    
-    def keyPress(self, key):
-        """
-        Handles the keypress events specific to the widgets insied this 
-        Property Manager. 
-        @param key: Keyboard key pressed
-        @type  key: enum  U{B{Qt.Key} 
-                    <http://doc.trolltech.com/4.2/qt.html#Key-enum>}
-        @see: L{modifyMode.keyPress} where this method is called. 
-        """
-        if self.isTranslateGroupBoxActive:
-            if key == Qt.Key_F:
-                # toggle on the Translate Free  button
-                self.transFreeButton.setChecked(1) 
-                self.changeMoveOption(self.transFreeButton)
-            if key == Qt.Key_X:
-                # toggle on the Translate X  button
-                self.transXButton.setChecked(1) 
-                self.changeMoveOption(self.transXButton)
-            elif key == Qt.Key_Y:
-                # toggle on the Translate Y button
-                self.transYButton.setChecked(1) 
-                self.changeMoveOption(self.transYButton)
-            elif key == Qt.Key_Z:
-                # toggle on the Translate Z button
-                self.transZButton.setChecked(1) 
-                self.changeMoveOption(self.transZButton)
-            elif key == Qt.Key_A:
-                # toggle on the Trans-Rotate A button
-                self.transAlongAxisButton.setChecked(1) 
-                self.changeMoveOption(self.transAlongAxisButton)
-        else:
-            if key == Qt.Key_F:
-                # toggle on the Translate Free  button
-                self.rotateFreeButton.setChecked(1) 
-                self.changeRotateOption(self.rotateFreeButton)
-            if key == Qt.Key_X:
-                # toggle on the Rotate X button
-                self.rotateXButton.setChecked(1) 
-                self.changeRotateOption(self.rotateXButton)
-            elif key == Qt.Key_Y:
-                # toggle on the Rotate Y button
-                self.rotateYButton.setChecked(1) 
-                self.changeRotateOption(self.rotateYButton)
-            elif key == Qt.Key_Z:
-                # toggle on the Rotate Z button
-                self.rotateZButton.setChecked(1) 
-                self.changeRotateOption(self.rotateZButton)
-            elif key == Qt.Key_A:
-                # toggle on the Trans-Rotate A button
-                self.rotAlongAxisButton.setChecked(1)
-                self.changeRotateOption(self.rotAlongAxisButton)
-                
+                    
     def changeMoveOption(self, button):
         """
         Change the translate option. 

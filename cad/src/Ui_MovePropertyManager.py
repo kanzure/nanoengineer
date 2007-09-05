@@ -117,25 +117,28 @@ class Ui_MovePropertyManager( PM_Dialog ):
                              group box. 
         @type  inPmGroupBox: L{PM_GroupBox}
         """
-        # Elements button list to create elements tool button group.
+        # Button list to create a toolbutton row.
         # Format: 
         # - buttonId, 
         # - buttonText , 
         # - iconPath
+        # - tooltip
+        # - shortcut
         # - column
-        # - row
-        # - tooltip 
+        
+         
         BUTTON_LIST = [ 
             ( "QToolButton", 1,  "MOVEDEFAULT", 
-              "ui/actions/Properties Manager/Move_Free.png", "",  0),
+              "ui/actions/Properties Manager/Move_Free.png", "", "F", 0),
             ( "QToolButton", 2,  "TRANSX", 
-              "ui/actions/Properties Manager/TranslateX.png","",  1),
+              "ui/actions/Properties Manager/TranslateX.png", "", "X", 1),
             ( "QToolButton", 3,  "TRANSY",  
-              "ui/actions/Properties Manager/TranslateY.png","", 2),
+              "ui/actions/Properties Manager/TranslateY.png", "", "Y", 2),
             ( "QToolButton", 4,  "TRANSZ",  
-              "ui/actions/Properties Manager/TranslateZ.png","", 3),
+              "ui/actions/Properties Manager/TranslateZ.png", "", "Z", 3),
             ( "QToolButton", 5,  "ROT_TRANS_ALONG_AXIS",  
-              "ui/actions/Properties Manager/translate+rotate-A.png", "", 4 )
+              "ui/actions/Properties Manager/translate+rotate-A.png", "", \
+              "A", 4)
                         
             ]
             
@@ -208,11 +211,11 @@ class Ui_MovePropertyManager( PM_Dialog ):
         DELTA_BUTTONS = [
                         ("QToolButton",1,  "Delta Plus", 
                          "ui/actions/Properties Manager/Move_Delta_Plus.png", 
-                         "",  0 ),
+                         "", "+", 0 ),
             
                         ( "QToolButton", 2,  "Delta Minus",  
                           "ui/actions/Properties Manager/Move_Delta_Minus.png", 
-                          "", 1 )
+                          "", "-", 1 )
                         ]
         
         self.translateDeltaButtonRow = \
@@ -318,29 +321,31 @@ class Ui_MovePropertyManager( PM_Dialog ):
                              group box.
         @type  inPmGroupBox: L{PM_GroupBox}
         """
-        # Elements button list to create elements tool button group.
+        # Button list to create a toolbutton row.
         # Format: 
         # - buttonId, 
         # - buttonText , 
         # - iconPath
+        # - tooltip
+        # - shortcut
         # - column
-        # - row
-        # - tooltip 
+        
         BUTTON_LIST = [ 
             ( "QToolButton", 1,  "ROTATEDEFAULT", 
-              "ui/actions/Properties Manager/Rotate_Free.png", "", 0 ),
+              "ui/actions/Properties Manager/Rotate_Free.png", "", "F", 0 ),
             
             ( "QToolButton", 2,  "ROTATEX", 
-              "ui/actions/Properties Manager/RotateX.png", "",  1 ),
+              "ui/actions/Properties Manager/RotateX.png", "", "X", 1 ),
             
             ( "QToolButton", 3,  "ROTATEY",  
-              "ui/actions/Properties Manager/RotateY.png", "", 2 ),
+              "ui/actions/Properties Manager/RotateY.png", "", "Y", 2 ),
             
             ( "QToolButton", 4,  "ROTATEZ",  
-              "ui/actions/Properties Manager/RotateZ.png", "", 3 ),
+              "ui/actions/Properties Manager/RotateZ.png", "", "Z", 3 ),
             
             ( "QToolButton", 5,  "ROT_TRANS_ALONG_AXIS",  
-              "ui/actions/Properties Manager/translate+rotate-A.png", "", 4 )       
+              "ui/actions/Properties Manager/translate+rotate-A.png", "", \
+              "A", 4 )
                         
             ]
             
@@ -413,17 +418,24 @@ class Ui_MovePropertyManager( PM_Dialog ):
                              group box.
         @type  inPmGroupBox: L{PM_GroupBox}
         """
-        
+        # Button list to create a toolbutton row.
+        # Format: 
+        # - buttonId, 
+        # - buttonText , 
+        # - iconPath
+        # - tooltip
+        # - shortcut
+        # - column
         
         BUTTON_LIST = [ 
             ( "QToolButton", 1,  "ROTATEX", 
-              "ui/actions/Properties Manager/RotateX.png", "",  0 ),
+              "ui/actions/Properties Manager/RotateX.png", "", "X", 0 ),
             
             ( "QToolButton", 2,  "ROTATEY",  
-              "ui/actions/Properties Manager/RotateY.png", "", 1 ),
+              "ui/actions/Properties Manager/RotateY.png", "", "Y", 1 ),
             
             ( "QToolButton", 3,  "ROTATEZ",  
-              "ui/actions/Properties Manager/RotateZ.png", "", 2 ),
+              "ui/actions/Properties Manager/RotateZ.png", "", "Z", 2 ),
             ]
         
         self.rotateAroundAxisButtonRow = \
@@ -448,10 +460,10 @@ class Ui_MovePropertyManager( PM_Dialog ):
         
         THETA_BUTTONS = [ 
             ( "QToolButton", 1,  "Theta Plus", 
-              "ui/actions/Properties Manager/Move_Theta_Plus.png", "",  0 ),
+              "ui/actions/Properties Manager/Move_Theta_Plus.png", "", "+", 0 ),
             
             ( "QToolButton", 2,  "Theta Minus",  
-              "ui/actions/Properties Manager/Move_Theta_Minus.png", "", 1 )
+              "ui/actions/Properties Manager/Move_Theta_Minus.png", "", "-", 1 )
             ]
         
         self.rotateThetaButtonRow = \

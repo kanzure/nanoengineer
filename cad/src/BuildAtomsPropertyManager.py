@@ -60,9 +60,7 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         Adds/removes the element selected in the Element Chooser to/from Atom 
         Selection Filter based on what modifier key is pressed (if any).
         """
-        element = self.elementChooser.element
-        eltnum = self.elementChooser.getElementNumber()
-        
+        element = self.elementChooser.element        
         if self.o.modkeys is None:
             self.w.filtered_elements = []
         if self.o.modkeys == 'Shift':

@@ -202,10 +202,7 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         # For these key presses, we toggle the Action item, which will send 
         # an event to changeMoveMode, where the business is done.
         # Mark 050410
-	
-	self.propMgr.keyPress(key)
-	
-        
+
         #If Key 'A' is pressed, set the flag for Constrained trasnlation and rotation
         #along the axis of the chunk to True
         if key == Qt.Key_A:
@@ -643,7 +640,7 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
 	
 	a =  dot(self.Zmat, deltaMouse)
 	dx,dy =  a * V(self.o.scale/(h*0.5), 2*math.pi/w) 
-
+	
 	if self.rotateOption == 'ROTATEX':
 	    ma = V(1,0,0) # X Axis
 	elif self.rotateOption == 'ROTATEY':
