@@ -200,6 +200,10 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 		     SIGNAL("triggered()"),
 		     self.editPasteFromClipboard )
 	
+	self.connect(self.partLibAction, 
+		     SIGNAL("triggered()"),
+		     self.insertPartFromPartLib)
+	
         self.connect(self.editPrefsAction,SIGNAL("triggered()"),self.editPrefs)
         self.connect(self.editRedoAction,SIGNAL("triggered()"),self.editRedo)
         self.connect(self.editUndoAction,SIGNAL("triggered()"),self.editUndo)
@@ -1114,7 +1118,17 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
     
     def editPaste(self):
 	"""
-	Single shot paste operation accessible using 'Ctrl + V' or Edit > Paste
+	Single shot paste operation accessible using 'Ctrl + V' or Edit > Paste.
+	Implementation notes for the single shot paste operation:
+	  - The object (chunk or group) is pasted with a slight offset. 
+	    Example:
+            Create a graphene sheet, select it , do Ctrl + C and then Ctrl + V 
+	    ... the pasted object is offset to original one. 
+          - It deselects others, selects the pasted item and then does a zoom to
+	    selection so that the selected item is in the center of the screen.
+	  - Bugs/ Unsupported feature: If you paste multiple copies of an object
+	    they are pasted at the same location. (i.e. the offset is constant)
+	@see: L{ops_copy_Mixin.paste} 
 	"""
 	if self.assy.shelf.members:
 	    pastables = self.assy.shelf.getPastables()
@@ -1146,6 +1160,19 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 	else:
 	    msg = orangemsg("Clipboard is empty. Paste mode cancelled.")
 	    env.history.message(msg)
+    
+    def insertPartFromPartLib(self):
+	"""
+	Sets the mode to PartLibrary mode, for inserting (pasting) 
+	a part from the partlibrary into the 3D workspace. 
+	"""
+	if self.glpane.mode.modename != "PARTLIB":
+		self.glpane.prevMode = self.glpane.mode
+		self.glpane.setMode('PARTLIB', 
+				    suspend_old_mode = False)
+		return
+	
+	
             
     # editDelete
     def killDo(self):

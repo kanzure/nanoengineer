@@ -23,6 +23,10 @@ def setupUi(win):
     win.fileInsertAction = QtGui.QAction(MainWindow)
     win.fileInsertAction.setObjectName("fileInsertAction")
     
+    win.partLibAction = QtGui.QAction(MainWindow)
+    win.partLibAction.setObjectName("partLibAction")
+    win.partLibAction.setText("Part from partlib...")    
+    
     win.insertCommentAction = QtGui.QAction(MainWindow)
     win.insertCommentAction.setIcon(geticon("ui/actions/Insert/Comment"))
     win.insertCommentAction.setObjectName("insertCommentAction")
@@ -61,6 +65,7 @@ def setupUi(win):
     win.Insert.addAction(win.jigsAtomSetAction)
     win.Insert.addSeparator()
     win.Insert.addAction(win.fileInsertAction)
+    win.Insert.addAction(win.partLibAction)
     win.Insert.addSeparator()    
     win.Insert.addAction(win.insertCommentAction)
     #Commenting out the following to 'fix' bug 2455
