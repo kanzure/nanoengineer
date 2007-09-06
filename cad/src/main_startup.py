@@ -81,6 +81,8 @@ def startup_script( main_globals):
     # be called before any assembly objects are created.
     # [added by ericm 20070701, along with "remove import star", just after NE1
     #  A9.1 release]
+    import bond_updater
+    bond_updater.initialize()
     import assembly
     assembly.assembly.initialize()
     import GroupButtonMixin
