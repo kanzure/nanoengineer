@@ -107,7 +107,8 @@ class PastePropertyManager(BuildAtomsPropertyManager):
         """
         Update the items in the clipboard groupbox.
         """
-        self.clipboardGroupBox.update()    
+        if self.clipboardGroupBox:
+            self.clipboardGroupBox.update()    
     
     def updateMessage(self):
         """

@@ -185,8 +185,8 @@ class PartLibraryMode(PasteMode):
                     return False, msg # nothing deposited
             else: 
                 # atom_or_pos was an atom, but wasn't a singlet.  Do nothing.
-                return False, "internal error: can't deposit onto a real atom" \ 
-                              " %r" % a
+                msg = "internal error: can't deposit onto a real atom %r" %a
+                return False, msg
         
         else:
             # deposit into empty space at the cursor position
