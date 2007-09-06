@@ -43,12 +43,13 @@ class PastePropertyManager(BuildAtomsPropertyManager):
     
     def __init__(self, parentMode):
         """
-        Constructor for the B{Build Atoms} property manager class that defines 
+        Constructor for the B{Paste} property manager class that defines 
         its UI.
         
         @param parentMode: The parent mode where this Property Manager is used
         @type  parentMode: L{PasteMode}    
-        """              
+        """    
+        self.clipboardGroupBox = None
         BuildAtomsPropertyManager.__init__(self, parentMode)
             
     def _addGroupBoxes(self):
@@ -78,7 +79,8 @@ class PastePropertyManager(BuildAtomsPropertyManager):
         L{self.clipboardGroupBox} to update the list of clipboard items.
         """
         BuildAtomsPropertyManager.show(self)
-        self.clipboardGroupBox.update()
+        if self.clipboardGroupBox:
+            self.clipboardGroupBox.update()
     
     def connect_or_disconnect_signals(self, isConnect):         
         """

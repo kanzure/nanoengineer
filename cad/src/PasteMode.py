@@ -25,7 +25,7 @@ from Utility       import geticon
 from HistoryWidget import orangemsg
 from chem          import Atom
 from chem          import Singlet
-from depositMode   import is_pastable
+from Utility       import is_pastable
 from depositMode   import depositMode
 
 from PastePropertyManager import PastePropertyManager
@@ -97,7 +97,7 @@ class PasteMode(depositMode):
         else:
             change_connect = self.w.disconnect
         
-        change_connect(self.exitPasteAction, 
+        change_connect(self.exitModeAction, 
                        SIGNAL("triggered()"), 
                        self.w.toolsDone)
         
@@ -116,7 +116,7 @@ class PasteMode(depositMode):
         self.enable_gui_actions(True)
         self.updateCommandManager(bool_entering = False)
             
-    def Done(self, new_mode = None):
+    def Done(self, new_mode = None, suspend_old_mode = False):
         """
         Decides what to do after exiting the mode. If mode is left by clicking 
         on B{Done} button it will enter the previous mode the user was in. 
@@ -132,11 +132,16 @@ class PasteMode(depositMode):
                          enter the previous  mode (before the paste mode) the
                          user was in.
         @type  new_mode: L{basicMode} or None
+        
+        @param suspend_old_mode: See L{basicMode.Done} it needs to be documented 
+                                 there. Flag that decides whether to suspend the 
+                                 old mode user was in.
+        @type  suspend_old_mode: boolean
         """
         resuming = False
         if new_mode is None:
             try:
-                new_mode = self.o.prevMode
+                new_mode = self.o.prevMode                    
                 resuming = True
             except:
                 pass
@@ -156,18 +161,14 @@ class PasteMode(depositMode):
     
     def _init_flyoutActions(self):
         """
-        Defines the actions to be added in the flyout toolbar of the c
-        command explorer
+        Defines the actions to be added in the flyout toolbar of the 
+        Command Explorer
         """
-        #Note: calling depositMode._init_flyoutActions may not be needed, 
-        #defining it for safety (till depositMode is further cleaned up)
-        depositMode._init_flyoutActions(self)
         
-        self.exitPasteAction = QWidgetAction(self.w)
-        self.exitPasteAction.setText("Exit Paste")
-        self.exitPasteAction.setIcon(geticon('ui/actions/Toolbars/Smart/Exit'))
-        self.exitPasteAction.setCheckable(True)
-        self.exitPasteAction.setChecked(True)
+        depositMode._init_flyoutActions(self)        
+        
+        self.exitModeAction.setText("Exit Paste")
+       
     
     def getFlyoutActionList(self):
         """ 
@@ -184,11 +185,11 @@ class PasteMode(depositMode):
         commandActionLists   = []
         allActionsList  = []
                 
-        subControlAreaActionList.append(self.exitPasteAction)   
+        subControlAreaActionList.append(self.exitModeAction)   
         
         lst = []
         commandActionLists.append(lst)      
-        allActionsList.append(self.exitPasteAction)
+        allActionsList.append(self.exitModeAction)
         
         params = (subControlAreaActionList, commandActionLists, allActionsList)
         
@@ -196,7 +197,7 @@ class PasteMode(depositMode):
 
     def deposit_from_MMKit(self, atom_or_pos):
         """
-        Deposit the clipboard item being previed into the 3D workspace
+        Deposit the clipboard item being previewed into the 3D workspace
         Calls L{self.deposit_from_Clipboard_page}
         @attention: This method needs renaming. L{depositMode} still uses it 
         so simply overriden here. B{NEEDS CLEANUP}.
@@ -224,7 +225,7 @@ class PasteMode(depositMode):
             
     def deposit_from_Clipboard_page(self, atom_or_pos):
         """
-        Deposit the clipboard item being previed into the 3D workspace
+        Deposit the clipboard item being previewed into the 3D workspace
         Called in L{self.deposit_from_MMKit}
         @attention: This method needs renaming. L{depositMode} still uses this 
         so simply overriden here. B{NEEDS CLEANUP}.

@@ -232,11 +232,11 @@ class depositMode(selectAtomsMode):
 	#it as _init_modeActions. Not doing that change in mmkit code cleanup 
 	#commit(other modes still implement a method by same name)-ninad20070717
 		
-	self.exitBuildAction = QtGui.QWidgetAction(self.w)
-	self.exitBuildAction.setText("Exit Atoms")
-	self.exitBuildAction.setIcon(geticon('ui/actions/Toolbars/Smart/Exit'))
-	self.exitBuildAction.setCheckable(True)
-	self.exitBuildAction.setChecked(True)	
+	self.exitModeAction = QtGui.QWidgetAction(self.w)
+	self.exitModeAction.setText("Exit Atoms")
+	self.exitModeAction.setIcon(geticon('ui/actions/Toolbars/Smart/Exit'))
+	self.exitModeAction.setCheckable(True)
+	self.exitModeAction.setChecked(True)	
 	
 	#Following Actions are added in the Flyout toolbar. 
 	#Defining them outside that method as those are being used
@@ -330,7 +330,7 @@ class depositMode(selectAtomsMode):
         change_connect(self.propMgr.highlightingCheckBox,
                         SIGNAL("toggled(bool)"),self.set_hoverHighlighting)
 		
-	change_connect(self.exitBuildAction, SIGNAL("triggered()"), 
+	change_connect(self.exitModeAction, SIGNAL("triggered()"), 
 		       self.w.toolsDone)
 	change_connect(self.subControlActionGroup, 
 		       SIGNAL("triggered(QAction *)"),
@@ -374,7 +374,7 @@ class depositMode(selectAtomsMode):
 	#The 'Exit button' althought in the subcontrol area, would 
 	#look as if its in the Control area because of the different color palette 
 	#and the separator after it. This is intentional.
-	subControlAreaActionList.append(self.exitBuildAction)
+	subControlAreaActionList.append(self.exitModeAction)
 	separator1 = QtGui.QAction(self.w)
 	separator1.setSeparator(True)
 	subControlAreaActionList.append(separator1) 
@@ -1383,48 +1383,16 @@ class depositMode(selectAtomsMode):
         
         return deposited_obj
             
-    def deposit_from_Library_page(self, atom_or_pos): #mark circa 051200; retval revised by bruce 051227 re bug 229
-        '''Deposit a copy of the selected part from the MMKit Library page.
-        If 'atom_or_pos' is a singlet, try bonding the part to the singlet by its hotspot.
-        Otherwise, deposit the part at the position 'atom_or_pos'.
-        Return (deposited_stuff, status_msg_text), whether or not deposition was successful.
-        ''' 
-        newPart, hotSpot = self.propMgr.getPastablePart()
+    def deposit_from_Library_page(self, atom_or_pos): 
+        """
+	Subclasses should override this method.
+
+	"""
+	msg1= "Internal error:depositMode.deposit_from_Library_page should"
+	msg2 = "be overridden"
+	msg = msg1 + msg2
+	return False, msg
         
-        if not newPart: # Make sure a part is selected in the MMKit Library.
-            # Whenever the MMKit is closed with the 'Library' page open,
-            # MMKit.closeEvent() will change the current page to 'Atoms'.
-            # This ensures that this condition never happens if the MMKit is closed.
-            # Mark 051213.
-            ## env.history.message(orangemsg("No library part has been selected to paste.")) [bruce 051227 zapped this, caller does it]
-            return False, "No library part has been selected to paste." # nothing deposited
-        
-        if isinstance(atom_or_pos, Atom):
-            a = atom_or_pos
-            if a.element is Singlet:
-                if hotSpot : # bond the part to the singlet.
-                    return self._depositLibraryPart(newPart, hotSpot, a) #bruce 051227 revised retval
-                
-                else: # part doesn't have hotspot.
-                    #if newPart.has_singlets(): # need a method like this so we can provide more descriptive msgs.
-                    #    msg = "To bond this part, you must pick a hotspot by left-clicking on a bondpoint  " \
-                    #            "of the library part in the Modeling Kit's 3D thumbview."
-                    #else:
-                    #    msg = "The library part cannot be bonded because it has no bondpoints."
-                    msg = "The library part cannot be bonded because either it has no bondpoints"\
-                            " or its hotspot hasn't been specified in the Modeling Kit's 3D thumbview"
-                    ## env.history.message(orangemsg(msg)) [bruce 051227 zapped this, caller does it]
-                    return False, msg # nothing deposited
-            
-            else: # atom_or_pos was an atom, but wasn't a singlet.  Do nothing. [bruce 051227 added debug message in retval]
-                return False, "internal error: can't deposit onto a real atom %r" % a
-        
-        else:
-            # deposit into empty space at the cursor position
-            #bruce 051227 note: looks like subr repeats these conds; are they needed here?
-            return self._depositLibraryPart(newPart, hotSpot, atom_or_pos) #bruce 051227 revised retval
-        assert 0, "notreached"
-        pass
 
     def deposit_from_Clipboard_page(self, atom_or_pos):
         '''Deposits a copy of the selected object (chunk) from the MMKit Clipboard page, or

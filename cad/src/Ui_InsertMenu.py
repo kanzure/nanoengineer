@@ -26,6 +26,7 @@ def setupUi(win):
     win.partLibAction = QtGui.QAction(MainWindow)
     win.partLibAction.setObjectName("partLibAction")
     win.partLibAction.setText("Part from partlib...")    
+    win.partLibAction.setIcon(geticon('ui/actions/Insert/Partlib'))
     
     win.insertCommentAction = QtGui.QAction(MainWindow)
     win.insertCommentAction.setIcon(geticon("ui/actions/Insert/Comment"))

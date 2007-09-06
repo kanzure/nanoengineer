@@ -1145,6 +1145,11 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 	
     
     def editPasteFromClipboard(self):
+	"""
+	Invokes the L{PasteMode}, a temporary mode to paste items in the 
+	clipboard, into the 3D workspace. It also stores the mode NE1 should 
+	return after exiting this temporary mode. 
+	"""
 	if self.assy.shelf.members:	    
 	    pastables = self.assy.shelf.getPastables()
 	    if not pastables:
@@ -1152,10 +1157,19 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 	        env.history.message(msg)
 		return
 	    
-	    if self.glpane.mode.modename != "PASTE":
-		self.glpane.prevMode = self.glpane.mode
-		self.glpane.setMode('PASTE', 
-				    suspend_old_mode = False)
+	    mode = self.glpane.mode
+	    
+	    if mode.modename != "PASTE":
+		#Make sure that previous mode (self.glpane.prevMode) never
+		#stores a 'temporary mode' i.e. after exiting Paste mode, the 
+		#mode NE1 enters is not one of the following -- 
+		# ('PASTE', 'PARTLIB', 'ZOOM', 'PAN', 'ROTATE')
+		
+		if mode.modename not in ['PASTE', 'PARTLIB',\
+					 'ZOOM', 'PAN', 'ROTATE']:		    
+		    self.glpane.prevMode = mode
+		    
+		self.glpane.setMode('PASTE', suspend_old_mode = False)
 		return
 	else:
 	    msg = orangemsg("Clipboard is empty. Paste mode cancelled.")
@@ -1163,14 +1177,22 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
     
     def insertPartFromPartLib(self):
 	"""
-	Sets the mode to PartLibrary mode, for inserting (pasting) 
-	a part from the partlibrary into the 3D workspace. 
+	Sets the mode to L{PartLibraryMode}, for inserting (pasting) 
+	a part from the partlib into the 3D workspace. It also stores the mode 
+	NE1 should return after exiting this temporary mode. 
 	"""
-	if self.glpane.mode.modename != "PARTLIB":
-		self.glpane.prevMode = self.glpane.mode
-		self.glpane.setMode('PARTLIB', 
-				    suspend_old_mode = False)
-		return
+	mode = self.glpane.mode
+	if mode.modename != "PARTLIB":
+	    #Make sure that previous mode (self.glpane.prevMode) never
+	    #stores a 'temporary mode' i.e. after exiting Paste mode, the 
+	    #mode NE1 enters is not one of the following -- 
+	    # ('PASTE', 'PARTLIB', 'ZOOM', 'PAN', 'ROTATE')
+	    if mode.modename not in ['PASTE', 'PARTLIB', \
+					 'ZOOM', 'PAN', 'ROTATE']:
+		self.glpane.prevMode = mode
+		
+	    self.glpane.setMode('PARTLIB', suspend_old_mode = False)
+	    return
 	
 	
             

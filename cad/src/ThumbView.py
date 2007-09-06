@@ -86,6 +86,9 @@ class ThumbView(QGLWidget):
     always_draw_hotspot = False #bruce 060627
     def __init__(self, parent, name, shareWidget):
         """  """
+        
+        self.elementMode = None
+        
         if shareWidget:
             self.shareWidget = shareWidget #bruce 051212
             format = shareWidget.format()
