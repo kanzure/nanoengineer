@@ -33,6 +33,7 @@ from PyQt4.Qt import QVariant
 from PyQt4.Qt import QMenu
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QProcess
+from PyQt4.Qt import QStringList
 
 import env
 import preferences
@@ -674,7 +675,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             self.glpane.gl_update_duration(new_part=True) #mark 060116.
             
             self.mt.mt_update()
-	    
+            
         self.setCurrentWorkingDirectory()
         
         return
@@ -1197,19 +1198,19 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             if not duplicate:
                 print "exiting" # leave this in until changes fully tested [bruce 070618]
                 self.cleanUpBeforeExiting()
-	    from prefs_constants import toolbar_state_prefs_key
-	    #Not doing the following in 'cleanupBeforeExiting? 
-	    #as it is not a 'clean up'. Adding it below for now --ninad 20070702
-	    
-	    #Note: saveState() is QMainWindow.saveState(). It saves the 
-	    #current state of this mainwindow's toolbars and dockwidgets
-	    #The 'objectName' property is used to identify each QToolBar 
-	    #and QDockWidget. 
-	    #QByteArray QMainWindow::saveState ( int version = 0 ) const
-	    
+            from prefs_constants import toolbar_state_prefs_key
+            #Not doing the following in 'cleanupBeforeExiting? 
+            #as it is not a 'clean up'. Adding it below for now --ninad 20070702
+            
+            #Note: saveState() is QMainWindow.saveState(). It saves the 
+            #current state of this mainwindow's toolbars and dockwidgets
+            #The 'objectName' property is used to identify each QToolBar 
+            #and QDockWidget. 
+            #QByteArray QMainWindow::saveState ( int version = 0 ) const
+            
             toolbarState_QByteArray = self.assy.w.saveState()
-	    
-	    env.prefs[toolbar_state_prefs_key] = str(toolbarState_QByteArray)
+            
+            env.prefs[toolbar_state_prefs_key] = str(toolbarState_QByteArray)
             ce.accept()
         else:
             ce.ignore()
