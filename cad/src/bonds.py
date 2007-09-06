@@ -61,7 +61,9 @@ from bond_constants import bond_params
 from bond_constants import bonded_atoms_summary
 from bond_constants import bond_type_names
 
+import bond_updater
 import env
+
 from state_utils import StateMixin #bruce 060223
 from changes import register_changedict, register_class_changedicts
 from debug_prefs import debug_pref, Choice_boolean_False #bruce 060307
@@ -450,7 +452,7 @@ _changed_Bonds = {} # tracks all changes to Bonds: existence/liveness (maybe not
     # If it has a kill or delete method (or one that's called when it's not on its atoms),
     # that should count as a change in this dict (and perhaps it should also change its atom attrs).
     #
-    #bruce 060322 for Undo change-tracking; the related env._changed_bond_types global dict should perhaps become a subscriber
+    #bruce 060322 for Undo change-tracking; the related bond_updater.changed_bond_types global dict should perhaps become a subscriber
 
     ##e see comments about similar dicts in in chem.py for how this will end up being used
 
@@ -924,8 +926,7 @@ class Bond(BondBase, StateMixin):
             # presence of valence error actually changes, for each atom. (But it often does, so nevermind for now.)
             self.atom1.molecule.changeapp(0)
             self.atom2.molecule.changeapp(0)
-        from env import _changed_bond_types #bruce 050726
-        _changed_bond_types[id(self)] = self
+        bond_updater.changed_bond_types[id(self)] = self
         _changed_Bonds[id(self)] = self #bruce 060322 (covers changes to self.v6)
         return
 

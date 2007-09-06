@@ -58,6 +58,8 @@ from elements import PeriodicTable
 # classes here which use bonds as an instance variable.
 import bonds as bondsImportKluge
 
+import bond_updater
+
 # chunk and chem form a two element import cycle.
 # bonds, chem, and chunk form an import cycle.
 import chunk
@@ -2474,7 +2476,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         ####@@@@ I suspect it is better to also call this for all killed atoms or singlets, but didn't do this yet. [bruce 050725]
         ## before 051011 this used id(self) for key
         #e could probably optim by importing this dict at toplevel, or perhaps even assigning a lambda in place of this method
-        env._changed_structure_atoms[ self.key ] = self
+        bond_updater.changed_structure_atoms[ self.key ] = self
         _changed_structure_Atoms[ self.key ] = self #bruce 060322
             # (see comment at _changed_structure_Atoms about how these two dicts are related)
         return
