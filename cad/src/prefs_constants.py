@@ -152,6 +152,9 @@ buildModeWaterEnabled_prefs_key = 'A7/Build Mode Water Enabled' # mark 060203.
 buildModeHighlightingEnabled_prefs_key = 'A7/Build Mode Highlighting Enabled' # mark 060203.
 buildModeSelectAtomsOfDepositedObjEnabled_prefs_key = 'A7/Build Mode Select Atoms of Deposited Obj Enabled' # mark 060304.
 
+# Selection Behavior
+permit_atom_chunk_coselection_prefs_key = 'A9 devel2/permit_atom_chunk_coselection'
+
 # Lighting prefs [most added by mark 051124 or later]
 ## old_glpane_lights_prefs_key = "glpane lighting" #bruce 051206 moved this here from GLPane;
     # it was hardcoded in two methods in GLPane; maybe dates from before prefs_constants module;

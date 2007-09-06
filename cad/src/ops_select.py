@@ -21,6 +21,7 @@ from HistoryWidget import redmsg, greenmsg, orangemsg
 from debug import print_compact_traceback #bruce 051129
 import platform #bruce 051129
 from platform import fix_plurals #bruce 051129
+from GlobalPreferences import permit_atom_chunk_coselection
 
 # Object flags, used by objectSelected() and its callers. 
 ATOMS = 1
@@ -296,7 +297,7 @@ class ops_select_Mixin:
         "ensure it's legal to pick chunks using mouse selection, and deselect any selected atoms (if picking chunks does so)"
         #bruce 060414 revised this to try to fix bug 1819
         # (and perhaps related bugs like 1106, where atoms & chunks are both selected)
-        if env.permit_atom_chunk_coselection(): #bruce 060721
+        if permit_atom_chunk_coselection(): #bruce 060721
             return
         
         if self.selatoms and self.assy.selwhat == SELWHAT_CHUNKS and env.debug():
@@ -313,7 +314,7 @@ class ops_select_Mixin:
 
     def permit_pick_atoms(self): #bruce 050517 added this for use in some mode Enter methods -- but not sure they need it!
         "ensure it's legal to pick atoms using mouse selection, and deselect any selected chunks (if picking atoms does so)"
-        if env.permit_atom_chunk_coselection(): #bruce 060721
+        if permit_atom_chunk_coselection(): #bruce 060721
             return
         ## if self.assy.selwhat != SELWHAT_ATOMS:
         if 1: # this matters, to callers who might have jigs selected

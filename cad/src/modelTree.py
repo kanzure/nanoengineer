@@ -46,6 +46,8 @@ from Utility import Group
 from Utility import kluge_patch_assy_toplevel_groups
 from debug import print_compact_traceback
 
+from GlobalPreferences import permit_atom_chunk_coselection
+
 from constants import gensym
 from constants import SELWHAT_ATOMS
 from constants import SELWHAT_CHUNKS
@@ -165,7 +167,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
         selection mode to fit what is actually selected. (We always assert that selwhat
         permitted whatever was selected to be selected.)
         """
-        if env.permit_atom_chunk_coselection(): #bruce 060721
+        if permit_atom_chunk_coselection(): #bruce 060721
             return
         from selectMolsMode import selectMolsMode
         ## from selectAtomsMode import selectAtomsMode
