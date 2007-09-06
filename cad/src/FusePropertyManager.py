@@ -8,7 +8,7 @@ FusePropertyManager.py
 History: 
 ninad070425 :1) Moved Fuse dashboard to Property manager 
              2) Implemented Translate/ Rotate enhancements
-	     
+             
 ninad20070723: code cleanup to define a fusePropMgr object. This was a 
 prerequisite for 'command sequencer' and also needed to resolve potential 
 multiple inheritance issues.
@@ -23,16 +23,9 @@ applies to other modes and Propert Managers (e.g. Move mode, Build Atoms mode)
 __author__  = "Ninad"
 
 
-
-
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import Qt
-from PyQt4.Qt import QAction
-from PyQt4.Qt import QActionGroup
 from PyQt4.Qt import QButtonGroup
-from PyQt4.Qt import QLabel
-from PyQt4.Qt import QSpacerItem
-from PyQt4.Qt import QSizePolicy
 
 from PM.PM_GroupBox        import PM_GroupBox
 from PM.PM_ComboBox        import PM_ComboBox
@@ -40,12 +33,7 @@ from PM.PM_PushButton      import PM_PushButton
 from PM.PM_CheckBox        import PM_CheckBox
 from PM.PM_Slider          import PM_Slider
 
-from PM.PM_Constants       import pmDoneButton
-from PM.PM_Constants       import pmWhatsThisButton
-
 from MovePropertyManager    import  MovePropertyManager
-from ops_select             import  objectSelected
-
 
 class FusePropertyManager(MovePropertyManager):
     
@@ -55,27 +43,27 @@ class FusePropertyManager(MovePropertyManager):
     iconPath = "ui/actions/Tools/Build Tools/Fuse_Chunks.png"
     
     def __init__(self, parentMode):
-	
-	self.parentMode = parentMode
+        
+        self.parentMode = parentMode
         MovePropertyManager.__init__(self, self.parentMode)
-        	
-	self.activate_translateGroupBox_in_fuse_PM()
+                
+        self.activate_translateGroupBox_in_fuse_PM()
     
     def _addGroupBoxes(self):
-	
-	self.fuseOptionsGroupBox = PM_GroupBox( self,
-					 title = "Fuse Options")
-	self._loadFuseOptionsGroupBox(self.fuseOptionsGroupBox)
-	
-	MovePropertyManager._addGroupBoxes(self)
+        
+        self.fuseOptionsGroupBox = PM_GroupBox( self,
+                                         title = "Fuse Options")
+        self._loadFuseOptionsGroupBox(self.fuseOptionsGroupBox)
+        
+        MovePropertyManager._addGroupBoxes(self)
     
     def _loadFuseOptionsGroupBox(self, inPmGroupBox):
-	"""
-	Load the widgets inside the Fuse Options groupbox.
-	"""
-	fuseChoices = ['Make Bonds Between Chunks', 'Fuse Overlapping Atoms']
-	
-	self.fuseComboBox = \
+        """
+        Load the widgets inside the Fuse Options groupbox.
+        """
+        fuseChoices = ['Make Bonds Between Chunks', 'Fuse Overlapping Atoms']
+        
+        self.fuseComboBox = \
             PM_ComboBox( inPmGroupBox,
                          label        = '', 
                          choices      = fuseChoices, 
@@ -86,43 +74,45 @@ class FusePropertyManager(MovePropertyManager):
         self.connect(self.fuseComboBox, 
                      SIGNAL("activated(const QString&)"), 
                      self.parentMode.change_fuse_mode)
-	
-	self.fusePushButton = PM_PushButton( inPmGroupBox,
-					     label     = "",
-					     text      = "Make Bonds",
-					     spanWidth = True )
-	
-	self.connect( self.fusePushButton,
-		      SIGNAL("clicked()"),
-		      self.parentMode.fuse_something)
-	
-	
-	self.toleranceSlider =  PM_Slider( inPmGroupBox,
-					   currentValue = 100,
-					   minimum      = 0,
-					   maximum      = 300,
-					   label        = \
-					   'Tolerance:100% => 0 bondable pairs'
-					 )
-	self.connect(self.toleranceSlider,
-		       SIGNAL("valueChanged(int)"),
+        
+        self.fusePushButton = PM_PushButton( inPmGroupBox,
+                                             label     = "",
+                                             text      = "Make Bonds",
+                                             spanWidth = True )
+        
+        self.connect( self.fusePushButton,
+                      SIGNAL("clicked()"),
+                      self.parentMode.fuse_something)
+        
+        
+        self.toleranceSlider =  PM_Slider( inPmGroupBox,
+                                           currentValue = 100,
+                                           minimum      = 0,
+                                           maximum      = 300,
+                                           label        = \
+                                           'Tolerance:100% => 0 bondable pairs'
+                                         )
+        self.connect(self.toleranceSlider,
+                       SIGNAL("valueChanged(int)"),
                        self.parentMode.tolerance_changed)
-	
-	self.mergeChunksCheckBox = PM_CheckBox( inPmGroupBox,
-						text         = 'Merge Chunks',
-						widgetColumn = 0,
-						state        = Qt.Checked )
-	
+        
+        self.mergeChunksCheckBox = PM_CheckBox( inPmGroupBox,
+                                                text         = 'Merge Chunks',
+                                                widgetColumn = 0,
+                                                state        = Qt.Checked )
+        
 
     def activate_translateGroupBox_in_fuse_PM(self):
-        """Show contents of translate groupbox, deactivae the rotate groupbox. 
-        Also check the action that was checked when this groupbox  was active last
-        time. (if applicable). This method is called only when move groupbox button 
-        is clicked. See also activate_translateGroupBox_in_fuse_PM method . 
+        """
+        Show contents of translate groupbox, deactivae the rotate groupbox. 
+        Also check the action that was checked when this groupbox  was active 
+        last time. (if applicable). This method is called only when move 
+        groupbox button is clicked. 
+        @see: L{self.activate_translateGroupBox_in_fuse_PM}
         """
                       
-	self.toggle_translateGroupBox()
-	self.deactivate_rotateGroupBox()
+        self.toggle_translateGroupBox()
+        self.deactivate_rotateGroupBox()
        
         buttonToCheck = self.getTranslateButtonToCheck()
                      
@@ -131,24 +121,25 @@ class FusePropertyManager(MovePropertyManager):
         else:
             buttonToCheck = self.transFreeButton
             buttonToCheck.setChecked(True)
-	
-	self.changeMoveOption(buttonToCheck)
+        
+        self.changeMoveOption(buttonToCheck)
         
         self.isTranslateGroupBoxActive = True
-	self.parentMode.update_cursor()
+        self.parentMode.update_cursor()
     
     def activate_rotateGroupBox_in_fuse_PM(self):
-        """Show contents of rotate groupbox (in fuse PM), deactivae the 
-        #translate groupbox. 
-        Also check the action that was checked when this groupbox  was active last
-        time. (if applicable). This method is called only when rotate groupbox button 
-        is clicked. See also activate_rotateGroupBox_in_fuse_PM method. 
+        """
+        Show contents of rotate groupbox (in fuse PM), deactivae the 
+        translate groupbox. 
+        Also check the action that was checked when this groupbox  was active 
+        last time. (if applicable). This method is called only when rotate 
+        groupbox button is clicked. 
+        @see: L{activate_rotateGroupBox_in_fuse_PM}
         """
      
-	self.toggle_rotateGroupBox()
-	self.deactivate_translateGroupBox()
-	
-                
+        self.toggle_rotateGroupBox()
+        self.deactivate_translateGroupBox()
+           
         buttonToCheck = self.getRotateButtonToCheck()
                   
         if buttonToCheck:
@@ -156,58 +147,58 @@ class FusePropertyManager(MovePropertyManager):
         else:
             buttonToCheck = self.rotateFreeButton
             buttonToCheck.setChecked(True)
-	    
-	self.changeRotateOption(buttonToCheck)
+            
+        self.changeRotateOption(buttonToCheck)
         
         self.isTranslateGroupBoxActive = False
-	self.parentMode.update_cursor()
-	
+        self.parentMode.update_cursor()
+        
          
     
     def show_propMgr(self):
-	"""
-	Show the Fuse Property Manager.
-	"""
-	self.openPropertyManager(self)
-	
+        """
+        Show the Fuse Property Manager.
+        """
+        self.openPropertyManager(self)
+        
     
     def setupUi(self, fusePropMgrObject):
-	"""
-	Overrides MovePropertyManager.setupUi
-	@param fusePropMgrObject : fuse PM object is passed to the 
-	                           Ui_FusePropertyManager class method which 
-				   defines the necessary ui elements for 
-				   Fuse Property Manager
-	@see : MovePropertyManager.setupUI
-	"""
-	fusePropMgr = fusePropMgrObject
-	fuseUi = Ui_FusePropertyManager()
-	fuseUi.setupUi(fusePropMgr)
+        """
+        Overrides MovePropertyManager.setupUi
+        @param fusePropMgrObject : fuse PM object is passed to the 
+                                   Ui_FusePropertyManager class method which 
+                                   defines the necessary ui elements for 
+                                   Fuse Property Manager
+        @see : MovePropertyManager.setupUI
+        """
+        fusePropMgr = fusePropMgrObject
+        fuseUi = Ui_FusePropertyManager()
+        fuseUi.setupUi(fusePropMgr)
     
     def updateMessage(self): 
         """
-	Updates the message box with an informative message.
-	Overrides the MovePropertyManager.updateMessage method
-	@see: MovePropertyManager.updateMessage
+        Updates the message box with an informative message.
+        Overrides the MovePropertyManager.updateMessage method
+        @see: MovePropertyManager.updateMessage
         """
-	
-	#@bug: BUG: The message box height is fixed. The verticle scrollbar appears 
-	#as the following message is long. It however tries to make the cursor 
-	#visible within the message box . This results in scrolling the msg box
-	#to the last line and thus doesn't look good. I think once we migrate to
-	#PropertyManagerBaseClass, this will go away -- ninad 20070723
-	
-	if self.fuseComboBox.currentIndex() == 0:
-	    #i.e. 'Make Bonds Between Chunks'
-	    msg = "To <b> make bonds</b> between two or more chunks, \
-	    drag the selected chunk(s) such that their one or more bondpoints \
-	    overlap with the other chunk(s). Then hit <b> Make Bonds </b> to \
-	    create bond(s) between them. "
-	else:	
-	    msg = "To <b>fuse overlapping atoms</b> in two or more chunks,\
-	    drag the selected chunk(s) such that their one or more atoms overlap \
-	    with the atoms in the other chunk(s). Then hit <b> Fuse Atoms </b>\
-	    to remove the overlapping atoms of unselected chunk. "
-	
+        
+        #@bug: BUG: The message box height is fixed. The verticle scrollbar 
+        #appears as the following message is long. It however tries to make the 
+        # cursor visible within the message box . This results in scrolling the 
+        # msg box to the last line and thus doesn't look good.-- ninad 20070723
+        
+        if self.fuseComboBox.currentIndex() == 0:
+            #i.e. 'Make Bonds Between Chunks'
+            msg = "To <b> make bonds</b> between two or more chunks, \
+            drag the selected chunk(s) such that their one or more bondpoints \
+            overlap with the other chunk(s). Then hit <b> Make Bonds </b> to \
+            create bond(s) between them. "
+        else:   
+            msg = "To <b>fuse overlapping atoms</b> in two or more chunks,\
+            drag the selected chunk(s) such that their one or more atoms \
+            overlap  with the atoms in the other chunk(s). Then hit \
+            <b> Fuse Atoms </b>\ to remove the overlapping atoms of unselected \
+            chunk. "
+        
         self.MessageGroupBox.insertHtmlMessage( msg, setAsDefault  =  True )
-	
+        
