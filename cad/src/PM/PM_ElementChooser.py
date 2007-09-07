@@ -17,6 +17,7 @@ from PyQt4.Qt import SIGNAL, QSpacerItem, QSizePolicy
 from PM.PM_GroupBox import PM_GroupBox
 from PM.PM_ToolButtonGrid import PM_ToolButtonGrid
 from constants import diTUBES
+from debug import print_compact_traceback
 
 # Elements button list to create elements tool button group.
 # Format: 
@@ -138,7 +139,8 @@ class PM_ElementChooser( PM_GroupBox ):
         Creates a grid of tool buttons containing all elements supported
         in NE1.
         
-        @param inPmGroupBox: The parent group box to contain the element buttons.
+        @param inPmGroupBox: The parent group box to contain the element 
+                             buttons.
         @type  inPmGroupBox: PM_GroupBox
         """
         
@@ -158,7 +160,8 @@ class PM_ElementChooser( PM_GroupBox ):
         """
         Creates a row of atom type buttons (i.e. sp3, sp2, sp and graphitic).
         
-        @param inPmGroupBox: The parent group box to contain the atom type buttons.
+        @param inPmGroupBox: The parent group box to contain the atom type 
+                             buttons.
         @type  inPmGroupBox: PM_GroupBox
         """
         self._atomTypesButtonGroup = \
@@ -263,6 +266,7 @@ class PM_ElementChooser( PM_GroupBox ):
         self.element = self._periodicTable.getElement(elementNumber)
         self._updateAtomTypesButtons()
         self._updateElementViewer()
+        self._updateParentWidget()
         
     def _setAtomType(self, atomTypeIndex):
         """
@@ -292,7 +296,32 @@ class PM_ElementChooser( PM_GroupBox ):
         self.elementViewer.resetView()                
         self.elementViewer.changeHybridType(self.atomType)        
         self.elementViewer.refreshDisplay(self.element, diTUBES)
-
+    
+    def _updateParentWidget(self):
+        """
+        Update things in the parentWidget if necessary. 
+        (The parentWidget should be a property manager, although not necessary)
+        Example: In Build Atoms Mode, the Property manager message groupbox
+        needs to be updated if the element is changed in the element chooser. 
+        Similarly, the selection filter list should be updated in this mode. 
+        """
+        parentWidgetClass = self.parentWidget.__class__
+      
+        if hasattr(parentWidgetClass, 'updateMessage'):
+            try:
+                self.parentWidget.updateMessage()
+            except:
+                print_compact_traceback("Error calling updateMessage()")
+                pass
+                
+        if hasattr(parentWidgetClass, 'update_selection_filter_list'):
+            try:
+                self.parentWidget.update_selection_filter_list()
+            except:
+                msg = "Error calling update_selection_filter_list()"
+                print_compact_traceback(msg)
+                pass
+        
         
     def connect_or_disconnect_signals(self, isConnect):
         """
