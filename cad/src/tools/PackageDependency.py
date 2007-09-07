@@ -9,32 +9,22 @@
    packages that each imports on stdout.  This information is in a
    format suitable for use with the GraphViz package.
 
-   To use, start by removing all of the module names in pruneModules,
-   unreferencedModules, and externalModules.  Run this on a list of
-   all python files you're interested in, redirecting stdout to a file
-   like depend.dot.
+   To use, run this on a list of all python files you're interested
+   in, redirecting stdout to a file like depend.dot.  Stderr will
+   recieve a list of modules with in and out arc counts for that node
+   in the final graph.
 
-   It will spit out three lists on stderr:
+   The program first reduces the tree to the graph of cycles.  It does
+   this by removing nodes with either no incoming arcs, or no outgoing
+   arcs, or those which only reference modules not in the argument
+   list.  It performs this pruning repeatedly until no new exclusions
+   are produced by an iteration.
 
-   The pruneModules list are those modules which didn't import any
-   modules excluded in any of the module lists.  Add these lines to
-   the pruneModules set before running the program again.  These are
-   the leaves of the dependency tree.  At each stage, you prune off
-   the leaves and expose a new layer of modules which no longer import
-   any non-excluded modules.
+   At that point, the output consists of only the cycles in the
+   dependency graph.  This can be plotted with the dot program from
+   the GraphViz package.
 
-   The unreferencedModules list are those which none of the
-   non-excluded modules import.  These are roots of the dependency
-   tree.  Add these lines to the unreferencedModules set and run again
-   until there are no new exclusions from a run.
-
-   The externalModules list are those which are referenced, but are
-   not in the set of arguments.  Add these to the externalModules set
-   like the above exclusions.
-
-   When no new exclusions are produced by a run, the output consists
-   of only the cycles in the dependency graph.  This can be plotted
-   with the dot program from the GraphViz package.
+   To see the entire graph, comment out the pruneTree() loop.
 """
 
 import sys
@@ -44,17 +34,27 @@ fromImportLineRegex = re.compile(r'^\s*from\s+(\S+)\s+import\s')
 importLineRegex = re.compile(r'^\s*import\s+([^#]+)')
 asRegex = re.compile(r'^(\S+)\s+as\s+')
 
-pruneModules = set([
-    ])
+pruneModules = []
+"""
+   The pruneModules list are those modules which didn't import any
+   modules excluded in any of the module lists.  These are
+   the leaves of the dependency tree.  At each stage, you prune off
+   the leaves and expose a new layer of modules which no longer import
+   any non-excluded modules.
+"""
 
-unreferencedModules = set([
-    ])
+unreferencedModules = []
+"""
+   The unreferencedModules list are those which none of the
+   non-excluded modules import.  These are roots of the dependency
+   tree.
+"""
 
-externalModules = set([
-    ])
-
-allProcessedModules = set([])
-referencedModules = set([])
+externalModules = []
+"""
+   The externalModules list are those which are referenced, but are
+   not in the set of arguments.
+"""
 
 def fileNameToModuleName(fileName):
     if (fileName.startswith("./")):
@@ -66,12 +66,12 @@ def fileNameToModuleName(fileName):
     fileName = fileName.replace("/", ".")
     return fileName
 
-def dependenciesInFile(fileName):
+def dependenciesInFile(fileName, printing):
     importSet = set([])
     fromModuleName = fileNameToModuleName(fileName)
     fromModuleName = fromModuleName.replace("-", "_")
     if (fromModuleName in pruneModules or fromModuleName in unreferencedModules):
-        return 0
+        return None
     allProcessedModules.add(fromModuleName)
     f = open(fileName)
     for line in f:
@@ -102,8 +102,10 @@ def dependenciesInFile(fileName):
             continue
         toModuleName = toModuleName.replace(".", "_")
         toModuleName = toModuleName.replace("-", "_")
-        
-        print "    %s -> %s;" % (fromModuleName, toModuleName)
+
+        if (printing):
+            print "    %s -> %s;" % (fromModuleName, toModuleName)
+
         if (fromModuleCount.has_key(fromModuleName)):
             fromModuleCount[fromModuleName] += 1
         else:
@@ -114,34 +116,61 @@ def dependenciesInFile(fileName):
             toModuleCount[toModuleName] = 1
         outCount = outCount + 1
     if (outCount < 2):
-        print >>sys.stderr, '    "%s",' % fromModuleNameUnsubstituted
-        return 1
-    return 0
+        return fromModuleNameUnsubstituted
+    return None
 
-if (__name__ == '__main__'):
+def initializeGlobals():
+    global allProcessedModules
+    global referencedModules
+    global fromModuleCount
+    global toModuleCount
+    
+    allProcessedModules = set([])
+    referencedModules = set([])
+
     fromModuleCount = {}
     toModuleCount = {}
+    
+
+def pruneTree():
+    global pruneModules
+    global unreferencedModules
+    global externalModules
+
+    initializeGlobals()
+    pruneCount = 0
     pruneModulesLen = 0
-    print "digraph G {"
-    print >>sys.stderr, "pruneModules:"
+    prunedModuleList = []
+
     for sourceFile in sys.argv[1:]:
-        pruneModulesLen += dependenciesInFile(sourceFile)
-    print "}"
+        prunedModule = dependenciesInFile(sourceFile, False)
+        if (prunedModule):
+            prunedModuleList += [prunedModule]
+    pruneModules += prunedModuleList
+    pruneCount += len(prunedModuleList)
+    
     unreferencedModulesList = allProcessedModules.difference(referencedModules)
-    unrefList = list(unreferencedModulesList)
-    unrefList.sort()
-    print >>sys.stderr, "unreferencedModules:"
-    for pkg in unrefList:
-        print >>sys.stderr, '    "%s",' % pkg
+    unreferencedModules += unreferencedModulesList
+    pruneCount += len(unreferencedModulesList)
 
     externalModulesList = referencedModules.difference(allProcessedModules)
     externalModulesList = externalModulesList.difference(externalModules)
     externalModulesList = externalModulesList.difference(pruneModules)
-    extList = list(externalModulesList)
-    extList.sort()
-    print >>sys.stderr, "externalModules:"
-    for pkg in extList:
-        print >>sys.stderr, '    "%s",' % pkg
-    if (pruneModulesLen == 0 and len(unrefList) == 0 and len(extList) == 0):
-        for key in fromModuleCount.keys():
-            print >>sys.stderr, "%06d %06d %s" % (toModuleCount[key], fromModuleCount[key], key)
+    externalModules += externalModulesList
+    pruneCount += len(externalModulesList)
+
+    return pruneCount
+
+def printTree():
+    initializeGlobals()
+    print "digraph G {"
+    for sourceFile in sys.argv[1:]:
+        dependenciesInFile(sourceFile, True)
+    print "}"
+    for key in fromModuleCount.keys():
+        print >>sys.stderr, "%06d %06d %s" % (toModuleCount[key], fromModuleCount[key], key)
+
+if (__name__ == '__main__'):
+    while (pruneTree()):
+        pass
+    printTree()
