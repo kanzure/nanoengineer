@@ -28,9 +28,12 @@ from PM.PM_CheckBox        import PM_CheckBox
 from PM.PM_ToolButtonRow   import PM_ToolButtonRow
 from PM.PM_ElementChooser  import PM_ElementChooser
 from PM.PM_PreviewGroupBox import PM_PreviewGroupBox
+from PM.PM_LineEdit        import PM_LineEdit
 
 from PM.PM_Constants       import pmDoneButton
 from PM.PM_Constants       import pmWhatsThisButton
+
+from prefs_widgets         import ObjAttr_StateRef
 
 class Ui_BuildAtomsPropertyManager(PM_Dialog):
     """
@@ -78,6 +81,9 @@ class Ui_BuildAtomsPropertyManager(PM_Dialog):
         self.elementChooser = None
         self.advancedOptionsGroupBox = None
         self.bondToolsGroupBox = None
+        
+        self.selectionFilterCheckBox = None
+        self.filterlistLE = None
         
     def _addGroupBoxes(self):
         """
@@ -130,20 +136,40 @@ class Ui_BuildAtomsPropertyManager(PM_Dialog):
         @param inPmGroupBox: The Advanced Options box in the PM
         @type  inPmGroupBox: L{PM_GroupBox} 
         """
-        self.autoBondCheckBox = PM_CheckBox ( inPmGroupBox,
+        
+        self.selectionFilterCheckBox = \
+            PM_CheckBox( inPmGroupBox,
+                         text  = "Enable selection filter",
+                         widgetColumn = 0,
+                         state        = Qt.Unchecked  )
+        self.selectionFilterCheckBox.setDefaultValue(False)
+        
+        self.filterlistLE = PM_LineEdit( inPmGroupBox, 
+                                         label        = "",
+                                         text         = "",
+                                         setAsDefault = False,
+                                         spanWidth    = True )
+        self.filterlistLE.setReadOnly(True)            
+        
+        if self.selectionFilterCheckBox.isChecked():
+            self.filterlistLE.setEnabled(True)
+        else:
+            self.filterlistLE.setEnabled(False)
+                    
+        self.autoBondCheckBox = PM_CheckBox( inPmGroupBox,
                                               text         = 'Auto Bond',
                                               widgetColumn = 0,
                                               state        = Qt.Checked  )
         
-        self.waterCheckBox = PM_CheckBox ( inPmGroupBox,
-                                           text         = "Water",
-                                           widgetColumn = 0,
-                                           state        = Qt.Unchecked  )
+        self.waterCheckBox = PM_CheckBox( inPmGroupBox,
+                                          text         = "Water",
+                                          widgetColumn = 0,
+                                          state        = Qt.Unchecked  )
         
-        self.highlightingCheckBox = PM_CheckBox ( inPmGroupBox,
-                                                  text         = "Highlighting",
-                                                  widgetColumn = 0,
-                                                  state        = Qt.Checked )
+        self.highlightingCheckBox = PM_CheckBox( inPmGroupBox,
+                                                 text         = "Highlighting",
+                                                 widgetColumn = 0,
+                                                 state        = Qt.Checked )
         
     def _loadBondToolsGroupBox(self, inPmGroupBox):
         """

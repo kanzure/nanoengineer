@@ -19,6 +19,10 @@ ninad 2007-08-29: Created to use PM module classes, thus deprecating old
                   functionality into new L{PasteMode} 
 """
 
+
+import env
+
+from PyQt4.Qt import SIGNAL
 from Ui_BuildAtomsPropertyManager import Ui_BuildAtomsPropertyManager
 from bond_constants               import btype_from_v6
 
@@ -54,14 +58,71 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         """
         self.w.toolsDone()
     
+    def connect_or_disconnect_signals(self, isConnect): 
+        """
+        Connect or disconnect widget signals sent to their slot methods.
+        @param isConnect: If True the widget will send the signals to the slot 
+                          method. 
+        @type  isConnect: boolean
+        @see: L{depositMode.connect_or_disconnect_signals} where this is called
+        """
+        
+        if isConnect:
+            change_connect = self.w.connect
+        else:
+            change_connect = self.w.disconnect
+            
+        change_connect(self.waterCheckBox,
+                        SIGNAL("toggled(bool)"),
+                        self.parentMode.setWater)
+        
+        change_connect(self.highlightingCheckBox,
+                        SIGNAL("toggled(bool)"),
+                        self.parentMode.set_hoverHighlighting)
+        
+        change_connect(self.selectionFilterCheckBox,
+                       SIGNAL("stateChanged(int)"),
+                       self.set_selection_filter)
+        
+    def set_selection_filter(self, enabled):
+        """
+        Slot for Atom Selection Filter checkbox that enables or diables the 
+        selection filter and updates the cursor.
+        @param enabled: Checked state of L{self.selectionFilterStateBox}
+                        If checked, the selection filter will be enabled
+        @type  enabled: bool
+        @see: L{self.update_selection_filter_list}      
+        """
+        
+        if enabled != self.w.selection_filter_enabled:
+            if enabled:
+                env.history.message("Atom Selection Filter enabled.")
+            else:
+                env.history.message("Atom Selection Filter disabled.")
+        
+        self.w.selection_filter_enabled = enabled
+        
+        self.filterlistLE.setEnabled(enabled)   
+        self.update_selection_filter_list()     
+        self.parentMode.update_cursor()
+        
     def update_selection_filter_list(self):
         """
         Adds/removes the element selected in the Element Chooser to/from Atom 
         Selection Filter based on what modifier key is pressed (if any).
+        @see: L{self.set_selection_filter}
+        @see: L{self.update_selection_filter_list_widget}
         """
+        #Don't update the filter list if selection filter checkbox is not active
+        if not self.filterlistLE.isEnabled():
+            self.w.filtered_elements = []
+            self.update_selection_filter_list_widget()
+            return
+        
         element = self.elementChooser.element        
         if self.o.modkeys is None:
             self.w.filtered_elements = []
+            self.w.filtered_elements.append(element)
         if self.o.modkeys == 'Shift':
             if not element in self.w.filtered_elements[:]:
                 self.w.filtered_elements.append(element)
@@ -74,17 +135,20 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
     def update_selection_filter_list_widget(self):
         """
         Updates the list of elements displayed in the Atom Selection Filter 
-        List.
+        List. 
+        
+        @see: L{self.update_selection_filter_list}. (Should only be called 
+              from this method)
         """
+        
         filtered_syms = ''
         for e in self.w.filtered_elements[:]:
             if filtered_syms: 
                 filtered_syms += ", "
             
             filtered_syms += e.symbol
-        #TODO: Define element filter line edit (self.filterlistLE) in propMgr.
-        #The following is disabled for now.
-        ##self.filterlistLE.setText(filtered_syms)
+            
+        self.filterlistLE.setText(filtered_syms)
                 
     def updateMessage(self):
         """
@@ -122,4 +186,4 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         """
         #TODO: Need further clean up of depositMode.py that will make this 
         #unnecessary
-        pass   
+        pass     
