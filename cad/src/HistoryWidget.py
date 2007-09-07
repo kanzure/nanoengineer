@@ -29,7 +29,7 @@ from PyQt4.Qt import Qt
 from PyQt4.Qt import QTextEdit, QTextOption
 
 import platform # for atom_debug, and more
-from debug import DebugMenuMixin
+from DebugMenuMixin import DebugMenuMixin
 from qt4transition import qt4todo
 import env #bruce 050810
 

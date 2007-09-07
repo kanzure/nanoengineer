@@ -27,7 +27,8 @@ bruce 051115 some comments and code cleanup; add #SIMOPT wherever a simulator ex
 bruce 051231 partly-done code for using pyrex interface to sim; see use_dylib
 '''
 
-from debug import print_compact_traceback, _sim_params_set, _sim_param_values
+from debug import print_compact_traceback
+from DebugMenuMixin import sim_params_set, sim_param_values
 from qt4transition import qt4todo
 import platform
 from platform import fix_plurals
@@ -611,7 +612,7 @@ class SimRunner:
             else:
                 clas = sim.Dynamics
             simobj = clas(infile)
-            if _sim_params_set:
+            if sim_params_set:
                 for attr, value in _sim_param_values.items():
                     setattr(simobj, attr, value)
             # order of set of remaining options should not matter;
@@ -1055,7 +1056,7 @@ class SimRunner:
 
                 from sim import SimulatorInterrupted #bruce 060112 - not sure this will work here vs outside 'def' ###k
                 self.sim_frame_callback_prep()
-                if _sim_params_set:
+                if sim_params_set:
                     for attr, expected in _sim_param_values.items():
                         found = getattr(simobj, attr)
                         if found != expected:

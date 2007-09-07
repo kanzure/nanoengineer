@@ -59,7 +59,7 @@ from PM.PM_SpinBox       import PM_SpinBox
 from PM.PM_TextEdit      import PM_TextEdit
 
 from PM.PM_Dialog import PM_Dialog
-from debug import DebugMenuMixin
+from DebugMenuMixin import DebugMenuMixin
 
 # DNA model type variables
 #  (indices for model... and conformation... comboboxes).

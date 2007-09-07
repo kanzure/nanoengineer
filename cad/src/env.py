@@ -21,7 +21,7 @@ Also, certain basic routines for using/allocating some of these global variables
 
 Usage:
 
-import env
+'import env'
 
    ... use env.xxx as needed ...
    # Don't say "from env import xxx" since env.xxx might be reassigned dynamically.

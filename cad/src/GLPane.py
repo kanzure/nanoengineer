@@ -126,7 +126,8 @@ from HistoryWidget import greenmsg, redmsg
 from platform import fix_event_helper
 import platform
 from widgets import makemenu_helper
-from debug import DebugMenuMixin, print_compact_traceback, print_compact_stack
+from DebugMenuMixin import DebugMenuMixin
+from debug import print_compact_traceback, print_compact_stack
 import preferences
 import env
 from changes import SubUsageTrackingMixin
