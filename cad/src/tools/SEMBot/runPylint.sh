@@ -2,9 +2,6 @@
 
 # Usage: ./runPylint.sh &>Pylint.log
 
-# Remove files used to check for command successes
-#rm -f NE1_Documentation/api-objects.txt
-
 # Run Pylint 
 pushd SVN-D/cad/src
 BATCH_NUMBER=0
@@ -50,13 +47,4 @@ echo `bc -q tmp.txt` > ../../../Pylint.result
 rm pylint.?.result tmp.txt
 
 popd
-
-# Check if Epydoc was successfull by checking for the existence of the file we
-# deleted earlier.
-#if [ ! -e NE1_Documentation/api-objects.txt ]; then
-#  RESULT="<font color=red>Failed</font>"
-#else
-#  RESULT=Success
-#fi
-#echo ${RESULT} > NE1_Docs.result
 
