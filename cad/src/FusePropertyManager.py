@@ -20,12 +20,9 @@ propMgr.connect_disconnect_signals in the fuseMde.connect_disconnect_signals?
 I think the latter will help decoupling ui elements from fuseMode. Same thing 
 applies to other modes and Propert Managers (e.g. Move mode, Build Atoms mode)
 """
-__author__  = "Ninad"
-
 
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import Qt
-from PyQt4.Qt import QButtonGroup
 
 from PM.PM_GroupBox        import PM_GroupBox
 from PM.PM_ComboBox        import PM_ComboBox
@@ -43,6 +40,11 @@ class FusePropertyManager(MovePropertyManager):
     iconPath = "ui/actions/Tools/Build Tools/Fuse_Chunks.png"
     
     def __init__(self, parentMode):
+        """
+        Constructor for Fuse Property manager. 
+        @param parentMode: The parent mode for this property manager 
+        @type  parentMode: L{fuseChunksmode}
+        """
         
         self.parentMode = parentMode
         MovePropertyManager.__init__(self, self.parentMode)
@@ -50,6 +52,9 @@ class FusePropertyManager(MovePropertyManager):
         self.activate_translateGroupBox_in_fuse_PM()
     
     def _addGroupBoxes(self):
+        """
+        Add various groupboxes to Fuse property manager. 
+        """
         
         self.fuseOptionsGroupBox = PM_GroupBox( self,
                                          title = "Fuse Options")
@@ -152,15 +157,7 @@ class FusePropertyManager(MovePropertyManager):
         
         self.isTranslateGroupBoxActive = False
         self.parentMode.update_cursor()
-        
-         
-    
-    def show_propMgr(self):
-        """
-        Show the Fuse Property Manager.
-        """
-        self.openPropertyManager(self)
-        
+                
     
     def setupUi(self, fusePropMgrObject):
         """
