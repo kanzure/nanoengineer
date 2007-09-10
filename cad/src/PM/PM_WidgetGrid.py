@@ -74,14 +74,15 @@ class PM_WidgetGrid( PM_GroupBox ):
         @param label:      The label for the widget row. .
         @type  label:      str
         
-        @param labelColumn: The column in the parentWidget's grid layout to which
-                            this widget's label will be added. The labelColum
-                            can only be E{0} or E{1}
+        @param labelColumn: The column in the parentWidget's grid layout to 
+                            which this widget's label will be added. 
+                            The labelColum can only be E{0} or E{1}
         @type  labelColumn: int
         
         @param spanWidth: If True, the widget and its label will span the width
-                      of the group box. Its label will appear directly above
-                      the widget (unless the label is empty) and is left justified.
+                         of the group box. Its label will appear directly above
+                         the widget (unless the label is empty) and is left 
+                         justified.
         @type  spanWidth: bool (default False)
         
        
@@ -181,6 +182,16 @@ class PM_WidgetGrid( PM_GroupBox ):
         widgetParams = list(widgetParams)  
         
         widgetType = str(widgetParams[0])
+        
+        
+        if widgetType[0:3] == "PM_":
+            #The given widget is already defined using a class in PM_Module
+            #so simply use the specified object
+            #@see:Ui_CookiePropertyManager._loadLayerPropertiesGroupBox
+            #      for an example on how it is used. 
+            widget = widgetParams[1]
+            return widget
+        
         if widgetType == QToolButton.__name__:
             widget = self._createToolButton(widgetParams)
         elif widgetType == QPushButton.__name__:
@@ -243,11 +254,12 @@ class PM_WidgetGrid( PM_GroupBox ):
         """
         
         labelParams = list(widgetParams)        
-        labelText        = labelParams[1]        
+        labelText   = labelParams[1]        
         label = QLabel(self)
         label.setText(labelText)
         return label
     
+      
     
     
     # ==== Helper methods to add widgets/ spacers to the Grid Layout =====
