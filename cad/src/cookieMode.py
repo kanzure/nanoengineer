@@ -56,6 +56,7 @@ from constants import SUBTRACT_FROM_SELECTION
 from constants import SELSHAPE_RECT
 from constants import get_selCurve_color
 
+import changes
 
 
 class cookieMode(basicMode):
@@ -105,7 +106,9 @@ class cookieMode(basicMode):
         """The initial function is called only once for the whole program """
         basicMode.__init__(self, glpane)
         
-        self.propMgr = CookieCtrlPanel(self.w)
+        if not self.propMgr:
+            self.propMgr = CookieCtrlPanel(self)
+            changes.keep_forever(self.propMgr)            
     
     def Enter(self): 
         basicMode.Enter(self)
@@ -136,7 +139,7 @@ class cookieMode(basicMode):
         self.propMgr.snapGridCheckBox.setChecked(self.gridSnap)
         
         self.showFullModel = self.propMgr.fullModelCheckBox.isChecked()
-        self.cookieDisplayMode = str(self.propMgr.dispModeCBox.currentText())
+        self.cookieDisplayMode = str(self.propMgr.dispModeComboBox.currentText())
         self.latticeType = self.LATTICE_TYPES[self.propMgr.latticeCBox.currentIndex()]
         
         self.layers = [] ## Stores 'surface origin' for each layer
@@ -227,7 +230,7 @@ class cookieMode(basicMode):
             self.w.setViewPerspecAction.setEnabled(True)
             
             #Disable controls to change layer.
-            self.propMgr.currentLayerCBox.setEnabled(False)
+            self.propMgr.currentLayerComboBox.setEnabled(False)
             self.isAddLayerEnabled = self.propMgr.addLayerButton.isEnabled ()
             self.propMgr.addLayerButton.setEnabled(False)
             
@@ -244,7 +247,7 @@ class cookieMode(basicMode):
             self.w.setViewPerspecAction.setEnabled(False)
             
             #Restore controls to change layer/add layer
-            self.propMgr.currentLayerCBox.setEnabled(True)
+            self.propMgr.currentLayerComboBox.setEnabled(True)
             self.propMgr.addLayerButton.setEnabled(self.isAddLayerEnabled)
             
             self.propMgr.enableViewChanges(False)

@@ -31,173 +31,174 @@ class CookieCtrlPanel(CookiePropertyManager):
     """This is class is served to provide GUI controls to the cookie-cutter mode.
     """
        
-    def __init__(self, parent):
+    def __init__(self, parentMode):
         """<parent> is the main window  for the program"""
-        self.w = parent
-	                               
+        self.w = parentMode.w
+                                       
         self.pw = None # pw is active part window
-	
-       	self._init_flyoutActions()
-        CookiePropertyManager.__init__(self)
+        
+        self._init_flyoutActions()
+        CookiePropertyManager.__init__(self, parentMode)
         self._makeConnections()
 
     def _init_flyoutActions(self):
-	''' Define flyout toolbar actions for this mode'''
-	#Create an action group and add all the cookie selection shape buttons to it
-	self.cookieSelectionGroup = QActionGroup(self.w)
-	
-	#Action List for  subcontrol Area buttons. 
-	#In cookie cutter, there is really no subcontrol area. 
-	#We will treat subcontrol area same as 'command area' 
-	#(subcontrol area buttons will have an empty list as their command area 
-	#list). We will set  the Comamnd Area palette background color to the
-	#subcontrol area. This list will be used in getFlyoutActionList
-	
-	self.subControlAreaActionList =[] 
-		
-	self.exitCrystalAction = QtGui.QWidgetAction(self.w)
-	self.exitCrystalAction.setText("Exit Crystal")
-	self.exitCrystalAction.setCheckable(True)
-	self.exitCrystalAction.setChecked(True)
-	self.exitCrystalAction.setIcon(geticon('ui/actions/Toolbars/Smart/Exit'))
-	self.subControlAreaActionList.append(self.exitCrystalAction)
-	
-	separator = QtGui.QAction(self.w)
-	separator.setSeparator(True)
-	self.subControlAreaActionList.append(separator) 
-	
-	self.DefaultSelAction = QWidgetAction(self.w)
-	self.DefaultSelAction.setObjectName("DEFAULT")
-	self.DefaultSelAction.setText("Default")	
-	self.subControlAreaActionList.append(self.DefaultSelAction)
-	
-	self.CircleSelAction = QWidgetAction(self.w)	
-	self.CircleSelAction.setObjectName("CIRCLE")
-	self.CircleSelAction.setText("Circle")	
-	self.subControlAreaActionList.append(self.CircleSelAction)
-	
-	self.RectCtrSelAction = QWidgetAction(self.w)	
-	self.RectCtrSelAction.setObjectName("RECTANGLE")
-	self.RectCtrSelAction.setText("RectCenter")
-	self.subControlAreaActionList.append(self.RectCtrSelAction)
-		
-	self.HexagonSelAction = QWidgetAction(self.w)
-	self.HexagonSelAction.setObjectName("HEXAGON")
-	self.HexagonSelAction.setText("Hexagon")
-	self.subControlAreaActionList.append(self.HexagonSelAction)
-	
-	self.TriangleSelAction = QWidgetAction(self.w)
-	self.TriangleSelAction.setObjectName("TRIANGLE")
-	self.TriangleSelAction.setText("Triangle")
-	self.subControlAreaActionList.append(self.TriangleSelAction)
-	
-	self.RectCornerSelAction = QWidgetAction(self.w)
-	self.RectCornerSelAction.setObjectName("RECT_CORNER")
-	self.RectCornerSelAction.setText("RectCorners")
-	self.subControlAreaActionList.append(self.RectCornerSelAction)
-	
-	self.LassoSelAction = QWidgetAction(self.w)	
-	self.LassoSelAction.setObjectName("LASSO")
-	self.LassoSelAction.setText("Lasso")
-	self.subControlAreaActionList.append(self.LassoSelAction)
-	
-	self.DiamondSelAction = QWidgetAction(self.w)
-	self.DiamondSelAction.setObjectName("DIAMOND")
-	self.DiamondSelAction.setText("Diamond")
-	self.subControlAreaActionList.append(self.DiamondSelAction)
-	
-	self.SquareSelAction = QWidgetAction(self.w)
-	self.SquareSelAction.setObjectName("SQUARE")
-	self.SquareSelAction.setText("Square")
-	self.subControlAreaActionList.append(self.SquareSelAction)
-	
-	for action in self.subControlAreaActionList[1:]:
-	    if action.__class__.__name__ is QtGui.QWidgetAction.__name__:		
-		action.setCheckable(True)
-		self.cookieSelectionGroup.addAction(action)
-		iconpath = "ui/actions/Toolbars/Smart/" + str(action.text())
-		action.setIcon(geticon(iconpath))
-	
-	if not self.cookieSelectionGroup.checkedAction():
-		self.DefaultSelAction.setChecked(True)
+        ''' Define flyout toolbar actions for this mode'''
+        #Create an action group and add all the cookie selection shape buttons to it
+        self.cookieSelectionGroup = QActionGroup(self.w)
+        
+        #Action List for  subcontrol Area buttons. 
+        #In cookie cutter, there is really no subcontrol area. 
+        #We will treat subcontrol area same as 'command area' 
+        #(subcontrol area buttons will have an empty list as their command area 
+        #list). We will set  the Comamnd Area palette background color to the
+        #subcontrol area. This list will be used in getFlyoutActionList
+        
+        self.subControlAreaActionList =[] 
+                
+        self.exitCrystalAction = QtGui.QWidgetAction(self.w)
+        self.exitCrystalAction.setText("Exit Crystal")
+        self.exitCrystalAction.setCheckable(True)
+        self.exitCrystalAction.setChecked(True)
+        self.exitCrystalAction.setIcon(geticon('ui/actions/Toolbars/Smart/Exit'))
+        self.subControlAreaActionList.append(self.exitCrystalAction)
+        
+        separator = QtGui.QAction(self.w)
+        separator.setSeparator(True)
+        self.subControlAreaActionList.append(separator) 
+        
+        self.DefaultSelAction = QWidgetAction(self.w)
+        self.DefaultSelAction.setObjectName("DEFAULT")
+        self.DefaultSelAction.setText("Default")        
+        self.subControlAreaActionList.append(self.DefaultSelAction)
+        
+        self.CircleSelAction = QWidgetAction(self.w)    
+        self.CircleSelAction.setObjectName("CIRCLE")
+        self.CircleSelAction.setText("Circle")  
+        self.subControlAreaActionList.append(self.CircleSelAction)
+        
+        self.RectCtrSelAction = QWidgetAction(self.w)   
+        self.RectCtrSelAction.setObjectName("RECTANGLE")
+        self.RectCtrSelAction.setText("RectCenter")
+        self.subControlAreaActionList.append(self.RectCtrSelAction)
+                
+        self.HexagonSelAction = QWidgetAction(self.w)
+        self.HexagonSelAction.setObjectName("HEXAGON")
+        self.HexagonSelAction.setText("Hexagon")
+        self.subControlAreaActionList.append(self.HexagonSelAction)
+        
+        self.TriangleSelAction = QWidgetAction(self.w)
+        self.TriangleSelAction.setObjectName("TRIANGLE")
+        self.TriangleSelAction.setText("Triangle")
+        self.subControlAreaActionList.append(self.TriangleSelAction)
+        
+        self.RectCornerSelAction = QWidgetAction(self.w)
+        self.RectCornerSelAction.setObjectName("RECT_CORNER")
+        self.RectCornerSelAction.setText("RectCorners")
+        self.subControlAreaActionList.append(self.RectCornerSelAction)
+        
+        self.LassoSelAction = QWidgetAction(self.w)     
+        self.LassoSelAction.setObjectName("LASSO")
+        self.LassoSelAction.setText("Lasso")
+        self.subControlAreaActionList.append(self.LassoSelAction)
+        
+        self.DiamondSelAction = QWidgetAction(self.w)
+        self.DiamondSelAction.setObjectName("DIAMOND")
+        self.DiamondSelAction.setText("Diamond")
+        self.subControlAreaActionList.append(self.DiamondSelAction)
+        
+        self.SquareSelAction = QWidgetAction(self.w)
+        self.SquareSelAction.setObjectName("SQUARE")
+        self.SquareSelAction.setText("Square")
+        self.subControlAreaActionList.append(self.SquareSelAction)
+        
+        for action in self.subControlAreaActionList[1:]:
+            if action.__class__.__name__ is QtGui.QWidgetAction.__name__:               
+                action.setCheckable(True)
+                self.cookieSelectionGroup.addAction(action)
+                iconpath = "ui/actions/Toolbars/Smart/" + str(action.text())
+                action.setIcon(geticon(iconpath))
+        
+        if not self.cookieSelectionGroup.checkedAction():
+                self.DefaultSelAction.setChecked(True)
 
-	     		           	
+                                        
     def getFlyoutActionList(self):
-	""" Returns a tuple that contains mode spcific actionlists in the 
-	added in the flyout toolbar of the mode. 
-	CommandManager._createFlyoutToolBar method calls this 
-	@return: params: A tuple that contains 3 lists: 
-	(subControlAreaActionList, commandActionLists, allActionsList)"""	
-	
-	#'allActionsList' returns all actions in the flyout toolbar 
-	#including the subcontrolArea actions
-	allActionsList = []
-	
-	#Action List for  subcontrol Area buttons. 
-	#In cookie cutter, there is really no subcontrol area. 
-	#We will treat subcontrol area same as 'command area' 
-	#(subcontrol area buttons will have an empty list as their command area 
-	#list). We will set  the Comamnd Area palette background color to the
-	#subcontrol area.
-		
-	subControlAreaActionList = self.subControlAreaActionList
-	
-	allActionsList.extend(subControlAreaActionList)
-	
-	#Empty actionlist for the 'Command Area'
-	commandActionLists = [] 
-	
-	#Append empty 'lists' in 'commandActionLists equal to the 
-	#number of actions in subControlArea 
-	for i in range(len(subControlAreaActionList)):
-	    lst = []
-	    commandActionLists.append(lst)
-	    
-	#The subcontrol area buuton and its command list form a 'key:value pair
-	#in a python dictionary object
-	flyoutDictionary = {}
-	
-	counter = 0
-	for k in subControlAreaActionList:
-	    # counter is used to sort the keys in the order in which they 
-	    #were added
-	    key = (counter, k) 
-	    flyoutDictionary[key] = commandActionLists[counter]
-	    #Also add command actions to the 'allActionsList'
-	    allActionsList.extend(commandActionLists[counter]) 
-	    counter +=1
-			
-	params = (subControlAreaActionList, commandActionLists, allActionsList)
-	
-	return params
+        """ Returns a tuple that contains mode spcific actionlists in the 
+        added in the flyout toolbar of the mode. 
+        CommandManager._createFlyoutToolBar method calls this 
+        @return: params: A tuple that contains 3 lists: 
+        (subControlAreaActionList, commandActionLists, allActionsList)"""       
+        
+        #'allActionsList' returns all actions in the flyout toolbar 
+        #including the subcontrolArea actions
+        allActionsList = []
+        
+        #Action List for  subcontrol Area buttons. 
+        #In cookie cutter, there is really no subcontrol area. 
+        #We will treat subcontrol area same as 'command area' 
+        #(subcontrol area buttons will have an empty list as their command area 
+        #list). We will set  the Comamnd Area palette background color to the
+        #subcontrol area.
+                
+        subControlAreaActionList = self.subControlAreaActionList
+        
+        allActionsList.extend(subControlAreaActionList)
+        
+        #Empty actionlist for the 'Command Area'
+        commandActionLists = [] 
+        
+        #Append empty 'lists' in 'commandActionLists equal to the 
+        #number of actions in subControlArea 
+        for i in range(len(subControlAreaActionList)):
+            lst = []
+            commandActionLists.append(lst)
+            
+        #The subcontrol area buuton and its command list form a 'key:value pair
+        #in a python dictionary object
+        flyoutDictionary = {}
+        
+        counter = 0
+        for k in subControlAreaActionList:
+            # counter is used to sort the keys in the order in which they 
+            #were added
+            key = (counter, k) 
+            flyoutDictionary[key] = commandActionLists[counter]
+            #Also add command actions to the 'allActionsList'
+            allActionsList.extend(commandActionLists[counter]) 
+            counter +=1
+                        
+        params = (subControlAreaActionList, commandActionLists, allActionsList)
+        
+        return params
     
     
     def updateCommandManager(self, bool_entering = True):
-	''' Update the Command Manager '''
-	if bool_entering:
-	    action = self.w.toolsCookieCutAction	
-	else:
-	    action = None
-	# object that needs its own flyout toolbar. In this case it is just 
-	#the mode itself. 
-	obj = self  
-	    	    
-	self.w.commandManager.updateCommandManager(action,
-						   obj, 
-						   entering =bool_entering)
+        ''' Update the Command Manager '''
+        if bool_entering:
+            action = self.w.toolsCookieCutAction        
+        else:
+            action = None
+        # object that needs its own flyout toolbar. In this case it is just 
+        #the mode itself. 
+        obj = self  
+                    
+        self.w.commandManager.updateCommandManager(action,
+                                                   obj, 
+                                                   entering =bool_entering)
     
-    	                
+                        
     def _makeConnections(self):
         """Connect signal to slots """
+        
         self.connect(self.latticeCBox, SIGNAL("activated ( int )"), self.changeLatticeType)  
             
         self.connect(self.orientButtonGroup, SIGNAL("buttonClicked(int)"), self.changeGridOrientation)
             
-        self.connect(self.antiRotateButton, SIGNAL("clicked()"), self.antiRotateView)
-        self.connect(self.rotateButton, SIGNAL("clicked()"), self.rotateView)
+        self.connect(self.rotGridAntiClockwiseButton, SIGNAL("clicked()"), self.antiRotateView)
+        self.connect(self.rotGridClockwiseButton, SIGNAL("clicked()"), self.rotateView)
             
         self.connect(self.addLayerButton,SIGNAL("clicked()"), self.addLayer)
-        self.connect(self.currentLayerCBox,SIGNAL("activated(int)"), self.changeLayer)
+        self.connect(self.currentLayerComboBox,SIGNAL("activated(int)"), self.changeLayer)
             
         self.connect(self.layerCellsSpinBox,SIGNAL("valueChanged(int)"), self.setThickness)
         #self.connect(self.gridColorButton,SIGNAL("clicked()"),self.changeGridColor)
@@ -208,32 +209,32 @@ class CookieCtrlPanel(CookiePropertyManager):
         self.connect(self.fullModelCheckBox, SIGNAL("toggled(bool)"),self.toggleFullModel)
         self.connect(self.snapGridCheckBox, SIGNAL("toggled(bool)"), self.setGridSnap)
             
-        self.connect(self.dispModeCBox, SIGNAL("activated(const QString &)"), 
-		     self.changeDispMode)
-	
-	self.connect(self.cookieSelectionGroup, SIGNAL("triggered(QAction *)"),
-		     self.changeSelectionShape)
-	
-	self.connect(self.exitCrystalAction, SIGNAL("triggered()"), 
-		     self.w.toolsDone) 
+        self.connect(self.dispModeComboBox, SIGNAL("activated(const QString &)"), 
+                     self.changeDispMode)
+        
+        self.connect(self.cookieSelectionGroup, SIGNAL("triggered(QAction *)"),
+                     self.changeSelectionShape)
+        
+        self.connect(self.exitCrystalAction, SIGNAL("triggered()"), 
+                     self.w.toolsDone) 
   
        
     def _setAutoShapeAcclKeys(self, on):
         """If <on>, then set the acceleration keys for autoshape selection in this mode, otherwise, like when exit. set it to empty. """
         if on:
-	    self.DefaultSelAction.setShortcut('D')
-	    self.CircleSelAction.setShortcut('C')
-	    self.RectCtrSelAction.setShortcut('R')
-	    self.HexagonSelAction.setShortcut('H')
-	    self.TriangleSelAction.setShortcut('T')
-	    self.RectCornerSelAction.setShortcut('SHIFT+R')
-	    self.LassoSelAction.setShortcut('L')
-	    self.DiamondSelAction.setShortcut('SHIFT+D')
-	    self.SquareSelAction.setShortcut('S')
-	    
-	else:
-	    for btn in self.cookieSelectionGroup.actions():
-		btn.setShortcut('')
+            self.DefaultSelAction.setShortcut('D')
+            self.CircleSelAction.setShortcut('C')
+            self.RectCtrSelAction.setShortcut('R')
+            self.HexagonSelAction.setShortcut('H')
+            self.TriangleSelAction.setShortcut('T')
+            self.RectCornerSelAction.setShortcut('SHIFT+R')
+            self.LassoSelAction.setShortcut('L')
+            self.DiamondSelAction.setShortcut('SHIFT+D')
+            self.SquareSelAction.setShortcut('S')
+            
+        else:
+            for btn in self.cookieSelectionGroup.actions():
+                btn.setShortcut('')
                            
    
     def initGui(self):
@@ -243,11 +244,11 @@ class CookieCtrlPanel(CookiePropertyManager):
         #the w.dashBoardHolder (dockwidget) will be removed completely. So this is a temporary code. (see also restoreGui)
         
         self.w.toolsCookieCutAction.setChecked(1) # toggle on the Cookie Cutter icon 
-	
-	#always show Exit Crystal button checked. (this implementation may change in future --ninad 070131)
-	self.exitCrystalAction.setChecked(True) 
         
-        self.openPropertyManager(self) # ninad 061227 see PropertymanagerMixin
+        #always show Exit Crystal button checked. (this implementation may change in future --ninad 070131)
+        self.exitCrystalAction.setChecked(True) 
+        
+        self.show()
 
         self.updateCommandManager(bool_entering = True)
                         
@@ -257,14 +258,14 @@ class CookieCtrlPanel(CookiePropertyManager):
         self.w.setViewOrthoAction.setChecked(True)  
         self.w.setViewOrthoAction.setEnabled(False)
         self.w.setViewPerspecAction.setEnabled(False)
-	
+        
         # Other things that have been lost at this point:
         # self.layerThicknessLineEdit
         self.layerCellsSpinBox.setValue(2)
-        self.gridRotateAngle.setValue(45)
+        self.rotateGridByAngleSpinBox.setValue(45)
         
-        self.currentLayerCBox.clear()
-        self.currentLayerCBox.addItem("1")   #QString(str(len(self.layers[0])))) ? ? ?
+        self.currentLayerComboBox.clear()
+        self.currentLayerComboBox.addItem("1")   #QString(str(len(self.layers[0])))) ? ? ?
         self.addLayerButton.setEnabled(False)
 
         # Disable some action items in the main window.
@@ -287,12 +288,12 @@ class CookieCtrlPanel(CookiePropertyManager):
     
     def restoreGui(self):
         """Restore GUI items when exit from the cookie-cutter mode. """
-        	
-	self.updateCommandManager(bool_entering = False)
-	        
+                
+        self.updateCommandManager(bool_entering = False)
+                
         self.w.toolsCookieCutAction.setChecked(0) # Toggle cookie cutter icon
         
-        self.closePropertyManager() 
+        self.close() 
 
         self.w.cookieCutterDashboard.hide()
             
@@ -301,12 +302,12 @@ class CookieCtrlPanel(CookiePropertyManager):
         self.w.rotateToolAction.setEnabled(1) # Enable "Rotate Tool"
         self.w.setViewZoomtoSelectionAction.setEnabled(1) # Enable Zoom to Selection
         self.w.viewOrientationAction.setEnabled(1) #Enable Orientation Window
-	# Enable these toolbars
+        # Enable these toolbars
         self.w.buildToolsToolBar.setEnabled(True)
         self.w.simulationToolBar.setEnabled(True)
-	# Enable all those view options
+        # Enable all those view options
         self.enableViewChanges(True)
-	
+        
         #Hide the Cookie Selection Dashboard
         self.w.cookieSelectDashboard.hide()
             
@@ -323,14 +324,14 @@ class CookieCtrlPanel(CookiePropertyManager):
    
     def enableViewChanges(self, enableFlag):
         """Turn on or off view changes depending on <param> 'enableFlag'. 
-	Turn off view changes is needed during the cookie-cutting stage. """
+        Turn off view changes is needed during the cookie-cutting stage. """
             
-	for c in self.orientButtonGroup.buttons():
-	    c.setEnabled(enableFlag) 
+        for c in self.orientButtonGroup.buttons():
+            c.setEnabled(enableFlag) 
             
-        self.gridRotateAngle.setEnabled(enableFlag)
-        self.antiRotateButton.setEnabled(enableFlag) 
-        self.rotateButton.setEnabled(enableFlag)                
+        self.rotateGridByAngleSpinBox.setEnabled(enableFlag)
+        self.rotGridAntiClockwiseButton.setEnabled(enableFlag) 
+        self.rotGridClockwiseButton.setEnabled(enableFlag)                
         self.w.enableViews(enableFlag) # Mark 051122.
             
     
@@ -338,12 +339,12 @@ class CookieCtrlPanel(CookiePropertyManager):
         """Slot method that is called when user changes selection shape by GUI. """
         if self.w.glpane.mode.modename != 'COOKIE': return
             
-	sShape = action.objectName()
-	self.w.glpane.mode.changeSelectionShape(sShape)
+        sShape = action.objectName()
+        self.w.glpane.mode.changeSelectionShape(sShape)
 
     def getSelectionShape(self):
         """Return the current selection shape that is checked. """
-        selectionShape = self.cookieSelectionGroup.checkedAction().objectName()	   
+        selectionShape = self.cookieSelectionGroup.checkedAction().objectName()    
         return selectionShape
    
     def setThickness(self, value):
@@ -353,8 +354,8 @@ class CookieCtrlPanel(CookiePropertyManager):
         self.addLayerButton.setEnabled(False)
         layerId = self.w.glpane.mode.addLayer()
             
-        self.currentLayerCBox.addItem(QString(str(layerId)))
-        self.currentLayerCBox.setCurrentIndex(layerId-1)
+        self.currentLayerComboBox.addItem(QString(str(layerId)))
+        self.currentLayerComboBox.setCurrentIndex(layerId-1)
             
         self.w.glpane.gl_update()
 
@@ -402,7 +403,7 @@ class CookieCtrlPanel(CookiePropertyManager):
         if value == 0: self._orient100()
         elif value == 1: self._orient110()
         elif value == 2: self._orient111()
-	       
+               
     def _rotView(self, direction):
         """Rotate the view anti-clockwise or clockWise. 
         If <direction> == True, anti-clockwise rotate, otherwise, 
@@ -410,7 +411,7 @@ class CookieCtrlPanel(CookiePropertyManager):
         from math import pi
         from VQT import Q, V
            
-        angle = self.gridRotateAngle.value()
+        angle = self.rotateGridByAngleSpinBox.value()
         if not direction: angle = -angle
         angle = pi * angle/180.0
        
