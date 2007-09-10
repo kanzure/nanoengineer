@@ -24,6 +24,10 @@ __author__ = "bruce"
 extrude_loop_debug = 0 # do not commit with 1, change back to 0
 
 import math
+import platform
+import env
+import changes
+
 from Numeric import dot
 
 from OpenGL.GL import GL_CW
@@ -43,9 +47,6 @@ from OpenGL.GL import glDisable
 
 from PyQt4 import QtGui
 from PyQt4.Qt import Qt
-from PyQt4.Qt import QRect
-from PyQt4.Qt import QComboBox
-from PyQt4.Qt import QSlider
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QCursor
 
@@ -54,7 +55,6 @@ from debug_prefs import debug_pref, Choice, Choice_boolean_False, Choice_boolean
 from modes import basicMode
 from debug import print_compact_traceback, print_compact_stack
 from bonds import bond_at_singlets
-from widgets import FloatSpinBox, TogglePrefCheckBox, QVBox, QHBox
 from Utility import geticon
 from HistoryWidget import redmsg
 
@@ -62,6 +62,7 @@ from VQT import check_floats_near, check_posns_near, check_quats_near
 from VQT import V, Q, norm, vlen, cross
     
 from ExtrudePropertyManager import ExtrudePropertyManager
+
 from drawer import drawline
 from chem import singlet_atom
 from chunk import Chunk
@@ -73,9 +74,7 @@ from constants import blue
 from constants import green
 from constants import get_selCurve_color
 
-import platform
-import env
-import changes
+
 
 ##show_revolve_ui_features = 1 # for now
 
@@ -144,17 +143,17 @@ def reinit_extrude_controls(win, glpane = None, length = None, attr_target = Non
         x,y,z = (x * rr, y * rr, z * rr)
     self.propMgr.set_extrude_controls_xyz((x,y,z))
 
-    self.extrude_pref_toggles = [self.propMgr.extrudePref1, 
-				 self.propMgr.extrudePref2, 
-				 self.propMgr.extrudePref3, 
-				 self.propMgr.extrudePref4,
+    self.extrude_pref_toggles = [self.propMgr.showEntireModelCheckBox, 
+				 self.propMgr.showBondOffsetCheckBox, 
+				 self.propMgr.makeBondsCheckBox, 
+				 self.propMgr.mergeCopiesCheckBox,
                                  self.propMgr.extrudePrefMergeSelection]
     for toggle in self.extrude_pref_toggles:
         if attr_target and toggle.attr: # do this first, so the attrs needed by the slot functions are there
             setattr(attr_target, toggle.attr, toggle.default) # this is the only place I initialize those attrs!
-    for toggle in self.extrude_pref_toggles:
+    ##for toggle in self.extrude_pref_toggles:
         ##toggle.setChecked(True) ##### stub; change to use its sense & default if it has one -- via a method on it
-        toggle.initValue() # this might call the slot function!
+        
 
  
     #e bonding-slider, and its label, showing tolerance, and # of bonds we wouldd make at current offset\
@@ -261,7 +260,7 @@ class extrudeMode(basicMode):
             return
         self.needs_repaint = 0
         for toggle in self.extrude_pref_toggles:
-            val = toggle.value()
+            val = toggle.isChecked()
             attr = toggle.attr
             repaintQ = toggle.repaintQ
             if attr:
@@ -279,7 +278,7 @@ class extrudeMode(basicMode):
                     print "shouldn't happen in current code - needless repaint"
             pass
         self.repaint_if_needed()
-        ##print "self.w.extrudePref1.isChecked() = %r" % self.w.extrudePref1.isChecked()
+        
 
     def refuseEnter(self, warn):
         "if we'd refuse to enter this mode, then (iff warn) tell user why, and (always) return true."
@@ -303,11 +302,12 @@ class extrudeMode(basicMode):
         self.clear() ##e see comment there
         self.initial_down = self.o.down
         self.initial_out = self.o.out
-
-        self.propMgr = ExtrudePropertyManager(self)
-	#@bug BUG: following is a workaround for bug 2494
-	changes.keep_forever(self.propMgr)        	
-                
+	
+	if not self.propMgr:
+	    self.propMgr = ExtrudePropertyManager(self)
+	    #@bug BUG: following is a workaround for bug 2494
+	    changes.keep_forever(self.propMgr)    
+	                
         initial_length = debug_pref("Extrude: initial offset length (A)", Choice([3.0, 7.0, 15.0, 30.0], defaultValue = 7.0),
                                     prefs_key = True, non_debug = True) #bruce 070410
         reinit_extrude_controls(self, self.o, length = initial_length, attr_target = self)
@@ -1016,7 +1016,7 @@ class extrudeMode(basicMode):
     
     def init_gui(self):
 	
-	self.propMgr.show_propMgr()
+	self.propMgr.show()
         ##print "hi my msg_modename is",self.msg_modename
         self.o.setCursor(QCursor(Qt.ArrowCursor)) #bruce 041011 copying a change from cookieMode, choice of cursor not reviewed ###
         
@@ -1291,7 +1291,7 @@ class extrudeMode(basicMode):
         
         self.w.toolsExtrudeAction.setChecked(False) #Toggle Extrude icon
         
-        self.propMgr.closePropertyManager()
+        self.propMgr.close()
         
         return
 
