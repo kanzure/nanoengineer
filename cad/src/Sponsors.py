@@ -23,7 +23,6 @@ the user for permission to do it.
 __author__ = "Will"
 
 import base64
-import env
 import md5
 import os
 import random
@@ -33,7 +32,7 @@ import string
 import threading
 import types
 import urllib
-import platform
+
 from xml.dom.minidom import parseString
 
 from PyQt4.Qt import QDialog
@@ -46,6 +45,10 @@ from PyQt4.Qt import QTextBrowser
 from PyQt4.Qt import QPushButton
 from PyQt4.Qt import SIGNAL
 
+import env
+import platform
+
+from PlatformDependent import find_or_make_Nanorex_subdir
 from wiki_help import WikiHelpBrowser
 from debug import print_compact_stack, print_compact_traceback
 from qt4transition import qt4todo
@@ -53,9 +56,9 @@ from prefs_constants import sponsor_download_permission_prefs_key
 from prefs_constants import sponsor_permanent_permission_prefs_key
 from prefs_constants import sponsor_md5_mismatch_flag_key
 from HistoryWidget import redmsg, orangemsg, greenmsg
-from Utility import geticon
+from icon_utilities import geticon
 
-_sponsordir = platform.find_or_make_Nanorex_subdir('Sponsors')
+_sponsordir = find_or_make_Nanorex_subdir('Sponsors')
 _sponsors = { }
 
 # Include a trailing slash in the following sponsor server URLs.

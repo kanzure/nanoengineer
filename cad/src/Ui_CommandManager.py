@@ -27,7 +27,7 @@ from PyQt4.Qt import QSpacerItem
 from PyQt4.Qt import QString
 from PyQt4.Qt import QPalette
 
-from Utility import geticon
+from icon_utilities import geticon
 from wiki_help import QToolBar_WikiHelp
 from CmdMgr_Constants import cmdMgrCntrlAreaBtnColor
 from CmdMgr_Constants import cmdMgrSubCntrlAreaBtnColor

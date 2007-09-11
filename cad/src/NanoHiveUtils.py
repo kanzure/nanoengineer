@@ -13,7 +13,7 @@ History:
 __author__ = "Brian"
 
 import env, os, sys, time
-from platform import find_or_make_Nanorex_subdir
+from PlatformDependent import find_or_make_Nanorex_subdir
 from prefs_constants import nanohive_path_prefs_key, nanohive_enabled_prefs_key
 from PyQt4.Qt import Qt, QApplication, QCursor
 
@@ -148,7 +148,6 @@ def run_nh_simulation(assy, sim_id, sim_parms, sims_to_run, results_to_save):
     if not sim_id:
         sim_id = get_sim_id()   
         
-    from platform import find_or_make_Nanorex_subdir
     output_dir = find_or_make_Nanorex_subdir("Nano-Hive") # ~/Nanorex/Nano-Hive
     
     # Put up the wait cursor.  The cursor will be restored by exit_nh().       

@@ -45,7 +45,7 @@ from chem import _changed_structure_Atoms # needed whenever we change an atom's 
 import platform
 
 from Utility import Node
-from Utility import imagename_to_pixmap
+from icon_utilities import imagename_to_pixmap
 from VQT import A
 from StatProp import StatProp
 from ThermoProp import ThermoProp

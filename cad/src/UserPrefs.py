@@ -36,8 +36,13 @@ from widgets import RGBf_to_QColor, QColor_to_RGBf
 from widgets import double_fixup
 from prefs_widgets import connect_colorpref_to_colorframe, connect_checkbox_with_boolean_pref
 import platform
+from PlatformDependent import screen_pos_size
+from PlatformDependent import get_window_pos_size
+from PlatformDependent import save_window_pos_size
+from PlatformDependent import get_prefs_for_window_pos_size
+from PlatformDependent import get_rootdir
 from povray import get_default_plugin_path
-from Utility import geticon
+from icon_utilities import geticon
 
 from prefs_constants import displayCompass_prefs_key
 from prefs_constants import displayCompassLabels_prefs_key
@@ -194,7 +199,6 @@ def get_filename_and_save_in_prefs(parent, prefs_key, caption=''):
     caption is the string for the dialog caption.
     '''
     # see also get_dirname_and_save_in_prefs, which has similar code
-    from platform import get_rootdir
     
     if parentless_open_dialog_pref():
         parent = None
@@ -220,7 +224,6 @@ def get_dirname_and_save_in_prefs(parent, prefs_key, caption=''): #bruce 060710 
     <caption> is the string for the dialog caption.
     '''
     # see also get_filename_and_save_in_prefs, which has similar code
-    from platform import get_rootdir
     
     if parentless_open_dialog_pref():
         parent = None
@@ -1185,7 +1188,6 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
     def _setup_window_page(self): #bruce 050810 revised this, and also call it from __init__ to be safe
         ''' Setup widgets to initial (default or defined) values on the window page.
         '''
-        from platform import screen_pos_size, get_window_pos_size
         
         # Update the max value of the Current Size Spinboxes
         screen = screen_pos_size()
@@ -1199,7 +1201,6 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.current_height_spinbox.setValue(size[1])
         
         # Set string of Saved Size Lineedits
-        from platform import get_prefs_for_window_pos_size
         from prefs_constants import mainwindow_geometry_prefs_key_prefix
         keyprefix = mainwindow_geometry_prefs_key_prefix
         pos, size = get_prefs_for_window_pos_size( self.w, keyprefix)
@@ -2171,7 +2172,6 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.saved_height_lineedit.setText(QString(str(h) + " pixels"))
 
     def save_current_win_pos_and_size(self): #bruce 051218; see also debug.py's _debug_save_window_layout
-        from platform import save_window_pos_size
         from prefs_constants import mainwindow_geometry_prefs_key_prefix
         keyprefix = mainwindow_geometry_prefs_key_prefix
         save_window_pos_size( self.w, keyprefix) # prints history message
@@ -2181,7 +2181,6 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
     
     def restore_saved_size(self):
         'Restore the window size, but not the position, from the prefs db'
-        from platform import get_prefs_for_window_pos_size
         from prefs_constants import mainwindow_geometry_prefs_key_prefix
         keyprefix = mainwindow_geometry_prefs_key_prefix
         pos, size = get_prefs_for_window_pos_size( self.w, keyprefix)

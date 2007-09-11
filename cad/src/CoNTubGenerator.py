@@ -30,7 +30,7 @@ from ParameterDialog import ParameterDialog, ParameterPane
 from GeneratorController import GeneratorController
 from GeneratorBaseClass import UserError, PluginBug, CadBug
 from debug import print_compact_traceback, objectBrowse
-from platform import find_or_make_any_directory, tempfiles_dir, find_plugin_dir
+from PlatformDependent import find_or_make_any_directory, tempfiles_dir, find_plugin_dir
 import EndUser
 
 debug_install = False
@@ -324,7 +324,7 @@ class PluginlikeGenerator:
         return
 
     def imagename_to_pixmap(self, imagename): # KLUGE, see comment where dialog_env is set to self ###@@@ might work but untested ###@@@
-        from Utility import imagename_to_pixmap
+        from icon_utilities import imagename_to_pixmap
         path = None
         for trydir in [self.plugin_dir, os.path.join(self.plugin_dir, "images")]:
             trypath = os.path.join( trydir, imagename )

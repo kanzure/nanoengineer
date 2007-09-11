@@ -10,7 +10,8 @@ mark 060530 - Comment class moved here from Utility.py.
 
 """
 
-from Utility import SimpleCopyMixin, Node, imagename_to_pixmap
+from Utility import SimpleCopyMixin, Node
+from icon_utilities import imagename_to_pixmap
 from constants import gensym
 
 class Comment(SimpleCopyMixin, Node):

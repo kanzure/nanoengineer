@@ -36,7 +36,7 @@ from PyQt4 import QtCore
 
 import env
 import platform # for atom_debug
-from platform import fix_plurals #bruce 070503 Qt4
+from PlatformDependent import fix_plurals #bruce 070503 Qt4
 import modelTreeGui   # ModelTreeGui, Ne1Model_api
 
 from chunk import molecule
@@ -378,8 +378,6 @@ class modelTree(modelTreeGui.Ne1Model_api):
         # so it's easy for it to depend on current state.
         # I really doubt this will be too slow. [bruce 050113]
 
-        from platform import fix_plurals
-        
         if not nodeset:
             #e later we'll add useful menu commands for no nodes,
             # i.e. for a "context menu of the background".
@@ -814,7 +812,6 @@ class modelTree(modelTreeGui.Ne1Model_api):
             # even so, I'd feel better if it unpicked them before moving them...
             # but I guess it doesn't. for now, just see if it works this way... seems to work.
             # ... later [050316], it evidently does unpick them, or maybe delmember does.
-        from platform import fix_plurals
         msg = fix_plurals("grouped %d item(s) into " % len(new.members)) + "%s" % new.name
         env.history.message( msg)
 
@@ -836,7 +833,6 @@ class modelTree(modelTreeGui.Ne1Model_api):
         return
     
     def cm_ungroup(self):
-        from platform import fix_plurals
         nodeset = self.modelTreeGui.topmost_selected_nodes()
         assert len(nodeset) == 1 # caller guarantees this
         node = nodeset[0]

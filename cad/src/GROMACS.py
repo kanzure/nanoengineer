@@ -80,7 +80,7 @@ class GROMACS:
         # Create a unique directory under the Nanorex/SimFiles directory for our
         # files: Nanorex/SimFiles/GMX-<timestamp>
         #
-        from platform import find_or_make_Nanorex_subdir
+        from PlatformDependent import find_or_make_Nanorex_subdir
         simFilesPath = find_or_make_Nanorex_subdir('SimFiles')
         timestamp = datetime.today()
         self.tempFilePath = \

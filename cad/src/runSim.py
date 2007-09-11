@@ -31,7 +31,9 @@ from debug import print_compact_traceback
 from DebugMenuMixin import sim_params_set, sim_param_values
 from qt4transition import qt4todo
 import platform
-from platform import fix_plurals
+from PlatformDependent import fix_plurals
+from PlatformDependent import find_or_make_Nanorex_subdir
+from PlatformDependent import hhmmss_str
 import os, sys, time
 from math import sqrt
 from SimSetup import SimSetup
@@ -247,7 +249,6 @@ class SimRunner:
         #  at once, with all or all but one in the "background" [bruce 050401]]
         
         # simFilesPath = "~/Nanorex/SimFiles". Mark 051028.
-        from platform import find_or_make_Nanorex_subdir
         simFilesPath = find_or_make_Nanorex_subdir('SimFiles')
         
         # Create temporary part-specific filename.  Example: "partname-minimize-pid1000"
@@ -1247,7 +1248,6 @@ class SimRunner:
                 # [optim by bruce 060530 -- at most once per second when not updating 3d view, or 5x/sec when updating it often]
                 self.need_process_events = True
                 self.__last_progress_update_time = now
-                from platform import hhmmss_str
                 msg = None
                 # wware 060309, bug 1343, 060628, bug 1898
                 tp = self.tracefileProcessor
@@ -1826,7 +1826,6 @@ class simSetup_CommandRun(CommandRun):
             if duration >= 10.0: 
                 spf = "%.2f" % (duration / movie.totalFramesRequested)
                     ###e bug in this if too few frames were written; should read and use totalFramesActual
-                from platform import hhmmss_str
                 estr = hhmmss_str(duration)
                 msg = "Total time to create movie file: " + estr + ", Seconds/frame = " + spf
                 env.history.message(self.cmdname + ": " + msg) 

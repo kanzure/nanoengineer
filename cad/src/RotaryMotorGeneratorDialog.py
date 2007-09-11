@@ -24,7 +24,6 @@ from PyQt4.Qt import QColorDialog
 from PyQt4.Qt import SIGNAL
 
 from GeneratorBaseClass import GeneratorBaseClass
-from Utility import geticon, getpixmap
 from PropMgrBaseClass import PropMgrBaseClass
 from PropMgrBaseClass import PropMgrGroupBox
 from PropMgrBaseClass import PropMgrDoubleSpinBox

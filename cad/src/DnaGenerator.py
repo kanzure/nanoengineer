@@ -35,7 +35,6 @@ from chunk          import molecule
 from constants      import gensym    
 from files_mmp      import _readmmp
 from fusechunksMode import fusechunksBase
-from platform       import find_plugin_dir
 
 from Dna_Constants  import basesDict, getReverseSequence
 from Dna            import A_Dna_PAM5, B_Dna_PAM5, Z_Dna_PAM5
@@ -134,22 +133,24 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
         theSequence, isValid  =  self._getSequence()
         
         return isValid
-    
-    def correctParameters( self, inParams):
-        """
-        Alert the user that the entered sequence is invalid. Give them
-        some options for how to correct the sequence.
-        """
-        #theDialog  =  Ui_InvalidSequenceDialog()
-        
-        #optionsButtonGroup  =  theDialog.findChild( 'buttonbox_options' )
-        #result  =  theDialog.exec()
-        #choice  =  optionsButtonGroup.checkedid()
-        
-        if result == QDialog.Accepted:
-            print 'choice: ', choice
 
-        return inParams
+    # This is never called, which is good, because neither result, nor
+    # choice is defined anywhere
+    #def correctParameters( self, inParams):
+    #    """
+    #    Alert the user that the entered sequence is invalid. Give them
+    #    some options for how to correct the sequence.
+    #    """
+    #    #theDialog  =  Ui_InvalidSequenceDialog()
+    #    
+    #    #optionsButtonGroup  =  theDialog.findChild( 'buttonbox_options' )
+    #    #result  =  theDialog.exec()
+    #    #choice  =  optionsButtonGroup.checkedid()
+    #    
+    #    if result == QDialog.Accepted:
+    #        print 'choice: ', choice
+    #
+    #    return inParams
     
     def build_struct(self, name, params, position):
         """

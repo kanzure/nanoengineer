@@ -55,7 +55,7 @@ from debug_prefs import debug_pref, Choice, Choice_boolean_False, Choice_boolean
 from modes import basicMode
 from debug import print_compact_traceback, print_compact_stack
 from bonds import bond_at_singlets
-from Utility import geticon
+from icon_utilities import geticon
 from HistoryWidget import redmsg
 
 from VQT import check_floats_near, check_posns_near, check_quats_near
@@ -1519,14 +1519,15 @@ class extrudeMode(basicMode):
         print "  %r" % res
         return
 
-    def print_overrides_win(self): #bruce 050109
-        # this debug method belongs in MWsemantics.py but that doesn't really matter,
-        # and the menu item for it could be anywhere, so for now i'll just put it here.
-        print "overrides in main window... (this will include tons of slot methods, sorry)"
-        # could exclude them by reporting overrides of Qt superclass of that which are not overridden in that ###doit 
-        import debug
-        from MainWindowUI import MainWindow
-        print "  %r" % debug.overridden_attrs(MainWindow, self.w)
+# this is never called, which is good, because MainWindowUI does not define MainWindow
+#     def print_overrides_win(self): #bruce 050109
+#         # this debug method belongs in MWsemantics.py but that doesn't really matter,
+#         # and the menu item for it could be anywhere, so for now i'll just put it here.
+#         print "overrides in main window... (this will include tons of slot methods, sorry)"
+#         # could exclude them by reporting overrides of Qt superclass of that which are not overridden in that ###doit 
+#         import debug
+#         from MainWindowUI import MainWindow
+#         print "  %r" % debug.overridden_attrs(MainWindow, self.w)
 
     def print_overrides_mt(self): #bruce 050109
         # this debug method probably belongs in modelTree.py or maybe MWsemantics.py,

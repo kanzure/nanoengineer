@@ -51,7 +51,7 @@ class ops_connected_Mixin:
                     # Just in case a selection filter was applied to this atom.
                     natoms += 1 
         
-        from platform import fix_plurals
+        from PlatformDependent import fix_plurals
         info = fix_plurals( "%d connected atom(s) selected." % natoms)
         env.history.message( cmd + info)
         self.o.gl_update()
@@ -82,7 +82,7 @@ class ops_connected_Mixin:
                     # Just in case a selection filter was applied to this atom.
                     natoms += 1 
         
-        from platform import fix_plurals
+        from PlatformDependent import fix_plurals
         info = fix_plurals( "%d atom(s) unselected." % natoms)
         env.history.message( cmd + info)
         self.o.gl_update()
@@ -125,7 +125,7 @@ class ops_connected_Mixin:
             natoms += 1
             atom.kill()
         
-        from platform import fix_plurals
+        from PlatformDependent import fix_plurals
         info = fix_plurals( "%d connected atom(s) deleted." % natoms)
             #bruce 060331 comment: this message is sometimes wrong, since caller has deleted some atoms on click 1 of
             # a double click, and then calls us on click 2 to delete the atoms connected to the neighbors of those.
@@ -156,7 +156,7 @@ class ops_connected_Mixin:
         select_doubly(self.selatoms.values()) #e optim
         totalSelected = len(self.selatoms.values())
         
-        from platform import fix_plurals
+        from PlatformDependent import fix_plurals
         info = fix_plurals("%d new atom(s) selected (besides the %d initially selected)." % \
                                (totalSelected - alreadySelected, alreadySelected) )
         env.history.message( cmd + info)

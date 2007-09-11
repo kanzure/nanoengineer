@@ -9,7 +9,7 @@ from PyQt4 import QtCore, QtGui
 from PyQt4.Qt import Qt, SIGNAL, QMainWindow, QDockWidget
 
 from Ui_ViewOrientation import Ui_ViewOrientation
-from Utility import geticon
+from icon_utilities import geticon
 
 class ViewOrientationWindow(QDockWidget, Ui_ViewOrientation):
     

@@ -25,6 +25,7 @@ from HistoryWidget import redmsg, orangemsg, greenmsg
 from VQT import A #k needed??
 from chem import move_alist_and_snuggle
 import platform
+from PlatformDependent import fix_plurals
 from debug import print_compact_stack, print_compact_traceback
 from moviefile import MovieFile #e might be renamed, creation API revised, etc
 ## can't do this here (recursive import), so done at runtime:
@@ -663,7 +664,7 @@ class Movie:
         self.alist_and_moviefile.play_frame(self.currentFrame) 
         
         # Summary msgs tell user number of files saved and where they are located.
-        msg = platform.fix_plurals("%d file(s) written." % nfiles)
+        msg = fix_plurals("%d file(s) written." % nfiles)
         env.history.message(msg)
         filenames = "%s.%06d.pov - %06d.pov" % (name, self.currentFrame, self.framecounter)#ninad060809 fixed bugs 2147 and 2148 
         msg = "Files are named %s." % filenames

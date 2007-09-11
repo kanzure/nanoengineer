@@ -25,7 +25,7 @@ import Ui_SimulationToolBar
 import Ui_BuildToolsToolBar
 import Ui_BuildStructuresToolBar
 
-from Utility import geticon
+from icon_utilities import geticon
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):

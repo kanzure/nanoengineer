@@ -13,7 +13,7 @@ from PyQt4.Qt import qApp, QMessageBox, QDialog, SIGNAL
 from ProgressBarDialog import Ui_ProgressBarDialog
     #bruce 050415 removed "import *" from both of those
 
-from platform import hhmmss_str #bruce 060106 moved that function there
+from PlatformDependent import hhmmss_str #bruce 060106 moved that function there
 import env #bruce 060103
 from qt4transition import qt4todo
 

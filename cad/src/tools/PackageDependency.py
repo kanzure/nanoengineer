@@ -56,6 +56,12 @@ externalModules = []
    not in the set of arguments.
 """
 
+# these four are set in initializeGlobals()
+allProcessedModules = None
+referencedModules = None
+fromModuleCount = None
+toModuleCount = None
+
 def fileNameToModuleName(fileName):
     if (fileName.startswith("./")):
         fileName = fileName[2:]

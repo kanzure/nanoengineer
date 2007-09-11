@@ -31,7 +31,7 @@ from HistoryWidget import redmsg
 from files_gms import writegms_inpfile, writegms_batfile
 import preferences
 import env
-from Utility import geticon
+from icon_utilities import geticon
 
 from prefs_constants import gmspath_prefs_key
 from prefs_constants import gamess_enabled_prefs_key
@@ -102,7 +102,7 @@ class GamessJob(SimJob):
         
         # Open INP file in editor if user checked checkbox in GAMESS jig properties UI.
 #        if self.edit_cntl.edit_input_file_cbox.isChecked():
-#            from platform import open_file_in_editor
+#            from PlatformDependent import open_file_in_editor
 #            open_file_in_editor(self.job_inputfile)
 
         self.starttime = time.time() # Save the start time for this job.
@@ -194,7 +194,7 @@ class GamessJob(SimJob):
                 
             msgLabel = self.progressDialog.getMsgLabel()
             duration = time.time() - self.stime
-            from platform import hhmmss_str
+            from PlatformDependent import hhmmss_str
             elapmsg = "Elapsed Time: " + hhmmss_str(int(duration))
             msgLabel.setText(elapmsg)
             
@@ -465,7 +465,7 @@ class JobProgressDialog(QDialog):
                     break
                 
                 duration = time.time() - stime
-                from platform import hhmmss_str
+                from PlatformDependent import hhmmss_str
                 elapmsg = "Elapsed Time: " + hhmmss_str(int(duration))
                 self.msgLabel2.setText(elapmsg) 
         

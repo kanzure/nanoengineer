@@ -14,7 +14,7 @@ bruce 050913 used env.history in some places.
 """
 
 from HistoryWidget import greenmsg, redmsg
-from platform import fix_plurals
+from PlatformDependent import fix_plurals
 from VQT import V, norm, Q, vlen, orthodist
 import env
 from math import pi

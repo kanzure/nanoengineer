@@ -28,7 +28,7 @@ from HistoryWidget import orangemsg
 from icon_utilities import geticon
 
 from chem import Atom
-from chem import Singlet
+from elements import Singlet
 
 from PasteMode              import PasteMode
 from PartLibPropertyManager import PartLibPropertyManager

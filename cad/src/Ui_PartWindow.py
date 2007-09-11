@@ -14,10 +14,11 @@ from PyQt4.Qt import Qt, QWidget, QHBoxLayout, QVBoxLayout, QSplitter
 from PyQt4.Qt import QTabWidget, QScrollArea, QSizePolicy
 from GLPane import GLPane
 from PropMgr_Constants import pmDefaultWidth, pmMaxWidth, pmMinWidth
-from Utility import geticon
+from icon_utilities import geticon
 from modelTree import modelTree
 from qt4transition import qt4warnDestruction, qt4todo
 import platform, env
+from PlatformDependent import make_history_filename
 from PropMgrBaseClass import printSizePolicy, printSizeHints, getPalette
 from debug import print_compact_traceback #bruce 070627 bugfix
 
@@ -158,9 +159,9 @@ class PartWindow(QWidget):
 			
 	from HistoryWidget import HistoryWidget
 	
-        histfile = platform.make_history_filename() #@@@ ninad 061213 This is likely a new bug for multipane concept 
+        histfile = make_history_filename() #@@@ ninad 061213 This is likely a new bug for multipane concept 
 	#as each file in a session will have its own history widget
-	qt4todo('histfile = platform.make_history_filename()')
+	qt4todo('histfile = make_history_filename()')
 	
         #bruce 050913 renamed self.history to self.history_object, and deprecated direct access
         # to self.history; code should use env.history to emit messages, self.history_widget

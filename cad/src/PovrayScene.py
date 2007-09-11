@@ -21,12 +21,13 @@ from PyQt4.Qt import QSize
 from PyQt4.Qt import QApplication
 
 import env
-from Utility import SimpleCopyMixin, Node, imagename_to_pixmap
+from Utility import SimpleCopyMixin, Node
+from icon_utilities import imagename_to_pixmap
 from povray import decode_povray_prefs, write_povray_ini_file, launch_povray_or_megapov
 from fileIO import writepovfile
 from HistoryWidget import redmsg, orangemsg, greenmsg, _graymsg
 import platform
-from platform import find_or_make_any_directory, find_or_make_Nanorex_subdir
+from PlatformDependent import find_or_make_Nanorex_subdir
 from debug import print_compact_traceback
 
 POVNum = 0
@@ -206,7 +207,6 @@ class PovrayScene(SimpleCopyMixin, Node):
     
         if tmpfile:
             pov_filename = "raytracescene.pov"
-            from platform import find_or_make_Nanorex_subdir
             dir = find_or_make_Nanorex_subdir("POV-Ray")
             if not dir:
                 return None, None, None

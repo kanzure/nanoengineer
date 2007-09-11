@@ -22,8 +22,7 @@ from PyQt4.Qt import QColorDialog
 
 from PropertyManagerMixin import PropertyManagerMixin
 from CookiePropertyManager import CookiePropertyManager
-from Utility import geticon
-from Utility import imagename_to_pixmap
+from icon_utilities import geticon
 from constants import dispLabel
 
 

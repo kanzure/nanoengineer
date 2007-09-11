@@ -239,8 +239,8 @@ def canon_image_filename( filename):
     cad = os.path.dirname( cad_src)
 
     # image file path extensively revised 070604, mainly so testmode can work in a built release package
-    from Utility import image_directory
-    from platform import path_of_Nanorex_subdir
+    from icon_utilities import image_directory
+    from PlatformDependent import path_of_Nanorex_subdir
 
     # main exprs-package image directory
     cad_src_ui_exprs = os.path.join( image_directory(), "ui/exprs") # not necessarily really in cad/src (in a built release)

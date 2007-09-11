@@ -175,7 +175,6 @@ from prefs_constants import material_specular_brightness_prefs_key
 
 import debug #bruce 051212, for debug.print_compact_traceback
 
-import platform
 import EndUser
 
 # ColorSorter control
@@ -1550,12 +1549,12 @@ def setup(): #bruce 060613 added docstring, cleaned up display list name allocat
         #bruce 060323 removed non_debug = True for A7 release, changed default value to False (far above),
         # and changed its prefs_key so developers start with the new default value.
 
-    # 20060313 grantham Added use_c_renderer_pref debug pref, can
+    # 20060313 grantham Added use_c_renderer debug pref, can
     # take out when C renderer used by default.
-    global use_c_renderer_pref
+    global use_c_renderer
     if quux_module_import_succeeded:
         initial_choice = choices[use_c_renderer_default]
-        use_c_renderer_pref = debug_pref("Use native C renderer?",
+        use_c_renderer = debug_pref("Use native C renderer?",
             initial_choice, prefs_key = use_c_renderer_prefs_key)
             #bruce 060323 removed non_debug = True for A7 release,
             # and changed its prefs_key so developers start over with the default value.

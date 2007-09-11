@@ -726,7 +726,7 @@ class ESPImage(RectGadget):
         results_to_save = [] # Results info included in write_nh_mpqc_esp_rec()
         
         # Temporary file name of ESP image file.
-        from platform import find_or_make_Nanorex_subdir
+        from PlatformDependent import find_or_make_Nanorex_subdir
         nhdir = find_or_make_Nanorex_subdir("Nano-Hive")
         tmp_espimage_file = os.path.join(nhdir, "%s.png" % (self.name))
         

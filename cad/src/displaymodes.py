@@ -37,7 +37,7 @@ class DisplayMode:
         self._icon_name = getattr(self, "icon_name", "junk.png")
         self._hide_icon_name = getattr(self, "hide_icon_name", self._icon_name)
     def get_icon(self, hidden):
-        from Utility import imagename_to_pixmap # I don't want to risk importing Utility at toplevel, just yet
+        from icon_utilities import imagename_to_pixmap
         if hidden:
             return imagename_to_pixmap( self._hide_icon_name)
         else:

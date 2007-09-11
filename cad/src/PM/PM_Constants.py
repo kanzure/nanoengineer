@@ -14,7 +14,7 @@ mark 2007-07-22: Created initially for PM_Dialog as part of the code cleanup
 
 """
 
-import os, sys
+import sys
 
 from PyQt4.Qt import Qt
 

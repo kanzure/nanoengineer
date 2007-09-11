@@ -20,7 +20,7 @@ import env
 from HistoryWidget import redmsg, greenmsg, orangemsg
 from debug import print_compact_traceback #bruce 051129
 import platform #bruce 051129
-from platform import fix_plurals #bruce 051129
+from PlatformDependent import fix_plurals #bruce 051129
 from GlobalPreferences import permit_atom_chunk_coselection
 
 # Object flags, used by objectSelected() and its callers. 

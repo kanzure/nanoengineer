@@ -29,7 +29,7 @@ def env_imagename_to_QIcon(imagename, _cache = {}): ### to be replaced with env.
         pass
     
     ## pixmap_fname = imagename # stub
-    from Utility import imagename_to_pixmap
+    from icon_utilities import imagename_to_pixmap
     pixmap = imagename_to_pixmap(imagename)
     pixmap_fname = pixmap # will this arg work too?
     

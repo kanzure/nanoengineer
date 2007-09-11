@@ -21,7 +21,7 @@ from HistoryWidget import greenmsg, redmsg, orangemsg, _graymsg, quote_html
 from MinimizeEnergyPropDialog import Ui_MinimizeEnergyPropDialog
 from GroupButtonMixin import GroupButtonMixin
 from Sponsors import SponsorableMixin
-from Utility import geticon
+from icon_utilities import geticon
 
 from prefs_constants import Minimize_watchRealtimeMinimization_prefs_key
 from prefs_constants import Minimize_endRMS_prefs_key as endRMS_prefs_key

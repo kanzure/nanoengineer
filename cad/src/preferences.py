@@ -47,6 +47,8 @@ __author__ = "Bruce"
 import os, time
 import platform
 
+from PlatformDependent import mkdirs_in_filename
+from PlatformDependent import find_or_make_Nanorex_directory
 from changes import UsageTracker #bruce 050804 ###k recursive import issues??
 
 from prefs_constants import prefs_table #bruce 050805
@@ -201,7 +203,7 @@ def _make_prefs_shelf():
     and close the shelf again in case a concurrent process is sharing the same shelf with us.
     """
     global _shelfname, _shelf, _cache, _defaults, _trackers
-    nanorex = platform.find_or_make_Nanorex_directory()
+    nanorex = find_or_make_Nanorex_directory()
     global dbname
     _shelfname = os.path.join( nanorex, "Preferences", "%s-shelf" % dbname )
         # This name should differ when db format differs.
@@ -210,7 +212,7 @@ def _make_prefs_shelf():
         # with different extentions from the given basename).
         # By experiment, on the Mac, with bsddb there is no extension added,
         # and without it there is '.db' added. [bruce 050105]
-    platform.mkdirs_in_filename(_shelfname)
+    mkdirs_in_filename(_shelfname)
     _shelf = shelve.open(_shelfname)
     _cache = {}
     _cache.update(_shelf) # will this work?
@@ -550,7 +552,6 @@ def declare_pref( attrname, typecode, prefskey, dflt = None ): # arg format is s
     return
 
 def init_prefs_table( prefs_table): # sets env.prefs
-    import platform
     from debug import print_compact_traceback
 
     for prefrec in prefs_table:

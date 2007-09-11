@@ -39,6 +39,8 @@ import env
 import preferences
 import platform
 
+from PlatformDependent import find_or_make_Nanorex_subdir
+
 from assembly import assembly
 from files_pdb import readpdb, insertpdb, writepdb
 from files_gms import readgms, insertgms
@@ -207,7 +209,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
 
             else: # All other filetypes, which will be translated to MMP and inserted into the part.
                 dir, fil, ext = fileparse(import_filename)
-                tmpdir = platform.find_or_make_Nanorex_subdir('temp')
+                tmpdir = find_or_make_Nanorex_subdir('temp')
                 mmpfile = os.path.join(tmpdir, fil + ".mmp")
                 result = self.launch_ne1_openbabel(in_format=ext[1:], infile=import_filename, 
                                                    out_format="mmp", outfile=mmpfile)
@@ -369,7 +371,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 linenum()
                 print 'dir, fil, ext :', repr(dir), repr(fil), repr(ext)
             
-            tmpdir = platform.find_or_make_Nanorex_subdir('temp')
+            tmpdir = find_or_make_Nanorex_subdir('temp')
             tmp_mmp_filename = os.path.join(tmpdir, fil + ".mmp")
             
             if platform.atom_debug:

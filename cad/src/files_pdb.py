@@ -22,7 +22,7 @@ from chem import atom
 from bonds import bond_atoms, inferBonds
 from string import capitalize
 from elements import PeriodicTable, Singlet
-from platform import fix_plurals
+from PlatformDependent import fix_plurals
 from HistoryWidget import redmsg, orangemsg
 from VQT import A, vlen
 import env

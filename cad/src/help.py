@@ -17,7 +17,7 @@ from PyQt4.Qt import QWidget
 from PyQt4.Qt import SIGNAL
 
 from HelpDialog import Ui_HelpDialog
-from Utility import geticon
+from icon_utilities import geticon
 
 class Help(QWidget, Ui_HelpDialog):
     '''The Help dialog used for mouse controls and keyboard shortcuts

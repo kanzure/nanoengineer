@@ -44,7 +44,7 @@ from Dna_Constants import replaceUnrecognized
 
 from HistoryWidget import redmsg, greenmsg, orangemsg
 
-from Utility import geticon, getpixmap
+from icon_utilities import geticon, getpixmap
 
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QRegExp

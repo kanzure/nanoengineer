@@ -17,9 +17,9 @@ from qt4transition import qt4todo
 
 class ServerManager(QDialog, Ui_ServerManagerDialog):
     serverFile = 'serverList'
-    import platform
+    from PlatformDependent import find_or_make_Nanorex_directory
     
-    tmpFilePath = platform.find_or_make_Nanorex_directory()
+    tmpFilePath = find_or_make_Nanorex_directory()
     serverFile = os.path.join(tmpFilePath, "JobManager", serverFile)
     
     def __init__(self):

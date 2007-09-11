@@ -8,9 +8,8 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-import sys
 from PyQt4 import QtCore, QtGui
-from Utility import geticon
+from icon_utilities import geticon
 
 class Ui_ESPImagePropDialog(object):
     def setupUi(self, ESPImagePropDialog):

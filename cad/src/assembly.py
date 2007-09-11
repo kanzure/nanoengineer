@@ -74,6 +74,7 @@ from prefs_constants import workingDirectory_prefs_key
 
 from HistoryWidget import greenmsg, redmsg, orangemsg
 import platform
+from PlatformDependent import find_or_make_any_directory
 import env
 from state_utils import StateMixin
 from debug import print_compact_stack
@@ -1173,7 +1174,7 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
         if self.filename:
             # The current file has been saved, so it is OK to make the Part Files directory.
             path_wo_ext, ext = os.path.splitext(self.filename)
-            return platform.find_or_make_any_directory(path_wo_ext + " Files", make = make)
+            return find_or_make_any_directory(path_wo_ext + " Files", make = make)
         else:
             if make:
                 # Cannot make the Part Files directory until the current file is saved. Return error.
@@ -1194,7 +1195,7 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
             return errorcode, dir_or_errortext
         
         povfiles_dir  = os.path.join(dir_or_errortext, "POV-Ray Scene Files")
-        return platform.find_or_make_any_directory(povfiles_dir, make = make)
+        return find_or_make_any_directory(povfiles_dir, make = make)
     
     pass # end of class assembly
 

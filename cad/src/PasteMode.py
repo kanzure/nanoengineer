@@ -21,10 +21,9 @@ from PyQt4.Qt import Qt
 import env
 import changes
 
-from Utility       import geticon
 from HistoryWidget import orangemsg
 from chem          import Atom
-from chem          import Singlet
+from elements      import Singlet
 from Utility       import is_pastable
 from depositMode   import depositMode
 

@@ -7,7 +7,7 @@ import sys
 
 from PyQt4 import QtCore, QtGui
 from PyQt4.Qt import Qt
-from Utility import geticon
+from icon_utilities import geticon
 from debug import print_compact_traceback
 
 def setupUi(win):

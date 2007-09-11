@@ -39,7 +39,7 @@ from Numeric import dot
 
 from debug import print_compact_traceback
 
-from platform           import find_plugin_dir
+from PlatformDependent  import find_plugin_dir
 from files_mmp          import _readmmp
 from VQT                import V
 from chem               import Atom

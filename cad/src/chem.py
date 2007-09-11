@@ -117,6 +117,7 @@ from debug import print_compact_stack, print_compact_traceback, compact_stack
 import platform # for atom_debug; note that uses of atom_debug should all grab it
   # from platform.atom_debug since it can be changed at runtime
 
+from PlatformDependent import fix_plurals
 import env
 from state_utils import StateMixin #bruce 060223
 from undo_archive import register_undo_updater
@@ -1681,7 +1682,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             
         if len(self.bonds) != self.atomtype.numbonds:
             # I hope this can't be called for singlets! [bruce 041217]
-            ainfo += platform.fix_plurals(" (has %d bond(s), should have %d)" % \
+            ainfo += fix_plurals(" (has %d bond(s), should have %d)" % \
                                           (len(self.bonds), self.atomtype.numbonds))
         elif self.bad_valence(): #bruce 050806
             msg = self.bad_valence_explanation()

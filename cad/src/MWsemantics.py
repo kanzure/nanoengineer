@@ -48,7 +48,10 @@ import os, sys
 from math import ceil
 from modelTree import modelTree 
 import platform
-from Utility import geticon
+from icon_utilities import geticon
+
+from PlatformDependent import find_or_make_Nanorex_directory
+from PlatformDependent import make_history_filename
 
 from PropMgr_Constants import pmDefaultWidth, pmMaxWidth, pmMinWidth
 from elementColors import elementColors 
@@ -409,7 +412,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 
         # bruce 050104 moved this here so it can be used earlier
         # (it might need to be moved into main.py at some point)
-        self.tmpFilePath = platform.find_or_make_Nanorex_directory()
+        self.tmpFilePath = find_or_make_Nanorex_directory()
               
                
         # Load additional icons to QAction iconsets.
@@ -499,7 +502,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 	if not debug_pref("Multipane GUI", Choice_boolean_False):
 	    # Create the history area at the bottom
 	    from HistoryWidget import HistoryWidget
-	    histfile = platform.make_history_filename()
+	    histfile = make_history_filename()
 	    #bruce 050913 renamed self.history to self.history_object, and deprecated direct access
 	    # to self.history; code should use env.history to emit messages, self.history_widget
 	    # to see the history widget, or self.history_object to see its owning object per se
@@ -2013,7 +2016,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 ##
 ##    def updateSkipSuffix(self, val): # mark 060927 wrote this & bruce split it into two functions.
 ##        """Update the suffix of the skip spinbox on the Movie Player dashboard"""
-##        from platform import th_st_nd_rd
+##        from PlatformDependent import th_st_nd_rd
 ##        suffix = "%s frame" % th_st_nd_rd(val)
 ##        self.skipSB.setSuffix(suffix)
 

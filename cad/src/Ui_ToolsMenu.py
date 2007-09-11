@@ -10,7 +10,7 @@ import Ui_BuildStructuresMenu
 import Ui_BuildToolsMenu
 import Ui_SelectMenu
 import Ui_DimensionsMenu
-from Utility import geticon
+from icon_utilities import geticon
 
 
 def setupUi(win):

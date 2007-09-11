@@ -31,7 +31,7 @@ from OpenGL.GL import glPopMatrix
 
 from drawer import drawLineLoop, drawPlane
 from constants import black, orange, yellow, darkgreen, brown
-from VQT import V, Q, cross, planeXline, vlen, norm
+from VQT import V, Q, cross, planeXline, vlen, norm, ptonline
 
 from debug import print_compact_traceback
 import env

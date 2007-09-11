@@ -43,7 +43,7 @@ from PyQt4.Qt import SIGNAL
 import env
 import platform
 import changes
-from platform import fix_plurals
+from PlatformDependent import fix_plurals
 
 from chunk      import molecule
 from chem       import Atom
@@ -53,10 +53,11 @@ from VQT        import Q, A, norm, twistor
 
 from drawer     import drawline
 
-from Utility    import geticon
+from icon_utilities import geticon
 from Utility    import Group
 from Utility    import Node
 from Utility    import is_pastable
+from Utility    import is_pastable_onto_singlet
 from Utility    import is_pastable_into_free_space
 from Utility    import find_hotspot_for_pasting
 

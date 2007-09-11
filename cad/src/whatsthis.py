@@ -147,8 +147,8 @@ def createWhatsThis(self):
         
         # Redo
 
-        import platform
-        if platform.is_macintosh():
+	from PlatformDependent import is_macintosh
+        if is_macintosh():
             redo_accel = "(Ctrl + Shift + Z)" # note: this is further modified (Ctrl -> Cmd) by other code
             # changing this is partly redundant with code in undo*.py, but as of 060317 it's desirable in editRedoText too
         else:
@@ -1400,7 +1400,7 @@ def fix_whatsthis_text_and_links(parent, refix_later = (), debug_cutoff = 0): #b
     if 0 and debug_cutoff:
         print "returning immediately (sanity check, bug better be there or you're insane)" ####@@@@@ yes, bug is not fixed yet
         return
-    from platform import is_macintosh
+    from PlatformDependent import is_macintosh
     mac = is_macintosh()
     if mac or enable_whatsthis_links:
         # fix text in 1 or 2 ways for all QAction objects (which are not widgets)
@@ -1511,8 +1511,8 @@ def refix_whatsthis_text_and_links( ): #bruce 060319 part of fixing bug 1421
 ##        return
     import env
     win = env.mainwindow()
-    import platform
-    mac = platform.is_macintosh()
+    from PlatformDependent import is_macintosh
+    mac = is_macintosh()
     fix_QAction_whatsthis(win.editUndoAction, mac)
     fix_QAction_whatsthis(win.editRedoAction, mac)
     if use_debug_refix_cutoff:

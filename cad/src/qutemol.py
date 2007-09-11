@@ -415,7 +415,7 @@ def write_qutemol_files(part):
     art_basename = "art.txt" # ART = Atom Rendering Table
     
     # Make full pathnames for PDB and ART files (in ~/Nanorex/temp/)
-    from platform import find_or_make_Nanorex_subdir
+    from PlatformDependent import find_or_make_Nanorex_subdir
     tmpdir = find_or_make_Nanorex_subdir('temp')
     qutemol_pdb_file = os.path.join(tmpdir, pdb_basename)
     art_file = os.path.join(tmpdir, art_basename)

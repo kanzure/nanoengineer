@@ -18,6 +18,7 @@ import platform
 import debug
 import debug_prefs
 
+from PlatformDependent import save_window_pos_size, load_window_pos_size
 from prefs_constants import mainwindow_geometry_prefs_key_prefix
 from debug import registered_commands_menuspec
 from debug import print_compact_traceback
@@ -174,12 +175,12 @@ class DebugMenuMixin:
     def _debug_save_window_layout(self): # [see also UserPrefs.save_current_win_pos_and_size, new as of 051218]
         win = self._debug_win
         keyprefix = mainwindow_geometry_prefs_key_prefix
-        platform.save_window_pos_size( win, keyprefix)
+        save_window_pos_size( win, keyprefix)
 
     def _debug_load_window_layout(self): # [similar code is in pre_main_show in startup_funcs.py, new as of 051218]
         win = self._debug_win
         keyprefix = mainwindow_geometry_prefs_key_prefix
-        platform.load_window_pos_size( win, keyprefix)
+        load_window_pos_size( win, keyprefix)
 
     def _debug_update_parts(self):
         win = self._debug_win

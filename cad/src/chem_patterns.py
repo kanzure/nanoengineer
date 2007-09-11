@@ -15,8 +15,10 @@ Todo later:
 
 __author__ = "bruce"
 
-import env, platform
+import env
 import debug
+
+from PlatformDependent import fix_plurals
 
 cmdname = "Select Bad Atoms"
 
@@ -102,11 +104,11 @@ def select_bad_atoms_cmd(widget): #bruce 060615 demo of simple "spelling checker
     for a in bad_atoms.itervalues():
         a.pick()
         reallypicked += (not not a.picked) # check for selection filter effect
-    env.history.message(orangecmd + platform.fix_plurals(
+    env.history.message(orangecmd + fix_plurals(
                         "%s %s %d bad atom(s), in %d bad pattern(s)." % \
                         (checked_in_what, contained, len(bad_atoms), len(bad_triples)) ))
     if reallypicked < len(bad_atoms):
-        env.history.message( orangemsg("Warning: ") + platform.fix_plurals(
+        env.history.message( orangemsg("Warning: ") + fix_plurals(
                              "%d bad atom(s) were/was not selected due to the selection filter." % \
                              (len(bad_atoms) - reallypicked) ))
     win.mt.update_select_mode()

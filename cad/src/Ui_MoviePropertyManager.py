@@ -19,7 +19,6 @@ ninad 2007-09-11: Code clean up to use PM module classes
 """
 
 
-import sys
 
 from PyQt4.Qt import Qt
 

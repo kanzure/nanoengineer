@@ -3,7 +3,6 @@
 $Id$
 """
 
-import sys
 from PyQt4 import QtCore, QtGui
 
 class Ui_ChunkPropDialog(object):

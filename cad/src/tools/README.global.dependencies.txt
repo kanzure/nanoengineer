@@ -55,21 +55,14 @@ locations.  The tools involved are:
 First, make sure you are working on the right copy of the source.  Do
 a cvs update and make sure there are no merge conflicts.
 
-Next, define the list of files from which symbol definitions will be
-considered.  This may be a broader list than the files you actually
-wish to process.  In the src directory (.. from src/tools, where this
-file resides):
-
-$ tools/AllPyFiles.sh > allpyfiles
-
 Next, create a list of global symbols defined in those files:
 
-$ tools/FindPythonGlobals.py `cat allpyfiles` > allglobalsymbols
+$ tools/FindPythonGlobals.py `tools/AllPyFiles.sh` > allglobalsymbols
 
 Next, add the externally defined symbols to this list.  Note we are
 writing to allglobalsymbols in append mode, via >>:
 
-$ tools/FindExternalImports.py `cat allpyfiles` | tools/SymbolsInPackage.py >> allglobalsymbols
+$ tools/FindExternalImports.py `tools/AllPyFiles.sh` | tools/SymbolsInPackage.py >> allglobalsymbols
 
 This will send to stderr a list of modules which were imported by
 files in allpyfiles, but which could not be imported by
@@ -105,7 +98,7 @@ and you may get a better error message.
 
 To do the whole set in one batch:
 
-$ for i in `cat allpyfiles`; do pychecker $i; done > pycheckeroutput
+$ for i in `tools/AllPyFiles.sh`; do pychecker $i; done > pycheckerstdout 2> pycheckerstderr
 
 This can take a while.
 
@@ -129,7 +122,7 @@ When pychecker is happy that all global symbols are defined, you can
 check to make sure everything is imported directly from the module it
 is defined in:
 
-$ grep '^[[:space:]]*from.*import' `cat allpyfiles` | tools/ResolveGlobals.py allglobalsymbols --check-import > checkimportoutput
+$ grep '^[[:space:]]*from.*import' `tools/AllPyFiles.sh` | tools/ResolveGlobals.py allglobalsymbols --check-import > checkimportoutput
 
 Examine the output.  Any remaining import *'s will be flagged, as will
 import lines that end in a backslash.  Those should be removed, so
@@ -148,9 +141,4 @@ When everything above has been fixed, the import statements should
 accurately reflect the import dependencies between all modules.  At
 this point, it's time to try graphing that structure.
 
-$ tools/PackageDependency.py `cat allpyfiles` > depend.dot
-
-This spits out three lists of packages to stderr.  Cut and paste the
-lists into the PackageDependency source file at the named locations
-and repeat until nothing is printed.  This process prunes the
-dependency tree so only cycles remain.
+$ tools/PackageDependency.py `tools/AllPyFiles.sh` > depend.dot 2> packageloopcounts

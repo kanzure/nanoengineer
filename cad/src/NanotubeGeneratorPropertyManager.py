@@ -13,8 +13,6 @@ import math
 from PyQt4 import QtCore, QtGui
 from PyQt4.Qt import SIGNAL
 
-from Utility import geticon, getpixmap
-
 from PM.PM_Dialog        import PM_Dialog
 from PM.PM_GroupBox      import PM_GroupBox
 from PM.PM_ComboBox      import PM_ComboBox

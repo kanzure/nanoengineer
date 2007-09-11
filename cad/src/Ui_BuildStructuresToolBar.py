@@ -6,7 +6,6 @@ $Id$
 from PyQt4 import QtCore, QtGui
 from PyQt4.Qt import Qt
 from wiki_help import QToolBar_WikiHelp
-from Utility import geticon
 
 def setupUi(win):
     """Add the QWidgetActions to the 'Build' Command Manager toolbar.

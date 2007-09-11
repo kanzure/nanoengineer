@@ -20,7 +20,7 @@ from PyQt4.Qt import QToolButton
 from PyQt4.Qt import QPushButton
 
 from debug    import print_compact_traceback
-from Utility  import geticon
+from icon_utilities import geticon
 
 from PM.PM_GroupBox import PM_GroupBox
 

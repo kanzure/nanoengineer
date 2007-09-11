@@ -367,7 +367,7 @@ def insert_command_into_menu(menu, menutext, command, options = (), position = -
                 iconset = option[1]
                 if type(iconset) is types.StringType:
                     filename = iconset
-                    from Utility import imagename_to_pixmap
+                    from icon_utilities import imagename_to_pixmap
                     iconset = imagename_to_pixmap(filename)
                 if isinstance(iconset, QPixmap):
                     # (this is true for imagename_to_pixmap retval)

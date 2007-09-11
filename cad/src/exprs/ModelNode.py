@@ -57,7 +57,7 @@ much later: see also non-cvs notes (files & paper) of 070105
 """
 import time
 
-from Utility import SimpleCopyMixin, Node, imagename_to_pixmap
+from Utility import SimpleCopyMixin, Node
 from state_utils import copy_val #e put copy_val in basic?
 from state_constants import S_DATA
 

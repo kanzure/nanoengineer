@@ -53,7 +53,7 @@ History:
         
 __author__ = "Jeff"
 
-from Utility import geticon, getpixmap
+from icon_utilities import geticon, getpixmap
 
 from PyQt4.Qt import Qt, SIGNAL
 
@@ -113,7 +113,7 @@ class AtomGeneratorPropertyManager(PM_Dialog):
         # This causes the "Message" box to be displayed as well.
         self.MessageGroupBox.insertHtmlMessage( msg, setAsDefault = False )
         
-    def getCartesianCoordinates():
+    def getCartesianCoordinates(self):
         """
         Gets the cartesian coordinates for the position of the atom
         specified in the coordinate spin boxes of the Atom Generator

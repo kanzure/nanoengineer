@@ -75,8 +75,7 @@ from PyQt4.Qt import QTextCursor
 
 import platform
 
-from Utility import geticon
-from Utility import geticon, getpixmap
+from icon_utilities import geticon, getpixmap
 from debug import print_compact_traceback
 
 from PropMgr_Constants import pmColor

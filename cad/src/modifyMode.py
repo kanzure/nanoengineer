@@ -34,7 +34,7 @@ from chem import Atom
 from bonds import Bond
 from jigs import Jig
 from modes import basicMode
-from Utility import geticon
+from icon_utilities import geticon
 
 from debug import print_compact_traceback
 

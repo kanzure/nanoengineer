@@ -96,7 +96,7 @@ from state_constants import S_REF, S_CHILDREN_NOT_DATA
 
 import platform
 
-from Utility import imagename_to_pixmap
+from icon_utilities import imagename_to_pixmap
 
 # bonds, chem, and chunk form an import cycle
 import bonds

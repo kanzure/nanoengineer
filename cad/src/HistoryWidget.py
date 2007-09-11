@@ -28,7 +28,8 @@ from PyQt4 import QtCore, QtGui
 from PyQt4.Qt import Qt
 from PyQt4.Qt import QTextEdit, QTextOption
 
-import platform # for atom_debug, and more
+import platform
+from PlatformDependent import mkdirs_in_filename
 from DebugMenuMixin import DebugMenuMixin
 from qt4transition import qt4todo
 import env #bruce 050810
@@ -257,7 +258,7 @@ class HistoryWidget:
             # user wants history saved; save it or print it.
             try:
                 if mkdirs: # this is optional, for safety
-                    platform.mkdirs_in_filename(filename)
+                    mkdirs_in_filename(filename)
                 ff = open(filename, "a")
             except:
                 print "bug warning: couldn't make history file %r; printing to sys.__stderr__ instead" % filename

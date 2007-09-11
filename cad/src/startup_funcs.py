@@ -154,8 +154,8 @@ def pre_main_show( win):
     #  screen size even on a very small screen.]
     # [bruce 050118 further modified this and removed some older comments
     #  (see cvs for those); also split out some code into platform.py.]
-    import platform as _platform
-    ((x0, y0), (screen_w, screen_h)) = _platform.screen_pos_size()
+    from PlatformDependent import screen_pos_size
+    ((x0, y0), (screen_w, screen_h)) = screen_pos_size()
     # note: y0 is nonzero on mac, due to menubar at top of screen.
     
     # use 85% of screen width and 90% of screen height, or more if that would be
@@ -191,7 +191,7 @@ def pre_main_show( win):
     from debug import print_compact_stack
     try:
         # this code is similar to debug.py's _debug_load_window_layout
-        from platform import load_window_pos_size
+        from PlatformDependent import load_window_pos_size
         from prefs_constants import mainwindow_geometry_prefs_key_prefix
         keyprefix = mainwindow_geometry_prefs_key_prefix
         load_window_pos_size( win, keyprefix)

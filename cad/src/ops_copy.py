@@ -16,7 +16,7 @@ import env
 
 from debug         import print_compact_stack
 from HistoryWidget import greenmsg, redmsg, orangemsg
-from platform      import fix_plurals
+from PlatformDependent import fix_plurals
 from Utility       import Group
 from chunk         import molecule
 from bonds         import bond_copied_atoms

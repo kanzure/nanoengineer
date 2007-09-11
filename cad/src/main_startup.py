@@ -15,7 +15,7 @@ and split out of main.py into this file (main_startup.py)
 by bruce 070704.
 """
 
-import sys, os, time
+import sys, time
 import startup_funcs # this has no side effects, it only defines a few functions
 
 # NOTE: all other imports MUST be added inside the following function,
@@ -48,8 +48,10 @@ def startup_script( main_globals):
     # If the splash image is found in cad/images, put up a splashscreen. 
     # If you don't want the splashscreen, just rename the splash image.
     # mark 060131.
-    from Utility import imagename_to_pixmap
-    splash_pixmap = imagename_to_pixmap( "images/splash.png" ) # rename it if you don't want it.
+    import icon_utilities
+    icon_utilities.initialize()
+
+    splash_pixmap = icon_utilities.imagename_to_pixmap( "images/splash.png" ) # rename it if you don't want it.
     if not splash_pixmap.isNull():
         splash = QSplashScreen(splash_pixmap) # create the splashscreen
         splash.show()

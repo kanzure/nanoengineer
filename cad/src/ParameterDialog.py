@@ -57,6 +57,8 @@ from qt4transition import qt4todo
 
 import env # for env.debug(); warning: some methods have a local variable which overrides this
 
+from icon_utilities import imagename_to_pixmap
+
 
 # image uses -- we should rename them ####@@@@
 ##self.heading_pixmap.setPixmap(self.image1) # should be: title_icon ####
@@ -106,13 +108,13 @@ class parameter_dialog_or_frame:
             title_icon_name = self.desc.options.get('title_icon')
             border_icon_name = self.desc.options.get('border_icon')
             if title_icon_name:
-                self.image1 = env.imagename_to_pixmap(title_icon_name) ###@@@ pass icon_path
+                self.image1 = imagename_to_pixmap(title_icon_name) ###@@@ pass icon_path
                     ###@@@ import imagename_to_pixmap or use env function
                     # or let that func itself be an arg, or have an env arg for it
                     ###e rename it icon_name_to_pixmap, or find_icon? (the latter only if it's ok if it returns an iconset)
                     ###e use iconset instead?
             if border_icon_name:
-                self.image0 = env.imagename_to_pixmap(border_icon_name)
+                self.image0 = imagename_to_pixmap(border_icon_name)
         except:
             print_compact_traceback("bug in icon-setting code, using fallback icons: ")
             pass

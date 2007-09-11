@@ -37,8 +37,8 @@ from PyQt4.Qt import QPushButton
 from PyQt4.Qt import QTextEdit
 
 import platform
-from Utility import geticon
-from Utility import geticon, getpixmap
+
+from icon_utilities import geticon, getpixmap
 from Sponsors import SponsorableMixin
 from qt4transition import lineage
 from debug import print_compact_traceback

@@ -16,6 +16,7 @@ __author__ = 'bruce'
 from debug import register_debug_menu_command_maker, print_compact_traceback, print_compact_stack
 import platform
 
+from PlatformDependent import is_macintosh
 from undo_archive import AssyUndoArchive #060117 revised
 import undo_archive # for debug_undo2
 from constants import noop
@@ -71,7 +72,7 @@ class AssyUndoManager(UndoManager):
             # we do it here (not in caller) since its name and value are private to our API for model objects to report changes
 ##        self.archive.subscribe_to_checkpoints( self.remake_UI_menuitems )
 ##        self.remake_UI_menuitems() # so it runs for initial checkpoint and disables menu items, etc
-        if platform.is_macintosh(): 
+        if is_macintosh(): 
             win = assy.w
             from PyQt4.Qt import Qt
             win.editRedoAction.setShortcut(Qt.CTRL+Qt.SHIFT+Qt.Key_Z) # set up incorrectly (for Mac) as "Ctrl+Y"

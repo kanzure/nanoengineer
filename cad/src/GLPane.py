@@ -122,9 +122,11 @@ from panMode import panMode
 from rotateMode import rotateMode
 from modes import modeMixin
 
-from HistoryWidget import greenmsg, redmsg
-from platform import fix_event_helper
 import platform
+
+from HistoryWidget import greenmsg, redmsg
+from PlatformDependent import fix_event_helper
+from PlatformDependent import wrap_key_event
 from widgets import makemenu_helper
 from DebugMenuMixin import DebugMenuMixin
 from debug import print_compact_traceback, print_compact_stack
@@ -169,7 +171,6 @@ from jigs import Jig
 from HistoryWidget import orangemsg
 from shape import BBox
 from qt4transition import qt4todo
-from platform import wrap_key_event
 from chunk import molecule
 from chem import Atom
 from bonds import Bond

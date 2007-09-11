@@ -246,7 +246,7 @@ class nEImageOps:
         # [bruce guess 061127 about the cause: maybe related to ops that don't work before or after image is loaded.
         #  The docs mentioned elsewhere are not very clear about this.] 
         import os
-        from platform import find_or_make_Nanorex_subdir
+        from PlatformDependent import find_or_make_Nanorex_subdir
         nhdir = find_or_make_Nanorex_subdir("Nano-Hive")
         basename = os.path.basename(self.imageName)
         if self._tmpmode:

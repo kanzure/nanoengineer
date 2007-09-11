@@ -74,7 +74,7 @@ from PyQt4.Qt import QPalette
 from assembly import assembly
 from Utility import Group, Node
 from debug import print_compact_traceback, print_compact_stack
-from platform import fix_plurals
+from PlatformDependent import fix_plurals
 from HistoryWidget import quote_html
 from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False, Choice
 from widgets import makemenu_helper
@@ -1448,7 +1448,7 @@ class MT_View(QtGui.QWidget):
         self.modeltreegui.mt_update()
     
     def get_icons(self):
-        from Utility import geticon, getpixmap
+        from icon_utilities import getpixmap
         # note: geticon calls QIcon, but painter has no drawIcon, and drawPixmap doesn't accept them,
         # so here we use getpixmap which calls QPixmap. We could also try QImage and painter.drawImage
         # (known to work for crate.bmp and other test images, but presumably slower).

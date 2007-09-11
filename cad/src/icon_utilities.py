@@ -28,7 +28,7 @@ UI_SUBDIRECTORY_COMPONENT = "ui"
 _pixmaps = {}
 _icons = {}
 
-_iconprefix = None
+_iconprefix = "."
     # This will be set by initialize() to the pathname of the directory that
     # contains ui/... icon files, for private use. Note that if the
     # ALTERNATE_CAD_SRC_PATH feature is being used, this will be set to
@@ -53,7 +53,7 @@ def initialize():
     Initialize.endInitialization(__name__)
     return
 
-initialize() ### TODO: call this from another file, not from first import of this one
+#initialize() ### TODO: call this from another file, not from first import of this one
 
 def image_directory(): #bruce 070604
     """Return the full pathname of the directory in which the image files

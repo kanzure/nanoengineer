@@ -28,13 +28,7 @@ from GroupProp import GroupProp
 from VQT import V, Q
 from PartProp import PartProp
 
-# The following imports from icon_utilities are for the sake of code in other files
-# which import these functions from here (since they used to be defined here).
-# When practical, that old code should be revised and these imports should
-# be removed (unless they're needed for direct use in this file). [bruce 070831]
-from icon_utilities import geticon, getpixmap
-from icon_utilities import imagename_to_pixmap, imagename_to_icon
-from icon_utilities import image_directory
+from icon_utilities import imagename_to_pixmap
 
 debug_undoable_attrs = False
 

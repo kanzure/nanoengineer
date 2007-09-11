@@ -18,7 +18,7 @@ from PyQt4.Qt import QToolButton
 from PyQt4.Qt import QWidget
 from PyQt4.Qt import QSize
 
-from Utility  import geticon
+from icon_utilities import geticon
 
 class PM_ToolButton( QToolButton ):
     """

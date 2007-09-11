@@ -19,7 +19,7 @@ from HistoryWidget import greenmsg, redmsg
 # ops_atoms, part, and assembly form an import loop
 #import assembly
 
-from platform import fix_plurals
+from PlatformDependent import fix_plurals
 from elements import Singlet
 import env
 

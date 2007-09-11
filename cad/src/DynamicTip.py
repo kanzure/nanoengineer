@@ -24,7 +24,7 @@ from elements import Singlet
 from bonds import Bond
 from jigs import Jig
 from VQT import vlen
-from platform import fix_plurals
+from PlatformDependent import fix_plurals
 
 from prefs_constants import dynamicToolTipWakeUpDelay_prefs_key
 from prefs_constants import dynamicToolTipAtomDistancePrecision_prefs_key

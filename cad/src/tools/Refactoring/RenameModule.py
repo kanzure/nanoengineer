@@ -29,14 +29,14 @@ emacs.
 
 The following remappings are done::
 
- import oldname                     --> import newdir.newname as oldname
- import olddir.oldname as othername --> import newdir.newname as othername
- from olddir.oldname import symbol  --> from newdir.newname import symbol
- from olddir import oldname         --> from newdir import newname as oldname
- from olddir.oldname import symbol as othername
-                            --> from newdir.newname import symbol as othername
- from olddir import oldname as othername
-                            --> from newdir import newname as othername
+# import oldname                     --> import newdir.newname as oldname
+# import olddir.oldname as othername --> import newdir.newname as othername
+# from olddir.oldname import symbol  --> from newdir.newname import symbol
+# from olddir import oldname         --> from newdir import newname as oldname
+# from olddir.oldname import symbol as othername
+#                            --> from newdir.newname import symbol as othername
+# from olddir import oldname as othername
+#                            --> from newdir import newname as othername
 
 Where either 'olddir.' or 'newdir.' appear (note the dots), either may
 be empty.  In the some cases, an empty newdir would remove the entire
@@ -44,11 +44,11 @@ from clause.
 
 Note that python considers::
 
- import a.b as c.d
+# import a.b as c.d
 
 to be a syntax error, so::
 
- import olddir.oldname  --> import newdir.newname
+# import olddir.oldname  --> import newdir.newname
 
 with all occurrences of olddir.oldname in the program text being
 changed to newdir.newname.  This is a specific enough change to be

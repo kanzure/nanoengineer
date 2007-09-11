@@ -8,7 +8,7 @@ from PyQt4.Qt import Qt
 from PyQt4.Qt import QToolButton
 
 from wiki_help import QToolBar_WikiHelp
-from Utility import geticon
+from icon_utilities import geticon
 
 def setupUi(win):
             

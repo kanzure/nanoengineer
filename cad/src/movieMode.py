@@ -35,7 +35,7 @@ from modes import basicMode
 from HistoryWidget import greenmsg
 from HistoryWidget import redmsg, orangemsg
 from MoviePropertyManager import MoviePropertyManager
-from Utility import geticon
+from icon_utilities import geticon
 
 from prefs_constants import workingDirectory_prefs_key
 

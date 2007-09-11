@@ -15,8 +15,8 @@ file and renamed it PM_Dialog.
 from debug import print_compact_traceback
 import platform
 
-from Utility import geticon
-from Utility import getpixmap
+from icon_utilities import geticon
+from icon_utilities import getpixmap
 
 from PM_Colors import pmColor
 from PM_Colors import pmHeaderFrameColor

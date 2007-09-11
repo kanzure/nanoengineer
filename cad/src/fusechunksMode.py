@@ -38,9 +38,9 @@ from modifyMode import modifyMode
 from extrudeMode import mergeable_singlets_Q_and_offset
 from bonds import bond_at_singlets
 from HistoryWidget import redmsg, orangemsg
-from platform import fix_plurals
+from PlatformDependent import fix_plurals
 from FusePropertyManager import FusePropertyManager
-from Utility import geticon
+from icon_utilities import geticon
 
 from constants import SUBTRACT_FROM_SELECTION
 from constants import get_selCurve_color

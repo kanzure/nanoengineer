@@ -10,7 +10,6 @@ History:
 
 ninad 2007-08-14: Created.
 """
-import sys
 
 from PyQt4.Qt import QFont
 from PyQt4.Qt import QLabel

@@ -6,7 +6,7 @@ $Id$
 from PyQt4 import QtCore, QtGui
 from PyQt4.Qt import Qt
 
-from Utility import geticon
+from icon_utilities import geticon
 
 #Hybrid display is an experimental work. Its action and others need to be 
 #removed. For now, I am just removing it using the following flag as I have 

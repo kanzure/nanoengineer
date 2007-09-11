@@ -15,7 +15,6 @@ __author__  = "Ninad"
 from PyQt4 import QtCore, QtGui
 from Ui_MoviePropertyManager import Ui_MoviePropertyManager
 from PyQt4.Qt import Qt, SIGNAL
-from Utility import geticon
 
 class MoviePropertyManager(Ui_MoviePropertyManager):
     """

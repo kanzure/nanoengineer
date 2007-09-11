@@ -102,9 +102,9 @@ import drawer
 from debug import print_compact_traceback
 
 import platform
-from platform import shift_name
-from platform import control_name
-from platform import context_menu_prefix
+from PlatformDependent import shift_name
+from PlatformDependent import control_name
+from PlatformDependent import context_menu_prefix
 
 import env
 from state_utils import StateMixin
@@ -352,7 +352,6 @@ class basicMode(anyMode):
                 setattr(self, attr, [])
         for attr in ['Menu_spec']:
             setattr(self, attr, list(getattr(self, attr)))
-        import platform
         if platform.atom_debug and self.debug_Menu_spec:
             # put the debug items into the main menu
             self.Menu_spec.extend( [None] + self.debug_Menu_spec )
