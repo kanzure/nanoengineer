@@ -24,6 +24,7 @@ import Ui_SelectToolBar
 import Ui_SimulationToolBar
 import Ui_BuildToolsToolBar
 import Ui_BuildStructuresToolBar
+
 from Utility import geticon
 
 class Ui_MainWindow(object):
@@ -40,13 +41,10 @@ class Ui_MainWindow(object):
             self.widget.setGeometry(QtCore.QRect(0,95,1014,593))
             self.widget.setObjectName("widget")
             MainWindow.setCentralWidget(self.widget)
-                
-     
-        
+         
         ###########################
                #### DASHBOARDS  ####
         ###########################
-        
 
         self.cookieCutterDashboard = QtGui.QToolBar(MainWindow)
         self.cookieCutterDashboard.setEnabled(True)
@@ -399,10 +397,7 @@ class Ui_MainWindow(object):
         self.rotateThetaPlusAction.setIcon(geticon("ui/actions/Properties Manager/Move_Theta_Plus"))
         self.rotateThetaPlusAction.setObjectName("rotateThetaPlusAction")
 
-        self.modifyMMKitAction = QtGui.QAction(MainWindow)
-        self.modifyMMKitAction.setIcon(geticon("ui/actions/Properties Manager/MMKit"))
-        self.modifyMMKitAction.setObjectName("modifyMMKitAction")
-        
+                
         #######Dashboard Actions End ############
              
         # All the stuff below should be moved out of the MainWindowUI.ui/py world, and out
@@ -637,16 +632,10 @@ class Ui_MainWindow(object):
         self.rotateThetaMinusAction.setIconText(QtGui.QApplication.translate("MainWindow", "Rotate Theta (-)", None, QtGui.QApplication.UnicodeUTF8))
         self.rotateThetaPlusAction.setText(QtGui.QApplication.translate("MainWindow", "Rotate Theta (+)", None, QtGui.QApplication.UnicodeUTF8))
         self.rotateThetaPlusAction.setIconText(QtGui.QApplication.translate("MainWindow", "Rotate Theta (+)", None, QtGui.QApplication.UnicodeUTF8))
-        
-        self.modifyMMKitAction.setIconText(QtGui.QApplication.translate("MainWindow", "Molecular Modeling Kit", None, QtGui.QApplication.UnicodeUTF8))
-        self.modifyMMKitAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Modeling Kit", None, QtGui.QApplication.UnicodeUTF8))
-        
-        
+   
         self.simNanoHiveAction.setText(QtGui.QApplication.translate("MainWindow", "Nano-Hive...", None, QtGui.QApplication.UnicodeUTF8))
         self.simNanoHiveAction.setIconText(QtGui.QApplication.translate("MainWindow", "Nano-Hive", None, QtGui.QApplication.UnicodeUTF8))
-        
-        
-        
+ 
         self.fileSaveSelectionAction.setIconText(QtGui.QApplication.translate("MainWindow", "Save Selection...", None, QtGui.QApplication.UnicodeUTF8))
         self.viewRotatePlus90Action.setIconText(QtGui.QApplication.translate("MainWindow", "Rotate View +90", None, QtGui.QApplication.UnicodeUTF8))
         self.viewRotateMinus90Action.setIconText(QtGui.QApplication.translate("MainWindow", "Rotate View -90", None, QtGui.QApplication.UnicodeUTF8))
@@ -658,4 +647,3 @@ class Ui_MainWindow(object):
         
         self.viewQuteMolAction.setIconText(QtGui.QApplication.translate("MainWindow", "QuteMol", None, QtGui.QApplication.UnicodeUTF8))
         self.viewRaytraceSceneAction.setIconText(QtGui.QApplication.translate("MainWindow", "POV-Ray", None, QtGui.QApplication.UnicodeUTF8))
-        

@@ -1914,10 +1914,6 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         pw = self.activePartWindow()
         if pw is not None and pw.glpane.mode.modename == 'DEPOSIT':
             pw.glpane.mode.update_selection_filter_list() # depositMode.update_selection_filter_list()
-
-        #Huaicai: These are redundant since the elemChange() will do all of them. 8/10/05
-        #if elementSelectorWin: elementSelectorWin.update_dialog(elt)
-        #if MMKitWin: MMKitWin.update_dialog(elt)
         
         line = eCCBtab2[elt]
         #self.elemChangeComboBox.setCurrentIndex(line) ###k does this send the signal, or not (if not that might cause bug 690)?
