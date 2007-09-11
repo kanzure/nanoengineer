@@ -128,10 +128,12 @@ class movieMode(basicMode):
 
     def init_gui(self):
         
-        self.propMgr = MoviePropertyManager(self)
-	#@bug BUG: following is a workaround for bug 2494
-	changes.keep_forever(self.propMgr)
-	self.propMgr.show_propMgr()
+        if not self.propMgr:
+	    self.propMgr = MoviePropertyManager(self)
+	    #@bug BUG: following is a workaround for bug 2494
+	    changes.keep_forever(self.propMgr)
+	    
+	self.propMgr.show()
 	
 	self.updateCommandManager(bool_entering = True)
 
@@ -285,7 +287,7 @@ class movieMode(basicMode):
     def restore_gui(self):
         "[#doc]"
         
-        self.propMgr.closePropertyManager()
+        self.propMgr.close()
         
         # Reenable Undo/Redo actions, and undo checkpoints (disabled in init_gui);
         # do it first to protect it from exceptions in the rest of this method

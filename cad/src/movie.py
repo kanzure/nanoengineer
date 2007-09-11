@@ -498,7 +498,8 @@ class Movie:
                 self.win.frameNumberSL.setValue(self.currentFrame) # SL = Slider
                 currentFrameLbl = str(self.win.frameNumberSL.value())
                 totalFrameLbl = str(self.totalFramesActual)
-                flabel = currentFrameLbl + "/" + totalFrameLbl
+                flabel = "Current Frame: " + currentFrameLbl + "/" + \
+                       totalFrameLbl                
                 self.win.movieFrameUpdateLabel.setText(flabel)
             if not dont_update_spinbox:
                 self.win.frameNumberSB.setValue(self.currentFrame) # Spinbox
@@ -520,7 +521,7 @@ class Movie:
         self.update_dashboard_currentFrame()
       
         flabel = "Frame (" + str(self.totalFramesActual) + " total):"
-        self.win.frameLabel.setText(flabel) # Spinbox label
+        
         return
 
     # ==
