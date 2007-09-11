@@ -16,11 +16,9 @@ ninad 20070606: Created.
 
 from HistoryWidget import greenmsg
 
-from PyQt4.Qt import QDialog
 from PlanePropertyManager import PlanePropertyManager
-from ReferenceGeometry import GeometryGeneratorBaseClass
+from GeometryGeneratorBaseClass import GeometryGeneratorBaseClass
 
-from debug import print_compact_traceback
 
 class PlaneGenerator(PlanePropertyManager, GeometryGeneratorBaseClass):
     """
@@ -90,7 +88,8 @@ class PlaneGenerator(PlanePropertyManager, GeometryGeneratorBaseClass):
     ##=====================================##
     
     #Following method should become a part of GeometryGeneratorBase Class. 
-    #Not making one as GeometryGenerator class may go away and replaced by another one. 
+    #Not making one as GeometryGenerator class may go away and replaced by 
+    #another one. 
     #So easier to copy this method after it is done. -- ninad20070608
     def update_props_if_needed_before_closing(self):
         """
@@ -109,10 +108,11 @@ class PlaneGenerator(PlanePropertyManager, GeometryGeneratorBaseClass):
         # a new plane in the part. This function changes those properties.
         # ninad 2007-06-13 
         
-        #called in updatePropertyManager in MWsemeantics.py -- (Partwindow class)
+        #called in updatePropertyManager in MWsemeantics.py --(Partwindow class)
         
         self.geometry.updateCosmeticProps()
         
         #Don't draw the direction arrow when the object is finalized. 
         if self.geometry.offsetParentGeometry:
-            self.geometry.offsetParentGeometry.directionArrow.setDrawRequested(False)
+            dirArrow = self.geometry.offsetParentGeometry.directionArrow 
+            dirArrow.setDrawRequested(False)
