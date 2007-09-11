@@ -42,8 +42,14 @@ class CommandManager(Ui_CommandManager):
     """
     
     def __init__(self, win):
-        self.win = win
+        """
+        Contructor for the class CommandManager. 
+        @param win: Mainwindow object
+        @type  win: L{MWsemantics}
+        """        
         self.flyoutDictionary = None
+        
+        Ui_CommandManager.__init__(self, win)        
         self.setupUi()          
         self._makeConnections() 
         
@@ -187,8 +193,8 @@ class CommandManager(Ui_CommandManager):
                                       in_a_mode = self.in_a_mode )
     
     def _createFlyoutDictionary(self, params):
-        ''' Create the dictonary objet with subcontrol area actions as its 'keys'
-        and corresponding command actions as the key 'values'. 
+        ''' Create the dictonary objet with subcontrol area actions as its 
+        'keys' and corresponding command actions as the key 'values'. 
         @param params: A tuple that contains 3 lists: 
         (subControlAreaActionList, commandActionLists, allActionsList)
         @return: flyoutDictionary (dictionary object)'''
@@ -238,7 +244,7 @@ class CommandManager(Ui_CommandManager):
                 btn.setMaximumWidth(75)
                 btn.setMinimumHeight(62)                
         
-                #ninad 070125: make sure to a) define *default action* of button  
+                #ninad 070125: make sure to a) define *default action* of button
                 #to action and b) *default widget* of *action* to 'button' 
                 #(a) ensures button has got action's signals, icon, text and 
                 #other properties
@@ -250,7 +256,7 @@ class CommandManager(Ui_CommandManager):
                 # while transfering this method from
                 # mode to here... fixes bug 2471 - ninad 20070625
                 
-                #ninad 070201 temporary solution -- truncate the toolbutton      
+                #ninad 070201 temporary solution -- truncate the toolbutton 
                 #text if too long. 
                 text = self.truncateText(action.text())          
                 btn.setText(text)
@@ -258,12 +264,12 @@ class CommandManager(Ui_CommandManager):
                 #@@@ ninad070125 The following function 
                 #adds a newline character after each word in toolbutton text. 
                 #but the changes are reflected only on 'mode' toolbuttons 
-                #on the flyout toolbar (i.e.only Checkable buttons..don't know why)
-                #Disabling its use for now. 
+                #on the flyout toolbar (i.e.only Checkable buttons..don't know 
+                #why. Disabling its use for now. 
                 debug_wrapText = False
                 
                 if debug_wrapText:
-                    text = self.wrapToolButtonText(action.text())               
+                    text = self.wrapToolButtonText(action.text())
                     if text:    
                         action.setText(text)    
                 #Set a different color palette for the 'SubControl' buttons in 
@@ -294,7 +300,7 @@ class CommandManager(Ui_CommandManager):
             self.cmdManager.layout().addItem(self.spacerItem)
             
     def _setFlyoutDictionary(self, dictionary):
-        ''' set the flyout dictionary that stores subcontrol area buttons in the 
+        ''' set the flyout dictionary that stores subcontrol area buttons in the
         flyout toolbar as the keys and their corresponding command buttons 
         as values
         @param dictionary: dictionary object. 
@@ -333,6 +339,3 @@ class CommandManager(Ui_CommandManager):
         keyList = dictionary.keys()
         keyList.sort()
         return [keys for (counter, keys) in keyList]
-    
-        
-    
