@@ -14,25 +14,25 @@ file and renamed it PM_GroupBox.
 
 import platform
 
-from PM_Colors import getPalette
-from PM_Colors import pmGrpBoxButtonBorderColor
-from PM_Colors import pmGrpBoxButtonTextColor
-from PM_Colors import pmGrpBoxExpandedIconPath
-from PM_Colors import pmGrpBoxCollapsedIconPath
-from PM_Colors import pmGrpBoxColor
-from PM_Colors import pmGrpBoxBorderColor
-from PM_Colors import pmGrpBoxButtonColor
+from PM.PM_Colors import getPalette
+from PM.PM_Colors import pmGrpBoxButtonBorderColor
+from PM.PM_Colors import pmGrpBoxButtonTextColor
+from PM.PM_Colors import pmGrpBoxExpandedIconPath
+from PM.PM_Colors import pmGrpBoxCollapsedIconPath
+from PM.PM_Colors import pmGrpBoxColor
+from PM.PM_Colors import pmGrpBoxBorderColor
+from PM.PM_Colors import pmGrpBoxButtonColor
 
-from PM_Constants import pmGroupBoxSpacing
-from PM_Constants import pmGrpBoxVboxLayoutMargin
-from PM_Constants import pmGrpBoxVboxLayoutSpacing
-from PM_Constants import pmGrpBoxGridLayoutMargin
-from PM_Constants import pmGrpBoxGridLayoutSpacing
+from PM.PM_Constants import pmGroupBoxSpacing
+from PM.PM_Constants import pmGrpBoxVboxLayoutMargin
+from PM.PM_Constants import pmGrpBoxVboxLayoutSpacing
+from PM.PM_Constants import pmGrpBoxGridLayoutMargin
+from PM.PM_Constants import pmGrpBoxGridLayoutSpacing
 
-from PM_Constants import pmGridLayoutMargin
-from PM_Constants import pmGridLayoutSpacing
+from PM.PM_Constants import pmGridLayoutMargin
+from PM.PM_Constants import pmGridLayoutSpacing
 
-from PM_Constants import pmLeftAlignment, pmRightAlignment
+from PM.PM_Constants import pmLeftAlignment, pmRightAlignment
 
 from PyQt4.Qt import QGroupBox
 from PyQt4.Qt import QGridLayout
@@ -48,7 +48,7 @@ from PyQt4.Qt import SIGNAL
 from Utility import geticon, getpixmap
 
 #This import is only used in isinstance check--
-from PM_CheckBox import PM_CheckBox
+from PM.PM_CheckBox import PM_CheckBox
 
 class PM_GroupBox( QGroupBox ):
     """
@@ -482,7 +482,7 @@ class PM_GroupBox( QGroupBox ):
         @param increment: The incremental value
         @type  increment: int
         """
-        self._rowCount += value
+        self._rowCount += increment
         
     def addQtWidget(self, qtWidget, column, spanWidth):
         """
@@ -537,7 +537,7 @@ class PM_GroupBox( QGroupBox ):
         Expand this group box i.e. show all its contents and change the look 
         and feel of the groupbox button. 
         """
-        from PM_MessageGroupBox import PM_MessageGroupBox
+        from PM.PM_MessageGroupBox import PM_MessageGroupBox
         if isinstance(self, PM_MessageGroupBox):
             # If we don't do this, we get a small space b/w the 
             # title button and the MessageTextEdit widget.
@@ -641,8 +641,8 @@ class PM_GroupBox( QGroupBox ):
         # ninad 070221 set a non-existant 'Ghost Icon' for this button.
         # By setting this icon, the button text left aligns! 
         # (which what we want :-) )
-        # So this might be a bug in Qt4.2.  If we don't use the following kludge 
-        # there is no way to left align the push button text but to subclass it. 
+        # So this might be a bug in Qt4.2.  If we don't use the following kludge
+        # there is no way to left align the push button text but to subclass it.
         # (could means a lot of work for such a minor thing).  So OK for now.
         
         button.setIcon(geticon("ui/actions/Properties Manager/GHOST_ICON"))

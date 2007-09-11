@@ -24,9 +24,18 @@ import sys
 
 from HistoryWidget import redmsg
 
-class PM_TreeView(QTreeView):           
+class PM_TreeView(QTreeView):
+    """
+    The PM_TreeView class provides a partlib object (as a 'treeview' of any user
+    specified directory) to the client code. The parts from the partlib can be 
+    pasted in the 3D  Workspace. 
+    """
     def __init__(self, parent):        
         """
+        The constructor of PM_TreeView class that provides provides a partlib 
+        object (as a 'treeview' of any user specified directory) to the 
+        client code. The parts from the partlib can be pasted in the 3D  
+        Workspace.
         """
         QTreeView.__init__(self, parent)            
         self.parent = parent
@@ -74,7 +83,7 @@ class PM_TreeView(QTreeView):
         self.sortByColumn(0, Qt.AscendingOrder)
         self.setMinimumHeight(300)
         
-        for i in range(2,4):
+        for i in range(2, 4):
             self.setColumnWidth(i, 4)    
         
         filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
@@ -97,12 +106,12 @@ class PM_TreeView(QTreeView):
     #for PM_TreeView Class (which is a subclass of QTreeView) 
     #The old code reimplemented 'event' class which handles *all* events. 
     #There was a bad bug which didn't send an event when the widget is resized
-    # and then the seletcion is changed. In NE1Qt3 this wasn't a problem because 
+    # and then the seletcion is changed. In NE1Qt3 this wasn't a problem because
     #it only had one column. Now that we have multiple columns 
     #(which are needed to show the horizontal scrollbar. 
     # While using Library page only resize event or mouse release events
     #by the user should update the thumbview. 
-    #The Qt documentation also suggests reimplementing subevents instead of the 
+    #The Qt documentation also suggests reimplementing subevents instead of the
     #main event handler method (event()) 
     def mouseReleaseEvent(self, evt):
         """
