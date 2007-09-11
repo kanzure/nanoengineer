@@ -4,7 +4,7 @@ Ui_CookiePropertyManager.py
 
 $Id$
 
-UI file for Cookie Property Manager. e.g. UI for groupboxes 
+UI file for Crystal Property Manager. e.g. UI for groupboxes 
 (and its contents), button rows etc. 
 
 History:
@@ -23,7 +23,6 @@ from PM.PM_Dialog        import PM_Dialog
 from PM.PM_GroupBox      import PM_GroupBox
 from PM.PM_CheckBox      import PM_CheckBox
 from PM.PM_ComboBox      import PM_ComboBox
-from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
 from PM.PM_SpinBox       import PM_SpinBox
 from PM.PM_PushButton    import PM_PushButton
 from PM.PM_ToolButtonRow import PM_ToolButtonRow
@@ -39,6 +38,22 @@ from icon_utilities      import geticon
 __author__ = "Ninad"
 
 class Ui_CookiePropertyManager(PM_Dialog):
+    """
+    The Ui_CookiePropertyManager class defines UI elements for the Property 
+    Manager of the B{Crystal mode}.
+    
+    @ivar title: The title that appears in the property manager header.
+    @type title: str
+    
+    @ivar pmName: The name of this property manager. This is used to set
+                  the name of the PM_Dialog object via setObjectName().
+    @type name: str
+    
+    @ivar iconPath: The relative path to the PNG file that contains a
+                    22 x 22 icon image that appears in the PM header.
+    @type iconPath: str
+    """
+    
     # <title> - the title that appears in the property manager header.
     title = "Build Crystal"
     # <iconPath> - full path to PNG file that appears in the header.
@@ -48,21 +63,21 @@ class Ui_CookiePropertyManager(PM_Dialog):
     iconPath = "ui/actions/Tools/Build Structures/Build Crystal.png"
     
     def __init__(self, parentMode):
-	"""
-	Constructor for the B{Crystal} property manager class that defines 
+        """
+        Constructor for the B{Crystal} property manager class that defines 
         its UI.
         
         @param parentMode: The parent mode where this Property Manager is used
         @type  parentMode: L{cookieMode}  
-	"""
-	PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)
+        """
+        PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)
         
         self.showTopRowButtons( pmDoneButton | \
-				pmCancelButton | \
-				pmWhatsThisButton)
+                                pmCancelButton | \
+                                pmWhatsThisButton)
         
         self.parentMode = parentMode
-	self.o = self.parentMode.o
+        self.o = self.parentMode.o
         msg = ''
         self.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=False)
     
@@ -70,26 +85,27 @@ class Ui_CookiePropertyManager(PM_Dialog):
         """
         Add various group boxes to the Extrude Property manager. 
         """
-	self._addCrystalSpecsGroupbox()
-	self._addLayerPropertiesGroupBox()
-	self._addDisplayOptionsGroupBox()
-	self._addAdvancedOptionsGroupBox()
+        self._addCrystalSpecsGroupbox()
+        self._addLayerPropertiesGroupBox()
+        self._addDisplayOptionsGroupBox()
+        self._addAdvancedOptionsGroupBox()
     
     def _addCrystalSpecsGroupbox(self):
-	"""
-	"""
-	self.crystalSpecsGroupBox = \
-	    PM_GroupBox(self, title = "Crystal Specifications")
-	self._loadCrystalSpecsGroupBox(self.crystalSpecsGroupBox)
+        """
+        Add 'Crystal groupbox' to the PM
+        """
+        self.crystalSpecsGroupBox = \
+            PM_GroupBox(self, title = "Crystal Specifications")
+        self._loadCrystalSpecsGroupBox(self.crystalSpecsGroupBox)
     
     def _addLayerPropertiesGroupBox(self):
-	"""
-	Add 'Layer Properties' groupbox
-	"""
-	self.layerPropertiesGroupBox = \
-	    PM_GroupBox(self, title = "Layer Properties")
-	self._loadLayerPropertiesGroupBox(self.layerPropertiesGroupBox)
-	
+        """
+        Add 'Layer Properties' groupbox to the PM
+        """
+        self.layerPropertiesGroupBox = \
+            PM_GroupBox(self, title = "Layer Properties")
+        self._loadLayerPropertiesGroupBox(self.layerPropertiesGroupBox)
+        
     
     def _addAdvancedOptionsGroupBox(self):
         """
@@ -98,81 +114,81 @@ class Ui_CookiePropertyManager(PM_Dialog):
         self.advancedOptionsGroupBox = \
             PM_GroupBox( self, title = "Advanced Options" )          
         self._loadAdvancedOptionsGroupBox(self.advancedOptionsGroupBox)
-	
+        
     def _addDisplayOptionsGroupBox(self):
-	"""
-	Add 'Display Options' groupbox
-	"""
-	self.displayOptionsGroupBox = PM_GroupBox(self, 
-						  title = 'Display Options:')
-	self._loadDisplayOptionsGroupBox(self.displayOptionsGroupBox)
+        """
+        Add 'Display Options' groupbox
+        """
+        self.displayOptionsGroupBox = PM_GroupBox(self, 
+                                                  title = 'Display Options:')
+        self._loadDisplayOptionsGroupBox(self.displayOptionsGroupBox)
     
     def _loadCrystalSpecsGroupBox(self, inPmGroupBox):
-	"""
-	Load widgets in the Crystal Specifications group box.
+        """
+        Load widgets in the Crystal Specifications group box.
         @param inPmGroupBox: The Crystal Specifications groupbox in the PM
         @type  inPmGroupBox: L{PM_GroupBox} 
-	"""
-	latticeChoices = ["Diamond", "Lonsdaleite"]
-	
-	self.latticeCBox = \
-	    PM_ComboBox( inPmGroupBox,
+        """
+        latticeChoices = ["Diamond", "Lonsdaleite"]
+        
+        self.latticeCBox = \
+            PM_ComboBox( inPmGroupBox,
                          label        = 'Lattice Type:', 
-			 labelColumn  = 0,
+                         labelColumn  = 0,
                          choices      = latticeChoices, 
                          index        = 0, 
                          setAsDefault = True,
                          spanWidth    = False )
-	
-	# Button list to create a toolbutton row.
+        
+        # Button list to create a toolbutton row.
         # Format: 
-	# - buttonType,
+        # - buttonType,
         # - buttonId, 
         # - buttonText , 
         # - iconPath
         # - tooltip
         # - shortcut
         # - column
-	BUTTON_LIST = [ 
+        BUTTON_LIST = [ 
             ( "QToolButton", 0,  "Surface 100", 
               "ui/actions/Properties Manager/Surface100.png", 
-	      "Surface 100", "", 0),
-	    
+              "Surface 100", "", 0),
+            
             ( "QToolButton", 1,  "Surface 110", 
               "ui/actions/Properties Manager/Surface110.png", 
-	      "Surface 110", "", 1),
-	    
+              "Surface 110", "", 1),
+            
             ( "QToolButton", 2,  "Surface 111",  
               "ui/actions/Properties Manager/Surface111.png", 
-	      "Surface 110", "", 2)                       
+              "Surface 110", "", 2)                       
             ]
-	self.gridOrientationButtonRow = \
-	    PM_ToolButtonRow(inPmGroupBox,
+        self.gridOrientationButtonRow = \
+            PM_ToolButtonRow(inPmGroupBox,
                                title        = "",
-			       label        = "Grid Orientation:",
+                               label        = "Grid Orientation:",
                                buttonList   = BUTTON_LIST,
                                checkedId    = 0,
                                setAsDefault = True,
-			       spanWidth   = False
-			       )
-	
-	self.orientButtonGroup = self.gridOrientationButtonRow.buttonGroup
-	self.surface100_btn = self.gridOrientationButtonRow.getButtonById(0)
-	self.surface110_btn = self.gridOrientationButtonRow.getButtonById(1)
-	self.surface111_btn = self.gridOrientationButtonRow.getButtonById(2)
-	
-	self.rotateGridByAngleSpinBox = \
-	    PM_SpinBox( inPmGroupBox,
-			label         =  "Rotate Grid By: ",
-			labelColumn   =  0,
-			value         =  45,
-			minimum       =  0,
-			maximum       =  360,
-			suffix        = " Degrees"
-		      )		    
+                               spanWidth   = False
+                               )
+        
+        self.orientButtonGroup = self.gridOrientationButtonRow.buttonGroup
+        self.surface100_btn = self.gridOrientationButtonRow.getButtonById(0)
+        self.surface110_btn = self.gridOrientationButtonRow.getButtonById(1)
+        self.surface111_btn = self.gridOrientationButtonRow.getButtonById(2)
+        
+        self.rotateGridByAngleSpinBox = \
+            PM_SpinBox( inPmGroupBox,
+                        label         =  "Rotate Grid By: ",
+                        labelColumn   =  0,
+                        value         =  45,
+                        minimum       =  0,
+                        maximum       =  360,
+                        suffix        = " Degrees"
+                      )             
         self.rotateGridByAngleSpinBox.setSingleStep(5)
-	
-	GRID_ANGLE_BUTTONS = [
+        
+        GRID_ANGLE_BUTTONS = [
                         ("QToolButton", 0,  "Anticlockwise", 
                          "ui/actions/Properties Manager/rotate_minus.png", 
                          "", "+", 0 ),
@@ -193,61 +209,61 @@ class Ui_CookiePropertyManager(PM_Dialog):
         self.rotGridAntiClockwiseButton = \
             self.gridRotateButtonRow.getButtonById(0)
         self.rotGridClockwiseButton = \
-            self.gridRotateButtonRow.getButtonById(1)	
-	
+            self.gridRotateButtonRow.getButtonById(1)   
+        
     def _loadLayerPropertiesGroupBox(self, inPmGroupBox):
         """
         Load widgets in the Layer Properties group box.
         @param inPmGroupBox: The Layer Properties groupbox in the PM
         @type  inPmGroupBox: L{PM_GroupBox} 
         """
-	
-	self.currentLayerComboBox = \
-	    PM_ComboBox( inPmGroupBox,
+        
+        self.currentLayerComboBox = \
+            PM_ComboBox( inPmGroupBox,
                          index     = 0, 
-			 spanWidth = True
+                         spanWidth = True
                         )
-	
-	self.addLayerButton = PM_PushButton(inPmGroupBox)
+        
+        self.addLayerButton = PM_PushButton(inPmGroupBox)
         self.addLayerButton.setIcon(
-	    geticon('ui/actions/Properties Manager/addlayer'))
-        self.addLayerButton.setFixedSize(QSize(26,26))
-        self.addLayerButton.setIconSize(QSize(22,22))
-	
-	# A widget list to create a widget row. 
+            geticon('ui/actions/Properties Manager/addlayer'))
+        self.addLayerButton.setFixedSize(QSize(26, 26))
+        self.addLayerButton.setIconSize(QSize(22, 22))
+        
+        # A widget list to create a widget row. 
         # Format: 
-	# - Widget type,
+        # - Widget type,
         # - widget object, 
         # - column 
         
         firstRowWidgetList = [('PM_ComboBox', self.currentLayerComboBox, 1),
-			      ('PM_PushButton', self.addLayerButton, 2)
-			      ]
-	
-	widgetRow = PM_WidgetRow(inPmGroupBox,
-				 title     = '',
-				 widgetList = firstRowWidgetList,
-				 label = "Current Layer",
-				 labelColumn  = 0,
-				 )
-	
+                              ('PM_PushButton', self.addLayerButton, 2)
+                              ]
+        
+        widgetRow = PM_WidgetRow(inPmGroupBox,
+                                 title     = '',
+                                 widgetList = firstRowWidgetList,
+                                 label = "Current Layer",
+                                 labelColumn  = 0,
+                                 )
+        
         self.layerCellsSpinBox = \
-	     PM_SpinBox( inPmGroupBox,
-			label         =  "Lattice Cells",
-			labelColumn   =  0,
-			value         =  2,
-			minimum       =  1,
-			maximum       =  25
-		      )
-	
-	self.layerThicknessLineEdit = PM_LineEdit(inPmGroupBox, 
+             PM_SpinBox( inPmGroupBox,
+                        label         =  "Lattice Cells",
+                        labelColumn   =  0,
+                        value         =  2,
+                        minimum       =  1,
+                        maximum       =  25
+                      )
+        
+        self.layerThicknessLineEdit = PM_LineEdit(inPmGroupBox, 
                                          label        = "Lattice Thickness",
                                          text         = "",
                                          setAsDefault = False,
                                          spanWidth    = False)
-	
+        
         self.layerThicknessLineEdit.setReadOnly(True)
-	tooltip = "Thickness of layer in Angstroms"
+        tooltip = "Thickness of layer in Angstroms"
         self.layerThicknessLineEdit.setToolTip(tooltip)
          
     
@@ -257,45 +273,45 @@ class Ui_CookiePropertyManager(PM_Dialog):
         @param inPmGroupBox: The Advanced Options box in the PM
         @type  inPmGroupBox: L{PM_GroupBox} 
         """
-	self.snapGridCheckBox = \
-	    PM_CheckBox(inPmGroupBox, 
-			text = "Snap to Grid",
-			state = Qt.Checked
-			)
-	tooltip = "Snap selection point to a nearest cell grid point."
+        self.snapGridCheckBox = \
+            PM_CheckBox(inPmGroupBox, 
+                        text = "Snap to Grid",
+                        state = Qt.Checked
+                        )
+        tooltip = "Snap selection point to a nearest cell grid point."
         self.snapGridCheckBox.setToolTip(tooltip)
                 
         self.freeViewCheckBox = \
-	    PM_CheckBox(inPmGroupBox,
-			text = "Enable Free View",
-			state = Qt.Unchecked
-		    )
+            PM_CheckBox(inPmGroupBox,
+                        text = "Enable Free View",
+                        state = Qt.Unchecked
+                    )
 
     def _loadDisplayOptionsGroupBox(self, inPmGroupBox):
-	"""
-	Load widgets in the Display Options groupbox.
+        """
+        Load widgets in the Display Options groupbox.
         @param inPmGroupBox: The Display Options groupbox 
         @type  inPmGroupBox: L{PM_GroupBox} 
-	"""
-	
-	displayChoices = ['Tubes', 'Spheres']
-	
-	self.dispModeComboBox = \
-	    PM_ComboBox( inPmGroupBox,
+        """
+        
+        displayChoices = ['Tubes', 'Spheres']
+        
+        self.dispModeComboBox = \
+            PM_ComboBox( inPmGroupBox,
                          label        = 'Display Crystal As:', 
                          choices      = displayChoices,
                          index        = 0, 
                          setAsDefault = False,
-                         spanWidth    = False )	
-	
+                         spanWidth    = False ) 
+        
         
         self.gridLineCheckBox = PM_CheckBox(inPmGroupBox,
-					    text = "Show Grid Lines",
-					    widgetColumn = 0,
-					    state        = Qt.Checked)
+                                            text = "Show Grid Lines",
+                                            widgetColumn = 0,
+                                            state        = Qt.Checked)
         
         
         self.fullModelCheckBox = PM_CheckBox(inPmGroupBox,
-					    text = "Show Existing Model",
-					    widgetColumn = 0,
-					    state        = Qt.Unchecked)
+                                            text = "Show Existing Model",
+                                            widgetColumn = 0,
+                                            state        = Qt.Unchecked)

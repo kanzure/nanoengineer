@@ -7,7 +7,7 @@ Manager of the B{Build Atoms mode}.
     
 @author: Ninad
 @copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
-@version:$Id:$
+@version:$Id$
 
 History:
 Before Alpha9, (code that used Qt3 framework) Build Atoms mode had a 
@@ -33,7 +33,6 @@ from PM.PM_LineEdit        import PM_LineEdit
 from PM.PM_Constants       import pmDoneButton
 from PM.PM_Constants       import pmWhatsThisButton
 
-from prefs_widgets         import ObjAttr_StateRef
 
 class Ui_BuildAtomsPropertyManager(PM_Dialog):
     """
