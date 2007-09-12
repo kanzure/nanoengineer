@@ -38,7 +38,8 @@ from prefs_constants import historyMsgTimestamp_prefs_key
 from prefs_constants import historyMsgSerialNumber_prefs_key
 from prefs_constants import historyHeight_prefs_key
 
-from utilities.Log import _graymsg, quote_html
+from utilities.Log import _graymsg, quote_html, greenmsg, redmsg, orangemsg
+
 
 class message:
     """Stores one message for a history."""
