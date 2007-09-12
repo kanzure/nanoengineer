@@ -12,7 +12,7 @@
   Early in startup, setDeveloperFeatures() should be called after
   detecting if this is an end user or developer run.  Until this is
   called, enableDeveloperFeatures() will default to False, indicating
-  an end user run.
+  an end user run (but will print a bug warning if it's ever called then).
 
   @author: Eric Messick
   @version: $Id$
@@ -21,6 +21,7 @@
 """
 
 _developerFeatures = False
+_developerFeatures_set_yet = False
 
 def enableDeveloperFeatures():
     """
@@ -28,12 +29,18 @@ def enableDeveloperFeatures():
 
        Call this to see if you should enable a particular developer feature.
     """
-    global _developerFeatures
+    if not _developerFeatures_set_yet:
+        print "bug: enableDeveloperFeatures() queried before " \
+              " setDeveloperFeatures() called; returning %r" % \
+              _developerFeatures
     return _developerFeatures
 
 def setDeveloperFeatures(developerFeatures):
     """
-       Called at startup once we figure out if this is a developer run or and end user run.
+       Called at startup once we figure out if this is a developer run
+       or and end user run.
     """
-    global _developerFeatures
+    global _developerFeatures, _developerFeatures_set_yet
     _developerFeatures = developerFeatures
+    _developerFeatures_set_yet = True
+    return
