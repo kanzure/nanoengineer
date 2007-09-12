@@ -72,10 +72,14 @@ def fileNameToModuleName(fileName):
     fileName = fileName.replace("/", ".")
     return fileName
 
+def moduleToDotNode(moduleName):
+    ret = moduleName.replace(".", "_")
+    ret = ret.replace("-", "_")
+    return ret
+
 def dependenciesInFile(fileName, printing):
     importSet = set([])
-    fromModuleName = fileNameToModuleName(fileName)
-    fromModuleName = fromModuleName.replace("-", "_")
+    fromModuleName = moduleToDotNode(fileNameToModuleName(fileName))
     if (fromModuleName in pruneModules or fromModuleName in unreferencedModules):
         return None
     allProcessedModules.add(fromModuleName)
@@ -83,8 +87,9 @@ def dependenciesInFile(fileName, printing):
     for line in f:
         m = fromImportLineRegex.match(line)
         if (m):
-            toModuleName = m.group(1)
-            importSet.add(toModuleName)
+            toModuleName = moduleToDotNode(m.group(1))
+            if (toModuleName != fromModuleName):
+                importSet.add(toModuleName)
             continue
         m = importLineRegex.match(line)
         if (m):
@@ -94,15 +99,14 @@ def dependenciesInFile(fileName, printing):
                 m = asRegex.match(toModuleName)
                 if (m):
                     toModuleName = m.group(1)
-                importSet.add(toModuleName)
+                toModuleName = moduleToDotNode(toModuleName)
+                if (toModuleName != fromModuleName):
+                    importSet.add(toModuleName)
     f.close()
     referencedModules.update(importSet)
     importList = list(importSet)
     importList.sort()
     outCount = 0
-    fromModuleNameUnsubstituted = fromModuleName
-    fromModuleName = fromModuleName.replace(".", "_")
-    fromModuleName = fromModuleName.replace("-", "_")
     for toModuleName in importList:
         if (toModuleName in externalModules or toModuleName in pruneModules or toModuleName in unreferencedModules):
             continue
@@ -122,7 +126,7 @@ def dependenciesInFile(fileName, printing):
             toModuleCount[toModuleName] = 1
         outCount = outCount + 1
     if (outCount < 2):
-        return fromModuleNameUnsubstituted
+        return fromModuleName
     return None
 
 def initializeGlobals():
