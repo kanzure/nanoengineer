@@ -39,7 +39,7 @@ _undo_debug_obj = None
     # to print history messages about what we do to it
 
 def _undo_debug_message( msg):
-    from HistoryWidget import _graymsg, quote_html
+    from utilities.Log import _graymsg, quote_html
     ## env.history.message_no_html( _graymsg( msg )) -- WRONG, would mess up _graymsg
     env.history.message( _graymsg( quote_html( msg )))
 
@@ -969,7 +969,7 @@ def current_state(archive, assy, **options):
         print_compact_traceback("bug while determining state for undo checkpoint %r; subsequent undos might crash: " % options )
             ###@@@ need to improve situation in callers so crash warning is not needed (mark checkpoint as not undoable-to)
             # in the meantime, it might not be safe to print a history msg now (or it might - not sure); I think i'll try:
-        from HistoryWidget import redmsg # not sure this is ok to do when this module is imported, tho probably it is
+        from utilities.Log import redmsg # not sure this is ok to do when this module is imported, tho probably it is
         env.history.message(redmsg("Bug: Internal error while storing Undo checkpoint; it might not be safe to Undo to this point."))
         data = None
     return data
@@ -1648,7 +1648,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
                           "from %r to %r" % (self.last_cp.assy_change_counters, self.assy.all_change_counters())
                     # we don't yet know if there's a real diff, so if this happens, we might move it later down, inside 'if really_changed'.
                     print msg
-                    from HistoryWidget import redmsg # not sure this is ok to do when this module is imported, tho probably it is
+                    from utilities.Log import redmsg # not sure this is ok to do when this module is imported, tho probably it is
                     env.history.message(redmsg(msg))
                 
                 if debug_undo2:

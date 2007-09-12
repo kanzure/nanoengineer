@@ -18,7 +18,7 @@ __author__ = "bruce"
 from VQT import Q
 from constants import noop
 import env
-from HistoryWidget import greenmsg, redmsg, orangemsg
+from utilities.Log import greenmsg, redmsg, orangemsg
 from debug import print_compact_stack
 from bonds import Bond
 from bond_constants import bonded_atoms_summary
@@ -227,7 +227,7 @@ def apply_btype_to_bond(btype, bond, allow_remake_bondpoints = True): #bruce 060
     # Note: this can be called either from a bond's context menu, or by using a Build mode dashboard tool to click on bonds
     # (or bondpoints as of 060702) and immediately change their types.
     v6 = v6_from_btype(btype)
-    from HistoryWidget import quote_html #e need to clean up from where to import this, orangemsg, etc
+    from utilities.Log import quote_html #e need to clean up from where to import this, orangemsg, etc
     oldname = quote_html( str(bond) )
     def changeit(also_atypes = None):
         if v6 == bond.v6:

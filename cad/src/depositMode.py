@@ -87,7 +87,7 @@ from prefs_constants import buildModeWaterEnabled_prefs_key
 from prefs_constants import buildModeHighlightingEnabled_prefs_key
 from prefs_constants import keepBondsDuringTransmute_prefs_key
 
-from HistoryWidget  import orangemsg, redmsg, greenmsg, quote_html
+from utilities.Log import orangemsg, redmsg, greenmsg, quote_html
 
 from BuildAtomsPropertyManager import BuildAtomsPropertyManager
 

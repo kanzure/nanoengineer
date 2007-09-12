@@ -25,7 +25,7 @@ from Utility import SimpleCopyMixin, Node
 from icon_utilities import imagename_to_pixmap
 from povray import decode_povray_prefs, write_povray_ini_file, launch_povray_or_megapov
 from fileIO import writepovfile
-from HistoryWidget import redmsg, orangemsg, greenmsg, _graymsg
+from utilities.Log import redmsg, orangemsg, greenmsg, _graymsg
 import platform
 from PlatformDependent import find_or_make_Nanorex_subdir
 from debug import print_compact_traceback

@@ -25,7 +25,7 @@ on __xxx__ attrs in python objects.
 # atom.atomtype -> current atomtype for that atom
 
 from VQT import Q
-from HistoryWidget import redmsg, orangemsg
+from utilities.Log import redmsg, orangemsg
 import platform
 import env
 

@@ -72,7 +72,7 @@ from Utility import Group, node_name, kluge_patch_assy_toplevel_groups
 from debug import print_compact_traceback
 from prefs_constants import workingDirectory_prefs_key
 
-from HistoryWidget import greenmsg, redmsg, orangemsg
+from utilities.Log import greenmsg, redmsg, orangemsg
 import platform
 from PlatformDependent import find_or_make_any_directory
 import env

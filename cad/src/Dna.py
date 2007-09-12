@@ -45,7 +45,7 @@ from VQT                import V
 from chem               import Atom
 from bonds              import inferBonds, bond_atoms
 from fusechunksMode     import fusechunksBase
-from HistoryWidget      import orangemsg
+from utilities.Log import orangemsg
 from GeneratorBaseClass import PluginBug
 from Utility            import Group
 

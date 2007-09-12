@@ -21,7 +21,7 @@ __author__ = "Mark"
 import os, sys
 from struct import unpack
 from PyQt4.Qt import Qt, qApp, QApplication, QCursor, SIGNAL
-from HistoryWidget import redmsg, orangemsg, greenmsg
+from utilities.Log import redmsg, orangemsg, greenmsg
 from VQT import A #k needed??
 from chem import move_alist_and_snuggle
 import platform

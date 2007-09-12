@@ -45,7 +45,7 @@ from PyQt4.Qt import SLOT
 import env
 import webbrowser
 from debug import print_compact_traceback
-from HistoryWidget import redmsg
+from utilities.Log import redmsg
 from qt4transition import qt4todo
 
 def webbrowser_open(url):

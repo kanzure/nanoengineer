@@ -36,7 +36,7 @@ from VQT import V, Q, cross, planeXline, vlen, norm, ptonline
 from debug import print_compact_traceback
 import env
 
-from HistoryWidget import redmsg
+from utilities.Log import redmsg
 
 from PlaneGenerator       import PlaneGenerator
 from ReferenceGeometry    import ReferenceGeometry 

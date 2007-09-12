@@ -18,7 +18,7 @@ from PyQt4.Qt import QApplication, Qt, QCursor
 import env
 import drawer
 from VQT import V, cross
-from HistoryWidget import redmsg, orangemsg, greenmsg
+from utilities.Log import redmsg, orangemsg, greenmsg
 from debug import print_compact_traceback
 from displaymodes import ChunkDisplayMode
 

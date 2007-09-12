@@ -38,35 +38,7 @@ from prefs_constants import historyMsgTimestamp_prefs_key
 from prefs_constants import historyMsgSerialNumber_prefs_key
 from prefs_constants import historyHeight_prefs_key
 
-# [formatters by Mark; moved into this file by bruce 050107;
-#  at some point these might be renamed based on what kinds of messages
-#  or message-fragments to use them for, and/or used automatically by
-#  methods in here meant for certain kinds of messages.]
-
-def greenmsg(text):
-    """Add the tags needed to display text in green in the HistoryWidget"""
-    return "<span style=\"color:#006600\">" + text + "</span>"
-    
-def redmsg(text):
-    """Add the tags needed to display text in red in the HistoryWidget"""
-    return "<span style=\"color:#ff0000\">" + text + "</span>"
-    
-def orangemsg(text): #bruce 050412; for warnings less severe than errors; some redmsgs might need replacement with this
-    """Add the tags needed to display text in orange in the HistoryWidget"""
-    return "<span style=\"color:#e65900\">" + text + "</span>"
-
-# (this one, by bruce, is only meant for internal use)
-def _graymsg(text):
-    return "<span style=\"color:#808080\">" + text + "</span>"
-
-# ==
-
-def quote_html(text): #bruce 050727
-    for char, string in [('&', '&amp;'), ('<', '&lt;'), ('>', '&gt;')]: # &amp has to come first
-        text = text.replace(char, string)
-    return text
-
-# ==
+from utilities.Log import _graymsg, quote_html
 
 class message:
     """Stores one message for a history."""

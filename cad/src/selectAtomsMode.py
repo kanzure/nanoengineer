@@ -45,7 +45,7 @@ from bonds import Bond
 from debug import print_compact_traceback
 from modes import basicMode
 from Utility import Group
-from HistoryWidget import orangemsg
+from utilities.Log import orangemsg
 from chunk import molecule
 from elements import Singlet
 from elements import PeriodicTable

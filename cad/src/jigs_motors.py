@@ -31,8 +31,8 @@ from drawer import drawRotateSign
 from drawer import drawbrick
 from drawer import drawLinearSign
 
-from HistoryWidget import orangemsg
-from HistoryWidget import redmsg, greenmsg
+from utilities.Log import orangemsg
+from utilities.Log import redmsg, greenmsg
 from povheader import povpoint #bruce 050413
 from debug import print_compact_stack, print_compact_traceback
 from jigs import Jig

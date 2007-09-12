@@ -36,8 +36,8 @@ import env
 from VQT import V, Q, A, norm, vlen
 from modes import basicMode
 from CookieCtrlPanel import CookieCtrlPanel
-from HistoryWidget import orangemsg
-from HistoryWidget import redmsg
+from utilities.Log import orangemsg
+from utilities.Log import redmsg
 from shape import CookieShape
 from shape import Slab
 import drawer

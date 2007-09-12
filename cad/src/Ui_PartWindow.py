@@ -146,7 +146,7 @@ class PartWindow(QWidget):
 	# <pwVSplitter> - a splitter comprising of all widgets to the right
 	# of the main splitter with children:
 	# - <glpane> (GLPane)
-	# - <history_object> (HistoryWIdget)
+	# - <history_object> (HistoryWidget)
 	
 	self.pwVSplitter = pwVSplitter = QSplitter(Qt.Vertical, pwHSplitter)
 	pwVSplitter.setObjectName("pwVSplitter")

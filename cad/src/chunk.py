@@ -2750,7 +2750,7 @@ def debug_make_BorrowerChunk_no_addmol(target):
     debug_make_BorrowerChunk_raw(False)
 
 def debug_make_BorrowerChunk_raw(do_addmol = True):
-    from HistoryWidget import orangemsg, redmsg, quote_html
+    from utilities.Log import orangemsg, redmsg, quote_html
     win = env.mainwindow()
     atomset = win.assy.selatoms
     if not atomset:

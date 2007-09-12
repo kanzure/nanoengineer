@@ -124,7 +124,7 @@ from modes import modeMixin
 
 import platform
 
-from HistoryWidget import greenmsg, redmsg
+from utilities.Log import greenmsg, redmsg
 from PlatformDependent import fix_event_helper
 from PlatformDependent import wrap_key_event
 from widgets import makemenu_helper
@@ -168,7 +168,7 @@ from constants import white
 
 from part import Part
 from jigs import Jig
-from HistoryWidget import orangemsg
+from utilities.Log import orangemsg
 from shape import BBox
 from qt4transition import qt4todo
 from chunk import molecule

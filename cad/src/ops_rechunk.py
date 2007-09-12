@@ -12,7 +12,7 @@ bruce 050507 made this by collecting appropriate methods from class Part.
 bruce 050913 used env.history in some places.
 """
 
-from HistoryWidget import greenmsg, redmsg
+from utilities.Log import greenmsg, redmsg
 from PlatformDependent import fix_plurals
 from chunk import molecule
 from constants import gensym

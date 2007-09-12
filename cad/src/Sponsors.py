@@ -55,7 +55,7 @@ from qt4transition import qt4todo
 from prefs_constants import sponsor_download_permission_prefs_key
 from prefs_constants import sponsor_permanent_permission_prefs_key
 from prefs_constants import sponsor_md5_mismatch_flag_key
-from HistoryWidget import redmsg, orangemsg, greenmsg
+from utilities.Log import redmsg, orangemsg, greenmsg
 from icon_utilities import geticon
 
 _sponsordir = find_or_make_Nanorex_subdir('Sponsors')

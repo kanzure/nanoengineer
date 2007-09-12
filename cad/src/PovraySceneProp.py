@@ -12,10 +12,10 @@ __author__ = "Mark"
 
 from PyQt4.Qt import SIGNAL, QDialog, QWhatsThis, QIcon, QDialog
 from PovrayScenePropDialog import Ui_PovrayScenePropDialog
-from HistoryWidget import greenmsg
+from utilities.Log import greenmsg
 from widgets import double_fixup
 import env, os
-from HistoryWidget import redmsg, orangemsg, greenmsg
+from utilities.Log import redmsg, orangemsg, greenmsg
 from GroupButtonMixin import GroupButtonMixin
 from Sponsors import SponsorableMixin
 from state_utils import same_vals

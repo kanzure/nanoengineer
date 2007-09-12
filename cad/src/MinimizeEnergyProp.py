@@ -17,7 +17,7 @@ from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QWhatsThis
 from PyQt4.Qt import QDoubleValidator
 
-from HistoryWidget import greenmsg, redmsg, orangemsg, _graymsg, quote_html
+from utilities.Log import greenmsg, redmsg, orangemsg, _graymsg, quote_html
 from MinimizeEnergyPropDialog import Ui_MinimizeEnergyPropDialog
 from GroupButtonMixin import GroupButtonMixin
 from Sponsors import SponsorableMixin

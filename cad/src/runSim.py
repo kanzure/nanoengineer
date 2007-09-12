@@ -39,7 +39,7 @@ from math import sqrt
 from SimSetup import SimSetup
 from PyQt4.Qt import QApplication, QCursor, Qt, QStringList, QProcess, QObject, SIGNAL
 from movie import Movie
-from HistoryWidget import redmsg, greenmsg, orangemsg, quote_html, _graymsg
+from utilities.Log import redmsg, greenmsg, orangemsg, quote_html, _graymsg
 import env
 from env import seen_before
 from VQT import A, V

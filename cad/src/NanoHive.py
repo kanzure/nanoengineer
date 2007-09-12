@@ -20,7 +20,7 @@ from PyQt4.Qt import QString
 import env
 
 from NanoHiveDialog import Ui_NanoHiveDialog
-from HistoryWidget import redmsg, greenmsg, orangemsg
+from utilities.Log import redmsg, greenmsg, orangemsg
 from jigs_planes import ESPImage
 from NanoHiveUtils import run_nh_simulation
 

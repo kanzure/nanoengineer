@@ -17,7 +17,7 @@ bruce 050913 used env.history in some places.
 
 __author__ = "Josh, Bruce"
 
-from HistoryWidget import greenmsg, redmsg
+from utilities.Log import greenmsg, redmsg
 import env
 
 class ops_connected_Mixin:

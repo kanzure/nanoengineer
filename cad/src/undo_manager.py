@@ -22,7 +22,7 @@ import undo_archive # for debug_undo2
 from constants import noop
 from prefs_constants import undoAutomaticCheckpoints_prefs_key
 import env
-from HistoryWidget import orangemsg, greenmsg, redmsg, _graymsg
+from utilities.Log import orangemsg, greenmsg, redmsg, _graymsg
 from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
 from PyQt4.Qt import SIGNAL
 import time

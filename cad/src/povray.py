@@ -19,7 +19,7 @@ import os, sys
 from PyQt4.Qt import QApplication, QCursor, Qt, QStringList, QProcess, QDir, QMessageBox
 
 import env
-from HistoryWidget import redmsg, orangemsg, greenmsg, _graymsg
+from utilities.Log import redmsg, orangemsg, greenmsg, _graymsg
 from debug import print_compact_traceback
 
 from prefs_constants import megapov_enabled_prefs_key

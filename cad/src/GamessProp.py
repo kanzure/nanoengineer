@@ -26,7 +26,7 @@ import env
 
 from GamessPropDialog import Ui_GamessPropDialog
 from ServerManager import ServerManager
-from HistoryWidget import redmsg
+from utilities.Log import redmsg
 from files_gms import insertgms
 from debug import print_compact_traceback
 from widgets import RGBf_to_QColor, QColor_to_RGBf, get_widget_with_color_palette

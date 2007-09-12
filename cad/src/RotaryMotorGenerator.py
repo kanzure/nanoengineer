@@ -11,7 +11,7 @@ Mark 2007-05-27: Created.
 
 __author__ = "Mark"
 
-from HistoryWidget import greenmsg
+from utilities.Log import greenmsg
 
 from PyQt4.Qt import QDialog
 from RotaryMotorGeneratorDialog import RotaryMotorPropMgr

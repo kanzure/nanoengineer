@@ -42,7 +42,7 @@ from Dna_Constants import getComplementSequence
 from Dna_Constants import getReverseSequence
 from Dna_Constants import replaceUnrecognized
 
-from HistoryWidget import redmsg, greenmsg, orangemsg
+from utilities.Log import redmsg, greenmsg, orangemsg
 
 from icon_utilities import geticon, getpixmap
 

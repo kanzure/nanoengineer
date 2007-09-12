@@ -201,7 +201,7 @@ def startup_script( main_globals):
             foo.fileOpen(sys.argv[2])
             if len(sys.argv) > 3:
                 import env
-                from HistoryWidget import orangemsg
+                from utilities.Log import orangemsg
                 env.history.message(orangemsg("We can only import one file at a time."))
   
     if atom_debug_profile_filename:

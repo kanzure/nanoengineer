@@ -176,8 +176,8 @@ def middle():
 
 # ==
 def standardExclude(attr, obj):
-    from MWsemantics import MWsemantics
-    from GLPane import GLPane
+    #from MWsemantics import MWsemantics
+    #from GLPane import GLPane
     # I am rarely interested in peeking inside these, and they create
     # tons of output.
     return False
@@ -572,7 +572,7 @@ def debug_run_command(command, source = "user debug input"): #bruce 040913-16 in
     print msg
     try:
         # include in history file, so one can search old history files for useful things to execute [bruce 060409]
-        from HistoryWidget import _graymsg, quote_html
+        from utilities.Log import _graymsg, quote_html
         env.history.message( _graymsg( quote_html( msg)))
     except:
         print_compact_traceback("exception in printing that to history: ")

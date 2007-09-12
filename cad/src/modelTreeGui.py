@@ -75,7 +75,7 @@ from assembly import assembly
 from Utility import Group, Node
 from debug import print_compact_traceback, print_compact_stack
 from PlatformDependent import fix_plurals
-from HistoryWidget import quote_html
+from utilities.Log import quote_html
 from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False, Choice
 from widgets import makemenu_helper
 import env

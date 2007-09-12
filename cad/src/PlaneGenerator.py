@@ -14,7 +14,7 @@ ninad 20070606: Created.
 #GeometryGeneratorBaseClass is a temporary implementation (just for A9) see 
 #more notes in ReferenceGeometry.py GeometryGeneratorBaseClass - Ninad 20070606 
 
-from HistoryWidget import greenmsg
+from utilities.Log import greenmsg
 
 from PlanePropertyManager import PlanePropertyManager
 from GeometryGeneratorBaseClass import GeometryGeneratorBaseClass

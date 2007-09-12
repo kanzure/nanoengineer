@@ -27,7 +27,7 @@ from selectMode import selectMode
 from selectMolsMode import selectMolsMode
 from selectAtomsMode import selectAtomsMode
 from widgets import FloatSpinBox
-from HistoryWidget import redmsg
+from utilities.Log import redmsg
 
 from MovePropertyManager import MovePropertyManager
 from chem import Atom

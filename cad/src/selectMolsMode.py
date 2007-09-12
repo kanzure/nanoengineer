@@ -41,7 +41,7 @@ from selectMode import selectMode
 from selectMode import DRAG_STICKINESS_LIMIT
 from selectMode import debug_update_selobj_calls
 from elements import Singlet
-from HistoryWidget import orangemsg
+from utilities.Log import orangemsg
 from chunk import molecule
 
 from debug import print_compact_stack

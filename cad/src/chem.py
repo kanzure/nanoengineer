@@ -110,7 +110,7 @@ except ImportError:
         def __getattr__(self, attr):
             raise AttributeError, attr
 
-from HistoryWidget import orangemsg
+from utilities.Log import orangemsg
 import debug
 from debug import print_compact_stack, print_compact_traceback, compact_stack
 

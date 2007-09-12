@@ -2027,7 +2027,7 @@ class modeMixin:
             except:
                 msg = "bug: exception %s" % (entering_msg,)
                 print_compact_traceback("%s: " % msg)
-                from HistoryWidget import redmsg
+                from utilities.Log import redmsg
                 env.history.message( redmsg( "internal error entering mode, trying default or safe mode" ))
                     ###TODO: modify message when resuming is true
                     # Emit this whether or not it's too_early!
@@ -2059,7 +2059,7 @@ class modeMixin:
         except AttributeError: # not defined after init!
             too_early = 0
         if not too_early:
-            from HistoryWidget import greenmsg
+            from utilities.Log import greenmsg
             env.history.message( greenmsg( msg), norepeat_id = msg )
         return msg
     

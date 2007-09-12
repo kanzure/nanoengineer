@@ -18,7 +18,7 @@ from chem import atom
 from string import capitalize
 from elements import PeriodicTable, Singlet
 from PlatformDependent import get_gms_name
-from HistoryWidget import redmsg, orangemsg
+from utilities.Log import redmsg, orangemsg
 from VQT import A
 import env
 

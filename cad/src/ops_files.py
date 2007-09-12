@@ -48,7 +48,7 @@ from files_mmp import readmmp, insertmmp, fix_assy_and_glpane_views_after_readmm
 from debug import print_compact_traceback
 from fileIO import writepovfile
 from fileIO import writemdlfile
-from HistoryWidget import greenmsg, redmsg, orangemsg, _graymsg
+from utilities.Log import greenmsg, redmsg, orangemsg, _graymsg
 
 from prefs_constants import getDefaultWorkingDirectory
 from prefs_constants import workingDirectory_prefs_key

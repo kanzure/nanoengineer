@@ -67,7 +67,7 @@ import env
 from state_utils import StateMixin #bruce 060223
 from changes import register_changedict, register_class_changedicts
 from debug_prefs import debug_pref, Choice_boolean_False #bruce 060307
-from HistoryWidget import redmsg, quote_html #bruce 070601
+from utilities.Log import redmsg, quote_html #bruce 070601
 
 from state_constants import S_CACHE, S_DATA, S_PARENT
 

@@ -300,7 +300,7 @@ def addEndcap(mol, length, radius, bondlength):
 
 from NanotubeGeneratorPropertyManager import NanotubeGeneratorPropertyManager
 from GeneratorBaseClass import GeneratorBaseClass
-from HistoryWidget import redmsg, orangemsg, greenmsg
+from utilities.Log import redmsg, orangemsg, greenmsg
 
 class NanotubeGenerator(NanotubeGeneratorPropertyManager, GeneratorBaseClass):
     """

@@ -20,7 +20,7 @@ from PyQt4.Qt import Qt, QString
 
 import env
 from VQT import V, Q, A, norm, vlen
-from HistoryWidget import greenmsg, redmsg, orangemsg
+from utilities.Log import greenmsg, redmsg, orangemsg
 from ViewOrientationWindow import ViewOrientationWindow
 from qutemol import launch_qutemol, write_qutemol_files
 from prefs_constants import ORTHOGRAPHIC

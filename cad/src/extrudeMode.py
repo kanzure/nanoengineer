@@ -56,7 +56,7 @@ from modes import basicMode
 from debug import print_compact_traceback, print_compact_stack
 from bonds import bond_at_singlets
 from icon_utilities import geticon
-from HistoryWidget import redmsg
+from utilities.Log import redmsg
 
 from VQT import check_floats_near, check_posns_near, check_quats_near
 from VQT import V, Q, norm, vlen, cross
@@ -286,7 +286,7 @@ class extrudeMode(basicMode):
         if not ok:
             whynot = mol
             if warn:
-                from HistoryWidget import redmsg
+                from utilities.Log import redmsg
                 env.history.message(redmsg("%s refused: %r" % (self.msg_modename, whynot,)))
                     # Fixes bug 444. mark 060323
             self.w.toolsExtrudeAction.setChecked(False)
@@ -1213,7 +1213,7 @@ class extrudeMode(basicMode):
             #bruce 070407 kluge: don't bother supporting this uncommon error message yet for fake_copied_mols etc.
             # To support it we'd have to scan & compare every true chunk.
             # Sometime it'd be good to do this... #e
-            from HistoryWidget import redmsg
+            from utilities.Log import redmsg
             if (not unit1.assy) or (not unit2.assy): ###@@@ better test for mol.killed?
                 #bruce 050317: don't bond to deleted units (though I doubt this
                 # is sufficient to avoid bugs from user deleting them in the MT during this mode)

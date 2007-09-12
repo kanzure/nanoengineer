@@ -54,7 +54,7 @@ from VQT import V
 from debug import print_compact_traceback, print_compact_stack
 import platform
 
-from HistoryWidget import greenmsg, redmsg
+from utilities.Log import greenmsg, redmsg
 from shape import BBox
 from chunk import molecule
 

@@ -24,7 +24,7 @@ ninad 2007-09-06: Created. Split out some methods originally in depositMode.py
 import changes
 import env
 
-from HistoryWidget import orangemsg
+from utilities.Log import orangemsg
 from icon_utilities import geticon
 
 from chem import Atom

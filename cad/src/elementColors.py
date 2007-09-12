@@ -22,7 +22,7 @@ from constants import diTrueCPK, diBALL, diTUBES
 from ThumbView import ElementView
 from qt4transition import qt4todo
 
-from HistoryWidget import redmsg # Mark 050311
+from utilities.Log import redmsg # Mark 050311
 from VQT import V
 from widgets import RGBf_to_QColor
 import env

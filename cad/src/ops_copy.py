@@ -15,7 +15,7 @@ import platform # for atom_debug
 import env
 
 from debug         import print_compact_stack
-from HistoryWidget import greenmsg, redmsg, orangemsg
+from utilities.Log import greenmsg, redmsg, orangemsg
 from PlatformDependent import fix_plurals
 from Utility       import Group
 from chunk         import molecule

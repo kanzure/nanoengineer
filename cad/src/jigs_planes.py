@@ -61,7 +61,7 @@ from shape import SelectionShape
 from shape import Slab
 from constants import SUBTRACT_FROM_SELECTION
 
-from HistoryWidget import redmsg, greenmsg
+from utilities.Log import redmsg, greenmsg
 from debug import print_compact_stack, print_compact_traceback
 from debug_prefs import debug_pref, Choice_boolean_False
 from jigs import Jig

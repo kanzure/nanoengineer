@@ -188,7 +188,7 @@ class DebugMenuMixin:
 
     def _debug_print_object_counts(self):
         #bruce 060327 for debugging memory leaks: report Atom & Bond refcounts, and objs that might refer to them
-        from HistoryWidget import _graymsg
+        from utilities.Log import _graymsg
         msglater = "" # things to print all in one line
         for clasname, modulename in (
                 ('Atom', 'chem'),
@@ -338,7 +338,7 @@ class DebugMenuMixin:
 ##        """
 ##        enabled_now = env.prefs[QToolButton_MacOSX_Tiger_workaround_prefs_key]
 ##        enable = not enabled_now
-##        from HistoryWidget import orangemsg, redmsg, greenmsg
+##        from utilities.Log import orangemsg, redmsg, greenmsg
 ##        if enable:
 ##            ###e ask user if ok; if we add that feature, also add "..." to menu command text
 ##            # note: if we enable, disable, and enable, all in one session, the following happens twice, but that's ok.

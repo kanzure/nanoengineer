@@ -27,7 +27,7 @@ from PyQt4.Qt import QMutex
 from SimJob import SimJob
 from SimServer import SimServer
 from GamessProp import GamessProp
-from HistoryWidget import redmsg
+from utilities.Log import redmsg
 from files_gms import writegms_inpfile, writegms_batfile
 import preferences
 import env

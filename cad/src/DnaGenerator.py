@@ -26,7 +26,7 @@ import os
 import random
 
 from Utility        import Group
-from HistoryWidget  import redmsg, orangemsg, greenmsg
+from utilities.Log import redmsg, orangemsg, greenmsg
 from VQT            import A, Q, V, angleBetween, cross, vlen, Veq
 from Numeric        import dot
 from math           import pi

@@ -14,7 +14,7 @@ from existing modules, from class Part and class basicMode.
 bruce 050913 used env.history in some places.
 """
 
-from HistoryWidget import greenmsg, redmsg
+from utilities.Log import greenmsg, redmsg
 
 # ops_atoms, part, and assembly form an import loop
 #import assembly

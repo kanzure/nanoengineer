@@ -54,7 +54,7 @@ from OpenGL.GL import glPopMatrix
 from OpenGL.GLU import gluUnProject
 
 from modes import basicMode
-from HistoryWidget import orangemsg
+from utilities.Log import orangemsg
 from chunk import molecule
 import env
 from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False, Choice
@@ -75,7 +75,7 @@ from debug import print_compact_traceback
 from debug import print_compact_stack
 
 from jigs import Jig
-from HistoryWidget import redmsg
+from utilities.Log import redmsg
 import platform
 
 

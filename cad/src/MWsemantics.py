@@ -70,7 +70,7 @@ from files_mmp import readmmp, insertmmp
 from debug import print_compact_traceback
 
 from MainWindowUI import Ui_MainWindow
-from HistoryWidget import greenmsg, redmsg, orangemsg
+from utilities.Log import greenmsg, redmsg, orangemsg
 
 from movieMode import movieDashboardSlotsMixin
 from ops_files import fileSlotsMixin

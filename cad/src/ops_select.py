@@ -17,7 +17,7 @@ from elements import Singlet
 from VQT import V, A, norm, cross
 from Numeric import dot, transpose
 import env
-from HistoryWidget import redmsg, greenmsg, orangemsg
+from utilities.Log import redmsg, greenmsg, orangemsg
 from debug import print_compact_traceback #bruce 051129
 import platform #bruce 051129
 from PlatformDependent import fix_plurals #bruce 051129

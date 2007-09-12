@@ -37,7 +37,7 @@ from elements import Singlet
 from modifyMode import modifyMode
 from extrudeMode import mergeable_singlets_Q_and_offset
 from bonds import bond_at_singlets
-from HistoryWidget import redmsg, orangemsg
+from utilities.Log import redmsg, orangemsg
 from PlatformDependent import fix_plurals
 from FusePropertyManager import FusePropertyManager
 from icon_utilities import geticon

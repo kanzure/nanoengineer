@@ -21,7 +21,7 @@ from PyQt4.Qt import Qt
 import env
 import changes
 
-from HistoryWidget import orangemsg
+from utilities.Log import orangemsg
 from chem          import Atom
 from elements      import Singlet
 from Utility       import is_pastable

@@ -40,7 +40,7 @@ from Utility import Node
 from jigs    import Jig
 
 from DragHandler   import DragHandler_API
-from HistoryWidget import greenmsg
+from utilities.Log import greenmsg
 
 from state_utils import same_vals
 

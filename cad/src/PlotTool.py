@@ -19,7 +19,7 @@ from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QStringList
 
 from PlotToolDialog import Ui_PlotToolDialog
-from HistoryWidget import redmsg, greenmsg, orangemsg
+from utilities.Log import redmsg, greenmsg, orangemsg
 from movie import find_saved_movie
 from PlatformDependent import open_file_in_editor
 import env

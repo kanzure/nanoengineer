@@ -77,7 +77,7 @@ class OldFormatMovieFile_startup:   #e maybe make these same obj, so easier to r
         return
     def error(self, msg):
         self.errcode = msg or "error" # public attr for callers to see...
-        from HistoryWidget import redmsg
+        from utilities.Log import redmsg
         env.history.message( redmsg( msg))
         return
     def delta_frame_bytes(self, n):

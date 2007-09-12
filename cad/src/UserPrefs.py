@@ -1303,7 +1303,7 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         """
         # Let the user know this is NIY. Addresses bug 1249 for A7. mark 060314.
         msg = "High Quality Graphics is not implemented yet."
-        from HistoryWidget import orangemsg
+        from utilities.Log import orangemsg
         env.history.message(orangemsg(msg))
         
     def change_view_animation_speed(self):

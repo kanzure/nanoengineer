@@ -847,7 +847,7 @@ def open_file_in_editor(file, hflag = True): #bruce 050913 revised this
     file = os.path.normpath(file)
     
     if hflag:
-        from HistoryWidget import redmsg
+        from utilities.Log import redmsg
     
     if not os.path.exists(file):
         msg = "File does not exist: " + file

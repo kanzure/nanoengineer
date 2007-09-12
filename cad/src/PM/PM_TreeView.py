@@ -22,7 +22,7 @@ import os
 import env
 import sys
 
-from HistoryWidget import redmsg
+from utilities.Log import redmsg
 
 class PM_TreeView(QTreeView):
     """

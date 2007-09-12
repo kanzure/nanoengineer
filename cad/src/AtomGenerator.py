@@ -32,7 +32,7 @@ from chem import Atom
 from chunk import molecule
 from VQT import V
 from elements import PeriodicTable
-from HistoryWidget import greenmsg
+from utilities.Log import greenmsg
 
 from AtomGeneratorPropertyManager import AtomGeneratorPropertyManager
 from GeneratorBaseClass import GeneratorBaseClass

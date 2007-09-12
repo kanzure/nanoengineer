@@ -40,7 +40,7 @@ def compile_patterns():
 
 def select_bad_atoms_cmd(widget): #bruce 060615 demo of simple "spelling checker" with hardcoded rules
     """Out of the selected atoms or chunks, select the atoms which have "bad spelling"."""
-    from HistoryWidget import orangemsg, redmsg, greenmsg
+    from utilities.Log import orangemsg, redmsg, greenmsg
     greencmd = greenmsg("%s: " % cmdname)
     orangecmd = orangemsg("%s: " % cmdname) # used when bad atoms are found, even though no error occurred in the command itself
     win = env.mainwindow()

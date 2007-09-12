@@ -389,7 +389,7 @@ class Node( StateMixin):
         return False 
     
     def redmsg(self, msg): #bruce 050203; revised 050901 to work even after assy set to None in Node.kill
-        from HistoryWidget import redmsg
+        from utilities.Log import redmsg
         env.history.message( redmsg( msg ))
 
     def is_top_of_selection_group(self): #bruce 050131 for Alpha [#e rename is_selection_group?] [#e rename concept "selectable set"?]
@@ -1025,7 +1025,7 @@ class Node( StateMixin):
             #bruce 060329 added this default message, since it's correct if the whole realCopy scheme is,
             # though I'm dubious about the whole scheme.
             msg = "Node [%s] won't be copied." % (self.name)
-            from HistoryWidget import orangemsg
+            from utilities.Log import orangemsg
             env.history.message(orangemsg(msg))
         return False # conservative answer
 
@@ -2346,7 +2346,7 @@ class Csys(SimpleCopyMixin, Node):
         '''
         self.assy.o.animateToView(self.quat, self.scale, self.pov, self.zoomFactor, animate=True)
         
-        from HistoryWidget import greenmsg
+        from utilities.Log import greenmsg
         cmd = greenmsg("Change View: ")
         msg = 'View changed to "%s".' % (self.name)
         env.history.message( cmd + msg )
@@ -2363,7 +2363,7 @@ class Csys(SimpleCopyMixin, Node):
         self.quat = Q(self.assy.o.quat)
         self.assy.changed() ###e we should make this check whether it really changed? (or will Undo do that??)
         
-        from HistoryWidget import greenmsg
+        from utilities.Log import greenmsg
         cmd = greenmsg("Set View: ")
         msg = 'View "%s" now set to the current view.' % (self.name)
         env.history.message( cmd + msg )

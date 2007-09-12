@@ -15,9 +15,9 @@ from drawer import drawwirecube, drawLineCube
 from povheader import povpoint # Fix for bug 692 Mark 050628
 from SimServer import SimServer
 from files_gms import get_energy_from_gms_outfile, get_atompos_from_gms_outfile
-from HistoryWidget import redmsg, greenmsg
+from utilities.Log import redmsg, greenmsg
 import env
-from HistoryWidget import redmsg
+from utilities.Log import redmsg
 from chem import move_alist_and_snuggle
 import state_utils #bruce 060306
 from debug import print_compact_traceback

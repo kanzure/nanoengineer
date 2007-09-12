@@ -50,7 +50,7 @@ from VQT import A
 from StatProp import StatProp
 from ThermoProp import ThermoProp
 
-from HistoryWidget import redmsg, greenmsg, orangemsg
+from utilities.Log import redmsg, greenmsg, orangemsg
 from povheader import povpoint
 from debug import print_compact_stack, print_compact_traceback
 import env

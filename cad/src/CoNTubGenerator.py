@@ -25,7 +25,7 @@ import os, sys, time
 
 import env
 import Initialize
-from HistoryWidget import redmsg, orangemsg, greenmsg, quote_html
+from utilities.Log import redmsg, orangemsg, greenmsg, quote_html
 from ParameterDialog import ParameterDialog, ParameterPane
 from GeneratorController import GeneratorController
 from GeneratorBaseClass import UserError, PluginBug, CadBug

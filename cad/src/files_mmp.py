@@ -138,7 +138,7 @@ from jigs_measurements import MeasureDihedral
 from VQT import V, Q, A
 from PovrayScene import PovrayScene
 from Comment import Comment
-from HistoryWidget import redmsg
+from utilities.Log import redmsg
 from elements import PeriodicTable
 from bonds import bond_atoms
 from bonds import find_bond

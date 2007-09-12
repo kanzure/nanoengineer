@@ -32,8 +32,8 @@ import changes
 from movie import find_saved_movie
 from runSim import writemovie
 from modes import basicMode
-from HistoryWidget import greenmsg
-from HistoryWidget import redmsg, orangemsg
+from utilities.Log import greenmsg
+from utilities.Log import redmsg, orangemsg
 from MoviePropertyManager import MoviePropertyManager
 from icon_utilities import geticon
 

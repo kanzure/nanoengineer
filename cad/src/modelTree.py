@@ -41,7 +41,7 @@ import modelTreeGui   # ModelTreeGui, Ne1Model_api
 
 from chunk import molecule
 from jigs import Jig
-from HistoryWidget import redmsg, greenmsg, orangemsg # not all used, that's ok
+from utilities.Log import redmsg, greenmsg, orangemsg # not all used, that's ok
 from Utility import Group
 from Utility import kluge_patch_assy_toplevel_groups
 from debug import print_compact_traceback

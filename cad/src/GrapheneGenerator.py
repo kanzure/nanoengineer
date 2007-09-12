@@ -24,7 +24,7 @@ import env
 from debug import Stopwatch, objectBrowse
 from Utility import Group
 from elements import PeriodicTable
-from HistoryWidget import greenmsg
+from utilities.Log import greenmsg
 import bond_constants
 
 from GrapheneGeneratorPropertyManager import GrapheneGeneratorPropertyManager

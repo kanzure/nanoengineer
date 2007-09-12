@@ -29,7 +29,7 @@ from VQT import V, Q, A, vlen
 from povheader import povheader, povpoint
 from mdldata import mdlheader
 from mdldata import mdlfooter
-from HistoryWidget import redmsg
+from utilities.Log import redmsg
 from elements import PeriodicTable
 
 from constants import diINVISIBLE
