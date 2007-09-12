@@ -74,6 +74,7 @@ from utilities.Log import greenmsg, redmsg, orangemsg
 
 from movieMode import movieDashboardSlotsMixin
 from ops_files import fileSlotsMixin
+from ops_files import recentfiles_use_QSettings
 from ops_view import viewSlotsMixin 
 from changes import register_postinit_object
 import preferences
@@ -109,7 +110,6 @@ eCCBtab2 = {}
 for i,elno in zip(range(len(eCCBtab1)), eCCBtab1):
     eCCBtab2[elno] = i
 
-recentfiles_use_QSettings = True #bruce 050919 debug flag (replacing use of __debug__) ###@@@
 
 ########################################################################
 

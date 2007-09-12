@@ -60,6 +60,8 @@ debug_babel = False   # DO NOT COMMIT with True
 
 debug_recent_files = False  # Do not commit with True
 
+recentfiles_use_QSettings = True #bruce 050919 debug flag (replacing use of __debug__) ###@@@
+
 if debug_recent_files:
     def debug_fileList(fileList):
         qt4here(show_traceback=True)
@@ -1328,7 +1330,6 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
     def _updateRecentFileList(self, fileName):
         '''Add the <fileName> into the recent file list '''
         LIST_CAPACITY = 4 #This could be set by user preference, not added yet
-        from MWsemantics import recentfiles_use_QSettings #bruce 050919 debug code #####@@@@@
         
         if recentfiles_use_QSettings:
             prefsSetting = QSettings("Nanorex", "NanoEngineer-1")
@@ -1384,7 +1385,6 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             # trust that when the "Open Recent Files" menu was set up,
             # it had the correct list of recent files? For now, assume
             # the latter.
-            from MWsemantics import recentfiles_use_QSettings #bruce 050919 debug code #####@@@@@
             if recentfiles_use_QSettings:
                 prefsSetting = QSettings("Nanorex", "NanoEngineer-1")
                 fileList = prefsSetting.value('/Nanorex/nE-1/recentFiles').toStringList()
@@ -1409,8 +1409,6 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         recentFileMenu = QMenu("Open Recent Files", self)
         self.assy.w.recentFileMenu = recentFileMenu
         
-        from MWsemantics import recentfiles_use_QSettings #bruce 050919 debug code #####@@@@@
-
         if recentfiles_use_QSettings:
             prefsSetting = QSettings("Nanorex", "NanoEngineer-1")
             fileList = prefsSetting.value('/Nanorex/nE-1/recentFiles').toStringList()
