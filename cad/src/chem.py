@@ -92,6 +92,11 @@ from prefs_constants import cpkScaleFactor_prefs_key
 from prefs_constants import diBALL_AtomRadius_prefs_key
 from state_constants import S_CHILDREN, S_PARENT, S_DATA, S_CACHE
 
+# This is here to prevent an import reference from here to GLPane.
+# Instead of doing "from GLPane import GLPane", GLPane imports chem
+# and does chem.GLPaneClass = GLPane
+GLPaneClass = None
+
 try:
     if not debug_pref('Enable pyrex atoms next time', Choice_boolean_False, prefs_key=True):
         raise ImportError
@@ -1142,8 +1147,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             # The check for glpane class is a kluge to prevent this from showing in thumbviews: should remove ASAP.
             #####@@@@@ need to do this in atom.getinfo().
             #e We might need to be able to turn this off by a preference setting; or, only do it in Build mode.
-            from GLPane import GLPane
-            if isinstance(glpane, GLPane) and self.bad_valence() and env.prefs[ showValenceErrors_prefs_key ]:
+            if isinstance(glpane, GLPaneClass) and self.bad_valence() and env.prefs[ showValenceErrors_prefs_key ]:
                 # Note: the env.prefs check should come last, or changing the pref would gl_update when it didn't need to.
                 # [bruce 060315 comment]
                 drawwiresphere(pink, pos, pickedrad * 1.08) # experimental, but works well enough for A6.

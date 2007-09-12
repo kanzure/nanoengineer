@@ -178,6 +178,10 @@ from debug_prefs import Choice
 from debug_prefs import Choice_boolean_False
 from debug_prefs import debug_pref
 
+# This is here to prevent an import reference from chem to GLPane.
+# Instead of doing "from GLPane import GLPane" there, GLPane imports
+# chem and does chem.GLPaneClass = GLPane, after defining GLPane
+import chem
 
 
 debug_lighting = False #bruce 050418
@@ -3588,6 +3592,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         return
 
     pass # end of class GLPane
+
+# This is here to prevent an import reference from chem to GLPane.
+chem.GLPaneClass = GLPane
 
 # ==
 
