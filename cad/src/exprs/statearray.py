@@ -5,7 +5,8 @@ statearray.py
 $Id$
 """
 ###e still UNFINISHED in some ways, the worst being that our elements are staterefs
-# (see StateArrayRefs_getitem_as_stateref in test_statearray.py, 070312, and ###BUG comment lower down) --
+# (see StateArrayRefs_getitem_as_stateref,
+# and ###BUG comment in test_statearray.py or related file, 070312) --
 # this is now renamed a feature of StateArrayRefs rather than a bug of StateArray.
 
 from exprs.reload import reload_once
@@ -91,8 +92,27 @@ def _make_StateArrayRefs(type_expr, dfltval_expr, attr, self, debug_name = None)
     return LvalDict2(valfunc, LvalForState, debug_name = debug_name)
         ###BUG - elts of this are the lvals, not their values!!! But if not for that, how would we make setitem work in this?!?
         ### I think we need to return a new object which implements __setitem__ by passing it into the lvals properly.
-        ###e But we also need access to per-element staterefs, e.g. we need that in the first use of this in test_statearray.py.
-        # [see also StateArrayRefs_getitem_as_stateref in test_statearray.py]
+        ###e But we also need access to per-element staterefs,
+        # e.g. we need that in the first use of this in test_statearray.py or a related file.
+        # [see also StateArrayRefs_getitem_as_stateref]
+
+def StateArrayRefs_getitem_as_stateref(statearrayrefs, index): #070313 renamed getitem_stateref to StateArrayRefs_getitem_as_stateref
+    "#doc; args are values not exprs in the present form, but maybe can also be exprs someday, returning an expr..."
+    if 'arg1 is a StateArrayRefs, not a StateArray':
+        return statearrayrefs[index] # WARNING:
+            # this only works due to a bug in the initial stub implem for StateArray --
+            # now declared a feature due to its being renamed to StateArrayRefs -- in which self.attr
+            # is valued as a dict of LvalForState objects rather than of settable/gettable item values,
+            # and *also* because I changed LvalForState to conform to the new StateRefInterface so it actually
+            # has a settable/gettable .value attribute.
+            ##### When that bug in StateArray is fixed, this code would be WRONG if applied to a real StateArray.
+            # What we need is to ask for an lval or stateref for that StateArray at that index!
+            # Can we do that using getitem_Expr (re semantics, reasonableness, and efficiency)? ##k
+    else:
+        return StateRef_from_lvalue( getitem_Expr(statearrayrefs, index))
+            ###IMPLEM this getitem_Expr behavior (proposed, not yet decided for sure; easy, see getattr_Expr for how)
+            ###IMPLEM StateRef_from_lvalue if I can think of a decent name for it, and if I really want it around
+    pass
 
 # ==
 

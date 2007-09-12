@@ -189,7 +189,10 @@ reload_once(exprs.demo_polyline)
 
 import exprs.test_statearray
 reload_once(exprs.test_statearray)
-from exprs.test_statearray import test_StateArrayRefs, test_StateArrayRefs_2, test_StateArrayRefs_3
+from exprs.test_statearray import test_StateArrayRefs
+
+from exprs.test_statearray_2 import test_StateArrayRefs_2
+from exprs.test_statearray_3 import test_StateArrayRefs_3
 
 from VQT import V
 from state_utils import same_vals
