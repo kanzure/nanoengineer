@@ -20,7 +20,6 @@ from PyQt4.Qt import QString
 from PyQt4.Qt import QColor
 from PyQt4.Qt import QColorDialog
 
-from PropertyManagerMixin import PropertyManagerMixin
 from CookiePropertyManager import CookiePropertyManager
 from icon_utilities import geticon
 from constants import dispLabel

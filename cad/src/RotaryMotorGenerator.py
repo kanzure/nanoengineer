@@ -18,7 +18,7 @@ from RotaryMotorGeneratorDialog import RotaryMotorPropMgr
 from GeneratorBaseClass import GeneratorBaseClass
 
 # RotaryMotorPropMgr must come BEFORE GeneratorBaseClass in this list.
-class RotaryMotorGenerator(QDialog, RotaryMotorPropMgr, GeneratorBaseClass):
+class RotaryMotorGenerator(RotaryMotorPropMgr, GeneratorBaseClass):
     """The Rotary Motor Generator class.
     """
 
@@ -38,7 +38,6 @@ class RotaryMotorGenerator(QDialog, RotaryMotorPropMgr, GeneratorBaseClass):
         self.jig = motor
         self.name = motor.name # Adopt the motor's name as our name.
                 
-        QDialog.__init__(self, win)
         RotaryMotorPropMgr.__init__(self, motor, glpane)
         GeneratorBaseClass.__init__(self, win)
 

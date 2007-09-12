@@ -1718,7 +1718,7 @@ class ModelTreeGui(QScrollArea, ModelTreeGui_common):#bruce 070529-30 rewrite of
         from prefs_constants import mtColor_prefs_key # In case we want to make it a user pref.
         from widgets import RGBf_to_QColor
         mtColor = RGBf_to_QColor(env.prefs[mtColor_prefs_key]) 
-        from PropMgrBaseClass import getPalette
+        from PM.PM_Colors  import getPalette
         self.setPalette(getPalette(None, QPalette.Window, mtColor))
 
         #e not sure if mt_update would be safe at this point (were cooperating objects fully initialized?)

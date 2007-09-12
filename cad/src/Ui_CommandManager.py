@@ -33,6 +33,7 @@ from CmdMgr_Constants import cmdMgrCntrlAreaBtnColor
 from CmdMgr_Constants import cmdMgrSubCntrlAreaBtnColor
 from CmdMgr_Constants import cmdMgrCmdAreaBtnColor
 
+from PM.PM_Colors import getPalette
 
 class Ui_CommandManager:
     """ 
@@ -255,10 +256,10 @@ class Ui_CommandManager:
         """ Return a palette for Command Manager control area 
         (Palette for Tool Buttons in command manager control area)
         """
-        return self.getPalette(None,
-                               QPalette.Button,
-                               cmdMgrCntrlAreaBtnColor
-                               )
+        return getPalette(None,
+                          QPalette.Button,
+                          cmdMgrCntrlAreaBtnColor
+                          )
     
     def getCmdMgrSubCtrlAreaPalette(self):
         """ Return a palette for Command Manager sub control area 
@@ -267,30 +268,16 @@ class Ui_CommandManager:
         #Define the color role. Make sure to apply color to QPalette.Button 
         #instead of QPalette.Window as it is a QToolBar. - ninad 20070619
         
-        return self.getPalette(None,
-                               QPalette.Button,
-                               cmdMgrSubCntrlAreaBtnColor
-                               )
+        return getPalette(None,
+                          QPalette.Button,
+                          cmdMgrSubCntrlAreaBtnColor
+                          )
     
     def getCmdMgrCommandAreaPalette(self):
         """ Return a palette for Command Manager 'Commands area'(flyout toolbar)
         (Palette for Tool Buttons in command manager command area)
         """
-        return self.getPalette(None,
-                               QPalette.Button,
-                               cmdMgrCmdAreaBtnColor
-                               )
-    
-    def getPalette(self, palette, obj, color): 
-        """ Given a palette, Qt object [actually a ColorRole] and a color, 
-        return a new palette.If palette is None, create and return a new 
-        palette.
-        """
-        #Similar function is defined globally in file PropMgrBaseClass.py
-        #(better to move that in to a new file that has qt helper methods 
-        #like this?) import it for now in this file -- ninad 20070619
-        
-        import PropMgrBaseClass
-        
-        return PropMgrBaseClass.getPalette(palette, obj, color)
-    ##==================================================================##
+        return getPalette(None,
+                          QPalette.Button,
+                          cmdMgrCmdAreaBtnColor
+                          )

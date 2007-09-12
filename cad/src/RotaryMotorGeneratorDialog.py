@@ -24,25 +24,25 @@ from PyQt4.Qt import QColorDialog
 from PyQt4.Qt import SIGNAL
 
 from GeneratorBaseClass import GeneratorBaseClass
-from PropMgrBaseClass import PropMgrBaseClass
-from PropMgrBaseClass import PropMgrGroupBox
-from PropMgrBaseClass import PropMgrDoubleSpinBox
-from PropMgrBaseClass import PropMgrCheckBox
-from PropMgrBaseClass import PropMgrPushButton
-from PropMgrBaseClass import PropMgrListWidget
-from PropMgr_Constants import pmPreviewButton
+from PM.PM_Dialog import PM_Dialog
+from PM.PM_GroupBox import PM_GroupBox
+from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
+from PM.PM_CheckBox   import PM_CheckBox
+from PM.PM_PushButton import PM_PushButton
+from PM.PM_ListWidget import PM_ListWidget
+from PM.PM_Constants import pmPreviewButton
 from widgets import RGBf_to_QColor, QColor_to_RGBf, get_widget_with_color_palette
 from bonds import CC_GRAPHITIC_BONDLENGTH
 
-class RotaryMotorPropMgr(object, PropMgrBaseClass):
+class RotaryMotorPropMgr(PM_Dialog):
     """RotaryMotorPropMgr class.
     """
     
     # <title> - the title that appears in the property manager header.
     title = "Rotary Motor"
-    # <propmgr_name> - the name of this property manager. This will be set to
-    # the name of the PropMgr (this) object via setObjectName().
-    propmgr_name = "pm" + title
+    # The name of this Property Manager. This will be set to
+    # the name of the PM_Dialog object via setObjectName().
+    pmName = title
     # <iconPath> - full path to PNG file that appears in the header.
     iconPath = "ui/actions/Simulation/Rotary_Motor.png"
     
@@ -52,9 +52,8 @@ class RotaryMotorPropMgr(object, PropMgrBaseClass):
         self.jig = motor
         self.glpane = glpane
         
-        PropMgrBaseClass.__init__(self, self.propmgr_name)
-        self.setPropMgrIcon(self.iconPath)
-        self.setPropMgrTitle(self.title)
+        PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)
+       
         self.addGroupBoxes()
         self.add_whats_this_text()
         
@@ -84,24 +83,18 @@ class RotaryMotorPropMgr(object, PropMgrBaseClass):
             self.setValuesForGroupBox2(self.pmGroupBox2)
             self.setValuesForGroupBox3(self.pmGroupBox3)
         
-        PropMgrBaseClass.show(self)
+        PM_Dialog.show(self)
     
     def addGroupBoxes(self):
         """Add the 3 groupboxes for the Rotary Motor Property Manager.
         """
-        self.pmGroupBox1 = PropMgrGroupBox(self, 
-                                           title="Rotary Motor Parameters",
-                                           titleButton=True)
+        self.pmGroupBox1 = PM_GroupBox(self, title = "Rotary Motor Parameters")
         self.loadGroupBox1(self.pmGroupBox1)
         
-        self.pmGroupBox2 = PropMgrGroupBox(self, 
-                                           title="Motor Size and Color",
-                                           titleButton=True)
+        self.pmGroupBox2 = PM_GroupBox(self, title = "Motor Size and Color")
         self.loadGroupBox2(self.pmGroupBox2)
         
-        self.pmGroupBox3 = PropMgrGroupBox(self, 
-                                           title="Selected Atoms",
-                                           titleButton=True)
+        self.pmGroupBox3 = PM_GroupBox(self, title = "Selected Atoms")
         self.loadGroupBox3(self.pmGroupBox3)
               
     def loadGroupBox1(self, pmGroupBox):
@@ -118,48 +111,56 @@ class RotaryMotorPropMgr(object, PropMgrBaseClass):
                             spanWidth=False)"""
         
         self.torqueDblSpinBox = \
-            PropMgrDoubleSpinBox(pmGroupBox, 
-                                label="Torque :", 
-                                val=self.jig.torque, 
-                                setAsDefault=True,
-                                min=0.0, max=1000.0, 
-                                singleStep=1.0, decimals=1, 
-                                suffix=' nN-nm')
+            PM_DoubleSpinBox(pmGroupBox, 
+                                label = "Torque :", 
+                                value = self.jig.torque, 
+                                setAsDefault = True,
+                                minimum    = 0.0, 
+                                maximum    = 1000.0, 
+                                singleStep = 1.0, 
+                                decimals   = 1, 
+                                suffix     =' nN-nm')
         
         self.initialSpeedDblSpinBox = \
-            PropMgrDoubleSpinBox(pmGroupBox,
-                                label="Initial Speed :", 
-                                val=self.jig.initial_speed, 
-                                setAsDefault=True,
-                                min=0.0, max=100.0, 
-                                singleStep=1.0, decimals=1, 
-                                suffix=' GHz')
+            PM_DoubleSpinBox(pmGroupBox,
+                                label = "Initial Speed :", 
+                                value = self.jig.initial_speed, 
+                                setAsDefault = True,
+                                minimum    = 0.0, 
+                                maximum    = 100.0, 
+                                singleStep = 1.0, 
+                                decimals   = 1, 
+                                suffix     =' GHz')
         
         self.finalSpeedDblSpinBox = \
-            PropMgrDoubleSpinBox(pmGroupBox,
+            PM_DoubleSpinBox(pmGroupBox,
                                 label="Final Speed :", 
                                 val=self.jig.speed, 
                                 setAsDefault=True,
-                                min=0.0, max=100.0, 
-                                singleStep=1.0, decimals=1, 
-                                suffix=' GHz')
+                                minimum  = 0.0, 
+                                maximum  = 100.0, 
+                                singleStep = 1.0, 
+                                decimals = 1, 
+                                suffix = ' GHz')
         
         self.dampersCheckBox = \
-            PropMgrCheckBox(pmGroupBox,
-                              label="Dampers :",
-                              isChecked=self.jig.dampers_enabled,
-                              setAsDefault=True,
-                              spanWidth=False)
+            PM_CheckBox(pmGroupBox,
+                              text = "Dampers :",
+                              widgetColumn = 0,
+                              setAsDefault = True,
+                              spanWidth    = True)
+        
+        self.dampersCheckBox.setChecked(self.jig.dampers_enabled)
         
         self.enableMinimizeCheckBox = \
-            PropMgrCheckBox(pmGroupBox,
-                              label="Enable in Minimize :",
-                              isChecked=self.jig.enable_minimize,
-                              setAsDefault=True,
-                              spanWidth=False)
+            PM_CheckBox(pmGroupBox,
+                        text ="Enable in Minimize :",
+                        setAsDefault = True,
+                        spanWidth    = True)
+        self.enableMinimizeCheckBox.setChecked(self.jig.enable_minimize)
         
         self.directionPushButton = \
-            PropMgrPushButton(pmGroupBox,
+            PM_PushButton(pmGroupBox,
                               label="Direction :",
                               text="Reverse")
         
@@ -172,25 +173,29 @@ class RotaryMotorPropMgr(object, PropMgrBaseClass):
         """
         
         self.motorLengthDblSpinBox = \
-            PropMgrDoubleSpinBox(pmGroupBox, 
-                                label="Motor Length :", 
-                                val=self.jig.length, 
-                                setAsDefault=True,
-                                min=0.5, max=500.0, 
-                                singleStep=0.5, decimals=1, 
-                                suffix=' Angstroms')
+            PM_DoubleSpinBox(pmGroupBox, 
+                                label = "Motor Length :", 
+                                value = self.jig.length, 
+                                setAsDefault = True,
+                                minimum = 0.5, 
+                                maximum = 500.0, 
+                                singleStep = 0.5, 
+                                decimals = 1, 
+                                suffix = ' Angstroms')
         
         self.connect(self.motorLengthDblSpinBox, 
                      SIGNAL("valueChanged(double)"), 
                      self.change_motor_size)
         
         self.motorRadiusDblSpinBox = \
-            PropMgrDoubleSpinBox(pmGroupBox, 
+            PM_DoubleSpinBox(pmGroupBox, 
                                 label="Motor Radius :", 
-                                val=self.jig.radius, 
-                                setAsDefault=True,
-                                min=0.1, max=50.0, 
-                                singleStep=0.1, decimals=1, 
+                                value = self.jig.radius, 
+                                setAsDefault = True,
+                                minimum = 0.1, 
+                                maximum = 50.0, 
+                                singleStep=0.1, 
+                                decimals=1, 
                                 suffix=' Angstroms')
         
         self.connect(self.motorRadiusDblSpinBox, 
@@ -198,13 +203,15 @@ class RotaryMotorPropMgr(object, PropMgrBaseClass):
                      self.change_motor_size)
         
         self.spokeRadiusDblSpinBox = \
-            PropMgrDoubleSpinBox(pmGroupBox, 
+            PM_DoubleSpinBox(pmGroupBox, 
                                 label="Spoke Radius :", 
-                                val=self.jig.sradius, 
-                                setAsDefault=True,
-                                min=0.1, max=50.0, 
-                                singleStep=0.1, decimals=1, 
-                                suffix=' Angstroms')
+                                value = self.jig.sradius, 
+                                setAsDefault = True,
+                                minimum = 0.1, 
+                                maximum = 50.0, 
+                                singleStep = 0.1, 
+                                decimals = 1, 
+                                suffix = ' Angstroms')
         
         self.connect(self.spokeRadiusDblSpinBox, 
                      SIGNAL("valueChanged(double)"), 
@@ -213,7 +220,7 @@ class RotaryMotorPropMgr(object, PropMgrBaseClass):
         self.jig_QColor = RGBf_to_QColor(self.jig.normcolor) # Used as default color by Color Chooser
         
         self.colorPushButton = \
-            PropMgrPushButton(pmGroupBox,
+            PM_PushButton(pmGroupBox,
                               label="Color :",
                               text="Choose...")
         
@@ -235,7 +242,7 @@ class RotaryMotorPropMgr(object, PropMgrBaseClass):
             selectedAtomNames.append(san)
             
         self.selectedAtomsListWidget = \
-            PropMgrListWidget(pmGroupBox, 
+            PM_ListWidget(pmGroupBox, 
                                 label="Atoms :", 
                                 items=selectedAtomNames,
                                 row=0, 
@@ -245,7 +252,7 @@ class RotaryMotorPropMgr(object, PropMgrBaseClass):
             '''
             
         self.selectedAtomsListWidget = \
-            PropMgrListWidget(pmGroupBox, 
+            PM_ListWidget(pmGroupBox, 
                                 label="Atoms :",
                                 numRows=6)
         

@@ -19,7 +19,8 @@ from modelTree import modelTree
 from qt4transition import qt4warnDestruction, qt4todo
 import platform, env
 from PlatformDependent import make_history_filename
-from PropMgrBaseClass import printSizePolicy, printSizeHints, getPalette
+from PM.PM_Utilities import printSizePolicy, printSizeHints
+from PM.PM_Colors  import   getPalette
 from debug import print_compact_traceback #bruce 070627 bugfix
 
 class _FeatureManager(QTabWidget): #bruce 070829 made this subclass re bug 2522
