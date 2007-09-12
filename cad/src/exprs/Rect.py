@@ -192,7 +192,7 @@ class Line(InstanceOrExpr): #070211; revised 070419 (Widget2D -> IorE, more opti
         width = self.width
         dashed = self.dashed
         import drawer
-        drawer.drawline(color, end1, end2, width = width, dashEnabled = dashed) ###k dashEnabled untested here
+        drawer.drawline(color[:3], end1, end2, width = width, dashEnabled = dashed) ###k dashEnabled untested here
     pass
 
 # ==
