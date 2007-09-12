@@ -6,6 +6,8 @@ PM_Utilities.py
 $Id$
 """
 
+from PyQt4.QtGui import QSizePolicy
+
 # Special Qt debugging functions written by Mark. 2007-05-24 ############
 
 def getSizePolicyName(sizepolicy):
