@@ -8,6 +8,13 @@ test code for one kind of constrained dragging
 
 used in testexpr_35b thru 35d in exprs/test.py
 
+the DragBehavior in this file improves on the one in test_statearray_2.py:
+- uses its own coordsys, not the one in the Highlightable
+- computes the translation from the height (for internal and external use)
+- has a range limit
+
+But it needs a refactoring; see comments herein about "refactoring".
+
 """
 __author__ = 'bruce'
 
@@ -27,21 +34,9 @@ import exprs.Highlightable
 reload_once(exprs.Highlightable)
 from exprs.Highlightable import Highlightable, SavedCoordsys
 
-import exprs.Boxed
-reload_once(exprs.Boxed)
-from exprs.Boxed import Boxed
-
-import exprs.Set
-reload_once(exprs.Set)
-from exprs.Set import Set ##e move to basic?
-
-import exprs.draggable
-reload_once(exprs.draggable)
-from exprs.draggable import DraggableObject
-
 import exprs.images
 reload_once(exprs.images)
-from exprs.images import Image, IconImage, NativeImage, PixelGrabber
+from exprs.images import Image
 
 import exprs.controls
 reload_once(exprs.controls)
@@ -95,6 +90,7 @@ class xxx_drag_behavior_3(DragBehavior): #070318 (compare to SimpleDragBehavior)
         #  since it's not analogous to ArgExpr.)
     posn_parameter_ref = Arg(StateRef, doc = "where the variable height is stored")
     constrain_to_line = Arg(Ray, doc = "the line/ray on which the height is interpreted as a position")
+        ###e rename: constraint_line? line_to_constrain_to? constrain_to_this_line?
         # note: the position of the height on this line is typically used as the position of the drawn movable object's origin;
         # we shouldn't assume the drag startpoint is on the line, since the drawn movable object might be touched at any of its points.
         ##e rename Ray -> MarkedLine? (a line, with real number markings on it) ParametricLine? (no, suggests they can be distorted/curved)
@@ -116,6 +112,7 @@ class xxx_drag_behavior_3(DragBehavior): #070318 (compare to SimpleDragBehavior)
     # state:
     saved_coordsys = Instance( SavedCoordsys() ) # provides transient state for saving a fixed coordsys to use throughout a drag
 
+    # helper methods (these probably belong in a superclass):
     def current_event_mousepoint(self, *args, **kws): #e zap this and inline it, for clarity? or move it into DragBehavior superclass??
         return self.saved_coordsys.current_event_mousepoint(*args, **kws)
 
@@ -124,6 +121,7 @@ class xxx_drag_behavior_3(DragBehavior): #070318 (compare to SimpleDragBehavior)
         p1 = self.current_event_mousepoint(depth = 1.0) # farthest depth ###k
         return Ray(p0, p1 - p0) #e passing just p1 should be ok too, but both forms can't work unless p0,p1 are typed objects...
 
+    # specific methods
     def _C__translation(self): ### WARNING: used externally too -- rename to be not private if we decide that's ok ###e
         "compute self._translation from the externally stored height"
         k = self.posn_parameter_ref.value
@@ -134,10 +132,50 @@ class xxx_drag_behavior_3(DragBehavior): #070318 (compare to SimpleDragBehavior)
             # (since self.highlightable's coordsys changes during the drag)
         self.startpoint = self.current_event_mousepoint() # the touched point on the visible object (hitpoint)
         self.offset = self.startpoint - (ORIGIN + self._translation) #k maybe ok for now, but check whether sensible in long run
-        self.line = self.constrain_to_line + self.offset # the line the hitpoint is on
+        self.line = self.constrain_to_line + self.offset # the line the hitpoint is on (and constrained to, if handle is rigid)
+            # (this is parallel to self.constrain_to_line and intersects the hitpoint) 
     def on_drag(self):
+        # Note: we can assume this is a "real drag" (not one which is too short to count), due to how we are called.
         mouseray = self.current_event_mouseray()
         k = self.line.closest_pt_params_to_ray(mouseray)
+            #
+            # BUG: for lines with a lot of Z direction, in perspective view,
+            # this is wrong -- we want the closest point on the screen,
+            # not in space. The current code (closest point in space)
+            # would tend to come up with a point too near the screen,
+            # if the constraint line and the mouseray are diverging away
+            # from each other (in model space) with depth.
+            #
+            # TODO: fix this. Possible fixes include:
+            # - common code, using a projection matrix & its inverse (seems hard)
+            # - separate code for Ortho vs Perspective case (needs eyepoint)
+            #   (might be clearest & simplest; it might turn out we'd want other
+            #    behavior tweaks which differed in these cases -- for example,
+            #    stop dragging and turn the handle red when it gets so far away
+            #    in model space (near the "point at infinity" visible on the screen
+            #    for an infinite line -- aka the "point of convergence" for a family
+            #    of parallel lines) that its motion would be too sensitive, since
+            #    the constraint line is too close to perpendicular to the screen)
+            # - save the initial mouseray too, since it gives us enough info
+            #   (along with current one) to know the entire projection
+            #   (except when they coincide, in which case no motion is needed).
+            #   Alg for this is not yet worked out. Q: is an ortho projection
+            #   along initial mouseray a good approximation? Probably not,
+            #   if we approach the "point at infinity".
+            #
+            # Also we need a refactoring, so that one external object can store
+            # both the geometric info about the constraint, and the state of the
+            # dragpoint along it, accessible as parameter-along-line or point or both,
+            # with either being the underlying state. (Unless nothing less than a
+            # DragBehavior can actually do all those things, in which case,
+            # we need variants depending on whether the point or the parameter
+            # is the underlying state. But more likely, we want a DragState which
+            # knows how to make the underlying state convenient, and a DragBehavior
+            # which knows how to connect that to mouse gestures, so these can vary
+            # separately.)
+            #
+            # [bruce 070913 comment]
+            #
         if k is not None:
             # store k, after range-limiting
             range = self.range # don't use the python builtin of the same name, in this method! (#e or rename the option?)

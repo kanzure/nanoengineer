@@ -8,6 +8,8 @@ test code for one kind of constrained dragging
 
 used in testexpr_35a in exprs/test.py
 
+DEPRECATED -- replaced by test_statearray_3.py
+
 """
 __author__ = 'bruce'
 
@@ -19,29 +21,13 @@ import exprs.Column
 reload_once(exprs.Column)
 from exprs.Column import SimpleColumn, SimpleRow
 
-import exprs.Rect
-reload_once(exprs.Rect)
-from exprs.Rect import Rect, Line
-
-import exprs.Highlightable
-reload_once(exprs.Highlightable)
-from exprs.Highlightable import Highlightable, SavedCoordsys
-
-import exprs.Boxed
-reload_once(exprs.Boxed)
-from exprs.Boxed import Boxed
-
-import exprs.Set
-reload_once(exprs.Set)
-from exprs.Set import Set ##e move to basic?
-
 import exprs.draggable
 reload_once(exprs.draggable)
 from exprs.draggable import DraggableObject
 
 import exprs.images
 reload_once(exprs.images)
-from exprs.images import Image, IconImage, NativeImage, PixelGrabber
+from exprs.images import Image
 
 import exprs.controls
 reload_once(exprs.controls)
