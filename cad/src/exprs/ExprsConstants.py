@@ -159,5 +159,8 @@ Position = StubType
 Point    = StubType
 StateRef = StubType
 Function = StubType
+Drawable = StubType # warning: also defined as DelegatingInstanceOrExpr in one file
+
 Type     = Anything
 
+# end

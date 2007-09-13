@@ -49,8 +49,9 @@ from test_connectWithState_PM import test_connectWithState_PM
 from test_commands import ExampleCommand
 
 from VQT import V
+from VQT import cross
 
-from constants import pink
+from constants import pink, white
 # TODO: import the following from somewhere
 DX = V(1,0,0)
 DY = V(0,1,0)
@@ -60,7 +61,17 @@ from drawer import drawcylinder, drawsphere
 from exprs.ExprsMeta import ExprsMeta
 from exprs.StatePlace import StatePlace
 from exprs.instance_helpers import IorE_guest_mixin
-from exprs.attr_decl_macros import State
+from exprs.attr_decl_macros import Instance, State, Option
+from exprs.__Symbols__ import _self
+from exprs.Exprs import call_Expr, tuple_Expr ### USE THIS
+from exprs.Center import Center
+
+from exprs.Rect import Rect ### probably temporary
+
+from exprs.DraggableHandle import DraggableHandle_AlongLine
+from exprs.If_expr import If_expr
+
+from prefs_widgets import ObjAttr_StateRef
 
 from OpenGL.GL import GL_LEQUAL
 
@@ -93,8 +104,11 @@ class test_connectWithState(State_preMixin, ExampleCommand):
     default_mode_status_text = "test_connectWithState"
     PM_class = test_connectWithState_PM
 
-    # this might be needed if we draw any exprs: [TODO: move to basicMode]
+    # kluge: this might be needed if we draw any exprs: [TODO: move to basicMode]
     standard_glDepthFunc = GL_LEQUAL
+    
+    # initial values of instance variables
+    propMgr = None
 
     # tracked state -- this initializes specially defined instance variables
     # which will track all their uses and changes so that connectWithState
@@ -106,9 +120,51 @@ class test_connectWithState(State_preMixin, ExampleCommand):
     
         # note: you can add _e_debug = True to one or more of these State definitions
         # to see debug prints about some accesses to this state.
+
+    # exprs-based formulae (and some compute methods)
+    direction = If_expr( cylinderVertical, DY, DX )
+    def _C_width_direction(self):
+        """
+        compute self.width_direction
+        """
+        # Note: to do this with a formula expr instead
+        # would require cross_Expr to be defined,
+        # and glpane.lineOfSight to be tracked.
+        return cross( self.direction, self.env.glpane.lineOfSight )
+    width_direction = _self.width_direction # so it can be used in formulae below
+
+    # stub for handle test code [070912]
     
-    # initial values of instance variables
-    propMgr = None
+    widthHandleEnabled = True # stub
+    ## widthHandle = Instance(Rect()) # stub
+    h_offset = 0.5 + 0.2 # get it from handle? nah (not good if that changes with time); just make it fit.
+        # or we could decide that handles ought to have useful fixed bounding boxes...
+##    widthHandle = Instance(Translate(Center(Rect(0.5)),
+##                                     width_direction * (cylinderWidth / 2.0 + h_offset) )) #stub
+    widthHandle = Instance( DraggableHandle_AlongLine(
+        appearance = Center(Rect(0.5, 0.5, white)),
+        ### REVIEW:
+        # Can't we just replace the following with something based on the formula for the position,
+        #   width_direction * (cylinderWidth / 2.0 + h_offset)
+        # ?
+        # As it is, I have to manually solve that formula for origin and direction to pass in,
+        # i.e. rewrite it as
+        #   position = origin + direction * cylinderWidth
+        ## height_ref = cylinderWidth, ###WRONG
+##        height_ref = ObjAttr_StateRef( _self, 'cylinderWidth'),
+##            ## AssertionError: ObjAttr_StateRef fallback is nim -- needed for S._self
+        height_ref = call_Expr( ObjAttr_StateRef, _self, 'cylinderWidth'), # guess at workaround; #e we need a more principled way!
+            ### REVIEW: efficient enough? (guess: overhead only happens once, so yes)
+            # could we say instead something like: height_ref = Variable(cylinderWidth) ?? Or VariableRef? Or StateRef_to ?
+        origin = width_direction * h_offset, # note: also includes cylinder center, but that's hardcoded at ORIGIN
+        direction = width_direction / 2.0,
+        sbar_text = "cylinder width", ### TODO: make it a formula, include printed value of width?
+        range = (0.1, 10),
+            ### TODO: DraggableHandle_AlongLine should take values from the stateref if this option is not provided;
+            # meanwhile, we ought to pass a consistent value!
+    ))
+        # Note: the Instance is required; but I'm not sure if it would be
+        # if we were using a fuller exprs superclass or init code. [bruce 070912]
 
 ##    def __init__(self, glpane):
 ##        super(test_connectWithState, self).__init__(glpane)
@@ -126,10 +182,11 @@ class test_connectWithState(State_preMixin, ExampleCommand):
     def Draw(self):
         color = self.cylinderColor
         length = cylinder_height()
-        if self.cylinderVertical:
-            direction = DY
-        else:
-            direction = DX
+##        if self.cylinderVertical:
+##            direction = DY
+##        else:
+##            direction = DX
+        direction = self.direction
         end1 = ORIGIN - direction * length/2.0
         end2 = ORIGIN + direction * length/2.0
         radius = self.cylinderWidth / 2.0
@@ -140,7 +197,9 @@ class test_connectWithState(State_preMixin, ExampleCommand):
             detailLevel = 2
             drawsphere( color, end1, radius, detailLevel)
             drawsphere( color, end2, radius, detailLevel)
-        
+
+        if self.widthHandleEnabled:
+            self.widthHandle.draw()
         return
 
     def cmd_Bigger(self):
