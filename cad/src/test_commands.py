@@ -61,19 +61,24 @@ class ExampleCommand(selectAtomsMode):
     Some of them also need to override mode methods, such as Draw.
     """
     return_to_prior_command = False
+    PM_class = None # if not overridden, means we need no PM (BUG: we'll still get a PM tab)
     
     def init_gui(self):
         print "init_gui in", self ###
         win = self.win
-        self.__PM = pm = self.PM_class(win, commandrun = self)
-        pm.show()
+        # note: propMgr is initialized to None in our superclass anyMode
+        if self.PM_class:
+            self.propMgr = self.PM_class(win, commandrun = self)
         selectAtomsMode.init_gui(self) # this fixed the "disconnect without connect" bug
             #k will we need to do this first not last? or not do all of it? seems ok so far.
+        if self.propMgr:
+            self.propMgr.show()
         return
 
     def restore_gui(self):
         print "restore_gui in", self ###
-        self.__PM.close() # removes PM tab -- better than the prior .hide() call [bruce 070829]
+        if self.propMgr:
+            self.propMgr.close() # removes PM tab -- better than the prior .hide() call [bruce 070829]
         selectAtomsMode.restore_gui(self) # this apparently worked even when it called init_gui by mistake!!
         return
     
@@ -178,6 +183,8 @@ def construct_cmdrun( cmd_class, glpane):
     # (we use same interface as <mode>.__init__ for now,
     #  though passing assy might be more logical)
     cmdrun = cmd_class(glpane)
+    if not hasattr(cmdrun, 'glpane'):
+        print "bug: no glpane in cmdrun %r: did it forget to call ExampleCommand.__init__?" % (cmdrun,)
     ###e should also put it somewhere, as needed for a mode ####DOIT
     if 'kluge, might prevent malloc errors after removing pm from ui (guess)':
         import changes
@@ -243,13 +250,25 @@ def initialize():
     if (Initialize.startInitialization(__name__)):
         return
     
-    # initialization code
-    global test_connectWithState, ExampleCommand2E # this is needed due to globals() above (kluge)
-    from test_connectWithState import test_connectWithState
-        ### once we split this file, we can avoid import loop & still import this at top
-    from example_expr_command import ExampleCommand2E # ditto
+    # initialization code (note: it's all a kluge, could be cleaned up pretty easily)
+    classnames = ["ExampleCommand1", "ExampleCommand2", "ExampleCommand2E"] # extended below
 
-    for classname in ["ExampleCommand1", "ExampleCommand2", "ExampleCommand2E", "PM_WidgetDemo", "test_connectWithState"]:
+    global test_connectWithState
+        # this is needed due to globals()[example_command_classname] above (kluge)
+    from test_connectWithState import test_connectWithState
+        ### once we split this file, we can avoid import loop & still import this at top,
+        # and same for the other imports here
+    classnames.append("test_connectWithState")
+
+    global ExampleCommand2E
+    from example_expr_command import ExampleCommand2E
+    classnames.append("ExampleCommand2E")
+
+    global test_polyline_drag
+    from test_polyline_drag import test_polyline_drag # ditto
+    classnames.append("test_polyline_drag")
+
+    for classname in classnames:
         cmdname = classname # for now
         register_debug_menu_command( cmdname, (lambda widget, classname = classname: enter_example_command(widget, classname)) )
     
