@@ -6,6 +6,9 @@ $Id$
 
 """
 
+# Note: most or all of the imports from cad/src are no longer needed here,
+# since the exprs modules that want them import them directly.
+
 from VQT import V
 
 from prefs_constants import UPPER_RIGHT, UPPER_LEFT, LOWER_LEFT, LOWER_RIGHT # compass positions, also usable for DrawInCorner
@@ -59,27 +62,6 @@ else:
         print "EVAL_REFORM is %r" % EVAL_REFORM
 
 nevermind = lambda func: identity
-
-from exprs.__Symbols__ import Anything #070115
-from exprs.__Symbols__ import Automatic, Something #070131
-
-# Symbol docstrings -- for now, just tack them on (not yet used AFAIK):
-
-Anything.__doc__ = """Anything is a legitimate type to coerce to which means 'don't change the value at all'. """
-Anything._e_sym_constant = True
-
-Something.__doc__ = """Something is a stub for when we don't yet know a type or value or formula,
-but plan to replace it with something specific (by editing the source code later). """
-Something._e_eval_forward_to = Anything
-
-Automatic.__doc__ = """Automatic [###NIM] can be coerced to most types to produce a default value.
-By convention, when constructing certain classes of exprs, it can be passed as an arg or option value
-to specify that a reasonable value should be chosen which might depend on the values provided for other
-args or options. """
-    ###e implem of that:
-    #  probably the type should say "or Automatic" if it wants to let a later stage use other args to interpret it,
-    #  or maybe the typedecl could give the specific rule for replacing Automatic, using a syntax not specific to Automatic.
-Automatic._e_sym_constant = True
 
 # == colors (constants and simple functions; import them everywhere to discourage name conflicts that show up only later)
 
@@ -147,6 +129,10 @@ PIXELS = 0.035 ###WRONG: rough approximation; true value depends on depth (in pe
 
 NullIpath = '.' ##k ok that it's not None? maybe not, we might test for None... seems to work for now tho.
     #e make it different per reload? [070121 changed from 'NullIpath' to '.' to shorten debug prints]
+
+from __Symbols__ import Anything ## TODO: remove this,
+ # since it's our only remaining import of __Symbols__
+ # and it causes a runtime import loop with Exprs.py
 
 StubType = Anything # use this for stub Type symbols [new symbol and policy, 070115]
 
