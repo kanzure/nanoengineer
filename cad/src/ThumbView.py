@@ -1,9 +1,9 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
+"""
 ThumbView.py
 
 $Id$
-'''
+"""
 
 import math
 from Numeric import dot
@@ -77,11 +77,20 @@ from prefs_constants import bondpointHighlightColor_prefs_key
 
 from Utility import Group
 
-class ThumbView(QGLWidget):
-    """A simple version of OpenGL widget, which can be used to show a simple thumb view of models when loading models or color changing. 
-    General rules for multiple QGLWidget uses: make sure the rendering context is current. 
-    Remember makeCurrent() will be called implicitly before any ininializeGL, resizeGL, paintGL virtual functions call. Ideally, this class should coordinate with class GLPane in some ways.
+from GLPane_minimal import GLPane_minimal
+
+class ThumbView(GLPane_minimal):
     """
+    A simple version of OpenGL widget, which can be used to show a simple
+    thumb view of models when loading models or color changing. 
+    General rules for multiple QGLWidget uses: make sure the rendering context
+    is current. Remember makeCurrent() will be called implicitly before any
+    initializeGL, resizeGL, paintGL virtual functions call. Ideally, this class
+    should coordinate with class GLPane in some ways.
+    """
+    # Note: classes GLPane and ThumbView share lots of code,
+    # which ought to be merged into their common superclass GLPane_minimal
+    # (currently empty). [bruce 070914 comment]
     shareWidget = None #bruce 051212
     always_draw_hotspot = False #bruce 060627
     def __init__(self, parent, name, shareWidget):

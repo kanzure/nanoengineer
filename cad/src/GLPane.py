@@ -134,9 +134,9 @@ import preferences
 import env
 from changes import SubUsageTrackingMixin
 
-from DynamicTip import DynamicTip #ninad060818 moved class DynamicTip to a new file
+from DynamicTip import DynamicTip
 
-from state_utils import transclose #bruce 070110
+from state_utils import transclose
 
 from prefs_constants import glpane_lights_prefs_key
 from prefs_constants import compassPosition_prefs_key
@@ -178,10 +178,15 @@ from debug_prefs import Choice
 from debug_prefs import Choice_boolean_False
 from debug_prefs import debug_pref
 
-# This is here to prevent an import reference from chem to GLPane.
+# "import chem" is here to prevent an import reference from chem to GLPane.
 # Instead of doing "from GLPane import GLPane" there, GLPane imports
-# chem and does chem.GLPaneClass = GLPane, after defining GLPane
+# chem and does chem.GLPaneClass = GLPane, after defining GLPane.
+# This should be further cleaned up by defining a class constant
+# in GLPane_minimal with different values in its subclasses.
+
 import chem
+
+from GLPane_minimal import GLPane_minimal
 
 
 debug_lighting = False #bruce 050418
@@ -342,9 +347,14 @@ class GLPane_mixin_for_DisplistChunk(object): #bruce 070110 moved this here from
 
 # ==
 
-class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane_mixin_for_DisplistChunk):
-    """Mouse input and graphics output in the main view window.
+class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane_mixin_for_DisplistChunk):
     """
+    Mouse input and graphics output in the main view window.
+    """
+    # Note: classes GLPane and ThumbView share lots of code,
+    # which ought to be merged into their common superclass GLPane_minimal
+    # (currently empty). [bruce 070914 comment]
+
     # Note: external code expects self.mode to always be a working
     # mode object, which has certain callable methods.  Our modes
     # themselves expect certain other attributes (like self.modetab)
@@ -367,7 +377,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
                     movieMode, zoomMode, panMode, rotateMode, 
                     PasteMode, PartLibraryMode]
     
-    always_draw_hotspot = False #bruce 060627; not really needed, added for compatibility with ThumbView.py
+    always_draw_hotspot = False #bruce 060627; not really needed, added for compatibility with class ThumbView
 
     def __init__(self, assy, parent=None, name=None, win=None):
         
@@ -381,6 +391,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         glformat.setStencil(True)
         
         QGLWidget.__init__(self, glformat, parent)
+        
         self.partWindow = parent
 
         self.stencilbits = 0 # conservative guess, will be set to true value below
@@ -2738,7 +2749,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT )
             #e if stencil clear is expensive, we could optim and only do it when needed [bruce ca. 050615]
 
-        # "Blue Sky" is the only gradient supported in A7.  Mark 05
+        # "Blue Sky" is the only gradient supported in A7. [Mark]
         if self.backgroundGradient:
             vtColors = (bluesky)
             glMatrixMode(GL_PROJECTION)
@@ -2746,6 +2757,10 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
             glMatrixMode(GL_MODELVIEW)
             glLoadIdentity()
             drawer.drawFullWindow(vtColors)
+            # Note: it would be possible to optimize by not clearing the color buffer
+            # when we'll call drawFullWindow, if we first cleared depth buffer (or got
+            # drawFullWindow to ignore it and effectively clear it by writing its own
+            # depths into it everywhere, if that's possible). [bruce 070913 comment]
 
         aspect = (self.width + 0.0)/(self.height + 0.0)
         vdist = 6.0 * self.scale
