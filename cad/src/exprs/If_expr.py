@@ -41,6 +41,8 @@ class If_expr(InstanceMacro): #e refile ### WAIT A MINUTE, why does Exprs.py thi
     cond = Arg(bool) # WARNING: this is effectively a public attr; none of these argnames will be delegated to the value (I think)
     _then = Arg(Anything)
     _else  = Arg(Anything, None) # note: the None default probably won't work here; the callers presently pass a TextRect
+        # update 070914: I added a kluge in _e_argval_If_expr to try to make this default work
+        # (not using the fact that it's declared here except to permit expr init when it's not passed)
     def _C__value(self):
         if self.cond:
                 # digr: I mistakenly thought _then & _else ipaths were same, in some debugging e.g. printing _self.ipath,
@@ -85,6 +87,9 @@ class If_expr(InstanceMacro): #e refile ### WAIT A MINUTE, why does Exprs.py thi
         # we don't want to override anything in there unwittingly. To be safe, I renamed it.
         ## args = self._e_args
         args = self._e_args # I guess this is correct -- self.cond etc would prematurely eval or instantiate them i think (#k not sure!)
+        if i == 2 and len(args) == 2:
+            # KLUGE: special case to make default _else clause work
+            return None
         res = args[i]._e_eval(env, (i,ipath))
         return res
     pass
