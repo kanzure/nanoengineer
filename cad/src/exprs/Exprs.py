@@ -1173,22 +1173,24 @@ def canon_expr(subexpr):###CALL ME FROM MORE PLACES -- a comment in Column.py sa
        (In future, we might also intern the resulting expr or the input expr. #e)
     """
     if is_Expr(subexpr): # whether pure expr or Instance
-        if is_Expr_pyclass(subexpr):
-            if debug_pref("wrap expr subclasses in constant_Expr?", Choice_boolean_False, prefs_key = True):
-                # new feature 070228; not sure if it ever came up before; if it did, this change might cause trouble;
-                # therefore print something whenever it's used, for now. In fact, it is likely to be misguided so I'll make it a debug_pref.
-                print "canon_expr treating this expr class as a constant: %r" % (subexpr,) ##e print_compact_stack?
-                assert same_vals(subexpr, subexpr)
-                return constant_Expr(subexpr)
-            elif debug_pref("pseudo-customize IorE subclasses?", Choice_boolean_False, prefs_key = True):
-                # turn it into an equivalent safer expr -- but only if it's in IorE
-                from exprs.instance_helpers import InstanceOrExpr #k safe??
-                if issubclass(subexpr, InstanceOrExpr):
-                    res = subexpr( _KLUGE_fakeoption = None )
-                    print "canon_expr turning expr class %r into %s" % (subexpr,res) #### remove when thought to be safe? printfyi?
-                    return res
-                else:
-                    print "canon_expr not changing expr class %r" % (subexpr,) ####
+        # bruce 070914 removing the following, since I'm not using it
+        # and it's causing some (runtime) import loops (Exprs <-> instance_helpers):
+##        if is_Expr_pyclass(subexpr):
+##            if debug_pref("wrap expr subclasses in constant_Expr?", Choice_boolean_False, prefs_key = True):
+##                # new feature 070228; not sure if it ever came up before; if it did, this change might cause trouble;
+##                # therefore print something whenever it's used, for now. In fact, it is likely to be misguided so I'll make it a debug_pref.
+##                print "canon_expr treating this expr class as a constant: %r" % (subexpr,) ##e print_compact_stack?
+##                assert same_vals(subexpr, subexpr)
+##                return constant_Expr(subexpr)
+##            elif debug_pref("pseudo-customize IorE subclasses?", Choice_boolean_False, prefs_key = True):
+##                # turn it into an equivalent safer expr -- but only if it's in IorE
+##                from exprs.instance_helpers import InstanceOrExpr #k safe??
+##                if issubclass(subexpr, InstanceOrExpr):
+##                    res = subexpr( _KLUGE_fakeoption = None )
+##                    print "canon_expr turning expr class %r into %s" % (subexpr,res) #### remove when thought to be safe? printfyi?
+##                    return res
+##                else:
+##                    print "canon_expr not changing expr class %r" % (subexpr,) ####
         if subexpr._e_serno == _debug_e_serno:
             print_compact_stack( "_debug_e_serno %d seen as arg %r to canon_expr, at: " % (_debug_e_serno, subexpr))
         return subexpr
