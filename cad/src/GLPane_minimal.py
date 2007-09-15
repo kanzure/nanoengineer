@@ -16,9 +16,20 @@ from PyQt4.Qt import QGLWidget
 class GLPane_minimal(QGLWidget): #bruce 070914
     """
     Stub superclass, just so GLPane and ThumbView can have a common superclass.
-    They share a lot of code, which ought to be merged into this superclass. (TODO)
+    TODO:
+    They share a lot of code, which ought to be merged into this superclass.
     Once that happens, it might as well get renamed.
     """
+    def should_draw_valence_errors(self):
+        """
+        Return a boolean to indicate whether valence error
+        indicators (of any kind) should ever be drawn in self.
+        (Each specific kind may also be controlled by a prefs
+        setting, checked independently by the caller. As of 070914
+        there is only one kind, drawn by class Atom.)
+        """
+        return False
+    
     pass
 
 # end

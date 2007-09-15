@@ -6,8 +6,6 @@ Mostly written by Josh; partly revised by Bruce for mode code revision, 040922-2
 Revised by many other developers since then (and perhaps before).
 
 $Id$
-
-bruce 050913 used env.history in some places.
 """
 
 import math
@@ -177,14 +175,6 @@ from bonds import Bond
 from debug_prefs import Choice
 from debug_prefs import Choice_boolean_False
 from debug_prefs import debug_pref
-
-# "import chem" is here to prevent an import reference from chem to GLPane.
-# Instead of doing "from GLPane import GLPane" there, GLPane imports
-# chem and does chem.GLPaneClass = GLPane, after defining GLPane.
-# This should be further cleaned up by defining a class constant
-# in GLPane_minimal with different values in its subclasses.
-
-import chem
 
 from GLPane_minimal import GLPane_minimal
 
@@ -559,6 +549,12 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         self.connect(self.tripleClickTimer, SIGNAL('timeout()'), self._tripleClickTimeout)
         
         return # from GLPane.__init__ 
+
+    def should_draw_valence_errors(self):
+        """
+        [overrides GLPane_minimal method]
+        """
+        return True
     
     def add_whats_this_text(self):
         """Adds What's This description to this glpane.
@@ -3608,15 +3604,13 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
 
     pass # end of class GLPane
 
-# This is here to prevent an import reference from chem to GLPane.
-chem.GLPaneClass = GLPane
-
 # ==
 
 def typecheckViewArgs(q2, s2, p2, z2): #mark 060128
-    '''Typecheck the view arguments quat q2, scale s2, pov p2, and zoom factor z2
+    """
+    Typecheck the view arguments quat q2, scale s2, pov p2, and zoom factor z2
     used by GLPane.snapToView() and GLPane.animateToView().
-    '''
+    """
     assert isinstance(q2, Q)
     assert isinstance(s2, float)
     assert len(p2) == 3
@@ -3626,5 +3620,5 @@ def typecheckViewArgs(q2, s2, p2, z2): #mark 060128
     assert isinstance(z2, float)
     return
 
-#end
+# end
 
