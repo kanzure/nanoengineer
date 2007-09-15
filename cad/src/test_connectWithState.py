@@ -63,10 +63,10 @@ from exprs.StatePlace import StatePlace
 from exprs.instance_helpers import IorE_guest_mixin
 from exprs.attr_decl_macros import Instance, State, Option
 from exprs.__Symbols__ import _self
-from exprs.Exprs import call_Expr, tuple_Expr ### USE THIS
+from exprs.Exprs import call_Expr, tuple_Expr ### USE tuple_Expr
 from exprs.Center import Center
 
-from exprs.Rect import Rect ### probably temporary
+from exprs.Rect import Rect # used to make our drag handle appearance
 
 from exprs.DraggableHandle import DraggableHandle_AlongLine
 from exprs.If_expr import If_expr
@@ -75,12 +75,11 @@ from prefs_widgets import ObjAttr_StateRef
 
 from OpenGL.GL import GL_LEQUAL
 
-class State_preMixin( IorE_guest_mixin): #e refile, once cleaned up & bugfixed
+class State_preMixin( IorE_guest_mixin): #e refile (alongside IorE_guest_mixin ? in its own file?), once cleaned up & bugfixed
     """Use this as the *first* superclass (thus the _preMixin in the name)
     in order to permit use of the State macro in the class assignments
     which set up instance variable defaults in a given class.
-    The glpane must be passed as the first arg to __init__.
-    (TODO: that requirement should be cleaned up.)
+    The glpane must be passed as the first argument to __init__.
     """
     # the following are needed for now in order to use the State macro,
     # along with the IorE_guest_mixin superclass; this may be cleaned up:
@@ -91,10 +90,12 @@ class State_preMixin( IorE_guest_mixin): #e refile, once cleaned up & bugfixed
     def __init__(self, glpane, *args, **kws):
         print "State_preMixin.__init__",glpane, args, kws
         IorE_guest_mixin.__init__(self, glpane)
-        print "will call",super(State_preMixin, self).__init__
+        print "will call", super(State_preMixin, self).__init__
             ## <bound method test_connectWithState.__init__ of <test_connectWithState#4789(i w/o a)>>
         super(State_preMixin, self).__init__(glpane, *args, **kws)
             # this is not calling ExampleCommand.__init__ as I hoped it would. I don't know why. ###BUG
+            # (but is it calling anything? i forget. clarify!)
+        print "returned from calling", super(State_preMixin, self).__init__
     pass
 
 class test_connectWithState(State_preMixin, ExampleCommand):
@@ -104,12 +105,10 @@ class test_connectWithState(State_preMixin, ExampleCommand):
     default_mode_status_text = "test_connectWithState"
     PM_class = test_connectWithState_PM
 
-    # kluge: this might be needed if we draw any exprs: [TODO: move to basicMode]
+    # kluge: this might be needed if we draw any exprs:
+    # [TODO: move to basicMode, or change the default in GLPane]
     standard_glDepthFunc = GL_LEQUAL
     
-    # initial values of instance variables
-    propMgr = None
-
     # tracked state -- this initializes specially defined instance variables
     # which will track all their uses and changes so that connectWithState
     # works for them:
@@ -120,6 +119,21 @@ class test_connectWithState(State_preMixin, ExampleCommand):
     
         # note: you can add _e_debug = True to one or more of these State definitions
         # to see debug prints about some accesses to this state.
+
+    # init methods
+    
+    def __init__(self, glpane):
+        # I don't know why this method is needed. ##### REVIEW (super semantics), FIX or clean up
+        super(test_connectWithState, self).__init__(glpane)
+        ExampleCommand.__init__(self, glpane) # (especially this part)
+        return
+
+##    def __init__(self, glpane):
+##        super(test_connectWithState, self).__init__(glpane)
+####            # that only calls some mode's init method,
+####            # so (for now) call this separately:
+####        IorE_guest_mixin.__init__(self, glpane)
+##        return
 
     # exprs-based formulae (and some compute methods)
     direction = If_expr( cylinderVertical, DY, DX )
@@ -166,20 +180,10 @@ class test_connectWithState(State_preMixin, ExampleCommand):
         # Note: the Instance is required; but I'm not sure if it would be
         # if we were using a fuller exprs superclass or init code. [bruce 070912]
 
-##    def __init__(self, glpane):
-##        super(test_connectWithState, self).__init__(glpane)
-####            # that only calls some mode's init method,
-####            # so (for now) call this separately:
-####        IorE_guest_mixin.__init__(self, glpane)
-##        return
-
-    def __init__(self, glpane):
-        # I don't know why this method is needed. ##### REVIEW, FIX (###BUG)
-        super(test_connectWithState, self).__init__(glpane)
-        ExampleCommand.__init__(self, glpane) # (especially this part)
-        return
-
     def Draw(self):
+
+        # TODO: also super draw, for model, axes, etc?
+        
         color = self.cylinderColor
         length = cylinder_height()
 ##        if self.cylinderVertical:

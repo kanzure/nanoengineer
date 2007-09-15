@@ -992,7 +992,7 @@ class test_animation_mode(superclass, IorE_guest_mixin): # list of supers might 
     # initial values of instance variables
     now = 0.0 #070813 [still used? maybe simtime has replaced it?]
     brickpos = 2.5
-    propMgr = None
+    # in superclass anyMode: propMgr = None
 
     _please_exit_loop = False
     _loop_start_time = 0
