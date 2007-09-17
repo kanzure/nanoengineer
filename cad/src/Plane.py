@@ -305,16 +305,8 @@ class Plane(ReferenceGeometry):
                     bordercolor = brown #backside
                 else:
                     bordercolor = self.border_color #frontside
-                if dot(self.getaxis(), glpane.left) in [1, -1] or \
-                   dot(self.getaxis(), glpane.up) in [1, -1]:
-                    drawLineLoop(bordercolor, corners_pos, width = 2)
-                    backside_corners = []
-                    for pt in corners_pos:
-                        pt = pt - glpane.scale*(0.005)*self.getaxis()
-                        backside_corners.append(pt)
-                    drawLineLoop(brown, backside_corners, width = 2)
-                else:
-                    drawLineLoop(bordercolor, corners_pos)
+                
+                drawLineLoop(bordercolor, corners_pos)
                     
         
         if self.directionArrow.isDrawRequested():
