@@ -29,6 +29,9 @@ from PM.PM_RadioButtonList import PM_RadioButtonList
 
 from PM.PM_Constants     import pmRestoreDefaultsButton
 
+import env
+from PlaneGenerator      import PlaneGenerator
+
 # Placement Options radio button list to create radio button list.
 # Format: buttonId, buttonText, tooltip
 PLACEMENT_OPTIONS_BUTTON_LIST = [ \
@@ -60,8 +63,22 @@ class PlanePropertyManager(PM_Dialog):
         @type  plane: L{Plane}
         """
         
+        # pw = part window. 
+        # Its subclasses will create their partwindow objects 
+        # (and destroy them after Done) -- @@ not be a good idea if we have
+        # multiple partwindow support? (i.e. when win object is replaced(?) by 
+        # partwindow object for each partwindow).  But this works fine.
+        # ..same guess -- because opening multiple windows is not supported
+        # When we begin supporting that, lots of things will change and this 
+        # might be one of them .--- ninad 20070613
+        
         self.geometry = plane
-        PM_Dialog.__init__( self, self.pmName, self.iconPath, self.title )       
+        self.win      = self.geometry.win
+        self.pw       =  None     
+        self.modePropertyManager = None
+                
+        PM_Dialog.__init__( self, self.pmName, self.iconPath, self.title ) 
+                
         self._addGroupBoxes()
         self._addWhatsThisText()
         
@@ -71,12 +88,84 @@ class PlanePropertyManager(PM_Dialog):
         # This causes the "Message" box to be displayed as well.
         self.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=False)
         
-        # self.resized_from_glpane flag makes sure that the spinbox.valueChanged()
+        # self.resized_from_glpane flag makes sure that the 
+        #spinbox.valueChanged()
         # signal is not emitted after calling spinbox.setValue.
         self.resized_from_glpane = False
         
         # Hide Preview and Restore defaults button for Alpha9.
         self.hideTopRowButtons(pmRestoreDefaultsButton)
+    
+    def ok_btn_clicked(self):
+        """
+        Slot for the OK button
+        """       
+        generator = self.geometry.generator
+        generator.preview_or_finalize_structure(previewing = False)
+        self.accept() 
+        
+        env.history.message(self.geometry.generator.logMessage)
+        self.struct = None
+        
+        self.close() # Close the property manager.
+        
+        # The following reopens the property manager of the mode after 
+        # when the PM of the reference geometry is closed. -- Ninad 20070603 
+        # Note: the value of self.modePropertyManager can be None
+        # @see: anyMode.propMgr
+        self.modePropertyManager = self.win.assy.o.mode.propMgr
+                
+        if self.modePropertyManager:
+            #@self.openPropertyManager(self.modePropertyManager)
+            # (re)open the PM of the current command (i.e. "Build > Atoms").
+            self.open(self.modePropertyManager)
+        return 
+    
+    def cancel_btn_clicked(self):
+        """
+        Slot for the Cancel button.
+        """
+        self.geometry.generator.cancelStructure()
+        self.reject() 
+        self.close() 
+        
+        # The following reopens the property manager of the command after
+        # the PM of the reference geometry generator (i.e. Plane) is closed.
+        # Note: the value of self.modePropertyManager can be None.
+        # See anyMode.propMgr
+        self.modePropertyManager = self.win.assy.o.mode.propMgr
+            
+        if self.modePropertyManager:
+            #@self.openPropertyManager(self.modePropertyManager)
+            # (re)open the PM of the current command (i.e. "Build > Atoms").
+            self.open(self.modePropertyManager)
+        return
+    
+    def preview_btn_clicked(self):
+        """
+        Slot for the Preview button.
+        """
+        generator = self.geometry.generator
+        generator.preview_or_finalize_structure(previewing = True)
+        env.history.message(self.geometry.generator.logMessage)
+            
+    def abort_btn_clicked(self):
+        """
+        Slot for Abort button
+        """
+        self.cancel_btn_clicked()
+        
+    def restore_defaults_btn_clicked(self):
+        """
+        Slot for Restore defaults button
+        """
+        pass
+    
+    def enter_WhatsThisMode(self):
+        """
+        Show what's this text
+        """
+        pass  
       
     def _addGroupBoxes(self):
         """
@@ -224,7 +313,8 @@ class PlanePropertyManager(PM_Dialog):
         """
         Update the width and height spinboxes.
         """
-        # self.resized_from_glpane flag makes sure that the spinbox.valueChanged()
+        # self.resized_from_glpane flag makes sure that the 
+        # spinbox.valueChanged()
         # signal is not emitted after calling spinbox.setValue(). 
         # This flag is used in change_plane_size method.-- Ninad 20070601
         self.resized_from_glpane = True
@@ -250,3 +340,30 @@ class PlanePropertyManager(PM_Dialog):
         """
         aspectRatio = self.geometry.width / self.geometry.height
         self.aspectRatioSpinBox.setValue(aspectRatio)
+    
+    
+    def update_props_if_needed_before_closing(self):
+        """
+        This updates some cosmetic properties of the Plane (e.g. fill color, 
+        border color, etc.) before closing the Property Manager.
+        """
+        
+        # Example: The Plane Property Manager is open and the user is 
+        # 'previewing' the plane. Now the user clicks on "Build > Atoms" 
+        # to invoke the next command (without clicking "Done"). 
+        # This calls openPropertyManager() which replaces the current PM 
+        # with the Build Atoms PM.  Thus, it creates and inserts the Plane 
+        # that was being previewed. Before the plane is permanently inserted
+        # into the part, it needs to change some of its cosmetic properties
+        # (e.g. fill color, border color, etc.) which distinguishes it as 
+        # a new plane in the part. This function changes those properties.
+        # ninad 2007-06-13 
+        
+        #called in updatePropertyManager in MWsemeantics.py --(Partwindow class)
+
+        self.geometry.updateCosmeticProps()
+        
+        #Don't draw the direction arrow when the object is finalized. 
+        if self.geometry.offsetParentGeometry:
+            dirArrow = self.geometry.offsetParentGeometry.directionArrow 
+            dirArrow.setDrawRequested(False)

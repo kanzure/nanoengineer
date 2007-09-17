@@ -38,6 +38,7 @@ import env
 
 from utilities.Log import redmsg
 
+from PlanePropertyManager import PlanePropertyManager
 from PlaneGenerator       import PlaneGenerator
 from ReferenceGeometry    import ReferenceGeometry 
 from DirectionArrow       import DirectionArrow
@@ -95,7 +96,8 @@ class Plane(ReferenceGeometry):
         self.border_color   =  self.default_border_color  
         self.opacity        =  self.default_opacity
         self.handles        =  []   
-        self.propMgr        =  PlaneGenerator(self.win, self)
+        self.propMgr        =  PlanePropertyManager(self)
+        self.generator      =  PlaneGenerator(self.win, self)
         self.directionArrow =  None
         
         # This is used to notify drawing code if it's just for picking purpose
@@ -277,15 +279,13 @@ class Plane(ReferenceGeometry):
             fill_color = brown #backside
         else:
             fill_color = self.fill_color
-            
-                                
+                                   
         drawPlane(fill_color, 
                   self.width, 
                   self.height, 
                   textureReady,
                   self.opacity, 
                   SOLID=True, 
-                  
                   pickCheckOnly=self.pickCheckOnly)
         
         if self.picked:
@@ -305,7 +305,17 @@ class Plane(ReferenceGeometry):
                     bordercolor = brown #backside
                 else:
                     bordercolor = self.border_color #frontside
-                drawLineLoop(bordercolor, corners_pos)   
+                if dot(self.getaxis(), glpane.left) in [1, -1] or \
+                   dot(self.getaxis(), glpane.up) in [1, -1]:
+                    drawLineLoop(bordercolor, corners_pos, width = 2)
+                    backside_corners = []
+                    for pt in corners_pos:
+                        pt = pt - glpane.scale*(0.005)*self.getaxis()
+                        backside_corners.append(pt)
+                    drawLineLoop(brown, backside_corners, width = 2)
+                else:
+                    drawLineLoop(bordercolor, corners_pos)
+                    
         
         if self.directionArrow.isDrawRequested():
             self.directionArrow.draw()
@@ -561,8 +571,8 @@ class Plane(ReferenceGeometry):
         """
         Overrided node.edit and shows the property manager.
         """
-        self.propMgr.existingStructForEditing = True    
-        self.propMgr.old_props = self.getProps()
+        self.generator.existingStructForEditing = True
+        self.generator.old_props = self.getProps()
         self.propMgr.show()    
                 
     def changePlanePlacement(self, buttonId):
@@ -632,7 +642,7 @@ class Plane(ReferenceGeometry):
         three or more selected atoms.
         """
         
-        cmd = self.propMgr.cmd 
+        cmd = self.generator.cmd 
         msg = "Create a Plane with center coinciding with the common center \
         of <b> 3 or more selected atoms </b>. If exactly 3 atoms are selected, \
         the Plane will pass through those atoms. Select atoms and hit \
@@ -658,7 +668,7 @@ class Plane(ReferenceGeometry):
         """
         Create a plane offset to a selected plane.
         """
-        cmd = self.propMgr.cmd 
+        cmd = self.generator.cmd 
         msg = "Create a Plane,at an <b> offset</b> to the selected plane,\
             in the direction indicated by the direction arrow. \
             Select an existing plane and hit <b>Preview</b>.\
