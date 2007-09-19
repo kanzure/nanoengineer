@@ -1,0 +1,325 @@
+#!/usr/bin/env python
+
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
+"""
+simplify-reloads - executable python script to remove reload_once lines
+
+$Id$
+
+This is a standalone script (which depends on some code in cad/src)
+to remove the first two lines from three-line groups that look like this:
+
+  import MODULE
+  reload_once(MODULE)
+  from MODULE import SYMBOLS
+
+The MODULE might be a simple or dotted module name (e.g. Overlay or exprs.Overlay).
+
+Usage: ./simplify-reloads file1.py file2.py ...
+saves the modified file1.py into FIXED-file1.py, same for file2.py, etc,
+but if there were no changes removes FIXED-file1.py instead,
+with prints to stderr summarizing the changes or having other debug info.
+(no prints to stdout)
+"""
+
+__author__ = "bruce"
+
+# algorithm: match individual lines to these patterns (assume no continuation lines need to be handled).
+# find groups of three lines which match the three patterns in order, using the same Names, and modify them.
+
+
+DEBUG = True # various debug prints to stderr
+DEBUG_REJECTS = False # debug print for each match failure
+DEBUG_MATCHES = False # debug print for each match success
+
+DEBUG_JUST_PRINT_THE_TOKENS = False # if True, just print the tokens nicely, to stdout, and do nothing else.
+
+REALLY_REMOVE_FILES = True # call os.remove on output files we might write anew (whether or not we actually do so)
+
+from tokenize import generate_tokens
+from tokenize import tok_name # dictionary, token (int, used in generate_tokens retval) to its name (e.g. 'NEWLINE')
+
+import sys, os
+
+if __name__ == '__main__':
+    thisdir = os.path.dirname(__file__)
+    if thisdir != '.':
+        print >> sys.stderr, "UNTESTED: running in directory %r" % (thisdir,)
+    cad_src_dir = os.path.join( thisdir, "../..") # location of cad/src directory
+    sys.path.append( cad_src_dir )
+
+# ==
+
+# ISSUE: in parse_utils, IGNORED_TOKNAMES = ('NL', 'COMMENT')  -- they might be bad here -- make them a parameter of TokenType? ###TODO
+
+from parse_utils import parse_top, Op, TokenType, Seq, Name, Newline, Optional
+
+def invert_dict(dict1): #bruce 050705 (modified from version in bond_constants.py, should refile)
+    res = {}
+    for key, val in dict1.items():
+        res[val] = key
+    assert len(res) == len(dict1), "dict passed to invert_dict had nonunique values"
+    return res
+
+_toktype_from_name = invert_dict(tok_name)
+
+def token_with_given_name(name):
+    return _toktype_from_name[name]
+
+NewlineToken = token_with_given_name('NEWLINE') # fyi: the lines of interest to us all end in this, not NL
+
+def SpecificName( name_string):
+    return TokenType('NAME', (lambda token, name_string = name_string: token == name_string) )
+
+def Keyword( keyword_string):
+    # note that generate_tokens doesn't know which names are Python keywords, so we can't do this:
+    ## return TokenType('KEYWORD', (lambda token, keyword_string = keyword_string: token == keyword_string) )
+    return SpecificName( keyword_string)
+
+IMPORT = Keyword('import')
+FROM = Keyword('from')
+RELOAD_ONCE = SpecificName('reload_once')
+
+LeftParen = Op('(')
+RightParen = Op(')')
+
+ModuleName = Seq( Name, Optional( Seq( Op('.'), Name )))
+    # note: this matches module names containing 0 or 1 dot;
+    # if we need to match more dots
+    # we could make it recursive using ForwardDef, or just lengthen it.
+
+def describe_logical_line_tokens(line_tokens):
+    assert line_tokens[0][-1] == line_tokens[-1][-1]
+    return line_tokens[0][-1] # their common logical line
+
+def tok_srow( token):
+    toktype, tokstring, (srow, scol), (erow, ecol), line = token
+    return srow # WARNING: first line is srow 1 but is index 0!
+
+def prepend_to_basename( prefix, filename):
+    dir, file = os.path.split(filename)
+    return os.path.join( dir, prefix + file)
+
+class _linepat:
+    """
+    A pattern for one logical line, containing a ModuleName which we can return if it matches.
+    """
+    def __init__(self, pattern, namepos = None, debugname = None, incomplete_ok = False):
+        assert namepos is not None
+        assert debugname is not None
+        self.pattern = pattern
+        self.namepos = namepos
+        self.debugname = debugname
+        self.incomplete_ok = incomplete_ok # ok to match just the first part of the line?
+        return
+    def match_to_line_tokens(self, line_tokens):
+        """
+        line_tokens is a list of tokens (which are tuples as returned by generate_tokens),
+        corresponding to a single logical line (i.e. all with the same last element);
+        return None if we don't match it,
+        or the matched ModuleName within it if we do (NOT as a single string,
+        but as a nested list of strings that needs flattening -- should fix someday).
+        """
+        pat = self.pattern
+        res, newrest = parse_top( pat, line_tokens)
+        if newrest is None:
+            # note: this is how parse_top returns a parse failure or syntax error
+            # (with res being a string error message)
+            if DEBUG_REJECTS:
+                why = res
+                print >> sys.stderr, "fyi: %r rejecting line %r because %s" % (self, describe_logical_line_tokens(line_tokens), why)
+            return None
+        if not self.incomplete_ok:        
+            if newrest:
+                # not all of the logical line was matched
+                if DEBUG_REJECTS:
+                    print >> sys.stderr, "fyi: %r rejecting line %r due to incomplete match" % \
+                          (self, describe_logical_line_tokens(line_tokens))
+                return None
+        if DEBUG_MATCHES:
+            print >> sys.stderr, "fyi: %r matchline internal res before namepos: %r" % (self, res,)
+        res1 = res[self.namepos]
+        ### TODO: join it into a proper string -- not needed yet, we only compare it for equality,
+        # and it looks like ['exprs', ['.', 'Rect']] which will compare fine.
+        if DEBUG_MATCHES:
+            print >> sys.stderr, "fyi: %r match returning %r" % (self, res1)
+        return res1
+    def __repr__(self):
+        return "<%s %r at %#x>" % (self.__class__.__name__, self.debugname, id(self))
+    pass
+
+
+# Line patterns
+# note: whitespace is implicitly skipped by generate_tokens
+
+Line1 = _linepat( 
+            Seq( IMPORT, ModuleName, Newline ), 
+            namepos = 1,
+            debugname = "Line1"
+        )
+
+Line2 = _linepat( 
+            Seq( RELOAD_ONCE, LeftParen, ModuleName, RightParen, Newline),
+            namepos = 2,
+            debugname = "Line2"
+        )
+
+Line3 = _linepat( 
+            Seq( FROM, ModuleName, IMPORT), # no Newline since we don't care what comes next on that line
+            namepos = 1,
+            debugname = "Line3",
+            incomplete_ok = True
+        )
+
+# ==
+
+def process_filename(filename):
+    print >> sys.stderr, "processing file %r" % filename
+        # always print this, so user knows which file any error messages are about
+    file = open(filename, 'rU')
+    res = process_file(file, prepend_to_basename("FIXED-", filename))
+    file.close()
+    ### TODO: 
+##    if res:
+##        print >> sys.stderr, "moving fixed file over original one, backing up original"
+##        # or just let svn diff/revert serve to "back up original"?
+    return
+
+def process_file(file, output_filename):
+    """
+    Remove some lines from file and save the result into a new file of the given name,
+    unless no lines would be removed,
+    in which case just remove the output file if it was present.
+    Return a boolean saying whether you removed any lines and left an output file.
+    """
+    if os.path.isfile(output_filename):
+        if REALLY_REMOVE_FILES: 
+            print >> sys.stderr, "REMOVING", output_filename
+            os.remove(output_filename) # if this fails, let the exception abort the script
+        else:
+            print >> sys.stderr, "SHOULD REMOVE (unless we remake it)", output_filename
+    
+    gentok = generate_tokens(file.readline)
+        # a generator of all tokens in the file
+
+    if DEBUG_JUST_PRINT_THE_TOKENS:
+        last_logical_line = None
+        for token in gentok:
+            toktype, tokstring, (srow, scol), (erow, ecol), logical_line = token
+            if logical_line != last_logical_line:
+                print "\nlogical line: [%s]" % (logical_line,) # not to stderr
+                    # note: apparent bug in generate_tokens:
+                    # after a multiline string literal,
+                    # logical_line can be '"""' for the ending NEWLINE token.
+            last_logical_line = logical_line
+            print "\n%s %r (%d %d) (%d %d)" % (tok_name[toktype], tokstring, srow, scol, erow, ecol) # not to stderr
+        return
+
+    # now split them by logical lines (tok[-1] fields)
+    # TODO: rewrite to use "groupby"
+
+    donelines = [] # a growing list of logical lines, each being a list of token tuples
+    currentline = [] # current logical line (a list of token tuples)
+    last_logical_line = None
+    
+    for token in gentok:
+        toktype, tokstring, (srow, scol), (erow, ecol), logical_line = token
+        del toktype, tokstring, srow, scol, erow, ecol
+        if logical_line != last_logical_line:
+            if currentline:
+                donelines.append(currentline)
+                currentline = []
+            last_logical_line = logical_line
+        currentline.append(token)
+        continue
+    if currentline:
+        donelines.append(currentline)
+        currentline = []
+    del currentline
+    
+    lines = donelines
+    del donelines
+
+    if DEBUG:
+        print >> sys.stderr, "got %d logical lines" % len(lines)
+    
+    # now do the matching alg on the lines
+
+    deletes = [] # list of indices of logical lines to delete (only the first of each pair)
+
+    i = 0
+    while i < len(lines) - 2:
+        m1 = Line1.match_to_line_tokens( lines[i+0] )
+        if m1:
+            m2 = Line2.match_to_line_tokens( lines[i+1] )
+            if m2:
+                m3 = Line3.match_to_line_tokens( lines[i+2] )
+                if m3:
+                    if m1 == m2 == m3:
+                        deletes.append(i)
+                        i += 2 # avoid overlapping matches
+                    else:
+                        print >> sys.stderr, "warning: rejected only due to names not the same:", i, m1,m2,m3
+        i += 1
+        continue
+
+    if deletes:
+        print >> sys.stderr, "found %d linepairs to delete" % len(deletes)
+
+        file.seek(0) # rewind the file
+        
+        textlines = file.readlines()
+            # WARNING: these are physical lines!
+            # So their numbering doesn't match logical lines,
+            # even if the specific lines to be deleted contain no continuations.
+            # We have to use the srow/erow token fields instead, to know what physical textlines to delete.
+
+        if DEBUG:
+            print >> sys.stderr, "file has %d physical lines" % len(textlines)
+        oldlen = len(textlines)
+        
+        for i in deletes[::-1]: # process in reverse order, to not mess up line numbering as we modify textlines
+            logical1 = lines[i][0] # first token to delete
+            logical2 = lines[i+1][-1] # last token to delete
+            dline1 = tok_srow(logical1) # first physical line number to delete
+            dline2 = tok_srow(logical2) # last physical line number to delete
+            # turn line numbers (starting 1) into indices (starting 0)
+            dline1 -= 1
+            dline2 -= 1
+            drange = range(dline1, dline2+1) # inclusive range of physical line indices to delete
+
+            if DEBUG:
+                print >> sys.stderr, "will delete these lines:" 
+                for lineno in drange:
+                    print >> sys.stderr, ">>>", textlines[lineno], ### sanity check
+                print >> sys.stderr
+
+            for lineno in drange[::-1]:
+                del textlines[lineno]
+
+        # now open the output file and print the lines we're not deleting to the output file
+        # use output_filename as name of new file
+
+        output = open(output_filename, "w")
+        output.writelines(textlines)
+        output.close()
+        newlen = len(textlines)
+        print >> sys.stderr, "wrote %d lines to %r" % (newlen, output_filename)
+        assert oldlen - 2 * len(deletes) == newlen
+        
+        pass
+    else:
+        print >> sys.stderr, "no linepairs to delete"
+    print >> sys.stderr
+    return not not deletes # from process_file
+
+# ==
+
+if __name__ == '__main__':
+
+    for filename in sys.argv[1:]:
+        process_filename(filename)
+    if DEBUG:
+        print >> sys.stderr, "done"
+
+# end
