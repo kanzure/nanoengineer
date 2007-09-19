@@ -122,7 +122,7 @@ from modes import modeMixin
 
 import platform
 
-from utilities.Log import greenmsg, redmsg
+from utilities.Log import greenmsg, redmsg, orangemsg
 from PlatformDependent import fix_event_helper
 from PlatformDependent import wrap_key_event
 from widgets import makemenu_helper
@@ -155,7 +155,6 @@ from prefs_constants import UPPER_LEFT
 from prefs_constants import LOWER_LEFT
 from prefs_constants import displayCompassLabels_prefs_key
 
-from constants import diINVISIBLE
 from constants import diDEFAULT
 from constants import dispLabel
 from constants import GL_FAR_Z
@@ -165,18 +164,19 @@ from constants import orange
 from constants import white
 
 from part import Part
-from jigs import Jig
-from utilities.Log import orangemsg
+
 from shape import BBox
-from qt4transition import qt4todo
-from chunk import molecule
-from chem import Atom
-from bonds import Bond
+
 from debug_prefs import Choice
 from debug_prefs import Choice_boolean_False
 from debug_prefs import debug_pref
 
 from GLPane_minimal import GLPane_minimal
+
+# suspicious imports [should not really be needed, according to bruce 070919]
+from chunk import molecule
+from chem import Atom
+from bonds import Bond
 
 
 debug_lighting = False #bruce 050418
@@ -740,6 +740,36 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
 
         return # from GLPane.setAssy
 
+    # ==
+
+    def center_and_scale_from_bbox(self, bbox, klugefactor = 1.0):
+        #bruce 070919 split this out of some other methods here.
+        ### REVIEW: should this be a BBox method (taking aspect as an argument)?
+        """
+        Compute a center and a value of self.scale sufficient to show the
+        contents which were used to construct bbox (a BBox object), taking
+        self.aspect into account.
+           But reduce its size by mutiplying it by klugefactor (typically 0.75
+        or so, though the default value is 1.0 since anything less can make some
+        bbox contents out of the view), as a kluge for the typical bbox corners
+        being farther away than they need to be for most shapes of bbox
+        contents. (KLUGE)
+           (TODO: Ideally this should be fixed by computing bbox.scale()
+        differently, e.g. doing it in the directions corresponding to glpane
+        axes.)
+        """
+        center = bbox.center()
+
+        scale = float( bbox.scale() * klugefactor) #bruce 050616 added float() as a precaution, probably not needed
+            # appropriate height to show everything, for square or wide glpane [bruce 050616 comment]
+        aspect = float(self.width) / self.height
+        if aspect < 1.0:
+            # tall (narrow) glpane -- need to increase self.scale
+            # (defined in terms of glpane height) so part bbox fits in width
+            # [bruce 050616 comment]
+            scale /= aspect
+        return center, scale
+    
     # == view toolbar helper methods
     
     # [bruce 050418 made these from corresponding methods in MWsemantics.py,
@@ -750,93 +780,62 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         "Change view to our model's home view (for glpane's current part)."
         self.animateToCsys( self.part.homeCsys)
         
-    def setViewFitToWindow(self, fast=False):
-        "Change view so that the entire model fits in the glpane. If <fast> is True, then snap to the view (i.e. don't animate)"
+    def setViewFitToWindow(self, fast = False):
+        """
+        Change view so that the visible part of the entire model
+        fits in the glpane.
+        If <fast> is True, then snap to the view (i.e. don't animate).
+        """
         # Recalculate center and bounding box for all the visible chunks in the current part.
         # The way a 3d bounding box is used to calculate the fit is not adequate. I consider this a bug, but I'm not sure
         # how to best use the BBox object to compute the proper fit. Should ask Bruce. This will do for now. Mark 060713.
-        
-        bbox = BBox()
 
-        for mol in self.assy.molecules:
-            if mol.hidden or mol.display == diINVISIBLE:
-                continue
-            bbox.merge(mol.bbox)
+        # BUG: only chunks are considered. See comment in bbox_for_viewing_model.
+        # [bruce 070919 comment]
         
-        center = bbox.center()
+        bbox = self.assy.bbox_for_viewing_model()
+        
+        center, scale = self.center_and_scale_from_bbox( bbox, klugefactor = 0.75 )
 
-        scale = float( bbox.scale() * .75) #bruce 050616 added float() as a precaution, probably not needed
-            # appropriate height to show everything, for square or wide glpane [bruce 050616 comment]
-        aspect = float(self.width) / self.height
-        if aspect < 1.0:
-            # tall (narrow) glpane -- need to increase self.scale
-            # (defined in terms of glpane height) so part bbox fits in width
-            # [bruce 050616 comment]
-            scale /= aspect
         pov = V(-center[0], -center[1], -center[2])
         if fast:
             self.snapToView(self.quat, scale, pov, 1.0)
         else:
             self.animateToView(self.quat, scale, pov, 1.0)
-    
-    def setViewZoomToSelection(self, fast = False): #Nnad 60903
-        '''Change the view so that only selected atoms, chunks and Jigs fit in the GLPane. 
-        (i.e. Zoom to the selection) If <fast> is True, then snap to the view '''
+
+    def setViewZoomToSelection(self, fast = False): #Ninad 60903
+        """
+        Change the view so that only selected atoms, chunks and Jigs fit in the GLPane. 
+        (i.e. Zoom to the selection) If <fast> is True, then snap to the view
+        """
         #ninad060905: 
         #This considers only selected atoms, movable jigs and chunks while doing fit to window. 
         #Zoom to selection ignores other immovable jigs. (it clearly tells this in a history msg)
         # For future:  Should work when a non movable jig is selected
-        #Bugs due to use of Bbox remain as in fit to window. 
-                
-        movables = self.assy.getSelectedMovables()
-        
-        #We will compute a Bbox with a point list. 
-        #Approach to fix bug 2250. ninad060905
-        pointList = []
-        
-        if self.assy.selatoms_list():
-            for atm in self.assy.selatoms_list():
-                if atm.display == diINVISIBLE: #ninad 060903  may not be necessary. 
-                #@@@ Could be buggy because user is probably seeing the selection wireframe around invisible atom 
-                #and you are now allowing zoom to selection. Same is true for invisible chunks. 
-                    continue
-                pointList += [atm.posn()]
-        
-        if movables:
-            for obj in movables:
-                if obj.hidden:
-                    continue
-                if not isinstance(obj, Jig):
-                    if obj.display == diINVISIBLE:
-                        continue
-                if isinstance(obj, molecule):
-                    for a in obj.atoms.itervalues():
-                        pointList.append(a.posn())
-                elif isinstance(obj, Jig):
-                    pointList.append(obj.center)
-        else:
-            if not self.assy.selatoms_list():
-                env.history.message(orangemsg( " Zoom To Selection: No visible atoms , chunks or movable jigs selected"\
-                " [Acceptable Jigs: Motors, Grid Plane and ESP Image]"))
-                return
-        
-        bbox = BBox(pointList)
-        center = bbox.center()
-        scale = float( bbox.scale() * 0.85) #ninad060905 experimenting with the scale factor. I see no change with various values!
-        aspect = float(self.width) / self.height
-        
-        if aspect < 1.0:
-            # tall (narrow) glpane -- need to increase self.scale
-            # (defined in terms of glpane height) so part bbox fits in width
-            # [bruce 050616 comment]  
-            #Keeping the above comment as I copied this code from fit to window ninad060905
-            scale /= aspect
+        #Bugs due to use of Bbox remain as in fit to window.
+
+        bbox = self.assy.bbox_for_viewing_selection()
+
+        if bbox is None:
+            env.history.message( orangemsg(
+                " Zoom To Selection: No visible atoms , chunks or movable jigs selected" \
+                " [Acceptable Jigs: Motors, Grid Plane and ESP Image]" ))
+            # KLUGE: the proper content of this message depends on the behavior
+            # of bbox_for_viewing_selection, which should be extended to cover more
+            # kinds of objects.
+            return
+
+        center, scale = self.center_and_scale_from_bbox( bbox, klugefactor = 0.85 )
+            #ninad060905 experimenting with the scale factor
+            # [which was renamed to klugefactor after this comment was written].
+            # I see no change with various values!
             
         pov = V(-center[0], -center[1], -center[2])
         if fast:
             self.snapToView(self.quat, scale, pov, 1.0)
         else:
             self.animateToView(self.quat, scale, pov, 1.0)
+        return
         
     def setViewHomeToCurrent(self):
         "Set the Home view to the current view."
@@ -847,7 +846,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         "Recenter the current view around the origin of modeling space."
         part = self.part
         part.computeBoundingBox()
-        scale = (part.bbox.scale() * .75) + (vlen(part.center) * .5)
+        scale = (part.bbox.scale() * 0.75) + (vlen(part.center) * .5)
+            # regarding the 0.75, it has the same role as the klugefactor
+            # option of self.center_and_scale_from_bbox(). [bruce comment 070919]
         aspect = float(self.width) / self.height
         if aspect < 1.0:
             scale /= aspect

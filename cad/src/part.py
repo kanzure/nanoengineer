@@ -56,12 +56,16 @@ import platform
 
 from utilities.Log import greenmsg, redmsg
 from shape import BBox
-from chunk import molecule
 
-import env #bruce 050901
+from chunk import molecule
+from jigs import Jig
+
+from constants import diINVISIBLE
+
+import env
 
 from inval import InvalMixin
-from state_utils import StateMixin #bruce 060223
+from state_utils import StateMixin
 from jigs import jigmakers_Mixin
 from ops_atoms     import ops_atoms_Mixin
 from ops_connected import ops_connected_Mixin
@@ -501,6 +505,18 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             # High (2), medium (1) or low (0).
             self.drawLevel = lod
         return
+
+    # == Bounding box methods
+
+    ### BUG: these only consider chunks (self.molecules) --
+    # they would miss other model objects such as Jigs. [bruce 070919 comment]
+    #
+    # REVIEW: is self.bbox (which these recompute) still used for anything?
+    # Could it have been superceded by the one recalculated in glpane.setViewFitToWindow?
+    # (Note, it's used in glpane.setViewRecenter, but only after an explicit recomputation
+    #  done by self.computeBoundingBox(), so its "auto-maintained" aspect is not being used
+    #  by that.)
+    # [bruce 070919 question]
     
     def computeBoundingBox(self):
         """Compute the bounding box for this Part. This should be
@@ -521,6 +537,76 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
     _inputs_for_center = ['molecules']
     _recompute_center = _recompute_bbox
 
+    # more bounding box methods [split out of GLPane methods by bruce 070919]
+
+    def bbox_for_viewing_model(self): #bruce 070919 split this out of a GLPane method
+        """
+        Return a BBox object suitable for choosing a view which shows the entire model
+        (visible objects only).
+        BUGS:
+        - considers only chunks.
+        - rectilinear bbox, not screen-aligned, is a poor approximation to the
+          model volume for choosing the view. (Fixing this would require
+          some changes in the caller as well.)
+        """
+        bbox = BBox()
+
+        for mol in self.molecules:
+            if mol.hidden or mol.display == diINVISIBLE:
+                continue
+            bbox.merge(mol.bbox)
+        return bbox
+
+    def bbox_for_viewing_selection(self): #bruce 070919 split this out of a GLPane method
+        """
+        Return a BBox object suitable for choosing a view which shows all
+        currently selected objects in the model.
+        BUGS:
+        - considers only visible objects, even though some invisible objects,
+        when selected, are indirectly visible (and all ought to be).
+        (If this is fixed, comments and message strings in the caller will
+         need revision.)
+        - rectilinear bbox, not screen-aligned, is a poor approximation to the
+          model volume for choosing the view. (Fixing this would also require
+          some changes in the caller.)
+        """
+        movables = self.getSelectedMovables()
+        
+        #We will compute a Bbox with a point list. 
+        #Approach to fix bug 2250. ninad060905
+        pointList = []
+
+        selatoms_list = self.selatoms_list()
+        if selatoms_list:
+            for atm in selatoms_list:
+                if atm.display == diINVISIBLE: #ninad 060903  may not be necessary. 
+                #@@@ Could be buggy because user is probably seeing the selection wireframe around invisible atom 
+                #and you are now allowing zoom to selection. Same is true for invisible chunks. 
+                    continue
+                pointList.append(atm.posn())
+        
+        if movables:
+            for obj in movables:
+                if obj.hidden:
+                    continue
+                if not isinstance(obj, Jig):
+                    if obj.display == diINVISIBLE:
+                        continue
+                if isinstance(obj, molecule):
+                    for a in obj.atoms.itervalues():
+                        pointList.append(a.posn())
+                elif isinstance(obj, Jig):
+                    pointList.append(obj.center)
+        else:
+            if not selatoms_list:
+                return None
+        
+        bbox = BBox(pointList)
+
+        return bbox
+
+    # ==
+    
     _inputs_for_alist = [] # only invalidated directly. Not sure if we'll inval this whenever we should, or before uses. #####@@@@@
     def _recompute_alist(self):
         """Recompute self.alist, a list of all atoms in this Part, in the same order in which they
