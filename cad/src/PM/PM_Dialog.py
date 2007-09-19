@@ -18,34 +18,29 @@ import platform
 from icon_utilities import geticon
 from icon_utilities import getpixmap
 
-from PM_Colors import pmColor
-from PM_Colors import pmHeaderFrameColor
-from PM_Colors import pmHeaderTitleColor
+from PM.PM_Colors import pmColor
+from PM.PM_Colors import pmHeaderFrameColor
+from PM.PM_Colors import pmHeaderTitleColor
 
-from PM_Constants import pmMainVboxLayoutMargin
-from PM_Constants import pmMainVboxLayoutSpacing
-from PM_Constants import pmHeaderFrameMargin
-from PM_Constants import pmHeaderFrameSpacing
-from PM_Constants import pmHeaderFont
-from PM_Constants import pmHeaderFontPointSize
-from PM_Constants import pmHeaderFontBold
-from PM_Constants import pmSponsorFrameMargin
-from PM_Constants import pmSponsorFrameSpacing
-from PM_Constants import pmTopRowBtnsMargin
-from PM_Constants import pmTopRowBtnsSpacing
-from PM_Constants import pmGroupBoxSpacing
-from PM_Constants import pmGrpBoxVboxLayoutMargin
-from PM_Constants import pmGrpBoxVboxLayoutSpacing
-from PM_Constants import pmGridLayoutMargin
-from PM_Constants import pmGridLayoutSpacing
-from PM_Constants import pmLeftAlignment
+from PM.PM_Constants import pmMainVboxLayoutMargin
+from PM.PM_Constants import pmMainVboxLayoutSpacing
+from PM.PM_Constants import pmHeaderFrameMargin
+from PM.PM_Constants import pmHeaderFrameSpacing
+from PM.PM_Constants import pmHeaderFont
+from PM.PM_Constants import pmHeaderFontPointSize
+from PM.PM_Constants import pmHeaderFontBold
+from PM.PM_Constants import pmSponsorFrameMargin
+from PM.PM_Constants import pmSponsorFrameSpacing
+from PM.PM_Constants import pmTopRowBtnsMargin
+from PM.PM_Constants import pmTopRowBtnsSpacing
+from PM.PM_Constants import pmLeftAlignment
 
-from PM_Constants import pmAllButtons
-from PM_Constants import pmDoneButton
-from PM_Constants import pmCancelButton
-from PM_Constants import pmRestoreDefaultsButton
-from PM_Constants import pmPreviewButton
-from PM_Constants import pmWhatsThisButton
+from PM.PM_Constants import pmAllButtons
+from PM.PM_Constants import pmDoneButton
+from PM.PM_Constants import pmCancelButton
+from PM.PM_Constants import pmRestoreDefaultsButton
+from PM.PM_Constants import pmPreviewButton
+from PM.PM_Constants import pmWhatsThisButton
 
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QDialog
@@ -63,8 +58,8 @@ from PyQt4.Qt import QSize
 from PyQt4.Qt import QSizePolicy
 from PyQt4.Qt import QWhatsThis
 
-from PM_GroupBox         import PM_GroupBox
-from PM_MessageGroupBox  import PM_MessageGroupBox
+from PM.PM_GroupBox         import PM_GroupBox
+from PM.PM_MessageGroupBox  import PM_MessageGroupBox
 
 from Sponsors import SponsorableMixin
 
@@ -77,7 +72,8 @@ class PM_Dialog( QDialog, SponsorableMixin ):
     You must also provide certain methods provided by GeneratorBaseClass
     (either by inheriting it -- not sure if superclass order matters for that --
     or by defining them yourself), including ok_btn_clicked and several others,
-    including at least some defined by SponsorableMixin (open_sponsor_homepage, setSponsor).
+    including at least some defined by SponsorableMixin (open_sponsor_homepage,
+    setSponsor).
     This set of requirements may be cleaned up.]
     [Note: Technically, this is not a "base class" but a "mixin class".]    
     """
@@ -124,7 +120,8 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         self.vBoxLayout.setMargin(pmMainVboxLayoutMargin)
         self.vBoxLayout.setSpacing(pmMainVboxLayoutSpacing)
 
-        # Add PropMgr's header, sponsor button, top row buttons and (hidden) message group box.
+        # Add PropMgr's header, sponsor button, top row buttons and (hidden) 
+        # message group box.
         self._createHeader(iconPath, title)
         self._createSponsorButton()
         self._createTopRowBtns() # Create top buttons row
@@ -146,7 +143,8 @@ class PM_Dialog( QDialog, SponsorableMixin ):
             self.pw = self.win.activePartWindow()
             
         self.pw.updatePropertyManagerTab(self)
-        self.pw.featureManager.setCurrentIndex(self.pw.featureManager.indexOf(self))
+        self.pw.featureManager.setCurrentIndex(
+            self.pw.featureManager.indexOf(self))
         
         # Show the default message whenever we open the Property Manager.
         self.MessageGroupBox.MessageTextEdit.restoreDefault()
@@ -190,13 +188,14 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         try:
             pmWidget = self.pw.propertyManagerScrollArea.widget()
             pmWidget.update_props_if_needed_before_closing()
+            
         except:
             if platform.atom_debug:
-                msg1 = "Last PropMgr doesn't have method updatePropsBeforeClosing."
-                msg2 = "That is OK (for now,only implemented in GeometryGeneratorBaseClass)"
-                msg3 = "Ignoring Exception"
-                print_compact_traceback(msg1 + msg2 + msg3)
-            pass
+		msg1 = "Last PropMgr doesn't have method"
+		msg2 =" update_props_if_needed_before_closing. That's"
+		msg3 = " OK (for now,only implemented for Plane PM)"
+		msg4 = "Ignoring Exception"
+		print_compact_traceback(msg1 + msg2 + msg3 + msg4)
         
         self.pw.featureManager.removeTab(
             self.pw.featureManager.indexOf(self.pw.propertyManagerScrollArea))
@@ -229,8 +228,10 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         # HBox layout for heading frame, containing the pixmap
         # and label (title).
         HeaderFrameHLayout = QHBoxLayout(self.headerFrame)
-        HeaderFrameHLayout.setMargin(pmHeaderFrameMargin) # 2 pixels around edges.
-        HeaderFrameHLayout.setSpacing(pmHeaderFrameSpacing) # 5 pixel between pixmap and label.
+        # 2 pixels around edges --
+        HeaderFrameHLayout.setMargin(pmHeaderFrameMargin) 
+        # 5 pixel between pixmap and label. --
+        HeaderFrameHLayout.setSpacing(pmHeaderFrameSpacing) 
 
         # PropMgr icon. Set image by calling setHeaderIcon().
         self.headerIcon = QLabel(self.headerFrame)
@@ -285,7 +286,8 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         """
         Set the Propery Manager header icon.
         
-        @param iconPath: the relative path to the PNG file containing the icon image.
+        @param iconPath: the relative path to the PNG file containing the 
+                         icon image.
         @type  iconPath: str
         """
         
@@ -317,13 +319,14 @@ class PM_Dialog( QDialog, SponsorableMixin ):
                      SIGNAL("clicked()"),
                      self.open_sponsor_homepage)
         
-        SponsorFrameGrid.addWidget(self.sponsor_btn,0,0,1,1)
+        SponsorFrameGrid.addWidget(self.sponsor_btn, 0, 0, 1, 1)
         
         self.vBoxLayout.addWidget(self.sponsor_frame)
 
         button_whatsthis_widget = self.sponsor_btn
-            #bruce 070615 bugfix -- put tooltip & whatsthis on self.sponsor_btn, not self.
-            # [self.sponsor_frame might be another possible place to put them.]
+        #bruce 070615 bugfix -- put tooltip & whatsthis on self.sponsor_btn, 
+        # not self.
+        # [self.sponsor_frame might be another possible place to put them.]
         
         button_whatsthis_widget.setWhatsThis("""<b>Sponsor Button</b>
             <p>When clicked, this sponsor logo will display a short 
@@ -345,8 +348,8 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         
         # Main "button group" widget (but it is not a QButtonGroup).
         self.pmTopRowBtns = QHBoxLayout()
-        # This QHBoxLayout is (probably) not necessary. Try using just the frame for
-        # the foundation. I think it should work. Mark 2007-05-30
+        # This QHBoxLayout is (probably) not necessary. Try using just the frame
+        # for the foundation. I think it should work. Mark 2007-05-30
         
         # Horizontal spacer
         horizontalSpacer = QSpacerItem(1, 1, 
@@ -378,7 +381,7 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         self.done_btn = buttonType(self.topRowBtnsFrame)
         self.done_btn.setIcon(
             geticon("ui/actions/Properties Manager/Done.png"))
-        self.done_btn.setIconSize(QSize(22,22))  
+        self.done_btn.setIconSize(QSize(22, 22))  
         self.connect(self.done_btn,
                      SIGNAL("clicked()"),
                      self.doneButtonClicked)
@@ -390,7 +393,7 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         self.cancel_btn = buttonType(self.topRowBtnsFrame)
         self.cancel_btn.setIcon(
             geticon("ui/actions/Properties Manager/Abort.png"))
-        self.cancel_btn.setIconSize(QSize(22,22))
+        self.cancel_btn.setIconSize(QSize(22, 22))
         self.connect(self.cancel_btn,
                      SIGNAL("clicked()"),
                      self.cancelButtonClicked)
@@ -405,7 +408,7 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         self.restore_defaults_btn = buttonType(self.topRowBtnsFrame)
         self.restore_defaults_btn.setIcon(
             geticon("ui/actions/Properties Manager/Restore.png"))
-        self.restore_defaults_btn.setIconSize(QSize(22,22))
+        self.restore_defaults_btn.setIconSize(QSize(22, 22))
         self.connect(self.restore_defaults_btn,
                      SIGNAL("clicked()"),
                      self.restoreDefaultsButtonClicked)
@@ -416,7 +419,7 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         self.preview_btn = buttonType(self.topRowBtnsFrame)
         self.preview_btn.setIcon(
             geticon("ui/actions/Properties Manager/Preview.png"))
-        self.preview_btn.setIconSize(QSize(22,22))
+        self.preview_btn.setIconSize(QSize(22, 22))
         self.connect(self.preview_btn,
                      SIGNAL("clicked()"),
                      self.previewButtonClicked)
@@ -428,7 +431,7 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         self.whatsthis_btn = buttonType(self.topRowBtnsFrame)
         self.whatsthis_btn.setIcon(
             geticon("ui/actions/Properties Manager/WhatsThis.png"))
-        self.whatsthis_btn.setIconSize(QSize(22,22))
+        self.whatsthis_btn.setIconSize(QSize(22, 22))
         self.connect(self.whatsthis_btn,
                      SIGNAL("clicked()"),
                      self.whatsThisButtonClicked)
@@ -459,13 +462,15 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         
         self.preview_btn.setWhatsThis("""<b>Preview</b>
             <p><img source=\"ui/actions/Properties Manager/Preview.png\"><br>
-            Preview the structure based on current Property Manager settings.</p>""")
+            Preview the structure based on current Property Manager settings.
+            </p>""")
 
         self.whatsthis_btn.setWhatsThis("""<b>What's This</b> 
             <p><img source=\"ui/actions/Properties Manager/WhatsThis.png\"><br>
-            Click this option to invoke a small question mark that is attached to the mouse pointer, 
-            then click on an object which you would like more information about. 
-            A pop-up box appears with information about the object you selected.</p>""")
+            Click this option to invoke a small question mark that is attached 
+            to the mouse pointer,then click on an object which you would like 
+            more information about. A pop-up box appears with information about 
+            the object you selected.</p>""")
         
         return
 
@@ -475,7 +480,8 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         Button flags not set will cause the button to be shown
         if currently hidden.
         
-        @param pmButtonFlags: this enumerator describes the which buttons to hide, where:
+        @param pmButtonFlags: This enumerator describes the which buttons to 
+                              hide, where:
         
             - pmDoneButton            =  1
             - pmCancelButton          =  2
@@ -518,7 +524,8 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         Button flags not set will cause the button to be hidden
         if currently displayed.
         
-        @param pmButtonFlags: this enumerator describes which buttons to display, where:
+        @param pmButtonFlags: this enumerator describes which buttons to 
+        display, where:
         
             - pmDoneButton            =  1
             - pmCancelButton          =  2
