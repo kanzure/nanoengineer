@@ -56,6 +56,8 @@ from prefs_constants import bondHighlightColor_prefs_key
 from VQT import V, vlen
 from qt4transition import qt4info
 
+import time
+
 class selectMolsMode(selectMode):
     "Select Chunks mode"
     modename = 'SELECTMOLS'
@@ -621,11 +623,24 @@ class selectMolsMode(selectMode):
             
     def bareMotion(self, event): 
         """SELECT CHUNKS MODE called for motion with no button down
-        [should not be called otherwise -- call update_selatom or update_selobj directly instead]
+        [should not be called otherwise -- 
+	call update_selatom or update_selobj directly instead]
         """
-        
         if self.mouse_exceeded_distance(event, 1):
             return
+	# The value of self.timeAtLastWheelEvent is set in basicMode.wheelEvent. 
+	# This time is used to decide whether to highlight 
+	#object under cursor. I.e. when user is scrolling the wheel to zoom in
+	#or out, and at the same time the mouse moves slightly, we want to make 
+	#sure that the object is not highlighted. The value of elapsed time
+	#is selected as 2.0 seconds arbitrarily. Based on some tests, this value
+	#seems OK. Following fixes bug 2536. Note, another fix would be to 
+	#set self.hover_highlighting_enabled to False. But this fix looks more 
+	#appropriate at the moment -- Ninad 2007-09-19
+	if self.timeAtLastWheelEvent:
+	    timeSinceLastWheelEvent = time.clock() - self.timeAtLastWheelEvent	    
+	    if timeSinceLastWheelEvent < 2.0:		
+		return     
         self.update_selobj(event) #ninad 20070214 to permit chunk highlighting
         return
     

@@ -125,6 +125,8 @@ from bonds import Bond
 from Utility import Node
 from jigs import Jig
 
+import time
+
 
 class anyMode( StateMixin): #bruce 060223 renamed mixin class
     "abstract superclass for all mode objects"
@@ -143,7 +145,7 @@ class anyMode( StateMixin): #bruce 060223 renamed mixin class
     #Mode's property manager. Subclasses should initialize the propMgr object 
     #if they need one.     
     propMgr = None
-
+    
     def get_mode_status_text(self):
         return "(bug: mode status text)"
     # I think this will never be shown [bruce 040927]
@@ -223,7 +225,14 @@ class basicMode(anyMode):
     modename = "(bug: missing modename)"
     msg_modename = "(bug: unknown mode)"
     default_mode_status_text = "(bug: missing mode status text)"
-        
+    #Initialize clock time during a wheel event to None. Its value is assigned 
+    #in self.wheelEvent. This time is used to decide whether to highlight 
+    #object under cursor. I.e. when user is scrolling the wheel to zoom in or
+    #out, and at the same time the mouse moves slightly, we want to make sure 
+    #that the object is not highlighted.See selectMolsMode.bareMotion for an 
+    #example. 
+    timeAtLastWheelEvent = None
+    
     def user_modename(self): #bruce 051130 (apparently this is new; it can be the official user-visible-modename method for now)
         "Return a string such as 'Move Mode' or 'Build Mode' -- the name of this mode for users; or '' if unknown."
         if self.default_mode_status_text.startswith("Mode: "):
@@ -1527,6 +1536,10 @@ class basicMode(anyMode):
         
         # Turn off hover highlighting while zooming with mouse wheel. Fixes bug 1657. Mark 060805.
         self.o.selobj = None # <selobj> is the object highlighted under the cursor.
+        
+        #Following fixes bug 2536 See also selectMolsMode.bareMotion
+        self.timeAtLastWheelEvent = time.clock()
+        
         self.o.gl_update()
         return
 
