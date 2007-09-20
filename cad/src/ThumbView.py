@@ -55,6 +55,8 @@ from OpenGL.GL import GL_STENCIL_TEST
 from OpenGL.GL import glDisable
 from OpenGL.GL import GL_PROJECTION
 from OpenGL.GL import glPopMatrix
+from OpenGL.GL import glDepthFunc
+from OpenGL.GL import GL_LEQUAL
 
 from OpenGL.GLU import gluPickMatrix, gluUnProject
 
@@ -78,6 +80,7 @@ from prefs_constants import bondpointHighlightColor_prefs_key
 from Utility import Group
 
 from GLPane_minimal import GLPane_minimal
+from GLPane_minimal import SIMPLER_HIGHLIGHTING
 
 class ThumbView(GLPane_minimal):
     """
@@ -265,6 +268,9 @@ class ThumbView(GLPane_minimal):
         """
         if not self.initialised: return
 
+        if SIMPLER_HIGHLIGHTING:
+            glDepthFunc( GL_LEQUAL)
+        
         from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
         if debug_pref("always setup_lighting?", Choice_boolean_False):
             #bruce 060415 added debug_pref("always setup_lighting?"), in GLPane and ThumbView [KEEP DFLTS THE SAME!!];
@@ -605,11 +611,12 @@ class ThumbView(GLPane_minimal):
         glStencilFunc(GL_ALWAYS, 1, 1)
         glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE)
         glEnable(GL_STENCIL_TEST)
-        
-        glMatrixMode(GL_PROJECTION) # prepare to "translate the world"
-        glPushMatrix() # could avoid using another matrix-stack-level if necessary, by untranslating when done
-        glTranslatef(0.0, 0.0, +0.01) # move the world a bit towards the screen
-            # (this works, but someday verify sign is correct in theory #k)
+
+        if not SIMPLER_HIGHLIGHTING:
+            glMatrixMode(GL_PROJECTION) # prepare to "translate the world"
+            glPushMatrix() # could avoid using another matrix-stack-level if necessary, by untranslating when done
+            glTranslatef(0.0, 0.0, +0.01) # move the world a bit towards the screen
+                # (this works, but someday verify sign is correct in theory #k)
         glMatrixMode(GL_MODELVIEW) 
    
         
@@ -620,8 +627,9 @@ class ThumbView(GLPane_minimal):
         glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP)
         glDisable(GL_STENCIL_TEST)
         
-        glMatrixMode(GL_PROJECTION)
-        glPopMatrix()
+        if not SIMPLER_HIGHLIGHTING:
+            glMatrixMode(GL_PROJECTION)
+            glPopMatrix()
         glMatrixMode(GL_MODELVIEW)
 
     def saveLastView(self): #bruce 060627 for compatibility with GLPane (for sake of assy.update_parts)

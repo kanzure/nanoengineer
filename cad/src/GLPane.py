@@ -171,6 +171,7 @@ from debug_prefs import Choice_boolean_False
 from debug_prefs import debug_pref
 
 from GLPane_minimal import GLPane_minimal
+from GLPane_minimal import SIMPLER_HIGHLIGHTING
 
 # suspicious imports [should not really be needed, according to bruce 070919]
 from chunk import molecule # used only for drawHighlightedChunk
@@ -296,6 +297,8 @@ class GLPane_mixin_for_DisplistChunk(object): #bruce 070110 moved this here from
         vs. within the current GL context for direct execution.)
            We assume without checking that self's GL context is current.
         """
+        if SIMPLER_HIGHLIGHTING:
+            return # if we adopt that setting permanently, we'll zap this method unless it has important local uses
         if always or self.current_glDepthFunc != gl_func_constant:
             glDepthFunc( gl_func_constant)
             self.current_glDepthFunc = gl_func_constant
@@ -2424,8 +2427,12 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
 
         return # from paintGL
 
-    standard_glDepthFunc = GL_LESS # default value for modes that don't have one, and default initial value for our instance var
-    standard_glDepthFunc_name = 'GL_LESS' # should correspond; used only in error messages [bruce 070406]
+    if SIMPLER_HIGHLIGHTING:
+        standard_glDepthFunc = GL_LEQUAL # default value for modes that don't have one, and default initial value for our instance var
+        standard_glDepthFunc_name = 'GL_LEQUAL' # should correspond; used only in error messages [bruce 070406]
+    else:
+        standard_glDepthFunc = GL_LESS # default value for modes that don't have one, and default initial value for our instance var
+        standard_glDepthFunc_name = 'GL_LESS' # should correspond; used only in error messages [bruce 070406]
     
     def most_of_paintGL(self): #bruce 060323 split this out of paintGL
         "Do most of what paintGL should do."
@@ -2446,24 +2453,27 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
             # the atomic model itself.  I dunno where that is.
             drawer.enable_fog()
 
-        # restore standard OpenGL state settings [bruce 070117, though seems like a good idea for the past; #e should make it a method]
-        default_glDepthFunc = self.__class__.standard_glDepthFunc
-        default_glDepthFunc_name = self.__class__.standard_glDepthFunc_name
-        self.standard_glDepthFunc = getattr( self.mode, 'standard_glDepthFunc', default_glDepthFunc)
-            #e I plan to try GL_LEQUAL in testmode, and if it works, maybe adopt it generally [bruce 070117]
-        if 1:
-            # Ninad reported a bug when leaving cookiemode with Done after drawing a cookie: 
-            # "TypeError: an integer is required" when self.glDepthFunc calls glDepthFunc on its first arg.
-            # I can't understand how that could happen [later: probably from nullMode], but I can try to protect against it.
-            # If we never see this print, we can call it nonrepeatable and remove this;
-            # otherwise we should diagnose the cause and fix it. [bruce 070126]
-            if self.standard_glDepthFunc is None:
-                self.standard_glDepthFunc = default_glDepthFunc # let None mean "use standard", so nullMode can do this [bruce 070406]
-            if self.standard_glDepthFunc not in (GL_LESS, GL_LEQUAL): # should never happen
-                print "bug: self.standard_glDepthFunc should not be %r -- setting it to %r == %r" % \
-                      (self.standard_glDepthFunc, default_glDepthFunc_name, default_glDepthFunc)
-                self.standard_glDepthFunc = default_glDepthFunc
-        self.glDepthFunc( self.standard_glDepthFunc, always = True)
+        if SIMPLER_HIGHLIGHTING:
+            glDepthFunc( GL_LEQUAL)
+        else:
+            # restore standard OpenGL state settings [bruce 070117, though seems like a good idea for the past; #e should make it a method]
+            default_glDepthFunc = self.__class__.standard_glDepthFunc
+            default_glDepthFunc_name = self.__class__.standard_glDepthFunc_name
+            self.standard_glDepthFunc = getattr( self.mode, 'standard_glDepthFunc', default_glDepthFunc)
+                #e I plan to try GL_LEQUAL in testmode, and if it works, maybe adopt it generally [bruce 070117]
+            if 1:
+                # Ninad reported a bug when leaving cookiemode with Done after drawing a cookie: 
+                # "TypeError: an integer is required" when self.glDepthFunc calls glDepthFunc on its first arg.
+                # I can't understand how that could happen [later: probably from nullMode], but I can try to protect against it.
+                # If we never see this print, we can call it nonrepeatable and remove this;
+                # otherwise we should diagnose the cause and fix it. [bruce 070126]
+                if self.standard_glDepthFunc is None:
+                    self.standard_glDepthFunc = default_glDepthFunc # let None mean "use standard", so nullMode can do this [bruce 070406]
+                if self.standard_glDepthFunc not in (GL_LESS, GL_LEQUAL): # should never happen
+                    print "bug: self.standard_glDepthFunc should not be %r -- setting it to %r == %r" % \
+                          (self.standard_glDepthFunc, default_glDepthFunc_name, default_glDepthFunc)
+                    self.standard_glDepthFunc = default_glDepthFunc
+            self.glDepthFunc( self.standard_glDepthFunc, always = True)
         
         method = getattr(self.mode, 'render_scene', None) #bruce 070406 revised this
         if method is None:
@@ -2858,7 +2868,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         # - we need to draw it into the stencil buffer too, so mode.bareMotion can tell when mouse is still over it.
 
         if selobj is not None:
-            self.draw_highlighted_objectUnderMouse(selobj, hicolor) #bruce 070920 split this out
+            self.draw_highlighted_objectUnderMouse(selobj, hicolor) #bruce 070920 split this out                
+                # REVIEW: is it ok that the mode had to tell us selobj and hicolor
+                # (and validate selobj) before drawing the model?
         
         try: #bruce 070124 added try/finally for drawing_phase
             self.drawing_phase = 'main/Draw_after_highlighting' #bruce 070124
@@ -3036,6 +3048,14 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
 
     def draw_highlighted_objectUnderMouse(self, selobj, hicolor): #bruce 070920 split this out
         """
+        Draw selobj in highlighted form, using its "selobj drawing interface"
+        (not yet a formal interface; we use several methods including draw_in_abs_coords).
+        Record the drawn pixels in the OpenGL stencil buffer to optimize future
+        detection of the mouse remaining over the same selobj (to avoid redraws then).
+           Assume we have standard modelview and projection matrices on entry,
+        and restore that state on exit (copying or recreating it as we prefer).
+           Note: Current implementation uses an extra level on the projection matrix stack
+        by default (selobj can override this). This could be easily revised if desired.
         """
         # draw the selobj as highlighted, and make provisions for fast test
         # (by external code) of mouse still being over it (using stencil buffer)
@@ -3050,11 +3070,6 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
 
         # first gather info needed to know what to do -- highlight color (and whether to draw that at all)
         # and whether object might be bigger when highlighted (affects whether depth write is needed now).
-
-        # hicolor is recorded from above [as of bruce 070919]:
-        ## hicolor = self.selobj_hicolor( selobj)
-        # REVIEW: is it ok that the mode had to tell us this
-        # (and validate selobj) before drawing the model?
         
         assert hicolor is not None #bruce 070919
         
@@ -3108,23 +3123,26 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         #  and it's not yet implemented. This is predicted to result in highlight flickering if no stencil bits are
         #  available. ###e should fix sometime, if that ever happens.)
 
-        use_pre_draw_in_abs_coords = hasattr(selobj, "pre_draw_in_abs_coords") #bruce 061218 new feature
-        if use_pre_draw_in_abs_coords:
-            assert hasattr(selobj, "post_draw_in_abs_coords")
-            selobj.pre_draw_in_abs_coords(self)
-        else:
-            glMatrixMode(GL_PROJECTION) # prepare to "translate the world"
-            glPushMatrix() # could avoid using another matrix-stack-level if necessary, by untranslating when done
-            glTranslatef(0.0, 0.0, +0.01) # move the world a bit towards the screen
-                # (this works, but someday verify sign is correct in theory #k)
-                # [actually it has some visual bugs, esp. in perspective view when off-center,
-                #  and it would be better to just use a depth offset (via glPolygonOffset(hard to use in this case)
-                #  or glDepthRange (which requires us to know the depth buffer resolution to use it properly)),
-                #  or better still [now done sometimes, via pre_draw_in_abs_coords]
-                #  to change the depth test (glDepthFunc) to GL_LEQUAL, either just for now, or all the time.
-                #  [bruce 060729 comment, revised 061219]]
-            glMatrixMode(GL_MODELVIEW) # probably required!
-        
+        # REVIEW: are the draw_in_abs_coords-related methods part of a DrawHighlighted_interface?
+
+        if not SIMPLER_HIGHLIGHTING:
+            use_pre_draw_in_abs_coords = hasattr(selobj, "pre_draw_in_abs_coords") #bruce 061218 new feature
+            if use_pre_draw_in_abs_coords:
+                assert hasattr(selobj, "post_draw_in_abs_coords")
+                selobj.pre_draw_in_abs_coords(self)
+            else:
+                glMatrixMode(GL_PROJECTION) # prepare to "translate the world"
+                glPushMatrix() # could avoid using another matrix-stack-level if necessary, by untranslating when done
+                glTranslatef(0.0, 0.0, +0.01) # move the world a bit towards the screen
+                    # (this works, but someday verify sign is correct in theory #k)
+                    # [actually it has some visual bugs, esp. in perspective view when off-center,
+                    #  and it would be better to just use a depth offset (via glPolygonOffset(hard to use in this case)
+                    #  or glDepthRange (which requires us to know the depth buffer resolution to use it properly)),
+                    #  or better still [now done sometimes, via pre_draw_in_abs_coords]
+                    #  to change the depth test (glDepthFunc) to GL_LEQUAL, either just for now, or all the time.
+                    #  [bruce 060729 comment, revised 061219]]
+                glMatrixMode(GL_MODELVIEW) # probably required!
+            
         ####@@@@ TODO -- rename draw_in_abs_coords and make it imply highlighting so obj knows whether to get bigger
         # (note: having it always draw selatoms bigger, as if highlighted, as it does now, would probably be ok in hit-test,
         #  since false positives in hit test are ok, but this is not used in hit test; and it's probably wrong in depth-test
@@ -3158,8 +3176,17 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
             print_compact_traceback("bug: exception in %r.draw_in_abs_coords ignored: " % (selobj,) )
             pass
         self.drawing_phase = '?'
-        
-        # restore gl state (but don't do unneeded OpenGL ops in case that speeds it up somehow)
+
+        if not SIMPLER_HIGHLIGHTING:
+            if use_pre_draw_in_abs_coords:
+                selobj.post_draw_in_abs_coords(self)
+            else:
+                glMatrixMode(GL_PROJECTION)
+                glPopMatrix()
+                glMatrixMode(GL_MODELVIEW) #k maybe not needed
+
+        # restore other gl state (but don't do unneeded OpenGL ops
+        # in case that speeds up OpenGL drawing)
         if not highlight_into_depth:
             glDepthMask(GL_TRUE)
         if not highlight_into_color:
@@ -3168,13 +3195,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
             # no need to undo glStencilFunc state, I think -- whoever cares will set it up again
             # when they reenable stenciling.
         glDisable(GL_STENCIL_TEST)
-        
-        if use_pre_draw_in_abs_coords:
-            selobj.post_draw_in_abs_coords(self)
-        else:
-            glMatrixMode(GL_PROJECTION)
-            glPopMatrix()
-            glMatrixMode(GL_MODELVIEW) #k maybe not needed
+
         return # from draw_highlighted_objectUnderMouse
 
     def set_selobj(self, selobj, why = "why?"):

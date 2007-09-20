@@ -11,6 +11,12 @@ need a common superclass (and have common code that needs merging).
 It needs to be in its own file to avoid import loop problems.
 """
 
+SIMPLER_HIGHLIGHTING = True
+    # when True, experimentally simplifies highlighting code,
+    # in a way which may increase patchy-highlighting bugs
+    # until they are fixed separately.
+    # [bruce 070920]
+
 from PyQt4.Qt import QGLWidget
 
 class GLPane_minimal(QGLWidget): #bruce 070914
