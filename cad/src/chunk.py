@@ -963,15 +963,6 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         #  but it should be harmless.)
         self.track_use()
         
-        #@@@ninad 070219 temporary code to draw the chunk as a colored selection instead of selection polyhedron. 
-        # It is slow. Should be reimplemented. 
-        #Need to discuss this with Bruce. 
-        #ninad070406 disabled the following. drawing the chunks as a colored 
-        #selection  in its display list --(which speeds up the chunk drawing and 
-        #also fixes ome bugs where the green color looks 'patchy' at some places.
-        
-        ##self._draw_colored_selection(glpane)
-
         drawLevel = self.assy.drawLevel # this might recompute it
             # (if that happens and grabs the pref value, I think this won't subscribe our display list to it,
             #  since we're outside the begin/end for that, and that's good, since we include this in havelist
@@ -1133,12 +1124,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                 hd._drawchunk_selection_frame(glpane, self, PickedColor, highlighted = False)
             pass
         return
-    
-    def _draw_colored_selection(self, glpane):#@@@ ninad 070216
-        if self.picked:
-            glpane.drawHighlightedChunk(self, darkgreen)
-        pass
-    
+       
 
     def draw_displist(self, glpane, disp0, hd_info): #bruce 050513 optimizing this somewhat; 060608 revising it
         "[private submethod of self.draw]"
