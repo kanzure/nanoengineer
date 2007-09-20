@@ -1736,9 +1736,7 @@ class selectMode(basicMode):
         
         wX = event.pos().x()
         wY = self.o.height - event.pos().y()
-        
-        aspect = float(self.o.width)/self.o.height
-                
+                        
         gz = self._calibrateZ(wX, wY)
         if gz >= GL_FAR_Z:  # Empty space was clicked--This may not be true for translucent face [Huaicai 10/5/05]
             return None  
@@ -1753,7 +1751,7 @@ class selectMode(basicMode):
         glPushMatrix()
         
         current_glselect = (wX,wY,3,3) 
-        self.o._setup_projection( aspect, self.o.vdist, glselect = current_glselect) 
+        self.o._setup_projection( glselect = current_glselect) 
         
         glSelectBuffer(self.o.glselectBufferSize)
         glRenderMode(GL_SELECT)
@@ -1822,8 +1820,11 @@ class selectMode(basicMode):
             ## TEST_PYREX_OPENGL = 1
         if TEST_PYREX_OPENGL:
             try:
+                print_compact_stack("selectMode Draw: " )###
+                ### BUG: if import quux fails, we get into some sort of infinite loop of Draw calls. [bruce 070917 comment]
+                
                 #self.w.win_update()
-                sys.path.append("./experimental/pyrex-opengl")
+##                sys.path.append("./experimental/pyrex-opengl") # no longer needed here -- always done in drawer.py
                 binPath = os.path.normpath(os.path.dirname(os.path.abspath(sys.argv[0])) + '/../bin')
                 if binPath not in sys.path:
                     sys.path.append(binPath)
