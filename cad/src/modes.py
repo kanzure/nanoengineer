@@ -1792,8 +1792,6 @@ class basicMode(anyMode):
         wX = event.pos().x()
         wY = self.o.height - event.pos().y()
         
-        aspect = float(self.o.width)/self.o.height
-                
         gz = self._calibrateZ(wX, wY) 
         if gz >= GL_FAR_Z:  # Empty space was clicked--This may not be true for translucent face [Huaicai 10/5/05]
             return False  
@@ -1808,7 +1806,7 @@ class basicMode(anyMode):
         glPushMatrix()
         
         current_glselect = (wX,wY,3,3) 
-        self.o._setup_projection( aspect, self.o.vdist, glselect = current_glselect) 
+        self.o._setup_projection( glselect = current_glselect) 
         
         glSelectBuffer(self.o.glselectBufferSize)
         glRenderMode(GL_SELECT)

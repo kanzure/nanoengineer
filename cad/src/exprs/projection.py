@@ -71,7 +71,8 @@ class DrawInCorner_projection(DelegatingInstanceOrExpr):
 
         try:
             glpane = self.env.glpane
-            aspect = 1.0 ###WRONG but the corners that still use it below don't work right anyway; BTW does glpane.aspect exist?
+##            aspect = 1.0 ###WRONG -- should use glpane.aspect (which exists as of 070919)
+            aspect = glpane.aspect # revised by bruce 070919, UNTESTED
             corner = self.corner
             delegate = self.delegate
 
@@ -164,7 +165,8 @@ class DrawInCorner(DelegatingInstanceOrExpr):
         glLoadIdentity()
         try:
             glpane = self.env.glpane
-            ## aspect = 1.0 ###WRONG but the cases that use it don't work right anyway; BTW does glpane.aspect exist?
+##            aspect = 1.0 ###WRONG -- should use glpane.aspect (which exists as of 070919)
+            aspect = glpane.aspect # revised by bruce 070919, UNTESTED
             corner = self.corner
             delegate = self.delegate
             want_depth = self.want_depth
