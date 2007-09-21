@@ -181,11 +181,16 @@ import EndUser
 allow_color_sorting = allow_color_sorting_default = False #bruce 060323 changed this to False for A7 release
 allow_color_sorting_prefs_key = "allow_color_sorting_rev2" #bruce 060323 changed this to disconnect it from old pref setting
 
-# Experimental native C renderer
+# Experimental native C renderer (quux module in cad/src/experimental/pyrex-opengl)
 use_c_renderer = use_c_renderer_default = False
 use_c_renderer_prefs_key = "use_c_renderer_rev2" #bruce 060323 changed this to disconnect it from old pref setting
 
-sys.path.append("./experimental/pyrex-opengl")
+import __main__
+if __main__._USE_ALTERNATE_CAD_SRC_PATH: #bruce 070917
+    sys.path.append(os.path.join( __main__._ALTERNATE_CAD_SRC_PATH, "experimental/pyrex-opengl"))
+else:
+    sys.path.append("./experimental/pyrex-opengl")
+
 binPath = os.path.normpath(os.path.dirname(os.path.abspath(sys.argv[0])) + '/../bin')
 if binPath not in sys.path:
     sys.path.append(binPath)
@@ -703,9 +708,19 @@ def drawsphere_worker(params):
     return
 
 def drawcylinder_worker(params):
-    """Draw a cylinder.  Receive parameters through a sequence so that this
+    """
+    Draw a cylinder.  Receive parameters through a sequence so that this
     function and its parameters can be passed to another function for
-    deferment.  Right now this is only ColorSorter.schedule (see below)"""
+    deferment.  Right now this is only ColorSorter.schedule (see below)
+
+    WARNING: our circular cross-section is approximated by a 13-gon
+    whose alignment around the axis is chosen arbitrary, in a way
+    which depends on the direction of the axis; negating the axis usually
+    causes a different alignment of that 13-gon. This effect can cause
+    visual bugs when drawing one cylinder over an identical or slightly
+    smaller one (e.g. when highlighting a bond), unless the axes are kept
+    parallel as opposed to antiparallel.
+    """
 
     global CylList, CapList
     (pos1, pos2, radius, capped) = params
