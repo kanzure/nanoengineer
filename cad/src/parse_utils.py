@@ -1,12 +1,12 @@
 # Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
+"""
 parse_utils.py -- utilities for general parsing, and for parsing streams of python tokens.
 Also a prototype "description class" which can be used to represent results of parsing a "description".
 Also an example grammar, which can be used for parsing "parameter-set description files".
 (Some of these things ought to be split into their own files and/or improved/generalized.)
 
 $Id$
-'''
+"""
 __author__ = "bruce"
 
 
@@ -156,6 +156,8 @@ def token_name(rest):
     return tok_name[rest[0][0]]
 
 IGNORED_TOKNAMES = ('NL', 'COMMENT') # this is really an aspect of our specific grammar
+    # note: NL is a continuation newline, not a syntactically relevant newline
+    # (for that see Newline below, based on tokentype NEWLINE)
 
 class TokenType(ParseRule):
     def validate(self):
@@ -168,7 +170,9 @@ class TokenType(ParseRule):
         self.want_tokname = self.kws.get('want_tokname', want_tokname_dflt)
         assert type(toknames) == type([])
         for tokname in toknames:
-            assert type(tokname) == type("") and tokname in tok_name.itervalues(), "illegal tokname: %r" % tokname
+            assert type(tokname) == type("") and tokname in tok_name.itervalues(), \
+                   "illegal tokname: %r (not found in %r)" % \
+                   ( tokname, tok_name.values() )
         self.toknames = toknames
         try:
             self.cond = self.args[1]
@@ -193,8 +197,12 @@ class TokenType(ParseRule):
 
 def Op( opstring):
     return TokenType('OP', lambda token: token == opstring)
+        ### REVIEW: why doesn't this lambda need the "opstring = opstring" kluge?
+        # Has notneeding this been tested? [bruce comment 070918]
 
 # == the specific grammar of "parameter-set description files"
+
+# TODO: split this grammar (including IGNORED_TOKNAMES above, somehow) into its own file
 
 # thing = name : arglist
 # optional indented things

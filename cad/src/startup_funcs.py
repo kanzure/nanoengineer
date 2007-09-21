@@ -15,7 +15,7 @@ and adding some stub functions which will be filled in later.
 
 import sys, os
 
-import EndUser
+import EndUser # NOTE: this must not do imports of our other source modules
 
 def before_most_imports( main_globals ):
     """Do things that should be done before anything that might possibly have side effects.
