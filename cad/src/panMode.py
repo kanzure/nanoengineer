@@ -74,7 +74,6 @@ class panMode(panlikeMode):
         
     def restore_gui(self):
         self.win.panToolAction.setChecked(0) # toggle off the Pan Tool icon
-        self.win.panDashboard.hide()
     
     def leftDown(self, event):
         'Event handler for LMB press event.'
