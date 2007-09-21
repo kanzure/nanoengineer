@@ -76,33 +76,6 @@ class Ui_MainWindow(object):
         self.textLabel1_2 = QtGui.QLabel(self.selectMolDashboard)
         self.textLabel1_2.setObjectName("textLabel1_2")
 
-        self.zoomDashboard = QtGui.QToolBar(MainWindow)
-        self.zoomDashboard.setEnabled(True)
-        self.zoomDashboard.setGeometry(QtCore.QRect(0,47,91,20))
-        self.zoomDashboard.setObjectName("zoomDashboard")
-
-        self.zoomTextLabel = QtGui.QLabel(self.zoomDashboard)
-        self.zoomTextLabel.setObjectName("zoomTextLabel")
-        MainWindow.addToolBar(Qt.BottomToolBarArea, self.zoomDashboard)
-
-        self.panDashboard = QtGui.QToolBar(MainWindow)
-        self.panDashboard.setEnabled(True)
-        self.panDashboard.setGeometry(QtCore.QRect(91,47,79,20))
-        self.panDashboard.setObjectName("panDashboard")
-
-        self.panTextLabel = QtGui.QLabel(self.panDashboard)
-        self.panTextLabel.setObjectName("panTextLabel")
-        MainWindow.addToolBar(Qt.BottomToolBarArea,  self.panDashboard)
-
-        self.rotateDashboard = QtGui.QToolBar(MainWindow)
-        self.rotateDashboard.setEnabled(True)
-        self.rotateDashboard.setGeometry(QtCore.QRect(170,47,94,20))
-        self.rotateDashboard.setObjectName("rotateDashboard")
-
-        self.rotateTextLabel = QtGui.QLabel(self.rotateDashboard)
-        self.rotateTextLabel.setObjectName("rotateTextLabel")
-        MainWindow.addToolBar(Qt.BottomToolBarArea,  self.rotateDashboard)
-
         self.fuseChunksDashboard = QtGui.QToolBar(MainWindow)
         self.fuseChunksDashboard.setEnabled(True)
         self.fuseChunksDashboard.setObjectName("fuseChunksDashboard")
@@ -403,10 +376,6 @@ class Ui_MainWindow(object):
         # All the stuff below should be moved out of the MainWindowUI.ui/py world, and out
         # into Nanorex-defined source files.
                
-                 
-        self.zoomDashboard.addAction(self.toolsDoneAction)
-        self.panDashboard.addAction(self.toolsDoneAction)
-        self.rotateDashboard.addAction(self.toolsDoneAction)
         
         self.cookieSelectDashboard.addAction(MainWindow.DefaultSelAction)
         self.cookieSelectDashboard.addAction(MainWindow.LassoSelAction)
@@ -470,12 +439,6 @@ class Ui_MainWindow(object):
         self.moviePlayerDashboard.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Movie Player Dashboard", None, QtGui.QApplication.UnicodeUTF8))
         self.selectMolDashboard.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Select Molecule", None, QtGui.QApplication.UnicodeUTF8))
         self.textLabel1_2.setText(QtGui.QApplication.translate("MainWindow", "Select Chunks", None, QtGui.QApplication.UnicodeUTF8))
-        self.zoomDashboard.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Zoom Tool", None, QtGui.QApplication.UnicodeUTF8))
-        self.zoomTextLabel.setText(QtGui.QApplication.translate("MainWindow", "Zoom Tool", None, QtGui.QApplication.UnicodeUTF8))
-        self.panDashboard.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Pan Tool", None, QtGui.QApplication.UnicodeUTF8))
-        self.panTextLabel.setText(QtGui.QApplication.translate("MainWindow", "Pan Tool", None, QtGui.QApplication.UnicodeUTF8))
-        self.rotateDashboard.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Rotate Tool", None, QtGui.QApplication.UnicodeUTF8))
-        self.rotateTextLabel.setText(QtGui.QApplication.translate("MainWindow", "Rotate Tool", None, QtGui.QApplication.UnicodeUTF8))
         self.fuseChunksDashboard.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Fuse Chunks", None, QtGui.QApplication.UnicodeUTF8))
         self.textLabel1_3.setText(QtGui.QApplication.translate("MainWindow", "Fuse Chunks", None, QtGui.QApplication.UnicodeUTF8))
         self.cookieSelectDashboard.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Toolbar", None, QtGui.QApplication.UnicodeUTF8))

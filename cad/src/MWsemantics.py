@@ -2042,9 +2042,6 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.selectMolDashboard.hide()
         self.moveChunksDashboard.hide()
         self.moviePlayerDashboard.hide()
-        self.zoomDashboard.hide()
-        self.panDashboard.hide()
-        self.rotateDashboard.hide()
         self.fuseChunksDashboard.hide()
         self.cookieSelectDashboard.hide()
         return

@@ -286,11 +286,17 @@ class basicMode(anyMode):
 
         # other inits
         self.glpane = glpane #bruce 070613 added this
-        self.o = glpane # deprecated, but often used... new code should use self.glpane instead [bruce 070613]
+
+        # Deprecated, but often used. New code should use self.glpane instead.
+        # Bruce 6/13/2007
+        self.o = glpane
 
         win = glpane.win
         self.win = win #bruce 070613 added this
-        self.w = win # deprecated, but often used... new code should use self.win instead [bruce 070613]
+
+        # Deprecated, but often used. New code should use self.win instead.
+        # Bruce 6/13/2007
+        self.w = win
         
         ## self.init_prefs() # no longer needed --
         # Between Alpha 1-8, each mode had its own background color and display mode.
