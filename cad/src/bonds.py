@@ -1407,7 +1407,7 @@ class Bond(BondBase, StateMixin):
         #it is used only in select Chunks mode while highlighting the whole chunk and when
         #the atom display is Tubes display -- ninad 070214
         
-        highlighted = True  # ninad 070214 - passing 'highlghted' to bond.draw instead of highlighted = bool
+        highlighted = True  # ninad 070214 - passing 'highlighted' to bond.draw instead of highlighted = bool
         
         if self.killed():
             #bruce 050702, part of fix 2 of 2 redundant fixes for bug 716 (both fixes are desirable)

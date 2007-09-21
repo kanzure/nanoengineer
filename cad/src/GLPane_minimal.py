@@ -11,10 +11,14 @@ need a common superclass (and have common code that needs merging).
 It needs to be in its own file to avoid import loop problems.
 """
 
-SIMPLER_HIGHLIGHTING = True
+SIMPLER_HIGHLIGHTING_predraw = False # False means we keep using "translate world" kluge for some selobjs
+SIMPLER_HIGHLIGHTING_DepthFunc = True # True means we always use GL_LEQUAL for glDepthFunc
     # when True, experimentally simplifies highlighting code,
+    # in two independent ways (though they interact in effect),
     # in a way which may increase patchy-highlighting bugs
     # until they are fixed separately.
+    # (If you set these to True/False respectively, internal bond highlighting
+    #  doesn't show up except in a few pixels, as expected.)
     # [bruce 070920]
 
 from PyQt4.Qt import QGLWidget

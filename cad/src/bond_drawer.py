@@ -405,6 +405,9 @@ def draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highli
     # Note: bool_fullBondLength represent whether full bond length to be drawn
     # it is used only in select Chunks mode while highlighting the whole chunk and when
     #the atom display is Tubes display -- ninad 070214
+    # REVIEW: I think bool_fullBondLength option is not needed,
+    # since bool_fullBondLength = True can be implemented (here or preferably in callers)
+    # just by passing shorten_tubes = False. [bruce 070920 comment]
     
     a1pos, c1, center, c2, a2pos, toolong = geom
     
@@ -499,6 +502,8 @@ def draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highli
         # one longer cylinder, then overdraw toolong indicator if needed.
         # Significant for big parts. BUT, why spend time on this when I
         # expect we'll do this drawing in C code before too long?
+
+        bugdemo = debug_pref("cyl stripe bug?", Choice_boolean_False, non_debug=True)######### @@@070921
         if not toolong:
             if v1 and v2 and (not color1 != color2): # "not !=" is in case colors are Numeric arrays (don't know if possible)
                 #bruce 050516 optim: draw only one cylinder in this common case
@@ -507,7 +512,10 @@ def draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highli
                 if v1:
                     drawcylinder(color1, a1pos, center, sigmabond_cyl_radius)
                 if v2:
+                   if bugdemo:####
                     drawcylinder(color2, a2pos, center, sigmabond_cyl_radius)
+                   else:
+                    drawcylinder(color2, center, a2pos, sigmabond_cyl_radius) #bruce 070921 bugfix: draw in consistent direction!
                 if not (v1 and v2):
                     drawsphere(black, center, sigmabond_cyl_radius, level)
         else:
@@ -521,7 +529,10 @@ def draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highli
             else:
                 drawsphere(black, c1, sigmabond_cyl_radius, level)
             if v2:
+               if bugdemo:####
                 drawcylinder(color2, a2pos, c2, sigmabond_cyl_radius)
+               else:
+                drawcylinder(color2, c2, a2pos, sigmabond_cyl_radius) #bruce 070921 bugfix: draw in consistent direction!
             else:
                 drawsphere(black, c2, sigmabond_cyl_radius, level)
         if banding:

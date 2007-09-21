@@ -31,6 +31,7 @@ from OpenGL.GL import glNewList
 from OpenGL.GL import glEndList
 from OpenGL.GL import glCallList
 from OpenGL.GL import glDepthFunc
+from OpenGL.GL import glDepthRange
 from OpenGL.GL import GL_STENCIL_BITS
 from OpenGL.GL import GL_NORMALIZE
 from OpenGL.GL import GL_PROJECTION
@@ -171,7 +172,12 @@ from debug_prefs import Choice_boolean_False
 from debug_prefs import debug_pref
 
 from GLPane_minimal import GLPane_minimal
-from GLPane_minimal import SIMPLER_HIGHLIGHTING
+from GLPane_minimal import SIMPLER_HIGHLIGHTING_predraw, SIMPLER_HIGHLIGHTING_DepthFunc ### also commented out code near there
+
+USE_DEPTH_TWEAK = True ### TRY True soon, see if fixes HL offcenter errors in _9a which i predict are revived
+DEPTH_TWEAK = 5000 * (2.0)**(-32)
+    # test shows 300 (in units of 2**-32) is enough for most things,
+    # but 2000 is better for some, and even 5000 has no known bad effects. [bruce 070921]
 
 # suspicious imports [should not really be needed, according to bruce 070919]
 from chunk import molecule # used only for drawHighlightedChunk
@@ -297,7 +303,7 @@ class GLPane_mixin_for_DisplistChunk(object): #bruce 070110 moved this here from
         vs. within the current GL context for direct execution.)
            We assume without checking that self's GL context is current.
         """
-        if SIMPLER_HIGHLIGHTING:
+        if SIMPLER_HIGHLIGHTING_DepthFunc:
             return # if we adopt that setting permanently, we'll zap this method unless it has important local uses
         if always or self.current_glDepthFunc != gl_func_constant:
             glDepthFunc( gl_func_constant)
@@ -2427,13 +2433,21 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
 
         return # from paintGL
 
-    if SIMPLER_HIGHLIGHTING:
+    if SIMPLER_HIGHLIGHTING_DepthFunc:
         standard_glDepthFunc = GL_LEQUAL # default value for modes that don't have one, and default initial value for our instance var
         standard_glDepthFunc_name = 'GL_LEQUAL' # should correspond; used only in error messages [bruce 070406]
     else:
         standard_glDepthFunc = GL_LESS # default value for modes that don't have one, and default initial value for our instance var
         standard_glDepthFunc_name = 'GL_LESS' # should correspond; used only in error messages [bruce 070406]
-    
+
+    def setDepthRange_Normal(self):
+        glDepthRange(0.0 + DEPTH_TWEAK, 1.0) # args are near, far
+        pass
+
+    def setDepthRange_Highlighting(self):
+        glDepthRange(0.0, 1.0 - DEPTH_TWEAK)
+        pass
+
     def most_of_paintGL(self): #bruce 060323 split this out of paintGL
         "Do most of what paintGL should do."
 
@@ -2453,7 +2467,20 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
             # the atomic model itself.  I dunno where that is.
             drawer.enable_fog()
 
-        if SIMPLER_HIGHLIGHTING:
+        if USE_DEPTH_TWEAK:
+            global DEPTH_TWEAK ## @@@070921
+            DEPTH_TWEAK = debug_pref("GLPane: depth tweak", # fyi: 2**18 is about 262000
+                                     Choice([0,1,3,10,100,200,300,400,500,600,700,800,900,1000,
+                                             2000,3000,4000,5000,
+                                             10000, 100000, 10**6,10**7,10**8], defaultValue = 5000),
+                                     non_debug = True) \
+                          * 2.0**(-32)
+            # for open bond cyls, 10**6 mostly fixes stripes but not all. cyl must be misaligned. i don't know why.
+            # for normal internal bonds, 100 does not fix them, but 1000 does fix them.
+            # sel chunks highlighting also has stripes on open bonds -- details untested.
+            self.setDepthRange_Normal()
+        
+        if SIMPLER_HIGHLIGHTING_DepthFunc:
             glDepthFunc( GL_LEQUAL)
         else:
             # restore standard OpenGL state settings [bruce 070117, though seems like a good idea for the past; #e should make it a method]
@@ -3125,17 +3152,22 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
 
         # REVIEW: are the draw_in_abs_coords-related methods part of a DrawHighlighted_interface?
 
-        if not SIMPLER_HIGHLIGHTING:
-            use_pre_draw_in_abs_coords = hasattr(selobj, "pre_draw_in_abs_coords") #bruce 061218 new feature
-            if use_pre_draw_in_abs_coords:
-                assert hasattr(selobj, "post_draw_in_abs_coords")
-                selobj.pre_draw_in_abs_coords(self)
+        if not SIMPLER_HIGHLIGHTING_predraw:
+##            use_pre_draw_in_abs_coords = hasattr(selobj, "pre_draw_in_abs_coords") #bruce 061218 new feature
+##            if use_pre_draw_in_abs_coords:
+##                assert hasattr(selobj, "post_draw_in_abs_coords")
+##                selobj.pre_draw_in_abs_coords(self)
+##            else:
+            if USE_DEPTH_TWEAK:
+                self.setDepthRange_Highlighting() # sort of works, depending on value [bruce 070920]
             else:
                 glMatrixMode(GL_PROJECTION) # prepare to "translate the world"
                 glPushMatrix() # could avoid using another matrix-stack-level if necessary, by untranslating when done
                 glTranslatef(0.0, 0.0, +0.01) # move the world a bit towards the screen
                     # (this works, but someday verify sign is correct in theory #k)
                     # [actually it has some visual bugs, esp. in perspective view when off-center,
+                    #  [verified 070920 if i disable pre_draw_in_abs_coords, try testexpr_9a (offcenter perspective),
+                    #   and either replace +0.01 by +1.01, or use high zoom, or look at highlighted TextRects at lower right],
                     #  and it would be better to just use a depth offset (via glPolygonOffset(hard to use in this case)
                     #  or glDepthRange (which requires us to know the depth buffer resolution to use it properly)),
                     #  or better still [now done sometimes, via pre_draw_in_abs_coords]
@@ -3177,9 +3209,12 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
             pass
         self.drawing_phase = '?'
 
-        if not SIMPLER_HIGHLIGHTING:
-            if use_pre_draw_in_abs_coords:
-                selobj.post_draw_in_abs_coords(self)
+        if not SIMPLER_HIGHLIGHTING_predraw:
+##            if use_pre_draw_in_abs_coords:
+##                selobj.post_draw_in_abs_coords(self)
+##            else:
+            if USE_DEPTH_TWEAK:
+                self.setDepthRange_Normal()
             else:
                 glMatrixMode(GL_PROJECTION)
                 glPopMatrix()

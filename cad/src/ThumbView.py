@@ -80,7 +80,7 @@ from prefs_constants import bondpointHighlightColor_prefs_key
 from Utility import Group
 
 from GLPane_minimal import GLPane_minimal
-from GLPane_minimal import SIMPLER_HIGHLIGHTING
+from GLPane_minimal import SIMPLER_HIGHLIGHTING_predraw, SIMPLER_HIGHLIGHTING_DepthFunc
 
 class ThumbView(GLPane_minimal):
     """
@@ -268,7 +268,7 @@ class ThumbView(GLPane_minimal):
         """
         if not self.initialised: return
 
-        if SIMPLER_HIGHLIGHTING:
+        if SIMPLER_HIGHLIGHTING_DepthFunc:
             glDepthFunc( GL_LEQUAL)
         
         from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
@@ -612,7 +612,7 @@ class ThumbView(GLPane_minimal):
         glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE)
         glEnable(GL_STENCIL_TEST)
 
-        if not SIMPLER_HIGHLIGHTING:
+        if not SIMPLER_HIGHLIGHTING_predraw:
             glMatrixMode(GL_PROJECTION) # prepare to "translate the world"
             glPushMatrix() # could avoid using another matrix-stack-level if necessary, by untranslating when done
             glTranslatef(0.0, 0.0, +0.01) # move the world a bit towards the screen
@@ -627,7 +627,7 @@ class ThumbView(GLPane_minimal):
         glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP)
         glDisable(GL_STENCIL_TEST)
         
-        if not SIMPLER_HIGHLIGHTING:
+        if not SIMPLER_HIGHLIGHTING_predraw:
             glMatrixMode(GL_PROJECTION)
             glPopMatrix()
         glMatrixMode(GL_MODELVIEW)
