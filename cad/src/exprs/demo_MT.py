@@ -141,6 +141,7 @@ from exprs.DisplistChunk import DisplistChunk
 from constants import blue, green, ave_colors, white
 
 from exprs.Exprs import call_Expr, list_Expr, getattr_Expr, not_Expr, format_Expr
+from exprs.Exprs import is_expr_Instance
 from exprs.If_expr import If
 from exprs.widget2d import Stub
 from exprs.iterator_exprs import MapListToExpr
