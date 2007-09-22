@@ -14,25 +14,15 @@ from basic import _self
 
 from ToggleShow import * # e.g. If, various other imports we should do explicitly #e  ### FIX THIS, do them explicitly
 
-import Set
-reload_once(Set)
 from Set import Set ##e move to basic
 
-import Rect
-reload_once(Rect)
 from Rect import Rect, Spacer
 
-import images
-reload_once(images)
 from images import IconImage, Image #e and more
 
-import Center
-reload_once(Center)
 from Center import CenterY
 
 
-import demo_MT
-reload_once(demo_MT)
 from demo_MT import node_kids, node_openable, mt_node_id, node_name
 
 # == stubs

@@ -9,10 +9,6 @@ $Id$
 # and ###BUG comment in test_statearray.py or related file, 070312) --
 # this is now renamed a feature of StateArrayRefs rather than a bug of StateArray.
 
-from exprs.reload import reload_once
-
-import exprs.lvals
-reload_once(exprs.lvals)
 from exprs.lvals import LvalForState, LvalDict2, call_but_discard_tracked_usage
 
 from exprs.Exprs import call_Expr

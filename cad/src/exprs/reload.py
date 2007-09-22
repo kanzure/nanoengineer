@@ -4,6 +4,8 @@
 reload.py -- handle dynamic reloading of code for developers
 
 $Id$
+
+Note: as of 070921 reload_once is no longer called except in testdraw.py.
 """
 
 import platform

@@ -4,16 +4,13 @@ Exprs.py -- class Expr, and related subclasses and utilities, other than those i
 
 $Id$
 
+TODO:
 
-#e this file is getting kind of long - maybe split it in some sensible way?
+this file is getting kind of long - maybe split it in some sensible way?
 """
 
 # note: this module should not import ExprsMeta, though its InstanceOrExpr subclass needs to (in another module).
-# instead, it is probably fully imported by ExprsMeta, and certainly by basic.
-
-#e want __all__? would contain most of it.
-
-# as of 061102 this module is probably reloadable:
+# instead, it is probably fully imported by ExprsMeta.
 
 from debug import compact_stack, print_compact_stack, print_compact_traceback, safe_repr
 from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True, Choice
@@ -1229,7 +1226,7 @@ def canon_expr(subexpr):###CALL ME FROM MORE PLACES -- a comment in Column.py sa
 
 # ==
 
-from state_utils import _UNSET_ #e refile in basic? we'd still need to import it here explicitly, from basic (not in import *)
+from state_utils import _UNSET_
 
 class Symbol(SymbolicExpr):
     "A kind of Expr that is just a symbol with a given name. Often used via the __Symbols__ module."

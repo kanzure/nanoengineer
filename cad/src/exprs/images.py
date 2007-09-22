@@ -60,18 +60,10 @@ from OpenGL.GL import glAlphaFunc
 from OpenGL.GL import glDisable
 from OpenGL.GLU import gluProject
 
-from exprs.reload import reload_once
-
-import exprs.draw_utils
-reload_once(exprs.draw_utils)
 from exprs.draw_utils import draw_textured_rect, draw_textured_rect_subtriangle
 
-import exprs.Rect
-reload_once(exprs.Rect)
 from exprs.Rect import Rect
 
-import exprs.Center
-reload_once(exprs.Center)
 from exprs.Center import Center
 
 import platform

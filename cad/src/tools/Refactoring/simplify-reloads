@@ -35,6 +35,11 @@ DEBUG_MATCHES = False # debug print for each match success
 DEBUG_JUST_PRINT_THE_TOKENS = False # if True, just print the tokens nicely, to stdout, and do nothing else.
 
 REALLY_REMOVE_FILES = True # call os.remove on output files we might write anew (whether or not we actually do so)
+    # (only matters if not OVERWRITE_ORIGINAL_FILES)
+
+OVERWRITE_ORIGINAL_FILES = True # remove original files and replace them with modified ones (when they would differ)
+    # TODO: really this should be a command-line option, default false,
+    # but this is a one-use script, so now that it's debugged I won't bother.
 
 from tokenize import generate_tokens
 from tokenize import tok_name # dictionary, token (int, used in generate_tokens retval) to its name (e.g. 'NEWLINE')
@@ -43,8 +48,8 @@ import sys, os
 
 if __name__ == '__main__':
     thisdir = os.path.dirname(__file__)
-    if thisdir != '.':
-        print >> sys.stderr, "UNTESTED: running in directory %r" % (thisdir,)
+##    if thisdir != '.':
+##        print >> sys.stderr, "running in directory %r" % (thisdir,)
     cad_src_dir = os.path.join( thisdir, "../..") # location of cad/src directory
     sys.path.append( cad_src_dir )
 
@@ -177,27 +182,33 @@ def process_filename(filename):
     print >> sys.stderr, "processing file %r" % filename
         # always print this, so user knows which file any error messages are about
     file = open(filename, 'rU')
-    res = process_file(file, prepend_to_basename("FIXED-", filename))
-    file.close()
+    if OVERWRITE_ORIGINAL_FILES:
+        res = process_file(file, filename, overwrite = True) # this closes file itself, before removing/rewriting it
+    else:
+        res = process_file(file, prepend_to_basename("FIXED-", filename))
+        file.close()
     ### TODO: 
 ##    if res:
 ##        print >> sys.stderr, "moving fixed file over original one, backing up original"
 ##        # or just let svn diff/revert serve to "back up original"?
     return
 
-def process_file(file, output_filename):
+def process_file(file, output_filename, overwrite = False):
     """
     Remove some lines from file and save the result into a new file of the given name,
     unless no lines would be removed,
-    in which case just remove the output file if it was present.
+    in which case just remove the output file if it was present (and if not overwrite).
+    Overwrite option revises behavior for when output_filename refers to the same file as file:
+    don't remove original file then, just close it and rewrite it if it changes.
     Return a boolean saying whether you removed any lines and left an output file.
     """
-    if os.path.isfile(output_filename):
-        if REALLY_REMOVE_FILES: 
-            print >> sys.stderr, "REMOVING", output_filename
-            os.remove(output_filename) # if this fails, let the exception abort the script
-        else:
-            print >> sys.stderr, "SHOULD REMOVE (unless we remake it)", output_filename
+    if not overwrite:        
+        if os.path.isfile(output_filename):
+            if REALLY_REMOVE_FILES: 
+                print >> sys.stderr, "REMOVING", output_filename
+                os.remove(output_filename) # if this fails, let the exception abort the script
+            else:
+                print >> sys.stderr, "SHOULD REMOVE (unless we remake it)", output_filename
     
     gentok = generate_tokens(file.readline)
         # a generator of all tokens in the file
@@ -289,7 +300,8 @@ def process_file(file, output_filename):
             drange = range(dline1, dline2+1) # inclusive range of physical line indices to delete
 
             if DEBUG:
-                print >> sys.stderr, "will delete these lines:" 
+                if i == deletes[::-1][0]: # print it only for the first one
+                    print >> sys.stderr, "\nwill delete these lines:\n" 
                 for lineno in drange:
                     print >> sys.stderr, ">>>", textlines[lineno], ### sanity check
                 print >> sys.stderr
@@ -297,15 +309,39 @@ def process_file(file, output_filename):
             for lineno in drange[::-1]:
                 del textlines[lineno]
 
+        newlen1 = len(textlines)
+
+        # also delete any lines that exactly match "from exprs.reload import reload_once"
+        count1 = count2 = 0
+        for i in range(len(textlines))[::-1]:
+            if textlines[i].strip() == "from exprs.reload import reload_once":
+                del textlines[i]
+                count1 += 1
+                if 0 < i < len(textlines) - 1:
+                    if not textlines[i-1].strip() and not textlines[i].strip():
+                        # two blank lines are now adjacent; delete one of them
+                        # (the one at index i, which a moment ago had index i+1)
+                        del textlines[i]
+                        count2 += 1
+        if count1:
+            print >> sys.stderr, "also deleted %d imports of reload_once and %d subsequent blank lines" % (count1, count2)
+        else:
+            assert not count2
+        
         # now open the output file and print the lines we're not deleting to the output file
         # use output_filename as name of new file
 
+        if overwrite:
+            file.close()
+            os.remove(output_filename) # the same file, in this case
+        
         output = open(output_filename, "w")
         output.writelines(textlines)
         output.close()
         newlen = len(textlines)
         print >> sys.stderr, "wrote %d lines to %r" % (newlen, output_filename)
-        assert oldlen - 2 * len(deletes) == newlen
+        assert oldlen - 2 * len(deletes) == newlen1
+        assert newlen1 - count1 - count2 == newlen
         
         pass
     else:

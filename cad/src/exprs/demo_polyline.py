@@ -18,10 +18,6 @@ See also:
 
 """
 
-from exprs.reload import reload_once
-
-import exprs.command_registry
-reload_once(exprs.command_registry)
 from exprs.command_registry import auto_register
 
 from OpenGL.GL import GL_LIGHTING

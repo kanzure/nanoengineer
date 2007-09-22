@@ -34,50 +34,26 @@ from OpenGL.GL import GL_LINE_STRIP
 from OpenGL.GL import glVertex3fv
 from OpenGL.GL import glEnd
 
-from exprs.reload import reload_once
-
-import exprs.Overlay
-reload_once(exprs.Overlay)
 from exprs.Overlay import Overlay
 
-import exprs.transforms
-reload_once(exprs.transforms)
 from exprs.transforms import Translate
 
-import exprs.Rect
-reload_once(exprs.Rect)
 from exprs.Rect import Rect ##, Sphere
 
-import exprs.Center
-reload_once(exprs.Center)
 from exprs.Center import Center, CenterY
 
-import exprs.Highlightable
-reload_once(exprs.Highlightable)
 from exprs.Highlightable import Highlightable, BackgroundObject ##, Button, print_Expr
 
-import exprs.TextRect
-reload_once(exprs.TextRect)
 from exprs.TextRect import TextRect
 
-import exprs.controls
-reload_once(exprs.controls)
 from exprs.controls import checkbox_pref, ActionButton
 
-import exprs.Column
-reload_once(exprs.Column)
 from exprs.Column import SimpleColumn, SimpleRow
 
-import exprs.DisplistChunk # works 070103, with important caveats re Highlightable
-reload_once(exprs.DisplistChunk)
 from exprs.DisplistChunk import DisplistChunk
 
-import exprs.lvals
-reload_once(exprs.lvals)
 from exprs.lvals import Lval, LvalDict2, call_but_discard_tracked_usage
 
-import exprs.world
-reload_once(exprs.world)
 from exprs.world import World
 
 from constants import black, noop

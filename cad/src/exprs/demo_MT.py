@@ -115,51 +115,27 @@ nfrs:
 
 # == imports [maybe not all needed #k]
 
-from exprs.reload import reload_once
-
-import exprs.Highlightable
-reload_once(exprs.Highlightable)
 from exprs.Highlightable import Highlightable
 
-import exprs.TextRect
-reload_once(exprs.TextRect)
 from exprs.TextRect import TextRect
 
-import exprs.Column
-reload_once(exprs.Column)
 from exprs.Column import SimpleRow, SimpleColumn
 
-import exprs.Overlay
-reload_once(exprs.Overlay)
 from exprs.Overlay import Overlay
 
-import exprs.Set
-reload_once(exprs.Set)
 from exprs.Set import Set ##e move to basic
 
-import exprs.Rect
-reload_once(exprs.Rect)
 from exprs.Rect import Rect, Spacer
 
-import exprs.images
-reload_once(exprs.images)
 from exprs.images import IconImage, Image #e and more
 
-import exprs.Center
-reload_once(exprs.Center)
 from exprs.Center import CenterY, Center
 
-import exprs.transforms
-reload_once(exprs.transforms)
 from exprs.transforms import Translate
 
-import exprs.projection
-reload_once(exprs.projection)
 from exprs.projection import DrawInCorner, DrawInCenter #e but what we need is not those, but DrawInAbsCoords or DrawInThingsCoords
     # or really, just get the place (or places) a thing will draw in, in local coords (see projection.py for more discussion)
 
-import exprs.DisplistChunk # works 070103, with important caveats re Highlightable (see module docstring)
-reload_once(exprs.DisplistChunk)
 from exprs.DisplistChunk import DisplistChunk
 
 from constants import blue, green, ave_colors, white

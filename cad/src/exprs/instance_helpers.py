@@ -11,15 +11,10 @@ History (partial):
 070815 split IorE_guest_mixin superclass out of InstanceOrExpr
 and moved it into a new file
 """
-from exprs.reload import reload_once
 
-import exprs.lvals
-reload_once(exprs.lvals)
 from exprs.lvals import LvalError_ValueIsUnset
 ## from lvals import LvalDict1 # only needed by obs code
 
-import exprs.widget_env
-reload_once(exprs.widget_env)
 from exprs.widget_env import thisname_of_class, widget_env #e refile import?? or make it an env method??
 
 from debug import print_compact_traceback

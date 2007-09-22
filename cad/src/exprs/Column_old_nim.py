@@ -8,11 +8,6 @@ $Id$
 this code is old and nim; implem is obs but intent is not (tho not urgent)
 """
 
-from exprs.reload import reload_once
-
-import exprs.draw_utils
-reload_once(exprs.draw_utils)
-
 from exprs.widget2d import Widget2D
 from exprs.instance_helpers import InstanceOrExpr
 from exprs.attr_decl_macros import ArgList
@@ -26,8 +21,6 @@ from exprs.Rect import Spacer
 # undefined global symbol:  ListInstanceType
 # undefined global symbol:  index_path
 
-##import instance_helpers
-##reload_once(instance_helpers)
 ##from instance_helpers import GlueCodeMemoizer, DelegatingInstance_obs
 
 # moved here from instance_helpers.py 070129 [and sufficiency of imports not tested since then]

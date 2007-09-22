@@ -11,18 +11,10 @@ $Id$
 # just a guess for this symbol, but it isn't defined there:
 #from OpenGL.GL import glTranslate3fv
 
-from exprs.reload import reload_once
-
-import exprs.Overlay
-reload_once(exprs.Overlay)
 from exprs.Overlay import Overlay
 
-import exprs.transforms
-reload_once(exprs.transforms)
 from exprs.transforms import Translate
 
-import exprs.Column
-reload_once(exprs.Column)
 from exprs.Column import SimpleRow, SimpleColumn
 
 from VQT import V

@@ -8,30 +8,16 @@ $Id$
 
 from constants import white
 
-from exprs.reload import reload_once
-
-import exprs.Rect
-reload_once(exprs.Rect)
 from exprs.Rect import Rect, RectFrame
 
-import exprs.Overlay
-reload_once(exprs.Overlay)
 from exprs.Overlay import Overlay
 
-import exprs.transforms
-reload_once(exprs.transforms)
 from exprs.transforms import Translate
 
-import exprs.Center
-reload_once(exprs.Center)
 from exprs.Center import Center, TopLeft
 
-import exprs.Highlightable
-reload_once(exprs.Highlightable)
 from exprs.Highlightable import Highlightable
 
-import exprs.clipping_planes
-reload_once(exprs.clipping_planes)
 from exprs.clipping_planes import clip_below_y0, clip_to_right_of_x0, Clipped
 
 from exprs.Exprs import V_expr, neg_Expr

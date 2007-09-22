@@ -8,8 +8,6 @@ $Id$
  split into this file 061203 to ease recursive import issues with State]
 """
 
-#from basic import * # recursive import
-
 # Symbols for private or semi-private use
 # (note, other modules that need these also import them directly from __Symbols__)
 from exprs.__Symbols__ import _E_ATTR, _E_REQUIRED_ARG_, _E_DFLT_FROM_TYPE_, _self

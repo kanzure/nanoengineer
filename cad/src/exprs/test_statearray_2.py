@@ -15,34 +15,18 @@ __author__ = 'bruce'
 
 # maybe some of these imports are not needed
 
-from exprs.reload import reload_once
-
-import exprs.Column
-reload_once(exprs.Column)
 from exprs.Column import SimpleColumn, SimpleRow
 
-import exprs.draggable
-reload_once(exprs.draggable)
 from exprs.draggable import DraggableObject
 
-import exprs.images
-reload_once(exprs.images)
 from exprs.images import Image
 
-import exprs.controls
-reload_once(exprs.controls)
 from exprs.controls import ActionButton, PrintAction
 
-import exprs.geometry_exprs
-reload_once(exprs.geometry_exprs)
 from exprs.geometry_exprs import Ray
 
-import exprs.transforms
-reload_once(exprs.transforms)
 from exprs.transforms import Translate
 
-import exprs.Overlay
-reload_once(exprs.Overlay)
 from exprs.Overlay import Overlay
 
 from constants import black, pink, white

@@ -21,26 +21,14 @@ $Id$
 # so I will make them processed by it, by removing the free in _self condition (needed for State too),
 # but I wonder if that will break this, or maybe fix some of its occasional problems...
 
-from exprs.reload import reload_once
-
-import exprs.Highlightable
-reload_once(exprs.Highlightable)
 from exprs.Highlightable import Highlightable
 
-import exprs.Rect
-reload_once(exprs.Rect)
 from exprs.Rect import Rect
 
-import exprs.TextRect
-reload_once(exprs.TextRect)
 from exprs.TextRect import TextRect
 
-import exprs.Column
-reload_once(exprs.Column)
 from exprs.Column import SimpleRow, SimpleColumn
 
-import exprs.Overlay
-reload_once(exprs.Overlay)
 from exprs.Overlay import Overlay
 
 from exprs.If_expr import If_kluge

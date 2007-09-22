@@ -97,10 +97,6 @@ from OpenGL.GL import GL_QUAD_STRIP
 from OpenGL.GL import glNormal3fv
 from OpenGL.GL import GL_FALSE
 
-from exprs.reload import reload_once
-
-import exprs.Overlay
-reload_once(exprs.Overlay)
 from exprs.Overlay import Overlay
 
 import drawer
@@ -108,58 +104,32 @@ import platform
 
 # needed for code modified from demo_drag: not sure it's all still needed #k
 
-import exprs.world
-reload_once(exprs.world)
 from exprs.world import World
 
-import exprs.Rect
-reload_once(exprs.Rect)
 from exprs.Rect import Rect, RectFrame, IsocelesTriangle, Spacer, Sphere, Line
 
-import exprs.Column
-reload_once(exprs.Column)
 from exprs.Column import SimpleColumn, SimpleRow
 
-import exprs.DisplistChunk # works 070103, with important caveats re Highlightable
-reload_once(exprs.DisplistChunk)
 from exprs.DisplistChunk import DisplistChunk
 
-import exprs.Highlightable
-reload_once(exprs.Highlightable)
 from exprs.Highlightable import Highlightable
 
 #k some of this might also be needed, prob not all:
 
-import exprs.transforms
-reload_once(exprs.transforms)
 from exprs.transforms import Translate
 
-import exprs.Center
-reload_once(exprs.Center)
 from exprs.Center import Center, CenterY
 
-import exprs.TextRect
-reload_once(exprs.TextRect)
 from exprs.TextRect import TextRect
 
-import exprs.controls
-reload_once(exprs.controls)
 from exprs.controls import checkbox_pref, ActionButton
 
-import exprs.lvals
-reload_once(exprs.lvals)
 from exprs.lvals import Lval, LvalDict2, call_but_discard_tracked_usage
 
-import exprs.draggable
-reload_once(exprs.draggable)
 from exprs.draggable import DraggableObject
 
-import exprs.projection
-reload_once(exprs.projection)
 from exprs.projection import DrawInCenter
 
-import exprs.pallettes
-reload_once(exprs.pallettes)
 from exprs.pallettes import PalletteWell
 
 from VQT import norm

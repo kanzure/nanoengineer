@@ -1,5 +1,5 @@
 # Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
+"""
 testdraw.py -- scratchpad for new code, OWNED BY BRUCE, not imported by default.
 
 FOR NOW [060716], NO ONE BUT BRUCE SHOULD EDIT THIS FILE IN ANY WAY.
@@ -70,8 +70,7 @@ shrinks when it gets nonparallel, but that's a bug, not a form of billboarding.
     or maybe string keys.
     Possible convention (not thought through): the ids usable as attrs are the ones whose chars work in a py identifier.
 - more todos findable by searching for "todo", "Drawable", and (older ones) "next up", "wishlist", and (implicit ones) "kluge".
-'
-'''
+"""
 
 __author__ = "bruce"
 
@@ -123,6 +122,8 @@ from constants import blue
 from constants import white
 from constants import green
 from constants import red
+
+from exprs.draw_utils import draw_textured_rect #bruce 070921 moved this import to toplevel -- recursive import issue?? ######
 
 ### a lot of the following constants are probably obs here, redundant with ones now defined in exprs module [070408 comment]
 
@@ -314,14 +315,10 @@ def _bind_courier_font_texture(): # kluge 061125 so exprs/images.py won't mess u
     return
 
 def _reload_exprs_test():
-##    global basic, test # those are not needed as global names
-    global draw_utils
+    # will need REVIEW when we have a new reloading system to replace heavy manual use of reload_once
     from exprs.reload import reload_once
     from exprs import test
     reload_once(test)
-    # draw_utils added 070408
-    from exprs import draw_utils # for draw_textured_rect
-    reload_once(draw_utils)
     return
 
 # ==
@@ -489,10 +486,6 @@ def drawfont2(glpane, msg = None, charwidth = None, charheight = None, testpatte
         return ORIGIN + j * char_dx * DX + (i + 1) * char_dy * DY, charwidth1 * DX, charheight1 * DY
     # now draw them
 
-    # see if this import removes a pychecker warning [tho a clearer cleanup would be better] [bruce 070706]
-    global draw_utils
-    from exprs import draw_utils # for draw_textured_rect
-
     if 1: #### for n in range(65): # simulate the delay of doing a whole page of chars
       # note, this is significantly slow even if we just draw 5x as many chars!
       for i in range(-1,charheight-1): # (range was -1,tex_ny==8, length 9) - note, increasing i goes up on screen, not down!
@@ -501,7 +494,7 @@ def drawfont2(glpane, msg = None, charwidth = None, charheight = None, testpatte
             tex_origin, ltex_dx, ltex_dy = ff(i,j) # still in pixel ints # what tex coords to use to find it
             tex_origin, ltex_dx, ltex_dy = 1.0/tex_size[0] * V(tex_origin, ltex_dx, ltex_dy) # kluge until i look up how to use pixels directly
             #print (origin, dx, dy, tex_origin, tex_dx, tex_dy)
-            draw_utils.draw_textured_rect(origin, dx, dy, tex_origin, ltex_dx, ltex_dy) # cool bug effect bfr 'l's here
+            draw_textured_rect(origin, dx, dy, tex_origin, ltex_dx, ltex_dy) # cool bug effect bfr 'l's here
 
     # draw some other ones? done above, with test string inside ff function.
 

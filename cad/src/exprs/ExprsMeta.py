@@ -129,10 +129,6 @@ What ExprsMeta handles specifically:
 
 """
 
-__all__ = ['remove_prefix', 'ExprsMeta', 'ConstantComputeMethodMixin', 'DictFromKeysAndFunction', 'RecomputableDict',
-           'data_descriptor_Expr_descriptor', #e this one should probably be private & imported explicitly
-          ]
-
 # == imports
 
 # from python library
@@ -148,14 +144,8 @@ from debug import print_compact_traceback, print_compact_stack
 #e if it does, we should make all but basic reloadable here.
 
 from exprs.py_utils import printnim, printfyi
-from exprs.reload import reload_once
 
-import exprs.lvals
-reload_once(exprs.lvals)
 from exprs.lvals import Lval, LvalDict2, call_but_discard_tracked_usage
-
-import exprs.Exprs
-reload_once(exprs.Exprs)
 
 from exprs.Exprs import is_Expr
 from exprs.Exprs import is_pure_expr

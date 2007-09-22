@@ -23,11 +23,6 @@ import platform
 
 from constants import gray, white, black
 
-from exprs.reload import reload_once
-
-import exprs.draw_utils
-reload_once(exprs.draw_utils)
-
 from exprs.widget2d import Widget2D
 from exprs.attr_decl_macros import Arg, ArgOrOption, Option
 from exprs.instance_helpers import InstanceOrExpr, DelegatingMixin

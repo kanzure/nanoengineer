@@ -9,10 +9,6 @@ might be renamed or merged
 note: transforms.py was split out of here, 061115
 """
 
-from exprs.reload import reload_once
-
-import exprs.transforms
-reload_once(exprs.transforms)
 from exprs.transforms import Translate
 
 from exprs.Exprs import V_expr

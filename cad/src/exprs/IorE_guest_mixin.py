@@ -9,14 +9,8 @@ and moved it into this new file
 
 """
 
-from exprs.reload import reload_once
-
-import exprs.lvals
-reload_once(exprs.lvals)
 from exprs.lvals import call_but_discard_tracked_usage
 
-import exprs.widget_env
-reload_once(exprs.widget_env)
 from exprs.widget_env import thisname_of_class, widget_env # widget_env not used, but keep it for safety since it overrides module name
 
 from debug import safe_repr

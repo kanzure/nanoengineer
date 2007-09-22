@@ -8,10 +8,6 @@ $Id$
 from debug import safe_repr
 from debug import print_compact_stack
 
-from exprs.reload import reload_once
-
-import exprs.Exprs
-reload_once(exprs.Exprs)
 from exprs.Exprs import internal_Expr ###k probably not needed (imported by basic) but needs test
 
 from exprs.py_utils import printnim

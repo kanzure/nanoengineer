@@ -16,46 +16,24 @@ $Id$
 
 import time
 
-from exprs.reload import reload_once
-
-import exprs.Rect
-reload_once(exprs.Rect)
 from exprs.Rect import Rect, Spacer, SpacerFor
 
-import exprs.Center
-reload_once(exprs.Center)
 from exprs.Center import Center, CenterY
 
-import exprs.Column
-reload_once(exprs.Column)
 from exprs.Column import SimpleColumn, SimpleRow
 
-import exprs.Boxed
-reload_once(exprs.Boxed)
 from exprs.Boxed import Boxed
 
-import exprs.TextRect
-reload_once(exprs.TextRect)
 from exprs.TextRect import TextRect
 
-import exprs.Highlightable
-reload_once(exprs.Highlightable)
 from exprs.Highlightable import Highlightable, print_Expr
 
-import exprs.Overlay
-reload_once(exprs.Overlay)
 from exprs.Overlay import Overlay
 
-import exprs.images
-reload_once(exprs.images)
 from exprs.images import Image, IconImage
 
-import exprs.staterefs
-reload_once(exprs.staterefs)
 from exprs.staterefs import PrefsKey_StateRef
 
-import exprs.DisplistChunk # works 070103, with important caveats re Highlightable
-reload_once(exprs.DisplistChunk)
 from exprs.DisplistChunk import DisplistChunk
 
 from exprs.If_expr import If_kluge
@@ -65,16 +43,10 @@ If = If_kluge # until debugged
 from exprs.ExprsConstants import StubType
 stubtype = StubType
 
-import exprs.Set
-reload_once(exprs.Set)
 from exprs.Set import Set, SetStateRefValue ###e move to basic, but maybe only import of Set, not of this semiobs variant [061204 comment]
 
-import exprs.staterefs
-reload_once(exprs.staterefs)
 from exprs.staterefs import LocalVariable_StateRef ###e move to basic, if it doesn't become obs, but it probably will, once State works
 
-import exprs.debug_exprs
-reload_once(exprs.debug_exprs)
 from exprs.debug_exprs import debug_evals_of_Expr
 
 from constants import gray, blue, yellow, orange
@@ -541,13 +513,6 @@ revert back to thinking about the prior value of selobj???
 
 mitigation: make these things hover-highlight, then you'll probably
 see if you're going too fast; it might help me debug it too.
-
-
-3. TextRect uses drawfont2 which uses cad/src/testdraw.py: 766: def draw_textured_rect
-Image says "from draw_utils import draw_textured_rect" which gets it from itself, nice simple def.
-So is the one in testdraw.py buggy? No, it looks identical! They need "dup code" comments:
-WARNING: this function is defined identically in both cad/src/testdraw.py and cad/src/exprs/draw_utils.py.
-
 """
 
 # end

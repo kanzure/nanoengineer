@@ -51,30 +51,16 @@ It assumes its arg has move method, etc.
 
 from math import pi
 
-from exprs.reload import reload_once
-
-import exprs.Overlay
-reload_once(exprs.Overlay)
 from exprs.Overlay import Overlay
 
-import exprs.Rect
-reload_once(exprs.Rect)
 from exprs.Rect import Rect
 
-import exprs.transforms
-reload_once(exprs.transforms)
 from exprs.transforms import Translate, RotateTranslate
 
-import exprs.Highlightable
-reload_once(exprs.Highlightable)
 from exprs.Highlightable import Highlightable, Button, print_Expr, _setup_UNKNOWN_SELOBJ, SavedCoordsys
 
-import exprs.DisplistChunk # works 070103, with important caveats re Highlightable (see module docstring)
-reload_once(exprs.DisplistChunk)
 from exprs.DisplistChunk import DisplistChunk
 
-import exprs.demo_MT
-reload_once(exprs.demo_MT)
 from exprs.demo_MT import node_name #e really this belongs in a file which defines ModelTreeNodeInterface
 
 from VQT import V, Q

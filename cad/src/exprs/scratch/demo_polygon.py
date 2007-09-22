@@ -13,24 +13,14 @@ The specific code in it is mostly about polygon-vertex dragging.
 from basic import *
 from basic import _self
 
-import Rect
-reload_once(Rect)
 from Rect import Rect, RectFrame
 
-import Overlay
-reload_once(Overlay)
 from Overlay import Overlay
 
-import transforms
-reload_once(transforms)
 from transforms import Translate
 
-import Center
-reload_once(Center)
 from Center import Center
 
-import Highlightable
-reload_once(Highlightable)
 from Highlightable import Highlightable
 
 

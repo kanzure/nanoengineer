@@ -59,12 +59,6 @@ methods) is cookieMode.  But there are few enough modes that you might
 as well look at them all.
 """
 
-# Note [bruce 040923]: a lot of specific modes import * from us, and
-# apparently make use of some of the symbols we import here from other
-# modules.  We ought to clean up our subclass modules by making them
-# import what they need directly, and then define __all__ =
-# ['basicMode', 'modeMixin'] here. ##e
-
 import math # just for pi
 import sys
 from Numeric import exp

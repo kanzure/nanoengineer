@@ -7,30 +7,16 @@ toolbars.py - OpenGL toolbars, basically serving as "working mockups" for Qt too
 $Id$
 """
 
-from exprs.reload import reload_once
-
-import exprs.Column
-reload_once(exprs.Column)
 from exprs.Column import SimpleRow, SimpleColumn
 
-import exprs.Overlay
-reload_once(exprs.Overlay)
 from exprs.Overlay import Overlay
 
-import exprs.Highlightable
-reload_once(exprs.Highlightable)
 from exprs.Highlightable import Highlightable
 
-import exprs.TextRect
-reload_once(exprs.TextRect)
 from exprs.TextRect import TextRect
 
-import exprs.Boxed
-reload_once(exprs.Boxed)
 from exprs.Boxed import Boxed
 
-import exprs.command_registry
-reload_once(exprs.command_registry)
 from exprs.command_registry import auto_register, find_or_make_global_command_registry, CommandRegistry
 
 from constants import gray, white, blue, green

@@ -57,138 +57,76 @@ changes._debug_standard_inval_twice_stack = False
 
 # == local imports with reload
 
-from exprs.reload import reload_once
-
-import exprs.Rect
-reload_once(exprs.Rect)
 from exprs.Rect import Rect, RectFrame, IsocelesTriangle, Spacer, Sphere, SpacerFor, PartialDisk
 
-import exprs.Column
-reload_once(exprs.Column)
 from exprs.Column import SimpleColumn, SimpleRow # no longer includes still-nim Column itself [070129]
 
-import exprs.Overlay
-reload_once(exprs.Overlay)
 from exprs.Overlay import Overlay
 
-import exprs.Boxed
-reload_once(exprs.Boxed)
 from exprs.Boxed import Boxed
 
-import exprs.draggable
-reload_once(exprs.draggable)
 from exprs.draggable import DraggablyBoxed
 
-import exprs.transforms
-reload_once(exprs.transforms)
 from exprs.transforms import Translate, Closer
 
 import exprs.Center
-reload_once(exprs.Center)
 
-import exprs.TestIterator
-reload_once(exprs.TestIterator)
 from exprs.TestIterator import TestIterator, TestIterator_wrong_to_compare
 
-import exprs.TextRect
-reload_once(exprs.TextRect)
 from exprs.TextRect import TextRect
 
-import exprs.Highlightable
-reload_once(exprs.Highlightable)
 from exprs.Highlightable import Highlightable, Button, print_Expr, _setup_UNKNOWN_SELOBJ, BackgroundObject
 
-import exprs.ToggleShow
-reload_once(exprs.ToggleShow)
 from exprs.ToggleShow import ToggleShow
 
-import exprs.images
-reload_once(exprs.images)
 from exprs.images import Image, IconImage, NativeImage, PixelGrabber
 
-import exprs.controls
-reload_once(exprs.controls)
 from exprs.controls import ChoiceButton, ChoiceColumn, ChoiceRow, checkbox_v3, checkbox_pref, ActionButton, PrintAction
     #e rename some of these?
 
-import exprs.staterefs
-reload_once(exprs.staterefs)
 from exprs.staterefs import PrefsKey_StateRef
 
-import exprs.Set
-reload_once(exprs.Set)
 from exprs.Set import Set ##e move to basic
 
-import exprs.demo_MT
-reload_once(exprs.demo_MT)
 from exprs.demo_MT import test_drag_pixmap, MT_try2
 
-import exprs.widget2d
-reload_once(exprs.widget2d)
 from exprs.widget2d import Stub
 
 # MT_try1 was moved to this outtakes file 070210; it's still importable from there and works in testexpr_18
 # (verified in test.py cvs rev 1.224), but since it's obs, we'll no longer import it (thus breaking all tests
 # using MT_try1 unless you reenable this import).
 #if 0:
-#    import exprs.demo_MT_try1_obs
-#    reload_once(exprs.demo_MT_try1_obs)
 #    from exprs.demo_MT_try1_obs import MT_try1
 #else:
 MT_try1 = Stub
 
-import exprs.demo_drag
-reload_once(exprs.demo_drag)
 from exprs.demo_drag import GraphDrawDemo_FixedToolOnArg1, kluge_dragtool_state_checkbox_expr, demo_drag_toolcorner_expr_maker
 
-import exprs.projection
-reload_once(exprs.projection)
 from exprs.projection import DrawInCorner_projection, DrawInCorner
 
-import exprs.ModelNode # as of 061215 450p this import fails (no consistent MRO) but causes no other problems
-    # (it did on try1 but that was after lots of file edits in a running session, and didn't repeat in a new session)
-reload_once(exprs.ModelNode)
 from exprs.ModelNode import Sphere_ExampleModelNode ###stub or wrong, not yet used [061215]
 
-import exprs.DisplistChunk # works 070103, with important caveats re Highlightable (see module docstring)
-reload_once(exprs.DisplistChunk)
 from exprs.DisplistChunk import DisplistChunk
 
 ##import demo_polygon # stub 070103
     # commented out 070117 since it's a scratch file with syntax errors
     # [and it was renamed 070125 from demo_dna.py]
-##reload_once(demo_polygon)
 ##from demo_polygon import newerBoxed, resizablyBoxed
 
-##import lvals
-##reload_once(lvals)
 ##from lvals import Lval_which_recomputes_every_time ##e and more? refile in basic??
 
-import exprs.widget_env
-reload_once(exprs.widget_env)
 from exprs.widget_env import widget_env
 
-import exprs.debug_exprs
-reload_once(exprs.debug_exprs)
 from exprs.debug_exprs import DebugPrintAttrs
 
-import exprs.dna_ribbon_view
-reload_once(exprs.dna_ribbon_view)
 from exprs.dna_ribbon_view import DNA_Cylinder, dna_ribbon_view_toolcorner_expr_maker, World_dna_holder, Cylinder
 
-import exprs.draggable
-reload_once(exprs.draggable)
 from exprs.draggable import DraggableObject
 
-import exprs.world
-reload_once(exprs.world)
 from exprs.world import World
 
 import exprs.demo_polyline
-reload_once(exprs.demo_polyline)
 
-import exprs.test_statearray
-reload_once(exprs.test_statearray)
 from exprs.test_statearray import test_StateArrayRefs
 
 from exprs.test_statearray_2 import test_StateArrayRefs_2
@@ -216,7 +154,8 @@ from exprs.ExprsConstants import NullIpath
 from exprs.__Symbols__ import _self, _my, _app, Anything
 
 
-### WARNING: more imports far below! (of files that get lazy and do "from test import *", e.g. demo_ui)
+### WARNING: more imports far below! (of files that used to get lazy and do "from test import *", e.g. demo_ui;
+# now that import * is banned, maybe they could be moved up here? I don't know.)
 
 # ==
 
@@ -1516,8 +1455,6 @@ testexpr_33x = Translate(_testexpr_33(), (2,-2)) # works now
 # 070228
 # How can we get the functions of both _19i and _30i in one integrated setup?
 
-import exprs.demo_ui
-reload_once(exprs.demo_ui)
 from exprs.demo_ui import testexpr_34, testexpr_34a # not *, or it grabs old values of the testexprs it imported earlier from here!
     # note: this used to define testexpr_19j, testexpr_30j (obs, never worked); now it only defines testexpr_34*
 
@@ -1596,8 +1533,6 @@ testexpr_36f = DraggablyBoxed( Kluge_DrawTheModel( highlightable = False), resiz
     
 # == demo_draw_on_surface.py
 
-import exprs.demo_draw_on_surface
-reload_once(exprs.demo_draw_on_surface)
 from exprs.demo_draw_on_surface import our_testexpr
 
 testexpr_37 = our_testexpr

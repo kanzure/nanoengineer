@@ -8,9 +8,6 @@ i.e. user-settable temporary flags to help with debugging.
 $Id$
 
 """
-
-__all__ = ['debug_pref', 'Choice', 'debug_prefs_menuspec'] # funcs to declare and access prefs; datatypes; UI funcs for prefs
-
 __author__ = "bruce" # 050614
 
 from constants import noop

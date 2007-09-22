@@ -6,14 +6,8 @@ $Id$
 
 """
 
-from exprs.reload import reload_once
-
-import exprs.TextRect
-reload_once(exprs.TextRect)
 from exprs.TextRect import TextRect
 
-import exprs.Rect
-reload_once(exprs.Rect)
 from exprs.Rect import Spacer
 
 from exprs.attr_decl_macros import Arg

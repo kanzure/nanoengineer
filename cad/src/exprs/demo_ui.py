@@ -5,17 +5,8 @@ demo_ui.py - try out a more CAD-like UI organization
 $Id$
 """
 
-from exprs.reload import reload_once
-
-#import exprs.test
-#reload_once(exprs.test) # not sure this is needed if we're only imported from test.py
-
-import exprs.toolbars
-reload_once(exprs.toolbars)
 from exprs.toolbars import MainToolbar
 
-import exprs.command_registry
-reload_once(exprs.command_registry)
 from exprs.command_registry import auto_register, find_or_make_global_command_registry, CommandRegistry
 
 from constants import pink

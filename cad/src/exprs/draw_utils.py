@@ -39,7 +39,6 @@ def draw_textured_rect(origin, dx, dy, tex_origin, tex_dx, tex_dy):
     with the 2d-texture subrect defined by the 2d points (tex_origin, tex_dx, tex_dy)
     in the currently bound texture object.
     """
-    ### WARNING: this function is defined identically in both cad/src/testdraw.py and cad/src/exprs/draw_utils.py. [##e fix]
     glEnable(GL_TEXTURE_2D) 
     glBegin(GL_QUADS)
     glTexCoord2fv(tex_origin) # tex coords have to come before vertices, I think! ###k

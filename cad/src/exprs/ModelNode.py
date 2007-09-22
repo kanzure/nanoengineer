@@ -61,14 +61,8 @@ from Utility import SimpleCopyMixin, Node
 from state_utils import copy_val #e put copy_val in basic?
 from state_constants import S_DATA
 
-from exprs.reload import reload_once
-
-import exprs.Rect
-reload_once(exprs.Rect)
 from exprs.Rect import Sphere
 
-import exprs.lvals
-reload_once(exprs.lvals)
 from exprs.lvals import RecomputingMemoDict ##, call_but_discard_tracked_usage, LvalError_ValueIsUnset
 
 import env

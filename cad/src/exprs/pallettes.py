@@ -6,22 +6,12 @@ $Id$
 
 """
 
-from exprs.reload import reload_once
-
-import exprs.Highlightable
-reload_once(exprs.Highlightable)
 from exprs.Highlightable import Highlightable
 
-import exprs.world
-reload_once(exprs.world)
 from exprs.world import World
 
-import exprs.Boxed
-reload_once(exprs.Boxed)
 from exprs.Boxed import Boxed
 
-import exprs.draggable
-reload_once(exprs.draggable)
 from exprs.draggable import DraggableObject
 
 from constants import blue, green

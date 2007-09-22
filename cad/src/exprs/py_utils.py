@@ -53,7 +53,7 @@ def sorted_by(seq, func): #070206 ##e do I have this under some other name, some
     items.sort()
     return [elt for (f, elt) in items]
 
-from env import seen_before # public in this module [and therefore in basic.py if it still does import * from here]
+from env import seen_before # public in this module
 
 def printonce(msg, constpart = None):
     """print msg (which should be a constant), but only once per session.

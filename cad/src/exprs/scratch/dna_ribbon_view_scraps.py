@@ -16,12 +16,8 @@ is now only here.
 from basic import *
 from basic import _self
 
-import Overlay
-reload_once(Overlay)
 from Overlay import Overlay
 
-import TextRect
-reload_once(TextRect)
 from TextRect import TextRect
 
 from OpenGL.GL import * #e move what needs this into draw_utils
@@ -187,7 +183,6 @@ class todo:
 # ==
 
 import Command_scratch_1
-reload_once(Command_scratch_1)
 
 # ==
 

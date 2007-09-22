@@ -10,17 +10,8 @@ $Id$
 
 from OpenGL.GL import glPushMatrix, glPopMatrix, glTranslatef ##e revise later into glpane methods or so
 
-from exprs.reload import reload_once
-
-import exprs.draw_utils
-reload_once(exprs.draw_utils)
-
-import exprs.Rect
-reload_once(exprs.Rect)
 from exprs.Rect import Spacer
 
-import exprs.TextRect
-reload_once(exprs.TextRect)
 from exprs.TextRect import TextRect
 
 from exprs.Exprs import call_Expr, not_Expr, or_Expr, and_Expr, list_Expr
