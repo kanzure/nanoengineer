@@ -28,7 +28,7 @@ from OpenGL.GL import glPushMatrix
 from OpenGL.GL import GL_MODELVIEW
 from OpenGL.GL import glLoadMatrixd
 from OpenGL.GL import glPopMatrix
-from OpenGL.GL import GL_LEQUAL
+
 from OpenGL.GLU import gluProject, gluUnProject
 
 import platform
@@ -61,19 +61,12 @@ def print_Expr(*args, **kws): ##e rename to include Action in the name?? #e refi
         printfunc(*args, **kws) # defined in Exprs, has immediate effect, tho same name in testdraw is delayed like this print_Expr
     return canon_expr(printer)
 
-# == selobj interface
-
-###e should define a class for the selobj interface; see classes Highlightable and _UNKNOWN_SELOBJ_class for an example --
-# draw_in_abs_coords,
-# ClickedOn/leftClick,
-# mouseover_statusbar_message
-# highlight_color_for_modkeys
-# selobj_still_ok, maybe more
-
 # ==
 
 from DragHandler import DragHandler_API
     #bruce 070602 moved this from exprs/Highlightable.py to DragHandler.py, and renamed it
+
+# see also Selobj_API in Selobj.py for the "selobj interface" (all subject to renaming)
 
 # ==
 
@@ -662,12 +655,6 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API): #070317 
         PopName(self.glname)
         return
 
-    def pre_draw_in_abs_coords(self, glpane): #bruce 061218 new feature of selobj interface,
-        # used to stop highlightables from moving slightly when they highlight, esp when off-center in perspective view
-        ## glDepthFunc(GL_LEQUAL)
-        glpane.glDepthFunc(GL_LEQUAL) # revised 070117
-        return
-    
     def draw_in_abs_coords(self, glpane, color):
         "#doc; called from GLPane using an API it specifies; see also run_OpenGL_in_local_coords for more general related feature"
         # [this API comes from GLPane behavior:
@@ -697,11 +684,6 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API): #070317 
             # GLPane's call is not well protected from an exception here, though it ought to be!
             self.end_using_saved_coords()
         return # from draw_in_abs_coords
-
-    def post_draw_in_abs_coords(self, glpane): #bruce 061218 new feature of selobj interface
-        ## glDepthFunc(GL_LESS) # the default state in OpenGL and in NE1
-        glpane.glDepthFunc( glpane.standard_glDepthFunc ) # restore default state for current mode [revised 070117]
-        return
 
     def __repr__THAT_CAUSES_INFRECUR(self):
         # this causes infrecur, apparently because self.sbar_text indirectly calls __repr__ (perhaps while reporting some bug??);
@@ -1002,12 +984,14 @@ class _UNKNOWN_SELOBJ_class: #061218
             print "_UNKNOWN_SELOBJ_class returns noop for attr %r" % attr
         setattr(self, attr, noop) # optim
         return noop # fake bound method
+    # we might need methods for other MouseSensor_interface methods:
+    # draw_in_abs_coords
+    # ClickedOn/leftClick
+    # mouseover_statusbar_message
+    # highlight_color_for_modkeys
+    # selobj_still_ok
+    # etc
     pass
-# draw_in_abs_coords,
-# ClickedOn/leftClick,
-# mouseover_statusbar_message
-# highlight_color_for_modkeys
-# selobj_still_ok, maybe more
 
 def _setup_UNKNOWN_SELOBJ(mode): #061218
     "[private helper, for a kluge -- see comment where called]"

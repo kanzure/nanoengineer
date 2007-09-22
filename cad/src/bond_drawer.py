@@ -1,5 +1,5 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
+"""
 bond_drawer.py -- implementations of Bond.draw and Bond.writepov.
 
 $Id$
@@ -9,7 +9,7 @@ History:
 050727 bruce moved bodies of Bond.draw and Bond.writepov into functions in this file,
 in preparation for further extending Bond.draw (and someday Bond.writepov) for
 higher-order bonds.
-'''
+"""
 
 __author__ = "Josh"
 
@@ -23,10 +23,11 @@ try:
 except:
     from OpenGL._GLE import glePolyCone
 
-from PyQt4.Qt import QFont, QString, QColor ###k
+from PyQt4.Qt import QFont, QString, QColor
 
 from VQT import V
 from VQT import norm
+
 from drawer import ColorSorter
 from drawer import drawline
 from drawer import drawcylinder
@@ -35,13 +36,12 @@ from drawer import drawsphere
 import env
 import platform
 
-from povheader import povpoint #bruce 050413
+from povheader import povpoint
 from chem import stringVec
 from elements import Singlet
 from ThumbView import MMKitView
 
 from debug import print_compact_stack, print_compact_traceback
-from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
 
 from constants import diDEFAULT
 from constants import diLINES
@@ -57,6 +57,7 @@ from constants import red
 from constants import blue
 from constants import black
 from constants import white
+
 from bond_constants import V_SINGLE
 from bond_constants import V_DOUBLE
 from bond_constants import V_TRIPLE
@@ -64,6 +65,7 @@ from bond_constants import bond_letter_from_v6
 from bond_constants import V_AROMATIC
 from bond_constants import V_GRAPHITE
 from bond_constants import V_CARBOMERIC
+
 from prefs_constants import _default_toolong_hicolor ## not yet in prefs db
 from prefs_constants import diBALL_BondCylinderRadius_prefs_key
 from prefs_constants import pibondLetters_prefs_key
@@ -345,8 +347,6 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, povfile = None,
         draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highlighted, level, \
                        cylrad, shorten_tubes, geom, v6_for_bands, povfile, dir_info, bool_fullBondLength)
 
-
-
     if self.v6 != V_SINGLE:
         if draw_vanes:
             if platform.atom_debug:
@@ -503,7 +503,6 @@ def draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highli
         # Significant for big parts. BUT, why spend time on this when I
         # expect we'll do this drawing in C code before too long?
 
-        bugdemo = debug_pref("cyl stripe bug?", Choice_boolean_False, non_debug=True)######### @@@070921
         if not toolong:
             if v1 and v2 and (not color1 != color2): # "not !=" is in case colors are Numeric arrays (don't know if possible)
                 #bruce 050516 optim: draw only one cylinder in this common case
@@ -512,10 +511,13 @@ def draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highli
                 if v1:
                     drawcylinder(color1, a1pos, center, sigmabond_cyl_radius)
                 if v2:
-                   if bugdemo:####
-                    drawcylinder(color2, a2pos, center, sigmabond_cyl_radius)
-                   else:
-                    drawcylinder(color2, center, a2pos, sigmabond_cyl_radius) #bruce 070921 bugfix: draw in consistent direction!
+                    drawcylinder(color2, center, a2pos, sigmabond_cyl_radius)
+                        #bruce 070921 bugfix: draw in consistent direction! This affects
+                        # alignment of cylinder cross section (a 13-gon)
+                        # around cylinder axis. Highlighted bond might differ
+                        # from regular bond in whether color1 != color2,
+                        # so without this fix, it can be slightly rotated,
+                        # causing part of the unhighlighted one to show through.
                 if not (v1 and v2):
                     drawsphere(black, center, sigmabond_cyl_radius, level)
         else:
@@ -529,10 +531,8 @@ def draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highli
             else:
                 drawsphere(black, c1, sigmabond_cyl_radius, level)
             if v2:
-               if bugdemo:####
-                drawcylinder(color2, a2pos, c2, sigmabond_cyl_radius)
-               else:
-                drawcylinder(color2, c2, a2pos, sigmabond_cyl_radius) #bruce 070921 bugfix: draw in consistent direction!
+                drawcylinder(color2, c2, a2pos, sigmabond_cyl_radius)
+                    #bruce 070921 bugfix: draw in consistent direction! See comment above.
             else:
                 drawsphere(black, c2, sigmabond_cyl_radius, level)
         if banding:
@@ -582,80 +582,23 @@ def draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highli
 
 def writepov_bond(self, file, dispdef, col):
     "Write this bond 'self' to a povray file (always using absolute coords, even for internal bonds)."
-    ##Huaicai 1/15/05: It seems the attributes from __setup__update() is not correct,
-    ## at least for pov file writing, so compute it here locally. To fix bug 346,347
-
-    #bruce 050516 comment: my guess is, those attrs were "not correct" for internal bonds
-    # since in that case they're in the chunk's private "basecenter/quat" coordinate
-    # system, not the absolute (model) coordinate system. So I am now comparing these
-    # to what's returned by _recompute_geom with abs_coords = True. If that's correct,
-    # we can change this code to use that routine.
     disp = max(self.atom1.display, self.atom2.display)
-    if disp == diDEFAULT: disp = dispdef
-    if disp < 0: disp = dispdef
-    if disp not in (diLINES, diBALL, diTUBES):
-        return #bruce 060622
-
-    if 1:
-        # yet newer code: (note: self is a bond.)
+    if disp == diDEFAULT:
+        disp = dispdef
+    if disp < 0:
+        disp = dispdef
+    if disp in (diLINES, diBALL, diTUBES):
+        # (note: self is a bond.)
         povfile = writepov_to_file(file)
         level = 2 #k value probably has no effect
         glpane = None #k value probably has no effect
         highlighted = False
-
         draw_bond_main( self, glpane, disp, col, level, highlighted, povfile)
-        return
-
-##    # == the rest of this function is obsolete, if above revisions work properly
-##    
-##    color1 = col or self.atom1.drawing_color()
-##    color2 = col or self.atom2.drawing_color()
-##
-##    ### some of the following math is now redundant, should be removed for speed (more info below) [bruce 060622]
-####    a1pos = self.atom1.posn()
-####    a2pos = self.atom2.posn()
-####    
-####    vec = a2pos - a1pos
-####    leng = 0.98 * vlen(vec)
-####    vec = norm(vec)
-####    # (note: as of 041217 rcovalent is always a number; it's 0.0 for Helium,
-####    #  etc, so the entire bond is drawn as if "too long".)
-####    rcov1 = self.atom1.atomtype.rcovalent
-####    rcov2 = self.atom2.atomtype.rcovalent
-####    c1 = a1pos + vec*rcov1
-####    c2 = a2pos - vec*rcov2
-####    toolong = (leng > rcov1 + rcov2)
-####    center = (c1 + c2) / 2.0 # before 041112 this was None when self.toolong
-##
-##    # this is no longer a valid test, since the above computation is out of date (re pyrex sim's better toolong info). [bruce 060622]
-####    if platform.atom_debug: #bruce 050516; explained above ##@@
-####        if self._recompute_geom(abs_coords = True) != (a1pos, c1, center, c2, a2pos, toolong):
-####            print "atom_debug: _recompute_geom wrong in writepov!" #e and say why, if this ever happens
-####        # if this works, we can always use _recompute_geom for external bonds,
-####        # and optim by using self.geom for internals.
-##
-##    if 1:       
-##        # This new code (inside 'if 1') is for Mark to test (and to revert to 'if 0' if it's wrong).
-##        # I think it will fix the erroneous "toolong" indicators in pov-ray bonds.
-##        #    If it works, it can be sped up for external bonds (not very important),
-##        # and the above redundant computations pared down (important);
-##        # or FAR BETTER, this entire routine can be made obsolete, replaced with a "writepov" option to draw_bond_main above,
-##        # so that pov-ray output can use the same cylinders for all fancier-than-single bonds as well as for single bonds,
-##        # use the same prefs values, etc.
-##        #    BTW I don't know if the DELTA/rcovalent code below is fully correct. I guess its main use is for bondpoints,
-##        # and it's probably correct for that case. A rare use would be to render bonds to noble gases (which should of course
-##        # never occur), and I am not sure it's correct for that case.
-##        # [bruce 060622]
-##        (a1pos, c1, center, c2, a2pos, toolong) = self._recompute_geom(abs_coords = True)
-##        # and some newer code:
-##        povfile = writepov_to_file(file)
-##
-##    old_writepov_bondcyl(self.atom1, self.atom2, disp, a1pos, c1, center, c2, a2pos, toolong, color1, color2, povfile)
-##        # this call has been tested, but has been slightly modified since then
-##    return # from writepov_bond
+    return
 
 def old_writepov_bondcyl(atom1, atom2, disp, a1pos, c1, center, c2, a2pos, toolong, color1, color2, povfile, rad = None):
-    """[private function for this module, still used by new multicyl code 060622, once per cyl]
+    """
+    [private function for this module, still used by new multicyl code 060622, once per cyl]
     Write one bond cylinder. atom args are only for checking rcovs vs DELTA. 
     """
     if disp == diLINES:
@@ -667,8 +610,8 @@ def old_writepov_bondcyl(atom1, atom2, disp, a1pos, c1, center, c2, a2pos, toolo
     if disp == diBALL:
         povfile.bond(a1pos, a2pos, rad)
     if disp == diTUBES:
-    ##Huaicai: If rcovalent is close to 0, like singlets, avoid 0 length 
-    ##             cylinder written to a pov file    
+        #Huaicai: If rcovalent is close to 0, like singlets, avoid 0 length 
+        # cylinder written to a pov file    
         DELTA = 1.0E-5
         isSingleCylinder = False
         if atom1.atomtype.rcovalent < DELTA:

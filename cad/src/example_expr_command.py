@@ -56,7 +56,6 @@ class ExampleCommand2E_PM( ExampleCommand2_PM ):
 
 # these imports are not needed in a minimal example like ExampleCommand2:
 
-from OpenGL.GL import GL_LEQUAL
 from drawer import drawline
 from constants import red, green
 from VQT import V
@@ -87,11 +86,6 @@ class ExampleCommand2E(ExampleCommand2, object):
     modename = 'ExampleCommand2E-modename'
     default_mode_status_text = "ExampleCommand2E"
     PM_class = ExampleCommand2E_PM
-
-    standard_glDepthFunc = GL_LEQUAL # overrides default value of GL_LESS from GLPane
-        # note: this is to prevent this warning:
-        ## fyi (printonce): Overlay in reverse order (need to override standard_glDepthFunc in your new mode??)
-        # but we should probably make it the default for all modes soon.
 
     def __init__(self, glpane):
         "create an expr instance, to draw in addition to the model"

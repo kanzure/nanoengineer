@@ -35,8 +35,6 @@ __author__ = "bruce"
 
 import time, math
 
-from OpenGL.GL import GL_LEQUAL
-
 from VQT import V, Q
 from state_utils import copy_val
 from depositMode import depositMode
@@ -66,9 +64,6 @@ class testmode(superclass):
     compass_moved_in_from_corner = True # only works when compassPosition == UPPER_RIGHT; should set False in basicMode [revised 070110] 
     ## _check_target_depth_fudge_factor = 0.0001 # same as GLPane, tho it caused a demo_drag bug 070115 -- try lower val sometime ###e
     _check_target_depth_fudge_factor = 0.00001 # this gives us another 10x safety factor in demo_drag [070116]
-    standard_glDepthFunc = GL_LEQUAL # overrides default value of GL_LESS from GLPane; tested only re not causing bugs; maybe adopt it generally ##e [070117]
-        # note: the bug in drawing the overlay in testexpr_10c when the openclose is highlighted is now fixed both with and without
-        # this setting [tested both ways 070117]. The internal code doing what it's supposed to, due to this setting, is not tested.
 
     _defeat_update_selobj_MMB_specialcase = True # 070224; overridden at runtime in some methods below
     

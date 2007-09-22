@@ -11,21 +11,34 @@ need a common superclass (and have common code that needs merging).
 It needs to be in its own file to avoid import loop problems.
 """
 
-SIMPLER_HIGHLIGHTING_predraw = False # False means we keep using "translate world" kluge for some selobjs
-SIMPLER_HIGHLIGHTING_DepthFunc = True # True means we always use GL_LEQUAL for glDepthFunc
-    # when True, experimentally simplifies highlighting code,
-    # in two independent ways (though they interact in effect),
-    # in a way which may increase patchy-highlighting bugs
-    # until they are fixed separately.
-    # (If you set these to True/False respectively, internal bond highlighting
-    #  doesn't show up except in a few pixels, as expected.)
-    # [bruce 070920]
+from debug_prefs import Choice
+from debug_prefs import debug_pref
+
+DEPTH_TWEAK_UNITS = (2.0)**(-32)
+DEPTH_TWEAK_VALUE = 5000
+    # For bond cylinders subject to shorten_tubes, 300 is enough to fix them
+    # except sometimes at the edges. 5000 even fixes the edges and causes no
+    # known harm. [bruce 070921]
+
+DEPTH_TWEAK = DEPTH_TWEAK_UNITS * DEPTH_TWEAK_VALUE
+    # changed by setDepthRange_setup_from_debug_pref
+
+DEPTH_TWEAK_CHOICE = \
+    Choice( [0,1,3,10,
+             100,200,300,400,500,600,700,800,900,1000,
+             2000,3000,4000,5000,
+             10000, 100000, 10**6, 10**7, 10**8],
+            defaultValue = DEPTH_TWEAK_VALUE )
+
+from OpenGL.GL import glDepthRange
 
 from PyQt4.Qt import QGLWidget
 
 class GLPane_minimal(QGLWidget): #bruce 070914
     """
-    Stub superclass, just so GLPane and ThumbView can have a common superclass.
+    Mostly a stub superclass, just so GLPane and ThumbView can have a common
+    superclass.
+
     TODO:
     They share a lot of code, which ought to be merged into this superclass.
     Once that happens, it might as well get renamed.
@@ -39,7 +52,17 @@ class GLPane_minimal(QGLWidget): #bruce 070914
         there is only one kind, drawn by class Atom.)
         """
         return False
-    
+    def setDepthRange_setup_from_debug_pref(self):
+        global DEPTH_TWEAK
+        DEPTH_TWEAK = DEPTH_TWEAK_UNITS * \
+                      debug_pref("GLPane: depth tweak", DEPTH_TWEAK_CHOICE)
+        return
+    def setDepthRange_Normal(self):
+        glDepthRange(0.0 + DEPTH_TWEAK, 1.0) # args are near, far
+        return
+    def setDepthRange_Highlighting(self):
+        glDepthRange(0.0, 1.0 - DEPTH_TWEAK)
+        return
     pass
 
 # end

@@ -73,8 +73,6 @@ from exprs.If_expr import If_expr
 
 from prefs_widgets import ObjAttr_StateRef
 
-from OpenGL.GL import GL_LEQUAL
-
 class State_preMixin( IorE_guest_mixin): #e refile (alongside IorE_guest_mixin ? in its own file?), once cleaned up & bugfixed
     """Use this as the *first* superclass (thus the _preMixin in the name)
     in order to permit use of the State macro in the class assignments
@@ -105,10 +103,6 @@ class test_connectWithState(State_preMixin, ExampleCommand):
     default_mode_status_text = "test_connectWithState"
     PM_class = test_connectWithState_PM
 
-    # kluge: this might be needed if we draw any exprs:
-    # [TODO: move to basicMode, or change the default in GLPane]
-    standard_glDepthFunc = GL_LEQUAL
-    
     # tracked state -- this initializes specially defined instance variables
     # which will track all their uses and changes so that connectWithState
     # works for them:

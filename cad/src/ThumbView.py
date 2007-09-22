@@ -80,7 +80,6 @@ from prefs_constants import bondpointHighlightColor_prefs_key
 from Utility import Group
 
 from GLPane_minimal import GLPane_minimal
-from GLPane_minimal import SIMPLER_HIGHLIGHTING_predraw, SIMPLER_HIGHLIGHTING_DepthFunc
 
 class ThumbView(GLPane_minimal):
     """
@@ -268,8 +267,10 @@ class ThumbView(GLPane_minimal):
         """
         if not self.initialised: return
 
-        if SIMPLER_HIGHLIGHTING_DepthFunc:
-            glDepthFunc( GL_LEQUAL)
+        glDepthFunc( GL_LEQUAL)
+
+        self.setDepthRange_setup_from_debug_pref()
+        self.setDepthRange_Normal()
         
         from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
         if debug_pref("always setup_lighting?", Choice_boolean_False):
@@ -277,17 +278,17 @@ class ThumbView(GLPane_minimal):
             # see comments in GLPane
             self._setup_lighting() #bruce 060415 added this call
         
-        c=self.backgroundColor
+        c = self.backgroundColor
         glClearColor(c[0], c[1], c[2], 0.0)
+        del c
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         
         if self.backgroundGradient:
-            vtColors = (bluesky) # "Blue Sky" gradient
             glMatrixMode(GL_PROJECTION)
             glLoadIdentity()
             glMatrixMode(GL_MODELVIEW)
             glLoadIdentity()
-            drawer.drawFullWindow(vtColors)
+            drawer.drawFullWindow(bluesky) # "Blue Sky" gradient
         
         self.aspect = (self.width + 0.0)/(self.height + 0.0)
         self.vdist = 6.0 * self.scale
@@ -584,12 +585,16 @@ class ThumbView(GLPane_minimal):
 
 
     def highlightSelected(self, obj):
-        '''Hight the selected object <obj>. In the mean time, we do stencil test to 
-           update stencil buffer, so it can be used to quickly test if pick is still
-           on the same <obj> as last test. '''
-        
-        if not obj: return
-        if not isinstance(obj, atom) or (obj.element is not Singlet): return
+        # TODO: merge with GLPane (from which this was copied and modified)
+        """
+        Highlight the selected object <obj>. In the mean time, we do stencil test to 
+        update stencil buffer, so it can be used to quickly test if pick is still
+        on the same <obj> as last test.
+        """
+        if not obj:
+            return
+        if not isinstance(obj, atom) or (obj.element is not Singlet):
+            return
 
         self._preHighlight()
         
@@ -599,10 +604,12 @@ class ThumbView(GLPane_minimal):
         
         glFlush()
         self.swapBuffers()
+        return
 
-
-    def _preHighlight(self):
-        '''Before highlight, clear stencil buffer, depth writing and some stencil test settings. '''       
+    def _preHighlight(self): ### TODO: rename; move into GLPane_minimal, use in GLPane.py
+        """
+        Change OpenGL settings to prepare for highlighting.
+        """
         self.makeCurrent()
         glClear(GL_STENCIL_BUFFER_BIT)
         
@@ -612,26 +619,25 @@ class ThumbView(GLPane_minimal):
         glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE)
         glEnable(GL_STENCIL_TEST)
 
-        if not SIMPLER_HIGHLIGHTING_predraw:
-            glMatrixMode(GL_PROJECTION) # prepare to "translate the world"
-            glPushMatrix() # could avoid using another matrix-stack-level if necessary, by untranslating when done
-            glTranslatef(0.0, 0.0, +0.01) # move the world a bit towards the screen
-                # (this works, but someday verify sign is correct in theory #k)
-        glMatrixMode(GL_MODELVIEW) 
-   
+        self.setDepthRange_Highlighting()
+
+        glMatrixMode(GL_MODELVIEW)
+        return
         
     def _endHightlight(self):
-        '''Turn on depth writing, disable stencil test '''
+        """
+        Restore OpenGL settings changed by _preHighlight to standard values.
+        """
         glDepthMask(GL_TRUE)
         #glEnable(GL_DEPTH_TEST)
         glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP)
         glDisable(GL_STENCIL_TEST)
         
-        if not SIMPLER_HIGHLIGHTING_predraw:
-            glMatrixMode(GL_PROJECTION)
-            glPopMatrix()
-        glMatrixMode(GL_MODELVIEW)
+        self.setDepthRange_Normal()
 
+        glMatrixMode(GL_MODELVIEW)
+        return
+    
     def saveLastView(self): #bruce 060627 for compatibility with GLPane (for sake of assy.update_parts)
         pass
 

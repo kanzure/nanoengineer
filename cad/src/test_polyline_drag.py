@@ -48,8 +48,6 @@ from exprs.ExprsConstants import Point, Drawable
 
 from prefs_widgets import ObjAttr_StateRef
 
-from OpenGL.GL import GL_LEQUAL
-
 NullDrawable = Spacer() # kluge; should refile
 
 class test_polyline_drag(State_preMixin, ExampleCommand):
@@ -57,10 +55,6 @@ class test_polyline_drag(State_preMixin, ExampleCommand):
     modename = 'test_polyline_drag-modename'
     default_mode_status_text = "test_polyline_drag"
 ##    PM_class = test_polyline_drag_PM
-
-    # kluge: this might be needed if we draw any exprs: [TODO: move to basicMode]
-    standard_glDepthFunc = GL_LEQUAL
-
 
     # tracked state
     rubberBand_enabled = State(bool, False, doc = "whether we're rubberbanding a new segment now")

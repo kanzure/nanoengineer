@@ -918,7 +918,6 @@ annoyers = [##'editToolbar', 'fileToolbar', 'helpToolbar', 'modifyToolbar',
 # code copied from test_commands.py:
 # these imports are not needed in a minimal example like ExampleCommand2;
 # to make that clear, we put them down here instead of at the top of the file
-from OpenGL.GL import GL_LEQUAL
 from drawer import drawline
 from constants import red, green
 from VQT import V
@@ -972,11 +971,6 @@ class test_animation_mode(superclass, IorE_guest_mixin): # list of supers might 
     modename = 'TEST_ANIMATION'
     default_mode_status_text = "Mode: test animation"
     
-    standard_glDepthFunc = GL_LEQUAL # overrides default value of GL_LESS from GLPane
-        # note: this is to prevent this warning:
-        ## fyi (printonce): Overlay in reverse order (need to override standard_glDepthFunc in your new mode??)
-        # but we should probably make it the default for all modes soon.
-
     # other class constants
     PM_class = test_animation_mode_PM
 

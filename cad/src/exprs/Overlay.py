@@ -6,8 +6,6 @@ $Id$
 
 """
 
-from OpenGL.GL import GL_LESS
-
 from exprs.reload import reload_once
 
 import exprs.TextRect
@@ -53,26 +51,22 @@ class Overlay(InstanceOrExpr, DelegatingMixin):
 ##    args = list_Expr(arg0, arg1) # not sure if [arg0, arg1] would work, but I doubt it --
         ###e should make it work sometime, if possible (e.g. by delving inside all literal list ns-values in ExprsMeta)
     #e add an option to make each element slightly closer, maybe just as a depth increment? makes hover highlighting more complicated...
-    def draw(self):
-        if self.env.glpane.current_glDepthFunc == GL_LESS: #070117; note: assumes displists are compiled & used in the same state!
-            args = self.args[::-1]
-            printfyi("Overlay in reverse order (need to override standard_glDepthFunc in your new mode??)")
-        else: # GL_LEQUAL
-            args = self.args
+    def draw(self):        
+        args = self.args # this order is correct since we set glDepthFunc to GL_LEQUAL (not GL_LESS)
         for a in args:
+            self.drawkid( a)
             #e We'd like this to work properly for little filled polys drawn over big ones.
-            # We might need something like z translation or depth offset or "decal mode"(??) or a different depth test.
+            # We might need something like z translation or depth offset or "decal mode"(??).
             # [later 070404: "decal mode" is probably unrelated -- GL_DECAL is for combining a texture with a non-textured color/alpha,
             #  not related to using depth buffer when resulting textured object is drawn. Is "decal" used to mean anything else?? #k]
-            # Different depth test would be best, but roundoff error might make it wrong...
+            # Different depth test would be best [done now -- GL_LEQUAL], but roundoff error might make it wrong...
             # This is definitely needed for overdrawing like that to work, but it's low priority for now.
             # Callers can kluge it using Closer, though that's imperfect in perspective mode (or when viewpoint is rotated).
-            # But for now, let's just try drawing in the wrong order and see if that helps... yep!
-##            if a is None:
-##                continue # even for first arg # note: no longer needed, now that self.drawkid treats None as drawing nothing
-            self.drawkid( a) ## a.draw() #e try/except
+            # [Or glDepthRange, now used for highlight drawing in GLPane as of 070921.]
     pass # Overlay
 
 # obs cmt from when we mistakenly inherited from Widget2D:
 # #e remove '2D' so it can work in 3D too? if so, need type inference that also delegates??
 #e see also FilledSquare
+
+# end

@@ -25,13 +25,11 @@ from PyQt4.Qt import Qt, QFont, QMessageBox, QString
 from PyQt4.Qt import SIGNAL, QTimer
 from PyQt4.Qt import QGLWidget
 
-from OpenGL.GL import GL_LESS
 from OpenGL.GL import glGenLists
 from OpenGL.GL import glNewList
 from OpenGL.GL import glEndList
 from OpenGL.GL import glCallList
 from OpenGL.GL import glDepthFunc
-from OpenGL.GL import glDepthRange
 from OpenGL.GL import GL_STENCIL_BITS
 from OpenGL.GL import GL_NORMALIZE
 from OpenGL.GL import GL_PROJECTION
@@ -172,12 +170,6 @@ from debug_prefs import Choice_boolean_False
 from debug_prefs import debug_pref
 
 from GLPane_minimal import GLPane_minimal
-from GLPane_minimal import SIMPLER_HIGHLIGHTING_predraw, SIMPLER_HIGHLIGHTING_DepthFunc ### also commented out code near there
-
-USE_DEPTH_TWEAK = True ### TRY True soon, see if fixes HL offcenter errors in _9a which i predict are revived
-DEPTH_TWEAK = 5000 * (2.0)**(-32)
-    # test shows 300 (in units of 2**-32) is enough for most things,
-    # but 2000 is better for some, and even 5000 has no known bad effects. [bruce 070921]
 
 # suspicious imports [should not really be needed, according to bruce 070919]
 from chunk import molecule # used only for drawHighlightedChunk
@@ -293,21 +285,6 @@ class GLPane_mixin_for_DisplistChunk(object): #bruce 070110 moved this here from
             print "debug: fyi: displist %r is compiling a call to displist %r" % (self.compiling_displist, listname)
         assert listname # redundant with following?
         glCallList(listname)
-        return
-    current_glDepthFunc = None # None indicates not known; must be unequal to any legal setting
-    def glDepthFunc(self, gl_func_constant, always = False): #bruce 070117; needn't be part of this mixin except to be next to similar methods
-        """Imitate glDepthFunc, but record the func (e.g. GL_LEQUAL or GL_LESS)
-        in a variable visible to drawing code, and avoid redundant gl calls.
-        Limitations in present implem mean this method should not be used inside display lists,
-        so we check for this. (That's because it has no concept of the current glDepthFunc setting within a display list
-        vs. within the current GL context for direct execution.)
-           We assume without checking that self's GL context is current.
-        """
-        if SIMPLER_HIGHLIGHTING_DepthFunc:
-            return # if we adopt that setting permanently, we'll zap this method unless it has important local uses
-        if always or self.current_glDepthFunc != gl_func_constant:
-            glDepthFunc( gl_func_constant)
-            self.current_glDepthFunc = gl_func_constant
         return
     def ensure_dlist_ready_to_call( self, dlist_owner_1 ): #e rename the local vars, revise term "owner" in it [070102 cmt]
         """[private helper method for use by DisplistChunk]
@@ -2433,21 +2410,6 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
 
         return # from paintGL
 
-    if SIMPLER_HIGHLIGHTING_DepthFunc:
-        standard_glDepthFunc = GL_LEQUAL # default value for modes that don't have one, and default initial value for our instance var
-        standard_glDepthFunc_name = 'GL_LEQUAL' # should correspond; used only in error messages [bruce 070406]
-    else:
-        standard_glDepthFunc = GL_LESS # default value for modes that don't have one, and default initial value for our instance var
-        standard_glDepthFunc_name = 'GL_LESS' # should correspond; used only in error messages [bruce 070406]
-
-    def setDepthRange_Normal(self):
-        glDepthRange(0.0 + DEPTH_TWEAK, 1.0) # args are near, far
-        pass
-
-    def setDepthRange_Highlighting(self):
-        glDepthRange(0.0, 1.0 - DEPTH_TWEAK)
-        pass
-
     def most_of_paintGL(self): #bruce 060323 split this out of paintGL
         "Do most of what paintGL should do."
 
@@ -2467,40 +2429,13 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
             # the atomic model itself.  I dunno where that is.
             drawer.enable_fog()
 
-        if USE_DEPTH_TWEAK:
-            global DEPTH_TWEAK ## @@@070921
-            DEPTH_TWEAK = debug_pref("GLPane: depth tweak", # fyi: 2**18 is about 262000
-                                     Choice([0,1,3,10,100,200,300,400,500,600,700,800,900,1000,
-                                             2000,3000,4000,5000,
-                                             10000, 100000, 10**6,10**7,10**8], defaultValue = 5000),
-                                     non_debug = True) \
-                          * 2.0**(-32)
-            # for open bond cyls, 10**6 mostly fixes stripes but not all. cyl must be misaligned. i don't know why.
-            # for normal internal bonds, 100 does not fix them, but 1000 does fix them.
-            # sel chunks highlighting also has stripes on open bonds -- details untested.
-            self.setDepthRange_Normal()
+        glDepthFunc( GL_LEQUAL) #bruce 070921; GL_LESS causes bugs (e.g. in exprs/Overlay.py)
+            # TODO: put this into some sort of init function in GLPane_minimal;
+            # not urgent, since all instances of GLPane_minimal share one GL context for now,
+            # and also they all contain this in paintGL.
         
-        if SIMPLER_HIGHLIGHTING_DepthFunc:
-            glDepthFunc( GL_LEQUAL)
-        else:
-            # restore standard OpenGL state settings [bruce 070117, though seems like a good idea for the past; #e should make it a method]
-            default_glDepthFunc = self.__class__.standard_glDepthFunc
-            default_glDepthFunc_name = self.__class__.standard_glDepthFunc_name
-            self.standard_glDepthFunc = getattr( self.mode, 'standard_glDepthFunc', default_glDepthFunc)
-                #e I plan to try GL_LEQUAL in testmode, and if it works, maybe adopt it generally [bruce 070117]
-            if 1:
-                # Ninad reported a bug when leaving cookiemode with Done after drawing a cookie: 
-                # "TypeError: an integer is required" when self.glDepthFunc calls glDepthFunc on its first arg.
-                # I can't understand how that could happen [later: probably from nullMode], but I can try to protect against it.
-                # If we never see this print, we can call it nonrepeatable and remove this;
-                # otherwise we should diagnose the cause and fix it. [bruce 070126]
-                if self.standard_glDepthFunc is None:
-                    self.standard_glDepthFunc = default_glDepthFunc # let None mean "use standard", so nullMode can do this [bruce 070406]
-                if self.standard_glDepthFunc not in (GL_LESS, GL_LEQUAL): # should never happen
-                    print "bug: self.standard_glDepthFunc should not be %r -- setting it to %r == %r" % \
-                          (self.standard_glDepthFunc, default_glDepthFunc_name, default_glDepthFunc)
-                    self.standard_glDepthFunc = default_glDepthFunc
-            self.glDepthFunc( self.standard_glDepthFunc, always = True)
+        self.setDepthRange_setup_from_debug_pref()
+        self.setDepthRange_Normal()
         
         method = getattr(self.mode, 'render_scene', None) #bruce 070406 revised this
         if method is None:
@@ -3143,47 +3078,12 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         # Now "translate the world" slightly closer to the screen,
         # to ensure depth test passes for appropriate parts of highlight-drawing
         # even if roundoff errors would make it unreliable to just let equal depths pass the test.
-        # The amount of translation is a guess (ideally it should be just enough to achieve the mentioned purpose).
-        # (Note: In principle, this motion towards the screen needs to be accounted for when testing depths in
-        #  preDraw_glselect_dict (and we might want to store it on the object itself as a reliable record of whether
-        #  it happened and for which object). In practice, as long as the stencil optim works, this isn't needed,
-        #  and it's not yet implemented. This is predicted to result in highlight flickering if no stencil bits are
-        #  available. ###e should fix sometime, if that ever happens.)
+        # As of 070921 we use glDepthRange for this.
 
-        # REVIEW: are the draw_in_abs_coords-related methods part of a DrawHighlighted_interface?
-
-        if not SIMPLER_HIGHLIGHTING_predraw:
-##            use_pre_draw_in_abs_coords = hasattr(selobj, "pre_draw_in_abs_coords") #bruce 061218 new feature
-##            if use_pre_draw_in_abs_coords:
-##                assert hasattr(selobj, "post_draw_in_abs_coords")
-##                selobj.pre_draw_in_abs_coords(self)
-##            else:
-            if USE_DEPTH_TWEAK:
-                self.setDepthRange_Highlighting() # sort of works, depending on value [bruce 070920]
-            else:
-                glMatrixMode(GL_PROJECTION) # prepare to "translate the world"
-                glPushMatrix() # could avoid using another matrix-stack-level if necessary, by untranslating when done
-                glTranslatef(0.0, 0.0, +0.01) # move the world a bit towards the screen
-                    # (this works, but someday verify sign is correct in theory #k)
-                    # [actually it has some visual bugs, esp. in perspective view when off-center,
-                    #  [verified 070920 if i disable pre_draw_in_abs_coords, try testexpr_9a (offcenter perspective),
-                    #   and either replace +0.01 by +1.01, or use high zoom, or look at highlighted TextRects at lower right],
-                    #  and it would be better to just use a depth offset (via glPolygonOffset(hard to use in this case)
-                    #  or glDepthRange (which requires us to know the depth buffer resolution to use it properly)),
-                    #  or better still [now done sometimes, via pre_draw_in_abs_coords]
-                    #  to change the depth test (glDepthFunc) to GL_LEQUAL, either just for now, or all the time.
-                    #  [bruce 060729 comment, revised 061219]]
-                glMatrixMode(GL_MODELVIEW) # probably required!
+        self.setDepthRange_Highlighting()
             
-        ####@@@@ TODO -- rename draw_in_abs_coords and make it imply highlighting so obj knows whether to get bigger
-        # (note: having it always draw selatoms bigger, as if highlighted, as it does now, would probably be ok in hit-test,
-        #  since false positives in hit test are ok, but this is not used in hit test; and it's probably wrong in depth-test
-        #  of glselect_dict objs (where it *is* used), resulting in "premonition of bigger size" when hit test passed... ###bug);
-        # make provisions elsewhere for objs "stuck as selobj" even if tests to retain that from stencil are not done
-        # (and as optim, turn off stencil drawing then if you think it probably won't be needed after last draw you'll do)
-
         try:
-            self.drawing_phase = 'selobj' #bruce 070124 [do we need this around selobj.pre_draw_in_abs_coords too, & post_draw? #k]
+            self.drawing_phase = 'selobj' #bruce 070124
                 #bruce 070329 moved set of drawing_phase from just after selobj.draw_in_abs_coords to just before it.
                 # [This should fix the Qt4 transition issue which is the subject of reminder bug 2300,
                 #  though it can't be tested yet since it has no known effect on current code, only on future code.]
@@ -3209,16 +3109,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
             pass
         self.drawing_phase = '?'
 
-        if not SIMPLER_HIGHLIGHTING_predraw:
-##            if use_pre_draw_in_abs_coords:
-##                selobj.post_draw_in_abs_coords(self)
-##            else:
-            if USE_DEPTH_TWEAK:
-                self.setDepthRange_Normal()
-            else:
-                glMatrixMode(GL_PROJECTION)
-                glPopMatrix()
-                glMatrixMode(GL_MODELVIEW) #k maybe not needed
+        self.setDepthRange_Normal()
 
         # restore other gl state (but don't do unneeded OpenGL ops
         # in case that speeds up OpenGL drawing)
@@ -3359,6 +3250,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         else:
             debug_prefix = None
         fudge = getattr( self.mode, '_check_target_depth_fudge_factor', 0.0001) #bruce 070115 kluge for testmode
+            ### REVIEW: should this be an attribute of each object which can be drawn as selobj, instead?
+            # The reasons it's needed are the same ones that require a nonzero DEPTH_TWEAK in GLPane_minimal.
+            # See also the comment about it inside check_target_depth. [bruce 070921 comment]
         for orderjunk, obj in items:
             try:
                 method = obj.draw_in_abs_coords
@@ -3436,16 +3330,25 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         or if events between the initial targetdepth measurement and this redraw tell any model objects to move.
         Someday we should check for this.
         """
-        glFlush()
+        glFlush() # In theory, glFinish might be needed here;
+            # in practice, I don't know if even glFlush is needed.
+            # [bruce 070921 comment]
         wX, wY = self.wX, self.wY
         wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)
         newdepth = wZ[0][0]
         targetdepth = self.targetdepth
-        ####@@@@ here we could effectively move selobj forwards... warning: worry about scales of coord systems in doing that...
-        # due to that issue it is probably easier to fix this when drawing it, instead
+        ### possible change: here we could effectively move selobj forwards (to give it an advantage over other objects)...
+        # but we'd need to worry about scales of coord systems in doing that...
+        # due to that issue it is probably easier to fix this solely when drawing it, instead.
         if newdepth <= targetdepth + fudge: # use fudge factor in case of roundoff errors (hardcoded as 0.0001 before 070115)
             # [bruce 050702: 0.000001 was not enough! 0.00003 or more was needed, to properly highlight some bonds
             #  which became too hard to highlight after today's initial fix of bug 715-1.]
+            # [update, bruce 070921: fyi: one reason this factor is needed is the shorten_tubes flag used to
+            #  highlight some bonds, which changes the cylinder scaling, and conceivably (due solely to
+            #  roundoff errors) the precise axis direction, and thus the precise cross-section rotation
+            #  around the axis. Another reason was a bug in bond_drawer which I fixed today, so the
+            #  necessary factor may now be smaller, but I didn't test this.]
+            #
             #e could check for newdepth being < targetdepth - 0.002 (error), but best
             # to just let caller do that (NIM), since we would often not catch this error anyway,
             # since we're turning into noop on first success

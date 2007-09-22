@@ -102,8 +102,6 @@ class Selobj_API:
 
 # - selobj_still_ok, [glpane asks mode(?), default implem asks selobj]
 # - draw_in_abs_coords,
-# - pre_draw_in_abs_coords
-# - post_draw_in_abs_coords
 # - highlight_color_for_modkeys
 # - mouseover_statusbar_message (used in GLPane.set_selobj)
 
@@ -168,7 +166,11 @@ region selection interface - a node which contains region-selectable things and 
 points for them
 '''
 
-        # REVIEW: is draw_in_abs_coords method part of a DrawHighlighted_interface?
+
+### REVIEW: should _check_target_depth_fudge_factor
+# be an attribute of each object which can be drawn as selobj, instead of an attr of the mode?
+# (as of 070921 it's an optional mode attr, default value supplied by its client, GLPane.)
+
 
 # outtake??
         ####@@@@ TODO -- rename draw_in_abs_coords and make it imply highlighting so obj knows whether to get bigger

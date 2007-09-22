@@ -166,9 +166,7 @@ class anyMode( StateMixin): #bruce 060223 renamed mixin class
 
     def update_cursor(self): #bruce 070410
         return
-    
-    standard_glDepthFunc = None #bruce 070406; this means GLPane will use its own default
-    
+        
     pass # end of class anyMode
 
 
