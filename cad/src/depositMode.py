@@ -905,7 +905,12 @@ class depositMode(selectAtomsMode):
             return "click to deposit %s" % atype.fullname_for_msg()
 
     def pastable_element(self):
-        return self.propMgr.elementChooser.getElement()
+        if self.propMgr and hasattr(self.propMgr, 'elementChooser'):
+            return self.propMgr.elementChooser.getElement()
+        else:
+            # we're presumably a subclass with no propMgr or a different one
+            from elements import Carbon
+            return Carbon
 
     _pastable_atomtype = None
     def set_pastable_atomtype(self, name):
@@ -914,7 +919,7 @@ class depositMode(selectAtomsMode):
             # store entire atomtype object; only used if element remains correct (not an error if it doesn't)
         return
 
-    def pastable_atomtype(self): #bruce 050511 ###@@@ use more?
+    def pastable_atomtype(self):
         """Return the current pastable atomtype.
 
         Note: This appears to be very similar (if not completely redundant) to 
@@ -922,15 +927,19 @@ class depositMode(selectAtomsMode):
         """
         #e we might extend this to remember a current atomtype per element... not sure if useful
         current_element = self.pastable_element()
-        if len(current_element.atomtypes) > 1: #bruce 050606
-            try:                
-                hybrid_name = self.propMgr.elementChooser.atomType                
-                atype = current_element.find_atomtype(hybrid_name)
-                if atype is not None:
-                    self._pastable_atomtype = atype
-            except:
-                print_compact_traceback("exception (ignored): ") # error, but continue
-            pass
+        if len(current_element.atomtypes) > 1:
+            if self.propMgr and hasattr(self.propMgr, 'elementChooser'):
+                try:
+                    hybrid_name = self.propMgr.elementChooser.atomType                
+                    atype = current_element.find_atomtype(hybrid_name)
+                    if atype is not None:
+                        self._pastable_atomtype = atype
+                except:
+                    print_compact_traceback("exception (ignored): ") # error, but continue
+                pass
+            else:
+                # we're presumably a subclass with no propMgr or a different one
+                pass
         if self._pastable_atomtype is not None and self._pastable_atomtype.element is current_element:
             return self._pastable_atomtype
         self._pastable_atomtype = current_element.atomtypes[0]
@@ -1469,7 +1478,11 @@ class depositMode(selectAtomsMode):
                     reload(build_utils)
                 from build_utils import AtomTypeDepositionTool
                 deptool = AtomTypeDepositionTool( atype)
-                autobond = self.propMgr.autoBondCheckBox.isChecked() #bruce 050831
+                if self.propMgr and hasattr(self.propMgr, 'autoBondCheckBox'):
+                    autobond = self.propMgr.autoBondCheckBox.isChecked()
+                else:
+                    # we're presumably a subclass with no propMgr or a different one
+                    autobond = True
                 a1, desc = deptool.attach_to(a, autobond = autobond)
                         #e this might need to take over the generation of the following status msg...
                 ## a1, desc = self.attach(el, a)

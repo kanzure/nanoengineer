@@ -69,6 +69,17 @@ class testmode(superclass):
     
     ## UNKNOWN_SELOBJ = something... this is actually not set here (necessary for now) but a bit later in exprs/test.py [061218 kluge]
 
+##    # work around some of our superclass depositMode's dependence on having its particular PM
+##    # [now taken care of in depositMode itself]
+##    
+##    def pastable_element(self): # bruce 070921
+##        "[overrides superclass method]"
+##        ## return self.propMgr.elementChooser.getElement()
+##        from elements import Carbon
+##        return Carbon
+
+    # ==
+    
     def render_scene(self, glpane):
         # This is always called, and modifying it would let us revise the entire rendering algorithm however needed.
         # This encompasses almost everything done within a single paintGL call -- even the framebuffer clear!
