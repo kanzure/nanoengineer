@@ -123,7 +123,7 @@ from constants import white
 from constants import green
 from constants import red
 
-from exprs.draw_utils import draw_textured_rect #bruce 070921 moved this import to toplevel -- recursive import issue?? ######
+from exprs.draw_utils import draw_textured_rect #bruce 070921 moved this import to toplevel
 
 ### a lot of the following constants are probably obs here, redundant with ones now defined in exprs module [070408 comment]
 
