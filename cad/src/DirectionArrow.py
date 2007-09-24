@@ -236,27 +236,14 @@ class DirectionArrow(DragHandler_API):
             owner      = env.obj_with_glselect_name.get(glname, None)
             if owner is not our_selobj:
                 res = False
-                # owner might be None, in theory, but is probably a 
-                # replacement of self at same ipath. Do debug prints.
+                # Do debug prints.
                 print "%r no longer owns glname %r, instead %r does" \
                       % (self, glname, owner) # [perhaps never seen as of 061121]
-                our_ipath   = self.ipath
-                owner_ipath = getattr(owner, 'ipath', '<missing>')
-                if our_ipath != owner_ipath:
-                    # [perhaps never seen as of 061121]
-                    print "WARNING: ipath for that glname also changed, \
-                           from %r to %r" % (our_ipath, owner_ipath)
                 pass
             pass
-            # MORE IS PROBABLY NEEDED HERE: that check above is about whether 
-            # this selobj got replaced locally; the comments in the calling 
-            # code are about whether it's no longer being drawn in the current
-            # frame; I think both issues are valid and need addressing in this
-            # code or it'll probably cause bugs. [061120 comment] ###BUG
         if not res and env.debug():
-            print "debug: selobj_still_ok is false for %r" % self ###@@@
-        return res # I forgot this line, and it took me a couple hours to debug that problem! Ugh.
-            # Caller now prints a warning if it's None. 
+            print "debug: selobj_still_ok is false for %r" % self
+        return res
         
         ###============== selobj interface Ends===============###
                

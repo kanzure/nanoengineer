@@ -189,38 +189,22 @@ class ReferenceGeometry(Jig, DragHandler_API):
         """
         return yellow
     
-    # copying Bruce's code from class Highligtable with some mods.Need to see
-    # if sleobj_still_ok method is needed. OK for now --Ninad 20070601        
+    # copying Bruce's code from class Highlightable with some mods. Need to see
+    # if sleobj_still_ok method is needed. OK for now --Ninad 20070601
     def selobj_still_ok(self, glpane):
-        res = self.__class__ is ReferenceGeometry 
+        res = self.__class__ is ReferenceGeometry
         if res:
             our_selobj = self
             glname = self.glname
             owner = env.obj_with_glselect_name.get(glname, None)
             if owner is not our_selobj:
                 res = False
-                # owner might be None, in theory, but is probably a replacement
-                #of self at same ipath do debug prints
-                # [perhaps never seen as of 061121]
+                # Do debug prints [perhaps never seen as of 061121]
                 print "%r no longer owns glname %r, instead %r does" \
-                      % (self, glname, owner) 
-                our_ipath = self.ipath
-                owner_ipath = getattr(owner, 'ipath', '<missing>')
-                if our_ipath != owner_ipath:
-                    # [perhaps never seen as of 061121]
-                    print "WARNING: ipath for that glname also changed, \
-                    from %r to %r" % (our_ipath, owner_ipath)
-                
-            # MORE IS PROBABLY NEEDED HERE: that check above is about whether 
-            # this selobj got replaced locally;
-            # the comments in the calling code are about whether it's no longer
-            #being drawn in the current frame;
-            # I think both issues are valid and need addressing in this code or
-            # it'll probably cause bugs. [061120 comment] ###BUG
+                      % (self, glname, owner)
         if not res and env.debug():
-            print "debug: selobj_still_ok is false for %r" % self ###@@@
-        return res # I forgot this line, and it took me a couple hours to debug
-                    #that problem! Ugh.Caller now prints a warning if it's None.
+            print "debug: selobj_still_ok is false for %r" % self
+        return res
     
     ###=========== Drag Handler interface =============###
     def handles_updates(self): #k guessing this one might be needed

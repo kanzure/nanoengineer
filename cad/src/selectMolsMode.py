@@ -837,6 +837,10 @@ class selectMolsMode(selectMode):
     def get_obj_under_cursor(self, event): 
         '''Return the object under the cursor.  Returns atoms, bonds, jigs.
         '''
+        ### WARNING: this method is defined in two places, with mostly duplicated code,
+        # but with one key difference whose date, author, & purpose is not documented.
+        # [bruce 070924 comment]
+        #
         ### WARNING: this is slow, and redundant with highlighting -- only call it on mousedown or mouseup, never in move or drag.
         # [true as of 060726 and before; bruce 060726 comment]
         # It may be that it's not called when highlighting is on, and it has no excuse to be, but I suspect it is anyway.
@@ -860,21 +864,15 @@ class selectMolsMode(selectMode):
             
             
             if obj is None and self.o.selobj:
-                obj = self.o.selobj # a "highlighted" bond
-                    # [or anything else, except Atom or Jig -- i.e. a general/drag_handler/Drawable seolobj [bruce 060728]]
+                obj = self.o.selobj # any hover-highlighted object other than an Atom
  
                 if env.debug():
-                    # I want to know if either of these things occur -- I doubt they do, but I'm not sure about Jigs [bruce 060728]
+                    # I want to know if this can occur [bruce 060728]
                     if isinstance(obj, Atom):
                         print "debug fyi: likely bug: selobj is Atom but not in selatom: %r" % (obj,)
-                    elif isinstance(obj, Jig):
-                        print "debug fyi: selobj is a Jig in get_obj_under_cursor (comment is wrong), for %r" % (obj,)
-                        # I suspect some jigs can occur here
-                        # (and if not, we should put them here -- I know of no excuse for jig highlighting
-                        #  to work differently than for anything else) [bruce 060721]
                     pass
             
-            if obj is None: # a "highlighted" jig [i think this comment is misleading, it might really be nothing -- bruce 060726]
+            if obj is None: # note: confusing code: self.o.selobj might be a highlighted non-Atom, or None
                 obj = self.get_jig_under_cursor(event)
                 if 0 and env.debug():
                     print "debug fyi: get_jig_under_cursor returns %r" % (obj,) # [bruce 060721] 
