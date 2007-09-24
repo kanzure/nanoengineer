@@ -258,7 +258,7 @@ class basicMode(anyMode):
                   (self.msg_modename, self.__class__.__name__)
         # check whether subclasses override methods we don't want them to
         # (after this works I might remove it, we'll see)
-        ####@@@@ bruce 050130 removing 'Done' temporarily; see panMode.Done for why.
+        ####@@@@ bruce 050130 removing 'Done' temporarily; see PanMode.Done for why.
         # later note: as of 070521, we always get warned "subclass movieMode overrides basicMode._exitMode".
         # I am not sure whether this override is legitimate so I'm not removing the warning for now. [bruce 070521]
         weird_to_override = ['Cancel', 'Flush', 'StartOver', 'Restart',

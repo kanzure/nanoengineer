@@ -94,8 +94,8 @@ class Example_TemporaryCommand_useParentPM(ExampleCommand):
     remains visible as well. Whether it (and the PM done/cancel
     buttons) work properly during this time is unknown. ###TEST/REVIEW
     """
-    # works like panlikeMode I guess -- not yet correct when used together with those!
-    # Need to merge this with panlikeMode, use a class constant instead of modename check,
+    # works like ArrangementMode I guess -- not yet correct when used together with those!
+    # Need to merge this with ArrangementMode, use a class constant instead of modename check,
     # know when a toggle button is present, etc. ###TODO
     
     return_to_prior_command = True # class constant ##### bruce 070813; experiment; API will change a lot
@@ -103,15 +103,15 @@ class Example_TemporaryCommand_useParentPM(ExampleCommand):
         # which means, it needs to affect code that is not inside this command itself.
     prior_command = None # dflt val of ivar
     def set_prior_command(self, command):
-        # the ivar we set here has the same purpose as glpane.prevMode in panlikeMode --
-        # but storing it in self is far less bug prone, i hope! Do this in panlikeMode too. ###TODO
+        # the ivar we set here has the same purpose as glpane.prevMode in ArrangementMode --
+        # but storing it in self is far less bug prone, i hope! Do this in ArrangementMode too. ###TODO
         self.prior_command = command
         return
     def Done(self, new_mode = None, **new_mode_options):
         ### REVIEW whether it's best to override this vs some other mode api method
         ### also how does it interact with new_mode arg? probably callers of that need to be revised to say what they really mean.
 
-        ###TODO -- revise this per panlikeMode
+        ###TODO -- revise this per ArrangementMode
         if new_mode is None:
             print "leaving subcommand %r normally" % self
             new_mode = self.prior_command

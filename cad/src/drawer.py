@@ -2242,7 +2242,7 @@ def drawrectangle(pt1, pt2, rt, up, color):
 
 #bruce & wware 060404: drawRubberBand apparently caused bug 1814 (Zoom Tool hanging some Macs, requiring power toggle)
 # so it should not be used until debugged. Use drawrectangle instead. (For an example of how to translate between them,
-# see zoomMode.py rev 1.32 vs 1.31 in ViewCVS.) That bug was only repeatable on Bruce's & Will's iMacs G5.
+# see ZoomMode.py rev 1.32 vs 1.31 in ViewCVS.) That bug was only repeatable on Bruce's & Will's iMacs G5.
 #
 # Bruce's speculations (not very definite; no evidence for them at all) about possible causes of the bug in drawRubberBand:
 # - use of glVertex instead of glVertex3f or so??? This seems unlikely, since we have other uses of it,

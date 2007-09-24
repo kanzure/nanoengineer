@@ -114,9 +114,9 @@ from depositMode import depositMode
 from PasteMode   import PasteMode
 from PartLibraryMode import PartLibraryMode
 from movieMode import movieMode
-from zoomMode import zoomMode
-from panMode import panMode
-from rotateMode import rotateMode
+from ZoomMode import ZoomMode
+from PanMode import PanMode
+from RotateMode import RotateMode
 from modes import modeMixin
 
 import platform
@@ -352,7 +352,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
     # class constants (needed by modeMixin):
     mode_classes = [selectMolsMode, selectAtomsMode, modifyMode, depositMode,
                     cookieMode, extrudeMode, fusechunksMode,
-                    movieMode, zoomMode, panMode, rotateMode, 
+                    movieMode, ZoomMode, PanMode, RotateMode, 
                     PasteMode, PartLibraryMode]
     
     always_draw_hotspot = False #bruce 060627; not really needed, added for compatibility with class ThumbView
