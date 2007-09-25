@@ -254,7 +254,8 @@ class Ui_ExtrudePropertyManager(PM_Dialog):
                               minimum       =  0.1,
                               maximum       =  2000.0,
                               singleStep    =  1,
-                              decimals      =  2,
+                              decimals      =  3,
+			      suffix        =  ' Angstroms'
                              )   
 	
 	self.extrudeSpinBox_x = \
@@ -264,7 +265,8 @@ class Ui_ExtrudePropertyManager(PM_Dialog):
                               minimum       =  -1000.0,
                               maximum       =  1000.0,
                               singleStep    =  1,
-                              decimals      =  2,
+                              decimals      =  3,
+			      suffix        =  ' Angstroms'
                              )   
 	
 	self.extrudeSpinBox_y = \
@@ -274,7 +276,8 @@ class Ui_ExtrudePropertyManager(PM_Dialog):
                               minimum       =  -1000.0,
                               maximum       =  1000.0,
                               singleStep    =  1,
-                              decimals      =  2,
+                              decimals      =  3,
+			      suffix        =  ' Angstroms'
                              ) 
 	self.extrudeSpinBox_z = \
 	    PM_DoubleSpinBox( inPmGroupBox,
@@ -283,6 +286,7 @@ class Ui_ExtrudePropertyManager(PM_Dialog):
                               minimum       =  -1000.0,
                               maximum       =  1000.0,
                               singleStep    =  1,
-                              decimals      =  2,
+                              decimals      =  3,
+			      suffix        =  ' Angstroms'
                              ) 
 	
