@@ -136,16 +136,16 @@ class PM_DoubleSpinBox( QDoubleSpinBox ):
         @param maximum: The maximum value of the spin box.
         @type  maximum: float
         
-        @param decimals: The precision of the spin box.
-        @type  decimals: int
-        
         @param singleStep: When the user uses the arrows to change the 
                            spin box's value the value will be 
                            incremented/decremented by the amount of the 
                            singleStep. The default value is 1.0. 
                            Setting a singleStep value of less than 0 does 
                            nothing.
-        @type  singleStep: int
+        @type  singleStep: float
+        
+        @param decimals: The precision of the spin box.
+        @type  decimals: int
         
         @param suffix: The suffix is appended to the end of the displayed value. 
                        Typical use is to display a unit of measurement. 
