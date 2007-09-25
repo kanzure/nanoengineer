@@ -200,7 +200,7 @@ class PlanePropertyManager(PM_Dialog):
                              minimum      = 1.0, 
                              maximum      = 200.0,
                              singleStep   = 1.0, 
-                             decimals     = 1, 
+                             decimals     = 3, 
                              suffix       = ' Angstroms')
         
         self.connect(self.widthDblSpinBox, 
@@ -215,7 +215,7 @@ class PlanePropertyManager(PM_Dialog):
                              minimum      = 1.0, 
                              maximum      = 200.0,
                              singleStep   = 1.0, 
-                             decimals     = 1, 
+                             decimals     = 3, 
                              suffix       = ' Angstroms')
         
         self.connect(self.heightDblSpinBox, 
