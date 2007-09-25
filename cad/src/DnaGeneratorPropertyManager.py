@@ -822,10 +822,16 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
 
     def invokeAction( self, inActionName ):
         """
-        Invokes the action inActionName
+        Applies an action on the current sequence displayed in the PM.
+
+        @param inActionName: The action name.
+        @type  inActionName: str
+
+        @return: The sequence after the action has been applied.
+        @rtype:  str
         """
         sequence, allKnown = self._getSequence()
-        outResult  =  None
+        outResult  =  ""
 
         if inActionName == self._action_Complement:
             outResult  =  getComplementSequence(sequence)
@@ -840,4 +846,3 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
         self.setSequence( outResult )
         
         return
-    
