@@ -88,6 +88,7 @@ class PM_SpinBox( QSpinBox ):
                  setAsDefault = True,
                  minimum      = 0, 
                  maximum      = 99,
+                 singleStep   = 1,
                  suffix       = '',
                  spanWidth    = False
                  ):
@@ -118,6 +119,14 @@ class PM_SpinBox( QSpinBox ):
         @param maximum: The maximum value of the spin box.
         @type  maximum: int
         
+        @param singleStep: When the user uses the arrows to change the 
+                           spin box's value the value will be 
+                           incremented/decremented by the amount of the 
+                           singleStep. The default value is 1. 
+                           Setting a singleStep value of less than 0 does 
+                           nothing.
+        @type  singleStep: int
+        
         @param suffix: The suffix is appended to the end of the displayed value. 
                        Typical use is to display a unit of measurement. 
                        The default is no suffix. The suffix is not displayed for the minimum 
@@ -140,6 +149,7 @@ class PM_SpinBox( QSpinBox ):
             print "  setAsDefault = ", setAsDefault
             print "  minimum      = ", minimum
             print "  maximum      = ", maximum
+            print "  singleStep   = ", singleStep
             print "  suffix       = ", suffix
             print "  spanWidth    = ", spanWidth
         
@@ -157,6 +167,7 @@ class PM_SpinBox( QSpinBox ):
                 
         # Set QSpinBox minimum, maximum and initial value
         self.setRange(minimum, maximum)
+        self.setSingleStep(singleStep)
         self.setValue(value)
         
         # Set default value
