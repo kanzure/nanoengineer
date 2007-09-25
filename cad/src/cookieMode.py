@@ -981,7 +981,7 @@ class cookieMode(basicMode):
 
     def setThickness(self, num):
         self.thickness = num*DiGridSp*sqrt(self.whichsurf+1)
-        s = "%3.4f" % (self.thickness)
+        s = "%3.3f Angstroms" % (self.thickness)
         self.propMgr.layerThicknessLineEdit.setText(s)
    
     def toggleFullModel(self, showFullModel):
