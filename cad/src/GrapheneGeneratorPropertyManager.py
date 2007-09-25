@@ -73,7 +73,7 @@ class GrapheneGeneratorPropertyManager(PM_Dialog):
                               minimum      = 1.0, 
                               maximum      = 50.0, 
                               singleStep   = 1.0, 
-                              decimals     = 1, 
+                              decimals     = 3, 
                               suffix       = ' Angstroms' )
         
         self.widthField = \
@@ -84,7 +84,7 @@ class GrapheneGeneratorPropertyManager(PM_Dialog):
                               minimum      = 1.0, 
                               maximum      = 50.0, 
                               singleStep   = 1.0, 
-                              decimals     = 1, 
+                              decimals     = 3, 
                               suffix       = ' Angstroms')
         
         self.bondLengthField = \
