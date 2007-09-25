@@ -84,7 +84,9 @@ class Ui_MovePropertyManager( PM_Dialog ):
         @type  inPmGroupBox: L{PM_GroupBox}
         """
         
-        translateChoices = [ "Free Drag", "By Delta XYZ", "To XYZ Position" ]
+        translateChoices = [ "Free Drag", 
+                             "By Delta XYZ", 
+                             "To XYZ Position" ]
         
         self.translateComboBox = \
             PM_ComboBox( inPmGroupBox,
@@ -180,7 +182,7 @@ class Ui_MovePropertyManager( PM_Dialog ):
                               minimum      = -100.0, 
                               maximum      =  100.0, 
                               singleStep   = 1.0, 
-                              decimals     = 1, 
+                              decimals     = 3, 
                               suffix       = ' Angstroms',
                               spanWidth    = False )
         
@@ -192,7 +194,7 @@ class Ui_MovePropertyManager( PM_Dialog ):
                               minimum      = -100.0, 
                               maximum      =  100.0, 
                               singleStep   = 1.0, 
-                              decimals     = 1, 
+                              decimals     = 3, 
                               suffix       = ' Angstroms',
                               spanWidth    = False )
         
@@ -204,7 +206,7 @@ class Ui_MovePropertyManager( PM_Dialog ):
                               minimum      = -100.0, 
                               maximum      =  100.0, 
                               singleStep   = 1.0, 
-                              decimals     = 1, 
+                              decimals     = 3, 
                               suffix       = ' Angstroms',
                               spanWidth    = False )
         
@@ -249,7 +251,7 @@ class Ui_MovePropertyManager( PM_Dialog ):
                               minimum      = -100.0, 
                               maximum      =  100.0, 
                               singleStep   = 1.0, 
-                              decimals     = 1, 
+                              decimals     = 3, 
                               suffix       = ' Angstroms',
                               spanWidth    = False )
         
@@ -261,7 +263,7 @@ class Ui_MovePropertyManager( PM_Dialog ):
                               minimum      = -100.0, 
                               maximum      =  100.0, 
                               singleStep   = 1.0, 
-                              decimals     = 1, 
+                              decimals     = 3, 
                               suffix       = ' Angstroms',
                               spanWidth    = False )
         
@@ -273,7 +275,7 @@ class Ui_MovePropertyManager( PM_Dialog ):
                               minimum      = -100.0, 
                               maximum      =  100.0, 
                               singleStep   = 1.0, 
-                              decimals     = 1, 
+                              decimals     = 3, 
                               suffix       = ' Angstroms',
                               spanWidth    = False )
         
@@ -480,7 +482,14 @@ class Ui_MovePropertyManager( PM_Dialog ):
     # == End Rotate Group Box =====================
         
     # == Slots for Translate group box
-    
+    def _hideAllTranslateGroupBoxes(self):
+        """
+        Hides all Translate group boxes.
+        """
+        self.toPositionGroupBox.hide()
+        self.byDeltaGroupBox.hide()
+        self.freeDragTranslateGroupBox.hide()
+            
     def updateTranslateGroupBoxes(self, id):
         """
         Update the translate group boxes displayed based on the translate
@@ -489,24 +498,20 @@ class Ui_MovePropertyManager( PM_Dialog ):
                    Translate group box. 
         @type  id: int
         """
+        self._hideAllTranslateGroupBoxes()
+        
         if id is 0:
-            self.toPositionGroupBox.hide()
-            self.byDeltaGroupBox.hide()
             self.freeDragTranslateGroupBox.show()
                                
         if id is 1:
-            self.freeDragTranslateGroupBox.hide()
-            self.toPositionGroupBox.hide()
             self.byDeltaGroupBox.show()
                     
         if id is 2:
-            self.freeDragTranslateGroupBox.hide()
-            self.byDeltaGroupBox.hide()
             self.toPositionGroupBox.show()
     
     def changeMoveOption(self, button):
         """
-        Subclasses should reimplement this method
+        Subclasses should reimplement this method.
         
         @param button: QToolButton that decides the type of translate operation 
         to be set.
