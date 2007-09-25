@@ -94,7 +94,7 @@ class AtomGeneratorPropertyManager(PM_Dialog):
     _sMinCoordinateValue   = -30.0
     _sMaxCoordinateValue   =  30.0
     _sStepCoordinateValue  =  0.1
-    _sCoordinateDecimals   =  4
+    _sCoordinateDecimals   =  3
     _sCoordinateUnit       =  'Angstrom'
     _sCoordinateUnits      =  _sCoordinateUnit + 's'
 
