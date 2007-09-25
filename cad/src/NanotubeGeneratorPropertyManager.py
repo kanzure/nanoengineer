@@ -113,7 +113,7 @@ class NanotubeGeneratorPropertyManager(PM_Dialog):
                               minimum      = 1.0, 
                               maximum      = 1000.0, 
                               singleStep   = 1.0, 
-                              decimals     = 1, 
+                              decimals     = 3, 
                               suffix       = " Angstroms" )
         
         self.n = 5
@@ -173,8 +173,8 @@ class NanotubeGeneratorPropertyManager(PM_Dialog):
                               setAsDefault = True,
                               minimum      = 0.0, 
                               maximum      = 10.0, 
-                              singleStep   = 1.0, 
-                              decimals     = 1, 
+                              singleStep   = 0.1, 
+                              decimals     = 3, 
                               suffix       = " Angstroms" )
         
         self.xyDistortionField = \
@@ -185,7 +185,7 @@ class NanotubeGeneratorPropertyManager(PM_Dialog):
                               minimum      = 0.0, 
                               maximum      = 2.0, 
                               singleStep   = 0.1, 
-                              decimals     = 1, 
+                              decimals     = 3, 
                               suffix       = " Angstroms" )
         
         
@@ -233,7 +233,7 @@ class NanotubeGeneratorPropertyManager(PM_Dialog):
                               minimum      = 1.0, 
                               maximum      = 10.0, 
                               singleStep   = 0.1, 
-                              decimals     = 2, 
+                              decimals     = 3, 
                               suffix       = " Angstroms" )
     
     def add_whats_this_text(self):
