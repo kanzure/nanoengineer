@@ -120,7 +120,7 @@ class Ui_CookiePropertyManager(PM_Dialog):
         Add 'Display Options' groupbox
         """
         self.displayOptionsGroupBox = PM_GroupBox(self, 
-                                                  title = 'Display Options:')
+                                                  title = 'Display Options')
         self._loadDisplayOptionsGroupBox(self.displayOptionsGroupBox)
     
     def _loadCrystalSpecsGroupBox(self, inPmGroupBox):
@@ -133,7 +133,7 @@ class Ui_CookiePropertyManager(PM_Dialog):
         
         self.latticeCBox = \
             PM_ComboBox( inPmGroupBox,
-                         label        = 'Lattice Type:', 
+                         label        = 'Lattice:', 
                          labelColumn  = 0,
                          choices      = latticeChoices, 
                          index        = 0, 
@@ -165,7 +165,7 @@ class Ui_CookiePropertyManager(PM_Dialog):
         self.gridOrientationButtonRow = \
             PM_ToolButtonRow(inPmGroupBox,
                                title        = "",
-                               label        = "Grid Orientation:",
+                               label        = "Orientation:",
                                buttonList   = BUTTON_LIST,
                                checkedId    = 0,
                                setAsDefault = True,
@@ -179,14 +179,13 @@ class Ui_CookiePropertyManager(PM_Dialog):
         
         self.rotateGridByAngleSpinBox = \
             PM_SpinBox( inPmGroupBox,
-                        label         =  "Rotate Grid By: ",
+                        label         =  "Rotate by: ",
                         labelColumn   =  0,
                         value         =  45,
                         minimum       =  0,
                         maximum       =  360,
-                        suffix        = " Degrees"
-                      )             
-        self.rotateGridByAngleSpinBox.setSingleStep(5)
+                        singleStep    =  5,
+                        suffix        = " degrees")
         
         GRID_ANGLE_BUTTONS = [
                         ("QToolButton", 0,  "Anticlockwise", 
@@ -202,7 +201,7 @@ class Ui_CookiePropertyManager(PM_Dialog):
             PM_ToolButtonRow( inPmGroupBox, 
                               title        = "",
                               buttonList   = GRID_ANGLE_BUTTONS,
-                              label        = 'Direction of Grid Rotation:',
+                              label        = 'Rotate grid:',
                               isAutoRaise  =  False,
                               isCheckable  =  False                           
                             )
@@ -243,13 +242,13 @@ class Ui_CookiePropertyManager(PM_Dialog):
         widgetRow = PM_WidgetRow(inPmGroupBox,
                                  title     = '',
                                  widgetList = firstRowWidgetList,
-                                 label = "Current Layer",
+                                 label = "Layer:",
                                  labelColumn  = 0,
                                  )
         
         self.layerCellsSpinBox = \
              PM_SpinBox( inPmGroupBox,
-                        label         =  "Lattice Cells",
+                        label         =  "Lattice Cells:",
                         labelColumn   =  0,
                         value         =  2,
                         minimum       =  1,
@@ -257,12 +256,13 @@ class Ui_CookiePropertyManager(PM_Dialog):
                       )
         
         self.layerThicknessLineEdit = PM_LineEdit(inPmGroupBox, 
-                                         label        = "Lattice Thickness",
+                                         label        = "Thickness:",
                                          text         = "",
                                          setAsDefault = False,
-                                         spanWidth    = False)
+                                         spanWidth    = False )
         
-        self.layerThicknessLineEdit.setReadOnly(True)
+        #self.layerThicknessLineEdit.setReadOnly(True)
+        self.layerThicknessLineEdit.setDisabled(True)
         tooltip = "Thickness of layer in Angstroms"
         self.layerThicknessLineEdit.setToolTip(tooltip)
          
@@ -298,7 +298,7 @@ class Ui_CookiePropertyManager(PM_Dialog):
         
         self.dispModeComboBox = \
             PM_ComboBox( inPmGroupBox,
-                         label        = 'Display Crystal As:', 
+                         label        = 'Display style:', 
                          choices      = displayChoices,
                          index        = 0, 
                          setAsDefault = False,
@@ -306,12 +306,12 @@ class Ui_CookiePropertyManager(PM_Dialog):
         
         
         self.gridLineCheckBox = PM_CheckBox(inPmGroupBox,
-                                            text = "Show Grid Lines",
+                                            text = "Show grid lines",
                                             widgetColumn = 0,
                                             state        = Qt.Checked)
         
         
         self.fullModelCheckBox = PM_CheckBox(inPmGroupBox,
-                                            text = "Show Existing Model",
+                                            text = "Show model",
                                             widgetColumn = 0,
                                             state        = Qt.Unchecked)
