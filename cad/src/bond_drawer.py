@@ -92,9 +92,10 @@ from prefs_constants import diBALL_bondcolor_prefs_key
 # [bruce 060622]
 
 class writepov_to_file:
-    def __init__(self, file):
+    def __init__(self, file, col = None):
         self.file = file # a file object, not just its name
         # does not currently write the povheader -- assumes it was already written
+        self.bondColor = col
         return
     # for now, the following methods have the same names and arg orders as the
     # macro calls that were used directly in writepov_bond.
@@ -106,10 +107,11 @@ class writepov_to_file:
             self.file.write("%s(" % radmacro + str(rad) + ", " )
         else:
             self.file.write("%s(" % noradmacro )
-    def bond(self, a1pos, a2pos, rad = None):
+    def bond(self, a1pos, a2pos, col, rad = None):
         self.writeradmacro(rad, "bondr", "bond")
         self.file.write( povpoint(a1pos) +
-                   "," + povpoint(a2pos) + ")\n")
+                   "," + povpoint(a2pos) + 
+                   "," + stringVec(col) + ")\n")
     def tube3(self, a1pos, a2pos, col, rad = None):
         self.writeradmacro(rad, "tube3r", "tube3")
         self.file.write( povpoint(a1pos) + ", " + povpoint(a2pos) + ", " + stringVec(col) + ")\n")
@@ -142,7 +144,15 @@ class writepov_to_file:
     def drawsphere(self, color, pos, radius): # arg order compatible with drawer.drawsphere, except no detailLevel; not yet called or tested [060622]
         ###k not compared with other calls of atom macro, or tested; kluge that it uses atom macro, since not all spheres are atoms
         self.file.write( "atom(" + str(pos) + ", " + str(radius) + ", " + stringVec(color) + ")\n")
-    pass
+    
+    def getBondColor(self):
+        """
+        Returns the self.bondColor (rgb value) 
+        @return: L{self.bondColor}
+        @see: L{self.old_writepov_bondcyl}
+        @Note:  this whole file needs code cleanup.  
+        """
+        return self.bondColor
 
 # ==
 
@@ -589,7 +599,7 @@ def writepov_bond(self, file, dispdef, col):
         disp = dispdef
     if disp in (diLINES, diBALL, diTUBES):
         # (note: self is a bond.)
-        povfile = writepov_to_file(file)
+        povfile = writepov_to_file(file, col)
         level = 2 #k value probably has no effect
         glpane = None #k value probably has no effect
         highlighted = False
@@ -608,7 +618,10 @@ def old_writepov_bondcyl(atom1, atom2, disp, a1pos, c1, center, c2, a2pos, toolo
             povfile.line(a1pos, center, color1)
             povfile.line(center, a2pos, color2)
     if disp == diBALL:
-        povfile.bond(a1pos, a2pos, rad)
+        bondColor = povfile.getBondColor()
+        if not bondColor:
+            bondColor = color1
+        povfile.bond(a1pos, a2pos, bondColor, rad)
     if disp == diTUBES:
         #Huaicai: If rcovalent is close to 0, like singlets, avoid 0 length 
         # cylinder written to a pov file    

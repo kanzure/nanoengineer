@@ -132,9 +132,9 @@ povheader = """
 
 #end
 
-#macro bond(pos1, pos2) 
+#macro bond(pos1, pos2, col) 
   cylinder {pos1, pos2, 0.1
-    pigment { Gray75 }
+    pigment { rgb col }
     finish {Atomic}
     }
 #end
@@ -183,9 +183,9 @@ povheader = """
 
 #end
 
-#macro bondr(rad, pos1, pos2) 
+#macro bondr(rad, pos1, pos2, col) 
   cylinder {pos1, pos2, rad
-    pigment { Gray75 }
+    pigment { rgb col }
     finish {Atomic}
     }
 #end
