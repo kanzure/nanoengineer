@@ -510,7 +510,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
     #  [Q: should it apply to the subset of the same element, if that's not all?
     #   Guess: yes. That further enhancement is NIM for now.])
     _transmuteContextMenuEntries = {
-        'Ae5': ['Ax5'],
+        'Ae3': ['Ax3'],
         'Ax3': ['Ae3'],
         'Pe3': ['Pl3', 'Sh3'],
         'Pl3': ['Pe5', 'Sh3'],
