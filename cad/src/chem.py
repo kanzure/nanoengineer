@@ -135,9 +135,6 @@ atKey = genKey(start = 1) # generator for atom.key attribute.
     # which sort in the same order as atoms are created (e.g. the order they're
     # read from an mmp file), so we now require this in the future even if the
     # key type is changed.
-    
-Element_Sj = PeriodicTable.getElement('Sj')
-Element_Ss = PeriodicTable.getElement('Ss')
 
 ###Huaicai: ... I'll add one more function for transferring
 ### vector to a string, which is mainly used for color vector
@@ -317,6 +314,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         # so imitating that seems most correct.
         
     ## dnaBaseName -- set when first demanded, or can be explicitly set using setDnaBaseName().
+    ## dnaStrandName -- set when first demanded, or can be explicitly set using setDnaStrandName().
 
     # _s_attr decls for state attributes -- children, parents, refs, bulky data, optional data [bruce 060223]
 
@@ -512,14 +510,22 @@ class Atom(AtomBase, InvalMixin, StateMixin):
     #  [Q: should it apply to the subset of the same element, if that's not all?
     #   Guess: yes. That further enhancement is NIM for now.])
     _transmuteContextMenuEntries = {
-        'Ae': ['Ax'],
-        'Ax': ['Ae'],
-        'Pe': ['Pl', 'Sh'],
-        'Pl': ['Pe', 'Sh'],
-        'Sh': ['Pe', 'Pl'],
-        'Sj': ['Ss'],
-        'Ss': ['Sj', 'Hp'],
-        'Hp': ['Ss'], #bruce 070412 added Ss <-> Hp; not sure if that's enough entries for Hp
+        'Ae5': ['Ax5'],
+        'Ax3': ['Ae3'],
+        'Pe3': ['Pl3', 'Sh3'],
+        'Pl3': ['Pe5', 'Sh3'],
+        'Sh3': ['Pe3', 'Pl3'],
+        'Sj3': ['Ss3'],
+        'Ss3': ['Sj3', 'Hp3'],
+        'Hp3': ['Ss3'],
+        'Ae5': ['Ax5'],
+        'Ax5': ['Ae5'],
+        'Pe5': ['Pl5', 'Sh5'],
+        'Pl5': ['Pe5', 'Sh5'],
+        'Sh5': ['Pe5', 'Pl5'],
+        'Sj5': ['Ss5'],
+        'Ss5': ['Sj5', 'Hp5'],
+        'Hp5': ['Ss5'], #bruce 070412 added Ss <-> Hp; not sure if that's enough entries for Hp
         }
     def make_selobj_cmenu_items(self, menu_spec):
         """Add self-specific context menu items to <menu_spec> list when self is the selobj,
@@ -547,7 +553,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 # and it can find the selatoms again.
                 #
                 # higher-level entry for Pl, first [bruce 070522, 070601]:
-                if fromSymbol == 'Pl' and doall and len(selatoms) == 2:
+                if fromSymbol == 'Pl5' and doall and len(selatoms) == 2:
 ##                    import crossovers
 ##                    try:
 ##                        reload(crossovers)### REMOVE WHEN DEVEL IS DONE; for debug only; will fail in a built release
@@ -728,18 +734,19 @@ class Atom(AtomBase, InvalMixin, StateMixin):
 
     def setDnaBaseName(self, dnaBaseName): # Mark 2007-08-16
         """
-        Set the Dna base name. This is only valid for PAM-5 Ss or Sj
+        Set the Dna base name. This is only valid for PAM Ss or Sj
         atoms.
         
         @param dnaBaseName: The DNA base name. This is usually a single letter,
                             but it can be more. Only letters are valid.
         @type  dnaBaseName: str
         
-        @raise: If self is not Sj or Ss, or if dnaBaseName has an invalid character(s).
+        @raise: If self is not Sj or Ss, or if dnaBaseName has an invalid 
+                character(s).
         
         """
-        assert (self.element == Element_Sj) or (self.element == Element_Ss), \
-            "Can only assign dnaBaseNames to Ss or Sj (PAM-5) atoms. \
+        assert self.element.symbol in ('Ss3', 'Sj3', 'Ss5', 'Sj5'), \
+            "Can only assign dnaBaseNames to Ss or Sj (PAM) atoms. \
             Attempting to assign dnaBaseName %r to element %r." \
             % (dnaBaseName, self.element.name)
         
@@ -759,6 +766,41 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         @rtype:  str
         """
         return self.__dict__.get('dnaBaseName', "")
+    
+    def setDnaStrandName(self, dnaStrandName): # Mark 2007-09-04
+        """
+        Set the Dna strand name. This is only valid for PAM-5 Pe atoms.
+        
+        @param dnaStrandName: The DNA strand name.
+        @type  dnaStrandName: str
+        
+        @raise: If self is not a Pe atom.
+        
+        """
+        assert self.element.symbol in ('Pe3', 'Pe5'), \
+            "Can only assign dnaStrandNames to Pe (PAM) atoms. \
+            Attempting to assign dnaStrandName %r to element %r." \
+            % (dnaStrandName, self.element.name)
+        
+        # Make sure dnaStrandName has all valid characters.
+        #@ Need to allow digits and letters. Mark 2007-09-04
+        """
+        for c in dnaStrandName:
+            if not c in string.letters:
+                assert 0, "Strand name %r has an invalid character (%r)." \
+                       % (dnaStrandName, c)"""
+                
+        self.dnaStrandName = dnaStrandName
+        
+    def getDnaStrandName(self):
+        """
+        Returns the value of attr I{dnaStrandName}.
+        
+        @return: The DNA strand name, or None if the attr I{dnaStrandName} does 
+                 not exist.
+        @rtype:  str
+        """
+        return self.__dict__.get('dnaStrandName', "")
         
     def posn(self):
         """Return the absolute position of the atom in space.
@@ -1493,6 +1535,10 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         dnaBaseName = self.getDnaBaseName()
         if dnaBaseName:
             mapping.write( "info atom dnaBaseName = %s\n" % dnaBaseName )
+        # Write dnaStrandName info record (only for Pe atoms). Mark 2007-09-04
+        dnaStrandName = self.getDnaStrandName()
+        if dnaStrandName:
+            mapping.write( "info atom dnaStrandName = %s\n" % dnaStrandName )
         #bruce 050511: also write atomtype if it's not the default
         atype = self.atomtype_iff_set()
         if atype is not None and atype is not self.element.atomtypes[0]:
@@ -1548,6 +1594,15 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 self.setDnaBaseName(val)
             except:
                 print "Found Atom info record with problem: dnaBaseName = %r, "\
+                       "element = %r (continuing)" % (val, self.element.name)
+                pass
+        
+        elif key == ['dnaStrandName']: # Mark 2007-09-04
+            try:
+                print "val =", val
+                self.setDnaStrandName(val)
+            except:
+                print "Found Atom info record with problem: dnaStrandName = %r, "\
                        "element = %r (continuing)" % (val, self.element.name)
                 pass
                  
@@ -1696,14 +1751,16 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         possible for the atom's element and the atom's type is not the default 
         type for that element.
         
-        If a PAM-5 Ss or Sj atom, returns a string like Ss28(A) with atom name
-        and dna base name.
+        If a PAM Ss or Sj atom, returns a string like Ss28(A) with atom name
+        and dna base name. If a PAM-5 Pe atom, include the DNA strand name. 
         """
         res = str(self)
         if self.atomtype is not self.element.atomtypes[0]:
             res += "(%s)" % self.atomtype.name
         if self.getDnaBaseName():
             res += "(%s)" % self.dnaBaseName
+        if self.getDnaStrandName():
+            res += "(%s)" % self.dnaStrandName
         return res
 
     def getToolTipInfo(self, glpane, isAtomPosition, isAtomChunkInfo, isAtomMass, atomDistPrecision):

@@ -145,10 +145,10 @@ class Dna:
                 # 'member' is a chunk containing a set of single base atoms
                 #  when creating an atomistic model of DNA.
                 # 'member' is a chunk containing a set of base-pair 
-                #  pseudo-atoms when creating a PAM-5 model of DNA.
+                #  PAM3 or PAM5 atoms when creating a reduced structure.
                 for atm in member.atoms.values():
                     atm._posn = tfm(atm._posn) + position
-                    if atm.element.symbol == "Ss":
+                    if atm.element.symbol in ('Ss3', 'Ss5'):
                         if atm.dnaBaseName == "a":
                             baseLetter = currentBaseLetter
                         else:
@@ -445,8 +445,12 @@ class B_Dna_PAM5(B_Dna):
         #  to the first Pe and Sh we saw, or to both of each if setting the same direction twice
         #  is allowed.)
         atoms = baseList[0].atoms.values()
-        Pe_list = filter( lambda atom: atom.element.symbol == 'Pe', atoms)
-        Sh_list = filter( lambda atom: atom.element.symbol == 'Sh', atoms)
+        Pe_list = filter( lambda atom: atom.element.symbol in ('Pe3', 'Pe5'), atoms)
+        Sh_list = filter( lambda atom: atom.element.symbol in ('Sh3', 'Sh5'), atoms)
+        
+        #Pe_list = filter( lambda atom: atom.element.symbol == 'Pe', atoms)
+        #Sh_list = filter( lambda atom: atom.element.symbol == 'Sh', atoms)
+        
         if len(Pe_list) == len(Sh_list) == 1:
             for atom in Pe_list:
                 assert len(atom.bonds) == 1
@@ -474,6 +478,12 @@ class B_Dna_PAM5(B_Dna):
             # instead we need to find and fix the bug in the rest of generator when number of bases == 1.
         return
     pass
+
+class B_Dna_PAM3(B_Dna_PAM5):
+    """
+    Provides a PAM-3 reduced model of the B form of DNA.
+    """
+    model      =  "PAM3"
 
 class Z_Dna(Dna):
     """

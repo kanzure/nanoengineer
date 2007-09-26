@@ -25,6 +25,8 @@ import env
 import os
 import random
 
+from constants import darkred, blue, lightgray
+
 from Utility        import Group
 from utilities.Log import redmsg, orangemsg, greenmsg
 from VQT            import A, Q, V, angleBetween, cross, vlen, Veq
@@ -37,7 +39,7 @@ from files_mmp      import _readmmp
 from fusechunksMode import fusechunksBase
 
 from Dna_Constants  import basesDict, getReverseSequence
-from Dna            import A_Dna_PAM5, B_Dna_PAM5, Z_Dna_PAM5
+from Dna            import B_Dna_PAM3, B_Dna_PAM5
 from Dna            import basepath, basepath_ok
 
 from GeneratorBaseClass import GeneratorBaseClass, CadBug, PluginBug, UserError
@@ -90,7 +92,8 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
         if not basepath_ok:
             raise PluginBug("The cad/plugins/DNA directory is missing.")
         
-        dnaType = str(self.conformationComboBox.currentText())
+        dnaModel = str(self.modelComboBox.currentText())
+        dnaType  = str(self.conformationComboBox.currentText())
 
         assert dnaType in ('B-DNA')
 
@@ -120,6 +123,7 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
         endpoint2 = V(x2, y2, z2)
 
         return (dnaSequence, 
+                dnaModel,
                 dnaType,
                 basesPerTurn,
                 chunkOption,
@@ -169,6 +173,7 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
         # No error checking in build_struct, do all your error
         # checking in gather_parameters
         theSequence, \
+        dnaModel, \
         dnaType, \
         basesPerTurn, \
         chunkOption, \
@@ -185,14 +190,10 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
             self.dna = None # Fixes bug 2530. Mark 2007-09-02
             return None
 
-        # Only B-DNA is currently supported. Leaving these conditionals
-        # in for future use. Mark 2007-09-02
-        if dnaType == 'A-DNA':
-            dna = A_Dna_PAM5()
-        elif dnaType == 'B-DNA':
+        if dnaModel == 'PAM3':
+            dna = B_Dna_PAM3()
+        else:
             dna = B_Dna_PAM5()
-        elif dnaType == 'Z-DNA':
-            dna = Z_Dna_PAM5()
         
         self.dna = dna  # needed for done msg
         
@@ -211,7 +212,7 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
         
             # Now group the DNA atoms based on the grouping option selected
             # (i.e. "Strand chunks" or "Single Chunk").
-            dnaGroup = self._makePAM5StrandAndAxisChunks(rawDnaGroup)
+            dnaGroup = self._makePAMStrandAndAxisChunks(rawDnaGroup)
             
             if chunkOption == 'Single chunk':
                 return self._makeDuplexChunk(dnaGroup)
@@ -394,6 +395,7 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
         dnaGroup.members[0].name = dnaGroup.name
         
         dnaChunk = dnaGroup.members[0]
+        dnaChunk.setcolor(None)
         dnaGroup.ungroup()
         
         return dnaChunk
@@ -404,8 +406,8 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
         letters to display in the name.
         
         @param strandNumber: The strand number, where:
-                             - 0 = Strand A
-                             - 1 = Strand B
+                             - 0 = Strand1
+                             - 1 = Strand2
                              - 2 = Axis (PAM5 only)
         @type  strandNumber: int
         
@@ -421,10 +423,10 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
         
         if strandNumber == 0:
             (sequence, allKnown) = self._getSequence()
-            strandName = 'StrandA'
+            strandName = 'Strand1'
         elif strandNumber == 1:
             (sequence, allKnown) = self._getSequence(complement=True)
-            strandName = 'StrandB'
+            strandName = 'Strand2'
         else:
             strandName = "Axis"
             
@@ -440,7 +442,7 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
                           
         return strandName
     
-    def _makePAM5StrandAndAxisChunks(self, rawDnaGroup):
+    def _makePAMStrandAndAxisChunks(self, rawDnaGroup):
         """
         Returns a group containing the three strand chunks I{StrandA},
         I{StrandB} and I{Axis} of the current DNA sequence.
@@ -462,13 +464,13 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
                 ))
             return rawDnaGroup
         
-        # <startAtoms> are the PAM5 atoms that start StrandA, StrandB and Axis.
+        # <startAtoms> are the PAM atoms that start StrandA, StrandB and Axis.
         # If the sequence is a single base, then we have 2 Pe atoms (one for 
         # strandA and one for StrandB.
         if self.getSequenceLength() == 1:
-            startAtoms = ("Pe", "Ae")
+            startAtoms = ('Pe3', 'Ae3', 'Pe5', 'Ae5')
         else:
-            startAtoms = ("Pe", "Sh", "Ae")
+            startAtoms = ('Pe3', 'Sh3', 'Ae3', 'Pe5', 'Sh5', 'Ae5')
         
         Pe_count = 0
         tempList      =  []
@@ -478,7 +480,7 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
                 tempList.append(atm)
                 atomList = self.win.assy.getConnectedAtoms(tempList)
                 tempList = []
-                if atm.element.symbol == "Pe":
+                if atm.element.symbol in ('Pe3', 'Pe5'):
                     Pe_count += 1
                     if Pe_count == 1:
                         strandAChunk = self._makeChunkFromAtomList(atomList)
@@ -489,12 +491,17 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
                         # for the sequence.
                         strandBChunk = self._makeChunkFromAtomList(atomList)
                         strandBChunk.name = self._getStrandName(1)
-                elif atm.element.symbol == "Sh":
+                elif atm.element.symbol in ('Sh3', 'Sh5'):
                     strandBChunk = self._makeChunkFromAtomList(atomList)
                     strandBChunk.name = self._getStrandName(1)
-                elif atm.element.symbol == "Ae":
+                elif atm.element.symbol in ('Ae3', 'Ae5'):
                     axisChunk = self._makeChunkFromAtomList(atomList)
                     axisChunk.name = self._getStrandName(2)
+        
+        # Assign default colors to strand and axis chunks.
+        strandAChunk.setcolor(darkred)
+        strandBChunk.setcolor(blue)
+        axisChunk.setcolor(lightgray)
         
         # Place strand and axis chunks in this order: StrandA, StrandB, Axis.
         rawDnaGroup.addmember(strandAChunk)

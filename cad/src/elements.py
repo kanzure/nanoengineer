@@ -197,14 +197,22 @@ class ElementPeriodicTable(Singleton):
         "Te" : (2.1,  [0.9, 0.35, 0.0]),
         "I" : (2.0,  [0.0, 0.5, 0.0]),
         "Xe" : (1.9,  [0.4, 0.45, 0.55]),
-        "Ax" : (5.0, [0.4, 0.4, 0.8]),    # DNA pseudo atom
-        "Ss" : (4.0, [0.4, 0.8, 0.4]),    # DNA pseudo atom
-        "Sj" : (4.0, [0.4, 0.8, 0.8]),    # DNA pseudo atom
-        "Pl" : (3.2, [0.4, 0.1, 0.5]),    # DNA pseudo atom
-        "Ae" : (3.5, [0.4, 0.4, 0.8]),    # DNA pseudo atom
-        "Pe" : (3.0, [0.4, 0.1, 0.5]),    # DNA pseudo atom
-        "Sh" : (2.5, [0.4, 0.8, 0.4]),    # DNA pseudo atom
-        "Hp" : (4.0, [0.3, 0.7, 0.3]),    # DNA pseudo atom
+        "Ax3" : (5.0, [0.4, 0.4, 0.8]),    # DNA pseudo atom
+        "Ss3" : (4.0, [0.4, 0.8, 0.4]),    # DNA pseudo atom
+        "Sj3" : (4.0, [0.4, 0.8, 0.8]),    # DNA pseudo atom
+        "Pl3" : (3.2, [0.4, 0.1, 0.5]),    # DNA pseudo atom
+        "Ae3" : (3.5, [0.4, 0.4, 0.8]),    # DNA pseudo atom
+        "Pe3" : (3.0, [0.4, 0.1, 0.5]),    # DNA pseudo atom
+        "Sh3" : (2.5, [0.4, 0.8, 0.4]),    # DNA pseudo atom
+        "Hp3" : (4.0, [0.3, 0.7, 0.3]),    # DNA pseudo atom
+        "Ax5" : (5.0, [0.4, 0.4, 0.8]),    # DNA pseudo atom
+        "Ss5" : (4.0, [0.4, 0.8, 0.4]),    # DNA pseudo atom
+        "Sj5" : (4.0, [0.4, 0.8, 0.8]),    # DNA pseudo atom
+        "Pl5" : (3.2, [0.4, 0.1, 0.5]),    # DNA pseudo atom
+        "Ae5" : (3.5, [0.4, 0.4, 0.8]),    # DNA pseudo atom
+        "Pe5" : (3.0, [0.4, 0.1, 0.5]),    # DNA pseudo atom
+        "Sh5" : (2.5, [0.4, 0.8, 0.4]),    # DNA pseudo atom
+        "Hp5" : (4.0, [0.3, 0.7, 0.3]),    # DNA pseudo atom
         }
       
     _altRad_Color = {
@@ -364,15 +372,25 @@ to put the C+ value.
                   ("I",  "Iodine",      53, 132.674,  [[1, 119, onebond]]),
                   ("Xe", "Xenon",       54, 134.429,  None),
 
-                  # B-DNA pseudo atoms (see also DIRECTIONAL_BOND_ELEMENTS below)
-                  ("Ax", "PAM5-Axis", 200, 1.0, [[4, 200, tetra4]]),
-                  ("Ss", "PAM5-Sugar", 201, 1.0, [[3, 210, flat]]),
-                  ("Pl", "PAM5-Phosphate", 202, 1.0, [[2, 210, tetra2]]),
-                  ("Sj", "PAM5-Sugar-Junction", 203, 1.0, [[3, 210, flat]]),
-                  ("Ae", "PAM5-Axis-End", 204, 1.0, [[1, 200, None, 'sp']]),
-                  ("Pe", "PAM5-Phosphate-End", 205, 1.0, [[1, 210, None, 'sp']]),
-                  ("Sh", "PAM5-Sugar-Hydroxyl", 206, 1.0, [[1, 210, None, 'sp']]), #bruce 070415: End->Hydroxyl per ED email
-                  ("Hp", "PAM5-Hairpin", 207, 1.0, [[2, 210, tetra2]]),
+                  # B-DNA PAM5 pseudo atoms (see also DIRECTIONAL_BOND_ELEMENTS below)
+                  ("Ax5", "PAM5-Axis", 200, 1.0, [[4, 200, tetra4]]),
+                  ("Ss5", "PAM5-Sugar", 201, 1.0, [[3, 210, flat]]),
+                  ("Pl5", "PAM5-Phosphate", 202, 1.0, [[2, 210, tetra2]]),
+                  ("Sj5", "PAM5-Sugar-Junction", 203, 1.0, [[3, 210, flat]]),
+                  ("Ae5", "PAM5-Axis-End", 204, 1.0, [[1, 200, None, 'sp']]),
+                  ("Pe5", "PAM5-Phosphate-End", 205, 1.0, [[1, 210, None, 'sp']]),
+                  ("Sh5", "PAM5-Sugar-Hydroxyl", 206, 1.0, [[1, 210, None, 'sp']]), #bruce 070415: End->Hydroxyl per ED email
+                  ("Hp5", "PAM5-Hairpin", 207, 1.0, [[2, 210, tetra2]]),
+                  
+                  # B-DNA PAM3 pseudo atoms (see also DIRECTIONAL_BOND_ELEMENTS below)
+                  ("Ax3", "PAM3-Axis", 300, 1.0, [[4, 200, tetra4]]),
+                  ("Ss3", "PAM3-Sugar", 301, 1.0, [[3, 210, flat]]),
+                  ("Pl3", "PAM3-Phosphate", 302, 1.0, [[2, 210, tetra2]]),
+                  ("Sj3", "PAM3-Sugar-Junction", 303, 1.0, [[3, 210, flat]]),
+                  ("Ae3", "PAM3-Axis-End", 304, 1.0, [[1, 200, None, 'sp']]),
+                  ("Pe3", "PAM3-Phosphate-End", 305, 1.0, [[1, 210, None, 'sp']]),
+                  ("Sh3", "PAM3-Sugar-Hydroxyl", 306, 1.0, [[1, 210, None, 'sp']]),
+                  ("Hp3", "PAM3-Hairpin", 307, 1.0, [[2, 210, tetra2]]),
                 ]
     _periodicTable = {}
     _eltName2Num = {}
@@ -552,8 +570,10 @@ to put the C+ value.
 
 # ==
 
-DIRECTIONAL_BOND_ELEMENTS = ('Ss', 'Pl', 'Sj', 'Pe', 'Sh', 'Hp') # symbols of elements which permit "directional bonds"
-    # We can't include X (for Singlet == bondpoint); for why, see comments where this constant is used. [bruce 070415]
+DIRECTIONAL_BOND_ELEMENTS = ('Ss5', 'Pl5', 'Sj5', 'Pe5', 'Sh5', 'Hp5',
+                             'Ss3', 'Pl3', 'Sj3', 'Pe3', 'Sh3', 'Hp3') 
+# symbols of elements which permit "directional bonds"
+# We can't include X (for Singlet == bondpoint); for why, see comments where this constant is used. [bruce 070415]
 
 # ==
 

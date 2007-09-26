@@ -389,7 +389,7 @@ prefs_table = (
     ('pi_bond_letters', 'boolean',                     pibondLetters_prefs_key, False ),
     ('show_valence_errors',        'boolean', showValenceErrors_prefs_key,   True ), #bruce 050806 made this up
     ('', 'int', linesDisplayModeThickness_prefs_key, 1), #mark 050831 made this up
-    ('', 'float', diBALL_BondCylinderRadius_prefs_key, 1.0), #mark 051003
+    ('', 'float', diBALL_BondCylinderRadius_prefs_key, 3.0), #mark 051003
     
     #ninad070504: Enable or disable display of arrow heads in DNA reduced model 
     #representation

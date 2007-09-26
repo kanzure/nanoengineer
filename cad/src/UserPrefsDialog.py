@@ -924,7 +924,7 @@ class Ui_UserPrefsDialog(object):
         self.vboxlayout12.setObjectName("vboxlayout12")
 
         self.cpk_cylinder_rad_spinbox = QtGui.QSpinBox(self.TabPage1)
-        self.cpk_cylinder_rad_spinbox.setMaximum(125)
+        self.cpk_cylinder_rad_spinbox.setMaximum(400)
         self.cpk_cylinder_rad_spinbox.setMinimum(50)
         self.cpk_cylinder_rad_spinbox.setProperty("value",QtCore.QVariant(100))
         self.cpk_cylinder_rad_spinbox.setObjectName("cpk_cylinder_rad_spinbox")

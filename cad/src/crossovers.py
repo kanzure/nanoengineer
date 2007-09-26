@@ -22,8 +22,8 @@ from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True, C
 import env
 
 from elements import PeriodicTable
-Element_Sj = PeriodicTable.getElement('Sj')
-Element_Ss = PeriodicTable.getElement('Ss')
+Element_Sj5 = PeriodicTable.getElement('Sj5')
+Element_Ss5 = PeriodicTable.getElement('Ss5')
 
 
 def crossover_menu_spec(atom, selatoms):
@@ -38,7 +38,7 @@ def crossover_menu_spec(atom, selatoms):
     atoms = selatoms.values()
     assert atom in atoms
     for a1 in atoms:
-        assert a1.element.symbol == 'Pl'
+        assert a1.element.symbol == 'Pl5'
 
     # Are these Pl atoms either:
     # - legitimate candidates for making a crossover,
@@ -46,7 +46,7 @@ def crossover_menu_spec(atom, selatoms):
     
     # They are candidates for making a crossover if:
     # - each one is in a double helix of pseudo-DNA (or locally appears to be) (ignoring Ss/Sj errors, though we'll fix them)
-    #   - this means, you can find the 5-ring of Pl-Ss-Ax-Ax-Ss-samePl... probably no more requirements are strictly needed
+    #   - this means, you can find the 5-ring of Pl5-Ss5-Ax5-Ax5-Ss5-samePl5... probably no more requirements are strictly needed
     # - the sets of involved atoms for each one don't overlap
     # - we *could* also require they're not nearby in the same helix, but we won't bother
     # - we *could* require geometric constraints, but we probably don't want to (and surely won't bother for now).
@@ -66,7 +66,7 @@ def crossover_menu_spec(atom, selatoms):
 
     ##e need to protect against exceptions while considering adding each item
     
-    twoPls = map( Pl_recognizer, atoms)
+    twoPls = map( Pl5_recognizer, atoms)
     Pl1, Pl2 = twoPls
 
     # Both Make and Remove Crossover need the strand directions to be well-defined,
@@ -83,7 +83,7 @@ def crossover_menu_spec(atom, selatoms):
     
         # maybe add a "Make Crossover" command
         if make_crossover_ok(twoPls):
-            text = "Make Crossover (%s - %s)" % (Pl1.atom, Pl2.atom) #e or print the Pl_recognizer objects in the menu text??
+            text = "Make Crossover (%s - %s)" % (Pl1.atom, Pl2.atom) #e or print the Pl5_recognizer objects in the menu text??
             cmdname = "Make Crossover" ###k for undo -- maybe it figures this out itself due to those parens?? evidently not.
             command = (lambda twoPls = twoPls: make_crossover(twoPls))
             res.append((text, command)) ###e how to include cmdname?? or kluge this by having text include a prefix-separator?
@@ -128,7 +128,10 @@ def make_crossover_ok(twoPls): ##### NEED TO MAKE THIS A RECOGNIZER so it can ea
     return False # from make_crossover_ok
 
 def remove_crossover_ok(twoPls):
-    "figure out whether to offer Remove Crossover, assuming bond directions are well-defined"
+    """
+    Figure out whether to offer Remove Crossover, assuming bond directions are
+    well-defined.
+    """
     
 ##    when = debug_pref("Offer Remove Crossover...",
 ##                      Choice(["never", "always (even when incorrect)"]),
@@ -237,37 +240,44 @@ def element_matcher(sym):
     return func
 
 
-class Base_recognizer(StaticRecognizer):
-    """StaticRecognizer for a base of pseudo-DNA (represented by its Ss or Sj atom).
-       WARNING: it's an error to call this on any other kind of atom, and the constructor raises an exception if you do.
-       Note: it's *not* an error to call it on a legal kind of atom, regardless of that atom's surroundings.
-    Any structural errors detected around that atom (or on it, e.g. its valence)
-    should not cause exceptions from the constructor or from any attr accesses,
-    but only the use of fallback values for computed attrs, and/or the setting of an error flag,
-    and (in the future) the tracking of errors and warnings into the dynenv.
+class Base5_recognizer(StaticRecognizer):
+    """
+    StaticRecognizer for a base of PAM-DNA (represented by its Ss or Sj 
+    atom).
+    
+    @warning: it's an error to call this on any other kind of atom, and the 
+    constructor raises an exception if you do.
+    
+    @note: it's *not* an error to call it on a legal kind of atom, regardless of 
+    that atom's surroundings. Any structural errors detected around that atom 
+    (or on it, e.g. its valence) should not cause exceptions from the 
+    constructor or from any attr accesses, but only the use of fallback values
+    for computed attrs, and/or the setting of an error flag, and (in the 
+    future) the tracking of errors and warnings into the dynenv.
     """
     def __init__(self, atom):
         self.atom = atom
-        assert atom.element.symbol in ('Ss','Sj')
-            #e other possibilities for init args might be added later (we might become a polymorphic constructor).
+        assert atom.element.symbol in ('Ss5', 'Sj5')
+            #e other possibilities for init args might be added later 
+            #e (we might become a polymorphic constructor).
         return
     def _C_axis_atom(self):
         """[compute method for self.axis_atom]
-        Return our sole Ax neighbor;
+        Return our sole Ax5 neighbor;
         on error or if our valence is wrong, raise RecognizerError
         (which means the computed value will be None).
         """
         nn = self.atom.neighbors()
         if not len(nn) == 3:
             raise RecognizerError("%s should have exactly three neighbor atoms" % self.atom)
-        axes = filter( element_matcher('Ax'), nn)
+        axes = filter( element_matcher('Ax5'), nn)
         if not len(axes) == 1:
-            raise RecognizerError("%s should have exactly one Ax neighbor" % self.atom)
+            raise RecognizerError("%s should have exactly one Ax5 neighbor" % self.atom)
         return axes[0]
     def _C_in_helix(self):
         """[compute method for self.in_helix]
         Are we resident in a helix? (Interpreted as: do we have an Ax atom --
-        the other base on the same Ax (presumably on the other backbone strand)
+        the other base on the same Ax5 (presumably on the other backbone strand)
         is not looked for and might be missing.)
         """
         return self.axis_atom is not None
@@ -275,7 +285,7 @@ class Base_recognizer(StaticRecognizer):
 
 
 def bases_are_stacked(bases):
-    """Say whether two Base_recognizers' bases are in helices, and stacked (one to the other).
+    """Say whether two Base5_recognizers' bases are in helices, and stacked (one to the other).
     For now, this means they have Ax (axis) pseudoatoms which are directly bonded (but not the same atom).
        WARNING: This is not a sufficient condition, since it doesn't say whether they're on the same "side" of the helix!
     Unfortunately that is not easy to tell (or even define, in the present model)
@@ -291,7 +301,7 @@ def bases_are_stacked(bases):
         print "following exception concerns bases == %r" % (bases,)
     assert len(bases) == 2, "bases == %r should be a sequence of length 2" % (bases,)
     for b in bases:
-        assert isinstance(b, Base_recognizer)
+        assert isinstance(b, Base5_recognizer)
     for b in bases:
         if not b.in_helix: # i.e. b.axis_atom is not None
             return False
@@ -299,34 +309,44 @@ def bases_are_stacked(bases):
     return b1.axis_atom is not b2.axis_atom and atoms_are_bonded(b1.axis_atom, b2.axis_atom)
 
 
-class Pl_recognizer(StaticRecognizer):
-    """StaticRecognizer for surroundings of a Pl atom in pseudo-DNA.
+class Pl5_recognizer(StaticRecognizer):
+    """
+    StaticRecognizer for surroundings of a Pl5 atom in pseudo-DNA.
     """
     def __init__(self, atom):
         self.atom = atom
-        assert atom.element.symbol == 'Pl'
+        assert atom.element.symbol == 'Pl5'
     def _C_unordered_bases(self):
-        """[compute method for self.unordered_bases]
-        Require self.atom to have exactly two neighbors, and for them to be Ss or Sj.
-        Then return those atoms, wrapped in Base_recognizer objects (which may or may not be .in_helix).
-           Note that the bases are arbitrarily ordered; see also _C_ordered_bases.
-           WARNING: value will be None (not a sequence) if a RecognizerError was raised.
-        [###REVIEW: should we pass through that exception, instead, for this attr? Or assign a different error value?]
+        """
+        [compute method for self.unordered_bases]
+        Require self.atom to have exactly two neighbors, and for them to be 
+        Ss5 or Sj5. Then return those atoms, wrapped in Base5_recognizer objects
+        (which may or may not be .in_helix).
+        
+        @note: the bases are arbitrarily ordered; see also _C_ordered_bases.
+           
+        @warning: value will be None (not a sequence) if a RecognizerError was
+                  raised.
+        [###REVIEW: should we pass through that exception, instead, for this 
+        attr? Or assign a different error value?]
         """
         nn = self.atom.neighbors()
         if not len(nn) == 2:
-            raise RecognizerError("Pl should have exactly two neighbor atoms")
+            raise RecognizerError("Pl5 should have exactly two neighbor atoms")
         for n1 in nn:
-            if not n1.element.symbol in ('Ss','Sj'):
-                raise RecognizerError("Pl neighbor %s should be Ss or Sj" % n1)
-        bases = map(Base_recognizer, nn) # should always succeed
+            if not n1.element.symbol in ('Ss5','Sj5'):
+                raise RecognizerError("Pl5 neighbor %s should be Ss5 or Sj5" % n1)
+        bases = map(Base5_recognizer, nn) # should always succeed
         return bases
     def _C_ordered_bases(self):
-        """[compute method for self.ordered_bases]
-        Return our two bases (as Base_recognizer objects, which may or may not be .in_helix),
+        """
+        [compute method for self.ordered_bases]
+        Return our two bases (as Base5_recognizer objects, which may or may not be .in_helix),
         in an order consistent with backbone bond direction,
         which we require to be locally defined in a consistent way.
-           WARNING: value will be None (not a sequence) if a RecognizerError was raised.
+        
+        @warning: value will be None (not a sequence) if a RecognizerError was 
+                  raised.
         """
         if self.unordered_bases is None:
             raise RecognizerError("doesn't have two bases")
@@ -374,7 +394,8 @@ class Pl_recognizer(StaticRecognizer):
 ##        # hmm, that's not enough to "be in a crossover"! but it's necessary. rename? just let caller use not thing.in_only_one_helix?
 ##        nim
     def _C_in_only_one_helix(self):
-        """[compute method for self.in_only_one_helix]
+        """
+        [compute method for self.in_only_one_helix]
         Say whether we're in one helix.
         (And return that helix? No -- we don't yet have anything to represent it with.
          Maybe return the involved atoms? For that, see _C_involved_atoms_for_create_crossover.)
@@ -383,14 +404,15 @@ class Pl_recognizer(StaticRecognizer):
         # And, when that happens, is it right for this to return False (not True, not an exception)?
         return self.unordered_bases is not None and bases_are_stacked(self.unordered_bases)
     def _C_involved_atoms_for_make_crossover(self):
-        """[compute method for self.involved_atoms_for_make_crossover]
+        """
+        [compute method for self.involved_atoms_for_make_crossover]
         Compute a set of atoms directly involved in using self to make a new crossover.
         Two Pl atoms will only be allowed to be in a newly made crossover
         if (among other things) their sets of involved atoms don't overlap.
            Require that these atoms are each in one helix.
         """
         if not self.in_only_one_helix:
-            raise RecognizerError("Pl atom must be in_only_one_helix")
+            raise RecognizerError("Pl5 atom must be in_only_one_helix")
         res = self._involved_atoms_for_make_or_remove_crossover
         if not len(res) == 5: # can this ever fail do to a structural error?? actually it can -- Ax atoms can be the same
             raise RecognizerError("structural error (two bases on one Pl and one Ax??)")
@@ -415,14 +437,14 @@ class Pl_recognizer(StaticRecognizer):
             if b.axis_atom is not None: # otherwise not self.in_only_one_helix, but for _remove_ case we don't know that
                 include(b.axis_atom)
         return res
-    pass # Pl_recognizer
+    pass # Pl5_recognizer
 
 # ==
 
 def remove_crossover(twoPls):
     assert len(twoPls) == 2
     for pl in twoPls:
-        assert isinstance(pl, Pl_recognizer)
+        assert isinstance(pl, Pl5_recognizer)
     assert remove_crossover_ok(twoPls)
     
     make_or_remove_crossover(twoPls, make = False, cmdname = "Remove Crossover")
@@ -431,14 +453,14 @@ def remove_crossover(twoPls):
 def make_crossover(twoPls):
     assert len(twoPls) == 2
     for pl in twoPls:
-        assert isinstance(pl, Pl_recognizer)
+        assert isinstance(pl, Pl5_recognizer)
     assert make_crossover_ok(twoPls)
     
     make_or_remove_crossover(twoPls, make = True, cmdname = "Make Crossover")
     return
 
 def make_or_remove_crossover(twoPls, make = True, cmdname = None):
-    "Make or Remove (according to make option) a crossover, given Pl_recognizers for its two Pl atoms."
+    "Make or Remove (according to make option) a crossover, given Pl5_recognizers for its two Pl atoms."
 
     # What we are doing is recognizing one local structure and replacing it with another
     # made from the same atoms. It'd sure be easier if I could do the manipulation in an mmp file,
@@ -509,13 +531,13 @@ def make_or_remove_crossover(twoPls, make = True, cmdname = None):
         bond = find_bond(obj1.atom, obj2.atom)
         bond.set_bond_direction_from(obj1.atom, 1)
 
-    # WARNING: after that bond rearrangement, don't use our Pl_recognizers in ways that depend on Pl bonding,
+    # WARNING: after that bond rearrangement, don't use our Pl5_recognizers in ways that depend on Pl bonding,
     # since it's not well defined whether they think about the old or new bonding to give their answers.    
     Pl_atoms = Pl1.atom, Pl2.atom
     del Pl1, Pl2, twoPls
 
     # transmute base sugars to Sj or Ss as appropriate
-    want = make and Element_Sj or Element_Ss
+    want = make and Element_Sj5 or Element_Ss5
     for obj in (a,b,c,d):
         obj.atom.Transmute(want)
         # Note: we do this after the bond making/breaking so it doesn't add singlets which mess us up.

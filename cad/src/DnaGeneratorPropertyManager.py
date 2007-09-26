@@ -63,8 +63,8 @@ from DebugMenuMixin import DebugMenuMixin
 
 # DNA model type variables
 #  (indices for model... and conformation... comboboxes).
-REDUCED_MODEL    =  0
-ATOMISTIC_MODEL  =  1
+#@REDUCED_MODEL    =  0
+#@ATOMISTIC_MODEL  =  1
 BDNA             =  0
 ZDNA             =  1
 
@@ -118,10 +118,11 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
                               _action_RemoveUnrecognized,
                               _action_ConvertUnrecognized ]
 
-    _modeltype_Reduced    =  "Reduced"
-    _modeltype_Atomistic  =  "Atomistic"
-    _modelChoices          =  [ _modeltype_Reduced,
-                                _modeltype_Atomistic ]
+    _modeltype_PAM3       =  "PAM3"
+    _modeltype_PAM5       =  "PAM5"
+    _modeltype_Atomistic  =  "Atomistic" # Depreciated
+    _modelChoices          =  [ _modeltype_PAM3,
+                                _modeltype_PAM5 ]
 
     def __init__( self ):
         """
@@ -239,6 +240,12 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
         Load widgets in group box 2.
         """
         
+        self.modelComboBox  = \
+            PM_ComboBox( pmGroupBox,
+                         label         =  "Model :", 
+                         choices       =  self._modelChoices,
+                         setAsDefault  =  True)
+        
         self.conformationComboBox  = \
             PM_ComboBox( pmGroupBox,
                          label         =  "Conformation :", 
@@ -258,8 +265,8 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
         # I may decide to reintroduce "base-pair chunks" at a later time.
         # Please talk to me if you have a strong feeling about including
         # this. Mark 2007-08-19.
-        createChoices        =  ["Single chunk", \
-                                 "Strand chunks" ]
+        createChoices        =  ["Strand chunks", \
+                                 "Single chunk" ]
                                  #@ "Base-pair chunks"] 
                                  
         self.createComboBox  = \
@@ -439,7 +446,10 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
         
         self.conformationComboBox.clear() # Generates signal!
         
-        if conformation == self._modeltype_Reduced:            
+        if conformation == self._modeltype_PAM3:            
+            self.conformationComboBox.addItem("B-DNA")
+            
+        elif conformation == self._modeltype_PAM5:            
             self.conformationComboBox.addItem("B-DNA")
             
         elif conformation == self._modeltype_Atomistic:            
