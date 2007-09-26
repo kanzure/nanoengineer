@@ -15,10 +15,25 @@ from debug_prefs import Choice
 from debug_prefs import debug_pref
 
 DEPTH_TWEAK_UNITS = (2.0)**(-32)
-DEPTH_TWEAK_VALUE = 5000
-    # For bond cylinders subject to shorten_tubes, 300 is enough to fix them
+DEPTH_TWEAK_VALUE = 100000
+    # For bond cylinders subject to shorten_tubes:
+    # on my iMac G5, 300 is enough to prevent "patchy highlighting" problems
     # except sometimes at the edges. 5000 even fixes the edges and causes no
-    # known harm. [bruce 070921]
+    # known harm, so we'd use that value if only that platform mattered.
+    #
+    # But, on Windows XP (Ninad & Tom), much higher values are needed.
+    # By experiment, 100000 is enough on those platforms, and doesn't seem to
+    # be too large on them or on my iMac, so we'll go with that for now,
+    # but leave it in as a debug_pref. (We made no attempt to get a precise
+    # estimate of the required value -- we only know that 10000 is not enough.)
+    #
+    # We don't know why a higher value is needed on Windows. Could the
+    # depth buffer bit depth be different?? This value works out to a bit
+    # more than one resolution unit for a 16-bit depth buffer, so that might
+    # be a plausible cause. But due to our limited testing, the true difference
+    # in required values on these platforms might be much smaller.
+    #
+    # [bruce 070926]
 
 DEPTH_TWEAK = DEPTH_TWEAK_UNITS * DEPTH_TWEAK_VALUE
     # changed by setDepthRange_setup_from_debug_pref
