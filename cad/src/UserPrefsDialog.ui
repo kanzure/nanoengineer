@@ -22,7 +22,7 @@
    <item row="0" column="0" >
     <widget class="QTabWidget" name="prefs_tab" >
      <property name="currentIndex" >
-      <number>1</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="tab" >
       <attribute name="title" >
@@ -2109,7 +2109,7 @@
               <string>%</string>
              </property>
              <property name="maximum" >
-              <number>125</number>
+              <number>400</number>
              </property>
              <property name="minimum" >
               <number>50</number>
