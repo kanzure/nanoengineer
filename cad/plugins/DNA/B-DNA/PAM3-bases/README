@@ -1,0 +1,18 @@
+$Id: $
+
+Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+
+These files are used by Dna.py to create PAM3 DNA structures in the 
+CAD program:
+
+- StartBasePair.mmp
+- MiddleBasePair.mmp
+- EndBasePair.mmp
+- SingleBasePair.mmp
+
+Each file contains two "Ss3" (Sugar) pseudo atoms named "a" and "b" (via the 
+new Atom "dnaBaseName" info records) which get assigned their permanent 
+base letters when the DNA structure is generated (see Dna.make()). 
+The "a" atom belongs to "Strand1" and atom "b" (the complement of "a") belongs
+to "Strand2".
+

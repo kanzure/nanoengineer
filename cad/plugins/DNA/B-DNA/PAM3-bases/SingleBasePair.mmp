@@ -1,0 +1,57 @@
+mmpformat 050920 required; 070415 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (Untitled)
+info opengroup open = True
+mol (DNA-1) def
+atom 1 (300) (0, 0, 3180) def
+atom 2 (304) (0, 0, 4770) def
+bond1 1
+atom 3 (301) (-5112, 7036, 3180) def
+info atom dnaBaseName = A
+bond1 1
+atom 4 (305) (-7600, 5229, 3341) def
+info atom dnaStrandName = Strand1
+bond1 3
+bond_direction 4 3
+atom 5 (301) (8632, -1060, 3180) def
+info atom dnaBaseName = T
+bond1 1
+atom 6 (306) (7859, 586, 3179) def
+bond1 5
+bond_direction 5 6
+atom 7 (300) (0, 0, 0) def
+bond1 1
+atom 8 (301) (0, 8697, 0) def
+info atom dnaBaseName = B
+bond1 7 3
+atom 9 (301) (6361, -5931, 0) def
+info atom dnaBaseName = V
+bond1 7 5
+atom 10 (300) (0, 0, -3179) def
+bond1 7
+atom 11 (304) (0, 0, -4769) def
+bond1 10
+atom 12 (301) (5112, 7036, -3179) def
+info atom dnaBaseName = C
+bond1 10 8
+atom 13 (306) (5609, 5476, -3973) def
+bond1 12
+bond_direction 12 13
+atom 14 (301) (1659, -8537, -3179) def
+info atom dnaBaseName = G
+bond1 10 9
+atom 15 (305) (-1360, -9126, -3338) def
+info atom dnaStrandName = Strand2
+bond1 14
+bond_direction 15 14
+egroup (Untitled)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part Untitled
