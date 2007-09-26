@@ -1,11 +1,11 @@
-mmpformat 050920 required; 060421 preferred
+mmpformat 050920 required; 070415 preferred
 kelvin 300
 group (View Data)
 info opengroup open = True
 csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
 csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
 egroup (View Data)
-group (aNy base)
+group (MiddleBasePair)
 info opengroup open = True
 mol (aNy base) def
 atom 1 (200) (0, 0, 0) def
@@ -13,27 +13,27 @@ atom 2 (0) (0, 0, 1590) def
 bond1 1
 atom 3 (0) (0, 0, -1590) def
 bond1 1
-atom 4 (201) (6760, 0, 0) def
+atom 4 (201) (1, 6759, 0) def
 info atom dnaBaseName = a
 bond1 1
-atom 5 (202) (8699, 2638, 1590) def
+atom 5 (202) (-2637, 8697, 1590) def
 bond1 4
-atom 6 (0) (7160, 3197, 2385) def
+atom 6 (0) (-3195, 7159, 2385) def
 bond1 5
-atom 7 (0) (7729, -1319, -795) def
+atom 7 (0) (1319, 7728, -795) def
 bond1 4
-atom 8 (201) (-4610, -4943, 0) def
+atom 8 (201) (4942, -4610, 0) def
 info atom dnaBaseName = b
 bond1 1
-atom 9 (202) (-7863, -4562, -1590) def
+atom 9 (202) (4561, -7862, -1590) def
 bond1 8
-atom 10 (0) (-7221, -3056, -2385) def
+atom 10 (0) (3055, -7221, -2385) def
 bond1 9
-atom 11 (0) (-4306, -6553, 795) def
+atom 11 (0) (6552, -4306, 795) def
 bond1 8
-egroup (aNy base)
+egroup (MiddleBasePair)
 end1
 group (Clipboard)
 info opengroup open = False
 egroup (Clipboard)
-end molecular machine part midbase
+end molecular machine part MiddleBasePair

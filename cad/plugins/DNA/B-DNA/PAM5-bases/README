@@ -10,5 +10,9 @@ CAD program:
 - EndBasePair.mmp
 - SingleBasePair.mmp
 
-Each file contains two "Ss" (Sugar) pseudo atoms named "a" and "b" (via the new Atom "dnaBaseName" info records) which get assigned their permanent base letters when the DNA structure is generated (see Dna.make()). The "a" atom belongs to strand A and atom "b" (the complement of "a") belongs to strand B.
+Each file contains two "Ss" (Sugar) pseudo atoms named "a" and "b" (via the 
+new Atom "dnaBaseName" info records) which get assigned their permanent 
+base letters when the DNA structure is generated (see Dna.make()). 
+The "a" atom belongs to "Strand1" and atom "b" (the complement of "a") belongs
+to "Strand2".
 
