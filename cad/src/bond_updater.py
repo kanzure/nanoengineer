@@ -44,7 +44,7 @@ def _update_bonds_after_each_event( changed_structure_atoms):
     # I guess the latter is good, since that way it can update the bond orders in those views as well!
     # However, debug tests showed that the elt selector thumbviews need a separate redraw to show this...
     # that's ok, they're only supposed to draw single-bond atypes anyway.
-    """[should be called only from env.post_event_updates]
+    """[should be called only from env.do_post_event_updates]
        This should be called at the end of every user event which might affect
     the atomtypes or bond-sets of any atoms or singlets, which are passed as the
     values of the dict changed_structure_atoms, which we should not modify
@@ -204,7 +204,7 @@ changed_bond_types = {} # dict for bonds whose bond-type gets changed (need not 
 
 # the beginnings of a general change-handling scheme [bruce 050627]
 
-def _bond_updater_post_event_handler( warn_if_needed = False ):
+def _bond_updater_post_event_model_updater( warn_if_needed = False ):
     """
        This should be called at the end of every user event which might have changed
     anything in any loaded model which defers some updates to this function.
@@ -239,7 +239,7 @@ def _bond_updater_post_event_handler( warn_if_needed = False ):
     # some changes occurred, so this function needed to be called (even if they turn out to be trivial)
     if warn_if_needed and env.debug():
         # whichever user event handler made these changes forgot to call this function when it was done!
-        print "atom_debug: post_event_updates should have been called before, but wasn't!" #e use print_compact_stack??
+        print "atom_debug: do_post_event_updates should have been called before, but wasn't!" #e use print_compact_stack??
         pass # (other than printing this, we handle unreported changes normally)
     # handle and clear all changes since the last call
     # (in the proper order, when there might be more than one kind of change #nim)
@@ -274,6 +274,6 @@ def _bond_updater_post_event_handler( warn_if_needed = False ):
 
 
 def initialize():
-    env.register_post_event_handler(_bond_updater_post_event_handler)
+    env.register_post_event_model_updater(_bond_updater_post_event_model_updater)
 
 # end

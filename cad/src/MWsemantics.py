@@ -595,8 +595,15 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
             self.addPartWindow(self.assy)
         else:
             self.init_part_two()
-        return # from MWsemantics.__init__
+
+        env.register_post_event_ui_updater( self.post_event_ui_updater) #bruce 070925
         
+        return # from MWsemantics.__init__
+
+    def post_event_ui_updater(self): #bruce 070925
+        self.glpane.mode.state_may_have_changed()
+        return
+    
     def createPopupMenu(self):#Ninad 070328
 	''' Reimplemented createPopPupMenu method that allows 
 	display of custom context menu (toolbars and dockwidgets) 
@@ -2216,6 +2223,6 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         return
     
     pass # end of class MWsemantics
-
+    
 # end
 

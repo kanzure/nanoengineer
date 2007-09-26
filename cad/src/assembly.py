@@ -428,8 +428,8 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
         """
         #bruce 060127: as of now, I'll be calling update_parts
         # before every undo checkpoint (begin and end both), so that all resulting changes
-        # (and the effect of calling assy.changed, now often done by post_event_updates as of yesterday)
-        # get into the same undo diff.) [similar comment is in post_event_updates]
+        # (and the effect of calling assy.changed, now often done by do_post_event_updates as of yesterday)
+        # get into the same undo diff.) [similar comment is in do_post_event_updates]
         #
         ###@@@ revise the following comment, it's just notes during development:
         # this is a simple brute-force scan, which might be good enough, and if so might be the simplest method that could work.
@@ -461,7 +461,7 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
         assert self.selgroup_part(sg)
         # 050519 new feature: since bonds might have been broken above (by break_interpart_bonds), do this too:
         ## self.update_bonds() #e overkill -- might need to be optimized
-        env.post_event_updates() #bruce 050627 this replaces update_bonds
+        env.do_post_event_updates() #bruce 050627 this replaces update_bonds
         return
     
     def ensure_one_part(self, node, part_constructor): #bruce 050420 revised this to help with bug 556; revised again 050527

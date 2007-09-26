@@ -136,8 +136,8 @@ class anyMode( StateMixin): #bruce 060223 renamed mixin class
     # name of mode to be shown to users, as a phrase, e.g. 'sketch mode'
     msg_modename = "(bug: unknown mode)"
     
-    #Mode's property manager. Subclasses should initialize the propMgr object 
-    #if they need one.     
+    # Mode's property manager. Subclasses should initialize the propMgr object 
+    # if they need one.     
     propMgr = None
     
     def get_mode_status_text(self):
@@ -160,7 +160,16 @@ class anyMode( StateMixin): #bruce 060223 renamed mixin class
 
     def update_cursor(self): #bruce 070410
         return
-        
+
+    def selection_changed(self): #bruce 070925
+        return
+    
+    def model_changed(self): #bruce 070925
+        return
+
+    def state_may_have_changed(self): #bruce 070925
+        return
+    
     pass # end of class anyMode
 
 
@@ -736,7 +745,61 @@ class basicMode(anyMode):
             # fyi: this gets the text from self.get_mode_status_text();
             # mode_obj = self is needed in case glpane.mode == nullMode
             #  at the moment.
-        
+
+    def selection_changed(self): #bruce 070925 added this to mode/command API
+        """
+        Subclasses should extend this (or make sure their self.propMgr defines
+        it) to check whether any selection state has changed that should be
+        reflected in their UI, and if so, update their UI accordingly.
+        It will be called at most approximately once per user mouse or key
+        event. The calling code should try not to call it when not needed,
+        but needn't guarantee this, so implementations should try to be fast
+        when the call was not needed.
+           Model state or other selection state should NOT be updated by
+        this method -- doing so may cause bugs of a variety of kinds,
+        for example in the division of changes into undoable commands
+        or in the consistency of state which requires update calls after
+        it's changed.
+           See also update_gui; this method is typically implemented
+        more efficiently and called much more widely, and (together with
+        similar new methods for other kinds of state) should eventually
+        replace update_gui.
+        """
+        ### REVIEW: Decide whether highlighting (selobj) is covered by it (guess yes -- all kinds of selection).
+        ### maybe TODO: call when entering/resuming the mode, and say so, and document order of call
+        # relative to update_gui. And deprecate update_gui or make it more efficient.
+        # And add other methods that only use usage-tracked state and are only called as needed.
+        if self.propMgr:
+            if hasattr( self.propMgr, 'selection_changed'):
+                self.propMgr.selection_changed()
+        return
+
+    def model_changed(self): #bruce 070925 added this to mode/command API
+        """
+        Subclasses should extend this (or make sure their self.propMgr defines
+        it) to check whether any model state has changed that should be
+        reflected in their UI, and if so, update their UI accordingly.
+           Model state or selection state should NOT be updated by
+        this method.
+           See selection_changed docstring for more info.
+        """
+        ### maybe TODO: same as for selection_changed.
+        if self.propMgr:
+            if hasattr( self.propMgr, 'model_changed'):
+                self.propMgr.model_changed()
+        return
+
+    def state_may_have_changed(self): #bruce 070925 added this to mode/command API
+        """
+        Call model_changed and/or selection_changed as needed, in that order.
+        Not normally overridden by subclasses [I hope].
+        Called by env.do_post_event_updates.
+        """
+        ### TODO: call each method only when needed, using assy change counters, and maybe a selobj test.
+        self.model_changed()
+        self.selection_changed()
+        return
+    
     def get_mode_status_text(self):        
         """##### new method, bruce 040927; doc is tentative [maybe
            already obs?]; btw this overrides an AnyMode method:        

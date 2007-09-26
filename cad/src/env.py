@@ -290,36 +290,83 @@ def dealloc_my_glselect_name(obj, name):
 
 # ==
 
-_post_event_handlers = []
+# support for post_event_updater functions of various kinds
 
-def register_post_event_handler(function):
+# Note: we separate the kinds because we need to do them in a certain order
+# (model updaters before UI updaters), and because future refactoring
+# is likely to move responsibility for maintaining the list of updaters,
+# and for calling them, to different modules or objects, based on their kind.
+
+_post_event_model_updaters = []
+
+def register_post_event_model_updater(function):
     """
-    Add a function to the list of those called when post_event_updates is called.
+    Add a function to the list of model updaters called whenever
+    do_post_event_updates is called.
 
     The function should take a single boolean argument,
     warn_if_needed.  If the function is called with warn_if_needed
     True, and the function determines that it needs to take any
-    action, a warning will be issued.  This helps catch code which
-    failed to call post_event_updates when it needed to.
-    """
-    global _post_event_handlers
-    if (not function in _post_event_handlers):
-        _post_event_handlers += [function]
+    action, the function may issue a warning.  This helps catch code which
+    failed to call do_post_event_updates when it needed to.
 
-def post_event_updates( warn_if_needed = False ):
+    WARNING: the functions are called in the order added; when order matters,
+    the application initialization code needs to make sure they're added
+    in the right order.
+
+    USAGE NOTE: there is intentionally no way to remove a function from this
+    list. Application layers should add single functions to this list in the
+    right order at startup time, and those should maintain their own lists
+    of registrants if dynamic add/remove is needed within those layers.
+
+    See also: register_post_event_ui_updater.
+    """
+    assert not function in _post_event_model_updaters
+        # Rationale: since order matters, permitting transparent multiple inits
+        # would be inviting bugs. If we ever need to support reload for
+        # developers, we should let each added function handle that internally,
+        # or provide a way of clearing the list or replacing a function in-place.
+        #  (Note: it's possible in theory that one update function would need
+        # to be called in two places within the list. If that ever happens,
+        # remove this assert, or work around it by using a wrapper function.)
+    _post_event_model_updaters.append( function)
+    return
+
+_post_event_ui_updaters = []
+
+def register_post_event_ui_updater(function):
+    """
+    Add a function to the list of ui updaters called whenever
+    do_post_event_updates is called. All ui updaters are called
+    after all model updaters.
+
+    The function should take no arguments.
+
+    WARNING & USAGE NOTE: same as for register_post_event_model_updater.
+    """
+    assert not function in _post_event_ui_updaters
+    _post_event_ui_updaters.append( function)
+    return
+
+
+def do_post_event_updates( warn_if_needed = False ):
     """[public function]
        This should be called at the end of every user event which might have changed
     anything in any loaded model which defers some updates to this function.
     (Someday there will be a general way for models to register their updaters here,
-    so that they are called in the proper order. For now, that's hardcoded.)
+    so that they are called in the proper order. For now, the order has to be hardcoded.)
        This can also be called at the beginning of user events, such as redraws or saves,
     which want to protect themselves from event-processors which should have called this
     at the end, but forgot to. Those callers should pass warn_if_needed = True, to cause
     a debug-only warning to be emitted if the call was necessary. (This function is designed
     to be very fast when called more times than necessary.)
     """
-    for function in _post_event_handlers:
+    # do all model updaters before any ui updaters
+    for function in _post_event_model_updaters:
         (function)(warn_if_needed)
+    for function in _post_event_ui_updaters:
+        (function)()
+    return
 
 # ==
 

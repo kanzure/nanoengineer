@@ -2382,13 +2382,13 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         # nothing triggers another gl_update, so the fixed bond is not drawn right away. I suppose set_v6 ought to do its own
         # gl_update, but for some reason I'm uncomfortable with that for now (and even if it did, this bugfix here is
         # probably also needed). And many analogous LL changers don't do that.
-        env.post_event_updates( warn_if_needed = False)
+        env.do_post_event_updates( warn_if_needed = False)
 
 #bruce 060326 zapping this, since it caused bug 1759, and I put in a better fix for bugs like 1411 since then
 # (in the menu_spec processor in widgets.py). There might be reasons to revive this someday, and ways to avoid 1759 then,
 # but it's hard and inefficient and not needed for now.
 ##        # Fix bugs from missing mouseReleases (like bug 1411) (provided they do a gl_update like that one does),
-##        # from model changes during env.post_event_updates(), or from unexpected model changes during the following
+##        # from model changes during env.do_post_event_updates(), or from unexpected model changes during the following
 ##        # repaint, by surrounding this repaint with begin/end checkpoints. We might do the same thing in the model tree, too.
 ##        # [bruce 060323]
 ##        flag_and_begin_retval = None # different than (but analogous to) self.__flag_and_begin_retval

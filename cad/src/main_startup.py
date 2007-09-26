@@ -83,8 +83,17 @@ def startup_script( main_globals):
     # be called before any assembly objects are created.
     # [added by ericm 20070701, along with "remove import star", just after NE1
     #  A9.1 release]
+
+    # WARNING: the order of calling these matters, for many of them. We should document
+    # that order dependency in their docstrings, and perhaps also right here.
+    # One reason for order dependency is registration order of post_event_updater functions.
+    # (We may decide to call those more directly here, not inside generic initialize methods,
+    #  as a clarification, especially if we generally separate model-layer and ui-layer updates.)
+    # [bruce 070925 comment]
     import bond_updater
     bond_updater.initialize()
+    ### TODO: register a model updater in assy, which calls that;
+    # and a ui updater which calls glpane.mode.state_may_have_changed().
     import assembly
     assembly.assembly.initialize()
     import GroupButtonMixin

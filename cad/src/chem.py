@@ -2528,7 +2528,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         or for changes to chunk membership of this atom, or when this atom is killed (but it will be called indirectly
         when this atom is killed, when the bonds are broken, unless this atom has no bonds). Calling it when not needed
         is ok, but might slow down later update functions by making them inspect this atom for important changes.
-           All user events which can call this (indirectly) should also call env.post_event_updates() when they're done.
+           All user events which can call this (indirectly) should also call env.do_post_event_updates() when they're done.
         """
         ####@@@@ I suspect it is better to also call this for all killed atoms or singlets, but didn't do this yet. [bruce 050725]
         ## before 051011 this used id(self) for key
