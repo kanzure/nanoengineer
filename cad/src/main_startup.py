@@ -86,14 +86,14 @@ def startup_script( main_globals):
 
     # WARNING: the order of calling these matters, for many of them. We should document
     # that order dependency in their docstrings, and perhaps also right here.
-    # One reason for order dependency is registration order of post_event_updater functions.
+    # One reason for order dependency is registration order of post_event_updater functions,
+    # though this is mitigated now that we register model and ui updaters separately.
     # (We may decide to call those more directly here, not inside generic initialize methods,
-    #  as a clarification, especially if we generally separate model-layer and ui-layer updates.)
+    #  as a clarification. Likely desirable change (###TODO): register a model updater in assy,
+    #  which calls the bond updater presently registered by bond_updater.initialize.)
     # [bruce 070925 comment]
     import bond_updater
     bond_updater.initialize()
-    ### TODO: register a model updater in assy, which calls that;
-    # and a ui updater which calls glpane.mode.state_may_have_changed().
     import assembly
     assembly.assembly.initialize()
     import GroupButtonMixin

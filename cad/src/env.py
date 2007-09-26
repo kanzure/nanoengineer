@@ -310,6 +310,8 @@ def register_post_event_model_updater(function):
     action, the function may issue a warning.  This helps catch code which
     failed to call do_post_event_updates when it needed to.
 
+    The function's return value is ignored.
+
     WARNING: the functions are called in the order added; when order matters,
     the application initialization code needs to make sure they're added
     in the right order.
@@ -338,11 +340,13 @@ def register_post_event_ui_updater(function):
     """
     Add a function to the list of ui updaters called whenever
     do_post_event_updates is called. All ui updaters are called
-    after all model updaters.
+    (in the order of registration) after all model updaters.
 
-    The function should take no arguments.
+    The function should take no arguments. Its return value is ignored.
 
-    WARNING & USAGE NOTE: same as for register_post_event_model_updater.
+    WARNING & USAGE NOTE: same as for register_post_event_model_updater,
+    though ui updaters are much less likely than model updaters
+    to have order dependencies within themselves.
     """
     assert not function in _post_event_ui_updaters
     _post_event_ui_updaters.append( function)
@@ -351,15 +355,16 @@ def register_post_event_ui_updater(function):
 
 def do_post_event_updates( warn_if_needed = False ):
     """[public function]
-       This should be called at the end of every user event which might have changed
-    anything in any loaded model which defers some updates to this function.
-    (Someday there will be a general way for models to register their updaters here,
-    so that they are called in the proper order. For now, the order has to be hardcoded.)
+       This should be called at the end of every user event which changes
+    model or selection state. WARNING: In present code (070925), it is very likely
+    not called that often, but this is mitigated by the precautionary calls mentioned
+    below.
        This can also be called at the beginning of user events, such as redraws or saves,
     which want to protect themselves from event-processors which should have called this
-    at the end, but forgot to. Those callers should pass warn_if_needed = True, to cause
-    a debug-only warning to be emitted if the call was necessary. (This function is designed
-    to be very fast when called more times than necessary.)
+    at the end, but forgot to. Those callers should pass warn_if_needed = True, to permit
+    a debug-only warning to be emitted if the call was necessary (but there is no guarantee
+    that such a warning is always emitted). (The updaters registered to be called by this
+    function should be designed to be fast when called more times than necessary.)
     """
     # do all model updaters before any ui updaters
     for function in _post_event_model_updaters:
