@@ -28,6 +28,7 @@ from bond_constants               import btype_from_v6
 from VQT import V
 from state_utils import same_vals
 
+
 NOBLEGASES = ["He", "Ne", "Ar", "Kr"]
 
 class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
@@ -145,13 +146,21 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         Its possible that there are other groupboxes in the PM that need to be 
         updated when something changes in the glpane.        
         """
-        selectedAtomsList = self.win.assy.getOnlyAtomsSelectedByUser()
+        
+        selectedAtomsList = self.win.assy.selatoms.values()
+        
         if len(selectedAtomsList) == 1: 
             selectedAtom = selectedAtomsList[0]
             posn = selectedAtom.posn()
             return (len(selectedAtomsList), selectedAtom, posn)
         elif len(selectedAtomsList) > 1:
-            return (len(selectedAtomsList), None, None)
+            #All we are interested in, is to check if multiple atoms are 
+            #selected. So just return a number greater than 1. This makes sure
+            #that parameter difference test in  self.model_changed doesn't
+            # succeed much more often (i.e. whenever user changes the number of 
+            # selected atoms, but still keeping that number > 1
+            aNumberGreaterThanOne = 2
+            return (aNumberGreaterThanOne, None, None)
         else: 
             return (None, None, None)
         
@@ -304,14 +313,14 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         Move the selected atom position based on the value in the X, Y, Z 
         coordinate spinboxes in the Selection GroupBox. 
         """
-        
-        selectedAtomsList = self.win.assy.getOnlyAtomsSelectedByUser()
-        
-        if not len(selectedAtomsList) == 1:
+        if self.model_changed_from_glpane:
+            #Model is changed from glpane ,do nothing. Fixes bug 2545
             return
         
-
-        selectedAtom = selectedAtomsList[0]
+        totalAtoms, selectedAtom, atomPosn_junk = self._currentSelectionParams()
+    
+        if not totalAtoms == 1:
+            return
         
         #@NOTE: This is important to determine baggage and nobaggage atoms. 
         #Otherwise the bondpoints won't move! See also:
@@ -347,9 +356,11 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         @param atomCoords: X, Y, Z coordinate position vector
         @type  atomCoords: Vector
         """
+        self.model_changed_from_glpane = True
         self.xCoordOfSelectedAtom.setValue(atomCoords[0])
         self.yCoordOfSelectedAtom.setValue(atomCoords[1])
-        self.zCoordOfSelectedAtom.setValue(atomCoords[2])     
+        self.zCoordOfSelectedAtom.setValue(atomCoords[2])  
+        self.model_changed_from_glpane = False
         
  
         
