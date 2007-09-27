@@ -133,7 +133,8 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
     defaultFont = None
 
     def __init__(self, parent = None, name = None):
-    
+
+        self._init_part_two_done = False
         self._activepw = None
 	
         self.orientationWindow = None
@@ -594,7 +595,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 
             self.addPartWindow(self.assy)
         else:
-            self.init_part_two()
+            self._init_part_two()
 
         env.register_post_event_ui_updater( self.post_event_ui_updater) #bruce 070925
         
@@ -644,14 +645,12 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
             # but GLPane.makeCurrent *does* set self._activepw to its .partWindow
             # (initialized to its parent arg when it's created), so that conclusion is not clear.
             # [bruce 070503 comment]
-        if not hasattr(self, '_init_part_two_done'):
-            # I bet there are pieces of init_part_two that should be done EVERY time we bring up a
+        if not self._init_part_two_done:
+            # I bet there are pieces of _init_part_two that should be done EVERY time we bring up a
             # new partwindow.
             # [I guess that comment is by Will... for now, this code doesn't do those things
             #  more than once, it appears. [bruce 070503 comment]]
-            MWsemantics.init_part_two(self)
-            self._init_part_two_done = True
-                # WARNING: even setting it to False would have the same effect on the hasattr test above. [bruce 070503 comment]
+            MWsemantics._init_part_two(self)
 
         pw.glpane.start_using_mode('$STARTUP_MODE') #bruce 050911
 	
@@ -683,7 +682,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
                 return pw.modelTree
         raise AttributeError(key)
         
-    def init_part_two(self):
+    def _init_part_two(self):
         # Create the Preferences dialog widget.
         # Mark 050628
         if not debug_pref("Multipane GUI", Choice_boolean_False):
@@ -853,7 +852,8 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         # Anything which depends on this window's geometry (which is not yet set at this point)
         # should be done in the _init_after_geometry_is_set method below, not here. [bruce guess 060104]
 
-        return # from init_part_two
+        self._init_part_two_done = True
+        return # from _init_part_two
 
     def activePartWindow(self):
         return self._activepw
