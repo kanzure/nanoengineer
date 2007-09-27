@@ -29,6 +29,9 @@ from PM.PM_ToolButtonRow   import PM_ToolButtonRow
 from PM.PM_ElementChooser  import PM_ElementChooser
 from PM.PM_PreviewGroupBox import PM_PreviewGroupBox
 from PM.PM_LineEdit        import PM_LineEdit
+from PM.PM_DoubleSpinBox   import PM_DoubleSpinBox
+from PM.PM_LabelRow        import PM_LabelRow
+from PM.PM_CoordinateSpinBoxes import PM_CoordinateSpinBoxes
 
 from PM.PM_Constants       import pmDoneButton
 from PM.PM_Constants       import pmWhatsThisButton
@@ -83,6 +86,7 @@ class Ui_BuildAtomsPropertyManager(PM_Dialog):
         
         self.selectionFilterCheckBox = None
         self.filterlistLE = None
+        self.selectedAtomInfoLabel = None
         
     def _addGroupBoxes(self):
         """
@@ -91,6 +95,7 @@ class Ui_BuildAtomsPropertyManager(PM_Dialog):
         self._addPreviewGroupBox()        
         self._addElementChooserGroupBox()            
         self._addBondToolsGroupBox()        
+        self._addSelectionOptionsGroupBox()
         self._addAdvancedOptionsGroupBox()       
        
     def _addPreviewGroupBox(self):
@@ -119,20 +124,20 @@ class Ui_BuildAtomsPropertyManager(PM_Dialog):
             PM_GroupBox( self, title = "Bond Tools")
         
         self._loadBondToolsGroupBox(self.bondToolsGroupBox)
-     
-    def _addAdvancedOptionsGroupBox(self):
+    
+    def _addSelectionOptionsGroupBox(self):
         """
-        Add 'Advanced Options' groupbox
+        Add 'Selection Options' groupbox
         """
-        self.advancedOptionsGroupBox = \
-            PM_GroupBox( self, title = "Advanced Options" )  
+        self.selectionOptionsGroupBox = \
+            PM_GroupBox( self, title = "Selection Options" )  
         
-        self._loadAdvancedOptionsGroupBox(self.advancedOptionsGroupBox)
- 
-    def _loadAdvancedOptionsGroupBox(self, inPmGroupBox):
+        self._loadSelectionOptionsGroupBox(self.selectionOptionsGroupBox)
+    
+    def _loadSelectionOptionsGroupBox(self, inPmGroupBox):
         """
-        Load widgets in the Advanced Options group box.
-        @param inPmGroupBox: The Advanced Options box in the PM
+        Load widgets in the Selection Options group box.
+        @param inPmGroupBox: The Selection Options box in the PM
         @type  inPmGroupBox: L{PM_GroupBox} 
         """
         
@@ -154,6 +159,55 @@ class Ui_BuildAtomsPropertyManager(PM_Dialog):
             self.filterlistLE.setEnabled(True)
         else:
             self.filterlistLE.setEnabled(False)
+        
+        self.selectedAtomPosGroupBox = \
+            PM_GroupBox( inPmGroupBox, title = "Selected Atom Info:")
+        self._loadSelectedAtomPosGroupBox(self.selectedAtomPosGroupBox)
+        
+        self.selectedAtomPosGroupBox.setEnabled(False)
+    
+    
+    def _loadSelectedAtomPosGroupBox(self, inPmGroupBox):
+        """
+        Load the selected Atoms position groupbox It is a sub-gropbox of 
+        L{self.selectionOptionsGroupBox)
+        """
+        
+        self.selectedAtomLineEdit = PM_LineEdit( inPmGroupBox, 
+                                         label        = "Selected Atom:",
+                                         text         = "",
+                                         setAsDefault = False,
+                                         spanWidth    = False )
+        
+        self.selectedAtomLineEdit.setReadOnly(True) 
+        self.selectedAtomLineEdit.setEnabled(False)
+        
+        self.coordinateSpinboxes = PM_CoordinateSpinBoxes(inPmGroupBox)
+    
+        # User input to specify x-coordinate 
+        self.xCoordOfSelectedAtom  =  self.coordinateSpinboxes.xSpinBox
+        # User input to specify y-coordinate 
+        self.yCoordOfSelectedAtom  =  self.coordinateSpinboxes.ySpinBox
+        # User input to specify z-coordinate 
+        self.zCoordOfSelectedAtom  =  self.coordinateSpinboxes.zSpinBox
+        
+
+       
+    def _addAdvancedOptionsGroupBox(self):
+        """
+        Add 'Advanced Options' groupbox
+        """
+        self.advancedOptionsGroupBox = \
+            PM_GroupBox( self, title = "Advanced Options" )  
+        
+        self._loadAdvancedOptionsGroupBox(self.advancedOptionsGroupBox)
+ 
+    def _loadAdvancedOptionsGroupBox(self, inPmGroupBox):
+        """
+        Load widgets in the Advanced Options group box.
+        @param inPmGroupBox: The Advanced Options box in the PM
+        @type  inPmGroupBox: L{PM_GroupBox} 
+        """        
                     
         self.autoBondCheckBox = PM_CheckBox( inPmGroupBox,
                                               text         = 'Auto Bond',

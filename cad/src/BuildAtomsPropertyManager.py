@@ -6,7 +6,7 @@ The BuildAtomsPropertyManager class provides the Property Manager for the
 B{Build Atoms mode}.  The UI is defined in L{Ui_BuildAtomsPropertyManager}
     
 @author: Bruce, Huaicai, Mark, Ninad
-@version: $Id:$
+@version: $Id$
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
@@ -25,6 +25,8 @@ import env
 from PyQt4.Qt import SIGNAL
 from Ui_BuildAtomsPropertyManager import Ui_BuildAtomsPropertyManager
 from bond_constants               import btype_from_v6
+from VQT import V
+from state_utils import same_vals
 
 NOBLEGASES = ["He", "Ne", "Ar", "Kr"]
 
@@ -49,6 +51,8 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         
         self._addGroupBoxes()
         self.updateMessage()
+        
+        self.previousSelectionParams = None
         
     def ok_btn_clicked(self):
         """
@@ -84,6 +88,74 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
                        SIGNAL("stateChanged(int)"),
                        self.set_selection_filter)
         
+        change_connect(self.xCoordOfSelectedAtom,
+                     SIGNAL("valueChanged(double)"), 
+                     self._moveSelectedAtom)
+        
+        change_connect(self.yCoordOfSelectedAtom,
+                     SIGNAL("valueChanged(double)"), 
+                     self._moveSelectedAtom)
+        
+        change_connect(self.zCoordOfSelectedAtom,
+                     SIGNAL("valueChanged(double)"), 
+                     self._moveSelectedAtom)
+            
+    
+    def model_changed(self):
+        """
+        Overrides basicMode.model_changed. 
+        @WARNING: Ideally this property manager should implement both
+               model_changed and selection_changed methods in the mode API. 
+               model_changed method will be used here when the selected atom is 
+               dragged, transmuted etc. The selection_changed method will be 
+               used when the selection (picking/ unpicking) changes. 
+               At present, selection_changed and model_changed methods are 
+               called too frequently that it doesn't matter which one you use. 
+               Its better to use only a single method for preformance reasons 
+               (at the moment). This should change when the original 
+               methods in the API are revised to be called at appropiraite 
+               time. 
+        """  
+        newSelectionParams = self._currentSelectionParams()
+        
+        if same_vals(newSelectionParams, self.previousSelectionParams):
+            return
+        
+        self.previousSelectionParams = newSelectionParams   
+        #subclasses of BuildAtomsPM may not define self.selectedAtomPosGroupBox
+        #so do the following check.
+        if self.selectedAtomPosGroupBox:            
+            self._updateSelectedAtomPosGroupBox(newSelectionParams) 
+            
+    
+    def _currentSelectionParams(self):
+        """
+        Returns a tuple containing current selection parameters. These 
+        parameters are then used to decide whether updating widgets
+        in this property manager is needed when L{self.model_changed} or 
+        L{self.selection_changed} methods are called. In this case, the 
+        Seletion Options groupbox is updated when atom selection changes 
+        or when the selected atom is moved. 
+        @return: A tuple that contains following selection parameters
+                   - Total number of selected atoms (int)
+                   - Selected Atom if a single atom is selected, else None
+                   - Position vector of the single selected atom or None
+        @rtype:  tuple
+        @NOTE: The method name may be renamed in future. 
+        Its possible that there are other groupboxes in the PM that need to be 
+        updated when something changes in the glpane.        
+        """
+        selectedAtomsList = self.win.assy.getOnlyAtomsSelectedByUser()
+        if len(selectedAtomsList) == 1: 
+            selectedAtom = selectedAtomsList[0]
+            posn = selectedAtom.posn()
+            return (len(selectedAtomsList), selectedAtom, posn)
+        elif len(selectedAtomsList) > 1:
+            return (len(selectedAtomsList), None, None)
+        else: 
+            return (None, None, None)
+        
+
     def set_selection_filter(self, enabled):
         """
         Slot for Atom Selection Filter checkbox that enables or diables the 
@@ -186,4 +258,76 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         """
         #TODO: Need further clean up of depositMode.py that will make this 
         #unnecessary
-        pass     
+        pass   
+    
+    
+    def _updateSelectedAtomPosGroupBox(self, selectionParams):
+        """
+        Update the Selected Atoms Position groupbox present withn the 
+        B{Selection GroupBox" of this PM. This groupbox shows the 
+        X, Y, Z coordinates of the selected atom (if any). 
+        This groupbox is updated whenever selection in the glpane changes 
+        or a single atom is moved. This groupbox is enabled only when exactly
+        one atom in the glpane is selected. 
+        @param selectionParams: A tuple that provides following selection 
+                               parameters
+                                 - Total number of selected atoms (int)
+                                 - Selected Atom if a single atom is selected, 
+                                   else None
+                                 - Position vector of the single selected atom 
+                                   or None
+        @type: tuple 
+        @see: L{self._currentSelectionParams}
+        @see: L{self.model_changed}
+        
+        """
+        totalAtoms, selectedAtom, atomPosn = selectionParams
+        
+        text = ""
+        if totalAtoms == 1:
+            self.selectedAtomPosGroupBox.setEnabled(True)
+            text = str(selectedAtom.getInformationString())
+            text += " (" + str(selectedAtom.element.name) + ")"
+            self._updateAtomPosSpinBoxes(atomPosn)                       
+        elif totalAtoms > 1:
+            self.selectedAtomPosGroupBox.setEnabled(False)
+            text = "Multiple atoms selected"
+        else:
+            self.selectedAtomPosGroupBox.setEnabled(False)
+            text = "No Atom selected"
+        
+        if self.selectedAtomLineEdit:
+            self.selectedAtomLineEdit.setText(text)
+    
+    def _moveSelectedAtom(self):
+        """
+        Move the selected atom position based on the value in the X, Y, Z 
+        coordinate spinboxes in the Selection GroupBox. 
+        """
+        
+        selectedAtomsList = self.win.assy.getOnlyAtomsSelectedByUser()
+        
+        if not len(selectedAtomsList) == 1:
+            return
+
+        selectedAtom = selectedAtomsList[0]
+        xPos= self.xCoordOfSelectedAtom.value()
+        yPos = self.yCoordOfSelectedAtom.value()
+        zPos = self.zCoordOfSelectedAtom.value()        
+        newPosition = V(xPos, yPos, zPos)
+        selectedAtom.setposn(newPosition)
+        self.o.gl_update()
+        
+    def _updateAtomPosSpinBoxes(self, atomCoords):
+        """
+        Updates the X, Y, Z values in the Selection Options Groupbox. This
+        method is called whenever the selected atom in the glpane is dragged.
+        @param atomCoords: X, Y, Z coordinate position vector
+        @type  atomCoords: Vector
+        """
+        self.xCoordOfSelectedAtom.setValue(atomCoords[0])
+        self.yCoordOfSelectedAtom.setValue(atomCoords[1])
+        self.zCoordOfSelectedAtom.setValue(atomCoords[2])     
+        
+ 
+        
