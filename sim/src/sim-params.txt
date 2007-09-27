@@ -319,6 +319,7 @@ bend   0.04          1.3016665561    9   Ae3-1-Ss3.sp3-1-Se3
 bend   0.04          1.3016665561    9   H-1-Ss3.sp3-1-Ae3
 
 # 108 degree for Axis JunctionSugar JunctionSugar
+bend   0.04          1.8849555921    9   Ax3-1-Sj3.sp3-1-Sj3
 bend   0.04          1.8849555921    9   Ae3-1-Sj3.sp3-1-Sj3
 
 # 149 degree Sugar Sugar Sugar
