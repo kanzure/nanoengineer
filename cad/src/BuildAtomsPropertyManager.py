@@ -309,13 +309,35 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         
         if not len(selectedAtomsList) == 1:
             return
+        
 
         selectedAtom = selectedAtomsList[0]
+        
+        #@NOTE: This is important to determine baggage and nobaggage atoms. 
+        #Otherwise the bondpoints won't move! See also:
+        # selectMode.atomSetup where this is done. 
+        # But that method gets called only when during atom left down. 
+        #Its not useful here as user may select that atom using selection lasso
+        #or using other means (ctrl + A if only one atom is present) . Also, 
+        #the lists parentMode.baggage and parentMode.nonbaggage seem to get 
+        #cleared during left up. So that method is not useful. 
+        #There needs to be a method in parentmode (selectMode or depositMode) 
+        #to do the following (next code cleanup?) -- ninad 2007-09-27
+        self.parentMode.baggage, self.parentMode.nonbaggage = \
+            selectedAtom.baggage_and_other_neighbors()          
+        
         xPos= self.xCoordOfSelectedAtom.value()
         yPos = self.yCoordOfSelectedAtom.value()
         zPos = self.zCoordOfSelectedAtom.value()        
         newPosition = V(xPos, yPos, zPos)
-        selectedAtom.setposn(newPosition)
+        delta = newPosition - selectedAtom.posn()
+        
+        #Don't do selectedAtom.setposn()  because it needs to handle 
+        #cases where atom has bond points and/or monovalent atoms . It also 
+        #needs to modify the neighboring atom baggage. This is already done in
+        #the following method in parentMode so use that. 
+        self.parentMode.drag_selected_atom(selectedAtom, delta)
+        
         self.o.gl_update()
         
     def _updateAtomPosSpinBoxes(self, atomCoords):
