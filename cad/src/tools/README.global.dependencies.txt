@@ -142,3 +142,8 @@ accurately reflect the import dependencies between all modules.  At
 this point, it's time to try graphing that structure.
 
 $ tools/PackageDependency.py `tools/AllPyFiles.sh` > depend.dot 2> packageloopcounts
+
+If you have the GraphViz package installed, the results can be plotted
+with:
+
+$ dot -Tjpg depend.dot > depend.jpg

@@ -975,6 +975,9 @@ def current_state(archive, assy, **options):
     return data
 
 def fill_checkpoint(cp, state, assy): #e later replace calls to this with cp method calls
+    """
+    @type assy: assembly.assembly
+    """
     if not isinstance(state, StatePlace):
         if env.debug():
             print "likely bug: not isinstance(state, StatePlace) in fill_cp, for",state #060407
@@ -1004,6 +1007,9 @@ class checkpoint_metainfo:
        Don't hold any ref to assy or glpane itself!
     """
     def __init__(self, assy):
+        """
+        @type assy: assembly.assembly
+        """
         self.set_from(assy) #e might not always happen at init??
     def set_from(self, assy):
         try:
@@ -1147,6 +1153,9 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
     inited = False
     
     def __init__(self, assy):
+        """
+        @type assy: assembly.assembly
+        """
         self.assy = assy # represents all undoable state we cover (this will need review once we support multiple open files)
 
         self.obj_classifier = obj_classifier()

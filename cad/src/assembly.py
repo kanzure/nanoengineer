@@ -68,6 +68,7 @@ bruce 050913 used env.history in some places.
 
 import os
 
+import Initialize
 from Utility import Group, node_name, kluge_patch_assy_toplevel_groups
 from debug import print_compact_traceback
 from prefs_constants import workingDirectory_prefs_key
@@ -143,6 +144,9 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
     undo_manager = None #bruce 060127
     
     def __init__(self, win, name = None, own_window_UI = False):
+        """
+        @type win: MWsemantics or None
+        """
 
         self.own_window_UI = own_window_UI
         
@@ -763,6 +767,8 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
 
     # == general attribute code
     def initialize():
+        if (Initialize.startInitialization(__name__)):
+            return
         # attrnames to delegate to the current part
         # (ideally for writing as well as reading, until all using-code is upgraded) ###@@@ use __setattr__ ?? etc??
         assembly.part_attrs = ['molecules','selmols','selatoms','homeCsys','lastCsys']
@@ -779,6 +785,8 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
         #e in future, we'll split out our own methods for some of these, incl .changed
         #e and for others we'll edit our own methods' code to not call them on self but on self.assy (incl selwhat)
         assembly.part_attrs_all = assembly.part_attrs + assembly.part_attrs_temporary + assembly.part_attrs_review
+
+        Initialize.endInitialization(__name__)
 
     # can we use the decorator @staticmethod instead?
     initialize = staticmethod(initialize)

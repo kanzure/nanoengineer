@@ -53,8 +53,11 @@ class AssyUndoManager(UndoManager):
     active = True #060223 changed this to True, since False mainly means it died, not that it's being inited [060223]
     inited = False #060223
     def __init__(self, assy, menus = ()): # called from assy.__init__
-        """Do what can be done early in assy.__init__; caller must also (subsequently) call init1
+        """
+        Do what can be done early in assy.__init__; caller must also (subsequently) call init1
         and either _initial_checkpoint or (preferred) clear_undo_stack.
+
+        @type assy: assembly.assembly
         """
         # assy owns the state whose changes we'll be managing...
         # [semiobs cmt:] should it have same undo-interface as eg chunks do??

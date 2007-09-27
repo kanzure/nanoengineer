@@ -99,7 +99,12 @@ def fileparse(name): #bruce 050413 comment: see also filesplit (movieMode.py) an
     return dir + os.path.sep, fil, ext
 
 class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
-    "Mixin class to provide file-related methods for class MWsemantics. Has slot methods and their helper methods."
+    """
+    Mixin class to provide file-related methods for class MWsemantics.
+    May not be safe to mix in to any other class, as it creates an
+    assembly(self), and assembly expects an MWsemantics.  Has slot
+    methods and their helper methods.
+    """
 
     def fileImport(self): # Code copied from fileInsert() slot method. Mark 060731. 
         """Slot method for 'File > Import'.
