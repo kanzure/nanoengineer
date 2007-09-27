@@ -51,8 +51,6 @@ from Utility            import Group
 
 from Dna_Constants import basesDict, dnaDict
 
-from chunk         import molecule #@ For insertBaseFromAtomList.
-
 atompat = re.compile("atom (\d+) \((\d+)\) \((-?\d+), (-?\d+), (-?\d+)\)")
 numberPattern = re.compile(r"^\s*(\d+)\s*$")
 
@@ -142,13 +140,10 @@ class Dna:
             viewdata, mainpart, shelf = grouplist
             
             for member in mainpart.members:
-                # 'member' is a chunk containing a set of single base atoms
-                #  when creating an atomistic model of DNA.
-                # 'member' is a chunk containing a set of base-pair 
-                #  PAM3 or PAM5 atoms when creating a reduced structure.
+                # 'member' is a chunk containing a set of base-pair atoms.
                 for atm in member.atoms.values():
                     atm._posn = tfm(atm._posn) + position
-                    if atm.element.symbol in ('Ss3', 'Ss5'):
+                    if atm.element.symbol in ('Se3', 'Ss3', 'Ss5'):
                         if atm.dnaBaseName == "a":
                             baseLetter = currentBaseLetter
                         else:
@@ -433,23 +428,26 @@ class B_Dna_PAM5(B_Dna):
         return (basefile, zoffset, thetaOffset)
     
     def _postProcess(self, baseList): # bruce 070414
-        # Figure out how to set bond direction on the backbone bonds of these strands.
-        # This implem depends on the specifics of how the end-representations are terminated.
-        # If that's changed, it might stop working or it might start giving wrong results.
-        # In the current representation,
-        # baseList[0] (a chunk) is called "end1" in MT, and has two bonds whose directions we should set,
-        # which will determine the directions of their strands: Ss -> Sh, and Ss <- Pe.
-        # Just find those bonds and set the strand directions
-        # (until such time as they can be present to start with in the end1 mmp file).
-        # (If we were instead passed all the atoms, we could be correct if we just did this
-        #  to the first Pe and Sh we saw, or to both of each if setting the same direction twice
-        #  is allowed.)
-        atoms = baseList[0].atoms.values()
-        Pe_list = filter( lambda atom: atom.element.symbol in ('Pe3', 'Pe5'), atoms)
-        Sh_list = filter( lambda atom: atom.element.symbol in ('Sh3', 'Sh5'), atoms)
+        """
+        Set bond direction on the backbone bonds.
         
-        #Pe_list = filter( lambda atom: atom.element.symbol == 'Pe', atoms)
-        #Sh_list = filter( lambda atom: atom.element.symbol == 'Sh', atoms)
+        @param baseList: List of basepair chunks that make up the duplex.
+        @type  baseList: list
+        """
+        # This implem depends on the specifics of how the end-representations
+        # are terminated. If that's changed, it might stop working or it might
+        # start giving wrong results. In the current representation, 
+        # baseList[0] (a chunk) has two bonds whose directions we must set,
+        # which will determine the directions of their strands: 
+        #   Ss5 -> Sh5, and Ss5 <- Pe5.
+        # Just find those bonds and set the strand directions (until such time
+        # as they can be present to start with in the end1 mmp file).
+        # (If we were instead passed all the atoms, we could be correct if we 
+        # just did this to the first Pe5 and Sh5 we saw, or to both of each if 
+        # setting the same direction twice is allowed.)
+        atoms = baseList[0].atoms.values()
+        Pe_list = filter( lambda atom: atom.element.symbol in ('Pe5'), atoms)
+        Sh_list = filter( lambda atom: atom.element.symbol in ('Sh5'), atoms)
         
         if len(Pe_list) == len(Sh_list) == 1:
             for atom in Pe_list:
@@ -465,17 +463,21 @@ class B_Dna_PAM5(B_Dna):
             (too short)"
             env.history.message( orangemsg( msg))
                 
-            # Note: It turns out this bug is caused by a bug in the rest of the generator
-            # (which I didn't try to diagnose) -- for number of bases == 1 it doesn't terminate the strands,
-            # so the above code can't find the termination atoms (which is how it figures out
-            # what to do without depending on intimate knowledge of the base mmp file contents).
+            # Note: It turns out this bug is caused by a bug in the rest of the
+            # generator (which I didn't try to diagnose) -- for number of 
+            # bases == 1 it doesn't terminate the strands, so the above code
+            # can't find the termination atoms (which is how it figures out
+            # what to do without depending on intimate knowledge of the base 
+            # mmp file contents).
 
-            # print "baseList = %r, its len = %r, atoms in [0] = %r" % (baseList, len(baseList), atoms)
+            # print "baseList = %r, its len = %r, atoms in [0] = %r" % \
+            #       (baseList, len(baseList), atoms)
             ## baseList = [<molecule 'unknown' (11 atoms) at 0xb3d6f58>],
             ## its len = 1, atoms in [0] = [Ax1, X2, X3, Ss4, Pl5, X6, X7, Ss8, Pl9, X10, X11]
             
-            # It would be a mistake to fix this here (by giving it that intimate knowledge) --
-            # instead we need to find and fix the bug in the rest of generator when number of bases == 1.
+            # It would be a mistake to fix this here (by giving it that
+            # intimate knowledge) -- instead we need to find and fix the bug 
+            # in the rest of generator when number of bases == 1.
         return
     pass
 
@@ -484,6 +486,62 @@ class B_Dna_PAM3(B_Dna_PAM5):
     Provides a PAM-3 reduced model of the B form of DNA.
     """
     model      =  "PAM3"
+    
+    def _postProcess(self, baseList): # bruce 070414
+        """
+        Set bond direction on the backbone bonds.
+        
+        @param baseList: List of basepair chunks that make up the duplex.
+        @type  baseList: list
+        
+        @note: baseList must contain at least two base-pair chunks.
+        """
+        # This implem depends on the specifics of how the end-representations
+        # are terminated. If that's changed, it might stop working or it might
+        # start giving wrong results. In the current representation,
+        # baseList[0] (a chunk) is the starting end of the duplex. It has two 
+        # bonds whose directions we should set, which will determine the 
+        # directions of their strands: Se3 -> Ss3, and Sh3 <- Ss3.
+        # Just find those bonds and set the strand directions.
+
+        assert len(baseList) >= 2
+        basepair1_atoms = baseList[0].atoms.values() # StartBasePair.MMP
+        basepair2_atoms = baseList[1].atoms.values() # MiddleBasePair or EndBasePair.MMP
+        Se3_list = filter( lambda atom: atom.element.symbol in ('Se3'), basepair1_atoms)
+        Sh3_list = filter( lambda atom: atom.element.symbol in ('Sh3'), basepair1_atoms)
+        # To set the direction of the Se3 -> Ss3 bond, we need the Ss3 atom
+        # from the second base-pair (i.e. baseList[1]) that is connected to
+        # the Se3 atom in the first base-pair.
+        # Ss3_list will have only one Ss3 atom if the duplex is only two 
+        # base-pairs long. Otherwise, Ss3_list will have two Ss3 atoms.
+        Ss3_list = filter( lambda atom: atom.element.symbol in ('Ss3'), basepair2_atoms)
+        if len(Se3_list) == len(Sh3_list) == 1:
+            for atom in Se3_list:
+                assert len(atom.bonds) == 2
+                # This is fragile since it is dependent on the bond order in the
+                # PAM3 StartBasePair.MMP file. If the order gets changed in that
+                # file, this will fail.
+                # A more robust approach would be to check for the Se3 -> Ss3
+                # bond, which is the one we want here. Mark 2007-09-27.
+                #atom.bonds[1].set_bond_direction_from(atom, 1, propogate = True)
+                # This implements the more robust stategy mentioned 
+                # above. I'd like Bruce to review it and confirm it is good.
+                # Mark 2007-09-27.
+                #atom.bonds[1].set_bond_direction_from(Ss3_list[0], -1, propogate = True)
+                try: # Try the first Ss3 atom in Ss3_list.
+                    atom.bonds[1].set_bond_direction_from(Ss3_list[0], -1, propogate = True)
+                except: # That wasn't it, so it must be the second Ss3 atom.
+                    atom.bonds[1].set_bond_direction_from(Ss3_list[1], -1, propogate = True)
+            for atom in Sh3_list:
+                assert len(atom.bonds) == 1
+                atom.bonds[0].set_bond_direction_from(atom, -1, propogate = True)
+        else:
+            #bruce 070604 mitigate bug in above code when number of bases == 1
+            # by not raising an exception when it fails.
+            msg = "Warning: strand not terminated, bond direction not set \
+            (too short)"
+            env.history.message( orangemsg( msg))
+        return
 
 class Z_Dna(Dna):
     """

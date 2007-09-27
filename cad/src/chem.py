@@ -512,9 +512,9 @@ class Atom(AtomBase, InvalMixin, StateMixin):
     _transmuteContextMenuEntries = {
         'Ae3': ['Ax3'],
         'Ax3': ['Ae3'],
-        'Pe3': ['Pl3', 'Sh3'],
-        'Pl3': ['Pe5', 'Sh3'],
-        'Sh3': ['Pe3', 'Pl3'],
+        'Se3': ['Ss3', 'Sh3'],
+        'Pl3': ['Pe5', 'Sh3'], # Unused in PAM3
+        'Sh3': ['Ss3', 'Se3'],
         'Sj3': ['Ss3'],
         'Ss3': ['Sj3', 'Hp3'],
         'Hp3': ['Ss3'],
@@ -745,7 +745,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 character(s).
         
         """
-        assert self.element.symbol in ('Ss3', 'Sj3', 'Ss5', 'Sj5'), \
+        assert self.element.symbol in ('Se3', 'Ss3', 'Sj3', 'Ss5', 'Sj5'), \
             "Can only assign dnaBaseNames to Ss or Sj (PAM) atoms. \
             Attempting to assign dnaBaseName %r to element %r." \
             % (dnaBaseName, self.element.name)
@@ -777,7 +777,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         @raise: If self is not a Pe atom.
         
         """
-        assert self.element.symbol in ('Pe3', 'Pe5'), \
+        assert self.element.symbol in ('Se3', 'Pe5'), \
             "Can only assign dnaStrandNames to Pe (PAM) atoms. \
             Attempting to assign dnaStrandName %r to element %r." \
             % (dnaStrandName, self.element.name)
@@ -1593,22 +1593,24 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             try:
                 self.setDnaBaseName(val)
             except:
-                print "Found Atom info record with problem: dnaBaseName = %r, "\
-                       "element = %r (continuing)" % (val, self.element.name)
+                print "Found Atom info record with problem: "\
+                      "dnaBaseName = %r, "\
+                      "atom = %r (continuing)" % (val, self.element.name)
                 pass
         
         elif key == ['dnaStrandName']: # Mark 2007-09-04
             try:
-                print "val =", val
                 self.setDnaStrandName(val)
             except:
-                print "Found Atom info record with problem: dnaStrandName = %r, "\
-                       "element = %r (continuing)" % (val, self.element.name)
+                print "Found Atom info record with problem: "\
+                      "dnaStrandName = %r, "\
+                      "atom = %r (continuing)" % (val, self.element.name)
                 pass
                  
         else:
             if platform.atom_debug:
-                print "atom_debug: fyi: info atom (in class atom) with unrecognized key %r (not an error)" % (key,)
+                print "atom_debug: fyi: info atom (in class atom) with "\
+                      "unrecognized key %r (not an error)" % (key,)
         return
     
     # write to a povray file:  draw a single atom

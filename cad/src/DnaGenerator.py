@@ -468,9 +468,9 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
         # If the sequence is a single base, then we have 2 Pe atoms (one for 
         # strandA and one for StrandB.
         if self.getSequenceLength() == 1:
-            startAtoms = ('Pe3', 'Ae3', 'Pe5', 'Ae5')
+            startAtoms = ('Se3', 'Ae3', 'Pe5', 'Ae5')
         else:
-            startAtoms = ('Pe3', 'Sh3', 'Ae3', 'Pe5', 'Sh5', 'Ae5')
+            startAtoms = ('Se3', 'Sh3', 'Ae3', 'Pe5', 'Sh5', 'Ae5')
         
         Pe_count = 0
         tempList      =  []
@@ -480,7 +480,7 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
                 tempList.append(atm)
                 atomList = self.win.assy.getConnectedAtoms(tempList)
                 tempList = []
-                if atm.element.symbol in ('Pe3', 'Pe5'):
+                if atm.element.symbol in ('Se3', 'Pe5'):
                     Pe_count += 1
                     if Pe_count == 1:
                         strandAChunk = self._makeChunkFromAtomList(atomList)

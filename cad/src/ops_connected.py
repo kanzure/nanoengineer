@@ -262,7 +262,7 @@ class ops_connected_Mixin:
                         # Someday we might have other kinds of non-connected bonds,
                         # e.g. hydrogen bonds, or higher-level analogues of that. [bruce 070411]
                         axis_elements = ('Ax3','Ae3', 'Ax5', 'Ae5')
-                        strand_elements = ('Ss3','Pl3','Sj3','Pe3','Sh3', 'Hp3',
+                        strand_elements = ('Ss3','Pl3','Sj3','Se3','Sh3', 'Hp3',
                                            'Ss5','Pl5','Sj5','Pe5','Sh5', 'Hp5') #k needs review: does Hp belong in this list?
                         if at1.element.symbol in axis_elements and at2.element.symbol in strand_elements:
                             really_connected = False
