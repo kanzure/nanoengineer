@@ -54,6 +54,7 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         self.updateMessage()
         
         self.previousSelectionParams = None
+        self.model_changed_from_glpane = True
         
     def ok_btn_clicked(self):
         """
