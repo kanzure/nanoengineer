@@ -269,11 +269,11 @@ bend   1.0           1.57079632679   9   Ax3-1-Ax3.sp3-1-Se3
 bend   1.0           1.57079632679   9   Ax3-1-Ae3.sp3-1-Ss3
 bend   1.0           1.57079632679   9   Ax3-1-Ae3.sp3-1-Sj3
 bend   1.0           1.57079632679   9   Ax3-1-Ae3.sp3-1-Se3
-bend   1.0           1.57079632679   9   Ae3-1-Ax3.sp3-1-Ss3
-bend   1.0           1.57079632679   9   Ae3-1-Ax3.sp3-1-Sj3
+bend   1.0           1.57079632679   9   Ss3-1-Ax3.sp3-1-Ae3
+bend   1.0           1.57079632679   9   Sj3-1-Ax3.sp3-1-Ae3
+bend   1.0           1.57079632679   9   Ss3-1-Ae3.sp3-1-Ae3
+bend   1.0           1.57079632679   9   Sj3-1-Ae3.sp3-1-Ae3
 bend   1.0           1.57079632679   9   Ae3-1-Ax3.sp3-1-Se3
-bend   1.0           1.57079632679   9   Ae3-1-Ae3.sp3-1-Ss3
-bend   1.0           1.57079632679   9   Ae3-1-Ae3.sp3-1-Sj3
 bend   1.0           1.57079632679   9   Ae3-1-Ae3.sp3-1-Se3
 bend   1.0           1.57079632679   9   H-1-Ax3.sp3-1-Ss3
 bend   1.0           1.57079632679   9   H-1-Ax3.sp3-1-Sj3
@@ -311,10 +311,11 @@ bend   0.04          1.3016665561    9   Ax3-1-Ss3.sp3-1-Sh3
 bend   0.04          1.3016665561    9   H-1-Ss3.sp3-1-Ax3
 
 # 74.58 degree Axis-end Sugar Sugar
-#bend   0.04          1.3016665561    9   Ae3-1-Se3.sp3-1-Ss3
+bend   0.04          1.3016665561    9   Ss3-1-Se3.sp3-1-Ae3
+bend   0.04          1.3016665561    9   Ss3-1-Ss3.sp3-1-Ae3
+bend   0.04          1.3016665561    9   Ae3-1-Ss3.sp3-1-Sh3
 bend   0.04          1.3016665561    9   Ae3-1-Ss3.sp3-1-Ss3
 bend   0.04          1.3016665561    9   Ae3-1-Ss3.sp3-1-Se3
-#bend   0.04          1.3016665561    9   Ae3-1-Ss3.sp3-1-Sh3
 bend   0.04          1.3016665561    9   H-1-Ss3.sp3-1-Ae3
 
 # 108 degree for Axis JunctionSugar JunctionSugar
