@@ -120,7 +120,7 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
 
     _modeltype_PAM3       =  "PAM3"
     _modeltype_PAM5       =  "PAM5"
-    _modeltype_Atomistic  =  "Atomistic" # Depreciated
+    _modeltype_Atomistic  =  "Atomistic" # deprecated
     _modelChoices          =  [ _modeltype_PAM3,
                                 _modeltype_PAM5 ]
 

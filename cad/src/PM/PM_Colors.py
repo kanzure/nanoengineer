@@ -20,7 +20,7 @@ import sys
 from PyQt4.Qt import QColor
 from PyQt4.Qt import QPalette
 
-from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False, Choice
+from debug_prefs import debug_pref, Choice
 
 
 _iconPrefix = os.path.dirname(os.path.abspath(sys.argv[0]))
@@ -66,7 +66,8 @@ def getPalette( palette, colorRole, color ):
     Assigns a color (based on color role) to palette and returns it.
     The color/color role is assigned to all color groups.
             
-    @param palette: A palette. If palette is None, we create and return a new palette.
+    @param palette: A palette. If palette is None, we create and return a new 
+                   palette.
     @type  palette: QPalette
     
     @param colorRole: the Qt ColorRole
@@ -108,11 +109,15 @@ set_Color_Theme_from_pref()
 # Standard colors for all themes.
 pmColor = QColor(230, 231, 230) # Should get this from the main window (parent).
 pmGrpBoxColor = QColor(201, 203, 223)
-pmMessageTextEditColor = QColor(255, 255, 100) # Yellow msg box (QTextEdit widget).
-PM_COLOR = QColor(230, 231, 230) # Should get this from the main window (parent).
+# Yellow msg box (QTextEdit widget).
+pmMessageTextEditColor = QColor(255, 255, 100) 
+# Should get the following from the main window (parent).
+PM_COLOR = QColor(230, 231, 230)
 PM_GROUPBOX_COLOR = QColor(201, 203, 223)
-PM_MESSAGE_TEXT_EDIT_COLOR = QColor(255, 255, 100) # Yellow msg box (QTextEdit widget).
-pmMessageBoxColor = pmMessageTextEditColor # pmMessageTextEditColor to be depreciated.
+# Yellow msg box (QTextEdit widget).
+PM_MESSAGE_TEXT_EDIT_COLOR = QColor(255, 255, 100)
+# pmMessageTextEditColor to be deprecated.
+pmMessageBoxColor = pmMessageTextEditColor 
 
 if COLOR_THEME == "Gray":
 
@@ -120,9 +125,11 @@ if COLOR_THEME == "Gray":
     
     # Colors for Property Manager widgets.
     pmTitleFrameColor = QColor(120, 120, 120)
-    pmHeaderFrameColor = pmTitleFrameColor # pmTitleFrameColor to be depreciated. Mark 2007-07-24
+    # pmTitleFrameColor to be deprecated. Mark 2007-07-24
+    pmHeaderFrameColor = pmTitleFrameColor 
     pmTitleLabelColor = QColor(255, 255, 255)
-    pmHeaderTitleColor = pmTitleLabelColor # pmTitleLabelColor to be depreciated. Mark 2007-07-24
+    # pmTitleLabelColor to be deprecated. Mark 2007-07-24
+    pmHeaderTitleColor = pmTitleLabelColor 
     pmGrpBoxButtonColor = QColor(172, 173, 190)
     pmCheckBoxTextColor = QColor(0, 0, 255) # used in MMKit
     pmCheckBoxButtonColor = QColor(172, 173, 190)
@@ -142,10 +149,12 @@ if COLOR_THEME == "Gray":
 else: # Blue Color Theme
     
     # Colors for Property Manager widgets.
-    pmTitleFrameColor = QColor(50,90, 230) # I like (50,90, 230). mark
-    pmHeaderFrameColor = pmTitleFrameColor # pmTitleFrameColor to be depreciated. Mark 2007-07-24
+    pmTitleFrameColor = QColor(50, 90, 230) # I like (50,90, 230). mark
+    # pmTitleFrameColor to be deprecated. Mark 2007-07-24
+    pmHeaderFrameColor = pmTitleFrameColor 
     pmTitleLabelColor = QColor(255, 255, 255)
-    pmHeaderTitleColor = pmTitleLabelColor # pmTitleLabelColor to be depreciated. Mark 2007-07-24
+    # pmTitleLabelColor to be deprecated. Mark 2007-07-24
+    pmHeaderTitleColor = pmTitleLabelColor 
     pmGrpBoxButtonColor = QColor(172, 173, 190)
     pmCheckBoxTextColor = QColor(0, 0, 255)
     pmCheckBoxButtonColor = QColor(172, 173, 190)

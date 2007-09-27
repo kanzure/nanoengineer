@@ -191,11 +191,11 @@ class PM_Dialog( QDialog, SponsorableMixin ):
             
         except:
             if platform.atom_debug:
-		msg1 = "Last PropMgr doesn't have method"
-		msg2 =" update_props_if_needed_before_closing. That's"
-		msg3 = " OK (for now,only implemented for Plane PM)"
-		msg4 = "Ignoring Exception"
-		print_compact_traceback(msg1 + msg2 + msg3 + msg4)
+                msg1 = "Last PropMgr doesn't have method"
+                msg2 = " update_props_if_needed_before_closing. That's"
+                msg3 = " OK (for now,only implemented for Plane PM)"
+                msg4 = "Ignoring Exception"
+                print_compact_traceback(msg1 + msg2 + msg3 + msg4)
         
         self.pw.featureManager.removeTab(
             self.pw.featureManager.indexOf(self.pw.propertyManagerScrollArea))
@@ -401,7 +401,7 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         
         topRowBtnsHLayout.addWidget(self.cancel_btn)
         
-        #@ abort_btn depreciated. We still need it because modes use it. 
+        #@ abort_btn deprecated. We still need it because modes use it. 
         self.abort_btn = self.cancel_btn
         
         # Restore Defaults button.
