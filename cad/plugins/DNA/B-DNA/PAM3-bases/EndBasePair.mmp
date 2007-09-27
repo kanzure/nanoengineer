@@ -8,11 +8,11 @@ egroup (View Data)
 group (EndBasePair)
 info opengroup open = True
 mol (DNA-1) def
-atom 1 (300) (0, 0, 0) def
+atom 1 (304) (0, 0, 0) def
 atom 2 (301) (0, 8697, 0) def
 info atom dnaBaseName = a
 bond1 1
-atom 3 (301) (6361, -5931, 0) def
+atom 3 (305) (6361, -5931, 0) def
 info atom dnaBaseName = b
 bond1 1
 atom 4 (0) (7882, -3676, 1590) def
@@ -23,10 +23,6 @@ atom 6 (0) (0, 0, 1590) def
 bond1 1
 atom 7 (306) (2210, 7978, -1374) def
 bond1 2
-atom 8 (304) (0, 0, -1590) inv
-bond1 1
-atom 9 (305) (3710, -7399, -1791) inv
-bond1 3
 egroup (EndBasePair)
 end1
 group (Clipboard)
