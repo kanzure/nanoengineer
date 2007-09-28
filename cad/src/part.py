@@ -819,28 +819,62 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             #  also means no need for prefs change to inval drawLevel, provided it gl_updates)
             # (could optim by only invalling drawLevel itself if the prefs value is not 'variable', I think,
             #  but recomputing natoms should be fast compared to drawing, anyway)
-        self.repeated_bonds_dict = {}
-            # This lets bonds avoid being drawn twice. It maps bond.key to bond
-            # for all bonds that might otherwise be drawn twice. Note that
-            # OpenGL drawing (draw methods) uses it only for external bonds,
-            # but writepov uses it for all bonds; this is ok even
-            # if some writepov methods someday call some draw methods.
-            # WARNING: The present scheme would not work if multiple threads
-            # could draw one part, or if complex objects in a part (e.g. chunks)
-            # might be drawn twice in one frame. See comments near its use in
-            # Chunk.draw for ways we might need to generalize it. [bruce 070928]
+        self.before_drawing_model()
         try:
             # draw all visible model objects in self
             self.topnode.draw(glpane, glpane.displayMode)
         finally:
-            del self.repeated_bonds_dict
-                # this exposes the default value (not a dict)
-                # so that any use not during this method call
-                # is detected as an error; it also removes references
-                # to its values so as to not prevent those objects
-                # from being freed.
+            self.after_drawing_model()
         return
 
+    def before_drawing_model(self): #bruce 070928
+        """
+        Whenever self's model, or part of it, is drawn,
+        that should be bracketed by calls of self.before_drawing_model()
+        and self.after_drawing_model() (using try/finally to guarantee
+        the latter call). This is already done by self.draw,
+        but must be done explicitly if something draws a portion of
+        self's model in some other way.
+
+        Nesting of these calls is not permitted and will cause bugs.
+        This API will need revision when the model can contain repeated parts,
+        since each repetition will need to be bracketed by matched calls
+        of before_drawing_model and after_drawing_model, but they will need
+        to behave differently to permit nesting (e.g. have a stack of prior
+        values of the variables they reset).
+        """
+        assert self.repeated_bonds_dict is None
+        self.repeated_bonds_dict = {}
+            # This lets bonds avoid being drawn twice. It maps bond.key to bond
+            # for all bonds that might otherwise be drawn twice. It is public
+            # for use and modification by anything that draws bonds.
+            #
+            # Note that OpenGL drawing (draw methods) uses it only for external
+            # bonds, but POV-Ray drawing (writepov methods) uses it for all
+            # bonds; this is ok even if some writepov methods someday call some
+            # draw methods.
+            #
+            # WARNING: The present scheme would not work if multiple threads
+            # could draw one part, or if complex objects in a part (e.g. chunks)
+            # might be drawn twice in one frame. See comments near its use in
+            # Chunk.draw (and in docstring) for ways we might need to generalize
+            # it. [bruce 070928]
+        pass
+
+    def after_drawing_model(self): #bruce 070928
+        """
+        @see: before_drawing_model
+        """
+        assert self.repeated_bonds_dict is not None
+        del self.repeated_bonds_dict
+            # this exposes the default value (not a dict)
+            # so that any use not during this method call
+            # is detected as an error; it also removes references
+            # to its values so as to not prevent those objects
+            # from being freed.
+        assert self.repeated_bonds_dict is None
+        pass
+    
     def draw_text_label(self, glpane):
         "#doc; called from GLPane.paintGL just after it calls mode.Draw()"
         # caller catches exceptions, so we don't have to bother

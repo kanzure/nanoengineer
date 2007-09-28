@@ -1550,18 +1550,27 @@ class extrudeMode(basicMode):
     # drawing code
     
     def draw_model(self): #bruce 050218 split this out
+        """
+        Draw the entire model including our base and repeat units,
+        or just our base and repeat units, depending on settings.
+        """
         try:
             basicMode.Draw(self) # draw axes, if displayed
+            model = self.o.assy.part
             if self.show_entire_model:
-                self.o.assy.draw(self.o)
+                model.draw(self.o) # includes before_drawing_model, etc
             else:
-                for mol in self.molcopies:
-                    #e use per-repunit drawing styles...
-##                    dispdef = mol.get_dispdef( self.o) # not needed, since...
-                    dispdef = 'bug'
-                    mol.draw(self.o, dispdef) # ...dispdef arg not used (041013)
-                        # update, bruce 070407: now that mol can also be a fake_copied_mol,
-                        # it's simplest to just use a fake dispdef here.
+                model.before_drawing_model() #bruce 070928 fix predicted bug
+                try:
+                    for mol in self.molcopies:
+                        #e use per-repunit drawing styles...
+    ##                    dispdef = mol.get_dispdef( self.o) # not needed, since...
+                        dispdef = 'bug'
+                        mol.draw(self.o, dispdef) # ...dispdef arg not used (041013)
+                            # update, bruce 070407: now that mol can also be a fake_copied_mol,
+                            # it's simplest to just use a fake dispdef here.
+                finally:
+                    model.after_drawing_model() #bruce 070928 fix predicted bug
             try: #bruce 050203
                 for unit1,unit2 in zip(self.molcopies[:-1],self.molcopies[1:]):
                     self.draw_bond_lines(unit1,unit2)
