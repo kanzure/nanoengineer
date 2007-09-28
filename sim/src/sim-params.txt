@@ -160,15 +160,15 @@ stretch   4.00  670.00  1.0000   -1         -1       9    1   Sj3-1-Sj3
 
 # 180 degree along Axis
 bend   0.18          3.14159265359   9   Ax5-1-Ax5.sp3-1-Ax5
-bend   0.18          3.14159265359   9   H-1-Ax5.sp3-1-Ax5
-bend   0.18          3.14159265359   9   H-1-Ax5.sp3-1-Ae5
+#bend   0.18          3.14159265359   9   H-1-Ax5.sp3-1-Ax5 #duplicate, H is sugar
+#bend   0.18          3.14159265359   9   H-1-Ax5.sp3-1-Ae5 #duplicate, H is sugar
 bend   0.18          3.14159265359   9   Ax5-1-Ax5.sp3-1-Ae5
 bend   0.18          3.14159265359   9   Ae5-1-Ax5.sp3-1-Ae5
 
 # 90 degree Axis to Sugar
 bend   1.0           1.57079632679   9   Ax5-1-Ax5.sp3-1-Ss5
 bend   1.0           1.57079632679   9   Ax5-1-Ax5.sp3-1-Sj5
-bend   1.0           1.57079632679   9   H-1-Ax5.sp3-1-Ss5
+#bend   1.0           1.57079632679   9   H-1-Ax5.sp3-1-Ss5 #duplicate, H is sugar
 bend   1.0           1.57079632679   9   Ss5-1-Ax5.sp3-1-Ae5
 bend   1.0           1.57079632679   9   H-1-Ax5.sp3-1-Ax5
 bend   1.0           1.57079632679   9   H-1-Ax5.sp3-1-Ae5
@@ -256,11 +256,10 @@ bend   0.04          2.0210912715    9   Sj5-1-Pl5.sp3-1-Sj5
 
 # 180 degree along Axis
 bend   0.18          3.14159265359   9   Ax3-1-Ax3.sp3-1-Ax3
-bend   0.18          3.14159265359   9   H-1-Ax3.sp3-1-Ax3
-bend   0.18          3.14159265359   9   H-1-Ax3.sp3-1-Ae3
+#bend   0.18          3.14159265359   9   H-1-Ax3.sp3-1-Ax3 #duplicate, H is sugar
+#bend   0.18          3.14159265359   9   H-1-Ax3.sp3-1-Ae3 #duplicate, H is sugar
 bend   0.18          3.14159265359   9   Ax3-1-Ax3.sp3-1-Ae3
 bend   0.18          3.14159265359   9   Ae3-1-Ax3.sp3-1-Ae3
-bend   0.18          3.14159265359   9   Ae3-1-Ax3.sp3-1-Ax3
 
 # 90 degree Axis to Sugar
 bend   1.0           1.57079632679   9   Ax3-1-Ax3.sp3-1-Ss3
@@ -275,15 +274,15 @@ bend   1.0           1.57079632679   9   Ss3-1-Ae3.sp3-1-Ae3
 bend   1.0           1.57079632679   9   Sj3-1-Ae3.sp3-1-Ae3
 bend   1.0           1.57079632679   9   Ae3-1-Ax3.sp3-1-Se3
 bend   1.0           1.57079632679   9   Ae3-1-Ae3.sp3-1-Se3
-bend   1.0           1.57079632679   9   H-1-Ax3.sp3-1-Ss3
-bend   1.0           1.57079632679   9   H-1-Ax3.sp3-1-Sj3
-bend   1.0           1.57079632679   9   H-1-Ax3.sp3-1-Se3
+#bend   1.0           1.57079632679   9   H-1-Ax3.sp3-1-Ss3 #duplicate, H is sugar
+#bend   1.0           1.57079632679   9   H-1-Ax3.sp3-1-Sj3 #duplicate, H is sugar
+#bend   1.0           1.57079632679   9   H-1-Ax3.sp3-1-Se3 #duplicate, H is sugar
 bend   1.0           1.57079632679   9   H-1-Ax3.sp3-1-Ax3
 bend   1.0           1.57079632679   9   H-1-Ax3.sp3-1-Ae3
 bend   1.0           1.57079632679   9   H-1-Ax3.sp3-1-H
-bend   1.0           1.57079632679   9   H-1-Ae3.sp3-1-Ss3
-bend   1.0           1.57079632679   9   H-1-Ae3.sp3-1-Sj3
-bend   1.0           1.57079632679   9   H-1-Ae3.sp3-1-Se3
+#bend   1.0           1.57079632679   9   H-1-Ae3.sp3-1-Ss3 #duplicate, H is sugar
+#bend   1.0           1.57079632679   9   H-1-Ae3.sp3-1-Sj3 #duplicate, H is sugar
+#bend   1.0           1.57079632679   9   H-1-Ae3.sp3-1-Se3 #duplicate, H is sugar
 bend   1.0           1.57079632679   9   H-1-Ae3.sp3-1-Ax3
 bend   1.0           1.57079632679   9   H-1-Ae3.sp3-1-Ae3
 bend   1.0           1.57079632679   9   H-1-Ae3.sp3-1-H
@@ -314,7 +313,6 @@ bend   0.04          1.3016665561    9   H-1-Ss3.sp3-1-Ax3
 bend   0.04          1.3016665561    9   Ss3-1-Se3.sp3-1-Ae3
 bend   0.04          1.3016665561    9   Ss3-1-Ss3.sp3-1-Ae3
 bend   0.04          1.3016665561    9   Ae3-1-Ss3.sp3-1-Sh3
-bend   0.04          1.3016665561    9   Ae3-1-Ss3.sp3-1-Ss3
 bend   0.04          1.3016665561    9   Ae3-1-Ss3.sp3-1-Se3
 bend   0.04          1.3016665561    9   H-1-Ss3.sp3-1-Ae3
 

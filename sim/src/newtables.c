@@ -57,6 +57,231 @@ getAtomTypeByName(char *symbol)
   return (struct atomType *)hashtable_get(periodicHashtable, symbol);
 }
 
+// returns non-zero if it correctly parses bondName and fills in
+// remaining arguments
+static int
+parseBondName(char *bondName, int *element1, int *element2, char *bondOrder)
+{
+  // will accept El-o-El, El--El, or El-El.  Latter two default to
+  // bondOrder==1
+  char *tok;
+  struct atomType *at;
+  
+  if ((tok = strtok(bondName, "-")) == NULL) {
+    return 0;
+  }
+  at = getAtomTypeByName(tok);
+  if (at == NULL) {
+    return 0;
+  }
+  *element1 = at->protons;
+  if ((tok = strtok(NULL, "-")) == NULL) {
+    return 0;
+  }
+  *bondOrder = '1';
+  if (tok[1] == '\0') {
+    switch (tok[0]) {
+    case '1':
+    case '2':
+    case '3':
+    case 'a':
+    case 'g':
+      *bondOrder = tok[0];
+      if ((tok = strtok(NULL, "-")) == NULL) {
+        return 0;
+      }
+      break;
+    }
+  }
+  at = getAtomTypeByName(tok);
+  if (at == NULL) {
+    return 0;
+  }
+  *element2 = at->protons;
+  if ((tok = strtok(NULL, "-")) == NULL) {
+    return 1;
+  }
+  return 0;
+}
+
+// returns non-zero if it correctly parses bendName and fills in
+// remaining arguments
+static int
+parseBendName(char *bendName,
+              int *element_center,
+              enum hybridization *centerHybridization,
+              int *element1,
+              char *bondOrder1,
+              int *element2,
+              char *bondOrder2)
+{
+  // will accept:
+  //  Ea-o-Ec.hyb-o-Eb
+  //  Ea-o-Ec-o-Eb
+  //  Ea--Ec--Eb
+  //  Ea-Ec-Eb
+  // and other varients with pieces elided.  Bond orders default to 1,
+  // hybridization to sp3.
+  char *tok1;
+  char *tok2;
+  char *saveptr1;
+  char *saveptr2;
+  struct atomType *at;
+  
+  if ((tok1 = strtok_r(bendName, "-", &saveptr1)) == NULL) {
+    return 0;
+  }
+  at = getAtomTypeByName(tok1);
+  if (at == NULL) {
+    return 0;
+  }
+  *element1 = at->protons;
+  if ((tok1 = strtok_r(NULL, "-", &saveptr1)) == NULL) {
+    return 0;
+  }
+  *bondOrder1 = '1';
+  if (tok1[1] == '\0') {
+    switch (tok1[0]) {
+    case '1':
+    case '2':
+    case '3':
+    case 'a':
+    case 'g':
+      *bondOrder1 = tok1[0];
+      if ((tok1 = strtok_r(NULL, "-", &saveptr1)) == NULL) {
+        return 0;
+      }
+      break;
+    }
+  }
+  if ((tok2 = strtok_r(tok1, ".", &saveptr2)) == NULL) {
+    return 0;
+  }
+  at = getAtomTypeByName(tok2);
+  if (at == NULL) {
+    return 0;
+  }
+  *element_center = at->protons;
+  if ((tok2 = strtok_r(NULL, ".", &saveptr2)) == NULL) {
+    *centerHybridization = sp3;
+  } else if (!strcmp(tok2, "sp3d")) {
+    *centerHybridization = sp3d;
+  } else if (!strcmp(tok2, "sp3")) {
+    *centerHybridization = sp3;
+  } else if (!strcmp(tok2, "sp2_g")) {
+    *centerHybridization = sp2_g;
+  } else if (!strcmp(tok2, "sp2")) {
+    *centerHybridization = sp2;
+  } else if (!strcmp(tok2, "sp")) {
+    *centerHybridization = sp;
+  } else {
+    return 0;
+  }
+  if ((tok1 = strtok_r(NULL, "-", &saveptr1)) == NULL) {
+    return 0;
+  }
+  *bondOrder2 = '1';
+  if (tok1[1] == '\0') {
+    switch (tok1[0]) {
+    case '1':
+    case '2':
+    case '3':
+    case 'a':
+    case 'g':
+      *bondOrder2 = tok1[0];
+      if ((tok1 = strtok_r(NULL, "-", &saveptr1)) == NULL) {
+        return 0;
+      }
+      break;
+    }
+  }
+  at = getAtomTypeByName(tok1);
+  if (at == NULL) {
+    return 0;
+  }
+  *element2 = at->protons;
+  if ((tok1 = strtok_r(NULL, "-", &saveptr1)) == NULL) {
+    return 1;
+  }
+  return 0;
+}
+
+static void
+generateBondName(char *bondName, int element1, int element2, char bondOrder)
+{
+  int elt;
+  if (element2 < element1) {
+    elt = element1;
+    element1 = element2;
+    element2 = elt;
+  }
+  sprintf(bondName, "%s-%c-%s", getAtomTypeByIndex(element1)->symbol,
+          bondOrder, getAtomTypeByIndex(element2)->symbol);
+}
+
+static void
+generateBendName(char *bendName,
+                 int element_center,
+                 enum hybridization centerHybridization,
+                 int element1,
+                 char bondOrder1,
+                 int element2,
+                 char bondOrder2)
+{
+  int elt;
+  char bnd;
+  if (element1 > element2 || (element1 == element2 && bondOrder1 > bondOrder2)) {
+    elt = element1;
+    element1 = element2;
+    element2 = elt;
+    bnd = bondOrder1;
+    bondOrder1 = bondOrder2;
+    bondOrder2 = bnd;
+  }
+  sprintf(bendName, "%s-%c-%s.%s-%c-%s", getAtomTypeByIndex(element1)->symbol,
+          bondOrder1, getAtomTypeByIndex(element_center)->symbol,
+          hybridizationString(centerHybridization),
+          bondOrder2, getAtomTypeByIndex(element2)->symbol);
+}
+
+static char *
+canonicalizeBondName(char *bondName)
+{
+  int element1;
+  int element2;
+  char bondOrder;
+  static char newName[64];
+  
+  if (parseBondName(bondName, &element1, &element2, &bondOrder)) {
+    generateBondName(newName, element1, element2, bondOrder);
+    return newName;
+  }
+  return NULL;
+}
+
+static char *
+canonicalizeBendName(char *bendName)
+{
+  int element_center;
+  enum hybridization centerHybridization;
+  int element1;
+  char bondOrder1;
+  int element2;
+  char bondOrder2;
+  static char newName[64];
+
+  if (parseBendName(bendName, &element_center, &centerHybridization,
+                    &element1, &bondOrder1,
+                    &element2, &bondOrder2))
+  {
+    generateBendName(newName, element_center, centerHybridization,
+                     element1, bondOrder1,
+                     element2, bondOrder2);
+    return newName;
+  }
+  return NULL;
+}
+
 // ks in N/m
 // r0 in pm, or 1e-12 m
 // de in aJ, or 1e-18 J
@@ -96,44 +321,6 @@ newBendData(char *bendName, double kb, double theta0, int quality)
   bend->parameterQuality = quality;
   bend->warned = 0;
   return bend;
-}
-
-static void
-generateBondName(char *bondName, int element1, int element2, char bondOrder)
-{
-  int elt;
-  if (element2 < element1) {
-    elt = element1;
-    element1 = element2;
-    element2 = elt;
-  }
-  sprintf(bondName, "%s-%c-%s", getAtomTypeByIndex(element1)->symbol,
-          bondOrder, getAtomTypeByIndex(element2)->symbol);
-}
-
-static void
-generateBendName(char *bendName,
-                 int element_center,
-                 enum hybridization centerHybridization,
-                 int element1,
-                 char bondOrder1,
-                 int element2,
-                 char bondOrder2)
-{
-  int elt;
-  char bnd;
-  if (element1 > element2 || (element1 == element2 && bondOrder1 > bondOrder2)) {
-    elt = element1;
-    element1 = element2;
-    element2 = elt;
-    bnd = bondOrder1;
-    bondOrder1 = bondOrder2;
-    bondOrder2 = bnd;
-  }
-  sprintf(bendName, "%s-%c-%s.%s-%c-%s", getAtomTypeByIndex(element1)->symbol,
-          bondOrder1, getAtomTypeByIndex(element_center)->symbol,
-          hybridizationString(centerHybridization),
-          bondOrder2, getAtomTypeByIndex(element2)->symbol);
 }
 
 static struct hashtable *bondStretchHashtable = NULL;
@@ -195,15 +382,26 @@ addInitialBondStretch(double ks,
 {
   struct bondStretch *stretch;
   struct bondStretch *old;
-
+  char *bn;
+  char *canonicalName;
+  
+  bn = copy_string(bondName);
+  canonicalName = canonicalizeBondName(bn);
+  if (canonicalName == NULL) {
+    fprintf(stderr, "malformed bond name: %s\n", bondName);
+    // we need a name, so we use the bad one -- this entry will
+    // probably never be found.
+    canonicalName = bondName;
+  }
+    
   if (beta < 0) {
     beta = sqrt(ks / (2.0 * de)) / 10.0 ;
   }
   if (inflectionR < 0) {
     inflectionR = r0 * 1.5;
   }
-  stretch = newBondStretch(bondName, ks, r0, de, beta*1e-2, inflectionR, quality, quadratic);
-  old = hashtable_put(bondStretchHashtable, bondName, stretch);
+  stretch = newBondStretch(canonicalName, ks, r0, de, beta*1e-2, inflectionR, quality, quadratic);
+  old = hashtable_put(bondStretchHashtable, canonicalName, stretch);
   if (old != NULL) {
     free(old->bondName);
     free(old);
@@ -217,10 +415,21 @@ addInitialBendData(double kb, double theta0, int quality, char *bendName)
 {
   struct bendData *bend;
   struct bendData *old;
+  char *bn;
+  char *canonicalName;
+  
+  bn = copy_string(bendName);
+  canonicalName = canonicalizeBendName(bn);
+  if (canonicalName == NULL) {
+    fprintf(stderr, "malformed bend name: %s\n", bendName);
+    // we need a name, so we use the bad one -- this entry will
+    // probably never be found.
+    canonicalName = bendName;
+  }
 
   // typical kb values around 1 aJ/rad^2
-  bend = newBendData(bendName, kb*1e6, theta0, quality);
-  old = hashtable_put(bendDataHashtable, bendName, bend);
+  bend = newBendData(canonicalName, kb*1e6, theta0, quality);
+  old = hashtable_put(bendDataHashtable, canonicalName, bend);
   if (old != NULL) {
     fprintf(stderr, "duplicate bend entry: %s\n", bendName);
     free(old->bendName);
