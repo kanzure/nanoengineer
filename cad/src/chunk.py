@@ -1114,15 +1114,15 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             # which might differ on each draw call of the same object.)
             model_draw_frame = self.part # kluge, explained above
                 # note: that's the same as each bond's part.
-            repeated_objects_dict = model_draw_frame.repeated_objects_dict
+            repeated_bonds_dict = model_draw_frame.repeated_bonds_dict
             
             for bon in self.externs:
-                if bon.key not in repeated_objects_dict:
+                if bon.key not in repeated_bonds_dict:
                     # BUG: disp and bondcolor depend on self, so the bond appearance
                     # may depend on which chunk draws it first (i.e. on their Model
                     # Tree order). How to fix this is the subject of a current design
                     # discussion. [bruce 070928 comment]
-                    repeated_objects_dict[bon.key] = bon
+                    repeated_bonds_dict[bon.key] = bon
                     bon.draw(glpane, disp, bondcolor, drawLevel)
             pass
         ColorSorter.finish() # grantham 20051205
@@ -1385,11 +1385,21 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
 
     # write to a povray file:  draw the atoms and bonds inside a molecule
     def writepov(self, file, disp):
-        if self.hidden: return
+        """
+        Draw self (if visible) into an open povray file
+        (which already has whatever headers & macros it needs),
+        using the given display mode unless self overrides it.
+        """
+        if self.hidden:
+            return
 
-        if self.display != diDEFAULT: disp = self.display
+        if self.display != diDEFAULT:
+            disp = self.display
 
-        drawn = {}
+        drawn = self.part.repeated_bonds_dict
+            # bruce 070928 bugfix: use repeated_bonds_dict
+            # instead of a per-chunk dict, so we don't
+            # draw external bonds twice
         for atm in self.atoms.values():
             atm.writepov(file, disp, self.color)
             for bon in atm.bonds:

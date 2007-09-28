@@ -40,17 +40,16 @@ from prefs_constants import material_specular_finish_prefs_key
 # ==
 
 # Create a POV-Ray file
-def writepovfile(part, glpane, filename): #bruce 050927 replaced assy argument with part and glpane args, added docstring
-    "write the given part into a new POV-Ray file with the given name, using glpane and glpane.mode for lightig, color, etc"
+def writepovfile(part, glpane, filename):
+    """
+    write the given part into a new POV-Ray file with the given name,
+    using glpane and glpane.mode for lighting, color, etc
+    """
     f = open(filename,"w")
-    ## bruce 050325 removed this (no effect except on assy.alist which is bad now)
-    ## atnums = {}
-    ## atnums['NUM'] = 0
-    ## assy.alist = [] 
 
     # POV-Ray images now look correct when Projection = ORTHOGRAPHIC.  Mark 051104.
     if glpane.ortho == PERSPECTIVE:
-        cdist = 6.0 # Camera distance
+        cdist = 6.0 # Camera distance [see also glpane.cdist]
     else: # ORTHOGRAPHIC
         cdist = 1600.0
     
@@ -111,26 +110,30 @@ def writepovfile(part, glpane, filename): #bruce 050927 replaced assy argument w
     # write a union object, which encloses all following objects, so it's 
     # easier to set a global modifier like "Clipped_by" for all objects
     # Huaicai 1/6/05
-    f.write("\nunion {\t\n") ##Head of the union object
+    f.write("\nunion {\t\n") # Head of the union object
  
     # Write atoms and bonds in the part
-    part.topnode.writepov(f, glpane.displayMode)
+    part.writepov(f, glpane.displayMode)
         #bruce 050421 changed assy.tree to assy.part.topnode to fix an assy/part bug
         #bruce 050927 changed assy.part -> new part arg
+        #bruce 070928 call part.writepov instead of directly calling part.topnode.writepov,
+        # so the part can prevent external bonds from being drawn twice.
+
+    # set the near and far clipping plane
+    # removed 050817 josh -- caused crud to appear in the output (and slowed rendering 5x!!)
+
+    ## farPos = -cdist*glpane.scale*glpane.out*glpane.far + eyePos
+    ## nearPos = -cdist*glpane.scale*glpane.out*glpane.near + eyePos
     
-    farPos = -cdist*glpane.scale*glpane.out*glpane.far + eyePos
-    nearPos = -cdist*glpane.scale*glpane.out*glpane.near + eyePos
+    ## pov_out = (glpane.out[0], glpane.out[1], -glpane.out[2])
+    ## pov_far =  (farPos[0], farPos[1], -farPos[2])
+    ## pov_near =  (nearPos[0], nearPos[1], -nearPos[2])
+    ## pov_in = (-glpane.out[0], -glpane.out[1], glpane.out[2])
     
-    pov_out = (glpane.out[0], glpane.out[1], -glpane.out[2])
-    pov_far =  (farPos[0], farPos[1], -farPos[2])
-    pov_near =  (nearPos[0], nearPos[1], -nearPos[2])
-    pov_in = (-glpane.out[0], -glpane.out[1], glpane.out[2])
-    
-    ### sets the near and far clipping plane
-    ## removed 050817 josh -- caused crud to appear in the output (and slowed rendering 5x!!)
     ## f.write("clipped_by { plane { " + povpoint(-glpane.out) + ", " + str(dot(pov_in, pov_far)) + " }\n")
     ## f.write("             plane { " + povpoint(glpane.out) + ", " + str(dot(pov_out, pov_near)) + " } }\n")
-    
+
+    # [and what was this for?]
     #if glpane.mode.modename == 'DEPOSIT':
         #dt = -glpane.quat
         #degY = dt.angle*180.0/pi
@@ -146,9 +149,10 @@ def writepovfile(part, glpane, filename): #bruce 050927 replaced assy argument w
 
 # writepovlighting() added by Mark.  Feel free to ask him if you have questions.  051130.    
 def writepovlighting(f, glpane):
-    '''Writes a light source record for each light (if enabled) and the
+    """
+    Writes a light source record for each light (if enabled) and the
     'Atomic' finish record. These records impact the lighting affect.
-    ''' 
+    """ 
     # Get the lighting parameters for the 3 lights.
     (((r0,g0,b0),a0,d0,s0,x0,y0,z0,e0), \
     ( (r1,g1,b1),a1,d1,s1,x1,y1,z1,e1), \

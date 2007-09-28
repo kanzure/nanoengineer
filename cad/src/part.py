@@ -130,11 +130,11 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
 
     # default values of instance variables:
     
-    # repeated_objects_dict is a dict during calls of self.draw,
+    # repeated_bonds_dict is a dict during calls of self.draw,
     # but is intentionally not a dict outside of those calls,
     # so that erroneous use of it is noticed as an error.
     # For intended use, see comments where it's used. [bruce 070928]
-    repeated_objects_dict = None
+    repeated_bonds_dict = None
     
     def _undo_update_always(self): #bruce 060224
         "This is run on every Part still around after an Undo or Redo op, whether or not it was modified by that op."
@@ -809,13 +809,22 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
     # ==
     
     def draw(self, glpane):
+        """
+        Draw all of self's visible model objects
+        using the given GLPane,
+        whose OpenGL context must already be current.
+        """
         self.invalidate_attr('natoms') #bruce 060215, so that natoms and drawLevel are recomputed every time
             # (needed to fix bugs caused by lack of inval of natoms when atoms die or are born;
             #  also means no need for prefs change to inval drawLevel, provided it gl_updates)
             # (could optim by only invalling drawLevel itself if the prefs value is not 'variable', I think,
             #  but recomputing natoms should be fast compared to drawing, anyway)
-        self.repeated_objects_dict = {}
-            # This lets some objects avoid being drawn twice.
+        self.repeated_bonds_dict = {}
+            # This lets bonds avoid being drawn twice. It maps bond.key to bond
+            # for all bonds that might otherwise be drawn twice. Note that
+            # OpenGL drawing (draw methods) uses it only for external bonds,
+            # but writepov uses it for all bonds; this is ok even
+            # if some writepov methods someday call some draw methods.
             # WARNING: The present scheme would not work if multiple threads
             # could draw one part, or if complex objects in a part (e.g. chunks)
             # might be drawn twice in one frame. See comments near its use in
@@ -824,7 +833,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             # draw all visible model objects in self
             self.topnode.draw(glpane, glpane.displayMode)
         finally:
-            del self.repeated_objects_dict
+            del self.repeated_bonds_dict
                 # this exposes the default value (not a dict)
                 # so that any use not during this method call
                 # is detected as an error; it also removes references
@@ -856,7 +865,23 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
 
     def glpane_text(self):
         return "" # default implem, subclasses might override this
-        
+
+    def writepov(self, f, dispdef):
+        """
+        Draw self's visible model objects into an open povray file
+        (which already has whatever headers & macros it needs),
+        using the given display mode by default.
+        """
+        self.repeated_bonds_dict = {}
+            # See comments in self.draw. We intentionally use the same
+            # attribute of self, to permit future draw methods than
+            # work for either OpenGL or POV-Ray.
+        try:
+            self.topnode.writepov(f, dispdef)
+        finally:
+            del self.repeated_bonds_dict
+        return
+    
     # ==
     
     # for debugging
