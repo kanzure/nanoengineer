@@ -25,16 +25,17 @@ from PyQt4.Qt import Qt
 from PM.PM_Dialog          import PM_Dialog
 from PM.PM_GroupBox        import PM_GroupBox
 from PM.PM_CheckBox        import PM_CheckBox
-from PM.PM_ToolButtonRow   import PM_ToolButtonRow
-from PM.PM_ElementChooser  import PM_ElementChooser
-from PM.PM_PAM5_AtomChooser  import PM_PAM5_AtomChooser
-from PM.PM_PAM3_AtomChooser  import PM_PAM3_AtomChooser
-from PM.PM_PreviewGroupBox import PM_PreviewGroupBox
+from PM.PM_ComboBox        import PM_ComboBox
 from PM.PM_LineEdit        import PM_LineEdit
 from PM.PM_DoubleSpinBox   import PM_DoubleSpinBox
-from PM.PM_LabelRow        import PM_LabelRow
+
 from PM.PM_CoordinateSpinBoxes import PM_CoordinateSpinBoxes
-from PM.PM_ComboBox     import PM_ComboBox
+from PM.PM_ToolButtonRow       import PM_ToolButtonRow
+
+from PM.PM_ElementChooser      import PM_ElementChooser
+from PM.PM_PAM5_AtomChooser    import PM_PAM5_AtomChooser
+from PM.PM_PAM3_AtomChooser    import PM_PAM3_AtomChooser
+from PM.PM_PreviewGroupBox     import PM_PreviewGroupBox
 
 from PM.PM_Constants       import pmDoneButton
 from PM.PM_Constants       import pmWhatsThisButton
@@ -142,7 +143,9 @@ class Ui_BuildAtomsPropertyManager(PM_Dialog):
         
         elementViewer = self.previewGroupBox.elementViewer
         self.regularElementChooser = \
-            PM_ElementChooser( inPmGroupBox,  elementViewer = elementViewer)
+            PM_ElementChooser( inPmGroupBox,  
+                               parentPropMgr = self,
+                               elementViewer = elementViewer)
         
     
     def _add_PAM5_AtomChooserGroupBox(self, inPmGroupBox):
@@ -155,7 +158,9 @@ class Ui_BuildAtomsPropertyManager(PM_Dialog):
         
         elementViewer = self.previewGroupBox.elementViewer
         self.PAM5Chooser = \
-            PM_PAM5_AtomChooser( inPmGroupBox, elementViewer = elementViewer)
+            PM_PAM5_AtomChooser( inPmGroupBox,
+                                 parentPropMgr = self,
+                                 elementViewer = elementViewer)
     
     def _add_PAM3_AtomChooserGroupBox(self, inPmGroupBox):
         """
@@ -167,7 +172,9 @@ class Ui_BuildAtomsPropertyManager(PM_Dialog):
         
         elementViewer = self.previewGroupBox.elementViewer
         self.PAM3Chooser = \
-            PM_PAM3_AtomChooser( inPmGroupBox, elementViewer = elementViewer)
+            PM_PAM3_AtomChooser( inPmGroupBox, 
+                                 parentPropMgr = self,
+                                 elementViewer = elementViewer)
         
     def _hideAllAtomChooserGroupBoxes(self):        
         """
@@ -403,7 +410,13 @@ class Ui_BuildAtomsPropertyManager(PM_Dialog):
         
         if self.elementChooser:
             self.elementChooser.updateElementViewer()
-    
-            
-            
-            
+        
+        self.updateMessage()
+        
+    def updateMessage(self):
+        """
+        Update the Message groupbox with informative message. 
+        Subclasses should override this.
+        """
+        pass
+  

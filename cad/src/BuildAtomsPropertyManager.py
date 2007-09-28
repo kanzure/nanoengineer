@@ -223,7 +223,7 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
             self.update_selection_filter_list_widget()
             return
         
-        element = self.elementChooser.element        
+        element = self.elementChooser.element  
         if self.o.modkeys is None:
             self.w.filtered_elements = []
             self.w.filtered_elements.append(element)
@@ -262,6 +262,7 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         msg = ""
         if not self.elementChooser:
             return
+        
         element = self.elementChooser.element
         
         if self.elementChooser.isVisible():

@@ -101,16 +101,22 @@ class PM_ElementChooser( PM_MolecularModelingKit ):
     
     def __init__(self, 
                  parentWidget, 
+                 parentPropMgr   = None,
                  title           = "",
                  element         = "Carbon",
                  elementViewer   =  None
                  ):
         """
         Appends a PM_ElementChooser widget to the bottom of I{parentWidget}, 
-        a Property Manager dialog.
+        a Property Manager dialog. (or as a sub groupbox for Atom Chooser 
+        GroupBox.)
         
-        @param parentWidget: The parent PM dialog containing this widget.
-        @type  parentWidget: PM_Dialog
+        @param parentWidget: The parent PM_Dialog or PM_groupBox containing this
+                             widget.
+        @type  parentWidget: PM_Dialog or PM_GroupBox
+        
+        @param parentPropMgr: The parent Property Manager 
+        @type  parentPropMgr: PM_Dialog or None
         
         @param title: The button title on the group box containing the
                       Element Chooser.
@@ -123,6 +129,7 @@ class PM_ElementChooser( PM_MolecularModelingKit ):
         
         PM_MolecularModelingKit.__init__( self, 
                                           parentWidget, 
+                                          parentPropMgr,
                                           title,
                                           element,
                                           elementViewer)

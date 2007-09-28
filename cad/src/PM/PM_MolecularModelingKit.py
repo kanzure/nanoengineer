@@ -20,14 +20,12 @@ from GeneratorBaseClass import AbstractMethod
 
 class PM_MolecularModelingKit( PM_GroupBox ):
     """
-    The PM_ElementChooser widget provides an Element Chooser widget,
-    contained in its own group box, for a Property Manager dialog.
+    The PM_MolecularModelingKit widget provides an Atom Chooser widget,
+    contained in its own group box, for a Property Manager dialog. (see 
+    subclasses for details)
     
-    A PM_ElementChooser is a selection widget that displays all elements, 
-    including their atom types (atomic hybrids), supported in NE1. Methods
-    are provided to set and get the selected element and atom type
-    (e.g., L{setElement()}, L{getElement()}, L{getElementNumber()} and
-    L{getElementSymbolAndAtomType()}).
+    A PM_MolecularModelingKit is a selection widget that displays all elements,
+    pseudo-atoms supported in NE1. 
     
     @cvar element: The current element.
     @type element: Elem
@@ -36,6 +34,7 @@ class PM_MolecularModelingKit( PM_GroupBox ):
     @type atomType: str
     
     @see: B{elements.py}
+    @see: B{PM.PM_ElementChooser}
     """
     
     element        = None
@@ -45,16 +44,22 @@ class PM_MolecularModelingKit( PM_GroupBox ):
     
     def __init__(self, 
                  parentWidget, 
+                 parentPropMgr   = None,
                  title           = "Molecular Modeling Kit",
                  element         = "",
-                 elementViewer   =  None
+                 elementViewer   =  None,
                  ):
         """
-        Appends a PM_ElementChooser widget to the bottom of I{parentWidget}, 
-        a Property Manager dialog.
+        Appends a AtomChooser widget (see subclasses) to the bottom of 
+        I{parentWidget}, a Property Manager dialog. 
+        (or as a sub groupbox for Atom Chooser  GroupBox.)
         
-        @param parentWidget: The parent PM dialog containing this widget.
-        @type  parentWidget: PM_Dialog
+        @param parentWidget: The parent PM_Dialog or PM_groupBox containing this
+                             widget.
+        @type  parentWidget: PM_Dialog or PM_GroupBox
+        
+        @param parentPropMgr: The parent Property Manager 
+        @type  parentPropMgr: PM_Dialog or None
         
         @param title: The button title on the group box containing the
                       Element Chooser.
@@ -70,6 +75,11 @@ class PM_MolecularModelingKit( PM_GroupBox ):
         self.element = self._periodicTable.getElement(element)
         self.elementViewer = elementViewer
         self.updateElementViewer()
+        
+        if parentPropMgr:
+            self.parentPropMgr = parentPropMgr
+        else:
+            self.parentPropMgr = parentWidget
         
         self._addGroupBoxes()
         self.connect_or_disconnect_signals(True)
@@ -163,7 +173,7 @@ class PM_MolecularModelingKit( PM_GroupBox ):
         self.element = self._periodicTable.getElement(elementNumber)
         self._updateAtomTypesButtons()
         self.updateElementViewer()
-        self._updateParentWidget()
+        self._updateParentPropMgr()
             
     def updateElementViewer(self):
         """
@@ -178,7 +188,7 @@ class PM_MolecularModelingKit( PM_GroupBox ):
         self.elementViewer.changeHybridType(self.atomType)        
         self.elementViewer.refreshDisplay(self.element, self.viewerDisplay)
     
-    def _updateParentWidget(self):
+    def _updateParentPropMgr(self):
         """
         Update things in the parentWidget if necessary. 
         (The parentWidget should be a property manager, although not necessary)
@@ -186,17 +196,18 @@ class PM_MolecularModelingKit( PM_GroupBox ):
         needs to be updated if the element is changed in the element chooser. 
         Similarly, the selection filter list should be updated in this mode. 
         """
-        parentWidgetClass = self.parentWidget.__class__
-      
-        if hasattr(parentWidgetClass, 'updateMessage'):
+        
+        parentPropMgrClass = self.parentPropMgr.__class__
+        
+        if hasattr(parentPropMgrClass, 'updateMessage'):
             try:
-                self.parentWidget.updateMessage()
+                self.parentPropMgr.updateMessage()
             except:
                 print_compact_traceback("Error calling updateMessage()")
                 
-        if hasattr(parentWidgetClass, 'update_selection_filter_list'):
+        if hasattr(parentPropMgrClass, 'update_selection_filter_list'):
             try:
-                self.parentWidget.update_selection_filter_list()
+                self.parentPropMgr.update_selection_filter_list()
             except:
                 msg = "Error calling update_selection_filter_list()"
                 print_compact_traceback(msg)
@@ -218,5 +229,3 @@ class PM_MolecularModelingKit( PM_GroupBox ):
         Atom chooser. 
         """
         raise AbstractMethod()
-
-        

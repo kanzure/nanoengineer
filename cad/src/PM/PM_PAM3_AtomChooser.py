@@ -35,47 +35,53 @@ PAM3_ATOMS_BUTTON_LIST = [ \
     #( "QToolButton", 305, "Se3", "", "PAM3-Sugar-End",      None, 1, 2 ),
 ]
 
-
 class PM_PAM3_AtomChooser( PM_MolecularModelingKit ):
     """
-    The PM_ElementChooser widget provides an Element Chooser widget,
-    contained in its own group box, for a Property Manager dialog.
+    The PM_PAM3_AtomChooser widget provides a PAM3 Atom Chooser,
+    PAM3 stands for "Three Pseudo Atom Model "
+    contained in its own group box, for a Property Manager dialog (or 
+    as a sub groupbox for Atom Chooser GroupBox.)
     
-    A PM_ElementChooser is a selection widget that displays all elements, 
-    including their atom types (atomic hybrids), supported in NE1. Methods
-    are provided to set and get the selected element and atom type
-    (e.g., L{setElement()}, L{getElement()}, L{getElementNumber()} and
-    L{getElementSymbolAndAtomType()}).
+    A PM_PAM3_AtomChooser is a selection widget that displays all PAM3 atoms 
+    supported in NE1.
         
     @see: B{elements.py}
+    @see: B{L{PM_MolecularModelingKit}}
     """
     
     viewerDisplay = diBALL
     
     def __init__(self, 
-                 parentWidget, 
+                 parentWidget,
+                 parentPropMgr   = None,
                  title           = "",
                  element         = "Ax3",
                  elementViewer   =  None
                  ):
         """
-        Appends a PM_ElementChooser widget to the bottom of I{parentWidget}, 
-        a Property Manager dialog.
+        Appends a PM_PAM3_AtomChooser widget to the bottom of I{parentWidget}, 
+        a Property Manager dialog. (or as a sub groupbox for Atom Chooser 
+        GroupBox.)
         
-        @param parentWidget: The parent PM dialog containing this widget.
-        @type  parentWidget: PM_Dialog
+        @param parentWidget: The parent PM_Dialog or PM_groupBox containing this
+                             widget.
+        @type  parentWidget: PM_Dialog or PM_GroupBox
+        
+        @param parentPropMgr: The parent Property Manager 
+        @type  parentPropMgr: PM_Dialog or None
         
         @param title: The button title on the group box containing the
-                      Element Chooser.
+                      Atom Chooser.
         @type  title: str
         
-        @param element: The initially selected element. It can be either an
-                        element symbol or name.
+        @param element: The initially selected PAM3 atom. It can be either an
+                        (PAM3) atom symbol or name.
         @type  element: str
         """
                 
         PM_MolecularModelingKit.__init__( self, 
-                                          parentWidget, 
+                                          parentWidget,
+                                          parentPropMgr,
                                           title,
                                           element,
                                           elementViewer)

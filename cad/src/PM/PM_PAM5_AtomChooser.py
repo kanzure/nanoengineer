@@ -34,64 +34,69 @@ PAM5_ATOMS_BUTTON_LIST = [ \
     ( "QToolButton", 207, "Hp5", "", "PAM5-Hairpin",        None, 2, 2 )  
 ]
 
-
 class PM_PAM5_AtomChooser( PM_MolecularModelingKit ):
     """
-    The PM_ElementChooser widget provides an Element Chooser widget,
-    contained in its own group box, for a Property Manager dialog.
+    The PM_PAM5_AtomChooser widget provides a PAM5 Atom Chooser,
+    PAM5 stands for "Five Pseudo Atom Model "
+    contained in its own group box, for a Property Manager dialog (or 
+    as a sub groupbox for Atom Chooser GroupBox.)
     
-    A PM_ElementChooser is a selection widget that displays all elements, 
-    including their atom types (atomic hybrids), supported in NE1. Methods
-    are provided to set and get the selected element and atom type
-    (e.g., L{setElement()}, L{getElement()}, L{getElementNumber()} and
-    L{getElementSymbolAndAtomType()}).
+    A PM_PAM5_AtomChooser is a selection widget that displays all PAM5 atoms 
+    supported in NE1
         
     @see: B{elements.py}
+    @see: B{L{PM_MolecularModelingKit}}
+    @see: U{B{PAM-5}<http://www.nanoengineer-1.net/mediawiki/index.php?title=PAM-5>}
     """
     viewerDisplay = diBALL
         
     def __init__(self, 
-                 parentWidget, 
+                 parentWidget,
+                 parentPropMgr   = None,
                  title           = "",
                  element         = "Ax5",
                  elementViewer   =  None
                  ):
         """
-        Appends a PM_ElementChooser widget to the bottom of I{parentWidget}, 
-        a Property Manager dialog.
+        Appends a PM_PAM5_AtomChooser widget to the bottom of I{parentWidget}, 
+        a Property Manager dialog. (or as a sub groupbox for Atom Chooser 
+        GroupBox.)
         
-        @param parentWidget: The parent PM dialog containing this widget.
-        @type  parentWidget: PM_Dialog
+        @param parentWidget: The parent PM_Dialog or PM_groupBox containing this
+                             widget.
+        @type  parentWidget: PM_Dialog or PM_GroupBox
+        
+        @param parentPropMgr: The parent Property Manager 
+        @type  parentPropMgr: PM_Dialog or None
         
         @param title: The button title on the group box containing the
-                      Element Chooser.
+                      Atom Chooser.
         @type  title: str
         
-        @param element: The initially selected element. It can be either an
-                        element symbol or name.
+        @param element: The initially selected PAM5 atom. It can be either an
+                        PAM5 atom symbol or name.
         @type  element: str
         """
         
         PM_MolecularModelingKit.__init__( self, 
-                                          parentWidget, 
+                                          parentWidget,
+                                          parentPropMgr,
                                           title,
                                           element,
                                           elementViewer)
         
         self._elementsButtonGroup.setButtonSize(width = 38, height = 38)
-        
-           
+
     def _addGroupBoxes(self):
         """
         various groupboxes present inside the PAM5 Atom chooser groupbox.
         """
         self._addElementsGroupBox(self)
         
-
     def getElementsButtonList(self):
         """
-        Return the list of buttons in the PAM3 Atom chooser.
-        @return: List containing information about the PAM3 atom toolbuttons
+        Return the list of buttons in the PAM5 Atom chooser.
+        @return: List containing information about the PAM5 atom toolbuttons
         @rtype:  list
         """
         return PAM5_ATOMS_BUTTON_LIST
