@@ -54,9 +54,14 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         self.updateMessage()
         
         self.previousSelectionParams = None
+        
+        # It is essential to make the following flag 'True' instead of False. 
+        # Program enters self._moveSelectedAtom method first after init, and 
+        # there and this flag ensures that it returns from that method 
+        # immediately. It is not clear why self.model_changed is not called 
+        # before the it enters that method. This flag may not be needed after
+        # implementing connectWithState. 
         self.model_changed_from_glpane = True
-        print "~~~"
-        print "*** in init: self.model_changed_from_glpane =", self.model_changed_from_glpane
         
     def ok_btn_clicked(self):
         """
@@ -151,7 +156,7 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         """
         
         #use selected atom dictionary which is already made by assy. 
-        #use this list for length tests below. Don't create list from this 
+        #use this dict for length tests below. Don't create list from this 
         #dict yet as that would be a slow operation to do at this point. 
         selectedAtomsDictionary = self.win.assy.selatoms
         
@@ -160,7 +165,7 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
             # selectedAtomsDictionary.values() except that it is a sorted list 
             #it doesn't matter in this case, but a useful info if we decide 
             # we need a sorted list for multiple atoms in future. 
-            # ninad 2007-09-27 (comment based on Bruce's code review)
+            # -- ninad 2007-09-27 (comment based on Bruce's code review)
             selectedAtomList = self.win.assy.selatoms_list()
             selectedAtom = selectedAtomList[0]
             posn = selectedAtom.posn()
@@ -325,7 +330,6 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         Move the selected atom position based on the value in the X, Y, Z 
         coordinate spinboxes in the Selection GroupBox. 
         """
-        print "*** in moveSelatom: self.model_changed_from_glpane =", self.model_changed_from_glpane
         if self.model_changed_from_glpane:
             #Model is changed from glpane ,do nothing. Fixes bug 2545
             return
@@ -374,7 +378,6 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         self.yCoordOfSelectedAtom.setValue(atomCoords[1])
         self.zCoordOfSelectedAtom.setValue(atomCoords[2])  
         self.model_changed_from_glpane = False
-        print "*** in updateAtom pos: self.model_changed_from_glpane =", self.model_changed_from_glpane
         
  
         
