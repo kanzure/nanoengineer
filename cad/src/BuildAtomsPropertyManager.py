@@ -55,6 +55,8 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         
         self.previousSelectionParams = None
         self.model_changed_from_glpane = True
+        print "~~~"
+        print "*** in init: self.model_changed_from_glpane =", self.model_changed_from_glpane
         
     def ok_btn_clicked(self):
         """
@@ -148,13 +150,22 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         updated when something changes in the glpane.        
         """
         
-        selectedAtomsList = self.win.assy.selatoms.values()
+        #use selected atom dictionary which is already made by assy. 
+        #use this list for length tests below. Don't create list from this 
+        #dict yet as that would be a slow operation to do at this point. 
+        selectedAtomsDictionary = self.win.assy.selatoms
         
-        if len(selectedAtomsList) == 1: 
-            selectedAtom = selectedAtomsList[0]
+        if len(selectedAtomsDictionary) == 1: 
+            #self.win.assy.selatoms_list() is same as 
+            # selectedAtomsDictionary.values() except that it is a sorted list 
+            #it doesn't matter in this case, but a useful info if we decide 
+            # we need a sorted list for multiple atoms in future. 
+            # ninad 2007-09-27 (comment based on Bruce's code review)
+            selectedAtomList = self.win.assy.selatoms_list()
+            selectedAtom = selectedAtomList[0]
             posn = selectedAtom.posn()
-            return (len(selectedAtomsList), selectedAtom, posn)
-        elif len(selectedAtomsList) > 1:
+            return (len(selectedAtomsDictionary), selectedAtom, posn)
+        elif len(selectedAtomsDictionary) > 1:
             #All we are interested in, is to check if multiple atoms are 
             #selected. So just return a number greater than 1. This makes sure
             #that parameter difference test in  self.model_changed doesn't
@@ -163,7 +174,7 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
             aNumberGreaterThanOne = 2
             return (aNumberGreaterThanOne, None, None)
         else: 
-            return (None, None, None)
+            return (0, None, None)
         
 
     def set_selection_filter(self, enabled):
@@ -314,6 +325,7 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         Move the selected atom position based on the value in the X, Y, Z 
         coordinate spinboxes in the Selection GroupBox. 
         """
+        print "*** in moveSelatom: self.model_changed_from_glpane =", self.model_changed_from_glpane
         if self.model_changed_from_glpane:
             #Model is changed from glpane ,do nothing. Fixes bug 2545
             return
@@ -362,6 +374,7 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         self.yCoordOfSelectedAtom.setValue(atomCoords[1])
         self.zCoordOfSelectedAtom.setValue(atomCoords[2])  
         self.model_changed_from_glpane = False
+        print "*** in updateAtom pos: self.model_changed_from_glpane =", self.model_changed_from_glpane
         
  
         
