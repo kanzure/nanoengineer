@@ -1115,7 +1115,18 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             model_draw_frame = self.part # kluge, explained above
                 # note: that's the same as each bond's part.
             repeated_bonds_dict = model_draw_frame.repeated_bonds_dict
-            
+            if repeated_bonds_dict is None:
+                # This can happen when chunks are drawn in other ways than
+                # via Part.draw (e.g. as Extrude mode repeat units);
+                # we need a better fix for this, but for now,
+                # just don't use the dict. As a kluge to avoid messing up
+                # the loop below, just use a junk dict instead.
+                # [bruce 070928 fix new bug 2548]
+                # (This kluge means that external bonds drawn by e.g. Extrude
+                # will still be subject to the bug of being drawn twice.
+                # The better fix is for Extrude to set up part.repeated_bonds_dict
+                # when it draws its extra objects. We need a bug report for that.)
+                repeated_bonds_dict = {} # KLUGE
             for bon in self.externs:
                 if bon.key not in repeated_bonds_dict:
                     # BUG: disp and bondcolor depend on self, so the bond appearance
