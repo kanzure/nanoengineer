@@ -1099,12 +1099,32 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # [bruce 050513 comment]
         bondcolor = self.color
         ColorSorter.start() # grantham 20051205
-        for bon in self.externs:
-            # note: external bonds are drawn twice (once for each of their chunks) --
-            # possibly in different display modes or bondcolors.
-##            if 'DEBUG_070602':
-##                bon._check_assertions("drawing externs of %r" % self)
-            bon.draw(glpane, disp, bondcolor, drawLevel)
+        if self.externs:
+            # draw external bonds.
+            #
+            # Note: to prevent them from being drawn twice,
+            # [new feature, bruce 070928 bugfix and optimization]
+            # we use a dict recreated each time their part gets drawn,
+            # in case of multiple views of the same part in one glpane;
+            # ideally the draw methods would be passed a "model-draw-frame"
+            # instance (associated with the part) to make this clearer.
+            # If we can ever draw one chunk more than once when drawing one part,
+            # we'll need to modify this scheme, e.g. by optionally passing
+            # that kind of object -- in general, a "drawing environment"
+            # which might differ on each draw call of the same object.)
+            model_draw_frame = self.part # kluge, explained above
+                # note: that's the same as each bond's part.
+            repeated_objects_dict = model_draw_frame.repeated_objects_dict
+            
+            for bon in self.externs:
+                if bon.key not in repeated_objects_dict:
+                    # BUG: disp and bondcolor depend on self, so the bond appearance
+                    # may depend on which chunk draws it first (i.e. on their Model
+                    # Tree order). How to fix this is the subject of a current design
+                    # discussion. [bruce 070928 comment]
+                    repeated_objects_dict[bon.key] = bon
+                    bon.draw(glpane, disp, bondcolor, drawLevel)
+            pass
         ColorSorter.finish() # grantham 20051205
         return # from molecule.draw()
 

@@ -128,6 +128,14 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
     _s_attr_ppm = S_REF
     _s_attr_alive = S_DATA # needed since the part can be destroyed, which sets alive to False
 
+    # default values of instance variables:
+    
+    # repeated_objects_dict is a dict during calls of self.draw,
+    # but is intentionally not a dict outside of those calls,
+    # so that erroneous use of it is noticed as an error.
+    # For intended use, see comments where it's used. [bruce 070928]
+    repeated_objects_dict = None
+    
     def _undo_update_always(self): #bruce 060224
         "This is run on every Part still around after an Undo or Redo op, whether or not it was modified by that op."
         # (though to be honest, that's due to a kluge, as of 060224 -- it won't yet run this on any other class!)
@@ -806,9 +814,23 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             #  also means no need for prefs change to inval drawLevel, provided it gl_updates)
             # (could optim by only invalling drawLevel itself if the prefs value is not 'variable', I think,
             #  but recomputing natoms should be fast compared to drawing, anyway)
-        ###e bruce 050617: might revise this to draw "computed topnode for drawing" if that exists and is enabled and updated...
-        #e and it might be that the glpane we're passed is modified or a proxy, and can tell us what to do about this.
-        self.topnode.draw(glpane, glpane.displayMode)
+        self.repeated_objects_dict = {}
+            # This lets some objects avoid being drawn twice.
+            # WARNING: The present scheme would not work if multiple threads
+            # could draw one part, or if complex objects in a part (e.g. chunks)
+            # might be drawn twice in one frame. See comments near its use in
+            # Chunk.draw for ways we might need to generalize it. [bruce 070928]
+        try:
+            # draw all visible model objects in self
+            self.topnode.draw(glpane, glpane.displayMode)
+        finally:
+            del self.repeated_objects_dict
+                # this exposes the default value (not a dict)
+                # so that any use not during this method call
+                # is detected as an error; it also removes references
+                # to its values so as to not prevent those objects
+                # from being freed.
+        return
 
     def draw_text_label(self, glpane):
         "#doc; called from GLPane.paintGL just after it calls mode.Draw()"
@@ -830,7 +852,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             glPopMatrix()
             glEnable(GL_DEPTH_TEST)
             glEnable(GL_LIGHTING)
-            return
+        return
 
     def glpane_text(self):
         return "" # default implem, subclasses might override this
