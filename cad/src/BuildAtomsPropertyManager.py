@@ -50,10 +50,14 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         self.win = self.parentMode.w
         self.pw = self.parentMode.pw
         
+        self.previousSelectionParams = None
+        
+        #Initialize the following to None. (subclasses may not define this)
+        #Make sure you initialize it before adding groupboxes!
+        self.selectedAtomPosGroupBox = None
+        
         self._addGroupBoxes()
         self.updateMessage()
-        
-        self.previousSelectionParams = None
         
         # It is essential to make the following flag 'True' instead of False. 
         # Program enters self._moveSelectedAtom method first after init, and 

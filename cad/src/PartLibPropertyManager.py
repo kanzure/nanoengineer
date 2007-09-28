@@ -58,6 +58,13 @@ class PartLibPropertyManager(PastePropertyManager):
         self.partLibGroupBox = None
         
         PastePropertyManager.__init__(self, parentMode)
+    
+    def model_changed(self):
+        """
+        Overrides BuildAtomsPropertyManager.model_changed. 
+        """
+        #This does nothing in this propMGr at present. 
+        return
             
     def _addGroupBoxes(self):
         """

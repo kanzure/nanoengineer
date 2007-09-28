@@ -51,6 +51,13 @@ class PastePropertyManager(BuildAtomsPropertyManager):
         """    
         self.clipboardGroupBox = None
         BuildAtomsPropertyManager.__init__(self, parentMode)
+    
+    def model_changed(self):
+        """
+        Overrides BuildAtomsPropertyManager.model_changed. 
+        """
+        #This does nothing in this propMGr at present. 
+        return
             
     def _addGroupBoxes(self):
         """
