@@ -11,13 +11,13 @@ History:
 mark 2007-08-03: Created.
 """
 
+from PM.PM_MolecularModelingKit import PM_MolecularModelingKit
+
 from elements import PeriodicTable
 
 from PyQt4.Qt import SIGNAL, QSpacerItem, QSizePolicy
 from PM.PM_GroupBox import PM_GroupBox
 from PM.PM_ToolButtonGrid import PM_ToolButtonGrid
-from constants import diTUBES
-from debug import print_compact_traceback
 
 # Elements button list to create elements tool button group.
 # Format: 
@@ -79,7 +79,7 @@ ATOM_TYPES_BUTTON_LIST = [ \
       "Graphitic", None, 3, 0 ) #@ Icon lives in a poorly chosen location.
 ]
 
-class PM_ElementChooser( PM_GroupBox ):
+class PM_ElementChooser( PM_MolecularModelingKit ):
     """
     The PM_ElementChooser widget provides an Element Chooser widget,
     contained in its own group box, for a Property Manager dialog.
@@ -99,13 +99,9 @@ class PM_ElementChooser( PM_GroupBox ):
     @see: B{elements.py}
     """
     
-    element        = None
-    atomType       = ""
-    _periodicTable = PeriodicTable
-    
     def __init__(self, 
                  parentWidget, 
-                 title           = "Element Chooser",
+                 title           = "",
                  element         = "Carbon",
                  elementViewer   =  None
                  ):
@@ -125,37 +121,20 @@ class PM_ElementChooser( PM_GroupBox ):
         @type  element: str
         """
         
-        PM_GroupBox.__init__(self, parentWidget, title)
+        PM_MolecularModelingKit.__init__( self, 
+                                          parentWidget, 
+                                          title,
+                                          element,
+                                          elementViewer)
         
-        self.element = self._periodicTable.getElement(element)
-        self.elementViewer = elementViewer
-        self._updateElementViewer()
+           
+    def _addGroupBoxes(self):
+        """
+        Add various groupboxes present inside the ElementChooser groupbox
+        """
         self._addElementsGroupBox(self)
         self._addAtomTypesGroupBox(self)
-        self.connect_or_disconnect_signals(True)
-        
-    def _addElementsGroupBox(self, inPmGroupBox):
-        """
-        Creates a grid of tool buttons containing all elements supported
-        in NE1.
-        
-        @param inPmGroupBox: The parent group box to contain the element 
-                             buttons.
-        @type  inPmGroupBox: PM_GroupBox
-        """
-        
-        self._elementsButtonGroup = \
-            PM_ToolButtonGrid( inPmGroupBox, 
-                               title        = "",
-                               buttonList   = ELEMENTS_BUTTON_LIST,
-                               checkedId    = self.element.eltnum,
-                               setAsDefault = True
-                               )
-        
-        self.connect( self._elementsButtonGroup.buttonGroup, 
-                      SIGNAL("buttonClicked(int)"), 
-                      self.setElement )
-        
+
     def _addAtomTypesGroupBox(self, inPmGroupBox):
         """
         Creates a row of atom type buttons (i.e. sp3, sp2, sp and graphitic).
@@ -166,7 +145,7 @@ class PM_ElementChooser( PM_GroupBox ):
         """
         self._atomTypesButtonGroup = \
             PM_ToolButtonGrid( inPmGroupBox, 
-                               buttonList = ATOM_TYPES_BUTTON_LIST,
+                               buttonList = self.getAtomTypesButtonList(),
                                label      = "Atomic hybrids:",
                                checkedId  = 0,
                                setAsDefault = True )
@@ -217,56 +196,6 @@ class PM_ElementChooser( PM_GroupBox ):
         """
         title = "Atomic Hybrids for " + self.element.name + ":"
         self._atomTypesButtonGroup.setTitle(title)
-                
-    def restoreDefault(self):
-        """
-        Restores the default checked (selected) element and atom type buttons.
-        """
-        PM_GroupBox.restoreDefault(self)
-        self._updateAtomTypesButtons()
-        
-    def getElementNumber(self):
-        """
-        Returns the element number of the currently selected element.
-        
-        @return: Selected element number
-        @rtype:  int
-        """
-        return self._elementsButtonGroup.checkedId()
-    
-    def getElementSymbolAndAtomType(self):
-        """
-        Returns the symbol and atom type of the currently selected element.
-        
-        @return: element symbol, atom type
-        @rtype:  str, str
-        """
-        currentElementNumber = self.getElementNumber()
-        element = self._periodicTable.getElement(currentElementNumber)
-        return element.symbol, self.atomType
-    
-    def getElement(self):
-        """
-        Get the current element.
-        
-        @return: element
-        @rtype:  Elem
-        
-        @see: B{element.py}
-        """
-        return self.element
-        
-    def setElement(self, elementNumber):
-        """
-        Set the selected element to I{elementNumber}.
-        
-        @param elementNumber: Element number.
-        @type  elementNumber: int
-        """
-        self.element = self._periodicTable.getElement(elementNumber)
-        self._updateAtomTypesButtons()
-        self._updateElementViewer()
-        self._updateParentWidget()
         
     def _setAtomType(self, atomTypeIndex):
         """
@@ -282,54 +211,17 @@ class PM_ElementChooser( PM_GroupBox ):
         @note: Calling this method does not update the atom type buttons.
         """
         self.atomType = ATOM_TYPES[atomTypeIndex]
-        self._updateElementViewer()
+        self.updateElementViewer()
     
-    def _updateElementViewer(self):
+    def getElementsButtonList(self):
         """
-        Update the view in the element viewer (if present) 
+        Return the list of buttons in the Element chooser.
+        @return: List containing information about the element tool buttons
+        @rtype:  list
         """
-        if not self.elementViewer:
-            return
-        
-        from ThumbView import MMKitView
-        assert isinstance(self.elementViewer, MMKitView)       
-        self.elementViewer.resetView()                
-        self.elementViewer.changeHybridType(self.atomType)        
-        self.elementViewer.refreshDisplay(self.element, diTUBES)
+        return ELEMENTS_BUTTON_LIST
     
-    def _updateParentWidget(self):
-        """
-        Update things in the parentWidget if necessary. 
-        (The parentWidget should be a property manager, although not necessary)
-        Example: In Build Atoms Mode, the Property manager message groupbox
-        needs to be updated if the element is changed in the element chooser. 
-        Similarly, the selection filter list should be updated in this mode. 
-        """
-        parentWidgetClass = self.parentWidget.__class__
-      
-        if hasattr(parentWidgetClass, 'updateMessage'):
-            try:
-                self.parentWidget.updateMessage()
-            except:
-                print_compact_traceback("Error calling updateMessage()")
-                pass
-                
-        if hasattr(parentWidgetClass, 'update_selection_filter_list'):
-            try:
-                self.parentWidget.update_selection_filter_list()
-            except:
-                msg = "Error calling update_selection_filter_list()"
-                print_compact_traceback(msg)
-                pass
-        
-        
-    def connect_or_disconnect_signals(self, isConnect):
-        """
-        Connect or disconnect widget signals sent to their slot methods.
-        @param isConnect: If True the widget will send the signals to the slot 
-                          method. 
-        @type  isConnect: boolean
-        """
-        #Not implemented yet
-        return 
+    def getAtomTypesButtonList(self):
+        return ATOM_TYPES_BUTTON_LIST
+    
         

@@ -27,11 +27,14 @@ from PM.PM_GroupBox        import PM_GroupBox
 from PM.PM_CheckBox        import PM_CheckBox
 from PM.PM_ToolButtonRow   import PM_ToolButtonRow
 from PM.PM_ElementChooser  import PM_ElementChooser
+from PM.PM_PAM5_AtomChooser  import PM_PAM5_AtomChooser
+from PM.PM_PAM3_AtomChooser  import PM_PAM3_AtomChooser
 from PM.PM_PreviewGroupBox import PM_PreviewGroupBox
 from PM.PM_LineEdit        import PM_LineEdit
 from PM.PM_DoubleSpinBox   import PM_DoubleSpinBox
 from PM.PM_LabelRow        import PM_LabelRow
 from PM.PM_CoordinateSpinBoxes import PM_CoordinateSpinBoxes
+from PM.PM_ComboBox     import PM_ComboBox
 
 from PM.PM_Constants       import pmDoneButton
 from PM.PM_Constants       import pmWhatsThisButton
@@ -80,6 +83,9 @@ class Ui_BuildAtomsPropertyManager(PM_Dialog):
         self.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=False)
         
         self.previewGroupBox = None
+        self.regularElementChooser = None
+        self.PAM5Chooser = None
+        self.PAM3Chooser = None
         self.elementChooser = None
         self.advancedOptionsGroupBox = None
         self.bondToolsGroupBox = None
@@ -88,12 +94,17 @@ class Ui_BuildAtomsPropertyManager(PM_Dialog):
         self.filterlistLE = None
         self.selectedAtomInfoLabel = None
         
+        #Initialize the following to None. (subclasses may not define this)
+        #Make sure you initialize it before adding groupboxes!
+        self.selectedAtomPosGroupBox = None
+        self.showSelectedAtomInfoCheckBox = None
+        
     def _addGroupBoxes(self):
         """
         Add various group boxes to the Build Atoms Property manager. 
         """
-        self._addPreviewGroupBox()        
-        self._addElementChooserGroupBox()            
+        self._addPreviewGroupBox()  
+        self._addAtomChooserGroupBox()
         self._addBondToolsGroupBox()        
         self._addSelectionOptionsGroupBox()
         self._addAdvancedOptionsGroupBox()       
@@ -104,18 +115,71 @@ class Ui_BuildAtomsPropertyManager(PM_Dialog):
         element chooser. 
         """
         self.previewGroupBox = PM_PreviewGroupBox( self, glpane = self.o )
-        
-    def _addElementChooserGroupBox(self):
+    
+    def _addAtomChooserGroupBox(self):
         """
-        Add the 'Element Chooser' groupbox. 
+        Add the Atom Chooser groupbox. This groupbox displays one of the 
+        following three groupboxes depending on the choice selected in the 
+        combobox:
+          a) Periodic Table Elements L{self.regularElementChooser}
+          b) PAM5 Atoms  L{self.PAM5Chooser}
+          c) PAM3 Atoms  L{self.PAM3Chooser}
+        @see: L{self.__updateAtomChooserGroupBoxes}
+        """
+        self.atomChooserGroupBox = \
+            PM_GroupBox(self, title = "Atom Chooser")
+        self._loadAtomChooserGroupBox(self.atomChooserGroupBox)
+        
+        self._updateAtomChooserGroupBoxes(currentIndex = 0)
+
+    def _addElementChooserGroupBox(self, inPmGroupBox):
+        """
+        Add the 'Element Chooser' groupbox. (present within the 
+        Atom Chooser Groupbox) 
         """
         if not self.previewGroupBox:
             return
         
         elementViewer = self.previewGroupBox.elementViewer
-        self.elementChooser = \
-            PM_ElementChooser( self,  elementViewer = elementViewer)
+        self.regularElementChooser = \
+            PM_ElementChooser( inPmGroupBox,  elementViewer = elementViewer)
+        
     
+    def _add_PAM5_AtomChooserGroupBox(self, inPmGroupBox):
+        """
+        Add the 'PAM5 Atom Chooser' groupbox (present within the 
+        Atom Chooser Groupbox) 
+        """
+        if not self.previewGroupBox:
+            return
+        
+        elementViewer = self.previewGroupBox.elementViewer
+        self.PAM5Chooser = \
+            PM_PAM5_AtomChooser( inPmGroupBox, elementViewer = elementViewer)
+    
+    def _add_PAM3_AtomChooserGroupBox(self, inPmGroupBox):
+        """
+        Add the 'PAM3 Atom Chooser' groupbox (present within the 
+        Atom Chooser Groupbox)
+        """
+        if not self.previewGroupBox:
+            return
+        
+        elementViewer = self.previewGroupBox.elementViewer
+        self.PAM3Chooser = \
+            PM_PAM3_AtomChooser( inPmGroupBox, elementViewer = elementViewer)
+        
+    def _hideAllAtomChooserGroupBoxes(self):        
+        """
+        Hides all Atom Chooser group boxes.
+        """
+        if self.regularElementChooser:
+            self.regularElementChooser.hide()
+        if self.PAM5Chooser:
+            self.PAM5Chooser.hide()
+        if self.PAM3Chooser:
+            self.PAM3Chooser.hide()
+        
     def _addBondToolsGroupBox(self):
         """
         Add the 'Bond Tools' groupbox.
@@ -134,6 +198,28 @@ class Ui_BuildAtomsPropertyManager(PM_Dialog):
         
         self._loadSelectionOptionsGroupBox(self.selectionOptionsGroupBox)
     
+    def _loadAtomChooserGroupBox(self, inPmGroupBox):
+        """
+        Load the widgets inside the Atom Chooser groupbox.
+        @param inPmGroupBox: The Atom Chooser box in the PM
+        @type  inPmGroupBox: L{PM_GroupBox} 
+        """
+        atomChooserChoices = [ "Periodic Table Elements", 
+                             "PAM5 Atoms", 
+                             "PAM3 Atoms" ]
+        
+        self.atomChooserComboBox = \
+            PM_ComboBox( inPmGroupBox,
+                         label        = '', 
+                         choices      = atomChooserChoices, 
+                         index        = 0, 
+                         setAsDefault = False,
+                         spanWidth    = True )
+        
+        self._addElementChooserGroupBox(inPmGroupBox) 
+        self._add_PAM5_AtomChooserGroupBox(inPmGroupBox)
+        self._add_PAM3_AtomChooserGroupBox(inPmGroupBox)
+        
     def _loadSelectionOptionsGroupBox(self, inPmGroupBox):
         """
         Load widgets in the Selection Options group box.
@@ -160,17 +246,28 @@ class Ui_BuildAtomsPropertyManager(PM_Dialog):
         else:
             self.filterlistLE.setEnabled(False)
         
+        self.showSelectedAtomInfoCheckBox = \
+            PM_CheckBox( 
+                inPmGroupBox,
+                text  = "Show Selected Atom Info",
+                widgetColumn = 0,
+                state        = Qt.Unchecked)
+        
         self.selectedAtomPosGroupBox = \
-            PM_GroupBox( inPmGroupBox, title = "Selected Atom Info:")
+            PM_GroupBox( inPmGroupBox, title = "")
         self._loadSelectedAtomPosGroupBox(self.selectedAtomPosGroupBox)
         
-        self.selectedAtomPosGroupBox.setEnabled(False)
-    
+        self.toggle_selectedAtomPosGroupBox(show = 0)
+        self.enable_or_disable_selectedAtomPosGroupBox( bool_enable = False)
+        
+                    
     
     def _loadSelectedAtomPosGroupBox(self, inPmGroupBox):
         """
         Load the selected Atoms position groupbox It is a sub-gropbox of 
         L{self.selectionOptionsGroupBox)
+        @param inPmGroupBox: 'The Selected Atom Position Groupbox'
+        @type  inPmGroupBox: L{PM_GroupBox} 
         """
         
         self.selectedAtomLineEdit = PM_LineEdit( inPmGroupBox, 
@@ -190,9 +287,7 @@ class Ui_BuildAtomsPropertyManager(PM_Dialog):
         self.yCoordOfSelectedAtom  =  self.coordinateSpinboxes.ySpinBox
         # User input to specify z-coordinate 
         self.zCoordOfSelectedAtom  =  self.coordinateSpinboxes.zSpinBox
-        
 
-       
     def _addAdvancedOptionsGroupBox(self):
         """
         Add 'Advanced Options' groupbox
@@ -255,3 +350,60 @@ class Ui_BuildAtomsPropertyManager(PM_Dialog):
                 buttonList   = BOND_TOOL_BUTTONS,
                 checkedId    = 0,
                 setAsDefault = True )
+    
+    def toggle_selectedAtomPosGroupBox(self, show = 0):
+        """
+        Show or hide L{self.selectedAtomPosGroupBox} depending on the state of
+        the checkbox (L{self.showSelectedAtomInfoCheckBox}) 
+        @param show: Flag that shows or hides the groupbox (can have values 
+                     0 or 1
+        @type  show: int
+        """
+        if show:
+            self.selectedAtomPosGroupBox.show()
+        else:
+            self.selectedAtomPosGroupBox.hide()
+    
+    def enable_or_disable_selectedAtomPosGroupBox(self, bool_enable = False):
+        """
+        Enable or disable Selected AtomPosGroupBox present within 
+        'selection options' and also the checkbox that shows or hide this 
+        groupbox. These two widgets are enabled when only a single atom is 
+        selected from the 3D workspace. 
+        @param bool_enable: Flag that enables or disables widgets
+        @type  bool_enable: boolean
+        """
+        if self.showSelectedAtomInfoCheckBox:
+            self.showSelectedAtomInfoCheckBox.setEnabled(bool_enable)
+        if self.selectedAtomPosGroupBox:
+            self.selectedAtomPosGroupBox.setEnabled(bool_enable)
+    
+    def _updateAtomChooserGroupBoxes(self, currentIndex):
+        """
+        Updates the Atom Chooser Groupbox. It displays one of the 
+        following three groupboxes depending on the choice selected in the 
+        combobox:
+          a) Periodic Table Elements L{self.regularElementChooser}
+          b) PAM5 Atoms  L{self.PAM5Chooser}
+          c) PAM3 Atoms  L{self.PAM3Chooser}
+        It also sets self.elementChooser to the current active Atom chooser 
+        and updates the display accordingly in the Preview groupbox.
+        """
+        self._hideAllAtomChooserGroupBoxes()
+        
+        if currentIndex is 0:
+            self.elementChooser = self.regularElementChooser
+            self.regularElementChooser.show()
+        if currentIndex is 1:
+            self.elementChooser = self.PAM5Chooser
+            self.PAM5Chooser.show()
+        if currentIndex is 2:
+            self.elementChooser = self.PAM3Chooser
+            self.PAM3Chooser.show()
+        
+        if self.elementChooser:
+            self.elementChooser.updateElementViewer()
+    
+            
+            
+            

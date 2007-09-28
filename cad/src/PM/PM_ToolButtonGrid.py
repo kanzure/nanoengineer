@@ -16,7 +16,7 @@ import sys
 
 from PyQt4.Qt import QButtonGroup
 from PyQt4.Qt import QFont
-
+from PyQt4.Qt import QSize
 
 from PM.PM_WidgetGrid import PM_WidgetGrid
 
@@ -244,6 +244,12 @@ class PM_ToolButtonGrid( PM_WidgetGrid ):
             return self.buttonsById[buttonId]
         else:
             return None
+    
+    def setButtonSize(self, width = 32, height = 32):
+        """
+        """
+        for btn in self.buttonGroup.buttons():
+            btn.setFixedSize(QSize(width, height))
         
                 
 # End of PM_ToolButtonGrid ############################

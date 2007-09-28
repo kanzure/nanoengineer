@@ -51,14 +51,9 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         self.pw = self.parentMode.pw
         
         self.previousSelectionParams = None
-        
-        #Initialize the following to None. (subclasses may not define this)
-        #Make sure you initialize it before adding groupboxes!
-        self.selectedAtomPosGroupBox = None
-        
+                
         self._addGroupBoxes()
-        self.updateMessage()
-        
+                
         # It is essential to make the following flag 'True' instead of False. 
         # Program enters self._moveSelectedAtom method first after init, and 
         # there and this flag ensures that it returns from that method 
@@ -88,6 +83,10 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
             change_connect = self.w.connect
         else:
             change_connect = self.w.disconnect
+        
+        change_connect(self.atomChooserComboBox, 
+                     SIGNAL("currentIndexChanged(int)"), 
+                     self._updateAtomChooserGroupBoxes)
             
         change_connect(self.waterCheckBox,
                         SIGNAL("toggled(bool)"),
@@ -100,6 +99,10 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         change_connect(self.selectionFilterCheckBox,
                        SIGNAL("stateChanged(int)"),
                        self.set_selection_filter)
+        
+        change_connect(self.showSelectedAtomInfoCheckBox,
+                       SIGNAL("stateChanged(int)"),
+                       self.toggle_selectedAtomPosGroupBox)
         
         change_connect(self.xCoordOfSelectedAtom,
                      SIGNAL("valueChanged(double)"), 
@@ -185,7 +188,6 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         else: 
             return (0, None, None)
         
-
     def set_selection_filter(self, enabled):
         """
         Slot for Atom Selection Filter checkbox that enables or diables the 
@@ -258,6 +260,8 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         current page and current selected atom type.
         """
         msg = ""
+        if not self.elementChooser:
+            return
         element = self.elementChooser.element
         
         if self.elementChooser.isVisible():
@@ -315,15 +319,15 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         
         text = ""
         if totalAtoms == 1:
-            self.selectedAtomPosGroupBox.setEnabled(True)
+            self.enable_or_disable_selectedAtomPosGroupBox(bool_enable = True)
             text = str(selectedAtom.getInformationString())
             text += " (" + str(selectedAtom.element.name) + ")"
             self._updateAtomPosSpinBoxes(atomPosn)                       
         elif totalAtoms > 1:
-            self.selectedAtomPosGroupBox.setEnabled(False)
+            self.enable_or_disable_selectedAtomPosGroupBox(bool_enable = False)
             text = "Multiple atoms selected"
         else:
-            self.selectedAtomPosGroupBox.setEnabled(False)
+            self.enable_or_disable_selectedAtomPosGroupBox(bool_enable = False)
             text = "No Atom selected"
         
         if self.selectedAtomLineEdit:
@@ -382,6 +386,5 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         self.yCoordOfSelectedAtom.setValue(atomCoords[1])
         self.zCoordOfSelectedAtom.setValue(atomCoords[2])  
         self.model_changed_from_glpane = False
-        
- 
-        
+    
+    
