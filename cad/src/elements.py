@@ -197,14 +197,7 @@ class ElementPeriodicTable(Singleton):
         "Te" : (2.1,  [0.9, 0.35, 0.0]),
         "I" : (2.0,  [0.0, 0.5, 0.0]),
         "Xe" : (1.9,  [0.4, 0.45, 0.55]),
-        "Ax3" : (5.0, [0.4, 0.4, 0.8]),    # PAM3 DNA pseudo atom
-        "Ss3" : (4.0, [0.4, 0.8, 0.4]),    # PAM3 DNA pseudo atom
-        "Sj3" : (4.0, [0.4, 0.8, 0.8]),    # PAM3 DNA pseudo atom
-        "Pl3" : (3.2, [0.4, 0.1, 0.5]),    # PAM3 DNA pseudo atom
-        "Ae3" : (5.0, [0.1, 0.1, 0.5]),    # PAM3 DNA pseudo atom
-        "Se3" : (4.0, [0.9, 0.5, 0.1]),    # PAM3 DNA pseudo atom
-        "Sh3" : (2.5, [0.4, 0.8, 0.4]),    # PAM3 DNA pseudo atom
-        "Hp3" : (4.0, [0.3, 0.7, 0.3]),    # PAM3 DNA pseudo atom
+        
         "Ax5" : (5.0, [0.4, 0.4, 0.8]),    # PAM5 DNA pseudo atom
         "Ss5" : (4.0, [0.4, 0.8, 0.4]),    # PAM5 DNA pseudo atom
         "Sj5" : (4.0, [0.4, 0.8, 0.8]),    # PAM5 DNA pseudo atom
@@ -213,6 +206,15 @@ class ElementPeriodicTable(Singleton):
         "Pe5" : (3.0, [0.4, 0.1, 0.5]),    # PAM5 DNA pseudo atom
         "Sh5" : (2.5, [0.4, 0.8, 0.4]),    # PAM5 DNA pseudo atom
         "Hp5" : (4.0, [0.3, 0.7, 0.3]),    # PAM5 DNA pseudo atom
+        
+        "Ax3" : (4.5, [0.4, 0.4, 0.8]),    # PAM3 DNA pseudo atom
+        "Ss3" : (4.5, [0.4, 0.8, 0.4]),    # PAM3 DNA pseudo atom
+        "Sj3" : (4.5, [0.4, 0.8, 0.8]),    # PAM3 DNA pseudo atom
+        "Pl3" : (3.0, [0.4, 0.1, 0.5]),    # PAM3 DNA pseudo atom (unused)
+        "Ae3" : (4.5, [0.1, 0.1, 0.5]),    # PAM3 DNA pseudo atom
+        "Se3" : (4.5, [0.4, 0.8, 0.4]),    # PAM3 DNA pseudo atom
+        "Sh3" : (3.0, [0.6, 0.2, 0.6]),    # PAM3 DNA pseudo atom
+        "Hp3" : (4.5, [0.3, 0.7, 0.3]),    # PAM3 DNA pseudo atom
         }
       
     _altRad_Color = {
@@ -381,16 +383,6 @@ to put the C+ value.
                   ("Pe5", "PAM5-Phosphate-End", 205, 1.0, [[1, 210, None, 'sp']]),
                   ("Sh5", "PAM5-Sugar-Hydroxyl", 206, 1.0, [[1, 210, None, 'sp']]), #bruce 070415: End->Hydroxyl per ED email
                   ("Hp5", "PAM5-Hairpin", 207, 1.0, [[2, 210, tetra2]]),
-                  
-                  # B-DNA PAM3 v1 pseudo atoms (see also DIRECTIONAL_BOND_ELEMENTS below)
-                  #("Ax3", "PAM3-Axis", 300, 1.0, [[4, 200, tetra4]]),
-                  #("Ss3", "PAM3-Sugar", 301, 1.0, [[3, 210, flat]]),
-                  #("Pl3", "PAM3-Phosphate", 302, 1.0, [[2, 210, tetra2]]),
-                  #("Sj3", "PAM3-Sugar-Junction", 303, 1.0, [[3, 210, flat]]),
-                  #("Ae3", "PAM3-Axis-End", 304, 1.0, [[1, 200, None, 'sp']]),
-                  #("Pe3", "PAM3-Phosphate-End", 305, 1.0, [[1, 210, None, 'sp']]),
-                  #("Sh3", "PAM3-Sugar-Hydroxyl", 306, 1.0, [[1, 210, None, 'sp']]),
-                  #("Hp3", "PAM3-Hairpin", 307, 1.0, [[2, 210, tetra2]]),
                     
                   # B-DNA PAM3 v2 pseudo atoms (see also DIRECTIONAL_BOND_ELEMENTS below)
                   ("Ax3", "PAM3-Axis", 300, 1.0, [[4, 200, tetra4]]),
@@ -400,7 +392,7 @@ to put the C+ value.
                   ("Ae3", "PAM3-Axis-End", 304, 1.0, [[3, 200, tetra3]]),
                   ("Se3", "PAM3-Sugar-End", 305, 1.0, [[2, 210, tetra2]]),
                   ("Sh3", "PAM3-Sugar-Hydroxyl", 306, 1.0, [[1, 210, None, 'sp']]),
-                  ("Hp3", "PAM3-Hairpin", 307, 1.0, [[2, 210, tetra2]]),
+                  ("Hp3", "PAM3-Hairpin", 307, 1.0, [[2, 210, tetra2]])
                 ]
     _periodicTable = {}
     _eltName2Num = {}

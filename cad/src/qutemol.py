@@ -289,11 +289,22 @@ def write_art_file(filename):
         g = int(col[1] * 255 + 0.5)
         b = int(col[2] * 255 + 0.5)
         
-        f.write('%2s  %3d  %3.3f  %3.3f  %3d  %3d  %3d\n' % \
-            (elm.symbol, eleNum, elm.rvdw * cpk_sf, 
-             elm.atomtypes[0].rcovalent, 
-             r, g, b)
-            )
+        if len(elm.symbol) == 3: 
+            _symbol = elm.symbol[:2]
+        else:
+            _symbol = elm.symbol
+        
+        if eleNum < 199:
+            _rcovalent = elm.atomtypes[0].rcovalent
+        else:
+            _rcovalent = 4.8 # 4.8 - 5.1 are good values
+            
+        if eleNum < 200 or eleNum > 299:
+            f.write('%2s  %3d  %3.3f  %3.3f  %3d  %3d  %3d\n' % \
+                    (_symbol, eleNum, elm.rvdw * cpk_sf, \
+                     _rcovalent, \
+                     r, g, b) \
+                    )
     
     f.write("# All Render Radii were calculated using a CPK scaling factor\n"\
             "# that can be modified by the user in \"Preference | Atoms\".\n"\
@@ -380,9 +391,9 @@ def write_qutemol_pdb_file(part, filename):
     f.close()
     
     # Write the "body" of PDB file.
-    from files_pdb import writepdb, EXCLUDEHIDDENATOMS
+    from files_pdb import writepdb, EXCLUDE_HIDDEN_ATOMS
     # Bondpoints are written to file. Mark 2007-06-11
-    writepdb(part, filename, mode='a', excludeFlags=EXCLUDEHIDDENATOMS)
+    writepdb(part, filename, mode = 'a', excludeFlags = EXCLUDE_HIDDEN_ATOMS)
     
     
 def write_qutemol_files(part):

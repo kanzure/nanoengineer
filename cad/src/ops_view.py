@@ -421,9 +421,8 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
         cmd = greenmsg("QuteMol : ")
 	
         # Write temp PDB file of current part.
-        pdb_file, art_file = write_qutemol_files(self.assy)  
-	
-	if pdb_file:
+	if self.assy.molecules:
+	    pdb_file, art_file = write_qutemol_files(self.assy)
 	    # Launch QuteMol. It will verify the plugin.
 	    errorcode, msg = launch_qutemol(pdb_file, art_file) 
 	    # errorcode is ignored. 

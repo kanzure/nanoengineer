@@ -154,32 +154,41 @@ def insertpdb(assy,filename):
 # PDB exclude flags, used by writepdb() and its callers. 
 # Ask Bruce what "constants" file these should be moved to.
 # Mark 2007-06-11
-WRITEALLATOMS = 0
-EXCLUDEBONDPOINTS = 1
-EXCLUDEHIDDENATOMS = 2 # excludes both hidden and invisible atoms.
-EXCLUDEPAM5ATOMS = 4
+WRITE_ALL_ATOMS = 0
+EXCLUDE_BONDPOINTS = 1
+EXCLUDE_HIDDEN_ATOMS = 2 # excludes both hidden and invisible atoms.
+EXCLUDE_DNA_ATOMS = 4
 
-def writepdb(part, filename, mode='w', excludeFlags=EXCLUDEBONDPOINTS|EXCLUDEHIDDENATOMS):
-    """Write <part> into a new PDB file <filename>.
+def writepdb(part, 
+             filename, 
+             mode='w', 
+             excludeFlags = EXCLUDE_BONDPOINTS|EXCLUDE_HIDDEN_ATOMS
+             ):
+    """
+    Write a PDB file of the I{part}.
     
-    <part> - the part.
+    @param part: The part.
+    @type  part: assembly
     
-    <filename> - the fullpath of the PDB file. 
-                 We don't care if it has the .pdb extension or not.
+    @param filename: The fullpath of the PDB file to write. 
+                     We don't care if it has the .pdb extension or not.
+    @type  filename: str
                  
-    <mode> - 'w' for writing (the default)
-             'a' for appending
+    @param mode: 'w' for writing (the default)
+                 'a' for appending
+    @type  mode: str
     
-    <excludeFlags> used to exclude certain atoms from being written, where:
+    @param excludeFlags: used to exclude certain atoms from being written, 
+        where:
+        WRITE_ALL_ATOMS = 0 (even writes hidden and invisble atoms)
+        EXCLUDE_BONDPOINTS = 1 (excludes bondpoints)
+        EXCLUDE_HIDDEN_ATOMS = 2 (excludes both hidden and invisible atoms)
+        EXCLUDE_DNA_ATOMS = 4 (excludes PAM-3 and PAM-5 pseudo atoms)
+    @type  excludeFlags: int
     
-        WRITEALLATOMS = 0 (even writes hidden and invisble atoms)
-        EXCLUDEBONDPOINTS = 1 (excludes bondpoints)
-        EXCLUDEHIDDENATOMS = 2 (excludes both hidden and invisible atoms)
-        EXCLUDEPAM5ATOMS = 4 (excludes PAM-5 pseudo atoms)
+    @see: U{B{PDB File Format}<http://www.rcsb.org/pdb/static.do?p=file_formats/pdb/index.html>}
     """
 
-    # PDB File Format available at http://www.rcsb.org/pdb/static.do?p=file_formats/pdb/index.html
-    
     if mode != 'a': # Precaution. Mark 2007-06-25
         mode = 'w'
     
@@ -199,19 +208,22 @@ def writepdb(part, filename, mode='w', excludeFlags=EXCLUDEBONDPOINTS|EXCLUDEHID
         - if it is not visible
         - if it is a member of a hidden chunk (molecule)
         """
-        # Added not visible and hidden member of chunk. This effectively deletes these atoms, which might be considered a bug.
+        # Added not visible and hidden member of chunk. This effectively deletes
+        # these atoms, which might be considered a bug.
         # Suggested solutions:
-        # - if the current file is a PDB and has hidden atoms/chunks, warn user before quitting NE1 (suggest saving as MMP).
-        # - do not support native PDB. Open PDBs as MMPs; only allow export of PDB.
+        # - if the current file is a PDB and has hidden atoms/chunks, warn user
+        #   before quitting NE1 (suggest saving as MMP).
+        # - do not support native PDB. Open PDBs as MMPs; only allow export of
+        #   PDB.
         # Fixes bug 2329. Mark 070423
         
-        if excludeFlags & EXCLUDEBONDPOINTS:
+        if excludeFlags & EXCLUDE_BONDPOINTS:
             if atm.element == Singlet: 
                 return True # Exclude
-        if excludeFlags & EXCLUDEHIDDENATOMS:
+        if excludeFlags & EXCLUDE_HIDDEN_ATOMS:
             if not atm.visible() or atm.molecule.hidden:
                 return True # Exclude
-        if excludeFlags & EXCLUDEPAM5ATOMS:
+        if excludeFlags & EXCLUDE_DNA_ATOMS:
             # PAM5 atoms begin at 200.
             if atm.element.eltnum >= 200:
                 return True # Exclude
@@ -230,17 +242,61 @@ def writepdb(part, filename, mode='w', excludeFlags=EXCLUDEBONDPOINTS|EXCLUDEHID
                 excluded += 1
                 continue
             aList = []
+            
+            # Attention: If you edit the ATOM record, be sure to test 
+            # QuteMol rendering since it can be finicky about the beginning
+            # position within a field. One example is the Atom Name field,
+            # (columns 13-16). QuteMol can read the Atom Name (symbol) only
+            # if it begins in column 13 or 14. 
+            # There is more to the story, but no time to document before
+            # trip to Istanbul. Mark 2007-09-29.
+            # Begin ATOM record ----------------------------------
+            # Column 1-6: "ATOM  " (str)
             f.write("ATOM  ")
+            # Column 7-11: Atom serial number (int)
             f.write("%5d" % atomIndex)
-            f.write("%3s" % a.element.symbol)
-            pos = a.posn()
-            fpos = (float(pos[0]), float(pos[1]), float(pos[2])) 
-            f.write("%7s" % space)
-            f.write("%1s" % chainId.upper()) # Chain identifier - single letter in column 22. 
-                # This has been tested with 35 chunks and still works in QuteMol. Mark 070430.
-            f.write("%8s" % space)
-            f.write("%8.3f%8.3f%8.3f" % fpos)
-
+            # Column 12: Whitespace (str)
+            f.write("%1s" % space)
+            # Column 13-16 Atom name (str). 
+            if len(a.element.symbol) == 3: # See note above.
+                f.write("%2s  " % a.element.symbol[:2])
+            else:
+                f.write("%2s  " % a.element.symbol)
+            # Column 17: Alternate location indicator (str) *unused*
+            f.write("%1s" % space)
+            # Column 18-20: Residue name - unused (str)
+            f.write("%3s" % space)
+            # Column 21: Whitespace (str)
+            f.write("%1s" % space)
+            # Column 22: Chain identifier - single letter (str) 
+            # This has been tested with 35 chunks and still works in QuteMol.
+            f.write("%1s" % chainId.upper()) 
+            # Column 23-26: Residue sequence number (int) *unused*.
+            f.write("%4s" % space)
+            # Column 27: Code for insertion of residues (AChar) *unused*
+            f.write("%1s" % space)
+            # Column 28-30: Whitespace (str)
+            f.write("%3s" % space)
+            # Get atom XYZ coordinate
+            _xyz = a.posn()
+            # Column 31-38: X coord in Angstroms (float 8.3)
+            f.write("%8.3f" % float(_xyz[0]))
+            # Column 39-46: Y coord in Angstroms (float 8.3)
+            f.write("%8.3f" % float(_xyz[1]))
+            # Column 47-54: Z coord in Angstroms (float 8.3)
+            f.write("%8.3f" % float(_xyz[2]))
+            # Column 55-60: Occupancy (float 6.2) *unused*
+            f.write("%6s" % space)
+            # Column 61-66: Temperature factor. (float 6.2) *unused*
+            f.write("%6s" % space)
+            # Column 67-76: Whitespace (str)
+            f.write("%10s" % space)
+            # Column 77-78: Element symbol, right-justified (str) *unused*
+            f.write("%2s" % space)
+            # Column 79-80: Charge on the atom (str) *unused*
+            f.write("%2s" % space)
+            # End ATOM record ----------------------------------
+            
             atomsTable[a.key] = atomIndex
             aList.append(a)
             for b in a.bonds:
@@ -263,11 +319,13 @@ def writepdb(part, filename, mode='w', excludeFlags=EXCLUDEBONDPOINTS|EXCLUDEHID
             f.write("\n")
             
         for aList in connectList:
+            # Begin CONECT record ----------------------------------
             f.write("CONECT")
             for a in aList:
                 index = atomsTable[a.key]
                 f.write("%5d" % index)
             f.write("\n")
+            # End CONECT record ----------------------------------
             
         connectList = []
         molnum+=1
