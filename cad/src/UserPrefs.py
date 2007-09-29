@@ -1316,7 +1316,7 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         env.prefs[animateMaximumTime_prefs_key] = \
             self.animation_speed_slider.value() / -100.0
             
-    def change_mouseSpeedDuringRotation(self):
+    def change_mouseSpeedDuringRotation(self, val):
         '''Slot that sets the factor controlling rotation speed during middle mouse drag 0.3(slow) and 1(fast)'''
         env.prefs[mouseSpeedDuringRotation_prefs_key] = self.mouseSpeedDuringRotation_slider.value() / 100.0
         
