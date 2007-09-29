@@ -74,34 +74,7 @@ from constants import blue
 from constants import green
 from constants import get_selCurve_color
 
-
-
-##show_revolve_ui_features = 1 # for now
-
-##class BendData:
-##    """instances hold sets of attributes related to a single "bend value" (inter-unit rotation-quat, etc).
-##    
-##    This class (and concept) exists only to support Revolve, but it can also be used for bend-features in Extrude.
-##    We'll be set up to permit, in general, placing successive units around any spiral or screw
-##    (though the UI may or may not permit this level of generality to be used).
-##    """
-##    pass # not yet used or fully designed; see a notesfile    
-
 MAX_NCOPIES = 360 # max number of extrude-unit copies. Should this be larger? Motivation is to avoid "hangs from slowness".
-
-##def translate(x):
-##    import PyQt4.QtGui
-##    return QtGui.QApplication.translate("extrudeMode", x,
-##                                        None, QtGui.QApplication.UnicodeUTF8)
-
-### bruce 040920: until MainWindow.ui does the following, I'll do it manually:
-### (FYI: I will remove this, and the call to this, after MainWindowUI does the same stuff.
-###  But first I will be editing this function a lot to get the dashboard contents that I need.)
-##def do_what_MainWindowUI_should_do(self):
-##    "self should be the main MWSemantics object -- at the moment this is a function, not a method"
-##    assert 0 # no longer used in Qt4, replaced with ExtrudePropertyManager [code removed by bruce 070613]
-
-
 
 def reinit_extrude_controls(win, glpane = None, length = None, attr_target = None):
     "reinitialize the extrude controls; used whenever we enter the mode; win should be the main window (MWSemantics object)"
@@ -153,9 +126,7 @@ def reinit_extrude_controls(win, glpane = None, length = None, attr_target = Non
             setattr(attr_target, toggle.attr, toggle.default) # this is the only place I initialize those attrs!
     ##for toggle in self.extrude_pref_toggles:
         ##toggle.setChecked(True) ##### stub; change to use its sense & default if it has one -- via a method on it
-        
-
- 
+    
     #e bonding-slider, and its label, showing tolerance, and # of bonds we wouldd make at current offset\
     tol = self.propMgr.extrudeBondCriterionSlider_dflt / 100.0
     self.propMgr.set_bond_tolerance_and_number_display(tol)
@@ -168,20 +139,17 @@ def reinit_extrude_controls(win, glpane = None, length = None, attr_target = Non
     
     return
 
-
-    
 # ==
 
 class extrudeMode(basicMode):
-
+    """
+    Extrude mode.
+    """
     # class constants
     is_revolve = 0
     modename = 'EXTRUDE'
     default_mode_status_text = "Mode: Extrude"
     keeppicked = 0 # whether to keep the units all picked, or all unpicked, during the mode
-
-    # default initial values
-    ###
 
     # no __init__ method needed
     
@@ -226,7 +194,7 @@ class extrudeMode(basicMode):
             self.update_from_controls()
             ## not yet effective, even if we did it: self.recompute_bonds()
             self.repaint_if_needed() #k not needed since done at end of update_from_controls
-	    self.updateMessage()
+            self.updateMessage()
         return
     
     bond_tolerance = -1.0 # this initial value can't agree with value computed from slider
@@ -279,7 +247,6 @@ class extrudeMode(basicMode):
             pass
         self.repaint_if_needed()
         
-
     def refuseEnter(self, warn):
         "if we'd refuse to enter this mode, then (iff warn) tell user why, and (always) return true."
         ok, mol = assy_extrude_unit(self.o.assy, really_make_mol = 0)
@@ -379,21 +346,6 @@ class extrudeMode(basicMode):
 
         #e is this obs? or just nim?? [041017 night]
         self.recompute_for_new_bend() # ... and whatever depends on the bend from each repunit to the next (varies only in Revolve)
-
-# Note: bruce 070813 moved the following from here into init_gui.
-# This commented out code can be removed from here after Ninad sees it.
-##	self.updateCommandManager(bool_entering = True) #ninad20070622
-##        self.connect_or_disconnect_signals(True)
-##        ## i think this is safer *after* the first update_from_controls, not before it...
-##        # but i won't risk changing it right now (since tonight's bugfixes might go into josh's demo). [041017 night]
-##        
-##        try:
-##            self.update_from_controls()
-##        except:
-##            msg = "in Enter, exception in update_from_controls"
-##            print_compact_traceback(msg + ": ")
-##            self.status_msg("%s refused: %s" % (self.msg_modename, msg,))
-##            return 1
 	
         return # from Enter
     
@@ -458,10 +410,11 @@ class extrudeMode(basicMode):
 	obj = self  	    	    
 	self.w.commandManager.updateCommandManager(action,
 						   obj, 
-						   entering =bool_entering)
-	
+						   entering = bool_entering)
+	return
     
     singlet_color = {} # we also do this in clear()
+    
     def colorfunc(self, atom): # uses a hack in chem.py atom.draw to use mol._colorfunc
         return self.singlet_color.get(atom.info) # ok if this is None
 
@@ -470,6 +423,7 @@ class extrudeMode(basicMode):
         assert self.molcopies[0] == self.basemol
 
     circle_n = 0 # we also do this in clear()
+    
     def circle_n_value_changed(self, val): # note: will not be used when first committed, but will be used later
         # see also "closed ring"
         ###### 041017 night: i suspect this will go away and the signal will just go to "update_from_controls".
@@ -525,8 +479,7 @@ class extrudeMode(basicMode):
         self.update_from_controls()
 
     should_update_model_tree = 0 # avoid doing this when we don't need to (like during a drag)
-
-    ## use_circle_n_from_ncopies_kluge = 1 # constant, until we add that back #e not in all places in code that it should be
+    
     def want_center_and_quat(self, ii, ptype = None):
         "Return desired basecenter and quat of molcopies[ii], relative to original ones, assuming they're same as in basemol"
         #  update 070407: if self.basemol is a fake_merged_mol, we use the basecenter of its first true Chunk
@@ -555,39 +508,18 @@ class extrudeMode(basicMode):
             centerii = basemol.center + ii * offset
             # quatii = Q(1,0,0,0)
             quatii = basemol.quat
-##        elif ptype == "corkscrew": # not accessible (combobox item for this is commented out) # this code is wrong, anyway
-##            # [removed this code 070407]
-##            assert 0
         elif ptype == "closed ring": # default for Revolve
-            #e We store self.o.down (etc) when we enter the mode...
-            # now we pick a circle in plane of that and current offset.
-            # If this is ambiguous, we favor a circle in plane of initial down and out.
-            down = self.initial_down ###implem
-            out = self.initial_out
-            tangent = norm(offset)
-            axis = cross(down,tangent) # example, I think: left = cross(down,out)  ##k
-            if vlen(axis) < 0.001: #k guess
-                axis = cross(down,out)
-                self.status_msg("error: offset too close to straight down, picking down/out circle")
-                # worry: offset in this case won't quite be tangent to that circle. We'll have to make it so. ###NIM
-            axis = norm(axis) # direction only
-            # note: negating this direction makes the circle head up rather than down,
-            # but doesn't change whether bonds are correct.
-            
-            # now all our quats (relative to basemol.quat) are around axis. Note: axis might be backwards, need to test this. ##k
-            quatii_rel = Q(axis, 2 * math.pi * ii / cn)
-            if "try2 bugfix": ###@@@ why? could just be convention for theta the reverse of my guess
-                quatii_rel = quatii_rel * -1.0 #k would -1 work too?
-            #e possible optim: above stuff (in ring case) is independent of basemol. Some stuff, above and below, is indep of ii.
-            quatii = basemol.quat + quatii_rel # (i think) this doesn't depend on where we are around the circle!
-            towards_center = cross(offset,axis) # these are perp, axis is unit, so only cn is needed to make this correct length
-            neg_radius_vec = towards_center * cn / (2 * math.pi)
-            c_center = basemol.center + neg_radius_vec # circle center
-            self.circle_center = c_center # be able to draw the axis
-            self.axis_dir = axis
-            radius_vec = - neg_radius_vec
-            self.radius_vec = radius_vec # be able to draw "spokes", useful in case the axis is off-screen
-            centerii = c_center + quatii_rel.rot( radius_vec ) # (as predicted, unrot is quite wrong!)
+            self.update_ring_geometry()
+                # TODO: only call this once, for all ii in a loop of calls of this method
+            # extract some of the results saved by update_ring_geometry
+            c_center = self.circle_center
+
+            # use them for spoke number ii
+            quatii_rel, spoke_vec = self._spoke_quat_and_vector(ii)
+            quatii = basemol.quat + quatii_rel
+                # [i'm not sure what the following old comment means -- bruce 070928]
+                # (i think) this doesn't depend on where we are around the circle!
+            centerii = c_center + spoke_vec
         else:
             self.status_msg("bug: unimplemented product type %r" % ptype)
             return self.want_center_and_quat(ii, "straight rod")
@@ -600,7 +532,68 @@ class extrudeMode(basicMode):
             pass
         return centerii, quatii
 
+    def update_ring_geometry(self): #bruce 070928 split this out of want_center_and_quat
+        """
+        Recompute and set ring geometry attributes of self,
+        namely self.circle_center, self.axis_dir, self.radius_vec,
+        which depend on self.basemol, self.circle_n, and self.offset,
+        and are used by self.want_center_and_quat(...)
+        and by some debug drawing code.
+        """
+        #e We store self.o.down (etc) when we enter the mode...
+        # now we pick a circle in plane of that and current offset.
+        # If this is ambiguous, we favor a circle in plane of initial down and out.
+
+        # these are constants throughout the mode:
+        down = self.initial_down
+        out = self.initial_out
+        basemol = self.basemol
+
+        # these vary:
+        offset = self.offset
+        cn = self.circle_n
+        
+        tangent = norm(offset)
+        axis = cross(down,tangent) # example, I think: left = cross(down,out)  ##k
+        if vlen(axis) < 0.001: #k guess
+            axis = cross(down,out)
+            self.status_msg("error: offset too close to straight down, picking down/out circle")
+            # worry: offset in this case won't quite be tangent to that circle. We'll have to make it so. ###NIM
+        axis = norm(axis) # direction only
+        # note: negating this direction makes the circle head up rather than down,
+        # but doesn't change whether bonds are correct.
+        towards_center = cross(offset,axis) # these are perp, axis is unit, so only cn is needed to make this correct length
+        neg_radius_vec = towards_center * cn / (2 * math.pi)
+        c_center = basemol.center + neg_radius_vec # circle center
+        self.circle_center = c_center # be able to draw the axis
+        self.axis_dir = axis
+        radius_vec = - neg_radius_vec
+        self.radius_vec = radius_vec # be able to draw "spokes", useful in case the axis is off-screen
+        return
+
+    def _spoke_quat_and_vector(self, ii): #bruce 070928 split this out of want_center_and_quat
+        """
+        Assuming self.product_type == 'closed ring',
+        and assuming self.update_ring_geometry() has just been called
+        (unverifiable, but bugs if this is not true!),
+        return a tuple (quatii_rel, spoke_vec)
+        containing a quat which rotates self.radius_vec into spoke_vec,
+        and spoke_vec itself, a "spoke vector" which should translate self.circle_center
+        to the desired center of repeat unit ii
+        (where unit 0 is self.basemol).
+        """
+        cn = self.circle_n
+        # extract results saved by assumed call of update_ring_geometry
+        axis = self.axis_dir
+        radius_vec = self.radius_vec
+        c_center = self.circle_center
+        
+        quatii_rel = Q(axis, 2 * math.pi * ii / cn) * -1.0
+        spoke_vec = quatii_rel.rot( radius_vec )
+        return (quatii_rel, spoke_vec)
+    
     __old_ptype = None # hopefully not needed in clear(), but i'm not sure, so i added it
+    
     def update_from_controls(self):
         """make the number and position of the copies of basemol what they should be, based on current control values.
         Never modify the control values! (That would infloop.)
@@ -930,6 +923,7 @@ class extrudeMode(basicMode):
 
     bonds_for_current_offset_and_tol = (17,) # we do this in clear() too
     offset_for_bonds = None
+    
     def recompute_bonds(self):
         "call this whenever offset or tol changes"
 
@@ -1384,6 +1378,7 @@ class extrudeMode(basicMode):
             self.doDrag(event, self.dragging_this)
 
     needs_repaint = 0
+    
     def doDrag(self, event, thing):
         """drag thing, to new position in event.
         thing might be a handle (pos,radius,info) or something else... #doc
@@ -1460,22 +1455,22 @@ class extrudeMode(basicMode):
     #==
     
     def leftShiftDown(self, event):
-        pass##self.StartDraw(event, 0)
+        pass ##self.StartDraw(event, 0)
 
     def leftCntlDown(self, event):
-        pass##self.StartDraw(event, 2)
+        pass ##self.StartDraw(event, 2)
 
     def leftShiftDrag(self, event):
-        pass##self.ContinDraw(event)
+        pass ##self.ContinDraw(event)
     
     def leftCntlDrag(self, event):
-        pass##self.ContinDraw(event)
+        pass ##self.ContinDraw(event)
     
     def leftShiftUp(self, event):
-        pass##self.EndDraw(event)
+        pass ##self.EndDraw(event)
     
     def leftCntlUp(self, event):
-        pass##self.EndDraw(event)
+        pass ##self.EndDraw(event)
         
     def update_cursor_for_no_MB(self): # Fixes bug 1638. mark 060312.
         '''Update the cursor for 'Extrude' mode (extrudeMode).
@@ -1503,54 +1498,6 @@ class extrudeMode(basicMode):
         self.singlet_color = {}
         #e lots more ivars too
         return
-
-    def print_overrides(self):
-        "[debugging method] print the class attributes overridden in this instance"
-        #e generalize and split that into debug module and use for win, mtree, glpane, history
-        # experiment: need to not do this for instance methods; will the im_func attr (same_method, modes.py) help?? #####
-        instance1 = self
-        class1 = self.__class__ # in general this might be a specific superclass instead
-        # for extrude, the only ones this prints that are not in clear() are:
-        # msg_modename, show_bond_offsets_handlesets
-        # this part gets moved to a new func in debug...
-        print "extrudeMode print_overrides..."
-        import debug
-        res = debug.overridden_attrs(class1, instance1) # a list of 0 or more attrnames
-        print "  %r" % res
-        return
-
-# print_overrides_win is never called, which is good, because MainWindowUI
-# does not define MainWindow [ericm 070911]
-# Correction: in fact, it was called, via a reference in makeMenus,
-# so commenting it out broke the extrudeMode context menu.
-# To fix that, I'm also commenting out that reference.
-# [bruce 070928]
-#     def print_overrides_win(self): #bruce 050109
-#         # this debug method belongs in MWsemantics.py but that doesn't really matter,
-#         # and the menu item for it could be anywhere, so for now i'll just put it here.
-#         print "overrides in main window... (this will include tons of slot methods, sorry)"
-#         # could exclude them by reporting overrides of Qt superclass of that which are not overridden in that ###doit 
-#         import debug
-#         from MainWindowUI import MainWindow
-#         print "  %r" % debug.overridden_attrs(MainWindow, self.w)
-
-    def print_overrides_mt(self): #bruce 050109
-        # this debug method probably belongs in modelTree.py or maybe MWsemantics.py,
-        # but that doesn't really matter,
-        # and the menu item for it could be anywhere, so for now i'll just put it here.
-        print "overrides in model tree widget... [prints a lot, don't yet know why]"
-        import debug
-        from PyQt4.Qt import QListView
-        print "  %r" % debug.overridden_attrs(QListView, self.w.mt)
-
-    def print_overrides_glpane(self): #bruce 050109
-        # this debug method probably belongs in GLPane.py or maybe MWsemantics.py,
-        # but that doesn't really matter,
-        # and the menu item for it could be anywhere, so for now i'll just put it here.
-        print "overrides in glpane widget... [prints a lot, don't yet know why]"
-        import debug
-        from PyQt4.Qt import QGLWidget
-        print "  %r" % debug.overridden_attrs(QGLWidget, self.o)
 
     # drawing code
     
@@ -1590,6 +1537,26 @@ class extrudeMode(basicMode):
         #bruce 050218 experiment -- set to 1 for "transparent bond-offset spheres" (works but doesn't always look good)
 
     def Draw(self):
+        if debug_pref("Extrude: draw ring axis", Choice_boolean_False, prefs_key = True): #bruce 070928
+            if self.product_type == 'closed ring':
+                try:
+                    from constants import red
+                    self.update_ring_geometry()
+                    center = self.circle_center # set by update_ring_geometry
+                    axis = self.axis_dir # ditto
+                    radius_vec = self.radius_vec # ditto
+                    # draw axis
+                    drawline( red, center, center + axis * 10, width = 2)
+                    for ii in range(self.circle_n):
+                        # draw spoke ii
+                        quatii_rel_junk, spoke_vec = self._spoke_quat_and_vector(ii)
+                        color = (ii and green) or blue
+                        drawline(color, center, center + spoke_vec, width = 2)
+                    pass
+                except:
+                    print_compact_traceback("exception using debug_pref(%r) ignored: " % "Extrude: draw ring axis")
+                    pass
+                pass
         ## self.draw_model() # -- see below
         if self.show_bond_offsets:
             hsets = self.show_bond_offsets_handlesets
@@ -1671,7 +1638,6 @@ class extrudeMode(basicMode):
             self.draw_model()
         return # from Draw
     
-    
     ## Added this method to fix bug 1043 [Huaicai 10/04/05]
     def Draw_after_highlighting(self): 
         """Only draw those translucent parts of the whole model when we are requested to draw the whole model
@@ -1680,8 +1646,6 @@ class extrudeMode(basicMode):
             basicMode.Draw_after_highlighting(self)
         return
 
-    
-    
     call_makeMenus_for_each_event = True #bruce 050914 enable dynamic context menus [fixes bug 971]
     
     def makeMenus(self): #e not yet reviewed for being good choices of what needs including in extrude or revolve cmenu
@@ -1695,12 +1659,6 @@ class extrudeMode(basicMode):
         self.debug_Menu_spec = [
             ('debug: reload module', self.extrude_reload),
             ('debug: transparent=1', self.set_transparent),
-            ('debug: overrides', [
-                ('debug: print overrides', self.print_overrides),
-##                ('debug: print overrides win', self.print_overrides_win),
-                ('debug: print overrides mt', self.print_overrides_mt),
-                ('debug: print overrides glpane', self.print_overrides_glpane),
-            ])
          ]
         
         self.Menu_spec_control = [
@@ -2011,7 +1969,6 @@ class virtual_group_of_Chunks:
             first.merge(other)
         return
     pass # end of class virtual_group_of_Chunks
-
     
 class fake_merged_mol( virtual_group_of_Chunks): #e rename? 'extrude_unit_holder'
     """private helper class for use in Extrude,
@@ -2103,6 +2060,9 @@ class fake_merged_mol( virtual_group_of_Chunks): #e rename? 'extrude_unit_holder
         sum_center_weight = sum([mol.center_weight for mol in self._mols])
         sum_center = sum([mol.center for mol in self._mols])
         self.center = sum_center / float(sum_center_weight)
+        if len(self._mols) == 1:
+            ## assert self.center == self._mols[0].center # or that they're close # sanity check [bruce 070928]
+            print "debug note re bug 2508: these points should be close: %r and %r" % (self.center , self._mols[0].center)
         return
     def contains_atom(self, atom): #bruce 070514
         mol = atom.molecule
