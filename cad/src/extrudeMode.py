@@ -1519,7 +1519,12 @@ class extrudeMode(basicMode):
         print "  %r" % res
         return
 
-# this is never called, which is good, because MainWindowUI does not define MainWindow
+# print_overrides_win is never called, which is good, because MainWindowUI
+# does not define MainWindow [ericm 070911]
+# Correction: in fact, it was called, via a reference in makeMenus,
+# so commenting it out broke the extrudeMode context menu.
+# To fix that, I'm also commenting out that reference.
+# [bruce 070928]
 #     def print_overrides_win(self): #bruce 050109
 #         # this debug method belongs in MWsemantics.py but that doesn't really matter,
 #         # and the menu item for it could be anywhere, so for now i'll just put it here.
@@ -1692,7 +1697,7 @@ class extrudeMode(basicMode):
             ('debug: transparent=1', self.set_transparent),
             ('debug: overrides', [
                 ('debug: print overrides', self.print_overrides),
-                ('debug: print overrides win', self.print_overrides_win),
+##                ('debug: print overrides win', self.print_overrides_win),
                 ('debug: print overrides mt', self.print_overrides_mt),
                 ('debug: print overrides glpane', self.print_overrides_glpane),
             ])
