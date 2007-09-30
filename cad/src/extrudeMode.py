@@ -1537,7 +1537,8 @@ class extrudeMode(basicMode):
         #bruce 050218 experiment -- set to 1 for "transparent bond-offset spheres" (works but doesn't always look good)
 
     def Draw(self):
-        if debug_pref("Extrude: draw ring axis", Choice_boolean_False, prefs_key = True): #bruce 070928
+        if debug_pref("Extrude: draw ring axis and spokes",
+                      Choice_boolean_False, prefs_key = True ): #bruce 070928
             if self.product_type == 'closed ring':
                 try:
                     from constants import red
@@ -2057,12 +2058,9 @@ class fake_merged_mol( virtual_group_of_Chunks): #e rename? 'extrude_unit_holder
                 # note: this will fail if Chunk has user_specified_center (nim at the moment),
                 # and Chunk.set_basecenter_and_quat may not be correct then anyway (not sure).
         # compute self.center as weighted average of component centers
-        sum_center_weight = sum([mol.center_weight for mol in self._mols])
-        sum_center = sum([mol.center for mol in self._mols])
-        self.center = sum_center / float(sum_center_weight)
-        if len(self._mols) == 1:
-            ## assert self.center == self._mols[0].center # or that they're close # sanity check [bruce 070928]
-            print "debug note re bug 2508: these points should be close: %r and %r" % (self.center , self._mols[0].center)
+        centers = [mol.center for mol in self._mols]
+        weights = [mol.center_weight for mol in self._mols]
+        self.center = weighted_average(weights, centers)
         return
     def contains_atom(self, atom): #bruce 070514
         mol = atom.molecule
@@ -2089,6 +2087,24 @@ class fake_merged_mol( virtual_group_of_Chunks): #e rename? 'extrude_unit_holder
     ##fake_merged_mol will delegate attr 'unpick' +
     ##fake_merged_mol will delegate attr 'changeapp' +
     ##fake_merged_mol will delegate attr 'draw' +
+
+def weighted_average(weights, centers): #bruce 070930 split this out #e refile? #e replace with preexisting implem?
+    """
+    Centers and weights must be sequences of the same length;
+    return the weighted average of centers using the given weights.
+    The centers can be of any data type which works with sum(sequence) and has scalar * and /.
+    The weights should be summable and convertable to floats.
+    """
+    assert len(weights) == len(centers) >= 1
+    weighted_centers = [weights[i] * centers[i] for i in range(len(weights))]
+    res = sum(weighted_centers) / float( sum(weights) )
+        # bug 2508 was evidently caused by effectively using sum(centers) here
+        # instead of sum(weighted_centers) [bruce 070930]
+##    if len(weights) == 1:
+##        # sanity check [bruce 070928]
+##        # ideally we'd assert that the following values are very close:
+##        print "debug note re bug 2508: these points should be close: %r and %r" % (res , centers[0])
+    return res
     
 class fake_copied_mol( virtual_group_of_Chunks): #e rename? 'extrude_unit_copy_holder'
     """private helper class for extrude, to serve as a "rep-unit" copy of a fake_merged_mol instance.
