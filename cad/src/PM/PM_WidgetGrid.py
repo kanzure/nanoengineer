@@ -27,7 +27,7 @@ from PM.PM_GroupBox import PM_GroupBox
 
 class PM_WidgetGrid( PM_GroupBox ):
     """
-    The B{PM_Widgetgrid} provides a convenient way to create different 
+    The B{PM_WidgetGrid} provides a convenient way to create different 
     types of widgets (such as ToolButtons, Labels, PushButtons etc) and 
     arrange them in the grid layout of a B{PM_Groupbox} 
         

@@ -12,12 +12,18 @@ ninad 2007-08-09: Created.
 
 @attention: This file is subject to heavy modifications. 
 """
-from PyQt4.Qt import QLabel
-from PyQt4.Qt import QSpacerItem, QSizePolicy
 
 from PM.PM_WidgetGrid import PM_WidgetGrid
 
 class PM_WidgetRow( PM_WidgetGrid ):
+    """
+    The B{PM_WidgetRow} provides a convenient way to create different 
+    types of widgets (such as ToolButtons, Labels, PushButtons etc) in a single
+    row and add them to a groupbox. 
+        
+    @see: B{Ui_CookiePropertyManager._loadLayerPropertiesGroupBox} that uses 
+          a B{PM_WidgetRow}
+    """
             
     def __init__(self, 
                  parentWidget,

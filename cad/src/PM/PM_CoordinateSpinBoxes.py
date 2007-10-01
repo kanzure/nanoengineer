@@ -24,7 +24,7 @@ class PM_CoordinateSpinBoxes(PM_GroupBox):
     """
     def __init__(self, 
                  parentWidget,
-                 title = "Coordinates:"
+                 title = ""
                  ):
         """
         Appends a PM_CoordinateSpinBoxes groupbox widget to I{parentWidget},
@@ -37,7 +37,13 @@ class PM_CoordinateSpinBoxes(PM_GroupBox):
         @param title: The title (button) text.
         @type  title: str        
         """
-        PM_GroupBox.__init__(self, parentWidget)
+        PM_GroupBox.__init__(self, parentWidget, title)
+        
+        #Initialize attributes
+        self.xSpinBox = None
+        self.ySpinBox = None
+        self.zSpinBox = None
+        
         self._loadCoordinateSpinBoxes()
     
     def _loadCoordinateSpinBoxes(self):

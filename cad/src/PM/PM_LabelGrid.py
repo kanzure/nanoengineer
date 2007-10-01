@@ -12,8 +12,6 @@ ninad 2007-08-14: Created.
 """
 
 from PyQt4.Qt import QFont
-from PyQt4.Qt import QLabel
-from PyQt4.Qt import QSize
 
 from PM.PM_WidgetGrid import PM_WidgetGrid
 
@@ -80,7 +78,7 @@ class PM_LabelGrid( PM_WidgetGrid ):
         
         """ 
         labelParams  = list(widgetParams)        
-        label = self._createLabel(labelParams)                                   
+        label = self._createLabel(labelParams) 
         labelFont = self.getLabelFont(self.isBold)
         label.setFont(labelFont)
         label.setUpdatesEnabled(True)

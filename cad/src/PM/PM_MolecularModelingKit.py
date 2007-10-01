@@ -9,7 +9,7 @@ PM_MolecularModelingKit.py
 
 from elements import PeriodicTable
 
-from PyQt4.Qt import SIGNAL, QSpacerItem, QSizePolicy
+from PyQt4.Qt import SIGNAL
 from PM.PM_GroupBox import PM_GroupBox
 from PM.PM_ToolButtonGrid import PM_ToolButtonGrid
 from constants import diTUBES
@@ -80,7 +80,7 @@ class PM_MolecularModelingKit( PM_GroupBox ):
             self.parentPropMgr = parentPropMgr
         else:
             self.parentPropMgr = parentWidget
-        
+                
         self._addGroupBoxes()
         self.connect_or_disconnect_signals(True)
     
@@ -202,13 +202,13 @@ class PM_MolecularModelingKit( PM_GroupBox ):
         if hasattr(parentPropMgrClass, 'updateMessage'):
             try:
                 self.parentPropMgr.updateMessage()
-            except:
+            except AttributeError:
                 print_compact_traceback("Error calling updateMessage()")
                 
         if hasattr(parentPropMgrClass, 'update_selection_filter_list'):
             try:
                 self.parentPropMgr.update_selection_filter_list()
-            except:
+            except AttributeError:
                 msg = "Error calling update_selection_filter_list()"
                 print_compact_traceback(msg)
         

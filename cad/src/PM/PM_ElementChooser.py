@@ -13,10 +13,7 @@ mark 2007-08-03: Created.
 
 from PM.PM_MolecularModelingKit import PM_MolecularModelingKit
 
-from elements import PeriodicTable
-
 from PyQt4.Qt import SIGNAL, QSpacerItem, QSizePolicy
-from PM.PM_GroupBox import PM_GroupBox
 from PM.PM_ToolButtonGrid import PM_ToolButtonGrid
 
 # Elements button list to create elements tool button group.
@@ -229,6 +226,13 @@ class PM_ElementChooser( PM_MolecularModelingKit ):
         return ELEMENTS_BUTTON_LIST
     
     def getAtomTypesButtonList(self):
-        return ATOM_TYPES_BUTTON_LIST
-    
+        """
+        Return the list of buttons for the various atom types (hybrids) of the 
+        selected atom in the    Element  chooser.
+        @return: List containing information about the toolbuttons for 
+                 the atom types (hybrids) of the selected atom  in the element
+                 chooser.
+        @rtype:  list 
         
+        """
+        return ATOM_TYPES_BUTTON_LIST        

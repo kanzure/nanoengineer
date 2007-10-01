@@ -18,8 +18,6 @@ import sys
 
 from PyQt4.Qt import Qt
 
-from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False, Choice
-
 __author__ = "Mark"
 
 # PropMgr constants (system specific).
@@ -162,7 +160,7 @@ if sys.platform == "darwin":
     pmMMKitButtonFontPointSize = 18
     pmMMKitButtonFontBold = False
     PM_MMKIT_BUTTON_HEIGHT = 32
-    PM_MMKIT_BUTTON_WIDTH = int((pmMinWidth - 38)/6) # 43 for A9. Mark 2007-05-21
+    PM_MMKIT_BUTTON_WIDTH = int((pmMinWidth - 38)/6) # 43 for A9.Mark 2007-05-21
     PM_MMKIT_BUTTON_FONT = "Arial"
     PM_MMKIT_BUTTON_FONT_POINT_SIZE = 18
     PM_MMKIT_BUTTON_FONT_BOLD = False
@@ -173,7 +171,7 @@ else: # Windows and Linux
     pmMMKitButtonFontPointSize = 10
     pmMMKitButtonFontBold = True
     PM_MMKIT_BUTTON_HEIGHT = 32
-    PM_MMKIT_BUTTON_WIDTH = int((pmMinWidth - 38)/6) # 32 for A9. Mark 2007-05-21
+    PM_MMKIT_BUTTON_WIDTH = int((pmMinWidth - 38)/6) # 32 for A9.Mark 2007-05-21
     PM_MMKIT_BUTTON_FONT = "Arial"
     PM_MMKIT_BUTTON_FONT_POINT_SIZE = 10
     PM_MMKIT_BUTTON_FONT_BOLD = False
