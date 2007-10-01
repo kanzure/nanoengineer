@@ -37,9 +37,6 @@ from debug import print_compact_traceback
 import env
 
 from utilities.Log import redmsg
-
-from PlanePropertyManager import PlanePropertyManager
-from PlaneGenerator       import PlaneGenerator
 from ReferenceGeometry    import ReferenceGeometry 
 from DirectionArrow       import DirectionArrow
 
@@ -66,6 +63,7 @@ class Plane(ReferenceGeometry):
     copyable_attrs  = ReferenceGeometry.copyable_attrs + mutable_attrs
     cmdname         = 'Plane'
     mmp_record_name = "plane"
+    logMessage      = ""
     
     default_opacity      = 0.1
     preview_opacity      = 0.0    
@@ -73,8 +71,13 @@ class Plane(ReferenceGeometry):
     preview_fill_color   = yellow
     default_border_color = orange
     preview_border_color = yellow
+    
         
-    def __init__(self, win, atomList = None, READ_FROM_MMP = False):
+    def __init__(self, 
+                 win, 
+                 generator, 
+                 atomList = None, 
+                 READ_FROM_MMP = False):
         """
         Constructs a plane.
         
@@ -96,23 +99,19 @@ class Plane(ReferenceGeometry):
         self.border_color   =  self.default_border_color  
         self.opacity        =  self.default_opacity
         self.handles        =  []   
-        self.propMgr        =  PlanePropertyManager(self)
-        self.generator      =  PlaneGenerator(self.win, self)
         self.directionArrow =  None
-        
+                
         # This is used to notify drawing code if it's just for picking purpose
         # copied from jig_planes.ESPImage 
-        self.pickCheckOnly = False 
+        self.pickCheckOnly  = False 
+        
+        self.generator      =  generator
         
         if not READ_FROM_MMP:
             self.width      =  20.0
             self.height     =  10.0
-            self.normcolor  =  black
-            
-            self._setup_quat_center(atomList)         
-            self.propMgr.show()
-            self.propMgr.preview_btn_clicked()
-        
+            self.normcolor  =  black            
+            self._setup_quat_center(atomList)   
             self.directionArrow = DirectionArrow(self, 
                                                  self.glpane, 
                                                  self.center, 
@@ -160,7 +159,7 @@ class Plane(ReferenceGeometry):
             abs_pos += [self.quat.rot(pos) + self.center]        
         
         return BBox(abs_pos)
-              
+             
     def setProps(self, props):
         """
         Set the Plane properties. It is called while reading a MMP file record.
@@ -555,50 +554,28 @@ class Plane(ReferenceGeometry):
             
         self.recomputeCenter(totalOffset)
         #update the width,height spinboxes(may be more in future)--Ninad20070601
-        self.propMgr.update_spinboxes()
-        
-        pass
+        self.generator.propMgr.update_spinboxes()
+     
         
     def edit(self):
         """
         Overrided node.edit and shows the property manager.
         """
-        self.generator.existingStructForEditing = True
-        self.generator.old_props = self.getProps()
-        self.propMgr.show()    
+        self.generator.edit()
+         
                 
-    def changePlanePlacement(self, buttonId):
+    def setup_quat_center(self, atomList = None):
         """
-        Slot to change the placement of the plane depending upon the 
-        option checked in the "Placement Options" group box of the PM.
+        Public method to Setup the plane's quat using a list of atoms.
         
-        @param buttonId: The button id of the selected radio button (option).
-        @type  buttonId: int
-        """       
-        if buttonId == 0:
-            msg = "Create a Plane parallel to the screen. \
-            NOTE: With <b>Parallel to Screen</b> plane placement option, the center \
-            of the plane is always (0,0,0). This value is set during plane \
-            creation or when the <b>Preview</b> button is clicked."
-            self.propMgr.MessageGroupBox.insertHtmlMessage(msg,
-                                                           setAsDefault = False,
-                                                           minLines     = 5)
-            self._setup_quat_center()
-            self.glpane.gl_update()
-        elif buttonId == 1:
-            self._createPlaneThroughAtoms()
-        elif buttonId == 2:
-            self._createOffsetPlane()
-        elif buttonId == 3:
-            #'Custom' plane placement. Do nothing (only update message box)
-            # Fixes bug 2439
-            msg = "Create a plane with a <b>Custom</b> plane placement. During \
-            its creation, the plane is placed parallel to the screen, with \
-            center at (0, 0, 0). User can then modify the plane placement."
-            self.propMgr.MessageGroupBox.insertHtmlMessage(msg,
-                                                           setAsDefault = False,
-                                                           minLines     = 5)
-            pass
+        If no atom list is supplied, the plane is centered in the glpane
+        and parallel to the screen.
+        
+        @param atomList: A list of atoms.
+        @type  atomList: list
+        """
+        self._setup_quat_center(atomList)
+        
             
     def _setup_quat_center(self, atomList = None):
         """
@@ -627,47 +604,38 @@ class Plane(ReferenceGeometry):
             x, y ,z = self.glpane.right, self.glpane.up, self.glpane.out
             self.quat  = Q(x, y, z) 
             self.quat += Q(self.glpane.right, pi)
+    
+    def createPlaneParallelToScreen(self):
+        """
+        Create a plane parallel to the screen. 
+        """
+        self._setup_quat_center()
+        self.glpane.gl_update()
                         
-    def _createPlaneThroughAtoms(self):
+    def createPlaneThroughAtoms(self):
         """
         Create a Plane with center same as the common center of 
         three or more selected atoms.
-        """
-        
-        cmd = self.generator.cmd 
-        msg = "Create a Plane with center coinciding with the common center \
-        of <b> 3 or more selected atoms </b>. If exactly 3 atoms are selected, \
-        the Plane will pass through those atoms. Select atoms and hit \
-        <b>Preview</b> to see the new Plane placement"
-        
-        self.propMgr.MessageGroupBox.insertHtmlMessage(msg, 
-                                                       setAsDefault = False,
-                                                       minLines     = 5)
+        """       
         atmList = self.win.assy.selatoms_list()         
         if not atmList:
             msg = redmsg("Select 3 or more atoms to create a Plane.")
-            env.history.message(cmd + msg)
+            self.logMessage = msg
             return            
         # Make sure more than three atoms are selected.
         if len(atmList) < 3: 
             msg = redmsg("Select 3 or more atoms to create a Plane.")
-            env.history.message(cmd + msg)
+            self.logMessage = msg
             return
         self._setup_quat_center(atomList = atmList)
         self.glpane.gl_update()
     
-    def _createOffsetPlane(self):
+    def createOffsetPlane(self):
         """
         Create a plane offset to a selected plane.
         """
         cmd = self.generator.cmd 
-        msg = "Create a Plane,at an <b> offset</b> to the selected plane,\
-            in the direction indicated by the direction arrow. \
-            Select an existing plane and hit <b>Preview</b>.\
-            You can click on the direction arrow to reverse its direction."
-        self.propMgr.MessageGroupBox.insertHtmlMessage(msg, 
-                                                       setAsDefault = False,
-                                                       minLines     = 5)
+                
         jigList = self.win.assy.getSelectedJigs()
         if jigList:
             planeList = []

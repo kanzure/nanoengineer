@@ -86,7 +86,7 @@ class GeometryGeneratorBaseClass:
             self.cmd = greenmsg(self.cmdname + ": ")
         return
     
-    def buildStructure(self, name, params):
+    def buildStructure(self, params):
         """
         Build a geometry using the parameters in the Property Manager.
         Abstract method. 
@@ -111,15 +111,16 @@ class GeometryGeneratorBaseClass:
         self.win.assy.current_command_info(cmdname = self.cmdname) 
         
         params = self.gather_parameters()        
-        name = self.name
+        
         
         if self.struct is None:
-            self.struct = self.buildStructure(name, params)
+            self.struct = self.buildStructure(params)
         else:
             if not same_vals( params, self.previousParams):
-                self.struct = self.buildStructure(name, params)
+                self.struct = self.buildStructure(params)
         
         if self.struct:
+            name = self.struct.name
             if not self.existingStructForEditing:
                 self.win.assy.place_new_geometry(self.struct)
                 self.existingStructForEditing = True            

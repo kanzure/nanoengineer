@@ -44,6 +44,7 @@ from utilities.Log import greenmsg
 
 from state_utils import same_vals
 
+
 class ReferenceGeometry(Jig, DragHandler_API):
     """
     Superclass for various reference geometries. 
@@ -97,6 +98,7 @@ class ReferenceGeometry(Jig, DragHandler_API):
         #(see file jigs.py)That kludge makes it not write the 
         #proper mmp record. if last part is an empty string (?)--ninad 20070604
         return "type-geometry"
+
                         
     def _draw(self, glpane, dispdef):
         self._draw_geometry(glpane, self.color)        

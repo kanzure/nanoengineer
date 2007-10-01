@@ -17,7 +17,6 @@ from PyQt4.Qt import QAction
 from PyQt4.Qt import QActionGroup
 from PyQt4.Qt import QButtonGroup
 
-from PM.PM_Dialog        import PM_Dialog
 from PM.PM_GroupBox      import PM_GroupBox
 from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
 from PM.PM_ComboBox      import PM_ComboBox
@@ -29,8 +28,9 @@ from PM.PM_RadioButtonList import PM_RadioButtonList
 
 from PM.PM_Constants     import pmRestoreDefaultsButton
 
+from GeometryGenerator_PM import GeometryGenerator_PM
+
 import env
-from PlaneGenerator      import PlaneGenerator
 
 # Placement Options radio button list to create radio button list.
 # Format: buttonId, buttonText, tooltip
@@ -41,7 +41,7 @@ PLACEMENT_OPTIONS_BUTTON_LIST = [ \
     ( 3, "Custom",                 "Custom"                 )
 ]
     
-class PlanePropertyManager(PM_Dialog):
+class PlanePropertyManager(GeometryGenerator_PM):
     """
     The PlanePropertyManager class provides a Property Manager for a 
     (reference) Plane.
@@ -55,38 +55,25 @@ class PlanePropertyManager(PM_Dialog):
     # The relative path to the PNG file that appears in the header
     iconPath = "ui/actions/Insert/Reference Geometry/Plane.png"
     
-    def __init__(self, plane):
+    def __init__(self, win, planeGenerator):
         """
         Construct the Plane Property Manager.
         
         @param plane: The plane.
         @type  plane: L{Plane}
         """
-        
-        # pw = part window. 
-        # Its subclasses will create their partwindow objects 
-        # (and destroy them after Done) -- @@ not be a good idea if we have
-        # multiple partwindow support? (i.e. when win object is replaced(?) by 
-        # partwindow object for each partwindow).  But this works fine.
-        # ..same guess -- because opening multiple windows is not supported
-        # When we begin supporting that, lots of things will change and this 
-        # might be one of them .--- ninad 20070613
-        
-        self.geometry = plane
-        self.win      = self.geometry.win
-        self.pw       =  None     
-        self.modePropertyManager = None
+             
+        GeometryGenerator_PM.__init__( self, 
+                                       win,
+                                       planeGenerator) 
                 
-        PM_Dialog.__init__( self, self.pmName, self.iconPath, self.title ) 
-                
-        self._addGroupBoxes()
-        self._addWhatsThisText()
+     
         
         msg = "Insert a Plane parallel to the screen. Note: This feature is \
         experimental for Alpha9 and has known bugs."
         
         # This causes the "Message" box to be displayed as well.
-        self.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=False)
+        self.updateMessage(msg)
         
         # self.resized_from_glpane flag makes sure that the 
         #spinbox.valueChanged()
@@ -96,76 +83,7 @@ class PlanePropertyManager(PM_Dialog):
         # Hide Preview and Restore defaults button for Alpha9.
         self.hideTopRowButtons(pmRestoreDefaultsButton)
     
-    def ok_btn_clicked(self):
-        """
-        Slot for the OK button
-        """       
-        generator = self.geometry.generator
-        generator.preview_or_finalize_structure(previewing = False)
-        self.accept() 
-        
-        env.history.message(self.geometry.generator.logMessage)
-        self.struct = None
-        
-        self.close() # Close the property manager.
-        
-        # The following reopens the property manager of the mode after 
-        # when the PM of the reference geometry is closed. -- Ninad 20070603 
-        # Note: the value of self.modePropertyManager can be None
-        # @see: anyMode.propMgr
-        self.modePropertyManager = self.win.assy.o.mode.propMgr
-                
-        if self.modePropertyManager:
-            #@self.openPropertyManager(self.modePropertyManager)
-            # (re)open the PM of the current command (i.e. "Build > Atoms").
-            self.open(self.modePropertyManager)
-        return 
-    
-    def cancel_btn_clicked(self):
-        """
-        Slot for the Cancel button.
-        """
-        self.geometry.generator.cancelStructure()
-        self.reject() 
-        self.close() 
-        
-        # The following reopens the property manager of the command after
-        # the PM of the reference geometry generator (i.e. Plane) is closed.
-        # Note: the value of self.modePropertyManager can be None.
-        # See anyMode.propMgr
-        self.modePropertyManager = self.win.assy.o.mode.propMgr
-            
-        if self.modePropertyManager:
-            #@self.openPropertyManager(self.modePropertyManager)
-            # (re)open the PM of the current command (i.e. "Build > Atoms").
-            self.open(self.modePropertyManager)
-        return
-    
-    def preview_btn_clicked(self):
-        """
-        Slot for the Preview button.
-        """
-        generator = self.geometry.generator
-        generator.preview_or_finalize_structure(previewing = True)
-        env.history.message(self.geometry.generator.logMessage)
-            
-    def abort_btn_clicked(self):
-        """
-        Slot for Abort button
-        """
-        self.cancel_btn_clicked()
-        
-    def restore_defaults_btn_clicked(self):
-        """
-        Slot for Restore defaults button
-        """
-        pass
-    
-    def enter_WhatsThisMode(self):
-        """
-        Show what's this text
-        """
-        pass  
+
       
     def _addGroupBoxes(self):
         """
@@ -182,7 +100,7 @@ class PlanePropertyManager(PM_Dialog):
         
         self.connect(self.pmPlacementOptions.buttonGroup,
                      SIGNAL("buttonClicked(int)"),
-                     self.geometry.changePlanePlacement)
+                     self.changePlanePlacement)
               
     def _loadGroupBox1(self, pmGroupBox):
         """
@@ -267,7 +185,7 @@ class PlanePropertyManager(PM_Dialog):
         Show the Plane Property Manager.
         """
         self.update_spinboxes()
-        PM_Dialog.show(self)   
+        GeometryGenerator_PM.show(self)   
         self.geometry.updateCosmeticProps(previewing = True)
                 
     def change_plane_width(self):
@@ -308,6 +226,47 @@ class PlanePropertyManager(PM_Dialog):
             self.geometry.height  =  self.heightDblSpinBox.value() 
         if gl_update:
             self.geometry.glpane.gl_update()
+    
+    def changePlanePlacement(self, buttonId):
+        """
+        Slot to change the placement of the plane depending upon the 
+        option checked in the "Placement Options" group box of the PM.
+        
+        @param buttonId: The button id of the selected radio button (option).
+        @type  buttonId: int
+        """       
+        if buttonId == 0:
+            msg = "Create a Plane parallel to the screen. \
+            NOTE: With <b>Parallel to Screen</b> plane placement option, the \
+            center of the plane is always (0,0,0). This value is set during \
+            plane creation or when the <b>Preview</b> button is clicked."
+            self.updateMessage(msg)
+            self.generator.createPlaneParallelToScreen()            
+        elif buttonId == 1:
+            msg = "Create a Plane with center coinciding with the common center\
+            of <b> 3 or more selected atoms </b>. If exactly 3 atoms are \
+            selected, the Plane will pass through those atoms. Select atoms \
+            and hit <b>Preview</b> to see the new Plane placement"        
+            self.updateMessage(msg)            
+            self.generator.createPlaneThroughAtoms()
+            if self.generator.logMessage:
+                env.history.message(self.generator.logMessage)
+        elif buttonId == 2:
+            msg = "Create a Plane,at an <b> offset</b> to the selected plane,\
+            in the direction indicated by the direction arrow. \
+            Select an existing plane and hit <b>Preview</b>.\
+            You can click on the direction arrow to reverse its direction."
+            self.updateMessage(msg)            
+            self.generator.createOffsetPlane()
+            if self.generator.logMessage:
+                env.history.message(self.generator.logMessage)
+        elif buttonId == 3:
+            #'Custom' plane placement. Do nothing (only update message box)
+            # Fixes bug 2439
+            msg = "Create a plane with a <b>Custom</b> plane placement. During \
+            its creation, the plane is placed parallel to the screen, with \
+            center at (0, 0, 0). User can then modify the plane placement."
+            self.updateMessage(msg)
     
     def update_spinboxes(self):
         """
@@ -367,3 +326,15 @@ class PlanePropertyManager(PM_Dialog):
         if self.geometry.offsetParentGeometry:
             dirArrow = self.geometry.offsetParentGeometry.directionArrow 
             dirArrow.setDrawRequested(False)
+    
+    def updateMessage(self, message = ''):
+        """
+        Updates the message box with an informative message
+        @param message: Message to be displayed in the Message groupbox of 
+                        the property manager
+        @type  message: string
+        """
+        msg = message
+        self.MessageGroupBox.insertHtmlMessage(msg, 
+                                               setAsDefault = False,
+                                               minLines     = 5)

@@ -956,8 +956,8 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
     
     def createPlane(self):
         #Insert a plane
-	from Plane import Plane	
-	plane = Plane(self.w)
+	from PlaneGenerator import PlaneGenerator	
+	PlaneGenerator(self.w)
 	
     def createLine(self):
 	"""
