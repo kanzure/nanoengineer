@@ -532,7 +532,7 @@ class extrudeMode(basicMode):
             pass
         return centerii, quatii
 
-    def update_ring_geometry(self): #bruce 070928 split this out of want_center_and_quat
+    def update_ring_geometry(self, emit_messages = True): #bruce 070928 split this out of want_center_and_quat
         """
         Recompute and set ring geometry attributes of self,
         namely self.circle_center, self.axis_dir, self.radius_vec,
@@ -557,7 +557,8 @@ class extrudeMode(basicMode):
         axis = cross(down,tangent) # example, I think: left = cross(down,out)  ##k
         if vlen(axis) < 0.001: #k guess
             axis = cross(down,out)
-            self.status_msg("error: offset too close to straight down, picking down/out circle")
+            if emit_messages:
+                self.status_msg("error: offset too close to straight down, picking down/out circle")
             # worry: offset in this case won't quite be tangent to that circle. We'll have to make it so. ###NIM
         axis = norm(axis) # direction only
         # note: negating this direction makes the circle head up rather than down,
@@ -1542,7 +1543,10 @@ class extrudeMode(basicMode):
             if self.product_type == 'closed ring':
                 try:
                     from constants import red
-                    self.update_ring_geometry()
+                    self.update_ring_geometry(emit_messages = False)
+                        # emit_messages = False to fix infinite redraw loop
+                        # when it chooses z-y plane and prints a message about that
+                        # [bruce 071001]
                     center = self.circle_center # set by update_ring_geometry
                     axis = self.axis_dir # ditto
                     radius_vec = self.radius_vec # ditto
