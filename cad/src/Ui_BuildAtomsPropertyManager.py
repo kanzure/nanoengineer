@@ -222,6 +222,7 @@ class Ui_BuildAtomsPropertyManager(PM_Dialog):
                          index        = 0, 
                          setAsDefault = False,
                          spanWidth    = True )
+        self.atomChooserComboBox.setFocusPolicy(Qt.NoFocus)
         
         self._addElementChooserGroupBox(inPmGroupBox) 
         self._add_PAM5_AtomChooserGroupBox(inPmGroupBox)
@@ -412,6 +413,7 @@ class Ui_BuildAtomsPropertyManager(PM_Dialog):
             self.elementChooser.updateElementViewer()
         
         self.updateMessage()
+        
         
     def updateMessage(self):
         """
