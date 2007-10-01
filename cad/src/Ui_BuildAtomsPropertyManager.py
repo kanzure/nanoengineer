@@ -222,6 +222,8 @@ class Ui_BuildAtomsPropertyManager(PM_Dialog):
                          index        = 0, 
                          setAsDefault = False,
                          spanWidth    = True )
+        
+        #Following fixes bug 2550  
         self.atomChooserComboBox.setFocusPolicy(Qt.NoFocus)
         
         self._addElementChooserGroupBox(inPmGroupBox) 
