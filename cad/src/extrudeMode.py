@@ -181,6 +181,7 @@ class extrudeMode(basicMode):
         return
 
     def ptype_value_changed(self, val):
+        # note: uses val, below
         if not self.now_using_this_mode_object():
             return
         old = self.product_type
@@ -199,7 +200,11 @@ class extrudeMode(basicMode):
     
     bond_tolerance = -1.0 # this initial value can't agree with value computed from slider
     
-    def slider_value_changed(self):
+    def slider_value_changed(self, valjunk):
+        """
+        Slot method: The bond tolerance slider value changed.
+        """
+        del valjunk
         ######k why don't we check suppress_value_changed? maybe we never set its value with that set?
         if not self.now_using_this_mode_object():
             return
@@ -223,7 +228,8 @@ class extrudeMode(basicMode):
             self.repaint_if_needed() ##e merge with self.update_offset_bonds_display, call that instead?? no need for now.
         return
             
-    def toggle_value_changed(self):
+    def toggle_value_changed(self, valjunk):
+        del valjunk
         if not self.now_using_this_mode_object():
             return
         self.needs_repaint = 0
@@ -424,7 +430,8 @@ class extrudeMode(basicMode):
 
     circle_n = 0 # we also do this in clear()
     
-    def circle_n_value_changed(self, val): # note: will not be used when first committed, but will be used later
+    def circle_n_value_changed(self, valjunk): # note: will not be used when first committed, but will be used later
+        del valjunk
         # see also "closed ring"
         ###### 041017 night: i suspect this will go away and the signal will just go to "update_from_controls".
         # at the moment, it is never called since the spinbox for it is never made or connected.
@@ -450,8 +457,9 @@ class extrudeMode(basicMode):
             self.w.win_update() # or just repaint [this is redundant]
         return
 
-    def spinbox_value_changed(self, val):
+    def spinbox_value_changed(self, valjunk):
         "call this when any extrude spinbox value changed, except length."
+        del valjunk
         
         if self.propMgr.suppress_valuechanged:
             return
@@ -468,8 +476,9 @@ class extrudeMode(basicMode):
             #e unless code to adjust to one more or less copy is way to slow.
 	self.updateMessage()
 
-    def length_value_changed(self, val):
+    def length_value_changed(self, valjunk):
         "call this when the length spinbox changes"
+        del valjunk
         if self.propMgr.suppress_valuechanged:
             return
         if not self.now_using_this_mode_object():
