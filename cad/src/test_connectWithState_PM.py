@@ -19,12 +19,15 @@ History:
 # - all state tracked by Undo
 # and we'll also optimize the State macro and make it easier to use. 
 
-from prefs_widgets import Preferences_StateRef, Preferences_StateRef_double, ObjAttr_StateRef
+
+from prefs_widgets import Preferences_StateRef, Preferences_StateRef_double # TODO: remove these imports, get the refs from the model
+
+from prefs_widgets import ObjAttr_StateRef # TODO: shorter or clearer name -- attribute_ref ?
 
 from test_connectWithState_constants import CYLINDER_HEIGHT_PREFS_KEY, CYLINDER_HEIGHT_DEFAULT_VALUE
-from test_connectWithState_constants import CYLINDER_ROUND_CAPS_PREFS_KEY, CYLINDER_ROUND_CAPS_DEFAULT_VALUE
-from test_connectWithState_constants import CYLINDER_VERTICAL_DEFAULT_VALUE
-from test_connectWithState_constants import CYLINDER_WIDTH_DEFAULT_VALUE
+from test_connectWithState_constants import CYLINDER_ROUND_CAPS_PREFS_KEY, CYLINDER_ROUND_CAPS_DEFAULT_VALUE # TODO: get prefs refs from model so these are not needed here
+##from test_connectWithState_constants import CYLINDER_VERTICAL_DEFAULT_VALUE
+##from test_connectWithState_constants import CYLINDER_WIDTH_DEFAULT_VALUE
 
 from test_command_PMs import ExampleCommand1_PM
 
@@ -49,72 +52,94 @@ class test_connectWithState_PM( ExampleCommand1_PM):
         self._loadGroupBox2(self.pmGroupBox2)
         return
 
-    _sMaxCylinderHeight = 20
+    _sMaxCylinderHeight = 20 ### TODO: ask the stateref for this
     
     def _loadGroupBox1(self, pmGroupBox):
         """Load widgets into groupbox 1 (passed as pmGroupBox)."""
 
         # cylinder height (a double, stored as a preferences value)
+
+        cylinderHeight_stateref = Preferences_StateRef_double(
+            CYLINDER_HEIGHT_PREFS_KEY,
+            CYLINDER_HEIGHT_DEFAULT_VALUE )
+            ### TODO: ask model object for this ref; this code should not need to know what kind it is (from prefs or model)
+        
         self.cylinderHeightSpinbox  =  \
             PM_DoubleSpinBox( pmGroupBox,
                               label         =  "cylinder height:",
-                              value         =  CYLINDER_HEIGHT_DEFAULT_VALUE,
-                              # guess: default value or initial value (guess they can't be distinguished -- bug -- yes, doc confirms)
-                              setAsDefault  =  True,
+##                              value         =  CYLINDER_HEIGHT_DEFAULT_VALUE,
+##                              # guess: default value or initial value (guess they can't be distinguished -- bug -- yes, doc confirms)
+##                              setAsDefault  =  True,
+                              ### TODO: get all the following from the stateref, whenever the connection to state is made
                               minimum       =  3,
                               maximum       =  self._sMaxCylinderHeight,
                               singleStep    =  0.25,
                               decimals      =  self._sCoordinateDecimals,
                               suffix        =  ' ' + self._sCoordinateUnits )
-        ### REVIEW: when we make the connection, where does the initial value come from if they differ?
-        # best guess answer: PM_spec above specifies default value within PM (if any); existing state specifies current value.
+        # REVIEW: is it ok that the above will set some wrong defaultValue,
+        # to be immediately corrected by the following connection with state?
         self.cylinderHeightSpinbox.connectWithState(
-            Preferences_StateRef_double( CYLINDER_HEIGHT_PREFS_KEY, CYLINDER_HEIGHT_DEFAULT_VALUE )
-            )
+            cylinderHeight_stateref,
+            debug_metainfo = True
+         )
 
+        # ==
+        
         # cylinder width (a double, stored in the command object,
         #  defined there using the State macro -- note, this is not yet a good
         #  enough example for state stored in a Node)
 
-        stateref = ObjAttr_StateRef( self.commandrun, 'cylinderWidth')
+        cylinderWidth_stateref = ObjAttr_StateRef( self.commandrun, 'cylinderWidth')
 
-        try:
-            defaultValue = stateref.defaultValue
-            print "\nfor stateref.defaultValue got %r" % (defaultValue,) # works, 070904
-        except:
-            print "\nthis test doesn't work yet: stateref.defaultValue"
-            defaultValue = CYLINDER_WIDTH_DEFAULT_VALUE
-                # TODO: remove this case and any need for this constant here;
-                # same for the other StateRefs
+        ## TEMPORARY: just make sure it's defined in there
+        junk = cylinderWidth_stateref.defaultValue
         
         self.cylinderWidthSpinbox  =  \
             PM_DoubleSpinBox( pmGroupBox,
                               label         =  "cylinder width:",
-                              value         =  defaultValue,
-                              setAsDefault  =  True,
-                                  ### REVISE: the default value should come from the stateref
+##                              value         =  defaultValue,
+##                              setAsDefault  =  True,
+##                                  ### REVISE: the default value should come from the cylinderWidth_stateref
                                   # (and so, probably, should min, max, step, units...)
                               minimum       =  0.1,
                               maximum       =  15.0,
                               singleStep    =  0.1,
                               decimals      =  self._sCoordinateDecimals,
                               suffix        =  ' ' + self._sCoordinateUnits )
-        self.cylinderWidthSpinbox.connectWithState( stateref )
+        
+        self.cylinderWidthSpinbox.connectWithState(
+                                cylinderWidth_stateref,
+                                debug_metainfo = True )
 
-        # cylinder round caps (boolean, stored as a prefs value)
+        # ==
+        
+        # cylinder round caps (boolean)
+        
+        cylinderRoundCaps_stateref = Preferences_StateRef( CYLINDER_ROUND_CAPS_PREFS_KEY,
+                                                           CYLINDER_ROUND_CAPS_DEFAULT_VALUE ) ### TODO: get from model
+        ## TEMPORARY: just make sure it's defined in there
+        junk = cylinderRoundCaps_stateref.defaultValue
+        
         self.cylinderRoundCapsCheckbox = PM_CheckBox(pmGroupBox, text = 'round caps on cylinder')
-        self.cylinderRoundCapsCheckbox.setDefaultValue(CYLINDER_ROUND_CAPS_DEFAULT_VALUE)
-            # note: setDefaultValue is an extension to the PM_CheckBox API, not yet finalized
+##        self.cylinderRoundCapsCheckbox.setDefaultValue(CYLINDER_ROUND_CAPS_DEFAULT_VALUE)
+##            # note: setDefaultValue is an extension to the PM_CheckBox API, not yet finalized
         self.cylinderRoundCapsCheckbox.connectWithState(
-            Preferences_StateRef( CYLINDER_ROUND_CAPS_PREFS_KEY, CYLINDER_ROUND_CAPS_DEFAULT_VALUE ) )
+                                cylinderRoundCaps_stateref,
+                                debug_metainfo = True )
 
-        # cylinder vertical or horizontal (boolean, stored as a prefs value)
+        # ==
+        
+        # cylinder vertical or horizontal (boolean)
+        cylinderVertical_stateref = ObjAttr_StateRef( self.commandrun, 'cylinderVertical' )
+        
         self.cylinderVerticalCheckbox = PM_CheckBox(pmGroupBox, text = 'cylinder is vertical')
-        self.cylinderVerticalCheckbox.setDefaultValue(CYLINDER_VERTICAL_DEFAULT_VALUE)
-            ### REVISE: the default value should come from the stateref
+##        self.cylinderVerticalCheckbox.setDefaultValue(CYLINDER_VERTICAL_DEFAULT_VALUE)
+##            ### REVISE: the default value should come from the stateref
         self.cylinderVerticalCheckbox.connectWithState(
-            ObjAttr_StateRef( self.commandrun, 'cylinderVertical' ) )
-        return
+                                cylinderVertical_stateref,
+                                debug_metainfo = True )
+        
+        return # from _loadGroupBox1
 
     def _loadGroupBox2(self, pmGroupBox): ### RENAME button attrs
         self.startButton = \
