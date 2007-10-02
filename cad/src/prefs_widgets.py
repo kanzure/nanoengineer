@@ -88,6 +88,22 @@ def widget_setAction(widget, aCallable, connection_class, **options):
     widget_connectWithState(widget, aCallable, connection_class, **options)
     return
 
+def set_metainfo_from_stateref( setter, stateref, attr, debug_metainfo = False):
+    """
+    If stateref provides a value for attr (a stateref-metainfo attribute
+    such as 'defaultValue' or 'minimum'), pass it to the given setter function.
+    If debug_metainfo is true, print debug info saying what we do and why.
+    """
+    if hasattr(stateref, attr):
+        value = getattr( stateref, attr)
+        if debug_metainfo:
+            print "debug_metainfo: using %r.%s = %r" % (stateref, attr, value)
+        setter(value)
+    else:
+        if debug_metainfo:
+            print "debug_metainfo: %r has no value for %r" % (stateref, attr)
+    return
+
 # ==
 
 def colorpref_edit_dialog( parent, prefs_key, caption = "choose"): #bruce 050805; revised 070425 in Qt4 branch
@@ -210,14 +226,20 @@ def connect_checkbox_with_boolean_pref_OLD( qcheckbox, prefs_key ): #bruce 05081
     widget_setConnectionWithState(qcheckbox, conn)
     return
 
-class StateRef_API: ### FILL THIS IN, and rename set_value and get_value methods as mentioned elsewhere
+class StateRef_API: ### TODO: FILL THIS IN, rename some methods
     """
     API for references to tracked state.
     """
+    debug_name = ""
+    
     # TODO: add support for queryable metainfo about type, whatsthis text, etc.
-    # For example: self.defaultValue could be the default value (a constant value, not an expr,
-    #  though in a *type* it might be an expr),
-    # and maybe some flag tells whether it's really known or just guessed.
+    # For example:
+    # - self.defaultValue could be the default value (a constant value,
+    #   not an expr, though in a *type* it might be an expr),
+    #   and maybe some flag tells whether it's really known or just guessed.
+    
+    # TODO: add default implems of methods like set_value and get_value
+    # (which raise NIM exceptions). But rename them as mentioned elsewhere
     pass
 
 class Preferences_StateRef(StateRef_API): # note: compare to exprs.staterefs.PrefsKey_StateRef.
@@ -225,22 +247,47 @@ class Preferences_StateRef(StateRef_API): # note: compare to exprs.staterefs.Pre
     A state-reference object (conforming to StateRef_API),
     which represents the preferences value slot with the prefs_key
     and default value passed to our constructor.
+       WARNING [071002]: this is not yet able to ask env.prefs for separately
+    defined default values (in the table in preferences.py). For now,
+    it is just for testing purposes when various kinds of staterefs
+    should be tested, and should be used with newly made-up prefs keys.
     """
-    def __init__(self, prefs_key, defaultValue = None):
+    def __init__(self, prefs_key, defaultValue = None, debug_name = "", pref_name = ""):
         # TODO: also let a value-filter function be passed, for type checking/fixing.
         self.prefs_key = prefs_key
         self.defaultValue = defaultValue
         if defaultValue is not None:
             env.prefs.get(prefs_key, defaultValue) # set or check the default value
+            # REVIEW: need to disambiguate, if None could be a legitimate default value -- pass _UNSET_ instead?
+            # REVIEW: IIRC, env.prefs provides a way to ask for the centrally defined or already initialized
+            # default value. We should use that here if defaultValue is not provided, and set self.defaultValue
+            # to it, or verify consistency if both are provided (maybe the env.prefs.get call does that already).
+        if not debug_name:
+            debug_name = "Preferences_StateRef(%r)" % (pref_name or prefs_key,)
+                # this format is also important for __repr__
+        self.debug_name = debug_name
         return
+    def __repr__(self): #bruce 071002
+        # assume self.debug_name includes class name,
+        # as it does when made up by our own __init__ method
+        assert self.debug_name.startswith(self.__class__.__name__)
+            # if fails, might be legit, but we'll need to revise this code
+        return "<%s at %#x>" % (self.debug_name, id(self))
     def set_value(self, value):
+        # REVIEW: how can the caller tell that this is change-tracked?
+        # Should StateRef_API define flags for client code queries about that?
+        # e.g. self.tracked = true if set and get are fully tracked, false if not --
+        # I'm not sure if this can differ for set and get, or if so, if that difference
+        # matters to clients.
         env.prefs[self.prefs_key] = value
     def get_value(self):
+        # REVIEW: how can the caller tell that this is usage-tracked?
+        # (see also the related comment for set_value)
         return env.prefs[self.prefs_key]
     pass
 
 def Preferences_StateRef_double( prefs_key, defaultValue = 0.0):
-    # TODO: store metainfo about type, etc.
+    # TODO: store metainfo about type, min, max, etc.
     return Preferences_StateRef( prefs_key, defaultValue)
 
 
@@ -263,6 +310,11 @@ def ObjAttr_StateRef( obj, attr, *moreattrs): #bruce 070815 experimental; plan: 
     if method:
         stateref = method(attr) # REVIEW: pass moreattrs into here too?
         # print "ObjAttr_StateRef returning stateref %r" % (stateref,)
+        if not getattr( stateref, 'debug_name', None):
+            # TODO: do this below for other ways of finding a stateref
+            # REVIEW: can we assume all kinds of staterefs have that attr, public for get and set?
+            # This includes class Lval objects -- do they inherit stateref API? Not yet! ### FIX
+            stateref.debug_name = "ObjAttr_StateRef(%r, %r)" % (obj, attr)
         return stateref
 
     # Use a fallback method. Note: this might produce a ref to a "delayed copy" of the state.
