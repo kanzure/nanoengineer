@@ -19,7 +19,9 @@ from PyQt4.Qt import QWidget
 
 from PM_Constants import pmLeftColumn, pmRightColumn
 
-from prefs_widgets import widget_connectWithState, QCheckBox_ConnectionWithState
+from prefs_widgets import widget_connectWithState
+from prefs_widgets import QCheckBox_ConnectionWithState
+from prefs_widgets import set_metainfo_from_stateref
 
 class PM_CheckBox( QCheckBox ):
     """
@@ -155,16 +157,32 @@ class PM_CheckBox( QCheckBox ):
         if self.setAsDefault:
             self.setCheckState(self.defaultState)
 
-    def connectWithState(self, stateref):
+    def connectWithState(self, stateref,
+                         set_metainfo = True,
+                         debug_metainfo = False):
         """
         Connect self to the state referred to by stateref,
         so changes to self's value change that state's value
-        and vice versa.
+        and vice versa. By default, also set self's metainfo
+        to correspond to what the stateref provides.
 
         @param stateref: a reference to state of type boolean,
                          which meets the state-reference interface StateRef_API.
         @type stateref: StateRef_API
+
+        @param set_metainfo: whether to also set defaultValue,
+        if it's provided by the stateref.
+        
+        @type set_metainfo: bool
+
+        @param debug_metainfo: whether to print debug messages
+        about the actions taken by set_metainfo, when it's true.
+        
+        @type debug_metainfo: bool
         """
+        if set_metainfo:
+            set_metainfo_from_stateref( self.setDefaultValue, stateref,
+                                        'defaultValue', debug_metainfo)
         widget_connectWithState( self, stateref,
                                  QCheckBox_ConnectionWithState)
             # note: that class uses setChecked, not setCheckState

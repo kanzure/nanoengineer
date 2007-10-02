@@ -18,6 +18,7 @@ from PyQt4.Qt import QWidget
 
 from prefs_widgets import widget_connectWithState
 from prefs_widgets import QDoubleSpinBox_ConnectionWithState
+from prefs_widgets import set_metainfo_from_stateref
 
 class PM_DoubleSpinBox( QDoubleSpinBox ):
     """
@@ -253,16 +254,49 @@ class PM_DoubleSpinBox( QDoubleSpinBox ):
 ##            self.setDefaultValue(value)
         QDoubleSpinBox.setValue(self, value)
 
-    def connectWithState(self, stateref):
+    def connectWithState(self, stateref,
+                         set_metainfo = True,
+                         debug_metainfo = False):
         """
         Connect self to the state referred to by stateref,
         so changes to self's value change that state's value
-        and vice versa.
+        and vice versa. By default, also set self's metainfo
+        to correspond to what the stateref provides.
 
         @param stateref: a reference to state of type double,
                          which meets the state-reference interface StateRef_API.
         @type stateref: StateRef_API
+
+        @param set_metainfo: whether to also set defaultValue, minimum,
+        and/or maximum, if these are provided by the stateref. (This
+        list of metainfo attributes will probably be extended.)
+        
+        @type set_metainfo: bool
+
+        @param debug_metainfo: whether to print debug messages
+        about the actions taken by set_metainfo, when it's true.
+        
+        @type debug_metainfo: bool
         """
+        if set_metainfo:
+            # Do this first, so old min/max don't prevent setting the
+            # correct current value when we connect new state.
+            #
+            # REVIEW: the conventions for expressing a lack of
+            # minimum, maximum, or defaultValue, either on self
+            # or on the stateref, may need revision, so it's not
+            # ambiguous whether the stateref knows the minimum (etc)
+            # should be unset on self or doesn't care what it's set to.
+            # Ideally, some explicit value of stateref.minimum
+            # would correspond to "no minimum" (i.e. a minimum of
+            # negative infinity), etc.
+            # [bruce 070926]
+            set_metainfo_from_stateref( self.setMinimum, stateref, 'minimum',
+                                        debug_metainfo)
+            set_metainfo_from_stateref( self.setMaximum, stateref, 'maximum',
+                                        debug_metainfo)
+            set_metainfo_from_stateref( self.setDefaultValue, stateref, 'defaultValue',
+                                        debug_metainfo)
         widget_connectWithState( self, stateref,
                                  QDoubleSpinBox_ConnectionWithState)
         return
