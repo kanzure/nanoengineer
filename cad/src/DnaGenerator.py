@@ -35,7 +35,6 @@ from math           import pi
 from bonds          import inferBonds, bond_atoms
 from chunk          import molecule
 from constants      import gensym    
-from files_mmp      import _readmmp
 from fusechunksMode import fusechunksBase
 
 from Dna_Constants  import basesDict, getReverseSequence

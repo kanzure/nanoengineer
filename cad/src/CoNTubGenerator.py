@@ -554,9 +554,9 @@ class PluginlikeGenerator:
         assert len(outfiles) == 1 # for now
         filename = outfiles[0]
         assert filename.endswith('.mmp') # for now; in future, also permit .pdb or anything else we know how to read
-        from files_mmp import _readmmp
         assy = self.win.assy #k
-        grouplist  = _readmmp(assy, filename, isInsert=True)
+        from files_mmp import readmmp
+        grouplist  = readmmp(assy, filename, isInsert=True)
         if not grouplist:
             raise Exception("Trouble with output file: " + filename)###@@@ predict NameError: Exception (good enough for now)
         viewdata, mainpart, shelf = grouplist

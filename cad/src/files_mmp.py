@@ -1130,7 +1130,7 @@ def _readmmp(assy, filename, isInsert = False): #bruce 050405 revised code & doc
     # Meanwhile, if we're reading a sim-input file or other erroneous file which
     # uses the following fake 'viewdata' group, its views will be unsavable
     # even if you resave it and reload it and resave it, etc,
-    # unless we fix this elsewhere, maybe in reset_grouplist below. ###@@@
+    # unless we fix this elsewhere, maybe in _reset_grouplist below. ###@@@
     
     # now fix up sim input files and other nonstandardly-structured files;
     # use these extra groups if necessary, else discard them:
@@ -1168,13 +1168,32 @@ def _readmmp(assy, filename, isInsert = False): #bruce 050405 revised code & doc
     return grouplist # from _readmmp
 
 # read a Molecular Machine Part-format file into maybe multiple molecules
-def readmmp(assy, filename): #bruce 050302 split out some subroutines for use in other code
-    """Read an mmp file to create a new model (including a new Clipboard)."""
-    grouplist = _readmmp(assy, filename)
-    reset_grouplist(assy, grouplist) # handles grouplist is None (though not very well)
-    return
+def readmmp(assy, filename, isInsert = False): #bruce 050302 split out some subroutines for use in other code
+    """
+    Read an mmp file to create a new model (including a new
+    Clipboard).  Returns a tuple of (viewdata, tree, shelf).  If
+    isInsert is False (the default), assy will be modified to include
+    the new items.
+
+    This interface needs revising and clarifying.  It should take only
+    a filename as parameter, and return a single data structure
+    representing the contents of that file.
+
+    @param assy: the assembly the file contents are being added into
+    @type assy: assembly.assembly
+    @param filename: where the data will be read from
+    @type filename: string
+    @param isInsert: if True, the file contents are being added to an
+    existing assembly, otherwise the file contents are being used to
+    initialize a new assembly.
+    @type isInsert: boolean
+    """
+    grouplist = _readmmp(assy, filename, isInsert)
+    if (not isInsert):
+        _reset_grouplist(assy, grouplist) # handles grouplist is None (though not very well)
+    return grouplist
     
-def reset_grouplist(assy, grouplist):
+def _reset_grouplist(assy, grouplist):
     #bruce 050302 split this out of readmmp;
     # it should be entirely rewritten and become an assy method
     """[private]
@@ -1238,7 +1257,7 @@ def reset_grouplist(assy, grouplist):
     return
 
 def maybe_set_partview( assy, csys, nameprefix, csysattr): #bruce 050421; docstring added 050602
-    """[private helper function for reset_grouplist]
+    """[private helper function for _reset_grouplist]
     If csys.name == nameprefix plus a decimal number, store csys as the attr named csysattr
     of the .part of the clipboard item indexed by that number
     (starting from 1, using purely positional indices for clipboard items).

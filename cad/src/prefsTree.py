@@ -170,7 +170,7 @@ class prefsTree_class:
     pass
 
 def read_mmp_single_part(assy, filename):
-    from files_mmp import _readmmp
+    from files_mmp import readmmp
     # start incredible kluge block
     history = env.history
         #bruce 050901 revised this.
@@ -180,7 +180,7 @@ def read_mmp_single_part(assy, filename):
     from constants import noop
     history.message = noop # don't bother user with this file being nonstd (bad, should pass a flag, so other errors seen)
     try:
-        grouplist  = _readmmp(assy, filename, isInsert = True)
+        grouplist  = readmmp(assy, filename, isInsert = True)
     finally:
         history.message = oldmessage
     if grouplist:

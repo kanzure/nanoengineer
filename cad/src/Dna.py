@@ -40,7 +40,7 @@ from Numeric import dot
 from debug import print_compact_traceback
 
 from PlatformDependent  import find_plugin_dir
-from files_mmp          import _readmmp
+from files_mmp          import readmmp
 from VQT                import V
 from chem               import Atom
 from bonds              import inferBonds, bond_atoms
@@ -131,7 +131,7 @@ class Dna:
             @type  position: L{V}
             """
             try:
-                grouplist = _readmmp(assy, filename, isInsert = True)
+                grouplist = readmmp(assy, filename, isInsert = True)
             except IOError:
                 raise PluginBug("Cannot read file: " + filename)
             if not grouplist:

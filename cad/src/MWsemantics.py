@@ -65,7 +65,6 @@ from ViewOrientationWindow import ViewOrientationWindow # Ninad 061121
 # (but we need to check for imports of them from here by other modules) [bruce 050907]
 from files_pdb import readpdb, insertpdb, writepdb
 from files_gms import readgms, insertgms
-from files_mmp import readmmp, insertmmp
 
 from debug import print_compact_traceback
 
