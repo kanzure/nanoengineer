@@ -20,7 +20,8 @@ ninad 2007-09-11: Code clean up to use PM module classes
 
 
 
-from PyQt4.Qt import Qt
+from PyQt4.Qt      import Qt
+from PyQt4.QtCore  import QSize
 
 from PM.PM_Dialog        import PM_Dialog
 from PM.PM_GroupBox      import PM_GroupBox
@@ -30,6 +31,7 @@ from PM.PM_ComboBox      import PM_ComboBox
 from PM.PM_SpinBox       import PM_SpinBox
 from PM.PM_WidgetRow     import PM_WidgetRow
 from PM.PM_ToolButton    import PM_ToolButton
+from PM.PM_ToolButtonRow import PM_ToolButtonRow
 
 from PM.PM_Constants     import pmDoneButton
 from PM.PM_Constants     import pmWhatsThisButton
@@ -196,7 +198,6 @@ class Ui_MoviePropertyManager(PM_Dialog):
                                   None, 5)
                               ]
                             
-                
             self.movieControlsButtonRow = \
                 PM_ToolButtonRow( 
                     inPmGroupBox, 

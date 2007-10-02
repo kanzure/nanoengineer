@@ -132,8 +132,8 @@ class movieMode(basicMode):
 	    self.propMgr = MoviePropertyManager(self)
 	    #@bug BUG: following is a workaround for bug 2494
 	    changes.keep_forever(self.propMgr)
-	    
-	self.propMgr.show()
+
+	#@NOTE: self.propMgr.show() is called later in this (init_gui) method. 
 	
 	self.updateCommandManager(bool_entering = True)
 
@@ -170,6 +170,12 @@ class movieMode(basicMode):
                 env.history.message( "Movie file ready to play: %s" % movie.filename) #bruce 050510 added this message
         else:
             self._controls(0) # Movie control buttons are disabled.
+	
+	#Need to do this after calling movie._setUp (propMgr displays movie 
+	#information in its msg groupbox.  All this will be cleaned up when we 
+	#do moviemode code cleanup.
+	
+	self.propMgr.show()
 
         # Disable Undo/Redo actions, and undo checkpoints, during this mode (they *must* be reenabled in restore_gui).
         # We do this last, so as not to do it if there are exceptions in the rest of the method,
@@ -619,12 +625,34 @@ class movieDashboardSlotsMixin:
                 self.assy.current_movie._close()
             self.assy.current_movie = new_movie
             self.assy.current_movie._setup()
+	    self._updateMessageInModePM()
         else:
             # should never happen due to _checkMovieFile call, so this msg is ok
             # (but if someday we do _checkMovieFile inside find_saved_movie and not here,
             #  then this will happen as an error return from find_saved_movie)
-            env.history.message(redmsg("Internal error in fileOpenMovie"))
+	    msg = redmsg("Internal error in fileOpenMovie")
+	    self._updateMessageInModePM(msg)
+            env.history.message(msg)
         return
+    
+    def _updateMessageInModePM(self, msg = ''):
+	"""
+	Updates the message box in the Movie Property Manager with the 
+	information about the opened movie file. 
+	@WARNING: This is a temporary method. Likely to be moved/ modified 
+	when movieMode.py is cleaned up. See bug 2428 for details. 
+	"""
+	#@WARNING: Following updates  the Movie property manager's message 
+	#groupbox. This should be done in a better way. At present there 
+	# is no obvious way to tell the Movie Property manager that the 
+	# movie has changed. So this is a kludge. 
+	# See bug 2428 comment 8 for further details -- Ninad 2007-10-02
+	currentMode = self.assy.o.mode
+	if currentMode.modename == "MOVIE":
+	    if currentMode.propMgr:
+		if not msg:
+		    msg = currentMode.propMgr.getOpenMovieFileInfo()
+		currentMode.propMgr.updateMessage(msg)
 
     def fileSaveMovie(self):
         """Save a copy of the current movie file loaded in the Movie Player.

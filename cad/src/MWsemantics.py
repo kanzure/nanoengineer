@@ -442,9 +442,6 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
             #bruce 060127 added own_window_UI flag to help fix bug 1403
         #bruce 050429: as part of fixing bug 413, it's now required to call
         # self.assy.reset_changed() sometime in this method; it's called below.
-        
-        #@@temporary fix for bug 2428
-        self.updatePlayMovieAction()
 	
         # Set the caption to the name of the current (default) part - Mark [2004-10-11]
         self.update_mainwindow_caption()	    
@@ -2142,37 +2139,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 
         return
 	
-    def updatePlayMovieAction(self):
-	"""
-	Enables of disables 'Play movie' button in the UI. 
-	This action is enabled if there is a movie file with the same name as
-	the opened file.
-	"""
-	#@@@ This is a temporary fix for bug 2428. 
-	#See bug report for issues ninad 20070626
-	errorcode, partFilesDir = self.assy.get_part_files_directory() 
-            	
-	if errorcode:
-	    partFilesDir = None 
-	
-	if partFilesDir:	    
-	    dir, fil = os.path.split(self.assy.filename)
-            fil, ext = os.path.splitext(fil)
-	    mfile = os.path.join(partFilesDir, fil + '.dpb')	
-	    
-	    try:
-		if os.path.exists(mfile):
-		    self.simMoviePlayerAction.setEnabled(True)
-		else:
-		    self.simMoviePlayerAction.setEnabled(False)
-	    except:
-		print_compact_traceback("bug: error enabling/disabling \
-		movie player button")
-		self.simMoviePlayerAction.setEnabled(True)
-	else:
-	    self.simMoviePlayerAction.setEnabled(False)
-	
-	return
+    	
 
 # == Caption methods
 

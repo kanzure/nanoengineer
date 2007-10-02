@@ -1017,6 +1017,17 @@ class Movie:
 #        env.history.message("Temperature:" + str(self.temp) + "K")
 #        env.history.message("Steps per Frame:" + str(self.stepsper))
 #        env.history.message("Time Step:" + str(self.stepsper))
+    
+    def getMovieInfo(self):
+        """
+        Return the information about this movie. 
+        """
+        fileName    = str(self.filename)
+        numOfFrames = str(self.totalFramesActual)
+        numOfAtoms  = str(self.natoms)
+        
+        return (fileName, numOfFrames, numOfAtoms)
+        
 
     def get_trace_filename(self):
         """Returns the trace filename for the current movie.
