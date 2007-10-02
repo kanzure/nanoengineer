@@ -48,7 +48,7 @@ bruce 070704 moved most of this file into main_startup.py.
 """
 
 # NOTE: DON'T ADD ANY IMPORTS TO THIS FILE besides those already present
-# (as of 070704), since doing so would cause errors in the semantics of
+# (as of 071002), since doing so would cause errors in the semantics of
 # both the ALTERNATE_CAD_SRC_PATH feature and the function
 # startup_funcs.before_most_imports. New imports needed by startup code,
 # or needed (for side effects) early during startup, should be added to
@@ -149,21 +149,21 @@ try:
         pass
 except:
     print "exception (discarded) in code for supporting ALTERNATE_CAD_SRC_PATH feature"
-    ## raise # for debugging only, disable for commit ###
+    ## raise # useful for debugging
         ### REVIEW: remove print or fix implementation, if an exception here
         # happens routinely on other platforms' release builds
 
 if __name__ == '__main__':
     
-    if _alternateSourcePath != None:
+    if _alternateSourcePath is not None:
         print
         print "WILL USE ALTERNATE_CAD_SRC_PATH = %r" % ( _alternateSourcePath,)
         sys.path.insert(0, _alternateSourcePath)
         # see block comment above re behavior changes besides this one, by other code
         print
 
-    # NOTE: any imports MUST NOT BE DONE until after the optional sys.path change
-    # done for _alternateSourcePath, just above.
+    # NOTE: imports of NE1 source modules MUST NOT BE DONE until after the optional
+    # sys.path change done for _alternateSourcePath, just above.
 
     import EndUser
 

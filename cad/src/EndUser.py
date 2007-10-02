@@ -59,9 +59,14 @@ def getAlternateSourcePath():
 def setAlternateSourcePath(path):
     """
     Called from main.py after adding the alternate source path to the
-    front of the search path.  Allows other code to determine if this
-    has been done, and to obtain the value via
-    getAlternateSourcePath().
+    front of the search path, but before importing any files that
+    might be affected by that. Should not be called by any other code.
+    Allows other code to determine if this has been done, and to
+    obtain the value via getAlternateSourcePath().
     """
     global _alternateSourcePath
+    assert _alternateSourcePath is None
     _alternateSourcePath = path
+    return
+
+# end
