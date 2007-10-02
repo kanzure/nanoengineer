@@ -107,7 +107,7 @@ def before_most_imports( main_globals ):
         guess2 = not os.path.exists( os.path.join( ourdir, __name__ + ".py" ))
 
         endUser = guess1 or guess2
-        if __main__._USE_ALTERNATE_CAD_SRC_PATH:
+        if EndUser.getAlternateSourcePath() != None:
             # special case when using ALTERNATE_CAD_SRC_PATH feature
             # (which can cause these guesses to differ or be incorrect):
             # assume anyone using it is a developer [bruce 070704]

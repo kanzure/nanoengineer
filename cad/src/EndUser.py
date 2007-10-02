@@ -44,3 +44,24 @@ def setDeveloperFeatures(developerFeatures):
     _developerFeatures = developerFeatures
     _developerFeatures_set_yet = True
     return
+
+_alternateSourcePath = None
+
+def getAlternateSourcePath():
+    """
+    Returns the path to a directory other than the one main.py was
+    found in, which will be searched first for any imports, or None if
+    not set.  Allows users to override any python files without
+    modifing the released copies.
+    """
+    return _alternateSourcePath
+
+def setAlternateSourcePath(path):
+    """
+    Called from main.py after adding the alternate source path to the
+    front of the search path.  Allows other code to determine if this
+    has been done, and to obtain the value via
+    getAlternateSourcePath().
+    """
+    global _alternateSourcePath
+    _alternateSourcePath = path

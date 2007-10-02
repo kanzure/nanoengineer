@@ -37,7 +37,7 @@ import env
 import platform
 
 from povheader import povpoint
-from chem import stringVec
+from utilities.Printing import Vector3ToString
 from elements import Singlet
 from ThumbView import MMKitView
 
@@ -111,10 +111,10 @@ class writepov_to_file:
         self.writeradmacro(rad, "bondr", "bond")
         self.file.write( povpoint(a1pos) +
                    "," + povpoint(a2pos) + 
-                   "," + stringVec(col) + ")\n")
+                   "," + Vector3ToString(col) + ")\n")
     def tube3(self, a1pos, a2pos, col, rad = None):
         self.writeradmacro(rad, "tube3r", "tube3")
-        self.file.write( povpoint(a1pos) + ", " + povpoint(a2pos) + ", " + stringVec(col) + ")\n")
+        self.file.write( povpoint(a1pos) + ", " + povpoint(a2pos) + ", " + Vector3ToString(col) + ")\n")
     def tube2(self, a1pos, color1, center, a2pos, color2, rad = None):
         if 1:
             #e Possible optim: if color1 == color2, this could reduce to tube3.
@@ -127,23 +127,23 @@ class writepov_to_file:
                 return
         self.writeradmacro(rad, "tube2r", "tube2")
         self.file.write( povpoint(a1pos) +
-           "," + stringVec(color1) +
+           "," + Vector3ToString(color1) +
            "," + povpoint(center) + "," +
            povpoint(a2pos) + "," +
-           stringVec(color2) + ")\n")
+           Vector3ToString(color2) + ")\n")
     def tube1(self, a1pos, color1, c1, c2, a2pos, color2, rad = None):
         self.writeradmacro(rad, "tube1r", "tube1")
         self.file.write( povpoint(a1pos) +
-           "," + stringVec(color1) +
+           "," + Vector3ToString(color1) +
            "," + povpoint(c1) + "," +
            povpoint(c2) + "," + 
            povpoint(a2pos) + "," +
-           stringVec(color2) + ")\n")
+           Vector3ToString(color2) + ")\n")
     def drawcylinder(self, color, pos1, pos2, radius): # arg order compatible with drawer.drawcylinder
         self.tube3(pos1, pos2, color, radius)
     def drawsphere(self, color, pos, radius): # arg order compatible with drawer.drawsphere, except no detailLevel; not yet called or tested [060622]
         ###k not compared with other calls of atom macro, or tested; kluge that it uses atom macro, since not all spheres are atoms
-        self.file.write( "atom(" + str(pos) + ", " + str(radius) + ", " + stringVec(color) + ")\n")
+        self.file.write( "atom(" + str(pos) + ", " + str(radius) + ", " + Vector3ToString(color) + ")\n")
     
     def getBondColor(self):
         """

@@ -19,6 +19,7 @@ import os, sys
 import platform
 from PyQt4 import QtGui
 import Initialize
+import EndUser
 
 # This is the subdirectory component "ui" at the end of "cad/src/ui".
 UI_SUBDIRECTORY_COMPONENT = "ui"
@@ -43,9 +44,8 @@ def initialize():
     _iconprefix = os.path.dirname(os.path.abspath(sys.argv[0]))
     _iconprefix = os.sep.join(_iconprefix.split(os.sep)[:-1] + ["src"])
 
-    import __main__
-    if __main__._USE_ALTERNATE_CAD_SRC_PATH: #bruce 070831
-        new_iconprefix = __main__._ALTERNATE_CAD_SRC_PATH
+    if EndUser.getAlternateSourcePath() != None:
+        new_iconprefix = EndUser.getAlternateSourcePath()
         print "ALTERNATE_CAD_SRC_PATH: setting _iconprefix to %r rather than %r" % \
               ( new_iconprefix, _iconprefix )
         _iconprefix = new_iconprefix

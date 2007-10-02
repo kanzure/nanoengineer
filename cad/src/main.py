@@ -128,9 +128,7 @@ if __name__ != '__main__':
 #
 # [bruce 070704 new feature; intended for A9.2 release; UNTESTED except on Mac]
 
-_USE_ALTERNATE_CAD_SRC_PATH = False # this might be modified by the following code
-
-_ALTERNATE_CAD_SRC_PATH = "" # this might be modified by the following code
+_alternateSourcePath = None
 
 try:
     _main_path = __file__ # REVIEW: this line might fail in Windows release build
@@ -144,8 +142,7 @@ try:
         _content = os.path.normpath( os.path.abspath( _content))
         print "containing pathname %r" % (_content,)
         if os.path.isdir(_content):
-            _USE_ALTERNATE_CAD_SRC_PATH = True
-            _ALTERNATE_CAD_SRC_PATH = _content
+            _alternateSourcePath = _content
         else:
             print "which is not a directory, so will be ignored"
             print
@@ -158,18 +155,23 @@ except:
 
 if __name__ == '__main__':
     
-    if _USE_ALTERNATE_CAD_SRC_PATH:
+    if _alternateSourcePath != None:
         print
-        print "WILL USE ALTERNATE_CAD_SRC_PATH = %r" % ( _ALTERNATE_CAD_SRC_PATH,)
-        sys.path.insert(0, _ALTERNATE_CAD_SRC_PATH)
+        print "WILL USE ALTERNATE_CAD_SRC_PATH = %r" % ( _alternateSourcePath,)
+        sys.path.insert(0, _alternateSourcePath)
         # see block comment above re behavior changes besides this one, by other code
         print
 
+    # NOTE: any imports MUST NOT BE DONE until after the optional sys.path change
+    # done for _alternateSourcePath, just above.
+
+    import EndUser
+
+    EndUser.setAlternateSourcePath(_alternateSourcePath)
+    
     _main_globals = globals() # needed by startup_script
 
     from main_startup import startup_script
-        # NOTE: this import MUST NOT BE DONE until after the optional sys.path change
-        # done for _ALTERNATE_CAD_SRC_PATH, just above.
     
     startup_script( _main_globals )
     

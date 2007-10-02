@@ -71,6 +71,7 @@ from povheader import povpoint #bruce 050413
 from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True, Choice
 from changes import register_changedict, register_class_changedicts
 
+from utilities.Printing import Vector3ToString
 from constants import genKey
 from constants import diDEFAULT
 from constants import default_display_mode
@@ -135,13 +136,6 @@ atKey = genKey(start = 1) # generator for atom.key attribute.
     # which sort in the same order as atoms are created (e.g. the order they're
     # read from an mmp file), so we now require this in the future even if the
     # key type is changed.
-
-###Huaicai: ... I'll add one more function for transferring
-### vector to a string, which is mainly used for color vector
-# [see also povpoint] [bruce revised this comment, 050502]
-
-def stringVec(v):
-    return "<" + str(v[0]) + "," + str(v[1]) + "," + str(v[2]) + ">"    
 
 # == Atom
 
@@ -1620,13 +1614,13 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         if disp in [diTrueCPK, diBALL]:
             file.write("atom(" + povpoint(self.posn()) +
                        "," + str(rad) + "," +
-                       stringVec(color) + ")\n")
+                       Vector3ToString(color) + ")\n")
         if disp == diTUBES:
             ###e this should be merged with other case, and should probably
             # just use rad from howdraw [bruce 041206 comment]
             file.write("atom(" + povpoint(self.posn()) +
                        "," + str(rad) + "," +
-                       stringVec(color) + ")\n")
+                       Vector3ToString(color) + ")\n")
 
     # write to a MDL file.  By Chris Phoenix and Mark for John Burch [04-12-03]
     def writemdl(self, alist, f, dispdef, col):

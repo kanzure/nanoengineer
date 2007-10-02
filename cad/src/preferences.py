@@ -52,6 +52,7 @@ from PlatformDependent import find_or_make_Nanorex_directory
 from changes import UsageTracker #bruce 050804 ###k recursive import issues??
 
 from prefs_constants import prefs_table #bruce 050805
+import EndUser
 
 
 """
@@ -167,8 +168,7 @@ except:
 Warning: import bsddb failed; using some other db format for preferences file;
  giving it a different name in case that uses an incompatible binary format;
  this means, when you upgrade to bsddb, you'll lose your preferences."""
-    import __main__
-    if __main__._USE_ALTERNATE_CAD_SRC_PATH:
+    if EndUser.getAlternateSourcePath() != None:
         # [bruce 070704]
         print "(Note: as of 070704 this is a common side-effect of using the"
         print "ALTERNATE_CAD_SRC_PATH feature, since the built release has a"

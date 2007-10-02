@@ -185,9 +185,8 @@ allow_color_sorting_prefs_key = "allow_color_sorting_rev2" #bruce 060323 changed
 use_c_renderer = use_c_renderer_default = False
 use_c_renderer_prefs_key = "use_c_renderer_rev2" #bruce 060323 changed this to disconnect it from old pref setting
 
-import __main__
-if __main__._USE_ALTERNATE_CAD_SRC_PATH: #bruce 070917
-    sys.path.append(os.path.join( __main__._ALTERNATE_CAD_SRC_PATH, "experimental/pyrex-opengl"))
+if EndUser.getAlternateSourcePath() != None:
+    sys.path.append(os.path.join( EndUser.getAlternateSourcePath(), "experimental/pyrex-opengl"))
 else:
     sys.path.append("./experimental/pyrex-opengl")
 
