@@ -493,6 +493,8 @@ def call_undo_update(modified): #060409 for differential mash_attrs, it's safe, 
         continue
     return # from call_undo_update
 
+updaters_in_order = []
+
 def call_registered_undo_updaters(archive): #060409 seems likely to be safe/sufficient for differential mash_attrs, but too slow ###@@@
     """[private helper for assy_become_scanned_state:]
     Call the registered undo updaters (on the overall model state, not the ones
@@ -501,11 +503,6 @@ def call_registered_undo_updaters(archive): #060409 seems likely to be safe/suff
     [#doc more?]
     """
     assy = archive.assy
-    # now 
-    if 1:
-        # for now, kluge it because we know there's exactly this one:
-        from chem import _undo_update_Atom_jigs # WARNING: as of 060414 this also does essential undo updates unrelated to jigs
-        updaters_in_order = [_undo_update_Atom_jigs]
     for func in updaters_in_order:
         try:
             func(archive, assy)
@@ -906,6 +903,11 @@ def register_undo_updater( func, updates = (), after_update_of = () ):
     so it's subject to revision from encountering reality (or to being out of date if that revision hasn't
     happened yet). ###k]
     """
+    global updaters_in_order
+    # the following single line implements a simpler registration than
+    # the one envisioned by the pseudocode, but adequate for current
+    # usage.
+    updaters_in_order += [func]
     ## print "register_undo_updater ought to register %r but it's nim, or maybe only use of the registration is nim" % func
     # pseudocode
     if "pseudocode":
