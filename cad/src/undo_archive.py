@@ -38,6 +38,13 @@ _undo_debug_obj = None
     # set this to an undoable object (in debugger or perhaps using debug menu op (nim))
     # to print history messages about what we do to it
 
+_nullMol = None
+
+def set_undo_nullMol(null_mol):
+    global _nullMol
+    assert _nullMol is None
+    _nullMol = null_mol
+
 def _undo_debug_message( msg):
     from utilities.Log import _graymsg, quote_html
     ## env.history.message_no_html( _graymsg( msg )) -- WRONG, would mess up _graymsg
@@ -233,8 +240,6 @@ def mash_attrs( archive, attrdicts, modified, invalmols, differential = False ):
         # i.e. we should grab one just for each attr farther inside this loop, and have a loop variant without it
         # (and with the various kinds of setattr/inval replacements too --
         #  maybe even let each attr have its own loop if it wants, with atoms & bonds an extreme case)
-    from chunk import _nullMol # can't do this at toplevel, it's not yet defined
-        # (it might even still be None when we import it here, I think, but that should be ok)
     for attrcode, dict1 in attrdicts.items(): ##e might need to be in a specific order
         attr, acode = attrcode
         might_have_undo_setattr = attrcodes_with_undo_setattr.has_key(attrcode) #060404; this matters now (for hotspot)
@@ -417,7 +422,6 @@ def fix_all_chunk_atomsets( attrdicts, modified):
     # (could we resolve it by recording diffs in number of atoms per chunk, so we'd know when to recompute set of atoms??
     #  or is it better just to somehow record the old vals of atom.molecule that we change in mash_attrs? caller could pass that in.)
     # Ok, we're having caller pass in oldmols, for now.
-    from chunk import _nullMol
     for badmol in (None, _nullMol):
         if mols.has_key(id(badmol)):
             # should only happen if undoable state contains killed or still-being-born atoms; I don't know if it can
@@ -441,7 +445,6 @@ def fix_all_chunk_atomsets( attrdicts, modified):
     return # from fix_all_chunk_atomsets
 
 def fix_all_chunk_atomsets_differential(invalmols):
-    from chunk import _nullMol
     for mol in invalmols.itervalues():
         try:
             assert mol is not _nullMol

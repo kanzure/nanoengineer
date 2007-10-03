@@ -86,7 +86,7 @@ from changes import SelfUsageTrackingMixin, SubUsageTrackingMixin
 from prefs_constants import bondpointHotspotColor_prefs_key
 import env
 import drawer #bruce 051126
-from undo_archive import register_class_nickname
+from undo_archive import register_class_nickname, set_undo_nullMol
 from state_utils import copy_val, same_vals #bruce 060308
 from displaymodes import get_display_mode_handler
 from constants import gensym, genKey
@@ -2564,7 +2564,9 @@ _nullMol = None
 def _make_nullMol(): #bruce 060331 split out and revised this, to mitigate bugs similar to bug 1796
     "[private] Make and return (what the caller should store as) the single _nullMol object."
     ## return molecule("<not an assembly>", 'name-of-_nullMol')
-    return _nullMol_Chunk("<not an assembly>", 'name-of-_nullMol')
+    null_mol = _nullMol_Chunk("<not an assembly>", 'name-of-_nullMol')
+    set_undo_nullMol(null_mol)
+    return null_mol
 
 class _nullMol_Chunk(molecule):
     "[private] subclass for _nullMol"
