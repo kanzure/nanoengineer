@@ -142,7 +142,11 @@ atKey = genKey(start = 1) # generator for atom.key attribute.
 from inval import InvalMixin #bruce 050510
 
 def _undo_update_Atom_jigs(archive, assy):
-    "[register this to run after all Jigs, atoms, and bonds are updated, as cache-invalidator for a.jigs and b.pi_bond_obj]"
+    """
+    [register this to run after all Jigs, atoms, and bonds are updated,
+    as cache-invalidator for a.jigs and b.pi_bond_obj]
+    [WARNING: as of 060414 this also does essential undo updates unrelated to jigs]
+    """
     del archive
     if 1:
         # bruce 060414 fix bug 1779 (more efficient than doing something in Atom._undo_update, for every atom)
@@ -182,9 +186,11 @@ def _undo_update_Atom_jigs(archive, assy):
                 # Also, whatever this does should really just be done by Jig._undo_update. So make that true, then remove this. ###@@@
     return
 
-####@@@@ WARNING: register_undo_updater IS NIM, its effect is kluged elsewhere
-## by a direct call to _undo_update_Atom_jigs [still true 060314]
-register_undo_updater( _undo_update_Atom_jigs, #bruce 060224 
+# WARNING: register_undo_updater does not yet pay attention to its arguments
+# except for the update function itself, so it's not yet suitable for use
+# with more than one registered function if their relative order matters.
+# [bruce 071003 comment]
+register_undo_updater( _undo_update_Atom_jigs,
                        updates = ('Atom.jigs', 'Bond.pi_bond_obj'),
                        after_update_of = ('Assembly', 'Node', 'Atom.bonds') # Node also covers its subclasses Chunk and Jig.
                            # We don't care if Atom is updated except for .bonds, nor whether Bond is updated at all,

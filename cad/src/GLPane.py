@@ -365,10 +365,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         self.win = win
 
         modeMixin._init1(self)
-        
-        #bruce 050610 set gl format to request stencil buffer
-        # (needed for mouseover-highlighting of objects of general shape in depositMode.bareMotion)
-        
+                
         self.partWindow = parent
 
         self.stencilbits = 0 # conservative guess, will be set to true value below
@@ -2293,9 +2290,10 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         return
     
     # default values for instance variables related to glSelectBuffer feature [bruce 050608]
-    ## glselect = 0 # whether we're inside a glSelectBuffer call (not presently needed)
+    # [note, glselectBufferSize is also part of this set, but is now defined in GLPane_minimal.py]
     glselect_wanted = 0 # whether the next paintGL should start with a glSelectBuffer call [bruce 050608]
-    current_glselect = False #bruce 050616 #doc; might be approx. same as above commented-out "glselect" attr #k
+    current_glselect = False # [bruce 050616] False, or a 4-tuple of parameters for GL_SELECT rendering
+        ### TODO: document this better
     
     def paintGL(self): #bruce 050127 revised docstring to deprecate direct calls
         """[PRIVATE METHOD -- call gl_update instead!]
@@ -2932,7 +2930,6 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
             glRenderMode(GL_SELECT)
             glInitNames()
             ## glPushName(0) # this would be ignored if not in GL_SELECT mode, so do it after we enter that! [no longer needed]
-            ## self.glselect = 1
             glMatrixMode(GL_MODELVIEW)
             try:
                 self.drawing_phase = 'glselect' #bruce 070124
@@ -2955,7 +2952,6 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
                 self.glselect_dict[id(selobj)] = selobj
                     ###k unneeded, if the func that looks at this dict always tries selobj first
                     # (except for a kluge near "if self.glselect_dict", commented on below)
-            ## self.glselect = 0
             glFlush()
             hit_records = list(glRenderMode(GL_RENDER))
             ## print "%d hits" % len(hit_records)

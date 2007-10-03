@@ -101,6 +101,11 @@ class ThumbView(GLPane_minimal):
         useStencilBuffer = False
         
         GLPane_minimal.__init__(self, parent, shareWidget, useStencilBuffer)
+        
+        self.glselectBufferSize = 500
+            # different value from that in GLPane_minimal
+            # [I don't know whether this matters -- bruce 071003 comment]
+        
         self.elementMode = None
         
         self.initialised = False

@@ -67,7 +67,11 @@ class GLPane_minimal(QGLWidget): #bruce 070914
     Once that happens, it might as well get renamed.
     """
 
+    # default values of instance variables:
+    
     glselectBufferSize = 10000 # guess, probably overkill, seems to work, no other value was tried
+
+    shareWidget = None
 
     def __init__(self, parent, shareWidget, useStencilBuffer):
         """
@@ -85,6 +89,10 @@ class GLPane_minimal(QGLWidget): #bruce 070914
             glformat = QGLFormat()
             if (useStencilBuffer):
                 glformat.setStencil(True)
+                    # set gl format to request stencil buffer
+                    # (needed for mouseover-highlighting of objects of general
+                    #  shape in depositMode.bareMotion) [bruce 050610]
+
             QGLWidget.__init__(self, glformat, parent)
 
         # Current view attributes (sometimes saved in or loaded from
