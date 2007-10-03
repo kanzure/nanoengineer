@@ -97,19 +97,11 @@ class ThumbView(GLPane_minimal):
     always_draw_hotspot = False #bruce 060627
     def __init__(self, parent, name, shareWidget):
         """  """
+
+        useStencilBuffer = False
         
+        GLPane_minimal.__init__(self, parent, shareWidget, useStencilBuffer)
         self.elementMode = None
-        
-        if shareWidget:
-            self.shareWidget = shareWidget #bruce 051212
-            format = shareWidget.format()
-            # QGLWidget.__init__(self, format, parent, name, shareWidget)
-            QGLWidget.__init__(self, format, parent, shareWidget)
-            if not self.isSharing():
-                print "Request of display list sharing is failed."
-                return
-        else:  
-            QGLWidget.__init__(self, parent)  
         
         self.initialised = False
         #@@@Add the QGLWidget to the parentwidget's grid layout. This is done 

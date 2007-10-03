@@ -11,6 +11,11 @@ need a common superclass (and have common code that needs merging).
 It needs to be in its own file to avoid import loop problems.
 """
 
+from OpenGL.GL import glDepthRange
+
+from PyQt4.Qt import QGLFormat
+from PyQt4.Qt import QGLWidget
+
 from debug_prefs import Choice
 from debug_prefs import debug_pref
 
@@ -45,10 +50,6 @@ DEPTH_TWEAK_CHOICE = \
              10000, 100000, 10**6, 10**7, 10**8],
             defaultValue = DEPTH_TWEAK_VALUE )
 
-from OpenGL.GL import glDepthRange
-
-from PyQt4.Qt import QGLWidget
-
 class GLPane_minimal(QGLWidget): #bruce 070914
     """
     Mostly a stub superclass, just so GLPane and ThumbView can have a common
@@ -58,6 +59,25 @@ class GLPane_minimal(QGLWidget): #bruce 070914
     They share a lot of code, which ought to be merged into this superclass.
     Once that happens, it might as well get renamed.
     """
+
+    def __init__(self, parent, shareWidget, useStencilBuffer):
+        """
+        If shareWidget is specified, useStencilBuffer is ignored: set it in the widget you're sharing with.
+        """
+        
+        if shareWidget:
+            self.shareWidget = shareWidget #bruce 051212
+            glformat = shareWidget.format()
+            QGLWidget.__init__(self, glformat, parent, shareWidget)
+            if not self.isSharing():
+                print "Request of display list sharing is failed."
+                return
+        else:
+            glformat = QGLFormat()
+            if (useStencilBuffer):
+                glformat.setStencil(True)
+            QGLWidget.__init__(self, glformat, parent)
+    
     def should_draw_valence_errors(self):
         """
         Return a boolean to indicate whether valence error
@@ -67,14 +87,17 @@ class GLPane_minimal(QGLWidget): #bruce 070914
         there is only one kind, drawn by class Atom.)
         """
         return False
+
     def setDepthRange_setup_from_debug_pref(self):
         global DEPTH_TWEAK
         DEPTH_TWEAK = DEPTH_TWEAK_UNITS * \
                       debug_pref("GLPane: depth tweak", DEPTH_TWEAK_CHOICE)
         return
+
     def setDepthRange_Normal(self):
         glDepthRange(0.0 + DEPTH_TWEAK, 1.0) # args are near, far
         return
+
     def setDepthRange_Highlighting(self):
         glDepthRange(0.0, 1.0 - DEPTH_TWEAK)
         return

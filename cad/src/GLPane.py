@@ -13,7 +13,6 @@ import os
 import sys
 import time
 
-from PyQt4.Qt import QGLFormat
 from PyQt4.Qt import QPalette
 from PyQt4.Qt import QColor
 from PyQt4.Qt import QEvent
@@ -358,17 +357,17 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
     always_draw_hotspot = False #bruce 060627; not really needed, added for compatibility with class ThumbView
 
     def __init__(self, assy, parent=None, name=None, win=None):
-        
+
+	shareWidget = None
+	useStencilBuffer = True
+	
+        GLPane_minimal.__init__(self, parent, shareWidget, useStencilBuffer)
         self.win = win
 
         modeMixin._init1(self)
         
         #bruce 050610 set gl format to request stencil buffer
         # (needed for mouseover-highlighting of objects of general shape in depositMode.bareMotion)
-        glformat = QGLFormat()
-        glformat.setStencil(True)
-        
-        QGLWidget.__init__(self, glformat, parent)
         
         self.partWindow = parent
 
