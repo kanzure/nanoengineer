@@ -956,26 +956,21 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
     
     def createPlane(self):
         """
-	Creates a new Plane generator (editController) object which in turn 
-	creates a new Plane.
+	Creates a new Plane. 
 	"""
-	self.createPlaneGenerator()
+	editController = self.createPlaneGenerator()
+	#Create the plane object
+	editController.createObject()
 
     def createPlaneGenerator(self, plane = None):
 	"""
-	Returns a PlaneGenerator object.
-	@param plane: If the caller specifies a B{Plane} object, it creates a 
-	              plane generator (soon to be editController) object and 
-		      assihgns it to the existing Plane object. Such an 
-		      assignment allows editing an existing Plane object which 
-		      doesn't have a generator. (see bug 2554 for details). 
-		      If this parameter is None, the created editContoller will
-		      be used to create a new Plane object.		      
+	Returns a new L{PlaneGenerator} object.	
+	@param plane:  This parameter is passed as an init argument for the 
+	               The PlaneGenerator this method creates and returns.
 	@type plane:  B{Plane} or None
-	
 	@see: L{Plane.__init__} , L{Plane.edit}, L{PlaneGenerator.__init__}
 	"""
-	from PlaneGenerator import PlaneGenerator	
+	from PlaneGenerator import PlaneGenerator	    
 	return PlaneGenerator(self.w, plane)
 	
     def createLine(self):

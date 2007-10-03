@@ -51,7 +51,7 @@ class GeometryGeneratorBaseClass:
     #and maybe later -- Ninad 20070603
     
      # pass window arg to constructor rather than use a global, wware 051103
-    def __init__(self, win, struct = None ):
+    def __init__(self, win):
         """
         Constructor for the class GeometryGeneratorBaseClass.        
         """
@@ -60,7 +60,7 @@ class GeometryGeneratorBaseClass:
         self.old_props            =  None
         self.logMessage           = ''
         
-        self.struct               =  struct
+        self.struct               =  None
         self.existingStructForEditing  =  False
     
         #bruce 060616 added the following kluge to make sure both cmdname 
@@ -86,15 +86,55 @@ class GeometryGeneratorBaseClass:
             self.cmd = greenmsg(self.cmdname + ": ")
         return
     
-    def buildStructure(self, params):
+    def createObject(self):
         """
-        Build a geometry using the parameters in the Property Manager.
+        Abstract Method (overridden in subclasses). Creates an instance (object)
+        of the structure this generator wants to generate. This implements a 
+        topLevel command that the client can execute to create an object it wants.
+        
+        Example: If its a plane generator, this method will create an object of 
+                class Plane. 
+        
+        This method also creates a propMgr objects if it doesn't
+        exist , shows the property manager and sets the model (the plane) 
+        in preview state.
+        
+        @see: L{self.editObject} (another top level command that facilitates 
+              editing an existing object (existing structure). 
+        @see: L{part.createPlaneGenerator} for an example use.
+        """
+        raise AbstractMethod()
+    
+    def editObject(self):
+        """
+        Abstract Method (overridden in subclasses). Facilitates editing an 
+        existing object (existing structure). This implements a topLevel command
+        that the client can execute to edit an existing object
+        (i.e. self.struct) that it wants.
+        
+        Example: If its a plane generator, this method will be used to edit an 
+        object of class Plane. 
+        
+        This method also creates a propMgr objects if it doesn't
+        exist and shows this property manager 
+        
+        @see: L{self.createObject} (another top level command that facilitates 
+              creation of a model object created by this generator 
+              (editController)
+        @see: L{Plane.edit} and L{PlaneGenerator.editObject} for example use.
+        """
+        raise AbstractMethod()
+        
+    
+    def _buildStructure(self, params):
+        """
+        Build a struct using the parameters in the Property Manager.
         Abstract method. 
         
         """
         raise AbstractMethod()
-    
-    def gather_parameters(self):
+
+    def _gatherParameters(self):
         """
         Return all the parameters from the Plane Property Manager.
         Abstract method. 
@@ -108,28 +148,26 @@ class GeometryGeneratorBaseClass:
                            properties. 
         @type  previewing: boolean
         """
+        
+        assert self.struct
+    
         self.win.assy.current_command_info(cmdname = self.cmdname) 
         
-        params = self.gather_parameters()        
-        
-        
-        if self.struct is None:
-            self.struct = self.buildStructure(params)
+        params = self._gatherParameters()        
+
+        if not same_vals( params, self.previousParams):
+            self.struct = self._buildStructure(params)
+
+        name = self.struct.name
+        if not self.existingStructForEditing:
+            self.win.assy.place_new_geometry(self.struct)
+            self.existingStructForEditing = True            
+    
+        if previewing:
+            self.logMessage = str(self.cmd + "Previewing " + name)
         else:
-            if not same_vals( params, self.previousParams):
-                self.struct = self.buildStructure(params)
-        
-        if self.struct:
-            name = self.struct.name
-            if not self.existingStructForEditing:
-                self.win.assy.place_new_geometry(self.struct)
-                self.existingStructForEditing = True            
-        
-            if previewing:
-                self.logMessage = str(self.cmd + "Previewing " + name)
-            else:
-                self.struct.updateCosmeticProps()
-                self.logMessage = str(self.cmd + "Created " + name)
+            self.struct.updateCosmeticProps()
+            self.logMessage = str(self.cmd + "Created " + name)
         
         self.previousParams = params      
         self.win.assy.changed()

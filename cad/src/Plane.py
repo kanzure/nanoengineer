@@ -84,14 +84,12 @@ class Plane(ReferenceGeometry):
         @param win: The NE1 main window.
         @type  win: L{MainWindow}
         
-        @param generator: The Plane Generator object. If this is None, that
-                          probably means the Plane object is created by reading
-                          the data from the MMP file and it doesn't have 
-                          a generator (soon to be an 'EditController'). 
-                          This Plane will be assigned a generator if it it needs
-                          to be edited. Lazily creating a generator this way
-                          is a general performance improvement.( in case of 
-                          a plane , it doesn't really matter though)
+        @param generator: The Plane Generator object. 
+                          If this is None, it means the Plane is created by 
+                          reading the data from the MMP file and it doesn't 
+                          have  a generator assigned. The generator may be
+                          created at a later stage in this case. 
+                          See L{self.edit} for an example. 
         @type  generator: B{PlaneGenerator} or None                          
         
         @param atomList: List of atoms.
@@ -577,7 +575,7 @@ class Plane(ReferenceGeometry):
         if not self.generator:
             self.generator = self.assy.part.createPlaneGenerator(self)
             
-        self.generator.edit()
+        self.generator.editObject()
   
     def setup_quat_center(self, atomList = None):
         """
@@ -637,6 +635,7 @@ class Plane(ReferenceGeometry):
         Orient the plane such that it is parallel to a selected plane , with an
         offset.
         """
+        
         cmd = self.generator.cmd 
                 
         jigList = self.win.assy.getSelectedJigs()

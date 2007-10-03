@@ -82,9 +82,7 @@ class PlanePropertyManager(GeometryGenerator_PM):
         
         # Hide Preview and Restore defaults button for Alpha9.
         self.hideTopRowButtons(pmRestoreDefaultsButton)
-    
 
-      
     def _addGroupBoxes(self):
         """
         Add the 1st group box to the Property Manager.
@@ -184,17 +182,22 @@ class PlanePropertyManager(GeometryGenerator_PM):
         """
         Show the Plane Property Manager.
         """
-        self.update_spinboxes()
-        GeometryGenerator_PM.show(self)   
-        self.geometry.updateCosmeticProps(previewing = True)
+        self.update_spinboxes() 
+        GeometryGenerator_PM.show(self)
+        #It turns out that if updateCosmeticProps is called before 
+        #GeometryGenerator_PM.show, the 'preview' properties are not updated 
+        #when you are editing an existing plane. Don't know the cause at this
+        #time, issue is trivial. So calling it in the end -- Ninad 2007-10-03
+        self.struct.updateCosmeticProps(previewing = True)
+        
                 
     def change_plane_width(self):
         """
         Slot for width spinbox in the Property Manager.
         """
         if self.aspectRatioCheckBox.isChecked():
-            self.geometry.width   =  self.widthDblSpinBox.value()
-            self.geometry.height  =  self.geometry.width / \
+            self.struct.width   =  self.widthDblSpinBox.value()
+            self.struct.height  =  self.struct.width / \
                                      self.aspectRatioSpinBox.value() 
             self.update_spinboxes()
         else:
@@ -206,8 +209,8 @@ class PlanePropertyManager(GeometryGenerator_PM):
         Slot for height spinbox in the Property Manager.
         """
         if self.aspectRatioCheckBox.isChecked():
-            self.geometry.height  =  self.heightDblSpinBox.value() 
-            self.geometry.width   =  self.geometry.height * \
+            self.struct.height  =  self.heightDblSpinBox.value() 
+            self.struct.width   =  self.struct.height * \
                                      self.aspectRatioSpinBox.value()
             self.update_spinboxes()
         else:
@@ -222,10 +225,10 @@ class PlanePropertyManager(GeometryGenerator_PM):
         @type  gl_update: bool
         """
         if not self.resized_from_glpane:
-            self.geometry.width   =  self.widthDblSpinBox.value()
-            self.geometry.height  =  self.heightDblSpinBox.value() 
+            self.struct.width   =  self.widthDblSpinBox.value()
+            self.struct.height  =  self.heightDblSpinBox.value() 
         if gl_update:
-            self.geometry.glpane.gl_update()
+            self.struct.glpane.gl_update()
     
     def changePlanePlacement(self, buttonId):
         """
@@ -235,20 +238,21 @@ class PlanePropertyManager(GeometryGenerator_PM):
         @param buttonId: The button id of the selected radio button (option).
         @type  buttonId: int
         """       
+                
         if buttonId == 0:
             msg = "Create a Plane parallel to the screen. \
             NOTE: With <b>Parallel to Screen</b> plane placement option, the \
             center of the plane is always (0,0,0). This value is set during \
             plane creation or when the <b>Preview</b> button is clicked."
             self.updateMessage(msg)
-            self.generator.createPlaneParallelToScreen()            
+            self.generator.placePlaneParallelToScreen()            
         elif buttonId == 1:
             msg = "Create a Plane with center coinciding with the common center\
             of <b> 3 or more selected atoms </b>. If exactly 3 atoms are \
             selected, the Plane will pass through those atoms. Select atoms \
             and hit <b>Preview</b> to see the new Plane placement"        
             self.updateMessage(msg)            
-            self.generator.createPlaneThroughAtoms()
+            self.generator.placePlaneThroughAtoms()
             if self.generator.logMessage:
                 env.history.message(self.generator.logMessage)
         elif buttonId == 2:
@@ -257,7 +261,7 @@ class PlanePropertyManager(GeometryGenerator_PM):
             Select an existing plane and hit <b>Preview</b>.\
             You can click on the direction arrow to reverse its direction."
             self.updateMessage(msg)            
-            self.generator.createOffsetPlane()
+            self.generator.placePlaneOffsetToAnother()
             if self.generator.logMessage:
                 env.history.message(self.generator.logMessage)
         elif buttonId == 3:
@@ -277,9 +281,9 @@ class PlanePropertyManager(GeometryGenerator_PM):
         # signal is not emitted after calling spinbox.setValue(). 
         # This flag is used in change_plane_size method.-- Ninad 20070601
         self.resized_from_glpane = True
-        self.heightDblSpinBox.setValue(self.geometry.height)
-        self.widthDblSpinBox.setValue(self.geometry.width)
-        self.geometry.glpane.gl_update()
+        self.heightDblSpinBox.setValue(self.struct.height)
+        self.widthDblSpinBox.setValue(self.struct.width)
+        self.struct.glpane.gl_update()
         self.resized_from_glpane = False
     
     def _enableAspectRatioSpinBox(self, enable):
@@ -297,7 +301,7 @@ class PlanePropertyManager(GeometryGenerator_PM):
         """
         Updates the Aspect Ratio spin box based on the current width and height.
         """
-        aspectRatio = self.geometry.width / self.geometry.height
+        aspectRatio = self.struct.width / self.struct.height
         self.aspectRatioSpinBox.setValue(aspectRatio)
     
     
@@ -320,11 +324,11 @@ class PlanePropertyManager(GeometryGenerator_PM):
         
         #called in updatePropertyManager in MWsemeantics.py --(Partwindow class)
 
-        self.geometry.updateCosmeticProps()
+        self.struct.updateCosmeticProps()
         
         #Don't draw the direction arrow when the object is finalized. 
-        if self.geometry.offsetParentGeometry:
-            dirArrow = self.geometry.offsetParentGeometry.directionArrow 
+        if self.struct.offsetParentGeometry:
+            dirArrow = self.struct.offsetParentGeometry.directionArrow 
             dirArrow.setDrawRequested(False)
     
     def updateMessage(self, message = ''):
