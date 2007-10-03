@@ -99,7 +99,7 @@ except:
         print "GLE module can't be imported. Now trying _GLE"
         from OpenGL._GLE import glePolyCone
 
-from VQT import V, Q, A, Trackball, norm, vlen
+from VQT import V, Q, A, norm, vlen
 from Numeric import dot
 import drawer
 
@@ -404,8 +404,6 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
 
         DebugMenuMixin._init1(self) # provides self.debug_event() [might provide or require more things too... #doc]
 
-        self.trackball = Trackball(10,10)
-
         # [bruce 050419 new feature:]
         # The current Part to be displayed in this GLPane.
         # Logically this might not be the same as it's assy's current part, self.assy.part,
@@ -419,17 +417,6 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         # part the view attributes belong.
         self.part = None
         
-        # Current view attributes (sometimes saved in or loaded from
-        #  the currently displayed part or its mmp file):
-        
-        # rotation
-        self.quat = Q(1, 0, 0, 0)
-        # point of view (i.e. negative of center of view)
-        self.pov = V(0.0, 0.0, 0.0)
-        # half-height of window in Angstroms (gets reset by certain view-changing operations [bruce 050615 comment])
-        self.scale = 10.0
-        # zoom factor
-        self.zoomFactor = 1.0
 
 
         # Other "current preference" attributes. ###e Maybe some of these should
@@ -2308,7 +2295,6 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
     # default values for instance variables related to glSelectBuffer feature [bruce 050608]
     ## glselect = 0 # whether we're inside a glSelectBuffer call (not presently needed)
     glselect_wanted = 0 # whether the next paintGL should start with a glSelectBuffer call [bruce 050608]
-    glselectBufferSize = 10000 # guess, probably overkill, seems to work, no other value was tried
     current_glselect = False #bruce 050616 #doc; might be approx. same as above commented-out "glselect" attr #k
     
     def paintGL(self): #bruce 050127 revised docstring to deprecate direct calls

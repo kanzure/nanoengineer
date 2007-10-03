@@ -63,7 +63,7 @@ from OpenGL.GLU import gluPickMatrix, gluUnProject
 from PyQt4.Qt import Qt
 from PyQt4.Qt import QGLWidget
 
-from VQT import V, Q, A, Trackball
+from VQT import V, Q, A
 import drawer
 from assembly import assembly 
 import env
@@ -114,14 +114,8 @@ class ThumbView(GLPane_minimal):
             have a layout. Preview Pane not added to the layout.")
             pass
         
-        # point of view, and half-height of window in Angstroms
-        self.pov = V(0.0, 0.0, 0.0)
-        self.scale = 10.0
-        self.quat = Q(1, 0, 0, 0)
-        self.trackball = Trackball(10,10)
         self.picking = 0
 
-        self.glselectBufferSize = 500  
         self.selectedObj = None
         
         #This enables the mouse bareMotion() event

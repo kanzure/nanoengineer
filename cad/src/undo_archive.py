@@ -20,7 +20,7 @@ from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True
 import env
 import state_utils
 from state_utils import objkey_allocator, obj_classifier, diff_and_copy_state, transclose, StatePlace, StateSnapshot, _UNSET_
-from prefs_constants import historyMsgSerialNumber_prefs_key, undoRestoreView_prefs_key
+from prefs_constants import historyMsgSerialNumber_prefs_key
 import changes
 
 destroy_bypassed_redos = True # whether to destroy the Redo stack to save RAM
@@ -1019,7 +1019,7 @@ class checkpoint_metainfo:
             if env.debug():#060301 - does this ever happen (i doubt it) ###@@@ never happens; someday analyze why not [060407]
                 print "debug:",self.view
         else:
-            self.view = current_view_for_Undo(glpane, assy) # Csys object (for now), with an attribute pointing out the current Part
+            self.view = glpane.current_view_for_Undo(assy) # Csys object (for now), with an attribute pointing out the current Part
             ###e should this also save the current mode, considered as part of the view??? [060301]
         self.time = time.time()
         #e cpu time?
@@ -1035,7 +1035,7 @@ class checkpoint_metainfo:
         "restore the view & current part from self (called at end of an Undo or Redo command)"
             # also selection? _modified? window_caption (using some new method on assy that knows it needs to do that)?
         glpane = assy.o
-        set_view_for_Undo(glpane, assy, self.view)
+        glpane.set_view_for_Undo(assy, self.view)
             # doesn't animate, for now -- if it does, do we show structure change before, during, or after?
             #e sets current selgroup; doesn't do update_parts; does it (or caller) need to?? ####@@@@
         #e caller should do whatever updates are needed due to this (e.g. gl_update)
@@ -1047,64 +1047,6 @@ class checkpoint_metainfo:
         if debug_change_counters:
             print "restore_assy_change_counters end, chg ctrs =", assy.all_change_counters()
     pass
-
-def current_view_for_Undo(glpane, assy): #e shares code with saveNamedView
-    """Return the current view in this glpane which is showing this assy,
-    with additional attributes saved along with the view by Undo (i.e. the index of the current selection group).
-    (The assy arg is used for multiple purposes specific to Undo.)
-    WARNING: present implem of saving current Part (using its index in MT) is not suitable for out-of-order Redo.
-    """
-    from Utility import Csys
-    oldc = assy.all_change_counters()
-    
-    csys = Csys(assy, "name", glpane.scale, glpane.pov, glpane.zoomFactor, glpane.quat)
-    
-    newc = assy.all_change_counters()
-    assert oldc == newc
-    
-    csys.current_selgroup_index = assy.current_selgroup_index() # storing this on the csys is a kluge, but should be safe
-    
-    return csys # ideally would not return a Node but just a "view object" with the same 4 elements in it as passed to Csys
-
-def set_view_for_Undo(glpane, assy, csys): # shares code with Csys.set_view; might be very similar to some GLPane method, too
-    """Restore the view (and the current Part) to what was saved by current_view_for_Undo.
-    WARNING: present implem of saving current Part (using its index in MT) is not suitable for out-of-order Redo.
-    WARNING: might not gl_update, assume caller does so [#k obs warning?]
-    """
-    ## compare to Csys.set_view (which passes animate = True) -- not sure if we want to animate in this case [we do, for A8],
-    # but if we do, we might have to do that at a higher level in the call chain
-    self = glpane # dubious correctness re new prefs usage [060314]
-    restore_view = env.prefs[undoRestoreView_prefs_key] #060314
-    restore_current_part = True # always do this no matter what
-    ## restore_mode?? nah (not for A7 anyway; unclear what's best in long run)
-    if restore_view:
-        if type(csys) == type(""):
-            from VQT import V,Q
-            #####@@@@@ code copied from GLPane.__init__, should be shared somehow, or at least comment GLPane and warn it's copied
-            #e also might not be the correct view, it's just the hardcoded default view... but i guess it's correct.
-            # rotation
-            self.quat = Q(1, 0, 0, 0)
-            # point of view (i.e. negative of center of view)
-            self.pov = V(0.0, 0.0, 0.0)
-            # half-height of window in Angstroms (gets reset by certain view-changing operations [bruce 050615 comment])
-            self.scale = 10.0
-            # zoom factor
-            self.zoomFactor = 1.0
-        else:
-            self.animateToView(csys.quat, csys.scale, csys.pov, csys.zoomFactor, animate = False)
-                # if we want this to animate, we probably have to move that higher in the call chain and do it after everything else
-    if restore_current_part:
-        if type(csys) == type(""):
-            if env.debug():
-                print "debug: fyi: cys == '' still happens" # does it? ###@@@ 060314 remove if seen, or if not seen
-            current_selgroup_index = 0
-        else:
-            current_selgroup_index = csys.current_selgroup_index
-        sg = assy.selgroup_at_index(current_selgroup_index)
-        assy.set_current_selgroup(sg)
-            #e how might that interact with setting the selection? Hopefully, not much, since selection (if any) should be inside sg.
-    #e should we update_parts?
-    return
 
 # ==
 

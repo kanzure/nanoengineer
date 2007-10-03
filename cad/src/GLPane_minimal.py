@@ -16,8 +16,15 @@ from OpenGL.GL import glDepthRange
 from PyQt4.Qt import QGLFormat
 from PyQt4.Qt import QGLWidget
 
+from VQT import V, Q, Trackball
+from Utility import Csys
+
+from prefs_constants import undoRestoreView_prefs_key
+
 from debug_prefs import Choice
 from debug_prefs import debug_pref
+
+import env
 
 DEPTH_TWEAK_UNITS = (2.0)**(-32)
 DEPTH_TWEAK_VALUE = 100000
@@ -60,6 +67,8 @@ class GLPane_minimal(QGLWidget): #bruce 070914
     Once that happens, it might as well get renamed.
     """
 
+    glselectBufferSize = 10000 # guess, probably overkill, seems to work, no other value was tried
+
     def __init__(self, parent, shareWidget, useStencilBuffer):
         """
         If shareWidget is specified, useStencilBuffer is ignored: set it in the widget you're sharing with.
@@ -77,6 +86,24 @@ class GLPane_minimal(QGLWidget): #bruce 070914
             if (useStencilBuffer):
                 glformat.setStencil(True)
             QGLWidget.__init__(self, glformat, parent)
+
+        # Current view attributes (sometimes saved in or loaded from
+        #  the currently displayed part or its mmp file):
+        
+        # rotation
+        self.quat = Q(1, 0, 0, 0)
+
+        # point of view (i.e. negative of center of view)
+        self.pov = V(0.0, 0.0, 0.0)
+
+        # half-height of window in Angstroms (reset by certain view-changing operations)
+        self.scale = 10.0
+
+        # zoom factor
+        self.zoomFactor = 1.0
+
+        self.trackball = Trackball(10,10)
+
     
     def should_draw_valence_errors(self):
         """
@@ -101,6 +128,61 @@ class GLPane_minimal(QGLWidget): #bruce 070914
     def setDepthRange_Highlighting(self):
         glDepthRange(0.0, 1.0 - DEPTH_TWEAK)
         return
-    pass
+
+
+    def current_view_for_Undo(self, assy): #e shares code with saveNamedView
+        """Return the current view in this glpane which is showing this assy,
+        with additional attributes saved along with the view by Undo (i.e. the index of the current selection group).
+        (The assy arg is used for multiple purposes specific to Undo.)
+        WARNING: present implem of saving current Part (using its index in MT) is not suitable for out-of-order Redo.
+        """
+        oldc = assy.all_change_counters()
+
+        csys = Csys(assy, "name", self.scale, self.pov, self.zoomFactor, self.quat)
+
+        newc = assy.all_change_counters()
+        assert oldc == newc
+
+        csys.current_selgroup_index = assy.current_selgroup_index() # storing this on the csys is a kluge, but should be safe
+
+        return csys # ideally would not return a Node but just a "view object" with the same 4 elements in it as passed to Csys
+
+    def set_view_for_Undo(self, assy, csys): # shares code with Csys.set_view; might be very similar to some GLPane method, too
+        """Restore the view (and the current Part) to what was saved by current_view_for_Undo.
+        WARNING: present implem of saving current Part (using its index in MT) is not suitable for out-of-order Redo.
+        WARNING: might not gl_update, assume caller does so [#k obs warning?]
+        """
+        ## compare to Csys.set_view (which passes animate = True) -- not sure if we want to animate in this case [we do, for A8],
+        # but if we do, we might have to do that at a higher level in the call chain
+        restore_view = env.prefs[undoRestoreView_prefs_key] #060314
+        restore_current_part = True # always do this no matter what
+        ## restore_mode?? nah (not for A7 anyway; unclear what's best in long run)
+        if restore_view:
+            if type(csys) == type(""):
+                #####@@@@@ code copied from GLPane.__init__, should be shared somehow, or at least comment GLPane and warn it's copied
+                #e also might not be the correct view, it's just the hardcoded default view... but i guess it's correct.
+                # rotation
+                self.quat = Q(1, 0, 0, 0)
+                # point of view (i.e. negative of center of view)
+                self.pov = V(0.0, 0.0, 0.0)
+                # half-height of window in Angstroms (gets reset by certain view-changing operations [bruce 050615 comment])
+                self.scale = 10.0
+                # zoom factor
+                self.zoomFactor = 1.0
+            else:
+                self.animateToView(csys.quat, csys.scale, csys.pov, csys.zoomFactor, animate = False)
+                    # if we want this to animate, we probably have to move that higher in the call chain and do it after everything else
+        if restore_current_part:
+            if type(csys) == type(""):
+                if env.debug():
+                    print "debug: fyi: cys == '' still happens" # does it? ###@@@ 060314 remove if seen, or if not seen
+                current_selgroup_index = 0
+            else:
+                current_selgroup_index = csys.current_selgroup_index
+            sg = assy.selgroup_at_index(current_selgroup_index)
+            assy.set_current_selgroup(sg)
+                #e how might that interact with setting the selection? Hopefully, not much, since selection (if any) should be inside sg.
+        #e should we update_parts?
+        return
 
 # end
