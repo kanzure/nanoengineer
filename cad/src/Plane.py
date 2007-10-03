@@ -75,7 +75,7 @@ class Plane(ReferenceGeometry):
         
     def __init__(self, 
                  win, 
-                 generator, 
+                 generator = None, 
                  atomList = None, 
                  READ_FROM_MMP = False):
         """
@@ -83,6 +83,16 @@ class Plane(ReferenceGeometry):
         
         @param win: The NE1 main window.
         @type  win: L{MainWindow}
+        
+        @param generator: The Plane Generator object. If this is None, that
+                          probably means the Plane object is created by reading
+                          the data from the MMP file and it doesn't have 
+                          a generator (soon to be an 'EditController'). 
+                          This Plane will be assigned a generator if it it needs
+                          to be edited. Lazily creating a generator this way
+                          is a general performance improvement.( in case of 
+                          a plane , it doesn't really matter though)
+        @type  generator: B{PlaneGenerator} or None                          
         
         @param atomList: List of atoms.
         @type  atomList: list
@@ -106,12 +116,12 @@ class Plane(ReferenceGeometry):
         self.pickCheckOnly  = False 
         
         self.generator      =  generator
-        
+                
         if not READ_FROM_MMP:
             self.width      =  20.0
             self.height     =  10.0
             self.normcolor  =  black            
-            self._setup_quat_center(atomList)   
+            self.setup_quat_center(atomList)   
             self.directionArrow = DirectionArrow(self, 
                                                  self.glpane, 
                                                  self.center, 
@@ -559,25 +569,17 @@ class Plane(ReferenceGeometry):
         
     def edit(self):
         """
-        Overrided node.edit and shows the property manager.
+        Overrides node.edit and shows the property manager.
         """
-        self.generator.edit()
-         
-                
-    def setup_quat_center(self, atomList = None):
-        """
-        Public method to Setup the plane's quat using a list of atoms.
-        
-        If no atom list is supplied, the plane is centered in the glpane
-        and parallel to the screen.
-        
-        @param atomList: A list of atoms.
-        @type  atomList: list
-        """
-        self._setup_quat_center(atomList)
-        
+        #If the Plane is created simply by reading in the mmp file, then 
+        #it won't have a 'generator' . So create one here.
+        # Fixes bug 2554
+        if not self.generator:
+            self.generator = self.assy.part.createPlaneGenerator(self)
             
-    def _setup_quat_center(self, atomList = None):
+        self.generator.edit()
+  
+    def setup_quat_center(self, atomList = None):
         """
         Setup the plane's quat using a list of atoms.
         
@@ -605,16 +607,16 @@ class Plane(ReferenceGeometry):
             self.quat  = Q(x, y, z) 
             self.quat += Q(self.glpane.right, pi)
     
-    def createPlaneParallelToScreen(self):
+    def placePlaneParallelToScreen(self):
         """
-        Create a plane parallel to the screen. 
+        Orient this plane such that it is placed parallel to the screen
         """
-        self._setup_quat_center()
+        self.setup_quat_center()
         self.glpane.gl_update()
                         
-    def createPlaneThroughAtoms(self):
+    def placePlaneThroughAtoms(self):
         """
-        Create a Plane with center same as the common center of 
+        Orient this plane such that its center is same as the common center of 
         three or more selected atoms.
         """       
         atmList = self.win.assy.selatoms_list()         
@@ -627,12 +629,13 @@ class Plane(ReferenceGeometry):
             msg = redmsg("Select 3 or more atoms to create a Plane.")
             self.logMessage = msg
             return
-        self._setup_quat_center(atomList = atmList)
+        self.setup_quat_center(atomList = atmList)
         self.glpane.gl_update()
     
-    def createOffsetPlane(self):
+    def placePlaneOffsetToAnother(self):
         """
-        Create a plane offset to a selected plane.
+        Orient the plane such that it is parallel to a selected plane , with an
+        offset.
         """
         cmd = self.generator.cmd 
                 

@@ -23,8 +23,10 @@ from Plane import  Plane
 
 class PlaneGenerator(GeometryGeneratorBaseClass):
     """
-    The PlaneGenerator class provides a Property Manager and a structure 
-    generator/editor for creating and/or editing a reference Plane.
+    The PlaneGenerator class  Edit Controller) provides a generator Object. 
+    The generator, depending on what client code needs it to do, then 
+    either creates a new plane or its used for an existing plane, 
+    which doesn't have a generator. 
     """
     
     #@ NOTE: Reference Plane defines PlaneGenerator object as 'self.propMgr'. 
@@ -43,37 +45,50 @@ class PlaneGenerator(GeometryGeneratorBaseClass):
     sponsor_keyword = 'Plane'
     geometry = None
     
-    def __init__(self, win):
+    def __init__(self, win, geometry = None):
         """
-        Constructs a Property Manager with a default Plane.
+        Constructs a Generator (Edit Controller) Object. The generator, 
+        depending on what client code needs it to do, then 
+        either creates a new plane or its used for an existing plane, 
+        which doesn't have a generator.  
         
         @param win: The NE1 main window.
         @type  win: QMainWindow
         
-        @param plane: The plane.
-        @type  plane: L{Plane}
+        @param geometry: The geometry object (in this case plane)
+                         If this is specified, it means this generator is 
+                         created lazily for a Plane object without a generator.
+                         If this is specified, it won't create a new Plane 
+                         object. See bug 2554 for details
+        @type  geometry: L{Plane} or None
+        
+        @see: L{Plane.__init__}
         """        
         
                 
         GeometryGeneratorBaseClass.__init__(self, win)          
         
-        self.geometry = Plane(win, self)         
+        if geometry:
+            self.geometry = geometry
+        else:
+            self.geometry = Plane(win, self)         
         self.propMgr = PlanePropertyManager(win, self)
         self.propMgr.show()
         self.preview_or_finalize_structure(previewing = True)
-        
-        ##self.propMgr.preview_btn_clicked()
     
-    def createPlaneParallelToScreen(self):
+    def placePlaneParallelToScreen(self):
         """
+        Orient this plane such that it is placed parallel to the screen
         """
-        self.geometry.createPlaneParallelToScreen()
+        self.geometry.placePlaneParallelToScreen()
         
         
-    def createPlaneThroughAtoms(self):
+    def placePlaneThroughAtoms(self):
         """
+        Orient this plane such that its center is same as the common center of 
+        three or more selected atoms.
         """
-        self.geometry.createPlaneThroughAtoms()
+        self.geometry.placePlaneThroughAtoms()
         #NOTE: This log message can be used to either display a history message 
         #if using NE1 UI or for consol print when command is executed via 
         #command prompt. Its upto the client to use this message. This, 
@@ -85,14 +100,17 @@ class PlaneGenerator(GeometryGeneratorBaseClass):
         #facility (see Log.py) is fully implemented -- Ninad 20070921
         self.logMessage = self.cmd + self.geometry.logMessage
         
-    def createOffsetPlane(self):
+    def placePlaneOffsetToAnother(self):
         """
+        Orient the plane such that it is parallel to a selected plane , with an
+        offset.
         """
-        self.geometry.createOffsetPlane()
+        self.geometry.placePlaneOffsetToAnother()
         self.logMessage = self.cmd + self.geometry.logMessage
     
     def edit(self):
         """
+        Edit the Plane properties.
         """
         self.existingStructForEditing = True
         self.old_props = self.geometry.getProps()
