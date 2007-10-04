@@ -109,27 +109,27 @@ class GridPlaneProp(QDialog, Ui_GridPlanePropDialog):
             self.glpane.gl_update()
 
 
-    def change_width(self):
+    def change_width(self, newWidth):
         "Slot for Width spinbox"
-        self.grid_plane.width = float(self.width_spinbox.value())
+        self.grid_plane.width = float(newWidth)
         self.glpane.gl_update()
 
         
-    def change_height(self):
+    def change_height(self, newHeight):
         "Slot for Height spinbox"
-        self.grid_plane.height = float(self.height_spinbox.value())
+        self.grid_plane.height = float(newHeight)
         self.glpane.gl_update()
 
         
-    def change_x_spacing(self):
+    def change_x_spacing(self, newXValue):
         "Slot for X Spacing spinbox"
-        self.grid_plane.x_spacing = float(self.x_spacing_spinbox.value())
+        self.grid_plane.x_spacing = float(newXValue)
         self.glpane.gl_update()
 
         
-    def change_y_spacing(self):
+    def change_y_spacing(self, newYValue):
         "Slot for Y Spacing spinbox"
-        self.grid_plane.y_spacing = float(self.y_spacing_spinbox.value())
+        self.grid_plane.y_spacing = float(newYValue)
         self.glpane.gl_update()
 
         

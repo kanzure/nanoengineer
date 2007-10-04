@@ -810,9 +810,14 @@ class ESPImage(RectGadget):
         if choose_new_image: 
             cwd = self.assy.get_cwd()
     
-            fn = QFileDialog.getOpenFileName(cwd, \
-                    "Portable Network Graphics (*.png);;All Files (*.*);;", parent ) #bruce 060212 added All Files option
-                
+            fn = QFileDialog.getOpenFileName(
+		parent,
+		"Load an ESP Image File",
+		cwd,
+		"Portable Network Graphics (*.png);;All Files (*.*);;" 
+		) #bruce 060212 added All Files option
+	    
+            	    
             if not fn:
                 env.history.message(cmd + "Cancelled.") #bruce 060212 bugfix: included cmd
                 return None
