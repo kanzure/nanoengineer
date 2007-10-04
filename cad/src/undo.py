@@ -42,7 +42,12 @@ DEBUG_GETARGSPEC = False # DO NOT COMMIT with True -- causes a test of inspect.g
 _use_hcmi_hack = True # enable signal->slot call intercepting code, to check for bugs that mess up other things [bruce 050922]
     # i suspect this now has to be true (undo won't work without it) -- if true, remove this [bruce 071003 comment] 
 
-DISABLE_SLOT_ARGCOUNT_RETRY = False # bruce 071004
+DISABLE_SLOT_ARGCOUNT_RETRY = True # bruce 071004 -- WHEN True, THIS WILL EXPOSE SOME BUGS as new TypeError exceptions.
+    # To fix them, add the proper argument declarations to slot methods which are raising TypeError
+    # due to being passed too many args by a signal connection inside fbmethod_0args.
+    # Or to temporarily work around them, set this flag to False in your local sources.
+    #
+    # Details:
     #  When True, this simulates a proposed simplification
     # in which we only try calling slot methods with all the available args
     # passed to them by PyQt.
