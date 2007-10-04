@@ -104,6 +104,7 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
                        SIGNAL("stateChanged(int)"),
                        self.toggle_selectedAtomPosGroupBox)
         
+        
         change_connect(self.xCoordOfSelectedAtom,
                      SIGNAL("valueChanged(double)"), 
                      self._moveSelectedAtom)
@@ -334,11 +335,16 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         if self.selectedAtomLineEdit:
             self.selectedAtomLineEdit.setText(text)
     
-    def _moveSelectedAtom(self):
+    def _moveSelectedAtom(self, spinBoxValueJunk = None):
         """
         Move the selected atom position based on the value in the X, Y, Z 
         coordinate spinboxes in the Selection GroupBox. 
+        @param spinBoxValueJunk: This is the Spinbox value from the valueChanged
+                                 signal. It is not used. We just want to know
+                                 that the spinbox value has changed.
+        @type  spinBoxValueJunk: double or None           
         """
+                
         if self.model_changed_from_glpane:
             #Model is changed from glpane ,do nothing. Fixes bug 2545
             return

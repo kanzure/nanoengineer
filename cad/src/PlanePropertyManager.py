@@ -191,12 +191,12 @@ class PlanePropertyManager(GeometryGenerator_PM):
         self.struct.updateCosmeticProps(previewing = True)
         
                 
-    def change_plane_width(self):
+    def change_plane_width(self, newWidth):
         """
         Slot for width spinbox in the Property Manager.
         """
         if self.aspectRatioCheckBox.isChecked():
-            self.struct.width   =  self.widthDblSpinBox.value()
+            self.struct.width   =  newWidth
             self.struct.height  =  self.struct.width / \
                                      self.aspectRatioSpinBox.value() 
             self.update_spinboxes()
@@ -204,12 +204,12 @@ class PlanePropertyManager(GeometryGenerator_PM):
             self.change_plane_size()
         self._updateAspectRatio()
     
-    def change_plane_height(self):
+    def change_plane_height(self, newHeight):
         """
         Slot for height spinbox in the Property Manager.
         """
         if self.aspectRatioCheckBox.isChecked():
-            self.struct.height  =  self.heightDblSpinBox.value() 
+            self.struct.height  =  newHeight 
             self.struct.width   =  self.struct.height * \
                                      self.aspectRatioSpinBox.value()
             self.update_spinboxes()
