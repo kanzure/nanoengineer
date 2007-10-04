@@ -313,10 +313,12 @@ class NanotubeGeneratorPropertyManager(PM_Dialog):
         self.mwntCountSpinBox.setWhatsThis(
             """<b>Number of Nanotubes</b>
             <p>Specifies the number or Multi-Walled
-            Nanotubes. Multi-Walled nanotubes (MWNT) consist of many concentric tubes 
+            Nanotubes. Multi-Walled nanotubes (MWNT) consist of many concentric 
+            tubes 
             wrapped one inside another.</p>
             <p>The specified
-            chirality applies only to the innermost nanotube. The others, being larger, 
+            chirality applies only to the innermost nanotube. The others, being 
+            larger, 
             will have larger chiralities.
             </p>""")
         
@@ -325,12 +327,17 @@ class NanotubeGeneratorPropertyManager(PM_Dialog):
             <p>Specify the spacing between nanotubes in angstroms.
             </p>""")     
         
-    def chirality_fixup(self):
+    def chirality_fixup(self, spinBoxValueJunk = None):
         """
         Slot for several validators for different parameters.
-        This gets called each time a user types anything into a widget or changes a spinbox.
+        This gets called each time a user types anything into a widget or 
+        changes a spinbox.
+        @param spinBoxValueJunk: This is the Spinbox value from the valueChanged
+                                 signal. It is not used. We just want to know
+                                 that the spinbox value has changed.
+        @type  spinBoxValueJunk: double or None  
         """
-        
+                
         if not hasattr(self, 'n'):
             print_compact_traceback("Bug: no attr 'n' ") # mark 2007-05-24
             return

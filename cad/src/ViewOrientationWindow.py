@@ -139,20 +139,31 @@ class ViewOrientationWindow(QDockWidget, Ui_ViewOrientation):
             
         self.lastViewList = self.namedViewList
         
-    def changeViewOrientation(self): #Ninad 061115
-        "Change the view when the item in the Orientation view window is double clicked" 
+    def changeViewOrientation(self, widgetItemJunk = None): #Ninad 061115
+        """
+        Change the view when the item in the Orientation view window 
+        is double clicked
+        @param widgetItemJunk: This is the widget item from the 
+                             itemDoubleClicked signal. It is not used. 
+                             We just want to know that this event occured
+        @type  widgetItemJunk: QWidgetItem or None  
+        """
         
         win = self.win
         
-        if win.standardViewMethodDict.has_key(self.orientationViewList.currentItem()):
+        if win.standardViewMethodDict.has_key(
+            self.orientationViewList.currentItem()):
             viewMethod = win.standardViewMethodDict[self.orientationViewList.currentItem()]
             viewMethod()
         elif win.namedViewMethodDict.has_key(self.orientationViewList.currentItem()):
             viewMethod = win.namedViewMethodDict[self.orientationViewList.currentItem()]
             viewMethod()
         else:
-            print "bug while changing the view from Orientation Window. Ignoring change view command"
-            return #@@ ninad 061201 Not sure if it would ever be called. Adding just to be safe.
+            print "bug while changing the view from Orientation Window."\
+                  "Ignoring change view command"
+            #@@ ninad 061201 Not sure if it would ever be called. 
+            #Adding just to be safe.
+            return 
         
         #Hide orientation window after changing the view if it is 'unpinned'
         if not self.pinOrientationWindowToolButton.isChecked():
