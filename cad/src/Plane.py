@@ -598,7 +598,7 @@ class Plane(ReferenceGeometry):
             self.center = add.reduce(self.atomPos) / len(self.atomPos)
             self.quat   = Q(V(0.0, 0.0, 1.0), planeNorm) 
         else:       
-            self.center = [0.0, 0.0, 0.0] 
+            self.center = V(0.0, 0.0, 0.0)
             # Following makes sure that Plane edges are parallel to
             # the 3D workspace borders. Fixes bug 2448
             x, y ,z = self.glpane.right, self.glpane.up, self.glpane.out

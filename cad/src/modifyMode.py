@@ -922,6 +922,7 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
 
     def rotateThetaPlus(self):
         "Rotate the selected chunk(s) by theta (plus)"
+	
         button = self.propMgr.rotateAroundAxisButtonRow.checkedButton()
         if button:
             rotype = str(button.text())
@@ -946,7 +947,9 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         
     def rotateTheta(self, rotype, theta):
         "Rotate the selected chunk(s) /jig(s) around the specified axis by theta (degrees)"
-        if not self.o.assy.getSelectedMovables(): 
+	
+	selectedMovables = self.o.assy.getSelectedMovables()
+        if not selectedMovables: 
             env.history.message(redmsg("No chunks or movable jigs selected."))
             return
         
@@ -973,9 +976,13 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         if self.propMgr.rotateAsUnitCB.isChecked():
             self.o.assy.rotsel(qrot) # Rotate the selection as a unit.
         else:
-            for mol in self.o.assy.selmols: # Rotate each chunk individually.
-                mol.rot(qrot)
-    
+	    for item in selectedMovables:
+		try:
+		    item.rot(qrot)
+		except AssertionError:
+		    print_compact_traceback("Selected movable doesn't have"\
+					    "rot method?")
+                
         self.o.gl_update()
         
     def transDeltaPlus(self):
