@@ -185,12 +185,32 @@ class movieMode(basicMode):
         undo_manager.disable_undo_checkpoints('Movie Player')
         undo_manager.disable_UndoRedo('Movie Player', "in Movie Player") # optimizing this for shortness in menu text
             # this makes Undo menu commands and tooltips look like "Undo (not permitted in Movie Player)" (and similarly for Redo)
+        self.connect_or_disconnect_signals(True)
         
-        self.w.connect(self.w.frameNumberSL,SIGNAL("valueChanged(int)"),self.w.movieSlider)
-        self.w.connect(self.w.frameNumberSB,SIGNAL("valueChanged(int)"),self.w.moviePlayFrame)
+    
+    def connect_or_disconnect_signals(self, connect): 
+        """
+        Connect or disconnect widget signals sent to their slot methods.
+        @param isConnect: If True the widget will send the signals to the slot 
+                          method. 
+        @type  isConnect: boolean
+        """
+        if connect:
+            change_connect = self.w.connect
+        else:
+            change_connect = self.w.disconnect
 	
-	self.w.connect(self.exitMovieAction, SIGNAL("triggered()"), 
+	change_connect(self.w.frameNumberSL,
+		       SIGNAL("valueChanged(int)"),
+		       self.w.movieSlider)
+	
+        change_connect(self.w.frameNumberSB,
+		       SIGNAL("valueChanged(int)"),
+		       self.w.moviePlayFrame)
+	
+	change_connect(self.exitMovieAction, SIGNAL("triggered()"), 
 		       self.w.toolsDone)
+	    
     
     def getFlyoutActionList(self): #Ninad 20070618
 	""" returns custom actionlist that will be used in a specific mode 
@@ -312,6 +332,9 @@ class movieMode(basicMode):
         self.w.moviePlayerDashboard.hide()
 	self.updateCommandManager(bool_entering = False)
         self.w.disable_QActions_for_movieMode(False)
+	
+	self.connect_or_disconnect_signals(False)
+	
         return
 
     def makeMenus(self):
