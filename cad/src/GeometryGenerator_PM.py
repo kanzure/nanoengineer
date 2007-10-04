@@ -46,7 +46,7 @@ class GeometryGenerator_PM(PM_Dialog):
         # might be one of them .--- ninad 20070613
         
         self.generator = generator
-        self.geometry = self.generator.geometry
+        self.struct = self.generator.struct
         self.win      =  win
         self.pw       =  None     
         self.modePropertyManager = None
@@ -82,7 +82,6 @@ class GeometryGenerator_PM(PM_Dialog):
         self.accept() 
         
         env.history.message(self.generator.logMessage)
-        self.struct = None
         
         self.close() # Close the property manager.
         
