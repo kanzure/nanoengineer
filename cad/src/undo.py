@@ -29,6 +29,14 @@ This needs to be cleaned up, but it's probably not urgent.
 
 __author__ = 'bruce'
 
+# TODO: import this module from a better place than we do now! [is this an obs comment?]
+
+import env
+from debug import register_debug_menu_command
+from PyQt4.Qt import QObject ## , QWidget, SIGNAL
+import platform # for atom_debug
+import EndUser
+
 # debug print options
 
 DEBUG_PRINT_UNDO = False # DO NOT COMMIT with True -- causes lots of debug prints regardless of atom_debug
@@ -42,28 +50,38 @@ DEBUG_GETARGSPEC = False # DO NOT COMMIT with True -- causes a test of inspect.g
 _use_hcmi_hack = True # enable signal->slot call intercepting code, to check for bugs that mess up other things [bruce 050922]
     # i suspect this now has to be true (undo won't work without it) -- if true, remove this [bruce 071003 comment] 
 
-DISABLE_SLOT_ARGCOUNT_RETRY = True # bruce 071004 -- WHEN True, THIS WILL EXPOSE SOME BUGS as new TypeError exceptions.
-    # To fix them, add the proper argument declarations to slot methods which are raising TypeError
-    # due to being passed too many args by a signal connection inside fbmethod_0args.
-    # Or to temporarily work around them, set this flag to False in your local sources.
+if not EndUser.enableDeveloperFeatures():
+    DISABLE_SLOT_ARGCOUNT_RETRY = False
+        # be looser for end-users until we're sure we fixed all the bugs
+        # this would expose and turn into exceptions, as explained in the
+        # long comment in the other case.
+        # [bruce 071004, per team call]
+else:
+    DISABLE_SLOT_ARGCOUNT_RETRY = True # bruce 071004 -- WHEN True, THIS WILL EXPOSE SOME BUGS as new TypeError exceptions.
+    #
+    # (see also a change to this for endusers, below.)
+    #
+    # To fix the bugs this exposes, add the proper argument declarations to slot
+    # methods which are raising TypeError due to being passed too many args by a
+    # signal connection inside fbmethod_0args.
+    # 
+    # Or to temporarily work around them, set this flag to False in your local
+    # sources, in this case or below it (but be sure not to commit that change).
     #
     # Details:
+    # 
     #  When True, this simulates a proposed simplification
     # in which we only try calling slot methods with all the available args
     # passed to them by PyQt.
-    #  When False, as has always been effectively the case as of 071004,
-    # we retry them with fewer arguments if they raise TypeError to complain
-    # about too many (or, unfortunately, if they raise it for some other reason),
-    # in order to imitate a similar (but probably safer) behavior documented by PyQt3.
+    #
+    #  When False, as has always been effectively the case as of 071004, we
+    # retry them with fewer arguments if they raise TypeError to complain about
+    # too many (or, unfortunately, if they raise it for some other reason), in
+    # order to imitate a similar (but probably safer) behavior documented by
+    # PyQt3.
 
-# ==
-
-# TODO: import this module from a better place than we do now! [is this an obs comment?]
-
-import env
-from debug import register_debug_menu_command
-from PyQt4.Qt import QObject ## , QWidget, SIGNAL
-import platform # for atom_debug
+if EndUser.enableDeveloperFeatures():
+    print "DISABLE_SLOT_ARGCOUNT_RETRY =", DISABLE_SLOT_ARGCOUNT_RETRY
 
 # ==
 
