@@ -29,15 +29,31 @@ This needs to be cleaned up, but it's probably not urgent.
 
 __author__ = 'bruce'
 
-debug_print_undo = False # DO NOT COMMIT with True -- causes lots of debug prints regardless of atom_debug
+# debug print options
+
+DEBUG_PRINT_UNDO = False # DO NOT COMMIT with True -- causes lots of debug prints regardless of atom_debug
+
+DEBUG_FEWER_ARGS_RETRY = True # debug prints for fewer-args retries; now True since these are deprecated [bruce 071004]
+
+DEBUG_GETARGSPEC = False # DO NOT COMMIT with True -- causes a test of inspect.getargspec to be printed for every slot connection
+
+# options that change behavior
 
 _use_hcmi_hack = True # enable signal->slot call intercepting code, to check for bugs that mess up other things [bruce 050922]
     # i suspect this now has to be true (undo won't work without it) -- if true, remove this [bruce 071003 comment] 
 
-debug_print_fewer_args_retries = False # debug prints for fewer-args retries; DO NOT COMMIT with True
+DISABLE_SLOT_ARGCOUNT_RETRY = False # bruce 071004
+    #  When True, this simulates a proposed simplification
+    # in which we only try calling slot methods with all the available args
+    # passed to them by PyQt.
+    #  When False, as has always been effectively the case as of 071004,
+    # we retry them with fewer arguments if they raise TypeError to complain
+    # about too many (or, unfortunately, if they raise it for some other reason),
+    # in order to imitate a similar (but probably safer) behavior documented by PyQt3.
 
+# ==
 
-###@@@ import this module from a better place than we do now!
+# TODO: import this module from a better place than we do now! [is this an obs comment?]
 
 import env
 from debug import register_debug_menu_command
@@ -61,7 +77,7 @@ register_debug_menu_command("reload undo.py", reload_undo)
 
 def keep_under_key(thing, key, obj, attr):
     "obj.attr[key] = thing, creating obj.attr dict if necessary"
-    if debug_print_undo and 0:
+    if DEBUG_PRINT_UNDO and 0:
         print "keepkey:",key,"keepon_obj:",obj # also print attr to be complete
             # This shows unique keys, but just barely (name is deleg for lots of QActions)
             # so we'll have to worry about it, and maybe force all keys unique during init.
@@ -88,6 +104,13 @@ class wrappedslot:
     """
     def __init__(self, slotboundmethod, sender = None, signal = ""):
         self.slotboundmethod = slotboundmethod
+        if DEBUG_GETARGSPEC:
+            from debug import print_compact_traceback
+            import inspect
+            try:
+                print "inspect.getargspec(%r) = %r" % (slotboundmethod, inspect.getargspec(slotboundmethod))
+            except:
+                print_compact_traceback("failed for %r: " % slotboundmethod)
         self.__sender = sender #060121
         self.__signal = signal #060320 for debugging
     def fbmethod_0args(self, *args, **kws):
@@ -98,63 +121,74 @@ class wrappedslot:
         # or we might call a func passed to us, passing it a callback to us which does the slot call.
         if kws:
             print "unexpected but maybe ok: some keywords were passed to a slot method:",slotboundmethod,kws ###@@@
-        if debug_print_undo:
+        if DEBUG_PRINT_UNDO:
             print "(#e begin) calling wrapped version (with %d args) of" % len(args), slotboundmethod
         mc = self.begin()
         try:
-            # do our best to call this slotmethod, with given args, or if that fails, with reduced args.
-            try:
+            if DISABLE_SLOT_ARGCOUNT_RETRY:
+                # do our best to call this slotmethod, with given args only
                 res = slotboundmethod(*args, **kws)
-            except TypeError: ####@@@@
-                # it might be that we're passing too many args. Try to find out and fix. First, for debugging, print more info.
-                if debug_print_fewer_args_retries:
-                    print "args for %r from typeerror: args %r, kws %r" % (slotboundmethod, args, kws)
-                success, maxargs, kws_ok = args_info(slotboundmethod)
-                if not success:
-                    # We have no official info about required args -- just see if it helps to reduce the ones we tried.
-                    # Note that there is no guarantee that the original TypeError was caused by an excessive arglist;
-                    # if it was caused by some other bug, these repeated calls could worsen that bug.
-                    # (So taking advantage of an args_info success return is preferred, once that's implemented.)
-                    arglists_to_try = [] # will hold pairs of (args, kws) to try calling it with.
-                    if kws:
-                        # first zap all the keywords (note: as far as I know, none are ever passed in the first place)
-                        kws = {}
-                        arglists_to_try.append(( args, kws ))
-                    while args:
-                        # then zap the args, one at a time, from the end
-                        args = args[:-1]
-                        arglists_to_try.append(( args, kws ))
-                else:
-                    assert 0, "nim - use maxargs, kws_ok to figure out arglists_to_try"
-                worked = False
-                for args, kws in arglists_to_try:
-                    try:
-                        res = slotboundmethod(*args, **kws)
-                        worked = True
-                        if debug_print_fewer_args_retries:
-                            print " retry with fewer args (%d) worked" % len(args)
-                        break # if no exceptions
-                    except TypeError:
-                        # guessing it's still an arg problem
-                        if debug_print_fewer_args_retries:
-                            print "args for %r from typeerror, RETRY: args %r, kws %r" % (slotboundmethod, args, kws)
-                        continue
-                    # other exceptions are treated as errors, below
-                if not worked:
-                    print "will try to reraise the last TypeError" # always print this, since we're about to print a traceback
-                    raise
-                    assert 0, "tried to reraise the last TypeError"
+            else:
+                # do our best to call this slotmethod, with given args,
+                # or if that fails, with reduced args.
+                # THIS CASE WILL BE REMOVED SOON [bruce 071004]
+                try:
+                    res = slotboundmethod(*args, **kws)
+                except TypeError:
+                    # it might be that we're passing too many args. Try to find out and fix. First, for debugging, print more info.
+                    if DEBUG_FEWER_ARGS_RETRY:
+                        print "args for %r from typeerror: args %r, kws %r" % (slotboundmethod, args, kws)
+                    success, maxargs, kws_ok = args_info(slotboundmethod)
+                    if not success:
+                        # We have no official info about required args -- just see if it helps to reduce the ones we tried.
+                        # Note that there is no guarantee that the original TypeError was caused by an excessive arglist;
+                        # if it was caused by some other bug, these repeated calls could worsen that bug.
+                        # (So taking advantage of an args_info success return is preferred, once that's implemented.)
+                        arglists_to_try = [] # will hold pairs of (args, kws) to try calling it with.
+                        if kws:
+                            # first zap all the keywords (note: as far as I know, none are ever passed in the first place)
+                            kws = {}
+                            arglists_to_try.append(( args, kws ))
+                        while args:
+                            # then zap the args, one at a time, from the end
+                            args = args[:-1]
+                            arglists_to_try.append(( args, kws ))
+                    else:
+                        assert 0, "nim - use maxargs, kws_ok to figure out arglists_to_try"
+                    worked = False
+                    from debug import print_compact_traceback
+                    for args, kws in arglists_to_try:
+                        try:
+                            res = slotboundmethod(*args, **kws)
+                            worked = True
+                            if DEBUG_FEWER_ARGS_RETRY:
+                                print " retry with fewer args (%d) worked" % len(args)
+                            break # if no exceptions
+                        except TypeError:
+                            # guessing it's still an arg problem
+                            if DEBUG_FEWER_ARGS_RETRY:
+                                print_compact_traceback("assuming this is a slot argcount problem: ")
+                                print "args for %r from typeerror, RETRY: args %r, kws %r" % (slotboundmethod, args, kws)
+                            continue
+                        # other exceptions are treated as errors, below
+                    if not worked:
+                        # TODO (maybe): retry with first arglist? more likely to be the real error...
+                        print "will try to reraise the last TypeError" # always print this, since we're about to print a traceback
+                        raise
+                        assert 0, "tried to reraise the last TypeError"
+                    pass
                 pass
             pass
         except:
             self.error()
             self.end(mc)
-            if debug_print_undo:
+            if DEBUG_PRINT_UNDO:
                 print "(#e end) it had an exception"
+            print "bug: exception in %r%r (noticed in its undo wrapper); reraising it:" % (slotboundmethod, args)
             raise   #k ok? optimal??
         else:
             self.end(mc)
-            if debug_print_undo:
+            if DEBUG_PRINT_UNDO:
                 print "(#e end) it worked" ##  it returned", res
                     # Note that slot retvals are probably ignored, except when they're called directly
                     # (not via connections), but we don't intercept direct calls anyway.
@@ -279,7 +313,7 @@ class hacked_connect_method_installer: #e could be refactored into hacked-method
             # but we can't, unless we figure out how to turn the object and slotname into an equivalent bound method
             # which we could use instead of those last two args.
             # So for now, let's just print the args and hope we didn't need to wrap them.
-            if debug_print_undo:
+            if DEBUG_PRINT_UNDO:
                 print "not wrapping connect-slot since args not len 3:",args###@@@
             newargs = args
         else:
@@ -305,7 +339,7 @@ class hacked_connect_method_installer: #e could be refactored into hacked-method
         return res
     def fake_disconnect_method(self, origmethod, *args):
         if len(args) != 3:
-            if debug_print_undo:
+            if DEBUG_PRINT_UNDO:
                 print "not wrapping DISconnect-slot since args not len 3:",args###@@@ let's hope this happens only when it did for connect
             newargs = args
         else:
@@ -335,7 +369,7 @@ class hacked_connect_method_installer: #e could be refactored into hacked-method
         return res
     def debug_print_stats(self, msg = '?'):
         self.stage = msg
-        if debug_print_undo:
+        if DEBUG_PRINT_UNDO:
             print "hcmi %r: %r" % (self.stage, self.conns)
     def maybe_wrapslot(self, sender, signal, slotboundmethod, keepcache_object = None):
         """Caller is about to make a connection from sender's signal to slotboundmethod.
@@ -350,7 +384,7 @@ class hacked_connect_method_installer: #e could be refactored into hacked-method
         # want to wrap it?
         shouldwrap = self.decide(sender, signal) # always True, for now [clean up this code ###@@@]
         if not shouldwrap:
-            if debug_print_undo:
+            if DEBUG_PRINT_UNDO:
                 print "not wrapping %s from %s to %s" % (signal,sender,slotboundmethod) ###@@@
             return slotboundmethod
         # make object which can wrap it
@@ -503,7 +537,7 @@ def normalize_signal(signal):
             if need_space_between(w1, w2):
                 res += ' '
             res += w2
-##        if signal != res and debug_print_undo and 0:
+##        if signal != res and DEBUG_PRINT_UNDO and 0:
 ##            print "hack converted %r to %r" % (signal, res) # they all look ok
         return res
     pass
