@@ -2,6 +2,10 @@
 """
 extensions.py
 
+Note: for now, this is intentionally not imported (even indirectly or
+conditionally) by main.py; see comment below for why. But it should
+remain in this directory. [bruce 071005].
+
 Someday: handle all our custom extension modules.
 
 For now:
@@ -33,18 +37,19 @@ How to build:
 
 How to test:
 
-[updated, bruce 070904; tested now and works on my Mac]
+[updated, bruce 071005, and retested on my Mac]
 
 optional: in this source file, change debug_pyrex_test to True below.
 But don't commit that change.
 
 In NE1's run py code debug menu item, type "import extensions";
 review the console prints for whether this succeeded;
+then type "extensions.initialize()" and again review the console prints;
 then use debug menu -> other -> count bonds.
 If it failed, follow build instructions in README-Pyrex and/or pyrex_text.pyx.
 (I don't know how similar your python environment needs to be to NE1's for that to work.)
 
-Possible errors when you run "import extensions":
+Possible errors when you run "import extensions" or "extensions.initialize()":
 
 ImportError: No module named pyrex_test -- you need to build it, e.g. "make pyx" in cad/src.
 
@@ -71,6 +76,23 @@ debug_pyrex_test = False ## was platform.atom_debug, changed to 0 for A7 release
 
 import env
 from debug import register_debug_menu_command, call_func_with_timing_histmsg, print_compact_traceback
+
+# I think it's safe for the following pyrex_test import to be attempted even by
+# source analysis tools which import single files. Either they'll have
+# pyrex_test.so (or the Windows equivalent) and succeed, or not have it and fail,
+# but that failure won't print anything if the debug flags above have not been
+# modified, or cause other harm. So I'm leaving this attemped import at toplevel.
+#
+# If this causes trouble, this import can be moved inside initialize()
+# if nbonds and have_pyrex_test are declared as module globals.
+# 
+# Note that it's NOT safe to add "import extensions" to main.py, even inside
+# a conditional and/or to be run only on user request, until the build
+# process compiles and includes pyrex_test.so (or the Windows equivalent);
+# otherwise py2app or py2exe might get confused about that dynamic library
+# being required but not present.
+#
+# [bruce 071005]
 
 try:
     from pyrex_test import nbonds
@@ -103,9 +125,11 @@ def count_bonds_cmd( target):
     env.history.message("count was %d, half that is %d" % (nb, nb/2) )
     return
 
-if have_pyrex_test:
-    register_debug_menu_command("count bonds (pyrex_test)", count_bonds_cmd)
-else:
-    register_debug_menu_command("count bonds (stub)", count_bonds_cmd)
+def initialize(): #bruce 071005 added this wrapping function
+    if have_pyrex_test:
+        register_debug_menu_command("count bonds (pyrex_test)", count_bonds_cmd)
+    else:
+        register_debug_menu_command("count bonds (stub)", count_bonds_cmd)
+    return
 
 # end
