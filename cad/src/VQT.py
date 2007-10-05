@@ -18,7 +18,6 @@ __author__ = "Josh"
 
 import math
 import platform
-from debug import print_compact_traceback #bruce 060228
 import env #ninad 060906
 
 import Numeric

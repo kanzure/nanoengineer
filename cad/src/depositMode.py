@@ -65,6 +65,8 @@ from ops_copy        import copied_nodes_for_DND
 from selectMode      import DRAG_STICKINESS_LIMIT
 from selectAtomsMode import selectAtomsMode
 
+from shape import get_selCurve_color
+
 from bonds           import bond_atoms, bond_at_singlets
 from bond_constants  import V_SINGLE
 
@@ -72,7 +74,6 @@ from debug import print_compact_stack
 from debug import print_compact_traceback
 
 from constants import elemKeyTab
-from constants import get_selCurve_color
 from constants import diINVISIBLE
 from constants import diTUBES
 

@@ -24,16 +24,33 @@ from drawer import drawline
 from drawer import ColorSorter
 
 from constants import black
-from constants import get_selCurve_color
 from constants import DELETE_SELECTION
 from constants import SUBTRACT_FROM_SELECTION
 from constants import OUTSIDE_SUBTRACT_FROM_SELECTION
 from constants import ADD_TO_SELECTION
 from constants import START_NEW_SELECTION
 from constants import white
+from constants import red
 
 from debug import print_compact_traceback
 import platform 
+
+def get_selCurve_color(selSense, bgcolor=white):
+    '''Returns line color of the selection curve. 
+    Returns <black> for light colored backgrounds (and Sky Blue).
+    Returns <white> for dark colored backgrounds.
+    Returns <red> if <selSense> is DELETE_SELECTION mode.
+    '''
+    
+    if selSense == DELETE_SELECTION: 
+        return red
+    
+    color_diff = vlen(A(black)-A(bgcolor))
+    
+    if color_diff < 0.5:
+        return white
+    else:
+        return black
 
 class BBox:
     """ implement a bounding box in 3-space

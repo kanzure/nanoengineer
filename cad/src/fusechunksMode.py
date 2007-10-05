@@ -41,9 +41,9 @@ from utilities.Log import redmsg, orangemsg
 from PlatformDependent import fix_plurals
 from FusePropertyManager import FusePropertyManager
 from icon_utilities import geticon
+from shape import get_selCurve_color
 
 from constants import SUBTRACT_FROM_SELECTION
-from constants import get_selCurve_color
 from constants import green
 from constants import magenta
 from constants import blue

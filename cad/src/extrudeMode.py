@@ -66,13 +66,13 @@ from ExtrudePropertyManager import ExtrudePropertyManager
 from drawer import drawline
 from chem import singlet_atom
 from chunk import Chunk
+from shape import get_selCurve_color
 
 from handles import repunitHandleSet
 from handles import niceoffsetsHandleSet
 from handles import draggableHandle_HandleSet
 from constants import blue
 from constants import green
-from constants import get_selCurve_color
 
 MAX_NCOPIES = 360 # max number of extrude-unit copies. Should this be larger? Motivation is to avoid "hangs from slowness".
 

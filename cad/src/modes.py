@@ -102,9 +102,9 @@ from PlatformDependent import context_menu_prefix
 
 import env
 from state_utils import StateMixin
+from shape import get_selCurve_color
 
 from constants import noop
-from constants import get_selCurve_color
 from constants import SELSHAPE_RECT
 from constants import SUBTRACT_FROM_SELECTION
 from constants import ADD_TO_SELECTION

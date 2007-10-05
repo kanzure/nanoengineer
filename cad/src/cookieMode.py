@@ -40,6 +40,7 @@ from utilities.Log import orangemsg
 from utilities.Log import redmsg
 from shape import CookieShape
 from shape import Slab
+from shape import get_selCurve_color
 import drawer
 from drawer import DiGridSp
 from drawer import genDiam
@@ -54,7 +55,6 @@ from constants import white
 from constants import ADD_TO_SELECTION
 from constants import SUBTRACT_FROM_SELECTION
 from constants import SELSHAPE_RECT
-from constants import get_selCurve_color
 
 import changes
 
