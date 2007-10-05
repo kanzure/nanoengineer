@@ -1729,10 +1729,17 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
     
     ########## Slot methods for "Lighting" page widgets ################
 
-    def change_lighting(self):
-        '''Updates glpane lighting using the current lighting parameters from the
-        light checkboxes and sliders. This is also the slot for the light sliders.
-        '''
+    def change_lighting(self, specularityValueJunk = None):
+        """
+	Updates glpane lighting using the current lighting parameters from 
+	the light checkboxes and sliders. This is also the slot for the light 
+	sliders.
+	@param specularityValueJunk: This value from the slider is not used
+				     We are interested in valueChanged signal 
+				     only
+        @type specularityValueJunk = int or None
+	
+        """
         
         light_num = self.light_combobox.currentIndex()
         
@@ -1762,9 +1769,13 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         else:
             print "Unsupported light # ", light_num,". No lighting change made."
         
-    def change_active_light(self):
-        '''Slot for the Light number combobox.  This changes the current light.
-        '''
+    def change_active_light(self, currentIndexJunk = None):
+        """
+	Slot for the Light number combobox.  This changes the current light.
+	@param currentIndexJunk: This index value from the combobox is not used
+				 We are interested in 'activated' signal only
+        @type currentIndexJunk = int or None
+        """
         self._setup_lighting_page()
 
     def change_light_color(self):

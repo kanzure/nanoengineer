@@ -68,12 +68,17 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
         env.history.message(cmd + info)
         self.glpane.setViewRecenter()
         
-    def changeZoomBehavior(self):
-        '''Changes the zoom behavior based on the user preference (zoom about 
+    def changeZoomBehavior(self, booleanJunk):
+        """
+	Changes the zoom behavior based on the user preference (zoom about 
         the GLPane's center). as of 061003, this preference is implemented as
-         View > Zoom About Screen Center (and not in Edit > Preferences). '''
-        
-        self.uprefs.changeZoomBehaviorPreference()  # self.uprefs is a UserPrefs object ninad061003
+         View > Zoom About Screen Center (and not in Edit > Preferences).
+	 @param booleanJunk: Not used, we just need to know that the 
+	                    ZoomAboutScreenCenter preference is toggled.
+	 @type booleanJunk: bool
+	 """
+        # self.uprefs is a UserPrefs object ninad061003
+        self.uprefs.changeZoomBehaviorPreference()  
                 
     def zoomTool(self, val):
         """

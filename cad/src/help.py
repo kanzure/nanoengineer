@@ -83,8 +83,8 @@ class Help(QWidget, Ui_HelpDialog):
             msg =  "Help file " + htmlDoc + " not found."
             self.keyboard_shortcuts_textbrowser.setPlainText(msg)
         
-    def setup_current_page(self):
-        pagenumber = self.help_tab.currentIndex()
+    def setup_current_page(self, currentTabIndex):
+        pagenumber = currentTabIndex
         if pagenumber is 0:
             self._setup_mouse_controls_page()
         elif pagenumber is 1:
