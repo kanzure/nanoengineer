@@ -28,7 +28,7 @@ from PM.PM_RadioButtonList import PM_RadioButtonList
 
 from PM.PM_Constants     import pmRestoreDefaultsButton
 
-from GeometryGenerator_PM import GeometryGenerator_PM
+from EditController_PM import EditController_PM
 
 import env
 
@@ -41,7 +41,7 @@ PLACEMENT_OPTIONS_BUTTON_LIST = [ \
     ( 3, "Custom",                 "Custom"                 )
 ]
     
-class PlanePropertyManager(GeometryGenerator_PM):
+class PlanePropertyManager(EditController_PM):
     """
     The PlanePropertyManager class provides a Property Manager for a 
     (reference) Plane.
@@ -55,7 +55,7 @@ class PlanePropertyManager(GeometryGenerator_PM):
     # The relative path to the PNG file that appears in the header
     iconPath = "ui/actions/Insert/Reference Geometry/Plane.png"
     
-    def __init__(self, win, planeGenerator):
+    def __init__(self, win, planeEditController):
         """
         Construct the Plane Property Manager.
         
@@ -63,9 +63,9 @@ class PlanePropertyManager(GeometryGenerator_PM):
         @type  plane: L{Plane}
         """
              
-        GeometryGenerator_PM.__init__( self, 
+        EditController_PM.__init__( self, 
                                        win,
-                                       planeGenerator) 
+                                       planeEditController) 
                 
      
         
@@ -183,9 +183,9 @@ class PlanePropertyManager(GeometryGenerator_PM):
         Show the Plane Property Manager.
         """
         self.update_spinboxes() 
-        GeometryGenerator_PM.show(self)
+        EditController_PM.show(self)
         #It turns out that if updateCosmeticProps is called before 
-        #GeometryGenerator_PM.show, the 'preview' properties are not updated 
+        #EditController_PM.show, the 'preview' properties are not updated 
         #when you are editing an existing plane. Don't know the cause at this
         #time, issue is trivial. So calling it in the end -- Ninad 2007-10-03
         self.struct.updateCosmeticProps(previewing = True)
@@ -245,25 +245,25 @@ class PlanePropertyManager(GeometryGenerator_PM):
             center of the plane is always (0,0,0). This value is set during \
             plane creation or when the <b>Preview</b> button is clicked."
             self.updateMessage(msg)
-            self.generator.placePlaneParallelToScreen()            
+            self.editController.placePlaneParallelToScreen()            
         elif buttonId == 1:
             msg = "Create a Plane with center coinciding with the common center\
             of <b> 3 or more selected atoms </b>. If exactly 3 atoms are \
             selected, the Plane will pass through those atoms. Select atoms \
             and hit <b>Preview</b> to see the new Plane placement"        
             self.updateMessage(msg)            
-            self.generator.placePlaneThroughAtoms()
-            if self.generator.logMessage:
-                env.history.message(self.generator.logMessage)
+            self.editController.placePlaneThroughAtoms()
+            if self.editController.logMessage:
+                env.history.message(self.editController.logMessage)
         elif buttonId == 2:
             msg = "Create a Plane,at an <b> offset</b> to the selected plane,\
             in the direction indicated by the direction arrow. \
             Select an existing plane and hit <b>Preview</b>.\
             You can click on the direction arrow to reverse its direction."
             self.updateMessage(msg)            
-            self.generator.placePlaneOffsetToAnother()
-            if self.generator.logMessage:
-                env.history.message(self.generator.logMessage)
+            self.editController.placePlaneOffsetToAnother()
+            if self.editController.logMessage:
+                env.history.message(self.editController.logMessage)
         elif buttonId == 3:
             #'Custom' plane placement. Do nothing (only update message box)
             # Fixes bug 2439

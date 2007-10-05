@@ -75,7 +75,7 @@ class Plane(ReferenceGeometry):
         
     def __init__(self, 
                  win, 
-                 generator = None, 
+                 editController = None, 
                  atomList = None, 
                  READ_FROM_MMP = False):
         """
@@ -84,13 +84,14 @@ class Plane(ReferenceGeometry):
         @param win: The NE1 main window.
         @type  win: L{MainWindow}
         
-        @param generator: The Plane Generator object. 
+        @param editController: The Plane Edit Controller object. 
                           If this is None, it means the Plane is created by 
                           reading the data from the MMP file and it doesn't 
-                          have  a generator assigned. The generator may be
-                          created at a later stage in this case. 
+                          have  an EditController assigned. 
+                          The EditController may be created at a later stage 
+                          in this case. 
                           See L{self.edit} for an example. 
-        @type  generator: B{PlaneGenerator} or None                          
+        @type  editController: B{PlaneEditController} or None                          
         
         @param atomList: List of atoms.
         @type  atomList: list
@@ -113,7 +114,7 @@ class Plane(ReferenceGeometry):
         # copied from jig_planes.ESPImage 
         self.pickCheckOnly  = False 
         
-        self.generator      =  generator
+        self.editController      =  editController
                 
         if not READ_FROM_MMP:
             self.width      =  20.0
@@ -566,7 +567,7 @@ class Plane(ReferenceGeometry):
             
         self.recomputeCenter(totalOffset)
         #update the width,height spinboxes(may be more in future)--Ninad20070601
-        self.generator.propMgr.update_spinboxes()
+        self.editController.propMgr.update_spinboxes()
      
         
     def edit(self):
@@ -574,12 +575,12 @@ class Plane(ReferenceGeometry):
         Overrides node.edit and shows the property manager.
         """
         #If the Plane is created simply by reading in the mmp file, then 
-        #it won't have a 'generator' . So create one here.
+        #it won't have a 'editController' . So create one here.
         # Fixes bug 2554
-        if not self.generator:
-            self.generator = self.assy.part.createPlaneGenerator(self)
+        if not self.editController:
+            self.editController = self.assy.part.createPlaneEditController(self)
             
-        self.generator.editStructure()
+        self.editController.editStructure()
   
     def setup_quat_center(self, atomList = None):
         """
@@ -640,7 +641,7 @@ class Plane(ReferenceGeometry):
         offset.
         """
         
-        cmd = self.generator.cmd 
+        cmd = self.editController.cmd 
                 
         jigList = self.win.assy.getSelectedJigs()
         if jigList:

@@ -6,7 +6,7 @@
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 
 This is a superclass for the property managers of various objects that use 
-GeometryGenerator for generating the object. e.g. PlanePropertyManager inherits 
+EditController for generating the object. e.g. PlanePropertyManager inherits 
 from this class to use common methods such as ok_btn_cliked. 
 
 """
@@ -17,11 +17,11 @@ from PM.PM_Dialog import PM_Dialog
 
 from GeneratorBaseClass import AbstractMethod
 
-class GeometryGenerator_PM(PM_Dialog):
+class EditController_PM(PM_Dialog):
     """
     
     This is a superclass for the property managers of various objects that use 
-    GeometryGenerator for generating the object. e.g. PlanePropertyManager 
+    EditController for generating the object. e.g. PlanePropertyManager 
     inherits from this class to use common methods 
     """
     # The title that appears in the Property Manager header.
@@ -32,9 +32,9 @@ class GeometryGenerator_PM(PM_Dialog):
     # The relative path to the PNG file that appears in the header
     iconPath = ""
     
-    def __init__(self, win, generator):
+    def __init__(self, win, editController):
         """
-        Constructor for the GeometryGenerator_PM
+        Constructor for the EditController_PM
         """
         # pw = part window. 
         # Its subclasses will create their partwindow objects 
@@ -45,8 +45,8 @@ class GeometryGenerator_PM(PM_Dialog):
         # When we begin supporting that, lots of things will change and this 
         # might be one of them .--- ninad 20070613
         
-        self.generator = generator
-        self.struct = self.generator.struct
+        self.editController = editController
+        self.struct = self.editController.struct
         self.win      =  win
         self.pw       =  None     
         self.modePropertyManager = None
@@ -78,10 +78,10 @@ class GeometryGenerator_PM(PM_Dialog):
         """
         Slot for the OK button
         """       
-        self.generator.preview_or_finalize_structure(previewing = False)
+        self.editController.preview_or_finalize_structure(previewing = False)
         self.accept() 
         
-        env.history.message(self.generator.logMessage)
+        env.history.message(self.editController.logMessage)
         
         self.close() # Close the property manager.
         
@@ -101,12 +101,12 @@ class GeometryGenerator_PM(PM_Dialog):
         """
         Slot for the Cancel button.
         """
-        self.generator.cancelStructure()
+        self.editController.cancelStructure()
         self.reject() 
         self.close() 
         
         # The following reopens the property manager of the command after
-        # the PM of the reference geometry generator (i.e. Plane) is closed.
+        # the PM of the reference geometry editController (i.e. Plane) is closed.
         # Note: the value of self.modePropertyManager can be None.
         # See anyMode.propMgr
         self.modePropertyManager = self.win.assy.o.mode.propMgr
@@ -121,8 +121,8 @@ class GeometryGenerator_PM(PM_Dialog):
         """
         Slot for the Preview button.
         """
-        self.generator.preview_or_finalize_structure(previewing = True)
-        env.history.message(self.generator.logMessage)
+        self.editController.preview_or_finalize_structure(previewing = True)
+        env.history.message(self.editController.logMessage)
             
     def abort_btn_clicked(self):
         """

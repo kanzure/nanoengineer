@@ -12,26 +12,28 @@ ninad 2007-09-11: Created this file. (split this class out of
                  ReferenceGeometry.py
 ninad 2007-09-17: Code cleanup to split ui part out of this class. 
 
-TODO: This class (GGBC) and its surrounding code has been heavily 
-      modified/refactored. Need to apply changes made to this class to 
-      the GeneratorBaseClass and its surrounding code  -- Ninad 2007-10-05 
+ninad 2007-10-05: Major changes. Refactored GeometryGeneratorBaseClass 
+                  and surrounding code. Also renamed GeometryGeneratorBaseClass 
+                  to EditController, similar changes in surrounding code
 """
 
 import platform
-from utilities.Log import greenmsg
+from utilities.Log        import greenmsg
 from utilities.Comparison import same_vals
 
-from GeneratorBaseClass import AbstractMethod
-from constants import permit_gensym_to_reuse_name
+from constants            import permit_gensym_to_reuse_name
+from GeneratorBaseClass   import AbstractMethod
 
 
-class GeometryGeneratorBaseClass:
+
+class EditController:
     """
     Geometry Generator base class . This is a temporary class for Alpha9. 
     It should be modified   or deleted during post A9 development 
     (when we revise GeneratorBaseClass)  This is very much like 
     GeneratorBaseClass but has a few modifications
-    for use in PlaneGenerator.  At present, PlaneGenerator inherits this.
+    for use in PlaneEditController.  
+    At present, PlaneEditController inherits this.
     """
     # see definition details in GeneratorBaseClass
     cmd      =  "" 
@@ -40,7 +42,7 @@ class GeometryGeneratorBaseClass:
 
     def __init__(self, win):
         """
-        Constructor for the class GeometryGeneratorBaseClass.        
+        Constructor for the class EditController.        
         """
         self.win = win
         self.previousParams       =  None
@@ -77,26 +79,26 @@ class GeometryGeneratorBaseClass:
         """
         Default implementation of createStructure method. 
         Might be overridden in  subclasses. Creates an instance (object)
-        of the structure this generator wants to generate. This implements a 
-        topLevel command that the client can execute to create an object it 
+        of the structure this editController wants to generate. This implements
+        a topLevel command that the client can execute to create an object it 
         wants.
         
-        Example: If its a plane generator, this method will create an object of 
-                class Plane. 
+        Example: If its a plane editController, this method will create an 
+                object of class Plane. 
         
         This method also creates a propMgr objects if it doesn't
         exist , shows the property manager and sets the model (the plane) 
         in preview state.
         
-        @see: L{self.editStructure} (another top level command that facilitates 
+        @see: L{self.editStructure} (another top level command that facilitates
               editing an existing object (existing structure). 
-        @see: L{part.createPlaneGenerator} for an example use.
+        @see: L{part.createPlaneEditController} for an example use.
         """
         
         assert not self.struct
         
-        self.struct = self._createStructure()
-            
+        self._createStructure()
+                    
         if not self.propMgr:
             self._createPropMgrObject()
             
@@ -111,16 +113,16 @@ class GeometryGeneratorBaseClass:
         (existing structure). This implements a topLevel command that the client
         can execute to edit an existing object(i.e. self.struct) that it wants.
         
-        Example: If its a plane generator, this method will be used to edit an 
-        object of class Plane. 
+        Example: If its a plane edit controller, this method will be used to 
+                edit an object of class Plane. 
         
-        This method also creates a propMgr objects if it doesn't
-        exist and shows this property manager 
+        This method also creates a propMgr objects if it doesn't exist and 
+        shows this property manager 
         
         @see: L{self.createStructure} (another top level command that 
-              facilitates creation of a model object created by this generator 
-              (editController)
-        @see: L{Plane.edit} and L{PlaneGenerator._createPropMgrObject} 
+              facilitates creation of a model object created by this 
+              editController
+        @see: L{Plane.edit} and L{PlaneEditController._createPropMgrObject} 
         """
         
         assert self.struct
@@ -134,26 +136,27 @@ class GeometryGeneratorBaseClass:
             
     def _createStructure(self, params):
         """
-        Build a struct using the parameters in the Property Manager.
+        Create the model object which this edit controller  creates) 
         Abstract method.         
+        @see: L{PlaneEditController._createStructure}
         """
         raise AbstractMethod()
     
     def _createPropMgrObject(self):
         """
         Abstract method (overridden in subclasses). Creates a property manager 
-        object (that defines UI things) for this generator. 
+        object (that defines UI things) for this editController. 
         """
         raise AbstractMethod()
     
     def _modifyStructure(self, params):
         """
         Abstract method that modifies the structure (i.e. the object created 
-        by this generator)
+        by this editController) using the parameters provided.
         @param params: The parameters used as an input to modify the structure
                        (object created using this editcontroller) 
         @type  params: tuple
-        @see: L{PlaneGenerator._modifyStructure}
+        @see: L{PlaneEditController._modifyStructure}
         """
         raise AbstractMethod()
 

@@ -1,5 +1,6 @@
 # Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 """
+PlaneEditcontroller.py
 
 @author: Ninad,
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
@@ -7,31 +8,25 @@
 
 History:
 ninad 20070606: Created.
+ninad 2007-10-05: Refactored, Also renamed PlaneGenerator to PlaneEditController
+                  while refactoring the old GeometryGeneratorBaseClass
 
 """
-#@@TODO: This class inherits GeometryGeneratorBaseClass
-#and not 'GeneratoeBaseClass. 
-#GeometryGeneratorBaseClass is a temporary implementation (just for A9) see 
-#more notes in ReferenceGeometry.py GeometryGeneratorBaseClass - Ninad 20070606 
 
 from utilities.Log import greenmsg
-
-from GeometryGeneratorBaseClass import GeometryGeneratorBaseClass
+from EditController import EditController
 from PlanePropertyManager import PlanePropertyManager
 from Plane import  Plane
 
 
-class PlaneGenerator(GeometryGeneratorBaseClass):
+class PlaneEditController(EditController):
     """
-    The PlaneGenerator class  Edit Controller) provides a generator Object. 
-    The generator, depending on what client code needs it to do, may create a 
-    new plane or it may be used for an existing plane. 
+    The PlaneEditController class  provides an editController Object.
+    The editController, depending on what client code needs it to do, may create 
+    a new plane or it may be used for an existing plane. 
     """
-    
-    #@ NOTE: Reference Plane defines PlaneGenerator object as 'self.propMgr'. 
-    # need to be renamed??
-    #@ NOTE: self.struct is the Plane object (defined in PlanePropertyManager)
-    # comment ninad 20070606
+        
+    #@NOTE: self.struct is the Plane object
     
     cmd = greenmsg("Plane: ")
     #
@@ -46,26 +41,28 @@ class PlaneGenerator(GeometryGeneratorBaseClass):
     
     def __init__(self, win, struct = None):
         """
-        Constructs a Generator (Edit Controller) Object. The generator, 
+        Constructs an Edit Controller Object. The editController, 
         depending on what client code needs it to do, may create a new plane 
         or it may be used for an existing plane. 
         
         @param win: The NE1 main window.
         @type  win: QMainWindow
         
-        @param struct: The struct object (in this case plane)
-                         If struct object is specified, it means 
-                         that this generator object will be used for that 
-                         struct.
+        @param struct: The model object (in this case plane) that the 
+                       PlaneEditController may create and/or edit
+                       If struct object is specified, it means this 
+                       editController will be used to edit that struct. 
         @type  struct: L{Plane} or None
         
         @see: L{Plane.__init__}
         """     
-        GeometryGeneratorBaseClass.__init__(self, win)
+        EditController.__init__(self, win)
         self.struct = struct      
         
     def _createPropMgrObject(self):
         """
+        Creates a property manager  object (that defines UI things) for this 
+        editController. 
         """
         assert not self.propMgr
         
@@ -123,22 +120,18 @@ class PlaneGenerator(GeometryGeneratorBaseClass):
     
     def _createStructure(self):
         """
-        Build a Plane using the current parameters in the Property Manager.
-        
-        @param name: The name of the plane.
-        @type  name: str
-        
-        @param params: The plane properties from the PM UI.
-        @type  params: tuple
+        Create a Plane object. (The model object which this edit controller 
+        creates) 
         """
         
         if not self.struct:
             self.struct = Plane(self.win, self)
-            return self.struct
-    
+            
+        assert self.struct
+                
     def _modifyStructure(self, params):
         """
-        Modifies the structure using the provided params.
+        Modifies the structure (Plane) using the provided params.
         @param params: The parameters used as an input to modify the structure
                        (Plane created using this PlaneEditController) 
         @type  params: tuple
