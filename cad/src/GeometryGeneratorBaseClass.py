@@ -3,14 +3,6 @@
 """
 $Id$
 
-#####=============TEMPORARY GeometryGeneratorBaseClass=========###
-
-#@TODO: This is a temporary class for Alpha9.x, Alpha10 It should be modified
-#or deleted during post A9 development (when we revise GeneratorBaseClass)
-#This is very much like GeneratorBaseClass but has a few modifications
-#for use in PlaneGenerator.  At present, only PlaneGenerator inherits this
-#class. -- Ninad 2007-06-06
-
 History:
 ninad 20070606: Originally Created this as a temporary work for Alpha9,
                 In Alpha9 this class is inherited by PlaneGenerator class. 
@@ -20,14 +12,17 @@ ninad 2007-09-11: Created this file. (split this class out of
                  ReferenceGeometry.py
 ninad 2007-09-17: Code cleanup to split ui part out of this class. 
 
+TODO: This class (GGBC) and its surrounding code has been heavily 
+      modified/refactored. Need to apply changes made to this class to 
+      the GeneratorBaseClass and its surrounding code  -- Ninad 2007-10-05 
 """
 
 import platform
-import Utility
 from utilities.Log import greenmsg
 from state_utils   import same_vals
 
 from GeneratorBaseClass import AbstractMethod
+from constants import permit_gensym_to_reuse_name
 
 
 class GeometryGeneratorBaseClass:
@@ -41,16 +36,8 @@ class GeometryGeneratorBaseClass:
     # see definition details in GeneratorBaseClass
     cmd      =  "" 
     cmdname  =  "" 
+    _gensym_data_for_reusing_name = None
 
-    ##======common methods for Property Managers=====###
-    #@NOTE: This copies some methods from GeneratorBaseClass
-    #first I intended to inherit ReferenceGeometry from that class but 
-    #had weired problems in importing it. Something to do with 
-    #QPaindevice/ QApplication /QPixmap. NE1 didn't start de to that error
-    #Therefore, implemented and modified the following methods. OK for Alpha9 
-    #and maybe later -- Ninad 20070603
-    
-     # pass window arg to constructor rather than use a global, wware 051103
     def __init__(self, win):
         """
         Constructor for the class GeometryGeneratorBaseClass.        
@@ -86,11 +73,13 @@ class GeometryGeneratorBaseClass:
             self.cmd = greenmsg(self.cmdname + ": ")
         return
     
-    def createObject(self):
+    def createStructure(self):
         """
-        Abstract Method (overridden in subclasses). Creates an instance (object)
+        Default implementation of createStructure method. 
+        Might be overridden in  subclasses. Creates an instance (object)
         of the structure this generator wants to generate. This implements a 
-        topLevel command that the client can execute to create an object it wants.
+        topLevel command that the client can execute to create an object it 
+        wants.
         
         Example: If its a plane generator, this method will create an object of 
                 class Plane. 
@@ -99,18 +88,28 @@ class GeometryGeneratorBaseClass:
         exist , shows the property manager and sets the model (the plane) 
         in preview state.
         
-        @see: L{self.editObject} (another top level command that facilitates 
+        @see: L{self.editStructure} (another top level command that facilitates 
               editing an existing object (existing structure). 
         @see: L{part.createPlaneGenerator} for an example use.
         """
-        raise AbstractMethod()
-    
-    def editObject(self):
+        
+        assert not self.struct
+        
+        self.struct = self._createStructure()
+            
+        if not self.propMgr:
+            self._createPropMgrObject()
+            
+        self.propMgr.show()
+        self.preview_or_finalize_structure(previewing = True)        
+        self.win.assy.place_new_geometry(self.struct)
+        
+    def editStructure(self):
         """
-        Abstract Method (overridden in subclasses). Facilitates editing an 
-        existing object (existing structure). This implements a topLevel command
-        that the client can execute to edit an existing object
-        (i.e. self.struct) that it wants.
+        Default implementation of editStructure method. Might be overridden in 
+        subclasses. It facilitates editing an existing object 
+        (existing structure). This implements a topLevel command that the client
+        can execute to edit an existing object(i.e. self.struct) that it wants.
         
         Example: If its a plane generator, this method will be used to edit an 
         object of class Plane. 
@@ -118,19 +117,43 @@ class GeometryGeneratorBaseClass:
         This method also creates a propMgr objects if it doesn't
         exist and shows this property manager 
         
-        @see: L{self.createObject} (another top level command that facilitates 
-              creation of a model object created by this generator 
+        @see: L{self.createStructure} (another top level command that 
+              facilitates creation of a model object created by this generator 
               (editController)
-        @see: L{Plane.edit} and L{PlaneGenerator.editObject} for example use.
+        @see: L{Plane.edit} and L{PlaneGenerator._createPropMgrObject} 
         """
-        raise AbstractMethod()
         
+        assert self.struct
     
-    def _buildStructure(self, params):
+        if not self.propMgr:
+            self._createPropMgrObject()
+            
+        self.existingStructForEditing = True
+        self.old_props = self.struct.getProps()
+        self.propMgr.show() 
+            
+    def _createStructure(self, params):
         """
         Build a struct using the parameters in the Property Manager.
-        Abstract method. 
-        
+        Abstract method.         
+        """
+        raise AbstractMethod()
+    
+    def _createPropMgrObject(self):
+        """
+        Abstract method (overridden in subclasses). Creates a property manager 
+        object (that defines UI things) for this generator. 
+        """
+        raise AbstractMethod()
+    
+    def _modifyStructure(self, params):
+        """
+        Abstract method that modifies the structure (i.e. the object created 
+        by this generator)
+        @param params: The parameters used as an input to modify the structure
+                       (object created using this editcontroller) 
+        @type  params: tuple
+        @see: L{PlaneGenerator._modifyStructure}
         """
         raise AbstractMethod()
 
@@ -140,6 +163,7 @@ class GeometryGeneratorBaseClass:
         Abstract method. 
         """
         raise AbstractMethod()
+    
     
     def preview_or_finalize_structure(self, previewing = False):
         """
@@ -156,12 +180,9 @@ class GeometryGeneratorBaseClass:
         params = self._gatherParameters()        
 
         if not same_vals( params, self.previousParams):
-            self.struct = self._buildStructure(params)
+            self._modifyStructure(params)
 
-        name = self.struct.name
-        if not self.existingStructForEditing:
-            self.win.assy.place_new_geometry(self.struct)
-            self.existingStructForEditing = True            
+        name = self.struct.name         
     
         if previewing:
             self.logMessage = str(self.cmd + "Previewing " + name)
@@ -196,12 +217,27 @@ class GeometryGeneratorBaseClass:
         if self.struct != None:            
             self.struct.kill()
             self.struct = None       
-            self._revert_number()
+            self._revertNumber()
             self.win.win_update() 
     
-    def _revert_number(self):
+    def _revertNumber(self):
         """
-        need documentation 
+        Private method. Called internally when we discard the current structure
+        and want to permit a number which was appended to its name to be reused.
+
+        WARNING: the current implementation only works for classes which set
+        self.create_name_from_prefix
+        to cause our default _build_struct to set the private attr we use
+        here, self._gensym_data_for_reusing_name, or which set it themselves
+        in the same way (when they call gensym).
+        
+        This method is copied over from GeneratorBaseClass._revert_number
         """
-        if hasattr(self, '_ViewNum'):
-            Utility.ViewNum = self._ViewNum 
+        if self._gensym_data_for_reusing_name:
+            prefix, name = self._gensym_data_for_reusing_name
+                # this came from our own call of gensym, or from a caller's if
+                # it decides to set that attr itself when it calls gensym
+                # itself.
+            permit_gensym_to_reuse_name(prefix, name)
+        self._gensym_data_for_reusing_name = None
+        return

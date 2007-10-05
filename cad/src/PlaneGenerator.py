@@ -62,25 +62,15 @@ class PlaneGenerator(GeometryGeneratorBaseClass):
         @see: L{Plane.__init__}
         """     
         GeometryGeneratorBaseClass.__init__(self, win)
-        self.struct = struct
-     
-    def createObject(self):
+        self.struct = struct      
+        
+    def _createPropMgrObject(self):
         """
-        Creates a plane object. This method also creates a propMgr objects 
-        if it doesn't exist, shows the property manager and sets the model 
-        (the plane) in 'preview' state.  
-        Overrides GeometryGeneratorBaseClass.createObject
         """
+        assert not self.propMgr
         
-        assert not self.struct
+        self.propMgr = PlanePropertyManager(self.win, self)
         
-        self.struct = Plane(self.win, self)
-            
-        if not self.propMgr:
-            self.propMgr = PlanePropertyManager(self.win, self)
-        
-        self.propMgr.show()
-        self.preview_or_finalize_structure(previewing = True)
             
     def placePlaneParallelToScreen(self):
         """
@@ -113,22 +103,9 @@ class PlaneGenerator(GeometryGeneratorBaseClass):
         """
         self.struct.placePlaneOffsetToAnother()
         self.logMessage = self.cmd + self.struct.logMessage
-    
-    def editObject(self):
-        """
-        Edit the Plane properties.
-        Overrides GeometryGeneratorBaseClass.editObject
-        """
-        assert self.struct
-    
-        if not self.propMgr:
-            self.propMgr = PlanePropertyManager(self.win, self)
-            
-        self.existingStructForEditing = True
-        self.old_props = self.struct.getProps()
-        self.propMgr.show()   
 
-    ##=========== Structure Generator like interface TO BE REVISED======##
+
+    ##=========== Structure Generator like interface ======##
     def _gatherParameters(self):
         """
         Return all the parameters from the Plane Property Manager.
@@ -144,7 +121,7 @@ class PlaneGenerator(GeometryGeneratorBaseClass):
             ctr = None
         return (width, height, ctr, atmList)
     
-    def _buildStructure(self, params = None):
+    def _createStructure(self):
         """
         Build a Plane using the current parameters in the Property Manager.
         
@@ -154,13 +131,26 @@ class PlaneGenerator(GeometryGeneratorBaseClass):
         @param params: The plane properties from the PM UI.
         @type  params: tuple
         """
- 
-        if params:
-            width, height, center_junk, atmList_junk = params
-            self.struct.width   =  width        
-            self.struct.height  =  height 
-
+        
+        if not self.struct:
+            self.struct = Plane(self.win, self)
+            return self.struct
+    
+    def _modifyStructure(self, params):
+        """
+        Modifies the structure using the provided params.
+        @param params: The parameters used as an input to modify the structure
+                       (Plane created using this PlaneEditController) 
+        @type  params: tuple
+        """
+        assert self.struct
+        assert params 
+        assert len(params) == 4             
+        
+        width, height, center_junk, atmList_junk = params
+        self.struct.width   =  width        
+        self.struct.height  =  height 
         self.win.win_update() # Update model tree
         self.win.assy.changed()        
-        return self.struct
+        
     ##=====================================##

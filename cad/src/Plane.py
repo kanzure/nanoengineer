@@ -192,10 +192,12 @@ class Plane(ReferenceGeometry):
             
     def updateCosmeticProps(self, previewing = False):
         """ 
-        Update the Cosmetic properties for the Plane. The properties such as border
-        color and fill color are different when the Plane is being 'Previewed'.
+        Update the Cosmetic properties for the Plane. The properties such as 
+        bordercolor and fill color are different when the Plane is being 
+        'Previewed'.
         
-        @param previewing: Set to True only when previewing. Otherwise, should be False.
+        @param previewing: Set to True only when previewing. 
+                           Otherwise, should be False.
         @type  previewing: bool
         """
         if not previewing:
@@ -204,13 +206,12 @@ class Plane(ReferenceGeometry):
                 self.border_color =  self.default_border_color
                 self.opacity      =  self.default_opacity
             except:
-                print_compact_traceback("Can't set properties for the Plane object\
-                Ignoring exception.")
+                print_compact_traceback("Can't set properties for the Plane"\
+                                        "object. Ignoring exception.")
         else:
             self.fill_color   =  self.preview_fill_color
             self.opacity      =  self.preview_opacity
             self.border_color =  self.preview_border_color
-            pass
         
     
     def getProps(self):
@@ -241,7 +242,8 @@ class Plane(ReferenceGeometry):
         """
         #This value is used in method mmp_record  of class Jig
         dataline = "%.2f %.2f (%f, %f, %f) (%f, %f, %f, %f) " % \
-           (self.width, self.height, self.center[0], self.center[1], self.center[2], 
+           (self.width, self.height, 
+            self.center[0], self.center[1], self.center[2], 
             self.quat.w, self.quat.x, self.quat.y, self.quat.z)
         return " " + dataline
                        
@@ -307,7 +309,7 @@ class Plane(ReferenceGeometry):
             else:  
                 #Following draws the border of the plane in orange color 
                 #for it's front side (side that was in front 
-                #when the plane was created and a brown border for the back side. 
+                #when the plane was created and a brown border for the backside.
                 if dot(self.getaxis(), glpane.lineOfSight) < 0:
                     bordercolor = brown #backside
                 else:
@@ -519,16 +521,18 @@ class Plane(ReferenceGeometry):
         #The folllowing puts 'stoppers' so that if the mouse goes beyond the
         #opposite face while dragging, the plane resizing is stopped.
         #This fixes bug 2447. (It still has a bug where fast mouse movements 
-        #make resizing stop early (need a bug report) ..minor bug , workaround is to 
+        #make resizing stop early (need a bug report) ..minor bug , workaround 
+        #is to 
         #do the mousemotion slowly. -- ninad 20070615 
         if dot(vec_v1, vec_P) < 0:
             return          
-        #ninad 20070515: vec_P is the orthogonal projection of vec_v2 over vec_v1 
+        #ninad 20070515: vec_P is the orthogonal projection of vec_v2 over 
+        #vec_v1 
         #(see selectMode.handleLeftDrag for definition of vec_v2). 
         #The total handle movement is by the following offset. So, for instance
         #the fragged handle was a 'Width-Handle' , the original width of the 
         #plane is changed by the vlen(totalOffset). Since we want to keep the 
-        #opposite side of the plane fixed during resizing, we need to offset the 
+        #opposite side of the plane fixed during resizing, we need to offset the
         #plane center , along the direction of the following totalOffsetVector
         #(Remember that the totalOffsetVector is along vec_v1. 
         #i.e. the angle is either 0 or 180), and , by a distance equal to 
@@ -575,7 +579,7 @@ class Plane(ReferenceGeometry):
         if not self.generator:
             self.generator = self.assy.part.createPlaneGenerator(self)
             
-        self.generator.editObject()
+        self.generator.editStructure()
   
     def setup_quat_center(self, atomList = None):
         """
@@ -647,6 +651,12 @@ class Plane(ReferenceGeometry):
                         
             #First, clear all the direction arrow drawings if any in 
             #the existing Plane objectes in the part 
+            if not self.assy.part.topnode.members:
+                msg = redmsg("Select a different plane first to place the"
+                             " current plane offset to it")
+                env.history.message(cmd + msg)
+                return                            
+                
             for p in self.assy.part.topnode.members:
                 if isinstance(p, Plane):
                     if p.directionArrow:
@@ -705,7 +715,8 @@ class Handle(DragHandler_API):
                 self._draw()
         except:
             glPopName()
-            print_compact_traceback("ignoring exception when drawing handle %r: " % self)
+            print_compact_traceback(
+                "ignoring exception when drawing handle %r: " % self)
         else:
             glPopName()
     
@@ -737,8 +748,8 @@ class Handle(DragHandler_API):
                      self.center[1], 
                      self.center[2])  
                         
-        #Bruce suggested undoing the glpane.quat rotation and plane quat rotation 
-        #before drawing the handle geometry. -- ninad 20070525
+        #Bruce suggested undoing the glpane.quat rotation and plane quat 
+        #rotation  before drawing the handle geometry. -- ninad 20070525
         
         parent_q = self.parent.quat 
         
@@ -859,7 +870,8 @@ class Handle(DragHandler_API):
     # Need to see if selobj_still_ok() is needed. OK for now.
     # --Ninad 2007-05-31
     def selobj_still_ok(self, glpane):
-        res = self.__class__ is Handle # bugfix: compare to correct class [bruce 070924]
+        # bugfix: compare to correct class [bruce 070924]
+        res = self.__class__ is Handle 
         if res:
             our_selobj = self
             glname     = self.glname
@@ -868,7 +880,7 @@ class Handle(DragHandler_API):
                 res = False
                 # Do debug prints.
                 print "%r no longer owns glname %r, instead %r does" \
-                      % (self, glname, owner) # [perhaps never seen as of 061121]
+                      % (self, glname, owner) #[perhaps never seen as of 061121]
                 pass
             pass
         if not res and env.debug():

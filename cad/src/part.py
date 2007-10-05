@@ -960,7 +960,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
 	"""
 	editController = self.createPlaneGenerator()
 	#Create the plane object
-	editController.createObject()
+	editController.createStructure()
 
     def createPlaneGenerator(self, plane = None):
 	"""
