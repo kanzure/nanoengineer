@@ -26,7 +26,7 @@ from PyQt4.Qt import SIGNAL
 from Ui_BuildAtomsPropertyManager import Ui_BuildAtomsPropertyManager
 from bond_constants               import btype_from_v6
 from VQT import V
-from state_utils import same_vals
+from utilities.Comparison import same_vals
 
 
 NOBLEGASES = ["He", "Ne", "Ar", "Kr"]

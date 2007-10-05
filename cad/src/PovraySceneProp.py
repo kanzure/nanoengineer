@@ -18,7 +18,7 @@ import env, os
 from utilities.Log import redmsg, orangemsg, greenmsg
 from GroupButtonMixin import GroupButtonMixin
 from Sponsors import SponsorableMixin
-from state_utils import same_vals
+from utilities.Comparison import same_vals
 
 class PovraySceneProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_PovrayScenePropDialog):
 

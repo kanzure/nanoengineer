@@ -19,7 +19,7 @@ TODO: This class (GGBC) and its surrounding code has been heavily
 
 import platform
 from utilities.Log import greenmsg
-from state_utils   import same_vals
+from utilities.Comparison import same_vals
 
 from GeneratorBaseClass import AbstractMethod
 from constants import permit_gensym_to_reuse_name

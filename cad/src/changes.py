@@ -25,7 +25,7 @@ from debug import print_compact_traceback, print_compact_stack
 import env
 from constants import noop
 import platform
-from state_utils import same_vals #bruce 060306
+from utilities.Comparison import same_vals #bruce 060306
 
 # == Usage tracking.
 

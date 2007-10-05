@@ -13,6 +13,8 @@ __author__ = "bruce" # 050614
 from constants import noop
 from constants import black, white, red, green, blue, gray, orange, yellow, magenta, pink
 
+from utilities.Comparison import same_vals
+
     # note: qt4transition imports debug_pref from this module, which is one reason this module can't import
     # print_compact_traceback at toplevel. This should be fixed; it should be ok for this
     # module to import from debug. (There may be other reasons it can't in the current code.)
@@ -90,7 +92,6 @@ class Pref: #e might be merged with the DataType (aka PrefDataType) objects
                 # Note: until I fixed preferences.py today, this failed to store a default value when self.value was None. [bruce 070110]
             # note: in this case, self.value might not matter after this, but in case it does we keep it in sync before using it,
             # or use it only via self.current_value() [bruce 060209 bugfix]
-            from state_utils import same_vals #bruce 070228 [recursive import if done at toplevel; seems to work ok here...]
             if self.print_changes and not same_vals(self.value, self._dfltval): #bruce 070228 new feature for debug_pref
                 # note: we use same_vals to avoid bugs in case of tuples or lists of Numeric arrays
                 msg = "Note: %s (default %r) starts out %r %s" % \

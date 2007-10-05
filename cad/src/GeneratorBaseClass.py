@@ -63,10 +63,10 @@ import env
 import platform
 
 from utilities.Log import redmsg, orangemsg, greenmsg, quote_html
+from utilities.Comparison import same_vals
 from debug import print_compact_traceback
 from constants import gensym
 from constants import permit_gensym_to_reuse_name
-from state_utils import same_vals
 
 # == private definitions
 

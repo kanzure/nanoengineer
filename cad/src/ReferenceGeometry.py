@@ -42,9 +42,6 @@ from jigs    import Jig
 from DragHandler   import DragHandler_API
 from utilities.Log import greenmsg
 
-from state_utils import same_vals
-
-
 class ReferenceGeometry(Jig, DragHandler_API):
     """
     Superclass for various reference geometries. 

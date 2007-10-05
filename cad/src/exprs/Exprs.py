@@ -14,7 +14,7 @@ this file is getting kind of long - maybe split it in some sensible way?
 
 from debug import compact_stack, print_compact_stack, print_compact_traceback, safe_repr
 from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True, Choice
-from state_utils import same_vals
+from utilities.Comparison import same_vals
 
 from exprs.py_utils import printnim, printfyi, stub, printonce
 from exprs.intern_ipath import intern_ipath

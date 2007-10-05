@@ -61,7 +61,7 @@ import sys
 from changes import SelfUsageTrackingMixin, SubUsageTrackingMixin
 import changes
 from debug import print_compact_traceback
-from state_utils import same_vals
+from utilities.Comparison import same_vals
 
 import platform
 

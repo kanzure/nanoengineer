@@ -87,7 +87,8 @@ from prefs_constants import bondpointHotspotColor_prefs_key
 import env
 import drawer #bruce 051126
 from undo_archive import register_class_nickname, set_undo_nullMol
-from state_utils import copy_val, same_vals #bruce 060308
+from utilities.Comparison import same_vals
+from state_utils import copy_val
 from displaymodes import get_display_mode_handler
 from constants import gensym, genKey
 from constants import diDEFAULT
