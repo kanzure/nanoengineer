@@ -157,21 +157,7 @@ class FusePropertyManager(MovePropertyManager):
         
         self.isTranslateGroupBoxActive = False
         self.parentMode.update_cursor()
-                
-    
-    def setupUi(self, fusePropMgrObject):
-        """
-        Overrides MovePropertyManager.setupUi
-        @param fusePropMgrObject : fuse PM object is passed to the 
-                                   Ui_FusePropertyManager class method which 
-                                   defines the necessary ui elements for 
-                                   Fuse Property Manager
-        @see : MovePropertyManager.setupUI
-        """
-        fusePropMgr = fusePropMgrObject
-        fuseUi = Ui_FusePropertyManager()
-        fuseUi.setupUi(fusePropMgr)
-    
+                    
     def updateMessage(self): 
         """
         Updates the message box with an informative message.
