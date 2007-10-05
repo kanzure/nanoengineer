@@ -207,10 +207,7 @@ mtColor_prefs_key = 'A9/Model Tree Background Color' # Not yet in Preferences. M
 toolbar_state_prefs_key = 'A10/ Toolbar State '
 #colorTheme_prefs_key = 'A9/Color Theme'
 
-# Bug-workaround prefs, Mac-specific
-
-QToolButton_MacOSX_Tiger_workaround_prefs_key = 'A6/QToolButton MacOSX Tiger workaround' #bruce 050810
-
+# Sponsor prefs
 sponsor_download_permission_prefs_key   = 'A8/Sponsor download permission'
 sponsor_permanent_permission_prefs_key  = 'A8/Sponsor download permission is permanent'
 
@@ -468,10 +465,7 @@ prefs_table = (
     #('', 'string', colorTheme_prefs_key, "defaultColorTheme"), # Gray for A9. Mark 2007-05-27.
     #Following saves the toolbar and dockwidget positions between NE1 sessions
     ('toolbar_state', 'string' , toolbar_state_prefs_key, 'defaultToolbarState'),
-    # ...
-
-    ('', 'boolean', QToolButton_MacOSX_Tiger_workaround_prefs_key, False ), #bruce 050810
-    
+    # ...    
     ('', 'boolean', sponsor_download_permission_prefs_key, False ),
     ('', 'boolean', sponsor_permanent_permission_prefs_key, False ),
     ('', 'boolean', sponsor_md5_mismatch_flag_key, True ),

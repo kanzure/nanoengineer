@@ -130,17 +130,6 @@ class DebugMenuMixin:
                 ('ATOM_DEBUG', self._debug_enable_atom_debug ),
             ] )
 
-#bruce 070425 disabling this for Qt4 (in multiple files); see comment inside widget_hacks.doit3() for why.
-##        if (sys.platform == 'darwin' or platform.atom_debug) and self._debug_win:
-##            #bruce 050806 to give Alpha6 a workaround for Mac OS X 10.4 Tiger QToolButton bug
-##            #bruce 050810 use checkmark item to let that be a persistent pref,
-##            # and provide this on all platforms when ATOM_DEBUG is set
-##            # (so we can see if it works and we like it, on other systems)
-##            checked = env.prefs[QToolButton_MacOSX_Tiger_workaround_prefs_key]
-##            res.extend( [
-##                ('Mac OS 10.4 QToolButton workaround', self._debug_toggle_QToolButton_workaround, checked and 'checked' or None ),
-##            ] )
-        
         #bruce 060124 changes: always call debug_prefs_menuspec, but pass platform.atom_debug to filter the prefs,
         # and change API to return a list of menu items (perhaps empty) rather than exactly one
         res.extend( debug_prefs.debug_prefs_menuspec( platform.atom_debug ) ) #bruce 050614 (submenu)
@@ -330,34 +319,6 @@ class DebugMenuMixin:
     def _debug_timepycode(self): #bruce 051117
         debug_timing_test_pycode_from_a_dialog( )
         return
-
-#bruce 070425 disabling this for Qt4 (in multiple files); see comment inside widget_hacks.doit3() for why.
-##    def _debug_toggle_QToolButton_workaround(self): #bruce 050806, revised 050810
-##        """[only provided in menu on Mac (or maybe on all systems when ATOM_DEBUG is set),
-##        and only needed for Mac OS X 10.4 Tiger, but might work for all platforms -- who knows]
-##        """
-##        enabled_now = env.prefs[QToolButton_MacOSX_Tiger_workaround_prefs_key]
-##        enable = not enabled_now
-##        from utilities.Log import orangemsg, redmsg, greenmsg
-##        if enable:
-##            ###e ask user if ok; if we add that feature, also add "..." to menu command text
-##            # note: if we enable, disable, and enable, all in one session, the following happens twice, but that's ok.
-##            env.history.message( greenmsg( "Modifying every QToolButton to work around a Qt bug in Mac OS X 10.4 Tiger..." ))
-##            from widget_hacks import hack_every_QToolButton, hack_every_QToolButton_warning
-##            if hack_every_QToolButton_warning:
-##                env.history.message( orangemsg( hack_every_QToolButton_warning ))
-##            hack_every_QToolButton( self._debug_win )
-##            env.prefs[QToolButton_MacOSX_Tiger_workaround_prefs_key] = True
-##            env.history.message( "Done. This will be redone automatically in new sessions (with no history message)" \
-##                                 " unless you disable this menu item.")
-##            # see auto_enable_MacOSX_Tiger_workaround_if_desired and its call, for how it gets enabled in new sessions.
-##        else:
-##            env.prefs[QToolButton_MacOSX_Tiger_workaround_prefs_key] = False
-##            env.history.message( orangemsg(
-##                "Disabled the workaround for the QToolButton bug in Mac OS X 10.4 Tiger." \
-##                " This change in pressed toolbutton appearance will only take effect" \
-##                " after you quit and restart this program." ))
-##        return
         
     pass # end of class DebugMenuMixin
 

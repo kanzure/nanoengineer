@@ -47,19 +47,6 @@ def before_most_imports( main_globals ):
         print """exception in execfile(%r); traceback printed to stderr or console; exiting""" % (rc,)
         raise
 
-#bruce 070425 disabling this for Qt4 (in multiple files); see comment inside widget_hacks.doit3() for why.
-##    #bruce 050809 part of improved Mac OS X Tiger QToolButton bug workaround
-##    if sys.platform == 'darwin':
-##        try:
-##            import widget_hacks
-##            widget_hacks.doit3()
-##                # see comment in that function about whether it's a good idea to do it in Qt4 [bruce 070425]
-##        except:
-##            #bruce 070425 revised this case in Qt4 branch
-##            msg = "exception in widget_hacks.doit3() (or in importing it) ignored"
-##            print msg ## not yet available: print_compact_traceback(msg + ": ")
-##        pass
-
     # Figure out whether we're run by a developer from cvs sources
     # (EndUser.enableDeveloperFeatures() returns True), or by an
     # end-user from an installer-created program (it returns False).

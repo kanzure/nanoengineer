@@ -16,6 +16,9 @@ bug workaround for Alpha6.
 '''
 __author__ = 'bruce'
 
+# note: this is now obsolete; the same commit that moves this file into outtakes
+# also removes commented-out calls into it from several files in cad/src. [bruce 071005]
+
 # for QToolButton, we need the actual class, for isinstance and superclass-for-subclass-definition,
 # not the class-as-perhaps-hacked-object-constructor (which might be a function rather than a class),
 # so do this in case I'm hacking the constructor as part of the workaround:

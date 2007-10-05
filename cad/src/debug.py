@@ -739,16 +739,6 @@ def registered_commands_menuspec( widget):
         return spec # i.e. []
     return [ ('other', spec) ]
 
-# ==
-
-def auto_enable_MacOSX_Tiger_workaround_if_desired( win): #bruce 050810
-#bruce 070425 disabling this for Qt4 (in multiple files); see comment inside widget_hacks.doit3() for why.
-##    enable = env.prefs[QToolButton_MacOSX_Tiger_workaround_prefs_key]
-##    if enable:
-##        from widget_hacks import hack_every_QToolButton
-##        hack_every_QToolButton( win)
-    return
-
 # ===
 
 def overridden_attrs( class1, instance1 ): #bruce 050108

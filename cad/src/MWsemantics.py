@@ -833,13 +833,6 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
             self.update_mainwindow_caption_properly
         )
         
-        #bruce 050810 part of QToolButton Tiger bug workaround
-        # [intentionally called on all systems,
-        #  though it will only do anything on Macs except during debugging]
-        if 1:
-            from debug import auto_enable_MacOSX_Tiger_workaround_if_desired
-            auto_enable_MacOSX_Tiger_workaround_if_desired( self)
-
         self.initialised = 1 # enables win_update [should this be moved into _init_after_geometry_is_set?? bruce 060104 question]
 
         # be told to add new Jigs menu items, now or as they become available [bruce 050504]
