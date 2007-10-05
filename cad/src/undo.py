@@ -43,20 +43,28 @@ DEBUG_PRINT_UNDO = False # DO NOT COMMIT with True -- causes lots of debug print
 
 DEBUG_FEWER_ARGS_RETRY = True # debug prints for fewer-args retries; now True since these are deprecated [bruce 071004]
 
-DEBUG_GETARGSPEC = False # DO NOT COMMIT with True -- causes a test of inspect.getargspec to be printed for every slot connection
+DEBUG_GETARGSPEC = False # DO NOT COMMIT with True -- debug prints related to USE_GETARGSPEC (only matters when that's true)
+
+DEBUG_USE_GETARGSPEC_TypeError = False # print the few cases which args_info can't yet handle (### TODO: fix it for these ASAP)
 
 # options that change behavior
+
+USE_GETARGSPEC = True # bruce 071004
 
 _use_hcmi_hack = True # enable signal->slot call intercepting code, to check for bugs that mess up other things [bruce 050922]
     # i suspect this now has to be true (undo won't work without it) -- if true, remove this [bruce 071003 comment] 
 
 if not EndUser.enableDeveloperFeatures():
+    # end user case
     DISABLE_SLOT_ARGCOUNT_RETRY = False
         # be looser for end-users until we're sure we fixed all the bugs
         # this would expose and turn into exceptions, as explained in the
         # long comment in the other case.
         # [bruce 071004, per team call]
+    NONERROR_STDERR_OK = False # in case we're on a Windows install for which prints to sys.stderr cause exceptions
+        # (that issue ought to be fixed more generally than in this file)
 else:
+    # developer case
     DISABLE_SLOT_ARGCOUNT_RETRY = True # bruce 071004 -- WHEN True, THIS WILL EXPOSE SOME BUGS as new TypeError exceptions.
     #
     # (see also a change to this for endusers, below.)
@@ -79,6 +87,9 @@ else:
     # too many (or, unfortunately, if they raise it for some other reason), in
     # order to imitate a similar (but probably safer) behavior documented by
     # PyQt3.
+    NONERROR_STDERR_OK = True
+
+## DISABLE_SLOT_ARGCOUNT_RETRY = False # DO NOT COMMIT with this line enabled -- for testing of end user case code
 
 if EndUser.enableDeveloperFeatures():
     print "DISABLE_SLOT_ARGCOUNT_RETRY =", DISABLE_SLOT_ARGCOUNT_RETRY
@@ -113,8 +124,9 @@ def keep_under_key(thing, key, obj, attr):
     return
 
 class wrappedslot:
-    ###@@@ try revising code and doc to just pass on all the args, see if this works. easier re signal choices.
-    """Hold a boundmethod for a slot, and return callables (for various arglists)
+    """
+       WARNING: the details in this docstring are obsolete as of sometime before 071004.
+       Hold a boundmethod for a slot, and return callables (for various arglists)
     which call it with our own code wrapping the call.
        We don't just return a callable which accepts arbitrary args, and pass them on,
     because we use this with PyQt which we suspect counts the accepted args
@@ -125,17 +137,66 @@ class wrappedslot:
     pass us too many based on the ones listed in the signal name. We might have to
     revise this to count the args accepted by our saved slotboundmethod in __init__. ###k
     """
+    # default values of instance variables
+    args_info_result = None # cached return value from args_info
+    need_runtime_test = True # whether we need to test whether our signal passed too many args to our slot, at runtime
+    
     def __init__(self, slotboundmethod, sender = None, signal = ""):
         self.slotboundmethod = slotboundmethod
-        if DEBUG_GETARGSPEC:
+        if USE_GETARGSPEC:
+            # Print a warning if it looks like the signal and slot argument counts don't match;
+            # if DEBUG_GETARGSPEC then always print something about the analysis result.
+            # Also try to save info on self, so args_info needn't be called at runtime.
             from debug import print_compact_traceback
-            import inspect
             try:
-                print "inspect.getargspec(%r) = %r" % (slotboundmethod, inspect.getargspec(slotboundmethod))
+                self.args_info_result = args_info(slotboundmethod)
+                success, minargs, maxargs, any_kws_ok = self.args_info_result
+                if success:
+                    # if DEBUG_GETARGSPEC, args_info already printed basic info
+                    if any_kws_ok and DEBUG_GETARGSPEC:
+                        print "DEBUG_GETARGSPEC: surprised to see **kws in a slot method; ignoring this issue: %r" % (slotboundmethod,)
+                    del any_kws_ok
+                    signal_args = guess_signal_argcount(signal)
+                    strict = True # whether our test is not certain (i.e. too loose); might be set to false below
+                    if minargs is None:
+                        # maybe this can never happen as of 071004
+                        minargs = 0
+                        strict = False
+                    if maxargs is None:
+                        if DEBUG_GETARGSPEC:
+                            print "DEBUG_GETARGSPEC: note: %r accepts **args, unusual for a slot method" % (slotboundmethod,)
+                        maxargs = max(999999, signal_args + 1)
+                        strict = False
+                    assert type(minargs) == type(1)
+                    assert type(maxargs) == type(1)
+                    ok = (minargs <= signal_args <= maxargs)
+                    if not ok:
+                        # print the warning which is the point of USE_GETARGSPEC
+                        if minargs != maxargs:
+                            print "\n * * * WARNING: we guess %r wants from %d to %d args, but signal %r passes %d args" % \
+                                  (slotboundmethod, minargs, maxargs, signal, signal_args)
+                        else:
+                            print "\n * * * WARNING: we guess %r wants %d args, but signal %r passes %d args" % \
+                                  (slotboundmethod, maxargs, signal, signal_args)
+                    elif DEBUG_GETARGSPEC:
+                        if minargs != maxargs:
+                            print "DEBUG_GETARGSPEC: %r and %r agree about argcount (since %d <= %d <= %d)" % \
+                                  (slotboundmethod, signal, minargs, signal_args, maxargs)
+                        else:
+                            assert signal_args == minargs
+                            print "DEBUG_GETARGSPEC: %r and %r agree about argcount %d" % \
+                                  (slotboundmethod, signal, minargs)
+                    self.need_runtime_test = (not ok) or (not strict)
+                        # REVIEW: also say "or any_kws_ok", or if kws passed at runtime?
+                else:
+                    # args_info failed; it already printed something if DEBUG_GETARGSPEC
+                    pass
             except:
-                print_compact_traceback("failed for %r: " % slotboundmethod)
+                print_compact_traceback("USE_GETARGSPEC code failed for %r: " % slotboundmethod)
+            pass
         self.__sender = sender #060121
         self.__signal = signal #060320 for debugging
+        return # from __init__
     def fbmethod_0args(self, *args, **kws):
         "fake bound method with 0 args" ###@@@ no, any number of args - redoc ###@@@
         slotboundmethod = self.slotboundmethod
@@ -143,41 +204,57 @@ class wrappedslot:
         # or we might call methods passed to us, or of known names on an obj passed to us;
         # or we might call a func passed to us, passing it a callback to us which does the slot call.
         if kws:
-            print "unexpected but maybe ok: some keywords were passed to a slot method:",slotboundmethod,kws ###@@@
+            print "unexpected but maybe ok: some keywords were passed to a slot method:", slotboundmethod, kws # maybe never seen
         if DEBUG_PRINT_UNDO:
             print "(#e begin) calling wrapped version (with %d args) of" % len(args), slotboundmethod
         mc = self.begin()
         try:
             if DISABLE_SLOT_ARGCOUNT_RETRY:
-                # do our best to call this slotmethod, with given args only
+                # call slotmethod with exactly the same args we were passed
+                # (this is known to often fail as of 071004, but we hope to fix that)
                 res = slotboundmethod(*args, **kws)
             else:
-                # do our best to call this slotmethod, with given args,
-                # or if that fails, with reduced args.
-                # THIS CASE WILL BE REMOVED SOON [bruce 071004]
+                # deprecated case to be removed soon, but in the meantime, rewritten to be more
+                # reliable [bruce 071004]
+                # try calling slotmethod with exactly the args we were passed,
+                # but if we get a TypeError, assume this probably means the slot method accepts
+                # fewer args than the signal passes, so try again with fewer and fewer args until
+                # we get no TypeError.
+                # If USE_GETARGSPEC and not self.need_runtime_test, assume self.args_info_result
+                # can be trusted to specify the possible numbers of args to pass;
+                # otherwise assume it could be any number (as the code before 071004 always did).
                 try:
                     res = slotboundmethod(*args, **kws)
                 except TypeError:
                     # it might be that we're passing too many args. Try to find out and fix. First, for debugging, print more info.
                     if DEBUG_FEWER_ARGS_RETRY:
                         print "args for %r from typeerror: args %r, kws %r" % (slotboundmethod, args, kws)
-                    success, maxargs, kws_ok = args_info(slotboundmethod)
-                    if not success:
-                        # We have no official info about required args -- just see if it helps to reduce the ones we tried.
-                        # Note that there is no guarantee that the original TypeError was caused by an excessive arglist;
-                        # if it was caused by some other bug, these repeated calls could worsen that bug.
-                        # (So taking advantage of an args_info success return is preferred, once that's implemented.)
-                        arglists_to_try = [] # will hold pairs of (args, kws) to try calling it with.
-                        if kws:
-                            # first zap all the keywords (note: as far as I know, none are ever passed in the first place)
-                            kws = {}
-                            arglists_to_try.append(( args, kws ))
-                        while args:
-                            # then zap the args, one at a time, from the end
-                            args = args[:-1]
-                            arglists_to_try.append(( args, kws ))
+                    if USE_GETARGSPEC and not self.need_runtime_test:
+                        if self.args_info_result is None:
+                            self.args_info_result = args_info(slotboundmethod)
+                        success, minargs, maxargs, any_kws_ok = self.args_info_result
+                        del any_kws_ok # ignored for now
+                        assert success
+                        del success
+                        assert type(minargs) == type(maxargs) == type(1)
+                        # use minargs and maxargs to limit the calls we'll try
                     else:
-                        assert 0, "nim - use maxargs, kws_ok to figure out arglists_to_try"
+                        # try any reduced number of args
+                        minargs = 0
+                        maxargs = len(args)
+                    # Construct arglists to use for retrying this call.
+                    # Note that there is no guarantee that the original TypeError was caused by an excessive arglist;
+                    # if it was caused by some other bug, these repeated calls could worsen that bug.
+                    arglists_to_try = [] # will hold pairs of (args, kws) to try calling it with.
+                    if kws:
+                        # first try zapping all the keywords (note: as far as I know, none are ever passed in the first place)
+                        arglists_to_try.append(( args, {} ))
+                    while args:
+                        # then zap the args, one at a time, from the end (but consider minargs and maxargs)
+                        args = args[:-1]
+                        if minargs <= len(args) <= maxargs:
+                            arglists_to_try.append(( args, kws ))
+                    # Retry it with those arglists (zero or more of them to try)
                     worked = False
                     from debug import print_compact_traceback
                     for args, kws in arglists_to_try:
@@ -190,7 +267,8 @@ class wrappedslot:
                         except TypeError:
                             # guessing it's still an arg problem
                             if DEBUG_FEWER_ARGS_RETRY:
-                                print_compact_traceback("assuming this is a slot argcount problem: ")
+                                if NONERROR_STDERR_OK:
+                                    print_compact_traceback("assuming this is a slot argcount problem: ")
                                 print "args for %r from typeerror, RETRY: args %r, kws %r" % (slotboundmethod, args, kws)
                             continue
                         # other exceptions are treated as errors, below
@@ -567,22 +645,107 @@ def normalize_signal(signal):
 
 # ==
 
-def args_info(func1):
+def _count(substring, signal):
+    "return the number of times substring occurs in signal"
+    return len(signal.split(substring)) - 1
+
+def guess_signal_argcount(signal):
     """
-    Given a function or method object, try to find out what argument lists it can accept.
-    Return value is a tuple (success, maxargs, kws_ok),
+    guess the number of arguments in a Qt signal string such as
+    "func()" or "func(val)" or "func(val, val)"
+    """
+    assert signal and type(signal) == type("")
+    commas = _count(',', signal)
+    if commas:
+        return commas + 1
+    # if no commas, is it () or (word)?
+    # a quick kluge to ignore whitespace:
+    signal = ''.join(signal.split())
+    if _count("()", signal):
+        return 0
+    else:
+        return 1
+    pass
+
+def args_info(func1): #bruce 071004 revised implem and return value format
+    """
+    Given a function or method object, try to find out what argument lists
+    it can accept (ignoring the issue of the names of arguments that could
+    be passed either positionally or by name).
+       Return value is a tuple (success, minargs, maxargs, any_kws_ok),
     where success is a boolean saying whether we succeeded in finding out anything for sure
-    (if not, the other tuple elements are "loose guesses");
-    maxargs is the maximum number of positional args the function can be called with,
-    according to introspection, or None if this is infinite or we can't tell;
-    and kws_ok says whether the function can accept any keyword arguments
-    (or is True if we can't tell).
+    (if not, the other tuple elements are "loose guesses" or are None);
+    minargs is the minimum number of positional args the function can be called with;
+    maxargs is the maximum number of positional args the function can be called with
+    (assuming no keyword arguments fill those positions);
+    and any_kws_ok says whether the function can accept arbitrary keyword arguments
+    due to use of **kws in its argument declaration.
+    If we can't determine any of those values, they are None; as of 071004 this can only
+    happen when success is True for maxargs (due to use of *args in the declaration).    
     """
-    return False, None, True # stub - return values represent complete uncertainty;
-     # TODO: to do this right, we should use code from some introspection module,
-     # such as inspect.getargspec,
-     # but have a fallback to the above values in case that fails for
-     # certain kinds of callables.
+    DEFAULT_RETVAL = False, None, None, True
+    if USE_GETARGSPEC:
+        # try using inspect.getargspec.
+        # TODO: there might be a smarter wrapper
+        # for that function (which knows about bound methods specifically)
+        # in some other introspection module.
+        from debug import print_compact_traceback
+        try:
+            import inspect
+            try:
+                res = inspect.getargspec(func1)
+            except TypeError:
+                # failed for <built-in method setEnabled of QGroupBox object at 0x7e476f0>:
+                # exceptions.TypeError: arg is not a Python function
+                # (happens for close, quit, setEnabled)
+                if DEBUG_USE_GETARGSPEC_TypeError:
+                    print "USE_GETARGSPEC TypeError for %r: " % (func1,)
+                return DEFAULT_RETVAL
+            else:
+                if DEBUG_GETARGSPEC:
+                    print "inspect.getargspec(%r) = %r" % (func1, res)
+                # now analyze the results to produce our return value
+                args,  varargs, varkw, defaults = res
+                    # Python 2.1 documentation:
+                    # args is a list of the argument names (it may contain nested lists).
+                    # varargs and varkw are the names of the * and  ** arguments or None.
+                    # defaults is a tuple of default argument values or None if there are no default arguments;
+                    # if this tuple has n elements, they correspond to  the last n elements listed in args.
+                if args and args[0] == 'self':
+                    # kluge: assume it's a bound method in this case
+                    ### TODO: verify this by type check,
+                    # or better, use type check to test this in the first place
+                    args0 = args
+                    args = args[1:]
+                    if defaults is not None and len(defaults) == len(args0):
+                        # a default value for self in a bound method would be too weird to believe
+                        print "USE_GETARGSPEC sees default value for self in %r argspec %r" % (func1, res)
+                        # but handle it anyway
+                        defaults = defaults[1:]
+                    if DEBUG_GETARGSPEC:
+                        print "removed self, leaving %r" % ((args,  varargs, varkw, defaults),) # remove when works
+                    pass
+                else:
+                    assert type(args) == type([])
+                    # first arg is missing (no args) or is not 'self'
+                    if DEBUG_GETARGSPEC:
+                        print "USE_GETARGSPEC sees first arg not self:", args # other info was already printed
+                    
+                # now use args, varargs, varkw, defaults to construct return values
+                success = True
+                maxargs = minargs = len(args)
+                if defaults:
+                    minargs -= len(defaults)
+                if varargs:
+                    maxargs = None # means infinity or "don't know" (infinity in this case)
+                any_kws_ok = not not varkw
+                return success, minargs, maxargs, any_kws_ok
+        except:
+            print_compact_traceback("USE_GETARGSPEC failed for %r: " % (func1,) )
+        pass
+    # if we didn't return something above, just return the stub value
+    # which represents complete uncertainty
+    return DEFAULT_RETVAL
 
 # ==
 
