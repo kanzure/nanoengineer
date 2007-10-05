@@ -15,7 +15,6 @@ __author__ = "bruce" # and others
 
 import sys, os, time
 from PyQt4.Qt import Qt, QDesktopWidget, QRect
-import qt4transition
 import env
 import platform
 
@@ -153,10 +152,6 @@ def middle_button_prefix():
 # [moved here from GLPane.py -- bruce 050112]
 
 def fix_event_helper(self, event, when, target = None): #bruce 050913 new API; should merge them, use target, doc this one
-    qt4transition.qt4todo('reconcile state and stateAfter')
-        # fyi: for info about event methods button and buttons (related to state and stateAfter in Qt3) see
-        # http://www.riverbankcomputing.com/Docs/PyQt4/html/qmouseevent.html#button
-        # [bruce 070328]
 ##     if when == 'press':
 ##         but = event.stateAfter()
 ##     else:
@@ -501,7 +496,6 @@ def find_plugin_dir(plugin_name):
             return False, "error: can't find built-in plugins directory [%s] (or it's not a directory)" % (appdir,)
         path = os.path.join(appdir, plugin_name)
         if os.path.isdir(path):
-            qt4transition.qt4message(path)
             return True, path
         return False, "can't find plugin %r" % (plugin_name,)
     except:
@@ -748,96 +742,6 @@ def screen_pos_size(): ###e this copies code in main.py -- main.py should call t
     return (x,y), (w,h)
 
 # ==
-
-# main window layout save/restore
-# [not sure in which file this belongs -- not really this one]
-# and other code related to main window size [which does belong here]
-
-def fullkey(keyprefix, *subkeys): #e this func belongs in preferences.py
-    res = keyprefix
-    for subkey in subkeys:
-        res += "/" + subkey
-    return res
-
-def size_pos_keys( keyprefix):
-    return fullkey(keyprefix, "geometry", "size"), fullkey(keyprefix, "geometry", "pos")
-
-def tupleFromQPoint(qpoint):
-    return qpoint.x(), qpoint.y()
-
-def tupleFromQSize(qsize):
-    return qsize.width(), qsize.height()
-
-# def qpointFromTuple - not needed
-
-def get_window_pos_size(win):
-    size = tupleFromQSize( win.size())
-    pos = tupleFromQPoint( win.pos())
-    return pos, size
-
-def save_window_pos_size( win, keyprefix): #bruce 050913 removed histmessage arg
-    """Save the size and position of the given main window, win,
-    in the preferences database, using keys based on the given keyprefix,
-    which caller ought to reserve for geometry aspects of the main window.
-    (#e Someday, maybe save more aspects like dock layout and splitter bar positions??)
-    """
-##    from preferences import prefs_context
-##    prefs = prefs_context()
-    ksize, kpos = size_pos_keys( keyprefix)
-    pos, size = get_window_pos_size(win)
-    changes = { ksize: size, kpos: pos }
-    env.prefs.update( changes) # use update so it only opens/closes dbfile once
-    env.history.message("saved window position %r and size %r" % (pos,size))
-    return
-
-def load_window_pos_size( win, keyprefix, defaults = None, screen = None): #bruce 050913 removed histmessage arg; 060517 revised
-    """Load the last-saved size and position of the given main window, win,
-    from the preferences database, using keys based on the given keyprefix,
-    which caller ought to reserve for geometry aspects of the main window.
-    (If no prefs have been stored, return reasonable or given defaults.)
-       Then set win's actual position and size (using supplied defaults, and
-    limited by supplied screen size, both given as ((pos_x,pos_y),(size_x,size_y)).
-    (#e Someday, maybe restore more aspects like dock layout and splitter bar positions??)
-    """
-    if screen is None:
-        screen = screen_pos_size()
-    ((x0,y0),(w,h)) = screen
-    x1 = x0 + w
-    y1 = y0 + h
-
-    pos, size = get_prefs_for_window_pos_size( win, keyprefix, defaults)
-    # now use pos and size, within limits set by screen
-    px,py = pos
-    sx,sy = size
-    if sx > w: sx = w
-    if sy > h: sy = h
-    if px < x0: px = x0
-    if py < y0: py = y0
-    if px > x1 - sx: px = x1 - sx
-    if py > y1 - sy: py = y1 - sy
-    env.history.message("restoring last-saved window position %r and size %r" % ((px,py),(sx,sy)))
-    win.resize(sx,sy)
-    win.move(px,py)
-    return
-
-def get_prefs_for_window_pos_size( win, keyprefix, defaults = None):
-    """Load and return the last-saved size and position of the given main window, win,
-    from the preferences database, using keys based on the given keyprefix,
-    which caller ought to reserve for geometry aspects of the main window.
-    (If no prefs have been stored, return reasonable or given defaults.)
-    """
-    #bruce 060517 split this out of load_window_pos_size
-    if defaults is None:
-        defaults = get_window_pos_size(win)
-    dpos, dsize = defaults
-    px,py = dpos # check correctness of args, even if not used later
-    sx,sy = dsize
-    import preferences
-    prefs = preferences.prefs_context()
-    ksize, kpos = size_pos_keys( keyprefix)
-    pos = prefs.get(kpos, dpos)
-    size = prefs.get(ksize, dsize)
-    return pos, size
 
 def open_file_in_editor(file, hflag = True): #bruce 050913 revised this
     """Opens a file in a standard text editor.

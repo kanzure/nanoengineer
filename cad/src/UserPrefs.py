@@ -37,9 +37,6 @@ from widgets import double_fixup
 from prefs_widgets import connect_colorpref_to_colorframe, connect_checkbox_with_boolean_pref
 import platform
 from PlatformDependent import screen_pos_size
-from PlatformDependent import get_window_pos_size
-from PlatformDependent import save_window_pos_size
-from PlatformDependent import get_prefs_for_window_pos_size
 from PlatformDependent import get_rootdir
 from povray import get_default_plugin_path
 from icon_utilities import geticon
@@ -242,6 +239,92 @@ def get_dirname_and_save_in_prefs(parent, prefs_key, caption=''): #bruce 060710 
     prefs[prefs_key] = str(filename)
         
     return filename
+
+# main window layout save/restore
+
+def _fullkey(keyprefix, *subkeys): #e this func belongs in preferences.py
+    res = keyprefix
+    for subkey in subkeys:
+        res += "/" + subkey
+    return res
+
+def _size_pos_keys( keyprefix):
+    return _fullkey(keyprefix, "geometry", "size"), _fullkey(keyprefix, "geometry", "pos")
+
+def _tupleFromQPoint(qpoint):
+    return qpoint.x(), qpoint.y()
+
+def _tupleFromQSize(qsize):
+    return qsize.width(), qsize.height()
+
+def _get_window_pos_size(win):
+    size = _tupleFromQSize( win.size())
+    pos = _tupleFromQPoint( win.pos())
+    return pos, size
+
+def save_window_pos_size( win, keyprefix): #bruce 050913 removed histmessage arg
+    """Save the size and position of the given main window, win,
+    in the preferences database, using keys based on the given keyprefix,
+    which caller ought to reserve for geometry aspects of the main window.
+    (#e Someday, maybe save more aspects like dock layout and splitter bar positions??)
+    """
+##    from preferences import prefs_context
+##    prefs = prefs_context()
+    ksize, kpos = _size_pos_keys( keyprefix)
+    pos, size = _get_window_pos_size(win)
+    changes = { ksize: size, kpos: pos }
+    env.prefs.update( changes) # use update so it only opens/closes dbfile once
+    env.history.message("saved window position %r and size %r" % (pos,size))
+    return
+
+def load_window_pos_size( win, keyprefix, defaults = None, screen = None): #bruce 050913 removed histmessage arg; 060517 revised
+    """Load the last-saved size and position of the given main window, win,
+    from the preferences database, using keys based on the given keyprefix,
+    which caller ought to reserve for geometry aspects of the main window.
+    (If no prefs have been stored, return reasonable or given defaults.)
+       Then set win's actual position and size (using supplied defaults, and
+    limited by supplied screen size, both given as ((pos_x,pos_y),(size_x,size_y)).
+    (#e Someday, maybe restore more aspects like dock layout and splitter bar positions??)
+    """
+    if screen is None:
+        screen = screen_pos_size()
+    ((x0,y0),(w,h)) = screen
+    x1 = x0 + w
+    y1 = y0 + h
+
+    pos, size = _get_prefs_for_window_pos_size( win, keyprefix, defaults)
+    # now use pos and size, within limits set by screen
+    px,py = pos
+    sx,sy = size
+    if sx > w: sx = w
+    if sy > h: sy = h
+    if px < x0: px = x0
+    if py < y0: py = y0
+    if px > x1 - sx: px = x1 - sx
+    if py > y1 - sy: py = y1 - sy
+    env.history.message("restoring last-saved window position %r and size %r" % ((px,py),(sx,sy)))
+    win.resize(sx,sy)
+    win.move(px,py)
+    return
+
+def _get_prefs_for_window_pos_size( win, keyprefix, defaults = None):
+    """Load and return the last-saved size and position of the given main window, win,
+    from the preferences database, using keys based on the given keyprefix,
+    which caller ought to reserve for geometry aspects of the main window.
+    (If no prefs have been stored, return reasonable or given defaults.)
+    """
+    #bruce 060517 split this out of load_window_pos_size
+    if defaults is None:
+        defaults = _get_window_pos_size(win)
+    dpos, dsize = defaults
+    px,py = dpos # check correctness of args, even if not used later
+    sx,sy = dsize
+    import preferences
+    prefs = preferences.prefs_context()
+    ksize, kpos = _size_pos_keys( keyprefix)
+    pos = prefs.get(kpos, dpos)
+    size = prefs.get(ksize, dsize)
+    return pos, size
     
 def validate_gamess_path(parent, gmspath):
     '''Checks that gmspath (GAMESS executable) exists.  If not, the user is asked
@@ -1196,14 +1279,14 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.current_height_spinbox.setRange(1,h)
         
         # Set value of the Current Size Spinboxes
-        pos, size = get_window_pos_size(self.w)
+        pos, size = _get_window_pos_size(self.w)
         self.current_width_spinbox.setValue(size[0])
         self.current_height_spinbox.setValue(size[1])
         
         # Set string of Saved Size Lineedits
         from prefs_constants import mainwindow_geometry_prefs_key_prefix
         keyprefix = mainwindow_geometry_prefs_key_prefix
-        pos, size = get_prefs_for_window_pos_size( self.w, keyprefix)
+        pos, size = _get_prefs_for_window_pos_size( self.w, keyprefix)
         self.update_saved_size(size[0], size[1])
 
         connect_checkbox_with_boolean_pref( self.remember_win_pos_and_size_checkbox, rememberWinPosSize_prefs_key )
@@ -2194,7 +2277,7 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         'Restore the window size, but not the position, from the prefs db'
         from prefs_constants import mainwindow_geometry_prefs_key_prefix
         keyprefix = mainwindow_geometry_prefs_key_prefix
-        pos, size = get_prefs_for_window_pos_size( self.w, keyprefix)
+        pos, size = _get_prefs_for_window_pos_size( self.w, keyprefix)
         w = size[0]
         h = size[1]
         self.update_saved_size(w, h)

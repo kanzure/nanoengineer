@@ -18,7 +18,7 @@ import platform
 import debug
 import debug_prefs
 
-from PlatformDependent import save_window_pos_size, load_window_pos_size
+from UserPrefs import save_window_pos_size, load_window_pos_size
 from prefs_constants import mainwindow_geometry_prefs_key_prefix
 from debug import registered_commands_menuspec
 from debug import print_compact_traceback

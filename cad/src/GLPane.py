@@ -170,6 +170,8 @@ from debug_prefs import debug_pref
 
 from GLPane_minimal import GLPane_minimal
 
+import qt4transition
+
 # suspicious imports [should not really be needed, according to bruce 070919]
 from chunk import molecule # used only for drawHighlightedChunk
 from chem import Atom # used only for drawHighlightedChunk
@@ -1431,6 +1433,11 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
             We also set self.modkeys to replace the obsolete mode.modkey variable.
             This only works if we're called for all event types which want to look at that variable.]
         """
+
+        qt4transition.qt4todo('reconcile state and stateAfter')
+        # fyi: for info about event methods button and buttons (related to state and stateAfter in Qt3) see
+        # http://www.riverbankcomputing.com/Docs/PyQt4/html/qmouseevent.html#button
+        # [bruce 070328]
         but, mod = fix_event_helper(self, event, when, target)
             # fix_event_helper has several known bugs as of 060220, including:
             # - target is not currently used, and it's not clear what it might be for [in this method, it's self.mode]
