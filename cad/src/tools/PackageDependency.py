@@ -56,6 +56,14 @@ externalModules = []
    not in the set of arguments.
 """
 
+rootsToKeep = set([
+    "main",
+    ])
+
+filesToProcess = []
+optionPrintUnreferenced = False
+optionDontPrune = False
+
 # these four are set in initializeGlobals()
 allProcessedModules = None
 referencedModules = None
@@ -125,7 +133,7 @@ def dependenciesInFile(fileName, printing):
         else:
             toModuleCount[toModuleName] = 1
         outCount = outCount + 1
-    if (outCount < 2):
+    if (outCount < 1):
         return fromModuleName
     return None
 
@@ -152,7 +160,7 @@ def pruneTree():
     pruneModulesLen = 0
     prunedModuleList = []
 
-    for sourceFile in sys.argv[1:]:
+    for sourceFile in filesToProcess:
         prunedModule = dependenciesInFile(sourceFile, False)
         if (prunedModule):
             prunedModuleList += [prunedModule]
@@ -160,6 +168,8 @@ def pruneTree():
     pruneCount += len(prunedModuleList)
     
     unreferencedModulesList = allProcessedModules.difference(referencedModules)
+    if (optionPrintUnreferenced):
+        unreferencedModulesList = unreferencedModulesList.difference(rootsToKeep)
     unreferencedModules += unreferencedModulesList
     pruneCount += len(unreferencedModulesList)
 
@@ -174,13 +184,25 @@ def pruneTree():
 def printTree():
     initializeGlobals()
     print "digraph G {"
-    for sourceFile in sys.argv[1:]:
+    for sourceFile in filesToProcess:
         dependenciesInFile(sourceFile, True)
     print "}"
     for key in fromModuleCount.keys():
         print >>sys.stderr, "%06d %06d %s" % (toModuleCount[key], fromModuleCount[key], key)
 
 if (__name__ == '__main__'):
-    while (pruneTree()):
-        pass
-    printTree()
+    for opt in sys.argv[1:]:
+        if (opt == "--noPrune"):
+            optionDontPrune = True
+        elif (opt == "--printUnreferenced"):
+            optionPrintUnreferenced = True
+        else:
+            filesToProcess += [opt]
+    if (not optionDontPrune):
+        while (pruneTree()):
+            pass
+    if (optionPrintUnreferenced):
+        for module in unreferencedModules:
+            print module
+    else:
+        printTree()
