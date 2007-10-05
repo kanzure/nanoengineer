@@ -19,6 +19,11 @@ from test_connectWithState_constants import CYLINDER_WIDTH_DEFAULT_VALUE
     ### REVISE: the default value should come from the stateref, when using the State macro,
     # so it can be defined only in this file and not needed via globals by the PM
 
+# REVISE: the following should just be the stateref's get_value and set_value methods.
+# And -- to be realistic, we should find some setting that is more sensible to store in prefs,
+# and make a prefs stateref for that setting rather than for what ought to be a model
+# object attribute.
+
 def cylinder_height():
     import env
     return env.prefs.get( CYLINDER_HEIGHT_PREFS_KEY, CYLINDER_HEIGHT_DEFAULT_VALUE)
