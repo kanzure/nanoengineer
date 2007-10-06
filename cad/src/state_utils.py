@@ -1,12 +1,15 @@
 # Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
+"""
 state_utils.py
 
 General state-related utilities.
 
 $Id$
 
-'''
+Note: same_vals was moved from here into a new file, utilities/Comparison.py,
+to break an import cycle. It is closely related to copy_val which remains here.
+"""
+
 __author__ = 'bruce'
 
 from state_constants import S_DATA, S_CHILD, S_CHILDREN, S_REF, S_REFS, S_PARENT, S_PARENTS, S_CHILDREN_NOT_DATA
@@ -15,24 +18,8 @@ from types import InstanceType # use this form in inner loops
 import env
 from debug import print_compact_stack
 import platform # for atom_debug [bruce 060315]
-from utilities.Comparison import same_vals
+from utilities.Comparison import same_vals, SAMEVALS_SPEEDUP
 
-#060407 zapped all the code that looked at this:
-## debug_priorstate_kluge = False # do not commit with true
-
-SAMEVALS_SPEEDUP = False    # Use the C extension
-
-if SAMEVALS_SPEEDUP:
-    try:
-        # If we're using the samevals extension, we need to tell the
-        # extension what a Numeric array looks like, since the symbol
-        # PyArray_Type was not available at link time when we built
-        # the extension.
-        from samevals import setArrayType
-        import Numeric
-        setArrayType(type(Numeric.array((1,2,3))))
-    except ImportError:
-        SAMEVALS_SPEEDUP = False
 
 ### TODO:
 '''
@@ -633,7 +620,9 @@ def copy_InstanceType(obj): #e pass copy_val as an optional arg?
 
 if SAMEVALS_SPEEDUP:
     # Replace definition above with the extension's version.
-    from samevals import copy_val, same_vals, setInstanceCopier, setArrayCopier
+    # (This is done for same_vals in utilities/Comparison.py,
+    #  and for copy_val here in state_utils.py.)
+    from samevals import copy_val, setInstanceCopier, setArrayCopier
     setInstanceCopier(copy_InstanceType)
     setArrayCopier(lambda x: x.copy())
 

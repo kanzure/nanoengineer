@@ -1,3 +1,23 @@
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+"""
+utilities/Comparison.py - provides same_vals, for correct equality comparison.
+See also state_utils.py, which contains the closely related copy_val.
+
+$Id$
+
+History:
+
+same_vals was written as part of state_utils.py [bruce]
+
+moved same_vals into utilities/Comparison.py to break an import cycle
+[ericm 071005]
+
+moved SAMEVALS_SPEEDUP and "import samevals" along with it
+(but left the associated files in cad/src, namely samevals.c [by wware],
+setup2.py, and part of Makefile) [bruce 071005]
+"""
+
+__author__ = 'bruce'
 
 from types import InstanceType # use this form in inner loops
 
@@ -13,8 +33,43 @@ import env
 
 _debug_same_vals = False #bruce 060419; relates to bug 1869
 
+SAMEVALS_SPEEDUP = False
+    # If true, try to use the C extension version in samevals.c
+    # [which is not yet fully correct, IIRC -- bruce 071005 comment];
+    # will be set to False if "import samevals" fails below.
+    
+    # Note: samevals.c [by wware] is still built and resides in cad/src,
+    # not cad/src/utilities, as of 071005, but that should not
+    # prevent import samevals from working here. If samevals.c is moved
+    # here into utilities/, then setup2.py and part of Makefile need to
+    # be moved along with it. [bruce 071005 comment]
+
+if SAMEVALS_SPEEDUP:
+    try:
+        # If we're using the samevals extension, we need to tell the
+        # extension what a Numeric array looks like, since the symbol
+        # PyArray_Type was not available at link time when we built
+        # the extension. [wware]
+
+        from samevals import setArrayType
+        import Numeric
+        setArrayType(type(Numeric.array((1,2,3))))
+    except ImportError:
+        # Note: this error could be from importing samevals
+        # (an optional dll built from samevals.c) or Numeric.
+        # If the latter, it was avoidable using _haveNumeric,
+        # but I don't know whether samevals.c permits use when
+        # setArrayType was never called, so I'll let this code
+        # continue to disable SAMEVALS_SPEEDUP in either case.
+        # [bruce 071005]
+        print "samevals.so/dll or Numeric not available, not using SAMEVALS_SPEEDUP"
+        SAMEVALS_SPEEDUP = False
+
+# ==
+
 def same_vals(v1, v2): #060303
-    """Efficiently scan v1 and v2 in parallel to determine whether they're the same, for purposes of undoable state
+    """
+    Efficiently scan v1 and v2 in parallel to determine whether they're the same, for purposes of undoable state
     or saved state.
        The only reason we really need this (as opposed to just using Python '==' or '!=' and our own __eq__ methods)
     is because Numeric.array.__eq__ is erroneously defined, and if we were using '==' or '!=' on a Python tuple containing 
@@ -149,10 +204,10 @@ if (_haveNumeric):
     del numeric_array_type
 
 def _same_vals_helper(v1, v2): #060303
-    """[private recursive helper for same_vals] raise _NotTheSame if v1 is not the same as v2
+    """
+    [private recursive helper for same_vals] raise _NotTheSame if v1 is not the same as v2
     (i.e. if their type or structure differs, or if any corresponding parts are not the same)
     """
-
     typ = type(v1)
     if typ is not type(v2):
         raise _NotTheSame
@@ -171,3 +226,11 @@ def _same_vals_helper(v1, v2): #060303
     # guess: yes, and is even good, but it's not obviously good nor obviously necessary. See also the comments
     # above _same_InstanceType_helper. [bruce 060419]
     return    
+
+if SAMEVALS_SPEEDUP:
+    # Replace definition above with the extension's version.
+    # (This is done for same_vals here in utilities/Comparison.py,
+    #  and for copy_val in state_utils.py.)
+    from samevals import same_vals
+
+# end
