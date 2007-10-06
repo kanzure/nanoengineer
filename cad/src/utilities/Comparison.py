@@ -142,6 +142,7 @@ _known_type_same_helpers[type(())] = _same_tuple_helper
 _known_type_same_helpers[ InstanceType ] = _same_InstanceType_helper
 
 if (_haveNumeric):
+    # note: related code exists in state_utils.py.
     numeric_array_type = type(array(range(2))) # __name__ is 'array', but Numeric.array itself is a built-in function, not a type
     assert numeric_array_type != InstanceType
     _known_type_same_helpers[ numeric_array_type ] = _same_Numeric_array_helper

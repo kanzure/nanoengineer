@@ -691,6 +691,7 @@ except:
     if env.debug():
         print "fyi: can't import array, PyObject from Numeric, so not registering its copy & scan functions"
 else:
+    # note: related code exists in utilities/Comparison.py.
     numeric_array_type = type(array(range(2))) # __name__ is 'array', but Numeric.array itself is a built-in function, not a type
     assert numeric_array_type != InstanceType
     known_type_copiers[ numeric_array_type ] = copy_Numeric_array
