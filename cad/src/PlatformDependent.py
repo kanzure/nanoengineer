@@ -509,7 +509,7 @@ _histfile = None
 _histfile_timestamp_string = None
     #bruce 060614 kluge -- record this for use in creating other per-session unique directory names
     # To clean this up, we should create this filename, and the file itself,
-    # earlier in startup_funcs, and be 100% sure it's unique (include pid, use O_EXCL, or test in some manner).
+    # earlier during startup, and be 100% sure it's unique (include pid, use O_EXCL, or test in some manner).
 
 def make_history_filename():
     """[private method for history init code]

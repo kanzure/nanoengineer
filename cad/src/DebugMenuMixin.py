@@ -166,7 +166,7 @@ class DebugMenuMixin:
         keyprefix = mainwindow_geometry_prefs_key_prefix
         save_window_pos_size( win, keyprefix)
 
-    def _debug_load_window_layout(self): # [similar code is in pre_main_show in startup_funcs.py, new as of 051218]
+    def _debug_load_window_layout(self): # [similar code is in pre_main_show in a startup module, new as of 051218]
         win = self._debug_win
         keyprefix = mainwindow_geometry_prefs_key_prefix
         load_window_pos_size( win, keyprefix)

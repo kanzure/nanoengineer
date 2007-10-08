@@ -1,0 +1,71 @@
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+
+# documentation and implementation notes about the ALTERNATE_CAD_SRC_PATH feature
+# which is implemented in main.py
+
+# see also:
+# http://www.nanoengineer-1.net/mediawiki/index.php?title=Using_the_Libraries_from_an_NE1_Installation_for_Mac_Development
+
+# $Id$
+
+# __author__ = "bruce"
+
+  If you are a developer who wants an installed release build of NE1 to load
+most of its Python code (the code normally located in cad/src in cvs) from
+a different directory than usual, find the source file main.py in the
+place that the release builder copies it to (details below), and add a file
+next to it named ALTERNATE_CAD_SRC_PATH, consisting of a single line giving
+the absolute pathname in which cad/src files should be found. (This feature
+may only work correctly if that pathname also ends with cad/src.)
+
+  If a directory exists at that path, it will be prepended to sys.path,
+so that Python imports will look in it first, and a flag and global
+variable will be set here, so that other code can also behave differently
+when this feature is in use. (This is intended to permit printing of startup
+messages prominently warning the developer-user that this feature is being
+used, and to permit startup or other code to improve the behavior of this
+feature, for example by removing the usual location of files in cad/src
+from sys.path (so that removed files don't still seem to be present),
+by also looking for cad/plugins/* or sim.so in a different place, etc.)
+
+  Finding the correct main.py file to place ALTERNATE_CAD_SRC_PATH next to:
+At least on the Mac, the source file main.py is copied to a different place
+than all other cad/src files (which remain as .pyc files in a .zip archive) --
+though it is also left (unused) in the same place as they are. As of 070704,
+the copied main.py is located inside NE1's .app folder, with a pathname like
+NanoEngineer-1-version.app/Contents/Resources/main.py. So the new file should
+have a name like NanoEngineer-1-version.app/Contents/Resources/ALTERNATE_CAD_SRC_PATH
+and contents that look something like <your cvs dir>/cad/src on a single line.
+
+  The motivation of this feature is to permit a developer to run NE1 from cvs
+or other modified sources, but using the same libraries present in an
+installed NE1, whether or not they're installed on that developer's system in
+the usual way. This saves developers from having to install those libraries
+or worry about whether they're the right version, and permits testing code
+with more than one different set of such libraries. It also helps test for
+bugs due to the possible dependence of code on its location in the filesystem.
+
+  This feature is operative (when its special file is found) regardless of
+whether NE1 is being run from a built release or from cvs, so don't check in an
+ALTERNATE_CAD_SRC_PATH file to cvs! 
+
+  This feature might work on Windows and Linux, but has only been tested on Mac
+as of 070704. It's possible those platforms will require alternative ways of
+modifying the installed NE1.
+
+Implementation & design notes:
+
+  This feature needs to be implemented entirely in main.py, and can't make use of any
+normal "preference setting", since it has to know how to modify sys.path before we
+import any other modules. (It's also good if it affects each installation of NE1
+independently, but that requirement would only complicate the use of a prefs setting
+rather than ruling it out.)
+
+  One reason we implement this using a separate file (rather than just suggesting
+that the developer-user edit the global definitions in this file directly) is to
+make it less likely that a mistaken cvs commit will activate this feature for
+everyone by default. Another reason is to make it more likely to work unchanged
+on all platforms (in case finding and modifying this file is difficult on some
+platforms).
+
+# end
