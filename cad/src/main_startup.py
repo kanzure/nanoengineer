@@ -16,7 +16,7 @@ by bruce 070704.
 """
 
 import sys, time
-import startup_funcs # this has no side effects, it only defines a few functions
+import startup_funcs # this has no side effects, it only defines functions we call in a certain order
 
 # NOTE: all other imports MUST be added inside the following function,
 # since they must not be done before startup_funcs.before_most_imports is executed.
@@ -73,32 +73,17 @@ def startup_script( main_globals):
     # preference after the program has already come up, as too much of the GUI is already in place
     # by then. To change it, manually edit it here.
     #
+    # [note added later: I suspect we are now dependent on this value of True and should
+    #  should not leave the appearance that the False value is supported. I don't know for sure.
+    #  [bruce 071005 comment]]
+    #
     debug_pref("Multipane GUI", Choice_boolean_True)
     #debug_pref("Multipane GUI", Choice_boolean_False)
     #
     ##########################################################################################################
 
-    # These initialize() calls should move to a generic initialization function
-    # when there are more of them. Are they in the right place? Probably should
-    # be called before any assembly objects are created.
-    # [added by ericm 20070701, along with "remove import star", just after NE1
-    #  A9.1 release]
+    startup_funcs._call_module_init_functions()
 
-    # WARNING: the order of calling these matters, for many of them. We should document
-    # that order dependency in their docstrings, and perhaps also right here.
-    # One reason for order dependency is registration order of post_event_updater functions,
-    # though this is mitigated now that we register model and ui updaters separately.
-    # (We may decide to call those more directly here, not inside generic initialize methods,
-    #  as a clarification. Likely desirable change (###TODO): register a model updater in assy,
-    #  which calls the bond updater presently registered by bond_updater.initialize.)
-    # [bruce 070925 comment]
-    import bond_updater
-    bond_updater.initialize()
-    import assembly
-    assembly.assembly.initialize()
-    import GroupButtonMixin
-    GroupButtonMixin.GroupButtonMixin.initialize()
-    
     foo = MWsemantics() # This does a lot of initialization (in MainWindow.__init__)
 
     import __main__

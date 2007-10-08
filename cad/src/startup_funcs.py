@@ -15,10 +15,15 @@ and adding some stub functions which will be filled in later.
 
 import sys, os
 
-import EndUser # NOTE: this must not do imports of our other source modules
+import EndUser
+
+# NOTE: this module (or EndUser) must not do toplevel imports of our other
+# source modules, because it contains functions which need to be called
+# by main_startup before most imports are done.
 
 def before_most_imports( main_globals ):
-    """Do things that should be done before anything that might possibly have side effects.
+    """
+    Do things that should be done before anything that might possibly have side effects.
     main_globals should be the value of globals() in the __main__ module.
     """
 
@@ -131,6 +136,37 @@ def before_creating_app():
     undo.call_asap_after_QWidget_and_platform_imports_are_ok() #bruce 050917
     return
 
+def _call_module_init_functions(): #bruce 071005 split this out of main_startup.startup_script
+    """
+    Call the module initialize functions that are needed
+    before creating the main window object. This includes
+    functions that need to be called before model data structures
+    can be safely created or modified. These functions can assume
+    that the main application object exists.
+    """
+    # [added by ericm 20070701, along with "remove import star", just after NE1
+    #  A9.1 release, into main_startup.startup_script]
+
+    # WARNING: the order of calling these matters, for many of them. We should document
+    # that order dependency in their docstrings, and perhaps also right here.
+    # One reason for order dependency is registration order of post_event_updater functions,
+    # though this is mitigated now that we register model and ui updaters separately.
+    # (We may decide to call those more directly here, not inside generic initialize methods,
+    #  as a clarification. Likely desirable change (###TODO): register a model updater in assy,
+    #  which calls the bond updater presently registered by bond_updater.initialize.)
+    # [bruce 070925 comment]
+    
+    import bond_updater
+    bond_updater.initialize()
+    
+    import assembly
+    assembly.assembly.initialize()
+    
+    import GroupButtonMixin
+    GroupButtonMixin.GroupButtonMixin.initialize()
+
+    return
+
 # (MWsemantics.__init__ is presumably run after the above functions and before the following ones.)
 
 def pre_main_show( win):
@@ -188,6 +224,11 @@ def pre_main_show( win):
         win.setGeometry(QRect(norm_x, norm_y, norm_w, norm_h))
 
     _initialize_custom_display_modes(win)
+
+    ### TODO: this would be a good place to add miscellaneous commands to the UI,
+    # provided they are fully supported (not experimental, unlikely to cause bugs when added)
+    # and won't take a lot of runtime to add. Otherwise they can be added after the
+    # main window is shown. [bruce 071005 comment] ###@@@
     
     return # from pre_main_show
 
@@ -202,34 +243,76 @@ def _initialize_custom_display_modes(win):
     import CylinderChunks #bruce 060609
     import SurfaceChunks #mark 060610
     from debug_prefs import debug_pref, Choice_boolean_False
-    enable_SurfaceChunks = debug_pref("enable SurfaceChunks next session?", Choice_boolean_False, non_debug = True, prefs_key = True)
+    enable_SurfaceChunks = debug_pref("enable SurfaceChunks next session?",
+                                      Choice_boolean_False, non_debug = True, prefs_key = True)
     win.dispSurfaceAction.setText("Surface (experimental, may be slow)")
     win.dispSurfaceAction.setEnabled(enable_SurfaceChunks)
     win.dispSurfaceAction.setVisible(enable_SurfaceChunks)
     return
 
+# ==
 
-def post_main_show( win): # bruce 050902 added this
-    "Do whatever should be done after the main window is shown, but before the Qt event loop is started."
-    ####e rebuild pyx modules if necessary and safe -- but only for developers, not end-users
-    _initialize_plugin_generators()
+def post_main_show( win):
+    """
+    Do whatever should be done after the main window is shown,
+    but before the Qt event loop is started.
+
+    @param win: the single Main Window object.
+    @type  win: L{MWsemantics}
+    """
+    # NOTE: if possible, new code should be added into one of the following functions,
+    # or into a new function called by this one, rather than directly into this function.
     
+    # TODO: rebuild pyx modules if necessary and safe -- but only for developers, not end-users
+    # TODO: initialize Python extensions: ## import extensions.py
+    _initialize_plugin_generators()
+    _init_miscellaneous_commands()
+    _set_mainwindow_splitter_position( win)
+    return
+
+def _init_miscellaneous_commands():
+    """
+    Initialize commands in the UI that have no better place to be initialized.
+    """
+    # Note: if you are not sure where to add init code for a new command in the UI,
+    # this is one possible place. But if it's more complicated than importing and calling
+    # an initialize function, it's best if the complicated part is defined in some other
+    # module and just called from here. See also the other places from which initialize
+    # functions are called, for other places that might be better for adding new command
+    # initializers. This place is mainly for experimental or slow-to-initialize commands,
+    # or those which have no visible effect in the UI (e.g. context menu commands).
+    # [bruce 071005]
+    _init_command_Atom_Generator()
+    _init_test_commands()
+    return
+
+def _init_command_Atom_Generator(): # TODO: this function should be moved into AtomGenerator.py
     # Atom Generator debug pref. Mark and Jeff. 2007-06-13
     from debug_prefs import debug_pref, Choice_boolean_False
     from AtomGenerator import enableAtomGenerator
     _atomGeneratorIsEnabled = debug_pref("Atom Generator example code: enabled?", Choice_boolean_False, 
                                        non_debug = True, prefs_key = "A9/Atom Generator Visible",
                                        call_with_new_value = enableAtomGenerator )
-    
     enableAtomGenerator(_atomGeneratorIsEnabled)
+    return
 
-    #bruce 070613 code under development (maybe not yet committed)
+def _init_test_commands():
+    #bruce 070613 
+    from debug_prefs import debug_pref, Choice_boolean_False
     if debug_pref("test_commands enabled (next session)", Choice_boolean_False, prefs_key = True):
         import test_commands
+    return
+
+def _set_mainwindow_splitter_position( win): # TODO: this function should be moved into some other module.
+    """
+    Set the position of the splitter between the MT and graphics area
+    so that the starting width of the property manager is "pmDefaultWidth"
+    pixels.
     
-    # The code below sets the position of the splitter bw the MT and graphics area
-    # so that the starting widith of the property manager is "pmDefaultWidth" pixels
-    # wide. This code fixes bug 2424.
+    @param win: the single Main Window object.
+    @type  win: L{MWsemantics}
+    """
+    # This code fixes bug 2424. Mark 2007-06-27.
     #
     # Bug 2424 was difficult to fix for many reasons:
     #
@@ -254,14 +337,14 @@ def post_main_show( win): # bruce 050902 added this
     # Since we want the default width of the PropMgr to be <pmDefaultWidth>,
     # I compute the new glpane width = magic_combined_width - pmDefaultWidth.
     # Note: the resize is visible at startup.
-    #
-    # This fixes bug 2424. Mark 2007-06-27.
+    
     pw = win.activePartWindow()
     from PropMgr_Constants import pmDefaultWidth
     w1, w2 = pw.pwHSplitter.sizes()
     magic_combined_width = w1 + w2
     new_glpane_width = magic_combined_width - pmDefaultWidth
     pw.pwHSplitter.setSizes([pmDefaultWidth, new_glpane_width])
+    return
 
 def _initialize_plugin_generators(): #bruce 060621
     # The CoNTub generator isn't working - commented out until it's fixed.
