@@ -23,7 +23,7 @@ import EndUser
 
 def before_most_imports( main_globals ):
     """
-    Do things that should be done before anything that might possibly have side effects.
+    Do things that should be done before most imports occur.
     main_globals should be the value of globals() in the __main__ module.
     """
 
@@ -128,13 +128,23 @@ def before_most_imports( main_globals ):
 
     
 def before_creating_app():
-    "Do whatever needs to be done before creating the application object, but after importing MWsemantics."
+    """
+    Do things that should be done before creating the application object.
+    """
     # the default (1000) bombs with large molecules
     sys.setrecursionlimit(5000)
     
     import undo
     undo.call_asap_after_QWidget_and_platform_imports_are_ok() #bruce 050917
     return
+
+
+# Note:
+# Above this line, things happen before most imports are ok to do,
+# and before splash screen is shown. Below it, they happen after that.
+#
+# TODO: split into separate files, especially at this point.
+
 
 def _call_module_init_functions(): #bruce 071005 split this out of main_startup.startup_script
     """

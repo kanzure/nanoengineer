@@ -22,8 +22,8 @@ import startup_funcs # this has no side effects, it only defines functions we ca
 # since they must not be done before startup_funcs.before_most_imports is executed.
 
 def startup_script( main_globals):
-    """This is the main startup script for NE1,
-    described more fully in this module's docstring.
+    """
+    This is the main startup script for NE1.
     It is intended to be run only once, and only by the code in main.py.
     When this function returns, the caller is intended to immediately exit
     normally.
@@ -32,26 +32,57 @@ def startup_script( main_globals):
     executed in that global namespace.
     """
 
-    startup_funcs.before_most_imports( main_globals )
-        # "Do things that should be done before anything that might possibly have side effects."
+    # Note: importing all of NE1's functionality can take a long time.
+    # To the extent possible, we want that time to be spent after
+    # something is visible to the user, but (mostly) before the main
+    # window is shown to the user (since showing the main window implies
+    # that NE1 is almost ready to go). So we display a splashscreen
+    # before doing most imports and initializations, then set up most
+    # of our data structures and UI commands (thus importing the code
+    # needed to implement them), and then show the main window.
+    # (Some experimental commands are initialized after that, so that
+    # errors that occur then can't prevent the main window from becoming
+    # visible.)
 
-    ### NOTE: most imports in this file should be done here, or inside functions in startup_funcs.py.
+    # TODO: turn the sections of code below into named functions or methods,
+    # and perhaps split before_most_imports and before_creating_app into
+    # more named functions or methods. The biggest split should be between
+    # functions that need to be careful to do very few or no imports,
+    # and functions that are free to do any imports.
+    
+
+    # "Do things that should be done before most imports occur."
+    
+    startup_funcs.before_most_imports( main_globals )
+
 
     from PyQt4.Qt import QApplication, QSplashScreen
+
+    
+    # "Do things that should be done before creating the application object."
     
     startup_funcs.before_creating_app()
-        # "Do whatever needs to be done before creating the application object, but after importing MWsemantics."
+    
+
+    # create the application object (an instance of QApplication).
     
     QApplication.setColorSpec(QApplication.CustomColor)
     app = QApplication(sys.argv)
     
-    # If the splash image is found in cad/images, put up a splashscreen. 
-    # If you don't want the splashscreen, just rename the splash image.
-    # mark 060131.
-    import icon_utilities
-    icon_utilities.initialize()
 
-    splash_pixmap = icon_utilities.imagename_to_pixmap( "images/splash.png" ) # rename it if you don't want it.
+    # do some imports used for putting up splashscreen
+    
+    import icon_utilities
+    icon_utilities.initialize() 
+
+
+    # Put up the splashscreen (if its image file can be found in cad/images).
+    #    
+    # Note for developers:
+    # If you don't want the splashscreen, just rename the splash image file.
+
+    splash_pixmap = icon_utilities.imagename_to_pixmap( "images/splash.png" )
+        # splash_pixmap will be null if the image file was not found
     if not splash_pixmap.isNull():
         splash = QSplashScreen(splash_pixmap) # create the splashscreen
         splash.show()
@@ -60,12 +91,29 @@ def startup_script( main_globals):
         splash_start = time.time()
     else:
         print "note: splash.png was not found"
- 
+
+
+    # connect the lastWindowClosed signal
+    
     from PyQt4.Qt import SIGNAL
     app.connect(app, SIGNAL("lastWindowClosed ()"), app.quit)
 
-    from MWsemantics import MWsemantics # (this might have side effects other than defining things)
 
+    # NOTE: At this point, it is ok to do arbitrary imports as needed,
+    # except of experimental code.
+
+
+    # import MWsemantics.
+    
+    # An old comment (I don't know if it's still true -- bruce 071008):
+    # this might have side effects other than defining things.
+
+    from MWsemantics import MWsemantics 
+
+
+    # set up the value of debug_pref("Multipane GUI",...).
+    # TODO: change this into a hardcoded flag and probably remove support for one value of it.
+    
     from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
     ##########################################################################################################
     #
@@ -82,8 +130,14 @@ def startup_script( main_globals):
     #
     ##########################################################################################################
 
+
+    # initialize modules and data structures
+    
     startup_funcs._call_module_init_functions()
 
+
+    # create the single main window object
+    
     foo = MWsemantics() # This does a lot of initialization (in MainWindow.__init__)
 
     import __main__
@@ -91,9 +145,18 @@ def startup_script( main_globals):
         # developers often access the main window object using __main__.foo when debugging,
         # so this is explicitly supported
 
+
+    # initialize CoNTubGenerator
+    # TODO: move this into one of the other initialization functions
+    
     import CoNTubGenerator
     CoNTubGenerator.initialize()
 
+
+    # for developers: run a hook function that .atom-debug-rc might have defined
+    # in this module's global namespace, for doing things *before* showing the
+    # main window.
+    
     try:
         # do this, if user asked us to by defining it in .atom-debug-rc
         meth = atom_debug_pre_main_show
@@ -102,6 +165,9 @@ def startup_script( main_globals):
     else:
         meth()
 
+
+    # Do other things that should be done just before showing the main window
+    
     startup_funcs.pre_main_show(foo) # this sets foo's geometry, among other things
     
     foo._init_after_geometry_is_set()
@@ -111,10 +177,19 @@ def startup_script( main_globals):
         while time.time() - splash_start < MINIMUM_SPLASH_TIME:
             time.sleep(0.1)
         splash.finish( foo ) # Take away the splashscreen
-    
-    foo.show() # show the main window
 
-    if sys.platform != 'darwin': #bruce 070515 add condition to disable this on Mac, until Brian fixes the hang on Mac
+
+    # show the main window
+    
+    foo.show() 
+
+
+    # set up the sponsors system and perhaps show the permission dialog
+    
+    if sys.platform != 'darwin':
+        #bruce 070515 added condition to disable this on Mac, until Brian fixes the hang on Mac.
+        # Note: this is enabled in the Mac released version, due to a patch during the release
+        # building process, at least in A9.1.
         from Sponsors import PermissionDialog
 ##        print "start sponsors startup code"
         # Show the dialog that asks permission to download the sponsor logos, then
@@ -125,7 +200,10 @@ def startup_script( main_globals):
             permdialog.exec_()
         permdialog.start()
 ##        print "end sponsors startup code"
-        
+
+
+    # show the MMKit (I think this is obsolete and should be removed -- bruce 071008 comment)
+    
     if not debug_pref("Multipane GUI", Choice_boolean_False):
         if foo.glpane.mode.modename == 'DEPOSIT':
             # Two problems are addressed here when nE-1 starts in Build (DEPOSIT) mode.
@@ -135,7 +213,13 @@ def startup_script( main_globals):
             # Both situations now resolved.  mark 060202
             # Should this be moved to startup_funcs.post_main_show()? I chose to leave
             # it here since the splashscreen code it refers to is in this file.  mark 060202.
-            foo.glpane.mode.MMKit.show()        
+            foo.glpane.mode.MMKit.show()
+
+
+    # for developers: run a hook function that .atom-debug-rc might have defined
+    # in this module's global namespace, for doing things *after* showing the
+    # main window.
+
     try:
         # do this, if user asked us to by defining it in .atom-debug-rc
         meth = atom_debug_post_main_show 
@@ -144,17 +228,23 @@ def startup_script( main_globals):
     else:
         meth()
 
+
+    # do other things after showing the main window
     startup_funcs.post_main_show(foo)
 
-    # If the user's .atom-debug-rc specifies PROFILE_WITH_HOTSHOT=True, use hotshot, otherwise
+
+    # Decide whether to do profiling, and if so, with which
+    # profiling command and into what file. Set local variables
+    # to record the decision, which are used later when running
+    # the Qt event loop.
+    
+    # If the user's .atom-debug-rc specifies PROFILE_WITH_HOTSHOT = True, use hotshot, otherwise
     # fall back to vanilla Python profiler.
     try:
         PROFILE_WITH_HOTSHOT
     except NameError:
         PROFILE_WITH_HOTSHOT = False
     
-    # now run the main Qt event loop --
-    # perhaps with profiling, if user requested this via .atom-debug-rc.
     try:
         # user can set this to a filename in .atom-debug-rc,
         # to enable profiling into that file
@@ -179,14 +269,20 @@ def startup_script( main_globals):
     except:
         atom_debug_profile_filename = None
 
-    # bruce 041029: create fake exception, to help with debugging
-    # (in case it's shown inappropriately in a later traceback)
+
+    # Create a fake "current exception", to help with debugging
+    # (in case it's shown inappropriately in a later traceback).
+    # One time this is seen is if a developer inserts a call to print_compact_traceback
+    # when no exception is being handled (instead of the intended print_compact_stack).
     try:
         assert 0, "if you see this exception in a traceback, it is from the" \
             " startup script called by main.py, not the code that printed the traceback"
     except:
         pass
 
+
+    # Handle the optional startup argument, --initial-file .
+    # TODO: figure out what this is for and what it does, and document it here.
     from platform import atom_debug
     if atom_debug:
         # Use a ridiculously specific keyword, so this isn't triggered accidentally.
@@ -197,7 +293,15 @@ def startup_script( main_globals):
                 import env
                 from utilities.Log import orangemsg
                 env.history.message(orangemsg("We can only import one file at a time."))
-  
+
+
+    # Finally, run the main Qt event loop --
+    # perhaps with profiling, depending on local variables set above.
+    # This does not normally return until the user asks NE1 to exit.
+    
+    # Note that there are three copies of the statement which runs that loop,
+    # two inside string literals, all of which presumably should be the same.
+
     if atom_debug_profile_filename:
         if PROFILE_WITH_HOTSHOT:
             profile = hotshot.Profile(atom_debug_profile_filename)
@@ -209,6 +313,9 @@ def startup_script( main_globals):
         # if you change this code, also change the string literal just above
         app.exec_() 
 
+
+    # Now return to the caller in order to do a normal immediate exit of NE1.
+    
     return # from startup_script
 
 # end
