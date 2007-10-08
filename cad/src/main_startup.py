@@ -16,10 +16,13 @@ by bruce 070704.
 """
 
 import sys, time
-import startup_funcs # this has no side effects, it only defines functions we call in a certain order
+
+from startup import startup_before_most_imports
+## from startup import startup_misc # do this after i svn move the file
+import startup_funcs as startup_misc # do this before then #### TODO - fix this -- also do it lower down!
 
 # NOTE: all other imports MUST be added inside the following function,
-# since they must not be done before startup_funcs.before_most_imports is executed.
+# since they must not be done before startup_before_most_imports.before_most_imports is executed.
 
 def startup_script( main_globals):
     """
@@ -53,7 +56,7 @@ def startup_script( main_globals):
 
     # "Do things that should be done before most imports occur."
     
-    startup_funcs.before_most_imports( main_globals )
+    startup_before_most_imports.before_most_imports( main_globals )
 
 
     from PyQt4.Qt import QApplication, QSplashScreen
@@ -61,7 +64,7 @@ def startup_script( main_globals):
     
     # "Do things that should be done before creating the application object."
     
-    startup_funcs.before_creating_app()
+    startup_before_most_imports.before_creating_app()
     
 
     # create the application object (an instance of QApplication).
@@ -133,7 +136,7 @@ def startup_script( main_globals):
 
     # initialize modules and data structures
     
-    startup_funcs._call_module_init_functions()
+    startup_misc.call_module_init_functions()
 
 
     # create the single main window object
@@ -168,7 +171,7 @@ def startup_script( main_globals):
 
     # Do other things that should be done just before showing the main window
     
-    startup_funcs.pre_main_show(foo) # this sets foo's geometry, among other things
+    startup_misc.pre_main_show(foo) # this sets foo's geometry, among other things
     
     foo._init_after_geometry_is_set()
     
@@ -211,7 +214,7 @@ def startup_script( main_globals):
             #   BTW, the other part of bug fix 1439 is in MWsemantics.modifyMMKit()
             # 2. The MMKit appears 1-3 seconds before the main window.
             # Both situations now resolved.  mark 060202
-            # Should this be moved to startup_funcs.post_main_show()? I chose to leave
+            # Should this be moved to startup_misc.post_main_show()? I chose to leave
             # it here since the splashscreen code it refers to is in this file.  mark 060202.
             foo.glpane.mode.MMKit.show()
 
@@ -230,7 +233,7 @@ def startup_script( main_globals):
 
 
     # do other things after showing the main window
-    startup_funcs.post_main_show(foo)
+    startup_misc.post_main_show(foo)
 
 
     # Decide whether to do profiling, and if so, with which
