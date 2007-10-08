@@ -114,4 +114,7 @@ def select_bad_atoms_cmd(widget): #bruce 060615 demo of simple "spelling checker
     win.mt.update_select_mode()
     return
 
-debug.register_debug_menu_command("%s" % cmdname, select_bad_atoms_cmd)
+def initialize():
+    debug.register_debug_menu_command("%s" % cmdname, select_bad_atoms_cmd)
+
+# end

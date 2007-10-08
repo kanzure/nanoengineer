@@ -146,23 +146,24 @@ def post_main_show( win):
     # TODO: rebuild pyx modules if necessary and safe -- but only for developers, not end-users
     # TODO: initialize Python extensions: ## import extensions.py
     _initialize_plugin_generators()
-    _init_miscellaneous_commands()
+    _init_experimental_commands()
     _set_mainwindow_splitter_position( win)
     return
 
-def _init_miscellaneous_commands():
+def _init_experimental_commands():
     """
-    Initialize commands in the UI that have no better place to be initialized.
+    Initialize experimental commands in the UI.
+    This is called after the main window is shown.
     """
     # Note: if you are not sure where to add init code for a new command in the UI,
     # this is one possible place. But if it's more complicated than importing and calling
     # an initialize function, it's best if the complicated part is defined in some other
     # module and just called from here. See also the other places from which initialize
     # functions are called, for other places that might be better for adding new command
-    # initializers. This place is mainly for experimental or slow-to-initialize commands,
-    # or those which have no visible effect in the UI (e.g. context menu commands).
+    # initializers. This place is mainly for experimental or slow-to-initialize commands.
     # [bruce 071005]
     _init_command_Atom_Generator()
+    _init_command_Select_Bad_Atoms()
     _init_test_commands()
     return
 
@@ -174,6 +175,14 @@ def _init_command_Atom_Generator(): # TODO: this function should be moved into A
                                        non_debug = True, prefs_key = "A9/Atom Generator Visible",
                                        call_with_new_value = enableAtomGenerator )
     enableAtomGenerator(_atomGeneratorIsEnabled)
+    return
+
+def _init_command_Select_Bad_Atoms():
+    # note: I think this was imported at one point
+    # (which initialized it), and then got left out of the startup code
+    # by mistake for awhile, when init code was revised. [bruce 071008]
+    import chem_patterns
+    chem_patterns.initialize()
     return
 
 def _init_test_commands():
@@ -188,6 +197,8 @@ def _set_mainwindow_splitter_position( win): # TODO: this function should be mov
     Set the position of the splitter between the MT and graphics area
     so that the starting width of the property manager is "pmDefaultWidth"
     pixels.
+
+    This should be called after all visible changes to the main window.
     
     @param win: the single Main Window object.
     @type  win: L{MWsemantics}
