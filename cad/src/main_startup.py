@@ -18,8 +18,6 @@ by bruce 070704.
 import sys, time
 
 from startup import startup_before_most_imports
-## from startup import startup_misc # do this after i svn move the file
-import startup_funcs as startup_misc # do this before then #### TODO - fix this -- also do it lower down!
 
 # NOTE: all other imports MUST be added inside the following function,
 # since they must not be done before startup_before_most_imports.before_most_imports is executed.
@@ -65,6 +63,13 @@ def startup_script( main_globals):
     # "Do things that should be done before creating the application object."
     
     startup_before_most_imports.before_creating_app()
+        ### TODO: this imports undo, env, debug, and it got moved earlier
+        # in the startup process at some point. Those imports are probably not
+        # too likely to pull in a lot of others, but if possible we should put up
+        # the splash screen before doing most of them. Sometime try to figure out
+        # how to do that. The point of this function is mostly to wrap every signal->slot
+        # connection -- maybe it's sufficient to do that before creating the main
+        # window rather than before creating the app? [bruce 071008 comment]
     
 
     # create the application object (an instance of QApplication).
@@ -135,6 +140,10 @@ def startup_script( main_globals):
 
 
     # initialize modules and data structures
+
+    from startup import startup_misc
+        # do this here, not earlier, so it's free to do whatever toplevel imports it wants
+        # [bruce 071008 change]
     
     startup_misc.call_module_init_functions()
 

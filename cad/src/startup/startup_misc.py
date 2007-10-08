@@ -11,11 +11,10 @@ bruce 050902 made startup_funcs.py by moving some code out of main.py,
 and adding some stub functions which will be filled in later.
 
 bruce 071005 moved these functions from startup_funcs.py into
-a new file startup/startup_misc.py.
-
-### TEMPORARY NOTE: it is not yet actually moved/renamed, so as to split the
-commit into a file mod and svn move. ####
+this new file startup/startup_misc.py.
 """
+
+# note: toplevel imports are now ok in this module [bruce 071008 change]
 
 def call_module_init_functions(): #bruce 071005 split this out of main_startup.startup_script
     """

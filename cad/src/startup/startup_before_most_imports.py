@@ -12,7 +12,7 @@ bruce 050902 made startup_funcs.py by moving some code out of main.py,
 and adding some stub functions which will be filled in later.
 
 bruce 071005 moved these functions from startup_funcs.py into
-a new file startup/startup_before_most_imports.py.
+this new file startup/startup_before_most_imports.py.
 """
 
 import sys, os
@@ -132,7 +132,7 @@ def before_most_imports( main_globals ):
     
 def before_creating_app():
     """
-    Do things that should be done before creating the application object.
+    Do other things that should be done before creating the application object.
     """
     # the default (1000) bombs with large molecules
     sys.setrecursionlimit(5000)
