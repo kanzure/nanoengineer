@@ -2,11 +2,11 @@
 """
 CookieCtrlPanel.py
 
-Class used for the GUI controls for the cookie mode.
+Class used for the GUI controls for the cookie command.
 
 $Id$
 
-Note: Till Alpha8, this mode was called Cookie Cutter mode. In Alpha9 
+Note: Till Alpha8, this command was called Cookie Cutter mode. In Alpha9 
 it has been renamed to 'Build Crystal' mode. -- ninad 20070511
 """
 
@@ -45,7 +45,7 @@ class CookieCtrlPanel(CookiePropertyManager):
 
     def _init_flyoutActions(self):
         """
-        Define flyout toolbar actions for this mode
+        Define flyout toolbar actions for this command
         """
         #Create an action group and add all the cookie selection shape buttons to it
         self.cookieSelectionGroup = QActionGroup(self.w)
@@ -127,7 +127,7 @@ class CookieCtrlPanel(CookiePropertyManager):
 
                                         
     def getFlyoutActionList(self):
-        """ Returns a tuple that contains mode spcific actionlists in the 
+        """ Returns a tuple that contains mode-specific actionlists in the 
         added in the flyout toolbar of the mode. 
         CommandManager._createFlyoutToolBar method calls this 
         @return: params: A tuple that contains 3 lists: 
@@ -183,12 +183,14 @@ class CookieCtrlPanel(CookiePropertyManager):
         else:
             action = None
         # object that needs its own flyout toolbar. In this case it is just 
-        #the mode itself. 
+        # the mode itself.
+        # [later, bruce 071009: self is now a PM -- is that what this should
+        #  now say, instead of 'mode'?] 
         obj = self  
                     
         self.w.commandManager.updateCommandManager(action,
                                                    obj, 
-                                                   entering =bool_entering)
+                                                   entering = bool_entering)
     
                         
     def _makeConnections(self):
@@ -224,7 +226,10 @@ class CookieCtrlPanel(CookiePropertyManager):
   
        
     def _setAutoShapeAcclKeys(self, on):
-        """If <on>, then set the acceleration keys for autoshape selection in this mode, otherwise, like when exit. set it to empty. """
+        """
+        If <on>, then set the acceleration keys for autoshape selection
+        in this command; otherwise, like when exit. set it to empty.
+        """
         if on:
             self.DefaultSelAction.setShortcut('D')
             self.CircleSelAction.setShortcut('C')
@@ -242,7 +247,13 @@ class CookieCtrlPanel(CookiePropertyManager):
                            
    
     def initGui(self):
-        """This is used to initialize GUI items which needs to change every time when the mode is on. """
+        """
+        This is used to initialize GUI items which need
+        to change every time the command becomes active.
+        """
+        # WARNING: the docstring said "every time when the mode is on"
+        # and I am only guessing that it meant "every time the command becomes active".
+        # [bruce 071009]
         
         self.w.dashboardHolder.hide() #@@ ninad 070104  Once all the dashboards become Property Managers,
         #the w.dashBoardHolder (dockwidget) will be removed completely. So this is a temporary code. (see also restoreGui)
@@ -291,7 +302,7 @@ class CookieCtrlPanel(CookiePropertyManager):
       
     
     def restoreGui(self):
-        """Restore GUI items when exit from the cookie-cutter mode. """
+        """Restore GUI items when exit from the cookie-cutter command. """
                 
         self.updateCommandManager(bool_entering = False)
                 
@@ -315,7 +326,7 @@ class CookieCtrlPanel(CookiePropertyManager):
         #Hide the Cookie Selection Dashboard
         self.w.cookieSelectDashboard.hide()
             
-        #Restore display mode status message
+        #Restore display style status message
         self.w.dispbarLabel.setText( "Current Display: " + dispLabel[self.w.glpane.displayMode] )
             
         # Restore view projection, enable them.
@@ -354,11 +365,11 @@ class CookieCtrlPanel(CookiePropertyManager):
         return selectionShape
    
     def setThickness(self, value):
-       self.w.glpane.mode.setThickness(value)
-          
+        self.cookieCommand.setThickness(value)
+    
     def addLayer(self):
         self.addLayerButton.setEnabled(False)
-        layerId = self.w.glpane.mode.addLayer()
+        layerId = self.cookieCommand.addLayer()
             
         self.currentLayerComboBox.addItem(QString(str(layerId)))
         self.currentLayerComboBox.setCurrentIndex(layerId-1)
@@ -367,23 +378,23 @@ class CookieCtrlPanel(CookiePropertyManager):
 
     def changeLayer(self, value):
         """Change current layer to <value> layer """
-        self.w.glpane.mode.change2Layer(value)
+        self.cookieCommand.change2Layer(value)
 
     def setFreeView(self, freeView):
         """Slot function to switch between free view/cookie selection states """
-        self.w.glpane.mode.setFreeView(freeView)
+        self.cookieCommand.setFreeView(freeView)
         
     def toggleFullModel(self, showFullModel):
         """Slot function for the check box of 'Full Model' in cookie-cutter dashboard """
-        self.w.glpane.mode.toggleFullModel(showFullModel)
+        self.cookieCommand.toggleFullModel(showFullModel)
         
     def showGridLine(self, show):
         """Slot function"""
-        self.w.glpane.mode.showGridLine(show)
+        self.cookieCommand.showGridLine(show)
             
     def setGridSnap(self, snap):
         """Turn on/off the grid snap option """
-        self.w.glpane.mode.gridSnap = snap
+        self.cookieCommand.gridSnap = snap
         pass
                 
     def changeGridColor(self):
@@ -391,10 +402,10 @@ class CookieCtrlPanel(CookiePropertyManager):
         c = QColorDialog.getColor(QColor(222,148,0), self)
         if c.isValid():
             self.gridColorLabel.setPaletteBackgroundColor(c)
-            self.w.glpane.mode.setGridLineColor(c)
+            self.cookieCommand.setGridLineColor(c)
 
     def changeLatticeType(self, lType):
-        self.w.glpane.mode.changeLatticeType(lType)
+        self.cookieCommand.changeLatticeType(lType)
         if lType != 0: #Changes to other lattice type
             #Disable the snap to grid feature
             self.setGridSnap(False)
@@ -402,8 +413,8 @@ class CookieCtrlPanel(CookiePropertyManager):
         else:
             self.snapGridCheckBox.setEnabled(True)
                 
-    def changeDispMode(self, mode):
-        self.w.glpane.mode.changeDispMode(mode)
+    def changeDispMode(self, display_style):
+        self.cookieCommand.changeDispMode(display_style)
         
     def changeGridOrientation(self, value):
         if value == 0: self._orient100()
@@ -436,15 +447,15 @@ class CookieCtrlPanel(CookiePropertyManager):
 
     def _orient100(self):
         """ Along one axis """
-        self.w.glpane.mode.setOrientSurf(0)
+        self.cookieCommand.setOrientSurf(0)
         self.w.glpane.snapquat100()
     
     def _orient110(self):
         """halfway between two axes"""           
-        self.w.glpane.mode.setOrientSurf(1)
+        self.cookieCommand.setOrientSurf(1)
         self.w.glpane.snapquat110()
     
     def _orient111(self):
         """equidistant from three axes """
-        self.w.glpane.mode.setOrientSurf(2)
+        self.cookieCommand.setOrientSurf(2)
         self.w.glpane.snapquat111()
