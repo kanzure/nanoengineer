@@ -618,7 +618,7 @@ def apply_material(color): # grantham 20051121, renamed 20051201; revised by bru
         return
 
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, color)
-    
+        
     whiteness = _glprefs.specular_whiteness
     brightness = _glprefs.specular_brightness
     if whiteness == 1.0:
@@ -1143,9 +1143,27 @@ class ColorSorter:
             name = ColorSorter._gl_name_stack[-1]
             if name:
                 glPushName(name)
+	    
+	    #Apply appropriate opacity for the object if it is specified
+	    #in the 'color' param. (Also do necessary things such as 
+	    #call glBlendFunc it. -- Ninad 20071009
+	    if len(color) == 4:
+		opacity = color[3]
+	    else:
+		opacity = 1.0
+	    
+	    if opacity != 1.0:	
+		glDepthMask(GL_FALSE)
+		glEnable(GL_BLEND)
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
             apply_material(color)
             func(params)
+	    
+	    if opacity != 1.0:	    
+		glDepthMask(GL_TRUE)
+		glDisable(GL_BLEND)
+	        
 
             if name:
                 glPopName()
@@ -1178,7 +1196,7 @@ class ColorSorter:
     schedule_sphere = staticmethod(schedule_sphere)
 
 
-    def schedule_cylinder(color, pos1, pos2, radius, capped=0):
+    def schedule_cylinder(color, pos1, pos2, radius, capped = 0, opacity = 1.0 ):
         """\
         Schedule a cylinder for rendering whenever ColorSorter thinks is
         appropriate.
@@ -1191,7 +1209,12 @@ class ColorSorter:
             ColorSorter._cur_shapelist.add_cylinder(lcolor, pos1, pos2, radius,
                 ColorSorter._gl_name_stack[-1], capped)
         else:
-            ColorSorter.schedule(color, drawcylinder_worker, (pos1, pos2, radius, capped))
+	    if len(color) == 3:		
+		lcolor = (color[0], color[1], color[2], opacity)
+	    else:
+		lcolor = color		    
+	    
+            ColorSorter.schedule(lcolor, drawcylinder_worker, (pos1, pos2, radius, capped))
 
     schedule_cylinder = staticmethod(schedule_cylinder)
 
@@ -1742,7 +1765,7 @@ def drawwiresphere(color, pos, radius, detailLevel=1):
         glPolygonMode(GL_FRONT, GL_FILL)
     return
 
-def drawcylinder(color, pos1, pos2, radius, capped=0):
+def drawcylinder(color, pos1, pos2, radius, capped = 0, opacity = 1.0):
     """Schedule a cylinder for rendering whenever ColorSorter thinks is
     appropriate."""
     if 1:
@@ -1760,7 +1783,8 @@ def drawcylinder(color, pos1, pos2, radius, capped=0):
 ##                print "skipping drawcylinder since length is only %5g" % (cyllen,), \
 ##                      "  (color is (%0.2f, %0.2f, %0.2f))" % (color[0], color[1], color[2])
             return
-    ColorSorter.schedule_cylinder(color, pos1, pos2, radius, capped)
+    ColorSorter.schedule_cylinder(color, pos1, pos2, radius, 
+				  capped = capped, opacity = opacity)
 
 def drawsurface(color, pos, radius, tm, nm):
     """Schedule a surface for rendering whenever ColorSorter thinks is
