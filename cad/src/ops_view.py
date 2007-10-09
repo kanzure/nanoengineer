@@ -110,7 +110,11 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
         """
         Common code for Zoom, Pan, and Rotate tools.
         """
-        mode = self.glpane.mode
+        commandSequencer = self.commandSequencer
+        mode = commandSequencer.currentCommand # TODO: rename mode in local vars and comments
+
+        modes_we_are_called_for = ['ZOOM', 'PAN', 'ROTATE']
+        modes_to_autoexit = ['ZOOM', 'PAN', 'ROTATE'] # if they are current when we're called
 
         # Note: some logic in here was revised by bruce 070814, especially
         # for the case when entering one of these temporary modes needs to
@@ -124,8 +128,11 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
             # The Zoom/Pan/Rotate button was toggled off. We are presumably
             # in the associated temporary mode, and the user wants us to
             # exit it. Do so and (according to mode.Done) return to 'prevMode'.
-            if mode.modename not in ['ZOOM', 'PAN', 'ROTATE']:
-                print "bug: _zoomPanRotateTool sees unexpected current mode: %r" % (mode,)
+            if mode.modename not in modes_we_are_called_for:
+                if mode is not commandSequencer.nullmode:
+                    # bruce 071009 add condition to fix bug 2512
+                    # (though the cause remains only guessed at)
+                    print "bug: _zoomPanRotateTool sees unexpected current mode: %r" % (mode,)
                 # Note: This can happen on nullMode after certain other exceptions occur.
                 # [In fact, it seems to happen whenever we exit zoom/pan/rotate normally...
                 #  that is now bug 2512, and its cause is not known, but it might relate
@@ -146,19 +153,20 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
             # The current method is just to actually exit the current mode first.
             # This was revised by bruce 070814.)
 
-            # Set glpane.prevMode.
+            # Set commandSequencer.prevMode.
             # (We never want certain modes (ZOOM, PAN, ROTATE) to be assigned to "prevMode".)
-            if mode.modename in ['ZOOM', 'PAN', 'ROTATE']:
+            if mode.modename in modes_to_autoexit:
                 # We're already in one of the named modes -- effectively exit it first.
                 # I'm not sure of any better way than to exit it in reality.
                 # (If this toggles off its button and runs this method recursively,
                 #  that will cause bugs. TODO -- detect that, fix it if it happens.)
-                mode.Done()
-                mode = self.glpane.mode
-                assert mode.modename not in ['ZOOM', 'PAN', 'ROTATE']
+                mode.Done() # presumably this reenters the prior suspended mode
+                mode = commandSequencer.currentCommand
+                assert mode.modename not in modes_to_autoexit
+                    # this assumes modes in modes_to_autoexit can't be suspended
             
-            self.glpane.prevMode = mode # bruce 070813 save mode object, not modename
-            self.glpane.setMode(modename, suspend_old_mode = True)
+            commandSequencer.prevMode = mode # bruce 070813 save mode object, not modename
+            commandSequencer.setMode(modename, suspend_old_mode = True)
 
             # Emit a help message on entering the new temporary mode. Ideally this
             # should be done in its Enter or init_gui methods, but that made it
