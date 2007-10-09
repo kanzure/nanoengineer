@@ -11,16 +11,11 @@ except for the ones that remain. These too might soon be
 in format-specific modules, leaving this one empty until
 it (or a new module?) acquires the higher-level file I/O
 functionality from MWsemantics.py.
-"""
 
-#bruce 050414 comment: surely most of these imports are no longer needed;
-# but this is hard to know for sure, since both MWsemantics and GLPane
-# say "from fileIO import *", thereby picking up everything we import
-# below, including all symbols from 7 modules!
-# When the remaining file formats are split out, they should copy only
-# the ones they need, and not as "import *". Then the only code left
-# in this module will be these imports -- perhaps still in use, as
-# explained above.
+TODO: This should be split into files_mdl and files_povray
+(using svn move to preserve the history on the povray part),
+since it now only supports those two formats. [bruce 072009]
+"""
 
 import math
 
@@ -133,19 +128,21 @@ def writepovfile(part, glpane, filename):
     ## f.write("clipped_by { plane { " + povpoint(-glpane.out) + ", " + str(dot(pov_in, pov_far)) + " }\n")
     ## f.write("             plane { " + povpoint(glpane.out) + ", " + str(dot(pov_out, pov_near)) + " } }\n")
 
-    # [and what was this for?]
-    #if glpane.mode.modename == 'DEPOSIT':
-        #dt = -glpane.quat
-        #degY = dt.angle*180.0/pi
-        #f.write("plane { \n" +
-                #"      z 0\n" +
-                #"      pigment { color rgbf <0.29, 0.7294, 0.8863, 0.6>}\n" +
-                #'    #include "transforms.inc"\n' +
-                #"    Axis_Rotate_Trans(" + povpoint(V(dt.x, dt.y, dt.z)) + ", " + str(degY) + ")}\n")
+# [and what was this for? bruce question 071009]
+##    if glpane.mode.modename == 'DEPOSIT':
+##        dt = -glpane.quat
+##        degY = dt.angle*180.0/pi
+##        f.write("plane { \n" +
+##                "      z 0\n" +
+##                "      pigment { color rgbf <0.29, 0.7294, 0.8863, 0.6>}\n" +
+##                '    #include "transforms.inc"\n' +
+##                "    Axis_Rotate_Trans(" + povpoint(V(dt.x, dt.y, dt.z)) + ", " + str(degY) + ")}\n")
        
     f.write("}\n\n")  
 
     f.close()
+
+    return # from writepovfile
 
 # writepovlighting() added by Mark.  Feel free to ask him if you have questions.  051130.    
 def writepovlighting(f, glpane):
@@ -246,7 +243,7 @@ def writepovlighting(f, glpane):
                 "\n    phong_size " + str(phong_size) +
                 "\n}\n")
     
-    return
+    return # from writepovlighting
 
 # ==
 
