@@ -49,6 +49,7 @@ from debug import print_compact_traceback
 from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False, Choice
 
 from constants import yellow
+from constants import orange
 from constants import darkred
 from constants import black
 from constants import GL_FAR_Z
@@ -83,7 +84,7 @@ class selectMolsMode(_superclass):
         
     def leftDouble(self, event):
         """
-	Switch to Build Atoms modewhen user double clicks on an object
+	Switch to Build Atoms mode when user double clicks on an object
 	@note: pre Alpha9, it used to enter Move mode upon double clicking. 
 	Since Alpha9, it enters Deposit mode if you double click on an object
 	"""
@@ -95,7 +96,7 @@ class selectMolsMode(_superclass):
         #points, lines etc , which don't need deposit mode. 
         
         if self.cursor_over_when_LMB_pressed != 'Empty Space':
-            self.o.setMode('DEPOSIT')
+            self.commandSequencer.setMode('DEPOSIT')
         return
         
     def keyPress(self,key):
