@@ -66,7 +66,9 @@ class PlaneEditController(EditController):
         """
         assert not self.propMgr
         
-        self.propMgr = PlanePropertyManager(self.win, self)
+        propMgr = PlanePropertyManager(self.win, self)
+        
+        return propMgr
         
             
     def placePlaneParallelToScreen(self):
@@ -118,16 +120,17 @@ class PlaneEditController(EditController):
             ctr = None
         return (width, height, ctr, atmList)
     
-    def _createStructure(self):
+    def _createStructure(self, params = None):
         """
         Create a Plane object. (The model object which this edit controller 
         creates) 
         """
-        
-        if not self.struct:
-            self.struct = Plane(self.win, self)
+        assert not self.struct
+       
+        struct = Plane(self.win, self)
             
-        assert self.struct
+        return struct
+        
                 
     def _modifyStructure(self, params):
         """

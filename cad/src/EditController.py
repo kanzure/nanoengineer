@@ -97,14 +97,16 @@ class EditController:
         
         assert not self.struct
         
-        self._createStructure()
-                    
+        self.struct = self._createStructure()
+        
         if not self.propMgr:
-            self._createPropMgrObject()
+            self.propMgr = self._createPropMgrObject()
             
         self.propMgr.show()
-        self.preview_or_finalize_structure(previewing = True)        
-        self.win.assy.place_new_geometry(self.struct)
+  
+        if self.struct:
+            self.preview_or_finalize_structure(previewing = True)        
+            self.win.assy.place_new_geometry(self.struct)
         
     def editStructure(self):
         """
@@ -128,7 +130,7 @@ class EditController:
         assert self.struct
     
         if not self.propMgr:
-            self._createPropMgrObject()
+            self.propMgr = self._createPropMgrObject()
             
         self.existingStructForEditing = True
         self.old_props = self.struct.getProps()
@@ -176,15 +178,26 @@ class EditController:
         @type  previewing: boolean
         """
         
-        assert self.struct
-    
+        ################################
+        ##For certain edit controllers, it is possible that self.struct is 
+        ##not created. If so simply return (don't use assert self.struct)
+        #This is a commented out stub code for the edit controllers 
+        #such as DNAEditController which take input from the user before 
+        #creating the struct. TO BE REVISED -- Ninad20071009
+        #if 0:
+            #if not self.struct:
+                #self.struct = self._createStructure()   
+                #if not self.struct:
+                    #return
+        ###############################
+            
         self.win.assy.current_command_info(cmdname = self.cmdname) 
         
         params = self._gatherParameters()        
 
         if not same_vals( params, self.previousParams):
             self._modifyStructure(params)
-
+            
         name = self.struct.name         
     
         if previewing:
@@ -208,7 +221,7 @@ class EditController:
             if self.old_props:
                 self.struct.setProps(self.old_props)
                 self.struct.updateCosmeticProps()
-                self.struct.glpane.gl_update()                 
+                self.win.glpane.gl_update()               
         else:
             self._removeStructure()
             
