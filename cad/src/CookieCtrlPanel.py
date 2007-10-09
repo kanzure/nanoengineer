@@ -26,12 +26,17 @@ from constants import dispLabel
 
 
 class CookieCtrlPanel(CookiePropertyManager):
-    """This is class is served to provide GUI controls to the cookie-cutter mode.
+    """
+    This class provides GUI controls to the cookie-cutter command.
     """
        
     def __init__(self, parentMode):
-        """<parent> is the main window  for the program"""
+        """
+        """
         self.w = parentMode.w
+        self.cookieCommand = parentMode
+            #bruce 071008, probably redundant with some other attribute
+        print "cookie command = ",parentMode ###
                                        
         self.pw = None # pw is active part window
         
@@ -40,7 +45,9 @@ class CookieCtrlPanel(CookiePropertyManager):
         self._makeConnections()
 
     def _init_flyoutActions(self):
-        ''' Define flyout toolbar actions for this mode'''
+        """
+        Define flyout toolbar actions for this mode
+        """
         #Create an action group and add all the cookie selection shape buttons to it
         self.cookieSelectionGroup = QActionGroup(self.w)
         
@@ -335,10 +342,12 @@ class CookieCtrlPanel(CookiePropertyManager):
     
     def changeSelectionShape(self, action):
         """Slot method that is called when user changes selection shape by GUI. """
-        if self.w.glpane.mode.modename != 'COOKIE': return
-            
+        cookieCommand = self.cookieCommand
+        if not cookieCommand.isCurrentCommand(): # [bruce 071008]
+            return
         sShape = action.objectName()
-        self.w.glpane.mode.changeSelectionShape(sShape)
+        cookieCommand.changeSelectionShape(sShape)
+        return
 
     def getSelectionShape(self):
         """Return the current selection shape that is checked. """

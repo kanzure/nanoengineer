@@ -163,8 +163,12 @@ class PM_Dialog( QDialog, SponsorableMixin ):
                     
         @see: L{show()}
         """
-        print "PM_Dialog.open(): Reopening the PM for command:", \
-               self.win.assy.o.mode.modename
+        if 1:
+            commandSequencer = self.win.assy.o
+                #bruce 071008; TODO: revise where we find commandSequencer
+            commandName = commandSequencer.currentCommand.modename
+                # that's an internal name, but this is just for a debug print
+            print "PM_Dialog.open(): Reopening the PM for command:", commandName
         
         self.close() # Just in case there is another PM open.
         self.pw = self.win.activePartWindow()         

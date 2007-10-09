@@ -1033,10 +1033,16 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
             msg = "Selected chunks/jigs moved by offset [X: %.2f] [Y: %.2f] [Z: %.2f]" % (offset[0], offset[1], offset[2])
         env.history.message(msg)
         self.o.gl_update()
-                   
-            
-
+        return
+    
     def skip(self):
         pass
 
+    def drawHighlightedChunk(self, glpane, selobj, hicolor):
+        """
+        [overrides selectMolsMode method]
+        """
+        # bruce 071008 (intending to be equivalent to prior code)
+        return False
+    
     pass # end of class modifyMode

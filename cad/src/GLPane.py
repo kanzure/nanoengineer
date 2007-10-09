@@ -173,9 +173,7 @@ from GLPane_minimal import GLPane_minimal
 import qt4transition
 
 # suspicious imports [should not really be needed, according to bruce 070919]
-from chunk import molecule # used only for drawHighlightedChunk
-from chem import Atom # used only for drawHighlightedChunk
-from bonds import Bond # used for drawHighlightedChunk and for selobj ordering
+from bonds import Bond # used only for selobj ordering
 
 
 debug_lighting = False #bruce 050418
@@ -2096,12 +2094,14 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         self.gl_update()
         return what
     
-    def setDisplay(self, disp, default_display=False):
-        '''Set the display mode of the GLPane, where:
-            "disp" is the display mode, and
-            "default_display" changes the header of the display status bar to either "Default Display" (True)
-            or "Current Display (False, the default).
-        '''
+    def setDisplay(self, disp, default_display = False):
+        """
+        Set the display mode of the GLPane, where:
+        "disp" is the display mode, and
+        "default_display" changes the header of the display status bar
+        to either "Default Display" (True)
+        or "Current Display (False, the default).
+        """
         
         #&&& print_compact_stack("GLPane.setDisplay():")
         #&&& print "Current Display Mode = ", self.displayMode
@@ -2123,7 +2123,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         # not sure if that holds for all init code, so being safe for now.
         self.displayMode = disp
         ##Huaicai 3/29/05: Add the condition to fix bug 477
-        if self.mode.modename == 'COOKIE':
+        if self.currentCommand.modename == 'COOKIE':
             self.win.dispbarLabel.setText("    ")
         else:    
             #self.win.dispbarLabel.setText( "Default Display: " + dispLabel[disp] )
@@ -3076,24 +3076,15 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
                 # [This should fix the Qt4 transition issue which is the subject of reminder bug 2300,
                 #  though it can't be tested yet since it has no known effect on current code, only on future code.]
 
-            # likely replacement for the following: [bruce 070919 comment]
-            ## self.mode.drawHighlightedSelobj( selobj, hicolor)
-            # perhaps to be renamed to drawHighlightedObjectUnderMouse
-            
-            #ninad 070214 to permit chunk highlighting
-            if self.mode.modename == selectMolsMode.modename:
-                # TODO: replace 'if' with overriding a method in selectMolsMode [bruce 070919 comment]
-                self.drawHighlightedChunk(selobj, hicolor)
-                if not (isinstance(selobj, Atom)
-                        or isinstance(selobj, Bond)):
-                    selobj.draw_in_abs_coords(self, hicolor)
-                    pass
-            else:                   
-                selobj.draw_in_abs_coords(self, hicolor)
-                    ###@@@ test having color writing disabled here -- does stencil write still happen??
+            self.mode.drawHighlightedObjectUnderMouse( self, selobj, hicolor) ### TODO: use self.graphicsMode (IMPLEM)
+                # TEST someday: test having color writing disabled here -- does stencil write still happen??
+                # (not urgent, since we definitely need color writing here.)
         except:
             # try/except added for GL-state safety, bruce 061218
-            print_compact_traceback("bug: exception in %r.draw_in_abs_coords ignored: " % (selobj,) )
+            print_compact_traceback(
+                "bug: exception in %r.drawHighlightedObjectUnderMouse for %r ignored: " % \
+                (self.mode, selobj)
+             )
             pass
         self.drawing_phase = '?'
 
@@ -3146,66 +3137,6 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         #e notify some observers?
         return
    
-    def drawHighlightedChunk(self, selobj, hicolor): #Ninad 070214 
-        """
-        Highlight the whole chunk to which 'selobj' belongs to, using the 'hicolor'
-        selobj = highlighted object 
-        hicolor = highlight color
-        """
-        #Note: This method is called in GLPane.draw_highlighted_objectUnderMouse -- ninad 070214
-        
-        #Note: bool_fullBondLength represent whether full bond length to be drawn
-        #it is used only in select Chunks mode while highlighting the whole chunk and when
-        #the atom display is Tubes display -- ninad 070214
-
-        assert hicolor is not None #bruce 070919
-        
-        bool_fullBondLength = True
-        
-        if isinstance(selobj, molecule):
-            chunk = selobj
-            for hiatom in chunk.atoms.itervalues():
-                hiatom.draw_in_abs_coords(self, hicolor, 
-                                          useSmallAtomRadius = True)
-                for hibond in hiatom.bonds:
-                    hibond.draw_in_abs_coords(self, hicolor,
-                                              bool_fullBondLength)
-    
-        if isinstance(selobj, Atom):
-            chunk = selobj.molecule
-            for hiatom in chunk.atoms.itervalues():
-                hiatom.draw_in_abs_coords(self, hicolor, 
-                                          useSmallAtomRadius = True)
-                for hibond in hiatom.bonds:
-                    hibond.draw_in_abs_coords(self, hicolor,
-                                              bool_fullBondLength)
-        elif isinstance(selobj, Bond):         
-            hiatom1 = selobj.atom1
-            hiatom2 = selobj.atom2                 
-            chunk1 = hiatom1.molecule
-            chunk2 = hiatom2.molecule
-            
-            if chunk1 is chunk2:
-                for hiatom in chunk1.atoms.itervalues():
-                    hiatom.draw_in_abs_coords(self, hicolor, 
-                                              useSmallAtomRadius = True)
-                    for hibond in hiatom.bonds:
-                        hibond.draw_in_abs_coords(self, hicolor, 
-                                                  bool_fullBondLength)
-            else:
-                for hiatom in chunk1.atoms.itervalues():
-                    hiatom.draw_in_abs_coords(self, hicolor,
-                                              useSmallAtomRadius = True)
-                    for hibond in hiatom.bonds:
-                        hibond.draw_in_abs_coords(self, hicolor,
-                                                  bool_fullBondLength)
-                for hiatom in chunk2.atoms.itervalues():
-                    hiatom.draw_in_abs_coords(self, orange,
-                                              useSmallAtomRadius = True)
-                    for hibond in hiatom.bonds:
-                        hibond.draw_in_abs_coords(self, orange,
-                                                  bool_fullBondLength)
-        return
 
     def preDraw_glselect_dict(self): #bruce 050609
         # We need to draw glselect_dict objects separately, so their drawing code runs now rather than in the past

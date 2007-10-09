@@ -323,7 +323,10 @@ class ops_select_Mixin:
         return
     
     # == selection functions using a mouse position
-    ###@@@ move to glpane??
+
+    # REVIEW: we should probably move some of these, especially findAtomUnderMouse,
+    # to GraphicsMode instead (once it's split from basicMode), since they depend
+    # on model-specific graphical properties. [bruce 071008]
     
     # (Note: some of these are not toplevel event handlers)
 
@@ -352,9 +355,34 @@ class ops_select_Mixin:
                         atom = a
         return atom
 
+    def _decide_water_cutoff(self): #bruce 071008 split this out
+        """
+        Decide what value of water_cutoff to pass to self.findAtomUnderMouse.
+        """
+        # I'm not sure if this is really an aspect of the currentCommand
+        # or of the graphics mode -- maybe the currentCommand
+        # since that does or doesn't offer UI control of water,
+        # or maybe the graphicsMode since that does or doesn't display it.
+        # Someone should figure this out and clean it up.
+        # Best guess at the right cleanup: graphicsModes should all have
+        # common boolean water_enabled and float water_depth attributes,
+        # used for both drawing and picking in a uniform way.
+        # But I won't do it that way here, since I'm imitating the prior code.
+        # (BTW note that self.findAtomUnderMouse is not private, and has
+        #  external callers which pass their own water_enabled flag to it.
+        #  So we can't just inline this into it.)
+        # [bruce 071008]
+        commandSequencer = self.o
+        if commandSequencer.currentCommand.modename == 'DEPOSIT':
+            return True
+        else:
+            return False
+        pass
+    
     # bruce 041214, for fixing bug 235 and some unreported ones:
     def findAtomUnderMouse(self, event, water_cutoff = False, singlet_ok = False):
-        """Return the atom (if any) whose front surface should be visible at the
+        """
+        Return the atom (if any) whose front surface should be visible at the
         position of the given mouse event, or None if no atom is drawn there.
         This takes into account all known effects that affect drawing, except
         bonds and other non-atom things, which are treated as invisible.
@@ -390,7 +418,8 @@ class ops_select_Mixin:
             far_cutoff = None
         z_atom_pairs = []
         for mol in self.molecules:
-            if mol.hidden: continue
+            if mol.hidden:
+                continue
             pairs = mol.findAtomUnderMouse(point, matrix, \
                 far_cutoff = far_cutoff, near_cutoff = near_cutoff )
             z_atom_pairs.extend( pairs)
@@ -420,10 +449,7 @@ class ops_select_Mixin:
         # when many items were selected at the same time. Original message
         # code was by [mark 2004-10-14].]
         self.begin_select_cmd() #bruce 051031
-        if self.o.mode.modename == 'DEPOSIT':
-            atm = self.findAtomUnderMouse(event, water_cutoff = True)
-        else:
-            atm = self.findAtomUnderMouse(event)
+        atm = self.findAtomUnderMouse(event, water_cutoff = self._decide_water_cutoff())
         if atm:
             if self.selwhat == SELWHAT_CHUNKS:
                 if not self.selmols:
@@ -446,10 +472,7 @@ class ops_select_Mixin:
         selection not deleted. Print a message about what you just deleted.
         """
         self.begin_select_cmd()
-        if self.o.mode.modename == 'DEPOSIT':
-            atm = self.findAtomUnderMouse(event, water_cutoff = True)
-        else:
-            atm = self.findAtomUnderMouse(event)
+        atm = self.findAtomUnderMouse(event, water_cutoff = self._decide_water_cutoff())
         if atm:
             if self.selwhat == SELWHAT_CHUNKS:
                 if not self.selmols:
@@ -494,10 +517,7 @@ class ops_select_Mixin:
         but don't change whatever else is selected.
         """ #bruce 060331 revised docstring
         self.begin_select_cmd() #bruce 051031
-        if self.o.mode.modename == 'DEPOSIT':
-            atm = self.findAtomUnderMouse(event, water_cutoff = True)
-        else:
-            atm = self.findAtomUnderMouse(event)
+        atm = self.findAtomUnderMouse(event, water_cutoff = self._decide_water_cutoff())
         if atm:
             if self.selwhat == SELWHAT_CHUNKS:
                 atm.molecule.unpick()

@@ -169,6 +169,12 @@ class anyMode( StateMixin): #bruce 060223 renamed mixin class
 
     def state_may_have_changed(self): #bruce 070925
         return
+
+    def isCurrentCommand(self): #bruce 071008
+        return False
+
+    def drawHighlightedObjectUnderMouse(self, glpane, selobj, hicolor): #bruce 071008
+        pass
     
     pass # end of class anyMode
 
@@ -286,18 +292,16 @@ class basicMode(anyMode):
                       (self.__class__.__name__, attr)
 
         # other inits
-        self.glpane = glpane #bruce 070613 added this
+        self.glpane = glpane 
+        self.commandSequencer = glpane #bruce 070108; temporary (for its .currentCommand attribute) [Q: is this private?]
 
-        # Deprecated, but often used. New code should use self.glpane instead.
-        # Bruce 6/13/2007
-        self.o = glpane
-
-        win = glpane.win
-        self.win = win #bruce 070613 added this
-
-        # Deprecated, but often used. New code should use self.win instead.
-        # Bruce 6/13/2007
-        self.w = win
+        self.win = glpane.win
+        
+        # Note: the attributes self.o and self.w are deprecated, but often used.
+        # New code should use some other attribute, such as self.glpane or
+        # self.commandSequencer or self.win, as appropriate. [bruce 070613, 071008]
+        self.o = self.glpane
+        self.w = self.win
         
         ## self.init_prefs() # no longer needed --
         # Between Alpha 1-8, each mode had its own background color and display mode.
@@ -316,7 +320,16 @@ class basicMode(anyMode):
         self.setup_menus_in_init()
 
         return # from basicMode.__init__
-    
+
+    def isCurrentCommand(self): #bruce 071008, for Command API
+        """
+        Return a boolean to indicate whether self is the currently active command.
+        Note: this is False even if self is temporarily suspended by e.g. Pan Tool,
+        but self's UI is still fully displayed; this needs to be considered when
+        this method is used to determine whether UI actions should have an effect.
+        """
+        return self.commandSequencer.currentCommand is self
+
     def set_cmdname(self, name): # mark 060220.
         '''Helper method for setting the cmdname to be used by Undo/Redo.
         '''
@@ -1216,6 +1229,19 @@ class basicMode(anyMode):
                 print_compact_traceback("atom_debug: ignoring exception: ")
             return True # let the selobj remain
         pass
+
+    def drawHighlightedObjectUnderMouse(self, glpane, selobj, hicolor): #bruce 071008 for graphics mode API
+        """
+        Subclasses should override this as needed, though most don't need to:
+        
+        Draw selobj in highlighted form for being the object under the mouse,
+        as appropriate to this graphics mode.
+        [TODO: document this properly: Use hicolor as its color
+        if you return sensible colors from method XXX.]
+
+        Note: selobj is typically glpane.selobj, but don't assume this.
+        """
+        selobj.draw_in_abs_coords(glpane, hicolor)
     
     # left mouse button actions -- overridden in modes that respond to them
     def leftDown(self, event):
@@ -1935,12 +1961,18 @@ class basicMode(anyMode):
 
 # ===
 
-class modeMixin:
+class modeMixin(object):
     """Mixin class for supporting mode-switching. Maintains instance
        attributes mode, nullmode, as well as modetab
        (assumed by mode objects -- we should change that #e).
        Used by GLPane.
     """
+    ### TODO: this class will be replaced with an aspect of the command sequencer,
+    # and will use self.currentCommand rather than self.mode...
+    # so some code which uses glpane.mode is being changed to set commandSequencer = glpane
+    # and then use commandSequencer.currentCommand. But the command-changing methods
+    # like setMode are being left as commandSequencer.setMode until they're better
+    # understood. [bruce 071008 comment]
     
     mode = None # Note (from point of view of class GLPane):
                 # external code expects self.mode to always be a
@@ -1950,7 +1982,7 @@ class modeMixin:
                 # __init__ and during transitions between modes, when
                 # no events should come unless there are reentrance
                 # bugs in event processing. [bruce 040922]
-    
+
     def _init1(self):
         "call this near the start of __init__"
         self.nullmode = nullMode()
@@ -1958,6 +1990,18 @@ class modeMixin:
         # (in case of bugs)
         self.mode = self.nullmode
         # initial safe values, changed before __init__ ends
+
+
+    # implement the virtual slot self.currentCommand
+    
+    def get_currentCommand(self): #bruce 071008, temporary location and implem
+        return self.mode
+
+    def set_currentCommand(self, val):
+        self.mode = val
+    
+    currentCommand = property(get_currentCommand, set_currentCommand)
+    
 
     def _reinit_modes(self): #bruce 050911 revised this
         """[bruce comment 040922, when I split this out from GLPane's

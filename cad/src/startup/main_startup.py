@@ -214,20 +214,6 @@ def startup_script( main_globals):
 ##        print "end sponsors startup code"
 
 
-    # show the MMKit (I think this is obsolete and should be removed -- bruce 071008 comment)
-    
-    if not debug_pref("Multipane GUI", Choice_boolean_False):
-        if foo.glpane.mode.modename == 'DEPOSIT':
-            # Two problems are addressed here when nE-1 starts in Build (DEPOSIT) mode.
-            # 1. The MMKit can cover the splashscreen (bug #1439).
-            #   BTW, the other part of bug fix 1439 is in MWsemantics.modifyMMKit()
-            # 2. The MMKit appears 1-3 seconds before the main window.
-            # Both situations now resolved.  mark 060202
-            # Should this be moved to startup_misc.post_main_show()? I chose to leave
-            # it here since the splashscreen code it refers to is in this file.  mark 060202.
-            foo.glpane.mode.MMKit.show()
-
-
     # for developers: run a hook function that .atom-debug-rc might have defined
     # in this module's global namespace, for doing things *after* showing the
     # main window.

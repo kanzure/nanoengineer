@@ -174,7 +174,13 @@ class modelTree(modelTreeGui.Ne1Model_api):
         #bruce 050519 revised docstring and totally rewrote code.
         assy = self.assy
         win = self.win
-        mode = self.win.glpane.mode
+        commandSequencer = self.win.glpane #bruce 071008; will be revised
+        mode = commandSequencer.currentCommand
+            #bruce 071008; note, I'm not sure it's right to ask the currentCommand
+            # for selwhat_from_mode, as opposed to the current graphicsMode!
+            # This whole thing needs total revamping (along with everything
+            # related to what can be selected at a given time), so I'm not going
+            # to worry about it for now.
         del self
         part = assy.part
         # 0. Appraise the situation.
@@ -187,6 +193,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
         #  For now we only handle modes that change to fit the actual selection.) 
         selwhat_from_mode = None # most modes don't care
         if isinstance( mode, selectMolsMode):
+            # TODO: replace this by a method call or getattr on mode
             selwhat_from_mode = SELWHAT_CHUNKS
         #bruce 060403 commenting out the following, in advance of proposed removal of Select Atoms mode entirely:
 ##        elif isinstance( mode, selectAtomsMode) and mode.modename == selectAtomsMode.modename:

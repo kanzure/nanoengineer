@@ -552,8 +552,9 @@ class ESPImage(RectGadget):
         '''Force into 'Build' mode before opening the dialog '''
         #bruce 060403 changes: force Build, not Select Atoms as before; only do this if current mode is not Build.
         # (But why do we need to force it into any particular mode? I don't know. [bruce 070608])
-        if self.assy.o.mode.modename != 'DEPOSIT':
-            self.assy.o.setMode('DEPOSIT')
+        commandSequencer = self.assy.o #bruce 071008; TODO: revise where we get this from, its API
+        if commandSequencer.currentCommand.modename != 'DEPOSIT':
+            commandSequencer.setMode('DEPOSIT')
         Jig.edit(self)
         
     def make_selobj_cmenu_items(self, menu_spec):

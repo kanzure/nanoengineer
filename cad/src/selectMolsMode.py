@@ -58,7 +58,9 @@ from qt4transition import qt4info
 
 import time
 
-class selectMolsMode(selectMode):
+_superclass = selectMode
+
+class selectMolsMode(_superclass):
     "Select Chunks mode"
     modename = 'SELECTMOLS'
     default_mode_status_text = "Mode: Select Chunks"
@@ -69,7 +71,7 @@ class selectMolsMode(selectMode):
         self.hover_highlighting_enabled = True
                     
     def init_gui(self):
-        selectMode.init_gui(self)
+        _superclass.init_gui(self)
         self.w.toolsSelectMoleculesAction.setChecked(1) # toggle on the "Select Chunks" tools icon
         self.w.dashboardHolder.hide()
         #self.w.dashboardHolder.setWidget(self.w.selectMolDashboard)
@@ -460,7 +462,7 @@ class selectMolsMode(selectMode):
         
     def leftDrag(self, event):
         """ 
-	Overrides leftdrag method of selectMode.
+	Overrides leftdrag method of superclass.
 	A) If the mouse cursor was on Empty space during left down, it draws 
 	a selection curve 
 	B) If it was on an object, it translates translates the selection 
@@ -943,8 +945,93 @@ class selectMolsMode(selectMode):
             glpane.gl_update_highlight() # draws selatom too, since its chunk is not hidden [comment might be obs, as of 050610]
         
         return # from update_selatom
+
+    def drawHighlightedObjectUnderMouse(self, glpane, selobj, hicolor):
+        """
+        [overrides superclass method]
+        """
+        # Ninad 070214 wrote this in GLPane; bruce 071008 moved it into selectMolsMode
+        # and slightly revised it. 
+        skip_usual_selobj_highlighting = self.drawHighlightedChunk(glpane, selobj, hicolor)
+            # Note: if subclasses don't like that, they should override drawHighlightedChunk
+            # to do nothing and return False. The prior code was equivalent to every
+            # subclass doing that. [bruce 071008]
+        if not skip_usual_selobj_highlighting:
+            _superclass.drawHighlightedObjectUnderMouse(self, glpane, selobj, hicolor)
+        return
+
+    def drawHighlightedChunk(self, glpane, selobj, hicolor): 
+        """
+        Highlight the whole chunk to which 'selobj' belongs, using the 'hicolor'
+        selobj = highlighted object 
+        hicolor = highlight color
+
+        @return: whether the caller should skip the usual selobj drawing
+        (usually, this is just whether we drew something) (boolean)
+        """
+        # Ninad 070214 wrote this in GLPane; bruce 071008 moved it into selectMolsMode
+        # and slightly revised it (inclusing, adding the return value).
+        
+        # Note: bool_fullBondLength represent whether full bond length to be drawn
+        # it is used only in select Chunks mode while highlighting the whole chunk and when
+        # the atom display is Tubes display -- ninad 070214
+
+        assert hicolor is not None #bruce 070919
+        del self
+        
+        bool_fullBondLength = True
+        
+        if isinstance(selobj, molecule):
+            print "I think this is never called (drawHighlightedChunk with selobj a Chunk)" #bruce 071008
+            chunk = selobj
+            for hiatom in chunk.atoms.itervalues():
+                hiatom.draw_in_abs_coords(glpane, hicolor, 
+                                          useSmallAtomRadius = True)
+                for hibond in hiatom.bonds:
+                    hibond.draw_in_abs_coords(glpane, hicolor,
+                                              bool_fullBondLength)
+            return False # not sure False is right, but it imitates the prior code [bruce 071008]
     
+        elif isinstance(selobj, Atom):
+            chunk = selobj.molecule
+            for hiatom in chunk.atoms.itervalues():
+                hiatom.draw_in_abs_coords(glpane, hicolor, 
+                                          useSmallAtomRadius = True)
+                for hibond in hiatom.bonds:
+                    hibond.draw_in_abs_coords(glpane, hicolor,
+                                              bool_fullBondLength)
+            return True
+        
+        elif isinstance(selobj, Bond):         
+            hiatom1 = selobj.atom1
+            hiatom2 = selobj.atom2                 
+            chunk1 = hiatom1.molecule
+            chunk2 = hiatom2.molecule
             
+            if chunk1 is chunk2:
+                for hiatom in chunk1.atoms.itervalues():
+                    hiatom.draw_in_abs_coords(glpane, hicolor, 
+                                              useSmallAtomRadius = True)
+                    for hibond in hiatom.bonds:
+                        hibond.draw_in_abs_coords(glpane, hicolor, 
+                                                  bool_fullBondLength)
+            else:
+                for hiatom in chunk1.atoms.itervalues():
+                    hiatom.draw_in_abs_coords(glpane, hicolor,
+                                              useSmallAtomRadius = True)
+                    for hibond in hiatom.bonds:
+                        hibond.draw_in_abs_coords(glpane, hicolor,
+                                                  bool_fullBondLength)
+                for hiatom in chunk2.atoms.itervalues():
+                    hiatom.draw_in_abs_coords(glpane, orange,
+                                              useSmallAtomRadius = True)
+                    for hibond in hiatom.bonds:
+                        hibond.draw_in_abs_coords(glpane, orange,
+                                                  bool_fullBondLength)
+            return True
+
+        return False # drew nothing
+
     pass # end of class selectMolsMode
 
 # ==

@@ -132,11 +132,9 @@ class DynamicTip: # Mark and Ninad 060817.
         @rtype:  str
         """
                 
-        from ops_select import ops_select_Mixin 
-        
         glpane = self.glpane
         
-        #ninad060831 - First I defined the following in the _init method of this class. But the prefeences were 
+        #ninad060831 - First I defined the following in the _init method of this class. But the preferences were 
         #not updated immediately when changed from prefs dialog. So I moved those definitions below and now it works fine
         
         self.atomDistPrecision = env.prefs[dynamicToolTipAtomDistancePrecision_prefs_key] #int
