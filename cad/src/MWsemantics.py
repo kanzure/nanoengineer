@@ -607,6 +607,11 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         return self.glpane #bruce 071008; will revise when we have a separate one
     
     commandSequencer = property(get_commandSequencer)
+
+    def get_currentCommand(self):
+        return self.commandSequencer.currentCommand
+
+    currentCommand = property(get_currentCommand)
     
     def post_event_ui_updater(self): #bruce 070925
         self.glpane.mode.state_may_have_changed()
@@ -1166,7 +1171,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 	    msg = orangemsg("Nothing to paste.")
 	    env.history.message(msg)
 	return
-    
+
     def editPasteFromClipboard(self):
 	"""
 	Invokes the L{PasteMode}, a temporary command to paste items in the 
@@ -1726,32 +1731,28 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 
     # get into Select Atoms mode
     def toolsSelectAtoms(self): # note: this can NO LONGER be called from update_select_mode [as of bruce 060403]
-        self.glpane.setMode('SELECTATOMS')
+        self.commandSequencer.setMode('SELECTATOMS')
 
     # get into Select Chunks mode
     def toolsSelectMolecules(self):# note: this can also be called from update_select_mode [bruce 060403 comment]
-        self.glpane.setMode('SELECTMOLS')
+        self.commandSequencer.setMode('SELECTMOLS')
 
     # get into Move Chunks (or Translate Components) command        
     def toolsMoveMolecule(self):
-        commandSequencer = self.commandSequencer
-	if commandSequencer.currentCommand.modename != 'MODIFY':
-	    commandSequencer.setMode('MODIFY')
-	commandSequencer.currentCommand.propMgr.activate_translateGroupBox()
+        self.ensureInCommand('MODIFY')
+	self.currentCommand.propMgr.activate_translateGroupBox()
 	return
     
     # Rotate Components command
     def toolsRotateComponents(self):
-        commandSequencer = self.commandSequencer
-	if commandSequencer.currentCommand.modename != 'MODIFY':
-	    commandSequencer.setMode('MODIFY')
-	commandSequencer.currentCommand.propMgr.activate_rotateGroupBox()
+        self.ensureInCommand('MODIFY')
+	self.currentCommand.propMgr.activate_rotateGroupBox()
         return
     
     # get into Build mode        
     def toolsBuildAtoms(self): # note: this can now be called from update_select_mode [as of bruce 060403]
         self.depositState = 'Atoms'
-        self.glpane.setMode('DEPOSIT')
+        self.commandSequencer.setMode('DEPOSIT')
 	
     #get into Build DNA Origami mode
     def buildDnaOrigami(self):
@@ -1763,15 +1764,15 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 
     # get into cookiecutter mode
     def toolsCookieCut(self):
-        self.glpane.setMode('COOKIE')
+        self.commandSequencer.setMode('COOKIE')
 
     # get into Extrude mode
     def toolsExtrude(self):
-        self.glpane.setMode('EXTRUDE')
+        self.commandSequencer.setMode('EXTRUDE')
 
     # get into Fuse Chunks mode
     def toolsFuseChunks(self):
-        self.glpane.setMode('FUSECHUNKS')
+        self.commandSequencer.setMode('FUSECHUNKS')
         
     ###################################
     # Simulator Toolbar Slots
@@ -1840,25 +1841,35 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
     ###################################
     # Insert Menu/Toolbar Slots
     ###################################
+
+    def ensureInCommand(self, modename): #bruce 071009
+        """
+        If the current command's .modename differs from the one given, change
+        to that command.
+        
+        Note: all uses of this method are causes for suspicion, about
+        whether some sort of refactoring or generalization is called for.
+        """
+        commandSequencer = self.commandSequencer
+        if commandSequencer.currentCommand.modename != modename:
+            commandSequencer.setMode(modename)
+            # note: this changes the value of .currentCommand
+        return
         
     def insertAtom(self):
-	if self.glpane.mode.modename != 'SELECTMOLS':
-	    self.glpane.setMode('SELECTMOLS')
+        self.ensureInCommand('SELECTMOLS')
         self.atomcntl.show()
 	
     def insertGraphene(self):
-	if self.glpane.mode.modename != 'SELECTMOLS':
-	    self.glpane.setMode('SELECTMOLS')
+        self.ensureInCommand('SELECTMOLS')
         self.graphenecntl.show()
 
     def insertNanotube(self):
-	if self.glpane.mode.modename != 'SELECTMOLS':
-	    self.glpane.setMode('SELECTMOLS')
+        self.ensureInCommand('SELECTMOLS')
         self.nanotubecntl.show()
 
     def insertDna(self):
-	if self.glpane.mode.modename != 'SELECTMOLS':
-	    self.glpane.setMode('SELECTMOLS')
+        self.ensureInCommand('SELECTMOLS')
         self.dnacntl.show()
         
     def insertPovrayScene(self):
@@ -1933,9 +1944,11 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
                 
         self.Element = elt
         
-        pw = self.activePartWindow()
-        if pw is not None and pw.glpane.mode.modename == 'DEPOSIT':
-            pw.glpane.mode.update_selection_filter_list() # depositMode.update_selection_filter_list()
+        if self.activePartWindow() is not None:
+            # Is this condition on self.activePartWindow() needed? [bruce 071009 question]
+            currentCommand = self.currentCommand
+            if currentCommand.modename == 'DEPOSIT':
+                currentCommand.update_selection_filter_list() # depositMode.update_selection_filter_list()
         
         line = eCCBtab2[elt]
         #self.elemChangeComboBox.setCurrentIndex(line) ###k does this send the signal, or not (if not that might cause bug 690)?
