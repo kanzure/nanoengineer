@@ -116,7 +116,7 @@ from movieMode import movieMode
 from ZoomMode import ZoomMode
 from PanMode import PanMode
 from RotateMode import RotateMode
-from modes import modeMixin
+from modeMixin import modeMixin
 
 import platform
 
