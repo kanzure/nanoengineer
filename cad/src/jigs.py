@@ -1015,74 +1015,15 @@ class jigmakers_Mixin:
     and new methods in the specific Jig subclasses.
     """
 
-    # Alpha 10 version of makeRotaryMotor(). Didn't make Alpha 9. Mark 2007-06-04
-    def makeRotaryMotor_A10(self, sightline):
-        """Creates a Rotary Motor connected to the selected atoms.
-        """
-
-        del sightline
-        glpane = self.assy.o #e this should be an argument. to be fixed soon. [bruce 060120]
-        "glpane is used for its point-of-view attributes" #e and after A7 a new "view object" should be passed instead.
-                
-        cmd = greenmsg("Rotary Motor: ")
-
-        atoms = self.assy.selatoms_list()
-        
-        if len(atoms) < 2: # wware 051216, bug 1114, need >= 2 atoms for rotary motor
-            env.history.message(cmd + redmsg("You must select at least two atoms to create a Rotary Motor."))
-            return
-            
-        # Print warning if over 200 atoms are selected.
-        # The warning should be displayed in a MessageGroupBox. Mark 2007-05-28
-        if atom_limit_exceeded_and_confirmed(self.assy.w, len(atoms), limit=200):
-            return
-        
-        from jigs_motors import RotaryMotor
-        m = RotaryMotor(self.assy)
-        m.findCenterAndAxis(atoms, glpane) 
-        m.show_propmgr() # put up Rotary Motor Property Manager 
-        #self.unpickall_in_GLPane()
-        self.place_new_jig(m)
-        
-        return # End of makeRotaryMotor_A10()
-        
     def makeRotaryMotor(self, sightline):
-        """Creates a Rotary Motor connected to the selected atoms.
         """
-
-        del sightline
-        glpane = self.assy.o #e this should be an argument. to be fixed soon. [bruce 060120]
-        "glpane is used for its point-of-view attributes" #e and after A7 a new "view object" should be passed instead.
-                
+        Creates a Rotary Motor edit controller, whhich in turn creates a
+        rotory motor connected to the selected atoms.
+        """
+        del sightline       
         cmd = greenmsg("Rotary Motor: ")
-
-        atoms = self.assy.selatoms_list()
-        
-        if len(atoms) < 2: # wware 051216, bug 1114, need >= 2 atoms for rotary motor
-            env.history.message(cmd + redmsg("You must select at least two atoms to create a Rotary Motor."))
-            return
-            
-        # Print warning if over 200 atoms are selected.
-        if atom_limit_exceeded_and_confirmed(self.assy.w, len(atoms), limit=200):
-            return
-        
-        from jigs_motors import RotaryMotor
-        m = RotaryMotor(self.assy)
-        m.findCenterAndAxis(atoms, glpane) # also puts up dialog
-        m.edit() # Will be changed to show_propmgr(). Mark 2007-06-04
-        if m.cancelled: # user hit Cancel button in Rotary Motory Dialog.
-            #bruce comment 050415/050701, revised 070608: It might be good
-            # to destroy the jig object here (for all jigs whose creation
-            # can be cancelled, not only this one), to avoid a memory leak.
-            # Presently, jigs don't have a destroy method, so this is not
-            # practical. (Nor is it our worst memory leak, by far.)
-            env.history.message(cmd + "Cancelled")
-            return
-        self.unpickall_in_GLPane()
-        self.place_new_jig(m)
-        
-        env.history.message(cmd + "Motor created")
-        self.assy.w.win_update()
+        motorEditController = self.assy.part.createRMotorEditController()
+        motorEditController.createStructure()        
       
     def makeLinearMotor(self, sightline):
         """Creates a Linear Motor connected to the selected atoms.

@@ -966,14 +966,28 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
     def createPlaneEditController(self, plane = None):
 	"""
 	Returns a new L{PlaneEditController} object.	
-	@param plane:  This parameter is passed as an init argument for the 
-	               The PlaneEditController this method creates and returns.
+	@param plane:  This parameter is passed as an init argument for 
+	               the PlaneEditController that this method creates 
+		       and returns.
 	@type plane:  B{Plane} or None
 	@see: L{Plane.__init__} , L{Plane.edit}, L{PlaneEditController.__init__}
 	"""
 	from PlaneEditController import PlaneEditController	    
 	return PlaneEditController(self.w, plane)
-	
+    
+    def createRMotorEditController(self, rotaryMotor = None):
+	"""
+	Returns a new L{RotaryMotorEditController} object.	
+	@param rotaryMotor: This parameter is passed as an init argument for 
+			    the RotaryMotorEditController that this method 
+			    creates and returns.
+	@type rotaryMotor:  B{RotaryMotor} or None
+	@see: L{RotaryMotor.__init__} , L{RotaryMotor.edit}, 
+	      L{RotaryMotorEditController.__init__}
+	"""
+	from RotaryMotorEditController import RotaryMotorEditController
+	return RotaryMotorEditController(self.w, rotaryMotor)
+    	
     def createLine(self):
 	"""
 	Create a line passing through the center of the selected atoms. 

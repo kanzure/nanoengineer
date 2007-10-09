@@ -485,7 +485,8 @@ class _readmmp_state:
             radius = 2.0
             sradius = 0.5
         motor = RotaryMotor(self.assy)
-        motor.setProps(name, col, torq, sped, cxyz, axyz, length, radius, sradius)
+        params = name, col, torq, sped, cxyz, axyz, length, radius, sradius
+        motor.setProps(params)
         self.addmotor(motor)
 
     def addmotor(self, motor): #bruce 050405 split this out

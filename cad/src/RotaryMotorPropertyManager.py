@@ -1,119 +1,104 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
+RotaryMotorPropertyManager.py
 
-$Id$
+@author: Mark
+@version: $Id$
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
-Mark 2007-05-28: Implemented Rotary Motor using new PropMgrBaseClass.
-  
+Mark 2007-05-28: Created as RotaryMotorGeneratorDialog.py
+Ninad 2007-10-09: 
+       - Deprecated RotaryMotorGeneratorDialog class
+       - Created RotaryMotorPropertyManager class to match the 
+         EditController API. (and related changes)
+         
 """
-        
-__author__ = "Mark"
-
-# To do list:
-# - Fix major bug Keith discovered
-# - View should not change when adding a motor.
-# - Fix "Restore Defaults" 
-# - Adding rotary motor should work if a chunk is selected.
-# - Prompt user to select atoms via Property Manager messagebox.
-# - Update "Selected Atoms" groupbox as atoms are selected/unselected.
-# - When implemented, add new PropMgrColorChooser.
-
 from PyQt4.Qt import QColorDialog
 from PyQt4.Qt import SIGNAL
 
-from GeneratorBaseClass import GeneratorBaseClass
-from PM.PM_Dialog import PM_Dialog
-from PM.PM_GroupBox import PM_GroupBox
+from PM.PM_GroupBox      import PM_GroupBox
 from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
-from PM.PM_CheckBox   import PM_CheckBox
-from PM.PM_PushButton import PM_PushButton
-from PM.PM_ListWidget import PM_ListWidget
-from PM.PM_Constants import pmPreviewButton
-from widgets import RGBf_to_QColor, QColor_to_RGBf, get_widget_with_color_palette
-from bonds import CC_GRAPHITIC_BONDLENGTH
+from PM.PM_CheckBox      import PM_CheckBox
+from PM.PM_PushButton    import PM_PushButton
+from PM.PM_ListWidget    import PM_ListWidget
+from PM.PM_Constants     import pmRestoreDefaultsButton
 
-class RotaryMotorPropMgr(PM_Dialog):
-    """RotaryMotorPropMgr class.
+from widgets import RGBf_to_QColor, QColor_to_RGBf
+from widgets import get_widget_with_color_palette
+
+from utilities.Comparison import same_vals
+
+from EditController_PM import EditController_PM
+
+
+class RotaryMotorPropertyManager(EditController_PM):
     """
-    
-    # <title> - the title that appears in the property manager header.
+    The RotaryMotorProperty manager class provides UI and propMgr object for the
+    RotaryMotorEditController.
+    """
+    # The title that appears in the Property Manager header.
     title = "Rotary Motor"
     # The name of this Property Manager. This will be set to
     # the name of the PM_Dialog object via setObjectName().
     pmName = title
-    # <iconPath> - full path to PNG file that appears in the header.
+    # The relative path to the PNG file that appears in the header
     iconPath = "ui/actions/Simulation/Rotary_Motor.png"
     
-    def __init__(self, motor, glpane):
-        """Construct the Rotary Motor Property Manager.
+    def __init__(self, win, motorEditController):
         """
-        self.jig = motor
-        self.glpane = glpane
+        Construct the Rotary Motor Property Manager.    
+        """
+                
+        EditController_PM.__init__( self, 
+                                    win,
+                                    motorEditController) 
+                
         
-        PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)
-       
-        self.addGroupBoxes()
-        self.add_whats_this_text()
-        
-        # Include something about Restore Defaults when working. Mark 2007-06-04
-        msg = "Edit the Rotary Motor parameters and click <b>Done</b> \
-            to save."
+        msg = "Insert a Rotary motor."
         
         # This causes the "Message" box to be displayed as well.
-        # setAsDefault=True causes this message to be reset whenever
-        # this PropMgr is (re)displayed via show(). Mark 2007-06-01.
-        self.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=True)
+        self.updateMessage(msg)
         
-        # Hide preview button.
-        self.hideTopRowButtons(pmPreviewButton)
-        
-    def show(self):
-        print "SHOW!"
-        
-        # Save the jig's attributes in case of Cancel.
-        self.jig_attrs = self.jig.copyable_attrs_dict() # Save the jig's attributes in case of Cancel.
-        
-        if 1:
-            print "---------------------------------------\nHave jig_attrs!"
-        
-        if 1:
-            self.setValuesForGroupBox1(self.pmGroupBox1)
-            self.setValuesForGroupBox2(self.pmGroupBox2)
-            self.setValuesForGroupBox3(self.pmGroupBox3)
-        
-        PM_Dialog.show(self)
+        self.glpane = self.win.glpane
+               
+        # Hide Restore defaults button for Alpha9.
+        self.hideTopRowButtons(pmRestoreDefaultsButton)
     
-    def addGroupBoxes(self):
+    def show(self):
+        """
+        Show the Rotary motor Property Manager.
+        """
+        ##self.update_spinboxes() 
+        EditController_PM.show(self)
+        #It turns out that if updateCosmeticProps is called before 
+        #EditController_PM.show, the 'preview' properties are not updated 
+        #when you are editing an existing R.Motor. Don't know the cause at this
+        #time, issue is trivial. So calling it in the end -- Ninad 2007-10-03
+        self.struct.updateCosmeticProps(previewing = True)
+        
+
+    def _addGroupBoxes(self):
         """Add the 3 groupboxes for the Rotary Motor Property Manager.
         """
         self.pmGroupBox1 = PM_GroupBox(self, title = "Rotary Motor Parameters")
-        self.loadGroupBox1(self.pmGroupBox1)
+        self._loadGroupBox1(self.pmGroupBox1)
         
         self.pmGroupBox2 = PM_GroupBox(self, title = "Motor Size and Color")
-        self.loadGroupBox2(self.pmGroupBox2)
+        self._loadGroupBox2(self.pmGroupBox2)
         
-        self.pmGroupBox3 = PM_GroupBox(self, title = "Selected Atoms")
-        self.loadGroupBox3(self.pmGroupBox3)
+        self.pmGroupBox3 = PM_GroupBox(self, title = "Motor Atoms")
+        self._loadGroupBox3(self.pmGroupBox3)
               
-    def loadGroupBox1(self, pmGroupBox):
-        """Load widgets in groubox 1.
+    def _loadGroupBox1(self, pmGroupBox):
         """
-        
-        """
-        # Leave out of the propmgr. Mark 2007-05-28
-        self.nameLineEdit = \
-            PropMgrLineEdit(pmGroupBox, 
-                            label="Name :",
-                            text=self.jig.name,
-                            setAsDefault=True,
-                            spanWidth=False)"""
-        
+        Load widgets in MotorParamsGroupBox.
+        """                
         self.torqueDblSpinBox = \
             PM_DoubleSpinBox(pmGroupBox, 
                                 label = "Torque :", 
-                                value = self.jig.torque, 
+                                value = self.struct.torque, 
                                 setAsDefault = True,
                                 minimum    = 0.0, 
                                 maximum    = 1000.0, 
@@ -124,7 +109,7 @@ class RotaryMotorPropMgr(PM_Dialog):
         self.initialSpeedDblSpinBox = \
             PM_DoubleSpinBox(pmGroupBox,
                                 label = "Initial Speed :", 
-                                value = self.jig.initial_speed, 
+                                value = self.struct.initial_speed, 
                                 setAsDefault = True,
                                 minimum    = 0.0, 
                                 maximum    = 100.0, 
@@ -135,7 +120,7 @@ class RotaryMotorPropMgr(PM_Dialog):
         self.finalSpeedDblSpinBox = \
             PM_DoubleSpinBox(pmGroupBox,
                                 label="Final Speed :", 
-                                val=self.jig.speed, 
+                                value = self.struct.speed, 
                                 setAsDefault=True,
                                 minimum  = 0.0, 
                                 maximum  = 100.0, 
@@ -145,37 +130,38 @@ class RotaryMotorPropMgr(PM_Dialog):
         
         self.dampersCheckBox = \
             PM_CheckBox(pmGroupBox,
-                              text = "Dampers :",
-                              widgetColumn = 0,
-                              setAsDefault = True,
-                              spanWidth    = True)
+                        text = "Dampers",
+                        widgetColumn = 0
+                        )
+                              
         
-        self.dampersCheckBox.setChecked(self.jig.dampers_enabled)
+        self.dampersCheckBox.setChecked(self.struct.dampers_enabled)
         
         self.enableMinimizeCheckBox = \
             PM_CheckBox(pmGroupBox,
-                        text ="Enable in Minimize :",
-                        setAsDefault = True,
-                        spanWidth    = True)
-        self.enableMinimizeCheckBox.setChecked(self.jig.enable_minimize)
+                        text ="Enable in Minimize",
+                        widgetColumn = 0
+                        )
+        self.enableMinimizeCheckBox.setChecked(self.struct.enable_minimize)
         
         self.directionPushButton = \
             PM_PushButton(pmGroupBox,
-                              label="Direction :",
-                              text="Reverse")
+                          label="Direction :",
+                          text="Reverse",
+                          spanWidth = False)
         
         self.connect(self.directionPushButton, 
                      SIGNAL("clicked()"), 
                      self.reverse_direction)
     
-    def loadGroupBox2(self, pmGroupBox):
+    def _loadGroupBox2(self, pmGroupBox):
         """Load widgets in groubox 2.
         """
         
         self.motorLengthDblSpinBox = \
             PM_DoubleSpinBox(pmGroupBox, 
                                 label = "Motor Length :", 
-                                value = self.jig.length, 
+                                value = self.struct.length, 
                                 setAsDefault = True,
                                 minimum = 0.5, 
                                 maximum = 500.0, 
@@ -190,7 +176,7 @@ class RotaryMotorPropMgr(PM_Dialog):
         self.motorRadiusDblSpinBox = \
             PM_DoubleSpinBox(pmGroupBox, 
                                 label="Motor Radius :", 
-                                value = self.jig.radius, 
+                                value = self.struct.radius, 
                                 setAsDefault = True,
                                 minimum = 0.1, 
                                 maximum = 50.0, 
@@ -205,7 +191,7 @@ class RotaryMotorPropMgr(PM_Dialog):
         self.spokeRadiusDblSpinBox = \
             PM_DoubleSpinBox(pmGroupBox, 
                                 label="Spoke Radius :", 
-                                value = self.jig.sradius, 
+                                value = self.struct.sradius, 
                                 setAsDefault = True,
                                 minimum = 0.1, 
                                 maximum = 50.0, 
@@ -216,8 +202,8 @@ class RotaryMotorPropMgr(PM_Dialog):
         self.connect(self.spokeRadiusDblSpinBox, 
                      SIGNAL("valueChanged(double)"), 
                      self.change_motor_size)
-        
-        self.jig_QColor = RGBf_to_QColor(self.jig.normcolor) # Used as default color by Color Chooser
+        # Used as default color by Color Chooser
+        self.jig_QColor = RGBf_to_QColor(self.struct.normcolor) 
         
         self.colorPushButton = \
             PM_PushButton(pmGroupBox,
@@ -228,7 +214,7 @@ class RotaryMotorPropMgr(PM_Dialog):
                      SIGNAL("clicked()"), 
                      self.change_jig_color)
         
-    def loadGroupBox3(self, pmGroupBox):
+    def _loadGroupBox3(self, pmGroupBox):
         """Load widgets in groubox 3.
         """
         
@@ -237,7 +223,7 @@ class RotaryMotorPropMgr(PM_Dialog):
         
         # Create a list of the selected atoms (descriptions).
         from bond_constants import describe_atom_and_atomtype
-        for a in self.jig.atoms:
+        for a in self.struct.atoms:
             san = describe_atom_and_atomtype(a)
             selectedAtomNames.append(san)
             
@@ -253,46 +239,15 @@ class RotaryMotorPropMgr(PM_Dialog):
             
         self.selectedAtomsListWidget = \
             PM_ListWidget(pmGroupBox, 
-                                label="Atoms :",
-                                numRows=6)
-        
+                          label="Atoms :",
+                          heightByRows = 6
+                        )
+        #old comment --
         # Keep to discuss with Bruce. Mark 2007-06-04
-        #self.selectedAtomsListWidget.atoms = self.jig.atoms[:]    
+        #self.selectedAtomsListWidget.atoms = self.struct.atoms[:]    
     
-    def setValuesForGroupBox1(self, pmGroupBox):
-        """Set values for widgets in groubox 1 each time the 
-        Property Manager is displayed.
-        """
-        self.torqueDblSpinBox.setValue(self.jig.torque)
-        self.initialSpeedDblSpinBox.setValue(self.jig.initial_speed)
-        self.finalSpeedDblSpinBox.setValue(self.jig.speed)
-        self.dampersCheckBox.setCheckState(self.jig.dampers_enabled)
-        self.enableMinimizeCheckBox.setCheckState(self.jig.enable_minimize)
         
-    def setValuesForGroupBox2(self, pmGroupBox):
-        """Set values for widgets in groubox 2 each time the 
-        Property Manager is displayed.
-        """
-        self.motorLengthDblSpinBox.setValue(self.jig.length)
-        self.motorRadiusDblSpinBox.setValue(self.jig.radius)
-        self.spokeRadiusDblSpinBox.setValue(self.jig.sradius)
-        
-    def setValuesForGroupBox3(self, pmGroupBox):
-        """Set values for widgets in groubox 3 each time the 
-        Property Manager is displayed.
-        """
-        
-        selectedAtomNames = []
-        
-        # Create a list of the selected atoms (descriptions).
-        from bond_constants import describe_atom_and_atomtype
-        for a in self.jig.atoms:
-            san = describe_atom_and_atomtype(a)
-            selectedAtomNames.append(san)
-            
-        self.selectedAtomsListWidget.insertItems(0, selectedAtomNames, setAsDefault=True)
-    
-    def add_whats_this_text(self):
+    def _addWhatsThisText(self):
         """What's This text for some of the widgets in the Property Manager.
         """
         
@@ -332,18 +287,21 @@ class RotaryMotorPropMgr(PM_Dialog):
         if color.isValid():
             self.jig_QColor = color
             """
-            # I intend to implement this once PropMgrColorChooser is complete. Mark 2007-05-28
+            # I intend to implement this once PropMgrColorChooser is complete. 
+            - Mark 2007-05-28
             self.jig_color_pixmap = \
                 get_widget_with_color_palette(self.jig_color_pixmap, 
                                               self.jig_QColor)  """ 
-            self.jig.color = self.jig.normcolor = QColor_to_RGBf(color)
+            self.struct.color = self.struct.normcolor = QColor_to_RGBf(color)
             self.glpane.gl_update()
             
     def change_motor_size(self, gl_update=True):
-        """Slot method to change the jig's length, radius and/or spoke radius."""
-        self.jig.length = self.motorLengthDblSpinBox.value()# motor length
-        self.jig.radius = self.motorRadiusDblSpinBox.value() # motor radius
-        self.jig.sradius = self.spokeRadiusDblSpinBox.value() # spoke radius
+        """
+        Slot method to change the jig's length, radius and/or spoke radius.
+        """
+        self.struct.length = self.motorLengthDblSpinBox.value()# motor length
+        self.struct.radius = self.motorRadiusDblSpinBox.value() # motor radius
+        self.struct.sradius = self.spokeRadiusDblSpinBox.value() # spoke radius
         if gl_update:
             self.glpane.gl_update()
             
@@ -351,13 +309,39 @@ class RotaryMotorPropMgr(PM_Dialog):
         """Slot for reverse direction button.
         Reverse the direction fo the motor.
         """
-        self.jig.reverse_direction()
+        self.struct.reverse_direction()
         self.glpane.gl_update()
-        
-    def abort_button_clicked(self):
-        """Slot for the 'Cancel' button. #@ NEVER CALLED!
+    
+    def update_props_if_needed_before_closing(self):
         """
-        print "\n\nABORT Clicked!" #@
-        self.jig.attr_update(self.jig_attrs) # Restore attributes of the jig.
-        self.glpane.gl_update()
-        GeneratorBaseClass.abort_button_clicked(self)
+        This updates some cosmetic properties of the Rotary motor (e.g. opacity)
+        before closing the Property Manager.
+        """
+        #API method. See Plane.update_props_if_needed_before_closing for another
+        #example.        
+        # Example: The Rotary Motor Property Manager is open and the user is 
+        # 'previewing' the motor. Now the user clicks on "Build > Atoms" 
+        # to invoke the next command (without clicking "Done"). 
+        # This calls self.open() which replaces the current PM 
+        # with the Build Atoms PM.  Thus, it creates and inserts the motor 
+        # that was being previewed. Before the motor is permanently inserted
+        # into the part, it needs to change some of its cosmetic properties
+        # (e.g. opacity) which distinguishes it as 
+        # a previewed motor in the part. This function changes those properties.
+        # [ninad 2007-10-09 comment]    
+        
+        #called from updatePropertyManager in Ui_PartWindow.py (Partwindowclass)
+
+        self.struct.updateCosmeticProps()
+    
+    def updateMessage(self, message = ''):
+        """
+        Updates the message box with an informative message
+        @param message: Message to be displayed in the Message groupbox of 
+                        the property manager
+        @type  message: string
+        """
+        msg = message
+        self.MessageGroupBox.insertHtmlMessage(msg, 
+                                               setAsDefault = False,
+                                               minLines     = 5)
