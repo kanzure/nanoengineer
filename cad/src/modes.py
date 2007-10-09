@@ -4,6 +4,11 @@ modes.py -- provides basicMode, the superclass for all modes.
 
 $Id$
 
+
+WARNING: this file is temporarily OWNED by bruce,
+since it is being split into two files.
+
+
 History:
 
 
@@ -60,6 +65,15 @@ as well look at them all.
 bruce 050507 moved Hydrogenate and Dehydrogenate into another file
 
 bruce 071009 moved modeMixin into its own file
+
+
+TODO:
+
+- classify all general mode methods as being part of either the Command or
+GraphicsMode APIs. (For now, record this in comments next to the defs.)
+Then split those into two different classes (or inheritance trees),
+even though old modes will inherit and provide both APIs in one object.
+
 """
 
 import math # just for pi
@@ -813,7 +827,7 @@ class basicMode(anyMode):
                 self.propMgr.model_changed()
         return
 
-    def state_may_have_changed(self): #bruce 070925 added this to mode/command API
+    def state_may_have_changed(self): #bruce 070925 added this to command API
         """
         Call model_changed and/or selection_changed as needed, in that order.
         Not normally overridden by subclasses [I hope].
