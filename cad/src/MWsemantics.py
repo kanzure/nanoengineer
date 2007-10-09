@@ -614,13 +614,15 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
     currentCommand = property(get_currentCommand)
     
     def post_event_ui_updater(self): #bruce 070925
-        self.glpane.mode.state_may_have_changed()
+        self.currentCommand.state_may_have_changed()
         return
     
-    def createPopupMenu(self):#Ninad 070328
-	''' Reimplemented createPopPupMenu method that allows 
+    def createPopupMenu(self): #Ninad 070328
+	"""
+	Reimplemented createPopPupMenu method that allows 
 	display of custom context menu (toolbars and dockwidgets) 
-	when you rightclick on QMainWindow widget. '''
+	when you rightclick on QMainWindow widget.
+	"""
 	menu = QMenu(self)
 	contextMenuToolBars = [self.standardToolBar, self.viewToolBar,
 			   self.simulationToolBar, self.buildToolsToolBar,
@@ -665,35 +667,11 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
             MWsemantics._init_part_two(self)
 
         pw.glpane.start_using_mode('$STARTUP_MODE') #bruce 050911
+            ### TODO: this should be the commandSequencer --
+            # decide whether to just get it from win here
+            # (e.g. if we abandon separate PartWindow class)
+            # or make pw.commandSequencer work.
 	return
-
-##    def __getattr__(self, key):
-##        #
-##        # Somebody wants our glpane, but we no longer have just one glpane. We have one
-##        # glpane for each PartWindow, and only one PartWindow is active.
-##        # (In fact, we also have only one partWindow, but nevermind...)
-##        #
-##        def locate(attr):
-##            try:
-##                raise Exception
-##            except:
-##                import sys
-##                tb = sys.exc_info()[2]
-##                f = tb.tb_frame
-##                f = f.f_back.f_back
-##                print 'MainWindow.'+attr+' ->', f.f_code.co_filename, f.f_code.co_name, f.f_lineno
-##        if MULTIPANE_GUI:
-##            if key == 'glpane':
-##                # locate('glpane')   # who is asking for this?
-##                pw = self.activePartWindow()
-##                assert pw is not None
-##                return pw.glpane
-##            if key == 'mt':
-##                # locate('mt')    # who is asking for this?
-##                pw = self.activePartWindow()
-##                assert pw is not None
-##                return pw.modelTree
-##        raise AttributeError(key)
         
     def _init_part_two(self):
         # Create the Preferences dialog widget.
