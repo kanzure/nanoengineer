@@ -159,6 +159,7 @@ from constants import GL_FAR_Z
 from constants import bluesky
 from constants import orange
 from constants import white
+from constants import MULTIPANE_GUI
 
 from part import Part
 
@@ -1679,7 +1680,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
     def makeCurrent(self):
         QGLWidget.makeCurrent(self)
         # also tell the MainWindow that my PartWindow is the active one
-        if debug_pref("Multipane GUI", Choice_boolean_False):
+        if MULTIPANE_GUI:
             pw = self.partWindow
             pw.parent._activepw = pw
     

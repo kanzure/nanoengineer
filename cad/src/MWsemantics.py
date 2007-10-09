@@ -57,7 +57,6 @@ from PropMgr_Constants import pmDefaultWidth, pmMaxWidth, pmMinWidth
 from elementColors import elementColors 
 from elementSelector import elementSelector 
 from Sponsors import PermissionDialog
-from debug_prefs import debug_pref, Choice_boolean_False
 
 from ViewOrientationWindow import ViewOrientationWindow # Ninad 061121
 
@@ -66,7 +65,7 @@ from ViewOrientationWindow import ViewOrientationWindow # Ninad 061121
 from files_pdb import readpdb, insertpdb, writepdb
 from files_gms import readgms, insertgms
 
-from debug import print_compact_traceback
+from debug import print_compact_traceback, print_compact_stack
 
 from MainWindowUI import Ui_MainWindow
 from utilities.Log import greenmsg, redmsg, orangemsg
@@ -98,6 +97,7 @@ from constants import diCYLINDER
 from constants import diSURFACE
 from constants import diINVISIBLE
 from constants import diDEFAULT
+from constants import MULTIPANE_GUI
 
 elementSelectorWin = None
 elementColorsWin = None
@@ -112,8 +112,9 @@ for i,elno in zip(range(len(eCCBtab1)), eCCBtab1):
 
 ########################################################################
 
-class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Ui_MainWindow):
+class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Ui_MainWindow, object):
     "The single Main Window object."
+    #bruce 071008 added object superclass
 
     #bruce 050413 split out movieDashboardSlotsMixin, which needs to come before MainWindow
     # in the list of superclasses, since MainWindow overrides its methods with "NIM stubs".
@@ -133,6 +134,8 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 
     def __init__(self, parent = None, name = None):
 
+        assert isinstance(self, object) #bruce 071008
+        
         self._init_part_two_done = False
         self._activepw = None
 	
@@ -464,7 +467,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         else:
             mtree_parent = hsplitter
 	    
-        if not debug_pref("Multipane GUI", Choice_boolean_False):
+        if not MULTIPANE_GUI:
             # Create the model tree widget. Width of 225 matches width of MMKit.  Mark 060222.
             self.mt = modelTree(mtree_parent, self)
 	    self.mt.setMinimumSize(0, 0)
@@ -480,7 +483,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         # history widget (bottom) [history is new as of 041223]
         vsplitter = QSplitter(Qt.Vertical, hsplitter)
         
-        if not debug_pref("Multipane GUI", Choice_boolean_False):
+        if not MULTIPANE_GUI:
             if 0: 
                 #& This creates a gplane with a black 1 pixel border around it.  Leave it in in case we want to use this.
                 #& mark 060222. [bruce 060612 committed with 'if 0', in an updated/tested form]
@@ -496,7 +499,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
                     # we change it below, since doing so now would be too early for some modes permitted as startup mode
                     # (e.g. Build mode, which when Entered needs self.Element to exist, as of 050911)
          
-	if not debug_pref("Multipane GUI", Choice_boolean_False):
+	if not MULTIPANE_GUI:
 	    # Create the history area at the bottom
 	    from HistoryWidget import HistoryWidget
 	    histfile = make_history_filename()
@@ -528,7 +531,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 	qt4todo('vsplitter.setStretchFactor(vsplitter.indexOf(self.history_widget), 0)')
         vsplitter.setOpaqueResize(False)
 	
-        if not debug_pref("Multipane GUI", Choice_boolean_False):
+        if not MULTIPANE_GUI:
             self.setCentralWidget(hsplitter) # This is required.
             # This makes the hsplitter the central widget, spanning the height of the mainwindow.
             # mark 060222.
@@ -542,7 +545,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
             ## vsplitter2.setResizeMode(newthing-in-vsplitter2, QSplitter.KeepSize)
 	    
 
-        if debug_pref("Multipane GUI", Choice_boolean_False):
+        if MULTIPANE_GUI:
             # Create the "What's This?" online help system.
             from whatsthis import createWhatsThis
             createWhatsThis(self)
@@ -597,6 +600,14 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         
         return # from MWsemantics.__init__
 
+    def get_commandSequencer(self):
+        # WARNING: if this causes infinite recursion, we just get an AttributeError
+        # from the inner call (saying self has no attr 'commandSequencer')
+        # rather than an understandable exception.
+        return self.glpane #bruce 071008; will revise when we have a separate one
+    
+    commandSequencer = property(get_commandSequencer)
+    
     def post_event_ui_updater(self): #bruce 070925
         self.glpane.mode.state_may_have_changed()
         return
@@ -649,39 +660,40 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
             MWsemantics._init_part_two(self)
 
         pw.glpane.start_using_mode('$STARTUP_MODE') #bruce 050911
-	
+	return
 
-    def __getattr__(self, key):
-        #
-        # Somebody wants our glpane, but we no longer have just one glpane. We have one
-        # glpane for each PartWindow, and only one PartWindow is active.
-        #
-        def locate(attr):
-            try:
-                raise Exception
-            except:
-                import sys
-                tb = sys.exc_info()[2]
-                f = tb.tb_frame
-                f = f.f_back.f_back
-                print 'MainWindow.'+attr+' ->', f.f_code.co_filename, f.f_code.co_name, f.f_lineno
-        if debug_pref("Multipane GUI", Choice_boolean_False):
-            if key == 'glpane':
-                # locate('glpane')   # who is asking for this?
-                pw = self.activePartWindow()
-                assert pw is not None
-                return pw.glpane
-            if key == 'mt':
-                # locate('mt')    # who is asking for this?
-                pw = self.activePartWindow()
-                assert pw is not None
-                return pw.modelTree
-        raise AttributeError(key)
+##    def __getattr__(self, key):
+##        #
+##        # Somebody wants our glpane, but we no longer have just one glpane. We have one
+##        # glpane for each PartWindow, and only one PartWindow is active.
+##        # (In fact, we also have only one partWindow, but nevermind...)
+##        #
+##        def locate(attr):
+##            try:
+##                raise Exception
+##            except:
+##                import sys
+##                tb = sys.exc_info()[2]
+##                f = tb.tb_frame
+##                f = f.f_back.f_back
+##                print 'MainWindow.'+attr+' ->', f.f_code.co_filename, f.f_code.co_name, f.f_lineno
+##        if MULTIPANE_GUI:
+##            if key == 'glpane':
+##                # locate('glpane')   # who is asking for this?
+##                pw = self.activePartWindow()
+##                assert pw is not None
+##                return pw.glpane
+##            if key == 'mt':
+##                # locate('mt')    # who is asking for this?
+##                pw = self.activePartWindow()
+##                assert pw is not None
+##                return pw.modelTree
+##        raise AttributeError(key)
         
     def _init_part_two(self):
         # Create the Preferences dialog widget.
         # Mark 050628
-        if not debug_pref("Multipane GUI", Choice_boolean_False):
+        if not MULTIPANE_GUI:
             self.assy.o = self.glpane
         from UserPrefs import UserPrefs
         self.uprefs = UserPrefs(self.assy)
@@ -742,7 +754,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 	from AtomGenerator import AtomGenerator
 	self.atomcntl = AtomGenerator(self)
         
-        if not debug_pref("Multipane GUI", Choice_boolean_False):
+        if not MULTIPANE_GUI:
             # do here to avoid a circular dependency
             # note: as of long before now, this doesn't normally run [bruce 070503 comment]
             self.assy.o = self.glpane
@@ -760,7 +772,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 
         # Create the "What's This?" online help system.
         from whatsthis import createWhatsThis, fix_whatsthis_text_and_links
-        if not debug_pref("Multipane GUI", Choice_boolean_False):
+        if not MULTIPANE_GUI:
             createWhatsThis(self)
 
         # IMPORTANT: All widget creation (i.e. dashboards, dialogs, etc.) and their 
@@ -770,7 +782,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         fix_whatsthis_text_and_links(self, refix_later = (self.editMenu,)) # (main call) Fixes bug 1136.  Mark 051126.
             # [bruce 060319 added refix_later as part of fixing bug 1421]
 
-        if not debug_pref("Multipane GUI", Choice_boolean_False):
+        if not MULTIPANE_GUI:
             start_element = 6 # Carbon
 
             # Attr/list for Atom Selection Filter. mark 060401
@@ -844,8 +856,19 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self._init_part_two_done = True
         return # from _init_part_two
 
-    def activePartWindow(self):
+    def activePartWindow(self): # WARNING: this is inlined in a few methods of self
         return self._activepw
+
+    def get_glpane(self): #bruce 071008; inlines self.activePartWindow
+        return self._activepw.glpane
+    
+    def get_mt(self): #bruce 071008; inlines self.activePartWindow # TODO: rename .mt to .modelTree
+        return self._activepw.modelTree
+
+    if MULTIPANE_GUI:
+        #bruce 071008 to replace __getattr__
+        glpane = property(get_glpane)
+        mt = property(get_mt)
 
     def closeEvent(self, ce):
         fileSlotsMixin.closeEvent(self, ce)
@@ -866,7 +889,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         # After the main window(its size and location) has been setup, begin to run the program from this method. 
         # [Huaicai 11/1/05: try to fix the initial MMKitWin off screen problem by splitting from the __init__() method]
         
-        if not debug_pref("Multipane GUI", Choice_boolean_False):
+        if not MULTIPANE_GUI:
             self.glpane.start_using_mode( '$STARTUP_MODE') #bruce 050911
             # Note: this might depend on self's geometry in choosing dialog placement, so it shouldn't be done in __init__.
 
@@ -1042,7 +1065,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         """
         if not self.initialised:
             return #bruce 041222
-        if debug_pref("Multipane GUI", Choice_boolean_False):
+        if MULTIPANE_GUI:
             pw = self.activePartWindow()
             pw.glpane.gl_update()
             pw.modelTree.mt_update()
@@ -1097,8 +1120,9 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         return
             
     def editClearUndoStack(self):
-        '''Slot for clearing the Undo Stack.  Requires the user to confirm.
-        '''
+        """
+        Slot for clearing the Undo Stack.  Requires the user to confirm.
+        """
         import undo_manager, debug
         debug.reload_once_per_event(undo_manager) # only reloads if atom_debug is set
         undo_manager.editClearUndoStack()
@@ -1141,63 +1165,65 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 	else:
 	    msg = orangemsg("Nothing to paste.")
 	    env.history.message(msg)
-	
+	return
     
     def editPasteFromClipboard(self):
 	"""
-	Invokes the L{PasteMode}, a temporary mode to paste items in the 
-	clipboard, into the 3D workspace. It also stores the mode NE1 should 
-	return after exiting this temporary mode. 
+	Invokes the L{PasteMode}, a temporary command to paste items in the 
+	clipboard, into the 3D workspace. It also stores the command NE1 should 
+	return to after exiting this temporary command. 
 	"""
 	if self.assy.shelf.members:	    
 	    pastables = self.assy.shelf.getPastables()
 	    if not pastables:
-		msg = orangemsg("Nothing to paste. Paste mode cancelled.")
+		msg = orangemsg("Nothing to paste. Paste Command cancelled.")
 	        env.history.message(msg)
 		return
+
+	    commandSequencer = self.commandSequencer
+	    currentCommand = commandSequencer.currentCommand
 	    
-	    mode = self.glpane.mode
-	    
-	    if mode.modename != "PASTE":
-		#Make sure that previous mode (self.glpane.prevMode) never
-		#stores a 'temporary mode' i.e. after exiting Paste mode, the 
-		#mode NE1 enters is not one of the following -- 
+	    if currentCommand.modename != "PASTE":
+		#Make sure that previous command (commandSequencer.prevMode) never
+		#stores a 'temporary command' i.e. after exiting Paste Command, the 
+		#command NE1 enters is not one of the following -- 
 		# ('PASTE', 'PARTLIB', 'ZOOM', 'PAN', 'ROTATE')
 		
-		if mode.modename not in ['PASTE', 'PARTLIB',\
-					 'ZOOM', 'PAN', 'ROTATE']:		    
-		    self.glpane.prevMode = mode
+		if currentCommand.modename not in ['PASTE', 'PARTLIB',
+					           'ZOOM', 'PAN', 'ROTATE']:		    
+		    commandSequencer.prevMode = currentCommand
 		    
-		self.glpane.setMode('PASTE', suspend_old_mode = False)
+		commandSequencer.setMode('PASTE', suspend_old_mode = False)
 		return
 	else:
-	    msg = orangemsg("Clipboard is empty. Paste mode cancelled.")
+	    msg = orangemsg("Clipboard is empty. Paste Command cancelled.")
 	    env.history.message(msg)
+        return
     
     def insertPartFromPartLib(self):
 	"""
-	Sets the mode to L{PartLibraryMode}, for inserting (pasting) 
-	a part from the partlib into the 3D workspace. It also stores the mode 
-	NE1 should return after exiting this temporary mode. 
+	Sets the current command to L{PartLibraryMode}, for inserting (pasting) 
+	a part from the partlib into the 3D workspace. It also stores the command 
+	NE1 should return to after exiting this temporary command. 
 	"""
-	mode = self.glpane.mode
-	if mode.modename != "PARTLIB":
-	    #Make sure that previous mode (self.glpane.prevMode) never
-	    #stores a 'temporary mode' i.e. after exiting Paste mode, the 
-	    #mode NE1 enters is not one of the following -- 
+	commandSequencer = self.commandSequencer
+	currentCommand = commandSequencer.currentCommand
+	if currentCommand.modename != "PARTLIB":
+	    #Make sure that previous command (commandSequencer.prevMode) never
+	    #stores a 'temporary command' i.e. after exiting Paste Command, the 
+	    #command NE1 enters is not one of the following -- 
 	    # ('PASTE', 'PARTLIB', 'ZOOM', 'PAN', 'ROTATE')
-	    if mode.modename not in ['PASTE', 'PARTLIB', \
-					 'ZOOM', 'PAN', 'ROTATE']:
-		self.glpane.prevMode = mode
+	    if currentCommand.modename not in ['PASTE', 'PARTLIB',
+					       'ZOOM', 'PAN', 'ROTATE']:
+		commandSequencer.prevMode = currentCommand
 		
-	    self.glpane.setMode('PARTLIB', suspend_old_mode = False)
-	    return
-	
-	
+	    commandSequencer.setMode('PARTLIB', suspend_old_mode = False)
+	return
             
-    # editDelete
+    # TODO: rename killDo to editDelete
     def killDo(self):
-        """ Deletes selected atoms, chunks, jigs and groups.
+        """
+        Deletes selected atoms, chunks, jigs and groups.
         """
         self.assy.delete_sel()
         ##bruce 050427 moved win_update into delete_sel as part of fixing bug 566
@@ -1706,25 +1732,22 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
     def toolsSelectMolecules(self):# note: this can also be called from update_select_mode [bruce 060403 comment]
         self.glpane.setMode('SELECTMOLS')
 
-    # get into Move Chunks (or Translate Components) mode        
+    # get into Move Chunks (or Translate Components) command        
     def toolsMoveMolecule(self):
-	if self.glpane.mode.modename == 'MODIFY':
-	    self.glpane.mode.propMgr.activate_translateGroupBox()
-	else:
-	    self.glpane.setMode('MODIFY')
-	    self.glpane.mode.propMgr.activate_translateGroupBox()
-	
-    #Rotate Components mode. 
+        commandSequencer = self.commandSequencer
+	if commandSequencer.currentCommand.modename != 'MODIFY':
+	    commandSequencer.setMode('MODIFY')
+	commandSequencer.currentCommand.propMgr.activate_translateGroupBox()
+	return
+    
+    # Rotate Components command
     def toolsRotateComponents(self):
-	if self.glpane.mode.modename == 'MODIFY':
-	    self.glpane.mode.propMgr.activate_rotateGroupBox()
-	else:
-	    self.glpane.setMode('MODIFY')
-	    self.glpane.mode.propMgr.activate_rotateGroupBox()
-	    
-	    
-	
-   
+        commandSequencer = self.commandSequencer
+	if commandSequencer.currentCommand.modename != 'MODIFY':
+	    commandSequencer.setMode('MODIFY')
+	commandSequencer.currentCommand.propMgr.activate_rotateGroupBox()
+        return
+    
     # get into Build mode        
     def toolsBuildAtoms(self): # note: this can now be called from update_select_mode [as of bruce 060403]
         self.depositState = 'Atoms'

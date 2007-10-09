@@ -156,7 +156,8 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
         self._modified = 1 
         
         # the MWsemantics displaying this assembly (or None, when called from ThumbView)
-        self.w = win
+        self.w = win # deprecated but widely used [bruce 071008]
+        self.win = win #bruce 071008
         # self.mt = win.modelTreeView [or win.mt, probably the same thing, not 100% clear -- bruce 070503 comment]
         # self.o = win.glpane
         #  ... done in MWsemantics to avoid a circularity
@@ -178,9 +179,9 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
             # so any fix like that is more unclear than just having our __init__-caller pass us this flag.
             assert self.w
             global _assy_owning_win
-            from debug_prefs import debug_pref, Choice_boolean_False
             if 1: #bruce 070517 fix a change that looks wrong -- make this always happen, like it used to
-##                if not debug_pref("Multipane GUI", Choice_boolean_False):
+##                from constants import MULTIPANE_GUI
+##                if not MULTIPANE_GUI:
 ##                # wware 20061115 - we need to permit assys to coexist
                 if _assy_owning_win is not None:
                     _assy_owning_win.deinit()

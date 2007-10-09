@@ -12,6 +12,14 @@ $Id$
 
 from PyQt4.Qt import Qt
 
+MULTIPANE_GUI = True # enable some code which was intended to permit the main window
+    # to contain multiple PartWindows. Unfortunately we're far from that being possible,
+    # but we're also (I strongly suspect, but am not sure) now dependent on this
+    # value being True, having not maintained the False case for a long time.
+    # If this is confirmed, we should remove the code for the False case and remove
+    # this flag, and then decide whether the singleton partWindow should continue
+    # to exist. [bruce 071008, replacing a debug_pref with this flag]
+
 DIAMOND_BOND_LENGTH = 1.544
     #bruce 051102 added this based on email from Damian Allis:
     # > The accepted bond length for diamond is 1.544 ("Interatomic  

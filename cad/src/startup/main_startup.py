@@ -119,26 +119,6 @@ def startup_script( main_globals):
     from MWsemantics import MWsemantics 
 
 
-    # set up the value of debug_pref("Multipane GUI",...).
-    # TODO: change this into a hardcoded flag and probably remove support for one value of it.
-    
-    from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
-    ##########################################################################################################
-    #
-    # The debug preference menu is now working in Qt 4 but you can't effectively change this debug
-    # preference after the program has already come up, as too much of the GUI is already in place
-    # by then. To change it, manually edit it here.
-    #
-    # [note added later: I suspect we are now dependent on this value of True and should
-    #  should not leave the appearance that the False value is supported. I don't know for sure.
-    #  [bruce 071005 comment]]
-    #
-    debug_pref("Multipane GUI", Choice_boolean_True)
-    #debug_pref("Multipane GUI", Choice_boolean_False)
-    #
-    ##########################################################################################################
-
-
     # initialize modules and data structures
 
     from startup import startup_misc

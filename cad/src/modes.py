@@ -122,7 +122,7 @@ from jigs import Jig
 import time
 
 
-class anyMode( StateMixin): #bruce 060223 renamed mixin class
+class anyMode(object, StateMixin): #bruce 060223 renamed mixin class; 071008 added object superclass
     "abstract superclass for all mode objects"
     
     # default values for mode-object attributes.  external code
@@ -292,10 +292,13 @@ class basicMode(anyMode):
                       (self.__class__.__name__, attr)
 
         # other inits
-        self.glpane = glpane 
-        self.commandSequencer = glpane #bruce 070108; temporary (for its .currentCommand attribute) [Q: is this private?]
-
+        self.glpane = glpane
         self.win = glpane.win
+        # this doesn't work, since when self is first created during GLPane creation,
+        # self.win doesn't yet have this attribute:
+        ## self.commandSequencer = self.win.commandSequencer #bruce 070108
+        # (note that the exception from this is not very understandable.)
+        # So instead, we define a property that does this alias, below.
         
         # Note: the attributes self.o and self.w are deprecated, but often used.
         # New code should use some other attribute, such as self.glpane or
@@ -321,6 +324,11 @@ class basicMode(anyMode):
 
         return # from basicMode.__init__
 
+    def get_commandSequencer(self):
+        return self.win.commandSequencer #bruce 070108
+    
+    commandSequencer = property(get_commandSequencer)
+    
     def isCurrentCommand(self): #bruce 071008, for Command API
         """
         Return a boolean to indicate whether self is the currently active command.
@@ -1969,7 +1977,8 @@ class modeMixin(object):
     """
     ### TODO: this class will be replaced with an aspect of the command sequencer,
     # and will use self.currentCommand rather than self.mode...
-    # so some code which uses glpane.mode is being changed to set commandSequencer = glpane
+    # so some code which uses glpane.mode is being changed to get commandSequencer
+    # from win.commandSequencer (which for now is just the glpane; that will change)
     # and then use commandSequencer.currentCommand. But the command-changing methods
     # like setMode are being left as commandSequencer.setMode until they're better
     # understood. [bruce 071008 comment]
@@ -1998,6 +2007,7 @@ class modeMixin(object):
         return self.mode
 
     def set_currentCommand(self, val):
+        print "something called set_currentCommand" # not yet used
         self.mode = val
     
     currentCommand = property(get_currentCommand, set_currentCommand)

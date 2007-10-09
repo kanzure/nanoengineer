@@ -418,7 +418,8 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
     # == attributes which should be delegated to self.assy
     
     # attrnames to delegate to self.assy (ideally for writing as well as reading, until all using-code is upgraded)
-    assy_attrs = ['w','o','mt','selwhat']
+    assy_attrs = ['w','o','mt','selwhat','win'] #bruce 071008 added 'win'
+        ### TODO: add glpane, once we have it in assy and verify not already used here [bruce 071008 comment]
         # 050308: selwhat will be an official assy attribute;
         # some external code assigns to assy.selwhat directly,
         # and for now can keep doing that. Within the Part, perhaps we should

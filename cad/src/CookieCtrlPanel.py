@@ -36,7 +36,6 @@ class CookieCtrlPanel(CookiePropertyManager):
         self.w = parentMode.w
         self.cookieCommand = parentMode
             #bruce 071008, probably redundant with some other attribute
-        print "cookie command = ",parentMode ###
                                        
         self.pw = None # pw is active part window
         

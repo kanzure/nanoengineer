@@ -174,7 +174,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
         #bruce 050519 revised docstring and totally rewrote code.
         assy = self.assy
         win = self.win
-        commandSequencer = self.win.glpane #bruce 071008; will be revised
+        commandSequencer = self.win.commandSequencer #bruce 071008
         mode = commandSequencer.currentCommand
             #bruce 071008; note, I'm not sure it's right to ask the currentCommand
             # for selwhat_from_mode, as opposed to the current graphicsMode!

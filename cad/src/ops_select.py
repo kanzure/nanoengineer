@@ -372,7 +372,7 @@ class ops_select_Mixin:
         #  external callers which pass their own water_enabled flag to it.
         #  So we can't just inline this into it.)
         # [bruce 071008]
-        commandSequencer = self.o
+        commandSequencer = self.win.commandSequencer
         if commandSequencer.currentCommand.modename == 'DEPOSIT':
             return True
         else:

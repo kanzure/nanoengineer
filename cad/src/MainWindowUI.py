@@ -27,14 +27,15 @@ import Ui_BuildStructuresToolBar
 
 from icon_utilities import geticon
 
+from constants import MULTIPANE_GUI
+
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.setEnabled(True)
         #MainWindow.resize(QtCore.QSize(QtCore.QRect(0,0,1014,688).size()).expandedTo(MainWindow.minimumSizeHint()))
 
-        from debug_prefs import debug_pref, Choice_boolean_False
-        if debug_pref("Multipane GUI", Choice_boolean_False):
+        if MULTIPANE_GUI:
             self.widget = self.centralWidget()
         else:
             self.widget = QtGui.QWidget(MainWindow)
@@ -426,7 +427,13 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         
         QtCore.QObject.connect(self.fileExitAction,QtCore.SIGNAL("activated()"),MainWindow.close)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+        # bruce 071008 removed this call of connectSlotsByName, since
+        # we don't appear to be taking advantage of it
+        # (since we have no slots named on_<widgetname>_<signalname>)
+##        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+        return
 
     def retranslateUi(self, MainWindow):
         
