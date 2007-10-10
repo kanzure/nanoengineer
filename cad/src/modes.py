@@ -67,6 +67,22 @@ class anyMode(anyCommand, anyGraphicsMode):
 class nullMode(nullCommand, nullGraphicsMode, anyMode):
     # used in modeMixin and test_commands
     # see discussion in this module's docstring
+
+    # duplicated properties in nullMode and basicMode, except for debug prints:
+    
+    def __get_command(self):
+        print "\n * * * nullMode.__get_command, should probably never happen\n"
+            # happens?? never yet seen, should probably never happen
+        return self
+
+    command = property(__get_command)
+
+    def __get_graphicsMode(self):
+        print "\n * * * nullMode.__get_graphicsMode, remove when seen often\n"
+            # should happen often, did happen at least once
+        return self
+
+    graphicsMode = property(__get_graphicsMode)
     pass
 
 class basicMode(basicCommand, basicGraphicsMode, anyMode):
@@ -89,13 +105,17 @@ class basicMode(basicCommand, basicGraphicsMode, anyMode):
             # no need to pass self as command, due to property below
         
         return
-    
+
+    # duplicated properties in nullMode and basicMode, except for debug prints:
+
     def __get_command(self):
+        ## print "basicMode.__get_command, remove when seen" # should happen often, and does
         return self
 
     command = property(__get_command)
 
     def __get_graphicsMode(self):
+        ## print "basicMode.__get_graphicsMode, remove when seen" # should happen often, and does
         return self
 
     graphicsMode = property(__get_graphicsMode)
