@@ -182,7 +182,7 @@ class extrudeMode(basicMode):
 
     def ptype_value_changed(self, val):
         # note: uses val, below
-        if not self.now_using_this_mode_object():
+        if not self.isCurrentCommand():
             return
         old = self.product_type
         new = self.propMgr.extrude_productTypeComboBox_ptypes[val]
@@ -206,7 +206,7 @@ class extrudeMode(basicMode):
         """
         del valjunk
         ######k why don't we check suppress_value_changed? maybe we never set its value with that set?
-        if not self.now_using_this_mode_object():
+        if not self.isCurrentCommand():
             return
         old = self.bond_tolerance
         new = self.propMgr.get_bond_tolerance_slider_val()
@@ -230,7 +230,7 @@ class extrudeMode(basicMode):
             
     def toggle_value_changed(self, valjunk):
         del valjunk
-        if not self.now_using_this_mode_object():
+        if not self.isCurrentCommand():
             return
         self.needs_repaint = 0
         for toggle in self.extrude_pref_toggles:
@@ -440,7 +440,7 @@ class extrudeMode(basicMode):
         val = "arg not used"
         if self.propMgr.suppress_valuechanged:
             return
-        if not self.now_using_this_mode_object():
+        if not self.isCurrentCommand():
             return
         assert self.is_revolve ###k for now
         spinbox = self.propMgr.extrudeSpinBox_circle_n
@@ -463,9 +463,9 @@ class extrudeMode(basicMode):
         
         if self.propMgr.suppress_valuechanged:
             return
-        if not self.now_using_this_mode_object():
+        if not self.isCurrentCommand():
             #e we should be even more sure to disconnect the connections causing this to be called
-            ##print "fyi: not now_using_this_mode_object" # this happens when you leave and reenter mode... need to break qt connections
+            ##print "fyi: not isCurrentCommand" # this happens when you leave and reenter mode... need to break qt connections
             return
         self.propMgr.update_length_control_from_xyz()
         self.update_from_controls()
@@ -481,8 +481,8 @@ class extrudeMode(basicMode):
         del valjunk
         if self.propMgr.suppress_valuechanged:
             return
-        if not self.now_using_this_mode_object():
-            ##print "fyi: not now_using_this_mode_object"
+        if not self.isCurrentCommand():
+            ##print "fyi: not isCurrentCommand"
             return
         self.propMgr.update_xyz_controls_from_length()
         self.update_from_controls()

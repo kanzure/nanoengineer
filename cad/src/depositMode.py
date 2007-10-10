@@ -532,8 +532,8 @@ class depositMode(selectAtomsMode):
         """can be called many times during the mode;
         should be called only by code in modes.py
         """
-##        if not self.now_using_this_mode_object():
-##            print "update_gui returns since not self.now_using_this_mode_object"
+##        if not self.isCurrentCommand():
+##            print "update_gui returns since not self.isCurrentCommand"
 ##            return #k can this ever happen? yes, when the mode is entered!
 ##            # this was preventing the initial update_gui in _enterMode from running...
         
@@ -643,7 +643,7 @@ class depositMode(selectAtomsMode):
         
     def clipboard_members_changed(self, clipboard): #bruce 050121
         "we'll subscribe this method to changes to shelf.members, if possible"
-        if self.now_using_this_mode_object():
+        if self.isCurrentCommand():
             self.UpdateDashboard()
                 #e ideally we'd set an inval flag and call that later, but when?
                 # For now, see if it works this way. (After all, the old code called
