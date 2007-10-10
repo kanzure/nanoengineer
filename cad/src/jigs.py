@@ -145,9 +145,14 @@ class Jig(Node):
             print "fyi: bug? setAtoms overwrites existing atoms on %r" % self
             #e remove them? would need to prevent recursive kill.
         self.atoms = list(atomlist) # bruce 050316: copy the list
-        for atm in atomlist:
-            atm.jigs.append(self)
-            _changed_structure_Atoms[atm.key] = atm #k not sure if needed #bruce 060322
+        for atm in atomlist:        
+            # The following conditional fixes a bug if jig's atoms are modified
+            # and some atoms in the new set of atoms already has this jig in its
+            # list of jigs (atom.jigs). Fixes bug 2561 -- Ninad 2007-10-10
+            if not self in atm.jigs: 
+                atm.jigs.append(self)
+                #k not sure if folliwng is needed -- bruce 060322
+                _changed_structure_Atoms[atm.key] = atm 
 
     def needs_atoms_to_survive(self): #bruce 050526
         return True # for all Jigs that exist so far
