@@ -1,80 +1,32 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-modes.py -- provides basicMode, the superclass for all modes.
+GraphicsMode.py -- 
 
 $Id$
 
 
 WARNING: this file is temporarily OWNED by bruce,
-since it is being split into two files.
+since it is being split out of modes.py.
 
 
 History:
 
-
-Originally written by Josh.
-
-
-Partly rewritten by Bruce 040922-040924. In particular, I changed how
-subclasses for specific modes relate to their superclass, basicMode,
-and to their glpane object; I also split the part of class GLPane
-which interfaces to the modes into a mixin class, modeMixin (since
-then moved into its own file), and extensively revised it.
-
-The old mode methods setMode, Done, and Flush have been renamed to
-_enterMode, Done, and Cancel, and these are now only implemented in
-basicMode; mode-specific subclasses override specific methods they
-call (listed below) rather than those methods themselves. The code
-that used to be in the mode-specific overrides of those methods has
-been divided up as follows:
-
-Code for entering a specific mode (which used to be in the mode's
-setMode method) is now in the methods Enter and init_gui (in the
-mode-specific subclass). From the glpane, this is reached via
-basicMode._enterMode, called by methods from the glpane's modeMixin.
-
-(Note, init_gui and restore_gui were called show_toolbars and
-hide_toolbars before Mark ca. 041004.)
-
-Code for Cancelling a mode (which used to be in the mode's Flush
-method) is now divided between the methods haveNontrivialState,
-StateCancel, restore_gui, restore_patches, and clear.  Most of these
-methods are also used by Cancel. The glpane's modeMixin reaches it via
-basicMode.Cancel.
-
-(For specialized uses there is a new related way to reach some of the
-Cancelling code, basicMode.Abandon.  It's only used for error
-situations that might occur but which external code does not yet
-handle correctly; hopefully it can go away when problems in that
-external code (e.g. file opening, when current mode has some state)
-are fixed. BTW I described these problems in some other comment; I
-don't know for sure they're real.)
-
-Code for leaving a mode via Done is now divided between mode-specific
-methods haveNontrivialState, StateDone, restore_gui, restore_patches,
-and clear. Most of these methods are also used by Done.  The glpane's
-modeMixin reaches it via basicMode.Done, as before.
-
-See the method docstrings in this file for details.
-
-A good example for new modes (since it overrides a lot of the subclass
-methods) is cookieMode.  But there are few enough modes that you might
-as well look at them all.
-
-
-bruce 050507 moved Hydrogenate and Dehydrogenate into another file
-
-bruce 071009 moved modeMixin into its own file
-
+bruce 071009 split modes.py into Command.py and GraphicsMode.py,
+leaving only temporary compatibility mixins in modes.py.
+For prior history see modes.py docstring before the split.
 
 TODO:
 
-- classify all general mode methods as being part of either the Command or
-GraphicsMode APIs. (For now, record this in comments next to the defs.)
-Then split those into two different classes (or inheritance trees),
-even though old modes will inherit and provide both APIs in one object.
-
+A lot of methods in class GraphicsMode are private helper methods,
+available to subclasses and/or to default implems of public methods,
+but are not yet named as private or otherwise distinguished
+from API methods. We should turn anyGraphicsMode into GraphicsMode_API,
+add all the API methods to it, and rename the other methods
+in class GraphicsMode to look private.
 """
+
+# many imports not needed
+
 
 import math # just for pi
 import sys
@@ -138,35 +90,19 @@ from jigs import Jig
 
 import time
 
+###### TODO: split the above, which is duplicated in modes.py == Command.py, and GraphicsMode.py
 
-class anyMode(object, StateMixin): #bruce 060223 renamed mixin class; 071008 added object superclass
-    "abstract superclass for all mode objects"
+class anyGraphicsMode(object): #bruce 071008 added object superclass, 071009 split anyMode -> anyGraphicsMode
+    """
+    abstract superclass for all GraphicsMode objects, including nullGraphicsMode
+    """    
+    # (default methods that should be noops in both nullGraphicsMode
+    #  and GraphicsMode can be put here instead if desired)
     
-    # default values for mode-object attributes.  external code
-    # assumes every mode has these attributes, but it should pretend
-    # they're read-only; mode-related code (in this file) can override
-    # them in subclasses and/or instances, and modify them directly.
-    
-    # internal name of mode, e.g. 'DEPOSIT',
-    # only seen by users in "debug" error messages
-    modename = "(bug: missing modename 1)" 
-    # name of mode to be shown to users, as a phrase, e.g. 'sketch mode'
-    msg_modename = "(bug: unknown mode)"
-    
-    # Mode's property manager. Subclasses should initialize the propMgr object 
-    # if they need one.     
-    propMgr = None
-    
-    def get_mode_status_text(self):
-        return "(bug: mode status text)"
-    # I think this will never be shown [bruce 040927]
-
-    # (default methods that should be noops in both nullMode and basicMode can be put here instead if desired)
-    
-    def selobj_highlight_color(self, selobj): #bruce 050612 added this to mode API; see depositMode version for docstring
+    def selobj_highlight_color(self, selobj): #bruce 050612 added this to GraphicsMode API; see depositMode version for docstring
         return None
 
-    def selobj_still_ok(self, selobj): #bruce 050702 added this to mode API; overridden in basicMode, and docstring is there
+    def selobj_still_ok(self, selobj): #bruce 050702 added this to GraphicsMode API; overridden in GraphicsMode, and docstring is there
         return True
 
     def mouse_event_handler_for_event_position(self, wX, wY): #bruce 070405
@@ -178,48 +114,53 @@ class anyMode(object, StateMixin): #bruce 060223 renamed mixin class; 071008 add
     def update_cursor(self): #bruce 070410
         return
 
-    def selection_changed(self): #bruce 070925
-        return
-    
-    def model_changed(self): #bruce 070925
-        return
-
-    def state_may_have_changed(self): #bruce 070925
-        return
-
-    def isCurrentCommand(self): #bruce 071008
-        return False
-
     def drawHighlightedObjectUnderMouse(self, glpane, selobj, hicolor): #bruce 071008
         pass
     
     pass # end of class anyMode
 
 
-class nullMode(anyMode):
-    """do-nothing mode (for internal use only) to avoid crashes
-    in case of certain bugs during transition between modes"""
-    # (this mode is not put into the glpane's modetab)
-    modename = 'nullMode'
-    msg_modename = 'nullMode'
-        # this will be overwritten when modes are changing [bruce 050106]
+class nullGraphicsMode(anyGraphicsMode):
+    """
+    do-nothing GraphicsMode (for internal use only) to avoid crashes
+    in case of certain bugs during transition between GraphicsModes
+    """
+    
     # needs no __init__ method; constructor takes no arguments
     
+    # WARNING: the next two methods are similar in all "null objects", of which
+    # we have nullCommand and nullGraphicsMode so far. They ought to be moved
+    # into a common nullObjectMixin for all kinds of "null objects". [bruce 071009]
     
     def noop_method(self, *args, **kws):
         if platform.atom_debug:
-            print "fyi: atom_debug: nullMode noop method called -- probably ok; ignored"
+            print "fyi: atom_debug: nullGraphicsMode noop method called -- probably ok; ignored"
         return None #e print a warning?
-    def __getattr__(self, attr): # in class nullMode (not inherited by other mode classes)
+    def __getattr__(self, attr): # in class nullGraphicsMode
+        # note: this is not inherited by other GraphicsMode classes,
+        # since we are not their superclass
         if not attr.startswith('_'):
             if platform.atom_debug:
-                print "fyi: atom_debug: nullMode.__getattr__(%r) -- probably ok; returned noop method" % attr
+                print "fyi: atom_debug: nullGraphicsMode.__getattr__(%r) -- probably ok; returned noop method" % attr
             return self.noop_method
         else:
             raise AttributeError, attr #e args?
+
+    # GraphicsMode-specific attribute null values
+    
+    render_scene = None #bruce 070406; this tells GLPane to use default method,
+        # but removes the harmless debug print for missing nullGraphicsMode attr.
+        # Note: to use this, override it with a method which is compatible
+        # with GLPane.render_scene().
+    
+    compass_moved_in_from_corner = False
+        # tells GLPane to render compass in a different place [bruce 070406]
+
+    # GraphicsMode-specific null methods
+    
     def Draw(self):
         # this happens... is that ok? note: see
-        # "self.start_using_mode( '$DEFAULT_MODE')" below -- that
+        # "self.start_using_mode( '$DEFAULT_MODE')" below and/or in Command.py -- that
         # might be the cause.  if so, it's ok that it happens and good
         # that we turn it into a noop. [bruce 040924]
         pass
@@ -231,24 +172,18 @@ class nullMode(anyMode):
         pass
     def bareMotion(self, e):
         pass
-    def Done(self, *args, **kws): #bruce 060316 added this to remove frequent harmless debug print
-        pass
-    render_scene = None #bruce 070406; this tells GLPane to use default method,
-        # but removes the harmless debug print for missing nullMode attr
-    compass_moved_in_from_corner = False  #bruce 070406
-    pass # end of class nullMode ##e maybe needs to have some other specific methods?
+    
+    pass # end of class nullGraphicsMode
 
 
-class basicMode(anyMode):
-    """Subclass this class to provide a new mode of interaction for the GLPane.
+class basicGraphicsMode(anyGraphicsMode):
+    """
+    Common code between class GraphicsMode (see its docstring)
+    and old-code-compatibility class basicMode.
+    Will be merged with class GraphicsMode (keeping that one's name)
+    when basicMode is no longer needed.
     """
     
-    # Subclasses should define the following class constants,
-    # and normally need no __init__ method.
-    # If they have an __init__ method, it must call basicMode.__init__.
-    modename = "(bug: missing modename)"
-    msg_modename = "(bug: unknown mode)"
-    default_mode_status_text = "(bug: missing mode status text)"
     #Initialize clock time during a wheel event to None. Its value is assigned 
     #in self.wheelEvent. This time is used to decide whether to highlight 
     #object under cursor. I.e. when user is scrolling the wheel to zoom in or
@@ -257,26 +192,21 @@ class basicMode(anyMode):
     #example. 
     timeAtLastWheelEvent = None
     
-    def user_modename(self): #bruce 051130 (apparently this is new; it can be the official user-visible-modename method for now)
-        "Return a string such as 'Move Mode' or 'Build Mode' -- the name of this mode for users; or '' if unknown."
-        if self.default_mode_status_text.startswith("Mode: "):
-            return self.default_mode_status_text[len("Mode: "):] + " Mode"
-        if self.default_mode_status_text.startswith("Tool: "): 
-            # Added for Pan, Rotate and Zoom Tools. Fixes bug 1298. mark 060323
-            return self.default_mode_status_text[len("Tool: "):] + " Tool"
-        return ''
-    
     def __init__(self, glpane):
-        """This is called at least once, per type of mode (i.e. per
-           specific basicMode subclass), per glpane instance, but can
-           be called more often; in fact, it's called once per new
-           assembly, since the modes store the assembly internally.
-           It sets up that mode to be available (but not yet active)
-           in that glpane.
+        """
         """
         
         self.pw = None # pw = part window
-        
+            # TODO: remove this, or at least rename it -- most code uses .win for the same thing.
+            # Better yet, ban it from a graphicsmode, make it go through its owning Command.
+            # (But have to work in the mixed Command/GrapicsModes as well as in the separate ones)
+            # ... so at least see if the methods left in this file use it, when the split is done.
+
+        ### REVIEW: with what attrs do a Command and GraphicsMode instance find each other?
+        # (let them be properties so they can return self without a cyclic ref)
+
+        } got to here in this method
+
         # init or verify modename and msg_modename
         name = self.modename
         assert not name.startswith('('), \
@@ -290,7 +220,7 @@ class basicMode(anyMode):
                   (self.msg_modename, self.__class__.__name__)
         # check whether subclasses override methods we don't want them to
         # (after this works I might remove it, we'll see)
-        ####@@@@ bruce 050130 removing 'Done' temporarily; see PanMode.Done for why.
+        ### bruce 050130 removing 'Done' temporarily; see PanMode.Done for why.
         # later note: as of 070521, we always get warned "subclass movieMode overrides basicMode._exitMode".
         # I am not sure whether this override is legitimate so I'm not removing the warning for now. [bruce 070521]
         weird_to_override = ['Cancel', 'Flush', 'StartOver', 'Restart',
@@ -328,9 +258,9 @@ class basicMode(anyMode):
         # For Alpha 9, background color and display mode attrs were moved to the GLPane class where they
         # are global for all modes.
         
-        # store ourselves in our glpane's mode table, modetab
+        # store ourselves in our glpane's mode table, commandTable
         ###REVIEW whether this is used for anything except changing to new mode by name [bruce 070613 comment]
-        self.o.modetab[self.modename] = self
+        self.o.commandTable[self.modename] = self
             # bruce comment 040922: current code can overwrite a prior
             # instance of same mode, when setassy called, eg for file
             # open; this might (or might not) cause some bugs; i
@@ -339,136 +269,45 @@ class basicMode(anyMode):
 
         self.setup_menus_in_init()
 
-        return # from basicMode.__init__
+        return # from GraphicsMode.__init__
 
-    def get_commandSequencer(self):
-        return self.win.commandSequencer #bruce 070108
-    
-    commandSequencer = property(get_commandSequencer)
-    
-    def isCurrentCommand(self): #bruce 071008, for Command API
-        """
-        Return a boolean to indicate whether self is the currently active command.
-        Note: this is False even if self is temporarily suspended by e.g. Pan Tool,
-        but self's UI is still fully displayed; this needs to be considered when
-        this method is used to determine whether UI actions should have an effect.
-        """
-        return self.commandSequencer.currentCommand is self
-
-    def set_cmdname(self, name): # mark 060220.
-        '''Helper method for setting the cmdname to be used by Undo/Redo.
-        '''
-        self.o.assy.current_command_info(cmdname = name)
-        
-    #bruce 050416 revised makeMenus-related methods to permit "dynamic context menus",
-    # then revised them again 050420 to fix bug 554 which this introduced.
-
-    call_makeMenus_for_each_event = False # default value of class attribute; subclasses can override
-    
-    def setup_menus_in_init(self):
-        if not self.call_makeMenus_for_each_event:
+    def setup_menus_in_init(self): ### TODO: make private
+        if not self.command.call_makeMenus_for_each_event:
             self.setup_menus( )
 
-    def setup_menus_in_each_cmenu_event(self):
-        if self.call_makeMenus_for_each_event:
+    def setup_menus_in_each_cmenu_event(self): ### TODO: make private
+        if self.command.call_makeMenus_for_each_event:
             self.setup_menus( )
 
-    def setup_menus(self): # rewritten by bruce 041103; slight changes 050416, 050420
-        "call self.makeMenus(), postprocess the menu_spec attrs it sets, and turn them into self.Menu1 etc"
-        mod_attrs = ['Menu_spec_shift', 'Menu_spec_control']
-        all_attrs = ['Menu_spec'] + mod_attrs + ['debug_Menu_spec']
-        # delete any Menu_spec attrs previously set (needed when call_makeMenus_for_each_event is true)
-        for attr in all_attrs + ['Menu1','Menu2','Menu3']:
-            if hasattr(self, attr):
-                del self.__dict__[attr]
-        #bruce 050416: give it a default menu; for modes we have now, this won't ever be seen unless there are bugs
-        #bruce 060407 update: improve the text, re bug 1739 comment #3, since it's now visible for zoom/pan/rotate tools
-        self.Menu_spec = [("%s" % self.user_modename(), noop, 'disabled')]
-        self.makeMenus() # bruce 040923 moved this here, from the subclasses; for most modes, it replaces self.Menu_spec
-        # bruce 041103 changed details of what self.makeMenus() should do
-        for attr in ['Menu1','Menu2','Menu3']:
-            assert not hasattr(self, attr), \
-                "obsolete menu attr should not be defined: %r.%s" % (self, attr)
-        # makeMenus should have set self.Menu_spec, and maybe some sister attrs
-        assert hasattr(self, 'Menu_spec'), "%r.makeMenus() failed to set up" \
-               " self.Menu_spec (to be a menu spec list)" % self # should never happen after 050416
-        orig_Menu_spec = list(self.Menu_spec)
-            # save a copy for comparisons, before we modify it
-        # define the ones not defined by makeMenus;
-        # make them all unique lists by copying them,
-        # to avoid trouble when we modify them later.
-        for attr in mod_attrs:
-            if not hasattr(self, attr):
-                setattr(self, attr, list(self.Menu_spec))
-                # note: spec should be a list (which is copyable)
-        for attr in ['debug_Menu_spec']:
-            if not hasattr(self, attr):
-                setattr(self, attr, [])
-        for attr in ['Menu_spec']:
-            setattr(self, attr, list(getattr(self, attr)))
-        if platform.atom_debug and self.debug_Menu_spec:
-            # put the debug items into the main menu
-            self.Menu_spec.extend( [None] + self.debug_Menu_spec )
-            # [note, bruce 050914, re bug 971: for modes that don't remake their menus on each use,
-            #  the user who turns on ATOM-DEBUG won't see the menu items defined by debug_Menu_spec
-            #  until they remake all mode objects by opening a new file. This might change if we remake mode objects
-            #  more often (like whenever the mode is entered), but the best fix would be to remake all menus on each use.
-            #  But this requires review of the menu-spec making code for each mode (for correctness when run often),
-            #  so for now, it has to be enabled per-mode by setting self.call_makeMenus_for_each_event for that mode.
-            #  It's worth doing this in the modes that define self.debug_Menu_spec.]
+    def setup_menus(self): ### TODO: make private
+        """
+        Call self.command.setup_graphics_menu_specs(),
+        assume it sets some menu_spec attrs on self.command
+        [### doc the ones it should set],
+        and turn them into self.Menu1 etc, which are QMenus,
+        one of which will be posted by the caller
+        depending on the modkeys of an event.
+        (TODO: when we know we're called for each event, optim by producing
+         only one of those QMenus.)
+        """
+        # Note: this was split between Command.setup_graphics_menu_specs and
+        # GraphicsMode.setup_menus, bruce 071009
+
+        command = self.command
+        command.setup_graphics_menu_specs()
         
-        # new feature, bruce 041103:
-        # add submenus to Menu_spec for each modifier-key menu which is
-        # nonempty and different than Menu_spec
-        # (was prototyped in extrudeMode.py, bruce 041010]
-        doit = []
-        for attr, modkeyname in [
-                ('Menu_spec_shift', shift_name()),
-                ('Menu_spec_control', control_name()) ]:
-            submenu_spec = getattr(self,attr)
-            if orig_Menu_spec != submenu_spec and submenu_spec:
-                doit.append( (modkeyname, submenu_spec) )
-        if doit:
-            self.Menu_spec.append(None)
-            for modkeyname, submenu_spec in doit:
-                itemtext = '%s-%s Menu' % (context_menu_prefix(), modkeyname)
-                self.Menu_spec.append( (itemtext, submenu_spec) )
-            # note: use platform.py functions so names work on Mac or non-Mac,
-            # e.g. "Control-Shift Menu" vs. "Right-Shift Menu",
-            # or   "Control-Command Menu" vs. "Right-Control Menu".
-            # [bruce 041014]
-        if isinstance( self.o.selobj, Jig): # NFR 1740. mark 060322
-            from wiki_help import wiki_help_menuspec_for_object
-            ms = wiki_help_menuspec_for_object( self.o.selobj )
-            if ms:
-                self.Menu_spec.append( None )
-                self.Menu_spec.extend( ms )
-        else:
-            featurename = self.user_modename()
-            if featurename:
-                from wiki_help import wiki_help_menuspec_for_featurename
-                ms = wiki_help_menuspec_for_featurename( featurename )
-                if ms:
-                    self.Menu_spec.append( None ) # there's a bug in this separator, for cookiemode...
-                    # might this look better before the above submenus, with no separator?
-                    ## self.Menu_spec.append( ("web help: " + self.user_modename(), self.menucmd_open_wiki_help_page) )
-                    self.Menu_spec.extend( ms )
         self.Menu1 = QMenu()
-        self.makemenu(self.Menu_spec, self.Menu1)
+        self.makemenu(command.Menu_spec, self.Menu1)
+        
         self.Menu2 = QMenu()
-        self.makemenu(self.Menu_spec_shift, self.Menu2)
+        self.makemenu(command.Menu_spec_shift, self.Menu2)
+        
         self.Menu3 = QMenu()
-        self.makemenu(self.Menu_spec_control, self.Menu3)
-
-    def makeMenus(self):
-        """[Subclasses can override this to assign menu_spec lists (describing
-        the context menus they want to have) to self.Menu_specs (and related attributes).
-        Depending on a class constant call_makeMenus_for_each_event (default False),
-        this will be called once during init (default behavior) or on every mousedown
-        that needs to put up a context menu (useful for "dynamic context menus").]
-        """
-        pass ###e move the default menu_spec to here in case subclasses want to use it?
-
+        self.makemenu(command.Menu_spec_control, self.Menu3)
+        
+        return
+    
+@@@
     # ==
 
     # confirmation corner methods [bruce 070405-070409, 070627]
@@ -624,512 +463,7 @@ class basicMode(anyMode):
     def warning(self, *args, **kws):
         self.o.warning(*args, **kws)
 
-    # entering this mode
-    
-    def _enterMode(self, resuming = False): #bruce 070813 added resuming option, 
-        
-        """Private method (called only by our glpane) -- immediately
-           enter this mode, i.e. prepare it for use, not worrying at
-           all about any prior current mode.  Return something false
-           (e.g. None) normally, or something true if you want to
-           refuse entry to the new mode (see comments in the call to
-           this for why you might want to do that).  Note that the
-           calling glpane has not yet set its self.mode to point to us
-           when it calls this method, and it will never do so unless
-           we return something false (as we usually do).  Should not
-           be overridden by subclasses.
-           
-           [by bruce 040922; see head comment of this file for how
-           this relates to previous code]
-
-           @param resuming: whether we're resuming this mode (after a completed
-                            subcommand); otherwise we're entering it as if anew.
-                            This is for use by Subcommands resuming their parent
-                            commands.
-           @type resuming: bool
-        """
-        if not resuming:
-            refused = self.refuseEnter(warn = 1)
-            if not refused:
-                # do mode-specific entry initialization;
-                # this method is still allowed to refuse, as well
-                refused = self.Enter() 
-                if refused:
-                    print "fyi: late refusal by %r, better if it had been in refuseEnter" % self # (but sometimes it might be necessary)
-        else:
-            refused = False
-        if not refused:
-            self.init_gui() ###FIX: perhaps use resume_gui instead, if resuming -- or pass that option.
-            self.update_gui() # see also UpdateDashboard
-            self.update_mode_status_text()
-        # caller (our glpane) will set its self.mode to point to us,
-        # but only if we return false
-        return refused
-
-    def refuseEnter(self, warn):
-        """Subclasses should override this: examine the current
-           selection state of your glpane, and anything else you care
-           about, and decide whether you would refuse to become the
-           new current mode, if asked to. If you would refuse, and if
-           warn = true, then emit an error message explaining this.
-           In any case, return whether you refuse entry (i.e. true if
-           you do, false if you don't).           
-           [by bruce 040922. I expect no existing modes to override
-           this, but extrude and revolve probably will.]           
-        """
-        return 0
-    
-    def Enter(self):
-        # bruce 040922 split each subclass setMode into Enter and init_gui
-        # -- see file head comment for details
-        """Subclasses should override this: first call basicMode.Enter(self).
-           Then set whatever internal state you need to upon being entered,
-           modify settings in your glpane (self.o) if necessary,
-           and return None.           
-           If something goes wrong, so that you don't accept being the
-           new current mode, emit an error message explaining why
-           (perhaps in a dialog or status bar), and return True -- but
-           it's better if you can figure this out earlier, in
-           refuseEnter().           
-           [by bruce 040922; see head comment of this file for how
-           this relates to previous code]           
-        """
-        self.UpdateDashboard() # Added to hide Done button for Default mode. Mark 050922.
-        self.picking = False
-        self.update_cursor()
-        return None
-
-    def init_gui(self):
-        # bruce 041124 clarified docstring, revised illegitimate calls.
-        """Subclasses should define this to set up UI stuff like dashboards,
-        cursors, toggle icons, etc.
-           It should be called only once each time the mode is entered.
-        Therefore, it should not be called by other code (for that,
-        see UpdateDashboard()), nor defined by modes to do things that
-        need redoing many times per mode-entry (for that, see
-        update_gui()).
-        """
-        pass
-
-    def update_gui(self): # bruce 041124
-        """Subclasses should define this to update their dashboard to reflect state
-        that might have changed in the rest of the program, e.g. selection state
-        in the model tree. Not intended to be called directly by external code;
-        for that, see UpdateDashboard().
-        """
-        pass
-
-    def UpdateDashboard(self): # bruce 041124
-        """Public method, meant to be called only on the current mode object:
-           Make sure this mode's dashboard is updated before the processing of
-        the current user event is finished.
-           External code that might change things which some modes
-        need to reflect in their dashboard should call this one or more times
-        after any such changes, before the end of the same user event.
-           Multiple calls per event are ok (but in the initial implem might
-        be slow). Subclasses should not override this; for that, see update_gui().
-        """
-        # For now, this method just updates the dashboard immediately.
-        # This might be too slow if it's called many times per event, so someday
-        # we might split this into separate invalidation and update code;
-        # this will then be the invalidation routine, in spite of the name.
-        # We *don't* also call update_mode_status_text -- that's separate.
-        
-        # This shows the Done button on the dashboard unless the current mode is the 
-        # Default mode. Resolves bug #958 and #959. Mark 050922.
-        import UserPrefs
-        if self.modename == UserPrefs.default_modename(): #bruce 060403 revised this
-            self.w.toolsDoneAction.setVisible(0)
-        else:
-            self.w.toolsDoneAction.setVisible(1)
-        
-        if self.now_using_this_mode_object(): #bruce 050122 added this condition
-            self.update_gui()
-        return
-
-    def now_using_this_mode_object(self): #bruce 050122 moved this here from extrudeMode.py
-        """Return true if the glpane is presently using this mode object
-        (not just a mode object with the same name!)
-           Useful in "slot methods" that receive Qt signals from a dashboard
-        to reject signals that are meant for a newer mode object of the same class,
-        in case the old mode didn't disconnect those signals from its own methods
-        (as it ideally should do).
-           Warning: this returns false while a mode is still being entered (i.e.
-        during the calls of Enter and init_gui, and the first call of update_gui).
-        But it's not a good idea to rely on that behavior -- if you do, you should
-        redefine this function to guarantee it, and add suitable comments near the
-        places which *could* set self.o.mode to the mode object being entered,
-        earlier than they do now.
-        """
-        return self.o.mode == self
-        
-    def update_mode_status_text(self):        
-        """##### new method, bruce 040927; here is my guess at its doc
-           [maybe already obs?]: Update the mode-status widget to show
-           the currently correct mode-status text for this mode.
-           Subclasses should not override this; its main purpose is to
-           know how to do this in the environment of any mode.  This
-           is called by the standard mode-entering code when it's sure
-           we're entering a new mode, and whenever it suspects the
-           correct status text might have changed (e.g. after certain
-           user events #nim).  It can also be called by modes
-           themselves when they think the correct text might have
-           changed.  To actually *specify* that text, they should do
-           whatever they need to do (which might differ for each mode)
-           to change the value which would be returned by their
-           mode-specific method get_mode_status_text().           
-        """
-        self.w.update_mode_status( mode_obj = self)
-            # fyi: this gets the text from self.get_mode_status_text();
-            # mode_obj = self is needed in case glpane.mode == nullMode
-            #  at the moment.
-
-    def selection_changed(self): #bruce 070925 added this to mode/command API
-        """
-        Subclasses should extend this (or make sure their self.propMgr defines
-        it) to check whether any selection state has changed that should be
-        reflected in their UI, and if so, update their UI accordingly.
-        It will be called at most approximately once per user mouse or key
-        event. The calling code should try not to call it when not needed,
-        but needn't guarantee this, so implementations should try to be fast
-        when the call was not needed.
-           Model state or other selection state should NOT be updated by
-        this method -- doing so may cause bugs of a variety of kinds,
-        for example in the division of changes into undoable commands
-        or in the consistency of state which requires update calls after
-        it's changed.
-           See also update_gui; this method is typically implemented
-        more efficiently and called much more widely, and (together with
-        similar new methods for other kinds of state) should eventually
-        replace update_gui.
-        """
-        ### REVIEW: Decide whether highlighting (selobj) is covered by it (guess yes -- all kinds of selection).
-        ### maybe TODO: call when entering/resuming the mode, and say so, and document order of call
-        # relative to update_gui. And deprecate update_gui or make it more efficient.
-        # And add other methods that only use usage-tracked state and are only called as needed.
-        if self.propMgr:
-            if hasattr( self.propMgr, 'selection_changed'):
-                self.propMgr.selection_changed()
-        return
-
-    def model_changed(self): #bruce 070925 added this to mode/command API
-        """
-        Subclasses should extend this (or make sure their self.propMgr defines
-        it) to check whether any model state has changed that should be
-        reflected in their UI, and if so, update their UI accordingly.
-           Model state or selection state should NOT be updated by
-        this method.
-           See selection_changed docstring for more info.
-        """
-        ### maybe TODO: same as for selection_changed.
-        if self.propMgr:
-            if hasattr( self.propMgr, 'model_changed'):
-                self.propMgr.model_changed()
-        return
-
-    def state_may_have_changed(self): #bruce 070925 added this to command API
-        """
-        Call model_changed and/or selection_changed as needed, in that order.
-        Not normally overridden by subclasses [I hope].
-        Called by env.do_post_event_updates.
-        """
-        ### TODO: call each method only when needed, using assy change counters, and maybe a selobj test.
-        self.model_changed()
-        self.selection_changed()
-        return
-    
-    def get_mode_status_text(self):        
-        """##### new method, bruce 040927; doc is tentative [maybe
-           already obs?]; btw this overrides an AnyMode method:        
-           Return the correct text to show right now in the
-           mode-status widget (e.g."Mode: Build",
-           "Mode: Select Chunks").           
-           The default implementation is suitable for modes in which this
-           text never varies, assuming they properly define the class
-           constant default_mode_status_text; other modes will need to
-           override this method to compute that text in the correct way,
-           and will *also* need to ensure that their update_mode_status_text()
-           method is called
-           whenever the correct mode status text might have changed,
-           if it might not be called often enough by default.           
-           [### but how often it's called by default is not yet known
-           -- e.g. if we do it after every button or menu event, maybe no
-           special calls should be needed... we'll see.]            
-        """
-        return self.default_mode_status_text
-
-    # methods for changing to some other mode
-    
-    def userSetMode(self, modename, **options):        
-        """User has asked to change to the given modename; we might or
-           might not permit this, depending on our own state.  If we
-           permit it, do it; if not, show an appropriate error
-           message.  Exception: if we're already in that mode, do
-           nothing.           
-           [bruce 040922]
-        """
-        if self.modename == modename:
-            if self.o.mode == self:
-                # changing from the active mode to itself -- do nothing
-                # (special case, not equivalent to behavior without it)
-                return
-            else:
-                # I don't think this can happen, but if it does,
-                #it's either a bug or we're some fake mode like nullMode. #k
-                print "fyi (for developers): self.modename == modename but not self.o.mode == self (probably ok)" ###
-                # now change modes in the normal way
-        # bruce 041007 removing code for warning about changes and requiring
-        # explicit Done or Cancel if self.haveNontrivialState()
-        self.Done( modename, **options)
-        return
-
-    # methods for leaving this mode (from a dashboard tool or an
-    # internal request).
-
-    # Notes on state-accumulating modes, e.g. cookie extrude revolve
-    # deposit [bruce 040923]:
-    #
-    # Each mode which accumulates state, meant to be put into its
-    # glpane's assembly in the end, decides how much to put in as it
-    # goes -- that part needs to be "undone" (removed from the
-    # assembly) to support a Cancel event -- versus how much to retain
-    # internally -- that part needs to be "done" (put into in the
-    # assembly) upon a Done event.  (BTW, as I write this, I think
-    # that only depositMode (so far) puts any state into the assembly
-    # before it's Done.)
-    #
-    # Both kinds of state (stored in the mode or in the assembly)
-    # should be considered when overriding self.haveNontrivialState()
-    # -- it should say whether Done and Cancel should have different
-    # ultimate effects. (Note "should" rather than "would" --
-    # i.e. even if Cancel does not yet work, like in depositMode,
-    # haveNontrivialState should return True based on what Cancel
-    # ought to do, not based on what it actually does. That way the
-    # user won't miss a warning message saying that Cancel doesn't
-    # work yet.)
-    #
-    # StateDone should actually put the unsaved state from here into
-    # the assembly; StateCancel should remove the state which was
-    # already put into the assembly by this mode's operation (but only
-    # since the last time it was entered). Either of those can also
-    # emit an error message and return True to refuse to do the
-    # requested operation of Done or Cancel (they normally return
-    # None).  If they return True, we assume they made no changes to
-    # the stored state, in the mode or in the assembly (but we have no
-    # way of enforcing that; bugs are likely if they get this wrong).
-    #
-    # I believe that exactly one of StateDone and StateCancel will be
-    # called, for any way of leaving a mode, except for Abandon, if
-    # self.haveNontrivialState() returns true; if it returns false,
-    # neither of them will be called.
-    #
-    # -- bruce 040923
-
-    def Done(self, new_mode = None, suspend_old_mode = False, **new_mode_options):
-        """Done tool in dashboard; also called internally (in
-           userSetMode and elsewhere) if user asks to start a new mode
-           and current mode decides that's ok, without needing an
-           explicit Done.  Change [bruce 040922]: Should not be
-           overridden in subclasses; instead they should override
-           haveNontrivialState and/or StateDone and/or StateCancel as
-           appropriate.
-        """
-        if not suspend_old_mode:
-            if self.haveNontrivialState(): # use this (tho it should be just an optim), to make sure it's not giving false negatives
-                refused = self.StateDone()
-                if refused:
-                    # subclass says not to honor the Done request (and it already emitted an appropriate message)
-                    return
-        new_mode_options['suspend_old_mode'] = suspend_old_mode
-        self._exitMode( new_mode, **new_mode_options)
-        return
-
-    def StateDone(self):
-        """Mode objects (e.g. cookieMode) which might have accumulated
-           state which is not yet put into the model (their glpane's
-           assembly) should override this StateDone method to put that
-           state into the model, and return None.  If, however, for
-           some reason they want to refuse to let the user's Done
-           event be honored, they should instead (not changing the
-           model) emit an error message and return True.
-        """
-        assert 0, "bug: mode subclass %r needs custom StateDone method, since its haveNontrivialState() apparently returned True" % \
-               self.__class__.__name__
-    
-    def Cancel(self, new_mode = None, **new_mode_options):
-        """Cancel tool in dashboard; might also be called internally
-           (but is not as of 040922, I think).  Change [bruce 040922]:
-           Should not be overridden in subclasses; instead they should
-           override haveNontrivialState and/or StateDone and/or
-           StateCancel as appropriate.
-        """
-        ###REVIEW: any need to support suspend_old_mode here? I doubt it...
-        # but maybe complain if it's passed. [bruce 070814]
-        if self.haveNontrivialState():
-            refused = self.StateCancel()
-            if refused:
-                # subclass says not to honor the Cancel request (and it already emitted an appropriate message)
-                return
-        self._exitMode( new_mode, **new_mode_options)
-
-    def StateCancel(self):
-        """Mode objects (e.g. depositMode) which might have
-           accumulated state directly into the model (their glpane's
-           assembly) should override this StateCancel method to undo
-           those changes in the model, and return None.
-           Alternatively, if they are unable to remove that state from
-           the model (e.g. if that code is not yet implemented, or too
-           hard to implement correctly), they should warn the user,
-           and then either leave all state unchanged (in mode object
-           and model) and return True (to refuse to honor the user's
-           Cancel request), or go ahead and leave the unwanted state
-           in the model, and return None (which honors the Cancel but
-           leaves the user with unwanted new state in the model).
-           Perhaps, when they warn the user, they would ask which of
-           those two things to do.
-        """
-        return None # this is correct for all existing modes except depositMode
-                    # -- bruce 040923
-        ## assert 0, "bug: mode subclass %r needs custom StateCancel method, since its haveNontrivialState() apparently returned True" % \
-        ##       self.__class__.__name__
-
-    def haveNontrivialState(self):
-        """Subclasses which accumulate state (either in the mode
-           object or in their glpane's assembly, or both) should
-           override this appropriately (see long comment above for
-           details).  False positive is annoying, but permitted (its
-           only harm is forcing the user to explicitly Cancel or Done
-           when switching directly into some other mode); but false
-           negative would be a bug, and would cause lost state after
-           Done or (for some modes) incorrectly
-           uncancelled/un-warned-about state after Cancel.
-        """
-        return False
-    
-    def _exitMode(self, new_mode = None, suspend_old_mode = False, **new_mode_options):
-        """Internal method -- immediately leave this mode, discarding
-           any internal state it might have without checking whether
-           that's ok (if that check might be needed, we assume it
-           already happened).  Ask our glpane to change to new_mode
-           (which might be a modename or a mode object or None), if provided
-           (and if that mode accepts being the new mode), otherwise to
-           its default mode.  Unlikely to be overridden by subclasses.
-           [by bruce 040922]
-        """
-        if not suspend_old_mode:
-            self._cleanup()
-        if new_mode is None:
-            new_mode = '$DEFAULT_MODE'
-        self.o.start_using_mode(new_mode, **new_mode_options)
-            ## REVIEW: is suspend_old_mode needed in start_using_mode?
-            # Tentative conclusion: its only effect would be how to fall back
-            # if using the new mode fails -- it would make us fall back to
-            # old mode rather than to default mode. Ideally we'd use a
-            # continuation-like style, wrapping new_mode with a fallback
-            # mode, and pass that as new_mode. So it's not worth fixing this
-            # for now -- save it for when we have a real command-sequencer.
-            # [bruce 070814 comment]
-        return
-
-    def Abandon(self):
-        """This is only used when we are forced to Cancel, whether or not this
-           is ok (with the user) to do now -- someday it should never be called.
-           Basically, every call of this is by definition a bug -- but
-           one that can't be fixed in the mode-related code alone.
-           [But it would be easy to fix in the file-opening code, once we
-           agree on how.]
-        """
-        if self.haveNontrivialState():
-            msg = "%s with changes is being forced to abandon those changes!\n" \
-                  "Sorry, no choice for now." % (self.msg_modename,)
-            self.o.warning( msg, bother_user_with_dialog = 1 )
-        # don't do self._exitMode(), since it sets a new mode and
-        #ultimately asks glpane to update for that... which is
-        #premature now.  #e should we extend _exitMode to accept
-        #modenames of 'nullMode', and not update? also 'default'?
-        #probably not...
-        self._cleanup()
-
-    def _cleanup(self):
-        # (the following are probably only called together, but it's
-        # good to split up their effects as documented in case we
-        # someday call them separately, and also just for code
-        # clarity. -- bruce 040923)
-        self.o.stop_sending_us_events( self)
-            # stop receiving events from our glpane (i.e. use nullMode)
-        self.restore_gui()
-        self.w.setFocus() #bruce 041010 bugfix (needed in two places)
-            # (I think that was needed to prevent key events from being sent to
-            #  no-longer-shown mode dashboards. [bruce 041220])
-        self.restore_patches()
-        self.clear() # clear our internal state, if any
-        
-    def restore_gui(self):
-        "subclasses use this to restore UI stuff like dashboards, cursors, toggle icons, etc."
-        pass
-
-    def restore_patches(self):
-        """subclasses should restore anything they temporarily
-        modified in client objects (such as display modes in their
-        glpane)"""
-        pass
-    
-    def clear(self):
-        """subclasses with internal state should reset it to null
-        values (somewhat redundant with Enter; best to clear things
-        now)"""
-        pass
-        
-    # [bruce comment 040923]
-    
-    # The preceding and following methods, StartOver Cancel Backup
-    # Done, handle the common tools on the dashboards.  (Before
-    # 040923, Cancel was called Flush and StartOver was called
-    # Restart. Now the internal names match the user-visible names.)
-    #
-    # Each dashboard uses instances of the same tools, for a uniform
-    # look and action; the tool itself does not know which mode it
-    # belongs to -- its action just calls glpane.mode.method for the
-    # current glpane and for one of the specified methods (or Flush,
-    # the old name of Cancel, until we fix MWSemantics).
-    #
-    # Of these methods, Done and Cancel should never be customized
-    # directly -- rather, subclasses for specific modes should
-    # override some of the methods they call, as described in this
-    # file's header comment.
-    #
-    # StartOver should also never be customized, since the generic
-    # method here should always work.
-    #
-    # For Backup, I [bruce 040923] have not yet revised it in any
-    # way. Some subclasses override it, but AFAIK mostly don't do so
-    # properly yet.
-
-    # other dashboard tools
-    
-    def StartOver(self):
-        # it looks like only cookieMode tried to do this [bruce 040923];
-        # now we do it generically here [bruce 040924]
-        """Start Over tool in dashboard (used to be called Restart);
-        subclasses should NOT override this"""
-        self.Cancel(new_mode = self.modename)
-#### works, but has wrong error message when nim in sketch mode -- fix later
-
-    def Backup(self):
-        # it looks like only cookieMode tries to do this [bruce 040923]
-        "Backup tool in dashboard; subclasses should override this"
-        print "%s: Backup not implemented yet" % self.msg_modename
-
-    # compatibility methods -- remove these after we fix
-    # MWSemantics.py for their new names
-    
-    def Flush(self):
-        self.Cancel() # let old name work for now
-
-    def Restart(self):
-        self.StartOver() # let old name work for now
-
-    # ...
+}}}
     
     def Draw(self):
         """Generic Draw method, with drawing code common to all modes.
@@ -1982,6 +1316,34 @@ class basicMode(anyMode):
                     return True
         return  False # from jigGLSelect
 
-    pass # end of class basicMode
+    pass # end of class basicGraphicsMode
+
+# ==
+
+class GraphicsMode(basicGraphicsMode):
+    """
+    Subclass this class to provide a new mode of interaction for the GLPane.
+    """
+    def __init__(self, command):
+        self.command = command
+        self.glpane = self.xxx ### TODO: work this out...
+        basicGraphicsMode.__init__(xxx)
+    
+    def get_commandSequencer(self):
+        return self.command.commandSequencer
+    
+    commandSequencer = property(get_commandSequencer) ### REVIEW: needed in this class?
+    
+    def set_cmdname(self, name): ### REVIEW: needed in this class?
+        """
+        Helper method for setting the cmdname to be used by Undo/Redo.
+        Called by undoable user operations which run within the context
+        of this Graphics Mode's Command.
+        """
+        self.command.set_cmdname(name)
+    
+
+
+    pass
 
 # end
