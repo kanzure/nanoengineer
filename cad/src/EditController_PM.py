@@ -59,6 +59,12 @@ class EditController_PM(PM_Dialog):
         self._addGroupBoxes()
         self._addWhatsThisText()
     
+    def show(self):
+        """
+        """
+        PM_Dialog.show(self)
+        self.enable_or_disable_gui_actions(bool_enable = False)
+    
     def _addGroupBoxes(self):
         """
         Add various group boxes to this PM. 
@@ -85,6 +91,8 @@ class EditController_PM(PM_Dialog):
         
         self.close() # Close the property manager.
         
+        self.enable_or_disable_gui_actions(bool_enable = True)
+        
         # The following reopens the property manager of the mode after 
         # when the PM of the reference geometry is closed. -- Ninad 20070603 
         # Note: the value of self.modePropertyManager can be None
@@ -105,6 +113,7 @@ class EditController_PM(PM_Dialog):
         self.reject() 
         self.close() 
         
+        self.enable_or_disable_gui_actions(bool_enable = True)
         # The following reopens the property manager of the command after
         # the PM of the reference geometry editController (i.e. Plane) is closed.
         # Note: the value of self.modePropertyManager can be None.
@@ -141,6 +150,17 @@ class EditController_PM(PM_Dialog):
         Show what's this text
         """
         pass  
+    
+    def enable_or_disable_gui_actions(self, bool_enable = False):
+        """
+        Enable or disable some gui actions when this property manager is 
+        opened or closed, depending on the bool_enable. 
+        Subclasses can override this method. 
+        
+        """
+        pass
+    
+        
     
     
     
