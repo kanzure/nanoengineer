@@ -1962,7 +1962,7 @@ def drawtest1_innards(glpane):
     "entry point from ../testdraw.py (called once per mode.Draw call)"
 
     mode = glpane.mode # assume this is always testmode
-    _setup_UNKNOWN_SELOBJ(mode) #061218 kluge (multiple places, some in cad/src);
+    _setup_UNKNOWN_SELOBJ(mode) #061218 kluge (multiple places, some in cad/src e.g. selectAtomsMode/selectMolsMode);
         # fixes "highlight sync bug" in which click on checkbox, then rapid motion away from it,
         # then click again, could falsely click the same checkbox twice.
     

@@ -57,7 +57,7 @@ from exprs.Rect import Rect
 
 from exprs.transforms import Translate, RotateTranslate
 
-from exprs.Highlightable import Highlightable, Button, print_Expr, _setup_UNKNOWN_SELOBJ, SavedCoordsys
+from exprs.Highlightable import Highlightable
 
 from exprs.DisplistChunk import DisplistChunk
 

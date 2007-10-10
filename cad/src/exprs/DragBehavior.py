@@ -33,7 +33,7 @@ from exprs.instance_helpers import DelegatingInstanceOrExpr, InstanceOrExpr, Mod
 from exprs.attr_decl_macros import Arg, Option, State, Instance
 from exprs.__Symbols__ import Anything, _self, _my
 from exprs.ExprsConstants import StubType, StateRef, Vector, Quat, ORIGIN
-from exprs.Highlightable import Highlightable, Button, print_Expr, _setup_UNKNOWN_SELOBJ, SavedCoordsys
+from exprs.Highlightable import Highlightable, SavedCoordsys
 
 
 class DragBehavior(InstanceOrExpr):

@@ -995,7 +995,19 @@ class _UNKNOWN_SELOBJ_class: #061218
 
 def _setup_UNKNOWN_SELOBJ(mode): #061218
     "[private helper, for a kluge -- see comment where called]"
+    # The only call as of 071010 is in exprs/test.py which sets it on testmode, and says:
+    #   fixes "highlight sync bug" in which click on checkbox, then rapid motion away from it,
+    #   then click again, could falsely click the same checkbox twice.
+    # I can't recall exactly how that fix worked. About how glpane.selobj ever becomes equal to this,
+    # there is code in selectAtomsMode and selectMolsMode which does that, in update_selobj.
+    # TODO: document how this works sometime, and figure out whether it should be set up
+    # per-Command or per-graphicsMode. Either way we'll need a class constant to request it,
+    # since right now nothing can set it up except in testmode. For now I'll treat it as per-command
+    # since that seems best regarding the uniqueness... but this change is NIM. [bruce 071010]
     if not hasattr(mode, 'UNKNOWN_SELOBJ'):
+        # note: this means each mode ends up with a unique UNKNOWN_SELOBJ,
+        # which is considered still ok only during the same mode, due to the
+        # comparison done in _UNKNOWN_SELOBJ_class.selobj_still_ok.
         mode.UNKNOWN_SELOBJ = _UNKNOWN_SELOBJ_class()
     return
 
