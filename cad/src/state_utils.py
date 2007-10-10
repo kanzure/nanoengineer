@@ -1627,10 +1627,13 @@ class obj_classifier:
 # ==
 
 class StateMixin( _eq_id_mixin_ ):
-    """Convenience mixin for classes that contain state-attribute decls,
-    to help them follow the rules for __eq__,
+    """
+    Convenience mixin for classes that contain state-attribute (_s_attr)
+    declarations, to help them follow the rules for __eq__,
     to avoid debug warnings when they contain no attr decls yet,
     and perhaps to provide convenience methods (none are yet defined).
+
+    Only useful for classes which contain undoable state, as of 071009.
     """
     # try not having this:
     ## _s_attr__StateMixin__fake = S_IGNORE

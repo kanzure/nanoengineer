@@ -108,7 +108,7 @@ except ImportError:
     class AtomBase:
         def __init__(self):
             pass
-        def __getattr__(self, attr):
+        def __getattr__(self, attr): # in class AtomBase
             raise AttributeError, attr
 
 from utilities.Log import orangemsg
@@ -604,7 +604,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         undo_archive._undo_debug_message( '_undo_debug_obj = %r' % self )
         return
     
-    def __getattr__(self, attr):
+    def __getattr__(self, attr): # in class Atom
         assert attr != 'xyz' # temporary: catch bugs in bruce 060308 rewrite
         try:
             return AtomBase.__getattr__(self, attr)

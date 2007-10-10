@@ -90,7 +90,7 @@ except ImportError:
     class BondBase:
         def __init__(self):
             pass
-        def __getattr__(self, attr):
+        def __getattr__(self, attr): # in class BondBase
             raise AttributeError, attr
 
 # ==

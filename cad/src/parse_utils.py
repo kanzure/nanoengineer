@@ -252,7 +252,7 @@ class attr_interface_to_dict:
     # make sure all of our methods and data start with '_'!
     def __init__(self, _dict1):
         self._dict1 = _dict1
-    def __getattr__(self, attr):
+    def __getattr__(self, attr): # in class attr_interface_to_dict
         if attr.startswith('_'):
             raise AttributeError, attr
             # Something like this is needed, even if _dict1 contains such an attr,

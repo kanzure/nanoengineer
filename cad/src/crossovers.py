@@ -196,7 +196,7 @@ class StaticRecognizer:
     """
     _r_safe = False # subclass should redefine this if they want all their compute methods to stop propogating *all* exceptions
         # (I think that should be rare, but I don't know yet for sure. It does not affect RecognizerError.)
-    def __getattr__(self, attr):
+    def __getattr__(self, attr): # in class StaticRecognizer
         if attr.startswith('__') or attr.startswith('_C_'):
             raise AttributeError, attr # must be fast
         methodname = '_C_' + attr
