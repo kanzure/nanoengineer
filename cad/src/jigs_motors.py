@@ -41,6 +41,8 @@ from constants import gray
 
 # == Motors
 
+_superclass = Jig
+
 class Motor(Jig):
     "superclass for Motor jigs"
     axis = V(0,0,0) #bruce 060120; redundant with some subclass inits; some code could handle None here, but I'm not sure it all could.
@@ -173,19 +175,17 @@ class Motor(Jig):
     def getaxis(self):
         return self.axis
 
-
     def axen(self):
         return self.axis
 
-
     def rematom(self, *args, **opts): #bruce 050518
         self._initial_posns = None #bruce 050518; needed in RotaryMotor, harmless in others
-        super = Jig
-        return super.rematom(self, *args, **opts)
+        return _superclass.rematom(self, *args, **opts)
 
     def make_selobj_cmenu_items(self, menu_spec):
-        '''Add Motor specific context menu items to <menu_spec> list when self is the selobj.
-        '''
+        """
+        Add Motor-specific context menu items to <menu_spec> list when self is the selobj.
+        """
         Jig.make_selobj_cmenu_items(self, menu_spec)
             #bruce 060313 share this code (it is identical to the following commented out code)
 ##        item = ('Hide', self.Hide)

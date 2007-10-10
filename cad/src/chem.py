@@ -2195,6 +2195,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 #  atoms left), and/or it might remove j from self.jigs, but it
                 #  will never recursively kill this atom, so it should be ok]
             except:
+                # does this ever still happen? TODO: if so, document when & why.
                 print_compact_traceback("fyi: atom.kill: ignoring error in rematom %r from jig %r: " % (self,j) )
         self.jigs = [] #bruce 041029 mitigate repeated kills
             # [bruce 050215 comment: this should soon no longer be needed, but will be kept as a precaution]

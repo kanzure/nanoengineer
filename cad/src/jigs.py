@@ -129,51 +129,56 @@ class Jig(Node):
         return
 
     def _um_initargs(self):
-        #bruce 051013 [as of 060209 this is probably well-defined and correct (for most Jig subclasses), but not presently used]
-        """Return args and kws suitable for __init__.
+        """
+        Return args and kws suitable for __init__.
         [Overrides an undo-related superclass method; see its docstring for details.]
         """
+        # [as of 060209 this is probably well-defined and correct (for most Jig subclasses), but not presently used]
+        # [it might have come into use later, not sure]
         return (self.assy, self.atoms), {} # This should be good enough for most Jig subclasses.
 
-    def node_icon(self, display_prefs): #bruce 050425 simplified this
+    def node_icon(self, display_prefs):
         "a subclass should override this if it needs to choose its icons differently"
         return imagename_to_pixmap( self.icon_names[self.hidden] )
         
     def setAtoms(self, atomlist):
         # [as of 050415 (and long before) this is only used for motors; __init__ does same thing for other jigs]
         if self.atoms:
-            print "fyi: bug? setAtoms overwrites existing atoms on %r" % self
-            #e remove them? would need to prevent recursive kill.
-        self.atoms = list(atomlist) # bruce 050316: copy the list
-        for atm in atomlist:        
-            # The following conditional fixes a bug if jig's atoms are modified
-            # and some atoms in the new set of atoms already has this jig in its
-            # list of jigs (atom.jigs). Fixes bug 2561 -- Ninad 2007-10-10
-            if not self in atm.jigs: 
+            print "note: calling _remove_all_atoms on %r [remove this print when it works]" % self ####
+            self._remove_all_atoms() # intended to fix bug 2561 more safely than the prior change [bruce 071010]
+        self.atoms = list(atomlist) # copy the list
+        for atm in atomlist:
+            if self in atm.jigs:
+                print "bug: %r is already in %r.jigs, just before we want to add it" % (self, atm)
+            else:
                 atm.jigs.append(self)
-                #k not sure if folliwng is needed -- bruce 060322
-                _changed_structure_Atoms[atm.key] = atm 
+                #k not sure if following is needed -- bruce 060322
+                _changed_structure_Atoms[atm.key] = atm
+        return
 
-    def needs_atoms_to_survive(self): #bruce 050526
-        return True # for all Jigs that exist so far
+    def needs_atoms_to_survive(self):
+        return True # for most Jigs
     
     def _draw(self, glpane, dispdef):
-        '''Draws the jig in the normal way.
-        '''
+        """
+        Draws the jig in the normal way.
+        """
         self._draw_jig(glpane, self.color)
         
     def draw_in_abs_coords(self, glpane, color):
-        '''Draws the jig in the highlighted way.
-        '''
+        """
+        Draws the jig in the highlighted way.
+        """
         self._draw_jig(glpane, color, 1)
         
     def _draw_jig(self, glpane, color, highlighted=False):
-        '''This is the main drawing method for a jig.  
+        """
+        This is the main drawing method for a jig.  
         By default, it draws a wireframe box around each of the jig's atoms.
         This method should be overridden by subclasses that want to do more than
         simply draw wireframe boxes around each of the jig's atoms.
         For a good example, see the MeasureAngle._draw_jig().
-        '''
+        """
         for a in self.atoms:
             # Using dispdef of the atom's chunk instead of the glpane's dispdef fixes bug 373. mark 060122.
             chunk = a.molecule
@@ -227,7 +232,8 @@ class Jig(Node):
         return new
 
     def _copy_fixup_at_end(self): # warning [bruce 050704]: some of this code is copied in jig_Gamess.py's Gamess.cm_duplicate method.
-        """[Private method]
+        """
+        [Private method]
         This runs at the end of a copy operation to copy attributes from the old jig
         (which could have been done at the start but might as well be done now for most of them)
         and copy atom refs (which has to be done now in case some atoms were not copied when the jig itself was).
@@ -262,23 +268,52 @@ class Jig(Node):
         return
     
     # ==
+
+    def _remove_all_atoms(self): #bruce 071010
+        """
+        Remove all of self's atoms, but don't kill self
+        even if that would normally happen then.
+
+        (For internal use, when new atoms are about to be added.)
+        """
+        # TODO: could be optimized by inlining rematom
+        for atm in list(self.atoms):
+            self.rematom(self, atm, _kill_if_no_atoms_left_but_needs_them = False)
+        return
     
-    # josh 10/26 to fix bug 85
-    # bruce 050215 added docstring and added removal of self from atm.jigs
-    def rematom(self, atm):
-        "remove atom atm from this jig, and remove this jig from atom atm [called from atom.kill]"
+    def rematom(self, atm, _kill_if_no_atoms_left_but_needs_them = True):
+        """
+        Remove atm from self, and remove self from atm
+        [called from atom.kill]
+
+        Also kill self if it loses all its atoms but it needs them to survive,
+        unless the private option to prevent that is passed.
+
+        WARNING: extended by some subclasses to call Node.kill (not Jig.kill)
+        on self.
+
+        WARNING: extended by some subclasses to do invalidations
+        on attrs of self that depend on the atoms list. TODO: A better way
+        would be for this to call an optional _changed_atoms method on self.
+
+        See also: methods self.moved_atom and self.changed_structure,
+        which are passed an atom and tell us it changed in some way.
+
+        See also: self._remove_all_atoms method
+        """
         self.atoms.remove(atm)
-        #bruce 050215: also remove self from atm's list of jigs
+        # also remove self from atm's list of jigs
         try:
             atm.jigs.remove(self)
         except:
+            # does this ever still happen? TODO: if so, document when & why.
             if platform.atom_debug:
                 print_compact_traceback("atom_debug: ignoring exception in rematom: ")
         else:
             _changed_structure_Atoms[atm.key] = atm #k not sure if needed #bruce 060322
-        # should check and delete the jig if no atoms left
-        if not self.atoms and self.needs_atoms_to_survive():
-            self.kill()
+        if _kill_if_no_atoms_left_but_needs_them:
+            if not self.atoms and self.needs_atoms_to_survive():
+                self.kill()
         return
     
     def kill(self):
@@ -318,14 +353,16 @@ class Jig(Node):
 
     
     def moved_atom(self, atom): #bruce 050718, for bonds code
-        """FYI (caller is saying to this jig),
+        """
+        FYI (caller is saying to this jig),
         we have just changed atom.posn() for one of your atoms.
         [Subclasses should override this as needed.]
         """
         pass
 
     def changed_structure(self, atom): #bruce 050718, for bonds code
-        """FYI (caller is saying to this jig),
+        """
+        FYI (caller is saying to this jig),
         we have just changed the element, atomtype, or bonds for one of your atoms.
         [Subclasses should override this as needed.]
         """
@@ -350,7 +387,8 @@ class Jig(Node):
         return False # for most jigs
 
     def node_must_follow_what_nodes(self): #bruce 050422 made Node and Jig implems of this from function of same name
-        """[overrides Node method]
+        """
+        [overrides Node method]
         """
         mols = {} # maps id(mol) to mol [bruce 050422 optim: use dict, not list]
         for atm in self.atoms:
@@ -415,8 +453,8 @@ class Jig(Node):
     
     
     def _mmp_record_last_part(self, mapping):
-        '''Last part of the record. Subclass can override this method to provide specific version of this part.
-         Note: If it returns anything other than empty, make sure to put one extra space character at the front.'''
+        """Last part of the record. Subclass can override this method to provide specific version of this part.
+         Note: If it returns anything other than empty, make sure to put one extra space character at the front."""
         # [Huaicai 9/21/05: split this from mmp_record, so the last part can be different for a jig like ESP Image, which is none.
         if mapping is not None:
             ndix = mapping.atnums
@@ -657,8 +695,8 @@ class Jig(Node):
         self.cntl.exec_()
         
     def toggleJigDisabled(self):
-        '''Enable/Disable jig.
-        '''
+        """Enable/Disable jig.
+        """
         # this is wrong, doesn't do self.changed():
         ## self.disabled_by_user_choice = not self.disabled_by_user_choice
         self.set_disabled_by_user_choice( not self.disabled_by_user_choice )
@@ -672,10 +710,10 @@ class Jig(Node):
         return self.name
         
     def make_selobj_cmenu_items(self, menu_spec):
-        '''Add jig specific context menu items to <menu_spec> list when self is the selobj.
+        """Add jig specific context menu items to <menu_spec> list when self is the selobj.
         This method should be overridden by subclasses that want to add more/different
         menu items. For a good example, see the Motor.make_selobj_cmenu_items().
-        '''
+        """
         item = ('Hide', self.Hide)
         menu_spec.append(item)
         if self.disabled_by_user_choice:
@@ -694,7 +732,7 @@ class Jig(Node):
 # == Anchor (was Ground)
 
 class Anchor(Jig):
-    '''an Anchor (Ground) just has a list of atoms that are anchored in space'''
+    """an Anchor (Ground) just has a list of atoms that are anchored in space"""
 
     sym = "Anchor"
     icon_names = ["modeltree/anchor.png", "modeltree/anchor-hide.png"]
@@ -819,7 +857,7 @@ class Jig_onChunk_by1atom(Jig):
     pass
     
 class Stat( Jig_onChunk_by1atom ):
-    '''A Stat is a Langevin thermostat, which sets a chunk to a specific
+    """A Stat is a Langevin thermostat, which sets a chunk to a specific
     temperature during a simulation. A Stat is defined and drawn on a single
     atom, but its record in an mmp file includes 3 atoms:
     - first_atom: the first atom of the chunk to which it is attached.
@@ -832,7 +870,7 @@ class Stat( Jig_onChunk_by1atom ):
     the atom order in one chunk might vary, so the first and last atoms can be
     different even when the set of atoms in the chunk has not changed.
     Only the boxed_atom is constant (and only it is saved, as self.atoms[0]).
-    '''
+    """
     #bruce 050210 for Alpha-2: fix bug in Stat record reported by Josh to ne1-users    
     sym = "Stat"
     icon_names = ["modeltree/Thermostat.png", "modeltree/Thermostat-hide.png"]
@@ -892,11 +930,11 @@ class Stat( Jig_onChunk_by1atom ):
 # == Thermo
 
 class Thermo(Jig_onChunk_by1atom):
-    '''A Thermo is a thermometer which measures the temperature of a chunk
+    """A Thermo is a thermometer which measures the temperature of a chunk
     during a simulation. A Thermo is defined and drawn on a single
     atom, but its record in an mmp file includes 3 atoms and applies to all
     atoms in the same chunk; for details see Stat docstring.
-    '''
+    """
     #bruce 050210 for Alpha-2: fixed same bug as in Stat.
     sym = "Thermo"
     icon_names = ["modeltree/Thermometer.png", "modeltree/Thermometer-hide.png"]
@@ -948,7 +986,7 @@ class Thermo(Jig_onChunk_by1atom):
 # == AtomSet
 
 class AtomSet(Jig):
-    '''an Atom Set just has a list of atoms that can be easily selected by the user'''
+    """an Atom Set just has a list of atoms that can be easily selected by the user"""
 
     sym = "AtomSet" # Was "Atom Set" (removed space). Mark 2007-05-28
     icon_names = ["modeltree/Atom_Set.png", "modeltree/Atom_Set-hide.png"]
@@ -968,8 +1006,8 @@ class AtomSet(Jig):
 
     # it's drawn as a wire cube around each atom (default color = black)
     def _draw(self, glpane, dispdef):
-        '''Draws a red wire frame cube around each atom, only if the jig is select.
-        '''
+        """Draws a red wire frame cube around each atom, only if the jig is select.
+        """
         if not self.picked:
             return
             
@@ -1336,13 +1374,13 @@ class jigmakers_Mixin:
     pass # end of class jigmakers_Mixin
 
 def atom_limit_exceeded_and_confirmed(parent, natoms, limit=200):
-    '''Displays a warning message if 'natoms' exceeds 'limit'.
+    """Displays a warning message if 'natoms' exceeds 'limit'.
     Returns False if the number of atoms does not exceed the limit or if the 
     user confirms that the jigs should still be created even though the limit was 
     exceeded.
     If parent is 0, the message box becomes an application-global modal dialog box. 
     If parent is a widget, the message box becomes modal relative to parent. 
-    '''
+    """
     
     if natoms < limit:
         return False # Atom limit not exceeded.
