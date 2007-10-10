@@ -335,7 +335,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
 
     # Note: external code expects self.mode to always be a working
     # mode object, which has certain callable methods.  Our modes
-    # themselves expect certain other attributes (like self.modetab)
+    # themselves expect certain other attributes (like self.commandTable)
     # to be present.  This is all set up and maintained by our mixin
     # class, modeMixin. [bruce 040922]
     #
@@ -3558,8 +3558,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
             reload(_module)
             exec("from %s import %s as _modeclass" % (base,base))
             sys.path = oldpath
-        modeobj = _modeclass(self) # this should put it into self.modetab under the name defined in the mode module
-        self.modetab[modename] = modeobj # also put it in under this name, if different [### will this cause bugs?]
+        modeobj = _modeclass(self) # this should put it into self.commandTable under the name defined in the mode module
+        self.commandTable[modename] = modeobj # also put it in under this name, if different [### will this cause bugs?]
         self.setMode(modename)
         return
 

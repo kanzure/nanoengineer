@@ -631,7 +631,7 @@ class selectMolsMode(_superclass):
         """
         if self.mouse_exceeded_distance(event, 1):
             return
-	# The value of self.timeAtLastWheelEvent is set in basicMode.wheelEvent. 
+	# The value of self.timeAtLastWheelEvent is set in GraphicsMode.wheelEvent. 
 	# This time is used to decide whether to highlight 
 	#object under cursor. I.e. when user is scrolling the wheel to zoom in
 	#or out, and at the same time the mouse moves slightly, we want to make 

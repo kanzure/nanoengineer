@@ -4,11 +4,6 @@ GraphicsMode.py --
 
 $Id$
 
-
-WARNING: this file is temporarily OWNED by bruce,
-since it is being split out of modes.py.
-
-
 History:
 
 bruce 071009 split modes.py into Command.py and GraphicsMode.py,

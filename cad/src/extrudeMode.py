@@ -1712,7 +1712,7 @@ class extrudeMode(basicMode):
             try:
                 self.o.mode_classes.remove(clas) # was: self.__class__
             except ValueError:
-                print "a mode class was not in modetab (normal if last reload of it had syntax error)"
+                print "a mode class was not in commandTable (normal if last reload of it had syntax error)"
         import handles
         reload(handles)
         import extrudeMode as _exm
@@ -1722,7 +1722,7 @@ class extrudeMode(basicMode):
 ##            do_what_MainWindowUI_should_do(self.w) # remake interface (dashboard), in case it's different [041014]
 ##        except:
 ##            print_compact_traceback("exc in new do_what_MainWindowUI_should_do(), ignored: ")
-        ## self.o.modetab['EXTRUDE'] = extrudeMode
+        ## self.o.commandTable['EXTRUDE'] = extrudeMode
         self.o.mode_classes.append(extrudeMode)
         print "about to reinit modes"
         self.o._reinit_modes() # leaves mode as nullmode as of 050911
@@ -2018,7 +2018,7 @@ class fake_merged_mol( virtual_group_of_Chunks): #e rename? 'extrude_unit_holder
             assert isinstance(mol, Chunk)
             self._mols.append(mol)
         return
-    def __getattr__(self, attr):
+    def __getattr__(self, attr): # in class fake_merged_mol
         if attr.startswith('__'):
             raise AttributeError, attr
         if attr == 'externs':

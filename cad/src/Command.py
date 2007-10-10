@@ -4,11 +4,6 @@ Command.py --
 
 $Id$
 
-
-WARNING: this file is temporarily OWNED by bruce,
-since it is being split out of modes.py.
-
-
 History:
 
 bruce 071009 split modes.py into Command.py and GraphicsMode.py,
@@ -213,8 +208,8 @@ class basicCommand(anyCommand):
                 # m1/m2.im_class will differ (it's the class of the query,
                 # not where func is defined), so only test im_func
                 return m1.im_func == m2.im_func
-            if not same_method( getattr(self,attr) , getattr(basicMode,attr) ):
-                print "fyi (for developers): subclass %s overrides basicMode.%s; this is deprecated after mode changes of 040924." % \
+            if not same_method( getattr(self,attr) , getattr(basicCommand,attr) ):
+                print "fyi (for developers): subclass %s overrides basicCommand.%s; this is deprecated after mode changes of 040924." % \
                       (self.__class__.__name__, attr)
 
         # other inits

@@ -30,7 +30,7 @@ from modes import nullMode
 
 class modeMixin(object):
     """Mixin class for supporting mode-switching. Maintains instance
-       attributes mode, nullmode, as well as modetab
+       attributes mode, nullmode, as well as commandTable
        (assumed by mode objects -- we should change that #e).
        Used by GLPane.
     """
@@ -105,15 +105,15 @@ class modeMixin(object):
             except:
                 print "bug, error while abandoning old mode; ignore it if we can..." #e
         self.mode = self.nullmode # not sure what bgcolor it has, but it won't last long... see also self.use_nullmode
-        self.modetab = {}
+        self.commandTable = {}
         # this destroys any mode objects that already existed [note,
         # this name is hardcoded into the mode objects]
 
-        # create new mode objects; they know about our self.modetab
+        # create new mode objects; they know about our self.commandTable
         # member and add themselves to it; they know their own names
         #bruce 050911 revised this: other_mode_classes -> mode_classes (includes class of default mode)
         for mc in self.mode_classes: 
-            mc(self) # kluge: new mode object adds itself to self.modetab -- this needs to be cleaned up sometime.
+            mc(self) # kluge: new mode object adds itself to self.commandTable -- this needs to be cleaned up sometime.
 
         #bruce 050911 removed this; now we leave it at nullmode,
         # let direct or indirect callers put in the mode they want
@@ -250,8 +250,8 @@ class modeMixin(object):
     
     def _find_mode(self, modename_or_obj = None): #bruce 050911 and 060403 revised this
         """Internal method: look up the specified internal mode name (e.g. 'MODIFY' for Move mode)
-        or mode-role symbolic name (e.g. '$DEFAULT_MODE') in self.modetab, and return the mode object found.
-        Or if a mode object is provided, return the same-named object in self.modetab
+        or mode-role symbolic name (e.g. '$DEFAULT_MODE') in self.commandTable, and return the mode object found.
+        Or if a mode object is provided, return the same-named object in self.commandTable
         (warning if it's not the same object, since this might indicate a bug).
            Exception if requested mode object is not found -- unlike pre-050911 code,
          never return some other mode than asked for -- let caller do that if desired.
@@ -274,12 +274,12 @@ class modeMixin(object):
             elif modename == '$DEFAULT_MODE':
                 ## modename = env.prefs[defaultMode_prefs_key]
                 modename = UserPrefs.default_modename()
-            return self.modetab[ modename]
+            return self.commandTable[ modename]
         else:
             # assume it's a mode object; make sure it's legit
             mode0 = modename_or_obj
             modename = mode0.modename
-            mode1 = self.modetab[modename] # the one we'll return
+            mode1 = self.commandTable[modename] # the one we'll return
             if mode1 is not mode0:
                 # this should never happen
                 print "bug: invalid internal mode; using mode %r" % (modename,)

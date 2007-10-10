@@ -20,6 +20,13 @@ MULTIPANE_GUI = True # enable some code which was intended to permit the main wi
     # this flag, and then decide whether the singleton partWindow should continue
     # to exist. [bruce 071008, replacing a debug_pref with this flag]
 
+GLPANE_IS_COMMAND_SEQUENCER = True
+    # This indicates that the GLPane and Command Sequencer are the same object.
+    # This is true for now, and False is not yet supported, but will someday
+    # only be False (and then this constant flag can be removed). It exists now
+    # mainly to mark code which is known to need changing when this can be False.
+    # [bruce 071010]
+
 DIAMOND_BOND_LENGTH = 1.544
     #bruce 051102 added this based on email from Damian Allis:
     # > The accepted bond length for diamond is 1.544 ("Interatomic  
