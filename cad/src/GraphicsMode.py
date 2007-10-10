@@ -197,7 +197,7 @@ class basicGraphicsMode(anyGraphicsMode):
         ### REVIEW: with what attrs do a Command and GraphicsMode instance find each other?
         # (let them be properties so they can return self without a cyclic ref)
 
-        } got to here in this method
+        #} got to here in this method
 
         # init or verify modename and msg_modename
         name = self.modename
@@ -306,7 +306,10 @@ class basicGraphicsMode(anyGraphicsMode):
     _ccinstance = None
     
     def draw_overlay(self): #bruce 070405, revised 070627
-        "called from GLPane with same drawing coordsys as for model [part of GLPane's drawing interface to modes]"
+        """
+        called from GLPane with same drawing coordsys as for model
+        [part of GLPane's drawing interface to modes]
+        """
         # conf corner is enabled by default for A9.1 (070627); requires exprs module and Python Imaging Library
         from debug_prefs import debug_pref, Choice_boolean_True
         if not debug_pref("Enable confirmation corner?", Choice_boolean_True, prefs_key = True):
@@ -328,24 +331,28 @@ class basicGraphicsMode(anyGraphicsMode):
         return
 
     def mouse_event_handler_for_event_position(self, wX, wY): #bruce 070405
-        """Some mouse events should be handled by special "overlay" widgets
+        """
+        Some mouse events should be handled by special "overlay" widgets
         (e.g. confirmation corner buttons) rather than by the GLPane & mode's
         usual event handling functions. This mode API method is called by the
         GLPane to determine whether a given mouse position (in OpenGL-style
         window coordinates, 0,0 at bottom left) lies over such an overlay widget.
-           Its return value is saved in glpane.mouse_event_handler -- a public
+
+        Its return value is saved in glpane.mouse_event_handler -- a public
         fact, which can be depended on by mode methods such as update_cursor --
         and should be None or an object that obeys the MouseEventHandler interface.
         (Note that modes themselves don't (currently) provide that interface --
         they get their mouse events from GLPane in a more-digested way than that
         interface supplies.)
-           Note that this method is not called for all mouse events -- whether
+
+        Note that this method is not called for all mouse events -- whether
         it's called depends on the event type (and perhaps modkeys). The caller's
         policy as of 070405 (fyi) is that the mouse event handler is not changed
         during a drag, even if the drag goes off the overlay widget, but it is
         changed during bareMotion if the mouse goes on or off of one. But that
         policy is the caller's business, not self's.
-           [Subclasses should override this if they show extra or nonstandard
+
+        [Subclasses should override this if they show extra or nonstandard
         overlay widgets, but as of the initial implem (070405), that's not likely
         to be needed.]
         """
@@ -401,9 +408,11 @@ class basicGraphicsMode(anyGraphicsMode):
             self.o.assy.checkpicked(always_print = 0)
         return
 
-    def _drawESPImage(self, grp, pickCheckOnly):
-        '''Draw any member in the Group <grp> if it is an ESP Image. Not consider the order
-           of ESP Image objects'''
+    def _drawESPImage(self, grp, pickCheckOnly): # huaicai
+        """
+        Draw any member in the Group <grp> if it is an ESP Image.
+        Not consider the order of ESP Image objects
+        """
         from jigs_planes import ESPImage
        
         anythingDrawn = False
@@ -434,21 +443,26 @@ class basicGraphicsMode(anyGraphicsMode):
             ###k return value?
         pass
     
-    def Draw_after_highlighting(self, pickCheckOnly=False): #bruce 050610
-        """Do more drawing, after the main drawing code has completed its highlighting/stenciling for selobj.
+    def Draw_after_highlighting(self, pickCheckOnly = False): #bruce 050610
+        """
+        Do more drawing, after the main drawing code has completed its highlighting/stenciling for selobj.
         Caller will leave glstate in standard form for Draw. Implems are free to turn off depth buffer read or write
         (but must restore standard glstate when done, as for mode.Draw() method).
+
         Warning: anything implems do to depth or stencil buffers will affect the standard selobj-check in bareMotion
         (presently only used in depositMode).
+        
         [New method in mode API as of bruce 050610. General form not yet defined -- just a hack for Build mode's
          water surface. Could be used for transparent drawing in general.]
         """
         return self._drawESPImage(self.o.assy.part.topnode, pickCheckOnly)
     
     def selobj_still_ok(self, selobj): #bruce 050702 added this to mode API; revised 060724
-        """Say whether a highlighted mouseover object from a prior draw (in the same mode) is still ok.
+        """
+        Say whether a highlighted mouseover object from a prior draw (in the same mode) is still ok.
         If the mode's special cases don't hold, we ask the selobj; if that doesn't work, we assume it
         defines .killed (and answer yes unless it's been killed).
+
         [overrides anyMode method; subclasses might want to override this one]
         """
         try:
@@ -531,7 +545,8 @@ class basicGraphicsMode(anyGraphicsMode):
     # middle mouse button actions -- these support a trackball, and
     # are the same for all modes (with a few exceptions)
     def middleDown(self, event):
-        """Set up for rotating the view with MMB+Drag.
+        """
+        Set up for rotating the view with MMB+Drag.
         """
         self.update_cursor()
         self.o.SaveMouse(event)
@@ -542,7 +557,8 @@ class basicGraphicsMode(anyGraphicsMode):
         self.o.selobj = None # <selobj> is the object highlighted under the cursor.
 
     def middleDrag(self, event):
-        """ Rotate the view with MMB+Drag.
+        """
+        Rotate the view with MMB+Drag.
         """
         # Huaicai 4/12/05: Originally 'self.picking=0 in both middle*Down
         # and middle*Drag methods. Change it as it is now is to prevent 
@@ -561,7 +577,8 @@ class basicGraphicsMode(anyGraphicsMode):
         self.update_cursor()
 
     def dragstart_using_GL_DEPTH(self, event, **kws):
-        """Use the OpenGL depth buffer pixel at the coordinates of event
+        """
+        Use the OpenGL depth buffer pixel at the coordinates of event
         (which works correctly only if the proper GL context, self.o, is current -- caller is responsible for this)
         to guess the 3D point that was visually clicked on. See GLPane version's docstring for details.
         """
@@ -569,7 +586,8 @@ class basicGraphicsMode(anyGraphicsMode):
         return res
 
     def middleShiftDown(self, event):
-        """Set up for panning the view with MMB+Shift+Drag.
+        """
+        Set up for panning the view with MMB+Shift+Drag.
         """
         self.update_cursor()
         # Setup pan operation
@@ -592,11 +610,13 @@ class basicGraphicsMode(anyGraphicsMode):
         self.picking = False
 
     def dragto(self, point, event, perp = None): #bruce 060316 moving this from selectMode to basicMode and using it more widely
-        """Return the point to which we should drag the given point,
+        """
+        Return the point to which we should drag the given point,
         if event is the drag-motion event and we want to drag the point
         parallel to the screen (or perpendicular to the given direction "perp"
         if one is passed in), keeping the point visibly touching the mouse cursor hotspot.
-           (This is only correct for extended objects if 'point' (as passed in, and as retval is used)
+
+        (This is only correct for extended objects if 'point' (as passed in, and as retval is used)
         is the point on the object surface which was clicked on (not e.g. the center).
         For example, dragto(a.posn(),...) is incorrect code, unless the user happened to
         start the drag with a mousedown right over the center of atom <a>. See jigDrag
@@ -618,10 +638,13 @@ class basicGraphicsMode(anyGraphicsMode):
         return point2
 
     def dragto_with_offset(self, point, event, offset): #bruce 060316 for bug 1474
-        """Convenience wrapper for dragto:
+        """
+        Convenience wrapper for dragto:
+
         Use this to drag objects by points other than their centers,
         when the calling code prefers to think only about the center positions
         (or some other reference position for the object).
+
         Arguments:
         - <point> should be the current center (or other reference) point of the object.
         - The return value will be a new position for the same reference point as <point> comes from
@@ -631,7 +654,9 @@ class basicGraphicsMode(anyGraphicsMode):
           to the actual dragpoint (i.e. to the point in 3d space which should appear to be gripped by the mouse,
           usually the 3d position of a pixel which was drawn when drawing the object
           and which was under the mousedown which started the drag).
+
         By convention, modes can store self.drag_offset in leftDown and pass it as <offset>.
+
         Note: we're not designed for objects which rotate while being dragged, as in e.g. dragSinglets,
         though using this routine for them might work better than nothing (untested ##k). In such cases
         it might be better to pass a different <offset> each time (not sure), but the only perfect
@@ -641,7 +666,8 @@ class basicGraphicsMode(anyGraphicsMode):
         return self.dragto(point + offset, event) - offset
     
     def middleShiftDrag(self, event):
-        """Pan view with MMB+Shift+Drag. 
+        """
+        Pan view with MMB+Shift+Drag. 
         Move point of view so that the model appears to follow the cursor on the screen.
         """
         point = self.dragto( self.movingPoint, event) #bruce 060316 replaced old code with dragto (equivalent)
@@ -649,10 +675,12 @@ class basicGraphicsMode(anyGraphicsMode):
         self.o.gl_update()
         
     def middleShiftDrag_OBS(self, event):
-        """Move point of view so that objects appear to follow
+        """
+        Move point of view so that objects appear to follow
         the mouse on the screen.
         """
-        if not self.picking: return
+        if not self.picking:
+            return
         
         h=self.o.height+0.0
         deltaMouse = V(event.pos().x() - self.o.MousePos[0],
@@ -684,7 +712,8 @@ class basicGraphicsMode(anyGraphicsMode):
         self.update_cursor()
     
     def middleCntlDown(self, event):
-        """Set up for rotating view around POV axis with MMB+Cntl+Drag.
+        """
+        Set up for rotating view around POV axis with MMB+Cntl+Drag.
         """
         self.update_cursor()
         self.o.SaveMouse(event)
@@ -697,9 +726,11 @@ class basicGraphicsMode(anyGraphicsMode):
         self.o.selobj = None # <selobj> is the object highlighted under the cursor.
     
     def middleCntlDrag(self, event):
-        """Rotate around the point of view (POV) axis
         """
-        if not self.picking: return
+        Rotate around the point of view (POV) axis
+        """
+        if not self.picking:
+            return
         
         self.o.SaveMouse(event)
         dx,dy = (self.o.MousePos - self.Zorg) * V(1,-1)
@@ -716,14 +747,17 @@ class basicGraphicsMode(anyGraphicsMode):
         self.update_cursor()
         
     def middleShiftCntlDown(self, event): # mark 060228.
-        """ Set up zooming POV in/out
+        """
+        Set up zooming POV in/out
         """
         self.middleCntlDown(event)
         
     def middleShiftCntlDrag(self, event):
-        """Zoom (push/pull) point of view (POV) away/nearer
         """
-        if not self.picking: return
+        Zoom (push/pull) point of view (POV) away/nearer
+        """
+        if not self.picking:
+            return
         
         self.o.SaveMouse(event)
         dx,dy = (self.o.MousePos - self.Zorg) * V(1,-1)
@@ -738,10 +772,12 @@ class basicGraphicsMode(anyGraphicsMode):
         self.update_cursor()
 
     def middleCntlDrag_OBS(self, event):
-        """push scene away (mouse goes up) or pull (down)
-           rotate around vertical axis (left-right)
         """
-        if not self.picking: return
+        push scene away (mouse goes up) or pull (down);
+        and/or rotate around vertical axis (left-right)
+        """
+        if not self.picking:
+            return
         
         self.o.SaveMouse(event)
         dx,dy = (self.o.MousePos - self.Zorg) * V(1,-1)
@@ -771,17 +807,6 @@ class basicGraphicsMode(anyGraphicsMode):
 
     def middleDouble(self, event):
         pass
-
-# removed by bruce 041217, having been added by bruce a few days before:
-##    def middleDouble(self, event): # overrides the one just above!
-##        """ End the current mode """
-##        self.Done()
-##        return
-##        # bruce 041214 put this in, since I recall we agreed to make this work
-##        # for all modes (on a conference call months ago). If I'm wrong, you
-##        # can remove it. (We also agreed to make leftDouble NOT do this, except
-##        # in modifyMode, and it looks like that might be implemented properly,
-##        # but I have not reviewed that in detail, or changed it, today.)
 
     # right button actions... #doc
     
@@ -856,7 +881,7 @@ class basicGraphicsMode(anyGraphicsMode):
         #e sometime we need to give this a modifier key binding too;
         # see some email from Josh with a suggested set of them [bruce 041220]
         mod = event.modifiers()
-            ###@@@ this might need a fix_buttons call to work the same
+            ### REVIEW: this might need a fix_buttons call to work the same
             # on the Mac [bruce 041220]
         dScale = 1.0/1200.0
         if mod & Qt.ShiftModifier: dScale *= 2.0
@@ -885,11 +910,14 @@ class basicGraphicsMode(anyGraphicsMode):
         return
 
     def rescale_around_point_re_user_prefs(self, factor, point = None): #bruce 060829; revised/renamed/moved from GLPane, 070402
-        """Rescale by factor around point or center of view, depending on zoom direction and user prefs.
+        """
+        Rescale by factor around point or center of view, depending on zoom direction and user prefs.
         (Factor < 1.0 means zooming in.)
-           If point is not supplied, the center of view remains unchanged after the rescaling,
+
+        If point is not supplied, the center of view remains unchanged after the rescaling,
         and user prefs have no effect.
-           Note that point need not be in the plane of the center of view, and if it's not, the depth
+
+        Note that point need not be in the plane of the center of view, and if it's not, the depth
         of the center of view will change. If callers wish to avoid this, they can project point onto
         the plane of the center of view.
         """
@@ -928,7 +956,9 @@ class basicGraphicsMode(anyGraphicsMode):
     # for example). As of 041220 no existing mode needs to do this.
     
     def keyPressEvent(self, e):
-        "some modes will need to override this in the future"
+        """
+        [some modes will need to override this in the future]
+        """
         # Holding down X, Y or Z "modifier keys" in MODIFY and TRANSLATE modes generates
         # autorepeating keyPress and keyRelease events.  For now, ignore autorepeating key events.
         # Later, we may add a flag to determine if we should ignore autorepeating key events.
@@ -1011,7 +1041,8 @@ class basicGraphicsMode(anyGraphicsMode):
         return
         
     def update_cursor(self): # mark 060227
-        """Update the cursor based on the current mouse button and mod keys pressed.
+        """
+        Update the cursor based on the current mouse button and mod keys pressed.
         """
         # print "basicMode.update_cursor(): button = %s, modkeys = %s, mode = %r, handler = %r" % \
         #     ( self.o.button, self.o.modkeys, self, self.o.mouse_event_handler )
@@ -1041,18 +1072,21 @@ class basicGraphicsMode(anyGraphicsMode):
         return
         
     def update_cursor_for_no_MB(self): # mark 060228
-        '''Update the cursor for operations when no mouse button is pressed
-        '''
+        """
+        Update the cursor for operations when no mouse button is pressed
+        """
         pass
     
     def update_cursor_for_LMB(self): # mark 060228
-        '''Update the cursor for operations when the left mouse button (LMB) is pressed
-        '''
+        """
+        Update the cursor for operations when the left mouse button (LMB) is pressed
+        """
         pass
         
     def update_cursor_for_MMB(self): # mark 060228
-        '''Update the cursor for operations when the middle mouse button (MMB) is pressed
-        '''
+        """
+        Update the cursor for operations when the middle mouse button (MMB) is pressed
+        """
         #print "basicMode.update_cursor_for_MMB(): button=",self.o.button
 
         if self.o.modkeys is None:
@@ -1068,8 +1102,9 @@ class basicGraphicsMode(anyGraphicsMode):
         return
         
     def update_cursor_for_RMB(self): # mark 060228
-        '''Update the cursor for operations when the right mouse button (RMB) is pressed
-        '''
+        """
+        Update the cursor for operations when the right mouse button (RMB) is pressed
+        """
         pass
 
     def makemenu(self, menu, lis):
@@ -1078,7 +1113,8 @@ class basicGraphicsMode(anyGraphicsMode):
         return glpane.makemenu(menu, lis)
 
     def draw_selection_curve(self):
-        """Draw the (possibly unfinished) freehand selection curve.
+        """
+        Draw the (possibly unfinished) freehand selection curve.
         """
         color = get_selCurve_color(self.selSense, self.o.backgroundColor)
         
@@ -1097,14 +1133,19 @@ class basicGraphicsMode(anyGraphicsMode):
                 drawer.drawline(color,pp[0],pp[1])
 
     def surfset(self, num):
-        "noop method, meant to be overridden in cookieMode for setting diamond surface orientation"
+        """
+        noop method, meant to be overridden in cookieMode
+        for setting diamond surface orientation
+        """
         pass
 
 
     def _calibrateZ(self, wX, wY):
-        '''Because translucent plane drawing or other special drawing, the depth value may not be accurate. We need to
-           redraw them so we'll have correct Z values. 
-        '''
+        """
+        Because translucent plane drawing or other special drawing,
+        the depth value may not be accurate. We need to
+        redraw them so we'll have correct Z values. 
+        """
         glMatrixMode(GL_MODELVIEW)
         glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE) 
         
@@ -1117,13 +1158,14 @@ class basicGraphicsMode(anyGraphicsMode):
         return wZ[0][0]
 
     def jigGLSelect(self, event, selSense):
-        """Use the OpenGL picking/selection to select any jigs. Restore the projection and modelview
-           matrices before returning.
+        """
+        Use the OpenGL picking/selection to select any jigs.
+        Restore the projection and modelview matrices before returning.
         """
         ## [Huaicai 9/22/05]: Moved it from selectMode class, so it can be called in move mode, which
         ## is asked for by Mark, but it's not intended for any other mode.
         #
-        ####@@@@ WARNING: The original code for this, in GLPane, has been duplicated and slightly modified
+        ### WARNING: The original code for this, in GLPane, has been duplicated and slightly modified
         # in at least three other places (search for glRenderMode to find them). This is bad; common code
         # should be used. Furthermore, I suspect it's sometimes needlessly called more than once per frame;
         # that should be fixed too. [bruce 060721 comment]
@@ -1236,8 +1278,7 @@ class GraphicsMode(basicGraphicsMode):
         of this Graphics Mode's Command.
         """
         self.command.set_cmdname(name)
-    
-
+        return
 
     pass
 
