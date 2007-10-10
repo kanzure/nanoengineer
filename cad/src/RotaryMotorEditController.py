@@ -55,7 +55,7 @@ class RotaryMotorEditController(EditController):
     
     def _gatherParameters(self):
         """
-        Return all the parameters from the Plane Property Manager.
+        Return all the parameters from the Rotary Motor Property Manager.
         """
         torque = self.propMgr.torqueDblSpinBox.value()
         initial_speed = self.propMgr.initialSpeedDblSpinBox.value()
@@ -74,10 +74,10 @@ class RotaryMotorEditController(EditController):
                 color, 
                 atoms)
     
-    def _createStructure(self, params = None):
+    def _createStructure(self):
         """
-        Create a Plane object. (The model object which this edit controller 
-        creates) 
+        Create a Rotary Motor object. (The model object which this edit 
+        controller creates) 
         """
         assert not self.struct       
         
@@ -94,9 +94,10 @@ class RotaryMotorEditController(EditController):
   
     def _modifyStructure(self, params):
         """
-        Modifies the structure (Plane) using the provided params.
+        Modifies the structure (Rotary Motor) using the provided params.
         @param params: The parameters used as an input to modify the structure
-                       (Plane created using this PlaneEditController) 
+                       (Rotary Motor created using this 
+                       RotaryMotorEditController) 
         @type  params: tuple
         """
         assert self.struct
@@ -107,7 +108,6 @@ class RotaryMotorEditController(EditController):
         dampers_state, enable_minimize_state, \
         color, atoms  = params
         
-        atoms = self.win.assy.selatoms_list()
         numberOfAtoms = len(atoms)
         
         atomNumberRequirementMet, logMessage = \
@@ -116,7 +116,7 @@ class RotaryMotorEditController(EditController):
         if not atomNumberRequirementMet:
             atoms = self.struct.atoms[:]
             logMessage = logMessage + " Motor will remain attached to the"\
-                       " atoms listed in the Attached Atom list in this" \
+                       " atoms listed in the 'Motor Atoms' list in this" \
                        " property manager"
             logMessage = orangemsg(logMessage)            
             self.propMgr.updateMessage(logMessage)
@@ -161,6 +161,11 @@ class RotaryMotorEditController(EditController):
     
     def _checkMotorAtomLimits(self, numberOfAtoms):
         """
+        Check if the number of atoms selected by the user, to which the motor 
+        is to be attached, is within acceptable limits. 
+        @param numberOfAtoms: Number of atoms selected by the user, to which the
+                              motor needs to be attached.
+        @type numberOfAtoms: int
         """
         logMessage = ""
         isAtomRequirementMet = False
@@ -189,7 +194,7 @@ class RotaryMotorEditController(EditController):
             isAtomRequirementMet = True
             return (isAtomRequirementMet, logMessage)
         
-        if numberOfAtoms > 2 and numberOfAtoms < 200:
+        if numberOfAtoms >= 2 and numberOfAtoms < 200:
             isAtomRequirementMet = True
             logMessage = ""
             return (isAtomRequirementMet, logMessage)

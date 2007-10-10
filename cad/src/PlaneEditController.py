@@ -120,7 +120,7 @@ class PlaneEditController(EditController):
             ctr = None
         return (width, height, ctr, atmList)
     
-    def _createStructure(self, params = None):
+    def _createStructure(self):
         """
         Create a Plane object. (The model object which this edit controller 
         creates) 

@@ -16,7 +16,7 @@ from jigs_motors import LinearMotor
 from jigs import atom_limit_exceeded_and_confirmed
 
 from EditController import EditController
-from LinearMotorPropertyManager import LinearMotorPropertyManager
+##from LinearMotorPropertyManager import LinearMotorPropertyManager
 
 class LinearMotorEditController(EditController):
     """
@@ -57,24 +57,19 @@ class LinearMotorEditController(EditController):
         """
         Return all the parameters from the Plane Property Manager.
         """
-        torque = self.propMgr.torqueDblSpinBox.value()
-        initial_speed = self.propMgr.initialSpeedDblSpinBox.value()
-        final_speed = self.propMgr.finalSpeedDblSpinBox.value()
-        dampers_state = self.propMgr.dampersCheckBox.isChecked()
+        force = self.propMgr.forceDblSpinBox.value()
+        stiffnesss = self.propMgr.stiffnessDblSpinBox.value()
         enable_minimize_state = self.propMgr.enableMinimizeCheckBox.isChecked()
         color = self.struct.color      
         atoms = self.win.assy.selatoms_list()
                     
-                  
-        return (torque, 
-                initial_speed, 
-                final_speed, 
-                dampers_state, 
+        return (force, 
+                stiffness, 
                 enable_minimize_state, 
                 color, 
                 atoms)
     
-    def _createStructure(self, params = None):
+    def _createStructure(self):
         """
         Create a Plane object. (The model object which this edit controller 
         creates) 
@@ -101,13 +96,11 @@ class LinearMotorEditController(EditController):
         """
         assert self.struct
         assert params 
-        assert len(params) == 7             
+        assert len(params) == 5             
         
-        torque, initial_speed, final_speed, \
-        dampers_state, enable_minimize_state, \
-        color, atoms  = params
+        force, stiffness, enable_minimize_state, \
+             color, atoms = params
         
-        atoms = self.win.assy.selatoms_list()
         numberOfAtoms = len(atoms)
         
         atomNumberRequirementMet, logMessage = \

@@ -136,7 +136,7 @@ class EditController:
         self.old_props = self.struct.getProps()
         self.propMgr.show() 
             
-    def _createStructure(self, params):
+    def _createStructure(self):
         """
         Create the model object which this edit controller  creates) 
         Abstract method.         
