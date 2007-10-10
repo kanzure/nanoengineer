@@ -25,36 +25,7 @@ add all the API methods to it, and rename the other methods
 in class Command to look private.
 """
 
-# TODO: most of these imports are not needed
-
-from PyQt4.Qt import Qt
-from PyQt4.Qt import QMenu, QCursor, QToolButton
-
-from OpenGL.GL import GL_FALSE
-from OpenGL.GL import glColorMask
-from OpenGL.GL import GL_DEPTH_COMPONENT
-from OpenGL.GL import glReadPixelsf
-from OpenGL.GL import GL_TRUE
-from OpenGL.GL import GL_PROJECTION
-from OpenGL.GL import glMatrixMode
-from OpenGL.GL import glPushMatrix
-from OpenGL.GL import glSelectBuffer
-from OpenGL.GL import GL_SELECT
-from OpenGL.GL import glRenderMode
-from OpenGL.GL import glInitNames
-from OpenGL.GL import GL_MODELVIEW
-from OpenGL.GL import GL_CLIP_PLANE0
-from OpenGL.GL import glClipPlane
-from OpenGL.GL import glEnable
-from OpenGL.GL import glDisable
-from OpenGL.GL import glPopMatrix
-from OpenGL.GL import GL_RENDER
-from OpenGL.GL import glFlush
-
-from OpenGL.GLU import gluUnProject
-
-from VQT import V, Q, A, vlen, norm, planeXline, ptonline
-import drawer
+from PyQt4.Qt import QToolButton
 
 from debug import print_compact_traceback
 
@@ -63,26 +34,12 @@ from PlatformDependent import shift_name
 from PlatformDependent import control_name
 from PlatformDependent import context_menu_prefix
 
-import env
+import env # not used as of 071010 morning
 from state_utils import StateMixin
-from shape import get_selCurve_color
 
 from constants import noop
-from constants import SELSHAPE_RECT
-from constants import SUBTRACT_FROM_SELECTION
-from constants import ADD_TO_SELECTION
-from prefs_constants import zoomAboutScreenCenter_prefs_key
-from prefs_constants import displayOriginAxis_prefs_key
-from prefs_constants import displayOriginAsSmallAxis_prefs_key
-from prefs_constants import displayPOVAxis_prefs_key
 
-from Utility import Group
-from chem import Atom
-from bonds import Bond
-from Utility import Node
 from jigs import Jig
-
-import time
 
 # ==
 

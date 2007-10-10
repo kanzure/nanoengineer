@@ -25,14 +25,12 @@ add all the API methods to it, and rename the other methods
 in class GraphicsMode to look private.
 """
 
-# TODO: many of these imports are not needed
-
 import math # just for pi
 from Numeric import exp
 from Numeric import dot
 
 from PyQt4.Qt import Qt
-from PyQt4.Qt import QMenu, QCursor, QToolButton
+from PyQt4.Qt import QMenu, QCursor
 
 from OpenGL.GL import GL_FALSE
 from OpenGL.GL import glColorMask
@@ -63,18 +61,14 @@ import drawer
 from debug import print_compact_traceback
 
 import platform
-from PlatformDependent import shift_name
-from PlatformDependent import control_name
-from PlatformDependent import context_menu_prefix
 
 import env
-from state_utils import StateMixin
 from shape import get_selCurve_color
 
-from constants import noop
 from constants import SELSHAPE_RECT
 from constants import SUBTRACT_FROM_SELECTION
 from constants import ADD_TO_SELECTION
+
 from prefs_constants import zoomAboutScreenCenter_prefs_key
 from prefs_constants import displayOriginAxis_prefs_key
 from prefs_constants import displayOriginAsSmallAxis_prefs_key
