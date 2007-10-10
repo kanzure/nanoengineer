@@ -25,12 +25,7 @@ add all the API methods to it, and rename the other methods
 in class Command to look private.
 """
 
-# most imports not needed
-
-import math # just for pi
-import sys
-from Numeric import exp
-from Numeric import dot
+# TODO: most of these imports are not needed
 
 from PyQt4.Qt import Qt
 from PyQt4.Qt import QMenu, QCursor, QToolButton
@@ -297,7 +292,7 @@ class basicCommand(anyCommand):
 
         self.setup_menus_in_init()
 
-        return # from Command.__init__
+        return # from basicCommand.__init__
 
     def get_commandSequencer(self):
         return self.win.commandSequencer #bruce 070108
@@ -440,12 +435,12 @@ class basicCommand(anyCommand):
         that needs to put up a context menu (useful for "dynamic context menus").]
         """
         pass ###e move the default menu_spec to here in case subclasses want to use it?
-@@@
+
     # ==
 
     # confirmation corner methods [bruce 070405-070409, 070627]
 
-    # Note: if we extend the conf. corner to "generators" in the short term,
+    # Note [obs?]: if we extend the conf. corner to "generators" in the short term,
     # before the "command sequencer" is implemented, some of the following methods
     # may be revised to delegate to the "current generator" or its PM.
     # If so, when doing this, note that many modes currently act as their own PM widget.
@@ -496,7 +491,8 @@ class basicCommand(anyCommand):
         return ( examine('done_btn'), examine('abort_btn') )
 
     def want_confirmation_corner_type(self):
-        """Subclasses should return the type of confirmation corner they currently want,
+        """
+        Subclasses should return the type of confirmation corner they currently want,
         typically computed from their current state. The return value can be one of the
         strings 'Done+Cancel' or 'Done' or 'Cancel', or None (for no conf. corner).
         Later we may add another possible value, 'Exit'.
@@ -535,68 +531,11 @@ class basicCommand(anyCommand):
             # print "want cc got", res
             return res
         pass
-            
-    _ccinstance = None
     
-    def draw_overlay(self): #bruce 070405, revised 070627
-        "called from GLPane with same drawing coordsys as for model [part of GLPane's drawing interface to modes]"
-        # conf corner is enabled by default for A9.1 (070627); requires exprs module and Python Imaging Library
-        from debug_prefs import debug_pref, Choice_boolean_True
-        if not debug_pref("Enable confirmation corner?", Choice_boolean_True, prefs_key = True):
-            return 
-        # figure out what kind of confirmation corner we want, and draw it
-        import confirmation_corner
-        cctype = self.want_confirmation_corner_type()
-        self._ccinstance = confirmation_corner.find_or_make(cctype, self)
-            # Notes:
-            # - we might use an instance cached in self (in an attr private to that helper function);
-            # - this might be as specific as both args passed above, or as shared as one instance
-            #   for the entire app -- that's up to it;
-            # - if one instance is shared for multiple cctypes, it might store the cctype passed above
-            #   as a side effect of find_or_make;
-            # - self._ccinstance might be None.
-        if self._ccinstance is not None:
-            # it's an instance we want to draw, and to keep around for mouse event handling
-            self._ccinstance.draw()
-        return
-
-    def mouse_event_handler_for_event_position(self, wX, wY): #bruce 070405
-        """Some mouse events should be handled by special "overlay" widgets
-        (e.g. confirmation corner buttons) rather than by the GLPane & mode's
-        usual event handling functions. This mode API method is called by the
-        GLPane to determine whether a given mouse position (in OpenGL-style
-        window coordinates, 0,0 at bottom left) lies over such an overlay widget.
-           Its return value is saved in glpane.mouse_event_handler -- a public
-        fact, which can be depended on by mode methods such as update_cursor --
-        and should be None or an object that obeys the MouseEventHandler interface.
-        (Note that modes themselves don't (currently) provide that interface --
-        they get their mouse events from GLPane in a more-digested way than that
-        interface supplies.)
-           Note that this method is not called for all mouse events -- whether
-        it's called depends on the event type (and perhaps modkeys). The caller's
-        policy as of 070405 (fyi) is that the mouse event handler is not changed
-        during a drag, even if the drag goes off the overlay widget, but it is
-        changed during bareMotion if the mouse goes on or off of one. But that
-        policy is the caller's business, not self's.
-           [Subclasses should override this if they show extra or nonstandard
-        overlay widgets, but as of the initial implem (070405), that's not likely
-        to be needed.]
-        """
-        if self._ccinstance is not None:
-            method = getattr(self._ccinstance, 'want_event_position', None)
-            if method:
-                if method(wX, wY):
-                    return self._ccinstance
-            elif platform.atom_debug:
-                print "atom_debug: fyi: ccinstance %r with no want_event_position method" % (self._ccinstance,)
-        return None
-
     # ==
-    
+
     def warning(self, *args, **kws):
         self.o.warning(*args, **kws)
-
-}}}
 
     # == entering this mode
     

@@ -25,11 +25,9 @@ add all the API methods to it, and rename the other methods
 in class GraphicsMode to look private.
 """
 
-# many imports not needed
-
+# TODO: many of these imports are not needed
 
 import math # just for pi
-import sys
 from Numeric import exp
 from Numeric import dot
 
@@ -90,7 +88,7 @@ from jigs import Jig
 
 import time
 
-###### TODO: split the above, which is duplicated in modes.py == Command.py, and GraphicsMode.py
+# ==
 
 class anyGraphicsMode(object): #bruce 071008 added object superclass, 071009 split anyMode -> anyGraphicsMode
     """
@@ -269,7 +267,7 @@ class basicGraphicsMode(anyGraphicsMode):
 
         self.setup_menus_in_init()
 
-        return # from GraphicsMode.__init__
+        return # from basicGraphicsMode.__init__
 
     def setup_menus_in_init(self): ### TODO: make private
         if not self.command.call_makeMenus_for_each_event:
@@ -307,102 +305,10 @@ class basicGraphicsMode(anyGraphicsMode):
         
         return
     
-@@@
     # ==
 
     # confirmation corner methods [bruce 070405-070409, 070627]
 
-    # Note: if we extend the conf. corner to "generators" in the short term,
-    # before the "command sequencer" is implemented, some of the following methods
-    # may be revised to delegate to the "current generator" or its PM.
-    # If so, when doing this, note that many modes currently act as their own PM widget.
-
-    def _KLUGE_current_PM(self): #bruce 070627
-        "private, and a kluge; see KLUGE_current_PropertyManager docstring for more info"
-        pw = self.w.activePartWindow()
-        if not pw:
-            # I don't know if pw can be None
-            print "fyi: _KLUGE_current_PM sees pw of None" ###
-            return None
-        try:
-            res = pw.KLUGE_current_PropertyManager()
-            # print "debug note: _KLUGE_current_PM returns %r" % (res,)
-            return res
-        except:
-            # I don't know if this can happen
-            print_compact_traceback("ignoring exception in %r.KLUGE_current_PropertyManager(): " % (pw,))
-            return None
-        pass
-
-    def _KLUGE_visible_PM_buttons(self): #bruce 070627
-        """private (but ok for use by self._ccinstance), and a kluge:
-        return the Done and Cancel QToolButtons of the current PM,
-        if they are visible, or None for each one that is not visible.
-           Used both for deciding what CC buttons to show, and for acting on the buttons
-        (assuming they are QToolButtons).
-        """
-        pm = self._KLUGE_current_PM()
-        if not pm:
-            return None, None # no CC if no PM is visible
-        def examine(buttonname):
-            try:
-                button = getattr(pm, buttonname)
-                assert button
-                assert isinstance(button, QToolButton)
-                vis = button.isVisibleTo(pm)
-                    # note: we use isVisibleTo(pm) rather than isVisible(),
-                    # as part of fixing bug 2523 [bruce 070829]
-                if vis:
-                    res = button
-                else:
-                    res = None
-            except:
-                print_compact_traceback("ignoring exception (%r): " % buttonname)
-                res = None
-            return res
-        return ( examine('done_btn'), examine('abort_btn') )
-
-    def want_confirmation_corner_type(self):
-        """Subclasses should return the type of confirmation corner they currently want,
-        typically computed from their current state. The return value can be one of the
-        strings 'Done+Cancel' or 'Done' or 'Cancel', or None (for no conf. corner).
-        Later we may add another possible value, 'Exit'.
-        [See confirmation_corner.py for related info.]
-        [Many subclasses will need to override this; we might also revise the default
-         to be computed in a more often correct manner.]
-        """
-        # What we do:
-        # find the current PM (self or an active generator, at the moment -- very klugy),
-        # and ask which of these buttons are visible to it (rather than using self.haveNontrivialState()):
-        #   pm.done_btn.isVisibleTo(pm)
-        #   pm.abort_btn.isVisibleTo(pm).
-        # WE also use them to perform the actions (they are QToolButtons). KLUGE: we do this in
-        # other code which finds them again redundantly (calling the same kluge helper function).
-        from debug_prefs import debug_pref, Choice_boolean_False
-        if debug_pref("Conf corner test: use haveNontrivialState", Choice_boolean_False, prefs_key = True):
-            # old code, works, but not correct for default mode or when generators active
-            if self.haveNontrivialState():
-                return 'Done+Cancel'
-            else:
-                # when would we just return 'Cancel'? only for a generator?
-                return 'Done' # in future this will sometimes or always be 'Exit'
-        else:
-            done_button_vis, cancel_button_vis = self._KLUGE_visible_PM_buttons()
-                # each one is either None, or a QToolButton (a true value) currently displayed on the current PM
-
-            res = []
-            if done_button_vis:
-                res.append('Done')
-            if cancel_button_vis:
-                res.append('Cancel')
-            if not res:
-                res = None
-            else:
-                res = '+'.join(res)
-            # print "want cc got", res
-            return res
-        pass
-            
     _ccinstance = None
     
     def draw_overlay(self): #bruce 070405, revised 070627
@@ -413,7 +319,7 @@ class basicGraphicsMode(anyGraphicsMode):
             return 
         # figure out what kind of confirmation corner we want, and draw it
         import confirmation_corner
-        cctype = self.want_confirmation_corner_type()
+        cctype = self.command.want_confirmation_corner_type()
         self._ccinstance = confirmation_corner.find_or_make(cctype, self)
             # Notes:
             # - we might use an instance cached in self (in an attr private to that helper function);
@@ -459,19 +365,15 @@ class basicGraphicsMode(anyGraphicsMode):
         return None
 
     # ==
-    
-    def warning(self, *args, **kws):
-        self.o.warning(*args, **kws)
 
-}}}
-    
     def Draw(self):
-        """Generic Draw method, with drawing code common to all modes.
-           Specific modes should call this somewhere within their own Draw method,
-           unless they have a good reason not to. Note: it doesn't draw the model,
-           since not all modes want to always draw it.
         """
-                
+        Generic Draw method, with drawing code common to all modes.
+        Specific modes should call this somewhere within their own Draw method,
+        unless they have a good reason not to. Note: it doesn't draw the model,
+        since not all modes want to always draw it.
+        """
+        
         # Draw the Origin axis.
         if env.prefs[displayOriginAxis_prefs_key]:
             if env.prefs[displayOriginAsSmallAxis_prefs_key]: #ninad060920
@@ -496,8 +398,7 @@ class basicGraphicsMode(anyGraphicsMode):
                         drawer.drawaxes(self.o.scale, -self.o.pov)
             else:
                 drawer.drawaxes(self.o.scale, -self.o.pov)
-		                
-            
+	
         # bruce 040929/041103 debug code -- for developers who enable this
         # feature, check for bugs in atom.picked and mol.picked for everything
         # in the assembly; print and fix violations. (This might be slow, which
