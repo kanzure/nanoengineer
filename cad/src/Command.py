@@ -37,7 +37,7 @@ from PlatformDependent import context_menu_prefix
 import env # not used as of 071010 morning
 from state_utils import StateMixin
 
-from constants import noop
+from constants import noop, GLPANE_IS_COMMAND_SEQUENCER
 
 from jigs import Jig
 
@@ -177,13 +177,11 @@ class basicCommand(anyCommand):
         do something, does it call some other method immediately? Guess: the latter.
         """
 
-        glpane = commandSequencer ### TODO: clean this up
+        assert GLPANE_IS_COMMAND_SEQUENCER
+        glpane = commandSequencer ### TODO: clean this up, and use commandSequencer below
         
         self.pw = None # pw = part window
             # TODO: remove this, or at least rename it -- most code uses .win for the same thing
-
-        ### REVIEW: with what attrs do a Command and GraphicsMode instance find each other?
-        # (let them be properties so they can return self without a cyclic ref)
 
         #} got to here in this method
         
@@ -198,6 +196,7 @@ class basicCommand(anyCommand):
             if 0: # bruce 040923 never mind this suggestion
                 print "fyi: it might be better to define 'msg_modename = %r' as a class constant in %s" % \
                   (self.msg_modename, self.__class__.__name__)
+        
         # check whether subclasses override methods we don't want them to
         # (after this works I might remove it, we'll see)
         ### bruce 050130 removing 'Done' temporarily; see PanMode.Done for why.
@@ -219,35 +218,26 @@ class basicCommand(anyCommand):
                       (self.__class__.__name__, attr)
 
         # other inits
-        self.glpane = glpane
+        self.glpane = glpane # REVIEW: needed?
         self.win = glpane.win
-        # this doesn't work, since when self is first created during GLPane creation,
-        # self.win doesn't yet have this attribute:
+        
         ## self.commandSequencer = self.win.commandSequencer #bruce 070108
-        # (note that the exception from this is not very understandable.)
+        # that doesn't work, since when self is first created during GLPane creation,
+        # self.win doesn't yet have this attribute:
+        # (btw the exception from this is not very understandable.)
         # So instead, we define a property that does this alias, below.
         
         # Note: the attributes self.o and self.w are deprecated, but often used.
         # New code should use some other attribute, such as self.glpane or
         # self.commandSequencer or self.win, as appropriate. [bruce 070613, 071008]
-        self.o = self.glpane
-        self.w = self.win
+        self.o = self.glpane # REVIEW: needed? (deprecated)
+        self.w = self.win # (deprecated)
         
-        ## self.init_prefs() # no longer needed --
-        # Between Alpha 1-8, each mode had its own background color and display mode.
-        # For Alpha 9, background color and display mode attrs were moved to the GLPane class where they
-        # are global for all modes.
-        
-        # store ourselves in our glpane's mode table, commandTable
+        # store ourselves in our glpane's mode table, commandTable ### TODO: store in commandSequencer instead
         ###REVIEW whether this is used for anything except changing to new mode by name [bruce 070613 comment]
-        self.o.commandTable[self.modename] = self
-            # bruce comment 040922: current code can overwrite a prior
-            # instance of same mode, when setassy called, eg for file
-            # open; this might (or might not) cause some bugs; i
-            # should fix this but didn't yet do so as of 040923
-            ###REVIEW whether this is still an issue, or newly one [bruce 070613 comment]
-
-        self.setup_menus_in_init()
+        self.glpane.commandTable[self.modename] = self
+            # note: this can overwrite a prior instance of the same command,
+            # e.g. when setAssy is called.
 
         return # from basicCommand.__init__
 
@@ -1063,8 +1053,14 @@ class Command(basicCommand):
     operation to occur).
     """
     def __init__(self, commandSequencer):
+        basicCommand.__init__(self, commandSequencer)
+        ## TODO: also create and save our GraphicsMode, so glpane can find it inside us
+        # (and how does it know when we change it or we get changed, which means its GM changed?)
+        GM_class = xxx #}
+        assert issubclass(GM_class, GraphicsMode)
+        self.graphicsMode = GM_class(self)
         pass
-        #}
+
     pass
 
 # end

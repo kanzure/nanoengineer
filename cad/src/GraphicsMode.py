@@ -109,7 +109,7 @@ class anyGraphicsMode(object): #bruce 071008 added object superclass, 071009 spl
     def drawHighlightedObjectUnderMouse(self, glpane, selobj, hicolor): #bruce 071008
         pass
     
-    pass # end of class anyMode
+    pass # end of class anyGraphicsMode
 
 
 class nullGraphicsMode(anyGraphicsMode):
@@ -183,83 +183,38 @@ class basicGraphicsMode(anyGraphicsMode):
     #that the object is not highlighted.See selectMolsMode.bareMotion for an 
     #example. 
     timeAtLastWheelEvent = None
+
+    # NOTE: subclasses will have to make self.command point to the command
+    # object (a running command which owns the graphics mode object).
+    # This is done differently in different subclasses, since in some of
+    # them, those are the same object.
     
     def __init__(self, glpane):
         """
         """
+        # guessing self.pw is only needed in class Command (or not at all):
+        ## self.pw = None # pw = part window
+
+        # initialize attributes used by methods to refer to
+        # important objects in their runtime environment
         
-        self.pw = None # pw = part window
-            # TODO: remove this, or at least rename it -- most code uses .win for the same thing.
-            # Better yet, ban it from a graphicsmode, make it go through its owning Command.
-            # (But have to work in the mixed Command/GrapicsModes as well as in the separate ones)
-            # ... so at least see if the methods left in this file use it, when the split is done.
-
-        ### REVIEW: with what attrs do a Command and GraphicsMode instance find each other?
-        # (let them be properties so they can return self without a cyclic ref)
-
-        #} got to here in this method
-
-        # init or verify modename and msg_modename
-        name = self.modename
-        assert not name.startswith('('), \
-            "bug: modename class constant missing from subclass %s" % self.__class__.__name__
-        if self.msg_modename.startswith('('):
-            self.msg_modename = name[0:1].upper() + name[1:].lower() + ' Mode'
-                # Capitalized 'Mode'. Fixes bug 612. mark 060323
-                # [bruce 050106 capitalized first letter above]
-            if 0: # bruce 040923 never mind this suggestion
-                print "fyi: it might be better to define 'msg_modename = %r' as a class constant in %s" % \
-                  (self.msg_modename, self.__class__.__name__)
-        # check whether subclasses override methods we don't want them to
-        # (after this works I might remove it, we'll see)
-        ### bruce 050130 removing 'Done' temporarily; see PanMode.Done for why.
-        # later note: as of 070521, we always get warned "subclass movieMode overrides basicMode._exitMode".
-        # I am not sure whether this override is legitimate so I'm not removing the warning for now. [bruce 070521]
-        weird_to_override = ['Cancel', 'Flush', 'StartOver', 'Restart',
-                             'userSetMode', '_exitMode', 'Abandon', '_cleanup']
-            # not 'modifyTransmute', 'keyPress', they are normal to override;
-            # not 'draw_selection_curve', 'Wheel', they are none of my business;
-            # not 'makemenu' since no relation to new mode changes per se.
-            # [bruce 040924]
-        for attr in weird_to_override:
-            def same_method(m1,m2):
-                # m1/m2.im_class will differ (it's the class of the query,
-                # not where func is defined), so only test im_func
-                return m1.im_func == m2.im_func
-            if not same_method( getattr(self,attr) , getattr(basicMode,attr) ):
-                print "fyi (for developers): subclass %s overrides basicMode.%s; this is deprecated after mode changes of 040924." % \
-                      (self.__class__.__name__, attr)
-
-        # other inits
         self.glpane = glpane
         self.win = glpane.win
-        # this doesn't work, since when self is first created during GLPane creation,
-        # self.win doesn't yet have this attribute:
+
         ## self.commandSequencer = self.win.commandSequencer #bruce 070108
-        # (note that the exception from this is not very understandable.)
+        # that doesn't work, since when self is first created during GLPane creation,
+        # self.win doesn't yet have this attribute:
+        # (btw the exception from this is not very understandable.)
         # So instead, we define a property that does this alias, below.
         
         # Note: the attributes self.o and self.w are deprecated, but often used.
         # New code should use some other attribute, such as self.glpane or
         # self.commandSequencer or self.win, as appropriate. [bruce 070613, 071008]
-        self.o = self.glpane
-        self.w = self.win
-        
-        ## self.init_prefs() # no longer needed --
-        # Between Alpha 1-8, each mode had its own background color and display mode.
-        # For Alpha 9, background color and display mode attrs were moved to the GLPane class where they
-        # are global for all modes.
-        
-        # store ourselves in our glpane's mode table, commandTable
-        ###REVIEW whether this is used for anything except changing to new mode by name [bruce 070613 comment]
-        self.o.commandTable[self.modename] = self
-            # bruce comment 040922: current code can overwrite a prior
-            # instance of same mode, when setassy called, eg for file
-            # open; this might (or might not) cause some bugs; i
-            # should fix this but didn't yet do so as of 040923
-            ###REVIEW whether this is still an issue, or newly one [bruce 070613 comment]
+        self.o = self.glpane # (deprecated)
+        self.w = self.win # (deprecated)
 
-        self.setup_menus_in_init()
+        # set up context menus
+        self.setup_menus_in_init() # REVIEW: make this private?
 
         return # from basicGraphicsMode.__init__
 
@@ -1263,8 +1218,14 @@ class GraphicsMode(basicGraphicsMode):
     """
     def __init__(self, command):
         self.command = command
-        self.glpane = self.xxx ### TODO: work this out...
-        basicGraphicsMode.__init__(xxx)
+        glpane = self.xxx ### TODO: work this out... #}
+        basicGraphicsMode.__init__(glpane)
+        return
+
+    # Note: the remaining methods etc are not needed in basicGraphicsMode
+    # since it is always mixed in after basicCommand
+    # (sinc it is only for use in basicMode)
+    # and they are provided by basicCommand or basicMode.
     
     def get_commandSequencer(self):
         return self.command.commandSequencer
