@@ -75,7 +75,11 @@ from exprs.TestIterator import TestIterator, TestIterator_wrong_to_compare
 
 from exprs.TextRect import TextRect
 
-from exprs.Highlightable import Highlightable, Button, print_Expr, _setup_UNKNOWN_SELOBJ, BackgroundObject
+from exprs.Highlightable import Highlightable
+from exprs.Highlightable import Button
+from exprs.Highlightable import print_Expr
+from exprs.Highlightable import _setup_UNKNOWN_SELOBJ_on_graphicsMode
+from exprs.Highlightable import BackgroundObject
 
 from exprs.ToggleShow import ToggleShow
 
@@ -1851,8 +1855,8 @@ def _clear_state(): #070318; doesn't crash, but has bugs -- see comments where i
     _state.clear()
     import env
     win = env.mainwindow()
-    glpane = win.glpane
-    glpane.mode.reload()
+    command = win.commandSequencer.currentCommand
+    command.reload()
     return
 
 debug_corner_stuff = Boxed(SimpleColumn(   # 070326 renamed bottom_left_corner -> debug_corner_stuff
@@ -1870,7 +1874,7 @@ debug_corner_stuff = Boxed(SimpleColumn(   # 070326 renamed bottom_left_corner -
     checkbox_pref("A9 devel/testmode/testmode capture MMB", "testmode capture MMB?", dflt = False), #070228 alias for a debug_pref
     checkbox_pref("A9 devel/GLPane: zoom out same as zoom in?", "zoom out around mouse?", dflt = False),
         #070402 alias for new debug_pref also used in cad/src/modes.py (affects a change to mousewheel bindings added today)
-    ActionButton(_app.env.glpane.mode.reload, "btn: testmode.reload()"), #070227; seems faster than true empty space click! ##k
+    ActionButton(_app.env.glpane.currentCommand.reload, "btn: testmode.reload()"), #070227; seems faster than true empty space click! ##k
     #e perhaps useful: text display of len(_state), or better, inspector of _state
     ActionButton( _clear_state, "btn: clear _state and reload"), #070318; ###BUG: not all label chars visible.
         ###BUG: this failed to cause a code change in testexpr_36c to take effect, tho ne1 restart did -- I don't know why.
@@ -1961,12 +1965,12 @@ _kluge_current_testexpr_instance = None
 def drawtest1_innards(glpane):
     "entry point from ../testdraw.py (called once per mode.Draw call)"
 
-    mode = glpane.mode # assume this is always testmode
-    _setup_UNKNOWN_SELOBJ(mode) #061218 kluge (multiple places, some in cad/src e.g. selectAtomsMode/selectMolsMode);
+    graphicsMode = glpane.graphicsMode # assume this is always testmode's graphicsMode
+    _setup_UNKNOWN_SELOBJ_on_graphicsMode(graphicsMode)
+        #061218 kluge (multiple places, some in cad/src e.g. selectAtomsMode/selectMolsMode);
         # fixes "highlight sync bug" in which click on checkbox, then rapid motion away from it,
         # then click again, could falsely click the same checkbox twice.
     
-    glpane
     staterefs = _state ##e is this really a stateplace? or do we need a few, named by layers for state?
         #e it has: place to store transient state, [nim] ref to model state
     
@@ -1981,7 +1985,7 @@ def drawtest1_innards(glpane):
 # no longer needed, 070408
 ##    if 'kluge':
 ##        #### KLUGE: get back to the standard drawing coords
-##        # (only works since exactly one level of this is pushed since mode.Draw is entered, and we control all that code)
+##        # (only works since exactly one level of this is pushed since graphicsMode.Draw is entered, and we control all that code)
 ##        glPopMatrix()
 ##        glPushMatrix()
 

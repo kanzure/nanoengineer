@@ -994,7 +994,7 @@ class _UNKNOWN_SELOBJ_class: #061218
     # etc
     pass
 
-def _setup_UNKNOWN_SELOBJ(command): #061218
+def _setup_UNKNOWN_SELOBJ_on_graphicsMode(graphicsMode): #061218, revised 071010
     "[private helper, for a kluge -- see comment where called]"
     # The only call as of 071010 is in exprs/test.py which sets it on testmode, and says:
     #   fixes "highlight sync bug" in which click on checkbox, then rapid motion away from it,
@@ -1006,9 +1006,8 @@ def _setup_UNKNOWN_SELOBJ(command): #061218
     # since right now nothing can set it up except in testmode. For now I'll treat it as per-command
     # since that seems best regarding the uniqueness... but this change is NIM. [bruce 071010]
 
-    from Command import anyCommand # ok?
-    assert isinstance(command, anyCommand)
-    graphicsMode = command.graphicsMode
+    from GraphicsMode import anyGraphicsMode # ok?
+    assert isinstance(graphicsMode, anyGraphicsMode)
     
     if not hasattr(graphicsMode, 'UNKNOWN_SELOBJ'):
         # note: this means each graphicsMode ends up with a unique UNKNOWN_SELOBJ,
