@@ -92,11 +92,11 @@ class anyGraphicsMode(object): #bruce 071008 added object superclass, 071009 spl
     def selobj_still_ok(self, selobj): #bruce 050702 added this to GraphicsMode API; overridden in GraphicsMode, and docstring is there
         return True
 
-    def mouse_event_handler_for_event_position(self, wX, wY): #bruce 070405
-        return None
-
     def draw_overlay(self): #bruce 070405
         return
+
+    def mouse_event_handler_for_event_position(self, wX, wY): #bruce 070405
+        return None
 
     def update_cursor(self): #bruce 070410
         return
@@ -209,43 +209,49 @@ class basicGraphicsMode(anyGraphicsMode):
         self.w = self.win # (deprecated)
 
         # set up context menus
-        self.setup_menus_in_init() # REVIEW: make this private?
+        self._setup_menus_in_init()
 
         return # from basicGraphicsMode.__init__
 
-    def setup_menus_in_init(self): ### TODO: make private
+    def _setup_menus_in_init(self):
         if not self.command.call_makeMenus_for_each_event:
-            self.setup_menus( )
+            self._setup_menus( )
 
-    def setup_menus_in_each_cmenu_event(self): ### TODO: make private
+    def _setup_menus_in_each_cmenu_event(self):
         if self.command.call_makeMenus_for_each_event:
-            self.setup_menus( )
+            self._setup_menus( )
 
-    def setup_menus(self): ### TODO: make private
+    def _setup_menus(self):
         """
         Call self.command.setup_graphics_menu_specs(),
-        assume it sets some menu_spec attrs on self.command
-        [### doc the ones it should set],
-        and turn them into self.Menu1 etc, which are QMenus,
+        assume it sets all the menu_spec attrs on self.command,
+
+        Menu_spec,
+        Menu_spec_shift,
+        Menu_spec_control,
+        
+        and turn them into self._Menu1 etc, which are QMenus,
         one of which will be posted by the caller
         depending on the modkeys of an event.
         (TODO: when we know we're called for each event, optim by producing
-         only one of those QMenus.)
+         only one of those QMenus, and tell setup_graphics_menu_specs
+         to optim in a similar way.)
         """
         # Note: this was split between Command.setup_graphics_menu_specs and
-        # GraphicsMode.setup_menus, bruce 071009
+        # GraphicsMode._setup_menus, bruce 071009
 
         command = self.command
+        
         command.setup_graphics_menu_specs()
         
-        self.Menu1 = QMenu()
-        self.makemenu(command.Menu_spec, self.Menu1)
+        self._Menu1 = QMenu()
+        self.makemenu(command.Menu_spec, self._Menu1)
         
-        self.Menu2 = QMenu()
-        self.makemenu(command.Menu_spec_shift, self.Menu2)
+        self._Menu2 = QMenu()
+        self.makemenu(command.Menu_spec_shift, self._Menu2)
         
-        self.Menu3 = QMenu()
-        self.makemenu(command.Menu_spec_control, self.Menu3)
+        self._Menu3 = QMenu()
+        self.makemenu(command.Menu_spec_control, self._Menu3)
         
         return
     
@@ -531,6 +537,10 @@ class basicGraphicsMode(anyGraphicsMode):
         Use the OpenGL depth buffer pixel at the coordinates of event
         (which works correctly only if the proper GL context, self.o, is current -- caller is responsible for this)
         to guess the 3D point that was visually clicked on. See GLPane version's docstring for details.
+
+        [Note: this is public for event handlers using this object
+         (whether in subclasses or external objects),
+         but it's not part of the GraphicsMode interface from the GLPane.]
         """
         res = self.o.dragstart_using_GL_DEPTH(event, **kws) # note: res is a tuple whose length depends on **kws
         return res
@@ -761,8 +771,8 @@ class basicGraphicsMode(anyGraphicsMode):
     # right button actions... #doc
     
     def rightDown(self, event):
-        self.setup_menus_in_each_cmenu_event()
-        self.Menu1.exec_(event.globalPos())
+        self._setup_menus_in_each_cmenu_event()
+        self._Menu1.exec_(event.globalPos())
         #ninad061009: Qpopupmenu in qt3 is  QMenu in Qt4
 	#apparently QMenu._exec does not take option int indexAtPoint.
         # [bruce 041104 comment:] Huaicai says that menu.popup and menu.exec_
@@ -791,15 +801,15 @@ class basicGraphicsMode(anyGraphicsMode):
         pass
     
     def rightShiftDown(self, event):
-        self.setup_menus_in_each_cmenu_event()
+        self._setup_menus_in_each_cmenu_event()
         # Previously we did this:
-        # self.Menu2.exec_(event.globalPos(),3)
+        # self._Menu2.exec_(event.globalPos(),3)
         # where 3 specified the 4th? action in the list. The exec_ method now
         # needs a pointer to the action itself, not a numerical index. The only
         # ways I can see to do that is with lots of bookkeeping, or if the menu
         # had a listOfActions method. This isn't important enough for the former
         # and Qt does not give us the latter. So forget about the 3.
-        self.Menu2.exec_(event.globalPos())
+        self._Menu2.exec_(event.globalPos())
 
                 
     def rightShiftDrag(self, event):
@@ -809,9 +819,9 @@ class basicGraphicsMode(anyGraphicsMode):
         pass
     
     def rightCntlDown(self, event):
-        self.setup_menus_in_each_cmenu_event()
+        self._setup_menus_in_each_cmenu_event()
         # see note above
-        self.Menu3.exec_(event.globalPos())
+        self._Menu3.exec_(event.globalPos())
         
     def rightCntlDrag(self, event):
         pass

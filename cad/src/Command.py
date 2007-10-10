@@ -77,6 +77,25 @@ class anyCommand(object, StateMixin): #bruce 071008 added object superclass; 071
         return
 
     def isCurrentCommand(self): #bruce 071008
+        """
+        [note: this docstring uses obsolete terminology;
+         TODO: merge it with the newer one in basicCommand]
+        
+        Return true if the glpane is presently using this mode object
+        (not just a mode object with the same name!)
+
+        Useful in "slot methods" that receive Qt signals from a dashboard
+        to reject signals that are meant for a newer mode object of the same class,
+        in case the old mode didn't disconnect those signals from its own methods
+        (as it ideally should do).
+
+        Warning: this returns false while a mode is still being entered (i.e.
+        during the calls of Enter and init_gui, and the first call of update_gui).
+        But it's not a good idea to rely on that behavior -- if you do, you should
+        redefine this function to guarantee it, and add suitable comments near the
+        places which *could* set self.o.mode to the mode object being entered,
+        earlier than they do now.
+        """
         return False
 
     pass # end of class anyCommand
@@ -265,17 +284,25 @@ class basicCommand(anyCommand):
         ### TODO: make this more easily customized, esp the web help part;
         ### TODO if possible: fix the API (also of makeMenus) to not depend on setting attrs as side effect
         """
-        Call self.makeMenus(), postprocess the menu_spec attrs
-        it sets on self [###doc: name them here],
-        and leave those set on self for the caller to (presumably)
-        turn into actual menus.
+        Call self.makeMenus(), then postprocess the menu_spec attrs
+        it sets on self, namely some or all of
         
-        (TODO: when we know we're called for each event, optim by producing
-         only whichever menu_specs are needed. This is not always just one,
-         since we sometimes copy one into a submenu of another.)
+        Menu_spec,
+        Menu_spec_shift,
+        Menu_spec_control,
+        debug_Menu_spec,
+        
+        and make sure the first three of those are set on self
+        in their final (modified) forms, ready for the caller
+        to (presumably) turn into actual menus.
+        
+        (TODO: optim: if we know we're being called again for each event,
+         optim by producing only whichever menu_specs are needed. This is
+         not always just one, since we sometimes copy one into a submenu
+         of another.)
         """
         # Note: this was split between Command.setup_graphics_menu_specs and
-        # GraphicsMode.setup_menus, bruce 071009
+        # GraphicsMode._setup_menus, bruce 071009
 
         # lists of attributes of self we examine and perhaps remake:
         mod_attrs = ['Menu_spec_shift', 'Menu_spec_control']
@@ -606,29 +633,10 @@ class basicCommand(anyCommand):
         else:
             self.w.toolsDoneAction.setVisible(1)
         
-        if self.now_using_this_mode_object(): #bruce 050122 added this condition
+        if self.isCurrentCommand(): #bruce 050122 added this condition
             self.update_gui()
         return
 
-    def now_using_this_mode_object(self):
-        """
-        Return true if the glpane is presently using this mode object
-        (not just a mode object with the same name!)
-
-        Useful in "slot methods" that receive Qt signals from a dashboard
-        to reject signals that are meant for a newer mode object of the same class,
-        in case the old mode didn't disconnect those signals from its own methods
-        (as it ideally should do).
-
-        Warning: this returns false while a mode is still being entered (i.e.
-        during the calls of Enter and init_gui, and the first call of update_gui).
-        But it's not a good idea to rely on that behavior -- if you do, you should
-        redefine this function to guarantee it, and add suitable comments near the
-        places which *could* set self.o.mode to the mode object being entered,
-        earlier than they do now.
-        """
-        return self.o.mode == self
-        
     def update_mode_status_text(self):        
         """
         new method, bruce 040927; here is my guess at its doc
