@@ -973,7 +973,8 @@ class _UNKNOWN_SELOBJ_class: #061218
         return True
     # these methods were found by experiment to be needed
     def selobj_still_ok(self, glpane):
-        return (self is getattr(glpane.mode, 'UNKNOWN_SELOBJ')) # goal: True in the mode that defines us, False otherwise
+        return (self is getattr(glpane.graphicsMode, 'UNKNOWN_SELOBJ'))
+            # goal: True in the same graphicsMode instance that we were created for, False otherwise
     highlight_color_for_modkeys = noop #e will it need to be a method which returns a color? I doubt it.
     leftClick = noop
     # this is in case we didn't find one that's needed:
@@ -993,7 +994,7 @@ class _UNKNOWN_SELOBJ_class: #061218
     # etc
     pass
 
-def _setup_UNKNOWN_SELOBJ(mode): #061218
+def _setup_UNKNOWN_SELOBJ(command): #061218
     "[private helper, for a kluge -- see comment where called]"
     # The only call as of 071010 is in exprs/test.py which sets it on testmode, and says:
     #   fixes "highlight sync bug" in which click on checkbox, then rapid motion away from it,
@@ -1004,11 +1005,19 @@ def _setup_UNKNOWN_SELOBJ(mode): #061218
     # per-Command or per-graphicsMode. Either way we'll need a class constant to request it,
     # since right now nothing can set it up except in testmode. For now I'll treat it as per-command
     # since that seems best regarding the uniqueness... but this change is NIM. [bruce 071010]
-    if not hasattr(mode, 'UNKNOWN_SELOBJ'):
-        # note: this means each mode ends up with a unique UNKNOWN_SELOBJ,
-        # which is considered still ok only during the same mode, due to the
+
+    from Command import anyCommand # ok?
+    assert isinstance(command, anyCommand)
+    graphicsMode = command.graphicsMode
+    
+    if not hasattr(graphicsMode, 'UNKNOWN_SELOBJ'):
+        # note: this means each graphicsMode ends up with a unique UNKNOWN_SELOBJ,
+        # which is considered still ok only within the same graphicsMode, due to the
         # comparison done in _UNKNOWN_SELOBJ_class.selobj_still_ok.
-        mode.UNKNOWN_SELOBJ = _UNKNOWN_SELOBJ_class()
+        # See comments in update_selobj routines about graphicsMode vs currentCommand for this
+        # uniqueness and/or decision to use it -- it's just a guess to use graphicsMode for both.
+        # [bruce 071010]
+        graphicsMode.UNKNOWN_SELOBJ = _UNKNOWN_SELOBJ_class()
     return
 
 # ==

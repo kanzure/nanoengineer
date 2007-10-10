@@ -595,8 +595,13 @@ class selectAtomsMode(selectMode):
             # don't change glpane.selobj (since it might not even need to change) (ok??#k) -- the next paintGL will do that --
             # UNLESS the current mode wants us to change it [new feature, bruce 061218, perhaps a temporary kluge, but helps
             #  avoid a logic bug in this code, experienced often in testmode due to its slow redraw]
-            if hasattr(glpane.mode, 'UNKNOWN_SELOBJ'):
-                glpane.selobj = getattr(glpane.mode, 'UNKNOWN_SELOBJ')
+            #
+            # Note: I'm mostly guessing that this should be found in (and unique to) graphicsMode
+            # rather than currentCommand, in spite of being set only in testmode by current code.
+            # That does make this code simpler, since graphicsMode is self. So replacing glpane.mode with self.
+            # [bruce 071010, same comment and change done in both duplications of this code, and in other places]
+            if hasattr(self, 'UNKNOWN_SELOBJ'):
+                glpane.selobj = getattr(self, 'UNKNOWN_SELOBJ')
             glpane.gl_update_for_glselect()
         else:
             # it's known (to be a specific object or None)
