@@ -39,7 +39,10 @@ class PasteMode(depositMode):
     modename = 'PASTE' 
     msg_modename = "Paste Mode" 
     default_mode_status_text = "Mode: Paste"
-    
+
+    command_can_be_suspended = False #bruce 071011, GUESS ### REVIEW whether correct when entering Zoom/Pan/Rotate
+    command_should_resume_prevMode = True #bruce 071011, to be revised (replaces need for customized Done method)
+
     def __init__(self, glpane):
         """
         Constructor for the class PasteMode. PasteMode allows depositing 
@@ -115,37 +118,6 @@ class PasteMode(depositMode):
         self.enable_gui_actions(True)
         self.updateCommandManager(bool_entering = False)
             
-    def Done(self, new_mode = None, suspend_old_mode = False):
-        """
-        Decides what to do after exiting the mode. If mode is left by clicking 
-        on B{Done} button it will enter the previous mode the user was in. 
-        
-        @example: User invokes Paste mode while in 'Move' mode, and then 
-        hits 'Done'button in the Paste mode, NE1 leaves Paste mode and enters 
-        Move mode again . 
-        If instead of Done button, user clicks on a button that invokes a different 
-        mode , it enters the mode user asked for. 
-        
-        @param new_mode: New mode user wants to enter. (A value 'None' means the 
-                         user didn't ask for any specific mode , so NE1 should 
-                         enter the previous  mode (before the paste mode) the
-                         user was in.
-        @type  new_mode: L{basicMode} or None
-        
-        @param suspend_old_mode: See L{basicMode.Done} it needs to be documented 
-                                 there. Flag that decides whether to suspend the 
-                                 old mode user was in.
-        @type  suspend_old_mode: boolean
-        """
-        resuming = False
-        if new_mode is None:
-            try:
-                new_mode = self.o.prevMode                    
-                resuming = True
-            except:
-                pass
-        return depositMode.Done(self, new_mode, resuming = resuming) 
-
     def keyPress(self, key):
         """
         Handles the key press event in this mode. 

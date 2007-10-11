@@ -49,6 +49,8 @@ class anyCommand(object, StateMixin): #bruce 071008 added object superclass; 071
     # assumes every command has these attributes, but it should pretend
     # they're read-only; command-related code (in this file) can override
     # them in subclasses and/or instances, and modify them directly.
+
+    is_null = False # overridden only in nullCommand
     
     # internal name of command, e.g. 'DEPOSIT',
     # only seen by users in "debug" error messages
@@ -64,6 +66,21 @@ class anyCommand(object, StateMixin): #bruce 071008 added object superclass; 071
         # note: hover_highlighting_enabled is a settable instance variable in both
         # the Command and GraphicsMode APIs; a separate GraphicsMode delegates it
         # as state to its Command [bruce 071011]
+
+    command_can_be_suspended = False
+        # Boolean; whether this command can be suspended while temporary commands run,
+        # to be resumed when they finish. Should be True for most real commands
+        # (so is True in basicCommand) but is often False for other temporary commands.
+        # [bruce 071011]
+
+    command_should_resume_prevMode = False
+        # Boolean; whether this command, when exiting, should resume the prior command
+        # if one is saved as commandSequencer.prevMode
+        # (which it is presumed to have suspended when it was entered).
+        # TODO: make this also control whether it *does* save prevMode when it's entered;
+        # presently that is done by entering it using a special method,
+        # commandSequencer.userEnterTemporaryCommand.
+        # [bruce 071011, to be revised (replaces need for customized Done methods)]
     
     def get_mode_status_text(self):
         # I think this will never be shown [bruce 040927]
@@ -122,6 +139,9 @@ class nullCommand(anyCommand):
     # TODO: revise the 'mode' term in the following attribute names
 
     # (the nullCommand instance is not put into the command sequencer's commandTable)
+
+    is_null = True
+    
     modename = 'nullCommand'
     msg_modename = 'nullCommand'
         # this will be overwritten in the nullCommand instance
@@ -150,6 +170,8 @@ class basicCommand(anyCommand):
     modename = "(bug: missing modename)"
     msg_modename = "(bug: unknown command)"
     default_mode_status_text = "(bug: missing command status text)"
+
+    command_can_be_suspended = True # good default value for most commands [bruce 071011]
     
     def user_modename(self): #bruce 051130 (apparently this is new; it can be the official user-visible-modename method for now)
         "Return a string such as 'Move Mode' or 'Build Mode' -- the name of this command for users; or '' if unknown."
@@ -825,6 +847,28 @@ class basicCommand(anyCommand):
         haveNontrivialState and/or StateDone and/or StateCancel as
         appropriate.
         """
+        # TODO: most or all of the following should be done by the CommandSequencer
+        # rather than by self. Same goes for several of the methods this calls.
+        # [bruce 071011 comment]
+        resuming = False
+        if self.command_should_resume_prevMode:
+            # imitate the overrides of Done formerly in ArrangementMode and PasteMode.
+            # TODO: review whether to do this somewhere else, so it also covers Cancel;
+            # and/or refactor it further so the Command Sequencer fully handles it
+            # (as said just above). # [bruce 071011 change and comment]
+            assert not suspend_old_mode # bruce 071011 added this; old code just pretended it was false
+            if new_mode is None:
+                try:
+                    new_mode = self.commandSequencer.prevMode
+                    if new_mode:
+                        resuming = True
+                except:
+                    print_compact_traceback("bug, ignoring: ") #bruce 071011 added this
+            if resuming:
+                new_mode_options['resuming'] = True
+            else:
+                assert new_mode_options.get('resuming', False) == False
+                    # bruce 071011 added this; old code just pretended it was false
         if not suspend_old_mode:
             if self.haveNontrivialState(): # use this (tho it should be just an optim), to make sure it's not giving false negatives
                 refused = self.StateDone()
@@ -833,6 +877,17 @@ class basicCommand(anyCommand):
                     return
         new_mode_options['suspend_old_mode'] = suspend_old_mode
         self._exitMode( new_mode, **new_mode_options)
+        if resuming:
+            assert new_mode is self.commandSequencer.prevMode
+            # presumably we are now back in new_mode == prevMode (having resumed it);
+            # if not, print a debug warning (probably redundant with some existing error message);
+            # if so, remove it from the "command stack" by setting prevMode to None.
+            if new_mode is self.commandSequencer._raw_currentCommand:
+                # note: this private access is a sign we belong inside CommandSequencer
+                self.commandSequencer.prevMode = None
+                    #bruce 071011 added this behavior; in theory it might fix bugs; if not then I think it has no effect
+            else:
+                print "warning: failed to enter", new_mode # remove if fully redundant
         return
 
     def StateDone(self):

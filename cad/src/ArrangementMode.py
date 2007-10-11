@@ -3,7 +3,7 @@
 """
 Part arrangement mode functionality.
 
-@author:    Mark Sims
+@author:    Mark and Bruce
 @copyright: Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 @version:   $Id: $
 @license:   GPL
@@ -15,39 +15,23 @@ from modes import basicMode
 
 class ArrangementMode(basicMode): #bruce 070813 split this out
     """
-    Common superclass for arrangement modes such as for the Pan, Rotate, and
-    Zoom tools.
+    Common superclass for temporary view-change commands
+    such as the Pan, Rotate, and Zoom tools.
+
+    Provides the declarations that make a command temporary,
+    a binding from Escape key to Done method,
+    and a Draw method which delegates to the Draw method
+    of the prior command (commandSequencer.prevMode).
     """
-
-    # a safe way for now to override Done:
-    def Done(self, new_mode = None):
-        """
-        [overrides basicMode.Done; this is deprecated, so doing it here
-        is a temporary measure for Alpha, to be reviewed by Bruce ASAP after
-        Alpha goes out; see also the removal of Done from weird_to_override
-        in modes.py. [bruce and mark 050130]
-        """
-        ## [bruce's symbol to get him to review it soon: ####@@@@]
-        resuming = False
-        if new_mode is None:
-            try:
-                m = self.glpane.prevMode
-                new_mode = m
-                resuming = True
-            except:
-                pass
-
-        #bruce 070813 added resuming arg
-        return basicMode.Done(self, new_mode, resuming = resuming)
-
-        
+    command_can_be_suspended = False #bruce 071011
+    command_should_resume_prevMode = True #bruce 071011, to be revised (replaces need for customized Done method)
+    
     def keyPress(self, key):
         # ESC - Exit mode.
         if key == Qt.Key_Escape: 
             self.Done()
-        ### REVIEW: else, here?
+        ### REVIEW: should we add an 'else' here?
         basicMode.keyPress(self, key) # Fixes bug 1172. mark 060321
-
         
     def Draw(self): ### verify same as in others
         # bruce 070813 revised this to use prevMode -- clean up and commit, and
@@ -63,6 +47,16 @@ class ArrangementMode(basicMode): #bruce 070813 split this out
             # fixes bug in which it doesn't show the right things for cookie or
             # extrude modes [partly; untested]
             prevMode.Draw()
+            # WARNING/TODO: this assumes there is at most one saved command
+            # which should be drawn. If this changes, we'll need to replace
+            # .prevMode with a deeper command stack in the Command Sequencer
+            # which provides a way to draw whatever each suspended command
+            # thinks it needs to; or we'll need to arrange for prevMode
+            # to *be* that stack, delegating Draw to each stack element in turn.
+            # Either way, it might be clearest to just call a new CommandSequencer
+            # method to "draw the stuff from all the saved commands".
+            # Most of the code around this comment would become part of that method.
+            # [bruce 071011]
         else:
             basicMode.Draw(self)   
             self.glpane.assy.draw(self.glpane)
@@ -70,3 +64,6 @@ class ArrangementMode(basicMode): #bruce 070813 split this out
                 print "should no longer happen: prevMode is not None or a basicMode, but %r" % (prevMode,)
         return
 
+    pass
+
+# end

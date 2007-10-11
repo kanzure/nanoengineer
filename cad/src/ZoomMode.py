@@ -56,33 +56,32 @@ class ZoomMode(_superclass):
         # rubber window shows as white color normally, but when the
         # background becomes bright, we'll set it as black.
         brightness = bg[0] + bg[1] + bg[2]
-        if brightness > 1.5: self.rbwcolor = bg
-        else: self.rbwcolor = A((1.0, 1.0, 1.0)) - A(bg)
+        if brightness > 1.5:
+            self.rbwcolor = bg
+        else:
+            self.rbwcolor = A((1.0, 1.0, 1.0)) - A(bg)
         
         self.glStatesChanged = False
-        
-        
-    # init_gui handles all the GUI display when entering this mode
-    # [mark 10/04/2004]
+        return
+    
     def init_gui(self):
         self.win.zoomToolAction.setChecked(1) # toggle on the Zoom Tool icon
         self.glpane.setCursor(self.win.ZoomCursor)
-            
-    # Huaicai: This method must be called to safely exit this mode    
-    def Done(self, new_mode = None):
-        
+
+    def restore_patches(self): 
+        """
+        This is run when we exit this command for any reason.
+        """
         # If OpenGL states changed during this mode, we need to restore
         # them before exit. Currently, only leftDown() will change that.
+        # [bruce 071011 change: do this in restore_patches, not in Done]
         if self.glStatesChanged:
             self.glpane.redrawGL = True
             glDisable(GL_COLOR_LOGIC_OP)
             glEnable(GL_LIGHTING)
             glEnable(GL_DEPTH_TEST)
-        
-        return _superclass.Done(self, new_mode)
+        return
     
-    # restore_gui handles all the GUI display when leaving this mode
-    # [Mark 10/04/2004]
     def restore_gui(self):
         self.win.zoomToolAction.setChecked(0) # toggle off the Zoom Tool icon
 
@@ -167,7 +166,7 @@ class ZoomMode(_superclass):
         DELTA = 1.0E-5
         if self.pWxy[0] == cWxy[0] or self.pWxy[1] == cWxy[1] \
                 or zoomFactor < DELTA: 
-            self.command.Done(self.glpane.prevMode)
+            self.command.Done()
             return
         
         # Erase the last rubber-band window

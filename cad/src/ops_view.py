@@ -26,11 +26,11 @@ from qutemol import launch_qutemol, write_qutemol_files
 from prefs_constants import ORTHOGRAPHIC
 from prefs_constants import PERSPECTIVE
 
-class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
-    "Mixin class to provide view-related methods for class MWsemantics. Has slot methods and their helper methods."
-   
-    
-    
+class viewSlotsMixin:
+    """
+    Mixin class to provide view-related methods for class MWsemantics.
+    Has slot methods and their helper methods.
+    """
     def setViewHome(self):
         """Reset view to Home view"""
         cmd = greenmsg("Current View: ")
@@ -53,7 +53,7 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
         self.glpane.setViewZoomToSelection()
         
             
-    def setViewHomeToCurrent(self): #bruce 050418 revised docstring, and moved bodies of View methods into GLPane
+    def setViewHomeToCurrent(self):
         """Changes Home view of the model to the current view in the glpane."""
         cmd = greenmsg("Set Home View to Current View: ")
         info = 'Home'
@@ -72,11 +72,12 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
         """
 	Changes the zoom behavior based on the user preference (zoom about 
         the GLPane's center). as of 061003, this preference is implemented as
-         View > Zoom About Screen Center (and not in Edit > Preferences).
-	 @param booleanJunk: Not used, we just need to know that the 
+        View > Zoom About Screen Center (and not in Edit > Preferences).
+
+	@param booleanJunk: Not used, we just need to know that the 
 	                    ZoomAboutScreenCenter preference is toggled.
-	 @type booleanJunk: bool
-	 """
+	@type booleanJunk: bool
+	"""
         # self.uprefs is a UserPrefs object ninad061003
         self.uprefs.changeZoomBehaviorPreference()  
                 
@@ -111,67 +112,55 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
         Common code for Zoom, Pan, and Rotate tools.
         """
         commandSequencer = self.commandSequencer
-        mode = commandSequencer.currentCommand # TODO: rename mode in local vars and comments
 
-        modes_we_are_called_for = ['ZOOM', 'PAN', 'ROTATE']
-        modes_to_autoexit = ['ZOOM', 'PAN', 'ROTATE'] # if they are current when we're called
+        ## modes_we_are_called_for = ['ZOOM', 'PAN', 'ROTATE']
 
         # Note: some logic in here was revised by bruce 070814, especially
         # for the case when entering one of these temporary modes needs to
         # autoexit another one. This has allowed these tools to work properly
-        # during Extrude mode (and presumably other modes with internal state).
+        # during Extrude Mode (and presumably other commands with internal state).
         # But all this logic should be replaced by something more principled
         # and general, using the Command Sequencer, when we have that.
         
         # This fixes bug 1081.  mark 060111.
         if not val:
             # The Zoom/Pan/Rotate button was toggled off. We are presumably
-            # in the associated temporary mode, and the user wants us to
-            # exit it. Do so and (according to mode.Done) return to 'prevMode'.
-            if mode.modename not in modes_we_are_called_for:
-                if mode is not commandSequencer.nullmode:
+            # in the associated temporary command, and the user wants us to
+            # exit it. Do so and return to 'prevMode' (using command.Done,
+            # which is overridden in these commands to do that).
+            command = commandSequencer.currentCommand
+
+            if command.modename == modename: #bruce 071011 change, an educated guess, may increase prints, may cause bugs ### TEST
+            ## if command.modename in modes_we_are_called_for:
+                # we're now in the command being turned off, as expected.
+                command.Done()
+                ### REVIEW: Can this ever happen if we just now entered that command,
+                # due to a programmatic change to that button, e.g. if another one
+                # was pressed? If so, it might cause some bug. [bruce 070814 comment]
+            else:
+                if command is not commandSequencer.nullmode:
                     # bruce 071009 add condition to fix bug 2512
                     # (though the cause remains only guessed at)
-                    print "bug: _zoomPanRotateTool sees unexpected current mode: %r" % (mode,)
+                    print "bug: _zoomPanRotateTool sees unexpected current command: %r" % (command,)
                 # Note: This can happen on nullMode after certain other exceptions occur.
                 # [In fact, it seems to happen whenever we exit zoom/pan/rotate normally...
                 #  that is now bug 2512, and its cause is not known, but it might relate
-                #  to the comment below from 070814 (guess). [bruce 070831 comment]]
+                #  to the comment above from 070814 (guess). [bruce 070831 comment]]
                 # Don't run Done in this case.
-            else:
-                mode.Done()
-                ### REVIEW: Can this ever happen if we just now entered that mode,
-                # due to a programmatic change to that button, e.g. if another one
-                # was pressed? If so, it would cause some bug. [bruce 070814 comment]
+                pass
             pass
         else:
-            # The Zoom/Pan/Rotate button was toggled on. Save 'prevMode' and
-            # enter the desired "subcommand" mode. (Special case needed if we were
-            # already in one of those modes, since we want to use the same prevMode.
-            # Effectively, we want to exit the current mode first (resuming prevMode)
-            # and then enter the new one (saving the same value of prevMode again).
-            # The current method is just to actually exit the current mode first.
-            # This was revised by bruce 070814.)
+            # The Zoom/Pan/Rotate button was toggled on.
 
-            # Set commandSequencer.prevMode.
-            # (We never want certain modes (ZOOM, PAN, ROTATE) to be assigned to "prevMode".)
-            if mode.modename in modes_to_autoexit:
-                # We're already in one of the named modes -- effectively exit it first.
-                # I'm not sure of any better way than to exit it in reality.
-                # (If this toggles off its button and runs this method recursively,
-                #  that will cause bugs. TODO -- detect that, fix it if it happens.)
-                mode.Done() # presumably this reenters the prior suspended mode
-                mode = commandSequencer.currentCommand
-                assert mode.modename not in modes_to_autoexit
-                    # this assumes modes in modes_to_autoexit can't be suspended
-            
-            commandSequencer.prevMode = mode # bruce 070813 save mode object, not modename
-            commandSequencer.setMode(modename, suspend_old_mode = True)
+            commandSequencer.userEnterTemporaryCommand(modename)
+                #bruce 071011, encapsulating the prevMode code that was here before
 
-            # Emit a help message on entering the new temporary mode. Ideally this
+            # Emit a help message on entering the new temporary command. Ideally this
             # should be done in its Enter or init_gui methods, but that made it
             # appear before the green "Entering Mode: Zoom" msg. So I put it here.
             # [Mark 050130; comment paraphrased by bruce 070814]
+            # TODO: do this in a new postEnter command-specific method which is called
+            # late enough to have the desired effect.
             env.history.message("You may hit the Esc key to exit %s." % user_mode_name)
                 ###REVIEW: put this in statusbar instead?
         return

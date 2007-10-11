@@ -1158,57 +1158,59 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 	return
 
     def editPasteFromClipboard(self):
-	"""
-	Invokes the L{PasteMode}, a temporary command to paste items in the 
-	clipboard, into the 3D workspace. It also stores the command NE1 should 
-	return to after exiting this temporary command. 
-	"""
-	if self.assy.shelf.members:	    
-	    pastables = self.assy.shelf.getPastables()
-	    if not pastables:
-		msg = orangemsg("Nothing to paste. Paste Command cancelled.")
-	        env.history.message(msg)
-		return
+        """
+        Invokes the L{PasteMode}, a temporary command to paste items in the 
+        clipboard, into the 3D workspace. It also stores the command NE1 should 
+        return to after exiting this temporary command. 
+        """
+        if self.assy.shelf.members:	    
+            pastables = self.assy.shelf.getPastables()
+            if not pastables:
+                msg = orangemsg("Nothing to paste. Paste Command cancelled.")
+                env.history.message(msg)
+                return
 
-	    commandSequencer = self.commandSequencer
-	    currentCommand = commandSequencer.currentCommand
-	    
-	    if currentCommand.modename != "PASTE":
-		#Make sure that previous command (commandSequencer.prevMode) never
-		#stores a 'temporary command' i.e. after exiting Paste Command, the 
-		#command NE1 enters is not one of the following -- 
-		# ('PASTE', 'PARTLIB', 'ZOOM', 'PAN', 'ROTATE')
-		
-		if currentCommand.modename not in ['PASTE', 'PARTLIB',
-					           'ZOOM', 'PAN', 'ROTATE']:		    
-		    commandSequencer.prevMode = currentCommand
-		    
-		commandSequencer.setMode('PASTE', suspend_old_mode = False)
-		return
-	else:
-	    msg = orangemsg("Clipboard is empty. Paste Command cancelled.")
-	    env.history.message(msg)
+            commandSequencer = self.commandSequencer
+            currentCommand = commandSequencer.currentCommand
+
+            if currentCommand.modename != "PASTE":
+##		#Make sure that previous command (commandSequencer.prevMode) never
+##		#stores a 'temporary command' i.e. after exiting Paste Command, the 
+##		#command NE1 enters is not one of the following -- 
+##		# ('PASTE', 'PARTLIB', 'ZOOM', 'PAN', 'ROTATE')
+##		
+##		if currentCommand.modename not in ['PASTE', 'PARTLIB',
+##					           'ZOOM', 'PAN', 'ROTATE']:		    
+##		    commandSequencer.prevMode = currentCommand
+##		    
+##		commandSequencer.setMode('PASTE', suspend_old_mode = False)
+                commandSequencer.userEnterTemporaryCommand('PASTE') #bruce 071011 guess ### REVIEW
+                return
+        else:
+            msg = orangemsg("Clipboard is empty. Paste Command cancelled.")
+            env.history.message(msg)
         return
     
     def insertPartFromPartLib(self):
-	"""
-	Sets the current command to L{PartLibraryMode}, for inserting (pasting) 
-	a part from the partlib into the 3D workspace. It also stores the command 
-	NE1 should return to after exiting this temporary command. 
-	"""
-	commandSequencer = self.commandSequencer
-	currentCommand = commandSequencer.currentCommand
-	if currentCommand.modename != "PARTLIB":
-	    #Make sure that previous command (commandSequencer.prevMode) never
-	    #stores a 'temporary command' i.e. after exiting Paste Command, the 
-	    #command NE1 enters is not one of the following -- 
-	    # ('PASTE', 'PARTLIB', 'ZOOM', 'PAN', 'ROTATE')
-	    if currentCommand.modename not in ['PASTE', 'PARTLIB',
-					       'ZOOM', 'PAN', 'ROTATE']:
-		commandSequencer.prevMode = currentCommand
-		
-	    commandSequencer.setMode('PARTLIB', suspend_old_mode = False)
-	return
+        """
+        Sets the current command to L{PartLibraryMode}, for inserting (pasting) 
+        a part from the partlib into the 3D workspace. It also stores the command 
+        NE1 should return to after exiting this temporary command. 
+        """
+        commandSequencer = self.commandSequencer
+        currentCommand = commandSequencer.currentCommand
+        if currentCommand.modename != "PARTLIB":
+##	    #Make sure that previous command (commandSequencer.prevMode) never
+##	    #stores a 'temporary command' i.e. after exiting Paste Command, the 
+##	    #command NE1 enters is not one of the following -- 
+##	    # ('PASTE', 'PARTLIB', 'ZOOM', 'PAN', 'ROTATE')
+##	    if currentCommand.modename not in ['PASTE', 'PARTLIB',
+##					       'ZOOM', 'PAN', 'ROTATE']:
+##		commandSequencer.prevMode = currentCommand
+##		
+##	    commandSequencer.setMode('PARTLIB', suspend_old_mode = False)
+            commandSequencer.userEnterTemporaryCommand('PARTLIB') #bruce 071011 guess ### REVIEW
+        return
             
     # TODO: rename killDo to editDelete
     def killDo(self):

@@ -334,6 +334,17 @@ class ops_copy_Mixin:
         pos = mousePosition
         moveOffset = V( 0, 0, 0)
         itemToPaste = None
+
+        # TODO: refactor this so that the type-specific paste methods
+        # can all be replaced by a single method that works for any kind
+        # of node, includind kinds other than Chunk, Group, or Jig.
+        # This would probably involve adding new methods to the Node API
+        # for things like bounding box for 3d objects.
+        # Also there is a design Q of what Paste should do for selections
+        # which include non-3d objects like comment nodes; I think it should
+        # "just work", copying them into a new location in the model tree.
+        # And it ought to work for selected non-nodes like atoms, too, IMHO.
+        # [bruce 071011 comment]
         
         if isinstance(pastable, molecule):
             itemToPaste, errorMsg = self._pasteChunk(pastable, pos)         

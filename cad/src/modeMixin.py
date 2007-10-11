@@ -53,6 +53,8 @@ class modeMixin(object):
 
     # Note: see "new code" far below for comments and definitions about the
     # attributes of self which we maintain, namely mode, graphicsMode, currentCommand.
+
+    prevMode = None #bruce 071011 added this
     
     def _init_modeMixin(self): #bruce 071010 renamed from _init1, since that name is used on several classes
         """
@@ -93,7 +95,7 @@ class modeMixin(object):
         state (like user preferences), which is probably also bad
         for them to do. So we can ignore this for now.)
         """
-        if self._raw_currentCommand is not self.nullmode:
+        if not self._raw_currentCommand.is_null:
             ###e need to give current mode a chance to exit cleanly,
             ###or refuse -- but callers have no provision for our
             ###refusing (which is a bug); so for now just abandon
@@ -149,6 +151,9 @@ class modeMixin(object):
         # We compare to self._raw_currentCommand in case self.currentCommand
         # has been wrapped by an API-enforcement (or any other) proxy.
         return self._raw_currentCommand is command
+
+##    def isNullCommand(self, command):
+##        return command.is_null
     
     def start_using_mode(self, mode, resuming = False): #bruce 070813 added resuming option
         """
@@ -361,6 +366,83 @@ class modeMixin(object):
             except:
                 print "(...even the old mode's restore_gui method, run by itself, had a bug...)"
             self.start_using_mode( '$DEFAULT_MODE' )
+        return
+
+    def userEnterTemporaryCommand(self, modename):
+        """
+        Temporarily enter the command with the given modename [TODO: or the given command object?],
+        suspending the prior command for resumption after the new one exits,
+        unless the prior command.command_can_be_suspended is false
+        (usually the case if it too is a temporary command),
+        in which case, the command that will be resumed then is the
+        same one it was before entering the new command.
+        (This means a series of temporary commands can be run,
+        after which the prior non-temporary one will be resumed.)
+
+        Note: semantics/API is likely to be revised; see code comments.
+        """
+        # REVIEW: do we need to generalize command.command_can_be_suspended
+        # to a relation between two commands
+        # that says whether one can be suspended by another,
+        # or whether one can suspend another,
+        # based on which commands they are?
+         
+        # REVIEW: should this method be an option on setMode or userSetMode
+        # rather than a separate method? Will those need to call this if the
+        # command they are asked to enter is marked a temporary one?]
+
+        # TODO: Whatever the answers, ultimately the command sequencer needs to be
+        # responsible for deciding how to enter and exit each command,
+        # rather than relying on the commands themselves to do this.
+        # In particular, no command should override Done to know about prevMode --
+        # instead, the sequencer should record how the command was entered
+        # and whether it suspended prevMode then. The command can just declare its
+        # type and options in ways which influence the sequencer re this.
+        
+        #bruce 071011 split this out of Zoom/Pan/Rotate support in ops_view.py;
+        # also using it for Paste/Partlib commands in MWsemantics.py
+        # (not sure it's identical to what they did, but if not it might be safer)
+
+        # Implementation:
+        #
+        # If the current command is suspendable,
+        # save it in self.prevMode (TODO: make that private)
+        # and suspend it while entering the new one.
+        # (For now we never have more than one suspended command
+        #  at a time.)
+        #
+        # Otherwise, effectively, immediately exit the current command
+        # (which is non-suspendable, probably temporary)
+        # and don't change prevMode (so that the suspended
+        # command to be resumed later is not changed),
+        # and enter the new command in the normal way (###k??).
+        #
+        # But this is most easily done in a different way with the
+        # same effect: exit the current command first (resuming prevMode)
+        # and then immediately enter the new one (saving the same value
+        # of prevMode again), entering it in the same way as otherwise.
+        # [Implem revised by bruce 070814; comment updated by bruce 071011.]
+        
+        prior_command = self._raw_currentCommand # might be changed inside if statement below
+
+        assert not prior_command.is_null # neither case below looks correct for nullmode
+
+        if not prior_command.command_can_be_suspended:
+            # (This usually means we're already in a temporary command)
+            # Since we can't suspend the prior command, just exit it.
+            # (If this toggles off its button and runs this method recursively,
+            #  that will cause bugs. TODO -- detect that, fix it if it happens.)
+            prior_command.Done()
+                # presumably this reenters the prior suspended command (prevMode)
+                # (since there probably was one if prior_command was temporary),
+                # but if so, we'll immediately resuspend it below.
+            prior_command = self._raw_currentCommand # (an even more prior command)
+            assert prior_command.command_can_be_suspended # also implies it's not null
+        
+        # Set self.prevMode (our depth-1 suspended command stack)
+        self.prevMode = prior_command # bruce 070813 save command object, not modename
+        self.setMode(modename, suspend_old_mode = True)
+            # TODO: if this can become the only use of suspend_old_mode, make it a private option _suspend_old_mode
         return
 
     # ==
