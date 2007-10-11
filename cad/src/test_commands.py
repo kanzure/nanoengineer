@@ -197,14 +197,14 @@ def start_cmdrun( cmdrun):
     if cmdrun.return_to_prior_command:
         # 070813 new feature, experimental, implem will change; part of Command Sequencer
         ### probably WRONG; need to analyze what happens in Done to decide how much to do here, and how to protect from exceptions
-        cmdrun.set_prior_command(glpane.mode) ###IMPLEM
-##        glpane.mode.restore_gui() #k guess; should be suspend_gui ####
-##        glpane.mode = cmdrun ### more? call some setter? call update_after_new_mode? ###
+        cmdrun.set_prior_command(glpane.currentCommand) ###IMPLEM set_prior_command (if not already done)
+##        glpane.currentCommand.restore_gui() #k guess; should be suspend_gui ####
+##        glpane.currentCommand = cmdrun # (illegal to do directly) ### more? call some setter? call update_after_new_mode? ###
 ##        cmdrun.init_gui()
-        glpane.mode.Done(new_mode = cmdrun, suspend_old_mode = True)
+        glpane.currentCommand.Done(new_mode = cmdrun, suspend_old_mode = True)
         ## glpane.gl_update() # REVIEW: not sure if needed; should be removed if redundant (might be excessive someday)
     else:
-        glpane.mode.Done(new_mode = cmdrun) # is this what takes the old mode's PM away?
+        glpane.currentCommand.Done(new_mode = cmdrun) # is this what takes the old mode's PM away?
     print "done with start_cmdrun for", cmdrun
         # returns as soon as user is in it, doesn't wait for it to "finish" -- so run is not a good name -- use Enter??
         # problem: Enter is only meant to be called internally by glue code in modeMixin.
@@ -223,7 +223,12 @@ def enter_example_command(widget, example_command_classname):
             reload(selectMode)
             import selectAtomsMode
             reload(selectAtomsMode)
-            glpane.mode = glpane.nullmode = modes.nullMode()
+            
+            ## glpane.mode = glpane.nullmode = modes.nullMode()
+            # revised 071010 (glpane == commandSequencer == modeMixin), new code UNTESTED:
+            glpane._recreate_nullmode()
+            glpane.use_nullmode()
+
             glpane._reinit_modes() # try to avoid problems with changing to other modes later, caused by those reloads
                 # wrong: uses old classes from glpane
         import test_command_PMs

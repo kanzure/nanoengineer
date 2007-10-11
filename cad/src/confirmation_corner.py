@@ -6,7 +6,7 @@ confirmation_corner.py -- helpers for modes with a confirmation corner
 $Id$
 
 Note: confirmation corners make use of two methods added to the "mode API"
-(the one used by GLPane to interface to glpane.mode for mouse and drawing)
+(the one used by GLPane to interface to glpane.graphicsMode for mouse and drawing)
 for their sake, currently [070627] defined only in basicMode: draw_overlay
 and mouse_event_handler_for_event_position. These are general enough to
 handle all kinds of overlays, in principle, but the current implem and
@@ -128,7 +128,7 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
         """private; can be called as often as every time this is drawn;
         cctype can be None or one of a few string constants
         """
-        self.mode = mode # used to find buttons for doing actions; not cross-checked with passed or found modes...
+        self.command = mode # used to find buttons for doing actions; not cross-checked with passed or found modes...
         if self.cctype != cctype:
             # note: no point in updating drawing here if cctype changes,
             # since we're only called within glpane calling mode.draw_overlay.
@@ -310,7 +310,7 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
         but only if we're still responsible for the cursor according to the GLPane --
         otherwise, call the one that is!
         """
-        self.glpane.mode.update_cursor()
+        self.glpane.graphicsMode.update_cursor()
             #bruce 070628 revised this as part of fixing bug 2476 (leftover CC Done cursor).
             # Before, it called our own update_cursor, effectively assuming we're still active,
             # wrong after a release and button action. Now, this is redundant in that case, but
@@ -336,7 +336,7 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
         # Note: it will all get revised and cleaned up once we have a command stack
         # and we can just tell the top command to do Done or Cancel.
         
-        done_button, cancel_button = self.mode._KLUGE_visible_PM_buttons()
+        done_button, cancel_button = self.command._KLUGE_visible_PM_buttons()
             # each one is either None, or a QToolButton (a true value) currently displayed on the current PM
         if buttoncode == 'Done':
             button = done_button

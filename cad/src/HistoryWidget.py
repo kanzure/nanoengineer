@@ -95,7 +95,7 @@ m_super = DebugMenuMixin
 class History_QTextEdit(hte_super, m_super):
     def __init__(self, parent):#050304
         hte_super.__init__(self, parent)
-        m_super._init1(self) # provides self.debug_event()
+        m_super._init1(self) # provides self.debug_event() # note: as of 071010 this calls DebugMenuMixin._init1
     def focusInEvent(self, event):
         ## print "fyi: hte focus in" # debug
         return hte_super.focusInEvent(self, event)

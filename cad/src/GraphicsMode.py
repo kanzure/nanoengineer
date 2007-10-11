@@ -213,6 +213,16 @@ class basicGraphicsMode(anyGraphicsMode):
 
         return # from basicGraphicsMode.__init__
 
+    def isCurrentGraphicsMode(self): #bruce 071010, for GraphicsMode API
+        """
+        Return a boolean to indicate whether self is the currently active GraphicsMode.
+        
+        See also Command.isCurrentCommand.
+        """
+        # see WARNING in modeMixin about this needing revision if .graphicsMode
+        # might have been wrapped with an API-enforcement (or any other) proxy.
+        return self.glpane.graphicsMode is self
+
     def _setup_menus_in_init(self):
         if not self.command.call_makeMenus_for_each_event:
             self._setup_menus( )

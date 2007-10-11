@@ -978,7 +978,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         Update the text shown in self.modebarLabel (if that widget
         exists yet).  Get the text to use from mode_obj if supplied,
         otherwise from the current mode object
-        (self.glpane.mode). (The mode object has to be supplied when
+        (self.currentCommand). (The mode object has to be supplied when
         the currently stored one is incorrect, during a mode
         transition.)
 
@@ -1008,7 +1008,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         # 
         # (3) Call it after any internal change which might affect the
         # mode-status text. This would have to include, at least, any
-        # change to (the id of) self.glpane, self.glpane.mode,
+        # change to (the id of) self.glpane, self.currentCommand,
         # self.glpane.assy, or (the value of)
         # self.glpane.assy.selwhat, regardless of the initial cause of
         # that change. The problems with this method are: it's
@@ -1029,7 +1029,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
             print "Caught <AttributeError: self.modebarLabel>, normal behavior, not a bug"
             pass # this is normal, before the widget exists
         else:
-            mode_obj = mode_obj or self.glpane.mode
+            mode_obj = mode_obj or self.currentCommand
             text = mode_obj.get_mode_status_text()
             #widget.setText( text )
 
@@ -1878,16 +1878,16 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
     # carbon atoms in a diamond lattice (including bonds)
     # this works for all modes, not just add atom
     def toolsDone(self):
-        self.glpane.mode.Done()
+        self.currentCommand.Done()
 
     def toolsStartOver(self):
-        self.glpane.mode.Restart()
+        self.currentCommand.Restart()
 
     def toolsBackUp(self):
-        self.glpane.mode.Backup()
+        self.currentCommand.Backup()
 
     def toolsCancel(self):
-        self.glpane.mode.Flush()
+        self.currentCommand.Flush()
 
    
     #######################################

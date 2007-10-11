@@ -340,7 +340,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         #bruce 050519 revised docstring and totally rewrote code.
         assy = self.assy
         win = self.win
-        mode = self.win.glpane.mode
+        mode = self.win.glpane.currentCommand
         del self
         part = assy.part
         # 0. Appraise the situation.

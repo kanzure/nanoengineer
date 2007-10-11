@@ -1022,8 +1022,10 @@ def _setup_UNKNOWN_SELOBJ_on_graphicsMode(graphicsMode): #061218, revised 071010
 # ==
 
 class BackgroundObject(DelegatingInstanceOrExpr): #070322 [renamed from _BackgroundObject, and moved here from demo_drag.py, 070323]
-    """#doc. One way to describe it:
-    analogous to DrawInCorner, but draws "normally but into the role of receiving events for clicks on the background"
+    """
+    ###doc.
+    One way to describe it: analogous to DrawInCorner, but draws
+    "normally but into the role of receiving events for clicks on the background"
     """
     delegate = Arg(Highlightable,
                    doc = "a Highlightable (or something that delegates to one) which can process background drag events")
@@ -1036,10 +1038,11 @@ class BackgroundObject(DelegatingInstanceOrExpr): #070322 [renamed from _Backgro
             self._delegate.save_coords() ###KLUGE, unsafe in general, though correct when it's a Highlightable --
                 # but without this, we get this debug print on every draw (for obvious reasons):
                 ## ;;in <Highlightable#44572(i)>, saved modelview_matrix is None, not using it
-        mode = self.env.glpane.mode # kluge?
+        graphicsMode = self.env.glpane.graphicsMode # kluge?? maybe not, not sure
+        command = graphicsMode.command # [seems best to go through graphicsMode to get to command -- bruce 071010]
         # tell event handlers that run after the present rendered frame to send press/drag/release events on empty space
         # to self._delegate
-        mode._background_object = self._delegate # see testmode.py comments for doc of _background_object (#doc here later)
+        command._background_object = self._delegate # see testmode.py comments for doc of _background_object (#doc here later)
         return
     pass # end of class BackgroundObject
 

@@ -29,8 +29,8 @@ Notes on how we'll do that:
 
 At some point soon we'll have one currentCommand attr in glpane,
 later moved to a separate object, the command sequencer.
-And glpane.mode will refer to a derived object
-which the current command can return,
+And glpane.mode will be deprecated, but glpane.graphicsMode will
+refer to a derived object which the current command can return,
 perhaps self (for old code) or not (for new code).
 (The null object we store in there can then also be a joint or
 separate object, independently from everything else. For now

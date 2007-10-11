@@ -365,7 +365,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         GLPane_minimal.__init__(self, parent, shareWidget, useStencilBuffer)
         self.win = win
 
-        modeMixin._init1(self)
+        modeMixin._init_modeMixin(self)
                 
         self.partWindow = parent
 

@@ -47,6 +47,44 @@ and a couple more noted on g4:
 
 __author__ = "bruce"
 
+from prefs_widgets import Preferences_StateRef, Preferences_StateRef_double, ObjAttr_StateRef
+from changes import Formula
+
+## from test_animation_mode_PM import test_animation_mode_PM
+from test_command_PMs import ExampleCommand1_PM, PM_GroupBox, PM_DoubleSpinBox, PM_PushButton
+from PM.PM_CheckBox import PM_CheckBox
+
+##from modes import *
+from debug import print_compact_traceback, register_debug_menu_command
+import time, math
+
+from state_utils import copy_val
+
+from constants import green, red, white, pink, black, brown, gray # other colors below
+from math import pi
+from drawer import drawline, drawbrick, drawsphere, drawcylinder
+from OpenGL.GL import GL_LIGHTING, glDisable, glEnable
+from VQT import cross, proj2sphere, V, norm, Q, vlen
+
+from Utility import Node
+import env
+
+DX = V(1,0,0)
+DY = V(0,1,0)
+DZ = V(0,0,1)
+
+from PyQt4.Qt import Qt
+# for Qt.Key_Left, etc
+
+shiftButton = Qt.ShiftModifier
+controlButton = Qt.ControlModifier
+cntlButton = controlButton
+
+# from experiment, 070813, intel macbook pro
+_key_control = 16777250
+_key_command = 16777249
+
+
 # for points of interest in this file, search for:
 # - class test_animation_mode
 
@@ -74,8 +112,6 @@ class Sketch3D_Sphere(Sketch3D_entity):
 ##### IMPLEM find_or_make_expr_instance, and make it fast when expr already exists (but do make it check assert_same, for now)
 
 
-from prefs_widgets import Preferences_StateRef, Preferences_StateRef_double, ObjAttr_StateRef
-from changes import Formula
 
 CANNON_HEIGHT_PREFS_KEY = "a9.2 devel/test_animation_mode/cannon height"
 CANNON_HEIGHT_DEFAULT_VALUE = 7.5
@@ -94,9 +130,6 @@ def cannon_oscillates():
 
 SILLY_TEST = False ####
 
-## from test_animation_mode_PM import test_animation_mode_PM
-from test_command_PMs import ExampleCommand1_PM, PM_GroupBox, PM_DoubleSpinBox, PM_PushButton
-from PM.PM_CheckBox import PM_CheckBox
 
 KLUGE_MANUAL_UPDATE = False # temporary
 TESTING_KLUGES = False # temporary
@@ -252,29 +285,6 @@ class test_animation_mode_PM(ExampleCommand1_PM):
         return
     pass # test_animation_mode_PM
 
-from modes import *
-from debug import print_compact_traceback, register_debug_menu_command
-import time, math
-
-from state_utils import copy_val
-
-from constants import green, red, white, pink, black, brown, gray # other colors below
-from math import pi
-from drawer import drawline, drawbrick, drawsphere, drawcylinder
-from OpenGL.GL import GL_LIGHTING
-from VQT import cross, proj2sphere, V
-
-DX = V(1,0,0)
-DY = V(0,1,0)
-DZ = V(0,0,1)
-
-shiftButton = Qt.ShiftModifier
-controlButton = Qt.ControlModifier
-cntlButton = controlButton
-
-# from experiment, 070813, intel macbook pro
-_key_control = 16777250
-_key_command = 16777249
 
 '''
   File "/Nanorex/Working/cad/src/platform.py", line 92, in ascii
@@ -282,8 +292,6 @@ _key_command = 16777249
 AttributeError: ascii
 '''#unfixed bug in arrow key bindings -- due to event.ascii ### BUG: not available in Qt4 [070811]
 
-from PyQt4.Qt import Qt
-# for Qt.Key_Left, etc
 keynames = {}
 for keyname in filter(lambda s: s.startswith('Key'), dir(Qt)):
     keynames[getattr(Qt, keyname)] = keyname
@@ -668,8 +676,8 @@ class shelvable_graphic:
         # ok to set it during a command (then it prevents redraw of self) or during redraw (culls upon return); see guy.draw for implem
     def __init__(self, space, dict1 = {}):
         self.__dict__.update(dict1) # do first so we don't overwrite the following ones
-        self.space = space # note: this is the mode, a test_animation_mode instance
-        self.glpane = space.o
+        self.space = space # note: this is the mode, a test_animation_mode instance [assume it is a Command, not a GraphicsMode]
+        self.glpane = space.glpane
         self.stuff = {} # kids, i guess [need a way of removing old ones]
         self.creation_time = space.simtime
     def changed(self):#050116 [long after shelvable_graphic stub created; note that it never worked yet]
@@ -710,7 +718,7 @@ class wireguy(shelvable_graphic): # used for square tiles in the "racetrack"
         ## drawwirecube(self.color, self.pos, 1.02 / 2.0)# no place for self.dir; last number is not what i hoped...
         pos = self.pos
         if self.moves:
-            pos = pos + DY * (glpane.mode.simtime - self.creation_time) # 070813  
+            pos = pos + DY * (self.space.simtime - self.creation_time) # 070813  [071010 glpane .mode -> self.space == a Command]
         drawbrick( self.color, pos - V(0, 0.6, 0), self.dir, 1.0, 1.0, 0.05) ## 0.98, 0.98, 0.05)
     pass
 
@@ -726,14 +734,14 @@ class cannonball(shelvable_graphic):
     velocity = None
     last_update_time = None
     acceleration = -10 * DY * 3
-    def update_incr(self, mode):
+    def update_incr(self):
         if self.last_update_time is None:
             self.last_update_time = self.creation_time
         if self.position is None:
             self.position = V(0,0,0) + self.pos ###k
         if self.velocity is None:
             self.velocity = V(0,0,0) + self.motion ###k
-        now = mode.simtime
+        now = self.space.simtime
         delta_time = now - self.last_update_time
         # if too large, do the following in several steps, or use a quadratic formula
         self.position += (delta_time * self.velocity)
@@ -742,8 +750,8 @@ class cannonball(shelvable_graphic):
         ## print "dt = %r, so set position = %r, velocity %r" % (delta_time, self.position, self.velocity)
         return
     def draw(self, glpane):
-        self.update_incr(glpane.mode) # now self.position should be correct; self.pos is starting position
-##        age = (glpane.mode.simtime - self.creation_time)
+        self.update_incr() # now self.position should be correct; self.pos is starting position
+##        age = (self.space.simtime - self.creation_time)
 ##        displacement = self.motion * age
         displacement = self.position - self.pos
         if vlen(displacement) > TOOFAR:
@@ -804,7 +812,7 @@ class guy(shelvable_graphic):
         # this main guy is the one that needs to be transparent, so you can see what's he's making under him!
         # and, the thing he might make also needs to be transparent but there. and, a key should put it down for you... and unput it.
         # and, remove any other stuff in same pos!
-        pos = self.pos ## + glpane.mode.now # 070813 experiment -- works, but i don't want to move this guy (the 3d cursor)
+        pos = self.pos ## + self.space.now # 070813 experiment -- works [since then, glpane .mode -> self.space, but i don't want to move this guy (the 3d cursor)
         drawbrick(self.color, pos, self.dir, 1,1,1) ## 2.0,4.0,6.0) # uses current GL context
         glDisable(GL_LIGHTING)
         drawbrick(gray, pos * V(1,0,1) - V(0,6,0), self.dir, 1, 1, 0.02) # brick dims for this dir are x,inout,z
@@ -892,7 +900,7 @@ class guy(shelvable_graphic):
         # caller does redraw, no need to tell it to here
     def makeonehere(self):
         d1 = dict(self.__dict__)
-        if self.glpane.mode._in_loop: ## FIX: could simplify since self.space == mode
+        if self.space._in_loop: ## FIX: could simplify since self.space == mode [did it now, glpane .mode -> space]
             ## d1['moves'] = True # sets new.moves = True
             d1['motion'] = DY * 3 # new.motion
             new = cannonball(self.space, d1)
@@ -1039,23 +1047,23 @@ class test_animation_mode(superclass, IorE_guest_mixin): # list of supers might 
         print
         print "entering test_animation_mode again", time.asctime()
         self.assy = self.w.assy
-        hacktrack(self.o)
-        hack_standard_repaint_0(self.o, self.pre_repaint)
-        self.o.pov = V(0,0,0)
-        self.o.quat = Q(1,0,0,0) + Q(V(1,0,0),10.0 * pi/180)
-        print "self.o.scale =", self.o.scale # 10 -- or 10.0?
-        self.o.scale = 20.0 #### 070813 # note: using 20 (int not float) may have caused AssertionError:
+        hacktrack(self.glpane)
+        hack_standard_repaint_0(self.glpane, self.pre_repaint)
+        self.glpane.pov = V(0,0,0)
+        self.glpane.quat = Q(1,0,0,0) + Q(V(1,0,0),10.0 * pi/180)
+        print "self.glpane.scale =", self.glpane.scale # 10 -- or 10.0?
+        self.glpane.scale = 20.0 #### 070813 # note: using 20 (int not float) may have caused AssertionError:
             ## in GLPane.py 3473 in typecheckViewArgs
             ## assert isinstance(s2, float)
         
-        print "self.o.scale changed to", self.o.scale
-        self.right = V(1,0,0) ## self.o.right
+        print "self.glpane.scale changed to", self.glpane.scale
+        self.right = V(1,0,0) ## self.glpane.right
         self.up = V(0,1,0)
         self.left = - self.right
         self.down = - self.up
         self.away = V(0,0,-1)
         self.towards = - self.away
-        self.origin = - self.o.pov ###k replace with V(0,0,0)
+        self.origin = - self.glpane.pov ###k replace with V(0,0,0)
         self.guy = guy(self)
         self.cannon = cannon(self)
         
@@ -1095,10 +1103,10 @@ class test_animation_mode(superclass, IorE_guest_mixin): # list of supers might 
         pass
 
     def middleDrag(self, event):
-        glpane = self.o
+        glpane = self.glpane
 ##        q1 = Q(glpane.quat)
         superclass.middleDrag(self, event)
-        self.modelstate += 1
+        self.command.modelstate += 1
 ##        q2 = Q(glpane.quat)
         novertigo(glpane)
 ##        q3 = Q(glpane.quat)
@@ -1107,10 +1115,10 @@ class test_animation_mode(superclass, IorE_guest_mixin): # list of supers might 
 
     def pre_repaint(self):
         "This is called early enough in paintGL to have a chance (unlike Draw) to update the point of view."
-        if self.o.mode is self and self._in_loop:
-            ## self.o.quat += Q(V(0,0,1),norm(V(0,0.01,0.99)))
+        if self.isCurrentGraphicsMode() and self._in_loop:
+            ## self.glpane.quat += Q(V(0,0,1),norm(V(0,0.01,0.99)))
             ## now = time.time() - self._loop_start_time
-            now = self.o.mode.simtime
+            now = self.command.simtime
             self.now = now
             if cannon_oscillates():
                 self.brickpos = 2.5 + 0.7 * math.sin(now * 2 * pi)
@@ -1119,27 +1127,29 @@ class test_animation_mode(superclass, IorE_guest_mixin): # list of supers might 
             self.set_cov()
         return
 
-    def set_cov(self):#060218... doesn't yet work very well. need to check if 6*self.o.scale is correct...
+    def set_cov(self):#060218... doesn't yet work very well. need to check if 6*self.glpane.scale is correct...
             # not that i know what would fail if not.
         return ######
         try:
-            cov = - self.o.pov # center of view, ie what camera is looking at
-            guy_offset = self.guy.pos - cov
+            space = self # or self.command if this method is in the GraphicsMode -- ### FIX if necessary
+            glpane = self.glpane
+            cov = - glpane.pov # center of view, ie what camera is looking at
+            guy_offset = space.guy.pos - cov
             # camera wants to rotate, but can't do this super-quickly, and it might have inertia, not sure...
             # kluge, test: set cov to some fraction of the distance
             newcov = + cov
             newcov += guy_offset * 0.2
             # now figure out new pos of camera (maintains distance), then new angle... what is old pos of camera?
-            eyeball = (self.o.quat).unrot(V(0,0,6*self.o.scale)) - self.o.pov # code copied from selectMode; the 6 might be wrong
-                # took out - from -self.o.quat since it looks wrong... this drastically improved it, still not perfect.
+            eyeball = (glpane.quat).unrot(V(0,0,6*glpane.scale)) - glpane.pov # code copied from selectMode; the 6 might be wrong
+                # took out - from -glpane.quat since it looks wrong... this drastically improved it, still not perfect.
                 # but it turned out that was wrong! There was some other bug (what was it? I forget).
                 # And th - was needed. I prefer to put in unrot instead.
             _debug_oldeye = + eyeball
-            desireddist = 6*self.o.scale
+            desireddist = 6*glpane.scale
             nowdist = vlen(eyeball - newcov) #k not used? should it be?
             # now move it partway towards guy... what about elevation? should we track its shadow instead?
             # ignore for now and see what happens? or just use fixed ratio?
-            desired_elev = 2 * self.o.scale ## guess
+            desired_elev = 2 * glpane.scale ## guess
             desired_h_dist = math.sqrt( desireddist * desireddist - desired_elev * desired_elev)
 ##            print "desireddist = %s, desired_elev = %s, desired_h_dist = %s" % (desireddist,desired_elev,desired_h_dist)
             # figure out coords for use in setting camera position from this
@@ -1166,7 +1176,6 @@ class test_animation_mode(superclass, IorE_guest_mixin): # list of supers might 
 ##            print "X_AXIS =? realquat.rot(wantx)", realquat.rot(wantx)
 ##            print "Y_AXIS =? realquat.rot(wanty)", realquat.rot(wanty)
 ##            print "Z_AXIS =? realquat.rot(wantz)", realquat.rot(wantz)
-            glpane = self.o
             glpane.pov = - realcov
             glpane.quat = realquat ###@@@ see if - helps... makes elev 0 and makes it unstable eventually... but should be correct!
             #e store attrs for debug drawing
@@ -1177,7 +1186,7 @@ class test_animation_mode(superclass, IorE_guest_mixin): # list of supers might 
 ##            #  visible when selected)
 ##            oldeye = _debug_oldeye
 ##            oldcov = cov
-##            newguy = + self.guy.pos
+##            newguy = + space.guy.pos
 ##            guylookat = + newcov
 ##            debug_stuff = [makeline(white, oldeye, oldcov), makeline(gray, oldcov, newguy), makedot(gray, guylookat),
 ##                           makeline(orange, oldeye, eyeball), makedot(green, eyeball),
@@ -1185,20 +1194,20 @@ class test_animation_mode(superclass, IorE_guest_mixin): # list of supers might 
 ##                           makevecs(realcov, [wantx, wanty, wantz], [red,green,blue]),
 ##                                ]
 ##            dn = DebugNode(debug_stuff, name = "debug%d" % env.redraw_counter)
-##            self.placenode(dn) #e maybe ought to put them in a group, one per loop? not sure, might be more inconvenient than useful.
+##            space.placenode(dn) #e maybe ought to put them in a group, one per loop? not sure, might be more inconvenient than useful.
 ##            print "tried to set eyeball to be at", eyeball, "and cov at", realcov
-##            apparenteyeball = (self.o.quat).unrot(V(0,0,6*self.o.scale)) - self.o.pov ### will unrot fix it? yes!
-##            print "recomputed eyeball from formula is", apparenteyeball, "and also", realcov + self.o.out * desireddist
+##            apparenteyeball = (glpane.quat).unrot(V(0,0,6*glpane.scale)) - glpane.pov ### will unrot fix it? yes!
+##            print "recomputed eyeball from formula is", apparenteyeball, "and also", realcov + glpane.out * desireddist
 ##            # 2nd formula says we got it right. first formula must be wrong (also in earlier use above).
 ##            # if we assume that glpane.eyeball() is nonsense (too early for gluUnProject??)
 ##            # then the data makes sense. Could the selectMode formula source have been right all along? #####@@@@@
         except:
             print_compact_traceback("math error: ")
-            self.cmd_Stop()
+            space.cmd_Stop()
             pass
         return
 
-    def placenode(self, node):
+    def placenode(self, node): # TODO: in Command, not GraphicsMode
         "place newly made node somewhere in the MT"
         # modified from Part.place_new_jig
         part = self.assy.part
@@ -1209,25 +1218,28 @@ class test_animation_mode(superclass, IorE_guest_mixin): # list of supers might 
 
     def Draw(self):
 ##        ##print "test_animation_mode.Draw"
+
+        glpane = self.glpane
+
 ##        # can we use smth lke mousepoints to print model coords of eyeball?
-##        print "glpane says eyeball is now at", self.o.eyeball(), "and cov at", - self.o.pov, " ." ####@@@@
+##        print "glpane says eyeball is now at", glpane.eyeball(), "and cov at", - glpane.pov, " ." ####@@@@
         basicMode.Draw(self)
         self.endpoint = endpoint = self.origin + self.right * 10.0
         drawline(white, self.origin, endpoint)
 
-        self.cannon.draw()
+        self.command.cannon.draw()
 
-        self.o.assy.draw(self.o)
-        ## thing.draw(self.o, endpoint)
-        self.guy.draw(self.o)
-        ## draw_debug_quats(self.o)
+        glpane.assy.draw(glpane)
+        ## thing.draw(glpane, endpoint)
+        self.command.guy.draw(glpane)
+        ## draw_debug_quats(glpane)
         self._expr_instance.draw() #070813 - works, but resizer highlight doesn't work, didn't investigate why not ###BUG
 
         if self.propMgr:
             self.propMgr.update_after_Draw()
         return
 
-    def appendnew(self, new): ##FIX: stores object list (really a dict) in self.guy
+    def appendnew(self, new): ##FIX: stores object list (really a dict) in self.guy [if this is Command, or self.command.guy if not###FIX]
         stuff = self.guy.stuff
         ## stuff.append(new) # it's a list
         stuff[id(new)] = new # it's a dict
@@ -1252,11 +1264,11 @@ class test_animation_mode(superclass, IorE_guest_mixin): # list of supers might 
             # why not do "depmode" but with a guy walking around the mol? ... but how to draw the guy? not easy!
             # the keyfocus concept is that it's invisible, or a highlight state of the thing near it! or a simple line...
         elif key == _key_command or key == ord('F'): # F repeats, command doesn't
-            self.cannon.fire()
+            self.command.cannon.fire()
         elif key == ord('G'):
-            self.cannon.grow_cannon() # useful for testing PM update
+            self.command.cannon.grow_cannon() # useful for testing PM update
         else:
-            self.guy.keyPressEvent(event) ## wrong anyway : or thing.keyPressEvent(event)
+            self.command.guy.keyPressEvent(event) ## wrong anyway : or thing.keyPressEvent(event)
             
         ## self.incrkluge = thing.keyPressEvent(event)
         self.redraw()
@@ -1265,14 +1277,14 @@ class test_animation_mode(superclass, IorE_guest_mixin): # list of supers might 
         "#doc is in caller"
         # from Q doc: Q(V(x,y,z), theta) is what you probably want.
         #060218 bugfix: left -> down
-        self.o.quat += Q(self.down, amount * 2 * pi) # does something, but not yet what i want. need to transform to my model...###@@@
+        self.glpane.quat += Q(self.down, amount * 2 * pi) # does something, but not yet what i want. need to transform to my model...###@@@
         ## self.redraw() - do in caller
         
     def redraw(self):
         #e could be optimized if nothing but typing, and no DEL, occurred!
-        self.modelstate += 1
-        ##bruce 050528 zapped this: self.o.paintGL() - do it this newer way now:
-        self.o.gl_update()
+        self.command.modelstate += 1
+        ##bruce 050528 zapped this: self.glpane.paintGL() - do it this newer way now:
+        self.glpane.gl_update()
     
     def keyReleaseEvent(self,event):
         pass ## thing.keyReleaseEvent(event)
@@ -1297,7 +1309,7 @@ class test_animation_mode(superclass, IorE_guest_mixin): # list of supers might 
             #e future: increase the time remaining
             return
         print "cmd_Start: starting loop"
-        glpane = self.o
+        glpane = self.glpane
         starttime = self._loop_start_time = time.time()
         start_simtime = self.simtime
         safety_timeout = 600.0 # 10 minutes -- not really needed as long as 's' works to stop the loop

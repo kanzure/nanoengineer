@@ -29,6 +29,16 @@ import drawer
 from constants import GL_FAR_Z
 
 from ArrangementMode import ArrangementMode
+    # TODO: this superclass needs renaming, since it has nothing to do
+    # with "arrangements" of anything. What it's about is something like
+    # a "view-change temporary command with no PM". We should see which of
+    # those qualities it's specific to, when choosing a new name. Note that
+    # if we split it into Command and GraphicsMode parts, each part might
+    # be specific to different things, i.e. one might be more widely
+    # reusable than the other. So they might not have precisely corresponding
+    # names, since the name should reflect what it can be used for.
+    # [bruce 071010]
+
 _superclass = ArrangementMode
 
 class ZoomMode(_superclass):
@@ -75,8 +85,18 @@ class ZoomMode(_superclass):
     # [Mark 10/04/2004]
     def restore_gui(self):
         self.win.zoomToolAction.setChecked(0) # toggle off the Zoom Tool icon
- 
+
+    # TODO:
+    # [part of it is already done: change self.Done to self.command.Done below]
+    ### bruce 071010: see if I can use this as a test case for having a separate
+    ### Command and GraphicsMode, except that I'll first need to do the same
+    ### thing inside ArrangementMode I guess... make a split variant of it
+    ### for this purpose.
+    ##
+    ##class ZoomCommand_GraphicsMode(GraphicsMode):
+
     # mouse events
+    
     def leftDown(self, event):
         """
         Compute the rubber band window starting point, which
@@ -147,7 +167,7 @@ class ZoomMode(_superclass):
         DELTA = 1.0E-5
         if self.pWxy[0] == cWxy[0] or self.pWxy[1] == cWxy[1] \
                 or zoomFactor < DELTA: 
-            self.glpane.mode.Done(self.glpane.prevMode)
+            self.command.Done(self.glpane.prevMode)
             return
         
         # Erase the last rubber-band window
@@ -195,22 +215,8 @@ class ZoomMode(_superclass):
         # plane change as scale too.
         self.glpane.scale *= zoomFactor
        
-        self.Done()
+        self.command.Done()
         return
-    
-    def Draw(self):
-        _superclass.Draw(self)
-        # Make sure this is the last scene draw
-        #if self.rbw: 
-                #self.RBWdraw() # Draw rubber band window.
-        return
-       
-    def RBWdraw(self):
-        """
-        Draw the rubber-band window. 
-        """
-        drawer.drawrectangle(self.pStart, self.pPrev,
-                             self.glpane.up, self.glpane.right, self.rbwcolor)
          
     def update_cursor_for_no_MB(self): # Fixes bug 1638. Mark 3/12/2006.
         """
@@ -218,3 +224,6 @@ class ZoomMode(_superclass):
         """
         self.glpane.setCursor(self.win.ZoomCursor)
 
+    pass
+
+# end

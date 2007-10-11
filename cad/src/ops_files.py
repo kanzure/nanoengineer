@@ -590,16 +590,17 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 0,      # Enter == button 0
                 2 )     # Escape == button 2
             
-            if ret==0: # Save clicked or Alt+S pressed or Enter pressed.
+            if ret == 0: # Save clicked or Alt+S pressed or Enter pressed.
                 ##Huaicai 1/6/05: If user canceled save operation, return 
                 ## without letting user open another file
                 if not self.fileSave():
                     return
                 
             ## Huaicai 12/06/04. Don't clear it, user may cancel the file open action    
-            elif ret==1: pass#self.__clear() 
+            elif ret == 1:
+                pass ## self.__clear() 
             
-            elif ret==2: 
+            elif ret == 2: 
                 env.history.message("Cancelled.")              
                 return # Cancel clicked or Alt+C pressed or Escape pressed
 
@@ -633,8 +634,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         if fn:
             self._updateRecentFileList(fn)
 
-            self.__clear() # leaves glpane.mode as nullmode, as of 050911
-            self.glpane.start_using_mode( '$DEFAULT_MODE') #bruce 050911 [now needed here, to open files in default mode]
+            self.__clear()
+            self.commandSequencer.start_using_mode( '$DEFAULT_MODE') #bruce 050911 [now needed here, to open files in default mode]
                 
             fn = str(fn)
             if not os.path.exists(fn):
@@ -1249,8 +1250,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 return # Cancel clicked or Alt+C pressed or Escape pressed
         
         if isFileSaved: 
-                self.__clear() # leaves glpane.mode as nullmode, as of 050911
-                self.glpane.start_using_mode( '$STARTUP_MODE') #bruce 050911: File->Clear sets same mode as app startup does
+                self.__clear()
+                self.commandSequencer.start_using_mode( '$STARTUP_MODE') #bruce 050911: File->Clear sets same mode as app startup does
                 self.assy.reset_changed() #bruce 050429, part of fixing bug 413
                 self.assy.clear_undo_stack() #bruce 060126, maybe not needed, or might fix an unreported bug related to 1398
                 self.win_update()
@@ -1308,7 +1309,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             env.history.message( redmsg(msg))
         return
                 
-    def __clear(self): #bruce 050911 revised this: leaves glpane.mode as nullmode
+    def __clear(self):
         #bruce 050907 comment: this is only called from two file ops in this mixin, so I moved it here from MWsemantics
         # even though its name-mangled name was thereby changed. It should really be given a normal name.
         # Some comments in other files still call it MWsemantics.__clear. [See also the 060127 kluge below.]
@@ -1316,7 +1317,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         self.assy = assembly(self, "Untitled", own_window_UI = True) # own_window_UI is required for this assy to support Undo
             #bruce 060127 added own_window_UI flag to help fix bug 1403
         self.update_mainwindow_caption()
-        self.glpane.setAssy(self.assy) # leaves glpane.mode as nullmode, as of 050911
+        self.glpane.setAssy(self.assy) # leaves currentCommand as nullmode
         self.assy.mt = self.mt
 
         ### Hack by Huaicai 2/1 to fix bug 369

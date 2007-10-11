@@ -38,7 +38,7 @@ from prefs_constants import material_specular_finish_prefs_key
 def writepovfile(part, glpane, filename):
     """
     write the given part into a new POV-Ray file with the given name,
-    using glpane and glpane.mode for lighting, color, etc
+    using glpane for lighting, color, etc
     """
     f = open(filename,"w")
 
@@ -129,7 +129,7 @@ def writepovfile(part, glpane, filename):
     ## f.write("             plane { " + povpoint(glpane.out) + ", " + str(dot(pov_out, pov_near)) + " } }\n")
 
 # [and what was this for? bruce question 071009]
-##    if glpane.mode.modename == 'DEPOSIT':
+##    if glpane.currentCommand.modename == 'DEPOSIT':
 ##        dt = -glpane.quat
 ##        degY = dt.angle*180.0/pi
 ##        f.write("plane { \n" +

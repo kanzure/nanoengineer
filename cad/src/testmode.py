@@ -95,7 +95,7 @@ class testmode(superclass):
         return
     
     def Draw(self):
-        self._background_object = None
+        self.command._background_object = None
             # a _background_object is only active for event handlers when it was set
             # during the most recent call of testdraw.Draw
         import testdraw
@@ -180,8 +180,11 @@ class testmode(superclass):
         return
 
     _background_object = None #070322 new feature: can be set during self.Draw to something to handle clicks on background
+        # Note: this is stored in the Command instance, but usually accessed
+        # from the GraphicsMode instance using .command._background_object.
+        # [bruce 071010]
     
-    def get_obj_under_cursor(self, event): #070322
+    def get_obj_under_cursor(self, event): #070322 [assume part of GraphicsMode even though not in all subclasses of that]
         "this is called in *some cases* by various mode event handler methods to find out what object the cursor is over"
         # The kinds of calls of this method (whose interface assumptions we need to be sensitive to):
         # - depositMode.singletLeftUp indirectly calls it and checks whether the return value is an instance of Atom,
@@ -202,7 +205,7 @@ class testmode(superclass):
         res = superclass.get_obj_under_cursor(self, event)
         #e here is where we might let some other mode attr replace or wrap objects in specified classes. [070323 comment]
         if res is None:
-            res = self._background_object # usually None, sometimes set during draw to something else [070322]
+            res = self.command._background_object # usually None, sometimes set during draw to something else [070322]
             if res is not None:
                 if not hasattr(res, 'leftClick'):
                     print "bug: testmode._background_object %r has no leftClick, will be ineffective" % (res,)
@@ -210,7 +213,7 @@ class testmode(superclass):
     
     def emptySpaceLeftDown(self, event):
         #e note: if we override self.get_obj_under_cursor(event) to return a bg object rather than None,
-        # i.e. if something sets self._background_object to something other than None,
+        # i.e. if something sets self.command._background_object to something other than None,
         # then this won't be called by selectMode.leftDown.
         emptySpace_reload = debug_pref("testmode: reload on empty space leftDown?",
                                        Choice_boolean_True,

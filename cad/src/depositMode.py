@@ -2310,9 +2310,9 @@ class depositMode(selectAtomsMode):
         # [bruce 060405 added try/except, and generalized this from Jig-specific to selobj-specific items,
         #  by replacing isinstance(selobj, Jig) with hasattr(selobj, 'make_selobj_cmenu_items'),
         #  so any kind of selobj can provide more menu items using this API.
-        #  Note that the only way selobj could customize its menu items to the calling mode
-        #  would be by assuming that was the current glpane.mode. Someday we might extend the API
-        #  to pass it glpane, so we can support multiple glpanes, each in a different mode. #e]
+        #  Note that the only way selobj could customize its menu items to the calling command or its graphicsMode
+        #  would be by assuming that was the currentCommand or its graphicsMode. Someday we might extend the API
+        #  to pass it glpane, so we can support multiple glpanes, each in a different command and/or graphicsMode. #e]
         if selobj is not None and hasattr(selobj, 'make_selobj_cmenu_items'):
             try:
                 selobj.make_selobj_cmenu_items(self.Menu_spec)

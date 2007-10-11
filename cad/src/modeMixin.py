@@ -59,16 +59,20 @@ class modeMixin(object):
 ##                # no events should come unless there are reentrance
 ##                # bugs in event processing. [bruce 040922]
 
-    def _init1(self):
+    def _init_modeMixin(self): #bruce 071010 renamed from _init1, since that name is used on several classes
         """
         call this near the start of __init__ in a subclass that mixes us in (i.e. GLPane)
         """
-        self.nullmode = nullMode() # TODO: rename self.nullmode; note that it's semi-public
-            # a safe place to absorb events that come at the wrong time
-            # (in case of bugs, but also happens routinely sometimes)
+        self._recreate_nullmode()
         self.use_nullmode()
         return
 
+    def _recreate_nullmode(self):
+        self.nullmode = nullMode() # TODO: rename self.nullmode; note that it's semi-public
+            # a safe place to absorb events that come at the wrong time
+            # (in case of bugs, but also happens routinely sometimes)
+        return
+    
 # see new code below [bruce 071010]
 ##    # implement the virtual slot self.currentCommand
 ##    
@@ -396,7 +400,9 @@ class modeMixin(object):
     # currentCommand
 
     def _get_currentCommand(self):
-        # TODO: wrap with an API enforcement proxy for Command
+        # TODO: wrap with an API enforcement proxy for Command.
+        # WARNING: if we do that, the 'is' test in isCurrentCommand will need revision!
+        # (Searching for ".currentCommand is" will find that test.)
         return self._raw_currentCommand
 
     def _set_currentCommand(self, command):
@@ -407,7 +413,9 @@ class modeMixin(object):
     # graphicsMode
 
     def _get_graphicsMode(self):
-        # TODO: wrap with an API enforcement proxy for GraphicsMode
+        # TODO: wrap with an API enforcement proxy for GraphicsMode.
+        # WARNING: if we do that, any 'is' test on .graphicsMode will need revision.
+        # (Searching for ".graphicsMode is" will find at least one such test.)
         res = self._raw_currentCommand.graphicsMode # may or may not be same as self._raw_currentCommand ### FIX in nullMode #}
         assert isinstance(res, anyGraphicsMode)
         return res

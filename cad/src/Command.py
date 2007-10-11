@@ -267,6 +267,8 @@ class basicCommand(anyCommand):
         but self's UI is still fully displayed; this needs to be considered when
         this method is used to determine whether UI actions should have an effect.
         """
+        # see WARNING in modeMixin about this needing revision if .currentCommand
+        # might have been wrapped with an API-enforcement (or any other) proxy.
         return self.commandSequencer.currentCommand is self
 
     def set_cmdname(self, name):
@@ -658,7 +660,7 @@ class basicCommand(anyCommand):
         """
         self.w.update_mode_status( mode_obj = self)
             # fyi: this gets the text from self.get_mode_status_text();
-            # mode_obj = self is needed in case glpane.mode == nullMode
+            # mode_obj = self is needed in case glpane.currentCommand == nullMode
             #  at the moment.
 
     def selection_changed(self): #bruce 070925 added this to mode/command API
@@ -985,7 +987,7 @@ class basicCommand(anyCommand):
     #
     # Each dashboard uses instances of the same tools, for a uniform
     # look and action; the tool itself does not know which mode it
-    # belongs to -- its action just calls glpane.mode.method for the
+    # belongs to -- its action just calls glpane.currentCommand.method for the
     # current glpane and for one of the specified methods (or Flush,
     # the old name of Cancel, until we fix MWSemantics).
     #

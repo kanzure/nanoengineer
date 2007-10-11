@@ -181,6 +181,8 @@ class ClassAttrSpecific_NonDataDescriptor(object):
     which stores all its arguments in fixed attrs of self, namely clsname, attr, args, and kws,
     and then calls self._init1(). [self.cls itself is not yet known, but must be set before first use,
     by calling _ExprsMeta__set_cls.]
+
+    TODO: rename _init1 to something more specific.
     """
     __copycount = 0
     cls = None

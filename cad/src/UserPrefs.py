@@ -1791,7 +1791,7 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
     def change_default_mode(self, val):
         "Slot for the combobox that sets the Default Mode."
         env.prefs[ defaultMode_prefs_key ] = default_modes[self.default_mode_combox.currentIndex()]
-        self.glpane.mode.UpdateDashboard() # Update Done button on dashboard.
+        self.glpane.currentCommand.UpdateDashboard() # Update Done button on dashboard.
         return
             
     def set_default_display_mode(self, displayMode): #bruce 050810 revised this to set the pref immediately
