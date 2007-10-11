@@ -74,11 +74,10 @@ class MotorPropertyManager(EditController_PM):
                           method. 
         @type  isConnect: boolean
         """
-        if isConnect:
-            change_connect = self.win.connect
-        else:
-            change_connect = self.win.disconnect
-        
+        #if isConnect:
+            #change_connect = self.win.connect
+        #else:
+            #change_connect = self.win.disconnect        
         pass
 
     
@@ -86,7 +85,10 @@ class MotorPropertyManager(EditController_PM):
         """
         Enable or disable some gui actions when this property manager is 
         opened or closed, depending on the bool_enable. 
-        Subclasses can override this method. 
+        This is the default implementation. Subclasses can override this method.
+        @param bool_enable: If True, the gui actions or widgets will be enabled
+                            otherwise disabled. 
+        @type  bool_enable: boolean
         """
         #It is important to not allow attaching jigs while still editing a
         #motor. See bug 2560 for details. 
@@ -146,29 +148,7 @@ class MotorPropertyManager(EditController_PM):
         self.attachedAtomsListWidget.insertItems(row = 0, 
                                                  items = attachedAtomNames)
         
-
-    def update_props_if_needed_before_closing(self):
-        """
-        This updates some cosmetic properties of the Rotary motor (e.g. opacity)
-        before closing the Property Manager.
-        """
-        #API method. See Plane.update_props_if_needed_before_closing for another
-        #example.        
-        # Example: The Rotary Motor Property Manager is open and the user is 
-        # 'previewing' the motor. Now the user clicks on "Build > Atoms" 
-        # to invoke the next command (without clicking "Done"). 
-        # This calls self.open() which replaces the current PM 
-        # with the Build Atoms PM.  Thus, it creates and inserts the motor 
-        # that was being previewed. Before the motor is permanently inserted
-        # into the part, it needs to change some of its cosmetic properties
-        # (e.g. opacity) which distinguishes it as 
-        # a previewed motor in the part. This function changes those properties.
-        # [ninad 2007-10-09 comment]    
-        
-        #called from updatePropertyManager in Ui_PartWindow.py (Partwindowclass)
-
-        self.struct.updateCosmeticProps()
-    
+            
     def updateMessage(self, message = ''):
         """
         Updates the message box with an informative message

@@ -18,7 +18,6 @@ Ninad 2007-10-09:
 
 from PyQt4.Qt import SIGNAL
 
-from PM.PM_GroupBox      import PM_GroupBox
 from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
 from PM.PM_CheckBox      import PM_CheckBox
 from PM.PM_PushButton    import PM_PushButton
@@ -216,5 +215,4 @@ class RotaryMotorPropertyManager(MotorPropertyManager):
         motor atoms during a structure minimization.  While intended to 
         allow simulations to begin with rotary motors running at speed, 
         this feature requires more work to be useful.</p>""")
-        
-        return    
+

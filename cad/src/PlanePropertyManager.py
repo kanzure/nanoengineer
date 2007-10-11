@@ -324,7 +324,7 @@ class PlanePropertyManager(EditController_PM):
         
         #called in updatePropertyManager in MWsemeantics.py --(Partwindow class)
 
-        self.struct.updateCosmeticProps()
+        EditController_PM.update_props_if_needed_before_closing(self)
         
         #Don't draw the direction arrow when the object is finalized. 
         if self.struct.offsetParentGeometry:
