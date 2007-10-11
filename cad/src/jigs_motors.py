@@ -579,7 +579,10 @@ class LinearMotor(Motor):
                                              'enable_minimize', 'dampers_enabled')
 
     # create a blank Linear Motor not connected to anything
-    def __init__(self, assy, atomlist = []): #bruce 050526 added optional atomlist arg
+    def __init__(self, 
+                 assy, 
+                 editController = None,
+                 atomlist = []): 
         assert atomlist == [] # whether from default arg value or from caller -- for now
         Motor.__init__(self, assy, atomlist)
 
@@ -595,22 +598,54 @@ class LinearMotor(Motor):
         self.width = 2.0 # default box width
         self.sradius = 0.2 #default spoke radius
         self.cancelled = True # We will assume the user will cancel
+        self.editController = editController
 
-    def set_cntl(self): #bruce 050526 split this out of __init__ (in all Jig subclasses)
-        from LinearMotorProp import LinearMotorProp
-        self.cntl = LinearMotorProp(self, self.assy.o)
+    def edit(self):
+        """
+        Overrides jig.edit. 
+        """
+        if not self.editController:
+            self.editController = \
+                self.assy.part.createLMotorEditController(self)            
+        self.editController.editStructure()
+        if self is self.assy.o.selobj:
+            self.assy.o.selobj = None ###e shouldn't we use set_selobj instead?? [bruce 060726 question]
+            # If the Properties dialog was selected from the GLPane's context menu, set selobj = None
+            # so that we can see the jig's real color, not the highlighted color.  This is very important
+            # when changing the jig's color from the properties dialog since it will remain highlighted
+            # if we don't do this. mark 060312.
+    
+    def getProps(self):
+        """
+        Return the current properties of the Rotary motor.
 
+        @return: The current properties of the rotary motor
+        @rtype:  tuple
+        """
+        return (self.name,
+                self.color,
+                self.force,
+                self.stiffness,
+                self.center,
+                self.axis,
+                self.length,
+                self.width,
+                self.sradius)
+            
     # set the properties for a Linear Motor read from a (MMP) file
-    def setProps(self, name, color, force, stiffness, center, axis, length, width, sradius):
-        self.name = name
-        self.color = color
-        self.force = force
-        self.stiffness = stiffness
-        self.center = center
-        self.axis = norm(axis)
-        self.length = length
-        self.width = width
-        self.sradius = sradius
+    def setProps(self, props):
+        """
+        Set the Linear Motor properties. It is called while reading a MMP 
+        file record or to restore the old properties if user cancels 
+        edit operation on an exsiting motor.
+
+        @param props: The linear motor properties to be set.
+        @type  props: tuple
+        """
+        self.name, self.color, self.force, \
+            self.stiffness, self.center, \
+            self.axis, self.length, \
+            self.width, self.sradius = props
 
     def _getinfo_TEST(self): # please leave in for debugging POV-Ray lmotor macro. mark 060324
         a = self.axen()

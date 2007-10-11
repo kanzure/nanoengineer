@@ -48,10 +48,10 @@ class LinearMotorPropertyManager(MotorPropertyManager):
         """
         Slot method to change the jig's length, width and/or spoke radius.
         """
-        self.struct.length = float(str(self.lengthLineEdit.text())) 
-        self.struct.width = float(str(self.widthLineEdit.text())) 
+        self.struct.length = self.motorLengthDblSpinBox.value()
+        self.struct.width =  self.motorWidthDblSpinBox.value()
         # spoke radius --
-        self.struct.sradius = float(str(self.sradiusLineEdit.text())) 
+        self.struct.sradius = self.spokeRadiusDblSpinBox.value()
         if gl_update:
             self.glpane.gl_update()
             

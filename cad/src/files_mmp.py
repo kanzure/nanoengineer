@@ -485,8 +485,8 @@ class _readmmp_state:
             radius = 2.0
             sradius = 0.5
         motor = RotaryMotor(self.assy)
-        params = name, col, torq, sped, cxyz, axyz, length, radius, sradius
-        motor.setProps(params)
+        props = name, col, torq, sped, cxyz, axyz, length, radius, sradius
+        motor.setProps(props)
         self.addmotor(motor)
 
     def addmotor(self, motor): #bruce 050405 split this out
@@ -522,7 +522,8 @@ class _readmmp_state:
             width = 2.0
             sradius = 0.5
         motor = LinearMotor(self.assy)
-        motor.setProps(name, col, force, stiffness, cxyz, axyz, length, width, sradius)
+        props = name, col, force, stiffness, cxyz, axyz, length, width, sradius
+        motor.setProps(props)
         self.addmotor(motor)
 
     def _read_gridplane(self, card):
