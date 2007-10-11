@@ -987,6 +987,19 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
 	"""
 	from RotaryMotorEditController import RotaryMotorEditController
 	return RotaryMotorEditController(self.w, rotaryMotor)
+    
+    def createLMotorEditController(self, linearMotor = None):
+	"""
+	Returns a new L{LinearMotorEditController} object.	
+	@param linearMotor: This parameter is passed as an init argument for 
+			    the LinearMotorEditController that this method 
+			    creates and returns.
+	@type linearMotor:  B{LinearMotor} or None
+	@see: L{LinearMotor.__init__} , L{LinearMotor.edit}, 
+	      L{LinearMotorEditController.__init__}
+	"""
+	from LinearMotorEditController import LinearMotorEditController
+	return LinearMotorEditController(self.w, linearMotor)
     	
     def createLine(self):
 	"""

@@ -256,8 +256,15 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 		
         #self.connect(self.jigsHandleAction,SIGNAL("triggered()"),self.makeHandle)
         #self.connect(self.jigsHeatsinkAction,SIGNAL("triggered()"),self.makeHeatsink)
-        self.connect(self.jigsLinearMotorAction,SIGNAL("triggered()"),self.makeLinearMotor)
-        self.connect(self.jigsMotorAction,SIGNAL("triggered()"),self.makeMotor)
+	
+        self.connect(self.jigsLinearMotorAction,
+		     SIGNAL("triggered()"),
+		     self.makeLinearMotor)
+	
+        self.connect(self.jigsMotorAction,
+		     SIGNAL("triggered()"),
+		     self.makeRotaryMotor)
+	
         #self.connect(self.jigsSpringAction,SIGNAL("triggered()"),self.makeSpring)
         self.connect(self.jigsStatAction,SIGNAL("triggered()"),self.makeStat)
         self.connect(self.jigsThermoAction,SIGNAL("triggered()"),self.makeThermo)
@@ -1506,11 +1513,11 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
     def makeThermo(self):
         self.assy.makethermo()
         
-    def makeMotor(self):
-        self.assy.makeRotaryMotor(self.glpane.lineOfSight)
+    def makeRotaryMotor(self):
+        self.assy.makeRotaryMotor()
 
     def makeLinearMotor(self):
-        self.assy.makeLinearMotor(self.glpane.lineOfSight)
+        self.assy.makeLinearMotor()
 	
     def createPlane(self):
 	self.assy.createPlane()	

@@ -1160,10 +1160,10 @@ class ColorSorter:
             apply_material(color)
             func(params)
 	    
-	    if opacity != 1.0:	    
-		glDepthMask(GL_TRUE)
+	    if opacity != 1.0:	
 		glDisable(GL_BLEND)
-	        
+		glDepthMask(GL_TRUE)
+	  
 
             if name:
                 glPopName()
@@ -2283,11 +2283,21 @@ def drawrectangle(pt1, pt2, rt, up, color):
        
 
 # Wrote drawbrick for the Linear Motor.  Mark [2004-10-10]
-def drawbrick(color, center, axis, l, h, w):
+def drawbrick(color, center, axis, l, h, w, opacity = 1.0):
+    
+    if len(color) == 3:
+	color = (color[0], color[1], color[2], opacity)
+	
+    if opacity != 1.0:	
+	glDepthMask(GL_FALSE)
+	glEnable(GL_BLEND)
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)  
+    
+       
     apply_material(color)
     glPushMatrix()
     glTranslatef(center[0], center[1], center[2])
-    
+
     ##Huaicai 1/17/05: To avoid rotate around (0, 0, 0), which causes 
     ## display problem on some platforms
     angle = -acos(axis[2])*180.0/pi
@@ -2295,9 +2305,16 @@ def drawbrick(color, center, axis, l, h, w):
         glRotate(angle, 0.0, 1.0, 0.0)
     else:
         glRotate(angle, axis[1], -axis[0], 0.0)
+    
+    
   
     glScale(h, w, l)
     glCallList(solidCubeList) #bruce 060302 revised the contents of solidCubeList as part of fixing bug 1595
+    
+    if opacity != 1.0:	
+	glDisable(GL_BLEND)
+	glDepthMask(GL_TRUE)
+	
     glPopMatrix()
     return
 

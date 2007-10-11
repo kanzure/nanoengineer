@@ -1071,48 +1071,22 @@ class jigmakers_Mixin:
     and new methods in the specific Jig subclasses.
     """
 
-    def makeRotaryMotor(self, sightline):
+    def makeRotaryMotor(self):
         """
         Creates a Rotary Motor edit controller, whhich in turn creates a
         rotory motor connected to the selected atoms.
-        """
-        del sightline       
-        cmd = greenmsg("Rotary Motor: ")
+        """    
         motorEditController = self.assy.part.createRMotorEditController()
         motorEditController.createStructure()        
       
-    def makeLinearMotor(self, sightline):
-        """Creates a Linear Motor connected to the selected atoms.
+    def makeLinearMotor(self):
         """
-
-        del sightline
-        glpane = self.assy.o # see comments in RotaryMotor case [bruce 060120]
-        "glpane is used for its point-of-view attributes"
+        Creates a Linear Motor edit controller, whhich in turn creates a
+        linear motor connected to the selected atoms.
+        """ 
+        motorEditController = self.assy.part.createLMotorEditController()
+        motorEditController.createStructure() 
         
-        cmd = greenmsg("Linear Motor: ")
-        
-        atoms = self.assy.selatoms_list()
-
-        if not atoms:
-            env.history.message(cmd + redmsg("At least one atom must be selected to create a Linear Motor."))
-            return
-            
-        # Print warning if over 200 atoms are selected.
-        if atom_limit_exceeded_and_confirmed(self.assy.w, len(atoms), limit=200):
-            return
-        
-        from jigs_motors import LinearMotor
-        m = LinearMotor(self.assy)
-        m.findCenterAndAxis(atoms, glpane)
-        m.edit() # Will be changed to show_propmgr(). Mark 2007-05-28
-        if m.cancelled: # user hit Cancel button in Linear Motory Dialog.
-            env.history.message(cmd + "Cancelled")
-            return
-        self.unpickall_in_GLPane()
-        self.place_new_jig(m)
-        
-        env.history.message(cmd + "Motor created")
-        self.assy.w.win_update()
 
     def makegamess(self):
         """Makes a GAMESS jig from the selected chunks or atoms.

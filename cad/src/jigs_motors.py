@@ -57,6 +57,13 @@ class Motor(Jig):
 
         self.quat = Q(1, 0, 0, 0)
             # is self.quat ever set to other values? if not, remove it; if so, add it to mutable_attrs. [bruce 060228 comment]
+        
+        #The motor is usually drawn as an opaque object. However when it is
+        #being previewed, it is drawn as a transparent object - Ninad 2007-10-09
+        self.previewOpacity = 0.4
+        self.defaultOpacity = 1.0
+        self.opacity = self.defaultOpacity
+        
 
     # == The following methods were moved from RotaryMotor to this class by bruce 050705,
     # since some were almost identical in LinearMotor (and those were removed from it, as well)
@@ -204,6 +211,19 @@ class Motor(Jig):
         menu_spec.append(item)
         item = ('Reverse Direction', self.__CM_Reverse_direction)
         menu_spec.append(item)
+    
+    def updateCosmeticProps(self, previewing = False):
+        """
+        Update the cosmetic properties of motor
+        """
+        if not previewing:
+            try:
+                self.opacity = self.defaultOpacity
+            except:
+                print_compact_traceback("Can't set properties for the Rotary"\
+                                        "Motor object. Ignoring exception.")
+        else:
+            self.opacity =  self.previewOpacity
 
     pass # end of class Motor
 
@@ -249,12 +269,7 @@ class RotaryMotor(Motor):
         self.color = gray # This is the "draw" color.  When selected, this will become highlighted red.
         self.normcolor = gray # This is the normal (unselected) color.
 
-        #The motor is usually drawn as an opaque object. However when it is
-        #being previewed, it is drawn as a transparent object - Ninad 2007-10-09 
-        self.previewOpacity = 0.4
-        self.defaultOpacity = 1.0
-        self.opacity = self.defaultOpacity
-
+        
         self.length = 10.0 # default length of Rotary Motor cylinder
         self.radius = 1.0 # default cylinder radius
         self.sradius = 0.2 #default spoke radius
@@ -531,19 +546,6 @@ class RotaryMotor(Motor):
             Motor.readmmp_info_leaf_setitem( self, key, val, interp)
         return
 
-    def updateCosmeticProps(self, previewing = False):
-        """
-        """
-        if not previewing:
-            try:
-                self.opacity = self.defaultOpacity
-            except:
-                print_compact_traceback("Can't set properties for the Rotary"\
-                                        "Motor object. Ignoring exception.")
-        else:
-            self.opacity =  self.previewOpacity
-
-
     pass # end of class RotaryMotor
 
 def angle(x,y): #bruce 050518; see also atan2 (noticed used in VQT.py) which might do roughly the same thing
@@ -588,9 +590,10 @@ class LinearMotor(Motor):
         # set default color of new linear motor to gray
         self.color = gray # This is the "draw" color.  When selected, this will become highlighted red.
         self.normcolor = gray # This is the normal (unselected) color.
+
         self.length = 10.0 # default length of Linear Motor box
         self.width = 2.0 # default box width
-        self.sradius = 0.5 #default spoke radius
+        self.sradius = 0.2 #default spoke radius
         self.cancelled = True # We will assume the user will cancel
 
     def set_cntl(self): #bruce 050526 split this out of __init__ (in all Jig subclasses)
@@ -647,12 +650,18 @@ class LinearMotor(Motor):
             glRotatef( q.angle*180.0/pi, q.x, q.y, q.z)
 
             orig_center = V(0.0, 0.0, 0.0)
-            drawbrick(color, orig_center, self.axis, self.length, self.width, self.width)
+            drawbrick(color, orig_center, self.axis, 
+                      self.length, self.width, self.width, 
+                      opacity = self.opacity)
+            
             drawLinearSign((0,0,0), orig_center, self.axis, self.length, self.width, self.width)
                 # (note: drawLinearSign uses a small depth offset so that arrows are slightly in front of brick)
                 # [bruce comment 060302, a guess from skimming drawLinearSign's code]
             for a in self.atoms[:]:
-                drawcylinder(color, orig_center, a.posn()-self.center, self.sradius)
+                drawcylinder(color, orig_center, 
+                             a.posn()-self.center, 
+                             self.sradius, 
+                             opacity = self.opacity)
         except:
             #bruce 060208 protect OpenGL stack from exception analogous to that seen for RotaryMotor in bug 1445
             print_compact_traceback("exception in LinearMotor._draw, continuing: ")

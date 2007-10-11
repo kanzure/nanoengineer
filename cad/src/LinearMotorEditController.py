@@ -16,7 +16,7 @@ from jigs_motors import LinearMotor
 from jigs import atom_limit_exceeded_and_confirmed
 
 from EditController import EditController
-##from LinearMotorPropertyManager import LinearMotorPropertyManager
+from LinearMotorPropertyManager import LinearMotorPropertyManager
 
 class LinearMotorEditController(EditController):
     """
@@ -58,7 +58,7 @@ class LinearMotorEditController(EditController):
         Return all the parameters from the Plane Property Manager.
         """
         force = self.propMgr.forceDblSpinBox.value()
-        stiffnesss = self.propMgr.stiffnessDblSpinBox.value()
+        stiffness = self.propMgr.stiffnessDblSpinBox.value()
         enable_minimize_state = self.propMgr.enableMinimizeCheckBox.isChecked()
         color = self.struct.color      
         atoms = self.win.assy.selatoms_list()
@@ -116,26 +116,18 @@ class LinearMotorEditController(EditController):
             assert len(atoms) > 0
 
         self.struct.cancelled = False
-        self.struct.torque = torque
-        self.struct.initial_speed = initial_speed
-        self.struct.speed = final_speed
-        self.struct.dampers_enabled = dampers_state
+        self.struct.force = force
+        self.struct.stiffness = stiffness
         self.struct.enable_minimize = enable_minimize_state
         self.struct.color = color
         #Not sure if it is safe to do self.struct.atoms = atoms
         #Instead using 'setShaft method -- ninad 2007-10-09
         self.struct.setShaft(atoms)
         
-        
         self.struct.findCenterAndAxis(atoms, self.win.glpane)
         
-        attachedAtomNames = []
-        for atm in atoms:            
-            attachedAtomNames.append(str(atm))
-            
-        self.propMgr.attachedAtomsListWidget.insertItems(row = 0, 
-                                                         items = attachedAtomNames)
-        
+        self.propMgr.updateAttachedAtomListWidget(atomList = atoms)
+                
         self.win.win_update() # Update model tree
         self.win.assy.changed()     
     
@@ -160,20 +152,10 @@ class LinearMotorEditController(EditController):
         if numberOfAtoms == 0:
             logMessage = "Warning: No Atoms are selected"
             isAtomRequirementMet = False
-            return (isAtomRequirementMet, logMessage) 
-        
-        # wware 051216, bug 1114, need >= 2 atoms for rotary motor
-        if numberOfAtoms < 2:
-            msg = redmsg("You must select at least two atoms to create"\
-                         " a Rotary Motor.")
-            env.history.message(self.cmd + msg)
-            logMessage = msg
-            isAtomRequirementMet = False
-            return (isAtomRequirementMet, logMessage)
-            
+            return (isAtomRequirementMet, logMessage)                  
         # Print warning if over 200 atoms are selected.
         # The warning should be displayed in a MessageGroupBox. Mark 2007-05-28
-        if atom_limit_exceeded_and_confirmed(self.win, 
+        elif atom_limit_exceeded_and_confirmed(self.win, 
                                              numberOfAtoms, 
                                              limit = 200):
             logMessage = "Warning: Motor is attached to more than 200 atoms. "\
@@ -181,7 +163,7 @@ class LinearMotorEditController(EditController):
             isAtomRequirementMet = True
             return (isAtomRequirementMet, logMessage)
         
-        if numberOfAtoms > 2 and numberOfAtoms < 200:
+        else:
             isAtomRequirementMet = True
             logMessage = ""
             return (isAtomRequirementMet, logMessage)
