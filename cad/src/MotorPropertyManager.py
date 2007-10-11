@@ -64,6 +64,23 @@ class MotorPropertyManager(EditController_PM):
         #when you are editing an existing R.Motor. Don't know the cause at this
         #time, issue is trivial. So calling it in the end -- Ninad 2007-10-03
         self.struct.updateCosmeticProps(previewing = True)
+        self.updateAttachedAtomListWidget()
+    
+    def connect_or_disconnect_signals(self, isConnect):
+        """
+        Connect or disconnect widget signals sent to their slot methods.
+        This can be overridden in subclasses. By default it does nothing.
+        @param isConnect: If True the widget will send the signals to the slot 
+                          method. 
+        @type  isConnect: boolean
+        """
+        if isConnect:
+            change_connect = self.win.connect
+        else:
+            change_connect = self.win.disconnect
+        
+        pass
+
     
     def enable_or_disable_gui_actions(self, bool_enable = False):
         """
@@ -112,6 +129,24 @@ class MotorPropertyManager(EditController_PM):
         self.struct.reverse_direction()
         self.glpane.gl_update()
     
+    def updateAttachedAtomListWidget(self, atomList = None):
+        """
+        Update the list of attached atoms in the self.selectedAtomsListWidget
+        """
+        attachedAtomNames = []
+        
+        if not atomList:
+            if self.struct:
+                atomList = self.struct.atoms[:]
+                  
+        if atomList:
+            for atm in atomList:            
+                attachedAtomNames.append(str(atm))
+       
+        self.attachedAtomsListWidget.insertItems(row = 0, 
+                                                 items = attachedAtomNames)
+        
+
     def update_props_if_needed_before_closing(self):
         """
         This updates some cosmetic properties of the Rotary motor (e.g. opacity)
@@ -190,7 +225,7 @@ class MotorPropertyManager(EditController_PM):
             ##san = describe_atom_and_atomtype(a)
             ##selectedAtomNames.append(san)
             
-        ##self.selectedAtomsListWidget = \
+        ##self.attachedAtomsListWidget = \
             ##PM_ListWidget(pmGroupBox, 
                                 ##label="Atoms :", 
                                 ##items=selectedAtomNames,
@@ -200,12 +235,12 @@ class MotorPropertyManager(EditController_PM):
                                 ##spanWidth=False)
             
             
-        self.selectedAtomsListWidget = \
+        self.attachedAtomsListWidget = \
             PM_ListWidget(pmGroupBox, 
                           label = "Atoms :",
                           heightByRows = 6
                         )
         #old comment --
         # Keep to discuss with Bruce. Mark 2007-06-04
-        #self.selectedAtomsListWidget.atoms = self.struct.atoms[:] 
+        #self.attachedAtomsListWidget.atoms = self.struct.atoms[:] 
         

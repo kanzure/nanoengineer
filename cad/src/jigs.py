@@ -141,15 +141,28 @@ class Jig(Node):
         "a subclass should override this if it needs to choose its icons differently"
         return imagename_to_pixmap( self.icon_names[self.hidden] )
         
-    def setAtoms(self, atomlist):
-        # [as of 050415 (and long before) this is only used for motors; __init__ does same thing for other jigs]
+    def setAtoms(self, atomList):
+        """
+        Set the jig's atoms to the atoms in the parameter atomList. If this 
+        jig already has atoms, it first removes its reference. It also makes 
+        sure that this jig is not already in the atom.jigs (a list that each 
+        individual atom in the atomList maintains) 
+        @param atomList: List of atoms to which this jig needs to be attached. 
+        @type  atomList: list
+        @see: L{self._remove_all_atoms}
+        @see: L{RotaryMotorEditController._modifyStructure} for an example use
+        @see: L{self.setShaft}
+        """
+        # [as of 050415 (and long before) this is only used for 
+        # motors; __init__ does same thing for other jigs]
         if self.atoms:
-            print "note: calling _remove_all_atoms on %r [remove this print when it works]" % self ####
-            self._remove_all_atoms() # intended to fix bug 2561 more safely than the prior change [bruce 071010]
+            # intended to fix bug 2561 more safely than the prior change [bruce 071010]
+            self._remove_all_atoms() 
         self.atoms = list(atomlist) # copy the list
         for atm in atomlist:
             if self in atm.jigs:
-                print "bug: %r is already in %r.jigs, just before we want to add it" % (self, atm)
+                print "bug: %r is already in %r.jigs, just before we want" \
+                      " to add it" % (self, atm)
             else:
                 atm.jigs.append(self)
                 #k not sure if following is needed -- bruce 060322
@@ -273,12 +286,12 @@ class Jig(Node):
         """
         Remove all of self's atoms, but don't kill self
         even if that would normally happen then.
-
         (For internal use, when new atoms are about to be added.)
+        @see: L{self.setAtoms}
         """
         # TODO: could be optimized by inlining rematom
         for atm in list(self.atoms):
-            self.rematom(self, atm, _kill_if_no_atoms_left_but_needs_them = False)
+            self.rematom(atm, _kill_if_no_atoms_left_but_needs_them = False)
         return
     
     def rematom(self, atm, _kill_if_no_atoms_left_but_needs_them = True):

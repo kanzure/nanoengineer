@@ -136,14 +136,8 @@ class RotaryMotorEditController(EditController):
         
         self.struct.findCenterAndAxis(atoms, self.win.glpane)
         
-        attachedAtomNames = []
-        for atm in atoms:            
-            attachedAtomNames.append(str(atm))
-            
-        self.propMgr.selectedAtomsListWidget.insertItems(
-            row = 0, 
-            items = attachedAtomNames)
-        
+        self.propMgr.updateAttachedAtomListWidget(atomList = atoms)
+  
         self.win.win_update() # Update model tree
         self.win.assy.changed()     
     

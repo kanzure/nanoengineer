@@ -65,6 +65,24 @@ class EditController_PM(PM_Dialog):
         PM_Dialog.show(self)
         self.enable_or_disable_gui_actions(bool_enable = False)
     
+    def close(self):
+        """
+        """
+        self.connect_or_disconnect_signals(False)
+        PM_Dialog.close(self) 
+    
+    def connect_or_disconnect_signals(self, isConnect):
+        """
+        Connect or disconnect widget signals sent to their slot methods.
+        This can be overridden in subclasses. By default it does nothing.
+        @param isConnect: If True the widget will send the signals to the slot 
+                          method. 
+        @type  isConnect: boolean
+        """
+        #To be implemented here or in subclasses. 
+        pass
+        
+        
     def _addGroupBoxes(self):
         """
         Add various group boxes to this PM. 

@@ -18,6 +18,7 @@ ninad 2007-10-05: Major changes. Refactored GeometryGeneratorBaseClass
 """
 
 import platform
+import changes
 from utilities.Log        import greenmsg
 from utilities.Comparison import same_vals
 
@@ -99,9 +100,11 @@ class EditController:
         
         self.struct = self._createStructure()
         
-        if not self.propMgr:
+        if not self.propMgr:                 
             self.propMgr = self._createPropMgrObject()
-            
+            #IMPORTANT keep this propMgr permanently -- needed to fix bug 2563
+            changes.keep_forever(self.propMgr)
+                        
         self.propMgr.show()
   
         if self.struct:
@@ -128,10 +131,10 @@ class EditController:
         """
         
         assert self.struct
-    
+
         if not self.propMgr:
             self.propMgr = self._createPropMgrObject()
-            
+                
         self.existingStructForEditing = True
         self.old_props = self.struct.getProps()
         self.propMgr.show() 

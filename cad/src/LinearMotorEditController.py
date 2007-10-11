@@ -133,7 +133,7 @@ class LinearMotorEditController(EditController):
         for atm in atoms:            
             attachedAtomNames.append(str(atm))
             
-        self.propMgr.selectedAtomsListWidget.insertItems(row = 0, 
+        self.propMgr.attachedAtomsListWidget.insertItems(row = 0, 
                                                          items = attachedAtomNames)
         
         self.win.win_update() # Update model tree
