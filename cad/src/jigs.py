@@ -158,8 +158,8 @@ class Jig(Node):
         if self.atoms:
             # intended to fix bug 2561 more safely than the prior change [bruce 071010]
             self._remove_all_atoms() 
-        self.atoms = list(atomlist) # copy the list
-        for atm in atomlist:
+        self.atoms = list(atomList) # copy the list
+        for atm in atomList:
             if self in atm.jigs:
                 print "bug: %r is already in %r.jigs, just before we want" \
                       " to add it" % (self, atm)
