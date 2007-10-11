@@ -56,14 +56,23 @@ annoyers = ['editToolbar', 'fileToolbar', 'helpToolbar', 'modifyToolbar',
 superclass = depositMode
 
 class testmode(superclass):
-    # class constants
-    backgroundColor = 103/256.0, 124/256.0, 53/256.0
+    # class constants -- some each for Command and GraphicsMode, once we split into those
+
+    # for Command
+    
     modename = 'TEST'
     default_mode_status_text = "Mode: Test"
 
+    # for GraphicsMode
+
+    ## check_target_depth_fudge_factor = 0.0001 # same as GLPane, tho it caused a demo_drag bug 070115 -- try lower val sometime ###e
+    check_target_depth_fudge_factor = 0.00001 # this gives us another 10x safety factor in demo_drag [070116]
+
+    # unclassified (Command vs GraphicsMode)
+    
+    backgroundColor = 103/256.0, 124/256.0, 53/256.0
+
     compass_moved_in_from_corner = True # only works when compassPosition == UPPER_RIGHT; should set False in basicMode [revised 070110] 
-    ## _check_target_depth_fudge_factor = 0.0001 # same as GLPane, tho it caused a demo_drag bug 070115 -- try lower val sometime ###e
-    _check_target_depth_fudge_factor = 0.00001 # this gives us another 10x safety factor in demo_drag [070116]
 
     _defeat_update_selobj_MMB_specialcase = True # 070224; overridden at runtime in some methods below
     

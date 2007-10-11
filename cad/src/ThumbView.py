@@ -316,7 +316,8 @@ class ThumbView(GLPane_minimal):
         
    
     def mousePressEvent(self, event):
-        """Dispatches mouse press events depending on shift and
+        """
+        Dispatches mouse press events depending on shift and
         control key state.
         """
         ## Huaicai 2/25/05. This is to fix item 2 of bug 400: make this rendering context
@@ -334,25 +335,25 @@ class ThumbView(GLPane_minimal):
         
         if buttons & Qt.LeftButton:
             if modifiers & Qt.ShiftModifier:
-                pass#self.mode.leftShiftDown(event)
+                pass#self.graphicsMode.leftShiftDown(event)
             elif modifiers & Qt.ControlModifier:
-                pass#self.mode.leftCntlDown(event)
+                pass#self.graphicsMode.leftCntlDown(event)
             else:
                 self.leftDown(event)
 
         if buttons & Qt.MidButton:
             if modifiers & Qt.ShiftModifier:
-                pass#self.mode.middleShiftDown(event)
+                pass#self.graphicsMode.middleShiftDown(event)
             elif modifiers & Qt.ControlModifier:
-                pass#self.mode.middleCntlDown(event)
+                pass#self.graphicsMode.middleCntlDown(event)
             else:
                 self.middleDown(event)
 
         if buttons & Qt.RightButton:
             if modifiers & Qt.ShiftModifier:
-                pass#self.mode.rightShiftDown(event)
+                pass#self.graphicsMode.rightShiftDown(event)
             elif modifiers & Qt.ControlModifier:
-                pass#self.mode.rightCntlDown(event)
+                pass#self.graphicsMode.rightCntlDown(event)
             else:
                 pass#self.rightDown(event)         
 
@@ -375,9 +376,9 @@ class ThumbView(GLPane_minimal):
 
         if buttons & Qt.MidButton:
             if modifiers & Qt.ShiftModifier:
-                pass#self.mode.middleShiftUp(event)
+                pass#self.graphicsMode.middleShiftUp(event)
             elif modifiers & Qt.ControlModifier:
-                pass#self.mode.middleCntlUp(event)
+                pass#self.graphicsMode.middleCntlUp(event)
             else:
                 self.middleUp(event)
 

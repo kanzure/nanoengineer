@@ -375,7 +375,7 @@ class MMKit(QDialog,
 	self.update_selection_filter_list()
 	self.filterlistLE.setEnabled(enabled)
 	self.filterCB.setChecked(enabled)
-        self.o.mode.update_cursor()
+        self.o.graphicsMode.update_cursor()
     
     def update_selection_filter_list(self):
         '''Adds/removes the element selected in the MMKit to/from Atom Selection Filter

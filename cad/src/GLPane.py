@@ -333,23 +333,20 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
     # which ought to be merged into their common superclass GLPane_minimal
     # (currently empty). [bruce 070914 comment]
 
-    # Note: external code expects self.mode to always be a working
-    # mode object, which has certain callable methods.  Our modes
-    # themselves expect certain other attributes (like self.commandTable)
-    # to be present.  This is all set up and maintained by our mixin
-    # class, modeMixin. [bruce 040922]
-    #
-    # [bruce 050112 adds: the reason the glpane is central to holding
-    #  and switching a mode object might be that the mode object gets
-    #  to process most mouse events on the glpane... but it might also
-    #  be somewhat of a historical accident, since (esp. in the future)
-    #  the mode might filter some other widgets' events too, esp. some
-    #  of the operation buttons in the toolbars. Or, alternatively,
-    #  modes might turn out to often apply to specific objects displayed
-    #  in the glpane rather than to the pane as a whole. We'll see.
-    #  For now, here it is.]
+    # Note: external code expects self.graphicsMode to always be a working
+    # GraphicsMode object, which has certain callable methods [which should
+    # be formalized as a new class GraphicsMode_API or so]. Similarly, it
+    # expects self.currentCommand to be a Command object, and self.mode
+    # to be an object that meets both APIs (for compatibility with old modes
+    # which are basicMode subclasses). The Command API of self.mode (and
+    # some private aspects of our commands/modes) are used by self.modeMixin
+    # to "switch between modes". Soon, the modeMixin part will become part of
+    # the planned Command Sequencer and be removed from this class GLPane,
+    # and the Command and GraphicsMode class hierarchies will be separated.
+    # Of the attributes mentioned, only self.graphicsMode will remain in GLPane.
+    # [bruce 071011]
 
-    # class constants (needed by modeMixin):
+    # class constants (needed by modeMixin to map modenames to mode classes):
     mode_classes = [selectMolsMode, selectAtomsMode, modifyMode, depositMode,
                     cookieMode, extrudeMode, fusechunksMode,
                     movieMode, ZoomMode, PanMode, RotateMode, 
@@ -501,7 +498,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         self.makeCurrent()
         
         drawer.setup()
-        self.setAssy(assy) # leaves self.mode as nullmode, as of 050911
+        self.setAssy(assy) # leaves self.currentCommand/self.graphicsMode as nullmode, as of 050911
 
         self.loadLighting() #bruce 050311
         #bruce question 051212: why doesn't this prevent bug 1204 in use of lighting directions on startup?
@@ -686,7 +683,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         evidently not given any chance to save unsaved changes, or get
         back to current state if the openfile fails... tho I'm not
         sure I'm right about that, since I didn't test it.
-           Revised 050911: leaves self.mode as nullmode.
+           Revised 050911: leaves mode as nullmode.
         """
         ##e should previous self.assy be destroyed, or at least made to no longer point to self? [bruce 051227 question]
         assy.o = self ###@@@ should only the part know the glpane?? or, only the mode itself? [bruce 050418 comment]
@@ -1029,10 +1026,31 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
 ##        print_compact_stack( "glpane setcursor to %r: " % cursor )
 ##        return QGLWidget.setCursor(self, cursor)
     
-    def update_after_new_mode(self):
-        """do whatever updates are needed after self.mode might have changed
+    def update_after_new_mode(self): ### TODO: this will be split between GLPane and CommandSequencer
+        """
+        do whatever updates are needed after self.mode might have changed
         (ok if this is called more than needed, except it might be slower)
         """
+        self.update_after_new_graphicsMode()
+        self.update_after_new_currentCommand()
+        return
+
+    def update_after_new_graphicsMode(self):
+        """
+        do whatever updates are needed after self.graphicsMode might have changed
+        (ok if this is called more than needed, except it might be slower)
+        """
+        # TODO: optimize: some of this is not needed if the old & new graphicsMode are equivalent...
+        # the best solution is to make them the same object in that case,
+        # i.e. to get their owning commands to share that object,
+        # and then to compare old & new graphicsMode objects before calling this. [bruce 071011]
+
+        # note: self.selatom is deprecated in favor of self.selobj.
+        # self.selobj will be renamed, perhaps to self.objectUnderMouse.
+        # REVIEW whether it belongs in self at all (vs the graphicsMode,
+        #  or even the currentCommand if it can be considered part of the model
+        #  like the selection is). [bruce 071011]
+        
         if self.selatom is not None: #bruce 050612 precaution (scheme could probably be cleaned up #e)
             if platform.atom_debug:
                 print "atom_debug: update_after_new_mode storing None over self.selatom", self.selatom
@@ -1043,33 +1061,69 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
             self.set_selobj(None)
 
         self.set_mouse_event_handler(None) #bruce 070628 part of fixing bug 2476 (leftover CC Done cursor)
-        self.mode.update_cursor() # do this always (since set_mouse_event_handler only does it if the handler changed) [bruce 070628]
-            # note: the above updates are a good idea, but they don't help with generators,
-            # thus the need for other parts of that bugfix, and given those, I don't know if this is needed,
-            # but it seems a good precaution even if not. [bruce 070628]
-            
-        #bruce 050408: change widget's erase color (seen only if it's resized,
-        # and only briefly -- unrelated to OpenGL clearColor) to current mode's
-        # background color; this fixes the bug in which the glpane or its edges
-        # flicker to black during a main-window resize.
-        #bruce 050413: limit this to Mac, since it turns out that bug (which has
-        # no bug number yet) was Mac-specific, but this change caused a new bug 530
-        # on Windows. (Not sure about Linux.)
-        # See also bug 141 (black during mode-change), related but different.
+        self.graphicsMode.update_cursor()
+            # do this always (since set_mouse_event_handler only does it if the handler changed) [bruce 070628]
+            # Note: the above updates are a good idea,
+            # but they don't help with generators [which as of this writing don't change self.mode],
+            # thus the need for other parts of that bugfix -- and given those, I don't know if this is needed.
+            # But it seems a good precaution even if not. [bruce 070628]
+
         if sys.platform == 'darwin':
-            bgcolor = self.backgroundColor
-                ##e [bruce 050615 comment, moved here from a wrong location by bruce 050702:]
-                # for modes with transparent surfaces covering screen, this ought to blend that in
-                # (or we could change how they work so the blank areas looked like the specified bgcolor)
-            r = int(bgcolor[0]*255 + 0.5) # (same formula as in elementSelector.py)
-            g = int(bgcolor[1]*255 + 0.5)
-            b = int(bgcolor[2]*255 + 0.5)
-            pal = QPalette()
-            pal.setColor(self.backgroundRole(), QColor(r, g, b))
-            self.setPalette(pal)
-                # see Qt docs for this and for backgroundMode
+            self.set_widget_erase_color( self.backgroundColor)
+            # Note: this was called here when the graphicsMode could determine
+            # the background color, but that's no longer true, so it could probably
+            # just be called at startup and whenever the background color is changed.
+            # Try that sometime, it might be an optim. [bruce 071011]
+            #
+            # REVIEW: what is self.backgroundColor when we're using the new default
+            # of "Blue Sky Gradient". For best effect here, what it ought to be
+            # is the average or central bg color in that gradient. I think it's not,
+            # which makes me wonder if this bugfix is still needed at all. [bruce 071011]
+            #
+            # Note: calling this fixed the bug in which the glpane or its edges
+            # flickered to black during a main-window resize. [bruce 050408]
+            #
+            # Note: limited this to Mac, since it turns out that bug (which has
+            # no bug number yet) was Mac-specific, but this change caused a new bug 530
+            # on Windows. (Not sure about Linux.) See also bug 141 (black during
+            # mode-change), related but different. [bruce 050413]
+            #
+            # Note: for graphicsModes with a translucent surface covering the screen
+            # (i.e. Build Atoms water surface), it would be better to blend that surface
+            # color with self.backgroundColor for passing to this method, to approximate
+            # the effective background color. Alternatively, we could change how those
+            # graphicsModes set up OpenGL clearcolor, so that their empty space areas
+            # looked like self.backgroundColor.) [bruce 050615 comment]
+            pass
         
-        #e also update tool-icon visual state in the toolbar?
+        return
+
+    def set_widget_erase_color(self, bgcolor): # revised, bruce 071011
+        """
+        Change this widget's erase color (seen only if it's resized,
+        and only briefly -- it's independent of OpenGL clearColor) to
+        the given color.
+
+        Usage note: if that color is the same as the current graphics
+        area background color (self.backgroundColor), this will minimize
+        the visual effect of widget resizes which temporarily show the erase
+        color. See comments near the call for caveats about that.
+        """
+        r = int(bgcolor[0]*255 + 0.5) # (same formula as in elementSelector.py)
+        g = int(bgcolor[1]*255 + 0.5)
+        b = int(bgcolor[2]*255 + 0.5)
+        pal = QPalette()
+        pal.setColor(self.backgroundRole(), QColor(r, g, b))
+        self.setPalette(pal)
+            # see Qt docs for this and for backgroundRole
+        return
+
+    def update_after_new_currentCommand(self): ### TODO: move this out of GLPane into Command Sequencer
+        """
+        do whatever updates are needed after self.currentCommand might have changed
+        (ok if this is called more than needed, except it might be slower)
+        """
+        #e also update tool-icon visual state in the toolbar? [presumably done elsewhere now]
         # bruce 041222 [comment revised 050408]:
         # changed this to a full update (not just a glpane update),
         # though technically the non-glpane part is the job of our caller rather than us,
@@ -1105,7 +1159,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
                 #but = e.stateAfter()
                 #self.update_modkeys(but)
                 self.update_modkeys(e.modifiers())
-            self.mode.keyPressEvent( wrap_key_event(e) )
+            self.graphicsMode.keyPressEvent( wrap_key_event(e) )
         finally:
             env.end_op(mc)
         return
@@ -1118,7 +1172,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
                 #but = e.stateAfter()
                 #self.update_modkeys(but)
                 self.update_modkeys(e.modifiers())
-            self.mode.keyReleaseEvent( wrap_key_event(e) )
+            self.graphicsMode.keyReleaseEvent( wrap_key_event(e) )
         finally:
             env.end_op(mc)
         return
@@ -1411,7 +1465,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
     #bruce 060220 changes related to supporting self.modkeys, self.in_drag.
     # These changes are unfinished in the following ways: ###@@@
     # - need to fix the known bugs in fix_event_helper, listed below
-    # - update_modkeys needs to call some sort of self.mode.updateCursor routine
+    # - update_modkeys needs to call some sort of self.graphicsMode.updateCursor routine
     # - then the modes which update the cursor for key press/release of modkeys need to stop doing that
     #   and instead just define that updateCursor routine properly
     # - ideally we'd capture mouseEnter and call both update_modkeys and the same updateCursor routine
@@ -1420,7 +1474,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
     modkeys = None
     in_drag = False
     button = None
-    mouse_event_handler = None # None, or an object to handle mouse events and related queries instead of self.mode
+    mouse_event_handler = None # None, or an object to handle mouse events and related queries instead of self.graphicsMode
         # [bruce 070405, new feature for confirmation corner support, and for any other overlay widgets which are handled
         #  mostly independently of the current mode -- and in particular which are not allowed to depend on the recent APIs
         #  added to selectMode, and/or which might need to be active even if current mode is doing xor-mode OpenGL drawing.]
@@ -1439,7 +1493,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         # [bruce 070328]
         but, mod = fix_event_helper(self, event, when, target)
             # fix_event_helper has several known bugs as of 060220, including:
-            # - target is not currently used, and it's not clear what it might be for [in this method, it's self.mode]
+            # - target is not currently used, and it's not clear what it might be for [in this method, it's self.mode ###REVIEW WHAT IT IS]
             # - it's overly bothered by dialogs that capture press and not release;
             # - maybe it can't be called for key events, but self.modkeys needs update then [might be fixed using in_drag #k];
             # - not sure it's always ok when user moves from one widget to another during a drag;
@@ -1464,7 +1518,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
             self.in_drag = False
             self.button = None
             # leave self.mouse_event_handler unchanged, so it can process the release if it was handling the drag
-            self.mode.update_cursor()
+            self.graphicsMode.update_cursor()
         else:
             #bruce 070328 adding some debug code/comments to this (for some Qt4 or Qt4/Mac specific bugs), and bugfixing it.
             olddrag = self.in_drag
@@ -1483,7 +1537,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
                 # Note: if two mouse buttons were pressed at the same time (I think -- bruce 070328), we leave self.button unchanged.
 
             if when == 'press' or (when == 'move' and not self.in_drag):
-                new_meh = self.mode.mouse_event_handler_for_event_position( wX, wY)
+                new_meh = self.graphicsMode.mouse_event_handler_for_event_position( wX, wY)
                 self.set_mouse_event_handler( new_meh) # includes update_cursor if handler is different
                 pass
 
@@ -1493,13 +1547,14 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         return but, mod
 
     def set_mouse_event_handler(self, mouse_event_handler): #bruce 070628 (related to fixing bug 2476 (leftover CC Done cursor))
-        """[semi-private]
+        """
+        [semi-private]
         Set self.mouse_event_handler (to a handler meeting the MouseEventHandler_API, or to None)
         and do some related updates.
         """
         if self.mouse_event_handler is not mouse_event_handler:
             self.mouse_event_handler = mouse_event_handler
-            self.mode.update_cursor()
+            self.graphicsMode.update_cursor()
             #e more updates?
             # - maybe tell the old mouse_event_handler it's no longer active
             #   (i.e. give it a "leave event" if when == 'move')
@@ -1509,11 +1564,13 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         return
         
     def update_modkeys(self, mod):
-        """Call this whenever you have some modifier key flags from an event (as returned from fix_event,
+        """
+        Call this whenever you have some modifier key flags from an event (as returned from fix_event,
         or found directly on the event as stateAfter in events not passed to fix_event).
         Exception: don't call it during a drag, except on values returned from fix_event, or bugs will occur.
         There is not yet a good way to follow this advice. This method and/or fix_event should provide one. ###e
-           This method updates self.modkeys, setting it to None, 'Shift', 'Control' or 'Shift+Control'.
+
+        This method updates self.modkeys, setting it to None, 'Shift', 'Control' or 'Shift+Control'.
         (All uses of the obsolete mode.modkey variable should be replaced by this one.)
         """
         shift_control_flags = mod & (Qt.ShiftModifier | Qt.ControlModifier)
@@ -1528,13 +1585,13 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
             self.modkeys = None
         if self.modkeys != oldmodkeys:
             
-            ## This would be a good place to tell the mode (self.mode) it might want to update the cursor,
+            ## This would be a good place to tell the GraphicsMode it might want to update the cursor,
             ## based on all state it knows about, including self.modkeys and what mouse is over,
             ## but it's not enough, since it doesn't cover mouseEnter (or mode Enter),
             ## where we need that even if modkeys didn't change. [bruce 060220]
-            self.mode.update_cursor()
+            self.graphicsMode.update_cursor()
             
-            if self.selobj and self.mode.hover_highlighting_enabled:
+            if self.selobj and self.graphicsMode.hover_highlighting_enabled:
                 if self.modkeys == 'Shift+Control' or oldmodkeys == 'Shift+Control':
                     # If something is highlighted under the cursor and we just pressed or released 
                     # "Shift+Control", repaint to update its correct highlight color.
@@ -1618,7 +1675,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         
         self.debug_event(event, 'mouseDoubleClickEvent')
         
-        but, mod = self.fix_event(event, 'press', self.mode)
+        but, mod = self.fix_event(event, 'press', self.graphicsMode)
         ## but = event.stateAfter()
         #k I'm guessing this event comes in place of a mousePressEvent;
         # need to test this, and especially whether a releaseEvent then comes
@@ -1644,11 +1701,11 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
             return
 
         if but & Qt.LeftButton:
-            self.mode.leftDouble(event)
+            self.graphicsMode.leftDouble(event)
         if but & Qt.MidButton:
-            self.mode.middleDouble(event)
+            self.graphicsMode.middleDouble(event)
         if but & Qt.RightButton:
-            self.mode.rightDouble(event)
+            self.graphicsMode.rightDouble(event)
 
         return
 
@@ -1710,7 +1767,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
             # drag/release events until the next press? [bruce 060126 questions]
             return
         ## but = event.stateAfter()
-        but, mod = self.fix_event(event, 'press', self.mode)
+        but, mod = self.fix_event(event, 'press', self.graphicsMode)
             # Notes [bruce 070328]:
             # but = <PyQt4.QtCore.MouseButtons object at ...>,
             # mod = <PyQt4.QtCore.KeyboardModifiers object at ...>.
@@ -1736,29 +1793,29 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
             
         if but & Qt.LeftButton:
             if mod & Qt.ShiftModifier:
-                self.mode.leftShiftDown(event)
+                self.graphicsMode.leftShiftDown(event)
             elif mod & Qt.ControlModifier:
-                self.mode.leftCntlDown(event)
+                self.graphicsMode.leftCntlDown(event)
             else:
-                self.mode.leftDown(event)
+                self.graphicsMode.leftDown(event)
 
         if but & Qt.MidButton:
             if mod & Qt.ShiftModifier and mod & Qt.ControlModifier: # mark 060228.
-                self.mode.middleShiftCntlDown(event)
+                self.graphicsMode.middleShiftCntlDown(event)
             elif mod & Qt.ShiftModifier:
-                self.mode.middleShiftDown(event)
+                self.graphicsMode.middleShiftDown(event)
             elif mod & Qt.ControlModifier:
-                self.mode.middleCntlDown(event)
+                self.graphicsMode.middleCntlDown(event)
             else:
-                self.mode.middleDown(event)
+                self.graphicsMode.middleDown(event)
 
         if but & Qt.RightButton:
             if mod & Qt.ShiftModifier:
-                self.mode.rightShiftDown(event)
+                self.graphicsMode.rightShiftDown(event)
             elif mod & Qt.ControlModifier:
-                self.mode.rightCntlDown(event)
+                self.graphicsMode.rightCntlDown(event)
             else:
-                self.mode.rightDown(event)         
+                self.graphicsMode.rightDown(event)         
 
         return
     
@@ -1771,7 +1828,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         """
         self.debug_event(event, 'mouseReleaseEvent')
         ## but = event.state()
-        but, mod = self.fix_event(event, 'release', self.mode)
+        but, mod = self.fix_event(event, 'release', self.graphicsMode)
         ## print "Button released: ", but
 
         handler = self.mouse_event_handler # updated by fix_event [bruce 070405]
@@ -1783,29 +1840,29 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         try:
             if but & Qt.LeftButton:
                 if mod & Qt.ShiftModifier:
-                    self.mode.leftShiftUp(event)
+                    self.graphicsMode.leftShiftUp(event)
                 elif mod & Qt.ControlModifier:
-                    self.mode.leftCntlUp(event)
+                    self.graphicsMode.leftCntlUp(event)
                 else:
-                    self.mode.leftUp(event)
+                    self.graphicsMode.leftUp(event)
 
             if but & Qt.MidButton:
                 if mod & Qt.ShiftModifier and mod & Qt.ControlModifier: # mark 060228.
-                    self.mode.middleShiftCntlUp(event)
+                    self.graphicsMode.middleShiftCntlUp(event)
                 elif mod & Qt.ShiftModifier:
-                    self.mode.middleShiftUp(event)
+                    self.graphicsMode.middleShiftUp(event)
                 elif mod & Qt.ControlModifier:
-                    self.mode.middleCntlUp(event)
+                    self.graphicsMode.middleCntlUp(event)
                 else:
-                    self.mode.middleUp(event)
+                    self.graphicsMode.middleUp(event)
 
             if but & Qt.RightButton:
                 if mod & Qt.ShiftModifier:
-                     self.mode.rightShiftUp(event)
+                     self.graphicsMode.rightShiftUp(event)
                 elif mod & Qt.ControlModifier:
-                    self.mode.rightCntlUp(event)
+                    self.graphicsMode.rightCntlUp(event)
                 else:
-                    self.mode.rightUp(event)
+                    self.graphicsMode.rightUp(event)
         except:
             print_compact_traceback("exception in mode's mouseReleaseEvent handler (bug, ignored): ") #bruce 060126
         
@@ -1862,7 +1919,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         
         ##self.debug_event(event, 'mouseMoveEvent')
         ## but = event.state()
-        but, mod = self.fix_event(event, 'move', self.mode)
+        but, mod = self.fix_event(event, 'move', self.graphicsMode)
 
         handler = self.mouse_event_handler # updated by fix_event [bruce 070405]
         if handler is not None:
@@ -1871,32 +1928,32 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         
         if but & Qt.LeftButton:
             if mod & Qt.ShiftModifier:
-                self.mode.leftShiftDrag(event)
+                self.graphicsMode.leftShiftDrag(event)
             elif mod & Qt.ControlModifier:
-                self.mode.leftCntlDrag(event)
+                self.graphicsMode.leftCntlDrag(event)
             else:
-                self.mode.leftDrag(event)
+                self.graphicsMode.leftDrag(event)
 
         elif but & Qt.MidButton:
             if mod & Qt.ShiftModifier and mod & Qt.ControlModifier: # mark 060228.
-                self.mode.middleShiftCntlDrag(event)
+                self.graphicsMode.middleShiftCntlDrag(event)
             elif mod & Qt.ShiftModifier:
-                self.mode.middleShiftDrag(event)
+                self.graphicsMode.middleShiftDrag(event)
             elif mod & Qt.ControlModifier:
-                self.mode.middleCntlDrag(event)
+                self.graphicsMode.middleCntlDrag(event)
             else:
-                self.mode.middleDrag(event)
+                self.graphicsMode.middleDrag(event)
 
         elif but & Qt.RightButton:
             if mod & Qt.ShiftModifier:
-                self.mode.rightShiftDrag(event)
+                self.graphicsMode.rightShiftDrag(event)
             elif mod & Qt.ControlModifier:
-                self.mode.rightCntlDrag(event)
+                self.graphicsMode.rightCntlDrag(event)
             else:
-                self.mode.rightDrag(event)
+                self.graphicsMode.rightDrag(event)
 
         else:
-            self.mode.bareMotion(event)
+            self.graphicsMode.bareMotion(event)
         return
 
     def wheelEvent(self, event):
@@ -1910,7 +1967,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         if not self.in_drag:
             #but = event.buttons() # I think this event has no stateAfter() [bruce 060220]
             self.update_modkeys(event.modifiers()) #bruce 060220
-        self.mode.Wheel(event) # mode bindings use modkeys from event; maybe this is ok?
+        self.graphicsMode.Wheel(event) # mode bindings use modkeys from event; maybe this is ok?
             # Or would it be better to ignore this completely during a drag? [bruce 060220 questions]
         return
 
@@ -2004,7 +2061,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
                 mouseEvent = QMouseEvent( QEvent.MouseMove, cursorPos, Qt.NoButton, Qt.NoButton, Qt.NoModifier)
                                           #Qt.NoButton & Qt.MouseButtonMask,
                                           #Qt.NoButton & Qt.KeyButtonMask )
-                self.mode.bareMotion(mouseEvent) # Only selectMode.mouse_exceeded_distance() makes use of this.
+                self.graphicsMode.bareMotion(mouseEvent) # Only selectMode.mouse_exceeded_distance() makes use of this.
                 
             self.triggerBareMotionEvent = False
                 
@@ -2428,15 +2485,17 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         self.setDepthRange_setup_from_debug_pref()
         self.setDepthRange_Normal()
         
-        method = getattr(self.mode, 'render_scene', None) #bruce 070406 revised this
+        method = self.graphicsMode.render_scene #bruce 070406, 071011 revised this
         if method is None:
             self.render_scene() # usual case
+                # [TODO: move that code into basicGraphicsMode and let it get called
+                #  in the same way as the following]
         else:
-            method( self) # let the mode override it
+            method( self) # let the graphicsMode override it
 
         if fog_test_enable:
             # this next line really should be just after rendering
-            # the atomic model itself.  I dunno where that is.
+            # the atomic model itself.  I dunno where that is. [bradg]
             drawer.disable_fog()
 
         glFlush()
@@ -2685,14 +2744,14 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
 
     def validate_selobj_and_hicolor(self): #bruce 070919 split this out, slightly revised behavior, and simplified code
         """
-        Return the selobj to use, and its highlight color (according to self.mode),
-        after validating the mode says it's still ok and has a non-None hicolor.
+        Return the selobj to use, and its highlight color (according to self.graphicsMode),
+        after validating the graphicsmode says it's still ok and has a non-None hicolor.
         Return a tuple (selobj, hicolor) (with selobj and hicolor not None) or (None, None).
         """
         selobj = self.selobj # we'll use this, or set it to None and use None
         if selobj is None:
             return None, None
-        if not self.mode.selobj_still_ok(selobj):
+        if not self.graphicsMode.selobj_still_ok(selobj):
             #bruce 070919 removed local exception-protection from this method call
             self.set_selobj(None)
             return None, None
@@ -2811,7 +2870,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         glMatrixMode(GL_MODELVIEW) # this is assumed within Draw methods [bruce 050608 comment]
         try: #bruce 070124 added try/finally for drawing_phase
             self.drawing_phase = 'main' #bruce 070124
-            self.mode.Draw()
+            self.graphicsMode.Draw()
         finally:
             self.drawing_phase = '?'
 
@@ -2827,7 +2886,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         
         try: #bruce 070124 added try/finally for drawing_phase
             self.drawing_phase = 'main/Draw_after_highlighting' #bruce 070124
-            self.mode.Draw_after_highlighting() # e.g. draws water surface in Build mode
+            self.graphicsMode.Draw_after_highlighting() # e.g. draws water surface in Build mode
                 # note: this is called with the same coordinate system as mode.Draw() [bruce 061208 comment]
         finally:
             self.drawing_phase = '?'
@@ -2882,9 +2941,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         self.drawing_phase = 'overlay'
         try:
             glMatrixMode(GL_MODELVIEW) #k needed?
-            self.mode.draw_overlay() #bruce 070405
+            self.graphicsMode.draw_overlay() #bruce 070405
         except:
-            print_compact_traceback( "exception in self.mode.draw_overlay(): " )
+            print_compact_traceback( "exception in self.graphicsMode.draw_overlay(): " )
         self.drawing_phase = '?'
 
         # restore standard glMatrixMode, in case drawing code outside of paintGL forgets to do this [precaution]
@@ -2901,7 +2960,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         Or return None if obj should not be allowed as selobj.
         """
         try:
-            hicolor = self.mode.selobj_highlight_color( obj) #e should implem noop version in basicMode [or maybe i did]
+            hicolor = self.graphicsMode.selobj_highlight_color( obj) #e should implem noop version in basicMode [or maybe i did]
             # mode can decide whether selobj should be highlighted (return None if not), and if so, in what color
         except:
             if platform.atom_debug:
@@ -2941,8 +3000,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
             glMatrixMode(GL_MODELVIEW)
             try:
                 self.drawing_phase = 'glselect' #bruce 070124
-                self.mode.Draw() # should perhaps optim by skipping chunks based on bbox... don't know if that would help or hurt
-                    # note: this might call some display lists which, when created, registered namestack names,
+                self.graphicsMode.Draw()
+                    # OPTIM: should perhaps optim by skipping chunks based on bbox... don't know if that would help or hurt
+                    # Note: this might call some display lists which, when created, registered namestack names,
                     # so we need to still know those names!
             except:
                 print_compact_traceback("exception in mode.Draw() during GL_SELECT; ignored; restoring modelview matrix: ")
@@ -3077,14 +3137,14 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
                 # [This should fix the Qt4 transition issue which is the subject of reminder bug 2300,
                 #  though it can't be tested yet since it has no known effect on current code, only on future code.]
 
-            self.mode.drawHighlightedObjectUnderMouse( self, selobj, hicolor) ### TODO: use self.graphicsMode (IMPLEM)
+            self.graphicsMode.drawHighlightedObjectUnderMouse( self, selobj, hicolor)
                 # TEST someday: test having color writing disabled here -- does stencil write still happen??
                 # (not urgent, since we definitely need color writing here.)
         except:
             # try/except added for GL-state safety, bruce 061218
             print_compact_traceback(
                 "bug: exception in %r.drawHighlightedObjectUnderMouse for %r ignored: " % \
-                (self.mode, selobj)
+                (self.graphicsMode, selobj)
              )
             pass
         self.drawing_phase = '?'
@@ -3169,7 +3229,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
             debug_prefix = "check_target_depth"
         else:
             debug_prefix = None
-        fudge = getattr( self.mode, '_check_target_depth_fudge_factor', 0.0001) #bruce 070115 kluge for testmode
+        fudge = self.graphicsMode.check_target_depth_fudge_factor #bruce 070115 kluge for testmode
             ### REVIEW: should this be an attribute of each object which can be drawn as selobj, instead?
             # The reasons it's needed are the same ones that require a nonzero DEPTH_TWEAK in GLPane_minimal.
             # See also the comment about it inside check_target_depth. [bruce 070921 comment]
@@ -3339,7 +3399,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         return
 
     def drawcompass(self, aspect):
-        """Draw the "compass" (the perpendicular colored arrows showing orientation of model coordinates)
+        """
+        Draw the "compass" (the perpendicular colored arrows showing orientation of model coordinates)
         in a corner of the GLPane specified by preference variables.
         No longer assumes a specific glMatrixMode, but sets it to GL_MODELVIEW on exit.
         No longer trashes either matrix, but does require enough GL_PROJECTION stack depth
@@ -3354,11 +3415,10 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         glPushMatrix()
         glLoadIdentity() #k needed?
         
-        
         # Set compass position using glOrtho
         if self.compassPosition == UPPER_RIGHT:
             # hack for use in testmode [revised bruce 070110 when GLPane_overrider merged into GLPane]:
-            if getattr(self.mode, "compass_moved_in_from_corner", False):                
+            if self.graphicsMode.compass_moved_in_from_corner:
                 glOrtho(-40*aspect, 15.5*aspect, -50, 5.5,  -5, 500)
             else:
                 glOrtho(-50*aspect, 3.5*aspect, -50, 4.5,  -5, 500) # Upper Right
@@ -3368,7 +3428,6 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
             glOrtho(-3.5*aspect, 50.5*aspect, -4.5, 50.5,  -5, 500) # Lower Left
         else:
             glOrtho(-50*aspect, 3.5*aspect, -4.5, 50.5,  -5, 500) # Lower Right
-        
                     
         q = self.quat
         glRotatef(q.angle*180.0/math.pi, q.x, q.y, q.z)

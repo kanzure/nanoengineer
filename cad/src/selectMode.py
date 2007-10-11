@@ -1708,11 +1708,12 @@ class selectMode(basicMode):
         return dist > pixel_distance
             
     def set_hoverHighlighting(self, on):
-        '''Turn hover highlighting on/off.
+        """
+        Turn hover highlighting (in our graphicsMode) on/off.
         if <on> is True, atoms and bonds are highlighted as the cursor passes over them.
         if <on> is False, atoms are not highlighted until they are selected (with LMB click).
         Bonds are not highlighted either, but they cannot be selected when highlighting is turned off.
-        '''
+        """
         self.hover_highlighting_enabled = on
         if on:
             msg = "Highlighting turned on."

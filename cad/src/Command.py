@@ -43,29 +43,34 @@ class anyCommand(object, StateMixin): #bruce 071008 added object superclass; 071
     abstract superclass for all Command objects, including nullCommand
     """
 
-    # TODO: revise 'mode' term in this comment and in modename, msg_modename attributes.
+    # TODO: revise 'mode' term in modename, msg_modename attributes.
     
-    # default values for mode-object attributes.  external code
-    # assumes every mode has these attributes, but it should pretend
-    # they're read-only; mode-related code (in this file) can override
+    # default values for command-object attributes.  external code
+    # assumes every command has these attributes, but it should pretend
+    # they're read-only; command-related code (in this file) can override
     # them in subclasses and/or instances, and modify them directly.
     
-    # internal name of mode, e.g. 'DEPOSIT',
+    # internal name of command, e.g. 'DEPOSIT',
     # only seen by users in "debug" error messages
     modename = "(bug: missing modename 1)" 
-    # name of mode to be shown to users, as a phrase, e.g. 'sketch mode'
-    msg_modename = "(bug: unknown mode)"
+    # name of command to be shown to users, as a phrase, e.g. 'sketch command'
+    msg_modename = "(bug: unknown command)"
     
     # Command's property manager. Subclasses should initialize the propMgr object 
     # if they need one.     
     propMgr = None
+
+    hover_highlighting_enabled = False
+        # note: hover_highlighting_enabled is a settable instance variable in both
+        # the Command and GraphicsMode APIs; a separate GraphicsMode delegates it
+        # as state to its Command [bruce 071011]
     
     def get_mode_status_text(self):
         # I think this will never be shown [bruce 040927]
-        return "(bug: mode status text)"
+        return "(bug: command status text)"
 
     # (default methods that should be noops in both nullCommand and Command
-    #  can be put here instead if desired)
+    #  can be put here instead if desired; for docstrings, see basicCommand)
     
     def selection_changed(self): #bruce 070925
         return
@@ -77,25 +82,10 @@ class anyCommand(object, StateMixin): #bruce 071008 added object superclass; 071
         return
 
     def isCurrentCommand(self): #bruce 071008
-        """
-        [note: this docstring uses obsolete terminology;
-         TODO: merge it with the newer one in basicCommand]
-        
-        Return true if the glpane is presently using this mode object
-        (not just a mode object with the same name!)
-
-        Useful in "slot methods" that receive Qt signals from a dashboard
-        to reject signals that are meant for a newer mode object of the same class,
-        in case the old mode didn't disconnect those signals from its own methods
-        (as it ideally should do).
-
-        Warning: this returns false while a mode is still being entered (i.e.
-        during the calls of Enter and init_gui, and the first call of update_gui).
-        But it's not a good idea to rely on that behavior -- if you do, you should
-        redefine this function to guarantee it, and add suitable comments near the
-        places which *could* set self.o.mode to the mode object being entered,
-        earlier than they do now.
-        """
+        # WARNING: this value of False means the nullCommand should never itself
+        # run code which assumes that this returns true when self is current.
+        # The reason for this stub value is in case this method is ever called on nullCommand
+        # at an early stage of startup, before the usual method would work.
         return False
 
     pass # end of class anyCommand
@@ -129,9 +119,9 @@ class nullCommand(anyCommand):
 
     # Command-specific attribute null values
 
-    # TODO: revise the 'mode' term in the following
+    # TODO: revise the 'mode' term in the following attribute names
 
-    # (the nullCommand instance is not put into the glpane's commandTable)
+    # (the nullCommand instance is not put into the command sequencer's commandTable)
     modename = 'nullCommand'
     msg_modename = 'nullCommand'
         # this will be overwritten in the nullCommand instance
@@ -162,7 +152,7 @@ class basicCommand(anyCommand):
     default_mode_status_text = "(bug: missing command status text)"
     
     def user_modename(self): #bruce 051130 (apparently this is new; it can be the official user-visible-modename method for now)
-        "Return a string such as 'Move Mode' or 'Build Mode' -- the name of this mode for users; or '' if unknown."
+        "Return a string such as 'Move Mode' or 'Build Mode' -- the name of this command for users; or '' if unknown."
         ### TODO: move below __init__ or make it a property or so
         if self.default_mode_status_text.startswith("Mode: "):
             return self.default_mode_status_text[len("Mode: "):] + " Mode"
@@ -247,29 +237,42 @@ class basicCommand(anyCommand):
         self.o = self.glpane # REVIEW: needed? (deprecated)
         self.w = self.win # (deprecated)
         
-        # store ourselves in our glpane's mode table, commandTable ### TODO: store in commandSequencer instead
-        ###REVIEW whether this is used for anything except changing to new mode by name [bruce 070613 comment]
+        # store ourselves in our command sequencer/glpane's commandTable ### TODO: store in commandSequencer instead
+        ###REVIEW whether this is used for anything except changing to new command by name [bruce 070613 comment]
         self.glpane.commandTable[self.modename] = self
             # note: this can overwrite a prior instance of the same command,
             # e.g. when setAssy is called.
 
         return # from basicCommand.__init__
 
-    def get_commandSequencer(self):
+    def _get_commandSequencer(self):
         return self.win.commandSequencer #bruce 070108
     
-    commandSequencer = property(get_commandSequencer)
+    commandSequencer = property(_get_commandSequencer)
     
     def isCurrentCommand(self): #bruce 071008, for Command API
         """
         Return a boolean to indicate whether self is the currently active command.
-        Note: this is False even if self is temporarily suspended by e.g. Pan Tool,
-        but self's UI is still fully displayed; this needs to be considered when
-        this method is used to determine whether UI actions should have an effect.
+        (Compares instance identity, not just class name or command name.)
+
+        This can be used in "slot methods" that receive Qt signals from a PM
+        to reject signals that are meant for a newer command object of the same class,
+        in case the old command didn't disconnect those signals from its own methods
+        (as it ideally should do).
+        
+        Warning: this is False even if self is temporarily suspended by e.g. Pan Tool,
+        which has no PM of its own (so self's UI remains fully displayed); this
+        needs to be considered when this method is used to determine whether UI
+        actions should have an effect.
+
+        Warning: this is False while a command is still being entered (i.e.
+        during the calls of Enter and init_gui, and the first call of update_gui).
+        But it's not a good idea to rely on that behavior -- if you do, you should
+        redefine this function to guarantee it, and add suitable comments near the
+        places which *could* in principle be modified to set .currentCommand to the
+        command object being entered, earlier than they do now.
         """
-        # see WARNING in modeMixin about this needing revision if .currentCommand
-        # might have been wrapped with an API-enforcement (or any other) proxy.
-        return self.commandSequencer.currentCommand is self
+        return self.commandSequencer.is_this_command_current(self)
 
     def set_cmdname(self, name):
         """
@@ -485,7 +488,7 @@ class basicCommand(anyCommand):
         # other code which finds them again redundantly (calling the same kluge helper function).
         from debug_prefs import debug_pref, Choice_boolean_False
         if debug_pref("Conf corner test: use haveNontrivialState", Choice_boolean_False, prefs_key = True):
-            # old code, works, but not correct for default mode or when generators active
+            # old code, works, but not correct for default command or when generators active
             if self.haveNontrivialState():
                 return 'Done+Cancel'
             else:
@@ -513,22 +516,22 @@ class basicCommand(anyCommand):
     def warning(self, *args, **kws):
         self.o.warning(*args, **kws)
 
-    # == methods related to entering this mode
+    # == methods related to entering this command
     
     def _enterMode(self, resuming = False): #bruce 070813 added resuming option
         """
-        Private method (called only by our glpane) -- immediately
-        enter this mode, i.e. prepare it for use, not worrying at
-        all about any prior current mode.  Return something false
+        Private method (called only by our command sequencer) -- immediately
+        enter this command, i.e. prepare it for use, not worrying at
+        all about any prior current command.  Return something false
         (e.g. None) normally, or something true if you want to
-        refuse entry to the new mode (see comments in the call to
+        refuse entry to the new command (see comments in the call to
         this for why you might want to do that).  Note that the
-        calling glpane has not yet set its self.mode to point to us
+        calling command sequencer has not yet set its self.currentCommand to point to us
         when it calls this method, and it will never do so unless
         we return something false (as we usually do).  Should not
         be overridden by subclasses.
 
-        @param resuming: whether we're resuming this mode (after a completed
+        @param resuming: whether we're resuming this command (after a completed
                          subcommand); otherwise we're entering it as if anew.
                          This is for use by Subcommands resuming their parent
                          commands.
@@ -537,7 +540,7 @@ class basicCommand(anyCommand):
         if not resuming:
             refused = self.refuseEnter(warn = 1)
             if not refused:
-                # do mode-specific entry initialization;
+                # do command-specific entry initialization;
                 # this method is still allowed to refuse, as well
                 refused = self.Enter() 
                 if refused:
@@ -548,16 +551,16 @@ class basicCommand(anyCommand):
             self.init_gui() ###FIX: perhaps use resume_gui instead, if resuming -- or pass that option.
             self.update_gui() # see also UpdateDashboard
             self.update_mode_status_text()
-        # caller (our glpane) will set its self.mode to point to us,
+        # caller (our command sequencer) will set its self.currentCommand to point to us,
         # but only if we return false
         return refused
 
     def refuseEnter(self, warn):
         """
         Subclasses should override this: examine the current
-        selection state of your glpane, and anything else you care
+        selection state of your command's model, and anything else you care
         about, and decide whether you would refuse to become the
-        new current mode, if asked to. If you would refuse, and if
+        new current command, if asked to. If you would refuse, and if
         warn = true, then emit an error message explaining this.
         In any case, return whether you refuse entry (i.e. true if
         you do, false if you don't).         
@@ -571,16 +574,16 @@ class basicCommand(anyCommand):
         basicMode, for new code it might be Command).
         
         Then set whatever internal state you need to upon being entered,
-        modify settings in your glpane (self.o) if necessary,
+        modify settings in your command or its model or glpane (self.o) if necessary,
         and return None.
         
         If something goes wrong, so that you don't accept being the
-        new current mode, emit an error message explaining why
+        new current command, emit an error message explaining why
         (perhaps in a dialog or status bar), and return True -- but
         it's better if you can figure this out earlier, in
         refuseEnter().        
         """
-        self.UpdateDashboard() # Added to hide Done button for Default mode. Mark 050922.
+        self.UpdateDashboard() # Added to hide Done button for Default command. Mark 050922.
         self.picking = False
         self.update_cursor()
         return None
@@ -590,10 +593,10 @@ class basicCommand(anyCommand):
         Subclasses should define this to set up UI stuff like dashboards,
         cursors, toggle icons, etc.
 
-        It should be called only once each time the mode is entered.
+        It should be called only once each time the command is entered.
         Therefore, it should not be called by other code (for that,
-        see UpdateDashboard()), nor defined by modes to do things that
-        need redoing many times per mode-entry (for that, see
+        see UpdateDashboard()), nor defined by commands to do things that
+        need redoing many times while the command remains active (for that, see
         update_gui()).
         """
         pass
@@ -609,9 +612,9 @@ class basicCommand(anyCommand):
 
     def UpdateDashboard(self):
         """
-        Public method, meant to be called only on the current mode object:
+        Public method, meant to be called only on the current command object:
 
-        Make sure this mode's dashboard is updated before the processing of
+        Make sure this command's dashboard is updated before the processing of
         the current user event is finished.
 
         External code that might change things which some modes
@@ -627,8 +630,8 @@ class basicCommand(anyCommand):
         # this will then be the invalidation routine, in spite of the name.
         # We *don't* also call update_mode_status_text -- that's separate.
         
-        # This shows the Done button on the dashboard unless the current mode is the 
-        # Default mode. Resolves bug #958 and #959. Mark 050922.
+        # This shows the Done button on the dashboard unless the current command is the 
+        # Default command. Resolves bug #958 and #959. Mark 050922.
         import UserPrefs
         if self.modename == UserPrefs.default_modename(): #bruce 060403 revised this
             self.w.toolsDoneAction.setVisible(0)
@@ -644,26 +647,26 @@ class basicCommand(anyCommand):
         new method, bruce 040927; here is my guess at its doc
         [maybe already obs?]:
 
-        Update the mode-status widget to show
-        the currently correct mode-status text for this mode.
+        Update the command-status widget to show
+        the currently correct command-status text for this command.
         Subclasses should not override this; its main purpose is to
-        know how to do this in the environment of any mode.  This
-        is called by the standard mode-entering code when it's sure
-        we're entering a new mode, and whenever it suspects the
+        know how to do this in the environment of any command.  This
+        is called by the standard command-entering code when it's sure
+        we're entering a new command, and whenever it suspects the
         correct status text might have changed (e.g. after certain
         user events #nim).  It can also be called by modes
         themselves when they think the correct text might have
         changed.  To actually *specify* that text, they should do
-        whatever they need to do (which might differ for each mode)
+        whatever they need to do (which might differ for each command)
         to change the value which would be returned by their
-        mode-specific method get_mode_status_text().           
+        command-specific method get_mode_status_text().           
         """
         self.w.update_mode_status( mode_obj = self)
             # fyi: this gets the text from self.get_mode_status_text();
             # mode_obj = self is needed in case glpane.currentCommand == nullMode
             #  at the moment.
 
-    def selection_changed(self): #bruce 070925 added this to mode/command API
+    def selection_changed(self): #bruce 070925 added this to Command API
         """
         Subclasses should extend this (or make sure their self.propMgr defines
         it) to check whether any selection state has changed that should be
@@ -685,7 +688,7 @@ class basicCommand(anyCommand):
         replace update_gui.
         """
         ### REVIEW: Decide whether highlighting (selobj) is covered by it (guess yes -- all kinds of selection).
-        ### maybe TODO: call when entering/resuming the mode, and say so, and document order of call
+        ### maybe TODO: call when entering/resuming the command, and say so, and document order of call
         # relative to update_gui. And deprecate update_gui or make it more efficient.
         # And add other methods that only use usage-tracked state and are only called as needed.
         if self.propMgr:
@@ -693,7 +696,7 @@ class basicCommand(anyCommand):
                 self.propMgr.selection_changed()
         return
 
-    def model_changed(self): #bruce 070925 added this to mode/command API
+    def model_changed(self): #bruce 070925 added this to Command API
         """
         Subclasses should extend this (or make sure their self.propMgr defines
         it) to check whether any model state has changed that should be
@@ -727,7 +730,7 @@ class basicCommand(anyCommand):
         already obs?]; btw this overrides an AnyMode method:
 
         Return the correct text to show right now in the
-        mode-status widget (e.g."Mode: Build",
+        command-status widget (e.g."Mode: Build",
         "Mode: Select Chunks").
 
         The default implementation is suitable for modes in which this
@@ -736,7 +739,7 @@ class basicCommand(anyCommand):
         override this method to compute that text in the correct way,
         and will *also* need to ensure that their update_mode_status_text()
         method is called
-        whenever the correct mode status text might have changed,
+        whenever the correct command status text might have changed,
         if it might not be called often enough by default. 
         [### but how often it's called by default is not yet known
         -- e.g. if we do it after every button or menu event, maybe no
@@ -744,39 +747,40 @@ class basicCommand(anyCommand):
         """
         return self.default_mode_status_text
 
-    # methods for changing to some other mode
+    # methods for changing to some other command
     
     def userSetMode(self, modename, **options):        
         """
-        User has asked to change to the given modename; we might or
-        might not permit this, depending on our own state.  If we
-        permit it, do it; if not, show an appropriate error
-        message.  Exception: if we're already in that mode, do
-        nothing.           
+        User has asked to change to the command with the given modename;
+        we might or might not permit this, depending on our own state.
+        If we permit it, do it; if not, show an appropriate error
+        message. Exception: if we're already in that command, do
+        nothing.
         """
         if self.modename == modename:
-            if self.o.mode == self:
-                # changing from the active mode to itself -- do nothing
+            if self.isCurrentCommand():
+                # changing from the active command to itself -- do nothing
                 # (special case, not equivalent to behavior without it)
                 return
             else:
                 # I don't think this can happen, but if it does,
-                #it's either a bug or we're some fake mode like nullMode. #k
-                print "fyi (for developers): self.modename == modename but not self.o.mode == self (probably ok)" ###
-                # now change modes in the normal way
+                # it's either a bug or we're some fake command like nullMode. #k
+                print "fyi (for developers): self.modename == modename %r " \
+                      "but not self.isCurrentCommand() (probably ok)" % modename
+                # but fall through to change commands in the normal way
         # bruce 041007 removing code for warning about changes and requiring
         # explicit Done or Cancel if self.haveNontrivialState()
         self.Done( modename, **options)
         return
 
-    # methods for leaving this mode (from a dashboard tool or an
+    # methods for leaving this command (from a dashboard tool or an
     # internal request).
 
     # Notes on state-accumulating modes, e.g. cookie extrude revolve
     # deposit [bruce 040923]:
     #
-    # Each mode which accumulates state, meant to be put into its
-    # glpane's assembly in the end, decides how much to put in as it
+    # Each command which accumulates state, meant to be put into its
+    # model (assembly) in the end, decides how much to put in as it
     # goes -- that part needs to be "undone" (removed from the
     # assembly) to support a Cancel event -- versus how much to retain
     # internally -- that part needs to be "done" (put into in the
@@ -784,7 +788,7 @@ class basicCommand(anyCommand):
     # that only depositMode (so far) puts any state into the assembly
     # before it's Done.)
     #
-    # Both kinds of state (stored in the mode or in the assembly)
+    # Both kinds of state (stored in the command or in the assembly)
     # should be considered when overriding self.haveNontrivialState()
     # -- it should say whether Done and Cancel should have different
     # ultimate effects. (Note "should" rather than "would" --
@@ -796,16 +800,16 @@ class basicCommand(anyCommand):
     #
     # StateDone should actually put the unsaved state from here into
     # the assembly; StateCancel should remove the state which was
-    # already put into the assembly by this mode's operation (but only
+    # already put into the assembly by this command's operation (but only
     # since the last time it was entered). Either of those can also
     # emit an error message and return True to refuse to do the
     # requested operation of Done or Cancel (they normally return
     # None).  If they return True, we assume they made no changes to
-    # the stored state, in the mode or in the assembly (but we have no
+    # the stored state, in the command or in the assembly (but we have no
     # way of enforcing that; bugs are likely if they get this wrong).
     #
     # I believe that exactly one of StateDone and StateCancel will be
-    # called, for any way of leaving a mode, except for Abandon, if
+    # called, for any way of leaving a command, except for Abandon, if
     # self.haveNontrivialState() returns true; if it returns false,
     # neither of them will be called.
     #
@@ -814,8 +818,8 @@ class basicCommand(anyCommand):
     def Done(self, new_mode = None, suspend_old_mode = False, **new_mode_options):
         """
         Done tool in dashboard; also called internally (in
-        userSetMode and elsewhere) if user asks to start a new mode
-        and current mode decides that's ok, without needing an
+        userSetMode and elsewhere) if user asks to start a new command
+        and current command decides that's ok, without needing an
         explicit Done.  Change [bruce 040922]: Should not be
         overridden in subclasses; instead they should override
         haveNontrivialState and/or StateDone and/or StateCancel as
@@ -834,14 +838,14 @@ class basicCommand(anyCommand):
     def StateDone(self):
         """
         Mode objects (e.g. cookieMode) which might have accumulated
-        state which is not yet put into the model (their glpane's
-        assembly) should override this StateDone method to put that
+        state which is not yet put into their model (assembly)
+        should override this StateDone method to put that
         state into the model, and return None.  If, however, for
         some reason they want to refuse to let the user's Done
         event be honored, they should instead (not changing the
         model) emit an error message and return True.
         """
-        assert 0, "bug: mode subclass %r needs custom StateDone method, since its haveNontrivialState() apparently returned True" % \
+        assert 0, "bug: command subclass %r needs custom StateDone method, since its haveNontrivialState() apparently returned True" % \
                self.__class__.__name__
     
     def Cancel(self, new_mode = None, **new_mode_options):
@@ -864,14 +868,14 @@ class basicCommand(anyCommand):
     def StateCancel(self):
         """
         Mode objects (e.g. depositMode) which might have
-        accumulated state directly into the model (their glpane's
-        assembly) should override this StateCancel method to undo
+        accumulated state directly into their model (assembly)
+        should override this StateCancel method to undo
         those changes in the model, and return None.
 
         Alternatively, if they are unable to remove that state from
         the model (e.g. if that code is not yet implemented, or too
         hard to implement correctly), they should warn the user,
-        and then either leave all state unchanged (in mode object
+        and then either leave all state unchanged (in command object
         and model) and return True (to refuse to honor the user's
         Cancel request), or go ahead and leave the unwanted state
         in the model, and return None (which honors the Cancel but
@@ -881,17 +885,17 @@ class basicCommand(anyCommand):
         """
         return None # this is correct for all existing modes except depositMode
                     # -- bruce 040923
-        ## assert 0, "bug: mode subclass %r needs custom StateCancel method, since its haveNontrivialState() apparently returned True" % \
+        ## assert 0, "bug: command subclass %r needs custom StateCancel method, since its haveNontrivialState() apparently returned True" % \
         ##       self.__class__.__name__
 
     def haveNontrivialState(self):
         """
-        Subclasses which accumulate state (either in the mode
-        object or in their glpane's assembly, or both) should
+        Subclasses which accumulate state (either in the command
+        object or in their model (assembly), or both) should
         override this appropriately (see long comment above for
         details).  False positive is annoying, but permitted (its
         only harm is forcing the user to explicitly Cancel or Done
-        when switching directly into some other mode); but false
+        when switching directly into some other command); but false
         negative would be a bug, and would cause lost state after
         Done or (for some modes) incorrectly
         uncancelled/un-warned-about state after Cancel.
@@ -900,13 +904,13 @@ class basicCommand(anyCommand):
     
     def _exitMode(self, new_mode = None, suspend_old_mode = False, **new_mode_options):
         """
-        Internal method -- immediately leave this mode, discarding
+        Internal method -- immediately leave this command, discarding
         any internal state it might have without checking whether
         that's ok (if that check might be needed, we assume it
-        already happened).  Ask our glpane to change to new_mode
-        (which might be a modename or a mode object or None), if provided
-        (and if that mode accepts being the new mode), otherwise to
-        its default mode.  Unlikely to be overridden by subclasses.
+        already happened).  Ask our command sequencer to change to new_mode
+        (which might be a modename or a command object or None), if provided
+        (and if that command accepts being the new currentCommand), otherwise to
+        its default command.  Unlikely to be overridden by subclasses.
         """
         if not suspend_old_mode:
             self._cleanup()
@@ -915,10 +919,10 @@ class basicCommand(anyCommand):
         self.o.start_using_mode(new_mode, **new_mode_options)
             ## REVIEW: is suspend_old_mode needed in start_using_mode?
             # Tentative conclusion: its only effect would be how to fall back
-            # if using the new mode fails -- it would make us fall back to
-            # old mode rather than to default mode. Ideally we'd use a
+            # if using the new command fails -- it would make us fall back to
+            # old command rather than to default command. Ideally we'd use a
             # continuation-like style, wrapping new_mode with a fallback
-            # mode, and pass that as new_mode. So it's not worth fixing this
+            # command, and pass that as new_mode. So it's not worth fixing this
             # for now -- save it for when we have a real command-sequencer.
             # [bruce 070814 comment]
         return
@@ -928,7 +932,7 @@ class basicCommand(anyCommand):
         This is only used when we are forced to Cancel, whether or not this
         is ok (with the user) to do now -- someday it should never be called.
         Basically, every call of this is by definition a bug -- but
-        one that can't be fixed in the mode-related code alone.
+        one that can't be fixed in the command-related code alone.
         [But it would be easy to fix in the file-opening code, once we
         agree on how.]
         """
@@ -936,8 +940,8 @@ class basicCommand(anyCommand):
             msg = "%s with changes is being forced to abandon those changes!\n" \
                   "Sorry, no choice for now." % (self.msg_modename,)
             self.o.warning( msg, bother_user_with_dialog = 1 )
-        # don't do self._exitMode(), since it sets a new mode and
-        #ultimately asks glpane to update for that... which is
+        # don't do self._exitMode(), since it sets a new current command and
+        #ultimately asks command sequencer to update for that... which is
         #premature now.  #e should we extend _exitMode to accept
         #modenames of 'nullMode', and not update? also 'default'?
         #probably not...
@@ -949,11 +953,11 @@ class basicCommand(anyCommand):
         # someday call them separately, and also just for code
         # clarity. -- bruce 040923)
         self.o.stop_sending_us_events( self)
-            # stop receiving events from our glpane (i.e. use nullMode)
+            # stop receiving events from our command sequencer or glpane (i.e. use nullMode)
         self.restore_gui()
         self.w.setFocus() #bruce 041010 bugfix (needed in two places)
             # (I think that was needed to prevent key events from being sent to
-            #  no-longer-shown mode dashboards. [bruce 041220])
+            #  no-longer-shown command dashboards. [bruce 041220])
         self.restore_patches()
         self.clear() # clear our internal state, if any
         
@@ -986,9 +990,9 @@ class basicCommand(anyCommand):
     # Restart. Now the internal names match the user-visible names.)
     #
     # Each dashboard uses instances of the same tools, for a uniform
-    # look and action; the tool itself does not know which mode it
+    # look and action; the tool itself does not know which command it
     # belongs to -- its action just calls glpane.currentCommand.method for the
-    # current glpane and for one of the specified methods (or Flush,
+    # current glpane (ie command sequencer) and for one of the specified methods (or Flush,
     # the old name of Cancel, until we fix MWSemantics).
     #
     # Of these methods, Done and Cancel should never be customized
@@ -1013,7 +1017,7 @@ class basicCommand(anyCommand):
         subclasses should NOT override this
         """
         self.Cancel(new_mode = self.modename)
-            #### works, but has wrong error message when nim in sketch mode -- fix later
+            #### works, but has wrong error message when nim in sketch command -- fix later
 
     def Backup(self):
         """
@@ -1059,7 +1063,8 @@ class Command(basicCommand):
     """
     def __init__(self, commandSequencer):
         basicCommand.__init__(self, commandSequencer)
-        ## TODO: also create and save our GraphicsMode, so glpane can find it inside us
+        ## TODO: also create and save our GraphicsMode,
+        # so command sequencer can find it inside us for use by the glpane
         # (and how does it know when we change it or we get changed, which means its GM changed?)
         GM_class = xxx #}
         assert issubclass(GM_class, GraphicsMode)

@@ -1710,7 +1710,7 @@ class extrudeMode(basicMode):
             print_compact_traceback("exc in self.restore_gui(), ignored: ")
         for clas in [extrudeMode]:
             try:
-                self.o.mode_classes.remove(clas) # was: self.__class__
+                self.commandSequencer.mode_classes.remove(clas) # was: self.__class__
             except ValueError:
                 print "a mode class was not in commandTable (normal if last reload of it had syntax error)"
         import handles
@@ -1722,12 +1722,12 @@ class extrudeMode(basicMode):
 ##            do_what_MainWindowUI_should_do(self.w) # remake interface (dashboard), in case it's different [041014]
 ##        except:
 ##            print_compact_traceback("exc in new do_what_MainWindowUI_should_do(), ignored: ")
-        ## self.o.commandTable['EXTRUDE'] = extrudeMode
-        self.o.mode_classes.append(extrudeMode)
+        ## self.commandSequencer.commandTable['EXTRUDE'] = extrudeMode
+        self.commandSequencer.mode_classes.append(extrudeMode)
         print "about to reinit modes"
-        self.o._reinit_modes() # leaves mode as nullmode as of 050911
-        self.o.start_using_mode( '$DEFAULT_MODE' )
-            ###e or could use modename of prior self.mode 
+        self.commandSequencer._reinit_modes() # leaves mode as nullmode as of 050911
+        self.commandSequencer.start_using_mode( '$DEFAULT_MODE' )
+            ###e or could use modename of prior self.commandSequencer.currentCommand 
         print "done with reinit modes, now see if you can select the reloaded mode"
         return
 

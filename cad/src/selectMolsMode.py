@@ -582,7 +582,9 @@ class selectMolsMode(_superclass):
             
             
     def leftUp(self, event):
-        '''Event handler for all LMB release events.'''
+        """
+        Event handler for all LMB release events.
+        """
         env.history.flush_saved_transients() # flush any transient message it saved up
 	
 	#Enable the highlighting which might be turned off during left drag 
@@ -625,7 +627,8 @@ class selectMolsMode(_superclass):
         return # from selectMolsMode.leftUp
             
     def bareMotion(self, event): 
-        """SELECT CHUNKS MODE called for motion with no button down
+        """
+        SELECT CHUNKS MODE called for motion with no button down
         [should not be called otherwise -- 
 	call update_selatom or update_selobj directly instead]
         """
@@ -648,7 +651,8 @@ class selectMolsMode(_superclass):
         return
     
     def selobj_highlight_color(self, selobj): #bruce 050612 added this to mode API
-        """[mode API method] 
+        """
+        [mode API method] 
         If we'd like this selobj to be highlighted on mouseover
         (whenever it's stored in glpane.selobj), return the desired highlight color.
         If we'd prefer it not be highlighted (though it will still be stored
@@ -843,8 +847,9 @@ class selectMolsMode(_superclass):
         return not new_selobj_unknown # from update_selobj
     
     def get_obj_under_cursor(self, event): 
-        '''Return the object under the cursor.  Returns atoms, bonds, jigs.
-        '''
+        """
+        Return the object under the cursor.  Returns atoms, bonds, jigs.
+        """
         ### WARNING: this method is defined in two places, with mostly duplicated code,
         # but with one key difference whose date, author, & purpose is not documented.
         # [bruce 070924 comment]

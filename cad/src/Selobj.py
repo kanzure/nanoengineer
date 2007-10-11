@@ -167,7 +167,7 @@ points for them
 '''
 
 
-### REVIEW: should _check_target_depth_fudge_factor
+### REVIEW: should check_target_depth_fudge_factor
 # be an attribute of each object which can be drawn as selobj, instead of an attr of the mode?
 # (as of 070921 it's an optional mode attr, default value supplied by its client, GLPane.)
 

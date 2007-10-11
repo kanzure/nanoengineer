@@ -670,15 +670,16 @@ class movieDashboardSlotsMixin:
 	# is no obvious way to tell the Movie Property manager that the 
 	# movie has changed. So this is a kludge. 
 	# See bug 2428 comment 8 for further details -- Ninad 2007-10-02
-	currentMode = self.assy.o.mode
-	if currentMode.modename == "MOVIE":
-	    if currentMode.propMgr:
+	currentCommand = self.assy.o.currentCommand
+	if currentCommand.modename == "MOVIE":
+	    if currentCommand.propMgr:
 		if not msg:
-		    msg = currentMode.propMgr.getOpenMovieFileInfo()
-		currentMode.propMgr.updateMessage(msg)
+		    msg = currentCommand.propMgr.getOpenMovieFileInfo()
+		currentCommand.propMgr.updateMessage(msg)
 
     def fileSaveMovie(self):
-        """Save a copy of the current movie file loaded in the Movie Player.
+        """
+        Save a copy of the current movie file loaded in the Movie Player.
         """
         # Make sure there is a moviefile to save.
         if not self.assy.current_movie or not self.assy.current_movie.filename \

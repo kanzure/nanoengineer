@@ -15,7 +15,7 @@ see it for ideas about Command, DragCommand, _PERMIT_SETS_INSIDE_, DragANode, Cl
 (But some comments below still discuss Command and MakeANode in important ways.)
 
 Notable bug (really in check_target_depth in GLPane, not this file): highlighted-object-finder
-can be fooled by nearby depths due to _check_target_depth_fudge_factor of 0.0001. This caused
+can be fooled by nearby depths due to check_target_depth_fudge_factor of 0.0001. This caused
 a bug here, which is so far only worked around (by increasing DZFUZZ), not really fixed. [070115 comment]
 
 ==
@@ -81,12 +81,12 @@ from exprs.__Symbols__ import Anything, _self
 ## _viewer_for_object, etc, moved to rules.py on 070123
 
 DZFUZZ = PIXELS * 3.0 # replacing 1, 2, 2.5 in different places, to work around bug reported in BUGS as:
-    # 070115 "highlightable-finder can be fooled due to _check_target_depth_fudge_factor of 0.0001"
-    # (see also the assignment of _check_target_depth_fudge_factor in testmode.py, and the discussion in BUGS.txt of better fixes ###e)
+    # 070115 "highlightable-finder can be fooled due to check_target_depth_fudge_factor of 0.0001"
+    # (see also the assignment of check_target_depth_fudge_factor in testmode.py, and the discussion in BUGS.txt of better fixes ###e)
     # WARNING: It's possible that the value of DZFUZZ needed to work around this bug depends
     # on the GLPane size, or on user prefs settings, or on Ortho vs Perspective! (all speculations)
 
-## DZFUZZ = PIXELS * 0.5 # this also works, given the change in testmode.py to _check_target_depth_fudge_factor = 0.00001 [070116],
+## DZFUZZ = PIXELS * 0.5 # this also works, given the change in testmode.py to check_target_depth_fudge_factor = 0.00001 [070116],
 # reducing it by 10x, but I will leave it this way (>10x margin of safety) to make it unlikely the bug will show up with
 # other GLPane sizes, zoom factors, etc. Sometime it needs one of the better fixes discussed in BUGS.txt.
 
@@ -173,7 +173,7 @@ class Vertex(ModelObject): # renamed Node -> Vertex, to avoid confusion (tho it 
     def on_drag(self): # 070103 kluge experiment, copied/modified from on_drag_bg in bigger class below
 
         # Note: this bug reported in BUGS breaks dragging of these nodes; worked around by increasing DZFUZZ:
-        # 070115 "highlightable-finder can be fooled due to _check_target_depth_fudge_factor of 0.0001"
+        # 070115 "highlightable-finder can be fooled due to check_target_depth_fudge_factor of 0.0001"
 
         # where i am 070103 447p (one of two places with that comment)
         # - sort of sometimes works, but posns are sometimes same as bg, not sure why that DZ would be needed,

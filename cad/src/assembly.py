@@ -34,7 +34,7 @@ will be automatically broken, or will cause things to be placed into the same sp
 in order not to break them.
 
 Note that all info in the assy relates either to its named file or to something
-about the current mode (in the general sense of that term, not just the current assy.o.mode object);
+about the current command (in the general sense of that term, not just the current assy.o.currentCommand object);
 but the assy's info relating to its named file is not all stored directly in that file --
 some of it is stored in other files (such as movie files), and in the future, some of it
 might be stored in files referred to from some object within one of its Parts.

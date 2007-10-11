@@ -82,9 +82,31 @@ import time
 class anyGraphicsMode(object): #bruce 071008 added object superclass, 071009 split anyMode -> anyGraphicsMode
     """
     abstract superclass for all GraphicsMode objects, including nullGraphicsMode
-    """    
-    # (default methods that should be noops in both nullGraphicsMode
-    #  and GraphicsMode can be put here instead if desired)
+    """
+
+    # GraphicsMode-specific attribute null values
+    
+    compass_moved_in_from_corner = False
+        # when set, tells GLPane to render compass in a different place [bruce 070406]
+
+    render_scene = None # optional scene-rendering method [bruce 070406]
+        # When this is None, it tells GLPane to use its default method.
+        # (TODO, maybe: move that default method into basicGraphicsMode's implem
+        #  of this, and put a null implem in this class.)
+        # Note: to use this, override it with a method (or set it to a
+        # callable) which is compatible with GLPane.render_scene()
+        # but which receives a single argument which will be the GLPane.
+    
+    hover_highlighting_enabled = False
+        # note: hover_highlighting_enabled is a settable instance variable in both
+        # the Command and GraphicsMode APIs; a separate GraphicsMode delegates it
+        # as state to its Command [bruce 071011]
+
+    check_target_depth_fudge_factor = 0.0001
+        # affects GLPane's algorithm for finding objectUnderMouse (selobj)
+
+    
+    # default methods for both nullGraphicsMode and basicGraphicsMode
     
     def selobj_highlight_color(self, selobj): #bruce 050612 added this to GraphicsMode API; see depositMode version for docstring
         return None
@@ -103,7 +125,7 @@ class anyGraphicsMode(object): #bruce 071008 added object superclass, 071009 spl
 
     def drawHighlightedObjectUnderMouse(self, glpane, selobj, hicolor): #bruce 071008
         pass
-    
+
     pass # end of class anyGraphicsMode
 
 
@@ -132,16 +154,6 @@ class nullGraphicsMode(anyGraphicsMode):
             return self.noop_method
         else:
             raise AttributeError, attr #e args?
-
-    # GraphicsMode-specific attribute null values
-    
-    render_scene = None #bruce 070406; this tells GLPane to use default method,
-        # but removes the harmless debug print for missing nullGraphicsMode attr.
-        # Note: to use this, override it with a method which is compatible
-        # with GLPane.render_scene().
-    
-    compass_moved_in_from_corner = False
-        # tells GLPane to render compass in a different place [bruce 070406]
 
     # GraphicsMode-specific null methods
     
@@ -1242,12 +1254,12 @@ class GraphicsMode(basicGraphicsMode):
     # (sinc it is only for use in basicMode)
     # and they are provided by basicCommand or basicMode.
     
-    def get_commandSequencer(self):
+    def _get_commandSequencer(self):
         return self.command.commandSequencer
     
-    commandSequencer = property(get_commandSequencer) ### REVIEW: needed in this class?
+    commandSequencer = property(_get_commandSequencer) ### REVIEW: needed in this class?
     
-    def set_cmdname(self, name): ### REVIEW: needed in this class?
+    def set_cmdname(self, name): ### REVIEW: needed in this class? # Note: used directly, not in a property.
         """
         Helper method for setting the cmdname to be used by Undo/Redo.
         Called by undoable user operations which run within the context
@@ -1256,6 +1268,14 @@ class GraphicsMode(basicGraphicsMode):
         self.command.set_cmdname(name)
         return
 
+    def _get_hover_highlighting_enabled(self):
+        return self.command.hover_highlighting_enabled
+    
+    def _set_hover_highlighting_enabled(self, val):
+        self.command.hover_highlighting_enabled = val
+
+    hover_highlighting_enabled = property(_get_hover_highlighting_enabled, _set_hover_highlighting_enabled)
+    
     pass
 
 # end

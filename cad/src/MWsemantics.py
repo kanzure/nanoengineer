@@ -607,18 +607,18 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         
         return # from MWsemantics.__init__
 
-    def get_commandSequencer(self):
+    def _get_commandSequencer(self):
         # WARNING: if this causes infinite recursion, we just get an AttributeError
         # from the inner call (saying self has no attr 'commandSequencer')
         # rather than an understandable exception.
         return self.glpane #bruce 071008; will revise when we have a separate one
     
-    commandSequencer = property(get_commandSequencer)
+    commandSequencer = property(_get_commandSequencer)
 
-    def get_currentCommand(self):
+    def _get_currentCommand(self):
         return self.commandSequencer.currentCommand
 
-    currentCommand = property(get_currentCommand)
+    currentCommand = property(_get_currentCommand)
     
     def post_event_ui_updater(self): #bruce 070925
         self.currentCommand.state_may_have_changed()

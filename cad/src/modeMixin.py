@@ -31,6 +31,8 @@ from GraphicsMode import anyGraphicsMode # only needed for an isinstance asserti
 
 # ==
 
+# TODO: mode -> command or currentCommand in lots of comments, some method names
+
 class modeMixin(object):
     """
     Mixin class for supporting mode-switching. Maintains instance
@@ -49,16 +51,9 @@ class modeMixin(object):
     # like setMode are being left as commandSequencer.setMode until they're better
     # understood. [bruce 071008 comment]
 
-# see new code below [bruce 071010]
-##    mode = None # Note (from point of view of class GLPane):
-##                # external code expects self.mode to always be a
-##                # working mode object, which has certain callable
-##                # methods.  We'll make it one as soon as possible, and
-##                # make sure it remains one after that -- even during
-##                # __init__ and during transitions between modes, when
-##                # no events should come unless there are reentrance
-##                # bugs in event processing. [bruce 040922]
-
+    # Note: see "new code" far below for comments and definitions about the
+    # attributes of self which we maintain, namely mode, graphicsMode, currentCommand.
+    
     def _init_modeMixin(self): #bruce 071010 renamed from _init1, since that name is used on several classes
         """
         call this near the start of __init__ in a subclass that mixes us in (i.e. GLPane)
@@ -73,19 +68,6 @@ class modeMixin(object):
             # (in case of bugs, but also happens routinely sometimes)
         return
     
-# see new code below [bruce 071010]
-##    # implement the virtual slot self.currentCommand
-##    
-##    def get_currentCommand(self): #bruce 071008, temporary location and implem
-##        return self.mode
-##
-##    def set_currentCommand(self, val):
-##        print "something called set_currentCommand" # not yet used
-##        self.mode = val
-##    
-##    currentCommand = property(get_currentCommand, set_currentCommand)
-    
-
     def _reinit_modes(self): #bruce 050911 revised this
         """
         [bruce comment 040922, when I split this out from GLPane's
@@ -106,18 +88,18 @@ class modeMixin(object):
         assembly in the modes might cause trouble, if our
         functionality is extended in certain ways; if we someday
         fix that, the mode objects could be retained for the
-        lifetime of their glpane. But there's no reason we need to
+        lifetime of their command sequencer. But there's no reason we need to
         keep them longer, unless they store some other sort of
         state (like user preferences), which is probably also bad
         for them to do. So we can ignore this for now.)
         """
-        if self.mode is not self.nullmode:
+        if self._raw_currentCommand is not self.nullmode:
             ###e need to give current mode a chance to exit cleanly,
             ###or refuse -- but callers have no provision for our
             ###refusing (which is a bug); so for now just abandon
             # work, with a warning if necessary
             try:
-                self.mode.Abandon()
+                self.currentCommand.Abandon()
             except:
                 print "bug, error while abandoning old mode; ignore it if we can..." #e
         self.use_nullmode()
@@ -143,21 +125,31 @@ class modeMixin(object):
     # methods for starting to use a given mode (after it's already
     # chosen irrevocably, and any prior mode has been cleaned up)
 
-    def stop_sending_us_events(self, mode):
+    def stop_sending_us_events(self, command):
         """
-        Semi-internal method (called by our specific modes): Stop
-        sending events to the given mode (or to any actual mode
-        object).
+        Semi-internal method (called by command instances):
+        Stop sending events to the given command (or to any actual command
+        object besides the nullCommand).
         """
-        if self.mode is not mode:
+        if not self.is_this_command_current(command):
             # we weren't sending you events anyway, what are you
             # talking about?!?" #k not sure this is an error
-            print "fyi (for developers): stop_sending_us_events: self.mode is not mode: %r, %r" % (self.mode, mode) ###
+            print "fyi (for developers): stop_sending_us_events called from %r which is not currentCommand %r" % \
+                  (command, self._raw_currentCommand)
         self.use_nullmode()
 
     def use_nullmode(self):
         self._raw_currentCommand = self.nullmode
-        
+
+    def is_this_command_current(self, command):
+        """
+        Semi-private method for use by Command.isCurrentCommand;
+        for doc, see that method.
+        """
+        # We compare to self._raw_currentCommand in case self.currentCommand
+        # has been wrapped by an API-enforcement (or any other) proxy.
+        return self._raw_currentCommand is command
+    
     def start_using_mode(self, mode, resuming = False): #bruce 070813 added resuming option
         """
         Semi-internal method (meant to be called only from self
@@ -224,7 +216,7 @@ class modeMixin(object):
                     # I'm not sure this is the best place to put it, but it's the best
                     # existing single place I could find.
                 refused = mode._enterMode(resuming = resuming)
-                    # let the mode get ready for use; it can assume self.mode
+                    # let the mode get ready for use; it can assume self.currentCommand
                     # will be set to it, but not that it already has been.  It
                     # should emit a message and return True if it wants to
                     # refuse becoming the new mode.
@@ -238,14 +230,15 @@ class modeMixin(object):
                     # Assuming not too early, no need to name mode since prior histmsg did so.
                 refused = 1
             if not refused:
-                # We're in the new mode -- start sending glpane events to it.
+                # We're in the new command -- start sending glpane events to its graphicsMode
+                # and other events from command sequencer directly to it.
                 self._raw_currentCommand = mode
                 break
                 #bruce 050515: this is old location of Entering Mode histmsg, now moved before _enterMode
                 # [that comment is from before the for loop existed]
             # exception or refusal: try the next mode in the list (if any)
             continue
-        # if even $SAFE_MODE failed (serious bug), we might as well just stick with self.mode being nullMode...
+        # if even $SAFE_MODE failed (serious bug), we might as well just stick with self.currentCommand being nullMode...
         self.update_after_new_mode()
         return # from start_using_mode
     
@@ -331,7 +324,7 @@ class modeMixin(object):
         # don't try to optimize for already being in the same mode --
         # let individual modes do that if (and how) they wish
         try:
-            self.mode.userSetMode(modename, **options)
+            self.currentCommand.userSetMode(modename, **options)
 
             # REVIEW: the following update_after_new_mode looks redundant with
             # the one at the end of start_using_mode, if that one has always
@@ -352,7 +345,7 @@ class modeMixin(object):
             # so don't bother trying to get into the user's requested
             # mode, just get into a safe state.
             print_compact_traceback("userSetMode: ")
-            print "bug: userSetMode(%r) had bug when in mode %r; changing back to default mode" % (modename, self.mode,)
+            print "bug: userSetMode(%r) had bug when in mode %r; changing back to default mode" % (modename, self.currentCommand,)
             # for some bugs, the old mode will have left its toolbar
             # up; we should probably try to call its restore_gui
             # method directly... ok, I added this, though it's
@@ -362,7 +355,7 @@ class modeMixin(object):
                 self.win.setFocus() #bruce 041010 bugfix (needed in two places)
                     # (I think that was needed to prevent key events from being sent to
                     #  no-longer-shown mode dashboards. [bruce 041220])
-                self.mode.restore_gui()
+                self.currentCommand.restore_gui()
                     ###REVIEW: restore_gui is probably wrong when options caused
                     # us merely to suspend, not exit, the old mode. [bruce 070814 comment]
             except:
@@ -374,6 +367,16 @@ class modeMixin(object):
     
     # new code, mostly for the transition to a real command sequencer and a separate currentCommand and graphicsMode
     # [bruce 071010]
+
+    # Note (from point of view of class GLPane, into which we are or were mixed):
+    # external code expects self.currentCommand to always be a
+    # working Command object, which has certain callable methods,
+    # and expects self.graphicsMode to be a working GraphicsMode object.
+    # We'll make this true as soon as possible, and
+    # make sure it remains true after that -- even during
+    # __init__ and during transitions between commands, when
+    # no events should come unless there are reentrance
+    # bugs in event processing. [bruce 040922, revised 071011]
 
     # We store the actual currentCommand object on self.__raw_currentCommand (starts with two underscores);
     # to set that directly (only within this class's internal code),
@@ -443,6 +446,10 @@ class modeMixin(object):
         # we'll make every use print_compact_stack to aid in finding the rest
         # and replacing them with one or the other of currentCommand and graphicsMode.
         # Or we might print a once-per-line-number message when it's called... ### TODO
+        #
+        # hmm, this is true now! [bruce 071011]
+        print_compact_stack("fyi: this old code still accesses glpane.mode by that deprecated name: ")
+        
         raw_currentCommand = self._raw_currentCommand
         graphicsMode = self._raw_currentCommand.graphicsMode
         if raw_currentCommand is not graphicsMode:

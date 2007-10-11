@@ -286,9 +286,10 @@ class selectAtomsMode(selectMode):
         return
 
     def get_obj_under_cursor(self, event): # docstring appears wrong
-        '''Return the object under the cursor.  Only atoms, singlets and bonds are returned.
+        """
+        Return the object under the cursor.  Only atoms, singlets and bonds are returned.
         Returns None for all other cases, including when a bond, jig or nothing is under the cursor.
-        '''
+        """
         ### WARNING: this method is defined in two places, with mostly duplicated code,
         # but with one key difference whose date, author, & purpose is not documented.
         # [bruce 070924 comment]

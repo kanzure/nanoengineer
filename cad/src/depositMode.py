@@ -93,8 +93,9 @@ from utilities.Log import orangemsg, redmsg, greenmsg, quote_html
 from BuildAtomsPropertyManager import BuildAtomsPropertyManager
 
 class depositMode(selectAtomsMode):
-    """ This class is used to manually add atoms to create any structure.
-       Users know it as "Build Atoms".
+    """
+    This class is used to manually add atoms to create any structure.
+    Users know it as "Build Atoms".
     """
     
     # class constants
