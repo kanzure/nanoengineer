@@ -26,7 +26,6 @@ from constants            import permit_gensym_to_reuse_name
 from GeneratorBaseClass   import AbstractMethod
 
 
-
 class EditController:
     """
     Geometry Generator base class . This is a temporary class for Alpha9. 
@@ -100,14 +99,23 @@ class EditController:
         
         self.struct = self._createStructure()
         
+        if not self.struct:
+            return
+        
         if not self.propMgr:                 
             self.propMgr = self._createPropMgrObject()
             #IMPORTANT keep this propMgr permanently -- needed to fix bug 2563
             changes.keep_forever(self.propMgr)
                         
         self.propMgr.show()
-  
+        
+         
         if self.struct:
+            #When a structure is created first, set the self.previousParams 
+            #to the struture parameters. This makes sure that it doesn't 
+            # unnecessarily do self._modifyStructure in 
+            # self.preview_or_finalize_structure  -- Ninad 2007-10-11
+            self.previousParams = self._gatherParameters()
             self.preview_or_finalize_structure(previewing = True)        
             self.win.assy.place_new_geometry(self.struct)
         

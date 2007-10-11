@@ -23,6 +23,7 @@ from PM.PM_CheckBox      import PM_CheckBox
 from PM.PM_PushButton    import PM_PushButton
 
 from widgets import RGBf_to_QColor
+from constants import gray
 
 from MotorPropertyManager import MotorPropertyManager
 
@@ -63,11 +64,24 @@ class RotaryMotorPropertyManager(MotorPropertyManager):
     def _loadGroupBox1(self, pmGroupBox):
         """
         Load widgets in MotorParamsGroupBox.
-        """                
+        """      
+        if self.struct:
+            torque = self.struct.torque
+            initial_speed = self.struct.initial_speed
+            final_speed = self.struct.speed
+            dampers_enabled = self.struct.dampers_enabled
+            enable_minimize = self.struct.enable_minimize
+        else:
+            torque = 0.0
+            initial_speed = 0.0
+            final_speed = 0.0
+            dampers_enabled = False
+            enable_minimize = False
+        
         self.torqueDblSpinBox = \
             PM_DoubleSpinBox(pmGroupBox, 
                                 label = "Torque :", 
-                                value = self.struct.torque, 
+                                value = torque, 
                                 setAsDefault = True,
                                 minimum    = 0.0, 
                                 maximum    = 1000.0, 
@@ -78,7 +92,7 @@ class RotaryMotorPropertyManager(MotorPropertyManager):
         self.initialSpeedDblSpinBox = \
             PM_DoubleSpinBox(pmGroupBox,
                                 label = "Initial Speed :", 
-                                value = self.struct.initial_speed, 
+                                value = initial_speed, 
                                 setAsDefault = True,
                                 minimum    = 0.0, 
                                 maximum    = 100.0, 
@@ -89,7 +103,7 @@ class RotaryMotorPropertyManager(MotorPropertyManager):
         self.finalSpeedDblSpinBox = \
             PM_DoubleSpinBox(pmGroupBox,
                                 label = "Final Speed :", 
-                                value = self.struct.speed, 
+                                value = final_speed, 
                                 setAsDefault = True,
                                 minimum  = 0.0, 
                                 maximum  = 100.0, 
@@ -104,14 +118,14 @@ class RotaryMotorPropertyManager(MotorPropertyManager):
                         )
                               
         
-        self.dampersCheckBox.setChecked(self.struct.dampers_enabled)
+        self.dampersCheckBox.setChecked(dampers_enabled)
         
         self.enableMinimizeCheckBox = \
             PM_CheckBox(pmGroupBox,
                         text = "Enable in Minimize",
                         widgetColumn = 0
                         )
-        self.enableMinimizeCheckBox.setChecked(self.struct.enable_minimize)
+        self.enableMinimizeCheckBox.setChecked(enable_minimize)
         
         self.directionPushButton = \
             PM_PushButton(pmGroupBox,
@@ -127,11 +141,22 @@ class RotaryMotorPropertyManager(MotorPropertyManager):
         """
         Load widgets in groubox 2.
         """
+        if self.struct:
+            length = self.struct.length
+            radius = self.struct.radius
+            spoke_radius = self.struct.sradius
+            normcolor = self.struct.normcolor
+        else:
+            length = 10
+            radius = 1
+            spoke_radius = 0.2
+            normcolor = gray
+            
         
         self.motorLengthDblSpinBox = \
             PM_DoubleSpinBox(pmGroupBox, 
                                 label = "Motor Length :", 
-                                value = self.struct.length, 
+                                value = length, 
                                 setAsDefault = True,
                                 minimum = 0.5, 
                                 maximum = 500.0, 
@@ -146,7 +171,7 @@ class RotaryMotorPropertyManager(MotorPropertyManager):
         self.motorRadiusDblSpinBox = \
             PM_DoubleSpinBox(pmGroupBox, 
                                 label="Motor Radius :", 
-                                value = self.struct.radius, 
+                                value = radius, 
                                 setAsDefault = True,
                                 minimum = 0.1, 
                                 maximum = 50.0, 
@@ -161,7 +186,7 @@ class RotaryMotorPropertyManager(MotorPropertyManager):
         self.spokeRadiusDblSpinBox = \
             PM_DoubleSpinBox(pmGroupBox, 
                                 label = "Spoke Radius :", 
-                                value = self.struct.sradius, 
+                                value = spoke_radius, 
                                 setAsDefault = True,
                                 minimum = 0.1, 
                                 maximum = 50.0, 
@@ -173,7 +198,7 @@ class RotaryMotorPropertyManager(MotorPropertyManager):
                      SIGNAL("valueChanged(double)"), 
                      self.change_motor_size)
         # Used as default color by Color Chooser
-        self.jig_QColor = RGBf_to_QColor(self.struct.normcolor) 
+        self.jig_QColor = RGBf_to_QColor(normcolor) 
         
         self.colorPushButton = \
             PM_PushButton(pmGroupBox,

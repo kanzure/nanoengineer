@@ -89,6 +89,9 @@ class RotaryMotorEditController(EditController):
         if atomNumberRequirementMet:
             motor = RotaryMotor(self.win.assy)
             motor.findCenterAndAxis(atoms, self.win.glpane)
+        else:
+            motor = None
+            env.history.message(redmsg(logMessage))
                 
         return motor
   
@@ -165,7 +168,7 @@ class RotaryMotorEditController(EditController):
         isAtomRequirementMet = False
         
         if numberOfAtoms == 0:
-            logMessage = "Warning: No Atoms are selected"
+            logMessage = "No Atoms selected to create a %s" % (self.cmdname)
             isAtomRequirementMet = False
             return (isAtomRequirementMet, logMessage) 
         
@@ -173,22 +176,30 @@ class RotaryMotorEditController(EditController):
         if numberOfAtoms < 2:
             msg = redmsg("You must select at least two atoms to create"\
                          " a Rotary Motor.")
-            env.history.message(self.cmd + msg)
             logMessage = msg
             isAtomRequirementMet = False
-            return (isAtomRequirementMet, logMessage)
-            
-        # Print warning if over 200 atoms are selected.
-        # The warning should be displayed in a MessageGroupBox. Mark 2007-05-28
-        if atom_limit_exceeded_and_confirmed(self.win, 
-                                             numberOfAtoms, 
-                                             limit = 200):
-            logMessage = "Warning: Motor is attached to more than 200 atoms. "\
-                       "This may result in a performance degradation"
-            isAtomRequirementMet = True
             return (isAtomRequirementMet, logMessage)
         
         if numberOfAtoms >= 2 and numberOfAtoms < 200:
             isAtomRequirementMet = True
             logMessage = ""
             return (isAtomRequirementMet, logMessage)
+            
+        # Print warning if over 200 atoms are selected.
+        # The warning should be displayed in a MessageGroupBox. Mark 2007-05-28
+        if numberOfAtoms > 200:
+            if not atom_limit_exceeded_and_confirmed(self.win, 
+                                                 numberOfAtoms, 
+                                                 limit = 200):
+                logMessage = "Warning: Motor is attached to more than 200 "\
+                           "atoms. This may result in a performance degradation"
+                isAtomRequirementMet = True
+            else:
+                logMessage = "%s creation cancelled" % (self.cmdname)
+                isAtomRequirementMet = False
+            
+            return (isAtomRequirementMet, logMessage)
+
+        
+        
+        
