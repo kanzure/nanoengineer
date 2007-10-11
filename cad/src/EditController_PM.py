@@ -151,7 +151,14 @@ class EditController_PM(PM_Dialog):
         # when the PM of the reference geometry is closed. -- Ninad 20070603 
         # Note: the value of self.modePropertyManager can be None
         # @see: anyMode.propMgr
-        self.modePropertyManager = self.win.assy.o.mode.propMgr
+        #
+        # (Note: once we have a real command sequencer, it will be
+        #  handling this kind of thing itself, and the situation
+        #  in which the currentCommand does not correspond to
+        #  the current PM (as is true here while this separate PM
+        #  is open, since it's not currentCommand.propMgr)
+        #  will be deprecated or impossible. [bruce 071011 comment])
+        self.modePropertyManager = self.win.currentCommand.propMgr
                 
         if self.modePropertyManager:
             #@self.openPropertyManager(self.modePropertyManager)
@@ -171,7 +178,8 @@ class EditController_PM(PM_Dialog):
         # the PM of the reference geometry editController (i.e. Plane) is closed.
         # Note: the value of self.modePropertyManager can be None.
         # See anyMode.propMgr
-        self.modePropertyManager = self.win.assy.o.mode.propMgr
+        # (See similar code in ok_btn_clicked [bruce 071011 comment])
+        self.modePropertyManager = self.win.currentCommand.propMgr
             
         if self.modePropertyManager:
             #@self.openPropertyManager(self.modePropertyManager)
