@@ -1259,8 +1259,8 @@ class GraphicsMode(basicGraphicsMode):
     """
     def __init__(self, command):
         self.command = command
-        glpane = self.xxx ### TODO: work this out... #}
-        basicGraphicsMode.__init__(glpane)
+        glpane = self.command.glpane ### REVIEW: do commands continue to have this directly??
+        basicGraphicsMode.__init__(self, glpane)
         return
 
     # Note: the remaining methods etc are not needed in basicGraphicsMode
@@ -1291,5 +1291,7 @@ class GraphicsMode(basicGraphicsMode):
     hover_highlighting_enabled = property(_get_hover_highlighting_enabled, _set_hover_highlighting_enabled)
     
     pass
+
+commonGraphicsMode = basicGraphicsMode # use this for mixin classes that need to work in both basicGraphicsMode and GraphicsMode
 
 # end

@@ -38,6 +38,10 @@ from jigs import Jig
     # this is used only for cmenu making
     # TODO: probably it should be factored into a method on the object being tested
 
+from GraphicsMode import GraphicsMode # needed only for Command.GraphicsMode_class, and a related assertion
+    # TODO: find a way to register this at runtime, to avoid the import?
+    # See also the comment about import dependency near where this is used. [bruce 071012]
+
 # ==
 
 class anyCommand(object, StateMixin): #bruce 071008 added object superclass; 071009 split anyMode -> anyCommand
@@ -1149,16 +1153,67 @@ class Command(basicCommand):
     same class being created when the user again asks for the same
     operation to occur).
     """
+    # default values of class constants (often overridden by subclasses)
+    
+    GraphicsMode_class = GraphicsMode
+        # Each Command subclass can override this class constant
+        # with the most abstract GraphicsMode subclass which they are able to work with.
+        # Command subclasses which inherit (say) SomeCommand can also define
+        # a corresponding GraphicsMode subclass (and assign it to this class attribute)
+        # using SomeCommand.GraphicsMode_class as its superclass.
+        #
+        # (This works when the set of methods can be known at import time.
+        #  The init args, kws, and side effects needn't be known then,
+        #  since the Command methods which supply them can be overridden.)
+        #
+        # The main issue in this scheme is the import dependence between
+        # any Command subclass and the GraphicsMode methods used to
+        # implement it, though logically, it'd be better if it was only
+        # dependent then on the API of those GraphicsMode methods,
+        # and not on their implem until it had to be instantiated.
+        # Eventually, to librarify this code, we'll need to solve that problem.
+
+##    graphicsMode = None # might be needed to override property defined in superclass,
+        # in order for this to be settable -- won't know until we try this code in a split version of ArrangementMode ### TEST
+    
     def __init__(self, commandSequencer):
         basicCommand.__init__(self, commandSequencer)
-        ## TODO: also create and save our GraphicsMode,
+        # also create and save our GraphicsMode,
         # so command sequencer can find it inside us for use by the glpane
         # (and how does it know when we change it or we get changed, which means its GM changed?)
-        GM_class = xxx #}
+        self._create_GraphicsMode()
+        self._post_init_modify_GraphicsMode()
+        return
+    
+    def _create_GraphicsMode(self):
+        GM_class = self.GraphicsMode_class # TODO: let caller pass something to replace this?
         assert issubclass(GM_class, GraphicsMode)
-        self.graphicsMode = GM_class(self)
+        args = [self] # the command is the only ordinary init argument
+        kws = {} # TODO: let subclasses add kws to this
+        # TODO: permit the following to sometimes share a single GM instance
+        # between multiple commands (might or might not be important)
+        # (possible importance: if something expensive like expr instances
+        #  are cached in the GM instance itself; for now they're cached in
+        #  the GLPane based on the Command or GM name, so this doesn't matter)
+        self.graphicsMode = GM_class(*args, **kws)
+        pass
+
+    def _post_init_modify_GraphicsMode(self):
+        """
+        Subclasses should perform post-init side effects as needed
+        on their GraphicsMode instance, in super-to-subclass order
+        (which means, first call the super method, then add
+         your own code).
+        """
+        # TODO: modify this scheme, so that if we might not have created it
+        # ourselves, only do this if we did. But still call from __init__
+        # rather than from _create_GraphicsMode.
+        # REVIEW: could side effects intended to be done by this
+        # just be part of _create_GraphicsMode instead?
         pass
 
     pass
+
+commonCommand = basicCommand # use this for mixin classes that need to work in both basicCommand and Command
 
 # end
