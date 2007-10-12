@@ -345,6 +345,18 @@ class basicGraphicsMode(anyGraphicsMode):
 
     # ==
 
+    def restore_patches_by_GraphicsMode(self):
+        """
+        subclasses should restore anything they temporarily modified in
+        their environment (such as temporary objects stored in major objects
+        like win or glpane or assy, or settings changes in them)
+
+        @see: Command.restore_patches_by_Command
+        """
+        pass
+
+    # ==
+
     def Draw(self):
         """
         Generic Draw method, with drawing code common to all modes.

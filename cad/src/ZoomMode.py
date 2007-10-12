@@ -57,34 +57,18 @@ class ZoomMode(_superclass):
         # background becomes bright, we'll set it as black.
         brightness = bg[0] + bg[1] + bg[2]
         if brightness > 1.5:
-            self.rbwcolor = bg
+            self.rbwcolor = bg # TODO: make this accessible from our GraphicsMode part, when that's split
         else:
             self.rbwcolor = A((1.0, 1.0, 1.0)) - A(bg)
         
         self.glStatesChanged = False
+            # to find uses of this, look for self.command.glStatesChanged in our GraphicsMode part
         return
     
     def init_gui(self):
         self.win.zoomToolAction.setChecked(1) # toggle on the Zoom Tool icon
         self.glpane.setCursor(self.win.ZoomCursor)
 
-    def restore_patches(self):
-        """
-        This is run when we exit this command for any reason.
-        """
-            # REVIEW: this has both Command and GraphicsMode aspects, but I guess it's in the Command part;
-            # maybe it needs to delegate into the GM to know some of the patches to restore?
-            # maybe split it into two methods? [bruce 071012]
-        # If OpenGL states changed during this mode, we need to restore
-        # them before exit. Currently, only leftDown() will change that.
-        # [bruce 071011 change: do this in restore_patches, not in Done]
-        if self.glStatesChanged:
-            self.glpane.redrawGL = True
-            glDisable(GL_COLOR_LOGIC_OP)
-            glEnable(GL_LIGHTING)
-            glEnable(GL_DEPTH_TEST)
-        return
-    
     def restore_gui(self):
         self.win.zoomToolAction.setChecked(0) # toggle off the Zoom Tool icon
 
@@ -113,6 +97,9 @@ class ZoomMode(_superclass):
         self.pStart = p1
         self.pPrev = p1
         self.firstDraw = True
+
+        self.command.glStatesChanged = True
+            # this warns our exit code to undo the following OpenGL state changes:
         
         self.glpane.redrawGL = False
         glDisable(GL_DEPTH_TEST)
@@ -122,7 +109,6 @@ class ZoomMode(_superclass):
         glEnable(GL_COLOR_LOGIC_OP)
         glLogicOp(GL_XOR)
         
-        self.glStatesChanged = True
         return
         
     def leftDrag(self, event):
@@ -221,13 +207,27 @@ class ZoomMode(_superclass):
        
         self.command.Done()
         return
-         
+        
     def update_cursor_for_no_MB(self): # Fixes bug 1638. Mark 3/12/2006.
         """
         Update the cursor for 'Zoom' mode.
         """
         self.glpane.setCursor(self.win.ZoomCursor)
 
+    def restore_patches_by_GraphicsMode(self):
+        """
+        This is run when we exit this command for any reason.
+        """
+        # If OpenGL states changed during this mode, we need to restore
+        # them before exit. Currently, only leftDown() will change that.
+        # [bruce 071011/071012 change: do this in restore_patches_by_GraphicsMode, not in Done]
+        if self.command.glStatesChanged:
+            self.glpane.redrawGL = True
+            glDisable(GL_COLOR_LOGIC_OP)
+            glEnable(GL_LIGHTING)
+            glEnable(GL_DEPTH_TEST)
+        return
+    
     pass
 
 # end

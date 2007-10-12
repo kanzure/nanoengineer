@@ -291,28 +291,27 @@ class cookieMode(basicMode):
 
     def StateCancel(self):
         self.o.shape = None
-        # it's mostly a matter of taste whether to put this statement into StateCancel, restore_patches, or clear()...
+        # it's mostly a matter of taste whether to put this statement into StateCancel, restore_patches_by_*, or clear()...
         # it probably doesn't matter in effect, in this case. To be safe (e.g. in case of Abandon), I put it in more than one place.
+        #
+        # REVIEW: shouldn't we store shape in the Command object (self or self.command depending on which method we're in)
+        # rather than in the glpane? Or, if it ought to be a temporary part of the model, in assy? [bruce 071012 comment]
         
         return None
-   
         
-    def restore_patches(self):
+    def restore_patches_by_Command(self):
         self.o.ortho = self.savedOrtho
         self.o.shape = None
         self.selCurve_List = []
         self.o.pov = V(self.oldPov[0], self.oldPov[1], self.oldPov[2])
     
-    
     def Backup(self):
         if self.o.shape:
             self.o.shape.undo(self.currentLayer)
-        
-            #If no curves left, let users do what they can just like
-            #when they first enter into cookie mode.
+            # If no curves left, let users do what they can just like
+            # when they first enter into cookie mode.
             if not self.o.shape.anyCurvesLeft():
                 self.StartOver()
-            
         self.o.gl_update()
 
     # mouse and key events
@@ -323,8 +322,9 @@ class cookieMode(basicMode):
             self._cancelSelection()
         
     def update_cursor_for_no_MB(self):
-        '''Update the cursor for 'Cookie Cutter' mode.
-        '''
+        """
+        Update the cursor for 'Cookie Cutter' mode.
+        """
         if self.freeView:
             self.o.setCursor(QCursor(Qt.ArrowCursor))
             return
@@ -343,7 +343,7 @@ class cookieMode(basicMode):
             print "Error in update_cursor_for_no_MB(): Invalid modkey=", self.o.modkeys
         return
         
-# == LMB down-click (button press) methods
+    # == LMB down-click (button press) methods
    
     def leftShiftDown(self, event):
         self.leftDown(event)
@@ -354,7 +354,7 @@ class cookieMode(basicMode):
     def leftDown(self, event):
         self.select_2d_region(event)
 
-# == LMB drag methods
+    # == LMB drag methods
 
     def leftShiftDrag(self, event):
         self.leftDrag(event)
@@ -365,7 +365,7 @@ class cookieMode(basicMode):
     def leftDrag(self, event):
         self.continue_selection_curve(event)
 
-# == LMB up-click (button release) methods
+    # == LMB up-click (button release) methods
 
     def leftShiftUp(self, event):
         self.leftUp(event)
@@ -376,7 +376,7 @@ class cookieMode(basicMode):
     def leftUp(self, event):
         self.end_selection_curve(event)
     
-# == LMB double click method
+    # == LMB double click method
 
     def leftDouble(self, event):
         """End rubber selection """
@@ -390,7 +390,7 @@ class cookieMode(basicMode):
                 # while creating a polygon-rubber-band selection.
             self._traditionalSelect()
         
-# == end of LMB event handlers.
+    # == end of LMB event handlers.
         
     def select_2d_region(self, event): # Copied from selectMode(). mark 060320.
         '''Start 2D selection of a region.
@@ -641,7 +641,7 @@ class cookieMode(basicMode):
         
         # bruce 041213 comment: shape might already exist, from prior drags
         if not self.o.shape:
-            self.o.shape=CookieShape(self.o.right, self.o.up, self.o.lineOfSight, self.cookieDisplayMode, self.latticeType)
+            self.o.shape = CookieShape(self.o.right, self.o.up, self.o.lineOfSight, self.cookieDisplayMode, self.latticeType)
             self.propMgr.latticeCBox.setEnabled(False) 
             self.propMgr.enableViewChanges(False)
             
@@ -663,7 +663,7 @@ class cookieMode(basicMode):
         """Construct the right center based selection shape to generate the
          cookie. """
         if not self.o.shape:
-                self.o.shape=CookieShape(self.o.right, self.o.up, self.o.lineOfSight, self.cookieDisplayMode, self.latticeType)
+                self.o.shape = CookieShape(self.o.right, self.o.up, self.o.lineOfSight, self.cookieDisplayMode, self.latticeType)
                 self.propMgr.latticeCBox.setEnabled(False)
                 self.propMgr.enableViewChanges(False)
                  
@@ -869,7 +869,8 @@ class cookieMode(basicMode):
             self.griddraw()
         if self.selCurve_List: ## XOR color operation doesn't request paintGL() call.
             self.draw_selection_curve()
-        if self.o.shape: self.o.shape.draw(self.o, self.layerColors)
+        if self.o.shape:
+            self.o.shape.draw(self.o, self.layerColors)
         if self.showFullModel:
             self.o.assy.draw(self.o)
     
@@ -992,7 +993,8 @@ class cookieMode(basicMode):
     def _cancelSelection(self):
         """Cancel selection before it's finished """
         self._afterCookieSelection()
-        if not self.o.shape: self.propMgr.enableViewChanges(True)
+        if not self.o.shape:
+            self.propMgr.enableViewChanges(True)
         
     
     def changeLatticeType(self, lType):

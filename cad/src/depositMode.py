@@ -722,7 +722,8 @@ class depositMode(_superclass):
                                 
 # Now uses superclass method selectAtomsMode.restore_patches(). mark 060207.
 # [not true anymore, evidently -- so what does it use? bruce 071011]
-#    def restore_patches(self):
+# [guessing it's more like restore_patches_by_GraphicsMode than _by_Command -- bruce 071012]
+#    def restore_patches_by_GraphicsMode(self):
 #        self.o.setDisplay(self.saveDisp) #bruce 041129; see notes for bug 133
 #        self.o.selatom = None
 

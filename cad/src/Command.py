@@ -1041,7 +1041,9 @@ class basicCommand(anyCommand):
         self.w.setFocus() #bruce 041010 bugfix (needed in two places)
             # (I think that was needed to prevent key events from being sent to
             #  no-longer-shown command dashboards. [bruce 041220])
-        self.restore_patches()
+##        self.restore_patches()
+        self.graphicsMode.restore_patches_by_GraphicsMode() # move earlier?
+        self.restore_patches_by_Command()
         self.clear() # clear our internal state, if any
         
     def restore_gui(self):
@@ -1051,10 +1053,13 @@ class basicCommand(anyCommand):
         """
         pass
 
-    def restore_patches(self):
+    def restore_patches_by_Command(self):
         """
-        subclasses should restore anything they temporarily modified in client
-        objects (such as display modes in their glpane)
+        subclasses should restore anything they temporarily modified in
+        their environment (such as temporary objects stored in major objects
+        like win or glpane or assy, or settings changes in them)
+
+        @see: GraphicsMode.restore_patches_by_GraphicsMode
         """
         pass
     

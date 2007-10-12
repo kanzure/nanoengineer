@@ -285,7 +285,7 @@ class movieMode(basicMode):
         ###e need to do more here, like the stuff in init_gui and maybe elsewhere
         return
 
-    def restore_patches(self): #bruce 050426 added this, to hold the side effect formerly done illegally by haveNontrivialState.
+    def restore_patches_by_Command(self): #bruce 050426 added this, to hold the side effect formerly done illegally by haveNontrivialState.
         "This is run when we exit the mode for any reason."
         #bruce 050426 continues commentary:
         # ... but why do we need to do this at all?
@@ -299,7 +299,7 @@ class movieMode(basicMode):
     def haveNontrivialState(self):
         ##bruce 050426: This used to call self.o.assy.current_movie._close()
         # but that's wrong (this method shouldn't have side effects),
-        # so I moved that to our custom restore_patches() method.
+        # so I moved that to our custom restore_patches_by_Command() method.
         # Also, this used to always return False; that's still ok as long as we continually modify
         # the model and tell it so (assy.changed) -- but I'm not sure we do; this needs review. ###k ####@@@@
         # (Current strategy, 050426 eve: ignore this and assy.changed issues, until done.)
