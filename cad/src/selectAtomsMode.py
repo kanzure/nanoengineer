@@ -982,16 +982,6 @@ class selectAtomsMode(selectMode):
 # == end of LMB event handler methods
                        
                 
-    def keyPress(self,key):
-        '''keypress event handler for selectAtomsMode.
-        '''                          
-        basicMode.keyPress(self, key)
-                
-    def keyRelease(self,key):
-        '''keyrelease event handler for selectAtomsMode.
-        '''
-        basicMode.keyRelease(self, key)
-                
     def update_cursor_for_no_MB(self):
         '''Update the cursor for 'Select Atoms' mode (selectAtomsMode)
         '''

@@ -357,10 +357,11 @@ class movieMode(basicMode):
 
     # mouse and key events
             
-    def keyPress(self,key):
+    def keyPress(self, key):
         
         # Disable delete key
-        if key == Qt.Key_Delete: return
+        if key == Qt.Key_Delete:
+            return
         
         movie = self.o.assy.current_movie
         if not movie:

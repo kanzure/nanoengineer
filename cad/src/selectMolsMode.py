@@ -99,17 +99,6 @@ class selectMolsMode(_superclass):
             self.commandSequencer.userEnterCommand('DEPOSIT')
         return
         
-    def keyPress(self,key):
-        '''keypress event handler for selectMolsMode.
-        '''
-        basicMode.keyPress(self, key)
-                
-    def keyRelease(self,key):
-        '''keyrelease event handler for selectMolsMode.
-        '''
-            
-        basicMode.keyRelease(self, key)
-        
     def update_cursor_for_no_MB(self):
         '''Update the cursor for 'Select Chunks' mode (selectMolsMode).
         '''

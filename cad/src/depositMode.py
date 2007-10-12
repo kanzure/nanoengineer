@@ -92,7 +92,9 @@ from utilities.Log import orangemsg, redmsg, greenmsg, quote_html
 
 from BuildAtomsPropertyManager import BuildAtomsPropertyManager
 
-class depositMode(selectAtomsMode):
+_superclass = selectAtomsMode
+
+class depositMode(_superclass):
     """
     This class is used to manually add atoms to create any structure.
     Users know it as "Build Atoms".
@@ -107,7 +109,7 @@ class depositMode(selectAtomsMode):
 
     def __init__(self, glpane):
                 
-        selectAtomsMode.__init__(self, glpane)
+        _superclass.__init__(self, glpane)
                                 
         self.pastables_list = [] #k not needed here?
         self.water_enabled = env.prefs[buildModeWaterEnabled_prefs_key] # mark 060203.
@@ -125,7 +127,7 @@ class depositMode(selectAtomsMode):
         
         self._init_flyoutActions()
                         
-        selectAtomsMode.Enter(self) # this calls self.reset_drag_vars(), which itself calls the super version
+        _superclass.Enter(self) # this calls self.reset_drag_vars(), which itself calls the super version
         
         #self.o.assy.permit_pick_atoms() #bruce 050517 revised API of this call
             # moved permit_pick_atoms() to selectAtomsMode.Enter().  mark 060219.
@@ -137,7 +139,7 @@ class depositMode(selectAtomsMode):
         
     def reset_drag_vars(self):
         # called in Enter and at start of (super's) leftDown
-        selectAtomsMode.reset_drag_vars(self)
+        _superclass.reset_drag_vars(self)
         
         self.pivot = None
         self.pivax = None
@@ -729,20 +731,18 @@ class depositMode(selectAtomsMode):
 
     # event methods
     
-    def keyPress(self,key):
-        # bruce comment 041220:
-        # doesn't call basicMode method, so Delete key is not active. Good??
-        # bruce 050128: no, not good. And it shows selection anyway... so do it below.
+    def keyPress(self, key):
         for sym, code, num in elemKeyTab: # Set the atom type in the MMKit and combobox.
             if key == code:
                 self.w.setElement(num) ###@@@ does this update our own spinbox too??
+                ### REVIEW: should we add a 'return' here, to prevent the superclass
+                # from taking more actions from the same keyPress?? [bruce question 071012]
         
-     
         # Pressing Escape does the following:
         # 1. If a Bond Tool or the Atom Selection Filter is enabled, pressing Escape will activate the Atom Tool
         # and disable the Atom Selection Filter. The current selection remains unchanged, however.
-        # 2. If the Atom Tool is enabed and the Atom Selection Filter is disabled, Escape will clear the 
-        # current selection.
+        # 2. If the Atom Tool is enabled and the Atom Selection Filter is disabled, Escape will clear the 
+        # current selection (when it's handled by our superclass's keyPress method).
         # Fixes bug (nfr) 1770. mark 060402
         if key == Qt.Key_Escape:
             if not self.depositAtomsAction.isChecked() or self.w.selection_filter_enabled:
@@ -753,13 +753,14 @@ class depositMode(selectAtomsMode):
                 self.depositAtomsAction.setChecked(1)
                 return
         
-        selectAtomsMode.keyPress(self,key) # bruce 050128
+        _superclass.keyPress(self, key)
         
         return
         
     def update_cursor_for_no_MB_selection_filter_disabled(self):
-        '''Update the cursor for 'Build' mode (when no mouse button is pressed).
-        '''
+        """
+        Update the cursor for 'Build' mode (when no mouse button is pressed).
+        """
         cursor_id = 0
         if hasattr(self.w, "current_bondtool_button") and self.w.current_bondtool_button is not None:
             cursor_id = self.w.current_bondtool_button.index
@@ -1174,7 +1175,7 @@ class depositMode(selectAtomsMode):
                     self.set_cmdname('Deposit ' + deposited_obj)
             return
             
-        selectAtomsMode.leftDouble(self, event)
+        _superclass.leftDouble(self, event)
         
         return
 
@@ -1307,7 +1308,7 @@ class depositMode(selectAtomsMode):
                 self.o.gl_update()
                 return
         
-        selectAtomsMode.bondLeftUp(self, b, event)
+        _superclass.bondLeftUp(self, b, event)
             
     def bond_change_type(self, b, allow_remake_bondpoints = True): #bruce 050727; revised 060703
         '''Change bondtype of bond <b> to new bondtype determined by the dashboard (if allowed).
@@ -2084,7 +2085,7 @@ class depositMode(selectAtomsMode):
     def Draw(self):
         """ Draw 
         """
-        selectAtomsMode.Draw(self) # this includes self.o.assy.draw(self.o) [bruce 060724 comment]
+        _superclass.Draw(self) # this includes self.o.assy.draw(self.o) [bruce 060724 comment]
         if self.line:
             color = get_selCurve_color(0,self.o.backgroundColor) 
                 # Make sure line color has good contrast with bg. mark 060305.
@@ -2102,7 +2103,7 @@ class depositMode(selectAtomsMode):
         [New method in mode API as of bruce 050610. General form not yet defined -- just a hack for Build mode's
          water surface. Could be used for transparent drawing in general.]
         """
-        selectAtomsMode.Draw_after_highlighting(self, pickCheckOnly) #Draw possible other translucent objects. [huaicai 9/28/05]
+        _superclass.Draw_after_highlighting(self, pickCheckOnly) #Draw possible other translucent objects. [huaicai 9/28/05]
         
         glDepthMask(GL_FALSE)
             # disable writing the depth buffer, so bareMotion selobj check measures depths behind it,

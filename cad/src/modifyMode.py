@@ -194,7 +194,7 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
 	    	    
 	self.w.commandManager.updateCommandManager(action,
 						   obj, 
-						   entering =bool_entering)
+						   entering = bool_entering)
     
         
     def keyPress(self,key):           
@@ -203,11 +203,11 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         # an event to changeMoveMode, where the business is done.
         # Mark 050410
 
-        #If Key 'A' is pressed, set the flag for Constrained trasnlation and rotation
-        #along the axis of the chunk to True
+        # If Key 'A' is pressed, set the flag for Constrained translation and rotation
+        # along the axis of the chunk; otherwise reset that flag
+        # [REVIEW: is that resetting good, for any key at all?? If so, document why. bruce comment 071012]
         if key == Qt.Key_A:
             self.isConstrainedDragAlongAxis = True 
-            
         else:
             self.isConstrainedDragAlongAxis = False 
         
