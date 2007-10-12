@@ -623,7 +623,7 @@ class basicCommand(anyCommand):
         """
         self.UpdateDashboard() # Added to hide Done button for Default command. Mark 050922.
         self.picking = False
-        self.update_cursor()
+        self.graphicsMode.update_cursor()
         return None
 
     def init_gui(self):

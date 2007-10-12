@@ -8,40 +8,20 @@ Pan mode functionality.
 @license:   GPL
 """
 
-from ArrangementMode import ArrangementMode
+from ArrangementMode import TemporaryCommand_Overdrawing
 
+# == GraphicsMode part
 
-class PanMode(ArrangementMode):
+class PanMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
     """
-    Encapsulates the Pan tool functionality.
-    """
-
-    # == Command part
-    
-    # class constants
-    
-    modename = 'PAN'
-    default_mode_status_text = "Tool: Pan"
-
-    def init_gui(self):
-        self.win.panToolAction.setChecked(1) # toggle on the Pan Tool icon
-        # bruce 071012 see if i can remove this setCursor, hoping it's redundant with update_cursor_for_no_MB:
-##        self.glpane.setCursor(self.win.MoveCursor)
-        return    
-        
-    def restore_gui(self):
-        self.win.panToolAction.setChecked(0) # toggle off the Pan Tool icon
-    
-    # == GraphicsMode part
-    
+    Custom GraphicsMode for use as a component of PanMode.
+    """    
     def leftDown(self, event):
         """
         Event handler for LMB press event.
         """
         # Setup pan operation
         farQ_junk, self.movingPoint = self.dragstart_using_GL_DEPTH( event)        
-##        self.startpt = self.movingPoint
-##            # REVIEW: is startpt needed? if so, document why. [bruce comment 071012]
         return
         
     def leftDrag(self, event):
@@ -58,6 +38,29 @@ class PanMode(ArrangementMode):
         Update the cursor for 'Pan' mode.
         """
         self.glpane.setCursor(self.win.MoveCursor)
+
+    pass
+
+# == Command part
+
+class PanMode(TemporaryCommand_Overdrawing): # TODO: rename to PanTool or PanCommand or TemporaryCommand_Pan or ...
+    """
+    Encapsulates the Pan tool functionality.
+    """
+    
+    # class constants
+    
+    modename = 'PAN'
+    default_mode_status_text = "Tool: Pan"
+
+    GraphicsMode_class = PanMode_GM
+
+    def init_gui(self):
+        self.win.panToolAction.setChecked(1) # toggle on the Pan Tool icon
+        return    
+        
+    def restore_gui(self):
+        self.win.panToolAction.setChecked(0) # toggle off the Pan Tool icon
 
     pass
 

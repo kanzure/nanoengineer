@@ -104,11 +104,15 @@ class Overdrawing_GraphicsMode_preMixin(commonGraphicsMode):
 
 # ==
 
-class TemporaryCommand_Overdrawing_GM( ESC_to_exit_GraphicsMode_preMixin,
+class _TemporaryCommand_Overdrawing_GM( ESC_to_exit_GraphicsMode_preMixin,
                                        Overdrawing_GraphicsMode_preMixin,
                                        GraphicsMode ):
     """
-    GraphicsMode component of TemporaryCommand_Overdrawing
+    GraphicsMode component of TemporaryCommand_Overdrawing.
+
+    Note: to inherit this, get it from
+    TemporaryCommand_Overdrawing.GraphicsMode_class
+    rather than inheriting it directly by name.
     """
     pass
 
@@ -125,7 +129,7 @@ class TemporaryCommand_Overdrawing( TemporaryCommand_preMixin,
     Otherwise inherits directly from Command, and its
     GraphicsMode component from GraphicsMode.
     """
-    GraphicsMode_class = TemporaryCommand_Overdrawing_GM
+    GraphicsMode_class = _TemporaryCommand_Overdrawing_GM
     pass
 
 # == temporary compatibility code (as is the use of commonXXX in the mixins above)
