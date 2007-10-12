@@ -258,10 +258,7 @@ def writepdb(part,
             # Column 12: Whitespace (str)
             f.write("%1s" % space)
             # Column 13-16 Atom name (str). 
-            if len(a.element.symbol) == 3: # See note above.
-                f.write("%2s  " % a.element.symbol[:2])
-            else:
-                f.write("%2s  " % a.element.symbol)
+            f.write("%-4s" % a.element.symbol)			
             # Column 17: Alternate location indicator (str) *unused*
             f.write("%1s" % space)
             # Column 18-20: Residue name - unused (str)
