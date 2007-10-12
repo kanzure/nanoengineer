@@ -30,8 +30,13 @@ class ArrangementMode(basicMode): #bruce 070813 split this out
         # ESC - Exit mode.
         if key == Qt.Key_Escape: 
             self.Done()
-        ### REVIEW: should we add an 'else' here?
-        basicMode.keyPress(self, key) # Fixes bug 1172. mark 060321
+        else:
+            #bruce 071012 bugfix: add 'else' to prevent letting basicMode
+            # also handle Key_Escape and do assy.selectNone.
+            # I think that was a bug, since you might want to pan or zoom etc
+            # in order to increase the selection. Other ways of changing
+            # the viewpoint (eg trackball) don't deselect everything.
+            basicMode.keyPress(self, key) # Fixes bug 1172 (F1 key). mark 060321
         
     def Draw(self): ### verify same as in others
         # bruce 070813 revised this to use prevMode -- clean up and commit, and
