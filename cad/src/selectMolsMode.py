@@ -46,7 +46,6 @@ from chunk import molecule
 
 from debug import print_compact_stack
 from debug import print_compact_traceback
-from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False, Choice
 
 from constants import yellow
 from constants import orange
@@ -568,8 +567,7 @@ class selectMolsMode(_superclass):
         self.o.SaveMouse(event)
         self.o.gl_update()
 
-            
-            
+ 
     def leftUp(self, event):
         """
         Event handler for all LMB release events.
@@ -701,184 +699,57 @@ class selectMolsMode(_superclass):
             return black ## bruce 060726 blue -> black so the fact that it's an error is more obvious
         pass # end of selobj_highlight_color   
                 
-    def update_selobj(self, event): ###WARNING: this duplicates the same method in selectAtomsMode but has not been co-maintained. [bruce 070618 comment]
-        """Keep glpane.selobj up-to-date, as object under mouse, or None
-        (whether or not that kind of object should get highlighted).
-           Return True if selobj is already updated when we return, or False if that will not happen until the next paintGL.
-           Warning: if selobj needs to change, this routine does not change it (or even reset it to None);
-        it only sets flags and does gl_update, so that paintGL will run soon and will update it properly,
-        and will highlight it if desired ###@@@ how is that controlled? probably by some statevar in self, passed to gl flag?
-           This means that old code which depends on selatom being up-to-date must do one of two things:
-        - compute selatom from selobj, whenever it's needed;
-        - hope that paintGL runs some callback in this mode when it changes selobj, which updates selatom
-          and outputs whatever statusbar message is appropriate. ####@@@@ doit... this is not yet fully ok.
-          
-          For SELECT CHUNKS MODE 
-        """
-        
-        #Ninad 070214 copied the  method of selectAtomsMode 
-        #to this class(selectMolsMode) while working on Chunk Highlighting
-        #code in select chunks mode. Also modified it to remove code releated to  'water'
-        #in deposit mode. 
-        
-        #It needs further refinement. May be we should move this to selectMode class. 
-        
-        
-        #e see also the options on update_selatom;
-        # probably update_selatom should still exist, and call this, and provide those opts, and set selatom from this,
-        # but see the docstring issues before doing this ####@@@@
-
-        # bruce 050610 new comments for intended code (#e clean them up and make a docstring):
-        # selobj might be None, or might be in stencil buffer.
-        # Use that and depthbuffer to decide whether redraw is needed to look for a new one.
-        # Details: if selobj none, depth far or under water is fine, any other depth means look for new selobj (set flag, glupdate).
-        # if selobj not none, stencil 1 means still same selobj (if no stencil buffer, have to guess it's 0);
-        # else depth far or underwater means it's now None (repaint needed to make that look right, but no hittest needed)
-        # and another depth means set flag and do repaint (might get same selobj (if no stencil buffer or things moved)
-        #   or none or new one, won't know yet, doesn't matter a lot, not sure we even need to reset it to none here first).
-        # Only goals of this method: maybe glupdate, if so maybe first set flag, and maybe set selobj none, but prob not
-        # (repaint sets new selobj, maybe highlights it).
-        # [some code copied from modifyMode]
-        
-        if debug_update_selobj_calls:
-            print_compact_stack("debug_update_selobj_calls: ")
-        
-        glpane = self.o
-        
-        # If animating or ZPRing (zooming/panning/rotating) with the MMB, do not hover highlight anything. 
-        # For more info about <is_animating>, see GLPane.animateToView(). mark 060404.
-        if self.o.is_animating or self.o.button == "MMB":
-            return
-        
-        wX = event.pos().x()
-        wY = glpane.height - event.pos().y()
-        selobj = orig_selobj = glpane.selobj
-        if selobj is not None:
-            if glpane.stencilbits >= 1:
-                # optimization: fast way to tell if we're still over the same object as last time
-                # (warning: for now glpane.stencilbits is 1 even when true number of bits is higher; easy to fix when needed)
-                stencilbit = glReadPixelsi(wX, wY, 1, 1, GL_STENCIL_INDEX)[0][0]
-                    # Note: if there's no stencil buffer in this OpenGL context, this gets an invalid operation exception from OpenGL.
-                    # And by default there isn't one -- it has to be asked for when the QGLWidget is initialized.
-                # stencilbit tells whether the highlighted drawing of selobj got drawn at this point on the screen
-                # (due to both the shape of selobj, and to the depth buffer contents when it was drawn)
-            else:
-                stencilbit = 0 # the correct value is "don't know"; 0 is conservative
-                #e might collapse this code if stencilbit not used below;
-                #e and/or might need to record whether we used this conservative value
-            if stencilbit:
-                return True # same selobj, no need for gl_update to change highlighting
-        # We get here for no prior selobj,
-        # or for a prior selobj that the mouse has moved off of the visible/highlighted part of,
-        # or for a prior selobj when we don't know whether the mouse moved off of it or not
-        # (due to lack of a stencil buffer, i.e. very limited graphics card or OpenGL implementation).
-        #
-        # We have to figure out selobj afresh from the mouse position (using depth buffer and/or GL_SELECT hit-testing).
-        # It might be the same as before (if we have no stencil buffer, or if it got bigger or moved)
-        # so don't set it to None for now (unless we're sure from the depth that it should end up being None) --
-        # let it remain the old value until the new one (perhaps None) is computed during paintGL.
-        #
-        # Specifically, if this method can figure out the correct new setting of glpane.selobj (None or some object),
-        # it should set it (###@@@ or call a setter? neither -- let end-code do this) and set new_selobj to that
-        # (so code at method-end can repaint if new_selobj is different than orig_selobj);
-        # and if not, it should set new_selobj to instructions for paintGL to find selobj (also handled by code at method-end).
-        ###@@@ if we set it to None, and it wasn't before, we still have to redraw!
-        ###@@@ ###e will need to fix bugs by resetting selobj when it moves or view changes etc (find same code as for selatom).
-            
-        wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)[0][0]
-            # depth (range 0 to 1, 0 is nearest) of most recent drawing at this mouse position
-        new_selobj_unknown = False
-            # following code should either set this True or set new_selobj to correct new value (None or an object)
-        if wZ >= GL_FAR_Z: ## Huaicai 8/17/05 for blue sky plane z value
-            # far depth (this happens when no object is touched)
-            new_selobj = None
-        else:            
-            new_selobj_unknown = True
-                
-        if new_selobj_unknown:
-            # Only the next paintGL call can figure out the selobj (in general),
-            # so set glpane.glselect_wanted to the command to do that and the necessary info for doing it.
-            # Note: it might have been set before and not yet used;
-            # if so, it's good to discard that old info, as we do.
-            glpane.glselect_wanted = (wX, wY, wZ) # mouse pos, depth
-                ###e and soon, instructions about whether to highlight selobj based on its type (as predicate on selobj)
-                ###e should also include current count of number of times
-                # glupdate was ever called because model looks different,
-                # and inval these instrs if that happens again before they are used
-                # (since in that case wZ is no longer correct)
-            # don't change glpane.selobj (since it might not even need to change) (ok??#k) -- the next paintGL will do that --
-            # UNLESS the current mode wants us to change it [new feature, bruce 061218, perhaps a temporary kluge, but helps
-            #  avoid a logic bug in this code, experienced often in testmode due to its slow redraw]
-            #
-            # Note: I'm mostly guessing that this should be found in (and unique to) graphicsMode
-            # rather than currentCommand, in spite of being set only in testmode by current code.
-            # That does make this code simpler, since graphicsMode is self. So replacing glpane.mode with self.
-            # [bruce 071010, same comment and change done in both duplications of this code, and in other places]
-            if hasattr(self, 'UNKNOWN_SELOBJ'):
-                glpane.selobj = getattr(self, 'UNKNOWN_SELOBJ')
-            glpane.gl_update_for_glselect()
-        else:
-            # it's known (to be a specific object or None)
-            if new_selobj is not orig_selobj:                
-                # this is the right test even if one or both of those is None.
-                # (Note that we never figure out a specific new_selobj, above,
-                #  except when it's None, but that might change someday
-                #  and this code can already handle that.)
-                glpane.set_selobj( new_selobj, "chunks mode")
-                    #e use setter func, if anything needs to observe changes to this?
-                    # or let paintGL notice the change (whether it or elseone does it) and report that?
-                    # Probably it's better for paintGL to report it, so it doesn't happen too often or too soon!
-                    # And in the glselect_wanted case, that's the only choice, so we needed code for that anyway.
-                    # Conclusion: no external setter func is required; maybe glpane has an internal one and tracks prior value.
-                glpane.gl_update_highlight() # this might or might not highlight that selobj ###e need to tell it how to decide??
-        #####@@@@@ we'll need to do this in a callback when selobj is set:
-        ## self.update_selatom(event, msg_about_click = True)
-        return not new_selobj_unknown # from update_selobj
     
     def get_obj_under_cursor(self, event): 
         """
         Return the object under the cursor.  Returns atoms, bonds, jigs.
         """
-        ### WARNING: this method is defined in two places, with mostly duplicated code,
-        # but with one key difference whose date, author, & purpose is not documented.
-        # [bruce 070924 comment]
-        #
-        ### WARNING: this is slow, and redundant with highlighting -- only call it on mousedown or mouseup, never in move or drag.
+        ### WARNING: this method is defined in two places, with mostly 
+	## duplicated code,
+        # but with one key difference whose date, author, & purpose is not 
+	# documented. [bruce 070924 comment]
+        
+	
+        ### WARNING: this is slow, and redundant with highlighting 
+	## -- only call it on mousedown or mouseup, never in move or drag.
         # [true as of 060726 and before; bruce 060726 comment]
-        # It may be that it's not called when highlighting is on, and it has no excuse to be, but I suspect it is anyway.
+        # It may be that it's not called when highlighting is on, and it 
+	# has no excuse to be, but I suspect it is anyway.
         # [bruce 060726 comment]
+	
+	# TODO: clean this up further. Minor changes done while cleaning up 
+	# duplicated code (e.g. self.update_selobj) in selectAtomsMode 
+	# and this class. Further cleanup planned. I think one of the the key 
+	# differences that Bruce talks about in a comment above is the calls of 
+	# seelf.update_selatoms is not present in this method --Ninad 2007-10-12
+	
         
         if self.hover_highlighting_enabled:
-            
-            #self.update_selatom(event) #bruce 041130 in case no update_selatom happened yet
-            # update_selatom() updates self.o.selatom and self.o.selobj.
-            # self.o.selatom is either a real atom or a singlet [or None].
-            # self.o.selobj can be a bond, and is used in leftUp() to determine if a bond was selected.
-            
-            # Warning: if there was no GLPane repaint event (i.e. paintGL call) since the last bareMotion,
-            # update_selatom can't make selobj/selatom correct until the next time paintGL runs.
-            # Therefore, the present value might be out of date -- but it does correspond to whatever
-            # highlighting is on the screen, so whatever it is should not be a surprise to the user,
-            # so this is not too bad -- the user should wait for the highlighting to catch up to the mouse
-            # motion before pressing the mouse. [bruce 050705 comment] [might be out of context, copied from other code]
+            # Warning: if there was no GLPane repaint event (i.e. paintGL call) 
+	    # since the last bareMotion, update_selatom can't make 
+	    # selobj correct until the next time paintGL runs.
+            # Therefore, the present value might be out of date 
+	    # -- but it does correspond to whatever
+            # highlighting is on the screen, so whatever it is should not be 
+	    # a surprise to the user, so this is not too bad -- 
+	    # the user should wait for the highlighting to catch up to the mouse
+            # motion before pressing the mouse. [bruce 050705 comment] 
+	    # [might be out of context, copied from other code]
         
             obj = self.o.selatom # a "highlighted" atom or singlet
             
-            
             if obj is None and self.o.selobj:
-                obj = self.o.selobj # any hover-highlighted object other than an Atom
- 
+		# any hover-highlighted object other than an Atom 
+                obj = self.o.selobj 
                 if env.debug():
                     # I want to know if this can occur [bruce 060728]
                     if isinstance(obj, Atom):
                         print "debug fyi: likely bug: selobj is Atom but not in selatom: %r" % (obj,)
-                    pass
-            
+                                
             if obj is None: # note: confusing code: self.o.selobj might be a highlighted non-Atom, or None
                 obj = self.get_jig_under_cursor(event)
                 if 0 and env.debug():
                     print "debug fyi: get_jig_under_cursor returns %r" % (obj,) # [bruce 060721] 
-            pass
             
         else: # No hover highlighting
             self.water_enabled = None #@ should be removed completely
@@ -887,77 +758,27 @@ class selectMolsMode(_superclass):
             # This means that bonds can never be selected when highlighting is turned off.
             # [What about jigs? bruce question 060721]
         return obj
-       
+           
     
-    def update_selatom(self, event, singOnly = False, msg_about_click = False, resort_to_prior = True):
-        ### WARNING: this method is defined in two places, with mostly duplicated code. [bruce 070626 comment]
-        '''Keep selatom up-to-date, as atom under mouse based on <event>; 
-        When <singOnly> is True, only keep singlets up-to-date. [not sure what that phrase means -- bruce 060726]
-        When <msg_about_click> is True, print a message on the statusbar about the LMB press.
-        <resort_to_prior> is disabled. [that statement seems incorrect -- bruce 060726]
-        ###@@@ correctness after rewrite not yet proven, due to delay until paintGL
-        '''
-        #bruce 050124 split this out of bareMotion so options can vary
-        #bruce 050610 rewrote this
-        #bruce 060726 comment: looks to me like docstring is wrong about resort_to_prior, and some comments are obs.
-        # Note: it never changes glpane.selobj.
-        glpane = self.o
-        if event is None:
-            # event (and thus its x,y position) is not known [bruce 050612 added this possibility]
-            known = False
-        else:
-            known = self.update_selobj(event) # this might do gl_update (but the paintGL triggered by that only happens later!),
-                # and (when it does) might not know the correct obj...
-                # so it returns True iff it did know the correct obj (or None) to store into glpane.selobj, False if not.
-        if known not in [False,True]:
-            qt4info(known)
-            known = not (not known)   # convert to boolean
-        # If not known, use None or use the prior one? This is up to the caller
-        # since the best policy varies. Default is resort_to_prior = True since some callers need this
-        # and I did not yet scan them all and fix them. ####@@@@ do that
-        
-        selobj = glpane.selobj
-        ## print "known %r, selobj %r" % (known, selobj) 
-            
-        if not known:
-            if resort_to_prior: 
-                pass # stored one is what this says to use, and is what we'll use
-                ## print "resort_to_prior using",glpane.selobj
-                    # [this is rare, I guess since paintGL usually has time to run after bareMotion before clicks]
-            else:
-                selobj = None
-        oldselatom = glpane.selatom
-        atm = selobj
-        if not isinstance(atm, Atom):
-            atm = None
-        if atm is not None and (atm.element is Singlet or not singOnly):
-            pass # we'll use this atm as the new selatom
-        else:
-            atm = None # otherwise we'll use None
-        glpane.selatom = atm
-        if msg_about_click: # [always do this, since many things can change what it should say]
-            # come up with a status bar message about what we would paste now.
-            # [bruce 050124 new feature, to mitigate current lack of model tree highlighting of pastable]
-            msg = self.describe_leftDown_action( glpane.selatom)
-            env.history.statusbar_msg( msg)
-        if glpane.selatom is not oldselatom:
-            # update display (probably redundant with side effect of update_selobj; ok if it is, and I'm not sure it always is #k)
-            glpane.gl_update_highlight() # draws selatom too, since its chunk is not hidden [comment might be obs, as of 050610]
-        
-        return # from update_selatom
-
     def drawHighlightedObjectUnderMouse(self, glpane, selobj, hicolor):
         """
         [overrides superclass method]
         """
-        # Ninad 070214 wrote this in GLPane; bruce 071008 moved it into selectMolsMode
-        # and slightly revised it. 
-        skip_usual_selobj_highlighting = self.drawHighlightedChunk(glpane, selobj, hicolor)
-            # Note: if subclasses don't like that, they should override drawHighlightedChunk
-            # to do nothing and return False. The prior code was equivalent to every
-            # subclass doing that. [bruce 071008]
+        # Ninad 070214 wrote this in GLPane; bruce 071008 moved it into 
+	# selectMolsMode and slightly revised it. 
+        skip_usual_selobj_highlighting = self.drawHighlightedChunk(glpane, 
+								   selobj, 
+								   hicolor)
+	
+            # Note: if subclasses don't like that, they should override 
+	    # drawHighlightedChunk to do nothing and return False. 
+	    # The prior code was equivalent to every subclass doing that. 
+	    # - [bruce 071008]
         if not skip_usual_selobj_highlighting:
-            _superclass.drawHighlightedObjectUnderMouse(self, glpane, selobj, hicolor)
+            _superclass.drawHighlightedObjectUnderMouse(self, 
+							glpane, 
+							selobj, 
+							hicolor)
         return
 
     def drawHighlightedChunk(self, glpane, selobj, hicolor): 
@@ -969,12 +790,13 @@ class selectMolsMode(_superclass):
         @return: whether the caller should skip the usual selobj drawing
         (usually, this is just whether we drew something) (boolean)
         """
-        # Ninad 070214 wrote this in GLPane; bruce 071008 moved it into selectMolsMode
-        # and slightly revised it (inclusing, adding the return value).
+        # Ninad 070214 wrote this in GLPane; bruce 071008 moved it into 
+        # selectMolsMode and slightly revised it (including, adding the return 
+	# value).
         
-        # Note: bool_fullBondLength represent whether full bond length to be drawn
-        # it is used only in select Chunks mode while highlighting the whole chunk and when
-        # the atom display is Tubes display -- ninad 070214
+        # Note: bool_fullBondLength represent whether full bond length to be
+        # drawn it is used only in select Chunks mode while highlighting the 
+	# whole chunk and when the atom display is Tubes display -- ninad 070214
 
         assert hicolor is not None #bruce 070919
         del self
@@ -982,7 +804,8 @@ class selectMolsMode(_superclass):
         bool_fullBondLength = True
         
         if isinstance(selobj, molecule):
-            print "I think this is never called (drawHighlightedChunk with selobj a Chunk)" #bruce 071008
+            print "I think this is never called "\
+		  "(drawHighlightedChunk with selobj a Chunk)" #bruce 071008
             chunk = selobj
             for hiatom in chunk.atoms.itervalues():
                 hiatom.draw_in_abs_coords(glpane, hicolor, 
@@ -990,7 +813,9 @@ class selectMolsMode(_superclass):
                 for hibond in hiatom.bonds:
                     hibond.draw_in_abs_coords(glpane, hicolor,
                                               bool_fullBondLength)
-            return False # not sure False is right, but it imitates the prior code [bruce 071008]
+	                
+            return False # not sure False is right, but it imitates 
+	                 # the prior code [bruce 071008]
     
         elif isinstance(selobj, Atom):
             chunk = selobj.molecule

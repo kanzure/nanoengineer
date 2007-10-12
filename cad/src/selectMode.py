@@ -21,6 +21,7 @@ for use by new kinds of draggable or buttonlike things (only in selectAtoms mode
 but not changing how old dragging code works.]
 
 - Ninad 070216 moved selectAtomsMode and selectMolsMode out of selectMode.py 
+
 """
 import sys
 import os
@@ -51,11 +52,22 @@ from OpenGL.GL import glPushMatrix
 from OpenGL.GL import glTranslate
 from OpenGL.GL import glPopMatrix
 
+from OpenGL.GL import GL_STENCIL_INDEX
+from OpenGL.GL import glReadPixelsi
+from OpenGL.GL import GL_DEPTH_COMPONENT
+from OpenGL.GL import glReadPixelsf
+
 from OpenGL.GLU import gluUnProject
+from constants import GL_FAR_Z
 
 from modes import basicMode
+
 from utilities.Log import orangemsg
-from chunk import molecule
+
+from chunk    import molecule
+from chem     import Atom
+from elements import Singlet
+
 import env
 from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False, Choice
 from Plane import Handle
@@ -140,6 +152,8 @@ class selectMode(basicMode):
         # <selShape> the current selection shape.
     hover_highlighting_enabled = True
         # Set this to False if you want to disable hover highlighting.
+	
+    water_enabled  = None # see self.update_selobj for a detailed comment
 
     def __init__(self, glpane): #bruce 070412
         basicMode.__init__(self, glpane)
@@ -155,14 +169,21 @@ class selectMode(basicMode):
     def restore_gui(self):
         pass # let the subclass handle everything for the GUI - Mark [2004-10-11]
     
+
     def reset_drag_vars(self):
-        """This resets (or initializes) per-drag instance variables, and is called in Enter and at beginning of leftDown.
-        [Subclasses can override this to add variables, but those methods should call this version too.]
         """
-        #WARNING: This method has been duplicated 
-        #in the subclass (selectAtomsMode.py) This needs cleanup . 
-        #Note that this duplication is NOT exact 
-        #See selectAtomsMode.reset_drag_vars for further details. 
+        This resets (or initializes) per-drag instance variables, and is called 
+        in Enter and at beginning of leftDown. Subclasses can override this 
+        to add variables, but those methods should call this version too.
+        @see L{selectAtomsMode.reset_drag_vars}
+        """        
+        #IDEALLY(what we should impelment in future) -- 
+        #in each class it would reset only that class's drag vars 
+        #(the ones used by methods of that class, whether or not 
+        #those methods are only called in a subclass, but not the 
+        #ones reset by the superclass version of reset_drag_vars), 
+        #and in  the subclass it would call the superclass version
+        #rather than  resetting all or mostly the same vars. 
           
         #bruce 041124 split this out of Enter; as of 041130,
         # required bits of it are inlined into Down methods as bugfixes
@@ -272,7 +293,10 @@ class selectMode(basicMode):
             # to retreive the atoms of a recently deleted jig when double clicking with 'Shift+Control'
             # modifier keys pressed together.
         self.drag_handler = None #bruce 060725
+        
         return
+    
+    
     
 # == LMB event handling methods ====================================
 
@@ -351,7 +375,7 @@ class selectMode(basicMode):
         if self.o.modkeys == 'Control':
             self.start_selection_curve(event, SUBTRACT_FROM_SELECTION)
         if self.o.modkeys == 'Shift+Control':
-             self.start_selection_curve(event, DELETE_SELECTION)
+            self.start_selection_curve(event, DELETE_SELECTION)
         return
         
     def start_selection_curve(self, event, sense):
@@ -1880,6 +1904,201 @@ class selectMode(basicMode):
             #self.griddraw()
             if self.selCurve_List: self.draw_selection_curve()
             self.o.assy.draw(self.o)
+    
+    def update_selobj(self, event): #bruce 050610
+        """
+	Keep glpane.selobj up-to-date, as object under mouse, or None
+        (whether or not that kind of object should get highlighted).
+	
+	Return True if selobj is already updated when we return, or False 
+	if that will not happen until the next paintGL.
+	   
+	Warning: if selobj needs to change, this routine does not change it 
+	(or even reset it to None); it only sets flags and does gl_update, 
+	so that paintGL will run soon and will update it properly, and will 
+	highlight it if desired ###@@@ how is that controlled? probably by 
+	some statevar in self, passed to gl flag?
+	
+	This means that old code which depends on selatom being  up-to-date must
+	do one of two things:
+	    - compute selatom from selobj, whenever it's needed;
+	    - hope that paintGL runs some callback in this mode when it changes
+	      selobj, which updates selatom and outputs whatever statusbar 
+	      message is appropriate. ####@@@@ doit... this is not yet fully ok.
+	      
+	@attention: This method was originally from class selectAtomsMode. See
+	            code comment for details
+        """
+	
+	#@ATTENTION: This method was originally from class selectAtomsMode. 
+	# It was mostly duplicated (with some changes) in selectMolsMode 
+	# when that mode started permitting highlighting. 
+	# The has been modified and moved to selectMode class so that both 
+	# selectAtomsMode and selectMolsMode can use it -Ninad 2007-10-12
+	
+	
+	
+        #e see also the options on update_selatom;
+        # probably update_selatom should still exist, and call this, and provide those opts, and set selatom from this,
+        # but see the docstring issues before doing this ####@@@@
+
+        # bruce 050610 new comments for intended code (#e clean them up and make a docstring):
+        # selobj might be None, or might be in stencil buffer.
+        # Use that and depthbuffer to decide whether redraw is needed to look for a new one.
+        # Details: if selobj none, depth far or under water is fine, any other depth means look for new selobj (set flag, glupdate).
+        # if selobj not none, stencil 1 means still same selobj (if no stencil buffer, have to guess it's 0);
+        # else depth far or underwater means it's now None (repaint needed to make that look right, but no hittest needed)
+        # and another depth means set flag and do repaint (might get same selobj (if no stencil buffer or things moved)
+        #   or none or new one, won't know yet, doesn't matter a lot, not sure we even need to reset it to none here first).
+        # Only goals of this method: maybe glupdate, if so maybe first set flag, and maybe set selobj none, but prob not
+        # (repaint sets new selobj, maybe highlights it).
+        # [some code copied from modifyMode]
+        
+        if debug_update_selobj_calls:
+            print_compact_stack("debug_update_selobj_calls: ")
+        
+        glpane = self.o
+        
+        # If animating or ZPRing (zooming/panning/rotating) with the MMB, do not hover highlight anything. 
+        # For more info about <is_animating>, see GLPane.animateToView(). mark 060404.
+        if self.o.is_animating or \
+           (self.o.button == "MMB" and not getattr(self, '_defeat_update_selobj_MMB_specialcase', False)):
+            return
+                # note, returning None violates this method's API (acc'd to docstring), but this apparently never mattered until now,
+                # and it's not obvious how to fix it (probably to be correct requires imitating the conditional set_selobj below),
+                # so instead I'll just disable it in the new case that triggers it, using _defeat_update_selobj_MMB_specialcase.
+                # [bruce 070224]
+        
+        wX = event.pos().x()
+        wY = glpane.height - event.pos().y()
+        selobj = orig_selobj = glpane.selobj
+        if selobj is not None:
+            if glpane.stencilbits >= 1:
+                # optimization: fast way to tell if we're still over the same object as last time
+                # (warning: for now glpane.stencilbits is 1 even when true number of bits is higher; easy to fix when needed)
+                stencilbit = glReadPixelsi(wX, wY, 1, 1, GL_STENCIL_INDEX)[0][0]
+                    # Note: if there's no stencil buffer in this OpenGL context, this gets an invalid operation exception from OpenGL.
+                    # And by default there isn't one -- it has to be asked for when the QGLWidget is initialized.
+                # stencilbit tells whether the highlighted drawing of selobj got drawn at this point on the screen
+                # (due to both the shape of selobj, and to the depth buffer contents when it was drawn)
+            else:
+                stencilbit = 0 # the correct value is "don't know"; 0 is conservative
+                #e might collapse this code if stencilbit not used below;
+                #e and/or might need to record whether we used this conservative value
+            if stencilbit:
+                return True # same selobj, no need for gl_update to change highlighting
+        # We get here for no prior selobj,
+        # or for a prior selobj that the mouse has moved off of the visible/highlighted part of,
+        # or for a prior selobj when we don't know whether the mouse moved off of it or not
+        # (due to lack of a stencil buffer, i.e. very limited graphics card or OpenGL implementation).
+        #
+        # We have to figure out selobj afresh from the mouse position (using depth buffer and/or GL_SELECT hit-testing).
+        # It might be the same as before (if we have no stencil buffer, or if it got bigger or moved)
+        # so don't set it to None for now (unless we're sure from the depth that it should end up being None) --
+        # let it remain the old value until the new one (perhaps None) is computed during paintGL.
+        #
+        # Specifically, if this method can figure out the correct new setting of glpane.selobj (None or some object),
+        # it should set it (###@@@ or call a setter? neither -- let end-code do this) and set new_selobj to that
+        # (so code at method-end can repaint if new_selobj is different than orig_selobj);
+        # and if not, it should set new_selobj to instructions for paintGL to find selobj (also handled by code at method-end).
+        ###@@@ if we set it to None, and it wasn't before, we still have to redraw!
+        ###@@@ ###e will need to fix bugs by resetting selobj when it moves or view changes etc (find same code as for selatom).
+            
+        wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)[0][0]
+            # depth (range 0 to 1, 0 is nearest) of most recent drawing at this mouse position
+        new_selobj_unknown = False
+            # following code should either set this True or set new_selobj to correct new value (None or an object)
+        if wZ >= GL_FAR_Z: ## Huaicai 8/17/05 for blue sky plane z value
+            # far depth (this happens when no object is touched)
+            new_selobj = None
+        else:
+	    #For selectMolsMode, 'water' is not defined. So self.water_enabled
+	    # is initialized to None in this class. This is one of the things 
+	    # needed to do for moving selectAtomsMode.update_selobj to here 
+	    # and getting rid of mostly duplicated code in selectMolsMode and
+	    # selectAtomsMode -- Ninad 2007-10-12. 	    
+	    if self.water_enabled:
+		# compare to water surface depth
+		cov = - glpane.pov # center_of_view (kluge: we happen to know this is where the water surface is drawn)
+		try:
+		    junk, junk, cov_depth = gluProject( cov[0], cov[1], cov[2] )
+		except:
+		    print_compact_traceback( "gluProject( cov[0], cov[1], cov[2] ) exception ignored, for cov == %r: " % (cov,) )
+		    cov_depth = 2 # too deep to matter (depths range from 0 to 1, 0 is nearest to screen)
+		water_depth = cov_depth
+		if wZ >= water_depth:
+		    #print "behind water: %r >= %r" % (wZ , water_depth)
+		    new_selobj = None
+			# btw, in contrast to this condition for a new selobj, an existing one will
+			# remain selected even when you mouseover the underwater part (that's intentional)
+		else:
+		    # depth is in front of water
+		    new_selobj_unknown = True
+	    else:
+		new_selobj_unknown = True
+		
+                
+        if new_selobj_unknown:
+            # Only the next paintGL call can figure out the selobj (in general),
+            # so set glpane.glselect_wanted to the command to do that and the necessary info for doing it.
+            # Note: it might have been set before and not yet used;
+            # if so, it's good to discard that old info, as we do.
+            glpane.glselect_wanted = (wX, wY, wZ) # mouse pos, depth
+                ###e and soon, instructions about whether to highlight selobj based on its type (as predicate on selobj)
+                ###e should also include current count of number of times
+                # glupdate was ever called because model looks different,
+                # and inval these instrs if that happens again before they are used
+                # (since in that case wZ is no longer correct)
+            # don't change glpane.selobj (since it might not even need to change) (ok??#k) -- the next paintGL will do that --
+            # UNLESS the current mode wants us to change it [new feature, bruce 061218, perhaps a temporary kluge, but helps
+            #  avoid a logic bug in this code, experienced often in testmode due to its slow redraw]
+            #
+            # Note: I'm mostly guessing that this should be found in (and unique to) graphicsMode
+            # rather than currentCommand, in spite of being set only in testmode by current code.
+            # That does make this code simpler, since graphicsMode is self. So replacing glpane.mode with self.
+            # [bruce 071010, same comment and change done in both duplications of this code, and in other places]
+            if hasattr(self, 'UNKNOWN_SELOBJ'):
+                glpane.selobj = getattr(self, 'UNKNOWN_SELOBJ')
+            glpane.gl_update_for_glselect()
+        else:
+            # it's known (to be a specific object or None)
+            if new_selobj is not orig_selobj:
+                # this is the right test even if one or both of those is None.
+                # (Note that we never figure out a specific new_selobj, above,
+                #  except when it's None, but that might change someday
+                #  and this code can already handle that.)
+		glpane.set_selobj( new_selobj, "Select mode")
+		#e use setter func, if anything needs to observe changes to 
+		# this? or let paintGL notice the change (whether it or elseone 
+		# does it) and  report that?
+		# Probably it's better for paintGL to report it, so it doesn't 
+		# happen too often or too soon!
+		# And in the glselect_wanted case, that's the only choice, 
+		# so we needed code for that anyway.
+		# Conclusion: no external setter func is required; maybe glpane
+		# has an internal one and tracks prior value.
+                glpane.gl_update_highlight() # this might or might not highlight that selobj ###e need to tell it how to decide??
+        #####@@@@@ we'll need to do this in a callback when selobj is set:
+        ## self.update_selatom(event, msg_about_click = True)
+        return not new_selobj_unknown # from update_selobj
+    
+    def _setObjectUnderCursor_from_update_selobj(self, glpaneInstance, newObjectUnderCursor):
+	"""
+	"""
+	glpane = glpaneInstance
+	new_selobj = newObjectUnderCursor
+	
+	glpane.set_selobj( new_selobj, "depmode")
+	#e use setter func, if anything needs to observe changes to this?
+	# or let paintGL notice the change (whether it or elseone does it) and 
+	# report that?
+	# Probably it's better for paintGL to report it, so it doesn't happen 
+	# too often or too soon!
+	# And in the glselect_wanted case, that's the only choice, so we needed 
+	# code for that anyway.
+	# Conclusion: no external setter func is required; maybe glpane has an 
+	#internal one and tracks prior value.
+    
 
     # update_selatom_and_selobj() moved here from depositMode.py  mark 060312.
     def update_selatom_and_selobj(self, event = None): #bruce 050705
