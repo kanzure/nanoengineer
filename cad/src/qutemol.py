@@ -263,57 +263,57 @@ def write_art_file(filename):
     assert type(filename) == type(" ")
     
     from elements import PeriodicTable
-    elemTable = PeriodicTable.getAllElements()
+    elementTable = PeriodicTable.getAllElements()
     
     try:
-        f = open(filename, "w")
+        fileHandle = open(filename, "w")
     except:
         print "Exception occurred to open file %s to write: " % filename
         return None
     
     # QuteMol can use line 1 to validate the file format.
     # Added @ to help make it clear that line 1 is special.
-    f.write("#@ NanoEngineer-1 Atom Rendering Table, \
-            file format version 2007-06-04\n")
+    fileHandle.write("#@ NanoEngineer-1 Atom Rendering Table, \
+                      file format version 2007-06-04\n")
+
     # Lines after line 1 are only comments.
-    f.write("#\n# File format:\n#\n")
-    f.write("# Atom   NE1    Render Covlnt\n")
-    f.write("# Symbol Number Radius Radius Red Green Blue\n")
+    fileHandle.write("#\n# File format:\n#\n")
+    fileHandle.write("# Atom   NE1    Render Covlnt\n")
+    fileHandle.write("# Symbol Number Radius Radius Red Green Blue\n")
     
-    from prefs_constants import cpkScaleFactor_prefs_key
-    cpk_sf = env.prefs[cpkScaleFactor_prefs_key] # Mark 2007-06-03
+    from prefs_constants import cpkScaleFactor_prefs_key, \
+                                diBALL_AtomRadius_prefs_key
     
-    for eleNum, elm in elemTable.items():
-        col = elm.color
-        r = int(col[0] * 255 + 0.5)
-        g = int(col[1] * 255 + 0.5)
-        b = int(col[2] * 255 + 0.5)
-        
-        if len(elm.symbol) == 3: 
-            _symbol = elm.symbol[:2]
-        else:
-            _symbol = elm.symbol
-        
-        if eleNum < 199:
-            _rcovalent = elm.atomtypes[0].rcovalent
-        else:
-            _rcovalent = 4.8 # 4.8 - 5.1 are good values
+    for elementNumber, element in elementTable.items():
+        color = element.color
+        r = int(color[0] * 255 + 0.5)
+        g = int(color[1] * 255 + 0.5)
+        b = int(color[2] * 255 + 0.5)
             
-        if eleNum < 200 or eleNum > 299:
-            f.write('%2s  %3d  %3.3f  %3.3f  %3d  %3d  %3d\n' % \
-                    (_symbol, eleNum, elm.rvdw * cpk_sf, \
-                     _rcovalent, \
-                     r, g, b) \
-                    )
+        # The following was distilled from chem.py: Atom.howdraw()
+        #
+        # "Render Radius"
+        cpkRadius = \
+            element.rvdw * env.prefs[cpkScaleFactor_prefs_key]
+            
+        # "Covalent Radius"
+        ballAndStickRadius = \
+            element.rvdw * 0.25 * env.prefs[diBALL_AtomRadius_prefs_key]
+
+        fileHandle.write \
+            ('%2s  %3d  %3.3f  %3.3f  %3d  %3d  %3d\n' %
+             (element.symbol, elementNumber, cpkRadius, ballAndStickRadius,
+              r, g, b))
     
-    f.write("# All Render Radii were calculated using a CPK scaling factor\n"\
-            "# that can be modified by the user in \"Preference | Atoms\".\n"\
-            "# CPK Scale Factor: %2.3f\n"\
-            "# To computer the original VDW radii, use the formula:\n"\
-            "# VDW Radius = Render Radius / CPK Scale Factor\n"\
-             % cpk_sf)
+    fileHandle.write \
+        ("# All Render Radii were calculated using a CPK scaling factor\n"\
+         "# that can be modified by the user in \"Preference | Atoms\".\n"\
+         "# CPK Scale Factor: %2.3f\n"\
+         "# To compute the original VDW radii, use the formula:\n"\
+         "# VDW Radius = Render Radius / CPK Scale Factor\n"\
+          % env.prefs[cpkScaleFactor_prefs_key])
     
-    f.close()
+    fileHandle.close()
 
     return 
 
