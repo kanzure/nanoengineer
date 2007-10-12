@@ -29,12 +29,14 @@ from PlatformDependent import shift_name
 from PlatformDependent import control_name
 from PlatformDependent import context_menu_prefix
 
-import env # not used as of 071010 morning
+# import env # not used as of 071010 morning
 from state_utils import StateMixin
 
 from constants import noop, GLPANE_IS_COMMAND_SEQUENCER
 
 from jigs import Jig
+    # this is used only for cmenu making
+    # TODO: probably it should be factored into a method on the object being tested
 
 # ==
 
@@ -411,6 +413,7 @@ class basicCommand(anyCommand):
             # if it does, put it on the Jig's cmenu maker, not here, if possible;
             # if it doesn't, also put it there if NFR 1740 remains undone and desired.
             # [bruce comment 071009]
+            print "fyi: basicCommand.setup_graphics_menu_specs sees isinstance(selobj, Jig)" # see if this can ever happen
             from wiki_help import wiki_help_menuspec_for_object
             ms = wiki_help_menuspec_for_object( self.o.selobj )
             if ms:
@@ -857,10 +860,13 @@ class basicCommand(anyCommand):
 
     def Done(self, new_mode = None, suspend_old_mode = False, **new_mode_options):
         """
-        Done tool in dashboard; also called internally (in
-        _f_userEnterCommand and elsewhere) if user asks to start a new command
-        and current command decides that's ok, without needing an
-        explicit Done.  Change [bruce 040922]: Should not be
+        Called by the slot method for the Done tool in the dashboard;
+        also called internally (in _f_userEnterCommand and elsewhere)
+        if user asks to start a new command (new_mode) and the current
+        command has decided to permit that in spite of the lack of an
+        explicit Done.
+
+        Revision of API for subclasses [bruce 040922]: Done should not be
         overridden in subclasses; instead they should override
         haveNontrivialState and/or StateDone and/or StateCancel as
         appropriate.
@@ -989,11 +995,15 @@ class basicCommand(anyCommand):
             self._cleanup()
         if new_mode is None:
             new_mode = '$DEFAULT_MODE'
-        self.o.start_using_mode(new_mode, **new_mode_options)
+        self.commandSequencer.start_using_mode(new_mode, **new_mode_options)
             ## REVIEW: is suspend_old_mode needed in start_using_mode?
-            # Tentative conclusion: its only effect would be how to fall back
-            # if using the new command fails -- it would make us fall back to
-            # old command rather than to default command. Ideally we'd use a
+            # Tentative conclusion: its only effects would be:
+            # - help us verify expected relations between flags in new mode class
+            #   and suspend_old_mode (differs for temporary commands vs others)
+            # - how to fall back
+            #   if using the new command fails -- it would make us fall back to
+            #   old command rather than to default command.
+            # Ideally we'd use a
             # continuation-like style, wrapping new_mode with a fallback
             # command, and pass that as new_mode. So it's not worth fixing this
             # for now -- save it for when we have a real command-sequencer.

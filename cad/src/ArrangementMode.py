@@ -18,13 +18,20 @@ class ArrangementMode(basicMode): #bruce 070813 split this out
     Common superclass for temporary view-change commands
     such as the Pan, Rotate, and Zoom tools.
 
+    TemporaryCommand_OverlayDrawing ?
+
     Provides the declarations that make a command temporary,
     a binding from Escape key to Done method,
     and a Draw method which delegates to the Draw method
     of the prior command (commandSequencer.prevMode).
+    Otherwise inherits from basicMode.
     """
+    # == Command part
+
     command_can_be_suspended = False #bruce 071011
     command_should_resume_prevMode = True #bruce 071011, to be revised (replaces need for customized Done method)
+
+    # == GraphicsMode part
     
     def keyPress(self, key):
         # ESC - Exit mode.
@@ -38,16 +45,18 @@ class ArrangementMode(basicMode): #bruce 070813 split this out
             # the viewpoint (eg trackball) don't deselect everything.
             basicMode.keyPress(self, key) # Fixes bug 1172 (F1 key). mark 060321
         
-    def Draw(self): ### verify same as in others
-        # bruce 070813 revised this to use prevMode -- clean up and commit, and
-        # share w/ others
-        glpane = self.glpane
+    def Draw(self): 
+        # bruce 070813 revised this to use prevMode
+        # TODO soon: move this into a new method in the command sequencer, Draw_by_prior_command or so;
+        # have it return whether it called a draw method or not (so we know whether to call our fallback drawing code)
+        
+        glpane = self.glpane # really command sequencer
         try:
-            # can be mode object or (deprecated and worse, but common) modename
+            # prevMode can be mode object or (deprecated and worse, but common -- no, should never happen anymore) modename
             # string; or None
             prevMode = glpane.prevMode
         except AttributeError:
-            prevMode = None
+            prevMode = None # should never happen anymore
         if prevMode and isinstance(prevMode, basicMode):
             # fixes bug in which it doesn't show the right things for cookie or
             # extrude modes [partly; untested]

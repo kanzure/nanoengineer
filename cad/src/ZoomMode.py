@@ -42,13 +42,13 @@ from ArrangementMode import ArrangementMode
 _superclass = ArrangementMode
 
 class ZoomMode(_superclass):
+
+    # == Command part
+    
     # class constants
     modename = 'ZOOM'
-    # Changed 'Mode' to 'Tool'. Fixes bug 1298. mark 3/23/2006
     default_mode_status_text = "Tool: Zoom"
-    
-    # methods related to entering this mode
-    
+        
     def Enter(self):
         _superclass.Enter(self)
         bg = self.glpane.backgroundColor
@@ -68,10 +68,13 @@ class ZoomMode(_superclass):
         self.win.zoomToolAction.setChecked(1) # toggle on the Zoom Tool icon
         self.glpane.setCursor(self.win.ZoomCursor)
 
-    def restore_patches(self): 
+    def restore_patches(self):
         """
         This is run when we exit this command for any reason.
         """
+            # REVIEW: this has both Command and GraphicsMode aspects, but I guess it's in the Command part;
+            # maybe it needs to delegate into the GM to know some of the patches to restore?
+            # maybe split it into two methods? [bruce 071012]
         # If OpenGL states changed during this mode, we need to restore
         # them before exit. Currently, only leftDown() will change that.
         # [bruce 071011 change: do this in restore_patches, not in Done]
@@ -85,6 +88,8 @@ class ZoomMode(_superclass):
     def restore_gui(self):
         self.win.zoomToolAction.setChecked(0) # toggle off the Zoom Tool icon
 
+    # == GraphicsMode part
+    
     # TODO:
     # [part of it is already done: change self.Done to self.command.Done below]
     ### bruce 071010: see if I can use this as a test case for having a separate

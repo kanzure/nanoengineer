@@ -16,23 +16,25 @@ class RotateMode(ArrangementMode):
     Encapsulates rotate mode functionality.
     """
     
+    # == Command part
+    
+    # class constants
+    
     modename = 'ROTATE'
-
-    # Changed 'Mode' to 'Tool'. Fixes bug 1298. Mark 3/23/2006
     default_mode_status_text = "Tool: Rotate"
 
-    
     def init_gui(self):
         # Toggle on the Rotate Tool icon
         self.win.rotateToolAction.setChecked(1)
-        self.glpane.setCursor(self.win.RotateCursor)
+        # bruce 071012 see if i can remove this setCursor, hoping it's redundant with update_cursor_for_no_MB:
+##        self.glpane.setCursor(self.win.RotateCursor)
     
-        
     def restore_gui(self):
         # Toggle off the Rotate Tool icon
         self.win.rotateToolAction.setChecked(0)
 
-        
+    # == GraphicsMode part
+    
     def leftDown(self, event):
         self.glpane.SaveMouse(event)
         self.glpane.trackball.start(self.glpane.MousePos[0],
@@ -55,3 +57,6 @@ class RotateMode(ArrangementMode):
         """
         self.glpane.setCursor(self.win.RotateCursor)
 
+    pass
+
+# end

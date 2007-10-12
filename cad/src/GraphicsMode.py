@@ -158,10 +158,10 @@ class nullGraphicsMode(anyGraphicsMode):
     # GraphicsMode-specific null methods
     
     def Draw(self):
-        # this happens... is that ok? note: see
-        # "self.start_using_mode( '$DEFAULT_MODE')" below and/or in Command.py -- that
-        # might be the cause.  if so, it's ok that it happens and good
-        # that we turn it into a noop. [bruce 040924]
+        # Note: this does happen... maybe due to how soon we call
+        # .start_using_mode( '$DEFAULT_MODE')".
+        # If so, it's ok that it happens and good
+        # that we make it a noop. [bruce 040924]
         pass
     def Draw_after_highlighting(self):
         pass
@@ -574,8 +574,10 @@ class basicGraphicsMode(anyGraphicsMode):
         self.update_cursor()
         # Setup pan operation
         farQ_junk, self.movingPoint = self.dragstart_using_GL_DEPTH( event)
-            #bruce 060316 replaced equivalent old code with this new method
         self.startpt = self.movingPoint # Used in leftDrag() to compute move offset during drag op.
+            # REVIEW: needed? the subclasses that use it also set it, so probably not.
+            # TODO: confirm that guess, then remove this set. (In fact, this makes me wonder
+            # if some or all of the other things in this method are redundant now.) [bruce 071012 comment]
         
         self.o.SaveMouse(event) #k still needed?? probably yes; might even be useful to help dragto for atoms #e [bruce 060316 comment]
         self.picking = True
@@ -591,7 +593,7 @@ class basicGraphicsMode(anyGraphicsMode):
         self.o.SaveMouse(event)
         self.picking = False
 
-    def dragto(self, point, event, perp = None): #bruce 060316 moving this from selectMode to basicMode and using it more widely
+    def dragto(self, point, event, perp = None):
         """
         Return the point to which we should drag the given point,
         if event is the drag-motion event and we want to drag the point

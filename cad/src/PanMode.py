@@ -15,43 +15,43 @@ class PanMode(ArrangementMode):
     """
     Encapsulates the Pan tool functionality.
     """
+
+    # == Command part
     
     # class constants
+    
     modename = 'PAN'
-    # Changed 'Mode' to 'Tool'. Fixes bug 1298. Mark 3/23/2006
     default_mode_status_text = "Tool: Pan"
 
-    
     def init_gui(self):
         self.win.panToolAction.setChecked(1) # toggle on the Pan Tool icon
-        self.glpane.setCursor(self.win.MoveCursor)
-    
+        # bruce 071012 see if i can remove this setCursor, hoping it's redundant with update_cursor_for_no_MB:
+##        self.glpane.setCursor(self.win.MoveCursor)
+        return    
         
     def restore_gui(self):
         self.win.panToolAction.setChecked(0) # toggle off the Pan Tool icon
     
-        
+    # == GraphicsMode part
+    
     def leftDown(self, event):
         """
         Event handler for LMB press event.
         """
         # Setup pan operation
-        farQ_junk, self.movingPoint = self.dragstart_using_GL_DEPTH( event)
-        
-        # Bruce 3/16/2006 replaced equivalent old code with this new method            
-        # Used in leftDrag() to compute move offset during drag op.
-        self.startpt = self.movingPoint
-        
+        farQ_junk, self.movingPoint = self.dragstart_using_GL_DEPTH( event)        
+##        self.startpt = self.movingPoint
+##            # REVIEW: is startpt needed? if so, document why. [bruce comment 071012]
+        return
         
     def leftDrag(self, event):
         """
         Event handler for LMB drag event.
         """
-        # Bruce 3/16/2006 replaced old code with dragto (equivalent)
         point = self.dragto( self.movingPoint, event)
         self.glpane.pov += point - self.movingPoint
         self.glpane.gl_update()
-    
+        return
         
     def update_cursor_for_no_MB(self): # Fixes bug 1638. Mark 3/12/2006.
         """
@@ -59,3 +59,6 @@ class PanMode(ArrangementMode):
         """
         self.glpane.setCursor(self.win.MoveCursor)
 
+    pass
+
+# end

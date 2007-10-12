@@ -673,11 +673,13 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
             #  more than once, it appears. [bruce 070503 comment]]
             MWsemantics._init_part_two(self)
 
-        pw.glpane.start_using_mode('$STARTUP_MODE') #bruce 050911
+        ## pw.glpane.start_using_mode('$STARTUP_MODE')
             ### TODO: this should be the commandSequencer --
-            # decide whether to just get it from win here
+            # decide whether to just get it from win (self) here
             # (e.g. if we abandon separate PartWindow class)
             # or make pw.commandSequencer work.
+            # For now just get it from self. [bruce 071012]
+        self.commandSequencer.start_using_mode('$STARTUP_MODE')
 	return
         
     def _init_part_two(self):
@@ -871,7 +873,8 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
                 self.minimize_energy)
 
     def _init_after_geometry_is_set(self): #bruce 060104 renamed this from startRun and replaced its docstring.
-        """Do whatever initialization of self needs to wait until its geometry has been set.
+        """
+        Do whatever initialization of self needs to wait until its geometry has been set.
         [Should be called only once, after geometry is set; can be called before self is shown.
          As of 070531, this is called directly from main.py, after our __init__ but before we're first shown.]
         """
@@ -880,7 +883,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         # [Huaicai 11/1/05: try to fix the initial MMKitWin off screen problem by splitting from the __init__() method]
         
         if not MULTIPANE_GUI:
-            self.glpane.start_using_mode( '$STARTUP_MODE') #bruce 050911
+            self.commandSequencer.start_using_mode( '$STARTUP_MODE')
             # Note: this might depend on self's geometry in choosing dialog placement, so it shouldn't be done in __init__.
 
         self.win_update() # bruce 041222

@@ -35,10 +35,14 @@ from GraphicsMode import anyGraphicsMode # only needed for an isinstance asserti
 
 class modeMixin(object):
     """
-    Mixin class for supporting mode-switching. Maintains instance
-    attributes mode, nullmode, as well as commandTable
-    (assumed by mode objects -- we should change that #e).
-    Used by GLPane.
+    Mixin class for supporting command-switching in GLPane. Basically it's
+    a primitive Command Sequencer which for historical reasons lives
+    temporarily as a mixin in the GLPane.
+
+    Maintains instance attributes currentCommand, graphicsMode
+    (both read-only for public access), and mostly private
+    attributes for access by command-sequencing code in class Command,
+    such as nullmode and commandTable.
     """
     # TODO: turn this into a standalone command sequencer object,
     # which also contains some logic now in class Command
