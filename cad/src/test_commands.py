@@ -210,14 +210,15 @@ def start_cmdrun( cmdrun):
         assert not cmdrun.return_to_prior_command
         glpane.userEnterTemporaryCommand( cmdrun)
     elif cmdrun.return_to_prior_command:
-        # 070813 new feature, experimental, implem will change; part of Command Sequencer
-        ### probably WRONG; need to analyze what happens in Done to decide how much to do here, and how to protect from exceptions
-        cmdrun.set_prior_command(glpane.currentCommand) ###IMPLEM set_prior_command (if not already done)
-##        glpane.currentCommand.restore_gui() #k guess; should be suspend_gui ####
-##        glpane.currentCommand = cmdrun # (illegal to do directly) ### more? call some setter? call update_after_new_mode? ###
-##        cmdrun.init_gui()
-        glpane.currentCommand.Done(new_mode = cmdrun, suspend_old_mode = True)
-        ## glpane.gl_update() # REVIEW: not sure if needed; should be removed if redundant (might be excessive someday)
+        assert 0 # 071011
+##        # 070813 new feature, experimental, implem will change; part of Command Sequencer
+##        ### probably WRONG; need to analyze what happens in Done to decide how much to do here, and how to protect from exceptions
+##        cmdrun.set_prior_command(glpane.currentCommand) ###IMPLEM set_prior_command (if not already done)
+####        glpane.currentCommand.restore_gui() #k guess; should be suspend_gui ####
+####        glpane.currentCommand = cmdrun # (illegal to do directly) ### more? call some setter? call update_after_new_mode? ###
+####        cmdrun.init_gui()
+##        glpane.currentCommand.Done(new_mode = cmdrun, suspend_old_mode = True)
+##        ## glpane.gl_update() # REVIEW: not sure if needed; should be removed if redundant (might be excessive someday)
     else:
         glpane.currentCommand.Done(new_mode = cmdrun) # is this what takes the old mode's PM away?
     print "done with start_cmdrun for", cmdrun
@@ -262,7 +263,8 @@ def enter_example_command(widget, example_command_classname):
 def enter_example_command_doit(glpane, example_command_classname):
     example_command_class = globals()[example_command_classname]
     example_command_class.modename += 'x'
-        # kluge to defeat userSetMode comparison of modename -- not sure if it works; pretty sure it's needed for now
+        # kluge to defeat _f_userEnterCommand comparison of modename -- not sure if it works; pretty sure it's needed for now
+        # TODO: replace it with a new option to pass to that method
     cmdrun = construct_cmdrun(example_command_class, glpane)
     start_cmdrun(cmdrun)
     return

@@ -162,11 +162,20 @@ class basicCommand(anyCommand):
     Will be merged with class Command (keeping that one's name)
     when basicMode is no longer needed.
     """
+    # TODO: split into minimalCommand, which does as little as possible
+    # which meets the Command API and permits switching between commands
+    # in conjunction with the Command Sequencer (e.g. it implements
+    # Done, _f_userEnterCommand, init_gui, etc etc); and basicCommand, which
+    # has all the rest (the basic functionality of an NE1 command).
+    # (This is not urgent, since all commands should have that basic
+    #  functionality. It might make things clearer or ease refactoring
+    #  some of minimalCommand into the Command Sequencer.)
+    # [bruce 071011 comment]
     
     # Subclasses should define the following class constants,
     # and normally need no __init__ method.
     # If they have an __init__ method, it must call Command.__init__
-    # and pass the CommandSequencer in which this command is running.
+    # and pass the CommandSequencer in which this command can run.
     modename = "(bug: missing modename)"
     msg_modename = "(bug: unknown command)"
     default_mode_status_text = "(bug: missing command status text)"
@@ -229,7 +238,7 @@ class basicCommand(anyCommand):
         # later note: as of 070521, we always get warned "subclass movieMode overrides basicMode._exitMode".
         # I am not sure whether this override is legitimate so I'm not removing the warning for now. [bruce 070521]
         weird_to_override = ['Cancel', 'Flush', 'StartOver', 'Restart',
-                             'userSetMode', '_exitMode', 'Abandon', '_cleanup']
+                             '_f_userEnterCommand', '_exitMode', 'Abandon', '_cleanup']
             # not 'modifyTransmute', 'keyPress', they are normal to override;
             # not 'draw_selection_curve', 'Wheel', they are none of my business;
             # not 'makemenu' since no relation to new mode changes per se.
@@ -771,15 +780,24 @@ class basicCommand(anyCommand):
 
     # methods for changing to some other command
     
-    def userSetMode(self, modename, **options):        
+    def _f_userEnterCommand(self, modename, **options): # renamed from userSetMode [bruce 071011]
         """
+        [friend method, to be called only by self.commandSequencer]
+        
         User has asked to change to the command with the given modename;
         we might or might not permit this, depending on our own state.
-        If we permit it, do it; if not, show an appropriate error
-        message. Exception: if we're already in that command, do
-        nothing.
+        If we permit it, do it (after appropriate cleanup, depending on
+        options, which can include suspend_old_mode); if not, show an
+        appropriate error message. Exception: if we're already in the
+        requested command, do nothing.
+
+        Special case: modename can be an actual command instance object,
+        not a command name. In that case we switch to it (if we permit
+        ourselves switching to anything like it) even if it has the same
+        commandname as self.
         """
         if self.modename == modename:
+            # note that this implies modename is a string, not a command instance
             if self.isCurrentCommand():
                 # changing from the active command to itself -- do nothing
                 # (special case, not equivalent to behavior without it)
@@ -840,7 +858,7 @@ class basicCommand(anyCommand):
     def Done(self, new_mode = None, suspend_old_mode = False, **new_mode_options):
         """
         Done tool in dashboard; also called internally (in
-        userSetMode and elsewhere) if user asks to start a new command
+        _f_userEnterCommand and elsewhere) if user asks to start a new command
         and current command decides that's ok, without needing an
         explicit Done.  Change [bruce 040922]: Should not be
         overridden in subclasses; instead they should override

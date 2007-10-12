@@ -419,7 +419,7 @@ def simMoviePlayer(assy):
         return
 
     if assy.current_movie and assy.current_movie.might_be_playable():
-        win.glpane.setMode('MOVIE')
+        win.commandSequencer.userEnterCommand('MOVIE')
         if auto_play:
             win.moviePlay() # [bruce 050427 guess: simulate pressing the play button]
         return
@@ -448,7 +448,7 @@ def simMoviePlayer(assy):
             # for any loaded Part. So let's not... tho we might presume (from filename choice we used)
             # it was valid for Main Part. Maybe print warning for clip item, and for not valid? #e
             env.history.message("Movie Player: %s previously saved movie for this part." % (auto_play and "playing" or "loading"))
-            win.glpane.setMode('MOVIE')
+            win.commandSequencer.userEnterCommand('MOVIE')
             if auto_play:
                 win.moviePlay()
             return
@@ -457,7 +457,7 @@ def simMoviePlayer(assy):
     # which seems wrong and tracebacks now.
     assy.current_movie = Movie(assy)
         # temporary kluge until bugs in movieMode for no assy.current_movie are fixed
-    win.glpane.setMode('MOVIE')
+    win.commandSequencer.userEnterCommand('MOVIE')
     ## win.moviePlay()
         # [bruce 0505010 comment: not sure if this one would need auto_play, if it worked again]
     return

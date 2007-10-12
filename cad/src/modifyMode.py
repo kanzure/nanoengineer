@@ -909,14 +909,15 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         self.EndPick(event, ADD_TO_SELECTION)
 
     def leftDouble(self, event):
-        '''Do nothing upon double click , while in move mode (pre Alpha9 - experimental)
-        '''
+        """
+        Do nothing upon double click , while in move mode (pre Alpha9 - experimental)
+        """
 	#@@ninad070329  Till Alpha8, it used to Switch to Select Chunks Mode. 
         #for Alpha9, (pr pre Alpha9), it won't do anything. 
 	#this implementation might change in future. 
 	
         ## Current plans are to merge Select Chunks and Move Chunks modes in A8.
-        ##self.o.setMode('SELECTMOLS') # Fixes bug 1182. mark 060301.
+        ##self.commandSequencer.userEnterCommand('SELECTMOLS') # Fixes bug 1182. mark 060301.
         return
 
 

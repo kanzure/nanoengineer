@@ -556,7 +556,7 @@ class ESPImage(RectGadget):
         # (But why do we need to force it into any particular mode? I don't know. [bruce 070608])
         commandSequencer = self.assy.w.commandSequencer #bruce 071008
         if commandSequencer.currentCommand.modename != 'DEPOSIT':
-            commandSequencer.setMode('DEPOSIT')
+            commandSequencer.userEnterCommand('DEPOSIT')
         Jig.edit(self)
         
     def make_selobj_cmenu_items(self, menu_spec):

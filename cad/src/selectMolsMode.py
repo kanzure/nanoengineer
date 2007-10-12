@@ -96,7 +96,7 @@ class selectMolsMode(_superclass):
         #points, lines etc , which don't need deposit mode. 
         
         if self.cursor_over_when_LMB_pressed != 'Empty Space':
-            self.commandSequencer.setMode('DEPOSIT')
+            self.commandSequencer.userEnterCommand('DEPOSIT')
         return
         
     def keyPress(self,key):

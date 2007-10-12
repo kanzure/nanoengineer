@@ -1183,7 +1183,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 ##					           'ZOOM', 'PAN', 'ROTATE']:		    
 ##		    commandSequencer.prevMode = currentCommand
 ##		    
-##		commandSequencer.setMode('PASTE', suspend_old_mode = False)
+##		commandSequencer.userEnterCommand('PASTE', suspend_old_mode = False)
                 commandSequencer.userEnterTemporaryCommand('PASTE') #bruce 071011 guess ### REVIEW
                 return
         else:
@@ -1208,7 +1208,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 ##					       'ZOOM', 'PAN', 'ROTATE']:
 ##		commandSequencer.prevMode = currentCommand
 ##		
-##	    commandSequencer.setMode('PARTLIB', suspend_old_mode = False)
+##	    commandSequencer.userEnterCommand('PARTLIB', suspend_old_mode = False)
             commandSequencer.userEnterTemporaryCommand('PARTLIB') #bruce 071011 guess ### REVIEW
         return
             
@@ -1718,11 +1718,11 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 
     # get into Select Atoms mode
     def toolsSelectAtoms(self): # note: this can NO LONGER be called from update_select_mode [as of bruce 060403]
-        self.commandSequencer.setMode('SELECTATOMS')
+        self.commandSequencer.userEnterCommand('SELECTATOMS')
 
     # get into Select Chunks mode
     def toolsSelectMolecules(self):# note: this can also be called from update_select_mode [bruce 060403 comment]
-        self.commandSequencer.setMode('SELECTMOLS')
+        self.commandSequencer.userEnterCommand('SELECTMOLS')
 
     # get into Move Chunks (or Translate Components) command        
     def toolsMoveMolecule(self):
@@ -1739,7 +1739,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
     # get into Build mode        
     def toolsBuildAtoms(self): # note: this can now be called from update_select_mode [as of bruce 060403]
         self.depositState = 'Atoms'
-        self.commandSequencer.setMode('DEPOSIT')
+        self.commandSequencer.userEnterCommand('DEPOSIT')
 	
     #get into Build DNA Origami mode
     def buildDnaOrigami(self):
@@ -1751,15 +1751,15 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 
     # get into cookiecutter mode
     def toolsCookieCut(self):
-        self.commandSequencer.setMode('COOKIE')
+        self.commandSequencer.userEnterCommand('COOKIE')
 
     # get into Extrude mode
     def toolsExtrude(self):
-        self.commandSequencer.setMode('EXTRUDE')
+        self.commandSequencer.userEnterCommand('EXTRUDE')
 
     # get into Fuse Chunks mode
     def toolsFuseChunks(self):
-        self.commandSequencer.setMode('FUSECHUNKS')
+        self.commandSequencer.userEnterCommand('FUSECHUNKS')
         
     ###################################
     # Simulator Toolbar Slots
@@ -1833,13 +1833,24 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         """
         If the current command's .modename differs from the one given, change
         to that command.
+
+        Note: it's likely that this method is not needed since
+        userEnterCommand has the same special case of doing nothing
+        if we're already in the named command. If so, the special case
+        could be removed with no effect, and this method could be
+        inlined to just userEnterCommand.
         
         Note: all uses of this method are causes for suspicion, about
-        whether some sort of refactoring or generalization is called for.
+        whether some sort of refactoring or generalization is called for,
+        unless they are called from a user command whose purpose is solely
+        to switch to the named command. (In other words, switching to it
+        for some reason other than the user asking for that is suspicious.)
+        (That happens in current code [071011], and ought to be cleared up somehow,
+         but maybe not using this method in particular.)
         """
         commandSequencer = self.commandSequencer
         if commandSequencer.currentCommand.modename != modename:
-            commandSequencer.setMode(modename)
+            commandSequencer.userEnterCommand(modename)
             # note: this changes the value of .currentCommand
         return
         

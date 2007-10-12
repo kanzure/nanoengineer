@@ -1129,8 +1129,6 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         # though technically the non-glpane part is the job of our caller rather than us,
         # and changed MWsemantics to make that safe during our __init__.
         self.win.win_update()
-
-    # def setMode(self, modename) -- moved to modeMixin [bruce 040922]
     
     # ==
 
@@ -3585,6 +3583,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         return res
 
     def enter_custom_mode( self, modename, modefile): #bruce 050515
+        # TODO: move to modeMixin.py, and call on self.win.commandSequencer rather than on self
         fn = modefile
         if not os.path.exists(fn) and modename != 'testmode':
             env.history.message("should never happen: file does not exist: [%s]" % fn)
@@ -3618,8 +3617,11 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
             exec("from %s import %s as _modeclass" % (base,base))
             sys.path = oldpath
         modeobj = _modeclass(self) # this should put it into self.commandTable under the name defined in the mode module
+            # note: this self is probably supposed to be the command sequencer
         self.commandTable[modename] = modeobj # also put it in under this name, if different [### will this cause bugs?]
-        self.setMode(modename)
+        self.userEnterCommand(modename)
+            # note: self is acting as the command sequencer here; in future we'll get it from somewhere,
+            # e.g. self.win.commandSequencer, or just move this whole method there (and get cmdseq from win when we call it)
         return
 
     pass # end of class GLPane

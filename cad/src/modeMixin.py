@@ -48,8 +48,8 @@ class modeMixin(object):
     # so some code which uses glpane.mode is being changed to get commandSequencer
     # from win.commandSequencer (which for now is just the glpane; that will change)
     # and then use commandSequencer.currentCommand. But the command-changing methods
-    # like setMode are being left as commandSequencer.setMode until they're better
-    # understood. [bruce 071008 comment]
+    # like userEnterCommand are being left as commandSequencer.userEnterCommand
+    # until they're better understood. [bruce 071008 comment]
 
     # Note: see "new code" far below for comments and definitions about the
     # attributes of self which we maintain, namely mode, graphicsMode, currentCommand.
@@ -307,51 +307,59 @@ class modeMixin(object):
 
     # user requests a specific new mode.
 
-    def setMode(self, modename, **options): # in class modeMixin
+    def userEnterCommand(self, modename, **options): # renamed from setMode [bruce 071011]
         """
-        This is called (e.g. from methods in MWsemantics.py) when
-        the user requests a new mode using a button (or perhaps a menu
-        item).  It can also be called by specific modes which want to
-        change to another mode (true before, not changed now).  Since
-        the current mode might need to clean up before exiting, or
-        might even refuse to exit now (before told Done or Cancel), we
-        just let the current mode handle this, only doing it here if
-        the current mode's attempt to handle it has a bug.
+        Public method, called from the UI when the user asks to enter
+        a specific command (named by modename), e.g. using a toolbutton
+        or menu item. It can also be called inside commands which want to
+        change to another command.
+
+        The modename argument can be a modename string, e.g. 'DEPOSIT',
+        or a symbolic name like '$DEFAULT_MODE', or [### VERIFY THIS]
+        a command instance object. (Details of modename, and all options,
+        are documented in Command._f_userEnterCommand.)
+
+        The current command has to exit (or be suspended) before the new one
+        can be entered, but it's allowed to refuse to exit, and if it does
+        exit it needs a chance to clean up first. So we let the current
+        command implement this method and decide whether to honor the user's
+        request. (If it doesn't, it should emit a message explaining why not.
+        If it does, it should call the appropriate lower-level command-switching
+        method [### TODO: doc what those are or where to find out].
+
+        (If that raises an exception, we assume the current command has a bug
+        and fall back to default behavior here.)
+
+        TODO: The tool icons ought to visually indicate the current command,
+        but for now this is done by ad-hoc code inside individual commands
+        rather than in any uniform way. One defect of that scheme is that
+        the code for each command has to know what UI buttons might invoke it;
+        another is that it leads to that code assuming that a UI exists,
+        complicating future scripting support. When this is improved, the
+        updating of toolbutton status might be done by self.update_after_new_mode().
+        [Note, that's now in GLPane but should probably move into this class.]
         
-        TODO: Probably the tool icons ought to visually indicate the
-        current mode, but this doesn't yet seem to be attempted.
-        When it is, it'll be done in update_after_new_mode().
-        
-        The modename argument should be the modename as a string,
-        e.g. 'SELECT', 'DEPOSIT', 'COOKIE', or symbolic name,
-        e.g. '$DEFAULT_MODE'.
+        See also: userEnterTemporaryCommand
         """
-        # don't try to optimize for already being in the same mode --
-        # let individual modes do that if (and how) they wish
+        # Note: we don't have a special case for already being in the same
+        # command; individual commands can implement that if they wish.
         try:
-            self.currentCommand.userSetMode(modename, **options)
+            self.currentCommand._f_userEnterCommand(modename, **options)
 
             # REVIEW: the following update_after_new_mode looks redundant with
             # the one at the end of start_using_mode, if that one has always
             # run at this point (which I think, but didn't prove). [bruce 070813 comment]
             
-            # let current mode decide whether/how to do this
+            # TODO, maybe: let current command decide whether/how to do this update:
             self.update_after_new_mode()
-            # might not be needed if mode didn't change -- that's ok
-            ###e revise this redundant comment: Let current mode
-            # decide whether to permit the mode change, and either do
-            # it (perhaps after cleaning itself up) or emit a warning
-            # saying why it won't do it.  We don't need to know which
-            # happened -- to do the switch, it just calls the
-            # appropriate internal mode-switching methods... #doc like
-            # Done or Cancel might do...
+                # might be unnecessary if command didn't change -- that's ok
         except:
-            # should never happen unless there's a bug in some mode --
+            # This should never happen unless there's a bug in some command --
             # so don't bother trying to get into the user's requested
-            # mode, just get into a safe state.
-            print_compact_traceback("userSetMode: ")
-            print "bug: userSetMode(%r) had bug when in mode %r; changing back to default mode" % (modename, self.currentCommand,)
-            # for some bugs, the old mode will have left its toolbar
+            # command, just get into a safe state.
+            print_compact_traceback("_f_userEnterCommand: ")
+            print "bug: _f_userEnterCommand(%r) had bug when in mode %r; changing back to default mode" % (modename, self.currentCommand,)
+            # For some bugs, the old mode will have left its toolbar
             # up; we should probably try to call its restore_gui
             # method directly... ok, I added this, though it's
             # untested! ###k It looks safe, and only runs if there's a
@@ -368,7 +376,7 @@ class modeMixin(object):
             self.start_using_mode( '$DEFAULT_MODE' )
         return
 
-    def userEnterTemporaryCommand(self, modename):
+    def userEnterTemporaryCommand(self, modename): #bruce 071011
         """
         Temporarily enter the command with the given modename [TODO: or the given command object?],
         suspending the prior command for resumption after the new one exits,
@@ -380,6 +388,8 @@ class modeMixin(object):
         after which the prior non-temporary one will be resumed.)
 
         Note: semantics/API is likely to be revised; see code comments.
+
+        See also: userEnterCommand
         """
         # REVIEW: do we need to generalize command.command_can_be_suspended
         # to a relation between two commands
@@ -387,7 +397,7 @@ class modeMixin(object):
         # or whether one can suspend another,
         # based on which commands they are?
          
-        # REVIEW: should this method be an option on setMode or userSetMode
+        # REVIEW: should this method be an option on userEnterCommand or _f_userEnterCommand
         # rather than a separate method? Will those need to call this if the
         # command they are asked to enter is marked a temporary one?]
 
@@ -441,8 +451,9 @@ class modeMixin(object):
         
         # Set self.prevMode (our depth-1 suspended command stack)
         self.prevMode = prior_command # bruce 070813 save command object, not modename
-        self.setMode(modename, suspend_old_mode = True)
-            # TODO: if this can become the only use of suspend_old_mode, make it a private option _suspend_old_mode
+        self.userEnterCommand(modename, suspend_old_mode = True)
+            # TODO: if this can become the only use of suspend_old_mode, make it a private option _suspend_old_mode.
+            # Indeed, it's now the only use except for internal and commented out ones... [071011 eve]
         return
 
     # ==
@@ -510,7 +521,7 @@ class modeMixin(object):
 
     graphicsMode = property( _get_graphicsMode, _set_graphicsMode)
 
-    # mode (old code only)
+    # mode (only used by old code; in theory, no longer needed as of 071011)
     
     def _get_mode(self):
         """
