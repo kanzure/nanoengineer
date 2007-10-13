@@ -1191,11 +1191,16 @@ class Command(basicCommand):
         assert issubclass(GM_class, GraphicsMode)
         args = [self] # the command is the only ordinary init argument
         kws = {} # TODO: let subclasses add kws to this
-        # TODO: permit the following to sometimes share a single GM instance
+        # NOT TODO [see end of comment for why not]:
+        # permit the following to sometimes share a single GM instance
         # between multiple commands (might or might not be important)
         # (possible importance: if something expensive like expr instances
         #  are cached in the GM instance itself; for now they're cached in
         #  the GLPane based on the Command or GM name, so this doesn't matter)
+        # Big difficulty with that: how can graphicsMode.command point back to self?
+        # We'd have to reset it with every delegation, or pass it as an argument
+        # into every method (or attr get) -- definitely worse than the benefit,
+        # so NEVERMIND. Instead, just share anything expensive that a GM sets up.
         self.graphicsMode = GM_class(*args, **kws)
         pass
 
