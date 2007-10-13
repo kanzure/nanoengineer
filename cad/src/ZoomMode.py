@@ -29,7 +29,7 @@ import drawer
 from constants import GL_FAR_Z
 
 
-from ArrangementMode import TemporaryCommand_Overdrawing
+from TemporaryCommand import TemporaryCommand_Overdrawing
 
 
 # == the GraphicsMode part

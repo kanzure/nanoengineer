@@ -8,7 +8,7 @@ Rotate mode functionality.
 @license:   GPL
 """
 
-from ArrangementMode import TemporaryCommand_Overdrawing
+from TemporaryCommand import TemporaryCommand_Overdrawing
 
 # == GraphicsMode part
 
