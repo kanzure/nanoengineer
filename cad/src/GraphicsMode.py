@@ -105,6 +105,8 @@ class anyGraphicsMode(object): #bruce 071008 added object superclass, 071009 spl
     check_target_depth_fudge_factor = 0.0001
         # affects GLPane's algorithm for finding objectUnderMouse (selobj)
 
+    picking = False # used as instance variable in some mouse methods
+
     
     # default methods for both nullGraphicsMode and basicGraphicsMode
     
@@ -550,12 +552,13 @@ class basicGraphicsMode(anyGraphicsMode):
         """
         Rotate the view with MMB+Drag.
         """
-        # Huaicai 4/12/05: Originally 'self.picking=0 in both middle*Down
+        # Huaicai 4/12/05: Originally 'self.picking = False in both middle*Down
         # and middle*Drag methods. Change it as it is now is to prevent 
         # possible similar bug that happened in the modifyMode where 
         # a *Drag method is called before a *Down() method. This 
         # comment applies to all three *Down/*Drag/*Up methods.
-        if not self.picking: return
+        if not self.picking:
+            return
         
         self.o.SaveMouse(event)
         q = self.o.trackball.update(self.o.MousePos[0],self.o.MousePos[1])
@@ -663,7 +666,7 @@ class basicGraphicsMode(anyGraphicsMode):
         self.o.gl_update()
         
     def middleShiftUp(self, event):
-        self.picking = 0
+        self.picking = False
         self.update_cursor()
     
     def middleCntlDown(self, event):
@@ -675,7 +678,7 @@ class basicGraphicsMode(anyGraphicsMode):
         self.Zorg = self.o.MousePos
         self.Zq = Q(self.o.quat)
         self.Zpov = self.o.pov
-        self.picking = 1
+        self.picking = True
         
         # Turn off hover highlighting while rotating the view with middle mouse button. Mark 060808.
         self.o.selobj = None # <selobj> is the object highlighted under the cursor.
@@ -698,7 +701,7 @@ class basicGraphicsMode(anyGraphicsMode):
         self.o.gl_update()
         
     def middleCntlUp(self, event):
-        self.picking = 0
+        self.picking = False
         self.update_cursor()
         
     def middleShiftCntlDown(self, event): # mark 060228.
@@ -723,7 +726,7 @@ class basicGraphicsMode(anyGraphicsMode):
         self.o.gl_update()
         
     def middleShiftCntlUp(self, event):
-        self.picking = 0
+        self.picking = False
         self.update_cursor()
 
     def middleDouble(self, event):
