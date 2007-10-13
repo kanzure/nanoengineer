@@ -32,7 +32,7 @@
         return depositMode.Done(self, new_mode, resuming = resuming)
 
 
-and the one from ArrangementMode was essentially equivalent:
+and the one from Zoom/Rotate/Pan was essentially equivalent:
 
 
     # a safe way for now to override Done:
@@ -57,4 +57,4 @@ and the one from ArrangementMode was essentially equivalent:
         return basicMode.Done(self, new_mode, resuming = resuming)
 
         
-these will be subsumed by new behavior in default Done or something it calls in self or modeMixin.
+these have been subsumed by new behavior in default implem of Done, and/or something it calls in self or modeMixin.

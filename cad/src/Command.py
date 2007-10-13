@@ -881,7 +881,8 @@ class basicCommand(anyCommand):
         # [bruce 071011 comment]
         resuming = False
         if self.command_should_resume_prevMode:
-            # imitate the overrides of Done formerly in ArrangementMode and PasteMode.
+            # (Historical note: this imitates the overrides of Done formerly done
+            #  in specific TemporaryCommands.)
             # TODO: review whether to do this somewhere else, so it also covers Cancel;
             # and/or refactor it further so the Command Sequencer fully handles it
             # (as said just above). # [bruce 071011 change and comment]
@@ -1174,9 +1175,6 @@ class Command(basicCommand):
         # and not on their implem until it had to be instantiated.
         # Eventually, to librarify this code, we'll need to solve that problem.
 
-##    graphicsMode = None # might be needed to override property defined in superclass,
-        # in order for this to be settable -- won't know until we try this code in a split version of ArrangementMode ### TEST
-    
     def __init__(self, commandSequencer):
         basicCommand.__init__(self, commandSequencer)
         # also create and save our GraphicsMode,

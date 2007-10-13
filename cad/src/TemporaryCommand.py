@@ -1,24 +1,14 @@
 # Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 
 """
-ArrangementMode.py -- to be renamed to TemporaryCommand.py, to contain several kinds of those...
+TemporaryCommand.py -- provides several kinds of TemporaryCommand superclasses
+(so far, just TemporaryCommand_Overdrawing, used for Zoom/Pan/Rotate).
 
 @author:    Mark and Bruce
 @copyright: Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 @version:   $Id$
 @license:   GPL
 """
-
-    # TODO: this module needs renaming, since it has nothing to do
-    # with "arrangements" of anything. What it's about is something like
-    # a "view-change temporary command with no PM". We should see which of
-    # those qualities it's specific to, when choosing a new name. Note that
-    # if we split it into Command and GraphicsMode parts, each part might
-    # be specific to different things, i.e. one might be more widely
-    # reusable than the other. So they might not have precisely corresponding
-    # names, since the name should reflect what it can be used for.
-    # [bruce 071010]
-
 
 from PyQt4.Qt import Qt
 
@@ -128,7 +118,9 @@ class TemporaryCommand_Overdrawing( TemporaryCommand_preMixin,
 ##
 ##from modes import basicMode
 ##
-##class ArrangementMode( TemporaryCommand_preMixin,
+### now combine all the classes used to make TemporaryCommand_Overdrawing and its _GM class:
+##
+##class basicTemporaryCommand_Overdrawing( TemporaryCommand_preMixin,
 ##                       ESC_to_exit_GraphicsMode_preMixin,
 ##                       Overdrawing_GraphicsMode_preMixin,
 ##                       basicMode ):

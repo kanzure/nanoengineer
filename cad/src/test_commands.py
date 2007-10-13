@@ -88,7 +88,11 @@ class ExampleCommand(selectAtomsMode):
 
 # ==
 
-class Example_TemporaryCommand_useParentPM(ExampleCommand): # note: this works if you have your own PM; perhaps untested when you don't
+class Example_TemporaryCommand_useParentPM(ExampleCommand):
+    # Note: this works if you have your own PM; perhaps untested when you don't.
+    # Warning: currently only one level of temporary commands is permitted;
+    # if you enter one of these commands and then enter another TemporaryCommand (e.g. Zoom Tool)
+    # it exits the first temporary commmand you were in.
     command_can_be_suspended = False #bruce 071011
     command_should_resume_prevMode = True #bruce 071011, to be revised (replaces need for customized Done method)
     test_commands_start_as_temporary_command = True # enter in different way
