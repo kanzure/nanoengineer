@@ -78,8 +78,9 @@ class nullMode(nullCommand, nullGraphicsMode, anyMode):
     command = property(__get_command)
 
     def __get_graphicsMode(self):
-        print "\n * * * nullMode.__get_graphicsMode, remove when seen often\n"
-            # should happen often, did happen at least once
+        # print "\n * * * nullMode.__get_graphicsMode, remove when seen often\n"
+            # should happen often, did happen at least once;
+            # happens a few times when you enter Extrude
         return self
 
     graphicsMode = property(__get_graphicsMode)
