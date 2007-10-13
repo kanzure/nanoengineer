@@ -53,6 +53,8 @@ from debug import register_debug_menu_command
 
 from GLPane import GLPane # maybe only needed for an isinstance assertion
 
+# ==
+
 class ExampleCommand(selectAtomsMode):
     """
     Abstract superclass for the example commands in this file.
@@ -60,7 +62,6 @@ class ExampleCommand(selectAtomsMode):
     modename, default_mode_status_text, and PM_class.
     Some of them also need to override mode methods, such as Draw.
     """
-    return_to_prior_command = False
     test_commands_start_as_temporary_command = False
     PM_class = None # if not overridden, means we need no PM (BUG: we'll still get a PM tab)
     
@@ -85,55 +86,17 @@ class ExampleCommand(selectAtomsMode):
     
     pass
 
-##class Example_TemporaryCommand_useParentPM_OBS(ExampleCommand):
-##    """
-##    A kind of example command which suspends the prior command
-##    and returns to it when done, but only works for commands
-##    with no PM of their own, which want the parent PM to remain
-##    visible (and potentially useable) while they run.
-##       Note that in current code, the parent Confirmation Corner
-##    remains visible as well. Whether it (and the PM done/cancel
-##    buttons) work properly during this time is unknown. ###TEST/REVIEW
-##    """
-##    # works like ArrangementMode I guess -- not yet correct when used together with those!
-##    # Need to merge this with ArrangementMode, use a class constant instead of modename check,
-##    # know when a toggle button is present, etc. ###TODO
-##    
-##    return_to_prior_command = True # class constant ##### bruce 070813; experiment; API will change a lot
-##        # This needs to affect the way we leave the prior command when entering this one --
-##        # which means, it needs to affect code that is not inside this command itself.
-##    prior_command = None # dflt val of ivar
-##    def set_prior_command(self, command):
-##        # the ivar we set here has the same purpose as glpane.prevMode in ArrangementMode --
-##        # but storing it in self is far less bug prone, i hope! Do this in ArrangementMode too. ###TODO
-##        self.prior_command = command
-##        return
-##    def Done(self, new_mode = None, **new_mode_options): ### TODO: revise based on future prevMode-using methods in modeMixin.py
-##        ### REVIEW whether it's best to override this vs some other mode api method
-##        ### also how does it interact with new_mode arg? probably callers of that need to be revised to say what they really mean.
-##
-##        ###TODO -- revise this per ArrangementMode
-##        if new_mode is None:
-##            print "leaving subcommand %r normally" % self
-##            new_mode = self.prior_command
-##            if new_mode:
-##                new_mode_options['resuming'] = True # passes resuming = True
-##                    # note: this is to not call Enter on resumed mode, just init_gui & updaters
-##                    ###BUG: if this still calls init_gui that might be called twice -- likely bug.
-##                    # Same issue for extrude. ADD CODE to extrude to detect misuse of connect/discon -- a signal overlap counter!
-##        else:
-##            print "leaving subcommand %r abnormally, going to %r" % (self, new_mode)
-##        ExampleCommand.Done(self, new_mode, **new_mode_options)
-##        return
-##    pass
+# ==
 
-class Example_TemporaryCommand_useParentPM(ExampleCommand):
+class Example_TemporaryCommand_useParentPM(ExampleCommand): # note: this works if you have your own PM; perhaps untested when you don't
     command_can_be_suspended = False #bruce 071011
     command_should_resume_prevMode = True #bruce 071011, to be revised (replaces need for customized Done method)
-    test_commands_start_as_temporary_command = True # enter in different way, similar to return_to_prior_command
+    test_commands_start_as_temporary_command = True # enter in different way
         ### TODO: set up a similar thing in Command API? it would replace all calls of userEnterTemporaryCommand
     pass
-    
+
+# ==
+
 class ExampleCommand1(ExampleCommand):
     """
     Example command, which uses behavior similar to selectAtomsMode. 
@@ -203,22 +166,10 @@ def start_cmdrun( cmdrun):
     ## ideally:  cmd.Start() #######
     glpane = cmdrun.glpane # TODO: glpane -> commandSequencer
     if cmdrun.test_commands_start_as_temporary_command:
-        # bruce 071011 replaces return_to_prior_command feature
-        # UNTESTED, incl whether new modename can be cmdrun object as it is here, and whether old PM survives ok;
-        # also this is only correct for commands with no PM of their own, not sure that's true here..
-        # also do we need the Draw delegation to prevMode as in ArrangementMode? ### REVIEW
-        assert not cmdrun.return_to_prior_command
+        # bruce 071011
+        # note: was written for commands with no PM of their own, but was only tested for a command that has one (and works)...
+        # also do we need the Draw delegation to prevMode as in TemporaryCommand_Overdrawing? ### REVIEW
         glpane.userEnterTemporaryCommand( cmdrun)
-    elif cmdrun.return_to_prior_command:
-        assert 0 # 071011
-##        # 070813 new feature, experimental, implem will change; part of Command Sequencer
-##        ### probably WRONG; need to analyze what happens in Done to decide how much to do here, and how to protect from exceptions
-##        cmdrun.set_prior_command(glpane.currentCommand) ###IMPLEM set_prior_command (if not already done)
-####        glpane.currentCommand.restore_gui() #k guess; should be suspend_gui ####
-####        glpane.currentCommand = cmdrun # (illegal to do directly) ### more? call some setter? call update_after_new_mode? ###
-####        cmdrun.init_gui()
-##        glpane.currentCommand.Done(new_mode = cmdrun, suspend_old_mode = True)
-##        ## glpane.gl_update() # REVIEW: not sure if needed; should be removed if redundant (might be excessive someday)
     else:
         glpane.currentCommand.Done(new_mode = cmdrun) # is this what takes the old mode's PM away?
     print "done with start_cmdrun for", cmdrun
