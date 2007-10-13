@@ -306,7 +306,7 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
 	else:
 	    self.leftDownForRotation(event)
 	
-	#Permit movable object picking upon left down.             
+	# Permit movable object picking upon left down.             
 	
 	obj = self.get_obj_under_cursor(event)
 	# If highlighting is turned on, get_obj_under_cursor() returns atoms, 
@@ -714,9 +714,11 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
 	    selectMolsMode.leftUp(self,event)
                   
     def EndPick(self, event, selSense):
-        """Pick if click
         """
-        if not self.picking: return
+        Pick if click
+        """
+        if not self.picking:
+            return
         
         self.picking = False
 
@@ -841,7 +843,8 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         """
 	            
         ##See comments of leftDrag()--Huaicai 3/23/05
-        if not self.picking: return
+        if not self.picking:
+            return
 
         if self._leftADown_error:
             return

@@ -537,9 +537,11 @@ class selectMolsMode(_superclass):
 	from modifyMode.leftDrag 
         """
       
-        if not self.picking: return
+        if not self.picking:
+            return
         
-        if not self.o.assy.getSelectedMovables(): return
+        if not self.o.assy.getSelectedMovables():
+            return
         
         if self.movingPoint is None: 
 	    self.leftDown(event)         

@@ -119,7 +119,7 @@ class ThumbView(GLPane_minimal):
             have a layout. Preview Pane not added to the layout.")
             pass
         
-        self.picking = 0
+        self.picking = False
 
         self.selectedObj = None
         
@@ -478,34 +478,31 @@ class ThumbView(GLPane_minimal):
         
         self.selectedObj = self.select(wX, wY)
         self.highlightSelected(self.selectedObj)
-   
+        return
         
     def leftDown(self, event):
         pass
 
-
     def leftUp(self, event):
         pass
-
     
     def middleDown(self, event):
         pos = event.pos()
         self.trackball.start(pos.x(), pos.y())
-        self.picking = 1
-        
+        self.picking = True
+        return
 
     def middleDrag(self, event):
-        if not self.picking: return
-        
-        pos = event.pos()
-        q = self.trackball.update(pos.x(), pos.y())
-        self.quat += q
-        self.updateGL()
-    
+        if self.picking:        
+            pos = event.pos()
+            q = self.trackball.update(pos.x(), pos.y())
+            self.quat += q
+            self.updateGL()
+        return
     
     def middleUp(self, event):
-        self.picking = 0
-        
+        self.picking = False
+        return
         
     def select(self, wX, wY):
         """Use the OpenGL picking/selection to select any object. Return the selected object, 

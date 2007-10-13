@@ -379,7 +379,8 @@ class selectMode(basicMode):
         return
         
     def start_selection_curve(self, event, sense):
-        """Start a new selection rectangle/lasso.
+        """
+        Start a new selection rectangle/lasso.
         """
         self.selSense = sense
             # <selSense> is the type of selection.
@@ -413,9 +414,11 @@ class selectMode(basicMode):
             # <selCurve_length> is the current length (sum) of all the selection curve segments.
 
     def continue_selection_curve(self, event):
-        """Add another line segment to the current selection curve.
         """
-        if not self.picking: return
+        Add another line segment to the current selection curve.
+        """
+        if not self.picking:
+            return
         
         selCurve_pt, selCurve_AreaPt = self.o.mousepoints(event, 0.01)
             # The next point of the selection curve, where <selCurve_pt> is the point just beyond
@@ -445,9 +448,11 @@ class selectMode(basicMode):
         return
         
     def end_selection_curve(self, event):
-        """Close the selection curve and do the selection.
         """
-        if not self.picking: return
+        Close the selection curve and do the selection.
+        """
+        if not self.picking:
+            return
         self.picking = False
 
         selCurve_pt, selCurve_AreaPt = self.o.mousepoints(event, 0.01)
@@ -1746,8 +1751,9 @@ class selectMode(basicMode):
         env.history.message(msg)
     
     def get_jig_under_cursor(self, event): ###e should move this up with the other Jig helper methods
-        """Use the OpenGL picking/selection to select any jigs. Restore the projection and modelview
-           matrices before returning.
+        """
+        Use the OpenGL picking/selection to select any jigs. Restore the projection and modelview
+        matrices before returning.
         """
         ####@@@@ WARNING: The original code for this, in GLPane, has been duplicated and slightly modified
         # in at least three other places (search for glRenderMode to find them). This is bad; common code
