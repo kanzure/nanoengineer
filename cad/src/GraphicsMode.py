@@ -25,7 +25,7 @@ from Numeric import exp
 from Numeric import dot
 
 from PyQt4.Qt import Qt
-from PyQt4.Qt import QMenu, QCursor
+from PyQt4.Qt import QMenu
 
 from OpenGL.GL import GL_FALSE
 from OpenGL.GL import glColorMask
@@ -597,14 +597,6 @@ class basicGraphicsMode(anyGraphicsMode):
         # Turn off hover highlighting while panning the view with middle mouse button. Fixes bug 1657. Mark 060808.
         self.o.selobj = None # <selobj> is the object highlighted under the cursor.
         
-    def middleShiftDown_OBS(self, event):
-        self.w.OldCursor = QCursor(self.o.cursor())
-        # save copy of current cursor in OldCursor
-        self.o.setCursor(self.w.MoveCursor) # load MoveCursor in glpane
-        
-        self.o.SaveMouse(event)
-        self.picking = False
-
     def dragto(self, point, event, perp = None):
         """
         Return the point to which we should drag the given point,
@@ -666,43 +658,10 @@ class basicGraphicsMode(anyGraphicsMode):
         Pan view with MMB+Shift+Drag. 
         Move point of view so that the model appears to follow the cursor on the screen.
         """
-        point = self.dragto( self.movingPoint, event) #bruce 060316 replaced old code with dragto (equivalent)
+        point = self.dragto( self.movingPoint, event)
         self.o.pov += point - self.movingPoint
         self.o.gl_update()
         
-    def middleShiftDrag_OBS(self, event):
-        """
-        Move point of view so that objects appear to follow
-        the mouse on the screen.
-        """
-        if not self.picking:
-            return
-        
-        h=self.o.height+0.0
-        deltaMouse = V(event.pos().x() - self.o.MousePos[0],
-                       self.o.MousePos[1] - event.pos().y(), 0.0)
-        #move = self.o.quat.unrot(self.o.scale * deltaMouse/(h*0.5))
-        
-        # bruce comment 040908, about josh code: 'move' is mouse
-        # motion in model coords. We want center of view, -self.pov,
-        # to move in opposite direction as mouse, so that after
-        # recentering view on that point, objects have moved with
-        # mouse.
-        
-        ### Huaicai 1/26/05: delta Xe, delta Ye  depend on Ze, here
-        ### Ze is just an estimate, so Xe and Ye are estimates too, but
-        ### they seems more accurate than before. To accurately 
-        ### calculate it, we need to find a depth value for a point on 
-        ### the model.
-        Ze = 2.0*self.o.near*self.o.far*self.o.scale/(self.o.near+self.o.far)
-        tY = (self.o.zoomFactor*Ze)*2.0/h
-        
-        move = self.o.quat.unrot(deltaMouse*tY)
-        self.o.pov += move
-        self.o.gl_update()
-        self.o.SaveMouse(event)
-        
-    
     def middleShiftUp(self, event):
         self.picking = 0
         self.update_cursor()
@@ -766,40 +725,6 @@ class basicGraphicsMode(anyGraphicsMode):
     def middleShiftCntlUp(self, event):
         self.picking = 0
         self.update_cursor()
-
-    def middleCntlDrag_OBS(self, event):
-        """
-        push scene away (mouse goes up) or pull (down);
-        and/or rotate around vertical axis (left-right)
-        """
-        if not self.picking:
-            return
-        
-        self.o.SaveMouse(event)
-        dx,dy = (self.o.MousePos - self.Zorg) * V(1,-1)
-        ax,ay = abs(V(dx,dy))
-        if self.Zunlocked:
-            self.Zunlocked = ax<10 and ay<10
-            if ax>ay:
-                # rotating
-                self.o.setCursor(self.w.RotateZCursor)
-                # load RotateZCursor in glpane
-                self.o.pov = self.Zpov
-                self.ZRot = 1
-            else:
-                # zooming
-                self.o.setCursor(self.w.ZoomCursor)
-                # load ZoomCursor in glpane
-                self.o.quat = Q(self.Zq)
-                self.ZRot = 0
-        if self.ZRot:
-            w=self.o.width+0.0
-            self.o.quat = self.Zq + Q(V(0,0,1),2*math.pi*dx/w)
-        else:
-            h=self.o.height+0.0
-            self.o.pov = self.Zpov-self.o.out*(2.0*dy/h)*self.o.scale
- 
-        self.o.gl_update()
 
     def middleDouble(self, event):
         pass

@@ -25,10 +25,12 @@ class ops_connected_Mixin:
     
     #mark 060128 made this more general by adding the atomlist arg.
     def selectConnected(self, atomlist=None):
-        """Select any atom that can be reached from any currently
+        """
+        Select any atom that can be reached from any currently
         selected atom through a sequence of bonds.
         If <atomlist> is supplied, use it instead of the currently selected atoms.
-        """ ###@@@ should make sure we don't traverse interspace bonds, until all bugs creating them are fixed
+        """
+        ###@@@ should make sure we don't traverse interspace bonds, until all bugs creating them are fixed
         
         cmd = greenmsg("Select Connected: ")
         
@@ -57,7 +59,8 @@ class ops_connected_Mixin:
         self.o.gl_update()
         
     def unselectConnected(self, atomlist=None):
-        """Unselect any atom that can be reached from any currently
+        """
+        Unselect any atom that can be reached from any currently
         selected atom through a sequence of bonds.
         If <atomlist> is supplied, use it instead of the currently selected atoms.
         """
@@ -88,7 +91,8 @@ class ops_connected_Mixin:
         self.o.gl_update()
         
     def deleteConnected(self, atomlist=None): # by mark
-        """Delete any atom that can be reached from any currently
+        """
+        Delete any atom that can be reached from any currently
         selected atom through a sequence of bonds, and that is acceptable to the current selection filter.
         If <atomlist> is supplied, use it instead of the currently selected atoms.
         """
@@ -137,11 +141,13 @@ class ops_connected_Mixin:
         return
         
     def selectDoubly(self):
-        """Select any atom that can be reached from any currently
+        """
+        Select any atom that can be reached from any currently
         selected atom through two or more non-overlapping sequences of
         bonds. Also select atoms that are connected to this group by
         one bond and have no other bonds.
-        """ ###@@@ same comment about interspace bonds as in selectConnected
+        """
+        ###@@@ same comment about interspace bonds as in selectConnected
         
         cmd = greenmsg("Select Doubly: ")
         
@@ -169,68 +175,14 @@ class ops_connected_Mixin:
 
     # == helpers for SelectConnected (for SelectDoubly, see separate file imported above)
     
-    #bruce 050629 fixing bug 714 by rewriting this to make it non-recursive
-    # (tho it's still non-interruptable), and fixing some other bug by making it
-    # use its own dict for intermediate state, rather than atom.picked (so it works with Selection Filter).
-    #mark 060128 made this more general by adding the atomlist arg.
-    def marksingle_OBS(self, atomlist, op='Select'): # obsolete and not used as of 060212. mark
-        '''Select, unselect or delete all the atoms reachable through any sequence of bonds to the atoms 
-        in <atomlist> based on the operator flag <op>, where:
-        
-        'Select' = select all the atoms reachable through any sequence of bonds to the atoms in atomlist.
-        'Unselect' = unselect all the atoms reachable through any sequence of bonds to the atoms in atomlist.
-        'Delete' = delete all the atoms reachable through any sequence of bonds to the atoms in atomlist.
-        
-        Returns the number of newly selected, unselected or deleted atoms.
-        '''
-        marked = {} # maps id(atom) -> atom, for processed atoms
-        todo = atomlist # list of atoms we must still mark and explore (recurse on all unmarked neighbors)
-        # from elements import Singlet
-        for atom in todo:
-            marked[id(atom)] = atom # since marked means "it's been appended to the todo list"
-        while todo:
-            newtodo = []
-            for atom in todo:
-                assert id(atom) in marked
-                #e could optim by skipping singlets, here or before appending them.
-                #e in fact, we could skip all univalent atoms here, but (for non-singlets)
-                # only if they were not initially picked, so nevermind that optim for now.
-                for b in atom.bonds:
-                    at1, at2 = b.atom1, b.atom2 # simplest to just process both atoms, rather than computing b.other(atom)
-                    if id(at1) not in marked: #e could also check for singlets here...
-                        marked[id(at1)] = at1
-                        newtodo.append(at1)
-                    if id(at2) not in marked:
-                        marked[id(at2)] = at2
-                        newtodo.append(at2)
-            todo = newtodo
-        
-        n = 0
-        
-        for atom in marked.itervalues():
-            if op == 'Unselect':
-                if atom.picked:
-                    n += 1
-                    atom.unpick()
-            elif op == 'Delete':
-                n += 1
-                if atom:
-                    atom.kill()
-            else:
-                if not atom.picked:
-                    n += 1
-                    atom.pick()
-            # note: this doesn't actually select it unless it's not a singlet and its element passes the Selection Filter.
-        return n
-        
-
     def getConnectedAtoms(self, atomlist, singlet_ok = False, _return_marked = False):
-        '''Return a list of atoms reachable from all the atoms in atomlist,
+        """
+        Return a list of atoms reachable from all the atoms in atomlist,
         not following bonds which are "not really connected" (e.g. pseudo-DNA strand-axis bonds).
         Normally never returns singlets. Optional arg <singlet_ok> permits returning singlets.
         [Private option _return_marked just returns the internal marked dictionary
          (including singlets regardless of other options).]
-        '''
+        """
             
         marked = {} # maps id(atom) -> atom, for processed atoms
         todo = atomlist # list of atoms we must still mark and explore (recurse on all unmarked neighbors)
@@ -293,8 +245,9 @@ class ops_connected_Mixin:
         
 
     def getConnectedSinglets(self, atomlist):
-        '''Return a list of singlets reachable from all the atoms in atomlist.
-        '''
+        """
+        Return a list of singlets reachable from all the atoms in atomlist.
+        """
         marked = self.getConnectedAtoms( atomlist, _return_marked = True )
             # use private option of sibling method, to incorporate the new details
             # of its functionality (i.e. its meaning of "connected"/"reachable")

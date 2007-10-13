@@ -208,11 +208,12 @@ class depositMode(_superclass):
         
         # The caller will now call update_gui(); we rely on that [bruce 050122]
         return
-            
     
     def enable_gui_actions(self, bool):
-        '''Enable or disable some gui actions depending on 
-        whether user is entering or leaving the mode'''
+        """
+        Enable or disable some gui actions depending on 
+        whether user is entering or leaving the mode
+        """
         self.w.insertNanotubeAction.setEnabled(bool)
         self.w.buildDnaAction.setEnabled(bool)
         self.w.insertGrapheneAction.setEnabled(bool)
@@ -220,7 +221,9 @@ class depositMode(_superclass):
         #@@This should also contain HeteroJunctionAction. (in general Plugin actions)
     
     def _init_flyoutActions(self):
-        """Define flyout toolbar actions for this mode."""
+        """
+        Define flyout toolbar actions for this mode.
+        """
         #@NOTE: In Build mode, some of the actions defined in this method are also 
         #used in Build Atoms PM. (e.g. bond actions) So probably better to rename 
         #it as _init_modeActions. Not doing that change in mmkit code cleanup 
@@ -349,18 +352,18 @@ class depositMode(_superclass):
         @param enabled: boolean that decides whether to turn 
                         selection filter on or off. 
         @type enabled: boolean
-        
         """
-        
         self.propMgr.set_selection_filter(enabled) 
     
             
     def getFlyoutActionList(self): #Ninad 070126
-        """ Returns a tuple that contains mode spcific actionlists in the 
+        """
+        Returns a tuple that contains mode spcific actionlists in the 
         added in the flyout toolbar of the mode. 
         CommandManager._createFlyoutToolBar method calls this 
         @return: params: A tuple that contains 3 lists: 
-        (subControlAreaActionList, commandActionLists, allActionsList)"""
+        (subControlAreaActionList, commandActionLists, allActionsList)
+        """
         
         #ninad070330 This implementation may change in future. 
         
@@ -433,8 +436,8 @@ class depositMode(_superclass):
         ##for action in self.w.buildToolsMenu.actions():
             ##commandActionLists[2].append(action)
         
-        #Command list for the subcontrol area button 'Bonds Tool'
-        #For others, this list will remain empty for now -- ninad070405 
+        # Command list for the subcontrol area button 'Bonds Tool'
+        # For others, this list will remain empty for now -- ninad070405 
         bondsToolCmdLst = []
         bondsToolCmdLst.append(self.bond1Action)
         bondsToolCmdLst.append(self.bond2Action)
@@ -448,20 +451,22 @@ class depositMode(_superclass):
         
         return params
     
-    
     def updateCommandManager(self, bool_entering = True):
-        ''' Update the command manager '''
-                
+        """
+        Update the command manager
+        """        
         obj = self
         self.w.commandManager.updateCommandManager(self.w.toolsDepositAtomAction,
                                                    obj, 
-                                                   entering =bool_entering)
+                                                   entering = bool_entering)
+        return
     
     def activateAtomsTool(self):
-        ''' Activate the atoms tool of the build chunks mode 
+        """
+        Activate the atoms tool of the build chunks mode 
         hide only the Atoms Tools groupbox in the Build chunks Property manager
-        and show all others the others.'''
-        
+        and show all others the others.
+        """
         self.propMgr.bondToolsGroupBox.hide()
         
         for grpbox in self.propMgr.previewGroupBox, self.propMgr.elementChooser:
@@ -475,10 +480,11 @@ class depositMode(_superclass):
         self.propMgr.updateMessage()
                 
     def activateBondsTool(self):
-        ''' Activate the bond tool of the build chunks mode 
+        """
+        Activate the bond tool of the build chunks mode 
         Show only the Bond Tools groupbox in the Build chunks Property manager
-        and hide the others.'''
-        
+        and hide the others.
+        """
         self.bond1Action.setChecked(True)
         self.changeBondTool(self.bond1Action)
                         
@@ -532,7 +538,9 @@ class depositMode(_superclass):
         return
     
     def update_gui(self): #bruce 050121 heavily revised this [called by basicMode.UpdateDashboard]
-        """can be called many times during the mode;
+        """
+        #doc...
+        can be called many times during the mode;
         should be called only by code in modes.py
         """
 ##        if not self.isCurrentCommand():
@@ -645,7 +653,9 @@ class depositMode(_superclass):
         return
         
     def clipboard_members_changed(self, clipboard): #bruce 050121
-        "we'll subscribe this method to changes to shelf.members, if possible"
+        """
+        we'll subscribe this method to changes to shelf.members, if possible
+        """
         if self.isCurrentCommand():
             self.UpdateDashboard()
                 #e ideally we'd set an inval flag and call that later, but when?
@@ -788,7 +798,8 @@ class depositMode(_superclass):
         return
 
     def getCoords(self, event):
-        """ Retrieve the object coordinates of the point on the screen
+        """
+        Retrieve the object coordinates of the point on the screen
         with window coordinates(int x, int y) 
         """
         # bruce 041207 comment: only called for depositMode leftDown in empty
@@ -824,33 +835,6 @@ class depositMode(_superclass):
              dot(self.o.lineOfSight, p2 - p1))
 
         return p1+k*(p2-p1) # always return a point on the line from p1 to p2
-
-##    def OLD_OBS_update_selatom(self, event, singOnly = False, msg_about_click = False): # no longer used as of 050610
-##        # bruce 041206 optimized redisplay (for some graphics chips)
-##        # by keeping selatom out of its chunk's display list,
-##        # so no changeapp is needed when selatom changes.
-##        # bruce 041213 fixed several bugs using new findAtomUnderMouse,
-##        # including an unreported one for atoms right at the eyeball position.
-##        
-##        oldselatom = self.o.selatom
-##        # warning: don't change self.o.selatom yet, since findAtomUnderMouse uses
-##        # its current value to support hysteresis for its selection radius.
-##        atm = self.o.assy.findAtomUnderMouse(event, water_cutoff = True, singlet_ok = True) # note, this is not the only call!
-##        assert oldselatom is self.o.selatom
-##        if atm is not None and (atm.element is Singlet or not singOnly):
-##            pass # we'll use this atm as the new selatom
-##        else:
-##            atm = None
-##        self.o.selatom = atm
-##        if msg_about_click: # [always do this, since many things can change what it should say]
-##            # come up with a status bar message about what we would paste now.
-##            # [bruce 050124 new feature, to mitigate current lack of model tree highlighting of pastable]
-##            msg = self.describe_leftDown_action( self.o.selatom)
-##            env.history.statusbar_msg( msg)
-##        if self.o.selatom is not oldselatom:
-##            # update display
-##            self.o.gl_update() # draws selatom too, since its chunk is not hidden
-##        return
 
     def describe_leftDown_action(self, selatom): # bruce 050124
         # [bruce 050124 new feature, to mitigate current lack of model tree highlighting of pastable;
@@ -888,7 +872,9 @@ class depositMode(_superclass):
         return cmd
         
     def describe_paste_action(self, onto_open_bond): # bruce 050124; added onto_open_bond flag, 050127
-        "return a description of what leftDown would paste or deposit (and how user could do that), if done now"
+        """
+        return a description of what leftDown would paste or deposit (and how user could do that), if done now
+        """
         #e should be split into "determine what to paste" and "describe it"
         # so the code for "determine it" can be shared with leftDown
         # rather than copied from it as now
@@ -925,7 +911,8 @@ class depositMode(_superclass):
         return
 
     def pastable_atomtype(self):
-        """Return the current pastable atomtype.
+        """
+        Return the current pastable atomtype.
 
         Note: This appears to be very similar (if not completely redundant) to 
         get_atomtype_from_MMKit() in this file. 
@@ -951,13 +938,16 @@ class depositMode(_superclass):
         return self._pastable_atomtype
 
     def ensure_visible(self, stuff, status):
-        """if any chunk in stuff (a node, or a list of nodes) is not visible now, make it visible by changing its
+        """
+        If any chunk in stuff (a node, or a list of nodes) is not visible now, make it visible by changing its
         display mode, and append a warning about this to the given status message,
         which is returned whether or not it's modified.
-           Suggested revision: if some chunks in a library part are explicitly invisible and some are visible, I suspect this
+
+        Suggested revision: if some chunks in a library part are explicitly invisible and some are visible, I suspect this
         behavior is wrong and it might be better to require only that some of them are visible,
         and/or to only do this when overall display mode was visible. [bruce 051227]
-           Suggested revision: maybe the default display mode for deposited stuff should also be user-settable. [bruce 051227]
+
+        Suggested revision: maybe the default display mode for deposited stuff should also be user-settable. [bruce 051227]
         """
         # By bruce 041207, to fix bug 229 part B (as called in comment #2),
         # by making each deposited chunk visible if it otherwise would not be.
@@ -973,7 +963,10 @@ class depositMode(_superclass):
         return status
 
     def ensure_visible_0(self, stuff): #bruce 051227 split out and generalized
-        "[private recursive worker method for ensure_visible; returns number of things whose display mode was modified]"
+        """
+        [private recursive worker method for ensure_visible;
+        returns number of things whose display mode was modified]
+        """
         if not stuff:
             return 0 #k can this happen? I think so, since old code could handle it.
         from chunk import Chunk #k might not be needed
@@ -1002,9 +995,11 @@ class depositMode(_superclass):
         pass
     
     def __createBond(self, s1, a1, s2, a2):
-        '''Create bond between atom <a1> and atom <a2>, <s1> and <s2> are their singlets. No rotation/movement involved. Based on
-           a method 'actually_bond()' in bonds.py--[Huaicai 8/25/05] '''
-        
+        """
+        Create bond between atom <a1> and atom <a2>, <s1> and <s2>
+        are their singlets. No rotation/movement involved. Based on
+        a method 'actually_bond()' in bonds.py--[Huaicai 8/25/05]
+        """
         try: # use old code until new code works and unless new code is needed; CHANGE THIS SOON #####@@@@@
             v1, v2 = s1.singlet_v6(), s2.singlet_v6() # new code available
             assert v1 != V_SINGLE or v2 != V_SINGLE # new code needed
@@ -1020,16 +1015,17 @@ class depositMode(_superclass):
         return
     
     def _depositLibraryPart(self, newPart, hotspotAtom, atom_or_pos): # probably by Huaicai; revised by bruce 051227, 060627, 070501
-        '''This method serves as an overloaded method, <atom_or_pos> is 
-           the Singlet atom or the empty position that the new part <newPart>
-           [which is an assy, at least sometimes] will be attached to or placed at.
-           [If <atom_or_pos> is a singlet, <hotspotAtom> should be an atom in some chunk in <newPart>.]
-           Currently, it doesn't consider group or jigs in the <newPart>. Not so sure if my attempt to copy a part into
-           another assembly is all right. [It wasn't, so bruce 051227 revised it.]
-           Copies all molecules in the <newPart>, change their assy attribute to current assembly, move them into <pos>.
-           [bruce 051227 new feature:] return a list of new nodes created, and a message for history (currently almost a stub).
-           [not sure if subrs ever print history messages... if they do we'd want to return those instead.]
-        '''
+        """
+        This method serves as an overloaded method, <atom_or_pos> is 
+        the Singlet atom or the empty position that the new part <newPart>
+        [which is an assy, at least sometimes] will be attached to or placed at.
+        [If <atom_or_pos> is a singlet, <hotspotAtom> should be an atom in some chunk in <newPart>.]
+        Currently, it doesn't consider group or jigs in the <newPart>. Not so sure if my attempt to copy a part into
+        another assembly is all right. [It wasn't, so bruce 051227 revised it.]
+        Copies all molecules in the <newPart>, change their assy attribute to current assembly, move them into <pos>.
+        [bruce 051227 new feature:] return a list of new nodes created, and a message for history (currently almost a stub).
+        [not sure if subrs ever print history messages... if they do we'd want to return those instead.]
+        """
         attach2Bond = False
         stuff = [] # list of deposited nodes [bruce 051227 new feature]
         
@@ -1164,9 +1160,9 @@ class depositMode(_superclass):
 # == LMB event handling methods ====================================
         
     def leftDouble(self, event): # mark 060126.
-        '''Double click event handler for the left mouse button. 
-        '''
-        
+        """
+        Double click event handler for the left mouse button. 
+        """
         self.ignore_next_leftUp_event = True # Fixes bug 1467. mark 060307.
         
         if self.cursor_over_when_LMB_pressed == 'Empty Space':
@@ -1183,7 +1179,9 @@ class depositMode(_superclass):
 # == end of LMB event handler methods
 
     def MMKit_clipboard_part(self): #bruce 060412; implem is somewhat of a guess, based on the code of self.deposit_from_MMKit
-        "If the MMKit is currently set to a clipboard item, return that item's Part, else return None."
+        """
+        If the MMKit is currently set to a clipboard item, return that item's Part, else return None.
+        """
         if self.w.depositState != 'Clipboard':
             return None
         if not self.pastable:
@@ -1259,7 +1257,8 @@ class depositMode(_superclass):
         self.w.win_update()
 
     def bond_type_changer_is_active(self): #bruce 060702 (modified from condition used in bondLeftUp)
-        """Based on the present Build dashboard state (of bond type changing tools vs Atom tool),
+        """
+        Based on the present Build dashboard state (of bond type changing tools vs Atom tool),
         should clicks on bonds change their bond type? (used for click effect and highlight color)
         [overrides superclass method]
         """
@@ -1278,18 +1277,16 @@ class depositMode(_superclass):
         return not self.depositAtomsAction.isChecked()
     
     
-    
-        
-        
     def bondLeftUp(self, b, event): # was bondClicked(). mark 060220. [WARNING: docstring appears to be out of date -- bruce 060702]
-        '''Bond <b> was clicked, so select or unselect its atoms or delete bond <b> 
+        """
+        Bond <b> was clicked, so select or unselect its atoms or delete bond <b> 
         based on the current modkey.
         - If no modkey is pressed, clear the selection and pick <b>\'s two atoms.
         - If Shift is pressed, pick <b>\'s two atoms, adding them to the current selection.
         - If Ctrl is pressed,  unpick <b>\'s two atoms, removing them from the current selection.
         - If Shift+Control (Delete) is pressed, delete bond <b>.
         <event> is a LMB release event.
-        '''
+        """
 
         if self.o.modkeys is None:
            
@@ -1312,8 +1309,9 @@ class depositMode(_superclass):
         _superclass.bondLeftUp(self, b, event)
             
     def bond_change_type(self, b, allow_remake_bondpoints = True): #bruce 050727; revised 060703
-        '''Change bondtype of bond <b> to new bondtype determined by the dashboard (if allowed).
-        '''
+        """
+        Change bondtype of bond <b> to new bondtype determined by the dashboard (if allowed).
+        """
         # renamed from clicked_on_bond() mark 060204.
         v6 = self.bondclick_v6
         if v6 is not None:
@@ -1329,10 +1327,11 @@ class depositMode(_superclass):
 # == Deposit methods
 
     def pickit(self):
-        '''Determines if the a deposited object (atom, clipboard node or library part) should have 
+        """
+        Determines if the a deposited object (atom, clipboard node or library part) should have 
         its atoms automatically picked. Returns True or False based on the current modkey state.
         If modkey is None (no modkey is pressed), it will unpick all currently picked atoms.
-        '''
+        """
         if self.o.modkeys is None:
             self.o.assy.unpickall_in_GLPane() # [was unpickatoms; this is a guess, I didn't review the calls -- bruce 060721]
             if env.prefs[buildModeSelectAtomsOfDepositedObjEnabled_prefs_key]:
@@ -1347,7 +1346,8 @@ class depositMode(_superclass):
             return False
         
     def deposit_from_MMKit(self, atom_or_pos): #mark circa 051200; revised by bruce 051227
-        '''Deposit a new object based on the current selection in the MMKit/dashboard, 
+        """
+        Deposit a new object based on the current selection in the MMKit/dashboard, 
         which is either an atom, a chunk on the clipboard, or a part from the library.
         If 'atom_or_pos' is a singlet, then it will bond the object to that singlet if it can.
         If 'atom_or_pos' is a position, then it will deposit the object at that coordinate.
@@ -1355,7 +1355,7 @@ class depositMode(_superclass):
             'Atoms' - an atom from the Atoms page was deposited.
             'Chunk' - a chunk from the Clipboard page was deposited.
             'Part' - a library part from the Library page was deposited.
-        '''
+        """
         
         deposited_obj = None 
             #& deposited_obj is probably misnamed, since it is a string, not an object.  
@@ -1418,7 +1418,6 @@ class depositMode(_superclass):
     def deposit_from_Library_page(self, atom_or_pos): 
         """
         Subclasses should override this method.
-
         """
         msg1= "Internal error:depositMode.deposit_from_Library_page should"
         msg2 = "be overridden"
@@ -1427,12 +1426,13 @@ class depositMode(_superclass):
         
 
     def deposit_from_Clipboard_page(self, atom_or_pos):
-        '''Deposits a copy of the selected object (chunk) from the MMKit Clipboard page, or
+        """
+        Deposits a copy of the selected object (chunk) from the MMKit Clipboard page, or
         the Clipboard (paste) combobox on the dashboard, which are the same object.
         If 'atom_or_pos' is a singlet, try bonding the object to the singlet by its hotspot.
         Otherwise, deposit the object at the position 'atom_or_pos'.
         Returns (chunk, status)
-        '''
+        """
         if isinstance(atom_or_pos, Atom):
             a = atom_or_pos
             if a.element is Singlet:
@@ -1464,12 +1464,13 @@ class depositMode(_superclass):
         
 
     def deposit_from_Atoms_page(self, atom_or_pos):
-        '''Deposits an atom of the selected atom type from the MMKit Atoms page, or
+        """
+        Deposits an atom of the selected atom type from the MMKit Atoms page, or
         the Clipboard (atom and hybridtype) comboboxes on the dashboard, which are the same atom.
         If 'atom_or_pos' is a singlet, bond the atom to the singlet.
         Otherwise, set up the atom at position 'atom_or_pos' to be dragged around.
         Returns (chunk, status)
-        '''
+        """
         atype = self.pastable_atomtype() # Type of atom to deposit
         
         if isinstance(atom_or_pos, Atom):
@@ -1514,92 +1515,7 @@ class depositMode(_superclass):
         
         return chunk, status
 
-
-##    def chunkSetup_OBS(self, a): #&& Not used.  Marked for removal.  mark 060214.
-##        '''Setup dragging of a chunk by one of its atoms, atom <a>.
-##        If the chunk is not bonded to any chunks, drag it around loosely, which means
-##        the chunk follows atom <a> around.
-##        If the chunk is bonded to 1 other chunk, the chunk will pivot around the
-##        bond to the neighoring chunk.
-##        If the chunk is bonded to 2 chunks, the chunk will pivot around an axis
-##        defined by the two bonds of the neighboring chunks.
-##        If the chunk is bonded to 3 or more chunks, drag it rigidly, which means
-##        translate the chunk in the plane of the screen.
-##        '''
-##        self.objectSetup(a)
-##        
-##        if a.realNeighbors(): # probably part of larger molecule
-##                    ###e should this be nonbaggageNeighbors? Need to understand the comments below. [bruce 051209] ###@@@
-##            e=a.molecule.externs # externs are number of bonds to other chunks.
-##            
-##            if len(e)==0: # no bonds to other chunks, so just drag it around "loosely" (follow <a>)
-##                self.pivot = None
-##                self.pivax = True #k might have bugs if realNeighbors in other mols??
-##                #bruce 041130 tried using this case for 1-atom mol as well,
-##                # but it made singlet highlighting wrong (due to pivax??).
-##                # (Could that mean there's some sort of basepos-updating bug
-##                # in mol.pivot? ###@@@)
-##                # I tried to reproduce the bug described above without success.  Sure it's still there?
-##                # Mark 051213.
-##                
-##            elif len(e)==1: # bonded to 1 chunk; pivot around the single bond
-##                self.pivot = e[0].center
-##                # warning: Bond.center is only in abs coords since
-##                # this is an external bond [bruce 050516 comment]
-##                self.pivax = None
-##                
-##            elif len(e)==2: # bonded to 2 other chunks; pivot around the 2 bonds
-##                self.pivot = e[0].center
-##                self.pivax = norm(e[1].center-e[0].center)
-##                
-##            else: # more than 2 other chunks, drag it "rigidly" (translate the chunk)
-##                self.pivot = None
-##                self.pivax = None
-##        
-##        # Keep the comments below for now.  From Bruce's comments, it may be needed later.  Mark 051213.
-##        
-##        ##elif len(a.molecule.atoms) == 1 + len(a.bonds):
-##                #bruce 041130 added this case to let plain left drag work to
-##                # drag a 1-real-atom mol, not only a larger mol as before; the
-##                # docstring makes me think this was the original intention, and
-##                # the many "invalid bug reports" whose authors assume this will
-##                # work imply this feature is desired and intuitively expected.
-##            ##self.dragmol = a.molecule # self.dragmol decommissioned on 051213.  Mark
-##            # fall thru
-##        ##else:
-##                #bruce 041130 added this case too:
-##                # no real neighbors, but more than just the singlets in the mol
-##                # (weird but possible)... for now, just do the same, though if
-##                # there are 1 or 2 externs it might be better to do pivoting. #e
-##            ##self.dragmol = a.molecule # self.dragmol decommissioned on 051213.  Mark
-##            # fall thru
-##            
-##    def chunkDrag_OBS(self, a, event): # not used.  Marked for removal. mark 060214.
-##        """Drag a chunk around by atom <a>. <event> is a drag event.
-##        """
-##        m = a.molecule
-##        px = self.dragto(a.posn(), event)
-##        if self.pivot:
-##            po = a.posn() - self.pivot
-##            pxv = px - self.pivot
-##        if self.pivot and self.pivax:
-##            m.pivot(self.pivot, twistor(self.pivax, po, pxv))
-##        elif self.pivot:
-##            q1 = twistor(self.pivot-m.center, po, pxv)
-##            q2 = Q(q1.rot(po), pxv)
-##            m.pivot(self.pivot, q1+q2)
-##        elif self.pivax:
-##            m.rot(Q(a.posn()-m.center,px-m.center))
-##            m.move(px-a.posn())
-##        else:
-##            m.move(px-a.posn())
-##        #e bruce 041130 thinks this should be given a new-coordinates-message,
-##        # like in leftShiftDrag but starting with the atom-creation message
-##        # (but the entire mol gets dragged, so the msg should reflect that)
-##        # ###@@@
-##        self.o.gl_update()
-        
-#== Singlet helper methods
+    # == Singlet helper methods
 
     def singletLeftDown(self, s, event):
         if self.o.modkeys == 'Shift+Control':
@@ -1610,8 +1526,9 @@ class depositMode(_superclass):
             self.singletSetup(s)
 
     def singletSetup(self, a):
-        '''Setup for a click, double-click or drag event for singlet <a>.
-        '''
+        """
+        Setup for a click, double-click or drag event for singlet <a>.
+        """
         self.objectSetup(a)
         self.only_highlight_singlets = True
         
@@ -1646,7 +1563,8 @@ class depositMode(_superclass):
 
 
     def singletDrag(self, a, event):
-        """Drag a singlet. <event> is a drag event.
+        """
+        Drag a singlet. <event> is a drag event.
         """
         if a.element is not Singlet: return
         
@@ -1690,13 +1608,14 @@ class depositMode(_superclass):
         self.o.gl_update()
         
     def singletLeftUp(self, s1, event):
-        '''Finish operation on singlet <s1> based on where the cursor is when the LMB was released:
+        """
+        Finish operation on singlet <s1> based on where the cursor is when the LMB was released:
         - If the cursor is still on <s1>, deposit an object from the MMKit on it
           [or as of 060702, use a bond type changing tool if one is active, to fix bug 833 item 1 ###implem unfinished?]
         - If the cursor is over a different singlet, bond <s1> to it.
         - If the cursor is over empty space, do nothing.
         <event> is a LMB release event.
-        '''
+        """
         self.line = None # required to erase white rubberband line on next gl_update. [bruce 070413 moved this before tests]
 
         if not s1.is_singlet():
@@ -1750,9 +1669,10 @@ class depositMode(_superclass):
         self.only_highlight_singlets = False
         
     def get_singlet_under_cursor(self, event, reaction_from = None ):
-        '''If the object under the cursor is a singlet, return it.  If the object under the cursor is a
+        """
+        If the object under the cursor is a singlet, return it.  If the object under the cursor is a
         real atom with one or more singlets, return one of its singlets. Otherwise, return None.
-        '''
+        """
         a = self.get_obj_under_cursor(event)
         if isinstance(a, Atom):
             if a.is_singlet():
@@ -1775,8 +1695,9 @@ class depositMode(_superclass):
         return None
 
     def bond_singlets(self, s1, s2):
-        '''Bond singlets <s1> and <s2> unless they are the same singlet.
-        '''
+        """
+        Bond singlets <s1> and <s2> unless they are the same singlet.
+        """
         #bruce 050429: it'd be nice to highlight the involved bonds and atoms, too...
         # incl any existing bond between same atoms. (by overdraw, for speed, or by more lines) ####@@@@ tryit
         #bruce 041119 split this out and added checks to fix bugs #203
@@ -1803,7 +1724,8 @@ class depositMode(_superclass):
     ###################################################################
     
     def pasteBond(self, sing):
-        """If self.pastable has an unambiguous hotspot,
+        """
+        If self.pastable has an unambiguous hotspot,
         paste a copy of self.pastable onto the given singlet;
         return (the copy, description) or (None, whynot)
         """
@@ -1909,7 +1831,9 @@ class depositMode(_superclass):
         return
     
     def setPaste(self): #bruce 050121 heavily revised this
-        "called from button presses and spinbox changes"
+        """
+        called from button presses and spinbox changes
+        """
         self.update_pastable()
         if 1:
             ###@@@ always do this, since old code did this
@@ -1964,10 +1888,12 @@ class depositMode(_superclass):
     bondclick_v6 = None
     
     def changeBondTool(self, action):
-        ''' Change the bond tool (e.g. single, double, triple, aromatic 
+        """
+        Change the bond tool (e.g. single, double, triple, aromatic 
         and graphitic) depending upon the checked action.
         @param: action is the checked bond tool action in the 
-        bondToolsActionGroup'''
+        bondToolsActionGroup
+        """
         state = action.isChecked()
         if action ==  self.bond1Action:
             self.setBond1(state)
@@ -2002,11 +1928,11 @@ class depositMode(_superclass):
     def setBondg(self, state): #mark 050831
         "Slot for Bond Tool Graphitic button."
         self.setBond(V_GRAPHITE, state)
-    
-        
         
     def setBond(self, v6, state, button = None):
-        "#doc; v6 might be None, I guess, though this is not yet used"
+        """
+        #doc; v6 might be None, I guess, though this is not yet used
+        """
         if state:
             if self.bondclick_v6 == v6 and button is not None and v6 is not None:
                 # turn it off when clicked twice -- BUG: this never happens, maybe due to QButtonGroup.setExclusive behavior
@@ -2032,10 +1958,11 @@ class depositMode(_superclass):
         return
         
     def setWater(self, on):
-        '''Turn water surface on/off.
+        """
+        Turn water surface on/off.
         if <on> is True, only atoms and bonds above the water surface can be highlighted and selected.
         if <on> is False, all atoms and bonds can be highlighted and selected, and the water surface is not displayed.
-        '''
+        """
         if on:
             self.water_enabled = True
             msg = "Water surface enabled."
@@ -2049,7 +1976,8 @@ class depositMode(_superclass):
     #== Transmute helper methods
     
     def get_atomtype_from_MMKit(self):
-        """Return the current atomtype selected in the MMKit.
+        """
+        Return the current atomtype selected in the MMKit.
         
         Note: This appears to be very similar (if not completely redundant) to 
         pastable_atomtype() in this file. 
@@ -2074,7 +2002,9 @@ class depositMode(_superclass):
         return elm.atomtypes[0]
         
     def transmutePressed(self):
-        '''Slot for "Transmute" button. '''
+        """
+        Slot for "Transmute" button.
+        """
         force = env.prefs[keepBondsDuringTransmute_prefs_key]
         atomType = self.get_atomtype_from_MMKit()
         self.w.assy.modifyTransmute(self.propMgr.elementChooser.getElementNumber(), 
@@ -2084,8 +2014,6 @@ class depositMode(_superclass):
     #== Draw methods
     
     def Draw(self):
-        """ Draw 
-        """
         _superclass.Draw(self) # this includes self.o.assy.draw(self.o) [bruce 060724 comment]
         if self.line:
             color = get_selCurve_color(0,self.o.backgroundColor) 
@@ -2098,7 +2026,8 @@ class depositMode(_superclass):
 
     def Draw_after_highlighting(self, pickCheckOnly=False): #bruce 050610
         # added pickCheckOnly arg.  mark 060207.
-        """Do more drawing, after the main drawing code has completed its highlighting/stenciling for selobj.
+        """
+        Do more drawing, after the main drawing code has completed its highlighting/stenciling for selobj.
         Caller will leave glstate in standard form for Draw. Implems are free to turn off depth buffer read or write.
         Warning: anything implems do to depth or stencil buffers will affect the standard selobj-check in bareMotion.
         [New method in mode API as of bruce 050610. General form not yet defined -- just a hack for Build mode's
@@ -2118,7 +2047,8 @@ class depositMode(_superclass):
         return
         
     def surface(self):
-        """Draw the water's surface -- a sketch plane to indicate where the new atoms will sit by default,
+        """
+        Draw the water's surface -- a sketch plane to indicate where the new atoms will sit by default,
         which also prevents (some kinds of) selection of objects behind it.
         """
         if not self.water_enabled:
@@ -2366,7 +2296,9 @@ class depositMode(_superclass):
         self.set_pastable_atomtype('sp2')
             
     def setHotSpot_clipitem(self): #bruce 050416; duplicates some code from setHotSpot_mainPart
-        "set or change hotspot of a chunk in the clipboard"
+        """
+        set or change hotspot of a chunk in the clipboard
+        """
         selatom = self.o.selatom
         if selatom and selatom.element is Singlet:
             selatom.molecule.set_hotspot( selatom) ###e add history message??
@@ -2378,7 +2310,9 @@ class depositMode(_superclass):
         return        
         
     def setHotSpot_mainPart(self): #bruce 050121 revised this and renamed its menu item #bruce 050614 renamed it
-        "set hotspot on a main part chunk and copy it (with that hotspot) into clipboard"
+        """
+        set hotspot on a main part chunk and copy it (with that hotspot) into clipboard
+        """
         # revised 041124 to fix bug 169, by mark and then by bruce
         selatom = self.o.selatom
         if selatom and selatom.element is Singlet:
@@ -2443,7 +2377,8 @@ class depositMode(_superclass):
         return
 
     def set_pastable(self, pastable): # no one calls this yet, but they could... [bruce 050121; untested]
-        """Try to set the current pastable item to the given one
+        """
+        Try to set the current pastable item to the given one
         (which must already be on the clipboard and satisfy is_pastable,
         or this will set the pastable to None, tho the old pastable would
         be a better choice I suppose).
