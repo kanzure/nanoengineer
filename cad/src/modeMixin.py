@@ -461,6 +461,46 @@ class modeMixin(object):
         return
 
     # ==
+
+    # delegation to saved commands
+
+    def prior_command_Draw(self, calling_command):
+        """
+        Draw whatever the prior command (relative to calling_command, a Command object)
+        would draw in its own Draw method, if it was the currentCommand.
+        (Exception: the prior command is allowed to find out it's not current
+         and to modify its display style in response to that.)
+         
+        Return True if you find a prior command and call its Draw method, False otherwise.
+        """
+        # Note: if we wanted, the method name 'Draw' could be an argument
+        # so we could delegate anything at all to prevMode in this way.
+        # We'd need a flag or variant method to say whether to call it in
+        # the Command or GraphicsMode part. (Or pass a lambda?? Seems like in
+        # that case we should just make prevMode public instead...)
+        
+        # We define "prior" relative to calling_command... but so far we only know
+        # how to do that for the current command:
+        assert self._raw_currentCommand is calling_command, \
+               "prior_command_Draw doesn't yet work except from currentCommand %r (was called from %r)" % \
+               ( self._raw_currentCommand, calling_command)
+            # (Maybe we'll need to generalize that to knowing how to do it for calling_command == prevMode too,
+            # which is presumably just to return False, given the depth-1 command stack we have at present.)
+        prevMode = self.prevMode # really a Command object of some kind -- TODO, rename to _savedCommand or so
+        if prevMode is not None:
+            assert not prevMode.is_null
+            prevMode.graphicsMode.Draw()
+            # WARNING/TODO: this implem assumes there is at most one saved command
+            # which should be drawn. If this changes, we'll need to replace
+            # .prevMode with a deeper command stack in the Command Sequencer
+            # which provides a way to draw whatever each suspended command
+            # thinks it needs to; or we'll need to arrange for prevMode
+            # to *be* that stack, delegating Draw to each stack element in turn.
+            # [bruce 071011]
+            return True
+        return False
+
+    # ==
     
     # new code, mostly for the transition to a real command sequencer and a separate currentCommand and graphicsMode
     # [bruce 071010]
