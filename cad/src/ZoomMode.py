@@ -28,63 +28,17 @@ from VQT import V, A
 import drawer
 from constants import GL_FAR_Z
 
-from ArrangementMode import ArrangementMode
-    # TODO: this superclass needs renaming, since it has nothing to do
-    # with "arrangements" of anything. What it's about is something like
-    # a "view-change temporary command with no PM". We should see which of
-    # those qualities it's specific to, when choosing a new name. Note that
-    # if we split it into Command and GraphicsMode parts, each part might
-    # be specific to different things, i.e. one might be more widely
-    # reusable than the other. So they might not have precisely corresponding
-    # names, since the name should reflect what it can be used for.
-    # [bruce 071010]
 
-_superclass = ArrangementMode
+from ArrangementMode import TemporaryCommand_Overdrawing
 
-class ZoomMode(_superclass):
 
-    # == Command part
-    
-    # class constants
-    modename = 'ZOOM'
-    default_mode_status_text = "Tool: Zoom"
+# == the GraphicsMode part
+
+class ZoomMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
+    """
+    Custom GraphicsMode for use as a component of ZoomMode.
+    """
         
-    def Enter(self):
-        _superclass.Enter(self)
-        bg = self.glpane.backgroundColor
-                
-        # rubber window shows as white color normally, but when the
-        # background becomes bright, we'll set it as black.
-        brightness = bg[0] + bg[1] + bg[2]
-        if brightness > 1.5:
-            self.rbwcolor = bg # TODO: make this accessible from our GraphicsMode part, when that's split
-        else:
-            self.rbwcolor = A((1.0, 1.0, 1.0)) - A(bg)
-        
-        self.glStatesChanged = False
-            # to find uses of this, look for self.command.glStatesChanged in our GraphicsMode part
-        return
-    
-    def init_gui(self):
-        self.win.zoomToolAction.setChecked(1) # toggle on the Zoom Tool icon
-        self.glpane.setCursor(self.win.ZoomCursor)
-
-    def restore_gui(self):
-        self.win.zoomToolAction.setChecked(0) # toggle off the Zoom Tool icon
-
-    # == GraphicsMode part
-    
-    # TODO:
-    # [part of it is already done: change self.Done to self.command.Done below]
-    ### bruce 071010: see if I can use this as a test case for having a separate
-    ### Command and GraphicsMode, except that I'll first need to do the same
-    ### thing inside ArrangementMode I guess... make a split variant of it
-    ### for this purpose.
-    ##
-    ##class ZoomCommand_GraphicsMode(GraphicsMode):
-
-    # mouse events
-    
     def leftDown(self, event):
         """
         Compute the rubber band window starting point, which
@@ -104,7 +58,8 @@ class ZoomMode(_superclass):
         self.glpane.redrawGL = False
         glDisable(GL_DEPTH_TEST)
         glDisable(GL_LIGHTING)
-        glColor3d(self.rbwcolor[0], self.rbwcolor[1], self.rbwcolor[2])
+        rbwcolor = self.command.rbwcolor
+        glColor3d(rbwcolor[0], rbwcolor[1], rbwcolor[2])
         
         glEnable(GL_COLOR_LOGIC_OP)
         glLogicOp(GL_XOR)
@@ -121,16 +76,18 @@ class ZoomMode(_superclass):
         if not hasattr(self, "pWxy") or not hasattr(self, "firstDraw"):
             return
         cWxy = (event.pos().x(), self.glpane.height - event.pos().y())
-        
+
+        rbwcolor = self.command.rbwcolor
+
         if not self.firstDraw: #Erase the previous rubber window
             drawer.drawrectangle(self.pStart, self.pPrev, self.glpane.up,
-                                 self.glpane.right, self.rbwcolor)
+                                 self.glpane.right, rbwcolor)
         self.firstDraw = False
 
         self.pPrev = A(gluUnProject(cWxy[0], cWxy[1], 0.005))
         # draw the new rubber band
         drawer.drawrectangle(self.pStart, self.pPrev, self.glpane.up,
-                             self.glpane.right, self.rbwcolor)
+                             self.glpane.right, rbwcolor)
         glFlush()
         self.glpane.swapBuffers() # Update display
         return
@@ -161,8 +118,9 @@ class ZoomMode(_superclass):
             return
         
         # Erase the last rubber-band window
+        rbwcolor = self.command.rbwcolor
         drawer.drawrectangle(self.pStart, self.pPrev, self.glpane.up,
-                             self.glpane.right, self.rbwcolor)
+                             self.glpane.right, rbwcolor)
         glFlush()
         self.glpane.swapBuffers()
         
@@ -220,7 +178,8 @@ class ZoomMode(_superclass):
         """
         # If OpenGL states changed during this mode, we need to restore
         # them before exit. Currently, only leftDown() will change that.
-        # [bruce 071011/071012 change: do this in restore_patches_by_GraphicsMode, not in Done]
+        # [bruce 071011/071012 change: do this in
+        #  restore_patches_by_GraphicsMode, not in Done]
         if self.command.glStatesChanged:
             self.glpane.redrawGL = True
             glDisable(GL_COLOR_LOGIC_OP)
@@ -228,6 +187,45 @@ class ZoomMode(_superclass):
             glEnable(GL_DEPTH_TEST)
         return
     
+    pass
+
+# == the Command part
+
+class ZoomMode(TemporaryCommand_Overdrawing):
+    """
+    Encapsulates the Zoom Tool functionality.
+    """
+    # TODO: rename to ZoomTool or ZoomCommand or TemporaryCommand_Zoom or ...
+    
+    # class constants
+    modename = 'ZOOM'
+    default_mode_status_text = "Tool: Zoom"
+
+    GraphicsMode_class = ZoomMode_GM
+    
+    def Enter(self):
+        super(ZoomMode, self).Enter()
+        bg = self.glpane.backgroundColor
+        
+        # rubber window shows as white color normally, but when the
+        # background becomes bright, we'll set it as black.
+        brightness = bg[0] + bg[1] + bg[2]
+        if brightness > 1.5:
+            self.rbwcolor = bg
+                # note: accessed as self.command.rbwcolor in our GraphicsMode part
+        else:
+            self.rbwcolor = A((1.0, 1.0, 1.0)) - A(bg)
+        
+        self.glStatesChanged = False
+            # note: accessed as self.command.glStatesChanged in our GraphicsMode part
+        return
+    
+    def init_gui(self):
+        self.win.zoomToolAction.setChecked(1) # toggle on the Zoom Tool icon
+
+    def restore_gui(self):
+        self.win.zoomToolAction.setChecked(0) # toggle off the Zoom Tool icon
+
     pass
 
 # end
