@@ -1,9 +1,7 @@
 # Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 
 """
-ArrangementMode.py -- 
-
-TODO: rename to TemporaryCommand_Overdrawing.py or so
+ArrangementMode.py -- to be renamed to TemporaryCommand.py, to contain several kinds of those...
 
 @author:    Mark and Bruce
 @copyright: Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
@@ -24,9 +22,9 @@ TODO: rename to TemporaryCommand_Overdrawing.py or so
 
 from PyQt4.Qt import Qt
 
-from Command import Command, basicCommand, commonCommand
+from Command import Command, commonCommand
 
-from GraphicsMode import GraphicsMode, basicGraphicsMode, commonGraphicsMode
+from GraphicsMode import GraphicsMode, commonGraphicsMode
 
 
 # == useful pieces -- Command
