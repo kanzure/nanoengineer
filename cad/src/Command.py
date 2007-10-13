@@ -622,7 +622,8 @@ class basicCommand(anyCommand):
         refuseEnter().        
         """
         self.UpdateDashboard() # Added to hide Done button for Default command. Mark 050922.
-        self.picking = False
+        ## TODO: do the following in a new Enter-like method in GraphicsMode
+        self.graphicsMode.picking = False
         self.graphicsMode.update_cursor()
         return None
 

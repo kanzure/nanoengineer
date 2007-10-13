@@ -8,39 +8,20 @@ Rotate mode functionality.
 @license:   GPL
 """
 
-from ArrangementMode import ArrangementMode
+from ArrangementMode import TemporaryCommand_Overdrawing
 
+# == GraphicsMode part
 
-class RotateMode(ArrangementMode):
+class RotateMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
     """
-    Encapsulates rotate mode functionality.
+    Custom GraphicsMode for use as a component of RotateMode.
     """
-    
-    # == Command part
-    
-    # class constants
-    
-    modename = 'ROTATE'
-    default_mode_status_text = "Tool: Rotate"
-
-    def init_gui(self):
-        # Toggle on the Rotate Tool icon
-        self.win.rotateToolAction.setChecked(1)
-        # bruce 071012 see if i can remove this setCursor, hoping it's redundant with update_cursor_for_no_MB:
-##        self.glpane.setCursor(self.win.RotateCursor)
-    
-    def restore_gui(self):
-        # Toggle off the Rotate Tool icon
-        self.win.rotateToolAction.setChecked(0)
-
-    # == GraphicsMode part
-    
     def leftDown(self, event):
         self.glpane.SaveMouse(event)
         self.glpane.trackball.start(self.glpane.MousePos[0],
                                     self.glpane.MousePos[1])
         self.picking = False
-
+        return
         
     def leftDrag(self, event):
         self.glpane.SaveMouse(event)
@@ -49,13 +30,37 @@ class RotateMode(ArrangementMode):
         self.glpane.quat += q 
         self.glpane.gl_update()
         self.picking = False
-
+        return
         
     def update_cursor_for_no_MB(self): # Fixes bug 1638. Mark 3/12/2006
         """
         Update the cursor for 'Rotate' mode.
         """
         self.glpane.setCursor(self.win.RotateCursor)
+        return
+
+    pass
+
+# == Command part
+
+class RotateMode(TemporaryCommand_Overdrawing): # TODO: rename to RotateTool or RotateCommand or TemporaryCommand_Rotate or ...
+    """
+    Encapsulates the Rotate Tool functionality.
+    """
+    
+    # class constants
+    modename = 'ROTATE'
+    default_mode_status_text = "Tool: Rotate"
+
+    GraphicsMode_class = RotateMode_GM
+
+    def init_gui(self):
+        # Toggle on the Rotate Tool icon
+        self.win.rotateToolAction.setChecked(1)
+    
+    def restore_gui(self):
+        # Toggle off the Rotate Tool icon
+        self.win.rotateToolAction.setChecked(0)
 
     pass
 
