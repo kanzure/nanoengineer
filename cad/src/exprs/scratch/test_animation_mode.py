@@ -55,6 +55,7 @@ from test_command_PMs import ExampleCommand1_PM, PM_GroupBox, PM_DoubleSpinBox, 
 from PM.PM_CheckBox import PM_CheckBox
 
 ##from modes import *
+from modes import basicMode
 from debug import print_compact_traceback, register_debug_menu_command
 import time, math
 
@@ -1223,7 +1224,8 @@ class test_animation_mode(superclass, IorE_guest_mixin): # list of supers might 
 
 ##        # can we use smth lke mousepoints to print model coords of eyeball?
 ##        print "glpane says eyeball is now at", glpane.eyeball(), "and cov at", - glpane.pov, " ." ####@@@@
-        basicMode.Draw(self)
+        ## basicMode.Draw(self)
+        superclass.Draw(self)
         self.endpoint = endpoint = self.origin + self.right * 10.0
         drawline(white, self.origin, endpoint)
 
