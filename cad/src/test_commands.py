@@ -46,8 +46,23 @@ from test_command_PMs import ExampleCommand2_PM
 
 from PM.PM_WidgetsDemoPropertyManager import PM_WidgetsDemoPropertyManager
 
-## from modes import basicMode
-from selectAtomsMode import selectAtomsMode
+from modes import basicMode
+## from selectAtomsMode import selectAtomsMode
+
+class minimalUsefulMode(basicMode): #bruce 071013
+    #e What will be needed here, just to run the example commands?
+    # (As of 071013 this affects ExampleCommand1, ExampleCommand2 & 2E, test_connectWithState,
+    #  not counting the stub test_polyline_drag.)
+    #
+    # With nothing added here, the effects are:
+    # - they don't draw the model;
+    # - the temporary ones don't do the saved command's drawing
+    #   (they didn't with selectAtomsMode either, but they drew the model themselves);
+    # - exprs draw, but their highlighting (and associated mouse behavior) doesn't work.
+    # But in other ways they work, e.g. the temp ones resume saved command & PM, the GBC ones make a struct.
+    pass
+
+_superclass = minimalUsefulMode # was selectAtomsMode
 
 from debug import register_debug_menu_command
 
@@ -55,7 +70,7 @@ from GLPane import GLPane # maybe only needed for an isinstance assertion
 
 # ==
 
-class ExampleCommand(selectAtomsMode):
+class ExampleCommand(_superclass):
     """
     Abstract superclass for the example commands in this file.
     Specific command subclasses need to define the following class constants:
@@ -71,7 +86,7 @@ class ExampleCommand(selectAtomsMode):
         # note: propMgr is initialized to None in our superclass anyMode
         if self.PM_class:
             self.propMgr = self.PM_class(win, commandrun = self)
-        selectAtomsMode.init_gui(self) # this fixed the "disconnect without connect" bug
+        _superclass.init_gui(self) # this fixed the "disconnect without connect" bug [when _superclass was selectAtomsMode anyway]
             #k will we need to do this first not last? or not do all of it? seems ok so far.
         if self.propMgr:
             self.propMgr.show()
@@ -81,7 +96,7 @@ class ExampleCommand(selectAtomsMode):
         print "restore_gui in", self ###
         if self.propMgr:
             self.propMgr.close() # removes PM tab -- better than the prior .hide() call [bruce 070829]
-        selectAtomsMode.restore_gui(self) # this apparently worked even when it called init_gui by mistake!!
+        _superclass.restore_gui(self) # this apparently worked even when it called init_gui by mistake!!
         return
     
     pass
@@ -103,7 +118,7 @@ class Example_TemporaryCommand_useParentPM(ExampleCommand):
 
 class ExampleCommand1(ExampleCommand):
     """
-    Example command, which uses behavior similar to selectAtomsMode. 
+    Example command, which uses behavior similar to selectAtomsMode [but, _superclass is now revised...]. 
     [Which in future may inherit class Command.]
     """
     modename = 'ExampleCommand1-modename' # internal #e fix init code in basicMode to get it from classname?
@@ -191,10 +206,11 @@ def enter_example_command(widget, example_command_classname):
             glpane._reinit_modes() # just to get out of current mode safely
             import modes
             reload(modes)
-            import selectMode
-            reload(selectMode)
-            import selectAtomsMode
-            reload(selectAtomsMode)
+            if _superclass is selectAtomsMode:
+                import selectMode
+                reload(selectMode)
+                import selectAtomsMode
+                reload(selectAtomsMode)
             
             ## glpane.mode = glpane.nullmode = modes.nullMode()
             # revised 071010 (glpane == commandSequencer == modeMixin), new code UNTESTED:
