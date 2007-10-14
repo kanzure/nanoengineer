@@ -25,6 +25,7 @@ from elements import PeriodicTable, Singlet
 from PlatformDependent import fix_plurals
 from utilities.Log import redmsg, orangemsg
 from VQT import A, vlen
+from debug_prefs import debug_pref, Choice_boolean_True
 import env
 
 def _readpdb(assy, filename, isInsert = False):
@@ -257,8 +258,8 @@ def writepdb(part,
             f.write("%5d" % atomIndex)
             # Column 12: Whitespace (str)
             f.write("%1s" % space)
-            # Column 13-16 Atom name (str). 
-            f.write("%-4s" % a.element.symbol)			
+            # Column 13-16 Atom name (str)
+            f.write("%-4s" % a.element.symbol)
             # Column 17: Alternate location indicator (str) *unused*
             f.write("%1s" % space)
             # Column 18-20: Residue name - unused (str)
@@ -296,8 +297,24 @@ def writepdb(part,
             
             atomsTable[a.key] = atomIndex
             aList.append(a)
+            
             for b in a.bonds:
                 a2 = b.other(a)
+                
+                # The following debug pref provides an option for removing 
+                # bonds b/w PAM3 axis atoms. 
+                # I added this so I can render PAM3 structures in QuteMol for 
+                # examples of this display style, which may become a PAM3 
+                # display style option for NE1. 
+                # Note: You must launch QuteMol at least once before this
+                # debug pref option becomes available. - Mark
+                if not debug_pref("QuteMol: Draw bonds b/w PAM3 axis atoms?", 
+                              Choice_boolean_True, 
+                              prefs_key = True):
+                    if a.element.symbol in ('Ax3', 'Ae3'):
+                        if a2.element.symbol in ('Ax3', 'Ae3'):
+                            continue
+                
                 if a2.key in atomsTable:
                     assert not exclude(a2) # see comment below
                     aList.append(a2)
