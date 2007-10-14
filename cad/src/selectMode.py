@@ -35,34 +35,45 @@ from PyQt4.Qt import QSize
 from PyQt4.Qt import QPushButton
 from PyQt4.Qt import QCheckBox
 
-from OpenGL.GL import GL_PROJECTION
-from OpenGL.GL import glMatrixMode
-from OpenGL.GL import glSelectBuffer
-from OpenGL.GL import GL_SELECT
-from OpenGL.GL import glRenderMode
-from OpenGL.GL import glInitNames
-from OpenGL.GL import GL_MODELVIEW
 from OpenGL.GL import GL_CLIP_PLANE0
-from OpenGL.GL import glClipPlane
-from OpenGL.GL import glEnable
-from OpenGL.GL import glDisable
-from OpenGL.GL import GL_RENDER
-from OpenGL.GL import glFlush
-from OpenGL.GL import glPushMatrix
-from OpenGL.GL import glTranslate
-from OpenGL.GL import glPopMatrix
-
-from OpenGL.GL import GL_STENCIL_INDEX
-from OpenGL.GL import glReadPixelsi
 from OpenGL.GL import GL_DEPTH_COMPONENT
+from OpenGL.GL import GL_FALSE
+from OpenGL.GL import GL_MODELVIEW
+from OpenGL.GL import GL_PROJECTION
+from OpenGL.GL import GL_RENDER
+from OpenGL.GL import GL_SELECT
+from OpenGL.GL import GL_STENCIL_INDEX
+from OpenGL.GL import GL_TRUE
+from OpenGL.GL import glClipPlane
+from OpenGL.GL import glColorMask
+from OpenGL.GL import glDisable
+from OpenGL.GL import glEnable
+from OpenGL.GL import glFlush
+from OpenGL.GL import glInitNames
+from OpenGL.GL import glMatrixMode
+from OpenGL.GL import glPopMatrix
+from OpenGL.GL import glPushMatrix
 from OpenGL.GL import glReadPixelsf
+from OpenGL.GL import glReadPixelsi
+from OpenGL.GL import glRenderMode
+from OpenGL.GL import glSelectBuffer
+from OpenGL.GL import glTranslate
 
 from OpenGL.GLU import gluUnProject
+
 from constants import GL_FAR_Z
+from constants import average_value
+from constants import SELSHAPE_RECT
+from constants import SELSHAPE_LASSO
+from constants import SUBTRACT_FROM_SELECTION
+from constants import ADD_TO_SELECTION
+from constants import START_NEW_SELECTION
+from constants import DELETE_SELECTION
 
 from modes import basicMode
 
 from utilities.Log import orangemsg
+from utilities.Log import redmsg
 
 from chunk    import molecule
 from chem     import Atom
@@ -71,23 +82,15 @@ from elements import Singlet
 import env
 from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False, Choice
 from Plane import Handle
-from constants import average_value
-from constants import SELSHAPE_RECT
 
 from VQT import V, Q, A, norm, planeXline, ptonline, vlen
 
-from constants import SELSHAPE_LASSO
-from constants import SUBTRACT_FROM_SELECTION
-from constants import ADD_TO_SELECTION
-from constants import START_NEW_SELECTION
-from constants import DELETE_SELECTION
 from shape import SelectionShape
 from bonds import Bond
 from debug import print_compact_traceback
 from debug import print_compact_stack
 
 from jigs import Jig
-from utilities.Log import redmsg
 import platform
 
 
@@ -1756,15 +1759,14 @@ class selectMode(basicMode):
         matrices before returning.
         """
         ####@@@@ WARNING: The original code for this, in GLPane, has been duplicated and slightly modified
-        # in at least three other places (search for glRenderMode to find them). This is bad; common code
+        # in at least three other places (search for glRenderMode to find them). TWO OF THEM ARE METHODS
+        # IN THIS CLASS! This is bad; common code
         # should be used. Furthermore, I suspect it's sometimes needlessly called more than once per frame;
         # that should be fixed too. [bruce 060721 comment]
         
         if not self.o.jigSelectionEnabled:
             return None
-        
-        from constants import GL_FAR_Z
-        
+                
         wX = event.pos().x()
         wY = self.o.height - event.pos().y()
                         
@@ -1804,7 +1806,7 @@ class selectMode(basicMode):
             # Restore Model view matrix
             glPopMatrix() 
     
-        #Restore project matrix and set matrix mode to Model/View
+        # Restore project matrix and set matrix mode to Model/View
         glMatrixMode(GL_PROJECTION)
         glPopMatrix()
         glMatrixMode(GL_MODELVIEW)
@@ -1835,6 +1837,119 @@ class selectMode(basicMode):
                 if isinstance(obj, Jig):
                     return obj
         return None # from get_jig_under_cursor
+
+    def _calibrateZ(self, wX, wY): # by huaicai; bruce 071013 moved this here from GraphicsMode
+        """
+        Because translucent plane drawing or other special drawing,
+        the depth value may not be accurate. We need to
+        redraw them so we'll have correct Z values. 
+        """
+        glMatrixMode(GL_MODELVIEW)
+        glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE) 
+        
+        if self.Draw_after_highlighting(pickCheckOnly = True): # Only when we have translucent planes drawn
+            self.o.assy.draw(self.o)
+        
+        wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)
+        glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE)
+        
+        return wZ[0][0]
+
+    def jigGLSelect(self, event, selSense): # by huaicai; bruce 071013 moved this here from GraphicsMode
+        """
+        Use the OpenGL picking/selection to select any jigs.
+        Restore the projection and modelview matrices before returning.
+        """
+        ## [Huaicai 9/22/05]: Moved it from selectMode class, so it can be called in move mode, which
+        ## is asked for by Mark, but it's not intended for any other mode.
+        # [since then I moved it back here, since move == modify is a subclass of this -- bruce 071013]
+        #
+        ### WARNING: The original code for this, in GLPane, has been duplicated and slightly modified
+        # in at least three other places (search for glRenderMode to find them).  TWO OF THEM ARE METHODS
+        # IN THIS CLASS! This is bad; common code
+        # should be used. Furthermore, I suspect it's sometimes needlessly called more than once per frame;
+        # that should be fixed too. [bruce 060721 comment]
+                
+        wX = event.pos().x()
+        wY = self.o.height - event.pos().y()
+        
+        gz = self._calibrateZ(wX, wY) 
+        if gz >= GL_FAR_Z:  # Empty space was clicked--This may not be true for translucent face [Huaicai 10/5/05]
+            return False  
+        
+        pxyz = A(gluUnProject(wX, wY, gz))
+        pn = self.o.out
+        pxyz -= 0.0002*pn
+        dp = - dot(pxyz, pn)
+        
+        # Save project matrix before it's changed
+        glMatrixMode(GL_PROJECTION)
+        glPushMatrix()
+        
+        current_glselect = (wX,wY,3,3) 
+        self.o._setup_projection( glselect = current_glselect) 
+        
+        glSelectBuffer(self.o.glselectBufferSize)
+        glRenderMode(GL_SELECT)
+        glInitNames()
+        glMatrixMode(GL_MODELVIEW)
+        glPushMatrix()  ## Save model/view matrix before it's changed
+        try:
+            glClipPlane(GL_CLIP_PLANE0, (pn[0], pn[1], pn[2], dp))
+            glEnable(GL_CLIP_PLANE0)
+            self.o.assy.draw(self.o)
+            self.Draw_after_highlighting(pickCheckOnly=True)
+            glDisable(GL_CLIP_PLANE0)
+        except:
+            # Restore Model view matrix, select mode to render mode 
+            glPopMatrix()
+            glRenderMode(GL_RENDER)
+            print_compact_traceback("exception in mode.Draw() during GL_SELECT; ignored; restoring modelview matrix: ")
+        else: 
+            # Restore Model view matrix
+            glPopMatrix() 
+    
+        # Restore project matrix and set matrix mode to Model/View
+        glMatrixMode(GL_PROJECTION)
+        glPopMatrix()
+        glMatrixMode(GL_MODELVIEW)
+        
+        glFlush()
+        
+        hit_records = list(glRenderMode(GL_RENDER))
+        if platform.atom_debug and 0:
+            print "%d hits" % len(hit_records)
+        for (near,far,names) in hit_records: # see example code, renderpass.py
+            if platform.atom_debug and 0:
+                print "hit record: near,far,names:",near,far,names
+                # e.g. hit record: near,far,names: 1439181696 1453030144 (1638426L,)
+                # which proves that near/far are too far apart to give actual depth,
+                # in spite of the 1-pixel drawing window (presumably they're vertices
+                # taken from unclipped primitives, not clipped ones).
+            if 1:
+                # partial workaround for bug 1527. This can be removed once that bug (in drawer.py)
+                # is properly fixed. This exists in two places -- GLPane.py and modes.py. [bruce 060217]
+                if names and names[-1] == 0:
+                    print "%d(m) partial workaround for bug 1527: removing 0 from end of namestack:" % env.redraw_counter, names
+                    names = names[:-1]
+##                    if names:
+##                        print " new last element maps to %r" % env.obj_with_glselect_name.get(names[-1])
+            if names:
+                obj = env.obj_with_glselect_name.get(names[-1]) #k should always return an obj
+                #self.glselect_dict[id(obj)] = obj # now these can be rerendered specially, at the end of mode.Draw
+                if isinstance(obj, Jig):
+                    if selSense == SUBTRACT_FROM_SELECTION: #Ctrl key, unpick picked
+                        if obj.picked:  
+                            obj.unpick()
+                    elif selSense == ADD_TO_SELECTION: #Shift key, Add pick
+                        if not obj.picked: 
+                            obj.pick()
+                    else:               #Without key press, exclusive pick
+                        self.o.assy.unpickall_in_GLPane() # was: unpickparts, unpickatoms [bruce 060721]
+                        if not obj.picked:
+                            obj.pick()
+                    return True
+        return False # from jigGLSelect
 
     # ==
     
