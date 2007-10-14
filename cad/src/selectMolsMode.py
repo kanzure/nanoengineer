@@ -60,7 +60,7 @@ import time
 
 _superclass = selectMode
 
-class selectMolsMode(_superclass):
+class selectMolsMode(selectMode):
     "Select Chunks mode"
     modename = 'SELECTMOLS'
     default_mode_status_text = "Mode: Select Chunks"

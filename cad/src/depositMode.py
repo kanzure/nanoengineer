@@ -94,7 +94,7 @@ from BuildAtomsPropertyManager import BuildAtomsPropertyManager
 
 _superclass = selectAtomsMode
 
-class depositMode(_superclass):
+class depositMode(selectAtomsMode):
     """
     This class is used to manually add atoms to create any structure.
     Users know it as "Build Atoms".
