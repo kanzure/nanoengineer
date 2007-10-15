@@ -1628,6 +1628,74 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                        "," + str(rad) + "," +
                        Vector3ToString(color) + ")\n")
 
+    def writepdb(self, file, atomSerialNumber, chainId):
+        """
+        Write a PDB ATOM record for this atom into I{file}.
+        
+        @param file: The PDB file to write the ATOM record to.
+        @type  file: file
+        
+        @param atomSerialNumber: A unique number for this atom.
+        @type  atomSerialNumber: int
+        
+        @param chainId: The chain id. It is a single character. See the PDB
+                        documentation for the ATOM record more information.
+        @type  chainId: str
+        
+        @note: If you edit the ATOM record, be sure to to test QuteMol.
+                    
+        @see: U{B{ATOM Record Format}<http://www.wwpdb.org/documentation/format23/sect9.html#ATOM>}
+        """
+        
+        space = " "
+        # Begin ATOM record ----------------------------------
+        # Column 1-6: "ATOM  " (str)
+        atomRecord = "ATOM  "
+        # Column 7-11: Atom serial number (int)
+        atomRecord += "%5d" % atomSerialNumber
+        # Column 12: Whitespace (str)
+        atomRecord += "%1s" % space
+        # Column 13-16 Atom name (str)
+        atomRecord += "%-4s" % self.element.symbol
+        # Column 17: Alternate location indicator (str) *unused*
+        atomRecord += "%1s" % space
+        # Column 18-20: Residue name - unused (str)
+        atomRecord += "%3s" % space
+        # Column 21: Whitespace (str)
+        atomRecord += "%1s" % space
+        # Column 22: Chain identifier - single letter (str) 
+        # This has been tested with 35 chunks and still works in QuteMol.
+        atomRecord += "%1s" % chainId.upper()
+        # Column 23-26: Residue sequence number (int) *unused*.
+        atomRecord += "%4s" % space
+        # Column 27: Code for insertion of residues (AChar) *unused*
+        atomRecord += "%1s" % space
+        # Column 28-30: Whitespace (str)
+        atomRecord += "%3s" % space
+        # Get atom XYZ coordinate
+        _xyz = self.posn()
+        # Column 31-38: X coord in Angstroms (float 8.3)
+        atomRecord += "%8.3f" % float(_xyz[0])
+        # Column 39-46: Y coord in Angstroms (float 8.3)
+        atomRecord += "%8.3f" % float(_xyz[1])
+        # Column 47-54: Z coord in Angstroms (float 8.3)
+        atomRecord += "%8.3f" % float(_xyz[2])
+        # Column 55-60: Occupancy (float 6.2) *unused*
+        atomRecord += "%6s" % space
+        # Column 61-66: Temperature factor. (float 6.2) *unused*
+        atomRecord += "%6s" % space
+        # Column 67-76: Whitespace (str)
+        atomRecord += "%10s" % space
+        # Column 77-78: Element symbol, right-justified (str) *unused*
+        atomRecord += "%2s" % space
+        # Column 79-80: Charge on the atom (str) *unused*
+        atomRecord += "%2s\n" % space
+        # End ATOM record ----------------------------------
+        
+        file.write(atomRecord)
+
+        return
+            
     # write to a MDL file.  By Chris Phoenix and Mark for John Burch [04-12-03]
     def writemdl(self, alist, f, dispdef, col):
         color = col or self.drawing_color()

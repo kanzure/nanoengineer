@@ -187,7 +187,7 @@ def writepdb(part,
         EXCLUDE_DNA_ATOMS = 4 (excludes PAM-3 and PAM-5 pseudo atoms)
     @type  excludeFlags: int
     
-    @see: U{B{PDB File Format}<http://www.rcsb.org/pdb/static.do?p=file_formats/pdb/index.html>}
+    @see: U{B{PDB File Format}<http://www.wwpdb.org/documentation/format23/v2.3.html>}
     """
 
     if mode != 'a': # Precaution. Mark 2007-06-25
@@ -195,13 +195,13 @@ def writepdb(part,
     
     f = open(filename, mode) # doesn't yet detect errors in opening file [bruce 050927 comment]
     
-    # Atom object's key is the key, the atomIndex is the value  
+    # Atom object's key is the key, the atomSerialNumber is the value  
     atomsTable = {}
-    # Each element of connectList is a list of atoms to be connected with the
+    # Each element of connectLists is a list of atoms to be connected with the
     # 1st atom in the list, i.e. the atoms to write into a CONECT record
-    connectList = []
-
-    atomIndex = 1
+    connectLists = []
+    
+    atomSerialNumber = 1
 
     def exclude(atm): #bruce 050318
         """Exclude this atom (and bonds to it) from the file under the following conditions:
@@ -231,9 +231,8 @@ def writepdb(part,
         return False # Don't exclude.
 
     excluded = 0
-    molnum=1
-    chainId = chr(96+molnum)
-    space = " "
+    molnum   = 1
+    chainId  = chr(96+molnum)
     
     for mol in part.molecules:
         molstr = "MOL" + str(molnum) + "\n"
@@ -242,65 +241,15 @@ def writepdb(part,
             if exclude(a):
                 excluded += 1
                 continue
-            aList = []
+            atomConnectList = []
             
-            # Attention: If you edit the ATOM record, be sure to test 
-            # QuteMol rendering since it can be finicky about the beginning
-            # position within a field. One example is the Atom Name field,
-            # (columns 13-16). QuteMol can read the Atom Name (symbol) only
-            # if it begins in column 13 or 14. 
-            # There is more to the story, but no time to document before
-            # trip to Istanbul. Mark 2007-09-29.
-            # Begin ATOM record ----------------------------------
-            # Column 1-6: "ATOM  " (str)
-            f.write("ATOM  ")
-            # Column 7-11: Atom serial number (int)
-            f.write("%5d" % atomIndex)
-            # Column 12: Whitespace (str)
-            f.write("%1s" % space)
-            # Column 13-16 Atom name (str)
-            f.write("%-4s" % a.element.symbol)
-            # Column 17: Alternate location indicator (str) *unused*
-            f.write("%1s" % space)
-            # Column 18-20: Residue name - unused (str)
-            f.write("%3s" % space)
-            # Column 21: Whitespace (str)
-            f.write("%1s" % space)
-            # Column 22: Chain identifier - single letter (str) 
-            # This has been tested with 35 chunks and still works in QuteMol.
-            f.write("%1s" % chainId.upper()) 
-            # Column 23-26: Residue sequence number (int) *unused*.
-            f.write("%4s" % space)
-            # Column 27: Code for insertion of residues (AChar) *unused*
-            f.write("%1s" % space)
-            # Column 28-30: Whitespace (str)
-            f.write("%3s" % space)
-            # Get atom XYZ coordinate
-            _xyz = a.posn()
-            # Column 31-38: X coord in Angstroms (float 8.3)
-            f.write("%8.3f" % float(_xyz[0]))
-            # Column 39-46: Y coord in Angstroms (float 8.3)
-            f.write("%8.3f" % float(_xyz[1]))
-            # Column 47-54: Z coord in Angstroms (float 8.3)
-            f.write("%8.3f" % float(_xyz[2]))
-            # Column 55-60: Occupancy (float 6.2) *unused*
-            f.write("%6s" % space)
-            # Column 61-66: Temperature factor. (float 6.2) *unused*
-            f.write("%6s" % space)
-            # Column 67-76: Whitespace (str)
-            f.write("%10s" % space)
-            # Column 77-78: Element symbol, right-justified (str) *unused*
-            f.write("%2s" % space)
-            # Column 79-80: Charge on the atom (str) *unused*
-            f.write("%2s" % space)
-            # End ATOM record ----------------------------------
-            
-            atomsTable[a.key] = atomIndex
-            aList.append(a)
-            
+            atomsTable[a.key] = atomSerialNumber
+            a.writepdb(f, atomSerialNumber, chainId)
+            atomConnectList.append(a)
+    
             for b in a.bonds:
                 a2 = b.other(a)
-                
+                        
                 # The following debug pref provides an option for removing 
                 # bonds b/w PAM3 axis atoms. 
                 # I added this so I can render PAM3 structures in QuteMol for 
@@ -314,36 +263,35 @@ def writepdb(part,
                     if a.element.symbol in ('Ax3', 'Ae3'):
                         if a2.element.symbol in ('Ax3', 'Ae3'):
                             continue
-                
+                        
                 if a2.key in atomsTable:
                     assert not exclude(a2) # see comment below
-                    aList.append(a2)
+                    atomConnectList.append(a2)
                 #bruce 050318 comment: the old code wrote every bond twice
                 # (once from each end). I doubt we want that, so now I only
                 # write them from the 2nd-seen end. (This also serves to
                 # not write bonds to excluded atoms, without needing to check
                 # that directly. The assert verifies this claim.)
-
-            atomIndex += 1
-            if len(aList) > 1:
-                connectList.append(aList)
-                #bruce 050318 comment: shouldn't we leave it out if len(aList) == 1?
-                # I think so, so I'm doing that (unlike the previous code).
-
-            f.write("\n")
             
-        for aList in connectList:
+            atomSerialNumber += 1
+            if len(atomConnectList) > 1:
+                connectLists.append(atomConnectList)
+                # bruce 050318 comment: shouldn't we leave it out if 
+                # len(atomConnectList) == 1?
+                # I think so, so I'm doing that (unlike the previous code).
+            
+        for atomConnectList in connectLists:
             # Begin CONECT record ----------------------------------
             f.write("CONECT")
-            for a in aList:
+            for a in atomConnectList:
                 index = atomsTable[a.key]
                 f.write("%5d" % index)
             f.write("\n")
             # End CONECT record ----------------------------------
             
-        connectList = []
-        molnum+=1
-        chainId = chr(96+molnum)
+        connectLists = []
+        molnum += 1
+        chainId = chr(96 + molnum)
 
         f.write("END\n")
     
