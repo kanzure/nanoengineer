@@ -115,25 +115,14 @@ class elementColors(QDialog, Ui_ElementColorsDialog):
             is called
         """
         self.ok()
-         
-    
-    def disConnectChangingControls(self):
-        '''Obsolete member funtion. '''
-        self.disconnect(self.redSlider,SIGNAL("valueChanged(int)"),self.changeSpinRed)
-        self.disconnect(self.redSpinBox,SIGNAL("valueChanged(int)"),self.changeSliderRed)
-        self.disconnect(self.blueSlider,SIGNAL("valueChanged(int)"),self.changeSpinBlue)
-        self.disconnect(self.blueSpinBox,SIGNAL("valueChanged(int)"),self.changeSliderBlue)
-        self.disconnect(self.greenSlider,SIGNAL("valueChanged(int)"),self.changeSpinGreen)
-        self.disconnect(self.greenSpinBox,SIGNAL("valueChanged(int)"),self.changeSliderGreen)
-   
+        
     def connectChangingControls(self):
         self.connect(self.redSlider,SIGNAL("valueChanged(int)"),self.changeSpinRed)
         self.connect(self.redSpinBox,SIGNAL("valueChanged(int)"),self.changeSliderRed)
         self.connect(self.blueSlider,SIGNAL("valueChanged(int)"),self.changeSpinBlue)
         self.connect(self.blueSpinBox,SIGNAL("valueChanged(int)"),self.changeSliderBlue)
         self.connect(self.greenSlider,SIGNAL("valueChanged(int)"),self.changeSpinGreen)
-        self.connect(self.greenSpinBox,SIGNAL("valueChanged(int)"),self.changeSliderGreen)    
-    
+        self.connect(self.greenSpinBox,SIGNAL("valueChanged(int)"),self.changeSliderGreen)
     
     def loadDefaultProp(self):
         """Load default set of color/rvdw for the current periodic table """    
@@ -175,16 +164,12 @@ class elementColors(QDialog, Ui_ElementColorsDialog):
         self.restorePB.setEnabled(0) # Disable Restore button.
         
     def update_sliders_and_spinboxes(self, color):
-        
-        #self.disConnectChangingControls()
         self.redSlider.setValue(color.red())
         self.greenSlider.setValue(color.green())
         self.blueSlider.setValue(color.blue())
         self.redSpinBox.setValue(color.red())
         self.greenSpinBox.setValue(color.green())
         self.blueSpinBox.setValue(color.blue())
-        #self.reconnectChangingControls()
-
         
     def updateElemGraphDisplay(self):
         """Update non user interactive controls display for current selected element:
@@ -278,17 +263,8 @@ class elementColors(QDialog, Ui_ElementColorsDialog):
             env.history.message("Element colors saved in file: [" + fn + "]")
             #After saving a file, reset the flag        
             self.isFileSaved = True        
- 
-    def changeSliderBlue(self,a0):
-        self.blueSlider.blockSignals(True)
-        self.blueSlider.setValue(a0)
-        elemNum =  self.elementButtonGroup.checkedId()
-        self.elemTable.setElemColor(elemNum,  [self.color[0], self.color[1], a0/255.0])
-        self.updateElemColorDisplay()
-        self.isElementModified = True
-        self.blueSlider.blockSignals(False)
         
-    def changeSpinRed(self,a0):
+    def changeSpinRed(self, a0):
         self.redSpinBox.blockSignals(True)
         self.redSpinBox.setValue(a0)
         elemNum =  self.elementButtonGroup.checkedId()
@@ -297,7 +273,7 @@ class elementColors(QDialog, Ui_ElementColorsDialog):
         self.isElementModified = True
         self.redSpinBox.blockSignals(False)
         
-    def changeSliderRed(self,a0):
+    def changeSliderRed(self, a0):
         self.redSlider.blockSignals(True)
         self.redSlider.setValue(a0)
         elemNum =  self.elementButtonGroup.checkedId()
@@ -306,7 +282,7 @@ class elementColors(QDialog, Ui_ElementColorsDialog):
         self.isElementModified = True
         self.redSlider.blockSignals(False)
       
-    def changeSpinBlue(self,a0):
+    def changeSpinBlue(self, a0):
         self.blueSpinBox.blockSignals(True)
         self.blueSpinBox.setValue(a0)
         elemNum =  self.elementButtonGroup.checkedId()
@@ -315,18 +291,25 @@ class elementColors(QDialog, Ui_ElementColorsDialog):
         self.isElementModified = True
         self.blueSpinBox.blockSignals(False)
         
+    def changeSliderBlue(self, a0):
+        self.blueSlider.blockSignals(True)
+        self.blueSlider.setValue(a0)
+        elemNum =  self.elementButtonGroup.checkedId()
+        self.elemTable.setElemColor(elemNum,  [self.color[0], self.color[1], a0/255.0])
+        self.updateElemColorDisplay()
+        self.isElementModified = True
+        self.blueSlider.blockSignals(False)
         
-    def changeSpinGreen(self,a0):
+    def changeSpinGreen(self, a0):
         self.greenSpinBox.blockSignals(True)
         self.greenSpinBox.setValue(a0)
         elemNum =  self.elementButtonGroup.checkedId()
         self.elemTable.setElemColor(elemNum,  [self.color[0], a0/255.0, self.color[2]])
         self.updateElemColorDisplay()
         self.isElementModified = True
-        self.greenSpinBox.blockSignals(False)
-        
+        self.greenSpinBox.blockSignals(False)        
                 
-    def changeSliderGreen(self,a0): 
+    def changeSliderGreen(self, a0): 
         self.greenSlider.blockSignals(True)
         self.greenSlider.setValue(a0)
         elemNum =  self.elementButtonGroup.checkedId()
