@@ -5,15 +5,16 @@ confirmation_corner.py -- helpers for modes with a confirmation corner
 
 $Id$
 
-Note: confirmation corners make use of two methods added to the "mode API"
+Note: confirmation corners make use of two methods added to the "GraphicsMode API"
 (the one used by GLPane to interface to glpane.graphicsMode for mouse and drawing)
-for their sake, currently [070627] defined only in basicMode: draw_overlay
+for their sake, currently [071015] defined only in basicGraphicsMode: draw_overlay
 and mouse_event_handler_for_event_position. These are general enough to
 handle all kinds of overlays, in principle, but the current implem and
 some API details may be just barely general enough for the confirmation
 corner.
 
-Those method implems assume that mode subclasses override want_confirmation_corner_type
+Those method implems assume that Command subclasses (whose instances are
+found in graphicsMode.command) override want_confirmation_corner_type
 to return the kind of confirmation corner they want at a given moment.
 """
 
@@ -42,7 +43,7 @@ BUTTON_CODES = ('Done', 'Cancel')
 
 # ==
 
-class MouseEventHandler_API: #e refile #e some methods may need mode and/or glpane arg...
+class MouseEventHandler_API: #e refile #e some methods may need graphicsMode and/or glpane arg...
     """API (and default method implems) for the MouseEventHandler interface
     (for objects used as glpane.mouse_event_handler) [abstract class]
     """
@@ -54,8 +55,8 @@ class MouseEventHandler_API: #e refile #e some methods may need mode and/or glpa
         ""
     def mouseReleaseEvent(self, event):
         ""
-    def update_cursor(self, mode, wpos):
-        """Perform side effects in mode (assumed to be a basicMode subclass)
+    def update_cursor(self, graphicsMode, wpos):
+        """Perform side effects in graphicsMode (assumed to be a basicGraphicsMode subclass)
         to give it the right cursor for being over self
         at position <wpos> (in OpenGL window coords).
         """
@@ -124,14 +125,14 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
         expr_instance = ih.Instance( expr, index, skip_expr_compare = True)
         return expr_instance
 
-    def _advise_find_args(self, cctype, mode):
+    def _advise_find_args(self, cctype, command):
         """private; can be called as often as every time this is drawn;
         cctype can be None or one of a few string constants
         """
-        self.command = mode # used to find buttons for doing actions; not cross-checked with passed or found modes...
+        self.command = command # used to find buttons for doing actions; not cross-checked with passed or found modes...
         if self.cctype != cctype:
             # note: no point in updating drawing here if cctype changes,
-            # since we're only called within glpane calling mode.draw_overlay.
+            # since we're only called within glpane calling graphicsMode.draw_overlay.
             ## self.update_drawing()
             self.cctype = cctype
             if cctype:
@@ -222,10 +223,10 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
         
         return
     
-    def update_cursor(self, mode, wpos):
+    def update_cursor(self, graphicsMode, wpos):
         "MouseEventHandler_API method; change cursor based on current state and event position"
-        assert self.glpane is mode.o
-        win = mode.w # for access to cursors
+        assert self.glpane is graphicsMode.glpane
+        win = graphicsMode.win # for access to cursors
         wX, wY = wpos
         bc = self.button_region_for_event_position(wX, wY)
         # figure out want_cursor (False or a button code; in future there may be other codes for modified cursors)
@@ -251,14 +252,14 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
             self.glpane.setCursor(cursor)
         else:
             # We want to set a cursor which indicates that we'll do nothing.
-            # Modes won't tell us that cursor, but they'll set it as a side effect of mode.update_cursor_for_no_MB().
+            # Modes won't tell us that cursor, but they'll set it as a side effect of graphicsMode.update_cursor_for_no_MB().
             # Actually, they may set the wrong cursor then (e.g. cookieMode, which looks at glpane.modkeys, but if we're
             # here with modkeys we're going to ignore them). If that proves to be misleading, we'll revise this.
             self.glpane.setCursor(win.ArrowCursor) # in case the following method does nothing (can happen)
             try:
-                mode.update_cursor_for_no_MB() # _no_MB is correct, even though a button is presumably pressed.
+                graphicsMode.update_cursor_for_no_MB() # _no_MB is correct, even though a button is presumably pressed.
             except:
-                print_compact_traceback("bug: exception (ignored) in %r.update_cursor_for_no_MB(): " % (mode,) )
+                print_compact_traceback("bug: exception (ignored) in %r.update_cursor_for_no_MB(): " % (graphicsMode,) )
                 pass
         return
 
@@ -332,7 +333,7 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
 
         # print "do_action", buttoncode
 
-        ###REVIEW: maybe all the following should be a mode method?
+        ###REVIEW: maybe all the following should be a Command method?
         # Note: it will all get revised and cleaned up once we have a command stack
         # and we can just tell the top command to do Done or Cancel.
         
@@ -374,19 +375,20 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
 
 # ==
 
-##def interpret_cctype(cctype, mode): # not used, unless perhaps via cc_scratch.py
-##    "return None or an expr, ..."
-##    return Rect(green) ###STUB
-
-def find_or_make(cctype, mode):
-    "Return a confirmation corner instance for mode, of the given cctype. [Called from basicMode.draw_overlay]"
-    ##### STUB
+def find_or_make(cctype, graphicsMode):
+    "Return a confirmation corner instance for graphicsMode, of the given cctype. [Called from basicMode.draw_overlay]"
+    command = graphicsMode.command #bruce 071015 to fix bug 2565
+        # This means we cache this on the Command, not on the GraphicsMode.
+        # I'm not sure that's best, though since the whole thing seems to assume
+        # they have a 1-1 correspondence, it may not matter much.
+        # But in the future if weird GraphicsModes needed their own
+        # conf. corner styles or implems, it might need revision.
     try:
-        mode._confirmation_corner__cached_meh
+        command._confirmation_corner__cached_meh
     except AttributeError:
-        mode._confirmation_corner__cached_meh = cc_MouseEventHandler(mode.o)
-    res = mode._confirmation_corner__cached_meh
-    res._advise_find_args(cctype, mode) # in case it wants to store these (especially since it's shared for different values of them)
+        command._confirmation_corner__cached_meh = cc_MouseEventHandler(command.glpane)
+    res = command._confirmation_corner__cached_meh
+    res._advise_find_args(cctype, command) # in case it wants to store these (especially since it's shared for different values of them)
     return res
     # see also exprs/cc_scratch.py
 
