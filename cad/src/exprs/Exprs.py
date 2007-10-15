@@ -19,6 +19,7 @@ from utilities.Comparison import same_vals
 from exprs.py_utils import printnim, printfyi, stub, printonce
 from exprs.intern_ipath import intern_ipath
 
+from state_utils_unset import _UNSET_
 
 # == utilities #e refile
 
@@ -1225,8 +1226,6 @@ def canon_expr(subexpr):###CALL ME FROM MORE PLACES -- a comment in Column.py sa
     pass
 
 # ==
-
-from state_utils import _UNSET_
 
 class Symbol(SymbolicExpr):
     "A kind of Expr that is just a symbol with a given name. Often used via the __Symbols__ module."

@@ -12,13 +12,14 @@ to break an import cycle. It is closely related to copy_val which remains here.
 
 __author__ = 'bruce'
 
-from state_constants import S_DATA, S_CHILD, S_CHILDREN, S_REF, S_REFS, S_PARENT, S_PARENTS, S_CHILDREN_NOT_DATA
-#import types
 from types import InstanceType # use this form in inner loops
+
+from state_constants import S_DATA, S_CHILD, S_CHILDREN, S_REF, S_REFS, S_PARENT, S_PARENTS, S_CHILDREN_NOT_DATA
 import env
 from debug import print_compact_stack
 import platform # for atom_debug [bruce 060315]
 from utilities.Comparison import same_vals, SAMEVALS_SPEEDUP
+from state_utils_unset import _UNSET_, _Bugval
 
 
 ### TODO:
@@ -63,27 +64,6 @@ Do any inapprop obs get a key (like data or foreign objs) in current code?? ####
 ##debug_print_every_array_passed_to_Numeric_copy = False # hmm, this might be slow too... to be safe the runtime
 ##    # use of it should condition it on env.debug(), and to be fast, also on debug_dont_trust_Numeric_copy.
 
-# ==
-
-class _UNSET_class:
-    "[private class for _UNSET_, which sometimes represents unset attribute values, and similar things]"
-    #e can we add a decl that makes the _s_attr system notice the bug if it ever hits this value in a real attrval? (should we?)
-    def __init__(self, name = "_???_"):
-        self.name = name
-    def __repr__(self):
-        return self.name
-    pass
-
-try:
-    _UNSET_ # ensure only one instance of _UNSET_ itself, even if we reload this module
-except:
-    _UNSET_ = _UNSET_class("_UNSET_")
-
-try:
-    _Bugval
-except:
-    _Bugval = _UNSET_class("_Bugval")
-    
 # ==
 
 class _eq_id_mixin_: ##e use more? (GLPane?)

@@ -92,7 +92,9 @@ _superclass = minimalCommand
 
 from debug import register_debug_menu_command
 
-from GLPane import GLPane # maybe only needed for an isinstance assertion
+# Removing this import removed 158 arcs and 37 nodes from the cyclic
+# dependency graph.
+#from GLPane import GLPane # maybe only needed for an isinstance assertion
 
 # ==
 
@@ -227,7 +229,7 @@ def start_cmdrun( cmdrun):
     return
 
 def enter_example_command(widget, example_command_classname):
-    assert isinstance(widget, GLPane)
+#    assert isinstance(widget, GLPane)
     glpane = widget
     if 0 and EndUser.enableDeveloperFeatures(): ###during devel only; broken due to file splitting
         # reload before use (this module only)

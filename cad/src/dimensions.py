@@ -23,7 +23,6 @@ from VQT import cross
 from VQT import vlen
 from VQT import norm
 from drawer import drawline
-from Utility import Node
 
 """
 The font is a vector-drawing thing. The entries in the font are

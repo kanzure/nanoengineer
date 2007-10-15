@@ -19,7 +19,8 @@ from debug import print_compact_traceback, print_compact_stack, safe_repr
 from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True
 import env
 import state_utils
-from state_utils import objkey_allocator, obj_classifier, diff_and_copy_state, transclose, StatePlace, StateSnapshot, _UNSET_
+from state_utils import objkey_allocator, obj_classifier, diff_and_copy_state, transclose, StatePlace, StateSnapshot
+from state_utils_unset import _UNSET_
 from prefs_constants import historyMsgSerialNumber_prefs_key
 import changes
 
