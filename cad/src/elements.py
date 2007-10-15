@@ -27,6 +27,7 @@ from VQT import V, A, norm
 from preferences import prefs_context
 from atomtypes import AtomType
 from constants import DIAMOND_BOND_LENGTH
+from debug_prefs import debug_pref, Choice_boolean_False
 
 # == Elements, and periodic table
 
@@ -556,24 +557,35 @@ to put the C+ value.
     #     for mol in self.w.assy.molecules: 
     #        mol.changeapp(1)
         
-   #      self.w.glpane.gl_update()
+    #     self.w.glpane.gl_update()
     
     def close(self):
-          ## The 'def __del__(self)' is not guranteed to be called. It is not called in my try on Windows. 
-          """Save color/radius preference before deleting"""
-          prefs = prefs_context()
-          elms = {}
-          for elm in self._periodicTable.values():
-              elms[elm.symbol] = (elm.rvdw, elm.color)
-          prefs.update(elms)
-          #print "__del__() is called now."
+        ## The 'def __del__(self)' is not guranteed to be called. It is not called in my try on Windows. 
+        """Save color/radius preference before deleting"""
+        prefs = prefs_context()
+        elms = {}
+        for elm in self._periodicTable.values():
+            elms[elm.symbol] = (elm.rvdw, elm.color)
+        prefs.update(elms)
+        #print "__del__() is called now."
 
     pass # end of class ElementPeriodicTable
 
 # ==
 
 DIRECTIONAL_BOND_ELEMENTS = ('Ss5', 'Pl5', 'Sj5', 'Pe5', 'Sh5', 'Hp5',
-                             'Ss3', 'Pl3', 'Sj3', 'Se3', 'Sh3', 'Hp3') 
+                             'Ss3', 'Pl3', 'Sj3', 'Se3', 'Sh3', 'Hp3')
+
+if debug_pref("draw PAM3 singlets as directional bond arrows? (next session)", 
+              Choice_boolean_False, 
+              non_debug = True,
+              prefs_key = "A9 devel/draw PAM3 singlets as arrows"):
+    
+    print "Adding 'X' (singlet) to DIRECTIONAL_BOND_ELEMENTS tuple."
+    
+    DIRECTIONAL_BOND_ELEMENTS = ('Ss5', 'Pl5', 'Sj5', 'Pe5', 'Sh5', 'Hp5',
+                                 'Ss3', 'Pl3', 'Sj3', 'Se3', 'Sh3', 'Hp3', 'X')
+    
 # symbols of elements which permit "directional bonds"
 # We can't include X (for Singlet == bondpoint); for why, see comments where this constant is used. [bruce 070415]
 

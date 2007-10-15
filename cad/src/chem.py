@@ -1133,7 +1133,22 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                     ###BUG: this becomes wrong if the chunks move relative to each other! But we don't get updated then. ###FIX
                 ## color = gray # to indicate the direction is suspicious and might become invalid (for now)
             out = norm(otherpos - pos) * otherdir
-            axis = out * drawrad
+            
+            # Set the axis and arrow radius.
+            if self.element is Singlet and 'X' in DIRECTIONAL_BOND_ELEMENTS:
+                if dispdef == diTUBES:
+                    axis = out * drawrad * 1.5
+                    arrowRadius = drawrad * 3
+                elif dispdef == diBALL:
+                    axis = out * drawrad * 2.5
+                    arrowRadius = drawrad * 5
+                else:
+                    axis = out * drawrad * 2
+                    arrowRadius = drawrad * 5.8
+            else:
+                axis = out * drawrad
+                arrowRadius = drawrad * 2
+                    
             # the following cone dimensions enclose the original sphere (and therefore the bond-cylinder end too):
             # cone base at pos - axis, radius = 2 * drawrad, cone midplane (radius = drawrad) at pos + axis,
             # thus cone tip at pos + 3 * axis.
@@ -1143,16 +1158,21 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             drawsphere(color, pos, drawrad, 0) #KLUGE (harmless but slow) to set color and also to verify cone encloses sphere
 
             from drawer import glePolyCone
-            glePolyCone([[pos[0] - 2 * axis[0], pos[1] - 2 * axis[1],
+            glePolyCone([[pos[0] - 2 * axis[0], 
+                          pos[1] - 2 * axis[1],
                           pos[2] - 2 * axis[2]],
-                         [pos[0] - axis[0], pos[1] - axis[1], pos[2] - axis[2]],
-                         [pos[0] + 3 * axis[0], pos[1] + 3 * axis[1],
+                         [pos[0] - axis[0], 
+                          pos[1] - axis[1], 
+                          pos[2] - axis[2]],
+                         [pos[0] + 3 * axis[0], 
+                          pos[1] + 3 * axis[1],
                           pos[2] + 3 * axis[2]],
-                         [pos[0] + 4 * axis[0], pos[1] + 4 * axis[1],
-                          pos[2] + 4 * axis[2]]], # Point array (the two end
+                         [pos[0] + 5 * axis[0], 
+                          pos[1] + 5 * axis[1],
+                          pos[2] + 5 * axis[2]]], # Point array (the two end
                                                   # points not drawn)
                         None, # Color array (None means use current color)
-                        [drawrad * 2, drawrad * 2, 0, 0] # Radius array
+                        [arrowRadius, arrowRadius, 0, 0] # Radius array
                        )
         else:
             if style:

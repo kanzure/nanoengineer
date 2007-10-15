@@ -66,7 +66,7 @@ import env
 
 from state_utils import StateMixin #bruce 060223
 from changes import register_changedict, register_class_changedicts
-from debug_prefs import debug_pref, Choice_boolean_False #bruce 060307
+from debug_prefs import debug_pref, Choice_boolean_False
 from utilities.Log import redmsg, quote_html #bruce 070601
 
 from state_constants import S_CACHE, S_DATA, S_PARENT
@@ -1223,7 +1223,9 @@ class Bond(BondBase, StateMixin):
         # but since atom.unbond now kills singlets lacking any bonds,
         # and since not doing that would be bad, I added a note about that
         # to the docstring.
-        self._clear_bond_direction() #bruce 070415
+        
+        if not 'X' in DIRECTIONAL_BOND_ELEMENTS:
+            self._clear_bond_direction() #bruce 070415
         x1 = self.atom1.unbond(self, make_bondpoint = make_bondpoints) # does all needed invals
         x2 = self.atom2.unbond(self, make_bondpoint = make_bondpoints)
         ###e do we want to also change our atoms and key to None, for safety?
