@@ -415,6 +415,14 @@ class _twoway_Qt_connection: #bruce 070814, experimental, modified from destroya
         self.widget_setter(value)
             ## TODO: protect from exception -- but do what when it happens? destroy self?
         self.connect()
+            ### WARNING: .connect is slow, since it runs our Python code to set up an undo wrapper
+            # around the slot! We should revise this to tell Qt to block the signals instead.
+            # [We can use: bool QObject::blockSignals ( bool block ) ==> returns prior value of signalsBlocked,
+            #  now used in a helper function setValue_with_signals_blocked]
+            # This will matter for performance when this is used for state which changes during a drag.
+            # Note: avoiding the slot call is needed not only for recursion, but to avoid the
+            # Undo checkpoint in the wrapper.
+            # [bruce comments 071015; see also bug 2564 in other code]
         return
     pass
 

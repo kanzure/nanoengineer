@@ -299,7 +299,7 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
     
     def _updateSelectedAtomPosGroupBox(self, selectionParams):
         """
-        Update the Selected Atoms Position groupbox present withn the 
+        Update the Selected Atoms Position groupbox present within the 
         B{Selection GroupBox" of this PM. This groupbox shows the 
         X, Y, Z coordinates of the selected atom (if any). 
         This groupbox is updated whenever selection in the glpane changes 
@@ -347,6 +347,7 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
                 
         if self.model_changed_from_glpane:
             #Model is changed from glpane ,do nothing. Fixes bug 2545
+            print "bug: self.model_changed_from_glpane seen; should never happen after bug 2564 was fixed." #bruce 071015
             return
         
         totalAtoms, selectedAtom, atomPosn_junk = self._currentSelectionParams()
@@ -389,9 +390,36 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         @type  atomCoords: Vector
         """
         self.model_changed_from_glpane = True
-        self.xCoordOfSelectedAtom.setValue(atomCoords[0])
-        self.yCoordOfSelectedAtom.setValue(atomCoords[1])
-        self.zCoordOfSelectedAtom.setValue(atomCoords[2])  
+
+        # Disable signals out of these spinboxes, to fix bug 2564 [bruce 071015]
+        ## self.xCoordOfSelectedAtom.setValue_with_signals_blocked(atomCoords[0]) # maybe someday we can just say this?
+        setValue_with_signals_blocked( self.xCoordOfSelectedAtom, atomCoords[0])
+        setValue_with_signals_blocked( self.yCoordOfSelectedAtom, atomCoords[1])
+        setValue_with_signals_blocked( self.zCoordOfSelectedAtom, atomCoords[2])
+        
         self.model_changed_from_glpane = False
+        return
     
+    pass
+
+# TODO: setValue_with_signals_blocked is a useful helper function which should be refiled.
+
+def setValue_with_signals_blocked(widget, value): # bruce 071015
+    """
+    Call widget.setValue(value) while temporarily blocking all Qt signals
+    sent from widget. (If they were already blocked, doesn't change that.)
+
+    @param widget: a QDoubleSpinBox, or any Qt widget with a compatible setValue method
+    @type widget: a Qt widget with a setValue method compatible with that of QDoubleSpinBox
     
+    @param value: argument for setValue
+    @type  value: whatever is needed by setValue (depends on widget type)
+    """
+    was_blocked = widget.blockSignals(True)
+    try:
+        widget.setValue(value)
+    finally:
+        widget.blockSignals(was_blocked)
+    return
+
+# end
