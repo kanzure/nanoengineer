@@ -999,7 +999,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         return disp # from Atom.draw. [bruce 050513 added retval to help with an optim]
 
     def drawing_color(self, molcolor = None): #bruce 070417 [most calls have the bug of letting molcolor override this ###FIX]
-        """Return the color in which to draw self, and certain things that touch self.
+        """
+        Return the color in which to draw self, and certain things that touch self.
         This is molcolor or self.element.color by default
         (where molcolor is self.molecule.color if not supplied),
         but some preferences can override that with a warning or error color
@@ -1025,11 +1026,14 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         return color
 
     def _draw_atom_style(self): #bruce 070409 split this out of draw_atom_sphere; 070424 revised return value (None -> "")
-        """[private helper method for draw_atom_sphere, and perhaps related methods like draw_wirespheres]
+        """
+        [private helper method for draw_atom_sphere, and perhaps related methods like draw_wirespheres]
+
         Return a short hardcoded string (known to draw_atom_sphere) saying in what style to draw the atom's sphere.
         Return value "" (not None) means to use an actual sphere; other values distinguish the special cases
         encoded into draw_atom_sphere (and a few other calling methods).
-           We check not only the desirability of the special cases, but all their correctness conditions,
+
+        We check not only the desirability of the special cases, but all their correctness conditions,
         making sure that those don't depend on the other parameters of draw_atom_sphere (like abs_coords),
         and making it easier for draw_atom_sphere to fallback to its default style when those conditions fail.
         """
@@ -1062,11 +1066,14 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         return ""
 
     def strand_end_bond(self): #bruce 070415
-        """Is self on the end of a chain of directional bonds
+        """
+        Is self on the end of a chain of directional bonds
         (whether or not they have an assigned direction)?
+
         If so, return the single directional bond on self
         (from which the strand's direction from self can be determined
          using bond.bond_direction_from(self)).
+
         If not, return None.
         (Note; there being exactly one directional bond on self
         is precisely the same condition as self being on the end
@@ -1080,7 +1087,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         return None
 
     def directional_bonds(self): #bruce 070415
-        """Return a list of our directional bonds. Its length might be 0, 1, or 2,
+        """
+        Return a list of our directional bonds. Its length might be 0, 1, or 2,
         or in the case of erroneous structures, 3 or more.
         """
         return filter(lambda bond: bond.is_directional(), self.bonds)
