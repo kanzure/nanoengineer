@@ -38,7 +38,6 @@ When cleaning up PropMgrBaseClass etc, note some other things Mark wants to work
   Note: See PM_ElementSelector.py. Mark 2007-08-07.
 
 Fix problems with Example_TemporaryCommand_useParentPM (commented where it's used)
-
 """
 
 from test_command_PMs import ExampleCommand1_PM
@@ -48,6 +47,11 @@ from PM.PM_WidgetsDemoPropertyManager import PM_WidgetsDemoPropertyManager
 
 from modes import basicMode
 ## from selectAtomsMode import selectAtomsMode
+
+from GraphicsMode import GraphicsMode
+from Command import Command
+
+# ==
 
 class minimalUsefulMode(basicMode): #bruce 071013
     #e What will be needed here, just to run the example commands?
@@ -60,9 +64,31 @@ class minimalUsefulMode(basicMode): #bruce 071013
     #   (they didn't with selectAtomsMode either, but they drew the model themselves);
     # - exprs draw, but their highlighting (and associated mouse behavior) doesn't work.
     # But in other ways they work, e.g. the temp ones resume saved command & PM, the GBC ones make a struct.
+
+    # this is enough to draw the axes, compass, etc, and the model, but not with highlighting (model or expr):
+    def Draw(self):
+        super(minimalUsefulMode, self).Draw()
+        self.glpane.part.draw(self.glpane) # draw the current Part
+
+    # What we need is some of what's in selectAtomsMode and maybe some of what's in testmode.
+    # It's more efficient to refactor those to get a new generally useful GraphicsMode,
+    # than to build them up separately here. HOWEVER, for the purpose of testing Command/GraphicsMode split,
+    # this one might be enough, if we split it. So do that below.
     pass
 
-_superclass = minimalUsefulMode # was selectAtomsMode
+class minimalGraphicsMode(GraphicsMode):
+    def Draw(self):
+        super(minimalGraphicsMode, self).Draw()
+        self.glpane.part.draw(self.glpane) # draw the current Part
+    pass
+
+class minimalCommand(Command):
+    GraphicsMode_class = minimalGraphicsMode
+    pass
+
+## _superclass = selectAtomsMode
+## _superclass = minimalUsefulMode
+_superclass = minimalCommand
 
 from debug import register_debug_menu_command
 
@@ -104,6 +130,9 @@ class ExampleCommand(_superclass):
 # ==
 
 class Example_TemporaryCommand_useParentPM(ExampleCommand):
+    # BUGS:
+    # - doesn't call prior_command_Draw; should use something from TemporaryCommand.py ####
+    #
     # Note: this works if you have your own PM; perhaps untested when you don't.
     # Warning: currently only one level of temporary commands is permitted;
     # if you enter one of these commands and then enter another TemporaryCommand (e.g. Zoom Tool)
