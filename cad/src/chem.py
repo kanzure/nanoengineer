@@ -48,7 +48,6 @@ from drawer import ColorSorter
 from drawer import drawcylinder
 from drawer import drawsphere
 from drawer import drawwiresphere
-from elements import DIRECTIONAL_BOND_ELEMENTS
 from elements import Singlet
 from elements import Hydrogen
 from elements import PeriodicTable
@@ -1045,7 +1044,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             if debug_pref("draw bondpoints as stubs", Choice_boolean_False, prefs_key = True):
                 # current implem has cosmetic bugs (details commented there), so don't say non_debug = True
                 return 'bondpoint-stub' #k this might need to correspond with related code in Bond.draw
-        if self.element.symbol in DIRECTIONAL_BOND_ELEMENTS: #bruce 070415, correct end-arrowheads
+        if self.element.bonds_can_be_directional: #bruce 070415, correct end-arrowheads
             bond = self.strand_end_bond()
             if bond is not None:
                 direction = bond.bond_direction_from(self)
@@ -1079,7 +1078,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         is precisely the same condition as self being on the end
         of a chain of directional bonds.)
         """
-        if self.element.symbol not in DIRECTIONAL_BOND_ELEMENTS: #e this could be optimized by being a flag set in each Element
+        if not self.element.bonds_can_be_directional:
             return None # important optimization
         dirbonds = self.directional_bonds()
         if len(dirbonds) == 1:
@@ -1143,7 +1142,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             out = norm(otherpos - pos) * otherdir
             
             # Set the axis and arrow radius.
-            if self.element is Singlet and 'X' in DIRECTIONAL_BOND_ELEMENTS:
+            if self.element is Singlet and Singlet.bonds_can_be_directional:
                 # mark 071014 (prior code was equivalent to else case)
                 if dispdef == diTUBES:
                     axis = out * drawrad * 1.5

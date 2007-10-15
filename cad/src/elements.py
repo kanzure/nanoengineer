@@ -29,16 +29,46 @@ from atomtypes import AtomType
 from constants import DIAMOND_BOND_LENGTH
 from debug_prefs import debug_pref, Choice_boolean_False
 
+# ==
+
+# Note: _DIRECTIONAL_BOND_ELEMENTS is private, used only when creating the
+# periodic table. External code can look at the value of the boolean
+# per-element constant, elem.bonds_can_be_directional. [bruce 071015]
+
+_DIRECTIONAL_BOND_ELEMENTS = ('Ss5', 'Pl5', 'Sj5', 'Pe5', 'Sh5', 'Hp5',
+                              'Ss3', 'Pl3', 'Sj3', 'Se3', 'Sh3', 'Hp3')
+
+if debug_pref("draw PAM3 bondpoints as directional bond arrows? (next session)", 
+              Choice_boolean_False, 
+              non_debug = True,
+              prefs_key = "A9 devel/draw PAM3 singlets as arrows"):
+    
+    print "Adding 'X' (bondpoint) to _DIRECTIONAL_BOND_ELEMENTS tuple."
+    
+    _DIRECTIONAL_BOND_ELEMENTS = _DIRECTIONAL_BOND_ELEMENTS + ('X',) # mark 071014
+        ### REVIEW: I'm not yet sure this is safe, for the various ways this is used --
+        # note the following comment, which says it's not safe. [bruce 071015 comment]
+    
+# symbols of elements which permit "directional bonds"
+# We can't include X (for Singlet == bondpoint); for why, see comments where this constant is used. [bruce 070415]
+
 # == Elements, and periodic table
 
 class Elem: # bruce 050510 renamed this from 'elem' (not using 'Element' since too common in strings/comments)
-    """There is exactly one of these objects for each supported element in the periodic table.
+    """
+    There is exactly one of these objects for each supported element in the periodic table.
     Its identity (as a python object) never changes during the run.
     Instead, if prefs changes are made in color, radius, or perhaps bonding pattern,
     this object's contents will be modified accordingly.
     """
+    
+    # default value of per-instance constant
+    bonds_can_be_directional = False #bruce 071015
+    
     def __init__(self, eltnum, sym, name, mass, rvdw, color, bn):
-        """called from a table in the source
+        """
+        called from a table in the source for class ElementPeriodicTable;
+        should not be called otherwise.
 
         eltnum = atomic number (e.g. H is 1, C is 6); for Singlet this is 0
         sym = (e.g.) "H"
@@ -54,6 +84,9 @@ class Elem: # bruce 050510 renamed this from 'elem' (not using 'Element' since t
              covalent radius (units of 0.01 Angstrom)
              info about angle between bonds, as an array of vectors
              optional 4th item in the "triple": name of this bonding pattern, if it has one
+
+        Note: self.bonds_can_be_directional is set for some elements
+        by the caller.
         """
         # bruce 041216 and 050510 modified the above docstring
         self.eltnum = eltnum
@@ -252,70 +285,70 @@ class ElementPeriodicTable(Singleton):
         "Ti" :  ( 2.300,)
         }
                      
-# Format of _mendeleev:
-# Symbol, Element Name, NumberOfProtons, atomic mass in 10-27 kg,
-# then a list of atomtypes, each of which is described by
-# [ open bonds, covalent radius (pm), atomic geometry, hybridization ]
-# (bruce adds: not sure about cov rad units; table values are 100 times this comment's values)
+    # Format of _mendeleev:
+    # Symbol, Element Name, NumberOfProtons, atomic mass in 10-27 kg,
+    # then a list of atomtypes, each of which is described by
+    # [ open bonds, covalent radius (pm), atomic geometry, hybridization ]
+    # (bruce adds: not sure about cov rad units; table values are 100 times this comment's values)
 
-# covalent radii from Gamess FF [= means double bond, + means triple bond]
-# Biassed to make bonds involving carbon come out right
-## Cl - 1.02
-## H -- 0.31
-## F -- 0.7
-## C -- 0.77 [compare to DIAMOND_BOND_LENGTH (1.544) in constants.py [bruce 051102 comment]]
-#### 1.544 is a bond length, double the covalent radius, so pretty consistent - wware 060518
-## B -- 0.8
-## S -- 1.07
-## P -- 1.08
-## Si - 1.11
-## O -- 0.69
-## N -- 0.73
+    # covalent radii from Gamess FF [= means double bond, + means triple bond]
+    # Biassed to make bonds involving carbon come out right
+    ## Cl - 1.02
+    ## H -- 0.31
+    ## F -- 0.7
+    ## C -- 0.77 [compare to DIAMOND_BOND_LENGTH (1.544) in constants.py [bruce 051102 comment]]
+    #### 1.544 is a bond length, double the covalent radius, so pretty consistent - wware 060518
+    ## B -- 0.8
+    ## S -- 1.07
+    ## P -- 1.08
+    ## Si - 1.11
+    ## O -- 0.69
+    ## N -- 0.73
 
-## C= - 0.66
-## O= - 0.6
-## N= - 0.61
+    ## C= - 0.66
+    ## O= - 0.6
+    ## N= - 0.61
 
-## C+ - 0.6
-## N+ - 0.56
+    ## C+ - 0.6
+    ## N+ - 0.56
 
-# numbers changed below to match -- Josh 13Oct05
-# [but this is problematic; see the following string-comment -- bruce 051014]
+    # numbers changed below to match -- Josh 13Oct05
+    # [but this is problematic; see the following string-comment -- bruce 051014]
     """
-[bruce 051014 revised the comments above, and adds:]
+    [bruce 051014 revised the comments above, and adds:]
 
-Note that the covalent radii below are mainly used for two things: drawing bond
-stretch indicators, and depositing atoms. There is a basic logic bug for both
-uses: covalent radii ought to depend on bond type, but the table below is in
-terms of atom type, and the atomtype only tells you which combinations of bond
-types would be correct on an atom, not which bond is which. (And at the time an
-atom is deposited, which bond is which is often not known, especially by the
-current code which always makes single bonds.)
+    Note that the covalent radii below are mainly used for two things: drawing bond
+    stretch indicators, and depositing atoms. There is a basic logic bug for both
+    uses: covalent radii ought to depend on bond type, but the table below is in
+    terms of atom type, and the atomtype only tells you which combinations of bond
+    types would be correct on an atom, not which bond is which. (And at the time an
+    atom is deposited, which bond is which is often not known, especially by the
+    current code which always makes single bonds.)
 
-This means that no value in the table below is really correct (except for
-atomtypes which imply all bonds should have the same type, i.e. for each
-element's first atomtype), and even if we just want to pick the best compromise
-value, it's not clear how best to do that.
+    This means that no value in the table below is really correct (except for
+    atomtypes which imply all bonds should have the same type, i.e. for each
+    element's first atomtype), and even if we just want to pick the best compromise
+    value, it's not clear how best to do that.
 
-For example, a good choice for C(sp2) covalent radius (given that it's required
-to be the same for all bonds) might be one that would position the C between
-its neighbors (and position the neighbors themselves, if they are subsequently
-deposited) so that when its bond types are later changed to one of the legal
-combos (112, 1aa, or ggg), and assuming its position is then adjusted, that the
-neighbor atom positions need the least adjustment. This might be something like
-an average of the bond lengths... so it's good that 71 (in the table below) is
-between the single and double bond values of 77 and 66 (listed as 0.77 and 0.66
-in the comment above), though I'm not aware of any specific formula having been
-used to get 71. Perhaps we should adjust this value to match graphite (or
-buckytubes if those are different), but this has probably not been done.
+    For example, a good choice for C(sp2) covalent radius (given that it's required
+    to be the same for all bonds) might be one that would position the C between
+    its neighbors (and position the neighbors themselves, if they are subsequently
+    deposited) so that when its bond types are later changed to one of the legal
+    combos (112, 1aa, or ggg), and assuming its position is then adjusted, that the
+    neighbor atom positions need the least adjustment. This might be something like
+    an average of the bond lengths... so it's good that 71 (in the table below) is
+    between the single and double bond values of 77 and 66 (listed as 0.77 and 0.66
+    in the comment above), though I'm not aware of any specific formula having been
+    used to get 71. Perhaps we should adjust this value to match graphite (or
+    buckytubes if those are different), but this has probably not been done.
 
-The hardest case to accomodate is the triple bond radius (C+ in the table
-above), since this exists on C(sp) when one bond is single and one is triple
-(i.e. -C+), so the table entry for C(sp) could be a compromise between those
-values, but might as well instead just be the double bond value, since =C= is
-also a legal form for C(sp). The result is that there is no place in this table
-to put the C+ value.
-"""
+    The hardest case to accomodate is the triple bond radius (C+ in the table
+    above), since this exists on C(sp) when one bond is single and one is triple
+    (i.e. -C+), so the table entry for C(sp) could be a compromise between those
+    values, but might as well instead just be the double bond value, since =C= is
+    also a legal form for C(sp). The result is that there is no place in this table
+    to put the C+ value.
+    """
     _mendeleev = [("X",  "Singlet",      0,   0.001,  [[1, 0, None, 'sp']]), #bruce 050630 made X have atomtype name 'sp'; might revise again later
                   ("H",  "Hydrogen",     1,   1.6737, [[1, 31, onebond]]),
                   ("He", "Helium",       2,   6.646,  None),
@@ -375,7 +408,7 @@ to put the C+ value.
                   ("I",  "Iodine",      53, 132.674,  [[1, 119, onebond]]),
                   ("Xe", "Xenon",       54, 134.429,  None),
 
-                  # B-DNA PAM5 pseudo atoms (see also DIRECTIONAL_BOND_ELEMENTS below)
+                  # B-DNA PAM5 pseudo atoms (see also _DIRECTIONAL_BOND_ELEMENTS)
                   ("Ax5", "PAM5-Axis", 200, 1.0, [[4, 200, tetra4]]),
                   ("Ss5", "PAM5-Sugar", 201, 1.0, [[3, 210, flat]]),
                   ("Pl5", "PAM5-Phosphate", 202, 1.0, [[2, 210, tetra2]]),
@@ -385,7 +418,7 @@ to put the C+ value.
                   ("Sh5", "PAM5-Sugar-Hydroxyl", 206, 1.0, [[1, 210, None, 'sp']]), #bruce 070415: End->Hydroxyl per ED email
                   ("Hp5", "PAM5-Hairpin", 207, 1.0, [[2, 210, tetra2]]),
                     
-                  # B-DNA PAM3 v2 pseudo atoms (see also DIRECTIONAL_BOND_ELEMENTS below)
+                  # B-DNA PAM3 v2 pseudo atoms (see also _DIRECTIONAL_BOND_ELEMENTS)
                   ("Ax3", "PAM3-Axis", 300, 1.0, [[4, 200, tetra4]]),
                   ("Ss3", "PAM3-Sugar", 301, 1.0, [[3, 210, flat]]),
                   ("Pl3", "PAM3-Phosphate", 302, 1.0, [[2, 210, tetra2]]),
@@ -400,15 +433,15 @@ to put the C+ value.
     _eltSym2Num = {}
                   
     def __init__(self):
-        #if win: self.w = win
         if  not self._periodicTable:
-           self._createElements(self._mendeleev)
-           #bruce 050419 add public attributes to count changes
-           # to any element's color or rvdw; the only requirement is that
-           # each one changes at least once per user event which
-           # changes their respective attributes for one or more elements.
-           self.color_change_counter = 1
-           self.rvdw_change_counter = 1
+            self._createElements(self._mendeleev)
+            # bruce 050419 add public attributes to count changes
+            # to any element's color or rvdw; the only requirement is that
+            # each one changes at least once per user event which
+            # changes their respective attributes for one or more elements.
+            self.color_change_counter = 1
+            self.rvdw_change_counter = 1
+        return
            
     def _createElements(self, elmTable):
         """Create elements for all member of <elmTable>.
@@ -417,11 +450,15 @@ to put the C+ value.
         """
         prefs = prefs_context()
         for elm in elmTable:
-                rad_color = prefs.get(elm[0], self._defaultRad_Color[elm[0]])
-                el = Elem(elm[2], elm[0], elm[1], elm[3], rad_color[0], rad_color[1], elm[4])
-                self. _periodicTable[el.eltnum] = el
-                self._eltName2Num[el.name] = el.eltnum
-                self._eltSym2Num[el.symbol] = el.eltnum               
+            rad_color = prefs.get(elm[0], self._defaultRad_Color[elm[0]])
+            el = Elem(elm[2], elm[0], elm[1], elm[3], rad_color[0], rad_color[1], elm[4])
+            self. _periodicTable[el.eltnum] = el
+            self._eltName2Num[el.name] = el.eltnum
+            self._eltSym2Num[el.symbol] = el.eltnum
+            if elm[0] in _DIRECTIONAL_BOND_ELEMENTS: #bruce 071015
+                # print "_DIRECTIONAL_BOND_ELEMENTS affects", el
+                el.bonds_can_be_directional = True
+        return
     
     def _loadTableSettings(self, elSym2rad_color, changeNotFound = True ):
         """Load a table of elements rad/color setting into the current set _periodicTable. 
@@ -444,9 +481,8 @@ to put the C+ value.
                     elm.rvdw = rad_color[0]
                     elm.color = rad_color[1]
                 pass
-                    
-        #self._updateModelDisplay()
-                
+        return
+    
     def loadDefaults(self):
         """Update the elements properties in the _periodicalTable as that from _defaultRad_Color"""
         self. _loadTableSettings(self._defaultRad_Color)
@@ -477,7 +513,7 @@ to put the C+ value.
         self.color_change_counter += 1
         for elm in colTab:
             self._periodicTable[elm[0]].color = [elm[1], elm[2], elm[3]]
-        #self._updateModelDisplay()
+        return
     
     def setElemColor(self, eleNum, c):
         """Set element <eleNum> color as <c> """
@@ -532,7 +568,7 @@ to put the C+ value.
         """Return the name for element <eleNum> """
         return self._periodicTable[eleNum].name
         
-    def getElemBondCount(self, eleNum, atomtype = None): #bruce 050511 fixed for atomtype changes, added atomtype option
+    def getElemBondCount(self, eleNum, atomtype = None):
         """Return the number of open bonds for element <eleNum> (with no real bonds).
         If atomtype is provided, use that atomtype, otherwise use the default atomtype
         (i.e. assume all the open bonds should be single bonds).
@@ -552,15 +588,8 @@ to put the C+ value.
             print "Can't find element: ", eleNum
             return None
      
-    #def _updateModelDisplay(self):
-    #    """Update model display """
-    #     for mol in self.w.assy.molecules: 
-    #        mol.changeapp(1)
-        
-    #     self.w.glpane.gl_update()
-    
     def close(self):
-        ## The 'def __del__(self)' is not guranteed to be called. It is not called in my try on Windows. 
+        ## The 'def __del__(self)' is not guaranteed to be called. It is not called in my try on Windows.
         """Save color/radius preference before deleting"""
         prefs = prefs_context()
         elms = {}
@@ -573,36 +602,20 @@ to put the C+ value.
 
 # ==
 
-DIRECTIONAL_BOND_ELEMENTS = ('Ss5', 'Pl5', 'Sj5', 'Pe5', 'Sh5', 'Hp5',
-                             'Ss3', 'Pl3', 'Sj3', 'Se3', 'Sh3', 'Hp3')
-
-if debug_pref("draw PAM3 bondpoints as directional bond arrows? (next session)", 
-              Choice_boolean_False, 
-              non_debug = True,
-              prefs_key = "A9 devel/draw PAM3 singlets as arrows"):
-    
-    print "Adding 'X' (bondpoint) to DIRECTIONAL_BOND_ELEMENTS tuple."
-    
-    DIRECTIONAL_BOND_ELEMENTS = DIRECTIONAL_BOND_ELEMENTS + ('X',) # mark 071014
-        ### REVIEW: I'm not yet sure this is safe, for the various ways this is used --
-        # note the following comment, which says it's not safe. [bruce 071015 comment]
-    
-# symbols of elements which permit "directional bonds"
-# We can't include X (for Singlet == bondpoint); for why, see comments where this constant is used. [bruce 070415]
-
-# ==
-
-###Some global definitons, it's not necessary, but currently I don't want
-### to change a lot of code ---Huaicai 3/9/05
+# Some global definitions -- it's not necessary, but currently I don't want
+# to change a lot of code [Huaicai 3/9/05]
 
 PeriodicTable  = ElementPeriodicTable()
+
 Hydrogen = PeriodicTable.getElement(1)
 Carbon = PeriodicTable.getElement(6)
 Nitrogen = PeriodicTable.getElement(7)
 Oxygen = PeriodicTable.getElement(8)
+
 Singlet = PeriodicTable.getElement(0)
 
-##Test          
+# == test code
+
 if __name__ == '__main__':
         pt1 = ElementPeriodicTable()
         pt2 = ElementPeriodicTable()

@@ -48,7 +48,7 @@ from debug import print_compact_stack, compact_stack, print_compact_traceback
 import platform # for atom_debug; note that uses of atom_debug should all grab it
   # from platform.atom_debug since it can be changed at runtime
 
-from elements import DIRECTIONAL_BOND_ELEMENTS, Singlet
+from elements import Singlet
 
 # bonds, chem, and chunk form an import loop
 import chem
@@ -710,13 +710,23 @@ class Bond(BondBase, StateMixin):
         return ringQ
 
     def is_directional(self): #bruce 070415  #e this might be replaced with an auto-updated attribute, self.directional
-        """Does self have the atomtypes and bond order that make it want to have a direction?
-        Note: open bonds never count as directional, since that can lead to them getting directions
+        """
+        Does self have the atomtypes and bond order that make it want to have a direction?
+        
+        Note: before 071015, open bonds never count as directional, since that can lead to them getting directions
         which become illegal when something is deposited on them (like Ax), and can lead to an atom with
         three directional bonds but no errors (which confuses or needlessly complicates related algorithms).
+
+        Update, bruce 071015: there is experimental code [by mark 071014] enabled by debug_pref,
+        which means open bonds are sometimes directional. To make this safe, either this method
+        or its callers have to require that at most two bonds per atom are directional, for most
+        purposes. For now, I'll assume the caller does this, so that one bond's is_directional
+        value can't change except when its own elements change. Effectively this means there are
+        lower and higher level concepts of a bond being directional, which can differ. Perhaps
+        the difference can be confined to the Atom.directional_bonds method?? ### REVIEW
         """
-        if self.atom1.element.symbol in DIRECTIONAL_BOND_ELEMENTS and \
-           self.atom2.element.symbol in DIRECTIONAL_BOND_ELEMENTS:
+        if self.atom1.element.bonds_can_be_directional and \
+           self.atom2.element.bonds_can_be_directional:
             return True
         return False
 
@@ -1208,11 +1218,13 @@ class Bond(BondBase, StateMixin):
 
     # "break" is a python keyword
     def bust(self, make_bondpoints = True): #bruce 070601 added make_bondpoints feature (was effectively always True before)
-        """Destroy this bond, modifying the bonded atoms as needed
+        """
+        Destroy this bond, modifying the bonded atoms as needed
         (by adding singlets in place of this bond, in most cases (unless make_bondpoints is false) --
          note that the newly added singlets might overlap in space!),
         and invalidating the bonded molecules as needed.
-           Return the added singlets as a 2-tuple.
+
+        Return the added singlets as a 2-tuple.
         (This method is named 'bust' since 'break' is a python keyword.)
         If either atom is a singlet, kill that atom.
         (Note: as of 041115 bust is never called with either atom a singlet.
@@ -1224,7 +1236,14 @@ class Bond(BondBase, StateMixin):
         # and since not doing that would be bad, I added a note about that
         # to the docstring.
         
-        if not 'X' in DIRECTIONAL_BOND_ELEMENTS: #mark 071014 added condition; bruce 071015 not yet sure it's safe ### REVIEW
+        if not Singlet.bonds_can_be_directional:
+            # mark 071014 added condition
+            # Motivation [bruce guess 071015]: don't destroy preexisting direction info
+            # if it remains legal on an open bond. Probably a good change, once I make
+            # the other aspects of the mark 071014 changes safe. Note that rebond (which
+            # due to this change, might occur on an open bond with direction, when some new
+            # non-directional element is deposited on it) already calls changed_atoms,
+            # which clears directions if they are no longer allowed.
             self._clear_bond_direction() #bruce 070415
         x1 = self.atom1.unbond(self, make_bondpoint = make_bondpoints) # does all needed invals
         x2 = self.atom2.unbond(self, make_bondpoint = make_bondpoints)
