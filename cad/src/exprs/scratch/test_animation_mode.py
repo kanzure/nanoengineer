@@ -55,7 +55,9 @@ from test_command_PMs import ExampleCommand1_PM, PM_GroupBox, PM_DoubleSpinBox, 
 from PM.PM_CheckBox import PM_CheckBox
 
 ##from modes import *
-from modes import basicMode
+##from modes import basicMode
+from Command import Command
+
 from debug import print_compact_traceback, register_debug_menu_command
 import time, math
 
@@ -374,8 +376,9 @@ class _S_ImmutableData_Mixin(_S_Data_Mixin):
 def do_what_MainWindowUI_should_do(win):
     pass
 
-##superclass = selectAtomsMode # this works too [050528]
-superclass = basicMode
+##_superclass = selectAtomsMode # this works too [050528]
+##_superclass = basicMode
+_superclass = Command
 
 # new stuff 060218
 
@@ -948,154 +951,10 @@ class TextState(InstanceMacro):#e rename?
 
 # ==============================================================================
 
-from exprs.ExprsMeta import ExprsMeta
-from exprs.StatePlace import StatePlace
-from exprs.instance_helpers import IorE_guest_mixin
+_superclass_GM = _superclass.GraphicsMode_class
 
-class test_animation_mode(superclass, IorE_guest_mixin): # list of supers might need object if it doesn't have IorE_guest_mixin; see also __init__
-    __metaclass__ = ExprsMeta # this seems to cause no harm.
-        # Will it let us define State in here (if we generalize the implem)??
-        # probably not just yet, but we'll try it and see what errors we get.
-    transient_state = StatePlace('transient') # see if this makes State work... it's not enough --
-        # it is a formula with a compute method, and Exprs.py:273 asserts self._e_is_instance before
-        # proceeding with that. I predict self would need a lot of IorE to work here...
-    _e_is_instance = True # I predict this just gets to another exception... if it's even correct --
-        # it might be wrong to say it in the class itself!!! anyway it didn't complain about that
-        # but i was right, it then asked for _i_env_ipath_for_formula_at_index...
-        # so there is a set of things we need, to be able to support formulae like that one for transient_state,
-        # and i bet IorE is mostly that set of things, but also with support for things we don't need or even want,
-        # like child instances, call == customize, etc.
-        #
-        # So there are different ways to go: ### DECIDE:
-        # - revise State to work without transient_state [probably desirable in the long run, anyway]
-        # - make a more standalone way of defining transient_state
-        # - split IorE into the part we want here and the rest (the part we want here might be a post-mixin)
-        # - revise IorE to be safe to inherit here (as a post-mixin I guess), ie make it ask us what __call__ should do.
-        #
-        # Let's see what happens if we just inherit IorE. maybe it already works due to _e_is_instance,
-        # and if not, maybe I can override __call__ or remove __call__ alone from what I inherit.
-
-    # class constants needed by mode API
-    backgroundColor = 103/256.0, 124/256.0, 53/256.0
-    modename = 'TEST_ANIMATION'
-    default_mode_status_text = "Mode: test animation"
+class test_animation_mode_GM( _superclass_GM ):
     
-    # other class constants
-    PM_class = test_animation_mode_PM
-
-    # tracked state (specially defined instance variables)
-    # (none yet, but we want to put _in_loop here, at least)
-    # can we say: _in_loop = State(boolean, False) ?
-    # Or would that overload State too much, or use a too-generic word? ###REVIEW
-
-    ## _in_loop = False ###TODO: unset this when we're suspended due to some temp commands -- but not all??
-    _in_loop = State(bool, False)
-    cannonWidth = State(float, 2.0) ## add , _e_debug = True to see debug prints about some accesses to this state
-    
-    # initial values of instance variables
-    now = 0.0 #070813 [still used? maybe simtime has replaced it?]
-    brickpos = 2.5
-    # in superclass anyMode: propMgr = None
-
-    _please_exit_loop = False
-    _loop_start_time = 0
-    simtime = 0.0 # this is a constant between loops, and grows with real time during loops. only changed in cmd_Start. never reset.
-
-    def __init__(self, glpane):
-        "create an expr instance, to draw in addition to the model" # code copied from test_commands.py
-        super(test_animation_mode, self).__init__(glpane) # that only calls some mode's init method, not IorE.__init__,
-            # so (for now) call that separately
-        IorE_guest_mixin.__init__(self, glpane)
-        if 0:
-            # expr from test_commands - works except for resizer highlighting
-            ## expr1 = Rect(4,1,green)
-            expr1 = TextState()
-            expr2 = DraggablyBoxed(expr1, resizable = True)
-                ###BUG: resizing is projecting mouseray in the wrong way, when plane is tilted!
-                # I vaguely recall that the Boxed resizable option was only coded for use in 2D widgets,
-                # whereas some other constrained drag code is correct for 3D but not yet directly usable in Boxed.
-                # So this is just an example interactive expr, not the best way to do resizing in 3D. (Though it could be fixed.)
-            expr = expr2
-        if 0:
-            expr = Rect() # works
-        if 1:
-            expr = Image("/Users/bruce/Desktop/IMG_0560 clouds1.jpg", size = Rect())
-        
-        # note: this code is similar to expr_instance_for_imagename in confirmation_corner.py
-        ih = get_glpane_InstanceHolder(glpane)
-        index = (id(self),) # WARNING: needs to be unique, we're sharing this InstanceHolder with everything else in NE1
-        self._expr_instance = ih.Instance( expr, index, skip_expr_compare = True)
-
-        ## in Draw: add         self._expr_instance.draw()
-
-        if TESTING_KLUGES:
-            self.clear() ###### FOR TESTING
-            print "clear in init, testing kluge"####
-
-        return
-
-    def clear(self):
-        "(part of mode API)"
-        self.cmd_Stop()
-        if TESTING_KLUGES:
-            print "KLUGE FOR TESTING: set cannonWidth in cmd_Stop"
-            self.cannonWidth = 2.0########### DOES IT FIX THE BUG? THEN ZAP.
-        ## this line seems to mess up the reload of test_animation_mode when i reenter it when in itself:
-        ## super(test_animation_mode, self).clear()
-        return
-    
-    def Enter(self):
-        print
-        print "entering test_animation_mode again", time.asctime()
-        self.assy = self.w.assy
-        hacktrack(self.glpane)
-        hack_standard_repaint_0(self.glpane, self.pre_repaint)
-        self.glpane.pov = V(0,0,0)
-        self.glpane.quat = Q(1,0,0,0) + Q(V(1,0,0),10.0 * pi/180)
-        print "self.glpane.scale =", self.glpane.scale # 10 -- or 10.0?
-        self.glpane.scale = 20.0 #### 070813 # note: using 20 (int not float) may have caused AssertionError:
-            ## in GLPane.py 3473 in typecheckViewArgs
-            ## assert isinstance(s2, float)
-        
-        print "self.glpane.scale changed to", self.glpane.scale
-        self.right = V(1,0,0) ## self.glpane.right
-        self.up = V(0,1,0)
-        self.left = - self.right
-        self.down = - self.up
-        self.away = V(0,0,-1)
-        self.towards = - self.away
-        self.origin = - self.glpane.pov ###k replace with V(0,0,0)
-        self.guy = guy(self)
-        self.cannon = cannon(self)
-        
-        ##self.glbufstates = [0,0] # 0 = unknown, number = last drawn model state number
-        self.modelstate = 1
-        # set perspective view -- no need, just do it in user prefs
-        return superclass.Enter(self)
-    
-    def init_gui(self): #050528
-        ## self.w.modifyToolbar.hide()
-        self.hidethese = hidethese = []
-        for tbname in annoyers:
-            try:
-                tb = getattr(self.w, tbname)
-                if tb.isVisible(): # someone might make one not visible by default
-                    tb.hide()
-                    hidethese.append(tb) # only if hiding it was needed and claims it worked
-            except:
-                print_compact_traceback("hmm %s: " % tbname) # someone might rename one of them
-
-        win = self.win
-        self.propMgr = self.PM_class(win, commandrun = self)
-        self.propMgr.show()
-
-    def restore_gui(self): #050528
-        ## self.w.modifyToolbar.show()
-        for tb in self.hidethese:
-            tb.show()
-
-        self.propMgr.hide()
-        
     def leftDown(self,event):
         pass
     def leftDrag(self,event):
@@ -1106,7 +965,7 @@ class test_animation_mode(superclass, IorE_guest_mixin): # list of supers might 
     def middleDrag(self, event):
         glpane = self.glpane
 ##        q1 = Q(glpane.quat)
-        superclass.middleDrag(self, event)
+        _superclass_GM.middleDrag(self, event)
         self.command.modelstate += 1
 ##        q2 = Q(glpane.quat)
         novertigo(glpane)
@@ -1116,15 +975,15 @@ class test_animation_mode(superclass, IorE_guest_mixin): # list of supers might 
 
     def pre_repaint(self):
         "This is called early enough in paintGL to have a chance (unlike Draw) to update the point of view."
-        if self.isCurrentGraphicsMode() and self._in_loop:
+        if self.isCurrentGraphicsMode() and self.command._in_loop:
             ## self.glpane.quat += Q(V(0,0,1),norm(V(0,0.01,0.99)))
             ## now = time.time() - self._loop_start_time
             now = self.command.simtime
-            self.now = now
+            self.now = now # not used??
             if cannon_oscillates():
-                self.brickpos = 2.5 + 0.7 * math.sin(now * 2 * pi)
+                self.command.brickpos = 2.5 + 0.7 * math.sin(now * 2 * pi)
             else:
-                self.brickpos = 2.5
+                self.command.brickpos = 2.5
             self.set_cov()
         return
 
@@ -1132,7 +991,7 @@ class test_animation_mode(superclass, IorE_guest_mixin): # list of supers might 
             # not that i know what would fail if not.
         return ######
         try:
-            space = self # or self.command if this method is in the GraphicsMode -- ### FIX if necessary
+            space = self.command # since this method is in the GraphicsMode
             glpane = self.glpane
             cov = - glpane.pov # center of view, ie what camera is looking at
             guy_offset = space.guy.pos - cov
@@ -1208,15 +1067,6 @@ class test_animation_mode(superclass, IorE_guest_mixin): # list of supers might 
             pass
         return
 
-    def placenode(self, node): # TODO: in Command, not GraphicsMode
-        "place newly made node somewhere in the MT"
-        # modified from Part.place_new_jig
-        part = self.assy.part
-        part.ensure_toplevel_group()
-        part.topnode.addchild(node) # order? later ones come below earlier ones, which is good.
-        self.w.mt.mt_update()
-        return
-
     def Draw(self):
 ##        ##print "test_animation_mode.Draw"
 
@@ -1225,9 +1075,10 @@ class test_animation_mode(superclass, IorE_guest_mixin): # list of supers might 
 ##        # can we use smth lke mousepoints to print model coords of eyeball?
 ##        print "glpane says eyeball is now at", glpane.eyeball(), "and cov at", - glpane.pov, " ." ####@@@@
         ## basicMode.Draw(self)
-        superclass.Draw(self)
-        self.endpoint = endpoint = self.origin + self.right * 10.0
-        drawline(white, self.origin, endpoint)
+        _superclass_GM.Draw(self)
+        origin = self.command.origin
+        endpoint = origin + self.command.right * 10.0
+        drawline(white, origin, endpoint)
 
         self.command.cannon.draw()
 
@@ -1235,17 +1086,10 @@ class test_animation_mode(superclass, IorE_guest_mixin): # list of supers might 
         ## thing.draw(glpane, endpoint)
         self.command.guy.draw(glpane)
         ## draw_debug_quats(glpane)
-        self._expr_instance.draw() #070813 - works, but resizer highlight doesn't work, didn't investigate why not ###BUG
+        self.command._expr_instance.draw() #070813 - works, but resizer highlight doesn't work, didn't investigate why not ###BUG
 
-        if self.propMgr:
-            self.propMgr.update_after_Draw()
-        return
-
-    def appendnew(self, new): ##FIX: stores object list (really a dict) in self.guy [if this is Command, or self.command.guy if not###FIX]
-        stuff = self.guy.stuff
-        ## stuff.append(new) # it's a list
-        stuff[id(new)] = new # it's a dict
-        ## print "appendnew: %d things" % len(stuff) # test culling of old things -- works
+        if self.command.propMgr:
+            self.command.propMgr.update_after_Draw()
         return
 
     def keyPressEvent(self, event):
@@ -1255,7 +1099,7 @@ class test_animation_mode(superclass, IorE_guest_mixin): # list of supers might 
 ##            self.cmd_Stop()
         if key == 32 or key == ord('S'): # note: 32 doesn't work, gets caught at some earlier stage and makes an orientation window
                 ### note: ord('s') does not work... 83 is presumably the ascii code of 'S', not 's'
-            self.cmd_Stop()
+            self.command.cmd_Stop()
         ## if not self.what_has_our_focus: # can this be a single floor tile? or only the entire floor?
             # note that the focus is like the "character" in a game...camera should follow it through 3d space...
             # and it might have a dir, not just be an object... it might be a guy *near* the object.
@@ -1274,6 +1118,189 @@ class test_animation_mode(superclass, IorE_guest_mixin): # list of supers might 
             
         ## self.incrkluge = thing.keyPressEvent(event)
         self.redraw()
+    
+    def keyReleaseEvent(self,event):
+        pass ## thing.keyReleaseEvent(event)
+
+    def redraw(self):
+        #e could be optimized if nothing but typing, and no DEL, occurred!
+        self.command.modelstate += 1
+        ##bruce 050528 zapped this: self.glpane.paintGL() - do it this newer way now:
+        self.glpane.gl_update()
+
+    pass # end of class test_animation_mode_GM
+
+# ========
+
+from exprs.ExprsMeta import ExprsMeta
+from exprs.StatePlace import StatePlace
+from exprs.instance_helpers import IorE_guest_mixin
+
+class test_animation_mode(_superclass, IorE_guest_mixin): # list of supers might need object if it doesn't have IorE_guest_mixin; see also __init__
+    __metaclass__ = ExprsMeta # this seems to cause no harm.
+        # Will it let us define State in here (if we generalize the implem)??
+        # probably not just yet, but we'll try it and see what errors we get.
+    transient_state = StatePlace('transient') # see if this makes State work... it's not enough --
+        # it is a formula with a compute method, and Exprs.py:273 asserts self._e_is_instance before
+        # proceeding with that. I predict self would need a lot of IorE to work here...
+    _e_is_instance = True # I predict this just gets to another exception... if it's even correct --
+        # it might be wrong to say it in the class itself!!! anyway it didn't complain about that
+        # but i was right, it then asked for _i_env_ipath_for_formula_at_index...
+        # so there is a set of things we need, to be able to support formulae like that one for transient_state,
+        # and i bet IorE is mostly that set of things, but also with support for things we don't need or even want,
+        # like child instances, call == customize, etc.
+        #
+        # So there are different ways to go: ### DECIDE:
+        # - revise State to work without transient_state [probably desirable in the long run, anyway]
+        # - make a more standalone way of defining transient_state
+        # - split IorE into the part we want here and the rest (the part we want here might be a post-mixin)
+        # - revise IorE to be safe to inherit here (as a post-mixin I guess), ie make it ask us what __call__ should do.
+        #
+        # Let's see what happens if we just inherit IorE. maybe it already works due to _e_is_instance,
+        # and if not, maybe I can override __call__ or remove __call__ alone from what I inherit.
+
+    # class constants needed by mode API
+    backgroundColor = 103/256.0, 124/256.0, 53/256.0
+    modename = 'TEST_ANIMATION'
+    default_mode_status_text = "Mode: test animation"
+    
+    # other class constants
+    PM_class = test_animation_mode_PM
+
+    GraphicsMode_class = test_animation_mode_GM
+
+    # tracked state (specially defined instance variables)
+    # (none yet, but we want to put _in_loop here, at least)
+    # can we say: _in_loop = State(boolean, False) ?
+    # Or would that overload State too much, or use a too-generic word? ###REVIEW
+
+    ## _in_loop = False ###TODO: unset this when we're suspended due to some temp commands -- but not all??
+    _in_loop = State(bool, False)
+    cannonWidth = State(float, 2.0) ## add , _e_debug = True to see debug prints about some accesses to this state
+    
+    # initial values of instance variables
+    now = 0.0 #070813 [still used? maybe simtime has replaced it?]
+    brickpos = 2.5
+    # in _superclass anyMode: propMgr = None
+
+    _please_exit_loop = False
+    _loop_start_time = 0
+    simtime = 0.0 # this is a constant between loops, and grows with real time during loops. only changed in cmd_Start. never reset.
+
+    def __init__(self, glpane):
+        "create an expr instance, to draw in addition to the model" # code copied from test_commands.py
+        super(test_animation_mode, self).__init__(glpane) # that only calls some mode's init method, not IorE.__init__,
+            # so (for now) call that separately
+        IorE_guest_mixin.__init__(self, glpane)
+        if 0:
+            # expr from test_commands - works except for resizer highlighting
+            ## expr1 = Rect(4,1,green)
+            expr1 = TextState()
+            expr2 = DraggablyBoxed(expr1, resizable = True)
+                ###BUG: resizing is projecting mouseray in the wrong way, when plane is tilted!
+                # I vaguely recall that the Boxed resizable option was only coded for use in 2D widgets,
+                # whereas some other constrained drag code is correct for 3D but not yet directly usable in Boxed.
+                # So this is just an example interactive expr, not the best way to do resizing in 3D. (Though it could be fixed.)
+            expr = expr2
+        if 0:
+            expr = Rect() # works
+        if 1:
+            expr = Image("/Users/bruce/Desktop/IMG_0560 clouds1.jpg", size = Rect())
+        
+        # note: this code is similar to expr_instance_for_imagename in confirmation_corner.py
+        ih = get_glpane_InstanceHolder(glpane)
+        index = (id(self),) # WARNING: needs to be unique, we're sharing this InstanceHolder with everything else in NE1
+        self._expr_instance = ih.Instance( expr, index, skip_expr_compare = True)
+
+        ## in Draw: add         self._expr_instance.draw()
+
+        if TESTING_KLUGES:
+            self.clear() ###### FOR TESTING
+            print "clear in init, testing kluge"####
+
+        return
+
+    def clear(self):
+        "(part of mode API)"
+        self.cmd_Stop()
+        if TESTING_KLUGES:
+            print "KLUGE FOR TESTING: set cannonWidth in cmd_Stop"
+            self.cannonWidth = 2.0########### DOES IT FIX THE BUG? THEN ZAP.
+        ## this line seems to mess up the reload of test_animation_mode when i reenter it when in itself:
+        ## super(test_animation_mode, self).clear()
+        return
+    
+    def Enter(self):
+        print
+        print "entering test_animation_mode again", time.asctime()
+        self.assy = self.w.assy
+        hacktrack(self.glpane)
+        hack_standard_repaint_0(self.glpane, self.graphicsMode.pre_repaint)
+            # KLUGE -- this ought to be part of an Enter_GraphicsMode method...
+            # there was something like that in one of those Pan/Rotate/Zoom classes too...
+            # need to find those and decide when to call a method like that.
+        self.glpane.pov = V(0,0,0)
+        self.glpane.quat = Q(1,0,0,0) + Q(V(1,0,0),10.0 * pi/180)
+        print "self.glpane.scale =", self.glpane.scale # 10 -- or 10.0?
+        self.glpane.scale = 20.0 #### 070813 # note: using 20 (int not float) may have caused AssertionError:
+            ## in GLPane.py 3473 in typecheckViewArgs
+            ## assert isinstance(s2, float)
+        
+        print "self.glpane.scale changed to", self.glpane.scale
+        self.right = V(1,0,0) ## self.glpane.right
+        self.up = V(0,1,0)
+        self.left = - self.right
+        self.down = - self.up
+        self.away = V(0,0,-1)
+        self.towards = - self.away
+        self.origin = - self.glpane.pov ###k replace with V(0,0,0)
+        self.guy = guy(self)
+        self.cannon = cannon(self)
+        
+        ##self.glbufstates = [0,0] # 0 = unknown, number = last drawn model state number
+        self.modelstate = 1
+        # set perspective view -- no need, just do it in user prefs
+        return _superclass.Enter(self)
+    
+    def init_gui(self): #050528
+        ## self.w.modifyToolbar.hide()
+        self.hidethese = hidethese = []
+        for tbname in annoyers:
+            try:
+                tb = getattr(self.w, tbname)
+                if tb.isVisible(): # someone might make one not visible by default
+                    tb.hide()
+                    hidethese.append(tb) # only if hiding it was needed and claims it worked
+            except:
+                print_compact_traceback("hmm %s: " % tbname) # someone might rename one of them
+
+        win = self.win
+        self.propMgr = self.PM_class(win, commandrun = self)
+        self.propMgr.show()
+
+    def restore_gui(self): #050528
+        ## self.w.modifyToolbar.show()
+        for tb in self.hidethese:
+            tb.show()
+
+        self.propMgr.hide()
+
+# not used now, but keep (was used to append DebugNodes):
+##    def placenode(self, node):
+##        "place newly made node somewhere in the MT"
+##        # modified from Part.place_new_jig
+##        part = self.assy.part
+##        part.ensure_toplevel_group()
+##        part.topnode.addchild(node) # order? later ones come below earlier ones, which is good.
+##        self.w.mt.mt_update()
+##        return
+
+    def appendnew(self, new): ##FIX: stores object list (really a dict) in self.guy
+        stuff = self.guy.stuff
+        ## stuff.append(new) # it's a list
+        stuff[id(new)] = new # it's a dict
+        ## print "appendnew: %d things" % len(stuff) # test culling of old things -- works
+        return
 
     def rotleft(self, amount):
         "#doc is in caller"
@@ -1282,17 +1309,8 @@ class test_animation_mode(superclass, IorE_guest_mixin): # list of supers might 
         self.glpane.quat += Q(self.down, amount * 2 * pi) # does something, but not yet what i want. need to transform to my model...###@@@
         ## self.redraw() - do in caller
         
-    def redraw(self):
-        #e could be optimized if nothing but typing, and no DEL, occurred!
-        self.command.modelstate += 1
-        ##bruce 050528 zapped this: self.glpane.paintGL() - do it this newer way now:
-        self.glpane.gl_update()
-    
-    def keyReleaseEvent(self,event):
-        pass ## thing.keyReleaseEvent(event)
-
     def makeMenus(self):
-        superclass.makeMenus(self)
+        _superclass.makeMenus(self)
         self.Menu_spec = [
             ('loop', self.cmd_Start),
          ]
