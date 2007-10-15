@@ -1136,6 +1136,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             
             # Set the axis and arrow radius.
             if self.element is Singlet and 'X' in DIRECTIONAL_BOND_ELEMENTS:
+                # mark 071014 (prior code was equivalent to else case)
                 if dispdef == diTUBES:
                     axis = out * drawrad * 1.5
                     arrowRadius = drawrad * 3
@@ -1149,7 +1150,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 axis = out * drawrad
                 arrowRadius = drawrad * 2
                     
-            # the following cone dimensions enclose the original sphere (and therefore the bond-cylinder end too):
+            # the following cone dimensions enclose the original sphere (and therefore the bond-cylinder end too)
+            # (when axis and arrowRadius have their default values above -- not sure if this remains true after [mark 071014]):
             # cone base at pos - axis, radius = 2 * drawrad, cone midplane (radius = drawrad) at pos + axis,
             # thus cone tip at pos + 3 * axis.
             # WARNING: this cone would obscure the wirespheres, except for special cases in self.draw_wirespheres().

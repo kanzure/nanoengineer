@@ -1224,7 +1224,7 @@ class Bond(BondBase, StateMixin):
         # and since not doing that would be bad, I added a note about that
         # to the docstring.
         
-        if not 'X' in DIRECTIONAL_BOND_ELEMENTS:
+        if not 'X' in DIRECTIONAL_BOND_ELEMENTS: #mark 071014 added condition; bruce 071015 not yet sure it's safe ### REVIEW
             self._clear_bond_direction() #bruce 070415
         x1 = self.atom1.unbond(self, make_bondpoint = make_bondpoints) # does all needed invals
         x2 = self.atom2.unbond(self, make_bondpoint = make_bondpoints)

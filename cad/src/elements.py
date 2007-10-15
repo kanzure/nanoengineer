@@ -576,15 +576,16 @@ to put the C+ value.
 DIRECTIONAL_BOND_ELEMENTS = ('Ss5', 'Pl5', 'Sj5', 'Pe5', 'Sh5', 'Hp5',
                              'Ss3', 'Pl3', 'Sj3', 'Se3', 'Sh3', 'Hp3')
 
-if debug_pref("draw PAM3 singlets as directional bond arrows? (next session)", 
+if debug_pref("draw PAM3 bondpoints as directional bond arrows? (next session)", 
               Choice_boolean_False, 
               non_debug = True,
               prefs_key = "A9 devel/draw PAM3 singlets as arrows"):
     
-    print "Adding 'X' (singlet) to DIRECTIONAL_BOND_ELEMENTS tuple."
+    print "Adding 'X' (bondpoint) to DIRECTIONAL_BOND_ELEMENTS tuple."
     
-    DIRECTIONAL_BOND_ELEMENTS = ('Ss5', 'Pl5', 'Sj5', 'Pe5', 'Sh5', 'Hp5',
-                                 'Ss3', 'Pl3', 'Sj3', 'Se3', 'Sh3', 'Hp3', 'X')
+    DIRECTIONAL_BOND_ELEMENTS = DIRECTIONAL_BOND_ELEMENTS + ('X',) # mark 071014
+        ### REVIEW: I'm not yet sure this is safe, for the various ways this is used --
+        # note the following comment, which says it's not safe. [bruce 071015 comment]
     
 # symbols of elements which permit "directional bonds"
 # We can't include X (for Singlet == bondpoint); for why, see comments where this constant is used. [bruce 070415]
