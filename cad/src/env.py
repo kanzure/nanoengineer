@@ -61,6 +61,13 @@ __author__ = 'bruce'
 
 _mainWindow = None
 
+
+# Initialize the 'prefs' value. It is redefined in preference.py
+# see preferences.init_prefs_table for details. 
+# Initializing it here, should fix this error that pylint output shows in  
+# a number of files -- " 'Module 'env' has no 'prefs' member"  
+prefs = None
+
 def setMainWindow(window):
     """
     Set the value which will be returned by env.mainwindow().  Called
