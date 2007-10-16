@@ -57,6 +57,7 @@ from constants import red
 from constants import blue
 from constants import black
 from constants import white
+from constants import orange
 
 from bond_constants import V_SINGLE
 from bond_constants import V_DOUBLE
@@ -257,25 +258,81 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, povfile = None,
     shorten_tubes = highlighted
 
     dir_info = (0, False) # usual case for non-directional bonds; draws nothing; change this below if necessary
-    if self._direction or self.is_directional(): #bruce 070415
-        #e we should speed up the latter test for this use, or remove it.
-        # we might want to show this bond's direction, or the lack of it.
-        ###BUG (possible): changing this debug_pref fails to redraw internal bonds accordingly (tho fine for external bonds).
-        # This is as if it's not usage tracked by the chunk display list compile,
-        # or as if the change to it via the debug menu is not change tracked.
-        # Workaround (not very convenient): Undo past where you created the DNA, and redo.
-        # Or, probably, just change the chunk display style.
-        # The bug is not always repeatable: I changed display to cpk (all arrows gone, finally correct),
-        # then back to tubes, then turned arrows on, and this time they all showed up, and again as I try off/on.
-        # Maybe it was an artifact of reloading this code??
-        
-        #ninad070504: added the bond arrows preferences to Preferences dialog. 
-        #using this preference key instead of debug preference.
-        
-        bool_arrowsOnAll = env.prefs[arrowsOnBackBones_prefs_key]
-        
-        if bool_arrowsOnAll:
-            dir_info = (self.bond_direction_from(self.atom1), self.is_directional())
+    direction_error = False # change below if necessary
+    
+    if self._direction: #bruce 070415, revised 071016
+        # We might want to show this bond's direction, or (someday)
+        # its ability to have one. Figure out what to actually show.
+
+        if not self.is_directional():
+            direction_error = True
+            # but no sensible way to set dir_info, so leave it as default,
+            # partly to avoid other errors in the else case
+            # which assumes the bond is directional.
+        else:
+            # apply this general pref test first, to be faster when it's turned off.
+            
+            # ninad070504: added the bond arrows preferences to Preferences dialog. 
+            # using this preference key instead of debug preference.
+                    
+                ### POSSIBLE BUG (by experience, not understood in code, not always repeatable):
+                # changing this debug_pref [back when the following prefs were debug_prefs]
+                # fails to redraw internal bonds accordingly (tho fine for external bonds).
+                # This is as if it's not usage tracked by the chunk display list compile,
+                # or as if the change to it via the debug menu is not change tracked.
+                # Workaround (not very convenient): Undo past where you created the DNA, and redo.
+                # Or, probably, just change the chunk display style.
+                # The bug is not always repeatable: I changed display to cpk (all arrows gone, finally correct),
+                # then back to tubes, then turned arrows on, and this time they all showed up, and again as I try off/on.
+                # Maybe it was an artifact of reloading this code??
+                # [bruce 070415]
+                # update, bruce 071016: could it have been simply that debug_prefs are not change_tracked?
+                # I am not sure, but IIRC, they're not.
+    
+            bool_arrowsOnAll = env.prefs[arrowsOnBackBones_prefs_key]
+
+            if bool_arrowsOnAll:
+                # draw arrow on bond unless there is some reason not to.
+
+# probably not this way -- remove if confirmed, or make the atom method non-private if we keep it: [bruce 071016]
+##                # if either atom will look like an arrowhead,
+##                # we don't want the bond to bond to have its own arrowhead.
+##                # [bruce 071016, requested by mark]
+##                ### REVIEW: is this true even if there's a bond direction error to indicate?
+##                ### REVIEW: is this still correct, if those are non-arrows due to prefs
+##                # rather than due to atom.strand_end_bond()? If so, fix by
+##                # replacing these tests with calls to strand_end_bond.
+##                if self.atom1._draw_atom_style().startswith('arrowhead') or \
+##                   self.atom2._draw_atom_style().startswith('arrowhead'):
+##                    pass
+##                else:
+##                    dir_info = (self.bond_direction_from(self.atom1), self.is_directional())
+##                pass
+
+                # If either atom will look like an arrowhead (before prefs are applied) --
+                # i.e. if either one is a strand_end -- we don't want the bond to have its
+                # own arrowhead.
+                # [bruce 071016, requested by mark]
+                #
+                # Exception (needs REVIEW): don't turn off self's arrow
+                # if one of its atoms has a strand end bond which is not self,
+                # since this might be an error we need to fully show. In that
+                # case, set direction_error = True.
+                ### REVIEW: are there other bond direction errors we need to
+                # indicate as well?
+                bond1 = self.atom1.strand_end_bond()
+                bond2 = self.atom2.strand_end_bond()
+                if bond1 is not None and bond1 is not self:
+                    direction_error = True
+                if bond2 is not None and bond2 is not self:
+                    direction_error = True
+                if (bond1 is self or bond2 is self) and not direction_error:
+                    pass
+                else:
+                    dir_info = (self.bond_direction_from(self.atom1), True)
+                pass
+
+            pass
         pass
     
     # do calcs common to all bond-cylinders for multi-cylinder bonds
@@ -293,6 +350,14 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, povfile = None,
 ##        if self not in self.atom2.bonds:
 ##            color2 = orange
     bondcolor = col or None ## if None, we look up the value when it's used [bruce 050805]
+
+    if direction_error:
+        bondcolor = orange
+        #bruce 071016 (tentative -- needs mouseover msg, as said above)
+        # (TODO: we could set an error message string on self, but set it to None
+        #  whenever not setting the error color; since this is done whenever self
+        #  is redrawn, it will always be up to date when highlighting or tooltip
+        #  happens.)
    
     v1 = atom1.display != diINVISIBLE
     v2 = atom2.display != diINVISIBLE

@@ -101,7 +101,20 @@ def bond_menu_section(bond, quat = Q(1,0,0,0)):
     res = []
     res.append(( bonded_atoms_summary(bond, quat = quat), noop, 'disabled' ))
     res.extend( bond_type_menu_section(bond) )
-    if bond.is_directional(): #bruce 070415; preliminary version
+    if bond.is_directional():
+        ### REVIEW: Do we want to do this for open bonds, after mark's 071014 change
+        # which allows them here? Or do we want "and not bond.is_open_bond()"?
+        # (BTW, I'm not sure this gets called at all, for open bonds.)
+        # Guess: open bonds would be safe here, so allow them, though I'm
+        # not sure it's always a good idea. Caveat: if we treat them as non-directional
+        # when the base atom has three or more directional bonds, we should probably
+        # make that exception here too -- probably using a higher-level method in place
+        # of is_directional, namely directional_bond_chain_status for both atoms in bond.
+        # We'd want a new method on bond to call that for both atoms and look at the
+        # results (perhaps there's already code like that elsewhere). Without this,
+        # we may get a bug if a user can try to change direction on an open bond
+        # that hits a strand but is not in it. But since I suspect the UI never allows
+        # an open bond here, I won't bother to write that code just yet. [bruce 071016]
         submenu_contents = bond_direction_submenu_contents(bond, quat)
         left_atom = bond_left_atom(bond, quat) # same one that comes first in bonded_atoms_summary
             #e ideally, for mostly vertical bonds, we'd switch to an up/down distinction for the menu text about directions

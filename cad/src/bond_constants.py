@@ -80,6 +80,16 @@ for v6 in BOND_VALENCES:
 BOND_MIN_VALENCES[V_UNKNOWN] = 1.0 # guess, not yet used
 BOND_MAX_VALENCES[V_UNKNOWN] = 3.0 # ditto
 
+# constants returned as statuscode by Atom.directional_bond_chain_status()
+# [bruce 071016]
+DIRBOND_CHAIN_MIDDLE = 'middle'
+DIRBOND_CHAIN_END = 'end'
+DIRBOND_NONE = None
+DIRBOND_ERROR = 'error'
+
+# ==
+
+
 def min_max_valences_from_v6(v6):
     return BOND_MIN_VALENCES[v6], BOND_MAX_VALENCES[v6]
 
@@ -215,7 +225,6 @@ def bond_params(atomtype1, atomtype2, v6): #bruce 060324 for bug 900
 def _compute_bond_params(atomtype1, atomtype2, v6):
     "[private helper function for bond_params]"
     # this doesn't need to be fast, since its results for given arguments are cached for the entire session
-    import platform
     import env
     from debug import print_compact_traceback    
     # (note: as of 041217 rcovalent is always a number; it's 0.0 for Helium,

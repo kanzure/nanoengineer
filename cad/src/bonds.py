@@ -61,6 +61,11 @@ from bond_constants import bond_params
 from bond_constants import bonded_atoms_summary
 from bond_constants import bond_type_names
 
+from bond_constants import DIRBOND_CHAIN_MIDDLE
+from bond_constants import DIRBOND_CHAIN_END
+from bond_constants import DIRBOND_NONE
+from bond_constants import DIRBOND_ERROR
+
 import bond_updater
 import env
 
@@ -675,7 +680,8 @@ class Bond(BondBase, StateMixin):
         # like bond_updater to do this in a batch manner from a global dictionary of changed bonds. That's ok for now. #e]
         dict1 = {}
         def collect(atom):
-            dict1[id(atom)] = atom
+            mol = atom.molecule #bruce 071016 optim - only collect the mols
+            dict1[id(mol)] = mol
         for atom in (self.atom1, self.atom2):
             for bond in atom.bonds:
                 #e don't bother checking bond.is_directional(), just catch them all,
@@ -685,10 +691,11 @@ class Bond(BondBase, StateMixin):
                 # by whatever draws the atoms (handled by the changeapp calls below).
                 collect(bond.atom1)
                 collect(bond.atom2)
-        for atom in dict1.itervalues():
-            atom.molecule.changeapp(0) # why is this not an Atom method?
+        for mol in dict1.itervalues():
+            mol.changeapp(0)
             #e need to call anything else?
-            # What about atom._changed_structure? I think it's not related.
+            # What about atom._changed_structure (for which we'd need to collect
+            # the individual atoms)? I think it's not related.
         return
 
     def propogate_bond_direction_towards(self, atom): #bruce 070414
@@ -711,19 +718,23 @@ class Bond(BondBase, StateMixin):
 
     def is_directional(self): #bruce 070415  #e this might be replaced with an auto-updated attribute, self.directional
         """
-        Does self have the atomtypes and bond order that make it want to have a direction?
+        Does self have the atomtypes that make it want to have a direction?
+        (We assume this property is independent of bond order,
+        so that changing self's bond order needn't update it.)
         
-        Note: before 071015, open bonds never count as directional, since that can lead to them getting directions
+        Note: before 071015, open bonds never counted as directional, since that can lead to them getting directions
         which become illegal when something is deposited on them (like Ax), and can lead to an atom with
         three directional bonds but no errors (which confuses or needlessly complicates related algorithms).
 
         Update, bruce 071015: there is experimental code [by mark 071014] enabled by debug_pref,
-        which means open bonds are sometimes directional. To make this safe, either this method
+        which means open bonds are sometimes directional. That code is likely to become the usual
+        case soon. To make that code safe, either this method
         or its callers have to require that at most two bonds per atom are directional, for most
         purposes. For now, I'll assume the caller does this, so that one bond's is_directional
         value can't change except when its own elements change. Effectively this means there are
-        lower and higher level concepts of a bond being directional, which can differ. Perhaps
-        the difference can be confined to the Atom.directional_bonds method?? ### REVIEW
+        lower and higher level concepts of a bond being directional, which can differ. For now,
+        each caller implements the high-level case, but most or all of those are channelled
+        through one caller, Atom.directional_bond_chain_status().
         """
         if self.atom1.element.bonds_can_be_directional and \
            self.atom2.element.bonds_can_be_directional:
@@ -1238,12 +1249,18 @@ class Bond(BondBase, StateMixin):
         
         if not Singlet.bonds_can_be_directional:
             # mark 071014 added condition
-            # Motivation [bruce guess 071015]: don't destroy preexisting direction info
+            # bruce comment 071016: the following comment by me
+            # (and perhaps this code change by mark)
+            # might be completely wrong, since I am now thinking
+            # that the remaining bonds are all-new (created by unbond).
+            # ### REVIEW that, and until then, don't trust the following comment or this code:
+            # Motivation [bruce guess 071015 -- should ask mark ###]: don't destroy preexisting direction info
             # if it remains legal on an open bond. Probably a good change, once I make
             # the other aspects of the mark 071014 changes safe. Note that rebond (which
             # due to this change, might occur on an open bond with direction, when some new
             # non-directional element is deposited on it) already calls changed_atoms,
             # which clears directions if they are no longer allowed.
+            ### TODO: copy direction onto the newly created bonds to x1 and x2.
             self._clear_bond_direction() #bruce 070415
         x1 = self.atom1.unbond(self, make_bondpoint = make_bondpoints) # does all needed invals
         x2 = self.atom2.unbond(self, make_bondpoint = make_bondpoints)
@@ -1560,19 +1577,61 @@ def grow_bond_chain(bond, atom, next_bond_in_chain): #bruce 070415; generalized 
     pass
 
 def grow_directional_bond_chain(bond, atom): #bruce 070415
-    "Grow a chain of directional bonds. For details, see docstring of grow_bond_chain."
+    """
+    Grow a chain of directional bonds. For details, see docstring of grow_bond_chain.
+    """
     return grow_bond_chain(bond, atom, next_directional_bond_in_chain)
 
-def next_directional_bond_in_chain(bond, atom): #bruce 070415
+def next_directional_bond_in_chain(bond, atom):
+    """
+    Assuming bond is in a chain of directional bonds,
+    being traversed towards atom (one of bond's atoms),
+    return the next bond in the chain if there is one,
+    or None if there is not one (due to an error,
+    such as the chain branching, or due to the chain ending).
+
+    For some errors, print error messages (this behavior needs REVIEW)
+    and return None.
+    """
+    #bruce 070415, revised 071016; should be ok with or without open bonds being directional
     assert bond.is_directional()
-    bonds = filter(lambda bond1: bond1 is not bond and bond1.is_directional(), atom.bonds)
-    assert len(bonds) <= 1, "atom %r has more than two directional bonds: %r and %r" % (atom, bond, bonds)
-    if len(bonds) == 1:
-        return bonds[0]
-    return None
-
-# [bruce 050502 moved bond_at_singlets from chunk.py to here]
-
+    # note, as of mark 071014, atom might be a Singlet
+    statuscode, bond1, bond2 = atom.directional_bond_chain_status()
+    if statuscode == DIRBOND_CHAIN_MIDDLE:
+        assert bond1
+        assert bond2
+        if bond is bond1:
+            return bond2
+        elif bond is bond2:
+            return bond1
+        else:
+            # error -- REVIEW: how should we report it? not sure, so print them for now.
+            # anyway, stop propogating the chain on any error (ie return None).
+            print "error or bug: atom %r has directional bond %r reaching chain containing %r and %r" % \
+                  (atom, bond, bond1, bond2)
+            return None
+        pass
+    elif statuscode == DIRBOND_CHAIN_END:
+        assert bond1
+        assert bond2 is None
+        if bond is not bond1:
+            print "error or bug: atom %r has directional bond %r different than chain-end bond %r" % \
+                  (atom, bond, bond1)
+        return None
+    elif statuscode == DIRBOND_NONE:
+        print "bug: atom %r has directional bond %r but directional_bond_chain_status of DIRBOND_NONE" % \
+              (atom, bond)
+        return None
+    elif statuscode == DIRBOND_ERROR:
+        print "error: atom %r with directional bond %r has directional_bond_chain_status of DIRBOND_ERROR" % \
+              (atom, bond)
+        return None
+    else:
+        assert 0, "bug: atom %r with directional bond %r has unrecognized directional_bond_chain_status %r" % \
+               (atom, bond, statuscode)
+        return None
+    pass
+    
 def bond_at_singlets(s1, s2, **opts):
     """[Public function; does all needed invalidations.]
     s1 and s2 are singlets; make a bond between their real atoms in

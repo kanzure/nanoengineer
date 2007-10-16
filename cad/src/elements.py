@@ -31,9 +31,13 @@ from debug_prefs import debug_pref, Choice_boolean_False
 
 # ==
 
-# Note: _DIRECTIONAL_BOND_ELEMENTS is private, used only when creating the
-# periodic table. External code can look at the value of the boolean
-# per-element constant, elem.bonds_can_be_directional. [bruce 071015]
+# _DIRECTIONAL_BOND_ELEMENTS lists the symbols of elements which permit
+# "directional bonds" (between two such elements).
+#
+# Note: this list is private, used only when creating the Elems in the
+# periodic table object. External code can look at the value of the boolean
+# per-element constant, elem.bonds_can_be_directional, instead.
+# [bruce 071015]
 
 _DIRECTIONAL_BOND_ELEMENTS = ('Ss5', 'Pl5', 'Sj5', 'Pe5', 'Sh5', 'Hp5',
                               'Ss3', 'Pl3', 'Sj3', 'Se3', 'Sh3', 'Hp3')
@@ -42,16 +46,19 @@ if debug_pref("draw PAM3 bondpoints as directional bond arrows? (next session)",
               Choice_boolean_False, 
               non_debug = True,
               prefs_key = "A9 devel/draw PAM3 singlets as arrows"):
+
+    # (Code by mark 071014, comment by bruce 071016:)
+    # This might soon become the usual case, with the debug_pref removed.
+    # Code which needs to know whether this occurred should (for now)
+    # test the boolean flag Singlet.bonds_can_be_directional,
+    # not the debug_pref itself.
     
     print "Adding 'X' (bondpoint) to _DIRECTIONAL_BOND_ELEMENTS tuple."
     
     _DIRECTIONAL_BOND_ELEMENTS = _DIRECTIONAL_BOND_ELEMENTS + ('X',) # mark 071014
-        ### REVIEW: I'm not yet sure this is safe, for the various ways this is used --
-        # note the following comment, which says it's not safe. [bruce 071015 comment]
-    
-# symbols of elements which permit "directional bonds"
-# We can't include X (for Singlet == bondpoint); for why, see comments where this constant is used. [bruce 070415]
 
+    pass
+    
 # == Elements, and periodic table
 
 class Elem: # bruce 050510 renamed this from 'elem' (not using 'Element' since too common in strings/comments)
