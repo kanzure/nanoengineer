@@ -124,6 +124,23 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         self.connect_or_disconnect_signals(False)        
 	if self.propMgr:	    
 	    self.propMgr.close()
+    
+    def moveFromToTemporaryMode_NOT_IMPLEMENTED(self):
+	"""
+	Temporary code not implemented yet
+	"""
+	if 0:	
+	    print "currentCommand.modename ="
+	    commandSequencer = self.commandSequencer
+	    currentCommand = commandSequencer.currentCommand
+	    
+	    if currentCommand.modename != "MouseClickPointAcceptor_TempMode":
+		    commandSequencer.userEnterTemporaryCommand(
+			'MouseClickPointAcceptor_TempMode')
+		    return
+	    else:
+		print "currentCommand.modename == "\
+		      "MouseClickPointAcceptor_TempMode"
 	
     
     def getFlyoutActionList(self): #Ninad 20070618
@@ -426,31 +443,7 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
 	
 	return
     
-    def doObjectSpecificLeftDown(self, object, event):
-	"""
-	Call objectLeftDown methods depending on the object instance. 
-	@param object: object under consideration
-	@type  object: instance 
-	@param event: Left down mouse event 
-	@type  event: QMouseEvent instance
-	"""
-	obj = object 
-	
-	if isinstance(obj, Atom) and obj.is_singlet(): 
-            self.singletLeftDown(obj, event)# Cursor over a singlet               
-        elif isinstance(obj, Atom) and not obj.is_singlet(): 
-            self.atomLeftDown(obj, event)   # Cursor over a real atom
-        elif isinstance(obj, Bond) and not obj.is_open_bond(): 
-            self.bondLeftDown(obj, event)   #Cursor over a bond.
-        elif isinstance(obj, Jig): 
-            self.jigLeftDown(obj, event)    #Cursor over a jig.
-        else: 
-	    # Cursor is over something else other than an atom, singlet or bond. 
-            # The program never executes lines in this else statement since
-            # get_obj_under_cursor() only returns atoms, singlets or bonds.
-            # [perhaps no longer true, if it ever was -- bruce 060725]
-            pass
-        
+            
     def leftDrag(self, event):
         """
 	Translate or Rotate the selected object(s):

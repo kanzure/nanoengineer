@@ -26,10 +26,6 @@ but not changing how old dragging code works.]
 """
 
 
-
-
-from OpenGL.GLU import gluProject
-
 from PyQt4.Qt import QMouseEvent
 
 import env
@@ -38,11 +34,13 @@ from VQT import V
 from chem import Atom
 from jigs import Jig
 from bonds import Bond
+from elements import Singlet
+
 from debug import print_compact_traceback
 from modes import basicMode
 from Utility import Group
 
-from elements import Singlet
+from constants import darkred
 
 from selectMode import selectMode
 from selectMode import debug_update_selobj_calls
@@ -51,9 +49,6 @@ from selectMode import DRAG_STICKINESS_LIMIT
 
 from debug import print_compact_stack
 from debug_prefs import debug_pref, Choice_boolean_True
-
-from constants import darkred
-from constants import black
 
 from prefs_constants import bondHighlightColor_prefs_key
 from prefs_constants import bondpointHighlightColor_prefs_key
@@ -104,120 +99,14 @@ class selectAtomsMode(selectMode):
 	    #  might complicate the merging as well, in the short run, though 
 	    # it would be a good change in the longer run).
 
-    def init_gui(self):
-        selectMode.init_gui(self)
-        self.w.toolsSelectAtomsAction.setChecked(1) # toggle on the "Select Atoms" tools icon
-        self.connect_or_disconnect_signals(True)
-        
-    def connect_or_disconnect_signals(self, connect):
-        """
-	Subclasses should override this method
-	"""
-	pass
-    
+            
     def set_selection_filter(self, enabled):
 	''' Set/ Unset selection filter. Subclasses should override this
 	@param: enabled: boolean that decides whether to turn 
 	selection filter on or off. '''
 	pass 
-
-    def restore_gui(self):
-        # disconnect signals which were connected in init_gui [bruce 050728]
-        self.connect_or_disconnect_signals(False)
-            
-    def bareMotion(self, event): #bruce 050610 revised this
-        """called for motion with no button down
-        [should not be called otherwise -- call update_selatom or update_selobj directly instead]
-        """
-    
-        # The mouse_exceeded_distance() conditional below is a "hover highlighting" optimization. 
-        # It works by returning before calling update_selobj() if the mouse is moving fast. 
-        # This reduces unnecessary highlighting of objects whenever the user moves the cursor 
-        # quickly across the GLPane. In many cases, this unnecessary highlighting degrades 
-        # interactive responsiveness and can also cause the user to select the wrong objects (i.e. atoms), 
-        # especially in large models.
-        #
-        # One problem with this approach (pointed out by Bruce) happens when the user moves the
-        # cursor quickly from one object and suddenly stops on another object, expecting it (the 2nd 
-        # object) to be highlighted. Since bareMotion() is only called when the mouse is moving, and the
-        # distance between the last two mouse move events is far, mouse_exceed_distance() will 
-        # return True. In that case, update_selobj() will not get called and the object under the cursor 
-        # will never get highlighted unless the user jiggles the mouse slightly. To address this issue, 
-        # a GLpane timer was implemented. The timer calls bareMotion() whenever it expires and the 
-        # cursor hasn't moved since the previous timer event. For more details, read the docstring for 
-        # GLPane.timerEvent().
-        if self.mouse_exceeded_distance(event, 1):
-            return
-        
-        self.update_selobj(event)
-        # note: this routine no longer updates glpane.selatom. For that see self.update_selatom().
-        ###e someday, if new or prior selobj asks for it (by defining certain methods), we'd tell it about this bareMotion
-        # and about changes in selobj. [bruce 060726]
-        return
-
-    def get_obj_under_cursor(self, event): # docstring appears wrong
-        """
-        Return the object under the cursor.  Only atoms, singlets and bonds are returned.
-        Returns None for all other cases, including when a bond, jig or nothing is under the cursor.
-        """
-        ### WARNING: this method is defined in two places, with mostly duplicated code,
-        # but with one key difference whose date, author, & purpose is not documented.
-        # [bruce 070924 comment]
-        #
-
-        #bruce 060331 comment: this docstring appears wrong, since the code looks like it can return jigs.
-        #bruce 070322 note: this will be overridden (extended) in testmode, which will sometimes return a "background object"
-        # rather than None, in order that leftDown can be handled by background_object.leftClick in the same way as for
-        # other drag_handler-returning objects.
-        #
-        ### WARNING: this is slow, and redundant with highlighting -- only call it on mousedown or mouseup, never in move or drag.
-        # [true as of 060726 and before; bruce 060726 comment]
-        # It may be that it's not called when highlighting is on, and it has no excuse to be, but I suspect it is anyway.
-        # [bruce 060726 comment]
-        if self.hover_highlighting_enabled:
-            self.update_selatom(event) #bruce 041130 in case no update_selatom happened yet
-            # update_selatom() updates self.o.selatom and self.o.selobj.
-            # self.o.selatom is either a real atom or a singlet [or None].
-            # self.o.selobj can be a bond, and is used in leftUp() to determine if a bond was selected.
-            
-            # Warning: if there was no GLPane repaint event (i.e. paintGL call) since the last bareMotion,
-            # update_selatom can't make selobj/selatom correct until the next time paintGL runs.
-            # Therefore, the present value might be out of date -- but it does correspond to whatever
-            # highlighting is on the screen, so whatever it is should not be a surprise to the user,
-            # so this is not too bad -- the user should wait for the highlighting to catch up to the mouse
-            # motion before pressing the mouse. [bruce 050705 comment] [might be out of context, copied from other code]
-        
-            obj = self.o.selatom # a "highlighted" atom or singlet
-            
-            if obj is None and self.o.selobj:
-                obj = self.o.selobj # a "highlighted" bond
-                    # [or anything else, except Atom or Jig -- i.e. a general/drag_handler/Drawable selobj [bruce 060728]]
-                if env.debug():
-                    # I want to know if either of these things occur -- I doubt they do, but I'm not sure about Jigs [bruce 060728]
-                    # (this does happen for Jigs, see below)
-                    if isinstance(obj, Atom):
-                        print "debug fyi: likely bug: selobj is Atom but not in selatom: %r" % (obj,)
-                    elif isinstance(obj, Jig):
-                        print "debug fyi: selobj is a Jig in get_obj_under_cursor (comment is wrong), for %r" % (obj,)
-                        # I suspect some jigs can occur here
-                        # (and if not, we should put them here -- I know of no excuse for jig highlighting
-                        #  to work differently than for anything else) [bruce 060721]
-                        # update 070413: yes, this happens (e.g. select some atoms and an rmotor jig, then drag the jig).
-                    pass
-            
-            if obj is None: # a "highlighted" jig [i think this comment is misleading, it might really be nothing -- bruce 060726]
-                obj = self.get_jig_under_cursor(event) # [this can be slow -- bruce comment 070322]
-                if 0 and env.debug():
-                    print "debug fyi: get_jig_under_cursor returns %r" % (obj,) # [bruce 060721] 
-            pass
-            
-        else: # No hover highlighting
-            obj = self.o.assy.findAtomUnderMouse(event, self.water_enabled, singlet_ok = True)
-            # Note: findAtomUnderMouse() only returns atoms and singlets, not bonds or jigs.
-            # This means that bonds can never be selected when highlighting is turned off.
-            # [What about jigs? bruce question 060721]
-        return obj
-            
+           
+                
     def get_real_atom_under_cursor(self, event):
         '''If the object under the cursor is a real atom, return it.  Otherwise, return None.
         '''
@@ -230,123 +119,113 @@ class selectAtomsMode(selectMode):
     def bond_type_changer_is_active(self): #bruce 060702
         "[subclasses can override this; see depositMode implem for docstring]"
         return False
-
-    def selobj_highlight_color(self, selobj): #bruce 050612 added this to mode API
-        """[mode API method]
-        If we'd like this selobj to be highlighted on mouseover
-        (whenever it's stored in glpane.selobj), return the desired highlight color.
-        If we'd prefer it not be highlighted (though it will still be stored
-        in glpane.selobj and prevent any other objs it obscures from being stored there
-        or highlighted), return None. (Warning: exceptions are ignored and cause the
-        default highlight color to be used. #e should clean that up sometime)
-        """
-        
-        if not self.hover_highlighting_enabled:
-            return None
-
-        #####@@@@@ if self.drag_handler, we should probably let it override all this
-        # (so it can highlight just the things it might let you DND its selobj to, for example),
-        # even for Atom/Bondpoint/Bond/Jig, maybe even when not self.hover_highlighting_enabled. [bruce 060726 comment]
-        
-        if isinstance(selobj, Atom):
-            if selobj.is_singlet():
-                if self.highlight_singlets: # added highlight_singlets to fix bug 1540. mark 060220.
-                    likebond = self.bond_type_changer_is_active() #bruce 060702 part of fixing bug 833 item 1
-                    if likebond:
-                        # clicks in this tool-state modify the bond, not the bondpoint, so let the color hint at that
-                        return env.prefs[bondHighlightColor_prefs_key]
-                    else:
-                        return env.prefs[bondpointHighlightColor_prefs_key]
-                else:
-                    return None
-            else:
-                if self.only_highlight_singlets: # True only when dragging a bondpoint (in Build mode).
-                    # Highlight this atom if it has bondpoints.
-                    if selobj.singNeighbors():
-                        if self.current_obj in selobj.singNeighbors(): 
-                            # Do not highlight the atom that the current singlet belongs to.
-                            # Fixes bug 1522. mark 060301.
-                            return None
-                        return env.prefs[atomHighlightColor_prefs_key]
-                            # Possible bug: bruce 070413 seems to observe this not working except when the mouse goes over
-                            # the end of a bond attached to that atom (which counts as the atom for highlighting),
-                            # or when the atom is already highlighted. (Could it be the cursor going over the rubberband
-                            # line? Not always. But it might be intermittent.)
-                    elif selobj.element.symbol == 'Sh':
-                        ##e and isinstance(self.current_obj, Atom), and is_singlet, and its neighbor is a Pl:
-                        # bruce 070413 KLUGE: make new depositMode behavior in (a specialcase of) this case possible
-                        ###e [needs to be generalized, and made so that only one place needs to know this condition;
-                        # note that the above is not the complete condition since i got lazy (and this NFR is urgent)]
-##                        if env.debug():
-##                            print "highlighting Sh like a bondpoint"
-                        return env.prefs[bondpointHighlightColor_prefs_key] # look like bondpoint, since treated as one
-                    else:
-                        return None
-                if self.o.modkeys == 'Shift+Control':
-                    return darkred  
-                        # Highlight the atom in darkred if the control key is pressed and it is not picked.
-                        # The delete_mode color should be a user pref.  Wait until A8, though.  mark 060129.
-                else:
-                    return env.prefs[atomHighlightColor_prefs_key]
-        elif isinstance(selobj, Bond):
-            #bruce 050822 experiment: debug_pref to control whether to highlight bonds
-            # (when False they'll still obscure other things -- need to see if this works for Mark ###@@@)
-            # ###@@@ PROBLEM with this implem: they still have a cmenu and can be deleted by cmd-del (since still in selobj);
-            # how would we *completely* turn this off? Need to see how GLPane decides whether a drawn thing is highlightable --
-            # maybe just by whether it can draw_with_abs_coords? Maybe by whether it has a glname (not toggleable instantly)?
-            # ... now i've modified GLPane to probably fix that...
-            highlight_bonds = debug_pref("highlight bonds", Choice_boolean_True)
-            if not highlight_bonds:
-                return None
-            ###@@@ use checkbox to control this; when false, return None
-            if selobj.atom1.is_singlet() or selobj.atom2.is_singlet():
-                # this should never happen, since singlet-bond is part of singlet for selobj purposes [bruce 050708]
-                print "bug: selobj is a bond to a bondpoint, should have borrowed glname from that bondpoint", selobj
-                    #bruce 060726 revised this
-                return None # precaution
-            else:
-                if self.only_highlight_singlets:
-                    return None
-                if self.o.modkeys == 'Shift+Control': 
-                    return darkred
-                else:
-                    return env.prefs[bondHighlightColor_prefs_key]
-        elif isinstance(selobj, Jig): #bruce 050729 bugfix (for some bugs caused by Huaicai's jig-selection code)
-            if not self.o.jigSelectionEnabled: #mark 060312.
-                # jigSelectionEnabled set from GLPane context menu.
-                return None
-            if self.o.modkeys == 'Shift+Control': 
-                return darkred
-            else:
-                return env.prefs[bondHighlightColor_prefs_key]
-        else:
-            if 1:
-                # Let the object tell us its highlight color, if it's not one we have a special case for here
-                # (and if no drag_handler told us instead (nim, above)).
-                # Note: this color will be passed to selobj.draw_in_abs_coords when selobj is asked
-                # to draw its highlight; but even if that method plans to ignore that color arg,
-                # this method better return a real color (or at least not None or (maybe) anything false),
-                # otherwise GLPane will decide it's not a valid selobj and not highlight it at all.
-                # (And in that case, will a context menu work on it (if it wasn't nim for that kind of selobj)?
-                #  I don't know.)
-                # [bruce 060722 new feature; revised comment 060726]
-                method = getattr(selobj, 'highlight_color_for_modkeys', None)
-                if method:
-                    return method(self.o.modkeys)
-                        # Note: this API might be revised; it only really makes sense if the mode created the selobj to fit its
-                        # current way of using modkeys, perhaps including not only its code but its active-tool state.
-                        #e Does it make sense to pass the drag_handler, even if we let it override this?
-                        # Yes, since it might like to ask the object (so it needs an API to do that), or let the obj decide,
-                        # based on properties of the drag_handler.
-                        #e Does it make sense to pass the obj being dragged without a drag_handler?
-                        # Yes, even more so. Not sure if that's always called the same thing, depending on its type.
-                        # If not, we can probably just kluge it by self.this or self.that, if they all get reset each drag. ###@@@
-            print "unexpected selobj class in mode.selobj_highlight_color:", selobj
-            return black ## bruce 060726 blue -> black so the fact that it's an error is more obvious
-        
-        pass # end of selobj_highlight_color
+           
+    def _getAtomHighlightColor(self, selobj):
+	"""
+	Return the Atom highlight color 
+	@return: Highlight color of the object (Atom or Singlet)
+	""" 
+	assert isinstance(selobj, Atom)
+	
+	if selobj.is_singlet():
+	    return self._getSingletHighlightColor()
+	else:
+	    if self.only_highlight_singlets: 
+		# Above is True only when dragging a bondpoint (in Build mode).
+		# Highlight this atom if it has bondpoints.
+		if selobj.singNeighbors():
+		    if self.current_obj in selobj.singNeighbors(): 
+			# Do not highlight the atom that the current 
+			# singlet belongs to.
+			# Fixes bug 1522. mark 060301.
+			return None
+		    return env.prefs[atomHighlightColor_prefs_key]
+			# Possible bug: bruce 070413 seems to observe this not 
+			# working except when the mouse goes over
+			# the end of a bond attached to that atom 
+			# (which counts as the atom for highlighting),
+			# or when the atom is already highlighted. 
+			# (Could it be the cursor going over the rubberband
+			# line? Not always. But it might be intermittent.)
+		elif selobj.element.symbol == 'Sh':
+		    ##e and isinstance(self.current_obj, Atom), and is_singlet, 
+		    ## and its neighbor is a Pl:
+		    # bruce 070413 KLUGE: make new depositMode behavior in 
+		    #(a specialcase of) this case possible
+		    ###e [needs to be generalized, and made so that only one 
+		    ###place needs to know this condition;
+		    # note that the above is not the complete condition since 
+		    # i got lazy (and this NFR is urgent)]
+		    ##if env.debug():
+			##print "highlighting Sh like a bondpoint"
+		    # look like bondpoint, since treated as one--
+		    return env.prefs[bondpointHighlightColor_prefs_key] 
+		else:
+		    return None
+	    if self.o.modkeys == 'Shift+Control':
+		return darkred  
+		    # Highlight the atom in darkred if the control key is 
+		    # pressed and it is not picked.
+		    # The delete_mode color should be a user pref.  
+		    # -- mark 060129.
+	    else:
+		return env.prefs[atomHighlightColor_prefs_key]
     
-        
+    def _getSingletHighlightColor(self):
+	"""
+	Return the Singlet highlight color 
+	@return: Highlight color of the Singlet
+	"""
+	# added highlight_singlets to fix bug 1540. mark 060220.
+	if self.highlight_singlets: 
+	    #bruce 060702 part of fixing bug 833 item 1
+	    likebond = self.bond_type_changer_is_active() 
+	    if likebond:
+		# clicks in this tool-state modify the bond, 
+		# not the bondpoint, so let the color hint at that
+		return env.prefs[bondHighlightColor_prefs_key]
+	    else:
+		return env.prefs[bondpointHighlightColor_prefs_key]
+	else:
+	    return None
+   
+    def _getBondHighlightColor(self, selobj):
+	"""
+	Return the Bond highlight color 
+	@return: Highlight color of the bond
+	"""
+	assert isinstance(selobj, Bond)
+	# Following might be an outdated or 'not useful anymore' comment. 
+	# Keeping it for now -- Ninad 2007-10-14
+	
+	#bruce 050822 experiment: debug_pref to control whether to highlight 
+	# bonds
+	# (when False they'll still obscure other things -- need to see if 
+	# this works for Mark ###@@@)
+	# ###@@@ PROBLEM with this implem: they still have a cmenu and 
+	#can be deleted by cmd-del (since still in selobj);
+	# how would we *completely* turn this off? Need to see how 
+	# GLPane decides whether a drawn thing is highlightable --
+	# maybe just by whether it can draw_with_abs_coords? 
+	# Maybe by whether it has a glname (not toggleable instantly)?
+	# ... now i've modified GLPane to probably fix that...
+	highlight_bonds = debug_pref("highlight bonds", Choice_boolean_True)
+	if not highlight_bonds:
+	    return None
+	###@@@ use checkbox to control this; when false, return None
+	if selobj.atom1.is_singlet() or selobj.atom2.is_singlet():
+	    # this should never happen, since singlet-bond is part of 
+	    # singlet for selobj purposes [bruce 050708]
+	    print "bug: selobj is a bond to a bondpoint, should have " \
+		  "borrowed glname from that bondpoint", selobj
+	    return None # precaution
+	else:
+	    if self.only_highlight_singlets:
+		return None
+	    if self.o.modkeys == 'Shift+Control': 
+		return darkred
+	    else:
+		return env.prefs[bondHighlightColor_prefs_key] 
         
     def update_selatom(self, 
                        event, 
@@ -441,14 +320,7 @@ class selectAtomsMode(selectMode):
 # http://www.nanoengineer-1.net/ and click on the "Build Mode UI Specification" link.
         
 # == LMB down-click (button press) methods
-
-    def leftShiftDown(self, event):
-        '''Event handler for Shift+LMB press.'''
-        self.leftDown(event)
     
-    def leftCntlDown(self, event):
-        '''Event handler for Control+LMB press.'''
-        self.leftDown(event)
     
     def leftDown(self, event):
         '''Event handler for all LMB press events.'''
@@ -519,38 +391,12 @@ class selectAtomsMode(selectMode):
                     # don't do the rest of this method:
                     return
 
-        if isinstance(obj, Atom) and obj.is_singlet(): # Cursor over a singlet
-            self.singletLeftDown(obj, event)
-                # no win_update() needed. It's the responsibility of singletLeftDown to do it if needed.
-            return
-            
-        elif isinstance(obj, Atom) and not obj.is_singlet(): # Cursor over a real atom
-            self.atomLeftDown(obj, event)
-        
-        elif isinstance(obj, Bond) and not obj.is_open_bond(): # Cursor over a bond.
-            self.bondLeftDown(obj, event)
-        
-        elif isinstance(obj, Jig): # Cursor over a jig.
-            self.jigLeftDown(obj, event)
-
-        else: # Cursor is over something else other than an atom, singlet or bond. 
-            # The program never executes lines in this else statement since
-            # get_obj_under_cursor() only returns atoms, singlets or bonds.
-            # [perhaps no longer true, if it ever was -- bruce 060725]
-            pass
+        self.doObjectSpecificLeftDown(obj, event)
 
         self.w.win_update() #k (is this always desirable? note, a few cases above return early just so they can skip it.)
         return # from selectAtomsMode.leftDown
 
 # == LMB drag methods
-
-    def leftShiftDrag(self, event):
-        '''Event handler for Shift+LMB+Drag.'''
-        self.leftDrag(event)
-        
-    def leftCntlDrag(self, event):
-        '''Event handler for Control+LMB+Drag.'''
-        self.leftDrag(event)
         
     def leftDrag(self, event):
         '''Event handler for all LMB+Drag events.'''
@@ -593,23 +439,35 @@ class selectAtomsMode(selectMode):
         if obj is None: # Nothing dragged (or clicked); return.
             return
         
-        if isinstance(obj, Atom):
-            if obj.is_singlet(): # Bondpoint
-                self.singletDrag(obj, event)
-            else: # Real atom
-                self.atomDrag(obj, event)
-        
-        elif isinstance(obj, Bond): # Bond
-            self.bondDrag(obj, event)
-        
-        elif isinstance(obj, Jig): # Jig
-            self.jigDrag(obj, event)
-        
-        else: # Something else
-            pass
+        self.doObjectSpecificLeftDrag(obj, event)
             
         # No gl_update() needed. Already taken care of.
         return
+    
+    def doObjectSpecificLeftDrag(self, object, event):
+	"""
+	Call objectLeftDrag methods depending on the object instance.
+	Overrides selectMode.doObjectSpecificLeftDrag
+	
+	@param object: object under consideration. 
+	@type  object: instance 
+	@param event: Left drag mouse event 
+	@type  event: QMouseEvent instance
+	
+	"""
+	obj = object
+	
+	if isinstance(obj, Atom):
+            if obj.is_singlet(): # Bondpoint
+                self.singletDrag(obj, event)
+            else: # Real atom
+                self.atomDrag(obj, event)        
+        elif isinstance(obj, Bond): # Bond
+            self.bondDrag(obj, event)        
+        elif isinstance(obj, Jig): # Jig
+            self.jigDrag(obj, event)        
+        else: # Something else
+            pass
         
     def posn_str(self, atm): #bruce 041123
         """return the position of an atom
@@ -624,13 +482,6 @@ class selectAtomsMode(selectMode):
         
 # == LMB up-click (button release) methods
 
-    def leftShiftUp(self, event):
-        '''Event handler for Shift+LMB release.'''
-        self.leftUp(event)
-    
-    def leftCntlUp(self, event):
-        '''Event handler for Control+LMB release.'''
-        self.leftUp(event)
     
     def leftUp(self, event):
         '''Event handler for all LMB release events.'''
@@ -660,22 +511,10 @@ class selectAtomsMode(selectMode):
             
         if obj is None: # Nothing dragged (or clicked); return.
             return
+	
+	self.doObjectSpecificLeftUp(obj, event)
             
-        if isinstance(obj, Atom):
-            if obj.is_singlet(): # Bondpoint
-                self.singletLeftUp(obj, event)
-            else: # Real atom
-                self.atomLeftUp(obj, event)
-            
-        elif isinstance(obj, Bond): # Bond
-            self.bondLeftUp(obj, event)
-            
-        elif isinstance(obj, Jig): # Jig
-            self.jigLeftUp(obj, event)
-        
-        else:
-            pass
-        
+                
         self.leftUp_reset_a_few_drag_vars()
         #bruce 041130 comment: it forgets selatom, but doesn't repaint,
         # so selatom is still visible; then the next event will probably
@@ -719,7 +558,6 @@ class selectAtomsMode(selectMode):
 
 # == end of LMB event handler methods
                        
-                
     def update_cursor_for_no_MB(self):
         '''Update the cursor for 'Select Atoms' mode (selectAtomsMode)
         '''
@@ -761,11 +599,11 @@ class selectAtomsMode(selectMode):
         return
             
     def rightShiftDown(self, event):
-        basicMode.rightShiftDown(self, event)
+        selectMode.rightShiftDown(self, event)
         self.o.setCursor(self.w.SelectAtomsCursor)
            
     def rightCntlDown(self, event):          
-        basicMode.rightCntlDown(self, event)
+        selectMode.rightCntlDown(self, event)
         self.o.setCursor(self.w.SelectAtomsCursor)
         
     def _highlightAtoms(self, grp):
