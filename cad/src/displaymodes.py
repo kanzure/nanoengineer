@@ -1,5 +1,5 @@
 # Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
+"""
 displaymodes.py -- support for new modular display modes. [Not fully implemented, as of 060608.]
 
 $Id$
@@ -14,7 +14,7 @@ of atoms and bonds. These are not yet implemented.
 
 To make a new chunk display mode, make a new file which defines and registers a subclass
 of our class ChunkDisplayMode. For an example, see CylinderChunks.py.
-'''
+"""
 
 __author__ = 'bruce'
 
@@ -30,7 +30,10 @@ def get_display_mode_handler(disp):
     return _display_mode_handlers.get(disp)
 
 class DisplayMode:
-    "abstract class for any sort of display mode (except the 6 original built-in ones defined in constants.py)"
+    """
+    abstract class for any sort of display mode
+    (except the 6 original built-in ones defined in constants.py)
+    """
     chunk_only = False # default value of class constant; some subclasses override this (in fact, not doing so is not yet supported)
     def __init__(self, ind):
         self.ind = ind
@@ -43,10 +46,15 @@ class DisplayMode:
         else:
             return imagename_to_pixmap( self._icon_name)
         pass
-    def _register_for_readmmp(clas): # staticmethod
-        """private method called when setting up mmp reading code:
+    def _register_for_readmmp(clas): # staticmethod; name is misleading, but required by other code in this file
+        """
+        private method called when setting up mmp reading code:
         register this class as a readmmp-helper,
         in whatever way differs for different classes of helpers
+        
+        [update, bruce 071017: this docstring is misleading,
+        since so far this has nothing to do with mmp reading;
+        see code comments for details]
         """
         disp_name = clas.mmp_code # we treat this as a unique index; error if not unique, unless classname is the same
         disp_label = clas.disp_label
@@ -69,10 +77,13 @@ class DisplayMode:
     pass # end of class DisplayMode
 
 class ChunkDisplayMode(DisplayMode): 
-    "abstract class for display modes which only work for entire chunks"
+    """
+    abstract class for display modes which only work for entire chunks
+    """
     chunk_only = True
     def register_display_mode_class(clas): # staticmethod
-        """Register the given subclass of ChunkDisplayMode as a new display mode for whole chunks,
+        """
+        Register the given subclass of ChunkDisplayMode as a new display mode for whole chunks,
         able to be drawn with, read/written in mmp files, and offered in the UI.
         """
         # Make sure we can read mmp files which refer to it as clas.mmp_code.
@@ -85,8 +96,15 @@ class ChunkDisplayMode(DisplayMode):
         #  The fault for that lies mainly with the requirement for constants.dispLabel and constants.dispNames
         #  to be lists with corresponding indices. If they were revamped, this could be cleaned up.
         #  But doing so is not trivial, assuming their ordering by bond cylinder radius is required.)
-        import files_mmp
-        files_mmp.register_for_readmmp( clas)
+
+        # bruce 071017 -- remove register_for_readmmp and replace it with what it did,
+        # since it's more confusing than worthwhile
+        # (but see above comment for the motivation of the old way, which had some legitimacy):
+        ## import files_mmp
+        ## files_mmp.register_for_readmmp( clas)
+        smethod = clas._register_for_readmmp
+        smethod(clas)
+        
         # The above also made it possible to draw chunks in this display mode, via _display_mode_handlers
         # and special cases in Chunk draw-related methods.
         ###e highlighting not yet done
@@ -105,7 +123,8 @@ class ChunkDisplayMode(DisplayMode):
             print "setDisplay to %r.ind == %r" % (self, self.ind)
         return
     def _drawchunk(self, glpane, chunk, highlighted = False):
-        """[private method for use only by Chunk.draw]
+        """
+        [private method for use only by Chunk.draw]
         Call the subclass's drawchunk method, with the same arguments (but supplying memo ourselves),
         in the proper way (whatever is useful for Chunk.draw). For now, the chunk has already done its pushMatrix
         and gotten us inside its OpenGL display list compiling/executing call, but it hasn't done a pushName.
@@ -117,7 +136,9 @@ class ChunkDisplayMode(DisplayMode):
         self.drawchunk( glpane, chunk, memo, highlighted = highlighted)
         return
     def _drawchunk_selection_frame(self, glpane, chunk, selection_frame_color, highlighted = False):
-        "Call the subclass's drawchunk with the same arguments (but supplying memo ourselves), in the proper way"
+        """
+        Call the subclass's drawchunk with the same arguments (but supplying memo ourselves), in the proper way
+        """
         memo = self.getmemo(chunk)
         #e exceptions
         #e pushname
@@ -125,7 +146,9 @@ class ChunkDisplayMode(DisplayMode):
         self.drawchunk_selection_frame( glpane, chunk, selection_frame_color, memo, highlighted = highlighted)
         return
     def getmemo(self, chunk):
-        """[needs doc]"""
+        """
+        [needs doc]
+        """
         # Note: This is not yet optimized to let the memo be remade less often than the display list is,
         # but that can still mean we remake it a lot less often than we're called for drawing the selection frame,
         # since that is drawn outside the display list and the chunk might get drawn selected many times
