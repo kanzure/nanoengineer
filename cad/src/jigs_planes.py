@@ -121,7 +121,7 @@ class RectGadget(Jig):
     
     def __computeBBox(self):
         '''Compute current bounding box. '''
-        from shape import BBox
+        from BoundingBox import BBox
         
         hw = self.width/2.0; hh = self.height/2.0
         corners_pos = [V(-hw, hh, 0.0), V(-hw, -hh, 0.0), V(hw, -hh, 0.0), V(hw, hh, 0.0)]

@@ -55,7 +55,7 @@ from debug import print_compact_traceback, print_compact_stack
 import platform
 
 from utilities.Log import greenmsg, redmsg
-from shape import BBox
+from BoundingBox import BBox
 
 from chunk import molecule
 from jigs import Jig

@@ -24,7 +24,7 @@ from constants     import gensym
 from ops_select    import selection_from_part
 from constants     import noop
 from VQT           import V, vlen
-from shape         import BBox
+from BoundingBox   import BBox
 from jigs          import Jig
 
 class ops_copy_Mixin:

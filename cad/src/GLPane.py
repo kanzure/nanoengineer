@@ -163,7 +163,7 @@ from constants import MULTIPANE_GUI
 
 from part import Part
 
-from shape import BBox
+from BoundingBox import BBox
 
 from debug_prefs import Choice
 from debug_prefs import Choice_boolean_False

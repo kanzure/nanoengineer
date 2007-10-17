@@ -37,6 +37,7 @@ from constants import SUBTRACT_FROM_SELECTION
 from constants import ADD_TO_SELECTION
 
 from VQT import V, Q, A, norm, vlen
+from BoundingBox import BBox
 
 
 class modifyMode(selectMolsMode): # changed superclass from basicMode to selectMolsMode.  mark 060301.
@@ -1004,7 +1005,6 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
             return
 
         ## Compute bbox for selected chunk(s).
-        from shape import BBox
         bbox = BBox()
         for m in movables:
             if hasattr(m, "bbox"): # Fixes bug 1990. Mark 060702.

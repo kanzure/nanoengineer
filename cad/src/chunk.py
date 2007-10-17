@@ -104,7 +104,7 @@ import bonds
 
 from elements import Singlet
 
-from shape import BBox
+from BoundingBox import BBox
 from drawer import ColorSorter
 from drawer import drawlinelist
 from constants import PickedColor

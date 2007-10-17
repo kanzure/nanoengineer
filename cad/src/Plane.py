@@ -26,10 +26,11 @@ from OpenGL.GL import glPopMatrix
 from OpenGL.GL import glTranslatef
 from OpenGL.GL import glRotatef
 
-from drawer import drawLineLoop, drawPlane
-from constants import black, orange, yellow, darkgreen, brown
+from drawer     import drawLineLoop, drawPlane
+from constants  import black, orange, yellow, darkgreen, brown
 
-from VQT import V, Q, cross, planeXline, vlen, norm, ptonline
+from VQT         import V, Q, cross, planeXline, vlen, norm, ptonline
+from BoundingBox import BBox
 
 from debug import print_compact_traceback
 import env
@@ -148,8 +149,7 @@ class Plane(ReferenceGeometry):
         # attribute bbox here to fix BUG 2473.
         # -- ninad 2007-06-27.
         
-        from shape import BBox
-        
+                
         hw = self.width  * 0.5
         hh = self.height * 0.5
         
