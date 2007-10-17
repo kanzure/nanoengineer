@@ -1,7 +1,11 @@
-} svn add, file header
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+"""
+texture_fonts.py -- OpenGL fonts based on texture images of the characters
 
+$Id$
+"""
 
-# TODO: many of these imports and constants are not needed
+# TODO: some of these imports and constants may not be needed
 
 import os
 
@@ -41,7 +45,7 @@ from icon_utilities import image_directory # for finding texture files
 
 from VQT import V, A, vlen
 
-from exprs.draw_utils import draw_textured_rect
+from exprs.draw_utils import draw_textured_rect, mymousepoints
 
 # TODO: clean up -- these are defined in multiple files
 ORIGIN = V(0,0,0)

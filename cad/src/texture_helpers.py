@@ -1,5 +1,11 @@
-} svn add, file header
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+"""
+texture_helpers.py -- helper functions for using OpenGL textures
 
+$Id$
+"""
+
+# TODO: some of these imports and constants may not be needed
 
 from OpenGL.GL import glGenTextures
 from OpenGL.GL import GL_TEXTURE_2D
