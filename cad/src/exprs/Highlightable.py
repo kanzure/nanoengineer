@@ -1006,8 +1006,14 @@ def _setup_UNKNOWN_SELOBJ_on_graphicsMode(graphicsMode): #061218, revised 071010
     # since right now nothing can set it up except in testmode. For now I'll treat it as per-command
     # since that seems best regarding the uniqueness... but this change is NIM. [bruce 071010]
 
-    from GraphicsMode import anyGraphicsMode # ok?
-    assert isinstance(graphicsMode, anyGraphicsMode)
+    # bruce 071017 commenting out this isinstance assert, to help chop up the
+    # import cycle graph, though it's legitimate in theory. A better fix would
+    # be to split GraphicsMode into an API module (from which we'd import here)
+    # and the implementation of basicGraphicsMode and GraphicsMode (which would
+    # import a lot of other things).
+    #
+    ## from GraphicsMode import anyGraphicsMode # ok?
+    ## assert isinstance(graphicsMode, anyGraphicsMode)
     
     if not hasattr(graphicsMode, 'UNKNOWN_SELOBJ'):
         # note: this means each graphicsMode ends up with a unique UNKNOWN_SELOBJ,
