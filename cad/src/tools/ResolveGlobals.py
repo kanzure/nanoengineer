@@ -25,9 +25,6 @@ filesToIgnore = [
     "./src/testdraw.py",
     "./plugins/DNA/bdna-bases/prepare.py",
     "./plugins/DNA/zdna-bases/prepare.py",
-    "./src/atombasetests.py",
-    "./src/uiPrototype.py",
-    "./src/modelTreePrototype.py",
     ]
 
 symbolsToIgnore = [
