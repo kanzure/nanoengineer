@@ -4,6 +4,11 @@ Python atoms, atom sets, diff factories, diff objects (tests)
 
 http://tinyurl.com/rv7fx
 
+May need changes to work in this location.  Used to be in cad/src.
+
+Probably depends on atombasehelp.c, which will likely move as the
+cad/src directory is cleaned out.
+
 $Id$
 """
 

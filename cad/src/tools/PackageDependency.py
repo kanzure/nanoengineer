@@ -25,12 +25,14 @@
    the GraphViz package.
 
    To see the entire graph, comment out the pruneTree() loop.
+from exprs import b, c as q, d # with a comment
 """
 
 import sys
 import re
+import os.path
 
-fromImportLineRegex = re.compile(r'^\s*from\s+(\S+)\s+import\s')
+fromImportLineRegex = re.compile(r'^\s*from\s+(\S+)\s+import\s+([^#]*)')
 importLineRegex = re.compile(r'^\s*import\s+([^#]+)')
 asRegex = re.compile(r'^(\S+)\s+as\s+')
 
@@ -57,18 +59,28 @@ externalModules = []
 """
 
 rootsToKeep = set([
-    "main",
+    "_import_roots",
     ])
 
 filesToProcess = []
 optionPrintUnreferenced = False
+optionPrintTables = False
+optionJustCycles = False
 optionDontPrune = False
+
+moduleNameToImportList = {}
 
 # these four are set in initializeGlobals()
 allProcessedModules = None
 referencedModules = None
 fromModuleCount = None
 toModuleCount = None
+
+def isPackage(moduleName):
+    possiblePackageName = moduleName.replace(".", "/")
+    if (os.path.isdir(possiblePackageName)):
+        return True
+    return False
 
 def fileNameToModuleName(fileName):
     if (fileName.startswith("./")):
@@ -85,19 +97,28 @@ def moduleToDotNode(moduleName):
     ret = ret.replace("-", "_")
     return ret
 
-def dependenciesInFile(fileName, printing):
+def importsInFile(fileName):
     importSet = set([])
     fromModuleName = moduleToDotNode(fileNameToModuleName(fileName))
-    if (fromModuleName in pruneModules or fromModuleName in unreferencedModules):
-        return None
-    allProcessedModules.add(fromModuleName)
     f = open(fileName)
     for line in f:
         m = fromImportLineRegex.match(line)
         if (m):
-            toModuleName = moduleToDotNode(m.group(1))
-            if (toModuleName != fromModuleName):
-                importSet.add(toModuleName)
+            if (isPackage(m.group(1))):
+                packageName = m.group(1)
+                moduleImportList = m.group(2).strip().split(',')
+                for toModuleName in moduleImportList:
+                    toModuleName = toModuleName.strip()
+                    m = asRegex.match(toModuleName)
+                    if (m):
+                        toModuleName = m.group(1)
+                    toModuleName = moduleToDotNode(packageName + "." + toModuleName)
+                    if (toModuleName != fromModuleName):
+                        importSet.add(toModuleName)
+            else:
+                toModuleName = moduleToDotNode(m.group(1))
+                if (toModuleName != fromModuleName):
+                    importSet.add(toModuleName)
             continue
         m = importLineRegex.match(line)
         if (m):
@@ -111,9 +132,17 @@ def dependenciesInFile(fileName, printing):
                 if (toModuleName != fromModuleName):
                     importSet.add(toModuleName)
     f.close()
-    referencedModules.update(importSet)
     importList = list(importSet)
     importList.sort()
+    moduleNameToImportList[fromModuleName] = importList
+
+def dependenciesInFile(fileName, printing):
+    fromModuleName = moduleToDotNode(fileNameToModuleName(fileName))
+    if (fromModuleName in pruneModules or fromModuleName in unreferencedModules):
+        return None
+    allProcessedModules.add(fromModuleName)
+    importList = moduleNameToImportList[fromModuleName]
+    referencedModules.update(importList)
     outCount = 0
     for toModuleName in importList:
         if (toModuleName in externalModules or toModuleName in pruneModules or toModuleName in unreferencedModules):
@@ -136,6 +165,10 @@ def dependenciesInFile(fileName, printing):
     if (outCount < 1):
         return fromModuleName
     return None
+
+def scanForImports():
+    for sourceFile in filesToProcess:
+        importsInFile(sourceFile)
 
 def initializeGlobals():
     global allProcessedModules
@@ -181,6 +214,45 @@ def pruneTree():
 
     return pruneCount
 
+inThisCycle = set([])
+inAnyCycle = set([])
+visited = {}
+
+def isInCycle(moduleName, cycleRoot):
+    global visited
+
+    if (moduleName == cycleRoot):
+        return True
+    if (visited.has_key(moduleName)):
+        return visited[moduleName]
+    if (moduleName in pruneModules or moduleName in unreferencedModules or moduleName in externalModules):
+        return False
+    importList = moduleNameToImportList[moduleName]
+    visited[moduleName] = False
+    for toModuleName in importList:
+        if (isInCycle(toModuleName, cycleRoot)):
+            visited[moduleName] = True
+            return True
+    return False
+
+def scanForCycles(cycleRoot):
+    global visited
+
+    if (moduleName in pruneModules or moduleName in unreferencedModules or moduleName in externalModules):
+        return
+    visited = {}
+    removeArcs = []
+    importList = moduleNameToImportList[cycleRoot]
+    for toModuleName in importList:
+        if (isInCycle(toModuleName, cycleRoot)):
+            pass
+        else:
+            removeArcs += [toModuleName]
+    for toModuleName in removeArcs:
+        importList.remove(toModuleName)
+    moduleNameToImportList[moduleName] = importList
+    return
+
 def printTree():
     initializeGlobals()
     print "digraph G {"
@@ -188,6 +260,8 @@ def printTree():
         dependenciesInFile(sourceFile, True)
     print "}"
     for key in fromModuleCount.keys():
+        if (not toModuleCount.has_key(key)):
+            toModuleCount[key] = 0
         print >>sys.stderr, "%06d %06d %s" % (toModuleCount[key], fromModuleCount[key], key)
 
 if (__name__ == '__main__'):
@@ -196,13 +270,39 @@ if (__name__ == '__main__'):
             optionDontPrune = True
         elif (opt == "--printUnreferenced"):
             optionPrintUnreferenced = True
+        elif (opt == "--printTables"):
+            optionPrintTables = True
+        elif (opt == "--justCycles"):
+            optionJustCycles = True
         else:
             filesToProcess += [opt]
+    scanForImports()
     if (not optionDontPrune):
         while (pruneTree()):
             pass
     if (optionPrintUnreferenced):
+        unreferencedModules.sort()
+        for module in unreferencedModules:
+            if (not module.endswith("__init__")):
+                print module
+    elif (optionPrintTables):
+        print "\n   Prune\n"
+        pruneModules.sort()
+        for module in pruneModules:
+            print module
+        print "\n   Unreferenced\n"
+        unreferencedModules.sort()
         for module in unreferencedModules:
             print module
+        print "\n   External\n"
+        externalModules.sort()
+        for module in externalModules:
+            print module
     else:
+        if (optionJustCycles):
+            for sourceFile in filesToProcess:
+                moduleName = moduleToDotNode(fileNameToModuleName(sourceFile))
+                scanForCycles(moduleName)
+            while (pruneTree()):
+                pass
         printTree()

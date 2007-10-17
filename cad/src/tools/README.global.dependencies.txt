@@ -146,4 +146,4 @@ $ tools/PackageDependency.py `tools/AllPyFiles.sh` > depend.dot 2> packageloopco
 If you have the GraphViz package installed, the results can be plotted
 with:
 
-$ dot -Tjpg depend.dot > depend.jpg
+$ dot -Tpng depend.dot > depend.png

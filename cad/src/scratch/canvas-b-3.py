@@ -20,12 +20,9 @@ if it's here in cad/src, that's just so it can import some code modules from our
 and/or be shared with other developers for testing. It need not be distributed with our product,
 but if it is this doesn't seem to be a problem.
 
-it's a main program, just run it with "python <filename>"
-or whatever is needed for your python installation to start it with a GUI
-(e.g. pythonw, or drag and drop it onto something that launches it).
-E.g.:
-
-  pythonw `pwd`/canvas-b-3.py
+You can try running it as "./ExecSubDir.py scratch/canvas-b-3.py", but it uses
+features of Qt3 that no longer exist in Qt4, so it needs to be ported before it
+will work.
   
 The current dir probably needs to be the same dir as this code module
 so it can find the 'butterfly.png' file.
