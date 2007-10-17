@@ -158,7 +158,7 @@ class MT_try1(InstanceMacro): # deprecated MT_try1 as of 070208, since MT_try2 w
         openclose_slot,
         SimpleColumn(
             SimpleRow(CenterY(icon), CenterY(label)),
-                #070124 added CenterY, hoping to improve text pixel alignment (after drawfont2 improvements in testdraw) -- doesn't work
+                #070124 added CenterY, hoping to improve text pixel alignment (after drawfont2 improvements) -- doesn't work
             If( open,
                       MT_kids_try1( call_Expr(node_kids, node) ), ###e implem or find kids... needs usage/mod tracking
                       Spacer(0) ###BUG that None doesn't work here: see comment in ToggleShow.py

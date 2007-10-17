@@ -19,6 +19,8 @@ from exprs.widget2d import Widget2D
 from exprs.ExprsConstants import PIXELS
 from exprs.__Symbols__ import _self
 
+# TODO: see if our runtime imports from texture_fonts can be done at toplevel
+
 class TextRect(Widget2D):
     """TextRect(msg, nlines, ncols) renders as a rect of ncols by nlines chars,
     taken from str(msg) (typically a formula in _self or _this(something)),
@@ -27,7 +29,7 @@ class TextRect(Widget2D):
     ncols defaults to cols in msg, limited by option max_cols, default 45.
     #doc textsize issues, lbox issues, arg order reason (some caller comment explains it, i think, maybe in test.py).
     """
-    from testdraw import tex_width, tex_height # constants (#e shouldn't be; see comments where they're defined)
+    from texture_fonts import tex_width, tex_height # constants (#e shouldn't be; see comments where they're defined)
     # args
     msg = Arg(str)
     nlines = Arg(int, min_Expr( _self.msg_lines, _self.max_lines) ) # related to height, but in chars
@@ -65,7 +67,7 @@ class TextRect(Widget2D):
             width = int(width)
             height = int(height)
         
-        from testdraw import drawfont2
+        from texture_fonts import drawfont2
         glPushMatrix() ####k guess, not sure needed
         #e translate by margin
         drawfont2(glpane, msg, width, height, pixelwidth = PIXELS)

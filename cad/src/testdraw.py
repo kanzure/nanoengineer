@@ -1,12 +1,12 @@
 # Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-testdraw.py -- scratchpad for new code, OWNED BY BRUCE, not imported by default.
-
-FOR NOW [060716], NO ONE BUT BRUCE SHOULD EDIT THIS FILE IN ANY WAY.
-
-$Id$
+testdraw.py -- drawing code for testmode, which tests the exprs package.
 
 [for doc, see testmode.py]
+
+@author: Bruce
+@version: $Id$
+@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 
 ### WARNING: most of the rest of this docstring is obs:
 
@@ -74,6 +74,8 @@ shrinks when it gets nonparallel, but that's a bug, not a form of billboarding.
 
 __author__ = "bruce"
 
+# TODO: maybe some of these imports and constants are not needed
+
 import os
 import time
 from Numeric import dot
@@ -82,32 +84,30 @@ from OpenGL.GL import glPushMatrix
 from OpenGL.GL import glPopMatrix
 from OpenGL.GL import glTranslate
 from OpenGL.GL import glTranslatef
-from OpenGL.GL import glGenTextures
-from OpenGL.GL import GL_TEXTURE_2D
-from OpenGL.GL import glBindTexture
-from OpenGL.GL import GL_UNPACK_ALIGNMENT
-from OpenGL.GL import glPixelStorei
-from OpenGL.GL import GL_RGBA
-from OpenGL.GL import GL_UNSIGNED_BYTE
-from OpenGL.GL import glTexImage2D
-from OpenGL.GL import GL_CLAMP
-from OpenGL.GL import GL_TEXTURE_WRAP_S
-from OpenGL.GL import glTexParameterf
-from OpenGL.GL import GL_TEXTURE_WRAP_T
-from OpenGL.GL import GL_REPEAT
-from OpenGL.GL import GL_LINEAR
-from OpenGL.GL import GL_TEXTURE_MAG_FILTER
-from OpenGL.GL import GL_LINEAR_MIPMAP_LINEAR
-from OpenGL.GL import GL_TEXTURE_MIN_FILTER
-from OpenGL.GL import GL_NEAREST
-from OpenGL.GL import GL_DECAL
-from OpenGL.GL import GL_TEXTURE_ENV
-from OpenGL.GL import GL_TEXTURE_ENV_MODE
-from OpenGL.GL import glTexEnvf
 
-from OpenGL.GLU import gluProject
-from OpenGL.GLU import gluUnProject
-from OpenGL.GLU import gluBuild2DMipmaps
+# guessing these are no longer needed [bruce 071017]
+##from OpenGL.GL import glGenTextures
+##from OpenGL.GL import GL_TEXTURE_2D
+##from OpenGL.GL import glBindTexture
+##from OpenGL.GL import GL_UNPACK_ALIGNMENT
+##from OpenGL.GL import glPixelStorei
+##from OpenGL.GL import GL_RGBA
+##from OpenGL.GL import GL_UNSIGNED_BYTE
+##from OpenGL.GL import glTexImage2D
+##from OpenGL.GL import GL_CLAMP
+##from OpenGL.GL import GL_TEXTURE_WRAP_S
+##from OpenGL.GL import glTexParameterf
+##from OpenGL.GL import GL_TEXTURE_WRAP_T
+##from OpenGL.GL import GL_REPEAT
+##from OpenGL.GL import GL_LINEAR
+##from OpenGL.GL import GL_TEXTURE_MAG_FILTER
+##from OpenGL.GL import GL_LINEAR_MIPMAP_LINEAR
+##from OpenGL.GL import GL_TEXTURE_MIN_FILTER
+##from OpenGL.GL import GL_NEAREST
+##from OpenGL.GL import GL_DECAL
+##from OpenGL.GL import GL_TEXTURE_ENV
+##from OpenGL.GL import GL_TEXTURE_ENV_MODE
+##from OpenGL.GL import glTexEnvf
 
 import env
 import platform
@@ -123,21 +123,21 @@ from constants import white
 from constants import green
 from constants import red
 
-from exprs.draw_utils import draw_textured_rect #bruce 070921 moved this import to toplevel
-
 ### a lot of the following constants are probably obs here, redundant with ones now defined in exprs module [070408 comment]
 
 printdraw = False # debug flag
 
-# some of these are still used in drawfont2... we should probably move that and the texture init stuff into the exprs module ###e
-ORIGIN = V(0,0,0)
-DX = V(1,0,0)
-DY = V(0,1,0)
-DZ = V(0,0,1)
+# guessing these are no longer needed [bruce 071017]
+##ORIGIN = V(0,0,0)
+##DX = V(1,0,0)
+##DY = V(0,1,0)
+##DZ = V(0,0,1)
+##
+##ORIGIN2 = V(0.0, 0.0)
+##D2X = V(1.0, 0.0)
+##D2Y = V(0.0, 1.0)
 
-ORIGIN2 = V(0.0, 0.0)
-D2X = V(1.0, 0.0)
-D2Y = V(0.0, 1.0)
+from texture_fonts import ensure_courierfile_loaded
 
 class attrholder: pass
 
@@ -172,15 +172,13 @@ trans_green = translucent_color(green)
 
 try:
     vv
-    vv.reload_counter += 1
-    vv.state
+    vv.reload_counter += 1  # note: this is public, used by other modules
+##    vv.state
 except:
     vv = attrholder()
-    vv.tex_name = 0
-    vv.tex_data = None
     vv.reload_counter = 0
-    vv.state = {} # prototype of a place to store persistent state (presuming some persistent way of allocating keys, eg hardcoding)
-    ##e should modify to make it easier to set up defaults; sort of like a debug_pref?
+##    vv.state = {} # prototype of a place to store persistent state (presuming some persistent way of allocating keys, eg hardcoding)
+##    ##e should modify to make it easier to set up defaults; sort of like a debug_pref?
 
 # ==
 
@@ -266,7 +264,7 @@ def Draw_after_highlighting(mode, pickCheckOnly, glpane, super):
 
 def drawtest0(glpane):
     "run drawtest1, protected from exceptions, after setting up some of its environment"
-    # load the texture for the courier bitmap font; params incl tex_name are in vv
+    # load the texture for the courier bitmap font; params incl tex_name are in private texture_fonts.vv object
     ensure_courierfile_loaded() # used to be done inside drawtest1
 
     vv.start_time = time.time()
@@ -288,338 +286,11 @@ def drawtest1(glpane):
     drawtest1_innards(glpane)
     return
 
-def ensure_courierfile_loaded(): #e rename to reflect binding too
-    "load font-texture if we edited the params for that in this function, or didn't load it yet; bind it for drawing"
-    tex_filename = courierfile ## "xxx.png" # the charset
-    "courierfile"
-    tex_data = (tex_filename,)
-    if vv.tex_name == 0 or vv.tex_data != tex_data:
-        vv.have_mipmaps, vv.tex_name = load_image_into_new_texture_name( tex_filename, vv.tex_name)
-        vv.tex_data = tex_data
-    else:
-        pass # assume those vars are fine from last time
-    setup_to_draw_texture_name(vv.have_mipmaps, vv.tex_name)
-    return
-
-def _bind_courier_font_texture(): # kluge 061125 so exprs/images.py won't mess up drawfont2; might be slow
-    """assuming everything else is set up as needed,
-    including that exprs/images.py doesn't change most GL params,
-    bind the texture containing the courierfile font
-    """
-    ensure_courierfile_loaded() #bruce 070706 bugfix for when drawfont2 is used outside of testmode
-    # optimized part of inlined setup_to_draw_texture_name
-    glBindTexture(GL_TEXTURE_2D, vv.tex_name)
-    ##e note: this will need extension once images.py can change more params,
-    # to do some of the other stuff now done by setup_to_draw_texture_name.
-    # OTOH it's too expensive to do that all the time (and maybe even this, if same tex already bound -- remains to be seen).
-    return
-
 def _reload_exprs_test():
     # will need REVIEW when we have a new reloading system to replace heavy manual use of reload_once
     from exprs.reload import reload_once
     from exprs import test
     reload_once(test)
-    return
-
-# ==
-
-#e put these into an object for a texture font!
-tex_width = 6 # pixel width of 1 char within the texture image
-tex_height = 10 # pixel height (guess)
-
-def drawfont2(glpane, msg = None, charwidth = None, charheight = None, testpattern = False, pixelwidth = None):
-    """draws a rect of chars (dimensions given as char counts: charwidth x charheight [#e those args are misnamed])
-    using vv's font texture [later 061113: assumed currently bound, i think -- see ensure_courierfile_loaded()],
-    in a klugy way;
-    msg gives the chars to draw (lines must be shorter than charwidth or they will be truncated)
-    """
-    _bind_courier_font_texture()
-    # adjust these guessed params (about the specific font image we're using as a texture) until they work right:
-    # (tex_origin_chars appears lower down, since it is revised there)
-    tex_size = (128,128) # tex size in pixels
-    tex_nx = 16 # number of chars in a row, in the tex image
-    tex_ny = 8  # number of chars in a column
-
-    if msg is None:
-        msg = "(redraw %d)" % env.redraw_counter
-        charwidth = tex_nx
-        charheight = tex_ny + 1
-
-    lines = msg.split('\n') # tab not supported
-
-    if charwidth is None:
-        charwidth = 14 # could be max linelength plus 1
-    if charheight is None:
-        charheight = len(lines)
-
-    if not testpattern:
-        while len(lines) < charheight:
-            lines.append('')
-    
-    # draw individual chars from font-texture,
-    # but first, try to position it so they look perfect (which worked for a while, but broke sometime before 060728)
-
-    ## glTranslatef( 0, pixelheight / 2, 0 ) # perfect!
-        # (Ortho mode, home view, a certain window size -- not sure if that matters but it might)
-        # restoring last-saved window position (782, 44) and size (891, 749)
-    
-    ## gap = 2 # in pixels - good for debugging
-    gap = 0 # good for looking nice! but note that idlehack uses one extra pixel of vspace, and that does probably look better.
-      # to do that efficiently i'd want another image to start from.
-      # (or to modify this one to make the texture, by moving pixrects around)
-    pixfactor = 1 # try *2... now i can see some fuzz... what if i start at origin, to draw?
-        # did that, got it tolerable for pixfactor 2, then back to 1 and i've lost the niceness! Is it no longer starting at origin?
-
-    ##pixelwidth = pixelheight = 0.05 * 2/3
-
-    #070124 revisions, general comment... current caveats/bugs: ####
-    # - only tested in Ortho mode
-    # - working well but the bugs depend on whether we add "1 or" before "pixelwidth is None" in if statement below: 
-    #   bugs when it computes pixelwidth here (even when passed, as always in these tests):
-    #   - textlabel for "current redraw" (in exprs/test.py bottom_left_corner) disappears during highlighting
-    #   bugs when it doesn't [usual state & state I'll leave it in]:
-    #   - not tested with displists off, maybe ###
-    #   - fuzzy text in testexpr_18 [not yet understood]
-    #   - [fixed] fuzzy text in "current redraw" textlabel during anything's highlighting [fixed by removing DisplistChunk from that]
-    #   - [no bug in clarity of text in highlighted checkbox prefs themselves]
-    # - works with displists on or off now
-    # - is disable_translate helping?? not sure (only matters when it computes pixelwidth here -- not now)
-    #   - ##e use direct drawing_phase test instead? doesn't seem to be needed anymore, from remaining bugs listed above
-    disable_translate = False #070124
-    if pixelwidth is None: #061211 permit caller to pass it [note: the exprs module usually or always passes it, acc'd to test 070124]
-        p1junk, p2a = mymousepoints(glpane, 10, 10)
-        p1junk, p2b = mymousepoints(glpane, 11, 10)
-        px,py,pz = vec = p2b - p2a # should be DX * pixelwidth
-        ## print px,py,pz # 0.0313971755382 0.0 0.0 (in Ortho mode, near but not at home view, also at it (??))
-            # 0.0313971755382 0.0 0.0 home ortho
-            # 0.03139613018 0.0 0.0 home perspective -- still looks good (looks the same) (with false "smoother textures")
-        ## pixelwidth = pixelheight = px * pixfactor
-        pixelwidth = pixelheight = vlen(vec) * pixfactor # 061211 work better for rotated text (still not good unless screen-parallel)
-        # print "pixelwidth",pixelwidth
-            ####@@@@ can be one of:
-            #    0.0319194157846
-            # or 0.0313961295259
-            # or 0.00013878006302
-        if pixelwidth < 0.01:
-            # print "low pixelwidth:",pixelwidth, glpane.drawing_phase # e.g. 0.000154639183832 glselect
-            pixelwidth = 0.0319194157846
-            ### kluge, in case you didn't notice [guess: formula is wrong during highlighting]
-            # but this failed to fix the bug in which a TextRect doesn't notice clicks unless you slide onto it from a Rect ####@@@@
-            # Q 070124: when this happens (presumably due to small window in glSelect) should we disable glTranslatef below?
-            # I guess yes, so try it. Not that it'll help when we re-disable always using this case.
-            disable_translate = True # i'll leave this in since it seems right, but it's not obviously helping by test
-            
-        pass
-    else:
-        pixelheight = pixelwidth
-
-    tex_origin_chars = V(3, 64) # revised 070124
-
-    if 1 and not disable_translate: #070124 -- note that disable_translate is never set given if statements above --
-            ##e use glpane.drawing_phase == 'glselect' instead? doesn't seem to be needed anymore, from remaining bugs listed above
-        # Translate slightly to make characters clearer
-        #   (since we're still too lazy to use glDrawPixels or whatever it's called).
-        # Caveats:
-        # - assumes we're either not in a displist, or it's always drawn in the same place.
-        # - will only work if we're drawing at correct depth for pixelwidth, I presume -- and of course, parallel to screen.
-        x,y,depth = gluProject(0.0, 0.0, 0.0) # where we'd draw without any correction (ORIGIN)
-
-        # change x and y to a better place to draw (in pixel coords on screen)
-        # (note: this int(x+0.5) was compared by test to int(x) and int(x)+0.5 -- this is best, as one might guess; not same for y...)
-        x = int(x+0.5) ## if we need a "boldface kluge", using int(x)+0.5 here would be one...
-        y = int(y+0.5)+0.5 ### NOT UNDERSTOOD: why x & y differ, in whether it's best to add this 0.5.
-            # [btw I'd guessed y+0.5 in int() should be (y-0.5)+0.5 due to outer +0.5, but that looks worse in checkbox_pref centering;
-            #  I don't know why.]
-            #
-            # Adding outer 0.5 to y became best after I fixed a bug of translating before glu*Project (just before this if-statement),
-            # which fails inside displists since the translate effect doesn't show up in glu*Project then.
-            #
-            # I wonder if the x/y difference could be related to the use of CenterY around TextRect inside displists,
-            # which ought to produce a similar bug if the shift is not by an exact number of pixels (which is surely the case
-            #  since the caller is guessing pixelwidth as a hardcoded constant, IIRC). So the guess is that caller's pixelwidth
-            # is wrong and/or CenterY shifts by an odd number of halfpixels, inside displist and not seen by this glu*Project,
-            # causing a bug which this +0.5 sometimes compensates for, but not always due to pixelwidth being wrong.
-            # It's not worth understanding this compared to switching over to glDrawPixels or whatever it's called. ###DO THAT SOMETIME.
-
-        p1 = A(gluUnProject(x, y, depth)) # where we'd like to draw (p1)
-        ## p1 += DY # test following code -- with this line, it should make us draw noticeably higher up the screen -- works
-        glTranslatef( p1[0], p1[1], p1[2])
-            # fyi: NameError if we try glTranslatefv or glTranslatev -- didn't look for other variants or in gl doc
-        pass
-    
-    tex_dx = V(tex_width, 0) # in pixels
-    tex_dy = V(0, tex_height)
-    # using those guesses, come up with tex-rects for each char as triples of 2-vectors (tex_origin, tex_dx, tex_dy) 
-    def ff(i,j): # i for y, j or x (is that order normal??), still starting at bottom left
-        "which char to draw at this position? i is y, going up, -1 is lowest line (sorry)"
-        nlines = len(lines)
-        bottom = -1 # change this api sometime
-        abovethat = i - bottom # this one too -- caller ought to be able to use 0 or 1 for the top (first) line
-        if abovethat < nlines:
-            # draw chars from lines
-            test = lines[nlines-1 - abovethat]
-                # few-day(?)-old comment [as of 060728], not sure why it's exactly here, maybe since this tells when we redraw,
-                # but it might be correct other than that:
-                #   this shows that mouseover of objects (pixels) w/o glnames causes redraws! I understand glselect ones,
-                # but they should not be counted, and should not show up on the screen, so i don't understand
-                # any good reason for these visible ones to happen.
-                #e to try to find out, we could also record compact_stack of the first gl_update that caused this redraw...
-            if j < len(test):
-                # replace i,j with new ones so as to draw those chars instead
-                ch1 = ord(test[j]) - 32
-                j = ch1 % tex_nx
-                i = 5 - (ch1 / tex_nx)
-            else:
-                # draw a blank instead
-                ch1 = 32 - 32
-                j = ch1 % tex_nx
-                i = 5 - (ch1 / tex_nx)
-        else:
-            pass # use i,j to index the texture, meaning, draw test chars, perhaps the entire thing
-        return tex_origin_chars + i * tex_dy + j * tex_dx , tex_dx, tex_dy
-    # now think about where to draw all this... use a gap, but otherwise the same layout
-    charwidth1 = tex_width * pixelwidth
-    charheight1 = tex_height * pixelheight
-    char_dx = (tex_width + gap) * pixelwidth
-    char_dy = (tex_height + gap) * pixelheight
-    def gg(i,j):
-        return ORIGIN + j * char_dx * DX + (i + 1) * char_dy * DY, charwidth1 * DX, charheight1 * DY
-    # now draw them
-
-    if 1: #### for n in range(65): # simulate the delay of doing a whole page of chars
-      # note, this is significantly slow even if we just draw 5x as many chars!
-      for i in range(-1,charheight-1): # (range was -1,tex_ny==8, length 9) - note, increasing i goes up on screen, not down!
-        for j in range(charwidth): # was tex_nx==16
-            origin, dx, dy = gg(i,j) # where to draw this char ###k
-            tex_origin, ltex_dx, ltex_dy = ff(i,j) # still in pixel ints # what tex coords to use to find it
-            tex_origin, ltex_dx, ltex_dy = 1.0/tex_size[0] * V(tex_origin, ltex_dx, ltex_dy) # kluge until i look up how to use pixels directly
-            #print (origin, dx, dy, tex_origin, tex_dx, tex_dy)
-            draw_textured_rect(origin, dx, dy, tex_origin, ltex_dx, ltex_dy) # cool bug effect bfr 'l's here
-
-    # draw some other ones? done above, with test string inside ff function.
-
-    # interesting q -- if i use vertex arrays or displist-index arrays, can drawing 10k chars be fast? (guess: yes.)
-    # some facts: this window now has 70 lines, about 135 columns... of course it's mostly blank,
-    # and in fact just now it has about 3714 chars, not 70 * 135 = 9450 as if it was nowhere blank.
-    # above we draw 9 * 16 = 144, so ratio is 3714 / 144 = 25, or 9450 / 144 = 65.
-    # Try 65 redundant loops above & see what happens. It takes it a couple seconds! Too slow! Of course it's mostly the py code.
-    # Anyway, it means we *will* have to do one of those optims mentioned, or some other one like not clearing/redrawing
-    # the entire screen during most text editing, or having per-line display lists.
-
-    return #drawfont2 #e rename, clean up
-
-def mymousepoints(glpane, x, y):
-    # modified from GLPane.mousepoints; x and y are window coords (except y is 0 at bottom, positive as you go up [guess 070124])
-    self = glpane
-    just_beyond = 0.0
-    p1 = A(gluUnProject(x, y, just_beyond))
-    p2 = A(gluUnProject(x, y, 1.0))
-
-    los = self.lineOfSight # isn't this just norm(p2 - p1)?? Probably not, if we're in perspective mode! [bruce Q 061206]
-        # note: this might be in abs coords (not sure!) even though p1 and p2 would be in local coords.
-        # I need to review that in GLPane.__getattr__. ###k
-    
-    k = dot(los, -self.pov - p1) / dot(los, p2 - p1)
-
-    p2 = p1 + k*(p2-p1)
-    return (p1, p2)
-
-## courierfile = os.path.join( os.path.dirname(__file__), "experimental/textures/courier-128.png")
-from icon_utilities import image_directory
-courierfile = os.path.join( image_directory(), "ui/exprs/text/courier-128.png") # see also exprs/images.py
-
-'''
-()()
-()()(8)
-8888 -- there's one more pixel of vertical space between the chars, here in idlehack, than in my courier-128.png image file!
-'''
-
-# ==
-
-# high-level helpers
-def load_image_into_new_texture_name(image_file, tex_name = 0):
-    """Allocate texture object in current GL Context (or use given one) (either way, return have_mipmaps, tex_name)
-    and load image from file into it [what if wrong size??]
-    """
-    # took code from ESPImage
-    image_obj = _create_PIL_image_obj_from_image_file( image_file)
-    have_mipmaps, tex_name = _loadTexture(image_obj, tex_name)
-    return have_mipmaps, tex_name
-
-def setup_to_draw_texture_name(have_mipmaps, tex_name):
-    "assume it's already set up"
-    #e bind it
-    glBindTexture(GL_TEXTURE_2D, tex_name)
-    _initTextureEnv(have_mipmaps) # sets texture params the way we want them
-
-    ## now you can: (from ESPImage._draw_jig, which before this did pushmatrix etc)
-    ## drawPlane(self.fill_color, self.width, self.width, textureReady, self.opacity, SOLID=True, pickCheckOnly=self.pickCheckOnly)
-    ##hw = self.width/2.0
-    ##corners_pos = [V(-hw, hw, 0.0), V(-hw, -hw, 0.0), V(hw, -hw, 0.0), V(hw, hw, 0.0)]
-    ##drawLineLoop(color, corners_pos)  
-    return
-
-# low-level helpers modified from ESPImage
-# [note: some of these are called from exprs/images.py; others are copied & modified into it [bruce 061125]]
-
-def _create_PIL_image_obj_from_image_file(image_file, **kws): # misnamed, see docstring; added kws, 061127
-    """Creates and returns an nEImageOps object (using the given kws, documented in ImageUtils.py),
-    which contains (and sometimes modifies in place) a PIL image object made from the named image file.
-    """
-    from ImageUtils import nEImageOps
-    return nEImageOps(image_file, **kws)
-
-def _loadTexture(image_obj, tex_name = 0): #e arg want_mipmaps
-    """Load texture data from current image object; return have_mipmaps, tex_name (also leave that texture bound, BTW)"""
-    # note: some of this code has been copied into exprs/images.py, class texture_holder [bruce 061125]
-    ix, iy, image = image_obj.getTextureData() 
-
-    # allocate texture object if necessary
-    if not tex_name:
-        tex_name = glGenTextures(1)
-        print "debug fyi: testdraw._loadTexture allocated tex_name %r" % (tex_name,) # it's deprecated to let this happen much [070308]
-        # note: by experiment (iMac G5 Panther), this returns a single number (1L, 2L, ...), not a list or tuple,
-        # but for an argument >1 it returns a list of longs. We depend on this behavior here. [bruce 060207]
-        tex_name = int(tex_name) # make sure it worked as expected
-        assert tex_name != 0
-    
-    # initialize texture data
-    glBindTexture(GL_TEXTURE_2D, tex_name)   # 2d texture (x and y size)
-
-    glPixelStorei(GL_UNPACK_ALIGNMENT,1) ###k what's this?
-    have_mipmaps = False
-    ## want_mipmaps = debug_pref("smoother tiny textures", Choice_boolean_False, prefs_key = True)
-    want_mipmaps = True
-    if want_mipmaps: 
-        gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, ix, iy, GL_RGBA, GL_UNSIGNED_BYTE, image)
-        have_mipmaps = True
-    else:
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ix, iy, 0, GL_RGBA, GL_UNSIGNED_BYTE, image)
-            # 0 is mipmap level, GL_RGBA is internal format, ix, iy is size, 0 is borderwidth,
-            # and (GL_RGBA, GL_UNSIGNED_BYTE, image) describe the external image data. [bruce 060212 comment]
-    return have_mipmaps, tex_name
-
-# this gets us ready to draw (using coords in) a texture if we have it bound, i think
-def _initTextureEnv(have_mipmaps): # called during draw method [modified from ESPImage] #e need smooth = False/True
-    "have_mipmaps is boolean #doc"
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP)
-        # [looks like a bug that we overwrite clamp with repeat, just below? bruce 060212 comment]
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP)
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
-    if 0 and "kluge" and debug_pref("smoother textures", Choice_boolean_False, prefs_key = True): ###@@@ revise to param
-        #bruce 060212 new feature (only visible in debug version so far);
-        # ideally it'd be controllable per-jig for side-by-side comparison;
-        # also, changing its menu item ought to gl_update but doesn't ##e
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-        if have_mipmaps: #####@@@@@
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR)
-        else:
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
-    else:
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL)
     return
 
 # ==

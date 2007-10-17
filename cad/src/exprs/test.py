@@ -1,9 +1,11 @@
 # Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
+exprs/test.py - tests of exprs package, accessible from testmode UI;
+also some exprs/testmode support code (which ought to be refiled)
 
-$Id$
-
-
+@author: Bruce
+@version: $Id$
+@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 
 #e during devel, see drawtest1_innards for main entry point from testdraw.py
@@ -140,7 +142,7 @@ from VQT import V
 from utilities.Comparison import same_vals
 from constants import purple, white, blue, red, orange, green, gray, pink, yellow, black, ave_colors, noop
 from prefs_constants import displayOriginAxis_prefs_key
-from testdraw import courierfile
+from texture_fonts import courierfile
 from testdraw import vv
 
 from exprs.Exprs import format_Expr, getattr_Expr, list_Expr, mod_Expr, not_Expr, eval_Expr, call_Expr, is_Expr

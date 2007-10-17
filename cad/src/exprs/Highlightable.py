@@ -387,7 +387,7 @@ class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 07031
                     # the rest of the work here is straightforward:
                     # just intersect the mouseray (gotten using mymousepoints or equiv) with the center/radius sphere
                     # (really with a screen-parallel plane through center) to decide what to do. In fact, the same code used
-                    # in mymousepoints (in cad/src/testdraw.py) could probably do it -- except that code uses glpane.lineOfSight
+                    # in mymousepoints could probably do it -- except that code uses glpane.lineOfSight
                     # which might be in abs coords. (I'm not sure! Need to review that in GLPane.__getattr__. ###k)
                 # Hmm, a simpler way might be to get center's depth using gluProject, then use that depth in gluUnProject
                 # to get the mousepoint at the same depth, which is the intersection asked for above, then compare distance

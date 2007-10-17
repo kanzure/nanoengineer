@@ -2,7 +2,9 @@
 """
 texture_fonts.py -- OpenGL fonts based on texture images of the characters
 
-$Id$
+@author: Bruce
+@version: $Id$
+@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 
 # TODO: some of these imports and constants may not be needed
@@ -47,6 +49,9 @@ from VQT import V, A, vlen
 
 from exprs.draw_utils import draw_textured_rect, mymousepoints
 
+from texture_helpers import load_image_into_new_texture_name
+from texture_helpers import setup_to_draw_texture_name
+
 # TODO: clean up -- these are defined in multiple files
 ORIGIN = V(0,0,0)
 DX = V(1,0,0)
@@ -69,8 +74,9 @@ except:
 
 # (these should be turned into instance attributes of a texture-font object)
 
+# font image file (same image file is used in other modules, but for different purposes)
 ## courierfile = os.path.join( os.path.dirname(__file__), "experimental/textures/courier-128.png")
-courierfile = os.path.join( image_directory(), "ui/exprs/text/courier-128.png") # see also exprs/images.py
+courierfile = os.path.join( image_directory(), "ui/exprs/text/courier-128.png")  ### TODO: RENAME
 
 #e put these into an object for a texture font!
 tex_width = 6 # pixel width of 1 char within the texture image

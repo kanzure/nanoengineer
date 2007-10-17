@@ -2,7 +2,9 @@
 """
 texture_helpers.py -- helper functions for using OpenGL textures
 
-$Id$
+@author: Bruce
+@version: $Id$
+@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 
 # TODO: some of these imports and constants may not be needed
@@ -40,25 +42,31 @@ from VQT import V   # in commented-out code
 from debug_prefs import Choice_boolean_False   # in disabled code
 from debug_prefs import debug_pref   # in disabled code
 
+# note this runtime import below -- TODO, find out if it can be toplevel;
+# the file it imports is not now [071017] in any import cycles:
+## from ImageUtils import nEImageOps
 
 # ==
 
 # higher-level helpers
 
 def load_image_into_new_texture_name(image_file, tex_name = 0):
-    """Allocate texture object in current GL Context (or use given one) (either way, return have_mipmaps, tex_name)
-    and load image from file into it [what if wrong size??]
+    """
+    Allocate texture object in current GL Context (or use given one)
+    (either way, return have_mipmaps, tex_name)
+    and load image from file into it.
+    [what if wrong size??]
     """
     # took code from ESPImage
-    image_obj = _create_PIL_image_obj_from_image_file( image_file)
-    have_mipmaps, tex_name = _loadTexture(image_obj, tex_name)
+    image_obj = create_PIL_image_obj_from_image_file( image_file)
+    have_mipmaps, tex_name = loadTexture(image_obj, tex_name)
     return have_mipmaps, tex_name
 
-def setup_to_draw_texture_name(have_mipmaps, tex_name):
-    "assume it's already set up"
+def setup_to_draw_texture_name(have_mipmaps, tex_name): # TODO: rename, docstring
+    # assume it's already set up [what does that mean? bruce 071017]
     #e bind it
     glBindTexture(GL_TEXTURE_2D, tex_name)
-    _initTextureEnv(have_mipmaps) # sets texture params the way we want them
+    initTextureEnv(have_mipmaps) # sets texture params the way we want them
 
     ## now you can: (from ESPImage._draw_jig, which before this did pushmatrix etc)
     ## drawPlane(self.fill_color, self.width, self.width, textureReady, self.opacity, SOLID=True, pickCheckOnly=self.pickCheckOnly)
@@ -72,22 +80,30 @@ def setup_to_draw_texture_name(have_mipmaps, tex_name):
 # lower-level helpers modified from ESPImage
 # [note: some of these are called from exprs/images.py; others are copied & modified into it [bruce 061125]]
 
-def _create_PIL_image_obj_from_image_file(image_file, **kws): # misnamed, see docstring; added kws, 061127
-    """Creates and returns an nEImageOps object (using the given kws, documented in ImageUtils.py),
-    which contains (and sometimes modifies in place) a PIL image object made from the named image file.
+def create_PIL_image_obj_from_image_file(image_file, **kws): # misnamed, see docstring; added kws, 061127
+    ### TODO: refile this into ImageUtils?
+    """
+    Creates and returns an nEImageOps object
+    (using the given kws, documented in ImageUtils.py),
+    which contains (and sometimes modifies in place)
+    a PIL image object made from the named image file.
     """
     from ImageUtils import nEImageOps
     return nEImageOps(image_file, **kws)
 
-def _loadTexture(image_obj, tex_name = 0): #e arg want_mipmaps
-    """Load texture data from current image object; return have_mipmaps, tex_name (also leave that texture bound, BTW)"""
+def loadTexture(image_obj, tex_name = 0): #e arg want_mipmaps
+    """
+    Load texture data from current image object;
+    return have_mipmaps, tex_name
+    (also leave that texture bound, BTW)
+    """
     # note: some of this code has been copied into exprs/images.py, class texture_holder [bruce 061125]
     ix, iy, image = image_obj.getTextureData() 
 
     # allocate texture object if necessary
     if not tex_name:
         tex_name = glGenTextures(1)
-        print "debug fyi: testdraw._loadTexture allocated tex_name %r" % (tex_name,) # it's deprecated to let this happen much [070308]
+        print "debug fyi: texture_helpers.loadTexture allocated tex_name %r" % (tex_name,) # it's deprecated to let this happen much [070308]
         # note: by experiment (iMac G5 Panther), this returns a single number (1L, 2L, ...), not a list or tuple,
         # but for an argument >1 it returns a list of longs. We depend on this behavior here. [bruce 060207]
         tex_name = int(tex_name) # make sure it worked as expected
@@ -110,7 +126,7 @@ def _loadTexture(image_obj, tex_name = 0): #e arg want_mipmaps
     return have_mipmaps, tex_name
 
 # this gets us ready to draw (using coords in) a texture if we have it bound, i think
-def _initTextureEnv(have_mipmaps): # called during draw method [modified from ESPImage] #e need smooth = False/True
+def initTextureEnv(have_mipmaps): # called during draw method [modified from ESPImage] #e need smooth = False/True
     "have_mipmaps is boolean #doc"
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP)
         # [looks like a bug that we overwrite clamp with repeat, just below? bruce 060212 comment]

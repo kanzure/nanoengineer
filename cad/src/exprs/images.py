@@ -82,11 +82,18 @@ from exprs.__Symbols__ import _self, Anything
 
 # ImageUtils.py class nEImageOps -- see following comment
 
-import testdraw
-    # Note: from testdraw we use:
-    #   _create_PIL_image_obj_from_image_file, a trivial glue function into ImageUtils.py class nEImageOps,
-    #   func _loadTexture,
-    #   attr courierfile,
+# TODO: find out if the functions we need from texture_helpers could be imported here at toplevel:
+import texture_helpers
+    # Note: from texture_helpers we use:
+    #   function create_PIL_image_obj_from_image_file, a trivial glue function into ImageUtils.py class nEImageOps,
+    #   function loadTexture.
+
+from icon_utilities import image_directory # for finding texture & cursor files [#k import ok at toplevel?]
+
+# last-resort image file (same image file is used in other modules, but for different purposes)
+courierfile = os.path.join( image_directory(), "ui/exprs/text/courier-128.png") ### TODO: RENAME
+
+# old comment about testdraw.py, not sure if still relevant as of 071017:
     # and we copy & modify other funcs from it into this file, but they also remain in testdraw for now, in some cases still used.
     # At some point we'll need to clean up the proper source file of our helper functions from testdraw...
     # when the time comes, the only reliable way to sort out & merge duplicated code (some in other cad/src files too)
@@ -115,11 +122,11 @@ class _texture_holder(object):
         #e more options? maybe, but by default, get those from queries, store an optimal set of shared versions [nim]
     def _C__image(self):
         "define self._image -- create a PIL Image object (enclosed in an neImageOps container) from the file, and return it"
-        return testdraw._create_PIL_image_obj_from_image_file(self.filename, **self.pil_kws)
+        return texture_helpers.create_PIL_image_obj_from_image_file(self.filename, **self.pil_kws)
             # (trivial glue function into ImageUtils.py class nEImageOps -- return nEImageOps(image_file, **kws))
     def _C_tex_name(self):
         "define self.tex_name -- allocate a texture name"
-        # code copied from testdraw._loadTexture (even though we call it, below, for its other code):
+        # code copied from texture_helpers.loadTexture (even though we call it, below, for its other code):
         tex_name = glGenTextures(1)
         if debug_glGenTextures and seen_before(('debug_glGenTextures', self.filename)):
             #070313 using env.seen_before (rename env module (cad/src) -> global_env? for now, basic imports seen_before via py_utils.)
@@ -138,13 +145,13 @@ class _texture_holder(object):
         image_obj = self._image
         tex_name = self.tex_name
         assert tex_name, "tex_name should have been allocated and should not be 0 or false or None, but is %r" % (tex_name,)#070308
-        have_mipmaps, tex_name = testdraw._loadTexture(image_obj, tex_name)
+        have_mipmaps, tex_name = texture_helpers.loadTexture(image_obj, tex_name)
             ##testexpr_11n = imagetest("stopsign.png") # fails; guess, our code doesn't support enough in-file image formats;
             ##    # exception is SystemError: unknown raw mode, [images.py:73] [testdraw.py:663] [ImageUtils.py:69] [Image.py:439] [Image.py:323]
             ##    ##e need to improve gracefulness of response to this error
         glBindTexture(GL_TEXTURE_2D, 0)
             # make sure no caller depends on mere accessing of self.loaded_texture_data binding this texture,
-            # which without this precaution would happen "by accident" (as side effect of _loadTexture)
+            # which without this precaution would happen "by accident" (as side effect of loadTexture)
             # whenever self.loaded_texture_data ran this recompute method, _C_loaded_texture_data
         assert tex_name == self.tex_name
         return have_mipmaps, tex_name
@@ -157,12 +164,12 @@ class _texture_holder(object):
         # - pixmap is misnamed, it doesn't use the pixmap ops, tho we might like to use those from the same image data someday
         
         have_mipmaps, tex_name = self.loaded_texture_data
-        ## testdraw.setup_to_draw_texture_name(have_mipmaps, tex_name)
-        # let's inline that instead, including its call of _initTextureEnv, and then modify it [061126]
+        ## texture_helpers.setup_to_draw_texture_name(have_mipmaps, tex_name)
+        # let's inline that instead, including its call of initTextureEnv, and then modify it [061126]
 
         glBindTexture(GL_TEXTURE_2D, tex_name)
         
-        # modified from _initTextureEnv(have_mipmaps) in testdraw.py
+        # modified from initTextureEnv(have_mipmaps) in texture_helpers.py
         if clamp:
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP)
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP)
@@ -231,7 +238,6 @@ def canon_image_filename( filename):
     cad = os.path.dirname( cad_src)
 
     # image file path extensively revised 070604, mainly so testmode can work in a built release package
-    from icon_utilities import image_directory
     from PlatformDependent import path_of_Nanorex_subdir
 
     # main exprs-package image directory
@@ -274,7 +280,7 @@ def canon_image_filename( filename):
         os.path.join( cad, "images"),
     ]
     tries = map( lambda dir: os.path.join(dir, filename), path)
-    lastresort = testdraw.courierfile
+    lastresort = courierfile
         #e replace with some error-indicator image, or make one with the missing filename as text (on demand, or too slow)
     ## tries.append(lastresort)
     tries.append(-1)
@@ -447,7 +453,7 @@ class Image(Widget2D):
         # where to draw it -- act like a 2D Rect for now, determined by self's lbox,
         # which presently comes from self.size
         origin = V(-self.bleft, -self.bbottom, 0)
-            # see also the code in testdraw.drawfont2 which tweaks the drawing position to improve the pixel alignment
+            # see also the code in drawfont2 which tweaks the drawing position to improve the pixel alignment
             # (in a way which won't work right inside a display list if any translation occurred before now in that display list)
             # in case we want to offer that option here someday [070124 comment]
 ##        dx = DX * self.bright

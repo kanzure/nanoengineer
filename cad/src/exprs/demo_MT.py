@@ -532,7 +532,7 @@ class _MT_try2_node_helper(DelegatingInstanceOrExpr):
         CenterY(openclose_slot),
         SimpleColumn(
             SimpleRow(CenterY(icon), CenterY(label)),
-                #070124 added CenterY, hoping to improve text pixel alignment (after drawfont2 improvements in testdraw) -- doesn't work
+                #070124 added CenterY, hoping to improve text pixel alignment (after drawfont2 improvements) -- doesn't work
             If( open,
                 _MT_try2_kids_helper( call_Expr(node_kids, node) , _self.mt ), # 070218 added _self.mt -- always intended, first used now
                 None

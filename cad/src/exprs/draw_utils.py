@@ -4,6 +4,8 @@ draw_utils.py
 
 $Id$
 
+Note: this module does not really belong in the exprs package --
+that's its main client, but it contains only pure OpenGL utilities.
 """
 
 from OpenGL.GL import GL_TEXTURE_2D
@@ -20,17 +22,29 @@ from OpenGL.GL import glEnd
 from OpenGL.GL import glEnable
 from OpenGL.GL import GL_QUAD_STRIP
 
+from OpenGL.GLU import gluUnProject
+
 from VQT import norm
 
-# moved to draw_utils.py, 070130:
-##ORIGIN = V(0,0,0)
-##DX = V(1,0,0)
-##DY = V(0,1,0)
-##DZ = V(0,0,1)
-##
-##ORIGIN2 = V(0.0, 0.0)
-##D2X = V(1.0, 0.0)
-##D2Y = V(0.0, 1.0)
+# ==
+
+def mymousepoints(glpane, x, y): #bruce 071017 moved this here from testdraw.py
+    ### TODO: rename, docstring
+
+    # modified from GLPane.mousepoints; x and y are window coords (except y is 0 at bottom, positive as you go up [guess 070124])
+    self = glpane
+    just_beyond = 0.0
+    p1 = A(gluUnProject(x, y, just_beyond))
+    p2 = A(gluUnProject(x, y, 1.0))
+
+    los = self.lineOfSight # isn't this just norm(p2 - p1)?? Probably not, if we're in perspective mode! [bruce Q 061206]
+        # note: this might be in abs coords (not sure!) even though p1 and p2 would be in local coords.
+        # I need to review that in GLPane.__getattr__. ###k
+    
+    k = dot(los, -self.pov - p1) / dot(los, p2 - p1)
+
+    p2 = p1 + k*(p2-p1)
+    return (p1, p2)
 
 # == new LL drawing helpers
 
