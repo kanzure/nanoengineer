@@ -25,7 +25,7 @@ from VQT        import  V, Q, cross, A, planeXline, vlen, norm, angleBetween
 
 from debug     import print_compact_traceback
 from constants import blue
-from Plane     import Handle
+from ResizeHandle     import ResizeHandle
 from ReferenceGeometry import ReferenceGeometry
 
 
@@ -72,8 +72,9 @@ class Line(ReferenceGeometry):
                 self.handles[i].draw(hCenter = handleCenters[i])
         else:   
             for hCenter in handleCenters: 
-                handle = Handle(self, self.glpane, hCenter)                
+                handle = ResizeHandle(self, self.glpane, hCenter)                
                 handle.draw() 
+                handle.setType('')
                 if handle not in self.handles:
                     self.handles.append(handle)
     
@@ -83,7 +84,10 @@ class Line(ReferenceGeometry):
         rayVector = norm(p2-p1)
         ptOnHandle = hdl.center
         handleNorm = hdl.glpane.lineOfSight
-        hdl_intersection = planeXline(ptOnHandle, handleNorm, rayPoint, rayVector)
+        hdl_intersection = planeXline(ptOnHandle, 
+                                      handleNorm, 
+                                      rayPoint, 
+                                      rayVector)
         
         handlePoint = hdl_intersection         
         return handlePoint

@@ -5,11 +5,11 @@
 @version:$Id$
 
 History:
-ninad 2007-06-21: Created.
-ninad 2007-06-01: Implemented DragHandler and selobj interface for classes
-      Handles and ReferenceGeoemtry.
+ninad 2007-05-21: Created. 
 ninad 2007-06-03: Implemented Plane Property Manager
-ninad 2007-08-20: Moved class DirectionArrow in this file to Directionarrow.py
+
+This file also used to contain DirectionArrow and  ResizeHandle classes. 
+Those were moved to their own module on Aug 20 and Oct 17, 2007 respt.
 
 TODO:
 - Need to implement some grid plane features. 
@@ -21,28 +21,23 @@ __author__ = "Ninad"
 from math import pi, atan, cos, sin
 from Numeric import add, dot
 
-from OpenGL.GL import glPushName
-from OpenGL.GL import glPopName
 from OpenGL.GL import glPushMatrix
+from OpenGL.GL import glPopMatrix
 from OpenGL.GL import glTranslatef
 from OpenGL.GL import glRotatef
-from OpenGL.GL import glPopMatrix
-
 
 from drawer import drawLineLoop, drawPlane
 from constants import black, orange, yellow, darkgreen, brown
+
 from VQT import V, Q, cross, planeXline, vlen, norm, ptonline
 
 from debug import print_compact_traceback
 import env
 
-from utilities.Log import redmsg
-from ReferenceGeometry    import ReferenceGeometry 
-from DirectionArrow       import DirectionArrow
-
-
-#Required for class Handle --
-from DragHandler import DragHandler_API
+from utilities.Log     import redmsg
+from ReferenceGeometry import ReferenceGeometry 
+from DirectionArrow    import DirectionArrow
+from ResizeHandle      import ResizeHandle  
 
 ONE_RADIAN = 180.0 / pi
 # One radian = 57.29577951 degrees
@@ -375,7 +370,7 @@ class Plane(ReferenceGeometry):
         #call recomputeCenter method instead. -- ninad 20070522
         if len(self.handles) == 8:
             for hdl in self.handles:
-                assert isinstance(hdl, Handle)
+                assert isinstance(hdl, ResizeHandle)
                 hdl.move(offset)
             
         
@@ -432,7 +427,7 @@ class Plane(ReferenceGeometry):
         else:   
             hdlIndex = 0
             for hCenter in handleCenters: 
-                handle = Handle(self, self.glpane, hCenter)
+                handle = ResizeHandle(self, self.glpane, hCenter)
                 
                 handle.draw() 
                 if handle not in self.handles:
@@ -486,7 +481,7 @@ class Plane(ReferenceGeometry):
         the handle type.
         
         @param movedHandle: The handle being moved.
-        @type  movedHandle: L{Handle}
+        @type  movedHandle: L{ResizeHandle}
         
         @param event: The mouse event.
         @type  event: QEvent
@@ -685,222 +680,3 @@ class Plane(ReferenceGeometry):
             env.history.message(cmd + msg)
             return    
         self.glpane.gl_update()            
-    
-                      
-class Handle(DragHandler_API):
-    """
-    @@@EXPERIMENTAL -- ninad 2007-05-17 
-    - unrelated with things in handles.py
-    - soon it will be moved to handles.py (with added docstrings) -ninad20070521
-    """
-    def __init__(self, parent, glpane, handleCenter):
-        self.parent = parent
-        #this could be parent.glpane , but pass glpane object explicitely
-        #for creating  a handle to avoid any errors
-        self.glpane = glpane
-        self.center = handleCenter
-        # No texture in handles (drawn Handle object). 
-        # Ideally the following value in the drawer.drawPlane method 
-        #should be False by default.
-        self.textureReady  = False
-        self.pickCheckOnly = False        
-        self.glname = env.alloc_my_glselect_name(self)        
-        self.type   = None      
-    
-    def draw(self, hCenter = None):
-        try:
-            glPushName(self.glname)
-            if hCenter:
-                self._draw(hCenter)    
-            else:
-                self._draw()
-        except:
-            glPopName()
-            print_compact_traceback(
-                "ignoring exception when drawing handle %r: " % self)
-        else:
-            glPopName()
-    
-    def _draw(self, hCenter = None, highlighted = False):
-        """
-        Draw the handle object.
-        
-        @param hCenter: The center of the handle. If None, use the handle's 
-                        I{center} property.
-        @type  hCenter: V
-        
-        @param highlighted: This argument determines if the handle is 
-                            drawn in the highlighted color.
-        @type  highlighted: bool
-        """        
-        
-        if hCenter:
-            if self.center != hCenter:
-                self.center = hCenter    
-                   
-        #Use glpane's scale for drawing the handle. This makes sure that
-        # the handle is non-zoomable. 
-        side = self.glpane.scale * 0.018                
-        glPushMatrix() 
-        
-        
-        #Translate to the center of the handle
-        glTranslatef(self.center[0], 
-                     self.center[1], 
-                     self.center[2])  
-                        
-        #Bruce suggested undoing the glpane.quat rotation and plane quat 
-        #rotation  before drawing the handle geometry. -- ninad 20070525
-        
-        parent_q = self.parent.quat 
-        
-        if parent_q:
-            glRotatef(-parent_q.angle * ONE_RADIAN,
-                       parent_q.x, 
-                       parent_q.y, 
-                       parent_q.z)
-            
-        glpane_q = self.glpane.quat
-        glRotatef(-glpane_q.angle * ONE_RADIAN, 
-                   glpane_q.x, 
-                   glpane_q.y, 
-                   glpane_q.z) 
-       
-        drawPlane(darkgreen, 
-                  side, 
-                  side, 
-                  self.textureReady,
-                  0.9, 
-                  SOLID         = True, 
-                  pickCheckOnly = self.pickCheckOnly)         
-        
-        handle_hw = side/2.0 #handle's half width
-        handle_hh = side/2.0 #handle's half height        
-        handle_corner = [V(-handle_hw,  handle_hh, 0.0), 
-                         V(-handle_hw, -handle_hh, 0.0), 
-                         V( handle_hw, -handle_hh, 0.0), 
-                         V( handle_hw,  handle_hh, 0.0)]   
-        
-        if highlighted:    
-            drawLineLoop(orange, handle_corner, width = 6)
-        else:
-            drawLineLoop( black, handle_corner, width = 2)                
-        glPopMatrix()
-        
-    def draw_in_abs_coords(self, glpane, color):
-        """
-        Draw the handle as a highlighted object.
-        
-        @param glpane: The 3D Graphics area.
-        @type  gplane: L{GLPane}
-        
-        @param color: Unused.
-        @type  color:
-        
-        @attention: I{color} is not used.
-        """          
-        q = self.parent.quat  
-        glPushMatrix()
-        if self.parent.center:
-            glTranslatef( self.parent.center[0],
-                          self.parent.center[1], 
-                          self.parent.center[2])
-        if q:
-            glRotatef( q.angle * ONE_RADIAN, 
-                       q.x,
-                       q.y,
-                       q.z)            
-        
-        self._draw(highlighted = True)
-        glPopMatrix()
-        
-    def move(self, offset):
-        """
-        Move the handle by I{offset}.
-        
-        @param offset: The offset of the handle, in Angstroms.
-        @type  offset: V
-        """
-        self.center += offset
-    
-    def setType(self, handleType):
-        """
-        Sets the handle type.
-        @param handleType: The handle type. Must be one of:
-                           'Width-Handle', 'Height-Handle', or 'Corner'.
-        @type  handleType: str
-        """
-        assert handleType in [ 'Width-Handle', 'Height-Handle', 'Corner']
-        self.type = handleType
-       
-    def getType(self):
-        """
-        Returns the handle type.
-        
-        @return: The handle type, which is either
-                 'Width-Handle', 'Height-Handle', or 'Corner'.
-        @rtype:  str
-        """
-        assert self.type is not None
-        return self.type
-        
-    ###============== selobj interface Starts ===============###
-     
-    #Methods for selobj interface  . Note that draw_in_abs_coords method is 
-    #already defined above.  -- Ninad 20070612
-    
-    #@TODO Need some documentation. Basically it implements the selobj 
-    #interface mentioned in exprs.Highlightable.py
-    
-    def leftClick(self, point, event, mode):
-        mode.handleLeftDown(self, event)
-        mode.update_selobj(event)
-        return self               
-
-    def mouseover_statusbar_message(self):
-        msg1 = "Parent:"
-        msg2 = str(self.parent.name)
-        msg3 = " Type: "
-        msg4 = self.getType()
-        return msg1 + msg2 + msg3 + msg4
-        
-    def highlight_color_for_modkeys(self, modkeys):
-        return orange
-    
-    # Copied Bruce's code from class Highlightable with some mods. 
-    # Need to see if selobj_still_ok() is needed. OK for now.
-    # --Ninad 2007-05-31
-    def selobj_still_ok(self, glpane):
-        # bugfix: compare to correct class [bruce 070924]
-        res = self.__class__ is Handle 
-        if res:
-            our_selobj = self
-            glname     = self.glname
-            owner      = env.obj_with_glselect_name.get(glname, None)
-            if owner is not our_selobj:
-                res = False
-                # Do debug prints.
-                print "%r no longer owns glname %r, instead %r does" \
-                      % (self, glname, owner) #[perhaps never seen as of 061121]
-                pass
-            pass
-        if not res and env.debug():
-            print "debug: selobj_still_ok is false for %r" % self 
-        return res
-    ###============== selobj interface Ends ===============###
-    
-    ###=========== Drag Handler interface Starts =============###
-    #@TODO Need some documentation. Basically it implements the drag handler 
-    #interface described in DragHandler.py See also exprs.Highlightable.py
-    
-    def handles_updates(self): 
-        return True
-            
-    def DraggedOn(self, event, mode): 
-        mode.handleLeftDrag(self, event)
-        mode.update_selobj(event)
-        return
-    
-    def ReleasedOn(self, selobj, event, mode): 
-        pass
-    ###=========== Drag Handler interface Ends =============###
