@@ -294,13 +294,16 @@ class _readmmp_state:
             #  in the old code this was called opengroup [bruce 050405])
         self.sim_input_badnesses_so_far = {} # helps warn about sim-input files
         self.markers = {} #bruce 050422 for forward_ref records
+        self._info_objects = {} #bruce 071017 for info records
+            # (replacing attributes of self named by the specific kinds)
         return
 
     def destroy(self):
         self.assy = self.mol = self.ndix = self.groupstack = self.markers = None
 
     def extract_toplevel_items(self):
-        """for use only when done: extract the list of toplevel items
+        """
+        for use only when done: extract the list of toplevel items
         (removing them from our artificial Group if any);
         but don't verify they are Groups or alter them, that's up to the caller.
         """
@@ -323,7 +326,10 @@ class _readmmp_state:
         env.history.message( redmsg( "Warning: mmp format error: " + msg)) ###e and say what we'll do? review calls; syntax error
     
     def readmmp_line(self, card):
-        "returns None, or error msg(#k), or raises exception on bugs or maybe some syntax errors"
+        """
+        returns None, or error msg(#k), or raises exception
+        on bugs or maybe some syntax errors
+        """
         key_m = keypat.match(card)
         if not key_m:
             # ignore blank lines (does this also ignore some erroneous lines??) #k
@@ -352,12 +358,17 @@ class _readmmp_state:
         return errmsg
 
     def decode_name(self, name): #bruce 050618 part of fixing part of bug 474
-        "This should undo what's done by the writer's encode_name method."
+        """
+        Invert the transformation done by the writer's encode_name method.
+        """
         name = name.replace("%28",'(') # most of these replacements can be done in any order...
         name = name.replace("%29",')')
         name = name.replace("%25",'%') # ... but this one must be done last.
         return name
-        
+
+    # the remaining methods are parsers for specific records (soon to be split out
+    # and registered -- bruce 071017), mixed with helper functions for their use
+    
     def _read_group(self, card): # group: begins a Group (of chunks, jigs, and/or Groups)
         #bruce 050405 revised this; it can be further simplified
         name = getname(card, "Grp")
@@ -533,9 +544,11 @@ class _readmmp_state:
         self.addmotor(motor)
 
     def _read_gridplane(self, card):
-        ''' Read the MMP record for a Grid Plane jig as:
-            gridplane (name) (r, g, b) width height (cx, cy, cz) (w, x, y, z) grid_type line_type x_space y_space (gr, gg, gb) 
-        '''
+        """
+        Read the MMP record for a Grid Plane jig as:
+        
+        gridplane (name) (r, g, b) width height (cx, cy, cz) (w, x, y, z) grid_type line_type x_space y_space (gr, gg, gb) 
+        """
         m = gridplane_pat.match(card)
         name = m.group(1)
         name = self.decode_name(name)
@@ -553,9 +566,11 @@ class _readmmp_state:
     
     #Read mmp record for a Reference Plane
     def _read_plane(self, card):
-        ''' Read the MMP record for a Referece Plane  as:
-            plane (name) (r, g, b) width height (cx, cy, cz) (w, x, y, z) 
-        '''
+        """
+        Read the MMP record for a Reference Plane as:
+
+        plane (name) (r, g, b) width height (cx, cy, cz) (w, x, y, z) 
+        """
         m = plane_pat.match(card)
         name = m.group(1)
         name = self.decode_name(name)
@@ -594,7 +609,7 @@ class _readmmp_state:
     # Read the MMP record for a POV-Ray Scene as:
     # povrayscene (name) width height output_type
 
-    prevpovrayscene = None
+##    prevpovrayscene = None
     def _read_povrayscene(self, card):
         m = pvs_pat.match(card)
         name = m.group(1)
@@ -603,15 +618,20 @@ class _readmmp_state:
         output_type = m.group(4)        
         
         params = width, height, output_type
-        pvs = PovrayScene(self.assy, name, params) #bruce 060620 revised this
+        pvs = PovrayScene(self.assy, name, params)
         self.addmember(pvs)
-        self.prevpovrayscene = pvs # added for interpreting "info povrayscene" records. mark 060613.
+        # for interpreting "info povrayscene" records: [mark 060613]
+##        self.prevpovrayscene = pvs
+        self.set_info_object('povrayscene', pvs)
+        return
     
-    prevespimage = None
+##    prevespimage = None
     def _read_espimage(self, card):
-        ''' Read the MMP record for a ESP Image jig as:
-            espimage (name) (r, g, b) width height resolution (cx, cy, cz) (w, x, y, z) trans (fr, fg, fb) show_bbox win_offset edge_offset 
-        '''
+        """
+        Read the MMP record for an ESP Image jig as:
+
+        espimage (name) (r, g, b) width height resolution (cx, cy, cz) (w, x, y, z) trans (fr, fg, fb) show_bbox win_offset edge_offset 
+        """
         m = esppat.match(card)
         name = m.group(1)
         name = self.decode_name(name)
@@ -624,10 +644,13 @@ class _readmmp_state:
         show_bbox = int(m.group(19))
         win_offset = float(m.group(20)); edge_offset = float(m.group(21))
         
-        espImage = ESPImage(self.assy, [], READ_FROM_MMP=True)
+        espImage = ESPImage(self.assy, [], READ_FROM_MMP = True)
         espImage.setProps(name, border_color, width, height, resolution, center, quat, trans, fill_color, show_bbox, win_offset, edge_offset)
         self.addmember(espImage)
-        self.prevespimage = espImage # added for interpreting "info espimage" records. mark 060108.
+
+        # for interpreting "info espimage" records: [mark 060108]
+##        self.prevespimage = espImage
+        self.set_info_object('espimage', espImage)
         return
 
     _read_espwindow = _read_espimage
@@ -658,12 +681,14 @@ class _readmmp_state:
     _read_anchor = _read_ground #bruce 060228 (part of making anchor work when reading future mmp files, before prerelease snapshots)
 
     # Gamess jig [added by bruce 050701; similar code should be usable for other new jigs as well]
-    prevgamess = None
+##    prevgamess = None
     def _read_gamess(self, card):
         from jig_Gamess import Gamess
         constructor = Gamess
         jig = self.read_new_jig(card, constructor)
-        self.prevgamess = jig # this is needed for interpreting "info gamess" records
+        # for interpreting "info gamess" records:
+##        self.prevgamess = jig
+        self.set_info_object('gamess', jig)
         return
 
     # Read the MMP record for a MeasureDistance, wware 051103
@@ -722,7 +747,9 @@ class _readmmp_state:
         self.addmember(mdih)
 
     def read_new_jig(self, card, constructor): #bruce 050701
-        """Read any sort of sufficiently new jig from an mmp file.
+        """
+        Helper method to read any sort of sufficiently new jig from an mmp file.
+        
         Args are:
         card - the mmp file line.
         constructor - function that takes assy and atomlist and makes a new jig, without putting up any dialog.
@@ -867,28 +894,6 @@ class _readmmp_state:
                 print "bad format in csys record, ignored:", csys #bruce 050418
         return
 
-# bruce 050417: removing class Datum (and ignoring its mmp record "datum"),
-# since it has no useful effect (and not writing it will not even be
-# noticed by old code reading our mmp files). But the code should be kept around,
-# since we might reuse some of it when we someday have real "datum planes".
-# More info about this can be found in other comments/emails.
-##    def _read_datum(self, card): # datum -- Datum object
-##        if not self.isInsert: #Skip this record if inserting
-##            m = re.match(datumpat,card)
-##            if not m:
-##                self.warning("mmp syntax error; ignoring line: %r" % card)
-##                return
-##            name = m.group(1)
-##            name = self.decode_name(name) #bruce 050618
-##            type = m.group(5)
-##            col = tuple(map(int, [m.group(2), m.group(3), m.group(4)]))
-##            vec1 = A(map(float, [m.group(6), m.group(7), m.group(8)]))
-##            vec2 = A(map(float, [m.group(9), m.group(10), m.group(11)]))
-##            vec3 = A(map(float, [m.group(12), m.group(13), m.group(14)]))
-##            new = Datum(self.assy,name,type,vec1,vec2,vec3)
-##            self.addmember(new)
-##            new.rgb = col
-
     def _read_datum(self, card): # datum -- Datum object -- old version deprecated by bruce 050417
         pass # don't warn about an unrecognized mmp record, even when atom_debug
 
@@ -909,13 +914,6 @@ class _readmmp_state:
             m = re.match("mmpformat (.*)",card)
             self.assy.mmpformat = m.group(1)
 
-    ## [bruce 050324 commenting out movieID until it's used; strategy for this will change, anyway.]                
-##        def _read_movie_id(self, card): # movie_id -- Movie ID - To be supported for Beta.  Mark 05-01-16
-##            if not self.isInsert: # Skip this record if inserting
-##                m = re.match("movie_id (\d+)",card)
-##                n = int(m.group(1))
-##                self.assy.movieID = n
-            
     def _read_end1(self, card): # end1 -- End of main tree
         pass
 
@@ -938,14 +936,19 @@ class _readmmp_state:
             opengroup = self.groupstack[-1], #bruce 050421
             leaf = ([None] + self.groupstack[-1].members)[-1], #bruce 050421
             atom = self.prevatom, #bruce 050511
-            gamess = self.prevgamess, #bruce 050701
-            espimage = self.prevespimage, #mark 060108
-            povrayscene = self.prevpovrayscene # mark 060613
+##            gamess = self.prevgamess, #bruce 050701 [now uses set_info_object]
+##            espimage = self.prevespimage, #mark 060108 [now uses set_info_object]
+##            povrayscene = self.prevpovrayscene #mark 060613 [now uses set_info_object]
         )
+        currents.update( self._info_objects) #bruce 071017 
         interp = mmp_interp(self.ndix, self.markers) #e could optim by using the same object each time [like 'self']
         readmmp_info(card, currents, interp) # has side effect on object referred to by card
         return
 
+    def set_info_object(self, kind, model_component): #bruce 071017
+        self._info_objects[kind] = model_component
+        return
+    
     def _read_forward_ref(self, card):
         "forward_ref (%s) ..."
         # add a marker which can be used later to insert the target node in the right place,
@@ -958,7 +961,8 @@ class _readmmp_state:
         self.markers[ref_id] = marker
 
     def guess_sim_input(self, type): #bruce 050405
-        """Caller finds (and will correct) weird structure which makes us guess
+        """
+        Caller finds (and will correct) weird structure which makes us guess
         this is a sim input file of the specified type;
         warn user if you have not already given the same warning
         (normally only one such warning should appear, so warn about that as well).
@@ -1007,7 +1011,8 @@ class MarkerNode(Node):
 # helpers for _read_info method:
 
 class mmp_interp: #bruce 050217; revised docstrings 050422
-    """helps translate object refs in mmp file to their objects, while reading the file
+    """
+    helps translate object refs in mmp file to their objects, while reading the file
     [compare to class writemmp_mapping, which helps turn objs to their refs while writing the file]
     [but also compare to class _readmmp_state... maybe this should be the same object as that. ###k]
     [also has decode methods, and some external code makes one of these just to use those (which is a kluge).]
@@ -1016,13 +1021,16 @@ class mmp_interp: #bruce 050217; revised docstrings 050422
         self.ndix = ndix # maps atom numbers to atoms (??)
         self.markers = markers
     def atom(self, atnum):
-        """map atnum string to atom, while reading mmp file
+        """
+        map atnum string to atom, while reading mmp file
         (raises KeyError if that atom-number isn't recognized,
          which is an mmp file format error)
         """
         return self.ndix[int(atnum)]
     def move_forwarded_node( self, node, val):
-        "find marker based on val, put node after it, and then del the marker"
+        """
+        find marker based on val, put node after it, and then del the marker
+        """
         try:
             marker = self.markers.pop(val) # val is a string; should be ok since we also read it as string from forward_ref record
         except KeyError:
@@ -1030,7 +1038,10 @@ class mmp_interp: #bruce 050217; revised docstrings 050422
         marker.addsibling(node)
         marker.kill()
     def decode_int(self, val): #bruce 050701; should be used more widely
-        "helper method for parsing info records; returns an int or None; warns of unrecognized values only if ATOM_DEBUG is set"
+        """
+        helper method for parsing info records; returns an int or None;
+        warns of unrecognized values only if ATOM_DEBUG is set
+        """
         try:
             assert val.isdigit() or (val[0] == '-' and val[1:].isdigit())
             return int(val)
@@ -1042,7 +1053,10 @@ class mmp_interp: #bruce 050217; revised docstrings 050422
             return None
         pass
     def decode_bool(self, val): #bruce 050701; should be used more widely
-        "helper method for parsing info records; returns True or False or None; warns of unrecognized values only if ATOM_DEBUG is set"
+        """
+        helper method for parsing info records; returns True or False or None;
+        warns of unrecognized values only if ATOM_DEBUG is set
+        """
         val = val.lower()
         if val in ['0','no','false']:
             return False
@@ -1054,16 +1068,20 @@ class mmp_interp: #bruce 050217; revised docstrings 050422
     pass
 
 def mmp_interp_just_for_decode_methods(): #bruce 050704
-    "Return an mmp_interp object usable only for its decode methods (kluge)"
+    """
+    Return an mmp_interp object usable only for its decode methods (kluge)
+    """
     return mmp_interp("not used", "not used")
 
 def readmmp_info( card, currents, interp ): #bruce 050217; revised 050421, 050511
-    """Handle an info record 'card' being read from an mmp file;
+    """
+    Handle an info record 'card' being read from an mmp file;
     currents should be a dict from thingtypes to the current things of those types,
     for all thingtypes which info records can give info about
     (including 'chunk', 'opengroup', 'leaf', 'atom');
     interp should be an mmp_interp object #doc.
-       The side effect of this function, when given "info <type> <name> = <val>",
+
+    The side effect of this function, when given "info <type> <name> = <val>",
     is to tell the current thing of type <type> (that is, the last one read from this file)
     that its optional info <name> has value <val>,
     using a standard info-accepting method on that thing.
@@ -1103,7 +1121,8 @@ def readmmp_info( card, currents, interp ): #bruce 050217; revised 050421, 05051
 # ==
 
 def _readmmp(assy, filename, isInsert = False): #bruce 050405 revised code & docstring
-    """Read an mmp file, print errors and warnings to history,
+    """
+    Read an mmp file, print errors and warnings to history,
     modify assy in various ways (a bad design, see comment in insertmmp)
     (but don't actually add file contents to assy -- let caller do that if and where it prefers),
     and return either None (after an error for which caller should store no file contents at all)
@@ -1204,15 +1223,20 @@ def readmmp(assy, filename, isInsert = False): #bruce 050302 split out some subr
 def _reset_grouplist(assy, grouplist):
     #bruce 050302 split this out of readmmp;
     # it should be entirely rewritten and become an assy method
-    """[private]
+    """
+    [private]
+
     Stick a new just-read grouplist into assy, within readmmp.
-       If grouplist is None, indicating file had bad format,
+
+    If grouplist is None, indicating file had bad format,
     do some but not all of the usual side effects.
     [appropriateness of behavior for grouplist is None is unreviewed]
-       Otherwise grouplist must be a list of exactly 3 Groups
+
+    Otherwise grouplist must be a list of exactly 3 Groups
     (though this is not fully checked here),
     which we treat as viewdata, tree, shelf.
-       Changed viewdata behavior 050418:
+
+    Changed viewdata behavior 050418:
     We used to assume (if necessary) that viewdata contains Csys records
     which, when parsed during _readmmp, had side effects of storing themselves in assy
     (which was a bad design).
@@ -1265,7 +1289,9 @@ def _reset_grouplist(assy, grouplist):
     return
 
 def maybe_set_partview( assy, csys, nameprefix, csysattr): #bruce 050421; docstring added 050602
-    """[private helper function for _reset_grouplist]
+    """
+    [private helper function for _reset_grouplist]
+
     If csys.name == nameprefix plus a decimal number, store csys as the attr named csysattr
     of the .part of the clipboard item indexed by that number
     (starting from 1, using purely positional indices for clipboard items).
@@ -1279,7 +1305,9 @@ def maybe_set_partview( assy, csys, nameprefix, csysattr): #bruce 050421; docstr
     return
 
 def insertmmp(assy, filename): #bruce 050405 revised to fix one or more assembly/part bugs, I hope
-    """Read an mmp file and insert its main part into the existing model."""
+    """
+    Read an mmp file and insert its main part into the existing model.
+    """
     grouplist  = _readmmp(assy, filename, isInsert = True)
         # isInsert = True prevents most side effects on assy;
         # a better design would be to let the caller do them (or not)
@@ -1310,7 +1338,9 @@ def insertmmp(assy, filename): #bruce 050405 revised to fix one or more assembly
     return
 
 def fix_assy_and_glpane_views_after_readmmp( assy, glpane):
-    "#doc; does gl_update but callers should not rely on that"
+    """
+    #doc; does gl_update but callers should not rely on that
+    """
     #bruce 050418 moved this code (written by Huaicai) out of MWsemantics.fileOpen
     # (my guess is it should mostly be done by readmmp itself);
     # here is Huaicai's comment about it:
@@ -1332,7 +1362,8 @@ def fix_assy_and_glpane_views_after_readmmp( assy, glpane):
 # == writing mmp files
 
 class writemmp_mapping: #bruce 050322, to help with minimize selection and other things
-    """Provides an object for accumulating data while writing an mmp file.
+    """
+    Provides an object for accumulating data while writing an mmp file.
     Specifically, the object stores options which affect what's written
     [any option is allowed, so specific mmp writing methods can check it w/o this class needing to know about it],
     accumulates an encoding of atoms as numbers,
@@ -1413,7 +1444,8 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
         ## f.write("movie_id %d\n" % assy.movieID)
         return
     def encode_next_atom(self, atom):
-        """Assign the next sequential number (for use only in this writing of this mmp file)
+        """
+        Assign the next sequential number (for use only in this writing of this mmp file)
         to the given atom; return the number AS A STRING and also store it herein for later use.
         Error if this atom was already assigned a number.
         """
@@ -1426,14 +1458,17 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
         assert str(num) == self.encode_atom(atom)
         return str(num)
     def encode_atom(self, atom):
-        """Return an encoded reference to this atom (a short string, actually
+        """
+        Return an encoded reference to this atom (a short string, actually
         a printed int as of 050322, guaranteed true i.e. not "")
         for use only in the mmp file contents we're presently creating,
         or None if no encoding has yet been assigned to this atom for this
         file-writing event.
-           This has no side effects -- to allocate new encodings, use
+
+        This has no side effects -- to allocate new encodings, use
         encode_next_atom instead.
-           Note: encoding is valid only for one file-writing-event,
+
+        Note: encoding is valid only for one file-writing-event,
         *not* for the same filename if it's written to again later
         (in principle, not even if the file contents are unchanged, though in
         practice, for other reasons, we try to make the encoding deterministic).
@@ -1444,7 +1479,9 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
             return None
         pass
     def dispname(self, display):
-        "(replaces disp = dispNames[self.display] in older code)"
+        """
+        (replaces disp = dispNames[self.display] in older code)
+        """
         if self.sim:
             disp = "-" # assume sim ignores this field
         else:
@@ -1459,7 +1496,8 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
     def node_ref_id(self, node):
         return id(node)
     def write_forwarded_node_after_nodes( self, node, after_these, force_disabled_for_sim = False ):
-        """Due to the mmp file format, node says it must come after the given nodes in the file,
+        """
+        Due to the mmp file format, node says it must come after the given nodes in the file,
         and optionally also after where the sim stops reading the file.
         Write it out in a nice place in the tree (for sake of old code which doesn't know it should
         be moved back into its original place), as soon in the file as is consistent with these conditions.
@@ -1517,7 +1555,8 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
 
 # bruce 050322 revised to use mapping; 050325 split, removed assy.alist set
 def writemmpfile_assy(assy, filename, addshelf = True): #e should merge with writemmpfile_part
-    """Write everything in this assy (chunks, jigs, Groups,
+    """
+    Write everything in this assy (chunks, jigs, Groups,
     for both tree and shelf unless addshelf = False)
     into a new MMP file of the given filename.
     Should be called via the assy method writemmpfile.
@@ -1560,7 +1599,9 @@ def writemmpfile_assy(assy, filename, addshelf = True): #e should merge with wri
     return # from writemmpfile_assy
 
 def writemmpfile_part(part, filename, **mapping_options): ##e should merge with writemmpfile_assy #bruce 051209 added mapping_options
-    "write an mmp file for a single Part"
+    """
+    write an mmp file for a single Part
+    """
     # as of 050412 this didn't yet turn singlets into H;
     # but as of long before 051115 it does (for all calls -- so it would not be good to use for Save Selection!)
     part.assy.o.saveLastView() ###e should change to part.glpane? not sure... [bruce 050419 comment]
