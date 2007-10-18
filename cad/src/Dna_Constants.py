@@ -41,37 +41,40 @@ basesDict = { 'A':{'Name':'Adenine',  'Complement':'T', 'Color':'darkorange' },
 dnaDict = { 'A-DNA':{'DuplexRise':3.391},
             'B-DNA':{'DuplexRise':3.180},
             'Z-DNA':{'DuplexRise':3.715} }
- 
-# PAM5_AtomList contains the all PAM-5 base-pair atoms needed to construct any
-# DNA structure. The four sets are:
-#  -  startBasePair: The 5' set.
-#  -    midBasePair: The middle set.
-#  -    endBasePair: The 3' set.
-#  - singleBasePair: A single set (properly terminated).
-#
-# The format:
-#  - PAM5 Symbol, atom position, a_or_b (i.e. which strand the atom belongs to).
-#
-# Problems:
-#  - Singlets must be added. These are needed to properly orient bondpoints 
-#    between basepairs.
-#  - Need bond pair list. Cannot create proper bonds between atoms with it.
-#
-# Special note:
-#  This is a work in progress. I started this assuming it would be much
-#  faster to make large PAM5 structures (like we have in origami) using 
-#  constants like this rather than reading files. --Mark 2007-08-19
-
-from VQT import V
-
-PAM5_AtomList = {'PAM5BasePair':[ ("Pl5", V( 8.699,  2.638,  1.590), "a"),
-                                  ("Ss5", V( 6.760,  0.0,    0.0  ), "a"),
-                                  ("Ax5", V( 0.0,    0.0,    0.0  ), " "),
-                                  ("Ss5", V(-4.610, -4.943,  0.0  ), "b"), 
-                                  ("Pl5", V(-7.863, -4.562, -1.590), "b") ] }
-
 
 # Common DNA helper functions. ######################################
+
+def getDuplexRise(conformation):
+    """
+    Return the 'rise' between base pairs of the 
+    specified DNA type (conformation).
+    
+    @param conformation: "A-DNA", "B-DNA", or "Z-DNA"
+    @type  conformation: str
+    
+    @return: The rise in Angstroms.
+    @rtype: float
+    """
+    assert conformation in ("A-DNA", "B-DNA", "Z-DNA")
+    return dnaDict[str(conformation)]['DuplexRise']
+
+def getDuplexLength(conformation, numberOfBases):
+    """
+    Returns the duplex length (in Angstroms) given the conformation
+    and number of bases.
+    
+    @param conformation: "A-DNA", "B-DNA", or "Z-DNA"
+    @type  conformation: str
+    
+    @param numberOfBases: The number of base-pairs in the duplex.
+    @type  numberOfBases: int
+    
+    @return: The length of the duplex in Angstroms.
+    @rtype: float
+    """
+    assert conformation in ("A-DNA", "B-DNA", "Z-DNA")
+    assert numberOfBases >= 0
+    return getDuplexRise(conformation) * numberOfBases
 
 def getComplementSequence(inSequence):
     """
