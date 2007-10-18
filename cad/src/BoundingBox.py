@@ -1,6 +1,6 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-shape.py
+BoundingBox.py
 
 @author: Josh
 @version:$Id$
@@ -18,16 +18,15 @@ from VQT import V, A, cat
 from constants import black
 
 class BBox:
-    """ implement a bounding box in 3-space
+    """
+    implement a bounding box in 3-space
     BBox(PointList)
     BBox(point1, point2)
     BBox(2dpointpair, 3dx&y, slab)
     data is stored hi, lo so we can use subtract.reduce
     """
     def __init__(self, point1 = None, point2 = None, slab = None):
-        """
-        Huaicai 4/23/05: added some comments as below to help understand the 
-        code. """
+        # Huaicai 4/23/05: added some comments below to help understand the code.
         if slab:
             # convert from 2d (x, y) coordinates into its 3d world (x, y, 0) 
             #coordinates(the lower-left and upper-right corner). 
@@ -62,8 +61,10 @@ class BBox:
         self.data = V(maximum.reduce(vl), minimum.reduce(vl))
 
     def merge(self, bbox):
-        if self.data and bbox.data: self.add(bbox.data)
-        else: self.data = bbox.data
+        if self.data and bbox.data:
+            self.add(bbox.data)
+        else:
+            self.data = bbox.data
 
     def draw(self):
         if self.data:
@@ -71,21 +72,42 @@ class BBox:
                         subtract.reduce(self.data)/2)
 
     def center(self):
-        if self.data: return add.reduce(self.data)/2.0
-        else: return V(0, 0, 0)
+        if self.data:
+            return add.reduce(self.data)/2.0
+        else:
+            return V(0, 0, 0)
 
     def isin(self, pt):
         return (minimum(pt,self.data[1]) == self.data[1] and
                 maximum(pt,self.data[0]) == self.data[0])
 
     def scale(self):
+        """
+        Return the maximum distance from self's geometric center
+        to any point in self (i.e. the corner-center distance).
+        
+        Note: This is the radius of self's bounding sphere,
+        which is as large as, and usually larger than, the
+        bounding sphere of self's contents.
+
+        Note: self's box dimensions are slightly larger than
+        needed to enclose its data, due to hardcoded constants
+        in its construction methods. [TODO: document, make optional]
+        """
         if not self.data: return 10.0
         #x=1.2*maximum.reduce(subtract.reduce(self.data))
         dd = 0.5*subtract.reduce(self.data)
+            # dd = halfwidths in each dimension (x,y,z)
         x = sqrt(dd[0]*dd[0] + dd[1]*dd[1] + dd[2]*dd[2])
+            # x = half-diameter of bounding sphere of self
         #return max(x, 2.0)
         return x
 
     def copy(self, offset = None):
-        if offset: return BBox(self.data[0] + offset, self.data[1] + offset)
+        if offset:
+            return BBox(self.data[0] + offset, self.data[1] + offset)
         return BBox(self.data[0], self.data[1])
+
+    pass
+
+# end
