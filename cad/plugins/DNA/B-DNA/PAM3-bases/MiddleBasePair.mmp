@@ -17,16 +17,20 @@ info atom dnaBaseName = b
 bond1 1
 atom 4 (0) (0, 0, 1590) def
 bond1 1
-atom 5 (0) (-2688, 8271, 1590) def
-bond1 2
-atom 6 (0) (7882, -3676, 1590) def
-bond1 3
-atom 7 (0) (0, 0, -1590) def
+atom 5 (0) (0, 0, -1590) def
 bond1 1
-atom 8 (0) (2688, 8271, -1590) def
+atom 6 (0) (-2688, 8271, 1590) def
 bond1 2
+bond_direction 6 2
+atom 7 (0) (2688, 8271, -1590) def
+bond1 2
+bond_direction 2 7
+atom 8 (0) (7882, -3676, 1590) def
+bond1 3
+bond_direction 3 8
 atom 9 (0) (4216, -7607, -1590) def
 bond1 3
+bond_direction 9 3
 egroup (MiddleBasePair)
 end1
 group (Clipboard)
