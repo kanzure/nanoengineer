@@ -276,18 +276,18 @@ def bond_atoms(a1, a2, vnew = None, s1 = None, s2 = None, no_corrections = False
     much less safe for general use (details below).
     
        Behavior when vnew is provided:
-    Bond atoms a1 and a2 by making a new bond of valence vnew (which must be one
-    of the constants in chem.BOND_VALENCES, not a numerically expressed valence;
+    Bond atoms a1 and a2 by making a new bond of order vnew (which must be one
+    of the constants in chem.BOND_VALENCES, not a numerically expressed bond order;
     for the effect of not providing vnew, see below).
        The new bond is returned. If for some reason it can't be made, None is returned
     (but if that can happen, we should revise the API so an error message can be returned).
        Error if these two atoms are already bonded. [Question: is this detected? ###k]
        If provided, s1 and s2 are the existing singlets on a1 and a2 (respectively)
     whose valence should be reduced (or eliminated, in which case they are deleted)
-    to provide valence for the new bond. (If they don't have enough, other adjustments
-    will be made; this function is free to alter, remove, or replace any existing
-    singlets on either atom.)
-       For now, this function will never alter the valence of any existing bonds
+    to provide valence (bond order) for the new bond. (If they don't have enough,
+    other adjustments will be made; this function is free to alter, remove, or replace
+    any existing singlets on either atom.)
+       For now, this function will never alter the bond order of any existing bonds
     to real atoms. If necessary, it will introduce valence errors on a1 and/or a2.
     (Or if they already had valence errors, it might remove or alter those.)
        If no_corrections = True, this function will not alter singlets on a1 or a2,
@@ -295,6 +295,9 @@ def bond_atoms(a1, a2, vnew = None, s1 = None, s2 = None, no_corrections = False
     limit itself to tracking valence errors or setting related flags (this is undecided).
     (This might be useful for code which builds new atoms rather than modifying
     existing ones, such as when reading mmp files or copying existing atoms.)
+       If no_corrections is false, and if the open bonds on s1 or s2 have directions set,
+    not inconsistently, then if the new bond is directional, it's given a direction
+    consistent with those open bonds (new feature 071017).
 
        Behavior when vnew is not provided (less safe in general):
     For backwards compatibility, when vnew is not provided, this function calls the
@@ -306,19 +309,26 @@ def bond_atoms(a1, a2, vnew = None, s1 = None, s2 = None, no_corrections = False
     might copy some of them twice.
        Using the old bond_atoms code by not providing vnew is deprecated,
     and might eventually be made impossible after all old calling code is converted
-    for higher-valence bonds. [However, as of 051216 it's still called in lots of places.]
+    for higher-order bonds. [However, as of 051216 it's still called in lots of places.]
     """
     if vnew is None:
         assert s1 is s2 is None
         assert no_corrections == False
         bond_atoms_oldversion( a1, a2) # warning [obs??#k]: mol.copy might rely on this being noop when bond already exists!
         return
+    
     # quick hack for new version, using optimized/stricter old version
     ## assert vnew in BOND_VALENCES
     assert not bonded(a1,a2)
-    ## bond_atoms_oldversion(a1,a2)
-    ## bond = find_bond(a1,a2)
-    ## assert bond
+
+    if not no_corrections:
+        # copy open bond directions if consistent [bruce 071017]
+        # note: sign of ._direction is not meaningful, without knowing atom
+        # order within the bond; we test it first since we're optimizing
+        # for no directions being set
+        dir1 = (s1 is not None and s1.bonds[0]._direction and - s1.bonds[0].bond_direction_from(s1))
+        dir2 = (s2 is not None and s2.bonds[0]._direction and + s2.bonds[0].bond_direction_from(s2))
+    
     bond = bond_atoms_faster(a1,a2, vnew) #bruce 050513 using this in place of surrounding commented-out code
     assert bond is not None
     ## if vnew != V_SINGLE:
@@ -330,6 +340,13 @@ def bond_atoms(a1, a2, vnew = None, s1 = None, s2 = None, no_corrections = False
             s2.singlet_reduce_valence_noupdate(vnew) ###k
         a1.update_valence() ###k [bruce comment 050728: to fix bug 823, this needs to merge singlets to match atomtype; now it does]
         a2.update_valence()
+        sumdir = dir1 + dir2 # note: this is 0 if the dirs are inconsistent; otherwise its sign gives the new dir
+        if sumdir and bond.is_directional():
+            # TEST: will is_directional be confused by the singlets still being there, if they are??
+            # If so, we need to mark them to be ignored by it (eg clear their directions?), or do this later.
+            # But I hope they'll be removed by atom.update_valence. [#k]
+            newdir = (sumdir > 0) and 1 or -1
+            bond.set_bond_direction_from( a1, newdir)
     return bond
 
 def bond_v6(bond):
