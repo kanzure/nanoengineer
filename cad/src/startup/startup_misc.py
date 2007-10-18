@@ -124,7 +124,9 @@ def _initialize_custom_display_modes(win):
     import SurfaceChunks #mark 060610
     from debug_prefs import debug_pref, Choice_boolean_False
     enable_SurfaceChunks = debug_pref("enable SurfaceChunks next session?",
-                                      Choice_boolean_False, non_debug = True, prefs_key = True)
+                                      Choice_boolean_False, 
+                                      non_debug = True, 
+                                      prefs_key = True)
     win.dispSurfaceAction.setText("Surface (experimental, may be slow)")
     win.dispSurfaceAction.setEnabled(enable_SurfaceChunks)
     win.dispSurfaceAction.setVisible(enable_SurfaceChunks)
@@ -140,10 +142,12 @@ def post_main_show( win):
     @param win: the single Main Window object.
     @type  win: L{MWsemantics}
     """
-    # NOTE: if possible, new code should be added into one of the following functions,
-    # or into a new function called by this one, rather than directly into this function.
+    # NOTE: if possible, new code should be added into one of the following
+    # functions, or into a new function called by this one, rather than 
+    # directly into this function.
     
-    # TODO: rebuild pyx modules if necessary and safe -- but only for developers, not end-users
+    # TODO: rebuild pyx modules if necessary and safe -- but only for 
+    # developers, not end-users
     # TODO: initialize Python extensions: ## import extensions.py
     _initialize_plugin_generators()
     _init_experimental_commands()
@@ -155,25 +159,31 @@ def _init_experimental_commands():
     Initialize experimental commands in the UI.
     This is called after the main window is shown.
     """
-    # Note: if you are not sure where to add init code for a new command in the UI,
-    # this is one possible place. But if it's more complicated than importing and calling
-    # an initialize function, it's best if the complicated part is defined in some other
-    # module and just called from here. See also the other places from which initialize
-    # functions are called, for other places that might be better for adding new command
-    # initializers. This place is mainly for experimental or slow-to-initialize commands.
+    # Note: if you are not sure where to add init code for a new command in 
+    # the UI, this is one possible place. But if it's more complicated than
+    # importing and calling an initialize function, it's best if the 
+    # complicated part is defined in some other module and just called from
+    # here. See also the other places from which initialize functions are 
+    # called, for other places that might be better for adding new command
+    # initializers. This place is mainly for experimental or slow-to-initialize
+    # commands.
     # [bruce 071005]
     _init_command_Atom_Generator()
     _init_command_Select_Bad_Atoms()
     _init_test_commands()
     return
 
-def _init_command_Atom_Generator(): # TODO: this function should be moved into AtomGenerator.py
+def _init_command_Atom_Generator(): 
+    # TODO: this function should be moved into AtomGenerator.py
     # Atom Generator debug pref. Mark and Jeff. 2007-06-13
     from debug_prefs import debug_pref, Choice_boolean_False
     from AtomGenerator import enableAtomGenerator
-    _atomGeneratorIsEnabled = debug_pref("Atom Generator example code: enabled?", Choice_boolean_False, 
-                                       non_debug = True, prefs_key = "A9/Atom Generator Visible",
-                                       call_with_new_value = enableAtomGenerator )
+    _atomGeneratorIsEnabled = \
+                    debug_pref("Atom Generator example code: enabled?", 
+                               Choice_boolean_False, 
+                               non_debug = True, 
+                               prefs_key = "A9/Atom Generator Visible",
+                               call_with_new_value = enableAtomGenerator )
     enableAtomGenerator(_atomGeneratorIsEnabled)
     return
 
@@ -188,11 +198,14 @@ def _init_command_Select_Bad_Atoms():
 def _init_test_commands():
     #bruce 070613 
     from debug_prefs import debug_pref, Choice_boolean_False
-    if debug_pref("test_commands enabled (next session)", Choice_boolean_False, prefs_key = True):
+    if debug_pref("test_commands enabled (next session)", 
+                  Choice_boolean_False, 
+                  prefs_key = True):
         import test_commands
     return
 
-def _set_mainwindow_splitter_position( win): # TODO: this function should be moved into some other module.
+def _set_mainwindow_splitter_position( win): 
+    # TODO: this function should be moved into some other module.
     """
     Set the position of the splitter between the MT and graphics area
     so that the starting width of the property manager is "pmDefaultWidth"
