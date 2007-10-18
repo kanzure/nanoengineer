@@ -1650,7 +1650,8 @@ def next_directional_bond_in_chain(bond, atom):
     pass
     
 def bond_at_singlets(s1, s2, **opts):
-    """[Public function; does all needed invalidations.]
+    """
+    [Public function; does all needed invalidations.]
     s1 and s2 are singlets; make a bond between their real atoms in
     their stead.
        If the real atoms are in different molecules, and if move = 1
@@ -1804,20 +1805,28 @@ class bonder_at_singlets:
         #####@@@@@ this needs to worry about valence of s1 and s2 bonds, and thus of new bond
         s1, a1 = self.s1, self.a1
         s2, a2 = self.s2, self.a2
-        try: # use old code until new code works and unless new code is needed; CHANGE THIS SOON #####@@@@@
-            v1, v2 = s1.singlet_v6(), s2.singlet_v6() # new code available
-            assert v1 != V_SINGLE or v2 != V_SINGLE # new code needed
-        except:
-            # old code can be used for now
-            if platform.atom_debug and env.once_per_event("using OLD code for actually_bond"):
-                print "atom_debug: fyi (once per event): using OLD code for actually_bond"
-            s1.kill()
-            s2.kill()
-            bond_atoms(a1,a2)
-            return (0, self.status) # effectively from bond_at_singlets
+
+        #bruce 071018, stop using old code here, finally; might fix open bond direction; clean up if so ###TODO
+        USE_OLD_CODE = debug_pref("use OLD code for actually_bond?", Choice_boolean_True) # True since bug in false
+
+        v1 = s1.singlet_v6()
+        v2 = s2.singlet_v6() # assume new code is available [rm cmt when works]
+        
+        if USE_OLD_CODE:
+            new_code_needed = (v1 != V_SINGLE or v2 != V_SINGLE)
+            if not new_code_needed:
+                # old code can be used for now
+                if platform.atom_debug and env.once_per_event("using OLD code for actually_bond"):
+                    print "atom_debug: fyi (once per event): using OLD code for actually_bond"
+                s1.kill()
+                s2.kill()
+                bond_atoms(a1,a2)
+                return (0, self.status) # effectively from bond_at_singlets
+
         # new code, handles any valences for s1, s2
         if platform.atom_debug:
             print "atom_debug: NEW code used for actually_bond" #####@@@@@
+        
         vnew = min(v1,v2)
         bond = bond_atoms(a1,a2,vnew,s1,s2) # tell it the singlets to replace or reduce; let this do everything now, incl updates
         # can that fail? I don't think so; if it could, it'd need to have new API and return us an error message explaining why.
