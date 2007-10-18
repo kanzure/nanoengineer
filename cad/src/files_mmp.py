@@ -267,6 +267,22 @@ def getname(str, default):
 ##    ##e in future, for some classes, we might also add an mmp record name to a table used by this file.
 ##    return
 
+def _find_registered_parser_class(recordname): #bruce 071017
+    """
+    Return the class registered for parsing mmp lines which start with
+    recordname (a string), or None if no class was registered (yet)
+    for that recordname.
+    """
+    ### REVIEW: if we return None, should we warn about a subsequent
+    # registration for the same name, since it's too late for it to help?
+    # That would be wrong if the user added a plugin and then read another
+    # mmp file that required it, but right if we have startup order errors
+    # in registering standard readers vs. reading built-in mmp files.
+    # Ideally, we'd behave differently during or after startup.
+    # For now, we ignore this issue.
+    
+    return None # stub, but correct, given that registration is not yet possible
+
 class _readmmp_state:
     """
     Hold the state needed by _readmmp between lines;
@@ -296,6 +312,7 @@ class _readmmp_state:
         self.markers = {} #bruce 050422 for forward_ref records
         self._info_objects = {} #bruce 071017 for info records
             # (replacing attributes of self named by the specific kinds)
+        self._registered_parser_objects = {} #bruce 071017
         return
 
     def destroy(self):
@@ -322,7 +339,7 @@ class _readmmp_state:
     def warning(self, msg):
         env.history.message( redmsg( "Warning: " + msg))
 
-    def format_error(self, msg): ###e use more?
+    def format_error(self, msg): ###e use this more widely?
         env.history.message( redmsg( "Warning: mmp format error: " + msg)) ###e and say what we'll do? review calls; syntax error
     
     def readmmp_line(self, card):
@@ -334,29 +351,88 @@ class _readmmp_state:
         if not key_m:
             # ignore blank lines (does this also ignore some erroneous lines??) #k
             return
-        key = key_m.group(0)
-        # key should now be the mmp record type, e.g. "group" or "mol"
+        recordname = key_m.group(0)
+        # recordname should now be the mmp record type, e.g. "group" or "mol"
+
+        linemethod, errmsg = self._find_linemethod(recordname)
+
+        if errmsg or not linemethod:
+            return errmsg
+
+        # if linemethod itself has an exception, best to let the caller handle it
+        # (only it knows whether the line passed to us was made up or really in the file)
+        return linemethod(card)
+
+    def _find_linemethod(self, recordname):
+        """
+        [private]
+        
+        Look for a method for parsing one mmp file line
+        which starts with recordname.
+        
+        @return: the tuple (linemethod, errmsg), where linemethod is a callable
+                 which takes one argument (the entire line ### with \n or not??)
+                 and returns None or an error message string, and errmsg is
+                 None or an error message string from the process of looking
+                 for the linemethod.
+        """
+        errmsg = None # will be changed below if an error message is needed
+        linemethod = None # will be changed below when an mmp-line parser method is found
+        
+        # first look for a registered parser for this recordname
+        
+        parser = self._find_registered_parser_object(recordname)
+        if parser:
+            linemethod = parser.read_record
+                # probably this is never None, but this code supports it being None
+            if linemethod:
+                return linemethod, errmsg
+
+        # if there was no registered record parser, look for a built-in method to do it,
+        # as a specially-named method of self, based on the recordname
+        # (this is safe, since the prefix means arbitrary input can't find unintended methods)
+        methodname = "_read_" + recordname # e.g. _read_group, _read_mol, ...
         try:
-            linemethod = getattr(self, "_read_" + key) # e.g. _read_group, _read_mol, ...
-        except AttributeError:
-            # unrecognized mmp record; not an error, since the format
-            # is meant to be upward-compatible when new records are added,
-            # as long as it's ok for old code to ignore them and not signal an error.
-            errmsg = None
-            #bruce 050217 new debug feature: warning for unrecognized record
-            #e (maybe only do this the first time we see it?)
-            if platform.atom_debug and key != '#':
-                print "atom_debug: fyi: unrecognized mmp record type ignored (not an error): %r" % key
+            linemethod = getattr(self, methodname, None)
         except:
-            # bug, or syntax error (e.g. from non-identifier chars in key? not sure if that triggers this)
+            # I don't know if an exception can happen (e.g. from non-identifier chars in recordname),
+            # and if it can, whether it would always be an AttributeError.
+            ###e TODO: print_compact_traceback until i know
+            linemethod = None
             errmsg = "syntax error or bug" ###e improve message
         else:
-            # if linemethod itself has an exception, best to let the caller handle it
-            # (only it knows whether the line passed to us was made up or really in the file)
-            return linemethod(card)
-                # note: no need to pass 'self', since this is a bound method
-        return errmsg
+            if linemethod is None:
+                # unrecognized mmp recordname -- not an error,
+                # but [bruce 050217 new debug feature]
+                # print a debug-only warning except for a comment line
+                # (TODO: maybe only do this the first time we see it?)
+                if platform.atom_debug and recordname != '#':
+                    print "atom_debug: fyi: unrecognized mmp record type ignored (not an error): %r" % recordname
+            pass
 
+        return linemethod, errmsg
+
+    def _find_registered_parser_object(self, recordname):
+        """
+        Return an instance of the registered record-parser class for this recordname
+        (cached for reuse while reading the one mmp file self will be used for),
+        or None if no parser was registered for this recordname.
+        """
+        try:
+            return self._registered_parser_objects[recordname]
+        except KeyError:
+            clas = _find_registered_parser_class(recordname)
+                # just one global registry, for now
+            if clas:
+                instance = clas(self)
+            else:
+                instance = None
+                    # cache None too -- the query might be repeated
+                    # just as much as if we had a parser for it
+            self._registered_parser_objects[recordname] = instance
+            return instance
+        pass
+            
     def decode_name(self, name): #bruce 050618 part of fixing part of bug 474
         """
         Invert the transformation done by the writer's encode_name method.
