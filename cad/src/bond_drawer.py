@@ -311,24 +311,43 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, povfile = None,
 
                 # If either atom will look like an arrowhead (before prefs are applied) --
                 # i.e. if either one is a strand_end -- we don't want the bond to have its
-                # own arrowhead.
-                # [bruce 071016, requested by mark]
-                #
-                # Exception (needs REVIEW): don't turn off self's arrow
-                # if one of its atoms has a strand end bond which is not self,
-                # since this might be an error we need to fully show. In that
-                # case, set direction_error = True.
-                ### REVIEW: are there other bond direction errors we need to
-                # indicate as well?
-                bond1 = self.atom1.strand_end_bond()
-                bond2 = self.atom2.strand_end_bond()
-                if bond1 is not None and bond1 is not self:
-                    direction_error = True
-                if bond2 is not None and bond2 is not self:
-                    direction_error = True
-                if (bond1 is self or bond2 is self) and not direction_error:
-                    pass
-                else:
+                # own arrowhead. [bruce 071016, feature requested by mark]
+                # update, bruce 071018 -- an arrow-atom in front should always suppress self's arrow,
+                # but an arrow atom in back should only turn it off if self is an open bond,
+                # since we draw the arrow only on the front half of the bond.
+                # (Front and back are relative to self's bond_direction.)
+                
+                # these flags might be changed during the following loop
+                direction_error = False 
+                suppress_self_arrow_always = False # set by arrowhead in front
+                suppress_self_arrow_if_open_bond = False # set by arrowhead in back
+
+                for atom in (self.atom1, self.atom2):
+                    # does atom look like an arrowhead (i.e end_bond is not None),
+                    # and if so, should that suppress_self_arrow?
+                    end_bond = atom.strand_end_bond()
+                    if end_bond is self:
+                        if atom.is_singlet():
+                            suppress_self_arrow_always = True
+                        elif self.bond_direction_from(atom) == -1:
+                            # atom is in front
+                            suppress_self_arrow_always = True
+                        else:
+                            # atom is in back (since we know self has a direction set)
+                            suppress_self_arrow_if_open_bond = True
+                    elif end_bond is not None:
+                        # end_bond not None or self -- we're directional, but not
+                        # the directional bond atom thinks is a strand end! Error or bug,
+                        # so always show self's arrow too.
+                        ## REVIEW: are there other bond direction errors we need to
+                        # indicate as well?
+                        direction_error = True
+                    continue
+                
+                if suppress_self_arrow_if_open_bond and self.is_open_bond():
+                    suppress_self_arrow_always = True
+                
+                if direction_error or not suppress_self_arrow_always:
                     dir_info = (self.bond_direction_from(self.atom1), True)
                 pass
 
