@@ -12,10 +12,10 @@ mark 2007-07-22: Split PropMgrTextEdit out of PropMgrBaseClass.py into this
 file and renamed it PM_TextEdit.
 """
 
-from PM_Constants import pmMinWidth
+from PM.PM_Constants import pmMinWidth
 
-from PM_Colors    import getPalette
-from PM_Colors    import pmMessageBoxColor
+from PM.PM_Colors    import getPalette
+from PM.PM_Colors    import pmMessageBoxColor
 
 from PyQt4.Qt import Qt
 from PyQt4.Qt import QLabel
@@ -100,7 +100,7 @@ class PM_TextEdit( QTextEdit ):
         # Shouldn't be needed with _setHeight().
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         
-        from PM_MessageGroupBox import PM_MessageGroupBox
+        from PM.PM_MessageGroupBox import PM_MessageGroupBox
         if isinstance(parentWidget, PM_MessageGroupBox):
             # Add to parentWidget's vBoxLayout if <parentWidget> is a MessageGroupBox.
             parentWidget.vBoxLayout.addWidget(self)

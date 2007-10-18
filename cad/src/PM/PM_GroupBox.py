@@ -220,7 +220,7 @@ class PM_GroupBox( QGroupBox ):
         """
         # Spacers are only added to groupboxes in the PropMgr, not
         # nested groupboxes.
-        from PM_Dialog import PM_Dialog
+        from PM.PM_Dialog import PM_Dialog
         if not isinstance(self.parentWidget, PM_Dialog):
             self.verticalSpacer = None
             return

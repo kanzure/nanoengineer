@@ -130,7 +130,7 @@ PIXELS = 0.035 ###WRONG: rough approximation; true value depends on depth (in pe
 NullIpath = '.' ##k ok that it's not None? maybe not, we might test for None... seems to work for now tho.
     #e make it different per reload? [070121 changed from 'NullIpath' to '.' to shorten debug prints]
 
-from __Symbols__ import Anything ## TODO: remove this,
+from exprs.__Symbols__ import Anything ## TODO: remove this,
  # since it's our only remaining import of __Symbols__
  # and it causes a runtime import loop with Exprs.py
 

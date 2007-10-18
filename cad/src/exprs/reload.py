@@ -31,8 +31,8 @@ def reload_once(module):
     before any import of symbols from a module (or use this code in place of
     any direct import of a module):
 
-      import module
-      reload_once(module)
+    #  import module
+    #  reload_once(module)
 
     Warning: not all modules support runtime reload. Those that don't should
     say so in their docstrings.

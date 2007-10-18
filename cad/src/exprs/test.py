@@ -1068,7 +1068,6 @@ def aligntest(af):
 
 def aligntest_by_name(afname):
     try:
-        import Center
         af = getattr(Center, afname)
         res = aligntest(af)
         worked = True #e or a version counter?? to be correct, i think it needs one [070122]

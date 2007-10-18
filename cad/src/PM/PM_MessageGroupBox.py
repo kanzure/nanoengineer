@@ -18,8 +18,8 @@ into this file and renamed it PM_MessageGroupBox.
 from PyQt4.Qt import QTextOption
 from PyQt4.Qt import QSizePolicy
 
-from PM_GroupBox    import PM_GroupBox
-from PM_TextEdit    import PM_TextEdit
+from PM.PM_GroupBox    import PM_GroupBox
+from PM.PM_TextEdit    import PM_TextEdit
 
 class PM_MessageGroupBox( PM_GroupBox ):
     """
