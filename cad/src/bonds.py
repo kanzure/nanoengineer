@@ -320,8 +320,20 @@ def bond_atoms(a1, a2, vnew = None, s1 = None, s2 = None, no_corrections = False
     # quick hack for new version, using optimized/stricter old version
     ## assert vnew in BOND_VALENCES
     assert not bonded(a1,a2)
+    assert s1 is None or not s1._Atom__killed
+    assert s2 is None or not s2._Atom__killed
+    assert not a1._Atom__killed
+    assert not a2._Atom__killed
 
     if not no_corrections:
+        # make sure atomtypes are set, so bondpoints other than the ones passed
+        # won't be needlessly replaced or moved by Atom.update_valence below
+        # [bruce 071019 revision to make this easier to use in DNA Generator] ### UNTESTED for that purpose
+        a1.atomtype  # has side effect in __getattr__
+        a2.atomtype
+        assert s1 is None or not s1._Atom__killed
+        assert s2 is None or not s2._Atom__killed
+                
         # copy open bond directions if consistent [bruce 071017]
         # note: sign of ._direction is not meaningful, without knowing atom
         # order within the bond; we test it first since we're optimizing
@@ -331,28 +343,43 @@ def bond_atoms(a1, a2, vnew = None, s1 = None, s2 = None, no_corrections = False
 
         ####### TEMPORARY DEBUG CODE bruce 071018
         if platform.atom_debug and (dir1 or dir2):
-            print "bond at open bonds with directions, %r and %r" % (s1.bonds[0], s2.bonds[0])
+            print "bond at open bonds with directions, %r and %r" % (s1 and s1.bonds[0], s2 and s2.bonds[0])
+
+        pass
     
     bond = bond_atoms_faster(a1,a2, vnew) #bruce 050513 using this in place of surrounding commented-out code
     assert bond is not None
-    ## if vnew != V_SINGLE:
-    ##     bond.increase_valence_noupdate( vnew - V_SINGLE)
+    
     if not no_corrections:
         if s1 is not None:
             s1.singlet_reduce_valence_noupdate(vnew)
         if s2 is not None:
             s2.singlet_reduce_valence_noupdate(vnew) ###k
+        # REVIEW: should we also zero their open-bond direction if it was
+        # used above or will be used below? Not needed for now; might be
+        # needed later if it affects update_valence somehow (seems unlikely).
+        # [bruce 071019]
 
-        ########### TODO bruce 071018: revise to not kill other singlets. see longer comment.
+        # Note [bruce 071019]: update_valence kills bondpoints with zero or
+        # other illegal valence, and replaces/moves all bondpoints if it also
+        # decides to change the atomtype and can do so to one which matches
+        # the number of existing bonds. This can be prevented by passing it
+        # the new option dont_revise_valid_bondpoints (untested), but for
+        # some uses of this function that would remove desirable behavior
+        # so we can't do it. The code above to make sure atomtypes are set
+        # should have the same effect when the atomtype doesn't need to
+        # change in update_valence. ### UNTESTED for that purpose
         
-        a1.update_valence() ###k [bruce comment 050728: to fix bug 823, this needs to merge singlets to match atomtype; now it does]
+        # [bruce comment 050728: to fix bug 823, update_valence needs to
+        #  merge singlets to match atomtype; now it does]
+        
         a2.update_valence()
         sumdir = dir1 + dir2 # note: this is 0 if the dirs are inconsistent; otherwise its sign gives the new dir
         if sumdir and bond.is_directional():
-            # TEST: will is_directional be confused by the singlets still being there, if they are??
-            # If so, we need to mark them to be ignored by it (eg clear their directions?), or do this later.
-            # But I hope they'll be removed by atom.update_valence. update -- its code says they will... ###
-            # REVIEW: if we don't immediately remove these singlets, should we zero their direction? [bruce 071018]
+            # Note: we do this now (after update_valence removed zero-valence
+            # bondpoints, presumably including s1 and s2) to make sure
+            # is_directional won't be confused by the bondpoints still
+            # being there. [bruce 071019]
             newdir = (sumdir > 0) and 1 or -1
             bond.set_bond_direction_from( a1, newdir)
     return bond
