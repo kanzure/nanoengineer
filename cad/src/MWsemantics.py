@@ -562,7 +562,6 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
             # molecular modeling kit in Build Atom (deposit mode), etc.
             start_element = 6 # Carbon
             self.Element = start_element
-            self.setElement(start_element)
 
             # Attr/list for Atom Selection Filter. mark 060401
             self.filtered_elements = [] # Holds list of elements to be selected when the Atom Selection Filter is enabled.
@@ -797,7 +796,6 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
             # molecular modeling kit in Build Atom (deposit mode), etc.
             start_element = 6 # Carbon
             self.Element = start_element
-            self.setElement(start_element)
 
             # Attr/list for Atom Selection Filter. mark 060401
             self.filtered_elements = [] # Holds list of elements to be selected when the Atom Selection Filter is enabled.
@@ -1456,20 +1454,25 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         Slot for 'Display > Element Color Settings...' menu item.
         """
         self.showElementColorSettings()
-
+    
     def showElementColorSettings(self, parent=None):
         """
-        Opens the Element Color Setting dialog, allowing the user to change default 
-        colors of elements and bondpoints, and save them to a file.
+        Opens the Element Color Setting dialog, allowing the user to change 
+        default colors of elements and bondpoints, and save them to a file.
+        
+        @param parent: The parent of the Element Color Setting dialog.
+                       This allows the caller (i.e. Preferences dialog) to 
+                       make it modal.
+        @type  parent: U{B{QDialog}<http://doc.trolltech.com/4/qdialog.html>}
         """
         global elementColorsWin
-        #Huaicai 2/24/05: Create a new element selector window each time,  
-        #so it will be easier to always start from the same states.
+        # Huaicai 2/24/05: Create a new element selector window each time,  
+        # so it will be easier to always start from the same states.
         # Make sure only a single element window is shown
         if elementColorsWin and elementColorsWin.isVisible(): 
             return 
 
-        if not parent: # added parent arg to allow the caller (i.e. Preferences dialog) to make it modal.
+        if not parent:
             parent = self
 
         elementColorsWin = elementColors(parent)
@@ -2005,41 +2008,6 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 
     def toolsCancel(self):
         self.currentCommand.Flush()
-
-
-    ###########################################################
-    # Slots for the Atom color setting/user preference dialog.
-    ##########################################################
-
-    def elemChange(self, a0):
-        """
-        Slot for Element selector combobox in Build mode's dashboard.
-        """
-        self.Element = eCCBtab1[a0]
-
-    def setElement(self, elt):
-        """
-        Set the current element in 
-        """
-        # element specified as element number
-        global elementSelectorWin
-
-        self.Element = elt
-
-        if self.activePartWindow() is not None:
-            # Is this condition on self.activePartWindow() needed? [bruce 071009 question]
-            currentCommand = self.currentCommand
-            if currentCommand.modename == 'DEPOSIT':
-                currentCommand.update_selection_filter_list() # depositMode.update_selection_filter_list()
-
-        line = eCCBtab2[elt]
-        #self.elemChangeComboBox.setCurrentIndex(line) ###k does this send the signal, or not (if not that might cause bug 690)?
-        #bruce 050706 fix bug 690 by calling the same slot that elemChangeComboBox.setCurrentIndex should have called
-        # (not sure in principle that this is always safe or always a complete fix, but it seems to work)
-
-        self.elemChange(line) #k arg is a guess, but seems to work
-
-        return
 
     ######################################
     # Show View > Orientation Window     
