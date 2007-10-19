@@ -8,7 +8,6 @@ $Id$
 History: too much to mention, except for breakups of the file.
 
 [maybe some of those are not listed here?]
-Huaicai ??? split out cookieMode slots (into separate class)
 bruce 050413 split out movieDashboardSlotsMixin
 bruce 050907 split out fileSlotsMixin
 mark 060120 split out viewSlotsMixin
@@ -37,7 +36,8 @@ from PyQt4.Qt import QIcon
 from PyQt4.Qt import QToolBar
 
 from PyQt4.Qt import QMainWindow, QFrame, SIGNAL, QFileDialog, QWidget
-from PyQt4.Qt import QCursor, QBitmap, QLabel, QSplitter, QMessageBox, QString, QColorDialog, QColor
+from PyQt4.Qt import QCursor, QBitmap, QLabel, QSplitter, QMessageBox
+from PyQt4.Qt import QString, QColorDialog, QColor
 from PyQt4 import QtCore
 from GLPane import GLPane 
 from elements import PeriodicTable
@@ -558,9 +558,9 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
             from whatsthis import createWhatsThis
             createWhatsThis(self)
 
+            # This is only used by the Atom Color preference dialog, not the
+            # molecular modeling kit in Build Atom (deposit mode), etc.
             start_element = 6 # Carbon
-
-            # Start with Carbon as the default element (for Deposit Mode and the Element Selector)
             self.Element = start_element
             self.setElement(start_element)
 
@@ -792,16 +792,17 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
             # [bruce 060319 added refix_later as part of fixing bug 1421]
 
         if not MULTIPANE_GUI:
+            
+            # This is only used by the Atom Color preference dialog, not the
+            # molecular modeling kit in Build Atom (deposit mode), etc.
             start_element = 6 # Carbon
+            self.Element = start_element
+            self.setElement(start_element)
 
             # Attr/list for Atom Selection Filter. mark 060401
             self.filtered_elements = [] # Holds list of elements to be selected when the Atom Selection Filter is enabled.
             self.filtered_elements.append(PeriodicTable.getElement(start_element)) # Carbon
             self.selection_filter_enabled = False # Set to True to enable the Atom Selection Filter.
-
-            # Start with Carbon as the default element (for Deposit Mode and the Element Selector)
-            self.Element = start_element
-            self.setElement(start_element)
 
         # 'depositState' is used by depositMode and MMKit to synchonize the 
         # depositMode dashboard (Deposit and Paste toggle buttons) and the MMKit pages (tabs).
@@ -910,7 +911,8 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
     __did_cleanUpBeforeExiting = False #bruce 070618
 
     def cleanUpBeforeExiting(self): #bruce 060127 added this re bug 1412 (Python crashes on exit, newly common)
-        """NE1 is going to exit. (The user has already been given the chance to save current files
+        """
+        NE1 is going to exit. (The user has already been given the chance to save current files
         if they are modified, and (whether or not they were saved) has approved the exit.)
            Perform whatever internal side effects are desirable to make the exit safe and efficient,
         and/or to implement features which save other info (e.g. preferences) upon exiting.
@@ -978,8 +980,9 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
     sim_abort_button_pressed = False #bruce 060106
 
     def simAbort(self):
-        '''Original slot for Abort button.
-        '''
+        """
+        Original slot for Abort button.
+        """
         if platform.atom_debug and self.sim_abort_button_pressed: #bruce 060106
             print "atom_debug: self.sim_abort_button_pressed is already True before we even put up our dialog"
 
@@ -1000,7 +1003,8 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
             self.sim_abort_button_pressed = True
 
     def update_mode_status(self, mode_obj = None):
-        """[by bruce 040927]
+        """
+        [by bruce 040927]
 
         Update the text shown in self.modebarLabel (if that widget
         exists yet).  Get the text to use from mode_obj if supplied,
@@ -1067,7 +1071,8 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
     ##################################################
 
     def win_update(self): # bruce 050107 renamed this from 'update'
-        """ Update most state which directly affects the GUI display,
+        """
+        Update most state which directly affects the GUI display,
         in some cases repainting it directly.
         (Someday this should update all of it, but only what's needed,
         and perhaps also call QWidget.update. #e)
@@ -1106,8 +1111,10 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
     ###################################
 
     def editMakeCheckpoint(self):
-        '''Slot for making a checkpoint (only available when Automatic Checkpointing is disabled).
-        '''
+        """
+        Slot for making a checkpoint (only available when Automatic 
+        Checkpointing is disabled).
+        """
         import undo_manager, debug
         debug.reload_once_per_event(undo_manager) # only reloads if atom_debug is set
         undo_manager.editMakeCheckpoint()
@@ -1121,8 +1128,9 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.assy.editRedo()
 
     def editAutoCheckpointing(self, enabled):
-        '''Slot for enabling/disabling automatic checkpointing.
-        '''
+        """
+        Slot for enabling/disabling automatic checkpointing.
+        """
         import undo_manager, debug
         debug.reload_once_per_event(undo_manager) # only reloads if atom_debug is set
         undo_manager.editAutoCheckpointing(enabled)
@@ -1131,7 +1139,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 
     def editClearUndoStack(self):
         """
-        Slot for clearing the Undo Stack.  Requires the user to confirm.
+        Slot for clearing the Undo Stack. Requires the user to confirm.
         """
         import undo_manager, debug
         debug.reload_once_per_event(undo_manager) # only reloads if atom_debug is set
@@ -1161,6 +1169,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 	    selection so that the selected item is in the center of the screen.
 	  - Bugs/ Unsupported feature: If you paste multiple copies of an object
 	    they are pasted at the same location. (i.e. the offset is constant)
+	
 	@see: L{ops_copy_Mixin.paste} 
 	"""
         if self.assy.shelf.members:
@@ -1242,7 +1251,9 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         ##self.win_update()
 
     def editPrefs(self):
-        """ Edit Preferences """
+        """
+        Edit Preferences
+        """
         self.uprefs.showDialog()
 
     ###################################
@@ -1297,9 +1308,10 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.setDisplay(diSURFACE)
 
     def setDisplay(self, form, default_display=False):
-        '''Set the display of the selection to 'form'.  If nothing is selected, then change
+        """
+        Set the display of the selection to 'form'.  If nothing is selected, then change
         the GLPane's current display to 'form'.
-        '''
+        """
         if self.assy and self.assy.selatoms:
             for ob in self.assy.selatoms.itervalues():
                 ob.setDisplay(form)
@@ -1351,7 +1363,9 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 
 
     def dispResetChunkColor(self):
-        "Resets the selected chunk's atom colors to the current element colors"
+        """
+        Resets the selected chunk's atom colors to the current element colors.
+        """
         if not self.assy.selmols: 
             env.history.message(redmsg("Reset Chunk Color: No chunks selected."))
             return
@@ -1361,7 +1375,10 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.glpane.gl_update()
 
     def dispResetAtomsDisplay(self):
-        "Resets the display setting for each atom in the selected chunks or atoms to Default display mode"
+        """
+        Resets the display setting for each atom in the selected chunks or
+        atoms to Default display mode.
+        """
 
         cmd = greenmsg("Reset Atoms Display: ")
         msg = "No atoms or chunks selected."
@@ -1370,7 +1387,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
             self.assy.resetAtomsDisplay()
             msg = "Display setting for all atoms in selected chunk(s) reset to Default (i.e. their parent chunk's display mode)."
 
-        if self.disp_not_default_in_selected_atoms():
+        if self.notDefaultDisplayAtomsInSelection():
             for a in self.assy.selatoms.itervalues(): #bruce 060707 itervalues
                 if a.display != diDEFAULT:
                     a.setDisplay(diDEFAULT)
@@ -1380,7 +1397,10 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         env.history.message(cmd + msg)
 
     def dispShowInvisAtoms(self):
-        "Resets the display setting for each invisible atom in the selected chunks or atoms to Default display mode"
+        """
+        Resets the display setting for each invisible atom in the selected
+        chunks or atoms to Default display mode.
+        """
 
         cmd = greenmsg("Show Invisible Atoms: ")
 
@@ -1394,7 +1414,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         if self.assy.selmols:
             nia = self.assy.showInvisibleAtoms()
 
-        if self.disp_invis_in_selected_atoms():
+        if self.invisibleAtomsInSelection():
             for a in self.assy.selatoms.itervalues(): #bruce 060707 itervalues
                 if a.display == diINVISIBLE: 
                     a.setDisplay(diDEFAULT)
@@ -1404,35 +1424,44 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         env.history.message(msg)
 
     # The next two methods should be moved somewhere else (i.e. ops_select.py). Discuss with Bruce.
-    def disp_not_default_in_selected_atoms(self): # Mark 060707.
-        'Returns True if there is one or more selected atoms with its display mode not set to diDEFAULT.'
+    def notDefaultDisplayAtomsInSelection(self): # Mark 060707.
+        """
+        Returns True if there is one or more selected atoms with its 
+        display mode not set to diDEFAULT.
+        """
         for a in self.assy.selatoms.itervalues(): #bruce 060707 itervalues
             if a.display != diDEFAULT: 
                 return True
         return False
 
-    def disp_invis_in_selected_atoms(self): # Mark 060707.
-        'Returns True if there is one or more selected atoms with its display mode set to diINVISIBLE.'
+    def invisibleAtomsInSelection(self): # Mark 060707.
+        """
+        Returns True if there is one or more selected atoms with its display
+        mode set to diINVISIBLE.
+        """
         for a in self.assy.selatoms.itervalues(): #bruce 060707 itervalues
             if a.display == diINVISIBLE: 
                 return True
         return False
 
     def dispBGColor(self):
-        "Let user change the current mode's background color"
-        # Fixed bug 894.  Mark
-        # Changed "Background" to "General". Mark 060815.
+        """
+        Let user change the current mode's background color.
+        """
         self.uprefs.showDialog(pagename='General')
 
     # pop up Element Color Selector dialog
     def dispElementColorSettings(self):
-        "Slot for 'Display > Element Color Settings...' menu item."
+        """
+        Slot for 'Display > Element Color Settings...' menu item.
+        """
         self.showElementColorSettings()
 
     def showElementColorSettings(self, parent=None):
-        '''Opens the Element Color Setting dialog, allowing the user to change default 
+        """
+        Opens the Element Color Setting dialog, allowing the user to change default 
         colors of elements and bondpoints, and save them to a file.
-        '''
+        """
         global elementColorsWin
         #Huaicai 2/24/05: Create a new element selector window each time,  
         #so it will be easier to always start from the same states.
@@ -1453,7 +1482,8 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         elementColorsWin.show()
 
     def dispLighting(self):
-        """Allows user to change lighting brightness.
+        """
+        Allows user to change lighting brightness.
         """
         self.uprefs.showDialog('Lighting') # Show Prefences | Lighting.
 
@@ -1462,7 +1492,8 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
     ###############################################################
 
     def selectAll(self):
-        """Select all parts if nothing selected.
+        """
+        Select all parts if nothing selected.
         If some parts are selected, select all atoms in those parts.
         If some atoms are selected, select all atoms in the parts
         in which some atoms are selected.
@@ -1477,7 +1508,8 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.update_mode_status() # bruce 040927... not sure if this is ever needed
 
     def selectInvert(self):
-        """If some parts are selected, select the other parts instead.
+        """
+        If some parts are selected, select the other parts instead.
         If some atoms are selected, select the other atoms instead
         (even in chunks with no atoms selected, which end up with
         all atoms selected). (And unselect all currently selected
@@ -1489,32 +1521,31 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.update_mode_status() # bruce 040927... not sure if this is ever needed
 
     def selectConnected(self):
-        """Select any atom that can be reached from any currently
+        """
+        Select any atom that can be reached from any currently
         selected atom through a sequence of bonds.
-        Huaicai 1/19/05: This is called when user clicks the tool button,
-        but when the user choose from pop up menu, only assy.selectConnected() called.
-        I don't think this is good by any means, so I'll try to make them almost the same,
-        but still keep this function. 
         """
         self.assy.selectConnected()
 
     def selectDoubly(self):
-        """Select any atom that can be reached from any currently
+        """
+        Select any atom that can be reached from any currently
         selected atom through two or more non-overlapping sequences of
         bonds. Also select atoms that are connected to this group by
         one bond and have no other bonds. 
-        Huaicai 1/19/05, see commets for the above method
         """
         self.assy.selectDoubly()
 
     def selectExpand(self):
-        """Slot for Expand Selection, which selects any atom that is bonded 
+        """
+        Slot for Expand Selection, which selects any atom that is bonded 
         to any currently selected atom.
         """
         self.assy.selectExpand()
 
     def selectContract(self):
-        """Slot for Contract Selection, which unselects any atom which has
+        """
+        Slot for Contract Selection, which unselects any atom which has
         a bond to an unselected atom, or which has any open bonds.
         """
         self.assy.selectContract()
@@ -1571,7 +1602,9 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
     ###################################
 
     def modifyAdjustSel(self):
-        """Adjust the current selection"""
+        """
+        Adjust the current selection.
+        """
         if platform.atom_debug:
             print "debug: reloading runSim on each use, for development"
             import runSim, debug
@@ -1582,7 +1615,9 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         return
 
     def modifyAdjustAll(self):
-        """Adjust the entire (current) Part"""
+        """
+        Adjust all atoms.
+        """
         if platform.atom_debug:
             print "debug: reloading runSim on each use, for development"
             import runSim, debug
@@ -1593,59 +1628,81 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         return
 
     def modifyHydrogenate(self):
-        """ Add hydrogen atoms to each singlet in the selection """
+        """
+        Add hydrogen atoms to each singlet in the selection.
+        """
         self.assy.modifyHydrogenate()
 
     # remove hydrogen atoms from selected atoms/molecules
     def modifyDehydrogenate(self):
-        """ Remove all hydrogen atoms from the selection """
+        """
+        Remove all hydrogen atoms from the selection.
+        """
         self.assy.modifyDehydrogenate()
 
     def modifyPassivate(self):
-        """ Passivate the selection by changing surface atoms to eliminate singlets """
+        """
+        Passivate the selection by changing surface atoms to eliminate singlets.
+        """
         self.assy.modifyPassivate()
 
     def modifyDeleteBonds(self):
-        """ Delete all bonds between selected and unselected atoms or chunks"""
+        """
+        Delete all bonds between selected and unselected atoms or chunks.
+        """
         self.assy.modifyDeleteBonds()
 
     def modifyStretch(self):
-        """ Stretch/expand the selected chunk(s) """
+        """
+        Stretch/expand the selected chunk(s).
+        """
         self.assy.Stretch()
 
     def modifySeparate(self):
-        """ Form a new chunk from the selected atoms """
+        """
+        Form a new chunk from the selected atoms.
+        """
         self.assy.modifySeparate()
 
     def modifyMerge(self):
-        """ Create a single chunk from two of more selected chunks """
+        """
+        Create a single chunk from two of more selected chunks.
+        """
         self.assy.merge()
         self.win_update()
 
     def makeChunkFromAtom(self):
-        ''' Create a new chunk from the selected atoms'''
+        """
+        Create a new chunk from the selected atoms.
+        """
         self.assy.makeChunkFromAtoms()
         self.win_update()
 
-
-
     def modifyInvert(self):
-        """ Invert the atoms of the selected chunk(s) """
+        """
+        Invert the atoms of the selected chunk(s).
+        """
         self.assy.Invert()
 
     def modifyMirror(self):
-        "Mirrors the selected chunk about a jig with 0 atoms (mainly grid plane)"
+        """
+        Mirrors the selected chunks through a Plane (or Grid Plane).
+        """
         self.assy.Mirror()
 
     def modifyAlignCommonAxis(self):
-        """ Align selected chunks to the computed axis of the first chunk by rotating them """
+        """
+        Align selected chunks to the computed axis of the first chunk.
+        """
         self.assy.align()
         self.win_update()
 
     def modifyCenterCommonAxis(self):
-        '''Same as "Align to Common Axis", except that it moves all the selected chunks to the 
-        center of the first selected chunk after aligning/rotating the other chunks
-        '''
+        """
+        Same as "Align to Common Axis", except that it moves all the selected
+        chunks to the center of the first selected chunk after 
+        aligning/rotating the other chunks.
+        """
 
         # This is still not fully implemented as intended.  Instead of moving all the selected 
         # chunks to the center of the first selected chunk, I want to have them moved to the closest 
@@ -1668,8 +1725,9 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.help.showDialog(1)
 
     def helpGraphicsCard(self):
-        '''Displays details about the system\'s graphics card.
-        '''
+        """
+        Display details about the system\'s graphics card in a dialog.
+        """
         ginfo = get_gl_info_string( self.glpane) #bruce 070308 added glpane arg
 
         from widgets import TextMessageBox
@@ -1685,8 +1743,9 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 # to Bruce about this. Mark 051209.
 # 
 #    def helpCpuInfo(self):
-#        '''Displays this system's CPU information.
-#        '''
+#        """
+#        Displays this system's CPU information.
+#        """
 #        from cpuinfo import get_cpuinfo
 #        cpuinfo = get_cpuinfo()
 #        
@@ -1697,7 +1756,8 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 #        msgbox.show()
 
     def helpAbout(self):
-        """Displays information about this version of NanoEngineer-1
+        """
+        Displays information about this version of NanoEngineer-1.
         """
         from version import Version
         v = Version()
@@ -1763,7 +1823,9 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 
     #get into Build DNA Origami mode
     def buildDnaOrigami(self):
-        ''' Enter DNA Origami mode'''
+        """
+        Enter DNA Origami mode.
+        """
         msg1 = greenmsg("DNA Origami: ")
         msg2 = " Not implemented yet"
         final_msg = msg1 + msg2
@@ -1786,12 +1848,14 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
     ###################################
 
     def simMinimizeEnergy(self):
-        """Opens the Minimize Energy dialog.
+        """
+        Opens the Minimize Energy dialog.
         """
         self.minimize_energy.setup()
 
     def simSetup(self):
-        """Creates a movie of a molecular dynamics simulation.
+        """
+        Creates a movie of a molecular dynamics simulation.
         """
         if platform.atom_debug: #bruce 060106 added this (fixing trivial bug 1260)
             print "atom_debug: reloading runSim on each use, for development"
@@ -1803,7 +1867,8 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         return
 
     def simNanoHive(self):
-        """Opens the Nano-Hive dialog... for details see subroutine's docstring.
+        """
+        Opens the Nano-Hive dialog... for details see subroutine's docstring.
         """
         # This should be probably be modeled after the simSetup_CommandRun class
         # I'll do this if Bruce agrees.  For now, I want to get this working ASAP.
@@ -1811,7 +1876,8 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.nanohive.showDialog(self.assy)
 
     def simPlot(self):
-        """Opens the "Make Graphs" dialog if there is a "current" movie file
+        """
+        Opens the "Make Graphs" dialog if there is a movie file
 	(i.e. a movie file has been opened in the Movie Player).
 	For details see subroutine's docstring.
         """
@@ -1824,24 +1890,34 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         return
 
     def simMoviePlayer(self):
-        """Plays a DPB movie file created by the simulator.
+        """
+        Plays a DPB movie file created by the simulator.
         """
         from movieMode import simMoviePlayer
         simMoviePlayer(self.assy)
         return
 
     def JobManager(self):
-        """Opens the Job Manager dialog... for details see subroutine's docstring.
+        """
+        Opens the Job Manager dialog... for details see subroutine's docstring.
+        
+        @note: This is not implemented.
         """
         from JobManager import JobManager
         dialog = JobManager(self)
         if dialog:
-            self.jobmgrcntl = dialog #probably useless, but done since old code did it;
-                # conceivably, keeping it matters due to its refcount.  See Bruce's note in simPlot().
+            self.jobmgrcntl = dialog
+                # probably useless, but done since old code did it;
+                # conceivably, keeping it matters due to its refcount. 
+                # See Bruce's note in simPlot().
         return
 
     def serverManager(self):
-        """Opens the server manager dialog. """
+        """
+        Opens the server manager dialog.
+        
+        @note: This is not implemented.
+        """
         from ServerManager import ServerManager
         ServerManager().showDialog()
 
@@ -1854,13 +1930,13 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         If the current command's .modename differs from the one given, change
         to that command.
 
-        Note: it's likely that this method is not needed since
+        @note: it's likely that this method is not needed since
         userEnterCommand has the same special case of doing nothing
         if we're already in the named command. If so, the special case
         could be removed with no effect, and this method could be
         inlined to just userEnterCommand.
 
-        Note: all uses of this method are causes for suspicion, about
+        @note: all uses of this method are causes for suspicion, about
         whether some sort of refactoring or generalization is called for,
         unless they are called from a user command whose purpose is solely
         to switch to the named command. (In other words, switching to it
@@ -1894,8 +1970,9 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.povrayscenecntl.setup()
 
     def insertComment(self):
-        '''Insert a new comment into the model tree.
-        '''
+        """
+        Insert a new comment into the model tree.
+        """
         self.commentcntl.setup()
 
     ###################################
@@ -1930,33 +2007,20 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.currentCommand.Flush()
 
 
-    #######################################
-    # Element Selector Slots
-    #######################################
-##    def modifySetElement(self):
-##        '''Creates the Element Selector for Select Atoms mode.
-##        '''
-##        global elementSelectorWin
-##        #Huaicai 2/24/05: Create a new element selector window each time,  
-##        #so it will be easier to always start from the same states.
-##        # Make sure only a single element window is shown
-##        if elementSelectorWin and elementSelectorWin.isVisible():
-##            return 
-##        
-##        elementSelectorWin = elementSelector(self)
-##        elementSelectorWin.update_dialog(self.Element)
-##        elementSelectorWin.show()
-
+    ###########################################################
+    # Slots for the Atom color setting/user preference dialog.
+    ##########################################################
 
     def elemChange(self, a0):
-        '''Slot for Element selector combobox in Build mode's dashboard.
-        '''
+        """
+        Slot for Element selector combobox in Build mode's dashboard.
+        """
         self.Element = eCCBtab1[a0]
 
-
-    # this routine sets the displays to reflect elt
-    # [bruce 041215: most of this should be made a method in elementSelector.py #e]
     def setElement(self, elt):
+        """
+        Set the current element in 
+        """
         # element specified as element number
         global elementSelectorWin
 
@@ -1977,22 +2041,8 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 
         return
 
-
-    def setCarbon(self):
-        self.setElement(6) 
-
-    def setHydrogen(self):
-        self.setElement(1)
-
-    def setOxygen(self):
-        self.setElement(8)
-
-    def setNitrogen(self):
-        self.setElement(7)
-
-
     ######################################
-    #Show View > Orientation Window     
+    # Show View > Orientation Window     
     #######################################
 
     def showOrientationWindow(self): #Ninad 061121
@@ -2011,7 +2061,9 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         return self.orientationWindow
 
     def deleteOrientationWindow(self):
-        """Delete the orientation window when the main window closes"""
+        """
+        Delete the orientation window when the main window closes.
+        """
         #ninad 061121 - this is probably unnecessary  
         if self.orientationWindow:
             self.orientationWindow.close()
@@ -2039,37 +2091,6 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         # the last widget we clicked on (or more likely, the one with the keyfocus).
         return
 
-    ##############################################################
-    # Some future slot functions for the UI                      #
-    ##############################################################
-
-    def dispDatumLines(self):
-        """ Toggle on/off datum lines """
-        env.history.message(redmsg("Display Datum Lines: Not implemented yet."))
-
-    def dispDatumPlanes(self):
-        """ Toggle on/off datum planes """
-        env.history.message(redmsg("Display Datum Planes: Not implemented yet."))
-
-    def dispOpenBonds(self):
-        """ Toggle on/off open bonds """
-        env.history.message(redmsg("Display Open Bonds: Not implemented yet."))
-
-    def validateThickness(self, s):
-        if self.vd.validate( s, 0 )[0] != 2: self.ccLayerThicknessLineEdit.setText(s[:-1])
-
-##    ####### Movie Player slots ######################################
-##
-##    # This is a temporary home for a single slot. This will need to be moved to
-##    # movieMode when I decide to create do_what_MainWindowUI_should_do().
-##    # NFR requested by Damian. Mark 060927.
-##
-##    def updateSkipSuffix(self, val): # mark 060927 wrote this & bruce split it into two functions.
-##        """Update the suffix of the skip spinbox on the Movie Player dashboard"""
-##        from PlatformDependent import th_st_nd_rd
-##        suffix = "%s frame" % th_st_nd_rd(val)
-##        self.skipSB.setSuffix(suffix)
-
 #######  Load IconSets #########################################
     def load_icons_to_iconsets(self): ### REVIEW (Mark): is this still needed? [bruce 070820]
         """
@@ -2086,6 +2107,8 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         return
 
     def hideDashboards(self):
+        """
+        """
         # [bruce 050408 comment: this list should be recoded somehow so that it
         #  lists what to show, not what to hide. ##e]
         self.cookieCutterDashboard.hide()
@@ -2125,7 +2148,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         Disables action items in the main window for extrudeMode.
         """
         self.disable_QActions_for_movieMode(disableFlag)
-        self.modifyHydrogenateAction.setEnabled(not disableFlag) # Fixes bug 1057. mark 060323
+        self.modifyHydrogenateAction.setEnabled(not disableFlag)
         self.modifyDehydrogenateAction.setEnabled(not disableFlag)
         self.modifyPassivateAction.setEnabled(not disableFlag)
         self.modifyDeleteBondsAction.setEnabled(not disableFlag)
@@ -2135,12 +2158,14 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.modifyInvertAction.setEnabled(not disableFlag)
         self.modifyMirrorAction.setEnabled(not disableFlag)
         self.modifyAlignCommonAxisAction.setEnabled(not disableFlag)
-        # All QActions in the Modify menu/toolbar should be disabled, too. mark 060323
+        # All QActions in the Modify menu/toolbar should be disabled, 
+        # too. mark 060323
         return
 
     def disable_QActions_for_sim(self, disableFlag = True):
         """
-        Disables actions items in the main window during simulations (and minimize).
+        Disables actions items in the main window during simulations
+        (and minimize).
         """
         self.disable_QActions_for_movieMode(disableFlag)
         self.simMoviePlayerAction.setEnabled(not disableFlag)
@@ -2185,8 +2210,6 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 ##        self.rotateToolAction.setEnabled(enable) # "Rotate Tool"
 
         return
-
-
 
 # == Caption methods
 
