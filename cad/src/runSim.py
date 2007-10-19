@@ -2161,7 +2161,7 @@ class Minimize_CommandRun(CommandRun):
         except:
             ## print_compact_traceback("bug ...: ")
             if env.debug():
-                print "debug: fyi: runSim grabbing uprefs data"
+                print "debug: fyi: runSim grabbing userPrefs data"
             # For A8, this is normal, since only (at most) Minimize Energy sets self.kws['update_cond'] itself.
             # This will be used routinely in A8 by Adjust All and Adjust Selection, and maybe Adjust Atoms (not sure).
             #
@@ -2169,11 +2169,11 @@ class Minimize_CommandRun(CommandRun):
             # But at least try to do that using new common code.
             try:
                 from widget_controllers import realtime_update_controller
-                uprefs = env.mainwindow().uprefs
+                userPrefs = env.mainwindow().userPrefs
                 from prefs_constants import Adjust_watchRealtimeMinimization_prefs_key ###@@@ should depend on command, or be in movie...
                 ruc = realtime_update_controller(
-                    ( uprefs.update_btngrp_group, ###k name
-                      uprefs.update_number_spinbox, uprefs.update_units_combobox ),
+                    ( userPrefs.update_btngrp_group, ###k name
+                      userPrefs.update_number_spinbox, userPrefs.update_units_combobox ),
                     None, # checkbox ###@@@ maybe not needed, since UserPrefs sets up the connection #k
                     Adjust_watchRealtimeMinimization_prefs_key )
                 update_cond = ruc.get_update_cond_from_widgets()
@@ -2188,10 +2188,10 @@ class Minimize_CommandRun(CommandRun):
                 # even for Minimize Energy), but I'll try to replace it with calls to common code.
                 # [bruce 060705]
                 # This code for setting update_cond is duplicated (inexactly) in SimSetup.createMoviePressed() in SimSetup.py.
-                uprefs = env.mainwindow().uprefs
-                update_units = uprefs.update_units_combobox.currentText()
-                update_number = uprefs.update_number_spinbox.value()
-                if uprefs.update_asap_rbtn.isChecked():
+                userPrefs = env.mainwindow().userPrefs
+                update_units = userPrefs.update_units_combobox.currentText()
+                update_number = userPrefs.update_number_spinbox.value()
+                if userPrefs.update_asap_rbtn.isChecked():
                     update_cond = ( lambda simtime, pytime, nframes:
                                     simtime >= max(0.05, min(pytime * 4, 2.0)) )
                 elif update_units == 'frames':

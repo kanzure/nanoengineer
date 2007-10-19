@@ -78,8 +78,8 @@ class viewSlotsMixin:
 	                    ZoomAboutScreenCenter preference is toggled.
 	@type booleanJunk: bool
 	"""
-        # self.uprefs is a UserPrefs object ninad061003
-        self.uprefs.changeZoomBehaviorPreference()  
+        # self.userPrefs is a UserPrefs object ninad061003
+        self.userPrefs.changeZoomBehaviorPreference()  
                 
     def zoomTool(self, val):
         """

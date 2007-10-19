@@ -689,12 +689,12 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         if not MULTIPANE_GUI:
             self.assy.o = self.glpane
         from UserPrefs import UserPrefs
-        self.uprefs = UserPrefs(self.assy)
+        self.userPrefs = UserPrefs(self.assy)
 
         # Enable/disable plugins.  These should be moved to a central method
         # where all plug-ins get added and enabled during invocation.  Mark 050921.
-        self.uprefs.enable_nanohive(env.prefs[nanohive_enabled_prefs_key])
-        self.uprefs.enable_gamess(env.prefs[gamess_enabled_prefs_key])
+        self.userPrefs.enable_nanohive(env.prefs[nanohive_enabled_prefs_key])
+        self.userPrefs.enable_gamess(env.prefs[gamess_enabled_prefs_key])
 
         #Zoom behavior setting  (View > Zoom About Screen Center)
         self.viewZoomAboutScreenCenterAction.setChecked(
@@ -949,7 +949,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 
         try:
             if env.prefs[rememberWinPosSize_prefs_key]: # Fixes bug 1249-2. Mark 060518.
-                self.uprefs.save_current_win_pos_and_size()
+                self.userPrefs.save_current_win_pos_and_size()
         except:
             print_compact_traceback( msg )
 
@@ -1254,7 +1254,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         """
         Edit Preferences
         """
-        self.uprefs.showDialog()
+        self.userPrefs.showDialog()
 
     ###################################
     # View Toolbar Slots 
@@ -1448,7 +1448,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         """
         Let user change the current mode's background color.
         """
-        self.uprefs.showDialog(pagename='General')
+        self.userPrefs.showDialog(pagename='General')
 
     # pop up Element Color Selector dialog
     def dispElementColorSettings(self):
@@ -1485,7 +1485,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         """
         Allows user to change lighting brightness.
         """
-        self.uprefs.showDialog('Lighting') # Show Prefences | Lighting.
+        self.userPrefs.showDialog('Lighting') # Show Prefences | Lighting.
 
     ###############################################################
     # Select Toolbar Slots

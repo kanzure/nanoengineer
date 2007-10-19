@@ -41,7 +41,7 @@ def _dialog_to_offer_plugin_prefs_fixup(caption, text):
         "&OK", "Cancel", "",
         0, 1 )
     if ret==0: # OK
-        win.uprefs.showDialog('Plug-ins') # Show Preferences | Plug-in.
+        win.userPrefs.showDialog('Plug-ins') # Show Preferences | Plug-in.
         return 0 # let caller figure out whether user fixed the problem
     elif ret==1: # Cancel
         return 1
@@ -273,8 +273,10 @@ def write_art_file(filename):
     
     # QuteMol can use line 1 to validate the file format.
     # Added @ to help make it clear that line 1 is special.
-    fileHandle.write("#@ NanoEngineer-1 Atom Rendering Table, \
-                      file format version 2007-06-04\n")
+    fileHandle.write(
+        "#@ NanoEngineer-1 Atom Rendering Table, \
+        file format version 2007-06-04\n"
+    )
 
     # Lines after line 1 are only comments.
     fileHandle.write("#\n# File format:\n#\n")
@@ -299,6 +301,9 @@ def write_art_file(filename):
         # "Covalent Radius"
         ballAndStickRadius = \
             element.rvdw * 0.25 * env.prefs[diBALL_AtomRadius_prefs_key]
+        
+        #if element.symbol == 'Ax3':
+        #    ballAndStickRadius = 0.1
 
         fileHandle.write \
             ('%2s  %3d  %3.3f  %3.3f  %3d  %3d  %3d\n' %

@@ -234,7 +234,7 @@ def activate_nh_plugin(win):
         0, 1 )
             
     if ret==0: # OK
-        win.uprefs.showDialog('Plug-ins') # Show Prefences | Plug-in.
+        win.userPrefs.showDialog('Plug-ins') # Show Prefences | Plug-in.
         if not env.prefs[nanohive_enabled_prefs_key]:
             return 1 # Nano-Hive was not enabled by user.
         
