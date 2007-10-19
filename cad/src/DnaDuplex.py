@@ -18,7 +18,6 @@ __author__ = "Mark"
 
 import env
 import os
-import re
 
 from math    import atan2, sin, cos, pi
 from Numeric import dot
@@ -28,8 +27,6 @@ from debug import print_compact_traceback
 from PlatformDependent  import find_plugin_dir
 from files_mmp          import readmmp
 from VQT                import Q, V, angleBetween, cross, vlen
-from chem               import Atom
-from bonds              import inferBonds, bond_atoms
 from fusechunksMode     import fusechunksBase
 from utilities.Log      import orangemsg
 from GeneratorBaseClass import PluginBug
@@ -37,9 +34,8 @@ from Utility            import Group
 from chunk              import molecule
 from constants          import gensym, darkred, blue, lightgray, diBALL
 
-from elements import PeriodicTable
+from elements import PeriodicTable, Singlet
 Element_Ae3 = PeriodicTable.getElement('Ae3')
-Singlet = PeriodicTable.getElement('X')
 
 from Dna_Constants import basesDict, dnaDict
 
