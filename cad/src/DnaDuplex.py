@@ -6,7 +6,7 @@ DnaDuplex.py -- DNA duplex model classes based on empirical data.
 @version:
 @copyright: Copyright (c) 2007 Nanorex, Inc.  All rights reserved.
 
-$Id:$
+$Id$
 
 History:
 
@@ -39,6 +39,7 @@ from constants          import gensym, darkred, blue, lightgray, diBALL
 
 from elements import PeriodicTable
 Element_Ae3 = PeriodicTable.getElement('Ae3')
+Singlet = PeriodicTable.getElement('X')
 
 from Dna_Constants import basesDict, dnaDict
 
@@ -563,15 +564,9 @@ class B_Dna_PAM3(B_Dna_PAM5):
         Returns parameters needed to add the next base-pair to the duplex 
         build built.
         
-        @param baseLetter: The base letter.
-        @type  baseLetter: str
-        
         @param index: Base-pair index.
         @type  index: int
         """
-        
-        if not env.prefs["A9 devel/draw PAM3 singlets as arrows"]:
-            return B_Dna_PAM5._strandAinfo(self, baseLetter, index)
         
         zoffset      =  0.0
         thetaOffset  =  0.0
@@ -602,8 +597,7 @@ class B_Dna_PAM3(B_Dna_PAM5):
         Ax_caps = filter( lambda atom: atom.element.symbol in ('Ax3'), start_basepair_atoms)
         Ax_caps += filter( lambda atom: atom.element.symbol in ('Ax3'), end_basepair_atoms)
         
-        #assert len(Ss3_pair) == 2
-        assert len(X_list) == 3 # Third is bonded to Ax3 atom.
+        assert len(X_list) == 3 # Third is bonded to Ax3 axis atom.
         
         # Set bond direction on both strands.
         # Warning: this is fragile (and temporary). This implem is dependent on
@@ -611,7 +605,7 @@ class B_Dna_PAM3(B_Dna_PAM5):
         # order changes, this will not work. This code will be removed when
         # Bruce adds code that copies bond direction of two openbonds onto the
         # new bond. -mark
-        if True: # Set to False to test Bruce's new bond direction code.
+        if Singlet.bonds_can_be_directional:
             sa_pb = X_list[1] # Strand A bondpoint
             sb_bp = X_list[2] # Strand B bondpoint
             sa_pb.bonds[0].set_bond_direction_from(sa_pb, 1, propogate = True)
