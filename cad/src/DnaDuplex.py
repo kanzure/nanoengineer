@@ -299,32 +299,6 @@ class Dna:
         for m in dnaGroup.members:
             m.move(qrot.rot(m.center) - m.center + rawOffset + pt1)
             m.rot(qrot)
-
-    def _makeChunkFromAtomList(self, atomList):
-        """
-        Creates a new chunk from the given atom list.
-        
-        @param atomList: List of atoms from which to create the chunk.
-        @type  atomList: list
-        
-        @return: The new chunk.
-        @rtype:  L{molecule}
-        
-        """
-        
-        # ninad070426 : this may be moved to ops_rechunk.py
-        
-        # Seems to me that a better home for this is method is the assembly
-        # class. Ask Bruce. - Mark 2007-10-18
-        
-        # see also: ops_rechunk.makeChunkFromAtoms
-        assert atomList
-        
-        newChunk = molecule(self.assy, gensym("Chunk"))
-        for a in atomList:            
-            # leave the moved atoms picked, so still visible
-            a.hopmol(newChunk)
-        return newChunk 
         
     def _regroup(self, dnaGroup):
         """
@@ -360,19 +334,22 @@ class Dna:
                     _axis_list.append(atom)
         
         # Create strand and axis chunks from atom lists.
-        strandAChunk = self._makeChunkFromAtomList(_strandA_list)
-        strandAChunk.name = "Strand1"
-        strandBChunk = self._makeChunkFromAtomList(_strandB_list)
-        strandBChunk.name = "Strand2"
-        axisChunk = self._makeChunkFromAtomList(_axis_list)
-        axisChunk.name = "Axis"
-        
-        # Assign default colors to strand and axis chunks.
-        strandAChunk.setcolor(darkred)
-        strandBChunk.setcolor(blue)
-        axisChunk.setcolor(lightgray)
-        
-        # Place strand and axis chunks in this order: StrandA, StrandB, Axis.
+        strandAChunk = \
+                     self.assy.makeChunkFromAtomList(_strandA_list,
+                                                     name = "Strand1",
+                                                     color = darkred)
+        strandBChunk = \
+                     self.assy.makeChunkFromAtomList(_strandB_list,
+                                                     name = "Strand2",
+                                                     color = blue)
+
+        axisChunk = \
+                  self.assy.makeChunkFromAtomList(_axis_list,
+                                                  name = "Axis",
+                                                  color = lightgray)
+                
+        # Place strand and axis chunks nodes (in the MT)
+        # in this order: StrandA, StrandB, Axis.
         dnaGroup.addmember(strandAChunk)
         dnaGroup.addmember(strandBChunk)
         dnaGroup.addmember(axisChunk)
