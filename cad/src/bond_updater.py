@@ -68,7 +68,11 @@ def _update_bonds_after_each_event( changed_structure_atoms):
     mols_changed = {} #bruce 060126, so atom._changed_structure() doesn't need to call atom.changed() directly
     
     for atm in changed_structure_atoms.values(): #bruce 060405 precaution: itervalues -> values, due to jig.changed_structure calls
-        #e ignore killed atoms -- though at the moment they don't even show up in this list (which is bad but tolerable)
+        # ignore killed atoms
+        # [bruce 071018 bugfix of old bug "reguess_atomtype of bondpoint with no bonds"]
+        if atm._Atom__killed:
+            # this inlines atm.killed() for speed, since this will happen a lot
+            continue
         # for singlets, just look at their base atoms [as of 050707 just look at all bonds of all unkilled atoms]
         #e when info must be recorded for later, do this per-chunk or per-part.
         ##k Do we move existing such info when atoms moved or were killed??

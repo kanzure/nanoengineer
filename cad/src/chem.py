@@ -222,7 +222,11 @@ _changed_parent_Atoms = {} # record atoms w/ changed assy or molecule or livenes
     # (an atom's assy is atom.molecule.assy; no need to track changes here to the mol's .part or .dad)
     # related attributes: __killed, molecule ###@@@ declare these?? not yet sure if that should be per-attr or not, re subclasses...
 
-register_changedict( _changed_parent_Atoms, '_changed_parent_Atoms', ('__killed', 'molecule') ) #k or must we say _Atom__killed??
+register_changedict( _changed_parent_Atoms, '_changed_parent_Atoms', ('__killed', 'molecule') )
+    #k or must we say _Atom__killed??
+    # (It depends on whether that routine knows how to mangle it itself.)
+    # (As of long before 071018 that arg of register_changedict (related_attrs)
+    #  is not yet used.)
 
 
 _changed_structure_Atoms = {} # tracks changes to element, atomtype, bond set (not bond order #k)
@@ -676,13 +680,19 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         # That means there is presently no way to save and reload that atomtype in an mmp file, and only a "direct way"
         # (specifying it as an atomtype, not relying on inferring from bonds) would work unless this bug is fixed here.
         ###@@@ (need to report this bug)
-        if len(self.bonds) == 0 and platform.atom_debug:
+        if self.__killed:
+            # bruce 071018 new bug check and new mitigation (return default atomtype)
+            print_compact_stack( "bug: reguess_atomtype of killed atom %s (returning default): " % self)
+            return self.element.atomtypes[0]
+        if len(self.bonds) == 0:## and platform.atom_debug:
+            # [bruce 071018 check this always, to see if skipping killed atoms in bond_updater has fixed this bug for good]
             # (I think the following cond (using self.element rather than elt) is correct even when elt is passed -- bruce 050707)
             if self.element.atomtypes[0].numbonds != 0: # not a bug for noble gases!
-                if env.once_per_event("reguess_atomtype warning"): #bruce 060720, only warn once per user event
+                if 1: ## or env.once_per_event("reguess_atomtype warning"): #bruce 060720, only warn once per user event
                     print_compact_stack(
-                        "atom_debug: warning (once per event): reguess_atomtype(%s) sees %s with no bonds -- probably a bug" % \
-                        (elt,self) )
+                        ## "atom_debug: warning (once per event): reguess_atomtype(%s) sees %s with no bonds -- probably a bug: " % \
+                        "warning: reguess_atomtype(%s) sees non-killed %s with no bonds -- probably a bug: " % \
+                        (elt, self) )
         return self.best_atomtype_for_numbonds(elt = elt)
 
     def set_atomtype_but_dont_revise_singlets(self, atomtype): ####@@@@ should merge with set_atomtype; perhaps use more widely
@@ -2330,19 +2340,28 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         return
 
     def killed(self): #bruce 041029; totally revised by bruce 050702
-        """(Public method) Report whether an atom has been killed.
         """
+        (Public method)
+        Report whether an atom has been killed.
+        """
+        # Note: some "friend code" inlines this method for speed
+        # (and omits the debug code). To find it, search for _Atom__killed
+        # (the mangled version of __killed). [bruce 071018 comment]
         if platform.atom_debug: # this cond is for speed
             mol = self.molecule
             from chunk import _nullMol
             better_alive_answer = mol is not None and self.key in mol.atoms and mol is not _nullMol ##e and mol is not killed???
             if (not not better_alive_answer) != (not self.__killed):
-                if platform.atom_debug(): #060414 re bug 1779, but it never printed for it (worth keeping in for other bugs)
+                if platform.atom_debug:
+                    #bruce 060414 re bug 1779, but it never printed for it (worth keeping in for other bugs)
+                    #bruce 071018 fixed typo of () after platform.atom_debug -- could that be why it never printed it?!?
                     print "debug: better_alive_answer is %r but (not self.__killed) is %r" % (better_alive_answer , not self.__killed)
         return self.__killed
     
     def killed_with_debug_checks(self): # renamed by bruce 050702; was called killed(); by bruce 041029
-        """(Public method) Report whether an atom has been killed,
+        """
+        (Public method)
+        Report whether an atom has been killed,
         but do lots of debug checks and bug-workarounds
         (whether or not ATOM_DEBUG is set).
            Details: For an ordinary atom, return False.
@@ -2383,7 +2402,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         return
         
     def kill(self):
-        """Public method:
+        """
+        Public method:
         kill an atom: unpick it, remove it from its jigs, remove its bonds,
         then remove it from its molecule. Do all necessary invalidations.
         (Note that molecules left with no atoms, by this or any other op,
