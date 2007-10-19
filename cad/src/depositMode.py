@@ -429,7 +429,7 @@ class depositMode(selectAtomsMode):
         depositAtomsCmdLst.append(separatorAfterTransmute)
         depositAtomsCmdLst.append(self.w.modifyDeleteBondsAction)
         depositAtomsCmdLst.append(self.w.modifySeparateAction)
-        depositAtomsCmdLst.append(self.w.makeChunkFromAtomsAction)
+        depositAtomsCmdLst.append(self.w.makeChunkFromSelectedAtomsAction)
                         
         commandActionLists[2].extend(depositAtomsCmdLst)
         

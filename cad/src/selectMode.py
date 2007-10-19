@@ -1448,6 +1448,7 @@ class selectMode(basicMode):
         selobj = self.o.selobj
         if isinstance( selobj, Bond) and not selobj.is_open_bond():
             if selobj.is_directional(): 
+                self.makeNewStrandChunkFromBreak(selobj)
                 msg = "breaking strand %s" % selobj.atom1.molecule.name
             else:
                 msg = "breaking bond %s" % selobj
@@ -1465,6 +1466,47 @@ class selectMode(basicMode):
             self.o.assy.changed() #k needed?
             self.w.win_update() #k wouldn't gl_update be enough? [bruce 060726 question]
 
+    # This should be moved to ops_rechunk.py or to one of the new 
+    # DNA data model files. Mark 2007-10-19
+    def makeNewStrandChunkFromBreak(self, brokenBond):
+        """
+        Create a new strand chunk from a break in the original strand, and
+        assign it a new name and color. The new strand chunk will contain
+        the atoms on the 3' side of the break (broken bond). The atoms on 
+        the 5' side of the broken bond will remain in the original strand
+        chunk.
+        
+        @param brokenBond: The broken bond (aka the break). It is always a 
+                           PAM3 strand bond that has been (or will be) busted.
+        @type  brokenBond: L{Bond}
+        
+        @note: The caller is responsible for busting I{brokenBond}. It is 
+               safer to call this before the bond is busted.
+        """
+        assert brokenBond.is_directional()
+        
+        b = brokenBond
+        a = b.atom1 # we really need the atom on the 5' side of b.
+        atomList = [] # the list of atoms that will make the new strand chunk
+        
+        while a.element.symbol in ('Ss3', 'Sj3'):
+            print "Adding atom '%s' to atomList" % a.element.symbol
+            atomList.append(a)
+            for other_bond in a.bonds:
+                if other_bond is b:
+                    continue
+                if other_bond.is_directional():
+                    if a.is_singlet():
+                        continue
+                    a2 = other_bond.other(a)
+                    a = a2
+                    print "The next atom 'a' is a:", a.element.symbol
+                    b = other_bond
+                
+        print "Atoms in new strand chunk:", atomList
+        
+        #self.o.assy.makeChunkFromAtomList(atomList, name = "Strand3")
+        
     def bondDrag(self, obj, event):
         # [bruce 060728 added obj arg, for uniformity; probably needed even more in other Bond methods ##e]
         # If a LMB+Drag event has happened after selecting a bond in left*Down(),

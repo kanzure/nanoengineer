@@ -19,7 +19,9 @@ from constants import gensym
 import env
 
 class ops_rechunk_Mixin:
-    "Mixin class for providing these methods to class Part"
+    """
+    Mixin class for providing these methods to class Part.
+    """
 
     #m modifySeparate needs to be changed to modifySplit.  Need to coordinate
     # this with Bruce since this is called directly from some mode modules.
@@ -29,15 +31,18 @@ class ops_rechunk_Mixin:
     # (one new mol for each existing one containing any selected atoms)
     # do not break bonds
     def modifySeparate(self, new_old_callback = None):
-        """For each molecule (named N) containing any selected atoms,
-           move the selected atoms out of N (but without breaking any bonds)
-           into a new molecule which we name N-frag.
-           If N is now empty, remove it.
-           If new_old_callback is provided, then each time we create a new
-           (and nonempty) fragment N-frag, call new_old_callback with the
-           2 args N-frag and N (that is, with the new and old molecules).
-           Warning: we pass the old mol N to that callback,
-           even if it has no atoms and we deleted it from this assembly.
+        """
+        For each molecule (named N) containing any selected atoms,
+        move the selected atoms out of N (but without breaking any bonds)
+        into a new molecule which we name N-frag. If N is now empty, remove it.
+        
+        @param new_old_callback: If provided, then each time we create a new
+            (and nonempty) fragment N-frag, call new_old_callback with the
+            2 args N-frag and N (that is, with the new and old molecules).
+        @type  new_old_callback: function
+        
+        @warning: we pass the old mol N to that callback, even if it has no 
+                  atoms and we deleted it from this assembly.
         """
         # bruce 040929 wrote or revised docstring, added new_old_callback feature
         # for use from Extrude.
@@ -93,6 +98,12 @@ class ops_rechunk_Mixin:
 
     #merge selected molecules together  ###@@@ no update -- does caller do it?? [bruce 050223]
     def merge(self):
+        """
+        Merges selected atoms into a single chunk, or merges the selected
+        chunks into a single chunk.
+        
+        @note: If the selected atoms belong to the same chunk, nothing happens.
+        """
         #mark 050411 changed name from weld to merge (Bug 515)
         #bruce 050131 comment: might now be safe for clipboard items
         # since all selection is now forced to be in the same one;
@@ -102,7 +113,7 @@ class ops_rechunk_Mixin:
         cmd = greenmsg("Combine Chunks: ")
 
         if self.selatoms:
-            self.makeChunkFromAtoms()
+            self.makeChunkFromSelectedAtoms()
             return
             
         if len(self.selmols) < 2:
@@ -114,8 +125,10 @@ class ops_rechunk_Mixin:
         for m in self.selmols[1:]:
             mol.merge(m)
     
-    def makeChunkFromAtoms(self):
-        ''' Create a new chunk from the selected atoms'''
+    def makeChunkFromSelectedAtoms(self):
+        """
+        Create a new chunk from the selected atoms.
+        """
         
         #ninad 070411 moved the original method out of 'merge' method to 
         #facilitate implementation of 'Create New Chunk 
@@ -161,6 +174,37 @@ class ops_rechunk_Mixin:
         env.history.message(cmd + msg)
         self.w.win_update()
         
+    def makeChunkFromAtomList(self, atomList, name = None, color = None):
+        """
+        Creates a new chunk from the given atom list.
+        
+        @param atomList: List of atoms from which to create the chunk.
+        @type  atomList: list
+        
+        @param name: Name of new chunk. If None, we'll assign one.
+        @type  name: str
+        
+        @param color: Color of new chunk. If None, no chunk color is assigned
+                      (chunk atoms will be drawn in their element colors).
+        @type  color: tuple
+        
+        @return: The new chunk.
+        @rtype:  L{molecule}
+        
+        """
+        assert atomList
+        
+        if name:
+            newChunk = molecule(self.assy, name)
+        else:
+            newChunk = molecule(self.assy, gensym("Chunk"))
+            
+        for a in atomList:
+            a.hopmol(newChunk)
+            
+        newChunk.setcolor(color)
+        
+        return newChunk 
 
     pass # end of class ops_rechunk_Mixin
 

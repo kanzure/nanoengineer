@@ -39,10 +39,10 @@ def setupUi(win):
         "ui/actions/Tools/Build Tools/Combine_Chunks"))
     win.modifyMergeAction.setObjectName("modifyMergeAction")
     
-    win.makeChunkFromAtomsAction = QtGui.QWidgetAction(MainWindow)
-    win.makeChunkFromAtomsAction.setIcon(geticon(
+    win.makeChunkFromSelectedAtomsAction = QtGui.QWidgetAction(MainWindow)
+    win.makeChunkFromSelectedAtomsAction.setIcon(geticon(
         "ui/actions/Tools/Build Tools/New_Chunk"))
-    win.makeChunkFromAtomsAction.setObjectName("makeChunkFromAtomsAction")
+    win.makeChunkFromSelectedAtomsAction.setObjectName("makeChunkFromSelectedAtomsAction")
     
     
     win.modifyAlignCommonAxisAction = QtGui.QWidgetAction(MainWindow)
@@ -112,10 +112,10 @@ def retranslateUi(win):
         "MainWindow","Combine Selected Chunks",None, 
         QtGui.QApplication.UnicodeUTF8))
     
-    win.makeChunkFromAtomsAction.setText(QtGui.QApplication.translate(
+    win.makeChunkFromSelectedAtomsAction.setText(QtGui.QApplication.translate(
         "MainWindow","New Chunk",None,QtGui.QApplication.UnicodeUTF8))
 
-    win.makeChunkFromAtomsAction.setToolTip(QtGui.QApplication.translate(
+    win.makeChunkFromSelectedAtomsAction.setToolTip(QtGui.QApplication.translate(
         "MainWindow","Create a new chunk for selected atoms",None, 
         QtGui.QApplication.UnicodeUTF8))
     

@@ -276,7 +276,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.connect(self.modifyHydrogenateAction,SIGNAL("triggered()"),self.modifyHydrogenate)
         self.connect(self.modifyInvertAction,SIGNAL("triggered()"),self.modifyInvert)
         self.connect(self.modifyMergeAction,SIGNAL("triggered()"),self.modifyMerge)
-        self.connect(self.makeChunkFromAtomsAction,
+        self.connect(self.makeChunkFromSelectedAtomsAction,
                      SIGNAL("triggered()"),self.makeChunkFromAtom)
 
 
@@ -1678,7 +1678,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         """
         Create a new chunk from the selected atoms.
         """
-        self.assy.makeChunkFromAtoms()
+        self.assy.makeChunkFromSelectedAtoms()
         self.win_update()
 
     def modifyInvert(self):

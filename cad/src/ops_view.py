@@ -37,29 +37,29 @@ class viewSlotsMixin:
         info = 'Home'
         env.history.message(cmd + info)
         self.glpane.setViewHome()
-        
+
     def setViewFitToWindow(self):
         """ Fit to Window """
         cmd = greenmsg("Fit to Window: ")
         info = ''
         env.history.message(cmd + info)
         self.glpane.setViewFitToWindow()
-        
+
     def setViewZoomToSelection(self):
         '''Zoom to selection (Implemented for only selected jigs and chunks'''
         cmd = greenmsg("Zoom To Selection:")
         info = ''
         env.history.message(cmd + info)
         self.glpane.setViewZoomToSelection()
-        
-            
+
+
     def setViewHomeToCurrent(self):
         """Changes Home view of the model to the current view in the glpane."""
         cmd = greenmsg("Set Home View to Current View: ")
         info = 'Home'
         env.history.message(cmd + info)
         self.glpane.setViewHomeToCurrent()
-            
+
     def setViewRecenter(self):
         """Recenter the view around the origin of modeling space.
         """
@@ -67,7 +67,7 @@ class viewSlotsMixin:
         info = 'View Recentered'
         env.history.message(cmd + info)
         self.glpane.setViewRecenter()
-        
+
     def changeZoomBehavior(self, booleanJunk):
         """
 	Changes the zoom behavior based on the user preference (zoom about 
@@ -80,7 +80,7 @@ class viewSlotsMixin:
 	"""
         # self.userPrefs is a UserPrefs object ninad061003
         self.userPrefs.changeZoomBehaviorPreference()  
-                
+
     def zoomTool(self, val):
         """
         Zoom Tool, allowing the user to specify a rectangular area 
@@ -121,7 +121,7 @@ class viewSlotsMixin:
         # during Extrude Mode (and presumably other commands with internal state).
         # But all this logic should be replaced by something more principled
         # and general, using the Command Sequencer, when we have that.
-        
+
         # This fixes bug 1081.  mark 060111.
         if not val:
             # The Zoom/Pan/Rotate button was toggled off. We are presumably
@@ -164,7 +164,7 @@ class viewSlotsMixin:
             env.history.message("You may hit the Esc key to exit %s." % user_mode_name)
                 ###REVIEW: put this in statusbar instead?
         return
-        
+
     # GLPane.ortho is checked in GLPane.paintGL
     def setViewOrtho(self):
         self.glpane.setViewProjection(ORTHOGRAPHIC)
@@ -177,11 +177,11 @@ class viewSlotsMixin:
         selected atoms or a jig's (Motor or RectGadget) axis.
         '''
         cmd = greenmsg("Set View Normal To: ")
-        
+
         chunks = self.assy.selmols
         jigs = self.assy.getSelectedJigs()
         atoms = self.assy.selatoms_list()
-        
+
         #following fixes bug 1748 ninad 061003. 
         if len(chunks) > 0 and len(atoms) == 0:
             # Even though chunks have an axis, it is not necessarily the same
@@ -199,7 +199,7 @@ class viewSlotsMixin:
             print "ops_view.py len(atoms) = ", len(atoms)
             env.history.message(cmd + msg)
             return
-        
+
         # This check is needed for jigs that have no atoms.  Currently, this 
         # is the case for RectGadgets (ESP Image and Grid Plane) only.
         if len(atoms):
@@ -217,16 +217,16 @@ class viewSlotsMixin:
             msg = orangemsg( "Warning: Normal axis could not be determined. No change in view." )
             env.history.message(cmd + msg)
             return
-        
+
         # Compute the destination quat (q2).
         q2 = Q(V(0,0,1), axis)
         q2 = q2.conj()
-        
+
         self.glpane.rotateView(q2)
-        
+
         info = 'View set to normal vector of the plane defined by the selected atoms.'
         env.history.message(cmd + info)
-        
+
     def viewNormalTo_NEW(self):
         '''Set view to the normal vector of the plane defined by 3 or more
         selected atoms or a jig's (Motor or RectGadget) axis.
@@ -237,18 +237,18 @@ class viewSlotsMixin:
         # Bruce and I will discuss this and determine the best implem.  
         # For A7, I've decide to use the original version. This version will be reinstated in A8
         # after fixing these problems. mark 060322.
-        
+
         cmd = greenmsg("Set View Normal To: ")
-        
+
         atoms = self.assy.getSelectedAtoms()
-        
+
         if len(atoms) < 3:
             # There is a problem when allowing only 2 selected atoms.
             # Changing requirement to 3 atoms fixes bug 1418. mark 060322
             msg = redmsg("Please select some atoms, jigs, and/or chunks, covering at least 3 atoms")
             env.history.message(cmd + msg)
             return
-        
+
         pos = A( map( lambda a: a.posn(), atoms ) ) # build list of atom xyz positions.
         nears = [ self.glpane.out, self.glpane.up ]
         from geometry import compute_heuristic_axis
@@ -258,62 +258,62 @@ class viewSlotsMixin:
             msg = orangemsg( "Warning: Normal axis could not be determined. No change in view." )
             env.history.message(cmd + msg)
             return
-        
+
         # Compute the destination quat (q2).
         q2 = Q(V(0,0,1), axis)
         q2 = q2.conj()
-        
+
         self.glpane.rotateView(q2)
-        
+
         info = 'View set to normal of the plane defined by the selection.'
         env.history.message(cmd + info)
-        
+
     def viewParallelTo(self):
         '''Set view parallel to the vector defined by 2 selected atoms.
         '''
         cmd = greenmsg("Set View Parallel To: ")
-        
+
         atoms = self.assy.selatoms_list()
-        
+
         if len(atoms) != 2:
             msg = redmsg("You must select 2 atoms.")
             env.history.message(cmd + msg)
             return
-        
+
         v = norm(atoms[0].posn()-atoms[1].posn())
-        
+
         if vlen(v) < 0.0001: # Atoms are on top of each other.
             info = 'The selected atoms are on top of each other.  No change in view.'
             env.history.message(cmd + info)
             return
-        
+
         # If vec is pointing into the screen, negate (reverse) vec.
         if dot(v, self.glpane.lineOfSight) > 0:
             v = -v
-        
+
         # Compute the destination quat (q2).
         q2 = Q(V(0,0,1), v)
         q2 = q2.conj()
-        
+
         self.glpane.rotateView(q2)
-        
+
         info = 'View set parallel to the vector defined by the 2 selected atoms.'
         env.history.message(cmd + info)
-    
+
     def viewRotate180(self):
         '''Set view to the opposite of current view. '''
         cmd = greenmsg("Opposite View: ")
         info = 'Current view opposite to the previous view'
         env.history.message(cmd + info)
         self.glpane.rotateView(self.glpane.quat + Q(V(0,1,0), math.pi))
-  
+
     def viewRotatePlus90(self): # Added by Mark. 051013.
         '''Increment the current view by 90 degrees around the vertical axis. '''
         cmd = greenmsg("Rotate View +90 : ")
         info = 'View incremented by 90 degrees'
         env.history.message(cmd + info)
         self.glpane.rotateView(self.glpane.quat + Q(V(0,1,0), math.pi/2))
-        
+
     def viewRotateMinus90(self): # Added by Mark. 051013.
         '''Decrement the current view by 90 degrees around the vertical axis. '''
         cmd = greenmsg("Rotate View -90 : ")
@@ -368,73 +368,73 @@ class viewSlotsMixin:
         self.quatX = Q(V(1,0,0), math.asin(math.tan(math.pi/6)))
         self.quatY = Q(V(0,1,0), -math.pi/4)
         self.glpane.rotateView(self.quatY+self.quatX) #If you put quatX first, it won't give isometric view ninad060810
-        
+
     def saveNamedView(self):
         from Utility import Csys
         csys = Csys(self.assy, None, 
-                                self.glpane.scale, 
-                                self.glpane.pov, 
-                                self.glpane.zoomFactor, 
-                                self.glpane.quat)
+                    self.glpane.scale, 
+                    self.glpane.pov, 
+                    self.glpane.zoomFactor, 
+                    self.glpane.quat)
         self.assy.addnode(csys)
-        
+
         self.mt.mt_update()
-                                
-    
+
+
     def getNamedViewList(self):
         '''Returns a list of all the named view nodes in the MT inside a part.'''
-        
+
         from Utility import Csys
-        
+
         namedViewList = [] #Hold the result list
-        
+
         def function(node):
             if isinstance(node, Csys):
                 namedViewList.append(node)
             return
         #Append all Csys nodes to the namedview list --
         self.assy.part.topnode.apply2all(function)
-        
+
         return namedViewList
-    
+
     def showStandardViewsMenu(self):
         """When Standard Views button is activated, show its QMenu"""
         ## By default, nothing happens if you click on the 
         ## toolbutton with submenus. The menus are displayed only when you click on the small downward arrow 
         ## of the tool button. Therefore the following slot is added. ninad 070109
-        
+
         if self.standardViewsMenu.isVisible():
             self.standardViewsMenu.hide()
         else:
             self.standardViews_btn.showMenu()
 
-    
+
     def viewQuteMol(self): # Mark 2007-06-02
         """Slot for 'View > QuteMol'.
         Opens the QuteMol rendering program and loads a copy of the current model.
-        
+
         Method:
-        
+
         1. Write a PDB file of the current part.
         2. Write an atom attributes table text file containing atom radii and color information.
         3. Launches QuteMol (with the PDB file as an argument). 
-        
+
         """    
         cmd = greenmsg("QuteMol : ")
-	
+
         # Write temp PDB file of current part.
-	if self.assy.molecules:
-	    pdb_file, art_file = write_qutemol_files(self.assy)
-	    # Launch QuteMol. It will verify the plugin.
-	    errorcode, msg = launch_qutemol(pdb_file, art_file) 
-	    # errorcode is ignored. 
-	else:
-	    # No pdb file was written because there 
-	    # were no atoms in the current part.
-	    msg = "No atoms in the current part."
-	
-	env.history.message(cmd + msg)
-        
+        if self.assy.molecules:
+            pdb_file, art_file = write_qutemol_files(self.assy)
+            # Launch QuteMol. It will verify the plugin.
+            errorcode, msg = launch_qutemol(pdb_file, art_file) 
+            # errorcode is ignored. 
+        else:
+            # No pdb file was written because there 
+            # were no atoms in the current part.
+            msg = "No atoms in the current part."
+
+        env.history.message(cmd + msg)
+
     def viewRaytraceScene(self):
         """Slot for 'View > POV-Ray'.
         Raytraces the current scene. This version does not add a POV-Ray Scene node to the model tree.
@@ -442,15 +442,15 @@ class viewSlotsMixin:
         the current part and/or delete unwanted nodes from the model tree. If the user wants to add the 
         node to the model tree, the user must use 'Insert > POV-Ray Scene'.
         """
-        
+
         assy = self.assy
         glpane = self.glpane
-        
+
         from PovrayScene import PovrayScene
         #pov = PovrayScene(assy, None, params = (glpane.width, glpane.height, 'png')) #bruce 060620 revised this
         pov = PovrayScene(assy, None)
         pov.raytrace_scene(tmpscene=True) # this emits whatever history messages are needed [bruce 060710 comment]
-        
+
 ##    def viewRaytraceScene_ORIG(self):
 ##        """Slot for 'View > Raytrace Scene'.
 ##        Raytraces the current scene. This version adds a POV-Ray Scene node to the model tree.
