@@ -1299,8 +1299,10 @@ class depositMode(selectAtomsMode):
             #Following fixes bug 2425 (implements single click bond deletion 
             #in Build Atoms. -- ninad 20070626
                 if self.cutBondsAction.isChecked():
-                    self.bond_delete(event)
-                    self.o.gl_update()
+                    self.bondDelete(event)
+                    #@ self.o.gl_update() # Not necessary since win_update()
+                                          # is called in bondDelete(). 
+                                          # Mark 2007-10-19
                     return
                 self.bond_change_type(b, allow_remake_bondpoints = True)
                 self.o.gl_update()
@@ -2286,14 +2288,6 @@ class depositMode(selectAtomsMode):
             # (we should also rename self.select)
         
         return # from makeMenus
-
-    def setCarbon_sp3(self):
-        self.w.setCarbon() # MWsemantics shouldn't really be involved in this at all... at some point this will get revised
-        self.set_pastable_atomtype('sp3')
-    
-    def setCarbon_sp2(self):
-        self.w.setCarbon()
-        self.set_pastable_atomtype('sp2')
             
     def setHotSpot_clipitem(self): #bruce 050416; duplicates some code from setHotSpot_mainPart
         """

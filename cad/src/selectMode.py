@@ -1425,7 +1425,7 @@ class selectMode(basicMode):
             # [It's also wrong to print one, or at least the one above, if selection filter affected both atoms. bruce 060331]
 
         elif self.o.modkeys == 'Shift+Control':
-            self.bond_delete(event) 
+            self.bondDelete(event) 
                 # <b> is the bond the cursor was over when the LMB was pressed.
                 # use <event> to delete bond <b> to ensure that the cursor is still over it.
 
@@ -1435,18 +1435,32 @@ class selectMode(basicMode):
 
         self.o.gl_update()
 
-    def bond_delete(self, event):
-        '''If the object under the cursor is a bond, delete it.
-        '''
+    def bondDelete(self, event):
+        """
+        If the object under the cursor is a bond, delete it.
+        
+        @param event: A left mouse up event.
+        @type  event: U{B{QMouseEvent}<http://doc.trolltech.com/4/qmouseevent.html>}
+        """
         self.update_selatom(event) #bruce 041130 in case no update_selatom happened yet
-            # see warnings about update_selatom's delayed effect, in its docstring or in leftDown. [bruce 050705 comment]
-        selobj = self.o.selobj # only used if selatom is None [this comment seems wrong -- bruce 060726]
-        if isinstance( selobj, Bond) and not selobj.is_open_bond(): #bruce 050727 new feature
-            env.history.message_no_html("breaking bond %s" % selobj)
-                # note: %r doesn't show bond type, but %s needs _no_html since it contains "<-->" which looks like HTML.
-            self.o.selobj = None # without this, the bond remains highlighted even after it's broken (visible if it's toolong)
+            # see warnings about update_selatom's delayed effect, 
+            # in its docstring or in leftDown. [bruce 050705 comment]
+        selobj = self.o.selobj
+        if isinstance( selobj, Bond) and not selobj.is_open_bond():
+            if selobj.is_directional(): 
+                msg = "breaking strand %s" % selobj.atom1.molecule.name
+            else:
+                msg = "breaking bond %s" % selobj
+            env.history.message_no_html(msg)
+                # note: %r doesn't show bond type, but %s needs _no_html 
+                # since it contains "<-->" which looks like HTML.
+            self.o.selobj = None 
+                # without this, the bond remains highlighted 
+                # even after it's broken (visible if it's toolong)
                 ###e shouldn't we use set_selobj instead?? [bruce 060726 question]
-            selobj.bust() # this fails to preserve the bond type on the open bonds -- not sure if that's bad, but probably it is
+            selobj.bust() 
+                # this fails to preserve the bond type on the open bonds 
+                # -- not sure if that's bad, but probably it is
             self.set_cmdname('Delete Bond')
             self.o.assy.changed() #k needed?
             self.w.win_update() #k wouldn't gl_update be enough? [bruce 060726 question]
