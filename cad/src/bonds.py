@@ -328,6 +328,10 @@ def bond_atoms(a1, a2, vnew = None, s1 = None, s2 = None, no_corrections = False
         # for no directions being set
         dir1 = (s1 is not None and s1.bonds[0]._direction and - s1.bonds[0].bond_direction_from(s1))
         dir2 = (s2 is not None and s2.bonds[0]._direction and + s2.bonds[0].bond_direction_from(s2))
+
+        ####### TEMPORARY DEBUG CODE bruce 071018
+        if platform.atom_debug and (dir1 or dir2):
+            print "bond at open bonds with directions, %r and %r" % (s1.bonds[0], s2.bonds[0])
     
     bond = bond_atoms_faster(a1,a2, vnew) #bruce 050513 using this in place of surrounding commented-out code
     assert bond is not None
@@ -338,13 +342,17 @@ def bond_atoms(a1, a2, vnew = None, s1 = None, s2 = None, no_corrections = False
             s1.singlet_reduce_valence_noupdate(vnew)
         if s2 is not None:
             s2.singlet_reduce_valence_noupdate(vnew) ###k
+
+        ########### TODO bruce 071018: revise to not kill other singlets. see longer comment.
+        
         a1.update_valence() ###k [bruce comment 050728: to fix bug 823, this needs to merge singlets to match atomtype; now it does]
         a2.update_valence()
         sumdir = dir1 + dir2 # note: this is 0 if the dirs are inconsistent; otherwise its sign gives the new dir
         if sumdir and bond.is_directional():
             # TEST: will is_directional be confused by the singlets still being there, if they are??
             # If so, we need to mark them to be ignored by it (eg clear their directions?), or do this later.
-            # But I hope they'll be removed by atom.update_valence. [#k]
+            # But I hope they'll be removed by atom.update_valence. update -- its code says they will... ###
+            # REVIEW: if we don't immediately remove these singlets, should we zero their direction? [bruce 071018]
             newdir = (sumdir > 0) and 1 or -1
             bond.set_bond_direction_from( a1, newdir)
     return bond
@@ -1676,6 +1684,13 @@ def bond_at_singlets(s1, s2, **opts):
     (the default), then we also print a nasty warning with the details
     of the error, saying it's a bug. 
     """
+    ### REVIEW what we are allowed to do and will do, and what docstring should say: 
+    # - Can we remove those singlets we're passed? [either here, or in subsequent bond_updater actions]
+    # - Can we alter (e.g. replace) any other singlets on their atoms?
+    #   I think we used to not do this in most cases, and extrude & fusechunks depended on that. ###
+    #   Now, with debug pref to not use OLD code below, it looks like we or an immediate subsequent update
+    #   removes and remakes (in different posns) bondpoints other than the ones passed. Still working on it.
+    # [bruce 071018 comment]
     obj = bonder_at_singlets(s1, s2, **opts)
     return obj.retval
 
@@ -1807,7 +1822,11 @@ class bonder_at_singlets:
         s2, a2 = self.s2, self.a2
 
         #bruce 071018, stop using old code here, finally; might fix open bond direction; clean up if so ###TODO
-        USE_OLD_CODE = debug_pref("use OLD code for actually_bond?", Choice_boolean_True) # True since bug in false
+        USE_OLD_CODE = debug_pref("Bonds: use OLD code for actually_bond?",
+                                  Choice_boolean_True, # default True, since bad bug in false case for now
+                                  non_debug = True, ### temporary
+                                  prefs_key = True ### temporary
+                                  )
 
         v1 = s1.singlet_v6()
         v2 = s2.singlet_v6() # assume new code is available [rm cmt when works]
@@ -1829,7 +1848,11 @@ class bonder_at_singlets:
         
         vnew = min(v1,v2)
         bond = bond_atoms(a1,a2,vnew,s1,s2) # tell it the singlets to replace or reduce; let this do everything now, incl updates
-        # can that fail? I don't think so; if it could, it'd need to have new API and return us an error message explaining why.
+            # can that fail? I don't think so; if it could, it'd need to have new API and return us an error message explaining why.
+            ###########@@@@@@@@@@ TODO bruce 071018: need to make this not harm any *other* singlets on these atoms,
+            # since some callers already recorded them and want to call this immediately again to make other bonds.
+            # it's good if it kills *these* singlets when that's correct, though.
+        
         vused = bond.v6 # this will be the created bond
         prefix = bond_type_names[vused] + '-'
         status = prefix + self.status # use prefix even for single bond, for now #k
