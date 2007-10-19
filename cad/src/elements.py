@@ -27,7 +27,7 @@ from VQT import V, A, norm
 from preferences import prefs_context
 from atomtypes import AtomType
 from constants import DIAMOND_BOND_LENGTH
-from debug_prefs import debug_pref, Choice_boolean_False
+from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True
 
 # ==
 
@@ -42,8 +42,11 @@ from debug_prefs import debug_pref, Choice_boolean_False
 _DIRECTIONAL_BOND_ELEMENTS = ('Ss5', 'Pl5', 'Sj5', 'Pe5', 'Sh5', 'Hp5',
                               'Ss3', 'Pl3', 'Sj3', 'Se3', 'Sh3', 'Hp3')
 
-if debug_pref("draw PAM3 bondpoints as directional bond arrows? (next session)", 
-              Choice_boolean_False, 
+#bruce 071018 revised menu text of the following, and made it default True;
+# old text was "draw PAM3 bondpoints as directional bond arrows? (next session)"
+
+if debug_pref("Bonds: permit directional open bonds? (next session)", 
+              Choice_boolean_True, 
               non_debug = True,
               prefs_key = "A9 devel/draw PAM3 singlets as arrows"):
 
