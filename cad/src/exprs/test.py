@@ -71,8 +71,6 @@ from exprs.draggable import DraggablyBoxed
 
 from exprs.transforms import Translate, Closer
 
-import exprs.Center
-
 from exprs.TestIterator import TestIterator, TestIterator_wrong_to_compare
 
 from exprs.TextRect import TextRect
@@ -148,6 +146,7 @@ from testdraw import vv
 from exprs.Exprs import format_Expr, getattr_Expr, list_Expr, mod_Expr, not_Expr, eval_Expr, call_Expr, is_Expr
 from exprs.Exprs import local_ipath_Expr
 from exprs.If_expr import If_expr, If, If_OpExpr
+import exprs.Center as Center_module
 from exprs.Center import Left, Center, Right, TopRight, CenterRight, BottomRight, TopLeft, CenterY, BottomLeft
 from exprs.py_utils import printnim, identity
 from exprs.widget2d import Widget2D
@@ -1068,7 +1067,7 @@ def aligntest(af):
 
 def aligntest_by_name(afname):
     try:
-        af = getattr(Center, afname)
+        af = getattr(Center_module, afname)
         res = aligntest(af)
         worked = True #e or a version counter?? to be correct, i think it needs one [070122]
     except:
