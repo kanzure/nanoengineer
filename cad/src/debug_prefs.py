@@ -93,13 +93,19 @@ class Pref: #e might be merged with the DataType (aka PrefDataType) objects
             # note: in this case, self.value might not matter after this, but in case it does we keep it in sync before using it,
             # or use it only via self.current_value() [bruce 060209 bugfix]
             if self.print_changes and not same_vals(self.value, self._dfltval): #bruce 070228 new feature for debug_pref
-                # note: we use same_vals to avoid bugs in case of tuples or lists of Numeric arrays
+                # note: we use same_vals to avoid bugs in case of tuples or lists of Numeric arrays.
+                # note: this only does printing of initial value being non-default;
+                # printing of changes by user is done elsewhere, and presently goes
+                # to both history widget and console print. We'll follow the same policy
+                # here -- but if it's too early to print to history widget, env.history
+                # will print to console, and we don't want it to get printed there twice,
+                # so we check for that before printing it to console ourselves. [bruce 071018]
                 msg = "Note: %s (default %r) starts out %r %s" % \
                       (self, self._dfltval, self.value, self.starts_out_from_where)
-                print msg
+                if not getattr(env.history, 'too_early', False):
+                    print msg
                 env.history.message(msg, quote_html = True, color = 'orange')
-                    # warning: this can happen too early for showing text in history
-                    # (which is one reason we always print it to console first)
+            pass
         self.non_debug = non_debug # show up in debug_prefs submenu even when ATOM-DEBUG is not set?
         self.subscribers = [] # note: these are only called for value changes due to debug menu
         for sub in subs:
