@@ -1118,7 +1118,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         if len(self.bonds) == 1:
             # Special cases, in all but a few situations that I think will never happen.
             # (But for those, fall thru to general case below.)
-            neighbor = self.bonds[0].other(self)
+            bond = self.bonds[0]
+            neighbor = bond.other(self)
             if len(neighbor.bonds) > 1:
                 # monovalents defer to non-monovalent neighbors
                 # (note: this applies to bondpoints (after mark 071014 changes)
@@ -1128,7 +1129,6 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                     return statuscode, None, None
                 elif statuscode == DIRBOND_CHAIN_MIDDLE:
                     # it matters whether we're in the neighbor's chain
-                    bond = self.bonds[0]
                     if bond is bond1 or bond is bond2:
                         return DIRBOND_CHAIN_END, bond, None
                     else:
@@ -2658,11 +2658,11 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             # when it has a chance and wants to clean up structure, if this can ever be ambiguous
             # later, when the current state (including positions of old singlets) is gone.
         from bond_constants import V_ZERO_VALENCE, BOND_VALENCES
+        _debug = False ## platform.atom_debug is sometimes useful here
         if self._modified_valence:
             self._modified_valence = False # do this first, so exceptions in the following only happen once
-            if 0 and platform.atom_debug:
-                print "atom_debug: update_valence starting to updating it for",self
-            ## assert 0, "nim"###@@@
+            if _debug:
+                print "atom_debug: update_valence starting to updating it for", self
             # the only easy part is to kill singlets with illegal valences, and warn if those were not 0.
             zerokilled = badkilled = 0
             for sing in self.singNeighbors(): ###@@@ check out the other calls of this for code that might help us here...
@@ -2674,7 +2674,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                     # hmm... best to kill it and start over, I think, at least for now
                     sing.kill()
                     badkilled += 1
-            if 0 and platform.atom_debug:
+            if _debug:
                 print "atom_debug: update_valence %r killed %d zero-valence and %d bad-valence singlets" % \
                       (self, zerokilled, badkilled)
             ###e now fix things up... not sure exactly under what conds, or using what code (but see existing code mentioned above)
@@ -2686,8 +2686,10 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             # but in the long run we need a more principled way to decide whether to remake singlets or change atomtype
             # when they don't agree:
             if len(self.bonds) != self.atomtype.numbonds:
+                if _debug:
+                    print "atom_debug: update_valence %r calling remake_bondpoints"
                 self.remake_bondpoints()
-        elif 0 and platform.atom_debug:
+        elif _debug:
             print "atom_debug: update_valence thinks it doesn't need to update it for", self
         return
 
