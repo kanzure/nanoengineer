@@ -24,17 +24,34 @@ from string import capitalize
 from elements import PeriodicTable, Singlet
 from PlatformDependent import fix_plurals
 from utilities.Log import redmsg, orangemsg
-from VQT import A, vlen
+from VQT import A
 from debug_prefs import debug_pref, Choice_boolean_True
 import env
 
 def _readpdb(assy, filename, isInsert = False):
-    """Read a Protein DataBank-format file into a single new chunk, which is returned,
-    unless there are no atoms in the file, in which case a warning is printed
-    and None is returned. (The new chunk (if returned) is in assy, but is not
-    yet added into any Group or Part in assy -- caller must do that.)
+    """
+    Read a Protein DataBank-format file into a single new chunk, which is 
+    returned unless there are no atoms in the file, in which case a warning
+    is printed and None is returned. (The new chunk (if returned) is in assy,
+    but is not yet added into any Group or Part in assy -- caller must do that.)
     Unless isInsert = True, set assy.filename to match the file we read,
     even if we return None.
+    
+    @param assy: The assembly.
+    @type  assy: L{assembly}
+    
+    @param filename: The PDB filename to read.
+    @type  filename: str
+    
+    @param isInsert: If True, the PDB file will be inserted into the current
+                     assembly. If False (default), the PDB is opened as the 
+                     assembly.
+    @param isInsert: bool
+    
+    @return: A chunk containing the contents of the PDB file.
+    @rtype:  L{molecule}
+    
+    @see: U{B{PDB File Format}<http://www.wwpdb.org/documentation/format23/v2.3.html>}
     """
     fi = open(filename,"rU")
     lines = fi.readlines()
@@ -48,11 +65,14 @@ def _readpdb(assy, filename, isInsert = False):
     numconects = 0
 
     atomname_exceptions = {
-        "HB":"H", #k these are all guesses -- I can't find this documented anywhere [bruce 070410]
-        ## "HE":"H", ### REVIEW: I'm not sure about this one -- leaving it out means it's read as Helium,
-        # but including it erroneously might prevent reading an actual Helium if that was intended.
-        # Guess for now: include it for ATOM but not HETATM. (So it's specialcased below, rather than
-        # being included in this table.)
+        "HB":"H", #k these are all guesses -- I can't find this documented 
+                  # anywhere [bruce 070410]
+        ## "HE":"H", ### REVIEW: I'm not sure about this one -- 
+                    ###          leaving it out means it's read as Helium,
+        # but including it erroneously might prevent reading an actual Helium 
+        # if that was intended.
+        # Guess for now: include it for ATOM but not HETATM. (So it's 
+        # specialcased below, rather than being included in this table.)
         "HN":"H",
      }
 
@@ -60,9 +80,12 @@ def _readpdb(assy, filename, isInsert = False):
         key = card[:6].lower().replace(" ", "")
         if key in ["atom", "hetatm"]:
             ## sym = capitalize(card[12:14].replace(" ", "").replace("_", "")) 
-            #bruce 070410 revised this to also discard digits, handle HB, HE, HN (guesses)
+            # bruce 070410 revised this to also discard digits, 
+            # handle HB, HE, HN (guesses)
             atomname = card[12:14] # column numbers 13-14 in pdb format
-                # (though full atom name is 13-16; see http://www.wwpdb.org/documentation/format2.3-0108-us.pdf page 156)
+                # (though full atom name is 13-16; 
+                # see http://www.wwpdb.org/documentation/format2.3-0108-us.pdf
+                #     page 156)
             for bad in "_ 0123456789":
                 atomname = atomname.replace(bad, "")
             atomname = atomname_exceptions.get(atomname, atomname)
@@ -72,24 +95,31 @@ def _readpdb(assy, filename, isInsert = False):
             try:
                 PeriodicTable.getElement(sym)
             except:
-                # note: this typically fails with AssertionError (not e.g. KeyError) [bruce 050322]
-                msg = "Warning: Pdb file: unknown element %s in: %s" % (sym,card)
+                # note: this typically fails with AssertionError 
+                # (not e.g. KeyError) [bruce 050322]
+                msg = "Warning: Pdb file: unknown element %s in: %s" \
+                    % (sym, card)
                 print msg #bruce 070410 added this print
                 env.history.message( redmsg( msg ))
 
-                ##e It would probably be better to create a fake atom, so the CONECT records would still work.
-                # Better still might be to create a fake element, so we could write out the pdb file again
+                ##e It would probably be better to create a fake atom, so the 
+                # CONECT records would still work.
+                # Better still might be to create a fake element, 
+                # so we could write out the pdb file again
                 # (albeit missing lots of info). [bruce 070410 comment]
                 
                 # Note: an advisor tells us:
                 #   PDB files sometimes encode atomtypes,
-                #   using C_R instead of C, for example, to represent sp2 carbons.
-                # That particular case won't trigger this exception, since we only look at 2 characters,
-                # i.e. C_ in that case. It would be better to realize this means sp2
-                # and set the atomtype here (and perhaps then use it when inferring bonds,
-                # which we do later if the file doesn't have any bonds). [bruce 060614/070410 comment]
+                #   using C_R instead of C, for example, to represent sp2 
+                #   carbons.
+                # That particular case won't trigger this exception, since we
+                # only look at 2 characters,
+                # i.e. C_ in that case. It would be better to realize this means
+                # sp2 and set the atomtype here (and perhaps then use it when
+                # inferring bonds,  which we do later if the file doesn't have 
+                # any bonds). [bruce 060614/070410 comment]
             else:
-                xyz = map(float, [card[30:38],card[38:46],card[46:54]])
+                xyz = map(float, [card[30:38], card[38:46], card[46:54]] )
                 n = int(card[6:11])
                 a = atom(sym, A(xyz), mol)
                 ndix[n] = a
@@ -98,10 +128,11 @@ def _readpdb(assy, filename, isInsert = False):
                 a1 = ndix[int(card[6:11])]
             except:
                 #bruce 050322 added this level of try/except and its message;
-                # see code below for at least two kinds of errors this might catch,
-                # but we don't try to distinguish these here. BTW this also happens
-                # as a consequence of not finding the element symbol, above,
-                # since atoms with unknown elements are not created.
+                # see code below for at least two kinds of errors this might
+                # catch, but we don't try to distinguish these here. BTW this 
+                # also happens as a consequence of not finding the element 
+                # symbol, above,  since atoms with unknown elements are not 
+                # created.
                 env.history.message( redmsg( "Warning: Pdb file: can't find first atom in CONECT record: %s" % (card,) ))
             else:
                 for i in range(11, 70, 5):
@@ -124,15 +155,26 @@ def _readpdb(assy, filename, isInsert = False):
         env.history.message( redmsg( "Warning: Pdb file contained no atoms"))
         return None
     if numconects == 0:
-        env.history.message(orangemsg("PDB file has no bond info; inferring bonds"))
-        env.history.h_update() # let user see message right away (bond inference can take significant time) [bruce 060620]
+        msg = orangemsg("PDB file has no bond info; inferring bonds")
+        env.history.message(msg)
+        # let user see message right away (bond inference can take significant 
+        # time) [bruce 060620]
+        env.history.h_update() 
         inferBonds(mol)
     return mol
     
 # read a Protein DataBank-format file into a single molecule
 #bruce 050322 revised this for bug 433
-def readpdb(assy,filename):
-    """Reads a pdb file"""
+def readpdb(assy, filename):
+    """
+    Reads (loads) a PDB file.
+    
+    @param assy: The assembly.
+    @type  assy: L{assembly}
+    
+    @param filename: The PDB filename to read.
+    @type  filename: str
+    """
     mol  = _readpdb(assy, filename, isInsert = False)
     if mol is not None:
         assy.addmol(mol)
@@ -193,7 +235,8 @@ def writepdb(part,
     if mode != 'a': # Precaution. Mark 2007-06-25
         mode = 'w'
     
-    f = open(filename, mode) # doesn't yet detect errors in opening file [bruce 050927 comment]
+    f = open(filename, mode) 
+    # doesn't yet detect errors in opening file [bruce 050927 comment]
     
     # Atom object's key is the key, the atomSerialNumber is the value  
     atomsTable = {}
@@ -204,10 +247,12 @@ def writepdb(part,
     atomSerialNumber = 1
 
     def exclude(atm): #bruce 050318
-        """Exclude this atom (and bonds to it) from the file under the following conditions:
-        - if it is a singlet
-        - if it is not visible
-        - if it is a member of a hidden chunk (molecule)
+        """
+        Exclude this atom (and bonds to it) from the file under the following
+        conditions:
+            - if it is a singlet
+            - if it is not visible
+            - if it is a member of a hidden chunk (molecule)
         """
         # Added not visible and hidden member of chunk. This effectively deletes
         # these atoms, which might be considered a bug.
@@ -298,7 +343,8 @@ def writepdb(part,
     f.close()
     
     if excluded:
-        msg = "Warning: excluded %d open bond(s) from saved PDB file; consider Hydrogenating and resaving." % excluded
+        msg = "Warning: excluded %d open bond(s) from saved PDB file;" + \
+            "consider Hydrogenating and resaving." % excluded
         msg = fix_plurals(msg)
         env.history.message( orangemsg( msg))
     return # from writepdb
