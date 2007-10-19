@@ -2857,8 +2857,6 @@ def shakedown_poly_evals_evecs_axis(basepos):
 
 # ==
 
-# [bruce 050502 moved bond_at_singlets from here into bonds.py]
-
 def mol_copy_name(name): # bruce 041124
     "turn xxx or xxx-copy<n> into xxx-copy<m> for a new number <m>"
     try:

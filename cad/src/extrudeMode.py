@@ -1136,7 +1136,7 @@ class extrudeMode(basicMode):
             ###@@@ closed ring case has to be handled differently earlier... [but isn't yet, which is a probably-unreported bug]
             for s1,s2 in self.broken_externs:
                 try:
-                    bond_at_singlets(s1, s2, move = 0)
+                    bond_at_singlets(s1, s2, move = False)
                 except:#050228
                     print_compact_traceback("error fixing some broken bond, ignored: ") # can happen in ring mode, at least
 
@@ -1241,7 +1241,7 @@ class extrudeMode(basicMode):
             s2 = self.find_singlet(unit2,i2)
             if s1 and s2:
                 # replace two singlets (perhaps in different mols) by a bond between their atoms
-                bond_at_singlets(s1, s2, move = 0)
+                bond_at_singlets(s1, s2, move = False)
             else:
                 #e will be printed lots of times, oh well
                 print "extrude warning: one or both of singlets %d,%d slated to bond in more than one way, not all bonds made" % (i1,i2)
