@@ -51,8 +51,10 @@ class elementColors(QDialog, Ui_ElementColorsDialog):
         self.oldTable = PeriodicTable.deepCopy()
         self.elemTable = PeriodicTable
         self.displayMode = self._displayList[0]
-        
-        self.elemGLPane = ElementView(self.elementFrame, "element glPane", self.w.glpane)
+        # The next line fixes a bug. Thumbview expects self.gridLayout on
+        # line 117 of Thumbview.py. Mark 2007-10-19.
+        self.gridLayout = self.gridlayout 
+        self.elemGLPane = ElementView(self, "element glPane", self.w.glpane)
         # Put the GL widget inside the frame
         flayout = QVBoxLayout(self.elementFrame)
         flayout.setMargin(1)
