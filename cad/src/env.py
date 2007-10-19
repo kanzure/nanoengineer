@@ -215,14 +215,18 @@ class pre_init_fake_history_widget: #bruce 050901 moved this here from MWsemanti
         # like win.initialised, and make sure messages sent to this object get saved up
         # and printed into the widget once it exists) [bruce 050913 revised comment]
     def message(self, msg, **options):
-        """This exists to handle messages sent to win.history [deprecated] or env.history during
+        """
+        This exists to handle messages sent to win.history [deprecated] or env.history during
         win.__init__, before the history widget has been created!
         Someday it might save them up and print them when that becomes possible.
         """
-        import platform
-        if platform.atom_debug:
-            print "fyi: too early for this status msg:", msg
-        pass # too early
+##        import platform
+##        if platform.atom_debug:
+        # bruce 071018 print this always, and clarify the text:
+        print "fyi: this history message was produced too early to show up in the History Widget:"
+        print msg
+        # REVIEW: should we use print_compact_stack instead, if atom_debug is set?
+        return
     pass
 
 history = pre_init_fake_history_widget() # this will be changed by MWsemantics.__init__ [bruce 050727]
