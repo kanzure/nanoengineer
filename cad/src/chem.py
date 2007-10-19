@@ -663,17 +663,21 @@ class Atom(AtomBase, InvalMixin, StateMixin):
     
     _inputs_for_atomtype = []
     def _recompute_atomtype(self): # used automatically by __getattr__
-        """Something needs this atom's atomtype but it doesn't yet have one.
+        """
+        Something needs this atom's atomtype but it doesn't yet have one.
         Give it our best guess of type, for whatever current bonds it has.
         """
         return self.reguess_atomtype()
 
     def reguess_atomtype(self, elt = None):
-        """Compute and return the best guess for this atom's atomtype
+        """
+        Compute and return the best guess for this atom's atomtype
         given its current element (or the passed one),
         and given its current real bonds and open bond user-assigned types
         (but don't save this, and don't compare it to the current self.atomtype).
-           This is only correct for a new atom if it has already been given all its bonds (real or open).
+
+        WARNING: This is only correct for a new atom if it has
+        already been given all its bonds (real or open).
         """
         #bruce 050702 revised this; 050707 using it much less often (only on special request ###doc what)
         ###@@@ Bug: This does not yet [050707] guess correctly for all bond patterns; e.g. it probably never picks N/sp2(graphitic).
@@ -2408,7 +2412,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         then remove it from its molecule. Do all necessary invalidations.
         (Note that molecules left with no atoms, by this or any other op,
         will themselves be killed.)
-        """
+        """        
         if debug_1779:
             print "debug_1779: atom.kill on %r" % self
         if self.__killed:
@@ -2651,19 +2655,30 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         self.bonds[0].reduce_valence_noupdate(vdelta, permit_illegal_valence = True) # permits in-between, 0, or negative(?) valence
         return
 
-    def update_valence(self): #bruce 050728 revised this and also disabled the debug prints
-            # repositions/alters existing singlets, updates bonding pattern, valence errors, etc;
-            # might reorder bonds, kill singlets; but doesn't move the atom and doesn't alter
-            # existing real bonds or other atoms; it might let atom record how it wants to move,
-            # when it has a chance and wants to clean up structure, if this can ever be ambiguous
-            # later, when the current state (including positions of old singlets) is gone.
+    def update_valence(self, dont_revise_valid_bondpoints = False):
+        """
+        warning: following docstring used to be a comment, hasn't been verified recently:
+        repositions/alters existing bondpoints, updates bonding pattern, valence errors, etc;
+        might reorder bonds, kill bondpoints; but doesn't move the atom and doesn't alter
+        existing real bonds or other atoms; it might let atom record how it wants to move,
+        when it has a chance and wants to clean up structure, if this can ever be ambiguous
+        later, when the current state (including positions of old bondpoints) is gone.
+
+        Update 071019: if dont_revise_valid_bondpoints is passed, then only
+        bondpoints with invalid valence (e.g. zero valence) are altered.
+        """
+        #bruce 050728 revised this and also disabled the debug prints
+        #bruce 071019 added dont_revise_valid_bondpoints option
+        # (though it's untested, since I ended up fixing a current bug
+        #  in a different way; but it looks correct and seems useful
+        #  enough to leave).
         from bond_constants import V_ZERO_VALENCE, BOND_VALENCES
         _debug = False ## platform.atom_debug is sometimes useful here
         if self._modified_valence:
             self._modified_valence = False # do this first, so exceptions in the following only happen once
             if _debug:
                 print "atom_debug: update_valence starting to updating it for", self
-            # the only easy part is to kill singlets with illegal valences, and warn if those were not 0.
+            # the only easy part is to kill bondpoints with illegal valences, and warn if those were not 0.
             zerokilled = badkilled = 0
             for sing in self.singNeighbors(): ###@@@ check out the other calls of this for code that might help us here...
                 sv = sing.singlet_valence()
@@ -2675,17 +2690,23 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                     sing.kill()
                     badkilled += 1
             if _debug:
-                print "atom_debug: update_valence %r killed %d zero-valence and %d bad-valence singlets" % \
+                print "atom_debug: update_valence %r killed %d zero-valence and %d bad-valence bondpoints" % \
                       (self, zerokilled, badkilled)
             ###e now fix things up... not sure exactly under what conds, or using what code (but see existing code mentioned above)
             #bruce 050702 working on bug 121, here is a guess: change atomtype to best match new total number of bonds
-            # (which we might have changed by killing some singlets). But only do this if we did actually kill singlets.
+            # (which we might have changed by killing some bondpoints). But only do this if we did actually kill bondpoints.
             if zerokilled or badkilled:
-                self.adjust_atomtype_to_numbonds()
-            #bruce 050728 temporary fix for bug 823 (in which C(sp2) is left with 2 order1 singlets that should be one singlet);
-            # but in the long run we need a more principled way to decide whether to remake singlets or change atomtype
+                self.adjust_atomtype_to_numbonds( dont_revise_bondpoints = dont_revise_valid_bondpoints )
+                    ### WARNING: if dont_revise_bondpoints is not set,
+                    # adjust_atomtype_to_numbonds can remake bondpoints just
+                    # to move them, even if their number was correct. Both the
+                    # remaking and the moving can be bad for some callers;
+                    # thus the new option. It may need to be used more widely.
+                    # [bruce 071019]
+            #bruce 050728 temporary fix for bug 823 (in which C(sp2) is left with 2 order1 bondpoints that should be one bondpoint);
+            # but in the long run we need a more principled way to decide whether to remake bondpoints or change atomtype
             # when they don't agree:
-            if len(self.bonds) != self.atomtype.numbonds:
+            if len(self.bonds) != self.atomtype.numbonds and not dont_revise_valid_bondpoints:
                 if _debug:
                     print "atom_debug: update_valence %r calling remake_bondpoints"
                 self.remake_bondpoints()
@@ -2693,15 +2714,26 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             print "atom_debug: update_valence thinks it doesn't need to update it for", self
         return
 
-    def adjust_atomtype_to_numbonds(self): #bruce 050702, part of fixing bug 121 for Alpha6
-        """[Public method, does all needed invals, might emit history messages #k]
-           If this atom's number of bonds (including open bonds) is better matched
-        by some other atomtype of its element than by its current atomtype, then 
-        change to a better atomtype and (I guess #k) emit a history message about this change.
-        The comparison is done by self.best_atomtype_for_numbonds().
-        Also works (with no history msg) if no atomtype is yet set (though it might never be called that way).
-           [See also self.can_reduce_numbonds().]
+    def adjust_atomtype_to_numbonds(self, dont_revise_bondpoints = False):
         """
+        [Public method, does all needed invals, might emit history messages #k]
+
+        If this atom's number of bonds (including open bonds) is better matched
+        by some other atomtype of its element than by its current atomtype, or if
+        its atomtype is not yet set, then change to the best atomtype and (if atomtype
+        was already set) emit a history message about this change.
+
+        The comparison is of current atomtype to self.best_atomtype_for_numbonds().
+
+        The change is done by set_atomtype if number of bonds is correct and
+        dont_revise_bondpoints is not passed (since set_atomtype also
+        remakes bondpoints in better positions), or by set_atomtype_but_dont_revise_singlets
+        otherwise (no attempt is made to correct the number of open bonds in that case).
+
+        [See also self.can_reduce_numbonds().]
+        """
+        #bruce 050702, part of fixing bug 121 for Alpha6
+        #bruce 071019 added dont_revise_bondpoints option
         atype_now = self.atomtype_iff_set()
         best_atype = self.best_atomtype_for_numbonds(atype_now = atype_now)
         if best_atype is atype_now:
@@ -2710,11 +2742,12 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             env.history.message("changing %s atomtype from %s to %s" % (self, atype_now.name, best_atype.name))
             # this will often happen twice, plus a third message from Build that it increased bond order,
             # so i'm likely to decide not to print it
-        if best_atype.numbonds == len(self.bonds):
+        if (not dont_revise_bondpoints) and best_atype.numbonds == len(self.bonds):
             # right number of open bonds for new atype -- let's move them to better positions when we set it
             self.set_atomtype( best_atype)
         else:
-            # wrong number of open bonds -- leave them alone (in number and position)
+            # wrong number of open bonds -- leave them alone (in number and position);
+            # or, dont_revise_bondpoints option was passed
             self.set_atomtype_but_dont_revise_singlets( best_atype)
         return
 
@@ -2776,14 +2809,14 @@ class Atom(AtomBase, InvalMixin, StateMixin):
 
     def _changed_structure(self): #bruce 050627; docstring revised and some required calls added, 050725; revised 051011
         """[private method]
-           This must be called by all low-level methods which change this atom's or singlet's element, atomtype,
+           This must be called by all low-level methods which change this atom's or bondpoint's element, atomtype,
         or set of bonds. It doesn't need to be called for changes to neighbor atoms, or for position changes,
         or for changes to chunk membership of this atom, or when this atom is killed (but it will be called indirectly
         when this atom is killed, when the bonds are broken, unless this atom has no bonds). Calling it when not needed
         is ok, but might slow down later update functions by making them inspect this atom for important changes.
            All user events which can call this (indirectly) should also call env.do_post_event_updates() when they're done.
         """
-        ####@@@@ I suspect it is better to also call this for all killed atoms or singlets, but didn't do this yet. [bruce 050725]
+        ####@@@@ I suspect it is better to also call this for all killed atoms or bondpoints, but didn't do this yet. [bruce 050725]
         ## before 051011 this used id(self) for key
         #e could probably optim by importing this dict at toplevel, or perhaps even assigning a lambda in place of this method
         bond_updater.changed_structure_atoms[ self.key ] = self
@@ -2814,12 +2847,12 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         and its atomtype to the atomtype object passed,
         or if none is passed to elt's default atomtype or self's existing one (not sure which!###@@@) --
         no, to the best one given the number of real bonds, or real and open bonds [maybe? 050707] --
-        and replace its singlets (if any) with new ones (if any are needed)
+        and replace its bondpoints (if any) with new ones (if any are needed)
         to match the desired number of bonds for the new element/atomtype.
         [As of 050511 before atomtype arg added, new atom type is old one if elt is same and
          old one already correct, else is default atom type. This needs improvement. ###@@@]
         Never remove real bonds, even if there are too many. Don't change
-        bond lengths (except to replaced singlets) or atom positions.
+        bond lengths (except to replaced bondpoints) or atom positions.
         If there are too many real bonds for the new element type, refuse
         to transmute unless force is True.
         """
@@ -2840,7 +2873,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         # in case a specific atomtype was passed or the default one was chosen,
         # do another check to return early if requested change is a noop and our bond count is correct
         if self.element is elt and self.atomtype is atomtype and len(self.bonds) == atomtype.numbonds:
-            # leave existing singlet positions alone in this case -- not sure this is best! ###@@@ #e review
+            # leave existing bondpoint positions alone in this case -- not sure this is best! ###@@@ #e review
             ##print "transmute returning since noop to change to these: %r %r" % (elt, atomtype)
             return
         # now we're committed to changing things
@@ -2858,7 +2891,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 msg = "warning: Transmute refused to make (e.g.) a %s with %d bonds" % (name, nbonds)
                 env.history.message( orangemsg(msg) )
                 return
-        # in all other cases, do the change (even if it's a noop) and also replace all singlets with 0 or more new ones
+        # in all other cases, do the change (even if it's a noop) and also replace all bondpoints with 0 or more new ones
         self.direct_Transmute( elt, atomtype)
         return
 
@@ -2920,11 +2953,11 @@ class Atom(AtomBase, InvalMixin, StateMixin):
     def direct_Transmute(self, elt, atomtype): #bruce 050511 split this out of Transmute
         """[Public method, does all needed invalidations:]
         With no checks except that the operation is legal,
-        kill all singlets, change elt and atomtype
-        (both must be provided and must match), and make new singlets.
+        kill all bondpoints, change elt and atomtype
+        (both must be provided and must match), and make new bondpoints.
         """
         for atm in self.singNeighbors():
-            atm.kill() # (since atm is a singlet, this kill doesn't replace it with a singlet)
+            atm.kill() # (since atm is a bondpoint, this kill doesn't replace it with a bondpoint)
         self.mvElement(elt, atomtype)
         self.make_enough_bondpoints()
         return # from direct_Transmute
@@ -2956,7 +2989,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         of new ones in the best positions.
         """
         for atm in self.singNeighbors():
-            atm.kill() # (since atm is a singlet (aka bondpoint), this kill doesn't replace it with a singlet)
+            atm.kill() # (since atm is a bondpoint, this kill doesn't replace it with a bondpoint)
         self.make_enough_bondpoints()
         return # from remake_bondpoints
     
