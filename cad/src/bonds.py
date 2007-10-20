@@ -881,7 +881,7 @@ class Bond(BondBase, StateMixin):
             for atom in (self.atom1, self.atom2):
                 if atom.is_singlet():
                     direction = self.bond_direction_from(atom)
-                    if direction == 1:
+                    if direction == -1:
                         return True
         return False
     
@@ -893,7 +893,7 @@ class Bond(BondBase, StateMixin):
             for atom in (self.atom1, self.atom2):
                 if atom.is_singlet():
                     direction = self.bond_direction_from(atom)
-                    if direction == -1:
+                    if direction == 1:
                         return True
         return False
                     
