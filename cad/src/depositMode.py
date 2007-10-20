@@ -2280,7 +2280,7 @@ class depositMode(selectAtomsMode):
         self.Menu_spec.extend( [
             # mark 060303. added the following:
             None,
-            ('Change Background Color...', self.w.dispBGColor),
+            ('Change Background Color...', self.w.changeBackgroundColor),
             ])
 
         self.Menu_spec_shift = list(self.Menu_spec) #bruce 060721 experiment; if it causes no harm, we can

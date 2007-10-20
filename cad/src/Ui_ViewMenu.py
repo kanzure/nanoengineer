@@ -210,9 +210,9 @@ def setupUi(win):
     win.dispShowInvisAtomsAction = QtGui.QAction(MainWindow)
     win.dispShowInvisAtomsAction.setObjectName("dispShowInvisAtomsAction")
     
-    win.dispBGColorAction = QtGui.QAction(MainWindow)
-    win.dispBGColorAction.setIcon(geticon("ui/actions/View/Display/Background_Color"))
-    win.dispBGColorAction.setObjectName("dispBGColorAction")
+    win.changeBackgroundColorAction = QtGui.QAction(MainWindow)
+    win.changeBackgroundColorAction.setIcon(geticon("ui/actions/View/Display/Background_Color"))
+    win.changeBackgroundColorAction.setObjectName("changeBackgroundColorAction")
     
     win.dispElementColorSettingsAction = QtGui.QAction(MainWindow)
     win.dispElementColorSettingsAction.setObjectName("dispElementColorSettingsAction")

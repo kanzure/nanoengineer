@@ -1447,9 +1447,9 @@ class selectMode(basicMode):
             # in its docstring or in leftDown. [bruce 050705 comment]
         selobj = self.o.selobj
         if isinstance( selobj, Bond) and not selobj.is_open_bond():
-            if selobj.is_directional(): 
+            if selobj.isStrandBond(): 
                 self.makeNewStrandChunkFromBreak(selobj)
-                msg = "breaking strand %s" % selobj.atom1.molecule.name
+                msg = "breaking strand %s" % selobj.getStrandName()
             else:
                 msg = "breaking bond %s" % selobj
             env.history.message_no_html(msg)
@@ -2621,7 +2621,7 @@ class selectMode(basicMode):
         self.Menu_spec.extend( [
             # mark 060303. added the following:
             None,
-            ('Change Background Color...', self.w.dispBGColor),
+            ('Change Background Color...', self.w.changeBackgroundColor),
         ])
 
         return # from makeMenus

@@ -180,7 +180,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.simMoviePlayerAction = QAction(self)
         self.setupUi(self)	         
 
-        self.connect(self.dispBGColorAction,SIGNAL("triggered()"),self.dispBGColor)
+        self.connect(self.changeBackgroundColorAction,SIGNAL("triggered()"),self.changeBackgroundColor)
         self.connect(self.dispBallAction,SIGNAL("triggered()"),self.dispBall)
         self.connect(self.dispDefaultAction,SIGNAL("triggered()"),self.dispDefault)
         self.connect(self.dispElementColorSettingsAction,SIGNAL("triggered()"),self.dispElementColorSettings)
@@ -1442,9 +1442,10 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
                 return True
         return False
 
-    def dispBGColor(self):
+    def changeBackgroundColor(self):
         """
-        Let user change the current mode's background color.
+        Let user change the background color of the 3D Graphics Area,
+        aka "the glpane" to the developers.
         """
         self.userPrefs.showDialog(pagename='General')
 

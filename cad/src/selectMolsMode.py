@@ -140,7 +140,7 @@ class selectMolsMode(selectMode):
         self.Menu_spec.extend( [
             # mark 060303. added the following:
             None,
-            ('Change Background Color...', self.w.dispBGColor),
+            ('Change Background Color...', self.w.changeBackgroundColor),
         ])
 
         self.debug_Menu_spec = [
