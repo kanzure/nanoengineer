@@ -1852,9 +1852,7 @@ class bonder_at_singlets:
 
         #bruce 071018, stop using old code here, finally; might fix open bond direction; clean up if so ###TODO
         USE_OLD_CODE = debug_pref("Bonds: use OLD code for actually_bond?",
-                                  Choice_boolean_True, # default True, since bad bug in false case for now
-                                  non_debug = True, ### temporary
-                                  prefs_key = True ### temporary
+                                  Choice_boolean_False # bruce 071019 change default to False since new code works now
                                   )
 
         v1 = s1.singlet_v6()
