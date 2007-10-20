@@ -113,6 +113,7 @@ Potential_energy_tracefile_prefs_key = 'A8/Potential energy checkbox'
 
 # Atom prefs
 atomHighlightColor_prefs_key = 'A6/Atom Highlight Color'
+deleteAtomHighlightColor_prefs_key = 'A10/Delete Atom Highlight Color'
 bondpointHighlightColor_prefs_key = 'A7/Bondpoint Highlight Color'
 bondpointHotspotColor_prefs_key = 'A6/Atom Hotspot Color'
 defaultDisplayMode_prefs_key = 'A6/Default Display Mode'
@@ -124,6 +125,7 @@ keepBondsDuringTransmute_prefs_key = 'A9/Keep Bonds During Transmute'
 
 # Bond prefs
 bondHighlightColor_prefs_key = 'A6/Bond Highlight Color'
+deleteBondHighlightColor_prefs_key = 'A10/Delete Bond Highlight Color'
 bondStretchColor_prefs_key = 'A6/Bond Stretch Color'
 bondVaneColor_prefs_key = 'A6/Bond Vane Color'
 diBALL_bondcolor_prefs_key = 'A6/Bond CPK Color' # this is about diBALL, not CPK [bruce 060607 comment]
@@ -254,6 +256,8 @@ _abandoned_prefs_keys = [
 
 _default_HICOLOR_real_atom = yellow
 _default_HICOLOR_real_bond = yellow
+_default_HICOLOR_delete_atom = red
+_default_HICOLOR_delete_bond = red
 _default_HICOLOR_bondpoint = pink
 
 
@@ -353,6 +357,7 @@ prefs_table = (
     # Atom preferences - colors (other than element colors, handled separately)
 
     ('atom_highlight_color', 'color', atomHighlightColor_prefs_key, _default_HICOLOR_real_atom ),
+    ('delete_atom_highlight_color', 'color', deleteAtomHighlightColor_prefs_key, _default_HICOLOR_delete_atom ),
     ('bondpoint_highlight_color', 'color', bondpointHighlightColor_prefs_key, _default_HICOLOR_bondpoint),
     ('bondpoint_hotspot_color', 'color', bondpointHotspotColor_prefs_key, ave_colors( 0.8, green, black) ), #bruce 050808
     
@@ -370,10 +375,11 @@ prefs_table = (
     
     # Bond preferences - colors
     
-    ('bond_highlight_color',         'color', bondHighlightColor_prefs_key, _default_HICOLOR_real_bond),
-    ('bond_stretch_color',           'color', bondStretchColor_prefs_key, _default_toolong_color),
+    ('bond_highlight_color', 'color', bondHighlightColor_prefs_key, _default_HICOLOR_real_bond),
+    ('delete_bond_highlight_color', 'color', deleteBondHighlightColor_prefs_key, _default_HICOLOR_delete_bond),
+    ('bond_stretch_color', 'color', bondStretchColor_prefs_key, _default_toolong_color),
     ## ('bond_stretch_highlight_color', 'color', xxx_prefs_key, _default_toolong_hicolor), ## [not yet in prefs db]
-    ('pi_vane_color',                'color', bondVaneColor_prefs_key, _default_bondVaneColor),
+    ('pi_vane_color',  'color', bondVaneColor_prefs_key, _default_bondVaneColor),
     ('',               'color', diBALL_bondcolor_prefs_key, _default_bondColor),
 
     # Bond preferences - other
@@ -398,7 +404,7 @@ prefs_table = (
      arrowsOnThreePrimeEnds_prefs_key, True), 
     
     ('show_five_prime_ends_as_in_arrow_heads', 'boolean', 
-     arrowsOnFivePrimeEnds_prefs_key, True), 
+     arrowsOnFivePrimeEnds_prefs_key, False), 
     
     # Modes preferences [added to this table by mark 050910]
     

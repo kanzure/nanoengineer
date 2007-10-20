@@ -38,8 +38,6 @@ from elements import Singlet
 from debug import print_compact_traceback
 from Utility import Group
 
-from constants import darkred
-
 from selectMode import selectMode
 from selectMode import DRAG_STICKINESS_LIMIT
 
@@ -48,6 +46,8 @@ from debug_prefs import debug_pref, Choice_boolean_True
 from prefs_constants import bondHighlightColor_prefs_key
 from prefs_constants import bondpointHighlightColor_prefs_key
 from prefs_constants import atomHighlightColor_prefs_key
+from prefs_constants import deleteBondHighlightColor_prefs_key
+from prefs_constants import deleteAtomHighlightColor_prefs_key
 
 class selectAtomsMode(selectMode):
     modename = 'SELECTATOMS'
@@ -160,11 +160,7 @@ class selectAtomsMode(selectMode):
                 else:
                     return None
             if self.o.modkeys == 'Shift+Control':
-                return darkred  
-                    # Highlight the atom in darkred if the control key is 
-                    # pressed and it is not picked.
-                    # The delete_mode color should be a user pref.  
-                    # -- mark 060129.
+                return env.prefs[deleteAtomHighlightColor_prefs_key]
             else:
                 return env.prefs[atomHighlightColor_prefs_key]
 
@@ -220,7 +216,7 @@ class selectAtomsMode(selectMode):
             if self.only_highlight_singlets:
                 return None
             if self.o.modkeys == 'Shift+Control': 
-                return darkred
+                return env.prefs[deleteBondHighlightColor_prefs_key]
             else:
                 return env.prefs[bondHighlightColor_prefs_key] 
 

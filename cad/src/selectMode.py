@@ -64,7 +64,6 @@ from constants import ADD_TO_SELECTION
 from constants import START_NEW_SELECTION
 from constants import DELETE_SELECTION
 
-from constants import darkred
 from constants import black
 
 from modes import basicMode
@@ -87,6 +86,7 @@ from debug import print_compact_traceback
 from debug import print_compact_stack
 
 from prefs_constants import bondHighlightColor_prefs_key
+from prefs_constants import deleteBondHighlightColor_prefs_key
 
 import platform
 
@@ -2242,7 +2242,7 @@ class selectMode(basicMode):
             # jigSelectionEnabled set from GLPane context menu.
             return None
         if self.o.modkeys == 'Shift+Control': 
-            return darkred
+            return env.prefs[deleteBondHighlightColor_prefs_key]
         else:
             return env.prefs[bondHighlightColor_prefs_key]
 
