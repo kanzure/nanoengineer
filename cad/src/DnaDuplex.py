@@ -549,40 +549,23 @@ class B_Dna_PAM3(B_Dna_PAM5):
     
     def _postProcess(self, baseList):
         """
-        Set bond direction on the backbone bonds.
+        Final tweaks on the DNA chunk, including:
+        
+          - Transmute Ax3 atoms on each end into Ae3.
         
         @param baseList: List of basepair chunks that make up the duplex.
         @type  baseList: list
         
         @note: baseList must contain at least two base-pair chunks.
         """
-        # This implem depends on the specifics of how the end-representations
-        # are terminated. If that's changed, it might stop working or it might
-        # start giving wrong results. In the current representation,
-        # baseList[0] (a chunk) is the starting end of the duplex. It has two 
-        # bonds whose directions we should set, which will determine the 
-        # directions of their strands: X -> Ss3, and X <- Ss3.
-        # Just find those bonds and set the strand directions.
 
         start_basepair_atoms = baseList[0].atoms.values()
         end_basepair_atoms = baseList[-1].atoms.values()
-        X_list = filter( lambda atom: atom.element.symbol in ('X'), start_basepair_atoms)
-        Ax_caps = filter( lambda atom: atom.element.symbol in ('Ax3'), start_basepair_atoms)
-        Ax_caps += filter( lambda atom: atom.element.symbol in ('Ax3'), end_basepair_atoms)
         
-        assert len(X_list) == 3 # Third is bonded to Ax3 axis atom.
-        
-        # Set bond direction on both strands.
-        # Warning: this is fragile (and temporary). This implem is dependent on
-        # the order of bondpoints listed in the MiddleBasePair.MMP file. If that
-        # order changes, this will not work. This code will be removed when
-        # Bruce adds code that copies bond direction of two openbonds onto the
-        # new bond. -mark
-        if Singlet.bonds_can_be_directional:
-            sa_pb = X_list[1] # Strand A bondpoint
-            sb_bp = X_list[2] # Strand B bondpoint
-            sa_pb.bonds[0].set_bond_direction_from(sa_pb, 1, propogate = True)
-            sb_bp.bonds[0].set_bond_direction_from(sb_bp, -1, propogate = True)
+        Ax_caps = filter( lambda atom: atom.element.symbol in ('Ax3'), 
+                          start_basepair_atoms)
+        Ax_caps += filter( lambda atom: atom.element.symbol in ('Ax3'), 
+                           end_basepair_atoms)
             
         # Transmute Ax3 caps to Ae3 atoms.
         for atom in Ax_caps:
