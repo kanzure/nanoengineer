@@ -738,7 +738,7 @@ class ElementView(ThumbView):
         ## atm.set_atomtype_but_dont_revise_singlets('sp2')
         ## see also atm.element.atomtypes -> a list of available atomtype objects for that element
         ## (which can be passed to set_atomtype_but_dont_revise_singlets)
-        atm.make_singlets_when_no_bonds()
+        atm.make_bondpoints_when_no_bonds()
         return mol
     
     def drawSelected(self, obj):
@@ -855,7 +855,7 @@ class MMKitView(ThumbView):
             atm.set_atomtype_but_dont_revise_singlets(self.hybrid_type_name)
         ## see also atm.element.atomtypes -> a list of available atomtype objects for that element
         ## (which can be passed to set_atomtype_but_dont_revise_singlets)
-        atm.make_singlets_when_no_bonds()
+        atm.make_bondpoints_when_no_bonds()
         
         self.elementMode = True
         return mol

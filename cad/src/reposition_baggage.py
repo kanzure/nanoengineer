@@ -1,9 +1,9 @@
 # Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
+"""
 reposition_baggage.py -- help reposition baggage atoms after real neighbor atoms have moved
 
 $Id$
-'''
+"""
 __author__ = 'bruce'
 
 import math
@@ -224,7 +224,7 @@ def reposition_baggage_0(self, baggage = None, planned_atom_nupos = None): #bruc
             #  which I suppose they ought to...)
     if debugprints and 0:
         print "done"
-    return # from reposition_baggage
+    return # from reposition_baggage_0
 
 # end... tested: sp3 2 2, sp2 1 2
 # not tested: the others, the extreme cases

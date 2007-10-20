@@ -600,7 +600,7 @@ class PluginlikeGenerator:
             ## build methane, from oneUnbonded
             pos = V(x,y,0)
             atm = atom('C', pos, mol)
-            atm.make_singlets_when_no_bonds() # notices atomtype
+            atm.make_bondpoints_when_no_bonds() # notices atomtype
         mol.name = name
         ## assy.addmol(mol)
         return mol

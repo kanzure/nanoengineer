@@ -198,7 +198,7 @@ class Dna:
         theta        = 0.0
         z            = 0.5 * self.baseRise * (len(self.sequence) - 1)
                 
-        # Create PAM5 duplex.
+        # Create PAM5 or PAM3 duplex.
         for i in range(len(self.sequence)):
             currentBaseLetter = self.sequence[i]
             basefile, zoffset, thetaOffset = \

@@ -708,7 +708,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         ###e need any more invals or updates for this method?? ###@@@
         return
         
-    def set_atomtype(self, atomtype, always_remake_bondpoints = False): #bruce 070608 renamed option, was always_remake_singlets
+    def set_atomtype(self, atomtype, always_remake_bondpoints = False):
         """
         [public method; not super-fast]
         Set this atom's atomtype as requested, and do all necessary invalidations or updates,
@@ -2982,8 +2982,10 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             pass
         return
     
-    def remake_bondpoints(self): #bruce 050511; added docstring and renamed (remake_singlets -> remake_bondpoints), 070608
-        """[Public method, does all needed invalidations]
+    def remake_bondpoints(self):
+        """
+        [Public method, does all needed invalidations]
+
         Destroy this real atom's existing bondpoints (if any);
         then call make_enough_bondpoints to add the right number
         of new ones in the best positions.
@@ -2991,9 +2993,10 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         for atm in self.singNeighbors():
             atm.kill() # (since atm is a bondpoint, this kill doesn't replace it with a bondpoint)
         self.make_enough_bondpoints()
-        return # from remake_bondpoints
+        return
     
-    def remake_baggage_UNFINISHED(self): #bruce 051209 -- pseudocode; has sample calls, desirable but commented out, since it's unfinished ###@@@
+    def remake_baggage_UNFINISHED(self):
+        #bruce 051209 -- pseudocode; has sample calls, desirable but commented out, since it's unfinished ###@@@
         bn = self.baggageNeighbors()
         for atm in bn:
             if not atm.is_singlet():
@@ -3002,15 +3005,17 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             atm.kill() # (since atm is a singlet, this kill doesn't replace it with a singlet)
         self.make_enough_bondpoints() ###e might pass old posns to ask this to imitate them if it can
         pass ###e now transmute the elts back to what they were, if you can, based on nearness
-        return # from remake_baggage
+        return
 
-    def make_enough_bondpoints(self): #bruce 070608 renamed (make_enough_singlets -> make_enough_bondpoints)
-        """[Public method, does all needed invalidations:]
-        Add 0 or more singlets to this real atom, until it has as many bonds
-        as its element and atom type prefers (but at most 4, since we use special-case
-        code whose knowledge only goes that high). Add them in good positions
-        relative to existing bonds (if any) (which are not changed, whether
-        they are real or open bonds).
+    def make_enough_bondpoints(self):
+        """
+        [Public method, does all needed invalidations:]
+
+        Add 0 or more bondpoints to this real atom, until it has as many bonds
+        as its element and atom type prefers (but at most 4, since we use
+        special-case code whose knowledge only goes that high). Add them in
+        good positions relative to existing bonds (if any) (which are not
+        changed, whether they are real or open bonds).
         """
         #bruce 050510 extending this to use atomtypes; all subrs still need to set singlet valence ####@@@@
         if len(self.bonds) >= self.atomtype.numbonds:
@@ -3020,13 +3025,13 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         # bonds; for other n we can; we can always handle numbonds <= 4)
         n = len(self.bonds)
         if n == 0:
-            self.make_singlets_when_no_bonds()
+            self.make_bondpoints_when_no_bonds()
         elif n == 1:
-            self.make_singlets_when_1_bond()
+            self.make_bondpoints_when_1_bond()
         elif n == 2:
-            self.make_singlets_when_2_bonds()
+            self.make_bondpoints_when_2_bonds()
         elif n == 3:
-            self.make_singlets_when_3_bonds() # (makes at most one open bond)
+            self.make_bondpoints_when_3_bonds() # (makes at most one open bond)
         else:
             pass # no code for adding open bonds to 4 or more existing bonds
         return
@@ -3034,9 +3039,12 @@ class Atom(AtomBase, InvalMixin, StateMixin):
     # the make_singlets methods were split out of the private depositMode methods
     # (formerly called bond1 - bond4), to help implement atom.Transmute [bruce 041215]
 
-    def make_singlets_when_no_bonds(self): #bruce 050511 partly revised this for atomtypes
-        "[private method; see docstring for make_singlets_when_2_bonds]"
-        # unlike the others, this was split out of oneUnbonded [bruce 041215]
+    def make_bondpoints_when_no_bonds(self): #bruce 050511 partly revised this for atomtypes
+        """
+        [public method, but trusts caller about len(self.bonds)]
+        see docstring for make_bondpoints_when_2_bonds
+        """
+        assert len(self.bonds) == 0 # bruce 071019 added this
         atype = self.atomtype
         if atype.bondvectors:
             r = atype.rcovalent
@@ -3047,10 +3055,11 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 bondsImportKluge.bond_atoms(self,x) ###@@@ set valence? or update it later?
         return
     
-    def make_singlets_when_1_bond(self): # by josh, with some comments and mods by bruce
-        "[private method; see docstring for make_singlets_when_2_bonds]"
-        ## print "what the heck is this global variable named 'a' doing here? %r" % (a,)
-        ## its value is 0.85065080835203999; where does it come from? it hide bugs. ###@@@
+    def make_bondpoints_when_1_bond(self): # by josh, with some comments and mods by bruce
+        """
+        [public method, but trusts caller about len(self.bonds)]
+        see docstring for make_bondpoints_when_2_bonds
+        """
         assert len(self.bonds) == 1
         assert not self.is_singlet()
         atype = self.atomtype
@@ -3145,8 +3154,10 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 bondsImportKluge.bond_atoms(self,x)
         return
         
-    def make_singlets_when_2_bonds(self): #bruce 050511 updating this (and sister methods) for atom types
-        """[private method for make_enough_bondpoints:]
+    def make_bondpoints_when_2_bonds(self):
+        """
+        [public method, but trusts caller about len(self.bonds)]
+
         Given an atom with exactly 2 real bonds (and no singlets),
         see if it wants more bonds (due to its atom type),
         and make extra singlets if so, [###@@@ with what valence?]
@@ -3178,8 +3189,11 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             bondsImportKluge.bond_atoms(self,x)
         return
 
-    def make_singlets_when_3_bonds(self):
-        "[private method; see docstring for make_singlets_when_2_bonds]"
+    def make_bondpoints_when_3_bonds(self):
+        """
+        [public method, but trusts caller about len(self.bonds)]
+        see docstring for make_bondpoints_when_2_bonds
+        """
         assert len(self.bonds) == 3
         atype = self.atomtype
         if atype.numbonds > 3:
@@ -3223,12 +3237,14 @@ def singlet_atom(singlet):
     return singlet.singlet_neighbor()
 
 def oneUnbonded(elem, assy, pos, atomtype = None): #bruce 050510 added atomtype option
-    """Create one unbonded atom, of element elem
-    and (if supplied) the given atomtype (otherwise the default atomtype for elem),
+    """
+    Create one unbonded atom, of element elem
+    and (if supplied) the given atomtype
+    (otherwise the default atomtype for elem),
     at position pos, in its own new chunk.
     """
     # bruce 041215 moved this from chunk.py to chem.py, and split part of it
-    # into the new atom method make_singlets_when_no_bonds, to help fix bug 131.
+    # into the new atom method make_bondpoints_when_no_bonds, to help fix bug 131.
     mol = chunk.molecule(assy, 'bug') # name is reset below!
     atm = atom(elem.symbol, pos, mol)
     # bruce 041124 revised name of new mol, was gensym('Chunk.');
@@ -3236,7 +3252,7 @@ def oneUnbonded(elem, assy, pos, atomtype = None): #bruce 050510 added atomtype 
     atm.set_atomtype_but_dont_revise_singlets(atomtype) # ok to pass None, type name, or type object; this verifies no change in elem
         # note, atomtype might well already be the value we're setting; if it is, this should do nothing
     mol.name = "Chunk-%s" % str(atm)
-    atm.make_singlets_when_no_bonds() # notices atomtype
+    atm.make_bondpoints_when_no_bonds() # notices atomtype
     assy.addmol(mol)
     return atm
 

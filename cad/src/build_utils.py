@@ -142,8 +142,8 @@ class AtomTypeDepositionTool(DepositionTool):
         # new code makes all n bonds for any n, tho it won't add singlets
         # for n > 4. (Both old and new code don't know how to add enough
         # singlets for n >= 3 and numbonds > 4. They might add some, tho.)
-        # Note: new_bonded_n uses len(pl) as its n. As of 050901 this might differ from the variable n.
-        atm = self.new_bonded_n( pl)
+        # Note: _new_bonded_n uses len(pl) as its n. As of 050901 this might differ from the variable n.
+        atm = self._new_bonded_n( pl)
         atm.make_enough_bondpoints() # (tries its best, but doesn't always make enough)
         desc = "%r (in %r)" % (atm, atm.molecule.name)
         #e what if caller renames atm.molecule??
@@ -168,9 +168,11 @@ class AtomTypeDepositionTool(DepositionTool):
         pos = singlet.posn() + cr*norm(singlet.posn()-a1.posn())
         return pos
         
-    def new_bonded_n( self, lis):
-        """[private method]
-        make and return an atom (of self.atomtype) bonded to the n singlets in lis,
+    def _new_bonded_n( self, lis):
+        """
+        [private method]
+
+        Make and return an atom (of self.atomtype) bonded to the n singlets in lis,
         which is a list of n pairs (singlet, pos), where each pos is the ideal
         position for a new atom bonded to its singlet alone.
         The new atom will always have n real bonds and no singlets.
@@ -182,7 +184,7 @@ class AtomTypeDepositionTool(DepositionTool):
         """
         # bruce 041215 made this from the first parts of the older methods bond1
         # through bond4; the rest of each of those have become atom methods like
-        # make_singlets_when_2_bonds.
+        # make_bondpoints_when_2_bonds.
         # The caller (self.attach [now renamed self.attach_to]) has been revised
         # to use these, and the result is (I think) equivalent to the old code,
         # except when el.numbonds > 4 [later: caller's new subrs now use atomtype not el],
