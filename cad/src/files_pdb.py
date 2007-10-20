@@ -343,10 +343,11 @@ def writepdb(part,
     f.close()
     
     if excluded:
-        msg = "Warning: excluded %d open bond(s) from saved PDB file;" + \
-            "consider Hydrogenating and resaving." % excluded
-        msg = fix_plurals(msg)
-        env.history.message( orangemsg( msg))
+        msg  = "Warning: excluded %d open bond(s) from saved PDB file; " \
+             % excluded
+        msg += "consider Hydrogenating and resaving." 
+        msg  = fix_plurals(msg)
+        env.history.message( orangemsg(msg))
     return # from writepdb
 
 # end
