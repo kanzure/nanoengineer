@@ -126,7 +126,9 @@ def startup_script( main_globals):
         # [bruce 071008 change]
     
     startup_misc.call_module_init_functions()
-
+    
+    startup_misc.register_MMP_RecordParsers()
+        # do this before reading any mmp files
 
     # create the single main window object
     

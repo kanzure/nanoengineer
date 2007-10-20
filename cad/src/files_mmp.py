@@ -137,7 +137,7 @@ from jigs_measurements import MeasureAngle
 from jigs_measurements import MeasureDihedral
 from VQT import V, Q, A
 from PovrayScene import PovrayScene
-from Comment import Comment
+##from Comment import Comment
 from utilities.Log import redmsg
 from elements import PeriodicTable
 from bonds import bond_atoms
@@ -164,7 +164,9 @@ from Plane import Plane
 
 #bruce 050414 comment: these pat constants are not presently used in any other files.
 
-nampat = re.compile("\\(([^)]*)\\)")
+_name_pattern = re.compile(r"\(([^)]*)\)")
+    # pattern group containing parenthesized string
+
 old_csyspat = re.compile("csys \((.+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+)\)")
 new_csyspat = re.compile("csys \((.+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+)\)")
 datumpat = re.compile("datum \((.+)\) \((\d+), (\d+), (\d+)\) (.*) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\)")
@@ -243,35 +245,159 @@ manglepat = re.compile("mangle " + nameRgbFontnameFontsize +
 mdihedralpat = re.compile("mdihedral " + nameRgbFontnameFontsize +
                           oneAtom + oneAtom + oneAtom + oneAtom)
 
-
-def getname(str, default):
-    x = nampat.search(str)
-    if x: return x.group(1)
-    return gensym(default) # used only for mmp records which don't contain valid names [bruce 070603 guess]
-
 # == reading mmp files
 
-#bruce 071017 remove register_for_readmmp, since its only call is not
-# worth importing it, and it makes things less clear:
-##def register_for_readmmp(clas): #bruce 060607
-##    """
-##    Register the given class as a helper for reading mmp files,
-##    in a way that might depend on what it's a subclass of.
-##    (Semiprivate; details not yet documented and subject to change. Experimental.)
-##    [Update, bruce 071017: it looks like all this does is call code in the registrant
-##     which it could have called itself -- so it's not clear what it's doing in this module.]
-##    """
-##    # assume it has a staticmethod of the following name, to which we should pass the class itself.
-##    smethod = clas._register_for_readmmp
-##    smethod(clas)
-##    ##e in future, for some classes, we might also add an mmp record name to a table used by this file.
-##    return
+class MMP_RecordParser(object): #bruce 071018
+    """
+    Public superclass for parsers for reading specific kinds of mmp records.
 
-def _find_registered_parser_class(recordname): #bruce 071017
+    Concrete subclasses should be registered with the global default
+    mmp grammar using
+    
+      files_mmp.register_MMP_RecordParser('recordname', recordParser)
+    
+    for one or more recordnames which that parser subclass can support.
+    
+    Typically, each subclass knows how to parse just one kind of record,
+    and is registered with only one recordname.
+
+    Instance creation is only done by the mmp parser module,
+    at least once per assembly (the instance will know which assembly
+    it's for in self.assy, a per-instance constant), and perhaps
+    as often as once per mmp file read (or conceivably even once
+    per mmp record read -- REVIEW whether to rule that out in order
+    to permit instances to remember things between records while
+    one file is being read, e.g. whether they've emitted certain
+    warnings, and similarly whether to promise they're instantiated
+    once per file, as opposed to less often, for the same reason).
+
+    Concrete subclasses need to define method read_record,
+    which will be called with one line of text
+    (including the final newline) whose first word
+    is one of the record names for which that subclass was
+    registered.
+
+    ### REVIEW: will they also be called for subsequent lines
+    in some cases? motors, atoms/bonds, info records...
+
+    The public methods in this superclass can be called by
+    the subclass to help it work; their docstrings contain
+    essential info about how to write concrete subclasses.
+    """
+    def __init__(self, readmmp_state, recordname):
+        """
+        @param readmmp_state: object which tracks state of one mmp reading operation.
+        @type readmmp_state: class _readmmp_state.
+        
+        @param recordname: mmp record name for which this instance is registered.
+        @type recordname: string (containing no whitespace)
+        """
+        self.readmmp_state = readmmp_state
+        self.recordname = recordname
+        self.assy = readmmp_state.assy
+        return
+    def get_name(self, card, default):
+        """
+        [see docstring of same method in class _readmmp_state]
+        """
+        return self.readmmp_state.get_name(card, default)
+    def decode_name(self, name):
+        """
+        [see docstring of same method in class _readmmp_state]
+        """
+        return self.readmmp_state.decode_name(name)
+    def addmember(self, model_component):
+        """
+        [see docstring of same method in class _readmmp_state]
+        """
+        self.readmmp_state.addmember(model_component)
+    def set_info_object(self, kind, model_component):
+        """
+        [see docstring of same method in class _readmmp_state]
+        """
+        self.readmmp_state.set_info_object(kind, model_component)
+        return
+    def read_record(self, card):
+        msg = "subclass %r for recordname %r must implement method read_record" % \
+               (self.__class__, self.recordname)
+        self.readmmp_state.bug_error(msg)
+    pass
+
+class _fake_MMP_RecordParser(MMP_RecordParser):
+    """
+    Use this as an initial registered RecordParser
+    for a known mmp recordname, to detect the error
+    of the real one not being registered soon enough
+    when that kind of mmp record is first read.
+    """
+    def read_record(self, card):
+        msg = "init code has not registered " \
+              "an mmp record parser for recordname %r " \
+              "to parse this mmp line:\n%r" % (self.recordname, card,)
+        self.readmmp_state.bug_error(msg)
+    pass
+
+# ==
+
+class _MMP_Grammar(object):
+    """
+    An mmp file grammar (for reading only), not including the hardcoded part.
+    Presently just a set of registered mmp-recordname-specific parser classes,
+    typically subclasses of MMP_RecordParser.
+
+    Note: as of 071019 there is only one of these, files_mmp._The_MMP_Grammar.
+    But nothing in principle prevents this class from being instantiated
+    multiple times with different record parsers in each one.
+    """
+    def __init__(self):
+        self._registered_record_parsers = {}
+    def register_MMP_RecordParser(self, recordname, recordParser):
+        assert issubclass(recordParser, MMP_RecordParser)
+            ### not a valid requirement eventually, but good for catching errors
+            # in initial uses of this system.
+        self._registered_record_parsers[ recordname] = recordParser
+    def get_registered_MMP_RecordParser(self, recordname):
+        return self._registered_record_parsers.get( recordname, None)
+    pass
+
+_The_MMP_Grammar = _MMP_Grammar() # private grammar for registering record parsers
+    # Note: nothing prevents this _MMP_Grammar from being public,
+    # except that for now we're just making public a static function
+    # for registering into it, so to avoid initial confusion I'm only
+    # making the static function public. [bruce 071019]
+
+def register_MMP_RecordParser(recordname, recordParser):
+    """
+    Public function for registering RecordParsers with specific recordnames
+    in the default grammar for reading MMP files. RecordParsers are typically
+    subclasses of class MMP_RecordParser, whose docstring describes the
+    interface they must satisfy to be registered here.
+    """
+    _The_MMP_Grammar.register_MMP_RecordParser( recordname, recordParser)
+    return
+
+# Now register some fake recordparsers for all documented mmp recordnames
+# whose parsers are not hardcoded into class _readmmp_state,
+# so if other code forgets to register the real ones before we first read
+# an mmp file containing them, we'll detect the error instead of just
+# ignoring those records as we intentionally ignore unrecognized records.
+# We do this directly on import, to be sure it's not done after the real ones
+# are registered, and since doing so should not cause any trouble.
+
+_RECORDNAMES_THAT_MUST_BE_REGISTERED = ['comment']
+    ### TODO: extend this list as more parsers are moved out of this file
+
+for recordname in _RECORDNAMES_THAT_MUST_BE_REGISTERED:
+    register_MMP_RecordParser( recordname, _fake_MMP_RecordParser)
+
+# ==
+
+def _find_registered_parser_class(recordname): #bruce 071019
     """
     Return the class registered for parsing mmp lines which start with
     recordname (a string), or None if no class was registered (yet)
-    for that recordname.
+    for that recordname. (Such a class is typically a subclass of
+    MMP_RecordParser.)
     """
     ### REVIEW: if we return None, should we warn about a subsequent
     # registration for the same name, since it's too late for it to help?
@@ -279,9 +405,12 @@ def _find_registered_parser_class(recordname): #bruce 071017
     # mmp file that required it, but right if we have startup order errors
     # in registering standard readers vs. reading built-in mmp files.
     # Ideally, we'd behave differently during or after startup.
-    # For now, we ignore this issue.
+    # For now, we ignore this issue, except for the _fake_MMP_RecordParsers
+    # registered for _RECORDNAMES_THAT_MUST_BE_REGISTERED above.
     
-    return None # stub, but correct, given that registration is not yet possible
+    return _The_MMP_Grammar.get_registered_MMP_RecordParser( recordname)
+
+# ==
 
 class _readmmp_state:
     """
@@ -341,6 +470,9 @@ class _readmmp_state:
 
     def format_error(self, msg): ###e use this more widely?
         env.history.message( redmsg( "Warning: mmp format error: " + msg)) ###e and say what we'll do? review calls; syntax error
+
+    def bug_error(self, msg):
+        env.history.message( redmsg( "Bug: " + msg))
     
     def readmmp_line(self, card):
         """
@@ -424,7 +556,7 @@ class _readmmp_state:
             clas = _find_registered_parser_class(recordname)
                 # just one global registry, for now
             if clas:
-                instance = clas(self)
+                instance = clas(self, recordname)
             else:
                 instance = None
                     # cache None too -- the query might be repeated
@@ -432,7 +564,20 @@ class _readmmp_state:
             self._registered_parser_objects[recordname] = instance
             return instance
         pass
-            
+
+    def get_name(self, card, default): #bruce 071019 moved here from function getname
+        """
+        Get the object name from an mmp record line
+        which represents the name in the usual way
+        (as a parenthesized string immediately after the recordname),
+        but don't decode it (see decode_name for that).
+        """
+        x = _name_pattern.search(card)
+        if x:
+            return x.group(1)
+        print "warning: mmp record without a valid name field: %r" % (card,) #bruce 071019
+        return gensym(default)
+    
     def decode_name(self, name): #bruce 050618 part of fixing part of bug 474
         """
         Invert the transformation done by the writer's encode_name method.
@@ -447,7 +592,7 @@ class _readmmp_state:
     
     def _read_group(self, card): # group: begins a Group (of chunks, jigs, and/or Groups)
         #bruce 050405 revised this; it can be further simplified
-        name = getname(card, "Grp")
+        name = self.get_name(card, "Grp")
         assert name is not None #bruce 050405 hope/guess
         name = self.decode_name(name) #bruce 050618
         old_opengroup = self.groupstack[-1]
@@ -457,7 +602,7 @@ class _readmmp_state:
 
     def _read_egroup(self, card): # egroup: close the current group record
         #bruce 050405 revised this; it can be further simplified
-        name = getname(card, "Grp")
+        name = self.get_name(card, "Grp")
         assert name is not None #bruce 050405 hope/guess
         name = self.decode_name(name) #bruce 050618
         if len(self.groupstack) == 1:
@@ -469,17 +614,8 @@ class _readmmp_state:
             return "mismatched group records: egroup %r tried to match group %r" % (name, curname) #bruce 050405 revised this msg
         return None # success
 
-    def _read_comment(self, card): #bruce 060522
-        name = getname(card, "Comment")
-        name = self.decode_name(name) #bruce 050618
-        comment = Comment(self.assy,  name)
-        comment._init_line1(card) # card ends with a newline
-        self.addmember(comment)
-        # subsequent lines (if any) come from info leaf records
-        return
-    
     def _read_mol(self, card): # mol: start a molecule
-        name = getname(card, "Mole")
+        name = self.get_name(card, "Mole")
         name = self.decode_name(name) #bruce 050618
         mol = molecule(self.assy,  name)
         self.mol = mol # so its atoms, etc, can find it (might not be needed if they'd search for it) [bruce 050405 comment]

@@ -47,6 +47,18 @@ def call_module_init_functions(): #bruce 071005 split this out of main_startup.s
 
     return
 
+def register_MMP_RecordParsers(): #bruce 071019
+    """
+    Register MMP_RecordParser subclasses for the model objects that can be read
+    from mmp files, and whose parsers are not hardcoded into files_mmp.py.
+    """
+    import Comment
+    Comment.register_MMP_RecordParser_for_Comment()
+
+    # TODO: add more of these.
+    
+    return
+    
 # (MWsemantics.__init__ is presumably run after the above functions and before the following ones.)
 
 def pre_main_show( win):

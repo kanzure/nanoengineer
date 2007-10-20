@@ -8,14 +8,23 @@ History:
 
 mark 060530 - Comment class moved here from Utility.py.
 
+bruce 071019 - moved mmp reading code for Comment into this file;
+registering it with files_mmp instead of hardcoding it there
+
 """
 
 from Utility import SimpleCopyMixin, Node
 from icon_utilities import imagename_to_pixmap
 from constants import gensym
 
+from files_mmp import MMP_RecordParser
+from files_mmp import register_MMP_RecordParser
+
+# ==
+
 class Comment(SimpleCopyMixin, Node):
-    """A Comment stores a comment in the MMP file, accessible from the Model Tree as a node.
+    """
+    A Comment stores a comment in the MMP file, accessible from the Model Tree as a node.
     """
     # text representation: self.lines is a list of lines (str or unicode python strings).
     # This is the fundamental representation for use by mmp read/write, copy, and Undo.
@@ -43,7 +52,8 @@ class Comment(SimpleCopyMixin, Node):
         return
     
     def set_text(self, text):
-        """Set our text (represented in self.lines, a list of 1 or more str or unicode strings, no newlines)
+        """
+        Set our text (represented in self.lines, a list of 1 or more str or unicode strings, no newlines)
         to the lines in the given str or unicode python string, or QString.
         """
         oldlines = self.lines
@@ -67,11 +77,15 @@ class Comment(SimpleCopyMixin, Node):
         return
 
     def get_text(self):
-        "return our text (perhaps as a unicode string, whether or not unicode is needed)"
+        """
+        return our text (perhaps as a unicode string, whether or not unicode is needed)
+        """
         return u'\n'.join(self.lines) #bruce 070502 bugfix: revert Qt4 porting error which broke this for unicode
 
     def _add_line(self, line, encoding = 'ascii'):
-        """[private method to support mmp reading (main record and info records)]
+        """
+        [private method to support mmp reading (main record and info records)]
+
         Add the given line (which might be str or unicode, but is assumed to contain no \ns and not be a QString) to our text.
         """
         if encoding == 'utf-8':
@@ -86,7 +100,11 @@ class Comment(SimpleCopyMixin, Node):
         return
 
     def _init_line1(self, card):
-        "[private method] readmmp helper -- card is entire line of mmp record (perhaps including \n at end)"
+        """
+        [private method]
+
+        readmmp helper -- card is entire line of mmp record (perhaps including \n at end)
+        """
         # as of 060522 it does end with \n, but we won't assume it does; but we will assume it was written by our writemmp method
         if card[-1] == '\n':
             card = card[:-1]
@@ -112,7 +130,9 @@ class Comment(SimpleCopyMixin, Node):
         return
     
     def edit(self):
-        "Opens Comment dialog with current text."
+        """
+        Opens Comment dialog with current text.
+        """
         self.assy.w.commentcntl.setup(self)
         
     def writemmp(self, mapping):
@@ -136,3 +156,30 @@ class Comment(SimpleCopyMixin, Node):
         return "<comment " + self.name + ">"
         
     pass # end of class Comment
+
+# ==
+
+class _MMP_RecordParser_for_Comment( MMP_RecordParser): #bruce 071019
+    """
+    Read the first line of the MMP record for a Comment.
+    """
+    def read_record(self, card): #bruce 060522
+        name = self.get_name(card, "Comment")
+        name = self.decode_name(name) #bruce 050618
+        comment = Comment(self.assy, name)
+        comment._init_line1(card) # card ends with a newline
+        self.addmember(comment)
+        # Note: subsequent lines of the Comment text (if any)
+        # come from info leaf records following this record
+        # in the mmp file.
+        return
+    pass
+
+def register_MMP_RecordParser_for_Comment():
+    """
+    [call this during init, before reading any mmp files]
+    """
+    register_MMP_RecordParser( 'comment', _MMP_RecordParser_for_Comment )
+    return
+
+# end
