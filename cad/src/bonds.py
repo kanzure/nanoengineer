@@ -369,11 +369,12 @@ def bond_atoms(a1, a2, vnew = None, s1 = None, s2 = None, no_corrections = False
         # so we can't do it. The code above to make sure atomtypes are set
         # should have the same effect when the atomtype doesn't need to
         # change in update_valence. ### UNTESTED for that purpose
-        
+        #
         # [bruce comment 050728: to fix bug 823, update_valence needs to
         #  merge singlets to match atomtype; now it does]
-        
+        a1.update_valence()
         a2.update_valence()
+        
         sumdir = dir1 + dir2 # note: this is 0 if the dirs are inconsistent; otherwise its sign gives the new dir
         if sumdir and bond.is_directional():
             # Note: we do this now (after update_valence removed zero-valence
@@ -382,6 +383,7 @@ def bond_atoms(a1, a2, vnew = None, s1 = None, s2 = None, no_corrections = False
             # being there. [bruce 071019]
             newdir = (sumdir > 0) and 1 or -1
             bond.set_bond_direction_from( a1, newdir)
+        pass
     return bond
 
 def bond_v6(bond):
