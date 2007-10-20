@@ -873,6 +873,30 @@ class Bond(BondBase, StateMixin):
         """
         return self.is_directional()
     
+    def isThreePrimeOpenBond(self):
+        """
+        Returns True if this is a 3' open bond.
+        """
+        if self.isStrandBond():
+            for atom in (self.atom1, self.atom2):
+                if atom.is_singlet():
+                    direction = self.bond_direction_from(atom)
+                    if direction == 1:
+                        return True
+        return False
+    
+    def isFivePrimeOpenBond(self):
+        """
+        Returns True if this is a 5' open bond.
+        """
+        if self.isStrandBond():
+            for atom in (self.atom1, self.atom2):
+                if atom.is_singlet():
+                    direction = self.bond_direction_from(atom)
+                    if direction == -1:
+                        return True
+        return False
+                    
     #- end of DNA bond helper functions ----------------------------
     
     def getToolTipInfo(self, glpane, isBondChunkInfo, isBondLength, atomDistPrecision): #Ninad 060830
