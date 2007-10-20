@@ -527,7 +527,8 @@ _Bond_global_dicts = [_changed_Bonds]
 # I also rewrote lots of the code in class Bond.
 
 class Bond(BondBase, StateMixin):
-    """A Bond is essentially a record pointing to two atoms
+    """
+    A Bond is essentially a record pointing to two atoms
     (either one of which might be a real atom or a "singlet"),
     representing a bond between them if it also occurs in atom.bonds
     for each atom. It should occur in both or neither of atom.bonds
@@ -599,7 +600,8 @@ class Bond(BondBase, StateMixin):
         StateMixin._undo_update(self)
         
     def __init__(self, at1, at2, v6 = V_SINGLE): # no longer also called from self.rebond()
-        """create a bond from atom at1 to atom at2.
+        """
+        create a bond from atom at1 to atom at2.
         the key created will be the same whichever order the atoms are
         given, and is used to compare bonds.
         [further comments by bruce 041029:]
@@ -619,7 +621,9 @@ class Bond(BondBase, StateMixin):
         self.glname = env.alloc_my_glselect_name( self) #bruce 050610
 
     def _undo_aliveQ(self, archive): #bruce 060405, rewritten 060406; see also new_Bond_oursQ in undo_archive.py
-        "[see docstring of Atom version]"
+        """
+        @see: docstring of L{Atom._undo_aliveQ}.
+        """
         # there are two ways to reach a bond (one per atom), so return True if either one would reach it,
         # but also report an error if one would and one would not.
         a1 = self.atom1
@@ -640,7 +644,8 @@ class Bond(BondBase, StateMixin):
 ##               and self in a1.bonds and self in a2.bonds
 
     def bond_direction_from(self, atom): #bruce 070414
-        """Assume self is a directional bond (not checked);
+        """
+        Assume self is a directional bond (not checked);
         return its direction, starting from the given atom
         (which must be one of its atoms).
            This is 1 if the bond direction points away from that atom,
@@ -655,11 +660,14 @@ class Bond(BondBase, StateMixin):
         return
 
     def bond_direction_vector(self): #bruce 070417
-        """Return self's bond direction vector (in abs coords)."""
+        """
+        Return self's bond direction vector (in abs coords).
+        """
         return self._direction * (self.atom2.posn() - self.atom1.posn())
 
     def set_bond_direction_from(self, atom, direction, propogate = False): #bruce 070415
-        """Assume self is a directional bond (not checked);
+        """
+        Assume self is a directional bond (not checked);
         set its direction (from atom to the other atom) to the given direction.
         The given direction must be -1, 0, or 1 (not checked);
         atom must be one of self's atoms. (The direction from the other atom
@@ -705,7 +713,8 @@ class Bond(BondBase, StateMixin):
         return
 
     def _changed_bond_direction(self): #bruce 070415
-        """[private method]
+        """
+        [private method]
         Do whatever invalidations or change-notices are needed due to an internal change to self._direction.
         (See also _undo_update, which calls this, and the other self.changed*() methods.)
         """        
@@ -753,7 +762,8 @@ class Bond(BondBase, StateMixin):
         return
 
     def propogate_bond_direction_towards(self, atom): #bruce 070414
-        """Copy the bond_direction on self (which must be a directional bond)
+        """
+        Copy the bond_direction on self (which must be a directional bond)
         onto all bonds in the same chain or ring of directional bonds
         in the direction (from self) of atom (which must be one of self's atoms).
            Stop when reaching self (in a ring) or the last bond in a chain.
@@ -796,7 +806,8 @@ class Bond(BondBase, StateMixin):
         return False
 
     def mmprecord_bond_direction(self, atom, mapping): #bruce 070415
-        """Return an mmp record line or lines (not including terminating \n)
+        """
+        Return an mmp record line or lines (not including terminating \n)
         which identifies self (which has already been written into the mmp file,
         along with both its atoms, just after the given atom was written),
         and encodes the direction of self,
@@ -819,8 +830,55 @@ class Bond(BondBase, StateMixin):
         atomcodes = map( mapping.encode_atom, (atom, other) )
         return "bond_direction " + " ".join(atomcodes)
     
+    #- DNA helper functions. ------------------------------------------
+    
+    def getStrandName(self):
+        """
+        Return the strand name, which is this bond's chunk name.
+        
+        @return: The strand name, or a null string if the two atoms of this 
+                 bond belong to two different chunks.
+        @rtype:  str
+        
+        @see: L{setStrandName}
+        """
+        if self.atom1.molecule is self.atom2.molecule:
+            return self.atom1.molecule.name
+        return ""
+    
+    def setStrandName(self, name):
+        """
+        Sets the name of the chunk this bond belongs to. This will fail if 
+        the bond belongs to two different chunks.
+        
+        @param name: The strand name.
+        @type  name: str
+        
+        @return: Success = True, Failure = 0. 
+        @rtype:  bool
+        
+        @see: L{getStrandName}
+        """
+        if self.atom1.molecule is self.atom2.molecule:
+            self.atom1.molecule.name = name
+            return True
+        return False
+    
+    def isStrandBond(self):
+        """
+        Returns True if this bond is a DNA (backbone) bond.
+        
+        @note: This function is identical to L{is_directional} and is provided
+               for convenience.
+        """
+        return self.is_directional()
+    
+    #- end of DNA bond helper functions ----------------------------
+    
     def getToolTipInfo(self, glpane, isBondChunkInfo, isBondLength, atomDistPrecision): #Ninad 060830
-        '''Returns a string that has bond related info ...used in DynamicTool Tip'''
+        """
+        Returns a string that has bond related info ...used in DynamicTool Tip.
+        """
         ###WARNING: this method uses both self and glpane.selobj, and appears to assume they are the same object. [bruce 070414 comment]
         #ninad060830 moved these methods from the class DynamicTip
         bondStr = str(glpane.selobj)
@@ -837,9 +895,11 @@ class Bond(BondBase, StateMixin):
         return bondInfoStr
             
     def getBondChunkInfo(self, glpane, quat = Q(1,0,0,0)): #Ninad 060830
-        ''' returns chunk information of the atoms forming a bond. Returns none if Bond chunk user pref is unchecked.
-        It uses some code of bonded_atoms_summary method
-        '''
+        """
+        Returns chunk information of the atoms forming a bond. 
+        Returns none if Bond chunk user pref is unchecked.
+        It uses some code of bonded_atoms_summary method.
+        """
         ###WARNING: this method does not use self, and appears to assume glpane.selobj can stand in for self.  [bruce 070414 comment]
         a1 = glpane.selobj.atom1
         a2 = glpane.selobj.atom2
@@ -853,8 +913,12 @@ class Bond(BondBase, StateMixin):
         return bondChunkInfo
             
     def getBondLength(self, glpane, atomDistPrecision):#Ninad 060830
-        '''returns the atom center distance between the atoms connected by the highlighted bond.
-        Note that this does *not* return the covalent bondlength'''
+        """
+        Returns the atom center distance between the atoms connected 
+        by the highlighted bond.
+        
+        @note: this does *not* return the covalent bondlength.
+        """
         ###WARNING: this method does not use self, and appears to assume glpane.selobj can stand in for self.  [bruce 070414 comment]
 
         a1 = glpane.selobj.atom1
@@ -866,7 +930,8 @@ class Bond(BondBase, StateMixin):
 
     
     def destroy(self): #bruce 060322 (not yet called) ###@@@
-        """[see comments in Atom.destroy docstring]
+        """
+        @see: comments in L{Atom.destroy} docstring.
         """
         if self._direction:
             self._changed_bond_direction() #bruce 070415
@@ -894,7 +959,8 @@ class Bond(BondBase, StateMixin):
 
     def reduce_valence_noupdate(self, vdelta, permit_illegal_valence = False):
         # option permits in-between, 0, or negative(?) valence
-        """Decrease this bond's valence by at most vdelta (which must be nonnegative),
+        """
+        Decrease this bond's valence by at most vdelta (which must be nonnegative),
         but always to a supported value in BOND_VALENCES (unless permit_illegal_valence is true);
         return the actual amount of decrease (maybe 0; in the same scale as BOND_VALENCES).
            When permit_illegal_valence is true, any valence can be reached, even one which
@@ -936,7 +1002,8 @@ class Bond(BondBase, StateMixin):
         return v_have - v_want # return actual decrease (warning: order of subtraction will differ in sister method)
 
     def increase_valence_noupdate(self, vdelta, permit_illegal_valence = False): #k is that option needed?
-        """Increase this bond's valence by at most vdelta (which must be nonnegative),
+        """
+        Increase this bond's valence by at most vdelta (which must be nonnegative),
         but always to a supported value in BOND_VALENCES (unless permit_illegal_valence is true);
         return the actual amount of increase (maybe 0; in the same scale as BOND_VALENCES).
            When permit_illegal_valence is true, any valence can be reached, even one which
@@ -979,7 +1046,8 @@ class Bond(BondBase, StateMixin):
         return v_want - v_have # return actual increase (warning: order of subtraction differs in sister method)
 
     def changed_valence(self):
-        """[private method]
+        """
+        [private method]
         This should be called whenever this bond's valence is changed
         (whether to a legal or (presumably temporary) illegal value).
         It does whatever invalidations that requires, but does no "updates".
@@ -1006,8 +1074,11 @@ class Bond(BondBase, StateMixin):
         return
 
     def changed(self): #bruce 050719
-        """Mark this bond's atoms (and thus their chunks, part, and mmp file) as changed.
-        (As of 050719, only the file (actually the assy object) records this fact.)
+        """
+        Mark this bond's atoms (and thus their chunks, part, and mmp file) as 
+        changed.
+        (As of 050719, only the file (actually the assy object) 
+        records this fact.)
         """
         self.atom1.changed()
         self.atom2.changed() # for now, only the file (assy) records this, so 2nd call is redundant, but someday that will change.
@@ -1017,9 +1088,12 @@ class Bond(BondBase, StateMixin):
         return self.v6 / 6.0
     
     def changed_atoms(self):
-        """Private method to call when the atoms assigned to this bond are changed.
-        WARNING: does not call setup_invalidate(), though that would often also
-        be needed, as would invalidate_bonded_mols() both before and after the change.
+        """
+        Private method to call when the atoms assigned to this bond are changed.
+        
+        @warning: does not call setup_invalidate(), though that would often also
+                  be needed, as would invalidate_bonded_mols() both before and
+                  after the change.
         """
         _changed_Bonds[id(self)] = self #bruce 060322 (covers changes to atoms, and __init__)
         at1 = self.atom1
@@ -1055,7 +1129,8 @@ class Bond(BondBase, StateMixin):
         return
     
     def invalidate_bonded_mols(self): #bruce 041109
-        """Private method to call when a bond is made or destroyed;
+        """
+        Private method to call when a bond is made or destroyed;
         knows which kinds of bonds are put into a display list by molecule.draw
         (internal bonds) or put into mol.externs (external bonds),
         though this knowledge should ideally be private to class molecule.
@@ -1076,7 +1151,8 @@ class Bond(BondBase, StateMixin):
     # ==
     
     def setup_invalidate(self): # revised 050516
-        """Semi-private method for bonds -- used by code in Bond, atom and chunk classes.
+        """
+        Semi-private method for bonds -- used by code in Bond, atom and chunk classes.
         Invalidates cached geometric values related to drawing the bond.
            This must be called whenever the position or element of either bonded
         atom is changed, or when either atom's molecule changes if this affects
@@ -1107,9 +1183,14 @@ class Bond(BondBase, StateMixin):
         return
 
     def bond_to_abs_coords_quat(self): #bruce 050722
-        """Return a quat which can be used (via .rot) to rotate vectors from this bond's drawing coords into absolute coords.
-        (There is no method abs_to_bond_coords_quat which goes the other way -- just use .unrot for that.)
-        FYI: as of 050722, this is identity for external bonds, and chunk.quat for internal bonds.
+        """
+        Return a quat which can be used (via .rot) to rotate vectors from this
+        bond's drawing coords into absolute coords.
+        (There is no method abs_to_bond_coords_quat which goes the other way
+        -- just use .unrot for that.)
+        
+        @note: as of 050722, this is identity for external bonds, and chunk.quat
+               for internal bonds.
         """
         atom1 = self.atom1
         atom2 = self.atom2
@@ -1118,11 +1199,12 @@ class Bond(BondBase, StateMixin):
         return atom1.molecule.quat
         
     def _recompute_geom(self, abs_coords = False): #bruce 050516 made this from __setup_update
-        """[private method meant for our __getattr__ method, and for writepov]
+        """
+        [private method meant for our __getattr__ method, and for writepov]
         Recompute and return (but don't store)
         the 6-tuple (a1pos, c1, center, c2, a2pos, toolong),
-        which describes this bond's geometry, useful for drawing (OpenGL or writepov)
-        and for self.ubp().
+        which describes this bond's geometry, useful for drawing (OpenGL 
+        or writepov) and for self.ubp().
            If abs_coords is true, always use absolute coords;
         otherwise, use them only for external bonds, and for internal bonds
         (i.e. between atoms in the same mol) use mol-relative coords.
@@ -1145,8 +1227,10 @@ class Bond(BondBase, StateMixin):
         return self.geom_from_posns(a1pos, a2pos)
 
     def geom_from_posns(self, a1pos, a2pos): #bruce 050727 split this out
-        """Return a geometry tuple from the given atom positions
-        (ignoring our actual atom positions but using our actual atomtypes/bondtype).
+        """
+        Return a geometry tuple from the given atom positions
+        (ignoring our actual atom positions but using our actual 
+        atomtypes/bondtype).
         Correct for either absolute or mol-relative positions
         (return value will be in same coordinate system as arg positions).
         """
@@ -1171,9 +1255,12 @@ class Bond(BondBase, StateMixin):
         return a1pos, c1, center, c2, a2pos, toolong
     
     def __getattr__(self, attr): # Bond.__getattr__ #bruce 041104; totally revised 050516
-        """Return attributes related to bond geometry, recomputing them if they
+        """
+        Return attributes related to bond geometry, recomputing them if they
         are not stored or if the stored ones are no longer valid.
-           For all other attr names, raise an AttributeError (quickly, for __xxx__ names).
+        
+        For all other attr names, raise an AttributeError 
+        (quickly, for __xxx__ names).
         """
         try:
             return BondBase.__getattr__(self, attr)
@@ -1217,7 +1304,8 @@ class Bond(BondBase, StateMixin):
     # ==
     
     def get_pi_info(self, **kws): #bruce 050718
-        """Return the pi orbital orientation/occupancy info for this bond, if any [#doc the format], or None
+        """
+        Return the pi orbital orientation/occupancy info for this bond, if any [#doc the format], or None
         if this is a single bond (which is not always a bug, e.g. in -C#C- chains, if we someday extend the
         subrs this calls to do any bond inference -- presently they just trust the existing bond order, self.v6).
            This info might be computed, and perhaps stored, or stored info might be used. It has to be computed
@@ -1231,20 +1319,24 @@ class Bond(BondBase, StateMixin):
         return bond_get_pi_info(self, **kws) # no need to pass an index -- that method can find one on self if it stored one
     
     def potential_pi_bond(self): #bruce 050718
-        "given our atomtypes, are we a potential pi bond?"
+        """
+        Given our atomtypes, are we a potential pi bond?
+        """
         return self.atom1.atomtype.spX < 3 and self.atom2.atomtype.spX < 3
     
     # ==
     
     def other(self, atm):
-        """Given one atom the bond is connected to, return the other one
+        """
+        Given one atom the bond is connected to, return the other one
         """
         if self.atom1 is atm: return self.atom2
         assert self.atom2 is atm #bruce 041029
         return self.atom1
 
     def othermol(self, mol): #bruce 041123; not yet used or tested
-        """Given the molecule of one atom of this bond, return the mol
+        """
+        Given the molecule of one atom of this bond, return the mol
         of the other one. Error if mol is not one of the bonded mols.
         Note that this implies that for an internal bond within mol,
         the input must be mol and we always return mol.
@@ -1259,7 +1351,8 @@ class Bond(BondBase, StateMixin):
         pass
     
     def ubp(self, atom):
-        """unbond point (atom must be one of the bond's atoms)
+        """
+        unbond point (atom must be one of the bond's atoms)
         [Note: this is used to make replacement
         singlets in atom.unbond and atom.kill methods, even if they'll be
         discarded right away as all atoms in some big chunk are killed 1 by 1.]
@@ -1323,7 +1416,8 @@ class Bond(BondBase, StateMixin):
         return x1, x2 # retval is new feature, bruce 041222
 
     def rebond(self, old, new):
-        """Self is a bond between old (typically a singlet) and some atom A;
+        """
+        Self is a bond between old (typically a singlet) and some atom A;
         replace old with new in this same bond (self),
         so that old no longer bonds to A but new does.
            The bond-valence of self is not used or changed, even if it would be
@@ -1448,7 +1542,8 @@ class Bond(BondBase, StateMixin):
 ##        return
         
     def draw(self, glpane, dispdef, col, level, highlighted = False, bool_fullBondLength = False): #bruce 050727 moving implem to separate file
-        """Draw the bond. Note that for external bonds, this is called twice,
+        """
+        Draw the bond. Note that for external bonds, this is called twice,
         once for each bonded molecule (in arbitrary order)
         (and is never cached in either mol's display list);
         each of these calls gets dispdef, col, and level from a different mol.
@@ -1489,7 +1584,8 @@ class Bond(BondBase, StateMixin):
         return self.atom1.atomtype.permits_v6(v6) and self.atom2.atomtype.permits_v6(v6)
 
     def draw_in_abs_coords(self, glpane, color, bool_fullBondLength = False): #bruce 050609
-        """Draw this bond in absolute (world) coordinates (even if it's an internal bond),
+        """
+        Draw this bond in absolute (world) coordinates (even if it's an internal bond),
         using the specified color (ignoring the color it would naturally be drawn with).
            This is only called for special purposes related to mouseover-highlighting,
         and should be renamed to reflect that, since its behavior can and should be specialized
@@ -1541,7 +1637,10 @@ class Bond(BondBase, StateMixin):
         pass
     
     def writepov(self, file, dispdef, col): #bruce 050727 moving implem to separate file; 050730 fixed bug in this method's name
-        "Write this bond to a povray file (always using absolute coords, even for internal bonds)."
+        """
+        Write this bond to a povray file (always using absolute coords, 
+        even for internal bonds).
+        """
         from bond_drawer import writepov_bond
         writepov_bond(self, file, dispdef, col)
         return
@@ -1567,8 +1666,9 @@ class Bond(BondBase, StateMixin):
     # ==
 
     def bond_menu_section(self, quat = Q(1,0,0,0)): #bruce 050705 (#e add options??)
-        """Return a menu_spec subsection for displaying info about a highlighted bond,
-        changing its bond_type, offering commands about it, etc.
+        """
+        Return a menu_spec subsection for displaying info about a highlighted
+        bond, changing its bond_type, offering commands about it, etc.
         If given, use the quat describing the rotation used for displaying it
         to order the atoms in the bond left-to-right (e.g. in text strings).
         """
@@ -1588,9 +1688,10 @@ register_class_changedicts( Bond, _Bond_global_dicts )
 # some more bond-related functions
 
 def grow_bond_chain(bond, atom, next_bond_in_chain): #bruce 070415; generalized from grow_pi_sp_chain
-    """Given a bond and one of its atoms, grow the bond chain containing bond
-    (of the kind defined by next_bond_in_chain, called on a bond and one of its atoms)
-    in the direction of atom,
+    """
+    Given a bond and one of its atoms, grow the bond chain containing bond
+    (of the kind defined by next_bond_in_chain, called on a bond and one of its
+    atoms) in the direction of atom,
     adding newly found bonds and atoms to respective lists (listb, lista) which we'll return,
     until the chain ends or comes back to bond and forms a ring
     (in which case return as much of the chain as possible, but not another ref to bond or atom).
