@@ -1046,17 +1046,28 @@ class Atom(AtomBase, InvalMixin, StateMixin):
 ##            # check minor groove using cross... how do we write "methods on patterns of atomtypes"? on pattern classes?
         return color
 
-    def _draw_atom_style(self): #bruce 070409 split this out of draw_atom_sphere; 070424 revised return value (None -> "")
+    # bruce 070409 split this out of draw_atom_sphere; 
+    # 070424 revised return value (None -> "")
+    def _draw_atom_style(self): 
         """
-        [private helper method for draw_atom_sphere, and perhaps related methods like draw_wirespheres]
+        [private helper method for L{draw_atom_sphere}, and perhaps related
+        methods like L{draw_wirespheres}]
 
-        Return a short hardcoded string (known to draw_atom_sphere) saying in what style to draw the atom's sphere.
-        Return value "" (not None) means to use an actual sphere; other values distinguish the special cases
-        encoded into draw_atom_sphere (and a few other calling methods).
+        Return a short hardcoded string (known to L{draw_atom_sphere}) saying
+        in what style to draw the atom's sphere.
+        
+        @return: Returns one of the following values:
+                 - "" (Not None) means to draw an actual sphere.
+                 - "arrowhead-in" means to draw a 5' arrowhead.
+                 - "arrowhead-out" means to draw a 3' arrowhead.
+                 - "do not draw" means don't draw anything.
+                 - "bondpoint-stub" means to draw a stub.
 
-        We check not only the desirability of the special cases, but all their correctness conditions,
-        making sure that those don't depend on the other parameters of draw_atom_sphere (like abs_coords),
-        and making it easier for draw_atom_sphere to fallback to its default style when those conditions fail.
+        @note: We check not only the desirability of the special cases, but all 
+        their correctness conditions, making sure that those don't depend on
+        the other parameters of L{draw_atom_sphere} (like abs_coords),
+        and making it easier for L{draw_atom_sphere} to fallback to its default 
+        style when those conditions fail.
         """
 
         # WARNING: various routines make use of this return value in different ways,
@@ -1071,17 +1082,17 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             # note: as of mark 071014, this can happen for self being a Singlet
             bond = self.strand_end_bond()
             if bond is not None:
-                direction = bond.bond_direction_from(self)
-                # ninad070504: added the bond arrows preferences to Preferences dialog. 
-                # using this preference key instead of debug preference.
                 bool_arrowsOnFivePrimeEnds = env.prefs[arrowsOnFivePrimeEnds_prefs_key]
-                
                 bool_arrowsOnThreePrimeEnds = env.prefs[arrowsOnThreePrimeEnds_prefs_key]
-                
-                if direction == 1 and bool_arrowsOnFivePrimeEnds:
+                # Determine how singlets of strand open bonds should be drawn.
+                # draw_bond_main() takes care of drawing bonds accordingly.
+                # - mark 2007-10-20.
+                if bond.isFivePrimeOpenBond() & bool_arrowsOnFivePrimeEnds:
                     return 'arrowhead-in'
-                if direction == -1 and bool_arrowsOnThreePrimeEnds:
+                elif bond.isThreePrimeOpenBond() & bool_arrowsOnThreePrimeEnds:
                     return 'arrowhead-out'
+                else:
+                    return 'do not draw'
                 #e REVIEW: does Bond.draw need to be updated due to this, if "draw bondpoints as stubs" is True?
                 #e REVIEW: Do we want to draw even an isolated Pe (with bondpoint) as a cone, in case it's in MMKit,
                 #  since it usually looks like a cone when it's correctly used? Current code won't do that.
@@ -1241,6 +1252,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         "#doc [dispdef can be None if not known to caller]"
         #bruce 060630 split this out for sharing with draw_in_abs_coords
         style = self._draw_atom_style()
+        if style == 'do not draw':
+            return
         if style == 'bondpoint-stub':
             #bruce 060629/30 experiment -- works, incl for highlighting,
             # and even fixes the bondpoint-buried-in-big-atom bugs,

@@ -71,6 +71,8 @@ from prefs_constants import _default_toolong_hicolor ## not yet in prefs db
 from prefs_constants import diBALL_BondCylinderRadius_prefs_key
 from prefs_constants import pibondLetters_prefs_key
 from prefs_constants import pibondStyle_prefs_key
+from prefs_constants import arrowsOnFivePrimeEnds_prefs_key
+from prefs_constants import arrowsOnThreePrimeEnds_prefs_key
 from prefs_constants import arrowsOnBackBones_prefs_key
 from prefs_constants import showBondStretchIndicators_prefs_key
 from prefs_constants import linesDisplayModeThickness_prefs_key
@@ -288,7 +290,23 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, povfile = None,
                 # [bruce 070415]
                 # update, bruce 071016: could it have been simply that debug_prefs are not change_tracked?
                 # I am not sure, but IIRC, they're not.
-    
+            
+            bool_arrowsOnFivePrimeEnds = env.prefs[arrowsOnFivePrimeEnds_prefs_key]
+            bool_arrowsOnThreePrimeEnds = env.prefs[arrowsOnThreePrimeEnds_prefs_key]
+            
+            # Determine whether cylinders of strand open bonds should be draw.
+            # Atom._draw_atom_style() takes care of drawing singlets as 
+            # arrowheads (or not drawing them at all) based on these 
+            # two user prefs. - mark 2007-10-20.
+            if self.isFivePrimeOpenBond():
+                if not bool_arrowsOnFivePrimeEnds:
+                    # Don't draw bond 5' open bond cylinder.
+                    return
+            if self.isThreePrimeOpenBond():
+                if not bool_arrowsOnThreePrimeEnds:
+                    # Don't draw bond 3' open bond cylinder.
+                    return
+                
             bool_arrowsOnAll = env.prefs[arrowsOnBackBones_prefs_key]
 
             if bool_arrowsOnAll:
