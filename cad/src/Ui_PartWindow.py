@@ -221,19 +221,22 @@ class PartWindow(QWidget):
 	self.parent.glpane.gl_update_confcorner() #bruce 070627, since PM affects confcorner appearance
 	
 	if self.propertyManagerScrollArea.widget():
-	    #The following is necessary to get rid of those c object deleted errors (and the resulting bugs)
+	    #The following is necessary to get rid of those C object deleted errors (and the resulting bugs)
 	    lastwidgetobject = self.propertyManagerScrollArea.takeWidget() 
 	    if lastwidgetobject:
+                #bruce 071018 revised this code; see my comment on same code in PM_Dialog
 		try:
-		    lastwidgetobject.update_props_if_needed_before_closing()
-		except:
-		    if platform.atom_debug:
-			msg1 = "Last PropMgr doesn't have method"
+		    lastwidgetobject.update_props_if_needed_before_closing
+		except AttributeError:
+		    if 1 or platform.atom_debug:
+			msg1 = "Last PropMgr %r doesn't have method" % lastwidgetobject
 			msg2 =" update_props_if_needed_before_closing. That's"
-			msg3 = " OK (for now,only implemented for Plane PM)"
+			msg3 = " OK (for now, only implemented for Plane PM). "
 			msg4 = "Ignoring Exception"
 			print_compact_traceback(msg1 + msg2 + msg3 + msg4)
-					    
+                else:
+                    lastwidgetobject.update_props_if_needed_before_closing()
+
 	    lastwidgetobject.hide() # @ ninad 061212 perhaps hiding the widget is not needed
 	       
 	self.featureManager.removeTab(self.featureManager.indexOf(self.propertyManagerScrollArea))

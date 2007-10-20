@@ -188,23 +188,40 @@ class PM_Dialog( QDialog, SponsorableMixin ):
             self.pw = self.win.activePartWindow() 
         self.pw.featureManager.setCurrentIndex(0)
         
+        ## try: [bruce 071018 moved this lower, since errmsg only covers attr]
+        pmWidget = self.pw.propertyManagerScrollArea.widget()
+        if platform.atom_debug: #bruce 071018
+            "atom_debug fyi: %r is closing %r (can they differ?)" % \
+                        (self, pmWidget)
         try:
-            pmWidget = self.pw.propertyManagerScrollArea.widget()
-            pmWidget.update_props_if_needed_before_closing()
-            
-        except:
-            if platform.atom_debug:
-                msg1 = "Last PropMgr doesn't have method"
+            pmWidget.update_props_if_needed_before_closing
+        except AttributeError:
+            if 1 or platform.atom_debug:
+                msg1 = "Last PropMgr %r doesn't have method" % pmWidget
                 msg2 = " update_props_if_needed_before_closing. That's"
-                msg3 = " OK (for now,only implemented for Plane PM)"
+                msg3 = " OK (for now, only implemented for Plane PM). "
                 msg4 = "Ignoring Exception"
                 print_compact_traceback(msg1 + msg2 + msg3 + msg4)
-        
+                #bruce 071018: I'll define that method in PM_Dialog
+                # so this message should become rare or nonexistent,
+                # so I'll make it happen whether or not atom_debug.
+        else:
+            pmWidget.update_props_if_needed_before_closing()
+                    
         self.pw.featureManager.removeTab(
             self.pw.featureManager.indexOf(self.pw.propertyManagerScrollArea))
         
         if self.pw.propertyManagerTab:
             self.pw.propertyManagerTab = None
+
+    def update_props_if_needed_before_closing(self):
+        # bruce 071018 default implem
+        """
+        Subclasses can override this to update some cosmetic properties
+        of their associated model objects before closing self
+        (the Property Manager).
+        """
+        pass
         
     def _createHeader(self, iconPath, title):
         """
