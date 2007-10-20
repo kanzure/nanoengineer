@@ -521,11 +521,9 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
         @return: The new chunk.
         @rtype:  L{molecule}
         
+        @deprecated: use ops_rechunk.makeChunkFromAtomsList() instead.
+        
         """
-        
-        # ninad070426 : this may be moved to ops_rechunk.py
-        
-        # see also: ops_rechunk.makeChunkFromAtoms
         if not atomList:
             print "bug in creating chunks from the given atom list"
             return
