@@ -35,7 +35,7 @@ History:
   Motivation is to make it simpler to rewrite high-frequency methods in Pyrex. 
 
 """
-__author__ = "Josh"
+__author__ = "Bruce"
 
 import math
 import string
@@ -2558,7 +2558,57 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             # even if this can vary for different bonds to it (for the atomtype it has)
         newlen = my_atype.rcovalent + its_atype.rcovalent #k Singlet.atomtypes[0].rcovalent better be 0, check this
         return it + newlen * it_to_me_direction
+    
+    def adjustSinglet(self, minimize = False): # Mark 2007-10-21. 
+        """
+        Adjust this singlet. Real atoms are not adjusted.
         
+        Two methods of adjusting a singlet are included here:
+        
+        1. Hydrogenate the singlet, then transmute it back to a singlet
+        (default). Singlet positions are much better after this, but
+        they are not in their optimal location.
+           
+        2. Hydrogenate the singlet, then call the simulator via the 
+        L{LocalMinimize_Function} to adjust (minimize) the hydrogen atom, then
+        tranmute the hydrogen back to a singlet. Singlet positions are best
+        after using this method, but it has one major drawback -- it
+        redraws while minimizing. This is a minor problem when breaking 
+        strands, but is intolerable in the DNA duplex generator (which adjusts
+        open bond singlets in its postProcess method.
+        
+        @param minimize: If True, use the minimizer to adjust the singlet
+                         (see method 2 description above).
+        @type  minimize: bool
+                        
+        @note: Code copied from selectMode.localmin(). Mark 2007-10-21.
+        
+        @warning: Bruce has concerns about running the minimizer from a method
+                  inside the L{Atom} class, so don't use adjustSinglet() until 
+                  we've talked and this warning has been removed! I'm doing some 
+                  testing with this since it seems to work well for my special
+                  purpose (i.e. adjusting open bond singlets (for strands).
+                  -- Mark 2007-10-21.
+                  
+        @see: L{Hydrogenate} for details about how we are using it to
+              reposition singlets (via method 1 mentioned above).
+        """
+        
+        if not self.is_singlet(): # Only adjusts singlets.
+            return
+        
+        self.Hydrogenate()
+        if minimize:
+            msg = "ATTENTION: Using minimizer to adjust open bond singlets."
+            env.history.message( orangemsg(msg) )
+            # Singlet is repositioned properly using minimize.
+            # The problem is that this redraws while running. Don't want that!
+            # Talk to Bruce and Eric M. about it. Mark 2007-10-21.
+            from runSim import LocalMinimize_function
+            LocalMinimize_function( [self], nlayers = 0 )
+        self.Transmute(Singlet)
+        return
+    
     def Dehydrogenate(self):
         """[Public method; does all needed invalidations:]
         If this is a hydrogen atom (and if it was not already killed),
@@ -2853,58 +2903,105 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         print "atom.update_everything() does nothing"
         return
 
-    def Transmute(self, elt, force = False, atomtype = None): #bruce 050511 added atomtype arg  ###@@@ callers should pass atomtype
-        ###@@@ review semantics/docstring for atomtype
-        """[Public method, does all needed invalidations:]
-        If this is a real atom, change its element type to elt (not Singlet),
-        and its atomtype to the atomtype object passed,
-        or if none is passed to elt's default atomtype or self's existing one (not sure which!###@@@) --
-        no, to the best one given the number of real bonds, or real and open bonds [maybe? 050707] --
-        and replace its bondpoints (if any) with new ones (if any are needed)
-        to match the desired number of bonds for the new element/atomtype.
-        [As of 050511 before atomtype arg added, new atom type is old one if elt is same and
-         old one already correct, else is default atom type. This needs improvement. ###@@@]
+    #bruce 050511 added atomtype arg  ###@@@ callers should pass atomtype
+    def Transmute(self, elt, force = False, atomtype = None): 
+        """        
+        Transmutes atom into a different element.
+        
+        If this is a real atom, change its element type to I{elt} and its 
+        atomtype to the I{atomtype} object passed, or if None is passed to 
+        elt's default atomtype or self's existing one (not sure which!###@@@) --
+        no, to the best one given the number of real bonds, or real and open
+        bonds [maybe? 050707] -- and replace its bondpoints (if any) with new
+        ones (if any are needed) to match the desired number of bonds for the
+        new element/atomtype.
+        
+        If self is a singlet, don't transmute it unless I{force} is True.
+        
+        [As of 050511 before atomtype arg added, new atom type is old one if
+        elt is same and old one already correct, else is default atom type. 
+        This needs improvement. ###@@@]
+        
         Never remove real bonds, even if there are too many. Don't change
         bond lengths (except to replaced bondpoints) or atom positions.
         If there are too many real bonds for the new element type, refuse
         to transmute unless force is True.
+        
+        @param elt: The new element to transmute this atom into. If self is 
+                    a singlet, don't tranmute it unless I{force} is True.
+        @type  elt: L{Elem}
+        
+        @param force: If there are too many real bonds for the new element 
+                      type, refuse to transmute unless force is True.
+        @type  force: bool
+        
+        @param atomtype: The atomic hybrid of the element to transmute to.
+                         If None (the default), the default atomtype is
+                         assumed for I{elt}.
+        @type  atomtype: L{AtomType}
+        
+        @note: Does all needed invalidations.
+        
+        @attention: This method begins with a capital letter. So that it 
+                    conforms to our coding standards, I will renaming it
+                    to transmute() in the near future (and fixing callers).
+                    This docstring needs to be reviewed by Bruce. Here is a
+                    note to himself I moved here:
+                    "###@@@ review semantics/docstring for atomtype"
+                    
+                    - Mark 2007-10-21
         """
-        if self.element is Singlet:
-            # does this ever happen? #k
+        
+        # New feature as of 2007-10-21: 
+        #   Allow singlets to be transmuted iff force is set to True.
+        if self.element is Singlet and not force:
             return
         if atomtype is None:
-            if self.element is elt and len(self.bonds) == self.atomtype.numbonds:
+            if self.element is elt and \
+               len(self.bonds) == self.atomtype.numbonds:
                 ## this code might be used if we don't always return due to bond valence: ###@@@
                 ## atomtype = self.atomtype # use current atomtype if we're correct for it now, even if it's not default atomtype
-                return # since elt and desired atomtype are same as now and we're correct
+                # return since elt and desired atomtype are same as now and
+                # we're correct
+                return 
             else:
                 ## atomtype = elt.atomtypes[0] # use default atomtype of elt
                 ##print "transmute picking this dflt atomtype", atomtype
-                #bruce 050707: use the best atomtype for elt, given the number of real and open bonds
+                #bruce 050707: use the best atomtype for elt, given the number
+                # of real and open bonds
                 atomtype = self.reguess_atomtype(elt)
         assert atomtype.element is elt
         # in case a specific atomtype was passed or the default one was chosen,
-        # do another check to return early if requested change is a noop and our bond count is correct
-        if self.element is elt and self.atomtype is atomtype and len(self.bonds) == atomtype.numbonds:
-            # leave existing bondpoint positions alone in this case -- not sure this is best! ###@@@ #e review
+        # do another check to return early if requested change is a noop and 
+        # our bond count is correct
+        if self.element is elt and \
+           self.atomtype is atomtype and \
+           len(self.bonds) == atomtype.numbonds:
+            # leave existing bondpoint positions alone in this case 
+            # -- not sure this is best! ###@@@ #e review
             ##print "transmute returning since noop to change to these: %r %r" % (elt, atomtype)
             return
         # now we're committed to changing things
         nbonds = len(self.realNeighbors()) ###@@@ should also consider the bond-valence to them...
         if nbonds > atomtype.numbonds:
-            # transmuting would break valence rules [###@@@ should instead use a different atomtype, if possible!]
+            # transmuting would break valence rules 
+            # [###@@@ should instead use a different atomtype, if possible!]
             ###@@@ but a more normal case for using different one is if existing bond *valence* is too high...
-            # note: this msg (or msg-class, exact text can vary) can get emitted too many times in a row.
+            # note: this msg (or msg-class, exact text can vary) can get 
+            # emitted too many times in a row.
             name = atomtype.fullname_for_msg()
             if force:
-                msg = "warning: Transmute broke valence rules, made (e.g.) %s with %d bonds" % (name, nbonds)
+                msg = "warning: Transmute broke valence rules, " \
+                    "made (e.g.) %s with %d bonds" % (name, nbonds)
                 env.history.message( orangemsg(msg) )
                 # fall through
             else:
-                msg = "warning: Transmute refused to make (e.g.) a %s with %d bonds" % (name, nbonds)
+                msg = "warning: Transmute refused to make (e.g.)" \
+                    " a %s with %d bonds" % (name, nbonds)
                 env.history.message( orangemsg(msg) )
                 return
-        # in all other cases, do the change (even if it's a noop) and also replace all bondpoints with 0 or more new ones
+        # in all other cases, do the change (even if it's a noop) and also
+        # replace all bondpoints with 0 or more new ones
         self.direct_Transmute( elt, atomtype)
         return
 
