@@ -64,7 +64,7 @@ from constants import ADD_TO_SELECTION
 from constants import START_NEW_SELECTION
 from constants import DELETE_SELECTION
 
-from constants import black
+from constants import gensym, black, purple
 
 from modes import basicMode
 
@@ -1448,7 +1448,7 @@ class selectMode(basicMode):
         selobj = self.o.selobj
         if isinstance( selobj, Bond) and not selobj.is_open_bond():
             if selobj.isStrandBond(): 
-                self.makeNewStrandChunkFromBreak(selobj)
+                
                 msg = "breaking strand %s" % selobj.getStrandName()
             else:
                 msg = "breaking bond %s" % selobj
@@ -1459,53 +1459,47 @@ class selectMode(basicMode):
                 # without this, the bond remains highlighted 
                 # even after it's broken (visible if it's toolong)
                 ###e shouldn't we use set_selobj instead?? [bruce 060726 question]
-            selobj.bust() 
+            x1, x2 = selobj.bust() 
                 # this fails to preserve the bond type on the open bonds 
                 # -- not sure if that's bad, but probably it is
+
+            # Is this a fragile test after bust()? 
+            # It works, but ask Bruce. - Mark 2007-10-21
+            if selobj.isStrandBond(): 
+                self.makeStrandChunkFromBrokenStrand(x1, x2)
+
             self.set_cmdname('Delete Bond')
             self.o.assy.changed() #k needed?
             self.w.win_update() #k wouldn't gl_update be enough? [bruce 060726 question]
-
-    # This should be moved to ops_rechunk.py or to one of the new 
-    # DNA data model files. Mark 2007-10-19
-    def makeNewStrandChunkFromBreak(self, brokenBond):
+    
+    def makeStrandChunkFromBrokenStrand(self, x1, x2):
         """
-        Create a new strand chunk from a break in the original strand, and
-        assign it a new name and color. The new strand chunk will contain
-        the atoms on the 3' side of the break (broken bond). The atoms on 
-        the 5' side of the broken bond will remain in the original strand
-        chunk.
+        Makes a new strand chunk from the two singlets just created by
+        busting the original strand, which is now broken.
         
-        @param brokenBond: The broken bond (aka the break). It is always a 
-                           PAM3 strand bond that has been (or will be) busted.
-        @type  brokenBond: L{Bond}
+        The new strand chunk is added to the same DNA group as the original
+        strand and assigned a different color.
         
-        @note: The caller is responsible for busting I{brokenBond}. It is 
-               safer to call this before the bond is busted.
+        @param x1: The first of two singlets created by busting a strand
+                   backbone bond. It is either the 3' or 5' open bond singlet,
+                   but we don't know yet.
+        @type  x1: L{Atom}
+        
+        @param x2: The second of two singlets created by busting a backbone
+                   backbone bond. It is either the 3' or 5' open bond singlet,
+                   but we don't know yet.
+        @type  x2: L{Atom}
         """
-        assert brokenBond.is_directional()
-        
-        b = brokenBond
-        a = b.atom1 # we really need the atom on the 5' side of b.
-        atomList = [] # the list of atoms that will make the new strand chunk
-        
-        while a.element.symbol in ('Ss3', 'Sj3'):
-            print "Adding atom '%s' to atomList" % a.element.symbol
-            atomList.append(a)
-            for other_bond in a.bonds:
-                if other_bond is b:
-                    continue
-                if other_bond.is_directional():
-                    if a.is_singlet():
-                        continue
-                    a2 = other_bond.other(a)
-                    a = a2
-                    print "The next atom 'a' is a:", a.element.symbol
-                    b = other_bond
-                
-        print "Atoms in new strand chunk:", atomList
-        
-        #self.o.assy.makeChunkFromAtomList(atomList, name = "Strand3")
+        for singlet in (x1, x2):
+            open_bond = singlet.bonds[0]
+            if open_bond.isFivePrimeOpenBond():
+                five_prime_atom = open_bond.other(singlet)
+                atomList = self.o.assy.getConnectedAtoms([five_prime_atom])
+                dnaGroup = five_prime_atom.molecule.dad
+                self.o.assy.makeChunkFromAtomList(atomList,
+                                                  group = dnaGroup,
+                                                  name = gensym("Strand"), 
+                                                  color = purple)
         
     def bondDrag(self, obj, event):
         # [bruce 060728 added obj arg, for uniformity; probably needed even more in other Bond methods ##e]

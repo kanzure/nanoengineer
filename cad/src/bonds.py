@@ -866,16 +866,35 @@ class Bond(BondBase, StateMixin):
     
     def isStrandBond(self):
         """
-        Returns True if this bond is a DNA (backbone) bond.
+        Checks if this bond is a DNA (backbone) bond.
+        
+        @return: True if this bond is a DNA (backbone) bond. 
+                 Otherwise, returns False.
         
         @note: This function is identical to L{is_directional} and is provided
                for convenience.
         """
         return self.is_directional()
     
+    def isStrandOpenBond(self):
+        """
+        Checks if this bond is a DNA (backbone) open bond. An open bond
+        is a strand bond that has a singlet as one of its atoms.
+        
+        @return: True if this bond is a DNA (backbone) open bond.
+                 Otherwise, returns False.
+        @rtype:  bool
+        """
+        if self.isStrandBond():
+            return self.is_open_bond()
+        return False
+        
     def isThreePrimeOpenBond(self):
         """
-        Returns True if this is a 3' open bond.
+        Checks if this is a 3' open bond.
+        
+        @return: True if this is a 3' open bond. 
+                 Otherwise, returns False.
         """
         if self.isStrandBond():
             for atom in (self.atom1, self.atom2):
@@ -896,6 +915,18 @@ class Bond(BondBase, StateMixin):
                     if direction == 1:
                         return True
         return False
+    
+    def getStrandThreePrimeAtom(self):
+        """
+        Returns the 3' atom (i.e. a Ss3 atom and never a singlet) belonging to
+        the strand this bond is a member of.
+        
+        @return: The 3' atom of this bond's strand. Returns None if this
+                 bond is not a strand bond.
+                 
+        @exception: If this is a strand bond, but there is no 3' atom.
+        """
+        
                     
     #- end of DNA bond helper functions ----------------------------
     

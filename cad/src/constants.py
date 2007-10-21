@@ -199,6 +199,7 @@ black =  (0.0, 0.0, 0.0)
 blue =   (0.0, 0.0, 0.6)
 aqua =   (0.15, 1.0, 1.0)
 orange = (1.0, 0.25, 0.0)
+darkorange = (6.0, 0.3, 0.0)
 red =    (1.0, 0.0, 0.0)
 yellow = (1.0, 1.0, 0.0)
 green =  (0.0, 1.0, 0.0)
@@ -207,11 +208,26 @@ magenta = (1.0, 0.0, 1.0)
 white =  (1.0, 1.0, 1.0)
 lightgray = (0.8, 0.8, 0.8)
 gray =   (0.5, 0.5, 0.5)
+darkgray = (0.3, 0.3, 0.3)
 navy =   (0.0, 0.09, 0.44)
 darkred = (0.6, 0.0, 0.2) 
-violet = (0.6, 0.1, 0.9) # Will change this to purple later.  Mark 050730
-purple = violet #bruce 061016, just so this color name is defined -- if you have better rgb values, feel free to modify it
-pink = (0.8, 0.4, 0.4) #bruce 050610 darkened this and called it 'pink'; old value was (1.0, 0.5, 0.5), called LEDon
+violet = (0.6, 0.1, 0.9)
+purple = (0.4, 0.0, 0.6)
+pink = (0.8, 0.4, 0.4) 
+olive = (0.3, 0.3, 0.0)
+steelblue = (0.3, 0.4, 0.5)
+brass = (0.5, 0.5, 0.0)
+copper = (0.3, 0.3, 0.1)
+
+# strandColorList is used for assigning a color to a new strand 
+# when created by breaking an existing strand. 
+# Do not use the following colors in strandColorList: 
+#   - black (reserved as a default color for scaffold strand)
+#   - yellow (used for hover highlighting)
+#   - red (used as delete highlight color)
+#   - green (reserved for selection color)
+strandColorList = [purple, darkorange, olive, darkgray, copper, 
+                   steelblue, brass, navy, darkred]
 
 #ninad20060922 using it while drawing origin axis
 lightblue = ave_colors(0.03, white, blue) 
@@ -222,10 +238,6 @@ lightblue = ave_colors(0.03, white, blue)
 brown = ave_colors(0.5, black, yellow) 
                          
 bluesky = (0.9, 0.9, 0.9), (0.9, 0.9, 0.9), (0.33, 0.73, 1.0), (0.33, 0.73, 1.0) # GLPane "Blue Sky" gradient
-
-###bruce 061016 removed these, changed remaining uses of LEDon to pink:
-##LEDoff = (0.8, 0.0, 0.0)
-##LEDon = pink
 
 PickedColor = (0.0, 0.0, 1.0)
 ErrorPickedColor = (1.0, 0.0, 0.0) #bruce 041217 (used to indicate atoms with wrong valence, etc)

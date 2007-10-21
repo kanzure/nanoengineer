@@ -1661,6 +1661,14 @@ class depositMode(selectAtomsMode):
                             self.set_cmdname('Deposit ' + deposited_obj)
             else: # A different singlet is highlighted...
                 # ... so bond the highlighted singlet <s2> to the first singlet <s1>
+                open_bond1 = s1.bonds[0]
+                open_bond2 = s2.bonds[0]
+                if open_bond1.isThreePrimeOpenBond and open_bond2.isFivePrimeOpenBond():
+                    a1 = open_bond1.other(s1) # 3' atom
+                    a2 = open_bond2.other(s2) # 5' atom
+                    # Merge a2 chunk with a1 chunk. 
+                    # a2 chunk inherits color from a1 chunk.
+                    a1.molecule.merge(a2.molecule) 
                 self.bond_singlets(s1, s2)
                 self.set_cmdname('Create Bond')
                 self.o.gl_update()
