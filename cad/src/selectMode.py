@@ -25,7 +25,6 @@ but not changing how old dragging code works.]
 """
 import sys
 import os
-import random
 import Numeric
 from Numeric import dot
 
@@ -65,7 +64,7 @@ from constants import ADD_TO_SELECTION
 from constants import START_NEW_SELECTION
 from constants import DELETE_SELECTION
 
-from constants import gensym, black, strandColorList
+from constants import black
 
 from modes import basicMode
 
@@ -1467,47 +1466,11 @@ class selectMode(basicMode):
             # Is this a fragile test after bust()? 
             # It works, but ask Bruce. - Mark 2007-10-21
             if selobj.isStrandBond(): 
-                self.makeStrandChunkFromBrokenStrand(x1, x2)
+                self.o.assy.makeStrandChunkFromBrokenStrand(x1, x2)
 
             self.set_cmdname('Delete Bond')
             self.o.assy.changed() #k needed?
             self.w.win_update() #k wouldn't gl_update be enough? [bruce 060726 question]
-    
-    def makeStrandChunkFromBrokenStrand(self, x1, x2):
-        """
-        Makes a new strand chunk from the two singlets just created by
-        busting the original strand, which is now broken.
-        
-        The new strand chunk is added to the same DNA group as the original
-        strand and assigned a different color.
-        
-        @param x1: The first of two singlets created by busting a strand
-                   backbone bond. It is either the 3' or 5' open bond singlet,
-                   but we don't know yet.
-        @type  x1: L{Atom}
-        
-        @param x2: The second of two singlets created by busting a backbone
-                   backbone bond. It is either the 3' or 5' open bond singlet,
-                   but we don't know yet.
-        @type  x2: L{Atom}
-        """
-        minimize = debug_pref("Adjust open bond singlets using minimizer?",
-                         Choice_boolean_False,
-                         prefs_key = '_debug_pref_key:Adjust open bond singlets using minimizer?',
-                         non_debug = True )
-        
-        for singlet in (x1, x2):
-            singlet.adjustSinglet(minimize = minimize)
-            open_bond = singlet.bonds[0]
-            if open_bond.isFivePrimeOpenBond():
-                five_prime_atom = open_bond.other(singlet)
-                atomList = self.o.assy.getConnectedAtoms([five_prime_atom])
-                dnaGroup = five_prime_atom.molecule.dad
-                random.shuffle(strandColorList) # Randomize strandColorList
-                self.o.assy.makeChunkFromAtomList(atomList,
-                                                  group = dnaGroup,
-                                                  name = gensym("Strand"), 
-                                                  color = strandColorList[0])
         
     def bondDrag(self, obj, event):
         # [bruce 060728 added obj arg, for uniformity; probably needed even more in other Bond methods ##e]

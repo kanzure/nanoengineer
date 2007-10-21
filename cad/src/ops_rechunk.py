@@ -15,8 +15,10 @@ bruce 050913 used env.history in some places.
 from utilities.Log import greenmsg, redmsg
 from PlatformDependent import fix_plurals
 from chunk import molecule
-from constants import gensym
+from constants import gensym, strandColorList
 import env
+import random
+from debug_prefs import debug_pref, Choice_boolean_False
 
 class ops_rechunk_Mixin:
     """
@@ -220,6 +222,42 @@ class ops_rechunk_Mixin:
         
         return newChunk 
 
+    def makeStrandChunkFromBrokenStrand(self, x1, x2):
+        """
+        Makes a new strand chunk from the two singlets just created by
+        busting the original strand, which is now broken.
+        
+        The new strand chunk is added to the same DNA group as the original
+        strand and assigned a different color.
+        
+        @param x1: The first of two singlets created by busting a strand
+                   backbone bond. It is either the 3' or 5' open bond singlet,
+                   but we don't know yet.
+        @type  x1: L{Atom}
+        
+        @param x2: The second of two singlets created by busting a backbone
+                   backbone bond. It is either the 3' or 5' open bond singlet,
+                   but we don't know yet.
+        @type  x2: L{Atom}
+        """
+        minimize = debug_pref("Adjust open bond singlets using minimizer?",
+                         Choice_boolean_False,
+                         prefs_key = '_debug_pref_key:Adjust open bond singlets using minimizer?',
+                         non_debug = True )
+        
+        for singlet in (x1, x2):
+            singlet.adjustSinglet(minimize = minimize)
+            open_bond = singlet.bonds[0]
+            if open_bond.isFivePrimeOpenBond():
+                five_prime_atom = open_bond.other(singlet)
+                atomList = self.o.assy.getConnectedAtoms([five_prime_atom])
+                dnaGroup = five_prime_atom.molecule.dad
+                random.shuffle(strandColorList) # Randomize strandColorList
+                self.makeChunkFromAtomList(atomList,
+                                           group = dnaGroup,
+                                           name = gensym("Strand"), 
+                                           color = strandColorList[0])
+                
     pass # end of class ops_rechunk_Mixin
 
 # end
