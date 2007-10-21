@@ -112,12 +112,11 @@ class ops_select_Mixin:
         return selected_movables
 
     def selectAll(self):
-        """Select all parts if nothing selected.
-        If some parts are selected, select all atoms in those parts.
-        If some atoms are selected, select all atoms in the parts
-        in which some atoms are selected.
-        [bruce 050201 observes that this docstring is wrong.]
-        """ ###@@@
+        """
+        Select all atoms or all chunks, depending on the select mode.
+        
+        @note: The selection filter is applied if it is enabled.
+        """ 
         self.begin_select_cmd() #bruce 051031
         if self.selwhat == SELWHAT_CHUNKS:
             for m in self.molecules:
