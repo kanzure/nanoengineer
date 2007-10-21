@@ -96,6 +96,7 @@ class ops_rechunk_Mixin:
         env.history.message(cmd + msg)
         self.w.win_update() #e do this in callers instead?
 
+    
     #merge selected molecules together  ###@@@ no update -- does caller do it?? [bruce 050223]
     def merge(self):
         """
@@ -174,7 +175,11 @@ class ops_rechunk_Mixin:
         env.history.message(cmd + msg)
         self.w.win_update()
         
-    def makeChunkFromAtomList(self, atomList, name = None, color = None):
+    def makeChunkFromAtomList(self, 
+                              atomList, 
+                              name = None, 
+                              group = None,
+                              color = None):
         """
         Creates a new chunk from the given atom list.
         
@@ -183,6 +188,10 @@ class ops_rechunk_Mixin:
         
         @param name: Name of new chunk. If None, we'll assign one.
         @type  name: str
+        
+        @param group: The group to add the new chunk to. If None, the new chunk
+                      is added to the bottom of the model tree.
+        @type  group: L{Group}
         
         @param color: Color of new chunk. If None, no chunk color is assigned
                       (chunk atoms will be drawn in their element colors).
@@ -201,6 +210,11 @@ class ops_rechunk_Mixin:
             
         for a in atomList:
             a.hopmol(newChunk)
+        
+        if group:
+            group.addmember(newChunk)
+        else:
+            self.addmol(newChunk)
             
         newChunk.setcolor(color)
         
