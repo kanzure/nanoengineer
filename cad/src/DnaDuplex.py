@@ -333,27 +333,26 @@ class Dna:
                 elif atom.element.symbol in ('Ax3', 'Ae3'):
                     _axis_list.append(atom)
         
-        # Create strand and axis chunks from atom lists.
+        # Create strand and axis chunks from atom lists and add 
+        # them to the dnaGroup.
         strandAChunk = \
                      self.assy.makeChunkFromAtomList(_strandA_list,
-                                                     name = "Strand1",
+                                                     name = gensym("Strand"),
+                                                     group = dnaGroup,
                                                      color = darkred)
+
         strandBChunk = \
                      self.assy.makeChunkFromAtomList(_strandB_list,
-                                                     name = "Strand2",
+                                                     name = gensym("Strand"),
+                                                     group = dnaGroup,
                                                      color = blue)
 
         axisChunk = \
                   self.assy.makeChunkFromAtomList(_axis_list,
                                                   name = "Axis",
+                                                  group = dnaGroup,
                                                   color = lightgray)
-                
-        # Place strand and axis chunks nodes (in the MT)
-        # in this order: StrandA, StrandB, Axis.
-        dnaGroup.addmember(strandAChunk)
-        dnaGroup.addmember(strandBChunk)
-        dnaGroup.addmember(axisChunk)
-        
+
     def getBaseRise( self ):
         """
         Get the base rise (spacing) between base-pairs.
