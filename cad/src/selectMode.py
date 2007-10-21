@@ -1491,7 +1491,13 @@ class selectMode(basicMode):
                    but we don't know yet.
         @type  x2: L{Atom}
         """
+        minimize = debug_pref("Adjust open bond singlets using minimizer?",
+                         Choice_boolean_False,
+                         prefs_key = '_debug_pref_key:Adjust open bond singlets using minimizer?',
+                         non_debug = True )
+        
         for singlet in (x1, x2):
+            singlet.adjustSinglet(minimize = minimize)
             open_bond = singlet.bonds[0]
             if open_bond.isFivePrimeOpenBond():
                 five_prime_atom = open_bond.other(singlet)

@@ -554,6 +554,7 @@ class B_Dna_PAM3(B_Dna_PAM5):
         Final tweaks on the DNA chunk, including:
         
           - Transmute Ax3 atoms on each end into Ae3.
+          - Adjust open bond singlets.
         
         @param baseList: List of basepair chunks that make up the duplex.
         @type  baseList: list
@@ -571,9 +572,29 @@ class B_Dna_PAM3(B_Dna_PAM5):
             
         # Transmute Ax3 caps to Ae3 atoms.
         for atom in Ax_caps:
-            atom.Transmute(Element_Ae3)
+            atom.Transmute(Element_Ae3, force = True)
             atom.setDisplay(diBALL)
+            
+        X_List = filter( lambda atom: atom.element.symbol in ('X'), 
+                          start_basepair_atoms)
+        X_List += filter( lambda atom: atom.element.symbol in ('X'), 
+                           end_basepair_atoms)
         
+        if 0: # I'd like to enable this assertion. See my comments below. --Mark
+            x_number = len(X_List)
+            assert x_number == 4, \
+                   "Expected 4 singlets, but there are %d!" % x_number
+        
+        # Adjust open bond singlets.
+        for singlet in X_List:
+            # 2 extra (Ax3) singlets are hanging around (without bonds), 
+            # so I needed to add this conditional below before adjusting
+            # singlets (to skip them).
+            # I thought calling Transmute() would have deleted them, but they
+            # are still there. Ask Bruce about this. Mark 2007-10-21
+            if len(singlet.bonds):
+                singlet.adjustSinglet()
+            
         return
 
 class Z_Dna(Dna):
