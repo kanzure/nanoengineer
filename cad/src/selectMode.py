@@ -25,6 +25,7 @@ but not changing how old dragging code works.]
 """
 import sys
 import os
+import random
 import Numeric
 from Numeric import dot
 
@@ -64,7 +65,7 @@ from constants import ADD_TO_SELECTION
 from constants import START_NEW_SELECTION
 from constants import DELETE_SELECTION
 
-from constants import gensym, black, purple
+from constants import gensym, black, strandColorList
 
 from modes import basicMode
 
@@ -1496,10 +1497,11 @@ class selectMode(basicMode):
                 five_prime_atom = open_bond.other(singlet)
                 atomList = self.o.assy.getConnectedAtoms([five_prime_atom])
                 dnaGroup = five_prime_atom.molecule.dad
+                random.shuffle(strandColorList) # Randomize strandColorList
                 self.o.assy.makeChunkFromAtomList(atomList,
                                                   group = dnaGroup,
                                                   name = gensym("Strand"), 
-                                                  color = purple)
+                                                  color = strandColorList[0])
         
     def bondDrag(self, obj, event):
         # [bruce 060728 added obj arg, for uniformity; probably needed even more in other Bond methods ##e]

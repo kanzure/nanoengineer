@@ -18,6 +18,7 @@ __author__ = "Mark"
 
 import env
 import os
+import random
 
 from math    import atan2, sin, cos, pi
 from Numeric import dot
@@ -32,7 +33,7 @@ from utilities.Log      import orangemsg
 from GeneratorBaseClass import PluginBug
 from Utility            import Group
 from chunk              import molecule
-from constants          import gensym, darkred, blue, lightgray, diBALL
+from constants          import gensym, strandColorList, lightgray, diBALL
 
 from elements import PeriodicTable, Singlet
 Element_Ae3 = PeriodicTable.getElement('Ae3')
@@ -333,19 +334,21 @@ class Dna:
                 elif atom.element.symbol in ('Ax3', 'Ae3'):
                     _axis_list.append(atom)
         
+        random.shuffle(strandColorList) # Randomize strandColorList
+        
         # Create strand and axis chunks from atom lists and add 
         # them to the dnaGroup.
         strandAChunk = \
                      self.assy.makeChunkFromAtomList(_strandA_list,
                                                      name = gensym("Strand"),
                                                      group = dnaGroup,
-                                                     color = darkred)
+                                                     color = strandColorList[0])
 
         strandBChunk = \
                      self.assy.makeChunkFromAtomList(_strandB_list,
                                                      name = gensym("Strand"),
                                                      group = dnaGroup,
-                                                     color = blue)
+                                                     color = strandColorList[1])
 
         axisChunk = \
                   self.assy.makeChunkFromAtomList(_axis_list,
