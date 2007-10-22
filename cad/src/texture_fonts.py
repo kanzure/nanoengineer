@@ -7,36 +7,11 @@ texture_fonts.py -- OpenGL fonts based on texture images of the characters
 @copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 
-# TODO: some of these imports and constants may not be needed
-
 import os
 
-from OpenGL.GL import glPushMatrix
-from OpenGL.GL import glPopMatrix
-from OpenGL.GL import glTranslate
 from OpenGL.GL import glTranslatef
-from OpenGL.GL import glGenTextures
 from OpenGL.GL import GL_TEXTURE_2D
 from OpenGL.GL import glBindTexture
-from OpenGL.GL import GL_UNPACK_ALIGNMENT
-from OpenGL.GL import glPixelStorei
-from OpenGL.GL import GL_RGBA
-from OpenGL.GL import GL_UNSIGNED_BYTE
-from OpenGL.GL import glTexImage2D
-from OpenGL.GL import GL_CLAMP
-from OpenGL.GL import GL_TEXTURE_WRAP_S
-from OpenGL.GL import glTexParameterf
-from OpenGL.GL import GL_TEXTURE_WRAP_T
-from OpenGL.GL import GL_REPEAT
-from OpenGL.GL import GL_LINEAR
-from OpenGL.GL import GL_TEXTURE_MAG_FILTER
-from OpenGL.GL import GL_LINEAR_MIPMAP_LINEAR
-from OpenGL.GL import GL_TEXTURE_MIN_FILTER
-from OpenGL.GL import GL_NEAREST
-from OpenGL.GL import GL_DECAL
-from OpenGL.GL import GL_TEXTURE_ENV
-from OpenGL.GL import GL_TEXTURE_ENV_MODE
-from OpenGL.GL import glTexEnvf
 
 from OpenGL.GLU import gluProject
 from OpenGL.GLU import gluUnProject

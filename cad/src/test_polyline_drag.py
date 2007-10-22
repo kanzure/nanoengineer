@@ -17,36 +17,25 @@ __author__ = "bruce"
 
 from test_connectWithState import State_preMixin
 
-# not all these are needed:
-
 from test_commands import ExampleCommand
 
 from VQT import V
-from VQT import cross
 
-from constants import pink, white, blue, red
+from constants import red
+
 # TODO: import the following from somewhere
 DX = V(1,0,0)
 DY = V(0,1,0)
 ORIGIN = V(0,0,0)
-from drawer import drawcylinder, drawsphere
 
-from exprs.ExprsMeta import ExprsMeta
-from exprs.StatePlace import StatePlace
-from exprs.instance_helpers import IorE_guest_mixin
-from exprs.attr_decl_macros import Instance, State, Option
-from exprs.__Symbols__ import _self
-from exprs.Exprs import call_Expr, tuple_Expr
-from exprs.Center import Center
+from exprs.attr_decl_macros import Instance, State
+
 from exprs.Rect import Line
-from exprs.Rect import Rect, Spacer
+from exprs.Rect import Spacer
 
-from exprs.DraggableHandle import DraggableHandle_AlongLine
 from exprs.If_expr import If_expr
-from exprs.ExprsConstants import StateRef, Color, Width, Vector
-from exprs.ExprsConstants import Point, Drawable
+from exprs.ExprsConstants import Point
 
-from prefs_widgets import ObjAttr_StateRef
 
 NullDrawable = Spacer() # kluge; should refile
 

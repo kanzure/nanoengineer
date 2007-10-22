@@ -74,48 +74,16 @@ shrinks when it gets nonparallel, but that's a bug, not a form of billboarding.
 
 __author__ = "bruce"
 
-# TODO: maybe some of these imports and constants are not needed
-
-import os
 import time
-from Numeric import dot
 
 from OpenGL.GL import glPushMatrix
 from OpenGL.GL import glPopMatrix
 from OpenGL.GL import glTranslate
-from OpenGL.GL import glTranslatef
-
-# guessing these are no longer needed [bruce 071017]
-##from OpenGL.GL import glGenTextures
-##from OpenGL.GL import GL_TEXTURE_2D
-##from OpenGL.GL import glBindTexture
-##from OpenGL.GL import GL_UNPACK_ALIGNMENT
-##from OpenGL.GL import glPixelStorei
-##from OpenGL.GL import GL_RGBA
-##from OpenGL.GL import GL_UNSIGNED_BYTE
-##from OpenGL.GL import glTexImage2D
-##from OpenGL.GL import GL_CLAMP
-##from OpenGL.GL import GL_TEXTURE_WRAP_S
-##from OpenGL.GL import glTexParameterf
-##from OpenGL.GL import GL_TEXTURE_WRAP_T
-##from OpenGL.GL import GL_REPEAT
-##from OpenGL.GL import GL_LINEAR
-##from OpenGL.GL import GL_TEXTURE_MAG_FILTER
-##from OpenGL.GL import GL_LINEAR_MIPMAP_LINEAR
-##from OpenGL.GL import GL_TEXTURE_MIN_FILTER
-##from OpenGL.GL import GL_NEAREST
-##from OpenGL.GL import GL_DECAL
-##from OpenGL.GL import GL_TEXTURE_ENV
-##from OpenGL.GL import GL_TEXTURE_ENV_MODE
-##from OpenGL.GL import glTexEnvf
 
 import env
 import platform
 
-from VQT import V, A, vlen
 from debug import print_compact_traceback
-from debug_prefs import Choice_boolean_False
-from debug_prefs import debug_pref
 
 from constants import ave_colors
 from constants import blue
@@ -126,16 +94,6 @@ from constants import red
 ### a lot of the following constants are probably obs here, redundant with ones now defined in exprs module [070408 comment]
 
 printdraw = False # debug flag
-
-# guessing these are no longer needed [bruce 071017]
-##ORIGIN = V(0,0,0)
-##DX = V(1,0,0)
-##DY = V(0,1,0)
-##DZ = V(0,0,1)
-##
-##ORIGIN2 = V(0.0, 0.0)
-##D2X = V(1.0, 0.0)
-##D2Y = V(0.0, 1.0)
 
 from texture_fonts import ensure_courierfile_loaded
 

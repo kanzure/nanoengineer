@@ -33,13 +33,12 @@ in built releases).
 
 __author__ = "bruce"
 
-import time, math
+import time
 
 from VQT import V, Q
-from state_utils import copy_val
 from depositMode import depositMode
 
-from debug import print_compact_traceback, register_debug_menu_command
+from debug import print_compact_traceback
 from debug_prefs import Choice_boolean_True
 from debug_prefs import Choice_boolean_False
 from debug_prefs import debug_pref

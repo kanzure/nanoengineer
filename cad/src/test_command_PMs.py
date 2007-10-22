@@ -6,18 +6,10 @@ See that file for more info.
 $Id$
 """
 
-from PyQt4.Qt import SIGNAL
-
 from PM.PM_Dialog        import PM_Dialog
 from PM.PM_GroupBox      import PM_GroupBox
 from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
 from PM.PM_ComboBox      import PM_ComboBox
-from PM.PM_SpinBox       import PM_SpinBox
-from PM.PM_TextEdit      import PM_TextEdit
-from PM.PM_PushButton    import PM_PushButton
-from PM.PM_LineEdit      import PM_LineEdit
-from PM.PM_CheckBox      import PM_CheckBox
-from PM.PM_RadioButton   import PM_RadioButton
 
 from GeneratorBaseClass import GeneratorBaseClass
 

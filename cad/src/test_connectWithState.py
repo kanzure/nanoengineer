@@ -12,7 +12,7 @@ History:
 
 from test_connectWithState_constants import CYLINDER_HEIGHT_PREFS_KEY, CYLINDER_HEIGHT_DEFAULT_VALUE
 from test_connectWithState_constants import cylinder_round_caps
-from test_connectWithState_constants import CYLINDER_VERTICAL_DEFAULT_VALUE
+##from test_connectWithState_constants import CYLINDER_VERTICAL_DEFAULT_VALUE
 from test_connectWithState_constants import CYLINDER_WIDTH_DEFAULT_VALUE
     ### better to define here... ### REVISE
 
@@ -64,11 +64,10 @@ ORIGIN = V(0,0,0)
 from drawer import drawcylinder, drawsphere
 
 from exprs.ExprsMeta import ExprsMeta
-from exprs.StatePlace import StatePlace
 from exprs.instance_helpers import IorE_guest_mixin
-from exprs.attr_decl_macros import Instance, State, Option
+from exprs.attr_decl_macros import Instance, State
 from exprs.__Symbols__ import _self
-from exprs.Exprs import call_Expr, tuple_Expr ### USE tuple_Expr
+from exprs.Exprs import call_Expr ## , tuple_Expr ### TODO: USE tuple_Expr
 from exprs.Center import Center
 
 from exprs.Rect import Rect # used to make our drag handle appearance

@@ -41,8 +41,6 @@ from Numeric import floor
 
 from VQT import Q, vlen, norm
 
-from mdldata import marks, links, filler
-
 from debug import print_compact_stack, compact_stack, print_compact_traceback
 
 import platform # for atom_debug; note that uses of atom_debug should all grab it

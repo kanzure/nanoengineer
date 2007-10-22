@@ -7,8 +7,6 @@ texture_helpers.py -- helper functions for using OpenGL textures
 @copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 
-# TODO: some of these imports and constants may not be needed
-
 from OpenGL.GL import glGenTextures
 from OpenGL.GL import GL_TEXTURE_2D
 from OpenGL.GL import glBindTexture
@@ -33,11 +31,6 @@ from OpenGL.GL import GL_TEXTURE_ENV_MODE
 from OpenGL.GL import glTexEnvf
 
 from OpenGL.GLU import gluBuild2DMipmaps
-
-import env
-import platform
-
-from VQT import V   # in commented-out code
 
 from debug_prefs import Choice_boolean_False   # in disabled code
 from debug_prefs import debug_pref   # in disabled code
