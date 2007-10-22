@@ -10,6 +10,7 @@ pushd SVN-D
 
 # Bootstrap
 rm -f configure
+export PATH=/usr/local/bin:$PATH
 ./bootstrap
 if [ ! -e configure ]; then
   popd
@@ -46,6 +47,7 @@ popd
 # Create build descriptions
 BUILD_FILESIZE=`du -h NE1_Builds/${BUILD_FILENAME} | sed 's/\([0-9a-zA-Z\.]*\).*/\1/'`
 echo "<td><span class=\"summary-name\"><a href=\"/Engineering/NE1_Builds/${BUILD_FILENAME}\">tar.gz</a>&nbsp;&nbsp;</span></td><td><span class=\"summary-name\">[${BUILD_FILESIZE}]</span></td>" > tar.gz.frag
+echo "NanoEngineer-1${NE1_VERSION}_${SERIAL_NUMBER}" > NightlyBuild.filename
 
 # Create archive entry
 echo "        <tr><td>NanoEngineer-1_${NE1_VERSION}_${SERIAL_NUMBER}</td><td><a href=\"/Engineering/NE1_Builds/${BUILD_FILENAME}\">tar.gz</a></td><td>| <a href=\"#\">dmg</a></td><td>| <a href=\"#\">rpm</a></td></tr>" > archives.frag.tmp

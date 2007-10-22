@@ -47,5 +47,5 @@ echo ${RESULT} > QA_TestHarness.result
 
 
 # Run nightly build
-./runNightlyBuild.sh &>NightlyBuild.log
+#./runNightlyBuild.sh &>NightlyBuild.log
 

@@ -48,3 +48,7 @@ rm pylint.?.result tmp.txt
 
 popd
 
+# Generate a filtered report (W0611 - Unused import %s Used when an imported
+# module or variable is not used.
+grep W0611 SVN-D/cad/src/pylint_* > W0611.txt
+

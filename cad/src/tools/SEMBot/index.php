@@ -115,7 +115,7 @@ Welcome to the Nanorex Software-Engineering Mechanisms Robot (SEMBot).
         <tr>
           <td align="right">Pylint: </td>
           <td><span class="summary-name"><?php include 'Pylint.result'; ?>&nbsp;out of 10.0</span></td>
-          <td><a href="SVN-D/cad/src/pylint_global.0.html">Detail</a></td></tr>
+          <td><a href="SVN-D/cad/src/pylint_global.0.html">Detail</a> (Filtered: <a href="W0611.txt">W0611</a>)</td></tr>
       </table></td>
   </tr>
 
