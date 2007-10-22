@@ -2488,6 +2488,8 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         """
         merge the given molecule into this one.
         """
+        if mol is self: # Can't merge self. Mark 2007-10-21
+            return
         # rewritten by bruce 041117 for speed (removing invals and asserts);
         # effectively inlines hopmol and its delatom and addatom;
         # no need to find and hop singlet neighbors of atoms in mol
