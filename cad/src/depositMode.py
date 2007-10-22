@@ -1166,6 +1166,8 @@ class depositMode(selectAtomsMode):
         self.ignore_next_leftUp_event = True # Fixes bug 1467. mark 060307.
         
         if self.cursor_over_when_LMB_pressed == 'Empty Space':
+            if self.o.tripleClick: # Fixes bug 2568. mark 2007-10-21
+                return
             if self.o.modkeys != 'Shift+Control': # Fixes bug 1503.  mark 060224.
                 deposited_obj = self.deposit_from_MMKit(self.getCoords(event)) # does win_update().
                 if deposited_obj:
@@ -1660,15 +1662,16 @@ class depositMode(selectAtomsMode):
                         if deposited_obj:
                             self.set_cmdname('Deposit ' + deposited_obj)
             else: # A different singlet is highlighted...
-                # ... so bond the highlighted singlet <s2> to the first singlet <s1>
+                # If the singlets s1 & s2 are 3' and 5' or 5' and 3' bondpoints
+                # of DNA strands, merge their strand chunks...
                 open_bond1 = s1.bonds[0]
                 open_bond2 = s2.bonds[0]
-                if open_bond1.isThreePrimeOpenBond and open_bond2.isFivePrimeOpenBond():
-                    a1 = open_bond1.other(s1) # 3' atom
-                    a2 = open_bond2.other(s2) # 5' atom
-                    # Merge a2 chunk with a1 chunk. 
-                    # a2 chunk inherits color from a1 chunk.
-                    a1.molecule.merge(a2.molecule) 
+                if (open_bond1.isThreePrimeOpenBond and open_bond2.isFivePrimeOpenBond()) or \
+                   (open_bond1.isFivePrimeOpenBond and open_bond2.isThreePrimeOpenBond()):
+                    a1 = open_bond1.other(s1)
+                    a2 = open_bond2.other(s2)
+                    a1.molecule.merge(a2.molecule) # Strand colors now the same.
+                # ... now bond the highlighted singlet <s2> to the first singlet <s1>
                 self.bond_singlets(s1, s2)
                 self.set_cmdname('Create Bond')
                 self.o.gl_update()
