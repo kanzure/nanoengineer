@@ -255,12 +255,20 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
             
         self.filterlistLE.setText(filtered_syms)
                 
-    def updateMessage(self):
+    def updateMessage(self, msg = ""):
         """
         Updates the message box with an informative message based on the 
         current page and current selected atom type.
+        
+        @param msg: The message to display in the Property Manager message
+                    box. If called with an empty string (the default), a
+                    strandard message is displayed.
+        @type  msg: str
         """
-        msg = ""
+        if msg:
+            self.MessageGroupBox.insertHtmlMessage(msg)
+            return
+        
         if not self.elementChooser:
             return
         

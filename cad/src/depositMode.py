@@ -1666,15 +1666,33 @@ class depositMode(selectAtomsMode):
                 # of DNA strands, merge their strand chunks...
                 open_bond1 = s1.bonds[0]
                 open_bond2 = s2.bonds[0]
-                if (open_bond1.isThreePrimeOpenBond and open_bond2.isFivePrimeOpenBond()) or \
-                   (open_bond1.isFivePrimeOpenBond and open_bond2.isThreePrimeOpenBond()):
+                
+                # Cannot DND 3' open bonds onto 3' open bonds.  
+                if open_bond1.isThreePrimeOpenBond() and \
+                   open_bond2.isThreePrimeOpenBond():
+                    msg = redmsg("Cannot join strands on 3' ends.")
+                    self.propMgr.updateMessage(msg)
+                    return
+                # Cannot DND 5' open bonds onto 5' open bonds. 
+                if open_bond1.isFivePrimeOpenBond() and \
+                   open_bond2.isFivePrimeOpenBond():
+                    msg = redmsg("Cannot join strands on 5' ends.")
+                    self.propMgr.updateMessage(msg) 
+                    return
+                # Ok to DND 3' onto 5' or 5' onto 3'.
+                if (open_bond1.isThreePrimeOpenBond() and \
+                    open_bond2.isFivePrimeOpenBond()) or \
+                   (open_bond1.isFivePrimeOpenBond()  and \
+                    open_bond2.isThreePrimeOpenBond()):
                     a1 = open_bond1.other(s1)
                     a2 = open_bond2.other(s2)
                     a1.molecule.merge(a2.molecule) # Strand colors now the same.
+                
                 # ... now bond the highlighted singlet <s2> to the first singlet <s1>
                 self.bond_singlets(s1, s2)
                 self.set_cmdname('Create Bond')
                 self.o.gl_update()
+                self.propMgr.updateMessage() 
         else: # cursor on empty space
             self.o.gl_update() # get rid of white rubber band line.
             # REVIEW (possible optim): can we make gl_update_highlight cover this? [bruce 070626]
