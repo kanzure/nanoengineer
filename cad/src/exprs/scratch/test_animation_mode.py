@@ -51,7 +51,10 @@ from prefs_widgets import Preferences_StateRef, Preferences_StateRef_double, Obj
 from changes import Formula
 
 ## from test_animation_mode_PM import test_animation_mode_PM
-from test_command_PMs import ExampleCommand1_PM, PM_GroupBox, PM_DoubleSpinBox, PM_PushButton
+from test_command_PMs import ExampleCommand1_PM
+from PM.PM_GroupBox import PM_GroupBox
+from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
+from PM.PM_PushButton import PM_PushButton
 from PM.PM_CheckBox import PM_CheckBox
 
 ##from modes import *
