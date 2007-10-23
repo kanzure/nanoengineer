@@ -90,9 +90,15 @@ class ThumbView(GLPane_minimal):
     """
     # Note: classes GLPane and ThumbView share lots of code,
     # which ought to be merged into their common superclass GLPane_minimal
-    # (currently empty). [bruce 070914 comment]
+    # [bruce 070914 comment]
+    
     shareWidget = None #bruce 051212
     always_draw_hotspot = False #bruce 060627
+
+    # default values of subclass-specific constants
+
+    permit_draw_bond_letters = False #bruce 071023, overrides superclass
+
     def __init__(self, parent, name, shareWidget):
         """
         Constructs an instance of a Thumbview.

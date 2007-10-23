@@ -39,7 +39,6 @@ import platform
 from povheader import povpoint
 from utilities.Printing import Vector3ToString
 from elements import Singlet
-from ThumbView import MMKitView ### TODO: removing this would chop 3 nodes and more arcs out of cycle graph [bruce 071023 comment]
 
 from debug import print_compact_stack, print_compact_traceback
 
@@ -454,10 +453,18 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, povfile = None,
                 debug.reload_once_per_event(draw_bond_vanes) #bruce 050825 renabled this, using reload_once_per_event
             from draw_bond_vanes import draw_bond_vanes
             draw_bond_vanes( self, glpane, sigmabond_cyl_radius, col) # this calls self.get_pi_info()
-        if draw_bond_letters and not isinstance(glpane, MMKitView): # [Huaicai 11/14/05: added the MMKitView test to fix bug 969,884]
-                # It would be good to disable the bond letter feature completely in the MMKit thumbview for Library,
-                # but not for single atoms (same glpane)... could we do this by ratio of atomcount to glpane size?
-                # or by the controlling code setting a flag? (For now, just ignore the issue.) [bruce 051110]
+        if draw_bond_letters and glpane.permit_draw_bond_letters:
+            # note: bruce 071023 added glpane.permit_draw_bond_letters to replace
+            # this test and remove some import cycles:
+            ## isinstance(glpane, MMKitView):
+            # [Huaicai 11/14/05: added the MMKitView test to fix bug 969,884]
+            #
+            # Ideally, it would be better to disable the bond letter feature
+            # completely in the MMKit thumbview for Library, but not for single atoms
+            # (though those use the same glpane)... could we do this by testing ratio of
+            # atomcount to glpane size? or by the controlling code setting a flag?
+            # (For now, just ignore the issue, and disable it in all thumbviews.)
+            # [bruce 051110/071023]
             try:
                 glpane_out = glpane.out
             except AttributeError:

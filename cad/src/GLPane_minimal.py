@@ -73,6 +73,10 @@ class GLPane_minimal(QGLWidget): #bruce 070914
 
     shareWidget = None
 
+    # default values of subclass-specific constants
+
+    permit_draw_bond_letters = True #bruce 071023
+
     def __init__(self, parent, shareWidget, useStencilBuffer):
         """
         If shareWidget is specified, useStencilBuffer is ignored: set it in the widget you're sharing with.
