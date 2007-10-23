@@ -51,6 +51,7 @@ from drawer import drawwiresphere
 from elements import Singlet
 from elements import Hydrogen
 from elements import PeriodicTable
+from PyQt4.Qt import QMessageBox #@ Temporary!!! Mark 2007-10-23
 
 # bonds.py and chem.py form a two element import cycle, which could
 # ordinarily be broken by saying "import bonds" here, but there are
@@ -1149,10 +1150,19 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                     else:
                         # we're attached to the chain but not in it.
                         # REVIEW: return DIRBOND_ERROR in some cases??
-                        print "error? %r has one directional bond %r " \
-                              "by which it's attached to but not in a " \
-                              "directional bond chain containing %r and %r" % \
-                              (self, bond, bond1, bond2)
+                        msg =  "error? %r has one directional bond %r " \
+                            "by which it's attached to but not in a " \
+                            "directional bond chain containing %r and %r" % \
+                            (self, bond, bond1, bond2)
+                        print msg
+                        #@ THIS IS TEMPORARY - THIS WILL BE REMOVED SOON.
+                        #@ Mark 2007-10-23
+                        msg2 = "Please report this bug to support@nanorex.com" \
+                             " and include the command sequence that you " \
+                             " performed which caused this bug."
+                        QMessageBox.warning( None, "Bug found",
+                                             msg + msg2,
+                                             "Continue...", "", "")
                         return DIRBOND_NONE, None, None # DIRBOND_ERROR?
                     pass
                 elif statuscode == DIRBOND_CHAIN_END:
@@ -1161,10 +1171,19 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                     if bond is bond1:
                         return DIRBOND_CHAIN_END, bond, None
                     else:
-                        print "error? %r has one directional bond %r " \
-                              "by which it's attached to (but not in) the end of a " \
-                              "directional bond chain containing %r" % \
-                              (self, bond, bond1)
+                        msg = "error? %r has one directional bond %r " \
+                            "by which it's attached to (but not in) the end of a " \
+                            "directional bond chain containing %r" % \
+                            (self, bond, bond1)
+                        print msg
+                        #@ THIS IS TEMPORARY - THIS WILL BE REMOVED SOON.
+                        #@ Mark 2007-10-23
+                        msg2 = "Please report this bug to support@nanorex.com" \
+                             " and include the command sequence that you " \
+                             " performed which caused this bug."
+                        QMessageBox.warning( None, "Bug found",
+                                             msg + msg2,
+                                             "Continue...", "", "")
                         return DIRBOND_NONE, None, None # DIRBOND_ERROR?
                     pass
                 else:
@@ -2906,7 +2925,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
     #bruce 050511 added atomtype arg  ###@@@ callers should pass atomtype
     def Transmute(self, elt, force = False, atomtype = None): 
         """        
-        Transmutes atom into a different element.
+        Transmutes atom into a different element, unless it is a singlet.
         
         If this is a real atom, change its element type to I{elt} and its 
         atomtype to the I{atomtype} object passed, or if None is passed to 
@@ -2916,7 +2935,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         ones (if any are needed) to match the desired number of bonds for the
         new element/atomtype.
         
-        If self is a singlet, don't transmute it unless I{force} is True.
+        If self is a singlet, don't transmute it.
         
         [As of 050511 before atomtype arg added, new atom type is old one if
         elt is same and old one already correct, else is default atom type. 
@@ -2927,8 +2946,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         If there are too many real bonds for the new element type, refuse
         to transmute unless force is True.
         
-        @param elt: The new element to transmute this atom into. If self is 
-                    a singlet, don't tranmute it unless I{force} is True.
+        @param elt: The new element to transmute this atom into. Singlets
+                    are not transmuted.
         @type  elt: L{Elem}
         
         @param force: If there are too many real bonds for the new element 
@@ -2951,10 +2970,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                     
                     - Mark 2007-10-21
         """
-        
-        # New feature as of 2007-10-21: 
-        #   Allow singlets to be transmuted iff force is set to True.
-        if self.element is Singlet and not force:
+        # Singlets should never be transmuted. Doing so causes bugs. - mark
+        if self.element is Singlet:
             return
         if atomtype is None:
             if self.element is elt and \
