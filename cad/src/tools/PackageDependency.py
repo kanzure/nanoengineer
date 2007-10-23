@@ -134,7 +134,6 @@ packageMapping = {
     "bonds"                        : "model",
     "bond_updater"                 : "model",
     "bond_utils"                   : "model",
-    "buckyball"                    : "model",
     "BuildAtomsPropertyManager"    : "ui",
     "build_utils"                  : "ui",
     "changes"                      : "foundation",
