@@ -4,7 +4,8 @@
 assembly.py -- provides class assembly, for everything stored in one file,
 including one main part and zero or more clipboard items; see also part.py.
 
-$Id$
+@version: $Id$
+@copyright: Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 ==
 
@@ -56,8 +57,6 @@ Prior history unclear; almost certainly originated by Josh.
 
 bruce 050513-16 replaced some == with 'is' and != with 'is not', to avoid __getattr__
 on __xxx__ attrs in python objects.
-
-bruce 050913 used env.history in some places.
 """
 
 ###@@@ Note: lots of old code below has been commented out for the initial
@@ -73,7 +72,7 @@ from Utility import Group, node_name, kluge_patch_assy_toplevel_groups
 from debug import print_compact_traceback
 from prefs_constants import workingDirectory_prefs_key
 
-from utilities.Log import greenmsg, redmsg, orangemsg
+from utilities.Log import orangemsg ##, greenmsg, redmsg
 import platform
 from PlatformDependent import find_or_make_any_directory
 import env
@@ -81,7 +80,7 @@ from state_utils import StateMixin
 from debug import print_compact_stack
 import undo_archive
 
-from constants import gensym, SELWHAT_CHUNKS, SELWHAT_ATOMS
+from constants import gensym, SELWHAT_CHUNKS ##, SELWHAT_ATOMS
 from state_constants import S_CHILD, S_DATA, S_REF
 
 import part

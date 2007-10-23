@@ -26,7 +26,7 @@ import time
 
 from PyQt4 import QtGui
 from PyQt4.Qt import Qt
-from PyQt4.Qt import QFileDialog, QMessageBox, QString, qApp, QSettings
+from PyQt4.Qt import QFileDialog, QMessageBox, QString, QSettings
 from PyQt4.Qt import QApplication
 from PyQt4.Qt import QCursor
 from PyQt4.Qt import QVariant
@@ -43,7 +43,7 @@ from PlatformDependent import find_or_make_Nanorex_subdir
 
 from assembly import assembly
 from files_pdb import readpdb, insertpdb, writepdb
-from files_gms import readgms, insertgms
+from files_gms import insertgms
 from files_mmp import readmmp, insertmmp, fix_assy_and_glpane_views_after_readmmp
 from debug import print_compact_traceback
 from fileIO import writepovfile

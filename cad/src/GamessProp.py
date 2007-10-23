@@ -1,19 +1,14 @@
 # Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
+"""
 GamessProp.py
 
-$Id$
+@author: Mark
+@version: $Id$
+@copyright: Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 
-History:
+"""
 
-Created by Mark.
-
-bruce 050913 used env.history in some places.
-
-'''
-__author__ = "Mark"
-
-import sys, os
+import os
 
 from PyQt4.Qt import QDialog
 from PyQt4.Qt import QButtonGroup
@@ -27,7 +22,7 @@ import env
 from GamessPropDialog import Ui_GamessPropDialog
 from ServerManager import ServerManager
 from utilities.Log import redmsg
-from files_gms import insertgms
+##from files_gms import insertgms
 from debug import print_compact_traceback
 from widgets import RGBf_to_QColor, QColor_to_RGBf, get_widget_with_color_palette
 from qt4transition import qt4todo

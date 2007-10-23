@@ -1,10 +1,9 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-modifyMode.py
+modifyMode.py -- provides class modifyMode (Move Chunks Mode)
 
-$Id$
-
-bruce 050913 used env.history in some places.
+@version: $Id$
+@copyright: Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 """
 
@@ -24,8 +23,6 @@ from selectMolsMode import selectMolsMode
 from utilities.Log import redmsg
 
 from MovePropertyManager import MovePropertyManager
-from chem import Atom
-from jigs import Jig
 from modes import basicMode
 from icon_utilities import geticon
 
@@ -40,9 +37,11 @@ from VQT import V, Q, A, norm, vlen
 from BoundingBox import BBox
 
 
-class modifyMode(selectMolsMode): # changed superclass from basicMode to selectMolsMode.  mark 060301.
-    "[bruce comment 040923:] a transient mode entered from selectMode in response to certain mouse events"
-
+# changed superclass from basicMode to selectMolsMode.  mark 060301. 
+class modifyMode(selectMolsMode):
+    """
+    Move Chunks Mode
+    """
     # class constants
     gridColor = 52/255.0, 128/255.0, 26/255.0
     modename = 'MODIFY'

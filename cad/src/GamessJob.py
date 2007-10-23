@@ -2,9 +2,10 @@
 """
 GamessJob.py -- This is the GAMESS Job parms default settings.
 
-$Id$
+@author: Mark
+@version: $Id$
+@copyright: Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 """
-__author__ = "Mark"
 
 import os, sys, time, re
 
@@ -25,10 +26,10 @@ from PyQt4.Qt import QThread
 from PyQt4.Qt import QMutex
 
 from SimJob import SimJob
-from SimServer import SimServer
+##from SimServer import SimServer
 from GamessProp import GamessProp
-from utilities.Log import redmsg
-from files_gms import writegms_inpfile, writegms_batfile
+from files_gms import writegms_inpfile
+##from files_gms import writegms_batfile
 import preferences
 import env
 from icon_utilities import geticon

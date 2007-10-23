@@ -1,10 +1,11 @@
 # Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-pi_bond_sp_chain.py
+pi_bond_sp_chain.py -- geometric info for individual pi bonds, or chains
+of them connected by sp atoms.
 
-geometric info for individual pi bonds or chains of them connected by sp atoms.
-
-$Id$
+@author: bruce
+@version: $Id$
+@copyright: Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 
 Note, 070414: it turns out a lot of the same concepts and similar code
 ought to be useful for keeping track of chains of "directional bonds"
@@ -22,8 +23,6 @@ namely the per-bond directions themselves; the perceived strand's role
 is to help change those directions in an organized way.)
 """
 
-__author__ = 'bruce'
-
 import math
 from Numeric import dot
 
@@ -37,7 +36,6 @@ from bond_constants import V_TRIPLE
 from bond_constants import V_AROMATIC
 from bond_constants import V_GRAPHITE
 from bond_constants import V_CARBOMERIC
-from debug import print_compact_traceback, print_compact_stack
 
 DFLT_OUT = V(0.0, -0.6, 0.8) # these are rotated from standard out = V(0,0,1), up = V(0,1,0) but still orthonormal
 DFLT_UP =  V(0.0,  0.8, 0.6)

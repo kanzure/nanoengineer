@@ -3,7 +3,9 @@
 confirmation_corner.py -- helpers for modes with a confirmation corner
 (or other overlay widgets).
 
-$Id$
+@author: bruce
+@version: $Id$
+@copyright: Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 
 Note: confirmation corners make use of two methods added to the "GraphicsMode API"
 (the one used by GLPane to interface to glpane.graphicsMode for mouse and drawing)
@@ -31,10 +33,10 @@ from exprs.instance_helpers import get_glpane_InstanceHolder
 from exprs.Rect import Rect # needed for Image size option, not just for testing
 ##from constants import green # only for testing
 
-from exprs.projection import DrawInCorner_projection, DrawInCorner
+from exprs.projection import DrawInCorner ##, DrawInCorner_projection
 from prefs_constants import UPPER_RIGHT
 
-from debug import print_compact_traceback, print_compact_stack
+from debug import print_compact_traceback ##, print_compact_stack
 
 # button region codes (must all be true values;
 # these are used as indices in various dicts or functions,

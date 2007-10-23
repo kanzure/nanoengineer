@@ -1,13 +1,10 @@
 # Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-preferences.py
+preferences.py -- Preferences system.
 
-Preferences system.
-
-[This module is owned by Bruce until further notice.
-It is likely to be revised heavily at any time.]
-
-$Id$
+@author: bruce
+@version: $Id$
+@copyright: Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 
 ==
 
@@ -42,16 +39,14 @@ BUT WE SHOULD LOOK INTO THE LICENSE TO MAKE SURE IT'S OK!
  and confirmed that it is.)
 """
 
-__author__ = "Bruce"
-
 import os, time
 import platform
 
 from PlatformDependent import mkdirs_in_filename
 from PlatformDependent import find_or_make_Nanorex_directory
-from changes import UsageTracker #bruce 050804 ###k recursive import issues??
+from changes import UsageTracker
 
-from prefs_constants import prefs_table #bruce 050805
+from prefs_constants import prefs_table
 import EndUser
 
 
@@ -161,6 +156,7 @@ Usage by client code (for now -- this might change!):
 
 try:
     import bsddb as _junk
+    _junk # try to tell pylint we need this import [bruce 071023]
 except:
     dbname = "somedb"
     print """\

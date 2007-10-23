@@ -1,19 +1,17 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
-
-'''
+"""
 inval.py -- simple invalidation/update system for attributes within an object
 
-This file is owned by bruce.
-
-$Id$
+@author: bruce
+@version: $Id$
+@copyright: Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 bruce 050513 replaced some == with 'is' and != with 'is not', to avoid __getattr__
 on __xxx__ attrs in python objects.
+"""
 
-'''
-__author__ = "bruce"
-
-from debug import print_compact_stack, print_compact_traceback
+from debug import print_compact_traceback
+##from debug import print_compact_stack
 
 debug_counter = 0 # uncomment the related code (far below) to find out what's calling our __getattr__ [bruce 050513]
 
@@ -53,7 +51,8 @@ debug_counter = 0 # uncomment the related code (far below) to find out what's ca
 
 
 class inval_map:
-    """Record info, for a given class, about which attributes
+    """
+    Record info, for a given class, about which attributes
     (in a hypothetical instance) will need to be invalidated
     when a given one changes; it's ok if this contains cycles
     (I think), but this has never been tested.
@@ -62,7 +61,8 @@ class inval_map:
         self.affected_by = {} # a public attribute
         
     def record_output_depends_on_inputs(self, output, inputs):
-        """Record the fact that output (an attr name)
+        """
+        Record the fact that output (an attr name)
         always depends on each input in inputs (a list of attr names),
         and that output and each input are invalidatable attributes.
         (To just record that attr is an invalidatable attribute,
@@ -83,7 +83,9 @@ class inval_map:
 # ==
 
 def remove_prefix_func(prefix):
-    "return a function which assumes its arg starts with prefix, and removes it"
+    """
+    return a function which assumes its arg starts with prefix, and removes it
+    """
     ll = len(prefix)
     def func(str):
         ## assert str.startswith(prefix)
@@ -96,7 +98,9 @@ def filter_and_remove_prefix( lis, prefix):
 invalmap_per_class = {}
 
 def make_invalmap_for(obj):
-    "make and return a fresh inval_map for an object (or a class)"
+    """
+    make and return a fresh inval_map for an object (or a class)
+    """
     # check if all _recompute_xxx have _input_for_xxx defined!
     imap = inval_map()
     inputsfor_attrs = filter_and_remove_prefix( dir(obj), "_inputs_for_" )
@@ -115,7 +119,8 @@ def make_invalmap_for(obj):
 # ==
 
 class InvalMixin:
-    """Mixin class for supporting a simple invalidation/update scheme
+    """
+    Mixin class for supporting a simple invalidation/update scheme
     for certain attributes of each instance of the main class you use it with.
     Provides __getattr__ and a few other methods. Supports special
     attributes and methods in the main class whose names
@@ -170,7 +175,8 @@ class InvalMixin:
     # that changes those other things needs to either declare ... or call ... ###@@@.
 
     def __getattr__(self, attr): # in class InvalMixin; doesn't inherit _eq_id_mixin_ -- should it? ##e [060209]
-        """ Called to compute certain attrs which have not been recomputed since
+        """
+        Called to compute certain attrs which have not been recomputed since
         the other attrs they depend on were initialized or changed. Code which
         might change the value that these attrs should have (i.e. which might make
         them "invalid") is required to "invalidate them" (i.e. to declare them
@@ -205,7 +211,9 @@ class InvalMixin:
         map( self.validate_attr, attrs)
         
     def invalidate_attrs(self, attrs, **kws):
-        "invalidate each attribute named in the given list of attribute names"
+        """
+        invalidate each attribute named in the given list of attribute names
+        """
         if not kws:
             # optim:
             map( self.invalidate_attr, attrs)
@@ -213,7 +221,8 @@ class InvalMixin:
             map( lambda attr: self.invalidate_attr(attr, **kws), attrs)
         
     def invalidate_attr(self, attr, skip = ()):
-        """Invalidate the attribute with the given name.
+        """
+        Invalidate the attribute with the given name.
         This requires also invalidating any attribute registered as depending on this one,
         but in doing that we won't invalidate the ones named in the optional list 'skip',
         or any which depend on attr only via the ones in 'skip'.
@@ -237,11 +246,13 @@ class InvalMixin:
         return
 
     def changed_attrs(self, attrs):
-        """you (caller) are reporting that you changed all the given attrs;
+        """
+        You (the caller) are reporting that you changed all the given attrs;
         so we will validate these attrs and invalidate all their dependees,
         but when invalidating each one's dependees, we'll
         skip inval of *all* the attrs you say you directly changed,
         since we presume you changed them all to correct values.
+        
         For example, if a affects b, b affects c, and you tell us you
         changed a and b, we'll end up invalling c but not b.
         Thus, this is not the same as calling changed_attr on each one --
@@ -254,7 +265,9 @@ class InvalMixin:
     # init method:
     
     def init_InvalMixin(self): # used to be called 'init_invalidation_map'
-        "call this in __init__ of each instance of each client class"
+        """
+        call this in __init__ of each instance of each client class
+        """
         # Set self.__inval_map. We assume the value depends only on the class,
         # so we only compute it the first time we see this class.
         key = id( self.__class__)
@@ -293,7 +306,10 @@ class InvalMixin:
 
 
 def getattr_helper(self, attr):
-    "private. self is an InvalMixin instance (but this is a function, not a method)"
+    """
+    [private helper function]
+    self is an InvalMixin instance (but this is a function, not a method)
+    """
     # assume caller has handled attrs starting with '_'.
     # be fast in this function, it's called often.
 

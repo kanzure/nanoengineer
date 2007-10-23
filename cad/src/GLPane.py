@@ -157,13 +157,8 @@ from constants import diDEFAULT
 from constants import dispLabel
 from constants import GL_FAR_Z
 from constants import bluesky
-from constants import orange
 from constants import white
 from constants import MULTIPANE_GUI
-
-from part import Part
-
-from BoundingBox import BBox
 
 from debug_prefs import Choice
 from debug_prefs import Choice_boolean_False

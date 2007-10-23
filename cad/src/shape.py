@@ -1,14 +1,13 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-shape.py
+shape.py -- handle freehand curves for selection and cookie-cutting
 
-Handle the freehand curves for selection and cookie-cutting
-
-$Id$
+@author: Josh, Huaicai, maybe others
+@version: $Id$
+@copyright: Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
-__author__ = "Josh"
 
-from Numeric import array, zeros, logical_or, add, subtract, sqrt, maximum, minimum, ceil, dot, floor
+from Numeric import array, zeros, maximum, minimum, ceil, dot, floor
 
 from VQT import A, norm, vlen, V
 from OpenGL.GL import glNewList, glEndList, glCallList, glGenLists
@@ -37,12 +36,12 @@ import platform
 from BoundingBox import BBox
 
 def get_selCurve_color(selSense, bgcolor=white):
-    '''Returns line color of the selection curve. 
+    """
+    Returns line color of the selection curve. 
     Returns <black> for light colored backgrounds (and Sky Blue).
     Returns <white> for dark colored backgrounds.
     Returns <red> if <selSense> is DELETE_SELECTION mode.
-    '''
-    
+    """
     if selSense == DELETE_SELECTION: 
         return red
     
@@ -60,7 +59,8 @@ def get_selCurve_color(selSense, bgcolor=white):
 
 
 class Slab:
-    """ defines a slab in space which can tell you if a point is in the slab
+    """
+    defines a slab in space which can tell you if a point is in the slab
     """
     def __init__(self, point, normal, thickness):
         self.point = point
@@ -76,10 +76,12 @@ class Slab:
 
 
 def fill(mat,p,dir):
-    """ Fill a curve drawn in matrix mat, as 1's over a background of 0's, with 1's.
+    """
+    Fill a curve drawn in matrix mat, as 1's over a background of 0's, with 1's.
     p is V(i,j) of a point to fill from. dir is 1 or -1 for the
     standard recursive fill algorithm.
-       Here is an explanation of how this is used and how it works then, by Huaicai:
+
+    Here is an explanation of how this is used and how it works then, by Huaicai:
     This function is used to fill the area between the rectangle bounding box and the boundary
     of the curve with 1's. The bounding box is extended by (lower left corner -2, right top corner + 2). 
     The curve boundary is filled with 1's. So mat[1,:] = 0, mat[-1,:]=0, mat[:, 1]=0;
@@ -121,9 +123,12 @@ def fill(mat,p,dir):
 # for everything in one shape.
 
 class simple_shape_2d: 
-    "common code for selection curve and selection rectangle"
+    """
+    common code for selection curve and selection rectangle
+    """
     def __init__(self, shp, ptlist, origin, selSense, opts):
-        """ptlist is a list of 3d points describing a selection
+        """
+        ptlist is a list of 3d points describing a selection
         (in a subclass-specific manner).
         origin is the center of view, and shp.normal gives the direction
         of the line of light.
@@ -151,7 +156,9 @@ class simple_shape_2d:
         self._computeBBox()
         
     def _computeBBox(self):
-        """ Construct the 3d bounding box for the area """  
+        """
+        Construct the 3d bounding box for the area
+        """  
         # compute bounding rectangle (2d)
         self.pt2d = map( self.project_2d, self.ptlist)
         assert not (None in self.pt2d)
@@ -173,18 +180,20 @@ class simple_shape_2d:
         return
 
     def project_2d_noeyeball(self, pt):
-        """Bruce: Project a point into our plane (ignoring eyeball). Warning: arbitrary origin!
+        """
+        Bruce: Project a point into our plane (ignoring eyeball). Warning: arbitrary origin!
            
-           Huaicai 4/20/05: This is just to project pt into a 2d coordinate 
-           system (self.right, self.up) on a plane through pt and parallel to the screen 
-           plane. For perspective projection, (x,y) on this plane is different than that on the plane 
-           through pov.
+        Huaicai 4/20/05: This is just to project pt into a 2d coordinate 
+        system (self.right, self.up) on a plane through pt and parallel to the screen 
+        plane. For perspective projection, (x,y) on this plane is different than that on the plane 
+        through pov.
         """
         x, y = self.right, self.up
         return V(dot(pt, x), dot(pt, y))
 
     def project_2d(self, pt):
-        """like project_2d_noeyeball, but take into account self.eyeball;
+        """
+        like project_2d_noeyeball, but take into account self.eyeball;
         return None for a point that is too close to eyeball to be projected
         [in the future this might include anything too close to be drawn #e]
         """
@@ -211,7 +220,9 @@ class simple_shape_2d:
         return p
 
     def isin_bbox(self, pt):
-        "say whether a point is in the optional slab, and 2d bbox (uses eyeball)"
+        """
+        say whether a point is in the optional slab, and 2d bbox (uses eyeball)
+        """
         # this is inlined and extended by curve.isin
         if self.slab and not self.slab.isin(pt):
             return False
@@ -225,24 +236,30 @@ class simple_shape_2d:
 
 
 class rectangle(simple_shape_2d): # bruce 041214 factored out simple_shape_2d
-    "selection rectangle"
+    """
+    selection rectangle
+    """
     def __init__(self, shp, pt1, pt2, origin, selSense, **opts):
         simple_shape_2d.__init__( self, shp, [pt1, pt2], origin, selSense, opts)        
     def isin(self, pt):
         return self.isin_bbox(pt)
     def draw(self):
-        """Draw the rectangle"""
+        """
+        Draw the rectangle
+        """
         color = get_selCurve_color(self.selSense)
         drawrectangle(self.ptlist[0], self.ptlist[1], self.right, self.up, color)
     pass
 
 
 class curve(simple_shape_2d): # bruce 041214 factored out simple_shape_2d
-    """Represents a single closed curve in 3-space, projected to a
+    """
+    Represents a single closed curve in 3-space, projected to a
     specified plane.
     """
     def __init__(self, shp, ptlist, origin, selSense, **opts):
-        """ptlist is a list of 3d points describing a selection.
+        """
+        ptlist is a list of 3d points describing a selection.
         origin is the center of view, and normal gives the direction
         of the line of light. Form a structure for telling whether
         arbitrary points fall inside the curve from the point of view.
@@ -289,7 +306,8 @@ class curve(simple_shape_2d): # bruce 041214 factored out simple_shape_2d
         self.z = self.normal
 
     def isin(self, pt):
-        """Project pt onto the curve's plane and return 1 if it falls
+        """
+        Project pt onto the curve's plane and return 1 if it falls
         inside the curve.
         """
         # this inlines some of isin_bbox, since it needs an
@@ -307,7 +325,8 @@ class curve(simple_shape_2d): # bruce 041214 factored out simple_shape_2d
         return not self.matrix[ij]
 
     def xdraw(self):
-        """draw the actual grid of the matrix in 3-space.
+        """
+        draw the actual grid of the matrix in 3-space.
         Used for debugging only.
         """
         col=(0.0,0.0,0.0)
@@ -322,7 +341,8 @@ class curve(simple_shape_2d): # bruce 041214 factored out simple_shape_2d
                     drawline(col,p+dx,p+dy)
 
     def draw(self):
-        """Draw two projections of the curve at the limits of the
+        """
+        Draw two projections of the curve at the limits of the
         thickness that defines the cookie volume.
         The commented code is for debugging.
         [bruce 041214 adds comment: the code looks like it
@@ -345,18 +365,26 @@ class curve(simple_shape_2d): # bruce 041214 factored out simple_shape_2d
     pass # end of class curve
 
 class Circle(simple_shape_2d):
-    """Represents the area of a circle ortho projection intersecting with a slab. """
+    """
+    Represents the area of a circle ortho projection intersecting with a slab.
+    """
     def __init__(self, shp, ptlist, origin, selSense, **opts):
-        """<Param> ptlist: the circle center and a point on the perimeter """
+        """
+        <Param> ptlist: the circle center and a point on the perimeter
+        """
         simple_shape_2d.__init__( self, shp, ptlist, origin, selSense, opts)
             
     def draw(self):
-        """the profile circle draw"""
+        """
+        the profile circle draw
+        """
         color =  get_selCurve_color(self.selSense)
         drawCircle(color, self.ptlist[0], self.rad, self.slab.normal)
         
     def isin(self, pt):
-        """Test if a point is in the area """
+        """
+        Test if a point is in the area
+        """
         if self.slab and not self.slab.isin(pt):
             return False
             
@@ -368,7 +396,9 @@ class Circle(simple_shape_2d):
             return False
    
     def _computeBBox(self):
-        """Construct the 3D bounding box for this volume. """
+        """
+        Construct the 3D bounding box for this volume.
+        """
         self.rad = vlen(self.ptlist[1] - self.ptlist[0])
         self.cirCenter = self.project_2d(self.ptlist[0])
         
@@ -380,13 +410,15 @@ class Circle(simple_shape_2d):
         
     
 class shape:
-    """Represents a sequence of curves, each of which may be
+    """
+    Represents a sequence of curves, each of which may be
     additive or subtractive.
     [This class should be renamed, since there is also an unrelated
     Numeric function called shape().]
     """
     def __init__(self, right, up, normal):
-        """A shape is a set of curves defining the whole cutout.
+        """
+        A shape is a set of curves defining the whole cutout.
         """
         self.curves = []
         self.bbox = BBox()
@@ -397,7 +429,8 @@ class shape:
         self.normal = normal
     
     def pickline(self, ptlist, origin, selSense, **xx):
-            """Add a new curve to the shape.
+            """
+            Add a new curve to the shape.
             Args define the curve (see curve) and the selSense operator
             for the curve telling whether it adds or removes material.
             """
@@ -418,7 +451,9 @@ class shape:
     pass # end of class shape
     
 class SelectionShape(shape):
-        """This is used to construct shape for atoms/chunks selection.
+        # TODO: fix indent levels.
+        """
+        This is used to construct shape for atoms/chunks selection.
         A curve or rectangle will be created, which is used as an area
         selection of all the atoms/chunks
         """
@@ -429,8 +464,9 @@ class SelectionShape(shape):
             self.curve = shape.pickrect(self, pt1, pt2, org, selSense, **xx)
             
         def select(self, assy):
-            """Loop thru all the atoms that are visible and select any
-                that are 'in' the shape, ignoring the thickness parameter.
+            """
+            Loop thru all the atoms that are visible and select any
+            that are 'in' the shape, ignoring the thickness parameter.
             """
             #bruce 041214 conditioned this on a.visible() to fix part of bug 235;
             # also added .hidden check to the last of 3 cases. Left everything else
@@ -457,10 +493,11 @@ class SelectionShape(shape):
 ##                    assy.unpickatoms() # Fixed bug 1598. Mark 060303.
                 self._atomsSelect(assy)   
         
-        
         def _atomsSelect(self, assy):
-            """Select all atoms inside the shape according to its selection selSense."""    
-            c=self.curve
+            """
+            Select all atoms inside the shape according to its selection selSense.
+            """    
+            c = self.curve
             if c.selSense == ADD_TO_SELECTION:
                 for mol in assy.molecules:
                     if mol.hidden: continue
@@ -499,14 +536,15 @@ class SelectionShape(shape):
                 #& debug method. mark 060211.
 
         def _chunksSelect(self, assy):
-            """Loop thru all the atoms that are visible and select any
+            """
+            Loop thru all the atoms that are visible and select any
             that are 'in' the shape, ignoring the thickness parameter.
             pick the parts that contain them
             """
 
-        #bruce 041214 conditioned this on a.visible() to fix part of bug 235;
-        # also added .hidden check to the last of 3 cases. Same in self.select().
-            c=self.curve
+            #bruce 041214 conditioned this on a.visible() to fix part of bug 235;
+            # also added .hidden check to the last of 3 cases. Same in self.select().
+            c = self.curve
             if c.selSense == START_NEW_SELECTION:
                 # drag selection: unselect any selected molecule not in the area, 
                 # modified by Huaicai to fix the selection bug 10/05/04
@@ -551,10 +589,12 @@ class SelectionShape(shape):
             return
         
         def findObjInside(self, assy):
-            '''Find atoms/chunks that are inside the shape. '''
+            """
+            Find atoms/chunks that are inside the shape.
+            """
             rst = []
             
-            c=self.curve
+            c = self.curve
             
             if assy.selwhat: ##Chunks
                rstMol = {} 
@@ -576,7 +616,10 @@ class SelectionShape(shape):
             return rst
            
 class CookieShape(shape):
-    """ This class is used to create cookies. It supports multiple parallel layers, each curve sits on a particular layer."""
+    """
+    This class is used to create cookies. It supports multiple parallel layers, each curve sits on a particular layer.
+    """
+    # TODO: fix indent levels in methods.
     def __init__(self, right, up, normal, mode, latticeType):
             shape.__init__(self, right, up, normal)
             ##Each element is a dictionary object storing "carbon" info for a layer
@@ -594,7 +637,9 @@ class CookieShape(shape):
             self.layeredCurves = {} #A list of (merged bb, curves) for each layer
 
     def pushdown(self, lastLayer):
-            """Put down one layer from last layer """
+            """
+            Put down one layer from last layer
+            """
             th, n = self.layerThickness[lastLayer]
             #print "th, n", th, n
             return th*n
@@ -606,7 +651,8 @@ class CookieShape(shape):
                 self.layerThickness[layer] = (thickness, normal)
     
     def isin(self, pt, curves=None):
-        """returns 1 if <pt> is properly enclosed by the curves.
+        """
+        returns 1 if <pt> is properly enclosed by the curves.
         """
         #& To do: docstring needs to be updated.  mark 060211.
         # bruce 041214 comment: this might be a good place to exclude points
@@ -625,14 +671,17 @@ class CookieShape(shape):
         return val
     
     def pickCircle(self, ptlist, origin, selSense, layer, slabC):
-        """Add a new circle to the shape. """
+        """
+        Add a new circle to the shape.
+        """
         c = Circle(self, ptlist, origin, selSense, slab=slabC)
         self._saveMaxThickness(layer, slabC.thickness, slabC.normal)
         self._cutCookie(layer, c)
         self._addCurve(layer, c)
     
     def pickline(self, ptlist, origin, selSense, layer, slabC):
-        """Add a new curve to the shape.
+        """
+        Add a new curve to the shape.
         Args define the curve (see curve) and the selSense operator
         for the curve telling whether it adds or removes material.
         """
@@ -642,7 +691,8 @@ class CookieShape(shape):
         self._addCurve(layer, c)
         
     def pickrect(self, pt1, pt2, org, selSense, layer, slabC):
-        """Add a new rectangle to the shape.
+        """
+        Add a new rectangle to the shape.
         Args define the rectangle and the selSense operator
         for the curve telling whether it adds or removes material.
         """
@@ -652,7 +702,9 @@ class CookieShape(shape):
         self._addCurve(layer, c)
 
     def _updateBBox(self, curveList):
-        """Re-compute the bounding box for the list of curves"""
+        """
+        Re-compute the bounding box for the list of curves
+        """
         bbox = BBox()
         for c in curveList[1:]:
             bbox.merge(c.bbox)
@@ -660,7 +712,8 @@ class CookieShape(shape):
         
     
     def undo(self, currentLayer):
-        """This would work for shapes, if anyone called it.
+        """
+        This would work for shapes, if anyone called it.
         """
         if self.layeredCurves.has_key(currentLayer):
             curves = self.layeredCurves[currentLayer]
@@ -679,7 +732,8 @@ class CookieShape(shape):
             self.havelist = 0
 
     def clear(self, currentLayer):
-        """This would work for shapes, if anyone called it.
+        """
+        This would work for shapes, if anyone called it.
         """
         curves = self.layeredCurves[currentLayer]
         curves = []
@@ -687,16 +741,20 @@ class CookieShape(shape):
         self.havelist = 0
 
     def anyCurvesLeft(self):
-        """Return True if there are curve(s) left, otherwise, False. 
-            This can be used by user to decide if the shape object
-            can be deleted. """
+        """
+        Return True if there are curve(s) left, otherwise, False. 
+        This can be used by user to decide if the shape object
+        can be deleted.
+        """
         for cbs in self.layeredCurves.values():
             if len(cbs) > 1:
                 return True
         return False
             
     def combineLayers(self):
-        """Experimental code to add all curves and bbox together to make the molmake working. It may be removed later. """
+        """
+        Experimental code to add all curves and bbox together to make the molmake working. It may be removed later.
+        """
         for cbs in self.layeredCurves.values():
             if cbs:
                 self.bbox.merge(cbs[0])
@@ -706,7 +764,9 @@ class CookieShape(shape):
         return int(dot(V(1000000, 1000,1),floor(pos*1.2)))
     
     def _addCurve(self, layer, c):
-        """Add curve into its own layer, update the bbox"""
+        """
+        Add curve into its own layer, update the bbox
+        """
         self.havelist = 0
         
         if not layer in self.layeredCurves:
@@ -732,7 +792,9 @@ class CookieShape(shape):
             drawline(white, p0, v1)
     
     def _anotherDraw(self, layerColor):
-        """The original way of selecting cookies, but do it layer by layer, so we can control how to display each layer. """
+        """
+        The original way of selecting cookies, but do it layer by layer, so we can control how to display each layer.
+        """
         if self.havelist:
             glCallList(self.displist)
             return
@@ -768,7 +830,10 @@ class CookieShape(shape):
     
     
     def _cutCookie(self, layer, c):
-        """For each user defined curve, cut the cookie for it, store carbon postion into a global dictionary, store the bond information into each layer. """
+        """
+        For each user defined curve, cut the cookie for it, store carbon postion into a
+        global dictionary, store the bond information into each layer.
+        """
         self.havelist = 0
         
         bblo, bbhi = c.bbox.data[1], c.bbox.data[0]
@@ -869,13 +934,18 @@ class CookieShape(shape):
     
     
     def _logic0Bond(self, carbons, bonds, markedAtoms, hedrons, ppInside, pp):
-            """For each pair of points<pp[0], pp[1]>, if both points are inside the
-                curve and are existed carbons, delete the bond, and mark the 
-                'should be' removed atoms. Otherwise, delete half bond or 
-                change full to half bond accoringly. """
+            # TODO: fix indent levels.
+            """
+            For each pair of points<pp[0], pp[1]>, if both points are inside the
+            curve and are existed carbons, delete the bond, and mark the 
+            'should be' removed atoms. Otherwise, delete half bond or 
+            change full to half bond accoringly.
+            """
             
             def _deleteHalfBond(which_in):
-                """Internal function: when the value-- carbon atom is removed from an half bond, delete the half bond. """
+                """
+                Internal function: when the value-- carbon atom is removed from an half bond, delete the half bond.
+                """
                 markedAtoms[pph[which_in]] = pp[which_in]    
                 try:
                     values = bonds[pph[0]]
@@ -887,7 +957,10 @@ class CookieShape(shape):
                     print "No such half bond: ", pph[0], (pph[1], which_in)
                 
             def _changeFull2Half(del_id, which_in):
-                """internal function: If there is a full bond and when the value(2ndin a bond pair) carbon atom is removed, change it to half bond"""
+                """
+                internal function: If there is a full bond and when the value (2nd in a bond pair)
+                carbon atom is removed, change it to half bond
+                """
                 if not hedrons.has_key(pph[del_id]): hedrons[pph[del_id]] = pp[del_id]
                 markedAtoms[pph[del_id]] = pp[del_id]
                 if bonds.has_key(pph[0]):
@@ -935,10 +1008,13 @@ class CookieShape(shape):
                            
     
     def _logic1Bond(self, carbons, hedrons, bonds, pp, pph, ppInside):
-            """For each pair of points <pp[0], pp[1]>, create a full bond if 
-                necessary and if both points are inside the curve ; otherwise, 
-                if one point is in while the other is not, create a half bond if 
-                necessary."""
+            # TODO: fix indent levels.
+            """
+            For each pair of points <pp[0], pp[1]>, create a full bond if 
+            necessary and if both points are inside the curve ; otherwise, 
+            if one point is in while the other is not, create a half bond if 
+            necessary.
+            """
             if ppInside[0] and ppInside[1]:
                 if (not pph[0] in carbons) and (not pph[1] in carbons):
                     if pph[0] in hedrons: del hedrons[pph[0]]
@@ -1001,11 +1077,12 @@ class CookieShape(shape):
     
     def _logic2Bond(self, carbons, bonds, hedrons, insideAtoms,  \
                                                          newStorage):
-        """Processing all bonds having key inside the current selection curve.
-            For a bond with the key outside, the value inside the selection 
-            curve, we deal with it when we scan the edges of each cell. To 
-            make sure no such bonds are lost, we need to enlarge the 
-            bounding box at least 1 lattice cell.
+        """
+        Processing all bonds having key inside the current selection curve.
+        For a bond with the key outside, the value inside the selection 
+        curve, we deal with it when we scan the edges of each cell. To 
+        make sure no such bonds are lost, we need to enlarge the 
+        bounding box at least 1 lattice cell.
         """
         newBonds, newCarbons, newHedrons = newStorage
         
@@ -1048,16 +1125,16 @@ class CookieShape(shape):
                         newValues += [b]
             if newValues: newBonds[a] = newValues        
         
-    def _removeMarkedAtoms(self, bonds, markedAtoms, 
-                                                                                carbons, hedrons):
-        """ Remove all carbons that should have been removed because of 
-            the new selection curve. Update bonds that have the carbon as 
-            key. For a bond who has the carbon as its value, we'll leave them 
-            as they are, untill the draw() call. When it finds a value of a bond 
-            can't find its carbon position, either remove the bond if it was a 
-            half bond or change it to half bond if it was full bond, and find its 
-            carbon position in markedAtoms{}"""
-        
+    def _removeMarkedAtoms(self, bonds, markedAtoms, carbons, hedrons):
+        """
+        Remove all carbons that should have been removed because of 
+        the new selection curve. Update bonds that have the carbon as 
+        key. For a bond who has the carbon as its value, we'll leave them 
+        as they are, untill the draw() call. When it finds a value of a bond 
+        can't find its carbon position, either remove the bond if it was a 
+        half bond or change it to half bond if it was full bond, and find its 
+        carbon position in markedAtoms{}
+        """
         for ph in markedAtoms.keys(): 
              if carbons.has_key(ph):
                 #print "Remove carbon: ", ph    
@@ -1080,9 +1157,12 @@ class CookieShape(shape):
     
     
     def _changeHf2FullBond(self, bonds, key, value, which_in):
-            """If there is a half bond, change it to full bond. Otherwise, create
-               a new full bond. 
-               <which_in>: the atom which exists before. """
+            # TODO: fix indent levels.
+            """
+            If there is a half bond, change it to full bond. Otherwise, create
+            a new full bond. 
+            <which_in>: the atom which exists before.
+            """
             foundHalfBond = False
             
             if bonds.has_key(key):
@@ -1098,13 +1178,15 @@ class CookieShape(shape):
                 bonds[key] = [value]
                 
                                   
-    def _createBond(self, dict, key, value, half_in = -1, 
-                                                                        new_bond = False):
-            """Create a new bond if <new_bond> is True. Otherwise, search if
-                there is such a full/half bond, change it appropriately if found. 
-                Otherwise, create a new bond.
-                If <half_in> == -1, it's a full bond; otherwise, it means a half 
-                bond with the atom of <half_in> is inside. """
+    def _createBond(self, dict, key, value, half_in = -1, new_bond = False):
+            # TODO: fix indent levels.
+            """
+            Create a new bond if <new_bond> is True. Otherwise, search if
+            there is such a full/half bond, change it appropriately if found. 
+            Otherwise, create a new bond.
+            If <half_in> == -1, it's a full bond; otherwise, it means a half 
+            bond with the atom of <half_in> is inside.
+            """
             if not key in dict:
                 if half_in < 0:
                    dict[key] = [value]
@@ -1160,7 +1242,8 @@ class CookieShape(shape):
                     
    
     def draw(self, win, layerColor):
-        """Draw the shape. win, not used, is for consistency among
+        """
+        Draw the shape. win, not used, is for consistency among
         drawing functions (and may be used if drawing logic gets
         more sophisticated.
 
@@ -1248,8 +1331,10 @@ class CookieShape(shape):
         self.havelist = 1 # always set this flag, even if exception happened.
     
     def buildChunk(self, assy):
-        """Build molecule for the cookies. First, combine bonds from
-        all layers together, which may fuse some half bonds to full bonds. """
+        """
+        Build molecule for the cookies. First, combine bonds from
+        all layers together, which may fuse some half bonds to full bonds.
+        """
         from chunk import molecule
         from chem import atom
         from constants import gensym

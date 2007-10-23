@@ -3,7 +3,8 @@
 ops_copy.py -- general cut/copy/delete operations on selections
 containing all kinds of model tree nodes.
 
-$Id$
+@version: $Id$
+@copyright: Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -11,7 +12,7 @@ bruce 050507 made this by collecting appropriate methods from class Part.
 
 bruce 050901 used env.history in some places.
 """
-import platform # for atom_debug
+import platform
 import env
 
 from debug         import print_compact_stack
@@ -23,12 +24,14 @@ from bonds         import bond_copied_atoms
 from constants     import gensym
 from ops_select    import selection_from_part
 from constants     import noop
-from VQT           import V, vlen
+from VQT           import V
 from BoundingBox   import BBox
 from jigs          import Jig
 
 class ops_copy_Mixin:
-    "Mixin class for providing these methods to class Part"
+    """
+    Mixin class for providing these methods to class Part
+    """
 
     # == ###@@@ cut/copy/paste/kill will all be revised to handle bonds better (copy or break them as appropriate)
     # incl jig-atom connections too [bruce, ca. time of assy/part split]
@@ -244,7 +247,9 @@ class ops_copy_Mixin:
 
     def part_for_save_selection(self):
         #bruce 050925; this helper method is defined here since it's very related to copy_sel ###k does it need self?
-        """[private helper method for Save Selection]
+        """
+        [private helper method for Save Selection]
+
         Return the tuple (part, killfunc, desc),
         where part is an existing or new Part which can be saved (in any format the caller supports)
         in order to save the current selection, or is None if it can't be saved (with desc being the reason why not),
@@ -525,7 +530,10 @@ class ops_copy_Mixin:
         self.delete_sel()
 
     def delete_sel(self, use_selatoms = True): #bruce 050505 added use_selatoms = True option, so MT ops can pass False (bugfix)
-        "delete all selected nodes or atoms in this Part [except the top node, if we're an immortal Part]"
+        """
+        delete all selected nodes or atoms in this Part
+        [except the top node, if we're an immortal Part]
+        """
         #bruce 050419 renamed this from kill, to distinguish it
         # from standard meaning of obj.kill() == kill that obj
         #bruce 050201 for Alpha: revised this to fix bug 370
@@ -583,15 +591,18 @@ class ops_copy_Mixin:
 DEBUG_ORDER = False #bruce 070525, can remove soon
 
 def copied_nodes_for_DND( nodes, autogroup_at_top = False, assy = None, _sort = False):
-    """Given a list of nodes (which must live in the same Part, though this may go unchecked),
+    """
+    Given a list of nodes (which must live in the same Part, though this may go unchecked),
     copy them (into their existing assy, or into a new one if given), as if they were being DND-copied
     from their existing Part, but don't place the copies under any Group (caller must do that).
     Honor the autogroup_at_top option (see class Copier for details).
-       WARNING: this ignores their order in the list of input nodes, using only their
+
+    @warning: this ignores their order in the list of input nodes, using only their
     MT order (native order within their Part's topnode) to determine the order
     of the returned list of copied nodes. If the input order matters, use
     copy_nodes_in_order instead.
-       _sort is a private option for use by copy_nodes_in_order.
+    
+    @note: _sort is a private option for use by copy_nodes_in_order.
     """
     # note: used in other files, not only for DND
     from ops_select import Selection
@@ -643,7 +654,8 @@ def copied_nodes_for_DND( nodes, autogroup_at_top = False, assy = None, _sort = 
     return nodes
 
 def copy_nodes_in_order(nodes, assy = None): #bruce 070525
-    """Given a list of nodes in the same Part, copy them
+    """
+    Given a list of nodes in the same Part, copy them
     (into their existing assy, or into a new one if given)
     and return the list of copied nodes, in the same order
     as their originals (whether or not this agrees with their
@@ -651,7 +663,8 @@ def copy_nodes_in_order(nodes, assy = None): #bruce 070525
     with a precise 1-1 correspondence between originals and copies
     at the same list positions (i.e. no missing copies --
     use None in their place if necessary).
-       See also copied_nodes_for_DND, which uses the nodes' native order instead.
+
+    See also copied_nodes_for_DND, which uses the nodes' native order instead.
     """
     copies = copied_nodes_for_DND(nodes, assy = assy, _sort = True)
         # if we decide we need an autogroup_at_top option, we'll have to modify this code
@@ -663,8 +676,10 @@ def copy_nodes_in_order(nodes, assy = None): #bruce 070525
 # ==
 
 class Copier: #bruce 050523-050526; might need revision for merging with DND copy
-    """Control one run of an operation which copies selected nodes and/or atoms.
-    [Note: When this is passed to Node copy routines, it's referred to in argument names as a mapping.]
+    """
+    Control one run of an operation which copies selected nodes and/or atoms.
+
+    Note: When this is passed to Node copy routines, it's referred to in argument names as a mapping.
     """
     def __init__(self, sel, assy = None):
         """Create a new Copier for a new (upcoming) copy operation,
@@ -679,7 +694,8 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
             # [new feature, bruce 070430: self.assy can differ from assy of originals -- ###UNTESTED; will use for partlib groups]
         self.objectsCopied = 0  # wware 20051128, bug 1118, no error msg if already given
     def prep_for_copy_to_shelf(self):
-        """Figure out whether to make a new toplevel Group,
+        """
+        Figure out whether to make a new toplevel Group,
         whether to copy any nonselected Groups or Chunks with selected innards, etc.
         """
         # Rules: partly copy (just enough to provide a context or container for other copied things):
@@ -774,11 +790,14 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
     # this makes the actual copy (into a known destination) using the info computed above; there are several variants.
 
     def copy_as_list_for_DND(self): #bruce 050527 added this variant and split out the other one
-        "Return a list of nodes, or None"
+        """
+        Return a list of nodes, or None
+        """
         return self.copy_as_list( make_partial_groups = False)
         
     def copy_as_node_for_shelf(self):
-        """Create and return a new single node (not yet placed in any Group)
+        """
+        Create and return a new single node (not yet placed in any Group)
         which is a copy of our selected objects meant for the Clipboard;
         or return None (after history message -- would it be better to let caller do that??)
         if all selected objects refuse to be copied.
@@ -789,7 +808,8 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
         return self.wrap_or_rename( newstuff)
 
     def copy_as_node_for_saving(self): #bruce 050925 for "save selection"
-        """Copy the selection into a single new node, suitable for saving into a new file;
+        """
+        Copy the selection into a single new node, suitable for saving into a new file;
         in some cases, return the original selection if a copy would not be needed;
         return value is a pair (copiedQ, node) where copiedq says whether node is a copy or not.
         If nothing was selected or none of the selection could be copied, return value is (False, None).
@@ -812,7 +832,9 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
         return (True, res)
 
     def copy_as_list(self, make_partial_groups = True):
-        """[private helper method, used in the above copy_as_xxx methods]
+        """
+        [private helper method, used in the above copy_as_xxx methods]
+        
         Create and return a list of one or more new nodes (not yet placed in any Group)
         which is a copy of our selected objects
         (with all ordering in the copy coming from the model tree order of the originals),
@@ -950,7 +972,9 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
         ##e ideally we'd implem atoms & bonds differently than now, and copy using Numeric, but not for now.
         
     def recurse(self, orig): #e rename 
-        "copy whatever is needed from orig and below, but don't fix refs immediately; append new copies to self.newstuff"
+        """
+        copy whatever is needed from orig and below, but don't fix refs immediately; append new copies to self.newstuff
+        """
         idorig = id(orig)
         res = None
         if idorig in self.fullcopy:
@@ -1017,7 +1041,8 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
         return self.origid_to_copy.get(id(orig))
 
     def record_copy(self, orig, copy): #k called by some but not all copiers; probably not needed except for certain atoms
-        """Subclass-specific copy methods should call this to record the fact that orig
+        """
+        Subclass-specific copy methods should call this to record the fact that orig
         (a node or a component of one, e.g. an atom or perhaps even a bond #k)
         is being copied as 'copy' in this mapping.
         (When this is called, copy must of course exist, but need not be "ready for use" --
@@ -1028,7 +1053,8 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
         self.origid_to_copy[id(orig)] = copy
 
     def do_at_end(self, func): #e might change to dict
-        """Node-specific copy methods can call this
+        """
+        Node-specific copy methods can call this
         to request that func be run once when the entire copy operation is finished.
         Warning: it is run before ###doc.
         """

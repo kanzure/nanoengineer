@@ -3,7 +3,9 @@
 ImageUtils.py - Image utilities based on PIL.
 (Some doc of PIL can be found at http://www.pythonware.com/library/pil/handbook .)
 
-$Id$
+@author: Huaicai
+@version: $Id$
+@copyright: Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 
 History: 
@@ -14,17 +16,20 @@ History:
 
 """
 
-__author__ = "Huaicai"
-
 import Image   # This is from the PIL library
 import ImageOps
 import PngImagePlugin # Don't remove this, it is used by package creator to find right modules to support PNG image -- Huaicai
+
+# try to tell pylint we need to import PngImagePlugin [bruce 071023]
+PngImagePlugin
 
 import platform #bruce 061127
 from debug import print_compact_traceback #bruce 061128
 
 class nEImageOps:
-    '''Common image operations like, get rgb data, flip, mirror, rotation, filter, resize, etc. '''
+    """
+    Common image operations like, get rgb data, flip, mirror, rotation, filter, resize, etc.
+    """
     ## ideal_wd = ideal_ht = 256
     # note: bruce 061127 renamed these to ideal_width, ideal_height, as public self attrs and __init__ options
 
@@ -38,7 +43,8 @@ class nEImageOps:
                  _debug = False):
         #bruce 061127 added options, self attrs, docstring; some are marked [untested] in docstring [###k need to test them];
         ##e add options for resize filter choice, whether to use im.convert (experimental, nim), img mode to use for data (now RGBX)
-        """Create an nEImageOps object that holds a PIL image made from the given image filename, imageName.
+        """
+        Create an nEImageOps object that holds a PIL image made from the given image filename, imageName.
         Not all file formats are supported; the file extension is not enough to know if the file is supported,
         since it also depends on the nature of the internal data (which is probably a bug that could be fixed).
         [#doc the convert option, which tries to address that [not fully tested], and the _tmpmode option.]
@@ -118,7 +124,9 @@ class nEImageOps:
         return "<%s at %#x for %r>" % (self.__class__.__name__, id(self), self.imageName) #e use basename only?
     
     def getPowerOfTwo(self, num): # [never reviewed by bruce]
-        '''Returns the nearest number for <num> that's a power of 2. Currently, it's not used.'''
+        """
+        Returns the nearest number for <num> that's a power of 2. Currently, it's not used.
+        """
         assert(type(num) == type(1))
         a = 0
         
@@ -137,7 +145,8 @@ class nEImageOps:
         else: return s
     
     def getTextureData(self): #bruce 061127 revised API, implem and docstring
-        """Returns (width, height, data), where data contains the RGB values (required by OpenGL) of the image 
+        """
+        Returns (width, height, data), where data contains the RGB values (required by OpenGL) of the image 
         to be texture mapped onto a polygon. If self.rescale is false and if both image dims need to expand,
         the rgb pixels include padding which is outside the original image. Otherwise (including if one dim
         needs to expand and one to shrink), the image is stretched/shrunk to fit in each dim independently.
@@ -175,7 +184,9 @@ class nEImageOps:
         return width, height, rst
 
     def resize(self, wd, ht, filter = Image.BICUBIC): #e should self.rescale also come in as an arg?
-        """Resize image and filter it (or pad it if self.rescale is false and neither dimension needs to shrink)."""
+        """
+        Resize image and filter it (or pad it if self.rescale is false and neither dimension needs to shrink).
+        """
         #e sometime try Image.ANTIALIAS to see if it's better quality; there are also faster choices.
         # For doc, see http://www.pythonware.com/library/pil/handbook/image.htm .
         # It says "Note that the bilinear and bicubic filters in the current version of PIL are not well-suited
@@ -241,7 +252,9 @@ class nEImageOps:
         return
 
     def update(self):
-        '''Update the image object.'''
+        """
+        Update the image object.
+        """
         #Without saving/openning, 'tostring()' is not working right.
         # [bruce guess 061127 about the cause: maybe related to ops that don't work before or after image is loaded.
         #  The docs mentioned elsewhere are not very clear about this.] 
@@ -278,7 +291,9 @@ class nEImageOps:
         self.update()
 
     def rotate(self, deg):
-        '''Rotate CCW <deg> degrees around center of the current image. '''
+        """
+        Rotate CCW <deg> degrees around center of the current image.
+        """
         self.img = self.img.rotate(deg)
         self.update()
             

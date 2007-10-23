@@ -2,7 +2,9 @@
 """
 node_indices.py
 
-$Id$
+@author: bruce
+@version: $Id$
+@copyright: Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 
 Utilities for finding node indices in a tree,
 and using them to help move the nodes around.
@@ -15,10 +17,9 @@ Some of this should perhaps become Node and Group methods,
 but most of it probably makes sense to leave here in its own module,
 so Utility.py can stay small and to the point.
 """
-__author__ = "bruce"
 
-from Utility import Node, Group
-from jigs import Jig
+from Utility import Group # for isinstance
+from jigs import Jig # for isinstance
 
 # quick try at fixing bug 296 for josh emergency use!
 # doing it all in this file, though ideally some small part of this code

@@ -2,12 +2,12 @@
 """
 crossovers.py -- support for DNA crossovers, modelled at various levels
 
-$Id$
+@author: bruce
+@version: $Id$
+@copyright: Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 
 Includes Make Crossover and Remove Crossover Pl-atom-pair context menu commands.
 """
-
-__author__ = "bruce"
 
 ###BUGS:
 # - Remove Crossover needs to be offered when correct to do so, not otherwise
@@ -15,10 +15,10 @@ __author__ = "bruce"
 # - Undo and Feature Help cmdnames are wrong (not working)
 
 from constants import noop, average_value
-from bonds import atoms_are_bonded, find_bond, bond_atoms, bond_atoms_faster, bond_direction
+from bonds import atoms_are_bonded, find_bond, bond_atoms_faster, bond_direction ##, bond_atoms
 from bond_constants import V_SINGLE
-from utilities.Log import redmsg, greenmsg, orangemsg, quote_html
-from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True, Choice
+from utilities.Log import redmsg, greenmsg, quote_html ##, orangemsg
+##from debug_prefs import debug_pref, Choice
 import env
 
 from elements import PeriodicTable
@@ -27,11 +27,13 @@ Element_Ss5 = PeriodicTable.getElement('Ss5')
 
 
 def crossover_menu_spec(atom, selatoms):
-    """Make a crossover-related menu_spec list for the two atoms in the
+    """
+    Make a crossover-related menu_spec list for the two atoms in the
     selatoms dict (atom.key -> atom), both Pl, for use in atom's context menu
     (which must be one of the atoms in selatoms). If no menu commands are needed,
     return [] (a valid empty menu_spec) or None.
-       Should be reasonably fast, but needn't be super-fast -- called once
+
+    Should be reasonably fast, but needn't be super-fast -- called once
     whenever we construct a context menu for exactly two selected Pl atoms.
     """
     assert len(selatoms) == 2
@@ -109,7 +111,9 @@ def crossover_menu_spec(atom, selatoms):
     return res
 
 def make_crossover_ok(twoPls): ##### NEED TO MAKE THIS A RECOGNIZER so it can easily be told to print why it's not saying it's ok.
-    "figure out whether to offer Make Crossover, assuming bond directions are well-defined"
+    """
+    figure out whether to offer Make Crossover, assuming bond directions are well-defined
+    """
 
     Pl1, Pl2 = twoPls
     
@@ -167,7 +171,9 @@ def union(set1, set2):
     return res
 
 def sets_overlap(set1, set2): #e could be varargs, report whether there's any overlap (same alg)
-    "Say whether set1 and set2 overlap. (Return a boolean.)"
+    """
+    Say whether set1 and set2 overlap. (Return a boolean.)
+    """
     return len(set1) + len(set2) > len(union(set1, set2))
 
 # ==
@@ -178,7 +184,8 @@ class RecognizerError(Exception): #k superclass?
 DEBUG_RecognizerError = True # for now; maybe turn off before release -- might be verbose when no errors (not sure)
 
 class StaticRecognizer:
-    """Superclass for pattern and local-structure recognizer classes
+    """
+    Superclass for pattern and local-structure recognizer classes
     which don't need to invalidate/update their computed attrs as the
     local structure changes.
 
@@ -285,9 +292,11 @@ class Base5_recognizer(StaticRecognizer):
 
 
 def bases_are_stacked(bases):
-    """Say whether two Base5_recognizers' bases are in helices, and stacked (one to the other).
+    """
+    Say whether two Base5_recognizers' bases are in helices, and stacked (one to the other).
     For now, this means they have Ax (axis) pseudoatoms which are directly bonded (but not the same atom).
-       WARNING: This is not a sufficient condition, since it doesn't say whether they're on the same "side" of the helix!
+
+    @warning: This is not a sufficient condition, since it doesn't say whether they're on the same "side" of the helix!
     Unfortunately that is not easy to tell (or even define, in the present model)
     since it does not necessarily mean the same strand (in the case of a crossover at that point).
     I [bruce 070604] think there is no local definition of this property which handles that case.
@@ -385,8 +394,9 @@ class Pl5_recognizer(StaticRecognizer):
                     ###REVIEW: this should not prevent offering "Make Crossover", only doing it successfully.
         return bases
     def _C_strand_direction_well_defined(self):
-        """[compute method for self.strand_direction_well_defined]
-        xxx
+        """
+        [compute method for self.strand_direction_well_defined]
+        ###doc
         """
         return self.ordered_bases is not None
 ##    def _C_in_crossover(self):
@@ -409,7 +419,8 @@ class Pl5_recognizer(StaticRecognizer):
         Compute a set of atoms directly involved in using self to make a new crossover.
         Two Pl atoms will only be allowed to be in a newly made crossover
         if (among other things) their sets of involved atoms don't overlap.
-           Require that these atoms are each in one helix.
+
+        Require that these atoms are each in one helix.
         """
         if not self.in_only_one_helix:
             raise RecognizerError("Pl5 atom must be in_only_one_helix")
@@ -418,14 +429,18 @@ class Pl5_recognizer(StaticRecognizer):
             raise RecognizerError("structural error (two bases on one Pl and one Ax??)")
         return res
     def _C_involved_atoms_for_remove_crossover(self): #bruce 070604
-        "#doc"
+        """
+        #doc
+        """
         # seems like we need to check some of what the other method checks, like len 5 -- not sure -- guess yes for now
         res = self._involved_atoms_for_make_or_remove_crossover
         if not len(res) == 5:
             raise RecognizerError("structural error (two bases on one Pl and one Ax? missing Ax?)")
         return res
     def _C__involved_atoms_for_make_or_remove_crossover(self):
-        "[private: compute method for private attr, self._involved_atoms_for_make_or_remove_crossover]"
+        """
+        [private: compute method for private attr, self._involved_atoms_for_make_or_remove_crossover]
+        """
         # KLUGE: the answer happens to be the same for both ops. This might change in the future if they check more
         # of the nearby bases (not sure).
         res = {}
@@ -460,7 +475,9 @@ def make_crossover(twoPls):
     return
 
 def make_or_remove_crossover(twoPls, make = True, cmdname = None):
-    "Make or Remove (according to make option) a crossover, given Pl5_recognizers for its two Pl atoms."
+    """
+    Make or Remove (according to make option) a crossover, given Pl5_recognizers for its two Pl atoms.
+    """
 
     # What we are doing is recognizing one local structure and replacing it with another
     # made from the same atoms. It'd sure be easier if I could do the manipulation in an mmp file,

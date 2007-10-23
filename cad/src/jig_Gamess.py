@@ -2,18 +2,16 @@
 """
 jig_Gamess.py
 
-$Id$
-
-Created by Mark.
+@author: Mark
+@version: $Id$
+@copyright: Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 """
-__author__ = "Mark"
 
 import sys
 
 from jigs import Jig
-from drawer import drawwirecube, drawLineCube
+from drawer import drawwirecube
 from povheader import povpoint # Fix for bug 692 Mark 050628
-from SimServer import SimServer
 from files_gms import get_energy_from_gms_outfile, get_atompos_from_gms_outfile
 from utilities.Log import redmsg, greenmsg
 import env
@@ -54,8 +52,9 @@ from constants import magenta
 # == GAMESS
 
 class Gamess(Jig):
-    '''A Gamess jig has a list of atoms with one or more parameter sets used to run a GAMESS calcuation.'''
-
+    """
+    A Gamess jig has a list of atoms with one or more parameter sets used to run a GAMESS calcuation.
+    """
     sym = "GAMESS"
     icon_names = ["modeltree/gamess.png", "modeltree/gamess-hide.png"]
     featurename = "GAMESS Jig" #bruce 051203
@@ -119,7 +118,9 @@ class Gamess(Jig):
         return "[Object: Gamess Jig] [Name: " + str(self.name) + "] [Total Atoms: " + str(len(self.atoms)) + "] [Parameters: " + self.gms_parms_info() + "]"
      
     def _getToolTipInfo(self): #ninad060825
-        "Return a string for display in Dynamic Tool tip "
+        """
+        Return a string for display in Dynamic Tool tip
+        """
         attachedAtomCount = "<font color=\"#0000FF\">Total  Atoms: </font>%d"%(len(self.atoms))
         return str(self.name) + "<br>" +  "<font color=\"#0000FF\"> Jig Type:</font>Gamess Jig"\
         + "<br>"  +  "<font color=\"#0000FF\"> Parameters:</font>" + self.gms_parms_info()\
@@ -129,8 +130,9 @@ class Gamess(Jig):
         stats.ngamess += 1
 
     def gms_parms_info(self, delimeter='/'):
-        '''Return a GAMESS parms shorthand string.
-        '''
+        """
+        Return a GAMESS parms shorthand string.
+        """
         # This is something Damian and I discussed to quickly display the parms set for
         # a Gamess jig. It is used in the header of the GAMESS INP file and in the naming of
         # the new chunk made from a GAMESS optimization.  It is also used to display the
@@ -170,13 +172,15 @@ class Gamess(Jig):
         return s1 + s2 + s3 + s4 + s5
                         
     def __CM_Calculate_Energy(self):
-        '''Gamess Jig context menu "Calculate Energy"
-        '''
+        """
+        Gamess Jig context menu "Calculate Energy"
+        """
         self.calculate_energy()
         
     def calculate_energy(self):
-        '''Calculate energy.
-        '''
+        """
+        Calculate energy.
+        """
         
         cmd = greenmsg("Calculate Energy: ")
         
@@ -208,13 +212,15 @@ class Gamess(Jig):
         self.print_energy()
             
     def __CM_Optimize_Geometry(self):
-        '''Gamess Jig context menu "Optimize Geometry"
-        '''
+        """
+        Gamess Jig context menu "Optimize Geometry"
+        """
         self.optimize_geometry()
         
     def optimize_geometry(self):
-        '''Optimize geometry
-        '''
+        """
+        Optimize geometry
+        """
         
         cmd = greenmsg("Optimize Geometry: ")
         
@@ -312,7 +318,9 @@ class Gamess(Jig):
             return 1
                 
     def move_atoms(self, newPositions): # used when reading xyz files
-        """Borrowed from movie.moveAtoms.
+        """
+        [Borrowed from movie.moveAtoms.]
+        
         Move a list of atoms to newPosition. After 
         all atoms moving, bond updated, update display once.
         <parameter>newPosition is a list of atom absolute position,
@@ -347,7 +355,8 @@ class Gamess(Jig):
         return
 
     def readmmp_info_gamess_setitem( self, key, val, interp ): #bruce 050701
-        """This is called when reading an mmp file, for each "info gamess" record
+        """
+        This is called when reading an mmp file, for each "info gamess" record
         which occurs right after this node is read and no other (gamess jig) node has been read.
            Key is a list of words, val a string; the entire record format
         is presently [050701] "info gamess <key> = <val>", and there are exactly
@@ -386,7 +395,9 @@ class Gamess(Jig):
         pass
     
     def own_mutable_copyable_attrs(self): #bruce 050704
-        """[overrides Node method]"""
+        """
+        [overrides Node method]
+        """
         super = Jig
         super.own_mutable_copyable_attrs( self)
         for attr in self.mutable_attrs:
@@ -403,7 +414,9 @@ class Gamess(Jig):
         return
 
     def cm_duplicate(self): #bruce 050704.
-        "Make a sibling node in the MT which has the same atoms, and a copy of the params, of this jig."
+        """
+        Make a sibling node in the MT which has the same atoms, and a copy of the params, of this jig.
+        """
             #e Warning: The API (used by modelTree to decide whether to offer this command) is wrong,
             # and the implem should be generalized (to work on any Node or Group). Specifically,
             # this should become a Node method which always works (whether or not it's advisable to use it);
@@ -440,16 +453,17 @@ class Gamess(Jig):
     #    self.gmsjob.edit_cntl.run_job_btn.setEnabled(not val)
     #    Jig.set_disabled_by_user_choice(self, val)
     def is_disabled(self):
-        '''Which is called when model tree is updated? '''
+        """
+        Which is called when model tree is updated?
+        """
         val = Jig.is_disabled(self)
         self.gmsjob.edit_cntl.run_job_btn.setEnabled(not val)
         return val
    
-        
     def update_gamess_parms(self):
-        '''Update the GAMESS parameter set values using the settings in the UI object.
-        '''
-        
+        """
+        Update the GAMESS parameter set values using the settings in the UI object.
+        """
         # $CONTRL group ###########################################
         
         # Parms Values
@@ -543,13 +557,14 @@ class Gamess(Jig):
             self.pset.basis.gbasis = gbasis[self.pset.ui.gbasis] # GBASIS
         else:
             self.pset.basis.gbasis = gbasis[self.pset.ui.gbasis + 2] # GBASIS
-
+        return
     
     pass # end of class Gamess
 
 class gamessParms(state_utils.DataMixin): #bruce 060306 added superclass
     def __init__(self, name):
-        '''A GAMESS parameter set contains all the parameters for a Gamess Jig.
+        """
+        A GAMESS parameter set contains all the parameters for a Gamess Jig.
         
         The ui ctlRec object is the "master".  From it, all the other ctlRec objects 
         have their parms set/reset, in GamessProp._save_parms(), each time the user
@@ -565,7 +580,7 @@ class gamessParms(state_utils.DataMixin): #bruce 060306 added superclass
         the other ctlRec objects.  The ui object is used to setup the UI and 
         read/write parms to/from the MMP file. The values for the other
         ctlRec objects are set (and only important) when writing the GAMESS input file.
-        '''
+        """
         self.name = name or "" # Parms set name, assumed to be a string by some code
         self.ui = ctlRec('UI', ui) # "Master" ui object.
         self.contrl = ctlRec('CONTRL',contrl) # $CONTRL group object
@@ -578,7 +593,9 @@ class gamessParms(state_utils.DataMixin): #bruce 060306 added superclass
         self.basis = ctlRec('BASIS',basis) # $BASIS group object
 
     def prin1(self, f=None):
-        'Write all parms to input file'
+        """
+        Write all parms to input file
+        """
         self.contrl.prin1(f)
         self.scf.prin1(f)
         self.system.prin1(f)
@@ -590,9 +607,11 @@ class gamessParms(state_utils.DataMixin): #bruce 060306 added superclass
         self.basis.prin1(f)
 
     def param_names_and_valstrings(self, canonical = False): #bruce 050701; extended by Mark 050704 to return the proper set of params
-        """Return a list of pairs of (<param name>, <param value printable by %s>) for all
+        """
+        Return a list of pairs of (<param name>, <param value printable by %s>) for all
         gamess params we want to write to an mmp file from this set, sorted by <param name>.
-           These names and value-strings need to be recognized and decoded by the
+
+        These names and value-strings need to be recognized and decoded by the
         info_gamess_setitem method of this class, and they need to strictly follow certain rules
         documented in comments in the self.writemmp() method.
         """
@@ -606,7 +625,10 @@ class gamessParms(state_utils.DataMixin): #bruce 060306 added superclass
 
     def deepcopy(self, alter_name = True): #bruce 051003 added alter_name, but I don't know if passing False is ever legal. ###@@@
         #bruce 050704; don't know whether this is complete [needs review by Mark; is it ok it only sets .ui?]
-        "Make a copy of self (a gamessParms object), which shares no mutable state with self. (Used to copy a Gamess Jig containing self.)"
+        """
+        Make a copy of self (a gamessParms object), which shares no mutable state with self.
+        (Used to copy a Gamess Jig containing self.)
+        """
         if alter_name:
             newname = self.name + " copy"
             # copy needs a different name #e could improve this -- see the code used to rename chunk copies
@@ -681,7 +703,8 @@ class gamessParms(state_utils.DataMixin): #bruce 060306 added superclass
     
     def info_gamess_setitem(self, name, val, interp, error_if_name_not_known = False):
         #bruce 050701; extended by Mark 050704 to read and set the actual params; bruce 050704 added error_if_name_not_known
-        """This must set the parameter in self with the given name
+        """
+        This must set the parameter in self with the given name
         to the value encoded by the string val
         (read from an mmp file from which this parameter set and its gamess jig is being read).
            If it doesn't recognize name or can't parse val,
@@ -690,7 +713,8 @@ class gamessParms(state_utils.DataMixin): #bruce 060306 added superclass
            (If it's too tedious to avoid exceptions in parsing val,
         change the caller (which already ignores those exceptions, but always prints a message calling them bugs)
         to classify those exceptions as not being bugs (and to only print a message when atom_debug is set).
-           [See also the docstring of Gamess.readmmp_info_gamess_setitem, which calls this.]
+
+        [See also the docstring of Gamess.readmmp_info_gamess_setitem, which calls this.]
         """
         if name == 'comment':       # Description/Comment
             self.ui.comment = val
@@ -825,7 +849,9 @@ class ctlRec:
             self.__dict__[k] = parms[k]
 
     def prin1(self, f):
-        'Write parms group to input file'
+        """
+        Write parms group to input file
+        """
         f.write (" $"  + self.name + ' ')
         col = len(self.name) + 3
         for k in self.parms:
@@ -839,13 +865,15 @@ class ctlRec:
         f.write('$END\n')
 
     def get_mmp_parms(self, canonical = False): 
-        '''Return a list of pairs (parmname, str(parmvalue)) of all the Gamess jig parms
+        """
+        Return a list of pairs (parmname, str(parmvalue)) of all the Gamess jig parms
         (and str() of their values) to be stored in the MMP file, sorted by parm name.
-           If option canonical = True, canonicalize the values for comparison
+
+        If option canonical = True, canonicalize the values for comparison
         (i.e. use "False" and "True" rather than "0" and "1", for all booleans).
         WARNING: This option is only reviewed for correctness in the instance of this class
         stored in the .ui attribute of its gamesParms object.
-        '''
+        """
         #bruce 060308 added canonical option, to help fix bug 1616
         #bruce 060307 revised docstring to fit code (added str())
         items = []

@@ -1,21 +1,21 @@
 # Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-prefs_widgets.py
+prefs_widgets.py -- Utilities related to both user preferences and Qt widgets.
 
-Utilities related to both user preferences and Qt widgets.
+Note: also includes some code related to "connect with state"
+which should be refiled.
 
-$Id$
+@author: bruce
+@version: $Id$
+@copyright: Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
 Bruce 050805 started this module.
 """
 
-__author__ = "Bruce"
-
 import env # for env.prefs
 from debug import print_compact_traceback
-import platform
 
 from changes import Formula
 from widgets import RGBf_to_QColor

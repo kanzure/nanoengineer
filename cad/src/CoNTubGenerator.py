@@ -25,11 +25,11 @@ import os, sys, time
 
 import env
 import Initialize
-from utilities.Log import redmsg, orangemsg, greenmsg, quote_html
+from utilities.Log import quote_html, redmsg ##, orangemsg, greenmsg
 from ParameterDialog import ParameterDialog, ParameterPane
 from GeneratorController import GeneratorController
-from GeneratorBaseClass import UserError, PluginBug, CadBug
-from debug import print_compact_traceback, objectBrowse
+from GeneratorBaseClass import UserError, PluginBug ##, CadBug
+from debug import print_compact_traceback
 from PlatformDependent import find_or_make_any_directory, tempfiles_dir, find_plugin_dir
 import EndUser
 

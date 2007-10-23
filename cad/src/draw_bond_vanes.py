@@ -1,12 +1,12 @@
 # Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
-draw_bond_vanes.py
+"""
+draw_bond_vanes.py -- part of the drawing code for higher-order bonds --
+represent pi orbitals as "vanes".
 
-part of drawing code for higher-order bonds -- represent pi orbitals as "vanes".
-
-$Id$
-'''
-__author__ = 'bruce'
+@author: bruce
+@version: $Id$
+@copyright: Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details.
+"""
 
 import math
 from Numeric import dot
@@ -29,20 +29,19 @@ from OpenGL.GL import GL_LINE_STRIP
 from OpenGL.GL import glEnable
 from OpenGL.GL import GL_FALSE
 
-from VQT import V, cross, vlen, norm
+from VQT import cross, vlen, norm
 
 import env
 import drawer
 
-from debug import print_compact_traceback, print_compact_stack
-
-from constants import TubeRadius, blue, gray, black, white
+from constants import white
 from prefs_constants import pibondStyle_prefs_key
 
 MAXTWIST = 5 * math.pi / 180 # permissible twist of one vane segment (5 degrees -- just a guess)
 
 def draw_bond_vanes(bond, glpane, sigmabond_cyl_radius, col):
-    """Given a bond with some pi orbital occupancy (i.e. not a single bond),
+    """
+    Given a bond with some pi orbital occupancy (i.e. not a single bond),
     draw some "vanes" representing the pi orbitals.
     DON'T use glpane for .out and .up when arbitrary choices are needed -- use coords derived from model-space out and up.
     """
@@ -59,12 +58,14 @@ def draw_bond_vanes(bond, glpane, sigmabond_cyl_radius, col):
     return
 
 def draw_vane( bond, a1p, a2p, ord_pi, rad, col ):
-    """draw a vane (extending on two opposite sides of the bond axis) [#doc more];
+    """
+    Draw a vane (extending on two opposite sides of the bond axis) [#doc more];
     use ord_pi to determine how intense it is (not yet sure how, maybe by mixing in bgcolor??);
     a1p and a2p should be unit vectors perp to bond and no more than 90 degrees apart when seen along it;
     they should be in the bond's coordinate system.
     rad is inner radius of vanes, typically the cylinder radius for the sigma bond graphic.
-       If col is not boolean false, use it as the vane color; otherwise, use a constant color
+
+    If col is not boolean false, use it as the vane color; otherwise, use a constant color
     which might be influenced by the pi orbital occupancy.
     """
     from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False

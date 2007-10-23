@@ -1,11 +1,11 @@
 # Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
+"""
 widget_controllers.py
 
-$Id$
-'''
-__author__ = "bruce"
-
+@author: bruce
+@version: $Id$
+@copyright: Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
+"""
 
 # a widget expr controller for a collapsible GroupBox
 
@@ -16,7 +16,6 @@ __author__ = "bruce"
 # (can that just be the program env as a whole?)
 
 from PyQt4.Qt import QIcon, SIGNAL
-from PyQt4 import QtGui
 from qt4transition import qt4todo
 
 import env

@@ -10,12 +10,10 @@ mark 060602 - Created for NFR: "Insert > POV-Ray Scene".
 '''
 __author__ = "Mark"
 
-from PyQt4.Qt import SIGNAL, QDialog, QWhatsThis, QIcon, QDialog
+from PyQt4.Qt import SIGNAL, QDialog, QWhatsThis, QDialog
 from PovrayScenePropDialog import Ui_PovrayScenePropDialog
-from utilities.Log import greenmsg
-from widgets import double_fixup
 import env, os
-from utilities.Log import redmsg, orangemsg, greenmsg
+from utilities.Log import redmsg, greenmsg
 from GroupButtonMixin import GroupButtonMixin
 from Sponsors import SponsorableMixin
 from utilities.Comparison import same_vals

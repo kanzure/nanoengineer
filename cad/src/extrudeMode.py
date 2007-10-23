@@ -50,7 +50,7 @@ from PyQt4.Qt import Qt
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QCursor
 
-from debug_prefs import debug_pref, Choice, Choice_boolean_False, Choice_boolean_True
+from debug_prefs import debug_pref, Choice, Choice_boolean_False ##, Choice_boolean_True
 
 from modes import basicMode
 from debug import print_compact_traceback, print_compact_stack
@@ -58,7 +58,8 @@ from bonds import bond_at_singlets
 from icon_utilities import geticon
 from utilities.Log import redmsg
 
-from VQT import check_floats_near, check_posns_near, check_quats_near
+from VQT import check_posns_near, check_quats_near
+##from VQT import check_floats_near
 from VQT import V, Q, norm, vlen, cross
     
 from ExtrudePropertyManager import ExtrudePropertyManager

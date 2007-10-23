@@ -18,26 +18,22 @@ split up the class MWsemantics (as for cookieMode), not just the file.]
 [some of that splitup has been done, now, by Ninad in the Qt4 branch]
 """
 
-from qt4transition import qt4warnDestruction
 from qt4transition import qt4todo
 from qt4transition import qt4warning
 
 from PyQt4 import QtGui
 
 from PyQt4.Qt import Qt
-from PyQt4.Qt import QSizePolicy
 from PyQt4.Qt import QFont
 from PyQt4.Qt import QAction
-from PyQt4.Qt import QActionGroup
 from PyQt4.Qt import QVBoxLayout
 from PyQt4.Qt import QGridLayout
 from PyQt4.Qt import QMenu
 from PyQt4.Qt import QIcon
-from PyQt4.Qt import QToolBar
 
-from PyQt4.Qt import QMainWindow, QFrame, SIGNAL, QFileDialog, QWidget
-from PyQt4.Qt import QCursor, QBitmap, QLabel, QSplitter, QMessageBox
-from PyQt4.Qt import QString, QColorDialog, QColor
+from PyQt4.Qt import QMainWindow, QFrame, SIGNAL, QWidget
+from PyQt4.Qt import QSplitter, QMessageBox
+from PyQt4.Qt import QColorDialog
 from PyQt4 import QtCore
 from GLPane import GLPane 
 from elements import PeriodicTable
@@ -45,7 +41,6 @@ from assembly import assembly
 from drawer import get_gl_info_string ## grantham 20051201
 from Ui_PartWindow import PartWindow, GridPosition
 import os, sys
-from math import ceil
 from modelTree import modelTree 
 import platform
 from icon_utilities import geticon
@@ -53,19 +48,11 @@ from icon_utilities import geticon
 from PlatformDependent import find_or_make_Nanorex_directory
 from PlatformDependent import make_history_filename
 
-from PropMgr_Constants import pmDefaultWidth, pmMaxWidth, pmMinWidth
 from elementColors import elementColors 
-from elementSelector import elementSelector 
-from Sponsors import PermissionDialog
 
 from ViewOrientationWindow import ViewOrientationWindow # Ninad 061121
 
-# most of the file format imports are probably no longer needed; I'm removing some of them
-# (but we need to check for imports of them from here by other modules) [bruce 050907]
-from files_pdb import readpdb, insertpdb, writepdb
-from files_gms import readgms, insertgms
-
-from debug import print_compact_traceback, print_compact_stack
+from debug import print_compact_traceback
 from debug_prefs import debug_pref, Choice_boolean_False
 
 from MainWindowUI import Ui_MainWindow

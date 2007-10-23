@@ -2,7 +2,9 @@
 """
 bond_drawer.py -- implementations of Bond.draw and Bond.writepov.
 
-$Id$
+@author: Josh, Bruce
+@version: $Id$
+@copyright: Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -10,8 +12,6 @@ History:
 in preparation for further extending Bond.draw (and someday Bond.writepov) for
 higher-order bonds.
 """
-
-__author__ = "Josh"
 
 from OpenGL.GL import glPushName
 from OpenGL.GL import glPopName
@@ -39,7 +39,7 @@ import platform
 from povheader import povpoint
 from utilities.Printing import Vector3ToString
 from elements import Singlet
-from ThumbView import MMKitView
+from ThumbView import MMKitView ### TODO: removing this would chop 3 nodes and more arcs out of cycle graph [bruce 071023 comment]
 
 from debug import print_compact_stack, print_compact_traceback
 
@@ -67,7 +67,7 @@ from bond_constants import V_AROMATIC
 from bond_constants import V_GRAPHITE
 from bond_constants import V_CARBOMERIC
 
-from prefs_constants import _default_toolong_hicolor ## not yet in prefs db
+from prefs_constants import _default_toolong_hicolor ## not yet in prefs db?
 from prefs_constants import diBALL_BondCylinderRadius_prefs_key
 from prefs_constants import pibondLetters_prefs_key
 from prefs_constants import pibondStyle_prefs_key
@@ -161,7 +161,8 @@ class writepov_to_file:
 
 def draw_bond(self, glpane, dispdef, col, level, highlighted = False, bool_fullBondLength = False):
     #bruce 050702 adding shorten_tubes option; 050727 that's now implied by new highlighted option
-    """Draw the bond 'self'. This function is only meant to be called as the implementation of Bond.draw.
+    """
+    Draw the bond 'self'. This function is only meant to be called as the implementation of Bond.draw.
     See that method's docstring for details of how it's called.
     The highlighted option says to modify our appearance as appropriate for being highlighted
     (but the highlight color, if any, is passed as a non-false value of col).
@@ -214,8 +215,10 @@ def draw_bond(self, glpane, dispdef, col, level, highlighted = False, bool_fullB
     return # from draw_bond, implem of Bond.draw
 
 def draw_bond_main( self, glpane, disp, col, level, highlighted, povfile = None, bool_fullBondLength = False):
-    "[private helper function for this module only.] self is a bond. For other doc, see the calls."
-    
+    """
+    [private helper function for this module only.]
+    self is a bond. For other doc, see the calls.
+    """
     # figure out how this display mode draws bonds; return now if it doesn't [moved inside this function, bruce 060622]
     if disp == diLINES:
         sigmabond_cyl_radius = diBALL_SigmaBondRadius / 5.0
@@ -311,21 +314,6 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, povfile = None,
 
             if bool_arrowsOnAll:
                 # draw arrow on bond unless there is some reason not to.
-
-# probably not this way -- remove if confirmed, or make the atom method non-private if we keep it: [bruce 071016]
-##                # if either atom will look like an arrowhead,
-##                # we don't want the bond to bond to have its own arrowhead.
-##                # [bruce 071016, requested by mark]
-##                ### REVIEW: is this true even if there's a bond direction error to indicate?
-##                ### REVIEW: is this still correct, if those are non-arrows due to prefs
-##                # rather than due to atom.strand_end_bond()? If so, fix by
-##                # replacing these tests with calls to strand_end_bond.
-##                if self.atom1._draw_atom_style().startswith('arrowhead') or \
-##                   self.atom2._draw_atom_style().startswith('arrowhead'):
-##                    pass
-##                else:
-##                    dir_info = (self.bond_direction_from(self.atom1), self.is_directional())
-##                pass
 
                 # If either atom will look like an arrowhead (before prefs are applied) --
                 # i.e. if either one is a strand_end -- we don't want the bond to have its
@@ -510,8 +498,8 @@ def multicyl_pvecs( howmany, a2py, a2pz):
 
 def draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highlighted, level, \
                    sigmabond_cyl_radius, shorten_tubes, geom, v6, povfile, dir_info, bool_fullBondLength = False ):
-
-    """Draw one cylinder, which might be for a sigma bond, or one of 2 or 3 cyls for double or triple bonds.
+    """
+    Draw one cylinder, which might be for a sigma bond, or one of 2 or 3 cyls for double or triple bonds.
     [private function for a single caller, which is the only reason such a long arglist is tolerable]
     """
     # Note: bool_fullBondLength represent whether full bond length to be drawn
@@ -693,7 +681,9 @@ def draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highli
 # ==
 
 def writepov_bond(self, file, dispdef, col):
-    "Write this bond 'self' to a povray file (always using absolute coords, even for internal bonds)."
+    """
+    Write this bond 'self' to a povray file (always using absolute coords, even for internal bonds).
+    """
     disp = max(self.atom1.display, self.atom2.display)
     if disp == diDEFAULT:
         disp = dispdef

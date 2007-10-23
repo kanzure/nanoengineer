@@ -2,7 +2,9 @@
 """
 GrapheneGenerator.py
 
-$Id$
+@author: Will
+@version: $Id$
+@copyright: Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -11,21 +13,19 @@ Mark 2007-07-24: Now uses new PM module.
 Mark 2007-08-06: Renamed GrapheneGeneratorDialog to GrapheneGeneratorPropertyManager.
 """
 
-__author__ = "Will"
+from math import atan2, pi
 
-from math import atan2, sin, cos, pi
-from Numeric import dot
-
-import platform
-import chem, bonds, Utility
+from VQT import V
 from chem import Atom
+
+import bonds # for bond_atoms
+import bond_constants
+
 from chunk import molecule
 import env
-from debug import Stopwatch, objectBrowse
-from Utility import Group
+from debug import Stopwatch
 from elements import PeriodicTable
 from utilities.Log import greenmsg
-import bond_constants
 
 from GrapheneGeneratorPropertyManager import GrapheneGeneratorPropertyManager
 from GeneratorBaseClass import GeneratorBaseClass
@@ -89,11 +89,12 @@ class GrapheneGenerator( GrapheneGeneratorPropertyManager, GeneratorBaseClass):
         return mol
 
     def populate(self, mol, height, width, z, bond_length, endings, position):
-        """Create a graphene sheet chunk.
+        """
+        Create a graphene sheet chunk.
         """
 
         def add(element, x, y, atomtype='sp2'):
-            atm = Atom(element, chem.V(x, y, z), mol)
+            atm = Atom(element, V(x, y, z), mol)
             atm.set_atomtype_but_dont_revise_singlets(atomtype)
             return atm
 
@@ -160,7 +161,7 @@ class GrapheneGenerator( GrapheneGeneratorPropertyManager, GeneratorBaseClass):
                 if 0.25 * width <= r <= 0.5 * width:
                     angle = atan2(y, x)
                     zdisp = (angstromsPerTurn * angle) / (2 * pi)
-                    atm.setposn(chem.V(x, y, z + zdisp))
+                    atm.setposn(V(x, y, z + zdisp))
                 else:
                     atm.kill()
 

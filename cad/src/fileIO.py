@@ -24,8 +24,6 @@ from VQT import V, Q, A, vlen
 from povheader import povheader, povpoint
 from mdldata import mdlheader
 from mdldata import mdlfooter
-from utilities.Log import redmsg
-from elements import PeriodicTable
 
 from constants import diINVISIBLE
 from prefs_constants import PERSPECTIVE
@@ -51,8 +49,7 @@ def writepovfile(part, glpane, filename):
     aspect = (glpane.width + 0.0)/(glpane.height + 0.0)
     zfactor =  0.4 # zoom factor 
     up = V(0.0, zfactor, 0.0)
-    right = V( aspect * zfactor, 0.0, 0.0) ##1.33  
-    import math
+    right = V( aspect * zfactor, 0.0, 0.0) ##1.33
     angle = 2.0*math.atan2(aspect, cdist)*180.0/math.pi
     
     f.write("// Recommended window size: width=%d, height=%d \n"%(glpane.width, glpane.height))
