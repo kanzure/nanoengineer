@@ -21,24 +21,17 @@ from exprs.draggable import DraggableObject
 
 from exprs.images import Image
 
-from exprs.controls import ActionButton, PrintAction
+from exprs.controls import ActionButton ##, PrintAction
 
 from exprs.geometry_exprs import Ray
 
-from exprs.transforms import Translate
-
-from exprs.Overlay import Overlay
-
-from constants import black, pink, white
-
-from exprs.Exprs import call_Expr, tuple_Expr
 from exprs.statearray import StateArrayRefs, StateArrayRefs_getitem_as_stateref
 from exprs.iterator_exprs import MapListToExpr, KLUGE_for_passing_expr_classes_as_functions_to_ArgExpr
 from exprs.instance_helpers import DelegatingInstanceOrExpr
-from exprs.attr_decl_macros import Arg, Option, Instance
-from exprs.ExprsConstants import StateRef, Color, ORIGIN, DY, DX, Width, Vector
+from exprs.attr_decl_macros import Arg, Instance
+from exprs.ExprsConstants import StateRef, ORIGIN, DY, DX, Width
 from exprs.py_utils import sorted_items
-from exprs.__Symbols__ import _self, Anything
+from exprs.__Symbols__ import _self
 
 
 from exprs.DragBehavior import DragBehavior

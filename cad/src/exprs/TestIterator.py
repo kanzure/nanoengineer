@@ -1,6 +1,10 @@
 # Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-$Id$
+TestIterator.py
+
+@author: bruce
+@version: $Id$
+@copyright: Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 
 """
 
@@ -15,7 +19,8 @@ from exprs.Overlay import Overlay
 
 from exprs.transforms import Translate
 
-from exprs.Column import SimpleRow, SimpleColumn
+from exprs.Column import SimpleColumn
+##from exprs.Column import SimpleRow
 
 from VQT import V
 

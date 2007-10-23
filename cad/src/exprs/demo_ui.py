@@ -2,12 +2,14 @@
 """
 demo_ui.py - try out a more CAD-like UI organization
 
-$Id$
+@author: bruce
+@version: $Id$
+@copyright: Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 
 from exprs.toolbars import MainToolbar
 
-from exprs.command_registry import auto_register, find_or_make_global_command_registry, CommandRegistry
+from exprs.command_registry import find_or_make_global_command_registry
 
 from constants import pink
 from prefs_constants import UPPER_LEFT, UPPER_RIGHT

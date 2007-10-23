@@ -2,7 +2,9 @@
 """
 widget_env.py -- an environment for the instantiation and use of widget exprs
 
-$Id$
+@author: bruce
+@version: $Id$
+@copyright: Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 
 
 The environment is used for lexical replacement & instantiation,
@@ -72,7 +74,8 @@ The likely uses for lexical variables are in user-defined rules, and the hardcod
 from idlelib.Delegator import Delegator ###e we should use our own delegation code, since we don't need the key cache so it can be more efficient
 
 from exprs.Exprs import canon_expr
-from exprs.py_utils import printnim, printfyi
+from exprs.py_utils import printnim
+##from exprs.py_utils import printfyi
 
 class widget_env(Delegator):
     "represent an environment for the instantiation and use of widget exprs (with rules and staterefs)"

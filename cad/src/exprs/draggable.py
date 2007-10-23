@@ -2,7 +2,10 @@
 """
 draggable.py
 
-$Id$
+@author: bruce
+@version: $Id$
+@copyright: Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
+
 
 070203 status: DraggableObject works, except:
 - move/flush untested, and if it works, will require objs already with posn state
@@ -76,7 +79,7 @@ from exprs.Center import TopLeft, Center
 from exprs.clipping_planes import Clipped, clip_to_right_of_x0, clip_below_y0
 from exprs.ExprsConstants import StubType, StateRef, Vector, Quat, ORIGIN
 from exprs.widget2d import Widget
-from exprs.instance_helpers import DelegatingInstanceOrExpr, InstanceOrExpr, ModelObject
+from exprs.instance_helpers import DelegatingInstanceOrExpr, ModelObject
 from exprs.attr_decl_macros import Arg, Option, State, Instance
 from exprs.__Symbols__ import Anything, _self, _my
 

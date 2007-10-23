@@ -3,7 +3,9 @@
 __init__.py -- control initial import order and side effects,
 whenever any submodule of this exprs package is used.
 
-$Id$
+@author: bruce
+@version: $Id$
+@copyright: Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 __author__ = "bruce"
 
@@ -13,6 +15,9 @@ __author__ = "bruce"
 
 import Exprs # probably not needed at present, but might be needed
     # if we revise __Symbols__.py to not import Exprs, or vice versa
+
+# try to tell Pylint that we needed to do that import: [bruce 071023]
+Exprs
 
 # initialize some symbols using side effects
 # [moved here from ExprsConstants.py, bruce 070914]

@@ -2,36 +2,33 @@
 """
 Boxed.py -- example of high-level layout expr
 
-$Id$
+@author: bruce
+@version: $Id$
+@copyright: Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
+
+See also: DraggablyBoxed
 
 """
 
 from constants import white
 
-from exprs.Rect import Rect, RectFrame
-
+from exprs.Rect import RectFrame
 from exprs.Overlay import Overlay
-
 from exprs.transforms import Translate
-
-from exprs.Center import Center, TopLeft
-
-from exprs.Highlightable import Highlightable
-
-from exprs.clipping_planes import clip_below_y0, clip_to_right_of_x0, Clipped
-
-from exprs.Exprs import V_expr, neg_Expr
+from exprs.clipping_planes import Clipped
+from exprs.Exprs import V_expr
 from exprs.widget2d import Widget2D
 from exprs.instance_helpers import InstanceMacro
-from exprs.attr_decl_macros import Arg, Option, State, Instance
-from exprs.ExprsConstants import Width, PIXELS, Color, Vector, ORIGIN
-from exprs.__Symbols__ import _self
+from exprs.attr_decl_macros import Arg, Option
+from exprs.ExprsConstants import Width, PIXELS, Color
 
 class Boxed(InstanceMacro): # 070316 slightly revised 
-    """Boxed(widget) is a boxed version of widget -- it looks like widget, centered inside a rectangular frame.
+    """
+    Boxed(widget) is a boxed version of widget -- it looks like widget, centered inside a rectangular frame.
     Default options are pixelgap = 4 (in pixels), borderwidth = 4 (in pixels), bordercolor = white.
     [#e These can be changed in the env in the usual way. [nim]]
-       WARNING: some deprecated but commonly used options are given in model units, not in pixels (probably a design flaw).
+
+    @warning: some deprecated but commonly used options are given in model units, not in pixels (probably a design flaw).
     """
     #e (Does Boxed want a clipped option, like DraggablyBoxed has? What about just Rect?)
     # WARNING: would not work if it inherited from Widget2D,
@@ -67,10 +64,6 @@ class Boxed(InstanceMacro): # 070316 slightly revised
     _value = Overlay( Translate( rectframe,
                                  - V_expr( thing.bleft + extra1, thing.bbottom + extra1) ), #e can't we clarify this somehow?
                       thing)
-    pass # end of class Boxed
-
-# ==
-
-# DraggablyBoxed moved to draggable to avoid import loop
+    pass
 
 # end

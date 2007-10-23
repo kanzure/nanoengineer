@@ -2,7 +2,9 @@
 """
 Set.py - provide the assignment action called Set, and (for now) the deprecated older variant SetStateRefValue.
 
-$Id$
+@author: bruce
+@version: $Id$
+@copyright: Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 
 
 Note: this operation name is important enough to override any worry about the potential
@@ -19,7 +21,7 @@ adding Set with arg1 an lval eg a getattr_Expr, 061204; works in testexpr_16
 """
 
 from exprs.attr_decl_macros import Arg, LvalueArg
-from exprs.instance_helpers import InstanceOrExpr, DelegatingMixin
+from exprs.instance_helpers import InstanceOrExpr
 from exprs.ExprsConstants import StateRef
 from exprs.__Symbols__ import Anything
 

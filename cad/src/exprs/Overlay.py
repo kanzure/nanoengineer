@@ -2,7 +2,9 @@
 """
 Overlay.py
 
-$Id$
+@author: bruce
+@version: $Id$
+@copyright: Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 
 """
 
@@ -13,8 +15,7 @@ from exprs.Rect import Spacer
 from exprs.attr_decl_macros import Arg
 from exprs.instance_helpers import InstanceOrExpr, DelegatingMixin
 from exprs.widget2d import Widget2D
-from exprs.Exprs import list_Expr, and_Expr, canon_expr, or_Expr
-from exprs.py_utils import printfyi
+from exprs.Exprs import list_Expr, and_Expr, or_Expr
 
 class Overlay(InstanceOrExpr, DelegatingMixin):
     "Overlay has the size of its first arg, but draws all its args in the same place, with the same origin."

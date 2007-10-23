@@ -2,7 +2,9 @@
 """
 demo_drag.py
 
-$Id$
+@author: bruce
+@version: $Id$
+@copyright: Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 
 
 demo not only some drag actions, but some ways of setting up new model types
@@ -40,19 +42,15 @@ from exprs.transforms import Translate
 
 from exprs.Rect import Rect ##, Sphere
 
-from exprs.Center import Center, CenterY
+from exprs.Center import Center
 
 from exprs.Highlightable import Highlightable, BackgroundObject ##, Button, print_Expr
-
-from exprs.TextRect import TextRect
 
 from exprs.controls import checkbox_pref, ActionButton
 
 from exprs.Column import SimpleColumn, SimpleRow
 
 from exprs.DisplistChunk import DisplistChunk
-
-from exprs.lvals import Lval, LvalDict2, call_but_discard_tracked_usage
 
 from exprs.world import World
 
@@ -227,8 +225,6 @@ WithViewerFunc = Stub # see rules.py, to which I moved the more expansive stub o
 # ===
 
 # 070223 new hack
-
-import platform
 
 ##class polyline_handle(DelegatingInstanceOrExpr):
 ##    delegate = Draggable(Rect(0.3,green))

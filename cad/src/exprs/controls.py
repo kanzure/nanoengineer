@@ -2,23 +2,24 @@
 """
 controls.py - some simple controls, like ChoiceButton, ChoiceColumn/Row, checkbox_v3
 
-$Id$
+@author: bruce
+@version: $Id$
+@copyright: Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 
+TODO:
 
-###e also has some general things we need to refile
+- also has some general things we need to refile
 
-#e see also: toolbars.py
+See also: toolbars.py
 """
 
 #e stub, nim; implem requires StateRef, some better type conversion (& filling it out below), Set action, on_press accepting that
-
-#e imports
 
 import time
 
 from exprs.Rect import Rect, Spacer, SpacerFor
 
-from exprs.Center import Center, CenterY
+from exprs.Center import CenterY
 
 from exprs.Column import SimpleColumn, SimpleRow
 
@@ -30,7 +31,7 @@ from exprs.Highlightable import Highlightable, print_Expr
 
 from exprs.Overlay import Overlay
 
-from exprs.images import Image, IconImage
+from exprs.images import IconImage
 
 from exprs.staterefs import PrefsKey_StateRef
 
@@ -43,11 +44,11 @@ If = If_kluge # until debugged
 from exprs.ExprsConstants import StubType
 stubtype = StubType
 
-from exprs.Set import Set, SetStateRefValue ###e move to basic, but maybe only import of Set, not of this semiobs variant [061204 comment]
+from exprs.Set import Set
 
 from exprs.staterefs import LocalVariable_StateRef ###e move to basic, if it doesn't become obs, but it probably will, once State works
 
-from exprs.debug_exprs import debug_evals_of_Expr
+##from exprs.debug_exprs import debug_evals_of_Expr
 
 from constants import gray, blue, yellow, orange
 from debug_prefs import debug_pref

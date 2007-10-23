@@ -2,47 +2,32 @@
 """
 test_statearray.py
 
-$Id$
+@author: bruce
+@version: $Id$
+@copyright: Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 
-also contains test code for constrained dragging.
-[that has been moved to other files, 070912]
 """
-__author__ = 'bruce'
 
-# maybe some of these imports are not needed
+from exprs.Column import SimpleRow
 
-from exprs.Column import SimpleColumn, SimpleRow
+from exprs.Rect import Rect
 
-from exprs.Rect import Rect, Line
-
-from exprs.Highlightable import Highlightable, SavedCoordsys
+from exprs.Highlightable import Highlightable
 
 from exprs.Boxed import Boxed
 
-from exprs.Set import Set ##e move to basic?
+from exprs.Set import Set
 
-from exprs.draggable import DraggableObject
+from constants import black, pink
 
-from exprs.images import Image, IconImage, NativeImage, PixelGrabber
-
-from exprs.controls import ActionButton, PrintAction
-
-from exprs.geometry_exprs import Ray
-
-from exprs.transforms import Translate
-
-from exprs.Overlay import Overlay
-
-from constants import black, pink, white
-
-from exprs.Exprs import call_Expr, tuple_Expr
+from exprs.Exprs import call_Expr
 from exprs.statearray import StateArrayRefs, StateArrayRefs_getitem_as_stateref
 from exprs.iterator_exprs import MapListToExpr, KLUGE_for_passing_expr_classes_as_functions_to_ArgExpr
 from exprs.instance_helpers import DelegatingInstanceOrExpr
-from exprs.attr_decl_macros import Arg, Option, Instance
-from exprs.ExprsConstants import StateRef, Color, ORIGIN, DY, DX, Width, Vector
-from exprs.py_utils import sorted_items
-from exprs.__Symbols__ import _self, Anything
+from exprs.attr_decl_macros import Arg
+from exprs.ExprsConstants import StateRef, Color
+
+from exprs.__Symbols__ import _self
 
 # == example 1
 

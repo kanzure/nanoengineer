@@ -3,8 +3,9 @@
 ExprsMeta.py -- one metaclass, to take care of whatever is best handled using a metaclass,
 and intended to be used for all or most classes in this module.
 
-$Id$
-
+@author: bruce
+@version: $Id$
+@copyright: Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 
 ===
 
@@ -135,7 +136,7 @@ What ExprsMeta handles specifically:
 from idlelib.Delegator import Delegator
 
 # from modules in cad/src
-from env import seen_before
+##from env import seen_before
 from debug import print_compact_traceback, print_compact_stack
 
 # from this exprs package in cad/src

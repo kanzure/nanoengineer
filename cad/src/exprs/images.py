@@ -2,7 +2,10 @@
 """
 images.py - provide some image-displaying utilities and primitives
 
-$Id$
+@author: bruce
+@version: $Id$
+@copyright: Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
+
 
 semi-obs:
 
@@ -58,6 +61,9 @@ from OpenGL.GL import GL_ALPHA_TEST
 from OpenGL.GL import GL_GREATER
 from OpenGL.GL import glAlphaFunc
 from OpenGL.GL import glDisable
+from OpenGL.GL import glFlush
+##from OpenGL.GL import glFinish
+
 from OpenGL.GLU import gluProject
 
 from exprs.draw_utils import draw_textured_rect, draw_textured_rect_subtriangle
@@ -561,8 +567,6 @@ class NativeImage(DelegatingInstanceOrExpr): #070304 [works (imperfectly? see co
 #e put in its own file? yes.
 
 #e search for "visual regression test framework" for ideas on that in comment below; refile them into PixelTester.py ##e
-
-from OpenGL.GL import glFlush, glFinish
 
 class PixelGrabber(InstanceOrExpr, DelegatingMixin):#e draft, API needs revision to provide more control over when to save, button-compatible
     """Act like our first argument, but after the first(??) draw call,

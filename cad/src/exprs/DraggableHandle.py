@@ -2,28 +2,26 @@
 """
 DraggableHandle.py - some convenience exprs for draggable handles
 
-$Id$
+@author: bruce
+@version: $Id$
+@copyright: Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 
 Note about the name: we use DraggableHandle rather than DragHandle,
 to avoid confusion with the DragHandler API (which would
 otherwise differ by only the final 'r').
 """
-__author__ = "bruce"
 
 from constants import white
 
-from exprs.attr_decl_macros import Instance, State, Option
-from exprs.If_expr import If_expr 
+from exprs.attr_decl_macros import Instance, Option
 from exprs.transforms import Translate
 from exprs.Center import Center
-from exprs.DragBehavior import DragBehavior, SimpleDragBehavior
-from exprs.ExprsConstants import StateRef, Color, Width, Vector
+from exprs.ExprsConstants import StateRef, Vector
 from exprs.ExprsConstants import Point, Drawable
 from exprs.ExprsConstants import ORIGIN, DY, DX
 from exprs.Highlightable import Highlightable
 from exprs.Rect import Rect
 from exprs.Exprs import tuple_Expr, call_Expr
-from exprs.If_expr import If_expr
 from exprs.__Symbols__ import _self
 from exprs.instance_helpers import DelegatingInstanceOrExpr
 from exprs.test_statearray_3 import xxx_drag_behavior_3 ### TODO: refile (DragBehavior.py) and clean up

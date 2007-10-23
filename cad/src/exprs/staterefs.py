@@ -5,7 +5,9 @@ in widget exprs which display it, edit it, operate on it, produce it
 
 ###e MIGHT RENAME, since widget_env has an attr or arg named this. state.py? might be confusing re State macro.
 
-$Id$
+@author: bruce
+@version: $Id$
+@copyright: Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 
 note: this used to define StatePlace and associated things, but those are now in StatePlace.py [as of 061203];
 most things remaining here are nim
@@ -13,9 +15,8 @@ most things remaining here are nim
 see also: class Set, and State macro, in other files
 """
 
-from exprs.If_expr import If_kluge
 from exprs.StatePlace import set_default_attrs
-from exprs.instance_helpers import InstanceOrExpr, DelegatingMixin
+from exprs.instance_helpers import InstanceOrExpr
 from exprs.attr_decl_macros import Arg, ArgOrOption
 from exprs.ExprsConstants import Type
 from exprs.py_utils import printnim, stub

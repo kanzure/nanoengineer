@@ -2,14 +2,16 @@
 """
 statearray.py
 
-$Id$
+@author: bruce
+@version: $Id$
+@copyright: Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 ###e still UNFINISHED in some ways, the worst being that our elements are staterefs
 # (see StateArrayRefs_getitem_as_stateref,
 # and ###BUG comment in test_statearray.py or related file, 070312) --
 # this is now renamed a feature of StateArrayRefs rather than a bug of StateArray.
 
-from exprs.lvals import LvalForState, LvalDict2, call_but_discard_tracked_usage
+from exprs.lvals import LvalForState, LvalDict2
 
 from exprs.Exprs import call_Expr
 from exprs.widget2d import Stub

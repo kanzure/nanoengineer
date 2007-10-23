@@ -2,7 +2,9 @@
 """
 dna_ribbon_view.py
 
-$Id$
+@author: bruce
+@version: $Id$
+@copyright: Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 
 
 070125: started this from a copy of demo_dna-outtakes.py.
@@ -100,13 +102,10 @@ from OpenGL.GL import GL_FALSE
 from exprs.Overlay import Overlay
 
 import drawer
-import platform
-
-# needed for code modified from demo_drag: not sure it's all still needed #k
 
 from exprs.world import World
 
-from exprs.Rect import Rect, RectFrame, IsocelesTriangle, Spacer, Sphere, Line
+from exprs.Rect import Rect, Spacer, Sphere, Line
 
 from exprs.Column import SimpleColumn, SimpleRow
 
@@ -114,17 +113,13 @@ from exprs.DisplistChunk import DisplistChunk
 
 from exprs.Highlightable import Highlightable
 
-#k some of this might also be needed, prob not all:
-
 from exprs.transforms import Translate
 
-from exprs.Center import Center, CenterY
+from exprs.Center import Center
 
 from exprs.TextRect import TextRect
 
 from exprs.controls import checkbox_pref, ActionButton
-
-from exprs.lvals import Lval, LvalDict2, call_but_discard_tracked_usage
 
 from exprs.draggable import DraggableObject
 

@@ -46,8 +46,6 @@ import os
 import sys
 import time
 
-from OpenGL.GL import glPopMatrix, glPushMatrix # needed in drawtest1_innards
-
 from PyQt4.Qt import QInputDialog
 
 # == imports from parent directory
@@ -108,7 +106,7 @@ from exprs.demo_drag import GraphDrawDemo_FixedToolOnArg1, kluge_dragtool_state_
 
 from exprs.projection import DrawInCorner_projection, DrawInCorner
 
-from exprs.ModelNode import Sphere_ExampleModelNode ###stub or wrong, not yet used [061215]
+##from exprs.ModelNode import Sphere_ExampleModelNode ###stub or wrong, not yet used [061215]
 
 from exprs.DisplistChunk import DisplistChunk
 
@@ -127,9 +125,9 @@ from exprs.dna_ribbon_view import DNA_Cylinder, dna_ribbon_view_toolcorner_expr_
 
 from exprs.draggable import DraggableObject
 
-from exprs.world import World
+##from exprs.world import World
 
-import exprs.demo_polyline
+##import exprs.demo_polyline
 
 from exprs.test_statearray import test_StateArrayRefs
 
@@ -152,7 +150,7 @@ from exprs.py_utils import printnim, identity
 from exprs.widget2d import Widget2D
 from exprs.instance_helpers import WithAttributes, InstanceMacro, _this, DelegatingInstanceOrExpr
 from exprs.attr_decl_macros import State, Option, Instance, Arg
-from exprs.ExprsConstants import trans_red, PIXELS, lightblue, lightgreen, DX, DZ, nevermind, PM_CORNER
+from exprs.ExprsConstants import trans_red, PIXELS, lightblue, lightgreen, ORIGIN, DX, DY, DZ, nevermind, PM_CORNER
 from exprs.ExprsConstants import WORLD_MT_CORNER
 from exprs.ExprsConstants import DEBUG_CORNER
 from exprs.ExprsConstants import NullIpath
@@ -1462,6 +1460,10 @@ testexpr_33x = Translate(_testexpr_33(), (2,-2)) # works now
 from exprs.demo_ui import testexpr_34, testexpr_34a # not *, or it grabs old values of the testexprs it imported earlier from here!
     # note: this used to define testexpr_19j, testexpr_30j (obs, never worked); now it only defines testexpr_34*
 
+# try to tell pylint that these are used (if someone types them in)
+testexpr_34
+testexpr_34a
+
 # == StateArrayRefs
 
 testexpr_35 = test_StateArrayRefs() # works
@@ -1729,6 +1731,16 @@ _favorite_tests = ['DraggableObject(Cylinder((ORIGIN,ORIGIN+DX),1,pink))', # not
                    'testexpr_19i', # and so does this one (have state), of course... but that is less surprising for some reason
                    'testexpr_30i'
                    ] # most favorite last; come before the ones in prefs
+
+_favorite_test_exprs = [
+    # this is to make sure we import the symbols needed for the above text versions [bruce 071023]
+    # TODO: clean this up somehow
+    DraggableObject(Cylinder((ORIGIN,ORIGIN+DX),1,pink)),
+    Rect(3,3,purple),
+    testexpr_19i,
+    testexpr_30i
+ ]
+
 try:
     _recent_tests
 except:

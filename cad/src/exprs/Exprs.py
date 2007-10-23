@@ -2,7 +2,9 @@
 """
 Exprs.py -- class Expr, and related subclasses and utilities, other than those involving Instances
 
-$Id$
+@author: bruce
+@version: $Id$
+@copyright: Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 
 TODO:
 
@@ -13,10 +15,10 @@ this file is getting kind of long - maybe split it in some sensible way?
 # instead, it is probably fully imported by ExprsMeta.
 
 from debug import compact_stack, print_compact_stack, print_compact_traceback, safe_repr
-from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True, Choice
+##from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True, Choice
 from utilities.Comparison import same_vals
 
-from exprs.py_utils import printnim, printfyi, stub, printonce
+from exprs.py_utils import printnim, printfyi, printonce
 from exprs.intern_ipath import intern_ipath
 
 from state_utils_unset import _UNSET_
@@ -745,8 +747,7 @@ class tuple_Expr(OpExpr): #k not well reviewed, re how it should be used, esp. i
 
 # same as in basic.py:
 from Numeric import dot
-from VQT import V, A, Q, norm, vlen
-from math import pi, sin, cos
+from VQT import V, norm, vlen
 
 class V_expr(OpExpr):
     """Make an expr for a Numeric array of floats. Called like VQT.py's V macro.

@@ -3,8 +3,9 @@
 lvals.py - various kinds of "lvalue" objects (slots for holding attribute values)
 with special behavior such as usage-tracking and invalidation/update.
 
-$Id$
-
+@author: bruce
+@version: $Id$
+@copyright: Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 
 ===
 
@@ -63,7 +64,7 @@ import changes
 from debug import print_compact_traceback
 from utilities.Comparison import same_vals
 
-import platform
+##import platform
 
 from exprs.py_utils import MemoDict, printnim
 

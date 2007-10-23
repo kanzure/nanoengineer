@@ -2,7 +2,9 @@
 """
 demo_MT.py
 
-$Id$
+@author: bruce
+@version: $Id$
+@copyright: Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 
 
 ### WARNING: the rest of this docstring has not been reviewed since before MT_try2 was implemented
@@ -113,7 +115,7 @@ nfrs:
 # may belong in that outtakes file rather than here, or maybe be entirely obs even there. [070210] ###
 
 
-# == imports [maybe not all needed #k]
+# == imports
 
 from exprs.Highlightable import Highlightable
 
@@ -123,17 +125,17 @@ from exprs.Column import SimpleRow, SimpleColumn
 
 from exprs.Overlay import Overlay
 
-from exprs.Set import Set ##e move to basic
+from exprs.Set import Set
 
 from exprs.Rect import Rect, Spacer
 
-from exprs.images import IconImage, Image #e and more
+from exprs.images import Image
 
 from exprs.Center import CenterY, Center
 
 from exprs.transforms import Translate
 
-from exprs.projection import DrawInCorner, DrawInCenter #e but what we need is not those, but DrawInAbsCoords or DrawInThingsCoords
+from exprs.projection import DrawInCenter #e but what we need is not those, but DrawInAbsCoords or DrawInThingsCoords
     # or really, just get the place (or places) a thing will draw in, in local coords (see projection.py for more discussion)
 
 from exprs.DisplistChunk import DisplistChunk

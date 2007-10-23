@@ -2,7 +2,9 @@
 """
 ModelNode.py
 
-$Id$
+@author: bruce
+@version: $Id$
+@copyright: Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 
 Note: as of sometime before 070129 this is an unfinished stub,
 and it's not clear whether it will be used.
@@ -57,8 +59,7 @@ much later: see also non-cvs notes (files & paper) of 070105
 """
 import time
 
-from Utility import SimpleCopyMixin, Node
-from state_utils import copy_val #e put copy_val in basic?
+from Utility import Node
 from state_constants import S_DATA
 
 from exprs.Rect import Sphere

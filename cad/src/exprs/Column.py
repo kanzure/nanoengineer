@@ -4,13 +4,15 @@ Column.py - provide SimpleColumn and SimpleRow, and someday, fancier Column and 
 
 [#e module might be renamed; otoh, if we have Table it'll be enough more complex to be in its own file]
 
-$Id$
+@author: bruce
+@version: $Id$
+@copyright: Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 
 """
 
 from OpenGL.GL import glPushMatrix, glPopMatrix, glTranslatef ##e revise later into glpane methods or so
 
-from exprs.Rect import Spacer
+# from exprs.Rect import Spacer
 
 from exprs.TextRect import TextRect
 

@@ -2,7 +2,9 @@
 """
 test_statearray_3.py
 
-$Id$
+@author: bruce
+@version: $Id$
+@copyright: Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 
 test code for one kind of constrained dragging
 
@@ -16,9 +18,6 @@ the DragBehavior in this file improves on the one in test_statearray_2.py:
 But it needs a refactoring; see comments herein about "refactoring".
 
 """
-__author__ = 'bruce'
-
-# maybe some of these imports are not needed
 
 from exprs.Column import SimpleColumn, SimpleRow
 
@@ -28,7 +27,7 @@ from exprs.Highlightable import Highlightable, SavedCoordsys
 
 from exprs.images import Image
 
-from exprs.controls import ActionButton, PrintAction
+from exprs.controls import ActionButton ##, PrintAction
 
 from exprs.geometry_exprs import Ray
 
@@ -36,14 +35,14 @@ from exprs.transforms import Translate
 
 from exprs.Overlay import Overlay
 
-from constants import black, pink, white
+from constants import white
 
 from exprs.Exprs import call_Expr, tuple_Expr
 from exprs.statearray import StateArrayRefs, StateArrayRefs_getitem_as_stateref
 from exprs.iterator_exprs import MapListToExpr, KLUGE_for_passing_expr_classes_as_functions_to_ArgExpr
 from exprs.instance_helpers import DelegatingInstanceOrExpr
 from exprs.attr_decl_macros import Arg, Option, Instance
-from exprs.ExprsConstants import StateRef, Color, ORIGIN, DY, DX, Width, Vector
+from exprs.ExprsConstants import StateRef, ORIGIN, DX, Width, Vector
 from exprs.py_utils import sorted_items
 from exprs.__Symbols__ import _self, Anything
 

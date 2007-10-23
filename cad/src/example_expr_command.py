@@ -4,7 +4,9 @@ example_expr_command.py -- example of how to use an interactive graphics
 expr in a command (unfinished, so partly scratch code); command and PM
 are each variants of ExampleCommand2's command and PM classes
  
-$Id$
+@author: bruce
+@version: $Id$
+@copyright: Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -57,10 +59,9 @@ class ExampleCommand2E_PM( ExampleCommand2_PM ):
 # these imports are not needed in a minimal example like ExampleCommand2:
 
 from drawer import drawline
-from constants import red, green
+from constants import red
 from VQT import V
 from exprs.instance_helpers import get_glpane_InstanceHolder
-from exprs.Boxed import Boxed
 from exprs.draggable import DraggablyBoxed
 
 from exprs.instance_helpers import InstanceMacro

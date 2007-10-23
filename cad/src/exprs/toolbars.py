@@ -4,10 +4,12 @@ toolbars.py - OpenGL toolbars, basically serving as "working mockups" for Qt too
 (but someday we should be able to turn the same toolbar configuration code
  into actual working Qt toolbars)
 
-$Id$
+@author: bruce
+@version: $Id$
+@copyright: Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 
-from exprs.Column import SimpleRow, SimpleColumn
+from exprs.Column import SimpleRow
 
 from exprs.Overlay import Overlay
 
@@ -17,7 +19,7 @@ from exprs.TextRect import TextRect
 
 from exprs.Boxed import Boxed
 
-from exprs.command_registry import auto_register, find_or_make_global_command_registry, CommandRegistry
+from exprs.command_registry import CommandRegistry
 
 from constants import gray, white, blue, green
 

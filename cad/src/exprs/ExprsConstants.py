@@ -2,7 +2,9 @@
 """
 ExprsConstants.py -- define constants and simple functions used by many files in this package
 
-$Id$
+@author: bruce
+@version: $Id$
+@copyright: Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 
 """
 
@@ -67,10 +69,11 @@ nevermind = lambda func: identity
 
 #e maybe import the following from a different file, but for now we need to define some here
 #k need to make sure none of these are defined elsewhere in this module
-from constants import black, red, green, blue, purple, magenta, violet, yellow, orange, pink, white, gray
+from constants import red, green, blue, white
+##from constants import black, purple, magenta, violet, yellow, orange, pink, gray
     # note: various defs of purple I've seen:
     # ave_colors( 0.5, red, blue), or (0.5, 0.0, 0.5), or (0.7,0.0,0.7), or (0.6, 0.1, 0.9) == violet in constants.py
-from constants import aqua, darkgreen, navy, darkred, lightblue
+##from constants import aqua, darkgreen, navy, darkred, lightblue
 from constants import ave_colors
     ###e what does this do to alpha? A: uses zip, which means, weight it if present in both colors, discard it otherwise.
     ###k What *should* it do? Not that, but that is at least not going to cause "crashes" in non-alpha-using code.

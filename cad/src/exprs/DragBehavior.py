@@ -2,7 +2,9 @@
 """
 DragBehavior.py - the DragBehavior API and some useful specific behaviors
 
-$Id$
+@author: bruce
+@version: $Id$
+@copyright: Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 
 A DragBehavior
 
@@ -25,15 +27,12 @@ clean up and move here a drag behavior for a line, from test_statearray_3.py.
 but closest within a plane perp to screen and -- what? ###
 
 """
-__author__ = "bruce"
 
-
-#k not all these imports are needed
-from exprs.instance_helpers import DelegatingInstanceOrExpr, InstanceOrExpr, ModelObject
-from exprs.attr_decl_macros import Arg, Option, State, Instance
-from exprs.__Symbols__ import Anything, _self, _my
-from exprs.ExprsConstants import StubType, StateRef, Vector, Quat, ORIGIN
-from exprs.Highlightable import Highlightable, SavedCoordsys
+from exprs.instance_helpers import InstanceOrExpr
+from exprs.attr_decl_macros import Arg, Instance
+from exprs.__Symbols__ import Anything
+from exprs.ExprsConstants import StateRef
+from exprs.Highlightable import SavedCoordsys
 
 
 class DragBehavior(InstanceOrExpr):
