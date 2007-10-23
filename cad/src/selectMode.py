@@ -1,6 +1,7 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-selectMode.py -- Select Chunks and Select Atoms modes, also used as superclasses for some other modes
+selectMode.py -- Select Chunks and Select Atoms modes,
+also used as superclasses for some other modes
 
 $Id$
 
@@ -10,15 +11,18 @@ Some things that need cleanup in this code [bruce 060721 comment]: ####@@@@
 
 - division between selectMode and selectAtomsMode
 
-- drag algorithms for various object types and modifier keys are split over lots of methods
-with lots of common but not identical code. For example, a set of atoms and jigs can be dragged
-in the same way, by two different pieces of code depending on whether an atom or jig in the set
-was clicked on. If this was cleaned up, so that objects clicked on would answer questions about
-how to drag them, and if a drag_handler object was created to handle the drag (or the object itself
-can act as one, if only it is dragged and if it knows how), the code would be clearer, some bugs
-would be easier to fix, and some NFRs easier to implement. [bruce 060728 -- I'm adding drag_handlers
-for use by new kinds of draggable or buttonlike things (only in selectAtoms mode and subclasses),
-but not changing how old dragging code works.]
+- drag algorithms for various object types and modifier keys are split over
+lots of methods with lots of common but not identical code. For example, a
+set of atoms and jigs can be dragged in the same way, by two different
+pieces of code depending on whether an atom or jig in the set was clicked
+on. If this was cleaned up, so that objects clicked on would answer
+questions about how to drag them, and if a drag_handler object was created
+to handle the drag (or the object itself can act as one, if only it is
+dragged and if it knows how), the code would be clearer, some bugs would be
+easier to fix, and some NFRs easier to implement. [bruce 060728 -- I'm
+adding drag_handlers for use by new kinds of draggable or buttonlike things
+(only in selectAtoms mode and subclasses), but not changing how old dragging
+code works.]
 
 - Ninad 070216 moved selectAtomsMode and selectMolsMode out of selectMode.py 
 
@@ -72,8 +76,8 @@ from utilities.Log import orangemsg
 from utilities.Log import redmsg
 
 import env
-from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False, Choice
-
+from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
+from debug_prefs import Choice
 
 from VQT import V, Q, A, norm, ptonline, vlen
 
@@ -118,18 +122,20 @@ def set_DRAG_STICKINESS_LIMIT_from_pref(): #bruce 060315
     return
 
 set_DRAG_STICKINESS_LIMIT_from_pref() # also called in selectAtomsMode.leftDown
-    # (ideally, clean up this pref code a lot by not passing DRAG_STICKINESS_LIMIT as an arg to the subr that uses it)
-    # we do this early so the debug_pref is visible in the debug menu before entering selectAtomsMode.
-
-## TEST_PYREX_OPENGL = 0 # bruce 060209 moved this to where it's used (below), and changed it to a debug_pref
-
+    # (ideally, clean up this pref code a lot by not passing DRAG_STICKINESS_LIMIT
+    # as an arg to the subr that uses it)
+    # we do this early so the debug_pref is visible in the debug menu before
+    # entering selectAtomsMode.
 
 # ==
 
 class selectMode(basicMode):
-    "Superclass for Select Chunks, Select Atoms, Build, and other modes."
-    # Warning: some of the code in this superclass is probably only used in selectAtomsMode and its subclasses,
-    # but it's not clear exactly which code this applies to. [bruce 060721 comment]
+    """
+    Superclass for Select Chunks, Select Atoms, Build, and other modes.
+    """
+    # Warning: some of the code in this superclass is probably only used in
+    # selectAtomsMode and its subclasses, but it's not clear exactly which
+    # code this applies to. [bruce 060721 comment]
 
     # class constants
     gridColor = (0.0, 0.0, 0.6)
@@ -157,7 +163,8 @@ class selectMode(basicMode):
 
     def __init__(self, glpane): #bruce 070412
         basicMode.__init__(self, glpane)
-        self.get_smooth_reshaping_drag() # exercise debug_pref to make sure it's always in the menu.
+        self.get_smooth_reshaping_drag()
+            # exercise debug_pref to make sure it's always in the menu.
         self.get_use_old_safe_drag_code() # ditto
         return
 
@@ -171,7 +178,7 @@ class selectMode(basicMode):
 	"""
         pass
 
-    # restore_gui handles all the GUI display when leavinging this mode [mark 041004]
+    # restore_gui handles all the GUI display when leaving this mode [mark 041004]
     def restore_gui(self):
         pass # let the subclass handle everything for the GUI - Mark [2004-10-11]
 
@@ -208,7 +215,9 @@ class selectMode(basicMode):
             #  are always correct. bruce 060721 comment]
         self.drag_multiple_atoms = False
             # set to True when we are dragging a movable unit of 2 or more atoms.
-        self.maybe_use_bc = False # whether to use the BorrowerChunk optimization for the current drag (experimental) [bruce 060414]
+        self.maybe_use_bc = False
+            # whether to use the BorrowerChunk optimization for the current
+            # drag (experimental) [bruce 060414]
         self.current_obj = None
             # current_obj is the object under the cursor when the LMB was pressed.
             # [it is set to that obj by objectSetup, and set back to None by some, but not all,
@@ -302,34 +311,32 @@ class selectMode(basicMode):
 
         return
 
+    # == LMB event handling methods ====================================
 
+    # Important Terms: [mark 060205]
+    #
+    # "selection curve": the collection of line segments drawn by the cursor when defining
+    # the selection area.  These line segments become the selection lasso when (and if) 
+    # the selection rectangle disappears. When the selection rectangle is still displayed,
+    # the selection curve consists of those line segment that are drawn between opposite 
+    # corners of the selection rectangle. The line segments that define/draw the 
+    # rectangle itself are not part of the selection curve, however.
+    # Also, it is worth noting that the line segments of the selection curve are also drawn 
+    # just beyond the front clipping plane. The variable <selCurve_List> contains the list
+    # of points that draw the line segments of the selection curve.
+    #
+    # "selection area": determined by the selection curve, it is the area that defines what
+    # is picked (or unpicked).  The variable <selArea_List> contains the list of points that
+    # define the selection area used to pick/unpick objects. The points in <selArea_List> 
+    # lay in the plane parallel to the screen and pass through the center of the view.
+    #
+    # "selection rectangle": the rectangular selection determined by the first and last points 
+    # of a selection curve.  These two points define the opposite corners of the rectangle.
+    #
+    # "selection lasso": the lasso selection defined by all the points (and line segements)
+    # in the selection curve.
 
-# == LMB event handling methods ====================================
-
-# Important Terms: [mark 060205]
-#
-# "selection curve": the collection of line segments drawn by the cursor when defining
-# the selection area.  These line segments become the selection lasso when (and if) 
-# the selection rectangle disappears. When the selection rectangle is still displayed,
-# the selection curve consists of those line segment that are drawn between opposite 
-# corners of the selection rectangle. The line segments that define/draw the 
-# rectangle itself are not part of the selection curve, however.
-# Also, it is worth noting that the line segments of the selection curve are also drawn 
-# just beyond the front clipping plane. The variable <selCurve_List> contains the list
-# of points that draw the line segments of the selection curve.
-#
-# "selection area": determined by the selection curve, it is the area that defines what
-# is picked (or unpicked).  The variable <selArea_List> contains the list of points that
-# define the selection area used to pick/unpick objects. The points in <selArea_List> 
-# lay in the plane parallel to the screen and pass through the center of the view.
-#
-# "selection rectangle": the rectangular selection determined by the first and last points 
-# of a selection curve.  These two points define the opposite corners of the rectangle.
-#
-# "selection lasso": the lasso selection defined by all the points (and line segements)
-# in the selection curve.
-
-# == LMB down-click (button press) methods
+    # == LMB down-click (button press) methods
 
     def leftShiftDown(self, event):
         self.leftDown(event)
@@ -340,7 +347,7 @@ class selectMode(basicMode):
     def leftDown(self, event):
         self.select_2d_region(event)
 
-# == LMB drag methods
+    # == LMB drag methods
 
     def leftShiftDrag(self, event):
         self.leftDrag(event)
@@ -351,7 +358,7 @@ class selectMode(basicMode):
     def leftDrag(self, event):
         self.continue_selection_curve(event)
 
-# == LMB up-click (button release) methods
+    # == LMB up-click (button release) methods
 
     def leftShiftUp(self, event):
         self.leftUp(event)
@@ -362,15 +369,16 @@ class selectMode(basicMode):
     def leftUp(self, event):
         self.end_selection_curve(event)
 
-# == LMB double click method
+    # == LMB double click method
 
     def leftDouble(self, event):
         pass
 
-# == end of LMB event handlers.
+    # == end of LMB event handlers.
 
     def bareMotion(self, event): #bruce 050610 revised this
-        """called for motion with no button down
+        """
+        called for motion with no button down
         [should not be called otherwise -- call update_selatom or update_selobj directly instead]
         """
 
@@ -394,16 +402,19 @@ class selectMode(basicMode):
             return
 
         self.update_selobj(event)
-        # note: this routine no longer updates glpane.selatom. For that see self.update_selatom().
-        ###e someday, if new or prior selobj asks for it (by defining certain methods), we'd tell it about this bareMotion
-        # and about changes in selobj. [bruce 060726]
+        # note: this routine no longer updates glpane.selatom. For that see
+        # self.update_selatom().
+        ###e someday, if new or prior selobj asks for it (by defining certain
+        # methods), we'd tell it about this bareMotion and about changes in
+        # selobj. [bruce 060726]
         return
 
-#== Selection Curve helper methods
+    # == Selection Curve helper methods
 
     def select_2d_region(self, event):
-        '''Start 2D selection of a region.
-        '''
+        """
+        Start 2D selection of a region.
+        """
         if self.o.modkeys is None:
             self.start_selection_curve(event, START_NEW_SELECTION)
         if self.o.modkeys == 'Shift':
@@ -480,7 +491,8 @@ class selectMode(basicMode):
         self.selCurve_PrevPt = selCurve_pt
 
         self.o.gl_update()
-            # REVIEW (possible optim): can gl_update_highlight be extended to cover this? [bruce 070626]
+            # REVIEW (possible optim): can gl_update_highlight be extended to
+            # cover this? [bruce 070626]
         return
 
     def end_selection_curve(self, event):
@@ -553,17 +565,19 @@ class selectMode(basicMode):
             #  so you can see it at the same time as the selection it caused.)
 
         self.w.win_update()
-            # REVIEW (possible optim): can we make gl_update_highlight (or something like it) cover this?
-            # Note that both the curve itself, and what's selected, are changing. [bruce 070626]
+            # REVIEW (possible optim): can we make gl_update_highlight
+            # (or something like it) cover this?
+            # Note that both the curve itself, and what's selected,
+            # are changing. [bruce 070626]
 
-#== End of Selection Curve helper methods
+    # == End of Selection Curve helper methods
 
-#== Empty Space helper methods
+    # == Empty Space helper methods
 
-#& The Empty Space, Atom, Bond and Singlet helper methods should probably be moved to
-#& selectAtomsMode.  I put them here because I think there is a good chance that we'll 
-#& allow intermixing of atoms, chunks and jigs (and other stuff) in any mode.
-#& Mark 060220.
+    #& The Empty Space, Atom, Bond and Singlet helper methods should probably be moved to
+    #& selectAtomsMode.  I put them here because I think there is a good chance that we'll 
+    #& allow intermixing of atoms, chunks and jigs (and other stuff) in any mode.
+    #& Mark 060220.
 
     def emptySpaceLeftDown(self, event):
         self.objectSetup(None)
@@ -579,13 +593,11 @@ class selectMode(basicMode):
         self.end_selection_curve(event)
         return
 
-#== Atom selection and dragging helper methods
+    # == Atom selection and dragging helper methods
 
     def atomLeftDown(self, a, event):            
         if not a.picked and self.o.modkeys is None:
-            self.o.assy.unpickall_in_GLPane() # was unpickatoms and unpickparts [bruce 060721]
-                # Note: a comment said that this was intended to unpick (among other things) jigs.
-                # It will, since they are selectable in GLPane.
+            self.o.assy.unpickall_in_GLPane()
             a.pick()
         if not a.picked and self.o.modkeys == 'Shift':
             a.pick()
@@ -616,9 +628,7 @@ class selectMode(basicMode):
             self.jigLeftDown(obj, event)    #Cursor over a jig.
         else: 
             # Cursor is over something else other than an atom, singlet or bond. 
-            # The program never executes lines in this else statement since
-            # get_obj_under_cursor() only returns atoms, singlets or bonds.
-            # [perhaps no longer true, if it ever was -- bruce 060725]
+            # (should be handled in caller)
             pass
 
     def doObjectSpecificLeftUp(self, object, event):
@@ -682,8 +692,9 @@ class selectMode(basicMode):
     drag_offset = V(0,0,0) # avoid tracebacks from lack of leftDown
 
     def atomSetup(self, a, event): #bruce 060316 added <event> argument, for bug 1474
-        '''Setup for a click, double-click or drag event for real atom <a>.
-        '''
+        """
+        Setup for a click, double-click or drag event for real atom <a>.
+        """
         #bruce 060316 set self.drag_offset to help fix bug 1474 (this should be moved into a method so singlets can call it too):
         farQ, dragpoint = self.dragstart_using_GL_DEPTH( event)
         apos0 = a.posn()
@@ -721,7 +732,8 @@ class selectMode(basicMode):
         self.dragjigs = self.o.assy.getSelectedJigs()
 
     def OLD_get_dragatoms_and_baggage(self): # by mark. later optimized and extended by bruce, 060410. Still used, 070413.
-        """#doc... return dragatoms, baggage, dragchunks; look at self.smooth_reshaping_drag [nim];
+        """
+        #doc... return dragatoms, baggage, dragchunks; look at self.smooth_reshaping_drag [nim];
         how atoms are divided between dragatoms & baggage is arbitrary and is not defined.
         [A rewrite of callers would either change them to treat those differently and change
         this to care how they're divided up (requiring a decision about selected baggage atoms),
@@ -803,7 +815,8 @@ class selectMode(basicMode):
         return dragatoms, baggage, dragchunks  # return from OLD_get_dragatoms_and_baggage; this routine will be removed later
 
     def get_dragatoms_and_baggage(self):
-        """#doc... return dragatoms, baggage, dragchunks; look at self.smooth_reshaping_drag [nim];
+        """
+        #doc... return dragatoms, baggage, dragchunks; look at self.smooth_reshaping_drag [nim];
         how atoms are divided between dragatoms & baggage is arbitrary and is not defined.
         [A rewrite of callers would either change them to treat those differently and change
         this to care how they're divided up (requiring a decision about selected baggage atoms),
@@ -917,8 +930,10 @@ class selectMode(basicMode):
         layers = {} # will map N to set-of-atoms-with-N (using terminology of smooth-reshaping drag proposal)
         from state_utils import transclose
         def collector( atom, dict1):
-            """add neighbors of atom which are in atoms_todo (which maps atom keys to atoms)
-            to dict1 (which maps atoms to atoms)."""
+            """
+            add neighbors of atom which are in atoms_todo (which maps atom keys to atoms)
+            to dict1 (which maps atoms to atoms).
+            """
             for n in atom.neighbors():
                 if n.key in atoms_todo:
                     dict1[n] = n
@@ -1071,9 +1086,10 @@ class selectMode(basicMode):
         return res # from (NEW) get_dragatoms_and_baggage
 
     def delete_atom_and_baggage(self, event):
-        '''If the object under the cursor is an atom, delete it and any baggage.  
+        """
+        If the object under the cursor is an atom, delete it and any baggage.  
         Return the result of what happened.
-        '''
+        """
         a = self.get_real_atom_under_cursor(event)
 
         if a is None:
@@ -1098,7 +1114,8 @@ class selectMode(basicMode):
         return result
 
     def atomDrag(self, a, event):
-        """Drag real atom <a> and any other selected atoms and/or jigs.  <event> is a drag event.
+        """
+        Drag real atom <a> and any other selected atoms and/or jigs.  <event> is a drag event.
         """
         apos0 = a.posn()
         apos1 = self.dragto_with_offset(apos0, event, self.drag_offset ) #bruce 060316 fixing bug 1474
@@ -1116,7 +1133,8 @@ class selectMode(basicMode):
         return
 
     def drag_selected_atom(self, a, delta): #bruce 060316 revised API for uniformity and no redundant dragto, re bug 1474
-        """Drag real atom <a> by the xyz offset <delta>, adjusting its baggage atoms accordingly
+        """
+        Drag real atom <a> by the xyz offset <delta>, adjusting its baggage atoms accordingly
         (how that's done depends on its other neighbor atoms).
         """
         apo = a.posn()
@@ -1187,7 +1205,9 @@ class selectMode(basicMode):
     _reusable_borrowerchunks = [] # a freelist of empty BorrowerChunks not now being used (a class variable, not instance variable)
 
     def allocate_empty_borrowerchunk(self):
-        "Someone wants a BorrowerChunk; allocate one from our freelist or a new one"
+        """
+        Someone wants a BorrowerChunk; allocate one from our freelist or a new one
+        """
         while self._reusable_borrowerchunks:
             # try to use one from this list
             bc = self._reusable_borrowerchunks.pop()
@@ -1249,7 +1269,9 @@ class selectMode(basicMode):
         return
 
     def offset_ratio(self, atom, assert_slow = False): #bruce 070412
-        "When self.smooth_reshaping_drag, return the drag_offset_ratio for any atom (0 if we're not dragging it)."
+        """
+        When self.smooth_reshaping_drag, return the drag_offset_ratio for any atom (0 if we're not dragging it).
+        """
         N = float(self.smooth_N_dict.get(atom, 0))
             # If found: from 1 to Max_N
         Max_N = self.smooth_Max_N # 0 or more (integer)
@@ -1270,18 +1292,20 @@ class selectMode(basicMode):
         return f
 
     def deallocate_bc_in_use(self):
-        """If self.bc_in_use is not None, it's a BorrowerChunk and we need to deallocate it --
-         this must be called at the end of any drag which might have allocated it.
-         """
+        """
+        If self.bc_in_use is not None, it's a BorrowerChunk and we need to deallocate it --
+        this must be called at the end of any drag which might have allocated it.
+        """
         if self.bc_in_use is not None:
             self.deallocate_borrowerchunk( self.bc_in_use )
             self.bc_in_use = None
         return
 
     def atomDragUpdate(self, a, apos0):
-        '''Updates the GLPane and status bar message when dragging atom <a> around.
+        """
+        Updates the GLPane and status bar message when dragging atom <a> around.
         <apos0> is the previous x,y,z position of <a>.
-        '''
+        """
         apos1 = a.posn()
         if apos1 - apos0:
             if debug_pref("show drag coords continuously", #bruce 060316 made this optional, to see if it causes lagging drags of C
@@ -1296,12 +1320,13 @@ class selectMode(basicMode):
     #bruce 060316 moved dragto from here (selectMode) into class basicMode
 
     def atomLeftUp(self, a, event): # Was atomClicked(). mark 060220.
-        '''Real atom <a> was clicked, so select, unselect or delete it based on the current modkey.
+        """
+        Real atom <a> was clicked, so select, unselect or delete it based on the current modkey.
         - If no modkey is pressed, clear the selection and pick atom <a>.
         - If Shift is pressed, pick <a>, adding it to the current selection.
         - If Ctrl is pressed,  unpick <a>, removing it from the current selection.
         - If Shift+Control (Delete) is pressed, delete atom <a>.
-        '''
+        """
 
         self.deallocate_bc_in_use()
 
@@ -1366,8 +1391,9 @@ class selectMode(basicMode):
         self.o.gl_update()
 
     def atomLeftDouble(self): # mark 060308
-        '''Atom double click event handler for the left mouse button.
-        '''
+        """
+        Atom double click event handler for the left mouse button.
+        """
         if self.o.modkeys == 'Control':
             self.o.assy.unselectConnected( [ self.obj_doubleclicked ] )
         elif self.o.modkeys == 'Shift+Control':
@@ -1378,9 +1404,9 @@ class selectMode(basicMode):
         ##e set_cmdname would be useful here, conditioned on whether they did anything [bruce 060412 comment]
         return
 
-#== End of Atom selection and dragging helper methods
+    # == End of Atom selection and dragging helper methods
 
-#== Bond selection helper methods
+    # == Bond selection helper methods
 
     def bondLeftDown(self, b, event):
         # Bonds cannot be picked when highlighting is turned off.
@@ -1388,19 +1414,21 @@ class selectMode(basicMode):
         self.bondSetup(b)
 
     def bondSetup(self, b):
-        '''Setup for a click or double-click event for bond <b>. Bond dragging is not supported.
-        '''
+        """
+        Setup for a click or double-click event for bond <b>. Bond dragging is not supported.
+        """
         self.objectSetup(b)
 
     def bondLeftUp(self, b, event):
-        '''Bond <b> was clicked, so select or unselect its atoms or delete bond <b> 
+        """
+        Bond <b> was clicked, so select or unselect its atoms or delete bond <b> 
         based on the current modkey.
         - If no modkey is pressed, clear the selection and pick <b>'s two atoms.
         - If Shift is pressed, pick <b>'s two atoms, adding them to the current selection.
         - If Ctrl is pressed,  unpick <b>'s two atoms, removing them from the current selection.
         - If Shift+Control (Delete) is pressed, delete bond <b>.
         <event> is a LMB release event.
-        '''
+        """
 
         #& To do: check if anything changed (picked/unpicked) before calling gl_update(). 
         #& mark 060210.
@@ -1485,8 +1513,9 @@ class selectMode(basicMode):
         return
 
     def bondLeftDouble(self): # mark 060308.
-        '''Bond double click event handler for the left mouse button. 
-        '''
+        """
+        Bond double click event handler for the left mouse button. 
+        """
         if self.o.modkeys == 'Control':
             self.o.assy.unselectConnected( [ self.obj_doubleclicked.atom1 ] )
         elif self.o.modkeys == 'Shift+Control':
@@ -1496,9 +1525,9 @@ class selectMode(basicMode):
         # the assy.xxxConnected routines do their own win_update or gl_update as needed. [bruce 060412 comment]
         return
 
-#== End of bond selection helper methods
+    # == End of bond selection helper methods
 
-#== Singlet helper methods
+    # == Singlet helper methods
 
     def singletLeftDown(self, s, event):
         self.cursor_over_when_LMB_pressed = 'Empty Space'
@@ -1516,11 +1545,12 @@ class selectMode(basicMode):
         pass
 
     def singletLeftDouble(self):
-        '''Singlet double click event handler for the left mouse button.
-        '''
+        """
+        Singlet double click event handler for the left mouse button.
+        """
         pass
 
-# == drag_handler event handler methods [bruce 060728]
+    # == drag_handler event handler methods [bruce 060728]
 
     # note: dragHandlerLeftDown() does not exist, since self.drag_handler is only created by some other object's leftDown method
 
@@ -1569,7 +1599,8 @@ class selectMode(basicMode):
                 retval = method(self.o.selobj, event, self)
                     #bruce 061120 changed args from (selobj, self) to (selobj, event, self) [where self is the mode object]
                 self.w.win_update() ##k not always needed, might be redundant, should let the handler decide ####@@@@
-                    # REVIEW (possible optim): can we make gl_update_highlight cover this? [bruce 070626]
+                    # REVIEW (possible optim): can we make gl_update_highlight
+                    # cover this? [bruce 070626]
                 # lots of other stuff done by other leftUp methods here? #####@@@@@
             pass
         except:
@@ -1623,7 +1654,7 @@ class selectMode(basicMode):
         self.objectSetup(hdl)
         pass
 
-#== Jig event handler helper methods   
+    # == Jig event handler helper methods   
 
 
     def jigLeftDown(self, j, event):
@@ -1655,8 +1686,9 @@ class selectMode(basicMode):
 
 
     def jigSetup(self, j):
-        '''Setup for a click, double-click or drag event for jig <j>.
-        '''
+        """
+        Setup for a click, double-click or drag event for jig <j>.
+        """
         self.objectSetup(j)
 
         self.smooth_reshaping_drag = self.get_smooth_reshaping_drag() #bruce 070412
@@ -1682,7 +1714,8 @@ class selectMode(basicMode):
 
 
     def jigDrag(self, j, event):
-        """Drag jig <j> and any other selected jigs or atoms.  <event> is a drag event.
+        """
+        Drag jig <j> and any other selected jigs or atoms.  <event> is a drag event.
         """
         #bruce 060316 commented out deltaMouse since it's not used in this routine
 ##        deltaMouse = V(event.pos().x() - self.o.MousePos[0], self.o.MousePos[1] - event.pos().y(), 0.0)
@@ -1714,12 +1747,13 @@ class selectMode(basicMode):
             j.move(offset)
 
     def jigLeftUp(self, j, event):
-        '''Jig <j> was clicked, so select, unselect or delete it based on the current modkey.
+        """
+        Jig <j> was clicked, so select, unselect or delete it based on the current modkey.
         - If no modkey is pressed, clear the selection and pick jig <j>.
         - If Shift is pressed, pick <j>, adding it to the current selection.
         - If Ctrl is pressed,  unpick <j>, removing it from the current selection.
         - If Shift+Control (Delete) is pressed, delete jig <j>.
-        '''
+        """
 
         self.deallocate_bc_in_use()
 
@@ -1778,12 +1812,13 @@ class selectMode(basicMode):
         self.o.gl_update()
 
     def jigLeftDouble(self):
-        '''Jig <j> was double clicked, so select, unselect or delete its atoms based on the current modkey.
+        """
+        Jig <j> was double clicked, so select, unselect or delete its atoms based on the current modkey.
         - If no modkey is pressed, pick the jig's atoms.
         - If Shift is pressed, pick the jig's atoms, adding them to the current selection.
         - If Ctrl is pressed,  unpick the jig's atoms, removing them from the current selection.
         - If Shift+Control (Delete) is pressed, delete the jig's atoms.
-        '''
+        """
         #bruce 060412 thinks that the jig transdelete feature (delete the jig's atoms on shift-control-dblclick)
         # might be more dangerous than useful:
         # - it might happen on a wireframe jig, like an Anchor, if user intended to transdelete on an atom instead;
@@ -1818,14 +1853,15 @@ class selectMode(basicMode):
         self.o.gl_update() #bruce 060412 fix some possible unreported bugs
         return
 
-#== End of (most) Jig helper methods
+    # == End of (most) Jig helper methods
 
     def mouse_within_stickiness_limit(self, event, drag_stickiness_limit_pixels): #bruce 060315 reimplemented this
-        """Check if mouse has never been dragged beyond <drag_stickiness_limit_pixels>
+        """
+        Check if mouse has never been dragged beyond <drag_stickiness_limit_pixels>
         while holding down the LMB (left mouse button) during the present drag.
         Return True if it's never exceeded this distance from its starting point, False if it has.
         Distance is measured in pixels.
-           Successive calls need not pass the same value of the limit.
+        Successive calls need not pass the same value of the limit.
         """
         try:
             xy_orig = self.LMB_press_pt_xy
@@ -1843,7 +1879,8 @@ class selectMode(basicMode):
         return self.max_dragdist_pixels <= drag_stickiness_limit_pixels
 
     def mouse_exceeded_distance(self, event, pixel_distance): 
-        """Check if mouse has been moved beyond <pixel_distance> since the last mouse 'move event'.
+        """
+        Check if mouse has been moved beyond <pixel_distance> since the last mouse 'move event'.
         Return True if <pixel_distance> is exceeded, False if it hasn't. Distance is measured in pixels.
         """
         try:
@@ -2144,7 +2181,9 @@ class selectMode(basicMode):
             self.o.assy.draw(self.o)
 
     def selobj_highlight_color(self, selobj): 
-        """[mode API method]
+        """
+        [mode API method]
+
         If we'd like this selobj to be highlighted on mouseover
         (whenever it's stored in glpane.selobj), return the desired highlight 
 	color.
@@ -2529,7 +2568,8 @@ class selectMode(basicMode):
 
     # update_selatom_and_selobj() moved here from depositMode.py  mark 060312.
     def update_selatom_and_selobj(self, event = None): #bruce 050705
-        """update_selatom (or cause this to happen with next paintGL);
+        """
+        update_selatom (or cause this to happen with next paintGL);
         return consistent pair (selatom, selobj);
         atom_debug warning if inconsistent
         """
@@ -2611,5 +2651,4 @@ class selectMode(basicMode):
 
     pass # end of class selectMode
 
-# ==
 # end

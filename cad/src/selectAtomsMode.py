@@ -52,6 +52,9 @@ from prefs_constants import deleteBondHighlightColor_prefs_key
 from prefs_constants import deleteAtomHighlightColor_prefs_key
 
 class selectAtomsMode(selectMode):
+    """
+    Select Atoms Mode
+    """
     modename = 'SELECTATOMS'
     default_mode_status_text = "Mode: Select Atoms"
     highlight_singlets = False 
@@ -346,6 +349,11 @@ class selectAtomsMode(selectMode):
         """
         Event handler for all LMB press events.
         """
+        # Note: the code of selectAtomsMode and selectMolsMode .leftDown methods
+        # is very similar, so I'm removing the redundant comments from
+        # the other one (selectMolsMode); i.e. some of this method's comments
+        # also apply to the same code in the same method in selectMolsMode.
+        # [bruce 071022]
 
         self.set_cmdname('BuildClick')
             # TODO: this should be set again later (during the same drag)
@@ -364,7 +372,6 @@ class selectAtomsMode(selectMode):
             # necessary because Qt will overwrite <event> later (in leftDrag)
             # if we simply set self.LMB_press_event = event.  mark 060220.
 
-        #bruce 060315 replacing LMB_press_pt with LMB_press_pt_xy
         self.LMB_press_pt_xy = (event.pos().x(), event.pos().y())
             # <LMB_press_pt_xy> is the position of the mouse in window
             # coordinates when the LMB was pressed. Used in
@@ -409,6 +416,7 @@ class selectAtomsMode(selectMode):
         self.w.win_update()
             #k (is this always desirable? note, a few cases above return
             # early just so they can skip it.)
+        
         return # from selectAtomsMode.leftDown
 
     def call_leftClick_method(self, method, obj, event): #bruce 071022 split this out
