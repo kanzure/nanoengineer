@@ -862,6 +862,7 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API): #070317 
         # print "fyi: Highlightable %r got leftDouble" % self
         # Note: if something (this code, or its on_doubleclick option)
         # decides to do on_press sometimes, it ought to reset the flag mode.ignore_next_leftUp_event
+        # (assuming mode is the graphicsMode, as I think it probably is & should be -- bruce 071022)
         # which was just set by testmode.leftDouble, which otherwise prevents calling self.ReleasedOn.
         # But if that something is the contents of on_doubleclick, how is that possible?!?
         # The only solution I can think of is for on_drag and on_release to get replaced by on_double_drag and

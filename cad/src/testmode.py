@@ -158,13 +158,13 @@ class testmode(superclass):
         # Some issues:
         # - depositMode version deposits when in empty space; ours must not do that if there's a background object
         #   (unless that object says to, somehow), but should otherwise.
-        # - depositMode version sets "self.ignore_next_leftUp_event = True # Fixes bug 1467",
+        # - depositMode version sets "self.graphicsMode.ignore_next_leftUp_event = True # Fixes bug 1467",
         #   which I guess we should always set (even if not depositing) -- not sure. In theory, bg object should decide.
         #   Also in theory, good code would never need this, since leftUp would only do things its leftDown asked it to do.
         #   Guess: depositMode.leftUp doesn't follow that principle, and this flag works around that flaw by
         #   "turning off an assumption about what leftDown did".
         #   (For example (speculation), that it reset certain variables left over from prior drag??)
-        self.ignore_next_leftUp_event = True
+        self.graphicsMode.ignore_next_leftUp_event = True
             # I'm guessing this is always necessary, though I'm not sure.
             # Note that it will prevent the call of drag_handler.ReleasedOn -- this seems desirable,
             # since the press method (leftClick) was not called either, for the 2nd click of a double click --

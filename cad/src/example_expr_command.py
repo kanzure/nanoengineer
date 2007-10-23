@@ -92,28 +92,31 @@ class ExampleCommand2E_GM( ExampleCommand2.GraphicsMode_class): #bruce 071014 sp
 class ExampleCommand2E_GM_KLUGED( ExampleCommand2.GraphicsMode_class,
                             selectAtomsMode #### KLUGE, will it work? trying to use it just for its GM aspects...
                            ): #bruce 071014 split out _GM class
+    # status, 071022: works except for highlighting (tho it looked like it did something on mouseover;
+    #  i forget if this eg had a good HL color change on that resizer), and on drag on that resizer i got
+    #  a region selection rubberband lasso/window. Until now it also had an exception in leftUp then,
+    ## AttributeError: 'ExampleCommand2E_GM_KLUGED' object has no attribute 'ignore_next_leftUp_event'
+    ##  [GLPane.py:1845] [selectAtomsMode.py:494]
+    # but setting this in __init__ works around that (see comment there).
+    
     command = None # defeat the property in selectAtomsMode #k needed?
+    
     def __init__(self, command):
         ExampleCommand2.GraphicsMode_class.__init__(self, command) # includes self.command = command
         selectAtomsMode.__init__(self, self.glpane) ##k??
+        self.ignore_next_leftUp_event = True
+            # kluge, since we didn't run the GM part of selectAtomsMode.Enter,
+            # which normally does this.
         return
-            # works except for highlighting (tho it looked like it did something on mouseover;
-            #  i forget if this eg had a good HL color change on that resizer), and on drag on that resizer i got
-            #  a region sel rbw, and on mouseup (I think) i got this exception:
-            ##exception in mode's mouseReleaseEvent handler (bug, ignored):
-            ##exceptions.AttributeError: 'ExampleCommand2E_GM_KLUGED' object has no attribute 'ignore_next_leftUp_event'
-            ##  [GLPane.py:1845] [selectAtomsMode.py:639]
-            # this is useful info for when the time comes to split selectAtomsMode into C & GM.
+
     def Draw(self):
         """
         Do some custom drawing (in the model's abs coordsys) after drawing the model.
         """
-        #print "start ExampleCommand2E Draw"
         glpane = self.glpane
         super(ExampleCommand2E_GM_KLUGED, self).Draw()
         drawline(red, V(1,0,1), V(1,1,1), width = 2)
         self.command._expr_instance.draw()
-        #print "end ExampleCommand2E Draw"
     pass
 
 KLUGE_USE_SELATOMS_AS_GM = True ####
