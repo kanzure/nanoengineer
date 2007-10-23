@@ -66,7 +66,7 @@ import env
 
 from inval import InvalMixin
 from state_utils import StateMixin
-from jigs import jigmakers_Mixin
+from jigmakers_Mixin import jigmakers_Mixin
 from ops_atoms     import ops_atoms_Mixin
 from ops_connected import ops_connected_Mixin
 from ops_copy      import ops_copy_Mixin

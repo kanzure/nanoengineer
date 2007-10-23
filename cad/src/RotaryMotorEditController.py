@@ -13,7 +13,7 @@ ninad 2007-10-09: Created. This deprecates 'RotoryMotorGenerator'
 import env
 from utilities.Log import redmsg, greenmsg, orangemsg
 from jigs_motors import RotaryMotor
-from jigs import atom_limit_exceeded_and_confirmed
+from jigmakers_Mixin import atom_limit_exceeded_and_confirmed
 
 from EditController import EditController
 from RotaryMotorPropertyManager import RotaryMotorPropertyManager

@@ -13,7 +13,7 @@ ninad 2007-10-09: Created.
 import env
 from utilities.Log import redmsg, greenmsg, orangemsg
 from jigs_motors import LinearMotor
-from jigs import atom_limit_exceeded_and_confirmed
+from jigmakers_Mixin import atom_limit_exceeded_and_confirmed
 
 from EditController import EditController
 from LinearMotorPropertyManager import LinearMotorPropertyManager
