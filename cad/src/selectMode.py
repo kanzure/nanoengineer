@@ -1447,8 +1447,9 @@ class selectMode(basicMode):
             # in its docstring or in leftDown. [bruce 050705 comment]
         selobj = self.o.selobj
         if isinstance( selobj, Bond) and not selobj.is_open_bond():
+            _busted_strand_bond = False
             if selobj.isStrandBond(): 
-                
+                _busted_strand_bond = True
                 msg = "breaking strand %s" % selobj.getStrandName()
             else:
                 msg = "breaking bond %s" % selobj
@@ -1463,9 +1464,9 @@ class selectMode(basicMode):
                 # this fails to preserve the bond type on the open bonds 
                 # -- not sure if that's bad, but probably it is
 
-            # Is this a fragile test after bust()? 
-            # It works, but ask Bruce. - Mark 2007-10-21
-            if selobj.isStrandBond(): 
+            # After bust() selobj.isStrandBond() is too fragile, so I set
+            # <_busted_strand_bond> and test it instead. - Mark 2007-10-23.
+            if _busted_strand_bond: # selobj.isStrandBond():
                 self.o.assy.makeStrandChunkFromBrokenStrand(x1, x2)
 
             self.set_cmdname('Delete Bond')
