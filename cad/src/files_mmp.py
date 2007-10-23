@@ -170,16 +170,21 @@ from Plane import Plane
 # This is declared here, and checked in set_info_object,
 # to make sure that the known info kinds are centrally listed,
 # so that that aspect of the mmp format remains documented in this file.
+#
+# We also include comments about who & when added a specific info kind.
+# (The dates might later be turned into code and used for some form of mmp file
+#  version compatibility checking.)
+#
 # [bruce 071023]
 
 KNOWN_INFO_KINDS = (
-    'chunk',
-    'opengroup',
-    'leaf',
-    'atom',
-    'gamess',
-    'espimage',
-    'povrayscene',
+    'chunk',       #bruce 050217
+    'opengroup',   #bruce 050421
+    'leaf',        #bruce 050421
+    'atom',        #bruce 050511
+    'gamess',      #bruce 050701
+    'espimage',    #mark 060108
+    'povrayscene', #mark 060613
  )
 
 # == patterns for reading mmp files
@@ -443,14 +448,20 @@ class _readmmp_state:
     """
     #bruce 050405 made this class from most of _readmmp to help generalize it
     # (e.g. for reading sim input files for minimize selection)
+
+    # initial values of instance variables
+    # TODO: some or all of these are private -- rename them to indicate that [bruce 071023 comment]
+    prevatom = None # the last atom read, if any
+    prevcard = None # used in reading atoms and bonds [TODO: doc, make private]
+    prevchunk = None # the current Chunk (class molecule) being built, if any [renamed from self.mol, bruce 071023]
+    prevmotor = None # the last motor jig read, if any (used by shaft record)
+    
     def __init__(self, assy, isInsert):
         self.assy = assy
             #bruce 060117 comment: self.assy is only used to pass to Node constructors (including MarkerNode),
             # and to set assy.temperature and assy.mmpformat (only done if not isInsert, which looks like only use of isInsert here).
         self.isInsert = isInsert
         #bruce 050405 made the following from old _readmmp localvars, and revised their comments
-        self.mol = None # the current molecule being built, if any [bruce comment 050228]
-        self.prevatom = None # the last atom read, if any [bruce 050511 added this initialization]
         self.ndix = {}
         topgroup = Group("__opengroup__", assy, None)
             #bruce 050405 topgroup holds toplevel groups (or other items) as members; replaces old code's grouplist
@@ -467,7 +478,15 @@ class _readmmp_state:
         return
 
     def destroy(self):
-        self.assy = self.mol = self.ndix = self.groupstack = self.markers = None
+        self.assy = self.ndix = self.groupstack = self.markers = None
+        self.prevatom = None
+        self.prevcard = None
+        self.prevchunk = None
+        self.prevmotor = None
+        self.sim_input_badnesses_so_far = None
+        self._info_objects = None
+        self._registered_parser_objects = None
+        return
 
     def extract_toplevel_items(self):
         """
@@ -640,7 +659,8 @@ class _readmmp_state:
         name = self.get_name(card, "Mole")
         name = self.decode_name(name) #bruce 050618
         mol = molecule(self.assy,  name)
-        self.mol = mol # so its atoms, etc, can find it (might not be needed if they'd search for it) [bruce 050405 comment]
+        self.prevchunk = mol
+            # so its atoms, etc, can find it (might not be needed if they'd search for it) [bruce 050405 comment]
             # now that I removed _addMolecule, this is less often reset to None,
             # so we'd detect more errors if they did search for it [bruce 050405]
         disp = molpat.match(card)
@@ -660,12 +680,12 @@ class _readmmp_state:
         n = int(m.group(1))
         sym = PeriodicTable.getElement(int(m.group(2))).symbol
         xyz = A(map(float, [m.group(3),m.group(4),m.group(5)]))/1000.0
-        if self.mol is None:
+        if self.prevchunk is None:
             #bruce 050405 new feature for reading new bare sim-input mmp files
             self.guess_sim_input('missing_group_or_chunk')
-            self.mol = molecule(self.assy,  "sim chunk")
-            self.addmember(self.mol)
-        a = atom(sym, xyz, self.mol) # sets default atomtype for the element [behavior of that was revised by bruce 050707]
+            self.prevchunk = molecule(self.assy,  "sim chunk")
+            self.addmember(self.prevchunk)
+        a = atom(sym, xyz, self.prevchunk) # sets default atomtype for the element [behavior of that was revised by bruce 050707]
         a.unset_atomtype() # let it guess atomtype later from the bonds read from subsequent mmp records [bruce 050707]
         disp = atom2pat.match(card)
         if disp:
@@ -843,7 +863,6 @@ class _readmmp_state:
     # Read the MMP record for a POV-Ray Scene as:
     # povrayscene (name) width height output_type
 
-##    prevpovrayscene = None
     def _read_povrayscene(self, card):
         m = pvs_pat.match(card)
         name = m.group(1)
@@ -854,12 +873,10 @@ class _readmmp_state:
         params = width, height, output_type
         pvs = PovrayScene(self.assy, name, params)
         self.addmember(pvs)
-        # for interpreting "info povrayscene" records: [mark 060613]
-##        self.prevpovrayscene = pvs
+        # for interpreting "info povrayscene" records:
         self.set_info_object('povrayscene', pvs)
         return
     
-##    prevespimage = None
     def _read_espimage(self, card):
         """
         Read the MMP record for an ESP Image jig as:
@@ -882,8 +899,7 @@ class _readmmp_state:
         espImage.setProps(name, border_color, width, height, resolution, center, quat, trans, fill_color, show_bbox, win_offset, edge_offset)
         self.addmember(espImage)
 
-        # for interpreting "info espimage" records: [mark 060108]
-##        self.prevespimage = espImage
+        # for interpreting "info espimage" records:
         self.set_info_object('espimage', espImage)
         return
 
@@ -915,13 +931,11 @@ class _readmmp_state:
     _read_anchor = _read_ground #bruce 060228 (part of making anchor work when reading future mmp files, before prerelease snapshots)
 
     # Gamess jig [added by bruce 050701; similar code should be usable for other new jigs as well]
-##    prevgamess = None
     def _read_gamess(self, card):
         from jig_Gamess import Gamess
         constructor = Gamess
         jig = self.read_new_jig(card, constructor)
         # for interpreting "info gamess" records:
-##        self.prevgamess = jig
         self.set_info_object('gamess', jig)
         return
 
@@ -1163,16 +1177,13 @@ class _readmmp_state:
         
         # Find current chunk -- how we do this depends on details of
         # the other mmp-record readers in this big if/elif statement,
-        # and is likely to need changing sometime. It's self.mol.
+        # and is likely to need changing sometime. It's self.prevchunk.
         # Now make dict of all current items that info record might refer to.
         currents = dict(
-            chunk = self.mol,
+            chunk = self.prevchunk,
             opengroup = self.groupstack[-1], #bruce 050421
             leaf = ([None] + self.groupstack[-1].members)[-1], #bruce 050421
             atom = self.prevatom, #bruce 050511
-##            gamess = self.prevgamess, #bruce 050701 [now uses set_info_object]
-##            espimage = self.prevespimage, #mark 060108 [now uses set_info_object]
-##            povrayscene = self.prevpovrayscene #mark 060613 [now uses set_info_object]
         )
         currents.update( self._info_objects) #bruce 071017 
         interp = mmp_interp(self.ndix, self.markers) #e could optim by using the same object each time [like 'self']
