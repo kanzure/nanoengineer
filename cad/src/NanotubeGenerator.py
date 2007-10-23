@@ -2,29 +2,39 @@
 """
 NanotubeGenerator.py
 
-$Id$
+@author: Will
+@version: $Id$
+@copyright: Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 @see http://www.nanoengineer-1.net/mediawiki/index.php?title=Nanotube_generator_dialog
 for notes about what's going on here.
 """
 
-__author__ = "Will"
-
 from math import atan2, sin, cos, pi, asin
 from Numeric import dot
 
-import chem, bonds, Utility
-from VQT import vlen, cross, norm
-import env, platform, random
-from debug import Stopwatch, objectBrowse
-from Utility import Group
+from VQT import vlen, cross, norm, V
+import env
+import platform
+from debug import Stopwatch
+
 from chem import Atom
+
 from chunk import molecule
+
 from elements import PeriodicTable
-from bonds import bonded, bond_atoms, NeighborhoodGenerator
+
+import bonds
+from bonds import NeighborhoodGenerator
+
 from bond_constants import V_GRAPHITE, V_SINGLE
-from bonds_from_atoms import make_bonds
-from buckyball import BuckyBall
+##from bonds_from_atoms import make_bonds
+##from buckyball import BuckyBall
+
+from NanotubeGeneratorPropertyManager import NanotubeGeneratorPropertyManager
+from GeneratorBaseClass import GeneratorBaseClass
+from utilities.Log import orangemsg, greenmsg ##, redmsg
+
 
 sqrt3 = 3 ** 0.5
 
@@ -84,7 +94,7 @@ class Chirality:
     def populate(self, mol, length, bn_members = False):
 
         def add(element, x, y, z, atomtype='sp2'):
-            atm = Atom(element, chem.V(x, y, z), mol)
+            atm = Atom(element, V(x, y, z), mol)
             atm.set_atomtype_but_dont_revise_singlets(atomtype)
             return atm
 
@@ -162,10 +172,8 @@ class Chirality:
 ####################################################################
 # Endcaps
 
-from debug import linenum
-
 def addEndcap(mol, length, radius, bondlength):
-    sphere_center = chem.V(0, length / 2, 0)
+    sphere_center = V(0, length / 2, 0)
     def walk_great_circle(P, Q, D, R=radius):
         """Given two points P and Q on or near the surface of the
         sphere, use P and Q to define a great circle. Then walk along
@@ -256,7 +264,7 @@ def addEndcap(mol, length, radius, bondlength):
                         nudge = ((0.7 * bondlength - rlen) / rlen) * r
                         oldguy.setposn(oldguy.posn() + 0.5 * r)
                         newguy.setposn(newguy.posn() - 0.5 * r)
-                    bond_atoms(newguy, oldguy, V_GRAPHITE)
+                    bonds.bond_atoms(newguy, oldguy, V_GRAPHITE)
                     cleanupSinglets(newguy)
                     cleanupSinglets(oldguy)
             if len(newguy.realNeighbors()) > 3:
@@ -273,9 +281,9 @@ def addEndcap(mol, length, radius, bondlength):
             for i in range(2):
                 h = 1.0e-4
                 e0 = error(p)
-                gradient = chem.V((error(p + chem.V(h, 0, 0)) - e0) / h,
-                                  (error(p + chem.V(0, h, 0)) - e0) / h,
-                                  (error(p + chem.V(0, 0, h)) - e0) / h)
+                gradient = V((error(p + V(h, 0, 0)) - e0) / h,
+                             (error(p + V(0, h, 0)) - e0) / h,
+                             (error(p + V(0, 0, h)) - e0) / h)
                 p = p - (e0 / vlen(gradient)**2) * gradient
             newguy.setposn(p)
             # we may need to reposition singlets
@@ -288,19 +296,15 @@ def addEndcap(mol, length, radius, bondlength):
     def is_south(atm):
         return atm.posn()[1] < -length / 2 + 3.0
     # great circles now computed for the north end
-    sphere_center = chem.V(0, length / 2, 0)
+    sphere_center = V(0, length / 2, 0)
     addCarbons(is_north)
     # great circles now computed for the south end
-    sphere_center = chem.V(0, -length / 2, 0)
+    sphere_center = V(0, -length / 2, 0)
     addCarbons(is_south)
     env.history.message(orangemsg('Nanotube endcap generation is an inexact science. ' +
                                   'Manual touch-up will be required.'))
 
 #################################################################
-
-from NanotubeGeneratorPropertyManager import NanotubeGeneratorPropertyManager
-from GeneratorBaseClass import GeneratorBaseClass
-from utilities.Log import redmsg, orangemsg, greenmsg
 
 class NanotubeGenerator(NanotubeGeneratorPropertyManager, GeneratorBaseClass):
     """
@@ -389,12 +393,12 @@ class NanotubeGenerator(NanotubeGeneratorPropertyManager, GeneratorBaseClass):
             twistRadians = twist * z
             c, s = cos(twistRadians), sin(twistRadians)
             x, y = x * c + y * s, -x * s + y * c
-            atm.setposn(chem.V(x, y, z))
+            atm.setposn(V(x, y, z))
         for atm in atoms.values():
             # z distortion
             x, y, z = atm.posn()
             z *= (zdist + length) / length
-            atm.setposn(chem.V(x, y, z))
+            atm.setposn(V(x, y, z))
         length += zdist
         for atm in atoms.values():
             # xy distortion
@@ -402,7 +406,7 @@ class NanotubeGenerator(NanotubeGeneratorPropertyManager, GeneratorBaseClass):
             radius = self.chirality.R
             x *= (radius + 0.5 * xydist) / radius
             y *= (radius - 0.5 * xydist) / radius
-            atm.setposn(chem.V(x, y, z))
+            atm.setposn(V(x, y, z))
 
         # Judgement call: because we're discarding carbons with funky
         # valences, we will necessarily get slightly more ragged edges
@@ -427,7 +431,7 @@ class NanotubeGenerator(NanotubeGeneratorPropertyManager, GeneratorBaseClass):
                 x, y, z = atm.posn()
                 theta = z / R
                 x, z = R - (R - x) * cos(theta), (R - x) * sin(theta)
-                atm.setposn(chem.V(x, y, z))
+                atm.setposn(V(x, y, z))
 
         def trimCarbons():
             # trim all the carbons that only have one carbon neighbor
@@ -470,4 +474,7 @@ class NanotubeGenerator(NanotubeGeneratorPropertyManager, GeneratorBaseClass):
             self.build_struct(name, params, position, mol=mol, createPrinted=True)
 
         return mol
+    pass
+
+# end
 
