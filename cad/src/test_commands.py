@@ -93,7 +93,7 @@ _superclass = minimalCommand
 from debug import register_debug_menu_command
 
 # Removing this import removed 158 arcs and 37 nodes from the cyclic
-# dependency graph.
+# dependency graph. (Caveat: that was before it had the -justCycles option.)
 #from GLPane import GLPane # maybe only needed for an isinstance assertion
 
 # ==

@@ -49,7 +49,7 @@ def set_cylinder_height(val):
 from test_connectWithState_PM import test_connectWithState_PM
 
 
-# === command class
+# === GraphicsMode and Command classes
 
 from test_commands import ExampleCommand
 
@@ -78,7 +78,8 @@ from exprs.If_expr import If_expr
 from prefs_widgets import ObjAttr_StateRef
 
 class State_preMixin( IorE_guest_mixin): #e refile (alongside IorE_guest_mixin ? in its own file?), once cleaned up & bugfixed
-    """Use this as the *first* superclass (thus the _preMixin in the name)
+    """
+    Use this as the *first* superclass (thus the _preMixin in the name)
     in order to permit use of the State macro in the class assignments
     which set up instance variable defaults in a given class.
     The glpane must be passed as the first argument to __init__.
@@ -100,6 +101,46 @@ class State_preMixin( IorE_guest_mixin): #e refile (alongside IorE_guest_mixin ?
         print "returned from calling", super(State_preMixin, self).__init__
     pass
 
+
+class _test_connectWithState_GM(ExampleCommand.GraphicsMode_class):
+    """
+    Custom GraphicsMode for test_connectWithState.
+    """
+    
+    # bruce 071022 split this out, leaving all attrs in self.command
+    # [REVIEW -- do some attrs (and therefore some or all of the
+    #  exprs overhead) belong here? Guess: yes.]
+    
+    def Draw(self):
+
+        # TODO: also super draw, for model, axes, etc?
+        
+        color = self.command.cylinderColor
+        length = cylinder_height()
+##        if self.command.cylinderVertical:
+##            direction = DY
+##        else:
+##            direction = DX
+        direction = self.command.direction
+        end1 = ORIGIN - direction * length/2.0
+        end2 = ORIGIN + direction * length/2.0
+        radius = self.command.cylinderWidth / 2.0
+        capped = True
+        drawcylinder(color, end1, end2, radius, capped)
+
+        if cylinder_round_caps():
+            detailLevel = 2
+            drawsphere( color, end1, radius, detailLevel)
+            drawsphere( color, end2, radius, detailLevel)
+
+        if self.command.widthHandleEnabled:
+            self.command.widthHandle.draw()
+
+        super(_test_connectWithState_GM, self).Draw() # added this, bruce 071022
+        return
+    pass
+
+
 class test_connectWithState(State_preMixin, ExampleCommand):
 
     # class constants needed by mode API for example commands
@@ -118,6 +159,8 @@ class test_connectWithState(State_preMixin, ExampleCommand):
         # note: you can add _e_debug = True to one or more of these State definitions
         # to see debug prints about some accesses to this state.
 
+    GraphicsMode_class = _test_connectWithState_GM
+    
     # init methods
     
     def __init__(self, glpane):
@@ -177,32 +220,6 @@ class test_connectWithState(State_preMixin, ExampleCommand):
     ))
         # Note: the Instance is required; but I'm not sure if it would be
         # if we were using a fuller exprs superclass or init code. [bruce 070912]
-
-    def Draw(self):
-
-        # TODO: also super draw, for model, axes, etc?
-        
-        color = self.cylinderColor
-        length = cylinder_height()
-##        if self.cylinderVertical:
-##            direction = DY
-##        else:
-##            direction = DX
-        direction = self.direction
-        end1 = ORIGIN - direction * length/2.0
-        end2 = ORIGIN + direction * length/2.0
-        radius = self.cylinderWidth / 2.0
-        capped = True
-        drawcylinder(color, end1, end2, radius, capped)
-
-        if cylinder_round_caps():
-            detailLevel = 2
-            drawsphere( color, end1, radius, detailLevel)
-            drawsphere( color, end2, radius, detailLevel)
-
-        if self.widthHandleEnabled:
-            self.widthHandle.draw()
-        return
 
     def cmd_Bigger(self):
         self.cylinderWidth += 0.5
