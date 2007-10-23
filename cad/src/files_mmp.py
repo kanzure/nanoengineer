@@ -148,6 +148,7 @@ from Utility import Group
 from Utility import Csys
 
 from debug import print_compact_traceback
+from debug import print_compact_stack
 
 from constants import gensym
 from constants import dispNames
@@ -159,6 +160,27 @@ from bond_constants import V_GRAPHITE
 from bond_constants import V_CARBOMERIC
 
 from Plane import Plane
+
+# ==
+
+# KNOWN_INFO_KINDS lists the legal "kinds" of info encodable in info records.
+# (Note: an "info kind" is a way of finding which object the info is about;
+#  it's not related to the data type of the encoded info.)
+#
+# This is declared here, and checked in set_info_object,
+# to make sure that the known info kinds are centrally listed,
+# so that that aspect of the mmp format remains documented in this file.
+# [bruce 071023]
+
+KNOWN_INFO_KINDS = (
+    'chunk',
+    'opengroup',
+    'leaf',
+    'atom',
+    'gamess',
+    'espimage',
+    'povrayscene',
+ )
 
 # == patterns for reading mmp files
 
@@ -1158,6 +1180,10 @@ class _readmmp_state:
         return
 
     def set_info_object(self, kind, model_component): #bruce 071017
+        if kind not in KNOWN_INFO_KINDS:
+            # for motivation, see comment next to definition of KNOWN_INFO_KINDS
+            # [bruce 071023]
+            print_compact_stack( "warning: unrecognized info kind, %r: " % (kind,) )
         self._info_objects[kind] = model_component
         return
     
