@@ -1150,8 +1150,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                     else:
                         # we're attached to the chain but not in it.
                         # REVIEW: return DIRBOND_ERROR in some cases??
-                        msg =  "error? %r has one directional bond %r " \
-                            "by which it's attached to but not in a " \
+                        msg =  "warning: %r has one directional bond (%r) " \
+                            "by which it's attached to (but not in) a " \
                             "directional bond chain containing %r and %r" % \
                             (self, bond, bond1, bond2)
                         print msg
@@ -1171,7 +1171,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                     if bond is bond1:
                         return DIRBOND_CHAIN_END, bond, None
                     else:
-                        msg = "error? %r has one directional bond %r " \
+                        msg = "warning: %r has one directional bond (%r) " \
                             "by which it's attached to (but not in) the end of a " \
                             "directional bond chain containing %r" % \
                             (self, bond, bond1)
