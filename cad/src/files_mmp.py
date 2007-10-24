@@ -408,6 +408,11 @@ def register_MMP_RecordParser(recordname, recordParser):
     subclasses of class MMP_RecordParser, whose docstring describes the
     interface they must satisfy to be registered here.
     """
+    if recordname not in _RECORDNAMES_THAT_MUST_BE_REGISTERED:
+        # probably too early for a history warning, for now
+        print "\n*** Warning: a developer forgot to add %r "\
+              "to _RECORDNAMES_THAT_MUST_BE_REGISTERED" % (recordname,)
+        assert type(recordname) is type("")
     _The_MMP_Grammar.register_MMP_RecordParser( recordname, recordParser)
     return
 
@@ -996,6 +1001,7 @@ class _readmmp_state:
     def read_new_jig(self, card, constructor): #bruce 050701
         """
         Helper method to read any sort of sufficiently new jig from an mmp file
+        and add it to self.assy using self.addmember.
         
         Args are:
         card - the mmp file line.
