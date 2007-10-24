@@ -1,9 +1,14 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-$Id$
+DnaGeneratorPropertyManager.py
+
+WARNING: this file has been mostly superseded by DnaDuplexPropertyManager.py.
 
 @author: Will Ware
-@copyright: Copyright (c) 2007 Nanorex, Inc.  All rights reserved.
+@version: $Id$
+@copyright: Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+
+History:
 
 Ninad (Nov2006 and later): Ported it to Property manager 
 with further enhancements
@@ -25,6 +30,10 @@ Jeff 2007-06-19:
 Mark 2007-08-07: 
 - Now uses new PM module. Also renamed DnaPropertyManager to 
 DnaGeneratorPropertyManager.
+
+Mark 2007-10-18: 
+- Major rewrite of this module, superseding it --
+  DnaDuplexPropertyManager.py.
 """
 
 # To do:
@@ -43,8 +52,6 @@ from Dna_Constants import getReverseSequence
 from Dna_Constants import replaceUnrecognized
 
 from utilities.Log import redmsg, greenmsg, orangemsg
-
-from icon_utilities import geticon, getpixmap
 
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QRegExp

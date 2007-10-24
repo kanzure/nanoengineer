@@ -2,10 +2,9 @@
 """
 DnaDuplexPropertyManager.py
 
-$Id:$
-
 @author: Mark Sims
-@copyright: Copyright (c) 2007 Nanorex, Inc.  All rights reserved.
+@version: $Id$
+@copyright: Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 Mark 2007-10-18: 
 - Created. Major rewrite of DnaGeneratorPropertyManager.py.
@@ -16,13 +15,12 @@ __author__ = "Mark"
 import env
 
 from Dna_Constants import getDuplexRise, getDuplexLength
-from Dna_Constants import getComplementSequence
-from Dna_Constants import getReverseSequence
-from Dna_Constants import replaceUnrecognized
+##from Dna_Constants import getComplementSequence
+##from Dna_Constants import getReverseSequence
+##from Dna_Constants import replaceUnrecognized
 
-from utilities.Log import redmsg, greenmsg, orangemsg
+from utilities.Log import redmsg ##, greenmsg, orangemsg
 
-from icon_utilities import geticon, getpixmap
 
 from PyQt4.Qt import SIGNAL
 

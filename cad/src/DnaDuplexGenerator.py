@@ -2,10 +2,9 @@
 """
 DnaDuplexGenerator.py
 
-$Id:$
-
 @author: Mark Sims
-@copyright: Copyright (c) 2007 Nanorex, Inc.  All rights reserved.
+@version: $Id$
+@copyright: Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 

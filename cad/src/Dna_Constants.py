@@ -1,8 +1,14 @@
 # Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
-Dna_constants.py -- constants for Dna.
+"""
+Dna_Constants.py -- constants for Dna.
 
-$Id: $
+Note: these are used both by the newer DnaDuplex.py,
+and the older Dna.py which it supersedes (and their
+associated files).
+
+@author: Mark Sims
+@version: $Id$
+@copyright: Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 
 @see: References:
       - U{The Standard IUB codes used in NanoEngineer-1
@@ -13,7 +19,7 @@ $Id: $
 History:
 
 2007-08-19 - Started out as part of Dna.py.
-'''
+"""
 __author__ = 'mark'
 
 basesDict = { 'A':{'Name':'Adenine',  'Complement':'T', 'Color':'darkorange' },

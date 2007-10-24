@@ -1,20 +1,20 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-DNA model classes based on empirical data.
+Dna.py -- DNA model classes based on empirical data.
+
+WARNING: this file has been mostly superseded by DnaDuplex.py.
 
 @author: Will Ware
-@version:
-@copyright: Copyright (c) 2007 Nanorex, Inc.  All rights reserved.
-
-DNA.py
-
-$Id$
+@version: $Id$
+@copyright: Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
+
 Jeff 2007-06-13 (created)
   - Transfered class Dna, A_Dna, A_Dna_PAM5, B_Dna, B_Dna_PAM5, 
     Z_Dna abd Z_Dna_PAM5 from Will Ware's DNAGenerator.py.
   - Added accessor methods getBaseRise/setBaseRise
+  
 Mark 2007-08-17:
   - make() creates a duplex structure only (no single strands).
   - Created standard directory structure for DNA MMP files.
@@ -23,6 +23,11 @@ Mark 2007-08-17:
   - Moved Dna constants to Dna_Constants.py. 
   - Changed default base to "X" (unassigned) from "N" (aNy base).
   - Implemented Standard IUB Codes (see Dna_Constants.py)
+
+Mark 2007-10-18: 
+- Major rewrite of this module, superseding it --
+  DnaDuplex.py.
+
 """
 
 # To do:
@@ -34,20 +39,16 @@ import env
 import os
 import re
 
-from math    import atan2, sin, cos, pi
-from Numeric import dot
+from math    import sin, cos, pi
 
 from debug import print_compact_traceback
 
 from PlatformDependent  import find_plugin_dir
 from files_mmp          import readmmp
 from VQT                import V
-from chem               import Atom
-from bonds              import inferBonds, bond_atoms
 from fusechunksMode     import fusechunksBase
 from utilities.Log import orangemsg
 from GeneratorBaseClass import PluginBug
-from Utility            import Group
 
 from Dna_Constants import basesDict, dnaDict
 

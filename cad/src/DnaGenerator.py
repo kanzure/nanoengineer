@@ -2,17 +2,23 @@
 """
 DnaGenerator.py
 
-$Id$
+WARNING: this file has been mostly superseded by DnaDuplexGenerator.py.
 
 @author: Will Ware
-@copyright: Copyright (c) 2007 Nanorex, Inc.  All rights reserved.
+@version: $Id$
+@copyright: Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
 Jeff 2007-06-13:
 - Moved Dna class (and subclasses) to file Dna.py.
+
 Mark 2007-08-23:
 - Heavily restructured and cleaned up.
+
+Mark 2007-10-18: 
+- Major rewrite of this module, superseding it --
+  DnaDuplexGenerator.py.
 """
 
 # To do:
@@ -22,24 +28,20 @@ Mark 2007-08-23:
 __author__ = "Will"
 
 import env
-import os
 import random
 
 from constants import darkred, blue, lightgray
 
 from Utility        import Group
-from utilities.Log import redmsg, orangemsg, greenmsg
-from VQT            import A, Q, V, angleBetween, cross, vlen, Veq
-from Numeric        import dot
+from utilities.Log import redmsg, greenmsg ##, orangemsg
+from VQT            import Q, V, angleBetween, cross, vlen, Veq
 from math           import pi
-from bonds          import inferBonds, bond_atoms
 from chunk          import molecule
 from constants      import gensym    
-from fusechunksMode import fusechunksBase
 
 from Dna_Constants  import basesDict, getReverseSequence
 from Dna            import B_Dna_PAM3, B_Dna_PAM5
-from Dna            import basepath, basepath_ok
+from Dna            import basepath_ok
 
 from GeneratorBaseClass import GeneratorBaseClass, CadBug, PluginBug, UserError
 from DnaGeneratorPropertyManager import DnaGeneratorPropertyManager

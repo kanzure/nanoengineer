@@ -3,14 +3,12 @@
 DnaDuplex.py -- DNA duplex model classes based on empirical data.
 
 @author: Mark Sims
-@version:
-@copyright: Copyright (c) 2007 Nanorex, Inc.  All rights reserved.
-
-$Id$
+@version: $Id$
+@copyright: Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
-Mark 2007-08-18:
+Mark 2007-10-18:
 - Created. Major rewrite of Dna.py.
 """
 
@@ -20,8 +18,7 @@ import env
 import os
 import random
 
-from math    import atan2, sin, cos, pi
-from Numeric import dot
+from math    import sin, cos, pi
 
 from debug import print_compact_traceback
 
@@ -31,11 +28,9 @@ from VQT                import Q, V, angleBetween, cross, vlen
 from fusechunksMode     import fusechunksBase
 from utilities.Log      import orangemsg
 from GeneratorBaseClass import PluginBug
-from Utility            import Group
-from chunk              import molecule
 from constants          import gensym, strandColorList, lightgray, diBALL
 
-from elements import PeriodicTable, Singlet
+from elements import PeriodicTable
 Element_Ae3 = PeriodicTable.getElement('Ae3')
 
 from Dna_Constants import basesDict, dnaDict
