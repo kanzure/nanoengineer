@@ -17,7 +17,7 @@ from utilities.Log import redmsg, greenmsg
 import env
 from utilities.Log import redmsg
 from chem import move_alist_and_snuggle
-import state_utils #bruce 060306
+import state_utils
 from debug import print_compact_traceback
 
 from GamessJob import GamessJob
@@ -48,6 +48,10 @@ from GamessProp import ui
 import platform
 
 from constants import magenta
+
+from files_mmp import MMP_RecordParser
+from files_mmp import register_MMP_RecordParser
+from files_mmp import mmp_interp_just_for_decode_methods # for a kluge
 
 # == GAMESS
 
@@ -561,6 +565,8 @@ class Gamess(Jig):
     
     pass # end of class Gamess
 
+# ==
+
 class gamessParms(state_utils.DataMixin): #bruce 060306 added superclass
     def __init__(self, name):
         """
@@ -635,7 +641,6 @@ class gamessParms(state_utils.DataMixin): #bruce 060306 added superclass
         else:
             newname = self.name
         new = self.__class__(newname)
-        from files_mmp import mmp_interp_just_for_decode_methods
         interp = mmp_interp_just_for_decode_methods() #kluge
         for name, valstring in self.param_names_and_valstrings():
             valstring = "%s" % (valstring,)
@@ -832,6 +837,8 @@ class gamessParms(state_utils.DataMixin): #bruce 060306 added superclass
 
     pass # end of class gamessParms
 
+# ==
+
 _boolparms = {} # used in ctlRec [bruce 060308]
 for p in gamessParms.boolparms:
     _boolparms[p] = None
@@ -887,5 +894,31 @@ class ctlRec:
         return items
         
     pass # end of class ctlRec
+
+# ==
+
+class _MMP_RecordParser_for_Gamess( MMP_RecordParser): #bruce 071023
+    """
+    Read the first line of the MMP record for a Gamess Jig.
+    (Subsequent lines are "info records" which are
+    read separately and interpreted by methods in the new
+    Gamess object created by our read_record method.)
+    """
+    def read_record(self, card): #bruce 050701
+        constructor = Gamess
+        jig = self.read_new_jig(card, constructor)
+            # note: this includes a call of self.addmember
+            # to add the new jig into the model
+        # for interpreting "info gamess" records:
+        self.set_info_object('gamess', jig)
+        return
+    pass
+
+def register_MMP_RecordParser_for_Gamess():
+    """
+    [call this during init, before reading any mmp files]
+    """
+    register_MMP_RecordParser( 'gamess', _MMP_RecordParser_for_Gamess )
+    return
 
 # end

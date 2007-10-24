@@ -323,6 +323,7 @@ class MMP_RecordParser(object): #bruce 071018
         self.recordname = recordname
         self.assy = readmmp_state.assy
         return
+    
     def get_name(self, card, default):
         """
         [see docstring of same method in class _readmmp_state]
@@ -344,6 +345,13 @@ class MMP_RecordParser(object): #bruce 071018
         """
         self.readmmp_state.set_info_object(kind, model_component)
         return
+    def read_new_jig(self, card, constructor):
+        """
+        [see docstring of same method in class _readmmp_state]
+        """
+        self.readmmp_state.read_new_jig(card, constructor)
+        return
+    
     def read_record(self, card):
         msg = "subclass %r for recordname %r must implement method read_record" % \
                (self.__class__, self.recordname)
@@ -411,7 +419,7 @@ def register_MMP_RecordParser(recordname, recordParser):
 # We do this directly on import, to be sure it's not done after the real ones
 # are registered, and since doing so should not cause any trouble.
 
-_RECORDNAMES_THAT_MUST_BE_REGISTERED = ['comment']
+_RECORDNAMES_THAT_MUST_BE_REGISTERED = ['comment', 'gamess']
     ### TODO: extend this list as more parsers are moved out of this file
 
 for recordname in _RECORDNAMES_THAT_MUST_BE_REGISTERED:
@@ -930,15 +938,6 @@ class _readmmp_state:
 
     _read_anchor = _read_ground #bruce 060228 (part of making anchor work when reading future mmp files, before prerelease snapshots)
 
-    # Gamess jig [added by bruce 050701; similar code should be usable for other new jigs as well]
-    def _read_gamess(self, card):
-        from jig_Gamess import Gamess
-        constructor = Gamess
-        jig = self.read_new_jig(card, constructor)
-        # for interpreting "info gamess" records:
-        self.set_info_object('gamess', jig)
-        return
-
     # Read the MMP record for a MeasureDistance, wware 051103
     # mdistance (name) (r, g, b) (font_name) font_size a1 a2
     # no longer modeled on motor, wware 051103
@@ -996,7 +995,7 @@ class _readmmp_state:
 
     def read_new_jig(self, card, constructor): #bruce 050701
         """
-        Helper method to read any sort of sufficiently new jig from an mmp file.
+        Helper method to read any sort of sufficiently new jig from an mmp file
         
         Args are:
         card - the mmp file line.
